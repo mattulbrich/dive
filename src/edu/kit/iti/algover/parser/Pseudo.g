@@ -43,6 +43,19 @@ ALL: '\\all';
 EX: '\\ex';
 
 ASSIGN: ':=';
+OR: '||';
+AND: '&&';
+IMPLIES: '==>';
+PLUS: '+';
+MINUS: '-';
+TIMES: '*';
+UNION: '++';
+INTERSECT: '**';
+LT: '<';
+LE: '<=';
+GT: '>';
+GE: '>=';
+EQ: '=';
 
 ID : 'a' .. 'z'+;
 LIT : '0' ..'9'+;

@@ -35,4 +35,8 @@ public class PathCondition {
         return expression;
     }
 
+    public PseudoTree getInstantiatedExpression() {
+        return state.instantiate(expression);
+    }
+
 }

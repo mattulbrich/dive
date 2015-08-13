@@ -1,5 +1,8 @@
 package edu.kit.iti.algover;
 
+import java.io.FileInputStream;
+import java.io.InputStream;
+
 import org.antlr.runtime.ANTLRInputStream;
 import org.antlr.runtime.CommonTokenStream;
 
@@ -7,13 +10,13 @@ import edu.kit.iti.algover.parser.PseudoLexer;
 import edu.kit.iti.algover.parser.PseudoParser;
 import edu.kit.iti.algover.parser.PseudoParser.program_return;
 import edu.kit.iti.algover.parser.PseudoTree;
+import edu.kit.iti.algover.smt.Z3Solver;
 
 import java.io.*;
 
 public class Main {
-    private static void test(FileInputStream stream) throws Exception {
-        // create the lexer attached to stdin
-//        ANTLRInputStream input = new ANTLRInputStream(System.in);
+    private static void test(InputStream stream) throws Exception {
+        // create the lexer attached to stream
         ANTLRInputStream input = new ANTLRInputStream(stream);
 
         PseudoLexer lexer = new PseudoLexer(input);
@@ -32,7 +35,7 @@ public class Main {
         symbex.symbolicExecution(t);
 
         for (SymbexState res : symbex.getResults()) {
-            System.out.println("-----");
+            System.out.println("------------");
             for (PathCondition pc : res.getPathConditions()) {
                 System.out.println("Path condition - " + pc.getType());
                 System.out.println("    " + pc.getExpression().toStringTree());
@@ -56,9 +59,13 @@ public class Main {
             for (PseudoTree po : res.getProofObligations()) {
                 System.out.println("    " + res.getMap().instantiate(po).toStringTree());
             }
+
+            Z3Solver z3 = new Z3Solver();
+            System.out.println(z3.createSMTInputput(res));
         }
 
     }
+
     public static void readFile(File file) {
         try {
             FileInputStream inputStream = new FileInputStream(file);
@@ -71,7 +78,11 @@ public class Main {
         }
     }
 
- /*       public static void main(String[] args) throws Exception {
-        test();
-    }*/
+    public static void main(String[] args) throws Exception {
+        if(args.length == 0) {
+            test(System.in);
+        } else {
+            test(new FileInputStream(args[0]));
+        }
+    }
 }
