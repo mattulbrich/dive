@@ -1,0 +1,3 @@
+#!/bin/sh
+
+java -cp ../antlr.jar:. edu.kit.iti.algover.Main < "$@"
