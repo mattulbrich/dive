@@ -15,9 +15,11 @@ public class PathCondition {
 
     private VariableMap state;
     private PseudoTree expression;
+    private PseudoTree refersTo;
     private AssumptionType type;
 
-    public PathCondition(PseudoTree expression, AssumptionType type, VariableMap state) {
+    public PathCondition(PseudoTree expression, PseudoTree refersTo, AssumptionType type, VariableMap state) {
+        this.refersTo = refersTo;
         this.expression = expression;
         this.type = type;
         this.state = state;

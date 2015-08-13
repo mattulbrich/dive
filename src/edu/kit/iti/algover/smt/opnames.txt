@@ -1,0 +1,6 @@
+++ = set_union
+** = set_intersection
+ARRAY_ACCESS = select
+\=\=> = implies
+&& = and
+|| = or
