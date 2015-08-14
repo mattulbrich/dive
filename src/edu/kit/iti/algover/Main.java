@@ -71,11 +71,13 @@ public class Main {
             FileInputStream inputStream = new FileInputStream(file);
             test(inputStream);
 
+
         } catch (FileNotFoundException e) {
             System.out.println("Could not read file " + file.getAbsolutePath());
         } catch (Exception e) {
             System.out.println("Could not load problem");
         }
+
     }
 
     public static void main(String[] args) throws Exception {

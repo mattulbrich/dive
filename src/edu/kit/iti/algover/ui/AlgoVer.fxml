@@ -48,7 +48,7 @@
         </Menu>
       </menus>
     </MenuBar>
-    <SplitPane dividerPositions="0.26280623608017817" focusTraversable="true" prefHeight="-1.0" prefWidth="-1.0" VBox.vgrow="ALWAYS">
+    <SplitPane dividerPositions="0.5" focusTraversable="true" prefHeight="-1.0" prefWidth="-1.0" VBox.vgrow="ALWAYS">
       <items>
         <AnchorPane>
           <children>
@@ -60,27 +60,11 @@
                 <Color blue="0.624" green="0.624" red="0.624" fx:id="x2" />
               </textFill>
             </Label>
-                  <SplitPane layoutY="-4.0" orientation="VERTICAL" prefHeight="549.0" prefWidth="232.0">
+                  <SplitPane dividerPositions="0.5" layoutY="-4.0" orientation="VERTICAL" prefHeight="549.0" prefWidth="232.0">
                     <items>
                       <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="547.0" prefWidth="178.0">
                            <children>
-                              <TabPane layoutX="-1.0" layoutY="2.0" prefHeight="547.0" prefWidth="230.0" tabClosingPolicy="UNAVAILABLE">
-                                <tabs>
-                                  <Tab text="POs">
-                                    <content>
-                                      <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
-                                             <children>
-                                                <ListView fx:id="poListView" onMouseClicked="#handleListSelectAction" prefHeight="513.0" prefWidth="230.0" />
-                                             </children></AnchorPane>
-                                    </content>
-                                  </Tab>
-                                  <Tab text="Settings">
-                                    <content>
-                                      <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0" />
-                                    </content>
-                                  </Tab>
-                                </tabs>
-                              </TabPane>
+                              <TextArea id="sourceView" fx:id="srcPane" layoutX="5.0" layoutY="-4.0" prefHeight="551.0" prefWidth="220.0" promptText="Program" />
                            </children>
                         </AnchorPane>
                     </items>
@@ -98,16 +82,11 @@
                                 <items>
                                   <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="100.0" prefWidth="160.0">
                                        <children>
-                                          <SplitPane dividerPositions="0.38650306748466257" layoutX="-3.0" layoutY="-2.0" prefHeight="268.0" prefWidth="654.0">
+                                          <SplitPane layoutX="-3.0" layoutY="-2.0" prefHeight="268.0" prefWidth="654.0">
                                             <items>
-                                              <AnchorPane id="ProgramView" minHeight="0.0" minWidth="0.0" prefHeight="160.0" prefWidth="100.0">
-                                                   <children>
-                                                      <TextArea id="SourceView" fx:id="srcPane" layoutX="-5.0" layoutY="-8.0" prefHeight="276.0" prefWidth="256.0" promptText="Program" />
-                                                   </children>
-                                                </AnchorPane>
                                               <AnchorPane id="POView" minHeight="0.0" minWidth="0.0" prefHeight="266.0" prefWidth="362.0">
                                                    <children>
-                                                      <SplitPane dividerPositions="0.5" layoutX="4.0" layoutY="3.0" orientation="VERTICAL" prefHeight="260.0" prefWidth="454.0">
+                                                      <SplitPane dividerPositions="0.5" layoutX="196.0" layoutY="4.0" orientation="VERTICAL" prefHeight="260.0" prefWidth="454.0">
                                                         <items>
                                                           <AnchorPane id="Antec" fx:id="antecPane" minHeight="0.0" minWidth="0.0" prefHeight="125.0" prefWidth="351.0" />
                                                           <AnchorPane id="Succ" fx:id="succPane" minHeight="0.0" minWidth="0.0" prefHeight="100.0" prefWidth="160.0" />
@@ -121,7 +100,7 @@
                                     </AnchorPane>
                                   <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="151.0" prefWidth="654.0">
                                        <children>
-                                          <TextArea id="Script" fx:id="scriptPane" prefHeight="269.0" prefWidth="654.0" promptText="Proof Script:" />
+                                          <TextArea id="Script" fx:id="scriptPane" layoutX="194.0" prefHeight="269.0" prefWidth="460.0" promptText="Proof Script:" />
                                           <Button layoutX="543.0" layoutY="229.0" mnemonicParsing="false" text="Apply Script" />
                                        </children>
                                     </AnchorPane>

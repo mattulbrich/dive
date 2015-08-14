@@ -9,18 +9,16 @@ import javafx.scene.Group;
 import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.scene.control.Button;
-import javafx.scene.control.Label;
-import javafx.scene.control.Menu;
-import javafx.scene.control.MenuItem;
+import javafx.scene.control.*;
 import javafx.scene.text.Text;
 import javafx.stage.FileChooser;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 
+
 import java.awt.peer.SystemTrayPeer;
-import java.io.File;
+import java.io.*;
 
 /**
  * Created by sarah on 8/12/15.
@@ -29,14 +27,15 @@ public class AlgoVerifGuiController {
 
     //protected Parent root;
 
-
-
+    @FXML
+    private TextArea srcPane;
     @FXML
     protected Menu fileMenu;
     @FXML
     protected MenuItem guitItem;
     @FXML
     protected MenuItem openItem;
+
 
     private Stage stage;
 
@@ -54,6 +53,36 @@ public class AlgoVerifGuiController {
        // fileChooser.getExtensionFilters().add(extFilter);
         File file = fileChooser.showOpenDialog(stage);
         Main.readFile(file);
+        String text= "";
+        String textline="";
+        int line= 1;
+        BufferedReader br = readFile(file);
+
+        if(br != null) {
+
+            while (textline != null) {
+                try {
+                    textline=  br.readLine();
+                    text += line + ": " + textline + "\n";
+                    line++;
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+
+            }
+            try {
+                br.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            srcPane.setText(text);
+
+
+
+        }else {
+            srcPane.setText("File not read");
+            // Main.readFile(file);
+        }
 
     }
     @FXML
@@ -63,5 +92,17 @@ public class AlgoVerifGuiController {
     public void setStage(Stage stage){
         this.stage = stage;
     }
+    public static BufferedReader readFile(File file) {
+        try {
+            BufferedReader br = new BufferedReader(new FileReader(file));
+            return br;
 
+
+        } catch (FileNotFoundException e) {
+            System.out.println("Could not read file " + file.getAbsolutePath());
+        } catch (Exception e) {
+            System.out.println("Could not load problem");
+        }return null;
+
+    }
 }

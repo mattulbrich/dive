@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.lang.*?>
+<?import java.util.*?>
+<?import javafx.scene.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.geometry.*?>
+<?import org.controlsfx.control.*?>
+
+
+<StackPane xmlns:fx="http://javafx.com/fxml/1" prefHeight="768" prefWidth="1024" fx:controller="edu.kit.iti.algover.ui.FluidController">
+  <children>
+    <HiddenSidesPane fx:id="pane">
+      <content>
+        <Label alignment="CENTER"  style="-fx-background-color: white; -fx-border-color: black;" maxHeight="768" maxWidth="1024"  text="Content Node" />
+      </content>
+      <top>
+        <Label fx:id="pinLabel"  style="-fx-background-color: rgba(0,255,0,.25);"  text="(Click to pin / unpin)" alignment="CENTER" prefHeight="100.0" prefWidth="50.0"  onMouseClicked="#handleMouseClicked"  />
+      </top>
+    </HiddenSidesPane>
+  </children>
+</StackPane>

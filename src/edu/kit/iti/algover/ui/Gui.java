@@ -18,21 +18,35 @@ public class Gui extends Application {
 
     @Override
     public void start(Stage primaryStage) {
+        Parent root = null;
         try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("AlgoVer.fxml"));
-            Parent root = (Parent)loader.load();
+            root = FXMLLoader.load(getClass().getResource("Fluid.fxml"));
 
-            //Parent root = FXMLLoader.load(getClass().getResource("AlgoVer.fxml"));
+        Scene scene = new Scene(root);
 
-            Scene scene = new Scene(root, 900, 600);
-            ((AlgoVerifGuiController) loader.getController()).setStage(primaryStage);
-            primaryStage.setTitle("Welcome");
-            primaryStage.setScene(scene);
-            primaryStage.show();
+        primaryStage.setScene(scene);
+        primaryStage.show();
 
         } catch (IOException e) {
-            System.out.println("Cannot load GUI FXML");
-
+            e.printStackTrace();
         }
+
     }
+//        try {
+//            FXMLLoader loader = new FXMLLoader(getClass().getResource("AlgoVer.fxml"));
+//            Parent root = (Parent)loader.load();
+//
+//            //Parent root = FXMLLoader.load(getClass().getResource("AlgoVer.fxml"));
+//
+//            Scene scene = new Scene(root, 900, 600);
+//            ((AlgoVerifGuiController) loader.getController()).setStage(primaryStage);
+//            primaryStage.setTitle("Welcome");
+//            primaryStage.setScene(scene);
+//            primaryStage.show();
+//
+//        } catch (IOException e) {
+//            System.out.println("Cannot load GUI FXML");
+//
+//        }
+//    }
 }
