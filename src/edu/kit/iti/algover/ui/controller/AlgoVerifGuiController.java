@@ -1,4 +1,4 @@
-package edu.kit.iti.algover.ui;
+package edu.kit.iti.algover.ui.controller;
 
 import edu.kit.iti.algover.Main;
 import javafx.event.ActionEvent;
