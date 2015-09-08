@@ -6,7 +6,7 @@ import edu.kit.iti.algover.parser.PseudoTree;
 public class PathCondition {
 
     public enum AssertionType {
-        CALL_PRE, ASSERT, POST, ASSERTED_INVARIANT;
+        CALL_PRE, ASSERT, POST, INVARIANT_PRESERVED, INVARIANT_INITIALLY_VALID;
     }
 
     public enum AssumptionType {

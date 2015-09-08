@@ -31,20 +31,20 @@ public class Symbex {
         while(!stack.isEmpty()) {
             SymbexState state = stack.removeFirst();
 
-            assert state.getProgram().getType() == PseudoParser.BLOCK;
+            assert state.getBlockToExecute().getType() == PseudoParser.BLOCK;
 
-            if(state.getProgram().getChildCount() == 0) {
+            if(state.getBlockToExecute().getChildCount() == 0) {
                 results.add(state);
             } else {
 
-                PseudoTree stm = state.getProgram().getChild(0);
-                PseudoTree remainder = makeRemainderTree(state.getProgram());
+                PseudoTree stm = state.getBlockToExecute().getChild(0);
+                PseudoTree remainder = makeRemainderTree(state.getBlockToExecute());
 
                 switch(stm.getType()) {
                 case PseudoParser.ASSIGN:
                     VariableMap newMap = state.getMap().assign(stm.getChild(0).toString(), stm.getChild(1));
                     state.setMap(newMap);
-                    state.setProgram(remainder);
+                    state.setBlockToExecute(remainder);
                     stack.push(state);
                     break;
 
@@ -55,8 +55,8 @@ public class Symbex {
 
                     // 1. initially valid.
                     SymbexState invState = new SymbexState(state);
-                    invState.setProgram(EMPTY_PROGRAM);
-                    invState.setProofObligations(invariants, AssertionType.ASSERTED_INVARIANT);
+                    invState.setBlockToExecute(EMPTY_PROGRAM);
+                    invState.setProofObligations(invariants, AssertionType.INVARIANT_INITIALLY_VALID);
                     results.add(invState);
 
                     // 2. preserves invariant:
@@ -65,24 +65,28 @@ public class Symbex {
                     preserveState.setMap(anonymise(preserveState.getMap(), body));
                     for (PseudoTree inv : invariants) {
                         PathCondition pc = new PathCondition(inv.getLastChild(), inv,
-                                AssumptionType.ASSUMED_INVARIANT, state.getMap());
+                                AssumptionType.ASSUMED_INVARIANT, preserveState.getMap());
                         preserveState.addPathCondition(pc);
                     }
                     preserveState.addPathCondition(new PathCondition(guard, stm,
                             AssumptionType.WHILE_TRUE, state.getMap()));
-                    preserveState.setProgram(stm.getLastChild());
+                    preserveState.setBlockToExecute(stm.getLastChild());
                     // 2b. show invariants:
                     preserveState.setProofObligations(
                             invariants,
-                            AssertionType.ASSERTED_INVARIANT);
+                            AssertionType.INVARIANT_PRESERVED);
                     stack.add(preserveState);
 
                     // 3. use case:
-                    state.setMap(anonymise(preserveState.getMap(), body));
+                    state.setMap(anonymise(state.getMap(), body));
+                    for (PseudoTree inv : invariants) {
+                        PathCondition pc = new PathCondition(inv.getLastChild(), inv,
+                                AssumptionType.ASSUMED_INVARIANT, state.getMap());
+                        state.addPathCondition(pc);
+                    }
                     state.addPathCondition(new PathCondition(neg(guard), stm,
                             AssumptionType.WHILE_FALSE, state.getMap()));
-                    state.setProgram(remainder);
-                    state.setProofObligations(invariants, AssertionType.ASSERTED_INVARIANT);
+                    state.setBlockToExecute(remainder);
                     results.add(state);
                     break;
 
@@ -92,18 +96,28 @@ public class Symbex {
                     SymbexState stateElse = new SymbexState(state);
                     state.addPathCondition(new PathCondition(cond, stm,
                             AssumptionType.IF_THEN, state.getMap()));
-                    state.setProgram(append(then, remainder));
+                    state.setBlockToExecute(append(then, remainder));
                     stack.push(state);
                     if(stm.getChildCount() == 3) {
                         stateElse.addPathCondition(new PathCondition(neg(cond), stm,
                                 AssumptionType.IF_ELSE, state.getMap()));
                         PseudoTree _else = stm.getChild(2);
-                        stateElse.setProgram(append(_else, remainder));
+                        stateElse.setBlockToExecute(append(_else, remainder));
                         stack.push(stateElse);
                     }
                     break;
 
+                case PseudoParser.ASSERT:
+                    SymbexState assertedState = new SymbexState(state);
+                    assertedState.setBlockToExecute(EMPTY_PROGRAM);
+                    assertedState.setProofObligations(stm, AssertionType.ASSERT);
+                    results.add(assertedState);
+                    state.setBlockToExecute(remainder);
+                    stack.add(state);
+                    break;
+
                 case PseudoParser.CALL:
+                default:
                     throw new UnsupportedOperationException();
                 }
             }
@@ -168,6 +182,7 @@ public class Symbex {
 
         return result;
     }
+
     private PseudoTree makeRemainderTree(PseudoTree block) {
 
         PseudoTree result= new PseudoTree(new CommonToken(PseudoParser.BLOCK));
@@ -179,14 +194,14 @@ public class Symbex {
     }
 
     private SymbexState makeFromPreconditions(PseudoTree function) {
-        SymbexState result = new SymbexState();
+        SymbexState result = new SymbexState(function);
 
         for(PseudoTree req : function.getChildrenWithType(PseudoParser.REQUIRES)) {
             result.addPathCondition(new PathCondition(req.getLastChild(), req,
                     PathCondition.AssumptionType.PRE, result.getMap()));
         }
 
-        result.setProgram(function.getLastChild());
+        result.setBlockToExecute(function.getLastChild());
         result.setProofObligations(function.getChildrenWithType(PseudoParser.ENSURES), AssertionType.POST);
 
         return result;

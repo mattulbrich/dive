@@ -11,11 +11,13 @@ public class SymbexState {
     private ImmutableList<PseudoTree> proofObligations;
     private AssertionType proofObligationType;
     private VariableMap currentMap;
-    private PseudoTree program;
+    private PseudoTree blockToExecute;
+    private final PseudoTree function;
 
-    public SymbexState() {
-        pathConditions = ImmutableList.nil();
-        currentMap = VariableMap.EMPTY;
+    public SymbexState(PseudoTree function) {
+        this.pathConditions = ImmutableList.nil();
+        this.currentMap = VariableMap.EMPTY;
+        this.function = function;
     }
 
     public SymbexState(SymbexState state) {
@@ -23,15 +25,12 @@ public class SymbexState {
         this.proofObligations = state.proofObligations;
         this.proofObligationType = state.proofObligationType;
         this.currentMap = state.currentMap;
-        this.program = state.program;
+        this.blockToExecute = state.blockToExecute;
+        this.function = state.function;
     }
 
     public void addPathCondition(PathCondition pathCondition) {
         pathConditions = pathConditions.prepend(pathCondition);
-    }
-
-    public PseudoTree getProgram() {
-        return program;
     }
 
     public VariableMap getMap() {
@@ -42,8 +41,16 @@ public class SymbexState {
         currentMap = newMap;
     }
 
-    public void setProgram(PseudoTree program) {
-        this.program = program;
+    public PseudoTree getFunction() {
+        return function;
+    }
+
+    public PseudoTree getBlockToExecute() {
+        return blockToExecute;
+    }
+
+    public void setBlockToExecute(PseudoTree program) {
+        this.blockToExecute = program;
     }
 
     public void setProofObligations(PseudoTree obligation, AssertionType type) {

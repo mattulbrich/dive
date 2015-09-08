@@ -193,4 +193,13 @@ public class ImmutableList<T> implements Iterable<T> {
         }
         return hc;
     }
+
+    public boolean contains(T t) {
+        for (T t2 : this) {
+            if(t == null ? t2 == null : t.equals(t2)) {
+                return true;
+            }
+        }
+        return false;
+    }
 }

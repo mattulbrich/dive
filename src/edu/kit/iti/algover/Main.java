@@ -15,7 +15,7 @@ import edu.kit.iti.algover.smt.Z3Solver;
 import java.io.*;
 
 public class Main {
-    private static void test(InputStream stream) throws Exception {
+    private static void test(InputStream stream, boolean hideDetails) throws Exception {
         // create the lexer attached to stream
         ANTLRInputStream input = new ANTLRInputStream(stream);
 
@@ -39,29 +39,38 @@ public class Main {
             for (PathCondition pc : res.getPathConditions()) {
                 System.out.println("Path condition - " + pc.getType());
                 System.out.println("    " + pc.getExpression().toStringTree());
-                System.out.println("  Assignment History:");
-                System.out.println("    " + pc.getMap().toHistoryString().replace("\n", "\n    "));
-                System.out.println("  Aggregated Variable Map: ");
-                System.out.println("    " + pc.getMap().toParallelAssignment());
+                if(!hideDetails) {
+                    System.out.println("  Assignment History:");
+                    System.out.println("    " + pc.getMap().toHistoryString().replace("\n", "\n    "));
+                    System.out.println("  Aggregated Variable Map: ");
+                    System.out.println("    " + pc.getMap().toParallelAssignment());
+                }
                 System.out.println("  Instantiated condition: ");
                 System.out.println("    " + pc.getMap().instantiate(pc.getExpression()).toStringTree());
-                System.out.println("  Refers to: line " + pc.getExpression().token.getLine());
+                if(!hideDetails) {
+                    System.out.println("  Refers to: line " + pc.getExpression().token.getLine());
+                }
             }
             System.out.println("Proof Obligations - " + res.getProofObligationType());
             for (PseudoTree po : res.getProofObligations()) {
                 System.out.println("  " + po.toStringTree());
             }
-            System.out.println("  Assignment History:");
-            System.out.println("    " + res.getMap().toHistoryString().replace("\n", "\n    "));
-            System.out.println("  Aggregated Variable Map: ");
-            System.out.println("    " + res.getMap().toParallelAssignment());
+            if(!hideDetails) {
+                System.out.println("  Assignment History:");
+                System.out.println("    " + res.getMap().toHistoryString().replace("\n", "\n    "));
+                System.out.println("  Aggregated Variable Map: ");
+                System.out.println("    " + res.getMap().toParallelAssignment());
+            }
             System.out.println("  Instantiated POs: ");
             for (PseudoTree po : res.getProofObligations()) {
                 System.out.println("    " + res.getMap().instantiate(po).toStringTree());
             }
 
-            Z3Solver z3 = new Z3Solver();
-            System.out.println(z3.createSMTInputput(res));
+            Z3Solver z3 = new Z3Solver(new ProgramDatabase(t));
+            if(!hideDetails) {
+                System.out.println(z3.createSMTInputput(res));
+            }
+            System.out.println(z3.solve(res));
         }
 
     }
@@ -69,7 +78,7 @@ public class Main {
     public static void readFile(File file) {
         try {
             FileInputStream inputStream = new FileInputStream(file);
-            test(inputStream);
+            test(inputStream, false);
 
 
         } catch (FileNotFoundException e) {
@@ -82,9 +91,9 @@ public class Main {
 
     public static void main(String[] args) throws Exception {
         if(args.length == 0) {
-            test(System.in);
+            test(System.in, false);
         } else {
-            test(new FileInputStream(args[0]));
+            test(new FileInputStream(args[0]), args.length > 1);
         }
     }
 }

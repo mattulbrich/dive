@@ -69,8 +69,13 @@ public class SMTTrans {
     private String transQuant(String quantifier, PseudoTree exp) {
         String name = exp.getChild(0).toString().replace('#', '$');
         PseudoTree cond = exp.getChild(2);
+        String type = transToType(exp.getChild(1));
+        return "(" + quantifier + " ((" + name + " " + type + ")) " + trans(cond) + ")";
+    }
+
+    public String transToType(PseudoTree exp) {
         String type;
-        switch(exp.getChild(1).getType()) {
+        switch(exp.getType()) {
         case PseudoParser.INT:
             type = "Int"; break;
         case PseudoParser.ARRAY:
@@ -79,7 +84,7 @@ public class SMTTrans {
             type = "(Array Int Bool)"; break;
         default: throw new Error();
         }
-        return "(" + quantifier + " ((" + name + " " + type + ")) " + trans(cond) + ")";
+        return type;
     }
 
 }

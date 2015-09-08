@@ -38,6 +38,7 @@ VAR: 'var';
 NOT: 'not';
 CALL:'call';
 INVARIANT: 'invariant';
+ASSERT: 'assert';
 
 ALL: '\\all';
 EX: '\\ex';
@@ -140,6 +141,7 @@ statement:
       'do'! relaxedBlock
   | 'if'^ expression 'then'! relaxedBlock
       ( options { greedy=true; } : 'else'! relaxedBlock )?
+  | 'assert'^ ( ID ':'! )? expression
   ;
 
 ids:

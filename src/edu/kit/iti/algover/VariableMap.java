@@ -7,14 +7,15 @@ import org.antlr.runtime.CommonToken;
 
 import edu.kit.iti.algover.parser.PseudoParser;
 import edu.kit.iti.algover.parser.PseudoTree;
+import edu.kit.iti.algover.util.ImmutableList;
 
 public class VariableMap {
 
     public static final VariableMap EMPTY = new VariableMap();
 
-    private VariableMap parent;
-    private String var;
-    private PseudoTree value;
+    private final VariableMap parent;
+    private final String var;
+    private final PseudoTree value;
 
     public VariableMap assign(String var, PseudoTree value) {
         return new VariableMap(this, var, value);
@@ -28,6 +29,8 @@ public class VariableMap {
 
     private VariableMap() {
         this.var = "PSEUDO_VALUE";
+        this.value = null;
+        this.parent = null;
     }
 
     public VariableMap anonymise(String v) {
@@ -45,8 +48,20 @@ public class VariableMap {
         return assign(v, new PseudoTree(new CommonToken(PseudoParser.ID, anonName)));
     }
 
+    public Set<String> findAnonymisingConsts() {
+        Set<String> result = new HashSet<String>();
+        VariableMap vm = this;
+        while(vm != EMPTY) {
+            if(vm.value.toString().contains("#")) {
+                result.add(vm.value.getText());
+            }
+            vm = vm.parent;
+        }
+        return result;
+    }
+
     public PseudoTree instantiate(PseudoTree expression) {
-        PseudoTree result = instantiate0(expression);
+        PseudoTree result = instantiate0(expression, ImmutableList.<String>nil());
         if(result == null) {
             return expression;
         } else {
@@ -54,17 +69,28 @@ public class VariableMap {
         }
     }
 
-    private PseudoTree instantiate0(PseudoTree expression) {
+    private PseudoTree instantiate0(PseudoTree expression, ImmutableList<String> exceptions) {
 
-        if(expression.getType() == PseudoParser.ID) {
+        int type = expression.getType();
+
+        if(type == PseudoParser.ID) {
             String name = expression.toString();
-            PseudoTree replacement = get(name);
-            return replacement;
+            if(exceptions.contains(name)) {
+                // it is an exception: no replacement for bound variables.
+                return expression;
+            } else {
+                PseudoTree replacement = get(name);
+                return replacement;
+            }
+        }
+
+        if(type == PseudoParser.ALL || type == PseudoParser.EX) {
+            exceptions = exceptions.prepend(expression.getChild(0).getText());
         }
 
         PseudoTree result = null;
         for(int i = 0; i < expression.getChildCount(); i++) {
-            PseudoTree kid = instantiate0(expression.getChild(i));
+            PseudoTree kid = instantiate0(expression.getChild(i), exceptions);
             if(kid != null) {
                 if(result == null) {
                     result = new PseudoTree(expression.token);
@@ -79,7 +105,7 @@ public class VariableMap {
         }
 
         assert result == null || result.getChildCount() == expression.getChildCount();
-        assert result == null || result.getType() == expression.getType();
+        assert result == null || result.getType() == type;
 
         return result;
     }
