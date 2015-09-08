@@ -36,17 +36,17 @@ public class Main {
 
         for (SymbexState res : symbex.getResults()) {
             System.out.println("------------");
-            for (PathCondition pc : res.getPathConditions()) {
+            for (PathConditionElement pc : res.getPathConditions()) {
                 System.out.println("Path condition - " + pc.getType());
                 System.out.println("    " + pc.getExpression().toStringTree());
                 if(!hideDetails) {
                     System.out.println("  Assignment History:");
-                    System.out.println("    " + pc.getMap().toHistoryString().replace("\n", "\n    "));
+                    System.out.println("    " + pc.getVariableMap().toHistoryString().replace("\n", "\n    "));
                     System.out.println("  Aggregated Variable Map: ");
-                    System.out.println("    " + pc.getMap().toParallelAssignment());
+                    System.out.println("    " + pc.getVariableMap().toParallelAssignment());
                 }
                 System.out.println("  Instantiated condition: ");
-                System.out.println("    " + pc.getMap().instantiate(pc.getExpression()).toStringTree());
+                System.out.println("    " + pc.getVariableMap().instantiate(pc.getExpression()).toStringTree());
                 if(!hideDetails) {
                     System.out.println("  Refers to: line " + pc.getExpression().token.getLine());
                 }

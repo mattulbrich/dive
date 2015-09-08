@@ -1,13 +1,13 @@
 package edu.kit.iti.algover;
 
-import edu.kit.iti.algover.PathCondition.AssertionType;
+import edu.kit.iti.algover.PathConditionElement.AssertionType;
 import edu.kit.iti.algover.parser.PseudoTree;
 import edu.kit.iti.algover.util.ImmutableList;
 
 
 public class SymbexState {
 
-    private ImmutableList<PathCondition> pathConditions;
+    private ImmutableList<PathConditionElement> pathConditions;
     private ImmutableList<PseudoTree> proofObligations;
     private AssertionType proofObligationType;
     private VariableMap currentMap;
@@ -29,7 +29,7 @@ public class SymbexState {
         this.function = state.function;
     }
 
-    public void addPathCondition(PathCondition pathCondition) {
+    public void addPathCondition(PathConditionElement pathCondition) {
         pathConditions = pathConditions.prepend(pathCondition);
     }
 
@@ -63,7 +63,7 @@ public class SymbexState {
         this.proofObligationType = type;
     }
 
-    public Iterable<PathCondition> getPathConditions() {
+    public Iterable<PathConditionElement> getPathConditions() {
         return pathConditions;
     }
 

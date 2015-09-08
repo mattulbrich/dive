@@ -8,8 +8,8 @@ import java.util.Set;
 
 import org.antlr.runtime.CommonToken;
 
-import edu.kit.iti.algover.PathCondition.AssertionType;
-import edu.kit.iti.algover.PathCondition.AssumptionType;
+import edu.kit.iti.algover.PathConditionElement.AssertionType;
+import edu.kit.iti.algover.PathConditionElement.AssumptionType;
 import edu.kit.iti.algover.parser.PseudoParser;
 import edu.kit.iti.algover.parser.PseudoTree;
 
@@ -64,11 +64,11 @@ public class Symbex {
                     SymbexState preserveState = new SymbexState(state);
                     preserveState.setMap(anonymise(preserveState.getMap(), body));
                     for (PseudoTree inv : invariants) {
-                        PathCondition pc = new PathCondition(inv.getLastChild(), inv,
+                        PathConditionElement pc = new PathConditionElement(inv.getLastChild(), inv,
                                 AssumptionType.ASSUMED_INVARIANT, preserveState.getMap());
                         preserveState.addPathCondition(pc);
                     }
-                    preserveState.addPathCondition(new PathCondition(guard, stm,
+                    preserveState.addPathCondition(new PathConditionElement(guard, stm,
                             AssumptionType.WHILE_TRUE, state.getMap()));
                     preserveState.setBlockToExecute(stm.getLastChild());
                     // 2b. show invariants:
@@ -80,11 +80,11 @@ public class Symbex {
                     // 3. use case:
                     state.setMap(anonymise(state.getMap(), body));
                     for (PseudoTree inv : invariants) {
-                        PathCondition pc = new PathCondition(inv.getLastChild(), inv,
+                        PathConditionElement pc = new PathConditionElement(inv.getLastChild(), inv,
                                 AssumptionType.ASSUMED_INVARIANT, state.getMap());
                         state.addPathCondition(pc);
                     }
-                    state.addPathCondition(new PathCondition(neg(guard), stm,
+                    state.addPathCondition(new PathConditionElement(neg(guard), stm,
                             AssumptionType.WHILE_FALSE, state.getMap()));
                     state.setBlockToExecute(remainder);
                     results.add(state);
@@ -94,12 +94,12 @@ public class Symbex {
                     PseudoTree cond = stm.getChild(0);
                     PseudoTree then = stm.getChild(1);
                     SymbexState stateElse = new SymbexState(state);
-                    state.addPathCondition(new PathCondition(cond, stm,
+                    state.addPathCondition(new PathConditionElement(cond, stm,
                             AssumptionType.IF_THEN, state.getMap()));
                     state.setBlockToExecute(append(then, remainder));
                     stack.push(state);
                     if(stm.getChildCount() == 3) {
-                        stateElse.addPathCondition(new PathCondition(neg(cond), stm,
+                        stateElse.addPathCondition(new PathConditionElement(neg(cond), stm,
                                 AssumptionType.IF_ELSE, state.getMap()));
                         PseudoTree _else = stm.getChild(2);
                         stateElse.setBlockToExecute(append(_else, remainder));
@@ -197,8 +197,8 @@ public class Symbex {
         SymbexState result = new SymbexState(function);
 
         for(PseudoTree req : function.getChildrenWithType(PseudoParser.REQUIRES)) {
-            result.addPathCondition(new PathCondition(req.getLastChild(), req,
-                    PathCondition.AssumptionType.PRE, result.getMap()));
+            result.addPathCondition(new PathConditionElement(req.getLastChild(), req,
+                    PathConditionElement.AssumptionType.PRE, result.getMap()));
         }
 
         result.setBlockToExecute(function.getLastChild());

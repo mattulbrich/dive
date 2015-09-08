@@ -8,7 +8,7 @@ import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
 
-import edu.kit.iti.algover.PathCondition;
+import edu.kit.iti.algover.PathConditionElement;
 import edu.kit.iti.algover.ProgramDatabase;
 import edu.kit.iti.algover.SymbexState;
 import edu.kit.iti.algover.parser.PseudoParser;
@@ -76,7 +76,7 @@ public class Z3Solver {
         extractSkolemVars(sb, obligation);
 
         sb.append("; Path condition\n");
-        for (PathCondition pc : obligation.getPathConditions()) {
+        for (PathConditionElement pc : obligation.getPathConditions()) {
             sb.append("(assert ");
             sb.append(smtTrans.trans(pc.getInstantiatedExpression()));
             sb.append(")\n");
