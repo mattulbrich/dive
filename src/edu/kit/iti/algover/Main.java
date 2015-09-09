@@ -148,27 +148,27 @@ public class Main {
 //            System.out.println(z3.solve(res));
 //        }
 
-    }
-
-    public static void readFile(File file) {
-        try {
-            FileInputStream inputStream = new FileInputStream(file);
-            test(inputStream, false);
-
-
-        } catch (FileNotFoundException e) {
-            System.out.println("Could not read file " + file.getAbsolutePath());
-        } catch (Exception e) {
-            System.out.println("Could not load problem");
-        }
-
-    }
-
-    public static void main(String[] args) throws Exception {
-        if(args.length == 0) {
-            test(System.in, false);
-        } else {
-            test(new FileInputStream(args[0]), args.length > 1);
-        }
-    }
+//    }
+//
+//    public static void readFile(File file) {
+//        try {
+//            FileInputStream inputStream = new FileInputStream(file);
+//            test(inputStream, false);
+//
+//
+//        } catch (FileNotFoundException e) {
+//            System.out.println("Could not read file " + file.getAbsolutePath());
+//        } catch (Exception e) {
+//            System.out.println("Could not load problem");
+//        }
+//
+//    }
+//
+//    public static void main(String[] args) throws Exception {
+//        if(args.length == 0) {
+//            test(System.in, false);
+//        } else {
+//            test(new FileInputStream(args[0]), args.length > 1);
+//        }
+//    }
 }
