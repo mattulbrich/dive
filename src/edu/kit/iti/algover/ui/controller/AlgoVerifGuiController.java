@@ -1,6 +1,7 @@
 package edu.kit.iti.algover.ui.controller;
 
 import edu.kit.iti.algover.Main;
+import edu.kit.iti.algover.ui.Model.ProblemLoader;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
@@ -52,7 +53,7 @@ public class AlgoVerifGuiController {
        // FileChooser.ExtensionFilter extFilter = new FileChooser.ExtensionFilter("TXT files (*.txt)", "*.txt");
        // fileChooser.getExtensionFilters().add(extFilter);
         File file = fileChooser.showOpenDialog(stage);
-        Main.readFile(file);
+        ProblemLoader.readFile(file);
         String text= "";
         String textline="";
         int line= 1;
