@@ -13,6 +13,7 @@ import edu.kit.iti.algover.parser.PseudoTree;
 import edu.kit.iti.algover.smt.Z3Solver;
 
 import java.io.*;
+import java.util.List;
 
 public class Main {
     private static void test(InputStream stream, boolean hideDetails) throws Exception {
@@ -32,9 +33,9 @@ public class Main {
         System.out.println(t.toStringTree()); // print out the tree
 
         Symbex symbex = new Symbex();
-        symbex.symbolicExecution(t);
+        List<SymbexState> results = symbex.symbolicExecution(t);
 
-        for (SymbexState res : symbex.getResults()) {
+        for (SymbexState res : results) {
             System.out.println("------------");
             for (PathConditionElement pc : res.getPathConditions()) {
                 System.out.println("Path condition - " + pc.getType());

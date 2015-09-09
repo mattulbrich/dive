@@ -19,7 +19,7 @@ public class ProgramDatabase {
     }
 
     public PseudoTree getFunction(String name) {
-        for (PseudoTree f : program.getChildrenWithType(PseudoParser.FUNCTION)) {
+        for (PseudoTree f : program.getChildrenWithType(PseudoParser.METHOD)) {
             if(f.getChild(0).getText().equals(name)) {
                 return f;
             }

@@ -40,7 +40,7 @@ public class Symbex {
      */
     public List<SymbexState> symbolicExecution(PseudoTree function) {
 
-        assert function.getType() == PseudoParser.FUNCTION;
+        assert function.getType() == PseudoParser.METHOD;
         SymbexState initial = makeFromPreconditions(function);
 
         Deque<SymbexState> stack = new LinkedList<SymbexState>();

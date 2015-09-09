@@ -1,4 +1,4 @@
-// $ANTLR 3.5.1 Pseudo.g 2015-08-14 16:04:44
+// $ANTLR 3.5.1 Pseudo.g 2015-09-09 16:13:31
 
   package edu.kit.iti.algover.parser;
 
@@ -11,9 +11,6 @@ import java.util.ArrayList;
 @SuppressWarnings("all")
 public class PseudoLexer extends Lexer {
 	public static final int EOF=-1;
-	public static final int T__46=46;
-	public static final int T__47=47;
-	public static final int T__48=48;
 	public static final int T__49=49;
 	public static final int T__50=50;
 	public static final int T__51=51;
@@ -21,8 +18,6 @@ public class PseudoLexer extends Lexer {
 	public static final int T__53=53;
 	public static final int T__54=54;
 	public static final int T__55=55;
-	public static final int T__56=56;
-	public static final int T__57=57;
 	public static final int ALL=4;
 	public static final int AND=5;
 	public static final int ARGS=6;
@@ -31,40 +26,43 @@ public class PseudoLexer extends Lexer {
 	public static final int ASSERT=9;
 	public static final int ASSIGN=10;
 	public static final int BLOCK=11;
-	public static final int CALL=12;
-	public static final int DECREASES=13;
-	public static final int ELSE=14;
-	public static final int ENSURES=15;
-	public static final int EQ=16;
-	public static final int EX=17;
-	public static final int FUNCTION=18;
-	public static final int GE=19;
-	public static final int GT=20;
-	public static final int ID=21;
-	public static final int IF=22;
-	public static final int IMPLIES=23;
-	public static final int INT=24;
-	public static final int INTERSECT=25;
-	public static final int INVARIANT=26;
-	public static final int LE=27;
-	public static final int LISTEX=28;
-	public static final int LIT=29;
-	public static final int LT=30;
-	public static final int MINUS=31;
-	public static final int NOT=32;
-	public static final int OR=33;
-	public static final int PLUS=34;
-	public static final int REQUIRES=35;
-	public static final int RESULTS=36;
-	public static final int RETURNS=37;
-	public static final int SET=38;
-	public static final int SETEX=39;
-	public static final int THEN=40;
-	public static final int TIMES=41;
-	public static final int UNION=42;
-	public static final int VAR=43;
-	public static final int WHILE=44;
-	public static final int WS=45;
+	public static final int BLOCK_BEGIN=12;
+	public static final int BLOCK_END=13;
+	public static final int CALL=14;
+	public static final int DECREASES=15;
+	public static final int DOUBLECOLON=16;
+	public static final int ELSE=17;
+	public static final int ENSURES=18;
+	public static final int EQ=19;
+	public static final int EX=20;
+	public static final int GE=21;
+	public static final int GT=22;
+	public static final int ID=23;
+	public static final int IF=24;
+	public static final int IMPLIES=25;
+	public static final int INT=26;
+	public static final int INTERSECT=27;
+	public static final int INVARIANT=28;
+	public static final int LE=29;
+	public static final int LISTEX=30;
+	public static final int LIT=31;
+	public static final int LT=32;
+	public static final int METHOD=33;
+	public static final int MINUS=34;
+	public static final int NOT=35;
+	public static final int OR=36;
+	public static final int PLUS=37;
+	public static final int REQUIRES=38;
+	public static final int RESULTS=39;
+	public static final int RETURNS=40;
+	public static final int SET=41;
+	public static final int SETEX=42;
+	public static final int THEN=43;
+	public static final int TIMES=44;
+	public static final int UNION=45;
+	public static final int VAR=46;
+	public static final int WHILE=47;
+	public static final int WS=48;
 
 	// delegates
 	// delegators
@@ -81,75 +79,15 @@ public class PseudoLexer extends Lexer {
 	}
 	@Override public String getGrammarFileName() { return "Pseudo.g"; }
 
-	// $ANTLR start "T__46"
-	public final void mT__46() throws RecognitionException {
-		try {
-			int _type = T__46;
-			int _channel = DEFAULT_TOKEN_CHANNEL;
-			// Pseudo.g:6:7: ( '(' )
-			// Pseudo.g:6:9: '('
-			{
-			match('('); 
-			}
-
-			state.type = _type;
-			state.channel = _channel;
-		}
-		finally {
-			// do for sure before leaving
-		}
-	}
-	// $ANTLR end "T__46"
-
-	// $ANTLR start "T__47"
-	public final void mT__47() throws RecognitionException {
-		try {
-			int _type = T__47;
-			int _channel = DEFAULT_TOKEN_CHANNEL;
-			// Pseudo.g:7:7: ( ')' )
-			// Pseudo.g:7:9: ')'
-			{
-			match(')'); 
-			}
-
-			state.type = _type;
-			state.channel = _channel;
-		}
-		finally {
-			// do for sure before leaving
-		}
-	}
-	// $ANTLR end "T__47"
-
-	// $ANTLR start "T__48"
-	public final void mT__48() throws RecognitionException {
-		try {
-			int _type = T__48;
-			int _channel = DEFAULT_TOKEN_CHANNEL;
-			// Pseudo.g:8:7: ( ',' )
-			// Pseudo.g:8:9: ','
-			{
-			match(','); 
-			}
-
-			state.type = _type;
-			state.channel = _channel;
-		}
-		finally {
-			// do for sure before leaving
-		}
-	}
-	// $ANTLR end "T__48"
-
 	// $ANTLR start "T__49"
 	public final void mT__49() throws RecognitionException {
 		try {
 			int _type = T__49;
 			int _channel = DEFAULT_TOKEN_CHANNEL;
-			// Pseudo.g:9:7: ( ':' )
-			// Pseudo.g:9:9: ':'
+			// Pseudo.g:6:7: ( '(' )
+			// Pseudo.g:6:9: '('
 			{
-			match(':'); 
+			match('('); 
 			}
 
 			state.type = _type;
@@ -166,10 +104,10 @@ public class PseudoLexer extends Lexer {
 		try {
 			int _type = T__50;
 			int _channel = DEFAULT_TOKEN_CHANNEL;
-			// Pseudo.g:10:7: ( ';' )
-			// Pseudo.g:10:9: ';'
+			// Pseudo.g:7:7: ( ')' )
+			// Pseudo.g:7:9: ')'
 			{
-			match(';'); 
+			match(')'); 
 			}
 
 			state.type = _type;
@@ -186,10 +124,10 @@ public class PseudoLexer extends Lexer {
 		try {
 			int _type = T__51;
 			int _channel = DEFAULT_TOKEN_CHANNEL;
-			// Pseudo.g:11:7: ( '[' )
-			// Pseudo.g:11:9: '['
+			// Pseudo.g:8:7: ( ',' )
+			// Pseudo.g:8:9: ','
 			{
-			match('['); 
+			match(','); 
 			}
 
 			state.type = _type;
@@ -206,10 +144,10 @@ public class PseudoLexer extends Lexer {
 		try {
 			int _type = T__52;
 			int _channel = DEFAULT_TOKEN_CHANNEL;
-			// Pseudo.g:12:7: ( ']' )
-			// Pseudo.g:12:9: ']'
+			// Pseudo.g:9:7: ( ':' )
+			// Pseudo.g:9:9: ':'
 			{
-			match(']'); 
+			match(':'); 
 			}
 
 			state.type = _type;
@@ -226,11 +164,10 @@ public class PseudoLexer extends Lexer {
 		try {
 			int _type = T__53;
 			int _channel = DEFAULT_TOKEN_CHANNEL;
-			// Pseudo.g:13:7: ( 'begin' )
-			// Pseudo.g:13:9: 'begin'
+			// Pseudo.g:10:7: ( ';' )
+			// Pseudo.g:10:9: ';'
 			{
-			match("begin"); 
-
+			match(';'); 
 			}
 
 			state.type = _type;
@@ -247,11 +184,10 @@ public class PseudoLexer extends Lexer {
 		try {
 			int _type = T__54;
 			int _channel = DEFAULT_TOKEN_CHANNEL;
-			// Pseudo.g:14:7: ( 'do' )
-			// Pseudo.g:14:9: 'do'
+			// Pseudo.g:11:7: ( '[' )
+			// Pseudo.g:11:9: '['
 			{
-			match("do"); 
-
+			match('['); 
 			}
 
 			state.type = _type;
@@ -268,11 +204,10 @@ public class PseudoLexer extends Lexer {
 		try {
 			int _type = T__55;
 			int _channel = DEFAULT_TOKEN_CHANNEL;
-			// Pseudo.g:15:7: ( 'end' )
-			// Pseudo.g:15:9: 'end'
+			// Pseudo.g:12:7: ( ']' )
+			// Pseudo.g:12:9: ']'
 			{
-			match("end"); 
-
+			match(']'); 
 			}
 
 			state.type = _type;
@@ -284,53 +219,13 @@ public class PseudoLexer extends Lexer {
 	}
 	// $ANTLR end "T__55"
 
-	// $ANTLR start "T__56"
-	public final void mT__56() throws RecognitionException {
-		try {
-			int _type = T__56;
-			int _channel = DEFAULT_TOKEN_CHANNEL;
-			// Pseudo.g:16:7: ( '{' )
-			// Pseudo.g:16:9: '{'
-			{
-			match('{'); 
-			}
-
-			state.type = _type;
-			state.channel = _channel;
-		}
-		finally {
-			// do for sure before leaving
-		}
-	}
-	// $ANTLR end "T__56"
-
-	// $ANTLR start "T__57"
-	public final void mT__57() throws RecognitionException {
-		try {
-			int _type = T__57;
-			int _channel = DEFAULT_TOKEN_CHANNEL;
-			// Pseudo.g:17:7: ( '}' )
-			// Pseudo.g:17:9: '}'
-			{
-			match('}'); 
-			}
-
-			state.type = _type;
-			state.channel = _channel;
-		}
-		finally {
-			// do for sure before leaving
-		}
-	}
-	// $ANTLR end "T__57"
-
 	// $ANTLR start "INT"
 	public final void mINT() throws RecognitionException {
 		try {
 			int _type = INT;
 			int _channel = DEFAULT_TOKEN_CHANNEL;
-			// Pseudo.g:25:5: ( 'int' )
-			// Pseudo.g:25:7: 'int'
+			// Pseudo.g:56:5: ( 'int' )
+			// Pseudo.g:56:7: 'int'
 			{
 			match("int"); 
 
@@ -350,8 +245,8 @@ public class PseudoLexer extends Lexer {
 		try {
 			int _type = SET;
 			int _channel = DEFAULT_TOKEN_CHANNEL;
-			// Pseudo.g:26:5: ( 'set' )
-			// Pseudo.g:26:7: 'set'
+			// Pseudo.g:57:5: ( 'set' )
+			// Pseudo.g:57:7: 'set'
 			{
 			match("set"); 
 
@@ -366,34 +261,13 @@ public class PseudoLexer extends Lexer {
 	}
 	// $ANTLR end "SET"
 
-	// $ANTLR start "ARRAY"
-	public final void mARRAY() throws RecognitionException {
-		try {
-			int _type = ARRAY;
-			int _channel = DEFAULT_TOKEN_CHANNEL;
-			// Pseudo.g:27:7: ( 'array' )
-			// Pseudo.g:27:9: 'array'
-			{
-			match("array"); 
-
-			}
-
-			state.type = _type;
-			state.channel = _channel;
-		}
-		finally {
-			// do for sure before leaving
-		}
-	}
-	// $ANTLR end "ARRAY"
-
 	// $ANTLR start "RETURNS"
 	public final void mRETURNS() throws RecognitionException {
 		try {
 			int _type = RETURNS;
 			int _channel = DEFAULT_TOKEN_CHANNEL;
-			// Pseudo.g:28:9: ( 'returns' )
-			// Pseudo.g:28:11: 'returns'
+			// Pseudo.g:58:9: ( 'returns' )
+			// Pseudo.g:58:11: 'returns'
 			{
 			match("returns"); 
 
@@ -413,8 +287,8 @@ public class PseudoLexer extends Lexer {
 		try {
 			int _type = ENSURES;
 			int _channel = DEFAULT_TOKEN_CHANNEL;
-			// Pseudo.g:29:8: ( 'ensures' )
-			// Pseudo.g:29:10: 'ensures'
+			// Pseudo.g:59:8: ( 'ensures' )
+			// Pseudo.g:59:10: 'ensures'
 			{
 			match("ensures"); 
 
@@ -434,8 +308,8 @@ public class PseudoLexer extends Lexer {
 		try {
 			int _type = REQUIRES;
 			int _channel = DEFAULT_TOKEN_CHANNEL;
-			// Pseudo.g:30:9: ( 'requires' )
-			// Pseudo.g:30:11: 'requires'
+			// Pseudo.g:60:9: ( 'requires' )
+			// Pseudo.g:60:11: 'requires'
 			{
 			match("requires"); 
 
@@ -455,8 +329,8 @@ public class PseudoLexer extends Lexer {
 		try {
 			int _type = DECREASES;
 			int _channel = DEFAULT_TOKEN_CHANNEL;
-			// Pseudo.g:31:10: ( 'decreases' )
-			// Pseudo.g:31:12: 'decreases'
+			// Pseudo.g:61:10: ( 'decreases' )
+			// Pseudo.g:61:12: 'decreases'
 			{
 			match("decreases"); 
 
@@ -471,15 +345,15 @@ public class PseudoLexer extends Lexer {
 	}
 	// $ANTLR end "DECREASES"
 
-	// $ANTLR start "FUNCTION"
-	public final void mFUNCTION() throws RecognitionException {
+	// $ANTLR start "METHOD"
+	public final void mMETHOD() throws RecognitionException {
 		try {
-			int _type = FUNCTION;
+			int _type = METHOD;
 			int _channel = DEFAULT_TOKEN_CHANNEL;
-			// Pseudo.g:32:9: ( 'function' )
-			// Pseudo.g:32:11: 'function'
+			// Pseudo.g:62:7: ( 'method' )
+			// Pseudo.g:62:9: 'method'
 			{
-			match("function"); 
+			match("method"); 
 
 			}
 
@@ -490,15 +364,15 @@ public class PseudoLexer extends Lexer {
 			// do for sure before leaving
 		}
 	}
-	// $ANTLR end "FUNCTION"
+	// $ANTLR end "METHOD"
 
 	// $ANTLR start "ELSE"
 	public final void mELSE() throws RecognitionException {
 		try {
 			int _type = ELSE;
 			int _channel = DEFAULT_TOKEN_CHANNEL;
-			// Pseudo.g:33:5: ( 'else' )
-			// Pseudo.g:33:7: 'else'
+			// Pseudo.g:63:5: ( 'else' )
+			// Pseudo.g:63:7: 'else'
 			{
 			match("else"); 
 
@@ -518,8 +392,8 @@ public class PseudoLexer extends Lexer {
 		try {
 			int _type = IF;
 			int _channel = DEFAULT_TOKEN_CHANNEL;
-			// Pseudo.g:34:3: ( 'if' )
-			// Pseudo.g:34:5: 'if'
+			// Pseudo.g:64:3: ( 'if' )
+			// Pseudo.g:64:5: 'if'
 			{
 			match("if"); 
 
@@ -539,8 +413,8 @@ public class PseudoLexer extends Lexer {
 		try {
 			int _type = THEN;
 			int _channel = DEFAULT_TOKEN_CHANNEL;
-			// Pseudo.g:35:5: ( 'then' )
-			// Pseudo.g:35:7: 'then'
+			// Pseudo.g:65:5: ( 'then' )
+			// Pseudo.g:65:7: 'then'
 			{
 			match("then"); 
 
@@ -560,8 +434,8 @@ public class PseudoLexer extends Lexer {
 		try {
 			int _type = WHILE;
 			int _channel = DEFAULT_TOKEN_CHANNEL;
-			// Pseudo.g:36:6: ( 'while' )
-			// Pseudo.g:36:8: 'while'
+			// Pseudo.g:66:6: ( 'while' )
+			// Pseudo.g:66:8: 'while'
 			{
 			match("while"); 
 
@@ -581,8 +455,8 @@ public class PseudoLexer extends Lexer {
 		try {
 			int _type = VAR;
 			int _channel = DEFAULT_TOKEN_CHANNEL;
-			// Pseudo.g:37:4: ( 'var' )
-			// Pseudo.g:37:6: 'var'
+			// Pseudo.g:67:4: ( 'var' )
+			// Pseudo.g:67:6: 'var'
 			{
 			match("var"); 
 
@@ -597,34 +471,13 @@ public class PseudoLexer extends Lexer {
 	}
 	// $ANTLR end "VAR"
 
-	// $ANTLR start "NOT"
-	public final void mNOT() throws RecognitionException {
-		try {
-			int _type = NOT;
-			int _channel = DEFAULT_TOKEN_CHANNEL;
-			// Pseudo.g:38:4: ( 'not' )
-			// Pseudo.g:38:6: 'not'
-			{
-			match("not"); 
-
-			}
-
-			state.type = _type;
-			state.channel = _channel;
-		}
-		finally {
-			// do for sure before leaving
-		}
-	}
-	// $ANTLR end "NOT"
-
 	// $ANTLR start "CALL"
 	public final void mCALL() throws RecognitionException {
 		try {
 			int _type = CALL;
 			int _channel = DEFAULT_TOKEN_CHANNEL;
-			// Pseudo.g:39:5: ( 'call' )
-			// Pseudo.g:39:6: 'call'
+			// Pseudo.g:68:5: ( 'call' )
+			// Pseudo.g:68:6: 'call'
 			{
 			match("call"); 
 
@@ -644,8 +497,8 @@ public class PseudoLexer extends Lexer {
 		try {
 			int _type = INVARIANT;
 			int _channel = DEFAULT_TOKEN_CHANNEL;
-			// Pseudo.g:40:10: ( 'invariant' )
-			// Pseudo.g:40:12: 'invariant'
+			// Pseudo.g:69:10: ( 'invariant' )
+			// Pseudo.g:69:12: 'invariant'
 			{
 			match("invariant"); 
 
@@ -665,8 +518,8 @@ public class PseudoLexer extends Lexer {
 		try {
 			int _type = ASSERT;
 			int _channel = DEFAULT_TOKEN_CHANNEL;
-			// Pseudo.g:41:7: ( 'assert' )
-			// Pseudo.g:41:9: 'assert'
+			// Pseudo.g:70:7: ( 'assert' )
+			// Pseudo.g:70:9: 'assert'
 			{
 			match("assert"); 
 
@@ -686,10 +539,10 @@ public class PseudoLexer extends Lexer {
 		try {
 			int _type = ALL;
 			int _channel = DEFAULT_TOKEN_CHANNEL;
-			// Pseudo.g:43:4: ( '\\\\all' )
-			// Pseudo.g:43:6: '\\\\all'
+			// Pseudo.g:72:4: ( 'forall' )
+			// Pseudo.g:72:6: 'forall'
 			{
-			match("\\all"); 
+			match("forall"); 
 
 			}
 
@@ -707,10 +560,10 @@ public class PseudoLexer extends Lexer {
 		try {
 			int _type = EX;
 			int _channel = DEFAULT_TOKEN_CHANNEL;
-			// Pseudo.g:44:3: ( '\\\\ex' )
-			// Pseudo.g:44:5: '\\\\ex'
+			// Pseudo.g:73:3: ( 'exists' )
+			// Pseudo.g:73:5: 'exists'
 			{
-			match("\\ex"); 
+			match("exists"); 
 
 			}
 
@@ -723,13 +576,34 @@ public class PseudoLexer extends Lexer {
 	}
 	// $ANTLR end "EX"
 
+	// $ANTLR start "DOUBLECOLON"
+	public final void mDOUBLECOLON() throws RecognitionException {
+		try {
+			int _type = DOUBLECOLON;
+			int _channel = DEFAULT_TOKEN_CHANNEL;
+			// Pseudo.g:75:12: ( '::' )
+			// Pseudo.g:75:14: '::'
+			{
+			match("::"); 
+
+			}
+
+			state.type = _type;
+			state.channel = _channel;
+		}
+		finally {
+			// do for sure before leaving
+		}
+	}
+	// $ANTLR end "DOUBLECOLON"
+
 	// $ANTLR start "ASSIGN"
 	public final void mASSIGN() throws RecognitionException {
 		try {
 			int _type = ASSIGN;
 			int _channel = DEFAULT_TOKEN_CHANNEL;
-			// Pseudo.g:46:7: ( ':=' )
-			// Pseudo.g:46:9: ':='
+			// Pseudo.g:76:7: ( ':=' )
+			// Pseudo.g:76:9: ':='
 			{
 			match(":="); 
 
@@ -749,8 +623,8 @@ public class PseudoLexer extends Lexer {
 		try {
 			int _type = OR;
 			int _channel = DEFAULT_TOKEN_CHANNEL;
-			// Pseudo.g:47:3: ( '||' )
-			// Pseudo.g:47:5: '||'
+			// Pseudo.g:77:3: ( '||' )
+			// Pseudo.g:77:5: '||'
 			{
 			match("||"); 
 
@@ -770,8 +644,8 @@ public class PseudoLexer extends Lexer {
 		try {
 			int _type = AND;
 			int _channel = DEFAULT_TOKEN_CHANNEL;
-			// Pseudo.g:48:4: ( '&&' )
-			// Pseudo.g:48:6: '&&'
+			// Pseudo.g:78:4: ( '&&' )
+			// Pseudo.g:78:6: '&&'
 			{
 			match("&&"); 
 
@@ -791,8 +665,8 @@ public class PseudoLexer extends Lexer {
 		try {
 			int _type = IMPLIES;
 			int _channel = DEFAULT_TOKEN_CHANNEL;
-			// Pseudo.g:49:8: ( '==>' )
-			// Pseudo.g:49:10: '==>'
+			// Pseudo.g:79:8: ( '==>' )
+			// Pseudo.g:79:10: '==>'
 			{
 			match("==>"); 
 
@@ -812,8 +686,8 @@ public class PseudoLexer extends Lexer {
 		try {
 			int _type = PLUS;
 			int _channel = DEFAULT_TOKEN_CHANNEL;
-			// Pseudo.g:50:5: ( '+' )
-			// Pseudo.g:50:7: '+'
+			// Pseudo.g:80:5: ( '+' )
+			// Pseudo.g:80:7: '+'
 			{
 			match('+'); 
 			}
@@ -832,8 +706,8 @@ public class PseudoLexer extends Lexer {
 		try {
 			int _type = MINUS;
 			int _channel = DEFAULT_TOKEN_CHANNEL;
-			// Pseudo.g:51:6: ( '-' )
-			// Pseudo.g:51:8: '-'
+			// Pseudo.g:81:6: ( '-' )
+			// Pseudo.g:81:8: '-'
 			{
 			match('-'); 
 			}
@@ -847,13 +721,33 @@ public class PseudoLexer extends Lexer {
 	}
 	// $ANTLR end "MINUS"
 
+	// $ANTLR start "NOT"
+	public final void mNOT() throws RecognitionException {
+		try {
+			int _type = NOT;
+			int _channel = DEFAULT_TOKEN_CHANNEL;
+			// Pseudo.g:82:4: ( '!' )
+			// Pseudo.g:82:6: '!'
+			{
+			match('!'); 
+			}
+
+			state.type = _type;
+			state.channel = _channel;
+		}
+		finally {
+			// do for sure before leaving
+		}
+	}
+	// $ANTLR end "NOT"
+
 	// $ANTLR start "TIMES"
 	public final void mTIMES() throws RecognitionException {
 		try {
 			int _type = TIMES;
 			int _channel = DEFAULT_TOKEN_CHANNEL;
-			// Pseudo.g:52:6: ( '*' )
-			// Pseudo.g:52:8: '*'
+			// Pseudo.g:83:6: ( '*' )
+			// Pseudo.g:83:8: '*'
 			{
 			match('*'); 
 			}
@@ -872,8 +766,8 @@ public class PseudoLexer extends Lexer {
 		try {
 			int _type = UNION;
 			int _channel = DEFAULT_TOKEN_CHANNEL;
-			// Pseudo.g:53:6: ( '++' )
-			// Pseudo.g:53:8: '++'
+			// Pseudo.g:84:6: ( '++' )
+			// Pseudo.g:84:8: '++'
 			{
 			match("++"); 
 
@@ -893,8 +787,8 @@ public class PseudoLexer extends Lexer {
 		try {
 			int _type = INTERSECT;
 			int _channel = DEFAULT_TOKEN_CHANNEL;
-			// Pseudo.g:54:10: ( '**' )
-			// Pseudo.g:54:12: '**'
+			// Pseudo.g:85:10: ( '**' )
+			// Pseudo.g:85:12: '**'
 			{
 			match("**"); 
 
@@ -914,8 +808,8 @@ public class PseudoLexer extends Lexer {
 		try {
 			int _type = LT;
 			int _channel = DEFAULT_TOKEN_CHANNEL;
-			// Pseudo.g:55:3: ( '<' )
-			// Pseudo.g:55:5: '<'
+			// Pseudo.g:86:3: ( '<' )
+			// Pseudo.g:86:5: '<'
 			{
 			match('<'); 
 			}
@@ -934,8 +828,8 @@ public class PseudoLexer extends Lexer {
 		try {
 			int _type = LE;
 			int _channel = DEFAULT_TOKEN_CHANNEL;
-			// Pseudo.g:56:3: ( '<=' )
-			// Pseudo.g:56:5: '<='
+			// Pseudo.g:87:3: ( '<=' )
+			// Pseudo.g:87:5: '<='
 			{
 			match("<="); 
 
@@ -955,8 +849,8 @@ public class PseudoLexer extends Lexer {
 		try {
 			int _type = GT;
 			int _channel = DEFAULT_TOKEN_CHANNEL;
-			// Pseudo.g:57:3: ( '>' )
-			// Pseudo.g:57:5: '>'
+			// Pseudo.g:88:3: ( '>' )
+			// Pseudo.g:88:5: '>'
 			{
 			match('>'); 
 			}
@@ -975,8 +869,8 @@ public class PseudoLexer extends Lexer {
 		try {
 			int _type = GE;
 			int _channel = DEFAULT_TOKEN_CHANNEL;
-			// Pseudo.g:58:3: ( '>=' )
-			// Pseudo.g:58:5: '>='
+			// Pseudo.g:89:3: ( '>=' )
+			// Pseudo.g:89:5: '>='
 			{
 			match(">="); 
 
@@ -996,10 +890,11 @@ public class PseudoLexer extends Lexer {
 		try {
 			int _type = EQ;
 			int _channel = DEFAULT_TOKEN_CHANNEL;
-			// Pseudo.g:59:3: ( '=' )
-			// Pseudo.g:59:5: '='
+			// Pseudo.g:90:3: ( '==' )
+			// Pseudo.g:90:5: '=='
 			{
-			match('='); 
+			match("=="); 
+
 			}
 
 			state.type = _type;
@@ -1011,25 +906,138 @@ public class PseudoLexer extends Lexer {
 	}
 	// $ANTLR end "EQ"
 
+	// $ANTLR start "BLOCK_BEGIN"
+	public final void mBLOCK_BEGIN() throws RecognitionException {
+		try {
+			int _type = BLOCK_BEGIN;
+			int _channel = DEFAULT_TOKEN_CHANNEL;
+			// Pseudo.g:92:12: ( '{' )
+			// Pseudo.g:92:14: '{'
+			{
+			match('{'); 
+			}
+
+			state.type = _type;
+			state.channel = _channel;
+		}
+		finally {
+			// do for sure before leaving
+		}
+	}
+	// $ANTLR end "BLOCK_BEGIN"
+
+	// $ANTLR start "BLOCK_END"
+	public final void mBLOCK_END() throws RecognitionException {
+		try {
+			int _type = BLOCK_END;
+			int _channel = DEFAULT_TOKEN_CHANNEL;
+			// Pseudo.g:93:10: ( '}' )
+			// Pseudo.g:93:12: '}'
+			{
+			match('}'); 
+			}
+
+			state.type = _type;
+			state.channel = _channel;
+		}
+		finally {
+			// do for sure before leaving
+		}
+	}
+	// $ANTLR end "BLOCK_END"
+
+	// $ANTLR start "ARRAY"
+	public final void mARRAY() throws RecognitionException {
+		try {
+			int _type = ARRAY;
+			int _channel = DEFAULT_TOKEN_CHANNEL;
+			// Pseudo.g:96:7: ( 'array' ( ( '1' .. '9' ) ( '0' .. '9' )* )? )
+			// Pseudo.g:96:9: 'array' ( ( '1' .. '9' ) ( '0' .. '9' )* )?
+			{
+			match("array"); 
+
+			// Pseudo.g:96:17: ( ( '1' .. '9' ) ( '0' .. '9' )* )?
+			int alt2=2;
+			int LA2_0 = input.LA(1);
+			if ( ((LA2_0 >= '1' && LA2_0 <= '9')) ) {
+				alt2=1;
+			}
+			switch (alt2) {
+				case 1 :
+					// Pseudo.g:96:18: ( '1' .. '9' ) ( '0' .. '9' )*
+					{
+					if ( (input.LA(1) >= '1' && input.LA(1) <= '9') ) {
+						input.consume();
+					}
+					else {
+						MismatchedSetException mse = new MismatchedSetException(null,input);
+						recover(mse);
+						throw mse;
+					}
+					// Pseudo.g:96:31: ( '0' .. '9' )*
+					loop1:
+					while (true) {
+						int alt1=2;
+						int LA1_0 = input.LA(1);
+						if ( ((LA1_0 >= '0' && LA1_0 <= '9')) ) {
+							alt1=1;
+						}
+
+						switch (alt1) {
+						case 1 :
+							// Pseudo.g:
+							{
+							if ( (input.LA(1) >= '0' && input.LA(1) <= '9') ) {
+								input.consume();
+							}
+							else {
+								MismatchedSetException mse = new MismatchedSetException(null,input);
+								recover(mse);
+								throw mse;
+							}
+							}
+							break;
+
+						default :
+							break loop1;
+						}
+					}
+
+					}
+					break;
+
+			}
+
+			}
+
+			state.type = _type;
+			state.channel = _channel;
+		}
+		finally {
+			// do for sure before leaving
+		}
+	}
+	// $ANTLR end "ARRAY"
+
 	// $ANTLR start "ID"
 	public final void mID() throws RecognitionException {
 		try {
 			int _type = ID;
 			int _channel = DEFAULT_TOKEN_CHANNEL;
-			// Pseudo.g:61:4: ( ( 'a' .. 'z' )+ )
-			// Pseudo.g:61:6: ( 'a' .. 'z' )+
+			// Pseudo.g:97:4: ( ( 'a' .. 'z' )+ )
+			// Pseudo.g:97:6: ( 'a' .. 'z' )+
 			{
-			// Pseudo.g:61:6: ( 'a' .. 'z' )+
-			int cnt1=0;
-			loop1:
+			// Pseudo.g:97:6: ( 'a' .. 'z' )+
+			int cnt3=0;
+			loop3:
 			while (true) {
-				int alt1=2;
-				int LA1_0 = input.LA(1);
-				if ( ((LA1_0 >= 'a' && LA1_0 <= 'z')) ) {
-					alt1=1;
+				int alt3=2;
+				int LA3_0 = input.LA(1);
+				if ( ((LA3_0 >= 'a' && LA3_0 <= 'z')) ) {
+					alt3=1;
 				}
 
-				switch (alt1) {
+				switch (alt3) {
 				case 1 :
 					// Pseudo.g:
 					{
@@ -1045,11 +1053,11 @@ public class PseudoLexer extends Lexer {
 					break;
 
 				default :
-					if ( cnt1 >= 1 ) break loop1;
-					EarlyExitException eee = new EarlyExitException(1, input);
+					if ( cnt3 >= 1 ) break loop3;
+					EarlyExitException eee = new EarlyExitException(3, input);
 					throw eee;
 				}
-				cnt1++;
+				cnt3++;
 			}
 
 			}
@@ -1068,20 +1076,20 @@ public class PseudoLexer extends Lexer {
 		try {
 			int _type = LIT;
 			int _channel = DEFAULT_TOKEN_CHANNEL;
-			// Pseudo.g:62:5: ( ( '0' .. '9' )+ )
-			// Pseudo.g:62:7: ( '0' .. '9' )+
+			// Pseudo.g:98:5: ( ( '0' .. '9' )+ )
+			// Pseudo.g:98:7: ( '0' .. '9' )+
 			{
-			// Pseudo.g:62:7: ( '0' .. '9' )+
-			int cnt2=0;
-			loop2:
+			// Pseudo.g:98:7: ( '0' .. '9' )+
+			int cnt4=0;
+			loop4:
 			while (true) {
-				int alt2=2;
-				int LA2_0 = input.LA(1);
-				if ( ((LA2_0 >= '0' && LA2_0 <= '9')) ) {
-					alt2=1;
+				int alt4=2;
+				int LA4_0 = input.LA(1);
+				if ( ((LA4_0 >= '0' && LA4_0 <= '9')) ) {
+					alt4=1;
 				}
 
-				switch (alt2) {
+				switch (alt4) {
 				case 1 :
 					// Pseudo.g:
 					{
@@ -1097,11 +1105,11 @@ public class PseudoLexer extends Lexer {
 					break;
 
 				default :
-					if ( cnt2 >= 1 ) break loop2;
-					EarlyExitException eee = new EarlyExitException(2, input);
+					if ( cnt4 >= 1 ) break loop4;
+					EarlyExitException eee = new EarlyExitException(4, input);
 					throw eee;
 				}
-				cnt2++;
+				cnt4++;
 			}
 
 			}
@@ -1120,8 +1128,8 @@ public class PseudoLexer extends Lexer {
 		try {
 			int _type = WS;
 			int _channel = DEFAULT_TOKEN_CHANNEL;
-			// Pseudo.g:63:4: ( ( ' ' | '\\n' | '\\r' ) )
-			// Pseudo.g:63:6: ( ' ' | '\\n' | '\\r' )
+			// Pseudo.g:99:4: ( ( ' ' | '\\n' | '\\r' ) )
+			// Pseudo.g:99:6: ( ' ' | '\\n' | '\\r' )
 			{
 			if ( input.LA(1)=='\n'||input.LA(1)=='\r'||input.LA(1)==' ' ) {
 				input.consume();
@@ -1145,341 +1153,327 @@ public class PseudoLexer extends Lexer {
 
 	@Override
 	public void mTokens() throws RecognitionException {
-		// Pseudo.g:1:8: ( T__46 | T__47 | T__48 | T__49 | T__50 | T__51 | T__52 | T__53 | T__54 | T__55 | T__56 | T__57 | INT | SET | ARRAY | RETURNS | ENSURES | REQUIRES | DECREASES | FUNCTION | ELSE | IF | THEN | WHILE | VAR | NOT | CALL | INVARIANT | ASSERT | ALL | EX | ASSIGN | OR | AND | IMPLIES | PLUS | MINUS | TIMES | UNION | INTERSECT | LT | LE | GT | GE | EQ | ID | LIT | WS )
-		int alt3=48;
-		alt3 = dfa3.predict(input);
-		switch (alt3) {
+		// Pseudo.g:1:8: ( T__49 | T__50 | T__51 | T__52 | T__53 | T__54 | T__55 | INT | SET | RETURNS | ENSURES | REQUIRES | DECREASES | METHOD | ELSE | IF | THEN | WHILE | VAR | CALL | INVARIANT | ASSERT | ALL | EX | DOUBLECOLON | ASSIGN | OR | AND | IMPLIES | PLUS | MINUS | NOT | TIMES | UNION | INTERSECT | LT | LE | GT | GE | EQ | BLOCK_BEGIN | BLOCK_END | ARRAY | ID | LIT | WS )
+		int alt5=46;
+		alt5 = dfa5.predict(input);
+		switch (alt5) {
 			case 1 :
-				// Pseudo.g:1:10: T__46
-				{
-				mT__46(); 
-
-				}
-				break;
-			case 2 :
-				// Pseudo.g:1:16: T__47
-				{
-				mT__47(); 
-
-				}
-				break;
-			case 3 :
-				// Pseudo.g:1:22: T__48
-				{
-				mT__48(); 
-
-				}
-				break;
-			case 4 :
-				// Pseudo.g:1:28: T__49
+				// Pseudo.g:1:10: T__49
 				{
 				mT__49(); 
 
 				}
 				break;
-			case 5 :
-				// Pseudo.g:1:34: T__50
+			case 2 :
+				// Pseudo.g:1:16: T__50
 				{
 				mT__50(); 
 
 				}
 				break;
-			case 6 :
-				// Pseudo.g:1:40: T__51
+			case 3 :
+				// Pseudo.g:1:22: T__51
 				{
 				mT__51(); 
 
 				}
 				break;
-			case 7 :
-				// Pseudo.g:1:46: T__52
+			case 4 :
+				// Pseudo.g:1:28: T__52
 				{
 				mT__52(); 
 
 				}
 				break;
-			case 8 :
-				// Pseudo.g:1:52: T__53
+			case 5 :
+				// Pseudo.g:1:34: T__53
 				{
 				mT__53(); 
 
 				}
 				break;
-			case 9 :
-				// Pseudo.g:1:58: T__54
+			case 6 :
+				// Pseudo.g:1:40: T__54
 				{
 				mT__54(); 
 
 				}
 				break;
-			case 10 :
-				// Pseudo.g:1:64: T__55
+			case 7 :
+				// Pseudo.g:1:46: T__55
 				{
 				mT__55(); 
 
 				}
 				break;
-			case 11 :
-				// Pseudo.g:1:70: T__56
-				{
-				mT__56(); 
-
-				}
-				break;
-			case 12 :
-				// Pseudo.g:1:76: T__57
-				{
-				mT__57(); 
-
-				}
-				break;
-			case 13 :
-				// Pseudo.g:1:82: INT
+			case 8 :
+				// Pseudo.g:1:52: INT
 				{
 				mINT(); 
 
 				}
 				break;
-			case 14 :
-				// Pseudo.g:1:86: SET
+			case 9 :
+				// Pseudo.g:1:56: SET
 				{
 				mSET(); 
 
 				}
 				break;
-			case 15 :
-				// Pseudo.g:1:90: ARRAY
-				{
-				mARRAY(); 
-
-				}
-				break;
-			case 16 :
-				// Pseudo.g:1:96: RETURNS
+			case 10 :
+				// Pseudo.g:1:60: RETURNS
 				{
 				mRETURNS(); 
 
 				}
 				break;
-			case 17 :
-				// Pseudo.g:1:104: ENSURES
+			case 11 :
+				// Pseudo.g:1:68: ENSURES
 				{
 				mENSURES(); 
 
 				}
 				break;
-			case 18 :
-				// Pseudo.g:1:112: REQUIRES
+			case 12 :
+				// Pseudo.g:1:76: REQUIRES
 				{
 				mREQUIRES(); 
 
 				}
 				break;
-			case 19 :
-				// Pseudo.g:1:121: DECREASES
+			case 13 :
+				// Pseudo.g:1:85: DECREASES
 				{
 				mDECREASES(); 
 
 				}
 				break;
-			case 20 :
-				// Pseudo.g:1:131: FUNCTION
+			case 14 :
+				// Pseudo.g:1:95: METHOD
 				{
-				mFUNCTION(); 
+				mMETHOD(); 
 
 				}
 				break;
-			case 21 :
-				// Pseudo.g:1:140: ELSE
+			case 15 :
+				// Pseudo.g:1:102: ELSE
 				{
 				mELSE(); 
 
 				}
 				break;
-			case 22 :
-				// Pseudo.g:1:145: IF
+			case 16 :
+				// Pseudo.g:1:107: IF
 				{
 				mIF(); 
 
 				}
 				break;
-			case 23 :
-				// Pseudo.g:1:148: THEN
+			case 17 :
+				// Pseudo.g:1:110: THEN
 				{
 				mTHEN(); 
 
 				}
 				break;
-			case 24 :
-				// Pseudo.g:1:153: WHILE
+			case 18 :
+				// Pseudo.g:1:115: WHILE
 				{
 				mWHILE(); 
 
 				}
 				break;
-			case 25 :
-				// Pseudo.g:1:159: VAR
+			case 19 :
+				// Pseudo.g:1:121: VAR
 				{
 				mVAR(); 
 
 				}
 				break;
-			case 26 :
-				// Pseudo.g:1:163: NOT
-				{
-				mNOT(); 
-
-				}
-				break;
-			case 27 :
-				// Pseudo.g:1:167: CALL
+			case 20 :
+				// Pseudo.g:1:125: CALL
 				{
 				mCALL(); 
 
 				}
 				break;
-			case 28 :
-				// Pseudo.g:1:172: INVARIANT
+			case 21 :
+				// Pseudo.g:1:130: INVARIANT
 				{
 				mINVARIANT(); 
 
 				}
 				break;
-			case 29 :
-				// Pseudo.g:1:182: ASSERT
+			case 22 :
+				// Pseudo.g:1:140: ASSERT
 				{
 				mASSERT(); 
 
 				}
 				break;
-			case 30 :
-				// Pseudo.g:1:189: ALL
+			case 23 :
+				// Pseudo.g:1:147: ALL
 				{
 				mALL(); 
 
 				}
 				break;
-			case 31 :
-				// Pseudo.g:1:193: EX
+			case 24 :
+				// Pseudo.g:1:151: EX
 				{
 				mEX(); 
 
 				}
 				break;
-			case 32 :
-				// Pseudo.g:1:196: ASSIGN
+			case 25 :
+				// Pseudo.g:1:154: DOUBLECOLON
+				{
+				mDOUBLECOLON(); 
+
+				}
+				break;
+			case 26 :
+				// Pseudo.g:1:166: ASSIGN
 				{
 				mASSIGN(); 
 
 				}
 				break;
-			case 33 :
-				// Pseudo.g:1:203: OR
+			case 27 :
+				// Pseudo.g:1:173: OR
 				{
 				mOR(); 
 
 				}
 				break;
-			case 34 :
-				// Pseudo.g:1:206: AND
+			case 28 :
+				// Pseudo.g:1:176: AND
 				{
 				mAND(); 
 
 				}
 				break;
-			case 35 :
-				// Pseudo.g:1:210: IMPLIES
+			case 29 :
+				// Pseudo.g:1:180: IMPLIES
 				{
 				mIMPLIES(); 
 
 				}
 				break;
-			case 36 :
-				// Pseudo.g:1:218: PLUS
+			case 30 :
+				// Pseudo.g:1:188: PLUS
 				{
 				mPLUS(); 
 
 				}
 				break;
-			case 37 :
-				// Pseudo.g:1:223: MINUS
+			case 31 :
+				// Pseudo.g:1:193: MINUS
 				{
 				mMINUS(); 
 
 				}
 				break;
-			case 38 :
-				// Pseudo.g:1:229: TIMES
+			case 32 :
+				// Pseudo.g:1:199: NOT
+				{
+				mNOT(); 
+
+				}
+				break;
+			case 33 :
+				// Pseudo.g:1:203: TIMES
 				{
 				mTIMES(); 
 
 				}
 				break;
-			case 39 :
-				// Pseudo.g:1:235: UNION
+			case 34 :
+				// Pseudo.g:1:209: UNION
 				{
 				mUNION(); 
 
 				}
 				break;
-			case 40 :
-				// Pseudo.g:1:241: INTERSECT
+			case 35 :
+				// Pseudo.g:1:215: INTERSECT
 				{
 				mINTERSECT(); 
 
 				}
 				break;
-			case 41 :
-				// Pseudo.g:1:251: LT
+			case 36 :
+				// Pseudo.g:1:225: LT
 				{
 				mLT(); 
 
 				}
 				break;
-			case 42 :
-				// Pseudo.g:1:254: LE
+			case 37 :
+				// Pseudo.g:1:228: LE
 				{
 				mLE(); 
 
 				}
 				break;
-			case 43 :
-				// Pseudo.g:1:257: GT
+			case 38 :
+				// Pseudo.g:1:231: GT
 				{
 				mGT(); 
 
 				}
 				break;
-			case 44 :
-				// Pseudo.g:1:260: GE
+			case 39 :
+				// Pseudo.g:1:234: GE
 				{
 				mGE(); 
 
 				}
 				break;
-			case 45 :
-				// Pseudo.g:1:263: EQ
+			case 40 :
+				// Pseudo.g:1:237: EQ
 				{
 				mEQ(); 
 
 				}
 				break;
-			case 46 :
-				// Pseudo.g:1:266: ID
+			case 41 :
+				// Pseudo.g:1:240: BLOCK_BEGIN
+				{
+				mBLOCK_BEGIN(); 
+
+				}
+				break;
+			case 42 :
+				// Pseudo.g:1:252: BLOCK_END
+				{
+				mBLOCK_END(); 
+
+				}
+				break;
+			case 43 :
+				// Pseudo.g:1:262: ARRAY
+				{
+				mARRAY(); 
+
+				}
+				break;
+			case 44 :
+				// Pseudo.g:1:268: ID
 				{
 				mID(); 
 
 				}
 				break;
-			case 47 :
-				// Pseudo.g:1:269: LIT
+			case 45 :
+				// Pseudo.g:1:271: LIT
 				{
 				mLIT(); 
 
 				}
 				break;
-			case 48 :
-				// Pseudo.g:1:273: WS
+			case 46 :
+				// Pseudo.g:1:275: WS
 				{
 				mWS(); 
 
@@ -1490,232 +1484,229 @@ public class PseudoLexer extends Lexer {
 	}
 
 
-	protected DFA3 dfa3 = new DFA3(this);
-	static final String DFA3_eotS =
-		"\4\uffff\1\44\3\uffff\3\40\2\uffff\12\40\3\uffff\1\71\1\73\1\uffff\1\75"+
-		"\1\77\1\101\5\uffff\1\40\1\103\4\40\1\112\12\40\14\uffff\1\40\1\uffff"+
-		"\1\40\1\130\2\40\1\133\1\40\1\uffff\1\135\7\40\1\145\1\146\3\40\1\uffff"+
-		"\1\40\1\153\1\uffff\1\40\1\uffff\5\40\1\162\1\40\2\uffff\1\164\1\165\2"+
-		"\40\1\uffff\1\40\1\171\4\40\1\uffff\1\176\2\uffff\3\40\1\uffff\1\u0082"+
-		"\3\40\1\uffff\1\40\1\u0087\1\40\1\uffff\1\u0089\3\40\1\uffff\1\40\1\uffff"+
-		"\1\u008e\1\u008f\1\u0090\1\u0091\4\uffff";
-	static final String DFA3_eofS =
-		"\u0092\uffff";
-	static final String DFA3_minS =
-		"\1\12\3\uffff\1\75\3\uffff\2\145\1\154\2\uffff\1\146\1\145\1\162\1\145"+
-		"\1\165\2\150\1\141\1\157\2\141\2\uffff\1\75\1\53\1\uffff\1\52\2\75\5\uffff"+
-		"\1\147\1\141\1\143\1\144\1\163\1\164\1\141\1\164\1\162\1\163\1\161\1\156"+
-		"\1\145\1\151\1\162\1\164\1\154\14\uffff\1\151\1\uffff\1\162\1\141\1\165"+
-		"\1\145\2\141\1\uffff\2\141\1\145\2\165\1\143\1\156\1\154\2\141\1\154\1"+
-		"\156\1\145\1\uffff\1\162\1\141\1\uffff\1\162\1\uffff\1\171\2\162\1\151"+
-		"\1\164\1\141\1\145\2\uffff\3\141\1\145\1\uffff\1\151\1\141\1\164\1\156"+
-		"\1\162\1\151\1\uffff\1\141\2\uffff\2\163\1\141\1\uffff\1\141\1\163\1\145"+
-		"\1\157\1\uffff\1\145\1\141\1\156\1\uffff\1\141\1\163\1\156\1\163\1\uffff"+
-		"\1\164\1\uffff\4\141\4\uffff";
-	static final String DFA3_maxS =
-		"\1\175\3\uffff\1\75\3\uffff\1\145\1\157\1\156\2\uffff\1\156\1\145\1\163"+
-		"\1\145\1\165\2\150\1\141\1\157\1\141\1\145\2\uffff\1\75\1\53\1\uffff\1"+
-		"\52\2\75\5\uffff\1\147\1\172\1\143\2\163\1\166\1\172\1\164\1\162\1\163"+
-		"\1\164\1\156\1\145\1\151\1\162\1\164\1\154\14\uffff\1\151\1\uffff\1\162"+
-		"\1\172\1\165\1\145\1\172\1\141\1\uffff\1\172\1\141\1\145\2\165\1\143\1"+
-		"\156\1\154\2\172\1\154\1\156\1\145\1\uffff\1\162\1\172\1\uffff\1\162\1"+
-		"\uffff\1\171\2\162\1\151\1\164\1\172\1\145\2\uffff\2\172\1\141\1\145\1"+
-		"\uffff\1\151\1\172\1\164\1\156\1\162\1\151\1\uffff\1\172\2\uffff\2\163"+
-		"\1\141\1\uffff\1\172\1\163\1\145\1\157\1\uffff\1\145\1\172\1\156\1\uffff"+
-		"\1\172\1\163\1\156\1\163\1\uffff\1\164\1\uffff\4\172\4\uffff";
-	static final String DFA3_acceptS =
-		"\1\uffff\1\1\1\2\1\3\1\uffff\1\5\1\6\1\7\3\uffff\1\13\1\14\13\uffff\1"+
-		"\41\1\42\2\uffff\1\45\3\uffff\1\56\1\57\1\60\1\40\1\4\21\uffff\1\36\1"+
-		"\37\1\43\1\55\1\47\1\44\1\50\1\46\1\52\1\51\1\54\1\53\1\uffff\1\11\6\uffff"+
-		"\1\26\15\uffff\1\12\2\uffff\1\15\1\uffff\1\16\7\uffff\1\31\1\32\4\uffff"+
-		"\1\25\6\uffff\1\27\1\uffff\1\33\1\10\3\uffff\1\17\4\uffff\1\30\3\uffff"+
-		"\1\35\4\uffff\1\21\1\uffff\1\20\4\uffff\1\22\1\24\1\23\1\34";
-	static final String DFA3_specialS =
-		"\u0092\uffff}>";
-	static final String[] DFA3_transitionS = {
-			"\1\42\2\uffff\1\42\22\uffff\1\42\5\uffff\1\31\1\uffff\1\1\1\2\1\35\1"+
-			"\33\1\3\1\34\2\uffff\12\41\1\4\1\5\1\36\1\32\1\37\34\uffff\1\6\1\27\1"+
-			"\7\3\uffff\1\17\1\10\1\26\1\11\1\12\1\21\2\40\1\15\4\40\1\25\3\40\1\20"+
-			"\1\16\1\22\1\40\1\24\1\23\3\40\1\13\1\30\1\14",
+	protected DFA5 dfa5 = new DFA5(this);
+	static final String DFA5_eotS =
+		"\4\uffff\1\44\3\uffff\14\37\3\uffff\1\67\2\uffff\1\71\1\73\1\75\10\uffff"+
+		"\1\37\1\100\16\37\1\121\10\uffff\1\122\1\37\1\uffff\1\124\11\37\1\136"+
+		"\4\37\3\uffff\1\37\1\uffff\3\37\1\147\3\37\1\153\1\37\1\uffff\1\155\7"+
+		"\37\1\uffff\3\37\1\uffff\1\170\1\uffff\1\37\1\172\5\37\1\u0080\1\37\1"+
+		"\u0082\1\uffff\1\u0083\1\uffff\1\u0084\1\37\1\u0086\1\37\1\u0088\1\uffff"+
+		"\1\37\3\uffff\1\37\1\uffff\1\u008b\1\uffff\1\37\1\u008d\1\uffff\1\u008e"+
+		"\2\uffff";
+	static final String DFA5_eofS =
+		"\u008f\uffff";
+	static final String DFA5_minS =
+		"\1\12\3\uffff\1\72\3\uffff\1\146\2\145\1\154\2\145\2\150\2\141\1\162\1"+
+		"\157\2\uffff\1\75\1\53\2\uffff\1\52\2\75\10\uffff\1\164\1\141\1\164\1"+
+		"\161\2\163\1\151\1\143\1\164\1\145\1\151\1\162\1\154\1\163\2\162\1\76"+
+		"\10\uffff\2\141\1\uffff\1\141\3\165\1\145\1\163\1\162\1\150\1\156\1\154"+
+		"\1\141\1\154\1\145\2\141\3\uffff\1\162\1\uffff\1\162\1\151\1\162\1\141"+
+		"\1\164\1\145\1\157\1\141\1\145\1\uffff\1\141\1\162\1\171\1\154\1\151\1"+
+		"\156\1\162\1\145\1\uffff\1\163\1\141\1\144\1\uffff\1\141\1\uffff\1\164"+
+		"\1\141\1\154\1\141\1\163\1\145\1\163\1\141\1\163\1\141\1\uffff\1\141\1"+
+		"\uffff\1\141\1\156\1\141\1\163\1\141\1\uffff\1\145\3\uffff\1\164\1\uffff"+
+		"\1\141\1\uffff\1\163\1\141\1\uffff\1\141\2\uffff";
+	static final String DFA5_maxS =
+		"\1\175\3\uffff\1\75\3\uffff\1\156\2\145\1\170\2\145\2\150\2\141\1\163"+
+		"\1\157\2\uffff\1\75\1\53\2\uffff\1\52\2\75\10\uffff\1\166\1\172\2\164"+
+		"\2\163\1\151\1\143\1\164\1\145\1\151\1\162\1\154\1\163\2\162\1\76\10\uffff"+
+		"\1\172\1\141\1\uffff\1\172\3\165\1\145\1\163\1\162\1\150\1\156\1\154\1"+
+		"\172\1\154\1\145\2\141\3\uffff\1\162\1\uffff\1\162\1\151\1\162\1\172\1"+
+		"\164\1\145\1\157\1\172\1\145\1\uffff\1\172\1\162\1\171\1\154\1\151\1\156"+
+		"\1\162\1\145\1\uffff\1\163\1\141\1\144\1\uffff\1\172\1\uffff\1\164\1\172"+
+		"\1\154\1\141\1\163\1\145\1\163\1\172\1\163\1\172\1\uffff\1\172\1\uffff"+
+		"\1\172\1\156\1\172\1\163\1\172\1\uffff\1\145\3\uffff\1\164\1\uffff\1\172"+
+		"\1\uffff\1\163\1\172\1\uffff\1\172\2\uffff";
+	static final String DFA5_acceptS =
+		"\1\uffff\1\1\1\2\1\3\1\uffff\1\5\1\6\1\7\14\uffff\1\33\1\34\2\uffff\1"+
+		"\37\1\40\3\uffff\1\51\1\52\1\54\1\55\1\56\1\31\1\32\1\4\21\uffff\1\42"+
+		"\1\36\1\43\1\41\1\45\1\44\1\47\1\46\2\uffff\1\20\17\uffff\1\35\1\50\1"+
+		"\10\1\uffff\1\11\11\uffff\1\23\10\uffff\1\17\3\uffff\1\21\1\uffff\1\24"+
+		"\12\uffff\1\22\1\uffff\1\53\5\uffff\1\30\1\uffff\1\16\1\26\1\27\1\uffff"+
+		"\1\12\1\uffff\1\13\2\uffff\1\14\1\uffff\1\25\1\15";
+	static final String DFA5_specialS =
+		"\u008f\uffff}>";
+	static final String[] DFA5_transitionS = {
+			"\1\41\2\uffff\1\41\22\uffff\1\41\1\31\4\uffff\1\25\1\uffff\1\1\1\2\1"+
+			"\32\1\27\1\3\1\30\2\uffff\12\40\1\4\1\5\1\33\1\26\1\34\34\uffff\1\6\1"+
+			"\uffff\1\7\3\uffff\1\22\1\37\1\21\1\14\1\13\1\23\2\37\1\10\3\37\1\15"+
+			"\4\37\1\12\1\11\1\16\1\37\1\20\1\17\3\37\1\35\1\24\1\36",
 			"",
 			"",
 			"",
-			"\1\43",
+			"\1\42\2\uffff\1\43",
 			"",
 			"",
 			"",
-			"\1\45",
-			"\1\47\11\uffff\1\46",
-			"\1\51\1\uffff\1\50",
-			"",
-			"",
-			"\1\53\7\uffff\1\52",
+			"\1\46\7\uffff\1\45",
+			"\1\47",
+			"\1\50",
+			"\1\52\1\uffff\1\51\11\uffff\1\53",
 			"\1\54",
-			"\1\55\1\56",
+			"\1\55",
+			"\1\56",
 			"\1\57",
 			"\1\60",
 			"\1\61",
-			"\1\62",
-			"\1\63",
+			"\1\63\1\62",
 			"\1\64",
+			"",
+			"",
 			"\1\65",
-			"\1\66\3\uffff\1\67",
+			"\1\66",
 			"",
 			"",
 			"\1\70",
 			"\1\72",
-			"",
 			"\1\74",
-			"\1\76",
-			"\1\100",
 			"",
 			"",
 			"",
 			"",
 			"",
-			"\1\102",
-			"\32\40",
+			"",
+			"",
+			"",
+			"\1\76\1\uffff\1\77",
+			"\32\37",
+			"\1\101",
+			"\1\103\2\uffff\1\102",
 			"\1\104",
-			"\1\105\16\uffff\1\106",
+			"\1\105",
+			"\1\106",
 			"\1\107",
-			"\1\110\1\uffff\1\111",
-			"\32\40",
+			"\1\110",
+			"\1\111",
+			"\1\112",
 			"\1\113",
 			"\1\114",
 			"\1\115",
-			"\1\117\2\uffff\1\116",
+			"\1\116",
+			"\1\117",
 			"\1\120",
-			"\1\121",
-			"\1\122",
+			"",
+			"",
+			"",
+			"",
+			"",
+			"",
+			"",
+			"",
+			"\32\37",
 			"\1\123",
-			"\1\124",
+			"",
+			"\32\37",
 			"\1\125",
-			"",
-			"",
-			"",
-			"",
-			"",
-			"",
-			"",
-			"",
-			"",
-			"",
-			"",
-			"",
 			"\1\126",
-			"",
 			"\1\127",
-			"\32\40",
+			"\1\130",
 			"\1\131",
 			"\1\132",
-			"\32\40",
+			"\1\133",
 			"\1\134",
-			"",
-			"\32\40",
-			"\1\136",
+			"\1\135",
+			"\32\37",
 			"\1\137",
 			"\1\140",
 			"\1\141",
 			"\1\142",
+			"",
+			"",
+			"",
 			"\1\143",
+			"",
 			"\1\144",
-			"\32\40",
-			"\32\40",
-			"\1\147",
+			"\1\145",
+			"\1\146",
+			"\32\37",
 			"\1\150",
 			"\1\151",
-			"",
 			"\1\152",
-			"\32\40",
-			"",
+			"\32\37",
 			"\1\154",
 			"",
-			"\1\155",
+			"\32\37",
 			"\1\156",
 			"\1\157",
 			"\1\160",
 			"\1\161",
-			"\32\40",
+			"\1\162",
 			"\1\163",
+			"\1\164",
 			"",
-			"",
-			"\32\40",
-			"\32\40",
+			"\1\165",
 			"\1\166",
 			"\1\167",
 			"",
-			"\1\170",
-			"\32\40",
-			"\1\172",
+			"\32\37",
+			"",
+			"\1\171",
+			"\32\37",
 			"\1\173",
 			"\1\174",
 			"\1\175",
-			"",
-			"\32\40",
-			"",
-			"",
+			"\1\176",
 			"\1\177",
-			"\1\u0080",
+			"\32\37",
 			"\1\u0081",
+			"\32\37",
 			"",
-			"\32\40",
-			"\1\u0083",
-			"\1\u0084",
+			"\32\37",
+			"",
+			"\32\37",
 			"\1\u0085",
+			"\32\37",
+			"\1\u0087",
+			"\32\37",
 			"",
-			"\1\u0086",
-			"\32\40",
-			"\1\u0088",
+			"\1\u0089",
 			"",
-			"\32\40",
+			"",
+			"",
 			"\1\u008a",
-			"\1\u008b",
+			"",
+			"\32\37",
+			"",
 			"\1\u008c",
+			"\32\37",
 			"",
-			"\1\u008d",
-			"",
-			"\32\40",
-			"\32\40",
-			"\32\40",
-			"\32\40",
-			"",
-			"",
+			"\32\37",
 			"",
 			""
 	};
 
-	static final short[] DFA3_eot = DFA.unpackEncodedString(DFA3_eotS);
-	static final short[] DFA3_eof = DFA.unpackEncodedString(DFA3_eofS);
-	static final char[] DFA3_min = DFA.unpackEncodedStringToUnsignedChars(DFA3_minS);
-	static final char[] DFA3_max = DFA.unpackEncodedStringToUnsignedChars(DFA3_maxS);
-	static final short[] DFA3_accept = DFA.unpackEncodedString(DFA3_acceptS);
-	static final short[] DFA3_special = DFA.unpackEncodedString(DFA3_specialS);
-	static final short[][] DFA3_transition;
+	static final short[] DFA5_eot = DFA.unpackEncodedString(DFA5_eotS);
+	static final short[] DFA5_eof = DFA.unpackEncodedString(DFA5_eofS);
+	static final char[] DFA5_min = DFA.unpackEncodedStringToUnsignedChars(DFA5_minS);
+	static final char[] DFA5_max = DFA.unpackEncodedStringToUnsignedChars(DFA5_maxS);
+	static final short[] DFA5_accept = DFA.unpackEncodedString(DFA5_acceptS);
+	static final short[] DFA5_special = DFA.unpackEncodedString(DFA5_specialS);
+	static final short[][] DFA5_transition;
 
 	static {
-		int numStates = DFA3_transitionS.length;
-		DFA3_transition = new short[numStates][];
+		int numStates = DFA5_transitionS.length;
+		DFA5_transition = new short[numStates][];
 		for (int i=0; i<numStates; i++) {
-			DFA3_transition[i] = DFA.unpackEncodedString(DFA3_transitionS[i]);
+			DFA5_transition[i] = DFA.unpackEncodedString(DFA5_transitionS[i]);
 		}
 	}
 
-	protected class DFA3 extends DFA {
+	protected class DFA5 extends DFA {
 
-		public DFA3(BaseRecognizer recognizer) {
+		public DFA5(BaseRecognizer recognizer) {
 			this.recognizer = recognizer;
-			this.decisionNumber = 3;
-			this.eot = DFA3_eot;
-			this.eof = DFA3_eof;
-			this.min = DFA3_min;
-			this.max = DFA3_max;
-			this.accept = DFA3_accept;
-			this.special = DFA3_special;
-			this.transition = DFA3_transition;
+			this.decisionNumber = 5;
+			this.eot = DFA5_eot;
+			this.eof = DFA5_eof;
+			this.min = DFA5_min;
+			this.max = DFA5_max;
+			this.accept = DFA5_accept;
+			this.special = DFA5_special;
+			this.transition = DFA5_transition;
 		}
 		@Override
 		public String getDescription() {
-			return "1:1: Tokens : ( T__46 | T__47 | T__48 | T__49 | T__50 | T__51 | T__52 | T__53 | T__54 | T__55 | T__56 | T__57 | INT | SET | ARRAY | RETURNS | ENSURES | REQUIRES | DECREASES | FUNCTION | ELSE | IF | THEN | WHILE | VAR | NOT | CALL | INVARIANT | ASSERT | ALL | EX | ASSIGN | OR | AND | IMPLIES | PLUS | MINUS | TIMES | UNION | INTERSECT | LT | LE | GT | GE | EQ | ID | LIT | WS );";
+			return "1:1: Tokens : ( T__49 | T__50 | T__51 | T__52 | T__53 | T__54 | T__55 | INT | SET | RETURNS | ENSURES | REQUIRES | DECREASES | METHOD | ELSE | IF | THEN | WHILE | VAR | CALL | INVARIANT | ASSERT | ALL | EX | DOUBLECOLON | ASSIGN | OR | AND | IMPLIES | PLUS | MINUS | NOT | TIMES | UNION | INTERSECT | LT | LE | GT | GE | EQ | BLOCK_BEGIN | BLOCK_END | ARRAY | ID | LIT | WS );";
 		}
 	}
 
