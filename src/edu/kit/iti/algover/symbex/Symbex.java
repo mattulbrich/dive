@@ -10,12 +10,17 @@ import org.antlr.runtime.CommonToken;
 
 import edu.kit.iti.algover.parser.PseudoParser;
 import edu.kit.iti.algover.parser.PseudoTree;
+import edu.kit.iti.algover.symbex.PathConditionElement.AssertionType;
+import edu.kit.iti.algover.symbex.PathConditionElement.AssumptionType;
 import edu.kit.iti.algover.util.ASTUtil;
 
 /**
  * Symbex can be used to perform symbolic execution on a function.
  *
  * Create an instance and apply {@link #symbolicExecution(PseudoTree)}.
+ *
+ * The handle-mehtods are package visible to allow for testing from within
+ * the package.
  */
 public class Symbex {
 
@@ -91,8 +96,7 @@ public class Symbex {
      * This adds a proof obligation to the results and the remainder of the
      * program onto the stack. The state remains untouched.
      */
-    // TODO move to different package, then make package visible for testing
-    public void handleAssert(Deque<SymbexState> stack,
+    void handleAssert(Deque<SymbexState> stack,
             List<SymbexState> results, SymbexState state, PseudoTree stm,
             PseudoTree remainder) {
         SymbexState assertedState = new SymbexState(state);
@@ -135,8 +139,7 @@ public class Symbex {
      * 2. a symbex target for the preservation of the invariant is added to the stack
      * 3. a symbex target is added for the continuation of the program after the loop.
      */
-    // TODO move to different package, then make package visible for testing
-    public void handleWhile(Deque<SymbexState> stack,
+    void handleWhile(Deque<SymbexState> stack,
             List<SymbexState> results, SymbexState state, PseudoTree stm,
             PseudoTree remainder) {
         PseudoTree guard = stm.getChild(0);
@@ -185,8 +188,7 @@ public class Symbex {
      *
      * This updates the symbex state and pushes it onto the stack.
      */
-    // TODO move to different package, then make package visible for testing
-    public void handleAssign(Deque<SymbexState> stack, SymbexState state,
+    void handleAssign(Deque<SymbexState> stack, SymbexState state,
             PseudoTree stm, PseudoTree remainder) {
         VariableMap newMap = state.getMap().assign(stm.getChild(0).toString(), stm.getChild(1));
         state.setMap(newMap);
