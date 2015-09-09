@@ -1,15 +1,15 @@
 package edu.kit.iti.algover.ui.controller;
 
-import edu.kit.iti.algover.Main;
+import edu.kit.iti.algover.ui.util.FileUtilities;
 import edu.kit.iti.algover.ui.util.ConfirmBox;
 import javafx.application.Application;
+import javafx.geometry.Side;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.layout.BorderPane;
-import javafx.stage.FileChooser;
 import javafx.stage.Stage;
-
-import java.io.*;
+import org.controlsfx.control.HiddenSidesPane;
+import org.controlsfx.control.MasterDetailPane;
 
 /**
  * Created by sarah on 8/20/15.
@@ -31,7 +31,8 @@ public class ProgrammeViewController extends Application {
         MenuItem openFile = new MenuItem("Open File ...");
         fileMenu.getItems().add(openFile);
         openFile.setOnAction(e -> {
-            openFile(primaryStage);
+            String source = openFile(primaryStage);
+            srcPane.setText(source);
         });
 
         //options..
@@ -42,24 +43,27 @@ public class ProgrammeViewController extends Application {
         //add to menu
         topMenu.getMenus().addAll(fileMenu, optionsMenu, menuView, aboutMenu);
 
-        //Label label = new Label("Welcome to Scene3");
-        //Button button1 = new Button("ToScene2");
-        //button1.setOnAction(e -> window.setScene(scene2));
-//        button1.setOnAction(e -> {
-//            Boolean answer = ConfirmBox.display("Closing", "Are you sure you want to close the application?");
-//            if(answer){
-//                closeProgram();
-//            }
-//        });
+
 
         srcPane= new TextArea("");
+        MasterDetailPane masterPane = new MasterDetailPane();
+
+        HiddenSidesPane mainPane = new HiddenSidesPane();
+
 
         BorderPane mainLayout = new BorderPane();
+
         mainLayout.setCenter(srcPane);
-        //mainLayout.setBottom(button1);
-        mainLayout.setTop(topMenu);
-        //layout1.getChildren().setAll(label, button1);
-        scene = new Scene(mainLayout, 1024, 678);
+
+        mainPane.setContent(mainLayout);
+
+        mainPane.setTop(topMenu);
+        masterPane.setMasterNode(mainPane);
+
+        masterPane.setDetailSide(Side.LEFT);
+        masterPane.setShowDetailNode(true);
+        masterPane.setAnimated(true);
+        scene = new Scene(masterPane, 1024, 678);
         window.setScene(scene);
         window.setTitle("Test");
         window.setOnCloseRequest(e -> {
@@ -78,56 +82,13 @@ public class ProgrammeViewController extends Application {
         window.close();
     }
 
-    private void openFile(Stage stage){
-        FileChooser fileChooser = new FileChooser();
-        File file = fileChooser.showOpenDialog(stage);
-        Main.readFile(file);
-        String text= "";
-        String textline="";
-        int line= 1;
-        BufferedReader br = readFile(file);
-
-        if(br != null) {
-
-            while (textline != null) {
-                try {
-                    textline=  br.readLine();
-                    text += line + ": " + textline + "\n";
-                    line++;
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-
-            }
-            try {
-                br.close();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-            srcPane.setText(text);
-
-
-
-        }else {
-            srcPane.setText("File not read");
-            // Main.readFile(file);
-        }
+    private static String  openFile(Stage stage){
+        String source= FileUtilities.fileOpenAction(stage).getValue();
+        return source;
+       // srcPane.setText(source);
   }
    public void setStage(Stage stage){
         this.window = stage;
     }
-    public static BufferedReader readFile(File file) {
-        try {
-            BufferedReader br = new BufferedReader(new FileReader(file));
-            return br;
 
-
-        } catch (FileNotFoundException e) {
-            System.out.println("Could not read file " + file.getAbsolutePath());
-        } catch (Exception e) {
-            System.out.println("Could not load problem");
-        }return null;
-
-
-    }
 }

@@ -1,5 +1,6 @@
 package edu.kit.iti.algover.ui.util;
 
+import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
@@ -41,6 +42,7 @@ public class ConfirmBox{
 
 
         HBox buttonLayout = new HBox();
+        buttonLayout.setAlignment(Pos.CENTER);
         buttonLayout.getChildren().add(confirm);
         buttonLayout.setSpacing(20);
         buttonLayout.getChildren().add(decline);
