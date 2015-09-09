@@ -93,7 +93,8 @@ public class Symbex {
      * This adds a proof obligation to the results and the remainder of the
      * program onto the stack. The state remains untouched.
      */
-    private void handleAssert(Deque<SymbexState> stack,
+    // TODO move to different package, then make package visible for testing
+    public void handleAssert(Deque<SymbexState> stack,
             List<SymbexState> results, SymbexState state, PseudoTree stm,
             PseudoTree remainder) {
         SymbexState assertedState = new SymbexState(state);
@@ -136,7 +137,8 @@ public class Symbex {
      * 2. a symbex target for the preservation of the invariant is added to the stack
      * 3. a symbex target is added for the continuation of the program after the loop.
      */
-    private void handleWhile(Deque<SymbexState> stack,
+    // TODO move to different package, then make package visible for testing
+    public void handleWhile(Deque<SymbexState> stack,
             List<SymbexState> results, SymbexState state, PseudoTree stm,
             PseudoTree remainder) {
         PseudoTree guard = stm.getChild(0);
@@ -177,7 +179,7 @@ public class Symbex {
         state.addPathCondition(new PathConditionElement(ASTUtil.negate(guard), stm,
                 AssumptionType.WHILE_FALSE, state.getMap()));
         state.setBlockToExecute(remainder);
-        results.add(state);
+        stack.add(state);
     }
 
     /*
@@ -185,7 +187,8 @@ public class Symbex {
      *
      * This updates the symbex state and pushes it onto the stack.
      */
-    private void handleAssign(Deque<SymbexState> stack, SymbexState state,
+    // TODO move to different package, then make package visible for testing
+    public void handleAssign(Deque<SymbexState> stack, SymbexState state,
             PseudoTree stm, PseudoTree remainder) {
         VariableMap newMap = state.getMap().assign(stm.getChild(0).toString(), stm.getChild(1));
         state.setMap(newMap);
@@ -194,7 +197,7 @@ public class Symbex {
     }
 
     /**
-     * Anonymise the bariables which are touched in a loop body.
+     * Anonymise the variables which are touched in a loop body.
      *
      * @param map
      *            the initial variable map

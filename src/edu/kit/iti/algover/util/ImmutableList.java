@@ -1,5 +1,7 @@
 package edu.kit.iti.algover.util;
 
+import java.util.AbstractCollection;
+import java.util.Collection;
 import java.util.Iterator;
 
 /**
@@ -201,5 +203,25 @@ public class ImmutableList<T> implements Iterable<T> {
             }
         }
         return false;
+    }
+
+    public Collection<T> asCollection() {
+        return new AbstractCollection<T>() {
+
+            @Override
+            public Iterator<T> iterator() {
+                return ImmutableList.this.iterator();
+            }
+
+            @Override
+            public int size() {
+                return ImmutableList.this.size();
+            }
+        };
+    }
+
+    @Override
+    public String toString() {
+        return asCollection().toString();
     }
 }

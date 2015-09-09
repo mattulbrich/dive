@@ -63,7 +63,7 @@ public class SymbexState {
         this.proofObligationType = type;
     }
 
-    public Iterable<PathConditionElement> getPathConditions() {
+    public ImmutableList<PathConditionElement> getPathConditions() {
         return pathConditions;
     }
 
@@ -71,7 +71,7 @@ public class SymbexState {
         return proofObligationType;
     }
 
-    public Iterable<PseudoTree> getProofObligations() {
+    public ImmutableList<PseudoTree> getProofObligations() {
         return proofObligations;
     }
 

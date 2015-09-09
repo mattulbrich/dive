@@ -110,7 +110,7 @@ public class VariableMap {
         return result;
     }
 
-    private PseudoTree get(String name) {
+    public PseudoTree get(String name) {
 
         if(this == EMPTY && !name.contains("#")) {
             return new PseudoTree(new CommonToken(PseudoParser.ID, name + "#pre"));

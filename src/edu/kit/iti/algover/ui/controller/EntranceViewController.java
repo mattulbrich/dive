@@ -1,7 +1,7 @@
 package edu.kit.iti.algover.ui.controller;
 
-import edu.kit.iti.algover.PathCondition;
-import edu.kit.iti.algover.ui.Model.ProblemLoader;
+import edu.kit.iti.algover.PathConditionElement;
+import edu.kit.iti.algover.ui.model.ProblemLoader;
 import edu.kit.iti.algover.ui.util.ConfirmBox;
 import edu.kit.iti.algover.ui.util.FileUtilities;
 import javafx.application.Application;
@@ -14,9 +14,11 @@ import javafx.scene.control.*;
 import javafx.scene.layout.*;
 import javafx.stage.Stage;
 import javafx.util.Pair;
+
 import org.controlsfx.control.ListSelectionView;
 
 import javax.swing.text.StyledEditorKit;
+
 import java.io.File;
 import java.util.Collection;
 import java.util.Iterator;

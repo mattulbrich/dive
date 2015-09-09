@@ -1,7 +1,7 @@
 package edu.kit.iti.algover.ui.util;
 
 import edu.kit.iti.algover.Main;
-import edu.kit.iti.algover.ui.Model.ProblemLoader;
+import edu.kit.iti.algover.ui.model.ProblemLoader;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import javafx.util.Pair;

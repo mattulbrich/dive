@@ -1,7 +1,7 @@
 method max(a : array<int>, n: int) returns (m : int)
   requires n > 0
   ensures greater: (forall i:int :: 0 <= i && i < n ==> a[m] > a[i])
-  ensures witness: (exists i:int :: 0 <= i && i < n && a[m] = a[i])
+  ensures witness: (exists i:int :: 0 <= i && i < n && a[m] == a[i])
   decreases 0
 {
   var i : int;
@@ -11,7 +11,7 @@ method max(a : array<int>, n: int) returns (m : int)
   i := 0;
   while i < n
     invariant greater: (forall j:int :: 0 <= j && i < i ==> a[m] > a[j])
-    invariant witness: (exists j:int :: 0 <= j && j < i && a[m] = a[j])
+    invariant witness: (exists j:int :: 0 <= j && j < i && a[m] == a[j])
     decreases n - i
   {
     if a[i] > a[m]

@@ -1,6 +1,8 @@
 package edu.kit.iti.algover.parser;
 
 import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
 import java.net.URL;
 import java.util.Arrays;
 
@@ -24,7 +26,7 @@ public class ParserTest {
     @Parameters(name= "{0}")
     public static Iterable<Object[]> data() {
         return Arrays.asList(new Object[][] {
-                { "arrayMax" }, { "highdimarrays" },
+                { "arrayMax" }, { "highdimarrays" }, { "../symbex/symbex" },
                 });
     }
 
@@ -36,14 +38,29 @@ public class ParserTest {
 
     @Test
     public void test() throws Exception {
+
         URL url = getClass().getResource(filename);
 
         if(url == null) {
             throw new FileNotFoundException(filename);
         }
 
-        ANTLRInputStream input = new ANTLRInputStream(url.openStream());
+        PseudoTree t = parseFile(url.openStream());
 
+        if(VERBOSE) {
+            // print out the tree
+            System.out.println(TestUtil.beautify(t));
+        }
+    }
+
+    public static PseudoTree parseFile(InputStream stream) throws FileNotFoundException,
+            IOException, RecognitionException {
+
+        if(stream == null) {
+            throw new NullPointerException();
+        }
+
+        ANTLRInputStream input = new ANTLRInputStream(stream);
         PseudoLexer lexer = new PseudoLexer(input);
         // create the buffer of tokens between the lexer and parser
         CommonTokenStream tokens = new CommonTokenStream(lexer);
@@ -63,10 +80,7 @@ public class ParserTest {
         }
         // pull out the tree and cast it
         PseudoTree t = result.getTree();
-        if(VERBOSE) {
-            // print out the tree
-            System.out.println(TestUtil.beautify(t));
-        }
+        return t;
     }
 
 }
