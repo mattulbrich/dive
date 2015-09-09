@@ -13,15 +13,11 @@ import org.antlr.runtime.CommonToken;
 import org.junit.Before;
 import org.junit.Test;
 
-import edu.kit.iti.algover.PathConditionElement;
-import edu.kit.iti.algover.PathConditionElement.AssertionType;
-import edu.kit.iti.algover.PathConditionElement.AssumptionType;
-import edu.kit.iti.algover.Symbex;
-import edu.kit.iti.algover.SymbexState;
-import edu.kit.iti.algover.VariableMap;
 import edu.kit.iti.algover.parser.ParserTest;
 import edu.kit.iti.algover.parser.PseudoParser;
 import edu.kit.iti.algover.parser.PseudoTree;
+import edu.kit.iti.algover.symbex.PathConditionElement.AssertionType;
+import edu.kit.iti.algover.symbex.PathConditionElement.AssumptionType;
 
 public class SymbexTest {
 

@@ -1,4 +1,4 @@
-package edu.kit.iti.algover;
+package edu.kit.iti.algover.symbex;
 
 import edu.kit.iti.algover.parser.PseudoTree;
 

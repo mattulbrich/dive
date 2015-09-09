@@ -8,11 +8,11 @@ import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
 
-import edu.kit.iti.algover.PathConditionElement;
 import edu.kit.iti.algover.ProgramDatabase;
-import edu.kit.iti.algover.SymbexState;
 import edu.kit.iti.algover.parser.PseudoParser;
 import edu.kit.iti.algover.parser.PseudoTree;
+import edu.kit.iti.algover.symbex.PathConditionElement;
+import edu.kit.iti.algover.symbex.SymbexState;
 
 public class Z3Solver {
 

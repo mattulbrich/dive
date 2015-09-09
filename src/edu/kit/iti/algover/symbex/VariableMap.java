@@ -1,4 +1,4 @@
-package edu.kit.iti.algover;
+package edu.kit.iti.algover.symbex;
 
 import java.util.HashSet;
 import java.util.Set;

@@ -1,7 +1,7 @@
-package edu.kit.iti.algover;
+package edu.kit.iti.algover.symbex;
 
-import edu.kit.iti.algover.PathConditionElement.AssertionType;
 import edu.kit.iti.algover.parser.PseudoTree;
+import edu.kit.iti.algover.symbex.PathConditionElement.AssertionType;
 import edu.kit.iti.algover.util.ImmutableList;
 
 

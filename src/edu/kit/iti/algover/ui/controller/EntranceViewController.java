@@ -1,6 +1,6 @@
 package edu.kit.iti.algover.ui.controller;
 
-import edu.kit.iti.algover.PathConditionElement;
+import edu.kit.iti.algover.symbex.PathConditionElement;
 import edu.kit.iti.algover.ui.model.ProblemLoader;
 import edu.kit.iti.algover.ui.util.ConfirmBox;
 import edu.kit.iti.algover.ui.util.FileUtilities;

@@ -10,14 +10,14 @@ import java.util.List;
 import org.antlr.runtime.ANTLRInputStream;
 import org.antlr.runtime.CommonTokenStream;
 
-import edu.kit.iti.algover.PathConditionElement;
 import edu.kit.iti.algover.ProgramDatabase;
-import edu.kit.iti.algover.Symbex;
-import edu.kit.iti.algover.SymbexState;
 import edu.kit.iti.algover.parser.PseudoLexer;
 import edu.kit.iti.algover.parser.PseudoParser;
 import edu.kit.iti.algover.parser.PseudoTree;
 import edu.kit.iti.algover.smt.Z3Solver;
+import edu.kit.iti.algover.symbex.PathConditionElement;
+import edu.kit.iti.algover.symbex.Symbex;
+import edu.kit.iti.algover.symbex.SymbexState;
 
 /**
  * Created by sarah on 9/9/15.

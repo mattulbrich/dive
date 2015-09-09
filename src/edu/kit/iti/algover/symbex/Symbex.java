@@ -1,4 +1,4 @@
-package edu.kit.iti.algover;
+package edu.kit.iti.algover.symbex;
 import java.util.ArrayList;
 import java.util.Deque;
 import java.util.HashSet;
@@ -8,8 +8,6 @@ import java.util.Set;
 
 import org.antlr.runtime.CommonToken;
 
-import edu.kit.iti.algover.PathConditionElement.AssertionType;
-import edu.kit.iti.algover.PathConditionElement.AssumptionType;
 import edu.kit.iti.algover.parser.PseudoParser;
 import edu.kit.iti.algover.parser.PseudoTree;
 import edu.kit.iti.algover.util.ASTUtil;
