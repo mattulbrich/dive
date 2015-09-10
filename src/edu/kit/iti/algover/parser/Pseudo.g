@@ -68,7 +68,6 @@ VAR: 'var';
 CALL:'call';
 INVARIANT: 'invariant';
 ASSERT: 'assert';
-LENGTH: 'length';
 
 ALL: 'forall';
 EX: 'exists';
@@ -94,7 +93,7 @@ DOT: '.';
 BLOCK_BEGIN: '{';
 BLOCK_END: '}';
 
-
+LENGTH: 'length' (('1' .. '9') ('0' .. '9')*)?;
 ARRAY : 'array' (('1' .. '9') ('0' .. '9')*)?;
 ID : ('a' .. 'z' | 'A' .. 'Z' | '_')+;
 LIT : '0' ..'9'+;
@@ -222,7 +221,7 @@ prefix_expr:
 postfix_expr:
   atom_expr
   ( '[' expression ']' -> ^( ARRAY_ACCESS atom_expr expression )
-  | '.' 'length' -> ^( LENGTH atom_expr )
+  | '.' LENGTH -> ^( LENGTH atom_expr )
   | -> atom_expr
   )
   ;

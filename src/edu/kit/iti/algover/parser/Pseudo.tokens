@@ -79,7 +79,6 @@ WS=50
 'call'=14
 'else'=18
 'if'=25
-'length'=31
 'method'=35
 'while'=49
 '{'=12
