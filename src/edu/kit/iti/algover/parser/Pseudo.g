@@ -68,6 +68,7 @@ VAR: 'var';
 CALL:'call';
 INVARIANT: 'invariant';
 ASSERT: 'assert';
+LENGTH: 'length';
 
 ALL: 'forall';
 EX: 'exists';
@@ -88,6 +89,7 @@ LE: '<=';
 GT: '>';
 GE: '>=';
 EQ: '==';
+DOT: '.';
 
 BLOCK_BEGIN: '{';
 BLOCK_END: '}';
@@ -220,7 +222,9 @@ prefix_expr:
 postfix_expr:
   atom_expr
   ( '[' expression ']' -> ^( ARRAY_ACCESS atom_expr expression )
-  | -> atom_expr)
+  | '.' 'length' -> ^( LENGTH atom_expr )
+  | -> atom_expr
+  )
   ;
 
 atom_expr:

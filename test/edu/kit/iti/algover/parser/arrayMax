@@ -6,8 +6,8 @@ method max(a : array<int>, n: int) returns (m : int)
 {
   var i : int;
 
-  n := n+1;
-  m := a[0];
+  assert n == a.length;
+
   i := 0;
   while i < n
     invariant greater: (forall j:int :: 0 <= j && i < i ==> a[m] > a[j])
@@ -15,7 +15,9 @@ method max(a : array<int>, n: int) returns (m : int)
     decreases n - i
   {
     if a[i] > a[m]
+    {
       m := i;
+    }
     i := i+1;
   }
 }
