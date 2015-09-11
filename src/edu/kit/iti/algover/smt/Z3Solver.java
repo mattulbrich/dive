@@ -16,7 +16,7 @@ import edu.kit.iti.algover.symbex.SymbexState;
 
 public class Z3Solver {
 
-    public static final String COMMAND = "/home/mulbrich/bin/z3";
+    public static final String COMMAND = "/usr/bin/z3";
 
     enum Result { VALID, UNKNOWN, NEGSAT }
 

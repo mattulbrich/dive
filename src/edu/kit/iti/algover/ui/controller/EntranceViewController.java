@@ -104,6 +104,9 @@ public class EntranceViewController extends Application
             System.out.println("Parse the File");
         });
 
+        sourceCode.setOnInputMethodTextChanged(e -> {
+
+        });
         BorderPane poPane = new BorderPane();
         poPane.setTop(poLabel);
         poPane.setCenter(poList);

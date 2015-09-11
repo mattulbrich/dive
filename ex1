@@ -1,26 +1,21 @@
-function max(a: array, n: int)
-  returns m: int
+method max(a: array, n: int) returns m: int
   requires n > 0
-  ensures greater: (\all i:int ; 0 <= i && i < n ==> a[m] > a[i])
-  ensures exists: (\ex i:int ; 0 <= i && i < n && a[m] = a[i])
+  ensures greater: (forall i:int :: 0 <= i && i < n ==> a[m] > a[i])
+  ensures exists: (exists i:int :: 0 <= i && i < n && a[m] == a[i])
   decreases 0
-var
-  i : int
-begin
-
+{  var i : int;
   n := n+1;
   m := a[0];
   i := 0;
   while i < n
-    invariant greater: (\all j:int ; 0 <= j && i < i ==> a[m] > a[j])
-    invariant exists: (\ex j:int ; 0 <= j && j < i && a[m] = a[j])
+    invariant greater: (forall j:int :: 0 <= j && i < i ==> a[m] > a[j])
+    invariant exists: (exists j:int :: 0 <= j && j < i && a[m] == a[j])
     decreases n - i
-  do begin
+{
     if a[i] > a[m]
-    then m := i;
+     m := i;
     i := i+1
-  end
-
-end
+}
+}
 
 
