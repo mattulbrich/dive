@@ -60,6 +60,8 @@ ENSURES: 'ensures';
 REQUIRES: 'requires';
 DECREASES: 'decreases';
 METHOD: 'method';
+LEMMA: 'lemma';
+LABEL: 'label';
 ELSE: 'else';
 IF: 'if';
 THEN: 'then';
@@ -104,14 +106,15 @@ program:
   ;
 
 method:
-  'method' ID '(' vars? ')'
+  ('method'|'lemma')
+  ID '(' vars? ')'
   ( returns_ )?
   ( requires )*
   ( ensures )*
   ( decreases )?
   '{' ( decl )* statements? '}'
   ->
-    ^('method' ID ^(ARGS vars?) returns_? requires* ensures* 
+    ^(METHOD ID ^(ARGS vars?) returns_? requires* ensures* 
         decreases? decl* ^(BLOCK statements?))
   ;
 
@@ -138,11 +141,11 @@ returns_:
   ;
 
 requires:
-  REQUIRES^ (ID ':'!)? expression
+  REQUIRES^ ('label'! ID ':'!)? expression
   ;
 
 ensures:
-  ENSURES^ (ID ':'!)? expression
+  ENSURES^ ('label'! ID ':'!)? expression
   ;
 
 decreases:
@@ -150,7 +153,7 @@ decreases:
   ;
 
 invariant:
-  INVARIANT^ (ID ':'!)? expression
+  INVARIANT^ ('label'! ID ':'!)? expression
   ;
 
 block:
@@ -172,13 +175,12 @@ statement:
         -> ^('call' $f ^(RESULTS $r) ^(ARGS expressions?))
   | ids ':=' 'call' ID '(' expressions? ')' ';'
         -> ^('call' ID ^(RESULTS ids) ^(ARGS expressions?))
-  | 'while'^ expression
-      invariant+
-      decreases
-      relaxedBlock
+  | ('label' ID ':' )? 
+      'while' expression invariant+ decreases relaxedBlock
+        -> ^('while' ID? expression invariant+ decreases relaxedBlock)
   | 'if'^ expression relaxedBlock
       ( options { greedy=true; } : 'else'! relaxedBlock )?
-  | 'assert'^ ( ID ':'! )? expression ';'!
+  | 'assert'^ ( 'label'! ID ':'! )? expression ';'!
   ;
 
 ids:
