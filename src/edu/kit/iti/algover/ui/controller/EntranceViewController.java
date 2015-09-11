@@ -35,6 +35,7 @@ public class EntranceViewController extends Application
     String srcCode;
     Button buttonSave = new Button("Save");
     Button buttonLoad = new Button("Load");
+    Button buttonReload = new Button("Reload last opened file");
     Button buttonGeneratePO = new Button("Generate Proof Obligations");
     Label poLabel = new Label("Proof Obligations:");
     String name = "";
@@ -69,13 +70,14 @@ public class EntranceViewController extends Application
         //mainPane.setTop(test);
 
         buttonLoad.setOnAction(e -> {
-            Pair<File,String> p =  FileUtilities.fileOpenAction(window);
+            Pair<File, String> p = FileUtilities.fileOpenAction(window);
             srcCode = p.getValue();
             sourceCode.setText(srcCode);
             buttonGeneratePO.setDisable(false);
 
             loaded = p.getKey();
             name = loaded.getAbsolutePath().toString();
+            fileName.setText(name);
         });
 
         buttonSave.setOnAction(e -> {
@@ -83,22 +85,22 @@ public class EntranceViewController extends Application
             FileUtilities.fileSaveAction(window, content);
         });
 
+        buttonReload.setOnAction(e -> {
+            //
+        });
+
         buttonGeneratePO.setOnAction(e -> {
             //load the file and parse
+            poList.getItems().clear();
             ObservableList<String> items = FXCollections.emptyObservableList();
             ProblemLoader.readFile(loaded);
-            if(loaded != null) {
+            //ProblemLoader.results;
+            if (loaded != null) {
                 items = FXCollections.observableList(ProblemLoader.getPos());
-                //observableArrayList();
-                //= FXCollections.observableArrayList(
-                //"Test1", "Test2", "Test3", "Test4");
             } else {
-
                 items.add("Failed");
             }
-
             poList.setItems(items);
-
             System.out.println("Parse the File");
         });
 
@@ -111,7 +113,7 @@ public class EntranceViewController extends Application
         vb.getChildren().addAll(poPane, buttonGeneratePO);
 
         HBox hb = new HBox();
-        hb.getChildren().addAll(buttonSave, buttonLoad, fileName);
+        hb.getChildren().addAll(buttonSave, buttonLoad, buttonReload, fileName);
     //TODO: line numbers are missing
         sourceCode.setText(srcCode);
         ScrollPane sp = new ScrollPane();

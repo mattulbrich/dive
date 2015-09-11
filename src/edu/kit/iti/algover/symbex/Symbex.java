@@ -19,7 +19,7 @@ import edu.kit.iti.algover.util.ASTUtil;
  *
  * Create an instance and apply {@link #symbolicExecution(DafnyTree)}.
  *
- * The handle-mehtods are package visible to allow for testing from within
+ * The handle-methods are package visible to allow for testing from within
  * the package.
  */
 public class Symbex {
@@ -80,7 +80,9 @@ public class Symbex {
                     handleAssert(stack, results, state, stm, remainder);
                     break;
 
-                case DafnyParser.CALL:
+                case PseudoParser.ASSUME:
+                    handleAssume(stack, results, state, stm, remainder);
+                    break;
                 default:
                     throw new UnsupportedOperationException();
                 }
@@ -107,6 +109,20 @@ public class Symbex {
         stack.add(state);
     }
 
+    /**
+     * Handle an assume statement
+     * This adds a hypothesis to the proof obligation
+     * @param stack
+     * @param results
+     * @param state
+     * @param stm
+     * @param remainder
+     */
+    void handleAssume(Deque<SymbexState> stack,
+            List<SymbexState> results, SymbexState state, PseudoTree stm,
+            PseudoTree remainder){
+
+    }
     /*
      * Handle an if statement.
      *

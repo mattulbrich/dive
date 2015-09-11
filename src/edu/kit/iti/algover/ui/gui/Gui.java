@@ -7,11 +7,8 @@ import edu.kit.iti.algover.ui.util.FileUtilities;
 import edu.kit.iti.algover.ui.util.ConfirmBox;
 import javafx.application.Application;
 import javafx.scene.Scene;
-import javafx.scene.control.*;
-import javafx.scene.layout.BorderPane;
 import javafx.stage.Stage;
-import javafx.util.Duration;
-import org.controlsfx.control.HiddenSidesPane;
+
 
 public class Gui extends Application {
 //fx:controller="edu.kit.iti.algover.ui.controller.AlgoVerifGuiController"
