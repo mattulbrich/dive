@@ -5,8 +5,8 @@ import java.util.Set;
 
 import org.antlr.runtime.CommonToken;
 
-import edu.kit.iti.algover.parser.PseudoParser;
-import edu.kit.iti.algover.parser.PseudoTree;
+import edu.kit.iti.algover.parser.DafnyParser;
+import edu.kit.iti.algover.parser.DafnyTree;
 import edu.kit.iti.algover.util.ImmutableList;
 
 public class VariableMap {
@@ -15,13 +15,13 @@ public class VariableMap {
 
     private final VariableMap parent;
     private final String var;
-    private final PseudoTree value;
+    private final DafnyTree value;
 
-    public VariableMap assign(String var, PseudoTree value) {
+    public VariableMap assign(String var, DafnyTree value) {
         return new VariableMap(this, var, value);
     }
 
-    private VariableMap(VariableMap variableMap, String var, PseudoTree value) {
+    private VariableMap(VariableMap variableMap, String var, DafnyTree value) {
         this.parent = variableMap;
         this.var = var.intern();
         this.value = value;
@@ -45,7 +45,7 @@ public class VariableMap {
         }
 
         String anonName = v + "#" + (count+1);
-        return assign(v, new PseudoTree(new CommonToken(PseudoParser.ID, anonName)));
+        return assign(v, new DafnyTree(new CommonToken(DafnyParser.ID, anonName)));
     }
 
     public Set<String> findAnonymisingConsts() {
@@ -60,8 +60,8 @@ public class VariableMap {
         return result;
     }
 
-    public PseudoTree instantiate(PseudoTree expression) {
-        PseudoTree result = instantiate0(expression, ImmutableList.<String>nil());
+    public DafnyTree instantiate(DafnyTree expression) {
+        DafnyTree result = instantiate0(expression, ImmutableList.<String>nil());
         if(result == null) {
             return expression;
         } else {
@@ -69,31 +69,31 @@ public class VariableMap {
         }
     }
 
-    private PseudoTree instantiate0(PseudoTree expression, ImmutableList<String> exceptions) {
+    private DafnyTree instantiate0(DafnyTree expression, ImmutableList<String> exceptions) {
 
         int type = expression.getType();
 
-        if(type == PseudoParser.ID) {
+        if(type == DafnyParser.ID) {
             String name = expression.toString();
             if(exceptions.contains(name)) {
                 // it is an exception: no replacement for bound variables.
                 return expression;
             } else {
-                PseudoTree replacement = get(name);
+                DafnyTree replacement = get(name);
                 return replacement;
             }
         }
 
-        if(type == PseudoParser.ALL || type == PseudoParser.EX) {
+        if(type == DafnyParser.ALL || type == DafnyParser.EX) {
             exceptions = exceptions.prepend(expression.getChild(0).getText());
         }
 
-        PseudoTree result = null;
+        DafnyTree result = null;
         for(int i = 0; i < expression.getChildCount(); i++) {
-            PseudoTree kid = instantiate0(expression.getChild(i), exceptions);
+            DafnyTree kid = instantiate0(expression.getChild(i), exceptions);
             if(kid != null) {
                 if(result == null) {
-                    result = new PseudoTree(expression.token);
+                    result = new DafnyTree(expression.token);
                     for (int j = 0; j < i; j++) {
                         result.addChild(expression.getChild(j));
                     }
@@ -110,10 +110,10 @@ public class VariableMap {
         return result;
     }
 
-    public PseudoTree get(String name) {
+    public DafnyTree get(String name) {
 
         if(this == EMPTY && !name.contains("#")) {
-            return new PseudoTree(new CommonToken(PseudoParser.ID, name + "#pre"));
+            return new DafnyTree(new CommonToken(DafnyParser.ID, name + "#pre"));
         }
 
         if(name.equals(var)) {

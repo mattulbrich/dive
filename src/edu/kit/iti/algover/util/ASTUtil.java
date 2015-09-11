@@ -2,8 +2,8 @@ package edu.kit.iti.algover.util;
 
 import org.antlr.runtime.CommonToken;
 
-import edu.kit.iti.algover.parser.PseudoParser;
-import edu.kit.iti.algover.parser.PseudoTree;
+import edu.kit.iti.algover.parser.DafnyParser;
+import edu.kit.iti.algover.parser.DafnyTree;
 
 public class ASTUtil {
 
@@ -17,8 +17,8 @@ public class ASTUtil {
      * @param cond the AST for a formula
      * @return the AST for the negated formula.
      */
-    public static PseudoTree negate(PseudoTree cond) {
-        PseudoTree result= new PseudoTree(new CommonToken(PseudoParser.NOT, "not"));
+    public static DafnyTree negate(DafnyTree cond) {
+        DafnyTree result= new DafnyTree(new CommonToken(DafnyParser.NOT, "not"));
         result.addChild(cond);
         return result;
     }

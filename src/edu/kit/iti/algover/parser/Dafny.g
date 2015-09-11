@@ -1,8 +1,8 @@
-grammar Pseudo;
+grammar Dafny;
 
 options { 
   output = AST;
-  ASTLabelType = PseudoTree;
+  ASTLabelType = DafnyTree;
 }
 
 tokens {
@@ -105,7 +105,7 @@ program:
   ;
 
 method:
-  ('method'|'lemma')
+  tok = ('method' | 'lemma')
   ID '(' vars? ')'
   ( returns_ )?
   ( requires )*
@@ -113,7 +113,7 @@ method:
   ( decreases )?
   '{' ( decl )* statements? '}'
   ->
-    ^(METHOD ID ^(ARGS vars?) returns_? requires* ensures* 
+    ^(METHOD[tok] ID ^(ARGS vars?) returns_? requires* ensures* 
         decreases? decl* ^(BLOCK statements?))
   ;
 

@@ -4,8 +4,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
 
-import edu.kit.iti.algover.parser.PseudoParser;
-import edu.kit.iti.algover.parser.PseudoTree;
+import edu.kit.iti.algover.parser.DafnyParser;
+import edu.kit.iti.algover.parser.DafnyTree;
 
 public class SMTTrans {
 
@@ -19,31 +19,31 @@ public class SMTTrans {
         }
     }
 
-    public CharSequence trans(PseudoTree exp) {
+    public CharSequence trans(DafnyTree exp) {
         switch(exp.getType()) {
-        case PseudoParser.ALL:
+        case DafnyParser.ALL:
             return transQuant("forall", exp);
-        case PseudoParser.EX:
+        case DafnyParser.EX:
             return transQuant("exists", exp);
-        case PseudoParser.LIT:
-        case PseudoParser.ID:
+        case DafnyParser.LIT:
+        case DafnyParser.ID:
             return exp.toString().replace('#', '$');
 
-        case PseudoParser.AND:
-        case PseudoParser.OR:
-        case PseudoParser.IMPLIES:
-        case PseudoParser.PLUS:
-        case PseudoParser.MINUS:
-        case PseudoParser.TIMES:
-        case PseudoParser.UNION:
-        case PseudoParser.INTERSECT:
-        case PseudoParser.LT:
-        case PseudoParser.LE:
-        case PseudoParser.GE:
-        case PseudoParser.GT:
-        case PseudoParser.ARRAY_ACCESS:
-        case PseudoParser.EQ:
-        case PseudoParser.NOT:
+        case DafnyParser.AND:
+        case DafnyParser.OR:
+        case DafnyParser.IMPLIES:
+        case DafnyParser.PLUS:
+        case DafnyParser.MINUS:
+        case DafnyParser.TIMES:
+        case DafnyParser.UNION:
+        case DafnyParser.INTERSECT:
+        case DafnyParser.LT:
+        case DafnyParser.LE:
+        case DafnyParser.GE:
+        case DafnyParser.GT:
+        case DafnyParser.ARRAY_ACCESS:
+        case DafnyParser.EQ:
+        case DafnyParser.NOT:
             return transBinOp(exp);
 
         default:
@@ -51,7 +51,7 @@ public class SMTTrans {
         }
     }
 
-    private CharSequence transBinOp(PseudoTree exp) {
+    private CharSequence transBinOp(DafnyTree exp) {
         String tokenText = exp.token.getText();
         String smtOP = OP_MAP.getProperty(tokenText);
         if(smtOP == null) {
@@ -59,28 +59,28 @@ public class SMTTrans {
         }
         StringBuilder sb = new StringBuilder();
         sb.append("(").append(smtOP).append(" ");
-        for (PseudoTree child : exp.getChildren()) {
+        for (DafnyTree child : exp.getChildren()) {
             sb.append(trans(child)).append(" ");
         }
         sb.append(")");
         return sb;
     }
 
-    private String transQuant(String quantifier, PseudoTree exp) {
+    private String transQuant(String quantifier, DafnyTree exp) {
         String name = exp.getChild(0).toString().replace('#', '$');
-        PseudoTree cond = exp.getChild(2);
+        DafnyTree cond = exp.getChild(2);
         String type = transToType(exp.getChild(1));
         return "(" + quantifier + " ((" + name + " " + type + ")) " + trans(cond) + ")";
     }
 
-    public String transToType(PseudoTree exp) {
+    public String transToType(DafnyTree exp) {
         String type;
         switch(exp.getType()) {
-        case PseudoParser.INT:
+        case DafnyParser.INT:
             type = "Int"; break;
-        case PseudoParser.ARRAY:
+        case DafnyParser.ARRAY:
             type = "(Array Int Int)"; break;
-        case PseudoParser.SET:
+        case DafnyParser.SET:
             type = "(Array Int Bool)"; break;
         default: throw new Error();
         }

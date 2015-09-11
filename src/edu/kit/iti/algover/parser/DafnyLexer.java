@@ -1,4 +1,4 @@
-// $ANTLR 3.5.1 Pseudo.g 2015-09-11 11:38:48
+// $ANTLR 3.5.1 Dafny.g 2015-09-11 12:18:36
 
   package edu.kit.iti.algover.parser;
 
@@ -9,7 +9,7 @@ import java.util.List;
 import java.util.ArrayList;
 
 @SuppressWarnings("all")
-public class PseudoLexer extends Lexer {
+public class DafnyLexer extends Lexer {
 	public static final int EOF=-1;
 	public static final int T__53=53;
 	public static final int T__54=54;
@@ -74,22 +74,22 @@ public class PseudoLexer extends Lexer {
 		return new Lexer[] {};
 	}
 
-	public PseudoLexer() {} 
-	public PseudoLexer(CharStream input) {
+	public DafnyLexer() {} 
+	public DafnyLexer(CharStream input) {
 		this(input, new RecognizerSharedState());
 	}
-	public PseudoLexer(CharStream input, RecognizerSharedState state) {
+	public DafnyLexer(CharStream input, RecognizerSharedState state) {
 		super(input,state);
 	}
-	@Override public String getGrammarFileName() { return "Pseudo.g"; }
+	@Override public String getGrammarFileName() { return "Dafny.g"; }
 
 	// $ANTLR start "T__53"
 	public final void mT__53() throws RecognitionException {
 		try {
 			int _type = T__53;
 			int _channel = DEFAULT_TOKEN_CHANNEL;
-			// Pseudo.g:6:7: ( '(' )
-			// Pseudo.g:6:9: '('
+			// Dafny.g:6:7: ( '(' )
+			// Dafny.g:6:9: '('
 			{
 			match('('); 
 			}
@@ -108,8 +108,8 @@ public class PseudoLexer extends Lexer {
 		try {
 			int _type = T__54;
 			int _channel = DEFAULT_TOKEN_CHANNEL;
-			// Pseudo.g:7:7: ( ')' )
-			// Pseudo.g:7:9: ')'
+			// Dafny.g:7:7: ( ')' )
+			// Dafny.g:7:9: ')'
 			{
 			match(')'); 
 			}
@@ -128,8 +128,8 @@ public class PseudoLexer extends Lexer {
 		try {
 			int _type = T__55;
 			int _channel = DEFAULT_TOKEN_CHANNEL;
-			// Pseudo.g:8:7: ( ',' )
-			// Pseudo.g:8:9: ','
+			// Dafny.g:8:7: ( ',' )
+			// Dafny.g:8:9: ','
 			{
 			match(','); 
 			}
@@ -148,8 +148,8 @@ public class PseudoLexer extends Lexer {
 		try {
 			int _type = T__56;
 			int _channel = DEFAULT_TOKEN_CHANNEL;
-			// Pseudo.g:9:7: ( ':' )
-			// Pseudo.g:9:9: ':'
+			// Dafny.g:9:7: ( ':' )
+			// Dafny.g:9:9: ':'
 			{
 			match(':'); 
 			}
@@ -168,8 +168,8 @@ public class PseudoLexer extends Lexer {
 		try {
 			int _type = T__57;
 			int _channel = DEFAULT_TOKEN_CHANNEL;
-			// Pseudo.g:10:7: ( ';' )
-			// Pseudo.g:10:9: ';'
+			// Dafny.g:10:7: ( ';' )
+			// Dafny.g:10:9: ';'
 			{
 			match(';'); 
 			}
@@ -188,8 +188,8 @@ public class PseudoLexer extends Lexer {
 		try {
 			int _type = T__58;
 			int _channel = DEFAULT_TOKEN_CHANNEL;
-			// Pseudo.g:11:7: ( '[' )
-			// Pseudo.g:11:9: '['
+			// Dafny.g:11:7: ( '[' )
+			// Dafny.g:11:9: '['
 			{
 			match('['); 
 			}
@@ -208,8 +208,8 @@ public class PseudoLexer extends Lexer {
 		try {
 			int _type = T__59;
 			int _channel = DEFAULT_TOKEN_CHANNEL;
-			// Pseudo.g:12:7: ( ']' )
-			// Pseudo.g:12:9: ']'
+			// Dafny.g:12:7: ( ']' )
+			// Dafny.g:12:9: ']'
 			{
 			match(']'); 
 			}
@@ -228,8 +228,8 @@ public class PseudoLexer extends Lexer {
 		try {
 			int _type = INT;
 			int _channel = DEFAULT_TOKEN_CHANNEL;
-			// Pseudo.g:56:5: ( 'int' )
-			// Pseudo.g:56:7: 'int'
+			// Dafny.g:56:5: ( 'int' )
+			// Dafny.g:56:7: 'int'
 			{
 			match("int"); 
 
@@ -249,8 +249,8 @@ public class PseudoLexer extends Lexer {
 		try {
 			int _type = SET;
 			int _channel = DEFAULT_TOKEN_CHANNEL;
-			// Pseudo.g:57:5: ( 'set' )
-			// Pseudo.g:57:7: 'set'
+			// Dafny.g:57:5: ( 'set' )
+			// Dafny.g:57:7: 'set'
 			{
 			match("set"); 
 
@@ -270,8 +270,8 @@ public class PseudoLexer extends Lexer {
 		try {
 			int _type = RETURNS;
 			int _channel = DEFAULT_TOKEN_CHANNEL;
-			// Pseudo.g:58:9: ( 'returns' )
-			// Pseudo.g:58:11: 'returns'
+			// Dafny.g:58:9: ( 'returns' )
+			// Dafny.g:58:11: 'returns'
 			{
 			match("returns"); 
 
@@ -291,8 +291,8 @@ public class PseudoLexer extends Lexer {
 		try {
 			int _type = ENSURES;
 			int _channel = DEFAULT_TOKEN_CHANNEL;
-			// Pseudo.g:59:8: ( 'ensures' )
-			// Pseudo.g:59:10: 'ensures'
+			// Dafny.g:59:8: ( 'ensures' )
+			// Dafny.g:59:10: 'ensures'
 			{
 			match("ensures"); 
 
@@ -312,8 +312,8 @@ public class PseudoLexer extends Lexer {
 		try {
 			int _type = REQUIRES;
 			int _channel = DEFAULT_TOKEN_CHANNEL;
-			// Pseudo.g:60:9: ( 'requires' )
-			// Pseudo.g:60:11: 'requires'
+			// Dafny.g:60:9: ( 'requires' )
+			// Dafny.g:60:11: 'requires'
 			{
 			match("requires"); 
 
@@ -333,8 +333,8 @@ public class PseudoLexer extends Lexer {
 		try {
 			int _type = DECREASES;
 			int _channel = DEFAULT_TOKEN_CHANNEL;
-			// Pseudo.g:61:10: ( 'decreases' )
-			// Pseudo.g:61:12: 'decreases'
+			// Dafny.g:61:10: ( 'decreases' )
+			// Dafny.g:61:12: 'decreases'
 			{
 			match("decreases"); 
 
@@ -354,8 +354,8 @@ public class PseudoLexer extends Lexer {
 		try {
 			int _type = METHOD;
 			int _channel = DEFAULT_TOKEN_CHANNEL;
-			// Pseudo.g:62:7: ( 'method' )
-			// Pseudo.g:62:9: 'method'
+			// Dafny.g:62:7: ( 'method' )
+			// Dafny.g:62:9: 'method'
 			{
 			match("method"); 
 
@@ -375,8 +375,8 @@ public class PseudoLexer extends Lexer {
 		try {
 			int _type = LEMMA;
 			int _channel = DEFAULT_TOKEN_CHANNEL;
-			// Pseudo.g:63:6: ( 'lemma' )
-			// Pseudo.g:63:8: 'lemma'
+			// Dafny.g:63:6: ( 'lemma' )
+			// Dafny.g:63:8: 'lemma'
 			{
 			match("lemma"); 
 
@@ -396,8 +396,8 @@ public class PseudoLexer extends Lexer {
 		try {
 			int _type = LABEL;
 			int _channel = DEFAULT_TOKEN_CHANNEL;
-			// Pseudo.g:64:6: ( 'label' )
-			// Pseudo.g:64:8: 'label'
+			// Dafny.g:64:6: ( 'label' )
+			// Dafny.g:64:8: 'label'
 			{
 			match("label"); 
 
@@ -417,8 +417,8 @@ public class PseudoLexer extends Lexer {
 		try {
 			int _type = ELSE;
 			int _channel = DEFAULT_TOKEN_CHANNEL;
-			// Pseudo.g:65:5: ( 'else' )
-			// Pseudo.g:65:7: 'else'
+			// Dafny.g:65:5: ( 'else' )
+			// Dafny.g:65:7: 'else'
 			{
 			match("else"); 
 
@@ -438,8 +438,8 @@ public class PseudoLexer extends Lexer {
 		try {
 			int _type = IF;
 			int _channel = DEFAULT_TOKEN_CHANNEL;
-			// Pseudo.g:66:3: ( 'if' )
-			// Pseudo.g:66:5: 'if'
+			// Dafny.g:66:3: ( 'if' )
+			// Dafny.g:66:5: 'if'
 			{
 			match("if"); 
 
@@ -459,8 +459,8 @@ public class PseudoLexer extends Lexer {
 		try {
 			int _type = THEN;
 			int _channel = DEFAULT_TOKEN_CHANNEL;
-			// Pseudo.g:67:5: ( 'then' )
-			// Pseudo.g:67:7: 'then'
+			// Dafny.g:67:5: ( 'then' )
+			// Dafny.g:67:7: 'then'
 			{
 			match("then"); 
 
@@ -480,8 +480,8 @@ public class PseudoLexer extends Lexer {
 		try {
 			int _type = WHILE;
 			int _channel = DEFAULT_TOKEN_CHANNEL;
-			// Pseudo.g:68:6: ( 'while' )
-			// Pseudo.g:68:8: 'while'
+			// Dafny.g:68:6: ( 'while' )
+			// Dafny.g:68:8: 'while'
 			{
 			match("while"); 
 
@@ -501,8 +501,8 @@ public class PseudoLexer extends Lexer {
 		try {
 			int _type = VAR;
 			int _channel = DEFAULT_TOKEN_CHANNEL;
-			// Pseudo.g:69:4: ( 'var' )
-			// Pseudo.g:69:6: 'var'
+			// Dafny.g:69:4: ( 'var' )
+			// Dafny.g:69:6: 'var'
 			{
 			match("var"); 
 
@@ -522,8 +522,8 @@ public class PseudoLexer extends Lexer {
 		try {
 			int _type = CALL;
 			int _channel = DEFAULT_TOKEN_CHANNEL;
-			// Pseudo.g:70:5: ( 'call' )
-			// Pseudo.g:70:6: 'call'
+			// Dafny.g:70:5: ( 'call' )
+			// Dafny.g:70:6: 'call'
 			{
 			match("call"); 
 
@@ -543,8 +543,8 @@ public class PseudoLexer extends Lexer {
 		try {
 			int _type = INVARIANT;
 			int _channel = DEFAULT_TOKEN_CHANNEL;
-			// Pseudo.g:71:10: ( 'invariant' )
-			// Pseudo.g:71:12: 'invariant'
+			// Dafny.g:71:10: ( 'invariant' )
+			// Dafny.g:71:12: 'invariant'
 			{
 			match("invariant"); 
 
@@ -564,8 +564,8 @@ public class PseudoLexer extends Lexer {
 		try {
 			int _type = ASSERT;
 			int _channel = DEFAULT_TOKEN_CHANNEL;
-			// Pseudo.g:72:7: ( 'assert' )
-			// Pseudo.g:72:9: 'assert'
+			// Dafny.g:72:7: ( 'assert' )
+			// Dafny.g:72:9: 'assert'
 			{
 			match("assert"); 
 
@@ -585,8 +585,8 @@ public class PseudoLexer extends Lexer {
 		try {
 			int _type = ALL;
 			int _channel = DEFAULT_TOKEN_CHANNEL;
-			// Pseudo.g:74:4: ( 'forall' )
-			// Pseudo.g:74:6: 'forall'
+			// Dafny.g:74:4: ( 'forall' )
+			// Dafny.g:74:6: 'forall'
 			{
 			match("forall"); 
 
@@ -606,8 +606,8 @@ public class PseudoLexer extends Lexer {
 		try {
 			int _type = EX;
 			int _channel = DEFAULT_TOKEN_CHANNEL;
-			// Pseudo.g:75:3: ( 'exists' )
-			// Pseudo.g:75:5: 'exists'
+			// Dafny.g:75:3: ( 'exists' )
+			// Dafny.g:75:5: 'exists'
 			{
 			match("exists"); 
 
@@ -627,8 +627,8 @@ public class PseudoLexer extends Lexer {
 		try {
 			int _type = DOUBLECOLON;
 			int _channel = DEFAULT_TOKEN_CHANNEL;
-			// Pseudo.g:77:12: ( '::' )
-			// Pseudo.g:77:14: '::'
+			// Dafny.g:77:12: ( '::' )
+			// Dafny.g:77:14: '::'
 			{
 			match("::"); 
 
@@ -648,8 +648,8 @@ public class PseudoLexer extends Lexer {
 		try {
 			int _type = ASSIGN;
 			int _channel = DEFAULT_TOKEN_CHANNEL;
-			// Pseudo.g:78:7: ( ':=' )
-			// Pseudo.g:78:9: ':='
+			// Dafny.g:78:7: ( ':=' )
+			// Dafny.g:78:9: ':='
 			{
 			match(":="); 
 
@@ -669,8 +669,8 @@ public class PseudoLexer extends Lexer {
 		try {
 			int _type = OR;
 			int _channel = DEFAULT_TOKEN_CHANNEL;
-			// Pseudo.g:79:3: ( '||' )
-			// Pseudo.g:79:5: '||'
+			// Dafny.g:79:3: ( '||' )
+			// Dafny.g:79:5: '||'
 			{
 			match("||"); 
 
@@ -690,8 +690,8 @@ public class PseudoLexer extends Lexer {
 		try {
 			int _type = AND;
 			int _channel = DEFAULT_TOKEN_CHANNEL;
-			// Pseudo.g:80:4: ( '&&' )
-			// Pseudo.g:80:6: '&&'
+			// Dafny.g:80:4: ( '&&' )
+			// Dafny.g:80:6: '&&'
 			{
 			match("&&"); 
 
@@ -711,8 +711,8 @@ public class PseudoLexer extends Lexer {
 		try {
 			int _type = IMPLIES;
 			int _channel = DEFAULT_TOKEN_CHANNEL;
-			// Pseudo.g:81:8: ( '==>' )
-			// Pseudo.g:81:10: '==>'
+			// Dafny.g:81:8: ( '==>' )
+			// Dafny.g:81:10: '==>'
 			{
 			match("==>"); 
 
@@ -732,8 +732,8 @@ public class PseudoLexer extends Lexer {
 		try {
 			int _type = PLUS;
 			int _channel = DEFAULT_TOKEN_CHANNEL;
-			// Pseudo.g:82:5: ( '+' )
-			// Pseudo.g:82:7: '+'
+			// Dafny.g:82:5: ( '+' )
+			// Dafny.g:82:7: '+'
 			{
 			match('+'); 
 			}
@@ -752,8 +752,8 @@ public class PseudoLexer extends Lexer {
 		try {
 			int _type = MINUS;
 			int _channel = DEFAULT_TOKEN_CHANNEL;
-			// Pseudo.g:83:6: ( '-' )
-			// Pseudo.g:83:8: '-'
+			// Dafny.g:83:6: ( '-' )
+			// Dafny.g:83:8: '-'
 			{
 			match('-'); 
 			}
@@ -772,8 +772,8 @@ public class PseudoLexer extends Lexer {
 		try {
 			int _type = NOT;
 			int _channel = DEFAULT_TOKEN_CHANNEL;
-			// Pseudo.g:84:4: ( '!' )
-			// Pseudo.g:84:6: '!'
+			// Dafny.g:84:4: ( '!' )
+			// Dafny.g:84:6: '!'
 			{
 			match('!'); 
 			}
@@ -792,8 +792,8 @@ public class PseudoLexer extends Lexer {
 		try {
 			int _type = TIMES;
 			int _channel = DEFAULT_TOKEN_CHANNEL;
-			// Pseudo.g:85:6: ( '*' )
-			// Pseudo.g:85:8: '*'
+			// Dafny.g:85:6: ( '*' )
+			// Dafny.g:85:8: '*'
 			{
 			match('*'); 
 			}
@@ -812,8 +812,8 @@ public class PseudoLexer extends Lexer {
 		try {
 			int _type = UNION;
 			int _channel = DEFAULT_TOKEN_CHANNEL;
-			// Pseudo.g:86:6: ( '++' )
-			// Pseudo.g:86:8: '++'
+			// Dafny.g:86:6: ( '++' )
+			// Dafny.g:86:8: '++'
 			{
 			match("++"); 
 
@@ -833,8 +833,8 @@ public class PseudoLexer extends Lexer {
 		try {
 			int _type = INTERSECT;
 			int _channel = DEFAULT_TOKEN_CHANNEL;
-			// Pseudo.g:87:10: ( '**' )
-			// Pseudo.g:87:12: '**'
+			// Dafny.g:87:10: ( '**' )
+			// Dafny.g:87:12: '**'
 			{
 			match("**"); 
 
@@ -854,8 +854,8 @@ public class PseudoLexer extends Lexer {
 		try {
 			int _type = LT;
 			int _channel = DEFAULT_TOKEN_CHANNEL;
-			// Pseudo.g:88:3: ( '<' )
-			// Pseudo.g:88:5: '<'
+			// Dafny.g:88:3: ( '<' )
+			// Dafny.g:88:5: '<'
 			{
 			match('<'); 
 			}
@@ -874,8 +874,8 @@ public class PseudoLexer extends Lexer {
 		try {
 			int _type = LE;
 			int _channel = DEFAULT_TOKEN_CHANNEL;
-			// Pseudo.g:89:3: ( '<=' )
-			// Pseudo.g:89:5: '<='
+			// Dafny.g:89:3: ( '<=' )
+			// Dafny.g:89:5: '<='
 			{
 			match("<="); 
 
@@ -895,8 +895,8 @@ public class PseudoLexer extends Lexer {
 		try {
 			int _type = GT;
 			int _channel = DEFAULT_TOKEN_CHANNEL;
-			// Pseudo.g:90:3: ( '>' )
-			// Pseudo.g:90:5: '>'
+			// Dafny.g:90:3: ( '>' )
+			// Dafny.g:90:5: '>'
 			{
 			match('>'); 
 			}
@@ -915,8 +915,8 @@ public class PseudoLexer extends Lexer {
 		try {
 			int _type = GE;
 			int _channel = DEFAULT_TOKEN_CHANNEL;
-			// Pseudo.g:91:3: ( '>=' )
-			// Pseudo.g:91:5: '>='
+			// Dafny.g:91:3: ( '>=' )
+			// Dafny.g:91:5: '>='
 			{
 			match(">="); 
 
@@ -936,8 +936,8 @@ public class PseudoLexer extends Lexer {
 		try {
 			int _type = EQ;
 			int _channel = DEFAULT_TOKEN_CHANNEL;
-			// Pseudo.g:92:3: ( '==' )
-			// Pseudo.g:92:5: '=='
+			// Dafny.g:92:3: ( '==' )
+			// Dafny.g:92:5: '=='
 			{
 			match("=="); 
 
@@ -957,8 +957,8 @@ public class PseudoLexer extends Lexer {
 		try {
 			int _type = DOT;
 			int _channel = DEFAULT_TOKEN_CHANNEL;
-			// Pseudo.g:93:4: ( '.' )
-			// Pseudo.g:93:6: '.'
+			// Dafny.g:93:4: ( '.' )
+			// Dafny.g:93:6: '.'
 			{
 			match('.'); 
 			}
@@ -977,8 +977,8 @@ public class PseudoLexer extends Lexer {
 		try {
 			int _type = BLOCK_BEGIN;
 			int _channel = DEFAULT_TOKEN_CHANNEL;
-			// Pseudo.g:94:12: ( '{' )
-			// Pseudo.g:94:14: '{'
+			// Dafny.g:94:12: ( '{' )
+			// Dafny.g:94:14: '{'
 			{
 			match('{'); 
 			}
@@ -997,8 +997,8 @@ public class PseudoLexer extends Lexer {
 		try {
 			int _type = BLOCK_END;
 			int _channel = DEFAULT_TOKEN_CHANNEL;
-			// Pseudo.g:95:10: ( '}' )
-			// Pseudo.g:95:12: '}'
+			// Dafny.g:95:10: ( '}' )
+			// Dafny.g:95:12: '}'
 			{
 			match('}'); 
 			}
@@ -1017,12 +1017,12 @@ public class PseudoLexer extends Lexer {
 		try {
 			int _type = LENGTH;
 			int _channel = DEFAULT_TOKEN_CHANNEL;
-			// Pseudo.g:97:7: ( 'Length' ( '0' .. '9' )* )
-			// Pseudo.g:97:9: 'Length' ( '0' .. '9' )*
+			// Dafny.g:97:7: ( 'Length' ( '0' .. '9' )* )
+			// Dafny.g:97:9: 'Length' ( '0' .. '9' )*
 			{
 			match("Length"); 
 
-			// Pseudo.g:97:18: ( '0' .. '9' )*
+			// Dafny.g:97:18: ( '0' .. '9' )*
 			loop1:
 			while (true) {
 				int alt1=2;
@@ -1033,7 +1033,7 @@ public class PseudoLexer extends Lexer {
 
 				switch (alt1) {
 				case 1 :
-					// Pseudo.g:
+					// Dafny.g:
 					{
 					if ( (input.LA(1) >= '0' && input.LA(1) <= '9') ) {
 						input.consume();
@@ -1067,12 +1067,12 @@ public class PseudoLexer extends Lexer {
 		try {
 			int _type = ARRAY;
 			int _channel = DEFAULT_TOKEN_CHANNEL;
-			// Pseudo.g:98:7: ( 'array' ( ( '1' .. '9' ) ( '0' .. '9' )* )? )
-			// Pseudo.g:98:9: 'array' ( ( '1' .. '9' ) ( '0' .. '9' )* )?
+			// Dafny.g:98:7: ( 'array' ( ( '1' .. '9' ) ( '0' .. '9' )* )? )
+			// Dafny.g:98:9: 'array' ( ( '1' .. '9' ) ( '0' .. '9' )* )?
 			{
 			match("array"); 
 
-			// Pseudo.g:98:17: ( ( '1' .. '9' ) ( '0' .. '9' )* )?
+			// Dafny.g:98:17: ( ( '1' .. '9' ) ( '0' .. '9' )* )?
 			int alt3=2;
 			int LA3_0 = input.LA(1);
 			if ( ((LA3_0 >= '1' && LA3_0 <= '9')) ) {
@@ -1080,7 +1080,7 @@ public class PseudoLexer extends Lexer {
 			}
 			switch (alt3) {
 				case 1 :
-					// Pseudo.g:98:18: ( '1' .. '9' ) ( '0' .. '9' )*
+					// Dafny.g:98:18: ( '1' .. '9' ) ( '0' .. '9' )*
 					{
 					if ( (input.LA(1) >= '1' && input.LA(1) <= '9') ) {
 						input.consume();
@@ -1090,7 +1090,7 @@ public class PseudoLexer extends Lexer {
 						recover(mse);
 						throw mse;
 					}
-					// Pseudo.g:98:31: ( '0' .. '9' )*
+					// Dafny.g:98:31: ( '0' .. '9' )*
 					loop2:
 					while (true) {
 						int alt2=2;
@@ -1101,7 +1101,7 @@ public class PseudoLexer extends Lexer {
 
 						switch (alt2) {
 						case 1 :
-							// Pseudo.g:
+							// Dafny.g:
 							{
 							if ( (input.LA(1) >= '0' && input.LA(1) <= '9') ) {
 								input.consume();
@@ -1140,10 +1140,10 @@ public class PseudoLexer extends Lexer {
 		try {
 			int _type = ID;
 			int _channel = DEFAULT_TOKEN_CHANNEL;
-			// Pseudo.g:99:4: ( ( 'a' .. 'z' | 'A' .. 'Z' | '_' )+ )
-			// Pseudo.g:99:6: ( 'a' .. 'z' | 'A' .. 'Z' | '_' )+
+			// Dafny.g:99:4: ( ( 'a' .. 'z' | 'A' .. 'Z' | '_' )+ )
+			// Dafny.g:99:6: ( 'a' .. 'z' | 'A' .. 'Z' | '_' )+
 			{
-			// Pseudo.g:99:6: ( 'a' .. 'z' | 'A' .. 'Z' | '_' )+
+			// Dafny.g:99:6: ( 'a' .. 'z' | 'A' .. 'Z' | '_' )+
 			int cnt4=0;
 			loop4:
 			while (true) {
@@ -1155,7 +1155,7 @@ public class PseudoLexer extends Lexer {
 
 				switch (alt4) {
 				case 1 :
-					// Pseudo.g:
+					// Dafny.g:
 					{
 					if ( (input.LA(1) >= 'A' && input.LA(1) <= 'Z')||input.LA(1)=='_'||(input.LA(1) >= 'a' && input.LA(1) <= 'z') ) {
 						input.consume();
@@ -1192,10 +1192,10 @@ public class PseudoLexer extends Lexer {
 		try {
 			int _type = LIT;
 			int _channel = DEFAULT_TOKEN_CHANNEL;
-			// Pseudo.g:100:5: ( ( '0' .. '9' )+ )
-			// Pseudo.g:100:7: ( '0' .. '9' )+
+			// Dafny.g:100:5: ( ( '0' .. '9' )+ )
+			// Dafny.g:100:7: ( '0' .. '9' )+
 			{
-			// Pseudo.g:100:7: ( '0' .. '9' )+
+			// Dafny.g:100:7: ( '0' .. '9' )+
 			int cnt5=0;
 			loop5:
 			while (true) {
@@ -1207,7 +1207,7 @@ public class PseudoLexer extends Lexer {
 
 				switch (alt5) {
 				case 1 :
-					// Pseudo.g:
+					// Dafny.g:
 					{
 					if ( (input.LA(1) >= '0' && input.LA(1) <= '9') ) {
 						input.consume();
@@ -1244,8 +1244,8 @@ public class PseudoLexer extends Lexer {
 		try {
 			int _type = WS;
 			int _channel = DEFAULT_TOKEN_CHANNEL;
-			// Pseudo.g:101:4: ( ( ' ' | '\\n' | '\\r' ) )
-			// Pseudo.g:101:6: ( ' ' | '\\n' | '\\r' )
+			// Dafny.g:101:4: ( ( ' ' | '\\n' | '\\r' ) )
+			// Dafny.g:101:6: ( ' ' | '\\n' | '\\r' )
 			{
 			if ( input.LA(1)=='\n'||input.LA(1)=='\r'||input.LA(1)==' ' ) {
 				input.consume();
@@ -1269,355 +1269,355 @@ public class PseudoLexer extends Lexer {
 
 	@Override
 	public void mTokens() throws RecognitionException {
-		// Pseudo.g:1:8: ( T__53 | T__54 | T__55 | T__56 | T__57 | T__58 | T__59 | INT | SET | RETURNS | ENSURES | REQUIRES | DECREASES | METHOD | LEMMA | LABEL | ELSE | IF | THEN | WHILE | VAR | CALL | INVARIANT | ASSERT | ALL | EX | DOUBLECOLON | ASSIGN | OR | AND | IMPLIES | PLUS | MINUS | NOT | TIMES | UNION | INTERSECT | LT | LE | GT | GE | EQ | DOT | BLOCK_BEGIN | BLOCK_END | LENGTH | ARRAY | ID | LIT | WS )
+		// Dafny.g:1:8: ( T__53 | T__54 | T__55 | T__56 | T__57 | T__58 | T__59 | INT | SET | RETURNS | ENSURES | REQUIRES | DECREASES | METHOD | LEMMA | LABEL | ELSE | IF | THEN | WHILE | VAR | CALL | INVARIANT | ASSERT | ALL | EX | DOUBLECOLON | ASSIGN | OR | AND | IMPLIES | PLUS | MINUS | NOT | TIMES | UNION | INTERSECT | LT | LE | GT | GE | EQ | DOT | BLOCK_BEGIN | BLOCK_END | LENGTH | ARRAY | ID | LIT | WS )
 		int alt6=50;
 		alt6 = dfa6.predict(input);
 		switch (alt6) {
 			case 1 :
-				// Pseudo.g:1:10: T__53
+				// Dafny.g:1:10: T__53
 				{
 				mT__53(); 
 
 				}
 				break;
 			case 2 :
-				// Pseudo.g:1:16: T__54
+				// Dafny.g:1:16: T__54
 				{
 				mT__54(); 
 
 				}
 				break;
 			case 3 :
-				// Pseudo.g:1:22: T__55
+				// Dafny.g:1:22: T__55
 				{
 				mT__55(); 
 
 				}
 				break;
 			case 4 :
-				// Pseudo.g:1:28: T__56
+				// Dafny.g:1:28: T__56
 				{
 				mT__56(); 
 
 				}
 				break;
 			case 5 :
-				// Pseudo.g:1:34: T__57
+				// Dafny.g:1:34: T__57
 				{
 				mT__57(); 
 
 				}
 				break;
 			case 6 :
-				// Pseudo.g:1:40: T__58
+				// Dafny.g:1:40: T__58
 				{
 				mT__58(); 
 
 				}
 				break;
 			case 7 :
-				// Pseudo.g:1:46: T__59
+				// Dafny.g:1:46: T__59
 				{
 				mT__59(); 
 
 				}
 				break;
 			case 8 :
-				// Pseudo.g:1:52: INT
+				// Dafny.g:1:52: INT
 				{
 				mINT(); 
 
 				}
 				break;
 			case 9 :
-				// Pseudo.g:1:56: SET
+				// Dafny.g:1:56: SET
 				{
 				mSET(); 
 
 				}
 				break;
 			case 10 :
-				// Pseudo.g:1:60: RETURNS
+				// Dafny.g:1:60: RETURNS
 				{
 				mRETURNS(); 
 
 				}
 				break;
 			case 11 :
-				// Pseudo.g:1:68: ENSURES
+				// Dafny.g:1:68: ENSURES
 				{
 				mENSURES(); 
 
 				}
 				break;
 			case 12 :
-				// Pseudo.g:1:76: REQUIRES
+				// Dafny.g:1:76: REQUIRES
 				{
 				mREQUIRES(); 
 
 				}
 				break;
 			case 13 :
-				// Pseudo.g:1:85: DECREASES
+				// Dafny.g:1:85: DECREASES
 				{
 				mDECREASES(); 
 
 				}
 				break;
 			case 14 :
-				// Pseudo.g:1:95: METHOD
+				// Dafny.g:1:95: METHOD
 				{
 				mMETHOD(); 
 
 				}
 				break;
 			case 15 :
-				// Pseudo.g:1:102: LEMMA
+				// Dafny.g:1:102: LEMMA
 				{
 				mLEMMA(); 
 
 				}
 				break;
 			case 16 :
-				// Pseudo.g:1:108: LABEL
+				// Dafny.g:1:108: LABEL
 				{
 				mLABEL(); 
 
 				}
 				break;
 			case 17 :
-				// Pseudo.g:1:114: ELSE
+				// Dafny.g:1:114: ELSE
 				{
 				mELSE(); 
 
 				}
 				break;
 			case 18 :
-				// Pseudo.g:1:119: IF
+				// Dafny.g:1:119: IF
 				{
 				mIF(); 
 
 				}
 				break;
 			case 19 :
-				// Pseudo.g:1:122: THEN
+				// Dafny.g:1:122: THEN
 				{
 				mTHEN(); 
 
 				}
 				break;
 			case 20 :
-				// Pseudo.g:1:127: WHILE
+				// Dafny.g:1:127: WHILE
 				{
 				mWHILE(); 
 
 				}
 				break;
 			case 21 :
-				// Pseudo.g:1:133: VAR
+				// Dafny.g:1:133: VAR
 				{
 				mVAR(); 
 
 				}
 				break;
 			case 22 :
-				// Pseudo.g:1:137: CALL
+				// Dafny.g:1:137: CALL
 				{
 				mCALL(); 
 
 				}
 				break;
 			case 23 :
-				// Pseudo.g:1:142: INVARIANT
+				// Dafny.g:1:142: INVARIANT
 				{
 				mINVARIANT(); 
 
 				}
 				break;
 			case 24 :
-				// Pseudo.g:1:152: ASSERT
+				// Dafny.g:1:152: ASSERT
 				{
 				mASSERT(); 
 
 				}
 				break;
 			case 25 :
-				// Pseudo.g:1:159: ALL
+				// Dafny.g:1:159: ALL
 				{
 				mALL(); 
 
 				}
 				break;
 			case 26 :
-				// Pseudo.g:1:163: EX
+				// Dafny.g:1:163: EX
 				{
 				mEX(); 
 
 				}
 				break;
 			case 27 :
-				// Pseudo.g:1:166: DOUBLECOLON
+				// Dafny.g:1:166: DOUBLECOLON
 				{
 				mDOUBLECOLON(); 
 
 				}
 				break;
 			case 28 :
-				// Pseudo.g:1:178: ASSIGN
+				// Dafny.g:1:178: ASSIGN
 				{
 				mASSIGN(); 
 
 				}
 				break;
 			case 29 :
-				// Pseudo.g:1:185: OR
+				// Dafny.g:1:185: OR
 				{
 				mOR(); 
 
 				}
 				break;
 			case 30 :
-				// Pseudo.g:1:188: AND
+				// Dafny.g:1:188: AND
 				{
 				mAND(); 
 
 				}
 				break;
 			case 31 :
-				// Pseudo.g:1:192: IMPLIES
+				// Dafny.g:1:192: IMPLIES
 				{
 				mIMPLIES(); 
 
 				}
 				break;
 			case 32 :
-				// Pseudo.g:1:200: PLUS
+				// Dafny.g:1:200: PLUS
 				{
 				mPLUS(); 
 
 				}
 				break;
 			case 33 :
-				// Pseudo.g:1:205: MINUS
+				// Dafny.g:1:205: MINUS
 				{
 				mMINUS(); 
 
 				}
 				break;
 			case 34 :
-				// Pseudo.g:1:211: NOT
+				// Dafny.g:1:211: NOT
 				{
 				mNOT(); 
 
 				}
 				break;
 			case 35 :
-				// Pseudo.g:1:215: TIMES
+				// Dafny.g:1:215: TIMES
 				{
 				mTIMES(); 
 
 				}
 				break;
 			case 36 :
-				// Pseudo.g:1:221: UNION
+				// Dafny.g:1:221: UNION
 				{
 				mUNION(); 
 
 				}
 				break;
 			case 37 :
-				// Pseudo.g:1:227: INTERSECT
+				// Dafny.g:1:227: INTERSECT
 				{
 				mINTERSECT(); 
 
 				}
 				break;
 			case 38 :
-				// Pseudo.g:1:237: LT
+				// Dafny.g:1:237: LT
 				{
 				mLT(); 
 
 				}
 				break;
 			case 39 :
-				// Pseudo.g:1:240: LE
+				// Dafny.g:1:240: LE
 				{
 				mLE(); 
 
 				}
 				break;
 			case 40 :
-				// Pseudo.g:1:243: GT
+				// Dafny.g:1:243: GT
 				{
 				mGT(); 
 
 				}
 				break;
 			case 41 :
-				// Pseudo.g:1:246: GE
+				// Dafny.g:1:246: GE
 				{
 				mGE(); 
 
 				}
 				break;
 			case 42 :
-				// Pseudo.g:1:249: EQ
+				// Dafny.g:1:249: EQ
 				{
 				mEQ(); 
 
 				}
 				break;
 			case 43 :
-				// Pseudo.g:1:252: DOT
+				// Dafny.g:1:252: DOT
 				{
 				mDOT(); 
 
 				}
 				break;
 			case 44 :
-				// Pseudo.g:1:256: BLOCK_BEGIN
+				// Dafny.g:1:256: BLOCK_BEGIN
 				{
 				mBLOCK_BEGIN(); 
 
 				}
 				break;
 			case 45 :
-				// Pseudo.g:1:268: BLOCK_END
+				// Dafny.g:1:268: BLOCK_END
 				{
 				mBLOCK_END(); 
 
 				}
 				break;
 			case 46 :
-				// Pseudo.g:1:278: LENGTH
+				// Dafny.g:1:278: LENGTH
 				{
 				mLENGTH(); 
 
 				}
 				break;
 			case 47 :
-				// Pseudo.g:1:285: ARRAY
+				// Dafny.g:1:285: ARRAY
 				{
 				mARRAY(); 
 
 				}
 				break;
 			case 48 :
-				// Pseudo.g:1:291: ID
+				// Dafny.g:1:291: ID
 				{
 				mID(); 
 
 				}
 				break;
 			case 49 :
-				// Pseudo.g:1:294: LIT
+				// Dafny.g:1:294: LIT
 				{
 				mLIT(); 
 
 				}
 				break;
 			case 50 :
-				// Pseudo.g:1:298: WS
+				// Dafny.g:1:298: WS
 				{
 				mWS(); 
 

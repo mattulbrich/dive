@@ -1,6 +1,6 @@
 package edu.kit.iti.algover.symbex;
 
-import edu.kit.iti.algover.parser.PseudoTree;
+import edu.kit.iti.algover.parser.DafnyTree;
 import edu.kit.iti.algover.symbex.PathConditionElement.AssertionType;
 import edu.kit.iti.algover.util.ImmutableList;
 
@@ -24,7 +24,7 @@ import edu.kit.iti.algover.util.ImmutableList;
  * The referred elements are of immutable nature such that they can be shared
  * beween instances of this class.
  *
- * All references to the original code are in form of {@link PseudoTree} AST
+ * All references to the original code are in form of {@link DafnyTree} AST
  * references.
  */
 public class SymbexState {
@@ -37,7 +37,7 @@ public class SymbexState {
     /**
      * The proof obligations to discharge.
      */
-    private ImmutableList<PseudoTree> proofObligations;
+    private ImmutableList<DafnyTree> proofObligations;
 
     /**
      * The type of the proof obligations. One type for all of them.
@@ -54,12 +54,12 @@ public class SymbexState {
     /**
      * The block that remains to be executed. may be an empty block.
      */
-    private PseudoTree blockToExecute;
+    private DafnyTree blockToExecute;
 
     /**
      * The function to which this symbolic execution state belongs.
      */
-    private final PseudoTree function;
+    private final DafnyTree function;
 
     /**
      * Instantiates a new symbolic execution state. It belongs to the given
@@ -68,7 +68,7 @@ public class SymbexState {
      * @param function
      *            the function to refer to, not <code>null</code>
      */
-    public SymbexState(PseudoTree function) {
+    public SymbexState(DafnyTree function) {
         assert function != null;
         this.pathConditions = ImmutableList.nil();
         this.currentMap = VariableMap.EMPTY;
@@ -126,7 +126,7 @@ public class SymbexState {
      *
      * @return the function
      */
-    public PseudoTree getFunction() {
+    public DafnyTree getFunction() {
         return function;
     }
 
@@ -137,7 +137,7 @@ public class SymbexState {
      *
      * @return the block to execute, not <code>null</code>
      */
-    public PseudoTree getBlockToExecute() {
+    public DafnyTree getBlockToExecute() {
         return blockToExecute;
     }
 
@@ -149,7 +149,7 @@ public class SymbexState {
      * @param program
      *            the new block to execute, not <code>null</code>
      */
-    public void setBlockToExecute(PseudoTree program) {
+    public void setBlockToExecute(DafnyTree program) {
         assert program != null;
         this.blockToExecute = program;
     }
@@ -162,7 +162,7 @@ public class SymbexState {
      * @param type
      *            the type of the obligation, not <code>null</code>
      */
-    public void setProofObligations(PseudoTree obligation, AssertionType type) {
+    public void setProofObligations(DafnyTree obligation, AssertionType type) {
         assert obligation != null;
         assert type != null;
         this.proofObligations = ImmutableList.single(obligation);
@@ -178,7 +178,7 @@ public class SymbexState {
      * @param type
      *            the common type of the obligations, not <code>null</code>.
      */
-    public void setProofObligations(Iterable<PseudoTree> iterable,
+    public void setProofObligations(Iterable<DafnyTree> iterable,
             AssertionType type) {
         this.proofObligations = ImmutableList.from(iterable);
         this.proofObligationType = type;
@@ -207,7 +207,7 @@ public class SymbexState {
      *
      * @return the proof obligations
      */
-    public ImmutableList<PseudoTree> getProofObligations() {
+    public ImmutableList<DafnyTree> getProofObligations() {
         return proofObligations;
     }
 

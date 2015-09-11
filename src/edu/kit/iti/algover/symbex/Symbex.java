@@ -8,8 +8,8 @@ import java.util.Set;
 
 import org.antlr.runtime.CommonToken;
 
-import edu.kit.iti.algover.parser.PseudoParser;
-import edu.kit.iti.algover.parser.PseudoTree;
+import edu.kit.iti.algover.parser.DafnyParser;
+import edu.kit.iti.algover.parser.DafnyTree;
 import edu.kit.iti.algover.symbex.PathConditionElement.AssertionType;
 import edu.kit.iti.algover.symbex.PathConditionElement.AssumptionType;
 import edu.kit.iti.algover.util.ASTUtil;
@@ -17,7 +17,7 @@ import edu.kit.iti.algover.util.ASTUtil;
 /**
  * Symbex can be used to perform symbolic execution on a function.
  *
- * Create an instance and apply {@link #symbolicExecution(PseudoTree)}.
+ * Create an instance and apply {@link #symbolicExecution(DafnyTree)}.
  *
  * The handle-mehtods are package visible to allow for testing from within
  * the package.
@@ -27,8 +27,8 @@ public class Symbex {
     /**
      * The Constant EMPTY_PROGRAM points to an empty AST.
      */
-    private static final PseudoTree EMPTY_PROGRAM =
-            new PseudoTree(new CommonToken(PseudoParser.BLOCK));
+    private static final DafnyTree EMPTY_PROGRAM =
+            new DafnyTree(new CommonToken(DafnyParser.BLOCK));
 
     /**
      * Performs symbolic execution on a function.
@@ -41,9 +41,9 @@ public class Symbex {
      * @return a freshly created list of symbolic execution states, not
      *         <code>null</code>
      */
-    public List<SymbexState> symbolicExecution(PseudoTree function) {
+    public List<SymbexState> symbolicExecution(DafnyTree function) {
 
-        assert function.getType() == PseudoParser.METHOD;
+        assert function.getType() == DafnyParser.METHOD;
         SymbexState initial = makeFromPreconditions(function);
 
         Deque<SymbexState> stack = new LinkedList<SymbexState>();
@@ -54,33 +54,33 @@ public class Symbex {
         while(!stack.isEmpty()) {
             SymbexState state = stack.removeFirst();
 
-            assert state.getBlockToExecute().getType() == PseudoParser.BLOCK;
+            assert state.getBlockToExecute().getType() == DafnyParser.BLOCK;
 
             if(state.getBlockToExecute().getChildCount() == 0) {
                 results.add(state);
             } else {
 
-                PseudoTree stm = state.getBlockToExecute().getChild(0);
-                PseudoTree remainder = makeRemainderTree(state.getBlockToExecute());
+                DafnyTree stm = state.getBlockToExecute().getChild(0);
+                DafnyTree remainder = makeRemainderTree(state.getBlockToExecute());
 
                 switch(stm.getType()) {
-                case PseudoParser.ASSIGN:
+                case DafnyParser.ASSIGN:
                     handleAssign(stack, state, stm, remainder);
                     break;
 
-                case PseudoParser.WHILE:
+                case DafnyParser.WHILE:
                     handleWhile(stack, results, state, stm, remainder);
                     break;
 
-                case PseudoParser.IF:
+                case DafnyParser.IF:
                     handleIf(stack, state, stm, remainder);
                     break;
 
-                case PseudoParser.ASSERT:
+                case DafnyParser.ASSERT:
                     handleAssert(stack, results, state, stm, remainder);
                     break;
 
-                case PseudoParser.CALL:
+                case DafnyParser.CALL:
                 default:
                     throw new UnsupportedOperationException();
                 }
@@ -97,8 +97,8 @@ public class Symbex {
      * program onto the stack. The state remains untouched.
      */
     void handleAssert(Deque<SymbexState> stack,
-            List<SymbexState> results, SymbexState state, PseudoTree stm,
-            PseudoTree remainder) {
+            List<SymbexState> results, SymbexState state, DafnyTree stm,
+            DafnyTree remainder) {
         SymbexState assertedState = new SymbexState(state);
         assertedState.setBlockToExecute(EMPTY_PROGRAM);
         assertedState.setProofObligations(stm, AssertionType.ASSERT);
@@ -114,9 +114,9 @@ public class Symbex {
      * elements are added according to the decision expression.
      */
     private void handleIf(Deque<SymbexState> stack, SymbexState state,
-            PseudoTree stm, PseudoTree remainder) {
-        PseudoTree cond = stm.getChild(0);
-        PseudoTree then = stm.getChild(1);
+            DafnyTree stm, DafnyTree remainder) {
+        DafnyTree cond = stm.getChild(0);
+        DafnyTree then = stm.getChild(1);
         SymbexState stateElse = new SymbexState(state);
         state.addPathCondition(new PathConditionElement(cond, stm,
                 AssumptionType.IF_THEN, state.getMap()));
@@ -125,7 +125,7 @@ public class Symbex {
         if(stm.getChildCount() == 3) {
             stateElse.addPathCondition(new PathConditionElement(ASTUtil.negate(cond), stm,
                     AssumptionType.IF_ELSE, state.getMap()));
-            PseudoTree _else = stm.getChild(2);
+            DafnyTree _else = stm.getChild(2);
             stateElse.setBlockToExecute(append(_else, remainder));
             stack.push(stateElse);
         }
@@ -140,11 +140,11 @@ public class Symbex {
      * 3. a symbex target is added for the continuation of the program after the loop.
      */
     void handleWhile(Deque<SymbexState> stack,
-            List<SymbexState> results, SymbexState state, PseudoTree stm,
-            PseudoTree remainder) {
-        PseudoTree guard = stm.getChild(0);
-        PseudoTree body = stm.getLastChild();
-        List<PseudoTree> invariants = stm.getChildrenWithType(PseudoParser.INVARIANT);
+            List<SymbexState> results, SymbexState state, DafnyTree stm,
+            DafnyTree remainder) {
+        DafnyTree guard = stm.getChild(0);
+        DafnyTree body = stm.getLastChild();
+        List<DafnyTree> invariants = stm.getChildrenWithType(DafnyParser.INVARIANT);
 
         // 1. initially valid.
         SymbexState invState = new SymbexState(state);
@@ -156,7 +156,7 @@ public class Symbex {
         // 2a. assume invariants
         SymbexState preserveState = new SymbexState(state);
         preserveState.setMap(anonymise(preserveState.getMap(), body));
-        for (PseudoTree inv : invariants) {
+        for (DafnyTree inv : invariants) {
             PathConditionElement pc = new PathConditionElement(inv.getLastChild(), inv,
                     AssumptionType.ASSUMED_INVARIANT, preserveState.getMap());
             preserveState.addPathCondition(pc);
@@ -172,7 +172,7 @@ public class Symbex {
 
         // 3. use case:
         state.setMap(anonymise(state.getMap(), body));
-        for (PseudoTree inv : invariants) {
+        for (DafnyTree inv : invariants) {
             PathConditionElement pc = new PathConditionElement(inv.getLastChild(), inv,
                     AssumptionType.ASSUMED_INVARIANT, state.getMap());
             state.addPathCondition(pc);
@@ -189,7 +189,7 @@ public class Symbex {
      * This updates the symbex state and pushes it onto the stack.
      */
     void handleAssign(Deque<SymbexState> stack, SymbexState state,
-            PseudoTree stm, PseudoTree remainder) {
+            DafnyTree stm, DafnyTree remainder) {
         VariableMap newMap = state.getMap().assign(stm.getChild(0).toString(), stm.getChild(1));
         state.setMap(newMap);
         state.setBlockToExecute(remainder);
@@ -205,7 +205,7 @@ public class Symbex {
      *            the body to analyse
      * @return the updated variable map
      */
-    private VariableMap anonymise(VariableMap map, PseudoTree body) {
+    private VariableMap anonymise(VariableMap map, DafnyTree body) {
         Set<String> vars = new HashSet<String>();
         collectAssignedVars(body, vars);
         for (String var : vars) {
@@ -224,21 +224,21 @@ public class Symbex {
      * @param vars
      *            the set of variables to which to add found instances.
      */
-    private void collectAssignedVars(PseudoTree tree, Set<String> vars) {
+    private void collectAssignedVars(DafnyTree tree, Set<String> vars) {
         switch(tree.getType()) {
-        case PseudoParser.ASSIGN:
+        case DafnyParser.ASSIGN:
             vars.add(tree.getChild(0).toString());
             break;
-        case PseudoParser.CALL:
-            PseudoTree res = tree.getFirstChildWithType(PseudoParser.RESULTS);
-            for (PseudoTree r : res.getChildren()) {
+        case DafnyParser.CALL:
+            DafnyTree res = tree.getFirstChildWithType(DafnyParser.RESULTS);
+            for (DafnyTree r : res.getChildren()) {
                 vars.add(r.toString());
             }
             break;
         default:
-            List<PseudoTree> children = tree.getChildren();
+            List<DafnyTree> children = tree.getChildren();
             if(children != null) {
-                for (PseudoTree r : children) {
+                for (DafnyTree r : children) {
                     collectAssignedVars(r, vars);
                 }
             }
@@ -258,10 +258,10 @@ public class Symbex {
      *            the second statment / statement block
      * @return the combined statement block
      */
-    private PseudoTree append(PseudoTree prog1, PseudoTree prog2) {
-        PseudoTree result= new PseudoTree(new CommonToken(PseudoParser.BLOCK));
+    private DafnyTree append(DafnyTree prog1, DafnyTree prog2) {
+        DafnyTree result= new DafnyTree(new CommonToken(DafnyParser.BLOCK));
 
-        if(prog1.getType() == PseudoParser.BLOCK) {
+        if(prog1.getType() == DafnyParser.BLOCK) {
             for(int i = 0; i < prog1.getChildCount(); i++) {
                 result.addChild(prog1.getChild(i));
             }
@@ -269,7 +269,7 @@ public class Symbex {
             result.addChild(prog1);
         }
 
-        if(prog2.getType() == PseudoParser.BLOCK) {
+        if(prog2.getType() == DafnyParser.BLOCK) {
             for(int i = 0; i < prog2.getChildCount(); i++) {
                 result.addChild(prog2.getChild(i));
             }
@@ -290,11 +290,11 @@ public class Symbex {
      *            <code>null</code>
      * @return the statement block with the first element removed.
      */
-    private PseudoTree makeRemainderTree(PseudoTree block) {
+    private DafnyTree makeRemainderTree(DafnyTree block) {
 
-        assert block.getType() == PseudoParser.BLOCK;
+        assert block.getType() == DafnyParser.BLOCK;
 
-        PseudoTree result = new PseudoTree(new CommonToken(PseudoParser.BLOCK));
+        DafnyTree result = new DafnyTree(new CommonToken(DafnyParser.BLOCK));
         for(int i = 1; i < block.getChildCount(); i++) {
             result.addChild(block.getChild(i));
         }
@@ -309,16 +309,16 @@ public class Symbex {
      *            the function to analyse
      * @return the initial symbolic execution state
      */
-    private SymbexState makeFromPreconditions(PseudoTree function) {
+    private SymbexState makeFromPreconditions(DafnyTree function) {
         SymbexState result = new SymbexState(function);
 
-        for(PseudoTree req : function.getChildrenWithType(PseudoParser.REQUIRES)) {
+        for(DafnyTree req : function.getChildrenWithType(DafnyParser.REQUIRES)) {
             result.addPathCondition(new PathConditionElement(req.getLastChild(), req,
                     PathConditionElement.AssumptionType.PRE, result.getMap()));
         }
 
         result.setBlockToExecute(function.getLastChild());
-        result.setProofObligations(function.getChildrenWithType(PseudoParser.ENSURES), AssertionType.POST);
+        result.setProofObligations(function.getChildrenWithType(DafnyParser.ENSURES), AssertionType.POST);
 
         return result;
     }

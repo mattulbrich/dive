@@ -9,8 +9,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import edu.kit.iti.algover.ProgramDatabase;
-import edu.kit.iti.algover.parser.PseudoParser;
-import edu.kit.iti.algover.parser.PseudoTree;
+import edu.kit.iti.algover.parser.DafnyParser;
+import edu.kit.iti.algover.parser.DafnyTree;
 import edu.kit.iti.algover.symbex.PathConditionElement;
 import edu.kit.iti.algover.symbex.SymbexState;
 
@@ -65,13 +65,13 @@ public class Z3Solver {
 
         StringBuilder sb = new StringBuilder();
 
-        PseudoTree function = obligation.getFunction();
+        DafnyTree function = obligation.getFunction();
         sb.append("; Args\n");
-        extractDeclarations(sb, function.getFirstChildWithType(PseudoParser.ARGS));
+        extractDeclarations(sb, function.getFirstChildWithType(DafnyParser.ARGS));
         sb.append("; Returns\n");
-        extractDeclarations(sb, function.getFirstChildWithType(PseudoParser.RETURNS));
+        extractDeclarations(sb, function.getFirstChildWithType(DafnyParser.RETURNS));
         sb.append("; Variables\n");
-        extractDeclarations(sb, function.getFirstChildWithType(PseudoParser.VAR));
+        extractDeclarations(sb, function.getFirstChildWithType(DafnyParser.VAR));
         sb.append("; Skolems\n");
         extractSkolemVars(sb, obligation);
 
@@ -85,7 +85,7 @@ public class Z3Solver {
         sb.append("; Proof obligations\n");
         sb.append("(push)\n");
 
-        for (PseudoTree pc : obligation.getProofObligations()) {
+        for (DafnyTree pc : obligation.getProofObligations()) {
             sb.append("(assert (not ");
             sb.append(smtTrans.trans(obligation.getMap().instantiate(pc.getLastChild())));
             sb.append("))\n");
@@ -101,7 +101,7 @@ public class Z3Solver {
             // get name from m#1
             String name = anon.substring(0, anon.indexOf("#"));
             // ask database to get declaration for m
-            PseudoTree decl = programDatabase.getVariableDeclaration(obligation.getFunction(), name);
+            DafnyTree decl = programDatabase.getVariableDeclaration(obligation.getFunction(), name);
             if(decl == null) {
                 throw new RuntimeException("Undefined symbol " + name);
             }
@@ -113,12 +113,12 @@ public class Z3Solver {
         }
     }
 
-    protected void extractDeclarations(StringBuilder sb, PseudoTree decls) {
+    protected void extractDeclarations(StringBuilder sb, DafnyTree decls) {
         if(decls == null) {
             return;
         }
-        for (PseudoTree decl : decls.getChildren()) {
-            assert decl.getType() == PseudoParser.VAR;
+        for (DafnyTree decl : decls.getChildren()) {
+            assert decl.getType() == DafnyParser.VAR;
             String name = decl.getChild(0).getToken().getText();
             String type = smtTrans.transToType(decl.getChild(1));
             sb.append("(declare-const ").append(name).append("$pre ").append(type).append(")\n");

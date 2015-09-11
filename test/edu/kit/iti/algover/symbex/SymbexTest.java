@@ -14,20 +14,20 @@ import org.junit.Before;
 import org.junit.Test;
 
 import edu.kit.iti.algover.parser.ParserTest;
-import edu.kit.iti.algover.parser.PseudoParser;
-import edu.kit.iti.algover.parser.PseudoTree;
+import edu.kit.iti.algover.parser.DafnyParser;
+import edu.kit.iti.algover.parser.DafnyTree;
 import edu.kit.iti.algover.symbex.PathConditionElement.AssertionType;
 import edu.kit.iti.algover.symbex.PathConditionElement.AssumptionType;
 
 public class SymbexTest {
 
     private static final VariableMap SOME_MAP =
-            VariableMap.EMPTY.assign("var", new PseudoTree(new CommonToken(-4)));
+            VariableMap.EMPTY.assign("var", new DafnyTree(new CommonToken(-4)));
 
-    private PseudoTree tree;
+    private DafnyTree tree;
 
-    private static final PseudoTree SOME_PROGRAM =
-            new PseudoTree(new CommonToken(-1, "SOME PROGRAM"));
+    private static final DafnyTree SOME_PROGRAM =
+            new DafnyTree(new CommonToken(-1, "SOME PROGRAM"));
 
     @Before
     public void loadTree() throws Exception {
@@ -55,8 +55,8 @@ public class SymbexTest {
     @Test
     public void testHandleAssert() {
 
-        PseudoTree assertionStm = tree.getLastChild().getChild(4);
-        assertEquals(PseudoParser.ASSERT, assertionStm.getType());
+        DafnyTree assertionStm = tree.getLastChild().getChild(4);
+        assertEquals(DafnyParser.ASSERT, assertionStm.getType());
 
         Symbex symbex = new Symbex();
         Deque<SymbexState> stack = new LinkedList<SymbexState>();
@@ -81,8 +81,8 @@ public class SymbexTest {
 
     @Test
     public void testHandleAssignment() {
-        PseudoTree assStm = tree.getLastChild().getChild(0);
-        assertEquals(PseudoParser.ASSIGN, assStm.getType());
+        DafnyTree assStm = tree.getLastChild().getChild(0);
+        assertEquals(DafnyParser.ASSIGN, assStm.getType());
 
         Symbex symbex = new Symbex();
         Deque<SymbexState> stack = new LinkedList<SymbexState>();
@@ -103,8 +103,8 @@ public class SymbexTest {
 
     @Test
     public void testHandleWhile() {
-        PseudoTree whileStm = tree.getLastChild().getChild(2);
-        assertEquals(PseudoParser.WHILE,  whileStm.getType());
+        DafnyTree whileStm = tree.getLastChild().getChild(2);
+        assertEquals(DafnyParser.WHILE,  whileStm.getType());
 
         Symbex symbex = new Symbex();
         Deque<SymbexState> stack = new LinkedList<SymbexState>();
@@ -144,7 +144,7 @@ public class SymbexTest {
                 {
                     assertEquals(AssertionType.INVARIANT_PRESERVED, pres.getProofObligationType());
                     assertEquals(1, pres.getProofObligations().size());
-                    PseudoTree po = pres.getProofObligations().iterator().next();
+                    DafnyTree po = pres.getProofObligations().iterator().next();
                     assertEquals("(invariant (== p 2))", po.toStringTree());
                 }
             }
@@ -167,7 +167,7 @@ public class SymbexTest {
             {
                 assertEquals(AssertionType.POST, cont.getProofObligationType());
                 assertEquals(1, cont.getProofObligations().size());
-                PseudoTree po = cont.getProofObligations().iterator().next();
+                DafnyTree po = cont.getProofObligations().iterator().next();
                 assertEquals("(> p 0)", po.toStringTree());
             }
         }

@@ -14,7 +14,7 @@ import org.antlr.runtime.tree.Tree;
 /**
  * This class implements AST nodes for pseudo code.
  *
- * It extends the existing ANTLR facility {@link CommonTree}. PseudoTrees have
+ * It extends the existing ANTLR facility {@link CommonTree}. DafnyTrees have
  * got a head token ({@link CommonTree#token}) that determines its type, and
  * children.
  *
@@ -28,10 +28,10 @@ import org.antlr.runtime.tree.Tree;
  *
  * @author Mattias Ulbrich
  */
-public class PseudoTree extends CommonTree {
+public class DafnyTree extends CommonTree {
 
     /**
-     * The Adaptor is used by the {@link PseudoParser} to create PseudoTree
+     * The Adaptor is used by the {@link DafnyParser} to create DafnyTree
      * instances.
      */
     public static class Adaptor extends CommonTreeAdaptor {
@@ -41,13 +41,13 @@ public class PseudoTree extends CommonTree {
 
         @Override
         public Object create(Token payload) {
-            return new PseudoTree(payload);
+            return new DafnyTree(payload);
         }
 
         @Override
         public Object errorNode(TokenStream input, Token start, Token stop,
                 RecognitionException e) {
-            return new PseudoTree(start);
+            return new DafnyTree(start);
         }
     }
 
@@ -57,7 +57,7 @@ public class PseudoTree extends CommonTree {
      * @param payload
      *            the top token defining the type of the node
      */
-    public PseudoTree(Token payload) {
+    public DafnyTree(Token payload) {
         super(payload);
     }
 
@@ -69,26 +69,26 @@ public class PseudoTree extends CommonTree {
      * @param original
      *            the original tree to clone, not <code>null</code>.
      */
-    private PseudoTree(PseudoTree original) {
+    private DafnyTree(DafnyTree original) {
         super(original);
     }
 
     /**
      * Instantiates a new, empty pseudo tree. A so-called NIL-Tree
      */
-    public PseudoTree() {
+    public DafnyTree() {
         this((Token) null);
     }
 
     /**
      * Create a node with the same content as this node. This uses the copy
-     * constructor {@link #PseudoTree(PseudoTree)}.
+     * constructor {@link #DafnyTree(DafnyTree)}.
      *
-     * @return a freshly created PseudoTree instance
+     * @return a freshly created DafnyTree instance
      */
     @Override
-    public PseudoTree dupNode() {
-        PseudoTree result = new PseudoTree(this);
+    public DafnyTree dupNode() {
+        DafnyTree result = new DafnyTree(this);
         return result;
     }
 
@@ -99,12 +99,12 @@ public class PseudoTree extends CommonTree {
      *         <code>null</code> if array has not been initialised yet.
      */
     @SuppressWarnings("unchecked")
-    public List<PseudoTree> getChildren() {
+    public List<DafnyTree> getChildren() {
         if (children == null) {
             return null;
         } else {
             return Collections
-                    .unmodifiableList((List<PseudoTree>) (List<?>) children);
+                    .unmodifiableList((List<DafnyTree>) (List<?>) children);
         }
     }
 
@@ -112,11 +112,11 @@ public class PseudoTree extends CommonTree {
      * Add a child node to this node.
      *
      * @param t
-     *            must be of type {@link PseudoTree}.
+     *            must be of type {@link DafnyTree}.
      */
     @Override
     public void addChild(Tree t) {
-        assert t instanceof PseudoTree;
+        assert t instanceof DafnyTree;
         super.addChild(t);
     }
 
@@ -125,12 +125,12 @@ public class PseudoTree extends CommonTree {
      *
      * @param type
      *            the type of children to look for. Usually an index into
-     *            {@link PseudoParser}.
+     *            {@link DafnyParser}.
      * @return a child from this node, or <code>null</code>
      */
     @Override
-    public PseudoTree getFirstChildWithType(int type) {
-        return (PseudoTree) super.getFirstChildWithType(type);
+    public DafnyTree getFirstChildWithType(int type) {
+        return (DafnyTree) super.getFirstChildWithType(type);
     }
 
     /**
@@ -138,14 +138,14 @@ public class PseudoTree extends CommonTree {
      *
      * @param type
      *            the type of children to look for. Usually an index into
-     *            {@link PseudoParser}.
+     *            {@link DafnyParser}.
      * @return a freshly created list, modifiable list, possibly empty.
      */
-    public List<PseudoTree> getChildrenWithType(int type) {
-        List<PseudoTree> result = new ArrayList<PseudoTree>();
-        List<PseudoTree> cs = getChildren();
+    public List<DafnyTree> getChildrenWithType(int type) {
+        List<DafnyTree> result = new ArrayList<DafnyTree>();
+        List<DafnyTree> cs = getChildren();
         if (cs != null) {
-            for (PseudoTree jmlTree : cs) {
+            for (DafnyTree jmlTree : cs) {
                 if (jmlTree.getType() == type) {
                     result.add(jmlTree);
                 }
@@ -165,8 +165,8 @@ public class PseudoTree extends CommonTree {
      *             if the children array has not been initialised (but count
      *             would be 0 then, too)
      */
-    public PseudoTree getChild(int n) {
-        return (PseudoTree) super.getChild(n);
+    public DafnyTree getChild(int n) {
+        return (DafnyTree) super.getChild(n);
     }
 
     /**
@@ -190,7 +190,7 @@ public class PseudoTree extends CommonTree {
      * @return the last child of the node, <code>null</code> if there are no
      *         children.
      */
-    public PseudoTree getLastChild() {
+    public DafnyTree getLastChild() {
         int childCount = getChildCount();
         if (childCount == 0) {
             return null;

@@ -1,6 +1,6 @@
 package edu.kit.iti.algover.symbex;
 
-import edu.kit.iti.algover.parser.PseudoTree;
+import edu.kit.iti.algover.parser.DafnyTree;
 
 /**
  * The Class PathCondition captures a single element of a path condition.
@@ -68,7 +68,7 @@ public class PathConditionElement {
     /**
      * The expression (first order formula) of this path condition.
      */
-    private PseudoTree expression;
+    private DafnyTree expression;
 
     /**
      * The syntactical element (subtree) to which this path condition element
@@ -77,7 +77,7 @@ public class PathConditionElement {
      * For {@link AssumptionType#IF_THEN} that is the if statement and for
      * {@link AssumptionType#PRE} that is the requires clause, etc.
      */
-    private PseudoTree refersTo;
+    private DafnyTree refersTo;
 
     /**
      * The type of this condition element.
@@ -96,7 +96,7 @@ public class PathConditionElement {
      * @param state
      *            the state in which it is explored
      */
-    public PathConditionElement(PseudoTree expression, PseudoTree refersTo, AssumptionType type, VariableMap state) {
+    public PathConditionElement(DafnyTree expression, DafnyTree refersTo, AssumptionType type, VariableMap state) {
 
         assert expression != null;
         assert type != null;
@@ -132,7 +132,7 @@ public class PathConditionElement {
      *
      * @return the expression, not <code>null</code>
      */
-    public PseudoTree getExpression() {
+    public DafnyTree getExpression() {
         return expression;
     }
 
@@ -143,7 +143,7 @@ public class PathConditionElement {
      *
      * @return the instantiated expression, not <code>null</code>
      */
-    public PseudoTree getInstantiatedExpression() {
+    public DafnyTree getInstantiatedExpression() {
         return state.instantiate(expression);
     }
 

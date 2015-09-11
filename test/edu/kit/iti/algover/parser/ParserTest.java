@@ -14,7 +14,7 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
 
-import edu.kit.iti.algover.parser.PseudoParser.program_return;
+import edu.kit.iti.algover.parser.DafnyParser.program_return;
 import edu.kit.iti.algover.util.TestUtil;
 
 @RunWith(Parameterized.class)
@@ -45,7 +45,7 @@ public class ParserTest {
             throw new FileNotFoundException(filename);
         }
 
-        PseudoTree t = parseFile(url.openStream());
+        DafnyTree t = parseFile(url.openStream());
 
         if(VERBOSE) {
             // print out the tree
@@ -53,7 +53,7 @@ public class ParserTest {
         }
     }
 
-    public static PseudoTree parseFile(InputStream stream) throws FileNotFoundException,
+    public static DafnyTree parseFile(InputStream stream) throws FileNotFoundException,
             IOException, RecognitionException {
 
         if(stream == null) {
@@ -61,12 +61,12 @@ public class ParserTest {
         }
 
         ANTLRInputStream input = new ANTLRInputStream(stream);
-        PseudoLexer lexer = new PseudoLexer(input);
+        DafnyLexer lexer = new DafnyLexer(input);
         // create the buffer of tokens between the lexer and parser
         CommonTokenStream tokens = new CommonTokenStream(lexer);
         // create the parser attached to the token buffer
-        PseudoParser parser = new PseudoParser(tokens);
-        parser.setTreeAdaptor(new PseudoTree.Adaptor());
+        DafnyParser parser = new DafnyParser(tokens);
+        parser.setTreeAdaptor(new DafnyTree.Adaptor());
         // launch the parser starting at rule r, get return object
         program_return result;
         try {
@@ -79,7 +79,7 @@ public class ParserTest {
             throw e;
         }
         // pull out the tree and cast it
-        PseudoTree t = result.getTree();
+        DafnyTree t = result.getTree();
         return t;
     }
 
