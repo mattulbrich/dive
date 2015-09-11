@@ -91,11 +91,10 @@ GT: '>';
 GE: '>=';
 EQ: '==';
 DOT: '.';
-
 BLOCK_BEGIN: '{';
 BLOCK_END: '}';
 
-LENGTH: 'length' (('1' .. '9') ('0' .. '9')*)?;
+LENGTH: 'Length' ('0' .. '9')*;
 ARRAY : 'array' (('1' .. '9') ('0' .. '9')*)?;
 ID : ('a' .. 'z' | 'A' .. 'Z' | '_')+;
 LIT : '0' ..'9'+;

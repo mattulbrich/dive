@@ -1,5 +1,5 @@
 method higherdimarrays(p : array3<int>)
 {
-  assert p.length == p.length2;
-  assert p.length3 == 1;
+  assert p.Length0 == p.Length1;
+  assert p.Length2 == 1;
 }

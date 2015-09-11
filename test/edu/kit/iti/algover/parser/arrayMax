@@ -6,7 +6,7 @@ method max(a : array<int>, n: int) returns (m : int)
 {
   var i : int;
 
-  assert n == a.length;
+  assert n == a.Length;
 
   i := 0;
   label mainLoop: while i < n
