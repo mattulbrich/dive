@@ -77,8 +77,8 @@ public class ProblemLoader {
                 System.out.println("    " + res.getMap().instantiate(po).toStringTree());
             }
 
-            Z3Solver z3 = new Z3Solver(new ProgramDatabase(t));
-            System.out.println(z3.createSMTInputput(res));
+//            Z3Solver z3 = new Z3Solver(new ProgramDatabase(t));
+//            System.out.println(z3.createSMTInputput(res));
         }
 
     }
@@ -87,11 +87,11 @@ public class ProblemLoader {
         try {
             FileInputStream inputStream = new FileInputStream(file);
             parse(inputStream);
-
-
         } catch (FileNotFoundException e) {
+            e.printStackTrace();
             System.out.println("Could not read file " + file.getAbsolutePath());
         } catch (Exception e) {
+            e.printStackTrace();
             System.out.println("Could not load problem");
         }
 
