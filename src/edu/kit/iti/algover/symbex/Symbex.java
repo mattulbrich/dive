@@ -80,9 +80,9 @@ public class Symbex {
                     handleAssert(stack, results, state, stm, remainder);
                     break;
 
-                case PseudoParser.ASSUME:
-                    handleAssume(stack, results, state, stm, remainder);
-                    break;
+//                case PseudoParser.ASSUME:
+//                    handleAssume(stack, results, state, stm, remainder);
+//                    break;
                 default:
                     throw new UnsupportedOperationException();
                 }
@@ -109,20 +109,20 @@ public class Symbex {
         stack.add(state);
     }
 
-    /**
-     * Handle an assume statement
-     * This adds a hypothesis to the proof obligation
-     * @param stack
-     * @param results
-     * @param state
-     * @param stm
-     * @param remainder
-     */
-    void handleAssume(Deque<SymbexState> stack,
-            List<SymbexState> results, SymbexState state, PseudoTree stm,
-            PseudoTree remainder){
+//    /**
+//     * Handle an assume statement
+//     * This adds a hypothesis to the proof obligation
+//     * @param stack
+//     * @param results
+//     * @param state
+//     * @param stm
+//     * @param remainder
+//     */
+//    void handleAssume(Deque<SymbexState> stack,
+//            List<SymbexState> results, SymbexState state, PseudoTree stm,
+//            PseudoTree remainder){
 
-    }
+//    }
     /*
      * Handle an if statement.
      *

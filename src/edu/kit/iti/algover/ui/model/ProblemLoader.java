@@ -1,20 +1,17 @@
 package edu.kit.iti.algover.ui.model;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.InputStream;
+import java.io.*;
 import java.util.LinkedList;
 import java.util.List;
 
+import edu.kit.iti.algover.Proof;
 import org.antlr.runtime.ANTLRInputStream;
+import org.antlr.runtime.ANTLRReaderStream;
 import org.antlr.runtime.CommonTokenStream;
 
-import edu.kit.iti.algover.ProgramDatabase;
 import edu.kit.iti.algover.parser.DafnyLexer;
 import edu.kit.iti.algover.parser.DafnyParser;
 import edu.kit.iti.algover.parser.DafnyTree;
-import edu.kit.iti.algover.smt.Z3Solver;
 import edu.kit.iti.algover.symbex.PathConditionElement;
 import edu.kit.iti.algover.symbex.Symbex;
 import edu.kit.iti.algover.symbex.SymbexState;
@@ -23,18 +20,33 @@ import edu.kit.iti.algover.symbex.SymbexState;
  * Created by sarah on 9/9/15.
  */
 public class ProblemLoader {
-    public static LinkedList<String> getPos() {
-        return pos;
+
+
+    public static LinkedList<SymbexState> getProofObligations() {
+        return proofObligations;
     }
 
-    private static LinkedList<String> pos = new LinkedList<String>();
+    private static LinkedList<SymbexState> proofObligations = new LinkedList<>();
+
+    public static LinkedList<Proof> getProofList() {
+        return proofList;
+    }
+
+    public static LinkedList<DafnyTree> getTest() {
+        return test;
+    }
+
+    public static LinkedList<DafnyTree> test = new LinkedList<DafnyTree>();
+
+    private static LinkedList<Proof> proofList = new LinkedList<Proof>();
 
     private static void parse(InputStream stream) throws Exception {
-
-        // create the lexer attached to stream
         ANTLRInputStream input = new ANTLRInputStream(stream);
-
         DafnyLexer lexer = new DafnyLexer(input);
+        buildAST(lexer);
+    }
+
+    private static void buildAST(DafnyLexer lexer) throws  Exception{
         // create the buffer of tokens between the lexer and parser
         CommonTokenStream tokens = new CommonTokenStream(lexer);
         // create the parser attached to the token buffer
@@ -47,12 +59,14 @@ public class ProblemLoader {
         System.out.println(t.toStringTree()); // print out the tree
 
         Symbex symbex = new Symbex();
+
         List<SymbexState> results = symbex.symbolicExecution(t);
 
+
         for (SymbexState res : results) {
+            proofObligations.add(res);
             System.out.println("------------");
             for (PathConditionElement pc : res.getPathConditions()) {
-                //              this.conditions.add(pc);
                 System.out.println("Path condition - " + pc.getType());
                 System.out.println("    " + pc.getExpression().toStringTree());
                 System.out.println("  Assignment History:");
@@ -62,12 +76,16 @@ public class ProblemLoader {
                 System.out.println("  Instantiated condition: ");
                 System.out.println("    " + pc.getVariableMap().instantiate(pc.getExpression()).toStringTree());
                 System.out.println("  Refers to: line " + pc.getExpression().token.getLine());
+                System.out.println("  Test Line: " + pc.getExpression());
             }
             System.out.println("Proof Obligations - " + res.getProofObligationType());
-            pos.add(res.getProofObligationType().toString());
+
             for (DafnyTree po : res.getProofObligations()) {
                 System.out.println("  " + po.toStringTree());
+                test.add(po);
             }
+
+
             System.out.println("  Assignment History:");
             System.out.println("    " + res.getMap().toHistoryString().replace("\n", "\n    "));
             System.out.println("  Aggregated Variable Map: ");
@@ -80,12 +98,16 @@ public class ProblemLoader {
 //            Z3Solver z3 = new Z3Solver(new ProgramDatabase(t));
 //            System.out.println(z3.createSMTInputput(res));
         }
-
+    }
+    public static void parse(BufferedReader reader) throws Exception {
+        ANTLRReaderStream input = new ANTLRReaderStream(reader);
+        // create the lexer attached to stream
+        DafnyLexer lexer = new DafnyLexer(input);
+        buildAST(lexer);
     }
 
     public static void readFile(File file) {
-        try {
-            FileInputStream inputStream = new FileInputStream(file);
+
         try {
             FileInputStream inputStream = new FileInputStream(file);
             parse(inputStream);

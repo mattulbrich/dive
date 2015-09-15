@@ -1,5 +1,6 @@
 package edu.kit.iti.algover.ui.util;
 
+import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
@@ -25,8 +26,10 @@ public class ConfirmBox{
         //Block all input Events until this window is done
         window.initModality(Modality.APPLICATION_MODAL);
         window.setTitle(title);
-        window.setMaxWidth(350);
+        window.setMaxWidth(400);
         Label l = new Label(msg);
+        l.setPadding(new Insets(10,10,10,10));
+
         Button confirm = new Button("Yes");
         Button decline = new Button("No");
 
@@ -34,8 +37,8 @@ public class ConfirmBox{
             answer = true;
             window.close();
         });
-        decline.setOnAction(e-> {
-            answer=false;
+        decline.setOnAction(e -> {
+            answer = false;
             window.close();
         });
         BorderPane mainLayout = new BorderPane();
@@ -49,6 +52,8 @@ public class ConfirmBox{
 
         mainLayout.setCenter(l);
         mainLayout.setBottom(buttonLayout);
+
+        mainLayout.setPadding(new Insets(10, 10, 10, 10));
         Scene scene = new Scene(mainLayout);
         window.setScene(scene);
         //Show Stage until closed

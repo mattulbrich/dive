@@ -14,16 +14,28 @@ import java.util.LinkedList;
  */
 public class Proof {
 
-    public File problemFile;
+  //  public File problemFile;
     public SymbexState proofObligation;
 
+    public PathConditionElement.AssertionType poType;
+    public String getPoName() {
+        return poName;
+    }
+
+    public String poName;
 
 
-    public Proof(File problemFile, SymbexState pO){
-        this.problemFile = problemFile;
+    public Proof(SymbexState pO){
+       // this.problemFile = problemFile;
         this.proofObligation = pO;
+        this.poName = pO.getProofObligationType().toString();
+        this.poType = proofObligation.getProofObligationType();
 
+    }
 
+    public String createName(){
+
+        return "";
     }
 
 

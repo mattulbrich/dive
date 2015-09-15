@@ -70,7 +70,6 @@ VAR: 'var';
 CALL:'call';
 INVARIANT: 'invariant';
 ASSERT: 'assert';
-ASSUME: 'aussume';
 
 ALL: 'forall';
 EX: 'exists';
@@ -181,7 +180,6 @@ statement:
   | 'if'^ expression relaxedBlock
       ( options { greedy=true; } : 'else'! relaxedBlock )?
   | 'assert'^ ( 'label'! ID ':'! )? expression ';'!
-  | 'assume'^ ( ID ':'! )? expression ';'!
   ;
 
 ids:

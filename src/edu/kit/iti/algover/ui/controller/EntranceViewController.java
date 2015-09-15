@@ -1,13 +1,14 @@
 package edu.kit.iti.algover.ui.controller;
 
-import edu.kit.iti.algover.symbex.PathConditionElement;
+
+import edu.kit.iti.algover.parser.DafnyTree;
+import edu.kit.iti.algover.ui.gui.Editor;
 import edu.kit.iti.algover.ui.model.ProblemLoader;
-import edu.kit.iti.algover.ui.util.ConfirmBox;
 import edu.kit.iti.algover.ui.util.FileUtilities;
 import javafx.application.Application;
-import javafx.beans.InvalidationListener;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
-import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
@@ -15,15 +16,9 @@ import javafx.scene.layout.*;
 import javafx.stage.Stage;
 import javafx.util.Pair;
 
-import org.controlsfx.control.ListSelectionView;
 
-import javax.swing.text.StyledEditorKit;
-
-import java.io.File;
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.List;
-import java.util.ListIterator;
+import java.io.*;
+import java.util.*;
 
 /**
  * Created by sarah on 9/8/15.
@@ -44,7 +39,9 @@ public class EntranceViewController extends Application
 
     File loaded = null;
 
-    TextArea sourceCode = new TextArea();
+
+
+    Editor editor = new Editor();
     public EntranceViewController(Stage window){
         this.window = window;
         try {
@@ -62,6 +59,7 @@ public class EntranceViewController extends Application
     }
     //View which has to be refactored afterwards
 
+
     public void createEntranceView() {
         //GridPane mainPane = new GridPane();
 
@@ -72,16 +70,16 @@ public class EntranceViewController extends Application
         buttonLoad.setOnAction(e -> {
             Pair<File, String> p = FileUtilities.fileOpenAction(window);
             srcCode = p.getValue();
-            sourceCode.setText(srcCode);
             buttonGeneratePO.setDisable(false);
-
             loaded = p.getKey();
             name = loaded.getAbsolutePath().toString();
             fileName.setText(name);
+
+            editor.replaceText(0, editor.getLength(), srcCode);
         });
 
         buttonSave.setOnAction(e -> {
-            String content = sourceCode.getText();
+            String content = editor.getText();
             FileUtilities.fileSaveAction(window, content);
         });
 
@@ -92,48 +90,58 @@ public class EntranceViewController extends Application
         buttonGeneratePO.setOnAction(e -> {
             //load the file and parse
             poList.getItems().clear();
+            System.out.println("Cleared");
+
             ObservableList<String> items = FXCollections.emptyObservableList();
-            ProblemLoader.readFile(loaded);
-            //ProblemLoader.results;
+
+            poList.setItems(items);
+
+            LinkedList<String> allObligations = new LinkedList<String>();
+
+            try {
+
+                ProblemLoader.parse(new BufferedReader(new StringReader(editor.getText())));
+
             if (loaded != null) {
-                items = FXCollections.observableList(ProblemLoader.getPos());
+                for (DafnyTree po : ProblemLoader.getTest()){
+                    allObligations.add(po.toStringTree());
+                }
+                items = FXCollections.observableList(allObligations);
             } else {
                 items.add("Failed");
             }
+            } catch (Exception e1) {
+                e1.printStackTrace();
+            }
             poList.setItems(items);
-            System.out.println("Parse the File");
-        });
-
-        sourceCode.setOnInputMethodTextChanged(e -> {
 
         });
-        BorderPane poPane = new BorderPane();
-        poPane.setTop(poLabel);
-        poPane.setCenter(poList);
 
-        VBox vb = new VBox();
-        buttonGeneratePO.setDisable(true);
-        vb.getChildren().addAll(poPane, buttonGeneratePO);
+//        sourceCode.textProperty().addListener(new ChangeListener<String>() {
+//            @Override
+//            public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
+//                System.out.println("old: "+oldValue);
+//                System.out.println("new: "+newValue);
+//            }
+//        });
 
-        HBox hb = new HBox();
-        hb.getChildren().addAll(buttonSave, buttonLoad, buttonReload, fileName);
-    //TODO: line numbers are missing
-        sourceCode.setText(srcCode);
-        ScrollPane sp = new ScrollPane();
-        sp.setFitToHeight(true);
-        sp.setContent(sourceCode);
-        mainPane.setTop(hb);
-        mainPane.setCenter(sp);
-        mainPane.setRight(vb);
-        //HBox pos = new HBox();
-        //pos.setSpacing(10);
-        //pos.getChildren().addAll(test);
-        //mainPane.getChildren().addAll(sp, pos);   // Add grid from Example 1-5
-        //mainPane.setBottomAnchor(pos, 8.0);
-        //mainPane.setRightAnchor(pos, 5.0);
-        //mainPane.setTopAnchor(sp, 50.0);
-        scene1 = new Scene(mainPane, 1024, 678);
-    }
+            //sourceCode.getText();
+            BorderPane poPane = new BorderPane();
+            poPane.setTop(poLabel);
+            poPane.setCenter(poList);
+
+            VBox vb = new VBox();
+            buttonGeneratePO.setDisable(true);
+            vb.getChildren().addAll(poPane, buttonGeneratePO);
+
+            HBox hb = new HBox();
+            hb.getChildren().addAll(buttonSave, buttonLoad, buttonReload, fileName);
+            mainPane.setTop(hb);
+            mainPane.setCenter(editor);
+            mainPane.setRight(vb);
+
+            scene1 = new Scene(mainPane, 1024, 678);
+        }
 
     public Scene getScene(){
         return scene1;
