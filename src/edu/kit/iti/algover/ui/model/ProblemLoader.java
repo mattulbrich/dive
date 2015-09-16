@@ -36,7 +36,7 @@ public class ProblemLoader {
         return test;
     }
 
-    public static LinkedList<DafnyTree> test = new LinkedList<DafnyTree>();
+    public static LinkedList<DafnyTree> test;
 
     private static LinkedList<Proof> proofList = new LinkedList<Proof>();
 
@@ -47,6 +47,7 @@ public class ProblemLoader {
     }
 
     private static void buildAST(DafnyLexer lexer) throws  Exception{
+        test = new LinkedList<DafnyTree>();
         // create the buffer of tokens between the lexer and parser
         CommonTokenStream tokens = new CommonTokenStream(lexer);
         // create the parser attached to the token buffer
@@ -100,6 +101,7 @@ public class ProblemLoader {
         }
     }
     public static void parse(BufferedReader reader) throws Exception {
+
         ANTLRReaderStream input = new ANTLRReaderStream(reader);
         // create the lexer attached to stream
         DafnyLexer lexer = new DafnyLexer(input);

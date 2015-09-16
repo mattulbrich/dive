@@ -89,31 +89,43 @@ public class EntranceViewController extends Application
 
         buttonGeneratePO.setOnAction(e -> {
             //load the file and parse
-            poList.getItems().clear();
-            System.out.println("Cleared");
+
 
             ObservableList<String> items = FXCollections.emptyObservableList();
-
-            poList.setItems(items);
-
             LinkedList<String> allObligations = new LinkedList<String>();
 
             try {
 
+                poList.getItems().clear();
+                System.out.println("Cleared\n\n\n");
                 ProblemLoader.parse(new BufferedReader(new StringReader(editor.getText())));
+                if (loaded != null) {
 
-            if (loaded != null) {
-                for (DafnyTree po : ProblemLoader.getTest()){
-                    allObligations.add(po.toStringTree());
-                }
-                items = FXCollections.observableList(allObligations);
-            } else {
+                   // poList.getItems().clear();
+                    for (DafnyTree po : ProblemLoader.getTest()){
+                        allObligations.add(po.toStringTree());
+                    }
+                    if(poList.getItems().size() > 0){
+                        System.out.println("Nothing Changed");
+                    }else {
+                        poList.getItems().clear();
+                        items = FXCollections.observableList(allObligations);
+                    }
+                } else {
                 items.add("Failed");
-            }
-            } catch (Exception e1) {
-                e1.printStackTrace();
-            }
+                 }
+                 } catch (Exception e1) {
+                    e1.printStackTrace();
+                }
             poList.setItems(items);
+
+        });
+
+        editor.textProperty().addListener(new ChangeListener<String>() {
+            @Override
+            public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
+                System.out.println(newValue);
+            }
 
         });
 
