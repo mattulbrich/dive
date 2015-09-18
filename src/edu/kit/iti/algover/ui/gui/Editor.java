@@ -64,6 +64,12 @@ public class Editor extends CodeArea {
 
     }
 
+    /**
+     * Computes which words to highlight according to keywords and patterns
+     * Implementation from javaKEYwords of RichTextFX
+     * @param text
+     * @return
+     */
     private StyleSpans<Collection<String>> computeHighlighting(String text) {
         Matcher matcher = PATTERN.matcher(text);
         int lastKwEnd = 0;
@@ -82,8 +88,8 @@ public class Editor extends CodeArea {
             spansBuilder.add(Collections.emptyList(), matcher.start() - lastKwEnd);
             spansBuilder.add(Collections.singleton(styleClass), matcher.end() - matcher.start());
             lastKwEnd = matcher.end();
-            //this.setStyleClass(matcher.start(), matcher.end(), "red");
-            System.out.println("Start" + matcher.start() + "end " + matcher.end());
+
+           // System.out.println("Start" + matcher.start() + "end " + matcher.end());
         }
         spansBuilder.add(Collections.emptyList(), text.length() - lastKwEnd);
         return spansBuilder.create();

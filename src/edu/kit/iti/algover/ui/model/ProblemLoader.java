@@ -5,6 +5,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 import edu.kit.iti.algover.Proof;
+import edu.kit.iti.algover.util.ImmutableList;
 import org.antlr.runtime.ANTLRInputStream;
 import org.antlr.runtime.ANTLRReaderStream;
 import org.antlr.runtime.CommonTokenStream;
@@ -20,34 +21,52 @@ import edu.kit.iti.algover.symbex.SymbexState;
  * Created by sarah on 9/9/15.
  */
 public class ProblemLoader {
+    //list of collected proof obligations
+    private static LinkedList<Proof> proofList;
 
 
-    public static LinkedList<SymbexState> getProofObligations() {
-        return proofObligations;
-    }
-
-    private static LinkedList<SymbexState> proofObligations = new LinkedList<>();
-
+    //getters
     public static LinkedList<Proof> getProofList() {
         return proofList;
     }
 
-    public static LinkedList<DafnyTree> getTest() {
-        return test;
-    }
 
-    public static LinkedList<DafnyTree> test;
 
-    private static LinkedList<Proof> proofList = new LinkedList<Proof>();
-
+    /**
+     * Parse an Inputstream
+     * @param stream
+     * @throws Exception
+     */
     private static void parse(InputStream stream) throws Exception {
         ANTLRInputStream input = new ANTLRInputStream(stream);
         DafnyLexer lexer = new DafnyLexer(input);
         buildAST(lexer);
     }
 
+    /**
+     * Parse a bufferedreader input
+     * @param reader
+     * @throws Exception
+     */
+    public static void parse(BufferedReader reader) throws Exception {
+
+        ANTLRReaderStream input = new ANTLRReaderStream(reader);
+        // create the lexer attached to stream
+        DafnyLexer lexer = new DafnyLexer(input);
+        buildAST(lexer);
+    }
+
+    /**
+     * Build the AST given the DafnyLexer
+     * @param lexer
+     * @throws Exception
+     */
     private static void buildAST(DafnyLexer lexer) throws  Exception{
-        test = new LinkedList<DafnyTree>();
+        LinkedList<DafnyTree> instantiatedAssumptions;
+
+        LinkedList<PathConditionElement> typeCollectionPath;
+        LinkedList<PathConditionElement.AssertionType> typeCollectionState;
+
         // create the buffer of tokens between the lexer and parser
         CommonTokenStream tokens = new CommonTokenStream(lexer);
         // create the parser attached to the token buffer
@@ -62,12 +81,17 @@ public class ProblemLoader {
         Symbex symbex = new Symbex();
 
         List<SymbexState> results = symbex.symbolicExecution(t);
-
+        proofList = new LinkedList<Proof>();
 
         for (SymbexState res : results) {
-            proofObligations.add(res);
+            //proofObligations.add(res);
+            instantiatedAssumptions  = new LinkedList<DafnyTree>();
+            typeCollectionPath = new LinkedList<PathConditionElement>();
+            typeCollectionState  = new LinkedList<PathConditionElement.AssertionType>();
+
             System.out.println("------------");
             for (PathConditionElement pc : res.getPathConditions()) {
+                typeCollectionPath.addLast(pc);
                 System.out.println("Path condition - " + pc.getType());
                 System.out.println("    " + pc.getExpression().toStringTree());
                 System.out.println("  Assignment History:");
@@ -75,15 +99,17 @@ public class ProblemLoader {
                 System.out.println("  Aggregated Variable Map: ");
                 System.out.println("    " + pc.getVariableMap().toParallelAssignment());
                 System.out.println("  Instantiated condition: ");
+                instantiatedAssumptions.add(pc.getVariableMap().instantiate(pc.getExpression()));
                 System.out.println("    " + pc.getVariableMap().instantiate(pc.getExpression()).toStringTree());
                 System.out.println("  Refers to: line " + pc.getExpression().token.getLine());
                 System.out.println("  Test Line: " + pc.getExpression());
             }
-            System.out.println("Proof Obligations - " + res.getProofObligationType());
 
+
+            System.out.println("Proof Obligations - " + res.getProofObligationType());
+            typeCollectionState.add(res.getProofObligationType());
             for (DafnyTree po : res.getProofObligations()) {
                 System.out.println("  " + po.toStringTree());
-                test.add(po);
             }
 
 
@@ -93,6 +119,10 @@ public class ProblemLoader {
             System.out.println("    " + res.getMap().toParallelAssignment());
             System.out.println("  Instantiated POs: ");
             for (DafnyTree po : res.getProofObligations()) {
+                LinkedList<DafnyTree> toShow = new LinkedList<DafnyTree>();
+                toShow.add(res.getMap().instantiate(po));
+                Proof newPo = new Proof(instantiatedAssumptions, toShow, typeCollectionPath, typeCollectionState);
+                proofList.add(newPo);
                 System.out.println("    " + res.getMap().instantiate(po).toStringTree());
             }
 
@@ -100,14 +130,11 @@ public class ProblemLoader {
 //            System.out.println(z3.createSMTInputput(res));
         }
     }
-    public static void parse(BufferedReader reader) throws Exception {
 
-        ANTLRReaderStream input = new ANTLRReaderStream(reader);
-        // create the lexer attached to stream
-        DafnyLexer lexer = new DafnyLexer(input);
-        buildAST(lexer);
-    }
-
+    /**
+     * Read an Parse a File
+     * @param file
+     */
     public static void readFile(File file) {
 
         try {

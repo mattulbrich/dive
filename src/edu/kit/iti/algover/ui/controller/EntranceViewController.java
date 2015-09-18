@@ -1,8 +1,9 @@
 package edu.kit.iti.algover.ui.controller;
 
 
-import edu.kit.iti.algover.parser.DafnyTree;
+import edu.kit.iti.algover.Proof;
 import edu.kit.iti.algover.ui.gui.Editor;
+import edu.kit.iti.algover.ui.gui.Gui;
 import edu.kit.iti.algover.ui.model.ProblemLoader;
 import edu.kit.iti.algover.ui.util.FileUtilities;
 import javafx.application.Application;
@@ -10,15 +11,19 @@ import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
-import javafx.scene.layout.*;
+import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import javafx.util.Pair;
 
 
 import java.io.*;
 import java.util.*;
+import java.util.prefs.Preferences;
 
 /**
  * Created by sarah on 9/8/15.
@@ -28,135 +33,164 @@ public class EntranceViewController extends Application
     Stage window;
     Scene scene1;
     String srcCode;
-    Button buttonSave = new Button("Save");
-    Button buttonLoad = new Button("Load");
-    Button buttonReload = new Button("Reload last opened file");
-    Button buttonGeneratePO = new Button("Generate Proof Obligations");
-    Label poLabel = new Label("Proof Obligations:");
+    @FXML
+    Button buttonSave;
+    @FXML
+    Button buttonLoad;
+    @FXML
+    Button buttonReload;
+    @FXML
+    Button buttonGeneratePO;
+//    @FXML
+//    Label poLabel = new Label("Proof Obligations:");
     String name = "";
-    Label fileName = new Label(name);
-    ListView<String> poList = new ListView();
+    @FXML
+    Label fileName;
+    @FXML
+    ListView<String> poList;
 
     File loaded = null;
+    @FXML
+    Editor editor;
+
+    @FXML
+    VBox main;
 
 
+    @Override
+    public void start(Stage primaryStage) throws Exception {
+        createEntranceView();
+    }
 
-    Editor editor = new Editor();
-    public EntranceViewController(Stage window){
-        this.window = window;
-        try {
+
+    public void setStage(Stage s) { this.window = s;
+            try {
             start(window);
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
-    @Override
-    public void start(Stage primaryStage) throws Exception {
-
-        createEntranceView();
-
-    }
-    //View which has to be refactored afterwards
-
-
     public void createEntranceView() {
-        //GridPane mainPane = new GridPane();
-
-        BorderPane mainPane = new BorderPane();
-        //Label test= new Label("Test");
-        //mainPane.setTop(test);
-
-        buttonLoad.setOnAction(e -> {
-            Pair<File, String> p = FileUtilities.fileOpenAction(window);
-            srcCode = p.getValue();
-            buttonGeneratePO.setDisable(false);
-            loaded = p.getKey();
-            name = loaded.getAbsolutePath().toString();
-            fileName.setText(name);
-
-            editor.replaceText(0, editor.getLength(), srcCode);
-        });
-
-        buttonSave.setOnAction(e -> {
-            String content = editor.getText();
-            FileUtilities.fileSaveAction(window, content);
-        });
-
-        buttonReload.setOnAction(e -> {
-            //
-        });
-
-        buttonGeneratePO.setOnAction(e -> {
-            //load the file and parse
 
 
-            ObservableList<String> items = FXCollections.emptyObservableList();
-            LinkedList<String> allObligations = new LinkedList<String>();
+            //set actions
+            buttonLoad.setOnAction(e -> loadAction());
+            buttonSave.setOnAction(e -> {
+                String content = editor.getText();
+                FileUtilities.fileSaveAction(window, content);
+            });
+            buttonReload.setOnAction(e -> reloadAction());
+            buttonGeneratePO.setOnAction(e -> generatePOAction());
 
-            try {
-
-                poList.getItems().clear();
-                System.out.println("Cleared\n\n\n");
-                ProblemLoader.parse(new BufferedReader(new StringReader(editor.getText())));
-                if (loaded != null) {
-
-                   // poList.getItems().clear();
-                    for (DafnyTree po : ProblemLoader.getTest()){
-                        allObligations.add(po.toStringTree());
-                    }
-                    if(poList.getItems().size() > 0){
-                        System.out.println("Nothing Changed");
-                    }else {
-                        poList.getItems().clear();
-                        items = FXCollections.observableList(allObligations);
-                    }
-                } else {
-                items.add("Failed");
-                 }
-                 } catch (Exception e1) {
-                    e1.printStackTrace();
+            editor.textProperty().addListener(new ChangeListener<String>() {
+                @Override
+                public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
+                    // System.out.println(newValue);
+                    //TODO search generated POs if they should be generated again
                 }
-            poList.setItems(items);
 
-        });
+            });
 
-        editor.textProperty().addListener(new ChangeListener<String>() {
-            @Override
-            public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
-                System.out.println(newValue);
-            }
+            scene1 = new Scene(main, 1024, 678);
 
-        });
 
-//        sourceCode.textProperty().addListener(new ChangeListener<String>() {
-//            @Override
-//            public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
-//                System.out.println("old: "+oldValue);
-//                System.out.println("new: "+newValue);
-//            }
-//        });
-
-            //sourceCode.getText();
-            BorderPane poPane = new BorderPane();
-            poPane.setTop(poLabel);
-            poPane.setCenter(poList);
-
-            VBox vb = new VBox();
-            buttonGeneratePO.setDisable(true);
-            vb.getChildren().addAll(poPane, buttonGeneratePO);
-
-            HBox hb = new HBox();
-            hb.getChildren().addAll(buttonSave, buttonLoad, buttonReload, fileName);
-            mainPane.setTop(hb);
-            mainPane.setCenter(editor);
-            mainPane.setRight(vb);
-
-            scene1 = new Scene(mainPane, 1024, 678);
         }
 
     public Scene getScene(){
         return scene1;
     }
+
+    public void loadAction(){
+
+
+        Pair<File, String> p = FileUtilities.fileOpenAction(window);
+        srcCode = p.getValue();
+        buttonGeneratePO.setDisable(false);
+        loaded = p.getKey();
+        name = loaded.getAbsolutePath().toString();
+        fileName.setText(name);
+
+        editor.replaceText(0, editor.getLength(), srcCode);
+        setLastFile(loaded);
+
+
+
+    }
+
+    public void generatePOAction(){
+        //load the file and parse
+
+
+        ObservableList<String> items = FXCollections.emptyObservableList();
+        LinkedList<String> allObligations = new LinkedList<String>();
+
+        try {
+
+            poList.getItems().clear();
+            System.out.println("Cleared\n\n\n");
+            ProblemLoader.parse(new BufferedReader(new StringReader(editor.getText())));
+            if (loaded != null) {
+                for(Proof pr : ProblemLoader.getProofList()){
+                    System.out.println("List of POs: \n");
+                    System.out.println(pr.proofToString());
+                    System.out.println("\n\n");
+                    allObligations.add(pr.getName());
+
+                }
+                // poList.getItems().clear();
+//                for (SymbexState pos : ProblemLoader.getProofObligations()){
+//                    ImmutableList<DafnyTree> pOs = pos.getProofObligations();
+//                    for (DafnyTree pO : pOs) {
+//                        allObligations.add(pos.getProofObligationType().toString()+"\\"+pO.toStringTree());
+//                    }
+//                    //allObligations.add(pos.getProofObligationType().toString()+pos.getProofObligations().size());
+//                }
+                if(poList.getItems().size() > 0){
+                    System.out.println("Nothing Changed");
+                }else {
+                    poList.getItems().clear();
+                    items = FXCollections.observableList(allObligations);
+                }
+            } else {
+                items.add("Failed");
+            }
+        } catch (Exception e1) {
+            e1.printStackTrace();
+        }
+        poList.setItems(items);
+    }
+
+    /**
+     * Reload last opened file TODO
+     */
+    public void reloadAction(){
+        Preferences prefs = Preferences.userNodeForPackage(Gui.class);
+        String filePath = prefs.get("filePath" , null);
+           if (filePath != null) {
+              BufferedReader re = FileUtilities.readFile(new File(filePath));
+               try {
+                   editor.replaceText(0,editor.getLength(), re.readLine());
+               } catch (IOException e) {
+                   e.printStackTrace();
+               }
+               //return new File(filePath);
+    } else {
+               System.out.println("File not loadable");
+        //return null;
+    }
+
+    }
+
+    public void setLastFile(File file) {
+        Preferences prefs = Preferences.userNodeForPackage(Gui.class);
+        if (file != null) {
+            prefs.put("filePath", file.getPath());
+
+        } else {
+            prefs.remove("filePath");
+        }
+    }
+
 
 }

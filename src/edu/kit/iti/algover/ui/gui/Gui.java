@@ -6,12 +6,16 @@ import edu.kit.iti.algover.ui.controller.EntranceViewController;
 import edu.kit.iti.algover.ui.util.FileUtilities;
 import edu.kit.iti.algover.ui.util.ConfirmBox;
 import javafx.application.Application;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
 
+import java.io.IOException;
+
 
 public class Gui extends Application {
-//fx:controller="edu.kit.iti.algover.ui.controller.AlgoVerifGuiController"
+
     public static void main(String[] args) {
         launch(args);
     }
@@ -21,9 +25,22 @@ public class Gui extends Application {
 
     @Override
     public void start(Stage primaryStage) {
+
+
         this.window = primaryStage;
 
-        EntranceViewController eView = new EntranceViewController(primaryStage);
+
+        //create EntranceView
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("EntranceView.fxml"));
+        try {
+            Parent root = loader.load();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        EntranceViewController eView = (EntranceViewController) loader.getController();
+        eView.setStage(primaryStage);
+
 
         window.setScene(eView.getScene());
 
@@ -36,7 +53,6 @@ public class Gui extends Application {
             }
         });
         window.show();
-
 
 
     }

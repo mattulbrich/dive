@@ -45,14 +45,13 @@ public class FileUtilities {
                 e.printStackTrace();
             }
             return new Pair<File,String>(file, text);
-            //srcPane.setText(text);
+
 
 
 
         }else {
             return new Pair<File, String>( file, "File not read");
-            //srcPane.setText("File not read");
-            // Main.readFile(file);
+
         }
 
     }
