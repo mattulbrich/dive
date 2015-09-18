@@ -5,6 +5,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 import edu.kit.iti.algover.Proof;
+import edu.kit.iti.algover.ProofCenter;
 import edu.kit.iti.algover.util.ImmutableList;
 import org.antlr.runtime.ANTLRInputStream;
 import org.antlr.runtime.ANTLRReaderStream;
@@ -62,6 +63,7 @@ public class ProblemLoader {
      * @throws Exception
      */
     private static void buildAST(DafnyLexer lexer) throws  Exception{
+        ProofCenter pcenter = ProofCenter.getInstance();
         LinkedList<DafnyTree> instantiatedAssumptions;
 
         LinkedList<PathConditionElement> typeCollectionPath;
@@ -84,7 +86,7 @@ public class ProblemLoader {
         proofList = new LinkedList<Proof>();
 
         for (SymbexState res : results) {
-            //proofObligations.add(res);
+
             instantiatedAssumptions  = new LinkedList<DafnyTree>();
             typeCollectionPath = new LinkedList<PathConditionElement>();
             typeCollectionState  = new LinkedList<PathConditionElement.AssertionType>();
@@ -121,10 +123,11 @@ public class ProblemLoader {
             for (DafnyTree po : res.getProofObligations()) {
                 LinkedList<DafnyTree> toShow = new LinkedList<DafnyTree>();
                 toShow.add(res.getMap().instantiate(po));
-                Proof newPo = new Proof(instantiatedAssumptions, toShow, typeCollectionPath, typeCollectionState);
-                proofList.add(newPo);
+                Proof p = pcenter.createProofObject(instantiatedAssumptions, toShow, typeCollectionPath, typeCollectionState, 0);
+                pcenter.insertProof(p);
                 System.out.println("    " + res.getMap().instantiate(po).toStringTree());
             }
+
 
 //            Z3Solver z3 = new Z3Solver(new ProgramDatabase(t));
 //            System.out.println(z3.createSMTInputput(res));

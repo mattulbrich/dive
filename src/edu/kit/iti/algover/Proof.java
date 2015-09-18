@@ -15,10 +15,20 @@ import java.util.LinkedList;
  *
  */
 public class Proof {
+    public LinkedList<PathConditionElement> getCollected() {
+        return collected;
+    }
+
+    public LinkedList<PathConditionElement.AssertionType> getCollected2() {
+        return collected2;
+    }
+
     private LinkedList<PathConditionElement> collected;
     private LinkedList<PathConditionElement.AssertionType> collected2;
-
     private LinkedList<DafnyTree> assumptions;
+    private LinkedList<DafnyTree> toShow;
+
+
 
     public LinkedList<DafnyTree> getAssumptions() {
         return assumptions;
@@ -40,28 +50,38 @@ public class Proof {
         return name;
     }
 
-    public String name;
-    private LinkedList<DafnyTree> toShow;
+    private String name;
+
+    public int getId() {
+        return id;
+    }
+
+    private int id;
+
 
     public Proof(LinkedList<DafnyTree> ass, LinkedList<DafnyTree> show,
-                 LinkedList<PathConditionElement> collected, LinkedList<PathConditionElement.AssertionType> collected2){
+                 LinkedList<PathConditionElement> collected, LinkedList<PathConditionElement.AssertionType> collected2, int id){
         this.setAssumptions(ass);
         this.setToShow(show);
         this.collected = collected;
         this.collected2 = collected2;
+        this.id = id;
         name = creatName();
+
     }
 
     private String creatName() {
-        //label fehlt noch
+        //label fehlt noch id muss dann ersetzt werden
         String name = "";
-        for (PathConditionElement.AssertionType assertionType : collected2) {
-            name+=assertionType.toString()+"\\";
-        }
+
 
         for (PathConditionElement pathConditionElement : collected) {
             name+=pathConditionElement.getType()+"\\";
         }
+        for (PathConditionElement.AssertionType assertionType : collected2) {
+            name+=assertionType.toString()+"\\";
+        }
+        name+=id;
         return name;
     }
 

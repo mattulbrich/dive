@@ -2,9 +2,12 @@ package edu.kit.iti.algover.ui.controller;
 
 
 import edu.kit.iti.algover.Proof;
+import edu.kit.iti.algover.ProofCenter;
 import edu.kit.iti.algover.ui.gui.Editor;
 import edu.kit.iti.algover.ui.gui.Gui;
 import edu.kit.iti.algover.ui.model.ProblemLoader;
+import edu.kit.iti.algover.ui.util.AlertBox;
+import edu.kit.iti.algover.ui.util.ConfirmBox;
 import edu.kit.iti.algover.ui.util.FileUtilities;
 import javafx.application.Application;
 import javafx.beans.value.ChangeListener;
@@ -16,6 +19,7 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import javafx.util.Pair;
@@ -70,7 +74,15 @@ public class EntranceViewController extends Application
             e.printStackTrace();
         }
     }
+    @FXML public void onMouseClick(MouseEvent arg0) {
+            //System.out.println("clicked on " + poList.getSelectionModel().getSelectedItem());
+            Proof p;
+            if((p = ProofCenter.getInstance().searchForPO(poList.getSelectionModel().getSelectedItem()))!= null) {
+                AlertBox.display("You clicked on: ", p.proofToString());
+                System.out.println(p.proofToString());
 
+        }
+    }
     public void createEntranceView() {
 
 
@@ -130,22 +142,14 @@ public class EntranceViewController extends Application
             poList.getItems().clear();
             System.out.println("Cleared\n\n\n");
             ProblemLoader.parse(new BufferedReader(new StringReader(editor.getText())));
+
             if (loaded != null) {
-                for(Proof pr : ProblemLoader.getProofList()){
-                    System.out.println("List of POs: \n");
-                    System.out.println(pr.proofToString());
-                    System.out.println("\n\n");
+                for(Proof pr : ProofCenter.getInstance().getProofs()){
+
                     allObligations.add(pr.getName());
 
                 }
-                // poList.getItems().clear();
-//                for (SymbexState pos : ProblemLoader.getProofObligations()){
-//                    ImmutableList<DafnyTree> pOs = pos.getProofObligations();
-//                    for (DafnyTree pO : pOs) {
-//                        allObligations.add(pos.getProofObligationType().toString()+"\\"+pO.toStringTree());
-//                    }
-//                    //allObligations.add(pos.getProofObligationType().toString()+pos.getProofObligations().size());
-//                }
+
                 if(poList.getItems().size() > 0){
                     System.out.println("Nothing Changed");
                 }else {

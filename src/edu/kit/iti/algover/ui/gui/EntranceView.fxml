@@ -63,22 +63,12 @@
       <items>
         <AnchorPane >
           <Editor fx:id="editor" AnchorPane.topAnchor="0.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" />
-          <!--<children>
-            <Label alignment="CENTER" layoutX="14.0" layoutY="14.0" minWidth="60.0" prefWidth="-1.0" style="&#10;" text="Master" textAlignment="CENTER" wrapText="false">
-              <font>
-                <Font size="18.0" fx:id="x1" />
-              </font>
-              <textFill>
-                <Color blue="0.624" green="0.624" red="0.624" fx:id="x2" />
-              </textFill>
-            </Label>
-          </children>-->
         </AnchorPane>
         <AnchorPane>
           <children>
                   <VBox AnchorPane.bottomAnchor="0.0" AnchorPane.topAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0">
                      <children>
-                        <ListView fx:id="poList"   VBox.vgrow="ALWAYS" />
+                        <ListView fx:id="poList"   VBox.vgrow="ALWAYS" onMouseClicked="#onMouseClick"/>
                         <Button fx:id="buttonGeneratePO" mnemonicParsing="false" text="Generate Proofobligations" />
                      </children>
                   </VBox>

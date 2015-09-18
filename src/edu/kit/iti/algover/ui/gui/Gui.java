@@ -2,6 +2,7 @@ package edu.kit.iti.algover.ui.gui;/**
  * Created by sarah on 8/12/15.
  */
 
+import edu.kit.iti.algover.ProofCenter;
 import edu.kit.iti.algover.ui.controller.EntranceViewController;
 import edu.kit.iti.algover.ui.util.FileUtilities;
 import edu.kit.iti.algover.ui.util.ConfirmBox;
