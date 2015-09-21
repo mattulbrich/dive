@@ -1,5 +1,6 @@
 package edu.kit.iti.algover.ui.util;
 
+import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
@@ -25,12 +26,14 @@ public class AlertBox {
         //Block all input Events until this window is done
         window.initModality(Modality.APPLICATION_MODAL);
         window.setTitle(title);
-        window.setMaxWidth(350);
+        window.setMinWidth(350);
         Label l = new Label(msg);
         Button buttonClose = new Button("Close");
         buttonClose.setOnAction(e -> window.close());
 
         HBox layout = new HBox();
+        layout.setPadding(new Insets(20,20,20,20));
+        layout.setSpacing(20);
         layout.getChildren().addAll(l, buttonClose);
         layout.setAlignment(Pos.CENTER);
 
