@@ -23,4 +23,12 @@ public class ASTUtil {
         return result;
     }
 
+    public static String getLabel(DafnyTree tree) {
+        DafnyTree label = tree.getFirstChildWithType(DafnyParser.LABEL);
+        if(label != null) {
+            return label.getLastChild().toString();
+        }
+        return null;
+    }
+
 }

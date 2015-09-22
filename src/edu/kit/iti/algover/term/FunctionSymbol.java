@@ -6,8 +6,18 @@ import edu.kit.iti.algover.util.Util;
 
 public class FunctionSymbol {
 
-    private Sort resultSort;
-    private Sort[] argumentSorts;
+    private final Sort resultSort;
+    private final Sort[] argumentSorts;
+
+    public FunctionSymbol(String name, Sort resultSort, Sort... argumentSorts) {
+        this.name = name;
+        this.resultSort = resultSort;
+        this.argumentSorts = argumentSorts;
+    }
+
+    public FunctionSymbol(String name, Sort resultSort, List<Sort> argumentSorts) {
+        this(name, resultSort, argumentSorts.toArray(new Sort[argumentSorts.size()]));
+    }
 
     public List<Sort> getArgumentSorts() {
         return Util.readOnlyArrayList(argumentSorts);

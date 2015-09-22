@@ -1,6 +1,8 @@
 package edu.kit.iti.algover.term;
 
+import java.util.Collections;
 import java.util.List;
+
 
 import edu.kit.iti.algover.util.Util;
 
@@ -11,6 +13,10 @@ public class ApplTerm extends Term {
     public ApplTerm(FunctionSymbol function, List<Term> arguments) {
         super(function.getResultSort(), Util.toArray(arguments, Term.class));
         this.function = function;
+    }
+
+    public ApplTerm(FunctionSymbol constant) {
+        this(constant, Collections.emptyList());
     }
 
     @Override

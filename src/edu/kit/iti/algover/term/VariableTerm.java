@@ -14,4 +14,18 @@ public class VariableTerm extends Term {
         return name;
     }
 
+    @Override
+    public boolean equals(Object obj) {
+        if(!super.equals(obj)) {
+            return false;
+        }
+
+        VariableTerm other = (VariableTerm) obj;
+        return other.name.equals(name);
+    }
+
+    public String getName() {
+        return name;
+    }
+
 }

@@ -2,7 +2,9 @@ package edu.kit.iti.algover.term;
 
 public class Sort {
 
-    public static final Sort FORMULA = new Sort("Formula");
+    public static final Sort FORMULA = new Sort("formula");
+    public static final Sort INT = new Sort("int");
+    public static final Sort INT_SET = new Sort("set");
 
     private final String name;
 
@@ -22,6 +24,10 @@ public class Sort {
             return name.equals(sort.name);
         }
         return false;
+    }
+
+    public String getName() {
+        return name;
     }
 
 }

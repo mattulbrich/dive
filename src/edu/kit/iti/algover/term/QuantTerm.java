@@ -2,7 +2,7 @@ package edu.kit.iti.algover.term;
 
 public class QuantTerm extends Term {
 
-    enum Quantifier {
+    public enum Quantifier {
         FORALL, EXISTS
     };
 

@@ -1,7 +1,11 @@
 package edu.kit.iti.algover;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import edu.kit.iti.algover.parser.DafnyParser;
 import edu.kit.iti.algover.parser.DafnyTree;
+import edu.kit.iti.algover.term.FunctionSymbol;
 
 
 /**
@@ -18,7 +22,7 @@ public class ProgramDatabase {
         this.program = program;
     }
 
-    public DafnyTree getFunction(String name) {
+    public DafnyTree getMethod(String name) {
         for (DafnyTree f : program.getChildrenWithType(DafnyParser.METHOD)) {
             if(f.getChild(0).getText().equals(name)) {
                 return f;
@@ -27,22 +31,22 @@ public class ProgramDatabase {
         return null;
     }
 
-    public DafnyTree getVariableDeclaration(DafnyTree function, String name) {
-        DafnyTree arg = getVariableDeclInList(function.getFirstChildWithType(DafnyParser.ARGS), name);
+    public static DafnyTree getVariableDeclaration(DafnyTree method, String name) {
+        DafnyTree arg = getVariableDeclInList(method.getFirstChildWithType(DafnyParser.ARGS), name);
         if(arg != null) {
             return arg;
         }
 
-        DafnyTree ret = getVariableDeclInList(function.getFirstChildWithType(DafnyParser.RETURNS), name);
+        DafnyTree ret = getVariableDeclInList(method.getFirstChildWithType(DafnyParser.RETURNS), name);
         if(ret != null) {
             return ret;
         }
 
-        DafnyTree var = getVariableDeclInList(function.getFirstChildWithType(DafnyParser.VAR), name);
+        DafnyTree var = getVariableDeclInList(method.getFirstChildWithType(DafnyParser.VAR), name);
         return var;
     }
 
-    private DafnyTree getVariableDeclInList(DafnyTree decls, String name) {
+    private static DafnyTree getVariableDeclInList(DafnyTree decls, String name) {
         if(decls != null) {
             for (DafnyTree decl : decls.getChildren()) {
                 if(decl.getChild(0).getText().equals(name)) {
@@ -52,4 +56,5 @@ public class ProgramDatabase {
         }
         return null;
     }
+
 }

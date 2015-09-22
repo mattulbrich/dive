@@ -59,6 +59,7 @@ RETURNS : 'returns';
 ENSURES: 'ensures';
 REQUIRES: 'requires';
 DECREASES: 'decreases';
+FUNCTION: 'function';
 METHOD: 'method';
 LEMMA: 'lemma';
 LABEL: 'label';
@@ -96,12 +97,19 @@ BLOCK_END: '}';
 
 LENGTH: 'Length' ('0' .. '9')*;
 ARRAY : 'array' (('1' .. '9') ('0' .. '9')*)?;
-ID : ('a' .. 'z' | 'A' .. 'Z' | '_')+;
+ID : ('a' .. 'z' | 'A' .. 'Z' | '_') ('a' .. 'z' | 'A' .. 'Z' | '0' .. '9' | '_')*;
 LIT : '0' ..'9'+;
-WS : (' '|'\n'|'\r') { $channel = HIDDEN; };
+
+WS : (' '|'\n'|'\r')                     { $channel = HIDDEN; };
+SINGLELINE_COMMENT: '//' ~('\r' | '\n')* { $channel = HIDDEN; };
+MULTILINE_COMMENT: '/*' .* '*/'          { $channel = HIDDEN; };
+
+label:
+  'label'^ ID ':'!
+  ;
 
 program:
-  method +
+  (method | function)+
   ;
 
 method:
@@ -115,6 +123,12 @@ method:
   ->
     ^(METHOD[tok] ID ^(ARGS vars?) returns_? requires* ensures* 
         decreases? decl* ^(BLOCK statements?))
+  ;
+
+function:
+  'function'^
+  ID '('! vars? ')'! ':'! type
+  '{'! expression '}'!
   ;
 
 decl:
@@ -140,11 +154,11 @@ returns_:
   ;
 
 requires:
-  REQUIRES^ ('label'! ID ':'!)? expression
+  REQUIRES^ label? expression
   ;
 
 ensures:
-  ENSURES^ ('label'! ID ':'!)? expression
+  ENSURES^ label? expression
   ;
 
 decreases:
@@ -152,7 +166,7 @@ decreases:
   ;
 
 invariant:
-  INVARIANT^ ('label'! ID ':'!)? expression
+  INVARIANT^ label? expression
   ;
 
 block:
@@ -174,10 +188,10 @@ statement:
         -> ^('call' $f ^(RESULTS $r) ^(ARGS expressions?))
   | ids ':=' 'call' ID '(' expressions? ')' ';'
         -> ^('call' ID ^(RESULTS ids) ^(ARGS expressions?))
-  | ('label' ID ':' )? 
+  | label?
       'while' expression invariant+ decreases relaxedBlock
-        -> ^('while' ID? expression invariant+ decreases relaxedBlock)
-  | 'if'^ expression relaxedBlock
+        -> ^('while' label? expression invariant+ decreases relaxedBlock)
+  | label? 'if'^ expression relaxedBlock
       ( options { greedy=true; } : 'else'! relaxedBlock )?
   | 'assert'^ ( 'label'! ID ':'! )? expression ';'!
   ;
@@ -224,6 +238,7 @@ postfix_expr:
   ( '[' expression ']' -> ^( ARRAY_ACCESS atom_expr expression )
   | '.' LENGTH -> ^( LENGTH atom_expr )
   | -> atom_expr
+  | EOF -> atom_expr
   )
   ;
 
