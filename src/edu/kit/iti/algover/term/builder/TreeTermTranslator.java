@@ -65,8 +65,27 @@ public class TreeTermTranslator {
         case DafnyParser.EX:
             return buildQuantifier(QuantTerm.Quantifier.EXISTS, tree);
 
+        case DafnyParser.LENGTH:
+            return buildLength(tree);
+
         default: throw new RuntimeException(tree.toStringTree());
         }
+
+    }
+
+    private Term buildLength(DafnyTree tree) {
+        String functionName = tree.toString();
+        String suffix = functionName.substring(6);
+
+        int index = 0;
+        if(suffix.length() > 0) {
+            index = Integer.parseInt(suffix);
+        }
+
+        Term t1 = build(tree.getChild(0));
+
+        FunctionSymbol f = symbolTable.getFunctionSymbol("$len" + index);
+        return new ApplTerm(f, Arrays.asList(t1));
 
     }
 

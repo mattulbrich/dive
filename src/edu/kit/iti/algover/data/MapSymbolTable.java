@@ -32,6 +32,14 @@ public class MapSymbolTable implements SymbolTable {
             return eq;
         }
 
+        if(name.matches("\\$len[0-9]+")) {
+            String suffix = name.substring(4);
+            Sort arraySort = new Sort("array" + suffix);
+            FunctionSymbol len = new FunctionSymbol(name, Sort.FORMULA, Arrays.asList(arraySort));
+            functionMap.put(name, len);
+            return len;
+        }
+
         if(name.matches("[0-9]+")) {
             FunctionSymbol lit = new FunctionSymbol(name, Sort.INT);
             functionMap.put(name, lit);
