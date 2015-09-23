@@ -92,7 +92,9 @@ public class EntranceViewController extends Application
                 String content = editor.getText();
                 FileUtilities.fileSaveAction(window, content);
             });
-            buttonReload.setOnAction(e -> reloadAction());
+            // XXX MU: I moved the semantics of this line to FXML. Makes it clearer.
+            // XXX Suggest: Do the same with other actions
+//            buttonReload.setOnAction(e -> reloadAction());
             buttonGeneratePO.setOnAction(e -> generatePOAction());
 
             editor.textProperty().addListener(new ChangeListener<String>() {
