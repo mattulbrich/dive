@@ -6,7 +6,6 @@ import java.util.List;
 
 import edu.kit.iti.algover.Proof;
 import edu.kit.iti.algover.ProofCenter;
-import edu.kit.iti.algover.util.ImmutableList;
 import org.antlr.runtime.ANTLRInputStream;
 import org.antlr.runtime.ANTLRReaderStream;
 import org.antlr.runtime.CommonTokenStream;

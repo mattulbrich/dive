@@ -14,7 +14,7 @@ import java.util.LinkedList;
  *
  *
  */
-public class Proof {
+public class ProofOld {
     public LinkedList<PathConditionElement> getCollected() {
         return collected;
     }
@@ -59,7 +59,7 @@ public class Proof {
     private int id;
 
 
-    public Proof(LinkedList<DafnyTree> ass, LinkedList<DafnyTree> show,
+    public ProofOld(LinkedList<DafnyTree> ass, LinkedList<DafnyTree> show,
                  LinkedList<PathConditionElement> collected, LinkedList<PathConditionElement.AssertionType> collected2, int id){
         this.setAssumptions(ass);
         this.setToShow(show);

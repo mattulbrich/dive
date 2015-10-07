@@ -1,25 +1,17 @@
 package edu.kit.iti.algover.ui.controller;
 
 
-import edu.kit.iti.algover.Proof;
-import edu.kit.iti.algover.ProofCenter;
 import edu.kit.iti.algover.ui.gui.Editor;
 import edu.kit.iti.algover.ui.gui.Gui;
-import edu.kit.iti.algover.ui.model.ProblemLoader;
-import edu.kit.iti.algover.ui.util.AlertBox;
 import edu.kit.iti.algover.ui.util.FileUtilities;
 import javafx.application.Application;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
-import javafx.scene.control.ListView;
 import javafx.scene.control.TextArea;
-import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import javafx.util.Pair;
@@ -27,8 +19,6 @@ import javafx.util.Pair;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
-import java.io.StringReader;
-import java.util.LinkedList;
 import java.util.prefs.Preferences;
 
 /**

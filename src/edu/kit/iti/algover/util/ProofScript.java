@@ -1,6 +1,5 @@
 package edu.kit.iti.algover.util;
 
-import edu.kit.iti.algover.Proof;
 import edu.kit.iti.algover.symbex.SymbexState;
 
 import java.util.LinkedList;

@@ -1,6 +1,7 @@
 package edu.kit.iti.algover.term;
 
 import java.util.Arrays;
+import java.util.LinkedList;
 import java.util.List;
 
 import edu.kit.iti.algover.util.Util;
@@ -12,9 +13,16 @@ public abstract class Term {
     private final Sort sort;
     private final Term[] subterms;
 
+    /**
+     *
+     * @param sort
+     * @param subterms
+     *
+     */
     public Term(Sort sort, Term[] subterms) {
         this.sort = sort;
         this.subterms = subterms;
+
     }
 
     public Sort getSort() {
