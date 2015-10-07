@@ -7,25 +7,25 @@ import java.io.File;
 import java.util.LinkedList;
 
 /**
- * ProofCenter manages several proof obligations
+ * ProofOldCenter manages several ProofOld obligations
  * Created by sarah on 9/10/15.
  */
 public class ProofCenter  {
 
-   //list of all Proof obligations for one problemfile
-   private LinkedList<Proof> proofs = new LinkedList<>();
+   //list of all ProofOld obligations for one problemfile
+   private LinkedList<ProofOld> ProofOlds = new LinkedList<>();
 
-    public LinkedList<Proof> getProofs() {
-        return proofs;
+    public LinkedList<ProofOld> getProofOlds() {
+        return ProofOlds;
     }
 
     /**
      * Has to check whether PO is duplicate TODO
-     * @param proofs
+     * @param ProofOlds
      */
-    public void setProofs(LinkedList<Proof> proofs) {
-        this.proofs = new LinkedList<>();
-        this.proofs = proofs;
+    public void setProofOlds(LinkedList<ProofOld> ProofOlds) {
+        this.ProofOlds = new LinkedList<>();
+        this.ProofOlds = ProofOlds;
     }
 
     public File getProblemFile() {
@@ -51,30 +51,30 @@ public class ProofCenter  {
    }
 
     /**
-     * Return the searched Proof Obligation if it exists
+     * Return the searched ProofOld Obligation if it exists
      * @param po
      * @return
      */
-    public Proof searchForPO(String po){
-        for (Proof proof : proofs) {
-            if(proof.getName().equals(po)){
-                return proof;
+    public ProofOld searchForPO(String po){
+        for (ProofOld ProofOld : ProofOlds) {
+            if(ProofOld.getName().equals(po)){
+                return ProofOld;
             }
         }
         return null;
     }
 
-    public void insertProof(Proof p){
+    public void insertProofOld(ProofOld p){
         Boolean conflict = false;
 
-        if(proofs.size()==0){
-            proofs.add(p);
+        if(ProofOlds.size()==0){
+            ProofOlds.add(p);
         }else {
-            for (Proof proof : proofs) {
-                System.out.println("Checking: " + proof.getName());
-                if (p.getName().equals(proof.getName())) {
+            for (ProofOld ProofOld : ProofOlds) {
+                System.out.println("Checking: " + ProofOld.getName());
+                if (p.getName().equals(ProofOld.getName())) {
                     conflict = true;
-                    System.out.println("Conflicting names :" + p.getName() + "-----" + proof.getName());
+                    System.out.println("Conflicting names :" + p.getName() + "-----" + ProofOld.getName());
                     break;
                 }
             }
@@ -82,21 +82,21 @@ public class ProofCenter  {
                 int id = p.getId();
                 id = id+1;
                 System.out.println("New ID"+id);
-                Proof newProof = createProofObject(p.getAssumptions(), p.getToShow(), p.getCollected(), p.getCollected2(), id);
-                System.out.println("New Name: " + newProof.getName());
-                insertProof(newProof);
+                ProofOld newProofOld = createProofOldObject(p.getAssumptions(), p.getToShow(), p.getCollected(), p.getCollected2(), id);
+                System.out.println("New Name: " + newProofOld.getName());
+                insertProofOld(newProofOld);
 
             }else{
-                proofs.add(p);
+                ProofOlds.add(p);
                 System.out.println("Added");
             }
         }
     }
-    public Proof createProofObject(LinkedList<DafnyTree> ass, LinkedList<DafnyTree> show,
+    public ProofOld createProofOldObject(LinkedList<DafnyTree> ass, LinkedList<DafnyTree> show,
                  LinkedList<PathConditionElement> collected, LinkedList<PathConditionElement.AssertionType> collected2, int id){
-        Proof nProof = new Proof(ass,show,collected,collected2,id);
-        System.out.println("NewCall"+ nProof.getName());
-        return nProof;
+        ProofOld nProofOld = new ProofOld(ass,show,collected,collected2,id);
+        System.out.println("NewCall"+ nProofOld.getName());
+        return nProofOld;
 
     }
 

@@ -1,8 +1,8 @@
 package edu.kit.iti.algover.ui.controller;
 
 
-import edu.kit.iti.algover.Proof;
 import edu.kit.iti.algover.ProofCenter;
+import edu.kit.iti.algover.ProofOld;
 import edu.kit.iti.algover.ui.gui.Editor;
 import edu.kit.iti.algover.ui.gui.Gui;
 import edu.kit.iti.algover.ui.model.ProblemLoader;
@@ -73,7 +73,7 @@ public class EntranceViewController extends Application
     }
     @FXML public void onMouseClick(MouseEvent arg0) {
             //System.out.println("clicked on " + poList.getSelectionModel().getSelectedItem());
-            Proof p;
+            ProofOld p;
             if((p = ProofCenter.getInstance().searchForPO(poList.getSelectionModel().getSelectedItem()))!= null) {
                 AlertBox.display("You clicked on: ", p.proofToString());
                 System.out.println(p.proofToString());
@@ -143,7 +143,7 @@ public class EntranceViewController extends Application
             ProblemLoader.parse(new BufferedReader(new StringReader(editor.getText())));
 
             if (loaded != null) {
-                for(Proof pr : ProofCenter.getInstance().getProofs()){
+                for(ProofOld pr : ProofCenter.getInstance().getProofOlds()){
 
                     allObligations.add(pr.getName());
 

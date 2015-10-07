@@ -4,7 +4,7 @@ import java.io.*;
 import java.util.LinkedList;
 import java.util.List;
 
-import edu.kit.iti.algover.Proof;
+import edu.kit.iti.algover.ProofOld;
 import edu.kit.iti.algover.ProofCenter;
 import org.antlr.runtime.ANTLRInputStream;
 import org.antlr.runtime.ANTLRReaderStream;
@@ -22,11 +22,11 @@ import edu.kit.iti.algover.symbex.SymbexState;
  */
 public class ProblemLoader {
     //list of collected proof obligations
-    private static LinkedList<Proof> proofList;
+    private static LinkedList<ProofOld> proofList;
 
 
     //getters
-    public static LinkedList<Proof> getProofList() {
+    public static LinkedList<ProofOld> getProofList() {
         return proofList;
     }
 
@@ -82,7 +82,7 @@ public class ProblemLoader {
         Symbex symbex = new Symbex();
 
         List<SymbexState> results = symbex.symbolicExecution(t);
-        proofList = new LinkedList<Proof>();
+        proofList = new LinkedList<ProofOld>();
 
         for (SymbexState res : results) {
 
@@ -122,8 +122,8 @@ public class ProblemLoader {
             for (DafnyTree po : res.getProofObligations()) {
                 LinkedList<DafnyTree> toShow = new LinkedList<DafnyTree>();
                 toShow.add(res.getMap().instantiate(po));
-                Proof p = pcenter.createProofObject(instantiatedAssumptions, toShow, typeCollectionPath, typeCollectionState, 0);
-                pcenter.insertProof(p);
+                ProofOld p = pcenter.createProofOldObject(instantiatedAssumptions, toShow, typeCollectionPath, typeCollectionState, 0);
+                pcenter.insertProofOld(p);
                 System.out.println("    " + res.getMap().instantiate(po).toStringTree());
             }
 
