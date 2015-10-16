@@ -1,6 +1,8 @@
 package edu.kit.iti.algover;
 
 import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 
 import edu.kit.iti.algover.parser.DafnyParser;
@@ -31,6 +33,17 @@ public class ProgramDatabase {
         return null;
     }
 
+    /**
+     * Fuer PVC SymbTable
+     * @param method
+     * @return
+     * TODO Mattias Ulbrich
+     */
+    public static List<DafnyTree> getAllVariableDeclarations(DafnyTree method) {
+        List<DafnyTree> allDeclarations = new LinkedList<DafnyTree>();
+
+        return allDeclarations;
+    }
     public static DafnyTree getVariableDeclaration(DafnyTree method, String name) {
         DafnyTree arg = getVariableDeclInList(method.getFirstChildWithType(DafnyParser.ARGS), name);
         if(arg != null) {
