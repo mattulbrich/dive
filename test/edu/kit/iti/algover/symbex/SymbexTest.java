@@ -55,7 +55,7 @@ public class SymbexTest {
     @Test
     public void testHandleAssert() {
 
-        DafnyTree assertionStm = tree.getLastChild().getChild(4);
+        DafnyTree assertionStm = tree.getLastChild().getChild(6);
         assertEquals(DafnyParser.ASSERT, assertionStm.getType());
 
         Symbex symbex = new Symbex();
@@ -81,7 +81,7 @@ public class SymbexTest {
 
     @Test
     public void testHandleAssignment() {
-        DafnyTree assStm = tree.getLastChild().getChild(0);
+        DafnyTree assStm = tree.getLastChild().getChild(2);
         assertEquals(DafnyParser.ASSIGN, assStm.getType());
 
         Symbex symbex = new Symbex();
@@ -102,8 +102,53 @@ public class SymbexTest {
     }
 
     @Test
+    public void testHandleVarDecl1() {
+        DafnyTree decl = tree.getLastChild().getChild(0);
+        assertEquals(DafnyParser.VAR, decl.getType());
+
+        Symbex symbex = new Symbex();
+        Deque<SymbexState> stack = new LinkedList<SymbexState>();
+        List<SymbexState> results = new ArrayList<SymbexState>();
+        SymbexState state = new SymbexState(tree);
+        state.setMap(SOME_MAP);
+
+        symbex.handleVarDecl(stack, state, decl, SOME_PROGRAM);
+
+        assertEquals(1, stack.size());
+        assertEquals(0, results.size());
+
+        SymbexState next = stack.pop();
+        assertTrue(next.getBlockToExecute() == SOME_PROGRAM);
+        assertEquals(SOME_MAP, next.getMap());
+        assertEquals(0, next.getPathConditions().size());
+    }
+
+    // revealed a bug
+    @Test
+    public void testHandleVarDecl2() {
+        DafnyTree decl = tree.getLastChild().getChild(8);
+        assertEquals(DafnyParser.VAR, decl.getType());
+
+        Symbex symbex = new Symbex();
+        Deque<SymbexState> stack = new LinkedList<SymbexState>();
+        List<SymbexState> results = new ArrayList<SymbexState>();
+        SymbexState state = new SymbexState(tree);
+        state.setMap(SOME_MAP);
+
+        symbex.handleVarDecl(stack, state, decl, SOME_PROGRAM);
+
+        assertEquals(1, stack.size());
+        assertEquals(0, results.size());
+
+        SymbexState next = stack.pop();
+        assertTrue(next.getBlockToExecute() == SOME_PROGRAM);
+        assertEquals("42", next.getMap().get("init_direct").toStringTree());
+        assertEquals(0, next.getPathConditions().size());
+    }
+
+    @Test
     public void testHandleWhile() {
-        DafnyTree whileStm = tree.getLastChild().getChild(2);
+        DafnyTree whileStm = tree.getLastChild().getChild(4);
         assertEquals(DafnyParser.WHILE,  whileStm.getType());
 
         Symbex symbex = new Symbex();

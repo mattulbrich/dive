@@ -1,13 +1,10 @@
 package edu.kit.iti.algover;
 
-import java.util.HashMap;
-import java.util.LinkedList;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 import edu.kit.iti.algover.parser.DafnyParser;
 import edu.kit.iti.algover.parser.DafnyTree;
-import edu.kit.iti.algover.term.FunctionSymbol;
 
 
 /**
@@ -34,16 +31,34 @@ public class ProgramDatabase {
     }
 
     /**
-     * Fuer PVC SymbTable
+     * Retrieves all variable declarations from within a method declaration.
+     * They may be arbtrarily nested.
+     *
      * @param method
-     * @return
-     * TODO Mattias Ulbrich
+     *            the method to scan for declarations
+     *
+     * @return a freshly created, non-<code>null</code> list of var decls.
      */
     public static List<DafnyTree> getAllVariableDeclarations(DafnyTree method) {
-        List<DafnyTree> allDeclarations = new LinkedList<DafnyTree>();
-
+        List<DafnyTree> allDeclarations = new ArrayList<DafnyTree>();
+        collectVariableDeclarations(allDeclarations, method);
         return allDeclarations;
     }
+
+    private static void collectVariableDeclarations(List<DafnyTree> collection, DafnyTree node) {
+        if(node.getType() == DafnyParser.VAR) {
+            collection.add(node);
+        } else {
+            // VARs are never nested.
+            List<DafnyTree> children = node.getChildren();
+            if(children != null) {
+                for (DafnyTree child : children) {
+                    collectVariableDeclarations(collection, child);
+                }
+            }
+        }
+    }
+
     public static DafnyTree getVariableDeclaration(DafnyTree method, String name) {
         DafnyTree arg = getVariableDeclInList(method.getFirstChildWithType(DafnyParser.ARGS), name);
         if(arg != null) {

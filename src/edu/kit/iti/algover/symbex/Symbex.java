@@ -68,6 +68,10 @@ public class Symbex {
                     handleAssign(stack, state, stm, remainder);
                     break;
 
+                case DafnyParser.VAR:
+                    handleVarDecl(stack, state, stm, remainder);
+                    break;
+
                 case DafnyParser.WHILE:
                     handleWhile(stack, results, state, stm, remainder);
                     break;
@@ -83,8 +87,9 @@ public class Symbex {
 //                case PseudoParser.ASSUME:
 //                    handleAssume(stack, results, state, stm, remainder);
 //                    break;
+
                 default:
-                    throw new UnsupportedOperationException();
+                    throw new UnsupportedOperationException("Unknown code: " + stm.getType());
                 }
             }
         }
@@ -206,8 +211,28 @@ public class Symbex {
      */
     void handleAssign(Deque<SymbexState> stack, SymbexState state,
             DafnyTree stm, DafnyTree remainder) {
-        VariableMap newMap = state.getMap().assign(stm.getChild(0).toString(), stm.getChild(1));
+        String name = stm.getChild(0).toString();
+        DafnyTree expression = stm.getChild(1);
+        VariableMap newMap = state.getMap().assign(name, expression);
         state.setMap(newMap);
+        state.setBlockToExecute(remainder);
+        stack.push(state);
+    }
+
+    /*
+     * Handle a variable declaration.
+     *
+     * If the variable declaration has an initialisation this is like an
+     * assignment.
+     */
+    void handleVarDecl(Deque<SymbexState> stack, SymbexState state,
+            DafnyTree stm, DafnyTree remainder) {
+        if(stm.getChildCount() >= 3) {
+            String name = stm.getChild(0).toString();
+            DafnyTree expression = stm.getChild(2);
+            VariableMap newMap = state.getMap().assign(name, expression);
+            state.setMap(newMap);
+        }
         state.setBlockToExecute(remainder);
         stack.push(state);
     }

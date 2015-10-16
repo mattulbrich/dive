@@ -46,6 +46,9 @@ public class SMTTrans {
         case DafnyParser.NOT:
             return transBinOp(exp);
 
+        case DafnyParser.LENGTH:
+            return "0";
+
         default:
             throw new Error(exp.toStringTree());
         }

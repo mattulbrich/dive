@@ -119,20 +119,16 @@ method:
   ( requires )*
   ( ensures )*
   ( decreases )?
-  '{' ( decl )* statements? '}'
+  '{' statements? '}'
   ->
     ^(METHOD[tok] ID ^(ARGS vars?) returns_? requires* ensures* 
-        decreases? decl* ^(BLOCK statements?))
+        decreases? ^(BLOCK statements?))
   ;
 
 function:
   'function'^
   ID '('! vars? ')'! ':'! type
   '{'! expression '}'!
-  ;
-
-decl:
-  VAR! var ';'!
   ;
 
 vars:
@@ -183,7 +179,8 @@ statements:
   ;
 
 statement:
-    ID ':='^ expression ';'!
+    VAR^ ID ':'! type (':='! expression)? ';'!
+  | ID ':='^ expression ';'!
   | (ID ':=' 'call') => r=ID ':=' 'call' f=ID '(' expressions? ')' ';'
         -> ^('call' $f ^(RESULTS $r) ^(ARGS expressions?))
   | ids ':=' 'call' ID '(' expressions? ')' ';'

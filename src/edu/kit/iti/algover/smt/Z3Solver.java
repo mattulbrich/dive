@@ -67,11 +67,18 @@ public class Z3Solver {
 
         DafnyTree function = obligation.getFunction();
         sb.append("; Args\n");
-        extractDeclarations(sb, function.getFirstChildWithType(DafnyParser.ARGS));
+        extractDeclarations(sb,
+                function.getFirstChildWithType(DafnyParser.ARGS).
+                    getChildrenWithType(DafnyParser.VAR));
+
         sb.append("; Returns\n");
-        extractDeclarations(sb, function.getFirstChildWithType(DafnyParser.RETURNS));
+        extractDeclarations(sb,
+                function.getFirstChildWithType(DafnyParser.RETURNS).
+                    getChildrenWithType(DafnyParser.VAR));
+
         sb.append("; Variables\n");
-        extractDeclarations(sb, function.getFirstChildWithType(DafnyParser.VAR));
+        extractDeclarations(sb, ProgramDatabase.getAllVariableDeclarations(function.getLastChild()));
+
         sb.append("; Skolems\n");
         extractSkolemVars(sb, obligation);
 
@@ -113,11 +120,11 @@ public class Z3Solver {
         }
     }
 
-    protected void extractDeclarations(StringBuilder sb, DafnyTree decls) {
+    protected void extractDeclarations(StringBuilder sb, List<DafnyTree> decls) {
         if(decls == null) {
             return;
         }
-        for (DafnyTree decl : decls.getChildren()) {
+        for (DafnyTree decl : decls) {
             assert decl.getType() == DafnyParser.VAR;
             String name = decl.getChild(0).getToken().getText();
             String type = smtTrans.transToType(decl.getChild(1));

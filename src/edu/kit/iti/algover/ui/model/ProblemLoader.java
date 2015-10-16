@@ -1,18 +1,24 @@
 package edu.kit.iti.algover.ui.model;
 
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.InputStream;
 import java.util.LinkedList;
 import java.util.List;
 
-import edu.kit.iti.algover.ProofOld;
-import edu.kit.iti.algover.ProofCenter;
 import org.antlr.runtime.ANTLRInputStream;
 import org.antlr.runtime.ANTLRReaderStream;
 import org.antlr.runtime.CommonTokenStream;
 
+import edu.kit.iti.algover.ProgramDatabase;
+import edu.kit.iti.algover.ProofCenter;
+import edu.kit.iti.algover.ProofOld;
 import edu.kit.iti.algover.parser.DafnyLexer;
 import edu.kit.iti.algover.parser.DafnyParser;
 import edu.kit.iti.algover.parser.DafnyTree;
+import edu.kit.iti.algover.smt.Z3Solver;
 import edu.kit.iti.algover.symbex.PathConditionElement;
 import edu.kit.iti.algover.symbex.Symbex;
 import edu.kit.iti.algover.symbex.SymbexState;
@@ -128,8 +134,8 @@ public class ProblemLoader {
             }
 
 
-//            Z3Solver z3 = new Z3Solver(new ProgramDatabase(t));
-//            System.out.println(z3.createSMTInputput(res));
+            Z3Solver z3 = new Z3Solver(new ProgramDatabase(t));
+            System.out.println(z3.createSMTInputput(res));
         }
     }
 

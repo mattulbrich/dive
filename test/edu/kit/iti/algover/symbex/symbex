@@ -28,4 +28,6 @@ method symbexTest(p : int)
     count := 3;
   }
 
+  // direct initialisation
+  var init_direct : int := 42;
 }
