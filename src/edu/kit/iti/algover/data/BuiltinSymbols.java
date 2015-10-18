@@ -1,17 +1,33 @@
+/*
+ * This file is part of AlgoVer.
+ *
+ * Copyright (C) 2015 Karlsruhe Institute of Technology
+ */
+
 package edu.kit.iti.algover.data;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import edu.kit.iti.algover.term.FunctionSymbol;
 import edu.kit.iti.algover.term.Sort;
 
+/**
+ * This class collects the builtin function symbols of the logic.
+ *
+ * By convention, names of builtin symbols have a leading $-sign to distinguish
+ * them from user defined symbols.
+ *
+ * Some symbols are defined statically as constants, others are defined on
+ * demand (since their number is unbounded in theory).
+ *
+ * @author Mattias Ulbrich
+ */
 public class BuiltinSymbols extends MapSymbolTable {
 
     public static final FunctionSymbol AND =
@@ -54,15 +70,22 @@ public class BuiltinSymbols extends MapSymbolTable {
         super(collectSymbols());
     }
 
+    /**
+     * This implementations resolves various special function symbols by name.
+     */
     @Override
     protected FunctionSymbol resolve(String name) {
 
+        //
+        // type safe equality
         if(name.startsWith("$eq_")) {
             Sort sort = new Sort(name.substring(4));
             FunctionSymbol eq = new FunctionSymbol(name, Sort.FORMULA, Arrays.asList(sort, sort));
             return eq;
         }
 
+        //
+        // multidim length functions
         if(name.matches("\\$len[0-9]+")) {
             String suffix = name.substring(4);
             Sort arraySort = new Sort("array" + suffix);
@@ -70,11 +93,15 @@ public class BuiltinSymbols extends MapSymbolTable {
             return len;
         }
 
+        //
+        // non-negative integer literal
         if(name.matches("[0-9]+")) {
             FunctionSymbol lit = new FunctionSymbol(name, Sort.INT);
             return lit;
         }
 
+        //
+        // select of McCarthy's arrays (dimensional)
         if(name.matches("\\$select[0-9]+")) {
             String suffix = name.substring(7);
             int dim = Integer.parseInt(suffix);
@@ -86,11 +113,12 @@ public class BuiltinSymbols extends MapSymbolTable {
             return len;
         }
 
+        // otherwise we cannot resolve that
         return null;
     }
 
-    private static Map<String, FunctionSymbol> collectSymbols() {
-        Map<String, FunctionSymbol> result = new HashMap<>();
+    private static Collection<FunctionSymbol> collectSymbols() {
+        List<FunctionSymbol> result = new ArrayList<>();
         for(Field f : BuiltinSymbols.class.getDeclaredFields()) {
             if(!Modifier.isStatic(f.getModifiers())) {
                 continue;
@@ -106,7 +134,7 @@ public class BuiltinSymbols extends MapSymbolTable {
                 throw new Error(e);
             }
 
-            result.put(fs.getName(), fs);
+            result.add(fs);
         }
 
         return result;

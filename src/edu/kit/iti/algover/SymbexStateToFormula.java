@@ -1,9 +1,12 @@
+/*
+ * This file is part of AlgoVer.
+ *
+ * Copyright (C) 2015 Karlsruhe Institute of Technology
+ */
 package edu.kit.iti.algover;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
 
 import edu.kit.iti.algover.data.BuiltinSymbols;
 import edu.kit.iti.algover.data.MapSymbolTable;
@@ -31,12 +34,12 @@ public class SymbexStateToFormula {
 
     private SymbolTable makeSymbolTable() {
 
-        Map<String, FunctionSymbol> map = new HashMap<>();
+        Collection<FunctionSymbol> map = new ArrayList<>();
 
         for (DafnyTree decl : ProgramDatabase.getAllVariableDeclarations(method)) {
             String name = decl.getChild(0).toString();
             Sort sort = treeToType(decl.getChild(1));
-            map.put(name, new FunctionSymbol(name, sort));
+            map.add(new FunctionSymbol(name, sort));
         }
 
         MapSymbolTable st = new MapSymbolTable(new BuiltinSymbols(), map);

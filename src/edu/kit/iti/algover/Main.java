@@ -85,6 +85,8 @@ public class Main {
             String smt = z3.createSMTInputput(magic.from(res));
             System.out.println(Debug.prettyPrint(smt));
             System.out.println(smt);
+
+            System.out.println(z3.solve(magic.from(res)));
         }
 
     }

@@ -1,3 +1,9 @@
+/*
+ * This file is part of AlgoVer.
+ *
+ * Copyright (C) 2015 Karlsruhe Institute of Technology
+ */
+
 package edu.kit.iti.algover.data;
 
 import java.util.ArrayList;
@@ -5,6 +11,19 @@ import java.util.Collection;
 
 import edu.kit.iti.algover.term.FunctionSymbol;
 
+/**
+ * This incremental table is used to add one function symbol to the list of
+ * available symbols.
+ *
+ * However, the addition is made in an immutable fashion such that existing maps
+ * can be shared by multiple successor nodes.
+ *
+ * This class should be used by all
+ * {@link SymbolTable#addFunctionSymbol(FunctionSymbol)} implementations.
+ *
+ * @author Mattias Ulbrich
+ *
+ */
 public class IncrementalSymbolTable implements SymbolTable {
 
     private final FunctionSymbol symb;

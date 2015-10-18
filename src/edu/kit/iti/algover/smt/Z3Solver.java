@@ -18,7 +18,7 @@ import edu.kit.iti.algover.term.Term;
 
 public class Z3Solver {
 
-    public static final String COMMAND = "/usr/bin/z3";
+    public static final String COMMAND = "z3";
 
     enum Result { VALID, UNKNOWN, NEGSAT }
 

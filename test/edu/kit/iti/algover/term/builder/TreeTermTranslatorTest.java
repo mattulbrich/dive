@@ -1,10 +1,15 @@
+/*
+ * This file is part of AlgoVer.
+ *
+ * Copyright (C) 2015 Karlsruhe Institute of Technology
+ */
 package edu.kit.iti.algover.term.builder;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
+import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.Collection;
 
 import org.antlr.runtime.ANTLRStringStream;
 import org.antlr.runtime.CommonTokenStream;
@@ -77,10 +82,10 @@ public class TreeTermTranslatorTest {
 
     @Before
     public void setupTable() {
-        Map<String, FunctionSymbol> map = new HashMap<>();
-        map.put("i1", new FunctionSymbol("i1", Sort.INT));
-        map.put("i2", new FunctionSymbol("i2", Sort.INT));
-        map.put("i3", new FunctionSymbol("i3", Sort.INT));
+        Collection<FunctionSymbol> map = new ArrayList<>();
+        map.add(new FunctionSymbol("i1", Sort.INT));
+        map.add(new FunctionSymbol("i2", Sort.INT));
+        map.add(new FunctionSymbol("i3", Sort.INT));
         symbTable = new MapSymbolTable(map);
     }
 
