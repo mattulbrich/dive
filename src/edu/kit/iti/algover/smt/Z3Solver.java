@@ -6,13 +6,15 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
-import edu.kit.iti.algover.ProgramDatabase;
-import edu.kit.iti.algover.parser.DafnyParser;
-import edu.kit.iti.algover.parser.DafnyTree;
-import edu.kit.iti.algover.symbex.PathConditionElement;
-import edu.kit.iti.algover.symbex.SymbexState;
+import edu.kit.iti.algover.data.SymbolTable;
+import edu.kit.iti.algover.term.FunctionSymbol;
+import edu.kit.iti.algover.term.Sort;
+import edu.kit.iti.algover.term.Term;
 
 public class Z3Solver {
 
@@ -21,16 +23,16 @@ public class Z3Solver {
     enum Result { VALID, UNKNOWN, NEGSAT }
 
     private final SMTTrans smtTrans = new SMTTrans();
-    private final ProgramDatabase programDatabase;
+    private SymbolTable symbolTable;
 
-    public List<Result> solve(SymbexState obligation) throws IOException {
+    public List<Result> solve(Collection<Term> formulae) throws IOException {
 
         Process process = buildProcess();
         try {
             OutputStream out = process.getOutputStream();
             InputStream in = process.getInputStream();
 
-            out.write(createSMTInputput(obligation).getBytes());
+            out.write(createSMTInputput(formulae).getBytes());
             out.close();
 
             List<Result> result = new ArrayList<>();
@@ -56,80 +58,47 @@ public class Z3Solver {
         }
     }
 
-    public Z3Solver(ProgramDatabase programDatabase) {
-        this.programDatabase = programDatabase;
-        // TODO Auto-generated constructor stub
+    public Z3Solver(SymbolTable symbolTable) {
+        this.symbolTable = symbolTable;
     }
 
-    public String createSMTInputput(SymbexState obligation) throws IOException {
+    public String createSMTInputput(Collection<Term> formulae) throws IOException {
 
         StringBuilder sb = new StringBuilder();
 
-        DafnyTree function = obligation.getFunction();
-        sb.append("; Args\n");
-        extractDeclarations(sb,
-                function.getFirstChildWithType(DafnyParser.ARGS).
-                    getChildrenWithType(DafnyParser.VAR));
+        sb.append("; Declarations \n\n");
+        for (FunctionSymbol fs: symbolTable.getAllSymbols()) {
+            if(!fs.getName().contains("$") && !fs.getName().matches("[0-9]+")) {
+                sb.append(makeDecl(fs)).append("\n");
+            }
+        }
 
-        sb.append("; Returns\n");
-        extractDeclarations(sb,
-                function.getFirstChildWithType(DafnyParser.RETURNS).
-                    getChildrenWithType(DafnyParser.VAR));
+        sb.append("\n; Proof verification condition\n");
 
-        sb.append("; Variables\n");
-        extractDeclarations(sb, ProgramDatabase.getAllVariableDeclarations(function.getLastChild()));
+        for (Term pc : formulae) {
+            sb.append("; Formula " + pc + "\n");
 
-        sb.append("; Skolems\n");
-        extractSkolemVars(sb, obligation);
-
-        sb.append("; Path condition\n");
-        for (PathConditionElement pc : obligation.getPathConditions()) {
             sb.append("(assert ");
-            sb.append(smtTrans.trans(pc.getInstantiatedExpression()));
-            sb.append(")\n");
+            sb.append(smtTrans.trans(pc));
+            sb.append(")\n\n");
         }
-
-        sb.append("; Proof obligations\n");
-        sb.append("(push)\n");
-
-        for (DafnyTree pc : obligation.getProofObligations()) {
-            sb.append("(assert (not ");
-            sb.append(smtTrans.trans(obligation.getMap().instantiate(pc.getLastChild())));
-            sb.append("))\n");
-            sb.append("(check-sat)(pop)(push)\n");
-        }
+        sb.append("(check-sat)\n");
 
         return sb.toString();
     }
 
-    private void extractSkolemVars(StringBuilder sb, SymbexState obligation) {
-        for(String anon : obligation.getMap().findAnonymisingConsts()) {
-            assert anon.contains("#");
-            // get name from m#1
-            String name = anon.substring(0, anon.indexOf("#"));
-            // ask database to get declaration for m
-            DafnyTree decl = programDatabase.getVariableDeclaration(obligation.getFunction(), name);
-            if(decl == null) {
-                throw new RuntimeException("Undefined symbol " + name);
-            }
-            // type of decl
-            String type = smtTrans.transToType(decl.getLastChild());
-            // declare const with same type as m
-            sb.append("(declare-const ").append(anon.replace('#', '$')).append(" ").append(type)
-                .append(")\n");
-        }
-    }
+    private SExpr makeDecl(FunctionSymbol fs) {
+        SExpr name = new SExpr(fs.getName());
 
-    protected void extractDeclarations(StringBuilder sb, List<DafnyTree> decls) {
-        if(decls == null) {
-            return;
+        SExpr result = SMTTrans.typeToSMT(fs.getResultSort());
+
+        List<SExpr> argList = new ArrayList<>();
+        for (Sort argSort : fs.getArgumentSorts()) {
+            argList.add(SMTTrans.typeToSMT(argSort));
         }
-        for (DafnyTree decl : decls) {
-            assert decl.getType() == DafnyParser.VAR;
-            String name = decl.getChild(0).getToken().getText();
-            String type = smtTrans.transToType(decl.getChild(1));
-            sb.append("(declare-const ").append(name).append("$pre ").append(type).append(")\n");
-        }
+        SExpr args = new SExpr(argList);
+
+        return new SExpr("declare-fun", name, new SExpr(args), result);
     }
 
     private Process buildProcess() throws IOException {

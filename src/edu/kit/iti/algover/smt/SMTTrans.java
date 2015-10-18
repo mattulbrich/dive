@@ -2,92 +2,108 @@ package edu.kit.iti.algover.smt;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import java.util.Properties;
 
-import edu.kit.iti.algover.parser.DafnyParser;
-import edu.kit.iti.algover.parser.DafnyTree;
+import edu.kit.iti.algover.term.ApplTerm;
+import edu.kit.iti.algover.term.DefaultTermVisitor;
+import edu.kit.iti.algover.term.FunctionSymbol;
+import edu.kit.iti.algover.term.QuantTerm;
+import edu.kit.iti.algover.term.SchemaVarTerm;
+import edu.kit.iti.algover.term.Sort;
+import edu.kit.iti.algover.term.Term;
+import edu.kit.iti.algover.term.VariableTerm;
 
-public class SMTTrans {
+public class SMTTrans extends DefaultTermVisitor<Void, SExpr> {
 
     private static Properties OP_MAP;
     static {
         OP_MAP = new Properties();
-        try(InputStream fis = SMTTrans.class.getResourceAsStream("opnames.txt")) {
+        try(InputStream fis = SMTTrans_Old.class.getResourceAsStream("opnames.txt")) {
             OP_MAP.load(fis);
         } catch (IOException e) {
             throw new Error(e);
         }
     }
 
-    public CharSequence trans(DafnyTree exp) {
-        switch(exp.getType()) {
-        case DafnyParser.ALL:
-            return transQuant("forall", exp);
-        case DafnyParser.EX:
-            return transQuant("exists", exp);
-        case DafnyParser.LIT:
-        case DafnyParser.ID:
-            return exp.toString().replace('#', '$');
+    public SExpr trans(Term formula) {
+        return formula.accept(this, null);
+    }
 
-        case DafnyParser.AND:
-        case DafnyParser.OR:
-        case DafnyParser.IMPLIES:
-        case DafnyParser.PLUS:
-        case DafnyParser.MINUS:
-        case DafnyParser.TIMES:
-        case DafnyParser.UNION:
-        case DafnyParser.INTERSECT:
-        case DafnyParser.LT:
-        case DafnyParser.LE:
-        case DafnyParser.GE:
-        case DafnyParser.GT:
-        case DafnyParser.ARRAY_ACCESS:
-        case DafnyParser.EQ:
-        case DafnyParser.NOT:
-            return transBinOp(exp);
+    @Override
+    protected SExpr defaultVisit(Term term, Void arg) {
+        throw new Error("Missing method for " + term.getClass());
+    }
 
-        case DafnyParser.LENGTH:
-            return "0";
+    @Override
+    public SExpr visit(ApplTerm term, Void arg) {
 
+        FunctionSymbol f = term.getFunctionSymbol();
+        String name = f.getName();
+        if(OP_MAP.containsKey(name)) {
+            name = OP_MAP.getProperty(name);
+        }
+
+        List<SExpr> children = new ArrayList<>();
+        for (Term subterm : term.getSubterms()) {
+            children.add(subterm.accept(this, null));
+        }
+
+        return new SExpr(name, children);
+    }
+
+    @Override
+    public SExpr visit(QuantTerm term, Void arg) {
+
+        String quantifier;
+        switch (term.getQuantifier()) {
+        case EXISTS:
+            quantifier = "exists";
+            break;
+        case FORALL:
+            quantifier = "forall";
+            break;
         default:
-            throw new Error(exp.toStringTree());
+            throw new UnsupportedOperationException("Unknown quantifier: " + term);
         }
+
+        VariableTerm boundVar = term.getBoundVar();
+        SExpr sort = typeToSMT(boundVar.getSort());
+        SExpr qvar = new SExpr(boundVar.getName(), sort);
+        SExpr qqvar = new SExpr(qvar);
+
+        SExpr formula = term.getTerm(0).accept(this, null);
+
+        return new SExpr(quantifier, qqvar, formula);
     }
 
-    private CharSequence transBinOp(DafnyTree exp) {
-        String tokenText = exp.token.getText();
-        String smtOP = OP_MAP.getProperty(tokenText);
-        if(smtOP == null) {
-            smtOP = tokenText;
-        }
-        StringBuilder sb = new StringBuilder();
-        sb.append("(").append(smtOP).append(" ");
-        for (DafnyTree child : exp.getChildren()) {
-            sb.append(trans(child)).append(" ");
-        }
-        sb.append(")");
-        return sb;
+    @Override
+    public SExpr visit(SchemaVarTerm term, Void arg) {
+        throw new UnsupportedOperationException("Schema variables are not supported for SMT solving");
     }
 
-    private String transQuant(String quantifier, DafnyTree exp) {
-        String name = exp.getChild(0).toString().replace('#', '$');
-        DafnyTree cond = exp.getChild(2);
-        String type = transToType(exp.getChild(1));
-        return "(" + quantifier + " ((" + name + " " + type + ")) " + trans(cond) + ")";
+    @Override
+    public SExpr visit(VariableTerm term, Void arg) {
+        return new SExpr(term.getName());
     }
 
-    public String transToType(DafnyTree exp) {
-        String type;
-        switch(exp.getType()) {
-        case DafnyParser.INT:
-            type = "Int"; break;
-        case DafnyParser.ARRAY:
-            type = "(Array Int Int)"; break;
-        case DafnyParser.SET:
-            type = "(Array Int Bool)"; break;
-        default: throw new Error();
+    // That is fine for now. ... Later redefinition is expected
+    public static SExpr typeToSMT(Sort sort) {
+
+        String name = sort.getName();
+        if(name.matches("array[0-9]+")) {
+            int dim = Integer.parseInt(name.substring(5));
+            List<SExpr> args = Collections.nCopies(dim+1, new SExpr("Int"));
+            return new SExpr("Array", args);
+        } else {
+            switch(name) {
+            case "int": return new SExpr("Int");
+            case "set": return new SExpr("Array", "Int", "Boolean");
+            }
         }
-        return type;
+        throw new UnsupportedOperationException("Unsupported sort: " + sort);
     }
 
 }

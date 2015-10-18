@@ -1,7 +1,22 @@
-++ = set_union
-** = set_intersection
-ARRAY_ACCESS = select
-\=\=> = implies
-&& = and
-|| = or
-\=\= = \=
+$union = set_union
+$intersection = set_intersection
+$plus = +
+$times = *
+
+$and = and
+$not = not
+$imp = \=>
+
+$le = <\=
+$lt = <
+$ge = >\=
+$gt = >
+$eq_int = \=
+
+$select1 = select
+$select2 = select
+$select3 = select
+$select4 = select
+$select5 = select
+
+# ...
