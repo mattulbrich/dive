@@ -5,6 +5,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
+import edu.kit.iti.algover.data.BuiltinSymbols;
 import edu.kit.iti.algover.data.MapSymbolTable;
 import edu.kit.iti.algover.data.SymbolTable;
 import edu.kit.iti.algover.parser.DafnyTree;
@@ -38,7 +39,7 @@ public class SymbexStateToFormula {
             map.put(name, new FunctionSymbol(name, sort));
         }
 
-        MapSymbolTable st = new MapSymbolTable(map);
+        MapSymbolTable st = new MapSymbolTable(new BuiltinSymbols(), map);
         return st;
     }
 

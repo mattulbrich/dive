@@ -8,6 +8,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 import edu.kit.iti.algover.SymbexStateToFormula;
+import edu.kit.iti.algover.data.BuiltinSymbols;
 import edu.kit.iti.algover.data.SymbolTable;
 import edu.kit.iti.algover.parser.DafnyParser;
 import edu.kit.iti.algover.parser.DafnyTree;
@@ -34,30 +35,30 @@ public class TreeTermTranslator {
 
         switch(tree.getType()) {
         case DafnyParser.AND:
-            return buildBinary(TermBuilder.AND, tree);
+            return buildBinary(BuiltinSymbols.AND, tree);
         case DafnyParser.OR:
-            return buildBinary(TermBuilder.OR, tree);
+            return buildBinary(BuiltinSymbols.OR, tree);
         case DafnyParser.IMPLIES:
-            return buildBinary(TermBuilder.IMP, tree);
+            return buildBinary(BuiltinSymbols.IMP, tree);
         case DafnyParser.GE:
-            return buildBinary(TermBuilder.GE, tree);
+            return buildBinary(BuiltinSymbols.GE, tree);
         case DafnyParser.GT:
-            return buildBinary(TermBuilder.GT, tree);
+            return buildBinary(BuiltinSymbols.GT, tree);
         case DafnyParser.LE:
-            return buildBinary(TermBuilder.LE, tree);
+            return buildBinary(BuiltinSymbols.LE, tree);
         case DafnyParser.LT:
-            return buildBinary(TermBuilder.LT, tree);
+            return buildBinary(BuiltinSymbols.LT, tree);
         case DafnyParser.PLUS:
-            return buildBinary(TermBuilder.PLUS, tree);
+            return buildBinary(BuiltinSymbols.PLUS, tree);
         case DafnyParser.TIMES:
-            return buildBinary(TermBuilder.TIMES, tree);
+            return buildBinary(BuiltinSymbols.TIMES, tree);
         case DafnyParser.UNION:
-            return buildBinary(TermBuilder.UNION, tree);
+            return buildBinary(BuiltinSymbols.UNION, tree);
         case DafnyParser.INTERSECT:
-            return buildBinary(TermBuilder.INTERSECT, tree);
+            return buildBinary(BuiltinSymbols.INTERSECT, tree);
 
         case DafnyParser.NOT:
-            return buildUnary(TermBuilder.NEG, tree);
+            return buildUnary(BuiltinSymbols.NEG, tree);
 
         case DafnyParser.EQ:
             return buildEquality(tree);

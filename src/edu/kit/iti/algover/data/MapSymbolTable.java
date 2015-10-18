@@ -1,21 +1,23 @@
 package edu.kit.iti.algover.data;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
 import java.util.Map;
 
 import edu.kit.iti.algover.term.FunctionSymbol;
-import edu.kit.iti.algover.term.Sort;
 
 public class MapSymbolTable implements SymbolTable {
 
     private final Map<String, FunctionSymbol> functionMap;
+    private final SymbolTable parentTable;
 
     public MapSymbolTable(Map<String, FunctionSymbol> map) {
-        this.functionMap = map;
+        this(null, map);
+    }
+
+    public MapSymbolTable(SymbolTable parentTable, Map<String, FunctionSymbol> functionMap) {
+        this.parentTable = parentTable;
+        this.functionMap = functionMap;
     }
 
     /* (non-Javadoc)
@@ -24,45 +26,28 @@ public class MapSymbolTable implements SymbolTable {
     @Override
     public FunctionSymbol getFunctionSymbol(String name) {
 
-        FunctionSymbol cached = functionMap.get(name);
-        if(cached != null) {
-            return cached;
+        FunctionSymbol result = functionMap.get(name);
+
+        if(result == null) {
+            result = resolve(name);
+            if(result != null) {
+                functionMap.put(name, result);
+            }
         }
 
-        if(name.startsWith("$eq_")) {
-            Sort sort = new Sort(name.substring(4));
-            FunctionSymbol eq = new FunctionSymbol(name, Sort.FORMULA, Arrays.asList(sort, sort));
-            functionMap.put(name, eq);
-            return eq;
+        if(result == null && parentTable != null) {
+            result = parentTable.getFunctionSymbol(name);
         }
 
-        if(name.matches("\\$len[0-9]+")) {
-            String suffix = name.substring(4);
-            Sort arraySort = new Sort("array" + suffix);
-            FunctionSymbol len = new FunctionSymbol(name, Sort.INT, Arrays.asList(arraySort));
-            functionMap.put(name, len);
-            return len;
+        if(result == null) {
+            throw new RuntimeException("The function symbol " + name + " cannot be found");
         }
 
-        if(name.matches("[0-9]+")) {
-            FunctionSymbol lit = new FunctionSymbol(name, Sort.INT);
-            functionMap.put(name, lit);
-            return lit;
-        }
+        return result;
+    }
 
-        if(name.matches("\\$select[0-9]+")) {
-            String suffix = name.substring(7);
-            int dim = Integer.parseInt(suffix);
-            Sort arraySort = new Sort("array" + suffix);
-            List<Sort> args = new ArrayList<>();
-            args.add(arraySort);
-            args.addAll(Collections.nCopies(dim, Sort.INT));
-            FunctionSymbol len = new FunctionSymbol(name, Sort.INT, args);
-            functionMap.put(name, len);
-            return len;
-        }
-
-        throw new RuntimeException("The function symbol " + name + " cannot be found");
+    protected FunctionSymbol resolve(String name) {
+        return null;
     }
 
     @Override
