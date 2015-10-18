@@ -1,4 +1,4 @@
-// $ANTLR 3.5.1 Dafny.g 2015-10-16 14:01:23
+// $ANTLR 3.5.1 Dafny.g 2015-10-18 13:03:58
 
   package edu.kit.iti.algover.parser;
 
@@ -530,7 +530,7 @@ public class DafnyParser extends Parser {
 			if ( state.backtracking==0 ) stream_BLOCK_END.add(char_literal16);
 
 			// AST REWRITE
-			// elements: returns_, decreases, vars, ID, statements, requires, ensures
+			// elements: ensures, requires, decreases, ID, returns_, vars, statements
 			// token labels: 
 			// rule labels: retval
 			// token list labels: 
@@ -2105,7 +2105,7 @@ public class DafnyParser extends Parser {
 					if ( state.backtracking==0 ) stream_60.add(char_literal79);
 
 					// AST REWRITE
-					// elements: r, f, expressions, CALL
+					// elements: CALL, expressions, r, f
 					// token labels: f, r
 					// rule labels: retval
 					// token list labels: 
@@ -2204,7 +2204,7 @@ public class DafnyParser extends Parser {
 					if ( state.backtracking==0 ) stream_60.add(char_literal87);
 
 					// AST REWRITE
-					// elements: CALL, ids, expressions, ID
+					// elements: ID, ids, CALL, expressions
 					// token labels: 
 					// rule labels: retval
 					// token list labels: 
@@ -2327,7 +2327,7 @@ public class DafnyParser extends Parser {
 					if (state.failed) return retval;
 					if ( state.backtracking==0 ) stream_relaxedBlock.add(relaxedBlock93.getTree());
 					// AST REWRITE
-					// elements: relaxedBlock, label, WHILE, invariant, expression, decreases
+					// elements: label, WHILE, invariant, expression, relaxedBlock, decreases
 					// token labels: 
 					// rule labels: retval
 					// token list labels: 
@@ -3546,7 +3546,7 @@ public class DafnyParser extends Parser {
 					if ( state.backtracking==0 ) stream_62.add(char_literal141);
 
 					// AST REWRITE
-					// elements: atom_expr, expression
+					// elements: expression, atom_expr
 					// token labels: 
 					// rule labels: retval
 					// token list labels: 

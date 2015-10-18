@@ -28,4 +28,9 @@ public class VariableTerm extends Term {
         return name;
     }
 
+    @Override
+    public <A, R> R accept(TermVisitor<A, R> visitor, A arg) {
+        return visitor.visit(this, arg);
+    }
+
 }

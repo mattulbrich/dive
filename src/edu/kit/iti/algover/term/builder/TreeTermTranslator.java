@@ -1,9 +1,13 @@
 package edu.kit.iti.algover.term.builder;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Deque;
 import java.util.LinkedList;
+import java.util.List;
 
+import edu.kit.iti.algover.SymbexStateToFormula;
 import edu.kit.iti.algover.data.SymbolTable;
 import edu.kit.iti.algover.parser.DafnyParser;
 import edu.kit.iti.algover.parser.DafnyTree;
@@ -52,13 +56,15 @@ public class TreeTermTranslator {
         case DafnyParser.INTERSECT:
             return buildBinary(TermBuilder.INTERSECT, tree);
 
+        case DafnyParser.NOT:
+            return buildUnary(TermBuilder.NEG, tree);
+
         case DafnyParser.EQ:
             return buildEquality(tree);
 
         case DafnyParser.ID:
-            return buildIdentifier(tree);
         case DafnyParser.LIT:
-            return buildBinary(TermBuilder.IMP, tree);
+            return buildIdentifier(tree);
 
         case DafnyParser.ALL:
             return buildQuantifier(QuantTerm.Quantifier.FORALL, tree);
@@ -68,8 +74,42 @@ public class TreeTermTranslator {
         case DafnyParser.LENGTH:
             return buildLength(tree);
 
+        case DafnyParser.ARRAY_ACCESS:
+            return buildArrayAccess(tree);
+
         default: throw new RuntimeException(tree.toStringTree());
         }
+
+    }
+
+    private Term buildArrayAccess(DafnyTree tree) {
+
+        Term arrayTerm = build(tree.getChild(0));
+        Sort arraySort = arrayTerm.getSort();
+        String arraySortName = arraySort.getName();
+
+        if(!arraySortName.matches("array[0-9]*")) {
+            throw new RuntimeException(tree.toStringTree());
+        }
+
+        int dimension = 0;
+        if(arraySortName.length() > 5) {
+            dimension = Integer.parseInt(arraySortName.substring(5));
+        }
+
+        FunctionSymbol select = symbolTable.getFunctionSymbol("$select" + dimension);
+
+        if(tree.getChildCount() != dimension + 1) {
+            throw new RuntimeException();
+        }
+
+        List<Term> args = new ArrayList<>();
+        args.add(arrayTerm);
+        for(int i = 1; i <= dimension; i++) {
+            args.add(build(tree.getChild(i)));
+        }
+
+        return new ApplTerm(select, args);
 
     }
 
@@ -125,11 +165,11 @@ public class TreeTermTranslator {
 
         String var = tree.getChild(0).toString();
         Sort t = buildSort(tree.getChild(1));
-        Term formula = build(tree.getChild(2));
         VariableTerm varTerm = new VariableTerm(var, t);
 
         try {
             boundVars.push(varTerm);
+            Term formula = build(tree.getChild(2));
             QuantTerm result = new QuantTerm(q, varTerm, formula);
             return result;
         } finally {
@@ -142,13 +182,21 @@ public class TreeTermTranslator {
     // are supported besides int.
     // The name of the node is actually the type already... Will change in future!
     private Sort buildSort(DafnyTree child) {
-        String name = child.toString();
-        return new Sort(name);
+        return SymbexStateToFormula.treeToType(child);
+    }
+
+    private Term buildUnary(FunctionSymbol f, DafnyTree tree) {
+        if(tree.getChildCount() != 1) {
+            throw new RuntimeException("Unexpected argument " + tree.toStringTree());
+        }
+
+        Term t1 = build(tree.getChild(0));
+        return new ApplTerm(f, Collections.singletonList(t1));
     }
 
     private Term buildBinary(FunctionSymbol f, DafnyTree tree) {
         if(tree.getChildCount() != 2) {
-            throw new RuntimeException();
+            throw new RuntimeException("Unexpected argument " + tree.toStringTree());
         }
 
         Term t1 = build(tree.getChild(0));

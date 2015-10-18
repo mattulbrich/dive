@@ -1,5 +1,8 @@
 package edu.kit.iti.algover.data;
 
+import java.util.ArrayList;
+import java.util.Collection;
+
 import edu.kit.iti.algover.term.FunctionSymbol;
 
 public class IncrementalSymbolTable implements SymbolTable {
@@ -24,6 +27,19 @@ public class IncrementalSymbolTable implements SymbolTable {
     @Override
     public SymbolTable addFunctionSymbol(FunctionSymbol symb) {
         return new IncrementalSymbolTable(this, symb);
+    }
+
+    @Override
+    public Collection<FunctionSymbol> getAllSymbols() {
+        Collection<FunctionSymbol> result;
+        if(parent != null) {
+            result = parent.getAllSymbols();
+        } else {
+            result = new ArrayList<FunctionSymbol>();
+        }
+
+        result.add(symb);
+        return result;
     }
 
 }

@@ -40,4 +40,9 @@ public class FunctionSymbol {
         return name;
     }
 
+    @Override
+    public String toString() {
+        return name + "(" + Util.join(argumentSorts, ", ") + ") : " + resultSort;
+     }
+
 }

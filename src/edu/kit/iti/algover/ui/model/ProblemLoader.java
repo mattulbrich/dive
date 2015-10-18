@@ -134,8 +134,8 @@ public class ProblemLoader {
             }
 
 
-            Z3Solver z3 = new Z3Solver(new ProgramDatabase(t));
-            System.out.println(z3.createSMTInputput(res));
+//            Z3Solver z3 = new Z3Solver(new ProgramDatabase(t));
+//            System.out.println(z3.createSMTInputput(res));
         }
     }
 

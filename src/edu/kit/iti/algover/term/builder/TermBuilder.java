@@ -1,7 +1,9 @@
 package edu.kit.iti.algover.term.builder;
 
+import edu.kit.iti.algover.term.ApplTerm;
 import edu.kit.iti.algover.term.FunctionSymbol;
 import edu.kit.iti.algover.term.Sort;
+import edu.kit.iti.algover.term.Term;
 
 public class TermBuilder {
 
@@ -13,6 +15,9 @@ public class TermBuilder {
 
     public static final FunctionSymbol IMP =
             new FunctionSymbol("$imp", Sort.FORMULA, Sort.FORMULA, Sort.FORMULA);
+
+    public static final FunctionSymbol NEG =
+            new FunctionSymbol("$not", Sort.FORMULA, Sort.FORMULA);
 
     public static final FunctionSymbol GT =
             new FunctionSymbol("$gt", Sort.INT, Sort.INT, Sort.FORMULA);
@@ -37,5 +42,10 @@ public class TermBuilder {
 
     public static final FunctionSymbol INTERSECT =
             new FunctionSymbol("$intersect", Sort.INT_SET, Sort.INT_SET, Sort.INT_SET);
+
+
+    public static final Term negate(Term t) {
+        return new ApplTerm(NEG, t);
+    }
 
 }

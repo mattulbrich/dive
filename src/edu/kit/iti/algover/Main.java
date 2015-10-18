@@ -4,12 +4,14 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
+import java.util.HashMap;
 import java.util.List;
 
 import org.antlr.runtime.ANTLRInputStream;
 import org.antlr.runtime.CommonTokenStream;
 import org.antlr.runtime.RecognitionException;
 
+import edu.kit.iti.algover.data.MapSymbolTable;
 import edu.kit.iti.algover.parser.DafnyLexer;
 import edu.kit.iti.algover.parser.DafnyParser;
 import edu.kit.iti.algover.parser.DafnyParser.program_return;
@@ -18,6 +20,8 @@ import edu.kit.iti.algover.smt.Z3Solver;
 import edu.kit.iti.algover.symbex.PathConditionElement;
 import edu.kit.iti.algover.symbex.Symbex;
 import edu.kit.iti.algover.symbex.SymbexState;
+import edu.kit.iti.algover.term.FunctionSymbol;
+import edu.kit.iti.algover.term.Sort;
 import edu.kit.iti.algover.util.Debug;
 
 public class Main {
@@ -75,9 +79,12 @@ public class Main {
                 System.out.println("    " + res.getMap().instantiate(po).toStringTree());
             }
 
-            Z3Solver z3 = new Z3Solver(new ProgramDatabase(t));
-            String smt = z3.createSMTInputput(res);
+            SymbexStateToFormula magic = new SymbexStateToFormula(t);
+
+            Z3Solver z3 = new Z3Solver(magic.getSymbolTable());
+            String smt = z3.createSMTInputput(magic.from(res));
             System.out.println(Debug.prettyPrint(smt));
+            System.out.println(smt);
         }
 
     }

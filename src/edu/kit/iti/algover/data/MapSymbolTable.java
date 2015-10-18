@@ -1,6 +1,10 @@
 package edu.kit.iti.algover.data;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 
 import edu.kit.iti.algover.term.FunctionSymbol;
@@ -35,7 +39,7 @@ public class MapSymbolTable implements SymbolTable {
         if(name.matches("\\$len[0-9]+")) {
             String suffix = name.substring(4);
             Sort arraySort = new Sort("array" + suffix);
-            FunctionSymbol len = new FunctionSymbol(name, Sort.FORMULA, Arrays.asList(arraySort));
+            FunctionSymbol len = new FunctionSymbol(name, Sort.INT, Arrays.asList(arraySort));
             functionMap.put(name, len);
             return len;
         }
@@ -46,11 +50,32 @@ public class MapSymbolTable implements SymbolTable {
             return lit;
         }
 
-        throw new RuntimeException();
+        if(name.matches("\\$select[0-9]+")) {
+            String suffix = name.substring(7);
+            int dim = Integer.parseInt(suffix);
+            Sort arraySort = new Sort("array" + suffix);
+            List<Sort> args = new ArrayList<>();
+            args.add(arraySort);
+            args.addAll(Collections.nCopies(dim, Sort.INT));
+            FunctionSymbol len = new FunctionSymbol(name, Sort.INT, args);
+            functionMap.put(name, len);
+            return len;
+        }
+
+        throw new RuntimeException("The function symbol " + name + " cannot be found");
     }
 
     @Override
     public SymbolTable addFunctionSymbol(FunctionSymbol symb) {
         return new IncrementalSymbolTable(this, symb);
     }
+
+    @Override
+    public Collection<FunctionSymbol> getAllSymbols() {
+        Collection<FunctionSymbol> result;
+        result = new ArrayList<FunctionSymbol>();
+        result.addAll(functionMap.values());
+        return result;
+    }
+
 }

@@ -21,4 +21,17 @@ public class QuantTerm extends Term {
                 + " :: " + getTerm(0) + ")";
     }
 
+    @Override
+    public <A, R> R accept(TermVisitor<A, R> visitor, A arg) {
+        return visitor.visit(this, arg);
+    }
+
+    public VariableTerm getBoundVar() {
+        return boundVar;
+    }
+
+    public Quantifier getQuantifier() {
+        return quantifier;
+    }
+
 }

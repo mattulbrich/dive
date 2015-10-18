@@ -163,7 +163,8 @@ public class Symbex {
     void handleWhile(Deque<SymbexState> stack,
             List<SymbexState> results, SymbexState state, DafnyTree stm,
             DafnyTree remainder) {
-        DafnyTree guard = stm.getChild(0);
+        boolean isLabel = stm.getChild(0).getType() == DafnyParser.LABEL;
+        DafnyTree guard = stm.getChild(isLabel ? 1 : 0);
         DafnyTree body = stm.getLastChild();
         List<DafnyTree> invariants = stm.getChildrenWithType(DafnyParser.INVARIANT);
 

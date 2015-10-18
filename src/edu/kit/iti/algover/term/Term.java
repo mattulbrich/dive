@@ -22,7 +22,6 @@ public abstract class Term {
     public Term(Sort sort, Term[] subterms) {
         this.sort = sort;
         this.subterms = subterms;
-
     }
 
     public Sort getSort() {
@@ -55,4 +54,6 @@ public abstract class Term {
         return sort.equals(other.sort) &&
                 Arrays.equals(subterms, other.subterms);
     }
+
+    public abstract <A,R> R accept(TermVisitor<A, R> visitor, A arg);
 }
