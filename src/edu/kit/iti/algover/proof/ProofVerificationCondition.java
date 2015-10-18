@@ -1,4 +1,4 @@
-package edu.kit.iti.algover.Proof;
+package edu.kit.iti.algover.proof;
 
 
 import edu.kit.iti.algover.data.IncrementalSymbolTable;
