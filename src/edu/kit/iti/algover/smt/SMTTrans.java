@@ -1,3 +1,8 @@
+/*
+ * This file is part of AlgoVer.
+ *
+ * Copyright (C) 2015 Karlsruhe Institute of Technology
+ */
 package edu.kit.iti.algover.smt;
 
 import java.io.IOException;
@@ -14,20 +19,46 @@ import edu.kit.iti.algover.term.QuantTerm;
 import edu.kit.iti.algover.term.SchemaVarTerm;
 import edu.kit.iti.algover.term.Sort;
 import edu.kit.iti.algover.term.Term;
+import edu.kit.iti.algover.term.TermVisitor;
 import edu.kit.iti.algover.term.VariableTerm;
+
+/**
+ * Translation of formulas/terms into SMT source code.
+ *
+ * This class is a {@link TermVisitor} that mainly does syntactical
+ * translations. The table {@link #OP_MAP} is kept as lookup table for symbol
+ * names.
+ *
+ * SMT expressions are modelled using simple expressions ({@link SExpr}).
+ *
+ * TODO Length of arrays is not yet implemented.
+ *
+ * @author Mattias Ulbrich
+ */
 
 public class SMTTrans extends DefaultTermVisitor<Void, SExpr> {
 
+    /**
+     * A map which keeps smt translations for builtin function symbols.
+     */
     private static Properties OP_MAP;
     static {
         OP_MAP = new Properties();
-        try(InputStream fis = SMTTrans_Old.class.getResourceAsStream("opnames.txt")) {
+        try(InputStream fis = SMTTrans.class.getResourceAsStream("opnames.txt")) {
             OP_MAP.load(fis);
         } catch (IOException e) {
             throw new Error(e);
         }
     }
 
+    /**
+     * Translate a formula into smt.
+     *
+     * @param formula
+     *            the non-<code>null</code> formula (term of type
+     *            {@link Sort#FORMULA}) to be translated
+     * @return an s-expression capturing the SMT translation.
+     */
     public SExpr trans(Term formula) {
         return formula.accept(this, null);
     }

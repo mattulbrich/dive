@@ -1,5 +1,14 @@
+/*
+ * This file is part of AlgoVer.
+ *
+ * Copyright (C) 2015 Karlsruhe Institute of Technology
+ */
 package edu.kit.iti.algover.util;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.AbstractList;
 import java.util.Collection;
 import java.util.Iterator;
@@ -285,4 +294,41 @@ public final class Util {
         }
         return sb.toString();
     }
+
+    /**
+     * Drain a stream into a string.
+     *
+     * @param is
+     *            the non-<code>null</code> input stream to drain
+     * @return the string
+     * @throws IOException
+     *             Signals that an I/O exception has occurred.
+     */
+    public static String streamToString(InputStream is) throws IOException {
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        drainStream(is, baos);
+        return new String(baos.toByteArray());
+    }
+
+    /**
+     * Drain an input stream to an output stream.
+     *
+     * Do not close either stream at the end.
+     *
+     * @param is
+     *            the non-<code>null</code> input stream
+     * @param os
+     *            the non-<code>null</code> output stream
+     * @throws IOException
+     *             Signals that an I/O exception has occurred.
+     */
+    public static void drainStream(InputStream is, OutputStream os) throws IOException {
+        byte[] buffer = new byte[4096];
+        int read;
+
+        while((read = is.read(buffer)) >= 0) {
+            os.write(buffer, 0, read);
+        }
+    }
+
 }

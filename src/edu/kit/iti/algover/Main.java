@@ -82,7 +82,7 @@ public class Main {
             SymbexStateToFormula magic = new SymbexStateToFormula(t);
 
             Z3Solver z3 = new Z3Solver(magic.getSymbolTable());
-            String smt = z3.createSMTInputput(magic.from(res));
+            String smt = z3.createSMTInput(magic.from(res));
             System.out.println(Debug.prettyPrint(smt));
             System.out.println(smt);
 

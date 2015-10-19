@@ -1,3 +1,9 @@
+/*
+ * This file is part of AlgoVer.
+ *
+ * Copyright (C) 2015 Karlsruhe Institute of Technology
+ */
+
 package edu.kit.iti.algover.smt;
 
 import java.io.IOException;
@@ -7,6 +13,13 @@ import java.util.Properties;
 import edu.kit.iti.algover.parser.DafnyParser;
 import edu.kit.iti.algover.parser.DafnyTree;
 
+/**
+ * Old code. Only to be used for reference.
+ *
+ * @author Mattias Ulbrich
+ */
+
+@Deprecated
 public class SMTTrans_Old {
 
     private static Properties OP_MAP;
