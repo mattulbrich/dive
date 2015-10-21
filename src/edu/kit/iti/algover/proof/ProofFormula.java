@@ -19,4 +19,11 @@ public class ProofFormula {
         this.formula = formula;
         this.label = label;
     }
+
+    public void addLabel(String s){
+        label += "," + s;
+    }
+    public String toString(){
+        return id+": "+formula.toString();
+    }
 }

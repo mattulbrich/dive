@@ -28,6 +28,7 @@ public class ProofVerificationCondition {
     private String Name;
 
     private LinkedList<ProofFormula> pvc;
+
     private SymbolTable symbTable;
 
     private ImmutableList<PathConditionElement> pcs;
@@ -40,14 +41,25 @@ public class ProofVerificationCondition {
     private int idCounter;
 
 
-    public ProofVerificationCondition(SymbexState state, LinkedList<DafnyTree> assumptions, LinkedList<DafnyTree> toShow, VariableMap varMap) {
+    public ProofVerificationCondition( LinkedList<DafnyTree> assumptions, LinkedList<DafnyTree> toShow, VariableMap varMap) {
         this.assumptions = assumptions;
         this.toShow = toShow;
         this.varMap = varMap;
-//new Symboltable
+
+
+        //Symboltable from PDatabase has to be inserted and varMap as well
+        createSymbolTable();
+
+
+        //symbTable = new MapSymbolTable(map);
 //        termbuilder = new TreeTermTranslator(symbTable);
         idCounter= 1;
         buildPVC();
+
+    }
+
+    private void createSymbolTable() {
+        Map<String, FunctionSymbol> map = new HashMap<>();
 
     }
 
@@ -59,12 +71,16 @@ public class ProofVerificationCondition {
      */
     public void buildPVC(){
         for (DafnyTree assumption : assumptions) {
-            //SymbolTable has to be retrieved
-
-
-         //   ProofFormula form = new ProofFormula(idCounter,termbuilder.build(assumption), "");
+            ProofFormula form = new ProofFormula(idCounter,termbuilder.build(assumption), "");
+            idCounter++;
+            System.out.println("Created Terms:"+form.toString() );
+        }
+        for (DafnyTree dafnyTree : toShow) {
+            ProofFormula form = new ProofFormula(idCounter,termbuilder.build(dafnyTree), "");
+            System.out.println("Created Terms:"+form.toString() );
             idCounter++;
         }
+
 
     }
 

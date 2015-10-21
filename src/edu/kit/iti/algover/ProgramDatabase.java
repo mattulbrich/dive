@@ -32,7 +32,7 @@ public class ProgramDatabase {
 
     /**
      * Retrieves all variable declarations from within a method declaration.
-     * They may be arbtrarily nested.
+     * They may be arbitrarily nested.
      *
      * @param method
      *            the method to scan for declarations
