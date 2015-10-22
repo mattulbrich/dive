@@ -1,6 +1,8 @@
 package edu.kit.iti.algover.proof;
 
 
+import edu.kit.iti.algover.ProgramDatabase;
+import edu.kit.iti.algover.data.BuiltinSymbols;
 import edu.kit.iti.algover.data.IncrementalSymbolTable;
 import edu.kit.iti.algover.data.MapSymbolTable;
 import edu.kit.iti.algover.data.SymbolTable;
@@ -15,9 +17,7 @@ import edu.kit.iti.algover.term.builder.TreeTermTranslator;
 import edu.kit.iti.algover.util.ImmutableList;
 
 import javax.xml.transform.sax.SAXSource;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Created by sarah on 10/7/15.
@@ -29,39 +29,93 @@ public class ProofVerificationCondition {
 
     private LinkedList<ProofFormula> pvc;
 
-    private SymbolTable symbTable;
+    private SymbolTable symbolTable;
 
-    private ImmutableList<PathConditionElement> pcs;
+   // private ImmutableList<PathConditionElement> pcs;
     private LinkedList<DafnyTree> assumptions;
     private TreeTermTranslator termbuilder;
-    private VariableMap varMap;
+    private SymbexState state;
+    private DafnyTree method;
     //posible only one element
     private LinkedList<DafnyTree> toShow;
-
+    private LinkedList<PathConditionElement> pcs;
     private int idCounter;
 
 
-    public ProofVerificationCondition( LinkedList<DafnyTree> assumptions, LinkedList<DafnyTree> toShow, VariableMap varMap) {
+    public ProofVerificationCondition(LinkedList<PathConditionElement> pcs, LinkedList<DafnyTree> assumptions, LinkedList<DafnyTree> toShow, SymbexState state,
+                                       DafnyTree method) {
         this.assumptions = assumptions;
         this.toShow = toShow;
-        this.varMap = varMap;
+        this.state = state;
+        this.pcs = pcs;
+        // symboltable will initially contain all variable declarations and built in symbols as fucntion symbols
+        this.symbolTable = makeSymbolTable();
+        this.termbuilder = new TreeTermTranslator(symbolTable);
 
-
-        //Symboltable from PDatabase has to be inserted and varMap as well
-        createSymbolTable();
-
-
-        //symbTable = new MapSymbolTable(map);
-//        termbuilder = new TreeTermTranslator(symbTable);
         idCounter= 1;
         buildPVC();
 
     }
 
-    private void createSymbolTable() {
-        Map<String, FunctionSymbol> map = new HashMap<>();
+    /**
+     *
+     * @return Symboltable containing all variable declarations and builtin function symbols
+     * Author: Mattias Ulbrich
+     */
+
+    private SymbolTable makeSymbolTable() {
+
+        Collection<FunctionSymbol> map = new ArrayList<>();
+
+        for (DafnyTree decl : ProgramDatabase.getAllVariableDeclarations(method)) {
+            String name = decl.getChild(0).toString();
+            Sort sort = treeToType(decl.getChild(1));
+            map.add(new FunctionSymbol(name, sort));
+        }
+
+        MapSymbolTable st = new MapSymbolTable(new BuiltinSymbols(), map);
+        return st;
+    }
+
+    public static Sort treeToType(DafnyTree tree) {
+        String name = tree.toString();
+        if("array".equals(name)) {
+            name = "array1";
+        }
+
+        return new Sort(name);
+    }
+
+    /**
+     * Copied from Mattias, will have own
+     * @param symbexState
+     * @return
+     */
+    public Collection<Term> from(SymbexState symbexState) {
+
+        Collection<Term> result = new ArrayList<>();
+
+        TreeTermTranslator ttt = new TreeTermTranslator(symbolTable);
+
+        for(PathConditionElement pce : symbexState.getPathConditions()) {
+            Term formula = ttt.build(pce.getExpression());
+            result.add(formula);
+        }
+
+        for(DafnyTree po : symbexState.getProofObligations()) {
+            Term formula = ttt.build(po.getLastChild());
+            result.add(TermBuilder.negate(formula));
+        }
+
+        return result;
 
     }
+
+    public SymbolTable getSymbolTable() {
+        return symbolTable;
+    }
+
+
 
 
     /**
@@ -75,6 +129,10 @@ public class ProofVerificationCondition {
             idCounter++;
             System.out.println("Created Terms:"+form.toString() );
         }
+        for(PathConditionElement pce : pcs) {
+            Term formula = termbuilder.build(pce.getExpression());
+            System.out.println("Path: "+formula.toString());
+        }
         for (DafnyTree dafnyTree : toShow) {
             ProofFormula form = new ProofFormula(idCounter,termbuilder.build(dafnyTree), "");
             System.out.println("Created Terms:"+form.toString() );
@@ -84,39 +142,4 @@ public class ProofVerificationCondition {
 
     }
 
-
-
-
-
-    //        for (SymbexState res : symbex.getResults()) {
-//            System.out.println("------------");
-//            for (PathCondition pc : res.getPathConditions()) {
-//  //              this.conditions.add(pc);
-//                System.out.println("Path condition - " + pc.getType());
-//                System.out.println("    " + pc.getExpression().toStringTree());
-//                System.out.println("  Assignment History:");
-//                System.out.println("    " + pc.getMap().toHistoryString().replace("\n", "\n    "));
-//                System.out.println("  Aggregated Variable Map: ");
-//                System.out.println("    " + pc.getMap().toParallelAssignment());
-//                System.out.println("  Instantiated condition: ");
-//                System.out.println("    " + pc.getMap().instantiate(pc.getExpression()).toStringTree());
-//                System.out.println("  Refers to: line " + pc.getExpression().token.getLine());
-//            }
-//            System.out.println("Proof Obligations - " + res.getProofObligationType());
-//            for (DafnyTree po : res.getProofObligations()) {
-//                System.out.println("  " + po.toStringTree());
-//            }
-//            System.out.println("  Assignment History:");
-//            System.out.println("    " + res.getMap().toHistoryString().replace("\n", "\n    "));
-//            System.out.println("  Aggregated Variable Map: ");
-//            System.out.println("    " + res.getMap().toParallelAssignment());
-//            System.out.println("  Instantiated POs: ");
-//            for (DafnyTree po : res.getProofObligations()) {
-//                System.out.println("    " + res.getMap().instantiate(po).toStringTree());
-//            } mehrere möglich
-//
-//            Z3Solver z3 = new Z3Solver();
-//            System.out.println(z3.createSMTInputput(res));
-//        }
-//
 }

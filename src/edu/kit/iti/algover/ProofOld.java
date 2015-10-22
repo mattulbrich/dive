@@ -1,6 +1,6 @@
 package edu.kit.iti.algover;
 
-import edu.kit.iti.algover.Proof.ProofVerificationCondition;
+import edu.kit.iti.algover.proof.ProofVerificationCondition;
 import edu.kit.iti.algover.parser.DafnyTree;
 import edu.kit.iti.algover.symbex.PathConditionElement;
 import edu.kit.iti.algover.symbex.SymbexState;
