@@ -5,7 +5,13 @@ package edu.kit.iti.algover.proof;
  */
 public interface ProofStep {
 
-    public ProofStepResult applyProofStep();
+    public ProofStepResult apply();
+
+    public Boolean canApply();
 
     public String getRuleName();
+
+    public String getCategory();
+
+
 }

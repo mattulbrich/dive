@@ -11,6 +11,8 @@ import java.util.List;
 import edu.kit.iti.algover.ProgramDatabase;
 import edu.kit.iti.algover.ProofOld;
 import edu.kit.iti.algover.ProofCenter;
+import edu.kit.iti.algover.proof.*;
+import edu.kit.iti.algover.proof.IllegalStateException;
 import edu.kit.iti.algover.smt.Z3Solver;
 import org.antlr.runtime.ANTLRInputStream;
 import org.antlr.runtime.ANTLRReaderStream;
@@ -28,6 +30,8 @@ import edu.kit.iti.algover.symbex.Symbex;
 import edu.kit.iti.algover.symbex.SymbexState;
 
 /**
+ * Class responsible for loading a problem file, parsing it and performing symbolic execution
+ *
  * Created by sarah on 9/9/15.
  */
 public class ProblemLoader {
@@ -40,10 +44,13 @@ public class ProblemLoader {
         return proofList;
     }
 
+    private File file;
+    private DafnyTree ast;
 
+    private List<DafnyTree> methods;
 
     /**
-     * Parse an Inputstream
+     * Parse an InputStream
      * @param stream
      * @throws Exception
      */
@@ -54,7 +61,7 @@ public class ProblemLoader {
     }
 
     /**
-     * Parse a bufferedreader input
+     * Parse a BufferedReader input
      * @param reader
      * @throws Exception
      */
@@ -67,7 +74,28 @@ public class ProblemLoader {
     }
 
     /**
-     * Build the AST given the DafnyLexer
+     * Perform symbolic execution of a method and create SymbexStates
+     * @param method
+     */
+    public static void performSymbEx(DafnyTree method) throws IllegalStateException {
+
+    }
+    /**
+     * Perform symbolic execution of a method and create SymbexStates
+     * @param name of method
+     */
+    public static void performSymbEx(String name) throws IllegalStateException{
+
+    }
+
+    /**
+     * Should list all Methods of a problem file therefore should not be void ;-)
+     */
+    public static void listMethods(){
+
+    }
+    /**
+     * Build the AST given the DafnyLexer (old)
      * @param lexer
      * @throws Exception
      */
@@ -77,7 +105,7 @@ public class ProblemLoader {
 
         LinkedList<PathConditionElement> typeCollectionPath;
         LinkedList<PathConditionElement.AssertionType> typeCollectionState;
-
+        LinkedList<DafnyTree> assumptions;
         // create the buffer of tokens between the lexer and parser
         CommonTokenStream tokens = new CommonTokenStream(lexer);
         // create the parser attached to the token buffer
@@ -95,7 +123,7 @@ public class ProblemLoader {
         proofList = new LinkedList<ProofOld>();
 
         for (SymbexState res : results) {
-
+            assumptions = new LinkedList<DafnyTree>();
             instantiatedAssumptions  = new LinkedList<DafnyTree>();
             typeCollectionPath = new LinkedList<PathConditionElement>();
             typeCollectionState  = new LinkedList<PathConditionElement.AssertionType>();
@@ -110,6 +138,7 @@ public class ProblemLoader {
                 System.out.println("  Aggregated Variable Map: ");
                 System.out.println("    " + pc.getVariableMap().toParallelAssignment());
                 System.out.println("  Instantiated condition: ");
+                assumptions.add(pc.getExpression());
                 instantiatedAssumptions.add(pc.getVariableMap().instantiate(pc.getExpression()));
                 System.out.println("    " + pc.getVariableMap().instantiate(pc.getExpression()).toStringTree());
                 System.out.println("  Refers to: line " + pc.getExpression().token.getLine());
@@ -120,6 +149,10 @@ public class ProblemLoader {
             System.out.println("Proof Obligations - " + res.getProofObligationType());
             typeCollectionState.add(res.getProofObligationType());
             for (DafnyTree po : res.getProofObligations()) {
+      //          LinkedList<DafnyTree> toShow = new LinkedList<DafnyTree>();
+      //          toShow.add(res.getMap().instantiate(po));
+      //          ProofOld p = pcenter.createProofOldObject(res, assumptions, toShow, typeCollectionPath, typeCollectionState, 0);
+      //          pcenter.insertProofOld(p);
                 System.out.println("  " + po.toStringTree());
             }
 
@@ -132,19 +165,18 @@ public class ProblemLoader {
             for (DafnyTree po : res.getProofObligations()) {
                 LinkedList<DafnyTree> toShow = new LinkedList<DafnyTree>();
                 toShow.add(res.getMap().instantiate(po));
-                ProofOld p = pcenter.createProofOldObject(instantiatedAssumptions, toShow, typeCollectionPath, typeCollectionState, 0);
+                ProofOld p = pcenter.createProofOldObject(res, instantiatedAssumptions, toShow, typeCollectionPath, typeCollectionState, 0);
                 pcenter.insertProofOld(p);
                 System.out.println("    " + res.getMap().instantiate(po).toStringTree());
             }
 
 
-            //Z3Solver z3 = new Z3Solver(new ProgramDatabase(t));
-            //System.out.println(z3.createSMTInputput(res));
+
         }
     }
 
     /**
-     * Read an Parse a File
+     * Read and Parse a File
      * @param file
      */
     public static void readFile(File file) {

@@ -4,9 +4,7 @@ import edu.kit.iti.algover.proof.ProofVerificationCondition;
 import edu.kit.iti.algover.parser.DafnyTree;
 import edu.kit.iti.algover.symbex.PathConditionElement;
 import edu.kit.iti.algover.symbex.SymbexState;
-import sun.awt.image.ImageWatched;
 
-import java.io.File;
 import java.util.LinkedList;
 
 /**
@@ -28,7 +26,7 @@ public class ProofOld {
     private LinkedList<PathConditionElement.AssertionType> collected2;
     private LinkedList<DafnyTree> assumptions;
     private LinkedList<DafnyTree> toShow;
-
+    private SymbexState state;
 
 
     public LinkedList<DafnyTree> getAssumptions() {
@@ -60,13 +58,14 @@ public class ProofOld {
     private int id;
 
 
-    public ProofOld(LinkedList<DafnyTree> ass, LinkedList<DafnyTree> show,
+    public ProofOld(SymbexState state, LinkedList<DafnyTree> ass, LinkedList<DafnyTree> show,
                  LinkedList<PathConditionElement> collected, LinkedList<PathConditionElement.AssertionType> collected2, int id){
         this.setAssumptions(ass);
         this.setToShow(show);
         this.collected = collected;
         this.collected2 = collected2;
         this.id = id;
+        this.state = state;
         name = creatName();
 
     }
@@ -88,7 +87,7 @@ public class ProofOld {
 
 
     public String proofToString(){
-       // ProofVerificationCondition pvc = new ProofVerificationCondition(assumptions,toShow);
+        ProofVerificationCondition pvc = new ProofVerificationCondition(collected, assumptions,toShow, state, state.getMethod());
         String po = "";
         for (DafnyTree assumption : assumptions) {
             po+= assumption.toStringTree() +",\n";

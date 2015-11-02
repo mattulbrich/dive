@@ -126,7 +126,7 @@ public class SymbexState {
      *
      * @return the function
      */
-    public DafnyTree getFunction() {
+    public DafnyTree getMethod() {
         return function;
     }
 

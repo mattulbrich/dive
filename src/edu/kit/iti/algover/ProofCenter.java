@@ -2,6 +2,7 @@ package edu.kit.iti.algover;
 
 import edu.kit.iti.algover.parser.DafnyTree;
 import edu.kit.iti.algover.symbex.PathConditionElement;
+import edu.kit.iti.algover.symbex.SymbexState;
 
 import java.io.File;
 import java.util.LinkedList;
@@ -14,7 +15,7 @@ public class ProofCenter  {
 
    //list of all ProofOld obligations for one problemfile
    private LinkedList<ProofOld> ProofOlds = new LinkedList<>();
-
+    private SymbexState state;
     public LinkedList<ProofOld> getProofOlds() {
         return ProofOlds;
     }
@@ -82,7 +83,7 @@ public class ProofCenter  {
                 int id = p.getId();
                 id = id+1;
                 System.out.println("New ID"+id);
-                ProofOld newProofOld = createProofOldObject(p.getAssumptions(), p.getToShow(), p.getCollected(), p.getCollected2(), id);
+                ProofOld newProofOld = createProofOldObject(this.state, p.getAssumptions(), p.getToShow(), p.getCollected(), p.getCollected2(), id);
                 System.out.println("New Name: " + newProofOld.getName());
                 insertProofOld(newProofOld);
 
@@ -92,9 +93,10 @@ public class ProofCenter  {
             }
         }
     }
-    public ProofOld createProofOldObject(LinkedList<DafnyTree> ass, LinkedList<DafnyTree> show,
+    public ProofOld createProofOldObject(SymbexState state, LinkedList<DafnyTree> ass, LinkedList<DafnyTree> show,
                  LinkedList<PathConditionElement> collected, LinkedList<PathConditionElement.AssertionType> collected2, int id){
-        ProofOld nProofOld = new ProofOld(ass,show,collected,collected2,id);
+        this.state = state;
+        ProofOld nProofOld = new ProofOld(state, ass,show,collected,collected2,id);
         System.out.println("NewCall"+ nProofOld.getName());
         return nProofOld;
 

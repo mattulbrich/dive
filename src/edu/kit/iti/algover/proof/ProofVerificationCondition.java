@@ -29,6 +29,7 @@ public class ProofVerificationCondition {
 
     private LinkedList<ProofFormula> pvc;
 
+    // symboltable will initially contain all variable declarations and built in symbols as function symbols
     private SymbolTable symbolTable;
 
    // private ImmutableList<PathConditionElement> pcs;
@@ -36,11 +37,13 @@ public class ProofVerificationCondition {
     private TreeTermTranslator termbuilder;
     private SymbexState state;
     private DafnyTree method;
-    //posible only one element
+    //possible only one element
     private LinkedList<DafnyTree> toShow;
     private LinkedList<PathConditionElement> pcs;
+    //counter for the ids of ProofFormulas
     private int idCounter;
-
+    private ProofNode root;
+    private ProofHistory history;
 
     public ProofVerificationCondition(LinkedList<PathConditionElement> pcs, LinkedList<DafnyTree> assumptions, LinkedList<DafnyTree> toShow, SymbexState state,
                                        DafnyTree method) {
@@ -48,13 +51,33 @@ public class ProofVerificationCondition {
         this.toShow = toShow;
         this.state = state;
         this.pcs = pcs;
-        // symboltable will initially contain all variable declarations and built in symbols as fucntion symbols
+        this.method=method;
         this.symbolTable = makeSymbolTable();
         this.termbuilder = new TreeTermTranslator(symbolTable);
 
         idCounter= 1;
-        buildPVC();
+        from(state);
+        //buildPVC();
+        this.history = createHistory();
+        this.root = buildRoot();
 
+    }
+
+    /**
+     * Create initial history object, containing all initial proof formulas
+     * @return
+     */
+    private ProofHistory createHistory() {
+        return null;
+    }
+
+    /**
+     * Builds the rootnode for a proof verification condition
+     * @return rootnode
+     */
+    private ProofNode buildRoot() {
+        ProofNode root = new ProofNode(null, null, this.history);
+        return root;
     }
 
     /**
@@ -99,11 +122,13 @@ public class ProofVerificationCondition {
 
         for(PathConditionElement pce : symbexState.getPathConditions()) {
             Term formula = ttt.build(pce.getExpression());
+            System.out.println(" Formula: "+formula.toString());
             result.add(formula);
         }
 
         for(DafnyTree po : symbexState.getProofObligations()) {
             Term formula = ttt.build(po.getLastChild());
+            System.out.println(" Formula: "+formula.toString());
             result.add(TermBuilder.negate(formula));
         }
 
@@ -129,10 +154,10 @@ public class ProofVerificationCondition {
             idCounter++;
             System.out.println("Created Terms:"+form.toString() );
         }
-        for(PathConditionElement pce : pcs) {
-            Term formula = termbuilder.build(pce.getExpression());
-            System.out.println("Path: "+formula.toString());
-        }
+       // for(PathConditionElement pce : pcs) {
+        //    Term formula = termbuilder.build(pce.getExpression());
+         //   System.out.println("Path: "+formula.toString());
+        //}
         for (DafnyTree dafnyTree : toShow) {
             ProofFormula form = new ProofFormula(idCounter,termbuilder.build(dafnyTree), "");
             System.out.println("Created Terms:"+form.toString() );
