@@ -19,7 +19,7 @@ public class ProofFormula {
         this.formula = formula;
         this.label = label;
     }
-
+    public Term getTerm(){ return this.formula;}
     public void addLabel(String s){
         label += "," + s;
     }
