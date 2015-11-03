@@ -5,6 +5,9 @@ import edu.kit.iti.algover.term.ApplTerm;
 import edu.kit.iti.algover.term.FunctionSymbol;
 import edu.kit.iti.algover.term.Sort;
 import edu.kit.iti.algover.term.Term;
+import edu.kit.iti.algover.util.ImmutableList;
+
+import java.util.List;
 
 /**
  * Created by sarah on 11/2/15.
@@ -13,15 +16,23 @@ public class AndRight implements ProofStep {
 
 
     /**
-     * Eventuell ist Term nciht der richtige Parameter, evtl. muss noch die zugehörige Proof Formula übergeben werden wegen der Add und Delete List
+     * Eventuell ist Term nicht der richtige Parameter, evtl. muss noch die zugehörige Proof Formula übergeben werden wegen der Add und Delete List
      * @param t
      * @return
      */
     @Override
-    public ProofStepResult apply(Term t) {
+    public ProofStepResult apply(ProofFormula form, Term t) {
         if(canApply(t)){
-//TODO
-
+            ImmutableList<ProofFormula> addList = ImmutableList.nil();
+            ImmutableList<ProofFormula> delList = ImmutableList.nil();
+            delList.prepend(form);
+            ApplTerm term = (ApplTerm) t;
+            List<Term> subterms = term.getSubterms();
+            for (Term subterm : subterms) {
+                //new proofFormula, we need latest index
+                //then add into addlist
+            }
+//create new proofstepresult with both lists
             return new ProofStepResult();
         }else {
             return null;

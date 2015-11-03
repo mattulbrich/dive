@@ -7,7 +7,7 @@ import edu.kit.iti.algover.term.Term;
  */
 public interface ProofStep {
 
-    public ProofStepResult apply(Term t);
+    public ProofStepResult apply(ProofFormula form, Term t);
 
     public Boolean canApply(Term t);
 
