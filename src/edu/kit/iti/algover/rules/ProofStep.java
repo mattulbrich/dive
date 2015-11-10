@@ -1,5 +1,6 @@
-package edu.kit.iti.algover.proof;
+package edu.kit.iti.algover.rules;
 
+import edu.kit.iti.algover.proof.ProofFormula;
 import edu.kit.iti.algover.term.Term;
 
 /**
@@ -9,7 +10,7 @@ public interface ProofStep {
 
     public ProofStepResult apply(ProofFormula form, Term t);
 
-    public Boolean canApply(Term t);
+    public boolean canApply(Term t);
 
     public String getRuleName();
 

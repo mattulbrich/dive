@@ -1,4 +1,4 @@
-package edu.kit.iti.algover.proof;
+package edu.kit.iti.algover.rules;
 
 import edu.kit.iti.algover.term.Term;
 

@@ -1,6 +1,9 @@
 package edu.kit.iti.algover.proof;
 
+import edu.kit.iti.algover.rules.ProofStepResult;
+
 import java.util.LinkedList;
+import java.util.List;
 
 /**
  * Class represents one proof node. It has a pointer to its parent node and to the children nodes.
@@ -13,7 +16,7 @@ public class ProofNode {
     private ProofNode parent;
     private ProofStepResult psr;
     private ProofHistory history;
-    private LinkedList<ProofNode> children;
+    private List<ProofNode> children;
 
     public ProofNode(ProofNode parent, ProofStepResult psr, ProofHistory history){
         this.parent = parent;

@@ -1,8 +1,8 @@
-package edu.kit.iti.algover.proof;
+package edu.kit.iti.algover.rules;
 
 import edu.kit.iti.algover.data.BuiltinSymbols;
+import edu.kit.iti.algover.proof.ProofFormula;
 import edu.kit.iti.algover.term.ApplTerm;
-import edu.kit.iti.algover.term.FunctionSymbol;
 import edu.kit.iti.algover.term.Sort;
 import edu.kit.iti.algover.term.Term;
 import edu.kit.iti.algover.util.ImmutableList;
@@ -41,12 +41,13 @@ public class AndRight implements ProofStep {
 
     /**
      * Checks whether AndRight Rule is applicable. This is
-     * only the case when the term is an application term with top level symbol And
+     * only the case when the term is an application term with top level symbol
+     * ---And VGL auf Formula
      * @param t
      * @return true iff AndRight is applicable, false otherwise
      */
     @Override
-    public Boolean canApply(Term t) {
+    public boolean canApply(Term t) {
         if (t.getSort() == Sort.FORMULA){
          if(t instanceof ApplTerm){
              ApplTerm term = (ApplTerm) t;
@@ -59,7 +60,7 @@ public class AndRight implements ProofStep {
              return false;
          }
         }else {
-            return null;
+            return false;
         }
     }
 

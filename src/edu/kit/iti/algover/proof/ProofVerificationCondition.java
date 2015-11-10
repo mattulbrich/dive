@@ -27,20 +27,20 @@ public class ProofVerificationCondition {
 
     private String Name;
 
-    private LinkedList<ProofFormula> pvc;
+    private List<ProofFormula> proofFormulas;
 
     // symboltable will initially contain all variable declarations and built in symbols as function symbols
     private SymbolTable symbolTable;
 
    // private ImmutableList<PathConditionElement> pcs;
-    private LinkedList<DafnyTree> assumptions;
+    private List<DafnyTree> assumptions;
     private TreeTermTranslator termbuilder;
     private SymbexState state;
     private DafnyTree method;
     //possible only one element
-    private LinkedList<DafnyTree> toShow;
+    private List<DafnyTree> toShow;
     private LinkedList<PathConditionElement> pcs;
-    //counter for the ids of ProofFormulas
+    //counter for the ids of ProofFormulas, needs to be read by rules in order to create new PF with appropriate ids
     private int idCounter;
     private ProofNode root;
     private ProofHistory history;

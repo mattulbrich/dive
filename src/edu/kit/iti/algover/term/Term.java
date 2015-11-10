@@ -24,6 +24,9 @@ public abstract class Term {
         this.subterms = subterms;
     }
 
+    //subterm indexing needs to be done
+
+
     public Sort getSort() {
         return sort;
     }
@@ -56,4 +59,8 @@ public abstract class Term {
     }
 
     public abstract <A,R> R accept(TermVisitor<A, R> visitor, A arg);
+
+    public int countTerms() {
+        return subterms.length;
+    }
 }
