@@ -75,6 +75,9 @@ public class ProblemLoader {
         // create the lexer attached to stream
         DafnyLexer lexer = new DafnyLexer(input);
         ast = buildAST(lexer);
+        if(tempTest){
+            depr_buildAST(ast);
+        }
     }
 
     /**
@@ -86,7 +89,7 @@ public class ProblemLoader {
         Symbex symbex = new Symbex();
         List<SymbexState> results = symbex.symbolicExecution(method);
 
-        return new ContractProofObligation(results);
+        return new ContractProofObligation(results, method);
     }
     /**
      * Perform symbolic execution of a method and create ContractProofObligation
@@ -188,46 +191,51 @@ public class ProblemLoader {
             typeCollectionPath = new LinkedList<PathConditionElement>();
             typeCollectionState  = new LinkedList<PathConditionElement.AssertionType>();
 
-            System.out.println("------------");
+           // System.out.println("------------");
             for (PathConditionElement pc : res.getPathConditions()) {
                 typeCollectionPath.addLast(pc);
-                System.out.println("Path condition - " + pc.getType());
-                System.out.println("    " + pc.getExpression().toStringTree());
-                System.out.println("  Assignment History:");
-                System.out.println("    " + pc.getVariableMap().toHistoryString().replace("\n", "\n    "));
-                System.out.println("  Aggregated Variable Map: ");
-                System.out.println("    " + pc.getVariableMap().toParallelAssignment());
-                System.out.println("  Instantiated condition: ");
+//                System.out.println("Path condition - " + pc.getType());
+//                System.out.println("    " + pc.getExpression().toStringTree());
+//                System.out.println("  Assignment History:");
+//                System.out.println("    " + pc.getVariableMap().toHistoryString().replace("\n", "\n    "));
+//                System.out.println("  Aggregated Variable Map: ");
+//                System.out.println("    " + pc.getVariableMap().toParallelAssignment());
+//                System.out.println("  Instantiated condition: ");
                 assumptions.add(pc.getExpression());
                 instantiatedAssumptions.add(pc.getVariableMap().instantiate(pc.getExpression()));
-                System.out.println("    " + pc.getVariableMap().instantiate(pc.getExpression()).toStringTree());
-                System.out.println("  Refers to: line " + pc.getExpression().token.getLine());
-                System.out.println("  Test Line: " + pc.getExpression());
+//                System.out.println("    " + pc.getVariableMap().instantiate(pc.getExpression()).toStringTree());
+//                System.out.println("  Refers to: line " + pc.getExpression().token.getLine());
+//                System.out.println("  Test Line: " + pc.getExpression());
             }
 
 
-            System.out.println("Proof Obligations - " + res.getProofObligationType());
+//            System.out.println("Proof Obligations - " + res.getProofObligationType());
             typeCollectionState.add(res.getProofObligationType());
-            for (DafnyTree po : res.getProofObligations()) {
+//            for (DafnyTree po : res.getProofObligations()) {
       //          LinkedList<DafnyTree> toShow = new LinkedList<DafnyTree>();
       //          toShow.add(res.getMap().instantiate(po));
       //          ProofOld p = pcenter.createProofOldObject(res, assumptions, toShow, typeCollectionPath, typeCollectionState, 0);
       //          pcenter.insertProofOld(p);
-                System.out.println("  " + po.toStringTree());
-            }
+//                System.out.println(po.childIndex);
+//                System.out.println("  " + po.toStringTree());
+//            }
 
 
-            System.out.println("  Assignment History:");
-            System.out.println("    " + res.getMap().toHistoryString().replace("\n", "\n    "));
-            System.out.println("  Aggregated Variable Map: ");
-            System.out.println("    " + res.getMap().toParallelAssignment());
-            System.out.println("  Instantiated POs: ");
+//            System.out.println("  Assignment History:");
+//            System.out.println("    " + res.getMap().toHistoryString().replace("\n", "\n    "));
+//            System.out.println("  Aggregated Variable Map: ");
+//            System.out.println("    " + res.getMap().toParallelAssignment());
+//            System.out.println("  Instantiated POs: ");
+//            System.out.println("No of PO: "+ res.getProofObligations().size());
+
             for (DafnyTree po : res.getProofObligations()) {
+                //System.out.println("Sibling: "+po.+"\n\n\n");
+
                 LinkedList<DafnyTree> toShow = new LinkedList<DafnyTree>();
                 toShow.add(res.getMap().instantiate(po));
                 ProofOld p = pcenter.createProofOldObject(res, instantiatedAssumptions, toShow, typeCollectionPath, typeCollectionState, 0);
                 pcenter.insertProofOld(p);
-                System.out.println("    " + res.getMap().instantiate(po).toStringTree());
+//                System.out.println("    " + res.getMap().instantiate(po).toStringTree());
             }
 
 

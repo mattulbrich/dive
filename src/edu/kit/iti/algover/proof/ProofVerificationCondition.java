@@ -25,7 +25,7 @@ import java.util.*;
  */
 public class ProofVerificationCondition {
 
-
+    //Displayname, it has to be generated using the pathconditions
     private String Name;
 
     private List<ProofFormula> proofFormulas;
@@ -33,36 +33,42 @@ public class ProofVerificationCondition {
     // symboltable will initially contain all variable declarations and built in symbols as function symbols
     private SymbolTable symbolTable;
 
-   // private ImmutableList<PathConditionElement> pcs;
-    private List<DafnyTree> assumptions;
     private TreeTermTranslator termbuilder;
     private SymbexState state;
     private DafnyTree method;
     //possible only one element
-    private List<DafnyTree> toShow;
-    private LinkedList<PathConditionElement> pcs;
     //counter for the ids of ProofFormulas, needs to be read by rules in order to create new PF with appropriate ids
     private int idCounter;
     private ProofNode root;
     private ProofHistory history;
+    //no to retriev the right proof obligation (beware it starts counting by 0)
+    private int siblingNo;
 
-    public ProofVerificationCondition(LinkedList<PathConditionElement> pcs, LinkedList<DafnyTree> assumptions, LinkedList<DafnyTree> toShow, SymbexState state,
-                                       DafnyTree method) {
-        this.assumptions = assumptions;
-        this.toShow = toShow;
+
+
+//OLD will be removed
+    private List<DafnyTree> assumptions;
+    private List<DafnyTree> toShow;
+    private LinkedList<PathConditionElement> pcs;
+
+    /**
+     * Constructor for a ProofVerificationCondition
+     * @param state
+     * @param siblingNo
+     */
+    public ProofVerificationCondition(SymbexState state, int siblingNo){
+        this.siblingNo = siblingNo;
         this.state = state;
-        this.pcs = pcs;
-        this.method=method;
+        this.idCounter= 1;
         this.symbolTable = makeSymbolTable();
         this.termbuilder = new TreeTermTranslator(symbolTable);
-
-        idCounter= 1;
         from(state);
-        //buildPVC();
         this.history = createHistory();
         this.root = buildRoot();
 
+
     }
+
 
     /**
      * Create initial history object, containing all initial proof formulas
@@ -127,6 +133,7 @@ public class ProofVerificationCondition {
             result.add(formula);
         }
 
+        //hier siblingno
         for(DafnyTree po : symbexState.getProofObligations()) {
             Term formula = ttt.build(po.getLastChild());
             System.out.println(" Formula: "+formula.toString());
@@ -167,5 +174,32 @@ public class ProofVerificationCondition {
 
 
     }
+
+    /**
+     * Old, will be removed
+     * @param pcs
+     * @param assumptions
+     * @param toShow
+     * @param state
+     * @param method
+     */
+    public ProofVerificationCondition(LinkedList<PathConditionElement> pcs, LinkedList<DafnyTree> assumptions, LinkedList<DafnyTree> toShow, SymbexState state,
+                                      DafnyTree method) {
+        this.assumptions = assumptions;
+        this.toShow = toShow;
+        this.state = state;
+        this.pcs = pcs;
+        this.method=method;
+        this.symbolTable = makeSymbolTable();
+        this.termbuilder = new TreeTermTranslator(symbolTable);
+
+        idCounter= 1;
+        from(state);
+        //buildPVC();
+        this.history = createHistory();
+        this.root = buildRoot();
+
+    }
+
 
 }

@@ -16,45 +16,63 @@ import java.util.List;
  */
 public class ContractProofObligation {
     private List<ProofVerificationCondition> verification_conditions;
+    public DafnyTree method;
 
     ProofCenter pcenter;
+
 
     /**
      * Create all ProofVerificationConditions for a method
      * @param symbex_states
+     * @param method
      */
-    public ContractProofObligation(List<SymbexState> symbex_states){
+    public ContractProofObligation(List<SymbexState> symbex_states, DafnyTree method){
         pcenter  = ProofCenter.getInstance();
+        this.method = method;
         createPVC(symbex_states);
     }
 
     /**
+     * Create a proof verification condition using instantiated path conditions and
+     * the instantiated proof obligation (represented as sibling no)
+     * @param state
+     * @param sibling_no
+     * @return a new ProofVerificationCondition
+     */
+    private ProofVerificationCondition makeSinglePVC(SymbexState state, int sibling_no){
+
+        return new ProofVerificationCondition(state, sibling_no);
+    }
+
+    /**
      * This method iterates over all symbolic execution states and creates a ProofVerificationCondition for each
-     * Condition and ProofObligation. The method adds each ProofVerificationCondition
+     * Condition and ProofObligation. The method adds each ProofVerificationCondition to the List of verification conditions
      * @param symbex_states
      */
     private void createPVC(List<SymbexState> symbex_states) {
         //maybe I don't need an observable list (atm not sure)
         verification_conditions = new ImmutableObservableList<ProofVerificationCondition>();
 
+        //create a PVC for each PO of a Symbexstate
+        for (SymbexState symbex_state : symbex_states) {
+            //get No of proof obligations in order to decide how many PVCs have to be created
+            int no_of_po_siblings = symbex_state.getProofObligations().size();
+            for (int i = 0; i < no_of_po_siblings; i++) {
+                //make pvc and add into list of all PVCs
+                verification_conditions.add(makeSinglePVC(symbex_state, i));
+            }
 
-        LinkedList<DafnyTree> instantiatedAssumptions;
+        }
 
-        LinkedList<PathConditionElement> typeCollectionPath;
-        LinkedList<PathConditionElement.AssertionType> typeCollectionState;
-        LinkedList<DafnyTree> assumptions;
-        //Ab hier muss der Code in CPO verschoben werden
+
+
 
 
         for (SymbexState res : symbex_states) {
-            assumptions = new LinkedList<DafnyTree>();
-            instantiatedAssumptions = new LinkedList<DafnyTree>();
-            typeCollectionPath = new LinkedList<PathConditionElement>();
-            typeCollectionState = new LinkedList<PathConditionElement.AssertionType>();
+
 
             System.out.println("------------");
             for (PathConditionElement pc : res.getPathConditions()) {
-                typeCollectionPath.addLast(pc);
                 System.out.println("Path condition - " + pc.getType());
                 System.out.println("    " + pc.getExpression().toStringTree());
                 System.out.println("  Assignment History:");
@@ -62,8 +80,6 @@ public class ContractProofObligation {
                 System.out.println("  Aggregated Variable Map: ");
                 System.out.println("    " + pc.getVariableMap().toParallelAssignment());
                 System.out.println("  Instantiated condition: ");
-                assumptions.add(pc.getExpression());
-                instantiatedAssumptions.add(pc.getVariableMap().instantiate(pc.getExpression()));
                 System.out.println("    " + pc.getVariableMap().instantiate(pc.getExpression()).toStringTree());
                 System.out.println("  Refers to: line " + pc.getExpression().token.getLine());
                 System.out.println("  Test Line: " + pc.getExpression());
@@ -71,12 +87,7 @@ public class ContractProofObligation {
 
 
             System.out.println("Proof Obligations - " + res.getProofObligationType());
-            typeCollectionState.add(res.getProofObligationType());
             for (DafnyTree po : res.getProofObligations()) {
-                //          LinkedList<DafnyTree> toShow = new LinkedList<DafnyTree>();
-                //          toShow.add(res.getMap().instantiate(po));
-                //          ProofOld p = pcenter.createProofOldObject(res, assumptions, toShow, typeCollectionPath, typeCollectionState, 0);
-                //          pcenter.insertProofOld(p);
                 System.out.println("  " + po.toStringTree());
             }
 
@@ -87,10 +98,6 @@ public class ContractProofObligation {
             System.out.println("    " + res.getMap().toParallelAssignment());
             System.out.println("  Instantiated POs: ");
             for (DafnyTree po : res.getProofObligations()) {
-                LinkedList<DafnyTree> toShow = new LinkedList<DafnyTree>();
-                toShow.add(res.getMap().instantiate(po));
-                ProofOld p = pcenter.createProofOldObject(res, instantiatedAssumptions, toShow, typeCollectionPath, typeCollectionState, 0);
-                pcenter.insertProofOld(p);
                 System.out.println("    " + res.getMap().instantiate(po).toStringTree());
             }
 

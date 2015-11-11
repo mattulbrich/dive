@@ -72,24 +72,24 @@ public class ProofCenter  {
             ProofOlds.add(p);
         }else {
             for (ProofOld ProofOld : ProofOlds) {
-                System.out.println("Checking: " + ProofOld.getName());
+                //System.out.println("Checking: " + ProofOld.getName());
                 if (p.getName().equals(ProofOld.getName())) {
                     conflict = true;
-                    System.out.println("Conflicting names :" + p.getName() + "-----" + ProofOld.getName());
+                 //   System.out.println("Conflicting names :" + p.getName() + "-----" + ProofOld.getName());
                     break;
                 }
             }
             if (conflict) {
                 int id = p.getId();
                 id = id+1;
-                System.out.println("New ID"+id);
+               // System.out.println("New ID"+id);
                 ProofOld newProofOld = createProofOldObject(this.state, p.getAssumptions(), p.getToShow(), p.getCollected(), p.getCollected2(), id);
-                System.out.println("New Name: " + newProofOld.getName());
+               // System.out.println("New Name: " + newProofOld.getName());
                 insertProofOld(newProofOld);
 
             }else{
                 ProofOlds.add(p);
-                System.out.println("Added");
+                //System.out.println("Added");
             }
         }
     }
@@ -97,7 +97,7 @@ public class ProofCenter  {
                  LinkedList<PathConditionElement> collected, LinkedList<PathConditionElement.AssertionType> collected2, int id){
         this.state = state;
         ProofOld nProofOld = new ProofOld(state, ass,show,collected,collected2,id);
-        System.out.println("NewCall"+ nProofOld.getName());
+        //System.out.println("NewCall"+ nProofOld.getName());
         return nProofOld;
 
     }
