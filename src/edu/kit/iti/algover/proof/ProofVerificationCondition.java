@@ -20,6 +20,7 @@ import javax.xml.transform.sax.SAXSource;
 import java.util.*;
 
 /**
+ * A ProofVerificationCondition contains all path conditions for a specific verification condition
  * Created by sarah on 10/7/15.
  */
 public class ProofVerificationCondition {

@@ -21,8 +21,8 @@ public class AndRight implements ProofStep {
      * @return
      */
     @Override
-    public ProofStepResult apply(ProofFormula form, Term t) {
-        if(canApply(t)){
+    public ProofStepResult apply(ProofFormula form, Term t, List<ProofFormula> side_conditions) {
+        if(possibleApplications(form, t, side_conditions)){
             ImmutableList<ProofFormula> addList = ImmutableList.nil();
             ImmutableList<ProofFormula> delList = ImmutableList.nil();
             delList.prepend(form);
@@ -43,12 +43,14 @@ public class AndRight implements ProofStep {
      * Checks whether AndRight Rule is applicable. This is
      * only the case when the term is an application term with top level symbol
      * ---And VGL auf Formula
+     * Needs to be rewritten
      * @param t
      * @return true iff AndRight is applicable, false otherwise
      */
     @Override
-    public boolean canApply(Term t) {
-        if (t.getSort() == Sort.FORMULA){
+    public boolean possibleApplications(ProofFormula form, Term t, List<ProofFormula> side_conditions) {
+        Term toplevel = form.getTerm();
+        if (toplevel.getSort() == Sort.FORMULA){
          if(t instanceof ApplTerm){
              ApplTerm term = (ApplTerm) t;
              if(term.getFunctionSymbol().equals(BuiltinSymbols.AND)){

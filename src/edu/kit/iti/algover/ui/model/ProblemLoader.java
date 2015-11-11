@@ -45,10 +45,10 @@ public class ProblemLoader {
     }
 
     private File file;
-    private DafnyTree ast;
+    private static DafnyTree ast;
 
     private List<DafnyTree> methods;
-
+    private static boolean tempTest = true;
     /**
      * Parse an InputStream
      * @param stream
@@ -57,7 +57,11 @@ public class ProblemLoader {
     private static void parse(InputStream stream) throws Exception {
         ANTLRInputStream input = new ANTLRInputStream(stream);
         DafnyLexer lexer = new DafnyLexer(input);
-        buildAST(lexer);
+        ast = buildAST(lexer);
+        if(tempTest){
+            depr_buildAST(ast);
+        }
+
     }
 
     /**
@@ -70,43 +74,76 @@ public class ProblemLoader {
         ANTLRReaderStream input = new ANTLRReaderStream(reader);
         // create the lexer attached to stream
         DafnyLexer lexer = new DafnyLexer(input);
-        buildAST(lexer);
+        ast = buildAST(lexer);
     }
 
     /**
-     * Perform symbolic execution of a method and create SymbexStates
+     * Perform symbolic execution of a method and create ContractProofObligation
      * @param method
      */
-    public static void performSymbEx(DafnyTree method) throws IllegalStateException {
+    public ContractProofObligation performSymbEx(DafnyTree method) throws IllegalStateException {
 
+        Symbex symbex = new Symbex();
+        List<SymbexState> results = symbex.symbolicExecution(method);
+
+        return new ContractProofObligation(results);
     }
     /**
-     * Perform symbolic execution of a method and create SymbexStates
-     * CPO as return
+     * Perform symbolic execution of a method and create ContractProofObligation
+     *
      * @param name of method
      */
-    public static void performSymbEx(String name) throws IllegalStateException{
+    public ContractProofObligation performSymbEx(String name) throws IllegalStateException {
 
+        return null;
     }
 
     /**
      * Should list all Methods of a problem file therefore should not be void ;-)
      */
-    public static void listMethods(){
+    public List<DafnyTree> listMethods() throws IllegalStateException {
+        if (methods != null){
+            return methods;
+        }else{
+            throw new IllegalStateException("The problem file has to be parsed in order to list all methods");
+        }
 
+    }
+
+    /**
+     * Read and Parse a File
+     * @param file
+     */
+    public static void readFile(File file) {
+
+        try {
+            FileInputStream inputStream = new FileInputStream(file);
+            parse(inputStream);
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+            System.out.println("Could not read file " + file.getAbsolutePath());
+        } catch (Exception e) {
+            e.printStackTrace();
+            System.out.println("Could not load problem");
+        }
+
+    }
+
+    public static void main(String[] args) throws Exception {
+        if(args.length == 0) {
+            parse(System.in);
+        } else {
+            parse(new FileInputStream(args[0]));
+        }
     }
     /**
      * Build the AST given the DafnyLexer (old)
      * @param lexer
      * @throws Exception
      */
-    private static void buildAST(DafnyLexer lexer) throws  Exception{
-        ProofCenter pcenter = ProofCenter.getInstance();
-        LinkedList<DafnyTree> instantiatedAssumptions;
+    private static DafnyTree buildAST(DafnyLexer lexer) throws  Exception {
 
-        LinkedList<PathConditionElement> typeCollectionPath;
-        LinkedList<PathConditionElement.AssertionType> typeCollectionState;
-        LinkedList<DafnyTree> assumptions;
+
         // create the buffer of tokens between the lexer and parser
         CommonTokenStream tokens = new CommonTokenStream(lexer);
         // create the parser attached to the token buffer
@@ -116,11 +153,33 @@ public class ProblemLoader {
         DafnyParser.program_return result = parser.program();
         // pull out the tree and cast it
         DafnyTree t = result.getTree();
+        return t;
+    }
+
+    /**
+     * Testmethod, will be removed
+     * @param t
+     * @throws Exception
+     */
+    private static void depr_buildAST(DafnyTree t) throws  Exception{
+
         System.out.println(t.toStringTree()); // print out the tree
 
         Symbex symbex = new Symbex();
 
         List<SymbexState> results = symbex.symbolicExecution(t);
+
+
+
+        //Ab hier ist der Code in CPO verschoben worden, muss noch herausgenommen werden, wenn GUI Elemente angepasst sind.
+        ProofCenter pcenter = ProofCenter.getInstance();
+        LinkedList<DafnyTree> instantiatedAssumptions;
+
+        LinkedList<PathConditionElement> typeCollectionPath;
+        LinkedList<PathConditionElement.AssertionType> typeCollectionState;
+        LinkedList<DafnyTree> assumptions;
+
+
         proofList = new LinkedList<ProofOld>();
 
         for (SymbexState res : results) {
@@ -176,30 +235,5 @@ public class ProblemLoader {
         }
     }
 
-    /**
-     * Read and Parse a File
-     * @param file
-     */
-    public static void readFile(File file) {
 
-        try {
-            FileInputStream inputStream = new FileInputStream(file);
-            parse(inputStream);
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-            System.out.println("Could not read file " + file.getAbsolutePath());
-        } catch (Exception e) {
-            e.printStackTrace();
-            System.out.println("Could not load problem");
-        }
-
-    }
-
-    public static void main(String[] args) throws Exception {
-        if(args.length == 0) {
-            parse(System.in);
-        } else {
-            parse(new FileInputStream(args[0]));
-        }
-    }
 }
