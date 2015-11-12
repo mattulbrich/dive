@@ -59,13 +59,110 @@ public class ProofVerificationCondition {
     public ProofVerificationCondition(SymbexState state, int siblingNo){
         this.siblingNo = siblingNo;
         this.state = state;
+        //initialize counter for the ProofFormulas in the PVC view
         this.idCounter= 1;
+        //symboltable for the PVC to translate DafnyTrees to Terms
+        this.method = state.getMethod();
         this.symbolTable = makeSymbolTable();
         this.termbuilder = new TreeTermTranslator(symbolTable);
-        from(state);
+
+        //create the ProofFormulas
+        proofFormulas = translate();
+        for (ProofFormula proofFormula : proofFormulas) {
+            System.out.println(proofFormula.toString());
+        }
+        //initialize history
         this.history = createHistory();
+
+        //create root node for proof tree for this PVC
         this.root = buildRoot();
 
+
+    }
+
+    /**
+     * Create a new ProofFormula and raise idCounter
+     * @param t
+     * @return
+     */
+    private ProofFormula makeProofFormula(Term t, String label){
+        ProofFormula new_Formula = new ProofFormula(this.idCounter, t, label);
+        idCounter++;
+        return new_Formula;
+    }
+
+    /**
+     * Quick and Dirty Solution to find label of tree, better have a more general solution independent of tree structure
+     * @param t
+     * @return
+     */
+    private String extractLabel(DafnyTree t){
+        String label = "";
+        if(t.getChild(0).getType()== DafnyParser.LABEL){
+            label = t.getChild(0).getChild(0).getText();
+        }
+
+        return label;
+    }
+    /**
+     * TODO Atm the variables are uninstantiated, need to change this
+     */
+    private List<ProofFormula> translate() {
+        List<ProofFormula> all_formulas = new ArrayList<>();
+
+        TreeTermTranslator ttt = new TreeTermTranslator(symbolTable);
+
+        for(PathConditionElement pce : state.getPathConditions()) {
+            VariableMap map = pce.getVariableMap();
+
+
+            DafnyTree instantiated_pathcondition = map.instantiate(pce.getExpression());
+
+//            Term formula = ttt.build(instantiated_pathcondition);
+            Term formula = ttt.build(pce.getExpression());
+            all_formulas.add(makeProofFormula(formula, extractLabel(pce.getExpression())));
+
+
+        }
+
+        DafnyTree proof_obligation = extractProofObligation(state.getProofObligations());
+        VariableMap map = this.state.getMap();
+
+
+        DafnyTree instantiated_proofobligation = map.instantiate(proof_obligation.getLastChild());
+
+//        Term proof_obligation_Term = ttt.build(instantiated_proofobligation);
+        Term proof_obligation_Term = ttt.build(proof_obligation.getLastChild());
+
+        all_formulas.add(makeProofFormula(TermBuilder.negate(proof_obligation_Term), extractLabel(proof_obligation)));
+
+//           // result.add(TermBuilder.negate(formula));
+//        }
+        return all_formulas;
+    }
+
+    /**
+     * In the future this method may return more than one proof obligation, depending on our decision
+     * @param proof_obligations
+     * @return
+     */
+    private DafnyTree extractProofObligation(ImmutableList<DafnyTree> proof_obligations) {
+        if(proof_obligations.size() < siblingNo){
+            System.out.println("Number of Proofobligation too small: "+proof_obligations.size());
+            return null;
+        }else{
+            Iterator<DafnyTree> iter = proof_obligations.iterator();
+            int tempIndex = 0;
+            while(iter.hasNext()){
+                if(tempIndex == siblingNo){
+                    return iter.next();
+                }else{
+                    iter.next();
+                    tempIndex++;
+                }
+            }
+            return null;
+        }
 
     }
 
@@ -135,7 +232,7 @@ public class ProofVerificationCondition {
 
         //hier siblingno
         for(DafnyTree po : symbexState.getProofObligations()) {
-            Term formula = ttt.build(po.getLastChild());
+            Term formula = ttt.build(state.getMap().instantiate(po));
             System.out.println(" Formula: "+formula.toString());
             result.add(TermBuilder.negate(formula));
         }

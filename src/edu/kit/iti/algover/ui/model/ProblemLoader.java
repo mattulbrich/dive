@@ -75,6 +75,7 @@ public class ProblemLoader {
         // create the lexer attached to stream
         DafnyLexer lexer = new DafnyLexer(input);
         ast = buildAST(lexer);
+        performSymbEx(ast);
         if(tempTest){
             depr_buildAST(ast);
         }
@@ -84,7 +85,7 @@ public class ProblemLoader {
      * Perform symbolic execution of a method and create ContractProofObligation
      * @param method
      */
-    public ContractProofObligation performSymbEx(DafnyTree method) throws IllegalStateException {
+    public static ContractProofObligation performSymbEx(DafnyTree method) throws IllegalStateException {
 
         Symbex symbex = new Symbex();
         List<SymbexState> results = symbex.symbolicExecution(method);

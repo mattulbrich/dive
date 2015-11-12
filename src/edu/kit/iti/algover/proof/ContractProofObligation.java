@@ -51,7 +51,7 @@ public class ContractProofObligation {
      */
     private void createPVC(List<SymbexState> symbex_states) {
         //maybe I don't need an observable list (atm not sure)
-        verification_conditions = new ImmutableObservableList<ProofVerificationCondition>();
+        verification_conditions = new LinkedList<ProofVerificationCondition>();
 
         //create a PVC for each PO of a Symbexstate
         for (SymbexState symbex_state : symbex_states) {
