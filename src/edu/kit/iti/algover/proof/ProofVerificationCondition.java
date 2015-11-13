@@ -239,17 +239,18 @@ public class ProofVerificationCondition {
     private void extendSymbolTable(DafnyTree instantiatedExpression) {
 
         int type = instantiatedExpression.getType();
-        if(type == DafnyParser.ALL || type == DafnyParser.EX){
-          //  symbolTable = symbolTable.addFunctionSymbol(new FunctionSymbol(instantiatedExpression.getChild(0).toStringTree(), ));
 
-            //Sort t = symbolTable.buildSort(instantiatedExpression.getChild(1));
-            System.out.println(instantiatedExpression.getChild(1).getType());
+        //if we have bound variables
+        if(type == DafnyParser.ALL || type == DafnyParser.EX){
+
+            Sort sort = treeToType(instantiatedExpression.getChild(1));
+            symbolTable = symbolTable.addFunctionSymbol(new FunctionSymbol(instantiatedExpression.getChild(0).toStringTree(), sort));
         }
         if(type == DafnyParser.ID && instantiatedExpression.getParent().getType() != DafnyParser.LABEL) {
             String name = instantiatedExpression.getText();
             FunctionSymbol symbol = symbolTable.getFunctionSymbol(name);
             if(symbol == null) {
-                // TODO what if no occurrence of #
+                //if we have variables that have a suffix
                 if(name.contains("#")) {
                     String baseName = name.substring(0, name.indexOf('#'));
                     symbol = symbolTable.getFunctionSymbol(baseName);
