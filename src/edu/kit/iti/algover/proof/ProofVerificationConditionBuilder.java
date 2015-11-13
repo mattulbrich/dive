@@ -6,6 +6,7 @@ import edu.kit.iti.algover.data.BuiltinSymbols;
 import edu.kit.iti.algover.data.IncrementalSymbolTable;
 import edu.kit.iti.algover.data.MapSymbolTable;
 import edu.kit.iti.algover.data.SymbolTable;
+import edu.kit.iti.algover.parser.DafnyException;
 import edu.kit.iti.algover.parser.DafnyParser;
 import edu.kit.iti.algover.parser.DafnyTree;
 import edu.kit.iti.algover.symbex.PathConditionElement;
@@ -20,10 +21,10 @@ import javax.xml.transform.sax.SAXSource;
 import java.util.*;
 
 /**
- * A ProofVerificationCondition contains all path conditions for a specific verification condition
+ * A ProofVerificationConditionBuilder contains all path conditions for a specific verification condition
  * Created by sarah on 10/7/15.
  */
-public class ProofVerificationCondition {
+public class ProofVerificationConditionBuilder {
 
     //Displayname, it has to be generated using the pathconditions
     private String Name;
@@ -33,7 +34,7 @@ public class ProofVerificationCondition {
     // symboltable will initially contain all variable declarations and built in symbols as function symbols
     private SymbolTable symbolTable;
 
-    private TreeTermTranslator termbuilder;
+
     private SymbexState state;
     private DafnyTree method;
 
@@ -70,11 +71,11 @@ public class ProofVerificationCondition {
     private LinkedList<PathConditionElement> pcs;
 
     /**
-     * Constructor for a ProofVerificationCondition
+     * Constructor for a ProofVerificationConditionBuilder
      * @param state
      * @param siblingNo
      */
-    public ProofVerificationCondition(SymbexState state, int siblingNo){
+    public ProofVerificationConditionBuilder(SymbexState state, int siblingNo){
         this.siblingNo = siblingNo;
         this.state = state;
         //initialize counter for the ProofFormulas in the PVC view
@@ -83,14 +84,9 @@ public class ProofVerificationCondition {
         this.method = state.getMethod();
         this.symbolTable = makeSymbolTable();
         extendSymbolTable();
-
-        this.termbuilder = new TreeTermTranslator(symbolTable);
-
         //create the ProofFormulas
         proofFormulas = translate();
-        for (ProofFormula proofFormula : proofFormulas) {
-            System.out.println(proofFormula.toString());
-        }
+
         //initialize history
         this.history = createHistory();
 
@@ -141,16 +137,12 @@ public class ProofVerificationCondition {
     private List<ProofFormula> translate() {
         List<ProofFormula> all_formulas = new ArrayList<>();
 
-        //TreeTermTranslator ttt = new TreeTermTranslator(symbolTable);
+        TreeTermTranslator termbuilder = new TreeTermTranslator(symbolTable);
 
         for(PathConditionElement pce : state.getPathConditions()) {
             VariableMap map = pce.getVariableMap();
-
-
             DafnyTree instantiated_pathcondition = map.instantiate(pce.getExpression());
-
             Term formula = termbuilder.build(instantiated_pathcondition);
-//            Term formula = termbuilder.build(pce.getExpression());
             all_formulas.add(makeProofFormula(formula, extractLabel(instantiated_pathcondition)));
 
 
@@ -158,12 +150,9 @@ public class ProofVerificationCondition {
 
         DafnyTree proof_obligation = extractProofObligation(state.getProofObligations());
         VariableMap map = this.state.getMap();
-
-
         DafnyTree instantiated_proofobligation = map.instantiate(proof_obligation.getLastChild());
-        System.out.println("Ins: "+ instantiated_proofobligation.toStringTree());
-          Term proof_obligation_Term = termbuilder.build(instantiated_proofobligation);
-        //Term proof_obligation_Term = termbuilder.build(proof_obligation.getLastChild());
+        Term proof_obligation_Term = termbuilder.build(instantiated_proofobligation);
+
 
         //TODO Remove negation: negation should only be done for Z3 solver
         all_formulas.add(makeProofFormula(proof_obligation_Term, extractLabel(instantiated_proofobligation)));
@@ -259,8 +248,7 @@ public class ProofVerificationCondition {
                     }
                     symbolTable = symbolTable.addFunctionSymbol(new FunctionSymbol(name, symbol.getResultSort(), symbol.getArgumentSorts()));
                 }else{
-                    System.out.println("Cannot create new Symbol yet: "+name.toString());
-                    //symbolTable = symbolTable.addFunctionSymbol(new FunctionSymbol(name, instantiatedExpression.getType(), symbol.getArgumentSorts()));
+                    throw new RuntimeException("Unknown symbol "+name);
                 }
             }
         }
@@ -319,29 +307,7 @@ public class ProofVerificationCondition {
 
 
 
-//    /**
-//     * Takes the Symbolic Execution state and transforms it to a verification condition.
-//     * What happens if condition has more than one post condition formula?
-//     * Here for each POST a pvc has to be created. Where should that be handeled?
-//     */
-//    public void buildPVC(){
-//        for (DafnyTree assumption : assumptions) {
-//            ProofFormula form = new ProofFormula(idCounter,termbuilder.build(assumption), "");
-//            idCounter++;
-//            System.out.println("Created Terms:"+form.toString() );
-//        }
-//       // for(PathConditionElement pce : pcs) {
-//        //    Term formula = termbuilder.build(pce.getExpression());
-//         //   System.out.println("Path: "+formula.toString());
-//        //}
-//        for (DafnyTree dafnyTree : toShow) {
-//            ProofFormula form = new ProofFormula(idCounter,termbuilder.build(dafnyTree), "");
-//            System.out.println("Created Terms:"+form.toString() );
-//            idCounter++;
-//        }
-//
-//
-//    }
+
 
     /**
      * Old, will be removed
@@ -351,15 +317,15 @@ public class ProofVerificationCondition {
      * @param state
      * @param method
      */
-    public ProofVerificationCondition(LinkedList<PathConditionElement> pcs, LinkedList<DafnyTree> assumptions, LinkedList<DafnyTree> toShow, SymbexState state,
-                                      DafnyTree method) {
+    public ProofVerificationConditionBuilder(LinkedList<PathConditionElement> pcs, LinkedList<DafnyTree> assumptions, LinkedList<DafnyTree> toShow, SymbexState state,
+                                             DafnyTree method) {
         this.assumptions = assumptions;
         this.toShow = toShow;
         this.state = state;
         this.pcs = pcs;
         this.method=method;
         this.symbolTable = makeSymbolTable();
-        this.termbuilder = new TreeTermTranslator(symbolTable);
+       // this.termbuilder = new TreeTermTranslator(symbolTable);
 
         idCounter= 1;
         from(state);

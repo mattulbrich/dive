@@ -1,8 +1,6 @@
 package edu.kit.iti.algover.proof;
 
-import com.sun.javafx.collections.ImmutableObservableList;
 import edu.kit.iti.algover.ProofCenter;
-import edu.kit.iti.algover.ProofOld;
 import edu.kit.iti.algover.parser.DafnyTree;
 import edu.kit.iti.algover.symbex.PathConditionElement;
 import edu.kit.iti.algover.symbex.SymbexState;
@@ -11,11 +9,11 @@ import java.util.LinkedList;
 import java.util.List;
 
 /**
- * This class handles the transformation of the symbolic execution states into ProofVerificationCondition
+ * This class handles the transformation of the symbolic execution states into ProofVerificationConditionBuilder
  * Created by sarah on 10/23/15.
  */
 public class ContractProofObligation {
-    private List<ProofVerificationCondition> verification_conditions;
+    private List<ProofVerificationConditionBuilder> verification_conditions;
     public DafnyTree method;
 
     ProofCenter pcenter;
@@ -37,21 +35,21 @@ public class ContractProofObligation {
      * the instantiated proof obligation (represented as sibling no)
      * @param state
      * @param sibling_no
-     * @return a new ProofVerificationCondition
+     * @return a new ProofVerificationConditionBuilder
      */
-    private ProofVerificationCondition makeSinglePVC(SymbexState state, int sibling_no){
+    private ProofVerificationConditionBuilder makeSinglePVC(SymbexState state, int sibling_no){
 
-        return new ProofVerificationCondition(state, sibling_no);
+        return new ProofVerificationConditionBuilder(state, sibling_no);
     }
 
     /**
-     * This method iterates over all symbolic execution states and creates a ProofVerificationCondition for each
-     * Condition and ProofObligation. The method adds each ProofVerificationCondition to the List of verification conditions
+     * This method iterates over all symbolic execution states and creates a ProofVerificationConditionBuilder for each
+     * Condition and ProofObligation. The method adds each ProofVerificationConditionBuilder to the List of verification conditions
      * @param symbex_states
      */
     private void createPVC(List<SymbexState> symbex_states) {
 
-        verification_conditions = new LinkedList<ProofVerificationCondition>();
+        verification_conditions = new LinkedList<ProofVerificationConditionBuilder>();
 
         //create a PVC for each PO of a Symbexstate
         for (SymbexState symbex_state : symbex_states) {

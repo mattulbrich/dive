@@ -1,6 +1,6 @@
 package edu.kit.iti.algover;
 
-import edu.kit.iti.algover.proof.ProofVerificationCondition;
+import edu.kit.iti.algover.proof.ProofVerificationConditionBuilder;
 import edu.kit.iti.algover.parser.DafnyTree;
 import edu.kit.iti.algover.symbex.PathConditionElement;
 import edu.kit.iti.algover.symbex.SymbexState;
@@ -87,7 +87,7 @@ public class ProofOld {
 
 
     public String proofToString(){
-        ProofVerificationCondition pvc = new ProofVerificationCondition(collected, assumptions,toShow, state, state.getMethod());
+        ProofVerificationConditionBuilder pvc = new ProofVerificationConditionBuilder(collected, assumptions,toShow, state, state.getMethod());
         String po = "";
         for (DafnyTree assumption : assumptions) {
             po+= assumption.toStringTree() +",\n";
