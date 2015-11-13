@@ -86,7 +86,9 @@ public class ProofVerificationConditionBuilder {
         extendSymbolTable();
         //create the ProofFormulas
         proofFormulas = translate();
-
+        for (ProofFormula proofFormula : proofFormulas) {
+            System.out.println(proofFormula.toString());
+        }
         //initialize history
         this.history = createHistory();
 
@@ -132,7 +134,7 @@ public class ProofVerificationConditionBuilder {
         return label;
     }
     /**
-     * TODO Atm the variables are uninstantiated, need to change this
+     *
      */
     private List<ProofFormula> translate() {
         List<ProofFormula> all_formulas = new ArrayList<>();
@@ -230,25 +232,23 @@ public class ProofVerificationConditionBuilder {
         int type = instantiatedExpression.getType();
 
         //if we have bound variables
-        if(type == DafnyParser.ALL || type == DafnyParser.EX){
-
-            Sort sort = treeToType(instantiatedExpression.getChild(1));
-            symbolTable = symbolTable.addFunctionSymbol(new FunctionSymbol(instantiatedExpression.getChild(0).toStringTree(), sort));
-        }
+//        if(type == DafnyParser.ALL || type == DafnyParser.EX){
+//
+//            Sort sort = treeToType(instantiatedExpression.getChild(1));
+//            symbolTable = symbolTable.addFunctionSymbol(new FunctionSymbol(instantiatedExpression.getChild(0).toStringTree(), sort));
+//        }
         if(type == DafnyParser.ID && instantiatedExpression.getParent().getType() != DafnyParser.LABEL) {
             String name = instantiatedExpression.getText();
-            FunctionSymbol symbol = symbolTable.getFunctionSymbol(name);
-            if(symbol == null) {
-                //if we have variables that have a suffix
-                if(name.contains("#")) {
+            if(name.contains("#")) {
+                FunctionSymbol symbol = symbolTable.getFunctionSymbol(name);
+                if(symbol == null) {
+                    // if we have variables that have a suffix
                     String baseName = name.substring(0, name.indexOf('#'));
                     symbol = symbolTable.getFunctionSymbol(baseName);
                     if (symbol == null) {
                         throw new RuntimeException("Unknown base symbol " + baseName + " for " + name /*, instantiatedExperession*/);
                     }
                     symbolTable = symbolTable.addFunctionSymbol(new FunctionSymbol(name, symbol.getResultSort(), symbol.getArgumentSorts()));
-                }else{
-                    throw new RuntimeException("Unknown symbol "+name);
                 }
             }
         }
