@@ -36,12 +36,30 @@ public class ProofVerificationCondition {
     private TreeTermTranslator termbuilder;
     private SymbexState state;
     private DafnyTree method;
+
+    /**
+     * Returns current counter for a Proof Verification Condition
+     * @return
+     */
+    public int getIdCounter() {
+        return idCounter;
+    }
+
+    /**
+     * Sets the counter for the ProofFormulas. Has to be increased every time a new ProofFormula for this PVC will be created
+     * TODO Make sure the proofCenter knows about teh counter
+     * @param idCounter
+     */
+    public void setIdCounter(int idCounter) {
+        this.idCounter = idCounter;
+    }
+
     //possible only one element
     //counter for the ids of ProofFormulas, needs to be read by rules in order to create new PF with appropriate ids
     private int idCounter;
     private ProofNode root;
     private ProofHistory history;
-    //no to retriev the right proof obligation (beware it starts counting by 0)
+    //no to retrieve the right proof obligation (beware it starts counting by 0)
     private int siblingNo;
 
 
@@ -64,6 +82,8 @@ public class ProofVerificationCondition {
         //symboltable for the PVC to translate DafnyTrees to Terms
         this.method = state.getMethod();
         this.symbolTable = makeSymbolTable();
+        extendSymbolTable();
+
         this.termbuilder = new TreeTermTranslator(symbolTable);
 
         //create the ProofFormulas
@@ -78,6 +98,17 @@ public class ProofVerificationCondition {
         this.root = buildRoot();
 
 
+    }
+
+    private void extendSymbolTable() {
+        for(PathConditionElement pce : state.getPathConditions()) {
+            extendSymbolTable(pce.getInstantiatedExpression());
+        }
+        for (DafnyTree po : state.getProofObligations()) {
+            DafnyTree instantiate = state.getMap().instantiate(po);
+            System.out.println(instantiate.toStringTree());
+            extendSymbolTable(instantiate);
+        }
     }
 
     /**
@@ -110,7 +141,7 @@ public class ProofVerificationCondition {
     private List<ProofFormula> translate() {
         List<ProofFormula> all_formulas = new ArrayList<>();
 
-        TreeTermTranslator ttt = new TreeTermTranslator(symbolTable);
+        //TreeTermTranslator ttt = new TreeTermTranslator(symbolTable);
 
         for(PathConditionElement pce : state.getPathConditions()) {
             VariableMap map = pce.getVariableMap();
@@ -118,9 +149,9 @@ public class ProofVerificationCondition {
 
             DafnyTree instantiated_pathcondition = map.instantiate(pce.getExpression());
 
-//            Term formula = ttt.build(instantiated_pathcondition);
-            Term formula = ttt.build(pce.getExpression());
-            all_formulas.add(makeProofFormula(formula, extractLabel(pce.getExpression())));
+            Term formula = termbuilder.build(instantiated_pathcondition);
+//            Term formula = termbuilder.build(pce.getExpression());
+            all_formulas.add(makeProofFormula(formula, extractLabel(instantiated_pathcondition)));
 
 
         }
@@ -130,14 +161,15 @@ public class ProofVerificationCondition {
 
 
         DafnyTree instantiated_proofobligation = map.instantiate(proof_obligation.getLastChild());
+        System.out.println("Ins: "+ instantiated_proofobligation.toStringTree());
+          Term proof_obligation_Term = termbuilder.build(instantiated_proofobligation);
+        //Term proof_obligation_Term = termbuilder.build(proof_obligation.getLastChild());
 
-//        Term proof_obligation_Term = ttt.build(instantiated_proofobligation);
-        Term proof_obligation_Term = ttt.build(proof_obligation.getLastChild());
+        //TODO Remove negation: negation should only be done for Z3 solver
+        all_formulas.add(makeProofFormula(proof_obligation_Term, extractLabel(instantiated_proofobligation)));
 
-        all_formulas.add(makeProofFormula(TermBuilder.negate(proof_obligation_Term), extractLabel(proof_obligation)));
-
-//           // result.add(TermBuilder.negate(formula));
-//        }
+//       result.add(TermBuilder.negate(formula));
+//       }
         return all_formulas;
     }
 
@@ -204,6 +236,44 @@ public class ProofVerificationCondition {
         return st;
     }
 
+    private void extendSymbolTable(DafnyTree instantiatedExpression) {
+
+        int type = instantiatedExpression.getType();
+        if(type == DafnyParser.ALL || type == DafnyParser.EX){
+          //  symbolTable = symbolTable.addFunctionSymbol(new FunctionSymbol(instantiatedExpression.getChild(0).toStringTree(), ));
+
+            //Sort t = symbolTable.buildSort(instantiatedExpression.getChild(1));
+            System.out.println(instantiatedExpression.getChild(1).getType());
+        }
+        if(type == DafnyParser.ID && instantiatedExpression.getParent().getType() != DafnyParser.LABEL) {
+            String name = instantiatedExpression.getText();
+            FunctionSymbol symbol = symbolTable.getFunctionSymbol(name);
+            if(symbol == null) {
+                // TODO what if no occurrence of #
+                if(name.contains("#")) {
+                    String baseName = name.substring(0, name.indexOf('#'));
+                    symbol = symbolTable.getFunctionSymbol(baseName);
+                    if (symbol == null) {
+                        throw new RuntimeException("Unknown base symbol " + baseName + " for " + name /*, instantiatedExperession*/);
+                    }
+                    symbolTable = symbolTable.addFunctionSymbol(new FunctionSymbol(name, symbol.getResultSort(), symbol.getArgumentSorts()));
+                }else{
+                    System.out.println("Cannot create new Symbol yet: "+name.toString());
+                    //symbolTable = symbolTable.addFunctionSymbol(new FunctionSymbol(name, instantiatedExpression.getType(), symbol.getArgumentSorts()));
+                }
+            }
+        }
+
+
+        List<DafnyTree> children = instantiatedExpression.getChildren();
+        if(children != null) {
+            for (DafnyTree child : children) {
+                extendSymbolTable(child);
+            }
+        }
+
+    }
+
     public static Sort treeToType(DafnyTree tree) {
         String name = tree.toString();
         if("array".equals(name)) {
@@ -248,29 +318,29 @@ public class ProofVerificationCondition {
 
 
 
-    /**
-     * Takes the Symbolic Execution state and transforms it to a verification condition.
-     * What happens if condition has more than one post condition formula?
-     * Here for each POST a pvc has to be created. Where should that be handeled?
-     */
-    public void buildPVC(){
-        for (DafnyTree assumption : assumptions) {
-            ProofFormula form = new ProofFormula(idCounter,termbuilder.build(assumption), "");
-            idCounter++;
-            System.out.println("Created Terms:"+form.toString() );
-        }
-       // for(PathConditionElement pce : pcs) {
-        //    Term formula = termbuilder.build(pce.getExpression());
-         //   System.out.println("Path: "+formula.toString());
-        //}
-        for (DafnyTree dafnyTree : toShow) {
-            ProofFormula form = new ProofFormula(idCounter,termbuilder.build(dafnyTree), "");
-            System.out.println("Created Terms:"+form.toString() );
-            idCounter++;
-        }
-
-
-    }
+//    /**
+//     * Takes the Symbolic Execution state and transforms it to a verification condition.
+//     * What happens if condition has more than one post condition formula?
+//     * Here for each POST a pvc has to be created. Where should that be handeled?
+//     */
+//    public void buildPVC(){
+//        for (DafnyTree assumption : assumptions) {
+//            ProofFormula form = new ProofFormula(idCounter,termbuilder.build(assumption), "");
+//            idCounter++;
+//            System.out.println("Created Terms:"+form.toString() );
+//        }
+//       // for(PathConditionElement pce : pcs) {
+//        //    Term formula = termbuilder.build(pce.getExpression());
+//         //   System.out.println("Path: "+formula.toString());
+//        //}
+//        for (DafnyTree dafnyTree : toShow) {
+//            ProofFormula form = new ProofFormula(idCounter,termbuilder.build(dafnyTree), "");
+//            System.out.println("Created Terms:"+form.toString() );
+//            idCounter++;
+//        }
+//
+//
+//    }
 
     /**
      * Old, will be removed

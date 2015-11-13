@@ -10,6 +10,7 @@ import java.util.List;
 import edu.kit.iti.algover.SymbexStateToFormula;
 import edu.kit.iti.algover.data.BuiltinSymbols;
 import edu.kit.iti.algover.data.SymbolTable;
+import edu.kit.iti.algover.parser.DafnyException;
 import edu.kit.iti.algover.parser.DafnyParser;
 import edu.kit.iti.algover.parser.DafnyTree;
 import edu.kit.iti.algover.term.ApplTerm;
@@ -64,8 +65,10 @@ public class TreeTermTranslator {
             return buildEquality(tree);
 
         case DafnyParser.ID:
+
         case DafnyParser.LIT:
             return buildIdentifier(tree);
+        case DafnyParser.LABEL:
 
         case DafnyParser.ALL:
             return buildQuantifier(QuantTerm.Quantifier.FORALL, tree);
@@ -156,6 +159,12 @@ public class TreeTermTranslator {
         }
 
         FunctionSymbol fct = symbolTable.getFunctionSymbol(name);
+        if(fct == null) {
+            throw new RuntimeException("Unknown function symbol: " + name);
+            // throw new DafnyException("Unknown function symbol: " + name, tree);
+        }
+
+
         return new ApplTerm(fct);
     }
 

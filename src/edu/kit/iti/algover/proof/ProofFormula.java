@@ -24,6 +24,11 @@ public class ProofFormula {
         label += "," + s;
     }
     public String toString(){
-        return id+"["+label+"]: "+formula.toString();
+        if (label !=""){
+
+            return id+"["+label+"]: "+formula.toString();
+        }else{
+            return id+ ": "+formula.toString();
+        }
     }
 }

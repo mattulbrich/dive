@@ -50,7 +50,7 @@ public class ContractProofObligation {
      * @param symbex_states
      */
     private void createPVC(List<SymbexState> symbex_states) {
-        //maybe I don't need an observable list (atm not sure)
+
         verification_conditions = new LinkedList<ProofVerificationCondition>();
 
         //create a PVC for each PO of a Symbexstate
@@ -66,7 +66,7 @@ public class ContractProofObligation {
 
 
 
-
+//has to be removed later on
 
         for (SymbexState res : symbex_states) {
 
@@ -85,12 +85,10 @@ public class ContractProofObligation {
                 System.out.println("  Test Line: " + pc.getExpression());
             }
 
-
             System.out.println("Proof Obligations - " + res.getProofObligationType());
             for (DafnyTree po : res.getProofObligations()) {
                 System.out.println("  " + po.toStringTree());
             }
-
 
             System.out.println("  Assignment History:");
             System.out.println("    " + res.getMap().toHistoryString().replace("\n", "\n    "));
