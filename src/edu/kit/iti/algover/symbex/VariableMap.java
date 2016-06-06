@@ -72,7 +72,11 @@ public class VariableMap {
     private DafnyTree instantiate0(DafnyTree expression, ImmutableList<String> exceptions) {
 
         int type = expression.getType();
+        //no replacement for labels
+        if(type == DafnyParser.LABEL){
+            return expression;
 
+        }
         if(type == DafnyParser.ID) {
             String name = expression.toString();
             if(exceptions.contains(name)) {

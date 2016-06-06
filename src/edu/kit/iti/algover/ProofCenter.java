@@ -2,6 +2,7 @@ package edu.kit.iti.algover;
 
 import edu.kit.iti.algover.parser.DafnyTree;
 import edu.kit.iti.algover.symbex.PathConditionElement;
+import edu.kit.iti.algover.symbex.SymbexState;
 
 import java.io.File;
 import java.util.LinkedList;
@@ -14,7 +15,7 @@ public class ProofCenter  {
 
    //list of all ProofOld obligations for one problemfile
    private LinkedList<ProofOld> ProofOlds = new LinkedList<>();
-
+    private SymbexState state;
     public LinkedList<ProofOld> getProofOlds() {
         return ProofOlds;
     }
@@ -71,31 +72,32 @@ public class ProofCenter  {
             ProofOlds.add(p);
         }else {
             for (ProofOld ProofOld : ProofOlds) {
-                System.out.println("Checking: " + ProofOld.getName());
+                //System.out.println("Checking: " + ProofOld.getName());
                 if (p.getName().equals(ProofOld.getName())) {
                     conflict = true;
-                    System.out.println("Conflicting names :" + p.getName() + "-----" + ProofOld.getName());
+                 //   System.out.println("Conflicting names :" + p.getName() + "-----" + ProofOld.getName());
                     break;
                 }
             }
             if (conflict) {
                 int id = p.getId();
                 id = id+1;
-                System.out.println("New ID"+id);
-                ProofOld newProofOld = createProofOldObject(p.getAssumptions(), p.getToShow(), p.getCollected(), p.getCollected2(), id);
-                System.out.println("New Name: " + newProofOld.getName());
+               // System.out.println("New ID"+id);
+                ProofOld newProofOld = createProofOldObject(this.state, p.getAssumptions(), p.getToShow(), p.getCollected(), p.getCollected2(), id);
+               // System.out.println("New Name: " + newProofOld.getName());
                 insertProofOld(newProofOld);
 
             }else{
                 ProofOlds.add(p);
-                System.out.println("Added");
+                //System.out.println("Added");
             }
         }
     }
-    public ProofOld createProofOldObject(LinkedList<DafnyTree> ass, LinkedList<DafnyTree> show,
+    public ProofOld createProofOldObject(SymbexState state, LinkedList<DafnyTree> ass, LinkedList<DafnyTree> show,
                  LinkedList<PathConditionElement> collected, LinkedList<PathConditionElement.AssertionType> collected2, int id){
-        ProofOld nProofOld = new ProofOld(ass,show,collected,collected2,id);
-        System.out.println("NewCall"+ nProofOld.getName());
+        this.state = state;
+        ProofOld nProofOld = new ProofOld(state, ass,show,collected,collected2,id);
+        //System.out.println("NewCall"+ nProofOld.getName());
         return nProofOld;
 
     }

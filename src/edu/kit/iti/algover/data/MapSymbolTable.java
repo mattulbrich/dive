@@ -93,10 +93,6 @@ public class MapSymbolTable implements SymbolTable {
             result = parentTable.getFunctionSymbol(name);
         }
 
-        if(result == null) {
-            throw new RuntimeException("The function symbol " + name + " cannot be found");
-        }
-
         return result;
     }
 
