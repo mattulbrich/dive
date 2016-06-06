@@ -67,6 +67,8 @@ public class SymbexStateToFormula {
             result.add(formula);
         }
 
+        assert symbexState.getProofObligations().size() == 1;
+
         for(DafnyTree po : symbexState.getProofObligations()) {
             Term formula = ttt.build(po.getLastChild());
             result.add(TermBuilder.negate(formula));

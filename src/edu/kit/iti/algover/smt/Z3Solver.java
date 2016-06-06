@@ -43,7 +43,7 @@ public class Z3Solver {
         String result;
         try(InputStream is = Z3Solver.class.getResourceAsStream("preamble.smt2")) {
             result = Util.streamToString(is);
-        } catch (IOException e) {
+        } catch (Exception e) {
             e.printStackTrace();
             result = "; MISSING PREAMBLE\n";
         }
@@ -107,6 +107,7 @@ public class Z3Solver {
             BufferedReader br = new BufferedReader(new InputStreamReader(in));
             String line;
             while((line = br.readLine()) != null) {
+//                System.err.println("Z3: " + line);
                 switch(line) {
                 case "unsat":
                     return Result.UNSAT;

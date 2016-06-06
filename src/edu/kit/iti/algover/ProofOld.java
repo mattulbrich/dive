@@ -1,3 +1,8 @@
+/*
+ * This file is part of AlgoVer.
+ *
+ * Copyright (C) 2015 Karlsruhe Institute of Technology
+ */
 package edu.kit.iti.algover;
 
 import edu.kit.iti.algover.proof.ProofVerificationConditionBuilder;
@@ -74,6 +79,7 @@ public class ProofOld {
         //label fehlt noch id muss dann ersetzt werden
         String name = "";
 
+        // TODO consider SymbexState#getPathIdentifier (MU)
 
         for (PathConditionElement pathConditionElement : collected) {
             name+=pathConditionElement.getType()+"\\";

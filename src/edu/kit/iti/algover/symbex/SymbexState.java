@@ -1,9 +1,21 @@
+/*
+ * This file is part of AlgoVer.
+ *
+ * Copyright (C) 2015 Karlsruhe Institute of Technology
+ */
 package edu.kit.iti.algover.symbex;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 import edu.kit.iti.algover.parser.DafnyTree;
 import edu.kit.iti.algover.symbex.PathConditionElement.AssertionType;
+import edu.kit.iti.algover.symbex.PathConditionElement.AssumptionType;
 import edu.kit.iti.algover.util.ImmutableList;
+import edu.kit.iti.algover.util.Util;
 
+// TODO: Auto-generated Javadoc
 /**
  * This class captures intermediate and terminal states of symbolic execution.
  *
@@ -209,6 +221,54 @@ public class SymbexState {
      */
     public ImmutableList<DafnyTree> getProofObligations() {
         return proofObligations;
+    }
+
+
+    /**
+     * Gets the unique path identifier which enumerates all decisions made on
+     * the path.
+     *
+     * @return the path identifier
+     */
+    public String getPathIdentifier() {
+        StringBuilder result = new StringBuilder();
+        for (PathConditionElement pce : pathConditions.reverse()) {
+            AssumptionType type = pce.getType();
+            switch(type) {
+            case IF_ELSE:
+            case IF_THEN:
+            case WHILE_FALSE:
+            case WHILE_TRUE:
+                result.append(type.toString()).append("/");
+            }
+        }
+        result.append(getProofObligationType().toString());
+        if(proofObligations.size() > 1) {
+            result.append("[+]");
+        } else {
+            result.append("[label]");
+        }
+        return result.toString();
+    }
+
+    /**
+     * Split a symbex state with more than one proof obligation into several
+     * objects.
+     *
+     * @return a freshly (possibly immutable) list of symbex states.
+     */
+    public List<SymbexState> split() {
+        if(proofObligations.size() == 1) {
+            return Collections.singletonList(this);
+        } else {
+            ArrayList<SymbexState> result = new ArrayList<>();
+            for (DafnyTree proofObl : proofObligations) {
+                SymbexState child = new SymbexState(this);
+                child.setProofObligations(proofObl, proofObligationType);
+                result.add(child);
+            }
+            return result;
+        }
     }
 
 }

@@ -1,17 +1,21 @@
+/*
+ * This file is part of AlgoVer.
+ *
+ * Copyright (C) 2015 Karlsruhe Institute of Technology
+ */
 package edu.kit.iti.algover;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
-import java.util.HashMap;
+import java.util.Collection;
 import java.util.List;
 
 import org.antlr.runtime.ANTLRInputStream;
 import org.antlr.runtime.CommonTokenStream;
 import org.antlr.runtime.RecognitionException;
 
-import edu.kit.iti.algover.data.MapSymbolTable;
 import edu.kit.iti.algover.parser.DafnyLexer;
 import edu.kit.iti.algover.parser.DafnyParser;
 import edu.kit.iti.algover.parser.DafnyParser.program_return;
@@ -20,11 +24,12 @@ import edu.kit.iti.algover.smt.Z3Solver;
 import edu.kit.iti.algover.symbex.PathConditionElement;
 import edu.kit.iti.algover.symbex.Symbex;
 import edu.kit.iti.algover.symbex.SymbexState;
-import edu.kit.iti.algover.term.FunctionSymbol;
-import edu.kit.iti.algover.term.Sort;
+import edu.kit.iti.algover.term.Term;
 import edu.kit.iti.algover.util.Debug;
 
 public class Main {
+
+    private static boolean VERBOSE = true;
 
     private static void test(InputStream stream) throws Exception {
         // create the lexer attached to stream
@@ -54,39 +59,44 @@ public class Main {
 
         for (SymbexState res : symbexresult) {
             System.out.println("------------");
-            for (PathConditionElement pc : res.getPathConditions()) {
-  //              this.conditions.add(pc);
-                System.out.println("Path condition - " + pc.getType());
-                System.out.println("    " + pc.getExpression().toStringTree());
+            if(VERBOSE) {
+                for (PathConditionElement pc : res.getPathConditions()) {
+                    System.out.println("Path condition - " + pc.getType());
+                    System.out.println("    " + pc.getExpression().toStringTree());
+                    System.out.println("  Assignment History:");
+                    System.out.println("    " + pc.getVariableMap().toHistoryString().replace("\n", "\n    "));
+                    System.out.println("  Aggregated Variable Map: ");
+                    System.out.println("    " + pc.getVariableMap().toParallelAssignment());
+                    System.out.println("  Instantiated condition: ");
+                    System.out.println("    " + pc.getVariableMap().instantiate(pc.getExpression()).toStringTree());
+                    System.out.println("  Refers to: line " + pc.getExpression().token.getLine());
+                }
+                System.out.println("Proof Obligations - " + res.getProofObligationType());
+                for (DafnyTree po : res.getProofObligations()) {
+                    System.out.println("  " + po.toStringTree());
+                }
                 System.out.println("  Assignment History:");
-                System.out.println("    " + pc.getVariableMap().toHistoryString().replace("\n", "\n    "));
+                System.out.println("    " + res.getMap().toHistoryString().replace("\n", "\n    "));
                 System.out.println("  Aggregated Variable Map: ");
-                System.out.println("    " + pc.getVariableMap().toParallelAssignment());
-                System.out.println("  Instantiated condition: ");
-                System.out.println("    " + pc.getVariableMap().instantiate(pc.getExpression()).toStringTree());
-                System.out.println("  Refers to: line " + pc.getExpression().token.getLine());
-            }
-            System.out.println("Proof Obligations - " + res.getProofObligationType());
-            for (DafnyTree po : res.getProofObligations()) {
-                System.out.println("  " + po.toStringTree());
-            }
-            System.out.println("  Assignment History:");
-            System.out.println("    " + res.getMap().toHistoryString().replace("\n", "\n    "));
-            System.out.println("  Aggregated Variable Map: ");
-            System.out.println("    " + res.getMap().toParallelAssignment());
-            System.out.println("  Instantiated POs: ");
-            for (DafnyTree po : res.getProofObligations()) {
-                System.out.println("    " + res.getMap().instantiate(po).toStringTree());
+                System.out.println("    " + res.getMap().toParallelAssignment());
+                System.out.println("  Instantiated POs: ");
+                for (DafnyTree po : res.getProofObligations()) {
+                    System.out.println("    " + res.getMap().instantiate(po).toStringTree());
+                }
             }
 
             SymbexStateToFormula magic = new SymbexStateToFormula(t);
-
             Z3Solver z3 = new Z3Solver(magic.getSymbolTable());
-            String smt = z3.createSMTInput(magic.from(res));
-            System.out.println(Debug.prettyPrint(smt));
-            System.out.println(smt);
 
-            System.out.println(z3.solve(magic.from(res)));
+            for (SymbexState single : res.split()) {
+                System.out.println(single.getPathIdentifier());
+                Collection<Term> formulae = magic.from(single);
+                if(VERBOSE) {
+                    String smt = z3.createSMTInput(formulae);
+                    System.out.println(smt);
+                }
+                System.out.println(z3.solve(formulae));
+            }
         }
 
     }

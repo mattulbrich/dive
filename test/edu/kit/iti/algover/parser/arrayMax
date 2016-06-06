@@ -4,11 +4,12 @@ method max(a : array<int>, n: int) returns (m : int)
   ensures label witness: (exists i:int :: 0 <= i && i < n && a[m] == a[i])
   decreases 0
 {
-  assert n == a.Length;
+//  assert n == a.Length;
 
   var i:int := 0;
   label mainLoop: while i < n
-    invariant label greater: (forall j:int :: 0 <= j && i < i ==> a[m] > a[j])
+    invariant label inbounds: 0 <= i && i <= n
+    invariant label greater: (forall j:int :: 0 <= j && j < i ==> a[m] >= a[j])
     invariant label witness: (exists j:int :: 0 <= j && j < i && a[m] == a[j])
     decreases n - i
   {

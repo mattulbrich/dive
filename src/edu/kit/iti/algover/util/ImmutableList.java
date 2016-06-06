@@ -1,3 +1,8 @@
+/*
+ * This file is part of AlgoVer.
+ *
+ * Copyright (C) 2015 Karlsruhe Institute of Technology
+ */
 package edu.kit.iti.algover.util;
 
 import java.util.AbstractCollection;
@@ -157,7 +162,7 @@ public class ImmutableList<T> implements Iterable<T> {
         return result.reverse();
     }
 
-    private ImmutableList<T> reverse() {
+    public ImmutableList<T> reverse() {
         ImmutableList<T> result = nil();
         for (T t : this) {
             result = result.prepend(t);
