@@ -1,3 +1,8 @@
+/*
+ * This file is part of AlgoVer.
+ *
+ * Copyright (C) 2015 Karlsruhe Institute of Technology
+ */
 package edu.kit.iti.algover.symbex;
 
 import static org.junit.Assert.*;
@@ -27,7 +32,7 @@ public class SymbexTest {
     private DafnyTree tree;
 
     private static final DafnyTree SOME_PROGRAM =
-            new DafnyTree(new CommonToken(-1, "SOME PROGRAM"));
+            new DafnyTree(new CommonToken(-1, "SOME_PROGRAM"));
 
     @Before
     public void loadTree() throws Exception {
@@ -126,7 +131,7 @@ public class SymbexTest {
     // revealed a bug
     @Test
     public void testHandleVarDecl2() {
-        DafnyTree decl = tree.getLastChild().getChild(8);
+        DafnyTree decl = tree.getLastChild().getChild(9);
         assertEquals(DafnyParser.VAR, decl.getType());
 
         Symbex symbex = new Symbex();
@@ -221,5 +226,91 @@ public class SymbexTest {
     @Test
     public void testHandleWhileAnonymisation() {
         fail("to do");
+    }
+
+    @Test
+    public void testHandleIf() {
+        DafnyTree decl = tree.getLastChild().getChild(7);
+        assertEquals(DafnyParser.IF, decl.getType());
+
+        Symbex symbex = new Symbex();
+        Deque<SymbexState> stack = new LinkedList<SymbexState>();
+        List<SymbexState> results = new ArrayList<SymbexState>();
+        SymbexState state = new SymbexState(tree);
+        symbex.handleIf(stack, state, decl, SOME_PROGRAM);
+
+        assertEquals(2, stack.size());
+        assertEquals(0, results.size());
+
+        SymbexState next = stack.pop();
+        assertEquals("(BLOCK (:= count 3) SOME_PROGRAM)", next.getBlockToExecute().toStringTree());
+        assertEquals(1, next.getPathConditions().size());
+        for (PathConditionElement pce : next.getPathConditions()) {
+            assertEquals(PathConditionElement.AssumptionType.IF_ELSE, pce.getType());
+            assertEquals("(not (> p 0))", pce.getExpression().toStringTree());
+        }
+
+        next = stack.pop();
+        assertEquals("(BLOCK (:= count 2) SOME_PROGRAM)", next.getBlockToExecute().toStringTree());
+        assertEquals(1, next.getPathConditions().size());
+        for (PathConditionElement pce : next.getPathConditions()) {
+            assertEquals(PathConditionElement.AssumptionType.IF_THEN, pce.getType());
+            assertEquals("(> p 0)", pce.getExpression().toStringTree());
+        }
+    }
+
+    // Revealed a bug
+    @Test
+    public void testHandleIfNoElse() {
+        DafnyTree decl = tree.getLastChild().getChild(10);
+        assertEquals(DafnyParser.IF, decl.getType());
+
+        Symbex symbex = new Symbex();
+        Deque<SymbexState> stack = new LinkedList<SymbexState>();
+        List<SymbexState> results = new ArrayList<SymbexState>();
+        SymbexState state = new SymbexState(tree);
+        symbex.handleIf(stack, state, decl, SOME_PROGRAM);
+
+        assertEquals(2, stack.size());
+        assertEquals(0, results.size());
+
+        SymbexState next = stack.pop();
+        assertEquals("SOME_PROGRAM", next.getBlockToExecute().toStringTree());
+        assertEquals(1, next.getPathConditions().size());
+        for (PathConditionElement pce : next.getPathConditions()) {
+            assertEquals(PathConditionElement.AssumptionType.IF_ELSE, pce.getType());
+            assertEquals("(not (== p count))", pce.getExpression().toStringTree());
+        }
+
+        next = stack.pop();
+        assertEquals("(BLOCK (:= count (- count)) SOME_PROGRAM)", next.getBlockToExecute().toStringTree());
+        assertEquals(1, next.getPathConditions().size());
+        for (PathConditionElement pce : next.getPathConditions()) {
+            assertEquals(PathConditionElement.AssumptionType.IF_THEN, pce.getType());
+            assertEquals("(== p count)", pce.getExpression().toStringTree());
+        }
+    }
+
+    @Test
+    public void testHandleAssume() {
+        DafnyTree decl = tree.getLastChild().getChild(8);
+        assertEquals(DafnyParser.ASSUME, decl.getType());
+
+        Symbex symbex = new Symbex();
+        Deque<SymbexState> stack = new LinkedList<SymbexState>();
+        List<SymbexState> results = new ArrayList<SymbexState>();
+        SymbexState state = new SymbexState(tree);
+        symbex.handleAssume(stack, state, decl, SOME_PROGRAM);
+
+        assertEquals(1, stack.size());
+        assertEquals(0, results.size());
+
+        SymbexState next = stack.pop();
+        assertTrue(next.getBlockToExecute() == SOME_PROGRAM);
+        assertEquals(1, next.getPathConditions().size());
+        for (PathConditionElement pce : next.getPathConditions()) {
+            assertEquals(PathConditionElement.AssumptionType.EXPLICIT_ASSUMPTION, pce.getType());
+            assertEquals("(> count 0)", pce.getExpression().toStringTree());
+        }
     }
 }

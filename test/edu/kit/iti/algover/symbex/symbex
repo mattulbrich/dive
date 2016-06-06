@@ -28,6 +28,14 @@ method symbexTest(p : int)
     count := 3;
   }
 
+  assume count > 0;
+
   // direct initialisation
   var init_direct : int := 42;
+  
+  if p == count
+  {
+     count := - count;
+  }
+  // no else
 }

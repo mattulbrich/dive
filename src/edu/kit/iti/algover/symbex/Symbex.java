@@ -1,3 +1,8 @@
+/*
+ * This file is part of AlgoVer.
+ *
+ * Copyright (C) 2015 Karlsruhe Institute of Technology
+ */
 package edu.kit.iti.algover.symbex;
 import java.util.ArrayList;
 import java.util.Deque;
@@ -84,9 +89,9 @@ public class Symbex {
                     handleAssert(stack, results, state, stm, remainder);
                     break;
 
-//                case PseudoParser.ASSUME:
-//                    handleAssume(stack, results, state, stm, remainder);
-//                    break;
+                case DafnyParser.ASSUME:
+                    handleAssume(stack, state, stm, remainder);
+                    break;
 
                 default:
                     throw new UnsupportedOperationException("Unknown code: " + stm.getType());
@@ -111,30 +116,35 @@ public class Symbex {
         assertedState.setProofObligations(stm, AssertionType.ASSERT);
         results.add(assertedState);
         state.setBlockToExecute(remainder);
+        // TODO Add asserted condition as assumption
         stack.add(state);
     }
 
-//    /**
-//     * Handle an assume statement
-//     * This adds a hypothesis to the proof obligation
-//     * @param stack
-//     * @param results
-//     * @param state
-//     * @param stm
-//     * @param remainder
-//     */
-//    void handleAssume(Deque<SymbexState> stack,
-//            List<SymbexState> results, SymbexState state, PseudoTree stm,
-//            PseudoTree remainder){
+    /**
+     * Handle an assume statement
+     * This adds a hypothesis to the proof obligation
+     * @param stack
+     * @param state
+     * @param stm
+     * @param remainder
+     */
+    void handleAssume(Deque<SymbexState> stack,
+            SymbexState state, DafnyTree stm,
+            DafnyTree remainder) {
+        SymbexState assumedState = new SymbexState(state);
+        assumedState.addPathCondition(new PathConditionElement(stm.getLastChild(),
+                stm, AssumptionType.EXPLICIT_ASSUMPTION, state.getMap()));
+        assumedState.setBlockToExecute(remainder);
+        stack.add(assumedState);
+    }
 
-//    }
     /*
      * Handle an if statement.
      *
      * Two new states are pushed onto the stack for each branch. Path condition
      * elements are added according to the decision expression.
      */
-    private void handleIf(Deque<SymbexState> stack, SymbexState state,
+    void handleIf(Deque<SymbexState> stack, SymbexState state,
             DafnyTree stm, DafnyTree remainder) {
         DafnyTree cond = stm.getChild(0);
         DafnyTree then = stm.getChild(1);
@@ -143,13 +153,15 @@ public class Symbex {
                 AssumptionType.IF_THEN, state.getMap()));
         state.setBlockToExecute(append(then, remainder));
         stack.push(state);
+        stateElse.addPathCondition(new PathConditionElement(ASTUtil.negate(cond), stm,
+                AssumptionType.IF_ELSE, state.getMap()));
         if(stm.getChildCount() == 3) {
-            stateElse.addPathCondition(new PathConditionElement(ASTUtil.negate(cond), stm,
-                    AssumptionType.IF_ELSE, state.getMap()));
             DafnyTree _else = stm.getChild(2);
             stateElse.setBlockToExecute(append(_else, remainder));
-            stack.push(stateElse);
+        } else {
+            stateElse.setBlockToExecute(remainder);
         }
+        stack.push(stateElse);
     }
 
     /*
@@ -301,7 +313,7 @@ public class Symbex {
      * @return the combined statement block
      */
     private DafnyTree append(DafnyTree prog1, DafnyTree prog2) {
-        DafnyTree result= new DafnyTree(new CommonToken(DafnyParser.BLOCK));
+        DafnyTree result = new DafnyTree(new CommonToken(DafnyParser.BLOCK));
 
         if(prog1.getType() == DafnyParser.BLOCK) {
             for(int i = 0; i < prog1.getChildCount(); i++) {

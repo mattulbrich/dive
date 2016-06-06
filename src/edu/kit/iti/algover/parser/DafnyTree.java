@@ -1,3 +1,8 @@
+/*
+ * This file is part of AlgoVer.
+ *
+ * Copyright (C) 2015 Karlsruhe Institute of Technology
+ */
 package edu.kit.iti.algover.parser;
 
 import java.util.ArrayList;
@@ -12,7 +17,7 @@ import org.antlr.runtime.tree.CommonTreeAdaptor;
 import org.antlr.runtime.tree.Tree;
 
 /**
- * This class implements AST nodes for pseudo code.
+ * This class implements AST nodes for Dafny code.
  *
  * It extends the existing ANTLR facility {@link CommonTree}. DafnyTrees have
  * got a head token ({@link CommonTree#token}) that determines its type, and
@@ -197,6 +202,15 @@ public class DafnyTree extends CommonTree {
         } else {
             return getChild(childCount - 1);
         }
+    }
+
+    @Override
+    public String toString() {
+        String string = super.toString();
+        if(string == null && token != null) {
+            string = DafnyParser.tokenNames[token.getType()];
+        }
+        return string;
     }
 
 }

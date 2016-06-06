@@ -1,3 +1,8 @@
+/*
+ * This file is part of AlgoVer.
+ *
+ * Copyright (C) 2015 Karlsruhe Institute of Technology
+ */
 package edu.kit.iti.algover.symbex;
 
 import edu.kit.iti.algover.parser.DafnyTree;
@@ -58,7 +63,11 @@ public class PathConditionElement {
         /**
          * The condition is an assumed loop invariant.
          */
-        ASSUMED_INVARIANT;
+        ASSUMED_INVARIANT,
+        /**
+         * The condition is an explicit assume statement
+         */
+        EXPLICIT_ASSUMPTION;
     }
 
     /**
