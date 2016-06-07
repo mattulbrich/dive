@@ -1,3 +1,8 @@
+/*
+ * This file is part of AlgoVer.
+ *
+ * Copyright (C) 2015-2016 Karlsruhe Institute of Technology
+ */
 package edu.kit.iti.algover.parser;
 
 import java.io.FileNotFoundException;
@@ -27,7 +32,7 @@ public class ParserTest {
     public static Iterable<Object[]> data() {
         return Arrays.asList(new Object[][] {
                 { "arrayMax" }, { "highdimarrays" }, { "../symbex/symbex" },
-                { "arithmetic" },
+                { "arithmetic" }, { "../util/labelTest" }
                 });
     }
 
