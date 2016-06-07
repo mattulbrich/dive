@@ -176,8 +176,9 @@ public class SymbexTest {
             SymbexState init = results.get(0);
             assertEquals(AssertionType.INVARIANT_INITIALLY_VALID, init.getProofObligationType());
             assertEquals(0, init.getPathConditions().size());
-            assertEquals(1, init.getProofObligations().size());
-            assertEquals("(invariant (== p 2))", init.getProofObligations().iterator().next().toStringTree());
+            assertEquals(2, init.getProofObligations().size());
+            assertEquals("(invariant (== p 2))", init.getProofObligations().get(0).toStringTree());
+            assertEquals("(invariant (> count 0))", init.getProofObligations().get(1).toStringTree());
         }
 
         {

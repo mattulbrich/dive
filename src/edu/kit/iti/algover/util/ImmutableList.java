@@ -247,6 +247,6 @@ public class ImmutableList<T> implements Iterable<T> {
             throw new IndexOutOfBoundsException();
         }
 
-        return data;
+        return p.data;
     }
 }

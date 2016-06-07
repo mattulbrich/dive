@@ -4,6 +4,7 @@ $plus = +
 $times = *
 
 $and = and
+$or = or
 $not = not
 $imp = \=>
 

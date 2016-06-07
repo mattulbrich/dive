@@ -1,7 +1,7 @@
 /*
  * This file is part of AlgoVer.
  *
- * Copyright (C) 2015 Karlsruhe Institute of Technology
+ * Copyright (C) 2015-2016 Karlsruhe Institute of Technology
  */
 package edu.kit.iti.algover;
 
@@ -30,7 +30,7 @@ import edu.kit.iti.algover.util.LabelIntroducer;
 
 public class Main {
 
-    private static boolean VERBOSE = false;
+    private static boolean VERBOSE = true;
 
     private static void test(InputStream stream) throws Exception {
         // create the lexer attached to stream
@@ -55,12 +55,14 @@ public class Main {
         String stringTree = t.toStringTree();
         System.out.println(Debug.prettyPrint(stringTree)); // print out the tree
 
-        new LabelIntroducer().visit(result.getTree());
+        LabelIntroducer.visit(result.getTree());
 
         Symbex symbex = new Symbex();
         List<SymbexState> symbexresult = symbex.symbolicExecution(t);
 
         for (SymbexState res : symbexresult) {
+            System.out.println("------------");
+            System.out.println(res.getPathIdentifier());
             System.out.println("------------");
             if(VERBOSE) {
                 for (PathConditionElement pc : res.getPathConditions()) {

@@ -1,7 +1,7 @@
 /*
  * This file is part of AlgoVer.
  *
- * Copyright (C) 2015 Karlsruhe Institute of Technology
+ * Copyright (C) 2015-2016 Karlsruhe Institute of Technology
  */
 
 package edu.kit.iti.algover.smt;
@@ -107,7 +107,6 @@ public class Z3Solver {
             BufferedReader br = new BufferedReader(new InputStreamReader(in));
             String line;
             while((line = br.readLine()) != null) {
-//                System.err.println("Z3: " + line);
                 switch(line) {
                 case "unsat":
                     return Result.UNSAT;
@@ -116,6 +115,7 @@ public class Z3Solver {
                 case "unkown":
                     return Result.UNKNOWN;
                 }
+                System.err.println("Z3: " + line);
             }
 
             return Result.ERROR;
