@@ -32,7 +32,7 @@ public class ParserTest {
     public static Iterable<Object[]> data() {
         return Arrays.asList(new Object[][] {
                 { "arrayMax" }, { "highdimarrays" }, { "../symbex/symbex" },
-                { "arithmetic" }, { "../util/labelTest" }
+                { "arithmetic" }, { "../util/labelTest" }, { "../symbex/whileWithAnon" }
                 });
     }
 

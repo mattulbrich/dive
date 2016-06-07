@@ -7,6 +7,8 @@ package edu.kit.iti.algover.symbex;
 
 import static org.junit.Assert.*;
 
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Deque;
@@ -15,6 +17,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 import org.antlr.runtime.CommonToken;
+import org.antlr.runtime.RecognitionException;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -176,9 +179,8 @@ public class SymbexTest {
             SymbexState init = results.get(0);
             assertEquals(AssertionType.INVARIANT_INITIALLY_VALID, init.getProofObligationType());
             assertEquals(0, init.getPathConditions().size());
-            assertEquals(2, init.getProofObligations().size());
+            assertEquals(1, init.getProofObligations().size());
             assertEquals("(invariant (== p 2))", init.getProofObligations().get(0).toStringTree());
-            assertEquals("(invariant (> count 0))", init.getProofObligations().get(1).toStringTree());
         }
 
         {
@@ -229,10 +231,35 @@ public class SymbexTest {
     }
 
     @Test
-    public void testHandleWhileAnonymisation() {
-        fail("to do");
-    }
+    public void testHandleWhileAnonymisation() throws Exception {
+        InputStream stream = getClass().getResourceAsStream("whileWithAnon");
+        this.tree = ParserTest.parseFile(stream);
 
+        Symbex symbex = new Symbex();
+        List<SymbexState> results = symbex.symbolicExecution(tree);
+
+        assertEquals(3, results.size());
+        {
+            SymbexState ss = results.get(0);
+            assertEquals(AssertionType.INVARIANT_INITIALLY_VALID, ss.getProofObligationType());
+            assertEquals("(== 1 1)", ss.getInstantiatedObligationExpressions().get(0).toStringTree());
+        }
+        {
+            SymbexState ss = results.get(1);
+            assertEquals(AssertionType.INVARIANT_PRESERVED, ss.getProofObligationType());
+            assertEquals("(== 1 (+ mod#1 1))", ss.getInstantiatedObligationExpressions().get(0).toStringTree());
+            assertEquals("(> mod#1 1)", ss.getPathConditions().get(0).getInstantiatedExpression().toStringTree());
+            assertEquals("(== 1 mod#1)", ss.getPathConditions().get(1).getInstantiatedExpression().toStringTree());
+        }
+        {
+            SymbexState ss = results.get(2);
+            assertEquals(AssertionType.POST, ss.getProofObligationType());
+            assertEquals("(== 1 mod#1)", ss.getInstantiatedObligationExpressions().get(0).toStringTree());
+            assertEquals("(not (> mod#1 1))", ss.getPathConditions().get(0).getInstantiatedExpression().toStringTree());
+            assertEquals("(== 1 mod#1)", ss.getPathConditions().get(1).getInstantiatedExpression().toStringTree());
+        }
+
+    }
     @Test
     public void testHandleIf() {
         DafnyTree decl = tree.getLastChild().getChild(7);

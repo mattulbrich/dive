@@ -197,7 +197,7 @@ public class Symbex {
             preserveState.addPathCondition(pc);
         }
         preserveState.addPathCondition(new PathConditionElement(guard, stm,
-                AssumptionType.WHILE_TRUE, state.getMap()));
+                AssumptionType.WHILE_TRUE, preserveState.getMap()));
         preserveState.setBlockToExecute(stm.getLastChild());
         // 2b. show invariants:
         preserveState.setProofObligations(
