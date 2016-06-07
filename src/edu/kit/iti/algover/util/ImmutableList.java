@@ -1,13 +1,15 @@
 /*
  * This file is part of AlgoVer.
  *
- * Copyright (C) 2015 Karlsruhe Institute of Technology
+ * Copyright (C) 2015-2016 Karlsruhe Institute of Technology
  */
 package edu.kit.iti.algover.util;
 
 import java.util.AbstractCollection;
 import java.util.Collection;
 import java.util.Iterator;
+
+import edu.kit.iti.algover.parser.DafnyTree;
 
 /**
  * The Class ImmutableList captures an CONS/NIL style linked list with one-way
@@ -228,5 +230,23 @@ public class ImmutableList<T> implements Iterable<T> {
     @Override
     public String toString() {
         return asCollection().toString();
+    }
+
+    public T get(int count) {
+        if(count < 0) {
+            throw new IndexOutOfBoundsException();
+        }
+
+        ImmutableList<T> p = this;
+        while(count > 0 && p != null) {
+            p = p.tail;
+            count --;
+        }
+
+        if(p == null) {
+            throw new IndexOutOfBoundsException();
+        }
+
+        return data;
     }
 }

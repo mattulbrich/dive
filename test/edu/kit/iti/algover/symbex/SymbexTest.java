@@ -1,7 +1,7 @@
 /*
  * This file is part of AlgoVer.
  *
- * Copyright (C) 2015 Karlsruhe Institute of Technology
+ * Copyright (C) 2015-2016 Karlsruhe Institute of Technology
  */
 package edu.kit.iti.algover.symbex;
 
@@ -21,7 +21,7 @@ import org.junit.Test;
 import edu.kit.iti.algover.parser.ParserTest;
 import edu.kit.iti.algover.parser.DafnyParser;
 import edu.kit.iti.algover.parser.DafnyTree;
-import edu.kit.iti.algover.symbex.PathConditionElement.AssertionType;
+import edu.kit.iti.algover.symbex.SymbexState.AssertionType;
 import edu.kit.iti.algover.symbex.PathConditionElement.AssumptionType;
 
 public class SymbexTest {
@@ -48,13 +48,16 @@ public class SymbexTest {
 
         System.out.println(results);
 
-        assertEquals(5, results.size());
+        assertEquals(7, results.size());
 
         assertEquals(AssertionType.INVARIANT_INITIALLY_VALID, results.get(0).getProofObligationType());
         assertEquals(AssertionType.INVARIANT_PRESERVED, results.get(1).getProofObligationType());
-        assertEquals(AssertionType.ASSERT, results.get(2).getProofObligationType());
+        assertEquals(AssertionType.EXPLICIT_ASSERT, results.get(2).getProofObligationType());
         assertEquals(AssertionType.POST, results.get(3).getProofObligationType());
         assertEquals(AssertionType.POST, results.get(4).getProofObligationType());
+        // else branch is now there!
+        assertEquals(AssertionType.POST, results.get(5).getProofObligationType());
+        assertEquals(AssertionType.POST, results.get(6).getProofObligationType());
     }
 
     @Test
@@ -79,9 +82,10 @@ public class SymbexTest {
         assertEquals(0, next.getPathConditions().size());
 
         SymbexState check = results.get(0);
-        assertEquals(AssertionType.ASSERT, check.getProofObligationType());
+        assertEquals(AssertionType.EXPLICIT_ASSERT, check.getProofObligationType());
         assertEquals(1, check.getProofObligations().size());
-        assertEquals("(assert (== unmodifiedInLoop 0))", check.getProofObligations().iterator().next().toStringTree());
+        assertEquals("(assert (== unmodifiedInLoop 0))",
+                check.getProofObligations().iterator().next().toStringTree());
     }
 
     @Test

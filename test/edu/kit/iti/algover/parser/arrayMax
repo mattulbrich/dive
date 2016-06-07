@@ -10,7 +10,7 @@ method max(a : array<int>, n: int) returns (m : int)
   label mainLoop: while i < n
     invariant label inbounds: 0 <= i && i <= n
     invariant label greater: (forall j:int :: 0 <= j && j < i ==> a[m] >= a[j])
-    invariant label witness: (exists j:int :: 0 <= j && j < i && a[m] == a[j])
+    invariant label witness: i == 0 || (exists j:int :: 0 <= j && j < i && a[m] == a[j])
     decreases n - i
   {
     if a[i] > a[m]

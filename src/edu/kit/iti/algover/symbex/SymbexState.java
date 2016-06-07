@@ -1,7 +1,7 @@
 /*
  * This file is part of AlgoVer.
  *
- * Copyright (C) 2015 Karlsruhe Institute of Technology
+ * Copyright (C) 2015-2016 Karlsruhe Institute of Technology
  */
 package edu.kit.iti.algover.symbex;
 
@@ -9,13 +9,13 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+
+import edu.kit.iti.algover.parser.DafnyParser;
 import edu.kit.iti.algover.parser.DafnyTree;
-import edu.kit.iti.algover.symbex.PathConditionElement.AssertionType;
+import edu.kit.iti.algover.proof.ProofVerificationConditionBuilder;
 import edu.kit.iti.algover.symbex.PathConditionElement.AssumptionType;
 import edu.kit.iti.algover.util.ImmutableList;
-import edu.kit.iti.algover.util.Util;
 
-// TODO: Auto-generated Javadoc
 /**
  * This class captures intermediate and terminal states of symbolic execution.
  *
@@ -42,7 +42,42 @@ import edu.kit.iti.algover.util.Util;
 public class SymbexState {
 
     /**
-     * The path gathered conditions.
+     * There are different reasons for assertions.
+     */
+    public enum AssertionType {
+        /**
+         * Precondition to be checked prior to method invocation.
+         */
+        CALL_PRE,
+
+        /**
+         * Explicit assertion.
+         */
+        EXPLICIT_ASSERT,
+
+        /**
+         * Implicit assertion (div by zero, null-access, in range, ...)
+         */
+        IMPLICIT_ASSERT,
+
+        /**
+         * Postcondition to be proved.
+         */
+        POST,
+
+        /**
+         * Loop Invariant to be proved inductive.
+         */
+        INVARIANT_PRESERVED,
+
+        /**
+         * Loop Invariant has to hold initially.
+         */
+        INVARIANT_INITIALLY_VALID;
+    }
+
+    /**
+     * The gathered path conditions.
      */
     private ImmutableList<PathConditionElement> pathConditions;
 
@@ -223,6 +258,34 @@ public class SymbexState {
         return proofObligations;
     }
 
+    /**
+     * Gets the label for the proof obligation in this object.
+     *
+     * @return the label, could be <code>null</code>
+     */
+    private static String getObligationLabel(DafnyTree proofObligation) {
+        DafnyTree label = proofObligation.getFirstChildWithType(DafnyParser.LABEL);
+        if(label != null) {
+            return label.getLastChild().getText();
+        }
+        return null;
+    }
+
+    /**
+     * Gets the instantiated proof obligations.
+     *
+     * The result is a list of expression trees.
+     *
+     * @return a list of proof obligations expressions,
+     *  instantiated with the variable map
+     */
+    public List<DafnyTree> getInstantiatedObligationExpressions() {
+        List<DafnyTree> result = new ArrayList<>();
+        for (DafnyTree po : proofObligations) {
+            result.add(currentMap.instantiate(po.getLastChild()));
+        }
+        return result;
+    }
 
     /**
      * Gets the unique path identifier which enumerates all decisions made on
@@ -242,11 +305,14 @@ public class SymbexState {
                 result.append(type.toString()).append("/");
             }
         }
-        result.append(getProofObligationType().toString());
-        if(proofObligations.size() > 1) {
+        result.append(getProofObligationType());
+         if(proofObligations.size() > 1) {
             result.append("[+]");
         } else {
-            result.append("[label]");
+            String label = getObligationLabel(proofObligations.get(0));
+            if(label != null) {
+                result.append("[" + label + "]");
+            }
         }
         return result.toString();
     }
@@ -261,7 +327,7 @@ public class SymbexState {
         if(proofObligations.size() == 1) {
             return Collections.singletonList(this);
         } else {
-            ArrayList<SymbexState> result = new ArrayList<>();
+            List<SymbexState> result = new ArrayList<>();
             for (DafnyTree proofObl : proofObligations) {
                 SymbexState child = new SymbexState(this);
                 child.setProofObligations(proofObl, proofObligationType);

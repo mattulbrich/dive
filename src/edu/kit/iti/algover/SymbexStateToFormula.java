@@ -1,7 +1,7 @@
 /*
  * This file is part of AlgoVer.
  *
- * Copyright (C) 2015 Karlsruhe Institute of Technology
+ * Copyright (C) 2015-2016 Karlsruhe Institute of Technology
  */
 package edu.kit.iti.algover;
 
@@ -10,6 +10,7 @@ import java.util.Collection;
 
 import edu.kit.iti.algover.data.BuiltinSymbols;
 import edu.kit.iti.algover.data.MapSymbolTable;
+import edu.kit.iti.algover.data.SuffixSymbolTable;
 import edu.kit.iti.algover.data.SymbolTable;
 import edu.kit.iti.algover.parser.DafnyTree;
 import edu.kit.iti.algover.symbex.PathConditionElement;
@@ -42,7 +43,7 @@ public class SymbexStateToFormula {
             map.add(new FunctionSymbol(name, sort));
         }
 
-        MapSymbolTable st = new MapSymbolTable(new BuiltinSymbols(), map);
+        MapSymbolTable st = new SuffixSymbolTable(new BuiltinSymbols(), map);
         return st;
     }
 
@@ -63,14 +64,16 @@ public class SymbexStateToFormula {
         TreeTermTranslator ttt = new TreeTermTranslator(symbolTable);
 
         for(PathConditionElement pce : symbexState.getPathConditions()) {
-            Term formula = ttt.build(pce.getExpression());
+            Term formula = ttt.build(pce.getInstantiatedExpression());
             result.add(formula);
         }
 
         assert symbexState.getProofObligations().size() == 1;
 
         for(DafnyTree po : symbexState.getProofObligations()) {
-            Term formula = ttt.build(po.getLastChild());
+            DafnyTree expression = po.getLastChild();
+            DafnyTree instantiated = symbexState.getMap().instantiate(expression);
+            Term formula = ttt.build(instantiated);
             result.add(TermBuilder.negate(formula));
         }
 

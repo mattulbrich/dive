@@ -20,18 +20,6 @@ import edu.kit.iti.algover.util.ASTUtil;
 public class PathConditionElement {
 
     /**
-     * The Enum AssertionType.
-     * TODO Move me
-     */
-    public enum AssertionType {
-        CALL_PRE,
-        ASSERT,
-        POST,
-        INVARIANT_PRESERVED,
-        INVARIANT_INITIALLY_VALID;
-    }
-
-    /**
      * AssumptionType enumerate all possible kinds that a path condition may
      * have.
      */

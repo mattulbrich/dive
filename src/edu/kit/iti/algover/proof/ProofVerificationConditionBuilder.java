@@ -1,24 +1,32 @@
+/*
+ * This file is part of AlgoVer.
+ *
+ * Copyright (C) 2015-2016 Karlsruhe Institute of Technology
+ */
 package edu.kit.iti.algover.proof;
 
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
+
 import edu.kit.iti.algover.ProgramDatabase;
 import edu.kit.iti.algover.data.BuiltinSymbols;
-import edu.kit.iti.algover.data.IncrementalSymbolTable;
 import edu.kit.iti.algover.data.MapSymbolTable;
 import edu.kit.iti.algover.data.SymbolTable;
-import edu.kit.iti.algover.parser.DafnyException;
 import edu.kit.iti.algover.parser.DafnyParser;
 import edu.kit.iti.algover.parser.DafnyTree;
 import edu.kit.iti.algover.symbex.PathConditionElement;
 import edu.kit.iti.algover.symbex.SymbexState;
 import edu.kit.iti.algover.symbex.VariableMap;
-import edu.kit.iti.algover.term.*;
+import edu.kit.iti.algover.term.FunctionSymbol;
+import edu.kit.iti.algover.term.Sort;
+import edu.kit.iti.algover.term.Term;
 import edu.kit.iti.algover.term.builder.TermBuilder;
 import edu.kit.iti.algover.term.builder.TreeTermTranslator;
 import edu.kit.iti.algover.util.ImmutableList;
-
-import javax.xml.transform.sax.SAXSource;
-import java.util.*;
 
 /**
  * A ProofVerificationConditionBuilder contains all path conditions for a specific verification condition

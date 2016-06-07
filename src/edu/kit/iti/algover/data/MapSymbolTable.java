@@ -10,8 +10,6 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.sun.corba.se.spi.orbutil.fsm.Guard.Result;
-
 import edu.kit.iti.algover.term.FunctionSymbol;
 
 /**

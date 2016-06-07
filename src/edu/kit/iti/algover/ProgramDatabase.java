@@ -1,3 +1,9 @@
+/*
+ * This file is part of AlgoVer.
+ *
+ * Copyright (C) 2015 Karlsruhe Institute of Technology
+ */
+
 package edu.kit.iti.algover;
 
 import java.util.ArrayList;
@@ -57,6 +63,13 @@ public class ProgramDatabase {
                 }
             }
         }
+    }
+
+    public static List<DafnyTree> getArgumentDeclarations(DafnyTree method) {
+        DafnyTree args = method.getFirstChildWithType(DafnyParser.ARGS);
+        List<DafnyTree> allDeclarations = new ArrayList<DafnyTree>();
+        collectVariableDeclarations(allDeclarations, args);
+        return allDeclarations;
     }
 
     public static DafnyTree getVariableDeclaration(DafnyTree method, String name) {

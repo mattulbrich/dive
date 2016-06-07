@@ -1,7 +1,7 @@
 /*
  * This file is part of AlgoVer.
  *
- * Copyright (C) 2015 Karlsruhe Institute of Technology
+ * Copyright (C) 2015-2016 Karlsruhe Institute of Technology
  */
 package edu.kit.iti.algover.symbex;
 import java.util.ArrayList;
@@ -13,10 +13,11 @@ import java.util.Set;
 
 import org.antlr.runtime.CommonToken;
 
+
 import edu.kit.iti.algover.parser.DafnyParser;
 import edu.kit.iti.algover.parser.DafnyTree;
-import edu.kit.iti.algover.symbex.PathConditionElement.AssertionType;
 import edu.kit.iti.algover.symbex.PathConditionElement.AssumptionType;
+import edu.kit.iti.algover.symbex.SymbexState.AssertionType;
 import edu.kit.iti.algover.util.ASTUtil;
 
 /**
@@ -113,7 +114,7 @@ public class Symbex {
             DafnyTree remainder) {
         SymbexState assertedState = new SymbexState(state);
         assertedState.setBlockToExecute(EMPTY_PROGRAM);
-        assertedState.setProofObligations(stm, AssertionType.ASSERT);
+        assertedState.setProofObligations(stm, AssertionType.EXPLICIT_ASSERT);
         results.add(assertedState);
         state.setBlockToExecute(remainder);
         // TODO Add asserted condition as assumption

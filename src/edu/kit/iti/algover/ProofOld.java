@@ -23,12 +23,12 @@ public class ProofOld {
         return collected;
     }
 
-    public LinkedList<PathConditionElement.AssertionType> getCollected2() {
+    public LinkedList<SymbexState.AssertionType> getCollected2() {
         return collected2;
     }
 
     private LinkedList<PathConditionElement> collected;
-    private LinkedList<PathConditionElement.AssertionType> collected2;
+    private LinkedList<SymbexState.AssertionType> collected2;
     private LinkedList<DafnyTree> assumptions;
     private LinkedList<DafnyTree> toShow;
     private SymbexState state;
@@ -64,7 +64,7 @@ public class ProofOld {
 
 
     public ProofOld(SymbexState state, LinkedList<DafnyTree> ass, LinkedList<DafnyTree> show,
-                 LinkedList<PathConditionElement> collected, LinkedList<PathConditionElement.AssertionType> collected2, int id){
+                 LinkedList<PathConditionElement> collected, LinkedList<SymbexState.AssertionType> collected2, int id){
         this.setAssumptions(ass);
         this.setToShow(show);
         this.collected = collected;
@@ -84,7 +84,7 @@ public class ProofOld {
         for (PathConditionElement pathConditionElement : collected) {
             name+=pathConditionElement.getType()+"\\";
         }
-        for (PathConditionElement.AssertionType assertionType : collected2) {
+        for (SymbexState.AssertionType assertionType : collected2) {
             name+=assertionType.toString()+"\\";
         }
         name+=id;
