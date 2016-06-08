@@ -1,3 +1,8 @@
+/*
+ * This file is part of AlgoVer.
+ *
+ * Copyright (C) 2015-2016 Karlsruhe Institute of Technology
+ */
 package edu.kit.iti.algover.ui.controller;
 
 
@@ -89,8 +94,8 @@ public class EntranceViewController extends Application
                 String content = editor.getText();
                 FileUtilities.fileSaveAction(window, content);
             });
-            // XXX MU: I moved the semantics of this line to FXML. Makes it clearer.
-            // XXX Suggest: Do the same with other actions
+            // MU: I moved the semantics of this line to FXML. Makes it clearer.
+            // TODO Suggest: Do the same with other actions
 //            buttonReload.setOnAction(e -> reloadAction());
             buttonGeneratePO.setOnAction(e -> generatePOAction());
 

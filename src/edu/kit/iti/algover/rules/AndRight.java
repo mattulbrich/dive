@@ -1,3 +1,8 @@
+/*
+ * This file is part of AlgoVer.
+ *
+ * Copyright (C) 2015-2016 Karlsruhe Institute of Technology
+ */
 package edu.kit.iti.algover.rules;
 
 import edu.kit.iti.algover.data.BuiltinSymbols;
@@ -25,7 +30,7 @@ public class AndRight implements ProofStep {
         if(possibleApplications(form, t, side_conditions)){
             ImmutableList<ProofFormula> addList = ImmutableList.nil();
             ImmutableList<ProofFormula> delList = ImmutableList.nil();
-            delList.prepend(form);
+            delList.append(form);
             ApplTerm term = (ApplTerm) t;
             List<Term> subterms = term.getSubterms();
             for (Term subterm : subterms) {

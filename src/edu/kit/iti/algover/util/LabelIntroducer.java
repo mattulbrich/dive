@@ -12,8 +12,25 @@ import org.antlr.runtime.CommonToken;
 import edu.kit.iti.algover.parser.DafnyParser;
 import edu.kit.iti.algover.parser.DafnyTree;
 
+/**
+ * This class can be used to add labels to invariants and postconditions which
+ * are not named.
+ */
 public class LabelIntroducer {
 
+    private LabelIntroducer() {
+        throw new Error();
+    }
+
+    /**
+     * Adds labels to invariants and postconditions.
+     *
+     * Iterates in depth over all nodes and adds artificial labels to invariants
+     * and postconditions that are not already labelled.
+     *
+     * @param tree
+     *            a non-<code>null</code> tree object
+     */
     public static void visit(DafnyTree tree) {
         if(tree == null) {
             return;

@@ -9,6 +9,7 @@ import java.util.Deque;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Queue;
 import java.util.Set;
 
 import org.antlr.runtime.CommonToken;
@@ -35,6 +36,11 @@ public class Symbex {
      */
     private static final DafnyTree EMPTY_PROGRAM =
             new DafnyTree(new CommonToken(DafnyParser.BLOCK));
+
+    /**
+     * The designated variable that represents the heap
+     */
+    public static final String HEAP_VAR = "#h";
 
     /**
      * Performs symbolic execution on a function.
@@ -70,6 +76,10 @@ public class Symbex {
                 DafnyTree remainder = makeRemainderTree(state.getBlockToExecute());
 
                 switch(stm.getType()) {
+                case DafnyParser.ARRAY_UPDATE:
+                    handleArrayUpdate(stack, state, stm, remainder);
+                    break;
+
                 case DafnyParser.ASSIGN:
                     handleAssign(stack, state, stm, remainder);
                     break;
@@ -234,6 +244,23 @@ public class Symbex {
     }
 
     /*
+     * Handle an assignment of the form a[i] := v
+     *
+     * This updates the symbex state and pushes it onto the stack.
+     * The variable that is chaned is Symbex#HEAP_VAR.
+     * The statement stands in for the heap update expression
+     */
+    void handleArrayUpdate(Deque<SymbexState> stack, SymbexState state,
+            DafnyTree stm, DafnyTree remainder) {
+        String name = HEAP_VAR;
+        DafnyTree expression = stm;
+        VariableMap newMap = state.getMap().assign(name, expression);
+        state.setMap(newMap);
+        state.setBlockToExecute(remainder);
+        stack.push(state);
+    }
+
+    /*
      * Handle a variable declaration.
      *
      * If the variable declaration has an initialisation this is like an
@@ -284,7 +311,10 @@ public class Symbex {
         case DafnyParser.ASSIGN:
             vars.add(tree.getChild(0).toString());
             break;
+        case DafnyParser.ARRAY_UPDATE:
+            vars.add(HEAP_VAR);
         case DafnyParser.CALL:
+            // TODO revise
             DafnyTree res = tree.getFirstChildWithType(DafnyParser.RESULTS);
             for (DafnyTree r : res.getChildren()) {
                 vars.add(r.toString());

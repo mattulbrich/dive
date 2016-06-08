@@ -12,6 +12,8 @@ tokens {
   LISTEX;
   SETEX;
   ARRAY_ACCESS;
+  ARRAY_UPDATE;
+  HAVOC;  // used only programmatically now (there is no havoc statement yet)
 }
 
 @parser::header {
@@ -182,6 +184,8 @@ statements:
 statement:
     VAR^ ID ':'! type (':='! expression)? ';'!
   | ID ':='^ expression ';'!
+  | ID '[' i=expression ']' ':=' v=expression ';'
+        -> ^(ARRAY_UPDATE ID $i $v)
   | (ID ':=' 'call') => r=ID ':=' 'call' f=ID '(' expressions? ')' ';'
         -> ^('call' $f ^(RESULTS $r) ^(ARGS expressions?))
   | ids ':=' 'call' ID '(' expressions? ')' ';'

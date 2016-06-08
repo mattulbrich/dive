@@ -1,3 +1,8 @@
+/*
+ * This file is part of AlgoVer.
+ *
+ * Copyright (C) 2015-2016 Karlsruhe Institute of Technology
+ */
 package edu.kit.iti.algover.term.builder;
 
 import java.util.ArrayList;
@@ -10,16 +15,19 @@ import java.util.List;
 import edu.kit.iti.algover.SymbexStateToFormula;
 import edu.kit.iti.algover.data.BuiltinSymbols;
 import edu.kit.iti.algover.data.SymbolTable;
-import edu.kit.iti.algover.parser.DafnyException;
 import edu.kit.iti.algover.parser.DafnyParser;
 import edu.kit.iti.algover.parser.DafnyTree;
+import edu.kit.iti.algover.symbex.Symbex;
+import edu.kit.iti.algover.symbex.VariableMap;
 import edu.kit.iti.algover.term.ApplTerm;
 import edu.kit.iti.algover.term.FunctionSymbol;
+import edu.kit.iti.algover.term.LetTerm;
 import edu.kit.iti.algover.term.QuantTerm;
 import edu.kit.iti.algover.term.QuantTerm.Quantifier;
 import edu.kit.iti.algover.term.Sort;
 import edu.kit.iti.algover.term.Term;
 import edu.kit.iti.algover.term.VariableTerm;
+import edu.kit.iti.algover.util.Pair;
 
 public class TreeTermTranslator {
 
@@ -30,6 +38,51 @@ public class TreeTermTranslator {
     public TreeTermTranslator(SymbolTable symbolTable) {
         assert symbolTable != null;
         this.symbolTable = symbolTable;
+    }
+
+    public Term build(VariableMap map, DafnyTree expression) {
+        Term result = build(expression);
+
+        for (Pair<String, DafnyTree> pair : map) {
+            result = buildLetExpression(pair.snd, result);
+        }
+
+        return result;
+
+    }
+
+    private Term buildLetExpression(DafnyTree assignment, Term result) {
+        // XXX
+        switch(assignment.getType()) {
+        case DafnyParser.HAVOC:
+            String newConst = assignment.getChild(1).getText();
+            String var = assignment.getChild(0).getText();
+            FunctionSymbol f = symbolTable.getFunctionSymbol(var);
+            addSymbolIfNotPresent(newConst, f);
+            return new LetTerm(new VariableTerm(var, f.getResultSort()),
+                    new VariableTerm(newConst, f.getResultSort()), result);
+
+        case DafnyParser.ARRAY_UPDATE:
+            Term object = build(assignment.getChild(0));
+            Term index = build(assignment.getChild(1));
+            Term value = build(assignment.getChild(1));
+            VariableTerm heap = new VariableTerm(Symbex.HEAP_VAR, Sort.HEAP);
+            Term store = new ApplTerm(BuiltinSymbols.STORE, heap, object, index, value);
+            return new LetTerm(heap, store, result);
+
+        default:
+            // XXX
+            var = "xxx"; // assignment.getChild(0).getText();
+            VariableTerm varTerm = new VariableTerm("xxx", Sort.INT);
+            value = build(assignment);
+            return new LetTerm(varTerm, value, result);
+
+        }
+    }
+
+    private void addSymbolIfNotPresent(String newConst, FunctionSymbol functionSymbol) {
+        // TODO Auto-generated method stub
+
     }
 
     public Term build(DafnyTree tree) {

@@ -1,6 +1,13 @@
+/*
+ * This file is part of AlgoVer.
+ *
+ * Copyright (C) 2015-2016 Karlsruhe Institute of Technology
+ */
 package edu.kit.iti.algover.symbex;
 
 import java.util.HashSet;
+import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.Set;
 
 import org.antlr.runtime.CommonToken;
@@ -8,8 +15,9 @@ import org.antlr.runtime.CommonToken;
 import edu.kit.iti.algover.parser.DafnyParser;
 import edu.kit.iti.algover.parser.DafnyTree;
 import edu.kit.iti.algover.util.ImmutableList;
+import edu.kit.iti.algover.util.Pair;
 
-public class VariableMap {
+public class VariableMap implements Iterable<Pair<String, DafnyTree>> {
 
     public static final VariableMap EMPTY = new VariableMap();
 
@@ -60,6 +68,7 @@ public class VariableMap {
         return result;
     }
 
+    @Deprecated
     public DafnyTree instantiate(DafnyTree expression) {
         DafnyTree result = instantiate0(expression, ImmutableList.<String>nil());
         if(result == null) {
@@ -69,6 +78,7 @@ public class VariableMap {
         }
     }
 
+    @Deprecated
     private DafnyTree instantiate0(DafnyTree expression, ImmutableList<String> exceptions) {
 
         int type = expression.getType();
@@ -89,7 +99,7 @@ public class VariableMap {
         }
 
         if(type == DafnyParser.ALL || type == DafnyParser.EX) {
-            exceptions = exceptions.prepend(expression.getChild(0).getText());
+            exceptions = exceptions.append(expression.getChild(0).getText());
         }
 
         DafnyTree result = null;
@@ -114,6 +124,7 @@ public class VariableMap {
         return result;
     }
 
+    @Deprecated
     public DafnyTree get(String name) {
 
         if(this == EMPTY && !name.contains("#")) {
@@ -146,6 +157,7 @@ public class VariableMap {
         return sb.toString();
     }
 
+    @Deprecated
     public String toParallelAssignment() {
         StringBuilder sb = new StringBuilder();
         VariableMap vm = this;
@@ -165,6 +177,17 @@ public class VariableMap {
     @Override
     public String toString() {
         return toHistoryString();
+    }
+
+    @Override
+    public Iterator<Pair<String, DafnyTree>> iterator() {
+        VariableMap vm = this;
+        LinkedList<Pair<String, DafnyTree>> result = new LinkedList<>();
+        while(vm != EMPTY) {
+            result.addFirst(new Pair<>(var, value));
+            vm = vm.parent;
+        }
+        return result.iterator();
     }
 
 }

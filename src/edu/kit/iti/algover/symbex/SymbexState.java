@@ -145,7 +145,7 @@ public class SymbexState {
      */
     public void addPathCondition(PathConditionElement pathCondition) {
         assert pathCondition != null;
-        pathConditions = pathConditions.prepend(pathCondition);
+        pathConditions = pathConditions.append(pathCondition);
     }
 
     /**

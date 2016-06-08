@@ -64,7 +64,7 @@ public class SymbexStateToFormula {
         TreeTermTranslator ttt = new TreeTermTranslator(symbolTable);
 
         for(PathConditionElement pce : symbexState.getPathConditions()) {
-            Term formula = ttt.build(pce.getInstantiatedExpression());
+            Term formula = ttt.build(pce.getVariableMap(), pce.getExpression());
             result.add(formula);
         }
 

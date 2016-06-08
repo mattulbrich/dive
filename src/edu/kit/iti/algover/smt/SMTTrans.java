@@ -1,7 +1,7 @@
 /*
  * This file is part of AlgoVer.
  *
- * Copyright (C) 2015 Karlsruhe Institute of Technology
+ * Copyright (C) 2015-2016 Karlsruhe Institute of Technology
  */
 package edu.kit.iti.algover.smt;
 
@@ -15,12 +15,14 @@ import java.util.Properties;
 import edu.kit.iti.algover.term.ApplTerm;
 import edu.kit.iti.algover.term.DefaultTermVisitor;
 import edu.kit.iti.algover.term.FunctionSymbol;
+import edu.kit.iti.algover.term.LetTerm;
 import edu.kit.iti.algover.term.QuantTerm;
 import edu.kit.iti.algover.term.SchemaVarTerm;
 import edu.kit.iti.algover.term.Sort;
 import edu.kit.iti.algover.term.Term;
 import edu.kit.iti.algover.term.TermVisitor;
 import edu.kit.iti.algover.term.VariableTerm;
+import edu.kit.iti.algover.util.Pair;
 
 /**
  * Translation of formulas/terms into SMT source code.
@@ -118,6 +120,16 @@ public class SMTTrans extends DefaultTermVisitor<Void, SExpr> {
     @Override
     public SExpr visit(VariableTerm term, Void arg) {
         return new SExpr(term.getName());
+    }
+
+    @Override
+    public SExpr visit(LetTerm letTerm, Void arg) {
+        SExpr inner = letTerm.getTerm(0).accept(this, null);
+        List<SExpr> substitutions = new ArrayList<SExpr>();
+        for (Pair<VariableTerm, Term> pair : letTerm.getSubstitutions()) {
+            substitutions.add(new SExpr(pair.fst.getName(), pair.snd.accept(this, null)));
+        }
+        return new SExpr("let", new SExpr(substitutions), inner);
     }
 
     // That is fine for now. ... Later redefinition is expected

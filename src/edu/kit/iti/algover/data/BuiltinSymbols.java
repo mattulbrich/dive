@@ -1,7 +1,7 @@
 /*
  * This file is part of AlgoVer.
  *
- * Copyright (C) 2015 Karlsruhe Institute of Technology
+ * Copyright (C) 2015-2016 Karlsruhe Institute of Technology
  */
 
 package edu.kit.iti.algover.data;
@@ -65,6 +65,9 @@ public class BuiltinSymbols extends MapSymbolTable {
 
     public static final FunctionSymbol INTERSECT =
             new FunctionSymbol("$intersect", Sort.INT_SET, Sort.INT_SET, Sort.INT_SET);
+
+    public static final FunctionSymbol STORE =
+            new FunctionSymbol("$store", Sort.HEAP, Sort.REF, Sort.INT, Sort.INT);
 
     public BuiltinSymbols() {
         super(collectSymbols());
