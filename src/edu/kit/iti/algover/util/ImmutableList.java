@@ -79,7 +79,7 @@ public class ImmutableList<T> implements Iterable<T> {
      *            the data to prepend
      * @return a fresh list which has this list as tail and data as payload.
      */
-    public ImmutableList<T> prepend(T data) {
+    public ImmutableList<T> append(T data) {
         return new ImmutableList<T>(data, this);
     }
 
@@ -118,7 +118,7 @@ public class ImmutableList<T> implements Iterable<T> {
 
     @Override
     public Iterator<T> iterator() {
-        return new Itr<T>(this);
+        return new Itr<T>(reverse());
     }
 
     public int size() {
@@ -144,7 +144,7 @@ public class ImmutableList<T> implements Iterable<T> {
      * @return the immutable list containing only o.
      */
     public static <T> ImmutableList<T> single(T o) {
-        return ImmutableList.<T>nil().prepend(o);
+        return ImmutableList.<T>nil().append(o);
     }
 
     /**
@@ -159,16 +159,20 @@ public class ImmutableList<T> implements Iterable<T> {
     public static <T> ImmutableList<T> from(Iterable<T> iterable) {
         ImmutableList<T> result = ImmutableList.<T>nil();
         for (T t : iterable) {
-            result = result.prepend(t);
+            result = result.append(t);
         }
-        return result.reverse();
+        return result;
     }
 
     public ImmutableList<T> reverse() {
         ImmutableList<T> result = nil();
-        for (T t : this) {
-            result = result.prepend(t);
+        ImmutableList<T> ptr = this;
+
+        while(ptr != NIL) {
+            result = result.append(ptr.data);
+            ptr = ptr.tail;
         }
+
         return result;
     }
 
@@ -232,7 +236,10 @@ public class ImmutableList<T> implements Iterable<T> {
         return asCollection().toString();
     }
 
-    public T get(int count) {
+    public T get(int index) {
+
+        int count = size - 1 - index;
+
         if(count < 0) {
             throw new IndexOutOfBoundsException();
         }
@@ -248,5 +255,13 @@ public class ImmutableList<T> implements Iterable<T> {
         }
 
         return p.data;
+    }
+
+    public ImmutableList<T> getTail() {
+        return tail;
+    }
+
+    public T getHead() {
+        return data;
     }
 }
