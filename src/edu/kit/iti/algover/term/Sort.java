@@ -11,7 +11,6 @@ public class Sort {
     public static final Sort INT = new Sort("int");
     public static final Sort INT_SET = new Sort("set");
     public static final Sort HEAP = new Sort("heap");
-    public static final Sort REF = new Sort("ref");
 
     private final String name;
 

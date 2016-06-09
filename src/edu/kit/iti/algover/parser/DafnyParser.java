@@ -1,4 +1,4 @@
-// $ANTLR 3.5.1 Dafny.g 2016-06-09 01:56:20
+// $ANTLR 3.5.1 Dafny.g 2016-06-09 03:58:59
 
   package edu.kit.iti.algover.parser;
 
@@ -534,7 +534,7 @@ public class DafnyParser extends Parser {
 			if ( state.backtracking==0 ) stream_BLOCK_END.add(char_literal16);
 
 			// AST REWRITE
-			// elements: ensures, requires, decreases, ID, returns_, vars, statements
+			// elements: returns_, decreases, vars, ID, statements, requires, ensures
 			// token labels: 
 			// rule labels: retval
 			// token list labels: 
@@ -1749,13 +1749,14 @@ public class DafnyParser extends Parser {
 
 
 	// $ANTLR start "statement"
-	// Dafny.g:184:1: statement : ( VAR ^ ID ':' ! type ( ':=' ! expression )? ';' !| ID ':=' ^ expression ';' !| ID '[' i= expression ']' ':=' v= expression ';' -> ^( ARRAY_UPDATE ID $i $v) | ( ID ':=' 'call' )=>r= ID ':=' 'call' f= ID '(' ( expressions )? ')' ';' -> ^( 'call' $f ^( RESULTS $r) ^( ARGS ( expressions )? ) ) | ids ':=' 'call' ID '(' ( expressions )? ')' ';' -> ^( 'call' ID ^( RESULTS ids ) ^( ARGS ( expressions )? ) ) | ( label )? 'while' expression ( invariant )+ decreases relaxedBlock -> ^( 'while' ( label )? expression ( invariant )+ decreases relaxedBlock ) | ( label )? 'if' ^ expression relaxedBlock ( options {greedy=true; } : 'else' ! relaxedBlock )? | 'assert' ^ ( 'label' ! ID ':' !)? expression ';' !| 'assume' ^ ( 'label' ! ID ':' !)? expression ';' !);
+	// Dafny.g:184:1: statement : ( VAR ^ ID ':' ! type ( ':=' ! expression )? ';' !| ID ':=' ^ expression ';' !| ID '[' i= expression ']' ass= ':=' v= expression ';' -> ^( ARRAY_UPDATE[$ass] ID $i $v) | ( ID ':=' 'call' )=>r= ID ':=' 'call' f= ID '(' ( expressions )? ')' ';' -> ^( 'call' $f ^( RESULTS $r) ^( ARGS ( expressions )? ) ) | ids ':=' 'call' ID '(' ( expressions )? ')' ';' -> ^( 'call' ID ^( RESULTS ids ) ^( ARGS ( expressions )? ) ) | ( label )? 'while' expression ( invariant )+ decreases relaxedBlock -> ^( 'while' ( label )? expression ( invariant )+ decreases relaxedBlock ) | ( label )? 'if' ^ expression relaxedBlock ( options {greedy=true; } : 'else' ! relaxedBlock )? | 'assert' ^ ( 'label' ! ID ':' !)? expression ';' !| 'assume' ^ ( 'label' ! ID ':' !)? expression ';' !);
 	public final DafnyParser.statement_return statement() throws RecognitionException {
 		DafnyParser.statement_return retval = new DafnyParser.statement_return();
 		retval.start = input.LT(1);
 
 		DafnyTree root_0 = null;
 
+		Token ass=null;
 		Token r=null;
 		Token f=null;
 		Token VAR63=null;
@@ -1769,52 +1770,52 @@ public class DafnyParser extends Parser {
 		Token ID74=null;
 		Token char_literal75=null;
 		Token char_literal76=null;
-		Token string_literal77=null;
-		Token char_literal78=null;
+		Token char_literal77=null;
+		Token string_literal78=null;
 		Token string_literal79=null;
-		Token string_literal80=null;
-		Token char_literal81=null;
+		Token char_literal80=null;
+		Token char_literal82=null;
 		Token char_literal83=null;
-		Token char_literal84=null;
+		Token string_literal85=null;
 		Token string_literal86=null;
-		Token string_literal87=null;
-		Token ID88=null;
-		Token char_literal89=null;
+		Token ID87=null;
+		Token char_literal88=null;
+		Token char_literal90=null;
 		Token char_literal91=null;
-		Token char_literal92=null;
-		Token string_literal94=null;
-		Token string_literal100=null;
-		Token string_literal103=null;
+		Token string_literal93=null;
+		Token string_literal99=null;
+		Token string_literal102=null;
+		Token string_literal104=null;
 		Token string_literal105=null;
-		Token string_literal106=null;
-		Token ID107=null;
-		Token char_literal108=null;
-		Token char_literal110=null;
+		Token ID106=null;
+		Token char_literal107=null;
+		Token char_literal109=null;
+		Token string_literal110=null;
 		Token string_literal111=null;
-		Token string_literal112=null;
-		Token ID113=null;
-		Token char_literal114=null;
-		Token char_literal116=null;
+		Token ID112=null;
+		Token char_literal113=null;
+		Token char_literal115=null;
 		ParserRuleReturnScope i =null;
 		ParserRuleReturnScope v =null;
 		ParserRuleReturnScope type66 =null;
 		ParserRuleReturnScope expression68 =null;
 		ParserRuleReturnScope expression72 =null;
-		ParserRuleReturnScope expressions82 =null;
-		ParserRuleReturnScope ids85 =null;
-		ParserRuleReturnScope expressions90 =null;
-		ParserRuleReturnScope label93 =null;
-		ParserRuleReturnScope expression95 =null;
-		ParserRuleReturnScope invariant96 =null;
-		ParserRuleReturnScope decreases97 =null;
-		ParserRuleReturnScope relaxedBlock98 =null;
-		ParserRuleReturnScope label99 =null;
-		ParserRuleReturnScope expression101 =null;
-		ParserRuleReturnScope relaxedBlock102 =null;
-		ParserRuleReturnScope relaxedBlock104 =null;
-		ParserRuleReturnScope expression109 =null;
-		ParserRuleReturnScope expression115 =null;
+		ParserRuleReturnScope expressions81 =null;
+		ParserRuleReturnScope ids84 =null;
+		ParserRuleReturnScope expressions89 =null;
+		ParserRuleReturnScope label92 =null;
+		ParserRuleReturnScope expression94 =null;
+		ParserRuleReturnScope invariant95 =null;
+		ParserRuleReturnScope decreases96 =null;
+		ParserRuleReturnScope relaxedBlock97 =null;
+		ParserRuleReturnScope label98 =null;
+		ParserRuleReturnScope expression100 =null;
+		ParserRuleReturnScope relaxedBlock101 =null;
+		ParserRuleReturnScope relaxedBlock103 =null;
+		ParserRuleReturnScope expression108 =null;
+		ParserRuleReturnScope expression114 =null;
 
+		DafnyTree ass_tree=null;
 		DafnyTree r_tree=null;
 		DafnyTree f_tree=null;
 		DafnyTree VAR63_tree=null;
@@ -1828,32 +1829,31 @@ public class DafnyParser extends Parser {
 		DafnyTree ID74_tree=null;
 		DafnyTree char_literal75_tree=null;
 		DafnyTree char_literal76_tree=null;
-		DafnyTree string_literal77_tree=null;
-		DafnyTree char_literal78_tree=null;
+		DafnyTree char_literal77_tree=null;
+		DafnyTree string_literal78_tree=null;
 		DafnyTree string_literal79_tree=null;
-		DafnyTree string_literal80_tree=null;
-		DafnyTree char_literal81_tree=null;
+		DafnyTree char_literal80_tree=null;
+		DafnyTree char_literal82_tree=null;
 		DafnyTree char_literal83_tree=null;
-		DafnyTree char_literal84_tree=null;
+		DafnyTree string_literal85_tree=null;
 		DafnyTree string_literal86_tree=null;
-		DafnyTree string_literal87_tree=null;
-		DafnyTree ID88_tree=null;
-		DafnyTree char_literal89_tree=null;
+		DafnyTree ID87_tree=null;
+		DafnyTree char_literal88_tree=null;
+		DafnyTree char_literal90_tree=null;
 		DafnyTree char_literal91_tree=null;
-		DafnyTree char_literal92_tree=null;
-		DafnyTree string_literal94_tree=null;
-		DafnyTree string_literal100_tree=null;
-		DafnyTree string_literal103_tree=null;
+		DafnyTree string_literal93_tree=null;
+		DafnyTree string_literal99_tree=null;
+		DafnyTree string_literal102_tree=null;
+		DafnyTree string_literal104_tree=null;
 		DafnyTree string_literal105_tree=null;
-		DafnyTree string_literal106_tree=null;
-		DafnyTree ID107_tree=null;
-		DafnyTree char_literal108_tree=null;
-		DafnyTree char_literal110_tree=null;
+		DafnyTree ID106_tree=null;
+		DafnyTree char_literal107_tree=null;
+		DafnyTree char_literal109_tree=null;
+		DafnyTree string_literal110_tree=null;
 		DafnyTree string_literal111_tree=null;
-		DafnyTree string_literal112_tree=null;
-		DafnyTree ID113_tree=null;
-		DafnyTree char_literal114_tree=null;
-		DafnyTree char_literal116_tree=null;
+		DafnyTree ID112_tree=null;
+		DafnyTree char_literal113_tree=null;
+		DafnyTree char_literal115_tree=null;
 		RewriteRuleTokenStream stream_59=new RewriteRuleTokenStream(adaptor,"token 59");
 		RewriteRuleTokenStream stream_CALL=new RewriteRuleTokenStream(adaptor,"token CALL");
 		RewriteRuleTokenStream stream_WHILE=new RewriteRuleTokenStream(adaptor,"token WHILE");
@@ -1872,7 +1872,7 @@ public class DafnyParser extends Parser {
 		RewriteRuleSubtreeStream stream_expressions=new RewriteRuleSubtreeStream(adaptor,"rule expressions");
 
 		try {
-			// Dafny.g:184:10: ( VAR ^ ID ':' ! type ( ':=' ! expression )? ';' !| ID ':=' ^ expression ';' !| ID '[' i= expression ']' ':=' v= expression ';' -> ^( ARRAY_UPDATE ID $i $v) | ( ID ':=' 'call' )=>r= ID ':=' 'call' f= ID '(' ( expressions )? ')' ';' -> ^( 'call' $f ^( RESULTS $r) ^( ARGS ( expressions )? ) ) | ids ':=' 'call' ID '(' ( expressions )? ')' ';' -> ^( 'call' ID ^( RESULTS ids ) ^( ARGS ( expressions )? ) ) | ( label )? 'while' expression ( invariant )+ decreases relaxedBlock -> ^( 'while' ( label )? expression ( invariant )+ decreases relaxedBlock ) | ( label )? 'if' ^ expression relaxedBlock ( options {greedy=true; } : 'else' ! relaxedBlock )? | 'assert' ^ ( 'label' ! ID ':' !)? expression ';' !| 'assume' ^ ( 'label' ! ID ':' !)? expression ';' !)
+			// Dafny.g:184:10: ( VAR ^ ID ':' ! type ( ':=' ! expression )? ';' !| ID ':=' ^ expression ';' !| ID '[' i= expression ']' ass= ':=' v= expression ';' -> ^( ARRAY_UPDATE[$ass] ID $i $v) | ( ID ':=' 'call' )=>r= ID ':=' 'call' f= ID '(' ( expressions )? ')' ';' -> ^( 'call' $f ^( RESULTS $r) ^( ARGS ( expressions )? ) ) | ids ':=' 'call' ID '(' ( expressions )? ')' ';' -> ^( 'call' ID ^( RESULTS ids ) ^( ARGS ( expressions )? ) ) | ( label )? 'while' expression ( invariant )+ decreases relaxedBlock -> ^( 'while' ( label )? expression ( invariant )+ decreases relaxedBlock ) | ( label )? 'if' ^ expression relaxedBlock ( options {greedy=true; } : 'else' ! relaxedBlock )? | 'assert' ^ ( 'label' ! ID ':' !)? expression ';' !| 'assume' ^ ( 'label' ! ID ':' !)? expression ';' !)
 			int alt27=9;
 			switch ( input.LA(1) ) {
 			case VAR:
@@ -2102,7 +2102,7 @@ public class DafnyParser extends Parser {
 					}
 					break;
 				case 3 :
-					// Dafny.g:187:5: ID '[' i= expression ']' ':=' v= expression ';'
+					// Dafny.g:187:5: ID '[' i= expression ']' ass= ':=' v= expression ';'
 					{
 					ID74=(Token)match(input,ID,FOLLOW_ID_in_statement1047); if (state.failed) return retval; 
 					if ( state.backtracking==0 ) stream_ID.add(ID74);
@@ -2118,19 +2118,19 @@ public class DafnyParser extends Parser {
 					char_literal76=(Token)match(input,65,FOLLOW_65_in_statement1055); if (state.failed) return retval; 
 					if ( state.backtracking==0 ) stream_65.add(char_literal76);
 
-					string_literal77=(Token)match(input,ASSIGN,FOLLOW_ASSIGN_in_statement1057); if (state.failed) return retval; 
-					if ( state.backtracking==0 ) stream_ASSIGN.add(string_literal77);
+					ass=(Token)match(input,ASSIGN,FOLLOW_ASSIGN_in_statement1059); if (state.failed) return retval; 
+					if ( state.backtracking==0 ) stream_ASSIGN.add(ass);
 
-					pushFollow(FOLLOW_expression_in_statement1061);
+					pushFollow(FOLLOW_expression_in_statement1063);
 					v=expression();
 					state._fsp--;
 					if (state.failed) return retval;
 					if ( state.backtracking==0 ) stream_expression.add(v.getTree());
-					char_literal78=(Token)match(input,63,FOLLOW_63_in_statement1063); if (state.failed) return retval; 
-					if ( state.backtracking==0 ) stream_63.add(char_literal78);
+					char_literal77=(Token)match(input,63,FOLLOW_63_in_statement1065); if (state.failed) return retval; 
+					if ( state.backtracking==0 ) stream_63.add(char_literal77);
 
 					// AST REWRITE
-					// elements: ID, v, i
+					// elements: v, i, ID
 					// token labels: 
 					// rule labels: v, retval, i
 					// token list labels: 
@@ -2143,12 +2143,12 @@ public class DafnyParser extends Parser {
 					RewriteRuleSubtreeStream stream_i=new RewriteRuleSubtreeStream(adaptor,"rule i",i!=null?i.getTree():null);
 
 					root_0 = (DafnyTree)adaptor.nil();
-					// 188:9: -> ^( ARRAY_UPDATE ID $i $v)
+					// 188:9: -> ^( ARRAY_UPDATE[$ass] ID $i $v)
 					{
-						// Dafny.g:188:12: ^( ARRAY_UPDATE ID $i $v)
+						// Dafny.g:188:12: ^( ARRAY_UPDATE[$ass] ID $i $v)
 						{
 						DafnyTree root_1 = (DafnyTree)adaptor.nil();
-						root_1 = (DafnyTree)adaptor.becomeRoot((DafnyTree)adaptor.create(ARRAY_UPDATE, "ARRAY_UPDATE"), root_1);
+						root_1 = (DafnyTree)adaptor.becomeRoot((DafnyTree)adaptor.create(ARRAY_UPDATE, ass), root_1);
 						adaptor.addChild(root_1, stream_ID.nextNode());
 						adaptor.addChild(root_1, stream_i.nextTree());
 						adaptor.addChild(root_1, stream_v.nextTree());
@@ -2166,20 +2166,20 @@ public class DafnyParser extends Parser {
 				case 4 :
 					// Dafny.g:189:5: ( ID ':=' 'call' )=>r= ID ':=' 'call' f= ID '(' ( expressions )? ')' ';'
 					{
-					r=(Token)match(input,ID,FOLLOW_ID_in_statement1103); if (state.failed) return retval; 
+					r=(Token)match(input,ID,FOLLOW_ID_in_statement1106); if (state.failed) return retval; 
 					if ( state.backtracking==0 ) stream_ID.add(r);
 
-					string_literal79=(Token)match(input,ASSIGN,FOLLOW_ASSIGN_in_statement1105); if (state.failed) return retval; 
-					if ( state.backtracking==0 ) stream_ASSIGN.add(string_literal79);
+					string_literal78=(Token)match(input,ASSIGN,FOLLOW_ASSIGN_in_statement1108); if (state.failed) return retval; 
+					if ( state.backtracking==0 ) stream_ASSIGN.add(string_literal78);
 
-					string_literal80=(Token)match(input,CALL,FOLLOW_CALL_in_statement1107); if (state.failed) return retval; 
-					if ( state.backtracking==0 ) stream_CALL.add(string_literal80);
+					string_literal79=(Token)match(input,CALL,FOLLOW_CALL_in_statement1110); if (state.failed) return retval; 
+					if ( state.backtracking==0 ) stream_CALL.add(string_literal79);
 
-					f=(Token)match(input,ID,FOLLOW_ID_in_statement1111); if (state.failed) return retval; 
+					f=(Token)match(input,ID,FOLLOW_ID_in_statement1114); if (state.failed) return retval; 
 					if ( state.backtracking==0 ) stream_ID.add(f);
 
-					char_literal81=(Token)match(input,59,FOLLOW_59_in_statement1113); if (state.failed) return retval; 
-					if ( state.backtracking==0 ) stream_59.add(char_literal81);
+					char_literal80=(Token)match(input,59,FOLLOW_59_in_statement1116); if (state.failed) return retval; 
+					if ( state.backtracking==0 ) stream_59.add(char_literal80);
 
 					// Dafny.g:189:51: ( expressions )?
 					int alt19=2;
@@ -2191,24 +2191,24 @@ public class DafnyParser extends Parser {
 						case 1 :
 							// Dafny.g:189:51: expressions
 							{
-							pushFollow(FOLLOW_expressions_in_statement1115);
-							expressions82=expressions();
+							pushFollow(FOLLOW_expressions_in_statement1118);
+							expressions81=expressions();
 							state._fsp--;
 							if (state.failed) return retval;
-							if ( state.backtracking==0 ) stream_expressions.add(expressions82.getTree());
+							if ( state.backtracking==0 ) stream_expressions.add(expressions81.getTree());
 							}
 							break;
 
 					}
 
-					char_literal83=(Token)match(input,60,FOLLOW_60_in_statement1118); if (state.failed) return retval; 
-					if ( state.backtracking==0 ) stream_60.add(char_literal83);
+					char_literal82=(Token)match(input,60,FOLLOW_60_in_statement1121); if (state.failed) return retval; 
+					if ( state.backtracking==0 ) stream_60.add(char_literal82);
 
-					char_literal84=(Token)match(input,63,FOLLOW_63_in_statement1120); if (state.failed) return retval; 
-					if ( state.backtracking==0 ) stream_63.add(char_literal84);
+					char_literal83=(Token)match(input,63,FOLLOW_63_in_statement1123); if (state.failed) return retval; 
+					if ( state.backtracking==0 ) stream_63.add(char_literal83);
 
 					// AST REWRITE
-					// elements: r, expressions, CALL, f
+					// elements: CALL, f, expressions, r
 					// token labels: f, r
 					// rule labels: retval
 					// token list labels: 
@@ -2263,22 +2263,22 @@ public class DafnyParser extends Parser {
 				case 5 :
 					// Dafny.g:191:5: ids ':=' 'call' ID '(' ( expressions )? ')' ';'
 					{
-					pushFollow(FOLLOW_ids_in_statement1157);
-					ids85=ids();
+					pushFollow(FOLLOW_ids_in_statement1160);
+					ids84=ids();
 					state._fsp--;
 					if (state.failed) return retval;
-					if ( state.backtracking==0 ) stream_ids.add(ids85.getTree());
-					string_literal86=(Token)match(input,ASSIGN,FOLLOW_ASSIGN_in_statement1159); if (state.failed) return retval; 
-					if ( state.backtracking==0 ) stream_ASSIGN.add(string_literal86);
+					if ( state.backtracking==0 ) stream_ids.add(ids84.getTree());
+					string_literal85=(Token)match(input,ASSIGN,FOLLOW_ASSIGN_in_statement1162); if (state.failed) return retval; 
+					if ( state.backtracking==0 ) stream_ASSIGN.add(string_literal85);
 
-					string_literal87=(Token)match(input,CALL,FOLLOW_CALL_in_statement1161); if (state.failed) return retval; 
-					if ( state.backtracking==0 ) stream_CALL.add(string_literal87);
+					string_literal86=(Token)match(input,CALL,FOLLOW_CALL_in_statement1164); if (state.failed) return retval; 
+					if ( state.backtracking==0 ) stream_CALL.add(string_literal86);
 
-					ID88=(Token)match(input,ID,FOLLOW_ID_in_statement1163); if (state.failed) return retval; 
-					if ( state.backtracking==0 ) stream_ID.add(ID88);
+					ID87=(Token)match(input,ID,FOLLOW_ID_in_statement1166); if (state.failed) return retval; 
+					if ( state.backtracking==0 ) stream_ID.add(ID87);
 
-					char_literal89=(Token)match(input,59,FOLLOW_59_in_statement1165); if (state.failed) return retval; 
-					if ( state.backtracking==0 ) stream_59.add(char_literal89);
+					char_literal88=(Token)match(input,59,FOLLOW_59_in_statement1168); if (state.failed) return retval; 
+					if ( state.backtracking==0 ) stream_59.add(char_literal88);
 
 					// Dafny.g:191:28: ( expressions )?
 					int alt20=2;
@@ -2290,24 +2290,24 @@ public class DafnyParser extends Parser {
 						case 1 :
 							// Dafny.g:191:28: expressions
 							{
-							pushFollow(FOLLOW_expressions_in_statement1167);
-							expressions90=expressions();
+							pushFollow(FOLLOW_expressions_in_statement1170);
+							expressions89=expressions();
 							state._fsp--;
 							if (state.failed) return retval;
-							if ( state.backtracking==0 ) stream_expressions.add(expressions90.getTree());
+							if ( state.backtracking==0 ) stream_expressions.add(expressions89.getTree());
 							}
 							break;
 
 					}
 
-					char_literal91=(Token)match(input,60,FOLLOW_60_in_statement1170); if (state.failed) return retval; 
-					if ( state.backtracking==0 ) stream_60.add(char_literal91);
+					char_literal90=(Token)match(input,60,FOLLOW_60_in_statement1173); if (state.failed) return retval; 
+					if ( state.backtracking==0 ) stream_60.add(char_literal90);
 
-					char_literal92=(Token)match(input,63,FOLLOW_63_in_statement1172); if (state.failed) return retval; 
-					if ( state.backtracking==0 ) stream_63.add(char_literal92);
+					char_literal91=(Token)match(input,63,FOLLOW_63_in_statement1175); if (state.failed) return retval; 
+					if ( state.backtracking==0 ) stream_63.add(char_literal91);
 
 					// AST REWRITE
-					// elements: ids, expressions, ID, CALL
+					// elements: CALL, ids, ID, expressions
 					// token labels: 
 					// rule labels: retval
 					// token list labels: 
@@ -2370,24 +2370,24 @@ public class DafnyParser extends Parser {
 						case 1 :
 							// Dafny.g:193:5: label
 							{
-							pushFollow(FOLLOW_label_in_statement1207);
-							label93=label();
+							pushFollow(FOLLOW_label_in_statement1210);
+							label92=label();
 							state._fsp--;
 							if (state.failed) return retval;
-							if ( state.backtracking==0 ) stream_label.add(label93.getTree());
+							if ( state.backtracking==0 ) stream_label.add(label92.getTree());
 							}
 							break;
 
 					}
 
-					string_literal94=(Token)match(input,WHILE,FOLLOW_WHILE_in_statement1216); if (state.failed) return retval; 
-					if ( state.backtracking==0 ) stream_WHILE.add(string_literal94);
+					string_literal93=(Token)match(input,WHILE,FOLLOW_WHILE_in_statement1219); if (state.failed) return retval; 
+					if ( state.backtracking==0 ) stream_WHILE.add(string_literal93);
 
-					pushFollow(FOLLOW_expression_in_statement1218);
-					expression95=expression();
+					pushFollow(FOLLOW_expression_in_statement1221);
+					expression94=expression();
 					state._fsp--;
 					if (state.failed) return retval;
-					if ( state.backtracking==0 ) stream_expression.add(expression95.getTree());
+					if ( state.backtracking==0 ) stream_expression.add(expression94.getTree());
 					// Dafny.g:194:26: ( invariant )+
 					int cnt22=0;
 					loop22:
@@ -2402,11 +2402,11 @@ public class DafnyParser extends Parser {
 						case 1 :
 							// Dafny.g:194:26: invariant
 							{
-							pushFollow(FOLLOW_invariant_in_statement1220);
-							invariant96=invariant();
+							pushFollow(FOLLOW_invariant_in_statement1223);
+							invariant95=invariant();
 							state._fsp--;
 							if (state.failed) return retval;
-							if ( state.backtracking==0 ) stream_invariant.add(invariant96.getTree());
+							if ( state.backtracking==0 ) stream_invariant.add(invariant95.getTree());
 							}
 							break;
 
@@ -2419,18 +2419,18 @@ public class DafnyParser extends Parser {
 						cnt22++;
 					}
 
-					pushFollow(FOLLOW_decreases_in_statement1223);
-					decreases97=decreases();
+					pushFollow(FOLLOW_decreases_in_statement1226);
+					decreases96=decreases();
 					state._fsp--;
 					if (state.failed) return retval;
-					if ( state.backtracking==0 ) stream_decreases.add(decreases97.getTree());
-					pushFollow(FOLLOW_relaxedBlock_in_statement1225);
-					relaxedBlock98=relaxedBlock();
+					if ( state.backtracking==0 ) stream_decreases.add(decreases96.getTree());
+					pushFollow(FOLLOW_relaxedBlock_in_statement1228);
+					relaxedBlock97=relaxedBlock();
 					state._fsp--;
 					if (state.failed) return retval;
-					if ( state.backtracking==0 ) stream_relaxedBlock.add(relaxedBlock98.getTree());
+					if ( state.backtracking==0 ) stream_relaxedBlock.add(relaxedBlock97.getTree());
 					// AST REWRITE
-					// elements: invariant, label, relaxedBlock, expression, decreases, WHILE
+					// elements: label, relaxedBlock, decreases, invariant, WHILE, expression
 					// token labels: 
 					// rule labels: retval
 					// token list labels: 
@@ -2491,34 +2491,34 @@ public class DafnyParser extends Parser {
 						case 1 :
 							// Dafny.g:196:5: label
 							{
-							pushFollow(FOLLOW_label_in_statement1257);
-							label99=label();
+							pushFollow(FOLLOW_label_in_statement1260);
+							label98=label();
 							state._fsp--;
 							if (state.failed) return retval;
-							if ( state.backtracking==0 ) adaptor.addChild(root_0, label99.getTree());
+							if ( state.backtracking==0 ) adaptor.addChild(root_0, label98.getTree());
 
 							}
 							break;
 
 					}
 
-					string_literal100=(Token)match(input,IF,FOLLOW_IF_in_statement1260); if (state.failed) return retval;
+					string_literal99=(Token)match(input,IF,FOLLOW_IF_in_statement1263); if (state.failed) return retval;
 					if ( state.backtracking==0 ) {
-					string_literal100_tree = (DafnyTree)adaptor.create(string_literal100);
-					root_0 = (DafnyTree)adaptor.becomeRoot(string_literal100_tree, root_0);
+					string_literal99_tree = (DafnyTree)adaptor.create(string_literal99);
+					root_0 = (DafnyTree)adaptor.becomeRoot(string_literal99_tree, root_0);
 					}
 
-					pushFollow(FOLLOW_expression_in_statement1263);
-					expression101=expression();
+					pushFollow(FOLLOW_expression_in_statement1266);
+					expression100=expression();
 					state._fsp--;
 					if (state.failed) return retval;
-					if ( state.backtracking==0 ) adaptor.addChild(root_0, expression101.getTree());
+					if ( state.backtracking==0 ) adaptor.addChild(root_0, expression100.getTree());
 
-					pushFollow(FOLLOW_relaxedBlock_in_statement1265);
-					relaxedBlock102=relaxedBlock();
+					pushFollow(FOLLOW_relaxedBlock_in_statement1268);
+					relaxedBlock101=relaxedBlock();
 					state._fsp--;
 					if (state.failed) return retval;
-					if ( state.backtracking==0 ) adaptor.addChild(root_0, relaxedBlock102.getTree());
+					if ( state.backtracking==0 ) adaptor.addChild(root_0, relaxedBlock101.getTree());
 
 					// Dafny.g:197:7: ( options {greedy=true; } : 'else' ! relaxedBlock )?
 					int alt24=2;
@@ -2530,12 +2530,12 @@ public class DafnyParser extends Parser {
 						case 1 :
 							// Dafny.g:197:36: 'else' ! relaxedBlock
 							{
-							string_literal103=(Token)match(input,ELSE,FOLLOW_ELSE_in_statement1286); if (state.failed) return retval;
-							pushFollow(FOLLOW_relaxedBlock_in_statement1289);
-							relaxedBlock104=relaxedBlock();
+							string_literal102=(Token)match(input,ELSE,FOLLOW_ELSE_in_statement1289); if (state.failed) return retval;
+							pushFollow(FOLLOW_relaxedBlock_in_statement1292);
+							relaxedBlock103=relaxedBlock();
 							state._fsp--;
 							if (state.failed) return retval;
-							if ( state.backtracking==0 ) adaptor.addChild(root_0, relaxedBlock104.getTree());
+							if ( state.backtracking==0 ) adaptor.addChild(root_0, relaxedBlock103.getTree());
 
 							}
 							break;
@@ -2550,10 +2550,10 @@ public class DafnyParser extends Parser {
 					root_0 = (DafnyTree)adaptor.nil();
 
 
-					string_literal105=(Token)match(input,ASSERT,FOLLOW_ASSERT_in_statement1298); if (state.failed) return retval;
+					string_literal104=(Token)match(input,ASSERT,FOLLOW_ASSERT_in_statement1301); if (state.failed) return retval;
 					if ( state.backtracking==0 ) {
-					string_literal105_tree = (DafnyTree)adaptor.create(string_literal105);
-					root_0 = (DafnyTree)adaptor.becomeRoot(string_literal105_tree, root_0);
+					string_literal104_tree = (DafnyTree)adaptor.create(string_literal104);
+					root_0 = (DafnyTree)adaptor.becomeRoot(string_literal104_tree, root_0);
 					}
 
 					// Dafny.g:198:15: ( 'label' ! ID ':' !)?
@@ -2566,26 +2566,26 @@ public class DafnyParser extends Parser {
 						case 1 :
 							// Dafny.g:198:17: 'label' ! ID ':' !
 							{
-							string_literal106=(Token)match(input,LABEL,FOLLOW_LABEL_in_statement1303); if (state.failed) return retval;
-							ID107=(Token)match(input,ID,FOLLOW_ID_in_statement1306); if (state.failed) return retval;
+							string_literal105=(Token)match(input,LABEL,FOLLOW_LABEL_in_statement1306); if (state.failed) return retval;
+							ID106=(Token)match(input,ID,FOLLOW_ID_in_statement1309); if (state.failed) return retval;
 							if ( state.backtracking==0 ) {
-							ID107_tree = (DafnyTree)adaptor.create(ID107);
-							adaptor.addChild(root_0, ID107_tree);
+							ID106_tree = (DafnyTree)adaptor.create(ID106);
+							adaptor.addChild(root_0, ID106_tree);
 							}
 
-							char_literal108=(Token)match(input,62,FOLLOW_62_in_statement1308); if (state.failed) return retval;
+							char_literal107=(Token)match(input,62,FOLLOW_62_in_statement1311); if (state.failed) return retval;
 							}
 							break;
 
 					}
 
-					pushFollow(FOLLOW_expression_in_statement1314);
-					expression109=expression();
+					pushFollow(FOLLOW_expression_in_statement1317);
+					expression108=expression();
 					state._fsp--;
 					if (state.failed) return retval;
-					if ( state.backtracking==0 ) adaptor.addChild(root_0, expression109.getTree());
+					if ( state.backtracking==0 ) adaptor.addChild(root_0, expression108.getTree());
 
-					char_literal110=(Token)match(input,63,FOLLOW_63_in_statement1316); if (state.failed) return retval;
+					char_literal109=(Token)match(input,63,FOLLOW_63_in_statement1319); if (state.failed) return retval;
 					}
 					break;
 				case 9 :
@@ -2594,10 +2594,10 @@ public class DafnyParser extends Parser {
 					root_0 = (DafnyTree)adaptor.nil();
 
 
-					string_literal111=(Token)match(input,ASSUME,FOLLOW_ASSUME_in_statement1323); if (state.failed) return retval;
+					string_literal110=(Token)match(input,ASSUME,FOLLOW_ASSUME_in_statement1326); if (state.failed) return retval;
 					if ( state.backtracking==0 ) {
-					string_literal111_tree = (DafnyTree)adaptor.create(string_literal111);
-					root_0 = (DafnyTree)adaptor.becomeRoot(string_literal111_tree, root_0);
+					string_literal110_tree = (DafnyTree)adaptor.create(string_literal110);
+					root_0 = (DafnyTree)adaptor.becomeRoot(string_literal110_tree, root_0);
 					}
 
 					// Dafny.g:199:15: ( 'label' ! ID ':' !)?
@@ -2610,26 +2610,26 @@ public class DafnyParser extends Parser {
 						case 1 :
 							// Dafny.g:199:17: 'label' ! ID ':' !
 							{
-							string_literal112=(Token)match(input,LABEL,FOLLOW_LABEL_in_statement1328); if (state.failed) return retval;
-							ID113=(Token)match(input,ID,FOLLOW_ID_in_statement1331); if (state.failed) return retval;
+							string_literal111=(Token)match(input,LABEL,FOLLOW_LABEL_in_statement1331); if (state.failed) return retval;
+							ID112=(Token)match(input,ID,FOLLOW_ID_in_statement1334); if (state.failed) return retval;
 							if ( state.backtracking==0 ) {
-							ID113_tree = (DafnyTree)adaptor.create(ID113);
-							adaptor.addChild(root_0, ID113_tree);
+							ID112_tree = (DafnyTree)adaptor.create(ID112);
+							adaptor.addChild(root_0, ID112_tree);
 							}
 
-							char_literal114=(Token)match(input,62,FOLLOW_62_in_statement1333); if (state.failed) return retval;
+							char_literal113=(Token)match(input,62,FOLLOW_62_in_statement1336); if (state.failed) return retval;
 							}
 							break;
 
 					}
 
-					pushFollow(FOLLOW_expression_in_statement1339);
-					expression115=expression();
+					pushFollow(FOLLOW_expression_in_statement1342);
+					expression114=expression();
 					state._fsp--;
 					if (state.failed) return retval;
-					if ( state.backtracking==0 ) adaptor.addChild(root_0, expression115.getTree());
+					if ( state.backtracking==0 ) adaptor.addChild(root_0, expression114.getTree());
 
-					char_literal116=(Token)match(input,63,FOLLOW_63_in_statement1341); if (state.failed) return retval;
+					char_literal115=(Token)match(input,63,FOLLOW_63_in_statement1344); if (state.failed) return retval;
 					}
 					break;
 
@@ -2669,13 +2669,13 @@ public class DafnyParser extends Parser {
 
 		DafnyTree root_0 = null;
 
-		Token ID117=null;
-		Token char_literal118=null;
-		Token ID119=null;
+		Token ID116=null;
+		Token char_literal117=null;
+		Token ID118=null;
 
-		DafnyTree ID117_tree=null;
-		DafnyTree char_literal118_tree=null;
-		DafnyTree ID119_tree=null;
+		DafnyTree ID116_tree=null;
+		DafnyTree char_literal117_tree=null;
+		DafnyTree ID118_tree=null;
 
 		try {
 			// Dafny.g:202:4: ( ID ( ',' ! ID )+ )
@@ -2684,10 +2684,10 @@ public class DafnyParser extends Parser {
 			root_0 = (DafnyTree)adaptor.nil();
 
 
-			ID117=(Token)match(input,ID,FOLLOW_ID_in_ids1354); if (state.failed) return retval;
+			ID116=(Token)match(input,ID,FOLLOW_ID_in_ids1357); if (state.failed) return retval;
 			if ( state.backtracking==0 ) {
-			ID117_tree = (DafnyTree)adaptor.create(ID117);
-			adaptor.addChild(root_0, ID117_tree);
+			ID116_tree = (DafnyTree)adaptor.create(ID116);
+			adaptor.addChild(root_0, ID116_tree);
 			}
 
 			// Dafny.g:203:6: ( ',' ! ID )+
@@ -2704,11 +2704,11 @@ public class DafnyParser extends Parser {
 				case 1 :
 					// Dafny.g:203:7: ',' ! ID
 					{
-					char_literal118=(Token)match(input,61,FOLLOW_61_in_ids1357); if (state.failed) return retval;
-					ID119=(Token)match(input,ID,FOLLOW_ID_in_ids1360); if (state.failed) return retval;
+					char_literal117=(Token)match(input,61,FOLLOW_61_in_ids1360); if (state.failed) return retval;
+					ID118=(Token)match(input,ID,FOLLOW_ID_in_ids1363); if (state.failed) return retval;
 					if ( state.backtracking==0 ) {
-					ID119_tree = (DafnyTree)adaptor.create(ID119);
-					adaptor.addChild(root_0, ID119_tree);
+					ID118_tree = (DafnyTree)adaptor.create(ID118);
+					adaptor.addChild(root_0, ID118_tree);
 					}
 
 					}
@@ -2760,11 +2760,11 @@ public class DafnyParser extends Parser {
 
 		DafnyTree root_0 = null;
 
-		Token char_literal121=null;
-		ParserRuleReturnScope expression120 =null;
-		ParserRuleReturnScope expression122 =null;
+		Token char_literal120=null;
+		ParserRuleReturnScope expression119 =null;
+		ParserRuleReturnScope expression121 =null;
 
-		DafnyTree char_literal121_tree=null;
+		DafnyTree char_literal120_tree=null;
 
 		try {
 			// Dafny.g:206:12: ( expression ( ',' ! expression )* )
@@ -2773,11 +2773,11 @@ public class DafnyParser extends Parser {
 			root_0 = (DafnyTree)adaptor.nil();
 
 
-			pushFollow(FOLLOW_expression_in_expressions1374);
-			expression120=expression();
+			pushFollow(FOLLOW_expression_in_expressions1377);
+			expression119=expression();
 			state._fsp--;
 			if (state.failed) return retval;
-			if ( state.backtracking==0 ) adaptor.addChild(root_0, expression120.getTree());
+			if ( state.backtracking==0 ) adaptor.addChild(root_0, expression119.getTree());
 
 			// Dafny.g:207:14: ( ',' ! expression )*
 			loop29:
@@ -2792,12 +2792,12 @@ public class DafnyParser extends Parser {
 				case 1 :
 					// Dafny.g:207:16: ',' ! expression
 					{
-					char_literal121=(Token)match(input,61,FOLLOW_61_in_expressions1378); if (state.failed) return retval;
-					pushFollow(FOLLOW_expression_in_expressions1381);
-					expression122=expression();
+					char_literal120=(Token)match(input,61,FOLLOW_61_in_expressions1381); if (state.failed) return retval;
+					pushFollow(FOLLOW_expression_in_expressions1384);
+					expression121=expression();
 					state._fsp--;
 					if (state.failed) return retval;
-					if ( state.backtracking==0 ) adaptor.addChild(root_0, expression122.getTree());
+					if ( state.backtracking==0 ) adaptor.addChild(root_0, expression121.getTree());
 
 					}
 					break;
@@ -2844,7 +2844,7 @@ public class DafnyParser extends Parser {
 
 		DafnyTree root_0 = null;
 
-		ParserRuleReturnScope or_expr123 =null;
+		ParserRuleReturnScope or_expr122 =null;
 
 
 		try {
@@ -2854,11 +2854,11 @@ public class DafnyParser extends Parser {
 			root_0 = (DafnyTree)adaptor.nil();
 
 
-			pushFollow(FOLLOW_or_expr_in_expression1396);
-			or_expr123=or_expr();
+			pushFollow(FOLLOW_or_expr_in_expression1399);
+			or_expr122=or_expr();
 			state._fsp--;
 			if (state.failed) return retval;
-			if ( state.backtracking==0 ) adaptor.addChild(root_0, or_expr123.getTree());
+			if ( state.backtracking==0 ) adaptor.addChild(root_0, or_expr122.getTree());
 
 			}
 
@@ -2897,13 +2897,13 @@ public class DafnyParser extends Parser {
 
 		DafnyTree root_0 = null;
 
+		Token string_literal124=null;
 		Token string_literal125=null;
-		Token string_literal126=null;
-		ParserRuleReturnScope and_expr124 =null;
-		ParserRuleReturnScope or_expr127 =null;
+		ParserRuleReturnScope and_expr123 =null;
+		ParserRuleReturnScope or_expr126 =null;
 
+		DafnyTree string_literal124_tree=null;
 		DafnyTree string_literal125_tree=null;
-		DafnyTree string_literal126_tree=null;
 
 		try {
 			// Dafny.g:213:8: ( and_expr ( ( '||' ^| '==>' ^) or_expr )? )
@@ -2912,11 +2912,11 @@ public class DafnyParser extends Parser {
 			root_0 = (DafnyTree)adaptor.nil();
 
 
-			pushFollow(FOLLOW_and_expr_in_or_expr1405);
-			and_expr124=and_expr();
+			pushFollow(FOLLOW_and_expr_in_or_expr1408);
+			and_expr123=and_expr();
 			state._fsp--;
 			if (state.failed) return retval;
-			if ( state.backtracking==0 ) adaptor.addChild(root_0, and_expr124.getTree());
+			if ( state.backtracking==0 ) adaptor.addChild(root_0, and_expr123.getTree());
 
 			// Dafny.g:214:12: ( ( '||' ^| '==>' ^) or_expr )?
 			int alt31=2;
@@ -2949,10 +2949,10 @@ public class DafnyParser extends Parser {
 						case 1 :
 							// Dafny.g:214:15: '||' ^
 							{
-							string_literal125=(Token)match(input,OR,FOLLOW_OR_in_or_expr1410); if (state.failed) return retval;
+							string_literal124=(Token)match(input,OR,FOLLOW_OR_in_or_expr1413); if (state.failed) return retval;
 							if ( state.backtracking==0 ) {
-							string_literal125_tree = (DafnyTree)adaptor.create(string_literal125);
-							root_0 = (DafnyTree)adaptor.becomeRoot(string_literal125_tree, root_0);
+							string_literal124_tree = (DafnyTree)adaptor.create(string_literal124);
+							root_0 = (DafnyTree)adaptor.becomeRoot(string_literal124_tree, root_0);
 							}
 
 							}
@@ -2960,10 +2960,10 @@ public class DafnyParser extends Parser {
 						case 2 :
 							// Dafny.g:214:23: '==>' ^
 							{
-							string_literal126=(Token)match(input,IMPLIES,FOLLOW_IMPLIES_in_or_expr1415); if (state.failed) return retval;
+							string_literal125=(Token)match(input,IMPLIES,FOLLOW_IMPLIES_in_or_expr1418); if (state.failed) return retval;
 							if ( state.backtracking==0 ) {
-							string_literal126_tree = (DafnyTree)adaptor.create(string_literal126);
-							root_0 = (DafnyTree)adaptor.becomeRoot(string_literal126_tree, root_0);
+							string_literal125_tree = (DafnyTree)adaptor.create(string_literal125);
+							root_0 = (DafnyTree)adaptor.becomeRoot(string_literal125_tree, root_0);
 							}
 
 							}
@@ -2971,11 +2971,11 @@ public class DafnyParser extends Parser {
 
 					}
 
-					pushFollow(FOLLOW_or_expr_in_or_expr1419);
-					or_expr127=or_expr();
+					pushFollow(FOLLOW_or_expr_in_or_expr1422);
+					or_expr126=or_expr();
 					state._fsp--;
 					if (state.failed) return retval;
-					if ( state.backtracking==0 ) adaptor.addChild(root_0, or_expr127.getTree());
+					if ( state.backtracking==0 ) adaptor.addChild(root_0, or_expr126.getTree());
 
 					}
 					break;
@@ -3019,11 +3019,11 @@ public class DafnyParser extends Parser {
 
 		DafnyTree root_0 = null;
 
-		Token string_literal129=null;
-		ParserRuleReturnScope rel_expr128 =null;
-		ParserRuleReturnScope and_expr130 =null;
+		Token string_literal128=null;
+		ParserRuleReturnScope rel_expr127 =null;
+		ParserRuleReturnScope and_expr129 =null;
 
-		DafnyTree string_literal129_tree=null;
+		DafnyTree string_literal128_tree=null;
 
 		try {
 			// Dafny.g:217:9: ( rel_expr ( '&&' ^ and_expr )? )
@@ -3032,11 +3032,11 @@ public class DafnyParser extends Parser {
 			root_0 = (DafnyTree)adaptor.nil();
 
 
-			pushFollow(FOLLOW_rel_expr_in_and_expr1434);
-			rel_expr128=rel_expr();
+			pushFollow(FOLLOW_rel_expr_in_and_expr1437);
+			rel_expr127=rel_expr();
 			state._fsp--;
 			if (state.failed) return retval;
-			if ( state.backtracking==0 ) adaptor.addChild(root_0, rel_expr128.getTree());
+			if ( state.backtracking==0 ) adaptor.addChild(root_0, rel_expr127.getTree());
 
 			// Dafny.g:218:12: ( '&&' ^ and_expr )?
 			int alt32=2;
@@ -3048,17 +3048,17 @@ public class DafnyParser extends Parser {
 				case 1 :
 					// Dafny.g:218:14: '&&' ^ and_expr
 					{
-					string_literal129=(Token)match(input,AND,FOLLOW_AND_in_and_expr1438); if (state.failed) return retval;
+					string_literal128=(Token)match(input,AND,FOLLOW_AND_in_and_expr1441); if (state.failed) return retval;
 					if ( state.backtracking==0 ) {
-					string_literal129_tree = (DafnyTree)adaptor.create(string_literal129);
-					root_0 = (DafnyTree)adaptor.becomeRoot(string_literal129_tree, root_0);
+					string_literal128_tree = (DafnyTree)adaptor.create(string_literal128);
+					root_0 = (DafnyTree)adaptor.becomeRoot(string_literal128_tree, root_0);
 					}
 
-					pushFollow(FOLLOW_and_expr_in_and_expr1441);
-					and_expr130=and_expr();
+					pushFollow(FOLLOW_and_expr_in_and_expr1444);
+					and_expr129=and_expr();
 					state._fsp--;
 					if (state.failed) return retval;
-					if ( state.backtracking==0 ) adaptor.addChild(root_0, and_expr130.getTree());
+					if ( state.backtracking==0 ) adaptor.addChild(root_0, and_expr129.getTree());
 
 					}
 					break;
@@ -3102,19 +3102,19 @@ public class DafnyParser extends Parser {
 
 		DafnyTree root_0 = null;
 
+		Token char_literal131=null;
 		Token char_literal132=null;
-		Token char_literal133=null;
+		Token string_literal133=null;
 		Token string_literal134=null;
 		Token string_literal135=null;
-		Token string_literal136=null;
-		ParserRuleReturnScope add_expr131 =null;
-		ParserRuleReturnScope add_expr137 =null;
+		ParserRuleReturnScope add_expr130 =null;
+		ParserRuleReturnScope add_expr136 =null;
 
+		DafnyTree char_literal131_tree=null;
 		DafnyTree char_literal132_tree=null;
-		DafnyTree char_literal133_tree=null;
+		DafnyTree string_literal133_tree=null;
 		DafnyTree string_literal134_tree=null;
 		DafnyTree string_literal135_tree=null;
-		DafnyTree string_literal136_tree=null;
 
 		try {
 			// Dafny.g:221:9: ( add_expr ( ( '<' ^| '>' ^| '==' ^| '<=' ^| '>=' ^) add_expr )? )
@@ -3123,11 +3123,11 @@ public class DafnyParser extends Parser {
 			root_0 = (DafnyTree)adaptor.nil();
 
 
-			pushFollow(FOLLOW_add_expr_in_rel_expr1456);
-			add_expr131=add_expr();
+			pushFollow(FOLLOW_add_expr_in_rel_expr1459);
+			add_expr130=add_expr();
 			state._fsp--;
 			if (state.failed) return retval;
-			if ( state.backtracking==0 ) adaptor.addChild(root_0, add_expr131.getTree());
+			if ( state.backtracking==0 ) adaptor.addChild(root_0, add_expr130.getTree());
 
 			// Dafny.g:222:12: ( ( '<' ^| '>' ^| '==' ^| '<=' ^| '>=' ^) add_expr )?
 			int alt34=2;
@@ -3177,10 +3177,10 @@ public class DafnyParser extends Parser {
 						case 1 :
 							// Dafny.g:222:15: '<' ^
 							{
-							char_literal132=(Token)match(input,LT,FOLLOW_LT_in_rel_expr1461); if (state.failed) return retval;
+							char_literal131=(Token)match(input,LT,FOLLOW_LT_in_rel_expr1464); if (state.failed) return retval;
 							if ( state.backtracking==0 ) {
-							char_literal132_tree = (DafnyTree)adaptor.create(char_literal132);
-							root_0 = (DafnyTree)adaptor.becomeRoot(char_literal132_tree, root_0);
+							char_literal131_tree = (DafnyTree)adaptor.create(char_literal131);
+							root_0 = (DafnyTree)adaptor.becomeRoot(char_literal131_tree, root_0);
 							}
 
 							}
@@ -3188,10 +3188,10 @@ public class DafnyParser extends Parser {
 						case 2 :
 							// Dafny.g:222:22: '>' ^
 							{
-							char_literal133=(Token)match(input,GT,FOLLOW_GT_in_rel_expr1466); if (state.failed) return retval;
+							char_literal132=(Token)match(input,GT,FOLLOW_GT_in_rel_expr1469); if (state.failed) return retval;
 							if ( state.backtracking==0 ) {
-							char_literal133_tree = (DafnyTree)adaptor.create(char_literal133);
-							root_0 = (DafnyTree)adaptor.becomeRoot(char_literal133_tree, root_0);
+							char_literal132_tree = (DafnyTree)adaptor.create(char_literal132);
+							root_0 = (DafnyTree)adaptor.becomeRoot(char_literal132_tree, root_0);
 							}
 
 							}
@@ -3199,10 +3199,10 @@ public class DafnyParser extends Parser {
 						case 3 :
 							// Dafny.g:222:29: '==' ^
 							{
-							string_literal134=(Token)match(input,EQ,FOLLOW_EQ_in_rel_expr1471); if (state.failed) return retval;
+							string_literal133=(Token)match(input,EQ,FOLLOW_EQ_in_rel_expr1474); if (state.failed) return retval;
 							if ( state.backtracking==0 ) {
-							string_literal134_tree = (DafnyTree)adaptor.create(string_literal134);
-							root_0 = (DafnyTree)adaptor.becomeRoot(string_literal134_tree, root_0);
+							string_literal133_tree = (DafnyTree)adaptor.create(string_literal133);
+							root_0 = (DafnyTree)adaptor.becomeRoot(string_literal133_tree, root_0);
 							}
 
 							}
@@ -3210,10 +3210,10 @@ public class DafnyParser extends Parser {
 						case 4 :
 							// Dafny.g:222:37: '<=' ^
 							{
-							string_literal135=(Token)match(input,LE,FOLLOW_LE_in_rel_expr1476); if (state.failed) return retval;
+							string_literal134=(Token)match(input,LE,FOLLOW_LE_in_rel_expr1479); if (state.failed) return retval;
 							if ( state.backtracking==0 ) {
-							string_literal135_tree = (DafnyTree)adaptor.create(string_literal135);
-							root_0 = (DafnyTree)adaptor.becomeRoot(string_literal135_tree, root_0);
+							string_literal134_tree = (DafnyTree)adaptor.create(string_literal134);
+							root_0 = (DafnyTree)adaptor.becomeRoot(string_literal134_tree, root_0);
 							}
 
 							}
@@ -3221,10 +3221,10 @@ public class DafnyParser extends Parser {
 						case 5 :
 							// Dafny.g:222:45: '>=' ^
 							{
-							string_literal136=(Token)match(input,GE,FOLLOW_GE_in_rel_expr1481); if (state.failed) return retval;
+							string_literal135=(Token)match(input,GE,FOLLOW_GE_in_rel_expr1484); if (state.failed) return retval;
 							if ( state.backtracking==0 ) {
-							string_literal136_tree = (DafnyTree)adaptor.create(string_literal136);
-							root_0 = (DafnyTree)adaptor.becomeRoot(string_literal136_tree, root_0);
+							string_literal135_tree = (DafnyTree)adaptor.create(string_literal135);
+							root_0 = (DafnyTree)adaptor.becomeRoot(string_literal135_tree, root_0);
 							}
 
 							}
@@ -3232,11 +3232,11 @@ public class DafnyParser extends Parser {
 
 					}
 
-					pushFollow(FOLLOW_add_expr_in_rel_expr1485);
-					add_expr137=add_expr();
+					pushFollow(FOLLOW_add_expr_in_rel_expr1488);
+					add_expr136=add_expr();
 					state._fsp--;
 					if (state.failed) return retval;
-					if ( state.backtracking==0 ) adaptor.addChild(root_0, add_expr137.getTree());
+					if ( state.backtracking==0 ) adaptor.addChild(root_0, add_expr136.getTree());
 
 					}
 					break;
@@ -3280,11 +3280,11 @@ public class DafnyParser extends Parser {
 
 		DafnyTree root_0 = null;
 
-		Token set139=null;
-		ParserRuleReturnScope mul_expr138 =null;
-		ParserRuleReturnScope add_expr140 =null;
+		Token set138=null;
+		ParserRuleReturnScope mul_expr137 =null;
+		ParserRuleReturnScope add_expr139 =null;
 
-		DafnyTree set139_tree=null;
+		DafnyTree set138_tree=null;
 
 		try {
 			// Dafny.g:225:9: ( mul_expr ( ( '+' | '-' | '++' ) ^ add_expr )? )
@@ -3293,11 +3293,11 @@ public class DafnyParser extends Parser {
 			root_0 = (DafnyTree)adaptor.nil();
 
 
-			pushFollow(FOLLOW_mul_expr_in_add_expr1500);
-			mul_expr138=mul_expr();
+			pushFollow(FOLLOW_mul_expr_in_add_expr1503);
+			mul_expr137=mul_expr();
 			state._fsp--;
 			if (state.failed) return retval;
-			if ( state.backtracking==0 ) adaptor.addChild(root_0, mul_expr138.getTree());
+			if ( state.backtracking==0 ) adaptor.addChild(root_0, mul_expr137.getTree());
 
 			// Dafny.g:226:12: ( ( '+' | '-' | '++' ) ^ add_expr )?
 			int alt35=2;
@@ -3309,11 +3309,11 @@ public class DafnyParser extends Parser {
 				case 1 :
 					// Dafny.g:226:14: ( '+' | '-' | '++' ) ^ add_expr
 					{
-					set139=input.LT(1);
-					set139=input.LT(1);
+					set138=input.LT(1);
+					set138=input.LT(1);
 					if ( input.LA(1)==MINUS||input.LA(1)==PLUS||input.LA(1)==UNION ) {
 						input.consume();
-						if ( state.backtracking==0 ) root_0 = (DafnyTree)adaptor.becomeRoot((DafnyTree)adaptor.create(set139), root_0);
+						if ( state.backtracking==0 ) root_0 = (DafnyTree)adaptor.becomeRoot((DafnyTree)adaptor.create(set138), root_0);
 						state.errorRecovery=false;
 						state.failed=false;
 					}
@@ -3322,11 +3322,11 @@ public class DafnyParser extends Parser {
 						MismatchedSetException mse = new MismatchedSetException(null,input);
 						throw mse;
 					}
-					pushFollow(FOLLOW_add_expr_in_add_expr1517);
-					add_expr140=add_expr();
+					pushFollow(FOLLOW_add_expr_in_add_expr1520);
+					add_expr139=add_expr();
 					state._fsp--;
 					if (state.failed) return retval;
-					if ( state.backtracking==0 ) adaptor.addChild(root_0, add_expr140.getTree());
+					if ( state.backtracking==0 ) adaptor.addChild(root_0, add_expr139.getTree());
 
 					}
 					break;
@@ -3370,11 +3370,11 @@ public class DafnyParser extends Parser {
 
 		DafnyTree root_0 = null;
 
-		Token set142=null;
-		ParserRuleReturnScope prefix_expr141 =null;
-		ParserRuleReturnScope mul_expr143 =null;
+		Token set141=null;
+		ParserRuleReturnScope prefix_expr140 =null;
+		ParserRuleReturnScope mul_expr142 =null;
 
-		DafnyTree set142_tree=null;
+		DafnyTree set141_tree=null;
 
 		try {
 			// Dafny.g:229:9: ( prefix_expr ( ( '*' | '**' ) ^ mul_expr )? )
@@ -3383,11 +3383,11 @@ public class DafnyParser extends Parser {
 			root_0 = (DafnyTree)adaptor.nil();
 
 
-			pushFollow(FOLLOW_prefix_expr_in_mul_expr1532);
-			prefix_expr141=prefix_expr();
+			pushFollow(FOLLOW_prefix_expr_in_mul_expr1535);
+			prefix_expr140=prefix_expr();
 			state._fsp--;
 			if (state.failed) return retval;
-			if ( state.backtracking==0 ) adaptor.addChild(root_0, prefix_expr141.getTree());
+			if ( state.backtracking==0 ) adaptor.addChild(root_0, prefix_expr140.getTree());
 
 			// Dafny.g:230:15: ( ( '*' | '**' ) ^ mul_expr )?
 			int alt36=2;
@@ -3399,11 +3399,11 @@ public class DafnyParser extends Parser {
 				case 1 :
 					// Dafny.g:230:17: ( '*' | '**' ) ^ mul_expr
 					{
-					set142=input.LT(1);
-					set142=input.LT(1);
+					set141=input.LT(1);
+					set141=input.LT(1);
 					if ( input.LA(1)==INTERSECT||input.LA(1)==TIMES ) {
 						input.consume();
-						if ( state.backtracking==0 ) root_0 = (DafnyTree)adaptor.becomeRoot((DafnyTree)adaptor.create(set142), root_0);
+						if ( state.backtracking==0 ) root_0 = (DafnyTree)adaptor.becomeRoot((DafnyTree)adaptor.create(set141), root_0);
 						state.errorRecovery=false;
 						state.failed=false;
 					}
@@ -3412,11 +3412,11 @@ public class DafnyParser extends Parser {
 						MismatchedSetException mse = new MismatchedSetException(null,input);
 						throw mse;
 					}
-					pushFollow(FOLLOW_mul_expr_in_mul_expr1545);
-					mul_expr143=mul_expr();
+					pushFollow(FOLLOW_mul_expr_in_mul_expr1548);
+					mul_expr142=mul_expr();
 					state._fsp--;
 					if (state.failed) return retval;
-					if ( state.backtracking==0 ) adaptor.addChild(root_0, mul_expr143.getTree());
+					if ( state.backtracking==0 ) adaptor.addChild(root_0, mul_expr142.getTree());
 
 					}
 					break;
@@ -3460,14 +3460,14 @@ public class DafnyParser extends Parser {
 
 		DafnyTree root_0 = null;
 
-		Token char_literal144=null;
-		Token char_literal146=null;
-		ParserRuleReturnScope prefix_expr145 =null;
-		ParserRuleReturnScope prefix_expr147 =null;
-		ParserRuleReturnScope postfix_expr148 =null;
+		Token char_literal143=null;
+		Token char_literal145=null;
+		ParserRuleReturnScope prefix_expr144 =null;
+		ParserRuleReturnScope prefix_expr146 =null;
+		ParserRuleReturnScope postfix_expr147 =null;
 
-		DafnyTree char_literal144_tree=null;
-		DafnyTree char_literal146_tree=null;
+		DafnyTree char_literal143_tree=null;
+		DafnyTree char_literal145_tree=null;
 
 		try {
 			// Dafny.g:233:12: ( '-' ^ prefix_expr | '!' ^ prefix_expr | postfix_expr )
@@ -3505,17 +3505,17 @@ public class DafnyParser extends Parser {
 					root_0 = (DafnyTree)adaptor.nil();
 
 
-					char_literal144=(Token)match(input,MINUS,FOLLOW_MINUS_in_prefix_expr1562); if (state.failed) return retval;
+					char_literal143=(Token)match(input,MINUS,FOLLOW_MINUS_in_prefix_expr1565); if (state.failed) return retval;
 					if ( state.backtracking==0 ) {
-					char_literal144_tree = (DafnyTree)adaptor.create(char_literal144);
-					root_0 = (DafnyTree)adaptor.becomeRoot(char_literal144_tree, root_0);
+					char_literal143_tree = (DafnyTree)adaptor.create(char_literal143);
+					root_0 = (DafnyTree)adaptor.becomeRoot(char_literal143_tree, root_0);
 					}
 
-					pushFollow(FOLLOW_prefix_expr_in_prefix_expr1565);
-					prefix_expr145=prefix_expr();
+					pushFollow(FOLLOW_prefix_expr_in_prefix_expr1568);
+					prefix_expr144=prefix_expr();
 					state._fsp--;
 					if (state.failed) return retval;
-					if ( state.backtracking==0 ) adaptor.addChild(root_0, prefix_expr145.getTree());
+					if ( state.backtracking==0 ) adaptor.addChild(root_0, prefix_expr144.getTree());
 
 					}
 					break;
@@ -3525,17 +3525,17 @@ public class DafnyParser extends Parser {
 					root_0 = (DafnyTree)adaptor.nil();
 
 
-					char_literal146=(Token)match(input,NOT,FOLLOW_NOT_in_prefix_expr1571); if (state.failed) return retval;
+					char_literal145=(Token)match(input,NOT,FOLLOW_NOT_in_prefix_expr1574); if (state.failed) return retval;
 					if ( state.backtracking==0 ) {
-					char_literal146_tree = (DafnyTree)adaptor.create(char_literal146);
-					root_0 = (DafnyTree)adaptor.becomeRoot(char_literal146_tree, root_0);
+					char_literal145_tree = (DafnyTree)adaptor.create(char_literal145);
+					root_0 = (DafnyTree)adaptor.becomeRoot(char_literal145_tree, root_0);
 					}
 
-					pushFollow(FOLLOW_prefix_expr_in_prefix_expr1574);
-					prefix_expr147=prefix_expr();
+					pushFollow(FOLLOW_prefix_expr_in_prefix_expr1577);
+					prefix_expr146=prefix_expr();
 					state._fsp--;
 					if (state.failed) return retval;
-					if ( state.backtracking==0 ) adaptor.addChild(root_0, prefix_expr147.getTree());
+					if ( state.backtracking==0 ) adaptor.addChild(root_0, prefix_expr146.getTree());
 
 					}
 					break;
@@ -3545,11 +3545,11 @@ public class DafnyParser extends Parser {
 					root_0 = (DafnyTree)adaptor.nil();
 
 
-					pushFollow(FOLLOW_postfix_expr_in_prefix_expr1580);
-					postfix_expr148=postfix_expr();
+					pushFollow(FOLLOW_postfix_expr_in_prefix_expr1583);
+					postfix_expr147=postfix_expr();
 					state._fsp--;
 					if (state.failed) return retval;
-					if ( state.backtracking==0 ) adaptor.addChild(root_0, postfix_expr148.getTree());
+					if ( state.backtracking==0 ) adaptor.addChild(root_0, postfix_expr147.getTree());
 
 					}
 					break;
@@ -3590,19 +3590,19 @@ public class DafnyParser extends Parser {
 
 		DafnyTree root_0 = null;
 
-		Token char_literal150=null;
+		Token char_literal149=null;
+		Token char_literal151=null;
 		Token char_literal152=null;
-		Token char_literal153=null;
-		Token LENGTH154=null;
-		Token EOF155=null;
-		ParserRuleReturnScope atom_expr149 =null;
-		ParserRuleReturnScope expression151 =null;
+		Token LENGTH153=null;
+		Token EOF154=null;
+		ParserRuleReturnScope atom_expr148 =null;
+		ParserRuleReturnScope expression150 =null;
 
-		DafnyTree char_literal150_tree=null;
+		DafnyTree char_literal149_tree=null;
+		DafnyTree char_literal151_tree=null;
 		DafnyTree char_literal152_tree=null;
-		DafnyTree char_literal153_tree=null;
-		DafnyTree LENGTH154_tree=null;
-		DafnyTree EOF155_tree=null;
+		DafnyTree LENGTH153_tree=null;
+		DafnyTree EOF154_tree=null;
 		RewriteRuleTokenStream stream_DOT=new RewriteRuleTokenStream(adaptor,"token DOT");
 		RewriteRuleTokenStream stream_64=new RewriteRuleTokenStream(adaptor,"token 64");
 		RewriteRuleTokenStream stream_65=new RewriteRuleTokenStream(adaptor,"token 65");
@@ -3615,11 +3615,11 @@ public class DafnyParser extends Parser {
 			// Dafny.g:239:13: ( atom_expr ( '[' expression ']' -> ^( ARRAY_ACCESS atom_expr expression ) | '.' LENGTH -> ^( LENGTH atom_expr ) | -> atom_expr | EOF -> atom_expr ) )
 			// Dafny.g:240:3: atom_expr ( '[' expression ']' -> ^( ARRAY_ACCESS atom_expr expression ) | '.' LENGTH -> ^( LENGTH atom_expr ) | -> atom_expr | EOF -> atom_expr )
 			{
-			pushFollow(FOLLOW_atom_expr_in_postfix_expr1592);
-			atom_expr149=atom_expr();
+			pushFollow(FOLLOW_atom_expr_in_postfix_expr1595);
+			atom_expr148=atom_expr();
 			state._fsp--;
 			if (state.failed) return retval;
-			if ( state.backtracking==0 ) stream_atom_expr.add(atom_expr149.getTree());
+			if ( state.backtracking==0 ) stream_atom_expr.add(atom_expr148.getTree());
 			// Dafny.g:241:3: ( '[' expression ']' -> ^( ARRAY_ACCESS atom_expr expression ) | '.' LENGTH -> ^( LENGTH atom_expr ) | -> atom_expr | EOF -> atom_expr )
 			int alt38=4;
 			switch ( input.LA(1) ) {
@@ -3682,16 +3682,16 @@ public class DafnyParser extends Parser {
 				case 1 :
 					// Dafny.g:241:5: '[' expression ']'
 					{
-					char_literal150=(Token)match(input,64,FOLLOW_64_in_postfix_expr1598); if (state.failed) return retval; 
-					if ( state.backtracking==0 ) stream_64.add(char_literal150);
+					char_literal149=(Token)match(input,64,FOLLOW_64_in_postfix_expr1601); if (state.failed) return retval; 
+					if ( state.backtracking==0 ) stream_64.add(char_literal149);
 
-					pushFollow(FOLLOW_expression_in_postfix_expr1600);
-					expression151=expression();
+					pushFollow(FOLLOW_expression_in_postfix_expr1603);
+					expression150=expression();
 					state._fsp--;
 					if (state.failed) return retval;
-					if ( state.backtracking==0 ) stream_expression.add(expression151.getTree());
-					char_literal152=(Token)match(input,65,FOLLOW_65_in_postfix_expr1602); if (state.failed) return retval; 
-					if ( state.backtracking==0 ) stream_65.add(char_literal152);
+					if ( state.backtracking==0 ) stream_expression.add(expression150.getTree());
+					char_literal151=(Token)match(input,65,FOLLOW_65_in_postfix_expr1605); if (state.failed) return retval; 
+					if ( state.backtracking==0 ) stream_65.add(char_literal151);
 
 					// AST REWRITE
 					// elements: expression, atom_expr
@@ -3727,11 +3727,11 @@ public class DafnyParser extends Parser {
 				case 2 :
 					// Dafny.g:242:5: '.' LENGTH
 					{
-					char_literal153=(Token)match(input,DOT,FOLLOW_DOT_in_postfix_expr1620); if (state.failed) return retval; 
-					if ( state.backtracking==0 ) stream_DOT.add(char_literal153);
+					char_literal152=(Token)match(input,DOT,FOLLOW_DOT_in_postfix_expr1623); if (state.failed) return retval; 
+					if ( state.backtracking==0 ) stream_DOT.add(char_literal152);
 
-					LENGTH154=(Token)match(input,LENGTH,FOLLOW_LENGTH_in_postfix_expr1622); if (state.failed) return retval; 
-					if ( state.backtracking==0 ) stream_LENGTH.add(LENGTH154);
+					LENGTH153=(Token)match(input,LENGTH,FOLLOW_LENGTH_in_postfix_expr1625); if (state.failed) return retval; 
+					if ( state.backtracking==0 ) stream_LENGTH.add(LENGTH153);
 
 					// AST REWRITE
 					// elements: LENGTH, atom_expr
@@ -3792,8 +3792,8 @@ public class DafnyParser extends Parser {
 				case 4 :
 					// Dafny.g:244:5: EOF
 					{
-					EOF155=(Token)match(input,EOF,FOLLOW_EOF_in_postfix_expr1646); if (state.failed) return retval; 
-					if ( state.backtracking==0 ) stream_EOF.add(EOF155);
+					EOF154=(Token)match(input,EOF,FOLLOW_EOF_in_postfix_expr1649); if (state.failed) return retval; 
+					if ( state.backtracking==0 ) stream_EOF.add(EOF154);
 
 					// AST REWRITE
 					// elements: atom_expr
@@ -3858,27 +3858,27 @@ public class DafnyParser extends Parser {
 
 		DafnyTree root_0 = null;
 
-		Token ID156=null;
-		Token LIT157=null;
-		Token char_literal159=null;
+		Token ID155=null;
+		Token LIT156=null;
+		Token char_literal158=null;
+		Token char_literal160=null;
 		Token char_literal161=null;
-		Token char_literal162=null;
+		Token char_literal163=null;
 		Token char_literal164=null;
-		Token char_literal165=null;
-		Token char_literal167=null;
-		ParserRuleReturnScope quantifier158 =null;
-		ParserRuleReturnScope expression160 =null;
-		ParserRuleReturnScope expressions163 =null;
-		ParserRuleReturnScope expressions166 =null;
+		Token char_literal166=null;
+		ParserRuleReturnScope quantifier157 =null;
+		ParserRuleReturnScope expression159 =null;
+		ParserRuleReturnScope expressions162 =null;
+		ParserRuleReturnScope expressions165 =null;
 
-		DafnyTree ID156_tree=null;
-		DafnyTree LIT157_tree=null;
-		DafnyTree char_literal159_tree=null;
+		DafnyTree ID155_tree=null;
+		DafnyTree LIT156_tree=null;
+		DafnyTree char_literal158_tree=null;
+		DafnyTree char_literal160_tree=null;
 		DafnyTree char_literal161_tree=null;
-		DafnyTree char_literal162_tree=null;
+		DafnyTree char_literal163_tree=null;
 		DafnyTree char_literal164_tree=null;
-		DafnyTree char_literal165_tree=null;
-		DafnyTree char_literal167_tree=null;
+		DafnyTree char_literal166_tree=null;
 		RewriteRuleTokenStream stream_64=new RewriteRuleTokenStream(adaptor,"token 64");
 		RewriteRuleTokenStream stream_65=new RewriteRuleTokenStream(adaptor,"token 65");
 		RewriteRuleTokenStream stream_BLOCK_BEGIN=new RewriteRuleTokenStream(adaptor,"token BLOCK_BEGIN");
@@ -3947,10 +3947,10 @@ public class DafnyParser extends Parser {
 					root_0 = (DafnyTree)adaptor.nil();
 
 
-					ID156=(Token)match(input,ID,FOLLOW_ID_in_atom_expr1668); if (state.failed) return retval;
+					ID155=(Token)match(input,ID,FOLLOW_ID_in_atom_expr1671); if (state.failed) return retval;
 					if ( state.backtracking==0 ) {
-					ID156_tree = (DafnyTree)adaptor.create(ID156);
-					adaptor.addChild(root_0, ID156_tree);
+					ID155_tree = (DafnyTree)adaptor.create(ID155);
+					adaptor.addChild(root_0, ID155_tree);
 					}
 
 					}
@@ -3961,10 +3961,10 @@ public class DafnyParser extends Parser {
 					root_0 = (DafnyTree)adaptor.nil();
 
 
-					LIT157=(Token)match(input,LIT,FOLLOW_LIT_in_atom_expr1674); if (state.failed) return retval;
+					LIT156=(Token)match(input,LIT,FOLLOW_LIT_in_atom_expr1677); if (state.failed) return retval;
 					if ( state.backtracking==0 ) {
-					LIT157_tree = (DafnyTree)adaptor.create(LIT157);
-					adaptor.addChild(root_0, LIT157_tree);
+					LIT156_tree = (DafnyTree)adaptor.create(LIT156);
+					adaptor.addChild(root_0, LIT156_tree);
 					}
 
 					}
@@ -3975,11 +3975,11 @@ public class DafnyParser extends Parser {
 					root_0 = (DafnyTree)adaptor.nil();
 
 
-					pushFollow(FOLLOW_quantifier_in_atom_expr1680);
-					quantifier158=quantifier();
+					pushFollow(FOLLOW_quantifier_in_atom_expr1683);
+					quantifier157=quantifier();
 					state._fsp--;
 					if (state.failed) return retval;
-					if ( state.backtracking==0 ) adaptor.addChild(root_0, quantifier158.getTree());
+					if ( state.backtracking==0 ) adaptor.addChild(root_0, quantifier157.getTree());
 
 					}
 					break;
@@ -3989,21 +3989,21 @@ public class DafnyParser extends Parser {
 					root_0 = (DafnyTree)adaptor.nil();
 
 
-					char_literal159=(Token)match(input,59,FOLLOW_59_in_atom_expr1686); if (state.failed) return retval;
-					pushFollow(FOLLOW_expression_in_atom_expr1689);
-					expression160=expression();
+					char_literal158=(Token)match(input,59,FOLLOW_59_in_atom_expr1689); if (state.failed) return retval;
+					pushFollow(FOLLOW_expression_in_atom_expr1692);
+					expression159=expression();
 					state._fsp--;
 					if (state.failed) return retval;
-					if ( state.backtracking==0 ) adaptor.addChild(root_0, expression160.getTree());
+					if ( state.backtracking==0 ) adaptor.addChild(root_0, expression159.getTree());
 
-					char_literal161=(Token)match(input,60,FOLLOW_60_in_atom_expr1691); if (state.failed) return retval;
+					char_literal160=(Token)match(input,60,FOLLOW_60_in_atom_expr1694); if (state.failed) return retval;
 					}
 					break;
 				case 5 :
 					// Dafny.g:253:5: '{' ( expressions )? '}'
 					{
-					char_literal162=(Token)match(input,BLOCK_BEGIN,FOLLOW_BLOCK_BEGIN_in_atom_expr1698); if (state.failed) return retval; 
-					if ( state.backtracking==0 ) stream_BLOCK_BEGIN.add(char_literal162);
+					char_literal161=(Token)match(input,BLOCK_BEGIN,FOLLOW_BLOCK_BEGIN_in_atom_expr1701); if (state.failed) return retval; 
+					if ( state.backtracking==0 ) stream_BLOCK_BEGIN.add(char_literal161);
 
 					// Dafny.g:253:9: ( expressions )?
 					int alt39=2;
@@ -4015,18 +4015,18 @@ public class DafnyParser extends Parser {
 						case 1 :
 							// Dafny.g:253:9: expressions
 							{
-							pushFollow(FOLLOW_expressions_in_atom_expr1700);
-							expressions163=expressions();
+							pushFollow(FOLLOW_expressions_in_atom_expr1703);
+							expressions162=expressions();
 							state._fsp--;
 							if (state.failed) return retval;
-							if ( state.backtracking==0 ) stream_expressions.add(expressions163.getTree());
+							if ( state.backtracking==0 ) stream_expressions.add(expressions162.getTree());
 							}
 							break;
 
 					}
 
-					char_literal164=(Token)match(input,BLOCK_END,FOLLOW_BLOCK_END_in_atom_expr1703); if (state.failed) return retval; 
-					if ( state.backtracking==0 ) stream_BLOCK_END.add(char_literal164);
+					char_literal163=(Token)match(input,BLOCK_END,FOLLOW_BLOCK_END_in_atom_expr1706); if (state.failed) return retval; 
+					if ( state.backtracking==0 ) stream_BLOCK_END.add(char_literal163);
 
 					// AST REWRITE
 					// elements: expressions
@@ -4066,8 +4066,8 @@ public class DafnyParser extends Parser {
 				case 6 :
 					// Dafny.g:254:5: '[' ( expressions )? ']'
 					{
-					char_literal165=(Token)match(input,64,FOLLOW_64_in_atom_expr1718); if (state.failed) return retval; 
-					if ( state.backtracking==0 ) stream_64.add(char_literal165);
+					char_literal164=(Token)match(input,64,FOLLOW_64_in_atom_expr1721); if (state.failed) return retval; 
+					if ( state.backtracking==0 ) stream_64.add(char_literal164);
 
 					// Dafny.g:254:9: ( expressions )?
 					int alt40=2;
@@ -4079,18 +4079,18 @@ public class DafnyParser extends Parser {
 						case 1 :
 							// Dafny.g:254:9: expressions
 							{
-							pushFollow(FOLLOW_expressions_in_atom_expr1720);
-							expressions166=expressions();
+							pushFollow(FOLLOW_expressions_in_atom_expr1723);
+							expressions165=expressions();
 							state._fsp--;
 							if (state.failed) return retval;
-							if ( state.backtracking==0 ) stream_expressions.add(expressions166.getTree());
+							if ( state.backtracking==0 ) stream_expressions.add(expressions165.getTree());
 							}
 							break;
 
 					}
 
-					char_literal167=(Token)match(input,65,FOLLOW_65_in_atom_expr1723); if (state.failed) return retval; 
-					if ( state.backtracking==0 ) stream_65.add(char_literal167);
+					char_literal166=(Token)match(input,65,FOLLOW_65_in_atom_expr1726); if (state.failed) return retval; 
+					if ( state.backtracking==0 ) stream_65.add(char_literal166);
 
 					// AST REWRITE
 					// elements: expressions
@@ -4164,23 +4164,23 @@ public class DafnyParser extends Parser {
 
 		DafnyTree root_0 = null;
 
-		Token char_literal168=null;
-		Token ALL169=null;
-		Token EX170=null;
-		Token ID171=null;
-		Token char_literal172=null;
-		Token string_literal174=null;
-		Token char_literal176=null;
-		ParserRuleReturnScope type173 =null;
-		ParserRuleReturnScope expression175 =null;
+		Token char_literal167=null;
+		Token ALL168=null;
+		Token EX169=null;
+		Token ID170=null;
+		Token char_literal171=null;
+		Token string_literal173=null;
+		Token char_literal175=null;
+		ParserRuleReturnScope type172 =null;
+		ParserRuleReturnScope expression174 =null;
 
-		DafnyTree char_literal168_tree=null;
-		DafnyTree ALL169_tree=null;
-		DafnyTree EX170_tree=null;
-		DafnyTree ID171_tree=null;
-		DafnyTree char_literal172_tree=null;
-		DafnyTree string_literal174_tree=null;
-		DafnyTree char_literal176_tree=null;
+		DafnyTree char_literal167_tree=null;
+		DafnyTree ALL168_tree=null;
+		DafnyTree EX169_tree=null;
+		DafnyTree ID170_tree=null;
+		DafnyTree char_literal171_tree=null;
+		DafnyTree string_literal173_tree=null;
+		DafnyTree char_literal175_tree=null;
 
 		try {
 			// Dafny.g:257:11: ( '(' ! ( ALL ^| EX ^) ID ':' ! type '::' ! expression ')' !)
@@ -4189,7 +4189,7 @@ public class DafnyParser extends Parser {
 			root_0 = (DafnyTree)adaptor.nil();
 
 
-			char_literal168=(Token)match(input,59,FOLLOW_59_in_quantifier1744); if (state.failed) return retval;
+			char_literal167=(Token)match(input,59,FOLLOW_59_in_quantifier1747); if (state.failed) return retval;
 			// Dafny.g:258:8: ( ALL ^| EX ^)
 			int alt42=2;
 			int LA42_0 = input.LA(1);
@@ -4211,10 +4211,10 @@ public class DafnyParser extends Parser {
 				case 1 :
 					// Dafny.g:258:9: ALL ^
 					{
-					ALL169=(Token)match(input,ALL,FOLLOW_ALL_in_quantifier1748); if (state.failed) return retval;
+					ALL168=(Token)match(input,ALL,FOLLOW_ALL_in_quantifier1751); if (state.failed) return retval;
 					if ( state.backtracking==0 ) {
-					ALL169_tree = (DafnyTree)adaptor.create(ALL169);
-					root_0 = (DafnyTree)adaptor.becomeRoot(ALL169_tree, root_0);
+					ALL168_tree = (DafnyTree)adaptor.create(ALL168);
+					root_0 = (DafnyTree)adaptor.becomeRoot(ALL168_tree, root_0);
 					}
 
 					}
@@ -4222,10 +4222,10 @@ public class DafnyParser extends Parser {
 				case 2 :
 					// Dafny.g:258:16: EX ^
 					{
-					EX170=(Token)match(input,EX,FOLLOW_EX_in_quantifier1753); if (state.failed) return retval;
+					EX169=(Token)match(input,EX,FOLLOW_EX_in_quantifier1756); if (state.failed) return retval;
 					if ( state.backtracking==0 ) {
-					EX170_tree = (DafnyTree)adaptor.create(EX170);
-					root_0 = (DafnyTree)adaptor.becomeRoot(EX170_tree, root_0);
+					EX169_tree = (DafnyTree)adaptor.create(EX169);
+					root_0 = (DafnyTree)adaptor.becomeRoot(EX169_tree, root_0);
 					}
 
 					}
@@ -4233,27 +4233,27 @@ public class DafnyParser extends Parser {
 
 			}
 
-			ID171=(Token)match(input,ID,FOLLOW_ID_in_quantifier1757); if (state.failed) return retval;
+			ID170=(Token)match(input,ID,FOLLOW_ID_in_quantifier1760); if (state.failed) return retval;
 			if ( state.backtracking==0 ) {
-			ID171_tree = (DafnyTree)adaptor.create(ID171);
-			adaptor.addChild(root_0, ID171_tree);
+			ID170_tree = (DafnyTree)adaptor.create(ID170);
+			adaptor.addChild(root_0, ID170_tree);
 			}
 
-			char_literal172=(Token)match(input,62,FOLLOW_62_in_quantifier1759); if (state.failed) return retval;
-			pushFollow(FOLLOW_type_in_quantifier1762);
-			type173=type();
+			char_literal171=(Token)match(input,62,FOLLOW_62_in_quantifier1762); if (state.failed) return retval;
+			pushFollow(FOLLOW_type_in_quantifier1765);
+			type172=type();
 			state._fsp--;
 			if (state.failed) return retval;
-			if ( state.backtracking==0 ) adaptor.addChild(root_0, type173.getTree());
+			if ( state.backtracking==0 ) adaptor.addChild(root_0, type172.getTree());
 
-			string_literal174=(Token)match(input,DOUBLECOLON,FOLLOW_DOUBLECOLON_in_quantifier1764); if (state.failed) return retval;
-			pushFollow(FOLLOW_expression_in_quantifier1767);
-			expression175=expression();
+			string_literal173=(Token)match(input,DOUBLECOLON,FOLLOW_DOUBLECOLON_in_quantifier1767); if (state.failed) return retval;
+			pushFollow(FOLLOW_expression_in_quantifier1770);
+			expression174=expression();
 			state._fsp--;
 			if (state.failed) return retval;
-			if ( state.backtracking==0 ) adaptor.addChild(root_0, expression175.getTree());
+			if ( state.backtracking==0 ) adaptor.addChild(root_0, expression174.getTree());
 
-			char_literal176=(Token)match(input,60,FOLLOW_60_in_quantifier1769); if (state.failed) return retval;
+			char_literal175=(Token)match(input,60,FOLLOW_60_in_quantifier1772); if (state.failed) return retval;
 			}
 
 			retval.stop = input.LT(-1);
@@ -4280,11 +4280,11 @@ public class DafnyParser extends Parser {
 		// Dafny.g:189:5: ( ID ':=' 'call' )
 		// Dafny.g:189:6: ID ':=' 'call'
 		{
-		match(input,ID,FOLLOW_ID_in_synpred1_Dafny1092); if (state.failed) return;
+		match(input,ID,FOLLOW_ID_in_synpred1_Dafny1095); if (state.failed) return;
 
-		match(input,ASSIGN,FOLLOW_ASSIGN_in_synpred1_Dafny1094); if (state.failed) return;
+		match(input,ASSIGN,FOLLOW_ASSIGN_in_synpred1_Dafny1097); if (state.failed) return;
 
-		match(input,CALL,FOLLOW_CALL_in_synpred1_Dafny1096); if (state.failed) return;
+		match(input,CALL,FOLLOW_CALL_in_synpred1_Dafny1099); if (state.failed) return;
 
 		}
 
@@ -4389,110 +4389,110 @@ public class DafnyParser extends Parser {
 	public static final BitSet FOLLOW_64_in_statement1049 = new BitSet(new long[]{0x0800148010004000L,0x0000000000000001L});
 	public static final BitSet FOLLOW_expression_in_statement1053 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000002L});
 	public static final BitSet FOLLOW_65_in_statement1055 = new BitSet(new long[]{0x0000000000000800L});
-	public static final BitSet FOLLOW_ASSIGN_in_statement1057 = new BitSet(new long[]{0x0800148010004000L,0x0000000000000001L});
-	public static final BitSet FOLLOW_expression_in_statement1061 = new BitSet(new long[]{0x8000000000000000L});
-	public static final BitSet FOLLOW_63_in_statement1063 = new BitSet(new long[]{0x0000000000000002L});
-	public static final BitSet FOLLOW_ID_in_statement1103 = new BitSet(new long[]{0x0000000000000800L});
-	public static final BitSet FOLLOW_ASSIGN_in_statement1105 = new BitSet(new long[]{0x0000000000010000L});
-	public static final BitSet FOLLOW_CALL_in_statement1107 = new BitSet(new long[]{0x0000000010000000L});
-	public static final BitSet FOLLOW_ID_in_statement1111 = new BitSet(new long[]{0x0800000000000000L});
-	public static final BitSet FOLLOW_59_in_statement1113 = new BitSet(new long[]{0x1800148010004000L,0x0000000000000001L});
-	public static final BitSet FOLLOW_expressions_in_statement1115 = new BitSet(new long[]{0x1000000000000000L});
-	public static final BitSet FOLLOW_60_in_statement1118 = new BitSet(new long[]{0x8000000000000000L});
-	public static final BitSet FOLLOW_63_in_statement1120 = new BitSet(new long[]{0x0000000000000002L});
-	public static final BitSet FOLLOW_ids_in_statement1157 = new BitSet(new long[]{0x0000000000000800L});
-	public static final BitSet FOLLOW_ASSIGN_in_statement1159 = new BitSet(new long[]{0x0000000000010000L});
-	public static final BitSet FOLLOW_CALL_in_statement1161 = new BitSet(new long[]{0x0000000010000000L});
-	public static final BitSet FOLLOW_ID_in_statement1163 = new BitSet(new long[]{0x0800000000000000L});
-	public static final BitSet FOLLOW_59_in_statement1165 = new BitSet(new long[]{0x1800148010004000L,0x0000000000000001L});
-	public static final BitSet FOLLOW_expressions_in_statement1167 = new BitSet(new long[]{0x1000000000000000L});
-	public static final BitSet FOLLOW_60_in_statement1170 = new BitSet(new long[]{0x8000000000000000L});
-	public static final BitSet FOLLOW_63_in_statement1172 = new BitSet(new long[]{0x0000000000000002L});
-	public static final BitSet FOLLOW_label_in_statement1207 = new BitSet(new long[]{0x0200000000000000L});
-	public static final BitSet FOLLOW_WHILE_in_statement1216 = new BitSet(new long[]{0x0800148010004000L,0x0000000000000001L});
-	public static final BitSet FOLLOW_expression_in_statement1218 = new BitSet(new long[]{0x0000000200000000L});
-	public static final BitSet FOLLOW_invariant_in_statement1220 = new BitSet(new long[]{0x0000000200020000L});
-	public static final BitSet FOLLOW_decreases_in_statement1223 = new BitSet(new long[]{0x0300000430005400L});
-	public static final BitSet FOLLOW_relaxedBlock_in_statement1225 = new BitSet(new long[]{0x0000000000000002L});
-	public static final BitSet FOLLOW_label_in_statement1257 = new BitSet(new long[]{0x0000000020000000L});
-	public static final BitSet FOLLOW_IF_in_statement1260 = new BitSet(new long[]{0x0800148010004000L,0x0000000000000001L});
-	public static final BitSet FOLLOW_expression_in_statement1263 = new BitSet(new long[]{0x0300000430005400L});
-	public static final BitSet FOLLOW_relaxedBlock_in_statement1265 = new BitSet(new long[]{0x0000000000100002L});
-	public static final BitSet FOLLOW_ELSE_in_statement1286 = new BitSet(new long[]{0x0300000430005400L});
-	public static final BitSet FOLLOW_relaxedBlock_in_statement1289 = new BitSet(new long[]{0x0000000000000002L});
-	public static final BitSet FOLLOW_ASSERT_in_statement1298 = new BitSet(new long[]{0x0800148410004000L,0x0000000000000001L});
-	public static final BitSet FOLLOW_LABEL_in_statement1303 = new BitSet(new long[]{0x0000000010000000L});
-	public static final BitSet FOLLOW_ID_in_statement1306 = new BitSet(new long[]{0x4000000000000000L});
-	public static final BitSet FOLLOW_62_in_statement1308 = new BitSet(new long[]{0x0800148010004000L,0x0000000000000001L});
-	public static final BitSet FOLLOW_expression_in_statement1314 = new BitSet(new long[]{0x8000000000000000L});
-	public static final BitSet FOLLOW_63_in_statement1316 = new BitSet(new long[]{0x0000000000000002L});
-	public static final BitSet FOLLOW_ASSUME_in_statement1323 = new BitSet(new long[]{0x0800148410004000L,0x0000000000000001L});
-	public static final BitSet FOLLOW_LABEL_in_statement1328 = new BitSet(new long[]{0x0000000010000000L});
-	public static final BitSet FOLLOW_ID_in_statement1331 = new BitSet(new long[]{0x4000000000000000L});
-	public static final BitSet FOLLOW_62_in_statement1333 = new BitSet(new long[]{0x0800148010004000L,0x0000000000000001L});
-	public static final BitSet FOLLOW_expression_in_statement1339 = new BitSet(new long[]{0x8000000000000000L});
-	public static final BitSet FOLLOW_63_in_statement1341 = new BitSet(new long[]{0x0000000000000002L});
-	public static final BitSet FOLLOW_ID_in_ids1354 = new BitSet(new long[]{0x2000000000000000L});
-	public static final BitSet FOLLOW_61_in_ids1357 = new BitSet(new long[]{0x0000000010000000L});
-	public static final BitSet FOLLOW_ID_in_ids1360 = new BitSet(new long[]{0x2000000000000002L});
-	public static final BitSet FOLLOW_expression_in_expressions1374 = new BitSet(new long[]{0x2000000000000002L});
-	public static final BitSet FOLLOW_61_in_expressions1378 = new BitSet(new long[]{0x0800148010004000L,0x0000000000000001L});
-	public static final BitSet FOLLOW_expression_in_expressions1381 = new BitSet(new long[]{0x2000000000000002L});
-	public static final BitSet FOLLOW_or_expr_in_expression1396 = new BitSet(new long[]{0x0000000000000002L});
-	public static final BitSet FOLLOW_and_expr_in_or_expr1405 = new BitSet(new long[]{0x0000200040000002L});
-	public static final BitSet FOLLOW_OR_in_or_expr1410 = new BitSet(new long[]{0x0800148010004000L,0x0000000000000001L});
-	public static final BitSet FOLLOW_IMPLIES_in_or_expr1415 = new BitSet(new long[]{0x0800148010004000L,0x0000000000000001L});
-	public static final BitSet FOLLOW_or_expr_in_or_expr1419 = new BitSet(new long[]{0x0000000000000002L});
-	public static final BitSet FOLLOW_rel_expr_in_and_expr1434 = new BitSet(new long[]{0x0000000000000022L});
-	public static final BitSet FOLLOW_AND_in_and_expr1438 = new BitSet(new long[]{0x0800148010004000L,0x0000000000000001L});
-	public static final BitSet FOLLOW_and_expr_in_and_expr1441 = new BitSet(new long[]{0x0000000000000002L});
-	public static final BitSet FOLLOW_add_expr_in_rel_expr1456 = new BitSet(new long[]{0x0000010806400002L});
-	public static final BitSet FOLLOW_LT_in_rel_expr1461 = new BitSet(new long[]{0x0800148010004000L,0x0000000000000001L});
-	public static final BitSet FOLLOW_GT_in_rel_expr1466 = new BitSet(new long[]{0x0800148010004000L,0x0000000000000001L});
-	public static final BitSet FOLLOW_EQ_in_rel_expr1471 = new BitSet(new long[]{0x0800148010004000L,0x0000000000000001L});
-	public static final BitSet FOLLOW_LE_in_rel_expr1476 = new BitSet(new long[]{0x0800148010004000L,0x0000000000000001L});
-	public static final BitSet FOLLOW_GE_in_rel_expr1481 = new BitSet(new long[]{0x0800148010004000L,0x0000000000000001L});
-	public static final BitSet FOLLOW_add_expr_in_rel_expr1485 = new BitSet(new long[]{0x0000000000000002L});
-	public static final BitSet FOLLOW_mul_expr_in_add_expr1500 = new BitSet(new long[]{0x0080440000000002L});
-	public static final BitSet FOLLOW_set_in_add_expr1504 = new BitSet(new long[]{0x0800148010004000L,0x0000000000000001L});
-	public static final BitSet FOLLOW_add_expr_in_add_expr1517 = new BitSet(new long[]{0x0000000000000002L});
-	public static final BitSet FOLLOW_prefix_expr_in_mul_expr1532 = new BitSet(new long[]{0x0040000100000002L});
-	public static final BitSet FOLLOW_set_in_mul_expr1536 = new BitSet(new long[]{0x0800148010004000L,0x0000000000000001L});
-	public static final BitSet FOLLOW_mul_expr_in_mul_expr1545 = new BitSet(new long[]{0x0000000000000002L});
-	public static final BitSet FOLLOW_MINUS_in_prefix_expr1562 = new BitSet(new long[]{0x0800148010004000L,0x0000000000000001L});
-	public static final BitSet FOLLOW_prefix_expr_in_prefix_expr1565 = new BitSet(new long[]{0x0000000000000002L});
-	public static final BitSet FOLLOW_NOT_in_prefix_expr1571 = new BitSet(new long[]{0x0800148010004000L,0x0000000000000001L});
-	public static final BitSet FOLLOW_prefix_expr_in_prefix_expr1574 = new BitSet(new long[]{0x0000000000000002L});
-	public static final BitSet FOLLOW_postfix_expr_in_prefix_expr1580 = new BitSet(new long[]{0x0000000000000002L});
-	public static final BitSet FOLLOW_atom_expr_in_postfix_expr1592 = new BitSet(new long[]{0x0000000000040002L,0x0000000000000001L});
-	public static final BitSet FOLLOW_64_in_postfix_expr1598 = new BitSet(new long[]{0x0800148010004000L,0x0000000000000001L});
-	public static final BitSet FOLLOW_expression_in_postfix_expr1600 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000002L});
-	public static final BitSet FOLLOW_65_in_postfix_expr1602 = new BitSet(new long[]{0x0000000000000002L});
-	public static final BitSet FOLLOW_DOT_in_postfix_expr1620 = new BitSet(new long[]{0x0000002000000000L});
-	public static final BitSet FOLLOW_LENGTH_in_postfix_expr1622 = new BitSet(new long[]{0x0000000000000002L});
-	public static final BitSet FOLLOW_EOF_in_postfix_expr1646 = new BitSet(new long[]{0x0000000000000002L});
-	public static final BitSet FOLLOW_ID_in_atom_expr1668 = new BitSet(new long[]{0x0000000000000002L});
-	public static final BitSet FOLLOW_LIT_in_atom_expr1674 = new BitSet(new long[]{0x0000000000000002L});
-	public static final BitSet FOLLOW_quantifier_in_atom_expr1680 = new BitSet(new long[]{0x0000000000000002L});
-	public static final BitSet FOLLOW_59_in_atom_expr1686 = new BitSet(new long[]{0x0800148010004000L,0x0000000000000001L});
-	public static final BitSet FOLLOW_expression_in_atom_expr1689 = new BitSet(new long[]{0x1000000000000000L});
-	public static final BitSet FOLLOW_60_in_atom_expr1691 = new BitSet(new long[]{0x0000000000000002L});
-	public static final BitSet FOLLOW_BLOCK_BEGIN_in_atom_expr1698 = new BitSet(new long[]{0x080014801000C000L,0x0000000000000001L});
-	public static final BitSet FOLLOW_expressions_in_atom_expr1700 = new BitSet(new long[]{0x0000000000008000L});
-	public static final BitSet FOLLOW_BLOCK_END_in_atom_expr1703 = new BitSet(new long[]{0x0000000000000002L});
-	public static final BitSet FOLLOW_64_in_atom_expr1718 = new BitSet(new long[]{0x0800148010004000L,0x0000000000000003L});
-	public static final BitSet FOLLOW_expressions_in_atom_expr1720 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000002L});
-	public static final BitSet FOLLOW_65_in_atom_expr1723 = new BitSet(new long[]{0x0000000000000002L});
-	public static final BitSet FOLLOW_59_in_quantifier1744 = new BitSet(new long[]{0x0000000000800010L});
-	public static final BitSet FOLLOW_ALL_in_quantifier1748 = new BitSet(new long[]{0x0000000010000000L});
-	public static final BitSet FOLLOW_EX_in_quantifier1753 = new BitSet(new long[]{0x0000000010000000L});
-	public static final BitSet FOLLOW_ID_in_quantifier1757 = new BitSet(new long[]{0x4000000000000000L});
-	public static final BitSet FOLLOW_62_in_quantifier1759 = new BitSet(new long[]{0x0004000080000080L});
-	public static final BitSet FOLLOW_type_in_quantifier1762 = new BitSet(new long[]{0x0000000000080000L});
-	public static final BitSet FOLLOW_DOUBLECOLON_in_quantifier1764 = new BitSet(new long[]{0x0800148010004000L,0x0000000000000001L});
-	public static final BitSet FOLLOW_expression_in_quantifier1767 = new BitSet(new long[]{0x1000000000000000L});
-	public static final BitSet FOLLOW_60_in_quantifier1769 = new BitSet(new long[]{0x0000000000000002L});
-	public static final BitSet FOLLOW_ID_in_synpred1_Dafny1092 = new BitSet(new long[]{0x0000000000000800L});
-	public static final BitSet FOLLOW_ASSIGN_in_synpred1_Dafny1094 = new BitSet(new long[]{0x0000000000010000L});
-	public static final BitSet FOLLOW_CALL_in_synpred1_Dafny1096 = new BitSet(new long[]{0x0000000000000002L});
+	public static final BitSet FOLLOW_ASSIGN_in_statement1059 = new BitSet(new long[]{0x0800148010004000L,0x0000000000000001L});
+	public static final BitSet FOLLOW_expression_in_statement1063 = new BitSet(new long[]{0x8000000000000000L});
+	public static final BitSet FOLLOW_63_in_statement1065 = new BitSet(new long[]{0x0000000000000002L});
+	public static final BitSet FOLLOW_ID_in_statement1106 = new BitSet(new long[]{0x0000000000000800L});
+	public static final BitSet FOLLOW_ASSIGN_in_statement1108 = new BitSet(new long[]{0x0000000000010000L});
+	public static final BitSet FOLLOW_CALL_in_statement1110 = new BitSet(new long[]{0x0000000010000000L});
+	public static final BitSet FOLLOW_ID_in_statement1114 = new BitSet(new long[]{0x0800000000000000L});
+	public static final BitSet FOLLOW_59_in_statement1116 = new BitSet(new long[]{0x1800148010004000L,0x0000000000000001L});
+	public static final BitSet FOLLOW_expressions_in_statement1118 = new BitSet(new long[]{0x1000000000000000L});
+	public static final BitSet FOLLOW_60_in_statement1121 = new BitSet(new long[]{0x8000000000000000L});
+	public static final BitSet FOLLOW_63_in_statement1123 = new BitSet(new long[]{0x0000000000000002L});
+	public static final BitSet FOLLOW_ids_in_statement1160 = new BitSet(new long[]{0x0000000000000800L});
+	public static final BitSet FOLLOW_ASSIGN_in_statement1162 = new BitSet(new long[]{0x0000000000010000L});
+	public static final BitSet FOLLOW_CALL_in_statement1164 = new BitSet(new long[]{0x0000000010000000L});
+	public static final BitSet FOLLOW_ID_in_statement1166 = new BitSet(new long[]{0x0800000000000000L});
+	public static final BitSet FOLLOW_59_in_statement1168 = new BitSet(new long[]{0x1800148010004000L,0x0000000000000001L});
+	public static final BitSet FOLLOW_expressions_in_statement1170 = new BitSet(new long[]{0x1000000000000000L});
+	public static final BitSet FOLLOW_60_in_statement1173 = new BitSet(new long[]{0x8000000000000000L});
+	public static final BitSet FOLLOW_63_in_statement1175 = new BitSet(new long[]{0x0000000000000002L});
+	public static final BitSet FOLLOW_label_in_statement1210 = new BitSet(new long[]{0x0200000000000000L});
+	public static final BitSet FOLLOW_WHILE_in_statement1219 = new BitSet(new long[]{0x0800148010004000L,0x0000000000000001L});
+	public static final BitSet FOLLOW_expression_in_statement1221 = new BitSet(new long[]{0x0000000200000000L});
+	public static final BitSet FOLLOW_invariant_in_statement1223 = new BitSet(new long[]{0x0000000200020000L});
+	public static final BitSet FOLLOW_decreases_in_statement1226 = new BitSet(new long[]{0x0300000430005400L});
+	public static final BitSet FOLLOW_relaxedBlock_in_statement1228 = new BitSet(new long[]{0x0000000000000002L});
+	public static final BitSet FOLLOW_label_in_statement1260 = new BitSet(new long[]{0x0000000020000000L});
+	public static final BitSet FOLLOW_IF_in_statement1263 = new BitSet(new long[]{0x0800148010004000L,0x0000000000000001L});
+	public static final BitSet FOLLOW_expression_in_statement1266 = new BitSet(new long[]{0x0300000430005400L});
+	public static final BitSet FOLLOW_relaxedBlock_in_statement1268 = new BitSet(new long[]{0x0000000000100002L});
+	public static final BitSet FOLLOW_ELSE_in_statement1289 = new BitSet(new long[]{0x0300000430005400L});
+	public static final BitSet FOLLOW_relaxedBlock_in_statement1292 = new BitSet(new long[]{0x0000000000000002L});
+	public static final BitSet FOLLOW_ASSERT_in_statement1301 = new BitSet(new long[]{0x0800148410004000L,0x0000000000000001L});
+	public static final BitSet FOLLOW_LABEL_in_statement1306 = new BitSet(new long[]{0x0000000010000000L});
+	public static final BitSet FOLLOW_ID_in_statement1309 = new BitSet(new long[]{0x4000000000000000L});
+	public static final BitSet FOLLOW_62_in_statement1311 = new BitSet(new long[]{0x0800148010004000L,0x0000000000000001L});
+	public static final BitSet FOLLOW_expression_in_statement1317 = new BitSet(new long[]{0x8000000000000000L});
+	public static final BitSet FOLLOW_63_in_statement1319 = new BitSet(new long[]{0x0000000000000002L});
+	public static final BitSet FOLLOW_ASSUME_in_statement1326 = new BitSet(new long[]{0x0800148410004000L,0x0000000000000001L});
+	public static final BitSet FOLLOW_LABEL_in_statement1331 = new BitSet(new long[]{0x0000000010000000L});
+	public static final BitSet FOLLOW_ID_in_statement1334 = new BitSet(new long[]{0x4000000000000000L});
+	public static final BitSet FOLLOW_62_in_statement1336 = new BitSet(new long[]{0x0800148010004000L,0x0000000000000001L});
+	public static final BitSet FOLLOW_expression_in_statement1342 = new BitSet(new long[]{0x8000000000000000L});
+	public static final BitSet FOLLOW_63_in_statement1344 = new BitSet(new long[]{0x0000000000000002L});
+	public static final BitSet FOLLOW_ID_in_ids1357 = new BitSet(new long[]{0x2000000000000000L});
+	public static final BitSet FOLLOW_61_in_ids1360 = new BitSet(new long[]{0x0000000010000000L});
+	public static final BitSet FOLLOW_ID_in_ids1363 = new BitSet(new long[]{0x2000000000000002L});
+	public static final BitSet FOLLOW_expression_in_expressions1377 = new BitSet(new long[]{0x2000000000000002L});
+	public static final BitSet FOLLOW_61_in_expressions1381 = new BitSet(new long[]{0x0800148010004000L,0x0000000000000001L});
+	public static final BitSet FOLLOW_expression_in_expressions1384 = new BitSet(new long[]{0x2000000000000002L});
+	public static final BitSet FOLLOW_or_expr_in_expression1399 = new BitSet(new long[]{0x0000000000000002L});
+	public static final BitSet FOLLOW_and_expr_in_or_expr1408 = new BitSet(new long[]{0x0000200040000002L});
+	public static final BitSet FOLLOW_OR_in_or_expr1413 = new BitSet(new long[]{0x0800148010004000L,0x0000000000000001L});
+	public static final BitSet FOLLOW_IMPLIES_in_or_expr1418 = new BitSet(new long[]{0x0800148010004000L,0x0000000000000001L});
+	public static final BitSet FOLLOW_or_expr_in_or_expr1422 = new BitSet(new long[]{0x0000000000000002L});
+	public static final BitSet FOLLOW_rel_expr_in_and_expr1437 = new BitSet(new long[]{0x0000000000000022L});
+	public static final BitSet FOLLOW_AND_in_and_expr1441 = new BitSet(new long[]{0x0800148010004000L,0x0000000000000001L});
+	public static final BitSet FOLLOW_and_expr_in_and_expr1444 = new BitSet(new long[]{0x0000000000000002L});
+	public static final BitSet FOLLOW_add_expr_in_rel_expr1459 = new BitSet(new long[]{0x0000010806400002L});
+	public static final BitSet FOLLOW_LT_in_rel_expr1464 = new BitSet(new long[]{0x0800148010004000L,0x0000000000000001L});
+	public static final BitSet FOLLOW_GT_in_rel_expr1469 = new BitSet(new long[]{0x0800148010004000L,0x0000000000000001L});
+	public static final BitSet FOLLOW_EQ_in_rel_expr1474 = new BitSet(new long[]{0x0800148010004000L,0x0000000000000001L});
+	public static final BitSet FOLLOW_LE_in_rel_expr1479 = new BitSet(new long[]{0x0800148010004000L,0x0000000000000001L});
+	public static final BitSet FOLLOW_GE_in_rel_expr1484 = new BitSet(new long[]{0x0800148010004000L,0x0000000000000001L});
+	public static final BitSet FOLLOW_add_expr_in_rel_expr1488 = new BitSet(new long[]{0x0000000000000002L});
+	public static final BitSet FOLLOW_mul_expr_in_add_expr1503 = new BitSet(new long[]{0x0080440000000002L});
+	public static final BitSet FOLLOW_set_in_add_expr1507 = new BitSet(new long[]{0x0800148010004000L,0x0000000000000001L});
+	public static final BitSet FOLLOW_add_expr_in_add_expr1520 = new BitSet(new long[]{0x0000000000000002L});
+	public static final BitSet FOLLOW_prefix_expr_in_mul_expr1535 = new BitSet(new long[]{0x0040000100000002L});
+	public static final BitSet FOLLOW_set_in_mul_expr1539 = new BitSet(new long[]{0x0800148010004000L,0x0000000000000001L});
+	public static final BitSet FOLLOW_mul_expr_in_mul_expr1548 = new BitSet(new long[]{0x0000000000000002L});
+	public static final BitSet FOLLOW_MINUS_in_prefix_expr1565 = new BitSet(new long[]{0x0800148010004000L,0x0000000000000001L});
+	public static final BitSet FOLLOW_prefix_expr_in_prefix_expr1568 = new BitSet(new long[]{0x0000000000000002L});
+	public static final BitSet FOLLOW_NOT_in_prefix_expr1574 = new BitSet(new long[]{0x0800148010004000L,0x0000000000000001L});
+	public static final BitSet FOLLOW_prefix_expr_in_prefix_expr1577 = new BitSet(new long[]{0x0000000000000002L});
+	public static final BitSet FOLLOW_postfix_expr_in_prefix_expr1583 = new BitSet(new long[]{0x0000000000000002L});
+	public static final BitSet FOLLOW_atom_expr_in_postfix_expr1595 = new BitSet(new long[]{0x0000000000040002L,0x0000000000000001L});
+	public static final BitSet FOLLOW_64_in_postfix_expr1601 = new BitSet(new long[]{0x0800148010004000L,0x0000000000000001L});
+	public static final BitSet FOLLOW_expression_in_postfix_expr1603 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000002L});
+	public static final BitSet FOLLOW_65_in_postfix_expr1605 = new BitSet(new long[]{0x0000000000000002L});
+	public static final BitSet FOLLOW_DOT_in_postfix_expr1623 = new BitSet(new long[]{0x0000002000000000L});
+	public static final BitSet FOLLOW_LENGTH_in_postfix_expr1625 = new BitSet(new long[]{0x0000000000000002L});
+	public static final BitSet FOLLOW_EOF_in_postfix_expr1649 = new BitSet(new long[]{0x0000000000000002L});
+	public static final BitSet FOLLOW_ID_in_atom_expr1671 = new BitSet(new long[]{0x0000000000000002L});
+	public static final BitSet FOLLOW_LIT_in_atom_expr1677 = new BitSet(new long[]{0x0000000000000002L});
+	public static final BitSet FOLLOW_quantifier_in_atom_expr1683 = new BitSet(new long[]{0x0000000000000002L});
+	public static final BitSet FOLLOW_59_in_atom_expr1689 = new BitSet(new long[]{0x0800148010004000L,0x0000000000000001L});
+	public static final BitSet FOLLOW_expression_in_atom_expr1692 = new BitSet(new long[]{0x1000000000000000L});
+	public static final BitSet FOLLOW_60_in_atom_expr1694 = new BitSet(new long[]{0x0000000000000002L});
+	public static final BitSet FOLLOW_BLOCK_BEGIN_in_atom_expr1701 = new BitSet(new long[]{0x080014801000C000L,0x0000000000000001L});
+	public static final BitSet FOLLOW_expressions_in_atom_expr1703 = new BitSet(new long[]{0x0000000000008000L});
+	public static final BitSet FOLLOW_BLOCK_END_in_atom_expr1706 = new BitSet(new long[]{0x0000000000000002L});
+	public static final BitSet FOLLOW_64_in_atom_expr1721 = new BitSet(new long[]{0x0800148010004000L,0x0000000000000003L});
+	public static final BitSet FOLLOW_expressions_in_atom_expr1723 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000002L});
+	public static final BitSet FOLLOW_65_in_atom_expr1726 = new BitSet(new long[]{0x0000000000000002L});
+	public static final BitSet FOLLOW_59_in_quantifier1747 = new BitSet(new long[]{0x0000000000800010L});
+	public static final BitSet FOLLOW_ALL_in_quantifier1751 = new BitSet(new long[]{0x0000000010000000L});
+	public static final BitSet FOLLOW_EX_in_quantifier1756 = new BitSet(new long[]{0x0000000010000000L});
+	public static final BitSet FOLLOW_ID_in_quantifier1760 = new BitSet(new long[]{0x4000000000000000L});
+	public static final BitSet FOLLOW_62_in_quantifier1762 = new BitSet(new long[]{0x0004000080000080L});
+	public static final BitSet FOLLOW_type_in_quantifier1765 = new BitSet(new long[]{0x0000000000080000L});
+	public static final BitSet FOLLOW_DOUBLECOLON_in_quantifier1767 = new BitSet(new long[]{0x0800148010004000L,0x0000000000000001L});
+	public static final BitSet FOLLOW_expression_in_quantifier1770 = new BitSet(new long[]{0x1000000000000000L});
+	public static final BitSet FOLLOW_60_in_quantifier1772 = new BitSet(new long[]{0x0000000000000002L});
+	public static final BitSet FOLLOW_ID_in_synpred1_Dafny1095 = new BitSet(new long[]{0x0000000000000800L});
+	public static final BitSet FOLLOW_ASSIGN_in_synpred1_Dafny1097 = new BitSet(new long[]{0x0000000000010000L});
+	public static final BitSet FOLLOW_CALL_in_synpred1_Dafny1099 = new BitSet(new long[]{0x0000000000000002L});
 }

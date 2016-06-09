@@ -184,8 +184,8 @@ statements:
 statement:
     VAR^ ID ':'! type (':='! expression)? ';'!
   | ID ':='^ expression ';'!
-  | ID '[' i=expression ']' ':=' v=expression ';'
-        -> ^(ARRAY_UPDATE ID $i $v)
+  | ID '[' i=expression ']' ass=':=' v=expression ';'
+        -> ^(ARRAY_UPDATE[$ass] ID $i $v)
   | (ID ':=' 'call') => r=ID ':=' 'call' f=ID '(' expressions? ')' ';'
         -> ^('call' $f ^(RESULTS $r) ^(ARGS expressions?))
   | ids ':=' 'call' ID '(' expressions? ')' ';'

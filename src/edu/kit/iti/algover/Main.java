@@ -9,12 +9,15 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.Collection;
 import java.util.List;
 
 import org.antlr.runtime.ANTLRInputStream;
 import org.antlr.runtime.CommonTokenStream;
 import org.antlr.runtime.RecognitionException;
+import org.antlr.runtime.Token;
 
 import edu.kit.iti.algover.parser.DafnyLexer;
 import edu.kit.iti.algover.parser.DafnyParser;
@@ -25,17 +28,18 @@ import edu.kit.iti.algover.symbex.PathConditionElement;
 import edu.kit.iti.algover.symbex.Symbex;
 import edu.kit.iti.algover.symbex.SymbexPath;
 import edu.kit.iti.algover.term.Term;
+import edu.kit.iti.algover.term.builder.TermBuildException;
 import edu.kit.iti.algover.util.Debug;
 import edu.kit.iti.algover.util.LabelIntroducer;
+import edu.kit.iti.algover.util.Util;
 
 public class Main {
 
-    private static boolean VERBOSE = false;
+    private static boolean VERBOSE = true;
 
     private static void test(InputStream stream) throws Exception {
         // create the lexer attached to stream
       ANTLRInputStream input = new ANTLRInputStream(stream);
-
 
         DafnyLexer lexer = new DafnyLexer(input);
         // create the buffer of tokens between the lexer and parser
@@ -122,10 +126,23 @@ public class Main {
     }
 
     public static void main(String[] args) throws Exception {
-        if(args.length == 0) {
-            test(System.in);
-        } else {
-            test(new FileInputStream(args[0]));
+        try {
+            if(args.length == 0) {
+                test(System.in);
+            } else {
+                test(new FileInputStream(args[0]));
+            }
+        } catch (TermBuildException ex) {
+            DafnyTree location = ex.getLocation();
+            if(location != null) {
+                Token tok = location.token;
+                int pos = tok.getCharPositionInLine();
+                int line = tok.getLine();
+                List<String> lines = Files.readAllLines(Paths.get(args[0]));
+                System.err.println(lines.get(line));
+                System.err.println(Util.duplicate(" ", pos) + "^^^");
+                ex.printStackTrace();
+            }
         }
     }
 

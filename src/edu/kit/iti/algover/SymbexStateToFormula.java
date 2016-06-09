@@ -18,6 +18,7 @@ import edu.kit.iti.algover.symbex.SymbexPath;
 import edu.kit.iti.algover.term.FunctionSymbol;
 import edu.kit.iti.algover.term.Sort;
 import edu.kit.iti.algover.term.Term;
+import edu.kit.iti.algover.term.builder.TermBuildException;
 import edu.kit.iti.algover.term.builder.TermBuilder;
 import edu.kit.iti.algover.term.builder.TreeTermTranslator;
 
@@ -57,7 +58,7 @@ public class SymbexStateToFormula {
         return new Sort(name);
     }
 
-    public Collection<Term> from(SymbexPath symbexState) {
+    public Collection<Term> from(SymbexPath symbexState) throws TermBuildException {
 
         Collection<Term> result = new ArrayList<>();
 

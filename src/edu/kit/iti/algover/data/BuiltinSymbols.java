@@ -43,16 +43,16 @@ public class BuiltinSymbols extends MapSymbolTable {
             new FunctionSymbol("$not", Sort.FORMULA, Sort.FORMULA);
 
     public static final FunctionSymbol GT =
-            new FunctionSymbol("$gt", Sort.INT, Sort.INT, Sort.FORMULA);
+            new FunctionSymbol("$gt", Sort.FORMULA, Sort.INT, Sort.INT);
 
     public static final FunctionSymbol GE =
-            new FunctionSymbol("$ge", Sort.INT, Sort.INT, Sort.FORMULA);
+            new FunctionSymbol("$ge", Sort.FORMULA, Sort.INT, Sort.INT);
 
     public static final FunctionSymbol LT =
-            new FunctionSymbol("$lt", Sort.INT, Sort.INT, Sort.FORMULA);
+            new FunctionSymbol("$lt", Sort.FORMULA, Sort.INT, Sort.INT);
 
     public static final FunctionSymbol LE =
-            new FunctionSymbol("$le", Sort.INT, Sort.INT, Sort.FORMULA);
+            new FunctionSymbol("$le", Sort.FORMULA, Sort.INT, Sort.INT);
 
     public static final FunctionSymbol PLUS =
             new FunctionSymbol("$plus", Sort.INT, Sort.INT, Sort.INT);
@@ -67,7 +67,7 @@ public class BuiltinSymbols extends MapSymbolTable {
             new FunctionSymbol("$intersect", Sort.INT_SET, Sort.INT_SET, Sort.INT_SET);
 
     public static final FunctionSymbol STORE1 =
-            new FunctionSymbol("$store1", Sort.HEAP, Sort.REF, Sort.INT, Sort.INT);
+            new FunctionSymbol("$store1", Sort.HEAP, Sort.HEAP, new Sort("array1"), Sort.INT, Sort.INT);
 
     public static final FunctionSymbol HEAP =
             new FunctionSymbol("$heap", Sort.HEAP);

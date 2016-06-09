@@ -24,6 +24,7 @@ import edu.kit.iti.algover.symbex.VariableMap;
 import edu.kit.iti.algover.term.FunctionSymbol;
 import edu.kit.iti.algover.term.Sort;
 import edu.kit.iti.algover.term.Term;
+import edu.kit.iti.algover.term.builder.TermBuildException;
 import edu.kit.iti.algover.term.builder.TermBuilder;
 import edu.kit.iti.algover.term.builder.TreeTermTranslator;
 import edu.kit.iti.algover.util.ImmutableList;
@@ -93,7 +94,12 @@ public class ProofVerificationConditionBuilder {
         this.symbolTable = makeSymbolTable();
         extendSymbolTable();
         //create the ProofFormulas
-        proofFormulas = translate();
+        try {
+            proofFormulas = translate();
+        } catch (TermBuildException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
         for (ProofFormula proofFormula : proofFormulas) {
             System.out.println(proofFormula.toString());
         }
@@ -142,9 +148,10 @@ public class ProofVerificationConditionBuilder {
         return label;
     }
     /**
+     * @throws TermBuildException
      *
      */
-    private List<ProofFormula> translate() {
+    private List<ProofFormula> translate() throws TermBuildException {
         List<ProofFormula> all_formulas = new ArrayList<>();
 
         TreeTermTranslator termbuilder = new TreeTermTranslator(symbolTable);
@@ -284,8 +291,9 @@ public class ProofVerificationConditionBuilder {
      * Copied from Mattias, will have own
      * @param symbexState
      * @return
+     * @throws TermBuildException
      */
-    public Collection<Term> from(SymbexPath symbexState) {
+    public Collection<Term> from(SymbexPath symbexState) throws TermBuildException {
 
         Collection<Term> result = new ArrayList<>();
 
@@ -301,7 +309,11 @@ public class ProofVerificationConditionBuilder {
         for(DafnyTree po : symbexState.getProofObligations()) {
             Term formula = ttt.build(state.getMap().instantiate(po));
             System.out.println(" Formula: "+formula.toString());
-            result.add(TermBuilder.negate(formula));
+            try {
+                result.add(TermBuilder.negate(formula));
+            } catch (TermBuildException e) {
+                // TODO Handle me
+            }
         }
 
         return result;
@@ -336,7 +348,12 @@ public class ProofVerificationConditionBuilder {
        // this.termbuilder = new TreeTermTranslator(symbolTable);
 
         idCounter= 1;
-        from(state);
+        try {
+            from(state);
+        } catch (TermBuildException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
         //buildPVC();
         this.history = createHistory();
         this.root = buildRoot();

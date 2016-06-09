@@ -40,50 +40,56 @@ public class TreeTermTranslator {
         this.symbolTable = symbolTable;
     }
 
-    public Term build(VariableMap map, DafnyTree expression) {
+    public Term build(VariableMap map, DafnyTree expression) throws TermBuildException {
         Term result = build(expression);
 
-//        for (Pair<String, DafnyTree> pair : map) {
-//        }
-        Iterator<Pair<String, DafnyTree>> it = map.iterator();
-        while(it.hasNext()) {
-            Pair<String, DafnyTree> pair = it.next();
-
+        for (Pair<String, DafnyTree> pair : map) {
             result = buildLetExpression(pair.fst, pair.snd, result);
         }
+
+        //        Iterator<Pair<String, DafnyTree>> it = map.iterator();
+//        while(it.hasNext()) {
+//            Pair<String, DafnyTree> pair = it.next();
+//        }
 
         return result;
 
     }
 
-    private Term buildLetExpression(String var, DafnyTree assignment, Term result) {
-        // XXX
-        switch(assignment.getType()) {
-        case DafnyParser.HAVOC:
-            String newConst = assignment.getChild(1).getText();
-            FunctionSymbol f = symbolTable.getFunctionSymbol(var);
-            // SuffixSymbolTable should handle this:
-            FunctionSymbol fPrime = symbolTable.getFunctionSymbol(newConst);
-            return new LetTerm(f, new ApplTerm(fPrime), result);
+    private Term buildLetExpression(String var, DafnyTree assignment, Term result) throws TermBuildException {
+        DafnyTree errorTree = assignment;
+        try {
+            switch(assignment.getType()) {
+            case DafnyParser.HAVOC:
+                String newConst = assignment.getChild(1).getText();
+                FunctionSymbol f = symbolTable.getFunctionSymbol(var);
+                // SuffixSymbolTable should handle this:
+                FunctionSymbol fPrime = symbolTable.getFunctionSymbol(newConst);
+                return new LetTerm(f, new ApplTerm(fPrime), result);
 
-        case DafnyParser.ARRAY_UPDATE:
-            Term object = build(assignment.getChild(0));
-            Term index = build(assignment.getChild(1));
-            Term value = build(assignment.getChild(2));
-            FunctionSymbol heap = BuiltinSymbols.HEAP;
-            ApplTerm heapTerm = new ApplTerm(heap);
-            Term store = new ApplTerm(BuiltinSymbols.STORE1, heapTerm, object, index, value);
-            return new LetTerm(heap, store, result);
+            case DafnyParser.ARRAY_UPDATE:
+                Term object = build(assignment.getChild(0));
+                Term index = build(assignment.getChild(1));
+                Term value = build(assignment.getChild(2));
+                FunctionSymbol heap = BuiltinSymbols.HEAP;
+                ApplTerm heapTerm = new ApplTerm(heap);
+                Term store = new ApplTerm(BuiltinSymbols.STORE1, heapTerm, object, index, value);
+                return new LetTerm(heap, store, result);
 
-        default:
-            f = symbolTable.getFunctionSymbol(var);
-            value = build(assignment);
-            return new LetTerm(f, value, result);
-
+            default:
+                // in this case for error we must take parent of the expression
+                errorTree = (DafnyTree) assignment.getParent();
+                f = symbolTable.getFunctionSymbol(var);
+                value = build(assignment);
+                return new LetTerm(f, value, result);
+            }
+        } catch(TermBuildException ex) {
+            ex.setLocation(errorTree);
+            throw ex;
         }
     }
 
-    public Term build(DafnyTree tree) {
+    public Term build(DafnyTree tree) throws TermBuildException {
 
         switch(tree.getType()) {
         case DafnyParser.AND:
@@ -132,12 +138,15 @@ public class TreeTermTranslator {
         case DafnyParser.ARRAY_ACCESS:
             return buildArrayAccess(tree);
 
-        default: throw new RuntimeException(tree.toStringTree());
+        default:
+            TermBuildException ex = new TermBuildException("Cannot translate term: " + tree.toStringTree());
+            ex.setLocation(tree);
+            throw ex;
         }
 
     }
 
-    private Term buildArrayAccess(DafnyTree tree) {
+    private Term buildArrayAccess(DafnyTree tree) throws TermBuildException {
 
         Term arrayTerm = build(tree.getChild(0));
         Sort arraySort = arrayTerm.getSort();
@@ -169,7 +178,7 @@ public class TreeTermTranslator {
 
     }
 
-    private Term buildLength(DafnyTree tree) {
+    private Term buildLength(DafnyTree tree) throws TermBuildException {
         String functionName = tree.toString();
         String suffix = functionName.substring(6);
 
@@ -185,7 +194,7 @@ public class TreeTermTranslator {
 
     }
 
-    private Term buildEquality(DafnyTree tree) {
+    private Term buildEquality(DafnyTree tree) throws TermBuildException {
         if(tree.getChildCount() != 2) {
             throw new RuntimeException();
         }
@@ -201,7 +210,7 @@ public class TreeTermTranslator {
         return new ApplTerm(f, Arrays.asList(t1, t2));
     }
 
-    private Term buildIdentifier(DafnyTree tree) {
+    private Term buildIdentifier(DafnyTree tree) throws TermBuildException {
         String name = tree.toString();
         for (VariableTerm var : boundVars) {
             if(var.getName().equals(name)) {
@@ -212,15 +221,13 @@ public class TreeTermTranslator {
 
         FunctionSymbol fct = symbolTable.getFunctionSymbol(name);
         if(fct == null) {
-            throw new RuntimeException("Unknown function symbol: " + name);
-            // throw new DafnyException("Unknown function symbol: " + name, tree);
+            throw new TermBuildException("Unknown function symbol: " + name);
         }
-
 
         return new ApplTerm(fct);
     }
 
-    private Term buildQuantifier(Quantifier q, DafnyTree tree) {
+    private Term buildQuantifier(Quantifier q, DafnyTree tree) throws TermBuildException {
         if(tree.getChildCount() != 3) {
             throw new RuntimeException();
         }
@@ -247,7 +254,7 @@ public class TreeTermTranslator {
         return SymbexStateToFormula.treeToType(child);
     }
 
-    private Term buildUnary(FunctionSymbol f, DafnyTree tree) {
+    private Term buildUnary(FunctionSymbol f, DafnyTree tree) throws TermBuildException {
         if(tree.getChildCount() != 1) {
             throw new RuntimeException("Unexpected argument " + tree.toStringTree());
         }
@@ -256,7 +263,7 @@ public class TreeTermTranslator {
         return new ApplTerm(f, Collections.singletonList(t1));
     }
 
-    private Term buildBinary(FunctionSymbol f, DafnyTree tree) {
+    private Term buildBinary(FunctionSymbol f, DafnyTree tree) throws TermBuildException {
         if(tree.getChildCount() != 2) {
             throw new RuntimeException("Unexpected argument " + tree.toStringTree());
         }

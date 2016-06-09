@@ -1,4 +1,11 @@
+/*
+ * This file is part of AlgoVer.
+ *
+ * Copyright (C) 2015-2016 Karlsruhe Institute of Technology
+ */
 package edu.kit.iti.algover.term;
+
+import edu.kit.iti.algover.term.builder.TermBuildException;
 
 public class QuantTerm extends Term {
 
@@ -9,10 +16,14 @@ public class QuantTerm extends Term {
     private final VariableTerm boundVar;
     private final Quantifier quantifier;
 
-    public QuantTerm(Quantifier quantifier, VariableTerm boundVar, Term term) {
+    public QuantTerm(Quantifier quantifier, VariableTerm boundVar, Term term) throws TermBuildException {
         super(Sort.FORMULA, new Term[] { term });
         this.boundVar = boundVar;
         this.quantifier = quantifier;
+
+        if(!term.getSort().equals(Sort.FORMULA)) {
+            throw new TermBuildException("Cannot quantify over " + term + "; it is not a formula.");
+        }
     }
 
     @Override
