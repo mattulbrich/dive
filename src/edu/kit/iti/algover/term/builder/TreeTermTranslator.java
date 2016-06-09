@@ -63,8 +63,9 @@ public class TreeTermTranslator {
         case DafnyParser.HAVOC:
             String newConst = assignment.getChild(1).getText();
             FunctionSymbol f = symbolTable.getFunctionSymbol(var);
-            addSymbolIfNotPresent(newConst, f);
-            return new LetTerm(f, new VariableTerm(newConst, f.getResultSort()), result);
+            // SuffixSymbolTable should handle this:
+            FunctionSymbol fPrime = symbolTable.getFunctionSymbol(newConst);
+            return new LetTerm(f, new ApplTerm(fPrime), result);
 
         case DafnyParser.ARRAY_UPDATE:
             Term object = build(assignment.getChild(0));

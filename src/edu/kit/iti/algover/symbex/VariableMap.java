@@ -176,7 +176,7 @@ public class VariableMap implements Iterable<Pair<String, DafnyTree>> {
         VariableMap vm = this;
         LinkedList<Pair<String, DafnyTree>> result = new LinkedList<>();
         while(vm != EMPTY) {
-            result.addFirst(new Pair<>(vm.var, vm.value));
+            result.addLast(new Pair<>(vm.var, vm.value));
             vm = vm.parent;
         }
         return result.iterator();

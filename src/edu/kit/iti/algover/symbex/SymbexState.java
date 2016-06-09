@@ -279,6 +279,7 @@ public class SymbexState {
      * @return a list of proof obligations expressions,
      *  instantiated with the variable map
      */
+    @Deprecated
     public List<DafnyTree> getInstantiatedObligationExpressions() {
         List<DafnyTree> result = new ArrayList<>();
         for (DafnyTree po : proofObligations) {
@@ -295,7 +296,7 @@ public class SymbexState {
      */
     public String getPathIdentifier() {
         StringBuilder result = new StringBuilder();
-        for (PathConditionElement pce : pathConditions.reverse()) {
+        for (PathConditionElement pce : pathConditions) {
             AssumptionType type = pce.getType();
             switch(type) {
             case IF_ELSE:

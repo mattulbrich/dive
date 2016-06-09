@@ -1,7 +1,7 @@
 /*
  * This file is part of AlgoVer.
  *
- * Copyright (C) 2015 Karlsruhe Institute of Technology
+ * Copyright (C) 2015-2016 Karlsruhe Institute of Technology
  */
 package edu.kit.iti.algover.data;
 
@@ -110,7 +110,12 @@ public class MapSymbolTable implements SymbolTable {
 
     @Override
     public SymbolTable addFunctionSymbol(FunctionSymbol symb) {
-        return new IncrementalSymbolTable(this, symb);
+        String name = symb.getName();
+        if(functionMap.containsKey(name)) {
+            throw new RuntimeException("Symbol already present: " + name);
+        }
+        functionMap.put(name, symb);
+        return this;
     }
 
     @Override
