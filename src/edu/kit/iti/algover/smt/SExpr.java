@@ -1,7 +1,7 @@
 /*
  * This file is part of AlgoVer.
  *
- * Copyright (C) 2015 Karlsruhe Institute of Technology
+ * Copyright (C) 2015-2016 Karlsruhe Institute of Technology
  */
 
 package edu.kit.iti.algover.smt;
@@ -77,10 +77,15 @@ public class SExpr {
     }
 
     private void appendTo(StringBuilder sb) {
+        boolean noSpace = name.isEmpty();
         if(children.size() > 0) {
             sb.append("(").append(getEscapedName());
             for (SExpr child : children) {
-                sb.append(" ");
+                if(!noSpace) {
+                    sb.append(" ");
+                } else {
+                    noSpace = false;
+                }
                 child.appendTo(sb);
             }
             sb.append(")");

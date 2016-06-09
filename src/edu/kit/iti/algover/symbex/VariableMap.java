@@ -53,19 +53,11 @@ public class VariableMap implements Iterable<Pair<String, DafnyTree>> {
         }
 
         String anonName = v + "#" + (count+1);
-        return assign(v, new DafnyTree(new CommonToken(DafnyParser.ID, anonName)));
-    }
+        DafnyTree result = new DafnyTree(new CommonToken(DafnyParser.HAVOC));
+        result.addChild(new DafnyTree(new CommonToken(DafnyParser.ID, v)));
+        result.addChild(new DafnyTree(new CommonToken(DafnyParser.ID, anonName)));
 
-    public Set<String> findAnonymisingConsts() {
-        Set<String> result = new HashSet<String>();
-        VariableMap vm = this;
-        while(vm != EMPTY) {
-            if(vm.value.toString().contains("#")) {
-                result.add(vm.value.getText());
-            }
-            vm = vm.parent;
-        }
-        return result;
+        return assign(v, result);
     }
 
     @Deprecated
@@ -184,7 +176,7 @@ public class VariableMap implements Iterable<Pair<String, DafnyTree>> {
         VariableMap vm = this;
         LinkedList<Pair<String, DafnyTree>> result = new LinkedList<>();
         while(vm != EMPTY) {
-            result.addFirst(new Pair<>(var, value));
+            result.addFirst(new Pair<>(vm.var, vm.value));
             vm = vm.parent;
         }
         return result.iterator();

@@ -13,22 +13,31 @@ import edu.kit.iti.algover.util.Pair;
 
 public class LetTerm extends Term {
 
-    private final List<Pair<VariableTerm, Term>> substitutions;
+    private final List<Pair<FunctionSymbol, Term>> substitutions;
 
-    public LetTerm(VariableTerm var, Term expression, Term in) {
+    public LetTerm(FunctionSymbol var, Term expression, Term in) {
         this(Collections.singletonList(new Pair<>(var, expression)), in);
     }
 
-    public LetTerm(List<Pair<VariableTerm, Term>> substs, Term in) {
+    public LetTerm(List<Pair<FunctionSymbol, Term>> substs, Term in) {
         super(in.getSort(), new Term[] { in });
         this.substitutions = new ArrayList<>(substs);
+
+        for (Pair<FunctionSymbol, Term> pair : substs) {
+            if(pair.fst.getArity() != 0) {
+                throw new RuntimeException("Assignment not non-constant");
+            }
+            if(!pair.fst.getResultSort().equals(pair.snd.getSort())) {
+                throw new RuntimeException("Illegally typed assignment to " + pair.fst);
+            }
+        }
     }
 
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
         sb.append("(let ");
-        for (Pair<VariableTerm,Term> pair : substitutions) {
+        for (Pair<FunctionSymbol,Term> pair : substitutions) {
             sb.append(pair.fst).append(" = ").append(pair.snd).append(", ");
         }
         sb.append(" in ").append(getInTerm()).append(")");
@@ -44,7 +53,7 @@ public class LetTerm extends Term {
         return visitor.visit(this, arg);
     }
 
-    public List<Pair<VariableTerm, Term>> getSubstitutions() {
+    public List<Pair<FunctionSymbol, Term>> getSubstitutions() {
         return Collections.unmodifiableList(substitutions);
     }
 

@@ -69,6 +69,9 @@ public class BuiltinSymbols extends MapSymbolTable {
     public static final FunctionSymbol STORE =
             new FunctionSymbol("$store", Sort.HEAP, Sort.REF, Sort.INT, Sort.INT);
 
+    public static final FunctionSymbol HEAP =
+            new FunctionSymbol("$heap", Sort.HEAP);
+
     public BuiltinSymbols() {
         super(collectSymbols());
     }

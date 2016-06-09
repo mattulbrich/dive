@@ -126,7 +126,7 @@ public class SMTTrans extends DefaultTermVisitor<Void, SExpr> {
     public SExpr visit(LetTerm letTerm, Void arg) {
         SExpr inner = letTerm.getTerm(0).accept(this, null);
         List<SExpr> substitutions = new ArrayList<SExpr>();
-        for (Pair<VariableTerm, Term> pair : letTerm.getSubstitutions()) {
+        for (Pair<FunctionSymbol, Term> pair : letTerm.getSubstitutions()) {
             substitutions.add(new SExpr(pair.fst.getName(), pair.snd.accept(this, null)));
         }
         return new SExpr("let", new SExpr(substitutions), inner);

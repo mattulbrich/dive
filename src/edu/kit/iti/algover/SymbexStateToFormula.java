@@ -69,13 +69,10 @@ public class SymbexStateToFormula {
         }
 
         assert symbexState.getProofObligations().size() == 1;
-
-        for(DafnyTree po : symbexState.getProofObligations()) {
-            DafnyTree expression = po.getLastChild();
-            DafnyTree instantiated = symbexState.getMap().instantiate(expression);
-            Term formula = ttt.build(instantiated);
-            result.add(TermBuilder.negate(formula));
-        }
+        DafnyTree po = symbexState.getProofObligations().getHead();
+        DafnyTree expression = po.getLastChild();
+        Term formula = ttt.build(symbexState.getMap(), expression);
+        result.add(TermBuilder.negate(formula));
 
         return result;
 

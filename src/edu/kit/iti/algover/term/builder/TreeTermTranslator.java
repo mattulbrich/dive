@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Deque;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -43,39 +44,41 @@ public class TreeTermTranslator {
     public Term build(VariableMap map, DafnyTree expression) {
         Term result = build(expression);
 
-        for (Pair<String, DafnyTree> pair : map) {
-            result = buildLetExpression(pair.snd, result);
+//        for (Pair<String, DafnyTree> pair : map) {
+//        }
+        Iterator<Pair<String, DafnyTree>> it = map.iterator();
+        while(it.hasNext()) {
+            Pair<String, DafnyTree> pair = it.next();
+
+            result = buildLetExpression(pair.fst, pair.snd, result);
         }
 
         return result;
 
     }
 
-    private Term buildLetExpression(DafnyTree assignment, Term result) {
+    private Term buildLetExpression(String var, DafnyTree assignment, Term result) {
         // XXX
         switch(assignment.getType()) {
         case DafnyParser.HAVOC:
             String newConst = assignment.getChild(1).getText();
-            String var = assignment.getChild(0).getText();
             FunctionSymbol f = symbolTable.getFunctionSymbol(var);
             addSymbolIfNotPresent(newConst, f);
-            return new LetTerm(new VariableTerm(var, f.getResultSort()),
-                    new VariableTerm(newConst, f.getResultSort()), result);
+            return new LetTerm(f, new VariableTerm(newConst, f.getResultSort()), result);
 
         case DafnyParser.ARRAY_UPDATE:
             Term object = build(assignment.getChild(0));
             Term index = build(assignment.getChild(1));
             Term value = build(assignment.getChild(1));
-            VariableTerm heap = new VariableTerm(Symbex.HEAP_VAR, Sort.HEAP);
-            Term store = new ApplTerm(BuiltinSymbols.STORE, heap, object, index, value);
+            FunctionSymbol heap = BuiltinSymbols.HEAP;
+            ApplTerm heapTerm = new ApplTerm(heap);
+            Term store = new ApplTerm(BuiltinSymbols.STORE, heapTerm, object, index, value);
             return new LetTerm(heap, store, result);
 
         default:
-            // XXX
-            var = "xxx"; // assignment.getChild(0).getText();
-            VariableTerm varTerm = new VariableTerm("xxx", Sort.INT);
+            f = symbolTable.getFunctionSymbol(var);
             value = build(assignment);
-            return new LetTerm(varTerm, value, result);
+            return new LetTerm(f, value, result);
 
         }
     }
@@ -118,9 +121,9 @@ public class TreeTermTranslator {
             return buildEquality(tree);
 
         case DafnyParser.ID:
-
         case DafnyParser.LIT:
             return buildIdentifier(tree);
+
         case DafnyParser.LABEL:
 
         case DafnyParser.ALL:
