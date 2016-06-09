@@ -1,0 +1,151 @@
+\documentclass{article}
+
+\usepackage[margin=4cm]{geometry}
+\usepackage{tabularx}
+
+\newcommand{\plus}{\textbf{+}}
+\newcommand{\minus}{\textbf{--}}
+\newcommand{\undecided}{\boldmath$\circ$}
+
+\begin{document}
+
+\title{Concept for Program-Focused Interaction in \\Algorithm Verification}
+\author{MU}
+\date{June 2016}
+
+\maketitle
+
+\begin{abstract}
+  We propose an interaction concept for deductive program verification
+  that embraces the three main existing paradigms of interactive
+  deduction: interaction, scripts and autoaction.
+\end{abstract}
+
+Algorithm (program) verification is difficult. Modern automatic
+provers require guidance/assistance by the user provided in different
+possible ways:
+\begin{enumerate}
+\item by point-and-click \emph{interaction} (alla KeY)
+\item by proof manu\emph{scripts} (alla Coq, Isabelle, PVS, \dots)
+\item by annotations in the program (\emph{autoactive}, alla Dafny, VCC, \ldots)
+\end{enumerate}
+
+Each of these prover guidance concepts have their advantages and
+disadvantages as far the expressiveness and usability is concerned:
+
+\begin{description}
+\item[Interaction] Having a calculus for the (program) logic and rules
+  that can be applied in it, gives the user full control over the
+  verification process. Nothing\footnote{Nothing within Peano
+    arithmetic, that is} is impossible if the calculus is relatively
+  complete. Every proof can be conducted -- but it may require a
+  million clicks by the user. Additionally the user must be familiar
+  with the logical encoding of the program language which can differ
+  considerably:\\
+  \begin{tabularx}{\linewidth}{cX}
+    \plus & Every proof can be conducted (manually) \\
+    \minus & Logical encoding may differ from program language \\
+    \minus & Fine-grained interaction obscures central/essential user
+    interaction steps during proof \\
+    \minus & Conducted proofs are not resilient to changes in program
+    or spec since fine-grained steps refer to details which may change
+    if program/spec change.
+  \end{tabularx}
+
+\item[Scripts] Scripts also provide rules for a calculus. However, the
+  steps made in it are more coarse-grained and usually comprise
+  ``big'' decisions like ``use structural induction with hyphothesis
+  $\phi$ here'' or ``make case distinction on $\psi$'' or ``solve this
+  with special solver x''. Often the original proof goal is broken
+  down into intermediate targets which are then easier to reach. Some
+  scripts reuqire the user to formulate proofs constructively, in a
+  forward manner. This may make them more readable.\\
+  \begin{tabularx}{\linewidth}{cX}
+    \plus & Proofs can be arranged in a (relatively)
+    readable/comprehensible manner\\
+    \plus & Conducted proofs can be made relatively resilient to
+    changes in program or spec since, in the coarse steps little
+    reference to details need to be done.\footnote{They are, however,
+      susceptible to changes in the theories, as experience shows}\\
+    \minus & Logical encoding may differ from program language\\
+    \undecided & Detailed insight into logic may not be possible.
+  \end{tabularx}
+
+\item[Autoaction] All communication with the prover is on the level of
+  annotations to the program. There is no visible logical layer behind
+  it. This allows the prover to encode things more efficiently since
+  (human) comprehensibility is no issue. Likewise, the user has not to
+  keep two mental models (program/logic) synchronised in their
+  minds. Understanding why a proof fails becomes a challenge then, and
+  the user is limited in their means to give hints to the prover:
+  Usually only a few built-in tools like case distinctions, local
+  lemmas, induction are available.\\
+  \begin{tabularx}{\linewidth}{cX}
+    \plus & There is no ``second (logical) level''. User can (in
+    theory) think in terms of programs only. \\
+    \plus & Annotations are relatively spares and the rationale behind
+    proofs can be made comprehensible\\
+    \minus & Programming constructs like if-then-else or assertions
+    are used for prover control; additional fake predicates may be
+    needed which may make proofs incomprehensible again. \\
+    \minus & Insight into the logical level is missing entirely.
+  \end{tabularx}
+\end{description}
+
+In this project we propose an interaction concept which brings
+together the advantages of the three paradigms; in particular it
+allows for interaction by all three means in a coordinated manner.
+
+\begin{enumerate}
+\item The interaction concept comprises different views on the
+  verification problem:
+  \begin{enumerate}
+  \item code/algorithm view
+  \item proof obligation overview
+  \item logical encoding
+  \item proof manuscript
+  \end{enumerate}
+
+\item The views are highly connected in the sense that entities which
+  belong together can be highlighted, allow navigation, etc.  In the
+  logical view, every statement has references to its
+  predecessor/origin/purpose/code location.
+
+\item The logical enconding is on a logic which is as identical as
+  possible to the programming language.
+
+  The logical representation is always kept as closely as possible to
+  artifacts that occur in the program. No normalisation etc.\ takes
+  place.
+
+\item Proof progression is possible on all views.
+
+  The relevant means for the progression need to be investigated: Only
+  a few builtin rules with good support or user-provided rules?
+
+\item Proof progression made in one view is reflected in the others.
+  An interactive proof step modifies the proof script. An autoactive
+  command is reflected as a new proof obligation, etc.
+\end{enumerate}
+
+Not only conducting the proof is difficutlt. Proof comprehension is
+also a hard business. THerefore the concept will provide different
+tools to cope with the challenge:
+\begin{enumerate}
+\item \emph{Abstraction} According to a user-given criterion, abstract
+  away from concrete entities in logical encoding. Use \emph{pre}
+  instead of the actual precondition, etc.
+\item \emph{Selection} According to a user-given criterion (a set of
+  variables, set of heap locations, line in program, ``everything that
+  has to do with arithmetic'', etc.), only parts of the proof
+  obligation, program, and script are displayed.
+\item \emph{Assumption} This allows the user to dive into ``what-if''
+  scenarios by making additional assumptions as conjectures which can
+  be taken back easily (backtracking).
+\end{enumerate}
+These tools are meant for inspection of the proof state, less for
+progress (assuomption may make progress).
+
+\paragraph{Stuff}
+
+\end{document}
