@@ -138,8 +138,8 @@ public class SMTTrans extends DefaultTermVisitor<Void, SExpr> {
         String name = sort.getName();
         if(name.matches("array[0-9]+")) {
             int dim = Integer.parseInt(name.substring(5));
-            List<SExpr> args = Collections.nCopies(dim+1, new SExpr("Int"));
-            return new SExpr("Array", args);
+            assert dim == 1 : "For the moment we are limited";
+            return new SExpr("Ref");
         } else {
             switch(name) {
             case "int": return new SExpr("Int");

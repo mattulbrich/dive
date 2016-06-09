@@ -66,8 +66,8 @@ public class BuiltinSymbols extends MapSymbolTable {
     public static final FunctionSymbol INTERSECT =
             new FunctionSymbol("$intersect", Sort.INT_SET, Sort.INT_SET, Sort.INT_SET);
 
-    public static final FunctionSymbol STORE =
-            new FunctionSymbol("$store", Sort.HEAP, Sort.REF, Sort.INT, Sort.INT);
+    public static final FunctionSymbol STORE1 =
+            new FunctionSymbol("$store1", Sort.HEAP, Sort.REF, Sort.INT, Sort.INT);
 
     public static final FunctionSymbol HEAP =
             new FunctionSymbol("$heap", Sort.HEAP);
@@ -113,6 +113,7 @@ public class BuiltinSymbols extends MapSymbolTable {
             int dim = Integer.parseInt(suffix);
             Sort arraySort = new Sort("array" + suffix);
             List<Sort> args = new ArrayList<>();
+            args.add(Sort.HEAP);
             args.add(arraySort);
             args.addAll(Collections.nCopies(dim, Sort.INT));
             FunctionSymbol len = new FunctionSymbol(name, Sort.INT, args);

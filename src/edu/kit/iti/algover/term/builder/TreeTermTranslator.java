@@ -18,7 +18,6 @@ import edu.kit.iti.algover.data.BuiltinSymbols;
 import edu.kit.iti.algover.data.SymbolTable;
 import edu.kit.iti.algover.parser.DafnyParser;
 import edu.kit.iti.algover.parser.DafnyTree;
-import edu.kit.iti.algover.symbex.Symbex;
 import edu.kit.iti.algover.symbex.VariableMap;
 import edu.kit.iti.algover.term.ApplTerm;
 import edu.kit.iti.algover.term.FunctionSymbol;
@@ -70,10 +69,10 @@ public class TreeTermTranslator {
         case DafnyParser.ARRAY_UPDATE:
             Term object = build(assignment.getChild(0));
             Term index = build(assignment.getChild(1));
-            Term value = build(assignment.getChild(1));
+            Term value = build(assignment.getChild(2));
             FunctionSymbol heap = BuiltinSymbols.HEAP;
             ApplTerm heapTerm = new ApplTerm(heap);
-            Term store = new ApplTerm(BuiltinSymbols.STORE, heapTerm, object, index, value);
+            Term store = new ApplTerm(BuiltinSymbols.STORE1, heapTerm, object, index, value);
             return new LetTerm(heap, store, result);
 
         default:
@@ -82,11 +81,6 @@ public class TreeTermTranslator {
             return new LetTerm(f, value, result);
 
         }
-    }
-
-    private void addSymbolIfNotPresent(String newConst, FunctionSymbol functionSymbol) {
-        // TODO Auto-generated method stub
-
     }
 
     public Term build(DafnyTree tree) {
@@ -165,6 +159,7 @@ public class TreeTermTranslator {
         }
 
         List<Term> args = new ArrayList<>();
+        args.add(new ApplTerm(BuiltinSymbols.HEAP));
         args.add(arrayTerm);
         for(int i = 1; i <= dimension; i++) {
             args.add(build(tree.getChild(i)));

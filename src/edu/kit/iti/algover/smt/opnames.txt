@@ -15,9 +15,7 @@ $gt = >
 $eq_int = \=
 
 $select1 = select
-$select2 = select
-$select3 = select
-$select4 = select
-$select5 = select
+
+$store1 = store
 
 # ...

@@ -1,3 +1,4 @@
 (declare-sort Ref)
 
-(declare-fun $len0 ((Array Int Int)) Int)
+(declare-fun $len0 (Ref) Int)
+(declare-const $heap (Array Ref Int Int))

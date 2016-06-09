@@ -1,3 +1,8 @@
+/*
+ * This file is part of AlgoVer.
+ *
+ * Copyright (C) 2015-2016 Karlsruhe Institute of Technology
+ */
 package edu.kit.iti.algover.term;
 
 import java.util.Arrays;
@@ -14,6 +19,7 @@ public class ApplTerm extends Term {
     public ApplTerm(FunctionSymbol function, List<Term> arguments) {
         super(function.getResultSort(), Util.toArray(arguments, Term.class));
         this.function = function;
+//        check();
     }
 
     public ApplTerm(FunctionSymbol function, Term... arguments) {
@@ -22,6 +28,19 @@ public class ApplTerm extends Term {
 
     public ApplTerm(FunctionSymbol constant) {
         this(constant, Collections.emptyList());
+    }
+
+    private void check() {
+        if(function.getArity() != getSubterms().size()) {
+            throw new RuntimeException("Illegal number of arguments");
+        }
+        for (int i = 0; i < function.getArity(); i++) {
+            Sort expected = function.getArgumentSorts().get(i);
+            Sort is = getSubterms().get(i).getSort();
+            if(!is.equals(expected)) {
+                throw new RuntimeException("Unexpected argument sort");
+            }
+        }
     }
 
     @Override

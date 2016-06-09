@@ -38,8 +38,10 @@ public class LetTerm extends Term {
         StringBuilder sb = new StringBuilder();
         sb.append("(let ");
         for (Pair<FunctionSymbol,Term> pair : substitutions) {
-            sb.append(pair.fst).append(" = ").append(pair.snd).append(", ");
+            sb.append(pair.fst.getName()).append("=").append(pair.snd).append(", ");
         }
+        // remove comma
+        sb.setLength(sb.length()-2);
         sb.append(" in ").append(getInTerm()).append(")");
         return sb.toString();
     }
