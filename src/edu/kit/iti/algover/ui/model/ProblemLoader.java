@@ -28,7 +28,7 @@ import edu.kit.iti.algover.proof.ContractProofObligation;
 import edu.kit.iti.algover.proof.IllegalStateException;
 import edu.kit.iti.algover.symbex.PathConditionElement;
 import edu.kit.iti.algover.symbex.Symbex;
-import edu.kit.iti.algover.symbex.SymbexState;
+import edu.kit.iti.algover.symbex.SymbexPath;
 
 /**
  * Class responsible for loading a problem file, parsing it and performing symbolic execution
@@ -89,7 +89,7 @@ public class ProblemLoader {
     public static ContractProofObligation performSymbEx(DafnyTree method) throws IllegalStateException {
 
         Symbex symbex = new Symbex();
-        List<SymbexState> results = symbex.symbolicExecution(method);
+        List<SymbexPath> results = symbex.symbolicExecution(method);
 
         return new ContractProofObligation(results, method);
     }
@@ -172,7 +172,7 @@ public class ProblemLoader {
 
         Symbex symbex = new Symbex();
 
-        List<SymbexState> results = symbex.symbolicExecution(t);
+        List<SymbexPath> results = symbex.symbolicExecution(t);
 
 
 
@@ -181,17 +181,17 @@ public class ProblemLoader {
         LinkedList<DafnyTree> instantiatedAssumptions;
 
         LinkedList<PathConditionElement> typeCollectionPath;
-        LinkedList<SymbexState.AssertionType> typeCollectionState;
+        LinkedList<SymbexPath.AssertionType> typeCollectionState;
         LinkedList<DafnyTree> assumptions;
 
 
         proofList = new LinkedList<ProofOld>();
 
-        for (SymbexState res : results) {
+        for (SymbexPath res : results) {
             assumptions = new LinkedList<DafnyTree>();
             instantiatedAssumptions  = new LinkedList<DafnyTree>();
             typeCollectionPath = new LinkedList<PathConditionElement>();
-            typeCollectionState  = new LinkedList<SymbexState.AssertionType>();
+            typeCollectionState  = new LinkedList<SymbexPath.AssertionType>();
 
            // System.out.println("------------");
             for (PathConditionElement pc : res.getPathConditions()) {

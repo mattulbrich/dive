@@ -1,6 +1,6 @@
 package edu.kit.iti.algover.util;
 
-import edu.kit.iti.algover.symbex.SymbexState;
+import edu.kit.iti.algover.symbex.SymbexPath;
 
 import java.util.LinkedList;
 
@@ -11,8 +11,8 @@ import java.util.LinkedList;
  */
 public class ProofScript {
     LinkedList<RuleApp> appliedRules;
-    SymbexState po;
-    public ProofScript (SymbexState po){
+    SymbexPath po;
+    public ProofScript (SymbexPath po){
         this.po = po;
         appliedRules = new LinkedList<RuleApp>();
     }

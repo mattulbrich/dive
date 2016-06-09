@@ -17,9 +17,10 @@ import edu.kit.iti.algover.symbex.PathConditionElement.AssumptionType;
 import edu.kit.iti.algover.util.ImmutableList;
 
 /**
- * This class captures intermediate and terminal states of symbolic execution.
+ * This class captures intermediate and terminal states of paths in symbolic
+ * execution.
  *
- * A state for symbolic execution comprises:
+ * A path for symbolic execution comprises:
  * <ul>
  * <li>a list of gathered path conditions
  * <li>a list of proof obligations to be discharged
@@ -29,9 +30,9 @@ import edu.kit.iti.algover.util.ImmutableList;
  * states)
  * </ul>
  *
- * A state is mutable and objects are modified during symbolic execution. At
- * places where more than one state result from symbolic execution, the copy
- * constructor {@link #SymbexState(SymbexState)} is used.
+ * A path object is mutable and objects are modified during symbolic execution.
+ * At places where more than one state result from symbolic execution, the copy
+ * constructor {@link #SymbexState(SymbexPath)} is used.
  *
  * The referred elements are of immutable nature such that they can be shared
  * beween instances of this class.
@@ -39,7 +40,7 @@ import edu.kit.iti.algover.util.ImmutableList;
  * All references to the original code are in form of {@link DafnyTree} AST
  * references.
  */
-public class SymbexState {
+public class SymbexPath {
 
     /**
      * There are different reasons for assertions.
@@ -115,7 +116,7 @@ public class SymbexState {
      * @param function
      *            the function to refer to, not <code>null</code>
      */
-    public SymbexState(DafnyTree function) {
+    public SymbexPath(DafnyTree function) {
         assert function != null;
         this.pathConditions = ImmutableList.nil();
         this.currentMap = VariableMap.EMPTY;
@@ -128,7 +129,7 @@ public class SymbexState {
      * @param state
      *            the state to copy, not <code>null</code>
      */
-    public SymbexState(SymbexState state) {
+    public SymbexPath(SymbexPath state) {
         this.pathConditions = state.pathConditions;
         this.proofObligations = state.proofObligations;
         this.proofObligationType = state.proofObligationType;
@@ -324,13 +325,13 @@ public class SymbexState {
      *
      * @return a freshly (possibly immutable) list of symbex states.
      */
-    public List<SymbexState> split() {
+    public List<SymbexPath> split() {
         if(proofObligations.size() == 1) {
             return Collections.singletonList(this);
         } else {
-            List<SymbexState> result = new ArrayList<>();
+            List<SymbexPath> result = new ArrayList<>();
             for (DafnyTree proofObl : proofObligations) {
-                SymbexState child = new SymbexState(this);
+                SymbexPath child = new SymbexPath(this);
                 child.setProofObligations(proofObl, proofObligationType);
                 result.add(child);
             }

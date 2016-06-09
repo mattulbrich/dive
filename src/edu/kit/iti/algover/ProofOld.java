@@ -8,7 +8,7 @@ package edu.kit.iti.algover;
 import edu.kit.iti.algover.proof.ProofVerificationConditionBuilder;
 import edu.kit.iti.algover.parser.DafnyTree;
 import edu.kit.iti.algover.symbex.PathConditionElement;
-import edu.kit.iti.algover.symbex.SymbexState;
+import edu.kit.iti.algover.symbex.SymbexPath;
 
 import java.util.LinkedList;
 
@@ -23,15 +23,15 @@ public class ProofOld {
         return collected;
     }
 
-    public LinkedList<SymbexState.AssertionType> getCollected2() {
+    public LinkedList<SymbexPath.AssertionType> getCollected2() {
         return collected2;
     }
 
     private LinkedList<PathConditionElement> collected;
-    private LinkedList<SymbexState.AssertionType> collected2;
+    private LinkedList<SymbexPath.AssertionType> collected2;
     private LinkedList<DafnyTree> assumptions;
     private LinkedList<DafnyTree> toShow;
-    private SymbexState state;
+    private SymbexPath state;
 
 
     public LinkedList<DafnyTree> getAssumptions() {
@@ -63,8 +63,8 @@ public class ProofOld {
     private int id;
 
 
-    public ProofOld(SymbexState state, LinkedList<DafnyTree> ass, LinkedList<DafnyTree> show,
-                 LinkedList<PathConditionElement> collected, LinkedList<SymbexState.AssertionType> collected2, int id){
+    public ProofOld(SymbexPath state, LinkedList<DafnyTree> ass, LinkedList<DafnyTree> show,
+                 LinkedList<PathConditionElement> collected, LinkedList<SymbexPath.AssertionType> collected2, int id){
         this.setAssumptions(ass);
         this.setToShow(show);
         this.collected = collected;
@@ -84,7 +84,7 @@ public class ProofOld {
         for (PathConditionElement pathConditionElement : collected) {
             name+=pathConditionElement.getType()+"\\";
         }
-        for (SymbexState.AssertionType assertionType : collected2) {
+        for (SymbexPath.AssertionType assertionType : collected2) {
             name+=assertionType.toString()+"\\";
         }
         name+=id;

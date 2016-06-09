@@ -14,7 +14,7 @@ import edu.kit.iti.algover.data.SuffixSymbolTable;
 import edu.kit.iti.algover.data.SymbolTable;
 import edu.kit.iti.algover.parser.DafnyTree;
 import edu.kit.iti.algover.symbex.PathConditionElement;
-import edu.kit.iti.algover.symbex.SymbexState;
+import edu.kit.iti.algover.symbex.SymbexPath;
 import edu.kit.iti.algover.term.FunctionSymbol;
 import edu.kit.iti.algover.term.Sort;
 import edu.kit.iti.algover.term.Term;
@@ -57,7 +57,7 @@ public class SymbexStateToFormula {
         return new Sort(name);
     }
 
-    public Collection<Term> from(SymbexState symbexState) {
+    public Collection<Term> from(SymbexPath symbexState) {
 
         Collection<Term> result = new ArrayList<>();
 

@@ -19,7 +19,7 @@ import edu.kit.iti.algover.data.SymbolTable;
 import edu.kit.iti.algover.parser.DafnyParser;
 import edu.kit.iti.algover.parser.DafnyTree;
 import edu.kit.iti.algover.symbex.PathConditionElement;
-import edu.kit.iti.algover.symbex.SymbexState;
+import edu.kit.iti.algover.symbex.SymbexPath;
 import edu.kit.iti.algover.symbex.VariableMap;
 import edu.kit.iti.algover.term.FunctionSymbol;
 import edu.kit.iti.algover.term.Sort;
@@ -43,7 +43,7 @@ public class ProofVerificationConditionBuilder {
     private SymbolTable symbolTable;
 
 
-    private SymbexState state;
+    private SymbexPath state;
     private DafnyTree method;
 
     /**
@@ -83,7 +83,7 @@ public class ProofVerificationConditionBuilder {
      * @param state
      * @param siblingNo
      */
-    public ProofVerificationConditionBuilder(SymbexState state, int siblingNo){
+    public ProofVerificationConditionBuilder(SymbexPath state, int siblingNo){
         this.siblingNo = siblingNo;
         this.state = state;
         //initialize counter for the ProofFormulas in the PVC view
@@ -285,7 +285,7 @@ public class ProofVerificationConditionBuilder {
      * @param symbexState
      * @return
      */
-    public Collection<Term> from(SymbexState symbexState) {
+    public Collection<Term> from(SymbexPath symbexState) {
 
         Collection<Term> result = new ArrayList<>();
 
@@ -325,7 +325,7 @@ public class ProofVerificationConditionBuilder {
      * @param state
      * @param method
      */
-    public ProofVerificationConditionBuilder(LinkedList<PathConditionElement> pcs, LinkedList<DafnyTree> assumptions, LinkedList<DafnyTree> toShow, SymbexState state,
+    public ProofVerificationConditionBuilder(LinkedList<PathConditionElement> pcs, LinkedList<DafnyTree> assumptions, LinkedList<DafnyTree> toShow, SymbexPath state,
                                              DafnyTree method) {
         this.assumptions = assumptions;
         this.toShow = toShow;

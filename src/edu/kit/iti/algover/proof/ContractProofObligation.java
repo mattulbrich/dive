@@ -3,7 +3,7 @@ package edu.kit.iti.algover.proof;
 import edu.kit.iti.algover.ProofCenter;
 import edu.kit.iti.algover.parser.DafnyTree;
 import edu.kit.iti.algover.symbex.PathConditionElement;
-import edu.kit.iti.algover.symbex.SymbexState;
+import edu.kit.iti.algover.symbex.SymbexPath;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -24,7 +24,7 @@ public class ContractProofObligation {
      * @param symbex_states
      * @param method
      */
-    public ContractProofObligation(List<SymbexState> symbex_states, DafnyTree method){
+    public ContractProofObligation(List<SymbexPath> symbex_states, DafnyTree method){
         pcenter  = ProofCenter.getInstance();
         this.method = method;
         createPVC(symbex_states);
@@ -37,7 +37,7 @@ public class ContractProofObligation {
      * @param sibling_no
      * @return a new ProofVerificationConditionBuilder
      */
-    private ProofVerificationConditionBuilder makeSinglePVC(SymbexState state, int sibling_no){
+    private ProofVerificationConditionBuilder makeSinglePVC(SymbexPath state, int sibling_no){
 
         return new ProofVerificationConditionBuilder(state, sibling_no);
     }
@@ -47,12 +47,12 @@ public class ContractProofObligation {
      * Condition and ProofObligation. The method adds each ProofVerificationConditionBuilder to the List of verification conditions
      * @param symbex_states
      */
-    private void createPVC(List<SymbexState> symbex_states) {
+    private void createPVC(List<SymbexPath> symbex_states) {
 
         verification_conditions = new LinkedList<ProofVerificationConditionBuilder>();
 
         //create a PVC for each PO of a Symbexstate
-        for (SymbexState symbex_state : symbex_states) {
+        for (SymbexPath symbex_state : symbex_states) {
             //get No of proof obligations in order to decide how many PVCs have to be created
             int no_of_po_siblings = symbex_state.getProofObligations().size();
             for (int i = 0; i < no_of_po_siblings; i++) {
@@ -66,7 +66,7 @@ public class ContractProofObligation {
 
 //has to be removed later on
 
-        for (SymbexState res : symbex_states) {
+        for (SymbexPath res : symbex_states) {
 
 
             System.out.println("------------");

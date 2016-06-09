@@ -18,7 +18,7 @@ import org.antlr.runtime.CommonToken;
 import edu.kit.iti.algover.parser.DafnyParser;
 import edu.kit.iti.algover.parser.DafnyTree;
 import edu.kit.iti.algover.symbex.PathConditionElement.AssumptionType;
-import edu.kit.iti.algover.symbex.SymbexState.AssertionType;
+import edu.kit.iti.algover.symbex.SymbexPath.AssertionType;
 import edu.kit.iti.algover.util.ASTUtil;
 
 /**
@@ -53,18 +53,18 @@ public class Symbex {
      * @return a freshly created list of symbolic execution states, not
      *         <code>null</code>
      */
-    public List<SymbexState> symbolicExecution(DafnyTree function) {
+    public List<SymbexPath> symbolicExecution(DafnyTree function) {
 
         assert function.getType() == DafnyParser.METHOD;
-        SymbexState initial = makeFromPreconditions(function);
+        SymbexPath initial = makeFromPreconditions(function);
 
-        Deque<SymbexState> stack = new LinkedList<SymbexState>();
-        List<SymbexState> results = new ArrayList<SymbexState>();
+        Deque<SymbexPath> stack = new LinkedList<SymbexPath>();
+        List<SymbexPath> results = new ArrayList<SymbexPath>();
 
         stack.add(initial);
 
         while(!stack.isEmpty()) {
-            SymbexState state = stack.removeFirst();
+            SymbexPath state = stack.removeFirst();
 
             assert state.getBlockToExecute().getType() == DafnyParser.BLOCK;
 
@@ -119,10 +119,10 @@ public class Symbex {
      * This adds a proof obligation to the results and the remainder of the
      * program onto the stack. The state remains untouched.
      */
-    void handleAssert(Deque<SymbexState> stack,
-            List<SymbexState> results, SymbexState state, DafnyTree stm,
+    void handleAssert(Deque<SymbexPath> stack,
+            List<SymbexPath> results, SymbexPath state, DafnyTree stm,
             DafnyTree remainder) {
-        SymbexState assertedState = new SymbexState(state);
+        SymbexPath assertedState = new SymbexPath(state);
         assertedState.setBlockToExecute(EMPTY_PROGRAM);
         assertedState.setProofObligations(stm, AssertionType.EXPLICIT_ASSERT);
         results.add(assertedState);
@@ -139,10 +139,10 @@ public class Symbex {
      * @param stm
      * @param remainder
      */
-    void handleAssume(Deque<SymbexState> stack,
-            SymbexState state, DafnyTree stm,
+    void handleAssume(Deque<SymbexPath> stack,
+            SymbexPath state, DafnyTree stm,
             DafnyTree remainder) {
-        SymbexState assumedState = new SymbexState(state);
+        SymbexPath assumedState = new SymbexPath(state);
         assumedState.addPathCondition(new PathConditionElement(stm.getLastChild(),
                 stm, AssumptionType.EXPLICIT_ASSUMPTION, state.getMap()));
         assumedState.setBlockToExecute(remainder);
@@ -155,11 +155,11 @@ public class Symbex {
      * Two new states are pushed onto the stack for each branch. Path condition
      * elements are added according to the decision expression.
      */
-    void handleIf(Deque<SymbexState> stack, SymbexState state,
+    void handleIf(Deque<SymbexPath> stack, SymbexPath state,
             DafnyTree stm, DafnyTree remainder) {
         DafnyTree cond = stm.getChild(0);
         DafnyTree then = stm.getChild(1);
-        SymbexState stateElse = new SymbexState(state);
+        SymbexPath stateElse = new SymbexPath(state);
         state.addPathCondition(new PathConditionElement(cond, stm,
                 AssumptionType.IF_THEN, state.getMap()));
         state.setBlockToExecute(append(then, remainder));
@@ -183,8 +183,8 @@ public class Symbex {
      * 2. a symbex target for the preservation of the invariant is added to the stack
      * 3. a symbex target is added for the continuation of the program after the loop.
      */
-    void handleWhile(Deque<SymbexState> stack,
-            List<SymbexState> results, SymbexState state, DafnyTree stm,
+    void handleWhile(Deque<SymbexPath> stack,
+            List<SymbexPath> results, SymbexPath state, DafnyTree stm,
             DafnyTree remainder) {
         boolean isLabel = stm.getChild(0).getType() == DafnyParser.LABEL;
         DafnyTree guard = stm.getChild(isLabel ? 1 : 0);
@@ -192,14 +192,14 @@ public class Symbex {
         List<DafnyTree> invariants = stm.getChildrenWithType(DafnyParser.INVARIANT);
 
         // 1. initially valid.
-        SymbexState invState = new SymbexState(state);
+        SymbexPath invState = new SymbexPath(state);
         invState.setBlockToExecute(EMPTY_PROGRAM);
         invState.setProofObligations(invariants, AssertionType.INVARIANT_INITIALLY_VALID);
         results.add(invState);
 
         // 2. preserves invariant:
         // 2a. assume invariants
-        SymbexState preserveState = new SymbexState(state);
+        SymbexPath preserveState = new SymbexPath(state);
         preserveState.setMap(anonymise(preserveState.getMap(), body));
         for (DafnyTree inv : invariants) {
             PathConditionElement pc = new PathConditionElement(inv.getLastChild(), inv,
@@ -233,7 +233,7 @@ public class Symbex {
      *
      * This updates the symbex state and pushes it onto the stack.
      */
-    void handleAssign(Deque<SymbexState> stack, SymbexState state,
+    void handleAssign(Deque<SymbexPath> stack, SymbexPath state,
             DafnyTree stm, DafnyTree remainder) {
         String name = stm.getChild(0).toString();
         DafnyTree expression = stm.getChild(1);
@@ -250,7 +250,7 @@ public class Symbex {
      * The variable that is chaned is Symbex#HEAP_VAR.
      * The statement stands in for the heap update expression
      */
-    void handleArrayUpdate(Deque<SymbexState> stack, SymbexState state,
+    void handleArrayUpdate(Deque<SymbexPath> stack, SymbexPath state,
             DafnyTree stm, DafnyTree remainder) {
         String name = HEAP_VAR;
         DafnyTree expression = stm;
@@ -266,7 +266,7 @@ public class Symbex {
      * If the variable declaration has an initialisation this is like an
      * assignment.
      */
-    void handleVarDecl(Deque<SymbexState> stack, SymbexState state,
+    void handleVarDecl(Deque<SymbexPath> stack, SymbexPath state,
             DafnyTree stm, DafnyTree remainder) {
         if(stm.getChildCount() >= 3) {
             String name = stm.getChild(0).toString();
@@ -394,8 +394,8 @@ public class Symbex {
      *            the function to analyse
      * @return the initial symbolic execution state
      */
-    private SymbexState makeFromPreconditions(DafnyTree function) {
-        SymbexState result = new SymbexState(function);
+    private SymbexPath makeFromPreconditions(DafnyTree function) {
+        SymbexPath result = new SymbexPath(function);
 
         for(DafnyTree req : function.getChildrenWithType(DafnyParser.REQUIRES)) {
             result.addPathCondition(new PathConditionElement(req.getLastChild(), req,

@@ -24,7 +24,7 @@ import org.junit.Test;
 import edu.kit.iti.algover.parser.ParserTest;
 import edu.kit.iti.algover.parser.DafnyParser;
 import edu.kit.iti.algover.parser.DafnyTree;
-import edu.kit.iti.algover.symbex.SymbexState.AssertionType;
+import edu.kit.iti.algover.symbex.SymbexPath.AssertionType;
 import edu.kit.iti.algover.symbex.PathConditionElement.AssumptionType;
 
 public class SymbexTest {
@@ -47,7 +47,7 @@ public class SymbexTest {
     public void testSymbolicExecution() throws Exception {
 
         Symbex symbex = new Symbex();
-        List<SymbexState> results = symbex.symbolicExecution(tree);
+        List<SymbexPath> results = symbex.symbolicExecution(tree);
 
         System.out.println(results);
 
@@ -70,21 +70,21 @@ public class SymbexTest {
         assertEquals(DafnyParser.ASSERT, assertionStm.getType());
 
         Symbex symbex = new Symbex();
-        Deque<SymbexState> stack = new LinkedList<SymbexState>();
-        List<SymbexState> results = new ArrayList<SymbexState>();
-        SymbexState state = new SymbexState(tree);
+        Deque<SymbexPath> stack = new LinkedList<SymbexPath>();
+        List<SymbexPath> results = new ArrayList<SymbexPath>();
+        SymbexPath state = new SymbexPath(tree);
         state.setMap(SOME_MAP);
         symbex.handleAssert(stack , results , state, assertionStm, SOME_PROGRAM);
 
         assertEquals(1, stack.size());
         assertEquals(1, results.size());
 
-        SymbexState next = stack.pop();
+        SymbexPath next = stack.pop();
         assertTrue(next.getBlockToExecute() == SOME_PROGRAM);
         assertTrue(next.getMap() == SOME_MAP);
         assertEquals(0, next.getPathConditions().size());
 
-        SymbexState check = results.get(0);
+        SymbexPath check = results.get(0);
         assertEquals(AssertionType.EXPLICIT_ASSERT, check.getProofObligationType());
         assertEquals(1, check.getProofObligations().size());
         assertEquals("(assert (== unmodifiedInLoop 0))",
@@ -97,9 +97,9 @@ public class SymbexTest {
         assertEquals(DafnyParser.ASSIGN, assStm.getType());
 
         Symbex symbex = new Symbex();
-        Deque<SymbexState> stack = new LinkedList<SymbexState>();
-        List<SymbexState> results = new ArrayList<SymbexState>();
-        SymbexState state = new SymbexState(tree);
+        Deque<SymbexPath> stack = new LinkedList<SymbexPath>();
+        List<SymbexPath> results = new ArrayList<SymbexPath>();
+        SymbexPath state = new SymbexPath(tree);
         state.setMap(SOME_MAP);
 
         symbex.handleAssign(stack, state, assStm, SOME_PROGRAM);
@@ -107,7 +107,7 @@ public class SymbexTest {
         assertEquals(1, stack.size());
         assertEquals(0, results.size());
 
-        SymbexState next = stack.pop();
+        SymbexPath next = stack.pop();
         assertTrue(next.getBlockToExecute() == SOME_PROGRAM);
         assertEquals("1", next.getMap().get("count").toStringTree());
         assertEquals(0, next.getPathConditions().size());
@@ -119,9 +119,9 @@ public class SymbexTest {
         assertEquals(DafnyParser.VAR, decl.getType());
 
         Symbex symbex = new Symbex();
-        Deque<SymbexState> stack = new LinkedList<SymbexState>();
-        List<SymbexState> results = new ArrayList<SymbexState>();
-        SymbexState state = new SymbexState(tree);
+        Deque<SymbexPath> stack = new LinkedList<SymbexPath>();
+        List<SymbexPath> results = new ArrayList<SymbexPath>();
+        SymbexPath state = new SymbexPath(tree);
         state.setMap(SOME_MAP);
 
         symbex.handleVarDecl(stack, state, decl, SOME_PROGRAM);
@@ -129,7 +129,7 @@ public class SymbexTest {
         assertEquals(1, stack.size());
         assertEquals(0, results.size());
 
-        SymbexState next = stack.pop();
+        SymbexPath next = stack.pop();
         assertTrue(next.getBlockToExecute() == SOME_PROGRAM);
         assertEquals(SOME_MAP, next.getMap());
         assertEquals(0, next.getPathConditions().size());
@@ -142,9 +142,9 @@ public class SymbexTest {
         assertEquals(DafnyParser.VAR, decl.getType());
 
         Symbex symbex = new Symbex();
-        Deque<SymbexState> stack = new LinkedList<SymbexState>();
-        List<SymbexState> results = new ArrayList<SymbexState>();
-        SymbexState state = new SymbexState(tree);
+        Deque<SymbexPath> stack = new LinkedList<SymbexPath>();
+        List<SymbexPath> results = new ArrayList<SymbexPath>();
+        SymbexPath state = new SymbexPath(tree);
         state.setMap(SOME_MAP);
 
         symbex.handleVarDecl(stack, state, decl, SOME_PROGRAM);
@@ -152,7 +152,7 @@ public class SymbexTest {
         assertEquals(1, stack.size());
         assertEquals(0, results.size());
 
-        SymbexState next = stack.pop();
+        SymbexPath next = stack.pop();
         assertTrue(next.getBlockToExecute() == SOME_PROGRAM);
         assertEquals("42", next.getMap().get("init_direct").toStringTree());
         assertEquals(0, next.getPathConditions().size());
@@ -164,9 +164,9 @@ public class SymbexTest {
         assertEquals(DafnyParser.WHILE,  whileStm.getType());
 
         Symbex symbex = new Symbex();
-        Deque<SymbexState> stack = new LinkedList<SymbexState>();
-        List<SymbexState> results = new ArrayList<SymbexState>();
-        SymbexState state = new SymbexState(tree);
+        Deque<SymbexPath> stack = new LinkedList<SymbexPath>();
+        List<SymbexPath> results = new ArrayList<SymbexPath>();
+        SymbexPath state = new SymbexPath(tree);
         state.setProofObligations(tree.getChild(3).getLastChild(), AssertionType.POST);
         state.setMap(SOME_MAP);
 
@@ -176,7 +176,7 @@ public class SymbexTest {
         assertEquals(1, results.size());
 
         {
-            SymbexState init = results.get(0);
+            SymbexPath init = results.get(0);
             assertEquals(AssertionType.INVARIANT_INITIALLY_VALID, init.getProofObligationType());
             assertEquals(0, init.getPathConditions().size());
             assertEquals(1, init.getProofObligations().size());
@@ -184,7 +184,7 @@ public class SymbexTest {
         }
 
         {
-            SymbexState pres = stack.pop();
+            SymbexPath pres = stack.pop();
             {
                 assertEquals(2, pres.getPathConditions().size());
                 Iterator<PathConditionElement> pcIt = pres.getPathConditions().iterator();
@@ -207,7 +207,7 @@ public class SymbexTest {
             }
         }
         {
-            SymbexState cont = stack.pop();
+            SymbexPath cont = stack.pop();
             assertEquals(AssertionType.POST, cont.getProofObligationType());
             assertEquals(2, cont.getPathConditions().size());
             Iterator<PathConditionElement> pcIt = cont.getPathConditions().iterator();
@@ -236,23 +236,23 @@ public class SymbexTest {
         this.tree = ParserTest.parseFile(stream);
 
         Symbex symbex = new Symbex();
-        List<SymbexState> results = symbex.symbolicExecution(tree);
+        List<SymbexPath> results = symbex.symbolicExecution(tree);
 
         assertEquals(3, results.size());
         {
-            SymbexState ss = results.get(0);
+            SymbexPath ss = results.get(0);
             assertEquals(AssertionType.INVARIANT_INITIALLY_VALID, ss.getProofObligationType());
             assertEquals("(== 1 1)", ss.getInstantiatedObligationExpressions().get(0).toStringTree());
         }
         {
-            SymbexState ss = results.get(1);
+            SymbexPath ss = results.get(1);
             assertEquals(AssertionType.INVARIANT_PRESERVED, ss.getProofObligationType());
             assertEquals("(== 1 (+ mod#1 1))", ss.getInstantiatedObligationExpressions().get(0).toStringTree());
             assertEquals("(> mod#1 1)", ss.getPathConditions().get(0).getInstantiatedExpression().toStringTree());
             assertEquals("(== 1 mod#1)", ss.getPathConditions().get(1).getInstantiatedExpression().toStringTree());
         }
         {
-            SymbexState ss = results.get(2);
+            SymbexPath ss = results.get(2);
             assertEquals(AssertionType.POST, ss.getProofObligationType());
             assertEquals("(== 1 mod#1)", ss.getInstantiatedObligationExpressions().get(0).toStringTree());
             assertEquals("(not (> mod#1 1))", ss.getPathConditions().get(0).getInstantiatedExpression().toStringTree());
@@ -266,15 +266,15 @@ public class SymbexTest {
         assertEquals(DafnyParser.IF, decl.getType());
 
         Symbex symbex = new Symbex();
-        Deque<SymbexState> stack = new LinkedList<SymbexState>();
-        List<SymbexState> results = new ArrayList<SymbexState>();
-        SymbexState state = new SymbexState(tree);
+        Deque<SymbexPath> stack = new LinkedList<SymbexPath>();
+        List<SymbexPath> results = new ArrayList<SymbexPath>();
+        SymbexPath state = new SymbexPath(tree);
         symbex.handleIf(stack, state, decl, SOME_PROGRAM);
 
         assertEquals(2, stack.size());
         assertEquals(0, results.size());
 
-        SymbexState next = stack.pop();
+        SymbexPath next = stack.pop();
         assertEquals("(BLOCK (:= count 3) SOME_PROGRAM)", next.getBlockToExecute().toStringTree());
         assertEquals(1, next.getPathConditions().size());
         for (PathConditionElement pce : next.getPathConditions()) {
@@ -298,15 +298,15 @@ public class SymbexTest {
         assertEquals(DafnyParser.IF, decl.getType());
 
         Symbex symbex = new Symbex();
-        Deque<SymbexState> stack = new LinkedList<SymbexState>();
-        List<SymbexState> results = new ArrayList<SymbexState>();
-        SymbexState state = new SymbexState(tree);
+        Deque<SymbexPath> stack = new LinkedList<SymbexPath>();
+        List<SymbexPath> results = new ArrayList<SymbexPath>();
+        SymbexPath state = new SymbexPath(tree);
         symbex.handleIf(stack, state, decl, SOME_PROGRAM);
 
         assertEquals(2, stack.size());
         assertEquals(0, results.size());
 
-        SymbexState next = stack.pop();
+        SymbexPath next = stack.pop();
         assertEquals("SOME_PROGRAM", next.getBlockToExecute().toStringTree());
         assertEquals(1, next.getPathConditions().size());
         for (PathConditionElement pce : next.getPathConditions()) {
@@ -329,15 +329,15 @@ public class SymbexTest {
         assertEquals(DafnyParser.ASSUME, decl.getType());
 
         Symbex symbex = new Symbex();
-        Deque<SymbexState> stack = new LinkedList<SymbexState>();
-        List<SymbexState> results = new ArrayList<SymbexState>();
-        SymbexState state = new SymbexState(tree);
+        Deque<SymbexPath> stack = new LinkedList<SymbexPath>();
+        List<SymbexPath> results = new ArrayList<SymbexPath>();
+        SymbexPath state = new SymbexPath(tree);
         symbex.handleAssume(stack, state, decl, SOME_PROGRAM);
 
         assertEquals(1, stack.size());
         assertEquals(0, results.size());
 
-        SymbexState next = stack.pop();
+        SymbexPath next = stack.pop();
         assertTrue(next.getBlockToExecute() == SOME_PROGRAM);
         assertEquals(1, next.getPathConditions().size());
         for (PathConditionElement pce : next.getPathConditions()) {

@@ -23,14 +23,14 @@ import edu.kit.iti.algover.parser.DafnyTree;
 import edu.kit.iti.algover.smt.Z3Solver;
 import edu.kit.iti.algover.symbex.PathConditionElement;
 import edu.kit.iti.algover.symbex.Symbex;
-import edu.kit.iti.algover.symbex.SymbexState;
+import edu.kit.iti.algover.symbex.SymbexPath;
 import edu.kit.iti.algover.term.Term;
 import edu.kit.iti.algover.util.Debug;
 import edu.kit.iti.algover.util.LabelIntroducer;
 
 public class Main {
 
-    private static boolean VERBOSE = true;
+    private static boolean VERBOSE = false;
 
     private static void test(InputStream stream) throws Exception {
         // create the lexer attached to stream
@@ -58,9 +58,9 @@ public class Main {
         LabelIntroducer.visit(result.getTree());
 
         Symbex symbex = new Symbex();
-        List<SymbexState> symbexresult = symbex.symbolicExecution(t);
+        List<SymbexPath> symbexresult = symbex.symbolicExecution(t);
 
-        for (SymbexState res : symbexresult) {
+        for (SymbexPath res : symbexresult) {
             System.out.println("------------");
             System.out.println(res.getPathIdentifier());
             System.out.println("------------");
@@ -94,7 +94,7 @@ public class Main {
             SymbexStateToFormula magic = new SymbexStateToFormula(t);
             Z3Solver z3 = new Z3Solver(magic.getSymbolTable());
 
-            for (SymbexState single : res.split()) {
+            for (SymbexPath single : res.split()) {
                 System.out.println(single.getPathIdentifier());
                 Collection<Term> formulae = magic.from(single);
                 if(VERBOSE) {
