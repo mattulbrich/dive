@@ -33,7 +33,8 @@ public class ParserTest {
         return Arrays.asList(new Object[][] {
                 { "arrayMax" }, { "highdimarrays" }, { "arrayEdit.dfy" },
                 { "../symbex/symbex" },
-                { "arithmetic" }, { "../util/labelTest" }, { "../symbex/whileWithAnon" }
+                { "arithmetic" }, { "../util/labelTest" }, { "../symbex/whileWithAnon" },
+                { "../symbex/havoc.dfy" },
                 });
     }
 

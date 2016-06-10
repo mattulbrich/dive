@@ -228,7 +228,7 @@ public class SymbexTest {
         }
     }
 
-//  revealed a bug
+    // revealed a bug
     @Test
     public void testHandleWhileAnonymisation() throws Exception {
         InputStream stream = getClass().getResourceAsStream("whileWithAnon");
@@ -357,5 +357,26 @@ public class SymbexTest {
             assertEquals(PathConditionElement.AssumptionType.EXPLICIT_ASSUMPTION, pce.getType());
             assertEquals("(> count 0)", pce.getExpression().toStringTree());
         }
+    }
+
+    @Test
+    public void testHandleHavoc() throws Exception {
+        InputStream stream = getClass().getResourceAsStream("havoc.dfy");
+        this.tree = ParserTest.parseFile(stream);
+
+        Symbex symbex = new Symbex();
+        List<SymbexPath> results = symbex.symbolicExecution(tree);
+
+        assertEquals(2, results.size());
+
+        List<Pair<String, DafnyTree>> pc = results.get(0).getMap().toList();
+        assertEquals("(HAVOC x x#2)", pc.get(0).snd.toStringTree());
+        assertEquals("(HAVOC y y#1)", pc.get(1).snd.toStringTree());
+        assertEquals("(HAVOC x x#1)", pc.get(2).snd.toStringTree());
+
+        pc = results.get(1).getMap().toList();
+        assertEquals("(HAVOC x x#2)", pc.get(0).snd.toStringTree());
+        assertEquals("(HAVOC y y#1)", pc.get(1).snd.toStringTree());
+        assertEquals("(HAVOC x x#1)", pc.get(2).snd.toStringTree());
     }
 }
