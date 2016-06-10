@@ -74,10 +74,6 @@ public class Main {
                     System.out.println("    " + pc.getExpression().toStringTree());
                     System.out.println("  Assignment History:");
                     System.out.println("    " + pc.getVariableMap().toHistoryString().replace("\n", "\n    "));
-                    System.out.println("  Aggregated Variable Map: ");
-                    System.out.println("    " + pc.getVariableMap().toParallelAssignment());
-                    System.out.println("  Instantiated condition: ");
-                    System.out.println("    " + pc.getVariableMap().instantiate(pc.getExpression()).toStringTree());
                     System.out.println("  Refers to: line " + pc.getExpression().token.getLine());
                 }
                 System.out.println("Proof Obligations - " + res.getProofObligationType());
@@ -87,12 +83,6 @@ public class Main {
 
                 System.out.println("  Assignment History:");
                 System.out.println("    " + res.getMap().toHistoryString().replace("\n", "\n    "));
-                System.out.println("  Aggregated Variable Map: ");
-                System.out.println("    " + res.getMap().toParallelAssignment());
-                System.out.println("  Instantiated POs: ");
-                for (DafnyTree po : res.getProofObligations()) {
-                    System.out.println("    " + res.getMap().instantiate(po).toStringTree());
-                }
             }
 
             SymbexStateToFormula magic = new SymbexStateToFormula(t);

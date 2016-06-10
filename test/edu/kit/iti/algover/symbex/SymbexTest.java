@@ -25,6 +25,8 @@ import edu.kit.iti.algover.parser.ParserTest;
 import edu.kit.iti.algover.parser.DafnyParser;
 import edu.kit.iti.algover.parser.DafnyTree;
 import edu.kit.iti.algover.symbex.SymbexPath.AssertionType;
+import edu.kit.iti.algover.util.ImmutableList;
+import edu.kit.iti.algover.util.Pair;
 import edu.kit.iti.algover.symbex.PathConditionElement.AssumptionType;
 
 public class SymbexTest {
@@ -71,20 +73,18 @@ public class SymbexTest {
 
         Symbex symbex = new Symbex();
         Deque<SymbexPath> stack = new LinkedList<SymbexPath>();
-        List<SymbexPath> results = new ArrayList<SymbexPath>();
         SymbexPath state = new SymbexPath(tree);
         state.setMap(SOME_MAP);
-        symbex.handleAssert(stack , results , state, assertionStm, SOME_PROGRAM);
+        symbex.handleAssert(stack , state, assertionStm, SOME_PROGRAM);
 
-        assertEquals(1, stack.size());
-        assertEquals(1, results.size());
+        assertEquals(2, stack.size());
 
-        SymbexPath next = stack.pop();
+        SymbexPath next = stack.removeLast();
         assertTrue(next.getBlockToExecute() == SOME_PROGRAM);
         assertTrue(next.getMap() == SOME_MAP);
         assertEquals(0, next.getPathConditions().size());
 
-        SymbexPath check = results.get(0);
+        SymbexPath check = stack.pop();
         assertEquals(AssertionType.EXPLICIT_ASSERT, check.getProofObligationType());
         assertEquals(1, check.getProofObligations().size());
         assertEquals("(assert (== unmodifiedInLoop 0))",
@@ -164,19 +164,17 @@ public class SymbexTest {
         assertEquals(DafnyParser.WHILE,  whileStm.getType());
 
         Symbex symbex = new Symbex();
-        Deque<SymbexPath> stack = new LinkedList<SymbexPath>();
-        List<SymbexPath> results = new ArrayList<SymbexPath>();
+        LinkedList<SymbexPath> stack = new LinkedList<SymbexPath>();
         SymbexPath state = new SymbexPath(tree);
         state.setProofObligations(tree.getChild(3).getLastChild(), AssertionType.POST);
         state.setMap(SOME_MAP);
 
-        symbex.handleWhile(stack, results, state, whileStm, SOME_PROGRAM);
+        symbex.handleWhile(stack, state, whileStm, SOME_PROGRAM);
 
-        assertEquals(2, stack.size());
-        assertEquals(1, results.size());
+        assertEquals(3, stack.size());
 
         {
-            SymbexPath init = results.get(0);
+            SymbexPath init = stack.get(0);
             assertEquals(AssertionType.INVARIANT_INITIALLY_VALID, init.getProofObligationType());
             assertEquals(0, init.getPathConditions().size());
             assertEquals(1, init.getProofObligations().size());
@@ -184,19 +182,19 @@ public class SymbexTest {
         }
 
         {
-            SymbexPath pres = stack.pop();
+            SymbexPath pres = stack.get(1);
             {
                 assertEquals(2, pres.getPathConditions().size());
-                Iterator<PathConditionElement> pcIt = pres.getPathConditions().iterator();
+                ImmutableList<PathConditionElement> pcs = pres.getPathConditions();
                 {
-                    PathConditionElement pc1 = pcIt.next();
-                    assertEquals("(> p 1)", pc1.getExpression().toStringTree());
-                    assertEquals(AssumptionType.WHILE_TRUE, pc1.getType());
+                    PathConditionElement pc2 = pcs.get(0);
+                    assertEquals(AssumptionType.ASSUMED_INVARIANT, pc2.getType());
+                    assertEquals("(== p 2)", pc2.getExpression().toStringTree());
                 }
                 {
-                    PathConditionElement pc2 = pcIt.next();
-                    assertEquals("(== p 2)", pc2.getExpression().toStringTree());
-                    assertEquals(AssumptionType.ASSUMED_INVARIANT, pc2.getType());
+                    PathConditionElement pc1 = pcs.get(1);
+                    assertEquals(AssumptionType.WHILE_TRUE, pc1.getType());
+                    assertEquals("(> p 1)", pc1.getExpression().toStringTree());
                 }
                 {
                     assertEquals(AssertionType.INVARIANT_PRESERVED, pres.getProofObligationType());
@@ -207,19 +205,19 @@ public class SymbexTest {
             }
         }
         {
-            SymbexPath cont = stack.pop();
+            SymbexPath cont = stack.get(2);
             assertEquals(AssertionType.POST, cont.getProofObligationType());
             assertEquals(2, cont.getPathConditions().size());
-            Iterator<PathConditionElement> pcIt = cont.getPathConditions().iterator();
+            ImmutableList<PathConditionElement> pcs = cont.getPathConditions();
             {
-                PathConditionElement pc1 = pcIt.next();
-                assertEquals("(not (> p 1))", pc1.getExpression().toStringTree());
+                PathConditionElement pc1 = pcs.get(1);
                 assertEquals(AssumptionType.WHILE_FALSE, pc1.getType());
+                assertEquals("(not (> p 1))", pc1.getExpression().toStringTree());
             }
             {
-                PathConditionElement pc2 = pcIt.next();
-                assertEquals("(== p 2)", pc2.getExpression().toStringTree());
+                PathConditionElement pc2 = pcs.get(0);
                 assertEquals(AssumptionType.ASSUMED_INVARIANT, pc2.getType());
+                assertEquals("(== p 2)", pc2.getExpression().toStringTree());
             }
             {
                 assertEquals(AssertionType.POST, cont.getProofObligationType());
@@ -242,21 +240,31 @@ public class SymbexTest {
         {
             SymbexPath ss = results.get(0);
             assertEquals(AssertionType.INVARIANT_INITIALLY_VALID, ss.getProofObligationType());
-            assertEquals("(== 1 1)", ss.getInstantiatedObligationExpressions().get(0).toStringTree());
+            List<Pair<String, DafnyTree>> list = ss.getMap().toList();
+            assertEquals(2, list.size());
+            assertEquals("<mod, unmod>", list.get(0).toString());
+            assertEquals("<unmod, 1>", list.get(1).toString());
         }
         {
             SymbexPath ss = results.get(1);
             assertEquals(AssertionType.INVARIANT_PRESERVED, ss.getProofObligationType());
-            assertEquals("(== 1 (+ mod#1 1))", ss.getInstantiatedObligationExpressions().get(0).toStringTree());
-            assertEquals("(> mod#1 1)", ss.getPathConditions().get(0).getInstantiatedExpression().toStringTree());
-            assertEquals("(== 1 mod#1)", ss.getPathConditions().get(1).getInstantiatedExpression().toStringTree());
+            List<Pair<String, DafnyTree>> list = ss.getMap().toList();;
+            assertEquals(4, list.size());
+            assertEquals("<mod, +>", list.get(0).toString());
+            assertEquals("(HAVOC mod mod#1)", list.get(1).snd.toStringTree());
+            assertEquals("<mod, HAVOC>", list.get(1).toString());
+            assertEquals("<mod, unmod>", list.get(2).toString());
+            assertEquals("<unmod, 1>", list.get(3).toString());
         }
         {
             SymbexPath ss = results.get(2);
             assertEquals(AssertionType.POST, ss.getProofObligationType());
-            assertEquals("(== 1 mod#1)", ss.getInstantiatedObligationExpressions().get(0).toStringTree());
-            assertEquals("(not (> mod#1 1))", ss.getPathConditions().get(0).getInstantiatedExpression().toStringTree());
-            assertEquals("(== 1 mod#1)", ss.getPathConditions().get(1).getInstantiatedExpression().toStringTree());
+            List<Pair<String, DafnyTree>> list = ss.getMap().toList();
+            assertEquals(3, list.size());
+            assertEquals("(HAVOC mod mod#1)", list.get(0).snd.toStringTree());
+            assertEquals("<mod, HAVOC>", list.get(0).toString());
+            assertEquals("<mod, unmod>", list.get(1).toString());
+            assertEquals("<unmod, 1>", list.get(2).toString());
         }
 
     }

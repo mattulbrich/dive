@@ -94,8 +94,9 @@ public class BuiltinSymbols extends MapSymbolTable {
         // multidim length functions
         if(name.matches("\\$len[0-9]+")) {
             String suffix = name.substring(4);
-            Sort arraySort = new Sort("array" + suffix);
-            FunctionSymbol len = new FunctionSymbol(name, Sort.INT, Arrays.asList(arraySort));
+            int dim = Integer.parseInt(suffix);
+            Sort arraySort = new Sort("array" + (dim+1));
+            FunctionSymbol len = new FunctionSymbol(name, Sort.INT, arraySort);
             return len;
         }
 

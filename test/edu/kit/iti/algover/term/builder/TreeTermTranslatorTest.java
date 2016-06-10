@@ -1,7 +1,7 @@
 /*
  * This file is part of AlgoVer.
  *
- * Copyright (C) 2015 Karlsruhe Institute of Technology
+ * Copyright (C) 2015-2016 Karlsruhe Institute of Technology
  */
 package edu.kit.iti.algover.term.builder;
 import static org.junit.Assert.assertEquals;
@@ -20,6 +20,7 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
 
+import edu.kit.iti.algover.data.BuiltinSymbols;
 import edu.kit.iti.algover.data.MapSymbolTable;
 import edu.kit.iti.algover.parser.DafnyLexer;
 import edu.kit.iti.algover.parser.DafnyParser;
@@ -39,9 +40,10 @@ public class TreeTermTranslatorTest {
                 { "i1 + i2*i3", "$plus(i1, $times(i2, i3))" },
                 // revealed bug:
                 { "i1 == i2*i3", "$eq_int(i1, $times(i2, i3))" },
-                { "a.Length", "$len(a)" },
-                { "a2.Length0", "$len(a)" },
-                { "a2.Length1", "$len2(a)" },
+                { "a.Length", "$len0(a)" },
+//                { "a2.Length0", "$len0(a)" },
+//                { "a2.Length1", "$len1(a)" },
+                // no 2-dim arrays for now
         });
     }
 
@@ -86,7 +88,9 @@ public class TreeTermTranslatorTest {
         map.add(new FunctionSymbol("i1", Sort.INT));
         map.add(new FunctionSymbol("i2", Sort.INT));
         map.add(new FunctionSymbol("i3", Sort.INT));
-        symbTable = new MapSymbolTable(map);
+        map.add(new FunctionSymbol("a", new Sort("array1")));
+        map.add(new FunctionSymbol("a2", new Sort("array2")));
+        symbTable = new MapSymbolTable(new BuiltinSymbols(), map);
     }
 
     @Test

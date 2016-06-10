@@ -8,6 +8,7 @@ package edu.kit.iti.algover.symbex;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Set;
 
 import org.antlr.runtime.CommonToken;
@@ -173,13 +174,18 @@ public class VariableMap implements Iterable<Pair<String, DafnyTree>> {
 
     @Override
     public Iterator<Pair<String, DafnyTree>> iterator() {
+        List<Pair<String, DafnyTree>> result = toList();
+        return result.iterator();
+    }
+
+    public List<Pair<String, DafnyTree>> toList() {
         VariableMap vm = this;
         LinkedList<Pair<String, DafnyTree>> result = new LinkedList<>();
         while(vm != EMPTY) {
             result.addLast(new Pair<>(vm.var, vm.value));
             vm = vm.parent;
         }
-        return result.iterator();
+        return result;
     }
 
 }

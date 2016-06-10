@@ -9,11 +9,9 @@ import java.util.Deque;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Queue;
 import java.util.Set;
 
 import org.antlr.runtime.CommonToken;
-
 
 import edu.kit.iti.algover.parser.DafnyParser;
 import edu.kit.iti.algover.parser.DafnyTree;
@@ -89,7 +87,7 @@ public class Symbex {
                     break;
 
                 case DafnyParser.WHILE:
-                    handleWhile(stack, results, state, stm, remainder);
+                    handleWhile(stack, state, stm, remainder);
                     break;
 
                 case DafnyParser.IF:
@@ -97,7 +95,7 @@ public class Symbex {
                     break;
 
                 case DafnyParser.ASSERT:
-                    handleAssert(stack, results, state, stm, remainder);
+                    handleAssert(stack, state, stm, remainder);
                     break;
 
                 case DafnyParser.ASSUME:
@@ -120,12 +118,12 @@ public class Symbex {
      * program onto the stack. The state remains untouched.
      */
     void handleAssert(Deque<SymbexPath> stack,
-            List<SymbexPath> results, SymbexPath state, DafnyTree stm,
+            SymbexPath state, DafnyTree stm,
             DafnyTree remainder) {
         SymbexPath assertedState = new SymbexPath(state);
         assertedState.setBlockToExecute(EMPTY_PROGRAM);
         assertedState.setProofObligations(stm, AssertionType.EXPLICIT_ASSERT);
-        results.add(assertedState);
+        stack.add(assertedState);
         state.setBlockToExecute(remainder);
         // TODO Add asserted condition as assumption
         stack.add(state);
@@ -184,7 +182,7 @@ public class Symbex {
      * 3. a symbex target is added for the continuation of the program after the loop.
      */
     void handleWhile(Deque<SymbexPath> stack,
-            List<SymbexPath> results, SymbexPath state, DafnyTree stm,
+            SymbexPath state, DafnyTree stm,
             DafnyTree remainder) {
         boolean isLabel = stm.getChild(0).getType() == DafnyParser.LABEL;
         DafnyTree guard = stm.getChild(isLabel ? 1 : 0);
@@ -195,7 +193,7 @@ public class Symbex {
         SymbexPath invState = new SymbexPath(state);
         invState.setBlockToExecute(EMPTY_PROGRAM);
         invState.setProofObligations(invariants, AssertionType.INVARIANT_INITIALLY_VALID);
-        results.add(invState);
+        stack.add(invState);
 
         // 2. preserves invariant:
         // 2a. assume invariants
