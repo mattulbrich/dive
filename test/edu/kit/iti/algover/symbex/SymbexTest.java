@@ -228,6 +228,7 @@ public class SymbexTest {
         }
     }
 
+//  revealed a bug
     @Test
     public void testHandleWhileAnonymisation() throws Exception {
         InputStream stream = getClass().getResourceAsStream("whileWithAnon");
@@ -241,30 +242,34 @@ public class SymbexTest {
             SymbexPath ss = results.get(0);
             assertEquals(AssertionType.INVARIANT_INITIALLY_VALID, ss.getProofObligationType());
             List<Pair<String, DafnyTree>> list = ss.getMap().toList();
-            assertEquals(2, list.size());
-            assertEquals("<mod, unmod>", list.get(0).toString());
-            assertEquals("<unmod, 1>", list.get(1).toString());
+            assertEquals(3, list.size());
+            assertEquals("<mod, HAVOC>", list.get(0).toString());
+            assertEquals("(HAVOC mod mod#1)", list.get(0).snd.toStringTree());
+            assertEquals("<mod, unmod>", list.get(1).toString());
+            assertEquals("<unmod, 1>", list.get(2).toString());
         }
         {
             SymbexPath ss = results.get(1);
             assertEquals(AssertionType.INVARIANT_PRESERVED, ss.getProofObligationType());
             List<Pair<String, DafnyTree>> list = ss.getMap().toList();;
-            assertEquals(4, list.size());
+            assertEquals(5, list.size());
             assertEquals("<mod, +>", list.get(0).toString());
-            assertEquals("(HAVOC mod mod#1)", list.get(1).snd.toStringTree());
             assertEquals("<mod, HAVOC>", list.get(1).toString());
-            assertEquals("<mod, unmod>", list.get(2).toString());
-            assertEquals("<unmod, 1>", list.get(3).toString());
+            assertEquals("(HAVOC mod mod#2)", list.get(1).snd.toStringTree());
+            assertEquals("<mod, HAVOC>", list.get(2).toString());
+            assertEquals("<mod, unmod>", list.get(3).toString());
+            assertEquals("<unmod, 1>", list.get(4).toString());
         }
         {
             SymbexPath ss = results.get(2);
             assertEquals(AssertionType.POST, ss.getProofObligationType());
             List<Pair<String, DafnyTree>> list = ss.getMap().toList();
-            assertEquals(3, list.size());
-            assertEquals("(HAVOC mod mod#1)", list.get(0).snd.toStringTree());
+            assertEquals(4, list.size());
             assertEquals("<mod, HAVOC>", list.get(0).toString());
-            assertEquals("<mod, unmod>", list.get(1).toString());
-            assertEquals("<unmod, 1>", list.get(2).toString());
+            assertEquals("(HAVOC mod mod#2)", list.get(0).snd.toStringTree());
+            assertEquals("<mod, HAVOC>", list.get(1).toString());
+            assertEquals("<mod, unmod>", list.get(2).toString());
+            assertEquals("<unmod, 1>", list.get(3).toString());
         }
 
     }

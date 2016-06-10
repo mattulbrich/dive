@@ -183,6 +183,7 @@ statements:
 
 statement:
     VAR^ ID ':'! type (':='! expression)? ';'!
+  | ID ':=' '*' ';' -> ^(HAVOC ID)
   | ID ':='^ expression ';'!
   | ID '[' i=expression ']' ass=':=' v=expression ';'
         -> ^(ARRAY_UPDATE[$ass] ID $i $v)

@@ -102,8 +102,12 @@ public class Symbex {
                     handleAssume(stack, state, stm, remainder);
                     break;
 
+                case DafnyParser.HAVOC:
+                    handleHavoc(stack, state, stm, remainder);
+                    break;
+
                 default:
-                    throw new UnsupportedOperationException("Unknown code: " + stm.getType());
+                    throw new UnsupportedOperationException("Unknown code: " + DafnyParser.tokenNames[stm.getType()]);
                 }
             }
         }
@@ -236,6 +240,14 @@ public class Symbex {
         String name = stm.getChild(0).toString();
         DafnyTree expression = stm.getChild(1);
         VariableMap newMap = state.getMap().assign(name, expression);
+        state.setMap(newMap);
+        state.setBlockToExecute(remainder);
+        stack.push(state);
+    }
+
+    private void handleHavoc(Deque<SymbexPath> stack, SymbexPath state, DafnyTree stm, DafnyTree remainder) {
+        String name = stm.getChild(0).toString();
+        VariableMap newMap = state.getMap().anonymise(name);
         state.setMap(newMap);
         state.setBlockToExecute(remainder);
         stack.push(state);

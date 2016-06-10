@@ -44,16 +44,16 @@ public class VariableMap implements Iterable<Pair<String, DafnyTree>> {
 
     public VariableMap anonymise(String v) {
         VariableMap vm = this;
-        int count = 0;
+        int count = 1;
         v = v.intern();
         while(vm != EMPTY) {
-            if(vm.var == v && vm.value.toString().contains("#")) {
+            if(vm.var == v && vm.value.getType() == DafnyParser.HAVOC) {
                 count ++;
             }
             vm = vm.parent;
         }
 
-        String anonName = v + "#" + (count+1);
+        String anonName = v + "#" + count;
         DafnyTree result = new DafnyTree(new CommonToken(DafnyParser.HAVOC));
         result.addChild(new DafnyTree(new CommonToken(DafnyParser.ID, v)));
         result.addChild(new DafnyTree(new CommonToken(DafnyParser.ID, anonName)));

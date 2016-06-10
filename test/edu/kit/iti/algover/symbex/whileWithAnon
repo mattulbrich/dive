@@ -7,6 +7,8 @@ method symbexTest(p : int)
   unmod := 1;
   mod := unmod;
 
+  mod := *;
+
   while mod > unmod
     invariant unmod == mod
     decreases unmod+mod
