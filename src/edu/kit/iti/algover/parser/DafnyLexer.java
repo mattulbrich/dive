@@ -1,4 +1,4 @@
-// $ANTLR 3.5.1 Dafny.g 2016-06-10 09:23:40
+// $ANTLR 3.5.1 Dafny.g 2016-06-10 23:38:15
 
   package edu.kit.iti.algover.parser;
 
@@ -11,13 +11,13 @@ import java.util.ArrayList;
 @SuppressWarnings("all")
 public class DafnyLexer extends Lexer {
 	public static final int EOF=-1;
-	public static final int T__59=59;
-	public static final int T__60=60;
-	public static final int T__61=61;
-	public static final int T__62=62;
-	public static final int T__63=63;
-	public static final int T__64=64;
 	public static final int T__65=65;
+	public static final int T__66=66;
+	public static final int T__67=67;
+	public static final int T__68=68;
+	public static final int T__69=69;
+	public static final int T__70=70;
+	public static final int T__71=71;
 	public static final int ALL=4;
 	public static final int AND=5;
 	public static final int ARGS=6;
@@ -31,48 +31,54 @@ public class DafnyLexer extends Lexer {
 	public static final int BLOCK_BEGIN=14;
 	public static final int BLOCK_END=15;
 	public static final int CALL=16;
-	public static final int DECREASES=17;
-	public static final int DOT=18;
-	public static final int DOUBLECOLON=19;
-	public static final int ELSE=20;
-	public static final int ENSURES=21;
-	public static final int EQ=22;
-	public static final int EX=23;
-	public static final int FUNCTION=24;
-	public static final int GE=25;
-	public static final int GT=26;
-	public static final int HAVOC=27;
-	public static final int ID=28;
-	public static final int IF=29;
-	public static final int IMPLIES=30;
-	public static final int INT=31;
-	public static final int INTERSECT=32;
-	public static final int INVARIANT=33;
-	public static final int LABEL=34;
-	public static final int LE=35;
-	public static final int LEMMA=36;
-	public static final int LENGTH=37;
-	public static final int LISTEX=38;
-	public static final int LIT=39;
-	public static final int LT=40;
-	public static final int METHOD=41;
-	public static final int MINUS=42;
-	public static final int MULTILINE_COMMENT=43;
-	public static final int NOT=44;
-	public static final int OR=45;
-	public static final int PLUS=46;
-	public static final int REQUIRES=47;
-	public static final int RESULTS=48;
-	public static final int RETURNS=49;
-	public static final int SET=50;
-	public static final int SETEX=51;
-	public static final int SINGLELINE_COMMENT=52;
-	public static final int THEN=53;
-	public static final int TIMES=54;
-	public static final int UNION=55;
-	public static final int VAR=56;
-	public static final int WHILE=57;
-	public static final int WS=58;
+	public static final int CLASS=17;
+	public static final int DECREASES=18;
+	public static final int DOT=19;
+	public static final int DOUBLECOLON=20;
+	public static final int ELSE=21;
+	public static final int ENSURES=22;
+	public static final int EQ=23;
+	public static final int EX=24;
+	public static final int FIELD_ACCESS=25;
+	public static final int FUNCTION=26;
+	public static final int FUNC_CALL=27;
+	public static final int GE=28;
+	public static final int GT=29;
+	public static final int HAVOC=30;
+	public static final int ID=31;
+	public static final int IF=32;
+	public static final int IMPLIES=33;
+	public static final int INT=34;
+	public static final int INTERSECT=35;
+	public static final int INVARIANT=36;
+	public static final int LABEL=37;
+	public static final int LE=38;
+	public static final int LEMMA=39;
+	public static final int LENGTH=40;
+	public static final int LISTEX=41;
+	public static final int LIT=42;
+	public static final int LT=43;
+	public static final int METHOD=44;
+	public static final int MINUS=45;
+	public static final int MODIFIES=46;
+	public static final int MULTILINE_COMMENT=47;
+	public static final int NOT=48;
+	public static final int OBJ_FUNC_CALL=49;
+	public static final int OR=50;
+	public static final int PLUS=51;
+	public static final int REQUIRES=52;
+	public static final int RESULTS=53;
+	public static final int RETURNS=54;
+	public static final int SET=55;
+	public static final int SETEX=56;
+	public static final int SINGLELINE_COMMENT=57;
+	public static final int THEN=58;
+	public static final int THIS=59;
+	public static final int TIMES=60;
+	public static final int UNION=61;
+	public static final int VAR=62;
+	public static final int WHILE=63;
+	public static final int WS=64;
 
 	// delegates
 	// delegators
@@ -89,10 +95,10 @@ public class DafnyLexer extends Lexer {
 	}
 	@Override public String getGrammarFileName() { return "Dafny.g"; }
 
-	// $ANTLR start "T__59"
-	public final void mT__59() throws RecognitionException {
+	// $ANTLR start "T__65"
+	public final void mT__65() throws RecognitionException {
 		try {
-			int _type = T__59;
+			int _type = T__65;
 			int _channel = DEFAULT_TOKEN_CHANNEL;
 			// Dafny.g:6:7: ( '(' )
 			// Dafny.g:6:9: '('
@@ -107,12 +113,12 @@ public class DafnyLexer extends Lexer {
 			// do for sure before leaving
 		}
 	}
-	// $ANTLR end "T__59"
+	// $ANTLR end "T__65"
 
-	// $ANTLR start "T__60"
-	public final void mT__60() throws RecognitionException {
+	// $ANTLR start "T__66"
+	public final void mT__66() throws RecognitionException {
 		try {
-			int _type = T__60;
+			int _type = T__66;
 			int _channel = DEFAULT_TOKEN_CHANNEL;
 			// Dafny.g:7:7: ( ')' )
 			// Dafny.g:7:9: ')'
@@ -127,12 +133,12 @@ public class DafnyLexer extends Lexer {
 			// do for sure before leaving
 		}
 	}
-	// $ANTLR end "T__60"
+	// $ANTLR end "T__66"
 
-	// $ANTLR start "T__61"
-	public final void mT__61() throws RecognitionException {
+	// $ANTLR start "T__67"
+	public final void mT__67() throws RecognitionException {
 		try {
-			int _type = T__61;
+			int _type = T__67;
 			int _channel = DEFAULT_TOKEN_CHANNEL;
 			// Dafny.g:8:7: ( ',' )
 			// Dafny.g:8:9: ','
@@ -147,12 +153,12 @@ public class DafnyLexer extends Lexer {
 			// do for sure before leaving
 		}
 	}
-	// $ANTLR end "T__61"
+	// $ANTLR end "T__67"
 
-	// $ANTLR start "T__62"
-	public final void mT__62() throws RecognitionException {
+	// $ANTLR start "T__68"
+	public final void mT__68() throws RecognitionException {
 		try {
-			int _type = T__62;
+			int _type = T__68;
 			int _channel = DEFAULT_TOKEN_CHANNEL;
 			// Dafny.g:9:7: ( ':' )
 			// Dafny.g:9:9: ':'
@@ -167,12 +173,12 @@ public class DafnyLexer extends Lexer {
 			// do for sure before leaving
 		}
 	}
-	// $ANTLR end "T__62"
+	// $ANTLR end "T__68"
 
-	// $ANTLR start "T__63"
-	public final void mT__63() throws RecognitionException {
+	// $ANTLR start "T__69"
+	public final void mT__69() throws RecognitionException {
 		try {
-			int _type = T__63;
+			int _type = T__69;
 			int _channel = DEFAULT_TOKEN_CHANNEL;
 			// Dafny.g:10:7: ( ';' )
 			// Dafny.g:10:9: ';'
@@ -187,12 +193,12 @@ public class DafnyLexer extends Lexer {
 			// do for sure before leaving
 		}
 	}
-	// $ANTLR end "T__63"
+	// $ANTLR end "T__69"
 
-	// $ANTLR start "T__64"
-	public final void mT__64() throws RecognitionException {
+	// $ANTLR start "T__70"
+	public final void mT__70() throws RecognitionException {
 		try {
-			int _type = T__64;
+			int _type = T__70;
 			int _channel = DEFAULT_TOKEN_CHANNEL;
 			// Dafny.g:11:7: ( '[' )
 			// Dafny.g:11:9: '['
@@ -207,12 +213,12 @@ public class DafnyLexer extends Lexer {
 			// do for sure before leaving
 		}
 	}
-	// $ANTLR end "T__64"
+	// $ANTLR end "T__70"
 
-	// $ANTLR start "T__65"
-	public final void mT__65() throws RecognitionException {
+	// $ANTLR start "T__71"
+	public final void mT__71() throws RecognitionException {
 		try {
-			int _type = T__65;
+			int _type = T__71;
 			int _channel = DEFAULT_TOKEN_CHANNEL;
 			// Dafny.g:12:7: ( ']' )
 			// Dafny.g:12:9: ']'
@@ -227,15 +233,15 @@ public class DafnyLexer extends Lexer {
 			// do for sure before leaving
 		}
 	}
-	// $ANTLR end "T__65"
+	// $ANTLR end "T__71"
 
 	// $ANTLR start "INT"
 	public final void mINT() throws RecognitionException {
 		try {
 			int _type = INT;
 			int _channel = DEFAULT_TOKEN_CHANNEL;
-			// Dafny.g:58:5: ( 'int' )
-			// Dafny.g:58:7: 'int'
+			// Dafny.g:61:5: ( 'int' )
+			// Dafny.g:61:7: 'int'
 			{
 			match("int"); 
 
@@ -255,8 +261,8 @@ public class DafnyLexer extends Lexer {
 		try {
 			int _type = SET;
 			int _channel = DEFAULT_TOKEN_CHANNEL;
-			// Dafny.g:59:5: ( 'set' )
-			// Dafny.g:59:7: 'set'
+			// Dafny.g:62:5: ( 'set' )
+			// Dafny.g:62:7: 'set'
 			{
 			match("set"); 
 
@@ -276,8 +282,8 @@ public class DafnyLexer extends Lexer {
 		try {
 			int _type = RETURNS;
 			int _channel = DEFAULT_TOKEN_CHANNEL;
-			// Dafny.g:60:9: ( 'returns' )
-			// Dafny.g:60:11: 'returns'
+			// Dafny.g:63:9: ( 'returns' )
+			// Dafny.g:63:11: 'returns'
 			{
 			match("returns"); 
 
@@ -297,8 +303,8 @@ public class DafnyLexer extends Lexer {
 		try {
 			int _type = ENSURES;
 			int _channel = DEFAULT_TOKEN_CHANNEL;
-			// Dafny.g:61:8: ( 'ensures' )
-			// Dafny.g:61:10: 'ensures'
+			// Dafny.g:64:8: ( 'ensures' )
+			// Dafny.g:64:10: 'ensures'
 			{
 			match("ensures"); 
 
@@ -318,8 +324,8 @@ public class DafnyLexer extends Lexer {
 		try {
 			int _type = REQUIRES;
 			int _channel = DEFAULT_TOKEN_CHANNEL;
-			// Dafny.g:62:9: ( 'requires' )
-			// Dafny.g:62:11: 'requires'
+			// Dafny.g:65:9: ( 'requires' )
+			// Dafny.g:65:11: 'requires'
 			{
 			match("requires"); 
 
@@ -339,8 +345,8 @@ public class DafnyLexer extends Lexer {
 		try {
 			int _type = DECREASES;
 			int _channel = DEFAULT_TOKEN_CHANNEL;
-			// Dafny.g:63:10: ( 'decreases' )
-			// Dafny.g:63:12: 'decreases'
+			// Dafny.g:66:10: ( 'decreases' )
+			// Dafny.g:66:12: 'decreases'
 			{
 			match("decreases"); 
 
@@ -360,8 +366,8 @@ public class DafnyLexer extends Lexer {
 		try {
 			int _type = FUNCTION;
 			int _channel = DEFAULT_TOKEN_CHANNEL;
-			// Dafny.g:64:9: ( 'function' )
-			// Dafny.g:64:11: 'function'
+			// Dafny.g:67:9: ( 'function' )
+			// Dafny.g:67:11: 'function'
 			{
 			match("function"); 
 
@@ -381,8 +387,8 @@ public class DafnyLexer extends Lexer {
 		try {
 			int _type = METHOD;
 			int _channel = DEFAULT_TOKEN_CHANNEL;
-			// Dafny.g:65:7: ( 'method' )
-			// Dafny.g:65:9: 'method'
+			// Dafny.g:68:7: ( 'method' )
+			// Dafny.g:68:9: 'method'
 			{
 			match("method"); 
 
@@ -402,8 +408,8 @@ public class DafnyLexer extends Lexer {
 		try {
 			int _type = LEMMA;
 			int _channel = DEFAULT_TOKEN_CHANNEL;
-			// Dafny.g:66:6: ( 'lemma' )
-			// Dafny.g:66:8: 'lemma'
+			// Dafny.g:69:6: ( 'lemma' )
+			// Dafny.g:69:8: 'lemma'
 			{
 			match("lemma"); 
 
@@ -423,8 +429,8 @@ public class DafnyLexer extends Lexer {
 		try {
 			int _type = LABEL;
 			int _channel = DEFAULT_TOKEN_CHANNEL;
-			// Dafny.g:67:6: ( 'label' )
-			// Dafny.g:67:8: 'label'
+			// Dafny.g:70:6: ( 'label' )
+			// Dafny.g:70:8: 'label'
 			{
 			match("label"); 
 
@@ -444,8 +450,8 @@ public class DafnyLexer extends Lexer {
 		try {
 			int _type = ELSE;
 			int _channel = DEFAULT_TOKEN_CHANNEL;
-			// Dafny.g:68:5: ( 'else' )
-			// Dafny.g:68:7: 'else'
+			// Dafny.g:71:5: ( 'else' )
+			// Dafny.g:71:7: 'else'
 			{
 			match("else"); 
 
@@ -465,8 +471,8 @@ public class DafnyLexer extends Lexer {
 		try {
 			int _type = IF;
 			int _channel = DEFAULT_TOKEN_CHANNEL;
-			// Dafny.g:69:3: ( 'if' )
-			// Dafny.g:69:5: 'if'
+			// Dafny.g:72:3: ( 'if' )
+			// Dafny.g:72:5: 'if'
 			{
 			match("if"); 
 
@@ -486,8 +492,8 @@ public class DafnyLexer extends Lexer {
 		try {
 			int _type = THEN;
 			int _channel = DEFAULT_TOKEN_CHANNEL;
-			// Dafny.g:70:5: ( 'then' )
-			// Dafny.g:70:7: 'then'
+			// Dafny.g:73:5: ( 'then' )
+			// Dafny.g:73:7: 'then'
 			{
 			match("then"); 
 
@@ -507,8 +513,8 @@ public class DafnyLexer extends Lexer {
 		try {
 			int _type = WHILE;
 			int _channel = DEFAULT_TOKEN_CHANNEL;
-			// Dafny.g:71:6: ( 'while' )
-			// Dafny.g:71:8: 'while'
+			// Dafny.g:74:6: ( 'while' )
+			// Dafny.g:74:8: 'while'
 			{
 			match("while"); 
 
@@ -528,8 +534,8 @@ public class DafnyLexer extends Lexer {
 		try {
 			int _type = VAR;
 			int _channel = DEFAULT_TOKEN_CHANNEL;
-			// Dafny.g:72:4: ( 'var' )
-			// Dafny.g:72:6: 'var'
+			// Dafny.g:75:4: ( 'var' )
+			// Dafny.g:75:6: 'var'
 			{
 			match("var"); 
 
@@ -549,8 +555,8 @@ public class DafnyLexer extends Lexer {
 		try {
 			int _type = CALL;
 			int _channel = DEFAULT_TOKEN_CHANNEL;
-			// Dafny.g:73:5: ( 'call' )
-			// Dafny.g:73:6: 'call'
+			// Dafny.g:76:5: ( 'call' )
+			// Dafny.g:76:6: 'call'
 			{
 			match("call"); 
 
@@ -570,8 +576,8 @@ public class DafnyLexer extends Lexer {
 		try {
 			int _type = INVARIANT;
 			int _channel = DEFAULT_TOKEN_CHANNEL;
-			// Dafny.g:74:10: ( 'invariant' )
-			// Dafny.g:74:12: 'invariant'
+			// Dafny.g:77:10: ( 'invariant' )
+			// Dafny.g:77:12: 'invariant'
 			{
 			match("invariant"); 
 
@@ -591,8 +597,8 @@ public class DafnyLexer extends Lexer {
 		try {
 			int _type = ASSERT;
 			int _channel = DEFAULT_TOKEN_CHANNEL;
-			// Dafny.g:75:7: ( 'assert' )
-			// Dafny.g:75:9: 'assert'
+			// Dafny.g:78:7: ( 'assert' )
+			// Dafny.g:78:9: 'assert'
 			{
 			match("assert"); 
 
@@ -612,8 +618,8 @@ public class DafnyLexer extends Lexer {
 		try {
 			int _type = ASSUME;
 			int _channel = DEFAULT_TOKEN_CHANNEL;
-			// Dafny.g:76:7: ( 'assume' )
-			// Dafny.g:76:9: 'assume'
+			// Dafny.g:79:7: ( 'assume' )
+			// Dafny.g:79:9: 'assume'
 			{
 			match("assume"); 
 
@@ -628,13 +634,76 @@ public class DafnyLexer extends Lexer {
 	}
 	// $ANTLR end "ASSUME"
 
+	// $ANTLR start "MODIFIES"
+	public final void mMODIFIES() throws RecognitionException {
+		try {
+			int _type = MODIFIES;
+			int _channel = DEFAULT_TOKEN_CHANNEL;
+			// Dafny.g:80:9: ( 'modifies' )
+			// Dafny.g:80:11: 'modifies'
+			{
+			match("modifies"); 
+
+			}
+
+			state.type = _type;
+			state.channel = _channel;
+		}
+		finally {
+			// do for sure before leaving
+		}
+	}
+	// $ANTLR end "MODIFIES"
+
+	// $ANTLR start "CLASS"
+	public final void mCLASS() throws RecognitionException {
+		try {
+			int _type = CLASS;
+			int _channel = DEFAULT_TOKEN_CHANNEL;
+			// Dafny.g:81:6: ( 'class' )
+			// Dafny.g:81:8: 'class'
+			{
+			match("class"); 
+
+			}
+
+			state.type = _type;
+			state.channel = _channel;
+		}
+		finally {
+			// do for sure before leaving
+		}
+	}
+	// $ANTLR end "CLASS"
+
+	// $ANTLR start "THIS"
+	public final void mTHIS() throws RecognitionException {
+		try {
+			int _type = THIS;
+			int _channel = DEFAULT_TOKEN_CHANNEL;
+			// Dafny.g:82:5: ( 'this' )
+			// Dafny.g:82:7: 'this'
+			{
+			match("this"); 
+
+			}
+
+			state.type = _type;
+			state.channel = _channel;
+		}
+		finally {
+			// do for sure before leaving
+		}
+	}
+	// $ANTLR end "THIS"
+
 	// $ANTLR start "ALL"
 	public final void mALL() throws RecognitionException {
 		try {
 			int _type = ALL;
 			int _channel = DEFAULT_TOKEN_CHANNEL;
-			// Dafny.g:78:4: ( 'forall' )
-			// Dafny.g:78:6: 'forall'
+			// Dafny.g:84:4: ( 'forall' )
+			// Dafny.g:84:6: 'forall'
 			{
 			match("forall"); 
 
@@ -654,8 +723,8 @@ public class DafnyLexer extends Lexer {
 		try {
 			int _type = EX;
 			int _channel = DEFAULT_TOKEN_CHANNEL;
-			// Dafny.g:79:3: ( 'exists' )
-			// Dafny.g:79:5: 'exists'
+			// Dafny.g:85:3: ( 'exists' )
+			// Dafny.g:85:5: 'exists'
 			{
 			match("exists"); 
 
@@ -675,8 +744,8 @@ public class DafnyLexer extends Lexer {
 		try {
 			int _type = DOUBLECOLON;
 			int _channel = DEFAULT_TOKEN_CHANNEL;
-			// Dafny.g:81:12: ( '::' )
-			// Dafny.g:81:14: '::'
+			// Dafny.g:87:12: ( '::' )
+			// Dafny.g:87:14: '::'
 			{
 			match("::"); 
 
@@ -696,8 +765,8 @@ public class DafnyLexer extends Lexer {
 		try {
 			int _type = ASSIGN;
 			int _channel = DEFAULT_TOKEN_CHANNEL;
-			// Dafny.g:82:7: ( ':=' )
-			// Dafny.g:82:9: ':='
+			// Dafny.g:88:7: ( ':=' )
+			// Dafny.g:88:9: ':='
 			{
 			match(":="); 
 
@@ -717,8 +786,8 @@ public class DafnyLexer extends Lexer {
 		try {
 			int _type = OR;
 			int _channel = DEFAULT_TOKEN_CHANNEL;
-			// Dafny.g:83:3: ( '||' )
-			// Dafny.g:83:5: '||'
+			// Dafny.g:89:3: ( '||' )
+			// Dafny.g:89:5: '||'
 			{
 			match("||"); 
 
@@ -738,8 +807,8 @@ public class DafnyLexer extends Lexer {
 		try {
 			int _type = AND;
 			int _channel = DEFAULT_TOKEN_CHANNEL;
-			// Dafny.g:84:4: ( '&&' )
-			// Dafny.g:84:6: '&&'
+			// Dafny.g:90:4: ( '&&' )
+			// Dafny.g:90:6: '&&'
 			{
 			match("&&"); 
 
@@ -759,8 +828,8 @@ public class DafnyLexer extends Lexer {
 		try {
 			int _type = IMPLIES;
 			int _channel = DEFAULT_TOKEN_CHANNEL;
-			// Dafny.g:85:8: ( '==>' )
-			// Dafny.g:85:10: '==>'
+			// Dafny.g:91:8: ( '==>' )
+			// Dafny.g:91:10: '==>'
 			{
 			match("==>"); 
 
@@ -780,8 +849,8 @@ public class DafnyLexer extends Lexer {
 		try {
 			int _type = PLUS;
 			int _channel = DEFAULT_TOKEN_CHANNEL;
-			// Dafny.g:86:5: ( '+' )
-			// Dafny.g:86:7: '+'
+			// Dafny.g:92:5: ( '+' )
+			// Dafny.g:92:7: '+'
 			{
 			match('+'); 
 			}
@@ -800,8 +869,8 @@ public class DafnyLexer extends Lexer {
 		try {
 			int _type = MINUS;
 			int _channel = DEFAULT_TOKEN_CHANNEL;
-			// Dafny.g:87:6: ( '-' )
-			// Dafny.g:87:8: '-'
+			// Dafny.g:93:6: ( '-' )
+			// Dafny.g:93:8: '-'
 			{
 			match('-'); 
 			}
@@ -820,8 +889,8 @@ public class DafnyLexer extends Lexer {
 		try {
 			int _type = NOT;
 			int _channel = DEFAULT_TOKEN_CHANNEL;
-			// Dafny.g:88:4: ( '!' )
-			// Dafny.g:88:6: '!'
+			// Dafny.g:94:4: ( '!' )
+			// Dafny.g:94:6: '!'
 			{
 			match('!'); 
 			}
@@ -840,8 +909,8 @@ public class DafnyLexer extends Lexer {
 		try {
 			int _type = TIMES;
 			int _channel = DEFAULT_TOKEN_CHANNEL;
-			// Dafny.g:89:6: ( '*' )
-			// Dafny.g:89:8: '*'
+			// Dafny.g:95:6: ( '*' )
+			// Dafny.g:95:8: '*'
 			{
 			match('*'); 
 			}
@@ -860,8 +929,8 @@ public class DafnyLexer extends Lexer {
 		try {
 			int _type = UNION;
 			int _channel = DEFAULT_TOKEN_CHANNEL;
-			// Dafny.g:90:6: ( '++' )
-			// Dafny.g:90:8: '++'
+			// Dafny.g:96:6: ( '++' )
+			// Dafny.g:96:8: '++'
 			{
 			match("++"); 
 
@@ -881,8 +950,8 @@ public class DafnyLexer extends Lexer {
 		try {
 			int _type = INTERSECT;
 			int _channel = DEFAULT_TOKEN_CHANNEL;
-			// Dafny.g:91:10: ( '**' )
-			// Dafny.g:91:12: '**'
+			// Dafny.g:97:10: ( '**' )
+			// Dafny.g:97:12: '**'
 			{
 			match("**"); 
 
@@ -902,8 +971,8 @@ public class DafnyLexer extends Lexer {
 		try {
 			int _type = LT;
 			int _channel = DEFAULT_TOKEN_CHANNEL;
-			// Dafny.g:92:3: ( '<' )
-			// Dafny.g:92:5: '<'
+			// Dafny.g:98:3: ( '<' )
+			// Dafny.g:98:5: '<'
 			{
 			match('<'); 
 			}
@@ -922,8 +991,8 @@ public class DafnyLexer extends Lexer {
 		try {
 			int _type = LE;
 			int _channel = DEFAULT_TOKEN_CHANNEL;
-			// Dafny.g:93:3: ( '<=' )
-			// Dafny.g:93:5: '<='
+			// Dafny.g:99:3: ( '<=' )
+			// Dafny.g:99:5: '<='
 			{
 			match("<="); 
 
@@ -943,8 +1012,8 @@ public class DafnyLexer extends Lexer {
 		try {
 			int _type = GT;
 			int _channel = DEFAULT_TOKEN_CHANNEL;
-			// Dafny.g:94:3: ( '>' )
-			// Dafny.g:94:5: '>'
+			// Dafny.g:100:3: ( '>' )
+			// Dafny.g:100:5: '>'
 			{
 			match('>'); 
 			}
@@ -963,8 +1032,8 @@ public class DafnyLexer extends Lexer {
 		try {
 			int _type = GE;
 			int _channel = DEFAULT_TOKEN_CHANNEL;
-			// Dafny.g:95:3: ( '>=' )
-			// Dafny.g:95:5: '>='
+			// Dafny.g:101:3: ( '>=' )
+			// Dafny.g:101:5: '>='
 			{
 			match(">="); 
 
@@ -984,8 +1053,8 @@ public class DafnyLexer extends Lexer {
 		try {
 			int _type = EQ;
 			int _channel = DEFAULT_TOKEN_CHANNEL;
-			// Dafny.g:96:3: ( '==' )
-			// Dafny.g:96:5: '=='
+			// Dafny.g:102:3: ( '==' )
+			// Dafny.g:102:5: '=='
 			{
 			match("=="); 
 
@@ -1005,8 +1074,8 @@ public class DafnyLexer extends Lexer {
 		try {
 			int _type = DOT;
 			int _channel = DEFAULT_TOKEN_CHANNEL;
-			// Dafny.g:97:4: ( '.' )
-			// Dafny.g:97:6: '.'
+			// Dafny.g:103:4: ( '.' )
+			// Dafny.g:103:6: '.'
 			{
 			match('.'); 
 			}
@@ -1025,8 +1094,8 @@ public class DafnyLexer extends Lexer {
 		try {
 			int _type = BLOCK_BEGIN;
 			int _channel = DEFAULT_TOKEN_CHANNEL;
-			// Dafny.g:98:12: ( '{' )
-			// Dafny.g:98:14: '{'
+			// Dafny.g:104:12: ( '{' )
+			// Dafny.g:104:14: '{'
 			{
 			match('{'); 
 			}
@@ -1045,8 +1114,8 @@ public class DafnyLexer extends Lexer {
 		try {
 			int _type = BLOCK_END;
 			int _channel = DEFAULT_TOKEN_CHANNEL;
-			// Dafny.g:99:10: ( '}' )
-			// Dafny.g:99:12: '}'
+			// Dafny.g:105:10: ( '}' )
+			// Dafny.g:105:12: '}'
 			{
 			match('}'); 
 			}
@@ -1065,12 +1134,12 @@ public class DafnyLexer extends Lexer {
 		try {
 			int _type = LENGTH;
 			int _channel = DEFAULT_TOKEN_CHANNEL;
-			// Dafny.g:101:7: ( 'Length' ( '0' .. '9' )* )
-			// Dafny.g:101:9: 'Length' ( '0' .. '9' )*
+			// Dafny.g:107:7: ( 'Length' ( '0' .. '9' )* )
+			// Dafny.g:107:9: 'Length' ( '0' .. '9' )*
 			{
 			match("Length"); 
 
-			// Dafny.g:101:18: ( '0' .. '9' )*
+			// Dafny.g:107:18: ( '0' .. '9' )*
 			loop1:
 			while (true) {
 				int alt1=2;
@@ -1115,12 +1184,12 @@ public class DafnyLexer extends Lexer {
 		try {
 			int _type = ARRAY;
 			int _channel = DEFAULT_TOKEN_CHANNEL;
-			// Dafny.g:102:7: ( 'array' ( ( '1' .. '9' ) ( '0' .. '9' )* )? )
-			// Dafny.g:102:9: 'array' ( ( '1' .. '9' ) ( '0' .. '9' )* )?
+			// Dafny.g:108:7: ( 'array' ( ( '1' .. '9' ) ( '0' .. '9' )* )? )
+			// Dafny.g:108:9: 'array' ( ( '1' .. '9' ) ( '0' .. '9' )* )?
 			{
 			match("array"); 
 
-			// Dafny.g:102:17: ( ( '1' .. '9' ) ( '0' .. '9' )* )?
+			// Dafny.g:108:17: ( ( '1' .. '9' ) ( '0' .. '9' )* )?
 			int alt3=2;
 			int LA3_0 = input.LA(1);
 			if ( ((LA3_0 >= '1' && LA3_0 <= '9')) ) {
@@ -1128,7 +1197,7 @@ public class DafnyLexer extends Lexer {
 			}
 			switch (alt3) {
 				case 1 :
-					// Dafny.g:102:18: ( '1' .. '9' ) ( '0' .. '9' )*
+					// Dafny.g:108:18: ( '1' .. '9' ) ( '0' .. '9' )*
 					{
 					if ( (input.LA(1) >= '1' && input.LA(1) <= '9') ) {
 						input.consume();
@@ -1138,7 +1207,7 @@ public class DafnyLexer extends Lexer {
 						recover(mse);
 						throw mse;
 					}
-					// Dafny.g:102:31: ( '0' .. '9' )*
+					// Dafny.g:108:31: ( '0' .. '9' )*
 					loop2:
 					while (true) {
 						int alt2=2;
@@ -1188,8 +1257,8 @@ public class DafnyLexer extends Lexer {
 		try {
 			int _type = ID;
 			int _channel = DEFAULT_TOKEN_CHANNEL;
-			// Dafny.g:103:4: ( ( 'a' .. 'z' | 'A' .. 'Z' | '_' ) ( 'a' .. 'z' | 'A' .. 'Z' | '0' .. '9' | '_' )* )
-			// Dafny.g:103:6: ( 'a' .. 'z' | 'A' .. 'Z' | '_' ) ( 'a' .. 'z' | 'A' .. 'Z' | '0' .. '9' | '_' )*
+			// Dafny.g:109:4: ( ( 'a' .. 'z' | 'A' .. 'Z' | '_' ) ( 'a' .. 'z' | 'A' .. 'Z' | '0' .. '9' | '_' )* )
+			// Dafny.g:109:6: ( 'a' .. 'z' | 'A' .. 'Z' | '_' ) ( 'a' .. 'z' | 'A' .. 'Z' | '0' .. '9' | '_' )*
 			{
 			if ( (input.LA(1) >= 'A' && input.LA(1) <= 'Z')||input.LA(1)=='_'||(input.LA(1) >= 'a' && input.LA(1) <= 'z') ) {
 				input.consume();
@@ -1199,7 +1268,7 @@ public class DafnyLexer extends Lexer {
 				recover(mse);
 				throw mse;
 			}
-			// Dafny.g:103:38: ( 'a' .. 'z' | 'A' .. 'Z' | '0' .. '9' | '_' )*
+			// Dafny.g:109:38: ( 'a' .. 'z' | 'A' .. 'Z' | '0' .. '9' | '_' )*
 			loop4:
 			while (true) {
 				int alt4=2;
@@ -1244,10 +1313,10 @@ public class DafnyLexer extends Lexer {
 		try {
 			int _type = LIT;
 			int _channel = DEFAULT_TOKEN_CHANNEL;
-			// Dafny.g:104:5: ( ( '0' .. '9' )+ )
-			// Dafny.g:104:7: ( '0' .. '9' )+
+			// Dafny.g:110:5: ( ( '0' .. '9' )+ )
+			// Dafny.g:110:7: ( '0' .. '9' )+
 			{
-			// Dafny.g:104:7: ( '0' .. '9' )+
+			// Dafny.g:110:7: ( '0' .. '9' )+
 			int cnt5=0;
 			loop5:
 			while (true) {
@@ -1296,8 +1365,8 @@ public class DafnyLexer extends Lexer {
 		try {
 			int _type = WS;
 			int _channel = DEFAULT_TOKEN_CHANNEL;
-			// Dafny.g:106:4: ( ( ' ' | '\\n' | '\\r' ) )
-			// Dafny.g:106:6: ( ' ' | '\\n' | '\\r' )
+			// Dafny.g:112:4: ( ( ' ' | '\\n' | '\\r' ) )
+			// Dafny.g:112:6: ( ' ' | '\\n' | '\\r' )
 			{
 			if ( input.LA(1)=='\n'||input.LA(1)=='\r'||input.LA(1)==' ' ) {
 				input.consume();
@@ -1324,12 +1393,12 @@ public class DafnyLexer extends Lexer {
 		try {
 			int _type = SINGLELINE_COMMENT;
 			int _channel = DEFAULT_TOKEN_CHANNEL;
-			// Dafny.g:107:19: ( '//' (~ ( '\\r' | '\\n' ) )* )
-			// Dafny.g:107:21: '//' (~ ( '\\r' | '\\n' ) )*
+			// Dafny.g:113:19: ( '//' (~ ( '\\r' | '\\n' ) )* )
+			// Dafny.g:113:21: '//' (~ ( '\\r' | '\\n' ) )*
 			{
 			match("//"); 
 
-			// Dafny.g:107:26: (~ ( '\\r' | '\\n' ) )*
+			// Dafny.g:113:26: (~ ( '\\r' | '\\n' ) )*
 			loop6:
 			while (true) {
 				int alt6=2;
@@ -1375,12 +1444,12 @@ public class DafnyLexer extends Lexer {
 		try {
 			int _type = MULTILINE_COMMENT;
 			int _channel = DEFAULT_TOKEN_CHANNEL;
-			// Dafny.g:108:18: ( '/*' ( . )* '*/' )
-			// Dafny.g:108:20: '/*' ( . )* '*/'
+			// Dafny.g:114:18: ( '/*' ( . )* '*/' )
+			// Dafny.g:114:20: '/*' ( . )* '*/'
 			{
 			match("/*"); 
 
-			// Dafny.g:108:25: ( . )*
+			// Dafny.g:114:25: ( . )*
 			loop7:
 			while (true) {
 				int alt7=2;
@@ -1401,7 +1470,7 @@ public class DafnyLexer extends Lexer {
 
 				switch (alt7) {
 				case 1 :
-					// Dafny.g:108:25: .
+					// Dafny.g:114:25: .
 					{
 					matchAny(); 
 					}
@@ -1428,56 +1497,56 @@ public class DafnyLexer extends Lexer {
 
 	@Override
 	public void mTokens() throws RecognitionException {
-		// Dafny.g:1:8: ( T__59 | T__60 | T__61 | T__62 | T__63 | T__64 | T__65 | INT | SET | RETURNS | ENSURES | REQUIRES | DECREASES | FUNCTION | METHOD | LEMMA | LABEL | ELSE | IF | THEN | WHILE | VAR | CALL | INVARIANT | ASSERT | ASSUME | ALL | EX | DOUBLECOLON | ASSIGN | OR | AND | IMPLIES | PLUS | MINUS | NOT | TIMES | UNION | INTERSECT | LT | LE | GT | GE | EQ | DOT | BLOCK_BEGIN | BLOCK_END | LENGTH | ARRAY | ID | LIT | WS | SINGLELINE_COMMENT | MULTILINE_COMMENT )
-		int alt8=54;
+		// Dafny.g:1:8: ( T__65 | T__66 | T__67 | T__68 | T__69 | T__70 | T__71 | INT | SET | RETURNS | ENSURES | REQUIRES | DECREASES | FUNCTION | METHOD | LEMMA | LABEL | ELSE | IF | THEN | WHILE | VAR | CALL | INVARIANT | ASSERT | ASSUME | MODIFIES | CLASS | THIS | ALL | EX | DOUBLECOLON | ASSIGN | OR | AND | IMPLIES | PLUS | MINUS | NOT | TIMES | UNION | INTERSECT | LT | LE | GT | GE | EQ | DOT | BLOCK_BEGIN | BLOCK_END | LENGTH | ARRAY | ID | LIT | WS | SINGLELINE_COMMENT | MULTILINE_COMMENT )
+		int alt8=57;
 		alt8 = dfa8.predict(input);
 		switch (alt8) {
 			case 1 :
-				// Dafny.g:1:10: T__59
+				// Dafny.g:1:10: T__65
 				{
-				mT__59(); 
+				mT__65(); 
 
 				}
 				break;
 			case 2 :
-				// Dafny.g:1:16: T__60
+				// Dafny.g:1:16: T__66
 				{
-				mT__60(); 
+				mT__66(); 
 
 				}
 				break;
 			case 3 :
-				// Dafny.g:1:22: T__61
+				// Dafny.g:1:22: T__67
 				{
-				mT__61(); 
+				mT__67(); 
 
 				}
 				break;
 			case 4 :
-				// Dafny.g:1:28: T__62
+				// Dafny.g:1:28: T__68
 				{
-				mT__62(); 
+				mT__68(); 
 
 				}
 				break;
 			case 5 :
-				// Dafny.g:1:34: T__63
+				// Dafny.g:1:34: T__69
 				{
-				mT__63(); 
+				mT__69(); 
 
 				}
 				break;
 			case 6 :
-				// Dafny.g:1:40: T__64
+				// Dafny.g:1:40: T__70
 				{
-				mT__64(); 
+				mT__70(); 
 
 				}
 				break;
 			case 7 :
-				// Dafny.g:1:46: T__65
+				// Dafny.g:1:46: T__71
 				{
-				mT__65(); 
+				mT__71(); 
 
 				}
 				break;
@@ -1615,196 +1684,217 @@ public class DafnyLexer extends Lexer {
 				}
 				break;
 			case 27 :
-				// Dafny.g:1:175: ALL
+				// Dafny.g:1:175: MODIFIES
+				{
+				mMODIFIES(); 
+
+				}
+				break;
+			case 28 :
+				// Dafny.g:1:184: CLASS
+				{
+				mCLASS(); 
+
+				}
+				break;
+			case 29 :
+				// Dafny.g:1:190: THIS
+				{
+				mTHIS(); 
+
+				}
+				break;
+			case 30 :
+				// Dafny.g:1:195: ALL
 				{
 				mALL(); 
 
 				}
 				break;
-			case 28 :
-				// Dafny.g:1:179: EX
+			case 31 :
+				// Dafny.g:1:199: EX
 				{
 				mEX(); 
 
 				}
 				break;
-			case 29 :
-				// Dafny.g:1:182: DOUBLECOLON
+			case 32 :
+				// Dafny.g:1:202: DOUBLECOLON
 				{
 				mDOUBLECOLON(); 
 
 				}
 				break;
-			case 30 :
-				// Dafny.g:1:194: ASSIGN
+			case 33 :
+				// Dafny.g:1:214: ASSIGN
 				{
 				mASSIGN(); 
 
 				}
 				break;
-			case 31 :
-				// Dafny.g:1:201: OR
+			case 34 :
+				// Dafny.g:1:221: OR
 				{
 				mOR(); 
 
 				}
 				break;
-			case 32 :
-				// Dafny.g:1:204: AND
+			case 35 :
+				// Dafny.g:1:224: AND
 				{
 				mAND(); 
 
 				}
 				break;
-			case 33 :
-				// Dafny.g:1:208: IMPLIES
+			case 36 :
+				// Dafny.g:1:228: IMPLIES
 				{
 				mIMPLIES(); 
 
 				}
 				break;
-			case 34 :
-				// Dafny.g:1:216: PLUS
+			case 37 :
+				// Dafny.g:1:236: PLUS
 				{
 				mPLUS(); 
 
 				}
 				break;
-			case 35 :
-				// Dafny.g:1:221: MINUS
+			case 38 :
+				// Dafny.g:1:241: MINUS
 				{
 				mMINUS(); 
 
 				}
 				break;
-			case 36 :
-				// Dafny.g:1:227: NOT
+			case 39 :
+				// Dafny.g:1:247: NOT
 				{
 				mNOT(); 
 
 				}
 				break;
-			case 37 :
-				// Dafny.g:1:231: TIMES
+			case 40 :
+				// Dafny.g:1:251: TIMES
 				{
 				mTIMES(); 
 
 				}
 				break;
-			case 38 :
-				// Dafny.g:1:237: UNION
+			case 41 :
+				// Dafny.g:1:257: UNION
 				{
 				mUNION(); 
 
 				}
 				break;
-			case 39 :
-				// Dafny.g:1:243: INTERSECT
+			case 42 :
+				// Dafny.g:1:263: INTERSECT
 				{
 				mINTERSECT(); 
 
 				}
 				break;
-			case 40 :
-				// Dafny.g:1:253: LT
+			case 43 :
+				// Dafny.g:1:273: LT
 				{
 				mLT(); 
 
 				}
 				break;
-			case 41 :
-				// Dafny.g:1:256: LE
+			case 44 :
+				// Dafny.g:1:276: LE
 				{
 				mLE(); 
 
 				}
 				break;
-			case 42 :
-				// Dafny.g:1:259: GT
+			case 45 :
+				// Dafny.g:1:279: GT
 				{
 				mGT(); 
 
 				}
 				break;
-			case 43 :
-				// Dafny.g:1:262: GE
+			case 46 :
+				// Dafny.g:1:282: GE
 				{
 				mGE(); 
 
 				}
 				break;
-			case 44 :
-				// Dafny.g:1:265: EQ
+			case 47 :
+				// Dafny.g:1:285: EQ
 				{
 				mEQ(); 
 
 				}
 				break;
-			case 45 :
-				// Dafny.g:1:268: DOT
+			case 48 :
+				// Dafny.g:1:288: DOT
 				{
 				mDOT(); 
 
 				}
 				break;
-			case 46 :
-				// Dafny.g:1:272: BLOCK_BEGIN
+			case 49 :
+				// Dafny.g:1:292: BLOCK_BEGIN
 				{
 				mBLOCK_BEGIN(); 
 
 				}
 				break;
-			case 47 :
-				// Dafny.g:1:284: BLOCK_END
+			case 50 :
+				// Dafny.g:1:304: BLOCK_END
 				{
 				mBLOCK_END(); 
 
 				}
 				break;
-			case 48 :
-				// Dafny.g:1:294: LENGTH
+			case 51 :
+				// Dafny.g:1:314: LENGTH
 				{
 				mLENGTH(); 
 
 				}
 				break;
-			case 49 :
-				// Dafny.g:1:301: ARRAY
+			case 52 :
+				// Dafny.g:1:321: ARRAY
 				{
 				mARRAY(); 
 
 				}
 				break;
-			case 50 :
-				// Dafny.g:1:307: ID
+			case 53 :
+				// Dafny.g:1:327: ID
 				{
 				mID(); 
 
 				}
 				break;
-			case 51 :
-				// Dafny.g:1:310: LIT
+			case 54 :
+				// Dafny.g:1:330: LIT
 				{
 				mLIT(); 
 
 				}
 				break;
-			case 52 :
-				// Dafny.g:1:314: WS
+			case 55 :
+				// Dafny.g:1:334: WS
 				{
 				mWS(); 
 
 				}
 				break;
-			case 53 :
-				// Dafny.g:1:317: SINGLELINE_COMMENT
+			case 56 :
+				// Dafny.g:1:337: SINGLELINE_COMMENT
 				{
 				mSINGLELINE_COMMENT(); 
 
 				}
 				break;
-			case 54 :
-				// Dafny.g:1:336: MULTILINE_COMMENT
+			case 57 :
+				// Dafny.g:1:356: MULTILINE_COMMENT
 				{
 				mMULTILINE_COMMENT(); 
 
@@ -1817,54 +1907,58 @@ public class DafnyLexer extends Lexer {
 
 	protected DFA8 dfa8 = new DFA8(this);
 	static final String DFA8_eotS =
-		"\4\uffff\1\50\3\uffff\15\42\3\uffff\1\76\2\uffff\1\100\1\102\1\104\3\uffff"+
-		"\1\42\7\uffff\1\42\1\112\21\42\1\136\10\uffff\1\42\2\uffff\1\140\1\42"+
-		"\1\uffff\1\142\15\42\1\160\3\42\2\uffff\1\42\1\uffff\1\42\1\uffff\3\42"+
-		"\1\172\7\42\1\u0082\1\42\1\uffff\1\u0084\10\42\1\uffff\5\42\1\u0092\1"+
-		"\u0093\1\uffff\1\u0094\1\uffff\2\42\1\u0098\5\42\1\u009e\2\42\1\u00a1"+
-		"\1\u00a2\3\uffff\1\u00a3\1\u00a4\1\u0098\1\uffff\1\u00a7\1\42\1\u00a9"+
-		"\1\42\1\u00ab\1\uffff\2\42\4\uffff\1\u0098\1\u00a7\1\uffff\1\42\1\uffff"+
-		"\1\u00af\1\uffff\1\42\1\u00b1\1\u00b2\1\uffff\1\u00b3\3\uffff";
+		"\4\uffff\1\50\3\uffff\15\42\3\uffff\1\100\2\uffff\1\102\1\104\1\106\3"+
+		"\uffff\1\42\7\uffff\1\42\1\114\23\42\1\143\10\uffff\1\42\2\uffff\1\145"+
+		"\1\42\1\uffff\1\147\17\42\1\167\4\42\2\uffff\1\42\1\uffff\1\42\1\uffff"+
+		"\3\42\1\u0082\10\42\1\u008b\1\u008c\1\42\1\uffff\1\u008e\11\42\1\uffff"+
+		"\6\42\1\u009e\1\u009f\2\uffff\1\u00a0\1\uffff\1\u00a1\2\42\1\u00a5\5\42"+
+		"\1\u00ab\2\42\1\u00ae\1\u00af\1\42\4\uffff\1\u00b1\1\u00b2\1\u00a5\1\uffff"+
+		"\1\u00b5\1\42\1\u00b7\1\42\1\u00b9\1\uffff\2\42\2\uffff\1\42\2\uffff\1"+
+		"\u00a5\1\u00b5\1\uffff\1\42\1\uffff\1\u00be\1\uffff\1\42\1\u00c0\1\u00c1"+
+		"\1\u00c2\1\uffff\1\u00c3\4\uffff";
 	static final String DFA8_eofS =
-		"\u00b4\uffff";
+		"\u00c4\uffff";
 	static final String DFA8_minS =
 		"\1\12\3\uffff\1\72\3\uffff\1\146\2\145\1\154\1\145\1\157\1\145\1\141\2"+
 		"\150\2\141\1\162\2\uffff\1\75\1\53\2\uffff\1\52\2\75\3\uffff\1\145\3\uffff"+
 		"\1\52\3\uffff\1\164\1\60\1\164\1\161\2\163\1\151\1\143\1\156\1\162\1\164"+
-		"\1\155\1\142\1\145\1\151\1\162\1\154\1\163\1\162\1\76\10\uffff\1\156\2"+
-		"\uffff\1\60\1\141\1\uffff\1\60\3\165\1\145\1\163\1\162\1\143\1\141\1\150"+
-		"\1\155\1\145\1\156\1\154\1\60\1\154\1\145\1\141\2\uffff\1\147\1\uffff"+
-		"\1\162\1\uffff\1\162\1\151\1\162\1\60\1\164\1\145\1\164\1\154\1\157\1"+
-		"\141\1\154\1\60\1\145\1\uffff\1\60\1\162\1\155\1\171\1\164\1\151\1\156"+
-		"\1\162\1\145\1\uffff\1\163\1\141\1\151\1\154\1\144\2\60\1\uffff\1\60\1"+
-		"\uffff\1\164\1\145\1\60\1\150\1\141\1\163\1\145\1\163\1\60\1\163\1\157"+
-		"\2\60\3\uffff\3\60\1\uffff\1\60\1\156\1\60\1\163\1\60\1\uffff\1\145\1"+
-		"\156\4\uffff\2\60\1\uffff\1\164\1\uffff\1\60\1\uffff\1\163\2\60\1\uffff"+
-		"\1\60\3\uffff";
+		"\1\144\1\155\1\142\1\145\1\151\1\162\1\154\1\141\1\163\1\162\1\76\10\uffff"+
+		"\1\156\2\uffff\1\60\1\141\1\uffff\1\60\3\165\1\145\1\163\1\162\1\143\1"+
+		"\141\1\150\1\151\1\155\1\145\1\156\1\163\1\154\1\60\1\154\1\163\1\145"+
+		"\1\141\2\uffff\1\147\1\uffff\1\162\1\uffff\1\162\1\151\1\162\1\60\1\164"+
+		"\1\145\1\164\1\154\1\157\1\146\1\141\1\154\2\60\1\145\1\uffff\1\60\1\163"+
+		"\1\162\1\155\1\171\1\164\1\151\1\156\1\162\1\145\1\uffff\1\163\1\141\1"+
+		"\151\1\154\1\144\1\151\2\60\2\uffff\1\60\1\uffff\1\60\1\164\1\145\1\60"+
+		"\1\150\1\141\1\163\1\145\1\163\1\60\1\163\1\157\2\60\1\145\4\uffff\3\60"+
+		"\1\uffff\1\60\1\156\1\60\1\163\1\60\1\uffff\1\145\1\156\2\uffff\1\163"+
+		"\2\uffff\2\60\1\uffff\1\164\1\uffff\1\60\1\uffff\1\163\3\60\1\uffff\1"+
+		"\60\4\uffff";
 	static final String DFA8_maxS =
-		"\1\175\3\uffff\1\75\3\uffff\1\156\2\145\1\170\1\145\1\165\2\145\2\150"+
-		"\2\141\1\163\2\uffff\1\75\1\53\2\uffff\1\52\2\75\3\uffff\1\145\3\uffff"+
-		"\1\57\3\uffff\1\166\1\172\2\164\2\163\1\151\1\143\1\156\1\162\1\164\1"+
-		"\155\1\142\1\145\1\151\1\162\1\154\1\163\1\162\1\76\10\uffff\1\156\2\uffff"+
-		"\1\172\1\141\1\uffff\1\172\3\165\1\145\1\163\1\162\1\143\1\141\1\150\1"+
-		"\155\1\145\1\156\1\154\1\172\1\154\1\165\1\141\2\uffff\1\147\1\uffff\1"+
-		"\162\1\uffff\1\162\1\151\1\162\1\172\1\164\1\145\1\164\1\154\1\157\1\141"+
-		"\1\154\1\172\1\145\1\uffff\1\172\1\162\1\155\1\171\1\164\1\151\1\156\1"+
-		"\162\1\145\1\uffff\1\163\1\141\1\151\1\154\1\144\2\172\1\uffff\1\172\1"+
-		"\uffff\1\164\1\145\1\172\1\150\1\141\1\163\1\145\1\163\1\172\1\163\1\157"+
-		"\2\172\3\uffff\3\172\1\uffff\1\172\1\156\1\172\1\163\1\172\1\uffff\1\145"+
-		"\1\156\4\uffff\2\172\1\uffff\1\164\1\uffff\1\172\1\uffff\1\163\2\172\1"+
-		"\uffff\1\172\3\uffff";
+		"\1\175\3\uffff\1\75\3\uffff\1\156\2\145\1\170\1\145\1\165\1\157\1\145"+
+		"\2\150\1\141\1\154\1\163\2\uffff\1\75\1\53\2\uffff\1\52\2\75\3\uffff\1"+
+		"\145\3\uffff\1\57\3\uffff\1\166\1\172\2\164\2\163\1\151\1\143\1\156\1"+
+		"\162\1\164\1\144\1\155\1\142\2\151\1\162\1\154\1\141\1\163\1\162\1\76"+
+		"\10\uffff\1\156\2\uffff\1\172\1\141\1\uffff\1\172\3\165\1\145\1\163\1"+
+		"\162\1\143\1\141\1\150\1\151\1\155\1\145\1\156\1\163\1\154\1\172\1\154"+
+		"\1\163\1\165\1\141\2\uffff\1\147\1\uffff\1\162\1\uffff\1\162\1\151\1\162"+
+		"\1\172\1\164\1\145\1\164\1\154\1\157\1\146\1\141\1\154\2\172\1\145\1\uffff"+
+		"\1\172\1\163\1\162\1\155\1\171\1\164\1\151\1\156\1\162\1\145\1\uffff\1"+
+		"\163\1\141\1\151\1\154\1\144\1\151\2\172\2\uffff\1\172\1\uffff\1\172\1"+
+		"\164\1\145\1\172\1\150\1\141\1\163\1\145\1\163\1\172\1\163\1\157\2\172"+
+		"\1\145\4\uffff\3\172\1\uffff\1\172\1\156\1\172\1\163\1\172\1\uffff\1\145"+
+		"\1\156\2\uffff\1\163\2\uffff\2\172\1\uffff\1\164\1\uffff\1\172\1\uffff"+
+		"\1\163\3\172\1\uffff\1\172\4\uffff";
 	static final String DFA8_acceptS =
-		"\1\uffff\1\1\1\2\1\3\1\uffff\1\5\1\6\1\7\15\uffff\1\37\1\40\2\uffff\1"+
-		"\43\1\44\3\uffff\1\55\1\56\1\57\1\uffff\1\62\1\63\1\64\1\uffff\1\35\1"+
-		"\36\1\4\24\uffff\1\46\1\42\1\47\1\45\1\51\1\50\1\53\1\52\1\uffff\1\65"+
-		"\1\66\2\uffff\1\23\22\uffff\1\41\1\54\1\uffff\1\10\1\uffff\1\11\15\uffff"+
-		"\1\26\11\uffff\1\22\7\uffff\1\24\1\uffff\1\27\15\uffff\1\20\1\21\1\25"+
-		"\3\uffff\1\61\5\uffff\1\34\2\uffff\1\33\1\17\1\31\1\32\2\uffff\1\60\1"+
-		"\uffff\1\12\1\uffff\1\13\3\uffff\1\14\1\uffff\1\16\1\30\1\15";
+		"\1\uffff\1\1\1\2\1\3\1\uffff\1\5\1\6\1\7\15\uffff\1\42\1\43\2\uffff\1"+
+		"\46\1\47\3\uffff\1\60\1\61\1\62\1\uffff\1\65\1\66\1\67\1\uffff\1\40\1"+
+		"\41\1\4\26\uffff\1\51\1\45\1\52\1\50\1\54\1\53\1\56\1\55\1\uffff\1\70"+
+		"\1\71\2\uffff\1\23\25\uffff\1\44\1\57\1\uffff\1\10\1\uffff\1\11\17\uffff"+
+		"\1\26\12\uffff\1\22\10\uffff\1\24\1\35\1\uffff\1\27\17\uffff\1\20\1\21"+
+		"\1\25\1\34\3\uffff\1\64\5\uffff\1\37\2\uffff\1\36\1\17\1\uffff\1\31\1"+
+		"\32\2\uffff\1\63\1\uffff\1\12\1\uffff\1\13\4\uffff\1\14\1\uffff\1\16\1"+
+		"\33\1\30\1\15";
 	static final String DFA8_specialS =
-		"\u00b4\uffff}>";
+		"\u00c4\uffff}>";
 	static final String[] DFA8_transitionS = {
 			"\1\44\2\uffff\1\44\22\uffff\1\44\1\32\4\uffff\1\26\1\uffff\1\1\1\2\1"+
 			"\33\1\30\1\3\1\31\1\36\1\45\12\43\1\4\1\5\1\34\1\27\1\35\2\uffff\13\42"+
@@ -1884,39 +1978,37 @@ public class DafnyLexer extends Lexer {
 			"\1\56\1\uffff\1\55\11\uffff\1\57",
 			"\1\60",
 			"\1\62\5\uffff\1\61",
-			"\1\63",
-			"\1\65\3\uffff\1\64",
-			"\1\66",
+			"\1\63\11\uffff\1\64",
+			"\1\66\3\uffff\1\65",
 			"\1\67",
 			"\1\70",
 			"\1\71",
-			"\1\73\1\72",
+			"\1\72\12\uffff\1\73",
+			"\1\75\1\74",
 			"",
 			"",
-			"\1\74",
-			"\1\75",
-			"",
-			"",
+			"\1\76",
 			"\1\77",
+			"",
+			"",
 			"\1\101",
 			"\1\103",
-			"",
-			"",
-			"",
 			"\1\105",
 			"",
 			"",
 			"",
-			"\1\107\4\uffff\1\106",
+			"\1\107",
 			"",
 			"",
 			"",
-			"\1\110\1\uffff\1\111",
+			"\1\111\4\uffff\1\110",
+			"",
+			"",
+			"",
+			"\1\112\1\uffff\1\113",
 			"\12\42\7\uffff\32\42\4\uffff\1\42\1\uffff\32\42",
-			"\1\113",
-			"\1\115\2\uffff\1\114",
-			"\1\116",
-			"\1\117",
+			"\1\115",
+			"\1\117\2\uffff\1\116",
 			"\1\120",
 			"\1\121",
 			"\1\122",
@@ -1927,30 +2019,29 @@ public class DafnyLexer extends Lexer {
 			"\1\127",
 			"\1\130",
 			"\1\131",
-			"\1\132",
-			"\1\133",
+			"\1\132\3\uffff\1\133",
 			"\1\134",
 			"\1\135",
-			"",
-			"",
-			"",
-			"",
-			"",
-			"",
-			"",
-			"",
+			"\1\136",
 			"\1\137",
-			"",
-			"",
-			"\12\42\7\uffff\32\42\4\uffff\1\42\1\uffff\32\42",
+			"\1\140",
 			"\1\141",
+			"\1\142",
+			"",
+			"",
+			"",
+			"",
+			"",
+			"",
+			"",
+			"",
+			"\1\144",
+			"",
 			"",
 			"\12\42\7\uffff\32\42\4\uffff\1\42\1\uffff\32\42",
-			"\1\143",
-			"\1\144",
-			"\1\145",
 			"\1\146",
-			"\1\147",
+			"",
+			"\12\42\7\uffff\32\42\4\uffff\1\42\1\uffff\32\42",
 			"\1\150",
 			"\1\151",
 			"\1\152",
@@ -1959,94 +2050,113 @@ public class DafnyLexer extends Lexer {
 			"\1\155",
 			"\1\156",
 			"\1\157",
-			"\12\42\7\uffff\32\42\4\uffff\1\42\1\uffff\32\42",
+			"\1\160",
 			"\1\161",
-			"\1\162\17\uffff\1\163",
+			"\1\162",
+			"\1\163",
 			"\1\164",
-			"",
-			"",
 			"\1\165",
-			"",
 			"\1\166",
-			"",
-			"\1\167",
+			"\12\42\7\uffff\32\42\4\uffff\1\42\1\uffff\32\42",
 			"\1\170",
 			"\1\171",
-			"\12\42\7\uffff\32\42\4\uffff\1\42\1\uffff\32\42",
-			"\1\173",
+			"\1\172\17\uffff\1\173",
 			"\1\174",
+			"",
+			"",
 			"\1\175",
+			"",
 			"\1\176",
+			"",
 			"\1\177",
 			"\1\u0080",
 			"\1\u0081",
 			"\12\42\7\uffff\32\42\4\uffff\1\42\1\uffff\32\42",
 			"\1\u0083",
-			"",
-			"\12\42\7\uffff\32\42\4\uffff\1\42\1\uffff\32\42",
+			"\1\u0084",
 			"\1\u0085",
 			"\1\u0086",
 			"\1\u0087",
 			"\1\u0088",
 			"\1\u0089",
 			"\1\u008a",
-			"\1\u008b",
-			"\1\u008c",
-			"",
+			"\12\42\7\uffff\32\42\4\uffff\1\42\1\uffff\32\42",
+			"\12\42\7\uffff\32\42\4\uffff\1\42\1\uffff\32\42",
 			"\1\u008d",
-			"\1\u008e",
+			"",
+			"\12\42\7\uffff\32\42\4\uffff\1\42\1\uffff\32\42",
 			"\1\u008f",
 			"\1\u0090",
 			"\1\u0091",
-			"\12\42\7\uffff\32\42\4\uffff\1\42\1\uffff\32\42",
-			"\12\42\7\uffff\32\42\4\uffff\1\42\1\uffff\32\42",
-			"",
-			"\12\42\7\uffff\32\42\4\uffff\1\42\1\uffff\32\42",
-			"",
+			"\1\u0092",
+			"\1\u0093",
+			"\1\u0094",
 			"\1\u0095",
 			"\1\u0096",
-			"\1\42\11\u0097\7\uffff\32\42\4\uffff\1\42\1\uffff\32\42",
+			"\1\u0097",
+			"",
+			"\1\u0098",
 			"\1\u0099",
 			"\1\u009a",
 			"\1\u009b",
 			"\1\u009c",
 			"\1\u009d",
 			"\12\42\7\uffff\32\42\4\uffff\1\42\1\uffff\32\42",
-			"\1\u009f",
-			"\1\u00a0",
-			"\12\42\7\uffff\32\42\4\uffff\1\42\1\uffff\32\42",
 			"\12\42\7\uffff\32\42\4\uffff\1\42\1\uffff\32\42",
 			"",
 			"",
+			"\12\42\7\uffff\32\42\4\uffff\1\42\1\uffff\32\42",
 			"",
 			"\12\42\7\uffff\32\42\4\uffff\1\42\1\uffff\32\42",
-			"\12\42\7\uffff\32\42\4\uffff\1\42\1\uffff\32\42",
-			"\12\u00a5\7\uffff\32\42\4\uffff\1\42\1\uffff\32\42",
-			"",
-			"\12\u00a6\7\uffff\32\42\4\uffff\1\42\1\uffff\32\42",
+			"\1\u00a2",
+			"\1\u00a3",
+			"\1\42\11\u00a4\7\uffff\32\42\4\uffff\1\42\1\uffff\32\42",
+			"\1\u00a6",
+			"\1\u00a7",
 			"\1\u00a8",
-			"\12\42\7\uffff\32\42\4\uffff\1\42\1\uffff\32\42",
+			"\1\u00a9",
 			"\1\u00aa",
 			"\12\42\7\uffff\32\42\4\uffff\1\42\1\uffff\32\42",
-			"",
 			"\1\u00ac",
 			"\1\u00ad",
-			"",
-			"",
-			"",
-			"",
-			"\12\u00a5\7\uffff\32\42\4\uffff\1\42\1\uffff\32\42",
-			"\12\u00a6\7\uffff\32\42\4\uffff\1\42\1\uffff\32\42",
-			"",
-			"\1\u00ae",
-			"",
 			"\12\42\7\uffff\32\42\4\uffff\1\42\1\uffff\32\42",
-			"",
+			"\12\42\7\uffff\32\42\4\uffff\1\42\1\uffff\32\42",
 			"\1\u00b0",
+			"",
+			"",
+			"",
+			"",
+			"\12\42\7\uffff\32\42\4\uffff\1\42\1\uffff\32\42",
+			"\12\42\7\uffff\32\42\4\uffff\1\42\1\uffff\32\42",
+			"\12\u00b3\7\uffff\32\42\4\uffff\1\42\1\uffff\32\42",
+			"",
+			"\12\u00b4\7\uffff\32\42\4\uffff\1\42\1\uffff\32\42",
+			"\1\u00b6",
+			"\12\42\7\uffff\32\42\4\uffff\1\42\1\uffff\32\42",
+			"\1\u00b8",
+			"\12\42\7\uffff\32\42\4\uffff\1\42\1\uffff\32\42",
+			"",
+			"\1\u00ba",
+			"\1\u00bb",
+			"",
+			"",
+			"\1\u00bc",
+			"",
+			"",
+			"\12\u00b3\7\uffff\32\42\4\uffff\1\42\1\uffff\32\42",
+			"\12\u00b4\7\uffff\32\42\4\uffff\1\42\1\uffff\32\42",
+			"",
+			"\1\u00bd",
+			"",
+			"\12\42\7\uffff\32\42\4\uffff\1\42\1\uffff\32\42",
+			"",
+			"\1\u00bf",
+			"\12\42\7\uffff\32\42\4\uffff\1\42\1\uffff\32\42",
 			"\12\42\7\uffff\32\42\4\uffff\1\42\1\uffff\32\42",
 			"\12\42\7\uffff\32\42\4\uffff\1\42\1\uffff\32\42",
 			"",
 			"\12\42\7\uffff\32\42\4\uffff\1\42\1\uffff\32\42",
+			"",
 			"",
 			"",
 			""
@@ -2083,7 +2193,7 @@ public class DafnyLexer extends Lexer {
 		}
 		@Override
 		public String getDescription() {
-			return "1:1: Tokens : ( T__59 | T__60 | T__61 | T__62 | T__63 | T__64 | T__65 | INT | SET | RETURNS | ENSURES | REQUIRES | DECREASES | FUNCTION | METHOD | LEMMA | LABEL | ELSE | IF | THEN | WHILE | VAR | CALL | INVARIANT | ASSERT | ASSUME | ALL | EX | DOUBLECOLON | ASSIGN | OR | AND | IMPLIES | PLUS | MINUS | NOT | TIMES | UNION | INTERSECT | LT | LE | GT | GE | EQ | DOT | BLOCK_BEGIN | BLOCK_END | LENGTH | ARRAY | ID | LIT | WS | SINGLELINE_COMMENT | MULTILINE_COMMENT );";
+			return "1:1: Tokens : ( T__65 | T__66 | T__67 | T__68 | T__69 | T__70 | T__71 | INT | SET | RETURNS | ENSURES | REQUIRES | DECREASES | FUNCTION | METHOD | LEMMA | LABEL | ELSE | IF | THEN | WHILE | VAR | CALL | INVARIANT | ASSERT | ASSUME | MODIFIES | CLASS | THIS | ALL | EX | DOUBLECOLON | ASSIGN | OR | AND | IMPLIES | PLUS | MINUS | NOT | TIMES | UNION | INTERSECT | LT | LE | GT | GE | EQ | DOT | BLOCK_BEGIN | BLOCK_END | LENGTH | ARRAY | ID | LIT | WS | SINGLELINE_COMMENT | MULTILINE_COMMENT );";
 		}
 	}
 

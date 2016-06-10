@@ -239,12 +239,18 @@ public class Symbex {
             DafnyTree stm, DafnyTree remainder) {
         String name = stm.getChild(0).toString();
         DafnyTree expression = stm.getChild(1);
+//        handleExpression(stack, expression);
         VariableMap newMap = state.getMap().assign(name, expression);
         state.setMap(newMap);
         state.setBlockToExecute(remainder);
         stack.push(state);
     }
 
+    /*
+     * Handle an anyomisation
+     *
+     * update the state and push it back on the stack
+     */
     private void handleHavoc(Deque<SymbexPath> stack, SymbexPath state, DafnyTree stm, DafnyTree remainder) {
         String name = stm.getChild(0).toString();
         VariableMap newMap = state.getMap().anonymise(name);

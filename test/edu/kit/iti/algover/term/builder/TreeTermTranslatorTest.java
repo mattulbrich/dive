@@ -24,6 +24,7 @@ import edu.kit.iti.algover.data.BuiltinSymbols;
 import edu.kit.iti.algover.data.MapSymbolTable;
 import edu.kit.iti.algover.parser.DafnyLexer;
 import edu.kit.iti.algover.parser.DafnyParser;
+import edu.kit.iti.algover.parser.DafnyParser.expression_only_return;
 import edu.kit.iti.algover.parser.DafnyParser.expression_return;
 import edu.kit.iti.algover.parser.DafnyTree;
 import edu.kit.iti.algover.term.FunctionSymbol;
@@ -58,9 +59,9 @@ public class TreeTermTranslatorTest {
         DafnyParser parser = new DafnyParser(tokens);
         parser.setTreeAdaptor(new DafnyTree.Adaptor());
         // launch the parser starting at rule r, get return object
-        expression_return result;
+        expression_only_return result;
         try {
-            result = parser.expression();
+            result = parser.expression_only();
             DafnyTree t = result.getTree();
             if(input.LA(1) != DafnyParser.EOF) {
                 throw new RecognitionException(input);

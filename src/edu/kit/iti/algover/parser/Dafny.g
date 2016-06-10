@@ -11,9 +11,12 @@ tokens {
   BLOCK;
   LISTEX;
   SETEX;
+  FIELD_ACCESS;
   ARRAY_ACCESS;
   ARRAY_UPDATE;
-  HAVOC;  // used only programmatically now (there is no havoc statement yet)
+  OBJ_FUNC_CALL;
+  FUNC_CALL;
+  HAVOC;
 }
 
 @parser::header {
@@ -74,6 +77,9 @@ CALL:'call';
 INVARIANT: 'invariant';
 ASSERT: 'assert';
 ASSUME: 'assume';
+MODIFIES: 'modifies';
+CLASS: 'class';
+THIS: 'this';
 
 ALL: 'forall';
 EX: 'exists';
@@ -112,7 +118,14 @@ label:
   ;
 
 program:
-  (method | function)+
+  (method | function | clazz)+
+  ;
+
+
+clazz:
+  CLASS^ ID '{'
+    (method | function | field)+
+  '}' 
   ;
 
 method:
@@ -132,6 +145,10 @@ function:
   'function'^
   ID '('! vars? ')'! ':'! type
   '{'! expression '}'!
+  ;
+
+field:
+  'var' ID ':' type ';'
   ;
 
 vars:
@@ -168,6 +185,10 @@ invariant:
   INVARIANT^ label? expression
   ;
 
+modifies:
+  MODIFIES^ expressions
+  ;
+
 block:
   '{' statements? '}' -> ^(BLOCK statements?)
   ;
@@ -183,7 +204,7 @@ statements:
 
 statement:
     VAR^ ID ':'! type (':='! expression)? ';'!
-  | ID ':=' '*' ';' -> ^(HAVOC ID)
+  | ID ass=':=' '*' ';' -> ^(HAVOC[$ass] ID)
   | ID ':='^ expression ';'!
   | ID '[' i=expression ']' ass=':=' v=expression ';'
         -> ^(ARRAY_UPDATE[$ass] ID $i $v)
@@ -192,8 +213,8 @@ statement:
   | ids ':=' 'call' ID '(' expressions? ')' ';'
         -> ^('call' ID ^(RESULTS ids) ^(ARGS expressions?))
   | label?
-      'while' expression invariant+ decreases relaxedBlock
-        -> ^('while' label? expression invariant+ decreases relaxedBlock)
+      'while' expression invariant+ modifies? decreases relaxedBlock
+        -> ^('while' label? expression invariant+ modifies? decreases relaxedBlock)
   | label? 'if'^ expression relaxedBlock
       ( options { greedy=true; } : 'else'! relaxedBlock )?
   | 'assert'^ ( 'label'! ID ':'! )? expression ';'!
@@ -238,21 +259,28 @@ prefix_expr:
   ;
 
 postfix_expr:
-  atom_expr
+  ( atom_expr -> atom_expr )
   ( '[' expression ']' -> ^( ARRAY_ACCESS atom_expr expression )
   | '.' LENGTH -> ^( LENGTH atom_expr )
-  | -> atom_expr
-  | EOF -> atom_expr
-  )
+  | '.' ID '(' expressions ')' -> ^( OBJ_FUNC_CALL ID atom_expr expressions )
+  | '.' ID -> ^( FIELD_ACCESS atom_expr ID )
+  )*
   ;
+
+expression_only:
+  expression EOF -> expression
+  ;
+
 
 atom_expr:
     ID
+  | ID '(' expressions ')' -> ^(FUNC_CALL ID expressions)
   | LIT
+  | 'this'
   | quantifier
   | '('! expression ')'!
-  | '{' expressions? '}' -> ^(SETEX expressions?)
-  | '[' expressions? ']' -> ^(LISTEX expressions?)
+  | open='{' expressions? '}' -> ^(SETEX[$open] expressions?)
+  | open='[' expressions? ']' -> ^(LISTEX[$open] expressions?)
   ;
 
 quantifier:
