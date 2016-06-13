@@ -7,16 +7,11 @@ import edu.kit.iti.algover.data.SuffixSymbolTable;
 import edu.kit.iti.algover.data.SymbolTable;
 import edu.kit.iti.algover.parser.DafnyParser;
 import edu.kit.iti.algover.parser.DafnyTree;
-import edu.kit.iti.algover.proof.IllegalStateException;
 import edu.kit.iti.algover.symbex.PathConditionElement;
 import edu.kit.iti.algover.symbex.SymbexPath;
 import edu.kit.iti.algover.symbex.VariableMap;
-import edu.kit.iti.algover.term.FunctionSymbol;
-import edu.kit.iti.algover.term.Sort;
-import edu.kit.iti.algover.term.Term;
+import edu.kit.iti.algover.term.*;
 import edu.kit.iti.algover.term.builder.TermBuildException;
-import edu.kit.iti.algover.term.builder.TermBuilder;
-import edu.kit.iti.algover.term.builder.TreeTermTranslator;
 import edu.kit.iti.algover.util.ImmutableList;
 import edu.kit.iti.algover.util.Pair;
 
@@ -70,6 +65,11 @@ public class DafnyTrans {
                 transExplicitAssert();
             case POST:
                 transPost();
+
+            case IMPLICIT_ASSERT:
+            case CALL_PRE:
+            case INVARIANT_INITIALLY_VALID:
+            case INVARIANT_PRESERVED:
 
 
         }
@@ -173,7 +173,7 @@ public class DafnyTrans {
     private String createPrecondition(PathConditionElement precondition){
         StringBuilder sb = new StringBuilder();
         sb.append("requires ");
-        //TODO Method for infix Translation of expressions
+
 
         try {
             sb.append(toInfix(precondition.getExpression())+"\n");
@@ -203,13 +203,9 @@ public class DafnyTrans {
         for (DafnyTree po: path.getProofObligations()) {
             try {
 
-               assertStmt =  toInfix(po);
-
-            //assertStmt = po.toStringTree()+";\n";
-            //sb.append(path.getMap().toHistoryString().replace("\n", "\n    "));
-            //translateAssignments(path.getMap());
-            sb.append(translateAssignments(path.getMap()));
-            sb.append(assertStmt);}
+                assertStmt =  toInfix(po);
+                sb.append(translateAssignments(path.getMap()));
+                sb.append(assertStmt);}
 
             catch (TermBuildException e) {
                 e.printStackTrace();
@@ -299,16 +295,16 @@ public class DafnyTrans {
 
         case DafnyParser.LABEL:
 
-        //case DafnyParser.ALL:
-        //    return buildQuantifier(QuantTerm.Quantifier.FORALL, expr);
-        //case DafnyParser.EX:
-        //    return buildQuantifier(QuantTerm.Quantifier.EXISTS, expr);
+        case DafnyParser.ALL:
+            return buildQuantifier("forall", expr);
+        case DafnyParser.EX:
+            return buildQuantifier("exists", expr);
 
         case DafnyParser.LENGTH:
             return buildLength(expr);
 
-        //case DafnyParser.ARRAY_ACCESS:
-        //    return buildArrayAccess(expr);
+        case DafnyParser.ARRAY_ACCESS:
+            return buildArrayAccess(expr);
 
         default:
             TermBuildException ex = new TermBuildException("Cannot translate term: " + expr.toStringTree());
@@ -317,8 +313,13 @@ public class DafnyTrans {
         }
 
 
-        //System.out.println(sb.toString());
-        //return sb.toString();
+    }
+
+    private String buildArrayAccess(DafnyTree tree) throws TermBuildException {
+
+        DafnyTree arrayTerm = tree.getChild(0);
+        DafnyTree selectTerm = tree.getChild(1);
+        return toInfix(arrayTerm)+"["+toInfix(selectTerm) +"]";
 
     }
 
@@ -340,49 +341,21 @@ public class DafnyTrans {
 
     }
 
-//    private Term buildIdentifier(DafnyTree tree) throws TermBuildException {
-//        String name = tree.toString();
-//        for (VariableTerm var : boundVars) {
-//            if(var.getName().equals(name)) {
-//                // found a bound variable in context!
-//                return var;
-//            }
-//        }
-//
-//        FunctionSymbol fct = symbolTable.getFunctionSymbol(name);
-//        if(fct == null) {
-//            throw new TermBuildException("Unknown function symbol: " + name);
-//        }
-//
-//        return new ApplTerm(fct);
-//    }
-//
-//    private Term buildQuantifier(Quantifier q, DafnyTree tree) throws TermBuildException {
-//        if(tree.getChildCount() != 3) {
-//            throw new RuntimeException();
-//        }
-//
-//        String var = tree.getChild(0).toString();
-//        Sort t = buildSort(tree.getChild(1));
-//        VariableTerm varTerm = new VariableTerm(var, t);
-//
-//        try {
-//            boundVars.push(varTerm);
-//            Term formula = build(tree.getChild(2));
-//            QuantTerm result = new QuantTerm(q, varTerm, formula);
-//            return result;
-//        } finally {
-//            VariableTerm popped = boundVars.pop();
-//            assert popped == varTerm;
-//        }
-//    }
-//
-//    // Currently that is still simple since only array<int>, arrayN<int> and set<int>
-//    // are supported besides int.
-//    // The name of the node is actually the type already... Will change in future!
-//    private Sort buildSort(DafnyTree child) {
-//        return SymbexStateToFormula.treeToType(child);
-//    }
+
+    private String buildQuantifier(String q, DafnyTree tree) throws TermBuildException {
+        if(tree.getChildCount() != 3) {
+            throw new RuntimeException();
+        }
+
+        String var = tree.getChild(0).toString();
+        System.out.println("V:"+var);
+        Sort t = treeToType(tree.getChild(1));
+        System.out.println(t);
+
+        return "( "+q+" "+var+" : "+ t.toString() +" :: " +toInfix(tree.getChild(2)) +" )";
+
+    }
+
 
     private String buildUnary(String f, DafnyTree tree) throws TermBuildException {
         if(tree.getChildCount() != 1) {
