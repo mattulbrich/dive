@@ -95,34 +95,45 @@ public class DafnyTrans {
                 spec.append(createPrecondition(pce));
             }
         }
-//        StringBuilder block = new StringBuilder();
+
+        StringBuilder block = new StringBuilder();
 
 
         //Block Begin
-//        block.append("\n{\n");
-//        String assertStmt;
-//        for (DafnyTree po: path.getProofObligations()) {
-//
-//            try {
-//                assertStmt = toInfix(po);
-//                block.append(translateAssignments(path.getMap()));
-//                spec.append(assertStmt);
-//            }
-//
-//            catch (TermBuildException e) {
-//                e.printStackTrace();
-//            }
-//        }
+        block.append("\n{\n");
+        String assertStmt;
+        for (DafnyTree po: path.getProofObligations()) {
+            try {
+
+                assertStmt = translateInv(po);
+                block.append(translateAssignments(path.getMap()));
+                block.append("assert "+assertStmt+";");
+                System.out.println(assertStmt);
+            }
+            catch (TermBuildException e) {
+                e.printStackTrace();
+            }
+        }
 //
 //        //Block End
 //        block.append("\n}");
 //
-//        methodDecl.append(spec).append(block);
-//        System.out.println(methodDecl.toString());
+        methodDecl.append(spec).append(block);
+        System.out.println(methodDecl.toString());
 
         return methodDecl.toString();
 
 
+    }
+
+    private String translateInv(DafnyTree po) throws TermBuildException {
+        StringBuilder invFormula = new StringBuilder();
+        List<DafnyTree> children = po.getChildren();
+        for (DafnyTree form: children) {
+            invFormula.append(toInfix(form));
+        }
+        System.out.println(invFormula.toString());
+        return invFormula.toString();
     }
 
     private LinkedList<Pair<String, Sort>> getMethodArguments(){
