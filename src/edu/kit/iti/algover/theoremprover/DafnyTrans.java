@@ -68,9 +68,14 @@ public class DafnyTrans {
                 transPost();
                 break;
             case IMPLICIT_ASSERT:
+                break;
             case CALL_PRE:
+                break;
+
             case INVARIANT_INITIALLY_VALID:
+                break;
             case INVARIANT_PRESERVED:
+                break;
 
 
         }
@@ -183,11 +188,17 @@ public class DafnyTrans {
 
     private String transPost(){
         ImmutableList<DafnyTree> posts = path.getProofObligations();
+        StringBuilder sb = new StringBuilder();
 
         for (DafnyTree post : posts){
-            System.out.println("Post: "+post.toStringTree());
+            try {
+                sb.append("ensures ("+ toInfix(post)+ ")\n");
+            } catch (TermBuildException e) {
+                e.printStackTrace();
+            }
+
         }
-        return "DONE POSTS";
+        return sb.toString();
 
     }
 
@@ -313,6 +324,7 @@ public class DafnyTrans {
             return expr.toStringTree();
 
         case DafnyParser.LABEL:
+            return buildLabel(expr);
 
         case DafnyParser.ALL:
             return buildQuantifier("forall", expr);
@@ -325,6 +337,8 @@ public class DafnyTrans {
         case DafnyParser.ARRAY_ACCESS:
             return buildArrayAccess(expr);
 
+        case DafnyParser.ENSURES:
+            return buildEnsures(expr);
         default:
             TermBuildException ex = new TermBuildException("Cannot translate term: " + expr.toStringTree());
             ex.setLocation(expr);
@@ -332,6 +346,26 @@ public class DafnyTrans {
         }
 
 
+    }
+
+    private String buildEnsures(DafnyTree expr){
+        String en ="";
+        try {
+            en = "ensures "+ toInfix(expr.getChild(0)) + toInfix(expr.getChild(1));
+        } catch (TermBuildException e) {
+            e.printStackTrace();
+        }
+        System.out.println(en);
+        return en;
+    }
+    private String buildLabel(DafnyTree expr) {
+       // ImmutableList<DafnyTree> proofObligations = path.getProofObligations();
+         if(expr.getChildCount() != 1) {
+            throw new RuntimeException();
+        }
+        String s = "";
+        s = "(label : "+ expr.getChild(0).toStringTree() +") ";
+        return s;
     }
 
     private String buildArrayAccess(DafnyTree tree) throws TermBuildException {
