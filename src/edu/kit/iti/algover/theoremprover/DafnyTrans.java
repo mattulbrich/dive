@@ -76,10 +76,67 @@ public class DafnyTrans {
                 transInvInit();
                 break;
             case INVARIANT_PRESERVED:
+                translateInvPreserved();
                 break;
 
 
         }
+
+
+    }
+
+    private String translateInvPreserved() {
+        String assertionType = "inv_preserved";
+        ImmutableList<PathConditionElement> pcs =  path.getPathConditions();
+        String invariant ="";
+        StringBuilder methodDecl = createMethodDeclaration(assertionType);
+        StringBuilder spec = new StringBuilder();
+        StringBuilder loop = new StringBuilder();
+        StringBuilder block = new StringBuilder();
+        block.append("\n{\n");
+
+        String loopCond = "";
+        for (PathConditionElement pce: pcs) {
+            if(pce.getType().equals(PathConditionElement.AssumptionType.PRE)) {
+                spec.append(createPrecondition(pce));
+            }
+            if(pce.getType().equals(PathConditionElement.AssumptionType.ASSUMED_INVARIANT)){
+
+                try {
+              //      for (DafnyTree po : path.getProofObligations()) {
+            //            block.append(translateAssignments(pce.getVariableMap()));
+                        //loopCond = toInfix(pce.getExpression());
+               //     }
+                    invariant = toInfix(pce.getExpression());
+                    //block.append("assume " + invariant+ " && " +loopCond + "\n");
+                } catch (TermBuildException e) {
+                    e.printStackTrace();
+                }
+            }
+
+            if(pce.getType().equals(PathConditionElement.AssumptionType.WHILE_TRUE)) {
+                    String assertStmt;
+                    for (DafnyTree po : path.getProofObligations()) {
+                        block.append(translateAssignments(pce.getVariableMap()));
+                        try {
+                            loopCond = toInfix(pce.getExpression());
+                        } catch (TermBuildException e) {
+                            e.printStackTrace();
+                        }
+                        block.append("assume (" + invariant + " && " + loopCond +");");
+                    }
+            }
+
+        }
+
+
+        block.append("\n}");
+//
+        methodDecl.append(spec).append(block);
+        System.out.println(methodDecl.toString());
+
+        return methodDecl.toString();
+
 
 
     }
@@ -108,7 +165,6 @@ public class DafnyTrans {
                 assertStmt = translateInv(po);
                 block.append(translateAssignments(path.getMap()));
                 block.append("assert "+assertStmt+";");
-                System.out.println(assertStmt);
             }
             catch (TermBuildException e) {
                 e.printStackTrace();
@@ -116,7 +172,7 @@ public class DafnyTrans {
         }
 //
 //        //Block End
-//        block.append("\n}");
+        block.append("\n}");
 //
         methodDecl.append(spec).append(block);
         System.out.println(methodDecl.toString());
@@ -132,7 +188,6 @@ public class DafnyTrans {
         for (DafnyTree form: children) {
             invFormula.append(toInfix(form));
         }
-        System.out.println(invFormula.toString());
         return invFormula.toString();
     }
 
@@ -385,6 +440,8 @@ public class DafnyTrans {
             return buildBinary("<", expr);
         case DafnyParser.PLUS:
             return buildBinary("+", expr);
+        case DafnyParser.MINUS:
+            return buildBinary("-", expr);
         case DafnyParser.TIMES:
             return buildBinary("*", expr);
        /* case DafnyParser.UNION:
@@ -431,12 +488,11 @@ public class DafnyTrans {
     }
 
     /**
-     * todo build Havoc expr
      * @param expr
      * @return
      */
     private String buildHavoc(DafnyTree expr) {
-        return expr.toStringTree();
+        return "*";
     }
 
     private String buildEnsures(DafnyTree expr){
