@@ -63,9 +63,10 @@ public class DafnyTrans {
         switch(this.path.getProofObligationType()){
             case EXPLICIT_ASSERT:
                 transExplicitAssert();
+                break;
             case POST:
                 transPost();
-
+                break;
             case IMPLICIT_ASSERT:
             case CALL_PRE:
             case INVARIANT_INITIALLY_VALID:
@@ -164,9 +165,7 @@ public class DafnyTrans {
 
         return sb;
     }
-    private void translatePC(DafnyTree condition){
 
-    }
 
     private String createPrecondition(PathConditionElement precondition){
         StringBuilder sb = new StringBuilder();
@@ -241,7 +240,9 @@ public class DafnyTrans {
         String name;
         DafnyTree expr;
         Sort s;
-        for (Pair<String, DafnyTree> assignment: vm) {
+        List<Pair<String, DafnyTree>> list = vm.toList();
+        Collections.reverse(list);
+        for (Pair<String, DafnyTree> assignment: list) {
             name = assignment.getFst();
             expr = assignment.getSnd();
             if(!varToDecl.containsKey(name)){
