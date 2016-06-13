@@ -73,12 +73,54 @@ public class DafnyTrans {
                 break;
 
             case INVARIANT_INITIALLY_VALID:
+                transInvInit();
                 break;
             case INVARIANT_PRESERVED:
                 break;
 
 
         }
+
+
+    }
+
+    private String transInvInit() {
+        String assertionType = "inv_init_valid";
+        ImmutableList<PathConditionElement> pcs =  path.getPathConditions();
+
+        StringBuilder methodDecl = createMethodDeclaration(assertionType);
+        StringBuilder spec = new StringBuilder();
+        for (PathConditionElement pce: pcs) {
+            if(pce.getType().equals(PathConditionElement.AssumptionType.PRE)) {
+                spec.append(createPrecondition(pce));
+            }
+        }
+//        StringBuilder block = new StringBuilder();
+
+
+        //Block Begin
+//        block.append("\n{\n");
+//        String assertStmt;
+//        for (DafnyTree po: path.getProofObligations()) {
+//
+//            try {
+//                assertStmt = toInfix(po);
+//                block.append(translateAssignments(path.getMap()));
+//                spec.append(assertStmt);
+//            }
+//
+//            catch (TermBuildException e) {
+//                e.printStackTrace();
+//            }
+//        }
+//
+//        //Block End
+//        block.append("\n}");
+//
+//        methodDecl.append(spec).append(block);
+//        System.out.println(methodDecl.toString());
+
+        return methodDecl.toString();
 
 
     }
@@ -187,20 +229,46 @@ public class DafnyTrans {
     }
 
     private String transPost(){
-        ImmutableList<DafnyTree> posts = path.getProofObligations();
-        StringBuilder sb = new StringBuilder();
+        String assertionType = "post";
+        ImmutableList<PathConditionElement> pcs =  path.getPathConditions();
 
-        for (DafnyTree post : posts){
+        StringBuilder methodDecl = createMethodDeclaration(assertionType);
+        StringBuilder spec = new StringBuilder();
+        for (PathConditionElement pce: pcs) {
+            if(pce.getType().equals(PathConditionElement.AssumptionType.PRE)) {
+                spec.append(createPrecondition(pce));
+            }
+        }
+        StringBuilder block = new StringBuilder();
+
+
+        //Block Begin
+        block.append("\n{\n");
+        String assertStmt;
+        for (DafnyTree po: path.getProofObligations()) {
+
             try {
-                sb.append("ensures ("+ toInfix(post)+ ")\n");
-            } catch (TermBuildException e) {
-                e.printStackTrace();
+                        assertStmt = toInfix(po);
+                        block.append(translateAssignments(path.getMap()));
+                        spec.append(assertStmt);
             }
 
+            catch (TermBuildException e) {
+                e.printStackTrace();
+            }
         }
-        return sb.toString();
+
+        //Block End
+        block.append("\n}");
+
+        methodDecl.append(spec).append(block);
+        System.out.println(methodDecl.toString());
+
+        return methodDecl.toString();
+
 
     }
+
 
 
     /**
@@ -218,7 +286,7 @@ public class DafnyTrans {
             }
 
         }
-        //add postcondition here?
+
 
         //Block Begin
         sb.append("\n{\n");
@@ -339,6 +407,9 @@ public class DafnyTrans {
 
         case DafnyParser.ENSURES:
             return buildEnsures(expr);
+        case DafnyParser.HAVOC:
+            return buildHavoc(expr);
+
         default:
             TermBuildException ex = new TermBuildException("Cannot translate term: " + expr.toStringTree());
             ex.setLocation(expr);
@@ -346,6 +417,15 @@ public class DafnyTrans {
         }
 
 
+    }
+
+    /**
+     * todo build Havoc expr
+     * @param expr
+     * @return
+     */
+    private String buildHavoc(DafnyTree expr) {
+        return expr.toStringTree();
     }
 
     private String buildEnsures(DafnyTree expr){
