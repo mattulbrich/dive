@@ -82,9 +82,7 @@ public class DafnyTrans {
 
         for (DafnyTree decl : ProgramDatabase.getArgumentDeclarations(method)) {
             String name = decl.getChild(0).toString();
-            System.out.println("ARG: "+name);
             Sort sort = treeToType(decl.getChild(1));
-            System.out.println(sort);
             arguments.add(new Pair(name, sort));
 
 
@@ -183,6 +181,18 @@ public class DafnyTrans {
 
         return sb.toString();
     }
+
+    private String transPost(){
+        ImmutableList<DafnyTree> posts = path.getProofObligations();
+
+        for (DafnyTree post : posts){
+            System.out.println("Post: "+post.toStringTree());
+        }
+        return "DONE POSTS";
+
+    }
+
+
     /**
      * translates explicit assertions to Dafny
      */
@@ -196,8 +206,11 @@ public class DafnyTrans {
             if(pce.getType().equals(PathConditionElement.AssumptionType.PRE)) {
                 sb.append(createPrecondition(pce));
             }
+
         }
         //add postcondition here?
+
+        //Block Begin
         sb.append("\n{\n");
         String assertStmt;
         for (DafnyTree po: path.getProofObligations()) {
@@ -212,18 +225,18 @@ public class DafnyTrans {
             }
         }
 
+        //Block End
         sb.append("\n}");
         System.out.println(sb);
 
     }
 
     /**
-     *
+     * Translate variable Assignments back to Dafny
      * @param vm
      */
     private String translateAssignments(VariableMap vm){
         StringBuilder sb = new StringBuilder();
-       // Iterator<Pair<String, DafnyTree>> iter = vm.iterator();
         HashMap<String, Sort> varToDecl = new HashMap<>();
         String name;
         DafnyTree expr;
@@ -235,7 +248,11 @@ public class DafnyTrans {
                s = symbolTable.getFunctionSymbol(name).getResultSort();
                 varToDecl.putIfAbsent(name,s);
             }
-            sb.append(name+" := "+expr.toStringTree()+";\n");
+            try {
+                sb.append(name+" := "+ toInfix(expr)+";\n");
+            } catch (TermBuildException e) {
+                e.printStackTrace();
+            }
 
         }
         StringBuilder declarations = new StringBuilder();
@@ -246,12 +263,13 @@ public class DafnyTrans {
 
     }
 
-    private void transPost(){
-        String assertionType = "post_"+path.getPathIdentifier().toLowerCase();
-        System.out.println(assertionType);
 
-    }
-
+    /**
+     * Translate logical, integer and array access Expressions back to Dafny
+     * @param expr
+     * @return
+     * @throws TermBuildException
+     */
     private String toInfix(DafnyTree expr) throws TermBuildException{
         StringBuilder sb = new StringBuilder();
 
@@ -265,7 +283,7 @@ public class DafnyTrans {
         case DafnyParser.OR:
             return buildBinary("||", expr);
         case DafnyParser.IMPLIES:
-            return buildBinary("->", expr);
+            return buildBinary("==>", expr);
         case DafnyParser.GE:
             return buildBinary(">=", expr);
         case DafnyParser.GT:
