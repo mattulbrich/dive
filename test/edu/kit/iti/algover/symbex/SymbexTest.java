@@ -82,7 +82,9 @@ public class SymbexTest {
         SymbexPath next = stack.removeLast();
         assertTrue(next.getBlockToExecute() == SOME_PROGRAM);
         assertTrue(next.getMap() == SOME_MAP);
-        assertEquals(0, next.getPathConditions().size());
+        assertEquals(1, next.getPathConditions().size());
+        assertEquals("(== unmodifiedInLoop 0)",
+                next.getPathConditions().get(0).getExpression().toStringTree());
 
         SymbexPath check = stack.pop();
         assertEquals(AssertionType.EXPLICIT_ASSERT, check.getProofObligationType());
