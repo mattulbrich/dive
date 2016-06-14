@@ -14,6 +14,7 @@ import java.nio.file.Paths;
 import java.util.Collection;
 import java.util.List;
 
+import edu.kit.iti.algover.theoremprover.DafnyTrans;
 import org.antlr.runtime.ANTLRInputStream;
 import org.antlr.runtime.CommonTokenStream;
 import org.antlr.runtime.RecognitionException;
@@ -65,6 +66,7 @@ public class Main {
         List<SymbexPath> symbexresult = symbex.symbolicExecution(t);
 
         for (SymbexPath res : symbexresult) {
+            DafnyTrans dt = new DafnyTrans(res);
             System.out.println("------------");
             System.out.println(res.getPathIdentifier());
             System.out.println("------------");
@@ -90,12 +92,12 @@ public class Main {
 
             for (SymbexPath single : res.split()) {
                 System.out.println(single.getPathIdentifier());
-                Collection<Term> formulae = magic.from(single);
+                //Collection<Term> formulae = magic.from(single);
                 if(VERBOSE) {
-                    String smt = z3.createSMTInput(formulae);
-                    System.out.println(smt);
+                //    String smt = z3.createSMTInput(formulae);
+                 //   System.out.println(smt);
                 }
-                System.out.println(z3.solve(formulae));
+                //System.out.println(z3.solve(formulae));
             }
         }
 
