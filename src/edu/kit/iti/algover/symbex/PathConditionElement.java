@@ -1,7 +1,7 @@
 /*
  * This file is part of AlgoVer.
  *
- * Copyright (C) 2015 Karlsruhe Institute of Technology
+ * Copyright (C) 2015-2016 Karlsruhe Institute of Technology
  */
 package edu.kit.iti.algover.symbex;
 
@@ -55,7 +55,11 @@ public class PathConditionElement {
         /**
          * The condition is an explicit assume statement
          */
-        EXPLICIT_ASSUMPTION;
+        EXPLICIT_ASSUMPTION,
+        /**
+         * The condition is an assumed assertion after it has been proved.
+         */
+        ASSUMED_ASSERTION;
     }
 
     /**

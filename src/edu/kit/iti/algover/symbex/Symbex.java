@@ -129,7 +129,8 @@ public class Symbex {
         assertedState.setProofObligations(stm, AssertionType.EXPLICIT_ASSERT);
         stack.add(assertedState);
         state.setBlockToExecute(remainder);
-        // TODO Add asserted condition as assumption
+        state.addPathCondition(new PathConditionElement(stm.getLastChild(),
+                stm, AssumptionType.ASSUMED_ASSERTION, state.getMap()));
         stack.add(state);
     }
 

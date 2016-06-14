@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="AlogVer" default="compile" basedir=".">
+
+	<property name="libs" value="lib/antlr.jar:lib/richtextfx-fat-0.6.8.jar:lib/controlsfx.jar:lib/junit4.jar">
+	</property>
+
+	<target name="init" description="initialize all directories">
+		<mkdir dir="bin" />
+	</target>
+
+	<target name="copy-test" depends="init">
+		<copy todir="bin">
+			<fileset dir="test">
+				<include name="**/*.dfy" />
+			</fileset>
+		</copy>
+	</target>
+
+	<target name="compile" description="Compile all files" depends="antlr,init">
+		<javac srcdir="src" destdir="bin" classpath="${libs}" debug="on" />
+	</target>
+
+	<target name="antlr" depends="init">
+		<java jar="lib/antlr.jar" fork="true" failonerror="true">
+			<arg value="-o src -verbose src/edu/kit/iti/algover/parser/Dafny.g" />
+		</java>
+	</target>
+
+	<target name="compile-test" depends="compile, init, copy-test">
+		<javac srcdir="test" destdir="bin" classpath="${libs}" debug="on" />
+	</target>
+
+	<target name="test" depends="compile-test, compile">
+		<junit fork="yes" printsummary="yes">
+			<formatter type="xml" />
+			<classpath path="bin:${libs}:lib/hamcrest.jar" />
+			<test name="edu.kit.iti.algover.Tests" />
+		</junit>
+	</target>
+	
+	<target name="clean">
+		<delete dir="bin"/>
+	</target>
+
+</project>

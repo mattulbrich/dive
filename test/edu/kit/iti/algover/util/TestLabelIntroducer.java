@@ -28,7 +28,7 @@ public class TestLabelIntroducer {
     @Test
     public void test() throws Exception {
 
-        String filename = "labelTest";
+        String filename = "labelTest.dfy";
         URL url = getClass().getResource(filename);
         if(url == null) {
             throw new FileNotFoundException(filename);

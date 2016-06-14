@@ -31,9 +31,9 @@ public class ParserTest {
     @Parameters(name= "{0}")
     public static Iterable<Object[]> data() {
         return Arrays.asList(new Object[][] {
-                { "arrayMax" }, { "highdimarrays" }, { "arrayEdit.dfy" },
-                { "../symbex/symbex" },
-                { "arithmetic" }, { "../util/labelTest" }, { "../symbex/whileWithAnon" },
+                { "arrayMax.dfy" }, { "highdimarrays.dfy" }, { "arrayEdit.dfy" },
+                { "../symbex/symbex.dfy" },
+                { "arithmetic.dfy" }, { "../util/labelTest.dfy" }, { "../symbex/whileWithAnon.dfy" },
                 { "../symbex/havoc.dfy" },
                 });
     }
