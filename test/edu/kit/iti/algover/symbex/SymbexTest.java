@@ -41,7 +41,7 @@ public class SymbexTest {
 
     @Before
     public void loadTree() throws Exception {
-        InputStream stream = getClass().getResourceAsStream("symbex");
+        InputStream stream = getClass().getResourceAsStream("symbex.dfy");
         this.tree = ParserTest.parseFile(stream);
     }
 
@@ -233,7 +233,7 @@ public class SymbexTest {
     // revealed a bug
     @Test
     public void testHandleWhileAnonymisation() throws Exception {
-        InputStream stream = getClass().getResourceAsStream("whileWithAnon");
+        InputStream stream = getClass().getResourceAsStream("whileWithAnon.dfy");
         this.tree = ParserTest.parseFile(stream);
 
         Symbex symbex = new Symbex();

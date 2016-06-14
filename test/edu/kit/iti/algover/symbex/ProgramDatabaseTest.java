@@ -1,3 +1,8 @@
+/*
+ * This file is part of AlgoVer.
+ *
+ * Copyright (C) 2015-2016 Karlsruhe Institute of Technology
+ */
 package edu.kit.iti.algover.symbex;
 
 import java.io.InputStream;
@@ -18,7 +23,7 @@ public class ProgramDatabaseTest {
 
     @Before
     public void loadTree() throws Exception {
-        InputStream stream = getClass().getResourceAsStream("decltest");
+        InputStream stream = getClass().getResourceAsStream("decltest.dfy");
         this.tree = ParserTest.parseFile(stream);
     }
 
