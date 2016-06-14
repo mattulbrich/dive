@@ -1,7 +1,7 @@
 /*
  * This file is part of AlgoVer.
  *
- * Copyright (C) 2015 Karlsruhe Institute of Technology
+ * Copyright (C) 2015-2016 Karlsruhe Institute of Technology
  */
 package edu.kit.iti.algover.parser;
 
@@ -55,6 +55,8 @@ public class DafnyTree extends CommonTree {
             return new DafnyTree(start);
         }
     }
+
+    private DafnyTree declaration;
 
     /**
      * Instantiates a new pseudo tree.
@@ -211,6 +213,25 @@ public class DafnyTree extends CommonTree {
             string = DafnyParser.tokenNames[token.getType()];
         }
         return string;
+    }
+
+    /**
+     * Accept a visitor according to the visitor pattern.
+     *
+     * Dynamic dispatch is over the type of the
+     *
+     * @param <R>
+     *            the generic return type of the visitor
+     * @param <A>
+     *            the generic argument type of the visitor
+     * @param visitor
+     *            the non-<code>null</code> visitor to go over
+     * @param arg
+     *            the argument to provide
+     * @return the result by the visitor.
+     */
+    public <R, A> R accept(DafnyTreeVisitor<R, A> visitor, A arg) {
+        return DafnyDispatch.dispatch(visitor, this, arg);
     }
 
 }

@@ -16,13 +16,23 @@
 		</copy>
 	</target>
 
-	<target name="compile" description="Compile all files" depends="antlr,init">
+	<target name="compile" description="Compile all files" depends="visitor,init">
 		<javac srcdir="src" destdir="bin" classpath="${libs}" debug="on" />
 	</target>
 
 	<target name="antlr" depends="init">
 		<java jar="lib/antlr.jar" fork="true" failonerror="true">
 			<arg value="-o src -verbose src/edu/kit/iti/algover/parser/Dafny.g" />
+		</java>
+	</target>
+
+	<target name="visitor" depends="antlr">
+		<javac srcdir="tools" destdir="tools" includes="MakeDafnyTreeVisitor.java" debug="on" />
+		<java classname="MakeDafnyTreeVisitor" classpath="tools">
+			<arg value="src/edu/kit/iti/algover/parser"/>
+			<arg value="Dafny.tokens"/>
+			<arg value="edu.kit.iti.algover.parser"/>
+			<arg value="Dafny"/>
 		</java>
 	</target>
 
@@ -37,9 +47,9 @@
 			<test name="edu.kit.iti.algover.Tests" />
 		</junit>
 	</target>
-	
+
 	<target name="clean">
-		<delete dir="bin"/>
+		<delete dir="bin" />
 	</target>
 
 </project>
