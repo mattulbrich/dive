@@ -72,6 +72,13 @@ public class ProgramDatabase {
         return allDeclarations;
     }
 
+    public static List<DafnyTree> getReturnDeclarations(DafnyTree method) {
+        DafnyTree args = method.getFirstChildWithType(DafnyParser.RETURNS);
+        List<DafnyTree> allDeclarations = new ArrayList<DafnyTree>();
+        collectVariableDeclarations(allDeclarations, args);
+        return allDeclarations;
+    }
+
     public static DafnyTree getVariableDeclaration(DafnyTree method, String name) {
         DafnyTree arg = getVariableDeclInList(method.getFirstChildWithType(DafnyParser.ARGS), name);
         if(arg != null) {
