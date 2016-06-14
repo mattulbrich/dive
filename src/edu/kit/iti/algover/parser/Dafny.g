@@ -80,6 +80,7 @@ ASSUME: 'assume';
 MODIFIES: 'modifies';
 CLASS: 'class';
 THIS: 'this';
+NULL: 'null';
 
 ALL: 'forall';
 EX: 'exists';
@@ -277,6 +278,7 @@ atom_expr:
   | ID '(' expressions ')' -> ^(FUNC_CALL ID expressions)
   | LIT
   | 'this'
+  | NULL
   | quantifier
   | '('! expression ')'!
   | open='{' expressions? '}' -> ^(SETEX[$open] expressions?)

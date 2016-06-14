@@ -22,17 +22,19 @@
 
 	<target name="antlr" depends="init">
 		<java jar="lib/antlr.jar" fork="true" failonerror="true">
-			<arg value="-o src -verbose src/edu/kit/iti/algover/parser/Dafny.g" />
+			<arg value="-verbose" />
+			<arg value="-o src" />
+			<arg value="src/edu/kit/iti/algover/parser/Dafny.g" />
 		</java>
 	</target>
 
 	<target name="visitor" depends="antlr">
 		<javac srcdir="tools" destdir="tools" includes="MakeDafnyTreeVisitor.java" debug="on" />
 		<java classname="MakeDafnyTreeVisitor" classpath="tools">
-			<arg value="src/edu/kit/iti/algover/parser"/>
-			<arg value="Dafny.tokens"/>
-			<arg value="edu.kit.iti.algover.parser"/>
-			<arg value="Dafny"/>
+			<arg value="src/edu/kit/iti/algover/parser" />
+			<arg value="Dafny.tokens" />
+			<arg value="edu.kit.iti.algover.parser" />
+			<arg value="Dafny" />
 		</java>
 	</target>
 
