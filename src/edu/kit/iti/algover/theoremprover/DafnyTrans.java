@@ -15,15 +15,23 @@ import edu.kit.iti.algover.term.builder.TermBuildException;
 import edu.kit.iti.algover.util.ImmutableList;
 import edu.kit.iti.algover.util.Pair;
 
+import java.io.*;
+import java.nio.charset.Charset;
+import java.nio.file.Files;
+import java.nio.file.StandardOpenOption;
 import java.util.*;
+
+import static java.nio.charset.Charset.*;
+import static java.nio.file.StandardOpenOption.APPEND;
 
 /**
  * Translation of formulas/Terms into Dafny slices
+ * TODO: Var Decl auskommentieren
  * Created by sarah on 6/7/16.
  */
 public class DafnyTrans {
 
-    private String methodName;
+    public String methodName;
     private DafnyTree method;
     private SymbexPath path;
     private final SymbolTable symbolTable;
@@ -59,7 +67,7 @@ public class DafnyTrans {
      * delegates to appropriate translation methods
      * @return
      */
-    public void trans() {
+    public String trans() {
         String assertionType ="";
         switch (this.path.getProofObligationType()) {
             case EXPLICIT_ASSERT:
@@ -73,7 +81,6 @@ public class DafnyTrans {
             case CALL_PRE:
                 assertionType = "call_pre";
                 break;
-
             case INVARIANT_INITIALLY_VALID:
                 assertionType = "inv_init_valid";
                 break;
@@ -119,9 +126,12 @@ public class DafnyTrans {
                 e.printStackTrace();
             }
         }
-        System.out.println(method.toString());
+        method.append("}\n");
+        return method.toString()+"\n";
 
     }
+
+
 
     private LinkedList<Pair<String, Sort>> getMethodArguments() {
         LinkedList<Pair<String, Sort>> arguments = new LinkedList<>();
@@ -245,11 +255,11 @@ public class DafnyTrans {
         for (Map.Entry<String, Sort> e : varToDecl.entrySet()) {
             declarations.append("var " + e.getKey() + " : " + e.getValue() + ";\n");
         }
-       // if(lastSize == 0) {
+        if(lastSize != 0) {
             return new Pair<String, Integer>(sb.toString(), list.size());
-        //}else{
-         //   return new Pair<String, Integer>(declarations.toString() + sb.toString(), list.size());
-        //}
+        }else{
+           return new Pair<String, Integer>(declarations.toString() + sb.toString(), list.size());
+        }
     }
 
 
@@ -345,11 +355,17 @@ public class DafnyTrans {
     private String buildWithoutKeyword(DafnyTree expr) {
         String en = "";
         try {
-            en = toInfix(expr.getChild(0)) + toInfix(expr.getChild(1));
+        //System.out.println(expr.toStringTree());
+            if(expr.getChildCount() == 1) {
+                en = toInfix(expr.getChild(0));
+            }
+            if (expr.getChildCount() == 2){
+                en = toInfix(expr.getChild(0)) + toInfix(expr.getChild(1));
+            }
         } catch (TermBuildException e) {
             e.printStackTrace();
         }
-        System.out.println(en);
+        //System.out.println(en);
         return en;
     }
 
@@ -360,7 +376,9 @@ public class DafnyTrans {
         }
         String s = "";
         s = "(label : " + expr.getChild(0).toStringTree() + ") ";
-        return s;
+
+        return "";
+        //return s;
     }
 
     private String buildArrayAccess(DafnyTree tree) throws TermBuildException {

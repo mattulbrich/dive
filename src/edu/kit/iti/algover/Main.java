@@ -5,10 +5,7 @@
  */
 package edu.kit.iti.algover;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.InputStream;
+import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.Collection;
@@ -64,9 +61,14 @@ public class Main {
 
         Symbex symbex = new Symbex();
         List<SymbexPath> symbexresult = symbex.symbolicExecution(t);
-
+        StringBuilder translatedMethod = new StringBuilder();
+        String methodName ="";
         for (SymbexPath res : symbexresult) {
             DafnyTrans dt = new DafnyTrans(res);
+            String translated = dt.trans();
+            methodName = dt.methodName;
+            translatedMethod.append(translated);
+
             System.out.println("------------");
             System.out.println(res.getPathIdentifier());
             System.out.println("------------");
@@ -100,6 +102,7 @@ public class Main {
                 //System.out.println(z3.solve(formulae));
             }
         }
+        writeOutFile(translatedMethod.toString(), methodName);
 
     }
 
@@ -114,6 +117,32 @@ public class Main {
         } catch (Exception e) {
             System.out.println("Could not load problem");
         }
+
+    }
+
+    public static void writeOutFile(String toProve, String methodName) {
+        BufferedWriter writer = null;
+try
+{
+    writer = new BufferedWriter( new FileWriter(methodName+"_toProve.dfy"));
+    writer.write(toProve);
+
+}
+catch ( IOException e)
+{
+}
+finally
+{
+    try
+    {
+        if ( writer != null)
+        writer.close( );
+    }
+    catch ( IOException e)
+    {
+    }
+}
+
 
     }
 
