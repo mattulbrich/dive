@@ -1,4 +1,4 @@
-// $ANTLR 3.5.1 src/edu/kit/iti/algover/parser/Dafny.g 2016-06-14 22:17:21
+// $ANTLR 3.5.1 src/edu/kit/iti/algover/parser/Dafny.g 2016-06-15 09:52:57
 
   package edu.kit.iti.algover.parser;
 
@@ -11,13 +11,13 @@ import java.util.ArrayList;
 @SuppressWarnings("all")
 public class DafnyLexer extends Lexer {
 	public static final int EOF=-1;
-	public static final int T__66=66;
 	public static final int T__67=67;
 	public static final int T__68=68;
 	public static final int T__69=69;
 	public static final int T__70=70;
 	public static final int T__71=71;
 	public static final int T__72=72;
+	public static final int T__73=73;
 	public static final int ALL=4;
 	public static final int AND=5;
 	public static final int ARGS=6;
@@ -62,24 +62,25 @@ public class DafnyLexer extends Lexer {
 	public static final int MINUS=45;
 	public static final int MODIFIES=46;
 	public static final int MULTILINE_COMMENT=47;
-	public static final int NOT=48;
-	public static final int NULL=49;
-	public static final int OBJ_FUNC_CALL=50;
-	public static final int OR=51;
-	public static final int PLUS=52;
-	public static final int REQUIRES=53;
-	public static final int RESULTS=54;
-	public static final int RETURNS=55;
-	public static final int SET=56;
-	public static final int SETEX=57;
-	public static final int SINGLELINE_COMMENT=58;
-	public static final int THEN=59;
-	public static final int THIS=60;
-	public static final int TIMES=61;
-	public static final int UNION=62;
-	public static final int VAR=63;
-	public static final int WHILE=64;
-	public static final int WS=65;
+	public static final int NEQ=48;
+	public static final int NOT=49;
+	public static final int NULL=50;
+	public static final int OBJ_FUNC_CALL=51;
+	public static final int OR=52;
+	public static final int PLUS=53;
+	public static final int REQUIRES=54;
+	public static final int RESULTS=55;
+	public static final int RETURNS=56;
+	public static final int SET=57;
+	public static final int SETEX=58;
+	public static final int SINGLELINE_COMMENT=59;
+	public static final int THEN=60;
+	public static final int THIS=61;
+	public static final int TIMES=62;
+	public static final int UNION=63;
+	public static final int VAR=64;
+	public static final int WHILE=65;
+	public static final int WS=66;
 
 	// delegates
 	// delegators
@@ -96,35 +97,15 @@ public class DafnyLexer extends Lexer {
 	}
 	@Override public String getGrammarFileName() { return "src/edu/kit/iti/algover/parser/Dafny.g"; }
 
-	// $ANTLR start "T__66"
-	public final void mT__66() throws RecognitionException {
-		try {
-			int _type = T__66;
-			int _channel = DEFAULT_TOKEN_CHANNEL;
-			// src/edu/kit/iti/algover/parser/Dafny.g:6:7: ( '(' )
-			// src/edu/kit/iti/algover/parser/Dafny.g:6:9: '('
-			{
-			match('('); 
-			}
-
-			state.type = _type;
-			state.channel = _channel;
-		}
-		finally {
-			// do for sure before leaving
-		}
-	}
-	// $ANTLR end "T__66"
-
 	// $ANTLR start "T__67"
 	public final void mT__67() throws RecognitionException {
 		try {
 			int _type = T__67;
 			int _channel = DEFAULT_TOKEN_CHANNEL;
-			// src/edu/kit/iti/algover/parser/Dafny.g:7:7: ( ')' )
-			// src/edu/kit/iti/algover/parser/Dafny.g:7:9: ')'
+			// src/edu/kit/iti/algover/parser/Dafny.g:6:7: ( '(' )
+			// src/edu/kit/iti/algover/parser/Dafny.g:6:9: '('
 			{
-			match(')'); 
+			match('('); 
 			}
 
 			state.type = _type;
@@ -141,10 +122,10 @@ public class DafnyLexer extends Lexer {
 		try {
 			int _type = T__68;
 			int _channel = DEFAULT_TOKEN_CHANNEL;
-			// src/edu/kit/iti/algover/parser/Dafny.g:8:7: ( ',' )
-			// src/edu/kit/iti/algover/parser/Dafny.g:8:9: ','
+			// src/edu/kit/iti/algover/parser/Dafny.g:7:7: ( ')' )
+			// src/edu/kit/iti/algover/parser/Dafny.g:7:9: ')'
 			{
-			match(','); 
+			match(')'); 
 			}
 
 			state.type = _type;
@@ -161,10 +142,10 @@ public class DafnyLexer extends Lexer {
 		try {
 			int _type = T__69;
 			int _channel = DEFAULT_TOKEN_CHANNEL;
-			// src/edu/kit/iti/algover/parser/Dafny.g:9:7: ( ':' )
-			// src/edu/kit/iti/algover/parser/Dafny.g:9:9: ':'
+			// src/edu/kit/iti/algover/parser/Dafny.g:8:7: ( ',' )
+			// src/edu/kit/iti/algover/parser/Dafny.g:8:9: ','
 			{
-			match(':'); 
+			match(','); 
 			}
 
 			state.type = _type;
@@ -181,10 +162,10 @@ public class DafnyLexer extends Lexer {
 		try {
 			int _type = T__70;
 			int _channel = DEFAULT_TOKEN_CHANNEL;
-			// src/edu/kit/iti/algover/parser/Dafny.g:10:7: ( ';' )
-			// src/edu/kit/iti/algover/parser/Dafny.g:10:9: ';'
+			// src/edu/kit/iti/algover/parser/Dafny.g:9:7: ( ':' )
+			// src/edu/kit/iti/algover/parser/Dafny.g:9:9: ':'
 			{
-			match(';'); 
+			match(':'); 
 			}
 
 			state.type = _type;
@@ -201,10 +182,10 @@ public class DafnyLexer extends Lexer {
 		try {
 			int _type = T__71;
 			int _channel = DEFAULT_TOKEN_CHANNEL;
-			// src/edu/kit/iti/algover/parser/Dafny.g:11:7: ( '[' )
-			// src/edu/kit/iti/algover/parser/Dafny.g:11:9: '['
+			// src/edu/kit/iti/algover/parser/Dafny.g:10:7: ( ';' )
+			// src/edu/kit/iti/algover/parser/Dafny.g:10:9: ';'
 			{
-			match('['); 
+			match(';'); 
 			}
 
 			state.type = _type;
@@ -221,6 +202,26 @@ public class DafnyLexer extends Lexer {
 		try {
 			int _type = T__72;
 			int _channel = DEFAULT_TOKEN_CHANNEL;
+			// src/edu/kit/iti/algover/parser/Dafny.g:11:7: ( '[' )
+			// src/edu/kit/iti/algover/parser/Dafny.g:11:9: '['
+			{
+			match('['); 
+			}
+
+			state.type = _type;
+			state.channel = _channel;
+		}
+		finally {
+			// do for sure before leaving
+		}
+	}
+	// $ANTLR end "T__72"
+
+	// $ANTLR start "T__73"
+	public final void mT__73() throws RecognitionException {
+		try {
+			int _type = T__73;
+			int _channel = DEFAULT_TOKEN_CHANNEL;
 			// src/edu/kit/iti/algover/parser/Dafny.g:12:7: ( ']' )
 			// src/edu/kit/iti/algover/parser/Dafny.g:12:9: ']'
 			{
@@ -234,7 +235,7 @@ public class DafnyLexer extends Lexer {
 			// do for sure before leaving
 		}
 	}
-	// $ANTLR end "T__72"
+	// $ANTLR end "T__73"
 
 	// $ANTLR start "INT"
 	public final void mINT() throws RecognitionException {
@@ -1091,13 +1092,34 @@ public class DafnyLexer extends Lexer {
 	}
 	// $ANTLR end "EQ"
 
+	// $ANTLR start "NEQ"
+	public final void mNEQ() throws RecognitionException {
+		try {
+			int _type = NEQ;
+			int _channel = DEFAULT_TOKEN_CHANNEL;
+			// src/edu/kit/iti/algover/parser/Dafny.g:104:4: ( '!=' )
+			// src/edu/kit/iti/algover/parser/Dafny.g:104:6: '!='
+			{
+			match("!="); 
+
+			}
+
+			state.type = _type;
+			state.channel = _channel;
+		}
+		finally {
+			// do for sure before leaving
+		}
+	}
+	// $ANTLR end "NEQ"
+
 	// $ANTLR start "DOT"
 	public final void mDOT() throws RecognitionException {
 		try {
 			int _type = DOT;
 			int _channel = DEFAULT_TOKEN_CHANNEL;
-			// src/edu/kit/iti/algover/parser/Dafny.g:104:4: ( '.' )
-			// src/edu/kit/iti/algover/parser/Dafny.g:104:6: '.'
+			// src/edu/kit/iti/algover/parser/Dafny.g:105:4: ( '.' )
+			// src/edu/kit/iti/algover/parser/Dafny.g:105:6: '.'
 			{
 			match('.'); 
 			}
@@ -1116,8 +1138,8 @@ public class DafnyLexer extends Lexer {
 		try {
 			int _type = BLOCK_BEGIN;
 			int _channel = DEFAULT_TOKEN_CHANNEL;
-			// src/edu/kit/iti/algover/parser/Dafny.g:105:12: ( '{' )
-			// src/edu/kit/iti/algover/parser/Dafny.g:105:14: '{'
+			// src/edu/kit/iti/algover/parser/Dafny.g:106:12: ( '{' )
+			// src/edu/kit/iti/algover/parser/Dafny.g:106:14: '{'
 			{
 			match('{'); 
 			}
@@ -1136,8 +1158,8 @@ public class DafnyLexer extends Lexer {
 		try {
 			int _type = BLOCK_END;
 			int _channel = DEFAULT_TOKEN_CHANNEL;
-			// src/edu/kit/iti/algover/parser/Dafny.g:106:10: ( '}' )
-			// src/edu/kit/iti/algover/parser/Dafny.g:106:12: '}'
+			// src/edu/kit/iti/algover/parser/Dafny.g:107:10: ( '}' )
+			// src/edu/kit/iti/algover/parser/Dafny.g:107:12: '}'
 			{
 			match('}'); 
 			}
@@ -1156,12 +1178,12 @@ public class DafnyLexer extends Lexer {
 		try {
 			int _type = LENGTH;
 			int _channel = DEFAULT_TOKEN_CHANNEL;
-			// src/edu/kit/iti/algover/parser/Dafny.g:108:7: ( 'Length' ( '0' .. '9' )* )
-			// src/edu/kit/iti/algover/parser/Dafny.g:108:9: 'Length' ( '0' .. '9' )*
+			// src/edu/kit/iti/algover/parser/Dafny.g:109:7: ( 'Length' ( '0' .. '9' )* )
+			// src/edu/kit/iti/algover/parser/Dafny.g:109:9: 'Length' ( '0' .. '9' )*
 			{
 			match("Length"); 
 
-			// src/edu/kit/iti/algover/parser/Dafny.g:108:18: ( '0' .. '9' )*
+			// src/edu/kit/iti/algover/parser/Dafny.g:109:18: ( '0' .. '9' )*
 			loop1:
 			while (true) {
 				int alt1=2;
@@ -1206,12 +1228,12 @@ public class DafnyLexer extends Lexer {
 		try {
 			int _type = ARRAY;
 			int _channel = DEFAULT_TOKEN_CHANNEL;
-			// src/edu/kit/iti/algover/parser/Dafny.g:109:7: ( 'array' ( ( '1' .. '9' ) ( '0' .. '9' )* )? )
-			// src/edu/kit/iti/algover/parser/Dafny.g:109:9: 'array' ( ( '1' .. '9' ) ( '0' .. '9' )* )?
+			// src/edu/kit/iti/algover/parser/Dafny.g:110:7: ( 'array' ( ( '1' .. '9' ) ( '0' .. '9' )* )? )
+			// src/edu/kit/iti/algover/parser/Dafny.g:110:9: 'array' ( ( '1' .. '9' ) ( '0' .. '9' )* )?
 			{
 			match("array"); 
 
-			// src/edu/kit/iti/algover/parser/Dafny.g:109:17: ( ( '1' .. '9' ) ( '0' .. '9' )* )?
+			// src/edu/kit/iti/algover/parser/Dafny.g:110:17: ( ( '1' .. '9' ) ( '0' .. '9' )* )?
 			int alt3=2;
 			int LA3_0 = input.LA(1);
 			if ( ((LA3_0 >= '1' && LA3_0 <= '9')) ) {
@@ -1219,7 +1241,7 @@ public class DafnyLexer extends Lexer {
 			}
 			switch (alt3) {
 				case 1 :
-					// src/edu/kit/iti/algover/parser/Dafny.g:109:18: ( '1' .. '9' ) ( '0' .. '9' )*
+					// src/edu/kit/iti/algover/parser/Dafny.g:110:18: ( '1' .. '9' ) ( '0' .. '9' )*
 					{
 					if ( (input.LA(1) >= '1' && input.LA(1) <= '9') ) {
 						input.consume();
@@ -1229,7 +1251,7 @@ public class DafnyLexer extends Lexer {
 						recover(mse);
 						throw mse;
 					}
-					// src/edu/kit/iti/algover/parser/Dafny.g:109:31: ( '0' .. '9' )*
+					// src/edu/kit/iti/algover/parser/Dafny.g:110:31: ( '0' .. '9' )*
 					loop2:
 					while (true) {
 						int alt2=2;
@@ -1279,8 +1301,8 @@ public class DafnyLexer extends Lexer {
 		try {
 			int _type = ID;
 			int _channel = DEFAULT_TOKEN_CHANNEL;
-			// src/edu/kit/iti/algover/parser/Dafny.g:110:4: ( ( 'a' .. 'z' | 'A' .. 'Z' | '_' ) ( 'a' .. 'z' | 'A' .. 'Z' | '0' .. '9' | '_' )* )
-			// src/edu/kit/iti/algover/parser/Dafny.g:110:6: ( 'a' .. 'z' | 'A' .. 'Z' | '_' ) ( 'a' .. 'z' | 'A' .. 'Z' | '0' .. '9' | '_' )*
+			// src/edu/kit/iti/algover/parser/Dafny.g:111:4: ( ( 'a' .. 'z' | 'A' .. 'Z' | '_' ) ( 'a' .. 'z' | 'A' .. 'Z' | '0' .. '9' | '_' )* )
+			// src/edu/kit/iti/algover/parser/Dafny.g:111:6: ( 'a' .. 'z' | 'A' .. 'Z' | '_' ) ( 'a' .. 'z' | 'A' .. 'Z' | '0' .. '9' | '_' )*
 			{
 			if ( (input.LA(1) >= 'A' && input.LA(1) <= 'Z')||input.LA(1)=='_'||(input.LA(1) >= 'a' && input.LA(1) <= 'z') ) {
 				input.consume();
@@ -1290,7 +1312,7 @@ public class DafnyLexer extends Lexer {
 				recover(mse);
 				throw mse;
 			}
-			// src/edu/kit/iti/algover/parser/Dafny.g:110:38: ( 'a' .. 'z' | 'A' .. 'Z' | '0' .. '9' | '_' )*
+			// src/edu/kit/iti/algover/parser/Dafny.g:111:38: ( 'a' .. 'z' | 'A' .. 'Z' | '0' .. '9' | '_' )*
 			loop4:
 			while (true) {
 				int alt4=2;
@@ -1335,10 +1357,10 @@ public class DafnyLexer extends Lexer {
 		try {
 			int _type = LIT;
 			int _channel = DEFAULT_TOKEN_CHANNEL;
-			// src/edu/kit/iti/algover/parser/Dafny.g:111:5: ( ( '0' .. '9' )+ )
-			// src/edu/kit/iti/algover/parser/Dafny.g:111:7: ( '0' .. '9' )+
+			// src/edu/kit/iti/algover/parser/Dafny.g:112:5: ( ( '0' .. '9' )+ )
+			// src/edu/kit/iti/algover/parser/Dafny.g:112:7: ( '0' .. '9' )+
 			{
-			// src/edu/kit/iti/algover/parser/Dafny.g:111:7: ( '0' .. '9' )+
+			// src/edu/kit/iti/algover/parser/Dafny.g:112:7: ( '0' .. '9' )+
 			int cnt5=0;
 			loop5:
 			while (true) {
@@ -1387,8 +1409,8 @@ public class DafnyLexer extends Lexer {
 		try {
 			int _type = WS;
 			int _channel = DEFAULT_TOKEN_CHANNEL;
-			// src/edu/kit/iti/algover/parser/Dafny.g:113:4: ( ( ' ' | '\\n' | '\\r' ) )
-			// src/edu/kit/iti/algover/parser/Dafny.g:113:6: ( ' ' | '\\n' | '\\r' )
+			// src/edu/kit/iti/algover/parser/Dafny.g:114:4: ( ( ' ' | '\\n' | '\\r' ) )
+			// src/edu/kit/iti/algover/parser/Dafny.g:114:6: ( ' ' | '\\n' | '\\r' )
 			{
 			if ( input.LA(1)=='\n'||input.LA(1)=='\r'||input.LA(1)==' ' ) {
 				input.consume();
@@ -1415,12 +1437,12 @@ public class DafnyLexer extends Lexer {
 		try {
 			int _type = SINGLELINE_COMMENT;
 			int _channel = DEFAULT_TOKEN_CHANNEL;
-			// src/edu/kit/iti/algover/parser/Dafny.g:114:19: ( '//' (~ ( '\\r' | '\\n' ) )* )
-			// src/edu/kit/iti/algover/parser/Dafny.g:114:21: '//' (~ ( '\\r' | '\\n' ) )*
+			// src/edu/kit/iti/algover/parser/Dafny.g:115:19: ( '//' (~ ( '\\r' | '\\n' ) )* )
+			// src/edu/kit/iti/algover/parser/Dafny.g:115:21: '//' (~ ( '\\r' | '\\n' ) )*
 			{
 			match("//"); 
 
-			// src/edu/kit/iti/algover/parser/Dafny.g:114:26: (~ ( '\\r' | '\\n' ) )*
+			// src/edu/kit/iti/algover/parser/Dafny.g:115:26: (~ ( '\\r' | '\\n' ) )*
 			loop6:
 			while (true) {
 				int alt6=2;
@@ -1466,12 +1488,12 @@ public class DafnyLexer extends Lexer {
 		try {
 			int _type = MULTILINE_COMMENT;
 			int _channel = DEFAULT_TOKEN_CHANNEL;
-			// src/edu/kit/iti/algover/parser/Dafny.g:115:18: ( '/*' ( . )* '*/' )
-			// src/edu/kit/iti/algover/parser/Dafny.g:115:20: '/*' ( . )* '*/'
+			// src/edu/kit/iti/algover/parser/Dafny.g:116:18: ( '/*' ( . )* '*/' )
+			// src/edu/kit/iti/algover/parser/Dafny.g:116:20: '/*' ( . )* '*/'
 			{
 			match("/*"); 
 
-			// src/edu/kit/iti/algover/parser/Dafny.g:115:25: ( . )*
+			// src/edu/kit/iti/algover/parser/Dafny.g:116:25: ( . )*
 			loop7:
 			while (true) {
 				int alt7=2;
@@ -1492,7 +1514,7 @@ public class DafnyLexer extends Lexer {
 
 				switch (alt7) {
 				case 1 :
-					// src/edu/kit/iti/algover/parser/Dafny.g:115:25: .
+					// src/edu/kit/iti/algover/parser/Dafny.g:116:25: .
 					{
 					matchAny(); 
 					}
@@ -1519,56 +1541,56 @@ public class DafnyLexer extends Lexer {
 
 	@Override
 	public void mTokens() throws RecognitionException {
-		// src/edu/kit/iti/algover/parser/Dafny.g:1:8: ( T__66 | T__67 | T__68 | T__69 | T__70 | T__71 | T__72 | INT | SET | RETURNS | ENSURES | REQUIRES | DECREASES | FUNCTION | METHOD | LEMMA | LABEL | ELSE | IF | THEN | WHILE | VAR | CALL | INVARIANT | ASSERT | ASSUME | MODIFIES | CLASS | THIS | NULL | ALL | EX | DOUBLECOLON | ASSIGN | OR | AND | IMPLIES | PLUS | MINUS | NOT | TIMES | UNION | INTERSECT | LT | LE | GT | GE | EQ | DOT | BLOCK_BEGIN | BLOCK_END | LENGTH | ARRAY | ID | LIT | WS | SINGLELINE_COMMENT | MULTILINE_COMMENT )
-		int alt8=58;
+		// src/edu/kit/iti/algover/parser/Dafny.g:1:8: ( T__67 | T__68 | T__69 | T__70 | T__71 | T__72 | T__73 | INT | SET | RETURNS | ENSURES | REQUIRES | DECREASES | FUNCTION | METHOD | LEMMA | LABEL | ELSE | IF | THEN | WHILE | VAR | CALL | INVARIANT | ASSERT | ASSUME | MODIFIES | CLASS | THIS | NULL | ALL | EX | DOUBLECOLON | ASSIGN | OR | AND | IMPLIES | PLUS | MINUS | NOT | TIMES | UNION | INTERSECT | LT | LE | GT | GE | EQ | NEQ | DOT | BLOCK_BEGIN | BLOCK_END | LENGTH | ARRAY | ID | LIT | WS | SINGLELINE_COMMENT | MULTILINE_COMMENT )
+		int alt8=59;
 		alt8 = dfa8.predict(input);
 		switch (alt8) {
 			case 1 :
-				// src/edu/kit/iti/algover/parser/Dafny.g:1:10: T__66
-				{
-				mT__66(); 
-
-				}
-				break;
-			case 2 :
-				// src/edu/kit/iti/algover/parser/Dafny.g:1:16: T__67
+				// src/edu/kit/iti/algover/parser/Dafny.g:1:10: T__67
 				{
 				mT__67(); 
 
 				}
 				break;
-			case 3 :
-				// src/edu/kit/iti/algover/parser/Dafny.g:1:22: T__68
+			case 2 :
+				// src/edu/kit/iti/algover/parser/Dafny.g:1:16: T__68
 				{
 				mT__68(); 
 
 				}
 				break;
-			case 4 :
-				// src/edu/kit/iti/algover/parser/Dafny.g:1:28: T__69
+			case 3 :
+				// src/edu/kit/iti/algover/parser/Dafny.g:1:22: T__69
 				{
 				mT__69(); 
 
 				}
 				break;
-			case 5 :
-				// src/edu/kit/iti/algover/parser/Dafny.g:1:34: T__70
+			case 4 :
+				// src/edu/kit/iti/algover/parser/Dafny.g:1:28: T__70
 				{
 				mT__70(); 
 
 				}
 				break;
-			case 6 :
-				// src/edu/kit/iti/algover/parser/Dafny.g:1:40: T__71
+			case 5 :
+				// src/edu/kit/iti/algover/parser/Dafny.g:1:34: T__71
 				{
 				mT__71(); 
 
 				}
 				break;
-			case 7 :
-				// src/edu/kit/iti/algover/parser/Dafny.g:1:46: T__72
+			case 6 :
+				// src/edu/kit/iti/algover/parser/Dafny.g:1:40: T__72
 				{
 				mT__72(); 
+
+				}
+				break;
+			case 7 :
+				// src/edu/kit/iti/algover/parser/Dafny.g:1:46: T__73
+				{
+				mT__73(); 
 
 				}
 				break;
@@ -1860,70 +1882,77 @@ public class DafnyLexer extends Lexer {
 				}
 				break;
 			case 49 :
-				// src/edu/kit/iti/algover/parser/Dafny.g:1:293: DOT
+				// src/edu/kit/iti/algover/parser/Dafny.g:1:293: NEQ
+				{
+				mNEQ(); 
+
+				}
+				break;
+			case 50 :
+				// src/edu/kit/iti/algover/parser/Dafny.g:1:297: DOT
 				{
 				mDOT(); 
 
 				}
 				break;
-			case 50 :
-				// src/edu/kit/iti/algover/parser/Dafny.g:1:297: BLOCK_BEGIN
+			case 51 :
+				// src/edu/kit/iti/algover/parser/Dafny.g:1:301: BLOCK_BEGIN
 				{
 				mBLOCK_BEGIN(); 
 
 				}
 				break;
-			case 51 :
-				// src/edu/kit/iti/algover/parser/Dafny.g:1:309: BLOCK_END
+			case 52 :
+				// src/edu/kit/iti/algover/parser/Dafny.g:1:313: BLOCK_END
 				{
 				mBLOCK_END(); 
 
 				}
 				break;
-			case 52 :
-				// src/edu/kit/iti/algover/parser/Dafny.g:1:319: LENGTH
+			case 53 :
+				// src/edu/kit/iti/algover/parser/Dafny.g:1:323: LENGTH
 				{
 				mLENGTH(); 
 
 				}
 				break;
-			case 53 :
-				// src/edu/kit/iti/algover/parser/Dafny.g:1:326: ARRAY
+			case 54 :
+				// src/edu/kit/iti/algover/parser/Dafny.g:1:330: ARRAY
 				{
 				mARRAY(); 
 
 				}
 				break;
-			case 54 :
-				// src/edu/kit/iti/algover/parser/Dafny.g:1:332: ID
+			case 55 :
+				// src/edu/kit/iti/algover/parser/Dafny.g:1:336: ID
 				{
 				mID(); 
 
 				}
 				break;
-			case 55 :
-				// src/edu/kit/iti/algover/parser/Dafny.g:1:335: LIT
+			case 56 :
+				// src/edu/kit/iti/algover/parser/Dafny.g:1:339: LIT
 				{
 				mLIT(); 
 
 				}
 				break;
-			case 56 :
-				// src/edu/kit/iti/algover/parser/Dafny.g:1:339: WS
+			case 57 :
+				// src/edu/kit/iti/algover/parser/Dafny.g:1:343: WS
 				{
 				mWS(); 
 
 				}
 				break;
-			case 57 :
-				// src/edu/kit/iti/algover/parser/Dafny.g:1:342: SINGLELINE_COMMENT
+			case 58 :
+				// src/edu/kit/iti/algover/parser/Dafny.g:1:346: SINGLELINE_COMMENT
 				{
 				mSINGLELINE_COMMENT(); 
 
 				}
 				break;
-			case 58 :
-				// src/edu/kit/iti/algover/parser/Dafny.g:1:361: MULTILINE_COMMENT
+			case 59 :
+				// src/edu/kit/iti/algover/parser/Dafny.g:1:365: MULTILINE_COMMENT
 				{
 				mMULTILINE_COMMENT(); 
 
@@ -1936,58 +1965,58 @@ public class DafnyLexer extends Lexer {
 
 	protected DFA8 dfa8 = new DFA8(this);
 	static final String DFA8_eotS =
-		"\4\uffff\1\51\3\uffff\16\43\3\uffff\1\102\2\uffff\1\104\1\106\1\110\3"+
-		"\uffff\1\43\7\uffff\1\43\1\116\24\43\1\146\10\uffff\1\43\2\uffff\1\150"+
-		"\1\43\1\uffff\1\152\17\43\1\172\5\43\2\uffff\1\43\1\uffff\1\43\1\uffff"+
-		"\3\43\1\u0086\10\43\1\u008f\1\u0090\1\43\1\uffff\1\u0092\4\43\1\u0097"+
-		"\5\43\1\uffff\6\43\1\u00a3\1\u00a4\2\uffff\1\u00a5\1\uffff\1\u00a6\2\43"+
-		"\1\u00aa\1\uffff\5\43\1\u00b0\2\43\1\u00b3\1\u00b4\1\43\4\uffff\1\u00b6"+
-		"\1\u00b7\1\u00aa\1\uffff\1\u00ba\1\43\1\u00bc\1\43\1\u00be\1\uffff\2\43"+
-		"\2\uffff\1\43\2\uffff\1\u00aa\1\u00ba\1\uffff\1\43\1\uffff\1\u00c3\1\uffff"+
-		"\1\43\1\u00c5\1\u00c6\1\u00c7\1\uffff\1\u00c8\4\uffff";
+		"\4\uffff\1\51\3\uffff\16\43\3\uffff\1\102\1\uffff\1\104\1\106\1\110\1"+
+		"\112\3\uffff\1\43\7\uffff\1\43\1\120\24\43\1\150\12\uffff\1\43\2\uffff"+
+		"\1\152\1\43\1\uffff\1\154\17\43\1\174\5\43\2\uffff\1\43\1\uffff\1\43\1"+
+		"\uffff\3\43\1\u0088\10\43\1\u0091\1\u0092\1\43\1\uffff\1\u0094\4\43\1"+
+		"\u0099\5\43\1\uffff\6\43\1\u00a5\1\u00a6\2\uffff\1\u00a7\1\uffff\1\u00a8"+
+		"\2\43\1\u00ac\1\uffff\5\43\1\u00b2\2\43\1\u00b5\1\u00b6\1\43\4\uffff\1"+
+		"\u00b8\1\u00b9\1\u00ac\1\uffff\1\u00bc\1\43\1\u00be\1\43\1\u00c0\1\uffff"+
+		"\2\43\2\uffff\1\43\2\uffff\1\u00ac\1\u00bc\1\uffff\1\43\1\uffff\1\u00c5"+
+		"\1\uffff\1\43\1\u00c7\1\u00c8\1\u00c9\1\uffff\1\u00ca\4\uffff";
 	static final String DFA8_eofS =
-		"\u00c9\uffff";
+		"\u00cb\uffff";
 	static final String DFA8_minS =
 		"\1\12\3\uffff\1\72\3\uffff\1\146\2\145\1\154\1\145\1\157\1\145\1\141\2"+
-		"\150\2\141\1\162\1\165\2\uffff\1\75\1\53\2\uffff\1\52\2\75\3\uffff\1\145"+
-		"\3\uffff\1\52\3\uffff\1\164\1\60\1\164\1\161\2\163\1\151\1\143\1\156\1"+
-		"\162\1\164\1\144\1\155\1\142\1\145\1\151\1\162\1\154\1\141\1\163\1\162"+
-		"\1\154\1\76\10\uffff\1\156\2\uffff\1\60\1\141\1\uffff\1\60\3\165\1\145"+
-		"\1\163\1\162\1\143\1\141\1\150\1\151\1\155\1\145\1\156\1\163\1\154\1\60"+
-		"\1\154\1\163\1\145\1\141\1\154\2\uffff\1\147\1\uffff\1\162\1\uffff\1\162"+
-		"\1\151\1\162\1\60\1\164\1\145\1\164\1\154\1\157\1\146\1\141\1\154\2\60"+
-		"\1\145\1\uffff\1\60\1\163\1\162\1\155\1\171\1\60\1\164\1\151\1\156\1\162"+
-		"\1\145\1\uffff\1\163\1\141\1\151\1\154\1\144\1\151\2\60\2\uffff\1\60\1"+
-		"\uffff\1\60\1\164\1\145\1\60\1\uffff\1\150\1\141\1\163\1\145\1\163\1\60"+
-		"\1\163\1\157\2\60\1\145\4\uffff\3\60\1\uffff\1\60\1\156\1\60\1\163\1\60"+
-		"\1\uffff\1\145\1\156\2\uffff\1\163\2\uffff\2\60\1\uffff\1\164\1\uffff"+
-		"\1\60\1\uffff\1\163\3\60\1\uffff\1\60\4\uffff";
+		"\150\2\141\1\162\1\165\2\uffff\1\75\1\53\1\uffff\1\75\1\52\2\75\3\uffff"+
+		"\1\145\3\uffff\1\52\3\uffff\1\164\1\60\1\164\1\161\2\163\1\151\1\143\1"+
+		"\156\1\162\1\164\1\144\1\155\1\142\1\145\1\151\1\162\1\154\1\141\1\163"+
+		"\1\162\1\154\1\76\12\uffff\1\156\2\uffff\1\60\1\141\1\uffff\1\60\3\165"+
+		"\1\145\1\163\1\162\1\143\1\141\1\150\1\151\1\155\1\145\1\156\1\163\1\154"+
+		"\1\60\1\154\1\163\1\145\1\141\1\154\2\uffff\1\147\1\uffff\1\162\1\uffff"+
+		"\1\162\1\151\1\162\1\60\1\164\1\145\1\164\1\154\1\157\1\146\1\141\1\154"+
+		"\2\60\1\145\1\uffff\1\60\1\163\1\162\1\155\1\171\1\60\1\164\1\151\1\156"+
+		"\1\162\1\145\1\uffff\1\163\1\141\1\151\1\154\1\144\1\151\2\60\2\uffff"+
+		"\1\60\1\uffff\1\60\1\164\1\145\1\60\1\uffff\1\150\1\141\1\163\1\145\1"+
+		"\163\1\60\1\163\1\157\2\60\1\145\4\uffff\3\60\1\uffff\1\60\1\156\1\60"+
+		"\1\163\1\60\1\uffff\1\145\1\156\2\uffff\1\163\2\uffff\2\60\1\uffff\1\164"+
+		"\1\uffff\1\60\1\uffff\1\163\3\60\1\uffff\1\60\4\uffff";
 	static final String DFA8_maxS =
 		"\1\175\3\uffff\1\75\3\uffff\1\156\2\145\1\170\1\145\1\165\1\157\1\145"+
-		"\2\150\1\141\1\154\1\163\1\165\2\uffff\1\75\1\53\2\uffff\1\52\2\75\3\uffff"+
-		"\1\145\3\uffff\1\57\3\uffff\1\166\1\172\2\164\2\163\1\151\1\143\1\156"+
-		"\1\162\1\164\1\144\1\155\1\142\2\151\1\162\1\154\1\141\1\163\1\162\1\154"+
-		"\1\76\10\uffff\1\156\2\uffff\1\172\1\141\1\uffff\1\172\3\165\1\145\1\163"+
-		"\1\162\1\143\1\141\1\150\1\151\1\155\1\145\1\156\1\163\1\154\1\172\1\154"+
-		"\1\163\1\165\1\141\1\154\2\uffff\1\147\1\uffff\1\162\1\uffff\1\162\1\151"+
-		"\1\162\1\172\1\164\1\145\1\164\1\154\1\157\1\146\1\141\1\154\2\172\1\145"+
-		"\1\uffff\1\172\1\163\1\162\1\155\1\171\1\172\1\164\1\151\1\156\1\162\1"+
-		"\145\1\uffff\1\163\1\141\1\151\1\154\1\144\1\151\2\172\2\uffff\1\172\1"+
-		"\uffff\1\172\1\164\1\145\1\172\1\uffff\1\150\1\141\1\163\1\145\1\163\1"+
-		"\172\1\163\1\157\2\172\1\145\4\uffff\3\172\1\uffff\1\172\1\156\1\172\1"+
-		"\163\1\172\1\uffff\1\145\1\156\2\uffff\1\163\2\uffff\2\172\1\uffff\1\164"+
-		"\1\uffff\1\172\1\uffff\1\163\3\172\1\uffff\1\172\4\uffff";
+		"\2\150\1\141\1\154\1\163\1\165\2\uffff\1\75\1\53\1\uffff\1\75\1\52\2\75"+
+		"\3\uffff\1\145\3\uffff\1\57\3\uffff\1\166\1\172\2\164\2\163\1\151\1\143"+
+		"\1\156\1\162\1\164\1\144\1\155\1\142\2\151\1\162\1\154\1\141\1\163\1\162"+
+		"\1\154\1\76\12\uffff\1\156\2\uffff\1\172\1\141\1\uffff\1\172\3\165\1\145"+
+		"\1\163\1\162\1\143\1\141\1\150\1\151\1\155\1\145\1\156\1\163\1\154\1\172"+
+		"\1\154\1\163\1\165\1\141\1\154\2\uffff\1\147\1\uffff\1\162\1\uffff\1\162"+
+		"\1\151\1\162\1\172\1\164\1\145\1\164\1\154\1\157\1\146\1\141\1\154\2\172"+
+		"\1\145\1\uffff\1\172\1\163\1\162\1\155\1\171\1\172\1\164\1\151\1\156\1"+
+		"\162\1\145\1\uffff\1\163\1\141\1\151\1\154\1\144\1\151\2\172\2\uffff\1"+
+		"\172\1\uffff\1\172\1\164\1\145\1\172\1\uffff\1\150\1\141\1\163\1\145\1"+
+		"\163\1\172\1\163\1\157\2\172\1\145\4\uffff\3\172\1\uffff\1\172\1\156\1"+
+		"\172\1\163\1\172\1\uffff\1\145\1\156\2\uffff\1\163\2\uffff\2\172\1\uffff"+
+		"\1\164\1\uffff\1\172\1\uffff\1\163\3\172\1\uffff\1\172\4\uffff";
 	static final String DFA8_acceptS =
 		"\1\uffff\1\1\1\2\1\3\1\uffff\1\5\1\6\1\7\16\uffff\1\43\1\44\2\uffff\1"+
-		"\47\1\50\3\uffff\1\61\1\62\1\63\1\uffff\1\66\1\67\1\70\1\uffff\1\41\1"+
-		"\42\1\4\27\uffff\1\52\1\46\1\53\1\51\1\55\1\54\1\57\1\56\1\uffff\1\71"+
-		"\1\72\2\uffff\1\23\26\uffff\1\45\1\60\1\uffff\1\10\1\uffff\1\11\17\uffff"+
-		"\1\26\13\uffff\1\22\10\uffff\1\24\1\35\1\uffff\1\27\4\uffff\1\36\13\uffff"+
-		"\1\20\1\21\1\25\1\34\3\uffff\1\65\5\uffff\1\40\2\uffff\1\37\1\17\1\uffff"+
-		"\1\31\1\32\2\uffff\1\64\1\uffff\1\12\1\uffff\1\13\4\uffff\1\14\1\uffff"+
-		"\1\16\1\33\1\30\1\15";
+		"\47\4\uffff\1\62\1\63\1\64\1\uffff\1\67\1\70\1\71\1\uffff\1\41\1\42\1"+
+		"\4\27\uffff\1\52\1\46\1\61\1\50\1\53\1\51\1\55\1\54\1\57\1\56\1\uffff"+
+		"\1\72\1\73\2\uffff\1\23\26\uffff\1\45\1\60\1\uffff\1\10\1\uffff\1\11\17"+
+		"\uffff\1\26\13\uffff\1\22\10\uffff\1\24\1\35\1\uffff\1\27\4\uffff\1\36"+
+		"\13\uffff\1\20\1\21\1\25\1\34\3\uffff\1\66\5\uffff\1\40\2\uffff\1\37\1"+
+		"\17\1\uffff\1\31\1\32\2\uffff\1\65\1\uffff\1\12\1\uffff\1\13\4\uffff\1"+
+		"\14\1\uffff\1\16\1\33\1\30\1\15";
 	static final String DFA8_specialS =
-		"\u00c9\uffff}>";
+		"\u00cb\uffff}>";
 	static final String[] DFA8_transitionS = {
 			"\1\45\2\uffff\1\45\22\uffff\1\45\1\33\4\uffff\1\27\1\uffff\1\1\1\2\1"+
 			"\34\1\31\1\3\1\32\1\37\1\46\12\44\1\4\1\5\1\35\1\30\1\36\2\uffff\13\43"+
@@ -2020,27 +2049,25 @@ public class DafnyLexer extends Lexer {
 			"\1\100",
 			"\1\101",
 			"",
-			"",
 			"\1\103",
 			"\1\105",
 			"\1\107",
-			"",
-			"",
-			"",
 			"\1\111",
 			"",
 			"",
 			"",
-			"\1\113\4\uffff\1\112",
+			"\1\113",
 			"",
 			"",
 			"",
-			"\1\114\1\uffff\1\115",
+			"\1\115\4\uffff\1\114",
+			"",
+			"",
+			"",
+			"\1\116\1\uffff\1\117",
 			"\12\43\7\uffff\32\43\4\uffff\1\43\1\uffff\32\43",
-			"\1\117",
-			"\1\121\2\uffff\1\120",
-			"\1\122",
-			"\1\123",
+			"\1\121",
+			"\1\123\2\uffff\1\122",
 			"\1\124",
 			"\1\125",
 			"\1\126",
@@ -2049,32 +2076,34 @@ public class DafnyLexer extends Lexer {
 			"\1\131",
 			"\1\132",
 			"\1\133",
-			"\1\134\3\uffff\1\135",
-			"\1\136",
-			"\1\137",
+			"\1\134",
+			"\1\135",
+			"\1\136\3\uffff\1\137",
 			"\1\140",
 			"\1\141",
 			"\1\142",
 			"\1\143",
 			"\1\144",
 			"\1\145",
-			"",
-			"",
-			"",
-			"",
-			"",
-			"",
-			"",
-			"",
+			"\1\146",
 			"\1\147",
 			"",
 			"",
-			"\12\43\7\uffff\32\43\4\uffff\1\43\1\uffff\32\43",
+			"",
+			"",
+			"",
+			"",
+			"",
+			"",
+			"",
+			"",
 			"\1\151",
+			"",
 			"",
 			"\12\43\7\uffff\32\43\4\uffff\1\43\1\uffff\32\43",
 			"\1\153",
-			"\1\154",
+			"",
+			"\12\43\7\uffff\32\43\4\uffff\1\43\1\uffff\32\43",
 			"\1\155",
 			"\1\156",
 			"\1\157",
@@ -2088,52 +2117,54 @@ public class DafnyLexer extends Lexer {
 			"\1\167",
 			"\1\170",
 			"\1\171",
-			"\12\43\7\uffff\32\43\4\uffff\1\43\1\uffff\32\43",
+			"\1\172",
 			"\1\173",
-			"\1\174",
-			"\1\175\17\uffff\1\176",
-			"\1\177",
-			"\1\u0080",
-			"",
-			"",
+			"\12\43\7\uffff\32\43\4\uffff\1\43\1\uffff\32\43",
+			"\1\175",
+			"\1\176",
+			"\1\177\17\uffff\1\u0080",
 			"\1\u0081",
-			"",
 			"\1\u0082",
 			"",
+			"",
 			"\1\u0083",
+			"",
 			"\1\u0084",
+			"",
 			"\1\u0085",
-			"\12\43\7\uffff\32\43\4\uffff\1\43\1\uffff\32\43",
+			"\1\u0086",
 			"\1\u0087",
-			"\1\u0088",
+			"\12\43\7\uffff\32\43\4\uffff\1\43\1\uffff\32\43",
 			"\1\u0089",
 			"\1\u008a",
 			"\1\u008b",
 			"\1\u008c",
 			"\1\u008d",
 			"\1\u008e",
+			"\1\u008f",
+			"\1\u0090",
 			"\12\43\7\uffff\32\43\4\uffff\1\43\1\uffff\32\43",
-			"\12\43\7\uffff\32\43\4\uffff\1\43\1\uffff\32\43",
-			"\1\u0091",
-			"",
 			"\12\43\7\uffff\32\43\4\uffff\1\43\1\uffff\32\43",
 			"\1\u0093",
-			"\1\u0094",
+			"",
+			"\12\43\7\uffff\32\43\4\uffff\1\43\1\uffff\32\43",
 			"\1\u0095",
 			"\1\u0096",
-			"\12\43\7\uffff\32\43\4\uffff\1\43\1\uffff\32\43",
+			"\1\u0097",
 			"\1\u0098",
-			"\1\u0099",
+			"\12\43\7\uffff\32\43\4\uffff\1\43\1\uffff\32\43",
 			"\1\u009a",
 			"\1\u009b",
 			"\1\u009c",
-			"",
 			"\1\u009d",
 			"\1\u009e",
+			"",
 			"\1\u009f",
 			"\1\u00a0",
 			"\1\u00a1",
 			"\1\u00a2",
+			"\1\u00a3",
+			"\1\u00a4",
 			"\12\43\7\uffff\32\43\4\uffff\1\43\1\uffff\32\43",
 			"\12\43\7\uffff\32\43\4\uffff\1\43\1\uffff\32\43",
 			"",
@@ -2141,50 +2172,50 @@ public class DafnyLexer extends Lexer {
 			"\12\43\7\uffff\32\43\4\uffff\1\43\1\uffff\32\43",
 			"",
 			"\12\43\7\uffff\32\43\4\uffff\1\43\1\uffff\32\43",
-			"\1\u00a7",
-			"\1\u00a8",
-			"\1\43\11\u00a9\7\uffff\32\43\4\uffff\1\43\1\uffff\32\43",
+			"\1\u00a9",
+			"\1\u00aa",
+			"\1\43\11\u00ab\7\uffff\32\43\4\uffff\1\43\1\uffff\32\43",
 			"",
-			"\1\u00ab",
-			"\1\u00ac",
 			"\1\u00ad",
 			"\1\u00ae",
 			"\1\u00af",
-			"\12\43\7\uffff\32\43\4\uffff\1\43\1\uffff\32\43",
+			"\1\u00b0",
 			"\1\u00b1",
-			"\1\u00b2",
+			"\12\43\7\uffff\32\43\4\uffff\1\43\1\uffff\32\43",
+			"\1\u00b3",
+			"\1\u00b4",
 			"\12\43\7\uffff\32\43\4\uffff\1\43\1\uffff\32\43",
 			"\12\43\7\uffff\32\43\4\uffff\1\43\1\uffff\32\43",
-			"\1\u00b5",
+			"\1\u00b7",
 			"",
 			"",
 			"",
 			"",
 			"\12\43\7\uffff\32\43\4\uffff\1\43\1\uffff\32\43",
 			"\12\43\7\uffff\32\43\4\uffff\1\43\1\uffff\32\43",
-			"\12\u00b8\7\uffff\32\43\4\uffff\1\43\1\uffff\32\43",
+			"\12\u00ba\7\uffff\32\43\4\uffff\1\43\1\uffff\32\43",
 			"",
-			"\12\u00b9\7\uffff\32\43\4\uffff\1\43\1\uffff\32\43",
-			"\1\u00bb",
-			"\12\43\7\uffff\32\43\4\uffff\1\43\1\uffff\32\43",
+			"\12\u00bb\7\uffff\32\43\4\uffff\1\43\1\uffff\32\43",
 			"\1\u00bd",
 			"\12\43\7\uffff\32\43\4\uffff\1\43\1\uffff\32\43",
-			"",
 			"\1\u00bf",
-			"\1\u00c0",
-			"",
+			"\12\43\7\uffff\32\43\4\uffff\1\43\1\uffff\32\43",
 			"",
 			"\1\u00c1",
-			"",
-			"",
-			"\12\u00b8\7\uffff\32\43\4\uffff\1\43\1\uffff\32\43",
-			"\12\u00b9\7\uffff\32\43\4\uffff\1\43\1\uffff\32\43",
-			"",
 			"\1\u00c2",
+			"",
+			"",
+			"\1\u00c3",
+			"",
+			"",
+			"\12\u00ba\7\uffff\32\43\4\uffff\1\43\1\uffff\32\43",
+			"\12\u00bb\7\uffff\32\43\4\uffff\1\43\1\uffff\32\43",
+			"",
+			"\1\u00c4",
 			"",
 			"\12\43\7\uffff\32\43\4\uffff\1\43\1\uffff\32\43",
 			"",
-			"\1\u00c4",
+			"\1\u00c6",
 			"\12\43\7\uffff\32\43\4\uffff\1\43\1\uffff\32\43",
 			"\12\43\7\uffff\32\43\4\uffff\1\43\1\uffff\32\43",
 			"\12\43\7\uffff\32\43\4\uffff\1\43\1\uffff\32\43",
@@ -2227,7 +2258,7 @@ public class DafnyLexer extends Lexer {
 		}
 		@Override
 		public String getDescription() {
-			return "1:1: Tokens : ( T__66 | T__67 | T__68 | T__69 | T__70 | T__71 | T__72 | INT | SET | RETURNS | ENSURES | REQUIRES | DECREASES | FUNCTION | METHOD | LEMMA | LABEL | ELSE | IF | THEN | WHILE | VAR | CALL | INVARIANT | ASSERT | ASSUME | MODIFIES | CLASS | THIS | NULL | ALL | EX | DOUBLECOLON | ASSIGN | OR | AND | IMPLIES | PLUS | MINUS | NOT | TIMES | UNION | INTERSECT | LT | LE | GT | GE | EQ | DOT | BLOCK_BEGIN | BLOCK_END | LENGTH | ARRAY | ID | LIT | WS | SINGLELINE_COMMENT | MULTILINE_COMMENT );";
+			return "1:1: Tokens : ( T__67 | T__68 | T__69 | T__70 | T__71 | T__72 | T__73 | INT | SET | RETURNS | ENSURES | REQUIRES | DECREASES | FUNCTION | METHOD | LEMMA | LABEL | ELSE | IF | THEN | WHILE | VAR | CALL | INVARIANT | ASSERT | ASSUME | MODIFIES | CLASS | THIS | NULL | ALL | EX | DOUBLECOLON | ASSIGN | OR | AND | IMPLIES | PLUS | MINUS | NOT | TIMES | UNION | INTERSECT | LT | LE | GT | GE | EQ | NEQ | DOT | BLOCK_BEGIN | BLOCK_END | LENGTH | ARRAY | ID | LIT | WS | SINGLELINE_COMMENT | MULTILINE_COMMENT );";
 		}
 	}
 

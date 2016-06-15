@@ -74,7 +74,12 @@ public class SymbexPath {
         /**
          * Loop Invariant has to hold initially.
          */
-        INVARIANT_INITIALLY_VALID;
+        INVARIANT_INITIALLY_VALID,
+
+        /**
+         * Runtime Assertion: Receiver is different from null
+         */
+        RT_NONNULL;
     }
 
     /**
@@ -308,8 +313,10 @@ public class SymbexPath {
             }
         }
         result.append(getProofObligationType());
-         if(proofObligations.size() > 1) {
+        if(proofObligations.size() > 1) {
             result.append("[+]");
+        } else if(proofObligations.size() == 0) {
+            // nothing
         } else {
             String label = getObligationLabel(proofObligations.get(0));
             if(label != null) {

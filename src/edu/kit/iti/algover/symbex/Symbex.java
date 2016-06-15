@@ -18,6 +18,7 @@ import edu.kit.iti.algover.parser.DafnyTree;
 import edu.kit.iti.algover.symbex.PathConditionElement.AssumptionType;
 import edu.kit.iti.algover.symbex.SymbexPath.AssertionType;
 import edu.kit.iti.algover.util.ASTUtil;
+import edu.kit.iti.algover.util.ImmutableList;
 
 /**
  * Symbex can be used to perform symbolic execution on a function.
@@ -240,7 +241,7 @@ public class Symbex {
             DafnyTree stm, DafnyTree remainder) {
         String name = stm.getChild(0).toString();
         DafnyTree expression = stm.getChild(1);
-//        handleExpression(stack, expression);
+        handleExpression(stack, state, expression);
         VariableMap newMap = state.getMap().assign(name, expression);
         state.setMap(newMap);
         state.setBlockToExecute(remainder);
@@ -423,5 +424,48 @@ public class Symbex {
         result.setProofObligations(function.getChildrenWithType(DafnyParser.ENSURES), AssertionType.POST);
 
         return result;
+    }
+
+    private void handleExpression(Deque<SymbexPath> stack, SymbexPath current, DafnyTree expression) {
+
+        switch(expression.getType()) {
+        case DafnyParser.AND:
+        case DafnyParser.IMPLIES:
+            assert expression.getChildCount() == 2;
+            DafnyTree child0 = expression.getChild(0);
+            handleExpression(stack, current, child0);
+            SymbexPath guarded = new SymbexPath(current);
+            guarded.addPathCondition(new PathConditionElement(child0, child0, AssumptionType.GUARD_IN_EXPRESSION, guarded.getMap()));
+            handleExpression(stack, guarded, expression.getChild(1));
+            break;
+
+        case DafnyParser.OR:
+            child0 = expression.getChild(0);
+            handleExpression(stack, current, child0);
+            guarded = new SymbexPath(current);
+            guarded.addPathCondition(new PathConditionElement(ASTUtil.negate(child0),
+                    child0, AssumptionType.GUARD_IN_EXPRESSION, guarded.getMap()));
+            handleExpression(stack, guarded, expression.getChild(1));
+            break;
+
+        case DafnyParser.ARRAY_ACCESS:
+            child0 = expression.getChild(0);
+            addNonNullCheck(stack, current, child0);
+//            addIndexInRangeCheck(stack, current, expression.getChild(1), child0);
+            break;
+        }
+    }
+
+    private void addIndexInRangeCheck(Deque<SymbexPath> stack, SymbexPath current, DafnyTree idx, DafnyTree array) {
+        SymbexPath gt0 = new SymbexPath(current);
+        SymbexPath ltLength = new SymbexPath(current);
+    }
+
+    private void addNonNullCheck(Deque<SymbexPath> stack, SymbexPath current, DafnyTree expression) {
+        SymbexPath nonNull = new SymbexPath(current);
+        DafnyTree check = ASTUtil.notEquals(expression, ASTUtil._null());
+        nonNull.setBlockToExecute(Symbex.EMPTY_PROGRAM);
+        nonNull.setProofObligations(check, AssertionType.RT_NONNULL);
+        stack.push(nonNull);
     }
 }

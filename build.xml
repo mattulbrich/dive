@@ -52,6 +52,7 @@
 
 	<target name="clean">
 		<delete dir="bin" />
+		<delete file="tools/MakeDafnyTreeVisitor.class"/>
 	</target>
 
 </project>

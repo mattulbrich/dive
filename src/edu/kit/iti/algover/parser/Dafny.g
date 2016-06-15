@@ -101,6 +101,7 @@ LE: '<=';
 GT: '>';
 GE: '>=';
 EQ: '==';
+NEQ: '!=';
 DOT: '.';
 BLOCK_BEGIN: '{';
 BLOCK_END: '}';
@@ -242,7 +243,7 @@ and_expr:
   ;
 
 rel_expr:
-  add_expr ( ('<'^ | '>'^ | '=='^ | '<='^ | '>='^) add_expr )?
+  add_expr ( ('<'^ | '>'^ | '=='^ | '!='^ | '<='^ | '>='^) add_expr )?
   ;
 
 add_expr:

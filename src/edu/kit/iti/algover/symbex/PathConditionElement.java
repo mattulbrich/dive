@@ -59,7 +59,13 @@ public class PathConditionElement {
         /**
          * The condition is an assumed assertion after it has been proved.
          */
-        ASSUMED_ASSERTION;
+        ASSUMED_ASSERTION,
+        /**
+         * The condition comes from a guard during short-circuit evaluation.
+         *
+         * In a ==> b, a guards the well-definedness of b, e.g.
+         */
+        GUARD_IN_EXPRESSION;
     }
 
     /**

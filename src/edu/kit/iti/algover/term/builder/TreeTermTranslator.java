@@ -122,6 +122,7 @@ public class TreeTermTranslator {
             return buildEquality(tree);
 
         case DafnyParser.ID:
+        case DafnyParser.NULL:
         case DafnyParser.LIT:
             return buildIdentifier(tree);
 

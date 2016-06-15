@@ -1,3 +1,8 @@
+/*
+ * This file is part of AlgoVer.
+ *
+ * Copyright (C) 2015-2016 Karlsruhe Institute of Technology
+ */
 package edu.kit.iti.algover.util;
 
 import org.antlr.runtime.CommonToken;
@@ -29,6 +34,61 @@ public class ASTUtil {
             return label.getLastChild().toString();
         }
         return null;
+    }
+
+    public static DafnyTree _null() {
+        return new DafnyTree(new CommonToken(DafnyParser.NULL, "null"));
+    }
+
+    public static DafnyTree equals(DafnyTree tree1, DafnyTree tree2) {
+        DafnyTree result = new DafnyTree(new CommonToken(DafnyParser.EQ));
+        result.addChild(tree1);
+        result.addChild(tree2);
+        return result;
+    }
+
+    public static DafnyTree notEquals(DafnyTree tree1, DafnyTree tree2) {
+        DafnyTree result = new DafnyTree(new CommonToken(DafnyParser.NEQ));
+        result.addChild(tree1);
+        result.addChild(tree2);
+        return result;
+    }
+
+    public static DafnyTree and(DafnyTree conj1, DafnyTree conj2) {
+        DafnyTree result = new DafnyTree(new CommonToken(DafnyParser.AND));
+        result.addChild(conj1);
+        result.addChild(conj2);
+        return result;
+    }
+
+    public static DafnyTree and(Iterable<DafnyTree> trees) {
+
+        DafnyTree result = new DafnyTree(new CommonToken(DafnyParser.AND));
+        for (DafnyTree tree : trees) {
+            if(result.getChildCount() == 2) {
+                DafnyTree t = new DafnyTree(new CommonToken(DafnyParser.AND));
+                t.addChild(result);
+                result = t;
+            }
+            result.addChild(tree);
+        }
+
+        if(result.getChildCount() == 0) {
+            throw new IllegalArgumentException("Empty conjunction not supported");
+        }
+
+        if(result.getChildCount() == 1) {
+            result = result.getChild(0);
+        }
+
+        return result;
+    }
+
+    public static DafnyTree impl(DafnyTree premiss, DafnyTree concl) {
+        DafnyTree result = new DafnyTree(new CommonToken(DafnyParser.IMPLIES));
+        result.addChild(premiss);
+        result.addChild(concl);
+        return result;
     }
 
 }
