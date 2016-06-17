@@ -4,6 +4,7 @@
  * Copyright (C) 2015-2016 Karlsruhe Institute of Technology
  */
 package edu.kit.iti.algover.symbex;
+
 import java.util.ArrayList;
 import java.util.Deque;
 import java.util.HashSet;
@@ -15,9 +16,8 @@ import org.antlr.runtime.CommonToken;
 
 import edu.kit.iti.algover.parser.DafnyParser;
 import edu.kit.iti.algover.parser.DafnyTree;
+import edu.kit.iti.algover.symbex.AssertionElement.AssertionType;
 import edu.kit.iti.algover.symbex.PathConditionElement.AssumptionType;
-import edu.kit.iti.algover.symbex.SymbexPath.AssertionType;
-import edu.kit.iti.algover.ui.controller.ProofObligationViewer;
 import edu.kit.iti.algover.util.ASTUtil;
 
 /**
@@ -130,8 +130,7 @@ public class Symbex {
         assertedState.setProofObligations(stm, AssertionType.EXPLICIT_ASSERT);
         stack.add(assertedState);
         state.setBlockToExecute(remainder);
-        state.addPathCondition(new PathConditionElement(stm.getLastChild(),
-                stm, AssumptionType.ASSUMED_ASSERTION, state.getMap()));
+        state.addPathCondition(stm.getLastChild(), stm, AssumptionType.ASSUMED_ASSERTION);
         stack.add(state);
     }
 
@@ -147,8 +146,7 @@ public class Symbex {
             SymbexPath state, DafnyTree stm,
             DafnyTree remainder) {
         SymbexPath assumedState = new SymbexPath(state);
-        assumedState.addPathCondition(new PathConditionElement(stm.getLastChild(),
-                stm, AssumptionType.EXPLICIT_ASSUMPTION, state.getMap()));
+        assumedState.addPathCondition(stm.getLastChild(), stm, AssumptionType.EXPLICIT_ASSUMPTION);
         assumedState.setBlockToExecute(remainder);
         stack.add(assumedState);
     }
@@ -166,12 +164,10 @@ public class Symbex {
 
         DafnyTree then = stm.getChild(1);
         SymbexPath stateElse = new SymbexPath(state);
-        state.addPathCondition(new PathConditionElement(cond, stm,
-                AssumptionType.IF_THEN, state.getMap()));
+        state.addPathCondition(cond, stm, AssumptionType.IF_THEN);
         state.setBlockToExecute(append(then, remainder));
         stack.push(state);
-        stateElse.addPathCondition(new PathConditionElement(ASTUtil.negate(cond), stm,
-                AssumptionType.IF_ELSE, state.getMap()));
+        stateElse.addPathCondition(ASTUtil.negate(cond), stm, AssumptionType.IF_ELSE);
         if(stm.getChildCount() == 3) {
             DafnyTree _else = stm.getChild(2);
             stateElse.setBlockToExecute(append(_else, remainder));
@@ -208,16 +204,13 @@ public class Symbex {
         SymbexPath preserveState = new SymbexPath(state);
         preserveState.setMap(anonymise(preserveState.getMap(), body));
         for (DafnyTree inv : invariants) {
-            PathConditionElement pc = new PathConditionElement(inv.getLastChild(), inv,
-                    AssumptionType.ASSUMED_INVARIANT, preserveState.getMap());
-            preserveState.addPathCondition(pc);
+            preserveState.addPathCondition(inv.getLastChild(), inv, AssumptionType.ASSUMED_INVARIANT);
         }
 
         // guard well-def
         handleExpression(stack, preserveState, guard);
 
-        preserveState.addPathCondition(new PathConditionElement(guard, stm,
-                AssumptionType.WHILE_TRUE, preserveState.getMap()));
+        preserveState.addPathCondition(guard, stm, AssumptionType.WHILE_TRUE);
         preserveState.setBlockToExecute(stm.getLastChild());
 
         // 2b. show invariants:
@@ -229,12 +222,9 @@ public class Symbex {
         // 3. use case:
         state.setMap(anonymise(state.getMap(), body));
         for (DafnyTree inv : invariants) {
-            PathConditionElement pc = new PathConditionElement(inv.getLastChild(), inv,
-                    AssumptionType.ASSUMED_INVARIANT, state.getMap());
-            state.addPathCondition(pc);
+            state.addPathCondition(inv.getLastChild(), inv, AssumptionType.ASSUMED_INVARIANT);
         }
-        state.addPathCondition(new PathConditionElement(ASTUtil.negate(guard), stm,
-                AssumptionType.WHILE_FALSE, state.getMap()));
+        state.addPathCondition(ASTUtil.negate(guard), stm, AssumptionType.WHILE_FALSE);
         state.setBlockToExecute(remainder);
         stack.add(state);
     }
@@ -423,8 +413,7 @@ public class Symbex {
         SymbexPath result = new SymbexPath(function);
 
         for(DafnyTree req : function.getChildrenWithType(DafnyParser.REQUIRES)) {
-            result.addPathCondition(new PathConditionElement(req.getLastChild(), req,
-                    PathConditionElement.AssumptionType.PRE, result.getMap()));
+            result.addPathCondition(req.getLastChild(), req, AssumptionType.PRE);
         }
 
         result.setBlockToExecute(function.getLastChild());
@@ -451,7 +440,7 @@ public class Symbex {
             DafnyTree child0 = expression.getChild(0);
             handleExpression(stack, current, child0);
             SymbexPath guarded = new SymbexPath(current);
-            guarded.addPathCondition(new PathConditionElement(child0, child0, AssumptionType.GUARD_IN_EXPRESSION, guarded.getMap()));
+            guarded.addPathCondition(child0, child0, AssumptionType.GUARD_IN_EXPRESSION);
             handleExpression(stack, guarded, expression.getChild(1));
             break;
 
@@ -459,8 +448,8 @@ public class Symbex {
             child0 = expression.getChild(0);
             handleExpression(stack, current, child0);
             guarded = new SymbexPath(current);
-            guarded.addPathCondition(new PathConditionElement(ASTUtil.negate(child0),
-                    child0, AssumptionType.GUARD_IN_EXPRESSION, guarded.getMap()));
+            guarded.addPathCondition(ASTUtil.negate(child0),
+                    child0, AssumptionType.GUARD_IN_EXPRESSION);
             handleExpression(stack, guarded, expression.getChild(1));
             break;
 

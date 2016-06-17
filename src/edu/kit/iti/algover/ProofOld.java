@@ -1,16 +1,17 @@
 /*
  * This file is part of AlgoVer.
  *
- * Copyright (C) 2015 Karlsruhe Institute of Technology
+ * Copyright (C) 2015-2016 Karlsruhe Institute of Technology
  */
 package edu.kit.iti.algover;
 
-import edu.kit.iti.algover.proof.ProofVerificationConditionBuilder;
+import java.util.LinkedList;
+
 import edu.kit.iti.algover.parser.DafnyTree;
+import edu.kit.iti.algover.proof.ProofVerificationConditionBuilder;
+import edu.kit.iti.algover.symbex.AssertionElement.AssertionType;
 import edu.kit.iti.algover.symbex.PathConditionElement;
 import edu.kit.iti.algover.symbex.SymbexPath;
-
-import java.util.LinkedList;
 
 /**
  * Class that represents a proof with all its components and references
@@ -23,12 +24,12 @@ public class ProofOld {
         return collected;
     }
 
-    public LinkedList<SymbexPath.AssertionType> getCollected2() {
+    public LinkedList<AssertionType> getCollected2() {
         return collected2;
     }
 
     private LinkedList<PathConditionElement> collected;
-    private LinkedList<SymbexPath.AssertionType> collected2;
+    private LinkedList<AssertionType> collected2;
     private LinkedList<DafnyTree> assumptions;
     private LinkedList<DafnyTree> toShow;
     private SymbexPath state;
@@ -64,7 +65,7 @@ public class ProofOld {
 
 
     public ProofOld(SymbexPath state, LinkedList<DafnyTree> ass, LinkedList<DafnyTree> show,
-                 LinkedList<PathConditionElement> collected, LinkedList<SymbexPath.AssertionType> collected2, int id){
+                 LinkedList<PathConditionElement> collected, LinkedList<AssertionType> collected2, int id){
         this.setAssumptions(ass);
         this.setToShow(show);
         this.collected = collected;
@@ -84,7 +85,7 @@ public class ProofOld {
         for (PathConditionElement pathConditionElement : collected) {
             name+=pathConditionElement.getType()+"\\";
         }
-        for (SymbexPath.AssertionType assertionType : collected2) {
+        for (AssertionType assertionType : collected2) {
             name+=assertionType.toString()+"\\";
         }
         name+=id;

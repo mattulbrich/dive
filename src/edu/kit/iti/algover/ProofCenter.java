@@ -1,16 +1,17 @@
 /*
  * This file is part of AlgoVer.
  *
- * Copyright (C) 2015 Karlsruhe Institute of Technology
+ * Copyright (C) 2015-2016 Karlsruhe Institute of Technology
  */
 package edu.kit.iti.algover;
 
-import edu.kit.iti.algover.parser.DafnyTree;
-import edu.kit.iti.algover.symbex.PathConditionElement;
-import edu.kit.iti.algover.symbex.SymbexPath;
-
 import java.io.File;
 import java.util.LinkedList;
+
+import edu.kit.iti.algover.parser.DafnyTree;
+import edu.kit.iti.algover.symbex.AssertionElement;
+import edu.kit.iti.algover.symbex.PathConditionElement;
+import edu.kit.iti.algover.symbex.SymbexPath;
 
 /**
  * ProofOldCenter manages several ProofOld obligations
@@ -99,7 +100,7 @@ public class ProofCenter  {
         }
     }
     public ProofOld createProofOldObject(SymbexPath state, LinkedList<DafnyTree> ass, LinkedList<DafnyTree> show,
-                 LinkedList<PathConditionElement> collected, LinkedList<SymbexPath.AssertionType> collected2, int id){
+                 LinkedList<PathConditionElement> collected, LinkedList<AssertionElement.AssertionType> collected2, int id){
         this.state = state;
         ProofOld nProofOld = new ProofOld(state, ass,show,collected,collected2,id);
         //System.out.println("NewCall"+ nProofOld.getName());

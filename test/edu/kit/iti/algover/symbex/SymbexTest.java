@@ -5,30 +5,26 @@
  */
 package edu.kit.iti.algover.symbex;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
-import java.io.FileNotFoundException;
-import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Deque;
-import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
 import org.antlr.runtime.CommonToken;
-import org.antlr.runtime.RecognitionException;
 import org.junit.Before;
 import org.junit.Test;
 
-import edu.kit.iti.algover.parser.ParserTest;
 import edu.kit.iti.algover.parser.DafnyParser;
 import edu.kit.iti.algover.parser.DafnyTree;
-import edu.kit.iti.algover.symbex.SymbexPath.AssertionType;
+import edu.kit.iti.algover.parser.ParserTest;
+import edu.kit.iti.algover.symbex.AssertionElement.AssertionType;
+import edu.kit.iti.algover.symbex.PathConditionElement.AssumptionType;
 import edu.kit.iti.algover.util.ImmutableList;
 import edu.kit.iti.algover.util.Pair;
-import edu.kit.iti.algover.symbex.PathConditionElement.AssumptionType;
 
 public class SymbexTest {
 

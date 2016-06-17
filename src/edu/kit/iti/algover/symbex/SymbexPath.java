@@ -9,10 +9,9 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-
 import edu.kit.iti.algover.parser.DafnyParser;
 import edu.kit.iti.algover.parser.DafnyTree;
-import edu.kit.iti.algover.proof.ProofVerificationConditionBuilder;
+import edu.kit.iti.algover.symbex.AssertionElement.AssertionType;
 import edu.kit.iti.algover.symbex.PathConditionElement.AssumptionType;
 import edu.kit.iti.algover.util.ImmutableList;
 
@@ -41,51 +40,6 @@ import edu.kit.iti.algover.util.ImmutableList;
  * references.
  */
 public class SymbexPath {
-
-    /**
-     * There are different reasons for assertions.
-     */
-    public enum AssertionType {
-        /**
-         * Precondition to be checked prior to method invocation.
-         */
-        CALL_PRE,
-
-        /**
-         * Explicit assertion.
-         */
-        EXPLICIT_ASSERT,
-
-        /**
-         * Implicit assertion (div by zero, null-access, in range, ...)
-         */
-        IMPLICIT_ASSERT,
-
-        /**
-         * Postcondition to be proved.
-         */
-        POST,
-
-        /**
-         * Loop Invariant to be proved inductive.
-         */
-        INVARIANT_PRESERVED,
-
-        /**
-         * Loop Invariant has to hold initially.
-         */
-        INVARIANT_INITIALLY_VALID,
-
-        /**
-         * Runtime Assertion: Receiver is different from null
-         */
-        RT_NONNULL,
-
-        /**
-         * Runtime Assertion: Array/Sequence index in bounds of receiver
-         */
-        RT_IN_BOUNDS;
-    }
 
     /**
      * The gathered path conditions.
@@ -151,11 +105,16 @@ public class SymbexPath {
     /**
      * Adds a path condition to this state.
      *
-     * @param pathCondition
-     *            the path condition to add, not <code>null</code>
+     * @param expr
+     *            the expression to be assumed, not <code>null</code>
+     * @param stm
+     *            the stm from which it arises, not <code>null</code>
+     * @param type
+     *            the type of the assumption, not <code>null</code>
      */
-    public void addPathCondition(PathConditionElement pathCondition) {
-        assert pathCondition != null;
+    public void addPathCondition(DafnyTree expr, DafnyTree stm, AssumptionType type) {
+        PathConditionElement pathCondition =
+                new PathConditionElement(expr, stm, type, currentMap);
         pathConditions = pathConditions.append(pathCondition);
     }
 

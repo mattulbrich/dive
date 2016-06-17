@@ -1,7 +1,7 @@
 /*
  * This file is part of AlgoVer.
  *
- * Copyright (C) 2015 Karlsruhe Institute of Technology
+ * Copyright (C) 2015-2016 Karlsruhe Institute of Technology
  */
 package edu.kit.iti.algover.ui.model;
 
@@ -26,6 +26,8 @@ import edu.kit.iti.algover.parser.DafnyParser;
 import edu.kit.iti.algover.parser.DafnyTree;
 import edu.kit.iti.algover.proof.ContractProofObligation;
 import edu.kit.iti.algover.proof.IllegalStateException;
+import edu.kit.iti.algover.symbex.AssertionElement.AssertionType;
+import edu.kit.iti.algover.symbex.AssertionElement;
 import edu.kit.iti.algover.symbex.PathConditionElement;
 import edu.kit.iti.algover.symbex.Symbex;
 import edu.kit.iti.algover.symbex.SymbexPath;
@@ -181,7 +183,7 @@ public class ProblemLoader {
         LinkedList<DafnyTree> instantiatedAssumptions;
 
         LinkedList<PathConditionElement> typeCollectionPath;
-        LinkedList<SymbexPath.AssertionType> typeCollectionState;
+        LinkedList<AssertionType> typeCollectionState;
         LinkedList<DafnyTree> assumptions;
 
 
@@ -191,7 +193,7 @@ public class ProblemLoader {
             assumptions = new LinkedList<DafnyTree>();
             instantiatedAssumptions  = new LinkedList<DafnyTree>();
             typeCollectionPath = new LinkedList<PathConditionElement>();
-            typeCollectionState  = new LinkedList<SymbexPath.AssertionType>();
+            typeCollectionState  = new LinkedList<AssertionElement.AssertionType>();
 
            // System.out.println("------------");
             for (PathConditionElement pc : res.getPathConditions()) {
