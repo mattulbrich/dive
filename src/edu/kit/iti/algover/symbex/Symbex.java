@@ -212,9 +212,14 @@ public class Symbex {
                     AssumptionType.ASSUMED_INVARIANT, preserveState.getMap());
             preserveState.addPathCondition(pc);
         }
+
+        // guard well-def
+        handleExpression(stack, preserveState, guard);
+
         preserveState.addPathCondition(new PathConditionElement(guard, stm,
                 AssumptionType.WHILE_TRUE, preserveState.getMap()));
         preserveState.setBlockToExecute(stm.getLastChild());
+
         // 2b. show invariants:
         preserveState.setProofObligations(
                 invariants,
