@@ -146,6 +146,80 @@ tools to cope with the challenge:
 These tools are meant for inspection of the proof state, less for
 progress (assumption may make progress).
 
+\paragraph{Goals and Objectives}
+In this project a new interaction concept will be developed which addresses 
+common problems in performing software verification tasks:
+
+\begin{itemize}
+ \item Finding the cause of a failed verification attempt, i.e., either the 
+prover is not able to find a proof or an error in the specification or program 
+was introduced by the user
+\item where, in terms of the program, did the verification process stop
+\item fast recovery from verification errors 
+\end{itemize}
+
+To address these problems our new interaction concept will allow different 
+presentation of the proof problem as well as new actions during the proof 
+process.
+
+The new concept will follow the following general heuristics by Nielsen for UI 
+design:
+\begin{enumerate}
+ \item Match between system and real world
+ \item Recognition rather than recall
+ \item minimalist design
+ \item help user recognize, diagnose and recover from errors
+ \item visibility of system status
+ \item MAYBE: flexibility and efficiency of use; user control and freedom, help 
+and documentation; error prevention
+\end{enumerate}
+
+These heuristics for user interface design (by Nielsen) will be stated more 
+precisely in the context of program verification systems in the following.
+
+\paragraph{Match between system and real world}
+\begin{quote}
+ The system should speak the users' language, with words, phrases and concepts 
+familiar to the user, rather than system-oriented terms. Follow real-world 
+conventions, making information appear in a natural and logical order.
+\end{quote}
+
+When adapting the general heuristic stated by Nielsen to verification systems 
+the user's input language is the program and its specification. Our hypothesis 
+is, that most of the time in the verification process the user thinks in 
+terms of the program and the specification that should hold in specific 
+program states. This implies, that users may think in terms of program states 
+and program execution traces. Therefore the natural order for appearances of 
+conditions, assertions and assumptions is the order they appear and 
+should hold during a specific program execution trace.
+\paragraph{Recognition rather than recall}
+\begin{quote}
+ Minimize the user's memory load by making objects, actions, and options 
+visible. The user should not have to remember information from one part of the 
+dialogue to another. Instructions for use of the system should be visible or 
+easily retrievable whenever appropriate.
+\end{quote}
+
+\paragraph{Minimalist design}
+Actually the heuristic is called Aesthetic and minimalist design stating 
+\begin{quote}
+ Dialogues should not contain information which is irrelevant or rarely needed. 
+Every extra unit of information in a dialogue competes with the relevant units 
+of information and diminishes their relative visibility.
+\end{quote}
+
+\paragraph{help user recognize, diagnose and recover from errors}
+\begin{quote}
+ Error messages should be expressed in plain language (no codes), precisely 
+indicate the problem, and constructively suggest a solution.
+\end{quote}
+
+\paragraph{ visibility of system status}
+\begin{quote}
+ The system should always keep users informed about what is going on, through 
+appropriate feedback within reasonable time.
+\end{quote}
+
 \paragraph{Details}
 NOTE: Do not bother about language in the Enumeration below
 \begin{enumerate}
