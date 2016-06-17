@@ -386,7 +386,7 @@ public class SymbexTest {
     @Test
     public void testHandleRuntimeAssertions() throws Exception {
         InputStream stream = getClass().getResourceAsStream("runtimeAssert.dfy");
-        this.tree = ParserTest.parseFile(stream);
+        this.tree = ParserTest.parseFile(stream).getChild(0);
 
         Symbex symbex = new Symbex();
         List<SymbexPath> results = symbex.symbolicExecution(tree);
@@ -430,6 +430,45 @@ public class SymbexTest {
             DafnyTree po = path.getProofObligations().get(0);
             assertEquals("(!= a null)", po.toStringTree());
             assertEquals(0, path.getPathConditions().size());
+        }
+    }
+
+    // revealed 2 bugs
+    @Test
+    public void testHandleRuntimeAssertionsIf() throws Exception {
+        InputStream stream = getClass().getResourceAsStream("runtimeAssert.dfy");
+        this.tree = ParserTest.parseFile(stream).getChild(1);
+
+        Symbex symbex = new Symbex();
+        List<SymbexPath> results = symbex.symbolicExecution(tree);
+
+        assertEquals(4, results.size());
+
+        {
+            SymbexPath path = results.get(0);
+            assertEquals(AssertionType.POST, path.getProofObligationType());
+        }
+        {
+            SymbexPath path = results.get(1);
+            assertEquals(AssertionType.POST, path.getProofObligationType());
+        }
+        {
+            SymbexPath path = results.get(2);
+            assertEquals(AssertionType.RT_IN_BOUNDS, path.getProofObligationType());
+            ImmutableList<DafnyTree> pos = path.getProofObligations();
+            assertEquals(2, pos.size());
+            assertEquals("(>= i 0)", pos.get(0).toStringTree());
+            assertEquals("(< i (Length a))", pos.get(1).toStringTree());
+            assertEquals(1, path.getPathConditions().size());
+            assertEquals("(> i 0)", path.getPathConditions().get(0).getExpression().toStringTree());
+        }
+        {
+            SymbexPath path = results.get(3);
+            assertEquals(AssertionType.RT_NONNULL, path.getProofObligationType());
+            DafnyTree po = path.getProofObligations().get(0);
+            assertEquals("(!= a null)", po.toStringTree());
+            assertEquals(1, path.getPathConditions().size());
+            assertEquals("(> i 0)", path.getPathConditions().get(0).getExpression().toStringTree());
         }
     }
 }

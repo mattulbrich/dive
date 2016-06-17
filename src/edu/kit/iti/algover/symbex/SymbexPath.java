@@ -331,6 +331,11 @@ public class SymbexPath {
         return result.toString();
     }
 
+    @Override
+    public String toString() {
+        return getPathIdentifier();
+    }
+
     /**
      * Split a symbex state with more than one proof obligation into several
      * objects.

@@ -162,6 +162,8 @@ public class Symbex {
     void handleIf(Deque<SymbexPath> stack, SymbexPath state,
             DafnyTree stm, DafnyTree remainder) {
         DafnyTree cond = stm.getChild(0);
+        handleExpression(stack, state, cond);
+
         DafnyTree then = stm.getChild(1);
         SymbexPath stateElse = new SymbexPath(state);
         state.addPathCondition(new PathConditionElement(cond, stm,
@@ -426,6 +428,15 @@ public class Symbex {
         return result;
     }
 
+    /*
+     * Handle expressions:
+     * - Create runtime checks for array accesses
+     *   - non-null
+     *   - index in bounds
+     * - for field / method accesses
+     *   - non-null
+     * - add shortcut evaluations as guards as path conditoins
+     */
     private void handleExpression(Deque<SymbexPath> stack, SymbexPath current, DafnyTree expression) {
 
         switch(expression.getType()) {
@@ -453,6 +464,11 @@ public class Symbex {
             addNonNullCheck(stack, current, child0);
             addIndexInRangeCheck(stack, current, expression.getChild(1), child0);
             break;
+
+        default:
+            for (int i = 0; i < expression.getChildCount(); i++) {
+                handleExpression(stack, current, expression.getChild(i));
+            }
         }
     }
 
