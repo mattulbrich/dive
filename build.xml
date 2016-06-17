@@ -18,8 +18,10 @@
 	</target>
 
 	<target name="compile" description="Compile all files" depends="visitor,init">
-		<javac srcdir="gen" destdir="bin" classpath="${libs}" debug="on" />
-		<javac srcdir="src" destdir="bin" classpath="${libs}:bin" debug="on" />
+		<javac destdir="bin" classpath="${libs}" debug="on">
+			<src path="src"/>
+			<src path="gen"/>
+		</javac>
 	</target>
 
 	<target name="antlr" depends="init">
@@ -34,9 +36,9 @@
 	<target name="visitor" depends="antlr">
 		<javac srcdir="tools" destdir="tools" includes="MakeDafnyTreeVisitor.java" debug="on" />
 		<mkdir dir="gen/edu/kit/iti/algover/parser"/>
-		<java classname="MakeDafnyTreeVisitor" classpath="tools">
+		<java classname="MakeDafnyTreeVisitor" classpath="tools" failonerror="true">
 			<arg value="gen/edu/kit/iti/algover/parser" />
-			<arg value="../Dafny.tokens" />
+			<arg value="gen/Dafny.tokens" />
 			<arg value="edu.kit.iti.algover.parser" />
 			<arg value="Dafny" />
 		</java>

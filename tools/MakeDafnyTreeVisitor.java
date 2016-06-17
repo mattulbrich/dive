@@ -15,12 +15,13 @@ public class MakeDafnyTreeVisitor {
 
     public static void main(String[] args) throws IOException {
 
+        try {
         String directory = args[0];
         String tokenFile = args[1];
         String packageName = args[2];
         String prefix = args[3];
 
-        Stream<String> tokens = parseTokens(Paths.get(directory, tokenFile));
+        Stream<String> tokens = parseTokens(Paths.get(tokenFile));
 
         PrintWriter visitor = newPrintWriter(Paths.get(directory, prefix + "TreeVisitor.java"));
         visitor.printf("package %s;%n%npublic interface %sTreeVisitor<R,A> {%n", packageName, prefix);
@@ -51,7 +52,10 @@ public class MakeDafnyTreeVisitor {
 
         dispatch.println("  default: throw new Error(\"unreachable\");\n  }\n }\n}");
         dispatch.close();
-
+        } catch(Throwable e) {
+            e.printStackTrace();
+            System.exit(-1);
+        }
     }
 
     private static PrintWriter newPrintWriter(Path path) throws IOException {
