@@ -59,6 +59,7 @@ tokens {
 
 
 INT : 'int';
+BOOL : 'bool';
 SET : 'set';
 RETURNS : 'returns';
 ENSURES: 'ensures';
@@ -163,7 +164,7 @@ var:
   ;
 
 type:
-    INT | SET^ '<'! INT '>'!
+    INT | BOOL | SET^ '<'! INT '>'!
   | ARRAY^ '<'! INT '>'!
   ;
 
