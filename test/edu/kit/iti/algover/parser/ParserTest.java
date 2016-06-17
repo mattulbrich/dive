@@ -34,7 +34,7 @@ public class ParserTest {
                 { "arrayMax.dfy" }, { "highdimarrays.dfy" }, { "arrayEdit.dfy" },
                 { "../symbex/symbex.dfy" },
                 { "arithmetic.dfy" }, { "../util/labelTest.dfy" }, { "../symbex/whileWithAnon.dfy" },
-                { "../symbex/havoc.dfy" },
+                { "../symbex/havoc.dfy" }, { "../symbex/runtimeAssert.dfy" },
                 });
     }
 

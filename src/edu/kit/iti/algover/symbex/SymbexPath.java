@@ -79,7 +79,12 @@ public class SymbexPath {
         /**
          * Runtime Assertion: Receiver is different from null
          */
-        RT_NONNULL;
+        RT_NONNULL,
+
+        /**
+         * Runtime Assertion: Array/Sequence index in bounds of receiver
+         */
+        RT_IN_BOUNDS;
     }
 
     /**

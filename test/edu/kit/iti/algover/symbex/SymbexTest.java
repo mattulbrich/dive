@@ -11,6 +11,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Deque;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -380,5 +381,55 @@ public class SymbexTest {
         assertEquals("(HAVOC x x#2)", pc.get(0).snd.toStringTree());
         assertEquals("(HAVOC y y#1)", pc.get(1).snd.toStringTree());
         assertEquals("(HAVOC x x#1)", pc.get(2).snd.toStringTree());
+    }
+
+    @Test
+    public void testHandleRuntimeAssertions() throws Exception {
+        InputStream stream = getClass().getResourceAsStream("runtimeAssert.dfy");
+        this.tree = ParserTest.parseFile(stream);
+
+        Symbex symbex = new Symbex();
+        List<SymbexPath> results = symbex.symbolicExecution(tree);
+
+        assertEquals(5, results.size());
+
+        {
+            SymbexPath path = results.get(0);
+            assertEquals(AssertionType.POST, path.getProofObligationType());
+        }
+        {
+            SymbexPath path = results.get(1);
+            assertEquals(AssertionType.RT_IN_BOUNDS, path.getProofObligationType());
+            ImmutableList<DafnyTree> pos = path.getProofObligations();
+            assertEquals(2, pos.size());
+            assertEquals("(>= y 0)", pos.get(0).toStringTree());
+            assertEquals("(< y (Length a))", pos.get(1).toStringTree());
+            assertEquals(1, path.getPathConditions().size());
+            assertEquals("(not (> y 0))", path.getPathConditions().get(0).getExpression().toStringTree());
+        }
+        {
+            SymbexPath path = results.get(2);
+            assertEquals(AssertionType.RT_NONNULL, path.getProofObligationType());
+            DafnyTree po = path.getProofObligations().get(0);
+            assertEquals("(!= a null)", po.toStringTree());
+            assertEquals(1, path.getPathConditions().size());
+            assertEquals("(not (> y 0))", path.getPathConditions().get(0).getExpression().toStringTree());
+        }
+        {
+            SymbexPath path = results.get(3);
+            assertEquals(AssertionType.RT_IN_BOUNDS, path.getProofObligationType());
+            ImmutableList<DafnyTree> pos = path.getProofObligations();
+            assertEquals(2, pos.size());
+            assertEquals("(>= y 0)", pos.get(0).toStringTree());
+            assertEquals("(< y (Length a))", pos.get(1).toStringTree());
+            assertEquals(0, path.getPathConditions().size());
+        }
+        {
+            SymbexPath path = results.get(4);
+            assertEquals(AssertionType.RT_NONNULL, path.getProofObligationType());
+            DafnyTree po = path.getProofObligations().get(0);
+            assertEquals("(!= a null)", po.toStringTree());
+            assertEquals(0, path.getPathConditions().size());
+        }
     }
 }

@@ -17,8 +17,8 @@ import edu.kit.iti.algover.parser.DafnyParser;
 import edu.kit.iti.algover.parser.DafnyTree;
 import edu.kit.iti.algover.symbex.PathConditionElement.AssumptionType;
 import edu.kit.iti.algover.symbex.SymbexPath.AssertionType;
+import edu.kit.iti.algover.ui.controller.ProofObligationViewer;
 import edu.kit.iti.algover.util.ASTUtil;
-import edu.kit.iti.algover.util.ImmutableList;
 
 /**
  * Symbex can be used to perform symbolic execution on a function.
@@ -451,14 +451,19 @@ public class Symbex {
         case DafnyParser.ARRAY_ACCESS:
             child0 = expression.getChild(0);
             addNonNullCheck(stack, current, child0);
-//            addIndexInRangeCheck(stack, current, expression.getChild(1), child0);
+            addIndexInRangeCheck(stack, current, expression.getChild(1), child0);
             break;
         }
     }
 
     private void addIndexInRangeCheck(Deque<SymbexPath> stack, SymbexPath current, DafnyTree idx, DafnyTree array) {
-        SymbexPath gt0 = new SymbexPath(current);
-        SymbexPath ltLength = new SymbexPath(current);
+        SymbexPath bounds = new SymbexPath(current);
+        List<DafnyTree> pos = new ArrayList<>();
+        pos.add(ASTUtil.greaterEqual(idx, ASTUtil.intLiteral(0)));
+        pos.add(ASTUtil.less(idx, ASTUtil.length(array)));
+        bounds.setProofObligations(pos, AssertionType.RT_IN_BOUNDS);
+        bounds.setBlockToExecute(Symbex.EMPTY_PROGRAM);
+        stack.push(bounds);
     }
 
     private void addNonNullCheck(Deque<SymbexPath> stack, SymbexPath current, DafnyTree expression) {
