@@ -192,6 +192,19 @@ program states. This implies, that users may think in terms of program states
 and program execution traces. Therefore the natural order for appearances of 
 conditions, assertions and assumptions is the order they appear and 
 should hold during a specific program execution trace.
+
+First of all, the user should be able to stay as long as possible on the 
+program level for proof guidance and comprehension. If this is not possible 
+anymore, due to information that can't be expressed purely on the program 
+level, the user should be able to switch between a logical view of the proof 
+state and the program view. However, to ease the change dependencies and 
+correspondences between both views should be explicitly visible, by for example 
+highlighting corresponding parts/entities in both views when hovering over them 
+or using same colors for same entities.
+
+In addition pathconditions and variable updates should stay in the programming 
+language even if switched to the logical level. Especially, naming of entities 
+should not change between both views.
 \paragraph{Recognition rather than recall}
 \begin{quote}
  Minimize the user's memory load by making objects, actions, and options 
