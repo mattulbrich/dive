@@ -100,10 +100,10 @@ allows for interaction by all three means in a coordinated manner.
 \item The interaction concept comprises different views on the
   verification problem:
   \begin{enumerate}
-  \item code/algorithm view
-  \item proof obligation overview
-  \item logical encoding
-  \item proof manuscript
+  \item code/algorithm view (p-view)
+  \item proof obligation overview (po-view)
+  \item logical encoding (l-view)
+  \item proof manuscript (s-view)
   \end{enumerate}
 
 \item The views are highly connected in the sense that entities which
@@ -111,7 +111,7 @@ allows for interaction by all three means in a coordinated manner.
   logical view, every statement has references to its
   predecessor/origin/purpose/code location.
 
-\item The logical enconding is on a logic which is as identical as
+\item The logical encoding is on a logic which is as identical as
   possible to the programming language.
 
   The logical representation is always kept as closely as possible to
@@ -128,8 +128,8 @@ allows for interaction by all three means in a coordinated manner.
   command is reflected as a new proof obligation, etc.
 \end{enumerate}
 
-Not only conducting the proof is difficutlt. Proof comprehension is
-also a hard business. THerefore the concept will provide different
+Not only conducting the proof is difficult. Proof comprehension is
+also a hard business. Therefore the concept will provide different
 tools to cope with the challenge:
 \begin{enumerate}
 \item \emph{Abstraction} According to a user-given criterion, abstract
@@ -144,7 +144,30 @@ tools to cope with the challenge:
   be taken back easily (backtracking).
 \end{enumerate}
 These tools are meant for inspection of the proof state, less for
-progress (assuomption may make progress).
+progress (assumption may make progress).
+
+\paragraph{Details}
+NOTE: Do not bother about language in the Enumeration below
+\begin{enumerate}
+\item the user always has to be kept informed about the progress of the system 
+and the proof. This has to be realized by the po-view, where a matrix of all 
+pvc belonging to a po have to be shown and it should be indicated in what state
+ they are in. (see verifast?+why?)
+\item ``easy to solve'' pvcs have to be solved automatically by invoking 
+different tools (z3, dafny, key)
+\item problems that can not be solved by z3 or dafny should be given to the key 
+system for further inspection and proof progress
+ \item The  p-view always has to be visible as it is the formulation of the 
+problem by the user. Our hypothesis is, that the user thinks in most cases in 
+terms of the programme 
+ \item If P-view and L-view are 
+visible side-by-side, the P-view has to reflect the path through the programm 
+that is shown by the L-view. That is, all lines not belonging to the l-view 
+have to be greyed out. if hovering over formulas in the l-view, the 
+corresponding origin of the p-view has to be highlighted to reflect dependencies
+
+\end{enumerate}
+
 
 \paragraph{Stuff}
 
