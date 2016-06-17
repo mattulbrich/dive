@@ -6,6 +6,7 @@
 
 	<target name="init" description="initialize all directories">
 		<mkdir dir="bin" />
+		<mkdir dir="gen" />
 	</target>
 
 	<target name="copy-test" depends="init">
@@ -17,22 +18,25 @@
 	</target>
 
 	<target name="compile" description="Compile all files" depends="visitor,init">
-		<javac srcdir="src" destdir="bin" classpath="${libs}" debug="on" />
+		<javac srcdir="gen" destdir="bin" classpath="${libs}" debug="on" />
+		<javac srcdir="src" destdir="bin" classpath="${libs}:bin" debug="on" />
 	</target>
 
 	<target name="antlr" depends="init">
-		<java jar="lib/antlr.jar" fork="true" failonerror="true">
+		<java jar="lib/antlr.jar" fork="true" dir="src" failonerror="true">
 			<arg value="-verbose" />
-			<arg value="-o src" />
-			<arg value="src/edu/kit/iti/algover/parser/Dafny.g" />
+			<arg value="-o" />
+			<arg value="../gen" />
+			<arg value="edu/kit/iti/algover/parser/Dafny.g" />
 		</java>
 	</target>
 
 	<target name="visitor" depends="antlr">
 		<javac srcdir="tools" destdir="tools" includes="MakeDafnyTreeVisitor.java" debug="on" />
+		<mkdir dir="gen/edu/kit/iti/algover/parser"/>
 		<java classname="MakeDafnyTreeVisitor" classpath="tools">
-			<arg value="src/edu/kit/iti/algover/parser" />
-			<arg value="Dafny.tokens" />
+			<arg value="gen/edu/kit/iti/algover/parser" />
+			<arg value="../Dafny.tokens" />
 			<arg value="edu.kit.iti.algover.parser" />
 			<arg value="Dafny" />
 		</java>
@@ -52,6 +56,7 @@
 
 	<target name="clean">
 		<delete dir="bin" />
+		<delete dir="gen" />
 		<delete file="tools/MakeDafnyTreeVisitor.class"/>
 	</target>
 
