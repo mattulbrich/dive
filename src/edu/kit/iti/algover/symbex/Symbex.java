@@ -36,6 +36,11 @@ public class Symbex {
     public static final String HEAP_VAR = "#h";
 
     /**
+     * The designated variable that represents decreases clauses.
+     */
+    public static final String DECREASES_VAR = "#d";
+
+    /**
      * The Constant EMPTY_PROGRAM points to an empty AST.
      */
     private static final DafnyTree EMPTY_PROGRAM =
@@ -196,6 +201,7 @@ public class Symbex {
         boolean isLabel = stm.getChild(0).getType() == DafnyParser.LABEL;
         DafnyTree guard = stm.getChild(isLabel ? 1 : 0);
         DafnyTree body = stm.getLastChild();
+        DafnyTree decreases = stm.getFirstChildWithType(DafnyParser.DECREASES);
         List<DafnyTree> invariants = stm.getChildrenWithType(DafnyParser.INVARIANT);
 
         // 1. initially valid.
@@ -208,7 +214,11 @@ public class Symbex {
         // 2. preserves invariant:
         // 2a. assume invariants
         SymbexPath preserveState = new SymbexPath(state);
-        preserveState.setMap(anonymise(preserveState.getMap(), body));
+        VariableMap preserveMap = preserveState.getMap();
+        String decreaseVar = determineDecreaseVar(preserveMap);
+        preserveMap = anonymise(preserveMap, body);
+        preserveMap = storeDecreases(decreaseVar, decreases, preserveMap);
+        preserveState.setMap(preserveMap);
         for (DafnyTree inv : invariants) {
             preserveState.addPathCondition(inv.getLastChild(), inv,
                     AssumptionType.ASSUMED_INVARIANT);
@@ -236,6 +246,30 @@ public class Symbex {
         state.addPathCondition(ASTUtil.negate(guard), stm, AssumptionType.WHILE_FALSE);
         state.setBlockToExecute(remainder);
         stack.add(state);
+    }
+
+    /*
+     * Update a map by assigning to the decreases variable.
+     */
+    private VariableMap storeDecreases(String decreaseVar, DafnyTree decreases, VariableMap map) {
+        DafnyTree list = new DafnyTree(new CommonToken(DafnyParser.LISTEX));
+        list.addChildren(decreases.getChildren());
+        return map.assign(decreaseVar, list);
+    }
+
+    /*
+     * Find the first decreases variable which has not been assigned to.
+     */
+    private String determineDecreaseVar(VariableMap map) {
+
+        int no = 0;
+        String varName = DECREASES_VAR;
+        while (map.hasAssignmentTo(varName)) {
+            varName = DECREASES_VAR + no;
+            no++;
+        }
+
+        return varName;
     }
 
     /*

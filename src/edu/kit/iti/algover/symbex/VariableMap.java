@@ -18,7 +18,7 @@ import edu.kit.iti.algover.parser.DafnyTree;
 import edu.kit.iti.algover.util.ImmutableList;
 import edu.kit.iti.algover.util.Pair;
 
-public class VariableMap implements Iterable<Pair<String, DafnyTree>> {
+public final class VariableMap implements Iterable<Pair<String, DafnyTree>> {
 
     public static final VariableMap EMPTY = new VariableMap();
 
@@ -59,6 +59,80 @@ public class VariableMap implements Iterable<Pair<String, DafnyTree>> {
         result.addChild(new DafnyTree(new CommonToken(DafnyParser.ID, anonName)));
 
         return assign(v, result);
+    }
+
+    public String toHistoryString() {
+        StringBuilder sb = new StringBuilder();
+        VariableMap vm = this;
+        while(vm != EMPTY) {
+            String nl = sb.length() == 0 ? "" : "\n";
+            sb.insert(0, vm.var + ":=" + vm.value.toStringTree() + nl);
+            vm = vm.parent;
+        }
+        return sb.toString();
+    }
+
+    @Override
+    public String toString() {
+        return toHistoryString();
+    }
+
+    /**
+     * Checks whether this map has an assignment to the given variable.
+     *
+     * @param variableName
+     *            the variable name to check, not <code>null</code>
+     * @return true, if there is an assignment/havoc for the variable.
+     */
+    public boolean hasAssignmentTo(String variableName) {
+        VariableMap vm = this;
+        variableName = variableName.intern();
+        while (vm != EMPTY) {
+            if (vm.var == variableName) {
+                return true;
+            }
+            vm = vm.parent;
+        }
+        return false;
+    }
+
+
+    @Override
+    public Iterator<Pair<String, DafnyTree>> iterator() {
+        List<Pair<String, DafnyTree>> result = toList();
+        return result.iterator();
+    }
+
+    public List<Pair<String, DafnyTree>> toList() {
+        VariableMap vm = this;
+        LinkedList<Pair<String, DafnyTree>> result = new LinkedList<>();
+        while(vm != EMPTY) {
+            result.addLast(new Pair<>(vm.var, vm.value));
+            vm = vm.parent;
+        }
+        return result;
+    }
+
+    @Deprecated
+    public DafnyTree get(String name) {
+
+        if(this == EMPTY && !name.contains("#")) {
+            return new DafnyTree(new CommonToken(DafnyParser.ID, name + "#pre"));
+        }
+
+        if(name.equals(var)) {
+            if(parent != null) {
+                return parent.instantiate(value);
+            } else {
+                return value;
+            }
+        } else {
+            if(parent != null) {
+                return parent.get(name);
+            } else {
+                return null;
+            }
+        }
     }
 
     @Deprecated
@@ -118,39 +192,6 @@ public class VariableMap implements Iterable<Pair<String, DafnyTree>> {
     }
 
     @Deprecated
-    public DafnyTree get(String name) {
-
-        if(this == EMPTY && !name.contains("#")) {
-            return new DafnyTree(new CommonToken(DafnyParser.ID, name + "#pre"));
-        }
-
-        if(name.equals(var)) {
-            if(parent != null) {
-                return parent.instantiate(value);
-            } else {
-                return value;
-            }
-        } else {
-            if(parent != null) {
-                return parent.get(name);
-            } else {
-                return null;
-            }
-        }
-    }
-
-    public String toHistoryString() {
-        StringBuilder sb = new StringBuilder();
-        VariableMap vm = this;
-        while(vm != EMPTY) {
-            String nl = sb.length() == 0 ? "" : "\n";
-            sb.insert(0, vm.var + ":=" + vm.value.toStringTree() + nl);
-            vm = vm.parent;
-        }
-        return sb.toString();
-    }
-
-    @Deprecated
     public String toParallelAssignment() {
         StringBuilder sb = new StringBuilder();
         VariableMap vm = this;
@@ -165,27 +206,6 @@ public class VariableMap implements Iterable<Pair<String, DafnyTree>> {
             vm = vm.parent;
         }
         return sb.toString();
-    }
-
-    @Override
-    public String toString() {
-        return toHistoryString();
-    }
-
-    @Override
-    public Iterator<Pair<String, DafnyTree>> iterator() {
-        List<Pair<String, DafnyTree>> result = toList();
-        return result.iterator();
-    }
-
-    public List<Pair<String, DafnyTree>> toList() {
-        VariableMap vm = this;
-        LinkedList<Pair<String, DafnyTree>> result = new LinkedList<>();
-        while(vm != EMPTY) {
-            result.addLast(new Pair<>(vm.var, vm.value));
-            vm = vm.parent;
-        }
-        return result;
     }
 
 }

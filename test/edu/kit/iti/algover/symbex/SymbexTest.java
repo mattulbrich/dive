@@ -225,7 +225,7 @@ public class SymbexTest {
         }
     }
 
-    // revealed a bug
+    // revealed a bug, and another
     @Test
     public void testHandleWhileAnonymisation() throws Exception {
         InputStream stream = getClass().getResourceAsStream("whileWithAnon.dfy");
@@ -248,14 +248,15 @@ public class SymbexTest {
         {
             SymbexPath ss = results.get(1);
             assertEquals(AssertionType.INVARIANT_PRESERVED, ss.getCommonProofObligationType());
-            List<Pair<String, DafnyTree>> list = ss.getMap().toList();;
-            assertEquals(5, list.size());
-            assertEquals("<mod, +>", list.get(0).toString());
-            assertEquals("<mod, HAVOC>", list.get(1).toString());
-            assertEquals("(HAVOC mod mod#2)", list.get(1).snd.toStringTree());
-            assertEquals("<mod, HAVOC>", list.get(2).toString());
-            assertEquals("<mod, unmod>", list.get(3).toString());
-            assertEquals("<unmod, 1>", list.get(4).toString());
+            List<Pair<String, DafnyTree>> list = ss.getMap().toList();
+            assertEquals(6, list.size());
+            int i = 0;
+            assertEquals("<mod, +>", list.get(i++).toString());
+            assertEquals("<#d, LISTEX>", list.get(i++).toString());
+            assertEquals("(HAVOC mod mod#2)", list.get(i++).snd.toStringTree());
+            assertEquals("(HAVOC mod mod#1)", list.get(i++).snd.toStringTree());
+            assertEquals("<mod, unmod>", list.get(i++).toString());
+            assertEquals("<unmod, 1>", list.get(i++).toString());
         }
         {
             SymbexPath ss = results.get(2);
@@ -487,7 +488,7 @@ public class SymbexTest {
             assertEquals(2, path.getPathConditions().size());
             assertEquals("(> i 2)", path.getPathConditions().get(0).getExpression().toStringTree());
             assertEquals("(> i 0)", path.getPathConditions().get(1).getExpression().toStringTree());
-            assertEquals(1, path.getMap().toList().size());
+            assertEquals("[<#d, LISTEX>, <i, HAVOC>]", path.getMap().toList().toString());
         }
         {
             SymbexPath path = results.get(i++);
@@ -497,7 +498,7 @@ public class SymbexTest {
             assertEquals(2, path.getPathConditions().size());
             assertEquals("(> i 2)", path.getPathConditions().get(0).getExpression().toStringTree());
             assertEquals("(> i 0)", path.getPathConditions().get(1).getExpression().toStringTree());
-            assertEquals(1, path.getMap().toList().size());
+            assertEquals("[<#d, LISTEX>, <i, HAVOC>]", path.getMap().toList().toString());
         }
         {
             SymbexPath path = results.get(i++);

@@ -181,7 +181,7 @@ ensures:
   ;
 
 decreases:
-  DECREASES^ expression
+  DECREASES^ expressions
   ;
 
 invariant:
