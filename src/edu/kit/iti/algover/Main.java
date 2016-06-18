@@ -96,7 +96,7 @@ public class Main {
             for (SymbexPath single : res.split()) {
                 System.out.println(single.getPathIdentifier());
                 //Collection<Term> formulae = magic.from(single);
-                if(VERBOSE) {
+                if (VERBOSE) {
                 //    String smt = z3.createSMTInput(formulae);
                  //   System.out.println(smt);
                 }
@@ -147,17 +147,16 @@ finally
 
 
     }
-
     public static void main(String[] args) throws Exception {
         try {
-            if(args.length == 0) {
+            if (args.length == 0) {
                 test(System.in);
             } else {
                 test(new FileInputStream(args[0]));
             }
         } catch (TermBuildException ex) {
             DafnyTree location = ex.getLocation();
-            if(location != null) {
+            if (location != null) {
                 Token tok = location.token;
                 int pos = tok.getCharPositionInLine();
                 int line = tok.getLine();

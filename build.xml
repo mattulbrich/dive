@@ -5,6 +5,7 @@
 	</property>
 
 	<target name="init" description="initialize all directories">
+<exec executable="pwd" />
 		<mkdir dir="bin" />
 		<mkdir dir="gen" />
 	</target>
@@ -34,6 +35,7 @@
 	</target>
 
 	<target name="visitor" depends="antlr">
+<exec executable="pwd" />
 		<javac srcdir="tools" destdir="tools" includes="MakeDafnyTreeVisitor.java" debug="on" />
 		<mkdir dir="gen/edu/kit/iti/algover/parser"/>
 		<java classname="MakeDafnyTreeVisitor" classpath="tools" failonerror="true">

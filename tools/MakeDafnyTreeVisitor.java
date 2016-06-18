@@ -63,9 +63,13 @@ public class MakeDafnyTreeVisitor {
     }
 
     private static Stream<String> parseTokens(Path path) throws IOException {
-        return Files.lines(path)
-                .filter(l -> !l.startsWith("'") && !l.contains("__"))
-                .map(l -> l.substring(0, l.indexOf('=')));
+        try {
+            return Files.lines(path)
+                    .filter(l -> !l.startsWith("'") && !l.contains("__"))
+                    .map(l -> l.substring(0, l.indexOf('=')));
+        } catch (Exception e) {
+            throw new IOException("Error while reading " + path.toAbsolutePath(), e);
+        }
     }
 
 }

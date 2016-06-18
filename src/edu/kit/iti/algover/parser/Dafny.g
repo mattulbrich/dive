@@ -1,6 +1,6 @@
 grammar Dafny;
 
-options { 
+options {
   output = AST;
   ASTLabelType = DafnyTree;
 }
@@ -128,7 +128,7 @@ program:
 clazz:
   CLASS^ ID '{'
     (method | function | field)+
-  '}' 
+  '}'
   ;
 
 method:
@@ -140,7 +140,7 @@ method:
   ( decreases )?
   '{' statements? '}'
   ->
-    ^(METHOD[tok] ID ^(ARGS vars?) returns_? requires* ensures* 
+    ^(METHOD[tok] ID ^(ARGS vars?) returns_? requires* ensures*
         decreases? ^(BLOCK statements?))
   ;
 
