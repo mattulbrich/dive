@@ -62,4 +62,16 @@
 		<delete file="tools/MakeDafnyTreeVisitor.class"/>
 	</target>
 
+	<target name="checkstyle">
+		<taskdef resource="checkstyletask.properties"
+	         classpath="tools/checkstyle-5.7-all.jar"/>
+		<checkstyle config="tools/checkstyle.xml" failOnViolation="false">
+			<property key="headerFile" file="HEADER"/>
+			<fileset dir="src" includes="**/*.java" />
+			<formatter type="plain" />
+			<formatter type="xml" toFile="checkstyle-results.xml" />
+		</checkstyle>
+	</target>
+
+
 </project>
