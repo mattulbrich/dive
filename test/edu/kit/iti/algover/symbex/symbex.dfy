@@ -11,7 +11,7 @@ method symbexTest(p : int)
 
   while p > 1
     invariant p == 2
-    decreases p+count
+    decreases p+count, 2
   {
     count := count + 1;
   }

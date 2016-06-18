@@ -210,6 +210,20 @@ public final class ASTUtil {
     }
 
     /**
+     * Returns a tree for a Noetherian termination comparison.
+     *
+     * @param exp1 the first expression, not <code>null</code>
+     * @param exp2 the second expression, not <code>null</code>
+     * @return a freshly created dafny tree
+     */
+    public static DafnyTree noetherLess(DafnyTree exp1, DafnyTree exp2) {
+        DafnyTree result = new DafnyTree(new CommonToken(DafnyParser.NOETHER_LESS));
+        result.addChild(exp1);
+        result.addChild(exp2);
+        return result;
+    }
+
+    /**
      * Returns a tree for the length of an single-dim array.
      *
      * @param array the reference whose length is to be taken, not <code>null</code>
@@ -219,6 +233,16 @@ public final class ASTUtil {
         DafnyTree result = new DafnyTree(new CommonToken(DafnyParser.LENGTH, "Length"));
         result.addChild(array);
         return result;
+    }
+
+    /**
+     * Returns an identifier token with the given variable/id name.
+     *
+     * @param id non-<code>null</code> name of identifier
+     * @return a freshly created dafny tree
+     */
+    public static DafnyTree id(String id) {
+        return new DafnyTree(new CommonToken(DafnyParser.ID, id));
     }
 
 }

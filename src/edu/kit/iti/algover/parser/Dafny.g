@@ -17,6 +17,7 @@ tokens {
   OBJ_FUNC_CALL;
   FUNC_CALL;
   HAVOC;
+  NOETHER_LESS;
 }
 
 @parser::header {

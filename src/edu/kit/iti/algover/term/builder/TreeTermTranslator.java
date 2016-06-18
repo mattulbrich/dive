@@ -76,6 +76,8 @@ public class TreeTermTranslator {
                 Term store = new ApplTerm(BuiltinSymbols.STORE1, heapTerm, object, index, value);
                 return new LetTerm(heap, store, result);
 
+            //case DafnyParser.LISTEX:
+
             default:
                 // in this case for error we must take parent of the expression
                 errorTree = (DafnyTree) assignment.getParent();
@@ -84,7 +86,9 @@ public class TreeTermTranslator {
                 return new LetTerm(f, value, result);
             }
         } catch(TermBuildException ex) {
-            ex.setLocation(errorTree);
+            if(!ex.hasLocation()) {
+                ex.setLocation(errorTree);
+            }
             throw ex;
         }
     }

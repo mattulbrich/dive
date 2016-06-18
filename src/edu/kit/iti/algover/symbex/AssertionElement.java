@@ -34,7 +34,7 @@ public class AssertionElement {
         EXPLICIT_ASSERT,
 
         /**
-         * Implicit assertion (div by zero, null-access, in range, ...)
+         * Implicit assertion (div by zero, null-access, in range, ...).
          */
         IMPLICIT_ASSERT,
 
@@ -54,14 +54,19 @@ public class AssertionElement {
         INVARIANT_INITIALLY_VALID,
 
         /**
-         * Runtime Assertion: Receiver is different from null
+         * Runtime Assertion: Receiver is different from null.
          */
         RT_NONNULL,
 
         /**
-         * Runtime Assertion: Array/Sequence index in bounds of receiver
+         * Runtime Assertion: Array/Sequence index in bounds of receiver.
          */
-        RT_IN_BOUNDS;
+        RT_IN_BOUNDS,
+
+        /**
+         * Variant / measured by reduced.
+         */
+        VARIANT_DECREASED,
     }
 
     /**

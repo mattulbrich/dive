@@ -8,28 +8,23 @@ package edu.kit.iti.algover;
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.Collection;
 import java.util.List;
 
 import edu.kit.iti.algover.theoremprover.DafnyTrans;
-import org.antlr.runtime.ANTLRInputStream;
-import org.antlr.runtime.CommonTokenStream;
-import org.antlr.runtime.RecognitionException;
+
 import org.antlr.runtime.Token;
 
-import edu.kit.iti.algover.parser.DafnyLexer;
-import edu.kit.iti.algover.parser.DafnyParser;
-import edu.kit.iti.algover.parser.DafnyParser.program_return;
+import edu.kit.iti.algover.parser.DafnyFileParser;
 import edu.kit.iti.algover.parser.DafnyTree;
 import edu.kit.iti.algover.smt.Z3Solver;
 import edu.kit.iti.algover.symbex.AssertionElement;
 import edu.kit.iti.algover.symbex.PathConditionElement;
 import edu.kit.iti.algover.symbex.Symbex;
 import edu.kit.iti.algover.symbex.SymbexPath;
-import edu.kit.iti.algover.term.Term;
 import edu.kit.iti.algover.term.builder.TermBuildException;
 import edu.kit.iti.algover.util.Debug;
 import edu.kit.iti.algover.util.LabelIntroducer;
+import edu.kit.iti.algover.util.SymbexUtil;
 import edu.kit.iti.algover.util.Util;
 
 public class Main {
@@ -38,27 +33,13 @@ public class Main {
 
     private static void test(InputStream stream) throws Exception {
         // create the lexer attached to stream
-      ANTLRInputStream input = new ANTLRInputStream(stream);
 
-        DafnyLexer lexer = new DafnyLexer(input);
-        // create the buffer of tokens between the lexer and parser
-        CommonTokenStream tokens = new CommonTokenStream(lexer);
-        // create the parser attached to the token buffer
-        DafnyParser parser = new DafnyParser(tokens);
-        parser.setTreeAdaptor(new DafnyTree.Adaptor());
-        // launch the parser starting at rule r, get return object
-        program_return result;
-        try {
-            result = parser.program();
-        } catch (RecognitionException e) {
-            throw new Exception(parser.getErrorHeader(e) + ": " + parser.getErrorMessage(e, parser.getTokenNames()), e);
-        }
-        // pull out the tree and cast it
-        DafnyTree t = result.getTree();
+        DafnyTree t = DafnyFileParser.parse(stream);
+
         String stringTree = t.toStringTree();
         System.out.println(Debug.prettyPrint(stringTree)); // print out the tree
 
-        LabelIntroducer.visit(result.getTree());
+        LabelIntroducer.visit(t);
 
         Symbex symbex = new Symbex();
         List<SymbexPath> symbexresult = symbex.symbolicExecution(t);
@@ -69,6 +50,9 @@ public class Main {
             String translated = dt.trans();
             methodName = dt.methodName;
             translatedMethod.append(translated);
+
+            // TODO M->S: You might want to use the following new method:
+            System.out.println(SymbexUtil.toString(res));
 
             System.out.println("------------");
             System.out.println(res.getPathIdentifier());

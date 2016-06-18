@@ -53,7 +53,9 @@ public class SymbexTest {
         assertEquals(7, results.size());
 
         assertEquals(AssertionType.INVARIANT_INITIALLY_VALID, results.get(0).getCommonProofObligationType());
-        assertEquals(AssertionType.INVARIANT_PRESERVED, results.get(1).getCommonProofObligationType());
+        assertEquals(null, results.get(1).getCommonProofObligationType());
+        assertEquals(AssertionType.INVARIANT_PRESERVED, results.get(1).split().get(0).getCommonProofObligationType());
+        assertEquals(AssertionType.VARIANT_DECREASED, results.get(1).split().get(1).getCommonProofObligationType());
         assertEquals(AssertionType.EXPLICIT_ASSERT, results.get(2).getCommonProofObligationType());
         assertEquals(AssertionType.POST, results.get(3).getCommonProofObligationType());
         assertEquals(AssertionType.POST, results.get(4).getCommonProofObligationType());
@@ -178,8 +180,11 @@ public class SymbexTest {
         }
 
         {
-            SymbexPath pres = stack.get(1);
+            List<SymbexPath> paths = stack.get(1).split();
+            assertEquals(2, paths.size());
             {
+                SymbexPath pres = paths.get(0);
+                assertEquals(AssertionType.INVARIANT_PRESERVED, pres.getCommonProofObligationType());
                 assertEquals(2, pres.getPathConditions().size());
                 ImmutableList<PathConditionElement> pcs = pres.getPathConditions();
                 {
@@ -193,11 +198,21 @@ public class SymbexTest {
                     assertEquals("(> p 1)", pc1.getExpression().toStringTree());
                 }
                 {
-                    assertEquals(AssertionType.INVARIANT_PRESERVED, pres.getCommonProofObligationType());
                     assertEquals(1, pres.getProofObligations().size());
                     AssertionElement po = pres.getProofObligations().get(0);
                     assertEquals("(invariant (== p 2))", po.getOrigin().toStringTree());
                     assertEquals("(== p 2)", po.getExpression().toStringTree());
+                }
+            }
+            {
+                SymbexPath decr = paths.get(1);
+                assertEquals(AssertionType.VARIANT_DECREASED, decr.getCommonProofObligationType());
+                // has the same path conditions as above, no need to check again
+                {
+                    assertEquals(1, decr.getProofObligations().size());
+                    AssertionElement po = decr.getProofObligations().get(0);
+                    assertEquals("(decreases (+ p count) 2)", po.getOrigin().toStringTree());
+                    assertEquals("(NOETHER_LESS #d (LISTEX (+ p count) 2))", po.getExpression().toStringTree());
                 }
             }
         }
@@ -246,17 +261,24 @@ public class SymbexTest {
             assertEquals("<unmod, 1>", list.get(2).toString());
         }
         {
-            SymbexPath ss = results.get(1);
-            assertEquals(AssertionType.INVARIANT_PRESERVED, ss.getCommonProofObligationType());
-            List<Pair<String, DafnyTree>> list = ss.getMap().toList();
-            assertEquals(6, list.size());
-            int i = 0;
-            assertEquals("<mod, +>", list.get(i++).toString());
-            assertEquals("<#d, LISTEX>", list.get(i++).toString());
-            assertEquals("(HAVOC mod mod#2)", list.get(i++).snd.toStringTree());
-            assertEquals("(HAVOC mod mod#1)", list.get(i++).snd.toStringTree());
-            assertEquals("<mod, unmod>", list.get(i++).toString());
-            assertEquals("<unmod, 1>", list.get(i++).toString());
+            List<SymbexPath> ss = results.get(1).split();
+            {
+                SymbexPath pres = ss.get(0);
+                assertEquals(AssertionType.INVARIANT_PRESERVED, pres.getCommonProofObligationType());
+                List<Pair<String, DafnyTree>> list = pres.getMap().toList();
+                assertEquals(6, list.size());
+                int i = 0;
+                assertEquals("<mod, +>", list.get(i++).toString());
+                assertEquals("<#d, LISTEX>", list.get(i++).toString());
+                assertEquals("(HAVOC mod mod#2)", list.get(i++).snd.toStringTree());
+                assertEquals("(HAVOC mod mod#1)", list.get(i++).snd.toStringTree());
+                assertEquals("<mod, unmod>", list.get(i++).toString());
+                assertEquals("<unmod, 1>", list.get(i++).toString());
+            }
+            {
+                SymbexPath decr = ss.get(1);
+                assertEquals(AssertionType.VARIANT_DECREASED, decr.getCommonProofObligationType());
+            }
         }
         {
             SymbexPath ss = results.get(2);
@@ -505,8 +527,9 @@ public class SymbexTest {
             assertEquals(AssertionType.INVARIANT_INITIALLY_VALID, path.getCommonProofObligationType());
         }
         {
-            SymbexPath path = results.get(i++);
-            assertEquals(AssertionType.INVARIANT_PRESERVED, path.getCommonProofObligationType());
+            List<SymbexPath> paths = results.get(i++).split();
+            assertEquals(AssertionType.INVARIANT_PRESERVED, paths.get(0).getCommonProofObligationType());
+            assertEquals(AssertionType.VARIANT_DECREASED, paths.get(1).getCommonProofObligationType());
         }
         {
             SymbexPath path = results.get(i++);

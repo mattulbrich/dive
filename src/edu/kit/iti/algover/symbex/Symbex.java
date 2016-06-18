@@ -19,6 +19,7 @@ import edu.kit.iti.algover.parser.DafnyTree;
 import edu.kit.iti.algover.symbex.AssertionElement.AssertionType;
 import edu.kit.iti.algover.symbex.PathConditionElement.AssumptionType;
 import edu.kit.iti.algover.util.ASTUtil;
+import edu.kit.iti.algover.util.ImmutableList;
 
 /**
  * Symbex can be used to perform symbolic execution on a function.
@@ -201,7 +202,8 @@ public class Symbex {
         boolean isLabel = stm.getChild(0).getType() == DafnyParser.LABEL;
         DafnyTree guard = stm.getChild(isLabel ? 1 : 0);
         DafnyTree body = stm.getLastChild();
-        DafnyTree decreases = stm.getFirstChildWithType(DafnyParser.DECREASES);
+        DafnyTree decreasesClause = stm.getFirstChildWithType(DafnyParser.DECREASES);
+        DafnyTree decreases = toListExt(decreasesClause);
         List<DafnyTree> invariants = stm.getChildrenWithType(DafnyParser.INVARIANT);
 
         // 1. initially valid.
@@ -217,7 +219,7 @@ public class Symbex {
         VariableMap preserveMap = preserveState.getMap();
         String decreaseVar = determineDecreaseVar(preserveMap);
         preserveMap = anonymise(preserveMap, body);
-        preserveMap = storeDecreases(decreaseVar, decreases, preserveMap);
+        preserveMap = preserveMap.assign(decreaseVar, decreases);
         preserveState.setMap(preserveMap);
         for (DafnyTree inv : invariants) {
             preserveState.addPathCondition(inv.getLastChild(), inv,
@@ -233,10 +235,14 @@ public class Symbex {
         // 2b. show invariants:
         preserveState.setProofObligationsFromLastChild(invariants,
                 AssertionType.INVARIANT_PRESERVED);
-        stack.add(preserveState);
 
         // 2c. show decreases clause:
-
+        DafnyTree decrReduced = ASTUtil.noetherLess(ASTUtil.id(decreaseVar), decreases);
+        AssertionElement decrProof = new AssertionElement(decrReduced, decreasesClause,
+                AssertionType.VARIANT_DECREASED, preserveState.getMap());
+        ImmutableList<AssertionElement> oldPOs = preserveState.getProofObligations();
+        preserveState.setProofObligations(oldPOs.append(decrProof));
+        stack.add(preserveState);
 
         // 3. use case:
         state.setMap(anonymise(state.getMap(), body));
@@ -249,12 +255,12 @@ public class Symbex {
     }
 
     /*
-     * Update a map by assigning to the decreases variable.
+     * Put decreases list into a list expression
      */
-    private VariableMap storeDecreases(String decreaseVar, DafnyTree decreases, VariableMap map) {
+    private DafnyTree toListExt(DafnyTree decreases) {
         DafnyTree list = new DafnyTree(new CommonToken(DafnyParser.LISTEX));
         list.addChildren(decreases.getChildren());
-        return map.assign(decreaseVar, list);
+        return list;
     }
 
     /*
