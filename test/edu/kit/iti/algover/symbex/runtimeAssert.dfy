@@ -1,4 +1,5 @@
 method runtimeChecks()
+  ensures true
 {
    var a:array<int>;
    var y:int;
@@ -10,6 +11,7 @@ method runtimeChecks()
  }
  
  method runtimeInIf()
+   ensures true
  {
    var a:array<int>;
    var i:int;
@@ -19,6 +21,7 @@ method runtimeChecks()
  }
 
  method runtimeInWhile()
+   ensures true
  {
    var a:array<int>;
    var i:int;

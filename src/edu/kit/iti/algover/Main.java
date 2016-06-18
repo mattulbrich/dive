@@ -22,6 +22,7 @@ import edu.kit.iti.algover.parser.DafnyParser;
 import edu.kit.iti.algover.parser.DafnyParser.program_return;
 import edu.kit.iti.algover.parser.DafnyTree;
 import edu.kit.iti.algover.smt.Z3Solver;
+import edu.kit.iti.algover.symbex.AssertionElement;
 import edu.kit.iti.algover.symbex.PathConditionElement;
 import edu.kit.iti.algover.symbex.Symbex;
 import edu.kit.iti.algover.symbex.SymbexPath;
@@ -80,9 +81,9 @@ public class Main {
                     System.out.println("    " + pc.getVariableMap().toHistoryString().replace("\n", "\n    "));
                     System.out.println("  Refers to: line " + pc.getExpression().token.getLine());
                 }
-                System.out.println("Proof Obligations - " + res.getProofObligationType());
-                for (DafnyTree po : res.getProofObligations()) {
-                    System.out.println("  " + po.toStringTree());
+                System.out.println("Proof Obligations: ");
+                for (AssertionElement po : res.getProofObligations()) {
+                    System.out.println("  " + po);
                 }
 
                 System.out.println("  Assignment History:");
@@ -135,8 +136,9 @@ finally
 {
     try
     {
-        if ( writer != null)
-        writer.close( );
+        if ( writer != null) {
+            writer.close( );
+        }
     }
     catch ( IOException e)
     {

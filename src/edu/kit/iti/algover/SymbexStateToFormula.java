@@ -13,6 +13,7 @@ import edu.kit.iti.algover.data.MapSymbolTable;
 import edu.kit.iti.algover.data.SuffixSymbolTable;
 import edu.kit.iti.algover.data.SymbolTable;
 import edu.kit.iti.algover.parser.DafnyTree;
+import edu.kit.iti.algover.symbex.AssertionElement;
 import edu.kit.iti.algover.symbex.PathConditionElement;
 import edu.kit.iti.algover.symbex.SymbexPath;
 import edu.kit.iti.algover.term.FunctionSymbol;
@@ -70,8 +71,8 @@ public class SymbexStateToFormula {
         }
 
         assert symbexState.getProofObligations().size() == 1;
-        DafnyTree po = symbexState.getProofObligations().getHead();
-        DafnyTree expression = po.getLastChild();
+        AssertionElement po = symbexState.getProofObligations().getHead();
+        DafnyTree expression = po.getExpression();
         Term formula = ttt.build(symbexState.getMap(), expression);
         result.add(TermBuilder.negate(formula));
 

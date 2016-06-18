@@ -1,3 +1,8 @@
+/*
+ * This file is part of AlgoVer.
+ *
+ * Copyright (C) 2015-2016 Karlsruhe Institute of Technology
+ */
 package edu.kit.iti.algover.theoremprover;
 
 import edu.kit.iti.algover.ProgramDatabase;
@@ -7,6 +12,7 @@ import edu.kit.iti.algover.data.SuffixSymbolTable;
 import edu.kit.iti.algover.data.SymbolTable;
 import edu.kit.iti.algover.parser.DafnyParser;
 import edu.kit.iti.algover.parser.DafnyTree;
+import edu.kit.iti.algover.symbex.AssertionElement;
 import edu.kit.iti.algover.symbex.PathConditionElement;
 import edu.kit.iti.algover.symbex.SymbexPath;
 import edu.kit.iti.algover.symbex.VariableMap;
@@ -41,6 +47,7 @@ public class DafnyTrans {
         this.method = path.getMethod();
         this.methodName = method.getChild(0).toString();
         this.symbolTable = makeSymbolTable();
+        // TODO MU Review: Warum dieser Aufruf?
         this.trans();
     }
 
@@ -69,7 +76,10 @@ public class DafnyTrans {
      */
     public String trans() {
         String assertionType ="";
-        switch (this.path.getProofObligationType()) {
+
+        // TODO M->S: The obligations can be of different type now. So, better have singleton paths
+        // TODO M->S: There are some new types
+        switch (this.path.getProofObligations().get(0).getType()) {
             case EXPLICIT_ASSERT:
                 assertionType = "explicit_assertion";
                 break;
@@ -111,7 +121,7 @@ public class DafnyTrans {
                 e.printStackTrace();
             }
         }
-        for (DafnyTree po : path.getProofObligations()) {
+        for (AssertionElement po : path.getProofObligations()) {
             currentSegment = translateAssignments(path.getMap(), lineCount);
             if (lineCount < currentSegment.getSnd()){
                 lineCount = currentSegment.getSnd();
@@ -120,7 +130,7 @@ public class DafnyTrans {
 
             try {
 
-                method.append("assert ("+toInfix(po)+");\n");
+                method.append("assert ("+toInfix(po.getExpression())+");\n");
 
             } catch (TermBuildException e) {
                 e.printStackTrace();
@@ -140,7 +150,7 @@ public class DafnyTrans {
             String name = decl.getChild(0).toString();
             Sort sort = treeToType(decl.getChild(1));
             arguments.add(new Pair(name, sort));
-
+            //TODO M->S: Typing issue in the line above
 
         }
         return arguments;

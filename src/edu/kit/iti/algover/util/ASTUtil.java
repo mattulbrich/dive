@@ -28,6 +28,11 @@ public class ASTUtil {
         return result;
     }
 
+    /**
+     * Gets the label for the proof obligation in this object.
+     *
+     * @return the label, could be <code>null</code>
+     */
     public static String getLabel(DafnyTree tree) {
         DafnyTree label = tree.getFirstChildWithType(DafnyParser.LABEL);
         if(label != null) {

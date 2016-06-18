@@ -52,14 +52,14 @@ public class SymbexTest {
 
         assertEquals(7, results.size());
 
-        assertEquals(AssertionType.INVARIANT_INITIALLY_VALID, results.get(0).getProofObligationType());
-        assertEquals(AssertionType.INVARIANT_PRESERVED, results.get(1).getProofObligationType());
-        assertEquals(AssertionType.EXPLICIT_ASSERT, results.get(2).getProofObligationType());
-        assertEquals(AssertionType.POST, results.get(3).getProofObligationType());
-        assertEquals(AssertionType.POST, results.get(4).getProofObligationType());
+        assertEquals(AssertionType.INVARIANT_INITIALLY_VALID, results.get(0).getCommonProofObligationType());
+        assertEquals(AssertionType.INVARIANT_PRESERVED, results.get(1).getCommonProofObligationType());
+        assertEquals(AssertionType.EXPLICIT_ASSERT, results.get(2).getCommonProofObligationType());
+        assertEquals(AssertionType.POST, results.get(3).getCommonProofObligationType());
+        assertEquals(AssertionType.POST, results.get(4).getCommonProofObligationType());
         // else branch is now there!
-        assertEquals(AssertionType.POST, results.get(5).getProofObligationType());
-        assertEquals(AssertionType.POST, results.get(6).getProofObligationType());
+        assertEquals(AssertionType.POST, results.get(5).getCommonProofObligationType());
+        assertEquals(AssertionType.POST, results.get(6).getCommonProofObligationType());
     }
 
     @Test
@@ -84,10 +84,8 @@ public class SymbexTest {
                 next.getPathConditions().get(0).getExpression().toStringTree());
 
         SymbexPath check = stack.pop();
-        assertEquals(AssertionType.EXPLICIT_ASSERT, check.getProofObligationType());
-        assertEquals(1, check.getProofObligations().size());
-        assertEquals("(assert (== unmodifiedInLoop 0))",
-                check.getProofObligations().iterator().next().toStringTree());
+        assertEquals("[EXPLICIT_ASSERT:(== unmodifiedInLoop 0)]",
+                check.getProofObligations().toString());
     }
 
     @Test
@@ -165,7 +163,7 @@ public class SymbexTest {
         Symbex symbex = new Symbex();
         LinkedList<SymbexPath> stack = new LinkedList<SymbexPath>();
         SymbexPath state = new SymbexPath(tree);
-        state.setProofObligations(tree.getChild(3).getLastChild(), AssertionType.POST);
+        state.setProofObligation(tree.getChild(3).getLastChild(), tree.getChild(3), AssertionType.POST);
         state.setMap(SOME_MAP);
 
         symbex.handleWhile(stack, state, whileStm, SOME_PROGRAM);
@@ -174,10 +172,9 @@ public class SymbexTest {
 
         {
             SymbexPath init = stack.get(0);
-            assertEquals(AssertionType.INVARIANT_INITIALLY_VALID, init.getProofObligationType());
+            assertEquals(AssertionType.INVARIANT_INITIALLY_VALID, init.getCommonProofObligationType());
             assertEquals(0, init.getPathConditions().size());
-            assertEquals(1, init.getProofObligations().size());
-            assertEquals("(invariant (== p 2))", init.getProofObligations().get(0).toStringTree());
+            assertEquals("[INVARIANT_INITIALLY_VALID:(== p 2)]", init.getProofObligations().toString());
         }
 
         {
@@ -196,16 +193,17 @@ public class SymbexTest {
                     assertEquals("(> p 1)", pc1.getExpression().toStringTree());
                 }
                 {
-                    assertEquals(AssertionType.INVARIANT_PRESERVED, pres.getProofObligationType());
+                    assertEquals(AssertionType.INVARIANT_PRESERVED, pres.getCommonProofObligationType());
                     assertEquals(1, pres.getProofObligations().size());
-                    DafnyTree po = pres.getProofObligations().iterator().next();
-                    assertEquals("(invariant (== p 2))", po.toStringTree());
+                    AssertionElement po = pres.getProofObligations().get(0);
+                    assertEquals("(invariant (== p 2))", po.getOrigin().toStringTree());
+                    assertEquals("(== p 2)", po.getExpression().toStringTree());
                 }
             }
         }
         {
             SymbexPath cont = stack.get(2);
-            assertEquals(AssertionType.POST, cont.getProofObligationType());
+            assertEquals(AssertionType.POST, cont.getCommonProofObligationType());
             assertEquals(2, cont.getPathConditions().size());
             ImmutableList<PathConditionElement> pcs = cont.getPathConditions();
             {
@@ -219,10 +217,10 @@ public class SymbexTest {
                 assertEquals("(== p 2)", pc2.getExpression().toStringTree());
             }
             {
-                assertEquals(AssertionType.POST, cont.getProofObligationType());
+                assertEquals(AssertionType.POST, cont.getCommonProofObligationType());
                 assertEquals(1, cont.getProofObligations().size());
-                DafnyTree po = cont.getProofObligations().iterator().next();
-                assertEquals("(> p 0)", po.toStringTree());
+                AssertionElement po = cont.getProofObligations().get(0);
+                assertEquals("(> p 0)", po.getExpression().toStringTree());
             }
         }
     }
@@ -239,7 +237,7 @@ public class SymbexTest {
         assertEquals(3, results.size());
         {
             SymbexPath ss = results.get(0);
-            assertEquals(AssertionType.INVARIANT_INITIALLY_VALID, ss.getProofObligationType());
+            assertEquals(AssertionType.INVARIANT_INITIALLY_VALID, ss.getCommonProofObligationType());
             List<Pair<String, DafnyTree>> list = ss.getMap().toList();
             assertEquals(3, list.size());
             assertEquals("<mod, HAVOC>", list.get(0).toString());
@@ -249,7 +247,7 @@ public class SymbexTest {
         }
         {
             SymbexPath ss = results.get(1);
-            assertEquals(AssertionType.INVARIANT_PRESERVED, ss.getProofObligationType());
+            assertEquals(AssertionType.INVARIANT_PRESERVED, ss.getCommonProofObligationType());
             List<Pair<String, DafnyTree>> list = ss.getMap().toList();;
             assertEquals(5, list.size());
             assertEquals("<mod, +>", list.get(0).toString());
@@ -261,7 +259,7 @@ public class SymbexTest {
         }
         {
             SymbexPath ss = results.get(2);
-            assertEquals(AssertionType.POST, ss.getProofObligationType());
+            assertEquals(AssertionType.POST, ss.getCommonProofObligationType());
             List<Pair<String, DafnyTree>> list = ss.getMap().toList();
             assertEquals(4, list.size());
             assertEquals("<mod, HAVOC>", list.get(0).toString());
@@ -391,40 +389,40 @@ public class SymbexTest {
 
         {
             SymbexPath path = results.get(0);
-            assertEquals(AssertionType.POST, path.getProofObligationType());
+            assertEquals(AssertionType.POST, path.getCommonProofObligationType());
         }
         {
             SymbexPath path = results.get(1);
-            assertEquals(AssertionType.RT_IN_BOUNDS, path.getProofObligationType());
-            ImmutableList<DafnyTree> pos = path.getProofObligations();
+            assertEquals(AssertionType.RT_IN_BOUNDS, path.getCommonProofObligationType());
+            ImmutableList<AssertionElement> pos = path.getProofObligations();
             assertEquals(2, pos.size());
-            assertEquals("(>= y 0)", pos.get(0).toStringTree());
-            assertEquals("(< y (Length a))", pos.get(1).toStringTree());
+            assertEquals("(>= y 0)", pos.get(0).getExpression().toStringTree());
+            assertEquals("(< y (Length a))", pos.get(1).getExpression().toStringTree());
             assertEquals(1, path.getPathConditions().size());
             assertEquals("(not (> y 0))", path.getPathConditions().get(0).getExpression().toStringTree());
         }
         {
             SymbexPath path = results.get(2);
-            assertEquals(AssertionType.RT_NONNULL, path.getProofObligationType());
-            DafnyTree po = path.getProofObligations().get(0);
-            assertEquals("(!= a null)", po.toStringTree());
+            assertEquals(AssertionType.RT_NONNULL, path.getCommonProofObligationType());
+            AssertionElement po = path.getProofObligations().get(0);
+            assertEquals("(!= a null)", po.getExpression().toStringTree());
             assertEquals(1, path.getPathConditions().size());
             assertEquals("(not (> y 0))", path.getPathConditions().get(0).getExpression().toStringTree());
         }
         {
             SymbexPath path = results.get(3);
-            assertEquals(AssertionType.RT_IN_BOUNDS, path.getProofObligationType());
-            ImmutableList<DafnyTree> pos = path.getProofObligations();
+            assertEquals(AssertionType.RT_IN_BOUNDS, path.getCommonProofObligationType());
+            ImmutableList<AssertionElement> pos = path.getProofObligations();
             assertEquals(2, pos.size());
-            assertEquals("(>= y 0)", pos.get(0).toStringTree());
-            assertEquals("(< y (Length a))", pos.get(1).toStringTree());
+            assertEquals("(>= y 0)", pos.get(0).getExpression().toStringTree());
+            assertEquals("(< y (Length a))", pos.get(1).getExpression().toStringTree());
             assertEquals(0, path.getPathConditions().size());
         }
         {
             SymbexPath path = results.get(4);
-            assertEquals(AssertionType.RT_NONNULL, path.getProofObligationType());
-            DafnyTree po = path.getProofObligations().get(0);
-            assertEquals("(!= a null)", po.toStringTree());
+            assertEquals(AssertionType.RT_NONNULL, path.getCommonProofObligationType());
+            AssertionElement po = path.getProofObligations().get(0);
+            assertEquals("(!= a null)", po.getExpression().toStringTree());
             assertEquals(0, path.getPathConditions().size());
         }
     }
@@ -442,27 +440,27 @@ public class SymbexTest {
 
         {
             SymbexPath path = results.get(0);
-            assertEquals(AssertionType.POST, path.getProofObligationType());
+            assertEquals(AssertionType.POST, path.getCommonProofObligationType());
         }
         {
             SymbexPath path = results.get(1);
-            assertEquals(AssertionType.POST, path.getProofObligationType());
+            assertEquals(AssertionType.POST, path.getCommonProofObligationType());
         }
         {
             SymbexPath path = results.get(2);
-            assertEquals(AssertionType.RT_IN_BOUNDS, path.getProofObligationType());
-            ImmutableList<DafnyTree> pos = path.getProofObligations();
+            assertEquals(AssertionType.RT_IN_BOUNDS, path.getCommonProofObligationType());
+            ImmutableList<AssertionElement> pos = path.getProofObligations();
             assertEquals(2, pos.size());
-            assertEquals("(>= i 0)", pos.get(0).toStringTree());
-            assertEquals("(< i (Length a))", pos.get(1).toStringTree());
+            assertEquals("(>= i 0)", pos.get(0).getExpression().toStringTree());
+            assertEquals("(< i (Length a))", pos.get(1).getExpression().toStringTree());
             assertEquals(1, path.getPathConditions().size());
             assertEquals("(> i 0)", path.getPathConditions().get(0).getExpression().toStringTree());
         }
         {
             SymbexPath path = results.get(3);
-            assertEquals(AssertionType.RT_NONNULL, path.getProofObligationType());
-            DafnyTree po = path.getProofObligations().get(0);
-            assertEquals("(!= a null)", po.toStringTree());
+            assertEquals(AssertionType.RT_NONNULL, path.getCommonProofObligationType());
+            AssertionElement po = path.getProofObligations().get(0);
+            assertEquals("(!= a null)", po.getExpression().toStringTree());
             assertEquals(1, path.getPathConditions().size());
             assertEquals("(> i 0)", path.getPathConditions().get(0).getExpression().toStringTree());
         }
@@ -481,11 +479,11 @@ public class SymbexTest {
         int i=0;
         {
             SymbexPath path = results.get(i++);
-            assertEquals(AssertionType.RT_IN_BOUNDS, path.getProofObligationType());
-            ImmutableList<DafnyTree> pos = path.getProofObligations();
+            assertEquals(AssertionType.RT_IN_BOUNDS, path.getCommonProofObligationType());
+            ImmutableList<AssertionElement> pos = path.getProofObligations();
             assertEquals(2, pos.size());
-            assertEquals("(>= i 0)", pos.get(0).toStringTree());
-            assertEquals("(< i (Length a))", pos.get(1).toStringTree());
+            assertEquals("(>= i 0)", pos.get(0).getExpression().toStringTree());
+            assertEquals("(< i (Length a))", pos.get(1).getExpression().toStringTree());
             assertEquals(2, path.getPathConditions().size());
             assertEquals("(> i 2)", path.getPathConditions().get(0).getExpression().toStringTree());
             assertEquals("(> i 0)", path.getPathConditions().get(1).getExpression().toStringTree());
@@ -493,9 +491,9 @@ public class SymbexTest {
         }
         {
             SymbexPath path = results.get(i++);
-            assertEquals(AssertionType.RT_NONNULL, path.getProofObligationType());
-            DafnyTree po = path.getProofObligations().get(0);
-            assertEquals("(!= a null)", po.toStringTree());
+            assertEquals(AssertionType.RT_NONNULL, path.getCommonProofObligationType());
+            AssertionElement po = path.getProofObligations().get(0);
+            assertEquals("(!= a null)", po.getExpression().toStringTree());
             assertEquals(2, path.getPathConditions().size());
             assertEquals("(> i 2)", path.getPathConditions().get(0).getExpression().toStringTree());
             assertEquals("(> i 0)", path.getPathConditions().get(1).getExpression().toStringTree());
@@ -503,15 +501,15 @@ public class SymbexTest {
         }
         {
             SymbexPath path = results.get(i++);
-            assertEquals(AssertionType.INVARIANT_INITIALLY_VALID, path.getProofObligationType());
+            assertEquals(AssertionType.INVARIANT_INITIALLY_VALID, path.getCommonProofObligationType());
         }
         {
             SymbexPath path = results.get(i++);
-            assertEquals(AssertionType.INVARIANT_PRESERVED, path.getProofObligationType());
+            assertEquals(AssertionType.INVARIANT_PRESERVED, path.getCommonProofObligationType());
         }
         {
             SymbexPath path = results.get(i++);
-            assertEquals(AssertionType.POST, path.getProofObligationType());
+            assertEquals(AssertionType.POST, path.getCommonProofObligationType());
         }
     }
 }

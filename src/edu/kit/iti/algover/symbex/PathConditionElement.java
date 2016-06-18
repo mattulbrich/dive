@@ -169,4 +169,8 @@ public class PathConditionElement {
         return ASTUtil.getLabel(refersTo);
     }
 
+    public String toString() {
+        return getType() + "[" + getName() + "]:" + expression.toStringTree();
+    }
+
 }

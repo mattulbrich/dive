@@ -154,4 +154,15 @@ public class AssertionElement {
         return ASTUtil.getLabel(refersTo);
     }
 
+    public DafnyTree getOrigin() {
+        return refersTo;
+    }
+
+    @Override
+    public String toString() {
+        String name = getName();
+        String suffix = name == null ? "" : "[" + name + "]";
+        return getType() + suffix + ":" + expression.toStringTree();
+    }
+
 }

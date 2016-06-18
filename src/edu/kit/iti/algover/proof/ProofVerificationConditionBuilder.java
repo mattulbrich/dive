@@ -18,6 +18,7 @@ import edu.kit.iti.algover.data.MapSymbolTable;
 import edu.kit.iti.algover.data.SymbolTable;
 import edu.kit.iti.algover.parser.DafnyParser;
 import edu.kit.iti.algover.parser.DafnyTree;
+import edu.kit.iti.algover.symbex.AssertionElement;
 import edu.kit.iti.algover.symbex.PathConditionElement;
 import edu.kit.iti.algover.symbex.SymbexPath;
 import edu.kit.iti.algover.symbex.VariableMap;
@@ -116,8 +117,8 @@ public class ProofVerificationConditionBuilder {
         for(PathConditionElement pce : state.getPathConditions()) {
             extendSymbolTable(pce.getInstantiatedExpression());
         }
-        for (DafnyTree po : state.getProofObligations()) {
-            DafnyTree instantiate = state.getMap().instantiate(po);
+        for (AssertionElement po : state.getProofObligations()) {
+            DafnyTree instantiate = state.getMap().instantiate(po.getExpression());
             System.out.println(instantiate.toStringTree());
             extendSymbolTable(instantiate);
         }
@@ -181,19 +182,19 @@ public class ProofVerificationConditionBuilder {
 
     /**
      * In the future this method may return more than one proof obligation, depending on our decision
-     * @param proof_obligations
+     * @param immutableList
      * @return
      */
-    private DafnyTree extractProofObligation(ImmutableList<DafnyTree> proof_obligations) {
-        if(proof_obligations.size() < siblingNo){
-            System.out.println("Number of Proofobligation too small: "+proof_obligations.size());
+    private DafnyTree extractProofObligation(ImmutableList<AssertionElement> immutableList) {
+        if(immutableList.size() < siblingNo){
+            System.out.println("Number of Proofobligation too small: "+immutableList.size());
             return null;
         }else{
-            Iterator<DafnyTree> iter = proof_obligations.iterator();
+            Iterator<AssertionElement> iter = immutableList.iterator();
             int tempIndex = 0;
             while(iter.hasNext()){
                 if(tempIndex == siblingNo){
-                    return iter.next();
+                    return iter.next().getExpression();
                 }else{
                     iter.next();
                     tempIndex++;
@@ -306,8 +307,8 @@ public class ProofVerificationConditionBuilder {
         }
 
         //hier siblingno
-        for(DafnyTree po : symbexState.getProofObligations()) {
-            Term formula = ttt.build(state.getMap().instantiate(po));
+        for(AssertionElement po : symbexState.getProofObligations()) {
+            Term formula = ttt.build(state.getMap().instantiate(po.getExpression()));
             System.out.println(" Formula: "+formula.toString());
             try {
                 result.add(TermBuilder.negate(formula));

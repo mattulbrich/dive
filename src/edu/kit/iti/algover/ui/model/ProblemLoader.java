@@ -214,7 +214,9 @@ public class ProblemLoader {
 
 
 //            System.out.println("Proof Obligations - " + res.getProofObligationType());
-            typeCollectionState.add(res.getProofObligationType());
+            for (AssertionElement ass : res.getProofObligations()) {
+                typeCollectionState.add(ass.getType());
+            }
 //            for (DafnyTree po : res.getProofObligations()) {
       //          LinkedList<DafnyTree> toShow = new LinkedList<DafnyTree>();
       //          toShow.add(res.getMap().instantiate(po));
@@ -232,11 +234,11 @@ public class ProblemLoader {
 //            System.out.println("  Instantiated POs: ");
 //            System.out.println("No of PO: "+ res.getProofObligations().size());
 
-            for (DafnyTree po : res.getProofObligations()) {
+            for (AssertionElement po : res.getProofObligations()) {
                 //System.out.println("Sibling: "+po.+"\n\n\n");
 
                 LinkedList<DafnyTree> toShow = new LinkedList<DafnyTree>();
-                toShow.add(res.getMap().instantiate(po));
+                toShow.add(res.getMap().instantiate(po.getExpression()));
                 ProofOld p = pcenter.createProofOldObject(res, instantiatedAssumptions, toShow, typeCollectionPath, typeCollectionState, 0);
                 pcenter.insertProofOld(p);
 //                System.out.println("    " + res.getMap().instantiate(po).toStringTree());

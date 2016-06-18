@@ -9,7 +9,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import edu.kit.iti.algover.parser.DafnyParser;
 import edu.kit.iti.algover.parser.DafnyTree;
 import edu.kit.iti.algover.symbex.AssertionElement.AssertionType;
 import edu.kit.iti.algover.symbex.PathConditionElement.AssumptionType;
@@ -49,14 +48,7 @@ public class SymbexPath {
     /**
      * The proof obligations to discharge.
      */
-    private ImmutableList<DafnyTree> proofObligations;
-
-    /**
-     * The type of the proof obligations. One type for all of them.
-     *
-     * @see #proofObligations
-     */
-    private AssertionType proofObligationType;
+    private ImmutableList<AssertionElement> proofObligations;
 
     /**
      * The currently active variable assignment map.
@@ -96,7 +88,6 @@ public class SymbexPath {
     public SymbexPath(SymbexPath state) {
         this.pathConditions = state.pathConditions;
         this.proofObligations = state.proofObligations;
-        this.proofObligationType = state.proofObligationType;
         this.currentMap = state.currentMap;
         this.blockToExecute = state.blockToExecute;
         this.function = state.function;
@@ -179,11 +170,15 @@ public class SymbexPath {
      * @param type
      *            the type of the obligation, not <code>null</code>
      */
-    public void setProofObligations(DafnyTree obligation, AssertionType type) {
+    public void setProofObligation(DafnyTree obligation, DafnyTree referTo, AssertionType type) {
         assert obligation != null;
         assert type != null;
-        this.proofObligations = ImmutableList.single(obligation);
-        this.proofObligationType = type;
+        AssertionElement element = new AssertionElement(obligation, referTo, type, currentMap);
+        this.proofObligations = ImmutableList.single(element);
+    }
+
+    public void setProofObligation(AssertionElement proofObl) {
+        this.proofObligations = ImmutableList.single(proofObl);
     }
 
     /**
@@ -195,10 +190,24 @@ public class SymbexPath {
      * @param type
      *            the common type of the obligations, not <code>null</code>.
      */
-    public void setProofObligations(Iterable<DafnyTree> iterable,
-            AssertionType type) {
+    public void setProofObligations(Iterable<AssertionElement> iterable) {
         this.proofObligations = ImmutableList.from(iterable);
-        this.proofObligationType = type;
+    }
+
+    public void setProofObligations(Iterable<DafnyTree> expressions, DafnyTree referTo, AssertionType type) {
+        this.proofObligations = ImmutableList.nil();
+        for (DafnyTree dafnyTree : expressions) {
+            AssertionElement element = new AssertionElement(dafnyTree, referTo, type, currentMap);
+            proofObligations = proofObligations.append(element);
+        }
+    }
+
+    public void setProofObligationsFromLastChild(Iterable<DafnyTree> stms, AssertionType type) {
+        this.proofObligations = ImmutableList.nil();
+        for (DafnyTree stm : stms) {
+            AssertionElement element = new AssertionElement(stm.getLastChild(), stm, type, currentMap);
+            proofObligations = proofObligations.append(element);
+        }
     }
 
     /**
@@ -211,34 +220,12 @@ public class SymbexPath {
     }
 
     /**
-     * Gets the proof obligation type.
-     *
-     * @return the proof obligation type
-     */
-    public AssertionType getProofObligationType() {
-        return proofObligationType;
-    }
-
-    /**
      * Gets the list of proof obligations.
      *
      * @return the proof obligations
      */
-    public ImmutableList<DafnyTree> getProofObligations() {
+    public ImmutableList<AssertionElement> getProofObligations() {
         return proofObligations;
-    }
-
-    /**
-     * Gets the label for the proof obligation in this object.
-     *
-     * @return the label, could be <code>null</code>
-     */
-    private static String getObligationLabel(DafnyTree proofObligation) {
-        DafnyTree label = proofObligation.getFirstChildWithType(DafnyParser.LABEL);
-        if(label != null) {
-            return label.getLastChild().getText();
-        }
-        return null;
     }
 
     /**
@@ -252,8 +239,8 @@ public class SymbexPath {
     @Deprecated
     public List<DafnyTree> getInstantiatedObligationExpressions() {
         List<DafnyTree> result = new ArrayList<>();
-        for (DafnyTree po : proofObligations) {
-            result.add(currentMap.instantiate(po.getLastChild()));
+        for (AssertionElement po : proofObligations) {
+            result.add(currentMap.instantiate(po.getExpression()));
         }
         return result;
     }
@@ -264,6 +251,7 @@ public class SymbexPath {
      *
      * @return the path identifier
      */
+    @SuppressWarnings("incomplete-switch")
     public String getPathIdentifier() {
         StringBuilder result = new StringBuilder();
         for (PathConditionElement pce : pathConditions) {
@@ -276,16 +264,17 @@ public class SymbexPath {
                 result.append(type.toString()).append("/");
             }
         }
-        result.append(getProofObligationType());
+
         if(proofObligations.size() > 1) {
-            result.append("[+]");
-        } else if(proofObligations.size() == 0) {
-            // nothing
-        } else {
-            String label = getObligationLabel(proofObligations.get(0));
-            if(label != null) {
-                result.append("[" + label + "]");
+            AssertionType type = getCommonProofObligationType();
+            if (type != null) {
+                result.append("/").append(type);
             }
+            result.append("[+]");
+        } else if (proofObligations.size() == 0) {
+            result.append("[-]");
+        } else {
+            result.append("/" + proofObligations.get(0));
         }
         return result.toString();
     }
@@ -306,13 +295,25 @@ public class SymbexPath {
             return Collections.singletonList(this);
         } else {
             List<SymbexPath> result = new ArrayList<>();
-            for (DafnyTree proofObl : proofObligations) {
+            for (AssertionElement proofObl : proofObligations) {
                 SymbexPath child = new SymbexPath(this);
-                child.setProofObligations(proofObl, proofObligationType);
+                child.setProofObligation(proofObl);
                 result.add(child);
             }
             return result;
         }
+    }
+
+    public AssertionType getCommonProofObligationType() {
+        AssertionType result = null;
+        for (AssertionElement ass : proofObligations) {
+            if(result == null) {
+                result = ass.getType();
+            } else if(result != ass.getType()) {
+                return null;
+            }
+        }
+        return result;
     }
 
 }

@@ -127,7 +127,7 @@ public class Symbex {
             DafnyTree remainder) {
         SymbexPath assertedState = new SymbexPath(state);
         assertedState.setBlockToExecute(EMPTY_PROGRAM);
-        assertedState.setProofObligations(stm, AssertionType.EXPLICIT_ASSERT);
+        assertedState.setProofObligation(stm.getLastChild(), stm, AssertionType.EXPLICIT_ASSERT);
         stack.add(assertedState);
         state.setBlockToExecute(remainder);
         state.addPathCondition(stm.getLastChild(), stm, AssumptionType.ASSUMED_ASSERTION);
@@ -196,7 +196,7 @@ public class Symbex {
         // 1. initially valid.
         SymbexPath invState = new SymbexPath(state);
         invState.setBlockToExecute(EMPTY_PROGRAM);
-        invState.setProofObligations(invariants, AssertionType.INVARIANT_INITIALLY_VALID);
+        invState.setProofObligationsFromLastChild(invariants, AssertionType.INVARIANT_INITIALLY_VALID);
         stack.add(invState);
 
         // 2. preserves invariant:
@@ -214,9 +214,7 @@ public class Symbex {
         preserveState.setBlockToExecute(stm.getLastChild());
 
         // 2b. show invariants:
-        preserveState.setProofObligations(
-                invariants,
-                AssertionType.INVARIANT_PRESERVED);
+        preserveState.setProofObligationsFromLastChild(invariants, AssertionType.INVARIANT_PRESERVED);
         stack.add(preserveState);
 
         // 3. use case:
@@ -417,7 +415,7 @@ public class Symbex {
         }
 
         result.setBlockToExecute(function.getLastChild());
-        result.setProofObligations(function.getChildrenWithType(DafnyParser.ENSURES), AssertionType.POST);
+        result.setProofObligationsFromLastChild(function.getChildrenWithType(DafnyParser.ENSURES), AssertionType.POST);
 
         return result;
     }
@@ -471,7 +469,7 @@ public class Symbex {
         List<DafnyTree> pos = new ArrayList<>();
         pos.add(ASTUtil.greaterEqual(idx, ASTUtil.intLiteral(0)));
         pos.add(ASTUtil.less(idx, ASTUtil.length(array)));
-        bounds.setProofObligations(pos, AssertionType.RT_IN_BOUNDS);
+        bounds.setProofObligations(pos, idx, AssertionType.RT_IN_BOUNDS);
         bounds.setBlockToExecute(Symbex.EMPTY_PROGRAM);
         stack.push(bounds);
     }
@@ -480,7 +478,7 @@ public class Symbex {
         SymbexPath nonNull = new SymbexPath(current);
         DafnyTree check = ASTUtil.notEquals(expression, ASTUtil._null());
         nonNull.setBlockToExecute(Symbex.EMPTY_PROGRAM);
-        nonNull.setProofObligations(check, AssertionType.RT_NONNULL);
+        nonNull.setProofObligation(check, expression, AssertionType.RT_NONNULL);
         stack.push(nonNull);
     }
 }

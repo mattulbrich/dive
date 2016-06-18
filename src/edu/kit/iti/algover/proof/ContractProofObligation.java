@@ -1,7 +1,13 @@
+/*
+ * This file is part of AlgoVer.
+ *
+ * Copyright (C) 2015-2016 Karlsruhe Institute of Technology
+ */
 package edu.kit.iti.algover.proof;
 
 import edu.kit.iti.algover.ProofCenter;
 import edu.kit.iti.algover.parser.DafnyTree;
+import edu.kit.iti.algover.symbex.AssertionElement;
 import edu.kit.iti.algover.symbex.PathConditionElement;
 import edu.kit.iti.algover.symbex.SymbexPath;
 
@@ -83,9 +89,9 @@ public class ContractProofObligation {
                 System.out.println("  Test Line: " + pc.getExpression());
             }
 
-            System.out.println("Proof Obligations - " + res.getProofObligationType());
-            for (DafnyTree po : res.getProofObligations()) {
-                System.out.println("  " + po.toStringTree());
+            System.out.println("Proof Obligations:");
+            for (AssertionElement po : res.getProofObligations()) {
+                System.out.println("  " + po);
             }
 
             System.out.println("  Assignment History:");
@@ -93,8 +99,8 @@ public class ContractProofObligation {
             System.out.println("  Aggregated Variable Map: ");
             System.out.println("    " + res.getMap().toParallelAssignment());
             System.out.println("  Instantiated POs: ");
-            for (DafnyTree po : res.getProofObligations()) {
-                System.out.println("    " + res.getMap().instantiate(po).toStringTree());
+            for (AssertionElement po : res.getProofObligations()) {
+                System.out.println("    " + res.getMap().instantiate(po.getExpression()).toStringTree());
             }
 
         }}
