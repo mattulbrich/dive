@@ -80,6 +80,8 @@ public class ProofVerificationConditionBuilder {
     private List<DafnyTree> toShow;
     private LinkedList<PathConditionElement> pcs;
 
+    private TermBuilder termBuilder;
+
     /**
      * Constructor for a ProofVerificationConditionBuilder
      * @param state
@@ -93,6 +95,7 @@ public class ProofVerificationConditionBuilder {
         //symboltable for the PVC to translate DafnyTrees to Terms
         this.method = state.getMethod();
         this.symbolTable = makeSymbolTable();
+        this.termBuilder = new TermBuilder(symbolTable);
         extendSymbolTable();
         //create the ProofFormulas
         try {
@@ -311,7 +314,7 @@ public class ProofVerificationConditionBuilder {
             Term formula = ttt.build(state.getMap().instantiate(po.getExpression()));
             System.out.println(" Formula: "+formula.toString());
             try {
-                result.add(TermBuilder.negate(formula));
+                result.add(termBuilder.negate(formula));
             } catch (TermBuildException e) {
                 // TODO Handle me
             }

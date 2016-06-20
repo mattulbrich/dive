@@ -29,10 +29,12 @@ public class SymbexStateToFormula {
 
     private final DafnyTree method;
     private final SymbolTable symbolTable;
+    private final TermBuilder termBuilder;
 
     public SymbexStateToFormula(DafnyTree method) {
         this.method = method;
         this.symbolTable = makeSymbolTable();
+        this.termBuilder = new TermBuilder(symbolTable);
     }
 
     private SymbolTable makeSymbolTable() {
@@ -74,7 +76,7 @@ public class SymbexStateToFormula {
         AssertionElement po = symbexState.getProofObligations().getHead();
         DafnyTree expression = po.getExpression();
         Term formula = ttt.build(symbexState.getMap(), expression);
-        result.add(TermBuilder.negate(formula));
+        result.add(termBuilder.negate(formula));
 
         return result;
 

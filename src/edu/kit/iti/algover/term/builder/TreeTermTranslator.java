@@ -43,6 +43,8 @@ public class TreeTermTranslator {
 
     private final Deque<VariableTerm> boundVars = new LinkedList<VariableTerm>();
 
+    private final TermBuilder tb;
+
     /**
      * Instantiates a new term translator.
      *
@@ -54,6 +56,7 @@ public class TreeTermTranslator {
     public TreeTermTranslator(SymbolTable symbolTable) {
         assert symbolTable != null;
         this.symbolTable = symbolTable;
+        this.tb = new TermBuilder(symbolTable);
     }
 
 
@@ -174,7 +177,7 @@ public class TreeTermTranslator {
             return buildEquality(tree);
 
         case DafnyParser.NEQ:
-            return TermBuilder.negate(buildEquality(tree));
+            return tb.negate(buildEquality(tree));
 
         case DafnyParser.ID:
         case DafnyParser.NULL:
@@ -342,7 +345,7 @@ public class TreeTermTranslator {
                 && lhs.getType() == DafnyParser.ID :
             "limited support so far we inline the comparison";
 
-        Term result = TermBuilder.ff();
+        Term result = tb.ff();
         String basevar = lhs.toString();
         Term[] vars = new Term[rhs.getChildCount()];
         Term[] terms = new Term[rhs.getChildCount()];
@@ -352,16 +355,16 @@ public class TreeTermTranslator {
             vars[i] = new ApplTerm(f);
             terms[i] = build(rhs.getChild(i));
 
-            Term cond = TermBuilder.tt();
+            Term cond = tb.tt();
             for (int j = 0; j < i; j++) {
                 ApplTerm eq = new ApplTerm(symbolTable.getFunctionSymbol("$eq_int"), vars[j],
                         terms[j]);
-                cond = TermBuilder.and(cond, eq);
+                cond = tb.and(cond, eq);
             }
 
-            cond = TermBuilder.and(cond, TermBuilder.lessEqual(TermBuilder.ZERO, terms[i]));
-            cond = TermBuilder.and(cond, TermBuilder.less(terms[i], vars[i]));
-            result = TermBuilder.or(result, cond);
+            cond = tb.and(cond, tb.lessEqual(tb.zero, terms[i]));
+            cond = tb.and(cond, tb.less(terms[i], vars[i]));
+            result = tb.or(result, cond);
         }
 
         return result;
