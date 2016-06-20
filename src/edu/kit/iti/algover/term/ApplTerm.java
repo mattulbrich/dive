@@ -56,6 +56,16 @@ public class ApplTerm extends Term {
     }
 
     @Override
+    public boolean equals(Object obj) {
+        if(!super.equals(obj)) {
+            return false;
+        }
+
+        // it is sure that obj is of type ApplFunction
+        return ((ApplTerm)obj).function == function;
+    }
+
+    @Override
     public <A, R> R accept(TermVisitor<A, R> visitor, A arg) {
         return visitor.visit(this, arg);
     }

@@ -12,6 +12,7 @@ import java.util.Arrays;
 import java.util.Collection;
 
 import org.antlr.runtime.ANTLRStringStream;
+import org.antlr.runtime.CommonToken;
 import org.antlr.runtime.CommonTokenStream;
 import org.antlr.runtime.RecognitionException;
 import org.junit.Before;
@@ -25,7 +26,6 @@ import edu.kit.iti.algover.data.MapSymbolTable;
 import edu.kit.iti.algover.parser.DafnyLexer;
 import edu.kit.iti.algover.parser.DafnyParser;
 import edu.kit.iti.algover.parser.DafnyParser.expression_only_return;
-import edu.kit.iti.algover.parser.DafnyParser.expression_return;
 import edu.kit.iti.algover.parser.DafnyTree;
 import edu.kit.iti.algover.term.FunctionSymbol;
 import edu.kit.iti.algover.term.Sort;
@@ -105,5 +105,6 @@ public class TreeTermTranslatorTest {
 
         assertEquals(output, term.toString());
     }
+
 
 }

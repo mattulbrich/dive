@@ -357,8 +357,7 @@ public class TreeTermTranslator {
 
             Term cond = tb.tt();
             for (int j = 0; j < i; j++) {
-                ApplTerm eq = new ApplTerm(symbolTable.getFunctionSymbol("$eq_int"), vars[j],
-                        terms[j]);
+                ApplTerm eq = tb.eq(terms[j], vars[j]);
                 cond = tb.and(cond, eq);
             }
 

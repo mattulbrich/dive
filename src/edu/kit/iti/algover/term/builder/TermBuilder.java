@@ -36,7 +36,7 @@ public class TermBuilder {
      *            the value to make a term of
      * @return the term standing for the integer constant.
      */
-    private Term intLiteral(int val) {
+    public Term intLiteral(int val) {
         FunctionSymbol l = symbolTable.getFunctionSymbol(Integer.toString(val));
         try {
             return new ApplTerm(l);
@@ -63,12 +63,14 @@ public class TermBuilder {
         }
     }
 
-    public Term lessEqual(Term zero2, Term term) throws TermBuildException {
-        return tt();
+    public Term lessEqual(Term term1, Term term2) throws TermBuildException {
+        FunctionSymbol f = BuiltinSymbols.LE;
+        return new ApplTerm(f, term1, term2);
     }
 
-    public Term less(Term term, Term term2) throws TermBuildException {
-        return tt();
+    public Term less(Term term1, Term term2) throws TermBuildException {
+        FunctionSymbol f = BuiltinSymbols.LT;
+        return new ApplTerm(f, term1, term2);
     }
 
     public Term or(Term term1, Term term2) throws TermBuildException {
@@ -79,6 +81,20 @@ public class TermBuilder {
         } else {
             return new ApplTerm(BuiltinSymbols.OR, term1, term2);
         }
+    }
+
+    public ApplTerm eq(Term lhs, Term rhs) throws TermBuildException {
+        Sort s = lhs.getSort();
+        FunctionSymbol eq = symbolTable.getFunctionSymbol("$eq_" + s);
+        return new ApplTerm(eq, lhs, rhs);
+    }
+
+    public Term id(String name) throws TermBuildException {
+        FunctionSymbol f = symbolTable.getFunctionSymbol(name);
+        if(f == null) {
+            throw new TermBuildException("Unknown symbol: " + name);
+        }
+        return new ApplTerm(f);
     }
 
 }
