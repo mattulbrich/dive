@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import org.antlr.runtime.CommonToken;
 import org.antlr.runtime.RecognitionException;
 import org.antlr.runtime.Token;
 import org.antlr.runtime.TokenStream;
@@ -56,10 +57,11 @@ public class DafnyTree extends CommonTree {
         }
     }
 
+    // TODO For the future
     private DafnyTree declaration;
 
     /**
-     * Instantiates a new pseudo tree.
+     * Instantiates a new Dafny tree.
      *
      * @param payload
      *            the top token defining the type of the node
@@ -69,7 +71,7 @@ public class DafnyTree extends CommonTree {
     }
 
     /**
-     * Instantiates a new pseudo tree from an existing one.
+     * Instantiates a new Dafny tree from an existing one.
      *
      * The array of children is not cloned and remains shared between the trees.
      *
@@ -81,10 +83,38 @@ public class DafnyTree extends CommonTree {
     }
 
     /**
-     * Instantiates a new, empty pseudo tree. A so-called NIL-Tree
+     * Instantiates a new, empty Dafny tree. A so-called NIL-Tree
      */
     public DafnyTree() {
         this((Token) null);
+    }
+
+    /**
+     * Instantiates a new Dafny tree. A new (virtual) token is created from the
+     * arguments.
+     *
+     * @see DafnyParser
+     *
+     * @param type
+     *            type of the token, see contants of {@link DafnyParser}.
+     * @param image
+     *            the string to embed
+     */
+    public DafnyTree(int type, String image) {
+        this(new CommonToken(type, image));
+    }
+
+    /**
+     * Instantiates a new Dafny tree. A new (virtual) token is created from the
+     * argument.
+     *
+     * @see DafnyParser
+     *
+     * @param type
+     *            type of the token, see contants of {@link DafnyParser}.
+     */
+    public DafnyTree(int type) {
+        this(new CommonToken(type));
     }
 
     /**
@@ -164,6 +194,8 @@ public class DafnyTree extends CommonTree {
     /**
      * Gets the child at a given index.
      *
+     * @param n the index of the child, must be in bounds.
+     *
      * @return the child at the given index, not <code>null</code>.
      *
      * @throws IndexOutOfBoundsException
@@ -209,7 +241,7 @@ public class DafnyTree extends CommonTree {
     @Override
     public String toString() {
         String string = super.toString();
-        if(string == null && token != null) {
+        if (string == null && token != null) {
             string = DafnyParser.tokenNames[token.getType()];
         }
         return string;

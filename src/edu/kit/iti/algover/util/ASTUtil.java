@@ -30,7 +30,7 @@ public final class ASTUtil {
      * @return the AST for the negated formula.
      */
     public static DafnyTree negate(DafnyTree cond) {
-        DafnyTree result = new DafnyTree(new CommonToken(DafnyParser.NOT, "not"));
+        DafnyTree result = new DafnyTree(DafnyParser.NOT, "not");
         result.addChild(cond);
         return result;
     }
@@ -57,7 +57,7 @@ public final class ASTUtil {
      */
     // Checkstyle: IGNORE MethodNameCheck
     public static DafnyTree _null() {
-        return new DafnyTree(new CommonToken(DafnyParser.NULL, "null"));
+        return new DafnyTree(DafnyParser.NULL, "null");
     }
 
     /**
@@ -68,7 +68,7 @@ public final class ASTUtil {
      * @return a freshly created tree
      */
     public static DafnyTree equals(DafnyTree tree1, DafnyTree tree2) {
-        DafnyTree result = new DafnyTree(new CommonToken(DafnyParser.EQ, "="));
+        DafnyTree result = new DafnyTree(DafnyParser.EQ, "=");
         result.addChild(tree1);
         result.addChild(tree2);
         return result;
@@ -82,7 +82,7 @@ public final class ASTUtil {
      * @return a freshly created dafny tree
      */
     public static DafnyTree notEquals(DafnyTree tree1, DafnyTree tree2) {
-        DafnyTree result = new DafnyTree(new CommonToken(DafnyParser.NEQ, "!="));
+        DafnyTree result = new DafnyTree(DafnyParser.NEQ, "!=");
         result.addChild(tree1);
         result.addChild(tree2);
         return result;
@@ -96,7 +96,7 @@ public final class ASTUtil {
      * @return a freshly created dafny tree
      */
     public static DafnyTree and(DafnyTree conj1, DafnyTree conj2) {
-        DafnyTree result = new DafnyTree(new CommonToken(DafnyParser.AND, "&&"));
+        DafnyTree result = new DafnyTree(DafnyParser.AND, "&&");
         result.addChild(conj1);
         result.addChild(conj2);
         return result;
@@ -118,10 +118,10 @@ public final class ASTUtil {
      */
     public static DafnyTree and(Iterable<DafnyTree> trees) {
 
-        DafnyTree result = new DafnyTree(new CommonToken(DafnyParser.AND, "&&"));
+        DafnyTree result = new DafnyTree(DafnyParser.AND, "&&");
         for (DafnyTree tree : trees) {
             if (result.getChildCount() == 2) {
-                DafnyTree t = new DafnyTree(new CommonToken(DafnyParser.AND, "&&"));
+                DafnyTree t = new DafnyTree(DafnyParser.AND, "&&");
                 t.addChild(result);
                 result = t;
             }
@@ -149,7 +149,7 @@ public final class ASTUtil {
      * @return a freshly created dafny tree
      */
     public static DafnyTree impl(DafnyTree premiss, DafnyTree concl) {
-        DafnyTree result = new DafnyTree(new CommonToken(DafnyParser.IMPLIES, "==>"));
+        DafnyTree result = new DafnyTree(DafnyParser.IMPLIES, "==>");
         result.addChild(premiss);
         result.addChild(concl);
         return result;
@@ -163,7 +163,7 @@ public final class ASTUtil {
      * @return a freshly created dafny tree
      */
     public static DafnyTree intLiteral(int value) {
-        DafnyTree result = new DafnyTree(new CommonToken(DafnyParser.LIT, Integer.toString(value)));
+        DafnyTree result = new DafnyTree(DafnyParser.LIT, Integer.toString(value));
         return result;
     }
 
@@ -175,7 +175,7 @@ public final class ASTUtil {
      * @return a freshly created dafny tree
      */
     public static DafnyTree greaterEqual(DafnyTree exp1, DafnyTree exp2) {
-        DafnyTree result = new DafnyTree(new CommonToken(DafnyParser.GE, ">="));
+        DafnyTree result = new DafnyTree(DafnyParser.GE, ">=");
         result.addChild(exp1);
         result.addChild(exp2);
         return result;
@@ -189,7 +189,7 @@ public final class ASTUtil {
      * @return a freshly created dafny tree
      */
     public static DafnyTree lessEqual(DafnyTree exp1, DafnyTree exp2) {
-        DafnyTree result = new DafnyTree(new CommonToken(DafnyParser.LE, "<="));
+        DafnyTree result = new DafnyTree(DafnyParser.LE, "<=");
         result.addChild(exp1);
         result.addChild(exp2);
         return result;
@@ -203,7 +203,7 @@ public final class ASTUtil {
      * @return a freshly created dafny tree
      */
     public static DafnyTree less(DafnyTree exp1, DafnyTree exp2) {
-        DafnyTree result = new DafnyTree(new CommonToken(DafnyParser.LT, "<"));
+        DafnyTree result = new DafnyTree(DafnyParser.LT, "<");
         result.addChild(exp1);
         result.addChild(exp2);
         return result;
@@ -217,7 +217,7 @@ public final class ASTUtil {
      * @return a freshly created dafny tree
      */
     public static DafnyTree noetherLess(DafnyTree exp1, DafnyTree exp2) {
-        DafnyTree result = new DafnyTree(new CommonToken(DafnyParser.NOETHER_LESS));
+        DafnyTree result = new DafnyTree(DafnyParser.NOETHER_LESS);
         result.addChild(exp1);
         result.addChild(exp2);
         return result;
@@ -230,7 +230,7 @@ public final class ASTUtil {
      * @return a freshly created dafny tree
      */
     public static DafnyTree length(DafnyTree array) {
-        DafnyTree result = new DafnyTree(new CommonToken(DafnyParser.LENGTH, "Length"));
+        DafnyTree result = new DafnyTree(DafnyParser.LENGTH, "Length");
         result.addChild(array);
         return result;
     }
@@ -242,7 +242,7 @@ public final class ASTUtil {
      * @return a freshly created dafny tree
      */
     public static DafnyTree id(String id) {
-        return new DafnyTree(new CommonToken(DafnyParser.ID, id));
+        return new DafnyTree(DafnyParser.ID, id);
     }
 
 }

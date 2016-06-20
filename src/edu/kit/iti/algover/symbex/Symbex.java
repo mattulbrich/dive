@@ -45,7 +45,7 @@ public class Symbex {
      * The Constant EMPTY_PROGRAM points to an empty AST.
      */
     private static final DafnyTree EMPTY_PROGRAM =
-            new DafnyTree(new CommonToken(DafnyParser.BLOCK));
+            new DafnyTree(DafnyParser.BLOCK);
 
     /**
      * Performs symbolic execution on a function.
@@ -258,7 +258,7 @@ public class Symbex {
      * Put decreases list into a list expression
      */
     private DafnyTree toListExt(DafnyTree decreases) {
-        DafnyTree list = new DafnyTree(new CommonToken(DafnyParser.LISTEX));
+        DafnyTree list = new DafnyTree(DafnyParser.LISTEX);
         list.addChildren(decreases.getChildren());
         return list;
     }
@@ -418,7 +418,7 @@ public class Symbex {
      * @return the combined statement block
      */
     private DafnyTree append(DafnyTree prog1, DafnyTree prog2) {
-        DafnyTree result = new DafnyTree(new CommonToken(DafnyParser.BLOCK));
+        DafnyTree result = new DafnyTree(DafnyParser.BLOCK);
 
         if (prog1.getType() == DafnyParser.BLOCK) {
             for (int i = 0; i < prog1.getChildCount(); i++) {
@@ -453,7 +453,7 @@ public class Symbex {
 
         assert block.getType() == DafnyParser.BLOCK;
 
-        DafnyTree result = new DafnyTree(new CommonToken(DafnyParser.BLOCK));
+        DafnyTree result = new DafnyTree(DafnyParser.BLOCK);
         for (int i = 1; i < block.getChildCount(); i++) {
             result.addChild(block.getChild(i));
         }

@@ -50,8 +50,8 @@ public class LabelIntroducer {
                     no++;
                 }
 
-                DafnyTree idTree = new DafnyTree(new CommonToken(DafnyParser.ID, "#" + no));
-                DafnyTree labelTree = new DafnyTree(new CommonToken(DafnyParser.LABEL));
+                DafnyTree idTree = new DafnyTree(DafnyParser.ID, "#" + no);
+                DafnyTree labelTree = new DafnyTree(DafnyParser.LABEL);
                 labelTree.addChild(idTree);
 
                 tree.insertChild(0, labelTree);

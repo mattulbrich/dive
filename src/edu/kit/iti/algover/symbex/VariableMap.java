@@ -54,9 +54,9 @@ public final class VariableMap implements Iterable<Pair<String, DafnyTree>> {
         }
 
         String anonName = v + "#" + count;
-        DafnyTree result = new DafnyTree(new CommonToken(DafnyParser.HAVOC));
-        result.addChild(new DafnyTree(new CommonToken(DafnyParser.ID, v)));
-        result.addChild(new DafnyTree(new CommonToken(DafnyParser.ID, anonName)));
+        DafnyTree result = new DafnyTree(DafnyParser.HAVOC);
+        result.addChild(new DafnyTree(DafnyParser.ID, v));
+        result.addChild(new DafnyTree(DafnyParser.ID, anonName));
 
         return assign(v, result);
     }
@@ -117,7 +117,7 @@ public final class VariableMap implements Iterable<Pair<String, DafnyTree>> {
     public DafnyTree get(String name) {
 
         if(this == EMPTY && !name.contains("#")) {
-            return new DafnyTree(new CommonToken(DafnyParser.ID, name + "#pre"));
+            return new DafnyTree(DafnyParser.ID, name + "#pre");
         }
 
         if(name.equals(var)) {

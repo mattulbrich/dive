@@ -9,7 +9,6 @@ import static org.junit.Assert.assertEquals;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 
 import org.antlr.runtime.CommonToken;
 import org.junit.Before;
@@ -17,7 +16,6 @@ import org.junit.Test;
 
 import edu.kit.iti.algover.data.BuiltinSymbols;
 import edu.kit.iti.algover.data.MapSymbolTable;
-import edu.kit.iti.algover.data.SymbolTable;
 import edu.kit.iti.algover.parser.DafnyParser;
 import edu.kit.iti.algover.parser.DafnyTree;
 import edu.kit.iti.algover.term.FunctionSymbol;
@@ -39,11 +37,11 @@ public class TreeTermTranslationNoetherTest {
 
     @Test
     public void testNoetherSmall() throws Exception {
-        DafnyTree less = new DafnyTree(new CommonToken(DafnyParser.NOETHER_LESS));
+        DafnyTree less = new DafnyTree(DafnyParser.NOETHER_LESS);
         {
-            DafnyTree listex = new DafnyTree(new CommonToken(DafnyParser.LISTEX));
-            less.addChild(new DafnyTree(new CommonToken(DafnyParser.ID, "#d")));
-            listex.addChild(new DafnyTree(new CommonToken(DafnyParser.LIT, "1")));
+            DafnyTree listex = new DafnyTree(DafnyParser.LISTEX);
+            less.addChild(new DafnyTree(DafnyParser.ID, "#d"));
+            listex.addChild(new DafnyTree(DafnyParser.LIT, "1"));
             less.addChild(listex);
         }
         assertEquals("(NOETHER_LESS #d (LISTEX 1))", less.toStringTree());
@@ -63,15 +61,15 @@ public class TreeTermTranslationNoetherTest {
    @Test
     public void testNoether() throws Exception {
 
-        DafnyTree less = new DafnyTree(new CommonToken(DafnyParser.NOETHER_LESS));
+        DafnyTree less = new DafnyTree(DafnyParser.NOETHER_LESS);
         {
-            DafnyTree listex = new DafnyTree(new CommonToken(DafnyParser.LISTEX));
-            less.addChild(new DafnyTree(new CommonToken(DafnyParser.ID, "#d")));
+            DafnyTree listex = new DafnyTree(DafnyParser.LISTEX);
+            less.addChild(new DafnyTree(DafnyParser.ID, "#d"));
             less.addChild(listex);
             {
-                listex.addChild(new DafnyTree(new CommonToken(DafnyParser.LIT, "1")));
-                listex.addChild(new DafnyTree(new CommonToken(DafnyParser.LIT, "2")));
-                listex.addChild(new DafnyTree(new CommonToken(DafnyParser.LIT, "3")));
+                listex.addChild(new DafnyTree(DafnyParser.LIT, "1"));
+                listex.addChild(new DafnyTree(DafnyParser.LIT, "2"));
+                listex.addChild(new DafnyTree(DafnyParser.LIT, "3"));
             }
         }
         assertEquals("(NOETHER_LESS #d (LISTEX 1 2 3))", less.toStringTree());

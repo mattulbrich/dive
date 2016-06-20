@@ -29,12 +29,12 @@ import edu.kit.iti.algover.util.Pair;
 public class SymbexTest {
 
     private static final VariableMap SOME_MAP =
-            VariableMap.EMPTY.assign("var", new DafnyTree(new CommonToken(-4)));
+            VariableMap.EMPTY.assign("var", new DafnyTree(-4));
 
     private DafnyTree tree;
 
     private static final DafnyTree SOME_PROGRAM =
-            new DafnyTree(new CommonToken(-1, "SOME_PROGRAM"));
+            new DafnyTree(-1, "SOME_PROGRAM");
 
     @Before
     public void loadTree() throws Exception {
