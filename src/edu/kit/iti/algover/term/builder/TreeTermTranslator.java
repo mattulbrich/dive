@@ -9,7 +9,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Deque;
-import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -29,17 +28,50 @@ import edu.kit.iti.algover.term.Term;
 import edu.kit.iti.algover.term.VariableTerm;
 import edu.kit.iti.algover.util.Pair;
 
+/**
+ * The Class TreeTermTranslator is used to create a {@link Term} object from a
+ * {@link DafnyTree}.
+ *
+ * @see Term
+ * @see DafnyTree
+ *
+ * @author Mattias Ulbrich
+ */
 public class TreeTermTranslator {
 
     private final SymbolTable symbolTable;
 
     private final Deque<VariableTerm> boundVars = new LinkedList<VariableTerm>();
 
+    /**
+     * Instantiates a new term translator.
+     *
+     * If needed, the presented symbol table may be extended!
+     *
+     * @param symbolTable
+     *            non-<code>null</code> symbol table for lookup of symbols.
+     */
     public TreeTermTranslator(SymbolTable symbolTable) {
         assert symbolTable != null;
         this.symbolTable = symbolTable;
     }
 
+
+    /**
+     * Builds a let-cascaded term for a tree and a variable map.
+     *
+     * All assignments in {@code map} are translated to cascading
+     * {@link LetTerm}s. The {@code expression} is then embedded into the
+     * cascade
+     *
+     * @param map
+     *            the non-<code>null</code> variable assignment
+     * @param expression
+     *            the expression to be translated
+     * @return the term which represents the let-cascade
+     * @throws TermBuildException
+     *             if terms in the tree are not well-formed.
+     */
     public Term build(VariableMap map, DafnyTree expression) throws TermBuildException {
         Term result = build(expression);
 
@@ -47,16 +79,12 @@ public class TreeTermTranslator {
             result = buildLetExpression(pair.fst, pair.snd, result);
         }
 
-        //        Iterator<Pair<String, DafnyTree>> it = map.iterator();
-//        while(it.hasNext()) {
-//            Pair<String, DafnyTree> pair = it.next();
-//        }
-
         return result;
 
     }
 
-    private Term buildLetExpression(String var, DafnyTree assignment, Term result) throws TermBuildException {
+    private Term buildLetExpression(String var, DafnyTree assignment, Term result)
+            throws TermBuildException {
         DafnyTree errorTree = assignment;
         try {
             switch(assignment.getType()) {
@@ -76,7 +104,18 @@ public class TreeTermTranslator {
                 Term store = new ApplTerm(BuiltinSymbols.STORE1, heapTerm, object, index, value);
                 return new LetTerm(heap, store, result);
 
-            //case DafnyParser.LISTEX:
+            case DafnyParser.LISTEX:
+                // TODO: In a later revision make this seq<?> or similar.
+                List<Pair<FunctionSymbol, Term>> updates = new ArrayList<>();
+                for (int i = 0; i < assignment.getChildCount(); i++) {
+                    f = symbolTable.getFunctionSymbol(var + "_" + i);
+                    if (f == null) {
+                        f = new FunctionSymbol(var + "_" + i, Sort.INT);
+                        symbolTable.addFunctionSymbol(f);
+                    }
+                    updates.add(new Pair<>(f, build(assignment.getChild(i))));
+                }
+                return new LetTerm(updates, result);
 
             default:
                 // in this case for error we must take parent of the expression
@@ -85,14 +124,21 @@ public class TreeTermTranslator {
                 value = build(assignment);
                 return new LetTerm(f, value, result);
             }
-        } catch(TermBuildException ex) {
-            if(!ex.hasLocation()) {
+        } catch (TermBuildException ex) {
+            if (!ex.hasLocation()) {
                 ex.setLocation(errorTree);
             }
             throw ex;
         }
     }
 
+    /**
+     * Builds a term for a dafny tree.
+     *
+     * @param tree the non-<code>null</code> tree object standing for the term
+     * @return the term representing the tree
+     * @throws TermBuildException if the term is not well-formed
+     */
     public Term build(DafnyTree tree) throws TermBuildException {
 
         switch(tree.getType()) {
@@ -112,6 +158,8 @@ public class TreeTermTranslator {
             return buildBinary(BuiltinSymbols.LT, tree);
         case DafnyParser.PLUS:
             return buildBinary(BuiltinSymbols.PLUS, tree);
+        case DafnyParser.MINUS:
+            return buildBinary(BuiltinSymbols.MINUS, tree);
         case DafnyParser.TIMES:
             return buildBinary(BuiltinSymbols.TIMES, tree);
         case DafnyParser.UNION:
@@ -124,6 +172,9 @@ public class TreeTermTranslator {
 
         case DafnyParser.EQ:
             return buildEquality(tree);
+
+        case DafnyParser.NEQ:
+            return TermBuilder.negate(buildEquality(tree));
 
         case DafnyParser.ID:
         case DafnyParser.NULL:
@@ -143,8 +194,12 @@ public class TreeTermTranslator {
         case DafnyParser.ARRAY_ACCESS:
             return buildArrayAccess(tree);
 
+        case DafnyParser.NOETHER_LESS:
+            return buildNoetherLess(tree);
+
         default:
-            TermBuildException ex = new TermBuildException("Cannot translate term: " + tree.toStringTree());
+            TermBuildException ex =
+                new TermBuildException("Cannot translate term: " + tree.toStringTree());
             ex.setLocation(tree);
             throw ex;
         }
@@ -157,25 +212,25 @@ public class TreeTermTranslator {
         Sort arraySort = arrayTerm.getSort();
         String arraySortName = arraySort.getName();
 
-        if(!arraySortName.matches("array[0-9]*")) {
+        if (!arraySortName.matches("array[0-9]*")) {
             throw new RuntimeException(tree.toStringTree());
         }
 
         int dimension = 0;
-        if(arraySortName.length() > 5) {
+        if (arraySortName.length() > 5) {
             dimension = Integer.parseInt(arraySortName.substring(5));
         }
 
         FunctionSymbol select = symbolTable.getFunctionSymbol("$select" + dimension);
 
-        if(tree.getChildCount() != dimension + 1) {
+        if (tree.getChildCount() != dimension + 1) {
             throw new RuntimeException();
         }
 
         List<Term> args = new ArrayList<>();
         args.add(new ApplTerm(BuiltinSymbols.HEAP));
         args.add(arrayTerm);
-        for(int i = 1; i <= dimension; i++) {
+        for (int i = 1; i <= dimension; i++) {
             args.add(build(tree.getChild(i)));
         }
 
@@ -188,7 +243,7 @@ public class TreeTermTranslator {
         String suffix = functionName.substring(6);
 
         int index = 0;
-        if(suffix.length() > 0) {
+        if (suffix.length() > 0) {
             index = Integer.parseInt(suffix);
         }
 
@@ -200,14 +255,14 @@ public class TreeTermTranslator {
     }
 
     private Term buildEquality(DafnyTree tree) throws TermBuildException {
-        if(tree.getChildCount() != 2) {
+        if (tree.getChildCount() != 2) {
             throw new RuntimeException();
         }
 
         Term t1 = build(tree.getChild(0));
         Term t2 = build(tree.getChild(1));
 
-        if(!t1.getSort().equals(t2.getSort())) {
+        if (!t1.getSort().equals(t2.getSort())) {
             throw new RuntimeException();
         }
 
@@ -218,14 +273,14 @@ public class TreeTermTranslator {
     private Term buildIdentifier(DafnyTree tree) throws TermBuildException {
         String name = tree.toString();
         for (VariableTerm var : boundVars) {
-            if(var.getName().equals(name)) {
+            if (var.getName().equals(name)) {
                 // found a bound variable in context!
                 return var;
             }
         }
 
         FunctionSymbol fct = symbolTable.getFunctionSymbol(name);
-        if(fct == null) {
+        if (fct == null) {
             throw new TermBuildException("Unknown function symbol: " + name);
         }
 
@@ -233,7 +288,7 @@ public class TreeTermTranslator {
     }
 
     private Term buildQuantifier(Quantifier q, DafnyTree tree) throws TermBuildException {
-        if(tree.getChildCount() != 3) {
+        if (tree.getChildCount() != 3) {
             throw new RuntimeException();
         }
 
@@ -260,7 +315,7 @@ public class TreeTermTranslator {
     }
 
     private Term buildUnary(FunctionSymbol f, DafnyTree tree) throws TermBuildException {
-        if(tree.getChildCount() != 1) {
+        if (tree.getChildCount() != 1) {
             throw new RuntimeException("Unexpected argument " + tree.toStringTree());
         }
 
@@ -269,13 +324,47 @@ public class TreeTermTranslator {
     }
 
     private Term buildBinary(FunctionSymbol f, DafnyTree tree) throws TermBuildException {
-        if(tree.getChildCount() != 2) {
+        if (tree.getChildCount() != 2) {
             throw new RuntimeException("Unexpected argument " + tree.toStringTree());
         }
 
         Term t1 = build(tree.getChild(0));
         Term t2 = build(tree.getChild(1));
         return new ApplTerm(f, Arrays.asList(t1, t2));
+    }
+
+    private Term buildNoetherLess(DafnyTree tree) throws TermBuildException {
+        // TODO refactor this for seq<?> one day when seqs are available
+        DafnyTree lhs = tree.getChild(0);
+        DafnyTree rhs = tree.getChild(1);
+
+        assert rhs.getType() == DafnyParser.LISTEX
+                && lhs.getType() == DafnyParser.ID :
+            "limited support so far we inline the comparison";
+
+        Term result = TermBuilder.ff();
+        String basevar = lhs.toString();
+        Term[] vars = new Term[rhs.getChildCount()];
+        Term[] terms = new Term[rhs.getChildCount()];
+
+        for (int i = 0; i < rhs.getChildCount(); i++) {
+            FunctionSymbol f = symbolTable.getFunctionSymbol(basevar + "_" + i);
+            vars[i] = new ApplTerm(f);
+            terms[i] = build(rhs.getChild(i));
+
+            Term cond = TermBuilder.tt();
+            for (int j = 0; j < i; j++) {
+                ApplTerm eq = new ApplTerm(symbolTable.getFunctionSymbol("$eq_int"), vars[j],
+                        terms[j]);
+                cond = TermBuilder.and(cond, eq);
+            }
+
+            cond = TermBuilder.and(cond, TermBuilder.lessEqual(TermBuilder.ZERO, terms[i]));
+            cond = TermBuilder.and(cond, TermBuilder.less(terms[i], vars[i]));
+            result = TermBuilder.or(result, cond);
+        }
+
+        return result;
     }
 
 }

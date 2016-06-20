@@ -5,12 +5,7 @@
  */
 package edu.kit.iti.algover;
 
-import java.io.BufferedWriter;
-import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileWriter;
-import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -22,13 +17,10 @@ import org.antlr.runtime.Token;
 import edu.kit.iti.algover.parser.DafnyFileParser;
 import edu.kit.iti.algover.parser.DafnyTree;
 import edu.kit.iti.algover.smt.Z3Solver;
-import edu.kit.iti.algover.symbex.AssertionElement;
-import edu.kit.iti.algover.symbex.PathConditionElement;
 import edu.kit.iti.algover.symbex.Symbex;
 import edu.kit.iti.algover.symbex.SymbexPath;
 import edu.kit.iti.algover.term.Term;
 import edu.kit.iti.algover.term.builder.TermBuildException;
-import edu.kit.iti.algover.theoremprover.DafnyTrans;
 import edu.kit.iti.algover.util.Debug;
 import edu.kit.iti.algover.util.LabelIntroducer;
 import edu.kit.iti.algover.util.SymbexUtil;
@@ -36,7 +28,7 @@ import edu.kit.iti.algover.util.Util;
 
 public class DafnyZ3 {
 
-    private static boolean VERBOSE = true;
+    private static boolean VERBOSE = Boolean.getBoolean("algover.verbose");
 
     private static void test(InputStream stream) throws Exception {
         // create the lexer attached to stream
@@ -52,7 +44,7 @@ public class DafnyZ3 {
         for (SymbexPath res : symbexresult) {
 
             if(VERBOSE) {
-                System.out.println(SymbexUtil.toString(res));
+               System.out.println(SymbexUtil.toString(res));
             }
 
             SymbexStateToFormula magic = new SymbexStateToFormula(t);
@@ -64,7 +56,7 @@ public class DafnyZ3 {
                     String smt = z3.createSMTInput(formulae);
                     System.out.println(smt);
                 }
-                System.out.println(single.getProofObligations());
+                System.out.println(single);
                 System.out.println(z3.solve(formulae));
             }
         }

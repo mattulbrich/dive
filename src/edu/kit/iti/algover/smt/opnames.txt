@@ -1,12 +1,15 @@
 $union = set_union
 $intersection = set_intersection
 $plus = +
+$minus = -
 $times = *
 
 $and = and
 $or = or
 $not = not
 $imp = \=>
+$true = true
+$false = false
 
 $le = <\=
 $lt = <

@@ -28,6 +28,7 @@ public class SymbexUtil {
         sb.append("Proof Obligations:\n");
         sb.append("  Assignment History:\n");
         sb.append("    " + res.getMap().toHistoryString().replace("\n", "\n    "));
+        sb.append("\n");
         for (AssertionElement po : res.getProofObligations()) {
             sb.append("  " + po + "\n");
         }

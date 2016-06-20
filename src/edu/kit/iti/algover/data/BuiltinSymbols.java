@@ -57,6 +57,9 @@ public class BuiltinSymbols extends MapSymbolTable {
     public static final FunctionSymbol PLUS =
             new FunctionSymbol("$plus", Sort.INT, Sort.INT, Sort.INT);
 
+    public static final FunctionSymbol MINUS =
+            new FunctionSymbol("$minus", Sort.INT, Sort.INT, Sort.INT);
+
     public static final FunctionSymbol TIMES =
             new FunctionSymbol("$times", Sort.INT, Sort.INT, Sort.INT);
 
@@ -71,6 +74,12 @@ public class BuiltinSymbols extends MapSymbolTable {
 
     public static final FunctionSymbol HEAP =
             new FunctionSymbol("$heap", Sort.HEAP);
+
+    public static final FunctionSymbol TRUE =
+            new FunctionSymbol("$true", Sort.FORMULA);
+
+    public static final FunctionSymbol FALSE =
+            new FunctionSymbol("$false", Sort.FORMULA);
 
     public BuiltinSymbols() {
         super(collectSymbols());
