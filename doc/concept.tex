@@ -10,7 +10,7 @@
 \begin{document}
 
 \title{Concept for Program-Focused Interaction in \\Algorithm Verification}
-\author{MU}
+\author{MU, SG}
 \date{June 2016}
 
 \maketitle
@@ -159,8 +159,95 @@ was introduced by the user
 \end{itemize}
 
 To address these problems our new interaction concept will allow different 
-presentation of the proof problem as well as new actions during the proof 
+presentations of the proof problem as well as new actions during the proof 
 process.
+
+The concept allows for a seamless phase shift between autoactive and 
+interactive proof concepts and allow three different projections of the proof 
+state into the three XXXdomains.
+
+    	
+%    Obseravtions What are users actually doing? As opposed to what you 
+% expected they might % do.
+%     What routines do users have with the product? How are they integrating it 
+% into their lives?
+%     Record details – adding granularity and specificity to an observation can 
+% make it much more meaningful
+%     Ensure you’re examining activities in their whole; look at how the product 
+% is used in context with their device and the flow of their lives and not just at 
+% the product itself.
+%     Don’t be afraid to get qualitative. If you see an example of behavior that 
+% you think may be repeated – make a note of it and look for it in future 
+% observations.
+
+
+\section{Use Cases from User Study}
+
+We conducted a user study using contextual interview methods with nine users 
+from the KeY system (interactive, with explicit proof object, rule applications 
+via point and click)
+to extract issues when proving a problem interactively.
+
+We provided three use cases and the users added XX use cases.
+
+As actor in all use cases serves the standard user: a developer or a researcher 
+(both with background in theorem proving/verification)
+In the following the use cases and their preconditions are depicted. 
+
+\subsection{Use Case: Find/search cause of open proof}
+
+Flow-of-Events for this use case:
+\paragraph{1. Preconditions}
+\begin{itemize}
+ \item user has written (first) specification
+ \item user has invoked systems automatic strategies to find a proof
+ \item system didn't find a proof and displays open proof to user
+\end{itemize}
+
+
+\subsection{Use case: develop specification}
+Flow-of-Events for this use case:
+\paragraph{1. Preconditions}
+\begin{itemize}
+ \item user has written (first) specification
+ \item user has invoked systems automatic strategies to find a proof for first 
+specification
+ \item system found a proof 
+ \item system didn't proof problems of whole system under proof yet
+\end{itemize}
+
+\subsection{Use case: Perform Proof Attempt}
+Flow-of-Events for this use case:
+\paragraph{1. Preconditions}
+\begin{itemize}
+ \item user has written (first) specification
+\end{itemize}
+\subsection{Use case: Continue/Resume a proof}
+Flow-of-Events for this use case:
+\paragraph{1. Preconditions}
+\begin{itemize}
+ \item user has written (first) specification
+ \item user has invoked systems automatic strategies to find a proof
+ \item system didn't find a proof and displays open proof to user
+ \item user has found cause for failed proof attempt
+ \item user corrected error
+\end{itemize}
+\subsection{Use case: Correct error}
+Flow-of-Events for this use case:
+\paragraph{1. Preconditions}
+\begin{itemize}
+ \item user has written (first) specification
+  \item user has invoked systems automatic strategies to find a proof
+ \item system didn't find a proof and displays open proof to user
+\end{itemize}
+\subsection{Use case: write specification}
+Flow-of-Events for this use case:
+\paragraph{1. Preconditions}
+\begin{itemize}
+ \item user has written program 
+ \item user has read natural language spec
+\end{itemize}
+\section{Usability heuristics will be followed}
 
 The new concept will follow the following general heuristics by Nielsen for UI 
 design:
@@ -202,9 +289,10 @@ correspondences between both views should be explicitly visible, by for example
 highlighting corresponding parts/entities in both views when hovering over them 
 or using same colors for same entities.
 
-In addition pathconditions and variable updates should stay in the programming 
+In addition path conditions and variable updates should stay in the programming 
 language even if switched to the logical level. Especially, naming of entities 
-should not change between both views.
+should not change between both views. The latter two requirements will be 
+reflected by the next heuristic.
 \paragraph{Recognition rather than recall}
 \begin{quote}
  Minimize the user's memory load by making objects, actions, and options 
@@ -212,6 +300,19 @@ visible. The user should not have to remember information from one part of the
 dialogue to another. Instructions for use of the system should be visible or 
 easily retrievable whenever appropriate.
 \end{quote}
+
+To adapt this heuristic, we have to state what actions, objects and options are 
+present when proving programs.
+
+First of all we have the program, containing of statements, control structures, 
+variables,... together with a specification containing of logical terms that 
+formalize properties about structures appearing in the program.
+
+We have program states, proof states, rule applications, strategy invocations, 
+and mathematical proof constructs.
+These constructs appear across the different views and have dependencies 
+between each other:
+
 
 \paragraph{Minimalist design}
 Actually the heuristic is called Aesthetic and minimalist design stating 
