@@ -79,8 +79,8 @@ public class DafnyZ3 {
                 List<String> lines = Files.readAllLines(Paths.get(args[0]));
                 System.err.println(lines.get(line));
                 System.err.println(Util.duplicate(" ", pos) + "^^^");
-                ex.printStackTrace();
             }
+            ex.printStackTrace();
         }
     }
 

@@ -5,7 +5,7 @@ method max(a : array<int>, n: int) returns (m : int)
   decreases 0
 {
 
-//  assert n == a.Length;
+  assume n == a.Length;
 
   var i:int := 0;
   
@@ -15,6 +15,7 @@ method max(a : array<int>, n: int) returns (m : int)
     invariant label inbounds: 0 <= i && i <= n
     invariant label greater: (forall j:int :: 0 <= j && j < i ==> a[m] >= a[j])
     invariant label witness: m == 0 || (exists j:int :: 0 <= j && j < i && a[m] == a[j])
+    invariant label witness_in_bounds: 0 <= m && m < n
     decreases n - i
   {
     if a[i] > a[m]

@@ -5,6 +5,7 @@
  */
 package edu.kit.iti.algover.smt;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -46,6 +47,9 @@ public class SMTTrans extends DefaultTermVisitor<Void, SExpr> {
     static {
         OP_MAP = new Properties();
         try(InputStream fis = SMTTrans.class.getResourceAsStream("opnames.txt")) {
+            if(fis == null) {
+                throw new FileNotFoundException("opnames.txt");
+            }
             OP_MAP.load(fis);
         } catch (IOException e) {
             throw new Error(e);
@@ -143,8 +147,7 @@ public class SMTTrans extends DefaultTermVisitor<Void, SExpr> {
             switch(name) {
             case "int": return new SExpr("Int");
             case "set": return new SExpr("Array", "Int", "Boolean");
-            }
-        }
+            }        }
         throw new UnsupportedOperationException("Unsupported sort: " + sort);
     }
 
