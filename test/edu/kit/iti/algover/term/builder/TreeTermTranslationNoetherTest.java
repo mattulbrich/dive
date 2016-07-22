@@ -41,7 +41,7 @@ public class TreeTermTranslationNoetherTest {
         {
             DafnyTree listex = new DafnyTree(DafnyParser.LISTEX);
             less.addChild(new DafnyTree(DafnyParser.ID, "#d"));
-            listex.addChild(new DafnyTree(DafnyParser.LIT, "1"));
+            listex.addChild(new DafnyTree(DafnyParser.INT_LIT, "1"));
             less.addChild(listex);
         }
         assertEquals("(NOETHER_LESS #d (LISTEX 1))", less.toStringTree());
@@ -67,9 +67,9 @@ public class TreeTermTranslationNoetherTest {
             less.addChild(new DafnyTree(DafnyParser.ID, "#d"));
             less.addChild(listex);
             {
-                listex.addChild(new DafnyTree(DafnyParser.LIT, "1"));
-                listex.addChild(new DafnyTree(DafnyParser.LIT, "2"));
-                listex.addChild(new DafnyTree(DafnyParser.LIT, "3"));
+                listex.addChild(new DafnyTree(DafnyParser.INT_LIT, "1"));
+                listex.addChild(new DafnyTree(DafnyParser.INT_LIT, "2"));
+                listex.addChild(new DafnyTree(DafnyParser.INT_LIT, "3"));
             }
         }
         assertEquals("(NOETHER_LESS #d (LISTEX 1 2 3))", less.toStringTree());

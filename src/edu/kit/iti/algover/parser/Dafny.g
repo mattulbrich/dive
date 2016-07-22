@@ -9,9 +9,9 @@ tokens {
   RESULTS;
   ARGS;
   BLOCK;
-  LISTEX;
-  SETEX;
   FIELD_ACCESS;
+  LISTEX; // not supported currently
+  SETEX; // not supported currently
   ARRAY_ACCESS;
   ARRAY_UPDATE;
   OBJ_FUNC_CALL;
@@ -58,34 +58,35 @@ tokens {
   }
 }
 
-
-INT : 'int';
-BOOL : 'bool';
-SET : 'set';
-RETURNS : 'returns';
-ENSURES: 'ensures';
-REQUIRES: 'requires';
-DECREASES: 'decreases';
-FUNCTION: 'function';
-METHOD: 'method';
-LEMMA: 'lemma';
-LABEL: 'label';
-ELSE: 'else';
-IF: 'if';
-THEN: 'then';
-WHILE: 'while';
-VAR: 'var';
-CALL:'call';
-INVARIANT: 'invariant';
+ALL: 'forall';
 ASSERT: 'assert';
 ASSUME: 'assume';
-MODIFIES: 'modifies';
+BOOL : 'bool';
+CALL: 'call';
+// CASE: 'case'; 
 CLASS: 'class';
-THIS: 'this';
-NULL: 'null';
-
-ALL: 'forall';
+DECREASES: 'decreases';
+ELSE: 'else';
+ENSURES: 'ensures';
 EX: 'exists';
+FUNCTION: 'function';
+IF: 'if';
+INT : 'int';
+INVARIANT: 'invariant';
+LABEL: 'label';
+LEMMA: 'lemma';
+METHOD: 'method';
+MODIFIES: 'modifies';
+NULL: 'null';
+// PREDICATE : 'predicate';
+REQUIRES: 'requires';
+RETURNS : 'returns';
+SEQ : 'seq';
+SET : 'set';
+THEN: 'then';
+THIS: 'this';
+VAR: 'var';
+WHILE: 'while';
 
 DOUBLECOLON: '::';
 ASSIGN: ':=';
@@ -107,11 +108,16 @@ NEQ: '!=';
 DOT: '.';
 BLOCK_BEGIN: '{';
 BLOCK_END: '}';
+LPAREN: '(';
+RPAREN: ')';
+LBRACKET: '[';
+RBRACKET: ']';
 
 LENGTH: 'Length' ('0' .. '9')*;
 ARRAY : 'array' (('1' .. '9') ('0' .. '9')*)?;
 ID : ('a' .. 'z' | 'A' .. 'Z' | '_') ('a' .. 'z' | 'A' .. 'Z' | '0' .. '9' | '_')*;
-LIT : '0' ..'9'+;
+INT_LIT : ('0' .. '9' ) ('0' .. '9' | '_')*;
+// glyph = "`~!@#$%^&*()-_=+[{]}|;:',<.>/?\\".
 
 WS : (' '|'\n'|'\r')                     { $channel = HIDDEN; };
 SINGLELINE_COMMENT: '//' ~('\r' | '\n')* { $channel = HIDDEN; };
@@ -122,6 +128,7 @@ label:
   ;
 
 program:
+  // "include"
   (method | function | clazz)+
   ;
 
@@ -167,6 +174,7 @@ var:
 type:
     INT | BOOL | SET^ '<'! INT '>'!
   | ARRAY^ '<'! INT '>'!
+  | SEQ^ '<'! INT '>'!
   ;
 
 returns_:
@@ -260,6 +268,7 @@ prefix_expr:
     '-'^ prefix_expr
   | '!'^ prefix_expr
   | postfix_expr
+  | quantifier
   ;
 
 postfix_expr:
@@ -279,13 +288,10 @@ expression_only:
 atom_expr:
     ID
   | ID '(' expressions ')' -> ^(FUNC_CALL ID expressions)
-  | LIT
+  | INT_LIT
   | 'this'
   | NULL
-  | quantifier
   | '('! expression ')'!
-  | open='{' expressions? '}' -> ^(SETEX[$open] expressions?)
-  | open='[' expressions? ']' -> ^(LISTEX[$open] expressions?)
   ;
 
 quantifier:

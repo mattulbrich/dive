@@ -320,7 +320,7 @@ public class DafnyTrans {
                 return buildEquality(expr);
 
             case DafnyParser.ID:
-            case DafnyParser.LIT:
+            case DafnyParser.INT_LIT:
                 return expr.toStringTree();
 
             case DafnyParser.LABEL:

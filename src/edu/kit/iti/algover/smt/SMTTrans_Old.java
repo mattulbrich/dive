@@ -38,7 +38,7 @@ public class SMTTrans_Old {
             return transQuant("forall", exp);
         case DafnyParser.EX:
             return transQuant("exists", exp);
-        case DafnyParser.LIT:
+        case DafnyParser.INT_LIT:
         case DafnyParser.ID:
             return exp.toString().replace('#', '$');
 

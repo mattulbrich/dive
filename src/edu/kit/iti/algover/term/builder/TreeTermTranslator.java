@@ -181,7 +181,7 @@ public class TreeTermTranslator {
 
         case DafnyParser.ID:
         case DafnyParser.NULL:
-        case DafnyParser.LIT:
+        case DafnyParser.INT_LIT:
             return buildIdentifier(tree);
 
         case DafnyParser.LABEL:

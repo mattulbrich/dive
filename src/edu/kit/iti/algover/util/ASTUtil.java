@@ -163,7 +163,7 @@ public final class ASTUtil {
      * @return a freshly created dafny tree
      */
     public static DafnyTree intLiteral(int value) {
-        DafnyTree result = new DafnyTree(DafnyParser.LIT, Integer.toString(value));
+        DafnyTree result = new DafnyTree(DafnyParser.INT_LIT, Integer.toString(value));
         return result;
     }
 
