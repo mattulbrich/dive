@@ -119,9 +119,9 @@
 
 \definecolor{SkyBlue1}{rgb}{0.67,0.78,1} 
 % \definecolor{darkblue}{rgb}{0,0,0.5}
-% \definecolor{darkred}{rgb}{.5,0,0}
+\definecolor{darkred}{rgb}{.5,0,0}
  \definecolor{lightgrey}{rgb}{0.8,0.8,0.8}
-% \definecolor{darkgreen}{rgb}{0,0.5,0}
+ \definecolor{darkgreen}{rgb}{0,0.5,0}
 % \definecolor{lightblue}{rgb}{0.75,0.75,1}
 % \definecolor{lightgray}{gray}{.9}
 % \definecolor{shadowgray}{gray}{.6}
@@ -168,12 +168,11 @@
 
 %%%%%%%%%%%%% TITLE PAGE %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-%\KITtitleimage{}
+\KITtitleimage{../images/logik.pdf}
 
 \author[]{Sarah Grebing, Mattias Ulbrich}
 
-\title{Towards a Proof View at the Phase Trasnition between Autoactive and 
-Interactive Verification}
+\title{Bridging the interaction gap between logic and code}
 \subtitle{\insertauthor{}}
 \date{\today}
 \institute{Institute for Theoretical Informatics, KIT}
@@ -206,31 +205,94 @@ Interactive Verification}
 \titlepage
 \end{frame}
 
+\begin{frame}[c]{Motivation}
+Program verification is an iterative process.
+
+\begin{itemize}
+  \item initial attempts (often) fail
+  \item understand reason for failing is crucial
+ \end{itemize}
+\vspace{2em}
+Interaction is ...
+\vspace{1ex}
+\begin{itemize}
+ \item inspection of proof state
+ \item advancing proof state
+\end{itemize}
+\vspace{1ex}
+..for each iteration
+\end{frame}
+
+\begin{frame}[c]{Motivation}
+ Interaction on:
+ \vspace{1ex}
+ \begin{itemize}
+  \item specification
+  \item program code
+  \item logic/proof obligation
+ \end{itemize}
+\vspace{2ex}
+Switching levels is costly and not well supported
+\end{frame}
+
+\begin{frame}{Seamless Integration}
+\begin{block}{Overall Goal}
+\vspace{1ex}
+Interaction concept supporting
+\begin{itemize}
+ \item interactive
+ \item semi-automated
+ \item seamless
+ \item coupled
+ \item fluent
+ 
+\end{itemize}
+\vspace{1ex}
+proof guidance for an effective and efficient proof process. 
+% 
+%  Support user in finding a proof as long as possible in terms of the program.
+%  If insight into logical level needed, support the transition between program 
+% and logical level. 
+\end{block}
+% \begin{itemize}
+%  \item support the user in the decision why a proof attempt failed
+%  \item support the user in developing and enhancing proof
+% \end{itemize}
+
+% 
+\end{frame}
+
+
 %Hauptaussage: Entwicklung eines Interaktionskonzept, dass es erlaubt möglichst 
 %lange auf der Eingabeebene zu interagieren und den Übergang zur logischen 
 %Ebene möglichst einfach zu gestalten. Ein System das auf dem Phasenübergang 
 %zwischen autoaktiver Verifikation und interaktiver Verifikation erlaubt
 
-\begin{frame}[t]{Motivation}
-Program verification is an iterative process.
- \begin{itemize}
-  \item most verification attempts fail (at first) 
-  \item successful proof requires to find the reason for failure and 
-correction of mistake/providing right information 
- \end{itemize}
-For each iteration it is necessary to inspect different projections of the 
-problem into different domains.
-\begin{itemize}
- \item Program and its specification
- \item logical encoding of the proof obligations
- \item counter examples
- \item ...
-\end{itemize}
-Switching between projections (if they exist) is costly and not well supported 
-in the process.
-
- 
-\end{frame}
+% \begin{frame}[t]{Motivation}
+% Program verification is an iterative process.
+%  \begin{itemize}
+%   \item most verification attempts fail (at first) 
+%   \item successful proof requires to find the reason for failure and 
+% correction of mistake/providing right information 
+%  \end{itemize}
+% 
+% \only<2->{ For each iteration it is necessary to inspect different projections 
+% of the 
+% proof problem.
+% \begin{itemize}
+%  \item program and its specification
+%  \item logical encoding of the proof obligations
+%  \item counter examples
+%  \item ...
+% \end{itemize}
+% }
+% \only<3->{
+% Switching between projections (if they exist) is costly and not 
+% well supported 
+% in the process.
+% }
+%  
+% \end{frame}
 % Programm verification ist iterative, weil man als nutzer nicht direkt die 
 % beste spezifikation hat und damit ...
 % Für jede Iteration in diesem Prozess ist es für den Nutzer notwendig 
@@ -289,15 +351,15 @@ in the process.
 % • acceptable turnaround times for verify&fix-cycles
 
 \begin{frame}[t]{State-of-the-Art Verification Systems}
-Three interaction principles for guiding the proof search have 
-emerged: 
+Three interaction principles for guiding the proof search:
 \begin{itemize}
 \item autoactive
 \item point-and-click style
 \item script-based
 \end{itemize}
-\vskip5em
-\includegraphics[width=\textwidth]{../images/categorization.png}
+
+
+\includegraphics[width=1.1\textwidth]{../images/categorization.pdf}
 % They differ in the granularity of interaction, level of interaction, type of 
 % interaction, 
 %  \item all principles have realized issues and added helpful additional 
@@ -307,38 +369,40 @@ emerged:
 % interaction on the transition between autoactive and interactive verification
 
 \end{frame}
-\begin{frame}[t]{Interactive: Point-and-Click}
-\includegraphics[width=\textwidth]{../images/interactive.png}
+\begin{frame}[c]{Interactive Point-and-Click}
+\includegraphics[width=\textwidth]{../images/interactive.pdf}
 \end{frame}
 
-\begin{frame}[t]{Autoactive}
-\includegraphics[width=\textwidth]{../images/autoactive.png}
+\begin{frame}[c]{Autoactive}
+\includegraphics[width=1\textwidth]{../images/autoactive.pdf}
 \end{frame}
 
-\begin{frame}[t]{Text-Based Interaction}
-\includegraphics[width=\textwidth]{../images/tui.png}
+\begin{frame}[c]{Text/Script-Based Interaction}
+\hspace{6em}\includegraphics[width=.75\textwidth]{../images/tui.pdf}
 \end{frame}
 
-\begin{frame}[t]{Interactive: Point-and-Click}
-\begin{block}{Level of Interaction (proof guidance)} 
- Problem input on program level, proof guidance on logical level (two mental 
-models)
-\end{block}
-% 
-\begin{block}{Level of Feedback} 
- On logical level by showing the proof tree with open goals and sequent, macro 
-(auto-pilot)
-\end{block}
-\begin{block}{User support during proof construction} 
- automatic heuristics, macros, counter examples, symbolic execution tree
-\end{block}
+\begin{frame}[c]{Interactive Point-and-Click}
+% \begin{block}{Level of Interaction (proof guidance)} 
+%  Problem input on program level, proof guidance on logical level (two mental 
+% models)
+% \end{block}
+% % 
+% \begin{block}{Level of Feedback} 
+%  On logical level by showing the proof tree with open goals and sequent, macro 
+% (auto-pilot)
+% \end{block}
+% \begin{block}{User support during proof construction} 
+%  automatic heuristics, macros, counter examples, symbolic execution tree
+% \end{block}
 \begin{block}{Pros and Cons}
  \begin{itemize}
-  \item +/- all necessary information available
-  \item + full proof control
-  \item - interaction can be tedious
-  \item - error recovery 
-  \item - two mental models have to be kept in sync
+  \item[\textcolor{darkgreen}{\textbf{+}}/\textcolor{darkred}{\textbf{-}}] all 
+necessary information available
+  \item[\textcolor{darkgreen}{\textbf{+}}]full proof control
+  \item[\textcolor{darkred}{\textbf{-}}] interaction can be tedious
+  \item[\textcolor{darkred}{\textbf{-}}] error recovery 
+  \item[\textcolor{darkred}{\textbf{-}}] two mental models have to be kept in 
+sync
  \end{itemize}
 
 \end{block}
@@ -346,31 +410,32 @@ models)
 
 
 
-\begin{frame}[t]{Auto-Active}
+\begin{frame}[c]{Autoactive}
 
-\begin{block}{Level of Interaction (proof guidance)} 
-Program level using annotations and programing constructs
-\end{block}
+% \begin{block}{Level of Interaction (proof guidance)} 
+% Program level using annotations and programing constructs
+% \end{block}
+% % \vspace{2em}
+% \begin{block}{Level of Feedback} 
+% Program level using squiggly red lines, state 
+% inspection and counter example, path in program, hover text with useful 
+% information
+%  
+% \end{block}
 % \vspace{2em}
-\begin{block}{Level of Feedback} 
-Program level using squiggly red lines, state 
-inspection and counter example, path in program, hover text with useful 
-information
- 
-\end{block}
-% \vspace{2em}
-\begin{block}{User support during proof construction} 
-inference of simple 
-annotations, feedback on program level, useful hints in hover text of feedback, 
-fast error recovery 
-\end{block}
+% \begin{block}{User support during proof construction} 
+% inference of simple 
+% annotations, feedback on program level, useful hints in hover text of feedback, 
+% fast error recovery 
+% \end{block}
 \begin{block}{Pros and Cons}
  \begin{itemize}
-  \item + interaction on input representation 
+  \item[\textcolor{darkgreen}{\textbf{+}}]interaction on input representation 
 $\rightarrow$ only one mental model
- \item + comprehensible annotations
- \item - missing detailed insight into logical level when proof attempt fails 
- 
+  \item[\textcolor{darkgreen}{\textbf{+}}]comprehensible annotations
+\item[\textcolor{darkred}{\textbf{-}}] missing detailed insight into logical 
+level when proof attempt fails 
+\item[\textcolor{darkred}{\textbf{-}}] leaky abstraction
  \end{itemize}
 
 \end{block}
@@ -406,26 +471,30 @@ $\rightarrow$ only one mental model
 
 % \end{frame}
 
-\begin{frame}[t]{Text/Script-Based interaction}
-\begin{block}{Level of Interaction (proof guidance)} 
- Problem input on program level, proof guidance on logical level (two mental 
-models)
-\end{block}
+\begin{frame}[c]{Text/Script-Based interaction}
+% \begin{block}{Level of Interaction (proof guidance)} 
+%  Problem input on program level, proof guidance on logical level (two mental 
+% models)
+% \end{block}
 % 
-\begin{block}{Level of Feedback} 
- On logical level by showing open goals, Nitpick, Sledgehammer
-\end{block}
-\begin{block}{User support during proof construction} 
- tactics, counter examples, \emph{sorry} to postpone proof tasks and 
-concentrate on one problem at a time
-\end{block}
+% \begin{block}{Level of Feedback} 
+%  On logical level by showing open goals, Nitpick, Sledgehammer
+% \end{block}
+% \begin{block}{User support during proof construction} 
+%  tactics, counter examples, \emph{sorry} to postpone proof tasks and 
+% concentrate on one problem at a time
+% \end{block}
 \begin{block}{Pros and Cons}
  \begin{itemize}
-  \item + problem/proof decomposition in smaller parts
-  \item + interaction steps more coarse grained than point-and-click 
+  \item[\textcolor{darkgreen}{\textbf{+}}] problem/proof decomposition in 
+smaller parts
+  \item[\textcolor{darkgreen}{\textbf{+}}] interaction steps more coarse grained 
+than point-and-click 
 $\rightarrow$ more readable/comprehensible and proof plan expressible
-  \item +/- limited insight into logical level
-  \item - two mental models may have to be kept in sync
+  \item[\textcolor{darkgreen}{\textbf{+}}/\textcolor{darkred}{\textbf{-}}] 
+limited insight into logical level
+\item[\textcolor{darkred}{\textbf{-}}] two mental models may have to be kept in 
+sync
   
  \end{itemize}
 
@@ -449,17 +518,29 @@ $\rightarrow$ more readable/comprehensible and proof plan expressible
 
 
 \begin{frame}{Seamless Integration}
-\begin{block}{Overall Goal}
-Interaction concept supporting interactive, 
-semi-automated proof guidance for an effective and efficient proof process. 
-% 
-%  Support user in finding a proof as long as possible in terms of the program.
-%  If insight into logical level needed, support the transition between program 
-% and logical level. 
-\end{block}
+Interaction concept supporting
 \begin{itemize}
- \item support the user in the decision why a proof attempt failed
- \item support the user in developing and enhancing proof
+ \item interactive
+ \item semi-automated
+ \item seamless
+\end{itemize}
+proof guidance for an effective and efficient proof process. \\
+\vspace{2em}
+Support:
+\begin{itemize}
+ \item comprehension of failure of proof attempt
+ \only<2->{ \begin{itemize}
+  \item feedback on input language
+  \item lightweight tools to discharge simple proof problems
+  \item modularize proof
+ \end{itemize}
+}
+ \item advancing proof
+\only<3->{ \begin{itemize}
+  \item proof exploration
+  \item fast error recovery
+ \end{itemize}
+}
 \end{itemize}
 
 % 
@@ -476,27 +557,35 @@ semi-automated proof guidance for an effective and efficient proof process.
 \end{frame}
 
 
-\begin{frame}[t]{Decrease Costs}
-Allow for interaction on suitable abstraction level (problem and user dependent)
+\begin{frame}[t]{Decrease Costs of Iterations}
+\begin{block}{Goal:}
+\vspace{1ex}
+ Interaction on suitable abstraction level \only<2->{(problem and user 
+dependent)}
+\end{block}
+\vspace{2ex}
 
-\begin{block}{Decrease amount of changes}
+\only<3->{\begin{block}{Decrease number of level-changes}
 \begin{itemize}
- \item Stay on input language as long as possible (input and feedback)
- \item Allow for coarse proof steps (proof plan)
- \item Give clear overview over overall proof state
+ \item stay on input language as long as possible (input and feedback)
+ \item coarse proof steps (proof plan)
+ \item clear overview over overall proof state
 \end{itemize}
  
 \end{block}
-\begin{block}{Decrease cost per iteration}
+}
+\vspace{2ex}
+
+\only<4->{\begin{block}{Decrease cost per level-change}
 
  \begin{itemize}
-  \item If necessary allow for state inspection on logical level
-  \item Making dependencies visible between levels
-  \item Allow for proof exploration on logical level
+  \item state inspection on logical level
+  \item visible dependencies between levels
+  \item proof exploration on logical level
  \end{itemize}
 
 \end{block}
-
+}
 
 
 % \begin{itemize}
@@ -514,20 +603,111 @@ Allow for interaction on suitable abstraction level (problem and user dependent)
 
 \begin{frame}[t]{Architecture}
  \begin{figure}
-  \includegraphics[width=.9\textwidth]{../images/aufbau.png}
+  \includegraphics[width=.9\textwidth]{../images/aufbau.pdf}
  \end{figure}
 
 \end{frame}
 
-\begin{frame}[t]{Example}
- 
+
+\begin{frame}[t]{Architecture}
+ \begin{figure}
+  \includegraphics[width=.9\textwidth]{../images/aufbau1.pdf}
+ \end{figure}
+
 \end{frame}
-\begin{frame}[t]{Discussion}
- From your experience (especially using KeY) what takes more time and why?
+
+
+
+\begin{frame}[t]{Example}
+ \includegraphics[width=\textwidth]{../../mockups/pics/afterloading2.png}
+\end{frame}
+
+\begin{frame}[t]{Example}
+ \includegraphics[width=\textwidth]{../../mockups/pics/afterloading2a.png}
+\end{frame}
+
+
+\begin{frame}[t]{Example}
+ \includegraphics[width=\textwidth]{../../mockups/pics/moreconcreteview.png}
+\end{frame}
+
+\begin{frame}[t]{Example}
+ \includegraphics[width=\textwidth]{../../mockups/pics/moreconcreteviewa.png}
+\end{frame}
+
+\begin{frame}[t]{Example}
+ \includegraphics[width=\textwidth]{../../mockups/pics/moreconcreteviewb.png}
+\end{frame}
+
+
+\begin{frame}[t]{Example}
+ \includegraphics[width=\textwidth]{../../mockups/pics/pvc_log_view.png}
+\end{frame}
+
+\begin{frame}[t]{Example}
+ \includegraphics[width=\textwidth]{../../mockups/pics/pvc_log_viewa.png}
+\end{frame}
+
+
+\begin{frame}[t]{Example}
+ \includegraphics[width=\textwidth]{../../mockups/pics/pvcdetailview.png}
+\end{frame}
+
+\begin{frame}[t]{Example}
+ \includegraphics[width=\textwidth]{../../mockups/pics/pvcdetailviewa.png}
+\end{frame}
+
+
+\begin{frame}[t]{Example}
+ \includegraphics[width=\textwidth]{../../mockups/pics/pvcdetailview_2.png}
+\end{frame}
+
+\begin{frame}[t]{Example}
+ \includegraphics[width=\textwidth]{../../mockups/pics/pvcdetailview_2a.png}
+\end{frame}
+
+
+\begin{frame}[t]{Example}
+ \includegraphics[width=\textwidth]{../../mockups/pics/pvcdetailview_3.png}
+\end{frame}
+
+\begin{frame}[t]{Example}
+ \includegraphics[width=\textwidth]{../../mockups/pics/pvcdetailview_3a.png}
+\end{frame}
+
+
+\begin{frame}[t]{Example}
+ \includegraphics[width=\textwidth]{../../mockups/pics/pvcdetailview_4.png}
+\end{frame}
+
+\begin{frame}[t]{Example}
+ \includegraphics[width=\textwidth]{../../mockups/pics/pvcdetailview_4a.png}
+\end{frame}
+
+
+\begin{frame}[c]{Summary}
+Bridging interaction gap between code and logic by
  \begin{itemize}
-  \item finding cause of failed proof?
-  \item convince KeY, that proof can be found?
+  \item fluent transition between levels
+  \item different coupled proof views
+  \item interaction on all levels
+  \item seamless integration of sophisticated methods
  \end{itemize}
+\begin{block}{Future Work}
+ \begin{itemize}
+  \item implement concept 
+  \item evaluate concept with users
+ \end{itemize}
+
+\end{block}
+
+\end{frame}
+
+\begin{frame}[c]{Discussion}
+\centering{In your experience:}\\
+\bigskip
+\centering{What is the bottleneck for interaction?}
+
 
 \end{frame}
 
