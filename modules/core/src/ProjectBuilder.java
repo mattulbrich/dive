@@ -6,23 +6,21 @@ import java.util.LinkedList;
  * Class for building a project in AlgoVer
  * Created by sarah on 8/3/16.
  */
-public class ProjectBuilder {
+public final class ProjectBuilder {
     /**List of all files in the project directory
-     *
-     *
      */
-    private File[] allFilesinDir;
+    private static File[] allFilesinDir;
 
-    public File[] getAllFilesinDir() {
+    public static File[] getAllFilesinDir() {
         return allFilesinDir;
     }
 
-    public void setAllFilesinDir(File[] allFilesinDir) {
-        this.allFilesinDir = allFilesinDir;
+    public static void setAllFilesinDir(File[] allFilesinDirP) {
+        allFilesinDir = allFilesinDirP;
     }
 
-    public ProjectBuilder() {
-        //TODO
+    private ProjectBuilder() {
+
     }
 
     /**
@@ -31,9 +29,9 @@ public class ProjectBuilder {
      * @return a project object
      * @throws IOException
      */
-    public Project buildProject(File projectPath) throws IOException{
+    public static Project buildProject(File projectPath) throws IOException{
         if(projectPath.exists()) {
-            this.setAllFilesinDir(projectPath.listFiles());
+            setAllFilesinDir(projectPath.listFiles());
             File script = findScriptFile();
             LinkedList<File> problemFiles = findProblemFiles();
             return new Project(projectPath, script, problemFiles);
@@ -47,9 +45,9 @@ public class ProjectBuilder {
     }
 
 
-    private LinkedList<File> findProblemFiles() {
+    private static LinkedList<File> findProblemFiles() {
         LinkedList<File> problemFiles = new LinkedList<File>();
-        for (File f : this.getAllFilesinDir()) {
+        for (File f : getAllFilesinDir()) {
             if(f.getName().endsWith(".dfy")) {
                 System.out.println(f.getName());
                 problemFiles.add(f);
@@ -63,8 +61,8 @@ public class ProjectBuilder {
      * Creates a new file named project.script if no file exists, its not saved to directory yet
      * @return Scriptfile
      */
-    private File findScriptFile(){
-        for (File f : this.getAllFilesinDir()) {
+    private static File findScriptFile(){
+        for (File f : getAllFilesinDir()) {
             if(f.getName().endsWith(".script")) {
                 System.out.println(f.getName());
                 return f;
