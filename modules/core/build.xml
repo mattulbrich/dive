@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="AlogVer" default="build" basedir=".">
+
+
+	<property name="dir.lib" value="../../lib" />
+	<property name="dir.tools" value="../../tools" />
+
+	<property name="libs" value="${dir.lib}/antlr.jar:${dir.lib}/junit4.jar" />
+
+	<target name="init" description="initialize all directories">
+		<mkdir dir="bin" />
+		<mkdir dir="gen" />
+		<mkdir dir="test-bin" />
+	</target>
+
+	<target name="copy-test" depends="init">
+		<copy todir="test-bin">
+			<fileset dir="test-res">
+			</fileset>
+		</copy>
+	</target>
+
+	<target name="build" description="Compile and collect all needed resources" depends="compile,copy" />
+
+	<target name="copy">
+		<copy todir="bin">
+			<fileset dir="res" />
+		</copy>
+	</target>
+
+	<target name="compile" description="Compile all files" depends="visitor,init">
+		<javac destdir="bin" classpath="${libs}" debug="on">
+			<src path="src" />
+			<src path="gen" />
+		</javac>
+	</target>
+
+	<target name="antlr" depends="init">
+		<java jar="${dir.lib}/antlr.jar" fork="true" dir="src" failonerror="true">
+			<arg value="-verbose" />
+			<arg value="-o" />
+			<arg value="../gen" />
+			<arg value="edu/kit/iti/algover/parser/Dafny.g" />
+		</java>
+	</target>
+
+	<target name="visitor" depends="antlr">
+		<javac srcdir="${dir.tools}" destdir="${dir.tools}" includes="MakeDafnyTreeVisitor.java" debug="on" />
+		<mkdir dir="gen/edu/kit/iti/algover/parser" />
+		<java classname="MakeDafnyTreeVisitor" classpath="${dir.tools}" failonerror="true" fork="true">
+			<arg value="gen/edu/kit/iti/algover/parser" />
+			<arg value="gen/Dafny.tokens" />
+			<arg value="edu.kit.iti.algover.parser" />
+			<arg value="Dafny" />
+		</java>
+	</target>
+
+	<target name="compile-test" depends="compile, init, copy-test">
+		<javac srcdir="test" destdir="test-bin" classpath="bin:${libs}" debug="on" />
+	</target>
+
+	<target name="test" depends="compile-test, compile">
+		<junit fork="yes" printsummary="yes">
+			<formatter type="xml" />
+			<classpath path="bin:${libs}:lib/hamcrest.jar" />
+			<test name="edu.kit.iti.algover.Tests" />
+		</junit>
+	</target>
+
+	<target name="clean">
+		<delete dir="bin" />
+		<delete dir="test-bin" />
+		<delete dir="gen" />
+	</target>
+
+	<target name="checkstyle">
+		<taskdef resource="checkstyletask.properties" classpath="tools/checkstyle-5.7-all.jar" />
+		<checkstyle config="tools/checkstyle.xml" failOnViolation="false">
+			<property key="headerFile" file="HEADER" />
+			<fileset dir="src" includes="**/*.java" />
+			<formatter type="plain" />
+			<formatter type="xml" toFile="checkstyle-results.xml" />
+		</checkstyle>
+	</target>
+
+</project>
