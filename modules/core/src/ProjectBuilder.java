@@ -1,8 +1,9 @@
 import java.io.File;
+import java.io.IOException;
 import java.util.LinkedList;
 
 /**
- * Class building a project in AlgoVer
+ * Class for building a project in AlgoVer
  * Created by sarah on 8/3/16.
  */
 public class ProjectBuilder {
@@ -20,28 +21,28 @@ public class ProjectBuilder {
         this.allFilesinDir = allFilesinDir;
     }
 
-    public Project getProject() {
-        return project;
-    }
-
-    public void setProject(Project project) {
-        this.project = project;
+    public ProjectBuilder() {
+        //TODO
     }
 
     /**
-     * The object representing a project
+     * Builds a new project structure
+     * @param projectPath: Path to project which contains all problem files and one script file
+     * @return a project object
+     * @throws IOException
      */
-    private Project project;
+    public Project buildProject(File projectPath) throws IOException{
+        if(projectPath.exists()) {
+            this.setAllFilesinDir(projectPath.listFiles());
+            File script = findScriptFile();
+            LinkedList<File> problemFiles = findProblemFiles();
+            return new Project(projectPath, script, problemFiles);
 
-    public ProjectBuilder(File projectPath){
-        this.setAllFilesinDir(projectPath.listFiles());
-        this.setProject(buildProject(projectPath));
-    }
+        }else{
 
-    private Project buildProject(File projectPath){
-        File script = findScriptFile();
-        LinkedList<File> problemFiles = findProblemFiles();
-        return new Project(projectPath, script, problemFiles);
+            throw new IOException("Directory does not exist :"+projectPath.toString());
+
+        }
 
     }
 
