@@ -62,7 +62,7 @@
 	<target name="test" depends="compile-test, compile">
 		<junit fork="yes" printsummary="yes">
 			<formatter type="xml" />
-			<classpath path="bin:${libs}:lib/hamcrest.jar" />
+			<classpath path="test-bin:bin:${libs}:${dir.lib}/hamcrest.jar" />
 			<test name="edu.kit.iti.algover.Tests" />
 		</junit>
 	</target>
@@ -74,9 +74,9 @@
 	</target>
 
 	<target name="checkstyle">
-		<taskdef resource="checkstyletask.properties" classpath="tools/checkstyle-5.7-all.jar" />
-		<checkstyle config="tools/checkstyle.xml" failOnViolation="false">
-			<property key="headerFile" file="HEADER" />
+		<taskdef resource="checkstyletask.properties" classpath="${dir.tools}/checkstyle-5.7-all.jar" />
+		<checkstyle config="${dir.tools}/checkstyle.xml" failOnViolation="false">
+			<property key="headerFile" file="../../HEADER" />
 			<fileset dir="src" includes="**/*.java" />
 			<formatter type="plain" />
 			<formatter type="xml" toFile="checkstyle-results.xml" />

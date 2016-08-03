@@ -1,0 +1,100 @@
+<?xml version="1.0"?>
+<!--!DOCTYPE project PUBLIC "-//ANT//DTD project//EN" "project.dtd"-->
+
+<project name="AlgoVer" default="build" basedir=".">
+
+  <property name="VERSION" value="0.0"/>
+
+  <!-- the list of all submodules. Order is of importance here -->
+  <filelist id="modules" dir=".">
+    <file name="./modules/core/build.xml"/>
+    <!-- <file name="./modules/dafny/build.xml"/> -->
+    <file name="./modules/gui/build.xml"/>
+    <!-- <file name="./modules/key/build.xml"/> -->
+    <!-- <file name="./modules/smt/build.xml"/> -->
+  </filelist>
+
+  <!-- YOU MAY CHANGE THIS -->
+
+  <target name="version" description="create a file with timestamp and version number">
+    <tstamp> 
+      <format property="NOW" pattern="yyyy-MM-dd kk:mm" locale="en,UK"/>
+    </tstamp>
+    <echo file="VERSION" append="false">${VERSION} - ${NOW}</echo>
+  </target>
+  
+  <target name="init" description="run init in all modules"> 
+    <subant target="build" verbose="true">
+      <filelist refid="modules" />
+    </subant>
+  </target>
+  
+  <target name="build" description="run build in all modules">
+    <subant target="build" verbose="true">
+      <filelist refid="modules" />
+    </subant>
+  </target>
+
+  <target name="clean" description="Run clean in all modules">
+    <subant target="clean">
+      <filelist refid="modules" />
+    </subant>
+    <delete file="tools/MakeDafnyTreeVisitor.class" />
+  </target>
+
+  <target name="checkstyle" description="Run checkstyle in all modules">
+    <subant target="checkstyle">
+      <filelist refid="modules" />
+    </subant>
+  </target>
+     
+  <target name="test" description="run the tests in all modules">
+    <subant target="test" verbose="true">
+      <filelist refid="modules" />
+    </subant>
+    <concat>
+      <fileset dir="modules"><include name="**/TEST*.txt"/></fileset>
+      <filterchain>    
+	<linecontainsregexp>
+	  <regexp pattern="^(Testsuite: |Tests run: )"/>
+	</linecontainsregexp>
+      </filterchain>
+    </concat>
+  </target>
+   
+  <target name="jar" depends="build" description="creates the jar file">
+    <jar jarfile="algover.jar">
+      <fileset dir="modules/core/classes/" />
+      <fileset dir="modules/gui/classes/" />
+      <fileset dir="modules/cmd/classes/" />
+      <fileset dir="modules/boogie/classes/" />
+      <fileset dir="modules/algo/classes/" />
+      <fileset dir="modules/exp/classes/" />
+      <zipfileset dir="." includes="VERSION" prefix="META-INF"/>
+      
+      <manifest>
+        <!-- Who is building this jar? -->
+        <attribute name="Built-By" value="${user.name}"/>
+        <!-- Information about the program itself -->
+        <attribute name="Implementation-Vendor" value="ITI, Karlsruhe Institute of Technology"/>
+        <attribute name="Implementation-Title" value="Algo Ver - tbd" />
+        <attribute name="Implementation-Version" value="${VERSION} - ${NOW}"/>
+        <attribute name="Class-Path" value="samples.jar lib/antlr.jar"/>
+        <attribute name="Main-Class" value="to.be.done"/>
+        <attribute name="SplashScreen-Image" value="to/be/done.png"/>
+      </manifest>
+    </jar>
+  </target>
+
+  <!--
+  <target name="copyright" 
+	  description="Update copyright notes in java files">
+    <taskdef name="copyright" classname="CopyrightTask" classpath="lib" />
+    <copyright file="LICENSE.header">
+      <fileset dir="modules" includes="*/src/**/*.java"/>
+      <fileset dir="modules" includes="*/test/**/*.java"/>
+    </copyright>
+  </target>
+  -->
+
+</project>
