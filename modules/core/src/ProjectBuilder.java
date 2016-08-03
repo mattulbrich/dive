@@ -4,6 +4,7 @@ import java.util.LinkedList;
 
 /**
  * Class for building a project in AlgoVer
+ * Scriptfile should be parsed here to retrieve settings
  * Created by sarah on 8/3/16.
  */
 public final class ProjectBuilder {

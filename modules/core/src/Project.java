@@ -24,10 +24,13 @@ public class Project {
      * List containing references to all problem files
      */
     private LinkedList<File> problemFiles;
+    //TODO: Settings for project
+    //References to ASTS
 
-
-
-
+    /**
+     * Retrieve path of directory of project
+     * @return
+     */
 
     public File getPathOfprojectDirectory() {
         return pathOfprojectDirectory;
