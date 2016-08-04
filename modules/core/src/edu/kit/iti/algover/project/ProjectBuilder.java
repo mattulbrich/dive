@@ -1,3 +1,7 @@
+package edu.kit.iti.algover.project;
+
+import edu.kit.iti.algover.project.Project;
+
 import java.io.File;
 import java.io.IOException;
 import java.util.LinkedList;
@@ -48,7 +52,7 @@ public final class ProjectBuilder {
 
 
     private static LinkedList<File> findProblemFiles() {
-        LinkedList<File> problemFiles = new LinkedList<File>();
+        LinkedList<File> problemFiles = new LinkedList<>();
         for (File f : getAllFilesinDir()) {
             if(f.getName().endsWith(".dfy")) {
                 System.out.println(f.getName());

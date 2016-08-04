@@ -1,7 +1,10 @@
+package edu.kit.iti.algover.project;
+
 import java.io.File;
 
 
 import java.util.LinkedList;
+import java.util.List;
 
 
 /**
@@ -25,8 +28,12 @@ public class Project {
      */
     private LinkedList<File> problemFiles;
     //TODO: Settings for project
-    //References to ASTS
 
+
+    /**
+     * Reference to all elements of the project: classes, methods, functions, classfields
+     */
+    private List<DafnyDecl> elementsOfProject;
     /**
      * Retrieve path of directory of project
      * @return
@@ -60,6 +67,13 @@ public class Project {
         this.setPathOfprojectDirectory(projectPath);
         this.setScript(script);
         this.setProblemFiles(problemFiles);
+
+    }
+
+    /**
+     * Call to the parser, to extract the DafnyDecls.
+     */
+    public void parseFiles(){
 
     }
 
