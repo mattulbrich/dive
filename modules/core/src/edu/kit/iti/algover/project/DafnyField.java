@@ -9,36 +9,30 @@ import edu.kit.iti.algover.term.Sort;
  */
 public class DafnyField extends DafnyDecl {
 
-    private String type;
+    private DafnyTree type;
     private String name;
-    private String value;
+    private DafnyTree value;
 
-    public String getType() {
+    public DafnyTree getType() {
         return type;
     }
 
-    public void setType(String type) {
-        this.type = type;
-    }
 
     public String getName() {
         return name;
     }
 
-    public void setName(String name) {
-        this.name = name;
-    }
 
-    public String getValue() {
+    public DafnyTree getValue() {
         return value;
     }
 
-    public void setValue(String value) {
-        this.value = value;
-    }
 
     public DafnyField(DafnyTree dafnyField){
-        //traverse Dafnytree to rertrieve field parts
+        //TODO get right Child
+        this.type = dafnyField.getChild(1);
+        this.name = dafnyField.getChild(0).getText();
+       // this.value = dafnyField.getChild(1);
 
     }
 

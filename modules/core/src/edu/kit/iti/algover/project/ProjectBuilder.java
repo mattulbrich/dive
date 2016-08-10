@@ -127,7 +127,7 @@ public  class ProjectBuilder {
         //call script parser
         //set settings
         //call file parser get dafnytree
-        //call compilationunit nbuilder woth decltree and lib references
+        //call compilationunit nbuilder with decltree and lib references
         //get compilationunit
         return new Project(this);
     }

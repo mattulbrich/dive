@@ -47,6 +47,7 @@ public class Project {
 
     /**
      * All imported libraries
+     * DafnyLib
      */
     private List<File> libraries;
 

@@ -134,9 +134,9 @@ program:
 
 
 clazz:
-  CLASS^ ID '{'
+  CLASS^ ID '{'!
     (method | function | field)+
-  '}'
+  '}'!
   ;
 
 method:
@@ -153,9 +153,14 @@ method:
   ;
 
 function:
-  'function'^
-  ID '('! vars? ')'! ':'! type
-  '{'! expression '}'!
+  'function'
+  ID '(' vars? ')' ':' type
+    ( requires )*
+    ( ensures )*
+  '{' expression '}'
+  ->
+    ^(FUNCTION ID ^(ARGS vars?) ^(RETURNS type) requires* ensures*
+        ^(BLOCK expression?))
   ;
 
 field:

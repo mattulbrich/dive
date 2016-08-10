@@ -24,7 +24,7 @@ public class DafnyClass extends DafnyDecl {
     private List<DafnyFunction> functions;
 
     /**
-     * Fields bleonging to this class, possibly empty
+     * Fields belonging to this class, possibly empty
      */
     private List<DafnyField> fields;
 
@@ -34,5 +34,31 @@ public class DafnyClass extends DafnyDecl {
         this.functions = dcb.getFunctions();
         this.fields = dcb.getFields();
 
+    }
+
+    public String toString(){
+        String classToString = "";
+
+        classToString += "Class "+this.name +"\nwith "+this.methods.size()+ " methods:\n";
+        if(this.functions != null) {
+            for (DafnyMethod method : this.methods) {
+                classToString += method.toString() + "\n";
+
+            }
+        }
+        classToString += "with "+this.functions.size()+" functions:";
+        if(this.methods != null) {
+            for (DafnyFunction function : this.functions) {
+                classToString += function.toString() + "\n";
+            }
+        }
+
+        if(this.fields != null) {
+            classToString += classToString += "with " + this.fields.size() + " fields:";
+            for (DafnyField field : this.fields) {
+                classToString += field.toString() + "\n";
+            }
+        }
+        return classToString;
     }
 }

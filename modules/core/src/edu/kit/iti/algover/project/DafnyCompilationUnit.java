@@ -14,14 +14,26 @@ public class DafnyCompilationUnit {
      */
     private File dir;
 
+    /**
+     * List of libararies imported in this compilationunit
+     */
     private List<DafnyLib> libraries;
 
+    /**
+     * List of all dafnydecls, can be DafnyClass, DafnyFunction, DafnyField
+     */
     private List<DafnyDecl> dafnyDecls;
 
+    /**
+     * reference to root of DafnyTree
+     */
     private DafnyTree root;
 
     public DafnyCompilationUnit(DafnyCompilationUnit dcuBuilder){
         //call dafnydeclbuilder and feed list
+        //traverse root, get dafny untertrees
+        //call dafnydeclbuilder with tree
+
     }
 
 }
