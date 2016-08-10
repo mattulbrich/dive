@@ -18,9 +18,12 @@ public class DafnyDecl {
      */
     private File file;
 
-    public DafnyDecl(File file, DafnyTree tree){
+    private String name;
+
+    public DafnyDecl(File file, DafnyTree tree, String name){
         this.representation = tree;
         this.file = file;
+        this.name = name;
     }
 
     public DafnyDecl(){

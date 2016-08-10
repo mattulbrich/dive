@@ -1,5 +1,6 @@
 package edu.kit.iti.algover.project;
 
+import edu.kit.iti.algover.parser.DafnyTree;
 import edu.kit.iti.algover.term.Sort;
 import edu.kit.iti.algover.util.Pair;
 
@@ -20,5 +21,8 @@ public class DafnyMethod extends DafnyDecl {
 
     private MethodBody body;
 
+    public DafnyMethod(DafnyTree method){
+        //TODO
+    }
 
 }

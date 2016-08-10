@@ -18,22 +18,6 @@ public class DafnyClass extends DafnyDecl {
      */
     private List<DafnyMethod> methods;
 
-    public String getName() {
-        return name;
-    }
-
-    public List<DafnyMethod> getMethods() {
-        return methods;
-    }
-
-    public List<DafnyFunction> getFunctions() {
-        return functions;
-    }
-
-    public List<DafnyField> getFields() {
-        return fields;
-    }
-
     /**
      * Functions belonging to this class, possibly empty
      */
@@ -44,11 +28,11 @@ public class DafnyClass extends DafnyDecl {
      */
     private List<DafnyField> fields;
 
-    public DafnyClass(String name){
-        this.name = name;
-        this.methods = new LinkedList<>();
-        this.functions = new LinkedList<>();
-        this.fields = new LinkedList<>();
+    public DafnyClass(DafnyClassBuilder dcb){
+        this.name = dcb.getName();
+        this.methods = dcb.getMethods();
+        this.functions = dcb.getFunctions();
+        this.fields = dcb.getFields();
 
     }
 }

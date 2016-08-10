@@ -1,5 +1,7 @@
 package edu.kit.iti.algover.project;
 
+import edu.kit.iti.algover.settings.ProjectSettings;
+
 import java.io.File;
 
 
@@ -16,66 +18,56 @@ public class Project {
     /**
      * Path of projects directory
      */
-    private File pathOfprojectDirectory;
+    private final File pathOfProjectDirectory;
 
     /**
      * Script file
      */
-    private File script;
+    private final File script;
 
     /**
      * List containing references to all problem files
      */
-    private LinkedList<File> problemFiles;
-    //TODO: Settings for project
+    private final List<File> dafnyFiles;
 
+    /**
+     * Settings of Project
+     */
+    private final ProjectSettings settings;
 
     /**
      * Reference to all elements of the project: classes, methods, functions, classfields
      */
-    private List<DafnyDecl> elementsOfProject;
-    /**
-     * Retrieve path of directory of project
-     * @return
-     */
-
-    public File getPathOfprojectDirectory() {
-        return pathOfprojectDirectory;
-    }
-
-    public void setPathOfprojectDirectory(File pathOfprojectDirectory) {
-        this.pathOfprojectDirectory = pathOfprojectDirectory;
-    }
-
-    public File getScript() {
-        return script;
-    }
-
-    public void setScript(File script) {
-        this.script = script;
-    }
-
-    public LinkedList<File> getProblemFiles() {
-        return problemFiles;
-    }
-
-    public void setProblemFiles(LinkedList<File> problemFiles) {
-        this.problemFiles = problemFiles;
-    }
-
-    public Project(File projectPath, File script, LinkedList<File> problemFiles){
-        this.setPathOfprojectDirectory(projectPath);
-        this.setScript(script);
-        this.setProblemFiles(problemFiles);
-
-    }
+    //private final List<DafnyDecl> elementsOfProject;
 
     /**
-     * Call to the parser, to extract the DafnyDecls.
+     * List of compilation units of project
      */
-    public void parseFiles(){
+    private final List<DafnyCompilationUnit> compilationUnits;
 
+    /**
+     * All imported libraries
+     */
+    private List<File> libraries;
+
+    /**
+     * Constructor can only be called using a ProjectBuilder
+     * @param pBuilder
+     */
+    public Project(ProjectBuilder pBuilder){
+        this.settings = pBuilder.getSettings();
+        this.compilationUnits = pBuilder.getCpus();
+        this.dafnyFiles = pBuilder.getDafnyFiles();
+        this.pathOfProjectDirectory = pBuilder.getDir();
+        this.libraries = pBuilder.getLibraries();
+      //  this.elementsOfProject = buildDafnyDecl();
+        this.script = pBuilder.getScript();
     }
 
+    public String toString(){
+        //TODO
+        return "";
+
+    }
 
 }

@@ -30,6 +30,8 @@ public class GUICenter {
 
     public static final String PVC_STATUS_CHANGED = "pvc_status_changed";
 
+    public static final String PORERTY_CHANGED = "property_changed";
+
 
 
 }
