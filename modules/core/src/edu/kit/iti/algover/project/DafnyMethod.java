@@ -4,6 +4,7 @@ import edu.kit.iti.algover.parser.DafnyTree;
 import edu.kit.iti.algover.term.Sort;
 import edu.kit.iti.algover.util.Pair;
 
+import java.io.File;
 import java.util.List;
 
 /**
@@ -12,16 +13,45 @@ import java.util.List;
 public class DafnyMethod extends DafnyDecl {
 
     private String methodName;
-    private List<Pair<Sort, String>> params;
-    private List<Pair<Sort, String>> returns;
+    private List<DafnyTree> params;
+    private List<DafnyTree> returns;
 
 
-    private Precondition pre;
-    private Postcondition post;
+    /**
+     * The function's body. Only one single line allowed
+     */
+    private DafnyTree body;
 
-    private MethodBody body;
 
-    public DafnyMethod(DafnyTree method){
+    private List<DafnyTree> pres;
+    private List<DafnyTree> posts;
+
+    public DafnyMethod(String methodName, List<DafnyTree> params,
+                       List<DafnyTree> returns,
+                       DafnyTree body,
+                       List<DafnyTree> pres,
+                       List<DafnyTree> posts) {
+        //super(filename, tree, methodName);
+        this.methodName = methodName;
+        this.params = params;
+        this.returns = returns;
+        this.body = body;
+        this.pres = pres;
+        this.posts = posts;
+    }
+
+    public String toString() {
+        String s = "method " + this.methodName + "\n";
+
+        if (this.params != null) {
+            String params = this.params.size() + " Parameters: ";
+
+            for (DafnyTree para : this.params) {
+                params += para.toStringTree() + "\n";
+            }
+            s += params + "\n";
+        }
+        return s;
 
     }
 

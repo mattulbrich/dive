@@ -69,6 +69,7 @@ DECREASES: 'decreases';
 ELSE: 'else';
 ENSURES: 'ensures';
 EX: 'exists';
+FIELD: 'classfield';
 FUNCTION: 'function';
 IF: 'if';
 INT : 'int';
@@ -165,6 +166,7 @@ function:
 
 field:
   'var' ID ':' type ';'
+    -> ^(FIELD ID type)
   ;
 
 vars:

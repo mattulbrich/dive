@@ -39,7 +39,7 @@ public class DafnyClass extends DafnyDecl {
     public String toString(){
         String classToString = "";
 
-        classToString += "Class "+this.name +"\nwith "+this.methods.size()+ " methods:\n";
+/*        classToString += "Class "+this.name +"\nwith "+this.methods.size()+ " methods:\n";
         if(this.methods != null) {
             for (DafnyMethod method : this.methods) {
                 classToString += method.toString() + "\n";
@@ -58,7 +58,7 @@ public class DafnyClass extends DafnyDecl {
             for (DafnyField field : this.fields) {
                 classToString += field.toString() + "\n";
             }
-        }
+        }*/
         return classToString;
     }
 }

@@ -6,12 +6,12 @@ import edu.kit.iti.algover.term.Sort;
 
 /**
  * A DafnyField is a field in a DafnyClass
+ * It is global and has a type and a name
  */
 public class DafnyField extends DafnyDecl {
 
     private DafnyTree type;
     private String name;
-    private DafnyTree value;
 
     public DafnyTree getType() {
         return type;
@@ -23,20 +23,12 @@ public class DafnyField extends DafnyDecl {
     }
 
 
-    public DafnyTree getValue() {
-        return value;
-    }
-
-
-    public DafnyField(DafnyTree dafnyField){
-        //TODO get right Child
-        this.type = dafnyField.getChild(1);
-        this.name = dafnyField.getChild(0).getText();
-       // this.value = dafnyField.getChild(1);
+    public DafnyField(DafnyTree type, String name){
+        this.name = name;
+        this.type = type;
 
     }
-
     public String toString(){
-        return getType()+" "+getName()+ " := "+getValue()+";";
+        return getType()+" "+getName()+";";
     }
 }

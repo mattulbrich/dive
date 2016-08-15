@@ -9,6 +9,7 @@ import java.util.ListIterator;
 
 /**
  * Class representing a single Dafnyfunction
+ * A function has zero or n arguments, a return type, zero or more contracts and a body
  */
 public class DafnyFunction extends DafnyDecl{
     /**
@@ -48,12 +49,20 @@ public class DafnyFunction extends DafnyDecl{
         traverseTree(function, childCount);
     }
 
+
+    public DafnyFunction(String name, List<DafnyTree> params, DafnyTree returnType, DafnyTree body){
+        this.name = name;
+        this.parameters = params;
+        this.returnType = returnType;
+        this.body = body;
+
+    }
     public void traverseTree(DafnyTree function, int count){
         this.name = function.getChild(0).getText();
 
         this.parameters = function.getChildrenWithType(DafnyParser.ARGS);
-        this.posts = function.getChildrenWithType(DafnyParser.ENSURES);
-        this.pres= function.getChildrenWithType(DafnyParser.REQUIRES);
+        //this.posts = function.getChildrenWithType(DafnyParser.ENSURES);
+        //this.pres= function.getChildrenWithType(DafnyParser.REQUIRES);
         //this.body= function.getChildrenWithType(DafnyParser.BLOCK);
         //this.returnType = function.getChildrenWithType(DafnyParser.RETURNS);
 

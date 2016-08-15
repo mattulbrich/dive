@@ -4,6 +4,7 @@ import edu.kit.iti.algover.parser.DafnyParser;
 import edu.kit.iti.algover.parser.DafnyTree;
 
 /**
+ * I guess this class will be obsolete
  * Created by sarah on 8/8/16.
  */
 public class DafnyDeclBuilder {

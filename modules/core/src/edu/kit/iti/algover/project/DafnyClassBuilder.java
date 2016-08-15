@@ -30,7 +30,7 @@ public String getName() {
 private List<DafnyFunction> functions;
 
 /**
- * Fields bleonging to this class, possibly empty
+ * Fields belonging to this class, possibly empty
  */
 private List<DafnyField> fields;
 
@@ -40,21 +40,34 @@ public List<DafnyMethod> getMethods() {
 
     public DafnyClassBuilder setName(String name) {
         this.name = name;
+        System.out.println("Classbuilder set Name of class: "+this.name);
         return this;
     }
 
     public DafnyClassBuilder setMethods(List<DafnyMethod> methods) {
         this.methods = methods;
+        System.out.println("Methods set");
+        for (DafnyMethod m: methods){
+            System.out.println(m.toString());
+        }
         return this;
     }
 
     public DafnyClassBuilder setFunctions(List<DafnyFunction> functions) {
         this.functions = functions;
+        System.out.println("Functions set");
+        for (DafnyFunction f: functions){
+            System.out.println(f.toString());
+        }
         return this;
     }
 
     public DafnyClassBuilder setFields(List<DafnyField> fields) {
         this.fields = fields;
+        System.out.println("Fields of class set: ");
+        for (DafnyField f: this.fields) {
+            System.out.println(f.toString());
+        }
         return this;
     }
 
@@ -71,14 +84,16 @@ public List<DafnyMethod> getMethods() {
      */
     private DafnyTree tree;
 
-
+    public DafnyClassBuilder(){
+        System.out.println("ClassBuilder built");
+    }
     public DafnyClassBuilder(DafnyTree dafnyClass){
         this.tree = dafnyClass;
     }
 
     public DafnyClass buildClass(){
         //get class name from tree
-        this.setName(this.tree.getChild(0).getText());
+/*        this.setName(this.tree.getChild(0).getText());
 
         //create functions
         List<DafnyTree> functions = tree.getChildrenWithType(DafnyParser.FUNCTION);
@@ -106,7 +121,7 @@ public List<DafnyMethod> getMethods() {
         for (DafnyTree f: fieldsTemp) {
             fields.add(new DafnyField(f));
         }
-        this.setFields(fields);
+        this.setFields(fields);*/
 
 
         return new DafnyClass(this);
