@@ -18,22 +18,23 @@ public class Project {
     /**
      * Path of projects directory
      */
-    private final File pathOfProjectDirectory;
+
+    //private final File pathOfProjectDirectory;
 
     /**
      * Script file
      */
-    private final File script;
+    //private final File script;
 
     /**
      * List containing references to all problem files
      */
-    private final List<File> dafnyFiles;
+    //private final List<File> dafnyFiles;
 
     /**
      * Settings of Project
      */
-    private final ProjectSettings settings;
+    //private final ProjectSettings settings;
 
     /**
      * Reference to all elements of the project: classes, methods, functions, classfields
@@ -43,7 +44,7 @@ public class Project {
     /**
      * List of compilation units of project
      */
-    private final List<DafnyCompilationUnit> compilationUnits;
+   // private final List<DafnyCompilationUnit> compilationUnits;
 
     /**
      * All imported libraries
@@ -51,23 +52,34 @@ public class Project {
      */
     private List<File> libraries;
 
+    private List<DafnyClass> classes;
+    private List<DafnyMethod> methods;
+    private List<DafnyFunction> functions;
     /**
      * Constructor can only be called using a ProjectBuilder
      * @param pBuilder
      */
     public Project(ProjectBuilder pBuilder){
-        this.settings = pBuilder.getSettings();
-        this.compilationUnits = pBuilder.getCpus();
-        this.dafnyFiles = pBuilder.getDafnyFiles();
-        this.pathOfProjectDirectory = pBuilder.getDir();
-        this.libraries = pBuilder.getLibraries();
+ //       this.settings = pBuilder.getSettings();
+//        this.compilationUnits = pBuilder.getCpus();
+ //       this.dafnyFiles = pBuilder.getDafnyFiles();
+//        this.pathOfProjectDirectory = pBuilder.getDir();
+//        this.libraries = pBuilder.getLibraries();
       //  this.elementsOfProject = buildDafnyDecl();
-        this.script = pBuilder.getScript();
+  //      this.script = pBuilder.getScript();
+        this.classes = pBuilder.getClasses();
+        this.functions = pBuilder.getFunctions();
+        this.methods = pBuilder.getMethods();
     }
 
     public String toString(){
-        //TODO
-        return "";
+        String s = "Project\n";
+        s += "with classes: \n";
+        for (DafnyClass dClass: this.classes) {
+            s += dClass.toString();
+        }
+
+        return s;
 
     }
 

@@ -26,6 +26,7 @@ import edu.kit.iti.algover.util.Debug;
 import edu.kit.iti.algover.util.LabelIntroducer;
 import edu.kit.iti.algover.util.SymbexUtil;
 import edu.kit.iti.algover.util.Util;
+import org.antlr.runtime.tree.CommonTreeNodeStream;
 
 public class Main {
 
@@ -39,19 +40,22 @@ public class Main {
         String stringTree = t.toStringTree();
         System.out.println(Debug.prettyPrint(stringTree)); // print out the tree
 
+
+
         LabelIntroducer.visit(t);
 
         Symbex symbex = new Symbex();
         List<SymbexPath> symbexresult = symbex.symbolicExecution(t);
-        StringBuilder translatedMethod = new StringBuilder();
+        //StringBuilder translatedMethod = new StringBuilder();
         String methodName ="";
         for (SymbexPath res : symbexresult) {
-            DafnyTrans dt = new DafnyTrans(res);
-            String translated = dt.trans();
-            methodName = dt.methodName;
-            translatedMethod.append(translated);
+           // DafnyTrans dt = new DafnyTrans(res);
+          //  String translated = dt.trans();
+           // methodName = dt.methodName;
+           // translatedMethod.append(translated);
 
             // TODO M->S: You might want to use the following new method:
+            System.out.println("New String:\n\n");
             System.out.println(SymbexUtil.toString(res));
 
             System.out.println("------------");
@@ -75,7 +79,7 @@ public class Main {
             }
 
             SymbexStateToFormula magic = new SymbexStateToFormula(t);
-            Z3Solver z3 = new Z3Solver(magic.getSymbolTable());
+//            Z3Solver z3 = new Z3Solver(magic.getSymbolTable());
 
             for (SymbexPath single : res.split()) {
                 System.out.println(single.getPathIdentifier());
@@ -87,7 +91,7 @@ public class Main {
                 //System.out.println(z3.solve(formulae));
             }
         }
-        writeOutFile(translatedMethod.toString(), methodName);
+        //writeOutFile(translatedMethod.toString(), methodName);
 
     }
 

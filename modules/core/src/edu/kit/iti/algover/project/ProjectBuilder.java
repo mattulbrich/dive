@@ -1,8 +1,12 @@
 package edu.kit.iti.algover.project;
 
+import edu.kit.iti.algover.parser.DafnyFileParser;
+import edu.kit.iti.algover.parser.DafnyTree;
 import edu.kit.iti.algover.settings.ProjectSettings;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.LinkedList;
 import java.util.List;
@@ -115,18 +119,40 @@ public  class ProjectBuilder {
      * Responsible for building project
      */
     public ProjectBuilder(){
+        System.out.println("New ProjectBuilder");
         this.methods = new LinkedList<>();
         this.functions = new LinkedList<>();
         this.classes = new LinkedList<>();
 
     }
 
+    public DafnyTree parseFile(File file) {
+        DafnyTree t = null;
+        try {
+            FileInputStream inputStream = new FileInputStream(file);
+            t = DafnyFileParser.parse(inputStream);
+
+//            String stringTree = t.toStringTree();
+
+
+
+        } catch (FileNotFoundException e) {
+            System.out.println("Could not read file " + file.getAbsolutePath());
+        } catch (Exception e) {
+
+            System.out.println("Could not load problem");
+            e.printStackTrace();
+        }
+        return t;
+    }
     /**
      * Build project. Handle calling parsers and calling DafnyDecl Builder
      * @param dir of project
      * @return Project Object
      */
     public Project buildProject(File dir){
+        DafnyDeclVisitor visitor = new DafnyDeclVisitor(this, dir.getName());
+        visitor.visit(dir.getName(), parseFile(dir));
         //setDir(dir);
         //find files
         //call script parser
@@ -149,6 +175,18 @@ public  class ProjectBuilder {
 
     public void addMethod(DafnyMethod meth) {
         this.methods.add(meth);
+    }
+
+    public List<DafnyClass> getClasses() {
+        return this.classes;
+    }
+
+    public List<DafnyFunction> getFunctions() {
+        return this.functions;
+    }
+
+    public List<DafnyMethod> getMethods() {
+        return this.methods;
     }
 
     /**

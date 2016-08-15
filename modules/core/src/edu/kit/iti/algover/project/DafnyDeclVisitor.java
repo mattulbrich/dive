@@ -14,14 +14,33 @@ public class DafnyDeclVisitor {
     private DafnyClassBuilder classBuilder = null;
     private String filename;
 
+    public DafnyDeclVisitor(ProjectBuilder projectBuilder, String filename){
+        this.projectBuilder = projectBuilder;
+        this.filename = filename;
+
+    }
     public void visit(String filename, DafnyTree tree) {
-
         // imports ?
+        System.out.println(tree.getText());
+        switch(tree.getType()){
+            case DafnyParser.CLASS:
+            visitCLASS(tree);
+                break;
+            case DafnyParser.FUNCTION:
+                visitFUNCTION(tree);
+                break;
+            case DafnyParser.METHOD:
+                visitMETHOD(tree);
+                break;
+        }
 
-
+/*
         for (DafnyTree t : tree.getChildrenWithType(DafnyParser.CLASS)) {
+            System.out.println("Visit1");
+
             visitCLASS(t);
         }
+
 
         for (DafnyTree t : tree.getChildrenWithType(DafnyParser.FUNCTION)) {
             visitFUNCTION(t);
@@ -30,6 +49,7 @@ public class DafnyDeclVisitor {
         for (DafnyTree t : tree.getChildrenWithType(DafnyParser.METHOD)) {
             visitMETHOD(t);
         }
+*/
 
     }
 
@@ -38,7 +58,7 @@ public class DafnyDeclVisitor {
         classBuilder = dcb;
 
         dcb.setName(t.getChild(0).getText());
-
+        System.out.println(t.getChild(0).getText());
         List<DafnyTree> fieldsAsTree = t.getChildrenWithType(DafnyParser.FIELD);
         for (DafnyTree tree : fieldsAsTree) {
             visitFIELD(tree);
@@ -55,7 +75,9 @@ public class DafnyDeclVisitor {
         }
 
         classBuilder = null;
-        projectBuilder.addClass(dcb.buildClass());
+        DafnyClass dc = dcb.buildClass();
+
+        projectBuilder.addClass(dc);
     }
 
     private void visitFIELD(DafnyTree t) {
@@ -77,6 +99,7 @@ public class DafnyDeclVisitor {
                 t.getChildrenWithType(DafnyParser.ENSURES));
 
         if (classBuilder == null) {
+
             projectBuilder.addFunction(func);
         } else {
             classBuilder.addFunction(func);

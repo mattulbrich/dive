@@ -38,7 +38,8 @@ public class DafnyClass extends DafnyDecl {
     }
 
     public String toString(){
-        String classToString = "";
+        String classToString = "Class ";
+        classToString += this.name;
 
 /*        classToString += "Class "+this.name +"\nwith "+this.methods.size()+ " methods:\n";
         if(this.methods != null) {
