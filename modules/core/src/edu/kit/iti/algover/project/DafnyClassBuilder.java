@@ -80,25 +80,33 @@ public List<DafnyMethod> getMethods() {
         //get class name from tree
         this.setName(this.tree.getChild(0).getText());
 
+        //create functions
         List<DafnyTree> functions = tree.getChildrenWithType(DafnyParser.FUNCTION);
         LinkedList<DafnyFunction> tempFuncList = new LinkedList<>();
         for (DafnyTree function : functions) {
             DafnyFunction func = new DafnyFunction(function);
+            System.out.println(func.toString());
             tempFuncList.add(func);
         }
         this.setFunctions(tempFuncList);
 
+        //create methods
         List<DafnyTree> methods = tree.getChildrenWithType(DafnyParser.METHOD);
         LinkedList<DafnyMethod> tempMethodList = new LinkedList<>();
         for (DafnyTree method : methods) {
             DafnyMethod meth = new DafnyMethod(method);
             tempMethodList.add(meth);
-            //Create list, then add function
+
         }
         this.setMethods(tempMethodList);
 
-
-        //traversetree and call dafnydeclbuilder
+        //create fields
+        List<DafnyTree> fieldsTemp = tree.getChildrenWithType(DafnyParser.VAR);
+        LinkedList<DafnyField> fields = new LinkedList<>();
+        for (DafnyTree f: fieldsTemp) {
+            fields.add(new DafnyField(f));
+        }
+        this.setFields(fields);
 
 
         return new DafnyClass(this);

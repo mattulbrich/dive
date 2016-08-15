@@ -22,7 +22,7 @@ public class DafnyMethod extends DafnyDecl {
     private MethodBody body;
 
     public DafnyMethod(DafnyTree method){
-        //TODO
+
     }
 
 }

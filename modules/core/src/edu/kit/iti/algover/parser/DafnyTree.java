@@ -17,6 +17,9 @@ import org.antlr.runtime.tree.CommonTree;
 import org.antlr.runtime.tree.CommonTreeAdaptor;
 import org.antlr.runtime.tree.Tree;
 
+import edu.kit.iti.algover.parser.DafnyFileParser;
+
+
 /**
  * This class implements AST nodes for Dafny code.
  *

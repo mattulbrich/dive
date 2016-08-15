@@ -40,14 +40,14 @@ public class DafnyClass extends DafnyDecl {
         String classToString = "";
 
         classToString += "Class "+this.name +"\nwith "+this.methods.size()+ " methods:\n";
-        if(this.functions != null) {
+        if(this.methods != null) {
             for (DafnyMethod method : this.methods) {
                 classToString += method.toString() + "\n";
 
             }
         }
         classToString += "with "+this.functions.size()+" functions:";
-        if(this.methods != null) {
+        if(this.functions != null) {
             for (DafnyFunction function : this.functions) {
                 classToString += function.toString() + "\n";
             }

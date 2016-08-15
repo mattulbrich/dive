@@ -12,12 +12,12 @@ import java.util.ListIterator;
  */
 public class DafnyFunction extends DafnyDecl{
     /**
-     * The parameters of teh function, possibly empty
+     * The parameters of the function, possibly empty
      */
     private List<DafnyTree> parameters;
 
     /**
-     * The return type of teh function. Non-null
+     * The return type of the function. Non-null
      */
     private DafnyTree returnType;
 
@@ -32,6 +32,9 @@ public class DafnyFunction extends DafnyDecl{
     private DafnyTree body;
 
 
+    private List<DafnyTree> pres;
+    private List<DafnyTree> posts;
+
     /**
      * Constructor for DafnyFunction
      * @param function
@@ -40,63 +43,64 @@ public class DafnyFunction extends DafnyDecl{
     public DafnyFunction (DafnyTree function){
         int childCount = function.getChildCount();
         this.parameters = new LinkedList<>();
+        this.pres = new LinkedList<>();
+        this.posts= new LinkedList<>();
         traverseTree(function, childCount);
     }
 
     public void traverseTree(DafnyTree function, int count){
         this.name = function.getChild(0).getText();
 
-        DafnyTree child;
+        this.parameters = function.getChildrenWithType(DafnyParser.ARGS);
+        this.posts = function.getChildrenWithType(DafnyParser.ENSURES);
+        this.pres= function.getChildrenWithType(DafnyParser.REQUIRES);
+        //this.body= function.getChildrenWithType(DafnyParser.BLOCK);
+        //this.returnType = function.getChildrenWithType(DafnyParser.RETURNS);
+
+       /*// DafnyTree child;
         int i = 1;
-        for(; function.getChild(i).getType() == DafnyParser.VAR && i < count; i++){
-            this.parameters.add(function.getChild(i));
+        for(; function.getChild(i).getType() == DafnyParser.ARGS && i < count; i++){
+            this.parameters.addAll(function.getChild(i).getChildrenWithType(DafnyParser.VAR));
+
         }
 
-        this.returnType = function.getChild(i);
-
-        for(int z = 1; z < count; z++){
-            child = function.getChild(i);
-            switch(child.getType()){
-                case DafnyParser.VAR:
-                    this.parameters.add(child);
-                    break;
-                case DafnyParser.INT:
-                    this.returnType = child;
-                    break;
-                case DafnyParser.BOOL:
-                    this.returnType = child;
-                    break;
-                case DafnyParser.SET:
-                    this.returnType = child;
-                    break;
-                //TODO restliche Typen
-                default:
-                    this.body = child;
-                    break;
+        this.returnType = function.getChild(i).getChild(0);
+        i++;
+        if((function.getChild(i).getType() == DafnyParser.ENSURES) ||
+        (function.getChild(i).getType() == DafnyParser.REQUIRES)){
+            for(; function.getChild(i).getType() == DafnyParser.REQUIRES && i < count; i++){
+                this.pres.add(function.getChild(i));
+            }
+            for(; function.getChild(i).getType() == DafnyParser.ENSURES && i < count; i++){
+                this.posts.add(function.getChild(i));
             }
         }
+        if(function.getChild(i).getType() == DafnyParser.BLOCK) {
+            this.body =function.getChild(i).getChild(0);
+        }*/
+
+
 
     }
 
+
     /**
      * ToString Method
-     * TODO Returntype and body
      * @return
      */
     public String toString(){
-        String s = "function "+this.name;
+        String s = "function "+this.name+"\n";
 
         if(this.parameters != null){
-            String params = "(";
+            String params = this.parameters.size()+" Parameters: ";
 
             for (DafnyTree para:this.parameters) {
-                params+=para.toStringTree();
+                params+=para.toStringTree()+"\n";
             }
-
-
-            s+=params+")";
+            s+=params+"\n";
         }
-
+//        s += "returns "+this.returnType.toStringTree()+"\n";
+//        s += "with body \n"+this.body.toStringTree();
 
         return s;
     }
