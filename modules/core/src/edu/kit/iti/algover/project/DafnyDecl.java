@@ -16,13 +16,14 @@ public class DafnyDecl {
     /**
      * File, in which this DafnyDecl is stored in
      */
-    private File file;
+   // private File file;
+    private String filename;
 
     private String name;
 
-    public DafnyDecl(File file, DafnyTree tree, String name){
+    public DafnyDecl(String filename, DafnyTree tree, String name){
         this.representation = tree;
-        this.file = file;
+        this.filename = filename;
         this.name = name;
     }
 

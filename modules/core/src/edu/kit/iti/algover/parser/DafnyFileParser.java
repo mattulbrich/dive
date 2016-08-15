@@ -10,7 +10,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
-import edu.kit.iti.algover.project.DafnyTreeVisitorImpl;
+
 import org.antlr.runtime.ANTLRInputStream;
 import org.antlr.runtime.CommonTokenStream;
 import org.antlr.runtime.RecognitionException;
@@ -50,13 +50,6 @@ public class DafnyFileParser {
 
         // pull out the tree and cast it
         DafnyTree t = result.getTree();
-
-        //to Test Visitor
-        DafnyTreeVisitorImpl visitor = new DafnyTreeVisitorImpl<DafnyTree, String>();
-        t.accept(visitor, "foo");
-
-
-
         return t;
     }
 

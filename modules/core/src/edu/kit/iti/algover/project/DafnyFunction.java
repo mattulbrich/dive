@@ -38,59 +38,67 @@ public class DafnyFunction extends DafnyDecl{
 
     /**
      * Constructor for DafnyFunction
-     * @param function
-     *          DafnyTree  with DafnyParser.FUNCTION as root
+     * @param filename
+     * @param t
+     * @param name
+     * @param params
+     * @param returnType
+     * @param body
+     * @param pres
+     * @param posts
      */
-    public DafnyFunction (DafnyTree function){
-        int childCount = function.getChildCount();
-        this.parameters = new LinkedList<>();
-        this.pres = new LinkedList<>();
-        this.posts= new LinkedList<>();
-        traverseTree(function, childCount);
-    }
-
-
-    public DafnyFunction(String name, List<DafnyTree> params, DafnyTree returnType, DafnyTree body){
+    public DafnyFunction(String filename, DafnyTree t,
+                         String name,
+                         List<DafnyTree> params,
+                         DafnyTree returnType,
+                         DafnyTree body,
+                         List<DafnyTree> pres,
+                         List<DafnyTree> posts){
+        super(filename, t, name);
         this.name = name;
         this.parameters = params;
         this.returnType = returnType;
         this.body = body;
+        this.pres = pres;
+        this.posts = posts;
 
     }
-    public void traverseTree(DafnyTree function, int count){
-        this.name = function.getChild(0).getText();
-
-        this.parameters = function.getChildrenWithType(DafnyParser.ARGS);
-        //this.posts = function.getChildrenWithType(DafnyParser.ENSURES);
-        //this.pres= function.getChildrenWithType(DafnyParser.REQUIRES);
-        //this.body= function.getChildrenWithType(DafnyParser.BLOCK);
-        //this.returnType = function.getChildrenWithType(DafnyParser.RETURNS);
-
-       /*// DafnyTree child;
-        int i = 1;
-        for(; function.getChild(i).getType() == DafnyParser.ARGS && i < count; i++){
-            this.parameters.addAll(function.getChild(i).getChildrenWithType(DafnyParser.VAR));
-
-        }
-
-        this.returnType = function.getChild(i).getChild(0);
-        i++;
-        if((function.getChild(i).getType() == DafnyParser.ENSURES) ||
-        (function.getChild(i).getType() == DafnyParser.REQUIRES)){
-            for(; function.getChild(i).getType() == DafnyParser.REQUIRES && i < count; i++){
-                this.pres.add(function.getChild(i));
-            }
-            for(; function.getChild(i).getType() == DafnyParser.ENSURES && i < count; i++){
-                this.posts.add(function.getChild(i));
-            }
-        }
-        if(function.getChild(i).getType() == DafnyParser.BLOCK) {
-            this.body =function.getChild(i).getChild(0);
-        }*/
 
 
-
-    }
+//    public void traverseTree(DafnyTree function, int count){
+//        this.name = function.getChild(0).getText();
+//
+//        this.parameters = function.getChildrenWithType(DafnyParser.ARGS);
+//        //this.posts = function.getChildrenWithType(DafnyParser.ENSURES);
+//        //this.pres= function.getChildrenWithType(DafnyParser.REQUIRES);
+//        //this.body= function.getChildrenWithType(DafnyParser.BLOCK);
+//        //this.returnType = function.getChildrenWithType(DafnyParser.RETURNS);
+//
+//       /*// DafnyTree child;
+//        int i = 1;
+//        for(; function.getChild(i).getType() == DafnyParser.ARGS && i < count; i++){
+//            this.parameters.addAll(function.getChild(i).getChildrenWithType(DafnyParser.VAR));
+//
+//        }
+//
+//        this.returnType = function.getChild(i).getChild(0);
+//        i++;
+//        if((function.getChild(i).getType() == DafnyParser.ENSURES) ||
+//        (function.getChild(i).getType() == DafnyParser.REQUIRES)){
+//            for(; function.getChild(i).getType() == DafnyParser.REQUIRES && i < count; i++){
+//                this.pres.add(function.getChild(i));
+//            }
+//            for(; function.getChild(i).getType() == DafnyParser.ENSURES && i < count; i++){
+//                this.posts.add(function.getChild(i));
+//            }
+//        }
+//        if(function.getChild(i).getType() == DafnyParser.BLOCK) {
+//            this.body =function.getChild(i).getChild(0);
+//        }*/
+//
+//
+//
+//    }
 
 
     /**

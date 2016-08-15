@@ -77,6 +77,10 @@ public  class ProjectBuilder {
         return cpus;
     }
 
+    private List<DafnyFunction> functions;
+    private List<DafnyClass> classes;
+    private List<DafnyMethod> methods;
+
     public ProjectBuilder setLibraries(List<File> libraries) {
         this.libraries = libraries;
         return this;
@@ -111,7 +115,9 @@ public  class ProjectBuilder {
      * Responsible for building project
      */
     public ProjectBuilder(){
-
+        this.methods = new LinkedList<>();
+        this.functions = new LinkedList<>();
+        this.classes = new LinkedList<>();
 
     }
 
@@ -122,7 +128,6 @@ public  class ProjectBuilder {
      */
     public Project buildProject(File dir){
         //setDir(dir);
-
         //find files
         //call script parser
         //set settings
@@ -130,6 +135,20 @@ public  class ProjectBuilder {
         //call compilationunit nbuilder with decltree and lib references
         //get compilationunit
         return new Project(this);
+    }
+
+    public void addFunction(DafnyFunction func) {
+        this.functions.add(func);
+   /*     if(currentClassBuilder != null)
+            currentClassBuilder.addFunction();*/
+    }
+
+    public void addClass(DafnyClass dafnyClass) {
+        this.classes.add(dafnyClass);
+    }
+
+    public void addMethod(DafnyMethod meth) {
+        this.methods.add(meth);
     }
 
     /**
