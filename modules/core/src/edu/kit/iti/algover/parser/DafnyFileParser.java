@@ -16,10 +16,7 @@ import org.antlr.runtime.CommonTokenStream;
 import org.antlr.runtime.RecognitionException;
 
 import edu.kit.iti.algover.parser.DafnyParser.program_return;
-//import edu.kit.iti.algover.parser.TreeGrammarDafny.program_return;
-import org.antlr.runtime.Token;
-import org.antlr.runtime.tree.CommonTree;
-import org.antlr.runtime.tree.CommonTreeNodeStream;
+
 
 public class DafnyFileParser {
 

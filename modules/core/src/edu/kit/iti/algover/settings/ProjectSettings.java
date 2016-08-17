@@ -6,6 +6,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.Properties;
 
 /**
@@ -18,26 +19,35 @@ import java.util.Properties;
  * Created by sarah on 8/3/16.
  * has to be called by projectbuilder
  */
-public class ProjectSettings {
+public class ProjectSettings{
 
-    public Properties settings;
+    public static final String DAFNY_TIMEOUT = "Dafny Timeout";
+    public static final String KEY_TIMEOUT = "KeY Timeout";
+    public static final String SMT_TIMEOUT = "SMT Timeout";
 
- /*   public ProjectSettings(File props){
-        if(props.exists()) {
-            try {
-                FileInputStream in = new FileInputStream(props);
-                settings = new Properties();
-                settings.load(in);
-//                for(Settings settings : settingsSet){
-//                settings.readSettings(this,properties);
-                in.close();
 
-            } catch (FileNotFoundException e) {
-                e.printStackTrace();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
 
+    public HashMap<String, String> set;
+    public ProjectSettings(){
+        set= new HashMap<>();
+        setDefaultValues();
+    }
+
+    public void setDefaultValues(){
+        set.put(DAFNY_TIMEOUT, "5");
+        set.put(KEY_TIMEOUT, "10");
+        set.put(SMT_TIMEOUT, "10");
+    }
+
+    public void setValue(String setting, String value){
+        if (set.containsKey(setting)){
+            set.remove(setting);
+            set.put(setting, value);
+        }else{
+            set.put(setting, value);
         }
-    }*/
+    }
 }
+
+
+

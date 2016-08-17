@@ -1,13 +1,18 @@
 package edu.kit.iti.algover.project;
 
 import edu.kit.iti.algover.parser.DafnyFileParser;
+import edu.kit.iti.algover.parser.DafnyParser;
 import edu.kit.iti.algover.parser.DafnyTree;
+import edu.kit.iti.algover.script.ScriptParser;
+import edu.kit.iti.algover.script.ScriptFileParser;
+import edu.kit.iti.algover.script.ScriptTree;
 import edu.kit.iti.algover.settings.ProjectSettings;
+import edu.kit.iti.algover.util.FileUtil;
+import org.antlr.runtime.RecognitionException;
+import org.antlr.runtime.tree.CommonTree;
+import org.antlr.runtime.tree.Tree;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
+import java.io.*;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -17,11 +22,14 @@ import java.util.List;
  * projectsettings need to be retrieved
  * Created by sarah on 8/3/16.
  */
-public  class ProjectBuilder {
+public class ProjectBuilder {
+
+    static String testPath = ("/home/sarah/Documents/KIT_Mitarbeiter/DissTool/TestDir/test.dfy");
+
     /**
      * List of all files in the project directory
      */
-    private  File[] allFilesinDir;
+    private File[] allFilesinDir;
 
     /**
      * All imported libraries
@@ -42,7 +50,7 @@ public  class ProjectBuilder {
      * All compilationunits of a project
      *
      */
-    private List<DafnyCompilationUnit> cpus;
+    //  private List<DafnyCompilationUnit> cpus;
 
 
     /**
@@ -57,9 +65,12 @@ public  class ProjectBuilder {
 
     /**
      * The script of the project
-     *
      */
     private File script;
+
+    private List<DafnyFunction> functions;
+    private List<DafnyClass> classes;
+    private List<DafnyMethod> methods;
 
     public ProjectSettings getSettings() {
         return settings;
@@ -77,13 +88,6 @@ public  class ProjectBuilder {
         return dir;
     }
 
-    public List<DafnyCompilationUnit> getCpus() {
-        return cpus;
-    }
-
-    private List<DafnyFunction> functions;
-    private List<DafnyClass> classes;
-    private List<DafnyMethod> methods;
 
     public ProjectBuilder setLibraries(List<File> libraries) {
         this.libraries = libraries;
@@ -100,10 +104,10 @@ public  class ProjectBuilder {
         return this;
     }
 
-    public ProjectBuilder setCpus(List<DafnyCompilationUnit> cpus) {
-        this.cpus = cpus;
-        return this;
-    }
+//    public ProjectBuilder setCpus(List<DafnyCompilationUnit> cpus) {
+//        this.cpus = cpus;
+//        return this;
+//    }
 
     public ProjectBuilder setSettings(ProjectSettings settings) {
         this.settings = settings;
@@ -118,7 +122,7 @@ public  class ProjectBuilder {
     /**
      * Responsible for building project
      */
-    public ProjectBuilder(){
+    public ProjectBuilder() {
         System.out.println("New ProjectBuilder");
         this.methods = new LinkedList<>();
         this.functions = new LinkedList<>();
@@ -126,16 +130,17 @@ public  class ProjectBuilder {
 
     }
 
+    /**
+     * Parse dafnyfile
+     *
+     * @param file dafnyfile
+     * @return parsed file as DafnyTree
+     */
     public DafnyTree parseFile(File file) {
         DafnyTree t = null;
         try {
             FileInputStream inputStream = new FileInputStream(file);
             t = DafnyFileParser.parse(inputStream);
-
-//            String stringTree = t.toStringTree();
-
-
-
         } catch (FileNotFoundException e) {
             System.out.println("Could not read file " + file.getAbsolutePath());
         } catch (Exception e) {
@@ -145,23 +150,104 @@ public  class ProjectBuilder {
         }
         return t;
     }
+
     /**
      * Build project. Handle calling parsers and calling DafnyDecl Builder
+     *
      * @param dir of project
      * @return Project Object
      */
-    public Project buildProject(File dir){
-        DafnyDeclVisitor visitor = new DafnyDeclVisitor(this, dir.getName());
-        visitor.visit(dir.getName(), parseFile(dir));
-        //setDir(dir);
+    public Project buildProject(File dir) throws Exception {
+        this.setDir(dir);
+        ProjectSettings settings = new ProjectSettings();
+        this.setSettings(settings); //default settings
         //find files
         //call script parser
-        //set settings
-        //call file parser get dafnytree
-        //call compilationunit nbuilder with decltree and lib references
-        //get compilationunit
+
+        File scriptFile = null;
+        try {
+            scriptFile = FileUtil.findFile(dir, "project.script");
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
+        if (scriptFile != null) {
+            this.setScript(scriptFile);
+        } else {
+            throw new Exception("Could not build project");
+        }
+        //get parsed Script
+        ScriptTree parsedScript = parseScriptFile(this.getScript());
+        //System.out.println(parsedScript.toStringTree());
+        //extractSettings from ScriptTree and change settings in data structure
+        extractSettings(parsedScript.getFirstChildWithType(ScriptParser.SETTINGS));
+        //extract dafnyfiles into datastructure
+        extractDafnyFileNames(parsedScript.getFirstChildWithType(ScriptParser.IMPORT));
+
+        //extract Dafbnylib files into datastrcture
+        extractDafnyFileNames(parsedScript.getFirstChildWithType(ScriptParser.LIBRARY));
+        //parse DafnyFiles
+        //atm only one dafnyfile possible (the first in the list)
+        DafnyTree parsed = parseFile(this.getDafnyFiles().get(0));
+        DafnyDeclVisitor visitor = new DafnyDeclVisitor(this, dir.getName());
+        visitor.visit(dir.getName(), parsed);
+
         return new Project(this);
     }
+
+    /**
+     * Extract DafnyFilenames from a subtree that has import as root and create new File with current Directory
+     */
+    public void extractDafnyFileNames(ScriptTree t) {
+        List<ScriptTree> dafnyF = t.getChildrenWithType(ScriptParser.FILE);
+        List<File> dafnyFilesTemp = new LinkedList<>();
+        for (ScriptTree tree : dafnyF) {
+            File f = new File(this.dir + File.separator + tree.getChild(0).getText() + tree.getChild(1).getText());
+            dafnyFilesTemp.add(f);
+            System.out.println(t.getText()+" "+f.getName());
+
+        }
+        switch (t.getType()) {
+            case ScriptParser.IMPORT:
+                this.setDafnyFiles(dafnyFilesTemp);
+                System.out.println("Set Dafnyfiles");
+                break;
+            case ScriptParser.LIBRARY:
+                this.setLibraries(dafnyFilesTemp);
+                System.out.println("Set Lib files");
+                break;
+            default:
+                System.out.println("Type for files unknown");
+        }
+    }
+
+    /**
+     * Parse Script File and return Tree to traverse
+     *
+     * @param script
+     * @return
+     */
+    public ScriptTree parseScriptFile(File script) {
+        ScriptTree t = null;
+        try {
+
+            InputStream scriptStream = FileUtil.readFile(script);
+            t = ScriptFileParser.parse(scriptStream);
+
+
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (RecognitionException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return t;
+
+    }
+
+
 
     public void addFunction(DafnyFunction func) {
         this.functions.add(func);
@@ -189,23 +275,12 @@ public  class ProjectBuilder {
         return this.methods;
     }
 
-    /**
-     * Searches project directory for file ending with .script
-     * At the moment no error handling if more than one script file exists
-     * Creates a new file named project.script if no file exists, its not saved to directory yet
-     * @return Scriptfile
-     */
-//    private  File findScriptFile(File dir){
-//        for (File f : getAllFilesinDir()) {
-//            if(f.getName().endsWith(".script")) {
-//                System.out.println(f.getName());
-//                return f;
-//            }
-//        }
-//        System.out.println("No script file exists, creating one in the directory and will be called project.script");
-//        createNewScriptFile(dir);
-//        return new File("project.script");
-//
-//    }
+    public void extractSettings(ScriptTree t){
+       List<ScriptTree> sets = t.getChildrenWithType(ScriptParser.SET);
+        for (ScriptTree tr: sets
+             ) {
+            System.out.println(tr.toStringTree());
+        }
+    }
 
 }
