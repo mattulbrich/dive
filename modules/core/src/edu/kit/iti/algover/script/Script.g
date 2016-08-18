@@ -34,6 +34,13 @@ FILE: 'file';
 SUBSCRIPT: 'script for';
 PVC	: 'PVC';
 SET	:	'set';
+APPLY: 'apply';
+VCG: 'VCG';
+POSTPONE: 'postpone';
+PROOF:'Proof';
+QED: 'Qed';
+KEYTIMEOUT: 'key_timeout';
+DAFNYTIMEOUT:'dafny_timeout';
 
 ID : ('a' .. 'z' | 'A' .. 'Z' | '_') ('a' .. 'z' | 'A' .. 'Z' | '0' .. '9' | '_')*;
 INT : ('0' .. '9' ) ('0' .. '9')*;
@@ -70,19 +77,29 @@ sets:
 SETTINGS^ set (set)*;
 
 set:
-tok=('Dafny' |'KeY')
- TIMEOUT INT ';' 
--> ^(SET[tok] TIMEOUT INT);
+'[' (tok= (DAFNYTIMEOUT|KEYTIMEOUT)) ']' INT+ ';'
+->
+^(SET [tok] INT+);
 
 pvcscripts:
-pvcscript (',' pvcscripts)*;
+pvcscript (pvcscripts)*;
 
 pvcscript:
-SUBSCRIPT^ pvc':' commands;
+SUBSCRIPT^ pvc':' '{'commands* QED?'}';
 
-pvc	:	
-'PVC_'INT+;
-commands:	
-ID+ ';';	
+
+pvc	:
+	'PVC_'INT+;
+
+branchingcommand:
+	ID+ ';'
+	'{' commands+ '}'
+	'{' commands+ '}'
+	;
 	
-	
+
+commands:
+command | branchingcommand;
+
+command	:	
+ID+ ';';

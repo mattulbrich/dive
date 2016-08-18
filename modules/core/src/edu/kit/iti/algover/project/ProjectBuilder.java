@@ -162,7 +162,7 @@ public class ProjectBuilder {
         ProjectSettings settings = new ProjectSettings();
         this.setSettings(settings); //default settings
         //find files
-        //call script parser
+
 
         File scriptFile = null;
         try {
@@ -175,15 +175,15 @@ public class ProjectBuilder {
         } else {
             throw new Exception("Could not build project");
         }
-        //get parsed Script
+        //call script parser and get parsed Script
         ScriptTree parsedScript = parseScriptFile(this.getScript());
-        //System.out.println(parsedScript.toStringTree());
+
         //extractSettings from ScriptTree and change settings in data structure
         extractSettings(parsedScript.getFirstChildWithType(ScriptParser.SETTINGS));
         //extract dafnyfiles into datastructure
         extractDafnyFileNames(parsedScript.getFirstChildWithType(ScriptParser.IMPORT));
 
-        //extract Dafbnylib files into datastrcture
+        //extract Dafbnylib files into datastructure
         extractDafnyFileNames(parsedScript.getFirstChildWithType(ScriptParser.LIBRARY));
         //parse DafnyFiles
         //atm only one dafnyfile possible (the first in the list)
@@ -191,6 +191,7 @@ public class ProjectBuilder {
         DafnyDeclVisitor visitor = new DafnyDeclVisitor(this, dir.getName());
         visitor.visit(dir.getName(), parsed);
 
+        System.out.println(this.settings.toString());
         return new Project(this);
     }
 
@@ -275,11 +276,20 @@ public class ProjectBuilder {
         return this.methods;
     }
 
+    /**
+     * Ectract Settings and add them to settingsobject (maybe refactor to settings class)
+     * @param t ScriptTree with root node Settings
+     */
     public void extractSettings(ScriptTree t){
        List<ScriptTree> sets = t.getChildrenWithType(ScriptParser.SET);
-        for (ScriptTree tr: sets
-             ) {
-            System.out.println(tr.toStringTree());
+        for (ScriptTree tr: sets) {
+            if(tr.getText().equals("dafny_timeout")){
+                this.settings.setValue(ProjectSettings.DAFNY_TIMEOUT, tr.getChild(0).toString());
+            }
+            if(tr.getText().equals("key_timeout")){
+                 this.getSettings().setValue(ProjectSettings.KEY_TIMEOUT, tr.getChild(0).toString());
+            }
+
         }
     }
 
