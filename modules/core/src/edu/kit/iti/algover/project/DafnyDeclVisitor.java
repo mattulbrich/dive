@@ -21,7 +21,7 @@ public class DafnyDeclVisitor {
     }
     public void visit(String filename, DafnyTree tree) {
         // imports ?
-        System.out.println(tree.getText());
+        //System.out.println(tree.getText());
         switch(tree.getType()){
             case DafnyParser.CLASS:
             visitCLASS(tree);
@@ -58,7 +58,7 @@ public class DafnyDeclVisitor {
         classBuilder = dcb;
 
         dcb.setName(t.getChild(0).getText());
-        System.out.println(t.getChild(0).getText());
+        //System.out.println(t.getChild(0).getText());
         List<DafnyTree> fieldsAsTree = t.getChildrenWithType(DafnyParser.FIELD);
         for (DafnyTree tree : fieldsAsTree) {
             visitFIELD(tree);

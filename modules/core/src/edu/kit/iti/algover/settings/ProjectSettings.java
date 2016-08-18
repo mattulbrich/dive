@@ -37,6 +37,13 @@ public class ProjectSettings{
         setDefaultValues();
     }
 
+    public String getValue(String key){
+        if(this.set.containsKey(key)){
+           return this.set.get(key);
+        }
+        return null;
+    }
+
     /**
      * Set default values for all settings
      */
@@ -67,6 +74,10 @@ public class ProjectSettings{
             ret += s+": "+set.get(s)+"\n";
         }
         return ret;
+    }
+
+    public HashMap getSettings(){
+        return this.set;
     }
 }
 

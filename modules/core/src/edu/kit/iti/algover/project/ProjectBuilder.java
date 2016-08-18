@@ -24,7 +24,7 @@ import java.util.List;
  */
 public class ProjectBuilder {
 
-    static String testPath = ("/home/sarah/Documents/KIT_Mitarbeiter/DissTool/TestDir/test.dfy");
+  //  static String testPath = ("/home/sarah/Documents/KIT_Mitarbeiter/DissTool/TestDir/test.dfy");
 
     /**
      * List of all files in the project directory
@@ -46,11 +46,6 @@ public class ProjectBuilder {
      */
     private File dir;
 
-    /**
-     * All compilationunits of a project
-     *
-     */
-    //  private List<DafnyCompilationUnit> cpus;
 
 
     /**
@@ -104,11 +99,6 @@ public class ProjectBuilder {
         return this;
     }
 
-//    public ProjectBuilder setCpus(List<DafnyCompilationUnit> cpus) {
-//        this.cpus = cpus;
-//        return this;
-//    }
-
     public ProjectBuilder setSettings(ProjectSettings settings) {
         this.settings = settings;
         return this;
@@ -123,7 +113,7 @@ public class ProjectBuilder {
      * Responsible for building project
      */
     public ProjectBuilder() {
-        System.out.println("New ProjectBuilder");
+
         this.methods = new LinkedList<>();
         this.functions = new LinkedList<>();
         this.classes = new LinkedList<>();
@@ -191,7 +181,7 @@ public class ProjectBuilder {
         DafnyDeclVisitor visitor = new DafnyDeclVisitor(this, dir.getName());
         visitor.visit(dir.getName(), parsed);
 
-        System.out.println(this.settings.toString());
+       // System.out.println(this.settings.toString());
         return new Project(this);
     }
 
@@ -204,20 +194,20 @@ public class ProjectBuilder {
         for (ScriptTree tree : dafnyF) {
             File f = new File(this.dir + File.separator + tree.getChild(0).getText() + tree.getChild(1).getText());
             dafnyFilesTemp.add(f);
-            System.out.println(t.getText()+" "+f.getName());
+           // System.out.println(t.getText()+" "+f.getName());
 
         }
         switch (t.getType()) {
             case ScriptParser.IMPORT:
                 this.setDafnyFiles(dafnyFilesTemp);
-                System.out.println("Set Dafnyfiles");
+             //   System.out.println("Set Dafnyfiles");
                 break;
             case ScriptParser.LIBRARY:
                 this.setLibraries(dafnyFilesTemp);
-                System.out.println("Set Lib files");
+              //  System.out.println("Set Lib files");
                 break;
             default:
-                System.out.println("Type for files unknown");
+              //  System.out.println("Type for files unknown");
         }
     }
 

@@ -24,17 +24,45 @@ public class Project {
     /**
      * Script file
      */
-    //private final File script;
+    private final File script;
 
     /**
      * List containing references to all problem files
      */
-    //private final List<File> dafnyFiles;
+    private final List<File> dafnyFiles;
+
+    public List<DafnyFunction> getFunctions() {
+        return functions;
+    }
+
+    public List<DafnyMethod> getMethods() {
+        return methods;
+    }
+
+    public List<DafnyClass> getClasses() {
+        return classes;
+    }
+
+    public List<File> getLibraries() {
+        return libraries;
+    }
+
+    public ProjectSettings getSettings() {
+        return settings;
+    }
+
+    public List<File> getDafnyFiles() {
+        return dafnyFiles;
+    }
+
+    public File getScript() {
+        return script;
+    }
 
     /**
      * Settings of Project
      */
-    //private final ProjectSettings settings;
+    private final ProjectSettings settings;
 
     /**
      * Reference to all elements of the project: classes, methods, functions, classfields
@@ -60,13 +88,13 @@ public class Project {
      * @param pBuilder
      */
     public Project(ProjectBuilder pBuilder){
- //       this.settings = pBuilder.getSettings();
+        this.settings = pBuilder.getSettings();
 //        this.compilationUnits = pBuilder.getCpus();
- //       this.dafnyFiles = pBuilder.getDafnyFiles();
+        this.dafnyFiles = pBuilder.getDafnyFiles();
 //        this.pathOfProjectDirectory = pBuilder.getDir();
-//        this.libraries = pBuilder.getLibraries();
+        this.libraries = pBuilder.getLibraries();
       //  this.elementsOfProject = buildDafnyDecl();
-  //      this.script = pBuilder.getScript();
+        this.script = pBuilder.getScript();
         this.classes = pBuilder.getClasses();
         this.functions = pBuilder.getFunctions();
         this.methods = pBuilder.getMethods();

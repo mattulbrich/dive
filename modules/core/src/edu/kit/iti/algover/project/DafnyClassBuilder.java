@@ -42,7 +42,7 @@ public class DafnyClassBuilder {
 
     public DafnyClassBuilder setName(String name) {
         this.name = name;
-        System.out.println("Classbuilder set Name of class: " + this.name);
+     //   System.out.println("Classbuilder set Name of class: " + this.name);
         return this;
     }
 
