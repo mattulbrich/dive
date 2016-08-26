@@ -62,5 +62,6 @@ public class ProjectTest {
         assertEquals(Integer.parseInt(value), 24);
     }
 
+
     //TODO test that classes and functions are correctly extracted
 }

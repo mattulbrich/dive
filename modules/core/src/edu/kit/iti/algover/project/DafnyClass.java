@@ -18,6 +18,19 @@ public class DafnyClass extends DafnyDecl {
      */
     private List<DafnyMethod> methods;
 
+    public List<DafnyFunction> getFunctions() {
+        return functions;
+    }
+
+
+    public List<DafnyMethod> getMethods() {
+        return methods;
+    }
+
+    public List<DafnyField> getFields() {
+        return fields;
+    }
+
     /**
      * Functions belonging to this class, possibly empty
      */

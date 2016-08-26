@@ -9,6 +9,18 @@ import java.io.File;
  */
 public class DafnyDecl {
 
+    public DafnyTree getRepresentation() {
+        return representation;
+    }
+
+    public String getFilename() {
+        return filename;
+    }
+
+    public String getName() {
+        return name;
+    }
+
     /**
      * Reference to ASTs that represents this DafnyDecl
      */

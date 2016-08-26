@@ -26,12 +26,12 @@ public class DafnyMethod extends DafnyDecl {
     private List<DafnyTree> pres;
     private List<DafnyTree> posts;
 
-    public DafnyMethod(String methodName, List<DafnyTree> params,
+    public DafnyMethod(String filename, DafnyTree t, String methodName, List<DafnyTree> params,
                        List<DafnyTree> returns,
                        DafnyTree body,
                        List<DafnyTree> pres,
                        List<DafnyTree> posts) {
-        //super(filename, tree, methodName);
+        super(filename, t, methodName);
         this.methodName = methodName;
         this.params = params;
         this.returns = returns;

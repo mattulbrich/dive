@@ -246,6 +246,10 @@ public class ProjectBuilder {
             currentClassBuilder.addFunction();*/
     }
 
+    /**
+     * Hier müssen noch die Methoden extrahoert werden evtl.
+     * @param dafnyClass
+     */
     public void addClass(DafnyClass dafnyClass) {
         this.classes.add(dafnyClass);
     }

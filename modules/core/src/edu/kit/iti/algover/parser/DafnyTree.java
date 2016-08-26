@@ -39,6 +39,8 @@ import edu.kit.iti.algover.parser.DafnyFileParser;
  */
 public class DafnyTree extends CommonTree {
 
+
+
     /**
      * The Adaptor is used by the {@link DafnyParser} to create DafnyTree
      * instances.

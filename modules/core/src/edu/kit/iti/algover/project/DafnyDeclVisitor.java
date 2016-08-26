@@ -30,6 +30,7 @@ public class DafnyDeclVisitor {
                 visitFUNCTION(tree);
                 break;
             case DafnyParser.METHOD:
+                System.out.println("Visiting Method");
                 visitMETHOD(tree);
                 break;
         }
@@ -110,7 +111,7 @@ public class DafnyDeclVisitor {
     private void visitMETHOD(DafnyTree t) {
         List<DafnyTree> params = t.getFirstChildWithType(DafnyParser.ARGS).getChildrenWithType(DafnyParser.VAR);
 
-        DafnyMethod meth = new DafnyMethod(t.getChild(0).getText(),
+        DafnyMethod meth = new DafnyMethod(filename, t, t.getChild(0).getText(),
                 params,
                 t.getChildrenWithType(DafnyParser.RETURNS),
                 t.getFirstChildWithType(DafnyParser.BLOCK),

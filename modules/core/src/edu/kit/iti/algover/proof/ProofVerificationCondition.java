@@ -20,6 +20,9 @@ public class ProofVerificationCondition {
    private SymbexPath path;
 
 
+    public ProofVerificationCondition(PVCBuilder builder){
+
+    }
 public ProofVerificationCondition(String id, List<Term> assumptions, List<Term> pathconditions, List<Term> goal, int[] pathlines){
     this.pvcID = id;
     this.assumptions = assumptions;

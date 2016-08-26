@@ -58,7 +58,7 @@ public class ProofVerificationConditionBuilder {
 
     /**
      * Sets the counter for the ProofFormulas. Has to be increased every time a new ProofFormula for this PVC will be created
-     * TODO Make sure the proofCenter knows about teh counter
+     * TODO Make sure the proofCenter knows about the counter
      * @param idCounter
      */
     public void setIdCounter(int idCounter) {
