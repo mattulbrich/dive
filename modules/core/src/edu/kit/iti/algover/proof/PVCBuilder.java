@@ -152,7 +152,7 @@ public class PVCBuilder {
 
         buildTerms(path.getPathConditions());
 
-        //buildTerms(path.getProofObligations());
+        buildAssertionTerms(path.getProofObligations());
         //extract Assumptions
         //extract Goals
         //generate TopFormulas
@@ -178,6 +178,19 @@ public class PVCBuilder {
 
     }
 
+    private void buildAssertionTerms(ImmutableList<AssertionElement> assertions) {
+
+        SymbexPathToTopFormula septf = new SymbexPathToTopFormula(parent.getRepresentation());
+        TreeTermTranslator ttt = new TreeTermTranslator(septf.getSymbolTable());
+        for(AssertionElement ae : assertions){
+
+            final TopFormula tf = buildTopFormulaAssert(ttt, ae.getExpression(), pathThroughProgram.getMap(), ae);
+            goalWithInfo.add(tf);
+        }
+
+
+    }
+
     private TopFormula buildTopFormula(TreeTermTranslator ttt, DafnyTree expression, VariableMap map, PathConditionElement pce){
         TopFormula tf = null;
         try {
@@ -188,6 +201,23 @@ public class PVCBuilder {
                    line = pce.getExpression().getChild(0).token.getLine();
                 }
             tf = new TopFormula(term, letTerm, formulaCounter, this.pathThroughProgram, line, pce, this.pvcID);
+            formulaCounter++;
+        } catch (TermBuildException e) {
+            e.printStackTrace();
+        }
+        return tf;
+    }
+
+    private TopFormula buildTopFormulaAssert(TreeTermTranslator ttt, DafnyTree expression, VariableMap map, AssertionElement ae){
+        TopFormula tf = null;
+        try {
+            Term term = ttt.build(expression);
+            Term letTerm = ttt.build(map, expression);
+            int line = ae.getExpression().token.getLine();
+            if(line <=0 ){
+                line = ae.getExpression().getChild(0).token.getLine();
+            }
+            tf = new TopFormula(term, letTerm, formulaCounter, this.pathThroughProgram, line, ae, this.pvcID);
             formulaCounter++;
         } catch (TermBuildException e) {
             e.printStackTrace();

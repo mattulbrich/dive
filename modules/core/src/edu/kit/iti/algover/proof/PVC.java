@@ -49,7 +49,7 @@ public class PVC {
         this.name = builder.getPvcName();
         this.pathThroughProgram = builder.getPathThroughProgram();
         this.parent = builder.getParent();
-       // this.goalWithInfo = builder.getGoalWithInfo();
+        this.goalWithInfo = builder.getGoalWithInfo();
         this.assumptionsWithInfo = builder.getAssumptionsWithInfo();
        // this.localScript = builder.getLocalScript();
 
@@ -59,6 +59,10 @@ public class PVC {
         String ret = "ProofVerificationCondition #"+this.pvcID+"\n"+
                 this.name+"\n";
         for(TopFormula tf: assumptionsWithInfo){
+            ret+= tf.toString()+"\n";
+        }
+        ret+= "Goal: ";
+        for(TopFormula tf: goalWithInfo){
             ret+= tf.toString()+"\n";
         }
         return ret;
