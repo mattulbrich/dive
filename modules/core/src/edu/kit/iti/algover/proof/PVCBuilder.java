@@ -145,18 +145,13 @@ public class PVCBuilder {
         this.parent = parent;
         setPathThroughProgram(path);
         this.pvcName = path.getPathIdentifier();
-
-
-        //path.getPathConditions();
-        //path.getProofObligations();
-
-        buildTerms(path.getPathConditions());
-
-        buildAssertionTerms(path.getProofObligations());
         //extract Assumptions
         //extract Goals
         //generate TopFormulas
 
+        buildTerms(path.getPathConditions());
+        buildAssertionTerms(path.getProofObligations());
+        //extracting Assignments is done for each TopFormula
         return new PVC(this);
     }
 
@@ -178,6 +173,10 @@ public class PVCBuilder {
 
     }
 
+    /**
+     * Build the Terms for creating the ToplevelFormulas from assertions
+     * @param assertions
+     */
     private void buildAssertionTerms(ImmutableList<AssertionElement> assertions) {
 
         SymbexPathToTopFormula septf = new SymbexPathToTopFormula(parent.getRepresentation());
@@ -191,6 +190,10 @@ public class PVCBuilder {
 
     }
 
+    /**
+     * Build the Terms for creating the ToplevelFormulas from assumptions
+     * @param assumptions
+     */
     private TopFormula buildTopFormula(TreeTermTranslator ttt, DafnyTree expression, VariableMap map, PathConditionElement pce){
         TopFormula tf = null;
         try {

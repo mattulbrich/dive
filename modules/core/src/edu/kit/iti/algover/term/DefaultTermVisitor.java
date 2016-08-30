@@ -23,4 +23,9 @@ public abstract class DefaultTermVisitor<A, R> implements TermVisitor<A, R> {
     public R visit(QuantTerm term, A arg) {
         return defaultVisit(term, arg);
     }
+
+    @Override
+    public R visit(LetTerm term, A arg) {
+        return defaultVisit(term, arg);
+    }
 }

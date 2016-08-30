@@ -226,6 +226,7 @@ public class ProjectBuilder {
 
 
         } catch (FileNotFoundException e) {
+            System.out.println("Could not read file "+script.toString());
             e.printStackTrace();
         } catch (RecognitionException e) {
             e.printStackTrace();

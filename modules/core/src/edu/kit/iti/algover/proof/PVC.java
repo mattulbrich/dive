@@ -4,6 +4,7 @@ package edu.kit.iti.algover.proof;
 import edu.kit.iti.algover.project.DafnyDecl;
 import edu.kit.iti.algover.script.ScriptTree;
 import edu.kit.iti.algover.symbex.SymbexPath;
+import edu.kit.iti.algover.symbex.VariableMap;
 import edu.kit.iti.algover.term.Term;
 
 import java.util.List;
@@ -43,6 +44,15 @@ public class PVC {
      */
     private DafnyDecl parent;
 
+    /**
+     * The variable map containing all assignments, for display of substitutions in terms
+     */
+    //private VariableMap variableMap;
+
+    /**
+     * The object representing a Proofverification condition. This PVC is a logical representation of the proof state after symbolic execution
+     * @param builder
+     */
 
     public PVC(PVCBuilder builder){
         this.pvcID = builder.getPvcID();
@@ -51,6 +61,7 @@ public class PVC {
         this.parent = builder.getParent();
         this.goalWithInfo = builder.getGoalWithInfo();
         this.assumptionsWithInfo = builder.getAssumptionsWithInfo();
+      //  this.variableMap = pathThroughProgram.getMap();
        // this.localScript = builder.getLocalScript();
 
     }
