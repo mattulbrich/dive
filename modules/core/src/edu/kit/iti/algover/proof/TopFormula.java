@@ -2,6 +2,7 @@ package edu.kit.iti.algover.proof;
 
 import edu.kit.iti.algover.parser.DafnyParser;
 import edu.kit.iti.algover.parser.DafnyTree;
+import edu.kit.iti.algover.project.Assignment;
 import edu.kit.iti.algover.symbex.AssertionElement;
 import edu.kit.iti.algover.symbex.PathConditionElement;
 import edu.kit.iti.algover.symbex.SymbexPath;
@@ -64,7 +65,7 @@ public class TopFormula{
         return lineInFile;
     }
 
-    private List<Pair<String, DafnyTree>> affectingAssignments;
+    private List<Assignment> affectingAssignments;
     /**
      * filename of file where term is in
      */
@@ -85,7 +86,7 @@ public class TopFormula{
     private AssertionElement ae;
 
     private Set<String> varOccurence;
-    private List<Pair<String, DafnyTree>> affectingUpdates;
+
 
     public TopFormula(Term t, Term letTerm, int id, SymbexPath path, int line, PathConditionElement pce, int pvcID){
 
@@ -104,17 +105,43 @@ public class TopFormula{
 
     }
 
+    public TopFormula(Term t, Term letTerm, int id, SymbexPath path, int line, AssertionElement ae, int pvcID ){
+
+        this.t = t;
+        this.idInPVC = id;
+        this.path = path;
+        this.lineInFile = line;
+        this.letTerm = letTerm;
+        this.ae = ae;
+        this.goalFormula = true;
+        this.pvcID = pvcID;
+        this.varOccurence = new HashSet<>(extractVariableNamesOfThisTerm());
+        this.affectingAssignments = extractAffectingVarAssignments();
+    }
+
+
+    public String assignmentsToUpdate(){
+        String update = "{";
+
+        Iterator<Assignment> iter = this.affectingAssignments.iterator();
+        while(iter.hasNext()){
+            Assignment temp = iter.next();
+            update += temp.getLeftSide() + " := " +temp.getRightSide() + "||";
+        }
+
+        return update + "}";
+    }
     /**
      * TODO
      * Temp, needs to be written cleanly and put to right object
      * @return
      */
-    private List<Pair<String, DafnyTree>> extractAffectingVarAssignments() {
+    private List<Assignment> extractAffectingVarAssignments() {
         //get all Assignments on path
         VariableMap map = this.path.getMap();
 
         //initialize data structure for affecting assignments
-        List<Pair<String, DafnyTree>> affectingAssignments = new LinkedList<>();
+        List<Assignment> affectingAssignments = new LinkedList<>();
         Set<String> varNames = this.varOccurence;
 
         List<Pair<String, DafnyTree>> pairs = map.toList();
@@ -126,7 +153,7 @@ public class TopFormula{
                 tempPair = pair;
                 for(String var : varNames){
                     if(tempPair.getFst().equals(var)){
-                        affectingAssignments.add(tempPair);
+                        affectingAssignments.add(new Assignment(tempPair));
                         tempTree = tempPair.getSnd();
                     }
                 }
@@ -179,47 +206,23 @@ public class TopFormula{
         return subVars;
     }
 
-    public TopFormula(Term t, Term letTerm, int id, SymbexPath path, int line, AssertionElement ae, int pvcID ){
 
-        this.t = t;
-        this.idInPVC = id;
-        this.path = path;
-        this.lineInFile = line;
-        this.letTerm = letTerm;
-        this.ae = ae;
-        this.goalFormula = true;
-        this.pvcID = pvcID;
-
-        extractAffectingVarAssignments();
-    }
-//to get all substitutions the subterms have to be visited
     public String toString(){
-/*        if(letTerm instanceof LetTerm){
-            System.out.println(letTerm);
-            LetTerm t = (LetTerm) letTerm;
-
-            System.out.println("Let Term Subs: ");
-
-            for(Pair<FunctionSymbol, Term> term : t.getSubstitutions()){
-                System.out.println(term.fst.toString() + " is equal to "+ term.getSnd());
-            }
-        }*/
         String goalFormula = "";
         if(this.isGoalFormula()){
             goalFormula = "Goal";
         }else{
             goalFormula = "Pathcondition";
         }
-        String affAssign = "";
+/*        String affAssign = "";
         if (affectingAssignments != null) {
             affAssign += "Affecting Assignments:\n";
             for (Pair<String, DafnyTree> ass: affectingAssignments) {
                affAssign += ass.getFst()+" := "+ass.getSnd().toStringTree() +"\n";
             }
-        }
-      //  extractAffectingVarAssignments();
-        return "TopFormula #"+idInPVC+" "+goalFormula+": \n"+t.toString()+" refers to Line "+lineInFile + "\n" + affAssign;
-
+        }*/
+        return "TopFormula #"+idInPVC+" "+goalFormula+": \n"+assignmentsToUpdate() + t.toString()+
+                " refers to Line "+lineInFile + "\n";
     }
     public boolean isGoalFormula(){
         return this.goalFormula;
@@ -232,11 +235,6 @@ public class TopFormula{
     private List<String> extractVariableNamesOfThisTerm(){
         VariableTermVisitor visitor = new VariableTermVisitor();
         List<String> list =  t.accept(visitor, null);
-//        System.out.println(getTerm().toString());
-//        for(String s : list){
-//            System.out.println("Termcomponents: "+s+"\n");
-//        }
-
         return list;
     }
 
