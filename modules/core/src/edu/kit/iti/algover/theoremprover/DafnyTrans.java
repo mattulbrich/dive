@@ -10,7 +10,6 @@ import edu.kit.iti.algover.data.BuiltinSymbols;
 import edu.kit.iti.algover.data.MapSymbolTable;
 import edu.kit.iti.algover.data.SuffixSymbolTable;
 import edu.kit.iti.algover.data.SymbolTable;
-import edu.kit.iti.algover.parser.DafnyParser;
 import edu.kit.iti.algover.parser.DafnyTree;
 import edu.kit.iti.algover.symbex.AssertionElement;
 import edu.kit.iti.algover.symbex.PathConditionElement;
@@ -20,15 +19,9 @@ import edu.kit.iti.algover.term.*;
 import edu.kit.iti.algover.term.builder.TermBuildException;
 import edu.kit.iti.algover.util.ImmutableList;
 import edu.kit.iti.algover.util.Pair;
+import edu.kit.iti.algover.util.TreeUtil;
 
-import java.io.*;
-import java.nio.charset.Charset;
-import java.nio.file.Files;
-import java.nio.file.StandardOpenOption;
 import java.util.*;
-
-import static java.nio.charset.Charset.*;
-import static java.nio.file.StandardOpenOption.APPEND;
 
 /**
  * Translation of formulas/Terms into Dafny slices
@@ -61,7 +54,7 @@ public class DafnyTrans {
         for (DafnyTree decl : ProgramDatabase.getAllVariableDeclarations(method)) {
             String name = decl.getChild(0).toString();
             //System.out.println(name);
-            Sort sort = treeToType(decl.getChild(1));
+            Sort sort = TreeUtil.treeToType(decl.getChild(1));
             map.add(new FunctionSymbol(name, sort));
         }
 
@@ -76,10 +69,12 @@ public class DafnyTrans {
      */
     public String trans() {
         String assertionType ="";
+        AssertionElement pob = this.path.getProofObligations().get(0);
+        AssertionElement.AssertionType type = pob.getType();
 
-        // TODO M->S: The obligations can be of different type now. So, better have singleton paths
+
         // TODO M->S: There are some new types
-        switch (this.path.getProofObligations().get(0).getType()) {
+        switch (type) {
             case EXPLICIT_ASSERT:
                 assertionType = "explicit_assertion";
                 break;
@@ -97,6 +92,8 @@ public class DafnyTrans {
             case INVARIANT_PRESERVED:
                 assertionType = "inv_preserved";
                 break;
+            default:
+                System.out.println("Type not supported yet");
         }
         StringBuilder method = new StringBuilder();
         StringBuilder methodDecl = createMethodDeclaration(assertionType);
@@ -116,7 +113,7 @@ public class DafnyTrans {
             }
 
             try {
-                method.append("assume ("+toInfix(pce.getExpression())+");\n");
+                method.append("assume ("+ TreeUtil.toInfix(pce.getExpression())+");\n");
             } catch (TermBuildException e) {
                 e.printStackTrace();
             }
@@ -130,7 +127,7 @@ public class DafnyTrans {
 
             try {
 
-                method.append("assert ("+toInfix(po.getExpression())+");\n");
+                method.append("assert ("+ TreeUtil.toInfix(po.getExpression())+");\n");
 
             } catch (TermBuildException e) {
                 e.printStackTrace();
@@ -148,8 +145,8 @@ public class DafnyTrans {
 
         for (DafnyTree decl : ProgramDatabase.getArgumentDeclarations(method)) {
             String name = decl.getChild(0).toString();
-            Sort sort = treeToType(decl.getChild(1));
-            arguments.add(new Pair(name, sort));
+            Sort sort = TreeUtil.treeToType(decl.getChild(1));
+            arguments.add(new Pair<>(name, sort));
             //TODO M->S: Typing issue in the line above
 
         }
@@ -161,7 +158,7 @@ public class DafnyTrans {
 
         for (DafnyTree decl : ProgramDatabase.getReturnDeclarations(method)) {
             String name = decl.getChild(0).toString();
-            Sort sort = treeToType(decl.getChild(1));
+            Sort sort = TreeUtil.treeToType(decl.getChild(1));
             arguments.add(new Pair(name, sort));
 
 
@@ -169,14 +166,7 @@ public class DafnyTrans {
         return arguments;
     }
 
-    private static Sort treeToType(DafnyTree tree) {
-        String name = tree.toString();
-        if ("array".equals(name)) {
-            name = "[int]";
-        }
 
-        return new Sort(name);
-    }
 
 
     private StringBuilder createMethodDeclaration(String assertionType) {
@@ -253,7 +243,7 @@ public class DafnyTrans {
             try {
                 if(lineCount < lastSize) { lineCount++;
                 }else {
-                    sb.append(name + " := " + toInfix(expr) + ";\n");
+                    sb.append(name + " := " + TreeUtil.toInfix(expr) + ";\n");
                     lineCount++;
                 }
             } catch (TermBuildException e) {
@@ -273,182 +263,5 @@ public class DafnyTrans {
     }
 
 
-    /**
-     * Translate logical, integer and array access Expressions back to Dafny
-     *
-     * @param expr
-     * @return
-     * @throws TermBuildException
-     */
-    private String toInfix(DafnyTree expr) throws TermBuildException {
-        StringBuilder sb = new StringBuilder();
 
-
-        switch (expr.getType()) {
-
-            case DafnyParser.ASSERT:
-                return buildWithoutKeyword(expr);
-            case DafnyParser.AND:
-                return buildBinary("&&", expr);
-            case DafnyParser.OR:
-                return buildBinary("||", expr);
-            case DafnyParser.IMPLIES:
-                return buildBinary("==>", expr);
-            case DafnyParser.GE:
-                return buildBinary(">=", expr);
-            case DafnyParser.GT:
-                return buildBinary(">", expr);
-            case DafnyParser.LE:
-                return buildBinary("<=", expr);
-            case DafnyParser.LT:
-                return buildBinary("<", expr);
-            case DafnyParser.PLUS:
-                return buildBinary("+", expr);
-            case DafnyParser.MINUS:
-                return buildBinary("-", expr);
-            case DafnyParser.TIMES:
-                return buildBinary("*", expr);
-       /* case DafnyParser.UNION:
-            return buildBinary(BuiltinSymbols.UNION, expr);
-        case DafnyParser.INTERSECT:
-            return buildBinary(BuiltinSymbols.INTERSECT, expr);
-        */
-            case DafnyParser.NOT:
-                return buildUnary("!", expr);
-
-            case DafnyParser.EQ:
-                return buildEquality(expr);
-
-            case DafnyParser.ID:
-            case DafnyParser.INT_LIT:
-                return expr.toStringTree();
-
-            case DafnyParser.LABEL:
-                return buildLabel(expr);
-
-            case DafnyParser.ALL:
-                return buildQuantifier("forall", expr);
-            case DafnyParser.EX:
-                return buildQuantifier("exists", expr);
-
-            case DafnyParser.LENGTH:
-                return buildLength(expr);
-
-            case DafnyParser.ARRAY_ACCESS:
-                return buildArrayAccess(expr);
-
-            case DafnyParser.ENSURES:
-                return buildWithoutKeyword(expr);
-            case DafnyParser.HAVOC:
-                return buildHavoc(expr);
-
-            case DafnyParser.INVARIANT:
-                return buildWithoutKeyword(expr);
-
-            default:
-                TermBuildException ex = new TermBuildException("Cannot translate term: " + expr.toStringTree());
-                ex.setLocation(expr);
-                throw ex;
-        }
-
-
-    }
-
-    /**
-     * @param expr
-     * @return
-     */
-    private String buildHavoc(DafnyTree expr) {
-        return "*";
-    }
-
-    private String buildWithoutKeyword(DafnyTree expr) {
-        String en = "";
-        try {
-        //System.out.println(expr.toStringTree());
-            if(expr.getChildCount() == 1) {
-                en = toInfix(expr.getChild(0));
-            }
-            if (expr.getChildCount() == 2){
-                en = toInfix(expr.getChild(0)) + toInfix(expr.getChild(1));
-            }
-        } catch (TermBuildException e) {
-            e.printStackTrace();
-        }
-        //System.out.println(en);
-        return en;
-    }
-
-    private String buildLabel(DafnyTree expr) {
-        // ImmutableList<DafnyTree> proofObligations = path.getProofObligations();
-        if (expr.getChildCount() != 1) {
-            throw new RuntimeException();
-        }
-        String s = "";
-        s = "(label : " + expr.getChild(0).toStringTree() + ") ";
-
-        return "";
-        //return s;
-    }
-
-    private String buildArrayAccess(DafnyTree tree) throws TermBuildException {
-
-        DafnyTree arrayTerm = tree.getChild(0);
-        DafnyTree selectTerm = tree.getChild(1);
-        return toInfix(arrayTerm) + "[" + toInfix(selectTerm) + "]";
-
-    }
-
-    private String buildLength(DafnyTree expr) throws TermBuildException {
-        return toInfix(expr.getChild(0)) + ".Length";
-    }
-
-
-    private String buildEquality(DafnyTree tree) throws TermBuildException {
-        if (tree.getChildCount() != 2) {
-            throw new RuntimeException();
-        }
-
-        String t1 = toInfix(tree.getChild(0));
-        String t2 = toInfix(tree.getChild(1));
-
-        return "( " + t1 + " == " + t2 + " )";
-
-
-    }
-
-
-    private String buildQuantifier(String q, DafnyTree tree) throws TermBuildException {
-        if (tree.getChildCount() != 3) {
-            throw new RuntimeException();
-        }
-
-        String var = tree.getChild(0).toString();
-        System.out.println("V:" + var);
-        Sort t = treeToType(tree.getChild(1));
-        System.out.println(t);
-
-        return "( " + q + " " + var + " : " + t.toString() + " :: " + toInfix(tree.getChild(2)) + " )";
-
-    }
-
-
-    private String buildUnary(String f, DafnyTree tree) throws TermBuildException {
-        if (tree.getChildCount() != 1) {
-            throw new RuntimeException("Unexpected argument " + tree.toStringTree());
-        }
-
-        String t1 = toInfix(tree.getChild(0));
-        return f + t1;
-    }
-
-    private String buildBinary(String f, DafnyTree tree) throws TermBuildException {
-        if (tree.getChildCount() != 2) {
-            throw new RuntimeException("Unexpected argument " + tree.toStringTree());
-        }
-
-        String t1 = toInfix(tree.getChild(0));
-        String t2 = toInfix(tree.getChild(1));
-        return "( " + t1 + " " + f + " " + t2 + " )";
-    }
 }

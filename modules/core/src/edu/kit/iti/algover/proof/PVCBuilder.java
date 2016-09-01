@@ -141,7 +141,7 @@ public class PVCBuilder {
 
 
     public PVC buildPVC(SymbexPath path, DafnyDecl parent){
-        //set the parents and the pointer to teh symbexpath object which contains further information which may be needed later on
+        //set the parents and the pointer to the symbexpath object which contains further information which may be needed later on
         this.parent = parent;
         setPathThroughProgram(path);
         this.pvcName = path.getPathIdentifier();

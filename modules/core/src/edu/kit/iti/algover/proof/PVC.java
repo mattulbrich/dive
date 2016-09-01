@@ -14,7 +14,36 @@ import java.util.List;
  */
 public class PVC {
     private String name;
-     /**
+
+    public String getName() {
+        return name;
+    }
+
+    public int getPvcID() {
+        return pvcID;
+    }
+
+    public ScriptTree getLocalScript() {
+        return localScript;
+    }
+
+    public List<TopFormula> getAssumptionsWithInfo() {
+        return assumptionsWithInfo;
+    }
+
+    public List<TopFormula> getGoalWithInfo() {
+        return goalWithInfo;
+    }
+
+    public SymbexPath getPathThroughProgram() {
+        return pathThroughProgram;
+    }
+
+    public DafnyDecl getParent() {
+        return parent;
+    }
+
+    /**
      * ID of proof verification condition, has to be unique
      */
     private int pvcID;
