@@ -31,7 +31,7 @@ public class DafnyTranslator{
     private String methodName;
     private String pathID;
     private AssertionElement proofObligation;
-   // private List<DafnyTree>
+    private List<String> varsDecled;
     private int number;
 
 
@@ -43,6 +43,7 @@ public class DafnyTranslator{
         this.methodName = this.method.getChild(0).getText();
         this.pathID = this.path.getPathIdentifier();
         this.number = noOfPOs;
+        this.varsDecled = new LinkedList<>();
         this.trans();
 
 
@@ -109,16 +110,22 @@ public class DafnyTranslator{
         System.out.println(method.toString());
     }
 
+    /**
+     * Create VariableDeclarations of all varaibles in body except those that were input or ouput parameters
+     * @return
+     */
     private StringBuilder createVarDef() {
         StringBuilder sb = new StringBuilder();
-        Map<String, String> variables = new HashMap<>();
-        Iterator<Pair<String, DafnyTree>> iter = this.map.iterator();
-        while(iter.hasNext()){
-            Pair<String, DafnyTree> temp = iter.next();
-            temp.getSnd().getType();
+        List<DafnyTree> variableDeclaration = ProgramDatabase.getAllVariableDeclarations(method);
+        for (DafnyTree var: variableDeclaration) {
 
+            if(!varsDecled.contains(var.getChild(0).getText())){
 
+                sb.append("var "+var.getChild(0).getText()+" : "+var.getChild(1).getText()+";\n");
+                varsDecled.add(var.getChild(0).getText());
+            }
         }
+
         return sb;
 
     }
@@ -146,8 +153,7 @@ public class DafnyTranslator{
 
             try {
                 body.append(TreeUtil.toInfix(pce.getExpression())+";\n");
-                List<DafnyTree> variableDeclaration = ProgramDatabase.getAllVariableDeclarations(method);
-                //now extract only local variables and add to body
+
 
                 VariableMap variableMap = pce.getVariableMap();
                 Iterator<Pair<String, DafnyTree>> iter = variableMap.iterator();
@@ -221,6 +227,8 @@ public class DafnyTranslator{
         List<String> args = new LinkedList<>();
         for(DafnyTree arg: argumentDeclarations){
             args.add(arg.getChild(0).getText()+":"+ arg.getChild(1).getText());
+            varsDecled.add(arg.getChild(0).getText());
+
         }
         for(int i = 0; i < args.size(); i++){
             method.append(args.get(i));
@@ -236,6 +244,7 @@ public class DafnyTranslator{
             List<String> rets = new LinkedList<>();
             for(DafnyTree ret: returnDeclarations){
                 rets.add(ret.getChild(0).getText()+":"+ ret.getChild(1).getText());
+                 varsDecled.add(ret.getChild(0).getText());
             }
             for(int i = 0; i < rets.size(); i++) {
                 method.append(rets.get(i));
