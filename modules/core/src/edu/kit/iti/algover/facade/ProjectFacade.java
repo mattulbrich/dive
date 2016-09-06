@@ -9,6 +9,7 @@ import edu.kit.iti.algover.symbex.AssertionElement;
 import edu.kit.iti.algover.symbex.PathConditionElement;
 import edu.kit.iti.algover.symbex.Symbex;
 import edu.kit.iti.algover.symbex.SymbexPath;
+import edu.kit.iti.algover.theoremprover.DafnyTranslator;
 import edu.kit.iti.algover.util.SymbexUtil;
 
 import java.io.File;
@@ -102,5 +103,10 @@ public class ProjectFacade {
 
     public ProofNode createProofRoot(SymbexPath path){
         return null;
+    }
+
+    public void translateToDafny(PVC verificationCondition){
+        DafnyTranslator trans = new DafnyTranslator(verificationCondition, 1);
+        //return file to whic it will be translated
     }
 }

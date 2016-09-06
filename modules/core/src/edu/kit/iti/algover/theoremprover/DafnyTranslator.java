@@ -13,9 +13,7 @@ import edu.kit.iti.algover.util.ImmutableList;
 import edu.kit.iti.algover.util.Pair;
 import edu.kit.iti.algover.util.TreeUtil;
 
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
 
 /**
  * Class handling the translation of a PVC to a Dafny Slice. The slice does not look like original program
@@ -33,6 +31,7 @@ public class DafnyTranslator{
     private String methodName;
     private String pathID;
     private AssertionElement proofObligation;
+   // private List<DafnyTree>
     private int number;
 
 
@@ -112,6 +111,14 @@ public class DafnyTranslator{
 
     private StringBuilder createVarDef() {
         StringBuilder sb = new StringBuilder();
+        Map<String, String> variables = new HashMap<>();
+        Iterator<Pair<String, DafnyTree>> iter = this.map.iterator();
+        while(iter.hasNext()){
+            Pair<String, DafnyTree> temp = iter.next();
+            temp.getSnd().getType();
+
+
+        }
         return sb;
 
     }
@@ -139,6 +146,8 @@ public class DafnyTranslator{
 
             try {
                 body.append(TreeUtil.toInfix(pce.getExpression())+";\n");
+                List<DafnyTree> variableDeclaration = ProgramDatabase.getAllVariableDeclarations(method);
+                //now extract only local variables and add to body
 
                 VariableMap variableMap = pce.getVariableMap();
                 Iterator<Pair<String, DafnyTree>> iter = variableMap.iterator();

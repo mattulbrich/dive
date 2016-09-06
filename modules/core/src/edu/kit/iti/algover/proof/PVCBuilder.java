@@ -133,8 +133,8 @@ public class PVCBuilder {
         this.pvcID = globalID;
         //initialize data structures
         this.formulaCounter = 0;
-        this.assumptionsWithInfo = new LinkedList<TopFormula>();
-        this.goalWithInfo = new LinkedList<TopFormula>();
+        this.assumptionsWithInfo = new LinkedList<>();
+        this.goalWithInfo = new LinkedList<>();
 
 
     }
