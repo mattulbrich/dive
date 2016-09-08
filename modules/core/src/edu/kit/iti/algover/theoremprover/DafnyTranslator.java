@@ -1,8 +1,8 @@
 package edu.kit.iti.algover.theoremprover;
 
 import edu.kit.iti.algover.ProgramDatabase;
+import edu.kit.iti.algover.parser.DafnyParser;
 import edu.kit.iti.algover.parser.DafnyTree;
-import edu.kit.iti.algover.project.Assignment;
 import edu.kit.iti.algover.proof.PVC;
 import edu.kit.iti.algover.symbex.AssertionElement;
 import edu.kit.iti.algover.symbex.PathConditionElement;
@@ -11,22 +11,23 @@ import edu.kit.iti.algover.symbex.VariableMap;
 import edu.kit.iti.algover.term.builder.TermBuildException;
 import edu.kit.iti.algover.util.ImmutableList;
 import edu.kit.iti.algover.util.Pair;
+import edu.kit.iti.algover.util.SymbexUtil;
 import edu.kit.iti.algover.util.TreeUtil;
 
 import java.util.*;
 
 /**
- * Class handling the translation of a PVC to a Dafny Slice. The slice does not look like original program
- * New implementation
+ * Class handling the translation of a PVC to a Dafny Slice.
+ * The slice does not look like original program
+ * TODO keep track of line numbers and statements for backparsing of dafny result
+ * New implementation of DafnyTrans
  */
-public class DafnyTranslator{
-
+public class DafnyTranslator {
 
 
     private SymbexPath path;
     private int pvcID;
     private DafnyTree method;
-    private List<Assignment> assignmentList;
     private VariableMap map;
     private String methodName;
     private String pathID;
@@ -35,7 +36,7 @@ public class DafnyTranslator{
     private int number;
 
 
-    public DafnyTranslator(PVC verificationCondition, int noOfPOs){
+    public DafnyTranslator(PVC verificationCondition, int noOfPOs) {
         this.path = verificationCondition.getPathThroughProgram();
         this.pvcID = verificationCondition.getPvcID();
         this.method = verificationCondition.getPathThroughProgram().getMethod();
@@ -47,59 +48,93 @@ public class DafnyTranslator{
         this.trans();
 
 
-
     }
 
 
-
-
-    public String trans(){
+    public void trans() {
         ImmutableList<AssertionElement> proofObligations = this.path.getProofObligations();
         assert proofObligations.size() == 1;
         this.proofObligation = proofObligations.get(0);
         AssertionElement.AssertionType type = this.proofObligation.getType();
         String assertionType = null;
-        switch(type){
+        switch (type) {
             case POST:
                 assertionType = "Post";
-                createPost(assertionType);
+                createPO(assertionType);
                 break;
             case EXPLICIT_ASSERT:
                 assertionType = "explicit_assertion";
+                createPO(assertionType);
                 break;
             case IMPLICIT_ASSERT:
+                assertionType = "implicit_assertion";
+                createPO(assertionType);
                 break;
             case CALL_PRE:
                 assertionType = "call_pre";
                 break;
             case INVARIANT_INITIALLY_VALID:
                 assertionType = "inv_init_valid";
+                createPO(assertionType);
                 break;
             case INVARIANT_PRESERVED:
                 assertionType = "inv_preserved";
+                createPO(assertionType);
                 break;
-            case  RT_NONNULL:
+            case RT_NONNULL:
                 break;
             case RT_IN_BOUNDS:
                 break;
             case VARIANT_DECREASED:
+                assertionType = "loop_terminates";
+                createVariantCase(assertionType);
                 break;
             default:
                 System.out.println("Type not supported yet");
         }
+   }
 
-        //create Method declaration
-        //create spec
-        //create methodbody
-        //write to stdout
-        return assertionType;
+    /**
+     * Create the PO for showing that a loop temrinates by showing that the variant is getting smaller with each loop iteration
+     *
+     * @param assertionType
+     * @return
+     */
+    private StringBuilder createVariantCase(String assertionType) {
+        StringBuilder method = new StringBuilder();
+        method.append(createMethodDeclaration(assertionType));
+        method.append("\n{\n");
+        method.append(createVarDef());
+
+        method.append(createBody(this.path.getPathConditions()));
+        method.append("\n}");
+        System.out.println(method.toString());
+        System.out.println(SymbexUtil.toString(this.path));
+
+        return method;
+    }
+
+
+    /**
+     * Create String representation of Variant
+     * @param temp
+     * TODO check type of decreases clause and translate according to type
+     * @return
+     */
+    private StringBuilder createVariant(Pair<String, DafnyTree> temp) throws TermBuildException {
+        StringBuilder sb = new StringBuilder();
+        String varName = temp.getFst();
+        DafnyTree expressionAsTree = temp.getSnd();
+        sb.append(varName + " := "+ TreeUtil.toInfix(temp.getSnd().getChild(0))+";\n");
+        return sb;
     }
 
     /**
      * Create Dafny PO ensuring postcondition
+     *
      * @param type
      */
-    private void createPost(String type) {
+    private void createPO(String type) {
 
         StringBuilder method = new StringBuilder();
         method.append(createMethodDeclaration(type));
@@ -111,94 +146,166 @@ public class DafnyTranslator{
     }
 
     /**
-     * Create VariableDeclarations of all varaibles in body except those that were input or ouput parameters
+     * Create an assume statement for a given pathcondition element
+     *
+     * @param pce
+     * @return String representing the assume statement in Dafynsyntax
+     * @throws TermBuildException
+     */
+    private String createAssumption(PathConditionElement pce) throws TermBuildException {
+        String assumption = "assume ";
+        //PathConditionElement.AssumptionType type = pce.getType();
+        assumption += TreeUtil.toInfix(pce.getExpression());
+        return assumption + ";\n";
+    }
+
+    /**
+     * Create VariableDeclarations of all variables in body except those that were input or output parameters
+     * For keeping track a list is managed
+     *
      * @return
      */
     private StringBuilder createVarDef() {
         StringBuilder sb = new StringBuilder();
         List<DafnyTree> variableDeclaration = ProgramDatabase.getAllVariableDeclarations(method);
-        for (DafnyTree var: variableDeclaration) {
+        for (DafnyTree var : variableDeclaration) {
 
-            if(!varsDecled.contains(var.getChild(0).getText())){
+            if (!varsDecled.contains(var.getChild(0).getText())) {
 
-                sb.append("var "+var.getChild(0).getText()+" : "+var.getChild(1).getText()+";\n");
+                sb.append("var " + var.getChild(0).getText() + " : " + var.getChild(1).getText() + ";\n");
                 varsDecled.add(var.getChild(0).getText());
             }
         }
-
         return sb;
-
     }
 
     /**
      * Creates Body of Method
      * Body is not allowed to change parameter variables.
+     *
      * @param pathConditions
      * @return
      */
     private String createBody(ImmutableList<PathConditionElement> pathConditions) {
+        //list of assignments, to find diff
         List<Pair<String, DafnyTree>> assignments = new LinkedList<>();
-        List<Pair<String, DafnyTree>> assignmentsToTranslate;
         StringBuilder body = new StringBuilder();
-        for(PathConditionElement pce: pathConditions){
-            assignmentsToTranslate = new LinkedList<>();
-            if(pce.getType() == PathConditionElement.AssumptionType.PRE ||
-                    pce.getType() == PathConditionElement.AssumptionType.ASSUMED_ASSERTION
-                    ||pce.getType() == PathConditionElement.AssumptionType.IF_THEN){
-                body.append("assume ");
+
+        try {
+            for (PathConditionElement pce : pathConditions) {
+                //list of assignments that will be translated
+                if(pce.getType() == PathConditionElement.AssumptionType.ASSUMED_INVARIANT) {
+                    String invariant = "";
+                    String variant = "";
+                    invariant = createAssumption(pce);
+
+
+                    LinkedList<Pair<String, DafnyTree>> assignmentsToTranslate = new LinkedList<>();
+                    VariableMap variableMap = pce.getVariableMap();
+                    Iterator<Pair<String, DafnyTree>> iter = variableMap.iterator();
+                    Pair<String, DafnyTree> temp;
+                    while (iter.hasNext()) {
+                        temp = iter.next();
+                        if (temp.getSnd().getType() != DafnyParser.LISTEX) {
+                            //System.out.println(temp.toString());
+
+                            if (!assignments.contains(temp)) {
+                                assignments.add(temp);
+                                assignmentsToTranslate.add(temp);
+                            }
+                        } else {
+                            variant = createVariant(temp).toString();
+                            assignments.add(temp);
+                        }
+
+                    }
+                    body.append(translateAssignments(reverse(assignmentsToTranslate)));
+                    body.append(invariant);
+                    body.append(variant);
+                }
+
+
+                else {
+
+                    LinkedList<Pair<String, DafnyTree>> assignmentsToTranslate = new LinkedList<>();
+                    VariableMap variableMap = pce.getVariableMap();
+
+                    Iterator<Pair<String, DafnyTree>> iter = variableMap.iterator();
+
+                    Pair<String, DafnyTree> temp;
+
+                    while (iter.hasNext()) {
+                        temp = iter.next();
+                        if (temp.getSnd().getType() != DafnyParser.LISTEX) {
+
+                            if (!assignments.contains(temp)) {
+                                assignments.add(temp);
+                                assignmentsToTranslate.add(temp);
+                            }
+                        }
+                    }
+                    body.append(translateAssignments(reverse(assignmentsToTranslate)));
+                    body.append(createAssumption(pce));
+                }
             }
-            if(pce.getType() == PathConditionElement.AssumptionType.IF_ELSE){
-                body.append("assume ");
-            }
+        } catch (TermBuildException e) {
+            e.printStackTrace();
+        }
+        //assignments between last pce and goal
+        try {
+            LinkedList<Pair<String, DafnyTree>> assignmentsToTranslate = new LinkedList<>();
 
-            try {
-                body.append(TreeUtil.toInfix(pce.getExpression())+";\n");
+            Iterator<Pair<String, DafnyTree>> iter = this.map.iterator();
+            Pair<String, DafnyTree> temp;
+            while (iter.hasNext()) {
+                temp = iter.next();
+                if (temp.getSnd().getType() != DafnyParser.LISTEX) {
+                    if (!assignments.contains(temp)) {
 
-
-                VariableMap variableMap = pce.getVariableMap();
-                Iterator<Pair<String, DafnyTree>> iter = variableMap.iterator();
-                Pair<String, DafnyTree> temp;
-                while(iter.hasNext()){
-                    temp = iter.next();
-                    if(!assignments.contains(temp)){
                         assignments.add(temp);
                         assignmentsToTranslate.add(temp);
                     }
                 }
-                body.append(translateAssignments(assignmentsToTranslate));
-
-            } catch (TermBuildException e) {
-                e.printStackTrace();
             }
+            body.append(translateAssignments(reverse(assignmentsToTranslate)));
 
-        }
-
-        try {
-            assignmentsToTranslate = new LinkedList<>();
-
-            Iterator<Pair<String, DafnyTree>> iter = this.map.iterator();
-            Pair<String, DafnyTree> temp;
-            while(iter.hasNext()){
-                temp = iter.next();
-                if(!assignments.contains(temp)){
-                    assignments.add(temp);
-                    assignmentsToTranslate.add(temp);
-                }
+            if(proofObligation.getType() != AssertionElement.AssertionType.VARIANT_DECREASED) {
+                body.append("\nassert " + TreeUtil.toInfix(proofObligation.getExpression()) + ";");
+            }else{
+                body.append(translateNoetherLess(proofObligation));
             }
-            body.append(translateAssignments(assignmentsToTranslate));
-
-
-            body.append("\nassert "+TreeUtil.toInfix(proofObligation.getExpression())+";");
         } catch (TermBuildException e) {
             e.printStackTrace();
         }
         return body.toString();
     }
 
+    private String translateNoetherLess(AssertionElement proofObligation) {
+        DafnyTree expression = proofObligation.getExpression();
+        String variableName = expression.getChild(0).toStringTree();
+
+        System.out.println(variableName);
+        return "Noether Less\n";
+    }
+
     /**
-     * Translates assignments to Dafnysyntax
+     * Reverse input list for the right order of assignments
      * @param assignmentsToTranslate
      * @return
+     */
+    private List<Pair<String,DafnyTree>> reverse(LinkedList<Pair<String, DafnyTree>> assignmentsToTranslate) {
+        List<Pair<String,DafnyTree>> listReversed = new LinkedList<>();
+        while(assignmentsToTranslate.size() > 0){
+            listReversed.add(assignmentsToTranslate.removeLast());
+        }
+        return listReversed;
+    }
+
+    /**
+     * Translates assignments to Dafnysyntax
+     *
+     * @param assignmentsToTranslate list of assignments as pairs that will be translated to String representation
+     * @return Dafnysyntax of assignments
      * @throws TermBuildException
      */
     private StringBuilder translateAssignments(List<Pair<String, DafnyTree>> assignmentsToTranslate) throws TermBuildException {
@@ -206,61 +313,67 @@ public class DafnyTranslator{
         Iterator<Pair<String, DafnyTree>> iter = assignmentsToTranslate.iterator();
         String assignment;
         Pair<String, DafnyTree> temp;
-        while(iter.hasNext()){
+
+        while (iter.hasNext()) {
             temp = iter.next();
-            assignment = temp.getFst() + " := " + TreeUtil.toInfix(temp.getSnd()) + ";\n";
-            sb.append(assignment);
+            if (temp.getSnd().getType() != DafnyParser.LISTEX) {
+                assignment = temp.getFst() + " := " + TreeUtil.toInfix(temp.getSnd()) + ";\n";
+                sb.append(assignment);
+            }
         }
         return sb;
     }
 
     /**
      * Creates Method declaration
+     * Name consits of:
+     * "method" methodname_Numberof proofbligations(if path was splitted)_PVC_correspondingPVCID_typeOfPVC(args) returns args
      * @param type
      * @return
      */
-    private String createMethodDeclaration(String type){
-        String methodDecl = " method "+this.methodName+"_"+this.number+"_"+type+"(";
+    private String createMethodDeclaration(String type) {
+        //method name
+        String methodDecl = " method " + this.methodName + "_" + this.number + "_PVC_" + this.pvcID + "_"+ type + "(";
+
         StringBuilder method = new StringBuilder();
         method.append(methodDecl);
+        //create Argument list
         List<DafnyTree> argumentDeclarations = ProgramDatabase.getArgumentDeclarations(this.method);
         List<String> args = new LinkedList<>();
-        for(DafnyTree arg: argumentDeclarations){
-            args.add(arg.getChild(0).getText()+":"+ arg.getChild(1).getText());
+        for (DafnyTree arg : argumentDeclarations) {
+            args.add(arg.getChild(0).getText() + ":" + arg.getChild(1).getText());
             varsDecled.add(arg.getChild(0).getText());
-
         }
-        for(int i = 0; i < args.size(); i++){
+
+        for (int i = 0; i < args.size(); i++) {
             method.append(args.get(i));
-            if (i != args.size()-1){
-               method.append(", ");
+            if (i != args.size() - 1) {
+                method.append(", ");
             }
         }
+
         method.append(")");
 
+        //create return list
         List<DafnyTree> returnDeclarations = ProgramDatabase.getReturnDeclarations(this.method);
-        if (returnDeclarations != null){
+        if (returnDeclarations != null) {
             method.append(" returns (");
             List<String> rets = new LinkedList<>();
-            for(DafnyTree ret: returnDeclarations){
-                rets.add(ret.getChild(0).getText()+":"+ ret.getChild(1).getText());
-                 varsDecled.add(ret.getChild(0).getText());
+            for (DafnyTree ret : returnDeclarations) {
+                rets.add(ret.getChild(0).getText() + ":" + ret.getChild(1).getText());
+                varsDecled.add(ret.getChild(0).getText());
             }
-            for(int i = 0; i < rets.size(); i++) {
+            for (int i = 0; i < rets.size(); i++) {
                 method.append(rets.get(i));
                 if (i != rets.size() - 1) {
                     method.append(",");
                 }
             }
             method.append(")");
-        }else{
+        } else {
             method.append("\n");
         }
-
-
         return method.toString();
 
     }
-
-
 }

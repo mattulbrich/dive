@@ -14,6 +14,7 @@ import java.util.*;
 
 /**
  * Represents formula, with references to origin. This Object should be immutable.
+ *
  * Created by sarah on 8/18/16.
  */
 public class TopFormula{

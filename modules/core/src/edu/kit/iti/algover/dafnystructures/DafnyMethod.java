@@ -1,10 +1,7 @@
-package edu.kit.iti.algover.project;
+package edu.kit.iti.algover.dafnystructures;
 
 import edu.kit.iti.algover.parser.DafnyTree;
-import edu.kit.iti.algover.term.Sort;
-import edu.kit.iti.algover.util.Pair;
 
-import java.io.File;
 import java.util.List;
 
 /**

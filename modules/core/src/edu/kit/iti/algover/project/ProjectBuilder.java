@@ -1,7 +1,10 @@
 package edu.kit.iti.algover.project;
 
+import edu.kit.iti.algover.dafnystructures.DafnyClass;
+import edu.kit.iti.algover.dafnystructures.DafnyDeclVisitor;
+import edu.kit.iti.algover.dafnystructures.DafnyFunction;
+import edu.kit.iti.algover.dafnystructures.DafnyMethod;
 import edu.kit.iti.algover.parser.DafnyFileParser;
-import edu.kit.iti.algover.parser.DafnyParser;
 import edu.kit.iti.algover.parser.DafnyTree;
 import edu.kit.iti.algover.script.ScriptParser;
 import edu.kit.iti.algover.script.ScriptFileParser;
@@ -9,8 +12,6 @@ import edu.kit.iti.algover.script.ScriptTree;
 import edu.kit.iti.algover.settings.ProjectSettings;
 import edu.kit.iti.algover.util.FileUtil;
 import org.antlr.runtime.RecognitionException;
-import org.antlr.runtime.tree.CommonTree;
-import org.antlr.runtime.tree.Tree;
 
 import java.io.*;
 import java.util.LinkedList;

@@ -1,11 +1,13 @@
 package edu.kit.iti.algover.project;
 
+import edu.kit.iti.algover.dafnystructures.DafnyClass;
+import edu.kit.iti.algover.dafnystructures.DafnyFunction;
+import edu.kit.iti.algover.dafnystructures.DafnyMethod;
 import edu.kit.iti.algover.settings.ProjectSettings;
 
 import java.io.File;
 
 
-import java.util.LinkedList;
 import java.util.List;
 
 

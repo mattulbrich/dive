@@ -1,12 +1,11 @@
 package edu.kit.iti.algover.proof;
 
 
-import edu.kit.iti.algover.project.DafnyDecl;
+import edu.kit.iti.algover.dafnystructures.DafnyDecl;
 import edu.kit.iti.algover.script.ScriptTree;
 import edu.kit.iti.algover.symbex.SymbexPath;
-import edu.kit.iti.algover.symbex.VariableMap;
-import edu.kit.iti.algover.term.Term;
 
+import java.util.LinkedList;
 import java.util.List;
 
 /**
@@ -98,12 +97,17 @@ public class PVC {
     public String toString(){
         String ret = "ProofVerificationCondition #"+this.pvcID+"\n"+
                 this.name+"\n";
-        for(TopFormula tf: assumptionsWithInfo){
-            ret+= tf.toString()+"\n";
-        }
+            for (TopFormula tf : assumptionsWithInfo) {
+                if (tf != null) {
+                    ret += tf.toString() + "\n";
+                }
+
+            }
         ret+= "Goal: ";
         for(TopFormula tf: goalWithInfo){
-            ret+= tf.toString()+"\n";
+            if(tf != null) {
+                ret += tf.toString() + "\n";
+            }
         }
         return ret;
     }

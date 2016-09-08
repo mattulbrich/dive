@@ -1,7 +1,7 @@
 package edu.kit.iti.algover.proof;
 
 import edu.kit.iti.algover.parser.DafnyTree;
-import edu.kit.iti.algover.project.DafnyDecl;
+import edu.kit.iti.algover.dafnystructures.DafnyDecl;
 import edu.kit.iti.algover.script.ScriptTree;
 import edu.kit.iti.algover.symbex.AssertionElement;
 import edu.kit.iti.algover.symbex.PathConditionElement;
@@ -9,11 +9,9 @@ import edu.kit.iti.algover.symbex.SymbexPath;
 import edu.kit.iti.algover.symbex.VariableMap;
 import edu.kit.iti.algover.term.Term;
 import edu.kit.iti.algover.term.builder.TermBuildException;
-import edu.kit.iti.algover.term.builder.TermBuilder;
 import edu.kit.iti.algover.term.builder.TreeTermTranslator;
 import edu.kit.iti.algover.util.ImmutableList;
 
-import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -174,7 +172,7 @@ public class PVCBuilder {
     }
 
     /**
-     * Build the Terms for creating the ToplevelFormulas from assertions
+     * Build the Terms for creating the Toplevel-Formulas from assertions
      * @param assertions
      */
     private void buildAssertionTerms(ImmutableList<AssertionElement> assertions) {
@@ -182,9 +180,12 @@ public class PVCBuilder {
         SymbexPathToTopFormula septf = new SymbexPathToTopFormula(parent.getRepresentation());
         TreeTermTranslator ttt = new TreeTermTranslator(septf.getSymbolTable());
         for(AssertionElement ae : assertions){
-
-            final TopFormula tf = buildTopFormulaAssert(ttt, ae.getExpression(), pathThroughProgram.getMap(), ae);
-            goalWithInfo.add(tf);
+            if(ae.getType() != AssertionElement.AssertionType.VARIANT_DECREASED) {
+                final TopFormula tf = buildTopFormulaAssert(ttt, ae.getExpression(), pathThroughProgram.getMap(), ae);
+                goalWithInfo.add(tf);
+            }else{
+                System.out.println("Variant not supported yet");
+            }
         }
 
 
@@ -213,17 +214,23 @@ public class PVCBuilder {
 
     private TopFormula buildTopFormulaAssert(TreeTermTranslator ttt, DafnyTree expression, VariableMap map, AssertionElement ae){
         TopFormula tf = null;
-        try {
-            Term term = ttt.build(expression);
-            Term letTerm = ttt.build(map, expression);
-            int line = ae.getExpression().token.getLine();
-            if(line <=0 ){
-                line = ae.getExpression().getChild(0).token.getLine();
+        if(ae.getType() == AssertionElement.AssertionType.VARIANT_DECREASED){
+            System.out.println("variant can not be translated at the moment");
+
+        }else {
+            try {
+
+                Term term = ttt.build(expression);
+                Term letTerm = ttt.build(map, expression);
+                int line = ae.getExpression().token.getLine();
+                if (line <= 0) {
+                    line = ae.getExpression().getChild(0).token.getLine();
+                }
+                tf = new TopFormula(term, letTerm, formulaCounter, this.pathThroughProgram, line, ae, this.pvcID);
+                formulaCounter++;
+            } catch (TermBuildException e) {
+                e.printStackTrace();
             }
-            tf = new TopFormula(term, letTerm, formulaCounter, this.pathThroughProgram, line, ae, this.pvcID);
-            formulaCounter++;
-        } catch (TermBuildException e) {
-            e.printStackTrace();
         }
         return tf;
     }

@@ -1,6 +1,5 @@
-package edu.kit.iti.algover.project;
+package edu.kit.iti.algover.dafnystructures;
 
-import java.util.LinkedList;
 import java.util.List;
 
 /**

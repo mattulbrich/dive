@@ -5,4 +5,15 @@ package edu.kit.iti.algover.theoremprover;
  * Created by sarah on 6/3/16.
  */
 public class KeYTrans {
+    public KeYTrans(){
+        createFileHeader();
+
+    }
+
+    private StringBuilder createFileHeader() {
+        StringBuilder sb = new StringBuilder();
+
+        return sb;
+    }
+
 }

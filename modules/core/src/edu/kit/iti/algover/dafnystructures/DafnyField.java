@@ -1,8 +1,6 @@
-package edu.kit.iti.algover.project;
+package edu.kit.iti.algover.dafnystructures;
 
-import edu.kit.iti.algover.parser.DafnyParser;
 import edu.kit.iti.algover.parser.DafnyTree;
-import edu.kit.iti.algover.term.Sort;
 
 /**
  * A DafnyField is a field in a DafnyClass

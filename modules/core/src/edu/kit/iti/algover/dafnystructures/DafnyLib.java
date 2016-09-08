@@ -1,4 +1,4 @@
-package edu.kit.iti.algover.project;
+package edu.kit.iti.algover.dafnystructures;
 
 /**
  * Created by sarah on 8/5/16.
