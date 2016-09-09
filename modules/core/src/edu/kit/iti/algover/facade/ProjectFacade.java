@@ -74,6 +74,7 @@ public class ProjectFacade {
     public List<SymbexPath> performSymbolicExecution(DafnyDecl decl){
         Symbex symbex = new Symbex();
         List<SymbexPath> result = symbex.symbolicExecution(decl.getRepresentation());
+        System.out.println("Test");
         return result;
 
 

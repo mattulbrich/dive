@@ -280,12 +280,18 @@ public class DafnyTranslator {
         return body.toString();
     }
 
+    /**
+     * At the moment only for integer terms, trasnlation of decreases clause to assertion: show that decreases term gets strictly smaller and ist bound by zero
+     * @param proofObligation
+     * @return
+     */
     private String translateNoetherLess(AssertionElement proofObligation) {
         DafnyTree expression = proofObligation.getExpression();
         String variableName = expression.getChild(0).toStringTree();
-
-        System.out.println(variableName);
-        return "Noether Less\n";
+        DafnyTree decreasesTerm = expression.getChild(1).getChild(0);
+        System.out.println(variableName + " : "+decreasesTerm.toStringTree());
+        String assertion = "assert("+ "(" + variableName +" > " + decreasesTerm+") && ("+ decreasesTerm.toStringTree()  + ">= 0 ))";
+        return assertion+"\n";
     }
 
     /**

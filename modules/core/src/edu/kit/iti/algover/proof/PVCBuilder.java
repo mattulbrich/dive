@@ -1,5 +1,6 @@
 package edu.kit.iti.algover.proof;
 
+import edu.kit.iti.algover.parser.DafnyParser;
 import edu.kit.iti.algover.parser.DafnyTree;
 import edu.kit.iti.algover.dafnystructures.DafnyDecl;
 import edu.kit.iti.algover.script.ScriptTree;
@@ -7,11 +8,17 @@ import edu.kit.iti.algover.symbex.AssertionElement;
 import edu.kit.iti.algover.symbex.PathConditionElement;
 import edu.kit.iti.algover.symbex.SymbexPath;
 import edu.kit.iti.algover.symbex.VariableMap;
+import edu.kit.iti.algover.term.FunctionSymbol;
+import edu.kit.iti.algover.term.Sort;
 import edu.kit.iti.algover.term.Term;
 import edu.kit.iti.algover.term.builder.TermBuildException;
 import edu.kit.iti.algover.term.builder.TreeTermTranslator;
 import edu.kit.iti.algover.util.ImmutableList;
+import org.antlr.runtime.Token;
+import org.antlr.runtime.tree.Tree;
 
+import java.util.Collections;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -177,18 +184,63 @@ public class PVCBuilder {
      */
     private void buildAssertionTerms(ImmutableList<AssertionElement> assertions) {
 
-        SymbexPathToTopFormula septf = new SymbexPathToTopFormula(parent.getRepresentation());
-        TreeTermTranslator ttt = new TreeTermTranslator(septf.getSymbolTable());
+        SymbexPathToTopFormula septf;
+          TreeTermTranslator ttt;
+
+
+        //= new SymbexPathToTopFormula(parent.getRepresentation());
+        //TreeTermTranslator ttt = new TreeTermTranslator(septf.getSymbolTable());
         for(AssertionElement ae : assertions){
             if(ae.getType() != AssertionElement.AssertionType.VARIANT_DECREASED) {
+                septf = new SymbexPathToTopFormula(parent.getRepresentation());
+                ttt = new TreeTermTranslator(septf.getSymbolTable());
+
                 final TopFormula tf = buildTopFormulaAssert(ttt, ae.getExpression(), pathThroughProgram.getMap(), ae);
                 goalWithInfo.add(tf);
             }else{
-                System.out.println("Variant not supported yet");
+
+                //TODO its a hack
+                septf = new SymbexPathToTopFormula(parent.getRepresentation());
+                ttt = new TreeTermTranslator(septf.getSymbolTable().addFunctionSymbol(new FunctionSymbol(ae.getExpression().getChild(0).getText(), Sort.INT, Collections.emptyList())));
+
+                goalWithInfo.add(createVariantGoal(ae, ttt));
             }
         }
 
 
+    }
+
+    private TopFormula createVariantGoal(AssertionElement ae, TreeTermTranslator ttt) {
+
+        DafnyTree expression = ae.getExpression();
+
+       // if(expression.getType() == DafnyParser.NOETHER_LESS){
+            DafnyTree toTranslate = new DafnyTree(DafnyParser.AND);
+            DafnyTree decreasesTerm = null;
+           // Token t = null;
+            if(expression.getChild(1).getType() == DafnyParser.LISTEX){
+                decreasesTerm =   expression.getChild(1).getChild(0);
+            //    t = decreasesTerm.getToken();
+            }
+
+            DafnyTree strictlySmaller = new DafnyTree(DafnyParser.GT);
+          //  strictlySmaller.setTokenStartIndex(t.getTokenIndex());
+            strictlySmaller.addChild(expression.getChild(0));
+            strictlySmaller.addChild(decreasesTerm);
+
+
+            DafnyTree geqZero = new DafnyTree(DafnyParser.GE);
+            geqZero.addChild(decreasesTerm);
+            geqZero.addChild(new DafnyTree(DafnyParser.ID, "0"));
+          //  geqZero.setTokenStartIndex(t.getTokenIndex());
+
+            toTranslate.addChild(strictlySmaller);
+            toTranslate.addChild(geqZero);
+        //    toTranslate.setTokenStartIndex(t.getTokenIndex());
+
+
+      //  }
+        return buildTopFormulaAssert(ttt, toTranslate, pathThroughProgram.getMap().assign(expression.getChild(0).getText(), decreasesTerm), ae);
     }
 
     /**
@@ -214,68 +266,30 @@ public class PVCBuilder {
 
     private TopFormula buildTopFormulaAssert(TreeTermTranslator ttt, DafnyTree expression, VariableMap map, AssertionElement ae){
         TopFormula tf = null;
-        if(ae.getType() == AssertionElement.AssertionType.VARIANT_DECREASED){
-            System.out.println("variant can not be translated at the moment");
+       // if(ae.getType() == AssertionElement.AssertionType.VARIANT_DECREASED){
+       //     System.out.println("Term Building of varaint decreased not supported yet");
 
-        }else {
+        //}else {
             try {
 
                 Term term = ttt.build(expression);
                 Term letTerm = ttt.build(map, expression);
                 int line = ae.getExpression().token.getLine();
-                if (line <= 0) {
-                    line = ae.getExpression().getChild(0).token.getLine();
+                Iterator<DafnyTree> iter = ae.getExpression().getChildren().iterator();
+                while(line <= 0 && iter.hasNext()){
+                    line = iter.next().token.getLine();
                 }
+
+//                if (line <= 0) {
+//                    line = ae.getExpression().getChild(0).token.getLine();
+//                }
                 tf = new TopFormula(term, letTerm, formulaCounter, this.pathThroughProgram, line, ae, this.pvcID);
                 formulaCounter++;
             } catch (TermBuildException e) {
                 e.printStackTrace();
             }
-        }
+      //  }
         return tf;
     }
-    /*
-    int i = 0;
-        System.out.println(path.getPathIdentifier());
-        //get pathconditions
-        ImmutableList<PathConditionElement> pathConditions = path.getPathConditions();
-        //getProofObligation
-        ImmutableList<AssertionElement> pos = path.getProofObligations();
-        SymbexPathToTopFormula septf = new SymbexPathToTopFormula(parent);
-        TreeTermTranslator ttt = new TreeTermTranslator(septf.getSymbolTable());
-        for(PathConditionElement pce : pathConditions){
-            try {
-                Term t = ttt.build(pce.getExpression());
-                Term let = ttt.build(path.getMap(), pce.getExpression());
-                int line = pce.getExpression().token.getLine();
-                if(line <=0 ){
-                   line = pce.getExpression().getChild(0).token.getLine();
-                }
-                TopFormula tf = new TopFormula(t,let, i , path, line);
-                System.out.println(tf.toString());
-                //this.assumptionsWithInfo.add(tf);
-            } catch (TermBuildException e) {
-                e.printStackTrace();
-            }
-            i++;
-
-        }
-        for(AssertionElement po : pos){
-            try {
-                Term t = ttt.build(po.getExpression());
-                Term let = ttt.build(path.getMap(), po.getExpression());
-                int line = po.getExpression().token.getLine();
-                if(line <= 0){
-                    line = po.getExpression().getChild(0).token.getLine();
-                }
-                TopFormula tf = new TopFormula(t, let, i, path, line);
-                System.out.println("Goal: "+tf.toString());
-            } catch (TermBuildException e) {
-                e.printStackTrace();
-            }
-
-          //  System.out.println("PO: "+po);
-
-     */
 
 }

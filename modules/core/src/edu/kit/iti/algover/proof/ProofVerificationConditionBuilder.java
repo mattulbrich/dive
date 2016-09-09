@@ -101,7 +101,7 @@ public class ProofVerificationConditionBuilder {
         try {
             proofFormulas = translate();
         } catch (TermBuildException e) {
-            // TODO Auto-generated catch block
+
             e.printStackTrace();
         }
         for (ProofFormula proofFormula : proofFormulas) {
