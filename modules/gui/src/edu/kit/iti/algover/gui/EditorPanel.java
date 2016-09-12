@@ -25,9 +25,16 @@ public class EditorPanel extends JPanel{
     {
         this.setLayout(new BorderLayout());
         tabbedPane = new JTabbedPane();
-        textarea = new DafnyEditor();
-        textarea.setSize(200,300);
-        sp = new RTextScrollPane(textarea);
+        //textarea = new DafnyEditor();
+        RSyntaxTextArea textArea = new RSyntaxTextArea();
+        AbstractTokenMakerFactory atmf = (AbstractTokenMakerFactory) TokenMakerFactory.getDefaultInstance();
+        //this.setSyntaxEditingStyle(SyntaxConstants.SYNTAX_STYLE_JAVA);
+
+        atmf.putMapping("text/Dafny", "edu.kit.iti.algover.gui.ANTLRTokenMaker");
+        textArea.setSyntaxEditingStyle("text/Dafny");
+        textArea.setCodeFoldingEnabled(true);
+        textArea.setSize(200,300);
+        sp = new RTextScrollPane(textArea);
 
 
         tabbedPane.add(sp);

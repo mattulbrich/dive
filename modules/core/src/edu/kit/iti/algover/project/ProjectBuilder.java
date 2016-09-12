@@ -176,8 +176,7 @@ public class ProjectBuilder {
         //extract Dafnylib files into datastructure
         extractDafnyFileNames(parsedScript.getFirstChildWithType(ScriptParser.LIBRARY));
         //parse DafnyFiles
-        //TODO for more dafnyfiles
-        //atm only one dafnyfile possible (the first in the list)
+
         for (File file: this.getDafnyFiles()) {
             DafnyTree parsed = parseFile(file);
             DafnyDeclVisitor visitor = new DafnyDeclVisitor(this, dir.getName());

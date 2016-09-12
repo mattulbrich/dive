@@ -48,7 +48,7 @@ import java.io.InputStream;
  * @author  Gary Ford (Plaid Flannel Software)
  */
 
-public class DafnyTokenMaker
+public class ANTLRTokenMaker
         extends AbstractTokenMaker
         implements TokenTypes
 {
@@ -59,7 +59,7 @@ public class DafnyTokenMaker
     /**
      * Nullary constructor required by TokenMakerFactory.
      */
-    public DafnyTokenMaker()
+    public ANTLRTokenMaker()
     {
         //mANTLRLexer = new DafnyLexer();
 
@@ -270,7 +270,7 @@ public class DafnyTokenMaker
             case DafnyLexer.ELSE:
             case DafnyLexer.IF:
             case DafnyLexer.WHILE:
-                return RESERVED_WORD;
+               // return RESERVED_WORD;
             case DafnyLexer.BOOL:
             case DafnyLexer.ARRAY:
             case DafnyLexer.INT:
@@ -279,7 +279,9 @@ public class DafnyTokenMaker
             case DafnyLexer.ASSUME:
             case DafnyLexer.DECREASES:
             case DafnyLexer.RETURNS:
-
+            case DafnyLexer.CLASS:
+            case DafnyLexer.METHOD:
+            case DafnyLexer.FUNCTION:
                 return RESERVED_WORD_2;
             // case DafnyLexer.PROCESSING_API_VARIABLES:
             // 	return VARIABLE;
@@ -292,7 +294,7 @@ public class DafnyTokenMaker
            // case DafnyLexer.FloatingPointLiteral:
            case DafnyLexer.INT_LIT:
             //case DafnyLexer.BooleanLiteral:
-//            case DafnyLexer.ARRAY:
+            //case DafnyLexer.ARRAY:
                 return DATA_TYPE;
             case DafnyLexer.ID:
            // case DafnyLexer.CharacterLiteral:

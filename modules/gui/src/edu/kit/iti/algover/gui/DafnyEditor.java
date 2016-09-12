@@ -11,16 +11,18 @@ import org.fife.ui.rsyntaxtextarea.TokenMakerFactory;
 public class DafnyEditor extends RSyntaxTextArea{
 
     public DafnyEditor(){
+       this.setSize(20, 60);
         this.setSyntaxHighlighting();
 
 
     }
 
     private void setSyntaxHighlighting() {
-        //AbstractTokenMakerFactory atmf = (AbstractTokenMakerFactory) TokenMakerFactory.getDefaultInstance();
-        this.setSyntaxEditingStyle(SyntaxConstants.SYNTAX_STYLE_JAVA);
+        AbstractTokenMakerFactory atmf = (AbstractTokenMakerFactory) TokenMakerFactory.getDefaultInstance();
+        //this.setSyntaxEditingStyle(SyntaxConstants.SYNTAX_STYLE_JAVA);
 
-        //atmf.putMapping("text/Dafny", "DafnyTokenMaker");
-        //this.setSyntaxEditingStyle("text/Dafny");
+        atmf.putMapping("text/Dafny", "ANTLRTokenMaker");
+        this.setSyntaxEditingStyle("text/Dafny");
+        this.setCodeFoldingEnabled(true);
     }
 }
