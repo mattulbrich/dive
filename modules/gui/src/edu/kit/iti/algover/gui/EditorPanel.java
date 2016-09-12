@@ -1,5 +1,10 @@
 package edu.kit.iti.algover.gui;
 
+import org.fife.ui.rsyntaxtextarea.AbstractTokenMakerFactory;
+import org.fife.ui.rsyntaxtextarea.RSyntaxTextArea;
+import org.fife.ui.rsyntaxtextarea.TokenMakerFactory;
+import org.fife.ui.rtextarea.RTextScrollPane;
+
 import javax.swing.*;
 import java.awt.*;
 
@@ -11,11 +16,22 @@ import java.awt.*;
 
 public class EditorPanel extends JPanel{
 
-    TabbedPane tabbedPane = new TabbedPane();
+    JTabbedPane tabbedPane;
+    //TabbedPane tabbedPane = new TabbedPane();
+    DafnyEditor textarea;
+    RTextScrollPane sp;
 
     public EditorPanel()
     {
-        setLayout(new BorderLayout());
+        this.setLayout(new BorderLayout());
+        tabbedPane = new JTabbedPane();
+        textarea = new DafnyEditor();
+        textarea.setSize(200,300);
+        sp = new RTextScrollPane(textarea);
+
+
+        tabbedPane.add(sp);
+
         add(tabbedPane, BorderLayout.CENTER);
     }
 }
