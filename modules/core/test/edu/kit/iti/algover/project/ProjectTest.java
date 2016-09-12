@@ -1,5 +1,6 @@
 package edu.kit.iti.algover.project;
 
+import edu.kit.iti.algover.dafnystructures.DafnyMethod;
 import edu.kit.iti.algover.settings.ProjectSettings;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -62,6 +63,22 @@ public class ProjectTest {
         assertEquals(Integer.parseInt(value), 24);
     }
 
+    @Test
+    public void testMethodExtraction(){
+        assertEquals(p.getClasses().size(), 1);
+        List<DafnyMethod> methods = p.getClasses().get(0).getMethods();
 
+        List<String> methodNames = new LinkedList<>();
+        List<String> methodsString = new LinkedList<>();
+        methodsString.add("arrayUpdate");
+        methodsString.add("foo");
+        assertEquals(methods.size(), 2);
+        for(DafnyMethod m: methods){
+            methodNames.add(m.getName());
+        }
+        assertEquals(methodNames, methodsString);
+
+
+    }
     //TODO test that classes and functions are correctly extracted
 }

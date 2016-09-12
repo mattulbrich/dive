@@ -45,13 +45,13 @@ public class DafnyTranslator {
         this.pathID = this.path.getPathIdentifier();
         this.number = noOfPOs;
         this.varsDecled = new LinkedList<>();
-        this.trans();
+        System.out.println(this.trans());
 
 
     }
 
 
-    public void trans() {
+    public String trans() {
         ImmutableList<AssertionElement> proofObligations = this.path.getProofObligations();
         assert proofObligations.size() == 1;
         this.proofObligation = proofObligations.get(0);
@@ -82,8 +82,10 @@ public class DafnyTranslator {
                 createPO(assertionType);
                 break;
             case RT_NONNULL:
+                assertionType = "non_null";
                 break;
             case RT_IN_BOUNDS:
+                assertionType = "in_bounds";
                 break;
             case VARIANT_DECREASED:
                 assertionType = "loop_terminates";
@@ -92,10 +94,11 @@ public class DafnyTranslator {
             default:
                 System.out.println("Type not supported yet");
         }
+        return assertionType;
    }
 
     /**
-     * Create the PO for showing that a loop temrinates by showing that the variant is getting smaller with each loop iteration
+     * Create the PO for showing that a loop terminates by showing that the variant is getting smaller with each loop iteration
      *
      * @param assertionType
      * @return
@@ -154,7 +157,6 @@ public class DafnyTranslator {
      */
     private String createAssumption(PathConditionElement pce) throws TermBuildException {
         String assumption = "assume ";
-        //PathConditionElement.AssumptionType type = pce.getType();
         assumption += TreeUtil.toInfix(pce.getExpression());
         return assumption + ";\n";
     }
@@ -207,8 +209,8 @@ public class DafnyTranslator {
                     while (iter.hasNext()) {
                         temp = iter.next();
                         if (temp.getSnd().getType() != DafnyParser.LISTEX) {
-                            //System.out.println(temp.toString());
 
+                            //list of already printed assignments contains temp?
                             if (!assignments.contains(temp)) {
                                 assignments.add(temp);
                                 assignmentsToTranslate.add(temp);
@@ -281,7 +283,8 @@ public class DafnyTranslator {
     }
 
     /**
-     * At the moment only for integer terms, trasnlation of decreases clause to assertion: show that decreases term gets strictly smaller and ist bound by zero
+     * At the moment only for integer terms, translation of decreases clause to assertion:
+     * show that decreases term gets strictly smaller and ist bound by zero
      * @param proofObligation
      * @return
      */

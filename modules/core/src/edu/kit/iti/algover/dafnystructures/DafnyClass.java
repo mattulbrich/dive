@@ -67,7 +67,7 @@ public class DafnyClass extends DafnyDecl {
         }
 
         if(this.fields != null) {
-            classToString += classToString += "with " + this.fields.size() + " fields:";
+            classToString += "with " + this.fields.size() + " fields:";
             for (DafnyField field : this.fields) {
                 classToString += field.toString() + "\n";
             }

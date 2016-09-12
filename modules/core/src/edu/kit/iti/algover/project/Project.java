@@ -103,12 +103,30 @@ public class Project {
     }
 
     public String toString(){
-        String s = "Project\n";
-        s += "with classes: \n";
-        for (DafnyClass dClass: this.classes) {
-            s += dClass.toString();
-        }
 
+        String s = "Project\n";
+        s+= "imports ";
+        if(libraries.size() != 0) {
+            for (File f : libraries) {
+                s += f.getName()+"\n";
+            }
+        }
+        if(classes.size() != 0) {
+            s += "with ";
+            s += this.classes.size();
+            s += " classe(s): \n";
+            for (DafnyClass dClass : this.classes) {
+                s += dClass.toString();
+            }
+        }else{
+            s += "with ";
+            s += this.methods.size();
+            s += " method(s): \n";
+            for (DafnyMethod m : this.methods) {
+
+                s += m.toString();
+            }
+        }
         return s;
 
     }

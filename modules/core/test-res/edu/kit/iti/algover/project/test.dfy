@@ -19,4 +19,16 @@ function isValid(a: int, b: int) : bool
 a + b == b + a
 }
 
+method foo(a : int ) returns (b:int)
+    requires a > 0
+    ensures b >= 0
+    decreases 0
+{
+   if(a >= 5){
+    b := a;
+   }else{
+    b := a-1;
+   }
+
+}
 }

@@ -25,7 +25,6 @@ import java.util.List;
  */
 public class ProjectBuilder {
 
-  //  static String testPath = ("/home/sarah/Documents/KIT_Mitarbeiter/DissTool/TestDir/test.dfy");
 
     /**
      * List of all files in the project directory
@@ -169,18 +168,25 @@ public class ProjectBuilder {
         //call script parser and get parsed Script
         ScriptTree parsedScript = parseScriptFile(this.getScript());
 
-        //extractSettings from ScriptTree and change settings in data structure
+        //extract settings from ScriptTree and change settings in data structure
         extractSettings(parsedScript.getFirstChildWithType(ScriptParser.SETTINGS));
         //extract dafnyfiles into datastructure
         extractDafnyFileNames(parsedScript.getFirstChildWithType(ScriptParser.IMPORT));
 
-        //extract Dafbnylib files into datastructure
+        //extract Dafnylib files into datastructure
         extractDafnyFileNames(parsedScript.getFirstChildWithType(ScriptParser.LIBRARY));
         //parse DafnyFiles
+        //TODO for more dafnyfiles
         //atm only one dafnyfile possible (the first in the list)
-        DafnyTree parsed = parseFile(this.getDafnyFiles().get(0));
-        DafnyDeclVisitor visitor = new DafnyDeclVisitor(this, dir.getName());
-        visitor.visit(dir.getName(), parsed);
+        for (File file: this.getDafnyFiles()) {
+            DafnyTree parsed = parseFile(file);
+            DafnyDeclVisitor visitor = new DafnyDeclVisitor(this, dir.getName());
+            visitor.visit(dir.getName(), parsed);
+        }
+
+        //DafnyTree parsed = parseFile(this.getDafnyFiles().get(0));
+        //DafnyDeclVisitor visitor = new DafnyDeclVisitor(this, dir.getName());
+        //visitor.visit(dir.getName(), parsed);
 
        // System.out.println(this.settings.toString());
         return new Project(this);
