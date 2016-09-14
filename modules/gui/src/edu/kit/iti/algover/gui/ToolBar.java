@@ -1,6 +1,8 @@
 package edu.kit.iti.algover.gui;
 
 import javax.swing.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 
 /**
  * ToolBar contains a text field and three buttons.
@@ -18,6 +20,14 @@ public class ToolBar extends JToolBar {
 
     public ToolBar()
     {
+        buttonZ3.setActionCommand("z3");
+        buttonDafny.setActionCommand("dafny");
+        buttonKey.setActionCommand("key");
+
+        buttonZ3.addActionListener(new ButtonListener());
+        buttonDafny.addActionListener(new ButtonListener());
+        buttonKey.addActionListener(new ButtonListener());
+
         add(projPath);
         addSeparator();
         add(buttonZ3);
