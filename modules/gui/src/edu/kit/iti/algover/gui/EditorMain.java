@@ -1,5 +1,7 @@
 package edu.kit.iti.algover.gui;
 
+import java.awt.event.WindowEvent;
+import java.awt.event.WindowListener;
 import java.io.File;
 import java.io.IOException;
 
@@ -16,15 +18,19 @@ public class EditorMain {
 
     public static void main ( String[] args ) throws IOException
     {
+        //GUICenter center = new GUICenter(window1);
         File f = new File(filename);
 
-        MenuBar menuBar = new MenuBar();
-        ToolBar toolbar = new ToolBar();
-        EditorPanel panel = new EditorPanel();
-        FooterPanel footerPanel = new FooterPanel();
+        //MenuBar menuBar = new MenuBar();
+        //ToolBar toolbar = new ToolBar();
+        //EditorPanel panel = new EditorPanel();
+        //FooterPanel footerPanel = new FooterPanel();
 
-        EditorWindow window1 = new EditorWindow( menuBar, toolbar, panel, footerPanel );
-        window1.setSize( 700, 500 );
-        window1.setVisible( true );
+  //     EditorWindow window1 = new EditorWindow( menuBar, toolbar, panel, footerPanel );
+
+    //    window1.setSize( 700, 500 );
+     //   window1.setVisible( true );
+
+
     }
 }

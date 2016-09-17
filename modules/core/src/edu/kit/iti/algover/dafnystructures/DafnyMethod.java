@@ -13,6 +13,29 @@ public class DafnyMethod extends DafnyDecl {
     private List<DafnyTree> params;
     private List<DafnyTree> returns;
 
+    public String getMethodName() {
+        return methodName;
+    }
+
+    public List<DafnyTree> getParams() {
+        return params;
+    }
+
+    public List<DafnyTree> getReturns() {
+        return returns;
+    }
+
+    public DafnyTree getBody() {
+        return body;
+    }
+
+    public List<DafnyTree> getPres() {
+        return pres;
+    }
+
+    public List<DafnyTree> getPosts() {
+        return posts;
+    }
 
     /**
      * The function's body. Only one single line allowed

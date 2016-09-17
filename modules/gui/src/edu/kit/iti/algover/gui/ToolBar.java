@@ -18,7 +18,7 @@ public class ToolBar extends JToolBar {
     JButton buttonDafny = new JButton("Dafny");
     JButton buttonKey = new JButton("KeY");
 
-    public ToolBar()
+    public ToolBar(GUICenter center)
     {
         buttonZ3.setActionCommand("z3");
         buttonDafny.setActionCommand("dafny");

@@ -22,7 +22,7 @@ public class FooterPanel extends JPanel {
             ""          // Row constraints
     );
 
-    public FooterPanel(){
+    public FooterPanel(GUICenter center){
 
         setLayout(migLayout);
 

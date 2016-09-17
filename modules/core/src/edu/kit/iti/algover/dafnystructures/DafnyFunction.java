@@ -19,6 +19,31 @@ public class DafnyFunction extends DafnyDecl{
      */
     private DafnyTree returnType;
 
+    public List<DafnyTree> getParameters() {
+        return parameters;
+    }
+
+    public DafnyTree getReturnType() {
+        return returnType;
+    }
+
+    @Override
+    public String getName() {
+        return name;
+    }
+
+    public DafnyTree getBody() {
+        return body;
+    }
+
+    public List<DafnyTree> getPres() {
+        return pres;
+    }
+
+    public List<DafnyTree> getPosts() {
+        return posts;
+    }
+
     /**
      * The name of the function
      */

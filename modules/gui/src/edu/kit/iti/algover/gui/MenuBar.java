@@ -1,6 +1,10 @@
 package edu.kit.iti.algover.gui;
 
+import edu.kit.iti.algover.Actions.OpenAction;
+
 import javax.swing.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 
 /**
  * The menu bar.
@@ -10,18 +14,35 @@ import javax.swing.*;
 
 public class MenuBar extends JMenuBar
 {
-    JMenu fileMenu = new JMenu("File");
-    JMenu editMenu = new JMenu("Edit");
+    GUICenter center;
 
-    JMenuItem menuItemOpen = new JMenuItem("Open...");
-    JMenuItem menuItemSave = new JMenuItem("Save...");
 
-    public MenuBar()
+
+
+
+
+    public MenuBar(GUICenter center)
     {
-        add(fileMenu);
-        add(editMenu);
+        this.center = center;
+        createMenuBar();
+    }
+
+    private void createMenuBar() {
+
+        JMenu fileMenu = new JMenu("File");
+        JMenu editMenu = new JMenu("Edit");
+
+
+        JMenuItem menuItemSave = new JMenuItem("Save...");
+        JMenuItem menuItemOpen = new JMenuItem();
+        menuItemOpen.setAction(new OpenAction(center));
+        menuItemOpen.setText("Open...");
 
         fileMenu.add(menuItemOpen);
         fileMenu.add(menuItemSave);
+
+        add(fileMenu);
+        add(editMenu);
+
     }
 }

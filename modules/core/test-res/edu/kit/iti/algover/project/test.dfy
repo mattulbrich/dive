@@ -1,4 +1,4 @@
-class foo
+class foo3
 {
 var fieldOfClass : int;
 

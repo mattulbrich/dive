@@ -21,7 +21,7 @@ public class DafnyEditor extends RSyntaxTextArea{
         AbstractTokenMakerFactory atmf = (AbstractTokenMakerFactory) TokenMakerFactory.getDefaultInstance();
         //this.setSyntaxEditingStyle(SyntaxConstants.SYNTAX_STYLE_JAVA);
 
-        atmf.putMapping("text/Dafny", "ANTLRTokenMaker");
+        atmf.putMapping("text/Dafny", "edu.kit.iti.algover.gui.ANTLRTokenMaker");
         this.setSyntaxEditingStyle("text/Dafny");
         this.setCodeFoldingEnabled(true);
     }

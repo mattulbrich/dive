@@ -2,6 +2,7 @@ package edu.kit.iti.algover.gui;
 
 import org.fife.ui.rsyntaxtextarea.AbstractTokenMakerFactory;
 import org.fife.ui.rsyntaxtextarea.RSyntaxTextArea;
+import org.fife.ui.rsyntaxtextarea.SyntaxConstants;
 import org.fife.ui.rsyntaxtextarea.TokenMakerFactory;
 import org.fife.ui.rtextarea.RTextScrollPane;
 
@@ -20,7 +21,7 @@ public class EditorPanel extends JPanel{
     DafnyEditor textarea;
     RTextScrollPane sp;
 
-    public EditorPanel()
+    public EditorPanel(GUICenter center)
     {
         this.setLayout(new BorderLayout());
 
@@ -28,15 +29,16 @@ public class EditorPanel extends JPanel{
         //textarea = new DafnyEditor();
         RSyntaxTextArea textArea = new RSyntaxTextArea();
         AbstractTokenMakerFactory atmf = (AbstractTokenMakerFactory) TokenMakerFactory.getDefaultInstance();
-        //this.setSyntaxEditingStyle(SyntaxConstants.SYNTAX_STYLE_JAVA);
+        //textArea.setSyntaxEditingStyle(SyntaxConstants.SYNTAX_STYLE_JAVA);
 
         atmf.putMapping("text/Dafny", "edu.kit.iti.algover.gui.ANTLRTokenMaker");
 
         textArea.setSyntaxEditingStyle("text/Dafny");
         textArea.setCodeFoldingEnabled(true);
-        textArea.setSize(200,300);
+        textArea.setSize(400,300);
 
         sp = new RTextScrollPane(textArea);
+
         tabbedPane.add(sp);
 
         add(tabbedPane, BorderLayout.CENTER);
