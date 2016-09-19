@@ -5,6 +5,7 @@ import edu.kit.iti.algover.gui.components.CustomTreeNode;
 import edu.kit.iti.algover.model.CustomLeaf;
 
 import javax.swing.*;
+import javax.swing.tree.DefaultTreeCellRenderer;
 import javax.swing.tree.TreeCellRenderer;
 import java.awt.*;
 
@@ -16,6 +17,7 @@ public class ProjectBrowserRenderer implements TreeCellRenderer {
     Component parent;
     public ProjectBrowserRenderer(Component parent){
         this.parent = parent;
+
     }
 
     @Override
@@ -26,23 +28,35 @@ public class ProjectBrowserRenderer implements TreeCellRenderer {
                                                   boolean leaf,
                                                   int row,
                                                   boolean hasFocus) {
+       // Component c = super.getTreeCellRendererComponent(tree, value, selected, expanded, leaf, row, hasFocus);
+
 
         if(leaf){
             CustomLeaf val = (CustomLeaf) value;
 
-            JLabel custom = new JLabel(val.getName());
+
+            /*JLabel custom = new JLabel(val.getName());
             JLabel stat = new JLabel(val.getStatus());
-
-//            custom.setBackground(new Color(100, 75, 90));
             JPanel leafPanel = new JPanel();
-            FlowLayout fl = new FlowLayout();
+            BoxLayout bl = new BoxLayout(leafPanel, BoxLayout.LINE_AXIS);
+            leafPanel.setLayout(bl);
 
-            leafPanel.setLayout(fl);
+            Dimension min = new Dimension(custom.getWidth()+10, custom.getHeight());
+            Dimension pref = new Dimension(custom.getWidth()+100, custom.getHeight());
+            Dimension max = new Dimension(custom.getWidth()+150, custom.getHeight());
+
             leafPanel.add(custom);
+            leafPanel.add(new Box.Filler(min, pref, max));
             leafPanel.add(stat);
-            return leafPanel;
+            leafPanel.setBackground(Color.WHITE);*/
+            //return leafPanel;
+            return new JLabel(val.getName());
         }else {
-            return new CustomTreeNode(value.toString(), this.parent);
+            //return c;
+
+            CustomTreeNode customTreeNode = new CustomTreeNode(value.toString(), this.parent);
+
+            return customTreeNode;
         }
     }
 

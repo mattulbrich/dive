@@ -8,12 +8,12 @@ import java.awt.*;
  */
 public class CustomTreeNode extends JPanel {
 
-    public CustomTreeNode(String name, Component parent) {
-        this.setLayout(new FlowLayout());
+    public CustomTreeNode(String name, Component parent)
+    {
+        this.setBackground(Color.WHITE);
+
         JLabel label = new JLabel(name);
-        //JLabel stat = new JLabel(status);
-        //this.setBorder(BorderFactory.createLineBorder(Color.black));
         this.add(label);
-      //  this.add(stat);
+
     }
 }

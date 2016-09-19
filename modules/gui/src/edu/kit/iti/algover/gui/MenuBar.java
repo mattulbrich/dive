@@ -30,19 +30,21 @@ public class MenuBar extends JMenuBar
     private void createMenuBar() {
 
         JMenu fileMenu = new JMenu("File");
+        fileMenu.add(new OpenAction(center));
         JMenu editMenu = new JMenu("Edit");
 
 
         JMenuItem menuItemSave = new JMenuItem("Save...");
-        JMenuItem menuItemOpen = new JMenuItem();
-        menuItemOpen.setAction(new OpenAction(center));
-        menuItemOpen.setText("Open...");
+       // JMenuItem menuItemOpen = new JMenuItem();
+      //  menuItemOpen.setAction(new OpenAction(center));
+       // menuItemOpen.setText("Open...");
 
-        fileMenu.add(menuItemOpen);
+     //   fileMenu.add(menuItemOpen);
         fileMenu.add(menuItemSave);
 
         add(fileMenu);
         add(editMenu);
+
 
     }
 }

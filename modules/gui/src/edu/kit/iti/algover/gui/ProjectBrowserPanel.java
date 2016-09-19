@@ -31,11 +31,11 @@ public class ProjectBrowserPanel extends JPanel {
         //tree.setCellRenderer(new ProjectBrowserRenderer(this));
         CustomProjectBrowser br = new CustomProjectBrowser(pb.buildProject(prepare()));
 
-
-
         //this.tree = new JTree(center.getProjectTreeModel().getRoot());
         this.setLayout(new BorderLayout());
+
         this.add(br, BorderLayout.CENTER);
+
     }
 
     public Project prepare(){

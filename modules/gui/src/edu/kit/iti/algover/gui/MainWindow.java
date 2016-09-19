@@ -1,5 +1,6 @@
 package edu.kit.iti.algover.gui;
 
+import javafx.stage.Screen;
 import net.miginfocom.swing.MigLayout;
 
 import javax.swing.*;
@@ -41,17 +42,20 @@ public final class MainWindow extends JFrame {
         ToolBar toolbar = new ToolBar(center);
 
         JSplitPane splitPaneH = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT);
-       // splitPaneH.setResizeWeight(1.0);
+        splitPaneH.setResizeWeight(0.7);
 
 
         EditorPanel panel = new EditorPanel(center);
         //TreePanel tPanel = new TreePanel(center);
         ProjectBrowserPanel pPanel = new ProjectBrowserPanel(center);
+
+
         FooterPanel footerPanel = new FooterPanel(center);
 
         panel.add(footerPanel, BorderLayout.SOUTH);
-        //splitPaneH.add(panel);
-        //splitPaneH.add(pPanel);
+        splitPaneH.add(panel);
+        splitPaneH.add(pPanel);
+
 
         MigLayout migLayout = new MigLayout(
                 "insets 0 0 0 0",       //Layout constraints
@@ -66,11 +70,14 @@ public final class MainWindow extends JFrame {
 
         this.add(menuBar, "growx, wrap");
         this.add(toolbar, "growx, wrap");
-        //this.add(splitPaneH, "grow, wrap");
-        this.add(panel, "grow, wrap");
-        this.add(footerPanel, "growx, wrap");
+        this.add(splitPaneH, "grow, wrap");
 
-        this.setSize(500, 500);
+        //this.add(panel, "grow, wrap");
+        //this.add(footerPanel, "growx, wrap");
+
+        this.setSize(850, 850);
+        this.setExtendedState(JFrame.MAXIMIZED_BOTH);
+
         this.setVisible(true);
 
 
@@ -78,7 +85,7 @@ public final class MainWindow extends JFrame {
 
      public GUICenter getCenter() {
         if (center == null) {
-            throw new NullPointerException("KeYMediator is not set.");
+            throw new NullPointerException("GUICenter is not set.");
         }
         return center;
     }

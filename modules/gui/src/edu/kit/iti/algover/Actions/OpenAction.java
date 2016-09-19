@@ -21,6 +21,8 @@ public class OpenAction extends AbstractAction {
 
     public OpenAction(GUICenter center){
         this.c = center;
+
+        this.putValue(AbstractAction.NAME, "Open");
     }
 
     @Override
