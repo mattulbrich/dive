@@ -40,10 +40,10 @@ public class ProjectTableTreeModel extends ProjectTreeModel implements TreeTable
                 return ((CustomLeaf) o).name;
             }
             if(i == 1){
-                return ((CustomLeaf) o).data;
+                return ((CustomLeaf) o).data.toString();
             }
         }
-        return null;
+        return o;
     }
 
     @Override
@@ -55,4 +55,6 @@ public class ProjectTableTreeModel extends ProjectTreeModel implements TreeTable
     public void setValueAt(Object o, Object o1, int i) {
 
     }
+
+
 }

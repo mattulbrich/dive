@@ -8,6 +8,8 @@ import javax.swing.*;
 import javax.swing.tree.DefaultTreeCellRenderer;
 import javax.swing.tree.TreeCellRenderer;
 import java.awt.*;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 
 /**
  * Created by sarah on 9/16/16.
@@ -33,26 +35,21 @@ public class ProjectBrowserRenderer implements TreeCellRenderer {
 
         if(leaf){
             CustomLeaf val = (CustomLeaf) value;
-
-
-            /*JLabel custom = new JLabel(val.getName());
-            JLabel stat = new JLabel(val.getStatus());
-            JPanel leafPanel = new JPanel();
-            BoxLayout bl = new BoxLayout(leafPanel, BoxLayout.LINE_AXIS);
-            leafPanel.setLayout(bl);
-
-            Dimension min = new Dimension(custom.getWidth()+10, custom.getHeight());
-            Dimension pref = new Dimension(custom.getWidth()+100, custom.getHeight());
-            Dimension max = new Dimension(custom.getWidth()+150, custom.getHeight());
-
-            leafPanel.add(custom);
-            leafPanel.add(new Box.Filler(min, pref, max));
-            leafPanel.add(stat);
-            leafPanel.setBackground(Color.WHITE);*/
-            //return leafPanel;
-            return new JLabel(val.getName());
+            Icon i;
+            if(val.getStatus() == "Test"){
+                java.net.URL imageURL = ProjectBrowserRenderer.class.getResource("proof.png");
+               // i = new ImageIcon("../res/proof.png");
+                if (imageURL != null) {
+                    i = new ImageIcon(imageURL);
+                }else{
+                    i = new ImageIcon();
+                }
+            }else{
+                 i = new ImageIcon("../res/stop.png");
+            }
+            JLabel l = new JLabel(val.getName(), i, JLabel.HORIZONTAL);
+            return l;
         }else {
-            //return c;
 
             CustomTreeNode customTreeNode = new CustomTreeNode(value.toString(), this.parent);
 

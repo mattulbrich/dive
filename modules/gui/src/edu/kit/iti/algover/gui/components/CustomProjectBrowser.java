@@ -1,6 +1,7 @@
 package edu.kit.iti.algover.gui.components;
 
 import edu.kit.iti.algover.gui.ProjectBrowserRenderer;
+import edu.kit.iti.algover.model.CustomLeaf;
 import edu.kit.iti.algover.model.ProjectTableTreeModel;
 import edu.kit.iti.algover.model.ProjectTree;
 import edu.kit.iti.algover.model.ProjectTreeModel;
@@ -10,7 +11,15 @@ import org.jdesktop.swingx.JXTreeTable;
 import javax.swing.*;
 import javax.swing.border.CompoundBorder;
 import javax.swing.border.TitledBorder;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
+import javax.swing.event.TreeSelectionEvent;
+import javax.swing.event.TreeSelectionListener;
+import javax.swing.tree.TreePath;
+import javax.swing.tree.TreeSelectionModel;
 import java.awt.*;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 
 /**
  * Created by sarah on 9/16/16.
@@ -34,8 +43,38 @@ public class CustomProjectBrowser extends JPanel {
         this.setMinimumSize(super.getPreferredSize());
 
         JXTreeTable treetable = new JXTreeTable();
-        treetable.setTreeTableModel(new ProjectTableTreeModel(t));
+        ProjectTableTreeModel treeModel = new ProjectTableTreeModel(t);
+
+        treetable.setTreeTableModel(treeModel);
         treetable.setTreeCellRenderer(new ProjectBrowserRenderer(this));
+        treetable.getSelectionModel().setSelectionMode(TreeSelectionModel.SINGLE_TREE_SELECTION);
+/*        treetable.addTreeSelectionListener(new TreeSelectionListener() {
+            @Override
+            public void valueChanged(TreeSelectionEvent e) {
+
+                ProjectTree t = (ProjectTree) e.getPath().getLastPathComponent();
+                if(t instanceof CustomLeaf){
+                    CustomLeaf l = (CustomLeaf)t;
+                    System.out.println(l.getData().getRepresentation().toStringTree());
+                }
+            }
+        });*/
+        //TODO temporarily here has to be moved
+       treetable.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                if(e.getClickCount() == 2) {
+                    ProjectTree lastPathComponent = (ProjectTree) treetable.getPathForLocation(e.getX(), e.getY()).getLastPathComponent();
+                    if(lastPathComponent instanceof CustomLeaf){
+                        CustomLeaf l = (CustomLeaf) lastPathComponent;
+                        System.out.println(l.getData().getRepresentation().toStringTree());
+                    }else{
+                        System.out.println(lastPathComponent.name);
+                    }
+                }
+
+            }
+        });
 
         ProjectDetailView projectDetailView = new ProjectDetailView();
         this.setBorder(BorderFactory.createTitledBorder("Project "+t.path));
