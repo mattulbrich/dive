@@ -11,6 +11,7 @@ import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeListenerProxy;
 import java.beans.PropertyChangeSupport;
 import java.io.File;
+import java.io.FileNotFoundException;
 
 /**
  * SpiderPattern class
@@ -91,14 +92,38 @@ public class GUICenter {
 
     public void loadSelectedProject(){
         if(selectedProjectDir == null){
-            System.out.println("You have to set the project's directory first");
-        }else{
-            this.loadedProject = facade.buildProject(this.selectedProjectDir);
-            ProjectTreeBuilder builder = new ProjectTreeBuilder();
-            this.projectTreeModel = builder.buildProject(this.loadedProject);
-            System.out.println("Project "+loadedProject.getScript().getAbsolutePath()+" is loaded");
+            JOptionPane.showMessageDialog(mainwindow,
+            "You have to select the project's directory first.",
+            "Project Directory",
+            JOptionPane.ERROR_MESSAGE);
 
-            //set property for loaded project
+        }else{
+            try{
+                this.loadedProject = facade.buildProject(this.selectedProjectDir);
+                ProjectTreeBuilder builder = new ProjectTreeBuilder();
+
+                ProjectTree pTree = builder.buildProject(this.loadedProject);
+                if (pTree == null) {
+                    JOptionPane.showMessageDialog(mainwindow,
+                            "Could not build project " + this.selectedProjectDir.toString(),
+                            "Project Directory",
+                            JOptionPane.ERROR_MESSAGE);
+                } else {
+                    this.projectTreeModel = pTree;
+                    System.out.println("Project " + loadedProject.getScript().getAbsolutePath() + " is loaded");
+                }
+            }catch (FileNotFoundException e){
+                JOptionPane.showMessageDialog(mainwindow,
+                        "Could not build project " + this.selectedProjectDir.toString(),
+                        "Project Directory",
+                        JOptionPane.ERROR_MESSAGE);
+            }catch (Exception ex){
+                JOptionPane.showMessageDialog(mainwindow,
+                        "Could not build project " + this.selectedProjectDir.toString(),
+                        "Project Directory",
+                        JOptionPane.ERROR_MESSAGE);
+            }
+
         }
     }
 }

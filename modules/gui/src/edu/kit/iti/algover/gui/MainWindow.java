@@ -1,6 +1,5 @@
 package edu.kit.iti.algover.gui;
 
-import javafx.stage.Screen;
 import net.miginfocom.swing.MigLayout;
 
 import javax.swing.*;
@@ -50,9 +49,9 @@ public final class MainWindow extends JFrame {
         ProjectBrowserPanel pPanel = new ProjectBrowserPanel(center);
 
 
-        FooterPanel footerPanel = new FooterPanel(center);
+        EditorFooterPanel editorFooterPanel = new EditorFooterPanel(center);
 
-        panel.add(footerPanel, BorderLayout.SOUTH);
+        panel.add(editorFooterPanel, BorderLayout.SOUTH);
         splitPaneH.add(panel);
         splitPaneH.add(pPanel);
 

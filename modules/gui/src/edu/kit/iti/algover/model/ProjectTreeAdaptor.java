@@ -12,9 +12,14 @@ import java.util.LinkedList;
 import java.util.List;
 
 /**
+ * Deprecated was for testing purposes. Use ProjectTreeModel
+ * @deprecated
+ *
  * Created by sarah on 9/13/16.
  */
+@Deprecated
 public class ProjectTreeAdaptor implements TreeTableModel {
+
     Project p;
     //List<DafnyDecl> projectstructure;
 

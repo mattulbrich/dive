@@ -24,7 +24,7 @@ public class CustomProjectBrowser extends JPanel {
      MigLayout migLayout = new MigLayout(
                 "insets 0 0 0 0",       //Layout constraints
                 "[grow]",             // Column constraints
-                "[grow][grow][grow]"          // Row constraints
+                "[grow 0.7][]"          // Row constraints
         );
 
     public CustomProjectBrowser(ProjectTree t){
@@ -32,22 +32,29 @@ public class CustomProjectBrowser extends JPanel {
         this.setLayout(migLayout);
 
         this.setMinimumSize(super.getPreferredSize());
-        this.setBorder(BorderFactory.createTitledBorder("Project"));
 
-        JPanel panel;
-        for(ProjectTree tr: t.children){
+        JXTreeTable treetable = new JXTreeTable();
+        treetable.setTreeTableModel(new ProjectTableTreeModel(t));
+        treetable.setTreeCellRenderer(new ProjectBrowserRenderer(this));
+
+        ProjectDetailView projectDetailView = new ProjectDetailView();
+        this.setBorder(BorderFactory.createTitledBorder("Project "+t.path));
+
+        //JPanel panel;
+        /*for(ProjectTree tr: t.children){
             panel = groupedTree(tr);
             this.add(panel, "grow, wrap");
-        }
+        }*/
 
-
+        this.add(treetable, "grow, wrap");
+        this.add(projectDetailView, "wrap");
         this.setVisible(true);
 
 
 
     }
 
-    public JPanel groupedTree(ProjectTree subtree){
+    /*public JPanel groupedTree(ProjectTree subtree){
         JXTreeTable treetable = new JXTreeTable();
         treetable.setTreeTableModel(new ProjectTableTreeModel(subtree));
         treetable.setTreeCellRenderer(new ProjectBrowserRenderer(this));
@@ -60,6 +67,6 @@ public class CustomProjectBrowser extends JPanel {
         ret.add(treetable, BorderLayout.CENTER);
 
         return ret;
-    }
+    }*/
 
 }

@@ -10,6 +10,7 @@ import edu.kit.iti.algover.symbex.SymbexPath;
 import edu.kit.iti.algover.theoremprover.DafnyTranslator;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -53,15 +54,12 @@ public class ProjectFacade {
      * @return
      */
 
-    public Project buildProject(File dir){
+    public Project buildProject(File dir) throws FileNotFoundException, Exception{
         Project p = null;
         ProjectBuilder pb = new ProjectBuilder();
-        try {
-            p = pb.buildProject(dir);
-        } catch (Exception e) {
-            System.out.println("Could not build project "+ dir.getAbsolutePath());
-            e.printStackTrace();
-        }
+
+        p = pb.buildProject(dir);
+
         return p;
     }
 

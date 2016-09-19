@@ -3,7 +3,6 @@ package edu.kit.iti.algover.gui;
 
 import net.miginfocom.swing.MigLayout;
 
-import java.awt.*;
 import javax.swing.*;
 
 /**
@@ -25,7 +24,7 @@ public class EditorWindow extends JFrame
         MenuBar menuBar = new MenuBar(center);
         ToolBar toolbar = new ToolBar(center);
         EditorPanel panel = new EditorPanel(center);
-        FooterPanel footerPanel = new FooterPanel(center);
+        EditorFooterPanel editorFooterPanel = new EditorFooterPanel(center);
 
         MigLayout migLayout = new MigLayout(
                 "insets 0 0 0 0",       //Layout constraints
@@ -41,7 +40,7 @@ public class EditorWindow extends JFrame
         add(menuBar, "growx, wrap");
         add(toolbar, "growx, wrap");
         add(panel, "grow, wrap");
-        add(footerPanel, "growx, wrap");
+        add(editorFooterPanel, "growx, wrap");
 
 
     }

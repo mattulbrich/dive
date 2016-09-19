@@ -8,6 +8,7 @@ import java.util.Enumeration;
 import java.util.List;
 
 /**
+ * This class represents teh projecttree structure for teh GUI model. It consists eiother of Projecttrees or of customleaves
  * Created by sarah on 9/15/16.
  */
 public class ProjectTree implements TreeNode{
@@ -15,13 +16,15 @@ public class ProjectTree implements TreeNode{
 
 
     public String name;
+    public String path;
     public List<ProjectTree> children;
 
     public ProjectTree parent;
 
 
-    public ProjectTree(String name){
+    public ProjectTree(String name, String path){
         this.setName(name);
+        this.path = path;
     }
     public void setChildren(List<ProjectTree> children) {
         this.children = children;

@@ -11,7 +11,7 @@ import java.awt.*;
  *
  * Created by Azadeh Shirvanian on 13.09.2016.
  */
-public class FooterPanel extends JPanel {
+public class EditorFooterPanel extends JPanel {
 
     JLabel leftLabel = new JLabel("Left");
     JLabel rightLabel = new JLabel("Line");
@@ -22,7 +22,7 @@ public class FooterPanel extends JPanel {
             ""          // Row constraints
     );
 
-    public FooterPanel(GUICenter center){
+    public EditorFooterPanel(GUICenter center){
 
         setLayout(migLayout);
 

@@ -1,11 +1,14 @@
 package edu.kit.iti.algover.model;
 
+import edu.kit.iti.algover.dafnystructures.DafnyDecl;
 import edu.kit.iti.algover.dafnystructures.DafnyField;
+import edu.kit.iti.algover.project.Project;
 
 import javax.swing.tree.TreeNode;
 import java.util.Enumeration;
 
 /**
+ * This class represents leaves of type DafnyField for the GUI model
  * Created by sarah on 9/15/16.
  */
 public class FieldLeaf extends CustomLeaf {
@@ -15,8 +18,8 @@ public class FieldLeaf extends CustomLeaf {
 
     ProjectTree parent;
 
-    public FieldLeaf(DafnyField f, ProjectTree p){
-        super(f,p);
+    public FieldLeaf(DafnyField f, ProjectTree p, Project pr){
+        super(f,p, pr);
         this.field =f;
         this.parent =p;
     }
@@ -44,6 +47,12 @@ public class FieldLeaf extends CustomLeaf {
     public String getName() {
         return field.getName();
     }
+
+    @Override
+    public DafnyDecl getData() {
+        return this.field;
+    }
+
     @Override
     public String toString() {
         return field.getName();

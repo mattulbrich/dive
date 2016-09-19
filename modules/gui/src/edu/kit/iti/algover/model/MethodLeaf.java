@@ -1,11 +1,14 @@
 package edu.kit.iti.algover.model;
 
+import edu.kit.iti.algover.dafnystructures.DafnyDecl;
 import edu.kit.iti.algover.dafnystructures.DafnyMethod;
+import edu.kit.iti.algover.project.Project;
 
 import javax.swing.tree.TreeNode;
 import java.util.Enumeration;
 
 /**
+ * Class representing DafynMEthod leaves in projecttree
  * Created by sarah on 9/15/16.
  */
 public class MethodLeaf extends CustomLeaf {
@@ -13,8 +16,8 @@ public class MethodLeaf extends CustomLeaf {
     String status;
     ProjectTree parent;
 
-    public MethodLeaf(DafnyMethod m, ProjectTree p){
-        super(m, p);
+    public MethodLeaf(DafnyMethod m, ProjectTree p, Project pr){
+        super(m, p, pr);
         this.method = m;
         this.parent = p;
         //TODO
@@ -46,6 +49,12 @@ public class MethodLeaf extends CustomLeaf {
     public String getName() {
         return method.getMethodName();
     }
+
+    @Override
+    public DafnyDecl getData() {
+        return this.method;
+    }
+
     @Override
     public String toString() {
         return method.getMethodName();

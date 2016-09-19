@@ -147,7 +147,7 @@ public class ProjectBuilder {
      * @param dir of project
      * @return Project Object
      */
-    public Project buildProject(File dir) throws Exception {
+    public Project buildProject(File dir) throws FileNotFoundException, Exception {
         this.setDir(dir);
         ProjectSettings settings = new ProjectSettings();
         this.setSettings(settings); //default settings
@@ -155,11 +155,9 @@ public class ProjectBuilder {
 
 
         File scriptFile = null;
-        try {
-            scriptFile = FileUtil.findFile(dir, "project.script");
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        }
+
+        scriptFile = FileUtil.findFile(dir, "project.script");
+
         if (scriptFile != null) {
             this.setScript(scriptFile);
         } else {

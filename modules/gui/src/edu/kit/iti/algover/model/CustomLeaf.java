@@ -1,11 +1,13 @@
 package edu.kit.iti.algover.model;
 
 import edu.kit.iti.algover.dafnystructures.DafnyDecl;
+import edu.kit.iti.algover.project.Project;
 
 import javax.swing.tree.TreeNode;
 import java.util.Enumeration;
 
 /**
+ * Class represneting the leaves of the projecttree.
  * Created by sarah on 9/15/16.
  */
 public abstract class CustomLeaf extends ProjectTree implements TreeNode {
@@ -14,14 +16,20 @@ public abstract class CustomLeaf extends ProjectTree implements TreeNode {
 
     public ProjectTree parent;
 
+    public Project p;
 
 
 
 
-    public CustomLeaf(DafnyDecl data, ProjectTree parent){
-        super(parent.name);
+
+
+
+    public CustomLeaf(DafnyDecl data, ProjectTree parent, Project p){
+        super(parent.name, p.getScript().getAbsolutePath());
         this.data = data;
         this.parent = parent;
+        this.p = p;
+
     }
     @Override
     public TreeNode getChildAt(int childIndex) {
@@ -59,6 +67,7 @@ public abstract class CustomLeaf extends ProjectTree implements TreeNode {
 //        return this.data.getName();
 //    }
 
+    public abstract DafnyDecl getData();
     public abstract String toString();
 
 

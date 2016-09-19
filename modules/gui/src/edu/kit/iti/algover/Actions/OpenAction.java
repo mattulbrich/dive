@@ -9,6 +9,7 @@ import edu.kit.iti.algover.gui.GUICenter;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
+import java.awt.event.KeyEvent;
 import java.io.File;
 
 /**
@@ -23,6 +24,7 @@ public class OpenAction extends AbstractAction {
         this.c = center;
 
         this.putValue(AbstractAction.NAME, "Open");
+        this.putValue(AbstractAction.ACCELERATOR_KEY, KeyStroke.getKeyStroke(KeyEvent.VK_O, KeyEvent.CTRL_MASK));
     }
 
     @Override
@@ -30,8 +32,7 @@ public class OpenAction extends AbstractAction {
 
         JFileChooser fc = new JFileChooser();
         fc.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
-        fc.showDialog(c.getMainwindow(), e.getActionCommand());
-        System.out.println();
+        fc.showDialog(c.getMainwindow(), "Open Project Directory");
         c.setSelectedProjectDir(fc.getSelectedFile());
         c.loadSelectedProject();
         System.out.println(fc.getSelectedFile().getParent());
