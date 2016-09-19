@@ -70,5 +70,13 @@ public abstract class CustomLeaf extends ProjectTree implements TreeNode {
     public abstract DafnyDecl getData();
     public abstract String toString();
 
+    public Object[][] getDetails(){
+        Object [][] details = new Object[2][2];
+        details[0][0] = "Type";
+        details[0][1] = this.name;
+        details[1][0] = "Filename";
+        details[1][1] = this.getData().getFilename();
+        return details;
+    }
 
 }

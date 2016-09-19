@@ -1,5 +1,6 @@
 package edu.kit.iti.algover.gui.components;
 
+import edu.kit.iti.algover.gui.GUICenter;
 import edu.kit.iti.algover.gui.ProjectBrowserRenderer;
 import edu.kit.iti.algover.model.CustomLeaf;
 import edu.kit.iti.algover.model.ProjectTableTreeModel;
@@ -27,7 +28,7 @@ import java.awt.event.MouseEvent;
 public class CustomProjectBrowser extends JPanel {
 
     //JScrollPane sp = new JScrollPane();
-
+    GUICenter center;
 
 
      MigLayout migLayout = new MigLayout(
@@ -36,7 +37,7 @@ public class CustomProjectBrowser extends JPanel {
                 "[grow 0.7][]"          // Row constraints
         );
 
-    public CustomProjectBrowser(ProjectTree t){
+    public CustomProjectBrowser(ProjectTree t, GUICenter center){
        // ScrollPane sp = new ScrollPane();
         this.setLayout(migLayout);
 
@@ -67,8 +68,10 @@ public class CustomProjectBrowser extends JPanel {
                     ProjectTree lastPathComponent = (ProjectTree) treetable.getPathForLocation(e.getX(), e.getY()).getLastPathComponent();
                     if(lastPathComponent instanceof CustomLeaf){
                         CustomLeaf l = (CustomLeaf) lastPathComponent;
+                        center.setSelectedSubTree(l);
                         System.out.println(l.getData().getRepresentation().toStringTree());
                     }else{
+                        center.setSelectedSubTree(lastPathComponent);
                         System.out.println(lastPathComponent.name);
                     }
                 }
@@ -76,7 +79,7 @@ public class CustomProjectBrowser extends JPanel {
             }
         });
 
-        ProjectDetailView projectDetailView = new ProjectDetailView();
+        ProjectDetailView projectDetailView = new ProjectDetailView(center, this);
         this.setBorder(BorderFactory.createTitledBorder("Project "+t.path));
 
         //JPanel panel;

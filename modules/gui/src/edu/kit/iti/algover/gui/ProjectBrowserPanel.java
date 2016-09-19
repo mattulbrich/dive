@@ -26,7 +26,7 @@ public class ProjectBrowserPanel extends JPanel {
 
 
         ProjectTreeBuilder pb = new ProjectTreeBuilder();
-        CustomProjectBrowser br = new CustomProjectBrowser(pb.buildProject(prepare()));
+        CustomProjectBrowser br = new CustomProjectBrowser(pb.buildProject(prepare()), center);
         this.setLayout(new BorderLayout());
 
         this.add(br, BorderLayout.CENTER);

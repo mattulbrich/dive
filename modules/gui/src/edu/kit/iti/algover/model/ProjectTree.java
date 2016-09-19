@@ -6,9 +6,10 @@ import javax.swing.tree.TreeNode;
 import javax.swing.tree.TreePath;
 import java.util.Enumeration;
 import java.util.List;
+import java.util.Objects;
 
 /**
- * This class represents teh projecttree structure for teh GUI model. It consists eiother of Projecttrees or of customleaves
+ * This class represents the projecttree structure for teh GUI model. It consists eiother of Projecttrees or of customleaves
  * Created by sarah on 9/15/16.
  */
 public class ProjectTree implements TreeNode{
@@ -79,5 +80,13 @@ public class ProjectTree implements TreeNode{
 
     }
 
+    public Object[][] getDetails(){
+        Object [][] details = new Object[2][2];
+        details[0][0] = "Type";
+        details[0][1] = this.name;
+        details[1][0] = "Children";
+        details[1][1] = this.getChildCount();
+        return details;
+    }
 }
 
