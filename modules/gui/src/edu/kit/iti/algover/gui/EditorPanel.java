@@ -10,6 +10,8 @@ import org.fife.ui.rsyntaxtextarea.TokenMakerFactory;
 import org.fife.ui.rtextarea.RTextScrollPane;
 
 import javax.swing.*;
+import javax.swing.text.Caret;
+import javax.swing.text.DefaultCaret;
 import java.awt.*;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
@@ -47,6 +49,8 @@ public class EditorPanel extends JPanel{
         textArea.setCodeFoldingEnabled(true);
         textArea.setSize(400,300);
 
+        DefaultCaret caret = (DefaultCaret)textArea.getCaret();
+        caret.setUpdatePolicy(DefaultCaret.ALWAYS_UPDATE);
         sp = new RTextScrollPane(textArea);
 
         tabbedPane.add(sp);
@@ -57,30 +61,31 @@ public class EditorPanel extends JPanel{
     }
 
     private void setCaretPosition(ProjectTree selectedProjectSubTree) {
-        System.out.println(textArea.getText().length());
+      //  System.out.println(textArea.getText().length());
 
         String[] lines =textArea.getText().split("\n");
-        System.out.println("ArrayLength "+lines.length);
+    //    System.out.println("ArrayLength "+lines.length);
 
         int lineNumber;
-        if(selectedProjectSubTree instanceof CustomLeaf){
+        if(selectedProjectSubTree instanceof CustomLeaf) {
             CustomLeaf l = (CustomLeaf) selectedProjectSubTree;
             lineNumber = l.getData().getRepresentation().getLine();
+
+            int offset = 0;
+            for (int i = 0; i < lineNumber; i++) {
+                offset += lines[i].length() + 1;
+            }
+
+            textArea.setCaretPosition(offset - 1);
         }else{
-           lineNumber = 0;
+            textArea.setCaretPosition(0);
         }
-        int offset = 0;
-        for(int i = 0; i< lineNumber; i++){
-            offset += lines[i].length();
-        }
-        System.out.println("Position "+offset);
-        //System.out.println(lineNumber);
-        textArea.setCaretPosition(offset);
     }
 
 
     public void setSrcText(File file){
-        System.out.println(file.toString());
+
+        //System.out.println(file.toString());
         try {
         FileReader reader = new FileReader(file);
         BufferedReader r = new BufferedReader(reader);
@@ -90,6 +95,7 @@ public class EditorPanel extends JPanel{
                 text += str+"\n";
             }
             r.close();
+
             this.textArea.setText(text);
         } catch (IOException e) {
             JOptionPane.showMessageDialog(this.center.getMainwindow(),
@@ -114,19 +120,22 @@ public class EditorPanel extends JPanel{
 
         @Override
         public void propertyChange(PropertyChangeEvent evt) {
-            if(evt.getPropertyName() == GUICenter.DAFNY_SOURCE_CHANGED || evt.getPropertyName() == GUICenter.TREE_SELECTION){
+            if(evt.getPropertyName() == GUICenter.DAFNY_SOURCE_CHANGED) {
                 try {
                     setSrcText(center.getLoadedDafnySrc().getAbsoluteFile());
-                    setCaretPosition(center.getSelectedProjectSubTree());
 
                 } catch (Exception e) {
-                JOptionPane.showMessageDialog(center.getMainwindow(),
-                "Unable to load file "+ center.getLoadedDafnySrc(),
-                "Source File Loading",
-                JOptionPane.ERROR_MESSAGE);
-                    e.printStackTrace();
-
+                    JOptionPane.showMessageDialog(center.getMainwindow(),
+                    "Unable to load file "+ center.getLoadedDafnySrc(),
+                    "Source File Loading",
+                    JOptionPane.ERROR_MESSAGE);
+                    //e.printStackTrace();
                 }
+
+            }
+            if(evt.getPropertyName() == GUICenter.TREE_SELECTION){
+                ProjectTree selectedProjectSubTree = center.getSelectedProjectSubTree();
+                    setCaretPosition(selectedProjectSubTree);
             }
         }
     }

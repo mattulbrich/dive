@@ -50,7 +50,9 @@ public class ProjectDetailView extends JPanel {
 
 
     private void showDetails(ProjectTree selected) {
+        removeAll();
         table.setModel(new SubtreeTableModel(selected));
+        revalidate();
         parent.repaint();
 
     }
@@ -60,10 +62,13 @@ public class ProjectDetailView extends JPanel {
         @Override
         public void propertyChange(PropertyChangeEvent evt) {
             if(evt.getPropertyName().equals(GUICenter.TREE_SELECTION)){
+                removeAll();
                 if(evt.getNewValue() instanceof ProjectTree){
                     selected = (ProjectTree) evt.getNewValue();
 
                     showDetails(selected);
+                    validate();
+                    repaint();
                    // System.out.println(selected.getDetails()[1][1]);
 
                 }

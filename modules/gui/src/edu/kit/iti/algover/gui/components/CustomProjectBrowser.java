@@ -79,6 +79,7 @@ public class CustomProjectBrowser extends JPanel {
                     center.setSelectedProjectSubTree(l);
 
                 }else{
+                    center.setLoadedDafnySrc(lastPathComponent.path);
                     center.setSelectedProjectSubTree(lastPathComponent);
                 }
             }

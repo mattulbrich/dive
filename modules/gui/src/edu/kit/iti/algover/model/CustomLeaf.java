@@ -18,14 +18,8 @@ public abstract class CustomLeaf extends ProjectTree implements TreeNode {
 
     public Project p;
 
-
-
-
-
-
-
     public CustomLeaf(DafnyDecl data, ProjectTree parent, Project p){
-        super(parent.name, p.getScript().getAbsolutePath());
+        super(parent.name, data.getFile());
         this.data = data;
         this.parent = parent;
         this.p = p;

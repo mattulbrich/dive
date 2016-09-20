@@ -1,9 +1,12 @@
 package edu.kit.iti.algover.model;
 
+import edu.kit.iti.algover.dafnystructures.DafnyDecl;
+
 import javax.swing.event.TreeModelListener;
 import javax.swing.tree.TreeModel;
 import javax.swing.tree.TreeNode;
 import javax.swing.tree.TreePath;
+import java.io.File;
 import java.util.Enumeration;
 import java.util.List;
 import java.util.Objects;
@@ -17,15 +20,16 @@ public class ProjectTree implements TreeNode{
 
 
     public String name;
-    public String path;
+    public File path;
     public List<ProjectTree> children;
-
     public ProjectTree parent;
 
+    public DafnyDecl repr;
 
-    public ProjectTree(String name, String path){
+    public ProjectTree(String name, File path){
         this.setName(name);
         this.path = path;
+
     }
     public void setChildren(List<ProjectTree> children) {
         this.children = children;
@@ -81,11 +85,22 @@ public class ProjectTree implements TreeNode{
     }
 
     public Object[][] getDetails(){
-        Object [][] details = new Object[2][2];
+        Object [][] details = new Object[2+children.size()][2];
+
         details[0][0] = "Type";
         details[0][1] = this.name;
-        details[1][0] = "Children";
-        details[1][1] = this.getChildCount();
+        details[1][0] = "Path";
+        details[1][1] = this.path;
+        if(children.size() != 0) {
+            details[2][0] = "Children";
+            details[2][1] = this.getChildCount();
+            int i = 3;
+            for (ProjectTree child: this.children) {
+                     details[i][0] = child.repr.getRepresentation().getType();
+                     details[i][1] = child.name;
+                i++;
+            }
+        }
         return details;
     }
 }

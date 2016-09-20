@@ -31,12 +31,12 @@ public class ProjectTreeBuilder {
 
         LinkedList<ProjectTree> children = new LinkedList<>();
 
-        ProjectTree projectTree = new ProjectTree("Project", p.getScript().getAbsolutePath());
+        ProjectTree projectTree = new ProjectTree("Project", p.getScript().getAbsoluteFile());
         projectTree.setParent(null);
 
         if(methods.size() > 0) {
 
-            ProjectTree methodTree = new ProjectTree("Methods", p.getScript().getAbsolutePath());
+            ProjectTree methodTree = new ProjectTree("Methods", p.getScript().getAbsoluteFile());
             methodTree.setParent(projectTree);
 
             List<ProjectTree> methodLeaves = new LinkedList<>();
@@ -49,7 +49,7 @@ public class ProjectTreeBuilder {
         }
 
         if(classes.size() > 0) {
-            ProjectTree classTree = new ProjectTree("Classes", p.getScript().getAbsolutePath());
+            ProjectTree classTree = new ProjectTree("Classes", p.getScript().getAbsoluteFile());
             classTree.setParent(projectTree);
             LinkedList<ProjectTree> classTrees = new LinkedList<>();
             for (DafnyClass dClass : classes) {
@@ -61,7 +61,7 @@ public class ProjectTreeBuilder {
 
         if(functions.size() > 0) {
 
-            ProjectTree functionTree = new ProjectTree("Functions", p.getScript().getAbsolutePath());
+            ProjectTree functionTree = new ProjectTree("Functions", p.getScript().getAbsoluteFile());
             functionTree.setParent(projectTree);
             List<ProjectTree> functionLeaves = new LinkedList<>();
             for (DafnyFunction f : functions) {
@@ -77,7 +77,7 @@ public class ProjectTreeBuilder {
 
     private ProjectTree createClassSubTree(DafnyClass dClass, ProjectTree parentTree, Project p){
 
-        ProjectTree classTree = new ProjectTree(dClass.getName(), p.getScript().getAbsolutePath());
+        ProjectTree classTree = new ProjectTree(dClass.getName(), dClass.getFile());
         classTree.setParent(parentTree);
 
         LinkedList<ProjectTree> children = new LinkedList<>();
@@ -90,7 +90,7 @@ public class ProjectTreeBuilder {
         if (methods.size() > 0) {
 
             //methods
-            ProjectTree methodTree = new ProjectTree("Methods", p.getScript().getAbsolutePath() );
+            ProjectTree methodTree = new ProjectTree("Methods", dClass.getFile() );
             methodTree.setParent(classTree);
             List<ProjectTree> methodLeaves = new LinkedList<>();
             for (DafnyMethod m : methods) {
@@ -102,7 +102,7 @@ public class ProjectTreeBuilder {
         if (fields.size() > 0) {
 
             //fields
-            ProjectTree fieldTree = new ProjectTree("Fields", p.getScript().getAbsolutePath());
+            ProjectTree fieldTree = new ProjectTree("Fields", dClass.getFile());
             fieldTree.setParent(classTree);
             List<ProjectTree> fieldLeaves = new LinkedList<>();
             for (DafnyField f : fields) {
@@ -114,8 +114,8 @@ public class ProjectTreeBuilder {
 
         if (functions.size() > 0) {
 
-            //functions
-            ProjectTree functionTree = new ProjectTree("Functions", p.getScript().getAbsolutePath());
+            //functions p.getScript().getAbsolutePath() before
+            ProjectTree functionTree = new ProjectTree("Functions", dClass.getFile());
             functionTree.setParent(classTree);
             List<ProjectTree> functionLeaves = new LinkedList<>();
             for (DafnyFunction f : functions) {

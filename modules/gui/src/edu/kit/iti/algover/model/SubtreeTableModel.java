@@ -25,7 +25,8 @@ public class SubtreeTableModel extends AbstractTableModel {
     @Override
     public int getColumnCount() {
         if(tree != null){
-            return tree.getDetails().length;
+            //TODO at the moment this is true, might change in the future, therefore need to get length dynamically
+            return 2;
         }
         return 0;
     }
