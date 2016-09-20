@@ -1,6 +1,7 @@
 package edu.kit.iti.algover.gui;
 
 import edu.kit.iti.algover.gui.components.CustomProjectBrowser;
+import edu.kit.iti.algover.model.ProjectTree;
 import edu.kit.iti.algover.model.ProjectTreeBuilder;
 import edu.kit.iti.algover.model.ProjectTreeModel;
 import edu.kit.iti.algover.project.Project;
@@ -8,6 +9,8 @@ import edu.kit.iti.algover.project.ProjectBuilder;
 
 import javax.swing.*;
 import java.awt.*;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.io.File;
 
 /**
@@ -25,11 +28,12 @@ public class ProjectBrowserPanel extends JPanel {
         this.center = center;
 
 
-        ProjectTreeBuilder pb = new ProjectTreeBuilder();
-        CustomProjectBrowser br = new CustomProjectBrowser(pb.buildProject(prepare()), center);
+        //ProjectTreeBuilder pb = new ProjectTreeBuilder();
+        //CustomProjectBrowser br = new CustomProjectBrowser(pb.buildProject(prepare()), center);
         this.setLayout(new BorderLayout());
 
-        this.add(br, BorderLayout.CENTER);
+        //this.add(br, BorderLayout.CENTER);
+        center.addPropertyChangeListener(new MyPropertyChangeListener(center));
 
     }
 
@@ -48,6 +52,30 @@ public class ProjectBrowserPanel extends JPanel {
         }
         return p;
 
+    }
+
+    private class MyPropertyChangeListener implements PropertyChangeListener {
+        private final GUICenter center;
+
+        public MyPropertyChangeListener(GUICenter center) {
+            this.center = center;
+        }
+
+        @Override
+        public void propertyChange(PropertyChangeEvent evt) {
+            if(evt.getPropertyName() == GUICenter.PROJECT_LOADED){
+                removeAll();
+                ProjectTreeBuilder pb = new ProjectTreeBuilder();
+                ProjectTree t = pb.buildProject(center.getLoadedProject());
+                CustomProjectBrowser br = new CustomProjectBrowser(t, center);
+
+                add(br, BorderLayout.CENTER);
+                repaint();
+                revalidate();
+
+                center.setProjectTreeModel(t);
+            }
+        }
     }
 
 }

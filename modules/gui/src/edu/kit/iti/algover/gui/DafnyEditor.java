@@ -6,6 +6,7 @@ import org.fife.ui.rsyntaxtextarea.SyntaxConstants;
 import org.fife.ui.rsyntaxtextarea.TokenMakerFactory;
 
 /**
+ * Will replace Rsyntaxtextarea in editorpanel when ready
  * Created by sarah on 9/12/16.
  */
 public class DafnyEditor extends RSyntaxTextArea{

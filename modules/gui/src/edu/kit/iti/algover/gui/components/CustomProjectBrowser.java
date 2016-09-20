@@ -40,19 +40,7 @@ public class CustomProjectBrowser extends JPanel {
         treetable.setTreeTableModel(treeModel);
         treetable.setTreeCellRenderer(new ProjectBrowserRenderer(this));
         treetable.getSelectionModel().setSelectionMode(TreeSelectionModel.SINGLE_TREE_SELECTION);
-/*        treetable.addTreeSelectionListener(new TreeSelectionListener() {
-            @Override
-            public void valueChanged(TreeSelectionEvent e) {
-
-                ProjectTree t = (ProjectTree) e.getPath().getLastPathComponent();
-                if(t instanceof CustomLeaf){
-                    CustomLeaf l = (CustomLeaf)t;
-                    System.out.println(l.getData().getRepresentation().toStringTree());
-                }
-            }
-        });*/
-        //TODO temporarily here has to be moved
-       treetable.addMouseListener(new ProjectTreeMouseAdapter(treetable, center));
+        treetable.addMouseListener(new ProjectTreeMouseListener(treetable, center));
 
         ProjectDetailView projectDetailView = new ProjectDetailView(center, this);
         this.setBorder(BorderFactory.createTitledBorder("Project "+t.path));
@@ -71,28 +59,27 @@ public class CustomProjectBrowser extends JPanel {
 
     }
 
-    private static class ProjectTreeMouseAdapter extends MouseAdapter {
+    private static class ProjectTreeMouseListener extends MouseAdapter {
         private final JXTreeTable treetable;
         private final GUICenter center;
 
-        public ProjectTreeMouseAdapter(JXTreeTable treetable, GUICenter center) {
+        public ProjectTreeMouseListener(JXTreeTable treetable, GUICenter center) {
             this.treetable = treetable;
             this.center = center;
         }
 
         @Override
         public void mouseClicked(MouseEvent e) {
+
             if(e.getClickCount() == 2) {
                 ProjectTree lastPathComponent = (ProjectTree) treetable.getPathForLocation(e.getX(), e.getY()).getLastPathComponent();
                 if(lastPathComponent instanceof CustomLeaf){
                     CustomLeaf l = (CustomLeaf) lastPathComponent;
-                    center.setSelectedProjectSubTree(l);
                     center.setLoadedDafnySrc(l.getData().getFile().getAbsoluteFile());
-                    //System.out.println(l.getData().getRepresentation().toStringTree());
+                    center.setSelectedProjectSubTree(l);
+
                 }else{
                     center.setSelectedProjectSubTree(lastPathComponent);
-
-                   // System.out.println(lastPathComponent.name);
                 }
             }
 

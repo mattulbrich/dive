@@ -1,9 +1,14 @@
 package edu.kit.iti.algover.gui;
 
+import edu.kit.iti.algover.gui.components.CustomProjectBrowser;
+import edu.kit.iti.algover.model.ProjectTree;
+import edu.kit.iti.algover.model.ProjectTreeBuilder;
 import net.miginfocom.swing.MigLayout;
 
 import javax.swing.*;
 import java.awt.*;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 
 /**
  * Create whole mainwindow
@@ -56,6 +61,8 @@ public final class MainWindow extends JFrame {
         splitPaneH.add(pPanel);
 
 
+
+
         MigLayout migLayout = new MigLayout(
                 "insets 0 0 0 0",       //Layout constraints
                 "[grow]",               // Column constraints
@@ -88,6 +95,7 @@ public final class MainWindow extends JFrame {
         }
         return center;
     }
+
 
 
 }

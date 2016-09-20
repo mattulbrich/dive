@@ -35,7 +35,7 @@ public class OpenAction extends AbstractAction {
         fc.showDialog(c.getMainwindow(), "Open Project Directory");
         c.setSelectedProjectDir(fc.getSelectedFile());
         c.loadSelectedProject();
-        System.out.println(fc.getSelectedFile().getParent());
+        System.out.println(fc.getSelectedFile());
         System.out.println("Open Action performed");
     }
 

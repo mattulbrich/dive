@@ -40,8 +40,14 @@ public class GUICenter {
 
     private MainWindow mainwindow;
 
+    public void setProjectTreeModel(ProjectTree projectTreeModel) {
+        ProjectTree old = this.getProjectTreeModel();
+        this.projectTreeModel = projectTreeModel;
+        changes.firePropertyChange(PROJECT_TREE_MODEL_CHANGED, old, this.getProjectTreeModel());
+    }
+
     /**
-     * Model for the GUI of the current project (atm not yet needed)
+     * model of project
      */
     private ProjectTree projectTreeModel;
 
@@ -67,7 +73,7 @@ public class GUICenter {
 
     public static final String PROJECT_DIR_CHANGED = "project_directory_changed";
 
-
+    public static final String PROJECT_TREE_MODEL_CHANGED = "project_tree_model_changed";
     /**
      * Constructor
      * @param window
@@ -169,6 +175,7 @@ public class GUICenter {
      * Load selected Project from directory, call to facade
      */
     public void loadSelectedProject() {
+        Project old = this.getLoadedProject();
         if (selectedProjectDir == null) {
             JOptionPane.showMessageDialog(mainwindow,
                     "You have to select the project's directory first.",
@@ -177,19 +184,20 @@ public class GUICenter {
 
         } else {
             try {
-                this.loadedProject = facade.buildProject(this.selectedProjectDir);
+                this.setLoadedProject(facade.buildProject(this.selectedProjectDir));
                 ProjectTreeBuilder builder = new ProjectTreeBuilder();
+                //ProjectTree pTree = builder.buildProject(this.loadedProject);
 
-                ProjectTree pTree = builder.buildProject(this.loadedProject);
-                if (pTree == null) {
+                changes.firePropertyChange(PROJECT_LOADED, old , this.loadedProject);
+               /* if (pTree == null) {
                     JOptionPane.showMessageDialog(mainwindow,
                             "Could not build project " + this.selectedProjectDir.toString(),
                             "Project Directory",
                             JOptionPane.ERROR_MESSAGE);
                 } else {
-                    this.projectTreeModel = pTree;
+                    this.setProjectTreeModel(pTree);
                     System.out.println("Project " + loadedProject.getScript().getAbsolutePath() + " is loaded");
-                }
+                }*/
             } catch (FileNotFoundException e) {
                 JOptionPane.showMessageDialog(mainwindow,
                         "Could not find file " + this.selectedProjectDir.toString(),

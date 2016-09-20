@@ -18,6 +18,7 @@ import java.io.*;
 /**
  * EditorPanel consists of a tabbed pane, inside of which is a scroll pane containing an RSyntaxTextArea.
  *
+ * Atm with JAVA highlighting
  * Created by sony on 07.09.2016.
  */
 
@@ -37,12 +38,12 @@ public class EditorPanel extends JPanel{
         tabbedPane = new JTabbedPane();
         //textarea = new DafnyEditor();
         textArea = new RSyntaxTextArea();
-        AbstractTokenMakerFactory atmf = (AbstractTokenMakerFactory) TokenMakerFactory.getDefaultInstance();
-        //textArea.setSyntaxEditingStyle(SyntaxConstants.SYNTAX_STYLE_JAVA);
+        //AbstractTokenMakerFactory atmf = (AbstractTokenMakerFactory) TokenMakerFactory.getDefaultInstance();
+        textArea.setSyntaxEditingStyle(SyntaxConstants.SYNTAX_STYLE_JAVA);
 
-        atmf.putMapping("text/Dafny", "edu.kit.iti.algover.gui.ANTLRTokenMaker");
+        //atmf.putMapping("text/Dafny", "edu.kit.iti.algover.gui.ANTLRTokenMaker");
 
-        textArea.setSyntaxEditingStyle("text/Dafny");
+        //textArea.setSyntaxEditingStyle("text/Dafny");
         textArea.setCodeFoldingEnabled(true);
         textArea.setSize(400,300);
 
