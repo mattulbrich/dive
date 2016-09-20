@@ -177,15 +177,10 @@ public class ProjectBuilder {
 
         for (File file: this.getDafnyFiles()) {
             DafnyTree parsed = parseFile(file);
-            DafnyDeclVisitor visitor = new DafnyDeclVisitor(this, dir.getName());
+            DafnyDeclVisitor visitor = new DafnyDeclVisitor(this, file);
             visitor.visit(dir.getName(), parsed);
         }
-
-        //DafnyTree parsed = parseFile(this.getDafnyFiles().get(0));
-        //DafnyDeclVisitor visitor = new DafnyDeclVisitor(this, dir.getName());
-        //visitor.visit(dir.getName(), parsed);
-
-       // System.out.println(this.settings.toString());
+        
         return new Project(this);
     }
 

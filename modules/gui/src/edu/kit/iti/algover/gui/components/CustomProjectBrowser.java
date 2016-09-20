@@ -5,20 +5,11 @@ import edu.kit.iti.algover.gui.ProjectBrowserRenderer;
 import edu.kit.iti.algover.model.CustomLeaf;
 import edu.kit.iti.algover.model.ProjectTableTreeModel;
 import edu.kit.iti.algover.model.ProjectTree;
-import edu.kit.iti.algover.model.ProjectTreeModel;
 import net.miginfocom.swing.MigLayout;
 import org.jdesktop.swingx.JXTreeTable;
 
 import javax.swing.*;
-import javax.swing.border.CompoundBorder;
-import javax.swing.border.TitledBorder;
-import javax.swing.event.ListSelectionEvent;
-import javax.swing.event.ListSelectionListener;
-import javax.swing.event.TreeSelectionEvent;
-import javax.swing.event.TreeSelectionListener;
-import javax.swing.tree.TreePath;
 import javax.swing.tree.TreeSelectionModel;
-import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 
@@ -61,23 +52,7 @@ public class CustomProjectBrowser extends JPanel {
             }
         });*/
         //TODO temporarily here has to be moved
-       treetable.addMouseListener(new MouseAdapter() {
-            @Override
-            public void mouseClicked(MouseEvent e) {
-                if(e.getClickCount() == 2) {
-                    ProjectTree lastPathComponent = (ProjectTree) treetable.getPathForLocation(e.getX(), e.getY()).getLastPathComponent();
-                    if(lastPathComponent instanceof CustomLeaf){
-                        CustomLeaf l = (CustomLeaf) lastPathComponent;
-                        center.setSelectedSubTree(l);
-                        System.out.println(l.getData().getRepresentation().toStringTree());
-                    }else{
-                        center.setSelectedSubTree(lastPathComponent);
-                        System.out.println(lastPathComponent.name);
-                    }
-                }
-
-            }
-        });
+       treetable.addMouseListener(new ProjectTreeMouseAdapter(treetable, center));
 
         ProjectDetailView projectDetailView = new ProjectDetailView(center, this);
         this.setBorder(BorderFactory.createTitledBorder("Project "+t.path));
@@ -94,6 +69,34 @@ public class CustomProjectBrowser extends JPanel {
 
 
 
+    }
+
+    private static class ProjectTreeMouseAdapter extends MouseAdapter {
+        private final JXTreeTable treetable;
+        private final GUICenter center;
+
+        public ProjectTreeMouseAdapter(JXTreeTable treetable, GUICenter center) {
+            this.treetable = treetable;
+            this.center = center;
+        }
+
+        @Override
+        public void mouseClicked(MouseEvent e) {
+            if(e.getClickCount() == 2) {
+                ProjectTree lastPathComponent = (ProjectTree) treetable.getPathForLocation(e.getX(), e.getY()).getLastPathComponent();
+                if(lastPathComponent instanceof CustomLeaf){
+                    CustomLeaf l = (CustomLeaf) lastPathComponent;
+                    center.setSelectedProjectSubTree(l);
+                    center.setLoadedDafnySrc(l.getData().getFile().getAbsoluteFile());
+                    //System.out.println(l.getData().getRepresentation().toStringTree());
+                }else{
+                    center.setSelectedProjectSubTree(lastPathComponent);
+
+                   // System.out.println(lastPathComponent.name);
+                }
+            }
+
+        }
     }
 
     /*public JPanel groupedTree(ProjectTree subtree){

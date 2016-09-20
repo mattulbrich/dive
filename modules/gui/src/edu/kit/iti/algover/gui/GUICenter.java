@@ -1,15 +1,12 @@
 package edu.kit.iti.algover.gui;
 
 import edu.kit.iti.algover.facade.ProjectFacade;
-import edu.kit.iti.algover.gui.MainWindow;
 import edu.kit.iti.algover.model.ProjectTree;
 import edu.kit.iti.algover.model.ProjectTreeBuilder;
 import edu.kit.iti.algover.project.Project;
-import javafx.beans.property.Property;
 
 import javax.swing.*;
 import java.beans.PropertyChangeListener;
-import java.beans.PropertyChangeListenerProxy;
 import java.beans.PropertyChangeSupport;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -29,16 +26,31 @@ import java.io.FileNotFoundException;
 
 
 public class GUICenter {
+    //core counterpart for communcation
+    private ProjectFacade facade;
 
-    private PropertyChangeSupport changes = new PropertyChangeSupport(this);
 
+    //GUI model of project
+    private ProjectTree selectedProjectSubTree;
+
+    //Loaded project object
+    private Project loadedProject;
+
+    private File selectedProjectDir;
+
+    private MainWindow mainwindow;
+
+    private ProjectTree projectTreeModel;
+
+
+    private File loadedDafnySrc;
     /**
-     * Boolean property that is set, if a project is completely loaded and the project object is returned
+     * Property that is set, if a project is completely loaded and the project object is returned
      */
     public static final String PROJECT_LOADED = "project_loaded";
 
     /**
-     * Boolean property that is set, if the dafny source has been edited
+     * Property that is set, if the dafny source has been edited
      */
     public static final String DAFNY_SOURCE_CHANGED = "dafny_source_changed";
 
@@ -52,11 +64,22 @@ public class GUICenter {
 
     public static final String PROJECT_DIR_CHANGED = "project_directory_changed";
 
-    public Project getLoadedProject() {
 
-        return loadedProject;
+    /**
+     * Constructor
+     * @param window
+     */
+    public GUICenter(MainWindow window) {
+        this.mainwindow = window;
+        this.facade = ProjectFacade.getInstance();
     }
 
+
+    private PropertyChangeSupport changes = new PropertyChangeSupport(this);
+    /**
+     * Propertychangelistener list
+     * @param l
+     */
     public void addPropertyChangeListener(PropertyChangeListener l) {
         changes.addPropertyChangeListener(l);
     }
@@ -65,40 +88,38 @@ public class GUICenter {
         changes.removePropertyChangeListener(l);
     }
 
+
+    //Getter & Setter
     public void setLoadedProject(Project loadedProject) {
         Project old = this.getLoadedProject();
         this.loadedProject = loadedProject;
         changes.firePropertyChange(PROJECT_LOADED, old, this.getLoadedProject());
     }
 
-    public ProjectTree getSelectedSubTree() {
-        return selectedSubTree;
+    public ProjectTree getSelectedProjectSubTree() {
+        return selectedProjectSubTree;
     }
 
-    public void setSelectedSubTree(ProjectTree selectedSubTree) {
-        ProjectTree old = this.getSelectedSubTree();
-        this.selectedSubTree = selectedSubTree;
-        changes.firePropertyChange(TREE_SELECTION, old, this.getSelectedSubTree());
+    public void setSelectedProjectSubTree(ProjectTree selectedProjectSubTree) {
+        ProjectTree old = this.getSelectedProjectSubTree();
+        this.selectedProjectSubTree = selectedProjectSubTree;
+        changes.firePropertyChange(TREE_SELECTION, old, this.getSelectedProjectSubTree());
 
     }
 
-    private ProjectTree selectedSubTree;
-    //Loaded project object
-    private Project loadedProject;
+
 
     public File getSelectedProjectDir() {
         return selectedProjectDir;
     }
 
-    private File selectedProjectDir;
 
-    private MainWindow mainwindow;
 
     public ProjectTree getProjectTreeModel() {
         return projectTreeModel;
     }
 
-    private ProjectTree projectTreeModel;
+
 
     public MainWindow getMainwindow() {
         return mainwindow;
@@ -108,13 +129,9 @@ public class GUICenter {
         return facade;
     }
 
-    private ProjectFacade facade;
-
-    public GUICenter(MainWindow window) {
-        this.mainwindow = window;
-        this.facade = ProjectFacade.getInstance();
+    public Project getLoadedProject() {
+        return loadedProject;
     }
-
 
     public void setSelectedProjectDir(File parentFile) {
         File old = this.getSelectedProjectDir();
@@ -123,6 +140,19 @@ public class GUICenter {
         System.out.println("Set selected Project directory");
     }
 
+    public File getLoadedDafnySrc() {
+        return loadedDafnySrc;
+    }
+
+    public void setLoadedDafnySrc(File loadedDafnySrc) {
+        File old = this.getLoadedDafnySrc();
+        this.loadedDafnySrc = loadedDafnySrc;
+        changes.firePropertyChange(DAFNY_SOURCE_CHANGED, old, this.getLoadedDafnySrc());
+    }
+
+    /**
+     * Load selected Project from directory, call to facade
+     */
     public void loadSelectedProject() {
         if (selectedProjectDir == null) {
             JOptionPane.showMessageDialog(mainwindow,

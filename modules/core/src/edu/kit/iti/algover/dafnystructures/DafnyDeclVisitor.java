@@ -4,6 +4,7 @@ import edu.kit.iti.algover.parser.DafnyParser;
 import edu.kit.iti.algover.parser.DafnyTree;
 import edu.kit.iti.algover.project.ProjectBuilder;
 
+import java.io.File;
 import java.util.List;
 
 /**
@@ -14,10 +15,12 @@ public class DafnyDeclVisitor {
     private ProjectBuilder projectBuilder;
     private DafnyClassBuilder classBuilder = null;
     private String filename;
+    private File file;
 
-    public DafnyDeclVisitor(ProjectBuilder projectBuilder, String filename){
+    public DafnyDeclVisitor(ProjectBuilder projectBuilder, File file){
         this.projectBuilder = projectBuilder;
-        this.filename = filename;
+        this.file = file;
+       // this.filename = filename;
 
     }
     public void visit(String filename, DafnyTree tree) {
@@ -56,7 +59,7 @@ public class DafnyDeclVisitor {
     }
 
     private void visitCLASS(DafnyTree t) {
-        DafnyClassBuilder dcb = new DafnyClassBuilder(filename, t);
+        DafnyClassBuilder dcb = new DafnyClassBuilder(file, t);
         classBuilder = dcb;
 
         dcb.setName(t.getChild(0).getText());
@@ -84,7 +87,7 @@ public class DafnyDeclVisitor {
 
     private void visitFIELD(DafnyTree t) {
         assert classBuilder != null;
-        classBuilder.addField(new DafnyField(t.getChild(1), t.getChild(0).getText()));
+        classBuilder.addField(new DafnyField(file, t.getChild(1), t.getChild(0).getText()));
     }
 
     private void visitFUNCTION(DafnyTree t) {
@@ -92,7 +95,7 @@ public class DafnyDeclVisitor {
         List<DafnyTree> params = t.getFirstChildWithType(DafnyParser.ARGS).getChildrenWithType(DafnyParser.VAR);
 
         DafnyFunction func = new DafnyFunction(
-                filename, t,
+                file, t,
                 t.getChild(0).getText(),
                 params,
                 t.getFirstChildWithType(DafnyParser.RETURNS),
@@ -112,7 +115,7 @@ public class DafnyDeclVisitor {
     private void visitMETHOD(DafnyTree t) {
         List<DafnyTree> params = t.getFirstChildWithType(DafnyParser.ARGS).getChildrenWithType(DafnyParser.VAR);
 
-        DafnyMethod meth = new DafnyMethod(filename, t, t.getChild(0).getText(),
+        DafnyMethod meth = new DafnyMethod(file, t, t.getChild(0).getText(),
                 params,
                 t.getChildrenWithType(DafnyParser.RETURNS),
                 t.getFirstChildWithType(DafnyParser.BLOCK),

@@ -41,7 +41,7 @@ public class DafnyClass extends DafnyDecl {
     private List<DafnyField> fields;
 
     public DafnyClass(DafnyClassBuilder dcb){
-        super(dcb.getFilename(), dcb.getTree(), dcb.getName());
+        super(dcb.getFile(), dcb.getTree(), dcb.getName());
         this.name = dcb.getName();
         this.methods = dcb.getMethods();
         this.functions = dcb.getFunctions();

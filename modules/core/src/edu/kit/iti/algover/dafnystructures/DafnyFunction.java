@@ -2,6 +2,7 @@ package edu.kit.iti.algover.dafnystructures;
 
 import edu.kit.iti.algover.parser.DafnyTree;
 
+import java.io.File;
 import java.util.List;
 
 /**
@@ -69,14 +70,14 @@ public class DafnyFunction extends DafnyDecl{
      * @param pres
      * @param posts
      */
-    public DafnyFunction(String filename, DafnyTree t,
+    public DafnyFunction(File file, DafnyTree t,
                          String name,
                          List<DafnyTree> params,
                          DafnyTree returnType,
                          DafnyTree body,
                          List<DafnyTree> pres,
                          List<DafnyTree> posts){
-        super(filename, t, name);
+        super(file, t, name);
         this.name = name;
         this.parameters = params;
         this.returnType = returnType;

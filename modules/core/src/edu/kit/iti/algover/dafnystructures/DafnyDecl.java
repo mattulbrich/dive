@@ -33,9 +33,16 @@ public class DafnyDecl {
 
     private String name;
 
-    public DafnyDecl(String filename, DafnyTree tree, String name){
+    public File getFile() {
+        return file;
+    }
+
+    private File file;
+
+    public DafnyDecl(File file, DafnyTree tree, String name){
         this.representation = tree;
-        this.filename = filename;
+        this.file = file;
+        this.filename = file.getAbsoluteFile().toString();
         this.name = name;
     }
 

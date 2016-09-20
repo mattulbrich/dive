@@ -8,6 +8,7 @@ import net.miginfocom.swing.MigLayout;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableColumn;
 import java.awt.*;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
@@ -32,7 +33,11 @@ public class ProjectDetailView extends JPanel {
         this.center = center;
         this.center.addPropertyChangeListener(new MyPropertyChangeListener());
         this.table = makeTable();
-        this.add(this.table, "growx, wrap");
+
+        JPanel tPanel = new JPanel(new BorderLayout());
+        tPanel.add(this.table, BorderLayout.CENTER);
+        this.add(tPanel, "grow, wrap");
+
     }
 
     private JTable makeTable() {
@@ -57,7 +62,10 @@ public class ProjectDetailView extends JPanel {
             if(evt.getPropertyName().equals(GUICenter.TREE_SELECTION)){
                 if(evt.getNewValue() instanceof ProjectTree){
                     selected = (ProjectTree) evt.getNewValue();
+
                     showDetails(selected);
+                   // System.out.println(selected.getDetails()[1][1]);
+
                 }
             }
         }

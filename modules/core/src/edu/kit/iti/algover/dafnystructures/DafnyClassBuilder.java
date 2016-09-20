@@ -2,6 +2,7 @@ package edu.kit.iti.algover.dafnystructures;
 
 import edu.kit.iti.algover.parser.DafnyTree;
 
+import java.io.File;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -10,6 +11,11 @@ import java.util.List;
  */
 
 public class DafnyClassBuilder {
+    public File getFile() {
+        return file;
+    }
+
+    private File file;
     private String filename;
     private DafnyTree classTree;
 
@@ -95,11 +101,12 @@ public class DafnyClassBuilder {
      */
     private DafnyTree tree;
 
-    public DafnyClassBuilder(String filename, DafnyTree tree) {
+    public DafnyClassBuilder(File file, DafnyTree tree) {
+        this.file = file;
         this.functions = new LinkedList<>();
         this.methods = new LinkedList<>();
         this.fields = new LinkedList<>();
-        this.filename = filename;
+        this.filename = file.getAbsoluteFile().getName();
         this.classTree = tree;
 
     }
