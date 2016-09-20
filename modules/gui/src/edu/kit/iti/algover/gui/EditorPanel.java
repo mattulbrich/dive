@@ -57,6 +57,10 @@ public class EditorPanel extends JPanel{
 
     private void setCaretPosition(ProjectTree selectedProjectSubTree) {
         System.out.println(textArea.getText().length());
+
+        String[] lines =textArea.getText().split("\n");
+        System.out.println("ArrayLength "+lines.length);
+
         int lineNumber;
         if(selectedProjectSubTree instanceof CustomLeaf){
             CustomLeaf l = (CustomLeaf) selectedProjectSubTree;
@@ -64,8 +68,13 @@ public class EditorPanel extends JPanel{
         }else{
            lineNumber = 0;
         }
-        System.out.println(lineNumber);
-        textArea.setCaretPosition(100);
+        int offset = 0;
+        for(int i = 0; i< lineNumber; i++){
+            offset += lines[i].length();
+        }
+        System.out.println("Position "+offset);
+        //System.out.println(lineNumber);
+        textArea.setCaretPosition(offset);
     }
 
 
@@ -104,7 +113,7 @@ public class EditorPanel extends JPanel{
 
         @Override
         public void propertyChange(PropertyChangeEvent evt) {
-            if(evt.getPropertyName() == GUICenter.DAFNY_SOURCE_CHANGED){
+            if(evt.getPropertyName() == GUICenter.DAFNY_SOURCE_CHANGED || evt.getPropertyName() == GUICenter.TREE_SELECTION){
                 try {
                     setSrcText(center.getLoadedDafnySrc().getAbsoluteFile());
                     setCaretPosition(center.getSelectedProjectSubTree());

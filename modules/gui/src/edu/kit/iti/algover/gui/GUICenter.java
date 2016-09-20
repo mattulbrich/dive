@@ -40,6 +40,9 @@ public class GUICenter {
 
     private MainWindow mainwindow;
 
+    /**
+     * Model for the GUI of the current project (atm not yet needed)
+     */
     private ProjectTree projectTreeModel;
 
 
@@ -100,6 +103,10 @@ public class GUICenter {
         return selectedProjectSubTree;
     }
 
+    /**
+     * Set the reference to the ProjectTree in the GUI projectTreemodel that is currently selected by the user in the projectbrowser
+     * @param selectedProjectSubTree
+     */
     public void setSelectedProjectSubTree(ProjectTree selectedProjectSubTree) {
         ProjectTree old = this.getSelectedProjectSubTree();
         this.selectedProjectSubTree = selectedProjectSubTree;
@@ -133,17 +140,25 @@ public class GUICenter {
         return loadedProject;
     }
 
+    /**
+     * Set the project directory that is selected by the user
+     * @param parentFile
+     */
     public void setSelectedProjectDir(File parentFile) {
         File old = this.getSelectedProjectDir();
         this.selectedProjectDir = parentFile;
         changes.firePropertyChange(PROJECT_DIR_CHANGED, old, this.getSelectedProjectDir());
-        System.out.println("Set selected Project directory");
+       // System.out.println("Set selected Project directory");
     }
 
     public File getLoadedDafnySrc() {
         return loadedDafnySrc;
     }
 
+    /**
+     * Set the sourcefile for the currently selected projectsubtree
+     * @param loadedDafnySrc
+     */
     public void setLoadedDafnySrc(File loadedDafnySrc) {
         File old = this.getLoadedDafnySrc();
         this.loadedDafnySrc = loadedDafnySrc;
@@ -177,8 +192,8 @@ public class GUICenter {
                 }
             } catch (FileNotFoundException e) {
                 JOptionPane.showMessageDialog(mainwindow,
-                        "Could not build project " + this.selectedProjectDir.toString(),
-                        "Project Directory",
+                        "Could not find file " + this.selectedProjectDir.toString(),
+                        "File not found",
                         JOptionPane.ERROR_MESSAGE);
             } catch (Exception ex) {
                 JOptionPane.showMessageDialog(mainwindow,
