@@ -17,7 +17,14 @@ public class SubtreeTableModel extends AbstractTableModel {
     @Override
     public int getRowCount() {
         if(tree != null){
-            return tree.getDetails().length;
+            if(tree instanceof CustomLeaf){
+                CustomLeaf leaf = (CustomLeaf) tree;
+                return leaf.rowCount;
+            }
+            else {
+
+                return tree.rowCount;
+            }
         }
         return 0;
     }
@@ -25,8 +32,14 @@ public class SubtreeTableModel extends AbstractTableModel {
     @Override
     public int getColumnCount() {
         if(tree != null){
-            //TODO at the moment this is true, might change in the future, therefore need to get length dynamically
-            return 2;
+            if(tree instanceof CustomLeaf){
+                CustomLeaf leaf = (CustomLeaf) tree;
+                return leaf.colCount;
+            }
+            else {
+
+                return tree.colCount;
+            }
         }
         return 0;
     }
@@ -34,7 +47,15 @@ public class SubtreeTableModel extends AbstractTableModel {
     @Override
     public Object getValueAt(int rowIndex, int columnIndex) {
         if(tree != null){
-            return tree.getDetails()[rowIndex][columnIndex];
+
+            if(tree instanceof CustomLeaf){
+                CustomLeaf leaf = (CustomLeaf) tree;
+                return leaf.getDetails()[rowIndex][columnIndex];
+            }
+            else {
+
+                return tree.getDetails()[rowIndex][columnIndex];
+            }
         }
         return null;
 

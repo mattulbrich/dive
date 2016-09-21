@@ -1,5 +1,6 @@
 package edu.kit.iti.algover.gui;
 
+import edu.kit.iti.algover.gui.components.CustomPVCBrowser;
 import edu.kit.iti.algover.gui.components.CustomProjectBrowser;
 import edu.kit.iti.algover.model.ProjectTree;
 import edu.kit.iti.algover.model.ProjectTreeBuilder;
@@ -23,6 +24,11 @@ public final class MainWindow extends JFrame {
     private static GUICenter center;
 
 
+    public ProjectBrowserPanel getpPanel() {
+        return pPanel;
+    }
+
+    private ProjectBrowserPanel pPanel;
     //create the mainwindow with its panels
     public MainWindow(){
         this.center = new GUICenter(this);
@@ -47,17 +53,17 @@ public final class MainWindow extends JFrame {
 
         JSplitPane splitPaneH = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT);
         splitPaneH.setResizeWeight(0.7);
-
+        //JPanel rightSide = new JPanel(new CardLayout());
 
         EditorPanel panel = new EditorPanel(center);
         //TreePanel tPanel = new TreePanel(center);
-        ProjectBrowserPanel pPanel = new ProjectBrowserPanel(center);
-
-
         EditorFooterPanel editorFooterPanel = new EditorFooterPanel(center);
-
         panel.add(editorFooterPanel, BorderLayout.SOUTH);
+
+        pPanel = new ProjectBrowserPanel(center);
+
         splitPaneH.add(panel);
+        //splitPaneH.add(rightSide);
         splitPaneH.add(pPanel);
 
 

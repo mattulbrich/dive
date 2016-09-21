@@ -18,11 +18,15 @@ public abstract class CustomLeaf extends ProjectTree implements TreeNode {
 
     public Project p;
 
+    public int rowCount;
+    public int colCount;
     public CustomLeaf(DafnyDecl data, ProjectTree parent, Project p){
         super(parent.name, data.getFile());
         this.data = data;
         this.parent = parent;
         this.p = p;
+        this.colCount = 2;
+        this.rowCount = 2;
 
     }
     @Override
@@ -63,7 +67,7 @@ public abstract class CustomLeaf extends ProjectTree implements TreeNode {
 
     public abstract DafnyDecl getData();
     public abstract String toString();
-
+    @Override
     public Object[][] getDetails(){
         Object [][] details = new Object[2][2];
         details[0][0] = "Type";

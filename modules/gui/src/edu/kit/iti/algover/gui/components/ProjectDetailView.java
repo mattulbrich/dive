@@ -25,18 +25,25 @@ public class ProjectDetailView extends JPanel {
     JPanel parent;
 
     JTable table;
+
+    MigLayout migLayout = new MigLayout(
+            "insets 10 10 10 10",       //Layout constraints
+            "[grow]",             // Column constraints
+            "[grow][grow 0.2]"          // Row constraints
+    );
     public ProjectDetailView(GUICenter center, JPanel p)
     {
-        this.setLayout(new MigLayout());
+        this.setLayout(migLayout);
         this.add(new Label("Details"), "grow, wrap");
         this.parent = p;
         this.center = center;
         this.center.addPropertyChangeListener(new MyPropertyChangeListener());
         this.table = makeTable();
 
-        JPanel tPanel = new JPanel(new BorderLayout());
-        tPanel.add(this.table, BorderLayout.CENTER);
-        this.add(tPanel, "grow, wrap");
+
+        JScrollPane pane = new JScrollPane(table);
+        //pane.add(this.table);
+        this.add(pane, "grow, wrap");
 
     }
 
@@ -44,16 +51,20 @@ public class ProjectDetailView extends JPanel {
         Object[] cols= {"Category", "Details"};
         JTable table = new JTable();
         table.setModel(new SubtreeTableModel(selected));
-
+        //table.setPreferredSize(new Dimension(200, 200));
+        table.setTableHeader(null);
         return table;
     }
 
 
     private void showDetails(ProjectTree selected) {
         removeAll();
+        add(new Label("Details"), "grow, wrap");
         table.setModel(new SubtreeTableModel(selected));
-        revalidate();
-        parent.repaint();
+        JScrollPane pane = new JScrollPane(table);
+       // pane.add(table);
+        add(pane, "grow, wrap");
+
 
     }
 
@@ -62,14 +73,15 @@ public class ProjectDetailView extends JPanel {
         @Override
         public void propertyChange(PropertyChangeEvent evt) {
             if(evt.getPropertyName().equals(GUICenter.TREE_SELECTION)){
-                removeAll();
-                if(evt.getNewValue() instanceof ProjectTree){
-                    selected = (ProjectTree) evt.getNewValue();
 
-                    showDetails(selected);
-                    validate();
-                    repaint();
-                   // System.out.println(selected.getDetails()[1][1]);
+                if(evt.getNewValue() instanceof ProjectTree) {
+                    selected = (ProjectTree) evt.getNewValue();
+                    if (selected.name != "Project"){
+                        removeAll();
+                        showDetails(selected);
+                        validate();
+                        repaint();
+                    }
 
                 }
             }

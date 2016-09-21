@@ -1,6 +1,8 @@
 package edu.kit.iti.algover.gui.components;
 
+import edu.kit.iti.algover.gui.ButtonListener;
 import edu.kit.iti.algover.gui.GUICenter;
+import edu.kit.iti.algover.gui.ProjectBrowserPanel;
 import edu.kit.iti.algover.gui.ProjectBrowserRenderer;
 import edu.kit.iti.algover.model.ProjectTableTreeModel;
 import edu.kit.iti.algover.model.ProjectTree;
@@ -9,6 +11,9 @@ import org.jdesktop.swingx.JXTreeTable;
 
 import javax.swing.*;
 import javax.swing.tree.TreeSelectionModel;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 
 /**
  * Panel that helps to browse the PVCs of a DafnyDecl
@@ -16,11 +21,12 @@ import javax.swing.tree.TreeSelectionModel;
  */
 public class CustomPVCBrowser extends JPanel {
     GUICenter center;
+    JButton back = new JButton("Back to ProjectBrowser");
 
     MigLayout migLayout = new MigLayout(
                 "insets 0 0 0 0",       //Layout constraints
                 "[grow]",             // Column constraints
-                "[grow 0.7][]"          // Row constraints
+                "[0.3][grow]"          // Row constraints
         );
     public CustomPVCBrowser(GUICenter center, ProjectTree t){
         this.center = center;
@@ -31,23 +37,22 @@ public class CustomPVCBrowser extends JPanel {
 
         JXTreeTable treetable = new JXTreeTable();
         ProjectTableTreeModel treeModel = new ProjectTableTreeModel(t);
-
         treetable.setTreeTableModel(treeModel);
+
         treetable.setTreeCellRenderer(new ProjectBrowserRenderer(this));
         treetable.getSelectionModel().setSelectionMode(TreeSelectionModel.SINGLE_TREE_SELECTION);
-        //treetable.addMouseListener(new CustomProjectBrowser.ProjectTreeMouseListener(treetable, center));
+        treetable.setRootVisible(true);
 
-        ProjectDetailView projectDetailView = new ProjectDetailView(center, this);
         this.setBorder(BorderFactory.createTitledBorder("Project "+t.path));
 
-        //JPanel panel;
-        /*for(ProjectTree tr: t.children){
-            panel = groupedTree(tr);
-            this.add(panel, "grow, wrap");
-        }*/
-
+        back.addActionListener(e -> {
+            if(e.getActionCommand().equals("Back to ProjectBrowser")){
+                CardLayout cl = (CardLayout)center.getMainwindow().getpPanel().cards.getLayout();
+                cl.show(center.getMainwindow().getpPanel().cards, ProjectBrowserPanel.PR_BROWSER);
+            }
+        });
+        this.add(back, "grow, wrap");
         this.add(treetable, "grow, wrap");
-        this.add(projectDetailView, "wrap");
         this.setVisible(true);
 
     }

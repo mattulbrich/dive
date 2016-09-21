@@ -20,12 +20,12 @@ public class CustomProjectBrowser extends JPanel {
 
     //JScrollPane sp = new JScrollPane();
     GUICenter center;
-
+    JSplitPane splitpane;
 
      MigLayout migLayout = new MigLayout(
                 "insets 0 0 0 0",       //Layout constraints
                 "[grow]",             // Column constraints
-                "[grow 0.7][]"          // Row constraints
+                "[grow][grow 0.9]"          // Row constraints
         );
 
     public CustomProjectBrowser(ProjectTree t, GUICenter center){
@@ -33,6 +33,9 @@ public class CustomProjectBrowser extends JPanel {
         this.setLayout(migLayout);
 
         this.setMinimumSize(super.getPreferredSize());
+        //splitpane = new JSplitPane(JSplitPane.VERTICAL_SPLIT);
+        //splitpane.setAutoscrolls(true);
+
 
         JXTreeTable treetable = new JXTreeTable();
         ProjectTableTreeModel treeModel = new ProjectTableTreeModel(t);
@@ -78,9 +81,11 @@ public class CustomProjectBrowser extends JPanel {
                     center.setLoadedDafnySrc(l.getData().getFile().getAbsoluteFile());
                     center.setSelectedProjectSubTree(l);
 
+
                 }else{
                     center.setLoadedDafnySrc(lastPathComponent.path);
                     center.setSelectedProjectSubTree(lastPathComponent);
+
                 }
             }
 

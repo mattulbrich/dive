@@ -23,16 +23,21 @@ public class ProjectTree implements TreeNode{
     public File path;
     public List<ProjectTree> children;
     public ProjectTree parent;
+    public int rowCount;
+    public int colCount;
 
     public DafnyDecl repr;
 
     public ProjectTree(String name, File path){
         this.setName(name);
         this.path = path;
+        this.rowCount = 3;
+        this.colCount = 2;
 
     }
     public void setChildren(List<ProjectTree> children) {
         this.children = children;
+        this.rowCount += children.size();
     }
 
     public void setParent(ProjectTree parent) {
@@ -85,7 +90,7 @@ public class ProjectTree implements TreeNode{
     }
 
     public Object[][] getDetails(){
-        Object [][] details = new Object[2+children.size()][2];
+        Object [][] details = new Object[rowCount][colCount];
 
         details[0][0] = "Type";
         details[0][1] = this.name;
@@ -94,10 +99,15 @@ public class ProjectTree implements TreeNode{
         if(children.size() != 0) {
             details[2][0] = "Children";
             details[2][1] = this.getChildCount();
-            int i = 3;
+           int i = 3;
             for (ProjectTree child: this.children) {
-                     details[i][0] = child.repr.getRepresentation().getType();
-                     details[i][1] = child.name;
+                    if(child instanceof CustomLeaf) {
+                        details[i][0] = ((CustomLeaf) child).getData().getRepresentation().getText();
+                        details[i][1] = ((CustomLeaf) child).getData().getName();
+                    }else{
+                        details[i][0] = "Subtree";
+                        details[i][1] = child.name;
+                    }
                 i++;
             }
         }
