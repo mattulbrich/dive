@@ -1,6 +1,6 @@
 package edu.kit.iti.algover.gui;
 
-import edu.kit.iti.algover.Actions.OpenAction;
+import edu.kit.iti.algover.Actions.*;
 
 import javax.swing.*;
 import java.awt.event.ActionEvent;
@@ -16,11 +16,6 @@ public class MenuBar extends JMenuBar
 {
     GUICenter center;
 
-
-
-
-
-
     public MenuBar(GUICenter center)
     {
         this.center = center;
@@ -30,21 +25,52 @@ public class MenuBar extends JMenuBar
     private void createMenuBar() {
 
         JMenu fileMenu = new JMenu("File");
-        fileMenu.add(new OpenAction(center));
-        JMenu editMenu = new JMenu("Edit");
+        //fileMenu.add(new OpenAction(center));
+        JMenu projectMenu = new JMenu("Project");
+        JMenu proverMenu = new JMenu("Prover");
+        JMenu aboutMenu = new JMenu("About");
+        JMenu helpMenu = new JMenu("Help");
 
+        JMenuItem itemOpen = new JMenuItem("Open Project...");
+        JMenuItem itemSave = new JMenuItem("Save Project...");
+        JMenuItem itemClose = new JMenuItem("Close");
 
-        JMenuItem menuItemSave = new JMenuItem("Save...");
+        JMenu itemProveWith = new JMenu("Prove Whole Project With...");
+        JMenuItem subItemAllProvers = new JMenuItem("All Provers");
+        JMenuItem subItemZ3 = new JMenuItem("Z3");
+        JMenuItem subItemDafny = new JMenuItem("Dafny");
+        JMenuItem subItemKey = new JMenuItem("KeY");
+
+        JMenuItem itemSettings = new JMenuItem("Settings...");
+
        // JMenuItem menuItemOpen = new JMenuItem();
       //  menuItemOpen.setAction(new OpenAction(center));
        // menuItemOpen.setText("Open...");
 
-     //   fileMenu.add(menuItemOpen);
-        fileMenu.add(menuItemSave);
+        itemProveWith.add(subItemAllProvers);
+        itemProveWith.add(subItemZ3);
+        itemProveWith.add(subItemDafny);
+        itemProveWith.add(subItemKey);
 
-        add(fileMenu);
-        add(editMenu);
+        fileMenu.add(itemOpen);
+        fileMenu.add(itemSave);
+        fileMenu.add(itemClose);
+        projectMenu.add(itemProveWith);
+        proverMenu.add(itemSettings);
 
+        this.add(fileMenu);
+        this.add(projectMenu);
+        this.add(proverMenu);
+        this.add(aboutMenu);
+        this.add(helpMenu);
+
+        //Actions
+        itemOpen.setAction(new OpenAction(center));
+        itemSave.setAction(new SaveAction(center));
+        subItemAllProvers.setAction(new ProveAllAction(center));
+        subItemZ3.setAction(new ProveWithZ3Action(center));
+        subItemDafny.setAction(new ProveWithDafnyAction(center));
+        subItemKey.setAction(new ProveWithKeYAction(center));
 
     }
 }

@@ -23,7 +23,7 @@ public class OpenAction extends AbstractAction {
     public OpenAction(GUICenter center){
         this.c = center;
 
-        this.putValue(AbstractAction.NAME, "Open");
+        this.putValue(AbstractAction.NAME, "Open Project...");
         this.putValue(AbstractAction.ACCELERATOR_KEY, KeyStroke.getKeyStroke(KeyEvent.VK_O, KeyEvent.CTRL_MASK));
     }
 
