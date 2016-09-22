@@ -38,63 +38,10 @@ public class EditorPanel extends JPanel{
     {
         this.center = center;
         this.setLayout(new BorderLayout());
-
         tabbedPane = new EditorTabbedPane(center);
-        //textarea = new DafnyEditor();
-
-        //textArea = new RSyntaxTextArea();
-        //textArea.setSyntaxEditingStyle(SyntaxConstants.SYNTAX_STYLE_JAVA);
-
-        //AbstractTokenMakerFactory atmf = (AbstractTokenMakerFactory) TokenMakerFactory.getDefaultInstance();
-        //atmf.putMapping("text/Dafny", "edu.kit.iti.algover.gui.ANTLRTokenMaker");
-        //textArea.setSyntaxEditingStyle("text/Dafny");
-
-        //textArea.setCodeFoldingEnabled(true);
-        //textArea.setSize(400,300);
-
-        //DefaultCaret caret = (DefaultCaret)textArea.getCaret();
-        //caret.setUpdatePolicy(DefaultCaret.ALWAYS_UPDATE);
-
-        //sp = new RTextScrollPane(textArea);
-
-        //tabbedPane.add(sp);
-
         add(tabbedPane, BorderLayout.CENTER);
-
         center.addPropertyChangeListener(new DafnySrcPropertyChangeListener(center));
     }
-
-
-
-
-   /* public void setSrcText(File file){
-
-        //System.out.println(file.toString());
-        try {
-        FileReader reader = new FileReader(file);
-        BufferedReader r = new BufferedReader(reader);
-        String str;
-        String text = "";
-            while ((str = r.readLine()) != null) {
-                text += str+"\n";
-            }
-            r.close();
-
-            this.textArea.setText(text);
-
-        } catch (IOException e) {
-            JOptionPane.showMessageDialog(this.center.getMainwindow(),
-                    "Unable to load file "+this.center.getLoadedDafnySrc(),
-                    "File Loading",
-                    JOptionPane.ERROR_MESSAGE);
-                        e.printStackTrace();
-
-
-        }
-
-
-    }*/
-
 
     private class DafnySrcPropertyChangeListener implements PropertyChangeListener {
         private final GUICenter center;

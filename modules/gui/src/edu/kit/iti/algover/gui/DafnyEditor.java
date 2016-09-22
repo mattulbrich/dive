@@ -13,13 +13,13 @@ import java.io.FileReader;
 import java.io.IOException;
 
 /**
- * Will replace Rsyntaxtextarea in editorpanel when ready
- * Created by sarah on 9/12/16.
+ * Editor for DafnySourceCode
  */
 public class DafnyEditor extends RSyntaxTextArea{
 
     GUICenter center;
     File fileToShow;
+    DefaultCaret caret;
     public DafnyEditor(File filename, GUICenter center){
         this.center = center;
         this.fileToShow = filename;
@@ -27,9 +27,12 @@ public class DafnyEditor extends RSyntaxTextArea{
         this.setSyntaxHighlighting();
         this.setCodeFoldingEnabled(true);
         this.setSrcText(fileToShow);
+        this.caret = (DefaultCaret)this.getCaret();
+        this.caret.setUpdatePolicy(DefaultCaret.ALWAYS_UPDATE);
 
     }
 
+    //TODO: implement Dafny SyntaxHighlighting
     private void setSyntaxHighlighting() {
         //AbstractTokenMakerFactory atmf = (AbstractTokenMakerFactory) TokenMakerFactory.getDefaultInstance();
         //atmf.putMapping("text/Dafny", "edu.kit.iti.algover.gui.ANTLRTokenMaker");
@@ -74,10 +77,6 @@ public class DafnyEditor extends RSyntaxTextArea{
         if(lineNumber == 0){
           this.setCaretPosition(0);
         }else {
-            //int lineNumber;
-//        if(selectedProjectSubTree.isLeaf()) {
-//            CustomLeaf l = (CustomLeaf) selectedProjectSubTree;
-//            lineNumber = l.getData().getRepresentation().getLine();
 
             int offset = 0;
             for (int i = 0; i < lineNumber; i++) {
@@ -85,8 +84,6 @@ public class DafnyEditor extends RSyntaxTextArea{
             }
             this.setCaretPosition(offset - 1);
         }
-//        }else{
-//            setCaretPosition(0);
-//        }
+
     }
 }
