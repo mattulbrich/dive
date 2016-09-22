@@ -1,5 +1,7 @@
 package edu.kit.iti.algover.gui;
 
+import edu.kit.iti.algover.gui.components.EditorScrollPane;
+import edu.kit.iti.algover.gui.components.EditorTabbedPane;
 import edu.kit.iti.algover.model.CustomLeaf;
 import edu.kit.iti.algover.model.ProjectTree;
 import edu.kit.iti.algover.util.FileUtil;
@@ -26,7 +28,7 @@ import java.io.*;
 
 public class EditorPanel extends JPanel{
 
-    JTabbedPane tabbedPane;
+    EditorTabbedPane tabbedPane;
     //DafnyEditor textarea;
     RTextScrollPane sp;
     GUICenter center;
@@ -37,53 +39,35 @@ public class EditorPanel extends JPanel{
         this.center = center;
         this.setLayout(new BorderLayout());
 
-        tabbedPane = new JTabbedPane();
+        tabbedPane = new EditorTabbedPane(center);
         //textarea = new DafnyEditor();
-        textArea = new RSyntaxTextArea();
+
+        //textArea = new RSyntaxTextArea();
+        //textArea.setSyntaxEditingStyle(SyntaxConstants.SYNTAX_STYLE_JAVA);
+
         //AbstractTokenMakerFactory atmf = (AbstractTokenMakerFactory) TokenMakerFactory.getDefaultInstance();
-        textArea.setSyntaxEditingStyle(SyntaxConstants.SYNTAX_STYLE_JAVA);
-
         //atmf.putMapping("text/Dafny", "edu.kit.iti.algover.gui.ANTLRTokenMaker");
-
         //textArea.setSyntaxEditingStyle("text/Dafny");
-        textArea.setCodeFoldingEnabled(true);
-        textArea.setSize(400,300);
 
-        DefaultCaret caret = (DefaultCaret)textArea.getCaret();
-        caret.setUpdatePolicy(DefaultCaret.ALWAYS_UPDATE);
-        sp = new RTextScrollPane(textArea);
+        //textArea.setCodeFoldingEnabled(true);
+        //textArea.setSize(400,300);
 
-        tabbedPane.add(sp);
+        //DefaultCaret caret = (DefaultCaret)textArea.getCaret();
+        //caret.setUpdatePolicy(DefaultCaret.ALWAYS_UPDATE);
+
+        //sp = new RTextScrollPane(textArea);
+
+        //tabbedPane.add(sp);
 
         add(tabbedPane, BorderLayout.CENTER);
 
         center.addPropertyChangeListener(new DafnySrcPropertyChangeListener(center));
     }
 
-    private void setCaretPosition(ProjectTree selectedProjectSubTree) {
-      //  System.out.println(textArea.getText().length());
-
-        String[] lines =textArea.getText().split("\n");
-    //    System.out.println("ArrayLength "+lines.length);
-
-        int lineNumber;
-        if(selectedProjectSubTree instanceof CustomLeaf) {
-            CustomLeaf l = (CustomLeaf) selectedProjectSubTree;
-            lineNumber = l.getData().getRepresentation().getLine();
-
-            int offset = 0;
-            for (int i = 0; i < lineNumber; i++) {
-                offset += lines[i].length() + 1;
-            }
-
-            textArea.setCaretPosition(offset - 1);
-        }else{
-            textArea.setCaretPosition(0);
-        }
-    }
 
 
-    public void setSrcText(File file){
+
+   /* public void setSrcText(File file){
 
         //System.out.println(file.toString());
         try {
@@ -97,6 +81,7 @@ public class EditorPanel extends JPanel{
             r.close();
 
             this.textArea.setText(text);
+
         } catch (IOException e) {
             JOptionPane.showMessageDialog(this.center.getMainwindow(),
                     "Unable to load file "+this.center.getLoadedDafnySrc(),
@@ -108,7 +93,7 @@ public class EditorPanel extends JPanel{
         }
 
 
-    }
+    }*/
 
 
     private class DafnySrcPropertyChangeListener implements PropertyChangeListener {
@@ -120,22 +105,29 @@ public class EditorPanel extends JPanel{
 
         @Override
         public void propertyChange(PropertyChangeEvent evt) {
-            if(evt.getPropertyName() == GUICenter.DAFNY_SOURCE_CHANGED) {
-                try {
-                    setSrcText(center.getLoadedDafnySrc().getAbsoluteFile());
 
-                } catch (Exception e) {
-                    JOptionPane.showMessageDialog(center.getMainwindow(),
-                    "Unable to load file "+ center.getLoadedDafnySrc(),
-                    "Source File Loading",
-                    JOptionPane.ERROR_MESSAGE);
-                    //e.printStackTrace();
-                }
+            if (evt.getPropertyName() == GUICenter.PROJECT_DIR_CHANGED) {
+                remove(tabbedPane);
+                tabbedPane = new EditorTabbedPane(center);
+                add(tabbedPane);
 
             }
-            if(evt.getPropertyName() == GUICenter.TREE_SELECTION){
+            if (evt.getPropertyName() == GUICenter.DAFNY_SOURCE_CHANGED) {
+                File loadedFile = center.getLoadedDafnySrc().getAbsoluteFile();
+                tabbedPane.setTabInFocus(loadedFile);
+           }
+            if (evt.getPropertyName() == GUICenter.SUBTREE_SELECTION) {
                 ProjectTree selectedProjectSubTree = center.getSelectedProjectSubTree();
-                    setCaretPosition(selectedProjectSubTree);
+                tabbedPane.setTabInFocus(selectedProjectSubTree.getFile());
+                EditorScrollPane sp = tabbedPane.getTabWithName(selectedProjectSubTree.getFile().getAbsoluteFile().getName());
+                sp.getEditor().setCaretPos(selectedProjectSubTree.getLineNumber());
+            }
+            if (evt.getPropertyName() == GUICenter.LEAF_TO_LOAD) {
+                CustomLeaf selectedLeaf = center.getSelectedLeaf();
+                tabbedPane.setTabInFocus(selectedLeaf.getFile());
+                EditorScrollPane sp = tabbedPane.getTabWithName(selectedLeaf.getFile().getAbsoluteFile().getName());
+                sp.getEditor().setCaretPos(selectedLeaf.getLineNumber());
+
             }
         }
     }

@@ -5,6 +5,7 @@ import edu.kit.iti.algover.dafnystructures.DafnyField;
 import edu.kit.iti.algover.project.Project;
 
 import javax.swing.tree.TreeNode;
+import java.io.File;
 import java.util.Enumeration;
 
 /**
@@ -58,5 +59,13 @@ public class FieldLeaf extends CustomLeaf {
         return field.getName();
     }
 
+    @Override
+    public String getFileName(){
+        return parent.getFileName();
+    }
 
+    @Override
+    public File getFile(){
+        return parent.getFile();
+    }
 }

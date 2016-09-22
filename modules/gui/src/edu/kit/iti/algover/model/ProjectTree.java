@@ -113,5 +113,17 @@ public class ProjectTree implements TreeNode{
         }
         return details;
     }
+
+    public int getLineNumber(){
+        return 0;
+    }
+
+    public String getFileName(){
+        return this.path.getAbsoluteFile().getName();
+    }
+
+    public File getFile(){
+        return this.path;
+    }
 }
 

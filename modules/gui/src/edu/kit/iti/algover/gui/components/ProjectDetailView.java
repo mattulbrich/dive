@@ -72,7 +72,7 @@ public class ProjectDetailView extends JPanel {
     private class MyPropertyChangeListener implements PropertyChangeListener {
         @Override
         public void propertyChange(PropertyChangeEvent evt) {
-            if(evt.getPropertyName().equals(GUICenter.TREE_SELECTION)){
+            if(evt.getPropertyName().equals(GUICenter.SUBTREE_SELECTION)){
 
                 if(evt.getNewValue() instanceof ProjectTree) {
                     selected = (ProjectTree) evt.getNewValue();

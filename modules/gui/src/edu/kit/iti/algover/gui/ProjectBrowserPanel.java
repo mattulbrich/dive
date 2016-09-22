@@ -71,24 +71,29 @@ public class ProjectBrowserPanel extends JPanel {
 
         @Override
         public void propertyChange(PropertyChangeEvent evt) {
+            if(evt.getPropertyName() == GUICenter.PROJECT_DIR_CHANGED){
+                if(br != null){
+                    cards.remove(br);
+
+                }if(pvcbrowser != null){
+                    cards.remove(pvcbrowser);
+                }
+            }
             if(evt.getPropertyName() == GUICenter.PROJECT_LOADED){
                 removeAll();
                 ProjectTreeBuilder pb = new ProjectTreeBuilder();
                 ProjectTree t = pb.buildProject(center.getLoadedProject());
                 br = new CustomProjectBrowser(t, center);
-
                 cards.add(br, PR_BROWSER);
                 add(cards);
-                //pvcbrowser = new CustomPVCBrowser(center, center.getSelectedProjectSubTree());
-                //add(pvcbrowser, PVC_BROWSER);
                 repaint();
                 revalidate();
 
                 center.setProjectTreeModel(t);
             }
-            if(evt.getPropertyName() == GUICenter.TREE_SELECTION){
+            if(evt.getPropertyName() == GUICenter.LEAF_TO_LOAD){
                 if(center.getSelectedProjectSubTree() instanceof CustomLeaf){
-                    pvcbrowser = new CustomPVCBrowser(center, center.getSelectedProjectSubTree());
+                    pvcbrowser = new CustomPVCBrowser(center, center.getSelectedLeaf());
                     cards.add(pvcbrowser, PVC_BROWSER);
                     CardLayout cl = (CardLayout)cards.getLayout();
                     cl.show(cards, PVC_BROWSER);

@@ -5,6 +5,7 @@ import edu.kit.iti.algover.dafnystructures.DafnyFunction;
 import edu.kit.iti.algover.project.Project;
 
 import javax.swing.tree.TreeNode;
+import java.io.File;
 import java.util.Enumeration;
 
 /**
@@ -57,6 +58,15 @@ public class FunctionLeaf extends CustomLeaf{
 
     public String toString(){
         return this.function.getName();
+    }
+    @Override
+    public String getFileName(){
+        return this.function.getFilename();
+    }
+
+    @Override
+    public File getFile(){
+        return this.function.getFile();
     }
 
 }

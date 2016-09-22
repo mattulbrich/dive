@@ -4,6 +4,7 @@ import edu.kit.iti.algover.dafnystructures.DafnyDecl;
 import edu.kit.iti.algover.project.Project;
 
 import javax.swing.tree.TreeNode;
+import java.io.File;
 import java.util.Enumeration;
 
 /**
@@ -20,6 +21,8 @@ public abstract class CustomLeaf extends ProjectTree implements TreeNode {
 
     public int rowCount;
     public int colCount;
+
+    public int lineNumber;
     public CustomLeaf(DafnyDecl data, ProjectTree parent, Project p){
         super(parent.name, data.getFile());
         this.data = data;
@@ -27,6 +30,7 @@ public abstract class CustomLeaf extends ProjectTree implements TreeNode {
         this.p = p;
         this.colCount = 2;
         this.rowCount = 2;
+        this.lineNumber = data.getRepresentation().getLine();
 
     }
     @Override
@@ -76,5 +80,16 @@ public abstract class CustomLeaf extends ProjectTree implements TreeNode {
         details[1][1] = this.getData().getFilename();
         return details;
     }
+
+    @Override
+    public int getLineNumber(){
+        return this.lineNumber;
+    }
+    @Override
+    public abstract String getFileName();
+
+    @Override
+    public abstract File getFile();
+
 
 }

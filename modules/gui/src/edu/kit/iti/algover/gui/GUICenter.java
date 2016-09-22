@@ -1,11 +1,13 @@
 package edu.kit.iti.algover.gui;
 
 import edu.kit.iti.algover.facade.ProjectFacade;
+import edu.kit.iti.algover.model.CustomLeaf;
 import edu.kit.iti.algover.model.ProjectTree;
 import edu.kit.iti.algover.model.ProjectTreeBuilder;
 import edu.kit.iti.algover.project.Project;
 
 import javax.swing.*;
+import javax.swing.tree.TreePath;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
 import java.io.File;
@@ -36,16 +38,19 @@ public class GUICenter {
     //Loaded project object
     private Project loadedProject;
 
+    //selected project directory
     private File selectedProjectDir;
 
+    //mainwindow instance
     private MainWindow mainwindow;
 
-    public void setProjectTreeModel(ProjectTree projectTreeModel) {
-        ProjectTree old = this.getProjectTreeModel();
-        this.projectTreeModel = projectTreeModel;
-        changes.firePropertyChange(PROJECT_TREE_MODEL_CHANGED, old, this.getProjectTreeModel());
-    }
 
+    //selected project leaf
+    private CustomLeaf selectedLeaf;
+
+
+    //path to selected subtree
+    private TreePath selectedPath;
     /**
      * model of project
      */
@@ -67,13 +72,28 @@ public class GUICenter {
 
     public static final String PVC_STATUS_CHANGED = "pvc_status_changed";
 
-    public static final String PORERTY_CHANGED = "property_changed";
+    //public static final String PROPERTY_CHANGED = "property_changed";
 
-    public static final String TREE_SELECTION = "tree_selection";
+    /**
+     * new subtree selected
+     */
+    public static final String SUBTREE_SELECTION = "subtree_selection";
+
+    /**
+     * new project directory set
+     */
 
     public static final String PROJECT_DIR_CHANGED = "project_directory_changed";
 
+    /**
+     * project tree model has changed
+     */
     public static final String PROJECT_TREE_MODEL_CHANGED = "project_tree_model_changed";
+
+    /**
+     * Selected leaf to load
+     */
+    public static final String LEAF_TO_LOAD = "leaf_to_load_selected";
     /**
      * Constructor
      * @param window
@@ -108,19 +128,34 @@ public class GUICenter {
     public ProjectTree getSelectedProjectSubTree() {
         return selectedProjectSubTree;
     }
+    //set the model for the projectTree
+    public void setProjectTreeModel(ProjectTree projectTreeModel) {
+        ProjectTree old = this.getProjectTreeModel();
+        this.projectTreeModel = projectTreeModel;
+        changes.firePropertyChange(PROJECT_TREE_MODEL_CHANGED, old, this.getProjectTreeModel());
+    }
 
     /**
-     * Set the reference to the ProjectTree in the GUI projectTreemodel that is currently selected by the user in the projectbrowser
+     * Set the reference to the ProjectTree in the GUI projectTreeModel that is currently selected by the user in the projectbrowser
      * @param selectedProjectSubTree
      */
     public void setSelectedProjectSubTree(ProjectTree selectedProjectSubTree) {
         ProjectTree old = this.getSelectedProjectSubTree();
         this.selectedProjectSubTree = selectedProjectSubTree;
-        changes.firePropertyChange(TREE_SELECTION, old, this.getSelectedProjectSubTree());
+        changes.firePropertyChange(SUBTREE_SELECTION, old, this.getSelectedProjectSubTree());
 
     }
 
+    public CustomLeaf getSelectedLeaf() {
+        return selectedLeaf;
+    }
 
+    public void setSelectedLeaf(CustomLeaf selectedLeaf) {
+        CustomLeaf old = this.getSelectedLeaf();
+        this.selectedLeaf = selectedLeaf;
+
+        changes.firePropertyChange(LEAF_TO_LOAD, old, this.getSelectedLeaf());
+    }
 
     public File getSelectedProjectDir() {
         return selectedProjectDir;
@@ -151,9 +186,11 @@ public class GUICenter {
      * @param parentFile
      */
     public void setSelectedProjectDir(File parentFile) {
+        mainwindow.setEnabled(false);
         File old = this.getSelectedProjectDir();
         this.selectedProjectDir = parentFile;
         changes.firePropertyChange(PROJECT_DIR_CHANGED, old, this.getSelectedProjectDir());
+        mainwindow.setEnabled(true);
        // System.out.println("Set selected Project directory");
     }
 
@@ -172,32 +209,18 @@ public class GUICenter {
     }
 
     /**
-     * Load selected Project from directory, call to facade
+     * Load selected Project from directory, call to facade, retrieve project object
      */
     public void loadSelectedProject() {
-        Project old = this.getLoadedProject();
+        //Project old = this.getLoadedProject();
         if (selectedProjectDir == null) {
             JOptionPane.showMessageDialog(mainwindow,
                     "You have to select the project's directory first.",
                     "Project Directory",
                     JOptionPane.ERROR_MESSAGE);
-
         } else {
             try {
                 this.setLoadedProject(facade.buildProject(this.selectedProjectDir));
-                ProjectTreeBuilder builder = new ProjectTreeBuilder();
-                //ProjectTree pTree = builder.buildProject(this.loadedProject);
-
-                changes.firePropertyChange(PROJECT_LOADED, old , this.loadedProject);
-               /* if (pTree == null) {
-                    JOptionPane.showMessageDialog(mainwindow,
-                            "Could not build project " + this.selectedProjectDir.toString(),
-                            "Project Directory",
-                            JOptionPane.ERROR_MESSAGE);
-                } else {
-                    this.setProjectTreeModel(pTree);
-                    System.out.println("Project " + loadedProject.getScript().getAbsolutePath() + " is loaded");
-                }*/
             } catch (FileNotFoundException e) {
                 JOptionPane.showMessageDialog(mainwindow,
                         "Could not find file " + this.selectedProjectDir.toString(),
@@ -211,5 +234,13 @@ public class GUICenter {
             }
 
         }
+    }
+
+    public TreePath getSelectedPath() {
+        return selectedPath;
+    }
+
+    public void setSelectedPath(TreePath selectedPath) {
+        this.selectedPath = selectedPath;
     }
 }

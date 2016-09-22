@@ -5,6 +5,7 @@ import edu.kit.iti.algover.dafnystructures.DafnyMethod;
 import edu.kit.iti.algover.project.Project;
 
 import javax.swing.tree.TreeNode;
+import java.io.File;
 import java.util.Enumeration;
 
 /**
@@ -58,6 +59,15 @@ public class MethodLeaf extends CustomLeaf {
     @Override
     public String toString() {
         return method.getMethodName();
+    }
+    @Override
+    public String getFileName(){
+        return this.method.getFilename();
+    }
+
+    @Override
+    public File getFile(){
+        return this.method.getFile();
     }
 
 }

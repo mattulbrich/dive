@@ -1,9 +1,11 @@
 package edu.kit.iti.algover.gui.components;
 
+import edu.kit.iti.algover.Actions.ProjectTreeMouseListener;
 import edu.kit.iti.algover.gui.ButtonListener;
 import edu.kit.iti.algover.gui.GUICenter;
 import edu.kit.iti.algover.gui.ProjectBrowserPanel;
 import edu.kit.iti.algover.gui.ProjectBrowserRenderer;
+import edu.kit.iti.algover.model.CustomLeaf;
 import edu.kit.iti.algover.model.ProjectTableTreeModel;
 import edu.kit.iti.algover.model.ProjectTree;
 import net.miginfocom.swing.MigLayout;
@@ -28,7 +30,7 @@ public class CustomPVCBrowser extends JPanel {
                 "[grow]",             // Column constraints
                 "[0.3][grow]"          // Row constraints
         );
-    public CustomPVCBrowser(GUICenter center, ProjectTree t){
+    public CustomPVCBrowser(GUICenter center, CustomLeaf l){
         this.center = center;
 
         this.setLayout(migLayout);
@@ -36,14 +38,22 @@ public class CustomPVCBrowser extends JPanel {
         this.setMinimumSize(super.getPreferredSize());
 
         JXTreeTable treetable = new JXTreeTable();
-        ProjectTableTreeModel treeModel = new ProjectTableTreeModel(t);
+        ProjectTree tree = center.getSelectedProjectSubTree();
+        System.out.println(tree);
+        System.out.println();
+
+        ProjectTableTreeModel treeModel = new ProjectTableTreeModel(center.getProjectTreeModel());
         treetable.setTreeTableModel(treeModel);
 
+        treetable.expandPath(center.getSelectedPath());
         treetable.setTreeCellRenderer(new ProjectBrowserRenderer(this));
-        treetable.getSelectionModel().setSelectionMode(TreeSelectionModel.SINGLE_TREE_SELECTION);
-        treetable.setRootVisible(true);
 
-        this.setBorder(BorderFactory.createTitledBorder("Project "+t.path));
+        treetable.getSelectionModel().setSelectionMode(TreeSelectionModel.SINGLE_TREE_SELECTION);
+
+        treetable.setRootVisible(true);
+        treetable.addMouseListener(new ProjectTreeMouseListener(treetable, center));
+
+        this.setBorder(BorderFactory.createTitledBorder("Project "+tree.path));
 
         back.addActionListener(e -> {
             if(e.getActionCommand().equals("Back to ProjectBrowser")){
