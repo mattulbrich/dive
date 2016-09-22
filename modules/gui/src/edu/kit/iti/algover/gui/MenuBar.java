@@ -33,7 +33,7 @@ public class MenuBar extends JMenuBar
 
         JMenuItem itemOpen = new JMenuItem("Open Project...");
         JMenuItem itemSave = new JMenuItem("Save Project...");
-        JMenuItem itemClose = new JMenuItem("Close");
+        JMenuItem itemExit = new JMenuItem("Exit");
 
         JMenu itemProveWith = new JMenu("Prove Whole Project With...");
         JMenuItem subItemAllProvers = new JMenuItem("All Provers");
@@ -54,7 +54,7 @@ public class MenuBar extends JMenuBar
 
         fileMenu.add(itemOpen);
         fileMenu.add(itemSave);
-        fileMenu.add(itemClose);
+        fileMenu.add(itemExit);
         projectMenu.add(itemProveWith);
         proverMenu.add(itemSettings);
 
@@ -67,6 +67,7 @@ public class MenuBar extends JMenuBar
         //Actions
         itemOpen.setAction(new OpenAction(center));
         itemSave.setAction(new SaveAction(center));
+        itemExit.setAction(new ExitAction(center));
         subItemAllProvers.setAction(new ProveAllAction(center));
         subItemZ3.setAction(new ProveWithZ3Action(center));
         subItemDafny.setAction(new ProveWithDafnyAction(center));
