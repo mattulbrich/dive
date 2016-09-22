@@ -28,6 +28,7 @@ public class ProjectTreeMouseListener extends MouseAdapter {
             TreePath path = treetable.getPathForLocation(e.getX(), e.getY());
             ProjectTree lastPathComponent = (ProjectTree) path.getLastPathComponent();
             center.setSelectedPath(path);
+
             if(lastPathComponent.isLeaf()){
                 CustomLeaf l = (CustomLeaf) lastPathComponent;
                 center.setLoadedDafnySrc(l.getData().getFile().getAbsoluteFile());
@@ -49,9 +50,6 @@ public class ProjectTreeMouseListener extends MouseAdapter {
                 CustomLeaf l = (CustomLeaf) lastPathComponent;
                 center.setLoadedDafnySrc(l.getData().getFile().getAbsoluteFile());
                 center.setSelectedLeaf(l);
-
-
-
             }else{
                 center.setLoadedDafnySrc(lastPathComponent.path);
                 center.setSelectedProjectSubTree(lastPathComponent);
