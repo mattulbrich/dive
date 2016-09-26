@@ -28,7 +28,7 @@ public class MenuBar extends JMenuBar
         //fileMenu.add(new OpenAction(center));
         JMenu projectMenu = new JMenu("Project");
         JMenu proverMenu = new JMenu("Prover");
-        JMenu aboutMenu = new JMenu("About");
+        //JMenu aboutMenu = new JMenu("About");
         JMenu helpMenu = new JMenu("Help");
 
         JMenuItem itemOpen = new JMenuItem("Open Project...");
@@ -42,6 +42,9 @@ public class MenuBar extends JMenuBar
         JMenuItem subItemKey = new JMenuItem("KeY");
 
         JMenuItem itemSettings = new JMenuItem("Settings...");
+
+        JMenuItem itemHelp = new JMenuItem("Help");
+        JMenuItem itemAbout = new JMenuItem(("About"));
 
        // JMenuItem menuItemOpen = new JMenuItem();
       //  menuItemOpen.setAction(new OpenAction(center));
@@ -57,11 +60,14 @@ public class MenuBar extends JMenuBar
         fileMenu.add(itemExit);
         projectMenu.add(itemProveWith);
         proverMenu.add(itemSettings);
+        helpMenu.add(itemHelp);
+        helpMenu.addSeparator();
+        helpMenu.add(itemAbout);
 
         this.add(fileMenu);
         this.add(projectMenu);
         this.add(proverMenu);
-        this.add(aboutMenu);
+        //this.add(aboutMenu);
         this.add(helpMenu);
 
         //Actions
@@ -72,6 +78,7 @@ public class MenuBar extends JMenuBar
         subItemZ3.setAction(new ProveWithZ3Action(center));
         subItemDafny.setAction(new ProveWithDafnyAction(center));
         subItemKey.setAction(new ProveWithKeYAction(center));
+        itemAbout.setAction(new AboutAction(center));
 
     }
 }
