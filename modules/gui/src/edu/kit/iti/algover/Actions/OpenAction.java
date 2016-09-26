@@ -32,12 +32,17 @@ public class OpenAction extends AbstractAction {
 
         JFileChooser fc = new JFileChooser();
         fc.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
-        fc.showDialog(c.getMainwindow(), "Open Project Directory");
-        c.setSelectedProjectDir(fc.getSelectedFile());
-        c.loadSelectedProject();
-        System.out.println(fc.getSelectedFile());
-        System.out.println("Open Action performed");
-    }
+        int result = fc.showDialog(c.getMainwindow(), "Open Project Directory");
 
+        if (result == JFileChooser.APPROVE_OPTION) {
+
+            c.setSelectedProjectDir(fc.getSelectedFile());
+            c.loadSelectedProject();
+            System.out.println(fc.getSelectedFile());
+            System.out.println("Open Action performed");
+        }
+
+
+    }
 
 }
