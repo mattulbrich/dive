@@ -78,6 +78,7 @@ public class MenuBar extends JMenuBar
         subItemZ3.setAction(new ProveWithZ3Action(center));
         subItemDafny.setAction(new ProveWithDafnyAction(center));
         subItemKey.setAction(new ProveWithKeYAction(center));
+        itemSettings.setAction(new ProverSettingsAction(center));
         itemAbout.setAction(new AboutAction(center));
 
     }
