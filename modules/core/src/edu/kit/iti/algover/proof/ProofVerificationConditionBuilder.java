@@ -34,6 +34,7 @@ import edu.kit.iti.algover.util.ImmutableList;
  * A ProofVerificationConditionBuilder contains all path conditions for a specific verification condition
  * Created by sarah on 10/7/15.
  */
+@Deprecated
 public class ProofVerificationConditionBuilder {
 
     //Displayname, it has to be generated using the pathconditions

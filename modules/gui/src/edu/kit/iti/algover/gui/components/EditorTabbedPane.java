@@ -5,6 +5,7 @@ import edu.kit.iti.algover.gui.GUICenter;
 import org.fife.ui.rtextarea.RTextScrollPane;
 
 import javax.swing.*;
+import java.awt.*;
 import java.io.File;
 
 /**
@@ -35,7 +36,7 @@ public class EditorTabbedPane extends JTabbedPane {
     }
 
     /**
-     * Set the tab woth loaded file into focus if it exists create new one if it doesn't exist
+     * Set the tab with loaded file into focus if it exists create new one if it doesn't exist
      * @param loadedFile
      */
     public void setTabInFocus(File loadedFile){
@@ -63,6 +64,16 @@ public class EditorTabbedPane extends JTabbedPane {
 
         }
 
+    }
+
+    public DafnyEditor getFocusTab(){
+        int index = this.getSelectedIndex();
+        if(index >= 0) {
+            EditorScrollPane name = (EditorScrollPane) this.getComponentAt(index);
+            return name.getEditor();
+        }else{
+            return null;
+        }
     }
 
     public EditorScrollPane getTabWithName(String filename){

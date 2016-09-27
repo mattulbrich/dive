@@ -13,7 +13,7 @@ import java.awt.*;
  */
 public class EditorFooterPanel extends JPanel {
 
-    JLabel leftLabel = new JLabel("Left");
+    JLabel leftLabel;
     JLabel rightLabel = new JLabel("Line");
 
     MigLayout migLayout = new MigLayout(
@@ -23,7 +23,7 @@ public class EditorFooterPanel extends JPanel {
     );
 
     public EditorFooterPanel(GUICenter center){
-
+        leftLabel = new JLabel("Left");
         setLayout(migLayout);
 
         add(leftLabel, "align left");

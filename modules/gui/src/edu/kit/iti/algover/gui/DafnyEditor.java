@@ -1,11 +1,14 @@
 package edu.kit.iti.algover.gui;
 
+import edu.kit.iti.algover.Actions.FooterCaretListener;
 import edu.kit.iti.algover.model.CustomLeaf;
 import edu.kit.iti.algover.model.ProjectTree;
 import org.fife.ui.rsyntaxtextarea.RSyntaxTextArea;
 import org.fife.ui.rsyntaxtextarea.SyntaxConstants;
 
 import javax.swing.*;
+import javax.swing.event.CaretEvent;
+import javax.swing.event.CaretListener;
 import javax.swing.text.DefaultCaret;
 import java.io.BufferedReader;
 import java.io.File;
@@ -29,6 +32,8 @@ public class DafnyEditor extends RSyntaxTextArea{
         this.setSrcText(fileToShow);
         this.caret = (DefaultCaret)this.getCaret();
         this.caret.setUpdatePolicy(DefaultCaret.ALWAYS_UPDATE);
+
+        this.addCaretListener(new FooterCaretListener(center));
 
     }
 
@@ -80,10 +85,12 @@ public class DafnyEditor extends RSyntaxTextArea{
 
             int offset = 0;
             for (int i = 0; i < lineNumber; i++) {
-                offset += lines[i].length() + 1;
+                offset += lines[i].length()+1;
             }
             this.setCaretPosition(offset - 1);
         }
 
     }
+
+
 }

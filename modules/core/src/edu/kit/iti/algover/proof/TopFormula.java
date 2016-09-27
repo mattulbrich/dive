@@ -54,17 +54,17 @@ public class TopFormula{
         return t;
     }
 
-    public Term getLetTerm() {
+/*    public Term getLetTerm() {
         return letTerm;
-    }
+    }*/
 
     public int getIdInPVC() {
         return idInPVC;
     }
 
-    public int getLineInFile() {
-        return lineInFile;
-    }
+   // public int getLineInFile() {
+    //    return lineInFile;
+    //}
 
     private List<Assignment> affectingAssignments;
     /**

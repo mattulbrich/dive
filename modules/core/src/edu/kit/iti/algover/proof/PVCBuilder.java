@@ -23,8 +23,8 @@ import java.util.LinkedList;
 import java.util.List;
 
 /**
- * A PVC corresponds to a symbexpath. So it consists of assignments on the path through teh program of
- * pathconditions and of a goal to prove. In addition it is uniquely identified by its OIC. This ID has to be given from a central instance
+ * A PVC corresponds to a symbexpath. So it consists of assignments on the path through the program of
+ * pathconditions and of a goal to prove. In addition it is uniquely identified by its ID. This ID has to be given from a central instance
  * New attempt to implement a PVC Builder
  * Created by sarah on 8/18/16.
  */
@@ -103,10 +103,11 @@ public class PVCBuilder {
 
     /**
 
-     * Path through programm
+     * Path through programm which represents state of this pvc
      */
     private SymbexPath pathThroughProgram;
 
+    //name
     private String pvcName;
 
 
@@ -201,7 +202,10 @@ public class PVCBuilder {
 
                 //TODO its a hack
                 septf = new SymbexPathToTopFormula(parent.getRepresentation());
-                ttt = new TreeTermTranslator(septf.getSymbolTable().addFunctionSymbol(new FunctionSymbol(ae.getExpression().getChild(0).getText(), Sort.INT, Collections.emptyList())));
+                ttt = new TreeTermTranslator(
+                        septf.getSymbolTable().addFunctionSymbol(
+                                new FunctionSymbol(ae.getExpression().getChild(0).getText(),
+                                        Sort.INT, Collections.emptyList())));
 
                 goalWithInfo.add(createVariantGoal(ae, ttt));
             }

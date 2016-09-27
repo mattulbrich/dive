@@ -36,6 +36,11 @@ public class DafnyTranslator {
     private int number;
 
 
+    /**
+     * Create a Dafny program representing the PVC given (slice of program)
+     * @param verificationCondition
+     * @param noOfPOs
+     */
     public DafnyTranslator(PVC verificationCondition, int noOfPOs) {
         this.path = verificationCondition.getPathThroughProgram();
         this.pvcID = verificationCondition.getPvcID();

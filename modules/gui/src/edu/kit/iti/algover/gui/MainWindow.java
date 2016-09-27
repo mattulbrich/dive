@@ -17,6 +17,12 @@ import java.beans.PropertyChangeListener;
  */
 public final class MainWindow extends JFrame {
 
+    //return panel with editortabbedpane and footer
+    public EditorPanel getEditorPanel() {
+        return panel;
+    }
+
+    private EditorPanel panel;
     //singleton object
     private static MainWindow instance = null;
 
@@ -55,10 +61,11 @@ public final class MainWindow extends JFrame {
         splitPaneH.setResizeWeight(0.7);
         //JPanel rightSide = new JPanel(new CardLayout());
 
-        EditorPanel panel = new EditorPanel(center);
+        panel = new EditorPanel(center);
         //TreePanel tPanel = new TreePanel(center);
-        EditorFooterPanel editorFooterPanel = new EditorFooterPanel(center);
-        panel.add(editorFooterPanel, BorderLayout.SOUTH);
+        //EditorFooterPanel editorFooterPanel = new EditorFooterPanel(center);
+        //panel.add(editorFooterPanel, BorderLayout.SOUTH);
+
 
         pPanel = new ProjectBrowserPanel(center);
 
@@ -77,7 +84,7 @@ public final class MainWindow extends JFrame {
 
         this.setTitle("AlgoVer");
         this.setDefaultCloseOperation( JFrame.EXIT_ON_CLOSE );
-        this.setBounds(250, 120, 300, 300);
+        //this.setBounds(250, 120, 300, 300);
         this.setLayout(migLayout);
 
         this.add(menuBar, "growx, wrap");

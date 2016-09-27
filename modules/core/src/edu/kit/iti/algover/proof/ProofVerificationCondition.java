@@ -9,6 +9,7 @@ import java.util.List;
  * For each path and invariant part/ensures part one single pvc
  * This class represents a root PVC that will be referenced by the proof
  */
+@Deprecated
 public class ProofVerificationCondition {
     private String pvcID;
 

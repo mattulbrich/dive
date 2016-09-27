@@ -28,6 +28,7 @@ import java.util.*;
  * TODO: Var Decl auskommentieren
  * Created by sarah on 6/7/16.
  */
+@Deprecated
 public class DafnyTrans {
 
     public String methodName;

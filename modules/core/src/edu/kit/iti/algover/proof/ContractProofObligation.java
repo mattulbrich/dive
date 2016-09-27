@@ -18,6 +18,7 @@ import java.util.List;
  * This class handles the transformation of the symbolic execution states into ProofVerificationConditionBuilder
  * Created by sarah on 10/23/15.
  */
+@Deprecated
 public class ContractProofObligation {
     private List<ProofVerificationConditionBuilder> verification_conditions;
     public DafnyTree method;

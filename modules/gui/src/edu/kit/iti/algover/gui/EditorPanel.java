@@ -28,11 +28,18 @@ import java.io.*;
 
 public class EditorPanel extends JPanel{
 
+    public EditorTabbedPane getTabbedPane() {
+        return tabbedPane;
+    }
+
+    public EditorFooterPanel getFooter() {
+        return footer;
+    }
+
     EditorTabbedPane tabbedPane;
-    //DafnyEditor textarea;
-    RTextScrollPane sp;
     GUICenter center;
-    RSyntaxTextArea textArea;
+
+    EditorFooterPanel footer;
 
     public EditorPanel(GUICenter center)
     {
@@ -40,6 +47,8 @@ public class EditorPanel extends JPanel{
         this.setLayout(new BorderLayout());
         tabbedPane = new EditorTabbedPane(center);
         add(tabbedPane, BorderLayout.CENTER);
+        footer = new EditorFooterPanel(center);
+        add(footer, BorderLayout.SOUTH);
         center.addPropertyChangeListener(new DafnySrcPropertyChangeListener(center));
     }
 
