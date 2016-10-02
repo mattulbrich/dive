@@ -7,6 +7,7 @@ import edu.kit.iti.algover.gui.SettingsWindow;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
+import java.awt.event.KeyEvent;
 
 /**
  * Created by Azadeh Shirvanian on 27.09.2016.
@@ -19,6 +20,8 @@ public class ProverSettingsAction extends AbstractAction {
 
         this.c = center;
         this.putValue(AbstractAction.NAME, "Settings...");
+        this.putValue(AbstractAction.ACCELERATOR_KEY, KeyStroke.getKeyStroke(KeyEvent.VK_T, KeyEvent.CTRL_MASK));
+        this.putValue(AbstractAction.MNEMONIC_KEY, KeyEvent.VK_S);
 
     }
 

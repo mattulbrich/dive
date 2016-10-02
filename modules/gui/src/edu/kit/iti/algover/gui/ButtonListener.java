@@ -6,6 +6,7 @@ import java.awt.event.ActionListener;
 /**
  * Created by Azadeh Shirvanian on 14.09.2016.
  */
+@Deprecated
 public class ButtonListener implements ActionListener {
 
     public ButtonListener(){}

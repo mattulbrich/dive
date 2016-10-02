@@ -19,6 +19,7 @@ public class SaveAction extends AbstractAction {
 
         this.putValue(AbstractAction.NAME, "Save Project...");
         this.putValue(AbstractAction.ACCELERATOR_KEY, KeyStroke.getKeyStroke(KeyEvent.VK_S, KeyEvent.CTRL_MASK));
+        this.putValue(AbstractAction.MNEMONIC_KEY, KeyEvent.VK_S);
     }
 
     @Override

@@ -5,6 +5,7 @@ import edu.kit.iti.algover.gui.MainWindow;
 
 import javax.swing.*;
 import java.awt.event.ActionEvent;
+import java.awt.event.KeyEvent;
 
 /**
  * Created by Azadeh Shirvanian on 26.09.2016.
@@ -19,6 +20,7 @@ public class AboutAction extends AbstractAction {
 
         this.c = center;
         this.putValue(AbstractAction.NAME, "About");
+        this.putValue(AbstractAction.MNEMONIC_KEY, KeyEvent.VK_A);
 
     }
 

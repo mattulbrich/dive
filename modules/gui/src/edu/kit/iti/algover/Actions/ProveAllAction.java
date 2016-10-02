@@ -17,6 +17,8 @@ public class ProveAllAction extends AbstractAction {
         this.c = center;
 
         this.putValue(AbstractAction.NAME, "All Provers");
+        this.putValue(AbstractAction.ACCELERATOR_KEY, KeyStroke.getKeyStroke(KeyEvent.VK_A, KeyEvent.CTRL_MASK));
+        this.putValue(AbstractAction.MNEMONIC_KEY, KeyEvent.VK_A);
     }
 
     @Override

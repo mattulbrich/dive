@@ -25,6 +25,7 @@ public class OpenAction extends AbstractAction {
 
         this.putValue(AbstractAction.NAME, "Open Project...");
         this.putValue(AbstractAction.ACCELERATOR_KEY, KeyStroke.getKeyStroke(KeyEvent.VK_O, KeyEvent.CTRL_MASK));
+        this.putValue(AbstractAction.MNEMONIC_KEY, KeyEvent.VK_O);
     }
 
     @Override
