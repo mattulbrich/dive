@@ -5,6 +5,7 @@ import java.io.IOException;
 /**
  * Created by sony on 10.09.2016.
  */
+@Deprecated
 public class TreeMain {
 
     public static void main ( String[] args ) throws IOException

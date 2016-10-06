@@ -28,10 +28,18 @@ import java.io.*;
 
 public class EditorPanel extends JPanel{
 
+    /**
+     * Return TabbedPane that consist of tabs with DafnyEditors
+     * @return
+     */
     public EditorTabbedPane getTabbedPane() {
         return tabbedPane;
     }
 
+    /**
+     * Return footer under tabbedPanes
+     * @return
+     */
     public EditorFooterPanel getFooter() {
         return footer;
     }

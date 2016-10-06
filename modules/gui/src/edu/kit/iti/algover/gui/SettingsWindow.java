@@ -73,9 +73,10 @@ public class SettingsWindow extends JFrame{
         this.setLocationRelativeTo(null);
 
         settingsList.getSelectionModel().addListSelectionListener(e -> {
+
            // if (!e.getValueIsAdjusting()) {
-                if (settingsList.getSelectedIndex() == 0)
-                    mainPanel = new SettingsPanelGeneral(center);
+                if (settingsList.getSelectedIndex() == 0){
+                    mainPanel = new SettingsPanelGeneral(center);}
                 else if (settingsList.getSelectedIndex() == 1)
                     mainPanel = new SettingsPanelZ3(center);
                 else if (settingsList.getSelectedIndex() == 2)

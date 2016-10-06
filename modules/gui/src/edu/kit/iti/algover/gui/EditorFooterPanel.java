@@ -14,6 +14,15 @@ import java.awt.*;
 public class EditorFooterPanel extends JPanel {
 
     JLabel leftLabel;
+
+    public JLabel getRightLabel() {
+        return rightLabel;
+    }
+
+    public void setRightLabelTest(String text) {
+        this.rightLabel.setText(text);
+    }
+
     JLabel rightLabel = new JLabel("Line");
 
     MigLayout migLayout = new MigLayout(

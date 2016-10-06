@@ -6,6 +6,7 @@ import java.awt.*;
 /**
  * Created by sony on 10.09.2016.
  */
+@Deprecated
 public class TreeWindow extends JFrame {
 
     GridBagConstraints c = new GridBagConstraints();

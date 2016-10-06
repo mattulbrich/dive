@@ -16,6 +16,7 @@ import java.io.File;
  *
  * Created by sony on 10.09.2016.
  */
+@Deprecated
 public class TreePanel extends JPanel {
 
     String testDir = "modules/core/test-res/edu/kit/iti/algover/project";

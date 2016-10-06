@@ -32,8 +32,10 @@ public class FooterCaretListener implements CaretListener {
         this.tabbedPane = this.edPanel.getTabbedPane();
         this.currentTextArea = tabbedPane.getFocusTab();
         if(this.currentTextArea != null){
-            System.out.println(this.currentTextArea.getCaretLineNumber());
-
+            int i = this.currentTextArea.getCaretLineNumber() + 1;
+            String line = Integer.toString(i);
+            System.out.println(i);
+            footer.setRightLabelTest("line "+line);
         }
 
 

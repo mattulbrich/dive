@@ -27,3 +27,4 @@ public class ProveWithDafnyAction extends AbstractAction {
         System.out.println("Prove whole project with Dafny.");
     }
 }
+
