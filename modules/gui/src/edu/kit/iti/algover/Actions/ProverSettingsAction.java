@@ -1,10 +1,10 @@
 package edu.kit.iti.algover.Actions;
 
-import edu.kit.iti.algover.gui.GUICenter;
-import edu.kit.iti.algover.gui.MainWindow;
-import edu.kit.iti.algover.gui.SettingsWindow;
+import edu.kit.iti.algover.gui.*;
 
 import javax.swing.*;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
@@ -29,8 +29,29 @@ public class ProverSettingsAction extends AbstractAction {
     public void actionPerformed(ActionEvent e) {
 
         SettingsWindow settingsWindow = new SettingsWindow(c);
+
         settingsWindow.setVisible(true);
 
+        settingsWindow.getSettingsList().getSelectionModel().addListSelectionListener(new ListSelectionListener() {
+
+            JPanel cards = settingsWindow.getCards();
+
+            @Override
+            public void valueChanged(ListSelectionEvent e) {
+
+                CardLayout cl = (CardLayout)(cards.getLayout());
+
+                if (settingsWindow.getSettingsList().getSelectedIndex() == 0)
+                    cl.show(cards, "general");
+                else if (settingsWindow.getSettingsList().getSelectedIndex() == 1)
+                    cl.show(cards, "z3");
+                else if (settingsWindow.getSettingsList().getSelectedIndex() == 2)
+                    cl.show(cards, "dafny");
+                else if (settingsWindow.getSettingsList().getSelectedIndex() == 3)
+                    cl.show(cards, "key");
+
+            }
+        });
 
     }
 }

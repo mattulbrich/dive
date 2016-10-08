@@ -1,5 +1,6 @@
 package edu.kit.iti.algover.gui;
 
+//import edu.kit.iti.algover.Actions.SettingsSelectionListener;
 import net.miginfocom.swing.MigLayout;
 
 import javax.swing.*;
@@ -16,11 +17,12 @@ public class SettingsWindow extends JFrame{
     GUICenter center;
     DefaultListModel<String> listModel = new DefaultListModel<>();
     JList settingsList;
-    JPanel mainPanel;
+    JPanel cards;
     JPanel buttonPanel;
-    JButton okButton = new JButton("OK");
-    JButton applyButton = new JButton("Apply");
-    JButton cancelButton = new JButton("Cancel");
+    JButton okButton;
+    JButton applyButton;
+    JButton cancelButton;
+
 
     public SettingsWindow (GUICenter center)
     {
@@ -28,8 +30,19 @@ public class SettingsWindow extends JFrame{
         createSettingsWindow();
     }
 
+    public JPanel getCards() {
+        return cards;
+    }
+
+    public JList getSettingsList() {
+        return settingsList;
+    }
 
     public void createSettingsWindow(){
+
+        okButton = new JButton("OK");
+        applyButton = new JButton("Apply");
+        cancelButton = new JButton("Cancel");
 
         this.setLayout(new BorderLayout());
         this.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
@@ -66,27 +79,19 @@ public class SettingsWindow extends JFrame{
         this.add(buttonPanel, BorderLayout.SOUTH);
 
 
-        //main panel
+        //main panel (cards)
 
-        mainPanel = new SettingsPanelGeneral(center);
-        this.add(mainPanel, BorderLayout.CENTER);
+        cards = new JPanel(new CardLayout());
+        cards.add(new SettingsPanelGeneral(center), "general");
+        cards.add(new SettingsPanelZ3(center), "z3");
+        cards.add(new SettingsPanelDafny(center), "dafny");
+        cards.add(new SettingsPanelKeY(center), "key");
+
+        this.add(cards, BorderLayout.CENTER);
+
+
         this.setLocationRelativeTo(null);
 
-        settingsList.getSelectionModel().addListSelectionListener(e -> {
-
-           // if (!e.getValueIsAdjusting()) {
-                if (settingsList.getSelectedIndex() == 0){
-                    mainPanel = new SettingsPanelGeneral(center);}
-                else if (settingsList.getSelectedIndex() == 1)
-                    mainPanel = new SettingsPanelZ3(center);
-                else if (settingsList.getSelectedIndex() == 2)
-                    mainPanel = new SettingsPanelDafny(center);
-                else if (settingsList.getSelectedIndex() == 3)
-                    mainPanel = new SettingsPanelKeY(center);
-                this.add(mainPanel, BorderLayout.CENTER);
-            //}
-        });
-
-
     }
+
 }
