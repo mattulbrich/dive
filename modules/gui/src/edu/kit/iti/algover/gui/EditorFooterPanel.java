@@ -19,7 +19,7 @@ public class EditorFooterPanel extends JPanel {
         return rightLabel;
     }
 
-    public void setRightLabelTest(String text) {
+    public void setRightLabelText(String text) {
         this.rightLabel.setText(text);
     }
 

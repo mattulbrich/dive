@@ -33,7 +33,7 @@ public class SettingsPanelDafny extends JPanel {
 
         this.setBorder(BorderFactory.createTitledBorder(BorderFactory.createEtchedBorder(),"Settings for Dafny"));
 
-        timeoutLabel = new JLabel("Timeout:");
+        timeoutLabel = new JLabel("Timeout [ms]:");
         spinnerModel = new SpinnerNumberModel(start, min, max, step);
         timeoutSpinner = new JSpinner(spinnerModel);
         pathLabel = new JLabel("Path to executable:");

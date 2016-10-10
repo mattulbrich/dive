@@ -33,7 +33,7 @@ public class SettingsPanelZ3 extends JPanel {
 
         this.setBorder(BorderFactory.createTitledBorder(BorderFactory.createEtchedBorder(),"Settings for Z3"));
 
-        timeoutLabel = new JLabel("Timeout:");
+        timeoutLabel = new JLabel("Timeout [ms]:");
         spinnerModel = new SpinnerNumberModel(start, min, max, step);
         timeoutSpinner = new JSpinner(spinnerModel);
         pathLabel = new JLabel("Path to executable:");
