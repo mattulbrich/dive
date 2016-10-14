@@ -22,14 +22,12 @@ public class ProverSettingsAction extends AbstractAction {
         this.putValue(AbstractAction.NAME, "Settings...");
         this.putValue(AbstractAction.ACCELERATOR_KEY, KeyStroke.getKeyStroke(KeyEvent.VK_T, KeyEvent.CTRL_MASK));
         this.putValue(AbstractAction.MNEMONIC_KEY, KeyEvent.VK_S);
-
     }
 
     @Override
     public void actionPerformed(ActionEvent e) {
 
         SettingsWindow settingsWindow = new SettingsWindow(c);
-
         settingsWindow.setVisible(true);
 
         settingsWindow.getSettingsList().getSelectionModel().addListSelectionListener(new ListSelectionListener() {

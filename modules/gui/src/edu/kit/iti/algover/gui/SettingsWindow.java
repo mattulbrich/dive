@@ -4,15 +4,14 @@ package edu.kit.iti.algover.gui;
 import net.miginfocom.swing.MigLayout;
 
 import javax.swing.*;
-import javax.swing.border.Border;
-import javax.swing.event.ListSelectionEvent;
-import javax.swing.event.ListSelectionListener;
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 
 /**
  * Created by Azadeh Shirvanian on 27.09.2016.
  */
-public class SettingsWindow extends JFrame{
+public class SettingsWindow extends JDialog implements ActionListener{
 
     GUICenter center;
     DefaultListModel<String> listModel = new DefaultListModel<>();
@@ -45,9 +44,10 @@ public class SettingsWindow extends JFrame{
         cancelButton = new JButton("Cancel");
 
         this.setLayout(new BorderLayout());
-        this.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+        this.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
         this.setTitle("Prover Settings");
         this.setSize(600,200);
+      //  this.setModal(true);
 
         //list on the left
 
@@ -78,6 +78,8 @@ public class SettingsWindow extends JFrame{
 
         this.add(buttonPanel, BorderLayout.SOUTH);
 
+        cancelButton.addActionListener(this);
+
 
         //main panel (cards)
 
@@ -94,4 +96,11 @@ public class SettingsWindow extends JFrame{
 
     }
 
+    public void actionPerformed (ActionEvent e){
+
+        if (e.getActionCommand().equals("Cancel")){
+            this.setVisible(false);
+            this.dispose();
+        }
+    }
 }
