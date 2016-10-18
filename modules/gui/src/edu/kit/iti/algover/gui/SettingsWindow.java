@@ -11,7 +11,7 @@ import java.awt.event.ActionListener;
 /**
  * Created by Azadeh Shirvanian on 27.09.2016.
  */
-public class SettingsWindow extends JDialog implements ActionListener{
+public class SettingsWindow extends JDialog implements ActionListener {
 
     GUICenter center;
     DefaultListModel<String> listModel = new DefaultListModel<>();
@@ -23,8 +23,9 @@ public class SettingsWindow extends JDialog implements ActionListener{
     JButton cancelButton;
 
 
-    public SettingsWindow (GUICenter center)
-    {
+    public SettingsWindow(GUICenter center) {
+
+        super(center.getMainwindow());
         this.center = center;
         createSettingsWindow();
     }
@@ -37,7 +38,7 @@ public class SettingsWindow extends JDialog implements ActionListener{
         return settingsList;
     }
 
-    public void createSettingsWindow(){
+    public void createSettingsWindow() {
 
         okButton = new JButton("OK");
         applyButton = new JButton("Apply");
@@ -46,8 +47,8 @@ public class SettingsWindow extends JDialog implements ActionListener{
         this.setLayout(new BorderLayout());
         this.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
         this.setTitle("Prover Settings");
-        this.setSize(600,200);
-      //  this.setModal(true);
+        this.setSize(600, 200);
+        //  this.setModal(true);
 
         //list on the left
 
@@ -58,7 +59,7 @@ public class SettingsWindow extends JDialog implements ActionListener{
         settingsList = new JList(listModel);
         settingsList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         settingsList.setSelectedIndex(0);
-        settingsList.setBorder(BorderFactory.createEmptyBorder(5,6,5,13));
+        settingsList.setBorder(BorderFactory.createEmptyBorder(5, 6, 5, 13));
 
         this.add(new JScrollPane(settingsList), BorderLayout.WEST);
 
@@ -72,7 +73,7 @@ public class SettingsWindow extends JDialog implements ActionListener{
 
         buttonPanel = new JPanel(mig);
 
-        buttonPanel.add(cancelButton, "cell 3 0" );
+        buttonPanel.add(cancelButton, "cell 3 0");
         buttonPanel.add(applyButton, "cell 2 0");
         buttonPanel.add(okButton, "cell 1 0");
 
@@ -96,11 +97,35 @@ public class SettingsWindow extends JDialog implements ActionListener{
 
     }
 
-    public void actionPerformed (ActionEvent e){
+    public void actionPerformed(ActionEvent e) {
 
-        if (e.getActionCommand().equals("Cancel")){
-            this.setVisible(false);
-            this.dispose();
-        }
+        if (e.getActionCommand().equals("Cancel")) {
+            System.out.println("CancelButton");
+
+            MainWindow mw = center.getMainwindow();
+            for (Window w: mw.getOwnedWindows()) {
+                if(w instanceof SettingsWindow){
+                    SettingsWindow sw = (SettingsWindow)w;
+
+                }
+            }
+            System.out.println(mw.getOwnedWindows());
+
+
+    	}
+           /* JPanel card = null;
+            for (Component comp : cards.getComponents()) {
+                if (comp.getName().equals("z3")) {
+                    card = (JPanel) comp;
+                    SettingsPanelZ3 z3Panel = (SettingsPanelZ3) card;
+                    System.out.println(z3Panel.getName2());
+                }
+
+                //this.setVisible(false);
+                //this.dispose();
+
+            }*/
+        //}
     }
+
 }

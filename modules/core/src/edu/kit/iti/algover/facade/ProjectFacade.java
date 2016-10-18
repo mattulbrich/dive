@@ -5,6 +5,7 @@ import edu.kit.iti.algover.project.*;
 import edu.kit.iti.algover.proof.PVC;
 import edu.kit.iti.algover.proof.PVCBuilder;
 import edu.kit.iti.algover.proof.ProofNode;
+import edu.kit.iti.algover.script.ScriptTree;
 import edu.kit.iti.algover.symbex.Symbex;
 import edu.kit.iti.algover.symbex.SymbexPath;
 import edu.kit.iti.algover.theoremprover.DafnyTranslator;
@@ -103,5 +104,10 @@ public class ProjectFacade {
     public void translateToDafny(PVC verificationCondition){
         DafnyTranslator trans = new DafnyTranslator(verificationCondition, 1);
         //return file to which it will be translated
+    }
+//TODO
+
+    public ScriptTree getScriptFor(int pvcId){
+        return null;
     }
 }

@@ -1,6 +1,6 @@
 package edu.kit.iti.algover.Actions;
 
-import edu.kit.iti.algover.gui.DafnyEditor;
+import edu.kit.iti.algover.gui.components.DafnyEditor;
 import edu.kit.iti.algover.gui.EditorFooterPanel;
 import edu.kit.iti.algover.gui.EditorPanel;
 import edu.kit.iti.algover.gui.GUICenter;

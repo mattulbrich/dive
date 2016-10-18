@@ -18,6 +18,11 @@ public class SettingsPanelZ3 extends JPanel {
     JSpinner timeoutSpinner;
     SpinnerNumberModel spinnerModel;
 
+    public String getName2() {
+        return name;
+    }
+
+    String name = "Name:z3";
     int start = 100;
     int min = 0;
     int max = 1000;
@@ -29,6 +34,9 @@ public class SettingsPanelZ3 extends JPanel {
         createZ3Panel();
     }
 
+    public JSpinner getTimeoutSpinner(){
+        return this.timeoutSpinner;
+    }
     public void createZ3Panel(){
 
         this.setBorder(BorderFactory.createTitledBorder(BorderFactory.createEtchedBorder(),"Settings for Z3"));
