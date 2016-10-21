@@ -100,7 +100,9 @@ public class SettingsWindow extends JDialog implements ActionListener {
     public void actionPerformed(ActionEvent e) {
 
         if (e.getActionCommand().equals("Cancel")) {
-            System.out.println("CancelButton");
+            this.setVisible(false);
+            this.dispose();
+          /*  System.out.println("CancelButton");
 
             MainWindow mw = center.getMainwindow();
             for (Window w: mw.getOwnedWindows()) {
@@ -112,7 +114,7 @@ public class SettingsWindow extends JDialog implements ActionListener {
             System.out.println(mw.getOwnedWindows());
 
 
-    	}
+    	}*/
            /* JPanel card = null;
             for (Component comp : cards.getComponents()) {
                 if (comp.getName().equals("z3")) {
@@ -121,11 +123,10 @@ public class SettingsWindow extends JDialog implements ActionListener {
                     System.out.println(z3Panel.getName2());
                 }
 
-                //this.setVisible(false);
-                //this.dispose();
+
 
             }*/
-        //}
+        }
     }
 
 }

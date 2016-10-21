@@ -14,5 +14,6 @@ public class GUIMain {
 
     private static void createUserInterface() {
         MainWindow window = MainWindow.getInstance();
+
     }
 }

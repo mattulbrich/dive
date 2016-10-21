@@ -5,9 +5,11 @@ import edu.kit.iti.algover.model.CustomLeaf;
 import edu.kit.iti.algover.model.ProjectTree;
 import edu.kit.iti.algover.model.ProjectTreeBuilder;
 import edu.kit.iti.algover.project.Project;
+import edu.kit.iti.algover.proof.ProofManagement;
 
 import javax.swing.*;
 import javax.swing.tree.TreePath;
+import java.awt.*;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
 import java.io.File;
@@ -28,6 +30,11 @@ import java.io.FileNotFoundException;
 
 
 public class GUICenter {
+
+
+
+
+    private ProofManagement pm;
     //core counterpart for communcation
     private ProjectFacade facade;
 
@@ -75,6 +82,11 @@ public class GUICenter {
     //public static final String PROPERTY_CHANGED = "property_changed";
 
     /**
+     * PVCs are generated and ready to display
+     */
+
+    public static final String PVCS_GENERATED = "pvcs_generated";
+    /**
      * new subtree selected
      */
     public static final String SUBTREE_SELECTION = "subtree_selection";
@@ -94,8 +106,10 @@ public class GUICenter {
      * Selected leaf to load
      */
     public static final String LEAF_TO_LOAD = "leaf_to_load_selected";
+
     /**
      * Constructor
+     *
      * @param window
      */
     public GUICenter(MainWindow window) {
@@ -105,8 +119,10 @@ public class GUICenter {
 
 
     private PropertyChangeSupport changes = new PropertyChangeSupport(this);
+
     /**
      * Propertychangelistener list
+     *
      * @param l
      */
     public void addPropertyChangeListener(PropertyChangeListener l) {
@@ -119,6 +135,22 @@ public class GUICenter {
 
 
     //Getter & Setter
+
+    public ProofManagement getProofManagement() {
+
+        return pm;
+    }
+
+    /**
+     * Proofmanagement with PVCs have been set
+     * @param pm
+     */
+    public void setProofManagement(ProofManagement pm) {
+        ProofManagement old = pm;
+        this.pm = pm;
+        changes.firePropertyChange(PVCS_GENERATED, old, this.getProofManagement());
+    }
+
     public void setLoadedProject(Project loadedProject) {
         Project old = this.getLoadedProject();
         this.loadedProject = loadedProject;
@@ -128,6 +160,7 @@ public class GUICenter {
     public ProjectTree getSelectedProjectSubTree() {
         return selectedProjectSubTree;
     }
+
     //set the model for the projectTree
     public void setProjectTreeModel(ProjectTree projectTreeModel) {
         ProjectTree old = this.getProjectTreeModel();
@@ -137,6 +170,7 @@ public class GUICenter {
 
     /**
      * Set the reference to the ProjectTree in the GUI projectTreeModel that is currently selected by the user in the projectbrowser
+     *
      * @param selectedProjectSubTree
      */
     public void setSelectedProjectSubTree(ProjectTree selectedProjectSubTree) {
@@ -162,11 +196,9 @@ public class GUICenter {
     }
 
 
-
     public ProjectTree getProjectTreeModel() {
         return projectTreeModel;
     }
-
 
 
     public MainWindow getMainwindow() {
@@ -182,10 +214,25 @@ public class GUICenter {
     }
 
     /**
+     * Load selected Project and set fields
+     * @param projectDir
+     */
+    public void loadProject(File projectDir) {
+
+        setSelectedProjectDir(projectDir);
+        loadSelectedProject();
+
+        ProofManagement proofmgt = new ProofManagement(this.getLoadedProject(), this.getFacade());
+        this.setProofManagement(proofmgt);
+        System.out.println(this.getProofManagement().getProofverificationconditions().toString());
+
+
+    }
+    /**
      * Set the project directory that is selected by the user
      * @param parentFile
      */
-    public void setSelectedProjectDir(File parentFile) {
+    private void setSelectedProjectDir(File parentFile) {
         mainwindow.setEnabled(false);
         File old = this.getSelectedProjectDir();
         this.selectedProjectDir = parentFile;
@@ -211,7 +258,7 @@ public class GUICenter {
     /**
      * Load selected Project from directory, call to facade, retrieve project object
      */
-    public void loadSelectedProject() {
+    private void loadSelectedProject() {
         //Project old = this.getLoadedProject();
         if (selectedProjectDir == null) {
             JOptionPane.showMessageDialog(mainwindow,

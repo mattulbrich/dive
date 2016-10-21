@@ -15,6 +15,14 @@ import java.util.TreeMap;
 public class ProofManagement {
     private Project p;
 
+    public Project getP() {
+        return p;
+    }
+
+    public PVCCollection getProofverificationconditions() {
+        return proofverificationconditions;
+    }
+
     private PVCCollection proofverificationconditions;
 
     ProjectFacade facade;
@@ -40,38 +48,21 @@ public class ProofManagement {
 
         for(DafnyMethod fm: freeMethods){
             DafnyDeclPVCCollector visitor = new DafnyDeclPVCCollector(facade);
-            /*PVCGroup fmGroup = new PVCGroup(fm);
-            for(PVC pvc: facade.generateAndCollectPVC(fm)){
-                SinglePVC singlePVc = new SinglePVC(fmGroup);
-                singlePVc.addPVC(pvc);
-                fmGroup.addChild(singlePVc);
-            }*/
             root.addChild(visitor.visit(fm, null));
         }
         for(DafnyFunction fm: freeFunctions){
             DafnyDeclPVCCollector visitor = new DafnyDeclPVCCollector(facade);
-          /*  PVCGroup fmGroup = new PVCGroup(fm);
-            for(PVC pvc: facade.generateAndCollectPVC(fm)){
-                SinglePVC singlePVc = new SinglePVC(fmGroup);
-                singlePVc.addPVC(pvc);
-                fmGroup.addChild(singlePVc);
-            }*/
             root.addChild(visitor.visit(fm, null));
         }
 
         for(DafnyClass cl : classes){
-            PVCGroup classGroup = new PVCGroup(cl);
+
             DafnyDeclPVCCollector visitor = new DafnyDeclPVCCollector(facade);
             PVCCollection temp = visitor.visit(cl, null);
-
-            //eigentlich rekursiver Aufruf
             root.addChild(temp);
         }
         return root;
 
     }
 
-    public PVCCollection createPVCCollection(DafnyDecl dd){
-        return null;
-    }
 }

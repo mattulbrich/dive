@@ -68,14 +68,11 @@ public class ProjectFacade {
         return p;
     }
 
-  //  public void performSymbexForWholeProject(Project p){
-
-
-
-
-
-  //  }
-
+    /**
+     * Performs Symbolic execution of a dafnydecl and return the list of PVCs
+     * @param decl
+     * @return
+     */
     public List<PVC> generateAndCollectPVC(DafnyDecl decl){
         List<SymbexPath> paths = performSymbolicExecution(decl);
         List<PVC> pvcs = new ArrayList<>();

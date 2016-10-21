@@ -10,7 +10,7 @@ import edu.kit.iti.algover.proof.SinglePVC;
 import java.util.List;
 
 /**
- * Visitor
+ * Visitor for DafbnyDecl, that performs symbex on dafnydecl and returns PVCCollection
  * Created by sarah on 10/20/16.
  */
 public class DafnyDeclPVCCollector implements DafnyDeclVisitor<PVCCollection, Void > {

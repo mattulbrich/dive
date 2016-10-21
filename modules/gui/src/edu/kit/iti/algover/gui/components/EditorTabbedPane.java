@@ -1,11 +1,8 @@
 package edu.kit.iti.algover.gui.components;
 
-import edu.kit.iti.algover.gui.DafnyEditor;
 import edu.kit.iti.algover.gui.GUICenter;
-import org.fife.ui.rtextarea.RTextScrollPane;
 
 import javax.swing.*;
-import java.awt.*;
 import java.io.File;
 
 /**

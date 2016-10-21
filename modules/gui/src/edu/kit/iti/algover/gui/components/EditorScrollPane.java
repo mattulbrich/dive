@@ -1,7 +1,5 @@
 package edu.kit.iti.algover.gui.components;
 
-import edu.kit.iti.algover.gui.DafnyEditor;
-import org.fife.ui.rsyntaxtextarea.RSyntaxTextArea;
 import org.fife.ui.rtextarea.RTextScrollPane;
 
 /**
