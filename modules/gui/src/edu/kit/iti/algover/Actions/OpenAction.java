@@ -36,9 +36,9 @@ public class OpenAction extends AbstractAction {
         int result = fc.showDialog(c.getMainwindow(), "Open Project Directory");
 
         if (result == JFileChooser.APPROVE_OPTION) {
-
-            c.setSelectedProjectDir(fc.getSelectedFile());
-            c.loadSelectedProject();
+            c.loadProject(fc.getSelectedFile());
+           // c.setSelectedProjectDir(fc.getSelectedFile());
+           // c.loadSelectedProject();
             System.out.println(fc.getSelectedFile());
             System.out.println("Open Action performed");
         }

@@ -48,6 +48,12 @@ public class DafnyDecl {
 
     public DafnyDecl(){
 
-
     }
+
+
+    public <R, A> R accept(DafnyDeclVisitor<R,A> visitor, A arg) {
+        return visitor.visitDefault(this, arg);
+    }
+
+
 }

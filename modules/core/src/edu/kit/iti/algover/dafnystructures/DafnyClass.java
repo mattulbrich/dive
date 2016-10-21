@@ -74,4 +74,9 @@ public class DafnyClass extends DafnyDecl {
         }
         return classToString;
     }
+
+    @Override
+    public <R, A> R accept(DafnyDeclVisitor<R,A> visitor, A arg) {
+        return visitor.visit(this, arg);
+    }
 }

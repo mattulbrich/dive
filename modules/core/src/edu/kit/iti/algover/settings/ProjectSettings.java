@@ -27,6 +27,9 @@ public class ProjectSettings{
     public static final String KEY_TIMEOUT = "KeY Timeout";
     public static final String SMT_TIMEOUT = "SMT Timeout";
 
+    public static final String SYMBEX_UNROLL_LOOPS = "Unroll Loops";
+    public static final String SYMBEX_INLINE_METHODS = "Unroll Loops";
+
 
     /**
      * data structure holding values of the settings
@@ -51,6 +54,8 @@ public class ProjectSettings{
         set.put(DAFNY_TIMEOUT, "5");
         set.put(KEY_TIMEOUT, "10");
         set.put(SMT_TIMEOUT, "10");
+        set.put(SYMBEX_INLINE_METHODS, "false");
+        set.put(SYMBEX_UNROLL_LOOPS, "false");
     }
 
     /**

@@ -45,4 +45,9 @@ public class DafnyField extends DafnyDecl {
     public String toString(){
         return getType()+" "+getName()+";";
     }
+
+    @Override
+    public <R, A> R accept(DafnyDeclVisitor<R,A> visitor, A arg) {
+        return visitor.visit(this, arg);
+    }
 }

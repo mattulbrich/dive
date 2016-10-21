@@ -1,6 +1,9 @@
 package edu.kit.iti.algover.facade;
 
+import edu.kit.iti.algover.dafnystructures.DafnyClass;
 import edu.kit.iti.algover.dafnystructures.DafnyDecl;
+import edu.kit.iti.algover.dafnystructures.DafnyFunction;
+import edu.kit.iti.algover.dafnystructures.DafnyMethod;
 import edu.kit.iti.algover.project.*;
 import edu.kit.iti.algover.proof.PVC;
 import edu.kit.iti.algover.proof.PVCBuilder;
@@ -12,6 +15,7 @@ import edu.kit.iti.algover.theoremprover.DafnyTranslator;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -64,6 +68,23 @@ public class ProjectFacade {
         return p;
     }
 
+  //  public void performSymbexForWholeProject(Project p){
+
+
+
+
+
+  //  }
+
+    public List<PVC> generateAndCollectPVC(DafnyDecl decl){
+        List<SymbexPath> paths = performSymbolicExecution(decl);
+        List<PVC> pvcs = new ArrayList<>();
+        for(SymbexPath path : paths){
+            pvcs.addAll(createVerificationConditions(decl,path));
+        }
+
+        return pvcs;
+    }
 
     /**
      * Perform Symbolic Execution of a given DafnyTree (method)
@@ -71,6 +92,7 @@ public class ProjectFacade {
      * @return
      */
     public List<SymbexPath> performSymbolicExecution(DafnyDecl decl){
+
         Symbex symbex = new Symbex();
         List<SymbexPath> result = symbex.symbolicExecution(decl.getRepresentation());
         return result;
@@ -89,7 +111,7 @@ public class ProjectFacade {
 
         //build all pvc for path
         //in a loop
-        //verificationconditions.add(builder.buildPVC(path, decl));
+        verificationconditions.add(builder.buildPVC(path, decl));
 
 
         //add pvcs to counter
@@ -105,7 +127,7 @@ public class ProjectFacade {
         DafnyTranslator trans = new DafnyTranslator(verificationCondition, 1);
         //return file to which it will be translated
     }
-//TODO
+
 
     public ScriptTree getScriptFor(int pvcId){
         return null;

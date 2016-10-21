@@ -1,7 +1,7 @@
 package edu.kit.iti.algover.project;
 
 import edu.kit.iti.algover.dafnystructures.DafnyClass;
-import edu.kit.iti.algover.dafnystructures.DafnyDeclVisitor;
+import edu.kit.iti.algover.dafnystructures.DafnyTreeToDeclVisitor;
 import edu.kit.iti.algover.dafnystructures.DafnyFunction;
 import edu.kit.iti.algover.dafnystructures.DafnyMethod;
 import edu.kit.iti.algover.parser.DafnyFileParser;
@@ -177,7 +177,7 @@ public class ProjectBuilder {
 
         for (File file: this.getDafnyFiles()) {
             DafnyTree parsed = parseFile(file);
-            DafnyDeclVisitor visitor = new DafnyDeclVisitor(this, file);
+            DafnyTreeToDeclVisitor visitor = new DafnyTreeToDeclVisitor(this, file);
             visitor.visit(dir.getName(), parsed);
         }
         
