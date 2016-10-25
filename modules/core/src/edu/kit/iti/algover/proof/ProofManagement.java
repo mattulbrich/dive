@@ -15,7 +15,7 @@ import java.util.TreeMap;
 public class ProofManagement {
     private Project p;
 
-    public Project getP() {
+    public Project getProject() {
         return p;
     }
 
@@ -25,6 +25,11 @@ public class ProofManagement {
 
     private PVCCollection proofverificationconditions;
 
+    public PVCGroup getRoot() {
+        return root;
+    }
+
+    private PVCGroup root;
     ProjectFacade facade;
 
     public ProofManagement(Project p, ProjectFacade facade){
@@ -41,24 +46,25 @@ public class ProofManagement {
      */
     public PVCCollection createPVCCollection(Project p){
 
-        PVCGroup root = new PVCGroup(null);
+        PVCGroup root = new PVCGroup(null, null);
+        this.root = root;
         List<DafnyMethod> freeMethods = p.getMethods();
         List<DafnyFunction> freeFunctions = p.getFunctions();
         List<DafnyClass> classes = p.getClasses();
 
         for(DafnyMethod fm: freeMethods){
             DafnyDeclPVCCollector visitor = new DafnyDeclPVCCollector(facade);
-            root.addChild(visitor.visit(fm, null));
+            root.addChild(visitor.visit(fm, root));
         }
         for(DafnyFunction fm: freeFunctions){
             DafnyDeclPVCCollector visitor = new DafnyDeclPVCCollector(facade);
-            root.addChild(visitor.visit(fm, null));
+            root.addChild(visitor.visit(fm, root));
         }
 
         for(DafnyClass cl : classes){
 
             DafnyDeclPVCCollector visitor = new DafnyDeclPVCCollector(facade);
-            PVCCollection temp = visitor.visit(cl, null);
+            PVCCollection temp = visitor.visit(cl, root);
             root.addChild(temp);
         }
         return root;

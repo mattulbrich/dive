@@ -39,13 +39,28 @@ public class SinglePVC extends PVCCollection {
     }
 
     @Override
-    public void addChild(PVCCollection col) {
+    public void addChild(PVCCollection col){
+        try {
+            throw new Exception("Leafs do not have children");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
 
     }
 
     @Override
     public String toString() {
         return "    Leaf of "+dd.getName()+": "+pvc.getName();
+    }
+
+    @Override
+    public PVCCollection getRoot() {
+        return parent.getRoot();
+    }
+
+    @Override
+    public boolean isPVCLeaf() {
+        return true;
     }
 
 

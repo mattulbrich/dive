@@ -12,7 +12,7 @@ import java.util.List;
 import java.util.Objects;
 
 /**
- * This class represents the projecttree structure for teh GUI model. It consists eiother of Projecttrees or of customleaves
+ * This class represents the projecttree structure for the GUI model. It consists either of Projecttrees or of customleaves
  * Created by sarah on 9/15/16.
  */
 public class ProjectTree implements TreeNode{

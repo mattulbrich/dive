@@ -12,16 +12,18 @@ import java.util.List;
  */
 public class PVCGroup extends PVCCollection {
     boolean root = false;
-
+    PVCCollection parent;
     DafnyDecl dd;
 
     List<PVCCollection> children;
 
-    public PVCGroup(DafnyDecl dd){
+    public PVCGroup(DafnyDecl dd, PVCCollection parent){
         if(dd == null){
             root = true;
+            parent = null;
         }
         this.dd = dd;
+        this.parent = parent;
         children = new ArrayList<>();
     }
     @Override
@@ -53,12 +55,26 @@ public class PVCGroup extends PVCCollection {
         }else{
             s+= "  Node for "+dd.getRepresentation().getType()+" "+dd.getName()+"\n";
         }
-        for(PVCCollection col : children){
+        /*for(PVCCollection col : children){
             if(col != null) {
                 s += "  " + col.toString() + "\n";
             }
-        }
+        }*/
         return s;
+    }
+
+    @Override
+    public PVCCollection getRoot() {
+        if(root){
+            return this;
+        }else {
+            return parent.getRoot();
+        }
+    }
+
+    @Override
+    public boolean isPVCLeaf() {
+        return false;
     }
 
     public void addPVC(PVC pvcImpl){
@@ -71,5 +87,9 @@ public class PVCGroup extends PVCCollection {
                 child.addPVC(pvcImpl);
             }
         }
+    }
+
+    public List<PVCCollection> getChildren() {
+        return children;
     }
 }

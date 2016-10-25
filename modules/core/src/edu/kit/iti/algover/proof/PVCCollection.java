@@ -19,4 +19,8 @@ public abstract class PVCCollection {
     public abstract void addChild(PVCCollection col);
 
     public abstract String toString();
+
+    public abstract PVCCollection getRoot();
+
+    public abstract boolean isPVCLeaf();
 }

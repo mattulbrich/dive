@@ -6,6 +6,7 @@ import edu.kit.iti.algover.gui.GUICenter;
 import edu.kit.iti.algover.gui.ProjectBrowserPanel;
 import edu.kit.iti.algover.gui.ProjectBrowserRenderer;
 import edu.kit.iti.algover.model.CustomLeaf;
+import edu.kit.iti.algover.model.PVCTreeModel;
 import edu.kit.iti.algover.model.ProjectTableTreeModel;
 import edu.kit.iti.algover.model.ProjectTree;
 import net.miginfocom.swing.MigLayout;
@@ -37,23 +38,31 @@ public class CustomPVCBrowser extends JPanel {
 
         this.setMinimumSize(super.getPreferredSize());
 
-        JXTreeTable treetable = new JXTreeTable();
-        ProjectTree tree = center.getSelectedProjectSubTree();
-        System.out.println(tree);
-        System.out.println();
+        //JXTreeTable treetable = new JXTreeTable();
 
-        ProjectTableTreeModel treeModel = new ProjectTableTreeModel(center.getProjectTreeModel());
-        treetable.setTreeTableModel(treeModel);
+        PVCTreeModel model = new PVCTreeModel(center.getProofManagement(), center.getLoadedProject(), center.getProjectTreeModel());
+        JTree tr = new JTree(model);
 
-        treetable.expandPath(center.getSelectedPath());
-        treetable.setTreeCellRenderer(new ProjectBrowserRenderer(this));
+        tr.setRootVisible(true);
+        this.setBorder(BorderFactory.createTitledBorder("Project "));
 
-        treetable.getSelectionModel().setSelectionMode(TreeSelectionModel.SINGLE_TREE_SELECTION);
+        //tr.addMouseListener(new ProjectTreeMouseListener());
+        //ProjectTree tree = center.getSelectedProjectSubTree();
+        //System.out.println(tree);
+        //System.out.println();
 
-        treetable.setRootVisible(true);
-        treetable.addMouseListener(new ProjectTreeMouseListener(treetable, center));
+        //ProjectTableTreeModel treeModel = new ProjectTableTreeModel(center.getProjectTreeModel());
+        //treetable.setTreeTableModel(treeModel);
 
-        this.setBorder(BorderFactory.createTitledBorder("Project "+tree.path));
+        //treetable.expandPath(center.getSelectedPath());
+        //treetable.setTreeCellRenderer(new ProjectBrowserRenderer(this));
+
+        //treetable.getSelectionModel().setSelectionMode(TreeSelectionModel.SINGLE_TREE_SELECTION);
+
+        //treetable.setRootVisible(true);
+        //treetable.addMouseListener(new ProjectTreeMouseListener(treetable, center));
+
+        //this.setBorder(BorderFactory.createTitledBorder("Project "+tree.path));
 
         back.addActionListener(e -> {
             if(e.getActionCommand().equals("Back to ProjectBrowser")){
@@ -62,7 +71,8 @@ public class CustomPVCBrowser extends JPanel {
             }
         });
         this.add(back, "grow, wrap");
-        this.add(treetable, "grow, wrap");
+        this.add(tr, "grow, wrap");
+        //this.add(treetable, "grow, wrap");
         this.setVisible(true);
 
     }
