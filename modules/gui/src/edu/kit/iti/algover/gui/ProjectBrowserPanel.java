@@ -1,5 +1,6 @@
 package edu.kit.iti.algover.gui;
 
+import edu.kit.iti.algover.gui.components.CustomLogicView;
 import edu.kit.iti.algover.gui.components.CustomPVCBrowser;
 import edu.kit.iti.algover.gui.components.CustomProjectBrowser;
 import edu.kit.iti.algover.model.CustomLeaf;
@@ -8,6 +9,7 @@ import edu.kit.iti.algover.model.ProjectTreeBuilder;
 import edu.kit.iti.algover.model.ProjectTreeModel;
 import edu.kit.iti.algover.project.Project;
 import edu.kit.iti.algover.project.ProjectBuilder;
+import edu.kit.iti.algover.proof.PVC;
 
 import javax.swing.*;
 import java.awt.*;
@@ -28,9 +30,11 @@ public class ProjectBrowserPanel extends JPanel {
 
     public static String PR_BROWSER = "Project Browser";
     public static String PVC_BROWSER = "PVC Browser";
+    public static  String PVC_DETAIL = "PVC Detail";
 
     public CustomProjectBrowser br;
     public CustomPVCBrowser pvcbrowser;
+    public CustomLogicView clv;
     public JPanel cards;
 
     public ProjectBrowserPanel(GUICenter center){
@@ -77,6 +81,8 @@ public class ProjectBrowserPanel extends JPanel {
 
                 }if(pvcbrowser != null){
                     cards.remove(pvcbrowser);
+                }if(clv != null){
+                    cards.remove(clv);
                 }
             }
             if(evt.getPropertyName() == GUICenter.PROJECT_LOADED){
@@ -98,6 +104,17 @@ public class ProjectBrowserPanel extends JPanel {
                     CardLayout cl = (CardLayout)cards.getLayout();
                     cl.show(cards, PVC_BROWSER);
                 }
+            }
+            if(evt.getPropertyName() == GUICenter.PVC_FOR_DETAIL){
+                //removeAll();
+                PVC pvc = center.getSelectedPVCForDetailView();
+                clv = new CustomLogicView(center, pvc);
+                CardLayout cl = (CardLayout)cards.getLayout();
+                cards.add(clv, PVC_DETAIL);
+                cl.show(cards, PVC_DETAIL);
+                //add(cards);
+                //repaint();
+                //revalidate();
             }
         }
     }

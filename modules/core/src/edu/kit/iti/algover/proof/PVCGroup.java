@@ -53,7 +53,7 @@ public class PVCGroup extends PVCCollection {
         if(root){
             s += "Root\n";
         }else{
-            s+= "  Node for "+dd.getRepresentation().getType()+" "+dd.getName()+"\n";
+            s+= "  Node for "+dd.getRepresentation().getChild(0)+" "+dd.getName()+"\n";
         }
         /*for(PVCCollection col : children){
             if(col != null) {
@@ -75,6 +75,12 @@ public class PVCGroup extends PVCCollection {
     @Override
     public boolean isPVCLeaf() {
         return false;
+    }
+
+    @Override
+    public boolean isEmptyPVC() {
+        return !(children.size() > 0);
+
     }
 
     public void addPVC(PVC pvcImpl){

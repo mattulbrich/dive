@@ -1,5 +1,6 @@
 package edu.kit.iti.algover.gui.components;
 
+import edu.kit.iti.algover.Actions.PVCSelectionMouseListener;
 import edu.kit.iti.algover.Actions.ProjectTreeMouseListener;
 import edu.kit.iti.algover.gui.ButtonListener;
 import edu.kit.iti.algover.gui.GUICenter;
@@ -10,6 +11,7 @@ import edu.kit.iti.algover.model.PVCTreeModel;
 import edu.kit.iti.algover.model.ProjectTableTreeModel;
 import edu.kit.iti.algover.model.ProjectTree;
 import net.miginfocom.swing.MigLayout;
+import org.jdesktop.swingx.JXTree;
 import org.jdesktop.swingx.JXTreeTable;
 
 import javax.swing.*;
@@ -41,9 +43,10 @@ public class CustomPVCBrowser extends JPanel {
         //JXTreeTable treetable = new JXTreeTable();
 
         PVCTreeModel model = new PVCTreeModel(center.getProofManagement(), center.getLoadedProject(), center.getProjectTreeModel());
-        JTree tr = new JTree(model);
+        JXTree tr = new JXTree(model);
 
         tr.setRootVisible(true);
+        tr.addMouseListener(new PVCSelectionMouseListener(center, tr));
         this.setBorder(BorderFactory.createTitledBorder("Project "));
 
         //tr.addMouseListener(new ProjectTreeMouseListener());

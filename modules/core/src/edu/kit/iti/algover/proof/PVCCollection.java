@@ -23,4 +23,6 @@ public abstract class PVCCollection {
     public abstract PVCCollection getRoot();
 
     public abstract boolean isPVCLeaf();
+
+    public abstract boolean isEmptyPVC();
 }

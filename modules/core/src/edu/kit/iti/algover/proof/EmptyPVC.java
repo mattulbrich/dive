@@ -47,4 +47,9 @@ public class EmptyPVC extends PVCCollection {
     public boolean isPVCLeaf() {
         return true;
     }
+
+    @Override
+    public boolean isEmptyPVC() {
+        return true;
+    }
 }

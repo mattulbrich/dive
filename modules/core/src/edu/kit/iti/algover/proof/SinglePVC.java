@@ -10,6 +10,10 @@ import java.util.List;
  * Created by sarah on 10/19/16.
  */
 public class SinglePVC extends PVCCollection {
+    public PVC getPVC() {
+        return pvc;
+    }
+
     PVC pvc;
     DafnyDecl dd;
     PVCCollection parent;
@@ -61,6 +65,11 @@ public class SinglePVC extends PVCCollection {
     @Override
     public boolean isPVCLeaf() {
         return true;
+    }
+
+    @Override
+    public boolean isEmptyPVC() {
+        return (this.pvc == null);
     }
 
 

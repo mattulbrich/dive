@@ -5,6 +5,7 @@ import edu.kit.iti.algover.model.CustomLeaf;
 import edu.kit.iti.algover.model.ProjectTree;
 import edu.kit.iti.algover.model.ProjectTreeBuilder;
 import edu.kit.iti.algover.project.Project;
+import edu.kit.iti.algover.proof.PVC;
 import edu.kit.iti.algover.proof.ProofManagement;
 
 import javax.swing.*;
@@ -32,6 +33,8 @@ import java.io.FileNotFoundException;
 public class GUICenter {
 
 
+
+    private PVC selectedPVCForDetailView;
 
 
     private ProofManagement pm;
@@ -107,6 +110,12 @@ public class GUICenter {
      */
     public static final String LEAF_TO_LOAD = "leaf_to_load_selected";
 
+
+    /**
+     * Selected PVC for DetailView
+     *
+     */
+    public static final String PVC_FOR_DETAIL = "pvc_for_detail";
     /**
      * Constructor
      *
@@ -136,10 +145,22 @@ public class GUICenter {
 
     //Getter & Setter
 
+    public PVC getSelectedPVCForDetailView() {
+        return selectedPVCForDetailView;
+    }
+
+    public void setSelectedPVCForDetailView(PVC selectedPVCForDetailView) {
+        PVC oldPVC = this.getSelectedPVCForDetailView();
+        this.selectedPVCForDetailView = selectedPVCForDetailView;
+        changes.firePropertyChange(PVC_FOR_DETAIL, oldPVC, this.getSelectedPVCForDetailView());
+
+    }
+
     public ProofManagement getProofManagement() {
 
         return pm;
     }
+
 
     /**
      * Proofmanagement with PVCs have been set
