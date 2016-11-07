@@ -29,6 +29,10 @@ public class SettingsPanelDafny extends JPanel {
         createDafnyPanel();
     }
 
+    public JSpinner getTimeoutSpinner() {
+        return timeoutSpinner;
+    }
+
     public void createDafnyPanel(){
 
         this.setBorder(BorderFactory.createTitledBorder(BorderFactory.createEtchedBorder(),"Settings for Dafny"));

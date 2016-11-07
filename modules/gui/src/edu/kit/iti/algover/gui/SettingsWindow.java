@@ -1,12 +1,17 @@
 package edu.kit.iti.algover.gui;
 
 //import edu.kit.iti.algover.Actions.SettingsSelectionListener;
+import com.sun.org.apache.xpath.internal.SourceTree;
+
 import net.miginfocom.swing.MigLayout;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 
 /**
  * Created by Azadeh Shirvanian on 27.09.2016.
@@ -21,6 +26,16 @@ public class SettingsWindow extends JDialog implements ActionListener {
     JButton okButton;
     JButton applyButton;
     JButton cancelButton;
+
+    List<Integer> timeoutList = new ArrayList<>();
+    JSpinner z3TimeoutSpinner;
+    JSpinner dafnyTimeoutSpinner;
+    JSpinner keyTimeoutSpinner;
+    SettingsPanelZ3 settingsPanelZ3;
+    SettingsPanelDafny settingsPanelDafny;
+    SettingsPanelKeY settingsPanelKeY;
+
+    Component settingsMainPanel;
 
 
     public SettingsWindow(GUICenter center) {
@@ -80,7 +95,7 @@ public class SettingsWindow extends JDialog implements ActionListener {
         this.add(buttonPanel, BorderLayout.SOUTH);
 
         cancelButton.addActionListener(this);
-
+        applyButton.addActionListener(this);
 
         //main panel (cards)
 
@@ -90,7 +105,16 @@ public class SettingsWindow extends JDialog implements ActionListener {
         cards.add(new SettingsPanelDafny(center), "dafny");
         cards.add(new SettingsPanelKeY(center), "key");
 
+        settingsMainPanel = cards.getComponent(1);
+        settingsPanelZ3 = (SettingsPanelZ3) settingsMainPanel;
+        center.setSettingsPanelZ3(settingsPanelZ3);
+
         this.add(cards, BorderLayout.CENTER);
+
+        //adding default values to timeoutList
+        timeoutList.add(0, 100);
+        timeoutList.add(1, 100);
+        timeoutList.add(2, 100);
 
 
         this.setLocationRelativeTo(null);
@@ -126,6 +150,40 @@ public class SettingsWindow extends JDialog implements ActionListener {
 
 
             }*/
+        }
+        else if (e.getActionCommand().equals("Apply")) {
+
+            //Storing Z3 timeout
+            //Component SettingsMainPanel = cards.getComponent(1);
+            //settingsPanelZ3 = (SettingsPanelZ3) SettingsMainPanel;
+            z3TimeoutSpinner = settingsPanelZ3.getTimeoutSpinner();
+            Integer z3Timeout = (Integer) z3TimeoutSpinner.getValue();
+            timeoutList.remove(0);
+            timeoutList.add(0, z3Timeout);
+
+            //Storing Dafny Timeout
+            settingsMainPanel = cards.getComponent(2);
+            settingsPanelDafny = (SettingsPanelDafny) settingsMainPanel;
+            dafnyTimeoutSpinner = settingsPanelDafny.getTimeoutSpinner();
+            Integer dafnyTimeout = (Integer) dafnyTimeoutSpinner.getValue();
+            timeoutList.remove(1);
+            timeoutList.add(1, dafnyTimeout);
+
+            //Storing KeY Timeout
+            settingsMainPanel = cards.getComponent(3);
+            settingsPanelKeY = (SettingsPanelKeY) settingsMainPanel;
+            keyTimeoutSpinner = settingsPanelKeY.getTimeoutSpinner();
+            Integer keyTimeout = (Integer) keyTimeoutSpinner.getValue();
+            timeoutList.remove(2);
+            timeoutList.add(2, keyTimeout);
+
+            //Testing the timeoutList
+            for(int i=0; i < timeoutList.size(); i++) {
+                int element = timeoutList.get(i);
+                System.out.println(element);
+            }
+
+
         }
     }
 

@@ -29,6 +29,10 @@ public class SettingsPanelKeY extends JPanel {
         createKeYPanel();
     }
 
+    public JSpinner getTimeoutSpinner() {
+        return timeoutSpinner;
+    }
+
     public void createKeYPanel(){
 
         this.setBorder(BorderFactory.createTitledBorder(BorderFactory.createEtchedBorder(),"Settings for KeY"));

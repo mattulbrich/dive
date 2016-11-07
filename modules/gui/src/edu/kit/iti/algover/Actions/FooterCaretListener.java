@@ -38,7 +38,7 @@ public class FooterCaretListener implements CaretListener {
             try {
                 int pos = this.currentTextArea.getCaretPosition();
                 int lineNum = this.currentTextArea.getLineOfOffset(pos);
-                int col = pos - this.currentTextArea.getLineStartOffset(lineNum);
+                int col = pos - this.currentTextArea.getLineStartOffset(lineNum) + 1;
                 footer.setRightLabelText("Line: " + line + " Column: " + Integer.toString(col));
             }
             catch (Exception ex){}

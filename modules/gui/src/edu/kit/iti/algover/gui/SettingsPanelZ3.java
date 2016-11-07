@@ -1,5 +1,6 @@
 package edu.kit.iti.algover.gui;
 
+import edu.kit.iti.algover.Actions.SettingsZ3BrowseAction;
 import net.miginfocom.swing.MigLayout;
 
 import javax.swing.*;
@@ -18,11 +19,7 @@ public class SettingsPanelZ3 extends JPanel {
     JSpinner timeoutSpinner;
     SpinnerNumberModel spinnerModel;
 
-    public String getName2() {
-        return name;
-    }
-
-    String name = "Name:z3";
+//    String name = "Name:z3";
     int start = 100;
     int min = 0;
     int max = 1000;
@@ -34,9 +31,18 @@ public class SettingsPanelZ3 extends JPanel {
         createZ3Panel();
     }
 
+/*    public String getName2() {
+        return name;
+    }*/
+
     public JSpinner getTimeoutSpinner(){
         return this.timeoutSpinner;
     }
+
+    public JTextField getPathText() {
+        return pathText;
+    }
+
     public void createZ3Panel(){
 
         this.setBorder(BorderFactory.createTitledBorder(BorderFactory.createEtchedBorder(),"Settings for Z3"));
@@ -46,6 +52,7 @@ public class SettingsPanelZ3 extends JPanel {
         timeoutSpinner = new JSpinner(spinnerModel);
         pathLabel = new JLabel("Path to executable:");
         pathText = new JTextField(50);
+       // pathText.setText("Path");
         browseButton = new JButton("...");
 
         MigLayout mig = new MigLayout(
@@ -61,5 +68,7 @@ public class SettingsPanelZ3 extends JPanel {
         this.add(pathLabel);
         this.add(pathText);
         this.add(browseButton, "wrap");
+
+        browseButton.setAction(new SettingsZ3BrowseAction(center));
     }
 }

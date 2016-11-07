@@ -30,6 +30,7 @@ public class ProverSettingsAction extends AbstractAction {
         SettingsWindow settingsWindow = new SettingsWindow(c);
         settingsWindow.setVisible(true);
 
+
         settingsWindow.getSettingsList().getSelectionModel().addListSelectionListener(new ListSelectionListener() {
 
             JPanel cards = settingsWindow.getCards();
@@ -51,5 +52,6 @@ public class ProverSettingsAction extends AbstractAction {
             }
         });
 
+        c.setSettingsWindow(settingsWindow);
     }
 }

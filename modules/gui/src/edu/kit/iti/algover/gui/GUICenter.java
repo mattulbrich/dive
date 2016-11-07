@@ -32,6 +32,8 @@ import java.io.FileNotFoundException;
 
 public class GUICenter {
 
+    private SettingsWindow settingsWindow;
+    private SettingsPanelZ3 settingsPanelZ3;
 
 
     private PVC selectedPVCForDetailView;
@@ -310,5 +312,24 @@ public class GUICenter {
 
     public void setSelectedPath(TreePath selectedPath) {
         this.selectedPath = selectedPath;
+    }
+
+
+
+    public SettingsWindow getSettingsWindow() {
+        return settingsWindow;
+    }
+
+    public void setSettingsWindow(SettingsWindow settingsWindow) {
+        this.settingsWindow = settingsWindow;
+    }
+
+
+    public SettingsPanelZ3 getSettingsPanelZ3() {
+        return settingsPanelZ3;
+    }
+
+    public void setSettingsPanelZ3(SettingsPanelZ3 settingsPanelZ3) {
+        this.settingsPanelZ3 = settingsPanelZ3;
     }
 }
