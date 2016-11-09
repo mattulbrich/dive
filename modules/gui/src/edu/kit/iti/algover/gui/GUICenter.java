@@ -34,6 +34,9 @@ public class GUICenter {
 
     private SettingsWindow settingsWindow;
     private SettingsPanelZ3 settingsPanelZ3;
+    private SettingsPanelDafny settingsPanelDafny;
+    private  SettingsPanelKeY settingsPanelKeY;
+    private SettingsPanelGeneral settingsPanelGeneral;
 
 
     private PVC selectedPVCForDetailView;
@@ -331,5 +334,29 @@ public class GUICenter {
 
     public void setSettingsPanelZ3(SettingsPanelZ3 settingsPanelZ3) {
         this.settingsPanelZ3 = settingsPanelZ3;
+    }
+
+    public SettingsPanelDafny getSettingsPanelDafny() {
+        return settingsPanelDafny;
+    }
+
+    public void setSettingsPanelDafny(SettingsPanelDafny settingsPanelDafny) {
+        this.settingsPanelDafny = settingsPanelDafny;
+    }
+
+    public SettingsPanelKeY getSettingsPanelKeY() {
+        return settingsPanelKeY;
+    }
+
+    public void setSettingsPanelKeY(SettingsPanelKeY settingsPanelKeY) {
+        this.settingsPanelKeY = settingsPanelKeY;
+    }
+
+    public SettingsPanelGeneral getSettingsPanelGeneral() {
+        return settingsPanelGeneral;
+    }
+
+    public void setSettingsPanelGeneral(SettingsPanelGeneral settingsPanelGeneral) {
+        this.settingsPanelGeneral = settingsPanelGeneral;
     }
 }

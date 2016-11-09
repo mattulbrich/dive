@@ -1,5 +1,6 @@
 package edu.kit.iti.algover.gui;
 
+import edu.kit.iti.algover.Actions.SettingsKeYBrowseAction;
 import net.miginfocom.swing.MigLayout;
 
 import javax.swing.*;
@@ -26,11 +27,16 @@ public class SettingsPanelKeY extends JPanel {
     public SettingsPanelKeY(GUICenter center){
 
         this.center = center;
+        center.setSettingsPanelKeY(this);
         createKeYPanel();
     }
 
     public JSpinner getTimeoutSpinner() {
         return timeoutSpinner;
+    }
+
+    public JTextField getPathText() {
+        return pathText;
     }
 
     public void createKeYPanel(){
@@ -57,5 +63,7 @@ public class SettingsPanelKeY extends JPanel {
         this.add(pathLabel);
         this.add(pathText);
         this.add(browseButton, "wrap");
+
+        browseButton.setAction(new SettingsKeYBrowseAction(center));
     }
 }

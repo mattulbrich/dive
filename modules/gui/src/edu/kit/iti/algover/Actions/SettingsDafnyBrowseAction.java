@@ -1,37 +1,29 @@
 package edu.kit.iti.algover.Actions;
 
 import edu.kit.iti.algover.gui.GUICenter;
-import edu.kit.iti.algover.gui.SettingsPanelZ3;
+import edu.kit.iti.algover.gui.SettingsPanelDafny;
 import edu.kit.iti.algover.gui.SettingsWindow;
 
 import javax.swing.*;
-import java.awt.*;
 import java.awt.event.ActionEvent;
-import java.awt.event.KeyEvent;
 import java.io.File;
 
 /**
- * Created by Azadeh Shirvanian on 04.11.2016.
+ * Created by Azadeh Shirvanian on 09.11.2016.
  */
-public class SettingsZ3BrowseAction extends AbstractAction {
+public class SettingsDafnyBrowseAction extends AbstractAction {
 
     GUICenter c;
     SettingsWindow settingsWindow;
-    SettingsPanelZ3 settingsPanelZ3;
+    SettingsPanelDafny settingsPanelDafny;
     JTextField pathTextField;
 
-    public SettingsZ3BrowseAction(GUICenter center){
+    public SettingsDafnyBrowseAction(GUICenter center){
 
         this.c = center;
         settingsWindow = c.getSettingsWindow();
-        settingsPanelZ3 = c.getSettingsPanelZ3();
-        pathTextField = settingsPanelZ3.getPathText();
-
-        if (settingsWindow == null)
-            System.out.println("Window is null");
-
-        if (settingsPanelZ3 == null)
-            System.out.println("Panel is null");
+        settingsPanelDafny = c.getSettingsPanelDafny();
+        pathTextField = settingsPanelDafny.getPathText();
 
         this.putValue(AbstractAction.NAME, "...");
         //this.putValue(AbstractAction.ACCELERATOR_KEY, KeyStroke.getKeyStroke(KeyEvent.VK_O, KeyEvent.CTRL_MASK));
@@ -51,3 +43,4 @@ public class SettingsZ3BrowseAction extends AbstractAction {
 
     }
 }
+

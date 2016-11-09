@@ -1,37 +1,29 @@
 package edu.kit.iti.algover.Actions;
 
 import edu.kit.iti.algover.gui.GUICenter;
-import edu.kit.iti.algover.gui.SettingsPanelZ3;
+import edu.kit.iti.algover.gui.SettingsPanelGeneral;
 import edu.kit.iti.algover.gui.SettingsWindow;
 
 import javax.swing.*;
-import java.awt.*;
 import java.awt.event.ActionEvent;
-import java.awt.event.KeyEvent;
 import java.io.File;
 
 /**
- * Created by Azadeh Shirvanian on 04.11.2016.
+ * Created by Azadeh Shirvanian on 09.11.2016.
  */
-public class SettingsZ3BrowseAction extends AbstractAction {
+public class SettingsGeneralBrowseAction extends AbstractAction {
 
     GUICenter c;
     SettingsWindow settingsWindow;
-    SettingsPanelZ3 settingsPanelZ3;
+    SettingsPanelGeneral settingsPanelGeneral;
     JTextField pathTextField;
 
-    public SettingsZ3BrowseAction(GUICenter center){
+    public SettingsGeneralBrowseAction(GUICenter center){
 
         this.c = center;
         settingsWindow = c.getSettingsWindow();
-        settingsPanelZ3 = c.getSettingsPanelZ3();
-        pathTextField = settingsPanelZ3.getPathText();
-
-        if (settingsWindow == null)
-            System.out.println("Window is null");
-
-        if (settingsPanelZ3 == null)
-            System.out.println("Panel is null");
+        settingsPanelGeneral = c.getSettingsPanelGeneral();
+        pathTextField = settingsPanelGeneral.getGeneralText();
 
         this.putValue(AbstractAction.NAME, "...");
         //this.putValue(AbstractAction.ACCELERATOR_KEY, KeyStroke.getKeyStroke(KeyEvent.VK_O, KeyEvent.CTRL_MASK));
@@ -42,7 +34,8 @@ public class SettingsZ3BrowseAction extends AbstractAction {
     public void actionPerformed(ActionEvent e) {
 
         JFileChooser fc = new JFileChooser();
-        fc.setDialogTitle("Browse for File");
+        fc.setDialogTitle("Browse for Folder");
+        fc.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
         int result = fc.showDialog(settingsWindow, "OK");
         if (result == JFileChooser.APPROVE_OPTION) {
             File selectedFile = fc.getSelectedFile();

@@ -1,5 +1,6 @@
 package edu.kit.iti.algover.gui;
 
+import edu.kit.iti.algover.Actions.SettingsGeneralBrowseAction;
 import net.miginfocom.swing.MigLayout;
 
 import javax.swing.*;
@@ -18,7 +19,12 @@ public class SettingsPanelGeneral extends JPanel {
     public SettingsPanelGeneral(GUICenter center){
 
         this.center = center;
+        center.setSettingsPanelGeneral(this);
         createGeneralPanel();
+    }
+
+    public JTextField getGeneralText() {
+        return generalText;
     }
 
     public void createGeneralPanel(){
@@ -39,5 +45,7 @@ public class SettingsPanelGeneral extends JPanel {
         this.add(generalLabel, "wrap");
         this.add(generalText);
         this.add(generalButton, "wrap");
+
+        generalButton.setAction(new SettingsGeneralBrowseAction(center));
     }
 }

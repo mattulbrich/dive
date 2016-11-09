@@ -1,5 +1,7 @@
 package edu.kit.iti.algover.gui;
 
+import edu.kit.iti.algover.Actions.SettingsDafnyBrowseAction;
+import edu.kit.iti.algover.Actions.SettingsZ3BrowseAction;
 import net.miginfocom.swing.MigLayout;
 
 import javax.swing.*;
@@ -26,11 +28,16 @@ public class SettingsPanelDafny extends JPanel {
     public SettingsPanelDafny(GUICenter center){
 
         this.center = center;
+        center.setSettingsPanelDafny(this);
         createDafnyPanel();
     }
 
     public JSpinner getTimeoutSpinner() {
         return timeoutSpinner;
+    }
+
+    public JTextField getPathText() {
+        return pathText;
     }
 
     public void createDafnyPanel(){
@@ -57,5 +64,7 @@ public class SettingsPanelDafny extends JPanel {
         this.add(pathLabel);
         this.add(pathText);
         this.add(browseButton, "wrap");
+
+        browseButton.setAction(new SettingsDafnyBrowseAction(center));
     }
 }

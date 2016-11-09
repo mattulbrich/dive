@@ -27,6 +27,8 @@ public class SettingsWindow extends JDialog implements ActionListener {
     JButton applyButton;
     JButton cancelButton;
 
+    // To save the settings information:
+
     List<Integer> timeoutList = new ArrayList<>();
     JSpinner z3TimeoutSpinner;
     JSpinner dafnyTimeoutSpinner;
@@ -34,6 +36,11 @@ public class SettingsWindow extends JDialog implements ActionListener {
     SettingsPanelZ3 settingsPanelZ3;
     SettingsPanelDafny settingsPanelDafny;
     SettingsPanelKeY settingsPanelKeY;
+    List<String> pathList = new ArrayList<>();
+    JTextField generalPathTextField;
+    JTextField z3PathTextField;
+    JTextField dafnyPathTextField;
+    JTextField keyPathTextField;
 
     Component settingsMainPanel;
 
@@ -42,6 +49,7 @@ public class SettingsWindow extends JDialog implements ActionListener {
 
         super(center.getMainwindow());
         this.center = center;
+        center.setSettingsWindow(this);
         createSettingsWindow();
     }
 
@@ -107,7 +115,7 @@ public class SettingsWindow extends JDialog implements ActionListener {
 
         settingsMainPanel = cards.getComponent(1);
         settingsPanelZ3 = (SettingsPanelZ3) settingsMainPanel;
-        center.setSettingsPanelZ3(settingsPanelZ3);
+        //center.setSettingsPanelZ3(settingsPanelZ3);
 
         this.add(cards, BorderLayout.CENTER);
 
@@ -154,6 +162,7 @@ public class SettingsWindow extends JDialog implements ActionListener {
         else if (e.getActionCommand().equals("Apply")) {
 
             //Storing Z3 timeout
+
             //Component SettingsMainPanel = cards.getComponent(1);
             //settingsPanelZ3 = (SettingsPanelZ3) SettingsMainPanel;
             z3TimeoutSpinner = settingsPanelZ3.getTimeoutSpinner();

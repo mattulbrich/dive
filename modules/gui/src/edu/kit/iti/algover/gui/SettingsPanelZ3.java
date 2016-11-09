@@ -28,6 +28,7 @@ public class SettingsPanelZ3 extends JPanel {
     public SettingsPanelZ3(GUICenter center){
 
         this.center = center;
+        center.setSettingsPanelZ3(this);
         createZ3Panel();
     }
 
