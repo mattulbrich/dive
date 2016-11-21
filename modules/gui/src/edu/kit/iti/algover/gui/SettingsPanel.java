@@ -1,17 +1,15 @@
 package edu.kit.iti.algover.gui;
 
-import edu.kit.iti.algover.Actions.SettingsDafnyBrowseAction;
-import edu.kit.iti.algover.Actions.SettingsZ3BrowseAction;
 import net.miginfocom.swing.MigLayout;
 
 import javax.swing.*;
 
 /**
- * Created by Azadeh Shirvanian on 04.10.2016.
+ * Created by Azadeh Shirvanian on 21.11.2016.
  */
-public class SettingsPanelDafny extends SettingsPanel {
+public abstract class SettingsPanel extends JPanel {
 
-    /*GUICenter center;
+    GUICenter center;
 
     JLabel timeoutLabel;
     JLabel pathLabel;
@@ -23,30 +21,27 @@ public class SettingsPanelDafny extends SettingsPanel {
     int start = 100;
     int min = 0;
     int max = 1000;
-    int step = 5;*/
+    int step = 5;
 
-    public SettingsPanelDafny(GUICenter center){
-        super(center);
-        //this.center = center;
-        //center.setSettingsPanelDafny(this);
-        //titleDafnyPanel();
-        this.setBorder(BorderFactory.createTitledBorder(BorderFactory.createEtchedBorder(),"Settings for Dafny"));
+    public SettingsPanel (GUICenter center){
+
+        this.center = center;
+        createPanel();
     }
 
-   /* public JSpinner getTimeoutSpinner() {
+    public JSpinner getTimeoutSpinner() {
         return timeoutSpinner;
     }
 
     public JTextField getPathText() {
         return pathText;
-    }*/
+    }
 
-   // public void titleDafnyPanel(){
+    public void createPanel(){
 
-     //   this.setBorder(BorderFactory.createTitledBorder(BorderFactory.createEtchedBorder(),"Settings for Dafny"));
-        //super.createPanel();
+      //  this.setBorder(BorderFactory.createTitledBorder(BorderFactory.createEtchedBorder(),"Settings for Dafny"));
 
-        /*timeoutLabel = new JLabel("Timeout [ms]:");
+        timeoutLabel = new JLabel("Timeout [ms]:");
         spinnerModel = new SpinnerNumberModel(start, min, max, step);
         timeoutSpinner = new JSpinner(spinnerModel);
         pathLabel = new JLabel("Path to executable:");
@@ -67,6 +62,6 @@ public class SettingsPanelDafny extends SettingsPanel {
         this.add(pathText);
         this.add(browseButton, "wrap");
 
-        browseButton.setAction(new SettingsDafnyBrowseAction(center));*/
-    //}
+       // browseButton.setAction(new SettingsDafnyBrowseAction(center));
+    }
 }

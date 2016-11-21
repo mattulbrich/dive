@@ -41,6 +41,7 @@ public class SettingsWindow extends JDialog implements ActionListener {
     JTextField z3PathTextField;
     JTextField dafnyPathTextField;
     JTextField keyPathTextField;
+    SettingsPanelGeneral settingsPanelGeneral;
 
     Component settingsMainPanel;
 
@@ -113,8 +114,8 @@ public class SettingsWindow extends JDialog implements ActionListener {
         cards.add(new SettingsPanelDafny(center), "dafny");
         cards.add(new SettingsPanelKeY(center), "key");
 
-        settingsMainPanel = cards.getComponent(1);
-        settingsPanelZ3 = (SettingsPanelZ3) settingsMainPanel;
+        //settingsMainPanel = cards.getComponent(1);
+        //settingsPanelZ3 = (SettingsPanelZ3) settingsMainPanel;
         //center.setSettingsPanelZ3(settingsPanelZ3);
 
         this.add(cards, BorderLayout.CENTER);
@@ -163,8 +164,8 @@ public class SettingsWindow extends JDialog implements ActionListener {
 
             //Storing Z3 timeout
 
-            //Component SettingsMainPanel = cards.getComponent(1);
-            //settingsPanelZ3 = (SettingsPanelZ3) SettingsMainPanel;
+            settingsMainPanel = cards.getComponent(1);
+            settingsPanelZ3 = (SettingsPanelZ3) settingsMainPanel;
             z3TimeoutSpinner = settingsPanelZ3.getTimeoutSpinner();
             Integer z3Timeout = (Integer) z3TimeoutSpinner.getValue();
             timeoutList.remove(0);
@@ -191,6 +192,11 @@ public class SettingsWindow extends JDialog implements ActionListener {
                 int element = timeoutList.get(i);
                 System.out.println(element);
             }
+
+            //Storing paths
+
+            generalPathTextField = settingsPanelGeneral.getGeneralText(); // what is panel exactly
+
 
 
         }
