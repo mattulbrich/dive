@@ -52,6 +52,6 @@ public class ProverSettingsAction extends AbstractAction {
             }
         });
 
-        //c.setSettingsWindow(settingsWindow);
+        //c.getMainwindow().setSettingsWindow(settingsWindow);
     }
 }

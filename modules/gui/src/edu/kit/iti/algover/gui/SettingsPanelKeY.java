@@ -8,62 +8,15 @@ import javax.swing.*;
 /**
  * Created by Azadeh Shirvanian on 04.10.2016.
  */
-public class SettingsPanelKeY extends JPanel {
+public class SettingsPanelKeY extends SettingsPanel {
 
-    GUICenter center;
-
-    JLabel timeoutLabel;
-    JLabel pathLabel;
-    JTextField pathText;
-    JButton browseButton;
-    JSpinner timeoutSpinner;
-    SpinnerNumberModel spinnerModel;
-
-    int start = 100;
-    int min = 0;
-    int max = 1000;
-    int step = 5;
 
     public SettingsPanelKeY(GUICenter center){
 
-        this.center = center;
-        center.setSettingsPanelKeY(this);
-        createKeYPanel();
-    }
-
-    public JSpinner getTimeoutSpinner() {
-        return timeoutSpinner;
-    }
-
-    public JTextField getPathText() {
-        return pathText;
-    }
-
-    public void createKeYPanel(){
-
+        super(center);
+        //this.center = center;
+        //center.setSettingsPanelKeY(this);
         this.setBorder(BorderFactory.createTitledBorder(BorderFactory.createEtchedBorder(),"Settings for KeY"));
-
-        timeoutLabel = new JLabel("Timeout [ms]:");
-        spinnerModel = new SpinnerNumberModel(start, min, max, step);
-        timeoutSpinner = new JSpinner(spinnerModel);
-        pathLabel = new JLabel("Path to executable:");
-        pathText = new JTextField(50);
-        browseButton = new JButton("...");
-
-        MigLayout mig = new MigLayout(
-                "",       //Layout constraints
-                "[][][]",               // Column constraints
-                "[][]"          // Row constraints
-        );
-
-        this.setLayout(mig);
-
-        this.add(timeoutLabel);
-        this.add(timeoutSpinner, "wrap");
-        this.add(pathLabel);
-        this.add(pathText);
-        this.add(browseButton, "wrap");
-
-        browseButton.setAction(new SettingsKeYBrowseAction(center));
     }
+
 }

@@ -19,13 +19,10 @@ public class SettingsPanelGeneral extends JPanel {
     public SettingsPanelGeneral(GUICenter center){
 
         this.center = center;
-        center.setSettingsPanelGeneral(this);
+        center.getMainwindow().getSettingsWindow().setSettingsPanelGeneral(this);
         createGeneralPanel();
     }
 
-    public JTextField getGeneralText() {
-        return generalText;
-    }
 
     public void createGeneralPanel(){
 
@@ -47,5 +44,9 @@ public class SettingsPanelGeneral extends JPanel {
         this.add(generalButton, "wrap");
 
         generalButton.setAction(new SettingsGeneralBrowseAction(center));
+    }
+
+    public JTextField getGeneralText() {
+        return generalText;
     }
 }

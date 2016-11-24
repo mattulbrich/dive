@@ -18,6 +18,10 @@ public abstract class SettingsPanel extends JPanel {
     JSpinner timeoutSpinner;
     SpinnerNumberModel spinnerModel;
 
+    private SettingsPanelZ3 settingsPanelZ3;
+    private SettingsPanelDafny settingsPanelDafny;
+    private SettingsPanelKeY settingsPanelKeY;
+
     int start = 100;
     int min = 0;
     int max = 1000;
@@ -29,17 +33,7 @@ public abstract class SettingsPanel extends JPanel {
         createPanel();
     }
 
-    public JSpinner getTimeoutSpinner() {
-        return timeoutSpinner;
-    }
-
-    public JTextField getPathText() {
-        return pathText;
-    }
-
     public void createPanel(){
-
-      //  this.setBorder(BorderFactory.createTitledBorder(BorderFactory.createEtchedBorder(),"Settings for Dafny"));
 
         timeoutLabel = new JLabel("Timeout [ms]:");
         spinnerModel = new SpinnerNumberModel(start, min, max, step);
@@ -63,5 +57,37 @@ public abstract class SettingsPanel extends JPanel {
         this.add(browseButton, "wrap");
 
        // browseButton.setAction(new SettingsDafnyBrowseAction(center));
+    }
+
+    public JSpinner getTimeoutSpinner() {
+        return timeoutSpinner;
+    }
+
+    public JTextField getPathText() {
+        return pathText;
+    }
+
+    public SettingsPanelZ3 getSettingsPanelZ3() {
+        return settingsPanelZ3;
+    }
+
+    public void setSettingsPanelZ3(SettingsPanelZ3 settingsPanelZ3) {
+        this.settingsPanelZ3 = settingsPanelZ3;
+    }
+
+    public SettingsPanelDafny getSettingsPanelDafny() {
+        return settingsPanelDafny;
+    }
+
+    public void setSettingsPanelDafny(SettingsPanelDafny settingsPanelDafny) {
+        this.settingsPanelDafny = settingsPanelDafny;
+    }
+
+    public SettingsPanelKeY getSettingsPanelKeY() {
+        return settingsPanelKeY;
+    }
+
+    public void setSettingsPanelKeY(SettingsPanelKeY settingsPanelKeY) {
+        this.settingsPanelKeY = settingsPanelKeY;
     }
 }

@@ -21,11 +21,14 @@ public class SettingsWindow extends JDialog implements ActionListener {
     GUICenter center;
     DefaultListModel<String> listModel = new DefaultListModel<>();
     JList settingsList;
-    JPanel cards;
     JPanel buttonPanel;
+    JPanel cards;
     JButton okButton;
     JButton applyButton;
     JButton cancelButton;
+
+    private SettingsPanelGeneral settingsPanelGeneral;
+    private SettingsPanel settingsPanel;
 
     // To save the settings information:
 
@@ -41,7 +44,8 @@ public class SettingsWindow extends JDialog implements ActionListener {
     JTextField z3PathTextField;
     JTextField dafnyPathTextField;
     JTextField keyPathTextField;
-    SettingsPanelGeneral settingsPanelGeneral;
+    
+    
 
     Component settingsMainPanel;
 
@@ -50,16 +54,8 @@ public class SettingsWindow extends JDialog implements ActionListener {
 
         super(center.getMainwindow());
         this.center = center;
-        center.setSettingsWindow(this);
+        center.getMainwindow().setSettingsWindow(this);
         createSettingsWindow();
-    }
-
-    public JPanel getCards() {
-        return cards;
-    }
-
-    public JList getSettingsList() {
-        return settingsList;
     }
 
     public void createSettingsWindow() {
@@ -106,7 +102,7 @@ public class SettingsWindow extends JDialog implements ActionListener {
         cancelButton.addActionListener(this);
         applyButton.addActionListener(this);
 
-        //main panel (cards)
+        //main panel (settingsPanel)
 
         cards = new JPanel(new CardLayout());
         cards.add(new SettingsPanelGeneral(center), "general");
@@ -114,7 +110,7 @@ public class SettingsWindow extends JDialog implements ActionListener {
         cards.add(new SettingsPanelDafny(center), "dafny");
         cards.add(new SettingsPanelKeY(center), "key");
 
-        //settingsMainPanel = cards.getComponent(1);
+        //settingsMainPanel = settingsPanel.getComponent(1);
         //settingsPanelZ3 = (SettingsPanelZ3) settingsMainPanel;
         //center.setSettingsPanelZ3(settingsPanelZ3);
 
@@ -149,7 +145,7 @@ public class SettingsWindow extends JDialog implements ActionListener {
 
     	}*/
            /* JPanel card = null;
-            for (Component comp : cards.getComponents()) {
+            for (Component comp : settingsPanel.getComponents()) {
                 if (comp.getName().equals("z3")) {
                     card = (JPanel) comp;
                     SettingsPanelZ3 z3Panel = (SettingsPanelZ3) card;
@@ -195,11 +191,34 @@ public class SettingsWindow extends JDialog implements ActionListener {
 
             //Storing paths
 
-            generalPathTextField = settingsPanelGeneral.getGeneralText(); // what is panel exactly
+            //generalPathTextField = settingsPanelGeneral.getGeneralText(); // what is panel exactly
 
 
 
         }
     }
 
+    public JPanel getCards() {
+        return cards;
+    }
+
+    public JList getSettingsList() {
+        return settingsList;
+    }
+
+    public SettingsPanelGeneral getSettingsPanelGeneral() {
+        return settingsPanelGeneral;
+    }
+
+    public void setSettingsPanelGeneral(SettingsPanelGeneral settingsPanelGeneral) {
+        this.settingsPanelGeneral = settingsPanelGeneral;
+    }
+
+    public SettingsPanel getSettingsPanel() {
+        return settingsPanel;
+    }
+
+    public void setSettingsPanel(SettingsPanel settingsPanel) {
+        this.settingsPanel = settingsPanel;
+    }
 }

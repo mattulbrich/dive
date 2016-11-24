@@ -29,6 +29,8 @@ public final class MainWindow extends JFrame {
     //GUICemter knows about top level GUI
     private static GUICenter center;
 
+    private SettingsWindow settingsWindow;
+
 
     public ProjectBrowserPanel getpPanel() {
         return pPanel;
@@ -109,6 +111,15 @@ public final class MainWindow extends JFrame {
         return center;
     }
 
+    public SettingsWindow getSettingsWindow() {
+        //System.out.println("getter");
+        return settingsWindow;
+    }
 
+    public void setSettingsWindow(SettingsWindow settingsWindow)
+    {
+        //System.out.println("setter");
+        this.settingsWindow = settingsWindow;
+    }
 
 }
