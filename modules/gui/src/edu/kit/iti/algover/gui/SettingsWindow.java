@@ -3,6 +3,7 @@ package edu.kit.iti.algover.gui;
 //import edu.kit.iti.algover.Actions.SettingsSelectionListener;
 import com.sun.org.apache.xpath.internal.SourceTree;
 
+import edu.kit.iti.algover.Actions.SettingsCancelButtonAction;
 import net.miginfocom.swing.MigLayout;
 
 import javax.swing.*;
@@ -99,7 +100,7 @@ public class SettingsWindow extends JDialog implements ActionListener {
 
         this.add(buttonPanel, BorderLayout.SOUTH);
 
-        cancelButton.addActionListener(this);
+        cancelButton.setAction(new SettingsCancelButtonAction(center));
         applyButton.addActionListener(this);
 
         //main panel (settingsPanel)
@@ -110,7 +111,7 @@ public class SettingsWindow extends JDialog implements ActionListener {
         cards.add(new SettingsPanelDafny(center), "dafny");
         cards.add(new SettingsPanelKeY(center), "key");
 
-        //settingsMainPanel = settingsPanel.getComponent(1);
+        //settingsMainPanel = cards.getComponent(1);
         //settingsPanelZ3 = (SettingsPanelZ3) settingsMainPanel;
         //center.setSettingsPanelZ3(settingsPanelZ3);
 
@@ -128,9 +129,9 @@ public class SettingsWindow extends JDialog implements ActionListener {
 
     public void actionPerformed(ActionEvent e) {
 
-        if (e.getActionCommand().equals("Cancel")) {
-            this.setVisible(false);
-            this.dispose();
+        //if (e.getActionCommand().equals("Cancel")) {
+          //  this.setVisible(false);
+            //this.dispose();
           /*  System.out.println("CancelButton");
 
             MainWindow mw = center.getMainwindow();
@@ -155,8 +156,8 @@ public class SettingsWindow extends JDialog implements ActionListener {
 
 
             }*/
-        }
-        else if (e.getActionCommand().equals("Apply")) {
+        //}
+        if (e.getActionCommand().equals("Apply")) {
 
             //Storing Z3 timeout
 
