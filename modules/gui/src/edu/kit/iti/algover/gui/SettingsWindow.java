@@ -215,10 +215,14 @@ public class SettingsWindow extends JDialog implements ActionListener {
     }
 
     public SettingsPanel getSettingsPanel() {
+
+        //System.out.println("get SettingsPanel");
         return settingsPanel;
     }
 
     public void setSettingsPanel(SettingsPanel settingsPanel) {
+
+        //System.out.println("set SettingsPanel");
         this.settingsPanel = settingsPanel;
     }
 }

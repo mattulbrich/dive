@@ -112,13 +112,13 @@ public final class MainWindow extends JFrame {
     }
 
     public SettingsWindow getSettingsWindow() {
-        //System.out.println("getter");
+        //System.out.println("getterSW");
         return settingsWindow;
     }
 
     public void setSettingsWindow(SettingsWindow settingsWindow)
     {
-        //System.out.println("setter");
+        //System.out.println("setterSW");
         this.settingsWindow = settingsWindow;
     }
 

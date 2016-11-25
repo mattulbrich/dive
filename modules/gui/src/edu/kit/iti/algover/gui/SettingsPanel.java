@@ -1,5 +1,6 @@
 package edu.kit.iti.algover.gui;
 
+import com.sun.org.apache.xpath.internal.SourceTree;
 import net.miginfocom.swing.MigLayout;
 
 import javax.swing.*;
@@ -30,6 +31,7 @@ public abstract class SettingsPanel extends JPanel {
     public SettingsPanel (GUICenter center){
 
         this.center = center;
+        center.getMainwindow().getSettingsWindow().setSettingsPanel(this);
         createPanel();
     }
 
@@ -55,8 +57,6 @@ public abstract class SettingsPanel extends JPanel {
         this.add(pathLabel);
         this.add(pathText);
         this.add(browseButton, "wrap");
-
-       // browseButton.setAction(new SettingsDafnyBrowseAction(center));
     }
 
     public JSpinner getTimeoutSpinner() {
@@ -68,10 +68,12 @@ public abstract class SettingsPanel extends JPanel {
     }
 
     public SettingsPanelZ3 getSettingsPanelZ3() {
+        //System.out.println("getterZ3");
         return settingsPanelZ3;
     }
 
     public void setSettingsPanelZ3(SettingsPanelZ3 settingsPanelZ3) {
+        //System.out.println("setterZ3");
         this.settingsPanelZ3 = settingsPanelZ3;
     }
 

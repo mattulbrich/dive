@@ -21,8 +21,8 @@ public class SettingsDafnyBrowseAction extends AbstractAction {
     public SettingsDafnyBrowseAction(GUICenter center){
 
         this.c = center;
-        settingsWindow = c.getSettingsWindow();
-        settingsPanelDafny = c.getSettingsPanelDafny();
+        settingsWindow = c.getMainwindow().getSettingsWindow();
+        settingsPanelDafny = settingsWindow.getSettingsPanel().getSettingsPanelDafny();
         pathTextField = settingsPanelDafny.getPathText();
 
         this.putValue(AbstractAction.NAME, "...");

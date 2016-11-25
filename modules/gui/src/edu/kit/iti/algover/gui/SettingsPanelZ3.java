@@ -10,13 +10,12 @@ import javax.swing.*;
  */
 public class SettingsPanelZ3 extends SettingsPanel {
 
-
     public SettingsPanelZ3(GUICenter center){
 
         super(center);
-        //this.center = center;
-        //center.setSettingsPanelZ3(this);
+        setSettingsPanelZ3(this);
         this.setBorder(BorderFactory.createTitledBorder(BorderFactory.createEtchedBorder(),"Settings for Z3"));
+        browseButton.setAction(new SettingsZ3BrowseAction(center));
     }
 
 }

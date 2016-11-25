@@ -21,8 +21,8 @@ public class SettingsKeYBrowseAction extends AbstractAction {
     public SettingsKeYBrowseAction(GUICenter center){
 
         this.c = center;
-        settingsWindow = c.getSettingsWindow();
-        settingsPanelKeY = c.getSettingsPanelKeY();
+        settingsWindow = c.getMainwindow().getSettingsWindow();
+        settingsPanelKeY = settingsWindow.getSettingsPanel().getSettingsPanelKeY();
         pathTextField = settingsPanelKeY.getPathText();
 
         this.putValue(AbstractAction.NAME, "...");

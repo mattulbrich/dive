@@ -12,12 +12,11 @@ import javax.swing.*;
 public class SettingsPanelDafny extends SettingsPanel {
 
     public SettingsPanelDafny(GUICenter center){
+
         super(center);
-        //this.center = center;
-        //center.setSettingsPanelDafny(this);
+        setSettingsPanelDafny(this);
         this.setBorder(BorderFactory.createTitledBorder(BorderFactory.createEtchedBorder(),"Settings for Dafny"));
+        browseButton.setAction(new SettingsDafnyBrowseAction(center));
     }
 
-     //   browseButton.setAction(new SettingsDafnyBrowseAction(center));*/
-    //}
 }

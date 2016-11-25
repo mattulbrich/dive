@@ -23,8 +23,8 @@ public class SettingsZ3BrowseAction extends AbstractAction {
     public SettingsZ3BrowseAction(GUICenter center){
 
         this.c = center;
-        settingsWindow = c.getSettingsWindow();
-        settingsPanelZ3 = c.getSettingsPanelZ3();
+        settingsWindow = c.getMainwindow().getSettingsWindow();
+        settingsPanelZ3 = settingsWindow.getSettingsPanel().getSettingsPanelZ3();
         pathTextField = settingsPanelZ3.getPathText();
 
         if (settingsWindow == null)

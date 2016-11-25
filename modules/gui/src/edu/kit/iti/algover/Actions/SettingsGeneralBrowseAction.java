@@ -21,8 +21,8 @@ public class SettingsGeneralBrowseAction extends AbstractAction {
     public SettingsGeneralBrowseAction(GUICenter center){
 
         this.c = center;
-        settingsWindow = c.getSettingsWindow();
-        settingsPanelGeneral = c.getSettingsPanelGeneral();
+        settingsWindow = c.getMainwindow().getSettingsWindow();
+        settingsPanelGeneral = c.getMainwindow().getSettingsWindow().getSettingsPanelGeneral();
         pathTextField = settingsPanelGeneral.getGeneralText();
 
         this.putValue(AbstractAction.NAME, "...");
