@@ -70,6 +70,7 @@ ELSE: 'else';
 ENSURES: 'ensures';
 EX: 'exists';
 FIELD: 'classfield';
+FREE: 'free';
 FUNCTION: 'function';
 IF: 'if';
 INT : 'int';
@@ -189,11 +190,11 @@ returns_:
   ;
 
 requires:
-  REQUIRES^ label? expression
+  ( FREE )? REQUIRES^ label? expression
   ;
 
 ensures:
-  ENSURES^ label? expression
+  ( FREE )? ENSURES^ label? expression
   ;
 
 decreases:
