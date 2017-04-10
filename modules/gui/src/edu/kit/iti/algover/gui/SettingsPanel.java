@@ -1,6 +1,5 @@
 package edu.kit.iti.algover.gui;
 
-import com.sun.org.apache.xpath.internal.SourceTree;
 import net.miginfocom.swing.MigLayout;
 
 import javax.swing.*;
@@ -43,6 +42,7 @@ public abstract class SettingsPanel extends JPanel {
         pathLabel = new JLabel("Path to executable:");
         pathText = new JTextField(50);
         browseButton = new JButton("...");
+
 
         MigLayout mig = new MigLayout(
                 "",       //Layout constraints

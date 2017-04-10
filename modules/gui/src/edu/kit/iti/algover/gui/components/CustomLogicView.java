@@ -2,8 +2,6 @@ package edu.kit.iti.algover.gui.components;
 
 import edu.kit.iti.algover.gui.GUICenter;
 import edu.kit.iti.algover.gui.ProjectBrowserPanel;
-import edu.kit.iti.algover.model.CustomLeaf;
-import edu.kit.iti.algover.model.ProjectTree;
 import edu.kit.iti.algover.proof.PVC;
 import net.miginfocom.swing.MigLayout;
 
@@ -19,20 +17,21 @@ public class CustomLogicView extends JPanel{
      GUICenter center;
     JButton back = new JButton("Back to ProjectBrowser");
     public AssumptionField assumptions;
+    public AssumptionField toShow;
     MigLayout migLayout = new MigLayout(
                 "insets 0 0 0 0",       //Layout constraints
                 "[grow]",             // Column constraints
-                "[0.3][grow]"          // Row constraints
+                "[0.3][grow][grow]"          // Row constraints
         );
     public CustomLogicView(GUICenter center, PVC pvc) {
         System.out.println("Building CustomLogicView");
         this.center = center;
 
         this.setLayout(migLayout);
+        this.setMinimumSize(super.getPreferredSize());
+
         this.setToolTipText("This is the logic view");
 
-        //zwei große Felder
-        this.setMinimumSize(super.getPreferredSize());
 
         this.setBorder(BorderFactory.createTitledBorder("Project "));
         this.center.addPropertyChangeListener( new MyPropertyChangeListener());
@@ -47,8 +46,13 @@ public class CustomLogicView extends JPanel{
 
         assumptions = new AssumptionField(pvc);
         assumptions.setVisible(true);
+        //CustomFormulaDisplay cfd = new CustomFormulaDisplay();
 
+        toShow = new AssumptionField(pvc);
+        toShow.setVisible(true);
         this.add(assumptions, "grow, wrap");
+        this.add(toShow, "grow, wrap");
+       // this.add(cfd, "grow, wrap");
         //this.add(treetable, "grow, wrap");
         this.setVisible(true);
     }

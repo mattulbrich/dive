@@ -1,6 +1,5 @@
 package edu.kit.iti.algover.script;
 
-import edu.kit.iti.algover.script.ScriptParser;
 import org.antlr.runtime.CommonToken;
 import org.antlr.runtime.RecognitionException;
 import org.antlr.runtime.Token;
