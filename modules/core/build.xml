@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project name="AlogVer" default="build" basedir=".">
+<project name="AlgoVer" default="build" basedir=".">
 
 
 	<property name="dir.lib" value="../../lib" />
@@ -28,13 +28,12 @@
 		</copy>
 	</target>
 
-	<target name="compile" description="Compile all files" depends="visitor,init">
+	<target name="compile" description="Compile all files" depends="visitor,init, scriptParser">
 		<javac destdir="bin" classpath="${libs}" debug="on">
 			<src path="src" />
 			<src path="gen" />
 		</javac>
 	</target>
-
 	<target name="antlr" depends="init">
 		<java jar="${dir.lib}/antlr.jar" fork="true" dir="src" failonerror="true">
 			<arg value="-verbose" />
@@ -43,7 +42,14 @@
 			<arg value="edu/kit/iti/algover/parser/Dafny.g" />
 		</java>
 	</target>
-
+	<target name="scriptParser" depends="init">
+		<java jar="${dir.lib}/antlr.jar" fork="true" dir="src" failonerror="true">
+			<arg value="-verbose" />
+			<arg value="-o" />
+			<arg value="../gen" />
+			<arg value="edu/kit/iti/algover/script/Script.g" />
+		</java>
+	</target>
 
 	<target name="visitor" depends="antlr">
 		<javac srcdir="${dir.tools}" destdir="${dir.tools}" includes="MakeDafnyTreeVisitor.java" debug="on" />
@@ -55,7 +61,7 @@
 			<arg value="Dafny" />
 		</java>
 	</target>
-
+	
 	
 	<target name="compile-test" depends="compile, init, copy-test">
 		<javac srcdir="test" destdir="test-bin" classpath="bin:${libs}" debug="on" />
