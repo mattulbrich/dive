@@ -263,7 +263,7 @@ public class ANTLRTokenMaker
             // case DafnyLexer.NullLiteral:
             // 	return NULL;
            // case DafnyLexer.Identifier:
-            case DafnyLexer.T__75:
+            //case DafnyLexer.T__75:
             case DafnyLexer.T__76:
                 case DafnyLexer.T__77:
                 return FUNCTION;
