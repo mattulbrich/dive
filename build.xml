@@ -64,12 +64,11 @@
    
   <target name="jar" depends="build" description="creates the jar file">
     <jar jarfile="algover.jar">
-      <fileset dir="modules/core/classes/" />
-      <fileset dir="modules/gui/classes/" />
-      <fileset dir="modules/cmd/classes/" />
-      <fileset dir="modules/boogie/classes/" />
-      <fileset dir="modules/algo/classes/" />
-      <fileset dir="modules/exp/classes/" />
+      <fileset dir="modules/core/bin/" />
+      <fileset dir="modules/gui/bin/" />
+      <!-- <fileset dir="modules/dafny/bin/" /> -->
+      <!-- <fileset dir="modules/key/bin/" /> -->
+      <!-- <fileset dir="modules/smt/bin/" /> -->
       <zipfileset dir="." includes="VERSION" prefix="META-INF"/>
       
       <manifest>
