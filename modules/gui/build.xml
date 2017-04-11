@@ -10,6 +10,7 @@
 
 	<target name="init" description="initialize all directories">
 		<mkdir dir="bin" />
+		<mkdir dir="res" /> <!-- remove this once there are resources ... !-->
 	</target>
 
 	<target name="copy-test" depends="init">
