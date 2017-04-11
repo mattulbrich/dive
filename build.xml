@@ -76,10 +76,10 @@
         <attribute name="Built-By" value="${user.name}"/>
         <!-- Information about the program itself -->
         <attribute name="Implementation-Vendor" value="ITI, Karlsruhe Institute of Technology"/>
-        <attribute name="Implementation-Title" value="Algo Ver - tbd" />
+        <attribute name="Implementation-Title" value="Algo Ver" />
         <attribute name="Implementation-Version" value="${VERSION} - ${NOW}"/>
-        <attribute name="Class-Path" value="samples.jar lib/antlr.jar"/>
-        <attribute name="Main-Class" value="to.be.done"/>
+        <attribute name="Class-Path" value="lib/antlr.jar lib/miglayout-4.0-swing.jar lib/rsyntaxtextarea-2.6.0-SNAPSHOT.jar lib/swingx-all-1.6.4.jar" />
+        <attribute name="Main-Class" value="edu.kit.iti.algover.gui.GUIMain"/>
         <attribute name="SplashScreen-Image" value="to/be/done.png"/>
       </manifest>
     </jar>
