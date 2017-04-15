@@ -35,6 +35,7 @@ public class ParserTest {
                 { "../symbex/symbex.dfy" },
                 { "arithmetic.dfy" }, { "../util/labelTest.dfy" }, { "../symbex/whileWithAnon.dfy" },
                 { "../symbex/havoc.dfy" }, { "../symbex/runtimeAssert.dfy" },
+                { "fields.dfy" }, { "../dafnystructures/declTest.dfy" },
                 });
     }
 

@@ -112,7 +112,7 @@ public class MapSymbolTable implements SymbolTable {
     public SymbolTable addFunctionSymbol(FunctionSymbol symb) {
         String name = symb.getName();
         if(functionMap.containsKey(name)) {
-            throw new RuntimeException("Symbol already present: " + name);
+            throw new RuntimeException("Symbol name already present: " + name);
         }
         functionMap.put(name, symb);
         return this;

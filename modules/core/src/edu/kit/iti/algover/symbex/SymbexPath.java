@@ -33,7 +33,7 @@ import edu.kit.iti.algover.util.ImmutableList;
  * constructor {@link #SymbexState(SymbexPath)} is used.
  *
  * The referred elements are of immutable nature such that they can be shared
- * beween instances of this class.
+ * between instances of this class.
  *
  * All references to the original code are in form of {@link DafnyTree} AST
  * references.

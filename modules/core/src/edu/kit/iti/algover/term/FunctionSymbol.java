@@ -1,10 +1,12 @@
+/*
+ * This file is part of AlgoVer.
+ *
+ * Copyright (C) 2015-2016 Karlsruhe Institute of Technology
+ */
 package edu.kit.iti.algover.term;
 
-import java.util.ArrayList;
-import java.util.LinkedList;
 import java.util.List;
 
-import edu.kit.iti.algover.util.ImmutableList;
 import edu.kit.iti.algover.util.Util;
 
 public class FunctionSymbol {

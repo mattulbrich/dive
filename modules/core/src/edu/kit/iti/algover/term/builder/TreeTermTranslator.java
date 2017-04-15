@@ -104,7 +104,7 @@ public class TreeTermTranslator {
                 Term value = build(assignment.getChild(2));
                 FunctionSymbol heap = BuiltinSymbols.HEAP;
                 ApplTerm heapTerm = new ApplTerm(heap);
-                Term store = new ApplTerm(BuiltinSymbols.STORE1, heapTerm, object, index, value);
+                Term store = new ApplTerm(symbolTable.getFunctionSymbol("$store[int]"), heapTerm, object, index, value);
                 return new LetTerm(heap, store, result);
 
             case DafnyParser.LISTEX:
@@ -166,9 +166,11 @@ public class TreeTermTranslator {
         case DafnyParser.TIMES:
             return buildBinary(BuiltinSymbols.TIMES, tree);
         case DafnyParser.UNION:
-            return buildBinary(BuiltinSymbols.UNION, tree);
+            // TODO generalize this bezond integer sets
+            return buildBinary(symbolTable.getFunctionSymbol("$union[int]"), tree);
         case DafnyParser.INTERSECT:
-            return buildBinary(BuiltinSymbols.INTERSECT, tree);
+            // TODO generalize this bezond integer sets
+            return buildBinary(symbolTable.getFunctionSymbol("$intersect[int]"), tree);
 
         case DafnyParser.NOT:
             return buildUnary(BuiltinSymbols.NEG, tree);
@@ -269,7 +271,7 @@ public class TreeTermTranslator {
             throw new RuntimeException();
         }
 
-        FunctionSymbol f = symbolTable.getFunctionSymbol("$eq_" + t1.getSort().getName());
+        FunctionSymbol f = symbolTable.getFunctionSymbol("$eq[" + t1.getSort().getName() +"]");
         return new ApplTerm(f, Arrays.asList(t1, t2));
     }
 

@@ -1,3 +1,8 @@
+/*
+ * This file is part of AlgoVer.
+ *
+ * Copyright (C) 2015-2016 Karlsruhe Institute of Technology
+ */
 package edu.kit.iti.algover.project;
 
 import edu.kit.iti.algover.dafnystructures.DafnyClass;
@@ -25,16 +30,21 @@ import java.util.List;
  */
 public class ProjectBuilder {
 
-
-    /**
-     * List of all files in the project directory
-     */
-    private File[] allFilesinDir;
-
     /**
      * All imported libraries
      */
     private List<File> libraries;
+
+    /**
+     * The script of the project
+     */
+    private File script;
+
+    private List<DafnyFunction> functions;
+
+    private List<DafnyClass> classes;
+
+    private List<DafnyMethod> methods;
 
     /**
      * All Dafnyfiles in the project directory
@@ -46,68 +56,10 @@ public class ProjectBuilder {
      */
     private File dir;
 
-
-
     /**
      * Setting of project
      */
     private ProjectSettings settings;
-
-
-    public File getScript() {
-        return script;
-    }
-
-    /**
-     * The script of the project
-     */
-    private File script;
-
-    private List<DafnyFunction> functions;
-    private List<DafnyClass> classes;
-    private List<DafnyMethod> methods;
-
-    public ProjectSettings getSettings() {
-        return settings;
-    }
-
-    public List<File> getLibraries() {
-        return libraries;
-    }
-
-    public List<File> getDafnyFiles() {
-        return dafnyFiles;
-    }
-
-    public File getDir() {
-        return dir;
-    }
-
-
-    public ProjectBuilder setLibraries(List<File> libraries) {
-        this.libraries = libraries;
-        return this;
-    }
-
-    public ProjectBuilder setDafnyFiles(List<File> dafnyFiles) {
-        this.dafnyFiles = dafnyFiles;
-        return this;
-    }
-
-    public ProjectBuilder setDir(File dir) {
-        this.dir = dir;
-        return this;
-    }
-
-    public ProjectBuilder setSettings(ProjectSettings settings) {
-        this.settings = settings;
-        return this;
-    }
-
-    public ProjectBuilder setScript(File script) {
-        this.script = script;
-        return this;
-    }
 
     /**
      * Responsible for building project
@@ -120,6 +72,54 @@ public class ProjectBuilder {
 
     }
 
+    public File getScript() {
+        return script;
+    }
+
+    public ProjectBuilder setScript(File script) {
+        this.script = script;
+        return this;
+    }
+
+    public ProjectSettings getSettings() {
+        return settings;
+    }
+
+    public ProjectBuilder setSettings(ProjectSettings settings) {
+        this.settings = settings;
+        return this;
+    }
+
+    public List<File> getLibraries() {
+        return libraries;
+    }
+
+    public ProjectBuilder setLibraries(List<File> libraries) {
+        this.libraries = libraries;
+        return this;
+    }
+
+    public List<File> getDafnyFiles() {
+        return dafnyFiles;
+    }
+
+    public ProjectBuilder setDafnyFiles(List<File> dafnyFiles) {
+        this.dafnyFiles = dafnyFiles;
+        return this;
+    }
+
+    public File getDir() {
+        return dir;
+    }
+
+
+    public ProjectBuilder setDir(File dir) {
+        this.dir = dir;
+        return this;
+    }
+
+    // REVIEW Why does this method not throw exceptions? This here does not allow
+    //  for error messages in GUI e.g.
     /**
      * Parse dafnyfile
      *
@@ -134,13 +134,16 @@ public class ProjectBuilder {
         } catch (FileNotFoundException e) {
             System.out.println("Could not read file " + file.getAbsolutePath());
         } catch (Exception e) {
-
             System.out.println("Could not load problem");
             e.printStackTrace();
         }
         return t;
     }
 
+    // REVIEW This method seems to break the builder pattern. Is this class acc. to this pattern?
+    // If not, please rename it.
+    // REVIEW Could there not be two projects in the same directory tree?
+    // (Perhaps several proof trials with different sttings?)
     /**
      * Build project. Handle calling parsers and calling DafnyDecl Builder
      *
@@ -153,11 +156,11 @@ public class ProjectBuilder {
         this.setSettings(settings); //default settings
         //find files
 
-
         File scriptFile = null;
 
         scriptFile = FileUtil.findFile(dir, "project.script");
 
+        // REVIEW why is there a public setScript method if this is set here?
         if (scriptFile != null) {
             this.setScript(scriptFile);
         } else {
@@ -165,22 +168,28 @@ public class ProjectBuilder {
         }
         //call script parser and get parsed Script
         ScriptTree parsedScript = parseScriptFile(this.getScript());
+        // REVIEW caution this value might be null. Why not use exceptions?
 
+        // REVIEW is there guarantee that settings is different from null?
         //extract settings from ScriptTree and change settings in data structure
         extractSettings(parsedScript.getFirstChildWithType(ScriptParser.SETTINGS));
         //extract dafnyfiles into datastructure
         extractDafnyFileNames(parsedScript.getFirstChildWithType(ScriptParser.IMPORT));
 
+        // REVIEW why are there public methods to set library and import files
+        // if this is extracted here?
         //extract Dafnylib files into datastructure
         extractDafnyFileNames(parsedScript.getFirstChildWithType(ScriptParser.LIBRARY));
         //parse DafnyFiles
 
         for (File file: this.getDafnyFiles()) {
             DafnyTree parsed = parseFile(file);
+            // REVIEW This may be null and the following does not take care of that.
+            // Why not use DafnyFileParser.parse?
             DafnyTreeToDeclVisitor visitor = new DafnyTreeToDeclVisitor(this, file);
             visitor.visit(dir.getName(), parsed);
         }
-        
+
         return new Project(this);
     }
 
@@ -210,6 +219,7 @@ public class ProjectBuilder {
         }
     }
 
+    // REVIEW like above. Why are all exceptions discarded?
     /**
      * Parse Script File and return Tree to traverse
      *
@@ -234,6 +244,8 @@ public class ProjectBuilder {
         } catch (Exception e) {
             e.printStackTrace();
         }
+        // REVIEW: Why are there 4 handlers with the same code? The last
+        //  handles it as well as all the ones before.
         return t;
 
     }

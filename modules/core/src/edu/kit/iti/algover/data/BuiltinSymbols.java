@@ -9,13 +9,15 @@ package edu.kit.iti.algover.data;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import edu.kit.iti.algover.term.FunctionSymbol;
+import edu.kit.iti.algover.term.FunctionSymbolFamily;
 import edu.kit.iti.algover.term.Sort;
+import edu.kit.iti.algover.util.Util;
 
 /**
  * This class collects the builtin function symbols of the logic.
@@ -63,20 +65,32 @@ public class BuiltinSymbols extends MapSymbolTable {
     public static final FunctionSymbol TIMES =
             new FunctionSymbol("$times", Sort.INT, Sort.INT, Sort.INT);
 
-    public static final FunctionSymbol UNION =
-            new FunctionSymbol("$union", Sort.INT_SET, Sort.INT_SET, Sort.INT_SET);
+    private static final Sort SET1 = new Sort("set<?1>");
+    public static final FunctionSymbolFamily UNION =
+            new FunctionSymbolFamily(
+                    new FunctionSymbol("$union", SET1, SET1, SET1), 1);
 
-    public static final FunctionSymbol INTERSECT =
-            new FunctionSymbol("$intersect", Sort.INT_SET, Sort.INT_SET, Sort.INT_SET);
+    public static final FunctionSymbolFamily INTERSECT =
+            new FunctionSymbolFamily(
+                    new FunctionSymbol("$intersect", SET1, SET1, SET1), 1);
 
-    public static final FunctionSymbol STORE1 =
-            new FunctionSymbol("$store1", Sort.HEAP, Sort.HEAP, new Sort("array1"), Sort.INT, Sort.INT);
+    public static final FunctionSymbolFamily STORE =
+            new FunctionSymbolFamily(
+                    new FunctionSymbol("$store", Sort.HEAP, Sort.HEAP, Sort.REF,
+                            new Sort("field<?1>"), FunctionSymbolFamily.VAR1), 1);
+
+    // select ...
+
+    public static final FunctionSymbolFamily EQ =
+            new FunctionSymbolFamily(
+                    new FunctionSymbol("$eq", Sort.FORMULA,
+                            FunctionSymbolFamily.VAR1, FunctionSymbolFamily.VAR1), 1);
 
     public static final FunctionSymbol HEAP =
             new FunctionSymbol("$heap", Sort.HEAP);
 
     public static final FunctionSymbol NULL =
-            new FunctionSymbol("null", new Sort("array1"));
+            new FunctionSymbol("null", Sort.REF);
 
     public static final FunctionSymbol TRUE =
             new FunctionSymbol("$true", Sort.FORMULA);
@@ -84,8 +98,13 @@ public class BuiltinSymbols extends MapSymbolTable {
     public static final FunctionSymbol FALSE =
             new FunctionSymbol("$false", Sort.FORMULA);
 
+
+    private Map<String, FunctionSymbolFamily> symbolFamilies =
+            new HashMap<>();
+
     public BuiltinSymbols() {
         super(collectSymbols());
+        collectFamilies();
     }
 
     /**
@@ -94,12 +113,23 @@ public class BuiltinSymbols extends MapSymbolTable {
     @Override
     protected FunctionSymbol resolve(String name) {
 
-        //
-        // type safe equality
-        if(name.startsWith("$eq_")) {
-            Sort sort = new Sort(name.substring(4));
-            FunctionSymbol eq = new FunctionSymbol(name, Sort.FORMULA, Arrays.asList(sort, sort));
-            return eq;
+        int index = name.indexOf("[");
+        if(index >= 0) {
+
+            String baseName = name.substring(0, index);
+            FunctionSymbolFamily family = symbolFamilies.get(baseName);
+            if(family == null) {
+                return null;
+            }
+
+            String[] args = name.substring(index+1, name.length()-1).split(",");
+            Sort[] sorts = new Sort[args.length];
+            for (int i = 0; i < sorts.length; i++) {
+                sorts[i] = new Sort(args[i]);
+            }
+
+            return family.instantiate(Util.readOnlyArrayList(sorts));
+
         }
 
         //
@@ -120,19 +150,6 @@ public class BuiltinSymbols extends MapSymbolTable {
         }
 
         //
-        // select of McCarthy's arrays (dimensional)
-        if(name.matches("\\$select[0-9]+")) {
-            String suffix = name.substring(7);
-            int dim = Integer.parseInt(suffix);
-            Sort arraySort = new Sort("array" + suffix);
-            List<Sort> args = new ArrayList<>();
-            args.add(Sort.HEAP);
-            args.add(arraySort);
-            args.addAll(Collections.nCopies(dim, Sort.INT));
-            FunctionSymbol len = new FunctionSymbol(name, Sort.INT, args);
-            return len;
-        }
-
         // otherwise we cannot resolve that
         return null;
     }
@@ -158,5 +175,24 @@ public class BuiltinSymbols extends MapSymbolTable {
         }
 
         return result;
+    }
+
+    private void collectFamilies() {
+        for(Field f : BuiltinSymbols.class.getDeclaredFields()) {
+            if(!Modifier.isStatic(f.getModifiers())) {
+                continue;
+            }
+            if(f.getType() != FunctionSymbolFamily.class) {
+                continue;
+            }
+
+            try {
+                FunctionSymbolFamily family = (FunctionSymbolFamily) f.get(null);
+                symbolFamilies.put(family.getBaseName(), family);
+            } catch (IllegalAccessException e) {
+                throw new Error(e);
+            }
+
+        }
     }
 }

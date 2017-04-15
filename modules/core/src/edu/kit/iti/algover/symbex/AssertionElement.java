@@ -35,6 +35,7 @@ public class AssertionElement {
 
         /**
          * Implicit assertion (div by zero, null-access, in range, ...).
+         * TODO MU: This seems redundant compared to the RT_...
          */
         IMPLICIT_ASSERT,
 

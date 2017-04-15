@@ -1,7 +1,7 @@
 /*
  * This file is part of AlgoVer.
  *
- * Copyright (C) 2015 Karlsruhe Institute of Technology
+ * Copyright (C) 2015-2016 Karlsruhe Institute of Technology
  */
 package edu.kit.iti.algover.util;
 
@@ -10,10 +10,14 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.AbstractList;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Objects;
 import java.util.RandomAccess;
+import java.util.function.Function;
 
 
 public final class Util {
@@ -330,5 +334,39 @@ public final class Util {
             os.write(buffer, 0, read);
         }
     }
+
+    public static <E,F> List<F> map(List<E> input, Function<E,F> function) {
+        List<F> result;
+        if(input instanceof RandomAccess) {
+            result = new ArrayList<>();
+        } else {
+            result = new LinkedList<>();
+        }
+
+        for (E e : input) {
+            result.add(function.apply(e));
+        }
+
+        return result;
+    }
+
+    public static <E> E[] requireDeepNonNull(E[] array) {
+        Objects.requireNonNull(array);
+        for (E e : array) {
+            Objects.requireNonNull(e);
+        }
+
+        return array;
+    }
+
+    public static <E extends Iterable<?>> E requireDeepNonNull(E iterable) {
+        Objects.requireNonNull(iterable);
+        for (Object e : iterable) {
+            Objects.requireNonNull(e);
+        }
+
+        return iterable;
+    }
+
 
 }

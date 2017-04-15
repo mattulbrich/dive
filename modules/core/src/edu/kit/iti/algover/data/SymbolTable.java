@@ -1,7 +1,7 @@
 /*
  * This file is part of AlgoVer.
  *
- * Copyright (C) 2015 Karlsruhe Institute of Technology
+ * Copyright (C) 2015-2016 Karlsruhe Institute of Technology
  */
 package edu.kit.iti.algover.data;
 

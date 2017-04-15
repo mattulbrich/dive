@@ -9,14 +9,18 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
 import org.junit.runners.Suite.SuiteClasses;
 
+import edu.kit.iti.algover.dafnystructures.DafnyTreeToDeclVisitorTest;
 import edu.kit.iti.algover.parser.ParserTest;
+import edu.kit.iti.algover.project.ProjectTest;
+import edu.kit.iti.algover.script.ScriptParserTest;
 import edu.kit.iti.algover.symbex.ProgramDatabaseTest;
 import edu.kit.iti.algover.symbex.SymbexTest;
+import edu.kit.iti.algover.term.SortTest;
 import edu.kit.iti.algover.term.builder.TreeTermTranslationNoetherTest;
 import edu.kit.iti.algover.term.builder.TreeTermTranslatorTest;
 import edu.kit.iti.algover.util.TestImmutableList;
 import edu.kit.iti.algover.util.TestLabelIntroducer;
-import edu.kit.iti.algover.util.TestUtil;
+import edu.kit.iti.algover.util.UtilTest;
 
 @RunWith(Suite.class)
 @SuiteClasses({ParserTest.class,
@@ -26,6 +30,12 @@ import edu.kit.iti.algover.util.TestUtil;
     TestImmutableList.class,
     TestLabelIntroducer.class,
     TreeTermTranslationNoetherTest.class,
+//    DafnyTreeToDeclVisitorTest.class,
+    SortTest.class,
+    ProjectTest.class,
+    ScriptParserTest.class,
+    ProgramDatabaseTest.class,
+    UtilTest.class,
     })
 public class Tests {
 }

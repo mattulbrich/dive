@@ -12,8 +12,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
-import org.antlr.runtime.CommonToken;
-
 import edu.kit.iti.algover.parser.DafnyParser;
 import edu.kit.iti.algover.parser.DafnyTree;
 import edu.kit.iti.algover.symbex.AssertionElement.AssertionType;
@@ -25,6 +23,9 @@ import edu.kit.iti.algover.util.ImmutableList;
  * Symbex can be used to perform symbolic execution on a function.
  *
  * Create an instance and apply {@link #symbolicExecution(DafnyTree)}.
+ *
+ * It produces a list of {@link SymbexPath}s which contain assertions to show
+ * and assumptions to be assumed for this path.
  *
  * The handle-methods are package visible to allow for testing from within
  * the package.

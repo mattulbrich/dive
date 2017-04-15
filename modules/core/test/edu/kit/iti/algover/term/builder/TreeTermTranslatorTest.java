@@ -40,7 +40,7 @@ public class TreeTermTranslatorTest {
         return Arrays.asList(new Object[][] {
                 { "i1 + i2*i3", "$plus(i1, $times(i2, i3))" },
                 // revealed bug:
-                { "i1 == i2*i3", "$eq_int(i1, $times(i2, i3))" },
+                { "i1 == i2*i3", "$eq[int](i1, $times(i2, i3))" },
                 { "a.Length", "$len0(a)" },
 //                { "a2.Length0", "$len0(a)" },
 //                { "a2.Length1", "$len1(a)" },

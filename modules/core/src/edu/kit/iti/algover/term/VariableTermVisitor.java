@@ -1,3 +1,8 @@
+/*
+ * This file is part of AlgoVer.
+ *
+ * Copyright (C) 2015-2016 Karlsruhe Institute of Technology
+ */
 package edu.kit.iti.algover.term;
 
 import java.util.LinkedList;
@@ -5,6 +10,8 @@ import java.util.List;
 
 /**
  * Created by sarah on 8/30/16.
+ * TODO Add class documentation
+ * TODO Choose a more self-explanatory class name
  */
 public class VariableTermVisitor extends DefaultTermVisitor<Object, List<String>> {
 

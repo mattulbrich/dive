@@ -166,7 +166,7 @@ function:
   ;
 
 field:
-  'var' ID ':' type ';'
+  ( 'ghost' )? 'var' ID ':' type ';'
     -> ^(FIELD ID type)
   ;
 

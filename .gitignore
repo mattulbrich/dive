@@ -1,0 +1,4 @@
+/bin
+/modules/*/bin
+/modules/*/test-bin
+/modules/*/gen

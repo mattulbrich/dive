@@ -85,7 +85,7 @@ public class TermBuilder {
 
     public ApplTerm eq(Term lhs, Term rhs) throws TermBuildException {
         Sort s = lhs.getSort();
-        FunctionSymbol eq = symbolTable.getFunctionSymbol("$eq_" + s);
+        FunctionSymbol eq = symbolTable.getFunctionSymbol("$eq[" + s + "]");
         return new ApplTerm(eq, lhs, rhs);
     }
 
