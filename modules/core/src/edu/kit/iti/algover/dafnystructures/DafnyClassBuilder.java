@@ -1,3 +1,8 @@
+/*
+ * This file is part of AlgoVer.
+ *
+ * Copyright (C) 2015-2017 Karlsruhe Institute of Technology
+ */
 package edu.kit.iti.algover.dafnystructures;
 
 import edu.kit.iti.algover.parser.DafnyTree;
@@ -35,6 +40,8 @@ public class DafnyClassBuilder {
      * Functions belonging to this class, possibly empty
      */
     private List<DafnyFunction> functions;
+
+    // REVIEW Order: first fields then methods
 
     /**
      * Fields belonging to this class, possibly empty
@@ -111,6 +118,8 @@ public class DafnyClassBuilder {
 
     }
 
+
+    // REVIEW: This constructor seems to leave many fields uninitialized
     public DafnyClassBuilder(DafnyTree dafnyClass) {
         this.tree = dafnyClass;
     }

@@ -1,7 +1,7 @@
 /*
  * This file is part of AlgoVer.
  *
- * Copyright (C) 2015-2016 Karlsruhe Institute of Technology
+ * Copyright (C) 2015-2017 Karlsruhe Institute of Technology
  */
 package edu.kit.iti.algover;
 
@@ -9,7 +9,7 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
 import org.junit.runners.Suite.SuiteClasses;
 
-import edu.kit.iti.algover.dafnystructures.DafnyTreeToDeclVisitorTest;
+import edu.kit.iti.algover.dafnystructures.ReferenceResolutionVisitorTest;
 import edu.kit.iti.algover.parser.ParserTest;
 import edu.kit.iti.algover.project.ProjectTest;
 import edu.kit.iti.algover.script.ScriptParserTest;
@@ -31,6 +31,7 @@ import edu.kit.iti.algover.util.UtilTest;
     TestLabelIntroducer.class,
     TreeTermTranslationNoetherTest.class,
 //    DafnyTreeToDeclVisitorTest.class,
+    ReferenceResolutionVisitorTest.class,
     SortTest.class,
     ProjectTest.class,
     ScriptParserTest.class,

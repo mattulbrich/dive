@@ -9,15 +9,15 @@ tokens {
   RESULTS;
   ARGS;
   BLOCK;
+  CALL;
   FIELD_ACCESS;
   LISTEX; // not supported currently
   SETEX; // not supported currently
   ARRAY_ACCESS;
   ARRAY_UPDATE;
-  OBJ_FUNC_CALL;
-  FUNC_CALL;
   HAVOC;
   NOETHER_LESS;
+  WILDCARD;
 }
 
 @parser::header {
@@ -62,7 +62,6 @@ ALL: 'forall';
 ASSERT: 'assert';
 ASSUME: 'assume';
 BOOL : 'bool';
-CALL: 'call';
 // CASE: 'case'; 
 CLASS: 'class';
 DECREASES: 'decreases';
@@ -134,6 +133,10 @@ program:
   (method | function | clazz)+
   ;
 
+program_only:
+  program EOF -> program
+  ;
+
 
 clazz:
   CLASS^ ID '{'!
@@ -142,6 +145,7 @@ clazz:
   ;
 
 method:
+  ( 'ghost' )?
   tok = ('method' | 'lemma')
   ID '(' vars? ')'
   ( returns_ )?
@@ -228,14 +232,14 @@ statement:
   | ID ':='^ expression ';'!
   | ID '[' i=expression ']' ass=':=' v=expression ';'
         -> ^(ARRAY_UPDATE[$ass] ID $i $v)
-  | (ID ':=' 'call') => r=ID ':=' 'call' f=ID '(' expressions? ')' ';'
-        -> ^('call' $f ^(RESULTS $r) ^(ARGS expressions?))
-  | ids ':=' 'call' ID '(' expressions? ')' ';'
-        -> ^('call' ID ^(RESULTS ids) ^(ARGS expressions?))
+  | ID '(' expressions? ')' ';'
+        -> ^(CALL ID ^(ARGS expressions?))
+/*  | ids ':=' 'call' ID '(' expressions? ')' ';'
+        -> ^('call' ID ^(RESULTS ids) ^(ARGS expressions?)) */
   | label?
-      'while' expression invariant+ modifies? decreases relaxedBlock
-        -> ^('while' label? expression invariant+ modifies? decreases relaxedBlock)
-  | label? 'if'^ expression relaxedBlock
+      'while' expression_wildcard invariant+ modifies? decreases relaxedBlock
+        -> ^('while' label? expression_wildcard invariant+ modifies? decreases relaxedBlock)
+  | label? 'if'^ expression_wildcard relaxedBlock
       ( options { greedy=true; } : 'else'! relaxedBlock )?
   | 'assert'^ ( 'label'! ID ':'! )? expression ';'!
   | 'assume'^ ( 'label'! ID ':'! )? expression ';'!
@@ -243,6 +247,11 @@ statement:
 
 ids:
   ID (','! ID)+
+  ;
+
+expression_wildcard:
+    expression
+  | star=TIMES -> WILDCARD[$star]
   ;
 
 expressions:
@@ -283,7 +292,7 @@ postfix_expr:
   ( atom_expr -> atom_expr )
   ( '[' expression ']' -> ^( ARRAY_ACCESS atom_expr expression )
   | '.' LENGTH -> ^( LENGTH atom_expr )
-  | '.' ID '(' expressions ')' -> ^( OBJ_FUNC_CALL ID atom_expr expressions )
+  | '.' ID '(' expressions ')' -> ^( CALL ID atom_expr expressions )
   | '.' ID -> ^( FIELD_ACCESS atom_expr ID )
   )*
   ;
@@ -295,7 +304,7 @@ expression_only:
 
 atom_expr:
     ID
-  | ID '(' expressions ')' -> ^(FUNC_CALL ID expressions)
+  | ID '(' expressions ')' -> ^(CALL ID expressions)
   | INT_LIT
   | 'this'
   | NULL

@@ -1,7 +1,7 @@
 /*
  * This file is part of AlgoVer.
  *
- * Copyright (C) 2015-2016 Karlsruhe Institute of Technology
+ * Copyright (C) 2015-2017 Karlsruhe Institute of Technology
  */
 package edu.kit.iti.algover.parser;
 
@@ -19,7 +19,7 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
 
-import edu.kit.iti.algover.parser.DafnyParser.program_return;
+import edu.kit.iti.algover.parser.DafnyParser.program_only_return;
 import edu.kit.iti.algover.util.TestUtil;
 
 @RunWith(Parameterized.class)
@@ -32,10 +32,12 @@ public class ParserTest {
     public static Iterable<Object[]> data() {
         return Arrays.asList(new Object[][] {
                 { "arrayMax.dfy" }, { "highdimarrays.dfy" }, { "arrayEdit.dfy" },
+                { "wildcards.dfy" },
                 { "../symbex/symbex.dfy" },
                 { "arithmetic.dfy" }, { "../util/labelTest.dfy" }, { "../symbex/whileWithAnon.dfy" },
                 { "../symbex/havoc.dfy" }, { "../symbex/runtimeAssert.dfy" },
                 { "fields.dfy" }, { "../dafnystructures/declTest.dfy" },
+                { "../dafnystructures/referenceTest.dfy" },
                 });
     }
 
@@ -77,9 +79,9 @@ public class ParserTest {
         DafnyParser parser = new DafnyParser(tokens);
         parser.setTreeAdaptor(new DafnyTree.Adaptor());
         // launch the parser starting at rule r, get return object
-        program_return result;
+        program_only_return result;
         try {
-            result = parser.program();
+            result = parser.program_only();
         } catch (RecognitionException e) {
 
             System.err.println("Exception details: " + parser.getErrorMessage(e, parser.getTokenNames()));

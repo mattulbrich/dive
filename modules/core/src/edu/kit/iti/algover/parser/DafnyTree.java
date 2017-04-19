@@ -1,13 +1,14 @@
 /*
  * This file is part of AlgoVer.
  *
- * Copyright (C) 2015-2016 Karlsruhe Institute of Technology
+ * Copyright (C) 2015-2017 Karlsruhe Institute of Technology
  */
 package edu.kit.iti.algover.parser;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 
 import org.antlr.runtime.CommonToken;
 import org.antlr.runtime.RecognitionException;
@@ -37,8 +38,6 @@ import org.antlr.runtime.tree.Tree;
  */
 public class DafnyTree extends CommonTree {
 
-
-
     /**
      * The Adaptor is used by the {@link DafnyParser} to create DafnyTree
      * instances.
@@ -60,9 +59,11 @@ public class DafnyTree extends CommonTree {
         }
     }
 
-    // TODO For the future
-    // MU: ???
-    // private DafnyTree declaration;
+    /**
+     * A pointer (potentially <code>null</code>) to the declaration of the
+     * identifier used in this node.
+     */
+    private DafnyTree declarationReference = null;
 
     /**
      * Instantiates a new Dafny tree.
@@ -142,7 +143,7 @@ public class DafnyTree extends CommonTree {
     @SuppressWarnings("unchecked")
     public List<DafnyTree> getChildren() {
         if (children == null) {
-            return null;
+            return Collections.emptyList();
         } else {
             return Collections
                     .unmodifiableList((List<DafnyTree>) (List<?>) children);
@@ -268,6 +269,27 @@ public class DafnyTree extends CommonTree {
      */
     public <R, A> R accept(DafnyTreeVisitor<R, A> visitor, A arg) {
         return DafnyDispatch.dispatch(visitor, this, arg);
+    }
+
+    /**
+     * Gets the a reference to the declaration of the identifier of this tree.
+     *
+     * This may return <code>null</code> if none found or not yet explored.
+     *
+     * @return the (potentially <code>null</code>) tree for declaration
+     */
+    public DafnyTree getDeclarationReference() {
+        return declarationReference;
+    }
+
+    /**
+     * Sets the declaration reference for this tree.
+     *
+     * @param declarationReference
+     *            the new declaration reference, not <code>null</code>
+     */
+    public void setDeclarationReference(DafnyTree declarationReference) {
+        this.declarationReference = Objects.requireNonNull(declarationReference);
     }
 
 }

@@ -38,11 +38,17 @@ public class MakeDafnyTreeVisitor {
         tokens.forEach(t -> {
             visitor.printf("  public R visit%s(%sTree tree, A arg);%n",
                     t, prefix);
-            defVis.printf("  @Override%n  public R visit%s(%sTree t, A a) { "
-                    + "return visitDefault(t, a); }%n", t, prefix, prefix);
+            defVis.printf("  @Override public R visit%s(%sTree t, A a) { "
+                    + "return visitDefault(t, a); }%n", t, prefix);
             dispatch.printf("  case %sParser.%s:%n    return v.visit%s(t, a);%n",
                     prefix, t, t);
         });
+
+        // NIL
+        visitor.printf("  public R visitNIL(%sTree tree, A arg);%n", prefix);
+        defVis.printf("  @Override%n  public R visitNIL(%sTree t, A a) { "
+                    + "return visitDefault(t, a); }%n", prefix);
+        dispatch.printf("  case 0: /* which is the NIL case*/%n    return v.visitNIL(t, a);%n", prefix);
 
         visitor.println("}");
         visitor.close();
@@ -50,7 +56,7 @@ public class MakeDafnyTreeVisitor {
         defVis.printf("  public R visitDefault(%sTree t, A arg) { return null; }\n}", prefix);
         defVis.close();
 
-        dispatch.println("  default: throw new Error(\"unreachable\");\n  }\n }\n}");
+        dispatch.println("  default: throw new Error(\"uncovered case: \" + t.getType());\n  }\n }\n}");
         dispatch.close();
         } catch(Throwable e) {
             e.printStackTrace();

@@ -1,3 +1,8 @@
+/*
+ * This file is part of AlgoVer.
+ *
+ * Copyright (C) 2015-2017 Karlsruhe Institute of Technology
+ */
 package edu.kit.iti.algover.project;
 
 import edu.kit.iti.algover.dafnystructures.DafnyClass;
@@ -10,6 +15,11 @@ import java.io.File;
 
 import java.util.List;
 
+
+// REVIEW: I miss a possibility to retrieve all parsed DafnyTrees (toplevel entities)
+// How can one obtain these?
+
+// REVIEW: Would it make sense to habe a lookup table indexed by name?
 
 /**
  * Class representing a project, that contains all relevant information for a project that should be verified

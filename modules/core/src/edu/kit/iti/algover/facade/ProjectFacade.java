@@ -1,9 +1,15 @@
+/*
+ * This file is part of AlgoVer.
+ *
+ * Copyright (C) 2015-2017 Karlsruhe Institute of Technology
+ */
 package edu.kit.iti.algover.facade;
 
 import edu.kit.iti.algover.dafnystructures.DafnyClass;
 import edu.kit.iti.algover.dafnystructures.DafnyDecl;
 import edu.kit.iti.algover.dafnystructures.DafnyFunction;
 import edu.kit.iti.algover.dafnystructures.DafnyMethod;
+import edu.kit.iti.algover.dafnystructures.ReferenceResolutionVisitor;
 import edu.kit.iti.algover.project.*;
 import edu.kit.iti.algover.proof.PVC;
 import edu.kit.iti.algover.proof.PVCBuilder;
@@ -51,19 +57,22 @@ public class ProjectFacade {
          instance = new ProjectFacade();
       }
       return instance;
-   }
+    }
 
+    // REVIEW: "throws Exception" is usually not a very good idea.
     /**
      * Build a new Project
      * @param dir
      * @return
      */
-
-    public Project buildProject(File dir) throws FileNotFoundException, Exception{
+    public Project buildProject(File dir) throws FileNotFoundException, Exception {
         Project p = null;
         ProjectBuilder pb = new ProjectBuilder();
 
         p = pb.buildProject(dir);
+
+        ReferenceResolutionVisitor refResolver = new ReferenceResolutionVisitor(p);
+        refResolver.visitProject();
 
         return p;
     }

@@ -1,3 +1,8 @@
+/*
+ * This file is part of AlgoVer.
+ *
+ * Copyright (C) 2015-2017 Karlsruhe Institute of Technology
+ */
 package edu.kit.iti.algover.dafnystructures;
 
 import edu.kit.iti.algover.parser.DafnyTree;
@@ -11,6 +16,9 @@ import java.io.File;
 public class DafnyField extends DafnyDecl {
 
     private DafnyTree type;
+
+    // REVIEW: Why are these fields from DafnyDecl repeated in this class?
+    // this seems to be very wrong.
     private String name;
 
     @Override

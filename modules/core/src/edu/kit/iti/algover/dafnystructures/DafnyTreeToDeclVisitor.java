@@ -1,3 +1,8 @@
+/*
+ * This file is part of AlgoVer.
+ *
+ * Copyright (C) 2015-2017 Karlsruhe Institute of Technology
+ */
 package edu.kit.iti.algover.dafnystructures;
 
 import edu.kit.iti.algover.parser.DafnyParser;
@@ -87,6 +92,7 @@ public class DafnyTreeToDeclVisitor {
 
     private void visitFIELD(DafnyTree t) {
         assert classBuilder != null;
+        // REVIEW: Why is the reference dafny tree the type of the field declaration.
         classBuilder.addField(new DafnyField(file, t.getChild(1), t.getChild(0).getText()));
     }
 
