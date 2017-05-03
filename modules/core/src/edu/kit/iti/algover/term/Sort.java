@@ -1,7 +1,7 @@
 /*
  * This file is part of AlgoVer.
  *
- * Copyright (C) 2015-2016 Karlsruhe Institute of Technology
+ * Copyright (C) 2015-2017 Karlsruhe Institute of Technology
  */
 package edu.kit.iti.algover.term;
 
@@ -16,8 +16,10 @@ import edu.kit.iti.algover.util.Util;
  */
 public class Sort {
 
+    // Checkstyle: OFF DeclarationOrderCheck
+
     /**
-     * This array is used if a type as no further structure.\
+     * This array is used if a type as no further structure.
      *
      * (Must be first field in class)
      */
@@ -50,6 +52,11 @@ public class Sort {
      * The Constant REF for the reference type.
      */
     public static final Sort REF = new Sort("ref");
+
+    /**
+     * The Constant FIELD for the (polymorphic) field datatype.
+     */
+    public static final Sort FIELD = new Sort("field");
 
     /**
      * The name of the type (w/o arguments).
@@ -86,23 +93,23 @@ public class Sort {
 
     @Override
     public int hashCode() {
-        return name.hashCode() + 31*Arrays.hashCode(arguments);
+        return name.hashCode() + 31 * Arrays.hashCode(arguments);
     }
 
     @Override
     public boolean equals(Object obj) {
         if (obj instanceof Sort) {
             Sort sort = (Sort) obj;
-            return name.equals(sort.name) &&
-                    Arrays.equals(arguments, sort.arguments);
+            return name.equals(sort.name)
+                && Arrays.equals(arguments, sort.arguments);
         }
         return false;
     }
 
     /**
-     * Gets the name.
+     * Gets the name of this sort (w/o arguments).
      *
-     * @return the name
+     * @return the non-<code>null</code> name of the sort
      */
     public String getName() {
         return name;
@@ -110,7 +117,7 @@ public class Sort {
 
     @Override
     public String toString() {
-        if(arguments.length > 0) {
+        if (arguments.length > 0) {
             return getName() + "<" + Util.join(arguments, ",") + ">";
         } else {
             return getName();
@@ -122,24 +129,24 @@ public class Sort {
      *
      * It lazily creates new arrays and returns null if nothing has changed.
      */
-    public Sort instantiate0(List<Sort> instantiationSorts) {
-        if(getName().startsWith("?")) {
+    private Sort instantiate0(List<Sort> instantiationSorts) {
+        if (getName().startsWith("?")) {
             int index = Integer.parseInt(name.substring(1));
-            return instantiationSorts.get(index-1);
+            return instantiationSorts.get(index - 1);
         }
 
         Sort[] newArgs = null;
         for (int i = 0; i < arguments.length; i++) {
             Sort newArg = arguments[i].instantiate0(instantiationSorts);
-            if(newArg != null) {
-                if(newArgs == null) {
+            if (newArg != null) {
+                if (newArgs == null) {
                     newArgs = arguments.clone();
                 }
                 newArgs[i] = newArg;
             }
         }
 
-        if(newArgs == null) {
+        if (newArgs == null) {
             return null;
         }
 
@@ -161,13 +168,18 @@ public class Sort {
      */
     public Sort instantiate(List<Sort> instantiationSorts) {
         Sort result = instantiate0(instantiationSorts);
-        if(result != null) {
+        if (result != null) {
             return result;
         } else {
             return this;
         }
     }
 
+    /**
+     * Gets the type arguments of this sort instance.
+     *
+     * @return an unmodifiable list of types.
+     */
     public List<Sort> getArguments() {
         return Util.readOnlyArrayList(arguments);
     }

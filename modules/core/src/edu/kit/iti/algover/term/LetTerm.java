@@ -1,7 +1,7 @@
 /*
  * This file is part of AlgoVer.
  *
- * Copyright (C) 2015-2016 Karlsruhe Institute of Technology
+ * Copyright (C) 2015-2017 Karlsruhe Institute of Technology
  */
 package edu.kit.iti.algover.term;
 
@@ -25,10 +25,10 @@ public class LetTerm extends Term {
         this.substitutions = new ArrayList<>(substs);
 
         for (Pair<FunctionSymbol, Term> pair : substs) {
-            if(pair.fst.getArity() != 0) {
+            if (pair.fst.getArity() != 0) {
                 throw new TermBuildException("Assignment not non-constant");
             }
-            if(!pair.fst.getResultSort().equals(pair.snd.getSort())) {
+            if (!pair.fst.getResultSort().equals(pair.snd.getSort())) {
                 throw new TermBuildException("Illegally typed assignment to " + pair.fst);
             }
         }
@@ -38,11 +38,11 @@ public class LetTerm extends Term {
     public String toString() {
         StringBuilder sb = new StringBuilder();
         sb.append("(let ");
-        for (Pair<FunctionSymbol,Term> pair : substitutions) {
+        for (Pair<FunctionSymbol, Term> pair : substitutions) {
             sb.append(pair.fst.getName()).append("=").append(pair.snd).append(", ");
         }
         // remove comma
-        sb.setLength(sb.length()-2);
+        sb.setLength(sb.length() - 2);
         sb.append(" in ").append(getInTerm()).append(")");
         return sb.toString();
     }

@@ -1,7 +1,7 @@
 /*
  * This file is part of AlgoVer.
  *
- * Copyright (C) 2015-2016 Karlsruhe Institute of Technology
+ * Copyright (C) 2015-2017 Karlsruhe Institute of Technology
  */
 package edu.kit.iti.algover.util;
 
@@ -201,7 +201,7 @@ public final class Util {
      *
      * @return the concatenated string, separated by commas
      */
-    public static String commatize(Collection<?> list) {
+    public static String commatize(Iterable<?> list) {
         // Checkstyle: IGNORE MultipleStringLiterals
         return join(list, ", ");
     }
@@ -225,7 +225,7 @@ public final class Util {
      *
      * @return the concatenation of the objects as strings.
      */
-    public static String join(Collection<?> list, String sep, boolean ignoreNull) {
+    public static String join(Iterable<?> list, String sep, boolean ignoreNull) {
         StringBuilder sb = new StringBuilder();
         Iterator<?> it = list.iterator();
         while(it.hasNext()) {
@@ -259,7 +259,7 @@ public final class Util {
      *
      * @return the concatenation of the objects as strings.
      */
-    public static String join(Collection<?> list, String sep) {
+    public static String join(Iterable<?> list, String sep) {
         return join(list, sep, false);
     }
 

@@ -1,12 +1,13 @@
 /*
  * This file is part of AlgoVer.
  *
- * Copyright (C) 2015-2016 Karlsruhe Institute of Technology
+ * Copyright (C) 2015-2017 Karlsruhe Institute of Technology
  */
 package edu.kit.iti.algover.term;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 
 import edu.kit.iti.algover.util.Util;
 
@@ -44,8 +45,8 @@ public abstract class Term {
      * @param subterms the deep non-<code>null</code> subterms
      */
     public Term(Sort sort, Term[] subterms) {
-        this.sort = sort;
-        this.subterms = subterms;
+        this.sort = Objects.requireNonNull(sort);
+        this.subterms = Util.requireDeepNonNull(subterms);
     }
 
     /**
@@ -67,10 +68,13 @@ public abstract class Term {
     }
 
     /**
-     * Gets the term.
+     * Access a subterm of this term.
      *
-     * @param i the i
-     * @return the term
+     * @param i
+     *            the number (0 is the first) of the subterms to retrieve.
+     * @return the non-<code>null</code> i-th suberm of this term
+     * @throws IndexOutOfBoundsException
+     *             if i is negative or not less than {@link #countTerms()}
      */
     public Term getTerm(int i) {
         return subterms[i];
@@ -86,30 +90,36 @@ public abstract class Term {
 
     @Override
     public boolean equals(Object obj) {
-        if(getClass() != obj.getClass()) {
+        if (getClass() != obj.getClass()) {
             return false;
         }
 
         Term other = (Term) obj;
-        return sort.equals(other.sort) &&
-                Arrays.equals(subterms, other.subterms);
+        return sort.equals(other.sort)
+            && Arrays.equals(subterms, other.subterms);
     }
 
     /**
-     * Accept.
+     * Accept a {@link TermVisitor}.
      *
-     * @param <A> the generic type
-     * @param <R> the generic type
-     * @param visitor the visitor
-     * @param arg the arg
-     * @return the r
+     * This is part of a visitor pattern.
+     *
+     * @param <A>
+     *            the generic type for arguments
+     * @param <R>
+     *            the generic type for results
+     * @param visitor
+     *            the visitor to work on this
+     * @param arg
+     *            the generic argument
+     * @return the result of the visitor.
      */
-    public abstract <A,R> R accept(TermVisitor<A, R> visitor, A arg);
+    public abstract <A, R> R accept(TermVisitor<A, R> visitor, A arg);
 
     /**
-     * Count terms.
+     * Count the subterms of this instance.
      *
-     * @return the int
+     * @return the non-negative number of subterms to this.
      */
     public int countTerms() {
         return subterms.length;
