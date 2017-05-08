@@ -1,7 +1,7 @@
 /*
  * This file is part of AlgoVer.
  *
- * Copyright (C) 2015-2016 Karlsruhe Institute of Technology
+ * Copyright (C) 2015-2017 Karlsruhe Institute of Technology
  */
 package edu.kit.iti.algover.theoremprover;
 
@@ -120,7 +120,7 @@ public class DafnyTrans {
             }
         }
         for (AssertionElement po : path.getProofObligations()) {
-            currentSegment = translateAssignments(path.getMap(), lineCount);
+            currentSegment = translateAssignments(path.getAssignmentHistory(), lineCount);
             if (lineCount < currentSegment.getSnd()){
                 lineCount = currentSegment.getSnd();
                 method.append(currentSegment.getFst());
@@ -225,18 +225,16 @@ public class DafnyTrans {
      *
      * @param vm
      */
-    private Pair<String, Integer> translateAssignments(VariableMap vm, int lastSize) {
+    private Pair<String, Integer> translateAssignments(ImmutableList<DafnyTree> vm, int lastSize) {
         StringBuilder sb = new StringBuilder();
         HashMap<String, Sort> varToDecl = new HashMap<>();
         String name;
         DafnyTree expr;
         Sort s;
-        List<Pair<String, DafnyTree>> list = vm.toList();
-        Collections.reverse(list);
         int lineCount = 0;
-        for (Pair<String, DafnyTree> assignment : list) {
-            name = assignment.getFst();
-            expr = assignment.getSnd();
+        for (DafnyTree assignment : vm) {
+            name = assignment.getChild(0).getText();
+            expr = assignment.getChild(1);
             if (!varToDecl.containsKey(name)) {
                 s = symbolTable.getFunctionSymbol(name).getResultSort();
                 varToDecl.putIfAbsent(name, s);
@@ -257,9 +255,9 @@ public class DafnyTrans {
             declarations.append("var " + e.getKey() + " : " + e.getValue() + ";\n");
         }
         if(lastSize != 0) {
-            return new Pair<String, Integer>(sb.toString(), list.size());
+            return new Pair<String, Integer>(sb.toString(), vm.size());
         }else{
-           return new Pair<String, Integer>(declarations.toString() + sb.toString(), list.size());
+           return new Pair<String, Integer>(declarations.toString() + sb.toString(), vm.size());
         }
     }
 

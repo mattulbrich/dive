@@ -1,12 +1,13 @@
 /*
  * This file is part of AlgoVer.
  *
- * Copyright (C) 2015-2016 Karlsruhe Institute of Technology
+ * Copyright (C) 2015-2017 Karlsruhe Institute of Technology
  */
 package edu.kit.iti.algover.symbex;
 
 import edu.kit.iti.algover.parser.DafnyTree;
 import edu.kit.iti.algover.util.ASTUtil;
+import edu.kit.iti.algover.util.ImmutableList;
 
 /**
  * The Class PathCondition captures a single element of a path condition.
@@ -73,7 +74,7 @@ public class AssertionElement {
     /**
      * The state in which the condition is evaluated.
      */
-    private VariableMap state;
+    private ImmutableList<DafnyTree> state;
 
     /**
      * The expression (first order formula) of this path condition.
@@ -103,21 +104,21 @@ public class AssertionElement {
      *            the syntax element to refer to
      * @param type
      *            the type of the element
-     * @param state
+     * @param assignmentHistory
      *            the state in which it is explored
      */
     public AssertionElement(DafnyTree expression,
-            DafnyTree refersTo, AssertionType type, VariableMap state) {
+            DafnyTree refersTo, AssertionType type, ImmutableList<DafnyTree> assignmentHistory) {
 
         assert expression != null;
         assert type != null;
-        assert state != null;
+        assert assignmentHistory != null;
         assert refersTo != null;
 
         this.refersTo = refersTo;
         this.expression = expression;
         this.type = type;
-        this.state = state;
+        this.state = assignmentHistory;
     }
 
     /**
@@ -129,14 +130,6 @@ public class AssertionElement {
         return type;
     }
 
-    /**
-     * Gets the variable map for the expression.
-     *
-     * @return the variable assignment, not <code>null</code>.
-     */
-    public VariableMap getVariableMap() {
-        return state;
-    }
 
     /**
      * Gets the formula/expression of this condition.
@@ -169,6 +162,15 @@ public class AssertionElement {
         String name = getName();
         String suffix = name == null ? "" : "[" + name + "]";
         return getType() + suffix + ":" + expression.toStringTree();
+    }
+
+    /**
+     * Gets the assignment history under which the assertion is evaluated.
+     *
+     * @return the non-<code>null</code> assignment history.
+     */
+    public ImmutableList<DafnyTree> getState() {
+        return state;
     }
 
 }

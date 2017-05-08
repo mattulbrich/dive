@@ -1,11 +1,9 @@
 /*
  * This file is part of AlgoVer.
  *
- * Copyright (C) 2015-2016 Karlsruhe Institute of Technology
+ * Copyright (C) 2015-2017 Karlsruhe Institute of Technology
  */
 package edu.kit.iti.algover.util;
-
-import org.antlr.runtime.CommonToken;
 
 import edu.kit.iti.algover.parser.DafnyParser;
 import edu.kit.iti.algover.parser.DafnyTree;
@@ -21,6 +19,14 @@ public final class ASTUtil {
 
     private ASTUtil() {
         throw new Error();
+    }
+
+    public static DafnyTree create(int type, DafnyTree... children) {
+        DafnyTree result = new DafnyTree(type);
+        for (DafnyTree child : children) {
+            result.addChild(child);
+        }
+        return result;
     }
 
     /**
@@ -244,5 +250,43 @@ public final class ASTUtil {
     public static DafnyTree id(String id) {
         return new DafnyTree(DafnyParser.ID, id);
     }
+
+    /**
+     * Returns an identifier token with the given variable/id name.
+     *
+     * @param id non-<code>null</code> name of identifier
+     * @param ref a tree to point to as declaration reference
+     * @return a freshly created dafny tree
+     */
+    public static DafnyTree id(String name, DafnyTree ref) {
+        DafnyTree id = id(name);
+        id.setDeclarationReference(ref);
+        return id;
+    }
+
+    public static DafnyTree anonymise(DafnyTree id, DafnyTree ref) {
+        return null;
+    }
+
+    public static DafnyTree assign(DafnyTree var, DafnyTree value) {
+        return create(DafnyParser.ASSIGN, var, value);
+    }
+
+    /**
+     * Returns a variable declaration tree node.
+     *
+     * The id and type for the declaration must be given
+     *
+     * @param id the non-<code>null</code> id of the declaration
+     * @param type the non-<code>null</code> type
+     * @return a freshly created Dafny tree
+     */
+    public static DafnyTree varDecl(DafnyTree id, DafnyTree type) {
+        DafnyTree result = new DafnyTree(DafnyParser.VAR);
+        result.addChild(id);
+        result.addChild(type);
+        return result;
+    }
+
 
 }

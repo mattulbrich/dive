@@ -1,18 +1,19 @@
 /*
  * This file is part of AlgoVer.
  *
- * Copyright (C) 2015-2016 Karlsruhe Institute of Technology
+ * Copyright (C) 2015-2017 Karlsruhe Institute of Technology
  */
 package edu.kit.iti.algover.proof;
+
+import java.util.LinkedList;
+import java.util.List;
 
 import edu.kit.iti.algover.ProofCenter;
 import edu.kit.iti.algover.parser.DafnyTree;
 import edu.kit.iti.algover.symbex.AssertionElement;
 import edu.kit.iti.algover.symbex.PathConditionElement;
 import edu.kit.iti.algover.symbex.SymbexPath;
-
-import java.util.LinkedList;
-import java.util.List;
+import edu.kit.iti.algover.util.Util;
 
 /**
  * This class handles the transformation of the symbolic execution states into ProofVerificationConditionBuilder
@@ -81,11 +82,11 @@ public class ContractProofObligation {
                 System.out.println("Path condition - " + pc.getType());
                 System.out.println("    " + pc.getExpression().toStringTree());
                 System.out.println("  Assignment History:");
-                System.out.println("    " + pc.getVariableMap().toHistoryString().replace("\n", "\n    "));
-                System.out.println("  Aggregated Variable Map: ");
+                System.out.println("    " + Util.join(pc.getVariableMap(), "\n    "));
+                /* System.out.println("  Aggregated Variable Map: ");
                 System.out.println("    " + pc.getVariableMap().toParallelAssignment());
                 System.out.println("  Instantiated condition: ");
-                System.out.println("    " + pc.getVariableMap().instantiate(pc.getExpression()).toStringTree());
+                System.out.println("    " + pc.getVariableMap().instantiate(pc.getExpression()).toStringTree());*/
                 System.out.println("  Refers to: line " + pc.getExpression().token.getLine());
                 System.out.println("  Test Line: " + pc.getExpression());
             }
@@ -96,13 +97,13 @@ public class ContractProofObligation {
             }
 
             System.out.println("  Assignment History:");
-            System.out.println("    " + res.getMap().toHistoryString().replace("\n", "\n    "));
-            System.out.println("  Aggregated Variable Map: ");
+            System.out.println("    " + Util.join(res.getAssignmentHistory(), "\n    "));
+            /*System.out.println("  Aggregated Variable Map: ");
             System.out.println("    " + res.getMap().toParallelAssignment());
             System.out.println("  Instantiated POs: ");
             for (AssertionElement po : res.getProofObligations()) {
                 System.out.println("    " + res.getMap().instantiate(po.getExpression()).toStringTree());
-            }
+            }*/
 
         }}
 }

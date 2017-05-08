@@ -1,7 +1,7 @@
 /*
  * This file is part of AlgoVer.
  *
- * Copyright (C) 2015-2016 Karlsruhe Institute of Technology
+ * Copyright (C) 2015-2017 Karlsruhe Institute of Technology
  */
 package edu.kit.iti.algover;
 
@@ -75,7 +75,7 @@ public class SymbexStateToFormula {
         assert symbexState.getProofObligations().size() == 1;
         AssertionElement po = symbexState.getProofObligations().getHead();
         DafnyTree expression = po.getExpression();
-        Term formula = ttt.build(symbexState.getMap(), expression);
+        Term formula = ttt.build(symbexState.getAssignmentHistory(), expression);
         result.add(termBuilder.negate(formula));
 
         return result;

@@ -1,12 +1,13 @@
 /*
  * This file is part of AlgoVer.
  *
- * Copyright (C) 2015-2016 Karlsruhe Institute of Technology
+ * Copyright (C) 2015-2017 Karlsruhe Institute of Technology
  */
 package edu.kit.iti.algover.symbex;
 
 import edu.kit.iti.algover.parser.DafnyTree;
 import edu.kit.iti.algover.util.ASTUtil;
+import edu.kit.iti.algover.util.ImmutableList;
 
 /**
  * The Class PathCondition captures a single element of a path condition.
@@ -53,7 +54,7 @@ public class PathConditionElement {
          */
         ASSUMED_INVARIANT,
         /**
-         * The condition is an explicit assume statement
+         * The condition is an explicit assume statement.
          */
         EXPLICIT_ASSUMPTION,
         /**
@@ -71,7 +72,7 @@ public class PathConditionElement {
     /**
      * The state in which the condition is evaluated.
      */
-    private VariableMap state;
+    private ImmutableList<DafnyTree> state;
 
     /**
      * The expression (first order formula) of this path condition.
@@ -101,21 +102,21 @@ public class PathConditionElement {
      *            the syntax element to refer to
      * @param type
      *            the type of the element
-     * @param state
+     * @param assignmentHistory
      *            the state in which it is explored
      */
     public PathConditionElement(DafnyTree expression,
-            DafnyTree refersTo, AssumptionType type, VariableMap state) {
+            DafnyTree refersTo, AssumptionType type, ImmutableList<DafnyTree> assignmentHistory) {
 
         assert expression != null;
         assert type != null;
-        assert state != null;
+        assert assignmentHistory != null;
         assert refersTo != null;
 
         this.refersTo = refersTo;
         this.expression = expression;
         this.type = type;
-        this.state = state;
+        this.state = assignmentHistory;
     }
 
     /**
@@ -132,7 +133,7 @@ public class PathConditionElement {
      *
      * @return the variable assignment, not <code>null</code>.
      */
-    public VariableMap getVariableMap() {
+    public ImmutableList<DafnyTree> getVariableMap() {
         return state;
     }
 
@@ -143,17 +144,6 @@ public class PathConditionElement {
      */
     public DafnyTree getExpression() {
         return expression;
-    }
-
-    /**
-     * Gets the expression instantiated with the variable mapping.
-     *
-     * Replaces all program variables in the expression according to the variable map.
-     *
-     * @return the instantiated expression, not <code>null</code>
-     */
-    public DafnyTree getInstantiatedExpression() {
-        return state.instantiate(expression);
     }
 
     /**
@@ -169,6 +159,7 @@ public class PathConditionElement {
         return ASTUtil.getLabel(refersTo);
     }
 
+    @Override
     public String toString() {
         return getType() + "[" + getName() + "]:" + expression.toStringTree();
     }

@@ -1,7 +1,7 @@
 /*
  * This file is part of AlgoVer.
  *
- * Copyright (C) 2015-2016 Karlsruhe Institute of Technology
+ * Copyright (C) 2015-2017 Karlsruhe Institute of Technology
  */
 package edu.kit.iti.algover.util;
 
@@ -159,6 +159,23 @@ public class ImmutableList<T> implements Iterable<T> {
     public static <T> ImmutableList<T> from(Iterable<T> iterable) {
         ImmutableList<T> result = ImmutableList.<T>nil();
         for (T t : iterable) {
+            result = result.append(t);
+        }
+        return result;
+    }
+
+    /**
+     * Iterate through the array to create a list.
+     *
+     * The resulting list has the same order as the argument.
+     *
+     * @param <T> the generic type
+     * @param array the non-<code>null</code> array
+     * @return the immutable list
+     */
+    public static <T> ImmutableList<T> from(@SuppressWarnings("unchecked") T... array) {
+        ImmutableList<T> result = ImmutableList.<T>nil();
+        for (T t : array) {
             result = result.append(t);
         }
         return result;

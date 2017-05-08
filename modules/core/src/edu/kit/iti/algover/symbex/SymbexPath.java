@@ -1,7 +1,7 @@
 /*
  * This file is part of AlgoVer.
  *
- * Copyright (C) 2015-2016 Karlsruhe Institute of Technology
+ * Copyright (C) 2015-2017 Karlsruhe Institute of Technology
  */
 package edu.kit.iti.algover.symbex;
 
@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import edu.kit.iti.algover.parser.DafnyParser;
 import edu.kit.iti.algover.parser.DafnyTree;
 import edu.kit.iti.algover.symbex.AssertionElement.AssertionType;
 import edu.kit.iti.algover.symbex.PathConditionElement.AssumptionType;
@@ -23,7 +24,8 @@ import edu.kit.iti.algover.util.ImmutableList;
  * <li>a list of gathered path conditions
  * <li>a list of proof obligations to be discharged
  * <li>the kind/nature of the proof obligations (all are of the same kind)
- * <li>the variable assignment under which the obligations are to be examined.
+ * <li>the history of assignments under which the obligations are to be
+ * examined
  * <li>the piece of code that remains yet to be examined (empty for terminal
  * states)
  * </ul>
@@ -53,7 +55,12 @@ public class SymbexPath {
     /**
      * The currently active variable assignment map.
      */
-    private VariableMap currentMap;
+    private ImmutableList<DafnyTree> assignmentHistory;
+
+    /**
+     * The declared local variables up to this point.
+     */
+    private ImmutableList<LocalVarDecl> declaredLocalVars;
 
     /**
      * The block that remains to be executed. may be an empty block.
@@ -75,7 +82,8 @@ public class SymbexPath {
     public SymbexPath(DafnyTree function) {
         assert function != null;
         this.pathConditions = ImmutableList.nil();
-        this.currentMap = VariableMap.EMPTY;
+        this.assignmentHistory = ImmutableList.nil();
+        this.declaredLocalVars = ImmutableList.nil();
         this.function = function;
     }
 
@@ -88,8 +96,9 @@ public class SymbexPath {
     public SymbexPath(SymbexPath state) {
         this.pathConditions = state.pathConditions;
         this.proofObligations = state.proofObligations;
-        this.currentMap = state.currentMap;
+        this.assignmentHistory = state.assignmentHistory;
         this.blockToExecute = state.blockToExecute;
+        this.declaredLocalVars = state.declaredLocalVars;
         this.function = state.function;
     }
 
@@ -105,28 +114,52 @@ public class SymbexPath {
      */
     public void addPathCondition(DafnyTree expr, DafnyTree stm, AssumptionType type) {
         PathConditionElement pathCondition =
-                new PathConditionElement(expr, stm, type, currentMap);
+                new PathConditionElement(expr, stm, type, assignmentHistory);
         pathConditions = pathConditions.append(pathCondition);
     }
 
     /**
-     * Gets the variable assignment map of this instance.
+     * Gets the assignment history of this instance.
      *
      * @return the map, not <code>null</code>;
      */
-    public VariableMap getMap() {
-        return currentMap;
+    public ImmutableList<DafnyTree> getAssignmentHistory() {
+        return assignmentHistory;
     }
 
+
     /**
-     * Sets the variable assignment map.
+     * Sets the assignment history of this instance.
      *
-     * @param newMap
-     *            the new map, not <code>null</code>
+     * @param assignmentHistory
+     *            the new assignment history, not <code>null</code>
      */
-    public void setMap(VariableMap newMap) {
-        assert newMap != null;
-        currentMap = newMap;
+    public void setAssignmentHistory(ImmutableList<DafnyTree> assignmentHistory) {
+        this.assignmentHistory = assignmentHistory;
+    }
+
+
+    /**
+     * Adds an assignment to the history of this instance.
+     *
+     * @param assignment
+     *            the assignment to add, not <code>null</code>
+     */
+    public void addAssignment(DafnyTree assignment) {
+        assert assignment.getType() == DafnyParser.ASSIGN;
+        setAssignmentHistory(assignmentHistory.append(assignment));
+    }
+
+    public ImmutableList<LocalVarDecl> getDeclaredLocalVars() {
+        return declaredLocalVars;
+    }
+
+    public void setDeclaredLocalVars(ImmutableList<LocalVarDecl> declaredLocalVars) {
+        this.declaredLocalVars = declaredLocalVars;
+    }
+
+    public void addDeclaredLocalVar(LocalVarDecl decl) {
+        setDeclaredLocalVars(declaredLocalVars.append(decl));
     }
 
     /**
@@ -173,7 +206,7 @@ public class SymbexPath {
     public void setProofObligation(DafnyTree obligation, DafnyTree referTo, AssertionType type) {
         assert obligation != null;
         assert type != null;
-        AssertionElement element = new AssertionElement(obligation, referTo, type, currentMap);
+        AssertionElement element = new AssertionElement(obligation, referTo, type, assignmentHistory);
         this.proofObligations = ImmutableList.single(element);
     }
 
@@ -197,7 +230,7 @@ public class SymbexPath {
     public void setProofObligations(Iterable<DafnyTree> expressions, DafnyTree referTo, AssertionType type) {
         this.proofObligations = ImmutableList.nil();
         for (DafnyTree dafnyTree : expressions) {
-            AssertionElement element = new AssertionElement(dafnyTree, referTo, type, currentMap);
+            AssertionElement element = new AssertionElement(dafnyTree, referTo, type, assignmentHistory);
             proofObligations = proofObligations.append(element);
         }
     }
@@ -205,7 +238,7 @@ public class SymbexPath {
     public void setProofObligationsFromLastChild(Iterable<DafnyTree> stms, AssertionType type) {
         this.proofObligations = ImmutableList.nil();
         for (DafnyTree stm : stms) {
-            AssertionElement element = new AssertionElement(stm.getLastChild(), stm, type, currentMap);
+            AssertionElement element = new AssertionElement(stm.getLastChild(), stm, type, assignmentHistory);
             proofObligations = proofObligations.append(element);
         }
     }
@@ -229,23 +262,6 @@ public class SymbexPath {
     }
 
     /**
-     * Gets the instantiated proof obligations.
-     *
-     * The result is a list of expression trees.
-     *
-     * @return a list of proof obligations expressions,
-     *  instantiated with the variable map
-     */
-    @Deprecated
-    public List<DafnyTree> getInstantiatedObligationExpressions() {
-        List<DafnyTree> result = new ArrayList<>();
-        for (AssertionElement po : proofObligations) {
-            result.add(currentMap.instantiate(po.getExpression()));
-        }
-        return result;
-    }
-
-    /**
      * Gets the unique path identifier which enumerates all decisions made on
      * the path.
      *
@@ -256,16 +272,17 @@ public class SymbexPath {
         StringBuilder result = new StringBuilder();
         for (PathConditionElement pce : pathConditions) {
             AssumptionType type = pce.getType();
-            switch(type) {
+            switch (type) {
             case IF_ELSE:
             case IF_THEN:
             case WHILE_FALSE:
             case WHILE_TRUE:
                 result.append(type.toString()).append("/");
+                break;
             }
         }
 
-        if(proofObligations.size() > 1) {
+        if (proofObligations.size() > 1) {
             AssertionType type = getCommonProofObligationType();
             if (type != null) {
                 result.append("/").append(type);
@@ -291,7 +308,7 @@ public class SymbexPath {
      * @return a freshly (possibly immutable) list of symbex states.
      */
     public List<SymbexPath> split() {
-        if(proofObligations.size() == 1) {
+        if (proofObligations.size() == 1) {
             return Collections.singletonList(this);
         } else {
             List<SymbexPath> result = new ArrayList<>();
@@ -307,9 +324,9 @@ public class SymbexPath {
     public AssertionType getCommonProofObligationType() {
         AssertionType result = null;
         for (AssertionElement ass : proofObligations) {
-            if(result == null) {
+            if (result == null) {
                 result = ass.getType();
-            } else if(result != ass.getType()) {
+            } else if (result != ass.getType()) {
                 return null;
             }
         }

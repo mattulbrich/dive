@@ -1,3 +1,8 @@
+/*
+ * This file is part of AlgoVer.
+ *
+ * Copyright (C) 2015-2017 Karlsruhe Institute of Technology
+ */
 package edu.kit.iti.algover.proof;
 
 import edu.kit.iti.algover.ProgramDatabase;
@@ -61,13 +66,13 @@ public class SymbexPathToTopFormula {
     }
 
     public Term fromPO(SymbexPath p, AssertionElement e) throws TermBuildException {
-        Term formula = ttt.build(p.getMap(), e.getExpression());
+        Term formula = ttt.build(p.getAssignmentHistory(), e.getExpression());
         return formula;
     }
 
 
     public Term fromPCE(SymbexPath p, PathConditionElement pce) throws  TermBuildException{
-        Term formula = ttt.build(p.getMap(), pce.getExpression());
+        Term formula = ttt.build(p.getAssignmentHistory(), pce.getExpression());
 
         return formula;
     }
@@ -86,7 +91,7 @@ public class SymbexPathToTopFormula {
         assert symbexState.getProofObligations().size() == 1;
         AssertionElement po = symbexState.getProofObligations().getHead();
         DafnyTree expression = po.getExpression();
-        Term formula = ttt.build(symbexState.getMap(), expression);
+        Term formula = ttt.build(symbexState.getAssignmentHistory(), expression);
         result.add(termBuilder.negate(formula));
 
         return result;

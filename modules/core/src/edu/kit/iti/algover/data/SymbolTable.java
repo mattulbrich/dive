@@ -1,7 +1,7 @@
 /*
  * This file is part of AlgoVer.
  *
- * Copyright (C) 2015-2016 Karlsruhe Institute of Technology
+ * Copyright (C) 2015-2017 Karlsruhe Institute of Technology
  */
 package edu.kit.iti.algover.data;
 
@@ -18,14 +18,14 @@ import edu.kit.iti.algover.term.FunctionSymbol;
 public interface SymbolTable {
 
     /**
-     * Gets the function symbol which corresponds to a name
+     * Gets the function symbol which corresponds to a name.
      *
      * @param name
      *            the no-<code>null</code> name of function symbol
      * @return the function symbol, <code>null</code> if no such symbols under
      *         the name exists.
      */
-    public FunctionSymbol getFunctionSymbol(String name);
+    FunctionSymbol getFunctionSymbol(String name);
 
     /**
      * Adds a function symbol to the table.
@@ -38,13 +38,13 @@ public interface SymbolTable {
      *            the symbol to add to the table
      * @return the freshly created augmented symbol table
      */
-    public SymbolTable addFunctionSymbol(FunctionSymbol symbol);
+    SymbolTable addFunctionSymbol(FunctionSymbol symbol);
 
     /**
      * Get the collection of all function symbols known to this table.
      *
      * @return the a freshly created collection of all symbols
      */
-    public Collection<FunctionSymbol> getAllSymbols();
+    Collection<FunctionSymbol> getAllSymbols();
 
 }

@@ -1,7 +1,7 @@
 /*
  * This file is part of AlgoVer.
  *
- * Copyright (C) 2015-2016 Karlsruhe Institute of Technology
+ * Copyright (C) 2015-2017 Karlsruhe Institute of Technology
  */
 package edu.kit.iti.algover.term;
 
@@ -18,7 +18,7 @@ public class ApplTerm extends Term {
 
     public ApplTerm(FunctionSymbol function, List<Term> arguments) throws TermBuildException {
         super(function.getResultSort(),
-                Util.toArray(Util.requireDeepNonNull(arguments), Term.class));
+                Util.toArray(arguments, Term.class));
         this.function = function;
         check();
     }
@@ -32,14 +32,14 @@ public class ApplTerm extends Term {
     }
 
     private void check() throws TermBuildException {
-        if(function.getArity() != getSubterms().size()) {
+        if (function.getArity() != getSubterms().size()) {
             throw new TermBuildException("Illegal number of arguments to " + function +
                     "received " + getSubterms().size());
         }
         for (int i = 0; i < function.getArity(); i++) {
             Sort expected = function.getArgumentSorts().get(i);
             Sort is = getSubterms().get(i).getSort();
-            if(!is.equals(expected)) {
+            if (!is.equals(expected)) {
                 throw new TermBuildException("Unexpected argument sort for argument " +
                         (i + 1) + " to " + function
                         + ", expected " + expected + " but received " + is);
@@ -49,7 +49,7 @@ public class ApplTerm extends Term {
 
     @Override
     public String toString() {
-        if(function.getArity() == 0) {
+        if (function.getArity() == 0) {
             return function.getName();
         } else {
             return function.getName() + "(" + Util.commatize(getSubterms()) + ")";
@@ -58,12 +58,12 @@ public class ApplTerm extends Term {
 
     @Override
     public boolean equals(Object obj) {
-        if(!super.equals(obj)) {
+        if (!super.equals(obj)) {
             return false;
         }
 
         // it is sure that obj is of type ApplFunction
-        return ((ApplTerm)obj).function == function;
+        return ((ApplTerm) obj).function == function;
     }
 
     @Override

@@ -1,7 +1,7 @@
 /*
  * This file is part of AlgoVer.
  *
- * Copyright (C) 2015-2016 Karlsruhe Institute of Technology
+ * Copyright (C) 2015-2017 Karlsruhe Institute of Technology
  */
 
 package edu.kit.iti.algover.data;
@@ -31,6 +31,8 @@ import edu.kit.iti.algover.util.Util;
  * @author Mattias Ulbrich
  */
 public class BuiltinSymbols extends MapSymbolTable {
+
+    // Checkstyle: OFF JavadocVariableCheck
 
     public static final FunctionSymbol AND =
             new FunctionSymbol("$and", Sort.FORMULA, Sort.FORMULA, Sort.FORMULA);
@@ -77,7 +79,7 @@ public class BuiltinSymbols extends MapSymbolTable {
     public static final FunctionSymbolFamily STORE =
             new FunctionSymbolFamily(
                     new FunctionSymbol("$store", Sort.HEAP, Sort.HEAP, Sort.REF,
-                            new Sort("field<?1>"), FunctionSymbolFamily.VAR1), 1);
+                            Sort.FIELD, FunctionSymbolFamily.VAR1), 1);
 
     // select ...
 
@@ -98,9 +100,11 @@ public class BuiltinSymbols extends MapSymbolTable {
     public static final FunctionSymbol FALSE =
             new FunctionSymbol("$false", Sort.FORMULA);
 
+    // Checkstyle: ON JavadocVariableCheck
 
     private Map<String, FunctionSymbolFamily> symbolFamilies =
             new HashMap<>();
+
 
     public BuiltinSymbols() {
         super(collectSymbols());
@@ -108,21 +112,26 @@ public class BuiltinSymbols extends MapSymbolTable {
     }
 
     /**
+     * {@inheritDoc}
+     *
+     * <p>
      * This implementations resolves various special function symbols by name.
+     * </p>
+     *
      */
     @Override
     protected FunctionSymbol resolve(String name) {
 
         int index = name.indexOf("[");
-        if(index >= 0) {
+        if (index >= 0) {
 
             String baseName = name.substring(0, index);
             FunctionSymbolFamily family = symbolFamilies.get(baseName);
-            if(family == null) {
+            if (family == null) {
                 return null;
             }
 
-            String[] args = name.substring(index+1, name.length()-1).split(",");
+            String[] args = name.substring(index + 1, name.length() - 1).split(",");
             Sort[] sorts = new Sort[args.length];
             for (int i = 0; i < sorts.length; i++) {
                 sorts[i] = new Sort(args[i]);
@@ -134,17 +143,17 @@ public class BuiltinSymbols extends MapSymbolTable {
 
         //
         // multidim length functions
-        if(name.matches("\\$len[0-9]+")) {
+        if (name.matches("\\$len[0-9]+")) {
             String suffix = name.substring(4);
             int dim = Integer.parseInt(suffix);
-            Sort arraySort = new Sort("array" + (dim+1));
+            Sort arraySort = new Sort("array" + (dim + 1));
             FunctionSymbol len = new FunctionSymbol(name, Sort.INT, arraySort);
             return len;
         }
 
         //
         // non-negative integer literal
-        if(name.matches("[0-9]+")) {
+        if (name.matches("[0-9]+")) {
             FunctionSymbol lit = new FunctionSymbol(name, Sort.INT);
             return lit;
         }
@@ -156,11 +165,11 @@ public class BuiltinSymbols extends MapSymbolTable {
 
     private static Collection<FunctionSymbol> collectSymbols() {
         List<FunctionSymbol> result = new ArrayList<>();
-        for(Field f : BuiltinSymbols.class.getDeclaredFields()) {
-            if(!Modifier.isStatic(f.getModifiers())) {
+        for (Field f : BuiltinSymbols.class.getDeclaredFields()) {
+            if (!Modifier.isStatic(f.getModifiers())) {
                 continue;
             }
-            if(f.getType() != FunctionSymbol.class) {
+            if (f.getType() != FunctionSymbol.class) {
                 continue;
             }
 
@@ -178,11 +187,11 @@ public class BuiltinSymbols extends MapSymbolTable {
     }
 
     private void collectFamilies() {
-        for(Field f : BuiltinSymbols.class.getDeclaredFields()) {
-            if(!Modifier.isStatic(f.getModifiers())) {
+        for (Field f : BuiltinSymbols.class.getDeclaredFields()) {
+            if (!Modifier.isStatic(f.getModifiers())) {
                 continue;
             }
-            if(f.getType() != FunctionSymbolFamily.class) {
+            if (f.getType() != FunctionSymbolFamily.class) {
                 continue;
             }
 

@@ -1,3 +1,8 @@
+/*
+ * This file is part of AlgoVer.
+ *
+ * Copyright (C) 2015-2017 Karlsruhe Institute of Technology
+ */
 package edu.kit.iti.algover.gui;
 
 import edu.kit.iti.algover.parser.DafnyLexer;
@@ -83,18 +88,20 @@ public class ANTLRTokenMaker
 
             boolean inComment = initialTokenType == COMMENT_MULTILINE;
 
-            // retrieve and convert tokens one at a time; note that 
+            // retrieve and convert tokens one at a time; note that
             // the stream returns the EOF token as the last token
             while ( true )
             {
                 org.antlr.runtime.Token tToken = tTokenStream.LT(1);
 
-                // System.out.println( 
-                // 	tToken + " -> " + 
+                // System.out.println(
+                // 	tToken + " -> " +
                 // 	(tToken.getType() >= 0 ? DafnyLexer.tokenNames[tToken.getType()] : "-1") );
 
                 if ( inComment &&
-                        convertTokenType(tToken.getType()) == COMMENT_MULTILINE ) inComment = false;
+                        convertTokenType(tToken.getType()) == COMMENT_MULTILINE ) {
+                    inComment = false;
+                }
 
                 if ( tToken.getType() == org.antlr.runtime.Token.EOF )
                 {
@@ -139,7 +146,7 @@ public class ANTLRTokenMaker
      * <p>
      *
      * This method expects to reuse an existing lexer of class DafnyLexer; that class is
-     * created by running ANTLR on the DafnyLexer.g grammar. 
+     * created by running ANTLR on the DafnyLexer.g grammar.
      * Note that this grammar does not make use of multiline comments or documentation
      * comments, so the initial token type parameter is unused.<p>
      *
@@ -180,14 +187,15 @@ public class ANTLRTokenMaker
 
             boolean inComment = initialTokenType == COMMENT_MULTILINE;
 
-            // retrieve and convert tokens one at a time; note that 
+            // retrieve and convert tokens one at a time; note that
             // the stream returns the EOF token as the last token
             while ( true )
             {
                 org.antlr.runtime.Token tToken = tTokenStream.LT(1);
 
-                if ( inComment && convertTokenType(tToken.getType()) == COMMENT_MULTILINE )
+                if ( inComment && convertTokenType(tToken.getType()) == COMMENT_MULTILINE ) {
                     inComment = false;
+                }
 
                 if ( tToken.getType() == org.antlr.runtime.Token.EOF )
                 {
@@ -265,7 +273,7 @@ public class ANTLRTokenMaker
            // case DafnyLexer.Identifier:
             //case DafnyLexer.T__75:
             case DafnyLexer.T__76:
-                case DafnyLexer.T__77:
+//                case DafnyLexer.T__77:
                 return FUNCTION;
             case DafnyLexer.ELSE:
             case DafnyLexer.IF:

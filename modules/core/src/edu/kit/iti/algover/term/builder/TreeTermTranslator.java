@@ -1,7 +1,7 @@
 /*
  * This file is part of AlgoVer.
  *
- * Copyright (C) 2015-2016 Karlsruhe Institute of Technology
+ * Copyright (C) 2015-2017 Karlsruhe Institute of Technology
  */
 package edu.kit.iti.algover.term.builder;
 
@@ -17,7 +17,6 @@ import edu.kit.iti.algover.data.BuiltinSymbols;
 import edu.kit.iti.algover.data.SymbolTable;
 import edu.kit.iti.algover.parser.DafnyParser;
 import edu.kit.iti.algover.parser.DafnyTree;
-import edu.kit.iti.algover.symbex.VariableMap;
 import edu.kit.iti.algover.term.ApplTerm;
 import edu.kit.iti.algover.term.FunctionSymbol;
 import edu.kit.iti.algover.term.LetTerm;
@@ -26,6 +25,7 @@ import edu.kit.iti.algover.term.QuantTerm.Quantifier;
 import edu.kit.iti.algover.term.Sort;
 import edu.kit.iti.algover.term.Term;
 import edu.kit.iti.algover.term.VariableTerm;
+import edu.kit.iti.algover.util.ImmutableList;
 import edu.kit.iti.algover.util.Pair;
 
 /**
@@ -67,7 +67,7 @@ public class TreeTermTranslator {
      * {@link LetTerm}s. The {@code expression} is then embedded into the
      * cascade
      *
-     * @param map
+     * @param immutableList
      *            the non-<code>null</code> variable assignment
      * @param expression
      *            the expression to be translated
@@ -75,57 +75,70 @@ public class TreeTermTranslator {
      * @throws TermBuildException
      *             if terms in the tree are not well-formed.
      */
-    public Term build(VariableMap map, DafnyTree expression) throws TermBuildException {
+    public Term build(ImmutableList<DafnyTree> history, DafnyTree expression) throws TermBuildException {
         Term result = build(expression);
 
-        for (Pair<String, DafnyTree> pair : map) {
-            result = buildLetExpression(pair.fst, pair.snd, result);
+        for (DafnyTree assignment : history) {
+            result = buildLetExpression(assignment, result);
         }
 
         return result;
 
     }
 
-    private Term buildLetExpression(String var, DafnyTree assignment, Term result)
+    private Term buildLetExpression(DafnyTree assignment, Term result)
             throws TermBuildException {
         DafnyTree errorTree = assignment;
-        try {
-            switch(assignment.getType()) {
-            case DafnyParser.HAVOC:
-                String newConst = assignment.getChild(1).getText();
-                FunctionSymbol f = symbolTable.getFunctionSymbol(var);
-                // SuffixSymbolTable should handle this:
-                FunctionSymbol fPrime = symbolTable.getFunctionSymbol(newConst);
-                return new LetTerm(f, new ApplTerm(fPrime), result);
 
-            case DafnyParser.ARRAY_UPDATE:
-                Term object = build(assignment.getChild(0));
-                Term index = build(assignment.getChild(1));
-                Term value = build(assignment.getChild(2));
+        assert assignment.getType() == DafnyParser.ASSIGN;
+
+        try {
+            DafnyTree receiver = assignment.getChild(0);
+            DafnyTree expression = assignment.getChild(1);
+            switch (receiver.getType()) {
+            case DafnyParser.ID:
+                FunctionSymbol f = symbolTable.getFunctionSymbol(receiver.getText());
+                return new LetTerm(f, build(expression), result);
+
+            case DafnyParser.FIELD_ACCESS: {
+                // XXX
+                FunctionSymbol store = symbolTable.getFunctionSymbol("$store[int]");
+                Term object = build(receiver.getChild(0));
+                // XXX
+                Term field = build(receiver.getChild(1));
+                Term value = build(expression);
                 FunctionSymbol heap = BuiltinSymbols.HEAP;
                 ApplTerm heapTerm = new ApplTerm(heap);
-                Term store = new ApplTerm(symbolTable.getFunctionSymbol("$store[int]"), heapTerm, object, index, value);
-                return new LetTerm(heap, store, result);
+                Term appl = new ApplTerm(store, heapTerm, object, field, value);
+                return new LetTerm(heap, appl, result);
+            }
+            case DafnyParser.ARRAY_ACCESS: {
+                // XXX
+                FunctionSymbol store = symbolTable.getFunctionSymbol("$storeArr[int]");
+                Term object = build(receiver.getChild(0));
+                Term index = build(receiver.getChild(1));
+                Term value = build(expression);
+                FunctionSymbol heap = BuiltinSymbols.HEAP;
+                ApplTerm heapTerm = new ApplTerm(heap);
+                Term appl = new ApplTerm(store, heapTerm, object, index, value);
+                return new LetTerm(heap, appl, result);
+            }
 
-            case DafnyParser.LISTEX:
-                // TODO: In a later revision make this seq<?> or similar.
-                List<Pair<FunctionSymbol, Term>> updates = new ArrayList<>();
-                for (int i = 0; i < assignment.getChildCount(); i++) {
-                    f = symbolTable.getFunctionSymbol(var + "_" + i);
-                    if (f == null) {
-                        f = new FunctionSymbol(var + "_" + i, Sort.INT);
-                        symbolTable.addFunctionSymbol(f);
-                    }
-                    updates.add(new Pair<>(f, build(assignment.getChild(i))));
-                }
-                return new LetTerm(updates, result);
+            //            case DafnyParser.LISTEX:
+            //                // TODO: In a later revision make this seq<?> or similar.
+            //                List<Pair<FunctionSymbol, Term>> updates = new ArrayList<>();
+            //                for (int i = 0; i < assignment.getChildCount(); i++) {
+            //                    f = symbolTable.getFunctionSymbol(var + "_" + i);
+            //                    if (f == null) {
+            //                        f = new FunctionSymbol(var + "_" + i, Sort.INT);
+            //                        symbolTable.addFunctionSymbol(f);
+            //                    }
+            //                    updates.add(new Pair<>(f, build(assignment.getChild(i))));
+            //                }
+            //                return new LetTerm(updates, result);
 
             default:
-                // in this case for error we must take parent of the expression
-                errorTree = (DafnyTree) assignment.getParent();
-                f = symbolTable.getFunctionSymbol(var);
-                value = build(assignment);
-                return new LetTerm(f, value, result);
+                throw new Error("Unsupported assignment type: " + receiver.getType());
             }
         } catch (TermBuildException ex) {
             if (!ex.hasLocation()) {
@@ -271,7 +284,7 @@ public class TreeTermTranslator {
             throw new RuntimeException();
         }
 
-        FunctionSymbol f = symbolTable.getFunctionSymbol("$eq[" + t1.getSort().getName() +"]");
+        FunctionSymbol f = symbolTable.getFunctionSymbol("$eq[" + t1.getSort().getName() + "]");
         return new ApplTerm(f, Arrays.asList(t1, t2));
     }
 

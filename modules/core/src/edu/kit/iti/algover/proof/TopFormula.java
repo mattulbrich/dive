@@ -1,3 +1,8 @@
+/*
+ * This file is part of AlgoVer.
+ *
+ * Copyright (C) 2015-2017 Karlsruhe Institute of Technology
+ */
 package edu.kit.iti.algover.proof;
 
 import edu.kit.iti.algover.parser.DafnyParser;
@@ -139,7 +144,7 @@ public class TopFormula{
      */
     private List<Assignment> extractAffectingVarAssignments() {
         //get all Assignments on path
-        VariableMap map = this.path.getMap();
+        VariableMap map = new VariableMap(this.path.getAssignmentHistory());
 
         //initialize data structure for affecting assignments
         List<Assignment> affectingAssignments = new LinkedList<>();

@@ -14,8 +14,6 @@ tokens {
   LISTEX; // not supported currently
   SETEX; // not supported currently
   ARRAY_ACCESS;
-  ARRAY_UPDATE;
-  HAVOC;
   NOETHER_LESS;
   WILDCARD;
 }
@@ -49,6 +47,8 @@ tokens {
   {
     throw new MismatchedTokenException(ttype, input);
   }
+
+  private BitSet LVALUE_TOKENTYPES = BitSet.of(ID, FIELD_ACCESS, ARRAY_ACCESS);
 }
 
 // exit upon first error
@@ -187,6 +187,7 @@ type:
     INT | BOOL | SET^ '<'! INT '>'!
   | ARRAY^ '<'! INT '>'!
   | SEQ^ '<'! INT '>'!
+  | SET^ '<'! ID '>'!
   ;
 
 returns_:
@@ -217,31 +218,34 @@ block:
   '{' statements? '}' -> ^(BLOCK statements?)
   ;
 
-relaxedBlock:
-    block
-  | statement -> ^(BLOCK statement)
-  ;
-
 statements:
   ( statement )+
   ;
 
 statement:
     VAR^ ID ':'! type (':='! expression)? ';'!
-  | ID ass=':=' '*' ';' -> ^(HAVOC[$ass] ID)
-  | ID ':='^ expression ';'!
-  | ID '[' i=expression ']' ass=':=' v=expression ';'
-        -> ^(ARRAY_UPDATE[$ass] ID $i $v)
-  | ID '(' expressions? ')' ';'
-        -> ^(CALL ID ^(ARGS expressions?))
-/*  | ids ':=' 'call' ID '(' expressions? ')' ';'
-        -> ^('call' ID ^(RESULTS ids) ^(ARGS expressions?)) */
-  | label?
-      'while' expression_wildcard invariant+ modifies? decreases relaxedBlock
-        -> ^('while' label? expression_wildcard invariant+ modifies? decreases relaxedBlock)
-  | label? 'if'^ expression_wildcard relaxedBlock
-      ( options { greedy=true; } : 'else'! relaxedBlock )?
+
+  | expression
+      ( ASSIGN value=expression_wildcard ';'
+      { if(!LVALUE_TOKENTYPES.member($expression.tree.getType()))
+            throw new MismatchedSetException(LVALUE_TOKENTYPES, input); }
+         -> ^(ASSIGN expression expression_wildcard)
+      | ';'
+      { if($expression.tree.getType() != CALL)
+            throw new MismatchedTokenException($expression.start.getType(), input); }
+         -> expression
+      )
+
+  | label? 
+      ( WHILE expression_wildcard invariant+ modifies? decreases block
+           -> ^(WHILE label? expression_wildcard invariant+ modifies? decreases block)
+      | IF expression_wildcard block
+         ( options { greedy=true; } : 'else' block )?
+           -> ^(IF label? expression_wildcard block*)
+      )
+
   | 'assert'^ ( 'label'! ID ':'! )? expression ';'!
+
   | 'assume'^ ( 'label'! ID ':'! )? expression ';'!
   ;
 
@@ -289,10 +293,10 @@ prefix_expr:
   ;
 
 postfix_expr:
-  ( atom_expr -> atom_expr )
+  ( atom_expr -> atom_expr)
   ( '[' expression ']' -> ^( ARRAY_ACCESS atom_expr expression )
   | '.' LENGTH -> ^( LENGTH atom_expr )
-  | '.' ID '(' expressions ')' -> ^( CALL ID atom_expr expressions )
+  | '.' ID '(' expressions? ')' -> ^( CALL ID atom_expr expressions? )
   | '.' ID -> ^( FIELD_ACCESS atom_expr ID )
   )*
   ;
@@ -304,7 +308,7 @@ expression_only:
 
 atom_expr:
     ID
-  | ID '(' expressions ')' -> ^(CALL ID expressions)
+  | ID '(' expressions? ')' -> ^(CALL ID expressions?)
   | INT_LIT
   | 'this'
   | NULL

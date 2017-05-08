@@ -1,7 +1,7 @@
 /*
  * This file is part of AlgoVer.
  *
- * Copyright (C) 2015-2016 Karlsruhe Institute of Technology
+ * Copyright (C) 2015-2017 Karlsruhe Institute of Technology
  */
 package edu.kit.iti.algover.ui.model;
 
@@ -206,7 +206,7 @@ public class ProblemLoader {
 //                System.out.println("    " + pc.getVariableMap().toParallelAssignment());
 //                System.out.println("  Instantiated condition: ");
                 assumptions.add(pc.getExpression());
-                instantiatedAssumptions.add(pc.getVariableMap().instantiate(pc.getExpression()));
+//                instantiatedAssumptions.add(pc.getVariableMap().instantiate(pc.getExpression()));
 //                System.out.println("    " + pc.getVariableMap().instantiate(pc.getExpression()).toStringTree());
 //                System.out.println("  Refers to: line " + pc.getExpression().token.getLine());
 //                System.out.println("  Test Line: " + pc.getExpression());
@@ -238,7 +238,7 @@ public class ProblemLoader {
                 //System.out.println("Sibling: "+po.+"\n\n\n");
 
                 LinkedList<DafnyTree> toShow = new LinkedList<DafnyTree>();
-                toShow.add(res.getMap().instantiate(po.getExpression()));
+//                toShow.add(res.getMap().instantiate(po.getExpression()));
                 ProofOld p = pcenter.createProofOldObject(res, instantiatedAssumptions, toShow, typeCollectionPath, typeCollectionState, 0);
                 pcenter.insertProofOld(p);
 //                System.out.println("    " + res.getMap().instantiate(po).toStringTree());

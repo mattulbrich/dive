@@ -27,7 +27,7 @@ import edu.kit.iti.algover.util.HistoryMap;
 public class ReferenceResolutionVisitor extends DafnyTreeDefaultVisitor<Void, Void> {
 
     /**
-     * The project whose references are to be resolved
+     * The project whose references are to be resolved.
      */
     private final Project project;
 
@@ -109,7 +109,7 @@ public class ReferenceResolutionVisitor extends DafnyTreeDefaultVisitor<Void, Vo
     public Void visitID(DafnyTree t, Void a) {
         String name = t.getText();
         DafnyTree idDef = identifierMap.get(name);
-        if(idDef == null) {
+        if (idDef == null) {
             addException(new DafnyException("Unknown identifier: " + name, t));
         } else {
             t.setDeclarationReference(idDef);
@@ -124,7 +124,7 @@ public class ReferenceResolutionVisitor extends DafnyTreeDefaultVisitor<Void, Vo
     public Void visitCALL(DafnyTree t, Void a) {
         String name = t.getChild(0).getText();
         DafnyTree callable = callableMap.get(name);
-        if(callable == null) {
+        if (callable == null) {
             addException(new DafnyException("Unknown method or function: " + name, t));
         } else {
             t.getChild(0).setDeclarationReference(callable);
@@ -189,16 +189,16 @@ public class ReferenceResolutionVisitor extends DafnyTreeDefaultVisitor<Void, Vo
         // TODO make this a lookup
         DafnyClass dafnyClass = project.getClasses().get(0);
 
-        for(DafnyField field : dafnyClass.getFields()) {
+        for (DafnyField field : dafnyClass.getFields()) {
             // TODO why is the representation the type?
             identifierMap.put(field.getName(), (DafnyTree) field.getRepresentation().getParent());
         }
 
-        for(DafnyMethod method : dafnyClass.getMethods()) {
+        for (DafnyMethod method : dafnyClass.getMethods()) {
             callableMap.put(method.getName(), method.getRepresentation());
         }
 
-        for(DafnyFunction function : dafnyClass.getFunctions()) {
+        for (DafnyFunction function : dafnyClass.getFunctions()) {
             callableMap.put(function.getName(), function.getRepresentation());
         }
 

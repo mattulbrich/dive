@@ -1,3 +1,8 @@
+/*
+ * This file is part of AlgoVer.
+ *
+ * Copyright (C) 2015-2017 Karlsruhe Institute of Technology
+ */
 package edu.kit.iti.algover.proof;
 
 import edu.kit.iti.algover.parser.DafnyParser;
@@ -7,7 +12,6 @@ import edu.kit.iti.algover.script.ScriptTree;
 import edu.kit.iti.algover.symbex.AssertionElement;
 import edu.kit.iti.algover.symbex.PathConditionElement;
 import edu.kit.iti.algover.symbex.SymbexPath;
-import edu.kit.iti.algover.symbex.VariableMap;
 import edu.kit.iti.algover.term.FunctionSymbol;
 import edu.kit.iti.algover.term.Sort;
 import edu.kit.iti.algover.term.Term;
@@ -172,7 +176,7 @@ public class PVCBuilder {
         TreeTermTranslator ttt = new TreeTermTranslator(septf.getSymbolTable());
         for(PathConditionElement pce : pathConditions){
 
-            final TopFormula tf = buildTopFormula(ttt, pce.getExpression(), pathThroughProgram.getMap(), pce);
+            final TopFormula tf = buildTopFormula(ttt, pce.getExpression(), pathThroughProgram.getAssignmentHistory(), pce);
             assumptionsWithInfo.add(tf);
         }
 
@@ -196,7 +200,7 @@ public class PVCBuilder {
                 septf = new SymbexPathToTopFormula(parent.getRepresentation());
                 ttt = new TreeTermTranslator(septf.getSymbolTable());
 
-                final TopFormula tf = buildTopFormulaAssert(ttt, ae.getExpression(), pathThroughProgram.getMap(), ae);
+                final TopFormula tf = buildTopFormulaAssert(ttt, ae.getExpression(), pathThroughProgram.getAssignmentHistory(), ae);
                 goalWithInfo.add(tf);
             }else{
 
@@ -244,18 +248,21 @@ public class PVCBuilder {
 
 
       //  }
-        return buildTopFormulaAssert(ttt, toTranslate, pathThroughProgram.getMap().assign(expression.getChild(0).getText(), decreasesTerm), ae);
+
+        // FIXME: Missing here: Assignment to variant variable
+//        return buildTopFormulaAssert(ttt, toTranslate, pathThroughProgram.getMap().assign(expression.getChild(0).getText(), decreasesTerm), ae);
+        return buildTopFormulaAssert(ttt, toTranslate, pathThroughProgram.getAssignmentHistory(), ae);
     }
 
     /**
      * Build the Terms for creating the ToplevelFormulas from assumptions
      * @param
      */
-    private TopFormula buildTopFormula(TreeTermTranslator ttt, DafnyTree expression, VariableMap map, PathConditionElement pce){
+    private TopFormula buildTopFormula(TreeTermTranslator ttt, DafnyTree expression, ImmutableList<DafnyTree> immutableList, PathConditionElement pce){
         TopFormula tf = null;
         try {
             Term term = ttt.build(expression);
-            Term letTerm = ttt.build(map, expression);
+            Term letTerm = ttt.build(immutableList, expression);
             int line = pce.getExpression().token.getLine();
             if(line <=0 ){
                    line = pce.getExpression().getChild(0).token.getLine();
@@ -268,7 +275,7 @@ public class PVCBuilder {
         return tf;
     }
 
-    private TopFormula buildTopFormulaAssert(TreeTermTranslator ttt, DafnyTree expression, VariableMap map, AssertionElement ae){
+    private TopFormula buildTopFormulaAssert(TreeTermTranslator ttt, DafnyTree expression, ImmutableList<DafnyTree> map, AssertionElement ae){
         TopFormula tf = null;
        // if(ae.getType() == AssertionElement.AssertionType.VARIANT_DECREASED){
        //     System.out.println("Term Building of varaint decreased not supported yet");

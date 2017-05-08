@@ -1,7 +1,7 @@
 /*
  * This file is part of AlgoVer.
  *
- * Copyright (C) 2015-2016 Karlsruhe Institute of Technology
+ * Copyright (C) 2015-2017 Karlsruhe Institute of Technology
  */
 package edu.kit.iti.algover.symbex;
 
@@ -14,7 +14,6 @@ import java.util.Deque;
 import java.util.LinkedList;
 import java.util.List;
 
-import org.antlr.runtime.CommonToken;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -23,13 +22,15 @@ import edu.kit.iti.algover.parser.DafnyTree;
 import edu.kit.iti.algover.parser.ParserTest;
 import edu.kit.iti.algover.symbex.AssertionElement.AssertionType;
 import edu.kit.iti.algover.symbex.PathConditionElement.AssumptionType;
+import edu.kit.iti.algover.util.ASTUtil;
 import edu.kit.iti.algover.util.ImmutableList;
-import edu.kit.iti.algover.util.Pair;
 
 public class SymbexTest {
 
-    private static final VariableMap SOME_MAP =
-            VariableMap.EMPTY.assign("var", new DafnyTree(-4));
+    private static final ImmutableList<DafnyTree> SOME_HISTORY =
+            ImmutableList.single(ASTUtil.assign(ASTUtil.id("someVar"),
+                    ASTUtil.intLiteral(42)));
+
 
     private DafnyTree tree;
 
@@ -73,14 +74,14 @@ public class SymbexTest {
         Symbex symbex = new Symbex();
         Deque<SymbexPath> stack = new LinkedList<SymbexPath>();
         SymbexPath state = new SymbexPath(tree);
-        state.setMap(SOME_MAP);
+        state.setAssignmentHistory(SOME_HISTORY);
         symbex.handleAssert(stack , state, assertionStm, SOME_PROGRAM);
 
         assertEquals(2, stack.size());
 
         SymbexPath next = stack.removeLast();
         assertTrue(next.getBlockToExecute() == SOME_PROGRAM);
-        assertTrue(next.getMap() == SOME_MAP);
+        assertTrue(next.getAssignmentHistory() == SOME_HISTORY);
         assertEquals(1, next.getPathConditions().size());
         assertEquals("(== unmodifiedInLoop 0)",
                 next.getPathConditions().get(0).getExpression().toStringTree());
@@ -99,7 +100,7 @@ public class SymbexTest {
         Deque<SymbexPath> stack = new LinkedList<SymbexPath>();
         List<SymbexPath> results = new ArrayList<SymbexPath>();
         SymbexPath state = new SymbexPath(tree);
-        state.setMap(SOME_MAP);
+        state.setAssignmentHistory(SOME_HISTORY);
 
         symbex.handleAssign(stack, state, assStm, SOME_PROGRAM);
 
@@ -108,7 +109,7 @@ public class SymbexTest {
 
         SymbexPath next = stack.pop();
         assertTrue(next.getBlockToExecute() == SOME_PROGRAM);
-        assertEquals("1", next.getMap().get("count").toStringTree());
+        assertEquals("1", next.getAssignmentHistory().getHead().toStringTree());
         assertEquals(0, next.getPathConditions().size());
     }
 
@@ -121,7 +122,7 @@ public class SymbexTest {
         Deque<SymbexPath> stack = new LinkedList<SymbexPath>();
         List<SymbexPath> results = new ArrayList<SymbexPath>();
         SymbexPath state = new SymbexPath(tree);
-        state.setMap(SOME_MAP);
+        state.setAssignmentHistory(SOME_HISTORY);
 
         symbex.handleVarDecl(stack, state, decl, SOME_PROGRAM);
 
@@ -130,7 +131,7 @@ public class SymbexTest {
 
         SymbexPath next = stack.pop();
         assertTrue(next.getBlockToExecute() == SOME_PROGRAM);
-        assertEquals(SOME_MAP, next.getMap());
+        assertTrue(next.getAssignmentHistory() == SOME_HISTORY);
         assertEquals(0, next.getPathConditions().size());
     }
 
@@ -144,7 +145,7 @@ public class SymbexTest {
         Deque<SymbexPath> stack = new LinkedList<SymbexPath>();
         List<SymbexPath> results = new ArrayList<SymbexPath>();
         SymbexPath state = new SymbexPath(tree);
-        state.setMap(SOME_MAP);
+        state.setAssignmentHistory(SOME_HISTORY);
 
         symbex.handleVarDecl(stack, state, decl, SOME_PROGRAM);
 
@@ -153,7 +154,7 @@ public class SymbexTest {
 
         SymbexPath next = stack.pop();
         assertTrue(next.getBlockToExecute() == SOME_PROGRAM);
-        assertEquals("42", next.getMap().get("init_direct").toStringTree());
+        assertEquals("42", next.getAssignmentHistory().get(0).toStringTree());
         assertEquals(0, next.getPathConditions().size());
     }
 
@@ -166,7 +167,7 @@ public class SymbexTest {
         LinkedList<SymbexPath> stack = new LinkedList<SymbexPath>();
         SymbexPath state = new SymbexPath(tree);
         state.setProofObligation(tree.getChild(3).getLastChild(), tree.getChild(3), AssertionType.POST);
-        state.setMap(SOME_MAP);
+        state.setAssignmentHistory(SOME_HISTORY);
 
         symbex.handleWhile(stack, state, whileStm, SOME_PROGRAM);
 
@@ -253,10 +254,10 @@ public class SymbexTest {
         {
             SymbexPath ss = results.get(0);
             assertEquals(AssertionType.INVARIANT_INITIALLY_VALID, ss.getCommonProofObligationType());
-            List<Pair<String, DafnyTree>> list = ss.getMap().toList();
+            ImmutableList<DafnyTree> list = ss.getAssignmentHistory();
             assertEquals(3, list.size());
-            assertEquals("<mod, HAVOC>", list.get(0).toString());
-            assertEquals("(HAVOC mod mod#1)", list.get(0).snd.toStringTree());
+            assertEquals("<mod, *>", list.get(0).toStringTree());
+            assertEquals("(HAVOC mod mod#1)", list.get(0).toStringTree());
             assertEquals("<mod, unmod>", list.get(1).toString());
             assertEquals("<unmod, 1>", list.get(2).toString());
         }
@@ -265,13 +266,13 @@ public class SymbexTest {
             {
                 SymbexPath pres = ss.get(0);
                 assertEquals(AssertionType.INVARIANT_PRESERVED, pres.getCommonProofObligationType());
-                List<Pair<String, DafnyTree>> list = pres.getMap().toList();
+                ImmutableList<DafnyTree> list = pres.getAssignmentHistory();
                 assertEquals(6, list.size());
                 int i = 0;
                 assertEquals("<mod, +>", list.get(i++).toString());
                 assertEquals("<#d, LISTEX>", list.get(i++).toString());
-                assertEquals("(HAVOC mod mod#2)", list.get(i++).snd.toStringTree());
-                assertEquals("(HAVOC mod mod#1)", list.get(i++).snd.toStringTree());
+                assertEquals("(HAVOC mod mod#2)", list.get(i++).toStringTree());
+                assertEquals("(HAVOC mod mod#1)", list.get(i++).toStringTree());
                 assertEquals("<mod, unmod>", list.get(i++).toString());
                 assertEquals("<unmod, 1>", list.get(i++).toString());
             }
@@ -283,10 +284,10 @@ public class SymbexTest {
         {
             SymbexPath ss = results.get(2);
             assertEquals(AssertionType.POST, ss.getCommonProofObligationType());
-            List<Pair<String, DafnyTree>> list = ss.getMap().toList();
+            ImmutableList<DafnyTree> list = ss.getAssignmentHistory();
             assertEquals(4, list.size());
             assertEquals("<mod, HAVOC>", list.get(0).toString());
-            assertEquals("(HAVOC mod mod#2)", list.get(0).snd.toStringTree());
+            assertEquals("(HAVOC mod mod#2)", list.get(0).toStringTree());
             assertEquals("<mod, HAVOC>", list.get(1).toString());
             assertEquals("<mod, unmod>", list.get(2).toString());
             assertEquals("<unmod, 1>", list.get(3).toString());
@@ -389,15 +390,11 @@ public class SymbexTest {
 
         assertEquals(2, results.size());
 
-        List<Pair<String, DafnyTree>> pc = results.get(0).getMap().toList();
-        assertEquals("(HAVOC x x#2)", pc.get(0).snd.toStringTree());
-        assertEquals("(HAVOC y y#1)", pc.get(1).snd.toStringTree());
-        assertEquals("(HAVOC x x#1)", pc.get(2).snd.toStringTree());
+        ImmutableList<DafnyTree> pc = results.get(0).getAssignmentHistory();
+        assertEquals("[<x, *>, <y, *>, <x, *>]", pc.toString());
 
-        pc = results.get(1).getMap().toList();
-        assertEquals("(HAVOC x x#2)", pc.get(0).snd.toStringTree());
-        assertEquals("(HAVOC y y#1)", pc.get(1).snd.toStringTree());
-        assertEquals("(HAVOC x x#1)", pc.get(2).snd.toStringTree());
+        pc = results.get(1).getAssignmentHistory();
+        assertEquals("[<x, *>, <y, *>, <x, *>]", pc.toString());
     }
 
     @Test
@@ -510,7 +507,7 @@ public class SymbexTest {
             assertEquals(2, path.getPathConditions().size());
             assertEquals("(> i 2)", path.getPathConditions().get(0).getExpression().toStringTree());
             assertEquals("(> i 0)", path.getPathConditions().get(1).getExpression().toStringTree());
-            assertEquals("[<#d, LISTEX>, <i, HAVOC>]", path.getMap().toList().toString());
+            assertEquals("[<#d, LISTEX>, <i, HAVOC>]", path.getAssignmentHistory().toString());
         }
         {
             SymbexPath path = results.get(i++);
@@ -520,7 +517,7 @@ public class SymbexTest {
             assertEquals(2, path.getPathConditions().size());
             assertEquals("(> i 2)", path.getPathConditions().get(0).getExpression().toStringTree());
             assertEquals("(> i 0)", path.getPathConditions().get(1).getExpression().toStringTree());
-            assertEquals("[<#d, LISTEX>, <i, HAVOC>]", path.getMap().toList().toString());
+            assertEquals("[<#d, LISTEX>, <i, HAVOC>]", path.getAssignmentHistory().toString());
         }
         {
             SymbexPath path = results.get(i++);

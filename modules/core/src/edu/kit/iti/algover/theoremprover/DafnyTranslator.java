@@ -1,3 +1,8 @@
+/*
+ * This file is part of AlgoVer.
+ *
+ * Copyright (C) 2015-2017 Karlsruhe Institute of Technology
+ */
 package edu.kit.iti.algover.theoremprover;
 
 import edu.kit.iti.algover.ProgramDatabase;
@@ -28,7 +33,7 @@ public class DafnyTranslator {
     private SymbexPath path;
     private int pvcID;
     private DafnyTree method;
-    private VariableMap map;
+    private ImmutableList<DafnyTree> map;
     private String methodName;
     private String pathID;
     private AssertionElement proofObligation;
@@ -45,7 +50,7 @@ public class DafnyTranslator {
         this.path = verificationCondition.getPathThroughProgram();
         this.pvcID = verificationCondition.getPvcID();
         this.method = verificationCondition.getPathThroughProgram().getMethod();
-        this.map = verificationCondition.getPathThroughProgram().getMap();
+        this.map = verificationCondition.getPathThroughProgram().getAssignmentHistory();
         this.methodName = this.method.getChild(0).getText();
         this.pathID = this.path.getPathIdentifier();
         this.number = noOfPOs;
@@ -206,7 +211,7 @@ public class DafnyTranslator {
                     String variant = "";
                     invariant = createAssumption(pce);
 
-
+                    /*
                     LinkedList<Pair<String, DafnyTree>> assignmentsToTranslate = new LinkedList<>();
                     VariableMap variableMap = pce.getVariableMap();
                     Iterator<Pair<String, DafnyTree>> iter = variableMap.iterator();
@@ -227,6 +232,8 @@ public class DafnyTranslator {
 
                     }
                     body.append(translateAssignments(reverse(assignmentsToTranslate)));
+                    */
+                    body.append(translateAssignments(pce.getVariableMap()));
                     body.append(invariant);
                     body.append(variant);
                 }
@@ -234,6 +241,7 @@ public class DafnyTranslator {
 
                 else {
 
+                    /*
                     LinkedList<Pair<String, DafnyTree>> assignmentsToTranslate = new LinkedList<>();
                     VariableMap variableMap = pce.getVariableMap();
 
@@ -252,6 +260,8 @@ public class DafnyTranslator {
                         }
                     }
                     body.append(translateAssignments(reverse(assignmentsToTranslate)));
+                    */
+                    body.append(translateAssignments(pce.getVariableMap()));
                     body.append(createAssumption(pce));
                 }
             }
@@ -260,6 +270,7 @@ public class DafnyTranslator {
         }
         //assignments between last pce and goal
         try {
+            /*
             LinkedList<Pair<String, DafnyTree>> assignmentsToTranslate = new LinkedList<>();
 
             Iterator<Pair<String, DafnyTree>> iter = this.map.iterator();
@@ -274,7 +285,8 @@ public class DafnyTranslator {
                     }
                 }
             }
-            body.append(translateAssignments(reverse(assignmentsToTranslate)));
+            */
+            body.append(translateAssignments(this.map));
 
             if(proofObligation.getType() != AssertionElement.AssertionType.VARIANT_DECREASED) {
                 body.append("\nassert " + TreeUtil.toInfix(proofObligation.getExpression()) + ";");
@@ -322,18 +334,15 @@ public class DafnyTranslator {
      * @return Dafnysyntax of assignments
      * @throws TermBuildException
      */
-    private StringBuilder translateAssignments(List<Pair<String, DafnyTree>> assignmentsToTranslate) throws TermBuildException {
+    private StringBuilder translateAssignments(Iterable<DafnyTree> assignmentsToTranslate) throws TermBuildException {
         StringBuilder sb = new StringBuilder();
-        Iterator<Pair<String, DafnyTree>> iter = assignmentsToTranslate.iterator();
+        Iterator<DafnyTree> iter = assignmentsToTranslate.iterator();
         String assignment;
-        Pair<String, DafnyTree> temp;
 
         while (iter.hasNext()) {
-            temp = iter.next();
-            if (temp.getSnd().getType() != DafnyParser.LISTEX) {
-                assignment = temp.getFst() + " := " + TreeUtil.toInfix(temp.getSnd()) + ";\n";
-                sb.append(assignment);
-            }
+            DafnyTree temp = iter.next();
+            assignment = TreeUtil.toInfix(temp) + ";\n";
+            sb.append(assignment);
         }
         return sb;
     }

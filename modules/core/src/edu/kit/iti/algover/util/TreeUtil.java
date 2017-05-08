@@ -1,3 +1,8 @@
+/*
+ * This file is part of AlgoVer.
+ *
+ * Copyright (C) 2015-2017 Karlsruhe Institute of Technology
+ */
 package edu.kit.iti.algover.util;
 
 import edu.kit.iti.algover.parser.DafnyParser;
@@ -25,6 +30,8 @@ public final class TreeUtil {
 
         switch (expr.getType()) {
 
+            case DafnyParser.ASSIGN:
+                return buildBinary(":=", expr);
             case DafnyParser.ASSERT:
                 return buildWithoutKeyword(expr);
             case DafnyParser.AND:
@@ -78,7 +85,7 @@ public final class TreeUtil {
 
             case DafnyParser.ENSURES:
                 return buildWithoutKeyword(expr);
-            case DafnyParser.HAVOC:
+            case DafnyParser.WILDCARD:
                 return buildHavoc(expr);
 
             case DafnyParser.INVARIANT:
@@ -93,10 +100,6 @@ public final class TreeUtil {
 
     }
 
-    /**
-     * @param expr
-     * @return
-     */
     private static String buildHavoc(DafnyTree expr) {
         return "*";
     }

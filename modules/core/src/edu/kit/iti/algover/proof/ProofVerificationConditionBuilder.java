@@ -1,7 +1,7 @@
 /*
  * This file is part of AlgoVer.
  *
- * Copyright (C) 2015-2016 Karlsruhe Institute of Technology
+ * Copyright (C) 2015-2017 Karlsruhe Institute of Technology
  */
 package edu.kit.iti.algover.proof;
 
@@ -119,10 +119,14 @@ public class ProofVerificationConditionBuilder {
 
     private void extendSymbolTable() {
         for(PathConditionElement pce : state.getPathConditions()) {
-            extendSymbolTable(pce.getInstantiatedExpression());
+//            extendSymbolTable(pce.getInstantiatedExpression());
+            // MU: Instantation is no longer possible here
+            extendSymbolTable(pce.getExpression());
         }
         for (AssertionElement po : state.getProofObligations()) {
-            DafnyTree instantiate = state.getMap().instantiate(po.getExpression());
+//            DafnyTree instantiate = state.getMap().instantiate(po.getExpression());
+            // MU: Instantation is no longer possible here
+            DafnyTree instantiate = po.getExpression();
             System.out.println(instantiate.toStringTree());
             extendSymbolTable(instantiate);
         }
@@ -162,7 +166,7 @@ public class ProofVerificationConditionBuilder {
         TreeTermTranslator termbuilder = new TreeTermTranslator(symbolTable);
 
         for(PathConditionElement pce : state.getPathConditions()) {
-            VariableMap map = pce.getVariableMap();
+            VariableMap map = new VariableMap(pce.getVariableMap());
             DafnyTree instantiated_pathcondition = map.instantiate(pce.getExpression());
             Term formula = termbuilder.build(instantiated_pathcondition);
             all_formulas.add(makeProofFormula(formula, extractLabel(instantiated_pathcondition)));
@@ -171,7 +175,7 @@ public class ProofVerificationConditionBuilder {
         }
 
         DafnyTree proof_obligation = extractProofObligation(state.getProofObligations());
-        VariableMap map = this.state.getMap();
+        VariableMap map = new VariableMap(this.state.getAssignmentHistory());
         DafnyTree instantiated_proofobligation = map.instantiate(proof_obligation.getLastChild());
         Term proof_obligation_Term = termbuilder.build(instantiated_proofobligation);
 
@@ -312,7 +316,7 @@ public class ProofVerificationConditionBuilder {
 
         //hier siblingno
         for(AssertionElement po : symbexState.getProofObligations()) {
-            Term formula = ttt.build(state.getMap().instantiate(po.getExpression()));
+            Term formula = ttt.build(new VariableMap(state.getAssignmentHistory()).instantiate(po.getExpression()));
             System.out.println(" Formula: "+formula.toString());
             try {
                 result.add(termBuilder.negate(formula));
