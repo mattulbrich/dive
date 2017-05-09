@@ -5,7 +5,7 @@
  */
 package edu.kit.iti.algover.symbex;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.*;
 import static org.junit.Assert.assertTrue;
 
 import java.io.InputStream;
@@ -109,7 +109,7 @@ public class SymbexTest {
 
         SymbexPath next = stack.pop();
         assertTrue(next.getBlockToExecute() == SOME_PROGRAM);
-        assertEquals("1", next.getAssignmentHistory().getHead().toStringTree());
+        assertEquals("(:= count 1)", next.getAssignmentHistory().getHead().toStringTree());
         assertEquals(0, next.getPathConditions().size());
     }
 
@@ -153,8 +153,8 @@ public class SymbexTest {
         assertEquals(0, results.size());
 
         SymbexPath next = stack.pop();
-        assertTrue(next.getBlockToExecute() == SOME_PROGRAM);
-        assertEquals("42", next.getAssignmentHistory().get(0).toStringTree());
+        assertSame(SOME_PROGRAM, next.getBlockToExecute());
+        assertEquals("(ASSIGN init_direct 43)", next.getAssignmentHistory().getHead().toStringTree());
         assertEquals(0, next.getPathConditions().size());
     }
 
@@ -212,8 +212,8 @@ public class SymbexTest {
                 {
                     assertEquals(1, decr.getProofObligations().size());
                     AssertionElement po = decr.getProofObligations().get(0);
-                    assertEquals("(decreases (+ p count) 2)", po.getOrigin().toStringTree());
-                    assertEquals("(NOETHER_LESS #d (LISTEX (+ p count) 2))", po.getExpression().toStringTree());
+                    assertEquals("(decreases (+ p count))", po.getOrigin().toStringTree());
+                    assertEquals("(NOETHER_LESS #decr (+ p count))", po.getExpression().toStringTree());
                 }
             }
         }
@@ -255,11 +255,8 @@ public class SymbexTest {
             SymbexPath ss = results.get(0);
             assertEquals(AssertionType.INVARIANT_INITIALLY_VALID, ss.getCommonProofObligationType());
             ImmutableList<DafnyTree> list = ss.getAssignmentHistory();
-            assertEquals(3, list.size());
-            assertEquals("<mod, *>", list.get(0).toStringTree());
-            assertEquals("(HAVOC mod mod#1)", list.get(0).toStringTree());
-            assertEquals("<mod, unmod>", list.get(1).toString());
-            assertEquals("<unmod, 1>", list.get(2).toString());
+            assertEquals("[(:= unmod 1), (:= mod unmod), (:= mod *)]",
+                    list.map(x -> x.toStringTree()).toString());
         }
         {
             List<SymbexPath> ss = results.get(1).split();
@@ -268,13 +265,11 @@ public class SymbexTest {
                 assertEquals(AssertionType.INVARIANT_PRESERVED, pres.getCommonProofObligationType());
                 ImmutableList<DafnyTree> list = pres.getAssignmentHistory();
                 assertEquals(6, list.size());
-                int i = 0;
-                assertEquals("<mod, +>", list.get(i++).toString());
-                assertEquals("<#d, LISTEX>", list.get(i++).toString());
-                assertEquals("(HAVOC mod mod#2)", list.get(i++).toStringTree());
-                assertEquals("(HAVOC mod mod#1)", list.get(i++).toStringTree());
-                assertEquals("<mod, unmod>", list.get(i++).toString());
-                assertEquals("<unmod, 1>", list.get(i++).toString());
+
+                assertEquals("[(:= unmod 1), (:= mod unmod), (:= mod *), "
+                        + "(ASSIGN mod WILDCARD), (ASSIGN #decr (+ unmod mod)), "
+                        + "(:= mod (+ mod 1))]",
+                        list.map(x -> x.toStringTree()).toString());
             }
             {
                 SymbexPath decr = ss.get(1);
@@ -286,11 +281,9 @@ public class SymbexTest {
             assertEquals(AssertionType.POST, ss.getCommonProofObligationType());
             ImmutableList<DafnyTree> list = ss.getAssignmentHistory();
             assertEquals(4, list.size());
-            assertEquals("<mod, HAVOC>", list.get(0).toString());
-            assertEquals("(HAVOC mod mod#2)", list.get(0).toStringTree());
-            assertEquals("<mod, HAVOC>", list.get(1).toString());
-            assertEquals("<mod, unmod>", list.get(2).toString());
-            assertEquals("<unmod, 1>", list.get(3).toString());
+            assertEquals("[(:= unmod 1), (:= mod unmod), (:= mod *), "
+                    + "(ASSIGN mod WILDCARD)]",
+                    list.map(x -> x.toStringTree()).toString());
         }
 
     }
@@ -391,10 +384,10 @@ public class SymbexTest {
         assertEquals(2, results.size());
 
         ImmutableList<DafnyTree> pc = results.get(0).getAssignmentHistory();
-        assertEquals("[<x, *>, <y, *>, <x, *>]", pc.toString());
+        assertEquals("[(:= x *), (:= y *), (:= x *)]", pc.map(x->x.toStringTree()).toString());
 
         pc = results.get(1).getAssignmentHistory();
-        assertEquals("[<x, *>, <y, *>, <x, *>]", pc.toString());
+        assertEquals("[(:= x *), (:= y *), (:= x *)]", pc.map(x->x.toStringTree()).toString());
     }
 
     @Test
@@ -507,7 +500,8 @@ public class SymbexTest {
             assertEquals(2, path.getPathConditions().size());
             assertEquals("(> i 2)", path.getPathConditions().get(0).getExpression().toStringTree());
             assertEquals("(> i 0)", path.getPathConditions().get(1).getExpression().toStringTree());
-            assertEquals("[<#d, LISTEX>, <i, HAVOC>]", path.getAssignmentHistory().toString());
+            assertEquals("[(ASSIGN i WILDCARD), (ASSIGN #decr i)]",
+                    path.getAssignmentHistory().map(x->x.toStringTree()).toString());
         }
         {
             SymbexPath path = results.get(i++);
@@ -517,7 +511,8 @@ public class SymbexTest {
             assertEquals(2, path.getPathConditions().size());
             assertEquals("(> i 2)", path.getPathConditions().get(0).getExpression().toStringTree());
             assertEquals("(> i 0)", path.getPathConditions().get(1).getExpression().toStringTree());
-            assertEquals("[<#d, LISTEX>, <i, HAVOC>]", path.getAssignmentHistory().toString());
+            assertEquals("[(ASSIGN i WILDCARD), (ASSIGN #decr i)]",
+                    path.getAssignmentHistory().map(x->x.toStringTree()).toString());
         }
         {
             SymbexPath path = results.get(i++);

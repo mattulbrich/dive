@@ -264,8 +264,8 @@ public final class ASTUtil {
         return id;
     }
 
-    public static DafnyTree anonymise(DafnyTree id, DafnyTree ref) {
-        return null;
+    public static DafnyTree anonymise(String var) {
+        return create(DafnyParser.ASSIGN, id(var), new DafnyTree(DafnyParser.WILDCARD));
     }
 
     public static DafnyTree assign(DafnyTree var, DafnyTree value) {

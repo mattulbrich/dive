@@ -84,6 +84,7 @@ public class SymbexPath {
         this.pathConditions = ImmutableList.nil();
         this.assignmentHistory = ImmutableList.nil();
         this.declaredLocalVars = ImmutableList.nil();
+        this.proofObligations = ImmutableList.nil();
         this.function = function;
     }
 

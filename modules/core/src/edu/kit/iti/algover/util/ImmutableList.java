@@ -8,8 +8,7 @@ package edu.kit.iti.algover.util;
 import java.util.AbstractCollection;
 import java.util.Collection;
 import java.util.Iterator;
-
-import edu.kit.iti.algover.parser.DafnyTree;
+import java.util.function.Function;
 
 /**
  * The Class ImmutableList captures an CONS/NIL style linked list with one-way
@@ -280,5 +279,13 @@ public class ImmutableList<T> implements Iterable<T> {
 
     public T getHead() {
         return data;
+    }
+
+    public <U> ImmutableList<U> map(Function<T, U> function) {
+        ImmutableList<U> result = nil();
+        for (T el : this) {
+            result = result.append(function.apply(el));
+        }
+        return result;
     }
 }

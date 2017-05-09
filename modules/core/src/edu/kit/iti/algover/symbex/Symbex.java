@@ -198,7 +198,9 @@ public class Symbex {
         DafnyTree guard = stm.getChild(isLabel ? 1 : 0);
         DafnyTree body = stm.getLastChild();
         DafnyTree decreasesClause = stm.getFirstChildWithType(DafnyParser.DECREASES);
-        DafnyTree decreases = toListExt(decreasesClause);
+        DafnyTree decreases = decreasesClause.getChild(0);
+        // TODO reenable this for lexigraphic decreases clauses.
+//        DafnyTree decreases = toListExt(decreasesClause);
         List<DafnyTree> invariants = stm.getChildrenWithType(DafnyParser.INVARIANT);
 
         // 1. initially valid.
@@ -336,7 +338,7 @@ public class Symbex {
         Set<String> vars = new HashSet<String>();
         collectAssignedVars(body, vars);
         for (String var : vars) {
-            path.addAssignment(ASTUtil.anonymise(new DafnyTree(DafnyParser.ID, var), body));
+            path.addAssignment(ASTUtil.anonymise(var));
         }
     }
 

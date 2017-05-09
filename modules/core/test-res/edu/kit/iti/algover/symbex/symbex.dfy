@@ -11,7 +11,7 @@ method symbexTest(p : int)
 
   while p > 1
     invariant p == 2
-    decreases p+count, 2
+    decreases p+count
   {
     count := count + 1;
   }
@@ -31,8 +31,8 @@ method symbexTest(p : int)
   assume count > 0;
 
   // direct initialisation
-  var init_direct : int := 42;
-  
+  var init_direct : int := 43;
+
   if p == count
   {
      count := - count;
