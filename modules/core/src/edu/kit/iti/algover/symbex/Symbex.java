@@ -514,6 +514,7 @@ public class Symbex {
         case DafnyParser.FIELD_ACCESS:
             child0 = expression.getChild(0);
             addNonNullCheck(stack, current, child0);
+            handleExpression(stack, current, child0);
             break;
 
         default:

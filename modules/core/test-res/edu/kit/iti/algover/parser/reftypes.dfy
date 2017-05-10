@@ -9,9 +9,8 @@ class LinkedList {
    method m(x : LinkedList, a : array<int>) returns (y : LinkedList)
      ensures 1 == 1
    {
-   z.next.next := null;
 
- /*     var z : LinkedList;
+      var z : LinkedList;
       // "this" is optional
       z := next;
       next := z;
@@ -30,7 +29,7 @@ class LinkedList {
       // lets look at arrays ...
       a[0] := a[1];
 
-      y := z;*/
+      y := z;
    }
 
 }

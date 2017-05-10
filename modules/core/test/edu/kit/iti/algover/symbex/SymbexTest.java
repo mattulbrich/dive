@@ -534,7 +534,7 @@ public class SymbexTest {
     }
 
     // discovered missing in-depth analysis for RT checks
-    // @Test not yet finished
+    @Test
     public void testHandleHeapUpdates() throws Exception {
         InputStream stream = getClass().getResourceAsStream("../parser/reftypes.dfy");
         this.tree = ParserTest.parseFile(stream).getChild(0).getFirstChildWithType(DafnyParser.METHOD);
@@ -543,9 +543,9 @@ public class SymbexTest {
         List<SymbexPath> results = symbex.symbolicExecution(tree);
         Collections.reverse(results);
 
-        results.forEach(x->System.out.println(SymbexUtil.toString(x)));
+        // results.forEach(x->System.out.println(SymbexUtil.toString(x)));
 
-        assertEquals(9, results.size());
+        assertEquals(11, results.size());
 
         int i = 0;
         assertEquals(AssertionType.RT_NONNULL, results.get(i).getCommonProofObligationType());
@@ -561,17 +561,49 @@ public class SymbexTest {
 
         i++;
         assertEquals(AssertionType.RT_NONNULL, results.get(i).getCommonProofObligationType());
+        assertEquals("[(!= (FIELD_ACCESS x next) null)]", results.get(i).getProofObligations().map(x -> x.getExpression().toStringTree()).toString());
+
+        i++;
+        assertEquals(AssertionType.RT_NONNULL, results.get(i).getCommonProofObligationType());
         assertEquals("[(!= x null)]", results.get(i).getProofObligations().map(x -> x.getExpression().toStringTree()).toString());
 
         i++;
-        System.out.println(SymbexUtil.toString(results.get(i)));
         assertEquals(AssertionType.RT_NONNULL, results.get(i).getCommonProofObligationType());
-        assertEquals("[(!= (FIELD_ACCESS z next) null)]", results.get(i).getProofObligations().map(x -> x.getExpression().toStringTree()).toString());
+        assertEquals("[(!= (FIELD_ACCESS this prev) null)]", results.get(i).getProofObligations().map(x -> x.getExpression().toStringTree()).toString());
+
+        i++;
+        assertEquals(AssertionType.RT_NONNULL, results.get(i).getCommonProofObligationType());
+        assertEquals("[(!= a null)]", results.get(i).getProofObligations().map(x -> x.getExpression().toStringTree()).toString());
+
+        i++;
+        assertEquals(AssertionType.RT_IN_BOUNDS, results.get(i).getCommonProofObligationType());
+        assertEquals("[(>= 0 0), (< 0 (Length a))]", results.get(i).getProofObligations().map(x -> x.getExpression().toStringTree()).toString());
+
+        i++;
+        assertEquals(AssertionType.RT_NONNULL, results.get(i).getCommonProofObligationType());
+        assertEquals("[(!= a null)]", results.get(i).getProofObligations().map(x -> x.getExpression().toStringTree()).toString());
+
+        i++;
+        assertEquals(AssertionType.RT_IN_BOUNDS, results.get(i).getCommonProofObligationType());
+        assertEquals("[(>= 1 0), (< 1 (Length a))]", results.get(i).getProofObligations().map(x -> x.getExpression().toStringTree()).toString());
 
         i++;
         assertEquals(AssertionType.POST, results.get(i).getCommonProofObligationType());
         assertEquals("[(== 1 1)]", results.get(i).getProofObligations().map(x -> x.getExpression().toStringTree()).toString());
 
+        assertEquals(10, i);
+
+        assertEquals("[(:= z next), "
+                + "(:= next z), "
+                + "(:= z (FIELD_ACCESS this next)), "
+                + "(:= (FIELD_ACCESS this next) z), "
+                + "(:= z (FIELD_ACCESS z next)), "
+                + "(:= (FIELD_ACCESS x next) z), "
+                + "(:= (FIELD_ACCESS z next) (FIELD_ACCESS this prev)), "
+                + "(:= (FIELD_ACCESS (FIELD_ACCESS x next) next) (FIELD_ACCESS (FIELD_ACCESS this prev) prev)), "
+                + "(:= (ARRAY_ACCESS a 0) (ARRAY_ACCESS a 1)), "
+                + "(:= y z)]",
+                results.get(i).getAssignmentHistory().map(x->x.toStringTree()).toString());
 
     }
 }
