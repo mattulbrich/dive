@@ -5,6 +5,7 @@
  */
 package edu.kit.iti.algover.util;
 
+import edu.kit.iti.algover.parser.DafnyTree;
 import edu.kit.iti.algover.symbex.AssertionElement;
 import edu.kit.iti.algover.symbex.PathConditionElement;
 import edu.kit.iti.algover.symbex.SymbexPath;
@@ -21,13 +22,16 @@ public class SymbexUtil {
             sb.append("Path condition - " + pc.getType() + "\n");
             sb.append("    " + pc.getExpression().toStringTree() + "\n");
             sb.append("  Assignment History:" + "\n");
-            sb.append("    " + Util.join(pc.getVariableMap(), "\n    ") + "\n");
+            sb.append("    "
+                    + Util.join(pc.getVariableMap().map(DafnyTree::toStringTree), "\n    ")
+                    + "\n");
             sb.append("  Refers to: line " + pc.getExpression().token.getLine() + "\n");
         }
 
         sb.append("Proof Obligations:\n");
         sb.append("  Assignment History:\n");
-        sb.append("    " + Util.join(res.getAssignmentHistory(), "\n    "));
+        sb.append("    " + Util.join(res.getAssignmentHistory().map(DafnyTree::toStringTree),
+                                "\n    "));
         sb.append("\n");
         for (AssertionElement po : res.getProofObligations()) {
             sb.append("  " + po + "\n");

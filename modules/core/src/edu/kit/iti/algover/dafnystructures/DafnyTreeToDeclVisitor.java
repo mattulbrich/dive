@@ -29,19 +29,24 @@ public class DafnyTreeToDeclVisitor {
 
     }
     public void visit(String filename, DafnyTree tree) {
+
+        assert tree.getType() == DafnyParser.COMPILATION_UNIT;
+
         // imports ?
         //System.out.println(tree.getText());
-        switch(tree.getType()){
+        for (DafnyTree t : tree.getChildren()) {
+            switch(t.getType()){
             case DafnyParser.CLASS:
-            visitCLASS(tree);
+                visitCLASS(t);
                 break;
             case DafnyParser.FUNCTION:
-                visitFUNCTION(tree);
+                visitFUNCTION(t);
                 break;
             case DafnyParser.METHOD:
                 System.out.println("Visiting Method");
-                visitMETHOD(tree);
+                visitMETHOD(t);
                 break;
+            }
         }
 
 /*

@@ -1,0 +1,6 @@
+(COMPILATION_UNIT
+ (class C
+        (FIELD x C)
+        (method m ARGS
+                (BLOCK (:= (FIELD_ACCESS (FIELD_ACCESS x x) x)
+                           (FIELD_ACCESS (FIELD_ACCESS x x) x))))))

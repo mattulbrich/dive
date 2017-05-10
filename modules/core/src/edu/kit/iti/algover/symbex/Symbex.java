@@ -16,10 +16,8 @@ import edu.kit.iti.algover.parser.DafnyParser;
 import edu.kit.iti.algover.parser.DafnyTree;
 import edu.kit.iti.algover.symbex.AssertionElement.AssertionType;
 import edu.kit.iti.algover.symbex.PathConditionElement.AssumptionType;
-import edu.kit.iti.algover.term.Sort;
 import edu.kit.iti.algover.util.ASTUtil;
 import edu.kit.iti.algover.util.ImmutableList;
-import edu.kit.iti.algover.util.SymbexUtil;
 
 /**
  * Symbex can be used to perform symbolic execution on a function.
@@ -63,6 +61,7 @@ public class Symbex {
      */
     public List<SymbexPath> symbolicExecution(DafnyTree function) {
 
+        assert function != null;
         assert function.getType() == DafnyParser.METHOD;
         SymbexPath initial = makeFromPreconditions(function);
 
@@ -271,9 +270,9 @@ public class Symbex {
 
         int cnt = 1;
         String name = DECREASES_VAR;
-        while(names.contains(name)) {
+        while (names.contains(name)) {
             name = DECREASES_VAR + cnt;
-            cnt ++;
+            cnt++;
         }
 
         // FIXME go beyond integer here ...
@@ -298,7 +297,9 @@ public class Symbex {
      */
     void handleAssign(Deque<SymbexPath> stack, SymbexPath state,
             DafnyTree stm, DafnyTree remainder) {
+        DafnyTree assignee = stm.getChild(0);
         DafnyTree expression = stm.getChild(1);
+        handleExpression(stack, state, assignee);
         handleExpression(stack, state, expression);
         state.addAssignment(stm);
         state.setBlockToExecute(remainder);
@@ -477,30 +478,37 @@ public class Symbex {
     private void handleExpression(Deque<SymbexPath> stack, SymbexPath current,
             DafnyTree expression) {
 
+        DafnyTree child0;
+        DafnyTree child1;
         switch (expression.getType()) {
         case DafnyParser.AND:
         case DafnyParser.IMPLIES:
             assert expression.getChildCount() == 2;
-            DafnyTree child0 = expression.getChild(0);
+            child0 = expression.getChild(0);
+            child1 = expression.getChild(1);
             handleExpression(stack, current, child0);
             SymbexPath guarded = new SymbexPath(current);
             guarded.addPathCondition(child0, child0, AssumptionType.GUARD_IN_EXPRESSION);
-            handleExpression(stack, guarded, expression.getChild(1));
+            handleExpression(stack, guarded, child1);
             break;
 
         case DafnyParser.OR:
             child0 = expression.getChild(0);
+            child1 = expression.getChild(1);
             handleExpression(stack, current, child0);
             guarded = new SymbexPath(current);
             guarded.addPathCondition(ASTUtil.negate(child0),
                     child0, AssumptionType.GUARD_IN_EXPRESSION);
-            handleExpression(stack, guarded, expression.getChild(1));
+            handleExpression(stack, guarded, child1);
             break;
 
         case DafnyParser.ARRAY_ACCESS:
             child0 = expression.getChild(0);
+            child1 = expression.getChild(1);
             addNonNullCheck(stack, current, child0);
-            addIndexInRangeCheck(stack, current, expression.getChild(1), child0);
+            addIndexInRangeCheck(stack, current, child1, child0);
+            handleExpression(stack, current, child0);
+            handleExpression(stack, current, child1);
             break;
 
         case DafnyParser.FIELD_ACCESS:
@@ -529,6 +537,10 @@ public class Symbex {
     private void addNonNullCheck(Deque<SymbexPath> stack, SymbexPath current,
             DafnyTree expression) {
         SymbexPath nonNull = new SymbexPath(current);
+        if (expression.getType() == DafnyParser.THIS) {
+            // No check for explicit this references ...
+            return;
+        }
         DafnyTree check = ASTUtil.notEquals(expression, ASTUtil._null());
         nonNull.setBlockToExecute(Symbex.EMPTY_PROGRAM);
         nonNull.setProofObligation(check, expression, AssertionType.RT_NONNULL);

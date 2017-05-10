@@ -6,6 +6,7 @@ options {
 }
 
 tokens {
+  COMPILATION_UNIT;
   RESULTS;
   ARGS;
   BLOCK;
@@ -130,7 +131,7 @@ label:
 
 program:
   // "include"
-  (method | function | clazz)+
+  (method | function | clazz)+ -> ^(COMPILATION_UNIT clazz* method* function*)
   ;
 
 program_only:
@@ -184,10 +185,11 @@ var:
   ;
 
 type:
-    INT | BOOL | SET^ '<'! INT '>'!
-  | ARRAY^ '<'! INT '>'!
-  | SEQ^ '<'! INT '>'!
-  | SET^ '<'! ID '>'!
+    INT | BOOL
+  | SET^ '<'! type '>'!
+  | ARRAY^ '<'! type '>'!
+  | SEQ^ '<'! type '>'!
+  | ID
   ;
 
 returns_:
@@ -293,11 +295,11 @@ prefix_expr:
   ;
 
 postfix_expr:
-  ( atom_expr -> atom_expr)
-  ( '[' expression ']' -> ^( ARRAY_ACCESS atom_expr expression )
-  | '.' LENGTH -> ^( LENGTH atom_expr )
-  | '.' ID '(' expressions? ')' -> ^( CALL ID atom_expr expressions? )
-  | '.' ID -> ^( FIELD_ACCESS atom_expr ID )
+  ( atom_expr -> atom_expr )   // see ANTLR ref. page 175
+  ( '[' expression ']' -> ^( ARRAY_ACCESS $postfix_expr expression )
+  | '.' LENGTH -> ^( LENGTH $postfix_expr )
+  | '.' ID '(' expressions? ')' -> ^( CALL ID $postfix_expr expressions? )
+  | '.' ID -> ^( FIELD_ACCESS $postfix_expr ID )
   )*
   ;
 

@@ -93,9 +93,7 @@ public class ReferenceResolutionVisitorTest {
     private Project mockProject(DafnyTree tree) {
         ProjectBuilder pb = new ProjectBuilder();
         DafnyTreeToDeclVisitor visitor = new DafnyTreeToDeclVisitor(pb, new File("dummy"));
-        for (DafnyTree child : tree.getChildren()) {
-            visitor.visit("dummy", child);
-        }
+        visitor.visit("dummy", tree);
         return new Project(pb);
     }
 

@@ -1,3 +1,8 @@
+/*
+ * This file is part of AlgoVer.
+ *
+ * Copyright (C) 2015-2017 Karlsruhe Institute of Technology
+ */
 package edu.kit.iti.algover.project;
 
 import edu.kit.iti.algover.dafnystructures.DafnyMethod;
@@ -6,6 +11,7 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -22,7 +28,7 @@ public class ProjectTest {
     String testDir = "modules/core/test-res/edu/kit/iti/algover/project";
 
     @Before
-    public void prepare(){
+    public void prepare() throws Exception {
 
         final File f1 = new File(testDir);
 
@@ -30,11 +36,7 @@ public class ProjectTest {
 
         Project p = null;
 
-        try {
-            p = pb.buildProject(f1);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        p = pb.buildProject(f1);
         this.p = p;
 
     }

@@ -5,11 +5,13 @@
  */
 package edu.kit.iti.algover.symbex;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
 
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Deque;
 import java.util.LinkedList;
 import java.util.List;
@@ -24,6 +26,7 @@ import edu.kit.iti.algover.symbex.AssertionElement.AssertionType;
 import edu.kit.iti.algover.symbex.PathConditionElement.AssumptionType;
 import edu.kit.iti.algover.util.ASTUtil;
 import edu.kit.iti.algover.util.ImmutableList;
+import edu.kit.iti.algover.util.SymbexUtil;
 
 public class SymbexTest {
 
@@ -40,7 +43,8 @@ public class SymbexTest {
     @Before
     public void loadTree() throws Exception {
         InputStream stream = getClass().getResourceAsStream("symbex.dfy");
-        this.tree = ParserTest.parseFile(stream);
+        DafnyTree fileTree = ParserTest.parseFile(stream);
+        this.tree = fileTree.getChild(0);
     }
 
     @Test
@@ -245,7 +249,7 @@ public class SymbexTest {
     @Test
     public void testHandleWhileAnonymisation() throws Exception {
         InputStream stream = getClass().getResourceAsStream("whileWithAnon.dfy");
-        this.tree = ParserTest.parseFile(stream);
+        this.tree = ParserTest.parseFile(stream).getFirstChildWithType(DafnyParser.METHOD);
 
         Symbex symbex = new Symbex();
         List<SymbexPath> results = symbex.symbolicExecution(tree);
@@ -376,7 +380,7 @@ public class SymbexTest {
     @Test
     public void testHandleHavoc() throws Exception {
         InputStream stream = getClass().getResourceAsStream("havoc.dfy");
-        this.tree = ParserTest.parseFile(stream);
+        this.tree = ParserTest.parseFile(stream).getFirstChildWithType(DafnyParser.METHOD);
 
         Symbex symbex = new Symbex();
         List<SymbexPath> results = symbex.symbolicExecution(tree);
@@ -527,5 +531,47 @@ public class SymbexTest {
             SymbexPath path = results.get(i++);
             assertEquals(AssertionType.POST, path.getCommonProofObligationType());
         }
+    }
+
+    // discovered missing in-depth analysis for RT checks
+    // @Test not yet finished
+    public void testHandleHeapUpdates() throws Exception {
+        InputStream stream = getClass().getResourceAsStream("../parser/reftypes.dfy");
+        this.tree = ParserTest.parseFile(stream).getChild(0).getFirstChildWithType(DafnyParser.METHOD);
+
+        Symbex symbex = new Symbex();
+        List<SymbexPath> results = symbex.symbolicExecution(tree);
+        Collections.reverse(results);
+
+        results.forEach(x->System.out.println(SymbexUtil.toString(x)));
+
+        assertEquals(9, results.size());
+
+        int i = 0;
+        assertEquals(AssertionType.RT_NONNULL, results.get(i).getCommonProofObligationType());
+        assertEquals("[(!= z null)]", results.get(i).getProofObligations().map(x -> x.getExpression().toStringTree()).toString());
+
+        i++;
+        assertEquals(AssertionType.RT_NONNULL, results.get(i).getCommonProofObligationType());
+        assertEquals("[(!= x null)]", results.get(i).getProofObligations().map(x -> x.getExpression().toStringTree()).toString());
+
+        i++;
+        assertEquals(AssertionType.RT_NONNULL, results.get(i).getCommonProofObligationType());
+        assertEquals("[(!= z null)]", results.get(i).getProofObligations().map(x -> x.getExpression().toStringTree()).toString());
+
+        i++;
+        assertEquals(AssertionType.RT_NONNULL, results.get(i).getCommonProofObligationType());
+        assertEquals("[(!= x null)]", results.get(i).getProofObligations().map(x -> x.getExpression().toStringTree()).toString());
+
+        i++;
+        System.out.println(SymbexUtil.toString(results.get(i)));
+        assertEquals(AssertionType.RT_NONNULL, results.get(i).getCommonProofObligationType());
+        assertEquals("[(!= (FIELD_ACCESS z next) null)]", results.get(i).getProofObligations().map(x -> x.getExpression().toStringTree()).toString());
+
+        i++;
+        assertEquals(AssertionType.POST, results.get(i).getCommonProofObligationType());
+        assertEquals("[(== 1 1)]", results.get(i).getProofObligations().map(x -> x.getExpression().toStringTree()).toString());
+
+
     }
 }

@@ -21,6 +21,9 @@ import org.junit.runners.Parameterized.Parameters;
 
 import edu.kit.iti.algover.parser.DafnyParser.program_only_return;
 import edu.kit.iti.algover.util.TestUtil;
+import edu.kit.iti.algover.util.Util;
+
+import static org.junit.Assert.*;
 
 @RunWith(Parameterized.class)
 public class ParserTest {
@@ -37,7 +40,9 @@ public class ParserTest {
                 { "arithmetic.dfy" }, { "../util/labelTest.dfy" }, { "../symbex/whileWithAnon.dfy" },
                 { "../symbex/havoc.dfy" }, { "../symbex/runtimeAssert.dfy" },
                 { "fields.dfy" }, { "../dafnystructures/declTest.dfy" },
-                { "../dafnystructures/referenceTest.dfy" },
+                { "referenceTest.dfy" },
+                { "reftypes.dfy" },
+                { "doubleAccess.dfy" },
                 });
     }
 
@@ -62,6 +67,13 @@ public class ParserTest {
             // print out the tree
             System.out.println(TestUtil.beautify(t));
         }
+
+        URL expected = getClass().getResource(filename + ".expected");
+        if(expected != null) {
+            String expect = Util.streamToString(expected.openStream()).replaceAll("\\s+", " ").trim();
+            String actual = t.toStringTree().replaceAll("\\s+", " ").trim();
+            assertEquals("Parsing result", expect, actual);
+        }
     }
 
     public static DafnyTree parseFile(InputStream stream) throws FileNotFoundException,
@@ -85,7 +97,7 @@ public class ParserTest {
         } catch (RecognitionException e) {
 
             System.err.println("Exception details: " + parser.getErrorMessage(e, parser.getTokenNames()));
-            System.err.printf("line %d, token %s%n", e.line, e.token);
+            System.err.printf("line %d:%d, token %s%n", e.line, e.charPositionInLine, e.token);
 
             throw e;
         }
