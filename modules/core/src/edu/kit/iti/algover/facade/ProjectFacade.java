@@ -9,7 +9,7 @@ import edu.kit.iti.algover.dafnystructures.DafnyClass;
 import edu.kit.iti.algover.dafnystructures.DafnyDecl;
 import edu.kit.iti.algover.dafnystructures.DafnyFunction;
 import edu.kit.iti.algover.dafnystructures.DafnyMethod;
-import edu.kit.iti.algover.dafnystructures.ReferenceResolutionVisitor;
+import edu.kit.iti.algover.parser.ReferenceResolutionVisitor;
 import edu.kit.iti.algover.project.*;
 import edu.kit.iti.algover.proof.PVC;
 import edu.kit.iti.algover.proof.PVCBuilder;

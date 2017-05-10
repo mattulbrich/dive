@@ -9,8 +9,8 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
 import org.junit.runners.Suite.SuiteClasses;
 
-import edu.kit.iti.algover.dafnystructures.ReferenceResolutionVisitorTest;
 import edu.kit.iti.algover.parser.ParserTest;
+import edu.kit.iti.algover.parser.ReferenceResolutionVisitorTest;
 import edu.kit.iti.algover.project.ProjectTest;
 import edu.kit.iti.algover.script.ScriptParserTest;
 import edu.kit.iti.algover.symbex.ProgramDatabaseTest;

@@ -4,7 +4,7 @@
  * Copyright (C) 2015-2017 Karlsruhe Institute of Technology
  */
 
-package edu.kit.iti.algover.dafnystructures;
+package edu.kit.iti.algover.parser;
 
 import static org.junit.Assert.*;
 
@@ -12,10 +12,11 @@ import java.io.File;
 
 import org.junit.Test;
 
+import edu.kit.iti.algover.dafnystructures.DafnyTreeToDeclVisitor;
 import edu.kit.iti.algover.parser.DafnyParser;
 import edu.kit.iti.algover.parser.DafnyTree;
 import edu.kit.iti.algover.parser.DafnyTreeDefaultVisitor;
-import edu.kit.iti.algover.parser.ParserTest;
+import edu.kit.iti.algover.parser.ReferenceResolutionVisitor;
 import edu.kit.iti.algover.project.Project;
 import edu.kit.iti.algover.project.ProjectBuilder;
 
@@ -84,6 +85,7 @@ public class ReferenceResolutionVisitorTest {
         ReferenceResolutionVisitor rrv = new ReferenceResolutionVisitor(project);
         rrv.visitProject();
 
+        assertTrue(rrv.getExceptions().isEmpty());
         tree.accept(new CheckVisitor(), null);
 
     }

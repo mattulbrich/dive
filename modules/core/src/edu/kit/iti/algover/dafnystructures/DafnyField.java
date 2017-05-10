@@ -44,6 +44,7 @@ public class DafnyField extends DafnyDecl {
 
 
     public DafnyField(File file, DafnyTree type, String name){
+        // REVIEW: Why is the representation the type ? ?
         this.representation = type;
         this.name = name;
         this.type = type;

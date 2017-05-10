@@ -1,7 +1,7 @@
 /*
  * This file is part of AlgoVer.
  *
- * Copyright (C) 2015 Karlsruhe Institute of Technology
+ * Copyright (C) 2015-2017 Karlsruhe Institute of Technology
  */
 
 package edu.kit.iti.algover.parser;
@@ -16,7 +16,12 @@ package edu.kit.iti.algover.parser;
 @SuppressWarnings("serial")
 public class DafnyException extends Exception {
 
+    /**
+     * The tree to which this exception relates.
+     */
     private final DafnyTree tree;
+
+    // Checkstyle: OFF JavadocMethodCheck
 
     public DafnyException(DafnyTree tree) {
         super();

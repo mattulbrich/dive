@@ -1,7 +1,7 @@
 /*
  * This file is part of AlgoVer.
  *
- * Copyright (C) 2015-2016 Karlsruhe Institute of Technology
+ * Copyright (C) 2015-2017 Karlsruhe Institute of Technology
  */
 package edu.kit.iti.algover.parser;
 
@@ -25,7 +25,16 @@ public class DafnyFileParser {
     }
 
     public static DafnyTree parse(File file) throws IOException, RecognitionException {
-        return parse(new FileInputStream(file));
+        DafnyTree tree = parse(new FileInputStream(file));
+        setFilename(tree, file.getPath());
+        return tree;
+    }
+
+    public static void setFilename(DafnyTree tree, String filename) {
+        tree.setFilename(filename);
+        for (DafnyTree child : tree.getChildren()) {
+            setFilename(child, filename);
+        }
     }
 
     public static DafnyTree parse(InputStream stream) throws RecognitionException, IOException {

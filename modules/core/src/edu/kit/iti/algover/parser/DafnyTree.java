@@ -33,6 +33,11 @@ import org.antlr.runtime.tree.Tree;
  * to access the children.
  * <li>{@link #getFirstChildWithType(int)}, {@link #getChildrenWithType(int)} to
  * filter the list of children.
+ * <li>{@link #getDeclarationReference()} to access the {@link DafnyTree} which
+ * contains the definition of a referenced identifier.
+ * <li>{@link #getFilename()} to access the name of the file from which the tree
+ * has been parsed.
+ * </ul>
  *
  * @author Mattias Ulbrich
  */
@@ -44,6 +49,7 @@ public class DafnyTree extends CommonTree {
      */
     public static class Adaptor extends CommonTreeAdaptor {
 
+        // Checkstyle: IGNORE JavadocMethodCheck
         public Adaptor() {
         }
 
@@ -64,6 +70,14 @@ public class DafnyTree extends CommonTree {
      * identifier used in this node.
      */
     private DafnyTree declarationReference = null;
+
+    /**
+     * A reference to the file from which this tree has been originally parsed.
+     *
+     * This can be <code>null</code> if not applicable, or may be an reference
+     * to an artificial filename.
+     */
+    private String filename;
 
     /**
      * Instantiates a new Dafny tree.
@@ -290,6 +304,26 @@ public class DafnyTree extends CommonTree {
      */
     public void setDeclarationReference(DafnyTree declarationReference) {
         this.declarationReference = Objects.requireNonNull(declarationReference);
+    }
+
+    /**
+     * Gets the name of file from which this tree has been read.
+     *
+     * @return the origin's filename, may be <code>null</code>
+     */
+    public String getFilename() {
+        return filename;
+    }
+
+    /**
+     * Sets the name of the file from which this tree has been read.
+     *
+     * When setting this, <code>null</code> must not explicitly be set.
+     *
+     * @param filename the new filename, not <code>null</code>
+     */
+    public void setFilename(String filename) {
+        this.filename = filename;
     }
 
 }
