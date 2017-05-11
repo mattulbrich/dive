@@ -11,6 +11,7 @@ tokens {
   ARGS;
   BLOCK;
   CALL;
+  FIELD;
   FIELD_ACCESS;
   LISTEX; // not supported currently
   SETEX; // not supported currently
@@ -69,7 +70,6 @@ DECREASES: 'decreases';
 ELSE: 'else';
 ENSURES: 'ensures';
 EX: 'exists';
-FIELD: 'classfield';
 FREE: 'free';
 FUNCTION: 'function';
 IF: 'if';
