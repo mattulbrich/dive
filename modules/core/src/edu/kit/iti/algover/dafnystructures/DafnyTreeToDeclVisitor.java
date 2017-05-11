@@ -98,7 +98,7 @@ public class DafnyTreeToDeclVisitor {
     private void visitFIELD(DafnyTree t) {
         assert classBuilder != null;
         // REVIEW: Why is the reference dafny tree the type of the field declaration.
-        classBuilder.addField(new DafnyField(file, t.getChild(1), t.getChild(0).getText()));
+        classBuilder.addField(new DafnyField(file, t, t.getChild(1), t.getChild(0).getText()));
     }
 
     private void visitFUNCTION(DafnyTree t) {

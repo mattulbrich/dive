@@ -17,4 +17,10 @@ public class TypeResolution extends DafnyTreeDefaultVisitor<Sort, Void> {
         this.exceptions = exceptions;
     }
 
+    @Override
+    public Sort visitDefault(DafnyTree t, Void arg) {
+        // FAKE
+        return new Sort("C_Class");
+    }
+
 }

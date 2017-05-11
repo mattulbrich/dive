@@ -43,15 +43,16 @@ public class DafnyField extends DafnyDecl {
     }
 
 
-    public DafnyField(File file, DafnyTree type, String name){
+    public DafnyField(File file, DafnyTree representation, DafnyTree type, String name){
         // REVIEW: Why is the representation the type ? ?
-        this.representation = type;
+        this.representation = representation;
         this.name = name;
         this.type = type;
         this.file = file;
 
     }
     public String toString(){
+    // REVIEW: Why is there a ";" at the end?
         return getType()+" "+getName()+";";
     }
 

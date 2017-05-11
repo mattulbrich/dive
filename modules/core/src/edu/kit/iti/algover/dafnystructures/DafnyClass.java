@@ -1,3 +1,8 @@
+/*
+ * This file is part of AlgoVer.
+ *
+ * Copyright (C) 2015-2017 Karlsruhe Institute of Technology
+ */
 package edu.kit.iti.algover.dafnystructures;
 
 import java.util.List;
@@ -78,5 +83,37 @@ public class DafnyClass extends DafnyDecl {
     @Override
     public <R, A> R accept(DafnyDeclVisitor<R,A> visitor, A arg) {
         return visitor.visit(this, arg);
+    }
+
+
+    public DafnyField getField(String name) {
+        // TODO Do this using maps (MU)
+        for (DafnyField dafnyField : fields) {
+            if(dafnyField.getName().equals(name)) {
+                return dafnyField;
+            }
+        }
+        return null;
+    }
+
+
+    public DafnyMethod getMethod(String name) {
+        // TODO Do this using maps (MU)
+        for (DafnyMethod dafnyMethod : methods) {
+            if(dafnyMethod.getName().equals(name)) {
+                return dafnyMethod;
+            }
+        }
+        return null;
+    }
+
+    public DafnyFunction getFunction(String name) {
+        // TODO Do this using maps (MU)
+        for (DafnyFunction dafnyFunction : functions) {
+            if(dafnyFunction.getName().equals(name)) {
+                return dafnyFunction;
+            }
+        }
+        return null;
     }
 }

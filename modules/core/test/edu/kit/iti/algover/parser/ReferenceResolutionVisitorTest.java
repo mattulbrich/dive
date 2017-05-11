@@ -9,7 +9,11 @@ package edu.kit.iti.algover.parser;
 import static org.junit.Assert.*;
 
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.util.List;
 
+import org.antlr.runtime.RecognitionException;
 import org.junit.Test;
 
 import edu.kit.iti.algover.dafnystructures.DafnyTreeToDeclVisitor;
@@ -68,7 +72,10 @@ public class ReferenceResolutionVisitorTest {
             } else if(name.startsWith("va_")) {
                 assertEquals(DafnyParser.ALL, ref.getType());
                 assertEquals(name, ref.getChild(0).getText());
-            } else {
+            } else if(name.startsWith("C_")) {
+                assertEquals(DafnyParser.CLASS, ref.getType());
+                assertEquals(name, ref.getChild(0).getText());
+            }else {
                 fail("Unsupported identifier " + name);
             }
             return null;
@@ -77,14 +84,47 @@ public class ReferenceResolutionVisitorTest {
 
 
     @Test
-    public void test() throws Exception {
+    public void testWithoutReftype() throws Exception {
+        test("referenceTest.dfy");
+    }
 
-        DafnyTree tree = ParserTest.parseFile(getClass().getResourceAsStream("referenceTest.dfy"));
+    @Test
+    public void testWithReftype() throws Exception {
+        test("referenceTestWithReftype.dfy");
+    }
+
+    // @Test not yet
+    public void testFaulty() throws Exception {
+        DafnyTree tree = ParserTest.parseFile(getClass().getResourceAsStream("faultyReferences.dfy"));
         Project project = mockProject(tree);
 
         ReferenceResolutionVisitor rrv = new ReferenceResolutionVisitor(project);
         rrv.visitProject();
 
+
+        String[] errors = {
+                "(FIELD_ACCESS c c1)"
+        };
+
+        List<DafnyException> exceptions = rrv.getExceptions();
+        for (int i = 0; i < errors.length; i++) {
+            exceptions.get(i).printStackTrace();
+            assertEquals(errors[i], exceptions.get(i).getTree().toStringTree());
+        }
+
+        assertEquals(errors.length, exceptions.size());
+        fail();
+    }
+
+    private void test(String resourceName) throws Exception {
+
+        DafnyTree tree = ParserTest.parseFile(getClass().getResourceAsStream(resourceName));
+        Project project = mockProject(tree);
+
+        ReferenceResolutionVisitor rrv = new ReferenceResolutionVisitor(project);
+        rrv.visitProject();
+
+        rrv.getExceptions().forEach(Throwable::printStackTrace);
         assertTrue(rrv.getExceptions().isEmpty());
         tree.accept(new CheckVisitor(), null);
 

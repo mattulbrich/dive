@@ -141,4 +141,22 @@ public class Project {
 
     }
 
+    /**
+     * Gets a class from this project by name.
+     *
+     * @param classname
+     *            the non-<code>null</code> classname
+     * @return the class named <tt>classname</tt>, or <code>null</code> if not
+     *         existing
+     */
+    public DafnyClass getClass(String classname) {
+        // TODO implement this using a map.
+        for (DafnyClass c : getClasses()) {
+            if(c.getName().equals(classname)) {
+                return c;
+            }
+        }
+        return null;
+    }
+
 }

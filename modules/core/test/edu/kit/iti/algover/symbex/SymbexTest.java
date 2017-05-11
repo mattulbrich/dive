@@ -26,7 +26,6 @@ import edu.kit.iti.algover.symbex.AssertionElement.AssertionType;
 import edu.kit.iti.algover.symbex.PathConditionElement.AssumptionType;
 import edu.kit.iti.algover.util.ASTUtil;
 import edu.kit.iti.algover.util.ImmutableList;
-import edu.kit.iti.algover.util.SymbexUtil;
 
 public class SymbexTest {
 

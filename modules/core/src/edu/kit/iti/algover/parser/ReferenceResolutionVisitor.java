@@ -16,6 +16,7 @@ import edu.kit.iti.algover.dafnystructures.DafnyField;
 import edu.kit.iti.algover.dafnystructures.DafnyFunction;
 import edu.kit.iti.algover.dafnystructures.DafnyMethod;
 import edu.kit.iti.algover.project.Project;
+import edu.kit.iti.algover.term.Sort;
 import edu.kit.iti.algover.util.HistoryMap;
 
 /**
@@ -28,12 +29,14 @@ import edu.kit.iti.algover.util.HistoryMap;
  *
  * @author Mattias Ulbrich
  */
-public class ReferenceResolutionVisitor extends DafnyTreeDefaultVisitor<Void, Void> {
+public class ReferenceResolutionVisitor extends DafnyTreeDefaultVisitor<Void, ReferenceResolutionVisitor.Mode> {
 
     /**
      * The project whose references are to be resolved.
      */
     private final Project project;
+
+    public static enum Mode { EXPR, TYPE };
 
     /**
      * The map for identifier names to declaration trees.
@@ -104,7 +107,7 @@ public class ReferenceResolutionVisitor extends DafnyTreeDefaultVisitor<Void, Vo
      * Visit the declaration tree associated with the dafny declaration.
      */
     private <T extends DafnyDecl> void visitAll(T cl) {
-        cl.getRepresentation().accept(this, null);
+        cl.getRepresentation().accept(this, Mode.EXPR);
         // cl.getRepresentation().accept(typeResolver, null);
     }
 
@@ -119,9 +122,9 @@ public class ReferenceResolutionVisitor extends DafnyTreeDefaultVisitor<Void, Vo
      * visit children recursively
      */
     @Override
-    public Void visitDefault(DafnyTree t, Void arg) {
+    public Void visitDefault(DafnyTree t, Mode arg) {
         for (DafnyTree child : t.getChildren()) {
-            child.accept(this, null);
+            child.accept(this, arg);
         }
         return null;
     }
@@ -132,14 +135,52 @@ public class ReferenceResolutionVisitor extends DafnyTreeDefaultVisitor<Void, Vo
      * Look up an ID or raise an exception.
      */
     @Override
-    public Void visitID(DafnyTree t, Void a) {
+    public Void visitID(DafnyTree t, Mode mode) {
         String name = t.getText();
-        DafnyTree idDef = identifierMap.get(name);
-        if (idDef == null) {
-            addException(new DafnyException("Unknown identifier: " + name, t));
-        } else {
-            t.setDeclarationReference(idDef);
+        switch(mode) {
+        case EXPR:
+            DafnyTree idDef = identifierMap.get(name);
+            if (idDef == null) {
+                addException(new DafnyException("Unknown identifier: " + name, t));
+            } else {
+                t.setDeclarationReference(idDef);
+            }
+            break;
+        case TYPE:
+            DafnyClass classDef = project.getClass(name);
+            if (classDef == null) {
+                addException(new DafnyException("Unknown class identifier: " + name, t));
+            } else {
+                t.setDeclarationReference(classDef.getRepresentation());
+            }
+            break;
         }
+        return null;
+    }
+
+    /*
+     * Look up the field name of the receiver in the corresponding class ...
+     */
+    @Override
+    public Void visitFIELD_ACCESS(DafnyTree t, Mode a) {
+        DafnyTree receiver = t.getChild(0);
+        DafnyTree field = t.getChild(1);
+
+        receiver.accept(this, a);
+        Sort type = receiver.accept(typeResolution, null);
+        DafnyClass clazz = project.getClass(type.toString());
+        if(clazz == null) {
+            addException(new DafnyException("Unknown class: " + type, receiver));
+            return null;
+        }
+
+        DafnyField fieldDecl = clazz.getField(field.getText());
+        if(fieldDecl == null) {
+            addException(new DafnyException("Unknown field " + field + " in class " + type, field));
+            return null;
+        }
+
+        field.setDeclarationReference(fieldDecl.getRepresentation());
         return null;
     }
 
@@ -147,18 +188,44 @@ public class ReferenceResolutionVisitor extends DafnyTreeDefaultVisitor<Void, Vo
      * Look up an ID used in a call or raise an exception.
      */
     @Override
-    public Void visitCALL(DafnyTree t, Void a) {
-        String name = t.getChild(0).getText();
-        DafnyTree callable = callableMap.get(name);
-        if (callable == null) {
-            addException(new DafnyException("Unknown method or function: " + name, t));
+    public Void visitCALL(DafnyTree t, Mode a) {
+        DafnyTree callID = t.getChild(0);
+        String name = callID.getText();
+        boolean hasReceiver = t.getChildCount() > 2;
+
+        if(hasReceiver) {
+            DafnyTree receiver = t.getChild(1);
+            receiver.accept(this, Mode.EXPR);
+            Sort type = receiver.accept(typeResolution, null);
+
+            DafnyClass clazz = project.getClass(type.toString());
+            if(clazz == null) {
+                addException(new DafnyException("Unknown class: " + type, receiver));
+                return null;
+            }
+
+            DafnyDecl callable = clazz.getMethod(name);
+            if(callable == null) {
+                callable = clazz.getFunction(name);
+            }
+            if(callable == null) {
+                addException(new DafnyException("Unknown method or function " + name + " in class " + type, callID));
+                return null;
+            }
+
+            callID.setDeclarationReference(callable.getRepresentation());
         } else {
-            t.getChild(0).setDeclarationReference(callable);
+            DafnyTree callable = callableMap.get(name);
+            if (callable == null) {
+                addException(new DafnyException("Unknown method or function: " + name, callID));
+            } else {
+                callID.setDeclarationReference(callable);
+            }
         }
 
         // do not revisit the name.
-        for (int i = 1; i < t.getChildCount(); i++) {
-            t.getChild(i).accept(this, null);
+        for (DafnyTree arg : t.getFirstChildWithType(DafnyParser.ARGS).getChildren()) {
+            arg.accept(this, a);
         }
         return null;
     }
@@ -169,13 +236,13 @@ public class ReferenceResolutionVisitor extends DafnyTreeDefaultVisitor<Void, Vo
      * Temporarily add quantified variable, visit matrix and remove variable.
      */
     @Override
-    public Void visitALL(DafnyTree t, Void a) {
+    public Void visitALL(DafnyTree t, Mode a) {
         int rewindTo = identifierMap.getHistory();
         String boundVar = t.getChild(0).getText();
         identifierMap.put(boundVar, t);
         // do not revisit the name.
         for (int i = 2; i < t.getChildCount(); i++) {
-            t.getChild(i).accept(this, null);
+            t.getChild(i).accept(this, a);
         }
         identifierMap.rewindHistory(rewindTo);
         return null;
@@ -185,14 +252,13 @@ public class ReferenceResolutionVisitor extends DafnyTreeDefaultVisitor<Void, Vo
      * Temporarily add quantified variable, visit matrix and remove variable.
      */
     @Override
-    public Void visitEX(DafnyTree t, Void a) {
+    public Void visitEX(DafnyTree t, Mode a) {
         int rewindTo = identifierMap.getHistory();
         String boundVar = t.getChild(0).getText();
         identifierMap.put(boundVar, t);
         // do not revisit the name.
-        for (int i = 1; i < t.getChildCount(); i++) {
-            t.getChild(i).accept(this, null);
-        }
+        t.getChild(1).accept(this, Mode.TYPE);
+        t.getChild(2).accept(this, Mode.EXPR);
         identifierMap.rewindHistory(rewindTo);
         return null;
     }
@@ -201,7 +267,7 @@ public class ReferenceResolutionVisitor extends DafnyTreeDefaultVisitor<Void, Vo
      * Just add the declared variable to the identifierMap.
      */
     @Override
-    public Void visitVAR(DafnyTree t, Void a) {
+    public Void visitVAR(DafnyTree t, Mode a) {
         identifierMap.put(t.getChild(0).getText(), t);
         return null;
     }
@@ -211,7 +277,7 @@ public class ReferenceResolutionVisitor extends DafnyTreeDefaultVisitor<Void, Vo
      * rewind after visitation.
      */
     @Override
-    public Void visitBLOCK(DafnyTree t, Void a) {
+    public Void visitBLOCK(DafnyTree t, Mode a) {
         int rewindTo = identifierMap.getHistory();
         super.visitBLOCK(t, a);
         identifierMap.rewindHistory(rewindTo);
@@ -220,19 +286,15 @@ public class ReferenceResolutionVisitor extends DafnyTreeDefaultVisitor<Void, Vo
     }
 
     @Override
-    public Void visitCLASS(DafnyTree t, Void a) {
+    public Void visitCLASS(DafnyTree t, Mode a) {
         int rewindIdentifiersTo = identifierMap.getHistory();
         int rewindCallablesTo = callableMap.getHistory();
 
-        // TODO XXXProjectAccess must be removed ...
-        XXXProjectAccess xproject = new XXXProjectAccess(project);
-
         String classname = t.getChild(0).getText();
-        DafnyClass dafnyClass = xproject.getClass(classname);
+        DafnyClass dafnyClass = project.getClass(classname);
 
         for (DafnyField field : dafnyClass.getFields()) {
-            // TODO why is the representation the type?
-            identifierMap.put(field.getName(), (DafnyTree) field.getRepresentation().getParent());
+            identifierMap.put(field.getName(), field.getRepresentation());
         }
 
         for (DafnyMethod method : dafnyClass.getMethods()) {
@@ -244,7 +306,7 @@ public class ReferenceResolutionVisitor extends DafnyTreeDefaultVisitor<Void, Vo
         }
 
         for (int i = 1; i < t.getChildCount(); i++) {
-            t.getChild(i).accept(this, null);
+            t.getChild(i).accept(this, a);
         }
 
         identifierMap.rewindHistory(rewindIdentifiersTo);
@@ -258,10 +320,10 @@ public class ReferenceResolutionVisitor extends DafnyTreeDefaultVisitor<Void, Vo
      * But visit the parameter declarations!
      */
     @Override
-    public Void visitFUNCTION(DafnyTree t, Void a) {
+    public Void visitFUNCTION(DafnyTree t, Mode a) {
         int rewindTo = identifierMap.getHistory();
         for (int i = 1; i < t.getChildCount(); i++) {
-            t.getChild(i).accept(this, null);
+            t.getChild(i).accept(this, i == 2 ? Mode.TYPE : a);
         }
         identifierMap.rewindHistory(rewindTo);
         return null;
@@ -273,12 +335,26 @@ public class ReferenceResolutionVisitor extends DafnyTreeDefaultVisitor<Void, Vo
      * But visit the parameter declarations!
      */
     @Override
-    public Void visitMETHOD(DafnyTree t, Void a) {
+    public Void visitMETHOD(DafnyTree t, Mode a) {
         int rewindTo = identifierMap.getHistory();
         for (int i = 1; i < t.getChildCount(); i++) {
-            t.getChild(i).accept(this, null);
+            t.getChild(i).accept(this, a);
         }
         identifierMap.rewindHistory(rewindTo);
+        return null;
+    }
+
+    /*
+     * Visit the type in type mode.
+     *
+     * Do not visit the field name.
+     */
+    @Override
+    public Void visitFIELD(DafnyTree t, Mode a) {
+        t.getChild(1).accept(this, Mode.TYPE);
+        if (t.getChildCount() > 2) {
+            t.getChild(2).accept(this, Mode.EXPR);
+        }
         return null;
     }
 

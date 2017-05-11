@@ -5,6 +5,8 @@
  */
 package edu.kit.iti.algover.parser;
 
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
@@ -41,8 +43,10 @@ public class ParserTest {
                 { "../symbex/havoc.dfy" }, { "../symbex/runtimeAssert.dfy" },
                 { "fields.dfy" }, { "../dafnystructures/declTest.dfy" },
                 { "referenceTest.dfy" },
+                { "referenceTestWithReftype.dfy" },
                 { "reftypes.dfy" },
                 { "doubleAccess.dfy" },
+                { "faultyReferences.dfy" },
                 });
     }
 
@@ -104,6 +108,16 @@ public class ParserTest {
         // pull out the tree and cast it
         DafnyTree t = result.getTree();
         return t;
+    }
+
+    public static void main(String[] args) throws Exception {
+        DafnyTree t;
+        if(args.length > 0) {
+            t = parseFile(new FileInputStream(args[0]));
+        } else {
+            t = parseFile(System.in);
+        }
+        System.out.println(TestUtil.beautify(t));
     }
 
 }

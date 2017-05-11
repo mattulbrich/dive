@@ -298,7 +298,7 @@ postfix_expr:
   ( atom_expr -> atom_expr )   // see ANTLR ref. page 175
   ( '[' expression ']' -> ^( ARRAY_ACCESS $postfix_expr expression )
   | '.' LENGTH -> ^( LENGTH $postfix_expr )
-  | '.' ID '(' expressions? ')' -> ^( CALL ID $postfix_expr expressions? )
+  | '.' ID '(' expressions? ')' -> ^( CALL ID $postfix_expr ^(ARGS expressions?) )
   | '.' ID -> ^( FIELD_ACCESS $postfix_expr ID )
   )*
   ;
@@ -310,7 +310,7 @@ expression_only:
 
 atom_expr:
     ID
-  | ID '(' expressions? ')' -> ^(CALL ID expressions?)
+  | ID '(' expressions? ')' -> ^(CALL ID ^(ARGS expressions?) )
   | INT_LIT
   | 'this'
   | NULL
