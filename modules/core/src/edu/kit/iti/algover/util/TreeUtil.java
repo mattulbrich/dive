@@ -202,4 +202,22 @@ public final class TreeUtil {
 
         return new Sort(name);
     }
+
+    /**
+     * Translate the type declaration inside a a {@link DafnyTree} to a String.
+     *
+     * The resulting string is as the type would be written in Dafny.
+     *
+     * @param tree
+     *            the non-<code>null</code> tree to traverse
+     * @return the string representation of the type.
+     */
+    public static String toTypeString(DafnyTree tree) {
+        StringBuilder sb = new StringBuilder();
+        sb.append(tree.getText());
+        if(tree.getChildCount() > 0) {
+            sb.append("<").append(Util.join(Util.map(tree.getChildren(), TreeUtil::toTypeString), ",")).append(">");
+        }
+        return sb.toString();
+    }
 }
