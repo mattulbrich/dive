@@ -93,7 +93,7 @@ public class ReferenceResolutionVisitorTest {
         test("referenceTestWithReftype.dfy");
     }
 
-    // @Test not yet
+    @Test
     public void testFaulty() throws Exception {
         DafnyTree tree = ParserTest.parseFile(getClass().getResourceAsStream("faultyReferences.dfy"));
         Project project = mockProject(tree);
@@ -103,17 +103,21 @@ public class ReferenceResolutionVisitorTest {
 
 
         String[] errors = {
-                "(FIELD_ACCESS c c1)"
+                "(FIELD_ACCESS c df)",
+                "(FIELD_ACCESS c df)",
+                "(CALL md c (ARGS c))",
+                "(FIELD_ACCESS d cf)",
+                "(FIELD_ACCESS d cf)",
+                "(CALL mc d (ARGS d))",
         };
 
         List<DafnyException> exceptions = rrv.getExceptions();
         for (int i = 0; i < errors.length; i++) {
             exceptions.get(i).printStackTrace();
-            assertEquals(errors[i], exceptions.get(i).getTree().toStringTree());
+            assertEquals(errors[i], exceptions.get(i).getTree().getParent().toStringTree());
         }
 
         assertEquals(errors.length, exceptions.size());
-        fail();
     }
 
     private void test(String resourceName) throws Exception {

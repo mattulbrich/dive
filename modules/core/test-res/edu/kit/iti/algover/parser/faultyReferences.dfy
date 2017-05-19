@@ -17,8 +17,7 @@ class D {
 }
 
 class C {
-
-   var df: int;
+   var cf: int;
 
    method mc(d : D)
    {
