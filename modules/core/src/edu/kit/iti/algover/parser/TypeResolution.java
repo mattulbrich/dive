@@ -7,14 +7,22 @@ package edu.kit.iti.algover.parser;
 
 import java.util.List;
 
-import edu.kit.iti.algover.term.Sort;
+import edu.kit.iti.algover.project.Project;
 
 public class TypeResolution extends DafnyTreeDefaultVisitor<DafnyTree, Void> {
 
     private List<DafnyException> exceptions;
 
+    private DafnyTree UNKNOWN_TYPE = new DafnyTree(DafnyParser.ID, "UNKNOWN_TYPE");
+
     public TypeResolution(List<DafnyException> exceptions) {
         this.exceptions = exceptions;
+    }
+
+    public void visitProject(Project project) {
+        project.getClasses().forEach(x -> x.getRepresentation().accept(this, null));
+        project.getMethods().forEach(x -> x.getRepresentation().accept(this, null));
+        project.getFunctions().forEach(x -> x.getRepresentation().accept(this, null));
     }
 
     @Override
@@ -30,7 +38,10 @@ public class TypeResolution extends DafnyTreeDefaultVisitor<DafnyTree, Void> {
         }
 
         DafnyTree ref = t.getDeclarationReference();
-        // TODO check null
+        if (ref == null) {
+            exceptions.add(new DafnyException("Unresolved identifier " + t.getText(), t));
+            return UNKNOWN_TYPE;
+        }
 
         assert ref.getType() == DafnyParser.VAR || ref.getType() == DafnyParser.FIELD;
         DafnyTree type = ref.getLastChild();
@@ -124,8 +135,7 @@ public class TypeResolution extends DafnyTreeDefaultVisitor<DafnyTree, Void> {
 
     @Override
     public DafnyTree visitNOT(DafnyTree t, Void a) {
-        // TODO Auto-generated method stub
-        return super.visitNOT(t, a);
+        return boolOperation(t);
     }
 
     // Comparisons

@@ -6,21 +6,18 @@
 
 package edu.kit.iti.algover.parser;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
-import org.antlr.runtime.RecognitionException;
 import org.junit.Test;
 
 import edu.kit.iti.algover.dafnystructures.DafnyTreeToDeclVisitor;
-import edu.kit.iti.algover.parser.DafnyParser;
-import edu.kit.iti.algover.parser.DafnyTree;
-import edu.kit.iti.algover.parser.DafnyTreeDefaultVisitor;
-import edu.kit.iti.algover.parser.ReferenceResolutionVisitor;
 import edu.kit.iti.algover.project.Project;
 import edu.kit.iti.algover.project.ProjectBuilder;
 
@@ -98,7 +95,7 @@ public class ReferenceResolutionVisitorTest {
         DafnyTree tree = ParserTest.parseFile(getClass().getResourceAsStream("faultyReferences.dfy"));
         Project project = mockProject(tree);
 
-        ReferenceResolutionVisitor rrv = new ReferenceResolutionVisitor(project);
+        ReferenceResolutionVisitor rrv = new ReferenceResolutionVisitor(project, new ArrayList<>());
         rrv.visitProject();
 
 
@@ -125,7 +122,7 @@ public class ReferenceResolutionVisitorTest {
         DafnyTree tree = ParserTest.parseFile(getClass().getResourceAsStream(resourceName));
         Project project = mockProject(tree);
 
-        ReferenceResolutionVisitor rrv = new ReferenceResolutionVisitor(project);
+        ReferenceResolutionVisitor rrv = new ReferenceResolutionVisitor(project, new ArrayList<>());
         rrv.visitProject();
 
         rrv.getExceptions().forEach(Throwable::printStackTrace);

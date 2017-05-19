@@ -9,7 +9,9 @@ import edu.kit.iti.algover.dafnystructures.DafnyClass;
 import edu.kit.iti.algover.dafnystructures.DafnyDecl;
 import edu.kit.iti.algover.dafnystructures.DafnyFunction;
 import edu.kit.iti.algover.dafnystructures.DafnyMethod;
+import edu.kit.iti.algover.parser.DafnyException;
 import edu.kit.iti.algover.parser.ReferenceResolutionVisitor;
+import edu.kit.iti.algover.parser.TypeResolution;
 import edu.kit.iti.algover.project.*;
 import edu.kit.iti.algover.proof.PVC;
 import edu.kit.iti.algover.proof.PVCBuilder;
@@ -71,8 +73,12 @@ public class ProjectFacade {
 
         p = pb.buildProject(dir);
 
-        ReferenceResolutionVisitor refResolver = new ReferenceResolutionVisitor(p);
+        ArrayList<DafnyException> exceptions = new ArrayList<>();
+        ReferenceResolutionVisitor refResolver = new ReferenceResolutionVisitor(p, exceptions);
         refResolver.visitProject();
+
+        TypeResolution typeRes = new TypeResolution(exceptions);
+        typeRes.visitProject(p);
 
         return p;
     }

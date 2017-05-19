@@ -6,7 +6,6 @@
 
 package edu.kit.iti.algover.parser;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
@@ -16,7 +15,6 @@ import edu.kit.iti.algover.dafnystructures.DafnyField;
 import edu.kit.iti.algover.dafnystructures.DafnyFunction;
 import edu.kit.iti.algover.dafnystructures.DafnyMethod;
 import edu.kit.iti.algover.project.Project;
-import edu.kit.iti.algover.term.Sort;
 import edu.kit.iti.algover.util.HistoryMap;
 import edu.kit.iti.algover.util.TreeUtil;
 
@@ -55,7 +53,7 @@ public class ReferenceResolutionVisitor extends DafnyTreeDefaultVisitor<Void, Re
     private final HistoryMap<String, DafnyTree> callableMap =
             new HistoryMap<>(new HashMap<>());
 
-    private final List<DafnyException> exceptions = new ArrayList<>();
+    private final List<DafnyException> exceptions;
 
     private final TypeResolution typeResolution = new TypeResolution(getExceptions());
 
@@ -65,9 +63,12 @@ public class ReferenceResolutionVisitor extends DafnyTreeDefaultVisitor<Void, Re
      *
      * @param project
      *            the non-<code>null</code> project to visit
+     * @param exceptions
+     *            the list to which exceptions are reported, may be <code>null</code>
      */
-    public ReferenceResolutionVisitor(Project project) {
+    public ReferenceResolutionVisitor(Project project, List<DafnyException> exceptions) {
         this.project = project;
+        this.exceptions = exceptions;
     }
 
     /**
@@ -109,14 +110,15 @@ public class ReferenceResolutionVisitor extends DafnyTreeDefaultVisitor<Void, Re
      */
     private <T extends DafnyDecl> void visitAll(T cl) {
         cl.getRepresentation().accept(this, Mode.EXPR);
-        // cl.getRepresentation().accept(typeResolver, null);
     }
 
     /*
      * Adds an exception to the pool of observed exceptions.
      */
     private void addException(DafnyException dafnyException) {
-        getExceptions().add(dafnyException);
+        if(exceptions != null) {
+            exceptions.add(dafnyException);
+        }
     }
 
     /*
