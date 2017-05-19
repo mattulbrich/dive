@@ -18,7 +18,6 @@ import org.antlr.runtime.tree.CommonTree;
 import org.antlr.runtime.tree.CommonTreeAdaptor;
 import org.antlr.runtime.tree.Tree;
 
-
 /**
  * This class implements AST nodes for Dafny code.
  *
@@ -70,6 +69,13 @@ public class DafnyTree extends CommonTree {
      * identifier used in this node.
      */
     private DafnyTree declarationReference = null;
+
+
+    /**
+     * A pointer (potentially <code>null</code>) to the type of the expression
+     * captured by this node. Also used for assignment targets.
+     */
+    private DafnyTree expressionType;
 
     /**
      * A reference to the file from which this tree has been originally parsed.
@@ -328,6 +334,14 @@ public class DafnyTree extends CommonTree {
      */
     public void setFilename(String filename) {
         this.filename = filename;
+    }
+
+    public DafnyTree getExpressionType() {
+        return expressionType;
+    }
+
+    public void setExpressionType(DafnyTree expressionType) {
+        this.expressionType = expressionType;
     }
 
 }

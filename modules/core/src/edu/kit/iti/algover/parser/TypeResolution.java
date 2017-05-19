@@ -9,7 +9,7 @@ import java.util.List;
 
 import edu.kit.iti.algover.term.Sort;
 
-public class TypeResolution extends DafnyTreeDefaultVisitor<Sort, Void> {
+public class TypeResolution extends DafnyTreeDefaultVisitor<DafnyTree, Void> {
 
     private List<DafnyException> exceptions;
 
@@ -18,9 +18,249 @@ public class TypeResolution extends DafnyTreeDefaultVisitor<Sort, Void> {
     }
 
     @Override
-    public Sort visitDefault(DafnyTree t, Void arg) {
-        // FAKE
-        return new Sort("C_Class");
+    public DafnyTree visitDefault(DafnyTree t, Void arg) {
+        return t.getExpressionType();
     }
+
+    @Override
+    public DafnyTree visitID(DafnyTree t, Void a) {
+        DafnyTree storedType = t.getExpressionType();
+        if(storedType != null) {
+            return storedType;
+        }
+
+        DafnyTree ref = t.getDeclarationReference();
+        // TODO check null
+
+        assert ref.getType() == DafnyParser.VAR || ref.getType() == DafnyParser.FIELD;
+        DafnyTree type = ref.getLastChild();
+        t.setExpressionType(type);
+        return type;
+    }
+
+
+    // ------------------- INT operations
+
+    private DafnyTree intOperation(DafnyTree t) {
+        DafnyTree storedType = t.getExpressionType();
+        if(storedType != null) {
+            return storedType;
+        }
+
+        if(t.getChildCount() == 0) {
+            return new DafnyTree(DafnyParser.INT);
+        }
+
+        DafnyTree result = null;
+        for (int i = 0; i < t.getChildCount(); i++) {
+            result = t.getChild(i).accept(this, null);
+            if(result.getType() != DafnyParser.INT) {
+                exceptions.add(new DafnyException("Wrong type. Expected int but got " + result,
+                        t.getChild(i)));
+            }
+        }
+
+        return result;
+    }
+
+    @Override
+    public DafnyTree visitPLUS(DafnyTree t, Void a) {
+        return intOperation(t);
+    }
+
+    @Override
+    public DafnyTree visitTIMES(DafnyTree t, Void a) {
+        return intOperation(t);
+    }
+
+    @Override
+    public DafnyTree visitMINUS(DafnyTree t, Void a) {
+        return intOperation(t);
+    }
+
+    @Override
+    public DafnyTree visitINT_LIT(DafnyTree t, Void a) {
+        return intOperation(t);
+    }
+
+    // ------------------- Bool operations
+
+    private DafnyTree boolOperation(DafnyTree t) {
+        DafnyTree storedType = t.getExpressionType();
+        if(storedType != null) {
+            return storedType;
+        }
+
+        if(t.getChildCount() == 0) {
+            return new DafnyTree(DafnyParser.BOOL);
+        }
+
+        DafnyTree result = null;
+        for (int i = 0; i < t.getChildCount(); i++) {
+            result = t.getChild(i).accept(this, null);
+            if(result.getType() != DafnyParser.BOOL) {
+                exceptions.add(new DafnyException("Wrong type. Expected bool but got " + result,
+                        t.getChild(i)));
+            }
+        }
+
+        return result;
+    }
+
+    @Override
+    public DafnyTree visitAND(DafnyTree t, Void a) {
+        return boolOperation(t);
+    }
+
+    @Override
+    public DafnyTree visitOR(DafnyTree t, Void a) {
+        return boolOperation(t);
+    }
+
+    @Override
+    public DafnyTree visitIMPLIES(DafnyTree t, Void a) {
+        return boolOperation(t);
+    }
+
+    @Override
+    public DafnyTree visitNOT(DafnyTree t, Void a) {
+        // TODO Auto-generated method stub
+        return super.visitNOT(t, a);
+    }
+
+    // Comparisons
+
+    @Override
+    public DafnyTree visitALL(DafnyTree t, Void a) {
+        // TODO Auto-generated method stub
+        return super.visitALL(t, a);
+    }
+
+    @Override
+    public DafnyTree visitEX(DafnyTree t, Void a) {
+        // TODO Auto-generated method stub
+        return super.visitEX(t, a);
+    }
+
+    @Override
+    public DafnyTree visitEQ(DafnyTree t, Void a) {
+        // TODO Auto-generated method stub
+        return super.visitEQ(t, a);
+    }
+
+    @Override
+    public DafnyTree visitLE(DafnyTree t, Void a) {
+        // TODO Auto-generated method stub
+        return super.visitLE(t, a);
+    }
+
+    @Override
+    public DafnyTree visitLT(DafnyTree t, Void a) {
+        // TODO Auto-generated method stub
+        return super.visitLT(t, a);
+    }
+
+    @Override
+    public DafnyTree visitGE(DafnyTree t, Void a) {
+        // TODO Auto-generated method stub
+        return super.visitGE(t, a);
+    }
+
+    @Override
+    public DafnyTree visitGT(DafnyTree t, Void a) {
+        // TODO Auto-generated method stub
+        return super.visitGT(t, a);
+    }
+
+
+
+
+    @Override
+    public DafnyTree visitLENGTH(DafnyTree t, Void a) {
+        // TODO Auto-generated method stub
+        return super.visitLENGTH(t, a);
+    }
+
+
+
+    @Override
+    public DafnyTree visitARRAY_ACCESS(DafnyTree t, Void a) {
+        // TODO Auto-generated method stub
+        return super.visitARRAY_ACCESS(t, a);
+    }
+
+    @Override
+    public DafnyTree visitCALL(DafnyTree t, Void a) {
+        // TODO Auto-generated method stub
+        return super.visitCALL(t, a);
+    }
+
+    @Override
+    public DafnyTree visitFIELD_ACCESS(DafnyTree t, Void a) {
+        // TODO Auto-generated method stub
+        return super.visitFIELD_ACCESS(t, a);
+    }
+
+    @Override
+    public DafnyTree visitINTERSECT(DafnyTree t, Void a) {
+        // TODO Auto-generated method stub
+        return super.visitINTERSECT(t, a);
+    }
+
+    @Override
+    public DafnyTree visitLISTEX(DafnyTree t, Void a) {
+        // TODO Auto-generated method stub
+        return super.visitLISTEX(t, a);
+    }
+
+    @Override
+    public DafnyTree visitNEQ(DafnyTree t, Void a) {
+        // TODO Auto-generated method stub
+        return super.visitNEQ(t, a);
+    }
+
+    @Override
+    public DafnyTree visitNOETHER_LESS(DafnyTree t, Void a) {
+        // TODO Auto-generated method stub
+        return super.visitNOETHER_LESS(t, a);
+    }
+
+    @Override
+    public DafnyTree visitNULL(DafnyTree t, Void a) {
+        // TODO Auto-generated method stub
+        return super.visitNULL(t, a);
+    }
+
+    @Override
+    public DafnyTree visitSETEX(DafnyTree t, Void a) {
+        // TODO Auto-generated method stub
+        return super.visitSETEX(t, a);
+    }
+
+    @Override
+    public DafnyTree visitTHIS(DafnyTree t, Void a) {
+        // TODO Auto-generated method stub
+        return super.visitTHIS(t, a);
+    }
+
+    @Override
+    public DafnyTree visitUNION(DafnyTree t, Void a) {
+        // TODO Auto-generated method stub
+        return super.visitUNION(t, a);
+    }
+
+    @Override
+    public DafnyTree visitWILDCARD(DafnyTree t, Void a) {
+        // TODO Auto-generated method stub
+        return super.visitWILDCARD(t, a);
+    }
+
+    @Override
+    public DafnyTree visitNIL(DafnyTree t, Void a) {
+        // TODO Auto-generated method stub
+        return super.visitNIL(t, a);
+    }
+
+
 
 }

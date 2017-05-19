@@ -18,6 +18,7 @@ import edu.kit.iti.algover.dafnystructures.DafnyMethod;
 import edu.kit.iti.algover.project.Project;
 import edu.kit.iti.algover.term.Sort;
 import edu.kit.iti.algover.util.HistoryMap;
+import edu.kit.iti.algover.util.TreeUtil;
 
 /**
  * This visitor class can be used to resolve identifiers in the AST.
@@ -167,8 +168,8 @@ public class ReferenceResolutionVisitor extends DafnyTreeDefaultVisitor<Void, Re
         DafnyTree field = t.getChild(1);
 
         receiver.accept(this, a);
-        Sort type = receiver.accept(typeResolution, null);
-        DafnyClass clazz = project.getClass(type.toString());
+        String type = TreeUtil.toTypeString(receiver.accept(typeResolution, null));
+        DafnyClass clazz = project.getClass(type);
         if(clazz == null) {
             addException(new DafnyException("Unknown class: " + type, receiver));
             return null;
@@ -196,9 +197,9 @@ public class ReferenceResolutionVisitor extends DafnyTreeDefaultVisitor<Void, Re
         if(hasReceiver) {
             DafnyTree receiver = t.getChild(1);
             receiver.accept(this, Mode.EXPR);
-            Sort type = receiver.accept(typeResolution, null);
+            String type = TreeUtil.toTypeString(receiver.accept(typeResolution, null));
 
-            DafnyClass clazz = project.getClass(type.toString());
+            DafnyClass clazz = project.getClass(type);
             if(clazz == null) {
                 addException(new DafnyException("Unknown class: " + type, receiver));
                 return null;
