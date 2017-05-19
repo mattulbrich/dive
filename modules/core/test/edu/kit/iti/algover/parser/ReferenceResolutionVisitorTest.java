@@ -110,7 +110,7 @@ public class ReferenceResolutionVisitorTest {
 
         List<DafnyException> exceptions = rrv.getExceptions();
         for (int i = 0; i < errors.length; i++) {
-            exceptions.get(i).printStackTrace();
+            // exceptions.get(i).printStackTrace();
             assertEquals(errors[i], exceptions.get(i).getTree().getParent().toStringTree());
         }
 

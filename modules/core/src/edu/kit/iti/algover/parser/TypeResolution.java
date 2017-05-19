@@ -25,6 +25,13 @@ public class TypeResolution extends DafnyTreeDefaultVisitor<DafnyTree, Void> {
         project.getFunctions().forEach(x -> x.getRepresentation().accept(this, null));
     }
 
+    private DafnyTree visitDepth(DafnyTree t, Void arg) {
+        for (DafnyTree child : t.getChildren()) {
+            child.accept(this, null);
+        }
+        return null;
+    }
+
     @Override
     public DafnyTree visitDefault(DafnyTree t, Void arg) {
         return t.getExpressionType();
@@ -49,6 +56,29 @@ public class TypeResolution extends DafnyTreeDefaultVisitor<DafnyTree, Void> {
         return type;
     }
 
+    // ------------------- structural visitation
+    @Override
+    public DafnyTree visitCLASS(DafnyTree tree, Void a) {
+        return visitDepth(tree, a);
+    }
+
+    @Override
+    public DafnyTree visitFUNCTION(DafnyTree tree, Void a) {
+        return visitDepth(tree, a);
+    }
+
+    @Override
+    public DafnyTree visitMETHOD(DafnyTree tree, Void a) {
+        return visitDepth(tree, a);
+    }
+
+    @Override
+    public DafnyTree visitVAR(DafnyTree tree, Void a) {
+        if(tree.getChildCount() > 2) {
+            tree.getChild(2).accept(this, null);
+        }
+        return null;
+    }
 
     // ------------------- INT operations
 

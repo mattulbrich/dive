@@ -47,6 +47,7 @@ public class ParserTest {
                 { "reftypes.dfy" },
                 { "doubleAccess.dfy" },
                 { "faultyReferences.dfy" },
+                { "typingTest.dfy" },
                 });
     }
 
