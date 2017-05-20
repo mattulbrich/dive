@@ -6,84 +6,97 @@
 package edu.kit.iti.algover.parser;
 
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.URL;
 import java.util.ArrayList;
+import java.util.List;
 
+import org.antlr.runtime.RecognitionException;
+import org.antlr.runtime.tree.Tree;
+import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
+import edu.kit.iti.algover.dafnystructures.DafnyMethod;
 import edu.kit.iti.algover.dafnystructures.DafnyTreeToDeclVisitor;
 import edu.kit.iti.algover.project.Project;
 import edu.kit.iti.algover.project.ProjectBuilder;
 import edu.kit.iti.algover.util.TreeUtil;
+import edu.kit.iti.algover.util.Util;
 
 import static org.junit.Assert.*;
 
 public class TypeResolutionTest {
 
-    class Checker extends DafnyTreeDefaultVisitor<Void, Void> {
+    private Project project;
 
-        @Override
-        public Void visitDefault(DafnyTree t, Void arg) {
-            for (DafnyTree child : t.getChildren()) {
-                child.accept(this, null);
-            }
-            return arg;
-        }
-
-        @Override
-        public Void visitID(DafnyTree t, Void a) {
-            switch(t.getParent().getType()) {
-            case DafnyParser.VAR:
-            case DafnyParser.FIELD:
-                return null;
-            }
-
-            if(t.getText().startsWith("i_")) {
-                assertEquals(DafnyParser.INT, t.getExpressionType().getType());
-            }
-            if(t.getText().startsWith("b_")) {
-                assertEquals(DafnyParser.BOOL, t.getExpressionType().getType());
-            }
-            if(t.getText().startsWith("c_")) {
-                assertEquals(DafnyParser.ID, t.getExpressionType().getType());
-                assertEquals("C", t.getExpressionType().getText());
-            }
-            return a;
-        }
-
-        @Override
-        public Void visitASSIGN(DafnyTree t, Void a) {
-            visitDefault(t, a);
-            String type0 = TreeUtil.toTypeString(t.getChild(0).getExpressionType());
-            String type1 = TreeUtil.toTypeString(t.getChild(0).getExpressionType());
-            if(!type1.equals("*")) {
-                // wildcards are allowed
-                assertEquals(type0, type1);
-            }
-            return a;
+    @Before
+    public void setup() throws FileNotFoundException, IOException, RecognitionException {
+        if(project == null) {
+            DafnyTree tree = ParserTest.parseFile(getClass().getResourceAsStream("typingTest.dfy"));
+            project = mockProject(tree);
+            ArrayList<DafnyException> exceptions = new ArrayList<>();
+            ReferenceResolutionVisitor rrr = new ReferenceResolutionVisitor(project, exceptions);
+            rrr.visitProject();
+            assertTrue(exceptions.isEmpty());
         }
     }
 
     @Test
     public void testPositive() throws Exception {
-        testTypes("typingTest.dfy");
+        testMethod("testAssignments");
     }
 
-    private void testTypes(String resource, String... expectedErrorTrees) throws Exception {
-        DafnyTree tree = ParserTest.parseFile(getClass().getResourceAsStream(resource));
-        Project project = mockProject(tree);
-        ArrayList<DafnyException> exceptions = new ArrayList<>();
-        ReferenceResolutionVisitor rrr = new ReferenceResolutionVisitor(project, exceptions);
-        rrr.visitProject();
-        assertTrue(exceptions.isEmpty());
-
-        TypeResolution tr = new TypeResolution(exceptions);
-        tr.visitProject(project);
+    private void testMethod(String method, String... expectedErrorTrees) throws Exception {
+        List<DafnyException> exceptions = new ArrayList<>();
+        TypeResolution tr = new TypeResolution(exceptions );
+        DafnyMethod m = project.getClass("C").getMethod(method);
+        assertNotNull(m);
+        m.getRepresentation().accept(tr, null);
         assertEquals(expectedErrorTrees.length, exceptions.size());
         for (int i = 0; i < expectedErrorTrees.length; i++) {
             assertEquals(expectedErrorTrees[i], exceptions.get(i).getTree().toStringTree());
         }
 
-        tree.accept(new Checker(), null);
+        InputStream is = getClass().getResourceAsStream(method + ".expected.typing");
+        if(is != null) {
+            String expect = Util.streamToString(is).replaceAll("\\s+", " ").trim();
+            String actual = toTypedString(m.getRepresentation()).replaceAll("\\s+", " ").trim();
+            assertEquals("Parsing result", expect, actual);
+        }
+    }
+
+    private String toTypedString(DafnyTree tree) {
+        List<DafnyTree> children = tree.getChildren();
+        StringBuilder buf = new StringBuilder();
+        if (children == null || children.isEmpty()) {
+            buf.append(tree.toString());
+        } else {
+            if (!tree.isNil()) {
+                buf.append("(");
+                buf.append(tree.toString());
+                buf.append(' ');
+            }
+            for (int i = 0; children != null && i < children.size(); i++) {
+                DafnyTree t = children.get(i);
+                if (i > 0) {
+                    buf.append(' ');
+                }
+                buf.append(toTypedString(t));
+            }
+            if (!tree.isNil()) {
+                buf.append(")");
+            }
+        }
+        DafnyTree ty = tree.getExpressionType();
+        if (ty != null) {
+            buf.append("[");
+            buf.append(TreeUtil.toTypeString(ty));
+            buf.append("]");
+        }
+        return buf.toString();
     }
 
     private Project mockProject(DafnyTree tree) {

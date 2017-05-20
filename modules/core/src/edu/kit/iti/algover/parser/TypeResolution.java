@@ -25,11 +25,17 @@ public class TypeResolution extends DafnyTreeDefaultVisitor<DafnyTree, Void> {
         project.getFunctions().forEach(x -> x.getRepresentation().accept(this, null));
     }
 
-    private DafnyTree visitDepth(DafnyTree t, Void arg) {
-        for (DafnyTree child : t.getChildren()) {
-            child.accept(this, null);
+
+    private DafnyTree visitDepth(DafnyTree tree, int startat) {
+        for (int i = startat; i < tree.getChildCount(); i++) {
+            tree.getChild(i).accept(this, null);
         }
         return null;
+    }
+
+
+    private DafnyTree visitDepth(DafnyTree tree) {
+        return visitDepth(tree, 0);
     }
 
     @Override
@@ -59,17 +65,17 @@ public class TypeResolution extends DafnyTreeDefaultVisitor<DafnyTree, Void> {
     // ------------------- structural visitation
     @Override
     public DafnyTree visitCLASS(DafnyTree tree, Void a) {
-        return visitDepth(tree, a);
+        return visitDepth(tree, 1);
     }
 
     @Override
     public DafnyTree visitFUNCTION(DafnyTree tree, Void a) {
-        return visitDepth(tree, a);
+        return visitDepth(tree, 1);
     }
 
     @Override
     public DafnyTree visitMETHOD(DafnyTree tree, Void a) {
-        return visitDepth(tree, a);
+        return visitDepth(tree, 1);
     }
 
     @Override
@@ -237,8 +243,20 @@ public class TypeResolution extends DafnyTreeDefaultVisitor<DafnyTree, Void> {
 
     @Override
     public DafnyTree visitFIELD_ACCESS(DafnyTree t, Void a) {
-        // TODO Auto-generated method stub
-        return super.visitFIELD_ACCESS(t, a);
+        DafnyTree receiver = t.getChild(0);
+        DafnyTree field = t.getChild(1);
+        DafnyTree fieldDecl = field.getDeclarationReference();
+
+        receiver.accept(this, null);
+        assert fieldDecl != null:
+            "ReferenceResolutionVisitor must be run before the type resolution";
+
+        assert fieldDecl.getType() != DafnyParser.VAR:
+            "Field decl must be a var decl";
+
+        DafnyTree result = fieldDecl.getChild(1);
+        t.setExpressionType(result);
+        return result;
     }
 
     @Override
@@ -279,8 +297,13 @@ public class TypeResolution extends DafnyTreeDefaultVisitor<DafnyTree, Void> {
 
     @Override
     public DafnyTree visitTHIS(DafnyTree t, Void a) {
-        // TODO Auto-generated method stub
-        return super.visitTHIS(t, a);
+        DafnyTree clzz = (DafnyTree) t.getAncestor(DafnyParser.CLASS);
+        if(clzz == null) {
+            exceptions.add(new DafnyException("Unexpected this reference outside class definition", t));
+            return UNKNOWN_TYPE;
+        }
+        t.setExpressionType(clzz.getChild(0));
+        return t.getExpressionType();
     }
 
     @Override
@@ -302,5 +325,14 @@ public class TypeResolution extends DafnyTreeDefaultVisitor<DafnyTree, Void> {
     }
 
 
+    @Override
+    public DafnyTree visitASSIGN(DafnyTree t, Void a) {
+        return visitDepth(t);
+    }
+
+    @Override
+    public DafnyTree visitBLOCK(DafnyTree t, Void a) {
+        return visitDepth(t);
+    }
 
 }
