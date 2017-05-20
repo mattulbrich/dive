@@ -45,8 +45,18 @@ public class TypeResolutionTest {
     }
 
     @Test
-    public void testPositive() throws Exception {
+    public void testAssignments() throws Exception {
         testMethod("testAssignments");
+    }
+
+    @Test
+    public void testControl() throws Exception {
+        testMethod("testControl");
+    }
+
+    @Test
+    public void testWildcards() throws Exception {
+        testMethod("testWildcards");
     }
 
     private void testMethod(String method, String... expectedErrorTrees) throws Exception {

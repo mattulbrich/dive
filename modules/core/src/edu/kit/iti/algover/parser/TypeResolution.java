@@ -7,13 +7,20 @@ package edu.kit.iti.algover.parser;
 
 import java.util.List;
 
+import org.antlr.runtime.tree.Tree;
+
 import edu.kit.iti.algover.project.Project;
+import edu.kit.iti.algover.util.TreeUtil;
 
 public class TypeResolution extends DafnyTreeDefaultVisitor<DafnyTree, Void> {
 
+    private static final DafnyTree INT_TYPE = new DafnyTree(DafnyParser.INT, "int");
+    private static final DafnyTree UNKNOWN_TYPE = new DafnyTree(DafnyParser.ID, "UNKNOWN_TYPE");
+    private static final DafnyTree BOOL_TYPE = new DafnyTree(DafnyParser.BOOL, "bool");
+    private static final DafnyTree WILDCARD_TYPE = new DafnyTree(DafnyParser.WILDCARD, "*");
+
     private List<DafnyException> exceptions;
 
-    private DafnyTree UNKNOWN_TYPE = new DafnyTree(DafnyParser.ID, "UNKNOWN_TYPE");
 
     public TypeResolution(List<DafnyException> exceptions) {
         this.exceptions = exceptions;
@@ -88,90 +95,70 @@ public class TypeResolution extends DafnyTreeDefaultVisitor<DafnyTree, Void> {
 
     // ------------------- INT operations
 
-    private DafnyTree intOperation(DafnyTree t) {
-        DafnyTree storedType = t.getExpressionType();
+    //TODO DOC THIS
+    private DafnyTree operation(DafnyTree tree, DafnyTree resultType, String... expectedArgTypes) {
+        DafnyTree storedType = tree.getExpressionType();
         if(storedType != null) {
             return storedType;
         }
 
-        if(t.getChildCount() == 0) {
-            return new DafnyTree(DafnyParser.INT);
-        }
-
-        DafnyTree result = null;
-        for (int i = 0; i < t.getChildCount(); i++) {
-            result = t.getChild(i).accept(this, null);
-            if(result.getType() != DafnyParser.INT) {
-                exceptions.add(new DafnyException("Wrong type. Expected int but got " + result,
-                        t.getChild(i)));
+        for (int i = 0; i < tree.getChildCount(); i++) {
+            DafnyTree childType = tree.getChild(i).accept(this, null);
+            if (i < expectedArgTypes.length && childType != null) {
+                String typeString = TreeUtil.toTypeString(childType);
+                if (!expectedArgTypes[i].equals(typeString)) {
+                    exceptions.add(
+                            new DafnyException("Wrong type. Expected " + expectedArgTypes[i]
+                                    + " but got " + typeString,
+                                    tree.getChild(i)));
+                }
             }
         }
 
-        return result;
+        tree.setExpressionType(resultType);
+        return resultType;
     }
 
     @Override
     public DafnyTree visitPLUS(DafnyTree t, Void a) {
-        return intOperation(t);
+        return operation(t, INT_TYPE, "int", "int");
     }
 
     @Override
     public DafnyTree visitTIMES(DafnyTree t, Void a) {
-        return intOperation(t);
+        return operation(t, INT_TYPE, "int", "int");
     }
 
     @Override
     public DafnyTree visitMINUS(DafnyTree t, Void a) {
-        return intOperation(t);
+        return operation(t, INT_TYPE, "int", "int");
     }
 
     @Override
     public DafnyTree visitINT_LIT(DafnyTree t, Void a) {
-        return intOperation(t);
+        return operation(t, INT_TYPE);
     }
 
     // ------------------- Bool operations
 
-    private DafnyTree boolOperation(DafnyTree t) {
-        DafnyTree storedType = t.getExpressionType();
-        if(storedType != null) {
-            return storedType;
-        }
-
-        if(t.getChildCount() == 0) {
-            return new DafnyTree(DafnyParser.BOOL);
-        }
-
-        DafnyTree result = null;
-        for (int i = 0; i < t.getChildCount(); i++) {
-            result = t.getChild(i).accept(this, null);
-            if(result.getType() != DafnyParser.BOOL) {
-                exceptions.add(new DafnyException("Wrong type. Expected bool but got " + result,
-                        t.getChild(i)));
-            }
-        }
-
-        return result;
-    }
-
     @Override
     public DafnyTree visitAND(DafnyTree t, Void a) {
-        return boolOperation(t);
+        return operation(t, BOOL_TYPE, "bool", "bool");
     }
 
     @Override
     public DafnyTree visitOR(DafnyTree t, Void a) {
-        return boolOperation(t);
+        return operation(t, BOOL_TYPE, "bool", "bool");
     }
 
     @Override
     public DafnyTree visitIMPLIES(DafnyTree t, Void a) {
-        return boolOperation(t);
+        return operation(t, BOOL_TYPE, "bool", "bool");
     }
 
     @Override
     public DafnyTree visitNOT(DafnyTree t, Void a) {
-        return boolOperation(t);
+        return operation(t, BOOL_TYPE, "bool");
     }
 
     // Comparisons
@@ -196,26 +183,22 @@ public class TypeResolution extends DafnyTreeDefaultVisitor<DafnyTree, Void> {
 
     @Override
     public DafnyTree visitLE(DafnyTree t, Void a) {
-        // TODO Auto-generated method stub
-        return super.visitLE(t, a);
+        return operation(t, BOOL_TYPE, "int", "int");
     }
 
     @Override
     public DafnyTree visitLT(DafnyTree t, Void a) {
-        // TODO Auto-generated method stub
-        return super.visitLT(t, a);
+        return operation(t, BOOL_TYPE, "int", "int");
     }
 
     @Override
     public DafnyTree visitGE(DafnyTree t, Void a) {
-        // TODO Auto-generated method stub
-        return super.visitGE(t, a);
+        return operation(t, BOOL_TYPE, "int", "int");
     }
 
     @Override
     public DafnyTree visitGT(DafnyTree t, Void a) {
-        // TODO Auto-generated method stub
-        return super.visitGT(t, a);
+        return operation(t, BOOL_TYPE, "int", "int");
     }
 
 
@@ -314,8 +297,24 @@ public class TypeResolution extends DafnyTreeDefaultVisitor<DafnyTree, Void> {
 
     @Override
     public DafnyTree visitWILDCARD(DafnyTree t, Void a) {
-        // TODO Auto-generated method stub
-        return super.visitWILDCARD(t, a);
+        DafnyTree parent = (DafnyTree) t.getParent();
+        switch(parent.getType()) {
+        case DafnyParser.IF:
+        case DafnyParser.WHILE:
+            assert parent.getChild(0) == t : "Wildcard must be first child";
+            t.setExpressionType(BOOL_TYPE);
+            return BOOL_TYPE;
+
+        case DafnyParser.ASSIGN:
+            assert parent.getChild(1) == t : "Wildcard must be 2nd child";
+            DafnyTree receiverType = parent.getChild(0).getExpressionType();
+            assert receiverType != null : "receiver type must already have been resolved";
+            t.setExpressionType(receiverType);
+            return receiverType;
+
+        default:
+            throw new Error("Should not be reachable by grammar");
+        }
     }
 
     @Override
@@ -334,5 +333,16 @@ public class TypeResolution extends DafnyTreeDefaultVisitor<DafnyTree, Void> {
     public DafnyTree visitBLOCK(DafnyTree t, Void a) {
         return visitDepth(t);
     }
+
+    @Override
+    public DafnyTree visitIF(DafnyTree t, Void a) {
+        return operation(t, null, "bool");
+    }
+
+    @Override
+    public DafnyTree visitWHILE(DafnyTree t, Void a) {
+        return operation(t, null, "bool");
+    }
+
 
 }

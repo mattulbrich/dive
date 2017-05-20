@@ -1,0 +1,12 @@
+(method testWildcards ARGS
+        (BLOCK
+         (var i_var int)
+         (var b_var bool)
+         (var c_var C)
+         (:= i_var[int] *[int])
+         (:= b_var[bool] *[bool])
+         (:= c_var[C] *[C])
+         (if *[bool] BLOCK)
+         (while *[bool] BLOCK)))
+
+

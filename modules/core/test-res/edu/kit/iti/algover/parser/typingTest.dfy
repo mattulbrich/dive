@@ -7,7 +7,7 @@ class C
    {
       var i_var : int;
       var b_var : bool;
-      var c_var : int;
+      var c_var : C;
 
       i_var := 0;
       i_var := i_var + i_var;
@@ -19,8 +19,41 @@ class C
       c_var := this.cfield;
       c_var := this.cfield.cfield;
       i_var := intfield;
-      i_var := *;
-      b_var := *;
    }
 
+   method testWildcards()
+   {
+      var i_var : int;
+      var b_var : bool;
+      var c_var : C;
+
+      i_var := *;
+      b_var := *;
+      c_var := *;
+
+      if *
+      { }
+
+      while *
+      { }
+   }
+
+   method testControl()
+   {
+      var i : int;
+
+      if i > 0
+      {
+         i := i + 1;
+      }
+      else
+      {
+         i := i + 1;
+      }
+
+      while i > 0
+      {
+         i := i + 1;
+      }
+   }
 }

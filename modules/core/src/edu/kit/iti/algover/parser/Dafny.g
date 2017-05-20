@@ -239,8 +239,8 @@ statement:
       )
 
   | label? 
-      ( WHILE expression_wildcard invariant+ modifies? decreases block
-           -> ^(WHILE label? expression_wildcard invariant+ modifies? decreases block)
+      ( WHILE expression_wildcard invariant* modifies? decreases? block
+           -> ^(WHILE label? expression_wildcard invariant* modifies? decreases? block)
       | IF expression_wildcard block
          ( options { greedy=true; } : 'else' block )?
            -> ^(IF label? expression_wildcard block*)
