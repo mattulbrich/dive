@@ -8,9 +8,9 @@ method wildcards()
   {
     if *
     {
-      x := 1;
+      x := *;
     } else {
-      x := 1;
+      x := *;
     }
   }
 }

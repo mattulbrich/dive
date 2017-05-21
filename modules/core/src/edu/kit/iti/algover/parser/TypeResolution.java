@@ -159,6 +159,16 @@ public class TypeResolution extends DafnyTreeDefaultVisitor<DafnyTree, Void> {
         return operation(t, BOOL_TYPE, "bool");
     }
 
+    @Override
+    public DafnyTree visitTRUE(DafnyTree t, Void a) {
+        return operation(t, BOOL_TYPE);
+    }
+
+    @Override
+    public DafnyTree visitFALSE(DafnyTree t, Void a) {
+        return operation(t, BOOL_TYPE);
+    }
+
     // Comparisons
 
     @Override

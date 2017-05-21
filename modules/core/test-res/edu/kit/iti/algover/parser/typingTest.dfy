@@ -58,13 +58,13 @@ class C
    }
 
    method testContracts()
-     requires 1 > 0
-     ensures 1 > 0
+     requires true
+     ensures true
      // modifies this
      decreases 2
    {
-     while 1 > 0
-       invariant 1 > 0
+     while true
+       invariant false
        // modifies this
        decreases 2
      {

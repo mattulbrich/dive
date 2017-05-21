@@ -70,6 +70,7 @@ DECREASES: 'decreases';
 ELSE: 'else';
 ENSURES: 'ensures';
 EX: 'exists';
+FALSE: 'false';
 FREE: 'free';
 FUNCTION: 'function';
 IF: 'if';
@@ -87,6 +88,7 @@ SEQ : 'seq';
 SET : 'set';
 THEN: 'then';
 THIS: 'this';
+TRUE: 'true';
 VAR: 'var';
 WHILE: 'while';
 
@@ -312,6 +314,7 @@ expression_only:
 atom_expr:
     ID
   | ID '(' expressions? ')' -> ^(CALL ID ^(ARGS expressions?) )
+  | TRUE | FALSE
   | INT_LIT
   | 'this'
   | NULL

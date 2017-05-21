@@ -1,0 +1,11 @@
+(method testContracts
+        ARGS
+        (requires true[bool])
+        (ensures true[bool])
+        (decreases 2[int])
+        (BLOCK
+         (while
+             true[bool]
+             (invariant false[bool])
+             (decreases 2[int])
+             BLOCK)))

@@ -5,7 +5,6 @@
  */
 package edu.kit.iti.algover.parser;
 
-import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -67,7 +66,7 @@ public class ParserTest {
             throw new FileNotFoundException(filename);
         }
 
-        DafnyTree t = parseFile(url.openStream());
+        DafnyTree t = parseFile(url.openStream(), filename);
 
         if(VERBOSE) {
             // print out the tree
@@ -82,7 +81,11 @@ public class ParserTest {
         }
     }
 
-    public static DafnyTree parseFile(InputStream stream) throws FileNotFoundException,
+    public static DafnyTree parseFile(InputStream stream) throws FileNotFoundException, IOException, RecognitionException {
+        return parseFile(stream, null);
+    }
+
+    public static DafnyTree parseFile(InputStream stream, String filename) throws FileNotFoundException,
             IOException, RecognitionException {
 
         if(stream == null) {
@@ -101,9 +104,9 @@ public class ParserTest {
         try {
             result = parser.program_only();
         } catch (RecognitionException e) {
-
             System.err.println("Exception details: " + parser.getErrorMessage(e, parser.getTokenNames()));
-            System.err.printf("line %d:%d, token %s%n", e.line, e.charPositionInLine, e.token);
+            System.err.printf("%s:%d:%d, token %s%n", filename,
+                    e.line, e.charPositionInLine, e.token);
 
             throw e;
         }
