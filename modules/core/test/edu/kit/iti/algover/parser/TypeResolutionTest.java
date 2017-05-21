@@ -10,7 +10,9 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
+import java.nio.file.Files;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import org.antlr.runtime.RecognitionException;
@@ -18,6 +20,9 @@ import org.antlr.runtime.tree.Tree;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
+import org.junit.runners.Parameterized.Parameters;
 
 import edu.kit.iti.algover.dafnystructures.DafnyMethod;
 import edu.kit.iti.algover.dafnystructures.DafnyTreeToDeclVisitor;
@@ -28,50 +33,63 @@ import edu.kit.iti.algover.util.Util;
 
 import static org.junit.Assert.*;
 
+@RunWith(Parameterized.class)
 public class TypeResolutionTest {
 
-    private Project project;
+    private final Project project;
+    private final String method;
 
-    @Before
-    public void setup() throws FileNotFoundException, IOException, RecognitionException {
-        if(project == null) {
-            DafnyTree tree = ParserTest.parseFile(getClass().getResourceAsStream("typingTest.dfy"));
-            project = mockProject(tree);
-            ArrayList<DafnyException> exceptions = new ArrayList<>();
-            ReferenceResolutionVisitor rrr = new ReferenceResolutionVisitor(project, exceptions);
-            rrr.visitProject();
-            assertTrue(exceptions.isEmpty());
+    public TypeResolutionTest(String method, Project project) {
+        super();
+        this.project = project;
+        this.method = method;
+    }
+
+    @Parameters(name= "{0}")
+    public static Iterable<Object[]> data() throws Exception {
+        DafnyTree tree = ParserTest.parseFile(TypeResolutionTest.class.getResourceAsStream("typingTest.dfy"));
+        Project project = mockProject(tree);
+        ArrayList<DafnyException> exceptions = new ArrayList<>();
+        ReferenceResolutionVisitor rrr = new ReferenceResolutionVisitor(project, exceptions);
+        rrr.visitProject();
+        if(!exceptions.isEmpty()) {
+            for (DafnyException dafnyException : exceptions) {
+                dafnyException.printStackTrace();
+            }
+            fail("Unexpected exceptions");
         }
+
+        ArrayList<Object[]> result = new ArrayList<>();
+        for (DafnyMethod method : project.getClass("C").getMethods()) {
+            result.add(new Object[] { method.getName(), project });
+        }
+        return result;
     }
 
     @Test
-    public void testAssignments() throws Exception {
-        testMethod("testAssignments");
-    }
-
-    @Test
-    public void testControl() throws Exception {
-        testMethod("testControl");
-    }
-
-    @Test
-    public void testWildcards() throws Exception {
-        testMethod("testWildcards");
-    }
-
-    private void testMethod(String method, String... expectedErrorTrees) throws Exception {
+    public void testVisitMethod() throws Exception {
         List<DafnyException> exceptions = new ArrayList<>();
         TypeResolution tr = new TypeResolution(exceptions );
         DafnyMethod m = project.getClass("C").getMethod(method);
         assertNotNull(m);
         m.getRepresentation().accept(tr, null);
+
+        InputStream eis = getClass().getResourceAsStream(method + ".expected.exceptions");
+        String[] expectedErrorTrees;
+        if(eis == null) {
+            expectedErrorTrees = new String[0];
+        } else {
+            expectedErrorTrees = Util.streamToString(eis).split("\n");
+        }
+
         assertEquals(expectedErrorTrees.length, exceptions.size());
         for (int i = 0; i < expectedErrorTrees.length; i++) {
             assertEquals(expectedErrorTrees[i], exceptions.get(i).getTree().toStringTree());
         }
 
-        InputStream is = getClass().getResourceAsStream(method + ".expected.typing");
-        if(is != null) {
+        if(expectedErrorTrees.length == 0) {
+            InputStream is = getClass().getResourceAsStream(method + ".expected.typing");
+            assertNotNull("missing resource!", is);
             String expect = Util.streamToString(is).replaceAll("\\s+", " ").trim();
             String actual = toTypedString(m.getRepresentation()).replaceAll("\\s+", " ").trim();
             assertEquals("Parsing result", expect, actual);
@@ -109,7 +127,7 @@ public class TypeResolutionTest {
         return buf.toString();
     }
 
-    private Project mockProject(DafnyTree tree) {
+    private static Project mockProject(DafnyTree tree) {
         ProjectBuilder pb = new ProjectBuilder();
         DafnyTreeToDeclVisitor visitor = new DafnyTreeToDeclVisitor(pb, new File("dummy"));
         visitor.visit("dummy", tree);

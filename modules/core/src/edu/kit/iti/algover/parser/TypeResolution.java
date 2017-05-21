@@ -17,10 +17,8 @@ public class TypeResolution extends DafnyTreeDefaultVisitor<DafnyTree, Void> {
     private static final DafnyTree INT_TYPE = new DafnyTree(DafnyParser.INT, "int");
     private static final DafnyTree UNKNOWN_TYPE = new DafnyTree(DafnyParser.ID, "UNKNOWN_TYPE");
     private static final DafnyTree BOOL_TYPE = new DafnyTree(DafnyParser.BOOL, "bool");
-    private static final DafnyTree WILDCARD_TYPE = new DafnyTree(DafnyParser.WILDCARD, "*");
 
     private List<DafnyException> exceptions;
-
 
     public TypeResolution(List<DafnyException> exceptions) {
         this.exceptions = exceptions;
@@ -343,6 +341,27 @@ public class TypeResolution extends DafnyTreeDefaultVisitor<DafnyTree, Void> {
     public DafnyTree visitWHILE(DafnyTree t, Void a) {
         return operation(t, null, "bool");
     }
+
+    @Override
+    public DafnyTree visitREQUIRES(DafnyTree t, Void a) {
+        return operation(t, null, "bool");
+    }
+
+    @Override
+    public DafnyTree visitENSURES(DafnyTree t, Void a) {
+        return operation(t, null, "bool");
+    }
+
+    @Override
+    public DafnyTree visitINVARIANT(DafnyTree t, Void a) {
+        return operation(t, null, "bool");
+    }
+
+    @Override
+    public DafnyTree visitDECREASES(DafnyTree t, Void a) {
+        return operation(t, null, "int");
+    }
+
 
 
 }

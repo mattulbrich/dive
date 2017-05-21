@@ -56,4 +56,18 @@ class C
          i := i + 1;
       }
    }
+
+   method testContracts()
+     requires 1 > 0
+     ensures 1 > 0
+     // modifies this
+     decreases 2
+   {
+     while 1 > 0
+       invariant 1 > 0
+       // modifies this
+       decreases 2
+     {
+     }
+   }
 }
