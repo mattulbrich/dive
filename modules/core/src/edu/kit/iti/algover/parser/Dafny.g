@@ -152,6 +152,7 @@ method:
   ( returns_ )?
   ( requires )*
   ( ensures )*
+  ( modifies )?
   ( decreases )?
   '{' statements? '}'
   ->

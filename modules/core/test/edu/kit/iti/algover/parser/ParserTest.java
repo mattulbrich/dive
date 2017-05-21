@@ -48,6 +48,7 @@ public class ParserTest {
                 { "doubleAccess.dfy" },
                 { "faultyReferences.dfy" },
                 { "typingTest.dfy" },
+                { "full/sumandmax.dfy" },
                 });
     }
 
