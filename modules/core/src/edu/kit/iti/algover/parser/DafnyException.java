@@ -50,7 +50,7 @@ public class DafnyException extends Exception {
     @Override
     public String getMessage() {
         String result = super.getMessage();
-        if(tree != null) {
+        if (tree != null) {
             // TODO deal with fileName == null;
             result += " (" + tree.getFilename() + ":" + tree.getLine()
                     + ":" + tree.getCharPositionInLine() + ")";

@@ -70,7 +70,7 @@ public class DafnyDeclPVCCollector implements DafnyDeclVisitor<PVCCollection, PV
         return new EmptyPVC(fi);
     }
     @Override
-    public PVCCollection visit(DafnyFile file, PVCCollection arg) {
+    public PVCCollection visit(DafnyDecl file, PVCCollection arg) {
         // TODO Auto-generated method stub
         return null;
     }

@@ -28,14 +28,29 @@ import edu.kit.iti.algover.util.TreeUtil;
  *
  * @author Mattias Ulbrich
  */
-public class ReferenceResolutionVisitor extends DafnyTreeDefaultVisitor<Void, ReferenceResolutionVisitor.Mode> {
+public class ReferenceResolutionVisitor
+    extends DafnyTreeDefaultVisitor<Void, ReferenceResolutionVisitor.Mode> {
 
     /**
      * The project whose references are to be resolved.
      */
     private final Project project;
 
-    public static enum Mode { EXPR, TYPE };
+    /**
+     * The two modes of this visitor.
+     */
+    public static enum Mode {
+        /**
+         * Used when expressions are being visited. All identifiers refer to
+         * variables/fields.
+         */
+        EXPR,
+        /**
+         * Used when types are being visited. All identifiers refer to class
+         * names.
+         */
+        TYPE
+    };
 
     /**
      * The map for identifier names to declaration trees.
@@ -53,10 +68,15 @@ public class ReferenceResolutionVisitor extends DafnyTreeDefaultVisitor<Void, Re
     private final HistoryMap<String, DafnyTree> callableMap =
             new HistoryMap<>(new HashMap<>());
 
+    /**
+     * The exceptions collected during visitation, may be <code>null</code>.
+     */
     private final List<DafnyException> exceptions;
 
+    /**
+     * The type resolution is needed for resolving fields.
+     */
     private final TypeResolution typeResolution = new TypeResolution(getExceptions());
-
 
     /**
      * Instantiates a new reference resolution visitor.
@@ -116,7 +136,7 @@ public class ReferenceResolutionVisitor extends DafnyTreeDefaultVisitor<Void, Re
      * Adds an exception to the pool of observed exceptions.
      */
     private void addException(DafnyException dafnyException) {
-        if(exceptions != null) {
+        if (exceptions != null) {
             exceptions.add(dafnyException);
         }
     }
@@ -140,7 +160,7 @@ public class ReferenceResolutionVisitor extends DafnyTreeDefaultVisitor<Void, Re
     @Override
     public Void visitID(DafnyTree t, Mode mode) {
         String name = t.getText();
-        switch(mode) {
+        switch (mode) {
         case EXPR:
             DafnyTree idDef = identifierMap.get(name);
             if (idDef == null) {
@@ -157,6 +177,8 @@ public class ReferenceResolutionVisitor extends DafnyTreeDefaultVisitor<Void, Re
                 t.setDeclarationReference(classDef.getRepresentation());
             }
             break;
+        default:
+            throw new Error();
         }
         return null;
     }
@@ -172,13 +194,13 @@ public class ReferenceResolutionVisitor extends DafnyTreeDefaultVisitor<Void, Re
         receiver.accept(this, a);
         String type = TreeUtil.toTypeString(receiver.accept(typeResolution, null));
         DafnyClass clazz = project.getClass(type);
-        if(clazz == null) {
+        if (clazz == null) {
             addException(new DafnyException("Unknown class: " + type, receiver));
             return null;
         }
 
         DafnyField fieldDecl = clazz.getField(field.getText());
-        if(fieldDecl == null) {
+        if (fieldDecl == null) {
             addException(new DafnyException("Unknown field " + field + " in class " + type, field));
             return null;
         }
@@ -196,23 +218,24 @@ public class ReferenceResolutionVisitor extends DafnyTreeDefaultVisitor<Void, Re
         String name = callID.getText();
         boolean hasReceiver = t.getChildCount() > 2;
 
-        if(hasReceiver) {
+        if (hasReceiver) {
             DafnyTree receiver = t.getChild(1);
             receiver.accept(this, Mode.EXPR);
             String type = TreeUtil.toTypeString(receiver.accept(typeResolution, null));
 
             DafnyClass clazz = project.getClass(type);
-            if(clazz == null) {
+            if (clazz == null) {
                 addException(new DafnyException("Unknown class: " + type, receiver));
                 return null;
             }
 
             DafnyDecl callable = clazz.getMethod(name);
-            if(callable == null) {
+            if (callable == null) {
                 callable = clazz.getFunction(name);
             }
-            if(callable == null) {
-                addException(new DafnyException("Unknown method or function " + name + " in class " + type, callID));
+            if (callable == null) {
+                addException(new DafnyException("Unknown method or function "
+                        + name + " in class " + type, callID));
                 return null;
             }
 

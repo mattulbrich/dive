@@ -99,21 +99,21 @@ public class DafnyFunction extends DafnyDecl {
     }
 
     @Override
-        public String toString() {
-            // REVIEW. Reconsider after changes. Use StringBuilder.
-            String s = "function "+this.getName()+"\n";
+    public String toString() {
+        // REVIEW. Reconsider after changes. Use StringBuilder.
+        String s = "function " + this.getName() + "\n";
 
-            if(this.getParameters() != null){
-                String params = this.getParameters().size()+" Parameters: ";
+        if (this.getParameters() != null) {
+            String params = this.getParameters().size() + " Parameters: ";
 
-                for (DafnyTree para:this.getParameters()) {
-                    params+=para.toStringTree()+"\n";
-                }
-                s+=params+"\n";
+            for (DafnyTree para : this.getParameters()) {
+                params += para.toStringTree() + "\n";
             }
-    //        s += "returns "+this.returnType.toStringTree()+"\n";
-    //        s += "with body \n"+this.body.toStringTree();
-
-            return s;
+            s += params + "\n";
         }
+        //        s += "returns "+this.returnType.toStringTree()+"\n";
+        //        s += "with body \n"+this.body.toStringTree();
+
+        return s;
+    }
 }

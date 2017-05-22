@@ -9,7 +9,6 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.List;
 
 import org.antlr.runtime.ANTLRInputStream;
 import org.antlr.runtime.CommonTokenStream;
@@ -17,19 +16,46 @@ import org.antlr.runtime.RecognitionException;
 
 import edu.kit.iti.algover.parser.DafnyParser.program_return;
 
-
-public class DafnyFileParser {
+/**
+ * A collection of static methods that can be used to access the DafnyParser.
+ *
+ * @see DafnyParser.g
+ */
+public final class DafnyFileParser {
 
     private DafnyFileParser() {
         throw new Error();
     }
 
+    /**
+     * Parses a file into an AST.
+     *
+     * The filename of <code>file</code> is set as filename in the AST.
+     *
+     * @param file
+     *            the file to parse, not <code>null</code>
+     * @return the freshly parsed AST for the file
+     * @throws IOException
+     *             Signals that an I/O exception has occurred.
+     * @throws RecognitionException
+     *             Signals that a parser exception has occurred.
+     */
     public static DafnyTree parse(File file) throws IOException, RecognitionException {
         DafnyTree tree = parse(new FileInputStream(file));
         setFilename(tree, file.getPath());
         return tree;
     }
 
+    /**
+     * Sets the filename in an AST.
+     *
+     * Recursively applies to children of the given node.
+     *
+     * @param tree
+     *            the tree to visit
+     * @param filename
+     *            the filename to set.
+     */
     public static void setFilename(DafnyTree tree, String filename) {
         tree.setFilename(filename);
         for (DafnyTree child : tree.getChildren()) {
@@ -37,6 +63,19 @@ public class DafnyFileParser {
         }
     }
 
+    /**
+     * Parses a stream into an AST.
+     *
+     * The filename remains unset in the result.
+     *
+     * @param stream
+     *            the input stream to parse, not <code>null</code>
+     * @return the freshly parsed AST for the file
+     * @throws IOException
+     *             Signals that an I/O exception has occurred.
+     * @throws RecognitionException
+     *             Signals that a parser exception has occurred.
+     */
     public static DafnyTree parse(InputStream stream) throws RecognitionException, IOException {
 
         // create stream and lexer

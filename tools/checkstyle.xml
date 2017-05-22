@@ -261,7 +261,11 @@
       </module>
       <module name="TodoComment">
         <property name="format" value="TODO"/>
-    	<property name="severity" value="warning"/>        
+        <property name="severity" value="warning"/>
+      </module>
+      <module name="TodoComment">
+        <property name="format" value="REVIEW"/>
+        <property name="severity" value="warning"/>
       </module>
 
       <module name="UpperEll"/>

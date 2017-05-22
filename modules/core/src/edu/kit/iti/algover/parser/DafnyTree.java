@@ -230,7 +230,7 @@ public class DafnyTree extends CommonTree {
      *             would be 0 then, too)
      */
     public DafnyTree getChild(int n) {
-        if(n < 0 || n >= getChildCount()) {
+        if (n < 0 || n >= getChildCount()) {
             throw new IndexOutOfBoundsException();
         }
 

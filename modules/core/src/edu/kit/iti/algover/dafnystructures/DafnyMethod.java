@@ -7,31 +7,59 @@ package edu.kit.iti.algover.dafnystructures;
 
 import edu.kit.iti.algover.parser.DafnyTree;
 
-import java.io.File;
+import java.util.Collections;
 import java.util.List;
 
+/**
+ * A method in Dafny. It may be either in a class or standalone in a file.
+ */
 public class DafnyMethod extends DafnyDecl {
-
+    /**
+     * The parameter declarations of this method.
+     * Not <code>null</code>, but may be empty.
+     */
     private final List<DafnyTree> params;
+
+    /**
+     * The return variable declarations.
+     */
     private final List<DafnyTree> returns;
+
+    /**
+     * The collection of requires clauses.
+     * May be empty but not <code>null</code>.
+     */
     private final List<DafnyTree> requiresClauses;
+
+    /**
+     * The collection of ensures clauses.
+     * May be empty but not <code>null</code>.
+     */
     private final List<DafnyTree> ensuresClauses;
+
+    /**
+     * The decreases clauses for termination of this method
+     * May be <code>null</code>.
+     */
     private final DafnyTree decreasesClause;
+
+    /**
+     * The modifies clauses for framing of of this method
+     * May be <code>null</code>.
+     */
     private final DafnyTree modifiesClause;
+
+    /**
+     * The code body. Must eventually be set.
+     */
     private final DafnyTree body;
 
-    public List<DafnyTree> getParams() {
-        return params;
-    }
-
-    public List<DafnyTree> getReturns() {
-        return returns;
-    }
-
-    public DafnyTree getBody() {
-        return body;
-    }
-
+    /**
+     * Instantiates a new dafny method from the data in a builder.
+     *
+     * @param b
+     *            the builder, not <code>null</code>
+     */
     public DafnyMethod(DafnyMethodBuilder b) {
         super(b.getFilename(), b.getRepresentation(), b.getName(), b.isInLibrary());
         this.requiresClauses = b.getRequiresClauses();
@@ -43,10 +71,35 @@ public class DafnyMethod extends DafnyDecl {
         this.body = b.getBody();
     }
 
-    public static DafnyMethod fromTree(String filename, DafnyTree tree) {
-        return new DafnyMethod(new DafnyMethodBuilder(filename, tree));
+    public List<DafnyTree> getParams() {
+        return Collections.unmodifiableList(params);
     }
 
+    public List<DafnyTree> getReturns() {
+        return Collections.unmodifiableList(returns);
+    }
+
+    public DafnyTree getBody() {
+        return body;
+    }
+
+    public List<DafnyTree> getRequiresClauses() {
+        return Collections.unmodifiableList(requiresClauses);
+    }
+
+    public List<DafnyTree> getEnsuresClauses() {
+        return Collections.unmodifiableList(ensuresClauses);
+    }
+
+    public DafnyTree getDecreasesClause() {
+        return decreasesClause;
+    }
+
+    public DafnyTree getModifiesClause() {
+        return modifiesClause;
+    }
+
+    @Override
     public String toString() {
         String s = "method " + this.getName() + "\n";
 
@@ -61,8 +114,9 @@ public class DafnyMethod extends DafnyDecl {
         return s;
 
     }
+
     @Override
-    public <R, A> R accept(DafnyDeclVisitor<R,A> visitor, A arg) {
+    public <R, A> R accept(DafnyDeclVisitor<R, A> visitor, A arg) {
         return visitor.visit(this, arg);
     }
 
