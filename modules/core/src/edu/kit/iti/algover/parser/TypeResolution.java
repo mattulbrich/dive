@@ -15,6 +15,7 @@ public class TypeResolution extends DafnyTreeDefaultVisitor<DafnyTree, Void> {
     private static final DafnyTree INT_TYPE = new DafnyTree(DafnyParser.INT, "int");
     private static final DafnyTree UNKNOWN_TYPE = new DafnyTree(DafnyParser.ID, "UNKNOWN_TYPE");
     private static final DafnyTree BOOL_TYPE = new DafnyTree(DafnyParser.BOOL, "bool");
+    private static final DafnyTree OBJECT_TYPE = new DafnyTree(DafnyParser.ID, "object");;
 
     private List<DafnyException> exceptions;
 
@@ -183,9 +184,22 @@ public class TypeResolution extends DafnyTreeDefaultVisitor<DafnyTree, Void> {
 
     @Override
     public DafnyTree visitEQ(DafnyTree t, Void a) {
-        // TODO Auto-generated method stub
-        return super.visitEQ(t, a);
+        operation(t, BOOL_TYPE);
+        String ty1 = TreeUtil.toTypeString(t.getChild(0).getExpressionType());
+        String ty2 = TreeUtil.toTypeString(t.getChild(1).getExpressionType());
+
+        if(!ty1.equals(ty2)) {
+            exceptions.add(new DafnyException("Equality can only be applied to equally typed terms", t));
+        }
+
+        return BOOL_TYPE;
     }
+
+    @Override
+    public DafnyTree visitNEQ(DafnyTree t, Void a) {
+        return visitEQ(t, a);
+    }
+
 
     @Override
     public DafnyTree visitLE(DafnyTree t, Void a) {
@@ -261,12 +275,6 @@ public class TypeResolution extends DafnyTreeDefaultVisitor<DafnyTree, Void> {
     }
 
     @Override
-    public DafnyTree visitNEQ(DafnyTree t, Void a) {
-        // TODO Auto-generated method stub
-        return super.visitNEQ(t, a);
-    }
-
-    @Override
     public DafnyTree visitNOETHER_LESS(DafnyTree t, Void a) {
         // TODO Auto-generated method stub
         return super.visitNOETHER_LESS(t, a);
@@ -274,8 +282,48 @@ public class TypeResolution extends DafnyTreeDefaultVisitor<DafnyTree, Void> {
 
     @Override
     public DafnyTree visitNULL(DafnyTree t, Void a) {
-        // TODO Auto-generated method stub
-        return super.visitNULL(t, a);
+        DafnyTree parent = (DafnyTree) t.getParent();
+        DafnyTree ty;
+        DafnyTree otherTree;
+
+        switch(parent.getType()) {
+        case DafnyParser.ASSIGN:
+            ty = parent.getChild(0).getExpressionType();
+            assert parent.getChild(1) == t : "null must be 2nd child";
+            t.setExpressionType(ty);
+            if(ty.getType() != DafnyParser.ID) {
+                exceptions.add(new DafnyException("assigning null to a non-reference entity", parent));
+            }
+            return ty;
+
+        case DafnyParser.VAR:
+            assert parent.getChild(2) == t : "null must be 3rd child";
+            ty = parent.getChild(1);
+            t.setExpressionType(ty);
+            if(ty.getType() != DafnyParser.ID) {
+                exceptions.add(new DafnyException("assigning null to a non-reference entity", parent));
+            }
+            return ty;
+
+        case DafnyParser.EQ:
+        case DafnyParser.NEQ:
+            if(parent.getChild(0) == t) {
+                otherTree = parent.getChild(1);
+            } else {
+                otherTree = parent.getChild(0);
+            }
+            if(otherTree.getType() == DafnyParser.NULL) {
+                t.setExpressionType(OBJECT_TYPE);
+                return OBJECT_TYPE;
+            } else {
+                ty = otherTree.accept(this, null);
+                t.setExpressionType(ty);
+                return ty;
+            }
+
+        default:
+            throw new Error("unexpected null under type " + parent.getType());
+        }
     }
 
     @Override
@@ -332,7 +380,14 @@ public class TypeResolution extends DafnyTreeDefaultVisitor<DafnyTree, Void> {
 
     @Override
     public DafnyTree visitASSIGN(DafnyTree t, Void a) {
-        return visitDepth(t);
+        DafnyTree result = visitDepth(t);
+        String ty1 = TreeUtil.toTypeString(t.getChild(0).getExpressionType());
+        String ty2 = TreeUtil.toTypeString(t.getChild(1).getExpressionType());
+        if(!ty1.equals(ty2)) {
+            exceptions.add(new DafnyException("Assigning a value of type " + ty2 + " to an entitity"
+                    + " of type " + ty1, t));
+        }
+        return result;
     }
 
     @Override

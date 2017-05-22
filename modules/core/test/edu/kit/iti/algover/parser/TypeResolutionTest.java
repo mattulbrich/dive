@@ -41,6 +41,7 @@ public class TypeResolutionTest {
     @Parameters(name= "{0}")
     public static Iterable<Object[]> data() throws Exception {
         DafnyTree tree = ParserTest.parseFile(TypeResolutionTest.class.getResourceAsStream("typingTest.dfy"));
+        DafnyFileParser.setFilename(tree, "typingTest.dfy");
         Project project = mockProject(tree);
         ArrayList<DafnyException> exceptions = new ArrayList<>();
         ReferenceResolutionVisitor rrr = new ReferenceResolutionVisitor(project, exceptions);
@@ -62,20 +63,20 @@ public class TypeResolutionTest {
     @Test
     public void testVisitMethod() throws Exception {
         List<DafnyException> exceptions = new ArrayList<>();
-        TypeResolution tr = new TypeResolution(exceptions );
+        TypeResolution tr = new TypeResolution(exceptions);
         DafnyMethod m = project.getClass("C").getMethod(method);
         assertNotNull(m);
         m.getRepresentation().accept(tr, null);
 
         InputStream eis = getClass().getResourceAsStream(method + ".expected.exceptions");
         String[] expectedErrorTrees;
-        if(eis == null) {
+        if (eis == null) {
             expectedErrorTrees = new String[0];
         } else {
             expectedErrorTrees = Util.streamToString(eis).split("\n");
         }
 
-        assertEquals(expectedErrorTrees.length, exceptions.size());
+        assertEquals("Number of exceptions", expectedErrorTrees.length, exceptions.size());
         for (int i = 0; i < expectedErrorTrees.length; i++) {
             assertEquals(expectedErrorTrees[i], exceptions.get(i).getTree().toStringTree());
         }

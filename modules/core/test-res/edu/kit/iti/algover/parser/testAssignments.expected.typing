@@ -11,4 +11,5 @@
          (:= c_var[C] cfield[C])
          (:= c_var[C] (FIELD_ACCESS this[C] cfield)[C])
          (:= c_var[C] (FIELD_ACCESS (FIELD_ACCESS this[C] cfield)[C] cfield)[C])
-         (:= i_var[int] intfield[int])))
+         (:= i_var[int] intfield[int])
+         (:= c_var[C] null[C])))

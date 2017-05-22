@@ -1,0 +1,4 @@
+(:= i null)
+(:= i c)
+(:= i true)
+(var localVar1 int null)

@@ -1,0 +1,11 @@
+(method testOps ARGS
+        (BLOCK
+         (var b bool)
+         (var i int)
+         (:= b[bool] (< 1[int] 2[int])[bool])
+         (:= b[bool] (<= 1[int] 2[int])[bool])
+         (:= b[bool] (> 1[int] 2[int])[bool])
+         (:= b[bool] (>= 1[int] 2[int])[bool])
+         (:= i[int] (+ 1[int] 1[int])[int])
+         (:= i[int] (- 1[int] 1[int])[int])
+         (:= i[int] (* 1[int] 1[int])[int])))

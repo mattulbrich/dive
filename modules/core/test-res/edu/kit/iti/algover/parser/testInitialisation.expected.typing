@@ -1,0 +1,2 @@
+(method testInitialisation ARGS
+        (BLOCK (var i int 22[int]) (var c C null[C])))

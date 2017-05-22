@@ -19,6 +19,8 @@ class C
       c_var := this.cfield;
       c_var := this.cfield.cfield;
       i_var := intfield;
+
+      c_var := null;
    }
 
    method testWildcards()
@@ -55,6 +57,9 @@ class C
       {
          i := i + 1;
       }
+
+      if i == 0
+      { }
    }
 
    method testContracts()
@@ -69,5 +74,55 @@ class C
        decreases 2
      {
      }
+   }
+
+   method testInitialisation()
+   {
+     var i : int := 22;
+     var c : C := null;
+   }
+
+   method testNull()
+   {
+     var c : C;
+
+     c := null;
+     if null == null
+     { }
+     if c == null
+     { }
+     if c != null
+     { }
+     while null == c
+     { }
+   }
+
+   method testOps()
+   {
+      var b : bool;
+      var i : int;
+
+      b := 1 < 2;
+      b := 1 <= 2;
+      b := 1 > 2;
+      b := 1 >= 2;
+
+      i := 1 + 1;
+      i := 1 - 1;
+      i := 1 * 1;
+      // i := 1 / 1;
+   }
+
+   method failAssignments()
+   {
+      var i : int;
+      var c : C;
+
+      i := 0;
+      i := null;
+      i := c;
+      i := true;
+
+      var localVar1 : int := null;
    }
 }
