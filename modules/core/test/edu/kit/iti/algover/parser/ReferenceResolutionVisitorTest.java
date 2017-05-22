@@ -12,12 +12,13 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.antlr.runtime.RecognitionException;
 import org.junit.Test;
 
-import edu.kit.iti.algover.dafnystructures.DafnyTreeToDeclVisitor;
 import edu.kit.iti.algover.project.Project;
 import edu.kit.iti.algover.project.ProjectBuilder;
 
@@ -131,11 +132,10 @@ public class ReferenceResolutionVisitorTest {
 
     }
 
-    private Project mockProject(DafnyTree tree) {
+    private Project mockProject(DafnyTree tree) throws IOException, RecognitionException, DafnyException {
         ProjectBuilder pb = new ProjectBuilder();
-        DafnyTreeToDeclVisitor visitor = new DafnyTreeToDeclVisitor(pb, new File("dummy"));
-        visitor.visit("dummy", tree);
-        return new Project(pb);
+        pb.addDafnyTree("dummy", tree);
+        return pb.build();
     }
 
 }

@@ -1,12 +1,18 @@
+/*
+ * This file is part of AlgoVer.
+ *
+ * Copyright (C) 2015-2017 Karlsruhe Institute of Technology
+ */
 package edu.kit.iti.algover.proof;
 
-import edu.kit.iti.algover.dafnystructures.*;
+import java.util.Collection;
+
+import edu.kit.iti.algover.dafnystructures.DafnyClass;
+import edu.kit.iti.algover.dafnystructures.DafnyDeclPVCCollector;
+import edu.kit.iti.algover.dafnystructures.DafnyFunction;
+import edu.kit.iti.algover.dafnystructures.DafnyMethod;
 import edu.kit.iti.algover.facade.ProjectFacade;
 import edu.kit.iti.algover.project.Project;
-
-import java.util.HashMap;
-import java.util.List;
-import java.util.TreeMap;
 
 /**
  * Class holding all infos about the different pvcs and their references in the project
@@ -48,9 +54,9 @@ public class ProofManagement {
 
         PVCGroup root = new PVCGroup(null, null);
         this.root = root;
-        List<DafnyMethod> freeMethods = p.getMethods();
-        List<DafnyFunction> freeFunctions = p.getFunctions();
-        List<DafnyClass> classes = p.getClasses();
+        Collection<DafnyMethod> freeMethods = p.getMethods();
+        Collection<DafnyFunction> freeFunctions = p.getFunctions();
+        Collection<DafnyClass> classes = p.getClasses();
 
         for(DafnyMethod fm: freeMethods){
             DafnyDeclPVCCollector visitor = new DafnyDeclPVCCollector(facade);

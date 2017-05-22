@@ -1,28 +1,23 @@
+/*
+ * This file is part of AlgoVer.
+ *
+ * Copyright (C) 2015-2017 Karlsruhe Institute of Technology
+ */
 package edu.kit.iti.algover.util;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 
 /**
  * Created by sarah on 8/16/16.
  */
 public class FileUtil {
 
-    public static FileInputStream readFile(File file) throws Exception {
-        try {
-            FileInputStream inputStream = new FileInputStream(file);
-            return inputStream;
-
-
-        } catch (FileNotFoundException e) {
-            System.out.println("Could not read file " + file.getAbsolutePath());
-        } catch (Exception e) {
-            System.out.println("Could not load problem");
-            e.printStackTrace();
-        }
-        return null;
-
+    public static FileInputStream readFile(File file) throws IOException {
+        FileInputStream inputStream = new FileInputStream(file);
+        return inputStream;
     }
 
     /**

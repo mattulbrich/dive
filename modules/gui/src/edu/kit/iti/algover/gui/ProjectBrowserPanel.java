@@ -1,3 +1,8 @@
+/*
+ * This file is part of AlgoVer.
+ *
+ * Copyright (C) 2015-2017 Karlsruhe Institute of Technology
+ */
 package edu.kit.iti.algover.gui;
 
 import edu.kit.iti.algover.gui.components.CustomLogicView;
@@ -54,11 +59,12 @@ public class ProjectBrowserPanel extends JPanel {
         final File f1 = new File(testDir);
 
         ProjectBuilder pb = new ProjectBuilder();
+        pb.setDir(f1);
 
         Project p = null;
 
         try {
-            p = pb.buildProject(f1);
+            p = pb.build();
         } catch (Exception e) {
             e.printStackTrace();
         }

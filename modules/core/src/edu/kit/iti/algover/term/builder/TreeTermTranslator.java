@@ -26,7 +26,6 @@ import edu.kit.iti.algover.term.Sort;
 import edu.kit.iti.algover.term.Term;
 import edu.kit.iti.algover.term.VariableTerm;
 import edu.kit.iti.algover.util.ImmutableList;
-import edu.kit.iti.algover.util.Pair;
 
 /**
  * The Class TreeTermTranslator is used to create a {@link Term} object from a
@@ -196,6 +195,8 @@ public class TreeTermTranslator {
 
         case DafnyParser.ID:
         case DafnyParser.NULL:
+        case DafnyParser.TRUE:
+        case DafnyParser.FALSE:
         case DafnyParser.INT_LIT:
             return buildIdentifier(tree);
 

@@ -1,3 +1,8 @@
+/*
+ * This file is part of AlgoVer.
+ *
+ * Copyright (C) 2015-2017 Karlsruhe Institute of Technology
+ */
 package edu.kit.iti.algover.model;
 
 import edu.kit.iti.algover.dafnystructures.DafnyDecl;
@@ -24,7 +29,7 @@ public abstract class CustomLeaf extends ProjectTree implements TreeNode {
 
     public int lineNumber;
     public CustomLeaf(DafnyDecl data, ProjectTree parent, Project p){
-        super(parent.name, data.getFile());
+        super(parent.name, new File(data.getFilename()));
         this.data = data;
         this.parent = parent;
         this.p = p;

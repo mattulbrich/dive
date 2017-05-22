@@ -1,3 +1,8 @@
+/*
+ * This file is part of AlgoVer.
+ *
+ * Copyright (C) 2015-2017 Karlsruhe Institute of Technology
+ */
 package edu.kit.iti.algover.dafnystructures;
 
 
@@ -63,5 +68,10 @@ public class DafnyDeclPVCCollector implements DafnyDeclVisitor<PVCCollection, PV
         System.out.println("Vistited field "+fi.getName());
         //return new SinglePVC(arg);
         return new EmptyPVC(fi);
+    }
+    @Override
+    public PVCCollection visit(DafnyFile file, PVCCollection arg) {
+        // TODO Auto-generated method stub
+        return null;
     }
 }

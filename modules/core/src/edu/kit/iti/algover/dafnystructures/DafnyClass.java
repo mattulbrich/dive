@@ -5,7 +5,10 @@
  */
 package edu.kit.iti.algover.dafnystructures;
 
-import java.util.List;
+import java.util.Collection;
+import java.util.Map;
+
+import edu.kit.iti.algover.parser.DafnyException;
 
 /**
  * Created by sarah on 8/4/16.
@@ -13,67 +16,59 @@ import java.util.List;
 public class DafnyClass extends DafnyDecl {
 
     /**
-     * Name of the DafnyClass
-     */
-    private String name;
-
-    /**
      * Methods belonging to this class, possibly empty
      */
-    private List<DafnyMethod> methods;
-
-    public List<DafnyFunction> getFunctions() {
-        return functions;
-    }
-
-
-    public List<DafnyMethod> getMethods() {
-        return methods;
-    }
-
-    public List<DafnyField> getFields() {
-        return fields;
-    }
+    private Map<String, DafnyMethod> methods;
 
     /**
      * Functions belonging to this class, possibly empty
      */
-    private List<DafnyFunction> functions;
+    private Map<String, DafnyFunction> functions;
 
     /**
      * Fields belonging to this class, possibly empty
      */
-    private List<DafnyField> fields;
+    private Map<String, DafnyField> fields;
 
-    public DafnyClass(DafnyClassBuilder dcb){
-        super(dcb.getFile(), dcb.getTree(), dcb.getName());
-        this.name = dcb.getName();
-        this.methods = dcb.getMethods();
-        this.functions = dcb.getFunctions();
-        this.fields = dcb.getFields();
+    public Collection<DafnyFunction> getFunctions() {
+        return functions.values();
+    }
 
+    public Collection<DafnyMethod> getMethods() {
+        return methods.values();
+    }
+
+    public Collection<DafnyField> getFields() {
+        return fields.values();
+    }
+
+    public DafnyClass(DafnyClassBuilder dcb) throws DafnyException {
+        super(dcb.getFilename(), dcb.getRepresentation(), dcb.getName(), dcb.isInLibrary());
+        this.methods = toMap(dcb.getMethods());
+        this.functions = toMap(dcb.getFunctions());
+        this.fields = toMap(dcb.getFields());
     }
 
     public String toString(){
         String classToString = "";
 
-        classToString += "Class "+this.name +"\nwith "+this.methods.size()+ " methods:\n";
+        classToString += "Class "+this.getName() +"\nwith "+this.methods.size()+ " methods:\n";
         if(this.methods != null) {
-            for (DafnyMethod method : this.methods) {
+            for (DafnyMethod method : this.getMethods()) {
                 classToString += method.toString() + "\n";
 
             }
         }
         classToString += "with "+this.functions.size()+" functions:";
         if(this.functions != null) {
-            for (DafnyFunction function : this.functions) {
+            for (DafnyFunction function : this.getFunctions()) {
                 classToString += function.toString() + "\n";
             }
         }
 
         if(this.fields != null) {
             classToString += "with " + this.fields.size() + " fields:";
-            for (DafnyField field : this.fields) {
+            for (DafnyField field : this.getFields()) {
                 classToString += field.toString() + "\n";
             }
         }
@@ -87,33 +82,15 @@ public class DafnyClass extends DafnyDecl {
 
 
     public DafnyField getField(String name) {
-        // TODO Do this using maps (MU)
-        for (DafnyField dafnyField : fields) {
-            if(dafnyField.getName().equals(name)) {
-                return dafnyField;
-            }
-        }
-        return null;
+        return fields.get(name);
     }
 
 
     public DafnyMethod getMethod(String name) {
-        // TODO Do this using maps (MU)
-        for (DafnyMethod dafnyMethod : methods) {
-            if(dafnyMethod.getName().equals(name)) {
-                return dafnyMethod;
-            }
-        }
-        return null;
+        return methods.get(name);
     }
 
     public DafnyFunction getFunction(String name) {
-        // TODO Do this using maps (MU)
-        for (DafnyFunction dafnyFunction : functions) {
-            if(dafnyFunction.getName().equals(name)) {
-                return dafnyFunction;
-            }
-        }
-        return null;
+        return functions.get(name);
     }
 }

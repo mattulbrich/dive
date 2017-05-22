@@ -1,3 +1,8 @@
+/*
+ * This file is part of AlgoVer.
+ *
+ * Copyright (C) 2015-2017 Karlsruhe Institute of Technology
+ */
 package edu.kit.iti.algover.model;
 
 import edu.kit.iti.algover.dafnystructures.DafnyDecl;
@@ -48,7 +53,7 @@ public class MethodLeaf extends CustomLeaf {
 
     @Override
     public String getName() {
-        return method.getMethodName();
+        return method.getName();
     }
 
     @Override
@@ -58,7 +63,7 @@ public class MethodLeaf extends CustomLeaf {
 
     @Override
     public String toString() {
-        return method.getMethodName();
+        return method.getName();
     }
     @Override
     public String getFileName(){
@@ -67,7 +72,7 @@ public class MethodLeaf extends CustomLeaf {
 
     @Override
     public File getFile(){
-        return this.method.getFile();
+        return new File(this.method.getFilename());
     }
 
 }

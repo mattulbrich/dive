@@ -1,3 +1,8 @@
+/*
+ * This file is part of AlgoVer.
+ *
+ * Copyright (C) 2015-2017 Karlsruhe Institute of Technology
+ */
 package edu.kit.iti.algover.dafnystructures;
 
 import edu.kit.iti.algover.parser.DafnyTree;
@@ -5,18 +10,15 @@ import edu.kit.iti.algover.parser.DafnyTree;
 import java.io.File;
 import java.util.List;
 
-/**
- * Created by sarah on 8/4/16.
- */
 public class DafnyMethod extends DafnyDecl {
 
-    private String methodName;
-    private List<DafnyTree> params;
-    private List<DafnyTree> returns;
-
-    public String getMethodName() {
-        return methodName;
-    }
+    private final List<DafnyTree> params;
+    private final List<DafnyTree> returns;
+    private final List<DafnyTree> requiresClauses;
+    private final List<DafnyTree> ensuresClauses;
+    private final DafnyTree decreasesClause;
+    private final DafnyTree modifiesClause;
+    private final DafnyTree body;
 
     public List<DafnyTree> getParams() {
         return params;
@@ -30,39 +32,23 @@ public class DafnyMethod extends DafnyDecl {
         return body;
     }
 
-    public List<DafnyTree> getPres() {
-        return pres;
+    public DafnyMethod(DafnyMethodBuilder b) {
+        super(b.getFilename(), b.getRepresentation(), b.getName(), b.isInLibrary());
+        this.requiresClauses = b.getRequiresClauses();
+        this.ensuresClauses = b.getEnsuresClauses();
+        this.decreasesClause = b.getDecreasesClause();
+        this.modifiesClause = b.getModifiesClause();
+        this.params = b.getParameters();
+        this.returns = b.getReturns();
+        this.body = b.getBody();
     }
 
-    public List<DafnyTree> getPosts() {
-        return posts;
-    }
-
-    /**
-     * The function's body. Only one single line allowed
-     */
-    private DafnyTree body;
-
-
-    private List<DafnyTree> pres;
-    private List<DafnyTree> posts;
-
-    public DafnyMethod(File file, DafnyTree t, String methodName, List<DafnyTree> params,
-                       List<DafnyTree> returns,
-                       DafnyTree body,
-                       List<DafnyTree> pres,
-                       List<DafnyTree> posts) {
-        super(file, t, methodName);
-        this.methodName = methodName;
-        this.params = params;
-        this.returns = returns;
-        this.body = body;
-        this.pres = pres;
-        this.posts = posts;
+    public static DafnyMethod fromTree(String filename, DafnyTree tree) {
+        return new DafnyMethod(new DafnyMethodBuilder(filename, tree));
     }
 
     public String toString() {
-        String s = "method " + this.methodName + "\n";
+        String s = "method " + this.getName() + "\n";
 
         if (this.params != null) {
             String params = this.params.size() + " Parameters: ";

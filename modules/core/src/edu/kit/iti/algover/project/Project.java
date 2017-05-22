@@ -5,15 +5,19 @@
  */
 package edu.kit.iti.algover.project;
 
+import java.io.File;
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
+
 import edu.kit.iti.algover.dafnystructures.DafnyClass;
+import edu.kit.iti.algover.dafnystructures.DafnyDecl;
+import edu.kit.iti.algover.dafnystructures.DafnyFile;
 import edu.kit.iti.algover.dafnystructures.DafnyFunction;
 import edu.kit.iti.algover.dafnystructures.DafnyMethod;
+import edu.kit.iti.algover.parser.DafnyException;
+import edu.kit.iti.algover.proof.PVC;
 import edu.kit.iti.algover.settings.ProjectSettings;
-
-import java.io.File;
-
-
-import java.util.List;
 
 
 // REVIEW: I miss a possibility to retrieve all parsed DafnyTrees (toplevel entities)
@@ -22,123 +26,55 @@ import java.util.List;
 // REVIEW: Would it make sense to habe a lookup table indexed by name?
 
 /**
- * Class representing a project, that contains all relevant information for a project that should be verified
- * Created by sarah on 8/3/16.
+ * Class representing a project, that contains all relevant information for a
+ * project that should be verified Created by sarah on 8/3/16.
  */
 public class Project {
 
     /**
-     * Path of projects directory
+     * The base directory under which all files must be located.
      */
-
-    //private final File pathOfProjectDirectory;
-
-    /**
-     * Script file
-     */
-    private final File script;
+    private final File baseDir;
 
     /**
      * List containing references to all problem files
+     * All imported libraries
      */
-    private final List<File> dafnyFiles;
-
-    public List<DafnyFunction> getFunctions() {
-        return functions;
-    }
-
-    public List<DafnyMethod> getMethods() {
-        return methods;
-    }
-
-    public List<DafnyClass> getClasses() {
-        return classes;
-    }
-
-    public List<File> getLibraries() {
-        return libraries;
-    }
-
-    public ProjectSettings getSettings() {
-        return settings;
-    }
-
-    public List<File> getDafnyFiles() {
-        return dafnyFiles;
-    }
-
-    public File getScript() {
-        return script;
-    }
+    private final List<DafnyFile> dafnyFiles;
 
     /**
      * Settings of Project
      */
     private final ProjectSettings settings;
 
-    /**
-     * Reference to all elements of the project: classes, methods, functions, classfields
-     */
-    //private final List<DafnyDecl> elementsOfProject;
+    private Map<String, DafnyClass> classes;
 
-    /**
-     * List of compilation units of project
-     */
-   // private final List<DafnyCompilationUnit> compilationUnits;
+    private Map<String, DafnyMethod> methods;
 
-    /**
-     * All imported libraries
-     * DafnyLib
-     */
-    private List<File> libraries;
+    private Map<String, DafnyFunction> functions;
 
-    private List<DafnyClass> classes;
-    private List<DafnyMethod> methods;
-    private List<DafnyFunction> functions;
-    /**
-     * Constructor can only be called using a ProjectBuilder
-     * @param pBuilder
-     */
-    public Project(ProjectBuilder pBuilder){
-        this.settings = pBuilder.getSettings();
-//        this.compilationUnits = pBuilder.getCpus();
-        this.dafnyFiles = pBuilder.getDafnyFiles();
-//        this.pathOfProjectDirectory = pBuilder.getDir();
-        this.libraries = pBuilder.getLibraries();
-      //  this.elementsOfProject = buildDafnyDecl();
-        this.script = pBuilder.getScript();
-        this.classes = pBuilder.getClasses();
-        this.functions = pBuilder.getFunctions();
-        this.methods = pBuilder.getMethods();
+    public File getBaseDir() {
+        return baseDir;
     }
 
-    public String toString(){
+    public Collection<DafnyFunction> getFunctions() {
+        return functions.values();
+    }
 
-        String s = "Project\n";
-        s+= "imports ";
-        if(libraries.size() != 0) {
-            for (File f : libraries) {
-                s += f.getName()+"\n";
-            }
-        }
-        if(classes.size() != 0) {
-            s += "with ";
-            s += this.classes.size();
-            s += " classe(s): \n";
-            for (DafnyClass dClass : this.classes) {
-                s += dClass.toString();
-            }
-        }else{
-            s += "with ";
-            s += this.methods.size();
-            s += " method(s): \n";
-            for (DafnyMethod m : this.methods) {
+    public DafnyFunction getFunction(String name) {
+        return functions.get(name);
+    }
 
-                s += m.toString();
-            }
-        }
-        return s;
+    public Collection<DafnyMethod> getMethods() {
+        return methods.values();
+    }
 
+    public DafnyMethod getMethod(String name) {
+        return methods.get(name);
+    }
+
+    public Collection<DafnyClass> getClasses() {
+        return classes.values();
     }
 
     /**
@@ -150,13 +86,60 @@ public class Project {
      *         existing
      */
     public DafnyClass getClass(String classname) {
-        // TODO implement this using a map.
-        for (DafnyClass c : getClasses()) {
-            if(c.getName().equals(classname)) {
-                return c;
+        return classes.get(classname);
+    }
+
+    public List<DafnyFile> getDafnyFiles() {
+        return dafnyFiles;
+    }
+
+    public ProjectSettings getSettings() {
+        return settings;
+    }
+
+    /**
+     * Constructor can only be called using a ProjectBuilder
+     * @param pBuilder
+     * @throws DafnyException
+     */
+    public Project(ProjectBuilder pBuilder) throws DafnyException{
+        this.settings = pBuilder.getSettings();
+        this.dafnyFiles = pBuilder.getFiles();
+        this.classes = DafnyDecl.toMap(pBuilder.getClasses());
+        this.functions = DafnyDecl.toMap(pBuilder.getFunctions());
+        this.methods = DafnyDecl.toMap(pBuilder.getMethods());
+        this.baseDir = pBuilder.getDir();
+    }
+
+    public String toString(){
+        // REVIEW should use StringBuilder
+        String s = "Project\n";
+        if(classes.size() != 0) {
+            s += "with ";
+            s += this.classes.size();
+            s += " classe(s): \n";
+            for (DafnyClass dClass : this.getClasses()) {
+                s += dClass.toString();
+            }
+        }else{
+            s += "with ";
+            s += this.methods.size();
+            s += " method(s): \n";
+            for (DafnyMethod m : this.getMethods()) {
+
+                s += m.toString();
             }
         }
-        return null;
+        return s;
+
+    }
+
+    public List<PVC> getAllVerificationConditions() {
+        throw new UnsupportedOperationException();
+    }
+
+    public List<PVC> getVerificationConditionsFor(DafnyDecl decl) {
+        throw new UnsupportedOperationException();
     }
 
 }

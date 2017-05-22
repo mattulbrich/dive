@@ -5,14 +5,38 @@
  */
 package edu.kit.iti.algover.dafnystructures;
 
-import edu.kit.iti.algover.parser.DafnyTree;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 
-import java.io.File;
+import edu.kit.iti.algover.parser.DafnyException;
+import edu.kit.iti.algover.parser.DafnyTree;
 
 /**
  * Created by sarah on 8/4/16.
  */
-public class DafnyDecl {
+public abstract class DafnyDecl {
+
+    /**
+     * File, in which this DafnyDecl is stored in
+     */
+    private final String filename;
+
+    /**
+     * Reference to ASTs that represents this DafnyDecl
+     */
+    private final DafnyTree representation;
+
+    private final String name;
+
+    private final boolean inLibrary;
+
+    public DafnyDecl(String filename, DafnyTree tree, String name, boolean inLib){
+        this.representation = tree;
+        this.filename = filename;
+        this.name = name;
+        this.inLibrary = inLib;
+    }
 
     // REVIEW: What is a representation? Is this the AST source of this decl?
     public DafnyTree getRepresentation() {
@@ -27,39 +51,21 @@ public class DafnyDecl {
         return name;
     }
 
-    /**
-     * Reference to ASTs that represents this DafnyDecl
-     */
-    private DafnyTree representation;
-    /**
-     * File, in which this DafnyDecl is stored in
-     */
-   // private File file;
-    private String filename;
-
-    private String name;
-
-    public File getFile() {
-        return file;
+    public boolean isInLibrary() {
+        return inLibrary;
     }
 
-    private File file;
+    public abstract <R, A> R accept(DafnyDeclVisitor<R,A> visitor, A arg);
 
-    public DafnyDecl(File file, DafnyTree tree, String name){
-        this.representation = tree;
-        this.file = file;
-        this.filename = file.getAbsoluteFile().toString();
-        this.name = name;
+    public static <D extends DafnyDecl> Map<String, D> toMap(List<D> list) throws DafnyException {
+        Map<String, D> result = new LinkedHashMap<String, D>();
+        for (D decl : list) {
+            if(result.containsKey(decl.getName())) {
+                throw new DafnyException("XXX", decl.getRepresentation());
+            }
+            result.put(decl.getName(), decl);
+        }
+        return result;
     }
-
-    public DafnyDecl(){
-
-    }
-
-
-    public <R, A> R accept(DafnyDeclVisitor<R,A> visitor, A arg) {
-        return visitor.visitDefault(this, arg);
-    }
-
 
 }

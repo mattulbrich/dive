@@ -5,33 +5,26 @@
  */
 package edu.kit.iti.algover.parser;
 
-import java.io.File;
-import java.io.FileNotFoundException;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.fail;
+
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.URL;
-import java.nio.file.Files;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import org.antlr.runtime.RecognitionException;
-import org.antlr.runtime.tree.Tree;
-import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
 
 import edu.kit.iti.algover.dafnystructures.DafnyMethod;
-import edu.kit.iti.algover.dafnystructures.DafnyTreeToDeclVisitor;
 import edu.kit.iti.algover.project.Project;
 import edu.kit.iti.algover.project.ProjectBuilder;
 import edu.kit.iti.algover.util.TreeUtil;
 import edu.kit.iti.algover.util.Util;
-
-import static org.junit.Assert.*;
 
 @RunWith(Parameterized.class)
 public class TypeResolutionTest {
@@ -127,10 +120,9 @@ public class TypeResolutionTest {
         return buf.toString();
     }
 
-    private static Project mockProject(DafnyTree tree) {
+    private static Project mockProject(DafnyTree tree) throws IOException, RecognitionException, DafnyException {
         ProjectBuilder pb = new ProjectBuilder();
-        DafnyTreeToDeclVisitor visitor = new DafnyTreeToDeclVisitor(pb, new File("dummy"));
-        visitor.visit("dummy", tree);
-        return new Project(pb);
+        pb.addDafnyTree("dummy", tree);
+        return pb.build();
     }
 }

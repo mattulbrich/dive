@@ -5,14 +5,18 @@
  */
 package edu.kit.iti.algover.facade;
 
-import edu.kit.iti.algover.dafnystructures.DafnyClass;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.List;
+
 import edu.kit.iti.algover.dafnystructures.DafnyDecl;
-import edu.kit.iti.algover.dafnystructures.DafnyFunction;
-import edu.kit.iti.algover.dafnystructures.DafnyMethod;
 import edu.kit.iti.algover.parser.DafnyException;
 import edu.kit.iti.algover.parser.ReferenceResolutionVisitor;
 import edu.kit.iti.algover.parser.TypeResolution;
-import edu.kit.iti.algover.project.*;
+import edu.kit.iti.algover.project.Project;
+import edu.kit.iti.algover.project.ProjectBuilder;
 import edu.kit.iti.algover.proof.PVC;
 import edu.kit.iti.algover.proof.PVCBuilder;
 import edu.kit.iti.algover.proof.ProofNode;
@@ -20,12 +24,6 @@ import edu.kit.iti.algover.script.ScriptTree;
 import edu.kit.iti.algover.symbex.Symbex;
 import edu.kit.iti.algover.symbex.SymbexPath;
 import edu.kit.iti.algover.theoremprover.DafnyTranslator;
-
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.List;
 
 /**
  * Interface to create a project, to reload a project and do other project related stuff
@@ -70,8 +68,9 @@ public class ProjectFacade {
     public Project buildProject(File dir) throws FileNotFoundException, Exception {
         Project p = null;
         ProjectBuilder pb = new ProjectBuilder();
-
-        p = pb.buildProject(dir);
+        pb.setDir(dir);
+        pb.parseScript();
+        p = pb.build();
 
         ArrayList<DafnyException> exceptions = new ArrayList<>();
         ReferenceResolutionVisitor refResolver = new ReferenceResolutionVisitor(p, exceptions);

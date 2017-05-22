@@ -1,15 +1,20 @@
+/*
+ * This file is part of AlgoVer.
+ *
+ * Copyright (C) 2015-2017 Karlsruhe Institute of Technology
+ */
 package edu.kit.iti.algover.gui;
+
+import java.awt.BorderLayout;
+import java.io.File;
+
+import javax.swing.JPanel;
+
+import org.jdesktop.swingx.JXTreeTable;
 
 import edu.kit.iti.algover.model.ProjectTreeAdaptor;
 import edu.kit.iti.algover.project.Project;
 import edu.kit.iti.algover.project.ProjectBuilder;
-import org.jdesktop.swingx.JXTreeTable;
-
-import javax.swing.*;
-import javax.swing.tree.DefaultMutableTreeNode;
-import javax.swing.tree.TreePath;
-import java.awt.*;
-import java.io.File;
 
 /** This panel includes a scroll pane, which contains a sample tree.
  * Problem: Hiding the root hides the whole tree.
@@ -63,11 +68,12 @@ public class TreePanel extends JPanel {
         final File f1 = new File(testDir);
 
         ProjectBuilder pb = new ProjectBuilder();
+        pb.setDir(f1);
 
         Project p = null;
 
         try {
-            p = pb.buildProject(f1);
+            p = pb.build();
         } catch (Exception e) {
             e.printStackTrace();
         }

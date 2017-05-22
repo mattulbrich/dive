@@ -7,8 +7,6 @@ package edu.kit.iti.algover.dafnystructures;
 
 import edu.kit.iti.algover.parser.DafnyTree;
 
-import java.io.File;
-
 /**
  * A DafnyField is a field in a DafnyClass
  * It is global and has a type and a name
@@ -17,42 +15,24 @@ public class DafnyField extends DafnyDecl {
 
     private DafnyTree type;
 
-    // REVIEW: Why are these fields from DafnyDecl repeated in this class?
-    // this seems to be very wrong.
-    private String name;
-
-    @Override
-    public DafnyTree getRepresentation() {
-        return representation;
-    }
-
-    private DafnyTree representation;
-    @Override
-    public File getFile() {
-        return file;
-    }
-
-    private File file;
     public DafnyTree getType() {
         return type;
     }
 
-
-    public String getName() {
-        return name;
-    }
-
-
-    public DafnyField(File file, DafnyTree representation, DafnyTree type, String name){
-        // REVIEW: Why is the representation the type ? ?
-        this.representation = representation;
-        this.name = name;
+    public DafnyField(String filename, DafnyTree representation,
+            DafnyTree type, String name, boolean inLibrary) {
+        super(filename, representation, name, inLibrary);
         this.type = type;
-        this.file = file;
 
     }
+
+    public DafnyField(String filename, boolean inLibrary, DafnyTree child) {
+        this(filename, child, child.getChild(1), child.getChild(0).getText(), inLibrary);
+    }
+
+
     public String toString(){
-    // REVIEW: Why is there a ";" at the end?
+        // REVIEW: Why is there a ";" at the end?
         return getType()+" "+getName()+";";
     }
 

@@ -5,48 +5,47 @@
  */
 package edu.kit.iti.algover.dafnystructures;
 
-import edu.kit.iti.algover.parser.DafnyTree;
-
-import java.io.File;
-import java.util.LinkedList;
+import java.util.ArrayList;
 import java.util.List;
+
+import edu.kit.iti.algover.parser.DafnyException;
+import edu.kit.iti.algover.parser.DafnyParser;
+import edu.kit.iti.algover.parser.DafnyTree;
 
 /**
  * Created by sarah on 8/5/16.
  */
 
 public class DafnyClassBuilder {
-    public File getFile() {
-        return file;
+
+    private String filename;
+    private String name;
+    private List<DafnyMethod> methods = new ArrayList<>();
+    private List<DafnyFunction> functions = new ArrayList<>();
+    private List<DafnyField> fields = new ArrayList<>();
+    private DafnyTree representation;
+    private boolean inLibrary;
+
+    public DafnyClassBuilder() {
     }
 
-    private File file;
-    private String filename;
-    private DafnyTree classTree;
+    public DafnyClassBuilder(String filename, DafnyTree tree) {
+        setFilename(filename);
+        parseRepresentation(tree);
+    }
 
-    private String name;
+    public DafnyClassBuilder(String filename) {
+        setFilename(filename);
+    }
 
     /**
      * Methods belonging to this class, possibly empty
      */
-    private List<DafnyMethod> methods;
 
     public String getName() {
         return name;
     }
 
-
-    /**
-     * Functions belonging to this class, possibly empty
-     */
-    private List<DafnyFunction> functions;
-
-    // REVIEW Order: first fields then methods
-
-    /**
-     * Fields belonging to this class, possibly empty
-     */
-    private List<DafnyField> fields;
 
     public List<DafnyMethod> getMethods() {
         return methods;
@@ -99,32 +98,11 @@ public class DafnyClassBuilder {
         return filename;
     }
 
-    public DafnyTree getTree() {
-        return classTree;
+    private void setFilename(String filename) {
+        this.filename = filename;
     }
 
-    /**
-     * DafnyTree with class as root, needs to be traversed to call dafnydeclbuilder
-     */
-    private DafnyTree tree;
-
-    public DafnyClassBuilder(File file, DafnyTree tree) {
-        this.file = file;
-        this.functions = new LinkedList<>();
-        this.methods = new LinkedList<>();
-        this.fields = new LinkedList<>();
-        this.filename = file.getAbsoluteFile().getName();
-        this.classTree = tree;
-
-    }
-
-
-    // REVIEW: This constructor seems to leave many fields uninitialized
-    public DafnyClassBuilder(DafnyTree dafnyClass) {
-        this.tree = dafnyClass;
-    }
-
-    public DafnyClass buildClass() {
+    public DafnyClass build() throws DafnyException {
         return new DafnyClass(this);
     }
 
@@ -138,5 +116,54 @@ public class DafnyClassBuilder {
 
     public void addMethod(DafnyMethod meth) {
         this.methods.add(meth);
+    }
+
+    public DafnyTree getRepresentation() {
+        return representation;
+    }
+
+    public void parseRepresentation(DafnyTree representation) {
+
+        assert this.representation == null :
+            "A builder must not have its representation replaced";
+
+        this.representation = representation;
+        this.name = representation.getChild(0).toString();
+
+        // todo iterate over all children
+        for (int i = 1; i < representation.getChildCount(); i++) {
+            DafnyTree child = representation.getChild(i);
+            switch (child.getType()) {
+            case DafnyParser.METHOD:
+                DafnyMethodBuilder mb = new DafnyMethodBuilder();
+                mb.setInLibrary(inLibrary);
+                mb.setFilename(filename);
+                mb.parseRepresentation(child);
+                addMethod(mb.build());
+                break;
+            case DafnyParser.FUNCTION:
+                DafnyFunctionBuilder fb = new DafnyFunctionBuilder();
+                fb.setFilename(filename);
+                fb.setInLibrary(inLibrary);
+                fb.parseRepresentation(child);
+                addFunction(fb.build());
+                break;
+            case DafnyParser.FIELD:
+                addField(new DafnyField(filename, inLibrary, child));
+                break;
+            default:
+                throw new Error("Unexpected type " + child.getType());
+            }
+        }
+    }
+
+
+    public boolean isInLibrary() {
+        return inLibrary;
+    }
+
+
+    public void setInLibrary(boolean inLibrary) {
+        this.inLibrary = inLibrary;
     }
 }

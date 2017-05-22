@@ -51,55 +51,63 @@ SINGLELINE_COMMENT: '//' ~('\r' | '\n')* { $channel = HIDDEN; };
 MULTILINE_COMMENT: '/*' .* '*/'          { $channel = HIDDEN; };
 
 preamble:
-PREAMBLE BEGIN! ( importDafny';'!|  importLibs';' !| sets )+ END! pvcscripts* EOF
-;
+  PREAMBLE BEGIN! ( importDafny ';'! |  importLibs ';'! | sets )+ END! pvcscripts* EOF
+  ;
 
 importDafny:
-IMPORT^ dafnyfiles;
-
-dafnyfiles:
-dafnyfile (','! dafnyfiles)*
-;
+  IMPORT^ dafnyfiles
+  ;
 
 importLibs:
- LIBRARY^ dafnyfiles;
+  LIBRARY^ dafnyfiles
+  ;
 
+dafnyfiles:
+  dafnyfile (','! dafnyfiles)*
+  ;
 
-file	:	(PATHSEP)*ID+(ID|INT|PATHSEP)* ;
+// REVIEW MU: Is this a lexer or a parser rule?
+// If parser rule. Are whitespaces not overread?
+file:
+  (PATHSEP)*ID+(ID|INT|PATHSEP)* 
+  ;
 
 dafnyfile:
-file DAFNYEND
-->
-^(FILE file DAFNYEND)
-;
+  file DAFNYEND
+    -> ^(FILE file DAFNYEND)
+  ;
 
 sets:
-SETTINGS^ set (set)*;
+  SETTINGS^ set (set)*;
 
+// REVIEW MU: Why INT+ ?
 set:
-'[' (tok= (DAFNYTIMEOUT|KEYTIMEOUT)) ']' INT+ ';'
-->
-^(SET [tok] INT+);
+  '[' (tok=(DAFNYTIMEOUT|KEYTIMEOUT)) ']' INT+ ';'
+    -> ^(SET [tok] INT+)
+  ;
 
 pvcscripts:
-pvcscript (pvcscripts)*;
+  pvcscript (pvcscripts)*
+  ;
 
 pvcscript:
-SUBSCRIPT^ pvc':' '{'commands* QED?'}';
+  SUBSCRIPT^ pvc ':' '{' commands* QED? '}'
+  ;
 
-
-pvc	:
-	'PVC_'INT+;
+pvc:
+  'PVC_' INT+
+  ;
 
 branchingcommand:
-	ID+ ';'
-	'{' commands+ '}'
-	'{' commands+ '}'
-	;
-	
+  ID+ ';'
+  '{' commands+ '}'
+  '{' commands+ '}'
+  ;
 
 commands:
-command | branchingcommand;
+  command | branchingcommand
+  ;
 
-command	:	
-ID+ ';';
+command	:
+  ID+ ';'
+  ;

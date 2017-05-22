@@ -1,3 +1,8 @@
+/*
+ * This file is part of AlgoVer.
+ *
+ * Copyright (C) 2015-2017 Karlsruhe Institute of Technology
+ */
 package edu.kit.iti.algover.model;
 
 import edu.kit.iti.algover.dafnystructures.DafnyDecl;
@@ -66,7 +71,7 @@ public class FunctionLeaf extends CustomLeaf{
 
     @Override
     public File getFile(){
-        return this.function.getFile();
+        return new File(this.function.getFilename());
     }
 
 }

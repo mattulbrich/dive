@@ -7,8 +7,6 @@ package edu.kit.iti.algover.parser;
 
 import java.util.List;
 
-import org.antlr.runtime.tree.Tree;
-
 import edu.kit.iti.algover.project.Project;
 import edu.kit.iti.algover.util.TreeUtil;
 

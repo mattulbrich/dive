@@ -5,17 +5,19 @@
  */
 package edu.kit.iti.algover.project;
 
-import edu.kit.iti.algover.dafnystructures.DafnyMethod;
-import edu.kit.iti.algover.settings.ProjectSettings;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import static org.junit.Assert.assertEquals;
+
 import java.io.File;
-import java.io.FileNotFoundException;
+import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
+import org.junit.Before;
+import org.junit.Test;
+
+import edu.kit.iti.algover.dafnystructures.DafnyFile;
+import edu.kit.iti.algover.dafnystructures.DafnyMethod;
+import edu.kit.iti.algover.settings.ProjectSettings;
 
 
 /**
@@ -33,28 +35,18 @@ public class ProjectTest {
         final File f1 = new File(testDir);
 
         ProjectBuilder pb = new ProjectBuilder();
-
-        Project p = null;
-
-        p = pb.buildProject(f1);
+        pb.setDir(f1);
+        Project p = pb.build();
         this.p = p;
 
     }
     @Test
     public void testProjectImports(){
 
-        List<File> dafnyFiles = p.getDafnyFiles();
+        List<DafnyFile> dafnyFiles = p.getDafnyFiles();
         List<File> filesToTest = new LinkedList<>();
         filesToTest.add(new File(testDir+File.separator+"test.dfy"));
         filesToTest.add(new File(testDir+File.separator+"test2.dfy"));
-        assertEquals(dafnyFiles, filesToTest);
-    }
-
-    @Test
-    public void testLibImports(){
-        List<File> dafnyFiles = p.getLibraries();
-        List<File> filesToTest = new LinkedList<>();
-        filesToTest.add(new File(testDir+File.separator+"test3.dfy"));
         assertEquals(dafnyFiles, filesToTest);
     }
 
@@ -68,7 +60,7 @@ public class ProjectTest {
     @Test
     public void testMethodExtraction(){
         assertEquals(p.getClasses().size(), 1);
-        List<DafnyMethod> methods = p.getClasses().get(0).getMethods();
+        Collection<DafnyMethod> methods = p.getClass("foo3").getMethods();
 
         List<String> methodNames = new LinkedList<>();
         List<String> methodsString = new LinkedList<>();
@@ -78,7 +70,7 @@ public class ProjectTest {
         for(DafnyMethod m: methods){
             methodNames.add(m.getName());
         }
-        assertEquals(methodNames, methodsString);
+        assertEquals(methodsString, methodNames);
 
 
     }
