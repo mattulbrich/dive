@@ -5,18 +5,16 @@
  */
 package edu.kit.iti.algover.project;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.*;
 
 import java.io.File;
-import java.util.Collection;
-import java.util.LinkedList;
 import java.util.List;
 
 import org.junit.Before;
 import org.junit.Test;
 
+import edu.kit.iti.algover.dafnystructures.DafnyClass;
 import edu.kit.iti.algover.dafnystructures.DafnyFile;
-import edu.kit.iti.algover.dafnystructures.DafnyMethod;
 import edu.kit.iti.algover.settings.ProjectSettings;
 
 
@@ -27,6 +25,7 @@ import edu.kit.iti.algover.settings.ProjectSettings;
 public class ProjectTest {
     Project p = null;
 
+    // REVIEW: Why not static final?
     String testDir = "modules/core/test-res/edu/kit/iti/algover/project";
 
     @Before
@@ -36,18 +35,21 @@ public class ProjectTest {
 
         ProjectBuilder pb = new ProjectBuilder();
         pb.setDir(f1);
+        pb.parseScript();
         Project p = pb.build();
         this.p = p;
 
     }
     @Test
     public void testProjectImports(){
-
         List<DafnyFile> dafnyFiles = p.getDafnyFiles();
-        List<File> filesToTest = new LinkedList<>();
-        filesToTest.add(new File(testDir+File.separator+"test.dfy"));
-        filesToTest.add(new File(testDir+File.separator+"test2.dfy"));
-        assertEquals(dafnyFiles, filesToTest);
+        assertEquals(3, dafnyFiles.size());
+        assertEquals("test.dfy", dafnyFiles.get(0).getName());
+        assertFalse(dafnyFiles.get(0).isInLibrary());
+        assertEquals("test2.dfy", dafnyFiles.get(1).getName());
+        assertFalse(dafnyFiles.get(1).isInLibrary());
+        assertEquals("test3.dfy", dafnyFiles.get(2).getName());
+        assertTrue(dafnyFiles.get(2).isInLibrary());
     }
 
     @Test
@@ -59,20 +61,18 @@ public class ProjectTest {
 
     @Test
     public void testMethodExtraction(){
-        assertEquals(p.getClasses().size(), 1);
-        Collection<DafnyMethod> methods = p.getClass("foo3").getMethods();
+        assertEquals(2, p.getClasses().size());
 
-        List<String> methodNames = new LinkedList<>();
-        List<String> methodsString = new LinkedList<>();
-        methodsString.add("arrayUpdate");
-        methodsString.add("foo");
-        assertEquals(methods.size(), 2);
-        for(DafnyMethod m: methods){
-            methodNames.add(m.getName());
-        }
-        assertEquals(methodsString, methodNames);
+        DafnyClass foo = p.getClass("foo");
+        assertTrue(foo.isInLibrary());
 
+        DafnyClass foo3 = p.getClass("foo3");
+        assertFalse(foo3.isInLibrary());
 
+        assertEquals(2, foo3.getMethods().size());
+        assertNotNull(foo3.getMethod("arrayUpdate"));
+        assertNotNull(foo3.getMethod("foo"));
     }
+
     //TODO test that classes and functions are correctly extracted
 }

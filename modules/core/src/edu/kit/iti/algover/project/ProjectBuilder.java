@@ -183,7 +183,7 @@ public class ProjectBuilder {
 
         for (ScriptTree tree : dafnyF) {
             // REVIEW This does not work work longer filenames ...
-            File f = new File(this.dir + File.separator + tree.getChild(0).getText() + tree.getChild(1).getText());
+            File f = new File(tree.getChild(0).getText() + tree.getChild(1).getText());
             switch (type) {
             case ScriptParser.IMPORT:
                 this.addDafnyFile(f.toString());
