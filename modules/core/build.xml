@@ -84,7 +84,7 @@
 	<target name="checkstyle">
 		<taskdef resource="checkstyletask.properties" classpath="${dir.tools}/checkstyle-5.7-all.jar" />
 		<checkstyle config="${dir.tools}/checkstyle.xml" failOnViolation="false">
-			<property key="headerFile" file="../../HEADER" />
+			<property key="basedir" file="../.." />
 			<fileset dir="src" includes="**/*.java" />
 			<formatter type="plain" />
 			<formatter type="xml" toFile="checkstyle-results.xml" />

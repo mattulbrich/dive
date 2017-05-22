@@ -87,8 +87,7 @@
       <!-- expansion,                                             -->
       <!-- http://checkstyle.sf.net/config.html#properties        -->
       <property
-         name="headerFile"
-         value="HEADER"/>
+         name="headerFile" value="${basedir}/HEADER"/>
       <property name="severity" value="info"/>
     </module>
 
@@ -225,11 +224,11 @@
       <module name="MissingSwitchDefault">
         <property name="severity" value="warning"/>
       </module>
-      <module name="RedundantThrows">
+      <!-- <module name="RedundantThrows">
         <property name="allowUnchecked" value="true" />
         <property name="suppressLoadErrors" value="true" />
         <property name="severity" value="warning"/>
-      </module>
+      </module>--> <!-- not available in Eclipse -->
       <module name="SimplifyBooleanExpression"/>
       <module name="SimplifyBooleanReturn"/>
       <module name="StringLiteralEquality"/>
