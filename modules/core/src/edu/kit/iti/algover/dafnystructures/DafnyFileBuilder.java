@@ -45,7 +45,8 @@ public class DafnyFileBuilder {
                 functions.add(fctBuilder.build());
                 break;
             case DafnyParser.CLASS:
-                DafnyClassBuilder classBuilder = new DafnyClassBuilder(filename);
+                DafnyClassBuilder classBuilder = new DafnyClassBuilder();
+                classBuilder.setFilename(filename);
                 classBuilder.setInLibrary(inLibrary);
                 classBuilder.parseRepresentation(child);
                 classes.add(classBuilder.build());

@@ -7,85 +7,79 @@ package edu.kit.iti.algover.dafnystructures;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 import edu.kit.iti.algover.parser.DafnyException;
 import edu.kit.iti.algover.parser.DafnyParser;
 import edu.kit.iti.algover.parser.DafnyTree;
 
 /**
- * Created by sarah on 8/5/16.
+ * This is a mutable builder class for dafny classes. Collections are
+ * initialized, other items are initially set to <code>null</code> and must be
+ * assigned before cosntructing the class object.
+ *
+ * Use the {@link #build()} method to create the {@link DafnyClass} object.
+ *
+ * Call {@link #parseRepresentation(DafnyTree)} to read entries from an AST.
+ * You may also add/set elements manually.
+ *
+ * @see DafnyClass
  */
-
 public class DafnyClassBuilder {
 
+    /**
+     * The filename to which the strucure belongs.
+     */
     private String filename;
-    private String name;
-    private List<DafnyMethod> methods = new ArrayList<>();
-    private List<DafnyFunction> functions = new ArrayList<>();
-    private List<DafnyField> fields = new ArrayList<>();
-    private DafnyTree representation;
-    private boolean inLibrary;
-
-    public DafnyClassBuilder() {
-    }
-
-    public DafnyClassBuilder(String filename, DafnyTree tree) {
-        setFilename(filename);
-        parseRepresentation(tree);
-    }
-
-    public DafnyClassBuilder(String filename) {
-        setFilename(filename);
-    }
 
     /**
-     * Methods belonging to this class, possibly empty
+     * The class name.
      */
+    private String name;
+
+    /**
+     * The collection of methods in the class to build.
+     */
+    private List<DafnyMethod> methods = new ArrayList<>();
+
+    /**
+     * The collection of functions in the class to build.
+     */
+    private List<DafnyFunction> functions = new ArrayList<>();
+
+    /**
+     * The collection of fields in the class to build.
+     */
+    private List<DafnyField> fields = new ArrayList<>();
+
+    /**
+     * The AST root point for this class.
+     */
+    private DafnyTree representation;
+
+    /**
+     * This flag is true iff the class is in a library file.
+     */
+    private boolean inLibrary;
+
+    /**
+     * Instantiates a new dafny class builder.
+     */
+    public DafnyClassBuilder() {
+    }
 
     public String getName() {
         return name;
     }
 
-
     public List<DafnyMethod> getMethods() {
         return methods;
     }
 
-    public DafnyClassBuilder setName(String name) {
+    public void setName(String name) {
         this.name = name;
-     //   System.out.println("Classbuilder set Name of class: " + this.name);
-        return this;
     }
 
-/*
-    public DafnyClassBuilder setMethods(List<DafnyMethod> methods) {
-        this.methods = methods;
-        System.out.println("Methods set");
-        for (DafnyMethod m : methods) {
-            System.out.println(m.toString());
-        }
-        return this;
-    }
-
-    public DafnyClassBuilder setFunctions(List<DafnyFunction> functions) {
-        this.functions = functions;
-        System.out.println("Functions set");
-        for (DafnyFunction f : functions) {
-            System.out.println(f.toString());
-        }
-        return this;
-    }
-
-    public DafnyClassBuilder setFields(List<DafnyField> fields) {
-        this.fields = fields;
-        System.out.println("Fields of class set: ");
-        for (DafnyField f : this.fields) {
-            System.out.println(f.toString());
-        }
-        return this;
-    }
-
-*/
     public List<DafnyFunction> getFunctions() {
         return functions;
     }
@@ -98,34 +92,61 @@ public class DafnyClassBuilder {
         return filename;
     }
 
-    private void setFilename(String filename) {
+    public void setFilename(String filename) {
         this.filename = filename;
     }
 
+    /**
+     * Builds a DafnyClass from the data in this builder.
+     *
+     * @return the freshly ccreated dafny class
+     * @throws DafnyException
+     *             if data is missing or name clashes occur
+     */
     public DafnyClass build() throws DafnyException {
         return new DafnyClass(this);
     }
 
+    /**
+     * Adds a field for the class.
+     *
+     * @param dafnyField the dafny field
+     */
     public void addField(DafnyField dafnyField) {
         this.fields.add(dafnyField);
     }
 
+    /**
+     * Adds a function for the class.
+     *
+     * @param func the non-<code>null</code> function
+     */
     public void addFunction(DafnyFunction func) {
-        this.functions.add(func);
+        this.functions.add(Objects.requireNonNull(func));
     }
 
+    /**
+     * Adds a method for the class.
+     *
+     * @param meth the non-<code>null</code> method
+     */
     public void addMethod(DafnyMethod meth) {
-        this.methods.add(meth);
+        this.methods.add(Objects.requireNonNull(meth));
     }
 
     public DafnyTree getRepresentation() {
         return representation;
     }
 
+    /**
+     * Set the representation for this class and parse the AST.
+     *
+     * @param representation the AST representation
+     */
     public void parseRepresentation(DafnyTree representation) {
 
-        assert this.representation == null :
-            "A builder must not have its representation replaced";
+        assert this.representation == null
+                : "A builder must not have its representation replaced";
 
         this.representation = representation;
         this.name = representation.getChild(0).toString();
@@ -161,7 +182,6 @@ public class DafnyClassBuilder {
     public boolean isInLibrary() {
         return inLibrary;
     }
-
 
     public void setInLibrary(boolean inLibrary) {
         this.inLibrary = inLibrary;
