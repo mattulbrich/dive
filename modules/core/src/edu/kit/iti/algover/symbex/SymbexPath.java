@@ -70,7 +70,7 @@ public class SymbexPath {
     /**
      * The function to which this symbolic execution state belongs.
      */
-    private final DafnyTree function;
+    private final DafnyTree method;
 
     /**
      * Instantiates a new symbolic execution state. It belongs to the given
@@ -85,7 +85,7 @@ public class SymbexPath {
         this.assignmentHistory = ImmutableList.nil();
         this.declaredLocalVars = ImmutableList.nil();
         this.proofObligations = ImmutableList.nil();
-        this.function = function;
+        this.method = function;
     }
 
     /**
@@ -100,7 +100,7 @@ public class SymbexPath {
         this.assignmentHistory = state.assignmentHistory;
         this.blockToExecute = state.blockToExecute;
         this.declaredLocalVars = state.declaredLocalVars;
-        this.function = state.function;
+        this.method = state.method;
     }
 
     /**
@@ -169,7 +169,7 @@ public class SymbexPath {
      * @return the function
      */
     public DafnyTree getMethod() {
-        return function;
+        return method;
     }
 
     /**

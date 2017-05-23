@@ -16,8 +16,7 @@ import java.io.IOException;
 public class FileUtil {
 
     public static FileInputStream readFile(File file) throws IOException {
-        FileInputStream inputStream = new FileInputStream(file);
-        return inputStream;
+        return new FileInputStream(file);
     }
 
     /**

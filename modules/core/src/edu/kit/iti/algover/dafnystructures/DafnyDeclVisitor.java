@@ -21,5 +21,5 @@ public interface DafnyDeclVisitor<R, A> {
     R visit(DafnyMethod m, A arg);
     R visit(DafnyFunction f, A arg);
     R visit(DafnyField fi, A arg);
-    R visit(DafnyDecl file, A arg);
+    R visit(DafnyFile file, A arg);
 }

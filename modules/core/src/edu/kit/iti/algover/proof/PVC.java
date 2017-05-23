@@ -1,18 +1,56 @@
+/*
+ * This file is part of AlgoVer.
+ *
+ * Copyright (C) 2015-2017 Karlsruhe Institute of Technology
+ */
 package edu.kit.iti.algover.proof;
 
+
+import java.util.List;
 
 import edu.kit.iti.algover.dafnystructures.DafnyDecl;
 import edu.kit.iti.algover.script.ScriptTree;
 import edu.kit.iti.algover.symbex.SymbexPath;
-
-import java.util.LinkedList;
-import java.util.List;
 
 /**
  * Created by sarah on 8/22/16.
  */
 public class PVC {
     private String name;
+
+    /**
+     * local script of pvc, is identified by id
+     */
+    // REVIEW: did not understand "is identified by"
+    private ScriptTree localScript;
+
+    /**
+     * ID of proof verification condition, has to be unique
+     */
+    // TODO not clear at the moment whether needed or where it comes from.
+    private int pvcID;
+
+    /**
+     * List of terms for the "toplevel" formula representing assumptions.
+     * This is created lazily on demand.
+     */
+    private List<TopFormula> assumptionsWithInfo;
+
+    /**
+     * List of terms for the "toplevel" formula representing goals
+     */
+    // REVIEW: Is this really a list of goals?
+    private List<TopFormula> goalWithInfo;
+
+    /**
+     * Path through program. Not <code>null</code>
+     */
+    private SymbexPath pathThroughProgram;
+
+    /**
+     * DafnDecl this PVC belongs to. not <code>null</code>
+     */
+    private DafnyDecl declaration;
 
     public String getName() {
         return name;
@@ -38,39 +76,9 @@ public class PVC {
         return pathThroughProgram;
     }
 
-    public DafnyDecl getParent() {
-        return parent;
+    public DafnyDecl getDeclaration() {
+        return declaration;
     }
-
-    /**
-     * ID of proof verification condition, has to be unique
-     */
-    private int pvcID;
-
-    /**
-     * local script of pvc, is identified by id
-     */
-    private ScriptTree localScript;
-
-    /**
-     * List of terms for the "toplevel" formula representing assumptions
-     */
-    private List<TopFormula> assumptionsWithInfo;
-
-    /**
-     * List of terms for the "toplevel" formula representing goals
-     */
-
-    private List<TopFormula> goalWithInfo;
-    /**
-     * Path through programm
-     */
-    private SymbexPath pathThroughProgram;
-
-    /**
-     *DafnDecl this PVC belongs to
-     */
-    private DafnyDecl parent;
 
     /**
      * The variable map containing all assignments, for display of substitutions in terms
@@ -86,12 +94,19 @@ public class PVC {
         this.pvcID = builder.getPvcID();
         this.name = builder.getPvcName();
         this.pathThroughProgram = builder.getPathThroughProgram();
-        this.parent = builder.getParent();
+        this.declaration = builder.getParent();
         this.goalWithInfo = builder.getGoalWithInfo();
         this.assumptionsWithInfo = builder.getAssumptionsWithInfo();
       //  this.variableMap = pathThroughProgram.getMap();
        // this.localScript = builder.getLocalScript();
 
+    }
+
+    public PVC(SymbexPath symbexPath) {
+        // TODO DOES THIS SUFFICE?
+        this.name = symbexPath.getPathIdentifier();
+        this.pathThroughProgram = symbexPath;
+        // this.declaration = decl;
     }
 
     public String toString(){

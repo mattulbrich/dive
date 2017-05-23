@@ -52,7 +52,7 @@ public class ProjectBuilder {
     /**
      * The script of the project
      */
-    // TODO make constant
+    // TODO make constant for string
     private String scriptFile = "project.script";
 
     /**
@@ -92,6 +92,10 @@ public class ProjectBuilder {
         return libraryFiles;
     }
 
+    public void addLibraryFile(String file) {
+        libraryFiles.add(file);
+    }
+
     public List<String> getDafnyFiles() {
         return dafnyFiles;
     }
@@ -100,8 +104,12 @@ public class ProjectBuilder {
         dafnyFiles.add(file);
     }
 
-    public void addLibraryFile(String file) {
-        libraryFiles.add(file);
+    public Map<String, DafnyTree> getDafnyTrees() {
+        return dafnyTrees;
+    }
+
+    public void addDafnyTree(String filename, DafnyTree tree) {
+        dafnyTrees.put(filename, tree);
     }
 
     public File getDir() {
@@ -135,7 +143,6 @@ public class ProjectBuilder {
     }
 
     public Project build() throws IOException, RecognitionException, DafnyException {
-
         this.files = new ArrayList<>();
         this.methods = new ArrayList<>();
         this.functions = new ArrayList<>();
@@ -177,7 +184,7 @@ public class ProjectBuilder {
      * Extract DafnyFilenames from a subtree that has import as root and create
      * new File with current Directory
      */
-    public void extractDafnyFileNames(ScriptTree t) {
+    private void extractDafnyFileNames(ScriptTree t) {
         int type = t.getType();
         List<ScriptTree> dafnyF = t.getChildrenWithType(ScriptParser.FILE);
 
@@ -200,19 +207,15 @@ public class ProjectBuilder {
     /**
      * Parse Script File and return Tree to traverse
      *
-     * @param string
+     * @param relativeFilename
      * @return
      * @throws IOException
      * @throws RecognitionException
      */
-    public ScriptTree parseScriptFile(String string) throws IOException, RecognitionException {
-        ScriptTree t = null;
-
-        try(InputStream scriptStream = FileUtil.readFile(new File(dir, string))) {
-            t = ScriptFileParser.parse(scriptStream);
+    private ScriptTree parseScriptFile(String relativeFilename) throws IOException, RecognitionException {
+        try(InputStream scriptStream = FileUtil.readFile(new File(dir, relativeFilename))) {
+            return ScriptFileParser.parse(scriptStream);
         }
-        return t;
-
     }
 
     /**
@@ -249,10 +252,6 @@ public class ProjectBuilder {
 
     public List<DafnyClass> getClasses() {
         return classes;
-    }
-
-    public void addDafnyTree(String filename, DafnyTree tree) {
-        dafnyTrees.put(filename, tree);
     }
 
 }

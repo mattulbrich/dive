@@ -5,12 +5,8 @@
  */
 package edu.kit.iti.algover.proof;
 
-import java.util.Collection;
-
-import edu.kit.iti.algover.dafnystructures.DafnyClass;
 import edu.kit.iti.algover.dafnystructures.DafnyDeclPVCCollector;
-import edu.kit.iti.algover.dafnystructures.DafnyFunction;
-import edu.kit.iti.algover.dafnystructures.DafnyMethod;
+import edu.kit.iti.algover.dafnystructures.DafnyFile;
 import edu.kit.iti.algover.facade.ProjectFacade;
 import edu.kit.iti.algover.project.Project;
 
@@ -50,29 +46,16 @@ public class ProofManagement {
      * @param p
      * @return
      */
-    public PVCCollection createPVCCollection(Project p){
+    public static PVCCollection createPVCCollection(Project p){
 
-        PVCGroup root = new PVCGroup(null, null);
-        this.root = root;
-        Collection<DafnyMethod> freeMethods = p.getMethods();
-        Collection<DafnyFunction> freeFunctions = p.getFunctions();
-        Collection<DafnyClass> classes = p.getClasses();
+        PVCGroup root = new PVCGroup(null);
 
-        for(DafnyMethod fm: freeMethods){
-            DafnyDeclPVCCollector visitor = new DafnyDeclPVCCollector(facade);
-            root.addChild(visitor.visit(fm, root));
-        }
-        for(DafnyFunction fm: freeFunctions){
-            DafnyDeclPVCCollector visitor = new DafnyDeclPVCCollector(facade);
-            root.addChild(visitor.visit(fm, root));
+        DafnyDeclPVCCollector visitor = new DafnyDeclPVCCollector(p);
+
+        for (DafnyFile file : p.getDafnyFiles()) {
+            visitor.visitFile(file, root);
         }
 
-        for(DafnyClass cl : classes){
-
-            DafnyDeclPVCCollector visitor = new DafnyDeclPVCCollector(facade);
-            PVCCollection temp = visitor.visit(cl, root);
-            root.addChild(temp);
-        }
         return root;
 
     }

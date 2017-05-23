@@ -234,14 +234,12 @@ public class TypeResolution extends DafnyTreeDefaultVisitor<DafnyTree, Void> {
 
     @Override
     public DafnyTree visitARRAY_ACCESS(DafnyTree t, Void a) {
-        // TODO Auto-generated method stub
-        return super.visitARRAY_ACCESS(t, a);
+        throw new UnsupportedOperationException("not yet implemented");
     }
 
     @Override
     public DafnyTree visitCALL(DafnyTree t, Void a) {
-        // TODO Auto-generated method stub
-        return super.visitCALL(t, a);
+        throw new UnsupportedOperationException("not yet implemented");
     }
 
     @Override
@@ -264,20 +262,18 @@ public class TypeResolution extends DafnyTreeDefaultVisitor<DafnyTree, Void> {
 
     @Override
     public DafnyTree visitINTERSECT(DafnyTree t, Void a) {
-        // TODO Auto-generated method stub
-        return super.visitINTERSECT(t, a);
+        throw new UnsupportedOperationException("not yet implemented");
     }
 
     @Override
     public DafnyTree visitLISTEX(DafnyTree t, Void a) {
-        // TODO Auto-generated method stub
-        return super.visitLISTEX(t, a);
+        throw new UnsupportedOperationException("not yet implemented");
     }
 
     @Override
     public DafnyTree visitNOETHER_LESS(DafnyTree t, Void a) {
-        // TODO Auto-generated method stub
-        return super.visitNOETHER_LESS(t, a);
+        // TODO eventually generalize this ...
+        return operation(t, BOOL_TYPE, "int", "int");
     }
 
     @Override
@@ -328,8 +324,7 @@ public class TypeResolution extends DafnyTreeDefaultVisitor<DafnyTree, Void> {
 
     @Override
     public DafnyTree visitSETEX(DafnyTree t, Void a) {
-        // TODO Auto-generated method stub
-        return super.visitSETEX(t, a);
+        throw new UnsupportedOperationException("not yet implemented");
     }
 
     @Override
@@ -373,8 +368,7 @@ public class TypeResolution extends DafnyTreeDefaultVisitor<DafnyTree, Void> {
 
     @Override
     public DafnyTree visitNIL(DafnyTree t, Void a) {
-        // TODO Auto-generated method stub
-        return super.visitNIL(t, a);
+        throw new UnsupportedOperationException("not yet implemented");
     }
 
 

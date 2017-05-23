@@ -1,65 +1,44 @@
+/*
+ * This file is part of AlgoVer.
+ *
+ * Copyright (C) 2015-2017 Karlsruhe Institute of Technology
+ */
 package edu.kit.iti.algover.proof;
 
-import edu.kit.iti.algover.dafnystructures.DafnyDecl;
-
-import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+
+import edu.kit.iti.algover.dafnystructures.DafnyDecl;
 
 /**
  * Represents a single PVC belonging to a PVCGroup
  * Created by sarah on 10/19/16.
  */
 public class SinglePVC extends PVCCollection {
+
+    private final PVC pvc;
+
+    public SinglePVC(PVC pvc) {
+        this.pvc = pvc;
+    }
+
     public PVC getPVC() {
         return pvc;
     }
 
-    PVC pvc;
-    DafnyDecl dd;
-    PVCCollection parent;
-
-    public SinglePVC(PVCCollection parent){
-        this.parent = parent;
-        this.dd = parent.getDafnyDecl();
-
-    }
-    @Override
-    public List<PVCCollection> getPVCsForDafnyDecl(DafnyDecl d) {
-        if(this.dd.equals(d)){
-            List<PVCCollection> l = new ArrayList<>();
-            l.add(this);
-            return l;
-        }
-        return new ArrayList<>();
-    }
-
     @Override
     public DafnyDecl getDafnyDecl() {
-        return this.dd;
-    }
-
-    public void addPVC(PVC pvc){
-        this.pvc = pvc;
-    }
-
-    @Override
-    public void addChild(PVCCollection col){
-        try {
-            throw new Exception("Leafs do not have children");
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
+        return getParent().getDafnyDecl();
     }
 
     @Override
     public String toString() {
-        return "    Leaf of "+dd.getName()+": "+pvc.getName();
+        return pvc.getName();
     }
 
     @Override
     public PVCCollection getRoot() {
-        return parent.getRoot();
+        return getParent().getRoot();
     }
 
     @Override
@@ -68,9 +47,8 @@ public class SinglePVC extends PVCCollection {
     }
 
     @Override
-    public boolean isEmptyPVC() {
-        return (this.pvc == null);
+    public List<PVCCollection> getChildren() {
+        return Collections.emptyList();
     }
-
 
 }

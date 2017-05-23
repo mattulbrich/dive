@@ -6,72 +6,78 @@
 package edu.kit.iti.algover.dafnystructures;
 
 
-import edu.kit.iti.algover.facade.ProjectFacade;
-import edu.kit.iti.algover.proof.*;
-
 import java.util.List;
+
+import edu.kit.iti.algover.facade.ProjectFacade;
+import edu.kit.iti.algover.project.Project;
+import edu.kit.iti.algover.proof.PVC;
+import edu.kit.iti.algover.proof.PVCCollection;
+import edu.kit.iti.algover.proof.PVCGroup;
+import edu.kit.iti.algover.proof.SinglePVC;
+import edu.kit.iti.algover.symbex.Symbex;
+import edu.kit.iti.algover.symbex.SymbexPath;
 
 /**
  * Visitor for DafbnyDecl, that performs symbex on dafnydecl and returns PVCCollection
  * Created by sarah on 10/20/16.
+ * refactored by mattias
  */
-public class DafnyDeclPVCCollector implements DafnyDeclVisitor<PVCCollection, PVCCollection > {
+public class DafnyDeclPVCCollector {
 
-    private ProjectFacade facade;
-    public DafnyDeclPVCCollector(ProjectFacade facade){
+    private Project facade;
+
+    public DafnyDeclPVCCollector(Project facade){
         this.facade = facade;
     }
-    @Override
-    public PVCCollection visitDefault(DafnyDecl d, PVCCollection parent) {
-        return null;
-    }
 
-    @Override
-    public PVCCollection visit(DafnyClass cl, PVCCollection arg) {
-        System.out.println("Vistited class "+cl.getName());
-        PVCGroup clGroup = new PVCGroup(cl, arg);
-
+    public PVCCollection visitClass(DafnyClass cl, PVCCollection parent) {
+        PVCGroup clGroup = new PVCGroup(cl);
 
         for(DafnyFunction f :cl.getFunctions()){
-            clGroup.addChild(f.accept(this, clGroup));
+            clGroup.addChild(visitFunction(f, clGroup));
         }
 
-        for(DafnyMethod f :cl.getMethods()){
-            clGroup.addChild(f.accept(this, clGroup));
+        for(DafnyMethod m :cl.getMethods()){
+            clGroup.addChild(visitMethod(m, clGroup));
         }
 
         return clGroup;
     }
 
-    @Override
-    public PVCCollection visit(DafnyMethod m, PVCCollection arg) {
-        System.out.println("Vistited method "+m.getName());
-        PVCGroup mGroup = new PVCGroup(m, arg);
-        List<PVC> pvcs = facade.generateAndCollectPVC(m);
-        for(PVC pvc : pvcs){
-            SinglePVC sPVC = new SinglePVC(mGroup);
-            sPVC.addPVC(pvc);
-            mGroup.addChild(sPVC);
+    public PVCCollection visitMethod(DafnyMethod m, PVCCollection parent) {
+        PVCGroup mGroup = new PVCGroup(m);
+
+        Symbex symbex = new Symbex();
+        List<SymbexPath> paths = symbex.symbolicExecution(m.getRepresentation());
+        for (SymbexPath path : paths) {
+            List<SymbexPath> subpaths = path.split();
+            for (SymbexPath subpath : subpaths) {
+                PVC pvc = new PVC(subpath);
+                SinglePVC sPVC = new SinglePVC(pvc);
+                mGroup.addChild(sPVC);
+            }
         }
+
         return mGroup;
     }
 
-    @Override
-    public PVCCollection visit(DafnyFunction f, PVCCollection arg) {
-        System.out.println("Vistited function "+f.getName());
-        //return new SinglePVC(arg);
-        return new EmptyPVC(f);
+    public PVCCollection visitFunction(DafnyFunction f, PVCCollection parent) {
+        PVCGroup mGroup = new PVCGroup(f);
+
+        // TODO: NOT YET IMPLEMENTED
+
+        return mGroup;
     }
 
-    @Override
-    public PVCCollection visit(DafnyField fi, PVCCollection arg) {
-        System.out.println("Vistited field "+fi.getName());
-        //return new SinglePVC(arg);
-        return new EmptyPVC(fi);
+    // no collection per file!
+    public void visitFile(DafnyFile file, PVCCollection collection) {
+        for (DafnyFunction f : file.getFunctions()) {
+            visitFunction(f, collection);
+        }
+
+        for(DafnyMethod m : file.getMethods()) {
+            visitMethod(m, collection);
+        }
     }
-    @Override
-    public PVCCollection visit(DafnyDecl file, PVCCollection arg) {
-        // TODO Auto-generated method stub
-        return null;
-    }
+
 }

@@ -1,3 +1,8 @@
+/*
+ * This file is part of AlgoVer.
+ *
+ * Copyright (C) 2015-2017 Karlsruhe Institute of Technology
+ */
 package edu.kit.iti.algover.Actions;
 
 import edu.kit.iti.algover.gui.GUICenter;
@@ -52,7 +57,8 @@ public class PVCSelectionMouseListener extends MouseAdapter {
             PVCCollection lastPathComponent = null;
             if (path != null) {
                 lastPathComponent = (PVCCollection) path.getLastPathComponent();
-                if(lastPathComponent.isPVCLeaf() && !lastPathComponent.isEmptyPVC()){
+                if(lastPathComponent.isPVCLeaf() &&
+                        !lastPathComponent.getChildren().isEmpty()){
                     SinglePVC sPVC =(SinglePVC) lastPathComponent;
                     PVC pvc = sPVC.getPVC();
                     center.setSelectedPVCForDetailView(pvc);
