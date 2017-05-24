@@ -16,8 +16,6 @@ import edu.kit.iti.algover.symbex.SymbexPath;
  * Created by sarah on 8/22/16.
  */
 public class PVC {
-    private String name;
-
     /**
      * local script of pvc, is identified by id
      */
@@ -53,7 +51,7 @@ public class PVC {
     private DafnyDecl declaration;
 
     public String getName() {
-        return name;
+        return pathThroughProgram.getPathIdentifier();
     }
 
     public int getPvcID() {
@@ -83,35 +81,26 @@ public class PVC {
     /**
      * The variable map containing all assignments, for display of substitutions in terms
      */
-    //private VariableMap variableMap;
+    // private VariableMap variableMap;
 
     /**
-     * The object representing a Proofverification condition. This PVC is a logical representation of the proof state after symbolic execution
+     * Instantiates a new PVC. The informations are taken from a builder object.
+     *
      * @param builder
+     *            the builder to take relevant info from, not <code>null</code>.
+     * @see PVCBuilder#build()
      */
-
     public PVC(PVCBuilder builder){
         this.pvcID = builder.getPvcID();
-        this.name = builder.getPvcName();
         this.pathThroughProgram = builder.getPathThroughProgram();
-        this.declaration = builder.getParent();
+        this.declaration = builder.getDeclaration();
         this.goalWithInfo = builder.getGoalWithInfo();
         this.assumptionsWithInfo = builder.getAssumptionsWithInfo();
-      //  this.variableMap = pathThroughProgram.getMap();
-       // this.localScript = builder.getLocalScript();
-
-    }
-
-    public PVC(SymbexPath symbexPath) {
-        // TODO DOES THIS SUFFICE?
-        this.name = symbexPath.getPathIdentifier();
-        this.pathThroughProgram = symbexPath;
-        // this.declaration = decl;
     }
 
     public String toString(){
         String ret = "ProofVerificationCondition #"+this.pvcID+"\n"+
-                this.name+"\n";
+                this.getName()+"\n";
             for (TopFormula tf : assumptionsWithInfo) {
                 if (tf != null) {
                     ret += tf.toString() + "\n";

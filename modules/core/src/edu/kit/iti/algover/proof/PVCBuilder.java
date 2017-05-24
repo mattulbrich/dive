@@ -18,8 +18,6 @@ import edu.kit.iti.algover.term.Term;
 import edu.kit.iti.algover.term.builder.TermBuildException;
 import edu.kit.iti.algover.term.builder.TreeTermTranslator;
 import edu.kit.iti.algover.util.ImmutableList;
-import org.antlr.runtime.Token;
-import org.antlr.runtime.tree.Tree;
 
 import java.util.Collections;
 import java.util.Iterator;
@@ -29,14 +27,17 @@ import java.util.List;
 /**
  * A PVC corresponds to a symbexpath. So it consists of assignments on the path through the program of
  * pathconditions and of a goal to prove. In addition it is uniquely identified by its ID. This ID has to be given from a central instance
- * New attempt to implement a PVC Builder
+ * New attempt to implement a PVC Builder.
+ *
+ * This class is not ready for multi-threading.
+ *
  * Created by sarah on 8/18/16.
  */
 public class PVCBuilder {
     /**
      * Counter for IDs for TopFormulas
      */
-    private int formulaCounter;
+    private int formulaCounter = 0;
 
     /**
      * ID of proof verification condition, has to be unique
@@ -58,10 +59,20 @@ public class PVCBuilder {
      */
     private List<TopFormula> goalWithInfo;
 
-    public int getFormulaCounter() {
-        return formulaCounter;
-    }
+    /**
+     * Path through program which represents state of this pvc
+     */
+    private SymbexPath pathThroughProgram;
 
+    /**
+     * DafnyDecl this PVC belongs to
+     */
+    private DafnyDecl declaration;
+
+    public PVCBuilder(){
+        this.assumptionsWithInfo = new LinkedList<>();
+        this.goalWithInfo = new LinkedList<>();
+    }
 
     public int getPvcID() {
         return pvcID;
@@ -75,51 +86,22 @@ public class PVCBuilder {
         return assumptionsWithInfo;
     }
 
-
-
     public List<TopFormula> getGoalWithInfo() {
         return goalWithInfo;
     }
-
-
 
     public SymbexPath getPathThroughProgram() {
         return pathThroughProgram;
     }
 
-    public String getPvcName() {
-        return pvcName;
+    public DafnyDecl getDeclaration() {
+        return declaration;
     }
 
-    public PVCBuilder setPvcName(String pvcName) {
-        this.pvcName = pvcName;
+    public PVCBuilder setDeclaration(DafnyDecl decl) {
+        this.declaration = decl;
         return this;
     }
-
-    public DafnyDecl getParent() {
-        return parent;
-    }
-
-    public PVCBuilder setParent(DafnyDecl parent) {
-        this.parent = parent;
-        return this;
-    }
-
-    /**
-
-     * Path through programm which represents state of this pvc
-     */
-    private SymbexPath pathThroughProgram;
-
-    //name
-    private String pvcName;
-
-
-
-    /**
-     *DafnyDecl this PVC belongs to
-     */
-    private DafnyDecl parent;
 
     public PVCBuilder setPvcID(int pvcID) {
         this.pvcID = pvcID;
@@ -131,37 +113,15 @@ public class PVCBuilder {
         return this;
     }
 
-
-
     public PVCBuilder setPathThroughProgram(SymbexPath pathThroughProgram) {
         this.pathThroughProgram = pathThroughProgram;
         return this;
     }
 
-
-    public PVCBuilder(int globalID){
-        this.pvcID = globalID;
-        //initialize data structures
-        this.formulaCounter = 0;
-        this.assumptionsWithInfo = new LinkedList<>();
-        this.goalWithInfo = new LinkedList<>();
-
-
-    }
-
-
-    public PVC buildPVC(SymbexPath path, DafnyDecl parent){
-        //set the parents and the pointer to the symbexpath object which contains further information which may be needed later on
-        this.parent = parent;
-        setPathThroughProgram(path);
-        this.pvcName = path.getPathIdentifier();
-        //extract Assumptions
-        //extract Goals
-        //generate TopFormulas
-
-        buildTerms(path.getPathConditions());
-        buildAssertionTerms(path.getProofObligations());
-        //extracting Assignments is done for each TopFormula
+    public PVC build() {
+        formulaCounter = 0;
+        buildTerms(pathThroughProgram.getPathConditions());
+        buildAssertionTerms(pathThroughProgram.getProofObligations());
         return new PVC(this);
     }
 
@@ -172,7 +132,7 @@ public class PVCBuilder {
      */
     private void buildTerms(ImmutableList<PathConditionElement> pathConditions) {
 
-        SymbexPathToTopFormula septf = new SymbexPathToTopFormula(parent.getRepresentation());
+        SymbexPathToTopFormula septf = new SymbexPathToTopFormula(declaration.getRepresentation());
         TreeTermTranslator ttt = new TreeTermTranslator(septf.getSymbolTable());
         for(PathConditionElement pce : pathConditions){
 
@@ -197,7 +157,7 @@ public class PVCBuilder {
         //TreeTermTranslator ttt = new TreeTermTranslator(septf.getSymbolTable());
         for(AssertionElement ae : assertions){
             if(ae.getType() != AssertionElement.AssertionType.VARIANT_DECREASED) {
-                septf = new SymbexPathToTopFormula(parent.getRepresentation());
+                septf = new SymbexPathToTopFormula(declaration.getRepresentation());
                 ttt = new TreeTermTranslator(septf.getSymbolTable());
 
                 final TopFormula tf = buildTopFormulaAssert(ttt, ae.getExpression(), pathThroughProgram.getAssignmentHistory(), ae);
@@ -205,7 +165,7 @@ public class PVCBuilder {
             }else{
 
                 //TODO its a hack
-                septf = new SymbexPathToTopFormula(parent.getRepresentation());
+                septf = new SymbexPathToTopFormula(declaration.getRepresentation());
                 ttt = new TreeTermTranslator(
                         septf.getSymbolTable().addFunctionSymbol(
                                 new FunctionSymbol(ae.getExpression().getChild(0).getText(),

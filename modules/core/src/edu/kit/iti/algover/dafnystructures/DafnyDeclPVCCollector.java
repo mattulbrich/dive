@@ -11,6 +11,7 @@ import java.util.List;
 import edu.kit.iti.algover.facade.ProjectFacade;
 import edu.kit.iti.algover.project.Project;
 import edu.kit.iti.algover.proof.PVC;
+import edu.kit.iti.algover.proof.PVCBuilder;
 import edu.kit.iti.algover.proof.PVCCollection;
 import edu.kit.iti.algover.proof.PVCGroup;
 import edu.kit.iti.algover.proof.SinglePVC;
@@ -24,20 +25,27 @@ import edu.kit.iti.algover.symbex.SymbexPath;
  */
 public class DafnyDeclPVCCollector {
 
-    private Project facade;
+    // REVIEW: Is ProjectFacade not a singleton? --> remove
+    private ProjectFacade facade;
 
-    public DafnyDeclPVCCollector(Project facade){
+    /**
+     * The counter to create uniquely numbered PVCs.
+     */
+    private int counter;
+
+    // REVIEW: Remove parameter
+    public DafnyDeclPVCCollector(ProjectFacade facade){
         this.facade = facade;
     }
 
     public PVCCollection visitClass(DafnyClass cl, PVCCollection parent) {
         PVCGroup clGroup = new PVCGroup(cl);
 
-        for(DafnyFunction f :cl.getFunctions()){
+        for(DafnyFunction f :cl.getFunctions()) {
             clGroup.addChild(visitFunction(f, clGroup));
         }
 
-        for(DafnyMethod m :cl.getMethods()){
+        for(DafnyMethod m :cl.getMethods()) {
             clGroup.addChild(visitMethod(m, clGroup));
         }
 
@@ -52,7 +60,14 @@ public class DafnyDeclPVCCollector {
         for (SymbexPath path : paths) {
             List<SymbexPath> subpaths = path.split();
             for (SymbexPath subpath : subpaths) {
-                PVC pvc = new PVC(subpath);
+                PVCBuilder builder = new PVCBuilder();
+                builder
+                    .setPvcID(counter)
+                    .setPathThroughProgram(subpath)
+                    .setDeclaration(m);
+                counter++;
+
+                PVC pvc = builder.build();
                 SinglePVC sPVC = new SinglePVC(pvc);
                 mGroup.addChild(sPVC);
             }

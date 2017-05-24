@@ -12,6 +12,8 @@ import java.util.LinkedList;
 import java.util.List;
 
 import edu.kit.iti.algover.dafnystructures.DafnyDecl;
+import edu.kit.iti.algover.dafnystructures.DafnyDeclPVCCollector;
+import edu.kit.iti.algover.dafnystructures.DafnyFile;
 import edu.kit.iti.algover.parser.DafnyException;
 import edu.kit.iti.algover.parser.ReferenceResolutionVisitor;
 import edu.kit.iti.algover.parser.TypeResolution;
@@ -19,6 +21,7 @@ import edu.kit.iti.algover.project.Project;
 import edu.kit.iti.algover.project.ProjectBuilder;
 import edu.kit.iti.algover.proof.PVC;
 import edu.kit.iti.algover.proof.PVCBuilder;
+import edu.kit.iti.algover.proof.PVCGroup;
 import edu.kit.iti.algover.proof.ProofNode;
 import edu.kit.iti.algover.script.ScriptTree;
 import edu.kit.iti.algover.symbex.Symbex;
@@ -29,6 +32,10 @@ import edu.kit.iti.algover.theoremprover.DafnyTranslator;
  * Interface to create a project, to reload a project and do other project related stuff
  * Created by sarah on 8/22/16.
  */
+
+// REVIEW: Perhaps this should really be a collection of static functions.
+// The singleton pattern does not seem to be really followed everywhere.
+
 public class ProjectFacade {
 
     public int getGeneralPVCCounter() {
@@ -87,14 +94,18 @@ public class ProjectFacade {
      * @param decl
      * @return
      */
-    public List<PVC> generateAndCollectPVC(DafnyDecl decl){
-        List<SymbexPath> paths = performSymbolicExecution(decl);
-        List<PVC> pvcs = new ArrayList<>();
-        for(SymbexPath path : paths){
-            pvcs.addAll(createVerificationConditions(decl,path));
+    public PVCGroup generateAndCollectPVC(Project project){
+
+        PVCGroup root = new PVCGroup(null);
+
+        DafnyDeclPVCCollector visitor = new DafnyDeclPVCCollector(ProjectFacade.getInstance());
+
+        for (DafnyFile file : project.getDafnyFiles()) {
+            visitor.visitFile(file, root);
         }
 
-        return pvcs;
+        return root;
+
     }
 
     /**
@@ -111,24 +122,26 @@ public class ProjectFacade {
 
     }
 
-    /**
-     * Create verification conditions from given SymbexPaths
-     * @param path SymbexPath
-     * @return
-     */
-    public List<PVC> createVerificationConditions(DafnyDecl decl, SymbexPath path) {
-        List<PVC> verificationconditions = new LinkedList<>();
-        PVCBuilder builder = new PVCBuilder(this.getGeneralPVCCounter());
-
-        //build all pvc for path
-        //in a loop
-        verificationconditions.add(builder.buildPVC(path, decl));
-
-
-        //add pvcs to counter
-        this.setGeneralPVCCounter(verificationconditions.size());
-        return verificationconditions;
-    }
+    // REVIEW: retired this. OK? Please remove if so.
+    // all PVCs are recoverable from generateAndCollectPVC.
+//    /**
+//     * Create verification conditions from given SymbexPaths
+//     * @param path SymbexPath
+//     * @return
+//     */
+//    public List<PVC> createVerificationConditions(DafnyDecl decl, SymbexPath path) {
+//        List<PVC> verificationconditions = new LinkedList<>();
+//        PVCBuilder builder = new PVCBuilder(this.getGeneralPVCCounter());
+//
+//        //build all pvc for path
+//        //in a loop
+//        verificationconditions.add(builder.buildPVC(path, decl));
+//
+//
+//        //add pvcs to counter
+//        this.setGeneralPVCCounter(verificationconditions.size());
+//        return verificationconditions;
+//    }
 
     public ProofNode createProofRoot(SymbexPath path){
         return null;

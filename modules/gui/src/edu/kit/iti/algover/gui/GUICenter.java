@@ -1,3 +1,8 @@
+/*
+ * This file is part of AlgoVer.
+ *
+ * Copyright (C) 2015-2017 Karlsruhe Institute of Technology
+ */
 package edu.kit.iti.algover.gui;
 
 import edu.kit.iti.algover.facade.ProjectFacade;
@@ -242,7 +247,7 @@ public class GUICenter {
         setSelectedProjectDir(projectDir);
         loadSelectedProject();
 
-        ProofManagement proofmgt = new ProofManagement(this.getLoadedProject(), this.getFacade());
+        ProofManagement proofmgt = new ProofManagement(this.getLoadedProject());
         this.setProofManagement(proofmgt);
         System.out.println(this.getProofManagement().getProofverificationconditions().toString());
 
