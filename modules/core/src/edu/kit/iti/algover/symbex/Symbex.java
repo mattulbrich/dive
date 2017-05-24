@@ -275,7 +275,7 @@ public class Symbex {
             cnt++;
         }
 
-        // FIXME go beyond integer here ...
+        // TODO go beyond integer here ...
         DafnyTree intType = new DafnyTree(DafnyParser.INT, "int");
         path.addDeclaredLocalVar(new LocalVarDecl(name, intType, stm));
 
