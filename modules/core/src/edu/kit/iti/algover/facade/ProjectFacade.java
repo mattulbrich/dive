@@ -8,7 +8,7 @@ package edu.kit.iti.algover.facade;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
-import java.util.LinkedList;
+import java.util.Collection;
 import java.util.List;
 
 import edu.kit.iti.algover.dafnystructures.DafnyDecl;
@@ -20,12 +20,12 @@ import edu.kit.iti.algover.parser.TypeResolution;
 import edu.kit.iti.algover.project.Project;
 import edu.kit.iti.algover.project.ProjectBuilder;
 import edu.kit.iti.algover.proof.PVC;
-import edu.kit.iti.algover.proof.PVCBuilder;
 import edu.kit.iti.algover.proof.PVCGroup;
 import edu.kit.iti.algover.proof.ProofNode;
 import edu.kit.iti.algover.script.ScriptTree;
 import edu.kit.iti.algover.symbex.Symbex;
 import edu.kit.iti.algover.symbex.SymbexPath;
+import edu.kit.iti.algover.term.FunctionSymbol;
 import edu.kit.iti.algover.theoremprover.DafnyTranslator;
 
 /**
@@ -38,7 +38,7 @@ import edu.kit.iti.algover.theoremprover.DafnyTranslator;
 
 public class ProjectFacade {
 
-    public int getGeneralPVCCounter() {
+    private int getGeneralPVCCounter() {
         return generalPVCCounter;
     }
 
@@ -151,7 +151,6 @@ public class ProjectFacade {
         DafnyTranslator trans = new DafnyTranslator(verificationCondition, 1);
         //return file to which it will be translated
     }
-
 
     public ScriptTree getScriptFor(int pvcId){
         return null;
