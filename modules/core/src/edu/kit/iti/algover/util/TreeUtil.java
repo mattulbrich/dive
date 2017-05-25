@@ -194,6 +194,7 @@ public final class TreeUtil {
         return "( " + t1 + " " + f + " " + t2 + " )";
     }
 
+    @Deprecated
     public static Sort treeToType(DafnyTree tree) {
         String name = tree.toString();
         if ("array".equals(name)) {
@@ -201,6 +202,36 @@ public final class TreeUtil {
         }
 
         return new Sort(name);
+    }
+
+    // TODO: MU should put this into a different class
+    public static Sort toSort(DafnyTree tree) {
+        switch(tree.getType()) {
+        case DafnyParser.INT:
+            assert tree.getChildCount() == 0;
+            return Sort.INT;
+        case DafnyParser.BOOL:
+            assert tree.getChildCount() == 0;
+            return Sort.BOOL;
+        case DafnyParser.SET:
+            assert tree.getChildCount() == 1;
+            // TODO refer to a consant not the srting.
+            return new Sort("set", toSort(tree.getChild(0)));
+        case DafnyParser.SEQ:
+            assert tree.getChildCount() == 1;
+            // TODO refer to a consant not the srting.
+            return new Sort("seq", toSort(tree.getChild(0)));
+        case DafnyParser.ARRAY:
+            assert tree.getChildCount() == 1;
+            // TODO FIXME ... multidim arrays
+            return new Sort("seq", toSort(tree.getChild(0)));
+        case DafnyParser.ID:
+            // We do not support parametric classes ...
+            assert tree.getChildCount() == 0;
+            return new Sort(tree.getText());
+        default:
+            throw new Error("expected token for type " + tree.toStringTree());
+        }
     }
 
     /**

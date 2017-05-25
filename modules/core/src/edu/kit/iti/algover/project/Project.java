@@ -7,6 +7,7 @@ package edu.kit.iti.algover.project;
 
 import java.io.File;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -15,9 +16,12 @@ import edu.kit.iti.algover.dafnystructures.DafnyDecl;
 import edu.kit.iti.algover.dafnystructures.DafnyFile;
 import edu.kit.iti.algover.dafnystructures.DafnyFunction;
 import edu.kit.iti.algover.dafnystructures.DafnyMethod;
+import edu.kit.iti.algover.facade.ProjectFacade;
 import edu.kit.iti.algover.parser.DafnyException;
 import edu.kit.iti.algover.proof.PVC;
+import edu.kit.iti.algover.proof.PVCGroup;
 import edu.kit.iti.algover.settings.ProjectSettings;
+import edu.kit.iti.algover.term.FunctionSymbol;
 
 
 // REVIEW: I miss a possibility to retrieve all parsed DafnyTrees (toplevel entities)
@@ -52,6 +56,8 @@ public class Project {
     private Map<String, DafnyMethod> methods;
 
     private Map<String, DafnyFunction> functions;
+
+    private Collection<FunctionSymbol> functionSymbols;
 
     public File getBaseDir() {
         return baseDir;
@@ -134,12 +140,20 @@ public class Project {
 
     }
 
-    public List<PVC> getAllVerificationConditions() {
+    public PVCGroup getAllVerificationConditions() {
+        return ProjectFacade.getInstance().generateAndCollectPVC(this);
+    }
+
+    public PVCGroup getVerificationConditionsFor(DafnyDecl decl) {
         throw new UnsupportedOperationException();
     }
 
-    public List<PVC> getVerificationConditionsFor(DafnyDecl decl) {
-        throw new UnsupportedOperationException();
+    public Collection<FunctionSymbol> getAllDeclaredSymbols() {
+        if(functionSymbols == null) {
+            functionSymbols = DeclarationSymbolCollector.collect(this);
+        }
+        return Collections.unmodifiableCollection(functionSymbols);
     }
+
 
 }

@@ -7,7 +7,12 @@ package edu.kit.iti.algover.proof;
 
 import edu.kit.iti.algover.parser.DafnyParser;
 import edu.kit.iti.algover.parser.DafnyTree;
+import edu.kit.iti.algover.ProgramDatabase;
 import edu.kit.iti.algover.dafnystructures.DafnyDecl;
+import edu.kit.iti.algover.data.BuiltinSymbols;
+import edu.kit.iti.algover.data.MapSymbolTable;
+import edu.kit.iti.algover.data.SuffixSymbolTable;
+import edu.kit.iti.algover.data.SymbolTable;
 import edu.kit.iti.algover.script.ScriptTree;
 import edu.kit.iti.algover.symbex.AssertionElement;
 import edu.kit.iti.algover.symbex.PathConditionElement;
@@ -19,6 +24,8 @@ import edu.kit.iti.algover.term.builder.TermBuildException;
 import edu.kit.iti.algover.term.builder.TreeTermTranslator;
 import edu.kit.iti.algover.util.ImmutableList;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -68,6 +75,8 @@ public class PVCBuilder {
      * DafnyDecl this PVC belongs to
      */
     private DafnyDecl declaration;
+
+    private SymbolTable symbolTable;
 
     public PVCBuilder(){
         this.assumptionsWithInfo = new LinkedList<>();
@@ -120,9 +129,24 @@ public class PVCBuilder {
 
     public PVC build() {
         formulaCounter = 0;
+        this.symbolTable = makeSymbolTable();
         buildTerms(pathThroughProgram.getPathConditions());
         buildAssertionTerms(pathThroughProgram.getProofObligations());
         return new PVC(this);
+    }
+
+    private SymbolTable makeSymbolTable() {
+
+        Collection<FunctionSymbol> map = new ArrayList<>();
+
+        for (DafnyTree decl : ProgramDatabase.getAllVariableDeclarations(method)) {
+            String name = decl.getChild(0).toString();
+            Sort sort = treeToType(decl.getChild(1));
+            map.add(new FunctionSymbol(name, sort));
+        }
+
+        MapSymbolTable st = new SuffixSymbolTable(new BuiltinSymbols(), map);
+        return st;
     }
 
     /**
@@ -132,10 +156,8 @@ public class PVCBuilder {
      */
     private void buildTerms(ImmutableList<PathConditionElement> pathConditions) {
 
-        SymbexPathToTopFormula septf = new SymbexPathToTopFormula(declaration.getRepresentation());
-        TreeTermTranslator ttt = new TreeTermTranslator(septf.getSymbolTable());
+        TreeTermTranslator ttt = new TreeTermTranslator(symbolTable);
         for(PathConditionElement pce : pathConditions){
-
             final TopFormula tf = buildTopFormula(ttt, pce.getExpression(), pathThroughProgram.getAssignmentHistory(), pce);
             assumptionsWithInfo.add(tf);
         }

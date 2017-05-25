@@ -37,6 +37,11 @@ public class Sort {
     public static final Sort INT = new Sort("int");
 
     /**
+     * The Constant INT captures the builtin boolean type.
+     */
+    public static final Sort BOOL = new Sort("bool");
+
+    /**
      * The Constant INT_SET is the typo of sets of integers.
      * Since this type is a member of the initial-language support,
      * it is added as a constant here.

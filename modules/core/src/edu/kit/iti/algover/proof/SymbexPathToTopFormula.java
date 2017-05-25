@@ -56,7 +56,7 @@ public class SymbexPathToTopFormula {
     }
 
     // TODO check parameters and stuff
-    public static Sort treeToType(DafnyTree tree) {
+    private static Sort treeToType(DafnyTree tree) {
         String name = tree.toString();
         if("array".equals(name)) {
             name = "array1";
@@ -65,19 +65,19 @@ public class SymbexPathToTopFormula {
         return new Sort(name);
     }
 
-    public Term fromPO(SymbexPath p, AssertionElement e) throws TermBuildException {
+    private Term fromPO(SymbexPath p, AssertionElement e) throws TermBuildException {
         Term formula = ttt.build(p.getAssignmentHistory(), e.getExpression());
         return formula;
     }
 
 
-    public Term fromPCE(SymbexPath p, PathConditionElement pce) throws  TermBuildException{
+    private Term fromPCE(SymbexPath p, PathConditionElement pce) throws  TermBuildException{
         Term formula = ttt.build(p.getAssignmentHistory(), pce.getExpression());
 
         return formula;
     }
 
-    public Collection<Term> from(SymbexPath symbexState) throws TermBuildException {
+    private Collection<Term> from(SymbexPath symbexState) throws TermBuildException {
 
         Collection<Term> result = new ArrayList<>();
 
@@ -98,7 +98,7 @@ public class SymbexPathToTopFormula {
 
     }
 
-    public SymbolTable getSymbolTable() {
+    private SymbolTable getSymbolTable() {
         return symbolTable;
     }
 
