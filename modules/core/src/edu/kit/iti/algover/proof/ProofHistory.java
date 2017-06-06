@@ -1,6 +1,9 @@
+/*
+ * This file is part of AlgoVer.
+ *
+ * Copyright (C) 2015-2017 Karlsruhe Institute of Technology
+ */
 package edu.kit.iti.algover.proof;
-
-import edu.kit.iti.algover.ProofCenter;
 
 import java.util.LinkedList;
 import java.util.List;
