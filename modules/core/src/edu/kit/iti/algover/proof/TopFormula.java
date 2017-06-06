@@ -22,6 +22,8 @@ import java.util.*;
  *
  * Created by sarah on 8/18/16.
  */
+// REVIEW: Pleas watch the order of members in a class
+// REVIEW: checkstyle
 public class TopFormula{
     public int getParentPvcID() {
         return pvcID;
@@ -31,28 +33,34 @@ public class TopFormula{
      * ID of parent PVC
      */
     private int pvcID;
+
     /**
      * Position whether in assumption or goal
      */
-
     private boolean goalFormula;
+
     /**
      * Term that is represented (has to be toplevel term)
      */
+    // REVIEW: What is a toplevel term?
     private Term t;
 
     /**
      * Term that represents all lets
      */
+    // REVIEW: What is the innermost term of the cascade? t?
     private Term letTerm;
+
     /**
      * ID of ToplevelFormula for references
      */
+    // REVIEW: This is not clear.
     private int idInPVC;
 
     /**
      * Symbexpath the term belongs to
      */
+    // REVIEW: do not all top formulas in a proof belong to the same path?
     private SymbexPath path;
 
     public Term getTerm() {
@@ -71,6 +79,7 @@ public class TopFormula{
     //    return lineInFile;
     //}
 
+    // REVIEW: please document. not clear.
     private List<Assignment> affectingAssignments;
     /**
      * filename of file where term is in
@@ -91,6 +100,7 @@ public class TopFormula{
      */
     private AssertionElement ae;
 
+    // REVIEW: please document.
     private Set<String> varOccurence;
 
 

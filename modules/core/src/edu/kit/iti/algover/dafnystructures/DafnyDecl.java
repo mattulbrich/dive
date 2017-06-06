@@ -5,6 +5,8 @@
  */
 package edu.kit.iti.algover.dafnystructures;
 
+import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -14,6 +16,7 @@ import java.util.Set;
 
 import edu.kit.iti.algover.parser.DafnyException;
 import edu.kit.iti.algover.parser.DafnyTree;
+import edu.kit.iti.algover.term.FunctionSymbol;
 
 /**
  * Base class for all Dafny declarations.
@@ -147,6 +150,10 @@ public abstract class DafnyDecl {
             result.put(decl.getName(), decl);
         }
         return result;
+    }
+
+    public Collection<FunctionSymbol> getLocalSymbols() {
+        return Collections.emptyList();
     }
 
 }

@@ -5,14 +5,22 @@
  */
 package edu.kit.iti.algover.proof;
 
-import edu.kit.iti.algover.parser.DafnyParser;
-import edu.kit.iti.algover.parser.DafnyTree;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
+
 import edu.kit.iti.algover.ProgramDatabase;
 import edu.kit.iti.algover.dafnystructures.DafnyDecl;
+import edu.kit.iti.algover.dafnystructures.DafnyMethod;
 import edu.kit.iti.algover.data.BuiltinSymbols;
 import edu.kit.iti.algover.data.MapSymbolTable;
 import edu.kit.iti.algover.data.SuffixSymbolTable;
 import edu.kit.iti.algover.data.SymbolTable;
+import edu.kit.iti.algover.parser.DafnyParser;
+import edu.kit.iti.algover.parser.DafnyTree;
 import edu.kit.iti.algover.script.ScriptTree;
 import edu.kit.iti.algover.symbex.AssertionElement;
 import edu.kit.iti.algover.symbex.PathConditionElement;
@@ -23,18 +31,15 @@ import edu.kit.iti.algover.term.Term;
 import edu.kit.iti.algover.term.builder.TermBuildException;
 import edu.kit.iti.algover.term.builder.TreeTermTranslator;
 import edu.kit.iti.algover.util.ImmutableList;
-
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
+import edu.kit.iti.algover.util.TreeUtil;
+import edu.kit.iti.algover.util.Util;
 
 /**
  * A PVC corresponds to a symbexpath. So it consists of assignments on the path through the program of
  * pathconditions and of a goal to prove. In addition it is uniquely identified by its ID. This ID has to be given from a central instance
  * New attempt to implement a PVC Builder.
+ *
+ * REVIEW: Is this a builder for method PVCs? I assume so. If so, rename it accordngly.
  *
  * This class is not ready for multi-threading.
  *
@@ -49,6 +54,13 @@ public class PVCBuilder {
     /**
      * ID of proof verification condition, has to be unique
      */
+    // REVIEW: What are the benefits of an integer ID?
+    /* I think it would rather be very important that the PO/PVCs have
+     * a unique srting id. In KeY, they had numbers at one point. Adding
+     * a single new method threw every finished proof overboard.
+     *
+     * Are there benefits in integer Ids?
+     */
     private int pvcID;
 
     /**
@@ -59,12 +71,14 @@ public class PVCBuilder {
     /**
      * List of terms for the "toplevel" formula representing assumptions with a wrapper containing additional information
      */
-    private List<TopFormula> assumptionsWithInfo;
+    // REVIEW: Why withInfo? Is this not implied by the type?
+    private final List<TopFormula> assumptionsWithInfo;
 
     /**
      * List of terms for the "toplevel" formula representing goals with a wrapper containing additional information
      */
-    private List<TopFormula> goalWithInfo;
+    // REVIEW: Why withInfo? Is this not implied by the type?
+    private final List<TopFormula> goalWithInfo;
 
     /**
      * Path through program which represents state of this pvc
@@ -127,11 +141,11 @@ public class PVCBuilder {
         return this;
     }
 
-    public PVC build() {
+    public PVC build() throws TermBuildException {
         formulaCounter = 0;
         this.symbolTable = makeSymbolTable();
-        buildTerms(pathThroughProgram.getPathConditions());
-        buildAssertionTerms(pathThroughProgram.getProofObligations());
+        buildAssumptionTerms();
+        buildAssertionTerms();
         return new PVC(this);
     }
 
@@ -139,9 +153,12 @@ public class PVCBuilder {
 
         Collection<FunctionSymbol> map = new ArrayList<>();
 
-        for (DafnyTree decl : ProgramDatabase.getAllVariableDeclarations(method)) {
+        // FIXME: This builder is probably meant only for methods. store method instead of declaration
+        DafnyMethod method = (DafnyMethod) declaration;
+
+        for (DafnyTree decl : ProgramDatabase.getAllVariableDeclarations(method.getRepresentation())) {
             String name = decl.getChild(0).toString();
-            Sort sort = treeToType(decl.getChild(1));
+            Sort sort = TreeUtil.toSort(decl.getChild(1));
             map.add(new FunctionSymbol(name, sort));
         }
 
@@ -153,12 +170,17 @@ public class PVCBuilder {
      *
      * Iterate over pathconditions and build the toplevel formulas for this PVC
      * @param pathConditions
+     * @throws TermBuildException
      */
-    private void buildTerms(ImmutableList<PathConditionElement> pathConditions) {
+    private void buildAssumptionTerms() throws TermBuildException {
 
         TreeTermTranslator ttt = new TreeTermTranslator(symbolTable);
-        for(PathConditionElement pce : pathConditions){
-            final TopFormula tf = buildTopFormula(ttt, pce.getExpression(), pathThroughProgram.getAssignmentHistory(), pce);
+        for(PathConditionElement pce : pathThroughProgram.getPathConditions()) {
+
+            // FIXME refactor
+            Term term = ttt.build(pce.getVariableMap(), pce.getExpression());
+            final TopFormula tf = buildTopFormula(ttt,
+                    pce.getExpression(), pathThroughProgram.getAssignmentHistory(), pce);
             assumptionsWithInfo.add(tf);
         }
 
@@ -169,33 +191,38 @@ public class PVCBuilder {
      * Build the Terms for creating the Toplevel-Formulas from assertions
      * @param assertions
      */
-    private void buildAssertionTerms(ImmutableList<AssertionElement> assertions) {
+    private void buildAssertionTerms() {
 
-        SymbexPathToTopFormula septf;
-          TreeTermTranslator ttt;
+        // XXX Caution: If you invoke PVCBuilder with a SymbexPath with severl assertions
+        // they will be illegally combined using disjunction here.
 
-
-        //= new SymbexPathToTopFormula(parent.getRepresentation());
-        //TreeTermTranslator ttt = new TreeTermTranslator(septf.getSymbolTable());
-        for(AssertionElement ae : assertions){
-            if(ae.getType() != AssertionElement.AssertionType.VARIANT_DECREASED) {
-                septf = new SymbexPathToTopFormula(declaration.getRepresentation());
-                ttt = new TreeTermTranslator(septf.getSymbolTable());
-
-                final TopFormula tf = buildTopFormulaAssert(ttt, ae.getExpression(), pathThroughProgram.getAssignmentHistory(), ae);
-                goalWithInfo.add(tf);
-            }else{
-
-                //TODO its a hack
-                septf = new SymbexPathToTopFormula(declaration.getRepresentation());
-                ttt = new TreeTermTranslator(
-                        septf.getSymbolTable().addFunctionSymbol(
-                                new FunctionSymbol(ae.getExpression().getChild(0).getText(),
-                                        Sort.INT, Collections.emptyList())));
-
-                goalWithInfo.add(createVariantGoal(ae, ttt));
-            }
-        }
+        // FIXME: Same as above with assumptions but with assertions.
+//
+//        SymbexPathToTopFormula septf;
+//          TreeTermTranslator ttt;
+//
+//
+//        //= new SymbexPathToTopFormula(parent.getRepresentation());
+//        //TreeTermTranslator ttt = new TreeTermTranslator(septf.getSymbolTable());
+//        for(AssertionElement ae : assertions){
+//            if(ae.getType() != AssertionElement.AssertionType.VARIANT_DECREASED) {
+//                septf = new SymbexPathToTopFormula(declaration.getRepresentation());
+//                ttt = new TreeTermTranslator(septf.getSymbolTable());
+//
+//                final TopFormula tf = buildTopFormulaAssert(ttt, ae.getExpression(), pathThroughProgram.getAssignmentHistory(), ae);
+//                goalWithInfo.add(tf);
+//            }else{
+//
+//                //TODO its a hack
+//                septf = new SymbexPathToTopFormula(declaration.getRepresentation());
+//                ttt = new TreeTermTranslator(
+//                        septf.getSymbolTable().addFunctionSymbol(
+//                                new FunctionSymbol(ae.getExpression().getChild(0).getText(),
+//                                        Sort.INT, Collections.emptyList())));
+//
+//                goalWithInfo.add(createVariantGoal(ae, ttt));
+//            }
+//        }
 
 
     }
@@ -240,6 +267,8 @@ public class PVCBuilder {
      * Build the Terms for creating the ToplevelFormulas from assumptions
      * @param
      */
+    // REVIEW: term is embedded into let term?
+    // We need a fresh concept of translating
     private TopFormula buildTopFormula(TreeTermTranslator ttt, DafnyTree expression, ImmutableList<DafnyTree> immutableList, PathConditionElement pce){
         TopFormula tf = null;
         try {

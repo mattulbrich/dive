@@ -17,6 +17,7 @@ import edu.kit.iti.algover.proof.PVCGroup;
 import edu.kit.iti.algover.proof.SinglePVC;
 import edu.kit.iti.algover.symbex.Symbex;
 import edu.kit.iti.algover.symbex.SymbexPath;
+import edu.kit.iti.algover.term.builder.TermBuildException;
 
 /**
  * Visitor for DafbnyDecl, that performs symbex on dafnydecl and returns PVCCollection
@@ -26,7 +27,7 @@ import edu.kit.iti.algover.symbex.SymbexPath;
 public class DafnyDeclPVCCollector {
 
     // REVIEW: Is ProjectFacade not a singleton? --> remove
-    private ProjectFacade facade;
+    private final ProjectFacade facade;
 
     /**
      * The counter to create uniquely numbered PVCs.
@@ -67,9 +68,15 @@ public class DafnyDeclPVCCollector {
                     .setDeclaration(m);
                 counter++;
 
-                PVC pvc = builder.build();
-                SinglePVC sPVC = new SinglePVC(pvc);
-                mGroup.addChild(sPVC);
+                PVC pvc;
+                try {
+                    pvc = builder.build();
+                    SinglePVC sPVC = new SinglePVC(pvc);
+                    mGroup.addChild(sPVC);
+                } catch (TermBuildException e) {
+                    // FIXME. ... need a concept ofr exception handling here
+                    e.printStackTrace();
+                }
             }
         }
 
