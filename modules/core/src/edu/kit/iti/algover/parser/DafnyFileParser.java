@@ -76,6 +76,7 @@ public final class DafnyFileParser {
      * @throws RecognitionException
      *             Signals that a parser exception has occurred.
      */
+    // TODO: Add a class for located parser errors (subclass of IOException perhaps)
     public static DafnyTree parse(InputStream stream) throws RecognitionException, IOException {
 
         // create stream and lexer

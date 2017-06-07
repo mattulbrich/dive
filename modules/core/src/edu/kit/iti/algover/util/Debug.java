@@ -1,5 +1,7 @@
 package edu.kit.iti.algover.util;
 
+import edu.kit.iti.algover.proof.PVCCollection;
+
 public class Debug {
 
 
@@ -25,6 +27,21 @@ public class Debug {
 
         return sb;
 
+    }
+
+    public static CharSequence toString(PVCCollection coll)  {
+        StringBuilder sb = new StringBuilder();
+        toString(sb, coll, 0);
+        return sb;
+    }
+
+    private static void toString(StringBuilder sb, PVCCollection coll, int indent) {
+        sb.append(Util.duplicate("   ", indent))
+            .append(coll.toString())
+            .append("\n");
+        for (PVCCollection child : coll.getChildren()) {
+            toString(sb, child, indent + 1);
+        }
     }
 
 }

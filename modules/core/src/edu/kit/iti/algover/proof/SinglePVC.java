@@ -33,7 +33,7 @@ public class SinglePVC extends PVCCollection {
 
     @Override
     public String toString() {
-        return pvc.getName();
+        return pvc.toString();
     }
 
     @Override

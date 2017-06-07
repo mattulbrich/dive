@@ -94,6 +94,7 @@ public class ProjectFacade {
      * @param decl
      * @return
      */
+    // REVIEW: Why not as member function of project?
     public PVCGroup generateAndCollectPVC(Project project){
 
         PVCGroup root = new PVCGroup(null);

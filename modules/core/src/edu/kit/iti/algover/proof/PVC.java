@@ -26,29 +26,29 @@ public class PVC {
      * ID of proof verification condition, has to be unique
      */
     // TODO not clear at the moment whether needed or where it comes from.
-    private int pvcID;
+    private final int pvcID;
 
     /**
      * List of terms for the "toplevel" formula representing assumptions.
      * This is created lazily on demand.
      */
-    private List<TopFormula> assumptionsWithInfo;
+    private final List<TopFormula> assumptionsWithInfo;
 
     /**
      * List of terms for the "toplevel" formula representing goals
      */
     // REVIEW: Is this really a list of goals?
-    private List<TopFormula> goalWithInfo;
+    private final List<TopFormula> goalWithInfo;
 
     /**
      * Path through program. Not <code>null</code>
      */
-    private SymbexPath pathThroughProgram;
+    private final SymbexPath pathThroughProgram;
 
     /**
      * DafnDecl this PVC belongs to. not <code>null</code>
      */
-    private DafnyDecl declaration;
+    private final DafnyDecl declaration;
 
     public String getName() {
         return pathThroughProgram.getPathIdentifier();
@@ -98,21 +98,23 @@ public class PVC {
         this.assumptionsWithInfo = builder.getAssumptionsWithInfo();
     }
 
+    // REVIEW toString oneliner
+    @Override
     public String toString(){
-        String ret = "ProofVerificationCondition #"+this.pvcID+"\n"+
-                this.getName()+"\n";
-            for (TopFormula tf : assumptionsWithInfo) {
-                if (tf != null) {
-                    ret += tf.toString() + "\n";
-                }
-
-            }
-        ret+= "Goal: ";
-        for(TopFormula tf: goalWithInfo){
-            if(tf != null) {
-                ret += tf.toString() + "\n";
-            }
-        }
+        String ret = "PVC #"+this.pvcID+": " +
+                this.getName();
+//            for (TopFormula tf : assumptionsWithInfo) {
+//                if (tf != null) {
+//                    ret += tf.toString() + "\n";
+//                }
+//
+//            }
+//        ret+= "Goal: ";
+//        for(TopFormula tf: goalWithInfo){
+//            if(tf != null) {
+//                ret += tf.toString() + "\n";
+//            }
+//        }
         return ret;
     }
 }

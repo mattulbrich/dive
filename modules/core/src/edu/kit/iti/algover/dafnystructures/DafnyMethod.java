@@ -99,18 +99,19 @@ public class DafnyMethod extends DafnyDecl {
         return modifiesClause;
     }
 
+    // REVIEW: toString(/) shouldbe oneliner
     @Override
     public String toString() {
-        String s = "method " + this.getName() + "\n";
-
-        if (this.params != null) {
-            String params = this.params.size() + " Parameters: ";
-
-            for (DafnyTree para : this.params) {
-                params += para.toStringTree() + "\n";
-            }
-            s += params + "\n";
-        }
+        String s = "method " + this.getName(); // + "\n";
+//
+//        if (this.params != null) {
+//            String params = this.params.size() + " Parameters: ";
+//
+//            for (DafnyTree para : this.params) {
+//                params += para.toStringTree() + "\n";
+//            }
+//            s += params + "\n";
+//        }
         return s;
 
     }

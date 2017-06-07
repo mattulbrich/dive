@@ -17,18 +17,20 @@ import java.util.List;
  */
 public class PVCGroup extends PVCCollection {
 
-    private DafnyDecl dd;
-    private List<PVCCollection> children;
+    private final DafnyDecl dd;
+    private final List<PVCCollection> children;
 
     public PVCGroup(DafnyDecl dd){
         this.dd = dd;
         this.children = new ArrayList<>();
     }
 
+    // REVIEW: Why only here and not in interface?
     public PVCCollection getChild(int i){
         return children.get(i);
     }
 
+    @Override
     public DafnyDecl getDafnyDecl(){
         return this.dd;
     }
@@ -57,6 +59,7 @@ public class PVCGroup extends PVCCollection {
         return false;
     }
 
+    @Override
     public List<PVCCollection> getChildren() {
         return children;
     }

@@ -9,7 +9,6 @@ package edu.kit.iti.algover.dafnystructures;
 import java.util.List;
 
 import edu.kit.iti.algover.facade.ProjectFacade;
-import edu.kit.iti.algover.project.Project;
 import edu.kit.iti.algover.proof.PVC;
 import edu.kit.iti.algover.proof.PVCBuilder;
 import edu.kit.iti.algover.proof.PVCCollection;
@@ -34,26 +33,26 @@ public class DafnyDeclPVCCollector {
      */
     private int counter;
 
-    // REVIEW: Remove parameter
+    // REVIEW: Remove parameter -- it is a singleton after all.
     public DafnyDeclPVCCollector(ProjectFacade facade){
         this.facade = facade;
     }
 
-    public PVCCollection visitClass(DafnyClass cl, PVCCollection parent) {
+    public PVCCollection visitClass(DafnyClass cl) {
         PVCGroup clGroup = new PVCGroup(cl);
 
         for(DafnyFunction f :cl.getFunctions()) {
-            clGroup.addChild(visitFunction(f, clGroup));
+            clGroup.addChild(visitFunction(f));
         }
 
         for(DafnyMethod m :cl.getMethods()) {
-            clGroup.addChild(visitMethod(m, clGroup));
+            clGroup.addChild(visitMethod(m));
         }
 
         return clGroup;
     }
 
-    public PVCCollection visitMethod(DafnyMethod m, PVCCollection parent) {
+    public PVCCollection visitMethod(DafnyMethod m) {
         PVCGroup mGroup = new PVCGroup(m);
 
         Symbex symbex = new Symbex();
@@ -83,7 +82,7 @@ public class DafnyDeclPVCCollector {
         return mGroup;
     }
 
-    public PVCCollection visitFunction(DafnyFunction f, PVCCollection parent) {
+    public PVCCollection visitFunction(DafnyFunction f) {
         PVCGroup mGroup = new PVCGroup(f);
 
         // TODO: NOT YET IMPLEMENTED
@@ -92,14 +91,19 @@ public class DafnyDeclPVCCollector {
     }
 
     // no collection per file!
-    public void visitFile(DafnyFile file, PVCCollection collection) {
+    public void visitFile(DafnyFile file, PVCGroup collection) {
         for (DafnyFunction f : file.getFunctions()) {
-            visitFunction(f, collection);
+            collection.addChild(visitFunction(f));
         }
 
         for(DafnyMethod m : file.getMethods()) {
-            visitMethod(m, collection);
+            collection.addChild(visitMethod(m));
+        }
+
+        for(DafnyClass c : file.getClasses()) {
+            collection.addChild(visitClass(c));
         }
     }
+
 
 }

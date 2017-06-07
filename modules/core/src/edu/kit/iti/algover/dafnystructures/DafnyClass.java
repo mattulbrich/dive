@@ -18,17 +18,17 @@ public class DafnyClass extends DafnyDecl {
     /**
      * Methods belonging to this class, possibly empty
      */
-    private Map<String, DafnyMethod> methods;
+    private final Map<String, DafnyMethod> methods;
 
     /**
      * Functions belonging to this class, possibly empty
      */
-    private Map<String, DafnyFunction> functions;
+    private final Map<String, DafnyFunction> functions;
 
     /**
      * Fields belonging to this class, possibly empty
      */
-    private Map<String, DafnyField> fields;
+    private final Map<String, DafnyField> fields;
 
     /**
      * Instantiates a new dafny class from data in a builder
@@ -103,32 +103,35 @@ public class DafnyClass extends DafnyDecl {
         return fields.get(name);
     }
 
+    // REVIEW: toString() should be a oneliner.
     @Override
     public String toString(){
         // REVIEW refactor with new situation; use StringBuilder
         String classToString = "";
 
-        classToString += "Class "+this.getName() +"\nwith "+this.methods.size()+ " methods:\n";
-        if(this.methods != null) {
-            for (DafnyMethod method : this.getMethods()) {
-                classToString += method.toString() + "\n";
+//        classToString += "Class "+this.getName() +"\nwith "+this.methods.size()+ " methods:\n";
+//        if(this.methods != null) {
+//            for (DafnyMethod method : this.getMethods()) {
+//                classToString += method.toString() + "\n";
+//
+//            }
+//        }
+//        classToString += "with "+this.functions.size()+" functions:";
+//        if(this.functions != null) {
+//            for (DafnyFunction function : this.getFunctions()) {
+//                classToString += function.toString() + "\n";
+//            }
+//        }
+//
+//        if(this.fields != null) {
+//            classToString += "with " + this.fields.size() + " fields:";
+//            for (DafnyField field : this.getFields()) {
+//                classToString += field.toString() + "\n";
+//            }
+//        }
+//        return classToString;
 
-            }
-        }
-        classToString += "with "+this.functions.size()+" functions:";
-        if(this.functions != null) {
-            for (DafnyFunction function : this.getFunctions()) {
-                classToString += function.toString() + "\n";
-            }
-        }
-
-        if(this.fields != null) {
-            classToString += "with " + this.fields.size() + " fields:";
-            for (DafnyField field : this.getFields()) {
-                classToString += field.toString() + "\n";
-            }
-        }
-        return classToString;
+        return "class " + getName();
     }
 
     @Override

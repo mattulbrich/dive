@@ -35,6 +35,7 @@ import edu.kit.iti.algover.util.FileUtil;
  * projectsettings need to be retrieved
  * Created by sarah on 8/3/16.
  */
+// REVIEW: Add Javadoc
 public class ProjectBuilder {
 
     /**
@@ -42,18 +43,19 @@ public class ProjectBuilder {
      */
     private File dir;
 
-    private List<String> libraryFiles = new ArrayList<>();
+    private final List<String> libraryFiles = new ArrayList<>();
 
     /**
      * All Dafnyfiles in the project directory
      */
-    private List<String> dafnyFiles = new ArrayList<>();
+    private final List<String> dafnyFiles = new ArrayList<>();
 
     /**
      * The script of the project
      */
     // TODO make constant for string
-    private String scriptFile = "project.script";
+    // REVIEW: Should it really be called ".script"?
+    private String scriptFilename = "project.script";
 
     /**
      * Setting of project
@@ -68,14 +70,14 @@ public class ProjectBuilder {
 
     private List<DafnyClass> classes;
 
-    private Map<String, DafnyTree> dafnyTrees = new HashMap<>();
+    private final Map<String, DafnyTree> dafnyTrees = new HashMap<>();
 
-    public String getScriptFile() {
-        return scriptFile;
+    public String getScriptFilename() {
+        return scriptFilename;
     }
 
-    public ProjectBuilder setScriptFile(String script) {
-        this.scriptFile = script;
+    public ProjectBuilder setScriptFilename(String scriptFile) {
+        this.scriptFilename = scriptFile;
         return this;
     }
 
@@ -122,12 +124,9 @@ public class ProjectBuilder {
         return this;
     }
 
-    // REVIEW This method seems to break the builder pattern. Is this class acc. to this pattern?
-    // If not, please rename it.
-    // REVIEW Could there not be two projects in the same directory tree?
-    // (Perhaps several proof trials with different sttings?)
+    // REVIEW: Is it still a script? More a "project" file by now.
     public void parseScript() throws IOException, RecognitionException {
-        ScriptTree parsedScript = parseScriptFile(getScriptFile());
+        ScriptTree parsedScript = parseScriptFile(getScriptFilename());
 
         // extract settings from ScriptTree and change settings in data structure
         extractSettings(parsedScript.getFirstChildWithType(ScriptParser.SETTINGS));
@@ -139,7 +138,6 @@ public class ProjectBuilder {
         // if this is extracted here?
         // extract Dafnylib files into datastructure
         extractDafnyFileNames(parsedScript.getFirstChildWithType(ScriptParser.LIBRARY));
-
     }
 
     public Project build() throws IOException, RecognitionException, DafnyException {

@@ -5,6 +5,7 @@
  */
 package edu.kit.iti.algover.project;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
@@ -17,9 +18,11 @@ import edu.kit.iti.algover.term.FunctionSymbol;
 import edu.kit.iti.algover.term.Sort;
 import edu.kit.iti.algover.util.TreeUtil;
 
+// REVIEW: Document!
+
 public class DeclarationSymbolCollector {
 
-    private List<FunctionSymbol> collected;
+    private final List<FunctionSymbol> collected = new ArrayList<>();
 
     public static Collection<FunctionSymbol> collect(Project project) {
         DeclarationSymbolCollector dsc = new DeclarationSymbolCollector();

@@ -29,6 +29,7 @@ import edu.kit.iti.algover.term.FunctionSymbol;
 import edu.kit.iti.algover.term.Sort;
 import edu.kit.iti.algover.term.Term;
 import edu.kit.iti.algover.term.builder.TermBuildException;
+import edu.kit.iti.algover.term.builder.TermBuilder;
 import edu.kit.iti.algover.term.builder.TreeTermTranslator;
 import edu.kit.iti.algover.util.ImmutableList;
 import edu.kit.iti.algover.util.TreeUtil;
@@ -144,7 +145,9 @@ public class PVCBuilder {
     public PVC build() throws TermBuildException {
         formulaCounter = 0;
         this.symbolTable = makeSymbolTable();
+        assumptionsWithInfo.clear();
         buildAssumptionTerms();
+        goalWithInfo.clear();
         buildAssertionTerms();
         return new PVC(this);
     }
@@ -178,10 +181,10 @@ public class PVCBuilder {
         for(PathConditionElement pce : pathThroughProgram.getPathConditions()) {
 
             // FIXME refactor
-            Term term = ttt.build(pce.getVariableMap(), pce.getExpression());
-            final TopFormula tf = buildTopFormula(ttt,
-                    pce.getExpression(), pathThroughProgram.getAssignmentHistory(), pce);
-            assumptionsWithInfo.add(tf);
+//            Term term = ttt.build(pce.getVariableMap(), pce.getExpression());
+//            final TopFormula tf = buildTopFormula(ttt,
+//                    pce.getExpression(), pathThroughProgram.getAssignmentHistory(), pce);
+//            assumptionsWithInfo.add(tf);
         }
 
 
