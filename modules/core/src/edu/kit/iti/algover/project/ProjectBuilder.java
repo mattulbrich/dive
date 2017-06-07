@@ -134,8 +134,6 @@ public class ProjectBuilder {
         // extract dafnyfiles into datastructure
         extractDafnyFileNames(parsedScript.getFirstChildWithType(ScriptParser.IMPORT));
 
-        // REVIEW why are there public methods to set library and import files
-        // if this is extracted here?
         // extract Dafnylib files into datastructure
         extractDafnyFileNames(parsedScript.getFirstChildWithType(ScriptParser.LIBRARY));
     }
@@ -188,6 +186,7 @@ public class ProjectBuilder {
 
         for (ScriptTree tree : dafnyF) {
             // REVIEW This does not work work longer filenames ...
+            // FIXME!
             File f = new File(tree.getChild(0).getText() + tree.getChild(1).getText());
             switch (type) {
             case ScriptParser.IMPORT:

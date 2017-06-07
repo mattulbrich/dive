@@ -15,6 +15,7 @@ import java.io.IOException;
  */
 public class FileUtil {
 
+    // REVIEW: why is this an extre method?
     public static FileInputStream readFile(File file) throws IOException {
         return new FileInputStream(file);
     }
@@ -23,6 +24,11 @@ public class FileUtil {
      * Searches project directory for file
      * At the moment no error handling if more than one script file exists
      *
+     */
+    // REVIEW: this seems strange.
+    /* why not the following ??
+     *  f = new File(dir, name);
+     *  if(!f.exists()) throw ...
      */
     public static File findFile(File dir, String name) throws FileNotFoundException{
         File[] allFilesinDir = dir.listFiles();
