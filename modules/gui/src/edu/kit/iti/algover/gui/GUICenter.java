@@ -242,21 +242,7 @@ public class GUICenter {
 
     }
 
-    /**
-     * Load selected Project and set fields
-     * @param projectDir
-     */
-    public void loadProject(File projectDir) {
 
-        setSelectedProjectDir(projectDir);
-        loadSelectedProject();
-
-        ProofManagement proofmgt = new ProofManagement(this.getLoadedProject());
-        this.setProofManagement(proofmgt);
-        System.out.println(this.getProofManagement().getProofverificationconditions().toString());
-
-
-    }
 
     public File getLoadedDafnySrc() {
         return loadedDafnySrc;
