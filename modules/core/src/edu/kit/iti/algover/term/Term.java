@@ -54,8 +54,13 @@ public abstract class Term {
      *
      * @return the non-<code>null</code> sort
      */
-    public Sort getSort() {
+    public final Sort getSort() {
         return sort;
+    }
+
+    // TODO DOC
+    public boolean hasSort(Sort sort) {
+        return this.sort.equals(sort);
     }
 
     /**
@@ -63,7 +68,7 @@ public abstract class Term {
      *
      * @return an unmodifiable view on the subterms
      */
-    public List<Term> getSubterms() {
+    public final List<Term> getSubterms() {
         return Util.readOnlyArrayList(subterms);
     }
 
@@ -76,7 +81,7 @@ public abstract class Term {
      * @throws IndexOutOfBoundsException
      *             if i is negative or not less than {@link #countTerms()}
      */
-    public Term getTerm(int i) {
+    public final Term getTerm(int i) {
         return subterms[i];
     }
 
@@ -121,7 +126,7 @@ public abstract class Term {
      *
      * @return the non-negative number of subterms to this.
      */
-    public int countTerms() {
+    public final int countTerms() {
         return subterms.length;
     }
 }
