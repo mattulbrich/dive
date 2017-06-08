@@ -1,3 +1,8 @@
+/*
+ * This file is part of AlgoVer.
+ *
+ * Copyright (C) 2015-2017 Karlsruhe Institute of Technology
+ */
 package edu.kit.iti.algover;
 
 import java.io.File;
@@ -11,7 +16,6 @@ import edu.kit.iti.algover.parser.DafnyParser;
 import edu.kit.iti.algover.parser.DafnyTree;
 import edu.kit.iti.algover.project.Project;
 import edu.kit.iti.algover.project.ProjectBuilder;
-import edu.kit.iti.algover.proof.PVC;
 import edu.kit.iti.algover.proof.PVCGroup;
 import edu.kit.iti.algover.util.Debug;
 import edu.kit.iti.algover.util.Util;

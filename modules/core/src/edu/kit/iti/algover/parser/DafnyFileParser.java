@@ -37,13 +37,19 @@ public final class DafnyFileParser {
      * @return the freshly parsed AST for the file
      * @throws IOException
      *             Signals that an I/O exception has occurred.
-     * @throws RecognitionException
-     *             Signals that a parser exception has occurred.
+     * @throws DafnyParserException
+     *             Signals that a parser exception has occurred. The filename is
+     *             added to the exception here.
      */
-    public static DafnyTree parse(File file) throws IOException, RecognitionException {
-        DafnyTree tree = parse(new FileInputStream(file));
-        setFilename(tree, file.getPath());
-        return tree;
+    public static DafnyTree parse(File file) throws IOException, DafnyParserException {
+        try {
+            DafnyTree tree = parse(new FileInputStream(file));
+            setFilename(tree, file.getPath());
+            return tree;
+        } catch (DafnyParserException e) {
+            e.setFilename(file.toString());
+            throw e;
+        }
     }
 
     /**
@@ -73,11 +79,11 @@ public final class DafnyFileParser {
      * @return the freshly parsed AST for the file
      * @throws IOException
      *             Signals that an I/O exception has occurred.
-     * @throws RecognitionException
-     *             Signals that a parser exception has occurred.
+     * @throws DafnyParserException
+     *             Signals that a parser exception has occurred. The fields in
+     *             the exception are filled with information from the parser.
      */
-    // TODO: Add a class for located parser errors (subclass of IOException perhaps)
-    public static DafnyTree parse(InputStream stream) throws RecognitionException, IOException {
+    public static DafnyTree parse(InputStream stream) throws DafnyParserException, IOException {
 
         // create stream and lexer
         ANTLRInputStream input = new ANTLRInputStream(stream);
@@ -92,7 +98,18 @@ public final class DafnyFileParser {
 
         // launch the parser starting at rule r, get return object
         program_return result;
-        result = parser.program();
+        try {
+            result = parser.program();
+        } catch (RecognitionException e) {
+            String msg = parser.getErrorMessage(e, DafnyParser.tokenNames);
+            DafnyParserException lex = new DafnyParserException(msg, e);
+            lex.setLine(e.line);
+            lex.setColumn(e.charPositionInLine);
+            if (e.token != null) {
+                lex.setLength(e.token.getText().length());
+            }
+            throw lex;
+        }
 
         // pull out the tree and cast it
         DafnyTree t = result.getTree();

@@ -121,7 +121,7 @@ public class TypeResolutionTest {
         return buf.toString();
     }
 
-    private static Project mockProject(DafnyTree tree) throws IOException, RecognitionException, DafnyException {
+    private static Project mockProject(DafnyTree tree) throws IOException, DafnyException, DafnyParserException {
         ProjectBuilder pb = new ProjectBuilder();
         pb.addDafnyTree("dummy", tree);
         return pb.build();

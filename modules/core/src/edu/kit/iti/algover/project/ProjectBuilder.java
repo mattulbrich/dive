@@ -23,6 +23,7 @@ import edu.kit.iti.algover.dafnystructures.DafnyMethod;
 import edu.kit.iti.algover.parser.DafnyException;
 import edu.kit.iti.algover.parser.DafnyFileParser;
 import edu.kit.iti.algover.parser.DafnyTree;
+import edu.kit.iti.algover.parser.DafnyParserException;
 import edu.kit.iti.algover.script.ScriptFileParser;
 import edu.kit.iti.algover.script.ScriptParser;
 import edu.kit.iti.algover.script.ScriptTree;
@@ -138,7 +139,7 @@ public class ProjectBuilder {
         extractDafnyFileNames(parsedScript.getFirstChildWithType(ScriptParser.LIBRARY));
     }
 
-    public Project build() throws IOException, RecognitionException, DafnyException {
+    public Project build() throws IOException, DafnyParserException, DafnyException {
         this.files = new ArrayList<>();
         this.methods = new ArrayList<>();
         this.functions = new ArrayList<>();
@@ -163,7 +164,7 @@ public class ProjectBuilder {
     }
 
     private void parseFile(boolean inLib, DafnyTree tree, String filename)
-                    throws IOException, RecognitionException, DafnyException {
+                    throws IOException, DafnyParserException, DafnyException {
 
         DafnyFileBuilder dfb = new DafnyFileBuilder();
         dfb.setInLibrary(inLib);

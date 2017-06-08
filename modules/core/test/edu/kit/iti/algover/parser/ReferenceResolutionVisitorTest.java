@@ -132,7 +132,7 @@ public class ReferenceResolutionVisitorTest {
 
     }
 
-    private Project mockProject(DafnyTree tree) throws IOException, RecognitionException, DafnyException {
+    private Project mockProject(DafnyTree tree) throws IOException, DafnyParserException, DafnyException {
         ProjectBuilder pb = new ProjectBuilder();
         pb.addDafnyTree("dummy", tree);
         return pb.build();
