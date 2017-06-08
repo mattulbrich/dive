@@ -24,6 +24,7 @@ import java.util.*;
  */
 // REVIEW: Pleas watch the order of members in a class
 // REVIEW: checkstyle
+// REVIEW: Same as ProofFormula?
 public class TopFormula{
     public int getParentPvcID() {
         return pvcID;

@@ -1,3 +1,8 @@
+/*
+ * This file is part of AlgoVer.
+ *
+ * Copyright (C) 2015-2017 Karlsruhe Institute of Technology
+ */
 package edu.kit.iti.algover.proof;
 
 import edu.kit.iti.algover.term.Term;
@@ -7,6 +12,7 @@ import java.util.LinkedList;
 /**
  * Created by sarah on 10/7/15.
  */
+// REVIEW: Same as TopFormula?
 public class ProofFormula {
 
     private int id;
