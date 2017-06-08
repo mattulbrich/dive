@@ -1,3 +1,8 @@
+/*
+ * This file is part of AlgoVer.
+ *
+ * Copyright (C) 2015-2017 Karlsruhe Institute of Technology
+ */
 package edu.kit.iti.algover.project;
 
 import javax.xml.bind.JAXBContext;
@@ -7,27 +12,28 @@ import javax.xml.bind.Unmarshaller;
 import java.io.File;
 
 /**
- * Handles loading XML-Config Files
+ * Handles loading XML config files.
  *
  * @author S.Grebing
  */
+// REVIEW: Is ProblemLoader a good name?
 public class ProblemLoader {
 
-
-    public ProblemLoader() {
-
+    // REVIEW: I assumed this class is a collection of static methods, right?
+    private ProblemLoader() {
+        throw new Error();
     }
 
     /**
-     * Read teh XML Config File and parse it into a Configuration object
+     * Read the XML config file and parse it into a {@link Configuration} object
      *
      * @param configFile
-     * @return Configuration object holding all fields of the XML file
+     *            non-<code>null</code> file object of the xml file.
+     * @return {@link Configuration} object holding all fields of the XML file
      */
     public static Configuration loadConfigFile(File configFile) {
 
         try {
-
 
             JAXBContext jaxbContext = JAXBContext.newInstance(Configuration.class);
 
@@ -51,7 +57,6 @@ public class ProblemLoader {
      */
     public static void saveConfigFile(Configuration config, File filename) {
         try {
-
 
             JAXBContext jaxbContext = JAXBContext.newInstance(Configuration.class);
             Marshaller jaxbMarshaller = jaxbContext.createMarshaller();

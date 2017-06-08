@@ -10,6 +10,7 @@ import edu.kit.iti.algover.parser.DafnyException;
 import edu.kit.iti.algover.parser.DafnyFileParser;
 import edu.kit.iti.algover.parser.DafnyParserException;
 import edu.kit.iti.algover.parser.DafnyTree;
+import edu.kit.iti.algover.proof.PVC;
 import edu.kit.iti.algover.settings.ProjectSettings;
 import org.antlr.runtime.RecognitionException;
 
@@ -21,9 +22,12 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Class for building a Project object in AlgoVer
+ * Class for building a {@link Project} object in AlgoVer.
+ *
  * Scriptfile should be parsed here to retrieve settings
  * projectsettings need to be retrieved
+ * // REVIEW: do not understand these points.
+ *
  * @author S.Grebing
  * @author M. Ulbrich
  */
@@ -31,37 +35,66 @@ import java.util.Map;
 public class ProjectBuilder {
 
     /**
-     * List of Dafnyfiles that serve as library files (i.e., no PVC is generated for them)
+     * List of Dafnyfiles that serve as library files (i.e., no {@link PVC} is
+     * generated for them)
      */
     private final List<String> libraryFiles = new ArrayList<>();
+
     /**
-     * All Dafnyfiles in the project directory
+     * All Dafny files in the project directory for which {@link PVC}s are
+     * gnerated.
      */
     private final List<String> dafnyFiles = new ArrayList<>();
+
+    /**
+     * Dafny resources for which no file is present.
+     *
+     * This is interesting, e.g., for creating projects in testing.
+     */
     private final Map<String, DafnyTree> dafnyTrees = new HashMap<>();
+
     /**
      * The project's directory location
      */
     private File dir;
+
     /**
-     * The script of the project (will be replaced by an xml file with default name config.xml)
+     * The name of the file containing the configuration.
      */
-    private String scriptFilename = "config.xml";
+    private String configFilename = "config.xml";
+
     /**
      * Setting of project
      */
     private ProjectSettings settings = new ProjectSettings();
+
+    /**
+     * All processed files (to be accessed by {@link Project}'s constructor)
+     */
     private List<DafnyFile> files;
+
+    /**
+     * All processed toplevel methods (to be accessed by {@link Project}'s constructor)
+     */
     private List<DafnyMethod> methods;
+
+    /**
+     * All processed toplevel functions (to be accessed by {@link Project}'s constructor)
+     */
     private List<DafnyFunction> functions;
+
+    /**
+     * All processed classes (to be accessed by {@link Project}'s constructor)
+     */
+
     private List<DafnyClass> classes;
 
-    public String getScriptFilename() {
-        return scriptFilename;
+    public String getConfigFilename() {
+        return configFilename;
     }
 
-    public ProjectBuilder setScriptFilename(String scriptFile) {
-        this.scriptFilename = scriptFile;
+    public ProjectBuilder setConfigFilename(String configFilename) {
+        this.configFilename = configFilename;
         return this;
     }
 
@@ -102,7 +135,6 @@ public class ProjectBuilder {
         return dir;
     }
 
-
     public ProjectBuilder setDir(File dir) {
         this.dir = dir;
         return this;
@@ -110,14 +142,16 @@ public class ProjectBuilder {
 
 
     /**
-     * This method invokes the problemloader to oad and parse the project configuration file
+     * This method invokes the problemloader to load and parse the project
+     * configuration file.
      *
      * @throws IOException
-     * @throws RecognitionException TODO error handling
+     * @throws RecognitionException
+     *             TODO error handling
      */
-    public void parseProjectConfigurationFile() throws IOException, RecognitionException {
+    public void parseProjectConfigurationFile() throws IOException {
 
-        File absolutePath = new File(this.getDir() + "/" + getScriptFilename());
+        File absolutePath = new File(this.getDir() + "/" + getConfigFilename());
         Configuration config = ProblemLoader.loadConfigFile(absolutePath);
 
         if (config.getDafnyFiles() != null) {
@@ -130,18 +164,23 @@ public class ProjectBuilder {
                 this.addLibraryFile(file.getPath());
             });
         }
+
         this.setSettings(config.getProjectSettings());
     }
 
     /**
-     * Build the Project object with all resources
+     * Builds {@link Project} object from the resources set here..
      *
-     * @return Project
+     * @return a freshly created {@link Project} object.
      * @throws IOException
-     * @throws RecognitionException
+     *             Signals that an I/O exception has occurred.
+     * @throws DafnyParserException
+     *             if the dafny parser complains with a syntax error
      * @throws DafnyException
+     *             if analysis of the dafny tree fails (name resolution, typing,
+     *             ...)
      */
-    public Project build() throws IOException, RecognitionException, DafnyException, DafnyParserException {
+    public Project build() throws IOException, DafnyException, DafnyParserException {
         this.files = new ArrayList<>();
         this.methods = new ArrayList<>();
         this.functions = new ArrayList<>();
@@ -165,16 +204,6 @@ public class ProjectBuilder {
         return new Project(this);
     }
 
-    /**
-     * Parse a Dafny File
-     *
-     * @param inLib
-     * @param tree
-     * @param filename
-     * @throws IOException
-     * @throws RecognitionException
-     * @throws DafnyException
-     */
     private void parseFile(boolean inLib, DafnyTree tree, String filename)
                     throws IOException, DafnyParserException, DafnyException {
 
@@ -190,20 +219,35 @@ public class ProjectBuilder {
     }
 
 
-
-    public List<DafnyFile> getFiles() {
+    /**
+     * Access function for the constructor of {@link Project}.
+     * @return all processed dafny files
+     */
+    List<DafnyFile> getFiles() {
         return files;
     }
 
-    public List<DafnyMethod> getMethods() {
+    /**
+     * Access function for the constructor of {@link Project}.
+     * @return all processed dafny methods
+     */
+    List<DafnyMethod> getMethods() {
         return methods;
     }
 
-    public List<DafnyFunction> getFunctions() {
+    /**
+     * Access function for the constructor of {@link Project}.
+     * @return all processed dafny functions
+     */
+    List<DafnyFunction> getFunctions() {
         return functions;
     }
 
-    public List<DafnyClass> getClasses() {
+    /**
+     * Access function for the constructor of {@link Project}.
+     * @return all processed dafny classes
+     */
+    List<DafnyClass> getClasses() {
         return classes;
     }
 

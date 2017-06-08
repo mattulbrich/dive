@@ -44,7 +44,7 @@ public class ProjectMain {
 
         ProjectBuilder pb = new ProjectBuilder();
         pb.setDir(new File(dir));
-        pb.setScriptFilename("config.xml");  // is already default.
+        pb.setConfigFilename("config.xml");  // is already default.
 
         pb.parseProjectConfigurationFile();  // if the script should be parsed.
 

@@ -34,7 +34,7 @@ public class DafnyTreeToDeclVisitorTest {
 
         ProjectBuilder builder = new ProjectBuilder();
         builder.setDir(new File("dir"));
-        builder.setScriptFilename("project.script");
+        builder.setConfigFilename("project.script");
         Project project = builder.build();
 
         Path tempDir = Files.createTempDirectory("dafny-algover");
