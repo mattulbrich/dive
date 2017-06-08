@@ -50,7 +50,14 @@
 			<arg value="edu/kit/iti/algover/script/Script.g" />
 		</java>
 	</target>
-
+	<!--<target name="ProjectParser" depends="init">
+        <java jar="${dir.lib}/antlr.jar" fork="true" dir="src" failonerror="true">
+            <arg value="-verbose" />
+            <arg value="-o" />
+            <arg value="../gen" />
+            <arg value="edu/kit/iti/algover/project/ProjectStructure.g" />
+        </java>
+    </target> -->
 	<target name="visitor" depends="antlr">
 		<javac srcdir="${dir.tools}" destdir="${dir.tools}" includes="MakeDafnyTreeVisitor.java" debug="on" />
 		<mkdir dir="gen/edu/kit/iti/algover/parser" />

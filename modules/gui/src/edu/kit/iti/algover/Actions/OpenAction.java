@@ -7,10 +7,8 @@ package edu.kit.iti.algover.Actions;
 import edu.kit.iti.algover.gui.GUICenter;
 
 import javax.swing.*;
-import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
-import java.io.File;
 
 /**
  * Action that handles opening of a directory
@@ -32,7 +30,7 @@ public class OpenAction extends AbstractAction {
     public void actionPerformed(ActionEvent e) {
 
         JFileChooser fc = new JFileChooser();
-        fc.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+        fc.setFileSelectionMode(JFileChooser.FILES_AND_DIRECTORIES);
         int result = fc.showDialog(c.getMainwindow(), "Open Project Directory");
 
         if (result == JFileChooser.APPROVE_OPTION) {

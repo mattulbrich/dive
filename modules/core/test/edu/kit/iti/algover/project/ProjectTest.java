@@ -5,17 +5,16 @@
  */
 package edu.kit.iti.algover.project;
 
-import static org.junit.Assert.*;
+import edu.kit.iti.algover.dafnystructures.DafnyClass;
+import edu.kit.iti.algover.dafnystructures.DafnyFile;
+import edu.kit.iti.algover.settings.ProjectSettings;
+import org.junit.Before;
+import org.junit.Test;
 
 import java.io.File;
 import java.util.List;
 
-import org.junit.Before;
-import org.junit.Test;
-
-import edu.kit.iti.algover.dafnystructures.DafnyClass;
-import edu.kit.iti.algover.dafnystructures.DafnyFile;
-import edu.kit.iti.algover.settings.ProjectSettings;
+import static org.junit.Assert.*;
 
 
 /**
@@ -35,7 +34,7 @@ public class ProjectTest {
 
         ProjectBuilder pb = new ProjectBuilder();
         pb.setDir(f1);
-        pb.parseScript();
+        pb.parseProjectConfigurationFile();
         Project p = pb.build();
         this.p = p;
 

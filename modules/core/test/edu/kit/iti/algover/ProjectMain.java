@@ -5,10 +5,6 @@
  */
 package edu.kit.iti.algover;
 
-import java.io.File;
-
-import org.antlr.runtime.RecognitionException;
-
 import edu.kit.iti.algover.dafnystructures.DafnyClass;
 import edu.kit.iti.algover.dafnystructures.DafnyMethod;
 import edu.kit.iti.algover.parser.DafnyException;
@@ -19,6 +15,9 @@ import edu.kit.iti.algover.project.ProjectBuilder;
 import edu.kit.iti.algover.proof.PVCGroup;
 import edu.kit.iti.algover.util.Debug;
 import edu.kit.iti.algover.util.Util;
+import org.antlr.runtime.RecognitionException;
+
+import java.io.File;
 
 public class ProjectMain {
 
@@ -45,9 +44,9 @@ public class ProjectMain {
 
         ProjectBuilder pb = new ProjectBuilder();
         pb.setDir(new File(dir));
-        pb.setScriptFilename("project.script");  // is already default.
+        pb.setScriptFilename("config.xml");  // is already default.
 
-        pb.parseScript();  // if the script should be parsed.
+        pb.parseProjectConfigurationFile();  // if the script should be parsed.
 
         // to add extra files / libraries
         pb.addDafnyFile("extra.dfy");

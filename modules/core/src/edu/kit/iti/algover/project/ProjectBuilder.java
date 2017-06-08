@@ -5,73 +5,56 @@
  */
 package edu.kit.iti.algover.project;
 
+import edu.kit.iti.algover.dafnystructures.*;
+import edu.kit.iti.algover.parser.DafnyException;
+import edu.kit.iti.algover.parser.DafnyFileParser;
+import edu.kit.iti.algover.parser.DafnyParserException;
+import edu.kit.iti.algover.parser.DafnyTree;
+import edu.kit.iti.algover.settings.ProjectSettings;
+import org.antlr.runtime.RecognitionException;
+
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.antlr.runtime.RecognitionException;
-
-import edu.kit.iti.algover.dafnystructures.DafnyClass;
-import edu.kit.iti.algover.dafnystructures.DafnyFile;
-import edu.kit.iti.algover.dafnystructures.DafnyFileBuilder;
-import edu.kit.iti.algover.dafnystructures.DafnyFunction;
-import edu.kit.iti.algover.dafnystructures.DafnyMethod;
-import edu.kit.iti.algover.parser.DafnyException;
-import edu.kit.iti.algover.parser.DafnyFileParser;
-import edu.kit.iti.algover.parser.DafnyTree;
-import edu.kit.iti.algover.parser.DafnyParserException;
-import edu.kit.iti.algover.script.ScriptFileParser;
-import edu.kit.iti.algover.script.ScriptParser;
-import edu.kit.iti.algover.script.ScriptTree;
-import edu.kit.iti.algover.settings.ProjectSettings;
-import edu.kit.iti.algover.util.FileUtil;
-
 /**
- * Class for building a project in AlgoVer
+ * Class for building a Project object in AlgoVer
  * Scriptfile should be parsed here to retrieve settings
  * projectsettings need to be retrieved
- * Created by sarah on 8/3/16.
+ * @author S.Grebing
+ * @author M. Ulbrich
  */
-// REVIEW: Add Javadoc
+
 public class ProjectBuilder {
 
     /**
-     * The project's directory location
+     * List of Dafnyfiles that serve as library files (i.e., no PVC is generated for them)
      */
-    private File dir;
-
     private final List<String> libraryFiles = new ArrayList<>();
-
     /**
      * All Dafnyfiles in the project directory
      */
     private final List<String> dafnyFiles = new ArrayList<>();
-
+    private final Map<String, DafnyTree> dafnyTrees = new HashMap<>();
     /**
-     * The script of the project
+     * The project's directory location
      */
-    // TODO make constant for string
-    // REVIEW: Should it really be called ".script"?
-    private String scriptFilename = "project.script";
-
+    private File dir;
+    /**
+     * The script of the project (will be replaced by an xml file with default name config.xml)
+     */
+    private String scriptFilename = "config.xml";
     /**
      * Setting of project
      */
     private ProjectSettings settings = new ProjectSettings();
-
     private List<DafnyFile> files;
-
     private List<DafnyMethod> methods;
-
     private List<DafnyFunction> functions;
-
     private List<DafnyClass> classes;
-
-    private final Map<String, DafnyTree> dafnyTrees = new HashMap<>();
 
     public String getScriptFilename() {
         return scriptFilename;
@@ -125,21 +108,40 @@ public class ProjectBuilder {
         return this;
     }
 
-    // REVIEW: Is it still a script? More a "project" file by now.
-    public void parseScript() throws IOException, RecognitionException {
-        ScriptTree parsedScript = parseScriptFile(getScriptFilename());
 
-        // extract settings from ScriptTree and change settings in data structure
-        extractSettings(parsedScript.getFirstChildWithType(ScriptParser.SETTINGS));
+    /**
+     * This method invokes the problemloader to oad and parse the project configuration file
+     *
+     * @throws IOException
+     * @throws RecognitionException TODO error handling
+     */
+    public void parseProjectConfigurationFile() throws IOException, RecognitionException {
 
-        // extract dafnyfiles into datastructure
-        extractDafnyFileNames(parsedScript.getFirstChildWithType(ScriptParser.IMPORT));
+        File absolutePath = new File(this.getDir() + "/" + getScriptFilename());
+        Configuration config = ProblemLoader.loadConfigFile(absolutePath);
 
-        // extract Dafnylib files into datastructure
-        extractDafnyFileNames(parsedScript.getFirstChildWithType(ScriptParser.LIBRARY));
+        if (config.getDafnyFiles() != null) {
+            config.getDafnyFiles().stream().forEach(file -> {
+                this.addDafnyFile(file.getPath());
+            });
+        }
+        if (config.getLibFiles() != null) {
+            config.getLibFiles().stream().forEach(file -> {
+                this.addLibraryFile(file.getPath());
+            });
+        }
+        this.setSettings(config.getProjectSettings());
     }
 
-    public Project build() throws IOException, DafnyParserException, DafnyException {
+    /**
+     * Build the Project object with all resources
+     *
+     * @return Project
+     * @throws IOException
+     * @throws RecognitionException
+     * @throws DafnyException
+     */
+    public Project build() throws IOException, RecognitionException, DafnyException, DafnyParserException {
         this.files = new ArrayList<>();
         this.methods = new ArrayList<>();
         this.functions = new ArrayList<>();
@@ -163,6 +165,16 @@ public class ProjectBuilder {
         return new Project(this);
     }
 
+    /**
+     * Parse a Dafny File
+     *
+     * @param inLib
+     * @param tree
+     * @param filename
+     * @throws IOException
+     * @throws RecognitionException
+     * @throws DafnyException
+     */
     private void parseFile(boolean inLib, DafnyTree tree, String filename)
                     throws IOException, DafnyParserException, DafnyException {
 
@@ -177,64 +189,7 @@ public class ProjectBuilder {
         functions.addAll(dfi.getFunctions());
     }
 
-    /**
-     * Extract DafnyFilenames from a subtree that has import as root and create
-     * new File with current Directory
-     */
-    private void extractDafnyFileNames(ScriptTree t) {
-        int type = t.getType();
-        List<ScriptTree> dafnyF = t.getChildrenWithType(ScriptParser.FILE);
 
-        for (ScriptTree tree : dafnyF) {
-            // REVIEW This does not work work longer filenames ...
-            // FIXME!
-            File f = new File(tree.getChild(0).getText() + tree.getChild(1).getText());
-            switch (type) {
-            case ScriptParser.IMPORT:
-                this.addDafnyFile(f.toString());
-                break;
-            case ScriptParser.LIBRARY:
-                this.addLibraryFile(f.toString());
-                break;
-            default:
-                throw new Error("unexpected type " + type);
-            }
-        }
-    }
-
-    /**
-     * Parse Script File and return Tree to traverse
-     *
-     * @param relativeFilename
-     * @return
-     * @throws IOException
-     * @throws RecognitionException
-     */
-    private ScriptTree parseScriptFile(String relativeFilename) throws IOException, RecognitionException {
-        try(InputStream scriptStream = FileUtil.readFile(new File(dir, relativeFilename))) {
-            return ScriptFileParser.parse(scriptStream);
-        }
-    }
-
-    /**
-     * Extract Settings and add them to settingsobject (maybe refactor to
-     * settings class)
-     *
-     * @param t
-     *            ScriptTree with root node Settings
-     */
-    private void extractSettings(ScriptTree t){
-        List<ScriptTree> sets = t.getChildrenWithType(ScriptParser.SET);
-        for (ScriptTree tr: sets) {
-            if(tr.getText().equals("dafny_timeout")){
-                this.settings.setValue(ProjectSettings.DAFNY_TIMEOUT, tr.getChild(0).toString());
-            }
-            if(tr.getText().equals("key_timeout")){
-                this.getSettings().setValue(ProjectSettings.KEY_TIMEOUT, tr.getChild(0).toString());
-            }
-
-        }
-    }
 
     public List<DafnyFile> getFiles() {
         return files;

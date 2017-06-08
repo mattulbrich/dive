@@ -5,12 +5,6 @@
  */
 package edu.kit.iti.algover.facade;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-
 import edu.kit.iti.algover.dafnystructures.DafnyDecl;
 import edu.kit.iti.algover.dafnystructures.DafnyDeclPVCCollector;
 import edu.kit.iti.algover.dafnystructures.DafnyFile;
@@ -25,8 +19,12 @@ import edu.kit.iti.algover.proof.ProofNode;
 import edu.kit.iti.algover.script.ScriptTree;
 import edu.kit.iti.algover.symbex.Symbex;
 import edu.kit.iti.algover.symbex.SymbexPath;
-import edu.kit.iti.algover.term.FunctionSymbol;
 import edu.kit.iti.algover.theoremprover.DafnyTranslator;
+
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Interface to create a project, to reload a project and do other project related stuff
@@ -38,23 +36,15 @@ import edu.kit.iti.algover.theoremprover.DafnyTranslator;
 
 public class ProjectFacade {
 
-    private int getGeneralPVCCounter() {
-        return generalPVCCounter;
-    }
-
-    private void setGeneralPVCCounter(int generalPVCCounter) {
-        this.generalPVCCounter += generalPVCCounter;
-    }
-
+    /**
+     * Class is singleton
+     */
+    private static ProjectFacade instance = null;
     /**
      * General Counter for PVCs
      */
     private int generalPVCCounter;
 
-    /**
-     * Class is singleton
-     */
-    private static ProjectFacade instance = null;
     protected ProjectFacade() {
         generalPVCCounter = 0;
     }
@@ -66,17 +56,26 @@ public class ProjectFacade {
       return instance;
     }
 
+    private int getGeneralPVCCounter() {
+        return generalPVCCounter;
+    }
+
+    private void setGeneralPVCCounter(int generalPVCCounter) {
+        this.generalPVCCounter += generalPVCCounter;
+    }
+
     // REVIEW: "throws Exception" is usually not a very good idea.
+
     /**
      * Build a new Project
      * @param dir
      * @return
      */
-    public Project buildProject(File dir) throws FileNotFoundException, Exception {
+    public Project buildProject(File xml) throws FileNotFoundException, Exception {
         Project p = null;
         ProjectBuilder pb = new ProjectBuilder();
-        pb.setDir(dir);
-        pb.parseScript();
+        pb.setDir(xml.getParentFile());
+        pb.parseProjectConfigurationFile();
         p = pb.build();
 
         ArrayList<DafnyException> exceptions = new ArrayList<>();

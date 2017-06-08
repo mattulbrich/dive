@@ -6,80 +6,18 @@
 
 package edu.kit.iti.algover.parser;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import edu.kit.iti.algover.project.Project;
+import edu.kit.iti.algover.project.ProjectBuilder;
+import org.antlr.runtime.RecognitionException;
+import org.junit.Test;
 
-import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.antlr.runtime.RecognitionException;
-import org.junit.Test;
-
-import edu.kit.iti.algover.project.Project;
-import edu.kit.iti.algover.project.ProjectBuilder;
+import static org.junit.Assert.*;
 
 public class ReferenceResolutionVisitorTest {
-
-    private class CheckVisitor extends DafnyTreeDefaultVisitor<Void, Void> {
-        @Override
-        public Void visitDefault(DafnyTree t, Void arg) {
-            for (DafnyTree child : t.getChildren()) {
-                child.accept(this, null);
-            }
-            return null;
-        }
-        @Override
-        public Void visitID(DafnyTree t, Void a) {
-            String name = t.getText();
-
-            switch(t.getParent().getType()) {
-            case DafnyParser.METHOD:
-            case DafnyParser.FUNCTION:
-            case DafnyParser.VAR:
-            case DafnyParser.CLASS:
-            case DafnyParser.FIELD:
-            case DafnyParser.ALL:
-            case DafnyParser.EX:
-                return null;
-            }
-
-            DafnyTree ref = t.getDeclarationReference();
-            assertNotNull(t + " has no ref", ref);
-            if(name.startsWith("l_")) {
-                assertEquals(DafnyParser.VAR, ref.getType());
-                assertEquals(name, ref.getChild(0).getText());
-            } else if(name.startsWith("fl_")) {
-                assertEquals(DafnyParser.FIELD, ref.getType());
-                assertEquals(name, ref.getChild(0).getText());
-            } else if(name.startsWith("m_")) {
-                assertEquals(DafnyParser.METHOD, ref.getType());
-                assertEquals(name, ref.getChild(0).getText());
-            } else if(name.startsWith("f_")) {
-                assertEquals(DafnyParser.FUNCTION, ref.getType());
-                assertEquals(name, ref.getChild(0).getText());
-            } else if(name.startsWith("p_")) {
-                assertEquals(DafnyParser.VAR, ref.getType());
-                assertEquals(name, ref.getChild(0).getText());
-            } else if(name.startsWith("vx_")) {
-                assertEquals(DafnyParser.EX, ref.getType());
-                assertEquals(name, ref.getChild(0).getText());
-            } else if(name.startsWith("va_")) {
-                assertEquals(DafnyParser.ALL, ref.getType());
-                assertEquals(name, ref.getChild(0).getText());
-            } else if(name.startsWith("C_")) {
-                assertEquals(DafnyParser.CLASS, ref.getType());
-                assertEquals(name, ref.getChild(0).getText());
-            }else {
-                fail("Unsupported identifier " + name);
-            }
-            return null;
-        }
-    }
-
 
     @Test
     public void testWithoutReftype() throws Exception {
@@ -132,10 +70,67 @@ public class ReferenceResolutionVisitorTest {
 
     }
 
-    private Project mockProject(DafnyTree tree) throws IOException, DafnyParserException, DafnyException {
+    private Project mockProject(DafnyTree tree) throws IOException, DafnyParserException, DafnyException, RecognitionException {
         ProjectBuilder pb = new ProjectBuilder();
         pb.addDafnyTree("dummy", tree);
         return pb.build();
+    }
+
+    private class CheckVisitor extends DafnyTreeDefaultVisitor<Void, Void> {
+        @Override
+        public Void visitDefault(DafnyTree t, Void arg) {
+            for (DafnyTree child : t.getChildren()) {
+                child.accept(this, null);
+            }
+            return null;
+        }
+
+        @Override
+        public Void visitID(DafnyTree t, Void a) {
+            String name = t.getText();
+
+            switch (t.getParent().getType()) {
+                case DafnyParser.METHOD:
+                case DafnyParser.FUNCTION:
+                case DafnyParser.VAR:
+                case DafnyParser.CLASS:
+                case DafnyParser.FIELD:
+                case DafnyParser.ALL:
+                case DafnyParser.EX:
+                    return null;
+            }
+
+            DafnyTree ref = t.getDeclarationReference();
+            assertNotNull(t + " has no ref", ref);
+            if (name.startsWith("l_")) {
+                assertEquals(DafnyParser.VAR, ref.getType());
+                assertEquals(name, ref.getChild(0).getText());
+            } else if (name.startsWith("fl_")) {
+                assertEquals(DafnyParser.FIELD, ref.getType());
+                assertEquals(name, ref.getChild(0).getText());
+            } else if (name.startsWith("m_")) {
+                assertEquals(DafnyParser.METHOD, ref.getType());
+                assertEquals(name, ref.getChild(0).getText());
+            } else if (name.startsWith("f_")) {
+                assertEquals(DafnyParser.FUNCTION, ref.getType());
+                assertEquals(name, ref.getChild(0).getText());
+            } else if (name.startsWith("p_")) {
+                assertEquals(DafnyParser.VAR, ref.getType());
+                assertEquals(name, ref.getChild(0).getText());
+            } else if (name.startsWith("vx_")) {
+                assertEquals(DafnyParser.EX, ref.getType());
+                assertEquals(name, ref.getChild(0).getText());
+            } else if (name.startsWith("va_")) {
+                assertEquals(DafnyParser.ALL, ref.getType());
+                assertEquals(name, ref.getChild(0).getText());
+            } else if (name.startsWith("C_")) {
+                assertEquals(DafnyParser.CLASS, ref.getType());
+                assertEquals(name, ref.getChild(0).getText());
+            } else {
+                fail("Unsupported identifier " + name);
+            }
+            return null;
+        }
     }
 
 }

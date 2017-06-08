@@ -6,20 +6,16 @@
 package edu.kit.iti.algover.dafnystructures;
 
 
-import java.util.List;
-
 import edu.kit.iti.algover.facade.ProjectFacade;
-import edu.kit.iti.algover.proof.PVC;
-import edu.kit.iti.algover.proof.PVCBuilder;
-import edu.kit.iti.algover.proof.PVCCollection;
-import edu.kit.iti.algover.proof.PVCGroup;
-import edu.kit.iti.algover.proof.SinglePVC;
+import edu.kit.iti.algover.proof.*;
 import edu.kit.iti.algover.symbex.Symbex;
 import edu.kit.iti.algover.symbex.SymbexPath;
 import edu.kit.iti.algover.term.builder.TermBuildException;
 
+import java.util.List;
+
 /**
- * Visitor for DafbnyDecl, that performs symbex on dafnydecl and returns PVCCollection
+ * Visitor for DafnyDecl, that performs symbex on dafnydecl and returns PVCCollection
  * Created by sarah on 10/20/16.
  * refactored by mattias
  */

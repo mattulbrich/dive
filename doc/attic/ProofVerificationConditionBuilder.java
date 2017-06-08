@@ -6,12 +6,6 @@
 package edu.kit.iti.algover.proof;
 
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
-
 import edu.kit.iti.algover.ProgramDatabase;
 import edu.kit.iti.algover.data.BuiltinSymbols;
 import edu.kit.iti.algover.data.MapSymbolTable;
@@ -29,6 +23,8 @@ import edu.kit.iti.algover.term.builder.TermBuildException;
 import edu.kit.iti.algover.term.builder.TermBuilder;
 import edu.kit.iti.algover.term.builder.TreeTermTranslator;
 import edu.kit.iti.algover.util.ImmutableList;
+
+import java.util.*;
 
 /**
  * A ProofVerificationConditionBuilder contains all path conditions for a specific verification condition
@@ -309,6 +305,7 @@ public class ProofVerificationConditionBuilder {
         TreeTermTranslator ttt = new TreeTermTranslator(symbolTable);
 
         for(PathConditionElement pce : symbexState.getPathConditions()) {
+            System.out.println("PVCBUilder build with"+ pce.getExpression().toStringTree());
             Term formula = ttt.build(pce.getExpression());
             System.out.println(" Formula: "+formula.toString());
             result.add(formula);

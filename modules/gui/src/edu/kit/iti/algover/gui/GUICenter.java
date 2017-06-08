@@ -8,14 +8,12 @@ package edu.kit.iti.algover.gui;
 import edu.kit.iti.algover.facade.ProjectFacade;
 import edu.kit.iti.algover.model.CustomLeaf;
 import edu.kit.iti.algover.model.ProjectTree;
-import edu.kit.iti.algover.model.ProjectTreeBuilder;
 import edu.kit.iti.algover.project.Project;
 import edu.kit.iti.algover.proof.PVC;
 import edu.kit.iti.algover.proof.ProofManagement;
 
 import javax.swing.*;
 import javax.swing.tree.TreePath;
-import java.awt.*;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
 import java.io.File;
@@ -38,56 +36,16 @@ import java.io.FileNotFoundException;
 public class GUICenter {
 
 
-    private PVC selectedPVCForDetailView;
-
-
-    private ProofManagement pm;
-    //core counterpart for communcation
-    private ProjectFacade facade;
-
-
-    //GUI model of project
-    private ProjectTree selectedProjectSubTree;
-
-    //Loaded project object
-    private Project loadedProject;
-
-    //selected project directory
-    private File selectedProjectDir;
-
-    //mainwindow instance
-    private MainWindow mainwindow;
-
-
-    //selected project leaf
-    private CustomLeaf selectedLeaf;
-
-
-    //path to selected subtree
-    private TreePath selectedPath;
-    /**
-     * model of project
-     */
-    private ProjectTree projectTreeModel;
-
-
-    private File loadedDafnySrc;
     /**
      * Property that is set, if a project is completely loaded and the project object is returned
      */
     public static final String PROJECT_LOADED = "project_loaded";
-
     /**
      * Property that is set, if the dafny source has been edited
      */
     public static final String DAFNY_SOURCE_CHANGED = "dafny_source_changed";
-
     public static final String LOGICAL_VIEW_CHANGED = "logical_view_changed";
-
     public static final String PVC_STATUS_CHANGED = "pvc_status_changed";
-
-    //public static final String PROPERTY_CHANGED = "property_changed";
-
     /**
      * PVCs are generated and ready to display
      */
@@ -97,29 +55,50 @@ public class GUICenter {
      * new subtree selected
      */
     public static final String SUBTREE_SELECTION = "subtree_selection";
-
     /**
      * new project directory set
      */
 
     public static final String PROJECT_DIR_CHANGED = "project_directory_changed";
-
     /**
      * project tree model has changed
      */
     public static final String PROJECT_TREE_MODEL_CHANGED = "project_tree_model_changed";
-
     /**
      * Selected leaf to load
      */
     public static final String LEAF_TO_LOAD = "leaf_to_load_selected";
-
-
     /**
      * Selected PVC for DetailView
      *
      */
     public static final String PVC_FOR_DETAIL = "pvc_for_detail";
+    private PVC selectedPVCForDetailView;
+    private ProofManagement pm;
+    //core counterpart for communcation
+    private ProjectFacade facade;
+    //GUI model of project
+    private ProjectTree selectedProjectSubTree;
+    //Loaded project object
+    private Project loadedProject;
+
+    //public static final String PROPERTY_CHANGED = "property_changed";
+    //selected project directory
+    private File selectedProjectDir;
+    //mainwindow instance
+    private MainWindow mainwindow;
+    //selected project leaf
+    private CustomLeaf selectedLeaf;
+    //path to selected subtree
+    private TreePath selectedPath;
+    /**
+     * model of project
+     */
+    private ProjectTree projectTreeModel;
+    private File loadedDafnySrc;
+    private PropertyChangeSupport changes = new PropertyChangeSupport(this);
+
+
     /**
      * Constructor
      *
@@ -129,9 +108,6 @@ public class GUICenter {
         this.mainwindow = window;
         this.facade = ProjectFacade.getInstance();
     }
-
-
-    private PropertyChangeSupport changes = new PropertyChangeSupport(this);
 
     /**
      * Propertychangelistener list
@@ -176,21 +152,8 @@ public class GUICenter {
         changes.firePropertyChange(PVCS_GENERATED, old, this.getProofManagement());
     }
 
-    public void setLoadedProject(Project loadedProject) {
-        Project old = this.getLoadedProject();
-        this.loadedProject = loadedProject;
-        changes.firePropertyChange(PROJECT_LOADED, old, this.getLoadedProject());
-    }
-
     public ProjectTree getSelectedProjectSubTree() {
         return selectedProjectSubTree;
-    }
-
-    //set the model for the projectTree
-    public void setProjectTreeModel(ProjectTree projectTreeModel) {
-        ProjectTree old = this.getProjectTreeModel();
-        this.projectTreeModel = projectTreeModel;
-        changes.firePropertyChange(PROJECT_TREE_MODEL_CHANGED, old, this.getProjectTreeModel());
     }
 
     /**
@@ -220,11 +183,30 @@ public class GUICenter {
         return selectedProjectDir;
     }
 
+    /**
+     * Set the project directory that is selected by the user
+     *
+     * @param parentFile
+     */
+    private void setSelectedProjectDir(File parentFile) {
+        mainwindow.setEnabled(false);
+        File old = this.getSelectedProjectDir();
+        this.selectedProjectDir = parentFile;
+        changes.firePropertyChange(PROJECT_DIR_CHANGED, old, this.getSelectedProjectDir());
+        mainwindow.setEnabled(true);
+        // System.out.println("Set selected Project directory");
+    }
 
     public ProjectTree getProjectTreeModel() {
         return projectTreeModel;
     }
 
+    //set the model for the projectTree
+    public void setProjectTreeModel(ProjectTree projectTreeModel) {
+        ProjectTree old = this.getProjectTreeModel();
+        this.projectTreeModel = projectTreeModel;
+        changes.firePropertyChange(PROJECT_TREE_MODEL_CHANGED, old, this.getProjectTreeModel());
+    }
 
     public MainWindow getMainwindow() {
         return mainwindow;
@@ -236,6 +218,12 @@ public class GUICenter {
 
     public Project getLoadedProject() {
         return loadedProject;
+    }
+
+    public void setLoadedProject(Project loadedProject) {
+        Project old = this.getLoadedProject();
+        this.loadedProject = loadedProject;
+        changes.firePropertyChange(PROJECT_LOADED, old, this.getLoadedProject());
     }
 
     /**
@@ -253,17 +241,21 @@ public class GUICenter {
 
 
     }
+
     /**
-     * Set the project directory that is selected by the user
-     * @param parentFile
+     * Load selected Project and set fields
+     * @param projectDir
      */
-    private void setSelectedProjectDir(File parentFile) {
-        mainwindow.setEnabled(false);
-        File old = this.getSelectedProjectDir();
-        this.selectedProjectDir = parentFile;
-        changes.firePropertyChange(PROJECT_DIR_CHANGED, old, this.getSelectedProjectDir());
-        mainwindow.setEnabled(true);
-       // System.out.println("Set selected Project directory");
+    public void loadProject(File projectDir) {
+
+        setSelectedProjectDir(projectDir);
+        loadSelectedProject();
+
+        ProofManagement proofmgt = new ProofManagement(this.getLoadedProject());
+        this.setProofManagement(proofmgt);
+        System.out.println(this.getProofManagement().getProofverificationconditions().toString());
+
+
     }
 
     public File getLoadedDafnySrc() {
@@ -293,6 +285,8 @@ public class GUICenter {
         } else {
             try {
                 this.setLoadedProject(facade.buildProject(this.selectedProjectDir));
+                //  this.setLoadedProject(facade.loadProject(this.selectedProjectDir));
+                // this.setLoadedProject(facade.buildProject(this.selectedProjectDir));
             } catch (FileNotFoundException e) {
                 JOptionPane.showMessageDialog(mainwindow,
                         "Could not find file " + this.selectedProjectDir.toString(),

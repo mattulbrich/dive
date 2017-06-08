@@ -5,18 +5,8 @@
  */
 package edu.kit.iti.algover;
 
-import java.io.*;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-import java.util.List;
-
-import edu.kit.iti.algover.theoremprover.DafnyTrans;
-
-import org.antlr.runtime.Token;
-
 import edu.kit.iti.algover.parser.DafnyFileParser;
 import edu.kit.iti.algover.parser.DafnyTree;
-import edu.kit.iti.algover.smt.Z3Solver;
 import edu.kit.iti.algover.symbex.AssertionElement;
 import edu.kit.iti.algover.symbex.PathConditionElement;
 import edu.kit.iti.algover.symbex.Symbex;
@@ -26,7 +16,12 @@ import edu.kit.iti.algover.util.Debug;
 import edu.kit.iti.algover.util.LabelIntroducer;
 import edu.kit.iti.algover.util.SymbexUtil;
 import edu.kit.iti.algover.util.Util;
-import org.antlr.runtime.tree.CommonTreeNodeStream;
+import org.antlr.runtime.Token;
+
+import java.io.*;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.util.List;
 
 public class Main {
 
@@ -41,18 +36,17 @@ public class Main {
         System.out.println(Debug.prettyPrint(stringTree)); // print out the tree
 
 
-
         LabelIntroducer.visit(t);
 
         Symbex symbex = new Symbex();
         List<SymbexPath> symbexresult = symbex.symbolicExecution(t);
         //StringBuilder translatedMethod = new StringBuilder();
-        String methodName ="";
+        String methodName = "";
         for (SymbexPath res : symbexresult) {
-           // DafnyTrans dt = new DafnyTrans(res);
-          //  String translated = dt.trans();
-           // methodName = dt.methodName;
-           // translatedMethod.append(translated);
+            // DafnyTrans dt = new DafnyTrans(res);
+            //  String translated = dt.trans();
+            // methodName = dt.methodName;
+            // translatedMethod.append(translated);
 
             // TODO M->S: You might want to use the following new method:
             System.out.println("New String:\n\n");
@@ -61,7 +55,7 @@ public class Main {
             System.out.println("------------");
             System.out.println(res.getPathIdentifier());
             System.out.println("------------");
-            if(VERBOSE) {
+            if (VERBOSE) {
                 for (PathConditionElement pc : res.getPathConditions()) {
                     System.out.println("Path condition - " + pc.getType());
                     System.out.println("    " + pc.getExpression().toStringTree());
@@ -85,8 +79,8 @@ public class Main {
                 System.out.println(single.getPathIdentifier());
                 //Collection<Term> formulae = magic.from(single);
                 if (VERBOSE) {
-                //    String smt = z3.createSMTInput(formulae);
-                 //   System.out.println(smt);
+                    //    String smt = z3.createSMTInput(formulae);
+                    //   System.out.println(smt);
                 }
                 //System.out.println(z3.solve(formulae));
             }
@@ -111,30 +105,23 @@ public class Main {
 
     public static void writeOutFile(String toProve, String methodName) {
         BufferedWriter writer = null;
-try
-{
-    writer = new BufferedWriter( new FileWriter(methodName+"_toProve.dfy"));
-    writer.write(toProve);
+        try {
+            writer = new BufferedWriter(new FileWriter(methodName + "_toProve.dfy"));
+            writer.write(toProve);
 
-}
-catch ( IOException e)
-{
-}
-finally
-{
-    try
-    {
-        if ( writer != null) {
-            writer.close( );
+        } catch (IOException e) {
+        } finally {
+            try {
+                if (writer != null) {
+                    writer.close();
+                }
+            } catch (IOException e) {
+            }
         }
-    }
-    catch ( IOException e)
-    {
-    }
-}
 
 
     }
+
     public static void main(String[] args) throws Exception {
         try {
             if (args.length == 0) {
