@@ -1,4 +1,6 @@
 
+
+
 (COMPILATION_UNIT 
  (method swap 
   (ARGS 
@@ -10,39 +12,34 @@
    (!= a null)) 
   (requires 
    (&& 
-    (<= 0 i) 
     (&& 
-     (< i j) 
-     (< j 
-      (Length a))))) 
+    (<= 0 i) 
+    (< i j))
+   (< j (Length a)))) 
   (ensures 
    (== 
     (ARRAY_ACCESS a i) 
-    (CALL old 
-     (ARGS 
-      (ARRAY_ACCESS a j))))) 
+    (old 
+      (ARRAY_ACCESS a j))))
   (ensures 
    (== 
     (ARRAY_ACCESS a j) 
-    (CALL old 
-     (ARGS 
-      (ARRAY_ACCESS a i))))) 
+    (old 
+      (ARRAY_ACCESS a i))))
   (ensures 
    (forall m int 
     (==> 
      (&& 
-      (<= 0 m) 
       (&& 
-       (< m 
-        (Length a)) 
        (&& 
-        (!= m i) 
-        (!= m j)))) 
+        (<= 0 m) 
+        (< m (Length a)))
+       (!= m i))
+      (!= m j)) 
      (== 
       (ARRAY_ACCESS a m) 
-      (CALL old 
-       (ARGS 
-        (ARRAY_ACCESS a m))))))) 
+      (old 
+        (ARRAY_ACCESS a m))))))
   (BLOCK 
    (var t bool 
     (ARRAY_ACCESS a i)) 
@@ -62,11 +59,10 @@
     (forall n int 
      (==> 
       (&& 
-       (<= 0 m) 
        (&& 
-        (< m n) 
-        (< n 
-         (Length a)))) 
+        (<= 0 m) 
+        (< m n))
+        (< n (Length a))) 
       (|| 
        (! 
         (ARRAY_ACCESS a m)) 
@@ -80,13 +76,10 @@
     (<= i j) 
     (invariant 
      (&& 
-      (<= 0 i) 
       (&& 
-       (<= i 
-        (+ j 1)) 
-       (<= 
-        (+ j 1) 
-        (Length a))))) 
+       (<= 0 i) 
+       (<= i (+ j 1))) 
+      (<= (+ j 1) (Length a)))) 
     (invariant 
      (forall m int 
       (==> 

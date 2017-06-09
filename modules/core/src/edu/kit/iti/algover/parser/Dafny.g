@@ -51,6 +51,9 @@ tokens {
   }
 
   private BitSet LVALUE_TOKENTYPES = BitSet.of(ID, FIELD_ACCESS, ARRAY_ACCESS);
+
+  private boolean logicMode = false;
+  public void setLogicMode(boolean b) { this.logicMode = b; }
 }
 
 // exit upon first error
@@ -268,26 +271,38 @@ expressions:
   ;
 
 expression:
-  or_expr;
+    equiv_expr
+  ;
 
+equiv_expr:
+  implies_expr ( '<==>'^ implies_expr )*
+  ;
+
+// right assoc
+implies_expr:
+  or_expr ( '==>'^ implies_expr )?
+  ;
+
+// left assoc
 or_expr:
-  and_expr ( ('||'^ | '==>'^) or_expr )?
+  and_expr ( '||'^ and_expr )*
   ;
 
 and_expr:
-  rel_expr ( '&&'^ and_expr )?
+  rel_expr ( '&&'^ rel_expr )*
   ;
 
 rel_expr:
-  add_expr ( ('<'^ | '>'^ | '=='^ | '!='^ | '<='^ | '>='^) add_expr )?
+  add_expr ( ( '<'^ | '>'^  | '=='^ | '!='^ |
+              '<='^ | '>='^ | 'in'^ | '!in'^ ) add_expr )?
   ;
 
 add_expr:
-  mul_expr ( ('+' | '-' | '++')^ add_expr )?
+  mul_expr ( ('+' | '-')^ mul_expr )*
   ;
 
 mul_expr:
-  prefix_expr ( ('*' | '**')^ mul_expr )?
+  prefix_expr ( ('*' | '/' | '%')^ prefix_expr )*
   ;
 
 prefix_expr:
@@ -314,10 +329,11 @@ expression_only:
 atom_expr:
     ID
   | ID '(' expressions? ')' -> ^(CALL ID ^(ARGS expressions?) )
-  | TRUE | FALSE
+  | TRUE | FALSE | NULL | 'this'
   | INT_LIT
-  | 'this'
-  | NULL
+  | 'old'^ '('! expression ')'!
+  | 'fresh'^ '('! expression ')'!
+//  | '|'^ expression '|'!
   | '('! expression ')'!
   ;
 

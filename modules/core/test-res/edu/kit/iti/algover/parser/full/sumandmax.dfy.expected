@@ -10,19 +10,18 @@
    (VAR max int)) 
   (requires 
    (&& 
-    (<= 0 N) 
     (&& 
-     (!= a null) 
      (&& 
-      (== 
-       (Length a) N) 
+       (<= 0 N) 
+       (!= a null))
+      (== (Length a) N))
       (forall k int 
        (==> 
         (&& 
          (<= 0 k) 
          (< k N)) 
         (<= 0 
-         (ARRAY_ACCESS a k)))))))) 
+         (ARRAY_ACCESS a k)))))) 
   (ensures 
    (<= sum 
     (* N max))) 
