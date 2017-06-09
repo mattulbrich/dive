@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE properties SYSTEM "http://java.sun.com/dtd/properties.dtd">
+<properties>
+<comment>For the termparser. Keys are string, values expected toString()
+  of parsed results</comment>
+<entry key="add">i1 + i2 ### $plus(i1, i2)</entry>
+<entry key="add-direct">$plus(i1, i2) ### $plus(i1, i2)</entry>
+<entry key="forall-1">forall i: int :: 0 &lt; i ==> i &gt; 0 
+    ###  (FORALL i:int :: $imp($lt(0, i), $gt(i, 0)))</entry>
+</properties>

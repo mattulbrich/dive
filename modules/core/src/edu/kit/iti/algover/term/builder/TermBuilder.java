@@ -105,11 +105,14 @@ public class TermBuilder {
     }
 
     public Term plus(Term lhs, Term rhs) throws TermBuildException {
-        return binary("$add", lhs, rhs);
+        return binary("$plus", lhs, rhs);
     }
 
     private Term binary(String fct, Term lhs, Term rhs) throws TermBuildException {
         FunctionSymbol symbol = symbolTable.getFunctionSymbol(fct);
+        if(symbol == null) {
+            throw new Error("oh ... missing internal symbol " + fct);
+        }
         return new ApplTerm(symbol, lhs, rhs);
     }
 
@@ -119,6 +122,23 @@ public class TermBuilder {
 
     public Term forall(VariableTerm var, Term matrix) throws TermBuildException {
         return new QuantTerm(Quantifier.FORALL, var, matrix);
+    }
+
+    public Term impl(Term lhs, Term rhs) throws TermBuildException {
+        return binary("$imp", lhs, rhs);
+    }
+
+    public Term gt(Term lhs, Term rhs) throws TermBuildException {
+        return binary("$gt", lhs, rhs);
+    }
+
+    public Term lt(Term lhs, Term rhs) throws TermBuildException {
+        return binary("$lt", lhs, rhs);
+    }
+
+    public Term cons(String name) throws TermBuildException {
+        FunctionSymbol symbol = symbolTable.getFunctionSymbol(name);
+        return new ApplTerm(symbol);
     }
 
 }

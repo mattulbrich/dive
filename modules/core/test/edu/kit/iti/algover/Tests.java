@@ -19,15 +19,18 @@ import edu.kit.iti.algover.symbex.SymbexTest;
 import edu.kit.iti.algover.term.SortTest;
 import edu.kit.iti.algover.term.builder.TreeTermTranslationNoetherTest;
 import edu.kit.iti.algover.term.builder.TreeTermTranslatorTest;
+import edu.kit.iti.algover.term.parser.TermParserTest;
 import edu.kit.iti.algover.util.TestImmutableList;
 import edu.kit.iti.algover.util.TestLabelIntroducer;
 import edu.kit.iti.algover.util.UtilTest;
 
 @RunWith(Suite.class)
-@SuiteClasses({ParserTest.class,
+@SuiteClasses({
+    ParserTest.class,
     SymbexTest.class,
     ProgramDatabaseTest.class,
     TreeTermTranslatorTest.class,
+    TermParserTest.class,
     TestImmutableList.class,
     TestLabelIntroducer.class,
     TreeTermTranslationNoetherTest.class,

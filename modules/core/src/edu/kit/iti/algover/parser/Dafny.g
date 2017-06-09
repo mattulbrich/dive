@@ -122,7 +122,13 @@ RBRACKET: ']';
 
 LENGTH: 'Length' ('0' .. '9')*;
 ARRAY : 'array' (('1' .. '9') ('0' .. '9')*)?;
-ID : ('a' .. 'z' | 'A' .. 'Z' | '_') ('a' .. 'z' | 'A' .. 'Z' | '0' .. '9' | '_')*;
+
+ID : ('a' .. 'z' | 'A' .. 'Z' | '_' ) 
+     ('a' .. 'z' | 'A' .. 'Z' | '0' .. '9' | '_')*;
+
+LOGIC_ID : '$' ('a' .. 'z' | 'A' .. 'Z' | '_' ) 
+               ('a' .. 'z' | 'A' .. 'Z' | '0' .. '9' | '_')*;
+
 INT_LIT : ('0' .. '9' ) ('0' .. '9' | '_')*;
 // glyph = "`~!@#$%^&*()-_=+[{]}|;:',<.>/?\\".
 
@@ -335,6 +341,9 @@ postfix_expr:
 atom_expr:
     ID
   | ID '(' expressions? ')' -> ^(CALL ID ^(ARGS expressions?) )
+  | {logicMode}? l=LOGIC_ID -> ID[l]
+  | {logicMode}? l=LOGIC_ID '(' expressions? ')'
+       -> ^(CALL ID[l] ^(ARGS expressions?) )
   | TRUE | FALSE | NULL | 'this'
   | INT_LIT
   | 'old'^ '('! expression ')'!
