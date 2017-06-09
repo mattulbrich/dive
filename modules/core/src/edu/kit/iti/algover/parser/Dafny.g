@@ -233,15 +233,15 @@ statements:
 statement:
     VAR^ ID ':'! type (':='! expression)? ';'!
 
-  | expression
+  | postfix_expr
       ( ASSIGN value=expression_wildcard ';'
-      { if(!LVALUE_TOKENTYPES.member($expression.tree.getType()))
+      { if(!LVALUE_TOKENTYPES.member($postfix_expr.tree.getType()))
             throw new MismatchedSetException(LVALUE_TOKENTYPES, input); }
-         -> ^(ASSIGN expression expression_wildcard)
+         -> ^(ASSIGN postfix_expr expression_wildcard)
       | ';'
-      { if($expression.tree.getType() != CALL)
-            throw new MismatchedTokenException($expression.start.getType(), input); }
-         -> expression
+      { if($postfix_expr.tree.getType() != CALL)
+            throw new MismatchedTokenException($postfix_expr.start.getType(), input); }
+         -> postfix_expr
       )
 
   | label? 
@@ -272,6 +272,11 @@ expressions:
 
 expression:
     equiv_expr
+  | endless_expr
+  ;
+
+expression_only:
+  expression EOF -> expression
   ;
 
 equiv_expr:
@@ -309,6 +314,12 @@ prefix_expr:
     '-'^ prefix_expr
   | '!'^ prefix_expr
   | postfix_expr
+  //|  {logicMode}? 
+    //  '{' ID ':=' expression ( ',' ID ':=' expression )* '}' expression
+  ;
+
+endless_expr:
+    'if'^ expression 'then'! expression 'else'! expression
   | quantifier
   ;
 
@@ -320,11 +331,6 @@ postfix_expr:
   | '.' ID -> ^( FIELD_ACCESS $postfix_expr ID )
   )*
   ;
-
-expression_only:
-  expression EOF -> expression
-  ;
-
 
 atom_expr:
     ID
@@ -338,5 +344,5 @@ atom_expr:
   ;
 
 quantifier:
-  '('! (ALL^ | EX^) ID ':'! type '::'! expression ')'!
+  (ALL^ | EX^) ID ':'! type '::'! expression
   ;
