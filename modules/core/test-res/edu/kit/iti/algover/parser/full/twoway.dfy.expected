@@ -1,0 +1,125 @@
+
+(COMPILATION_UNIT 
+ (method swap 
+  (ARGS 
+   (VAR a 
+    (array bool)) 
+   (VAR i int) 
+   (VAR j int)) 
+  (requires 
+   (!= a null)) 
+  (requires 
+   (&& 
+    (<= 0 i) 
+    (&& 
+     (< i j) 
+     (< j 
+      (Length a))))) 
+  (ensures 
+   (== 
+    (ARRAY_ACCESS a i) 
+    (CALL old 
+     (ARGS 
+      (ARRAY_ACCESS a j))))) 
+  (ensures 
+   (== 
+    (ARRAY_ACCESS a j) 
+    (CALL old 
+     (ARGS 
+      (ARRAY_ACCESS a i))))) 
+  (ensures 
+   (forall m int 
+    (==> 
+     (&& 
+      (<= 0 m) 
+      (&& 
+       (< m 
+        (Length a)) 
+       (&& 
+        (!= m i) 
+        (!= m j)))) 
+     (== 
+      (ARRAY_ACCESS a m) 
+      (CALL old 
+       (ARGS 
+        (ARRAY_ACCESS a m))))))) 
+  (BLOCK 
+   (var t bool 
+    (ARRAY_ACCESS a i)) 
+   (:= 
+    (ARRAY_ACCESS a i) 
+    (ARRAY_ACCESS a j)) 
+   (:= 
+    (ARRAY_ACCESS a j) t))) 
+ (method two_way_sort 
+  (ARGS 
+   (VAR a 
+    (array bool))) 
+  (requires 
+   (!= a null)) 
+  (ensures 
+   (forall m int 
+    (forall n int 
+     (==> 
+      (&& 
+       (<= 0 m) 
+       (&& 
+        (< m n) 
+        (< n 
+         (Length a)))) 
+      (|| 
+       (! 
+        (ARRAY_ACCESS a m)) 
+       (ARRAY_ACCESS a n)))))) 
+  (BLOCK 
+   (var i int 0) 
+   (var j int 
+    (- 
+     (Length a) 1)) 
+   (while 
+    (<= i j) 
+    (invariant 
+     (&& 
+      (<= 0 i) 
+      (&& 
+       (<= i 
+        (+ j 1)) 
+       (<= 
+        (+ j 1) 
+        (Length a))))) 
+    (invariant 
+     (forall m int 
+      (==> 
+       (&& 
+        (<= 0 m) 
+        (< m i)) 
+       (! 
+        (ARRAY_ACCESS a m))))) 
+    (invariant 
+     (forall n int 
+      (==> 
+       (&& 
+        (< j n) 
+        (< n 
+         (Length a))) 
+       (ARRAY_ACCESS a n)))) 
+    (BLOCK 
+     (if 
+      (! 
+       (ARRAY_ACCESS a i)) 
+      (BLOCK 
+       (:= i 
+        (+ i 1))) 
+      (BLOCK 
+       (if 
+        (ARRAY_ACCESS a j) 
+        (BLOCK 
+         (:= j 
+          (- j 1))) 
+        (BLOCK 
+         (CALL swap 
+          (ARGS a i j)) 
+         (:= i 
+          (+ i 1)) 
+         (:= j 
+          (- j 1)))))))))))
