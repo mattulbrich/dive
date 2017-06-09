@@ -11,6 +11,7 @@ import java.util.List;
 import edu.kit.iti.algover.dafnystructures.DafnyDecl;
 import edu.kit.iti.algover.script.ScriptTree;
 import edu.kit.iti.algover.symbex.SymbexPath;
+import edu.kit.iti.algover.term.Sequent;
 
 /**
  * Created by sarah on 8/22/16.
@@ -29,18 +30,6 @@ public class PVC {
     private final int pvcID;
 
     /**
-     * List of terms for the "toplevel" formula representing assumptions.
-     * This is created lazily on demand.
-     */
-    private final List<TopFormula> assumptionsWithInfo;
-
-    /**
-     * List of terms for the "toplevel" formula representing goals
-     */
-    // REVIEW: Is this really a list of goals?
-    private final List<TopFormula> goalWithInfo;
-
-    /**
      * Path through program. Not <code>null</code>
      */
     private final SymbexPath pathThroughProgram;
@@ -49,6 +38,8 @@ public class PVC {
      * DafnDecl this PVC belongs to. not <code>null</code>
      */
     private final DafnyDecl declaration;
+
+    private final Sequent sequent;
 
     public String getName() {
         return pathThroughProgram.getPathIdentifier();
@@ -60,14 +51,6 @@ public class PVC {
 
     public ScriptTree getLocalScript() {
         return localScript;
-    }
-
-    public List<TopFormula> getAssumptionsWithInfo() {
-        return assumptionsWithInfo;
-    }
-
-    public List<TopFormula> getGoalWithInfo() {
-        return goalWithInfo;
     }
 
     public SymbexPath getPathThroughProgram() {
@@ -94,8 +77,7 @@ public class PVC {
         this.pvcID = builder.getPvcID();
         this.pathThroughProgram = builder.getPathThroughProgram();
         this.declaration = builder.getDeclaration();
-        this.goalWithInfo = builder.getGoalWithInfo();
-        this.assumptionsWithInfo = builder.getAssumptionsWithInfo();
+        this.sequent = builder.getSequent();
     }
 
     // REVIEW toString oneliner
@@ -117,4 +99,9 @@ public class PVC {
 //        }
         return ret;
     }
+
+    public Sequent getSequent() {
+        return sequent;
+    }
+
 }

@@ -1,7 +1,7 @@
 /*
  * This file is part of AlgoVer.
  *
- * Copyright (C) 2015-2016 Karlsruhe Institute of Technology
+ * Copyright (C) 2015-2017 Karlsruhe Institute of Technology
  */
 package edu.kit.iti.algover.term.builder;
 
@@ -9,8 +9,11 @@ import edu.kit.iti.algover.data.BuiltinSymbols;
 import edu.kit.iti.algover.data.SymbolTable;
 import edu.kit.iti.algover.term.ApplTerm;
 import edu.kit.iti.algover.term.FunctionSymbol;
+import edu.kit.iti.algover.term.QuantTerm;
+import edu.kit.iti.algover.term.QuantTerm.Quantifier;
 import edu.kit.iti.algover.term.Sort;
 import edu.kit.iti.algover.term.Term;
+import edu.kit.iti.algover.term.VariableTerm;
 
 public class TermBuilder {
 
@@ -95,6 +98,27 @@ public class TermBuilder {
             throw new TermBuildException("Unknown symbol: " + name);
         }
         return new ApplTerm(f);
+    }
+
+    public Term times(Term lhs, Term rhs) throws TermBuildException {
+        return binary("$times", lhs, rhs);
+    }
+
+    public Term plus(Term lhs, Term rhs) throws TermBuildException {
+        return binary("$add", lhs, rhs);
+    }
+
+    private Term binary(String fct, Term lhs, Term rhs) throws TermBuildException {
+        FunctionSymbol symbol = symbolTable.getFunctionSymbol(fct);
+        return new ApplTerm(symbol, lhs, rhs);
+    }
+
+    public VariableTerm var(String varname, Sort sort) {
+        return new VariableTerm(varname, sort);
+    }
+
+    public Term forall(VariableTerm var, Term matrix) throws TermBuildException {
+        return new QuantTerm(Quantifier.FORALL, var, matrix);
     }
 
 }

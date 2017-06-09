@@ -48,6 +48,7 @@ public class ParserTest {
                 { "faultyReferences.dfy" },
                 { "typingTest.dfy" },
                 { "full/sumandmax.dfy" },
+                { "unqualifiedCallsInExp.dfy" },
                 });
     }
 
