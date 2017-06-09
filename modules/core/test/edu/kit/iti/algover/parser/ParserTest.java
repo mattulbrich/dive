@@ -50,7 +50,6 @@ public class ParserTest {
                 { "full/sumandmax.dfy" },
                 { "full/find.dfy" },
                 { "full/twoway.dfy" },
-                { "unqualifiedCallsInExp.dfy" },
                 });
     }
 
