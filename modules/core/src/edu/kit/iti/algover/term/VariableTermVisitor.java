@@ -1,7 +1,7 @@
 /*
  * This file is part of AlgoVer.
  *
- * Copyright (C) 2015-2016 Karlsruhe Institute of Technology
+ * Copyright (C) 2015-2017 Karlsruhe Institute of Technology
  */
 package edu.kit.iti.algover.term;
 
@@ -13,7 +13,7 @@ import java.util.List;
  * TODO Add class documentation
  * TODO Choose a more self-explanatory class name
  */
-public class VariableTermVisitor extends DefaultTermVisitor<Object, List<String>> {
+public class VariableTermVisitor extends DefaultTermVisitor<Object, List<String>, RuntimeException> {
 
 
     @Override

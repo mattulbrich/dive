@@ -1,7 +1,7 @@
 /*
  * This file is part of AlgoVer.
  *
- * Copyright (C) 2015-2016 Karlsruhe Institute of Technology
+ * Copyright (C) 2015-2017 Karlsruhe Institute of Technology
  */
 package edu.kit.iti.algover.smt;
 
@@ -38,7 +38,7 @@ import edu.kit.iti.algover.util.Pair;
  * @author Mattias Ulbrich
  */
 
-public class SMTTrans extends DefaultTermVisitor<Void, SExpr> {
+public class SMTTrans extends DefaultTermVisitor<Void, SExpr, RuntimeException> {
 
     /**
      * A map which keeps smt translations for builtin function symbols.

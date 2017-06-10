@@ -18,7 +18,7 @@ public class LetInlineVisitor extends
     private static final ImmutableList<Pair<FunctionSymbol, Term>> NIL = ImmutableList.<Pair<FunctionSymbol, Term>>nil();
 
     @Override
-    public Term visit(ApplTerm applTerm, ImmutableList<Pair<FunctionSymbol, Term>> lets) {
+    public Term visit(ApplTerm applTerm, ImmutableList<Pair<FunctionSymbol, Term>> lets) throws TermBuildException {
         if(applTerm.countTerms() == 0) {
             FunctionSymbol f = applTerm.getFunctionSymbol();
             return getSubst(lets, f);
@@ -38,7 +38,7 @@ public class LetInlineVisitor extends
     }
 
     @Override
-    public Term visit(LetTerm letTerm, ImmutableList<Pair<FunctionSymbol, Term>> lets) {
+    public Term visit(LetTerm letTerm, ImmutableList<Pair<FunctionSymbol, Term>> lets) throws TermBuildException {
         ImmutableList<Pair<FunctionSymbol, Term>> oldLets = lets;
         for (Pair<FunctionSymbol, Term> ass : letTerm.getSubstitutions()) {
             FunctionSymbol f = ass.fst;

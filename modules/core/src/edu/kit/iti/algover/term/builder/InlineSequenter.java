@@ -27,7 +27,7 @@ public class InlineSequenter extends UpdateSequenter {
     protected ProofFormula postProcess(ProofFormula formula) {
         Term term = formula.getTerm();
         try {
-            term = LET_INLINE_VISITOR.applyTo(term, null);
+            term = term.accept(LET_INLINE_VISITOR, null);
         } catch (TermBuildException e) {
             // have an exception concept here!
             e.printStackTrace();

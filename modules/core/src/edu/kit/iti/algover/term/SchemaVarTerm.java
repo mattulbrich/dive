@@ -26,7 +26,8 @@ public class SchemaVarTerm extends Term {
     }
 
     @Override
-    public <A, R> R accept(TermVisitor<A, R> visitor, A arg) {
+    public <A, R, E extends Exception>
+            R accept(TermVisitor<A, R, E> visitor, A arg) throws E {
         return visitor.visit(this, arg);
     }
 

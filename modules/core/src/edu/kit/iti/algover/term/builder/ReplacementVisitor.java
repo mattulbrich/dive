@@ -18,45 +18,48 @@ import edu.kit.iti.algover.term.TermVisitor;
 import edu.kit.iti.algover.term.VariableTerm;
 import edu.kit.iti.algover.util.Pair;
 
-public class ReplacementVisitor<A> implements TermVisitor<A, Term> {
+public class ReplacementVisitor<A> implements TermVisitor<A, Term, TermBuildException> {
 
-    public Term applyTo(Term term, A arg) throws TermBuildException {
-        try {
-            return term.accept(this, arg);
-        } catch(RuntimeException e) {
-            Throwable cause = e.getCause();
-            if(cause instanceof TermBuildException) {
-                throw (TermBuildException)cause;
-            } else
-                throw e;
+    public VariableTerm visitBoundVariable(VariableTerm variableTerm, A arg) throws TermBuildException {
+        return null;
+    }
+
+    private FunctionSymbol visitSubstitutionTarget(FunctionSymbol x) throws TermBuildException{
+        return null;
+    }
+
+    @Override
+    public Term visit(VariableTerm variableTerm, A arg) throws TermBuildException{
+        return null;
+    }
+
+    @Override
+    public Term visit(SchemaVarTerm schemaVarTerm, A arg) throws TermBuildException{
+        return null;
+    }
+
+    @Override
+    public Term visit(QuantTerm quantTerm, A arg) throws TermBuildException {
+        VariableTerm bv = visitBoundVariable(quantTerm.getBoundVar(), arg);
+        Term matrix = quantTerm.getTerm(0).accept(this, arg);
+
+        if(bv == null && matrix == null) {
+            return quantTerm;
         }
-    }
 
-    public VariableTerm visitBoundVariable(VariableTerm variableTerm, A arg) {
-        return null;
-    }
+        if(bv == null) {
+            bv = quantTerm.getBoundVar();
+        }
 
-    private FunctionSymbol visitSubstitutionTarget(FunctionSymbol x) {
-        return null;
-    }
+        if(matrix == null) {
+            matrix = quantTerm.getTerm(0);
+        }
 
-    @Override
-    public Term visit(VariableTerm variableTerm, A arg) {
-        return null;
+        return new QuantTerm(quantTerm.getQuantifier(), bv, matrix);
     }
 
     @Override
-    public Term visit(SchemaVarTerm schemaVarTerm, A arg) {
-        return null;
-    }
-
-    @Override
-    public Term visit(QuantTerm quantTerm, A arg) {
-        return null;
-    }
-
-    @Override
-    public Term visit(ApplTerm applTerm, A arg) {
+    public Term visit(ApplTerm applTerm, A arg) throws TermBuildException {
         List<Term> newArgs = null;
         for (int i = 0; i < applTerm.countTerms(); i++) {
             Term t = applTerm.getTerm(i);
@@ -73,15 +76,11 @@ public class ReplacementVisitor<A> implements TermVisitor<A, Term> {
             return null;
         }
 
-        try {
-            return new ApplTerm(applTerm.getFunctionSymbol(), newArgs);
-        } catch (TermBuildException e) {
-            throw new RuntimeException(e);
-        }
+        return new ApplTerm(applTerm.getFunctionSymbol(), newArgs);
     }
 
     @Override
-    public Term visit(LetTerm letTerm, A arg) {
+    public Term visit(LetTerm letTerm, A arg) throws TermBuildException {
         List<Pair<FunctionSymbol, Term>> substs = letTerm.getSubstitutions();
         List<Pair<FunctionSymbol, Term>> newSubsts = null;
         for (int i = 0; i < substs.size(); i++) {
@@ -109,11 +108,7 @@ public class ReplacementVisitor<A> implements TermVisitor<A, Term> {
             subTerm = letTerm.getTerm(0);
         }
 
-        try {
-            return new LetTerm(newSubsts, subTerm);
-        } catch (TermBuildException e) {
-            throw new RuntimeException(e);
-        }
+        return new LetTerm(newSubsts, subTerm);
 
     }
 

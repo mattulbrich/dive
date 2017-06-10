@@ -119,7 +119,8 @@ public abstract class Term {
      *            the generic argument
      * @return the result of the visitor.
      */
-    public abstract <A, R> R accept(TermVisitor<A, R> visitor, A arg);
+    public abstract <A, R, E extends Exception>
+         R accept(TermVisitor<A, R, E> visitor, A arg) throws E;
 
     /**
      * Count the subterms of this instance.
