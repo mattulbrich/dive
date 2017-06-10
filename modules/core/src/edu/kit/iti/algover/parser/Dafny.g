@@ -77,10 +77,12 @@ FALSE: 'false';
 FREE: 'free';
 FUNCTION: 'function';
 IF: 'if';
+IN : 'in';
 INT : 'int';
 INVARIANT: 'invariant';
 LABEL: 'label';
 LEMMA: 'lemma';
+LET: 'let';
 METHOD: 'method';
 MODIFIES: 'modifies';
 NULL: 'null';
@@ -276,6 +278,10 @@ ids:
   ID (','! ID)+
   ;
 
+//
+// ---------------- Expressions!
+//
+
 expression_wildcard:
     expression
   | star=TIMES -> WILDCARD[$star]
@@ -336,6 +342,12 @@ prefix_expr:
 endless_expr:
     'if'^ expression 'then'! expression 'else'! expression
   | quantifier
+  | let_expr
+  ;
+
+let_expr:
+  LET ID (',' ID)* ':=' expression (',' expression)* ';' expression
+    -> ^(LET ID+ expression+)
   ;
 
 postfix_expr:

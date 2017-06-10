@@ -54,6 +54,7 @@ public class ParserTest {
                 { "full/find.dfy" },
                 { "full/twoway.dfy" },
                 { "unqualifiedCallsInExp.dfy" },
+                { "letexpressions.dfy" },
                 });
     }
 
