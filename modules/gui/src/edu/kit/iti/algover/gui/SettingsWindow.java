@@ -1,7 +1,11 @@
+/*
+ * This file is part of AlgoVer.
+ *
+ * Copyright (C) 2015-2017 Karlsruhe Institute of Technology
+ */
 package edu.kit.iti.algover.gui;
 
 //import edu.kit.iti.algover.Actions.SettingsSelectionListener;
-import com.sun.org.apache.xpath.internal.SourceTree;
 
 import edu.kit.iti.algover.Actions.SettingsCancelButtonAction;
 import net.miginfocom.swing.MigLayout;
@@ -45,8 +49,8 @@ public class SettingsWindow extends JDialog implements ActionListener {
     JTextField z3PathTextField;
     JTextField dafnyPathTextField;
     JTextField keyPathTextField;
-    
-    
+
+
 
     Component settingsMainPanel;
 
