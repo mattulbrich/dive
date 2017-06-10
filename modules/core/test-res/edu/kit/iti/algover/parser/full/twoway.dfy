@@ -37,12 +37,12 @@ method two_way_sort(a: array<bool>)
   {
     if (!a[i]) {
       i := i+1;
-    } else { if (a[j]) {
+    } else if (a[j]) {
       j := j-1;
     } else {
       swap(a, i, j);
       i := i+1;
       j := j-1;
-    }}
+    }
   }
 }

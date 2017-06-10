@@ -53,7 +53,11 @@ public class TermParserTest {
         for(Entry<Object, Object> en : p.entrySet()) {
             String name = en.getKey().toString();
             String[] parts = en.getValue().toString().split("###");
-            result.add(new Object[] { name, parts[0].trim(), parts[1].trim() });
+            if(parts.length == 2) {
+                result.add(new Object[] { name, parts[0].trim(), parts[1].trim() });
+            } else {
+                result.add(new Object[] { name, parts[0].trim(), parts[0].trim() });
+            }
         }
 
         return result;

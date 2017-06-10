@@ -250,18 +250,27 @@ statement:
          -> postfix_expr
       )
 
-  | label? 
-      ( WHILE expression_wildcard invariant* modifies? decreases? block
+  | label? WHILE expression_wildcard invariant* modifies? decreases? block
            -> ^(WHILE label? expression_wildcard invariant* modifies? decreases? block)
-      | IF expression_wildcard block
-         ( options { greedy=true; } : 'else' block )?
-           -> ^(IF label? expression_wildcard block*)
-      )
+
+  | if_statement
 
   | 'assert'^ ( 'label'! ID ':'! )? expression ';'!
 
   | 'assume'^ ( 'label'! ID ':'! )? expression ';'!
   ;
+
+
+/* ifs are extra since they can be cascaded */
+if_statement:
+  label? IF expression_wildcard block
+  ( -> ^(IF label? expression_wildcard block)
+  | ELSE block -> ^(IF label? expression_wildcard block+)
+  | ELSE if_statement -> ^(IF label? expression_wildcard block ^(BLOCK if_statement))
+  )
+  ;
+  // not needed any more: ( options { greedy=true; } : 'else' 
+  // everything is in blocks now
 
 ids:
   ID (','! ID)+

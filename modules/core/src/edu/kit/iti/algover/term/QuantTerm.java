@@ -1,7 +1,7 @@
 /*
  * This file is part of AlgoVer.
  *
- * Copyright (C) 2015-2016 Karlsruhe Institute of Technology
+ * Copyright (C) 2015-2017 Karlsruhe Institute of Technology
  */
 package edu.kit.iti.algover.term;
 
@@ -28,7 +28,8 @@ public class QuantTerm extends Term {
 
     @Override
     public String toString() {
-        return "(" + quantifier + " " + boundVar + ":" + boundVar.getSort()
+        return "(" + quantifier.toString().toLowerCase() + " "
+                + boundVar + ":" + boundVar.getSort()
                 + " :: " + getTerm(0) + ")";
     }
 

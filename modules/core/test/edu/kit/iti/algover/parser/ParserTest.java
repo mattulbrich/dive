@@ -31,12 +31,19 @@ public class ParserTest {
     @Parameters(name= "{0}")
     public static Iterable<Object[]> data() {
         return Arrays.asList(new Object[][] {
-                { "arrayMax.dfy" }, { "highdimarrays.dfy" }, { "arrayEdit.dfy" },
+                { "arrayMax.dfy" },
+                { "highdimarrays.dfy" },
+                { "arrayEdit.dfy" },
+                { "elseif.dfy" },
                 { "wildcards.dfy" },
                 { "../symbex/symbex.dfy" },
-                { "arithmetic.dfy" }, { "../util/labelTest.dfy" }, { "../symbex/whileWithAnon.dfy" },
-                { "../symbex/havoc.dfy" }, { "../symbex/runtimeAssert.dfy" },
-                { "fields.dfy" }, { "../dafnystructures/declTest.dfy" },
+                { "arithmetic.dfy" },
+                { "../util/labelTest.dfy" },
+                { "../symbex/whileWithAnon.dfy" },
+                { "../symbex/havoc.dfy" },
+                { "../symbex/runtimeAssert.dfy" },
+                { "fields.dfy" },
+                { "../dafnystructures/declTest.dfy" },
                 { "referenceTest.dfy" },
                 { "referenceTestWithReftype.dfy" },
                 { "reftypes.dfy" },
@@ -76,6 +83,7 @@ public class ParserTest {
         if(expected != null) {
             String expect = Util.streamToString(expected.openStream()).replaceAll("\\s+", " ").trim();
             String actual = t.toStringTree().replaceAll("\\s+", " ").trim();
+           // assertEquals("For inspection", Util.streamToString(expected.openStream()), TestUtil.beautify(t));
             assertEquals("Parsing result", expect, actual);
         }
     }
