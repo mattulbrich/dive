@@ -44,7 +44,7 @@ public class ReplacementVisitor<A> implements TermVisitor<A, Term, TermBuildExce
         Term matrix = quantTerm.getTerm(0).accept(this, arg);
 
         if(bv == null && matrix == null) {
-            return quantTerm;
+            return null;
         }
 
         if(bv == null) {

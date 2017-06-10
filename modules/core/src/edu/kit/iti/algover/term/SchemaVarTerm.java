@@ -36,4 +36,8 @@ public class SchemaVarTerm extends Term {
         return super.hasSort(sort) || this.getSort() == UNTYPED_SORT;
     }
 
+    public String getName() {
+        return name;
+    }
+
 }
