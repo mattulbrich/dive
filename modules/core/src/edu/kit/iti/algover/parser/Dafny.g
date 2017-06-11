@@ -346,8 +346,9 @@ endless_expr:
   ;
 
 let_expr:
-  LET ( 'var' )? ID (',' ID)* ':=' expression (',' expression)* ';' expression
-    -> ^(LET ^(VAR ID*) expression+)
+  LET ( 'var' )? ID (',' ID)* ':=' expression (',' expression)*
+    (';'|'::')  expression
+      -> ^(LET ^(VAR ID*) expression+)
   ;
 
 postfix_expr:

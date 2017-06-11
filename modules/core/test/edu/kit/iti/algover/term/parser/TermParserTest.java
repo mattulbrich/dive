@@ -13,7 +13,9 @@ import org.junit.runner.RunWith;
 import edu.kit.iti.algover.data.BuiltinSymbols;
 import edu.kit.iti.algover.data.SymbolTable;
 import edu.kit.iti.algover.parser.DafnyParserException;
+import edu.kit.iti.algover.term.ApplTerm;
 import edu.kit.iti.algover.term.FunctionSymbol;
+import edu.kit.iti.algover.term.LetTerm;
 import edu.kit.iti.algover.term.Sort;
 import edu.kit.iti.algover.term.Term;
 import junitparams.JUnitParamsRunner;
@@ -33,6 +35,8 @@ public class TermParserTest {
               "(forall i:int :: $imp($lt(0, i), $gt(i, 0)))" },
             { "let var x := i1+5 ; x*2",
               "(let x := $plus(i1, 5) :: $times(x, 2))" },
+            { "let var i1, i2 := i2, i1 :: i1 + i2",
+              "(let i1, i2 := i2, i1 :: $plus(i1, i2))" },
         };
     }
 
@@ -71,5 +75,16 @@ public class TermParserTest {
         String actual = term.toString();
 
         assertEquals(input, actual);
+    }
+
+    // from a bug
+    @Test
+    public void testLetProblem() throws DafnyParserException {
+        Term term = TermParser.parse(symbolTable, "let var i1, i2 := i2, i1 :: i1 + i2");
+        Term sum1 = ((LetTerm)term).getSubstitutions().get(0).snd;
+        Term sum2 = ((LetTerm)term).getSubstitutions().get(0).snd;
+
+        assertTrue(sum1 instanceof ApplTerm);
+        assertTrue(sum2 instanceof ApplTerm);
     }
 }

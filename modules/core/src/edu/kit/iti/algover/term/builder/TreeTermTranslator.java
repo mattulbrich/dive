@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Deque;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -25,6 +26,7 @@ import edu.kit.iti.algover.term.QuantTerm.Quantifier;
 import edu.kit.iti.algover.term.Sort;
 import edu.kit.iti.algover.term.Term;
 import edu.kit.iti.algover.term.VariableTerm;
+import edu.kit.iti.algover.util.HistoryMap;
 import edu.kit.iti.algover.util.ImmutableList;
 import edu.kit.iti.algover.util.Pair;
 
@@ -41,7 +43,8 @@ public class TreeTermTranslator {
 
     private final SymbolTable symbolTable;
 
-    private final Deque<VariableTerm> boundVars = new LinkedList<VariableTerm>();
+    private final HistoryMap<String, VariableTerm> boundVars =
+            new HistoryMap<>(new HashMap<>());
 
     private final TermBuilder tb;
 
@@ -319,11 +322,10 @@ public class TreeTermTranslator {
 
     private Term buildIdentifier(DafnyTree tree) throws TermBuildException {
         String name = tree.toString();
-        for (VariableTerm var : boundVars) {
-            if (var.getName().equals(name)) {
-                // found a bound variable in context!
-                return var;
-            }
+        VariableTerm var = boundVars.get(name);
+        if (var != null) {
+            // found a bound variable in context!
+            return var;
         }
 
         FunctionSymbol fct = symbolTable.getFunctionSymbol(name);
@@ -337,18 +339,17 @@ public class TreeTermTranslator {
     private Term buildQuantifier(Quantifier q, DafnyTree tree) throws TermBuildException {
         assert tree.getChildCount() == 3;
 
-        String var = tree.getChild(0).toString();
+        String var = tree.getChild(0).getText();
         Sort t = buildSort(tree.getChild(1));
         VariableTerm varTerm = new VariableTerm(var, t);
 
         try {
-            boundVars.push(varTerm);
+            boundVars.put(var, varTerm);
             Term formula = build(tree.getChild(2));
             QuantTerm result = new QuantTerm(q, varTerm, formula);
             return result;
         } finally {
-            VariableTerm popped = boundVars.pop();
-            assert popped == varTerm;
+            boundVars.rewindHistory(boundVars.size() - 1);
         }
     }
 
@@ -365,11 +366,20 @@ public class TreeTermTranslator {
             Term term = build(tree.getChild(i+1));
             VariableTerm var = new VariableTerm(targets.get(i).getText(), term.getSort());
             substs.add(new Pair<>(var, term));
-            boundVars.push(var);
+        }
+
+        // only bind them now after all expressions have been parsed
+        int rewindPos = boundVars.getHistory();
+        for (Pair<VariableTerm, Term> pair : substs) {
+            boundVars.put(pair.fst.getName(), pair.fst);
         }
 
         Term inner = build(tree.getLastChild());
+
+        boundVars.rewindHistory(rewindPos);
+
         LetTerm result = new LetTerm(substs, inner);
+
         return result;
 
     }

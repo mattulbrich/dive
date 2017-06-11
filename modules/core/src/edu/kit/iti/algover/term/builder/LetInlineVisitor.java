@@ -5,20 +5,33 @@
  */
 package edu.kit.iti.algover.term.builder;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import edu.kit.iti.algover.term.LetTerm;
 import edu.kit.iti.algover.term.Term;
 import edu.kit.iti.algover.term.VariableTerm;
-import edu.kit.iti.algover.util.ImmutableList;
+import edu.kit.iti.algover.util.HistoryMap;
 import edu.kit.iti.algover.util.Pair;
 
 public class LetInlineVisitor extends
-        ReplacementVisitor<ImmutableList<Pair<VariableTerm, Term>>> {
+        ReplacementVisitor<HistoryMap<VariableTerm, Term>> {
 
-    private static final ImmutableList<Pair<VariableTerm, Term>> NIL = ImmutableList.<Pair<VariableTerm, Term>>nil();
+
+    public static Term inline(Term term) throws TermBuildException {
+        Term result = term.accept(new LetInlineVisitor(),
+                new HistoryMap<>(new HashMap<>()));
+
+        if (result == null) {
+            result = term;
+        }
+
+        return result;
+    }
 
     @Override
-    public Term visit(VariableTerm variableTerm, ImmutableList<Pair<VariableTerm, Term>> lets) throws TermBuildException {
-        Term subst = getSubst(lets, variableTerm);
+    public Term visit(VariableTerm variableTerm, HistoryMap<VariableTerm, Term> lets) throws TermBuildException {
+        Term subst = lets.get(variableTerm);
         if(subst != null) {
             return subst;
         } else {
@@ -26,27 +39,27 @@ public class LetInlineVisitor extends
         }
     }
 
-    private Term getSubst(ImmutableList<Pair<VariableTerm, Term>> lets, VariableTerm f) {
-        while(lets != NIL) {
-            if(lets.getHead().fst == f) {
-                return lets.getHead().snd;
-            }
-            lets = lets.getTail();
-        }
-        return null;
-    }
-
     @Override
-    public Term visit(LetTerm letTerm, ImmutableList<Pair<VariableTerm, Term>> lets) throws TermBuildException {
-        ImmutableList<Pair<VariableTerm, Term>> oldLets = lets;
+    public Term visit(LetTerm letTerm, HistoryMap<VariableTerm, Term> lets) throws TermBuildException {
+        Map<VariableTerm, Term> newLets = new HashMap<>();
         for (Pair<VariableTerm, Term> ass : letTerm.getSubstitutions()) {
             VariableTerm f = ass.fst;
-            Term t = ass.snd.accept(this, oldLets);
-            lets = lets.append(new Pair<>(f, t));
+            Term replacement = ass.snd.accept(this, lets);
+            if (replacement == null) {
+                replacement = ass.snd;
+            }
+            newLets.put(f, replacement);
         }
 
+        int rewindPos = lets.getHistory();
+        lets.putAll(newLets);
         Term inner = letTerm.getTerm(0).accept(this, lets);
+        lets.rewindHistory(rewindPos);
 
-        return inner;
+        if(inner == null) {
+            return letTerm.getTerm(0);
+        } else {
+            return inner;
+        }
     }
 }
