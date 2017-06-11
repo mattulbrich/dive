@@ -5,17 +5,10 @@
  */
 package edu.kit.iti.algover.term.parser;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map.Entry;
-import java.util.Properties;
-
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
-import org.junit.runners.Parameterized.Parameters;
 
 import edu.kit.iti.algover.data.BuiltinSymbols;
 import edu.kit.iti.algover.data.SymbolTable;
@@ -23,45 +16,32 @@ import edu.kit.iti.algover.parser.DafnyParserException;
 import edu.kit.iti.algover.term.FunctionSymbol;
 import edu.kit.iti.algover.term.Sort;
 import edu.kit.iti.algover.term.Term;
+import junitparams.JUnitParamsRunner;
+import junitparams.Parameters;
 
 import static org.junit.Assert.*;
 
-@RunWith(Parameterized.class)
+@RunWith(JUnitParamsRunner.class)
 public class TermParserTest {
 
     private static SymbolTable symbolTable;
 
-    private final String input;
-    private final String expected;
-
-    private String name;
-
-    public TermParserTest(String name, String input, String expected) {
-        this.name = name;
-        this.input = input;
-        this.expected = expected;
+    public String[][] parametersForTestParsing() {
+        return new String[][] {
+            { "i1 + i2", "$plus(i1, i2)" },
+            { "forall i: int :: 0 < i ==> i > 0",
+              "(forall i:int :: $imp($lt(0, i), $gt(i, 0)))" },
+            { "let var x := i1+5 ; x*2",
+              "(let x := $plus(i1, 5) :: $times(x, 2))" },
+        };
     }
 
-    @Parameters(name = "{0}")
-    public static Iterable<Object[]> data() throws Exception {
-
-        Properties p = new Properties();
-        p.loadFromXML(TermParserTest.class.getResourceAsStream("termParser.xml"));
-
-        List<Object[]> result = new ArrayList<>();
-
-        for(Entry<Object, Object> en : p.entrySet()) {
-            String name = en.getKey().toString();
-            String[] parts = en.getValue().toString().split("###");
-            if(parts.length == 2) {
-                result.add(new Object[] { name, parts[0].trim(), parts[1].trim() });
-            } else {
-                result.add(new Object[] { name, parts[0].trim(), parts[0].trim() });
-            }
-        }
-
-        return result;
+    public String[] parametersForTestParsingIdentity() {
+        return new String[] {
+                "$plus(i1, i2)",
+        };
     }
+
 
     @BeforeClass
     public static void setupSymbolTable() {
@@ -77,12 +57,19 @@ public class TermParserTest {
         symbolTable = null;
     }
 
-    @Test
-    public void test() throws DafnyParserException {
+    @Test @Parameters
+    public void testParsing(String input, String expected) throws DafnyParserException {
         Term term = TermParser.parse(symbolTable, input);
         String actual = term.toString();
 
-        assertEquals(name, expected, actual);
+        assertEquals(expected, actual);
     }
 
+    @Test @Parameters
+    public void testParsingIdentity(String input) throws DafnyParserException {
+        Term term = TermParser.parse(symbolTable, input);
+        String actual = term.toString();
+
+        assertEquals(input, actual);
+    }
 }

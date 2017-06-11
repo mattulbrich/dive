@@ -5,29 +5,28 @@
  */
 package edu.kit.iti.algover.term.builder;
 
-import edu.kit.iti.algover.term.ApplTerm;
-import edu.kit.iti.algover.term.FunctionSymbol;
 import edu.kit.iti.algover.term.LetTerm;
 import edu.kit.iti.algover.term.Term;
+import edu.kit.iti.algover.term.VariableTerm;
 import edu.kit.iti.algover.util.ImmutableList;
 import edu.kit.iti.algover.util.Pair;
 
 public class LetInlineVisitor extends
-        ReplacementVisitor<ImmutableList<Pair<FunctionSymbol, Term>>> {
+        ReplacementVisitor<ImmutableList<Pair<VariableTerm, Term>>> {
 
-    private static final ImmutableList<Pair<FunctionSymbol, Term>> NIL = ImmutableList.<Pair<FunctionSymbol, Term>>nil();
+    private static final ImmutableList<Pair<VariableTerm, Term>> NIL = ImmutableList.<Pair<VariableTerm, Term>>nil();
 
     @Override
-    public Term visit(ApplTerm applTerm, ImmutableList<Pair<FunctionSymbol, Term>> lets) throws TermBuildException {
-        if(applTerm.countTerms() == 0) {
-            FunctionSymbol f = applTerm.getFunctionSymbol();
-            return getSubst(lets, f);
+    public Term visit(VariableTerm variableTerm, ImmutableList<Pair<VariableTerm, Term>> lets) throws TermBuildException {
+        Term subst = getSubst(lets, variableTerm);
+        if(subst != null) {
+            return subst;
         } else {
-            return super.visit(applTerm, lets);
+            return super.visit(variableTerm, lets);
         }
     }
 
-    private Term getSubst(ImmutableList<Pair<FunctionSymbol, Term>> lets, FunctionSymbol f) {
+    private Term getSubst(ImmutableList<Pair<VariableTerm, Term>> lets, VariableTerm f) {
         while(lets != NIL) {
             if(lets.getHead().fst == f) {
                 return lets.getHead().snd;
@@ -38,10 +37,10 @@ public class LetInlineVisitor extends
     }
 
     @Override
-    public Term visit(LetTerm letTerm, ImmutableList<Pair<FunctionSymbol, Term>> lets) throws TermBuildException {
-        ImmutableList<Pair<FunctionSymbol, Term>> oldLets = lets;
-        for (Pair<FunctionSymbol, Term> ass : letTerm.getSubstitutions()) {
-            FunctionSymbol f = ass.fst;
+    public Term visit(LetTerm letTerm, ImmutableList<Pair<VariableTerm, Term>> lets) throws TermBuildException {
+        ImmutableList<Pair<VariableTerm, Term>> oldLets = lets;
+        for (Pair<VariableTerm, Term> ass : letTerm.getSubstitutions()) {
+            VariableTerm f = ass.fst;
             Term t = ass.snd.accept(this, oldLets);
             lets = lets.append(new Pair<>(f, t));
         }

@@ -38,11 +38,7 @@ public class ReplacementVisitorTest {
 
         @Override
         public Term visit(VariableTerm variableTerm, Void arg) {
-            if(variableTerm.getName().startsWith("_")) {
-                return variableTerm;
-            } else {
-                return null;
-            }
+            return visitBoundVariable(variableTerm, arg);
         }
 
         @Override
@@ -63,15 +59,23 @@ public class ReplacementVisitorTest {
                 return super.visit(applTerm, arg);
             }
         }
+
+        @Override
+        public VariableTerm visitLetTarget(VariableTerm x, Void arg) throws TermBuildException {
+            return visitBoundVariable(x, null);
+        }
     }
 
-    public String[] parametersForTestIdentity() {
-        return new String[] {
-            "_i", "i + _i", "_i + i", "_i + _i",
-            "forall _x: int :: i > _x",
-            "forall _x: int :: _i > _x",
-            "forall x: int :: _i > x",
-            "forall _x: int :: i+1 > i",
+    public String[][] parametersForTestIdentity() {
+        return new String[][] {
+            { "_i" }, { "i + _i" }, { "_i + i" }, { "_i + _i" },
+            { "forall _x: int :: i > _x" },
+            { "forall _x: int :: _i > _x" },
+            { "forall x: int :: _i > x" },
+            { "forall _x: int :: i+1 > i" },
+            { "let x, _y, z, _a := 1, _i+1, _i-1, i+1; _y + 1" }, // revealed a bug
+            { "let y := _i + 1; y + i" },
+            { "let y := i + 1; y + _i" },
         };
     }
 
@@ -79,6 +83,7 @@ public class ReplacementVisitorTest {
         return new String[] {
             "i", "i + i",
             "forall x: int :: i > x",
+            "let y := i + 1; y + i",
         };
     }
 

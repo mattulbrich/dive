@@ -134,7 +134,7 @@ LOGIC_ID : '$' ('a' .. 'z' | 'A' .. 'Z' | '_' )
 INT_LIT : ('0' .. '9' ) ('0' .. '9' | '_')*;
 // glyph = "`~!@#$%^&*()-_=+[{]}|;:',<.>/?\\".
 
-WS : (' '|'\n'|'\r')                     { $channel = HIDDEN; };
+WS : (' '|'\t'|'\n'|'\r')                     { $channel = HIDDEN; };
 SINGLELINE_COMMENT: '//' ~('\r' | '\n')* { $channel = HIDDEN; };
 MULTILINE_COMMENT: '/*' .* '*/'          { $channel = HIDDEN; };
 
@@ -346,8 +346,8 @@ endless_expr:
   ;
 
 let_expr:
-  LET ID (',' ID)* ':=' expression (',' expression)* ';' expression
-    -> ^(LET ID+ expression+)
+  LET ( 'var' )? ID (',' ID)* ':=' expression (',' expression)* ';' expression
+    -> ^(LET ^(VAR ID*) expression+)
   ;
 
 postfix_expr:

@@ -26,7 +26,9 @@ import edu.kit.iti.algover.term.QuantTerm.Quantifier;
 import edu.kit.iti.algover.term.Sort;
 import edu.kit.iti.algover.term.Term;
 import edu.kit.iti.algover.term.VariableTerm;
+import edu.kit.iti.algover.term.builder.TermBuildException;
 import edu.kit.iti.algover.term.builder.TermBuilder;
+import edu.kit.iti.algover.term.builder.TreeTermTranslator;
 import edu.kit.iti.algover.util.HistoryMap;
 
 public class TermParser {
@@ -80,107 +82,10 @@ public class TermParser {
     }
 
     private Term toTerm(DafnyTree t, HistoryMap<String, VariableTerm> boundVariables) throws DafnyParserException {
+
         try {
-            switch(t.getType()) {
-            case DafnyParser.ALL: {
-                String varname = t.getChild(0).getText();
-                String typename = t.getChild(1).getText();
-                VariableTerm var = new VariableTerm(varname, new Sort(typename));
-                DafnyTree formulaTree = t.getChild(2);
-
-                int rewind = boundVariables.getHistory();
-                boundVariables.put(varname, var);
-                Term matrix = toTerm(formulaTree, boundVariables);
-                boundVariables.rewindHistory(rewind);
-
-                return new QuantTerm(Quantifier.FORALL, var, matrix);
-            }
-
-            case DafnyParser.EX: {
-                String varname = t.getChild(0).getText();
-                String typename = t.getChild(1).getText();
-                VariableTerm var = new VariableTerm(varname, new Sort(typename));
-                DafnyTree formulaTree = t.getChild(2);
-
-                int rewind = boundVariables.getHistory();
-                boundVariables.put(varname, var);
-                Term matrix = toTerm(formulaTree, boundVariables);
-                boundVariables.rewindHistory(rewind);
-
-                return new QuantTerm(Quantifier.EXISTS, var, matrix);
-            }
-
-            case DafnyParser.PLUS: {
-                Term lhs = toTerm(t.getChild(0), boundVariables);
-                Term rhs = toTerm(t.getChild(1), boundVariables);
-                return tb.plus(lhs, rhs);
-            }
-
-            case DafnyParser.TIMES: {
-                Term lhs = toTerm(t.getChild(0), boundVariables);
-                Term rhs = toTerm(t.getChild(1), boundVariables);
-                return tb.times(lhs, rhs);
-            }
-
-            case DafnyParser.IMPLIES: {
-                Term lhs = toTerm(t.getChild(0), boundVariables);
-                Term rhs = toTerm(t.getChild(1), boundVariables);
-                return tb.impl(lhs, rhs);
-            }
-
-            case DafnyParser.GT: {
-                Term lhs = toTerm(t.getChild(0), boundVariables);
-                Term rhs = toTerm(t.getChild(1), boundVariables);
-                return tb.gt(lhs, rhs);
-            }
-
-            case DafnyParser.LT: {
-                Term lhs = toTerm(t.getChild(0), boundVariables);
-                Term rhs = toTerm(t.getChild(1), boundVariables);
-                return tb.lt(lhs, rhs);
-            }
-
-            case DafnyParser.INT_LIT: {
-                String lit = t.getText();
-                return tb.cons(lit);
-            }
-
-            case DafnyParser.ID: {
-                String name = t.getText();
-                if(boundVariables.containsKey(name)) {
-                    return boundVariables.get(name);
-                } else {
-                    FunctionSymbol fct = symbols.getFunctionSymbol(name);
-                    if(fct == null) {
-                        throw new DafnyParserException("unknown symbol " + name);
-                    }
-
-                    return new ApplTerm(fct);
-                }
-            }
-
-            case DafnyParser.CALL: {
-                // TODO RECEIVER
-
-                String name = t.getChild(0).getText();
-                FunctionSymbol fct = symbols.getFunctionSymbol(name);
-                if(fct == null) {
-                    throw new DafnyParserException("unknown symbol " + name);
-                }
-
-                DafnyTree args = t.getFirstChildWithType(DafnyParser.ARGS);
-                List<Term> children = new ArrayList<>();
-                for(int i = 0; i < args.getChildCount(); i++) {
-                    children.add(toTerm(args.getChild(i), boundVariables));
-                }
-
-                return new ApplTerm(fct, children);
-            }
-
-            default:
-                throw new UnsupportedOperationException("TermParser -> " + t.toStringTree());
-
-            }
+            TreeTermTranslator ttt = new TreeTermTranslator(symbols);
+            return ttt.build(t);
         } catch(Exception e) {
             DafnyParserException lex = new DafnyParserException(e);
             lex.setLine(t.getLine());

@@ -26,6 +26,7 @@ import edu.kit.iti.algover.term.Sort;
 import edu.kit.iti.algover.term.Term;
 import edu.kit.iti.algover.term.VariableTerm;
 import edu.kit.iti.algover.util.ImmutableList;
+import edu.kit.iti.algover.util.Pair;
 
 /**
  * The Class TreeTermTranslator is used to create a {@link Term} object from a
@@ -96,7 +97,8 @@ public class TreeTermTranslator {
             DafnyTree expression = assignment.getChild(1);
             switch (receiver.getType()) {
             case DafnyParser.ID:
-                FunctionSymbol f = symbolTable.getFunctionSymbol(receiver.getText());
+//                FunctionSymbol f = symbolTable.getFunctionSymbol(receiver.getText());
+                VariableTerm f = new VariableTerm(receiver.getText(), build(expression).getSort());
                 return new LetTerm(f, build(expression), result);
 
             case DafnyParser.FIELD_ACCESS: {
@@ -109,7 +111,7 @@ public class TreeTermTranslator {
                 FunctionSymbol heap = BuiltinSymbols.HEAP;
                 ApplTerm heapTerm = new ApplTerm(heap);
                 Term appl = new ApplTerm(store, heapTerm, object, field, value);
-                return new LetTerm(heap, appl, result);
+                return new LetTerm(new VariableTerm("heap", Sort.HEAP), appl, result);
             }
             case DafnyParser.ARRAY_ACCESS: {
                 // XXX
@@ -120,7 +122,7 @@ public class TreeTermTranslator {
                 FunctionSymbol heap = BuiltinSymbols.HEAP;
                 ApplTerm heapTerm = new ApplTerm(heap);
                 Term appl = new ApplTerm(store, heapTerm, object, index, value);
-                return new LetTerm(heap, appl, result);
+                return new LetTerm(new VariableTerm("heap", Sort.HEAP), appl, result);
             }
 
             //            case DafnyParser.LISTEX:
@@ -178,10 +180,10 @@ public class TreeTermTranslator {
         case DafnyParser.TIMES:
             return buildBinary(BuiltinSymbols.TIMES, tree);
         case DafnyParser.UNION:
-            // TODO generalize this bezond integer sets
+            // TODO generalize this beyond integer sets
             return buildBinary(symbolTable.getFunctionSymbol("$union[int]"), tree);
         case DafnyParser.INTERSECT:
-            // TODO generalize this bezond integer sets
+            // TODO generalize this beyond integer sets
             return buildBinary(symbolTable.getFunctionSymbol("$intersect[int]"), tree);
 
         case DafnyParser.NOT:
@@ -207,6 +209,9 @@ public class TreeTermTranslator {
         case DafnyParser.EX:
             return buildQuantifier(QuantTerm.Quantifier.EXISTS, tree);
 
+        case DafnyParser.LET:
+            return buildLet(tree);
+
         case DafnyParser.LENGTH:
             return buildLength(tree);
 
@@ -216,6 +221,9 @@ public class TreeTermTranslator {
         case DafnyParser.NOETHER_LESS:
             return buildNoetherLess(tree);
 
+        case DafnyParser.CALL:
+            return buildCall(tree);
+
         default:
             TermBuildException ex =
                 new TermBuildException("Cannot translate term: " + tree.toStringTree());
@@ -224,6 +232,26 @@ public class TreeTermTranslator {
         }
 
     }
+
+    private Term buildCall(DafnyTree tree) throws TermBuildException {
+
+        assert tree.getChildCount() == 2 :
+            "Calls with receivers not yet supported!";
+
+        String id = tree.getChild(0).getText();
+        FunctionSymbol fct = symbolTable.getFunctionSymbol(id);
+        if(fct == null) {
+            throw new TermBuildException("xxx unknown symbol, methods not allowed " + id);
+        }
+
+        List<Term> argTerms = new ArrayList<>();
+        for (DafnyTree arg : tree.getChild(1).getChildren()) {
+            argTerms.add(build(arg));
+        }
+
+        return new ApplTerm(fct, argTerms);
+    }
+
 
     private Term buildArrayAccess(DafnyTree tree) throws TermBuildException {
 
@@ -307,9 +335,7 @@ public class TreeTermTranslator {
     }
 
     private Term buildQuantifier(Quantifier q, DafnyTree tree) throws TermBuildException {
-        if (tree.getChildCount() != 3) {
-            throw new RuntimeException();
-        }
+        assert tree.getChildCount() == 3;
 
         String var = tree.getChild(0).toString();
         Sort t = buildSort(tree.getChild(1));
@@ -325,6 +351,29 @@ public class TreeTermTranslator {
             assert popped == varTerm;
         }
     }
+
+    private Term buildLet(DafnyTree tree) throws TermBuildException {
+
+        List<DafnyTree> targets = tree.getChild(0).getChildren();
+
+        if(targets.size() + 2 != tree.getChildCount()) {
+            throw new TermBuildException();
+        }
+
+        List<Pair<VariableTerm, Term>> substs = new ArrayList<>();
+        for (int i = 0; i < targets.size(); i++) {
+            Term term = build(tree.getChild(i+1));
+            VariableTerm var = new VariableTerm(targets.get(i).getText(), term.getSort());
+            substs.add(new Pair<>(var, term));
+            boundVars.push(var);
+        }
+
+        Term inner = build(tree.getLastChild());
+        LetTerm result = new LetTerm(substs, inner);
+        return result;
+
+    }
+
 
     // Currently that is still simple since only array<int>, arrayN<int> and set<int>
     // are supported besides int.
