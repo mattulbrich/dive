@@ -5,8 +5,6 @@
  */
 package edu.kit.iti.algover.parser;
 
-import static org.junit.Assert.assertEquals;
-
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -21,6 +19,8 @@ import org.junit.runners.Parameterized.Parameters;
 
 import edu.kit.iti.algover.util.TestUtil;
 import edu.kit.iti.algover.util.Util;
+
+import static org.junit.Assert.*;
 
 @RunWith(Parameterized.class)
 public class ParserTest {
