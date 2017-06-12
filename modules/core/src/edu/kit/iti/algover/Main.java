@@ -60,7 +60,7 @@ public class Main {
                     System.out.println("Path condition - " + pc.getType());
                     System.out.println("    " + pc.getExpression().toStringTree());
                     System.out.println("  Assignment History:");
-                    System.out.println("    " + Util.join(pc.getVariableMap(), "\n    "));
+                    System.out.println("    " + Util.join(pc.getAssignmentHistory(), "\n    "));
                     System.out.println("  Refers to: line " + pc.getExpression().token.getLine());
                 }
                 System.out.println("Proof Obligations: ");

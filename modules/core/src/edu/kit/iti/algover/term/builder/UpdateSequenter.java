@@ -39,7 +39,7 @@ public class UpdateSequenter implements PVCSequenter {
 
         for (PathConditionElement pce : pathThroughProgram.getPathConditions()) {
             try {
-                Term term = ttt.build(pce.getVariableMap(), pce.getExpression());
+                Term term = ttt.build(pce.getAssignmentHistory(), pce.getExpression());
                 ProofFormula formula = new ProofFormula(id++, term);
                 formula = postProcess(formula);
                 ante.add(formula);
@@ -51,7 +51,7 @@ public class UpdateSequenter implements PVCSequenter {
         assert pathThroughProgram.getProofObligations().size() == 1;
         AssertionElement assertion = pathThroughProgram.getProofObligations().getHead();
         try {
-            Term term = ttt.build(assertion.getState(), assertion.getExpression());
+            Term term = ttt.build(assertion.getAssignmentHistory(), assertion.getExpression());
             ProofFormula formula = new ProofFormula(id++, term);
             formula = postProcess(formula);
             List<ProofFormula> succ = Collections.singletonList(formula);
