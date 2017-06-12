@@ -71,10 +71,10 @@ public class ProjectFacade {
      * @param dir
      * @return
      */
-    public Project buildProject(File xml) throws FileNotFoundException, Exception {
+    public Project buildProject(File dir) throws FileNotFoundException, Exception {
         Project p = null;
         ProjectBuilder pb = new ProjectBuilder();
-        pb.setDir(xml.getParentFile());
+        pb.setDir(dir);
         pb.parseProjectConfigurationFile();
         p = pb.build();
 

@@ -9,7 +9,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.fail;
 
 import java.io.ByteArrayInputStream;
-import java.io.IOException;
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
 
@@ -22,15 +22,17 @@ import org.junit.runner.RunWith;
 
 import edu.kit.iti.algover.data.BuiltinSymbols;
 import edu.kit.iti.algover.data.MapSymbolTable;
+import edu.kit.iti.algover.facade.ProjectFacade;
 import edu.kit.iti.algover.parser.DafnyFileParser;
 import edu.kit.iti.algover.parser.DafnyLexer;
 import edu.kit.iti.algover.parser.DafnyParser;
 import edu.kit.iti.algover.parser.DafnyParser.expression_only_return;
-import edu.kit.iti.algover.parser.DafnyParserException;
 import edu.kit.iti.algover.parser.DafnyTree;
+import edu.kit.iti.algover.project.Project;
 import edu.kit.iti.algover.term.FunctionSymbol;
 import edu.kit.iti.algover.term.Sort;
 import edu.kit.iti.algover.term.Term;
+import edu.kit.iti.algover.term.parser.TermParser;
 import edu.kit.iti.algover.util.ImmutableList;
 import junitparams.JUnitParamsRunner;
 import junitparams.Parameters;
@@ -39,13 +41,7 @@ import junitparams.Parameters;
 @RunWith(JUnitParamsRunner.class)
 public class TreeTermTranslatorTest {
 
-    private static final String LET_CASCADE_PRG =
-            "method m(i1 : int) "
-            + "ensures p > 0 "
-            + "{ "
-                    + "var x: int; x := 5; "
-                    + "x := i1 + x; "
-                    + "}";
+    private static final File FILE = new File("modules/core/test-res/edu/kit/iti/algover/term/builder/proj1");
 
     public String[][] parametersForTestTermTranslation() {
         return new String[][] {
@@ -82,6 +78,8 @@ public class TreeTermTranslatorTest {
             { "unknownIdentifier" },
             { "b1 == i1" },
             { "let x,y:=1 :: y" },
+            { "let x:=1 :: unknown" },  // no more bound vars after this
+            { "forall x:int :: unknown" },  // no more bound vars after this
         };
     }
 
@@ -140,7 +138,7 @@ public class TreeTermTranslatorTest {
         assertEquals(expected, term.toString());
     }
 
-    @Test(expected=TermBuildException.class) @Parameters
+    @Test @Parameters
     public void failingParser(String input) throws Exception {
         assertNotNull(symbTable);
 
@@ -148,30 +146,27 @@ public class TreeTermTranslatorTest {
 
         DafnyTree t = parse(input);
         try {
-            Term term = ttt.build(t);
-        } catch (Exception e) {
+            ttt.build(t);
+            fail("Should not reach this here");
+        } catch (TermBuildException e) {
 //            e.printStackTrace();
-            throw e;
+            assertEquals(0, ttt.countBoundedVars());
         }
 
-        fail("Should not reach this here");
     }
 
     @Test
-    public void parametersForLetCascade() throws DafnyParserException, IOException, TermBuildException {
+    public void parametersForLetCascade() throws Exception {
 
-        DafnyTree tree = DafnyFileParser.parse(new ByteArrayInputStream(LET_CASCADE_PRG.getBytes()));
+        Project p = ProjectFacade.getInstance().buildProject(FILE);
 
-        DafnyTree method = tree.getFirstChildWithType(DafnyParser.METHOD);
-        DafnyTree block = method
-            .getFirstChildWithType(DafnyParser.BLOCK);
-
-        System.out.println(tree.toStringTree());
+        DafnyTree method = p.getMethod("m").getRepresentation();
+        DafnyTree block = method.getFirstChildWithType(DafnyParser.BLOCK);
 
         DafnyTree post = method.getFirstChildWithType(DafnyParser.ENSURES).getLastChild();
 
         ImmutableList<DafnyTree> assignments =
-                ImmutableList.<DafnyTree>from(block.getChild(1), block.getChild(2));
+                ImmutableList.<DafnyTree>from(block.getChild(1), block.getChild(2), block.getChild(3));
 
         assertNotNull(symbTable);
 
@@ -179,7 +174,10 @@ public class TreeTermTranslatorTest {
 
         Term result = ttt.build(assignments, post);
 
-        System.out.println(result);
+        Term expected = TermParser.parse(symbTable,
+                "let x:=5 :: let x:=i1+x :: let i2 := i1*2 :: i2 > 0");
+
+        assertEquals(expected, result);
     }
 
 

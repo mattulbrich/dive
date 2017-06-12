@@ -106,8 +106,9 @@ public class TreeTermTranslator {
                 String name = receiver.getText();
                 VariableTerm f = new VariableTerm(name, build(expression).getSort());
                 boundVars.put(name, f);
-                let = new LetTerm(f, build(expression), buildLetCascade(tail, expression));
+                let = new LetTerm(f, build(expression), buildLetCascade(tail, result));
                 boundVars.pop();
+                return let;
 
             case DafnyParser.FIELD_ACCESS: {
                 // XXX
@@ -380,17 +381,17 @@ public class TreeTermTranslator {
 
         // only bind them now after all expressions have been parsed
         int rewindPos = boundVars.getHistory();
-        for (Pair<VariableTerm, Term> pair : substs) {
-            boundVars.put(pair.fst.getName(), pair.fst);
+        try {
+            for (Pair<VariableTerm, Term> pair : substs) {
+                boundVars.put(pair.fst.getName(), pair.fst);
+            }
+
+            Term inner = build(tree.getLastChild());
+            LetTerm result = new LetTerm(substs, inner);
+            return result;
+        } finally {
+            boundVars.rewindHistory(rewindPos);
         }
-
-        Term inner = build(tree.getLastChild());
-
-        boundVars.rewindHistory(rewindPos);
-
-        LetTerm result = new LetTerm(substs, inner);
-
-        return result;
 
     }
 
@@ -451,6 +452,12 @@ public class TreeTermTranslator {
         }
 
         return result;
+    }
+
+
+    /* for testing */
+    int countBoundedVars() {
+        return boundVars.size();
     }
 
 }
