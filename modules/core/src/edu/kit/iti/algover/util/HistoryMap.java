@@ -50,4 +50,8 @@ public class HistoryMap<K, V> extends AbstractMap<K, V> {
             }
         }
     }
+
+    public void pop() {
+        rewindHistory(getHistory()-1);
+    }
 }

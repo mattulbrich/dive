@@ -95,10 +95,10 @@ public class BuiltinSymbols extends MapSymbolTable {
             new FunctionSymbol("null", Sort.REF);
 
     public static final FunctionSymbol TRUE =
-            new FunctionSymbol("$true", Sort.FORMULA);
+            new FunctionSymbol("true", Sort.FORMULA);
 
     public static final FunctionSymbol FALSE =
-            new FunctionSymbol("$false", Sort.FORMULA);
+            new FunctionSymbol("false", Sort.FORMULA);
 
     // Checkstyle: ON JavadocVariableCheck
 

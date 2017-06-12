@@ -26,20 +26,21 @@ public class Sort {
     private static final Sort[] NO_ARGUMENTS = new Sort[0];
 
     /**
-     * The Constant FORMULA captures the boolean type. It may be that this will
-     * be renamed to boolean eventually.
-     */
-    public static final Sort FORMULA = new Sort("formula");
-
-    /**
      * The Constant INT captures the builtin integer type.
      */
     public static final Sort INT = new Sort("int");
 
     /**
-     * The Constant INT captures the builtin boolean type.
+     * The Constant BOOL captures the builtin boolean type.
      */
     public static final Sort BOOL = new Sort("bool");
+
+    /**
+     * The Constant FORMULA captures the boolean type. It may be that this will
+     * be renamed to boolean eventually.
+     */
+    @Deprecated
+    public static final Sort FORMULA = BOOL;
 
     /**
      * The Constant INT_SET is the typo of sets of integers.
