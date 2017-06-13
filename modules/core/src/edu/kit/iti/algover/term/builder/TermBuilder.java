@@ -138,6 +138,9 @@ public class TermBuilder {
 
     public Term cons(String name) throws TermBuildException {
         FunctionSymbol symbol = symbolTable.getFunctionSymbol(name);
+        if (symbol == null) {
+            throw new TermBuildException("Unknown symbol " + name);
+        }
         return new ApplTerm(symbol);
     }
 

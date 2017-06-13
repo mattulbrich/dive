@@ -28,8 +28,7 @@ import edu.kit.iti.algover.util.TreeUtil;
  *
  * @author Mattias Ulbrich
  */
-public class ReferenceResolutionVisitor
-    extends DafnyTreeDefaultVisitor<Void, ReferenceResolutionVisitor.Mode> {
+public class ReferenceResolutionVisitor extends DafnyTreeDefaultVisitor<Void, ReferenceResolutionVisitor.Mode> {
 
     /**
      * The project whose references are to be resolved.
@@ -57,16 +56,14 @@ public class ReferenceResolutionVisitor
      *
      * Variables, fields, parameters, local variables are referenced here.
      */
-    private final HistoryMap<String, DafnyTree> identifierMap =
-            new HistoryMap<>(new HashMap<>());
+    private final HistoryMap<String, DafnyTree> identifierMap = new HistoryMap<>(new HashMap<>());
 
     /**
      * The map for identifiers to declaration trees for callable names.
      *
      * Functions and Methods are referenced here
      */
-    private final HistoryMap<String, DafnyTree> callableMap =
-            new HistoryMap<>(new HashMap<>());
+    private final HistoryMap<String, DafnyTree> callableMap = new HistoryMap<>(new HashMap<>());
 
     /**
      * The exceptions collected during visitation, may be <code>null</code>.
@@ -84,7 +81,8 @@ public class ReferenceResolutionVisitor
      * @param project
      *            the non-<code>null</code> project to visit
      * @param exceptions
-     *            the list to which exceptions are reported, may be <code>null</code>
+     *            the list to which exceptions are reported, may be
+     *            <code>null</code>
      */
     public ReferenceResolutionVisitor(Project project, List<DafnyException> exceptions) {
         this.project = project;
@@ -105,7 +103,8 @@ public class ReferenceResolutionVisitor
         project.getMethods().forEach(this::addToCallableMap);
         project.getFunctions().forEach(this::addToCallableMap);
 
-        // TODO make this better as soon as there is access to all toplevel trees
+        // TODO make this better as soon as there is access to all toplevel
+        // trees
         project.getClasses().forEach(this::visitAll);
         project.getMethods().forEach(this::visitAll);
         project.getFunctions().forEach(this::visitAll);
@@ -118,8 +117,9 @@ public class ReferenceResolutionVisitor
     private void addToCallableMap(DafnyDecl decl) {
         String declName = decl.getName();
         if (callableMap.containsKey(declName)) {
-            addException(new DafnyException("Name clash: Callable entity named " + declName
-                    + " has already been defined.", decl.getRepresentation()));
+            addException(
+                    new DafnyException("Name clash: Callable entity named " + declName + " has already been defined.",
+                            decl.getRepresentation()));
             return;
         }
         callableMap.put(declName, decl.getRepresentation());
@@ -234,8 +234,7 @@ public class ReferenceResolutionVisitor
                 callable = clazz.getFunction(name);
             }
             if (callable == null) {
-                addException(new DafnyException("Unknown method or function "
-                        + name + " in class " + type, callID));
+                addException(new DafnyException("Unknown method or function " + name + " in class " + type, callID));
                 return null;
             }
 
@@ -299,8 +298,7 @@ public class ReferenceResolutionVisitor
     }
 
     /*
-     * Remember the rewind position for the block and
-     * rewind after visitation.
+     * Remember the rewind position for the block and rewind after visitation.
      */
     @Override
     public Void visitBLOCK(DafnyTree t, Mode a) {

@@ -1,8 +1,23 @@
+/*
+ * This file is part of AlgoVer.
+ *
+ * Copyright (C) 2015-2017 Karlsruhe Institute of Technology
+ */
 package edu.kit.iti.algover.util;
 
+import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
+import org.antlr.runtime.RecognitionException;
+
+import edu.kit.iti.algover.parser.DafnyException;
+import edu.kit.iti.algover.parser.DafnyParserException;
 import edu.kit.iti.algover.parser.DafnyTree;
+import edu.kit.iti.algover.parser.ReferenceResolutionVisitor;
+import edu.kit.iti.algover.parser.TypeResolution;
+import edu.kit.iti.algover.project.Project;
+import edu.kit.iti.algover.project.ProjectBuilder;
 
 public class TestUtil {
 
@@ -43,6 +58,30 @@ public class TestUtil {
         for (int i = 0; i < indent; i++) {
             buf.append(' ');
         }
+    }
+
+    public static Project mockProject(DafnyTree tree) throws IOException, DafnyParserException, DafnyException, RecognitionException {
+        ProjectBuilder pb = new ProjectBuilder();
+        pb.addDafnyTree("dummy", tree);
+        Project p = pb.build();
+
+        List<DafnyException> exceptions = new ArrayList<>();
+
+        ReferenceResolutionVisitor refResolver = new ReferenceResolutionVisitor(p, exceptions );
+        refResolver.visitProject();
+
+        TypeResolution typeRes = new TypeResolution(exceptions);
+        typeRes.visitProject(p);
+
+        for (DafnyException dafnyException : exceptions) {
+            dafnyException.printStackTrace();
+        }
+
+        if(!exceptions.isEmpty()) {
+            throw exceptions.get(0);
+        }
+
+        return p;
     }
 
 }

@@ -6,16 +6,19 @@
 
 package edu.kit.iti.algover.parser;
 
-import edu.kit.iti.algover.project.Project;
-import edu.kit.iti.algover.project.ProjectBuilder;
-import org.antlr.runtime.RecognitionException;
-import org.junit.Test;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.junit.Assert.*;
+import org.junit.Test;
+
+import edu.kit.iti.algover.project.Project;
+import edu.kit.iti.algover.project.ProjectBuilder;
+import edu.kit.iti.algover.util.TestUtil;
 
 public class ReferenceResolutionVisitorTest {
 
@@ -32,7 +35,9 @@ public class ReferenceResolutionVisitorTest {
     @Test
     public void testFaulty() throws Exception {
         DafnyTree tree = ParserTest.parseFile(getClass().getResourceAsStream("faultyReferences.dfy"));
-        Project project = mockProject(tree);
+        ProjectBuilder pb = new ProjectBuilder();
+        pb.addDafnyTree("dummy", tree);
+        Project project = pb.build();
 
         ReferenceResolutionVisitor rrv = new ReferenceResolutionVisitor(project, new ArrayList<>());
         rrv.visitProject();
@@ -59,21 +64,11 @@ public class ReferenceResolutionVisitorTest {
     private void test(String resourceName) throws Exception {
 
         DafnyTree tree = ParserTest.parseFile(getClass().getResourceAsStream(resourceName));
-        Project project = mockProject(tree);
 
-        ReferenceResolutionVisitor rrv = new ReferenceResolutionVisitor(project, new ArrayList<>());
-        rrv.visitProject();
+        TestUtil.mockProject(tree);
 
-        rrv.getExceptions().forEach(Throwable::printStackTrace);
-        assertTrue(rrv.getExceptions().isEmpty());
         tree.accept(new CheckVisitor(), null);
 
-    }
-
-    private Project mockProject(DafnyTree tree) throws IOException, DafnyParserException, DafnyException, RecognitionException {
-        ProjectBuilder pb = new ProjectBuilder();
-        pb.addDafnyTree("dummy", tree);
-        return pb.build();
     }
 
     private class CheckVisitor extends DafnyTreeDefaultVisitor<Void, Void> {
