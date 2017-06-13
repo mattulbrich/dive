@@ -65,5 +65,8 @@ class C {
 
       m_topmethod();
       m_method(f_global(f_class(l_top)));
+
+      fl_var := 55;
+      this.fl_var := 55;
    }
 }
