@@ -70,20 +70,22 @@ public class TreeTermTranslator {
      * {@link LetTerm}s. The {@code expression} is then embedded into the
      * cascade
      *
-     * @param immutableList
-     *            the non-<code>null</code> variable assignment
+     * @param history
+     *            the non-<code>null</code> list of observed assignments
      * @param expression
      *            the expression to be translated
      * @return the term which represents the let-cascade
      * @throws TermBuildException
      *             if terms in the tree are not well-formed.
      */
-    public Term build(ImmutableList<DafnyTree> history, DafnyTree expression) throws TermBuildException {
+    public Term build(ImmutableList<DafnyTree> history, DafnyTree expression)
+            throws TermBuildException {
         return buildLetCascade(history.reverse(), expression);
     }
 
-    private Term buildLetCascade(ImmutableList<DafnyTree> history, DafnyTree expression) throws TermBuildException {
-        if(history.size() == 0) {
+    private Term buildLetCascade(ImmutableList<DafnyTree> history, DafnyTree expression)
+            throws TermBuildException {
+        if (history.size() == 0) {
             return build(expression);
         } else {
             return buildLetExpression(history.getHead(),
@@ -103,12 +105,32 @@ public class TreeTermTranslator {
             LetTerm let;
             switch (receiver.getType()) {
             case DafnyParser.ID:
-                String name = receiver.getText();
-                VariableTerm f = new VariableTerm(name, build(expression).getSort());
-                boundVars.put(name, f);
-                let = new LetTerm(f, build(expression), buildLetCascade(tail, result));
-                boundVars.pop();
-                return let;
+                Term replacement = boundVars.get(receiver.getText());
+                if (replacement != null) {
+                    return replacement;
+                }
+                DafnyTree ref = receiver.getDeclarationReference();
+                if (ref.getType() != DafnyParser.FIELD) {
+                    String name = receiver.getText();
+                    VariableTerm f = new VariableTerm(name, build(expression).getSort());
+                    boundVars.put(name, f);
+                    let = new LetTerm(f, build(expression), buildLetCascade(tail, result));
+                    boundVars.pop();
+                    return let;
+                } else {
+                    // XXX
+                    FunctionSymbol store = symbolTable.getFunctionSymbol("$store[int]");
+                    Term self = tb.self();
+                    Term field = tb.makeFieldConst(
+                            ref.getParent().getChild(0).getText(),
+                            ref.getChild(0).getText());
+                    Term value = build(expression);
+                    Term appl = new ApplTerm(store, HEAP_VAR, self, field, value);
+                    boundVars.put(HEAP_VAR.getName(), HEAP_VAR);
+                    let = new LetTerm(HEAP_VAR, appl, buildLetCascade(tail, expression));
+                    boundVars.pop();
+                    return let;
+                }
 
             case DafnyParser.FIELD_ACCESS: {
                 // XXX

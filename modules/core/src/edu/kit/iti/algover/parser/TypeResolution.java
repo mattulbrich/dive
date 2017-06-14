@@ -226,8 +226,7 @@ public class TypeResolution extends DafnyTreeDefaultVisitor<DafnyTree, Void> {
 
     @Override
     public DafnyTree visitLENGTH(DafnyTree t, Void a) {
-        // TODO Auto-generated method stub
-        return super.visitLENGTH(t, a);
+        throw new UnsupportedOperationException("not yet implemented");
     }
 
 

@@ -29,6 +29,7 @@ import edu.kit.iti.algover.parser.DafnyParser;
 import edu.kit.iti.algover.parser.DafnyParser.expression_only_return;
 import edu.kit.iti.algover.parser.DafnyTree;
 import edu.kit.iti.algover.project.Project;
+import edu.kit.iti.algover.project.ProjectBuilder;
 import edu.kit.iti.algover.term.FunctionSymbol;
 import edu.kit.iti.algover.term.Sort;
 import edu.kit.iti.algover.term.Term;
@@ -156,9 +157,12 @@ public class TreeTermTranslatorTest {
     }
 
     @Test
-    public void parametersForLetCascade() throws Exception {
+    public void letCascade() throws Exception {
 
         Project p = ProjectFacade.getInstance().buildProject(FILE);
+        ProjectBuilder pb = new ProjectBuilder();
+        // look for mockProject
+
 
         DafnyTree method = p.getMethod("m").getRepresentation();
         DafnyTree block = method.getFirstChildWithType(DafnyParser.BLOCK);
@@ -166,7 +170,36 @@ public class TreeTermTranslatorTest {
         DafnyTree post = method.getFirstChildWithType(DafnyParser.ENSURES).getLastChild();
 
         ImmutableList<DafnyTree> assignments =
-                ImmutableList.<DafnyTree>from(block.getChild(1), block.getChild(2), block.getChild(3));
+                ImmutableList.<DafnyTree>from(block.getChildren().subList(1, block.getChildCount()));
+
+        assertNotNull(symbTable);
+
+        TreeTermTranslator ttt = new TreeTermTranslator(symbTable);
+
+        Term result = ttt.build(assignments, post);
+
+        Term expected = TermParser.parse(symbTable,
+                "let x:=5 :: let x:=i1+x :: let i2 := i1*2 :: i2 > 0");
+
+        assertEquals(expected, result);
+    }
+
+    @Test
+    public void letCascadeHeap() throws Exception {
+
+        symbTable.addFunctionSymbol(new FunctionSymbol("this", new Sort("C")));
+        symbTable.addFunctionSymbol(new FunctionSymbol("C$$field", new Sort("int")));
+        symbTable.addFunctionSymbol(new FunctionSymbol("D$$field", new Sort("D")));
+
+        Project p = ProjectFacade.getInstance().buildProject(FILE);
+
+        DafnyTree method = p.getClass("C").getMethod("n").getRepresentation();
+        DafnyTree block = method.getFirstChildWithType(DafnyParser.BLOCK);
+
+        DafnyTree post = method.getFirstChildWithType(DafnyParser.ENSURES).getLastChild();
+
+        ImmutableList<DafnyTree> assignments =
+                ImmutableList.<DafnyTree>from(block.getChildren());
 
         assertNotNull(symbTable);
 

@@ -144,4 +144,12 @@ public class TermBuilder {
         return new ApplTerm(symbol);
     }
 
+    public Term self() throws TermBuildException {
+        return cons("this");
+    }
+
+    public Term makeFieldConst(String clazz, String field) throws TermBuildException {
+        return cons(clazz + "$$" + field);
+    }
+
 }
