@@ -4,12 +4,14 @@
 
 	<property name="dir.lib" value="../../lib" />
 	<property name="dir.tools" value="../../tools" />
+        <property name="dir.core.testbin" value="../core/test-bin" />
         <property name="dir.core.bin" value="../core/bin" />
 
-	<property name="libs" value="${dir.lib}/antlr.jar:${dir.lib}/junit4.jar:${dir.lib}/miglayout-4.0-swing.jar:${dir.lib}/rsyntaxtextarea-2.6.0-SNAPSHOT.jar:${dir.lib}/swingx-all-1.6.4-sources.jar:${dir.lib}/controlsfx.jar:${dir.lib}/richtextfx-fat-0.6.8.jar:${dir.lib}/swingx-all-1.6.4.jar" />
+	<property name="libs" value="${dir.lib}/antlr.jar:${dir.lib}/junit4.jar:${dir.lib}/miglayout-4.0-swing.jar:${dir.lib}/rsyntaxtextarea-2.6.0-SNAPSHOT.jar:${dir.lib}/swingx-all-1.6.4-sources.jar:${dir.lib}/controlsfx.jar:${dir.lib}/richtextfx-fat-0.6.8.jar:${dir.lib}/swingx-all-1.6.4.jar:${dir.lib}/jpplib.jar" />
 
 	<target name="init" description="initialize all directories">
 		<mkdir dir="bin" />
+		<mkdir dir="test-bin" />
 		<mkdir dir="res" /> <!-- remove this once there are resources ... !-->
 	</target>
 
@@ -34,11 +36,16 @@
 		</javac>
 	</target>
 
-	<target name="compile-test" depends="compile, init, copy-test">
-		<javac srcdir="test" destdir="test-bin" classpath="bin:${libs}" debug="on" />
+	<target name="compile-test" depends="compile, init">
+		<javac srcdir="test" destdir="test-bin" classpath="bin:${dir.core.bin}:${dir.core.testbin}:${libs}" debug="on" />
 	</target>
 
-	<target name="test">
+ 	<target name="test" depends="compile-test">
+        	<junit fork="yes" printsummary="yes">
+			<formatter type="xml" />
+			<classpath path="test-bin:bin:${dir.core.bin}:${dir.core.testbin}:${libs}:${dir.lib}/hamcrest.jar" />
+			<test name="edu.kit.iti.algover.GUITests" />
+		</junit>    
 	</target>
 
 	<target name="clean">
