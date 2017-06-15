@@ -86,10 +86,21 @@ public class BuiltinSymbols extends MapSymbolTable {
 
     public static final FunctionSymbolFamily STORE =
             new FunctionSymbolFamily(
-                    new FunctionSymbol("$store", Sort.HEAP, Sort.HEAP, Sort.REF,
-                            Sort.FIELD, FunctionSymbolFamily.VAR1), 1);
+                    new FunctionSymbol("$store", Sort.HEAP,
+                            Sort.HEAP,
+                            FunctionSymbolFamily.VAR1,
+                            new Sort(Sort.FIELD.getName(),
+                                    FunctionSymbolFamily.VAR1,
+                                    FunctionSymbolFamily.VAR2),
+                            FunctionSymbolFamily.VAR2), 2);
 
-    // select ...
+    public static final FunctionSymbolFamily SELECT =
+            new FunctionSymbolFamily(
+                    new FunctionSymbol("$select", FunctionSymbolFamily.VAR2,
+                            Sort.HEAP, FunctionSymbolFamily.VAR1,
+                            new Sort(Sort.FIELD.getName(),
+                                    FunctionSymbolFamily.VAR1,
+                                    FunctionSymbolFamily.VAR2)), 2);
 
     public static final FunctionSymbolFamily EQ =
             new FunctionSymbolFamily(
@@ -107,6 +118,7 @@ public class BuiltinSymbols extends MapSymbolTable {
 
     public static final FunctionSymbol FALSE =
             new FunctionSymbol("false", Sort.FORMULA);
+
 
     // Checkstyle: ON JavadocVariableCheck
 

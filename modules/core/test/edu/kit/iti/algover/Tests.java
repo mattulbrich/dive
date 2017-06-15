@@ -16,6 +16,7 @@ import edu.kit.iti.algover.project.ProjectTest;
 import edu.kit.iti.algover.script.ScriptParserTest;
 import edu.kit.iti.algover.symbex.ProgramDatabaseTest;
 import edu.kit.iti.algover.symbex.SymbexTest;
+import edu.kit.iti.algover.term.FunctionSymbolFamilyTest;
 import edu.kit.iti.algover.term.SortTest;
 import edu.kit.iti.algover.term.builder.LetInlineVisitorTest;
 import edu.kit.iti.algover.term.builder.ReplacementVisitorTest;
@@ -33,6 +34,7 @@ import edu.kit.iti.algover.util.UtilTest;
     TreeTermTranslatorTest.class,
     ReplacementVisitorTest.class,
     LetInlineVisitorTest.class,
+    FunctionSymbolFamilyTest.class,
     TestImmutableList.class,
     TestLabelIntroducer.class,
     TreeTermTranslationNoetherTest.class,

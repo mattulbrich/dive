@@ -117,10 +117,6 @@ public class TreeTermTranslator {
             LetTerm let;
             switch (receiver.getType()) {
             case DafnyParser.ID:
-                Term replacement = boundVars.get(receiver.getText());
-                if (replacement != null) {
-                    return replacement;
-                }
                 DafnyTree ref = receiver.getDeclarationReference();
                 if (ref.getType() != DafnyParser.FIELD) {
                     String name = receiver.getText();
@@ -130,14 +126,16 @@ public class TreeTermTranslator {
                     boundVars.pop();
                     return let;
                 } else {
-                    // XXX
-                    FunctionSymbol store = symbolTable.getFunctionSymbol("$store[int]");
                     Term self = tb.self();
                     Term field = tb.makeFieldConst(
                             ref.getParent().getChild(0).getText(),
                             ref.getChild(0).getText());
                     Term value = build(expression);
-                    Term appl = new ApplTerm(store, HEAP_VAR, self, field, value);
+                    FunctionSymbol store =
+                            BuiltinSymbols.STORE.instantiate(
+                                    Arrays.asList(self.getSort(), value.getSort()));
+
+                    Term appl = new ApplTerm(store, getHeap(), self, field, value);
                     boundVars.put(HEAP_VAR.getName(), HEAP_VAR);
                     let = new LetTerm(HEAP_VAR, appl, buildLetCascade(tail, expression));
                     boundVars.pop();
@@ -145,15 +143,11 @@ public class TreeTermTranslator {
                 }
 
             case DafnyParser.FIELD_ACCESS: {
-                // XXX
-                FunctionSymbol store = symbolTable.getFunctionSymbol("$store[int]");
                 Term object = build(receiver.getChild(0));
-                // XXX
                 Term field = build(receiver.getChild(1));
                 Term value = build(expression);
-                FunctionSymbol heap = BuiltinSymbols.HEAP;
-                ApplTerm heapTerm = new ApplTerm(heap);
-                Term appl = new ApplTerm(store, heapTerm, object, field, value);
+
+                Term appl = tb.storeField(getHeap(), object, field, value);
                 boundVars.put(HEAP_VAR.getName(), HEAP_VAR);
                 let = new LetTerm(HEAP_VAR, appl, buildLetCascade(tail, expression));
                 boundVars.pop();
@@ -198,6 +192,16 @@ public class TreeTermTranslator {
             throw ex;
         }
     }
+
+    private Term getHeap() throws TermBuildException {
+        VariableTerm bound = boundVars.get(HEAP_VAR.getName());
+        if(bound != null) {
+            return bound;
+        } else {
+            return tb.heap();
+        }
+    }
+
 
     /**
      * Builds a term for a dafny tree.
@@ -393,6 +397,14 @@ public class TreeTermTranslator {
         if (var != null) {
             // found a bound variable in context!
             return var;
+        }
+
+        DafnyTree decl = tree.getDeclarationReference();
+        if (decl != null && decl.getType() == DafnyParser.FIELD) {
+            // if there is a field by that name ...
+            Term field = tb.makeFieldConst(decl.getParent().getChild(0).getText(), name);
+            Term self = tb.self();
+            return tb.selectField(getHeap(), self, field);
         }
 
         FunctionSymbol fct = symbolTable.getFunctionSymbol(name);

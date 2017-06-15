@@ -34,7 +34,7 @@ public class ApplTerm extends Term {
     private void check() throws TermBuildException {
         if (function.getArity() != getSubterms().size()) {
             throw new TermBuildException("Illegal number of arguments to " + function +
-                    "received " + getSubterms().size());
+                    ", received " + getSubterms().size());
         }
         for (int i = 0; i < function.getArity(); i++) {
             Sort expected = function.getArgumentSorts().get(i);

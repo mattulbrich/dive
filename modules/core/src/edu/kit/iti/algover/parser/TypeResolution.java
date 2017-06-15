@@ -7,6 +7,8 @@ package edu.kit.iti.algover.parser;
 
 import java.util.List;
 
+import org.antlr.runtime.tree.Tree;
+
 import edu.kit.iti.algover.project.Project;
 import edu.kit.iti.algover.util.TreeUtil;
 
@@ -238,7 +240,59 @@ public class TypeResolution extends DafnyTreeDefaultVisitor<DafnyTree, Void> {
 
     @Override
     public DafnyTree visitCALL(DafnyTree t, Void a) {
-        throw new UnsupportedOperationException("not yet implemented");
+        DafnyTree call = t.getChild(0);
+        DafnyTree decl = call.getDeclarationReference();
+
+        assert decl != null:
+            "ReferenceResolutionVisitor must be run before the type resolution";
+
+        Tree parent = decl.getParent();
+        if(t.getChildCount() == 3) {
+            // explicit receiver
+            DafnyTree receiver = t.getChild(1);
+            String recType = TreeUtil.toTypeString(receiver.accept(this, null));
+            String expectedRecType = parent.getChild(0).getText();
+            if(!recType.equals(expectedRecType)) {
+                exceptions.add(new DafnyException("xxx", t));
+            }
+        }
+
+        List<DafnyTree> actual = t.getFirstChildWithType(DafnyParser.ARGS).getChildren();
+        List<DafnyTree> formal = decl.getFirstChildWithType(DafnyParser.ARGS).getChildren();
+
+        if(formal.size() != actual.size()) {
+            exceptions.add(new DafnyException("xxx", t));
+        }
+
+        for (int i = 0; i < formal.size(); i++) {
+            String act = TreeUtil.toTypeString(actual.get(i).accept(this, null));
+            String expected = TreeUtil.toTypeString(formal.get(i).getChild(1));
+
+            if (!act.equals(expected)) {
+                exceptions.add(new DafnyException(
+                        String.format("Wrong type for argument %d in "
+                                + "called function/method %s. Expected %s, but got %s.",
+                                i+1, call.getText(), expected, act), t));
+            }
+        }
+
+        DafnyTree result;
+        if(decl.getType() == DafnyParser.METHOD) {
+            DafnyTree rets = decl.getFirstChildWithType(DafnyParser.RETURNS);
+            if(rets == null) {
+                result = null;
+            } else {
+                if(rets.getChildCount() > 1) {
+                    exceptions.add(new DafnyException("Sorry, no supoprt for multi return yet.", t));
+                }
+                result = rets.getChild(0).getChild(1);
+            }
+        } else {
+            assert decl.getType() == DafnyParser.FUNCTION;
+            result = decl.getFirstChildWithType(DafnyParser.RETURNS).getChild(0);
+        }
+        t.setExpressionType(result);
+        return result;
     }
 
     @Override

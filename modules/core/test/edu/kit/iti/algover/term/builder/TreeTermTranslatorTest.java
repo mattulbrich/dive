@@ -179,12 +179,13 @@ public class TreeTermTranslatorTest {
 
     }
 
+    // revealed a bug
     @Test
     public void letCascade() throws Exception {
 
         Project p = ProjectFacade.getInstance().buildProject(FILE);
         ProjectBuilder pb = new ProjectBuilder();
-        // look for mockProject
+        // look for mockProject!
 
 
         DafnyTree method = p.getMethod("m").getRepresentation();
@@ -211,8 +212,9 @@ public class TreeTermTranslatorTest {
     public void letCascadeHeap() throws Exception {
 
         symbTable.addFunctionSymbol(new FunctionSymbol("this", new Sort("C")));
-        symbTable.addFunctionSymbol(new FunctionSymbol("C$$field", new Sort("int")));
-        symbTable.addFunctionSymbol(new FunctionSymbol("D$$field", new Sort("D")));
+        symbTable.addFunctionSymbol(new FunctionSymbol("d", new Sort("D")));
+        symbTable.addFunctionSymbol(new FunctionSymbol("C$$field", new Sort("field", new Sort("C"), Sort.INT)));
+        symbTable.addFunctionSymbol(new FunctionSymbol("D$$field", new Sort("field", new Sort("D"), Sort.INT)));
 
         Project p = ProjectFacade.getInstance().buildProject(FILE);
 
@@ -231,7 +233,10 @@ public class TreeTermTranslatorTest {
         Term result = ttt.build(assignments, post);
 
         Term expected = TermParser.parse(symbTable,
-                "let x:=5 :: let x:=i1+x :: let i2 := i1*2 :: i2 > 0");
+                "let heap := $store[C,int](heap, this, C$$field, "
+                + "$plus($select[C, int](heap, this, C$$field), 1)) :: "
+                + "let heap := $store[D, D](heap, d, D$$field, null[D]) :: "
+                + "$select[C, int](heap, this, C$$field) > 1");
 
         assertEquals(expected, result);
     }

@@ -152,4 +152,21 @@ public class TermBuilder {
         return cons(clazz + "$$" + field);
     }
 
+    public Term selectField(Term heap, Term recv, Term field) throws TermBuildException {
+        FunctionSymbol select = BuiltinSymbols.SELECT.instantiate(recv.getSort(),
+                field.getSort().getArguments().get(1));
+        return new ApplTerm(select, heap, recv, field);
+    }
+
+    public Term heap() throws TermBuildException {
+        return new ApplTerm(BuiltinSymbols.HEAP);
+    }
+
+    public Term storeField(Term heapTerm, Term object, Term field, Term value) throws TermBuildException {
+        FunctionSymbol store = BuiltinSymbols.STORE.instantiate(object.getSort(),
+                value.getSort());
+
+        return new ApplTerm(store, heapTerm, object, field, value);
+    }
+
 }
