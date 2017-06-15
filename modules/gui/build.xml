@@ -2,7 +2,7 @@
 <project name="AlgoVer-gui" default="build" basedir=".">
 
 
-	<property name="dir.lib" value="../../lib" />
+	<property name="dir.lib" location="../../lib" />
 	<property name="dir.tools" value="../../tools" />
         <property name="dir.core.testbin" value="../core/test-bin" />
         <property name="dir.core.bin" value="../core/bin" />
@@ -12,7 +12,7 @@
 	<target name="init" description="initialize all directories">
 		<mkdir dir="bin" />
 		<mkdir dir="test-bin" />
-		<mkdir dir="res" /> <!-- remove this once there are resources ... !-->
+		<mkdir dir="test-res" /> <!-- remove this once there are resources ... !-->
 	</target>
 
 	<target name="copy-test" depends="init">
@@ -36,12 +36,13 @@
 		</javac>
 	</target>
 
-	<target name="compile-test" depends="compile, init">
+	<target name="compile-test" depends="build">
 		<javac srcdir="test" destdir="test-bin" classpath="bin:${dir.core.bin}:${dir.core.testbin}:${libs}" debug="on" />
 	</target>
 
  	<target name="test" depends="compile-test">
         	<junit fork="yes" printsummary="yes">
+			<jvmarg value="-javaagent:${dir.lib}/nonnull.jar=edu.kit." />
 			<formatter type="xml" />
 			<classpath path="test-bin:bin:${dir.core.bin}:${dir.core.testbin}:${libs}:${dir.lib}/hamcrest.jar" />
 			<test name="edu.kit.iti.algover.GUITests" />

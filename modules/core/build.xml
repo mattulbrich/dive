@@ -2,7 +2,7 @@
 <project name="AlgoVer" default="build" basedir=".">
 
 
-	<property name="dir.lib" value="../../lib" />
+	<property name="dir.lib" location="../../lib" />
 	<property name="dir.tools" value="../../tools" />
 
 	<property name="libs" value="${dir.lib}/antlr.jar:${dir.lib}/junit4.jar" />
@@ -76,6 +76,7 @@
 
 	<target name="test" depends="compile-test, compile">
 		<junit fork="yes" printsummary="yes">
+			<jvmarg value="-javaagent:${dir.lib}/nonnull.jar=edu.kit." />
 			<formatter type="xml" />
 			<classpath path="test-bin:bin:${libs}:${dir.lib}/hamcrest.jar" />
 			<test name="edu.kit.iti.algover.Tests" />
