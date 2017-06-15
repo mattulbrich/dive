@@ -67,6 +67,14 @@ public class BuiltinSymbols extends MapSymbolTable {
     public static final FunctionSymbol TIMES =
             new FunctionSymbol("$times", Sort.INT, Sort.INT, Sort.INT);
 
+    public static final FunctionSymbolFamily ITE =
+            new FunctionSymbolFamily(
+                    new FunctionSymbol("$ite",
+                            FunctionSymbolFamily.VAR1,
+                            Sort.BOOL,
+                            FunctionSymbolFamily.VAR1,
+                            FunctionSymbolFamily.VAR1), 1);
+
     private static final Sort SET1 = new Sort("set<?1>");
     public static final FunctionSymbolFamily UNION =
             new FunctionSymbolFamily(

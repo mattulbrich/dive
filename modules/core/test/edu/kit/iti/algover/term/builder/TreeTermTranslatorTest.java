@@ -6,6 +6,7 @@
 package edu.kit.iti.algover.term.builder;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import java.io.ByteArrayInputStream;
@@ -26,13 +27,17 @@ import edu.kit.iti.algover.facade.ProjectFacade;
 import edu.kit.iti.algover.parser.DafnyFileParser;
 import edu.kit.iti.algover.parser.DafnyLexer;
 import edu.kit.iti.algover.parser.DafnyParser;
+import edu.kit.iti.algover.parser.DafnyParserException;
 import edu.kit.iti.algover.parser.DafnyParser.expression_only_return;
 import edu.kit.iti.algover.parser.DafnyTree;
 import edu.kit.iti.algover.project.Project;
 import edu.kit.iti.algover.project.ProjectBuilder;
+import edu.kit.iti.algover.term.ApplTerm;
 import edu.kit.iti.algover.term.FunctionSymbol;
+import edu.kit.iti.algover.term.LetTerm;
 import edu.kit.iti.algover.term.Sort;
 import edu.kit.iti.algover.term.Term;
+import edu.kit.iti.algover.term.VariableTerm;
 import edu.kit.iti.algover.term.parser.TermParser;
 import edu.kit.iti.algover.util.ImmutableList;
 import junitparams.JUnitParamsRunner;
@@ -70,17 +75,30 @@ public class TreeTermTranslatorTest {
             "(forall x:int :: (exists y:int :: $gt(x, y)))" },
             { "let x := 3 :: x > i1", "(let x := 3 :: $gt(x, i1))" },
             { "$plus(1, 2)", "$plus(1, 2)" },
+
+            // From TermParserTest
+            { "i1 + i2", "$plus(i1, i2)" },
+            { "forall i: int :: 0 < i ==> i > 0",
+              "(forall i:int :: $imp($lt(0, i), $gt(i, 0)))" },
+            { "let var x := i1+5 ; x*2",
+              "(let x := $plus(i1, 5) :: $times(x, 2))" },
+            { "let var i1, i2 := i2, i1 :: i1 + i2",
+              "(let i1, i2 := i2, i1 :: $plus(i1, i2))" },
+            { "if i1 > 5 then i2 else i1",
+              "$ite[int]($gt(i1, 5), i2, i1)" },
         };
     }
 
     public String[][] parametersForFailingParser() {
         return new String[][] {
-            { "unknownFunction(1)" },
-            { "unknownIdentifier" },
-            { "b1 == i1" },
-            { "let x,y:=1 :: y" },
-            { "let x:=1 :: unknown" },  // no more bound vars after this
-            { "forall x:int :: unknown" },  // no more bound vars after this
+            { "unknownFunction(1)", "Unknown symbol unknownFunction" },
+            { "unknownIdentifier", "Unknown identifier unknownIdentifier" },
+            { "b1 == i1", "Incomparable types: bool and int" },
+            { "let x,y:=1 :: y", "Mismatched assignments in let expression:" },
+            { "let x:=1 :: unknown", "" },  // no more bound vars after this
+            { "forall x:int :: unknown", "" },  // no more bound vars after this
+            { "f(b1)", "Unexpected argument sort" },
+            { "if true then b1 else i1", "Unexpected argument sort" },
         };
     }
 
@@ -124,6 +142,7 @@ public class TreeTermTranslatorTest {
         map.add(new FunctionSymbol("b3", Sort.BOOL));
         map.add(new FunctionSymbol("a", new Sort("array1")));
         map.add(new FunctionSymbol("a2", new Sort("array2")));
+        map.add(new FunctionSymbol("f", Sort.INT, Sort.INT));
         symbTable = new MapSymbolTable(new BuiltinSymbols(), map);
     }
 
@@ -137,10 +156,11 @@ public class TreeTermTranslatorTest {
         Term term = ttt.build(t);
 
         assertEquals(expected, term.toString());
+        assertEquals(0, ttt.countBoundVars());
     }
 
     @Test @Parameters
-    public void failingParser(String input) throws Exception {
+    public void failingParser(String input, String errMsg) throws Exception {
         assertNotNull(symbTable);
 
         TreeTermTranslator ttt = new TreeTermTranslator(symbTable);
@@ -150,8 +170,11 @@ public class TreeTermTranslatorTest {
             ttt.build(t);
             fail("Should not reach this here");
         } catch (TermBuildException e) {
-//            e.printStackTrace();
-            assertEquals(0, ttt.countBoundedVars());
+            if(!e.getMessage().contains(errMsg)) {
+                e.printStackTrace();
+            }
+            assertTrue(e.getMessage().contains(errMsg));
+            assertEquals(0, ttt.countBoundVars());
         }
 
     }
@@ -213,6 +236,24 @@ public class TreeTermTranslatorTest {
         assertEquals(expected, result);
     }
 
+    // from a bug
+    @Test
+    public void testLetProblem() throws Exception {
 
+        TreeTermTranslator ttt = new TreeTermTranslator(symbTable);
+        DafnyTree t = parse("let var i1, i2 := i2, i1 :: i1 + i2");
+        Term term = ttt.build(t);
+
+        Term sum1 = ((LetTerm)term).getSubstitutions().get(0).snd;
+        Term sum2 = ((LetTerm)term).getSubstitutions().get(0).snd;
+
+        assertTrue(sum1 instanceof ApplTerm);
+        assertTrue(sum2 instanceof ApplTerm);
+
+        sum1 = term.getTerm(0).getTerm(0);
+        sum2 = term.getTerm(0).getTerm(0);
+        assertTrue(sum1 instanceof VariableTerm);
+        assertTrue(sum2 instanceof VariableTerm);
+    }
 
 }
