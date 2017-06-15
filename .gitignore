@@ -3,3 +3,8 @@
 /modules/*/test-bin
 /modules/*/gen
 *~
+*.Tests*
+*.jar
+*.class
+*.idea
+*.iml
