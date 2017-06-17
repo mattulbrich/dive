@@ -163,15 +163,16 @@ public class TermBuilder {
     }
 
     public Term storeField(Term heapTerm, Term object, Term field, Term value) throws TermBuildException {
-        FunctionSymbol store = BuiltinSymbols.STORE.instantiate(object.getSort(),
-                value.getSort());
+        Sort fieldSort = field.getSort();
+        Sort classSort = fieldSort.getArguments().get(0);
+        Sort valueSort = fieldSort.getArguments().get(1);
+        FunctionSymbol store = BuiltinSymbols.STORE.instantiate(classSort, valueSort);
 
         return new ApplTerm(store, heapTerm, object, field, value);
     }
 
-    public Term _null(Sort sort) throws TermBuildException {
-        FunctionSymbol symb = BuiltinSymbols.NULL.instantiate(sort);
-        return new ApplTerm(symb);
+    public Term _null() throws TermBuildException {
+        return new ApplTerm(BuiltinSymbols.NULL);
     }
 
 }

@@ -13,9 +13,9 @@ import edu.kit.iti.algover.util.Util;
 
 public class FunctionSymbolFamily {
 
-    public static final Sort VAR1 = new Sort("?1");
-    public static final Sort VAR2 = new Sort("?2");
-    public static final Sort VAR3 = new Sort("?3");
+    public static final Sort VAR1 = Sort.get("?1");
+    public static final Sort VAR2 = Sort.get("?2");
+    public static final Sort VAR3 = Sort.get("?3");
 
     private int numberOfTypeVars;
     private FunctionSymbol prototype;

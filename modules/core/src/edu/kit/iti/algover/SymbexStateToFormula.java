@@ -51,14 +51,14 @@ public class SymbexStateToFormula {
         return st;
     }
 
-    // TODO check parameters and stuff
+    // TODO check parameters and stuff FIXME FIXME
     public static Sort treeToType(DafnyTree tree) {
         String name = tree.toString();
         if("array".equals(name)) {
             name = "array1";
         }
 
-        return new Sort(name);
+        return Sort.get(name);
     }
 
     public Collection<Term> from(SymbexPath symbexState) throws TermBuildException {

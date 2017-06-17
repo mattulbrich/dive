@@ -201,7 +201,7 @@ public final class TreeUtil {
             name = "[int]";
         }
 
-        return new Sort(name);
+        return Sort.get(name);
     }
 
     // TODO: MU should put this into a different class
@@ -216,19 +216,19 @@ public final class TreeUtil {
         case DafnyParser.SET:
             assert tree.getChildCount() == 1;
             // TODO refer to a consant not the srting.
-            return new Sort("set", toSort(tree.getChild(0)));
+            return Sort.get("set", toSort(tree.getChild(0)));
         case DafnyParser.SEQ:
             assert tree.getChildCount() == 1;
             // TODO refer to a consant not the srting.
-            return new Sort("seq", toSort(tree.getChild(0)));
+            return Sort.get("seq", toSort(tree.getChild(0)));
         case DafnyParser.ARRAY:
             assert tree.getChildCount() == 1;
             // TODO FIXME ... multidim arrays
-            return new Sort("seq", toSort(tree.getChild(0)));
+            return Sort.get("seq", toSort(tree.getChild(0)));
         case DafnyParser.ID:
             // We do not support parametric classes ...
             assert tree.getChildCount() == 0;
-            return new Sort(tree.getText());
+            return Sort.getClassSort(tree.getText());
         default:
             throw new Error("expected token for type " + tree.toStringTree());
         }

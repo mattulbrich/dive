@@ -382,13 +382,7 @@ public class TreeTermTranslator {
     }
 
     private Term buildNull(DafnyTree tree) throws TermBuildException {
-        DafnyTree exTy = tree.getExpressionType();
-        if(exTy != null) {
-            assert exTy.getType() == DafnyParser.CLASS;
-            return tb._null(new Sort(exTy.getChild(0).getText()));
-        }
-
-        Tree parent = tree.getParent();
+        return tb._null();
     }
 
 
@@ -398,12 +392,12 @@ public class TreeTermTranslator {
         Term t1 = build(tree.getChild(0));
         Term t2 = build(tree.getChild(1));
 
-        if (!t1.getSort().equals(t2.getSort())) {
-            throw new TermBuildException("Incomparable types: "
-                    + t1.getSort() + " and " + t2.getSort());
+        Sort sort = t1.getSort();
+        if (Sort.NULL.isSubtypeOf(sort)) {
+            sort = Sort.OBJECT;
         }
 
-        FunctionSymbol f = symbolTable.getFunctionSymbol("$eq[" + t1.getSort().getName() + "]");
+        FunctionSymbol f = symbolTable.getFunctionSymbol("$eq[" + sort + "]");
         return new ApplTerm(f, Arrays.asList(t1, t2));
     }
 

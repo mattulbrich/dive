@@ -12,7 +12,28 @@ import java.util.Objects;
 import edu.kit.iti.algover.util.Util;
 
 /**
- * The Class Sort.
+ * The Class Sort models a sort-type in the logic.
+
+ * To allow for future memory footprint optimisations, the constructor is
+ * hidden. Thus, a canoncalising cache class could be added.
+ *
+ * <h3>Subtypes</h3>
+ *
+ * The subtype relation is modelled using the {@link #isSubtypeOf(Sort)}
+ * method.
+ *
+ * The type hierarchy is very simple such that it is hard coded into this class:
+ * Type <code>A</code> is subtype of type <code>B</code> iff
+ * <ol>
+ * <li><code>A</code> is type <code>object</code> and B is either type
+ * <code>null</code> or a class type.
+ * <li><code>A</code> is a class type and <code>B</code> is the null type.
+ * </ol>
+ *
+ * The boolean flag {@link #classSort} determines whether the object is
+ * the sort that belongs to a dafny class or not.
+ *
+ * @author mulbrich
  */
 public class Sort {
 
@@ -28,12 +49,12 @@ public class Sort {
     /**
      * The Constant INT captures the builtin integer type.
      */
-    public static final Sort INT = new Sort("int");
+    public static final Sort INT = get("int");
 
     /**
      * The Constant BOOL captures the builtin boolean type.
      */
-    public static final Sort BOOL = new Sort("bool");
+    public static final Sort BOOL = get("bool");
 
     /**
      * The Constant FORMULA captures the boolean type. It may be that this will
@@ -47,22 +68,30 @@ public class Sort {
      * Since this type is a member of the initial-language support,
      * it is added as a constant here.
      */
-    public static final Sort INT_SET = new Sort("set", INT);
+    public static final Sort INT_SET = get("set", INT);
 
     /**
      * The Constant HEAP for the heap sort.
      */
-    public static final Sort HEAP = new Sort("heap");
+    public static final Sort HEAP = get("heap");
 
     /**
-     * The Constant REF for the reference type.
+     * The Constant OBJECT for the object type.
      */
-    public static final Sort REF = new Sort("ref");
+    public static final Sort OBJECT = get("object");
 
     /**
-     * The Constant FIELD for the (polymorphic) field datatype.
+     * The Constant NULL for the null type.
      */
-    public static final Sort FIELD = new Sort("field");
+    public static final Sort NULL = get("null");
+
+    /**
+     * The Constant UNTYPED_SORT for the totally arbitrary type
+     * of an untyped {@link SchemaVarTerm}.
+     *
+     * (Would be an existential type)
+     */
+    public static final Sort UNTYPED_SORT = get("<UNTYPED>");
 
     /**
      * The name of the type (w/o arguments).
@@ -70,19 +99,15 @@ public class Sort {
     private final String name;
 
     /**
+     * Indicates whether this sort belongs to a Dafny class.
+     * If <code>true</code> then arguments must be empty.
+     */
+    private final boolean classSort;
+
+    /**
      * The arguments, must not be <code>null</code>.
      */
     private final Sort[] arguments;
-
-    /**
-     * Instantiates a new sort w/o arguments.
-     *
-     * @param name
-     *            the non-<code>null</code> name
-     */
-    public Sort(String name) {
-        this(name, NO_ARGUMENTS);
-    }
 
     /**
      * Instantiates a new sort w/ arguments.
@@ -92,9 +117,54 @@ public class Sort {
      * @param arguments
      *            the deep-non-<code>null</code> arguments
      */
-    public Sort(String name, Sort... arguments) {
+    private Sort(String name, boolean classSort, Sort... arguments) {
         this.name = Objects.requireNonNull(name);
+        this.classSort = classSort;
         this.arguments = Util.requireDeepNonNull(arguments);
+    }
+
+    /**
+     * Gets a sort object by name.
+     *
+     * No arguments, not a class type.
+     *
+     * @param name
+     *            the name of the sort to look up.
+     * @return the sort can be a fresh object or taken from a cache.
+     */
+    public static Sort get(String name) {
+        // could use Cache object if needed
+        return new Sort(name, false, NO_ARGUMENTS);
+    }
+
+    /**
+     * Gets a sort object by name and arguments.
+     *
+     * @param name
+     *            the name of the sort to look up.
+     * @param arguments
+     *            non-<code>null</code> sorts that parametrise the object
+     *
+     * @return the sort can be a fresh object or taken from a cache.
+     */
+    public static Sort get(String name, Sort... arguments) {
+        // could use Cache object if needed
+        return new Sort(name, false, arguments);
+    }
+
+    /**
+     * Gets a sort object by name.
+     *
+     * The resulting object is a class sort ({@link #isClassSort()}) and has no
+     * arguments.
+     *
+     * @param name
+     *            the name of the sort to look up.
+     * @return the sort can be a fresh object or taken from a cache.
+     */
+    public static Sort getClassSort(String name) {
+        // could use Cache object if needed
+        return new Sort(name, true, NO_ARGUMENTS);
     }
 
     @Override
@@ -107,6 +177,7 @@ public class Sort {
         if (obj instanceof Sort) {
             Sort sort = (Sort) obj;
             return name.equals(sort.name)
+                && isClassSort() == sort.isClassSort()
                 && Arrays.equals(arguments, sort.arguments);
         }
         return false;
@@ -156,7 +227,7 @@ public class Sort {
             return null;
         }
 
-        return new Sort(name, newArgs);
+        return get(name, newArgs);
     }
 
     /**
@@ -188,6 +259,43 @@ public class Sort {
      */
     public List<Sort> getArguments() {
         return Util.readOnlyArrayList(arguments);
+    }
+
+    /**
+     * Checks if this sort belongs to a Dafny class.
+     *
+     * Checks a flag set at cosntruction of the object.
+     *
+     * @return <code>true</code>, iff this objects reprsents the sort for a
+     *         Dafny class
+     */
+    public boolean isClassSort() {
+        return classSort;
+    }
+
+    /**
+     * Checks if this sort is a subtype/subsort of its argument.
+     *
+     * @param other
+     *            the non-<code>null</code> other sort
+     *
+     * @return true, if this object represents a sort which is subtype of the
+     *         argument.
+     */
+    public boolean isSubtypeOf(Sort other) {
+        if(equals(UNTYPED_SORT)) {
+            return true;
+        }
+
+        if(isClassSort()) {
+            return equals(other) || other.equals(OBJECT);
+        }
+
+        if(equals(NULL)) {
+            return equals(other) || other.isClassSort() || other.equals(OBJECT);
+        }
+
+        return equals(other);
     }
 
 }

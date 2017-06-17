@@ -17,8 +17,8 @@ public class FunctionSymbolFamilyTest {
     @Test
     public void testInstantiate() {
 
-        Sort p2 = new Sort("p2", VAR1, VAR2);
-        Sort nested = new Sort("n", new Sort("n2", VAR1));
+        Sort p2 = Sort.get("p2", VAR1, VAR2);
+        Sort nested = Sort.get("n", Sort.get("n2", VAR1));
 
         FunctionSymbolFamily fsf =
                 new FunctionSymbolFamily(
@@ -33,7 +33,7 @@ public class FunctionSymbolFamilyTest {
     // from a bug
     @Test
     public void testSelect() {
-        FunctionSymbol sel = BuiltinSymbols.SELECT.instantiate(new Sort("C"), Sort.INT);
+        FunctionSymbol sel = BuiltinSymbols.SELECT.instantiate(Sort.getClassSort("C"), Sort.INT);
         assertEquals("$select[C,int](heap, C, field<C,int>) : int", sel.toString());
     }
 

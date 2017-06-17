@@ -36,10 +36,11 @@ public class ApplTerm extends Term {
             throw new TermBuildException("Illegal number of arguments to " + function +
                     ", received " + getSubterms().size());
         }
+
         for (int i = 0; i < function.getArity(); i++) {
             Sort expected = function.getArgumentSorts().get(i);
             Sort is = getSubterms().get(i).getSort();
-            if (!is.equals(expected)) {
+            if (!is.isSubtypeOf(expected)) {
                 throw new TermBuildException("Unexpected argument sort for argument " +
                         (i + 1) + " to " + function
                         + ", expected " + expected + " but received " + is);

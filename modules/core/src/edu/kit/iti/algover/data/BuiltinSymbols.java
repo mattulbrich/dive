@@ -75,7 +75,7 @@ public class BuiltinSymbols extends MapSymbolTable {
                             FunctionSymbolFamily.VAR1,
                             FunctionSymbolFamily.VAR1), 1);
 
-    private static final Sort SET1 = new Sort("set<?1>");
+    private static final Sort SET1 = Sort.get("set", FunctionSymbolFamily.VAR1);
     public static final FunctionSymbolFamily UNION =
             new FunctionSymbolFamily(
                     new FunctionSymbol("$union", SET1, SET1, SET1), 1);
@@ -89,7 +89,7 @@ public class BuiltinSymbols extends MapSymbolTable {
                     new FunctionSymbol("$store", Sort.HEAP,
                             Sort.HEAP,
                             FunctionSymbolFamily.VAR1,
-                            new Sort(Sort.FIELD.getName(),
+                            Sort.get("field",
                                     FunctionSymbolFamily.VAR1,
                                     FunctionSymbolFamily.VAR2),
                             FunctionSymbolFamily.VAR2), 2);
@@ -98,7 +98,7 @@ public class BuiltinSymbols extends MapSymbolTable {
             new FunctionSymbolFamily(
                     new FunctionSymbol("$select", FunctionSymbolFamily.VAR2,
                             Sort.HEAP, FunctionSymbolFamily.VAR1,
-                            new Sort(Sort.FIELD.getName(),
+                            Sort.get("field",
                                     FunctionSymbolFamily.VAR1,
                                     FunctionSymbolFamily.VAR2)), 2);
 
@@ -110,9 +110,8 @@ public class BuiltinSymbols extends MapSymbolTable {
     public static final FunctionSymbol HEAP =
             new FunctionSymbol("$heap", Sort.HEAP);
 
-    public static final FunctionSymbolFamily NULL =
-            new FunctionSymbolFamily(
-                    new FunctionSymbol("null", FunctionSymbolFamily.VAR1), 1);
+    public static final FunctionSymbol NULL =
+            new FunctionSymbol("null", Sort.NULL);
 
     public static final FunctionSymbol TRUE =
             new FunctionSymbol("true", Sort.FORMULA);
@@ -155,7 +154,7 @@ public class BuiltinSymbols extends MapSymbolTable {
             String[] args = name.substring(index + 1, name.length() - 1).split(",");
             Sort[] sorts = new Sort[args.length];
             for (int i = 0; i < sorts.length; i++) {
-                sorts[i] = new Sort(args[i]);
+                sorts[i] = Sort.get(args[i]);
             }
 
             return family.instantiate(Util.readOnlyArrayList(sorts));
@@ -167,7 +166,7 @@ public class BuiltinSymbols extends MapSymbolTable {
         if (name.matches("\\$len[0-9]+")) {
             String suffix = name.substring(4);
             int dim = Integer.parseInt(suffix);
-            Sort arraySort = new Sort("array" + (dim + 1));
+            Sort arraySort = Sort.get("array" + (dim + 1));
             FunctionSymbol len = new FunctionSymbol(name, Sort.INT, arraySort);
             return len;
         }
