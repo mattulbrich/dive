@@ -11,6 +11,8 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 
+import org.antlr.runtime.tree.Tree;
+
 import edu.kit.iti.algover.SymbexStateToFormula;
 import edu.kit.iti.algover.data.BuiltinSymbols;
 import edu.kit.iti.algover.data.SymbolTable;
@@ -144,7 +146,8 @@ public class TreeTermTranslator {
 
             case DafnyParser.FIELD_ACCESS: {
                 Term object = build(receiver.getChild(0));
-                Term field = build(receiver.getChild(1));
+                Term field = tb.makeFieldConst(object.getSort().toString(),
+                        receiver.getChild(1).getText());
                 Term value = build(expression);
 
                 Term appl = tb.storeField(getHeap(), object, field, value);
@@ -250,11 +253,13 @@ public class TreeTermTranslator {
             return tb.negate(buildEquality(tree));
 
         case DafnyParser.ID:
-        case DafnyParser.NULL:
         case DafnyParser.TRUE:
         case DafnyParser.FALSE:
         case DafnyParser.INT_LIT:
             return buildIdentifier(tree);
+
+        case DafnyParser.NULL:
+            return buildNull(tree);
 
         case DafnyParser.LABEL:
 
@@ -375,6 +380,17 @@ public class TreeTermTranslator {
         return new ApplTerm(f, Arrays.asList(t1));
 
     }
+
+    private Term buildNull(DafnyTree tree) throws TermBuildException {
+        DafnyTree exTy = tree.getExpressionType();
+        if(exTy != null) {
+            assert exTy.getType() == DafnyParser.CLASS;
+            return tb._null(new Sort(exTy.getChild(0).getText()));
+        }
+
+        Tree parent = tree.getParent();
+    }
+
 
     private Term buildEquality(DafnyTree tree) throws TermBuildException {
         assert tree.getChildCount() == 2;

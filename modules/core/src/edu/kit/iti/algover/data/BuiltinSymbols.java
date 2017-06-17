@@ -110,8 +110,9 @@ public class BuiltinSymbols extends MapSymbolTable {
     public static final FunctionSymbol HEAP =
             new FunctionSymbol("$heap", Sort.HEAP);
 
-    public static final FunctionSymbol NULL =
-            new FunctionSymbol("null", Sort.REF);
+    public static final FunctionSymbolFamily NULL =
+            new FunctionSymbolFamily(
+                    new FunctionSymbol("null", FunctionSymbolFamily.VAR1), 1);
 
     public static final FunctionSymbol TRUE =
             new FunctionSymbol("true", Sort.FORMULA);

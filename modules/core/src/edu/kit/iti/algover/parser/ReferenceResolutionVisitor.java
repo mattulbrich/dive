@@ -110,6 +110,22 @@ public class ReferenceResolutionVisitor extends DafnyTreeDefaultVisitor<Void, Re
         project.getFunctions().forEach(this::visitAll);
     }
 
+    public void visitExpression(DafnyTree expression, String classCtx) {
+        DafnyClass clazz = project.getClass(classCtx);
+        int rewindIdentifiersTo = identifierMap.getHistory();
+        int rewindCallablesTo = callableMap.getHistory();
+
+        addClassEntitites(clazz);
+        visitExpression(expression);
+
+        identifierMap.rewindHistory(rewindIdentifiersTo);
+        callableMap.rewindHistory(rewindCallablesTo);
+    }
+
+    public void visitExpression(DafnyTree expression) {
+        expression.accept(this, Mode.EXPR);
+    }
+
     public List<DafnyException> getExceptions() {
         return exceptions;
     }
@@ -123,6 +139,20 @@ public class ReferenceResolutionVisitor extends DafnyTreeDefaultVisitor<Void, Re
             return;
         }
         callableMap.put(declName, decl.getRepresentation());
+    }
+
+    private void addClassEntitites(DafnyClass dafnyClass) {
+        for (DafnyField field : dafnyClass.getFields()) {
+            identifierMap.put(field.getName(), field.getRepresentation());
+        }
+
+        for (DafnyMethod method : dafnyClass.getMethods()) {
+            callableMap.put(method.getName(), method.getRepresentation());
+        }
+
+        for (DafnyFunction function : dafnyClass.getFunctions()) {
+            callableMap.put(function.getName(), function.getRepresentation());
+        }
     }
 
     /*
@@ -317,17 +347,7 @@ public class ReferenceResolutionVisitor extends DafnyTreeDefaultVisitor<Void, Re
         String classname = t.getChild(0).getText();
         DafnyClass dafnyClass = project.getClass(classname);
 
-        for (DafnyField field : dafnyClass.getFields()) {
-            identifierMap.put(field.getName(), field.getRepresentation());
-        }
-
-        for (DafnyMethod method : dafnyClass.getMethods()) {
-            callableMap.put(method.getName(), method.getRepresentation());
-        }
-
-        for (DafnyFunction function : dafnyClass.getFunctions()) {
-            callableMap.put(function.getName(), function.getRepresentation());
-        }
+        addClassEntitites(dafnyClass);
 
         for (int i = 1; i < t.getChildCount(); i++) {
             t.getChild(i).accept(this, a);

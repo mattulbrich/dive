@@ -169,4 +169,9 @@ public class TermBuilder {
         return new ApplTerm(store, heapTerm, object, field, value);
     }
 
+    public Term _null(Sort sort) throws TermBuildException {
+        FunctionSymbol symb = BuiltinSymbols.NULL.instantiate(sort);
+        return new ApplTerm(symb);
+    }
+
 }

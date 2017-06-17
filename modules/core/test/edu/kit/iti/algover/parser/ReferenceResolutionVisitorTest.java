@@ -33,14 +33,6 @@ public class ReferenceResolutionVisitorTest {
     }
 
     @Test
-    public void testWithFields() throws Exception {
-        DafnyTree tree = ParserTest.parseFile(getClass().getResourceAsStream("treeeTransTest.dfy"));
-
-        TestUtil.mockProject(tree);
-
-    }
-
-    @Test
     public void testFaulty() throws Exception {
         DafnyTree tree = ParserTest.parseFile(getClass().getResourceAsStream("faultyReferences.dfy"));
         ProjectBuilder pb = new ProjectBuilder();

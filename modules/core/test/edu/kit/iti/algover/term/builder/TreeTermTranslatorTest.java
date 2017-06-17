@@ -9,7 +9,6 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
-import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -27,7 +26,6 @@ import edu.kit.iti.algover.facade.ProjectFacade;
 import edu.kit.iti.algover.parser.DafnyFileParser;
 import edu.kit.iti.algover.parser.DafnyLexer;
 import edu.kit.iti.algover.parser.DafnyParser;
-import edu.kit.iti.algover.parser.DafnyParserException;
 import edu.kit.iti.algover.parser.DafnyParser.expression_only_return;
 import edu.kit.iti.algover.parser.DafnyTree;
 import edu.kit.iti.algover.project.Project;
@@ -40,6 +38,7 @@ import edu.kit.iti.algover.term.Term;
 import edu.kit.iti.algover.term.VariableTerm;
 import edu.kit.iti.algover.term.parser.TermParser;
 import edu.kit.iti.algover.util.ImmutableList;
+import edu.kit.iti.algover.util.TestUtil;
 import junitparams.JUnitParamsRunner;
 import junitparams.Parameters;
 
@@ -75,6 +74,9 @@ public class TreeTermTranslatorTest {
             "(forall x:int :: (exists y:int :: $gt(x, y)))" },
             { "let x := 3 :: x > i1", "(let x := 3 :: $gt(x, i1))" },
             { "$plus(1, 2)", "$plus(1, 2)" },
+
+            { "c == null", "eq[C](c, null[C])" },
+            { "let c := null :: null == c", "eq[C](c, null[C])" },
 
             // From TermParserTest
             { "i1 + i2", "$plus(i1, i2)" },
@@ -143,6 +145,7 @@ public class TreeTermTranslatorTest {
         map.add(new FunctionSymbol("a", new Sort("array1")));
         map.add(new FunctionSymbol("a2", new Sort("array2")));
         map.add(new FunctionSymbol("f", Sort.INT, Sort.INT));
+        map.add(new FunctionSymbol("c", new Sort("c")));
         symbTable = new MapSymbolTable(new BuiltinSymbols(), map);
     }
 
@@ -183,10 +186,8 @@ public class TreeTermTranslatorTest {
     @Test
     public void letCascade() throws Exception {
 
-        Project p = ProjectFacade.getInstance().buildProject(FILE);
-        ProjectBuilder pb = new ProjectBuilder();
-        // look for mockProject!
-
+        DafnyTree tree = DafnyFileParser.parse(getClass().getResourceAsStream("proj1/treeTransTest.dfy"));
+        Project p = TestUtil.mockProject(tree);
 
         DafnyTree method = p.getMethod("m").getRepresentation();
         DafnyTree block = method.getFirstChildWithType(DafnyParser.BLOCK);
@@ -214,9 +215,10 @@ public class TreeTermTranslatorTest {
         symbTable.addFunctionSymbol(new FunctionSymbol("this", new Sort("C")));
         symbTable.addFunctionSymbol(new FunctionSymbol("d", new Sort("D")));
         symbTable.addFunctionSymbol(new FunctionSymbol("C$$field", new Sort("field", new Sort("C"), Sort.INT)));
-        symbTable.addFunctionSymbol(new FunctionSymbol("D$$field", new Sort("field", new Sort("D"), Sort.INT)));
+        symbTable.addFunctionSymbol(new FunctionSymbol("D$$field", new Sort("field", new Sort("D"), new Sort("D"))));
 
-        Project p = ProjectFacade.getInstance().buildProject(FILE);
+        DafnyTree tree = DafnyFileParser.parse(getClass().getResourceAsStream("proj1/treeTransTest.dfy"));
+        Project p = TestUtil.mockProject(tree);
 
         DafnyTree method = p.getClass("C").getMethod("n").getRepresentation();
         DafnyTree block = method.getFirstChildWithType(DafnyParser.BLOCK);
