@@ -12,98 +12,74 @@ import edu.kit.iti.algover.symbex.AssertionElement;
 import edu.kit.iti.algover.symbex.PathConditionElement;
 import edu.kit.iti.algover.symbex.SymbexPath;
 import edu.kit.iti.algover.symbex.VariableMap;
-import edu.kit.iti.algover.term.*;
+import edu.kit.iti.algover.term.Term;
+import edu.kit.iti.algover.term.VariableTermVisitor;
 import edu.kit.iti.algover.util.Pair;
 
 import java.util.*;
 
 /**
  * Represents formula, with references to origin. This Object should be immutable.
+ * This object is the top formula which can not be changed. If a formaula should be changed using a proofstep then, thsi chanege is applied to the
+ * corresponding Proofformula
  *
+ * This class is for View purposes and not for Proof purposes
  * Created by sarah on 8/18/16.
  */
-// REVIEW: Pleas watch the order of members in a class
-// REVIEW: checkstyle
-// REVIEW: Same as ProofFormula?
+@Deprecated
 public class TopFormula{
-    public int getParentPvcID() {
-        return pvcID;
-    }
-
     /**
      * ID of parent PVC
      */
     private int pvcID;
-
     /**
      * Position whether in assumption or goal
      */
     private boolean goalFormula;
-
     /**
-     * Term that is represented (has to be toplevel term)
+     * Term that is represented (has to be toplevel term, i.e. a term with type boolean)
      */
-    // REVIEW: What is a toplevel term?
     private Term t;
-
     /**
      * Term that represents all lets
      */
-    // REVIEW: What is the innermost term of the cascade? t?
     private Term letTerm;
-
     /**
      * ID of ToplevelFormula for references
      */
-    // REVIEW: This is not clear.
     private int idInPVC;
-
     /**
-     * Symbexpath the term belongs to
+     * Symbexpath the term belongs to, in order to be able to show this path in the GUI
      */
-    // REVIEW: do not all top formulas in a proof belong to the same path?
     private SymbexPath path;
-
-    public Term getTerm() {
-        return t;
-    }
-
-/*    public Term getLetTerm() {
-        return letTerm;
-    }*/
-
-    public int getIdInPVC() {
-        return idInPVC;
-    }
-
-   // public int getLineInFile() {
-    //    return lineInFile;
-    //}
-
     // REVIEW: please document. not clear.
     private List<Assignment> affectingAssignments;
     /**
      * filename of file where term is in
      */
     private String filename;
+
+/*    public Term getLetTerm() {
+        return letTerm;
+    }*/
     /**
      * Position in file (atm only line)
      */
     private int lineInFile;
 
+    // public int getLineInFile() {
+    //    return lineInFile;
+    //}
     /**
      * Is set if we have a path condition
      */
     private PathConditionElement pce;
-
     /**
      * Is set if we have a goal formula
      */
     private AssertionElement ae;
-
     // REVIEW: please document.
     private Set<String> varOccurence;
-
 
     public TopFormula(Term t, Term letTerm, int id, SymbexPath path, int line, PathConditionElement pce, int pvcID){
 
@@ -136,6 +112,17 @@ public class TopFormula{
         this.affectingAssignments = extractAffectingVarAssignments();
     }
 
+    public int getParentPvcID() {
+        return pvcID;
+    }
+
+    public Term getTerm() {
+        return t;
+    }
+
+    public int getIdInPVC() {
+        return idInPVC;
+    }
 
     public String assignmentsToUpdate(){
         String update = "{";

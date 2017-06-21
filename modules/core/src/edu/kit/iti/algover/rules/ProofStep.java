@@ -6,10 +6,17 @@ import edu.kit.iti.algover.term.Term;
 import java.util.List;
 
 /**
- * Created by sarah on 10/7/15.
+ * Interface for Propof steps
+ * Proof steps can be single rules, but also application of solvers etc.
  */
 public interface ProofStep {
 
+    /**
+     * @param form
+     * @param t
+     * @param side_conditions
+     * @return
+     */
     public ProofStepResult apply(ProofFormula form, Term t, List<ProofFormula> side_conditions);
 
     public boolean possibleApplications(ProofFormula form, Term t, List<ProofFormula> side_conditions);
@@ -17,6 +24,7 @@ public interface ProofStep {
     public String getRuleName();
 
     public String getCategory();
+
 
 
 }

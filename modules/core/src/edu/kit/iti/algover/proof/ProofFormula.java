@@ -10,7 +10,7 @@ import edu.kit.iti.algover.term.Term;
 /**
  * Created by sarah on 10/7/15.
  */
-// REVIEW: Same as TopFormula?
+// REVIEW: Same as TopFormula? NO
 
 public class ProofFormula {
 
@@ -24,7 +24,9 @@ public class ProofFormula {
      */
     private final Term formula;
 
-    // REVIEW: dont know its purpose
+    /**
+     * String for path label if nececssary
+     */
     private final String label;
 
 //    // REVIEW: is this obsolete now?
@@ -49,8 +51,8 @@ public class ProofFormula {
 
     @Override
     public String toString(){
-        // REVIEW: !!!!! String comparison in Java does not work like this. Strings are objects not primitive values.
-        if (label != "") {
+
+        if (!label.equals("")) {
             return id + "[" + label + "]: " + formula.toString();
         } else {
             return id + ": " + formula.toString();
