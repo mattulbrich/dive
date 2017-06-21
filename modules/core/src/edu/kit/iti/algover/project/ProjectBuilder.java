@@ -152,7 +152,7 @@ public class ProjectBuilder {
     public void parseProjectConfigurationFile() throws IOException {
 
         File absolutePath = new File(this.getDir() + "/" + getConfigFilename());
-        Configuration config = ProblemLoader.loadConfigFile(absolutePath);
+        Configuration config = ConfigXMLLoader.loadConfigFile(absolutePath);
 
         if (config.getDafnyFiles() != null) {
             config.getDafnyFiles().stream().forEach(file -> {
