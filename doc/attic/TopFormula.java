@@ -16,8 +16,6 @@ import edu.kit.iti.algover.term.Term;
 import edu.kit.iti.algover.term.VariableTermVisitor;
 import edu.kit.iti.algover.util.Pair;
 
-import java.util.*;
-
 /**
  * Represents formula, with references to origin. This Object should be immutable.
  * This object is the top formula which can not be changed. If a formaula should be changed using a proofstep then, thsi chanege is applied to the

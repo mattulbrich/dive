@@ -10,7 +10,7 @@ import edu.kit.iti.algover.term.Term;
 /**
  * This class represents a single formula in the sequent
  */
-// REVIEW: Same as TopFormula? NO
+
 
 public class ProofFormula {
 
@@ -29,8 +29,6 @@ public class ProofFormula {
      */
     private final String label;
 
-//    // REVIEW: is this obsolete now?
-//    private LinkedList<FormulaInheritance> comesFrom;
 
     public ProofFormula(int id, Term formula, String label) {
         this.id = id;
@@ -52,7 +50,7 @@ public class ProofFormula {
     @Override
     public String toString(){
 
-        if (!label.equals("")) {
+        if (label != null) {
             return id + "[" + label + "]: " + formula.toString();
         } else {
             return id + ": " + formula.toString();

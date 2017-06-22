@@ -10,19 +10,37 @@ import edu.kit.iti.algover.dafnystructures.DafnyDecl;
 import java.util.List;
 
 /**
- * Interface for datastructure, that represents all PVCs of a project as a composite structure with pointers to the Project object.
- * Created by sarah on 10/19/16.
+ * Interface for datastructure,
+ * that represents all PVCs of a project as a composite structure with pointers to the Project object.
+ * @author S. Grebing
  */
 
 public abstract class PVCCollection {
 
+    /**
+     * The parent Collection (if the PVCCollection is part of a class or method for example)
+     */
     private PVCCollection parent;
 
+    /**
+     * Get teh corresponsing DafnyDecl for this PVCCollection
+     *
+     * @return
+     */
     public abstract DafnyDecl getDafnyDecl();
 
+    /**
+     * Return the root, inorder to traverse children
+     * @return
+     */
     public abstract PVCCollection getRoot();
 
+    /**
+     * If this PVCCollection is a SinglePVC it is a leaf.
+     * @return
+     */
     public abstract boolean isPVCLeaf();
+
 
     public abstract List<PVCCollection> getChildren();
 

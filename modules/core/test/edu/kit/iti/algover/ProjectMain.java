@@ -13,6 +13,7 @@ import edu.kit.iti.algover.parser.DafnyTree;
 import edu.kit.iti.algover.project.Project;
 import edu.kit.iti.algover.project.ProjectBuilder;
 import edu.kit.iti.algover.proof.PVCGroup;
+import edu.kit.iti.algover.proof.SinglePVC;
 import edu.kit.iti.algover.util.Debug;
 import edu.kit.iti.algover.util.Util;
 import org.antlr.runtime.RecognitionException;
@@ -86,8 +87,11 @@ public class ProjectMain {
         /*
          * turn that into logic ... WORK IN PROGRESS
          */
+
+        SinglePVC pv = (SinglePVC) project.getVerificationConditionsFor(project.getMethod("m2")).getChildren().get(1);
+        System.out.println(pv.getPVC().getSequent().getAntecedent());
+
         // @Sarah: How do I get the actual pvc from a collection?
-        //@MU: What do you mean with actual?
         // PVC pvc = pvcs.getChild(1).getChildren().get(2);
 
     }
