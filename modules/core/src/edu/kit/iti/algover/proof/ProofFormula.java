@@ -8,7 +8,7 @@ package edu.kit.iti.algover.proof;
 import edu.kit.iti.algover.term.Term;
 
 /**
- * Created by sarah on 10/7/15.
+ * This class represents a single formula in the sequent
  */
 // REVIEW: Same as TopFormula? NO
 

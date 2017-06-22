@@ -5,10 +5,6 @@
  */
 package edu.kit.iti.algover.term.builder;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.ServiceLoader;
-
 import edu.kit.iti.algover.data.SymbolTable;
 import edu.kit.iti.algover.parser.DafnyException;
 import edu.kit.iti.algover.proof.PVC;
@@ -16,6 +12,10 @@ import edu.kit.iti.algover.proof.ProofNode;
 import edu.kit.iti.algover.symbex.SymbexPath;
 import edu.kit.iti.algover.term.Sequent;
 import edu.kit.iti.algover.util.Util;
+
+import java.util.Collections;
+import java.util.List;
+import java.util.ServiceLoader;
 
 /**
  * A PVCSequenter is used to translate a {@link PVC} capturing a
@@ -28,7 +28,7 @@ import edu.kit.iti.algover.util.Util;
  * Implementing classes are collected in
  *
  * <pre>
- * META - INF / services / edu.kit.edu.algover.term.builder.PVCSequenter
+ * META - INF / services / edu.kit.iti.algover.term.builder.PVCSequenter
  * </pre>
  *
  */
@@ -67,8 +67,9 @@ public interface PVCSequenter {
      * Translate the smbolic execution path embedded in a pvc into a logical
      * sequent.
      *
-     * @param pvc
-     *            the condition to translate
+     * @param pathThroughProgram
+     * @param makeSymbolTable
+     *
      * @return a freshly created sequent.
      * @throws DafnyException
      */

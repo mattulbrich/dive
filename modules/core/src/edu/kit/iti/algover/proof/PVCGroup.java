@@ -8,12 +8,11 @@ package edu.kit.iti.algover.proof;
 import edu.kit.iti.algover.dafnystructures.DafnyDecl;
 
 import java.util.ArrayList;
-
 import java.util.List;
 
 /**
  * Represents grouping of PVCs. E.g. a class groups methods, that group SinglePVCs
- * Created by sarah on 10/19/16.
+ *
  */
 public class PVCGroup extends PVCCollection {
 
@@ -25,7 +24,7 @@ public class PVCGroup extends PVCCollection {
         this.children = new ArrayList<>();
     }
 
-    // REVIEW: Why only here and not in interface?
+
     public PVCCollection getChild(int i){
         return children.get(i);
     }

@@ -5,9 +5,6 @@
  */
 package edu.kit.iti.algover.proof;
 
-import java.util.ArrayList;
-import java.util.Collection;
-
 import edu.kit.iti.algover.ProgramDatabase;
 import edu.kit.iti.algover.dafnystructures.DafnyDecl;
 import edu.kit.iti.algover.dafnystructures.DafnyMethod;
@@ -25,6 +22,9 @@ import edu.kit.iti.algover.term.Sort;
 import edu.kit.iti.algover.term.builder.PVCSequenter;
 import edu.kit.iti.algover.term.builder.TermBuildException;
 import edu.kit.iti.algover.util.TreeUtil;
+
+import java.util.ArrayList;
+import java.util.Collection;
 
 /**
  * A PVC corresponds to a symbexpath. So it consists of assignments on the path through the program of
@@ -80,12 +80,27 @@ public class PVCBuilder {
         return pvcID;
     }
 
+    public PVCBuilder setPvcID(int pvcID) {
+        this.pvcID = pvcID;
+        return this;
+    }
+
     public ScriptTree getLocalScript() {
         return localScript;
     }
 
+    public PVCBuilder setLocalScript(ScriptTree localScript) {
+        this.localScript = localScript;
+        return this;
+    }
+
     public SymbexPath getPathThroughProgram() {
         return pathThroughProgram;
+    }
+
+    public PVCBuilder setPathThroughProgram(SymbexPath pathThroughProgram) {
+        this.pathThroughProgram = pathThroughProgram;
+        return this;
     }
 
     public DafnyDecl getDeclaration() {
@@ -94,21 +109,6 @@ public class PVCBuilder {
 
     public PVCBuilder setDeclaration(DafnyDecl decl) {
         this.declaration = decl;
-        return this;
-    }
-
-    public PVCBuilder setPvcID(int pvcID) {
-        this.pvcID = pvcID;
-        return this;
-    }
-
-    public PVCBuilder setLocalScript(ScriptTree localScript) {
-        this.localScript = localScript;
-        return this;
-    }
-
-    public PVCBuilder setPathThroughProgram(SymbexPath pathThroughProgram) {
-        this.pathThroughProgram = pathThroughProgram;
         return this;
     }
 

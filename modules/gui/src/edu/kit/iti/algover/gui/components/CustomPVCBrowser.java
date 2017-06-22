@@ -1,24 +1,15 @@
 package edu.kit.iti.algover.gui.components;
 
 import edu.kit.iti.algover.Actions.PVCSelectionMouseListener;
-import edu.kit.iti.algover.Actions.ProjectTreeMouseListener;
-import edu.kit.iti.algover.gui.ButtonListener;
 import edu.kit.iti.algover.gui.GUICenter;
 import edu.kit.iti.algover.gui.ProjectBrowserPanel;
-import edu.kit.iti.algover.gui.ProjectBrowserRenderer;
 import edu.kit.iti.algover.model.CustomLeaf;
 import edu.kit.iti.algover.model.PVCTreeModel;
-import edu.kit.iti.algover.model.ProjectTableTreeModel;
-import edu.kit.iti.algover.model.ProjectTree;
 import net.miginfocom.swing.MigLayout;
 import org.jdesktop.swingx.JXTree;
-import org.jdesktop.swingx.JXTreeTable;
 
 import javax.swing.*;
-import javax.swing.tree.TreeSelectionModel;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 
 /**
  * Panel that helps to browse the PVCs of a DafnyDecl
@@ -42,7 +33,7 @@ public class CustomPVCBrowser extends JPanel {
 
         //JXTreeTable treetable = new JXTreeTable();
 
-        PVCTreeModel model = new PVCTreeModel(center.getProofManagement(), center.getLoadedProject(), center.getProjectTreeModel());
+        PVCTreeModel model = new PVCTreeModel(center.getLoadedProject(), center.getProjectTreeModel());
         JXTree tr = new JXTree(model);
 
         tr.setRootVisible(true);

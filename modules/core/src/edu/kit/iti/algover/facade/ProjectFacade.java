@@ -6,15 +6,12 @@
 package edu.kit.iti.algover.facade;
 
 import edu.kit.iti.algover.dafnystructures.DafnyDecl;
-import edu.kit.iti.algover.dafnystructures.DafnyDeclPVCCollector;
-import edu.kit.iti.algover.dafnystructures.DafnyFile;
 import edu.kit.iti.algover.parser.DafnyException;
 import edu.kit.iti.algover.parser.ReferenceResolutionVisitor;
 import edu.kit.iti.algover.parser.TypeResolution;
 import edu.kit.iti.algover.project.Project;
 import edu.kit.iti.algover.project.ProjectBuilder;
 import edu.kit.iti.algover.proof.PVC;
-import edu.kit.iti.algover.proof.PVCGroup;
 import edu.kit.iti.algover.proof.ProofNode;
 import edu.kit.iti.algover.script.ScriptTree;
 import edu.kit.iti.algover.symbex.Symbex;
@@ -88,25 +85,7 @@ public class ProjectFacade {
         return p;
     }
 
-    /**
-     * Performs Symbolic execution of a dafnydecl and return the list of PVCs
-     * @param decl
-     * @return
-     */
-    // REVIEW: Why not as member function of project?
-    public PVCGroup generateAndCollectPVC(Project project){
 
-        PVCGroup root = new PVCGroup(null);
-
-        DafnyDeclPVCCollector visitor = new DafnyDeclPVCCollector(ProjectFacade.getInstance());
-
-        for (DafnyFile file : project.getDafnyFiles()) {
-            visitor.visitFile(file, root);
-        }
-
-        return root;
-
-    }
 
     /**
      * Perform Symbolic Execution of a given DafnyTree (method)
@@ -122,26 +101,6 @@ public class ProjectFacade {
 
     }
 
-    // REVIEW: retired this. OK? Please remove if so.
-    // all PVCs are recoverable from generateAndCollectPVC.
-//    /**
-//     * Create verification conditions from given SymbexPaths
-//     * @param path SymbexPath
-//     * @return
-//     */
-//    public List<PVC> createVerificationConditions(DafnyDecl decl, SymbexPath path) {
-//        List<PVC> verificationconditions = new LinkedList<>();
-//        PVCBuilder builder = new PVCBuilder(this.getGeneralPVCCounter());
-//
-//        //build all pvc for path
-//        //in a loop
-//        verificationconditions.add(builder.buildPVC(path, decl));
-//
-//
-//        //add pvcs to counter
-//        this.setGeneralPVCCounter(verificationconditions.size());
-//        return verificationconditions;
-//    }
 
     public ProofNode createProofRoot(SymbexPath path){
         return null;

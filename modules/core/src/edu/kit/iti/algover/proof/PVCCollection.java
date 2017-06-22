@@ -5,9 +5,9 @@
  */
 package edu.kit.iti.algover.proof;
 
-import java.util.List;
-
 import edu.kit.iti.algover.dafnystructures.DafnyDecl;
+
+import java.util.List;
 
 /**
  * Interface for datastructure, that represents all PVCs of a project as a composite structure with pointers to the Project object.
@@ -33,5 +33,7 @@ public abstract class PVCCollection {
     protected void setParent(PVCCollection parent) {
         this.parent = parent;
     }
+
+    public abstract PVCCollection getChild(int i);
 
 }
