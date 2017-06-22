@@ -1,6 +1,7 @@
 package edu.kit.iti.algover;
 
 import edu.kit.iti.algover.facade.ProjectFacade;
+import edu.kit.iti.algover.model.ProjectTree;
 import edu.kit.iti.algover.project.Project;
 import edu.kit.iti.algover.util.Debug;
 import javafx.application.Application;
@@ -18,11 +19,6 @@ public class AlgoVerApplication extends Application {
 
   @Override
   public void start(Stage primaryStage) throws Exception {
-    // Setup view
-    TextArea area = new TextArea("...");
-    primaryStage.setScene(new Scene(area));
-    primaryStage.show();
-
     // Let user choose a project directory
     DirectoryChooser chooser = new DirectoryChooser();
     chooser.setTitle("Choose project");
@@ -31,7 +27,10 @@ public class AlgoVerApplication extends Application {
 
     // Read all PVCs and update GUI
     Project project = ProjectFacade.getInstance().buildProject(projectDir);
-    CharSequence seq = Debug.toString(project.getAllVerificationConditions());
-    area.setText(seq.toString());
+
+    ProjectTreeTableView view = new ProjectTreeTableView(project);
+    primaryStage.setScene(new Scene(view));
+    primaryStage.show();
+
   }
 }
