@@ -16,11 +16,11 @@ import java.io.File;
  *
  * @author S.Grebing
  */
-// REVIEW: Is ProblemLoader a good name?
-public class ProblemLoader {
 
-    // REVIEW: I assumed this class is a collection of static methods, right?
-    private ProblemLoader() {
+public class ConfigXMLLoader {
+
+
+    private ConfigXMLLoader() {
         throw new Error();
     }
 

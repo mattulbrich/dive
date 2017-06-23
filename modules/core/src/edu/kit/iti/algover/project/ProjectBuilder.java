@@ -26,7 +26,6 @@ import java.util.Map;
  *
  * Scriptfile should be parsed here to retrieve settings
  * projectsettings need to be retrieved
- * // REVIEW: do not understand these points.
  *
  * @author S.Grebing
  * @author M. Ulbrich
@@ -152,7 +151,7 @@ public class ProjectBuilder {
     public void parseProjectConfigurationFile() throws IOException {
 
         File absolutePath = new File(this.getDir() + "/" + getConfigFilename());
-        Configuration config = ProblemLoader.loadConfigFile(absolutePath);
+        Configuration config = ConfigXMLLoader.loadConfigFile(absolutePath);
 
         if (config.getDafnyFiles() != null) {
             config.getDafnyFiles().stream().forEach(file -> {

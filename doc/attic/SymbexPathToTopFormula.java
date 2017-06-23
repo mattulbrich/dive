@@ -27,6 +27,7 @@ import java.util.Collection;
 /**
  * Created by sarah on 8/25/16.
  */
+@Deprecated
 public class SymbexPathToTopFormula {
 
     private final DafnyTree method;
@@ -41,6 +42,16 @@ public class SymbexPathToTopFormula {
          this.ttt = new TreeTermTranslator(symbolTable);
     }
 
+    // TODO check parameters and stuff
+    private static Sort treeToType(DafnyTree tree) {
+        String name = tree.toString();
+        if ("array".equals(name)) {
+            name = "array1";
+        }
+
+        return new Sort(name);
+    }
+
     private SymbolTable makeSymbolTable() {
 
         Collection<FunctionSymbol> map = new ArrayList<>();
@@ -53,16 +64,6 @@ public class SymbexPathToTopFormula {
 
         MapSymbolTable st = new SuffixSymbolTable(new BuiltinSymbols(), map);
         return st;
-    }
-
-    // TODO check parameters and stuff
-    private static Sort treeToType(DafnyTree tree) {
-        String name = tree.toString();
-        if("array".equals(name)) {
-            name = "array1";
-        }
-
-        return new Sort(name);
     }
 
     private Term fromPO(SymbexPath p, AssertionElement e) throws TermBuildException {

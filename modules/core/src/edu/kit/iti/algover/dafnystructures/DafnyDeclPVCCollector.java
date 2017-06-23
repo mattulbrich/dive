@@ -6,7 +6,6 @@
 package edu.kit.iti.algover.dafnystructures;
 
 
-import edu.kit.iti.algover.facade.ProjectFacade;
 import edu.kit.iti.algover.proof.*;
 import edu.kit.iti.algover.symbex.Symbex;
 import edu.kit.iti.algover.symbex.SymbexPath;
@@ -21,17 +20,14 @@ import java.util.List;
  */
 public class DafnyDeclPVCCollector {
 
-    // REVIEW: Is ProjectFacade not a singleton? --> remove
-    private final ProjectFacade facade;
 
     /**
      * The counter to create uniquely numbered PVCs.
      */
     private int counter;
 
-    // REVIEW: Remove parameter -- it is a singleton after all.
-    public DafnyDeclPVCCollector(ProjectFacade facade){
-        this.facade = facade;
+
+    public DafnyDeclPVCCollector() {
     }
 
     public PVCCollection visitClass(DafnyClass cl) {
