@@ -35,28 +35,28 @@ public class BuiltinSymbols extends MapSymbolTable {
     // Checkstyle: OFF JavadocVariableCheck
 
     public static final FunctionSymbol AND =
-            new FunctionSymbol("$and", Sort.FORMULA, Sort.FORMULA, Sort.FORMULA);
+            new FunctionSymbol("$and", Sort.BOOL, Sort.BOOL, Sort.BOOL);
 
     public static final FunctionSymbol OR =
-            new FunctionSymbol("$or", Sort.FORMULA, Sort.FORMULA, Sort.FORMULA);
+            new FunctionSymbol("$or", Sort.BOOL, Sort.BOOL, Sort.BOOL);
 
     public static final FunctionSymbol IMP =
-            new FunctionSymbol("$imp", Sort.FORMULA, Sort.FORMULA, Sort.FORMULA);
+            new FunctionSymbol("$imp", Sort.BOOL, Sort.BOOL, Sort.BOOL);
 
     public static final FunctionSymbol NEG =
-            new FunctionSymbol("$not", Sort.FORMULA, Sort.FORMULA);
+            new FunctionSymbol("$not", Sort.BOOL, Sort.BOOL);
 
     public static final FunctionSymbol GT =
-            new FunctionSymbol("$gt", Sort.FORMULA, Sort.INT, Sort.INT);
+            new FunctionSymbol("$gt", Sort.BOOL, Sort.INT, Sort.INT);
 
     public static final FunctionSymbol GE =
-            new FunctionSymbol("$ge", Sort.FORMULA, Sort.INT, Sort.INT);
+            new FunctionSymbol("$ge", Sort.BOOL, Sort.INT, Sort.INT);
 
     public static final FunctionSymbol LT =
-            new FunctionSymbol("$lt", Sort.FORMULA, Sort.INT, Sort.INT);
+            new FunctionSymbol("$lt", Sort.BOOL, Sort.INT, Sort.INT);
 
     public static final FunctionSymbol LE =
-            new FunctionSymbol("$le", Sort.FORMULA, Sort.INT, Sort.INT);
+            new FunctionSymbol("$le", Sort.BOOL, Sort.INT, Sort.INT);
 
     public static final FunctionSymbol PLUS =
             new FunctionSymbol("$plus", Sort.INT, Sort.INT, Sort.INT);
@@ -104,7 +104,7 @@ public class BuiltinSymbols extends MapSymbolTable {
 
     public static final FunctionSymbolFamily EQ =
             new FunctionSymbolFamily(
-                    new FunctionSymbol("$eq", Sort.FORMULA,
+                    new FunctionSymbol("$eq", Sort.BOOL,
                             FunctionSymbolFamily.VAR1, FunctionSymbolFamily.VAR1), 1);
 
     public static final FunctionSymbol HEAP =
@@ -114,10 +114,10 @@ public class BuiltinSymbols extends MapSymbolTable {
             new FunctionSymbol("null", Sort.NULL);
 
     public static final FunctionSymbol TRUE =
-            new FunctionSymbol("true", Sort.FORMULA);
+            new FunctionSymbol("true", Sort.BOOL);
 
     public static final FunctionSymbol FALSE =
-            new FunctionSymbol("false", Sort.FORMULA);
+            new FunctionSymbol("false", Sort.BOOL);
 
 
     // Checkstyle: ON JavadocVariableCheck
