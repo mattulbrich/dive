@@ -37,7 +37,7 @@ public class FunctionSymbolFamily {
         }
 
         String name = prototype.getName() +
-                (instantiationSorts.toString().replace(" ", ""));
+                toString(instantiationSorts);
 
         Sort resSort = prototype.getResultSort().instantiate(instantiationSorts);
 
@@ -46,6 +46,17 @@ public class FunctionSymbolFamily {
 
         return new InstantiatedFunctionSymbol(name, resSort, argSorts,
                 instantiationSorts);
+    }
+
+    /*
+     * make <X,Y<Z>> from [X, Y<Z>]
+     */
+    private String toString(List<Sort> instantiationSorts) {
+        if (instantiationSorts.isEmpty()) {
+            return "";
+        } else {
+            return "<" + Util.join(instantiationSorts, ",") + ">";
+        }
     }
 
     public class InstantiatedFunctionSymbol extends FunctionSymbol {

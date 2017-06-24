@@ -21,8 +21,12 @@ public class SyntacticSugarVistor {
         // var i := 0
 
         for (DafnyFile df : project.getDafnyFiles()) {
-            df.getRepresentation().accept(new ParameterContractionVisitor(), null);
+            visit(df.getRepresentation());
         }
+    }
+
+    public static void visit(DafnyTree t) {
+        t.accept(new ParameterContractionVisitor(), null);
     }
 
 

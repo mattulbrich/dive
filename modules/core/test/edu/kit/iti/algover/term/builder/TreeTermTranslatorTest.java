@@ -51,7 +51,7 @@ public class TreeTermTranslatorTest {
         return new String[][] {
             { "i1 + i2*i3", "$plus(i1, $times(i2, i3))" },
             // revealed bug:
-            { "i1 == i2*i3", "$eq[int](i1, $times(i2, i3))" },
+            { "i1 == i2*i3", "$eq<int>(i1, $times(i2, i3))" },
             { "a.Length", "$len0(a)" },
             //                { "a2.Length0", "$len0(a)" },
             //                { "a2.Length1", "$len1(a)" },
@@ -62,9 +62,9 @@ public class TreeTermTranslatorTest {
             { "i1 >= i2", "$ge(i1, i2)" },
             { "i1 < i2", "$lt(i1, i2)" },
             { "i1 <= i2", "$le(i1, i2)" },
-            { "i1 == i2", "$eq[int](i1, i2)" },
-            { "b1 == b2", "$eq[bool](b1, b2)" },
-            { "i1 != i2", "$not($eq[int](i1, i2))" },
+            { "i1 == i2", "$eq<int>(i1, i2)" },
+            { "b1 == b2", "$eq<bool>(b1, b2)" },
+            { "i1 != i2", "$not($eq<int>(i1, i2))" },
             { "i1 - 1 - 2", "$minus($minus(i1, 1), 2)" },
 
             { "false && true", "$and(false, true)" },
@@ -74,9 +74,10 @@ public class TreeTermTranslatorTest {
             { "let x := 3 :: x > i1", "(let x := 3 :: $gt(x, i1))" },
             { "$plus(1, 2)", "$plus(1, 2)" },
 
-            { "c == null", "$eq[object](c, null)" },
+            { "c == null", "$eq<object>(c, null)" },
+            { "c == c2", "$eq<object>(c, c2)" },
             { "let c := null :: null == c",
-                "(let c := null :: $eq[object](null, c))" },
+                "(let c := null :: $eq<object>(null, c))" },
 
             // From TermParserTest
             { "i1 + i2", "$plus(i1, i2)" },
@@ -87,7 +88,7 @@ public class TreeTermTranslatorTest {
             { "let var i1, i2 := i2, i1 :: i1 + i2",
               "(let i1, i2 := i2, i1 :: $plus(i1, i2))" },
             { "if i1 > 5 then i2 else i1",
-              "$ite[int]($gt(i1, 5), i2, i1)" },
+              "$ite<int>($gt(i1, 5), i2, i1)" },
         };
     }
 
@@ -146,6 +147,7 @@ public class TreeTermTranslatorTest {
         map.add(new FunctionSymbol("a2", Sort.get("array2")));
         map.add(new FunctionSymbol("f", Sort.INT, Sort.INT));
         map.add(new FunctionSymbol("c", Sort.getClassSort("C")));
+        map.add(new FunctionSymbol("c2", Sort.getClassSort("C")));
         symbTable = new MapSymbolTable(new BuiltinSymbols(), map);
     }
 
@@ -235,10 +237,10 @@ public class TreeTermTranslatorTest {
         Term result = ttt.build(assignments, post);
 
         Term expected = TermParser.parse(symbTable,
-                "let heap := $store[C,int](heap, this, C$$field, "
-                + "$plus($select[C, int](heap, this, C$$field), 1)) :: "
-                + "let heap := $store[D, D](heap, d, D$$field, null[D]) :: "
-                + "$select[C, int](heap, this, C$$field) > 1");
+                "let heap := $store<C,int>($heap, this, C$$field, "
+                + "$plus($select<C, int>($heap, this, C$$field), 1)) :: "
+                + "let heap := $store<D, D>(heap, d, D$$field, null[D]) :: "
+                + "$select<C, int>(heap, this, C$$field) > 1");
 
         assertEquals(expected, result);
     }

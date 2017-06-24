@@ -142,7 +142,7 @@ public class BuiltinSymbols extends MapSymbolTable {
     @Override
     protected FunctionSymbol resolve(String name) {
 
-        int index = name.indexOf("[");
+        int index = name.indexOf("<");
         if (index >= 0) {
 
             String baseName = name.substring(0, index);
@@ -151,6 +151,7 @@ public class BuiltinSymbols extends MapSymbolTable {
                 return null;
             }
 
+            // FIXME !!! THis will fail for things like $x<a<b,c>>
             String[] args = name.substring(index + 1, name.length() - 1).split(",");
             Sort[] sorts = new Sort[args.length];
             for (int i = 0; i < sorts.length; i++) {

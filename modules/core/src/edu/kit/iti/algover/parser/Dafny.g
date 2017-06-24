@@ -128,8 +128,8 @@ ARRAY : 'array' (('1' .. '9') ('0' .. '9')*)?;
 ID : ('a' .. 'z' | 'A' .. 'Z' | '_' ) 
      ('a' .. 'z' | 'A' .. 'Z' | '0' .. '9' | '_')*;
 
-LOGIC_ID : '$' ('a' .. 'z' | 'A' .. 'Z' | '_' ) 
-               ('a' .. 'z' | 'A' .. 'Z' | '0' .. '9' | '_')*;
+LOGIC_ID : ('a' .. 'z' | 'A' .. 'Z' | '_' | '$')
+           ('a' .. 'z' | 'A' .. 'Z' | '0' .. '9' | '_' | '$')*;
 
 INT_LIT : ('0' .. '9' ) ('0' .. '9' | '_')*;
 // glyph = "`~!@#$%^&*()-_=+[{]}|;:',<.>/?\\".
@@ -198,6 +198,7 @@ var:
   ID ':' type -> ^(VAR ID type)
   ;
 
+// one day this will be "id_param"
 type:
     INT | BOOL
   | SET^ '<'! type '>'!
@@ -374,7 +375,8 @@ atom_expr:
   ;
 
 id_param:
-  ID^ ( '<'! id_param ( ','! id_param )* '>'! )?
+    ID^ ( '<'! id_param ( ','! id_param )* '>'! )?
+  | INT | BOOL // ...
   ;
 
 // Currently, only logic ids can have type parameters, will change later ...

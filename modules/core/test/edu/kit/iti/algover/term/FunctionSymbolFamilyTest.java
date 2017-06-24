@@ -26,7 +26,7 @@ public class FunctionSymbolFamilyTest {
 
         FunctionSymbol result = fsf.instantiate(Sort.INT, Sort.BOOL);
 
-        assertEquals("test[int,bool](p2<int,bool>, n<n2<int>>) : p2<int,bool>",
+        assertEquals("test<int,bool>(p2<int,bool>, n<n2<int>>) : p2<int,bool>",
                 result.toString());
     }
 
@@ -34,7 +34,7 @@ public class FunctionSymbolFamilyTest {
     @Test
     public void testSelect() {
         FunctionSymbol sel = BuiltinSymbols.SELECT.instantiate(Sort.getClassSort("C"), Sort.INT);
-        assertEquals("$select[C,int](heap, C, field<C,int>) : int", sel.toString());
+        assertEquals("$select<C,int>(heap, C, field<C,int>) : int", sel.toString());
     }
 
 }

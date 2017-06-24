@@ -255,6 +255,7 @@ public class TreeTermTranslator {
         case DafnyParser.ID:
         case DafnyParser.TRUE:
         case DafnyParser.FALSE:
+        case DafnyParser.THIS:
         case DafnyParser.INT_LIT:
             return buildIdentifier(tree);
 
@@ -397,7 +398,7 @@ public class TreeTermTranslator {
             sort = Sort.OBJECT;
         }
 
-        FunctionSymbol f = symbolTable.getFunctionSymbol("$eq[" + sort + "]");
+        FunctionSymbol f = symbolTable.getFunctionSymbol("$eq<" + sort + ">");
         return new ApplTerm(f, Arrays.asList(t1, t2));
     }
 

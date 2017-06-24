@@ -20,6 +20,7 @@ import edu.kit.iti.algover.parser.DafnyParser.expression_only_return;
 import edu.kit.iti.algover.parser.DafnyParserException;
 import edu.kit.iti.algover.parser.DafnyTree;
 import edu.kit.iti.algover.parser.ReferenceResolutionVisitor;
+import edu.kit.iti.algover.parser.SyntacticSugarVistor;
 import edu.kit.iti.algover.parser.TypeResolution;
 import edu.kit.iti.algover.term.ApplTerm;
 import edu.kit.iti.algover.term.FunctionSymbol;
@@ -79,6 +80,9 @@ public class TermParser {
 
         // pull out the tree and cast it
         DafnyTree t = result.getTree();
+
+        // syntactic desugaring
+        SyntacticSugarVistor.visit(t);
 
         return toTerm(t, new HistoryMap<>(new HashMap<>()));
     }
