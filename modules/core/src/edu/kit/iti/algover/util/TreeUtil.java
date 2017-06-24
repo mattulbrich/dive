@@ -251,4 +251,22 @@ public final class TreeUtil {
         }
         return sb.toString();
     }
+
+    /**
+     * Retrieve a subelement of the Dafny tre by iteratively selecting children
+     * along a given path.
+     *
+     * @param tree
+     *            the tree to select the child from
+     * @param path
+     *            the path along which the children are to be selected
+     * @return the dafny tree at the specified position
+     */
+    public static DafnyTree traverse(DafnyTree tree, int... path) {
+        DafnyTree result = tree;
+        for (int child : path) {
+            result = result.getChild(child);
+        }
+        return result;
+    }
 }

@@ -344,4 +344,13 @@ public class DafnyTree extends CommonTree {
         this.expressionType = expressionType;
     }
 
+    /**
+     * Clears the list of children of this node.
+     *
+     * The internal reference is set to <code>null</code> for that purpose.
+     */
+    public void removeAllChildren() {
+        children = null;
+    }
+
 }

@@ -9,6 +9,7 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
 import org.junit.runners.Suite.SuiteClasses;
 
+import edu.kit.iti.algover.parser.ParameterContractionVisitorTest;
 import edu.kit.iti.algover.parser.ParserTest;
 import edu.kit.iti.algover.parser.ReferenceResolutionVisitorTest;
 import edu.kit.iti.algover.parser.TypeResolutionTest;
@@ -34,6 +35,7 @@ import edu.kit.iti.algover.util.UtilTest;
     TreeTermTranslatorTest.class,
     ReplacementVisitorTest.class,
     LetInlineVisitorTest.class,
+    ParameterContractionVisitorTest.class,
     FunctionSymbolFamilyTest.class,
     TestImmutableList.class,
     TestLabelIntroducer.class,
