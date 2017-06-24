@@ -335,8 +335,6 @@ prefix_expr:
     '-'^ prefix_expr
   | '!'^ prefix_expr
   | postfix_expr
-  //|  {logicMode}? 
-    //  '{' ID ':=' expression ( ',' ID ':=' expression )* '}' expression
   ;
 
 endless_expr:
@@ -363,15 +361,26 @@ postfix_expr:
 atom_expr:
     ID
   | ID '(' expressions? ')' -> ^(CALL ID ^(ARGS expressions?) )
-  | {logicMode}? l=LOGIC_ID -> ID[l]
-  | {logicMode}? l=LOGIC_ID '(' expressions? ')'
-       -> ^(CALL ID[l] ^(ARGS expressions?) )
+  | {logicMode}? logic_id_param
+      (                      -> logic_id_param
+      | '(' expressions? ')' -> ^(CALL logic_id_param ^(ARGS expressions?) )
+      )
   | TRUE | FALSE | NULL | 'this'
   | INT_LIT
   | 'old'^ '('! expression ')'!
   | 'fresh'^ '('! expression ')'!
 //  | '|'^ expression '|'!
   | '('! expression ')'!
+  ;
+
+id_param:
+  ID^ ( '<'! id_param ( ','! id_param )* '>'! )?
+  ;
+
+// Currently, only logic ids can have type parameters, will change later ...
+logic_id_param:
+  LOGIC_ID^ ( ( '<' id_param ( ',' id_param )* '>' ) =>
+                '<'! id_param ( ','! id_param )* '>'! )?
   ;
 
 quantifier:

@@ -55,6 +55,7 @@ public class ParserTest {
                 { "full/twoway.dfy" },
                 { "unqualifiedCallsInExp.dfy" },
                 { "letexpressions.dfy" },
+                { "typeParameters.dfy" },
                 });
     }
 
@@ -84,7 +85,7 @@ public class ParserTest {
         if(expected != null) {
             String expect = Util.streamToString(expected.openStream()).replaceAll("\\s+", " ").trim();
             String actual = t.toStringTree().replaceAll("\\s+", " ").trim();
-           // assertEquals("For inspection", Util.streamToString(expected.openStream()), TestUtil.beautify(t));
+            // assertEquals("For inspection", Util.streamToString(expected.openStream()), TestUtil.beautify(t));
             assertEquals("Parsing result", expect, actual);
         }
     }
@@ -99,7 +100,7 @@ public class ParserTest {
             throw new NullPointerException();
         }
 
-        DafnyTree result = DafnyFileParser.parse(stream);
+        DafnyTree result = DafnyFileParser.parse(stream, true);
         DafnyFileParser.setFilename(result, filename);
 
         return result;
