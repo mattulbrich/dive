@@ -117,6 +117,8 @@ public class Sort {
         BUILTIN_SORT_NAMES.add("set");
         BUILTIN_SORT_NAMES.add("seq");
         BUILTIN_SORT_NAMES.add("array");
+        BUILTIN_SORT_NAMES.add("array2");
+        BUILTIN_SORT_NAMES.add("array3");
         BUILTIN_SORT_NAMES.add("field");
         BUILTIN_SORT_NAMES.add("heap");
     }

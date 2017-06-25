@@ -196,41 +196,20 @@ public final class TreeUtil {
 
     @Deprecated
     public static Sort treeToType(DafnyTree tree) {
-        String name = tree.toString();
-        if ("array".equals(name)) {
-            name = "[int]";
-        }
-
-        return Sort.get(name);
+        return toSort(tree);
     }
 
     // TODO: MU should put this into a different class
     public static Sort toSort(DafnyTree tree) {
-        switch(tree.getType()) {
-        case DafnyParser.INT:
-            assert tree.getChildCount() == 0;
-            return Sort.INT;
-        case DafnyParser.BOOL:
-            assert tree.getChildCount() == 0;
-            return Sort.BOOL;
-        case DafnyParser.SET:
-            assert tree.getChildCount() == 1;
-            // TODO refer to a consant not the srting.
-            return Sort.get("set", toSort(tree.getChild(0)));
-        case DafnyParser.SEQ:
-            assert tree.getChildCount() == 1;
-            // TODO refer to a consant not the srting.
-            return Sort.get("seq", toSort(tree.getChild(0)));
-        case DafnyParser.ARRAY:
-            assert tree.getChildCount() == 1;
-            // TODO FIXME ... multidim arrays
-            return Sort.get("seq", toSort(tree.getChild(0)));
-        case DafnyParser.ID:
-            // We do not support parametric classes ...
-            assert tree.getChildCount() == 0;
-            return Sort.getClassSort(tree.getText());
-        default:
-            throw new Error("expected token for type " + tree.toStringTree());
+
+        if(tree.getChildCount() == 0) {
+            return Sort.get(tree.getText());
+        } else {
+            Sort[] args = new Sort[tree.getChildCount() - 1];
+            for (int i = 0; i < args.length; i++) {
+                args[i] = toSort(tree.getChild(i+1));
+            }
+            return Sort.get(tree.getText(), args);
         }
     }
 

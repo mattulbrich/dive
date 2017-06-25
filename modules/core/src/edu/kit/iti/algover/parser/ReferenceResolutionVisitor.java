@@ -319,15 +319,6 @@ public class ReferenceResolutionVisitor extends DafnyTreeDefaultVisitor<Void, Re
     }
 
     /*
-     * Just add the declared variable to the identifierMap.
-     */
-    @Override
-    public Void visitVAR(DafnyTree t, Mode a) {
-        identifierMap.put(t.getChild(0).getText(), t);
-        return null;
-    }
-
-    /*
      * Remember the rewind position for the block and rewind after visitation.
      */
     @Override
@@ -389,6 +380,20 @@ public class ReferenceResolutionVisitor extends DafnyTreeDefaultVisitor<Void, Re
     }
 
     /*
+     * Just add the declared variable to the identifierMap.
+     * Resolve the type.
+     */
+    @Override
+    public Void visitVAR(DafnyTree t, Mode a) {
+        identifierMap.put(t.getChild(0).getText(), t);
+        t.getChild(1).accept(this, Mode.TYPE);
+        if (t.getChildCount() > 2) {
+            t.getChild(2).accept(this, Mode.EXPR);
+        }
+        return null;
+    }
+
+    /*
      * Visit the type in type mode.
      *
      * Do not visit the field name.
@@ -396,9 +401,13 @@ public class ReferenceResolutionVisitor extends DafnyTreeDefaultVisitor<Void, Re
     @Override
     public Void visitFIELD(DafnyTree t, Mode a) {
         t.getChild(1).accept(this, Mode.TYPE);
-        if (t.getChildCount() > 2) {
-            t.getChild(2).accept(this, Mode.EXPR);
-        }
+        return null;
+    }
+
+    @Override
+    public Void visitARRAY(DafnyTree t, Mode mode) {
+        assert mode == Mode.TYPE;
+        t.getChild(0).accept(this, mode);
         return null;
     }
 

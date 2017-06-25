@@ -50,6 +50,8 @@ public class ReferenceResolutionVisitorTest {
                 "(FIELD_ACCESS d cf)",
                 "(FIELD_ACCESS d cf)",
                 "(CALL mc d (ARGS d))",
+                "(var a Unknown)",
+                "(FIELD_ACCESS a f)",
         };
 
         List<DafnyException> exceptions = rrv.getExceptions();
@@ -64,6 +66,7 @@ public class ReferenceResolutionVisitorTest {
     private void test(String resourceName) throws Exception {
 
         DafnyTree tree = ParserTest.parseFile(getClass().getResourceAsStream(resourceName));
+        DafnyFileParser.setFilename(tree, resourceName);
 
         TestUtil.mockProject(tree);
 

@@ -1,4 +1,8 @@
 (:= i null)
 (:= i c)
 (:= i true)
+(:= c 0)
+(:= c i)
+(:= c true)
 (var localVar1 int null)
+(var localVar2 C 0)

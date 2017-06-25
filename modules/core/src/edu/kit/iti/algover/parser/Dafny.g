@@ -205,7 +205,7 @@ type:
   | SET^ '<'! type '>'!
   | ARRAY^ '<'! type '>'!
   | SEQ^ '<'! type '>'!
-  | ID
+  | ID^ ( '<'! type ( ','! type )* '>'! )?
   ;
 
 returns_:
@@ -377,15 +377,11 @@ atom_expr:
   | '('! expression ')'!
   ;
 
-id_param:
-    ID^ ( '<'! id_param ( ','! id_param )* '>'! )?
-  | INT | BOOL // ...
-  ;
 
 // Currently, only logic ids can have type parameters, will change later ...
 logic_id_param:
-  LOGIC_ID^ ( ( '<' id_param ( ',' id_param )* '>' ) =>
-                '<'! id_param ( ','! id_param )* '>'! )?
+  LOGIC_ID^ ( ( '<' type ( ',' type )* '>' ) =>
+                '<'! type ( ','! type )* '>'! )?
   ;
 
 quantifier:

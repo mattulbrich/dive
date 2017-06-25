@@ -87,7 +87,13 @@ public class TypeResolution extends DafnyTreeDefaultVisitor<DafnyTree, Void> {
     @Override
     public DafnyTree visitVAR(DafnyTree tree, Void a) {
         if(tree.getChildCount() > 2) {
-            tree.getChild(2).accept(this, null);
+            DafnyTree ty = tree.getChild(2).accept(this, null);
+            String ty1 = TreeUtil.toTypeString(tree.getChild(1));
+            String ty2 = TreeUtil.toTypeString(ty);
+            if(!ty1.equals(ty2)) {
+                exceptions.add(new DafnyException("Assigning a value of type " + ty2 + " to an entitity"
+                        + " of type " + ty1, tree));
+            }
         }
         return null;
     }
@@ -231,11 +237,27 @@ public class TypeResolution extends DafnyTreeDefaultVisitor<DafnyTree, Void> {
         throw new UnsupportedOperationException("not yet implemented");
     }
 
-
-
     @Override
     public DafnyTree visitARRAY_ACCESS(DafnyTree t, Void a) {
-        throw new UnsupportedOperationException("not yet implemented");
+        DafnyTree array = t.getChild(0);
+        DafnyTree index = t.getChild(1);
+
+        DafnyTree arrayType = array.accept(this, null);
+        DafnyTree indexType = index.accept(this, null);
+
+        if (indexType.getType() != DafnyParser.INT) {
+            exceptions.add(new DafnyException(
+                    "Array index not of type int, but " + indexType, index));
+        }
+
+        if (arrayType.getType() != DafnyParser.ARRAY) {
+            exceptions.add(new DafnyException(
+                    "Only arrays can be indexed", t));
+        }
+
+        DafnyTree ty = arrayType.getChild(0);
+        t.setExpressionType(ty);
+        return ty;
     }
 
     @Override
@@ -392,12 +414,6 @@ public class TypeResolution extends DafnyTreeDefaultVisitor<DafnyTree, Void> {
     }
 
     @Override
-    public DafnyTree visitUNION(DafnyTree t, Void a) {
-        // TODO Auto-generated method stub
-        return super.visitUNION(t, a);
-    }
-
-    @Override
     public DafnyTree visitWILDCARD(DafnyTree t, Void a) {
         DafnyTree parent = (DafnyTree) t.getParent();
         switch(parent.getType()) {
@@ -423,7 +439,6 @@ public class TypeResolution extends DafnyTreeDefaultVisitor<DafnyTree, Void> {
     public DafnyTree visitNIL(DafnyTree t, Void a) {
         throw new UnsupportedOperationException("not yet implemented");
     }
-
 
     @Override
     public DafnyTree visitASSIGN(DafnyTree t, Void a) {
