@@ -7,7 +7,6 @@ package edu.kit.iti.algover.term;
 
 import static org.junit.Assert.*;
 
-import org.antlr.analysis.SemanticContext.TruePredicate;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -18,6 +17,23 @@ import junitparams.Parameters;
 public class SortTest {
 
     private Sort CLASS_SORT = Sort.getClassSort("Demo");
+
+    public Object[][] parametersForTestClassSorts() {
+        return new Object[][] {
+            { Sort.INT, false },
+            { Sort.BOOL, false },
+            { Sort.HEAP, false },
+            { Sort.OBJECT, false },
+            { Sort.NULL, false },
+            { Sort.get("field", Sort.get("A"), Sort.BOOL), false },
+            { Sort.get("set", Sort.INT), false },
+            { Sort.get("seq", Sort.INT), false },
+            { Sort.get("array", Sort.INT), false },
+
+            { Sort.get("A"), true },
+            { Sort.get("Object"), true },
+        };
+    }
 
     public Object[][] parametersForTestHierarchy() {
         return new Object[][] {
@@ -61,9 +77,12 @@ public class SortTest {
 
     @Test @Parameters
     public void testHierarchy(Sort top, Sort bottom, boolean expected) {
-
         assertEquals(expected, bottom.isSubtypeOf(top));
+    }
 
+    @Test @Parameters
+    public void testClassSorts(Sort sort, boolean isClassSort) {
+        assertEquals(isClassSort, sort.isClassSort());
     }
 
 }

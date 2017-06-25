@@ -47,9 +47,6 @@ class ParameterContractionVisitor extends DafnyTreeDefaultVisitor<Void, Void> {
      */
     private void contract(StringBuilder sb, DafnyTree t) {
 
-        assert t.getType() == DafnyParser.ID ||
-               t.getType() == DafnyParser.LOGIC_ID;
-
         sb.append(t.getText());
 
         if(t.getChildCount() == 0) {

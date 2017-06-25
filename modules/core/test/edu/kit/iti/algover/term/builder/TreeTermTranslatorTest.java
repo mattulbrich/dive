@@ -211,7 +211,7 @@ public class TreeTermTranslatorTest {
         assertEquals(expected, result);
     }
 
-    @Test @Ignore // expected result cannot yet be parsed
+    @Test
     public void letCascadeHeap() throws Exception {
 
         symbTable.addFunctionSymbol(new FunctionSymbol("this", Sort.getClassSort("C")));
@@ -239,10 +239,10 @@ public class TreeTermTranslatorTest {
         Term expected = TermParser.parse(symbTable,
                 "let heap := $store<C,int>($heap, this, C$$field, "
                 + "$plus($select<C, int>($heap, this, C$$field), 1)) :: "
-                + "let heap := $store<D, D>(heap, d, D$$field, null[D]) :: "
-                + "$select<C, int>(heap, this, C$$field) > 1");
+                + "let heap := $store<D, D>(heap, d, D$$field, null) :: "
+                + "$select<C, int>(heap, this, C$$field) > 0");
 
-        assertEquals(expected, result);
+        assertEquals(expected.toString(), result.toString());
     }
 
     // from a bug

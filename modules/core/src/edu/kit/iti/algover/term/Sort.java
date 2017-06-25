@@ -6,8 +6,10 @@
 package edu.kit.iti.algover.term;
 
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 
 import edu.kit.iti.algover.util.Util;
 
@@ -30,8 +32,8 @@ import edu.kit.iti.algover.util.Util;
  * <li><code>A</code> is a class type and <code>B</code> is the null type.
  * </ol>
  *
- * The boolean flag {@link #classSort} determines whether the object is
- * the sort that belongs to a dafny class or not.
+ * All sorts which are not in the set of builtin sorts are considered class
+ * types.
  *
  * @author mulbrich
  */
@@ -99,15 +101,25 @@ public class Sort {
     private final String name;
 
     /**
-     * Indicates whether this sort belongs to a Dafny class.
-     * If <code>true</code> then arguments must be empty.
-     */
-    private final boolean classSort;
-
-    /**
      * The arguments, must not be <code>null</code>.
      */
     private final Sort[] arguments;
+
+    private static final Set<String> BUILTIN_SORT_NAMES;
+
+    static {
+        BUILTIN_SORT_NAMES = new HashSet<>();
+        BUILTIN_SORT_NAMES.add(INT.getName());
+        BUILTIN_SORT_NAMES.add(BOOL.getName());
+        BUILTIN_SORT_NAMES.add(HEAP.getName());
+        BUILTIN_SORT_NAMES.add(OBJECT.getName());
+        BUILTIN_SORT_NAMES.add(NULL.getName());
+        BUILTIN_SORT_NAMES.add("set");
+        BUILTIN_SORT_NAMES.add("seq");
+        BUILTIN_SORT_NAMES.add("array");
+        BUILTIN_SORT_NAMES.add("field");
+        BUILTIN_SORT_NAMES.add("heap");
+    }
 
     /**
      * Instantiates a new sort w/ arguments.
@@ -117,9 +129,8 @@ public class Sort {
      * @param arguments
      *            the deep-non-<code>null</code> arguments
      */
-    private Sort(String name, boolean classSort, Sort... arguments) {
+    private Sort(String name, Sort... arguments) {
         this.name = Objects.requireNonNull(name);
-        this.classSort = classSort;
         this.arguments = Util.requireDeepNonNull(arguments);
     }
 
@@ -134,7 +145,7 @@ public class Sort {
      */
     public static Sort get(String name) {
         // could use Cache object if needed
-        return new Sort(name, false, NO_ARGUMENTS);
+        return new Sort(name, NO_ARGUMENTS);
     }
 
     /**
@@ -149,7 +160,7 @@ public class Sort {
      */
     public static Sort get(String name, Sort... arguments) {
         // could use Cache object if needed
-        return new Sort(name, false, arguments);
+        return new Sort(name, arguments);
     }
 
     /**
@@ -163,8 +174,8 @@ public class Sort {
      * @return the sort can be a fresh object or taken from a cache.
      */
     public static Sort getClassSort(String name) {
-        // could use Cache object if needed
-        return new Sort(name, true, NO_ARGUMENTS);
+        assert !BUILTIN_SORT_NAMES.contains(name);
+        return new Sort(name, NO_ARGUMENTS);
     }
 
     @Override
@@ -264,13 +275,13 @@ public class Sort {
     /**
      * Checks if this sort belongs to a Dafny class.
      *
-     * Checks a flag set at cosntruction of the object.
+     * Checks if the name is a builtin name
      *
      * @return <code>true</code>, iff this objects reprsents the sort for a
      *         Dafny class
      */
     public boolean isClassSort() {
-        return classSort;
+        return !BUILTIN_SORT_NAMES.contains(getName());
     }
 
     /**

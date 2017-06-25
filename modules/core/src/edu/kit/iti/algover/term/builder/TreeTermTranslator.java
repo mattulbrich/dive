@@ -11,8 +11,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 
-import org.antlr.runtime.tree.Tree;
-
 import edu.kit.iti.algover.SymbexStateToFormula;
 import edu.kit.iti.algover.data.BuiltinSymbols;
 import edu.kit.iti.algover.data.SymbolTable;
@@ -139,7 +137,7 @@ public class TreeTermTranslator {
 
                     Term appl = new ApplTerm(store, getHeap(), self, field, value);
                     boundVars.put(HEAP_VAR.getName(), HEAP_VAR);
-                    let = new LetTerm(HEAP_VAR, appl, buildLetCascade(tail, expression));
+                    let = new LetTerm(HEAP_VAR, appl, buildLetCascade(tail, result));
                     boundVars.pop();
                     return let;
                 }
@@ -152,7 +150,7 @@ public class TreeTermTranslator {
 
                 Term appl = tb.storeField(getHeap(), object, field, value);
                 boundVars.put(HEAP_VAR.getName(), HEAP_VAR);
-                let = new LetTerm(HEAP_VAR, appl, buildLetCascade(tail, expression));
+                let = new LetTerm(HEAP_VAR, appl, buildLetCascade(tail, result));
                 boundVars.pop();
                 return let;
             }
@@ -167,7 +165,7 @@ public class TreeTermTranslator {
                 ApplTerm heapTerm = new ApplTerm(heap);
                 Term appl = new ApplTerm(store, heapTerm, object, index, value);
                 boundVars.put(HEAP_VAR.getName(), HEAP_VAR);
-                let = new LetTerm(HEAP_VAR, appl, buildLetCascade(tail, expression));
+                let = new LetTerm(HEAP_VAR, appl, buildLetCascade(tail, result));
                 boundVars.pop();
                 return let;
             }
