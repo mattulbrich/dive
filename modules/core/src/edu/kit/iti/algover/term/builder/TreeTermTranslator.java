@@ -425,21 +425,40 @@ public class TreeTermTranslator {
     }
 
     private Term buildQuantifier(Quantifier q, DafnyTree tree) throws TermBuildException {
-        assert tree.getChildCount() == 3;
+        assert tree.getChildCount() >= 3;
 
-        String var = tree.getChild(0).getText();
-        Sort t = buildSort(tree.getChild(1));
-        VariableTerm varTerm = new VariableTerm(var, t);
+        ImmutableList<DafnyTree> vars =
+                ImmutableList.from(
+                        tree.getChildren().subList(0, tree.getChildCount() - 2));
 
+        // make the order correct
+        vars = vars.reverse();
+
+        Sort sort = buildSort(tree.getChild(tree.getChildCount()-2));
+
+        DafnyTree formulaTree = tree.getLastChild();
+        return buildQuantifier(q, vars, sort, formulaTree);
+    }
+
+
+    private Term buildQuantifier(Quantifier q, ImmutableList<DafnyTree> vars, Sort sort, DafnyTree formulaTree) throws TermBuildException {
+        if(vars.size() == 0) {
+            return build(formulaTree);
+        }
+
+        DafnyTree var = vars.getHead();
+        VariableTerm varTerm = new VariableTerm(var.getText(), sort);
+        boundVars.put(varTerm.getName(), varTerm);
         try {
-            boundVars.put(var, varTerm);
-            Term formula = build(tree.getChild(2));
-            QuantTerm result = new QuantTerm(q, varTerm, formula);
+            Term inner = buildQuantifier(q, vars.getTail(), sort, formulaTree);
+            Term result = new QuantTerm(q, varTerm, inner);
             return result;
         } finally {
-            boundVars.rewindHistory(boundVars.size() - 1);
+            boundVars.pop();
         }
+
     }
+
 
     private Term buildLet(DafnyTree tree) throws TermBuildException {
 

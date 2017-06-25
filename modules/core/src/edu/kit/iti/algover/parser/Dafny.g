@@ -386,5 +386,5 @@ logic_id_param:
   ;
 
 quantifier:
-  (ALL^ | EX^) ID ':'! type '::'! expression
+  (ALL^ | EX^) ID (','! ID)* ':'! type '::'! expression
   ;

@@ -69,8 +69,13 @@ public class TreeTermTranslatorTest {
 
             { "false && true", "$and(false, true)" },
             { "b1 || b2 ==> b3", "$imp($or(b1, b2), b3)" },
+            { "forall x,y,z:int :: x > y+z",
+              "(forall x:int :: (forall y:int :: "
+                 + "(forall z:int :: $gt(x, $plus(y, z)))))" },
             { "forall x:int :: exists y:int :: x > y",
-            "(forall x:int :: (exists y:int :: $gt(x, y)))" },
+              "(forall x:int :: (exists y:int :: $gt(x, y)))" },
+            { "forall x,x:int :: true",
+              "(forall x:int :: (forall x:int :: true))" },
             { "let x := 3 :: x > i1", "(let x := 3 :: $gt(x, i1))" },
             { "$plus(1, 2)", "$plus(1, 2)" },
 
@@ -100,6 +105,7 @@ public class TreeTermTranslatorTest {
             { "let x,y:=1 :: y", "Mismatched assignments in let expression:" },
             { "let x:=1 :: unknown", "" },  // no more bound vars after this
             { "forall x:int :: unknown", "" },  // no more bound vars after this
+            { "forall x,y,z:int :: unknown", "" },  // no more bound vars after this
             { "f(b1)", "Unexpected argument sort" },
             { "if true then b1 else i1", "Unexpected argument sort" },
         };
