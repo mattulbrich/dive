@@ -56,6 +56,7 @@ public class ParserTest {
                 { "unqualifiedCallsInExp.dfy" },
                 { "letexpressions.dfy" },
                 { "typeParameters.dfy" },
+                { "saddleback.dfy" },
                 });
     }
 

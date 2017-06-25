@@ -88,6 +88,7 @@ MODIFIES: 'modifies';
 NULL: 'null';
 // PREDICATE : 'predicate';
 REQUIRES: 'requires';
+RETURN : 'return';
 RETURNS : 'returns';
 SEQ : 'seq';
 SET : 'set';
@@ -261,6 +262,8 @@ statement:
   | 'assert'^ ( 'label'! ID ':'! )? expression ';'!
 
   | 'assume'^ ( 'label'! ID ':'! )? expression ';'!
+
+  | 'return'^ ';'!
   ;
 
 
@@ -352,7 +355,7 @@ let_expr:
 
 postfix_expr:
   ( atom_expr -> atom_expr )   // see ANTLR ref. page 175
-  ( '[' expression ']' -> ^( ARRAY_ACCESS $postfix_expr expression )
+  ( '[' expressions ']' -> ^( ARRAY_ACCESS $postfix_expr expressions )
   | '.' LENGTH -> ^( LENGTH $postfix_expr )
   | '.' ID '(' expressions? ')' -> ^( CALL ID $postfix_expr ^(ARGS expressions?) )
   | '.' ID -> ^( FIELD_ACCESS $postfix_expr ID )
