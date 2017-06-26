@@ -1,12 +1,11 @@
 package edu.kit.iti.algover;
 
 import edu.kit.iti.algover.facade.ProjectFacade;
-import edu.kit.iti.algover.model.ProjectTree;
+import edu.kit.iti.algover.overview.FlatOverviewController;
+import edu.kit.iti.algover.overview.OverviewTreeTable;
 import edu.kit.iti.algover.project.Project;
-import edu.kit.iti.algover.util.Debug;
 import javafx.application.Application;
 import javafx.scene.Scene;
-import javafx.scene.control.TextArea;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.Stage;
 
@@ -28,8 +27,10 @@ public class AlgoVerApplication extends Application {
     // Read all PVCs and update GUI
     Project project = ProjectFacade.getInstance().buildProject(projectDir);
 
-    ProjectTreeTableView view = new ProjectTreeTableView(project);
-    primaryStage.setScene(new Scene(view));
+    FlatOverviewController controller = new FlatOverviewController(project);
+    Scene scene = new Scene(controller.getView());
+    scene.getStylesheets().add(AlgoVerApplication.class.getResource("style.css").toExternalForm());
+    primaryStage.setScene(scene);
     primaryStage.show();
 
   }

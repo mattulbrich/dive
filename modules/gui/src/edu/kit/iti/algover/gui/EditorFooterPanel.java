@@ -1,7 +1,6 @@
 package edu.kit.iti.algover.gui;
 
 import net.miginfocom.swing.MigLayout;
-import sun.management.snmp.jvmmib.EnumJvmClassesVerboseLevel;
 
 import javax.swing.*;
 import java.awt.*;
