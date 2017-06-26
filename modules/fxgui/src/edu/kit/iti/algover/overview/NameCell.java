@@ -10,27 +10,21 @@ import javafx.scene.paint.Color;
 /**
  * Created by philipp on 26.06.17.
  */
-public class NameCell extends TreeTableCell<TreeTableEntity, String> {
+public class NameCell extends TreeTableCell<TreeTableEntity, TreeTableEntity> {
 
     public NameCell() {
         getStyleClass().add("namecell");
     }
 
-    public TreeTableEntity getModel() {
-        TreeTableRow<TreeTableEntity> treeTableRow = getTreeTableRow();
-        if (treeTableRow == null) return null;
-        TreeItem<TreeTableEntity> treeItem = treeTableRow.getTreeItem();
-        if (treeItem == null) return null;
-        return treeItem.getValue();
-    }
-
     @Override
-    protected void updateItem(String item, boolean empty) {
+    protected void updateItem(TreeTableEntity item, boolean empty) {
         super.updateItem(item, empty);
-        TreeTableEntity model = getModel();
-        if (item != null && !empty && model != null) {
-            setGraphic(graphicForKind(model.getKind()));
-            setText(model.getName());
+        if (item != null && !empty) {
+            setGraphic(graphicForKind(item.getKind()));
+            setText(item.getName());
+        } else {
+            setGraphic(null);
+            setText(null);
         }
     }
 

@@ -11,7 +11,7 @@ import javafx.scene.control.TreeTableView;
  */
 public class OverviewTreeTable extends TreeTableView<TreeTableEntity> {
 
-  private TreeTableColumn<TreeTableEntity, String> nameColumn;
+  private TreeTableColumn<TreeTableEntity, TreeTableEntity> nameColumn;
   private TreeTableColumn<TreeTableEntity, Float> percentageProvenColumn;
   private TreeTableColumn<TreeTableEntity, TreeTableEntity.ProofStatus> statusColumn;
 
@@ -19,6 +19,8 @@ public class OverviewTreeTable extends TreeTableView<TreeTableEntity> {
     this.nameColumn = new TreeTableColumn<>("name");
     this.percentageProvenColumn = new TreeTableColumn<>("percentage proven");
     this.statusColumn = new TreeTableColumn<>("status");
+
+    getStyleClass().addAll("overview");
 
     nameColumn.setCellValueFactory(this::nameCellFactory);
     percentageProvenColumn.setCellValueFactory(this::percentageProvenCellFactory);
@@ -29,12 +31,12 @@ public class OverviewTreeTable extends TreeTableView<TreeTableEntity> {
     super.getColumns().setAll(nameColumn, percentageProvenColumn, statusColumn);
   }
 
-  private TreeTableCell<TreeTableEntity, String> nameCellRenderer(TreeTableColumn<TreeTableEntity, String> column) {
+  private TreeTableCell<TreeTableEntity, TreeTableEntity> nameCellRenderer(TreeTableColumn<TreeTableEntity, TreeTableEntity> column) {
     return new NameCell();
   }
 
-  private ObservableValue<String> nameCellFactory(TreeTableColumn.CellDataFeatures<TreeTableEntity, String> data) {
-    return data.getValue().getValue().nameProperty();
+  private ObservableValue<TreeTableEntity> nameCellFactory(TreeTableColumn.CellDataFeatures<TreeTableEntity, TreeTableEntity> data) {
+    return data.getValue().valueProperty();
   }
 
   private ObservableValue<Float> percentageProvenCellFactory(TreeTableColumn.CellDataFeatures<TreeTableEntity, Float> data) {
