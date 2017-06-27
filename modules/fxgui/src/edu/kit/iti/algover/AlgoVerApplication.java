@@ -1,11 +1,13 @@
 package edu.kit.iti.algover;
 
+import edu.kit.iti.algover.editor.EditorView;
 import edu.kit.iti.algover.facade.ProjectFacade;
-import edu.kit.iti.algover.overview.FlatOverviewController;
-import edu.kit.iti.algover.overview.OverviewController;
+import edu.kit.iti.algover.browser.FlatBrowserController;
+import edu.kit.iti.algover.browser.BrowserController;
 import edu.kit.iti.algover.project.Project;
 import javafx.application.Application;
 import javafx.scene.Scene;
+import javafx.scene.control.SplitPane;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.Stage;
 
@@ -27,9 +29,11 @@ public class AlgoVerApplication extends Application {
         // Read all PVCs and update GUI
         Project project = ProjectFacade.getInstance().buildProject(projectDir);
 
-        OverviewController controller = new FlatOverviewController(project);
-        // OverviewController controller = new FileBasedOverviewController(project);
-        Scene scene = new Scene(controller.getView());
+        BrowserController controller = new FlatBrowserController(project);
+        // BrowserController controller = new FileBasedBrowserController(project);
+
+        SplitPane pane = new SplitPane(controller.getView(), new EditorView());
+        Scene scene = new Scene(pane);
         scene.getStylesheets().add(AlgoVerApplication.class.getResource("style.css").toExternalForm());
         primaryStage.setScene(scene);
         primaryStage.show();

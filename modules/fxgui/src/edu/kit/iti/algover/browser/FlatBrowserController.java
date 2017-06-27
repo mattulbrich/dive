@@ -1,4 +1,4 @@
-package edu.kit.iti.algover.overview;
+package edu.kit.iti.algover.browser;
 
 import edu.kit.iti.algover.project.Project;
 import javafx.scene.control.TreeItem;
@@ -8,9 +8,9 @@ import java.util.stream.Collectors;
 /**
  * Created by philipp on 26.06.17.
  */
-public class FlatOverviewController extends OverviewController {
+public class FlatBrowserController extends BrowserController {
 
-    public FlatOverviewController(Project project) {
+    public FlatBrowserController(Project project) {
         super(project);
     }
 

@@ -1,4 +1,4 @@
-package edu.kit.iti.algover.overview;
+package edu.kit.iti.algover.browser;
 
 
 import javafx.beans.value.ObservableValue;
@@ -9,18 +9,18 @@ import javafx.scene.control.TreeTableView;
 /**
  * Created by Philipp on 15.06.2017.
  */
-public class OverviewTreeTable extends TreeTableView<TreeTableEntity> {
+public class BrowserTreeTable extends TreeTableView<TreeTableEntity> {
 
     private TreeTableColumn<TreeTableEntity, TreeTableEntity> nameColumn;
     private TreeTableColumn<TreeTableEntity, Float> percentageProvenColumn;
     private TreeTableColumn<TreeTableEntity, TreeTableEntity.ProofStatus> statusColumn;
 
-    public OverviewTreeTable() {
+    public BrowserTreeTable() {
         this.nameColumn = new TreeTableColumn<>("name");
         this.percentageProvenColumn = new TreeTableColumn<>("percentage proven");
         this.statusColumn = new TreeTableColumn<>("status");
 
-        getStyleClass().addAll("overview");
+        getStyleClass().addAll("browser");
 
         nameColumn.setCellValueFactory(this::nameCellFactory);
         percentageProvenColumn.setCellValueFactory(this::percentageProvenCellFactory);

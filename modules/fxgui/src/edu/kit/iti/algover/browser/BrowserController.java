@@ -1,4 +1,4 @@
-package edu.kit.iti.algover.overview;
+package edu.kit.iti.algover.browser;
 
 import edu.kit.iti.algover.dafnystructures.DafnyClass;
 import edu.kit.iti.algover.dafnystructures.DafnyFile;
@@ -11,14 +11,14 @@ import java.util.stream.Collectors;
 /**
  * Created by philipp on 26.06.17.
  */
-public abstract class OverviewController {
+public abstract class BrowserController {
 
     private final Project project;
-    private final OverviewTreeTable view;
+    private final BrowserTreeTable view;
 
-    protected OverviewController(Project project) {
+    protected BrowserController(Project project) {
         this.project = project;
-        this.view = new OverviewTreeTable();
+        this.view = new BrowserTreeTable();
 
         populateTreeTable();
     }
@@ -53,7 +53,7 @@ public abstract class OverviewController {
         return new TreeItem<>(method);
     }
 
-    public OverviewTreeTable getView() {
+    public BrowserTreeTable getView() {
         return view;
     }
 

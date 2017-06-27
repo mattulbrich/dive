@@ -1,4 +1,4 @@
-package edu.kit.iti.algover.overview;
+package edu.kit.iti.algover.browser;
 
 import javafx.scene.Node;
 import javafx.scene.control.Label;
