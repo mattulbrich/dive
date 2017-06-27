@@ -1,8 +1,5 @@
 package edu.kit.iti.algover.overview;
 
-import edu.kit.iti.algover.dafnystructures.DafnyClass;
-import edu.kit.iti.algover.dafnystructures.DafnyFile;
-import edu.kit.iti.algover.dafnystructures.DafnyMethod;
 import edu.kit.iti.algover.project.Project;
 import javafx.scene.control.TreeItem;
 

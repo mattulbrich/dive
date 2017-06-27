@@ -2,9 +2,7 @@ package edu.kit.iti.algover.overview;
 
 import javafx.scene.Node;
 import javafx.scene.control.Label;
-import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeTableCell;
-import javafx.scene.control.TreeTableRow;
 import javafx.scene.paint.Color;
 
 /**
@@ -30,11 +28,16 @@ public class NameCell extends TreeTableCell<TreeTableEntity, TreeTableEntity> {
 
     private Node graphicForKind(TreeTableEntity.Kind kind) {
         switch (kind) {
-            case FUNCTION: return blueLabel("function");
-            case CLASS: return blueLabel("class");
-            case MODULE: return blueLabel("module");
-            case METHOD: return blueLabel("method");
-            default: return null;
+            case FUNCTION:
+                return blueLabel("function");
+            case CLASS:
+                return blueLabel("class");
+            case MODULE:
+                return blueLabel("module");
+            case METHOD:
+                return blueLabel("method");
+            default:
+                return null;
         }
     }
 

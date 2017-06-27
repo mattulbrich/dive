@@ -1,10 +1,8 @@
 package edu.kit.iti.algover;
 
 import edu.kit.iti.algover.facade.ProjectFacade;
-import edu.kit.iti.algover.overview.FileBasedOverviewController;
 import edu.kit.iti.algover.overview.FlatOverviewController;
 import edu.kit.iti.algover.overview.OverviewController;
-import edu.kit.iti.algover.overview.OverviewTreeTable;
 import edu.kit.iti.algover.project.Project;
 import javafx.application.Application;
 import javafx.scene.Scene;
@@ -18,23 +16,23 @@ import java.io.File;
  */
 public class AlgoVerApplication extends Application {
 
-  @Override
-  public void start(Stage primaryStage) throws Exception {
-    // Let user choose a project directory
-    DirectoryChooser chooser = new DirectoryChooser();
-    chooser.setTitle("Choose project");
-    chooser.setInitialDirectory(new File("modules/fxgui/test-res/edu/kit/iti/algover"));
-    File projectDir = chooser.showDialog(primaryStage);
+    @Override
+    public void start(Stage primaryStage) throws Exception {
+        // Let user choose a project directory
+        DirectoryChooser chooser = new DirectoryChooser();
+        chooser.setTitle("Choose project");
+        chooser.setInitialDirectory(new File("modules/fxgui/test-res/edu/kit/iti/algover"));
+        File projectDir = chooser.showDialog(primaryStage);
 
-    // Read all PVCs and update GUI
-    Project project = ProjectFacade.getInstance().buildProject(projectDir);
+        // Read all PVCs and update GUI
+        Project project = ProjectFacade.getInstance().buildProject(projectDir);
 
-    OverviewController controller = new FlatOverviewController(project);
-    //OverviewController controller = new FileBasedOverviewController(project);
-    Scene scene = new Scene(controller.getView());
-    scene.getStylesheets().add(AlgoVerApplication.class.getResource("style.css").toExternalForm());
-    primaryStage.setScene(scene);
-    primaryStage.show();
+        OverviewController controller = new FlatOverviewController(project);
+        // OverviewController controller = new FileBasedOverviewController(project);
+        Scene scene = new Scene(controller.getView());
+        scene.getStylesheets().add(AlgoVerApplication.class.getResource("style.css").toExternalForm());
+        primaryStage.setScene(scene);
+        primaryStage.show();
 
-  }
+    }
 }
