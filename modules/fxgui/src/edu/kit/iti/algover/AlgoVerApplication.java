@@ -1,13 +1,9 @@
 package edu.kit.iti.algover;
 
-import edu.kit.iti.algover.editor.EditorView;
 import edu.kit.iti.algover.facade.ProjectFacade;
-import edu.kit.iti.algover.browser.FlatBrowserController;
-import edu.kit.iti.algover.browser.BrowserController;
 import edu.kit.iti.algover.project.Project;
 import javafx.application.Application;
 import javafx.scene.Scene;
-import javafx.scene.control.SplitPane;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.Stage;
 
@@ -29,13 +25,12 @@ public class AlgoVerApplication extends Application {
         // Read all PVCs and update GUI
         Project project = ProjectFacade.getInstance().buildProject(projectDir);
 
-        BrowserController controller = new FlatBrowserController(project);
-        // BrowserController controller = new FileBasedBrowserController(project);
-
-        SplitPane pane = new SplitPane(controller.getView(), new EditorView());
-        Scene scene = new Scene(pane);
+        OverviewController controller = new OverviewController(project);
+        Scene scene = new Scene(controller.getView());
         scene.getStylesheets().add(AlgoVerApplication.class.getResource("style.css").toExternalForm());
         primaryStage.setScene(scene);
+        primaryStage.setWidth(1000);
+        primaryStage.setHeight(800);
         primaryStage.show();
 
     }

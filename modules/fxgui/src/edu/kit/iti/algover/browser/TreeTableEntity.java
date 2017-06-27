@@ -61,4 +61,13 @@ public class TreeTableEntity {
         return proofStatus;
     }
 
+    @Override
+    public String toString() {
+        return "TreeTableEntity{" +
+                "name=" + name.get() +
+                ", percentageProven=" + percentageProven.get() +
+                ", proofStatus=" + proofStatus.get() +
+                ", kind=" + kind +
+                '}';
+    }
 }

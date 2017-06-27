@@ -4,6 +4,7 @@ import edu.kit.iti.algover.dafnystructures.DafnyClass;
 import edu.kit.iti.algover.dafnystructures.DafnyFile;
 import edu.kit.iti.algover.dafnystructures.DafnyMethod;
 import edu.kit.iti.algover.project.Project;
+import javafx.beans.value.ObservableValue;
 import javafx.scene.control.TreeItem;
 
 import java.util.stream.Collectors;
@@ -16,9 +17,13 @@ public abstract class BrowserController {
     private final Project project;
     private final BrowserTreeTable view;
 
+    private BrowserSelectionListener selectionListener;
+
     protected BrowserController(Project project) {
         this.project = project;
         this.view = new BrowserTreeTable();
+
+        view.getSelectionModel().selectedItemProperty().addListener(this::onTreeItemSelected);
 
         populateTreeTable();
     }
@@ -53,11 +58,29 @@ public abstract class BrowserController {
         return new TreeItem<>(method);
     }
 
+    protected void onTreeItemSelected(
+            ObservableValue<? extends TreeItem<TreeTableEntity>> value,
+            TreeItem<TreeTableEntity> before,
+            TreeItem<TreeTableEntity> item) {
+        if (item == null || selectionListener == null) return;
+        TreeTableEntity entity = item.getValue();
+        if (entity == null) return;
+        selectionListener.onBrowserItemSelected(entity);
+    }
+
     public BrowserTreeTable getView() {
         return view;
     }
 
     public Project getProject() {
         return project;
+    }
+
+    public BrowserSelectionListener getSelectionListener() {
+        return selectionListener;
+    }
+
+    public void setSelectionListener(BrowserSelectionListener selectionListener) {
+        this.selectionListener = selectionListener;
     }
 }

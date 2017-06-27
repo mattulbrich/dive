@@ -28,6 +28,9 @@ public class BrowserTreeTable extends TreeTableView<TreeTableEntity> {
 
         nameColumn.setCellFactory(this::nameCellRenderer);
 
+        nameColumn.setPrefWidth(200);
+        percentageProvenColumn.setPrefWidth(50);
+
         super.getColumns().setAll(nameColumn, percentageProvenColumn, statusColumn);
     }
 
