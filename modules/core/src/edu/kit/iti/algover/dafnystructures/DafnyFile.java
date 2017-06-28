@@ -46,6 +46,10 @@ public class DafnyFile extends DafnyDecl {
         this.functions = toMap(b.getFunctions());
 
         checkNameConflict(methods, functions);
+
+        setParentFor(methods.values());
+        setParentFor(functions.values());
+        setParentFor(classes.values());
     }
 
     @Override

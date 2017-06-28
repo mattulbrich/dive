@@ -5,26 +5,23 @@
  */
 package edu.kit.iti.algover.parser;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.fail;
-
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.List;
-
+import edu.kit.iti.algover.dafnystructures.DafnyMethod;
+import edu.kit.iti.algover.project.Project;
+import edu.kit.iti.algover.project.ProjectBuilder;
+import edu.kit.iti.algover.util.TreeUtil;
+import edu.kit.iti.algover.util.Util;
 import org.antlr.runtime.RecognitionException;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
 
-import edu.kit.iti.algover.dafnystructures.DafnyMethod;
-import edu.kit.iti.algover.project.Project;
-import edu.kit.iti.algover.project.ProjectBuilder;
-import edu.kit.iti.algover.util.TreeUtil;
-import edu.kit.iti.algover.util.Util;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.List;
+
+import static org.junit.Assert.*;
 
 @RunWith(Parameterized.class)
 public class TypeResolutionTest {
@@ -58,6 +55,12 @@ public class TypeResolutionTest {
             result.add(new Object[] { method.getName(), project });
         }
         return result;
+    }
+
+    private static Project mockProject(DafnyTree tree) throws IOException, DafnyException, DafnyParserException, RecognitionException {
+        ProjectBuilder pb = new ProjectBuilder();
+        pb.addDafnyTree("dummy", tree);
+        return pb.build();
     }
 
     @Test
@@ -119,11 +122,5 @@ public class TypeResolutionTest {
             buf.append("]");
         }
         return buf.toString();
-    }
-
-    private static Project mockProject(DafnyTree tree) throws IOException, RecognitionException, DafnyException {
-        ProjectBuilder pb = new ProjectBuilder();
-        pb.addDafnyTree("dummy", tree);
-        return pb.build();
     }
 }

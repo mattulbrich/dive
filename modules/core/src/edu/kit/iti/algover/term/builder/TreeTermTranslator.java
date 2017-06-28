@@ -8,8 +8,7 @@ package edu.kit.iti.algover.term.builder;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.Deque;
-import java.util.LinkedList;
+import java.util.HashMap;
 import java.util.List;
 
 import edu.kit.iti.algover.SymbexStateToFormula;
@@ -25,7 +24,9 @@ import edu.kit.iti.algover.term.QuantTerm.Quantifier;
 import edu.kit.iti.algover.term.Sort;
 import edu.kit.iti.algover.term.Term;
 import edu.kit.iti.algover.term.VariableTerm;
+import edu.kit.iti.algover.util.HistoryMap;
 import edu.kit.iti.algover.util.ImmutableList;
+import edu.kit.iti.algover.util.Pair;
 
 /**
  * The Class TreeTermTranslator is used to create a {@link Term} object from a
@@ -40,9 +41,12 @@ public class TreeTermTranslator {
 
     private final SymbolTable symbolTable;
 
-    private final Deque<VariableTerm> boundVars = new LinkedList<VariableTerm>();
+    private final HistoryMap<String, VariableTerm> boundVars =
+            new HistoryMap<>(new HashMap<>());
 
     private final TermBuilder tb;
+
+    private static final VariableTerm HEAP_VAR = new VariableTerm("heap", Sort.HEAP);
 
     /**
      * Instantiates a new term translator.
@@ -75,17 +79,19 @@ public class TreeTermTranslator {
      *             if terms in the tree are not well-formed.
      */
     public Term build(ImmutableList<DafnyTree> history, DafnyTree expression) throws TermBuildException {
-        Term result = build(expression);
-
-        for (DafnyTree assignment : history) {
-            result = buildLetExpression(assignment, result);
-        }
-
-        return result;
-
+        return buildLetCascade(history.reverse(), expression);
     }
 
-    private Term buildLetExpression(DafnyTree assignment, Term result)
+    private Term buildLetCascade(ImmutableList<DafnyTree> history, DafnyTree expression) throws TermBuildException {
+        if(history.size() == 0) {
+            return build(expression);
+        } else {
+            return buildLetExpression(history.getHead(),
+                    history.getTail(), expression);
+        }
+    }
+
+    private Term buildLetExpression(DafnyTree assignment, ImmutableList<DafnyTree> tail, DafnyTree result)
             throws TermBuildException {
         DafnyTree errorTree = assignment;
 
@@ -94,10 +100,15 @@ public class TreeTermTranslator {
         try {
             DafnyTree receiver = assignment.getChild(0);
             DafnyTree expression = assignment.getChild(1);
+            LetTerm let;
             switch (receiver.getType()) {
             case DafnyParser.ID:
-                FunctionSymbol f = symbolTable.getFunctionSymbol(receiver.getText());
-                return new LetTerm(f, build(expression), result);
+                String name = receiver.getText();
+                VariableTerm f = new VariableTerm(name, build(expression).getSort());
+                boundVars.put(name, f);
+                let = new LetTerm(f, build(expression), buildLetCascade(tail, result));
+                boundVars.pop();
+                return let;
 
             case DafnyParser.FIELD_ACCESS: {
                 // XXX
@@ -109,8 +120,12 @@ public class TreeTermTranslator {
                 FunctionSymbol heap = BuiltinSymbols.HEAP;
                 ApplTerm heapTerm = new ApplTerm(heap);
                 Term appl = new ApplTerm(store, heapTerm, object, field, value);
-                return new LetTerm(heap, appl, result);
+                boundVars.put(HEAP_VAR.getName(), HEAP_VAR);
+                let = new LetTerm(HEAP_VAR, appl, buildLetCascade(tail, expression));
+                boundVars.pop();
+                return let;
             }
+
             case DafnyParser.ARRAY_ACCESS: {
                 // XXX
                 FunctionSymbol store = symbolTable.getFunctionSymbol("$storeArr[int]");
@@ -120,7 +135,10 @@ public class TreeTermTranslator {
                 FunctionSymbol heap = BuiltinSymbols.HEAP;
                 ApplTerm heapTerm = new ApplTerm(heap);
                 Term appl = new ApplTerm(store, heapTerm, object, index, value);
-                return new LetTerm(heap, appl, result);
+                boundVars.put(HEAP_VAR.getName(), HEAP_VAR);
+                let = new LetTerm(HEAP_VAR, appl, buildLetCascade(tail, expression));
+                boundVars.pop();
+                return let;
             }
 
             //            case DafnyParser.LISTEX:
@@ -178,10 +196,10 @@ public class TreeTermTranslator {
         case DafnyParser.TIMES:
             return buildBinary(BuiltinSymbols.TIMES, tree);
         case DafnyParser.UNION:
-            // TODO generalize this bezond integer sets
+            // TODO generalize this beyond integer sets
             return buildBinary(symbolTable.getFunctionSymbol("$union[int]"), tree);
         case DafnyParser.INTERSECT:
-            // TODO generalize this bezond integer sets
+            // TODO generalize this beyond integer sets
             return buildBinary(symbolTable.getFunctionSymbol("$intersect[int]"), tree);
 
         case DafnyParser.NOT:
@@ -207,6 +225,9 @@ public class TreeTermTranslator {
         case DafnyParser.EX:
             return buildQuantifier(QuantTerm.Quantifier.EXISTS, tree);
 
+        case DafnyParser.LET:
+            return buildLet(tree);
+
         case DafnyParser.LENGTH:
             return buildLength(tree);
 
@@ -216,6 +237,9 @@ public class TreeTermTranslator {
         case DafnyParser.NOETHER_LESS:
             return buildNoetherLess(tree);
 
+        case DafnyParser.CALL:
+            return buildCall(tree);
+
         default:
             TermBuildException ex =
                 new TermBuildException("Cannot translate term: " + tree.toStringTree());
@@ -224,6 +248,26 @@ public class TreeTermTranslator {
         }
 
     }
+
+    private Term buildCall(DafnyTree tree) throws TermBuildException {
+
+        assert tree.getChildCount() == 2 :
+            "Calls with receivers not yet supported!";
+
+        String id = tree.getChild(0).getText();
+        FunctionSymbol fct = symbolTable.getFunctionSymbol(id);
+        if(fct == null) {
+            throw new TermBuildException("xxx unknown symbol, methods not allowed " + id);
+        }
+
+        List<Term> argTerms = new ArrayList<>();
+        for (DafnyTree arg : tree.getChild(1).getChildren()) {
+            argTerms.add(build(arg));
+        }
+
+        return new ApplTerm(fct, argTerms);
+    }
+
 
     private Term buildArrayAccess(DafnyTree tree) throws TermBuildException {
 
@@ -274,15 +318,13 @@ public class TreeTermTranslator {
     }
 
     private Term buildEquality(DafnyTree tree) throws TermBuildException {
-        if (tree.getChildCount() != 2) {
-            throw new RuntimeException();
-        }
+        assert tree.getChildCount() == 2;
 
         Term t1 = build(tree.getChild(0));
         Term t2 = build(tree.getChild(1));
 
         if (!t1.getSort().equals(t2.getSort())) {
-            throw new RuntimeException();
+            throw new TermBuildException("xxx");
         }
 
         FunctionSymbol f = symbolTable.getFunctionSymbol("$eq[" + t1.getSort().getName() + "]");
@@ -291,11 +333,10 @@ public class TreeTermTranslator {
 
     private Term buildIdentifier(DafnyTree tree) throws TermBuildException {
         String name = tree.toString();
-        for (VariableTerm var : boundVars) {
-            if (var.getName().equals(name)) {
-                // found a bound variable in context!
-                return var;
-            }
+        VariableTerm var = boundVars.get(name);
+        if (var != null) {
+            // found a bound variable in context!
+            return var;
         }
 
         FunctionSymbol fct = symbolTable.getFunctionSymbol(name);
@@ -307,24 +348,53 @@ public class TreeTermTranslator {
     }
 
     private Term buildQuantifier(Quantifier q, DafnyTree tree) throws TermBuildException {
-        if (tree.getChildCount() != 3) {
-            throw new RuntimeException();
-        }
+        assert tree.getChildCount() == 3;
 
-        String var = tree.getChild(0).toString();
+        String var = tree.getChild(0).getText();
         Sort t = buildSort(tree.getChild(1));
         VariableTerm varTerm = new VariableTerm(var, t);
 
         try {
-            boundVars.push(varTerm);
+            boundVars.put(var, varTerm);
             Term formula = build(tree.getChild(2));
             QuantTerm result = new QuantTerm(q, varTerm, formula);
             return result;
         } finally {
-            VariableTerm popped = boundVars.pop();
-            assert popped == varTerm;
+            boundVars.rewindHistory(boundVars.size() - 1);
         }
     }
+
+    private Term buildLet(DafnyTree tree) throws TermBuildException {
+
+        List<DafnyTree> targets = tree.getChild(0).getChildren();
+
+        if(targets.size() + 2 != tree.getChildCount()) {
+            throw new TermBuildException("xxx");
+        }
+
+        List<Pair<VariableTerm, Term>> substs = new ArrayList<>();
+        for (int i = 0; i < targets.size(); i++) {
+            Term term = build(tree.getChild(i+1));
+            VariableTerm var = new VariableTerm(targets.get(i).getText(), term.getSort());
+            substs.add(new Pair<>(var, term));
+        }
+
+        // only bind them now after all expressions have been parsed
+        int rewindPos = boundVars.getHistory();
+        try {
+            for (Pair<VariableTerm, Term> pair : substs) {
+                boundVars.put(pair.fst.getName(), pair.fst);
+            }
+
+            Term inner = build(tree.getLastChild());
+            LetTerm result = new LetTerm(substs, inner);
+            return result;
+        } finally {
+            boundVars.rewindHistory(rewindPos);
+        }
+
+    }
+
 
     // Currently that is still simple since only array<int>, arrayN<int> and set<int>
     // are supported besides int.
@@ -343,9 +413,8 @@ public class TreeTermTranslator {
     }
 
     private Term buildBinary(FunctionSymbol f, DafnyTree tree) throws TermBuildException {
-        if (tree.getChildCount() != 2) {
-            throw new RuntimeException("Unexpected argument " + tree.toStringTree());
-        }
+        assert tree.getChildCount() == 2 :
+            "Unexpected argument " + tree.toStringTree();
 
         Term t1 = build(tree.getChild(0));
         Term t2 = build(tree.getChild(1));
@@ -383,6 +452,12 @@ public class TreeTermTranslator {
         }
 
         return result;
+    }
+
+
+    /* for testing */
+    int countBoundedVars() {
+        return boundVars.size();
     }
 
 }

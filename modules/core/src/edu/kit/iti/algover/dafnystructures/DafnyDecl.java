@@ -24,6 +24,14 @@ import edu.kit.iti.algover.term.FunctionSymbol;
 public abstract class DafnyDecl {
 
     /**
+     * The declaration within which this declaration is placed.
+     * May be <code>null</code> (in particular for {@link DafnyFile}s)
+     *
+     * This is set by the parent class when adding it as a child.
+     */
+    private DafnyDecl parentDecl;
+
+    /**
      * Filename of the file in which this DafnyDecl is stored.
      */
     private final String filename;
@@ -76,6 +84,25 @@ public abstract class DafnyDecl {
 
     public String getName() {
         return name;
+    }
+
+    public DafnyDecl getParentDecl() {
+        return parentDecl;
+    }
+
+    /**
+     * Sets the {@link #parentDecl} field of the argument declarations to this
+     * object.
+     *
+     * @param decls
+     *            collection of the declarations in which the parent is to be
+     *            set
+     */
+    void setParentFor(Collection<? extends DafnyDecl> decls) {
+        for (DafnyDecl decl : decls) {
+            assert decl.parentDecl == null;
+            decl.parentDecl = this;
+        }
     }
 
     /**
@@ -131,6 +158,8 @@ public abstract class DafnyDecl {
 
     /**
      * Translate a list of dafny declarations to a map by their name.
+     *
+     * This is a infrastructure method invoked by various builders.
      *
      * @param <D>
      *            the generic type

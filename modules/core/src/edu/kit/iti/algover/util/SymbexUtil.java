@@ -23,7 +23,7 @@ public class SymbexUtil {
             sb.append("    " + pc.getExpression().toStringTree() + "\n");
             sb.append("  Assignment History:" + "\n");
             sb.append("    "
-                    + Util.join(pc.getVariableMap().map(DafnyTree::toStringTree), "\n    ")
+                    + Util.join(pc.getAssignmentHistory().map(DafnyTree::toStringTree), "\n    ")
                     + "\n");
             sb.append("  Refers to: line " + pc.getExpression().token.getLine() + "\n");
         }

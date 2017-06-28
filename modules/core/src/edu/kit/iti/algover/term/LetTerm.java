@@ -8,28 +8,29 @@ package edu.kit.iti.algover.term;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 
 import edu.kit.iti.algover.term.builder.TermBuildException;
 import edu.kit.iti.algover.util.Pair;
+import edu.kit.iti.algover.util.Util;
 
 public class LetTerm extends Term {
 
-    private final List<Pair<FunctionSymbol, Term>> substitutions;
+    private final List<Pair<VariableTerm, Term>> substitutions;
 
-    public LetTerm(FunctionSymbol var, Term expression, Term in) throws TermBuildException {
+    public LetTerm(VariableTerm var, Term expression, Term in) throws TermBuildException {
         this(Collections.singletonList(new Pair<>(var, expression)), in);
     }
 
-    public LetTerm(List<Pair<FunctionSymbol, Term>> substs, Term in) throws TermBuildException {
+    public LetTerm(List<Pair<VariableTerm, Term>> substs, Term in) throws TermBuildException {
         super(in.getSort(), new Term[] { in });
         this.substitutions = new ArrayList<>(substs);
 
-        for (Pair<FunctionSymbol, Term> pair : substs) {
-            if (pair.fst.getArity() != 0) {
-                throw new TermBuildException("Assignment not non-constant");
-            }
-            if (!pair.fst.getResultSort().equals(pair.snd.getSort())) {
-                throw new TermBuildException("Illegally typed assignment to " + pair.fst);
+        for (Pair<VariableTerm, Term> pair : substs) {
+            VariableTerm fst = Objects.requireNonNull(pair.fst);
+            Term snd = Objects.requireNonNull(pair.snd);
+            if (!fst.getSort().equals(snd.getSort())) {
+                throw new TermBuildException("Illegally typed assignment to " + fst);
             }
         }
     }
@@ -37,26 +38,23 @@ public class LetTerm extends Term {
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
-        sb.append("(let ");
-        for (Pair<FunctionSymbol, Term> pair : substitutions) {
-            sb.append(pair.fst.getName()).append("=").append(pair.snd).append(", ");
-        }
-        // remove comma
-        sb.setLength(sb.length() - 2);
-        sb.append(" in ").append(getInTerm()).append(")");
+        sb.append("(let ")
+            .append(Util.commatize(Util.map(substitutions, p -> p.fst.getName())))
+            .append(" := ")
+            .append(Util.commatize(Util.map(substitutions, p -> p.snd.toString())))
+            .append(" :: ")
+            .append(getTerm(0)).append(")");
+
         return sb.toString();
     }
 
-    private Term getInTerm() {
-        return getSubterms().get(0);
-    }
-
     @Override
-    public <A, R> R accept(TermVisitor<A, R> visitor, A arg) {
+    public <A, R, E extends Exception>
+            R accept(TermVisitor<A, R, E> visitor, A arg) throws E {
         return visitor.visit(this, arg);
     }
 
-    public List<Pair<FunctionSymbol, Term>> getSubstitutions() {
+    public List<Pair<VariableTerm, Term>> getSubstitutions() {
         return Collections.unmodifiableList(substitutions);
     }
 

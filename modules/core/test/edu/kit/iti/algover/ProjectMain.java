@@ -1,8 +1,9 @@
+/*
+ * This file is part of AlgoVer.
+ *
+ * Copyright (C) 2015-2017 Karlsruhe Institute of Technology
+ */
 package edu.kit.iti.algover;
-
-import java.io.File;
-
-import org.antlr.runtime.RecognitionException;
 
 import edu.kit.iti.algover.dafnystructures.DafnyClass;
 import edu.kit.iti.algover.dafnystructures.DafnyMethod;
@@ -11,10 +12,13 @@ import edu.kit.iti.algover.parser.DafnyParser;
 import edu.kit.iti.algover.parser.DafnyTree;
 import edu.kit.iti.algover.project.Project;
 import edu.kit.iti.algover.project.ProjectBuilder;
-import edu.kit.iti.algover.proof.PVC;
 import edu.kit.iti.algover.proof.PVCGroup;
+import edu.kit.iti.algover.proof.SinglePVC;
 import edu.kit.iti.algover.util.Debug;
 import edu.kit.iti.algover.util.Util;
+import org.antlr.runtime.RecognitionException;
+
+import java.io.File;
 
 public class ProjectMain {
 
@@ -41,9 +45,9 @@ public class ProjectMain {
 
         ProjectBuilder pb = new ProjectBuilder();
         pb.setDir(new File(dir));
-        pb.setScriptFilename("project.script");  // is already default.
+        pb.setConfigFilename("config.xml");  // is already default.
 
-        pb.parseScript();  // if the script should be parsed.
+        pb.parseProjectConfigurationFile();  // if the script should be parsed.
 
         // to add extra files / libraries
         pb.addDafnyFile("extra.dfy");
@@ -83,6 +87,10 @@ public class ProjectMain {
         /*
          * turn that into logic ... WORK IN PROGRESS
          */
+
+        SinglePVC pv = (SinglePVC) project.getVerificationConditionsFor(project.getMethod("m2")).getChildren().get(1);
+        System.out.println(pv.getPVC().getSequent());
+
         // @Sarah: How do I get the actual pvc from a collection?
         // PVC pvc = pvcs.getChild(1).getChildren().get(2);
 

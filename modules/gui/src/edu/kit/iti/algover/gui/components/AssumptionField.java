@@ -1,12 +1,20 @@
+/*
+ * This file is part of AlgoVer.
+ *
+ * Copyright (C) 2015-2017 Karlsruhe Institute of Technology
+ */
 package edu.kit.iti.algover.gui.components;
 
-import edu.kit.iti.algover.proof.PVC;
-import edu.kit.iti.algover.proof.TopFormula;
+import java.util.List;
 
-import javax.swing.*;
+import javax.swing.BoxLayout;
+import javax.swing.JPanel;
+import javax.swing.JToolBar;
 import javax.swing.border.EtchedBorder;
 import javax.swing.border.TitledBorder;
-import java.util.List;
+
+import edu.kit.iti.algover.proof.PVC;
+import edu.kit.iti.algover.proof.ProofFormula;
 
 /**
  * Created by sarah on 10/25/16.
@@ -17,8 +25,8 @@ public class AssumptionField extends JPanel {
     public AssumptionField(PVC pvc){
         this.setBorder(new TitledBorder("Aussumptions"));
         this.setLayout(new BoxLayout(this, BoxLayout.PAGE_AXIS));
-        List<TopFormula> assumptions = pvc.getAssumptionsWithInfo();
-        for(TopFormula f: assumptions){
+        List<ProofFormula> assumptions = pvc.getSequent().getAntecedent();
+        for(ProofFormula f: assumptions){
             CustomFormulaDisplay cfd = new CustomFormulaDisplay(f.getTerm().toString());
             cfd.setToolTipText(f.getTerm().toString());
             cfd.setBorder(new EtchedBorder());

@@ -17,6 +17,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
 import java.util.RandomAccess;
+import java.util.ServiceLoader;
 import java.util.function.Function;
 
 
@@ -366,6 +367,13 @@ public final class Util {
         }
 
         return iterable;
+    }
+
+    // TODO is there no builtin mechanism for that?
+    public static <E> List<E> toList(Iterable<E> itb) {
+        ArrayList<E> result = new ArrayList<>();
+        itb.forEach(result::add);
+        return result;
     }
 
 

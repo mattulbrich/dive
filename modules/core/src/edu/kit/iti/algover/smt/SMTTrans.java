@@ -1,7 +1,7 @@
 /*
  * This file is part of AlgoVer.
  *
- * Copyright (C) 2015-2016 Karlsruhe Institute of Technology
+ * Copyright (C) 2015-2017 Karlsruhe Institute of Technology
  */
 package edu.kit.iti.algover.smt;
 
@@ -38,7 +38,7 @@ import edu.kit.iti.algover.util.Pair;
  * @author Mattias Ulbrich
  */
 
-public class SMTTrans extends DefaultTermVisitor<Void, SExpr> {
+public class SMTTrans extends DefaultTermVisitor<Void, SExpr, RuntimeException> {
 
     /**
      * A map which keeps smt translations for builtin function symbols.
@@ -129,7 +129,7 @@ public class SMTTrans extends DefaultTermVisitor<Void, SExpr> {
     public SExpr visit(LetTerm letTerm, Void arg) {
         SExpr inner = letTerm.getTerm(0).accept(this, null);
         List<SExpr> substitutions = new ArrayList<SExpr>();
-        for (Pair<FunctionSymbol, Term> pair : letTerm.getSubstitutions()) {
+        for (Pair<VariableTerm, Term> pair : letTerm.getSubstitutions()) {
             substitutions.add(new SExpr(pair.fst.getName(), pair.snd.accept(this, null)));
         }
         return new SExpr("let", new SExpr(substitutions), inner);

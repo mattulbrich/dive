@@ -1,0 +1,77 @@
+
+(COMPILATION_UNIT 
+ (method M 
+  (ARGS 
+   (VAR N int) 
+   (VAR a 
+    (array int))) 
+  (returns 
+   (VAR sum int) 
+   (VAR max int)) 
+  (requires 
+   (&& 
+    (&& 
+     (&& 
+       (<= 0 N) 
+       (!= a null))
+      (== (Length a) N))
+      (forall k int 
+       (==> 
+        (&& 
+         (<= 0 k) 
+         (< k N)) 
+        (<= 0 
+         (ARRAY_ACCESS a k)))))) 
+  (ensures 
+   (<= sum 
+    (* N max))) 
+  (BLOCK 
+   (:= sum 0) 
+   (:= max 0) 
+   (var i int 0) 
+   (while 
+    (< i N) 
+    (invariant 
+     (&& 
+      (<= i N) 
+      (<= sum 
+       (* i max)))) 
+    (BLOCK 
+     (if 
+      (< max 
+       (ARRAY_ACCESS a i)) 
+      (BLOCK 
+       (:= max 
+        (ARRAY_ACCESS a i)))) 
+     (:= sum 
+      (+ sum 
+       (ARRAY_ACCESS a i))) 
+     (:= i 
+      (+ i 1)))))) 
+ (method Main ARGS 
+  (BLOCK 
+   (var a 
+    (array int)) 
+   (:= 
+    (ARRAY_ACCESS a 0) 9) 
+   (:= 
+    (ARRAY_ACCESS a 1) 5) 
+   (:= 
+    (ARRAY_ACCESS a 2) 0) 
+   (:= 
+    (ARRAY_ACCESS a 3) 2) 
+   (:= 
+    (ARRAY_ACCESS a 4) 7) 
+   (:= 
+    (ARRAY_ACCESS a 5) 3) 
+   (:= 
+    (ARRAY_ACCESS a 6) 2) 
+   (:= 
+    (ARRAY_ACCESS a 7) 1) 
+   (:= 
+    (ARRAY_ACCESS a 8) 10) 
+   (:= 
+    (ARRAY_ACCESS a 9) 6) 
+   (var s int) 
+   (var m int))))
+

@@ -1,0 +1,55 @@
+(COMPILATION_UNIT 
+ (method Find 
+  (ARGS 
+   (VAR a 
+    (array int)) 
+   (VAR key int)) 
+  (returns 
+   (VAR index int)) 
+  (requires 
+   (!= a null)) 
+  (ensures 
+   (==> 
+    (<= 0 index) 
+    (&& 
+     (< index 
+      (Length a)) 
+     (== 
+      (ARRAY_ACCESS a index) key)))) 
+  (ensures 
+   (==> 
+    (< index 0) 
+    (forall k int 
+     (==> 
+      (&& 
+       (<= 0 k) 
+       (< k 
+        (Length a))) 
+      (!= 
+       (ARRAY_ACCESS a k) key))))) 
+  (BLOCK 
+   (:= index 0) 
+   (while 
+    (< index 
+     (Length a)) 
+    (invariant 
+     (&& 
+      (<= 0 index) 
+      (<= index 
+       (Length a)))) 
+    (invariant 
+     (forall k int 
+      (==> 
+       (&& 
+        (<= 0 k) 
+        (< k index)) 
+       (!= 
+        (ARRAY_ACCESS a k) key)))) 
+    (BLOCK 
+     (if 
+      (== 
+       (ARRAY_ACCESS a index) key) BLOCK) 
+     (:= index 
+      (+ index 1)))) 
+   (:= index 
+    (- 1)))))

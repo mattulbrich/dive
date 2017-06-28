@@ -233,7 +233,7 @@ public class DafnyTranslator {
                     }
                     body.append(translateAssignments(reverse(assignmentsToTranslate)));
                     */
-                    body.append(translateAssignments(pce.getVariableMap()));
+                    body.append(translateAssignments(pce.getAssignmentHistory()));
                     body.append(invariant);
                     body.append(variant);
                 }
@@ -261,7 +261,7 @@ public class DafnyTranslator {
                     }
                     body.append(translateAssignments(reverse(assignmentsToTranslate)));
                     */
-                    body.append(translateAssignments(pce.getVariableMap()));
+                    body.append(translateAssignments(pce.getAssignmentHistory()));
                     body.append(createAssumption(pce));
                 }
             }

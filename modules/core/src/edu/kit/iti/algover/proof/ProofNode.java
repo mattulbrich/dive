@@ -22,6 +22,7 @@ public class ProofNode {
     private ProofStepResult psr;
     private ProofHistory history;
     private List<ProofNode> children;
+    private PVC rootPVC;
 
 
 

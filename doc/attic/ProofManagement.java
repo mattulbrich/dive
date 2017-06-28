@@ -5,7 +5,6 @@
  */
 package edu.kit.iti.algover.proof;
 
-import edu.kit.iti.algover.facade.ProjectFacade;
 import edu.kit.iti.algover.project.Project;
 
 /**
@@ -33,7 +32,7 @@ public class ProofManagement {
     }
 
     public ProofManagement(Project p) {
-        this.root = ProjectFacade.getInstance().generateAndCollectPVC(p);
+        this.root = p.generateAndCollectPVC();
     }
 
     // This code is not in ProjectFacade#generateAndCollectPVC

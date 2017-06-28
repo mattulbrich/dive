@@ -43,7 +43,11 @@ public class DafnyClass extends DafnyDecl {
         this.functions = toMap(dcb.getFunctions());
         this.fields = toMap(dcb.getFields());
 
-        // TODO Check methods and functions have no clashes
+        checkNameConflict(methods, functions);
+
+        setParentFor(methods.values());
+        setParentFor(functions.values());
+        setParentFor(fields.values());
     }
 
     /**
@@ -105,7 +109,7 @@ public class DafnyClass extends DafnyDecl {
 
     // REVIEW: toString() should be a oneliner.
     @Override
-    public String toString(){
+    public String toString() {
         // REVIEW refactor with new situation; use StringBuilder
         String classToString = "";
 

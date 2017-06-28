@@ -5,28 +5,23 @@
  */
 package edu.kit.iti.algover.facade;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-
 import edu.kit.iti.algover.dafnystructures.DafnyDecl;
-import edu.kit.iti.algover.dafnystructures.DafnyDeclPVCCollector;
-import edu.kit.iti.algover.dafnystructures.DafnyFile;
 import edu.kit.iti.algover.parser.DafnyException;
 import edu.kit.iti.algover.parser.ReferenceResolutionVisitor;
 import edu.kit.iti.algover.parser.TypeResolution;
 import edu.kit.iti.algover.project.Project;
 import edu.kit.iti.algover.project.ProjectBuilder;
 import edu.kit.iti.algover.proof.PVC;
-import edu.kit.iti.algover.proof.PVCGroup;
 import edu.kit.iti.algover.proof.ProofNode;
 import edu.kit.iti.algover.script.ScriptTree;
 import edu.kit.iti.algover.symbex.Symbex;
 import edu.kit.iti.algover.symbex.SymbexPath;
-import edu.kit.iti.algover.term.FunctionSymbol;
 import edu.kit.iti.algover.theoremprover.DafnyTranslator;
+
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Interface to create a project, to reload a project and do other project related stuff
@@ -38,23 +33,15 @@ import edu.kit.iti.algover.theoremprover.DafnyTranslator;
 
 public class ProjectFacade {
 
-    private int getGeneralPVCCounter() {
-        return generalPVCCounter;
-    }
-
-    private void setGeneralPVCCounter(int generalPVCCounter) {
-        this.generalPVCCounter += generalPVCCounter;
-    }
-
+    /**
+     * Class is singleton
+     */
+    private static ProjectFacade instance = null;
     /**
      * General Counter for PVCs
      */
     private int generalPVCCounter;
 
-    /**
-     * Class is singleton
-     */
-    private static ProjectFacade instance = null;
     protected ProjectFacade() {
         generalPVCCounter = 0;
     }
@@ -66,7 +53,16 @@ public class ProjectFacade {
       return instance;
     }
 
+    private int getGeneralPVCCounter() {
+        return generalPVCCounter;
+    }
+
+    private void setGeneralPVCCounter(int generalPVCCounter) {
+        this.generalPVCCounter += generalPVCCounter;
+    }
+
     // REVIEW: "throws Exception" is usually not a very good idea.
+
     /**
      * Build a new Project
      * @param dir
@@ -76,7 +72,7 @@ public class ProjectFacade {
         Project p = null;
         ProjectBuilder pb = new ProjectBuilder();
         pb.setDir(dir);
-        pb.parseScript();
+        pb.parseProjectConfigurationFile();
         p = pb.build();
 
         ArrayList<DafnyException> exceptions = new ArrayList<>();
@@ -89,25 +85,7 @@ public class ProjectFacade {
         return p;
     }
 
-    /**
-     * Performs Symbolic execution of a dafnydecl and return the list of PVCs
-     * @param decl
-     * @return
-     */
-    // REVIEW: Why not as member function of project?
-    public PVCGroup generateAndCollectPVC(Project project){
 
-        PVCGroup root = new PVCGroup(null);
-
-        DafnyDeclPVCCollector visitor = new DafnyDeclPVCCollector(ProjectFacade.getInstance());
-
-        for (DafnyFile file : project.getDafnyFiles()) {
-            visitor.visitFile(file, root);
-        }
-
-        return root;
-
-    }
 
     /**
      * Perform Symbolic Execution of a given DafnyTree (method)
@@ -123,26 +101,6 @@ public class ProjectFacade {
 
     }
 
-    // REVIEW: retired this. OK? Please remove if so.
-    // all PVCs are recoverable from generateAndCollectPVC.
-//    /**
-//     * Create verification conditions from given SymbexPaths
-//     * @param path SymbexPath
-//     * @return
-//     */
-//    public List<PVC> createVerificationConditions(DafnyDecl decl, SymbexPath path) {
-//        List<PVC> verificationconditions = new LinkedList<>();
-//        PVCBuilder builder = new PVCBuilder(this.getGeneralPVCCounter());
-//
-//        //build all pvc for path
-//        //in a loop
-//        verificationconditions.add(builder.buildPVC(path, decl));
-//
-//
-//        //add pvcs to counter
-//        this.setGeneralPVCCounter(verificationconditions.size());
-//        return verificationconditions;
-//    }
 
     public ProofNode createProofRoot(SymbexPath path){
         return null;

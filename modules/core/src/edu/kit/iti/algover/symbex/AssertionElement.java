@@ -169,7 +169,7 @@ public class AssertionElement {
      *
      * @return the non-<code>null</code> assignment history.
      */
-    public ImmutableList<DafnyTree> getState() {
+    public ImmutableList<DafnyTree> getAssignmentHistory() {
         return state;
     }
 

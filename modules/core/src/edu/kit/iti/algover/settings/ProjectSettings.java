@@ -1,13 +1,6 @@
 package edu.kit.iti.algover.settings;
 
-import com.sun.scenario.Settings;
-
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
 import java.util.HashMap;
-import java.util.Properties;
 
 /**
  * ProjectSettings:
@@ -20,8 +13,8 @@ import java.util.Properties;
  */
 public class ProjectSettings{
 
-    /**Settings atm available
-     *
+    /**
+     *Settings atm available
      */
     public static final String DAFNY_TIMEOUT = "Dafny Timeout";
     public static final String KEY_TIMEOUT = "KeY Timeout";
@@ -39,6 +32,7 @@ public class ProjectSettings{
         set= new HashMap<>();
         setDefaultValues();
     }
+
 
     public String getValue(String key){
         if(this.set.containsKey(key)){
@@ -80,6 +74,7 @@ public class ProjectSettings{
         }
         return ret;
     }
+
 
     public HashMap getSettings(){
         return this.set;

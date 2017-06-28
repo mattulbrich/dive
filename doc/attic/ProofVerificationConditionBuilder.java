@@ -6,12 +6,6 @@
 package edu.kit.iti.algover.proof;
 
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
-
 import edu.kit.iti.algover.ProgramDatabase;
 import edu.kit.iti.algover.data.BuiltinSymbols;
 import edu.kit.iti.algover.data.MapSymbolTable;
@@ -309,6 +303,7 @@ public class ProofVerificationConditionBuilder {
         TreeTermTranslator ttt = new TreeTermTranslator(symbolTable);
 
         for(PathConditionElement pce : symbexState.getPathConditions()) {
+            System.out.println("PVCBUilder build with"+ pce.getExpression().toStringTree());
             Term formula = ttt.build(pce.getExpression());
             System.out.println(" Formula: "+formula.toString());
             result.add(formula);

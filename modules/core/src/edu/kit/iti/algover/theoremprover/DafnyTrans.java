@@ -107,7 +107,7 @@ public class DafnyTrans {
         int lineCount = 0;
         for (PathConditionElement pce : pcs) {
 
-            currentSegment = translateAssignments(pce.getVariableMap(), lineCount);
+            currentSegment = translateAssignments(pce.getAssignmentHistory(), lineCount);
             if (lineCount < currentSegment.getSnd()){
                 lineCount = currentSegment.getSnd();
                 method.append(currentSegment.getFst());

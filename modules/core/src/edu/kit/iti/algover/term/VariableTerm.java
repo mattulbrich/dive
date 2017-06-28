@@ -1,3 +1,8 @@
+/*
+ * This file is part of AlgoVer.
+ *
+ * Copyright (C) 2015-2017 Karlsruhe Institute of Technology
+ */
 package edu.kit.iti.algover.term;
 
 public class VariableTerm extends Term {
@@ -29,7 +34,8 @@ public class VariableTerm extends Term {
     }
 
     @Override
-    public <A, R> R accept(TermVisitor<A, R> visitor, A arg) {
+    public <A, R, E extends Exception>
+            R accept(TermVisitor<A, R, E> visitor, A arg) throws E {
         return visitor.visit(this, arg);
     }
 

@@ -133,7 +133,7 @@ public class PathConditionElement {
      *
      * @return the variable assignment, not <code>null</code>.
      */
-    public ImmutableList<DafnyTree> getVariableMap() {
+    public ImmutableList<DafnyTree> getAssignmentHistory() {
         return state;
     }
 

@@ -12,15 +12,11 @@ import java.io.InputStream;
 import java.net.URL;
 import java.util.Arrays;
 
-import org.antlr.runtime.ANTLRInputStream;
-import org.antlr.runtime.CommonTokenStream;
-import org.antlr.runtime.RecognitionException;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
 
-import edu.kit.iti.algover.parser.DafnyParser.program_only_return;
 import edu.kit.iti.algover.util.TestUtil;
 import edu.kit.iti.algover.util.Util;
 
@@ -35,12 +31,19 @@ public class ParserTest {
     @Parameters(name= "{0}")
     public static Iterable<Object[]> data() {
         return Arrays.asList(new Object[][] {
-                { "arrayMax.dfy" }, { "highdimarrays.dfy" }, { "arrayEdit.dfy" },
+                { "arrayMax.dfy" },
+                { "highdimarrays.dfy" },
+                { "arrayEdit.dfy" },
+                { "elseif.dfy" },
                 { "wildcards.dfy" },
                 { "../symbex/symbex.dfy" },
-                { "arithmetic.dfy" }, { "../util/labelTest.dfy" }, { "../symbex/whileWithAnon.dfy" },
-                { "../symbex/havoc.dfy" }, { "../symbex/runtimeAssert.dfy" },
-                { "fields.dfy" }, { "../dafnystructures/declTest.dfy" },
+                { "arithmetic.dfy" },
+                { "../util/labelTest.dfy" },
+                { "../symbex/whileWithAnon.dfy" },
+                { "../symbex/havoc.dfy" },
+                { "../symbex/runtimeAssert.dfy" },
+                { "fields.dfy" },
+                { "../dafnystructures/declTest.dfy" },
                 { "referenceTest.dfy" },
                 { "referenceTestWithReftype.dfy" },
                 { "reftypes.dfy" },
@@ -48,6 +51,10 @@ public class ParserTest {
                 { "faultyReferences.dfy" },
                 { "typingTest.dfy" },
                 { "full/sumandmax.dfy" },
+                { "full/find.dfy" },
+                { "full/twoway.dfy" },
+                { "unqualifiedCallsInExp.dfy" },
+                { "letexpressions.dfy" },
                 });
     }
 
@@ -77,42 +84,25 @@ public class ParserTest {
         if(expected != null) {
             String expect = Util.streamToString(expected.openStream()).replaceAll("\\s+", " ").trim();
             String actual = t.toStringTree().replaceAll("\\s+", " ").trim();
+           // assertEquals("For inspection", Util.streamToString(expected.openStream()), TestUtil.beautify(t));
             assertEquals("Parsing result", expect, actual);
         }
     }
 
-    public static DafnyTree parseFile(InputStream stream) throws FileNotFoundException, IOException, RecognitionException {
+    public static DafnyTree parseFile(InputStream stream) throws DafnyParserException, IOException {
         return parseFile(stream, null);
     }
 
-    public static DafnyTree parseFile(InputStream stream, String filename) throws FileNotFoundException,
-            IOException, RecognitionException {
+    public static DafnyTree parseFile(InputStream stream, String filename) throws DafnyParserException, IOException  {
 
         if(stream == null) {
             throw new NullPointerException();
         }
 
-        ANTLRInputStream input = new ANTLRInputStream(stream);
-        DafnyLexer lexer = new DafnyLexer(input);
-        // create the buffer of tokens between the lexer and parser
-        CommonTokenStream tokens = new CommonTokenStream(lexer);
-        // create the parser attached to the token buffer
-        DafnyParser parser = new DafnyParser(tokens);
-        parser.setTreeAdaptor(new DafnyTree.Adaptor());
-        // launch the parser starting at rule r, get return object
-        program_only_return result;
-        try {
-            result = parser.program_only();
-        } catch (RecognitionException e) {
-            System.err.println("Exception details: " + parser.getErrorMessage(e, parser.getTokenNames()));
-            System.err.printf("%s:%d:%d, token %s%n", filename,
-                    e.line, e.charPositionInLine, e.token);
+        DafnyTree result = DafnyFileParser.parse(stream);
+        DafnyFileParser.setFilename(result, filename);
 
-            throw e;
-        }
-        // pull out the tree and cast it
-        DafnyTree t = result.getTree();
-        return t;
+        return result;
     }
 
     public static void main(String[] args) throws Exception {

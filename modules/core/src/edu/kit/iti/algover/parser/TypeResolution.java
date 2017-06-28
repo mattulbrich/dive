@@ -188,7 +188,7 @@ public class TypeResolution extends DafnyTreeDefaultVisitor<DafnyTree, Void> {
         String ty1 = TreeUtil.toTypeString(t.getChild(0).getExpressionType());
         String ty2 = TreeUtil.toTypeString(t.getChild(1).getExpressionType());
 
-        if(!ty1.equals(ty2)) {
+        if (!ty1.equals(ty2)) {
             exceptions.add(new DafnyException("Equality can only be applied to equally typed terms", t));
         }
 
