@@ -4,6 +4,8 @@ import edu.kit.iti.algover.dafnystructures.DafnyClass;
 import edu.kit.iti.algover.dafnystructures.DafnyFile;
 import edu.kit.iti.algover.dafnystructures.DafnyMethod;
 import edu.kit.iti.algover.project.Project;
+import edu.kit.iti.algover.proof.PVCCollection;
+import edu.kit.iti.algover.proof.PVCGroup;
 import javafx.beans.value.ObservableValue;
 import javafx.scene.control.TreeItem;
 
@@ -55,7 +57,10 @@ public abstract class BrowserController {
 
     protected TreeItem<TreeTableEntity> getItemFromMethod(DafnyMethod dafnyMethod) {
         TreeTableEntity method = createNewEntity(TreeTableEntity.Kind.METHOD, dafnyMethod.getName());
-        return new TreeItem<>(method);
+        TreeItem<TreeTableEntity> item = new TreeItem<>(method);
+        // PVCGroup group = project.getVerificationConditionsFor(dafnyMethod);
+        // item.getChildren().setAll(group.getChildren().stream().map(this::getItemFromPVC).collect(Collectors.toList()));
+        return item;
     }
 
     protected void onTreeItemSelected(

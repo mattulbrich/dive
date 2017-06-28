@@ -1,10 +1,8 @@
 package edu.kit.iti.algover.editor;
 
-import edu.kit.iti.algover.dafnystructures.DafnyFile;
 import edu.kit.iti.algover.util.FileUtil;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
-import org.fxmisc.richtext.CodeArea;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -16,6 +14,7 @@ import java.util.Map;
 /**
  * Created by philipp on 26.06.17.
  */
+// TODO: Implement saving files / updating files when they change on disk
 public class EditorController {
 
     private final File projectDirectory;

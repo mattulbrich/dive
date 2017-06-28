@@ -12,6 +12,7 @@ public class TreeTableEntity {
         FUNCTION,
         CLASS,
         MODULE,
+        PVC,
         OTHER // Does not render specially. E.g. the root node or file nodes
     }
 
