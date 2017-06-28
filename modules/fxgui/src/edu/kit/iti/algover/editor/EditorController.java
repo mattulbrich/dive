@@ -1,6 +1,7 @@
 package edu.kit.iti.algover.editor;
 
 import edu.kit.iti.algover.util.FileUtil;
+import javafx.collections.ListChangeListener;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
 
@@ -25,6 +26,17 @@ public class EditorController {
         this.projectDirectory = projectDirectory;
         this.view = new TabPane();
         this.tabsByFile = new HashMap<>();
+        view.getTabs().addListener(this::onTabListChanges);
+    }
+
+    private void onTabListChanges(ListChangeListener.Change<? extends Tab> change) {
+        while (change.next()) {
+            if (change.wasRemoved()) {
+                for (Tab removedTab : change.getRemoved()) {
+                    tabsByFile.remove(removedTab.getUserData());
+                }
+            }
+        }
     }
 
     public void viewFile(String filename) {
@@ -42,6 +54,7 @@ public class EditorController {
                 }
                 Tab tab = new Tab();
                 tab.setText(filename);
+                tab.setUserData(filename);
                 tab.setContent(new DafnyCodeArea(builder.toString()));
                 tabsByFile.put(filename, tab);
                 view.getTabs().add(tab);

@@ -2,6 +2,7 @@
 <configuration>
     <dafnyFile>test.dfy</dafnyFile>
     <dafnyFile>test2.dfy</dafnyFile>
+    <dafnyFile>test3.dfy</dafnyFile>
     <dafnyFile>classtest.dfy</dafnyFile>
     <settings>
         <set>

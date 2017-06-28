@@ -2,6 +2,7 @@ package edu.kit.iti.algover;
 
 import edu.kit.iti.algover.facade.ProjectFacade;
 import edu.kit.iti.algover.project.Project;
+import edu.kit.iti.algover.util.Debug;
 import javafx.application.Application;
 import javafx.scene.Scene;
 import javafx.stage.DirectoryChooser;
@@ -17,6 +18,11 @@ import java.util.concurrent.Executors;
  */
 public class AlgoVerApplication extends Application {
 
+    public static void main(String[] args) {
+        launch(args);
+    }
+
+    // Used for any asynchronous work (for example calculating the syntax highlighting)
     public static final ExecutorService EXECUTOR = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
 
     @Override
@@ -29,7 +35,7 @@ public class AlgoVerApplication extends Application {
 
         // Read all PVCs and update GUI
         Project project = ProjectFacade.getInstance().buildProject(projectDir);
-        project.generateAndCollectPVC();
+        //System.out.println(Debug.toString(project.getAllVerificationConditions()));
 
         OverviewController controller = new OverviewController(project);
         Scene scene = new Scene(controller.getView());

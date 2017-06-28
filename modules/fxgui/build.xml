@@ -1,11 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project name="AlgoVer-dafny" default="build" basedir=".">
+<project name="AlgoVer-fxgui" default="build" basedir=".">
 
 
 	<property name="dir.lib" value="../../lib" />
 	<property name="dir.tools" value="../../tools" />
+	<property name="dir.core.bin" value="../core/bin" />
 
-	<property name="libs" value="${dir.lib}/antlr.jar:${dir.lib}/junit4.jar" />
+	<property name="libs" value="${dir.lib}/antlr.jar:${dir.lib}/junit4.jar:${dir.lib}/controlsfx.jar:${dir.lib}/richtextfx-fat-0.6.8.jar::${dir.lib}/jpplib.jar" />
 
 	<target name="init" description="initialize all directories">
 		<mkdir dir="bin" />
@@ -28,7 +29,7 @@
 	</target>
 
 	<target name="compile" description="Compile all files" depends="init">
-		<javac destdir="bin" classpath="${libs}" debug="on">
+		<javac destdir="bin" classpath="${dir.core.bin}:${libs}" debug="on">
 			<src path="src" />
 		</javac>
 	</target>

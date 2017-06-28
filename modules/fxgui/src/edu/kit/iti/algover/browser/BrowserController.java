@@ -4,8 +4,10 @@ import edu.kit.iti.algover.dafnystructures.DafnyClass;
 import edu.kit.iti.algover.dafnystructures.DafnyFile;
 import edu.kit.iti.algover.dafnystructures.DafnyMethod;
 import edu.kit.iti.algover.project.Project;
+import edu.kit.iti.algover.proof.PVC;
 import edu.kit.iti.algover.proof.PVCCollection;
 import edu.kit.iti.algover.proof.PVCGroup;
+import edu.kit.iti.algover.proof.SinglePVC;
 import javafx.beans.value.ObservableValue;
 import javafx.scene.control.TreeItem;
 
@@ -58,9 +60,24 @@ public abstract class BrowserController {
     protected TreeItem<TreeTableEntity> getItemFromMethod(DafnyMethod dafnyMethod) {
         TreeTableEntity method = createNewEntity(TreeTableEntity.Kind.METHOD, dafnyMethod.getName());
         TreeItem<TreeTableEntity> item = new TreeItem<>(method);
-        // PVCGroup group = project.getVerificationConditionsFor(dafnyMethod);
-        // item.getChildren().setAll(group.getChildren().stream().map(this::getItemFromPVC).collect(Collectors.toList()));
+        PVCCollection collection = project.getVerificationConditionsFor(dafnyMethod);
+        if (collection != null) {
+            item.getChildren().setAll(collection.getChildren().stream().map(this::getItemFromPVC).collect(Collectors.toList()));
+        }
         return item;
+    }
+
+    private TreeItem<TreeTableEntity> getItemFromPVC(PVCCollection pvcCollection) {
+        if (pvcCollection.isPVCLeaf()) {
+            PVC pvc = ((SinglePVC) pvcCollection).getPVC();
+            TreeTableEntity pvcEntity = createNewEntity(TreeTableEntity.Kind.PVC, pvc.getName());
+            return new TreeItem<>(pvcEntity);
+        } else {
+            TreeTableEntity pvc = createNewEntity(TreeTableEntity.Kind.PVC, "Proof Verification Condition Group");
+            TreeItem<TreeTableEntity> item = new TreeItem<>(pvc);
+            item.getChildren().setAll(pvcCollection.getChildren().stream().map(this::getItemFromPVC).collect(Collectors.toList()));
+            return item;
+        }
     }
 
     protected void onTreeItemSelected(
