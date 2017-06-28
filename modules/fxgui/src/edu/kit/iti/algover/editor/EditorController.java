@@ -43,8 +43,7 @@ public class EditorController {
                 }
                 Tab tab = new Tab();
                 tab.setText(filename);
-                // TODO: Create a custom view for Dafny Files. (something that extends the CodeArea somehow)
-                tab.setContent(new CodeArea(builder.toString()));
+                tab.setContent(new DafnyCodeArea(builder.toString()));
                 tabsByFile.put(filename, tab);
                 view.getTabs().add(tab);
                 view.getSelectionModel().select(tab);

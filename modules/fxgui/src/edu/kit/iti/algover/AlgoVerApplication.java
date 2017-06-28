@@ -8,11 +8,16 @@ import javafx.stage.DirectoryChooser;
 import javafx.stage.Stage;
 
 import java.io.File;
+import java.util.concurrent.Executor;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 /**
  * Created by Philipp on 15.06.2017.
  */
 public class AlgoVerApplication extends Application {
+
+    public static final ExecutorService EXECUTOR = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
 
     @Override
     public void start(Stage primaryStage) throws Exception {
@@ -32,6 +37,10 @@ public class AlgoVerApplication extends Application {
         primaryStage.setWidth(1000);
         primaryStage.setHeight(800);
         primaryStage.show();
+    }
 
+    @Override
+    public void stop() throws Exception {
+        EXECUTOR.shutdown();
     }
 }
