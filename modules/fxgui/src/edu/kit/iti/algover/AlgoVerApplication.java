@@ -29,6 +29,7 @@ public class AlgoVerApplication extends Application {
 
         // Read all PVCs and update GUI
         Project project = ProjectFacade.getInstance().buildProject(projectDir);
+        project.generateAndCollectPVC();
 
         OverviewController controller = new OverviewController(project);
         Scene scene = new Scene(controller.getView());
