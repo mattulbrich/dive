@@ -11,12 +11,12 @@ import java.util.stream.Collectors;
  */
 public class FileBasedBrowserController extends BrowserController {
 
-    protected FileBasedBrowserController(Project project) {
+    public FileBasedBrowserController(Project project) {
         super(project);
     }
 
     protected void populateTreeTable() {
-        TreeTableEntity dafnyFiles = createNewEntity(TreeTableEntity.Kind.OTHER, "Dafny Files");
+        TreeTableEntity dafnyFiles = createNewEntity(null, TreeTableEntity.Kind.OTHER, "Dafny Files");
         TreeItem<TreeTableEntity> dafnyFilesItem = new TreeItem<>(dafnyFiles);
         getView().setRoot(dafnyFilesItem);
 

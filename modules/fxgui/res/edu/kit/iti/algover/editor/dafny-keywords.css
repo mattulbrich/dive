@@ -17,3 +17,15 @@
 .value-literal {
     -fx-fill: #09885A;
 }
+
+.lowlighted {
+    -fx-fill: #9c9c9c
+}
+
+.guard-positive {
+    /* -fx-underline: true; */
+}
+
+.guard-negative {
+    /* -fx-strikethrough: true; */
+}

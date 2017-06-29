@@ -2,6 +2,7 @@ package edu.kit.iti.algover.editor;
 
 import edu.kit.iti.algover.AlgoVerApplication;
 import edu.kit.iti.algover.parser.DafnyLexer;
+import javafx.application.Platform;
 import javafx.concurrent.Task;
 import org.antlr.runtime.ANTLRStringStream;
 import org.antlr.runtime.Token;
@@ -20,7 +21,10 @@ import java.util.Optional;
  */
 public class DafnyCodeArea extends CodeArea {
 
+    private HighlightingRule highlightingRule;
+
     public DafnyCodeArea(String text) {
+        this.highlightingRule = (token, syntaxClasses) -> syntaxClasses;
         getStylesheets().add(DafnyCodeArea.class.getResource("dafny-keywords.css").toExternalForm());
         setParagraphGraphicFactory(LineNumberFactory.get(this));
         setupAsyncSyntaxhighlighting(text);
@@ -46,6 +50,14 @@ public class DafnyCodeArea extends CodeArea {
         getUndoManager().forgetHistory();
     }
 
+    public void rerenderHighlighting() {
+        Task<StyleSpans<Collection<String>>> task = computeHighlightingAsync();
+        task.setOnSucceeded(event -> {
+            final StyleSpans<Collection<String>> styleSpans = task.getValue();
+            Platform.runLater(() -> applyHighlighting(styleSpans));
+        });
+    }
+
     private Task<StyleSpans<Collection<String>>> computeHighlightingAsync() {
         final String text = getText();
         Task<StyleSpans<Collection<String>>> task = new Task<StyleSpans<Collection<String>>>() {
@@ -54,7 +66,7 @@ public class DafnyCodeArea extends CodeArea {
                 return computeHighlighting(text);
             }
         };
-        AlgoVerApplication.EXECUTOR.execute(task);
+        AlgoVerApplication.SH_EXECUTOR.execute(task);
         return task;
     }
 
@@ -71,7 +83,11 @@ public class DafnyCodeArea extends CodeArea {
 
         Token token;
         while ((token = lexer.nextToken()).getType() != Token.EOF) {
-            builder.add(styleClassForToken(token.getType()), token.getText().length());
+            builder.add(
+                highlightingRule.handleToken(
+                    token,
+                    styleClassForToken(token.getType())),
+                token.getText().length());
         }
 
         return builder.create();
@@ -117,5 +133,17 @@ public class DafnyCodeArea extends CodeArea {
 
     private void applyHighlighting(StyleSpans<Collection<String>> styleSpans) {
         setStyleSpans(0, styleSpans);
+    }
+
+    public HighlightingRule getHighlightingRule() {
+        return highlightingRule;
+    }
+
+    public void setHighlightingRule(HighlightingRule highlightingRule) {
+        if (highlightingRule == null) {
+            this.highlightingRule = (token, syntaxClasses) -> syntaxClasses;
+        } else {
+            this.highlightingRule = highlightingRule;
+        }
     }
 }

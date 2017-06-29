@@ -1,12 +1,15 @@
 package edu.kit.iti.algover;
 
 import edu.kit.iti.algover.browser.BrowserController;
+import edu.kit.iti.algover.browser.FileBasedBrowserController;
 import edu.kit.iti.algover.browser.FlatBrowserController;
 import edu.kit.iti.algover.browser.TreeTableEntity;
 import edu.kit.iti.algover.dafnystructures.DafnyClass;
+import edu.kit.iti.algover.dafnystructures.DafnyFile;
 import edu.kit.iti.algover.dafnystructures.DafnyMethod;
 import edu.kit.iti.algover.editor.EditorController;
 import edu.kit.iti.algover.project.Project;
+import edu.kit.iti.algover.proof.PVC;
 import javafx.scene.control.SplitPane;
 
 /**
@@ -22,8 +25,8 @@ public class OverviewController {
     public OverviewController(Project project) {
         this.project = project;
         this.browserController = new FlatBrowserController(project);
-        // this.browserController = new FileBasedBrowserController(project);
-        this.editorController = new EditorController(project.getBaseDir());
+        //this.browserController = new FileBasedBrowserController(project);
+        this.editorController = new EditorController();
         this.view = new SplitPane(browserController.getView(), editorController.getView());
         view.setDividerPositions(0.2);
 
@@ -31,36 +34,15 @@ public class OverviewController {
     }
 
     private void onBrowserItemSelected(TreeTableEntity treeTableEntity) {
-        String file = figureOutFile(treeTableEntity);
+        DafnyFile file = treeTableEntity.getLocation();
         if (file != null) {
             editorController.viewFile(file);
-        }
-    }
-
-    private String figureOutFile(TreeTableEntity entity) {
-        switch (entity.getKind()) {
-            case CLASS:
-                DafnyClass dafnyClass = project.getClass(entity.getName());
-                if (dafnyClass == null) return null;
-                return dafnyClass.getFilename();
-            case METHOD:
-                DafnyMethod dafnyMethod = project.getMethod(entity.getName());
-                if (dafnyMethod == null) {
-                    dafnyMethod = project.getClasses().stream()
-                            .flatMap(aClass -> aClass.getMethods().stream())
-                            .filter(method -> method.getName().equals(entity.getName()))
-                            .findFirst().orElse(null);
-                    if (dafnyMethod == null) return null;
-                }
-                return dafnyMethod.getFilename();
-            case OTHER:
-                // maybe its a file that was clicked on
-                if (entity.getName().endsWith(".dfy")) {
-                    return entity.getName();
-                } else {
-                    return null;
-                }
-            default: return null;
+            PVC pvc = treeTableEntity.getPvc();
+            if (pvc != null) {
+                editorController.viewPVCSelection(pvc);
+            } else {
+                editorController.resetPVCSelection();
+            }
         }
     }
 

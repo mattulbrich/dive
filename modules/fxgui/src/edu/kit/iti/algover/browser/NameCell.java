@@ -37,7 +37,7 @@ public class NameCell extends TreeTableCell<TreeTableEntity, TreeTableEntity> {
             case METHOD:
                 return blueLabel("method");
             case PVC:
-                return new Label("*"); // TODO: this can be just a _little_ more beautiful
+                return new Label("•"); // TODO: this can be just a _little_ more beautiful
             default:
                 return null;
         }

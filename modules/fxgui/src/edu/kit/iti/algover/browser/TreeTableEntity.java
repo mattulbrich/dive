@@ -1,11 +1,17 @@
 package edu.kit.iti.algover.browser;
 
+import edu.kit.iti.algover.dafnystructures.DafnyFile;
+import edu.kit.iti.algover.proof.PVC;
 import javafx.beans.property.*;
 
 /**
  * Created by philipp on 26.06.17.
  */
 public class TreeTableEntity {
+
+    public PVC getPvc() {
+        return pvc;
+    }
 
     public enum Kind {
         METHOD,
@@ -19,23 +25,39 @@ public class TreeTableEntity {
     public enum ProofStatus {
         UNPROVEN,
         PROVEN,
-        DEPENDENT_ON_UNPROVEN;
+        DEPENDENT_ON_UNPROVEN
     }
 
     private final StringProperty name;
     private final FloatProperty percentageProven;
     private final ObjectProperty<ProofStatus> proofStatus;
     private final Kind kind;
+    private final DafnyFile location;
+    private final PVC pvc; // only != null if this is a pvc node
 
-    public TreeTableEntity(String name, float percentageProven, ProofStatus proofStatus, Kind kind) {
+    public TreeTableEntity(DafnyFile location, PVC pvc, String name, float percentageProven, ProofStatus proofStatus, Kind kind) {
+        this.location = location;
+        this.pvc = pvc;
         this.name = new SimpleStringProperty(name);
         this.percentageProven = new SimpleFloatProperty(percentageProven);
         this.proofStatus = new SimpleObjectProperty<>(proofStatus);
         this.kind = kind;
     }
 
+    public TreeTableEntity(DafnyFile location, String name, float percentageProven, ProofStatus proofStatus, Kind kind) {
+        this(location, null, name, percentageProven, proofStatus, kind);
+    }
+
+    public TreeTableEntity(DafnyFile location, PVC pvc, ProofStatus proofStatus) {
+        this(location, pvc, pvc.getName(), 0, ProofStatus.UNPROVEN, Kind.PVC);
+    }
+
     public Kind getKind() {
         return kind;
+    }
+
+    public DafnyFile getLocation() {
+        return location;
     }
 
     public String getName() {
@@ -65,10 +87,10 @@ public class TreeTableEntity {
     @Override
     public String toString() {
         return "TreeTableEntity{" +
-                "name=" + name.get() +
-                ", percentageProven=" + percentageProven.get() +
-                ", proofStatus=" + proofStatus.get() +
-                ", kind=" + kind +
-                '}';
+            "name=" + name.get() +
+            ", percentageProven=" + percentageProven.get() +
+            ", proofStatus=" + proofStatus.get() +
+            ", kind=" + kind +
+            '}';
     }
 }

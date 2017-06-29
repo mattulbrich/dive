@@ -9,7 +9,6 @@ import javafx.stage.DirectoryChooser;
 import javafx.stage.Stage;
 
 import java.io.File;
-import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -22,8 +21,8 @@ public class AlgoVerApplication extends Application {
         launch(args);
     }
 
-    // Used for any asynchronous work (for example calculating the syntax highlighting)
-    public static final ExecutorService EXECUTOR = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
+    // Used for calculating the syntax highlighting asynchronously
+    public static final ExecutorService SH_EXECUTOR = Executors.newSingleThreadExecutor();
 
     @Override
     public void start(Stage primaryStage) throws Exception {
@@ -35,19 +34,19 @@ public class AlgoVerApplication extends Application {
 
         // Read all PVCs and update GUI
         Project project = ProjectFacade.getInstance().buildProject(projectDir);
-        //System.out.println(Debug.toString(project.getAllVerificationConditions()));
+        project.generateAndCollectPVC();
 
         OverviewController controller = new OverviewController(project);
         Scene scene = new Scene(controller.getView());
         scene.getStylesheets().add(AlgoVerApplication.class.getResource("style.css").toExternalForm());
         primaryStage.setScene(scene);
-        primaryStage.setWidth(1000);
-        primaryStage.setHeight(800);
+        primaryStage.setWidth(900);
+        primaryStage.setHeight(700);
         primaryStage.show();
     }
 
     @Override
     public void stop() throws Exception {
-        EXECUTOR.shutdown();
+        SH_EXECUTOR.shutdown();
     }
 }
