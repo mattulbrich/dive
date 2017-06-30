@@ -23,6 +23,7 @@ import java.util.stream.Collectors;
  * Created by philipp on 26.06.17.
  */
 // TODO: Implement saving files / updating files when they change on disk
+// but maybe that has to wait until ProjectManager is ready
 public class EditorController {
 
     private final TabPane view;
