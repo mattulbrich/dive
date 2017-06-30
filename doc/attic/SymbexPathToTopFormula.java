@@ -42,14 +42,14 @@ public class SymbexPathToTopFormula {
          this.ttt = new TreeTermTranslator(symbolTable);
     }
 
-    // TODO check parameters and stuff
+    // TODO check parameters and stuff FIXME FIXME
     private static Sort treeToType(DafnyTree tree) {
         String name = tree.toString();
         if ("array".equals(name)) {
             name = "array1";
         }
 
-        return new Sort(name);
+        return Sort.get(name);
     }
 
     private SymbolTable makeSymbolTable() {

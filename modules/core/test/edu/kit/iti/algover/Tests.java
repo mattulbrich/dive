@@ -9,6 +9,7 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
 import org.junit.runners.Suite.SuiteClasses;
 
+import edu.kit.iti.algover.parser.ParameterContractionVisitorTest;
 import edu.kit.iti.algover.parser.ParserTest;
 import edu.kit.iti.algover.parser.ReferenceResolutionVisitorTest;
 import edu.kit.iti.algover.parser.TypeResolutionTest;
@@ -16,12 +17,12 @@ import edu.kit.iti.algover.project.ProjectTest;
 import edu.kit.iti.algover.script.ScriptParserTest;
 import edu.kit.iti.algover.symbex.ProgramDatabaseTest;
 import edu.kit.iti.algover.symbex.SymbexTest;
+import edu.kit.iti.algover.term.FunctionSymbolFamilyTest;
 import edu.kit.iti.algover.term.SortTest;
 import edu.kit.iti.algover.term.builder.LetInlineVisitorTest;
 import edu.kit.iti.algover.term.builder.ReplacementVisitorTest;
 import edu.kit.iti.algover.term.builder.TreeTermTranslationNoetherTest;
 import edu.kit.iti.algover.term.builder.TreeTermTranslatorTest;
-import edu.kit.iti.algover.term.parser.TermParserTest;
 import edu.kit.iti.algover.util.TestImmutableList;
 import edu.kit.iti.algover.util.TestLabelIntroducer;
 import edu.kit.iti.algover.util.UtilTest;
@@ -32,9 +33,10 @@ import edu.kit.iti.algover.util.UtilTest;
     SymbexTest.class,
     ProgramDatabaseTest.class,
     TreeTermTranslatorTest.class,
-    TermParserTest.class,
     ReplacementVisitorTest.class,
     LetInlineVisitorTest.class,
+    ParameterContractionVisitorTest.class,
+    FunctionSymbolFamilyTest.class,
     TestImmutableList.class,
     TestLabelIntroducer.class,
     TreeTermTranslationNoetherTest.class,

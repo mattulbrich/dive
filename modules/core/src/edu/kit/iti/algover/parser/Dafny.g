@@ -88,6 +88,7 @@ MODIFIES: 'modifies';
 NULL: 'null';
 // PREDICATE : 'predicate';
 REQUIRES: 'requires';
+RETURN : 'return';
 RETURNS : 'returns';
 SEQ : 'seq';
 SET : 'set';
@@ -128,8 +129,8 @@ ARRAY : 'array' (('1' .. '9') ('0' .. '9')*)?;
 ID : ('a' .. 'z' | 'A' .. 'Z' | '_' ) 
      ('a' .. 'z' | 'A' .. 'Z' | '0' .. '9' | '_')*;
 
-LOGIC_ID : '$' ('a' .. 'z' | 'A' .. 'Z' | '_' ) 
-               ('a' .. 'z' | 'A' .. 'Z' | '0' .. '9' | '_')*;
+LOGIC_ID : ('a' .. 'z' | 'A' .. 'Z' | '_' | '$')
+           ('a' .. 'z' | 'A' .. 'Z' | '0' .. '9' | '_' | '$')*;
 
 INT_LIT : ('0' .. '9' ) ('0' .. '9' | '_')*;
 // glyph = "`~!@#$%^&*()-_=+[{]}|;:',<.>/?\\".
@@ -198,12 +199,13 @@ var:
   ID ':' type -> ^(VAR ID type)
   ;
 
+// one day this will be "id_param"
 type:
     INT | BOOL
   | SET^ '<'! type '>'!
   | ARRAY^ '<'! type '>'!
   | SEQ^ '<'! type '>'!
-  | ID
+  | ID^ ( '<'! type ( ','! type )* '>'! )?
   ;
 
 returns_:
@@ -260,6 +262,8 @@ statement:
   | 'assert'^ ( 'label'! ID ':'! )? expression ';'!
 
   | 'assume'^ ( 'label'! ID ':'! )? expression ';'!
+
+  | 'return'^ ';'!
   ;
 
 
@@ -335,8 +339,6 @@ prefix_expr:
     '-'^ prefix_expr
   | '!'^ prefix_expr
   | postfix_expr
-  //|  {logicMode}? 
-    //  '{' ID ':=' expression ( ',' ID ':=' expression )* '}' expression
   ;
 
 endless_expr:
@@ -353,7 +355,7 @@ let_expr:
 
 postfix_expr:
   ( atom_expr -> atom_expr )   // see ANTLR ref. page 175
-  ( '[' expression ']' -> ^( ARRAY_ACCESS $postfix_expr expression )
+  ( '[' expressions ']' -> ^( ARRAY_ACCESS $postfix_expr expressions )
   | '.' LENGTH -> ^( LENGTH $postfix_expr )
   | '.' ID '(' expressions? ')' -> ^( CALL ID $postfix_expr ^(ARGS expressions?) )
   | '.' ID -> ^( FIELD_ACCESS $postfix_expr ID )
@@ -363,9 +365,10 @@ postfix_expr:
 atom_expr:
     ID
   | ID '(' expressions? ')' -> ^(CALL ID ^(ARGS expressions?) )
-  | {logicMode}? l=LOGIC_ID -> ID[l]
-  | {logicMode}? l=LOGIC_ID '(' expressions? ')'
-       -> ^(CALL ID[l] ^(ARGS expressions?) )
+  | {logicMode}? logic_id_param
+      (                      -> logic_id_param
+      | '(' expressions? ')' -> ^(CALL logic_id_param ^(ARGS expressions?) )
+      )
   | TRUE | FALSE | NULL | 'this'
   | INT_LIT
   | 'old'^ '('! expression ')'!
@@ -374,6 +377,13 @@ atom_expr:
   | '('! expression ')'!
   ;
 
+
+// Currently, only logic ids can have type parameters, will change later ...
+logic_id_param:
+  LOGIC_ID^ ( ( '<' type ( ',' type )* '>' ) =>
+                '<'! type ( ','! type )* '>'! )?
+  ;
+
 quantifier:
-  (ALL^ | EX^) ID ':'! type '::'! expression
+  (ALL^ | EX^) ID (','! ID)* ':'! type '::'! expression
   ;

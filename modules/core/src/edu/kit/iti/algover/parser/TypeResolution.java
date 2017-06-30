@@ -7,6 +7,8 @@ package edu.kit.iti.algover.parser;
 
 import java.util.List;
 
+import org.antlr.runtime.tree.Tree;
+
 import edu.kit.iti.algover.project.Project;
 import edu.kit.iti.algover.util.TreeUtil;
 
@@ -85,7 +87,13 @@ public class TypeResolution extends DafnyTreeDefaultVisitor<DafnyTree, Void> {
     @Override
     public DafnyTree visitVAR(DafnyTree tree, Void a) {
         if(tree.getChildCount() > 2) {
-            tree.getChild(2).accept(this, null);
+            DafnyTree ty = tree.getChild(2).accept(this, null);
+            String ty1 = TreeUtil.toTypeString(tree.getChild(1));
+            String ty2 = TreeUtil.toTypeString(ty);
+            if(!ty1.equals(ty2)) {
+                exceptions.add(new DafnyException("Assigning a value of type " + ty2 + " to an entitity"
+                        + " of type " + ty1, tree));
+            }
         }
         return null;
     }
@@ -226,20 +234,87 @@ public class TypeResolution extends DafnyTreeDefaultVisitor<DafnyTree, Void> {
 
     @Override
     public DafnyTree visitLENGTH(DafnyTree t, Void a) {
-        // TODO Auto-generated method stub
-        return super.visitLENGTH(t, a);
+        throw new UnsupportedOperationException("not yet implemented");
     }
-
-
 
     @Override
     public DafnyTree visitARRAY_ACCESS(DafnyTree t, Void a) {
-        throw new UnsupportedOperationException("not yet implemented");
+        DafnyTree array = t.getChild(0);
+        DafnyTree index = t.getChild(1);
+
+        DafnyTree arrayType = array.accept(this, null);
+        DafnyTree indexType = index.accept(this, null);
+
+        if (indexType.getType() != DafnyParser.INT) {
+            exceptions.add(new DafnyException(
+                    "Array index not of type int, but " + indexType, index));
+        }
+
+        if (arrayType.getType() != DafnyParser.ARRAY) {
+            exceptions.add(new DafnyException(
+                    "Only arrays can be indexed", t));
+        }
+
+        DafnyTree ty = arrayType.getChild(0);
+        t.setExpressionType(ty);
+        return ty;
     }
 
     @Override
     public DafnyTree visitCALL(DafnyTree t, Void a) {
-        throw new UnsupportedOperationException("not yet implemented");
+        DafnyTree call = t.getChild(0);
+        DafnyTree decl = call.getDeclarationReference();
+
+        assert decl != null:
+            "ReferenceResolutionVisitor must be run before the type resolution";
+
+        Tree parent = decl.getParent();
+        if(t.getChildCount() == 3) {
+            // explicit receiver
+            DafnyTree receiver = t.getChild(1);
+            String recType = TreeUtil.toTypeString(receiver.accept(this, null));
+            String expectedRecType = parent.getChild(0).getText();
+            if(!recType.equals(expectedRecType)) {
+                exceptions.add(new DafnyException("xxx", t));
+            }
+        }
+
+        List<DafnyTree> actual = t.getFirstChildWithType(DafnyParser.ARGS).getChildren();
+        List<DafnyTree> formal = decl.getFirstChildWithType(DafnyParser.ARGS).getChildren();
+
+        if(formal.size() != actual.size()) {
+            exceptions.add(new DafnyException("xxx", t));
+        }
+
+        for (int i = 0; i < formal.size(); i++) {
+            String act = TreeUtil.toTypeString(actual.get(i).accept(this, null));
+            String expected = TreeUtil.toTypeString(formal.get(i).getChild(1));
+
+            if (!act.equals(expected)) {
+                exceptions.add(new DafnyException(
+                        String.format("Wrong type for argument %d in "
+                                + "called function/method %s. Expected %s, but got %s.",
+                                i+1, call.getText(), expected, act), t));
+            }
+        }
+
+        DafnyTree result;
+        if(decl.getType() == DafnyParser.METHOD) {
+            DafnyTree rets = decl.getFirstChildWithType(DafnyParser.RETURNS);
+            if(rets == null) {
+                result = null;
+            } else {
+                if(rets.getChildCount() > 1) {
+                    exceptions.add(new DafnyException("Sorry, no supoprt for multi return yet.", t));
+                }
+                result = rets.getChild(0).getChild(1);
+            }
+        } else {
+            assert decl.getType() == DafnyParser.FUNCTION;
+            result = decl.getFirstChildWithType(DafnyParser.RETURNS).getChild(0);
+        }
+        t.setExpressionType(result);
+        return result;
     }
 
     @Override
@@ -339,12 +414,6 @@ public class TypeResolution extends DafnyTreeDefaultVisitor<DafnyTree, Void> {
     }
 
     @Override
-    public DafnyTree visitUNION(DafnyTree t, Void a) {
-        // TODO Auto-generated method stub
-        return super.visitUNION(t, a);
-    }
-
-    @Override
     public DafnyTree visitWILDCARD(DafnyTree t, Void a) {
         DafnyTree parent = (DafnyTree) t.getParent();
         switch(parent.getType()) {
@@ -370,7 +439,6 @@ public class TypeResolution extends DafnyTreeDefaultVisitor<DafnyTree, Void> {
     public DafnyTree visitNIL(DafnyTree t, Void a) {
         throw new UnsupportedOperationException("not yet implemented");
     }
-
 
     @Override
     public DafnyTree visitASSIGN(DafnyTree t, Void a) {

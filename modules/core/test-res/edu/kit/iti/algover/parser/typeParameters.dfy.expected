@@ -1,0 +1,6 @@
+(COMPILATION_UNIT 
+ (method m ARGS 
+  (BLOCK 
+   (CALL 
+    ($internal Param1 (Param2 Param3 Param4)) 
+    (ARGS ($internal2 X) 0)))))

@@ -6,12 +6,12 @@
 
 package edu.kit.iti.algover.parser;
 
-import edu.kit.iti.algover.parser.DafnyTreeDefaultVisitor;
+import edu.kit.iti.algover.dafnystructures.DafnyFile;
 import edu.kit.iti.algover.project.Project;
 
-public class SyntacticSugarVistor extends DafnyTreeDefaultVisitor<Void, Void> {
+public class SyntacticSugarVistor {
 
-    public void visitProject(Project project) {
+    public static void visitProject(Project project) {
         // TODO Auto-generated method stub
 
         // a < b < c
@@ -19,5 +19,15 @@ public class SyntacticSugarVistor extends DafnyTreeDefaultVisitor<Void, Void> {
         // var i, j : int
 
         // var i := 0
+
+        for (DafnyFile df : project.getDafnyFiles()) {
+            visit(df.getRepresentation());
+        }
     }
+
+    public static void visit(DafnyTree t) {
+        t.accept(new ParameterContractionVisitor(), null);
+    }
+
+
 }

@@ -84,6 +84,30 @@ public final class DafnyFileParser {
      *             the exception are filled with information from the parser.
      */
     public static DafnyTree parse(InputStream stream) throws DafnyParserException, IOException {
+        return parse(stream, false);
+    }
+
+    /**
+     * Parses a stream into an AST.
+     *
+     * The filename remains unset in the result.
+     *
+     * This parser can be set into logic mode (mainly for debugging purposes)
+     * which allows parsing of internal logic sybmols as well.
+     *
+     * @param stream
+     *            the input stream to parse, not <code>null</code>
+     * @param allowLogic
+     *            if <code>true</code> then internal identifiers like
+     *            <code>$identifier</code> are supported by the parser
+     * @return the freshly parsed AST for the file
+     * @throws IOException
+     *             Signals that an I/O exception has occurred.
+     * @throws DafnyParserException
+     *             Signals that a parser exception has occurred. The fields in
+     *             the exception are filled with information from the parser.
+     */
+    public static DafnyTree parse(InputStream stream, boolean allowLogic) throws DafnyParserException, IOException {
 
         // create stream and lexer
         ANTLRInputStream input = new ANTLRInputStream(stream);
@@ -95,6 +119,7 @@ public final class DafnyFileParser {
         // create the parser attached to the token buffer
         DafnyParser parser = new DafnyParser(tokens);
         parser.setTreeAdaptor(new DafnyTree.Adaptor());
+        parser.setLogicMode(allowLogic);
 
         // launch the parser starting at rule r, get return object
         program_return result;

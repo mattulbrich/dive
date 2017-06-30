@@ -46,8 +46,8 @@ public class DeclarationSymbolCollector {
 
         for (DafnyField field : clss.getFields()) {
             Sort result = TreeUtil.toSort(field.getType());
-            Sort container = new Sort(clss.getName());
-            Sort sort = new Sort("field", container, result);
+            Sort container = Sort.getClassSort(clss.getName());
+            Sort sort = Sort.get("field", container, result);
             String name = clss.getName() + "$" + field.getName();
             collected.add(new FunctionSymbol(name, sort));
         }
@@ -76,7 +76,7 @@ public class DeclarationSymbolCollector {
             name = clss.getName() + "$$" + f.getName();
             args = new Sort[parameters.size() + 2];
             args[0] = Sort.HEAP;
-            args[1] = new Sort(clss.getName());
+            args[1] = Sort.getClassSort(clss.getName());
             for (int i = 2; i < args.length; i++) {
                 args[i] = TreeUtil.toSort(parameters.get(i-2).getChild(1));
             }

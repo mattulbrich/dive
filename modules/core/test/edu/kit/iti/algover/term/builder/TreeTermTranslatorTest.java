@@ -6,9 +6,9 @@
 package edu.kit.iti.algover.term.builder;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
-import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -17,23 +17,27 @@ import org.antlr.runtime.ANTLRStringStream;
 import org.antlr.runtime.CommonTokenStream;
 import org.antlr.runtime.RecognitionException;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import edu.kit.iti.algover.data.BuiltinSymbols;
 import edu.kit.iti.algover.data.MapSymbolTable;
-import edu.kit.iti.algover.facade.ProjectFacade;
 import edu.kit.iti.algover.parser.DafnyFileParser;
 import edu.kit.iti.algover.parser.DafnyLexer;
 import edu.kit.iti.algover.parser.DafnyParser;
 import edu.kit.iti.algover.parser.DafnyParser.expression_only_return;
 import edu.kit.iti.algover.parser.DafnyTree;
 import edu.kit.iti.algover.project.Project;
+import edu.kit.iti.algover.term.ApplTerm;
 import edu.kit.iti.algover.term.FunctionSymbol;
+import edu.kit.iti.algover.term.LetTerm;
 import edu.kit.iti.algover.term.Sort;
 import edu.kit.iti.algover.term.Term;
+import edu.kit.iti.algover.term.VariableTerm;
 import edu.kit.iti.algover.term.parser.TermParser;
 import edu.kit.iti.algover.util.ImmutableList;
+import edu.kit.iti.algover.util.TestUtil;
 import junitparams.JUnitParamsRunner;
 import junitparams.Parameters;
 
@@ -47,7 +51,7 @@ public class TreeTermTranslatorTest {
         return new String[][] {
             { "i1 + i2*i3", "$plus(i1, $times(i2, i3))" },
             // revealed bug:
-            { "i1 == i2*i3", "$eq[int](i1, $times(i2, i3))" },
+            { "i1 == i2*i3", "$eq<int>(i1, $times(i2, i3))" },
             { "a.Length", "$len0(a)" },
             //                { "a2.Length0", "$len0(a)" },
             //                { "a2.Length1", "$len1(a)" },
@@ -58,28 +62,52 @@ public class TreeTermTranslatorTest {
             { "i1 >= i2", "$ge(i1, i2)" },
             { "i1 < i2", "$lt(i1, i2)" },
             { "i1 <= i2", "$le(i1, i2)" },
-            { "i1 == i2", "$eq[int](i1, i2)" },
-            { "b1 == b2", "$eq[bool](b1, b2)" },
-            { "i1 != i2", "$not($eq[int](i1, i2))" },
+            { "i1 == i2", "$eq<int>(i1, i2)" },
+            { "b1 == b2", "$eq<bool>(b1, b2)" },
+            { "i1 != i2", "$not($eq<int>(i1, i2))" },
             { "i1 - 1 - 2", "$minus($minus(i1, 1), 2)" },
 
             { "false && true", "$and(false, true)" },
             { "b1 || b2 ==> b3", "$imp($or(b1, b2), b3)" },
+            { "forall x,y,z:int :: x > y+z",
+              "(forall x:int :: (forall y:int :: "
+                 + "(forall z:int :: $gt(x, $plus(y, z)))))" },
             { "forall x:int :: exists y:int :: x > y",
-            "(forall x:int :: (exists y:int :: $gt(x, y)))" },
+              "(forall x:int :: (exists y:int :: $gt(x, y)))" },
+            { "forall x,x:int :: true",
+              "(forall x:int :: (forall x:int :: true))" },
             { "let x := 3 :: x > i1", "(let x := 3 :: $gt(x, i1))" },
             { "$plus(1, 2)", "$plus(1, 2)" },
+
+            { "c == null", "$eq<object>(c, null)" },
+            { "c == c2", "$eq<object>(c, c2)" },
+            { "let c := null :: null == c",
+                "(let c := null :: $eq<object>(null, c))" },
+
+            // From TermParserTest
+            { "i1 + i2", "$plus(i1, i2)" },
+            { "forall i: int :: 0 < i ==> i > 0",
+              "(forall i:int :: $imp($lt(0, i), $gt(i, 0)))" },
+            { "let var x := i1+5 ; x*2",
+              "(let x := $plus(i1, 5) :: $times(x, 2))" },
+            { "let var i1, i2 := i2, i1 :: i1 + i2",
+              "(let i1, i2 := i2, i1 :: $plus(i1, i2))" },
+            { "if i1 > 5 then i2 else i1",
+              "$ite<int>($gt(i1, 5), i2, i1)" },
         };
     }
 
     public String[][] parametersForFailingParser() {
         return new String[][] {
-            { "unknownFunction(1)" },
-            { "unknownIdentifier" },
-            { "b1 == i1" },
-            { "let x,y:=1 :: y" },
-            { "let x:=1 :: unknown" },  // no more bound vars after this
-            { "forall x:int :: unknown" },  // no more bound vars after this
+            { "unknownFunction(1)", "Unknown symbol unknownFunction" },
+            { "unknownIdentifier", "Unknown identifier unknownIdentifier" },
+            { "b1 == i1", "Unexpected argument sort for argument 2" },
+            { "let x,y:=1 :: y", "Mismatched assignments in let expression:" },
+            { "let x:=1 :: unknown", "" },  // no more bound vars after this
+            { "forall x:int :: unknown", "" },  // no more bound vars after this
+            { "forall x,y,z:int :: unknown", "" },  // no more bound vars after this
+            { "f(b1)", "Unexpected argument sort" },
+            { "if true then b1 else i1", "Unexpected argument sort" },
         };
     }
 
@@ -121,8 +149,11 @@ public class TreeTermTranslatorTest {
         map.add(new FunctionSymbol("b1", Sort.BOOL));
         map.add(new FunctionSymbol("b2", Sort.BOOL));
         map.add(new FunctionSymbol("b3", Sort.BOOL));
-        map.add(new FunctionSymbol("a", new Sort("array1")));
-        map.add(new FunctionSymbol("a2", new Sort("array2")));
+        map.add(new FunctionSymbol("a", Sort.get("array1")));
+        map.add(new FunctionSymbol("a2", Sort.get("array2")));
+        map.add(new FunctionSymbol("f", Sort.INT, Sort.INT));
+        map.add(new FunctionSymbol("c", Sort.getClassSort("C")));
+        map.add(new FunctionSymbol("c2", Sort.getClassSort("C")));
         symbTable = new MapSymbolTable(new BuiltinSymbols(), map);
     }
 
@@ -136,10 +167,11 @@ public class TreeTermTranslatorTest {
         Term term = ttt.build(t);
 
         assertEquals(expected, term.toString());
+        assertEquals(0, ttt.countBoundVars());
     }
 
     @Test @Parameters
-    public void failingParser(String input) throws Exception {
+    public void failingParser(String input, String errMsg) throws Exception {
         assertNotNull(symbTable);
 
         TreeTermTranslator ttt = new TreeTermTranslator(symbTable);
@@ -149,16 +181,21 @@ public class TreeTermTranslatorTest {
             ttt.build(t);
             fail("Should not reach this here");
         } catch (TermBuildException e) {
-//            e.printStackTrace();
-            assertEquals(0, ttt.countBoundedVars());
+            if(!e.getMessage().contains(errMsg)) {
+                e.printStackTrace();
+            }
+            assertTrue(e.getMessage().contains(errMsg));
+            assertEquals(0, ttt.countBoundVars());
         }
 
     }
 
+    // revealed a bug
     @Test
-    public void parametersForLetCascade() throws Exception {
+    public void letCascade() throws Exception {
 
-        Project p = ProjectFacade.getInstance().buildProject(FILE);
+        DafnyTree tree = DafnyFileParser.parse(getClass().getResourceAsStream("proj1/treeTransTest.dfy"));
+        Project p = TestUtil.mockProject(tree);
 
         DafnyTree method = p.getMethod("m").getRepresentation();
         DafnyTree block = method.getFirstChildWithType(DafnyParser.BLOCK);
@@ -166,7 +203,7 @@ public class TreeTermTranslatorTest {
         DafnyTree post = method.getFirstChildWithType(DafnyParser.ENSURES).getLastChild();
 
         ImmutableList<DafnyTree> assignments =
-                ImmutableList.<DafnyTree>from(block.getChild(1), block.getChild(2), block.getChild(3));
+                ImmutableList.<DafnyTree>from(block.getChildren().subList(1, block.getChildCount()));
 
         assertNotNull(symbTable);
 
@@ -180,6 +217,58 @@ public class TreeTermTranslatorTest {
         assertEquals(expected, result);
     }
 
+    @Test
+    public void letCascadeHeap() throws Exception {
 
+        symbTable.addFunctionSymbol(new FunctionSymbol("this", Sort.getClassSort("C")));
+        symbTable.addFunctionSymbol(new FunctionSymbol("d", Sort.getClassSort("D")));
+        symbTable.addFunctionSymbol(new FunctionSymbol("C$$field", Sort.get("field", Sort.getClassSort("C"), Sort.INT)));
+        symbTable.addFunctionSymbol(new FunctionSymbol("D$$field", Sort.get("field", Sort.getClassSort("D"), Sort.getClassSort("D"))));
+
+        DafnyTree tree = DafnyFileParser.parse(getClass().getResourceAsStream("proj1/treeTransTest.dfy"));
+        Project p = TestUtil.mockProject(tree);
+
+        DafnyTree method = p.getClass("C").getMethod("n").getRepresentation();
+        DafnyTree block = method.getFirstChildWithType(DafnyParser.BLOCK);
+
+        DafnyTree post = method.getFirstChildWithType(DafnyParser.ENSURES).getLastChild();
+
+        ImmutableList<DafnyTree> assignments =
+                ImmutableList.<DafnyTree>from(block.getChildren());
+
+        assertNotNull(symbTable);
+
+        TreeTermTranslator ttt = new TreeTermTranslator(symbTable);
+
+        Term result = ttt.build(assignments, post);
+
+        Term expected = TermParser.parse(symbTable,
+                "let heap := $store<C,int>($heap, this, C$$field, "
+                + "$plus($select<C, int>($heap, this, C$$field), 1)) :: "
+                + "let heap := $store<D, D>(heap, d, D$$field, null) :: "
+                + "$select<C, int>(heap, this, C$$field) > 0");
+
+        assertEquals(expected.toString(), result.toString());
+    }
+
+    // from a bug
+    @Test
+    public void testLetProblem() throws Exception {
+
+        TreeTermTranslator ttt = new TreeTermTranslator(symbTable);
+        DafnyTree t = parse("let var i1, i2 := i2, i1 :: i1 + i2");
+        Term term = ttt.build(t);
+
+        Term sum1 = ((LetTerm)term).getSubstitutions().get(0).snd;
+        Term sum2 = ((LetTerm)term).getSubstitutions().get(0).snd;
+
+        assertTrue(sum1 instanceof ApplTerm);
+        assertTrue(sum2 instanceof ApplTerm);
+
+        sum1 = term.getTerm(0).getTerm(0);
+        sum2 = term.getTerm(0).getTerm(0);
+        assertTrue(sum1 instanceof VariableTerm);
+        assertTrue(sum2 instanceof VariableTerm);
+    }
 
 }

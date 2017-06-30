@@ -57,7 +57,7 @@ class C {
       while *
         invariant p_param > fl_var
         invariant (exists vx_y: int :: vx_y == 0)
-        decreases l_top > p_param
+        decreases l_top - p_param
       {
          var l_local: int;
          l_local := l_middle;
@@ -65,5 +65,8 @@ class C {
 
       m_topmethod();
       m_method(f_global(f_class(l_top)));
+
+      fl_var := 55;
+      this.fl_var := 55;
    }
 }
