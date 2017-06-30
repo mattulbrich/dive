@@ -70,92 +70,14 @@ public class EditorController {
 
     public void viewPVCSelection(PVC pvc) {
         DafnyCodeArea codeArea = getFocusedCodeArea();
-
-        SymbexPath symbexPath = pvc.getPathThroughProgram();
-
-        List<DafnyTree> assignmentsAsList = new ArrayList<>();
-        symbexPath.getAssignmentHistory().forEach(assignmentsAsList::add);
-        List<Token> assignmentTokens =
-            assignmentsAsList.stream()
-                .flatMap(dafnyTree -> collectTokens(dafnyTree).stream())
-                .collect(Collectors.toList());
-
-        List<PathConditionElement> pathConditionsAsList = new ArrayList<>();
-        symbexPath.getPathConditions().forEach(pathConditionsAsList::add);
-
-        List<Token> positiveGuardTokens = pathConditionsAsList.stream()
-            .filter(pathConditionElement -> pathConditionElement.getType() == PathConditionElement.AssumptionType.IF_THEN)
-            .flatMap(pathConditionElement -> collectTokens(pathConditionElement.getExpression()).stream())
-            .collect(Collectors.toList());
-
-        List<Token> negativeGuardTokens = pathConditionsAsList.stream()
-            .filter(pathConditionElement -> pathConditionElement.getType() == PathConditionElement.AssumptionType.IF_ELSE)
-            .flatMap(pathConditionElement -> collectTokens(pathConditionElement.getExpression()).stream())
-            .collect(Collectors.toList());
-
-        List<Token> allGuardTokens = pathConditionsAsList.stream()
-            .flatMap(pathConditionElement -> collectTokens(pathConditionElement.getExpression()).stream())
-            .collect(Collectors.toList());
-
-        List<AssertionElement> proofObligationsAsList = new ArrayList<>();
-        symbexPath.getProofObligations().forEach(proofObligationsAsList::add);
-        List<Token> proofObligationTokens = proofObligationsAsList.stream()
-            .flatMap(assertionElement -> collectTokens(assertionElement.getOrigin()).stream())
-            .collect(Collectors.toList());
-
-        // TODO: Find out what the tokens are for a method header. for example for the header
-        // "method max(x: int, y: int) returns (m: int) {". That should still be highlighted
-
-        codeArea.setHighlightingRule((token, syntaxClasses) -> {
-            if (oneTokenMatches(assignmentTokens, token)) {
-                return syntaxClasses;
-            } else if (oneTokenMatches(proofObligationTokens, token)) {
-                return syntaxClasses;
-            } else if (oneTokenMatches(allGuardTokens, token)) {
-                if (oneTokenMatches(positiveGuardTokens, token)) {
-                    return addClass(syntaxClasses, "guard-positive");
-                } else if (oneTokenMatches(negativeGuardTokens, token)) {
-                    return addClass(syntaxClasses, "guard-negative");
-                } else {
-                    return syntaxClasses;
-                }
-            } else {
-                return Collections.singletonList("lowlighted");
-            }
-        });
+        codeArea.setHighlightingRule(new PVCHighlightingRule(pvc));
         codeArea.rerenderHighlighting();
-    }
-
-    private Collection<String> addClass(Collection<String> syntaxClasses, String cssClass) {
-        List<String> classes = new ArrayList<>();
-        classes.addAll(syntaxClasses);
-        classes.add(cssClass);
-        return classes;
-    }
-
-    private boolean oneTokenMatches(List<Token> tokens, Token token) {
-        return tokens.stream().anyMatch(specificToken -> tokensMatch(specificToken, token));
-    }
-
-    private boolean tokensMatch(Token asgnToken, Token token) {
-        return asgnToken.getLine() == token.getLine() && asgnToken.getCharPositionInLine() == token.getCharPositionInLine();
     }
 
     public void resetPVCSelection() {
         DafnyCodeArea codeArea = getFocusedCodeArea();
         codeArea.setHighlightingRule(null);
         codeArea.rerenderHighlighting();
-    }
-
-    private List<Token> collectTokens(DafnyTree tree) {
-        List<Token> tokens = new ArrayList<>();
-        collectTokensTo(tokens, tree);
-        return tokens;
-    }
-
-    private void collectTokensTo(List<Token> list, DafnyTree tree) {
-        list.add(tree.getToken());
-        tree.getChildren().forEach(subTree -> collectTokensTo(list, subTree));
     }
 
     public TabPane getView() {
