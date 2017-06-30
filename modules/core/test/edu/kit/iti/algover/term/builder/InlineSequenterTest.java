@@ -5,18 +5,18 @@
  */
 package edu.kit.iti.algover.term.builder;
 
-public class UpdateSequenterTest extends SequenterTest {
+public class InlineSequenterTest extends SequenterTest {
 
     protected String expectedSuccedent(String string) {
-        return "[(let local := p :: (let r := local :: $gt(r, 0)))]";
+        return "[$gt(p, 0)]";
     }
 
     protected String expectedAntecedent(String string) {
-        return "[$gt(p, 0), (let local := p :: $gt(local, 0))]";
+        return "[$gt(p, 0), $gt(p, 0)]";
     }
 
     @Override
     protected PVCSequenter makeSequenter() {
-        return new UpdateSequenter();
+        return new InlineSequenter();
     }
 }
