@@ -72,11 +72,6 @@ public class AssertionElement {
     }
 
     /**
-     * The state in which the condition is evaluated.
-     */
-    private ImmutableList<DafnyTree> state;
-
-    /**
      * The expression (first order formula) of this path condition.
      */
     private final DafnyTree expression;
@@ -107,18 +102,15 @@ public class AssertionElement {
      * @param assignmentHistory
      *            the state in which it is explored
      */
-    public AssertionElement(DafnyTree expression,
-            DafnyTree refersTo, AssertionType type, ImmutableList<DafnyTree> assignmentHistory) {
+    public AssertionElement(DafnyTree expression, DafnyTree refersTo, AssertionType type) {
 
         assert expression != null;
         assert type != null;
-        assert assignmentHistory != null;
         assert refersTo != null;
 
         this.refersTo = refersTo;
         this.expression = expression;
         this.type = type;
-        this.state = assignmentHistory;
     }
 
     /**
@@ -162,15 +154,6 @@ public class AssertionElement {
         String name = getName();
         String suffix = name == null ? "" : "[" + name + "]";
         return getType() + suffix + ":" + expression.toStringTree();
-    }
-
-    /**
-     * Gets the assignment history under which the assertion is evaluated.
-     *
-     * @return the non-<code>null</code> assignment history.
-     */
-    public ImmutableList<DafnyTree> getAssignmentHistory() {
-        return state;
     }
 
 }

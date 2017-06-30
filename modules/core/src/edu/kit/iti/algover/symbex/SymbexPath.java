@@ -207,7 +207,7 @@ public class SymbexPath {
     public void setProofObligation(DafnyTree obligation, DafnyTree referTo, AssertionType type) {
         assert obligation != null;
         assert type != null;
-        AssertionElement element = new AssertionElement(obligation, referTo, type, assignmentHistory);
+        AssertionElement element = new AssertionElement(obligation, referTo, type);
         this.proofObligations = ImmutableList.single(element);
     }
 
@@ -231,7 +231,7 @@ public class SymbexPath {
     public void setProofObligations(Iterable<DafnyTree> expressions, DafnyTree referTo, AssertionType type) {
         this.proofObligations = ImmutableList.nil();
         for (DafnyTree dafnyTree : expressions) {
-            AssertionElement element = new AssertionElement(dafnyTree, referTo, type, assignmentHistory);
+            AssertionElement element = new AssertionElement(dafnyTree, referTo, type);
             proofObligations = proofObligations.append(element);
         }
     }
@@ -239,7 +239,7 @@ public class SymbexPath {
     public void setProofObligationsFromLastChild(Iterable<DafnyTree> stms, AssertionType type) {
         this.proofObligations = ImmutableList.nil();
         for (DafnyTree stm : stms) {
-            AssertionElement element = new AssertionElement(stm.getLastChild(), stm, type, assignmentHistory);
+            AssertionElement element = new AssertionElement(stm.getLastChild(), stm, type);
             proofObligations = proofObligations.append(element);
         }
     }
