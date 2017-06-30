@@ -72,8 +72,6 @@ public class PVCBuilder {
      */
     private DafnyDecl declaration;
 
-    private SymbolTable symbolTable;
-
     public PVCBuilder() { }
 
     public int getPvcID() {
@@ -114,7 +112,6 @@ public class PVCBuilder {
 
     public PVC build() throws TermBuildException {
         formulaCounter = 0;
-        this.symbolTable = makeSymbolTable();
         return new PVC(this);
     }
 

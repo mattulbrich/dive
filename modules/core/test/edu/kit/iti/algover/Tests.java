@@ -23,6 +23,7 @@ import edu.kit.iti.algover.term.builder.LetInlineVisitorTest;
 import edu.kit.iti.algover.term.builder.ReplacementVisitorTest;
 import edu.kit.iti.algover.term.builder.TreeTermTranslationNoetherTest;
 import edu.kit.iti.algover.term.builder.TreeTermTranslatorTest;
+import edu.kit.iti.algover.term.builder.UpdateSequenterTest;
 import edu.kit.iti.algover.util.TestImmutableList;
 import edu.kit.iti.algover.util.TestLabelIntroducer;
 import edu.kit.iti.algover.util.UtilTest;
@@ -48,6 +49,7 @@ import edu.kit.iti.algover.util.UtilTest;
     ScriptParserTest.class,
     ProgramDatabaseTest.class,
     UtilTest.class,
+    UpdateSequenterTest.class,
     })
 public class Tests {
 }
