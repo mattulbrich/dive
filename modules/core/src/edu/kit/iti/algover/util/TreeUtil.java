@@ -196,41 +196,20 @@ public final class TreeUtil {
 
     @Deprecated
     public static Sort treeToType(DafnyTree tree) {
-        String name = tree.toString();
-        if ("array".equals(name)) {
-            name = "[int]";
-        }
-
-        return new Sort(name);
+        return toSort(tree);
     }
 
     // TODO: MU should put this into a different class
     public static Sort toSort(DafnyTree tree) {
-        switch(tree.getType()) {
-        case DafnyParser.INT:
-            assert tree.getChildCount() == 0;
-            return Sort.INT;
-        case DafnyParser.BOOL:
-            assert tree.getChildCount() == 0;
-            return Sort.BOOL;
-        case DafnyParser.SET:
-            assert tree.getChildCount() == 1;
-            // TODO refer to a consant not the srting.
-            return new Sort("set", toSort(tree.getChild(0)));
-        case DafnyParser.SEQ:
-            assert tree.getChildCount() == 1;
-            // TODO refer to a consant not the srting.
-            return new Sort("seq", toSort(tree.getChild(0)));
-        case DafnyParser.ARRAY:
-            assert tree.getChildCount() == 1;
-            // TODO FIXME ... multidim arrays
-            return new Sort("seq", toSort(tree.getChild(0)));
-        case DafnyParser.ID:
-            // We do not support parametric classes ...
-            assert tree.getChildCount() == 0;
-            return new Sort(tree.getText());
-        default:
-            throw new Error("expected token for type " + tree.toStringTree());
+
+        if(tree.getChildCount() == 0) {
+            return Sort.get(tree.getText());
+        } else {
+            Sort[] args = new Sort[tree.getChildCount() - 1];
+            for (int i = 0; i < args.length; i++) {
+                args[i] = toSort(tree.getChild(i+1));
+            }
+            return Sort.get(tree.getText(), args);
         }
     }
 
@@ -250,5 +229,23 @@ public final class TreeUtil {
             sb.append("<").append(Util.join(Util.map(tree.getChildren(), TreeUtil::toTypeString), ",")).append(">");
         }
         return sb.toString();
+    }
+
+    /**
+     * Retrieve a subelement of the Dafny tre by iteratively selecting children
+     * along a given path.
+     *
+     * @param tree
+     *            the tree to select the child from
+     * @param path
+     *            the path along which the children are to be selected
+     * @return the dafny tree at the specified position
+     */
+    public static DafnyTree traverse(DafnyTree tree, int... path) {
+        DafnyTree result = tree;
+        for (int child : path) {
+            result = result.getChild(child);
+        }
+        return result;
     }
 }

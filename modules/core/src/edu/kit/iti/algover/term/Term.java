@@ -58,11 +58,6 @@ public abstract class Term {
         return sort;
     }
 
-    // TODO DOC
-    public boolean hasSort(Sort sort) {
-        return this.sort.equals(sort);
-    }
-
     /**
      * Gets the subterms for this term.
      *

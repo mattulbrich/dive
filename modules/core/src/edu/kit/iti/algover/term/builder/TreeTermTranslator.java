@@ -39,14 +39,26 @@ import edu.kit.iti.algover.util.Pair;
  */
 public class TreeTermTranslator {
 
+    /**
+     * The Constant HEAP_VAR is the variable used for for heap assignments.
+     */
+    private static final VariableTerm HEAP_VAR =
+            new VariableTerm("heap", Sort.HEAP);
+
+    /**
+     * The symbol table from which the function symbols etc are to be taken.
+     */
     private final SymbolTable symbolTable;
 
+    /**
+     * All bound variables are stored here during parsing.
+     *
+     * Invariant: Is empty as soon as parsing method returns.
+     */
     private final HistoryMap<String, VariableTerm> boundVars =
             new HistoryMap<>(new HashMap<>());
 
     private final TermBuilder tb;
-
-    private static final VariableTerm HEAP_VAR = new VariableTerm("heap", Sort.HEAP);
 
     /**
      * Instantiates a new term translator.
@@ -70,20 +82,22 @@ public class TreeTermTranslator {
      * {@link LetTerm}s. The {@code expression} is then embedded into the
      * cascade
      *
-     * @param immutableList
-     *            the non-<code>null</code> variable assignment
+     * @param history
+     *            the non-<code>null</code> list of observed assignments
      * @param expression
      *            the expression to be translated
      * @return the term which represents the let-cascade
      * @throws TermBuildException
      *             if terms in the tree are not well-formed.
      */
-    public Term build(ImmutableList<DafnyTree> history, DafnyTree expression) throws TermBuildException {
+    public Term build(ImmutableList<DafnyTree> history, DafnyTree expression)
+            throws TermBuildException {
         return buildLetCascade(history.reverse(), expression);
     }
 
-    private Term buildLetCascade(ImmutableList<DafnyTree> history, DafnyTree expression) throws TermBuildException {
-        if(history.size() == 0) {
+    private Term buildLetCascade(ImmutableList<DafnyTree> history, DafnyTree expression)
+            throws TermBuildException {
+        if (history.size() == 0) {
             return build(expression);
         } else {
             return buildLetExpression(history.getHead(),
@@ -103,25 +117,40 @@ public class TreeTermTranslator {
             LetTerm let;
             switch (receiver.getType()) {
             case DafnyParser.ID:
-                String name = receiver.getText();
-                VariableTerm f = new VariableTerm(name, build(expression).getSort());
-                boundVars.put(name, f);
-                let = new LetTerm(f, build(expression), buildLetCascade(tail, result));
-                boundVars.pop();
-                return let;
+                DafnyTree ref = receiver.getDeclarationReference();
+                if (ref.getType() != DafnyParser.FIELD) {
+                    String name = receiver.getText();
+                    VariableTerm f = new VariableTerm(name, build(expression).getSort());
+                    boundVars.put(name, f);
+                    let = new LetTerm(f, build(expression), buildLetCascade(tail, result));
+                    boundVars.pop();
+                    return let;
+                } else {
+                    Term self = tb.self();
+                    Term field = tb.makeFieldConst(
+                            ref.getParent().getChild(0).getText(),
+                            ref.getChild(0).getText());
+                    Term value = build(expression);
+                    FunctionSymbol store =
+                            BuiltinSymbols.STORE.instantiate(
+                                    Arrays.asList(self.getSort(), value.getSort()));
+
+                    Term appl = new ApplTerm(store, getHeap(), self, field, value);
+                    boundVars.put(HEAP_VAR.getName(), HEAP_VAR);
+                    let = new LetTerm(HEAP_VAR, appl, buildLetCascade(tail, result));
+                    boundVars.pop();
+                    return let;
+                }
 
             case DafnyParser.FIELD_ACCESS: {
-                // XXX
-                FunctionSymbol store = symbolTable.getFunctionSymbol("$store[int]");
                 Term object = build(receiver.getChild(0));
-                // XXX
-                Term field = build(receiver.getChild(1));
+                Term field = tb.makeFieldConst(object.getSort().toString(),
+                        receiver.getChild(1).getText());
                 Term value = build(expression);
-                FunctionSymbol heap = BuiltinSymbols.HEAP;
-                ApplTerm heapTerm = new ApplTerm(heap);
-                Term appl = new ApplTerm(store, heapTerm, object, field, value);
+
+                Term appl = tb.storeField(getHeap(), object, field, value);
                 boundVars.put(HEAP_VAR.getName(), HEAP_VAR);
-                let = new LetTerm(HEAP_VAR, appl, buildLetCascade(tail, expression));
+                let = new LetTerm(HEAP_VAR, appl, buildLetCascade(tail, result));
                 boundVars.pop();
                 return let;
             }
@@ -136,7 +165,7 @@ public class TreeTermTranslator {
                 ApplTerm heapTerm = new ApplTerm(heap);
                 Term appl = new ApplTerm(store, heapTerm, object, index, value);
                 boundVars.put(HEAP_VAR.getName(), HEAP_VAR);
-                let = new LetTerm(HEAP_VAR, appl, buildLetCascade(tail, expression));
+                let = new LetTerm(HEAP_VAR, appl, buildLetCascade(tail, result));
                 boundVars.pop();
                 return let;
             }
@@ -165,6 +194,16 @@ public class TreeTermTranslator {
         }
     }
 
+    private Term getHeap() throws TermBuildException {
+        VariableTerm bound = boundVars.get(HEAP_VAR.getName());
+        if(bound != null) {
+            return bound;
+        } else {
+            return tb.heap();
+        }
+    }
+
+
     /**
      * Builds a term for a dafny tree.
      *
@@ -174,7 +213,7 @@ public class TreeTermTranslator {
      */
     public Term build(DafnyTree tree) throws TermBuildException {
 
-        switch(tree.getType()) {
+        switch (tree.getType()) {
         case DafnyParser.AND:
             return buildBinary(BuiltinSymbols.AND, tree);
         case DafnyParser.OR:
@@ -212,11 +251,14 @@ public class TreeTermTranslator {
             return tb.negate(buildEquality(tree));
 
         case DafnyParser.ID:
-        case DafnyParser.NULL:
         case DafnyParser.TRUE:
         case DafnyParser.FALSE:
+        case DafnyParser.THIS:
         case DafnyParser.INT_LIT:
             return buildIdentifier(tree);
+
+        case DafnyParser.NULL:
+            return buildNull(tree);
 
         case DafnyParser.LABEL:
 
@@ -227,6 +269,9 @@ public class TreeTermTranslator {
 
         case DafnyParser.LET:
             return buildLet(tree);
+
+        case DafnyParser.IF:
+            return buildIf(tree);
 
         case DafnyParser.LENGTH:
             return buildLength(tree);
@@ -249,15 +294,33 @@ public class TreeTermTranslator {
 
     }
 
+    private Term buildIf(DafnyTree tree) throws TermBuildException {
+
+        DafnyTree ifTree = tree.getChild(0);
+        DafnyTree thenTree = tree.getChild(1);
+        DafnyTree elseTree = tree.getChild(2);
+
+        Term ifCond = build(ifTree);
+        Term thenExp = build(thenTree);
+        Term elseExp = build(elseTree);
+
+        Sort sort = thenExp.getSort();
+        FunctionSymbol ifFct = BuiltinSymbols.ITE.instantiate(Collections.singletonList(sort));
+
+        return new ApplTerm(ifFct, ifCond, thenExp, elseExp);
+    }
+
+
     private Term buildCall(DafnyTree tree) throws TermBuildException {
 
-        assert tree.getChildCount() == 2 :
-            "Calls with receivers not yet supported!";
+        assert tree.getChildCount() == 2
+                : "Calls with receivers not yet supported!";
 
         String id = tree.getChild(0).getText();
         FunctionSymbol fct = symbolTable.getFunctionSymbol(id);
-        if(fct == null) {
-            throw new TermBuildException("xxx unknown symbol, methods not allowed " + id);
+        if (fct == null) {
+            throw new TermBuildException("Unknown symbol "
+                    + id + ". Remember that method calls not allowed in expressions.");
         }
 
         List<Term> argTerms = new ArrayList<>();
@@ -317,17 +380,23 @@ public class TreeTermTranslator {
 
     }
 
+    private Term buildNull(DafnyTree tree) throws TermBuildException {
+        return tb._null();
+    }
+
+
     private Term buildEquality(DafnyTree tree) throws TermBuildException {
         assert tree.getChildCount() == 2;
 
         Term t1 = build(tree.getChild(0));
         Term t2 = build(tree.getChild(1));
 
-        if (!t1.getSort().equals(t2.getSort())) {
-            throw new TermBuildException("xxx");
+        Sort sort = t1.getSort();
+        if (Sort.NULL.isSubtypeOf(sort)) {
+            sort = Sort.OBJECT;
         }
 
-        FunctionSymbol f = symbolTable.getFunctionSymbol("$eq[" + t1.getSort().getName() + "]");
+        FunctionSymbol f = symbolTable.getFunctionSymbol("$eq<" + sort + ">");
         return new ApplTerm(f, Arrays.asList(t1, t2));
     }
 
@@ -339,37 +408,66 @@ public class TreeTermTranslator {
             return var;
         }
 
+        DafnyTree decl = tree.getDeclarationReference();
+        if (decl != null && decl.getType() == DafnyParser.FIELD) {
+            // if there is a field by that name ...
+            Term field = tb.makeFieldConst(decl.getParent().getChild(0).getText(), name);
+            Term self = tb.self();
+            return tb.selectField(getHeap(), self, field);
+        }
+
         FunctionSymbol fct = symbolTable.getFunctionSymbol(name);
         if (fct == null) {
-            throw new TermBuildException("Unknown function symbol: " + name);
+            throw new TermBuildException("Unknown identifier " + name);
         }
 
         return new ApplTerm(fct);
     }
 
     private Term buildQuantifier(Quantifier q, DafnyTree tree) throws TermBuildException {
-        assert tree.getChildCount() == 3;
+        assert tree.getChildCount() >= 3;
 
-        String var = tree.getChild(0).getText();
-        Sort t = buildSort(tree.getChild(1));
-        VariableTerm varTerm = new VariableTerm(var, t);
+        ImmutableList<DafnyTree> vars =
+                ImmutableList.from(
+                        tree.getChildren().subList(0, tree.getChildCount() - 2));
 
+        // make the order correct
+        vars = vars.reverse();
+
+        Sort sort = buildSort(tree.getChild(tree.getChildCount()-2));
+
+        DafnyTree formulaTree = tree.getLastChild();
+        return buildQuantifier(q, vars, sort, formulaTree);
+    }
+
+
+    private Term buildQuantifier(Quantifier q, ImmutableList<DafnyTree> vars, Sort sort, DafnyTree formulaTree) throws TermBuildException {
+        if(vars.size() == 0) {
+            return build(formulaTree);
+        }
+
+        DafnyTree var = vars.getHead();
+        VariableTerm varTerm = new VariableTerm(var.getText(), sort);
+        boundVars.put(varTerm.getName(), varTerm);
         try {
-            boundVars.put(var, varTerm);
-            Term formula = build(tree.getChild(2));
-            QuantTerm result = new QuantTerm(q, varTerm, formula);
+            Term inner = buildQuantifier(q, vars.getTail(), sort, formulaTree);
+            Term result = new QuantTerm(q, varTerm, inner);
             return result;
         } finally {
-            boundVars.rewindHistory(boundVars.size() - 1);
+            boundVars.pop();
         }
+
     }
+
 
     private Term buildLet(DafnyTree tree) throws TermBuildException {
 
         List<DafnyTree> targets = tree.getChild(0).getChildren();
 
-        if(targets.size() + 2 != tree.getChildCount()) {
-            throw new TermBuildException("xxx");
+        if (targets.size() + 2 != tree.getChildCount()) {
+            throw new TermBuildException("Mismatched assignments in let expression: "
+                    + targets.size() + " variables, but "
+                    + (tree.getChildCount() - 2) + " expressions.");
         }
 
         List<Pair<VariableTerm, Term>> substs = new ArrayList<>();
@@ -456,7 +554,7 @@ public class TreeTermTranslator {
 
 
     /* for testing */
-    int countBoundedVars() {
+    int countBoundVars() {
         return boundVars.size();
     }
 

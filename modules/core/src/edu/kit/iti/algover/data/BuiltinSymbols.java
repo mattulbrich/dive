@@ -35,28 +35,28 @@ public class BuiltinSymbols extends MapSymbolTable {
     // Checkstyle: OFF JavadocVariableCheck
 
     public static final FunctionSymbol AND =
-            new FunctionSymbol("$and", Sort.FORMULA, Sort.FORMULA, Sort.FORMULA);
+            new FunctionSymbol("$and", Sort.BOOL, Sort.BOOL, Sort.BOOL);
 
     public static final FunctionSymbol OR =
-            new FunctionSymbol("$or", Sort.FORMULA, Sort.FORMULA, Sort.FORMULA);
+            new FunctionSymbol("$or", Sort.BOOL, Sort.BOOL, Sort.BOOL);
 
     public static final FunctionSymbol IMP =
-            new FunctionSymbol("$imp", Sort.FORMULA, Sort.FORMULA, Sort.FORMULA);
+            new FunctionSymbol("$imp", Sort.BOOL, Sort.BOOL, Sort.BOOL);
 
     public static final FunctionSymbol NEG =
-            new FunctionSymbol("$not", Sort.FORMULA, Sort.FORMULA);
+            new FunctionSymbol("$not", Sort.BOOL, Sort.BOOL);
 
     public static final FunctionSymbol GT =
-            new FunctionSymbol("$gt", Sort.FORMULA, Sort.INT, Sort.INT);
+            new FunctionSymbol("$gt", Sort.BOOL, Sort.INT, Sort.INT);
 
     public static final FunctionSymbol GE =
-            new FunctionSymbol("$ge", Sort.FORMULA, Sort.INT, Sort.INT);
+            new FunctionSymbol("$ge", Sort.BOOL, Sort.INT, Sort.INT);
 
     public static final FunctionSymbol LT =
-            new FunctionSymbol("$lt", Sort.FORMULA, Sort.INT, Sort.INT);
+            new FunctionSymbol("$lt", Sort.BOOL, Sort.INT, Sort.INT);
 
     public static final FunctionSymbol LE =
-            new FunctionSymbol("$le", Sort.FORMULA, Sort.INT, Sort.INT);
+            new FunctionSymbol("$le", Sort.BOOL, Sort.INT, Sort.INT);
 
     public static final FunctionSymbol PLUS =
             new FunctionSymbol("$plus", Sort.INT, Sort.INT, Sort.INT);
@@ -67,7 +67,15 @@ public class BuiltinSymbols extends MapSymbolTable {
     public static final FunctionSymbol TIMES =
             new FunctionSymbol("$times", Sort.INT, Sort.INT, Sort.INT);
 
-    private static final Sort SET1 = new Sort("set<?1>");
+    public static final FunctionSymbolFamily ITE =
+            new FunctionSymbolFamily(
+                    new FunctionSymbol("$ite",
+                            FunctionSymbolFamily.VAR1,
+                            Sort.BOOL,
+                            FunctionSymbolFamily.VAR1,
+                            FunctionSymbolFamily.VAR1), 1);
+
+    private static final Sort SET1 = Sort.get("set", FunctionSymbolFamily.VAR1);
     public static final FunctionSymbolFamily UNION =
             new FunctionSymbolFamily(
                     new FunctionSymbol("$union", SET1, SET1, SET1), 1);
@@ -78,27 +86,39 @@ public class BuiltinSymbols extends MapSymbolTable {
 
     public static final FunctionSymbolFamily STORE =
             new FunctionSymbolFamily(
-                    new FunctionSymbol("$store", Sort.HEAP, Sort.HEAP, Sort.REF,
-                            Sort.FIELD, FunctionSymbolFamily.VAR1), 1);
+                    new FunctionSymbol("$store", Sort.HEAP,
+                            Sort.HEAP,
+                            FunctionSymbolFamily.VAR1,
+                            Sort.get("field",
+                                    FunctionSymbolFamily.VAR1,
+                                    FunctionSymbolFamily.VAR2),
+                            FunctionSymbolFamily.VAR2), 2);
 
-    // select ...
+    public static final FunctionSymbolFamily SELECT =
+            new FunctionSymbolFamily(
+                    new FunctionSymbol("$select", FunctionSymbolFamily.VAR2,
+                            Sort.HEAP, FunctionSymbolFamily.VAR1,
+                            Sort.get("field",
+                                    FunctionSymbolFamily.VAR1,
+                                    FunctionSymbolFamily.VAR2)), 2);
 
     public static final FunctionSymbolFamily EQ =
             new FunctionSymbolFamily(
-                    new FunctionSymbol("$eq", Sort.FORMULA,
+                    new FunctionSymbol("$eq", Sort.BOOL,
                             FunctionSymbolFamily.VAR1, FunctionSymbolFamily.VAR1), 1);
 
     public static final FunctionSymbol HEAP =
             new FunctionSymbol("$heap", Sort.HEAP);
 
     public static final FunctionSymbol NULL =
-            new FunctionSymbol("null", Sort.REF);
+            new FunctionSymbol("null", Sort.NULL);
 
     public static final FunctionSymbol TRUE =
-            new FunctionSymbol("true", Sort.FORMULA);
+            new FunctionSymbol("true", Sort.BOOL);
 
     public static final FunctionSymbol FALSE =
-            new FunctionSymbol("false", Sort.FORMULA);
+            new FunctionSymbol("false", Sort.BOOL);
+
 
     // Checkstyle: ON JavadocVariableCheck
 
@@ -122,7 +142,7 @@ public class BuiltinSymbols extends MapSymbolTable {
     @Override
     protected FunctionSymbol resolve(String name) {
 
-        int index = name.indexOf("[");
+        int index = name.indexOf("<");
         if (index >= 0) {
 
             String baseName = name.substring(0, index);
@@ -131,10 +151,11 @@ public class BuiltinSymbols extends MapSymbolTable {
                 return null;
             }
 
+            // FIXME !!! THis will fail for things like $x<a<b,c>>
             String[] args = name.substring(index + 1, name.length() - 1).split(",");
             Sort[] sorts = new Sort[args.length];
             for (int i = 0; i < sorts.length; i++) {
-                sorts[i] = new Sort(args[i]);
+                sorts[i] = Sort.get(args[i]);
             }
 
             return family.instantiate(Util.readOnlyArrayList(sorts));
@@ -146,7 +167,7 @@ public class BuiltinSymbols extends MapSymbolTable {
         if (name.matches("\\$len[0-9]+")) {
             String suffix = name.substring(4);
             int dim = Integer.parseInt(suffix);
-            Sort arraySort = new Sort("array" + (dim + 1));
+            Sort arraySort = Sort.get("array" + (dim + 1));
             FunctionSymbol len = new FunctionSymbol(name, Sort.INT, arraySort);
             return len;
         }

@@ -113,6 +113,18 @@ class C
       // i := 1 / 1;
    }
 
+   method arrays() {
+      var a : array<int>;
+      var i : int;
+      var c : C;
+
+      i := a[0];
+      a[0] := i;
+
+      a[0] := null;
+      c := a[0];
+   }
+
    method failAssignments()
    {
       var i : int;
@@ -123,6 +135,13 @@ class C
       i := c;
       i := true;
 
+      c := 0;
+      c := null;
+      c := i;
+      c := true;
+
       var localVar1 : int := null;
+      var localVar2 : C := 0;
    }
+
 }

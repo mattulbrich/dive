@@ -5,6 +5,10 @@
  */
 package edu.kit.iti.algover.term.builder;
 
+import java.util.Collections;
+import java.util.List;
+import java.util.ServiceLoader;
+
 import edu.kit.iti.algover.data.SymbolTable;
 import edu.kit.iti.algover.parser.DafnyException;
 import edu.kit.iti.algover.proof.PVC;
@@ -22,7 +26,7 @@ import java.util.ServiceLoader;
  * {@link SymbexPath} resulting from symbolic execution into a {@link Sequent}
  * that can serve as root within a {@link ProofNode} for a {@link Proof}.
  *
- * Sequentr is not really a word, but means "something that brings into the
+ * Sequenter is not really a word, but means "something that brings into the
  * shape of a sequent."
  *
  * Implementing classes are collected in
@@ -64,14 +68,16 @@ public interface PVCSequenter {
     String getDescriptiveName();
 
     /**
-     * Translate the smbolic execution path embedded in a pvc into a logical
+     * Translate the symbolic execution path embedded in a pvc into a logical
      * sequent.
      *
      * @param pathThroughProgram
-     * @param makeSymbolTable
-     *
+     *            the path to translate
+     * @param symbolTable the lookup table for defined symbols
      * @return a freshly created sequent.
      * @throws DafnyException
+     *             if an illegally composed dafny expression occurs.
      */
-    Sequent translate(SymbexPath pathThroughProgram, SymbolTable makeSymbolTable) throws DafnyException;
+    Sequent translate(SymbexPath pathThroughProgram, SymbolTable symbolTable)
+            throws DafnyException;
 }

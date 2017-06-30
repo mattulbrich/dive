@@ -28,3 +28,13 @@ class C {
       d.md(d);
    }
 }
+
+class ArrayProblems
+{
+   method m()
+   {
+      var a : Unknown;
+
+      a.f := 0;
+   }
+}

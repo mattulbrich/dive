@@ -28,8 +28,7 @@ import edu.kit.iti.algover.util.TreeUtil;
  *
  * @author Mattias Ulbrich
  */
-public class ReferenceResolutionVisitor
-    extends DafnyTreeDefaultVisitor<Void, ReferenceResolutionVisitor.Mode> {
+public class ReferenceResolutionVisitor extends DafnyTreeDefaultVisitor<Void, ReferenceResolutionVisitor.Mode> {
 
     /**
      * The project whose references are to be resolved.
@@ -57,16 +56,14 @@ public class ReferenceResolutionVisitor
      *
      * Variables, fields, parameters, local variables are referenced here.
      */
-    private final HistoryMap<String, DafnyTree> identifierMap =
-            new HistoryMap<>(new HashMap<>());
+    private final HistoryMap<String, DafnyTree> identifierMap = new HistoryMap<>(new HashMap<>());
 
     /**
      * The map for identifiers to declaration trees for callable names.
      *
      * Functions and Methods are referenced here
      */
-    private final HistoryMap<String, DafnyTree> callableMap =
-            new HistoryMap<>(new HashMap<>());
+    private final HistoryMap<String, DafnyTree> callableMap = new HistoryMap<>(new HashMap<>());
 
     /**
      * The exceptions collected during visitation, may be <code>null</code>.
@@ -84,7 +81,8 @@ public class ReferenceResolutionVisitor
      * @param project
      *            the non-<code>null</code> project to visit
      * @param exceptions
-     *            the list to which exceptions are reported, may be <code>null</code>
+     *            the list to which exceptions are reported, may be
+     *            <code>null</code>
      */
     public ReferenceResolutionVisitor(Project project, List<DafnyException> exceptions) {
         this.project = project;
@@ -105,10 +103,27 @@ public class ReferenceResolutionVisitor
         project.getMethods().forEach(this::addToCallableMap);
         project.getFunctions().forEach(this::addToCallableMap);
 
-        // TODO make this better as soon as there is access to all toplevel trees
+        // TODO make this better as soon as there is access to all toplevel
+        // trees
         project.getClasses().forEach(this::visitAll);
         project.getMethods().forEach(this::visitAll);
         project.getFunctions().forEach(this::visitAll);
+    }
+
+    public void visitExpression(DafnyTree expression, String classCtx) {
+        DafnyClass clazz = project.getClass(classCtx);
+        int rewindIdentifiersTo = identifierMap.getHistory();
+        int rewindCallablesTo = callableMap.getHistory();
+
+        addClassEntitites(clazz);
+        visitExpression(expression);
+
+        identifierMap.rewindHistory(rewindIdentifiersTo);
+        callableMap.rewindHistory(rewindCallablesTo);
+    }
+
+    public void visitExpression(DafnyTree expression) {
+        expression.accept(this, Mode.EXPR);
     }
 
     public List<DafnyException> getExceptions() {
@@ -118,11 +133,26 @@ public class ReferenceResolutionVisitor
     private void addToCallableMap(DafnyDecl decl) {
         String declName = decl.getName();
         if (callableMap.containsKey(declName)) {
-            addException(new DafnyException("Name clash: Callable entity named " + declName
-                    + " has already been defined.", decl.getRepresentation()));
+            addException(
+                    new DafnyException("Name clash: Callable entity named " + declName + " has already been defined.",
+                            decl.getRepresentation()));
             return;
         }
         callableMap.put(declName, decl.getRepresentation());
+    }
+
+    private void addClassEntitites(DafnyClass dafnyClass) {
+        for (DafnyField field : dafnyClass.getFields()) {
+            identifierMap.put(field.getName(), field.getRepresentation());
+        }
+
+        for (DafnyMethod method : dafnyClass.getMethods()) {
+            callableMap.put(method.getName(), method.getRepresentation());
+        }
+
+        for (DafnyFunction function : dafnyClass.getFunctions()) {
+            callableMap.put(function.getName(), function.getRepresentation());
+        }
     }
 
     /*
@@ -234,8 +264,7 @@ public class ReferenceResolutionVisitor
                 callable = clazz.getFunction(name);
             }
             if (callable == null) {
-                addException(new DafnyException("Unknown method or function "
-                        + name + " in class " + type, callID));
+                addException(new DafnyException("Unknown method or function " + name + " in class " + type, callID));
                 return null;
             }
 
@@ -290,17 +319,7 @@ public class ReferenceResolutionVisitor
     }
 
     /*
-     * Just add the declared variable to the identifierMap.
-     */
-    @Override
-    public Void visitVAR(DafnyTree t, Mode a) {
-        identifierMap.put(t.getChild(0).getText(), t);
-        return null;
-    }
-
-    /*
-     * Remember the rewind position for the block and
-     * rewind after visitation.
+     * Remember the rewind position for the block and rewind after visitation.
      */
     @Override
     public Void visitBLOCK(DafnyTree t, Mode a) {
@@ -319,17 +338,7 @@ public class ReferenceResolutionVisitor
         String classname = t.getChild(0).getText();
         DafnyClass dafnyClass = project.getClass(classname);
 
-        for (DafnyField field : dafnyClass.getFields()) {
-            identifierMap.put(field.getName(), field.getRepresentation());
-        }
-
-        for (DafnyMethod method : dafnyClass.getMethods()) {
-            callableMap.put(method.getName(), method.getRepresentation());
-        }
-
-        for (DafnyFunction function : dafnyClass.getFunctions()) {
-            callableMap.put(function.getName(), function.getRepresentation());
-        }
+        addClassEntitites(dafnyClass);
 
         for (int i = 1; i < t.getChildCount(); i++) {
             t.getChild(i).accept(this, a);
@@ -371,6 +380,20 @@ public class ReferenceResolutionVisitor
     }
 
     /*
+     * Just add the declared variable to the identifierMap.
+     * Resolve the type.
+     */
+    @Override
+    public Void visitVAR(DafnyTree t, Mode a) {
+        identifierMap.put(t.getChild(0).getText(), t);
+        t.getChild(1).accept(this, Mode.TYPE);
+        if (t.getChildCount() > 2) {
+            t.getChild(2).accept(this, Mode.EXPR);
+        }
+        return null;
+    }
+
+    /*
      * Visit the type in type mode.
      *
      * Do not visit the field name.
@@ -378,9 +401,13 @@ public class ReferenceResolutionVisitor
     @Override
     public Void visitFIELD(DafnyTree t, Mode a) {
         t.getChild(1).accept(this, Mode.TYPE);
-        if (t.getChildCount() > 2) {
-            t.getChild(2).accept(this, Mode.EXPR);
-        }
+        return null;
+    }
+
+    @Override
+    public Void visitARRAY(DafnyTree t, Mode mode) {
+        assert mode == Mode.TYPE;
+        t.getChild(0).accept(this, mode);
         return null;
     }
 

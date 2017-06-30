@@ -1,10 +1,11 @@
 /*
  * This file is part of AlgoVer.
  *
- * Copyright (C) 2015-2016 Karlsruhe Institute of Technology
+ * Copyright (C) 2015-2017 Karlsruhe Institute of Technology
  */
 package edu.kit.iti.algover.term;
 
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -12,9 +13,9 @@ import edu.kit.iti.algover.util.Util;
 
 public class FunctionSymbolFamily {
 
-    public static final Sort VAR1 = new Sort("?1");
-    public static final Sort VAR2 = new Sort("?1");
-    public static final Sort VAR3 = new Sort("?1");
+    public static final Sort VAR1 = Sort.get("?1");
+    public static final Sort VAR2 = Sort.get("?2");
+    public static final Sort VAR3 = Sort.get("?3");
 
     private int numberOfTypeVars;
     private FunctionSymbol prototype;
@@ -25,14 +26,18 @@ public class FunctionSymbolFamily {
         this.numberOfTypeVars = numberOfTypeVars;
     }
 
+    public FunctionSymbol instantiate(Sort ... instantiationSorts) {
+        return instantiate(Arrays.asList(instantiationSorts));
+    }
+
     public FunctionSymbol instantiate(List<Sort> instantiationSorts) {
 
         if(instantiationSorts.size() != numberOfTypeVars) {
-            throw new IllegalArgumentException();
+            throw new IllegalArgumentException(instantiationSorts + " vs. " + numberOfTypeVars);
         }
 
         String name = prototype.getName() +
-                (instantiationSorts.toString().replace(" ", ""));
+                toString(instantiationSorts);
 
         Sort resSort = prototype.getResultSort().instantiate(instantiationSorts);
 
@@ -41,6 +46,17 @@ public class FunctionSymbolFamily {
 
         return new InstantiatedFunctionSymbol(name, resSort, argSorts,
                 instantiationSorts);
+    }
+
+    /*
+     * make <X,Y<Z>> from [X, Y<Z>]
+     */
+    private String toString(List<Sort> instantiationSorts) {
+        if (instantiationSorts.isEmpty()) {
+            return "";
+        } else {
+            return "<" + Util.join(instantiationSorts, ",") + ">";
+        }
     }
 
     public class InstantiatedFunctionSymbol extends FunctionSymbol {

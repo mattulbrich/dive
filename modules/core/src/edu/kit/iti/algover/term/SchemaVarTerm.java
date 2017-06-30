@@ -7,8 +7,6 @@ package edu.kit.iti.algover.term;
 
 public class SchemaVarTerm extends Term {
 
-    private static final Sort UNTYPED_SORT = new Sort("<UNTYPED>");
-
     private final String name;
 
     public SchemaVarTerm(String name, Sort sort) {
@@ -17,7 +15,7 @@ public class SchemaVarTerm extends Term {
     }
 
     public SchemaVarTerm(String name) {
-        this(name, UNTYPED_SORT);
+        this(name, Sort.UNTYPED_SORT);
     }
 
     @Override
@@ -29,11 +27,6 @@ public class SchemaVarTerm extends Term {
     public <A, R, E extends Exception>
             R accept(TermVisitor<A, R, E> visitor, A arg) throws E {
         return visitor.visit(this, arg);
-    }
-
-    @Override
-    public boolean hasSort(Sort sort) {
-        return super.hasSort(sort) || this.getSort() == UNTYPED_SORT;
     }
 
     public String getName() {
