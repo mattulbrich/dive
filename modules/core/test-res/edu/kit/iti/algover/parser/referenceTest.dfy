@@ -44,7 +44,7 @@ class C {
 
       var l_middle: int;
 
-      if l_top > 0 {
+      label cond_label: if l_top > 0 {
          var l_diff1: int;
          l_diff1 := l_middle;
          m_method(l_diff1);
