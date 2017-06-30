@@ -11,12 +11,13 @@ import edu.kit.iti.algover.term.Term;
  * This class represents a single formula in the sequent
  */
 
-
+// REVIEW: Please add equals/hashcode methods. Influence of label and id on equality
 public class ProofFormula {
 
     /**
      * The ID of this formula. Must be unique in the context of the PVC.
      */
+    // REVIEW: Why is this needed?
     private final int id;
 
     /**

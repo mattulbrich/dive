@@ -36,7 +36,13 @@ class C
       if *
       { }
 
+      label if_label: if *
+      { }
+
       while *
+      { }
+
+      label while_label: while *
       { }
    }
 

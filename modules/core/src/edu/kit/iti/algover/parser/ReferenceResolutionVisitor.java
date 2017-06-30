@@ -264,7 +264,8 @@ public class ReferenceResolutionVisitor extends DafnyTreeDefaultVisitor<Void, Re
                 callable = clazz.getFunction(name);
             }
             if (callable == null) {
-                addException(new DafnyException("Unknown method or function " + name + " in class " + type, callID));
+                addException(new DafnyException("Unknown method or function "
+                            + name + " in class " + type, callID));
                 return null;
             }
 
@@ -376,6 +377,17 @@ public class ReferenceResolutionVisitor extends DafnyTreeDefaultVisitor<Void, Re
             t.getChild(i).accept(this, a);
         }
         identifierMap.rewindHistory(rewindTo);
+        return null;
+    }
+
+    /*
+     * Do not visit the label name.
+     *
+     * Eventually a list of defined labels could be kept to avoid double
+     * declaration.
+     */
+    @Override
+    public Void visitLABEL(DafnyTree t, Mode a) {
         return null;
     }
 

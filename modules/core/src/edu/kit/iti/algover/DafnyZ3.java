@@ -1,7 +1,7 @@
 /*
  * This file is part of AlgoVer.
  *
- * Copyright (C) 2015-2016 Karlsruhe Institute of Technology
+ * Copyright (C) 2015-2017 Karlsruhe Institute of Technology
  */
 package edu.kit.iti.algover;
 
@@ -37,7 +37,7 @@ public class DafnyZ3 {
 
         System.out.println(Debug.prettyPrint(t.toStringTree())); // print out the tree
 
-        LabelIntroducer.visit(t);
+        t.accept(new LabelIntroducer(), null);
 
         Symbex symbex = new Symbex();
         List<SymbexPath> symbexresult = symbex.symbolicExecution(t);

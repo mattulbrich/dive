@@ -57,6 +57,7 @@ public class ParserTest {
                 { "letexpressions.dfy" },
                 { "typeParameters.dfy" },
                 { "saddleback.dfy" },
+                { "../term/builder/sequenterTest.dfy" },
                 });
     }
 

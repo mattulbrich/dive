@@ -7,6 +7,8 @@
          (:= b_var[bool] *[bool])
          (:= c_var[C] *[C])
          (if *[bool] BLOCK)
-         (while *[bool] BLOCK)))
+         (if (label if_label) *[bool] BLOCK)
+         (while *[bool] BLOCK)
+         (while (label while_label) *[bool] BLOCK)))
 
 

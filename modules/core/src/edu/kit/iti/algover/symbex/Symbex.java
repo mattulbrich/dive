@@ -233,7 +233,7 @@ public class Symbex {
         // 2c. show decreases clause:
         DafnyTree decrReduced = ASTUtil.noetherLess(decreaseVar, decreases);
         AssertionElement decrProof = new AssertionElement(decrReduced, decreasesClause,
-                AssertionType.VARIANT_DECREASED, preservePath.getAssignmentHistory());
+                AssertionType.VARIANT_DECREASED);
         ImmutableList<AssertionElement> oldPOs = preservePath.getProofObligations();
         preservePath.setProofObligations(oldPOs.append(decrProof));
         stack.add(preservePath);

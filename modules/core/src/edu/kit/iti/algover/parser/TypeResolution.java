@@ -357,12 +357,12 @@ public class TypeResolution extends DafnyTreeDefaultVisitor<DafnyTree, Void> {
         DafnyTree ty;
         DafnyTree otherTree;
 
-        switch(parent.getType()) {
+        switch (parent.getType()) {
         case DafnyParser.ASSIGN:
             ty = parent.getChild(0).getExpressionType();
             assert parent.getChild(1) == t : "null must be 2nd child";
             t.setExpressionType(ty);
-            if(ty.getType() != DafnyParser.ID) {
+            if (ty.getType() != DafnyParser.ID) {
                 exceptions.add(new DafnyException("assigning null to a non-reference entity", parent));
             }
             return ty;
@@ -371,19 +371,19 @@ public class TypeResolution extends DafnyTreeDefaultVisitor<DafnyTree, Void> {
             assert parent.getChild(2) == t : "null must be 3rd child";
             ty = parent.getChild(1);
             t.setExpressionType(ty);
-            if(ty.getType() != DafnyParser.ID) {
+            if (ty.getType() != DafnyParser.ID) {
                 exceptions.add(new DafnyException("assigning null to a non-reference entity", parent));
             }
             return ty;
 
         case DafnyParser.EQ:
         case DafnyParser.NEQ:
-            if(parent.getChild(0) == t) {
+            if (parent.getChild(0) == t) {
                 otherTree = parent.getChild(1);
             } else {
                 otherTree = parent.getChild(0);
             }
-            if(otherTree.getType() == DafnyParser.NULL) {
+            if (otherTree.getType() == DafnyParser.NULL) {
                 t.setExpressionType(OBJECT_TYPE);
                 return OBJECT_TYPE;
             } else {
@@ -405,7 +405,7 @@ public class TypeResolution extends DafnyTreeDefaultVisitor<DafnyTree, Void> {
     @Override
     public DafnyTree visitTHIS(DafnyTree t, Void a) {
         DafnyTree clzz = (DafnyTree) t.getAncestor(DafnyParser.CLASS);
-        if(clzz == null) {
+        if (clzz == null) {
             exceptions.add(new DafnyException("Unexpected this reference outside class definition", t));
             return UNKNOWN_TYPE;
         }
@@ -416,10 +416,14 @@ public class TypeResolution extends DafnyTreeDefaultVisitor<DafnyTree, Void> {
     @Override
     public DafnyTree visitWILDCARD(DafnyTree t, Void a) {
         DafnyTree parent = (DafnyTree) t.getParent();
-        switch(parent.getType()) {
+        switch (parent.getType()) {
         case DafnyParser.IF:
         case DafnyParser.WHILE:
-            assert parent.getChild(0) == t : "Wildcard must be first child";
+            assert
+              parent.getFirstChildWithType(DafnyParser.LABEL) == null
+              ? parent.getChild(0) == t
+              : parent.getChild(1) == t : "Wildcard must be first child";
+
             t.setExpressionType(BOOL_TYPE);
             return BOOL_TYPE;
 
@@ -445,7 +449,7 @@ public class TypeResolution extends DafnyTreeDefaultVisitor<DafnyTree, Void> {
         DafnyTree result = visitDepth(t);
         String ty1 = TreeUtil.toTypeString(t.getChild(0).getExpressionType());
         String ty2 = TreeUtil.toTypeString(t.getChild(1).getExpressionType());
-        if(!ty1.equals(ty2)) {
+        if (!ty1.equals(ty2)) {
             exceptions.add(new DafnyException("Assigning a value of type " + ty2 + " to an entitity"
                     + " of type " + ty1, t));
         }
