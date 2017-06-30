@@ -10,7 +10,6 @@ import edu.kit.iti.algover.model.CustomLeaf;
 import edu.kit.iti.algover.model.ProjectTree;
 import edu.kit.iti.algover.project.Project;
 import edu.kit.iti.algover.proof.PVC;
-import edu.kit.iti.algover.proof.ProofManagement;
 
 import javax.swing.*;
 import javax.swing.tree.TreePath;
@@ -74,7 +73,7 @@ public class GUICenter {
      */
     public static final String PVC_FOR_DETAIL = "pvc_for_detail";
     private PVC selectedPVCForDetailView;
-    private ProofManagement pm;
+
     //core counterpart for communcation
     private ProjectFacade facade;
     //GUI model of project
@@ -136,22 +135,22 @@ public class GUICenter {
 
     }
 
-    public ProofManagement getProofManagement() {
+  /*  public ProofManagement getProofManagement() {
 
         return pm;
-    }
+    }*/
 
 
     /**
      * Proofmanagement with PVCs have been set
      * @param pm
      */
-    public void setProofManagement(ProofManagement pm) {
+ /*   public void setProofManagement(ProofManagement pm) {
         ProofManagement old = pm;
         this.pm = pm;
         changes.firePropertyChange(PVCS_GENERATED, old, this.getProofManagement());
     }
-
+*/
     public ProjectTree getSelectedProjectSubTree() {
         return selectedProjectSubTree;
     }
@@ -235,9 +234,9 @@ public class GUICenter {
         setSelectedProjectDir(projectDir);
         loadSelectedProject();
 
-        ProofManagement proofmgt = new ProofManagement(this.getLoadedProject());
+        /*ProofManagement proofmgt = new ProofManagement(this.getLoadedProject());
         this.setProofManagement(proofmgt);
-        System.out.println(this.getProofManagement().getProofverificationconditions().toString());
+        System.out.println(this.getProofManagement().getProofverificationconditions().toString());*/
 
 
     }

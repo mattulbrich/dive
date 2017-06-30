@@ -5,10 +5,10 @@
  */
 package edu.kit.iti.algover.proof;
 
+import edu.kit.iti.algover.dafnystructures.DafnyDecl;
+
 import java.util.Collections;
 import java.util.List;
-
-import edu.kit.iti.algover.dafnystructures.DafnyDecl;
 
 /**
  * Represents a single PVC belonging to a PVCGroup
@@ -49,6 +49,11 @@ public class SinglePVC extends PVCCollection {
     @Override
     public List<PVCCollection> getChildren() {
         return Collections.emptyList();
+    }
+
+    @Override
+    public PVCCollection getChild(int i) {
+        return null;
     }
 
 }

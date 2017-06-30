@@ -33,6 +33,7 @@ import edu.kit.iti.algover.term.builder.TermBuildException;
 import edu.kit.iti.algover.term.builder.TermBuilder;
 import edu.kit.iti.algover.term.builder.TreeTermTranslator;
 import edu.kit.iti.algover.util.HistoryMap;
+import nonnull.NonNull;
 
 public class TermParser {
 
@@ -44,7 +45,7 @@ public class TermParser {
         this.tb = new TermBuilder(symbols);
     }
 
-    public static Term parse(SymbolTable symbols, String string) throws DafnyParserException {
+    public static Term parse(@NonNull SymbolTable symbols, @NonNull String string) throws DafnyParserException {
         TermParser tp = new TermParser(symbols);
         return tp.parse(string);
     }

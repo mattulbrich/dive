@@ -22,10 +22,8 @@ import static org.junit.Assert.*;
  * */
 
 public class ProjectTest {
+    static final String testDir = "modules/core/test-res/edu/kit/iti/algover/project";
     Project p = null;
-
-    // REVIEW: Why not static final?
-    String testDir = "modules/core/test-res/edu/kit/iti/algover/project";
 
     @Before
     public void prepare() throws Exception {

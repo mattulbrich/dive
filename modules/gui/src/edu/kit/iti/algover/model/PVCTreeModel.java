@@ -3,8 +3,6 @@ package edu.kit.iti.algover.model;
 import edu.kit.iti.algover.project.Project;
 import edu.kit.iti.algover.proof.PVCCollection;
 import edu.kit.iti.algover.proof.PVCGroup;
-import edu.kit.iti.algover.proof.ProofManagement;
-import edu.kit.iti.algover.proof.SinglePVC;
 
 import javax.swing.event.TreeModelListener;
 import javax.swing.tree.TreeModel;
@@ -15,14 +13,12 @@ import javax.swing.tree.TreePath;
  */
 public class PVCTreeModel implements TreeModel {
 
-    private ProofManagement pm;
     private Project p;
     private ProjectTree t;
 
 
+    public PVCTreeModel(Project p, ProjectTree t) {
 
-    public PVCTreeModel(ProofManagement pm, Project p, ProjectTree t){
-        this.pm = pm;
         this.p = p;
         this.t = t;
 
@@ -31,7 +27,7 @@ public class PVCTreeModel implements TreeModel {
 
     @Override
     public Object getRoot() {
-       return pm.getRoot();
+        return null;
     }
 
     @Override

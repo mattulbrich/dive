@@ -24,8 +24,6 @@ import edu.kit.iti.algover.term.builder.TermBuilder;
 import edu.kit.iti.algover.term.builder.TreeTermTranslator;
 import edu.kit.iti.algover.util.ImmutableList;
 
-import java.util.*;
-
 /**
  * A ProofVerificationConditionBuilder contains all path conditions for a specific verification condition
  * Created by sarah on 10/7/15.

@@ -28,7 +28,7 @@ import edu.kit.iti.algover.util.Util;
  * Implementing classes are collected in
  *
  * <pre>
- * META - INF / services / edu.kit.edu.algover.term.builder.PVCSequenter
+ * META - INF / services / edu.kit.iti.algover.term.builder.PVCSequenter
  * </pre>
  *
  */
