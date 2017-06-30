@@ -1,0 +1,2 @@
+(:= (ARRAY_ACCESS a 0) null)
+(:= c (ARRAY_ACCESS a 0))
