@@ -23,9 +23,9 @@
 }
 
 .guard-positive {
-    /* -fx-underline: true; */
+    -fx-underline: true;
 }
 
 .guard-negative {
-    /* -fx-strikethrough: true; */
+    -fx-strikethrough: true;
 }

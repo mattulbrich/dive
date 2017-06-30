@@ -18,47 +18,89 @@ import java.util.stream.Collectors;
  */
 public class PVCHighlightingRule implements HighlightingRule {
 
-    private final PVC pvc;
-    private final List<Token> assignmentTokens;
-    private final List<Token> positiveGuardTokens;
-    private final List<Token> negativeGuardTokens;
-    private final List<Token> allGuardTokens;
-    private final List<Token> proofObligationTokens;
+    private static class Span {
+        final int beginLine, endLine, beginCharInLine, endCharInLine;
+
+        private Span(int beginLine, int endLine, int beginCharInLine, int endCharInLine) {
+            this.beginLine = beginLine;
+            this.endLine = endLine;
+            this.beginCharInLine = beginCharInLine;
+            this.endCharInLine = endCharInLine;
+        }
+
+        private Span(Token token) {
+            this(
+                    token.getLine(),
+                    token.getLine(),
+                    token.getCharPositionInLine(),
+                    token.getText() == null
+                            ? -1
+                            : token.getText().length() + token.getCharPositionInLine()
+            );
+        }
+
+        private boolean isInvalid() {
+            return beginCharInLine == -1;
+        }
+    }
+
+    private static Span union(Span one, Span other) {
+        if (one.isInvalid()) return other;
+        if (other.isInvalid()) return one;
+        return new Span(
+                Math.min(one.beginLine, other.beginLine),
+                Math.max(one.endLine, other.endLine),
+                Math.min(one.beginCharInLine, other.beginCharInLine),
+                Math.max(one.endCharInLine, other.endCharInLine)
+        );
+    }
+
+    private static Span collectSpan(DafnyTree tree) {
+        Span span = new Span(tree.getToken());
+        return tree.getChildren().stream()
+                .map(PVCHighlightingRule::collectSpan)
+                .reduce(PVCHighlightingRule::union)
+                .map(subSpan -> union(span, subSpan))
+                .orElse(span);
+    }
+
+    private final List<Span> assignmentSpans;
+    private final List<Span> positiveGuardSpans;
+    private final List<Span> negativeGuardSpans;
+    private final List<Span> allGuardSpans;
+    private final List<Span> proofObligationSpans;
 
     public PVCHighlightingRule(PVC pvc) {
-        this.pvc = pvc;
-
-
         SymbexPath symbexPath = pvc.getPathThroughProgram();
 
         List<DafnyTree> assignmentsAsList = new ArrayList<>();
         symbexPath.getAssignmentHistory().forEach(assignmentsAsList::add);
-        assignmentTokens =
+        assignmentSpans =
                 assignmentsAsList.stream()
-                        .flatMap(dafnyTree -> collectTokens(dafnyTree).stream())
+                        .map(PVCHighlightingRule::collectSpan)
                         .collect(Collectors.toList());
 
         List<PathConditionElement> pathConditionsAsList = new ArrayList<>();
         symbexPath.getPathConditions().forEach(pathConditionsAsList::add);
 
-        positiveGuardTokens = pathConditionsAsList.stream()
+        positiveGuardSpans = pathConditionsAsList.stream()
                 .filter(pathConditionElement -> pathConditionElement.getType() == PathConditionElement.AssumptionType.IF_THEN)
-                .flatMap(pathConditionElement -> collectTokens(pathConditionElement.getExpression()).stream())
+                .map(pathConditionElement -> collectSpan(pathConditionElement.getExpression()))
                 .collect(Collectors.toList());
 
-        negativeGuardTokens = pathConditionsAsList.stream()
+        negativeGuardSpans = pathConditionsAsList.stream()
                 .filter(pathConditionElement -> pathConditionElement.getType() == PathConditionElement.AssumptionType.IF_ELSE)
-                .flatMap(pathConditionElement -> collectTokens(pathConditionElement.getExpression()).stream())
+                .map(pathConditionElement -> collectSpan(pathConditionElement.getExpression()))
                 .collect(Collectors.toList());
 
-        allGuardTokens = pathConditionsAsList.stream()
-                .flatMap(pathConditionElement -> collectTokens(pathConditionElement.getExpression()).stream())
+        allGuardSpans = pathConditionsAsList.stream()
+                .map(pathConditionElement -> collectSpan(pathConditionElement.getExpression()))
                 .collect(Collectors.toList());
 
         List<AssertionElement> proofObligationsAsList = new ArrayList<>();
         symbexPath.getProofObligations().forEach(proofObligationsAsList::add);
-        proofObligationTokens = proofObligationsAsList.stream()
-                .flatMap(assertionElement -> collectTokens(assertionElement.getOrigin()).stream())
+        proofObligationSpans = proofObligationsAsList.stream()
+                .map(assertionElement -> collectSpan(assertionElement.getOrigin()))
                 .collect(Collectors.toList());
 
         // TODO: Find out what the tokens are for a method header. for example for the header
@@ -67,14 +109,14 @@ public class PVCHighlightingRule implements HighlightingRule {
 
     @Override
     public Collection<String> handleToken(Token token, Collection<String> syntaxClasses) {
-        if (oneTokenMatches(assignmentTokens, token)) {
+        if (tokenInOneSpan(assignmentSpans, token)) {
             return syntaxClasses;
-        } else if (oneTokenMatches(proofObligationTokens, token)) {
+        } else if (tokenInOneSpan(proofObligationSpans, token)) {
             return syntaxClasses;
-        } else if (oneTokenMatches(allGuardTokens, token)) {
-            if (oneTokenMatches(positiveGuardTokens, token)) {
+        } else if (tokenInOneSpan(allGuardSpans, token)) {
+            if (tokenInOneSpan(positiveGuardSpans, token)) {
                 return addClass(syntaxClasses, "guard-positive");
-            } else if (oneTokenMatches(negativeGuardTokens, token)) {
+            } else if (tokenInOneSpan(negativeGuardSpans, token)) {
                 return addClass(syntaxClasses, "guard-negative");
             } else {
                 return syntaxClasses;
@@ -91,22 +133,17 @@ public class PVCHighlightingRule implements HighlightingRule {
         return classes;
     }
 
-    private boolean oneTokenMatches(List<Token> tokens, Token token) {
-        return tokens.stream().anyMatch(specificToken -> tokensMatch(specificToken, token));
+    private boolean tokenInOneSpan(List<Span> spans, Token token) {
+        return spans.stream().anyMatch(span -> tokenInSpan(span, token));
     }
 
-    private boolean tokensMatch(Token asgnToken, Token token) {
-        return asgnToken.getLine() == token.getLine() && asgnToken.getCharPositionInLine() == token.getCharPositionInLine();
+    private boolean tokenInSpan(Span span, Token token) {
+        return between(token.getLine(), span.beginLine, span.endLine)
+                && between(token.getCharPositionInLine(), span.beginCharInLine, span.endCharInLine);
     }
 
-    private List<Token> collectTokens(DafnyTree tree) {
-        List<Token> tokens = new ArrayList<>();
-        collectTokensTo(tokens, tree);
-        return tokens;
+    private boolean between(int n, int low, int high) {
+        return low <= n && n <= high;
     }
 
-    private void collectTokensTo(List<Token> list, DafnyTree tree) {
-        list.add(tree.getToken());
-        tree.getChildren().forEach(subTree -> collectTokensTo(list, subTree));
-    }
 }
