@@ -1,4 +1,7 @@
 method labelTest(p : int)
+  requires label req_1: collides_with_automatic_numbering
+  requires label withReqLabel: p < 0
+  requires p == -1
   ensures p == -1
   ensures label labelled: p == -2
   ensures p == -3
@@ -25,6 +28,16 @@ method labelTest(p : int)
   else
   {
     count := 3;
+  }
+
+  // second loop continues numbering
+  // inv collides with automatic naming!
+  while true
+    invariant label inv_1: p == 4
+    invariant label ass_2: p == 5 // nasty collision!
+  {
+    assert label assert_labelled: p == 6;
+    assert p == 7;
   }
 
   assume count > 0;

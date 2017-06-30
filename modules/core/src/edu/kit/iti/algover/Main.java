@@ -36,7 +36,7 @@ public class Main {
         System.out.println(Debug.prettyPrint(stringTree)); // print out the tree
 
 
-        LabelIntroducer.visit(t);
+        t.accept(new LabelIntroducer(), null);
 
         Symbex symbex = new Symbex();
         List<SymbexPath> symbexresult = symbex.symbolicExecution(t);

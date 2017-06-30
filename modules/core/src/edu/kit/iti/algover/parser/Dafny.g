@@ -259,9 +259,9 @@ statement:
 
   | if_statement
 
-  | 'assert'^ ( 'label'! ID ':'! )? expression ';'!
+  | 'assert'^ label? expression ';'!
 
-  | 'assume'^ ( 'label'! ID ':'! )? expression ';'!
+  | 'assume'^ label? expression ';'!
 
   | 'return'^ ';'!
   ;
