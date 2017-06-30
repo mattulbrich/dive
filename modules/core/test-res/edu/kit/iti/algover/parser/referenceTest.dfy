@@ -33,8 +33,8 @@ class C {
    }
 
    method m_method(p_param: int)
-     requires p_param > 0 && fl_var < 0
-     ensures p_param < 0 && fl_var > 0
+     requires label req_label: p_param > 0 && fl_var < 0
+     ensures label ens_label: p_param < 0 && fl_var > 0
      ensures (forall va_x: int :: va_x > 0 ==> f_global(va_x) > 0)
    {
       var l_top: int;
@@ -55,7 +55,7 @@ class C {
       }
 
       while *
-        invariant p_param > fl_var
+        invariant label inv_label: p_param > fl_var
         invariant (exists vx_y: int :: vx_y == 0)
         decreases l_top - p_param
       {

@@ -95,6 +95,7 @@ public class ReferenceResolutionVisitorTest {
                 case DafnyParser.FIELD:
                 case DafnyParser.ALL:
                 case DafnyParser.EX:
+                case DafnyParser.LABEL:
                     return null;
             }
 
