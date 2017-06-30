@@ -18,6 +18,7 @@ import java.util.stream.Collectors;
  */
 public class PVCHighlightingRule implements HighlightingRule {
 
+    // Helper class for defining "selections" of to-be-highlighted code
     private static class Span {
         final int beginLine, endLine, beginCharInLine, endCharInLine;
 
@@ -34,7 +35,7 @@ public class PVCHighlightingRule implements HighlightingRule {
                     token.getLine(),
                     token.getCharPositionInLine(),
                     token.getText() == null
-                            ? -1
+                            ? token.getCharPositionInLine()
                             : token.getText().length() + token.getCharPositionInLine()
             );
         }
@@ -55,13 +56,16 @@ public class PVCHighlightingRule implements HighlightingRule {
         );
     }
 
+    // Creates a Span from a DafnyTree, by converting its Token and
+    // all its children's Tokens to Spans and combining them into one
+    // big span that spans all tokens collected
     private static Span collectSpan(DafnyTree tree) {
         Span span = new Span(tree.getToken());
         return tree.getChildren().stream()
                 .map(PVCHighlightingRule::collectSpan)
-                .reduce(PVCHighlightingRule::union)
-                .map(subSpan -> union(span, subSpan))
-                .orElse(span);
+                .reduce(PVCHighlightingRule::union) // Up to here we only have combined all the children's Spans
+                .map(subSpan -> union(span, subSpan)) // We add the parent's span
+                .orElse(span); // Or we maybe don't even have any children, so we only have the parent's span
     }
 
     private final List<Span> assignmentSpans;
@@ -84,23 +88,27 @@ public class PVCHighlightingRule implements HighlightingRule {
         symbexPath.getPathConditions().forEach(pathConditionsAsList::add);
 
         positiveGuardSpans = pathConditionsAsList.stream()
-                .filter(pathConditionElement -> pathConditionElement.getType() == PathConditionElement.AssumptionType.IF_THEN)
-                .map(pathConditionElement -> collectSpan(pathConditionElement.getExpression()))
+                .filter(this::isPositiveGuard)
+                .map(PathConditionElement::getExpression)
+                .map(PVCHighlightingRule::collectSpan)
                 .collect(Collectors.toList());
 
         negativeGuardSpans = pathConditionsAsList.stream()
-                .filter(pathConditionElement -> pathConditionElement.getType() == PathConditionElement.AssumptionType.IF_ELSE)
-                .map(pathConditionElement -> collectSpan(pathConditionElement.getExpression()))
+                .filter(this::isNegativeGuard)
+                .map(PathConditionElement::getExpression)
+                .map(PVCHighlightingRule::collectSpan)
                 .collect(Collectors.toList());
 
         allGuardSpans = pathConditionsAsList.stream()
-                .map(pathConditionElement -> collectSpan(pathConditionElement.getExpression()))
+                .map(PathConditionElement::getExpression)
+                .map(PVCHighlightingRule::collectSpan)
                 .collect(Collectors.toList());
 
         List<AssertionElement> proofObligationsAsList = new ArrayList<>();
         symbexPath.getProofObligations().forEach(proofObligationsAsList::add);
         proofObligationSpans = proofObligationsAsList.stream()
-                .map(assertionElement -> collectSpan(assertionElement.getOrigin()))
+                .map(AssertionElement::getOrigin)
+                .map(PVCHighlightingRule::collectSpan)
                 .collect(Collectors.toList());
 
         // TODO: Find out what the tokens are for a method header. for example for the header
@@ -124,6 +132,16 @@ public class PVCHighlightingRule implements HighlightingRule {
         } else {
             return Collections.singletonList("lowlighted");
         }
+    }
+
+    private boolean isPositiveGuard(PathConditionElement pathConditionElement) {
+        return pathConditionElement.getType() == PathConditionElement.AssumptionType.IF_THEN
+                || pathConditionElement.getType() == PathConditionElement.AssumptionType.WHILE_TRUE;
+    }
+
+    private boolean isNegativeGuard(PathConditionElement pathConditionElement) {
+        return pathConditionElement.getType() == PathConditionElement.AssumptionType.IF_ELSE
+                || pathConditionElement.getType() == PathConditionElement.AssumptionType.WHILE_FALSE;
     }
 
     private Collection<String> addClass(Collection<String> syntaxClasses, String cssClass) {
