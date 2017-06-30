@@ -17,10 +17,6 @@ import edu.kit.iti.algover.symbex.SymbexPath;
 import edu.kit.iti.algover.term.Sequent;
 import edu.kit.iti.algover.util.Util;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.ServiceLoader;
-
 /**
  * A PVCSequenter is used to translate a {@link PVC} capturing a
  * {@link SymbexPath} resulting from symbolic execution into a {@link Sequent}

@@ -49,7 +49,7 @@ public class SymbexPathToTopFormula {
             name = "array1";
         }
 
-        return new Sort(name);
+        return Sort.get(name);
     }
 
     private SymbolTable makeSymbolTable() {
