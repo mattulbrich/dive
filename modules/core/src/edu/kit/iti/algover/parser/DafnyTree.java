@@ -18,6 +18,9 @@ import org.antlr.runtime.tree.CommonTree;
 import org.antlr.runtime.tree.CommonTreeAdaptor;
 import org.antlr.runtime.tree.Tree;
 
+import nonnull.NonNull;
+import nonnull.Nullable;
+
 /**
  * This class implements AST nodes for Dafny code.
  *
@@ -41,7 +44,6 @@ import org.antlr.runtime.tree.Tree;
  * @author Mattias Ulbrich
  */
 public class DafnyTree extends CommonTree {
-
     /**
      * The Adaptor is used by the {@link DafnyParser} to create DafnyTree
      * instances.
@@ -62,20 +64,28 @@ public class DafnyTree extends CommonTree {
                 RecognitionException e) {
             return new DafnyTree(start);
         }
+
+        @Override
+        public void setTokenBoundaries(Object t, Token startToken, Token stopToken) {
+            super.setTokenBoundaries(t, startToken, stopToken);
+            DafnyTree tree = (DafnyTree) t;
+            tree.startToken = startToken;
+            tree.stopToken = stopToken;
+        }
     }
 
     /**
      * A pointer (potentially <code>null</code>) to the declaration of the
      * identifier used in this node.
      */
-    private DafnyTree declarationReference = null;
+    private @Nullable DafnyTree declarationReference = null;
 
 
     /**
      * A pointer (potentially <code>null</code>) to the type of the expression
      * captured by this node. Also used for assignment targets.
      */
-    private DafnyTree expressionType;
+    private @Nullable DafnyTree expressionType;
 
     /**
      * A reference to the file from which this tree has been originally parsed.
@@ -83,7 +93,29 @@ public class DafnyTree extends CommonTree {
      * This can be <code>null</code> if not applicable, or may be an reference
      * to an artificial filename.
      */
-    private String filename;
+    private @Nullable String filename;
+
+    /**
+     * A reference to the starting token of this tree.
+     *
+     * This is an addition to the existing field holding an index to that token.
+     * In some base cases this field remains unset by the parser.
+     *
+     * @see #getTokenStartIndex()
+     */
+    private @Nullable Token startToken;
+
+    /**
+     * A reference to the stopping token of this tree.
+     *
+     * This is an addition to the existing field holding an index to that token.
+     * In some base cases this field remains unset by the parser.
+     *
+     * @see #getTokenStopIndex()
+     */
+    private @Nullable Token stopToken;
+
+    /**
 
     /**
      * Instantiates a new Dafny tree.
@@ -103,7 +135,7 @@ public class DafnyTree extends CommonTree {
      * @param original
      *            the original tree to clone, not <code>null</code>.
      */
-    private DafnyTree(DafnyTree original) {
+    private DafnyTree(@NonNull DafnyTree original) {
         super(original);
     }
 
@@ -274,6 +306,51 @@ public class DafnyTree extends CommonTree {
             string = DafnyParser.tokenNames[token.getType()];
         }
         return string;
+    }
+
+    /**
+     * Gets the token with the smallest token index for this node and its
+     * children.
+     *
+     * @see #getTokenStartIndex()
+     * @return the start token, <code>null</code> if no boundary and no token
+     *         set for this object
+     */
+    public Token getStartToken() {
+        if(startToken == null) {
+            Token cand = token;
+            for (DafnyTree child : getChildren()) {
+                if(cand.getTokenIndex() == -1 ||
+                   child.getStartToken().getTokenIndex() < cand.getTokenIndex()) {
+                    cand = child.getStartToken();
+                }
+            }
+            startToken = cand;
+        }
+
+        return startToken;
+    }
+
+    /**
+     * Gets the token with the highest token index for this node and its
+     * children.
+     *
+     * @see #getTokenStartIndex()
+     * @return the start token, <code>null</code> if no boundary and no token
+     *         set for this object
+     */
+    public Token getStopToken() {
+        if(stopToken == null) {
+            Token cand = token;
+            for (DafnyTree child : getChildren()) {
+                if(child.getStopToken().getTokenIndex() > cand.getTokenIndex()) {
+                    cand = child.getStopToken();
+                }
+            }
+            stopToken = cand;
+        }
+
+        return stopToken;
     }
 
     /**

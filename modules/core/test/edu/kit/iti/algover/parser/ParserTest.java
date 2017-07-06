@@ -90,6 +90,20 @@ public class ParserTest {
             // assertEquals("For inspection", Util.streamToString(expected.openStream()), TestUtil.beautify(t));
             assertEquals("Parsing result", expect, actual);
         }
+
+        expected = getClass().getResource(filename + ".expected-boundaries");
+        if(expected != null) {
+            String expect = Util.streamToString(expected.openStream()).replaceAll("\\s+", " ").trim();
+            String actual = TestUtil.beautify(t, ParserTest::formatTree).replaceAll("\\s+", " ").trim();
+            // assertEquals("For inspection", Util.streamToString(expected.openStream()), TestUtil.beautify(t));
+            assertEquals("Parsing result", expect, actual);
+        }
+    }
+
+    private static String formatTree(DafnyTree tree) {
+        return tree.getText() +
+                String.format("[%s-%s]",
+                tree.getStartToken().getText(), tree.getStopToken().getText());
     }
 
     public static DafnyTree parseFile(InputStream stream) throws DafnyParserException, IOException {
@@ -115,7 +129,7 @@ public class ParserTest {
         } else {
             t = parseFile(System.in);
         }
-        System.out.println(TestUtil.beautify(t));
+        System.out.println(TestUtil.beautify(t, ParserTest::formatTree));
     }
 
 }
