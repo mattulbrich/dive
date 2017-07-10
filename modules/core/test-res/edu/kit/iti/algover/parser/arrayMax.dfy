@@ -18,7 +18,7 @@ method max(a : array<int>, n: int) returns (m : int)
     invariant label witness_in_bounds: 0 <= m && m < n
     decreases n - i
   {
-    if a[i] > a[m]
+    if (a[i] > a[m])
     {
       m := i;
     }
