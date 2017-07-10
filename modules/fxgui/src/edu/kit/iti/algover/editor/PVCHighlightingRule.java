@@ -56,16 +56,11 @@ public class PVCHighlightingRule implements HighlightingRule {
         );
     }
 
-    // Creates a Span from a DafnyTree, by converting its Token and
-    // all its children's Tokens to Spans and combining them into one
-    // big span that spans all tokens collected
+    // Creates a Span from a DafnyTree
     private static Span collectSpan(DafnyTree tree) {
-        Span span = new Span(tree.getToken());
-        return tree.getChildren().stream()
-                .map(PVCHighlightingRule::collectSpan)
-                .reduce(PVCHighlightingRule::union) // Up to here we only have combined all the children's Spans
-                .map(subSpan -> union(span, subSpan)) // We add the parent's span
-                .orElse(span); // Or we maybe don't even have any children, so we only have the parent's span
+        return union(
+                new Span(tree.getStartToken()),
+                new Span(tree.getStopToken()));
     }
 
     private final List<Span> assignmentSpans;
@@ -112,7 +107,7 @@ public class PVCHighlightingRule implements HighlightingRule {
                 .collect(Collectors.toList());
 
         // TODO: Find out what the tokens are for a method header. for example for the header
-        // "method max(x: int, y: int) returns (m: int) {". That should still be highlighted
+        // "method max(x: int, y: int) returns (m: int) {" should still be highlighted
     }
 
     @Override
