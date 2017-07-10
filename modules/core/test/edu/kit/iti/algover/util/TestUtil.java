@@ -8,6 +8,7 @@ package edu.kit.iti.algover.util;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Function;
 
 import org.antlr.runtime.RecognitionException;
 
@@ -22,15 +23,19 @@ import edu.kit.iti.algover.project.ProjectBuilder;
 public class TestUtil {
 
     public static String beautify(DafnyTree tree) {
+        return beautify(tree, DafnyTree::toString);
+    }
+
+    public static String beautify(DafnyTree tree, Function<DafnyTree, String> printer) {
         StringBuilder sb = new StringBuilder();
-        printBeautified(sb, tree, 0);
+        printBeautified(sb, printer, tree, 0);
         return sb.toString();
     }
 
-    private static void printBeautified(StringBuilder buf, DafnyTree tree, int indent) {
+    private static void printBeautified(StringBuilder buf, Function<DafnyTree, String> printer, DafnyTree tree, int indent) {
         List<DafnyTree> children = tree.getChildren();
         if (children == null || children.isEmpty()) {
-            buf.append(tree.toString());
+            buf.append(printer.apply(tree));
             return;
         }
 
@@ -38,7 +43,7 @@ public class TestUtil {
 
         if (!tree.isNil()) {
             buf.append("(");
-            buf.append(tree.toString());
+            buf.append(printer.apply(tree));
             buf.append(' ');
         }
         for (int i = 0; children != null && i < children.size(); i++) {
@@ -46,7 +51,7 @@ public class TestUtil {
             if (i > 0) {
                 buf.append(' ');
             }
-            printBeautified(buf, t, indent+1);
+            printBeautified(buf, printer, t, indent+1);
         }
         if (!tree.isNil()) {
             buf.append(")");
