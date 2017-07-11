@@ -1,5 +1,6 @@
 package edu.kit.iti.algover.editor;
 
+import edu.kit.iti.algover.parser.DafnyParser;
 import edu.kit.iti.algover.parser.DafnyTree;
 import edu.kit.iti.algover.proof.PVC;
 import edu.kit.iti.algover.symbex.AssertionElement;
@@ -7,10 +8,8 @@ import edu.kit.iti.algover.symbex.PathConditionElement;
 import edu.kit.iti.algover.symbex.SymbexPath;
 import org.antlr.runtime.Token;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 /**
@@ -56,6 +55,19 @@ public class PVCHighlightingRule implements HighlightingRule {
         );
     }
 
+    private static Token minPos(Token token1, Token token2) {
+        if (token1.getLine() < token2.getLine()) {
+            return token1;
+        } else if (token2.getLine() < token1.getLine()) {
+            return token2;
+        }
+        if (token1.getCharPositionInLine() < token2.getCharPositionInLine()) {
+            return token1;
+        } else {
+            return token2;
+        }
+    }
+
     // Creates a Span from a DafnyTree
     private static Span collectSpan(DafnyTree tree) {
         return union(
@@ -68,6 +80,7 @@ public class PVCHighlightingRule implements HighlightingRule {
     private final List<Span> negativeGuardSpans;
     private final List<Span> allGuardSpans;
     private final List<Span> proofObligationSpans;
+    private final Span methodHeaderSpan;
 
     public PVCHighlightingRule(PVC pvc) {
         SymbexPath symbexPath = pvc.getPathThroughProgram();
@@ -106,13 +119,31 @@ public class PVCHighlightingRule implements HighlightingRule {
                 .map(PVCHighlightingRule::collectSpan)
                 .collect(Collectors.toList());
 
-        // TODO: Find out what the tokens are for a method header. for example for the header
-        // "method max(x: int, y: int) returns (m: int) {" should still be highlighted
+        List<DafnyTree> treesAfterMethodHeader = new ArrayList<>();
+        treesAfterMethodHeader.add(symbexPath.getMethod().getFirstChildWithType(DafnyParser.REQUIRES));
+        treesAfterMethodHeader.add(symbexPath.getMethod().getFirstChildWithType(DafnyParser.ENSURES));
+        treesAfterMethodHeader.add(symbexPath.getMethod().getFirstChildWithType(DafnyParser.DECREASES));
+
+        Token firstTokenAfterHeader = treesAfterMethodHeader.stream()
+                .filter(Objects::nonNull)
+                .map(DafnyTree::getStartToken)
+                .reduce(PVCHighlightingRule::minPos)
+                .orElseThrow(() -> new IllegalStateException(
+                        "It shouldn't be possible to not have any requires/ensures/decreases after method."));
+
+        Token methodStart = symbexPath.getMethod().getToken();
+        methodHeaderSpan = new Span(
+                methodStart.getLine(),
+                firstTokenAfterHeader.getLine(),
+                methodStart.getCharPositionInLine(),
+                firstTokenAfterHeader.getCharPositionInLine() - 1);
     }
 
     @Override
     public Collection<String> handleToken(Token token, Collection<String> syntaxClasses) {
-        if (tokenInOneSpan(assignmentSpans, token)) {
+        if (tokenInSpan(methodHeaderSpan, token)) {
+            return syntaxClasses;
+        } else if (tokenInOneSpan(assignmentSpans, token)) {
             return syntaxClasses;
         } else if (tokenInOneSpan(proofObligationSpans, token)) {
             return syntaxClasses;
@@ -151,12 +182,18 @@ public class PVCHighlightingRule implements HighlightingRule {
     }
 
     private boolean tokenInSpan(Span span, Token token) {
-        return between(token.getLine(), span.beginLine, span.endLine)
-                && between(token.getCharPositionInLine(), span.beginCharInLine, span.endCharInLine);
+        if (between(token.getLine(), span.beginLine, span.endLine)) {
+            return true;
+        } else if (token.getLine() == span.beginLine) {
+            return token.getCharPositionInLine() >= span.beginCharInLine;
+        } else if (token.getLine() == span.endLine) {
+            return (token.getCharPositionInLine() + token.getText().length()) <= span.endCharInLine;
+        }
+        return false;
     }
 
     private boolean between(int n, int low, int high) {
-        return low <= n && n <= high;
+        return low < n && n < high;
     }
 
 }
