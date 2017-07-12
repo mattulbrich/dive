@@ -70,15 +70,24 @@ public class EditorController {
     }
 
     public void viewPVCSelection(PVC pvc) {
+        view.getTabs().stream()
+                .map(tab -> (DafnyCodeArea) tab.getContent())
+                .forEach(codeArea -> codeArea.setHighlightingRule(null));
+
         DafnyCodeArea codeArea = getFocusedCodeArea();
         codeArea.setHighlightingRule(new PVCHighlightingRule(pvc));
-        codeArea.rerenderHighlighting();
+
+        view.getTabs().stream()
+                .map(tab -> (DafnyCodeArea) tab.getContent())
+                .forEach(DafnyCodeArea::rerenderHighlighting);
     }
 
     public void resetPVCSelection() {
-        DafnyCodeArea codeArea = getFocusedCodeArea();
-        codeArea.setHighlightingRule(null);
-        codeArea.rerenderHighlighting();
+        tabsByFile.forEach((key, value) -> {
+            DafnyCodeArea codeArea = (DafnyCodeArea) value.getContent();
+            codeArea.setHighlightingRule(null);
+            codeArea.rerenderHighlighting();
+        });
     }
 
     public TabPane getView() {
