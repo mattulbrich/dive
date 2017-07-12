@@ -15,8 +15,10 @@ public class BrowserTreeTable extends TreeTableView<TreeTableEntity> {
     private TreeTableColumn<TreeTableEntity, TreeTableEntity> nameColumn;
     private TreeTableColumn<TreeTableEntity, Float> percentageProvenColumn;
     private TreeTableColumn<TreeTableEntity, TreeTableEntity.ProofStatus> statusColumn;
+    private final TreeEntityDoubleClickListener doubleClickListener;
 
-    public BrowserTreeTable() {
+    public BrowserTreeTable(TreeEntityDoubleClickListener doubleClickListener) {
+        this.doubleClickListener = doubleClickListener;
         this.nameColumn = new TreeTableColumn<>("name");
         this.percentageProvenColumn = new TreeTableColumn<>("percentage proven");
         this.statusColumn = new TreeTableColumn<>("status");
@@ -36,7 +38,7 @@ public class BrowserTreeTable extends TreeTableView<TreeTableEntity> {
     }
 
     private TreeTableCell<TreeTableEntity, TreeTableEntity> nameCellRenderer(TreeTableColumn<TreeTableEntity, TreeTableEntity> column) {
-        return new NameCell();
+        return new NameCell(doubleClickListener);
     }
 
     private ObservableValue<TreeTableEntity> nameCellFactory(TreeTableColumn.CellDataFeatures<TreeTableEntity, TreeTableEntity> data) {

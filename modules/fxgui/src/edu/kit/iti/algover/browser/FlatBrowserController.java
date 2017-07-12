@@ -15,8 +15,8 @@ import java.util.stream.Collectors;
  */
 public class FlatBrowserController extends BrowserController {
 
-    public FlatBrowserController(Project project) {
-        super(project);
+    public FlatBrowserController(Project project, TreeEntityDoubleClickListener doubleClickListener) {
+        super(project, doubleClickListener);
     }
 
     protected void populateTreeTable() {

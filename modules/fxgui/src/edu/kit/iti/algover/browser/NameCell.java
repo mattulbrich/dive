@@ -2,9 +2,12 @@ package edu.kit.iti.algover.browser;
 
 import edu.kit.iti.algover.browser.entities.TreeTableEntity;
 import edu.kit.iti.algover.browser.entities.TreeTableEntityVisitor;
+import javafx.event.Event;
+import javafx.event.EventHandler;
 import javafx.scene.Node;
 import javafx.scene.control.Label;
 import javafx.scene.control.TreeTableCell;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.paint.Color;
 
 /**
@@ -12,8 +15,19 @@ import javafx.scene.paint.Color;
  */
 public class NameCell extends TreeTableCell<TreeTableEntity, TreeTableEntity> {
 
-    public NameCell() {
+    private final TreeEntityDoubleClickListener doubleClickListener;
+
+    public NameCell(TreeEntityDoubleClickListener doubleClickListener) {
+        this.doubleClickListener = doubleClickListener;
         getStyleClass().add("namecell");
+        addEventFilter(MouseEvent.MOUSE_CLICKED, this::onMouseClick);
+    }
+
+    // TODO: Make this accessible more visually, i.e. a context menu or better: a button
+    private void onMouseClick(MouseEvent event) {
+        if (event.getClickCount() == 2 && doubleClickListener != null && getItem() != null) {
+            doubleClickListener.onDoubleClickTreeEntity(getItem());
+        }
     }
 
     @Override

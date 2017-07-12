@@ -24,9 +24,9 @@ public abstract class BrowserController {
 
     private BrowserSelectionListener selectionListener;
 
-    protected BrowserController(Project project) {
+    protected BrowserController(Project project, TreeEntityDoubleClickListener doubleClickListener) {
         this.project = project;
-        this.view = new BrowserTreeTable();
+        this.view = new BrowserTreeTable(doubleClickListener);
 
         view.getSelectionModel().selectedItemProperty().addListener(this::onTreeItemSelected);
 
