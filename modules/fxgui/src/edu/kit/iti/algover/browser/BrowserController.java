@@ -1,11 +1,13 @@
 package edu.kit.iti.algover.browser;
 
+import edu.kit.iti.algover.browser.entities.*;
 import edu.kit.iti.algover.dafnystructures.DafnyClass;
 import edu.kit.iti.algover.dafnystructures.DafnyFile;
 import edu.kit.iti.algover.dafnystructures.DafnyMethod;
 import edu.kit.iti.algover.project.Project;
 import edu.kit.iti.algover.proof.PVC;
 import edu.kit.iti.algover.proof.PVCCollection;
+import edu.kit.iti.algover.proof.PVCGroup;
 import edu.kit.iti.algover.proof.SinglePVC;
 import javafx.beans.value.ObservableValue;
 import javafx.scene.control.TreeItem;
@@ -33,18 +35,8 @@ public abstract class BrowserController {
 
     protected abstract void populateTreeTable();
 
-    protected TreeTableEntity createNewEntity(DafnyFile loc, TreeTableEntity.Kind kind, String name) {
-        return new TreeTableEntity(
-                loc,
-                name,
-                0,
-                TreeTableEntity.ProofStatus.UNPROVEN,
-                kind);
-    }
-
     protected TreeItem<TreeTableEntity> getItemFromFile(DafnyFile dafnyFile) {
-        TreeTableEntity file = createNewEntity(dafnyFile, TreeTableEntity.Kind.OTHER, dafnyFile.getName());
-        TreeItem<TreeTableEntity> item = new TreeItem<>(file);
+        TreeItem<TreeTableEntity> item = new TreeItem<>(new FileEntity(dafnyFile));
         item.getChildren().addAll(
             dafnyFile.getClasses().stream()
                 .map(dafnyClass -> getItemFromClass(dafnyFile, dafnyClass))
@@ -57,8 +49,7 @@ public abstract class BrowserController {
     }
 
     protected TreeItem<TreeTableEntity> getItemFromClass(DafnyFile dafnyFile, DafnyClass dafnyClass) {
-        TreeTableEntity clazz = createNewEntity(dafnyFile, TreeTableEntity.Kind.CLASS, dafnyClass.getName());
-        TreeItem<TreeTableEntity> item = new TreeItem<>(clazz);
+        TreeItem<TreeTableEntity> item = new TreeItem<>(new ClassEntity(dafnyClass, dafnyFile));
         item.getChildren().setAll(
             dafnyClass.getMethods().stream()
                 .map(dafnyMethod -> getItemFromMethod(dafnyFile, dafnyMethod))
@@ -67,8 +58,7 @@ public abstract class BrowserController {
     }
 
     protected TreeItem<TreeTableEntity> getItemFromMethod(DafnyFile dafnyFile, DafnyMethod dafnyMethod) {
-        TreeTableEntity method = createNewEntity(dafnyFile, TreeTableEntity.Kind.METHOD, dafnyMethod.getName());
-        TreeItem<TreeTableEntity> item = new TreeItem<>(method);
+        TreeItem<TreeTableEntity> item = new TreeItem<>(new MethodEntity(dafnyMethod, dafnyFile));
         PVCCollection collection = project.getVerificationConditionsFor(dafnyMethod);
         if (collection != null) {
             item.getChildren().setAll(
@@ -82,11 +72,9 @@ public abstract class BrowserController {
     private TreeItem<TreeTableEntity> getItemFromPVC(DafnyFile dafnyFile, PVCCollection pvcCollection) {
         if (pvcCollection.isPVCLeaf()) {
             PVC pvc = ((SinglePVC) pvcCollection).getPVC();
-            TreeTableEntity pvcEntity = new TreeTableEntity(dafnyFile, pvc, TreeTableEntity.ProofStatus.UNPROVEN);
-            return new TreeItem<>(pvcEntity);
+            return new TreeItem<>(new PVCEntity(pvc, dafnyFile));
         } else {
-            TreeTableEntity pvc = createNewEntity(dafnyFile, TreeTableEntity.Kind.PVC, "Proof Verification Condition Group");
-            TreeItem<TreeTableEntity> item = new TreeItem<>(pvc);
+            TreeItem<TreeTableEntity> item = new TreeItem<>(new PVCGroupEntity((PVCGroup) pvcCollection, dafnyFile));
             item.getChildren().setAll(
                 pvcCollection.getChildren().stream()
                     .map(subPvcCollection -> getItemFromPVC(dafnyFile, subPvcCollection))
@@ -99,10 +87,14 @@ public abstract class BrowserController {
             ObservableValue<? extends TreeItem<TreeTableEntity>> value,
             TreeItem<TreeTableEntity> before,
             TreeItem<TreeTableEntity> item) {
-        if (item == null || selectionListener == null) return;
-        TreeTableEntity entity = item.getValue();
-        if (entity == null) return;
+        TreeTableEntity entity = entityFromTreeItem(item);
+        if (entity == null || selectionListener == null) return;
         selectionListener.onBrowserItemSelected(entity);
+    }
+
+    protected TreeTableEntity entityFromTreeItem(TreeItem<TreeTableEntity> item) {
+        if (item == null) return null;
+        return item.getValue();
     }
 
     public BrowserTreeTable getView() {

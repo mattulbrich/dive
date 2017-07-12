@@ -1,5 +1,7 @@
 package edu.kit.iti.algover.browser;
 
+import edu.kit.iti.algover.browser.entities.TreeTableEntity;
+import edu.kit.iti.algover.browser.entities.TreeTableEntityVisitor;
 import javafx.scene.Node;
 import javafx.scene.control.Label;
 import javafx.scene.control.TreeTableCell;
@@ -18,34 +20,11 @@ public class NameCell extends TreeTableCell<TreeTableEntity, TreeTableEntity> {
     protected void updateItem(TreeTableEntity item, boolean empty) {
         super.updateItem(item, empty);
         if (item != null && !empty) {
-            setGraphic(graphicForKind(item.getKind()));
-            setText(item.getName());
+            setGraphic(item.accept(TreeTableEntityRenderer.INSTANCE));
+            setText(item.getText());
         } else {
             setGraphic(null);
             setText(null);
         }
-    }
-
-    private Node graphicForKind(TreeTableEntity.Kind kind) {
-        switch (kind) {
-            case FUNCTION:
-                return blueLabel("function");
-            case CLASS:
-                return blueLabel("class");
-            case MODULE:
-                return blueLabel("module");
-            case METHOD:
-                return blueLabel("method");
-            case PVC:
-                return new Label("•"); // TODO: this can be just a _little_ more beautiful
-            default:
-                return null;
-        }
-    }
-
-    private Node blueLabel(String text) {
-        Label label = new Label(text);
-        label.setTextFill(Color.BLUE);
-        return label;
     }
 }

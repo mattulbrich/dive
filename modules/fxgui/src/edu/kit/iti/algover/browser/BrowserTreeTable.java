@@ -1,6 +1,7 @@
 package edu.kit.iti.algover.browser;
 
 
+import edu.kit.iti.algover.browser.entities.TreeTableEntity;
 import javafx.beans.value.ObservableValue;
 import javafx.scene.control.TreeTableCell;
 import javafx.scene.control.TreeTableColumn;

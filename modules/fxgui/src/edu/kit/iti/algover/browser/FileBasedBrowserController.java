@@ -1,5 +1,7 @@
 package edu.kit.iti.algover.browser;
 
+import edu.kit.iti.algover.browser.entities.OtherEntity;
+import edu.kit.iti.algover.browser.entities.TreeTableEntity;
 import edu.kit.iti.algover.project.Project;
 import javafx.scene.control.TreeItem;
 
@@ -16,7 +18,7 @@ public class FileBasedBrowserController extends BrowserController {
     }
 
     protected void populateTreeTable() {
-        TreeTableEntity dafnyFiles = createNewEntity(null, TreeTableEntity.Kind.OTHER, "Dafny Files");
+        TreeTableEntity dafnyFiles = new OtherEntity("Dafny Files");
         TreeItem<TreeTableEntity> dafnyFilesItem = new TreeItem<>(dafnyFiles);
         getView().setRoot(dafnyFilesItem);
 

@@ -1,13 +1,13 @@
 package edu.kit.iti.algover.browser;
 
+import edu.kit.iti.algover.browser.entities.OtherEntity;
+import edu.kit.iti.algover.browser.entities.TreeTableEntity;
 import edu.kit.iti.algover.dafnystructures.DafnyClass;
-import edu.kit.iti.algover.dafnystructures.DafnyDecl;
 import edu.kit.iti.algover.dafnystructures.DafnyFile;
 import edu.kit.iti.algover.dafnystructures.DafnyMethod;
 import edu.kit.iti.algover.project.Project;
 import javafx.scene.control.TreeItem;
 
-import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
@@ -20,7 +20,7 @@ public class FlatBrowserController extends BrowserController {
     }
 
     protected void populateTreeTable() {
-        TreeTableEntity rootNode = createNewEntity(null, TreeTableEntity.Kind.OTHER, "root");
+        TreeTableEntity rootNode = new OtherEntity("root");
 
         TreeItem<TreeTableEntity> root = new TreeItem<>(rootNode);
         getView().setRoot(root);
@@ -33,7 +33,7 @@ public class FlatBrowserController extends BrowserController {
     }
 
     private TreeItem<TreeTableEntity> createMethodsTreeItem() {
-        TreeTableEntity methods = createNewEntity(null, TreeTableEntity.Kind.OTHER, "Methods");
+        TreeTableEntity methods = new OtherEntity("Methods");
         TreeItem<TreeTableEntity> methodsItem = new TreeItem<>(methods);
         methodsItem.getChildren().setAll(
                 getProject().getMethods().stream()
@@ -44,7 +44,7 @@ public class FlatBrowserController extends BrowserController {
     }
 
     private TreeItem<TreeTableEntity> createClassesTreeItem() {
-        TreeTableEntity classes = createNewEntity(null, TreeTableEntity.Kind.OTHER, "Classes");
+        TreeTableEntity classes = new OtherEntity("Classes");
         TreeItem<TreeTableEntity> classesItem = new TreeItem<>(classes);
         classesItem.getChildren().setAll(
                 getProject().getClasses().stream()
