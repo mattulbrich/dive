@@ -2,10 +2,12 @@
     -fx-font-family: monospace;
 }
 
-.term-view .label {
+.term-view {
     -fx-font-family: monospace;
+    -fx-background-color: transparent;
 }
 
-.term-view .label.highlighted {
-    -fx-background-color: cadetblue;
+.term-view .highlighted {
+    -rtfx-background-color: cadetblue;
+    -fx-fill: whitesmoke;
 }
