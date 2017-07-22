@@ -8,8 +8,8 @@ import org.antlr.runtime.ANTLRStringStream;
 import org.antlr.runtime.Token;
 import org.fxmisc.richtext.CodeArea;
 import org.fxmisc.richtext.LineNumberFactory;
-import org.fxmisc.richtext.StyleSpans;
-import org.fxmisc.richtext.StyleSpansBuilder;
+import org.fxmisc.richtext.model.StyleSpans;
+import org.fxmisc.richtext.model.StyleSpansBuilder;
 
 import java.time.Duration;
 import java.util.Collection;

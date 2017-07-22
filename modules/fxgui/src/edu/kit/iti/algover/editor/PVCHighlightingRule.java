@@ -6,6 +6,7 @@ import edu.kit.iti.algover.proof.PVC;
 import edu.kit.iti.algover.symbex.AssertionElement;
 import edu.kit.iti.algover.symbex.PathConditionElement;
 import edu.kit.iti.algover.symbex.SymbexPath;
+import edu.kit.iti.algover.util.Span;
 import org.antlr.runtime.Token;
 
 import java.util.*;
@@ -17,41 +18,14 @@ import java.util.stream.Collectors;
  */
 public class PVCHighlightingRule implements HighlightingRule {
 
-    // Helper class for defining "selections" of to-be-highlighted code
-    private static class Span {
-        final int beginLine, endLine, beginCharInLine, endCharInLine;
-
-        private Span(int beginLine, int endLine, int beginCharInLine, int endCharInLine) {
-            this.beginLine = beginLine;
-            this.endLine = endLine;
-            this.beginCharInLine = beginCharInLine;
-            this.endCharInLine = endCharInLine;
-        }
-
-        private Span(Token token) {
-            this(
-                    token.getLine(),
-                    token.getLine(),
-                    token.getCharPositionInLine(),
-                    token.getText() == null
-                            ? token.getCharPositionInLine()
-                            : token.getText().length() + token.getCharPositionInLine()
-            );
-        }
-
-        private boolean isInvalid() {
-            return beginCharInLine == -1;
-        }
-    }
-
-    private static Span union(Span one, Span other) {
-        if (one.isInvalid()) return other;
-        if (other.isInvalid()) return one;
+    private static Span spanFromToken(Token token) {
         return new Span(
-                Math.min(one.beginLine, other.beginLine),
-                Math.max(one.endLine, other.endLine),
-                Math.min(one.beginCharInLine, other.beginCharInLine),
-                Math.max(one.endCharInLine, other.endCharInLine)
+            token.getLine(),
+            token.getLine(),
+            token.getCharPositionInLine(),
+            token.getText() == null
+                ? token.getCharPositionInLine()
+                : token.getText().length() + token.getCharPositionInLine()
         );
     }
 
@@ -70,9 +44,9 @@ public class PVCHighlightingRule implements HighlightingRule {
 
     // Creates a Span from a DafnyTree
     private static Span collectSpan(DafnyTree tree) {
-        return union(
-                new Span(tree.getStartToken()),
-                new Span(tree.getStopToken()));
+        return Span.union(
+                spanFromToken(tree.getStartToken()),
+                spanFromToken(tree.getStopToken()));
     }
 
     private final List<Span> assignmentSpans;

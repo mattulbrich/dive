@@ -1,3 +1,11 @@
 .overview .cell .indexed-cell .tree-table-cell .namecell {
     -fx-font-family: monospace;
 }
+
+.term-view .label {
+    -fx-font-family: monospace;
+}
+
+.term-view .label.highlighted {
+    -fx-background-color: cadetblue;
+}

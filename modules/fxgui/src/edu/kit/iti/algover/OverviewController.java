@@ -2,6 +2,8 @@ package edu.kit.iti.algover;
 
 import edu.kit.iti.algover.browser.BrowserController;
 import edu.kit.iti.algover.browser.FlatBrowserController;
+import edu.kit.iti.algover.prettyprint.AnnotatedString;
+import edu.kit.iti.algover.prettyprint.PrettyPrint;
 import edu.kit.iti.algover.sequent.SequentController;
 import edu.kit.iti.algover.browser.entities.*;
 import edu.kit.iti.algover.dafnystructures.DafnyFile;
