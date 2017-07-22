@@ -274,7 +274,7 @@ class PrettyPrintVisitor implements TermVisitor<Void, Void, RuntimeException> {
         List<Pair<VariableTerm, Term>> assignments = updateTerm.getSubstitutions();
         visit(assignments);
 
-        printer.append(" }").resetPreviousStyle().
+        printer.append(" }").//resetPreviousStyle().
             breakBlock(0, PrettyPrintLayouter.DEFAULT_INDENTATION);
         printer.beginTerm(0);
         visitMaybeParen(updateTerm.getTerm(0), Integer.MAX_VALUE);
