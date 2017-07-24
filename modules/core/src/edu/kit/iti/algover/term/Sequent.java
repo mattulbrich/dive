@@ -8,12 +8,15 @@ package edu.kit.iti.algover.term;
 import edu.kit.iti.algover.proof.ProofFormula;
 import edu.kit.iti.algover.util.Util;
 
+import java.util.Collections;
 import java.util.List;
 
 /**
  * Class representing a logical sequent
  */
-public class Sequent {
+public final class Sequent {
+
+    public static final Sequent EMPTY = new Sequent(Collections.emptyList(), Collections.emptyList());
 
     private final ProofFormula antecedent[];
     private final ProofFormula succedent[];
@@ -38,5 +41,9 @@ public class Sequent {
         sb.append(getSuccedent().toString());
 
         return sb.toString();
+    }
+
+    public boolean isEmpty() {
+        return antecedent.length + succedent.length == 0;
     }
 }

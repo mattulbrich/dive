@@ -5,25 +5,25 @@
  */
 package edu.kit.iti.algover.rules;
 
-import edu.kit.iti.algover.prettyprint.SubtermSelector;
-import edu.kit.iti.algover.proof.ProofFormula;
 import edu.kit.iti.algover.script.ScriptTree;
 import edu.kit.iti.algover.term.Sequent;
+import nonnull.NonNull;
+import nonnull.Nullable;
 
 /**
- * Interface for Propof steps
+ * Interface for Proof steps
  * Proof steps can be single rules, but also application of solvers etc.
  */
-public interface ProofRule<A> {
+public interface ProofRule<P> {
 
-    public String getName();
+    public @NonNull String getName();
 
-    public PotentialProofStep consider(Sequent sequent, ProofFormula form, SubtermSelector selector);
+    public ProofRuleApplication<P> consider(
+            @NonNull P parameters,
+            @NonNull Sequent sequent,
+            @NonNull Sequent selection,
+            @Nullable TermSelector selector) throws RuleException;
 
-    public ProofStep apply(Sequent sequent, A arguments);
+    public @NonNull P parseArguments(ScriptTree tree) throws RuleException;
 
-    public A parseArguments(ScriptTree tree);
-
-    // REVIEW: unclear to me
-    public String getCategory();
 }
