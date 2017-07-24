@@ -3,6 +3,8 @@ package edu.kit.iti.algover.sequent;
 import edu.kit.iti.algover.prettyprint.AnnotatedString;
 import edu.kit.iti.algover.prettyprint.PrettyPrint;
 import edu.kit.iti.algover.term.Term;
+import edu.kit.iti.algover.util.TextUtil;
+import javafx.geometry.Bounds;
 import javafx.scene.input.MouseEvent;
 import org.fxmisc.richtext.CharacterHit;
 import org.fxmisc.richtext.CodeArea;
@@ -19,15 +21,32 @@ public class TermView extends CodeArea {
 
     public TermView(Term term) {
         super("");
+        getStyleClass().add("term-view");
+
         this.term = term;
         PrettyPrint p = new PrettyPrint();
         p.setPrintingFix(false);
-        this.str = p.print(term, 80);
+        this.str = p.print(term, 40);
 
-        replaceText(0, getLength(), str.toString());
+        String prettyPrinted = str.toString();
 
-        getStyleClass().add("term-view");
+        // This is a hack, but it seems to be impossible without it...
+        Bounds bounds = TextUtil.computeTextBounds(prettyPrinted, getStyleClass(), getStylesheets());
+
+        replaceText(0, getLength(), prettyPrinted);
+
         setEditable(false);
+
+        final double safetyPadding = 1.1; // 10%, this is such a hack ... :(
+        double neededWidth  = safetyPadding * (bounds.getWidth()
+            + getPadding().getLeft() + getPadding().getRight()
+            + getInsets().getLeft() + getInsets().getRight());
+        double neededHeight = safetyPadding * (bounds.getHeight()
+            + getPadding().getBottom() + getPadding().getTop()
+            + getInsets().getBottom() + getInsets().getTop());
+
+        setMinSize(neededWidth, neededHeight);
+        setPrefSize(neededWidth, neededHeight);
 
         setOnMouseMoved(this::updateHighlghting);
         setOnMousePressed(this::updateHighlghting);

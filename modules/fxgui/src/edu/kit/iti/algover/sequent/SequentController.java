@@ -5,9 +5,13 @@ import edu.kit.iti.algover.proof.PVC;
 import edu.kit.iti.algover.proof.ProofFormula;
 import edu.kit.iti.algover.term.Sequent;
 import edu.kit.iti.algover.term.Term;
+import javafx.geometry.Orientation;
+import javafx.scene.Node;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
+import javafx.scene.control.SplitPane;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 
 import java.util.List;
@@ -19,9 +23,11 @@ import java.util.stream.Collectors;
 public class SequentController {
 
     private final Project project;
-    private final VBox view;
+    private final VBox viewSequent;
+    private final SplitPane view;
     private final ListView<Term> antecedentView;
     private final ListView<Term> succedentView;
+    private final ScriptView scriptView;
 
     private Sequent activeSequent;
 
@@ -29,11 +35,16 @@ public class SequentController {
         this.project = project;
         this.antecedentView = new ListView<>();
         this.succedentView = new ListView<>();
-        this.view = new VBox(antecedentView, new Label("==>"), succedentView);
+        this.scriptView = new ScriptView();
         this.activeSequent = null;
 
         antecedentView.setCellFactory(this::createTermCell);
         succedentView.setCellFactory(this::createTermCell);
+
+        this.viewSequent = new VBox(antecedentView, new Label("==>"), succedentView);
+        this.view = new SplitPane(viewSequent, scriptView);
+        view.setOrientation(Orientation.VERTICAL);
+        view.setDividerPositions(0.7);
     }
 
     private TermCell createTermCell(ListView<Term> termListView) {
@@ -50,7 +61,7 @@ public class SequentController {
         return proofFormulas.stream().map(ProofFormula::getTerm).collect(Collectors.toList());
     }
 
-    public VBox getView() {
+    public SplitPane getView() {
         return view;
     }
 }

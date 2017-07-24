@@ -1,6 +1,7 @@
 package edu.kit.iti.algover.sequent;
 
 import edu.kit.iti.algover.term.Term;
+import javafx.beans.Observable;
 import javafx.scene.control.ListCell;
 
 /**

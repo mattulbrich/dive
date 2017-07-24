@@ -2,6 +2,12 @@
     -fx-font-family: monospace;
 }
 
+/* unfortunately doesn't work... */
+/* I wanted the sequent text to be white, when the cell around it was selected... */
+.list-view .list.cell:selected .term-view {
+    -fx-fill: whitesmoke;
+}
+
 .term-view {
     -fx-font-family: monospace;
     -fx-background-color: transparent;
