@@ -11,7 +11,7 @@ import edu.kit.iti.algover.util.Util;
 import java.util.List;
 
 /**
- * Class representing a Sequent
+ * Class representing a logical sequent
  */
 public class Sequent {
 
@@ -34,7 +34,7 @@ public class Sequent {
     public String toString() {
         StringBuilder sb = new StringBuilder();
         sb.append(getAntecedent().toString());
-        sb.append("\n==>\n");
+        sb.append(" ==> ");
         sb.append(getSuccedent().toString());
 
         return sb.toString();
