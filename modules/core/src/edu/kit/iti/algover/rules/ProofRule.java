@@ -1,30 +1,29 @@
+/*
+ * This file is part of AlgoVer.
+ *
+ * Copyright (C) 2015-2017 Karlsruhe Institute of Technology
+ */
 package edu.kit.iti.algover.rules;
 
+import edu.kit.iti.algover.prettyprint.SubtermSelector;
 import edu.kit.iti.algover.proof.ProofFormula;
-import edu.kit.iti.algover.term.Term;
-
-import java.util.List;
+import edu.kit.iti.algover.script.ScriptTree;
+import edu.kit.iti.algover.term.Sequent;
 
 /**
  * Interface for Propof steps
  * Proof steps can be single rules, but also application of solvers etc.
  */
-public interface ProofStep {
+public interface ProofRule<A> {
 
-    /**
-     * @param form
-     * @param t
-     * @param side_conditions
-     * @return
-     */
-    public ProofStepResult apply(ProofFormula form, Term t, List<ProofFormula> side_conditions);
+    public String getName();
 
-    public boolean possibleApplications(ProofFormula form, Term t, List<ProofFormula> side_conditions);
+    public PotentialProofStep consider(Sequent sequent, ProofFormula form, SubtermSelector selector);
 
-    public String getRuleName();
+    public ProofStep apply(Sequent sequent, A arguments);
 
+    public A parseArguments(ScriptTree tree);
+
+    // REVIEW: unclear to me
     public String getCategory();
-
-
-
 }

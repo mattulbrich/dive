@@ -5,7 +5,7 @@
  */
 package edu.kit.iti.algover.proof;
 
-import edu.kit.iti.algover.rules.ProofStepResult;
+import edu.kit.iti.algover.rules.ProofStep;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -19,14 +19,14 @@ import java.util.List;
 public class ProofNode {
 
     private ProofNode parent;
-    private ProofStepResult psr;
+    private ProofStep psr;
     private ProofHistory history;
     private List<ProofNode> children;
     private PVC rootPVC;
 
 
 
-    public ProofNode(ProofNode parent, ProofStepResult psr, ProofHistory history){
+    public ProofNode(ProofNode parent, ProofStep psr, ProofHistory history){
         this.parent = parent;
         this.psr = psr;
         this.history = history;
