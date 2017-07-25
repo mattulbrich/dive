@@ -163,6 +163,7 @@ class PrettyPrintVisitor implements TermVisitor<Void, Void, RuntimeException> {
         printer.append(" :: ").//resetPreviousStyle().
             breakBlock(0, PrettyPrintLayouter.DEFAULT_INDENTATION);
         printer.beginTerm(0);
+        setLeftPrecedence(0);
         visitMaybeParen(updateTerm.getTerm(0), Integer.MAX_VALUE);
         printer.endTerm();
         printer.endBlock();

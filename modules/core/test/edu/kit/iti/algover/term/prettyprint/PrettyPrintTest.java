@@ -68,6 +68,12 @@ public class PrettyPrintTest {
         return new String[][] {
             { "if i1 == 0 then i1 else 0" },
             { "i1 + (if i1 == 0 then i1 else 0)" },
+            { "if b1 then let x := 0 :: x + 1 else if b1 then 0 else 1" }, // revealed a bug
+        };
+    }
+
+    public String[][] parametersForTestHeap() {
+        return new String[][] {
             { "o.f" },
             { "heap[o.f := 4][o.f := 5][anon(someset, h_2)]" },
             { "o.f @ h_2" },
@@ -80,7 +86,12 @@ public class PrettyPrintTest {
         return new String[][] {
             { "let x := 0 :: x * 2" },
             { "1 + (let x := 0 :: x * 2)" },
+            { "(let x := 0 :: x * 2) + 1" },
+            { "let x := 0 :: let y := 0 :: x * y" },
+            { "let x := 0 :: (let y := 0 :: x * y) * x" },
             { "let x, y := 1, 2 :: x + y" },  // revealed a bug
+            { "let x := 0 :: if b1 then x else 0" },
+            { "1 + (let x := 0 :: if b1 then x else 0)" }, // revealed a bug
         };
     }
 
@@ -112,6 +123,14 @@ public class PrettyPrintTest {
     }
 
     @Test @Parameters @Ignore
+    public void testHeap(String input) throws Exception {
+        Term parsed = TermParser.parse(st, input);
+        AnnotatedString printed = new PrettyPrint().print(parsed);
+
+        assertEquals(input, printed.toString());
+    }
+
+    @Test @Parameters
     public void testSpecialFunctions(String input) throws Exception {
         Term parsed = TermParser.parse(st, input);
         AnnotatedString printed = new PrettyPrint().print(parsed);

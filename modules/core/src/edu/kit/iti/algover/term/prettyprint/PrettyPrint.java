@@ -30,6 +30,7 @@ import edu.kit.iti.algover.term.FunctionSymbol;
 import edu.kit.iti.algover.term.Term;
 import edu.kit.iti.algover.term.prettyprint.AnnotatedString.Style;
 import edu.kit.iti.algover.util.Util;
+import nonnull.NonNull;
 import nonnull.Nullable;
 
 /**
@@ -59,13 +60,20 @@ public class PrettyPrint {
     public static final String BREAK_MODALITIES_PROPERTY = "pseudo.pp.breakModalities";
     public static final String SERVICE_NAME = "prettyPrinter";
 
-    // TODO DOC
+
+    /**
+     * This constant collects all installed {@link PrettyPrintExtension}s.
+     */
     private static final List<PrettyPrintExtension> EXTENSIONS =
             Collections.unmodifiableList(
                     Util.toList(ServiceLoader.load(PrettyPrintExtension.class)));
 
-    // TODO DOC
-    private final Map<FunctionSymbol, PrettyPrintExtension> responsibleExtensions =
+    /**
+     * The map which caches the extensions responsible for printing certain
+     * function symbols. With this mapping, it need not be checked which function
+     * symbol is to be used for a function symbol.
+     */
+    private final @NonNull Map<FunctionSymbol, PrettyPrintExtension> responsibleExtensions =
             new HashMap<>();
 
     /**
@@ -256,7 +264,16 @@ public class PrettyPrint {
         }
     }
 
-    public @Nullable PrettyPrintExtension getExtensionFor(FunctionSymbol f) {
+    /**
+     * Find the {@link PrettyPrintExtension} responsible for printing a function
+     * symbol.
+     *
+     * @param f
+     *            the function symbol to prettyprint.
+     * @return the extension that knows printing <code>f</code>, or
+     *         <code>null</code>
+     */
+    public @Nullable PrettyPrintExtension getExtensionFor(@NonNull FunctionSymbol f) {
         if(responsibleExtensions.containsKey(f)) {
             return responsibleExtensions.get(f);
         } else {
