@@ -17,13 +17,20 @@
 
 package edu.kit.iti.algover.term.prettyprint;
 
-import edu.kit.iti.algover.term.prettyprint.AnnotatedString.Style;
-import edu.kit.iti.algover.term.Term;
-import nonnull.Nullable;
-
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.Objects;
+import java.util.ServiceLoader;
+
+import edu.kit.iti.algover.term.FunctionSymbol;
+import edu.kit.iti.algover.term.Term;
+import edu.kit.iti.algover.term.prettyprint.AnnotatedString.Style;
+import edu.kit.iti.algover.util.Util;
+import nonnull.Nullable;
 
 /**
  * This class is the entry point to the pretty priting system. There are
@@ -51,6 +58,15 @@ public class PrettyPrint {
     public static final String INITIALSTYLE_PROPERTY = "pseudo.pp.initialstyle";
     public static final String BREAK_MODALITIES_PROPERTY = "pseudo.pp.breakModalities";
     public static final String SERVICE_NAME = "prettyPrinter";
+
+    // TODO DOC
+    private static final List<PrettyPrintExtension> EXTENSIONS =
+            Collections.unmodifiableList(
+                    Util.toList(ServiceLoader.load(PrettyPrintExtension.class)));
+
+    // TODO DOC
+    private final Map<FunctionSymbol, PrettyPrintExtension> responsibleExtensions =
+            new HashMap<>();
 
     /**
      * whether or not in-/prefix operators are printed as such.
@@ -237,6 +253,21 @@ public class PrettyPrint {
     private <E> void firePropertyChanged(String property, E oldVal, E newVal) {
         if(propertiesSupport != null && !Objects.equals(oldVal, newVal)) {
             propertiesSupport.firePropertyChange(property, oldVal, newVal);
+        }
+    }
+
+    public @Nullable PrettyPrintExtension getExtensionFor(FunctionSymbol f) {
+        if(responsibleExtensions.containsKey(f)) {
+            return responsibleExtensions.get(f);
+        } else {
+            for (PrettyPrintExtension ppe : EXTENSIONS) {
+                if(ppe.canPrint(f)) {
+                    responsibleExtensions.put(f, ppe);
+                    return ppe;
+                }
+            }
+            responsibleExtensions.put(f, null);
+            return null;
         }
     }
 

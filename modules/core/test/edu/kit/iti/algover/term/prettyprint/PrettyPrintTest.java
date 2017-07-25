@@ -35,6 +35,7 @@ public class PrettyPrintTest {
             { "1 + i1" },
             { "1 + (2 + 3)" },
             { "1 + 2 + 3" },
+            { "1 + 2 - 3" },
             { "1 + 2 * 3" },
             { "1 * 2 + 3" },
             { "(1 + 2) * 3" },
@@ -44,8 +45,8 @@ public class PrettyPrintTest {
             { "1 > 0" },
             { "1 >= 0" },
             { "1 + 2 >= 1 * 1" },
+            { "1 == i1" }, // revealed a bug
 // FIXME           { "- -1" },
-// FIXME           { "1 == i1" },
         };
     }
 
@@ -54,7 +55,7 @@ public class PrettyPrintTest {
             { "true && false" },
             { "b1 ==> b1 && b1" },
             { "b1 && b1 ==> b1" },
-// FIXME           { "b1 ==> b1 ==> b1" },
+            { "b1 ==> b1 ==> b1" },
             { "(b1 ==> b1) && b1" },
             { "b1 && (b1 || b1)" },
             { "! !b1" },
