@@ -9,8 +9,8 @@ import edu.kit.iti.algover.rules.ProofRuleApplication.Applicability;
 
 public abstract class AbstractProofRule<P> implements ProofRule<P> {
 
-    protected void notApplicable() {
-        new ProofRuleApplication<>(this, ChangeInfo.UNCHANGED,
+    protected final ProofRuleApplication<P> notApplicable() {
+        return new ProofRuleApplication<>(this, BranchInfo.UNCHANGED,
                 Applicability.NOT_APPLICABLE, getName(), null);
     }
 

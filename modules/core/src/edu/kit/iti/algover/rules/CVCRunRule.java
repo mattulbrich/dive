@@ -29,7 +29,7 @@ public class CVCRunRule implements ProofRule<CVCRunRule.CVCArgs> {
             Sequent selection,
             TermSelector selector) {
 
-        return new ProofRuleApplication<CVCArgs>(this, ChangeInfo.UNCHANGED,
+        return new ProofRuleApplication<CVCArgs>(this, BranchInfo.UNCHANGED,
                 Applicability.MAYBE_APPLICABLE, "cvc", () -> {
                     // CVCSolver solver = ...
                     // solver.solve()...
@@ -37,10 +37,10 @@ public class CVCRunRule implements ProofRule<CVCRunRule.CVCArgs> {
                     // TODO This is demo only ...
                     try { Thread.sleep(arguments.timeout); } catch(Exception ex) {}
                     if(System.currentTimeMillis() % 2 == 0) {
-                        return new ProofRuleApplication<CVCArgs>(this, ChangeInfo.UNCHANGED,
+                        return new ProofRuleApplication<CVCArgs>(this, BranchInfo.UNCHANGED,
                                 Applicability.NOT_APPLICABLE, "cvc", null);
                     } else {
-                        return new ProofRuleApplication<CVCArgs>(this, ChangeInfo.CLOSE,
+                        return new ProofRuleApplication<CVCArgs>(this, BranchInfo.CLOSE,
                                 Applicability.APPLICABLE, "cvc", null);
                     }
                 });
