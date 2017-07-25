@@ -9,6 +9,8 @@
 	<classpathentry kind="src" path="modules/core/res"/>
 	<classpathentry kind="src" path="modules/core/src"/>
 	<classpathentry kind="src" path="modules/gui/test"/>
+	<classpathentry kind="src" path="modules/fxgui/res"/>
+	<classpathentry kind="src" path="modules/fxgui/src"/>
 	<classpathentry kind="lib" path="/usr/lib/jvm/java-8-oracle/jre/lib/ext/jfxrt.jar" sourcepath="/home/mulbrich/Downloads/javafx-src.zip"/>
 	<classpathentry kind="lib" path="lib/antlr.jar" sourcepath="antlr-src.zip"/>
 	<classpathentry kind="lib" path="lib/miglayout-4.0-swing.jar"/>

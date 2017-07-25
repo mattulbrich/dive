@@ -1,3 +1,8 @@
+/*
+ * This file is part of AlgoVer.
+ *
+ * Copyright (C) 2015-2017 Karlsruhe Institute of Technology
+ */
 package edu.kit.iti.algover.sequent;
 
 import edu.kit.iti.algover.term.prettyprint.AnnotatedString;
@@ -25,7 +30,8 @@ public class TermView extends CodeArea {
 
         this.term = term;
         PrettyPrint p = new PrettyPrint();
-        p.setPrintingFix(false);
+        // REVIEW MU: I activated printing of infix operators here.
+        // p.setPrintingFix(false);
         this.str = p.print(term, 40);
 
         String prettyPrinted = str.toString();

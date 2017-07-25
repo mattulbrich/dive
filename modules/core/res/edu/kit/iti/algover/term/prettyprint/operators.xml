@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<operators>
+  <!-- integer operations -->
+  <operator>
+    <name>$plus</name>
+    <op>+</op>
+    <precedence>30</precedence>
+  </operator>
+  <operator>
+    <name>$times</name>
+    <op>*</op>
+    <precedence>50</precedence>
+  </operator>
+
+  <!-- integer comparisons -->
+  <operator>
+    <name>$gt</name>
+    <op>&gt;</op>
+    <precedence>20</precedence>
+  </operator>
+  <operator>
+    <name>$lt</name>
+    <op>&lt;</op>
+    <precedence>20</precedence>
+  </operator>
+  <operator>
+    <name>$ge</name>
+    <op>&gt;=</op>
+    <precedence>20</precedence>
+  </operator>
+  <operator>
+    <name>$le</name>
+    <op>&lt;=</op>
+    <precedence>20</precedence>
+  </operator>
+
+  <!-- boolean connectives -->
+  <operator>
+    <name>$and</name>
+    <op>&amp;&amp;</op>
+    <precedence>10</precedence>
+  </operator>
+  <operator>
+    <name>$or</name>
+    <op>||</op>
+    <precedence>10</precedence>
+  </operator>
+  <operator>
+    <name>$imp</name>
+    <op>==></op>
+    <precedence>10</precedence>
+  </operator>
+  <operator>
+    <name>$not</name>
+    <op>!</op>
+    <precedence>60</precedence>
+  </operator>
+</operators>
