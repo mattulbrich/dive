@@ -42,7 +42,6 @@
 		<junit fork="yes" printsummary="yes">
 			<formatter type="xml" />
 			<classpath path="bin:${libs}:lib/hamcrest.jar" />
-			<test name="edu.kit.iti.algover.Tests" />
 		</junit>
 	</target>
 
