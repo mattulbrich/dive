@@ -38,7 +38,7 @@
   <operator>
     <name>$and</name>
     <op>&amp;&amp;</op>
-    <precedence>10</precedence>
+    <precedence>15</precedence>
   </operator>
   <operator>
     <name>$or</name>
@@ -48,7 +48,7 @@
   <operator>
     <name>$imp</name>
     <op>==></op>
-    <precedence>10</precedence>
+    <precedence>5</precedence>
   </operator>
   <operator>
     <name>$not</name>
