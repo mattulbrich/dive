@@ -231,7 +231,11 @@ public class TreeTermTranslator {
         case DafnyParser.PLUS:
             return buildBinary(BuiltinSymbols.PLUS, tree);
         case DafnyParser.MINUS:
-            return buildBinary(BuiltinSymbols.MINUS, tree);
+            if(tree.getChildCount() == 1) {
+                return buildUnary(BuiltinSymbols.NEG, tree);
+            } else {
+                return buildBinary(BuiltinSymbols.MINUS, tree);
+            }
         case DafnyParser.TIMES:
             return buildBinary(BuiltinSymbols.TIMES, tree);
         case DafnyParser.UNION:
@@ -242,7 +246,7 @@ public class TreeTermTranslator {
             return buildBinary(symbolTable.getFunctionSymbol("$intersect[int]"), tree);
 
         case DafnyParser.NOT:
-            return buildUnary(BuiltinSymbols.NEG, tree);
+            return buildUnary(BuiltinSymbols.NOT, tree);
 
         case DafnyParser.EQ:
             return buildEquality(tree);

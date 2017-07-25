@@ -43,7 +43,7 @@ public class BuiltinSymbols extends MapSymbolTable {
     public static final FunctionSymbol IMP =
             new FunctionSymbol("$imp", Sort.BOOL, Sort.BOOL, Sort.BOOL);
 
-    public static final FunctionSymbol NEG =
+    public static final FunctionSymbol NOT =
             new FunctionSymbol("$not", Sort.BOOL, Sort.BOOL);
 
     public static final FunctionSymbol GT =
@@ -63,6 +63,9 @@ public class BuiltinSymbols extends MapSymbolTable {
 
     public static final FunctionSymbol MINUS =
             new FunctionSymbol("$minus", Sort.INT, Sort.INT, Sort.INT);
+
+    public static final FunctionSymbol NEG =
+            new FunctionSymbol("$neg", Sort.INT, Sort.INT);
 
     public static final FunctionSymbol TIMES =
             new FunctionSymbol("$times", Sort.INT, Sort.INT, Sort.INT);
