@@ -149,6 +149,11 @@ class PrettyPrintVisitor implements TermVisitor<Void, Void, RuntimeException> {
 
     @Override
     public Void visit(LetTerm updateTerm, Void arg) {
+        boolean isInParens = leftPrecedence > 0;
+        if(isInParens) {
+            printer.append("(");
+        }
+
         printer.beginBlock(1);
         printer.append("let ");
 
@@ -161,6 +166,10 @@ class PrettyPrintVisitor implements TermVisitor<Void, Void, RuntimeException> {
         visitMaybeParen(updateTerm.getTerm(0), Integer.MAX_VALUE);
         printer.endTerm();
         printer.endBlock();
+
+        if(isInParens) {
+            printer.append(")");
+        }
 
         return arg;
     }
@@ -178,7 +187,7 @@ class PrettyPrintVisitor implements TermVisitor<Void, Void, RuntimeException> {
 
         for (int i = 0; i < assignments.size(); i++) {
             if(i > 0) {
-                printer.breakBlock(1, 0).append(", ");
+                printer.breakBlock(0, 0).append(", ");
             }
             printer.beginTerm(i + 1);
             assignments.get(i).getSnd().accept(this, null);

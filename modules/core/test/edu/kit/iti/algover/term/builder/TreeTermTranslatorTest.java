@@ -94,6 +94,7 @@ public class TreeTermTranslatorTest {
               "(let i1, i2 := i2, i1 :: $plus(i1, i2))" },
             { "if i1 > 5 then i2 else i1",
               "$ite<int>($gt(i1, 5), i2, i1)" },
+            { "-1", "$neg(1)" },
 
             // Associativity
             { "1+2-3", "$minus($plus(1, 2), 3)" },

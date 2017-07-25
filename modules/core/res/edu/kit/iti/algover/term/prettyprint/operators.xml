@@ -12,6 +12,11 @@
     <precedence>30</precedence>
   </operator>
   <operator>
+    <name>$neg</name>
+    <op>-</op>
+    <precedence>80</precedence>
+  </operator>
+  <operator>
     <name>$times</name>
     <op>*</op>
     <precedence>50</precedence>
@@ -61,7 +66,7 @@
     <op>!</op>
     <precedence>60</precedence>
   </operator>
-  
+
   <!-- other infix operators -->
   <operator>
     <name>$eq</name>

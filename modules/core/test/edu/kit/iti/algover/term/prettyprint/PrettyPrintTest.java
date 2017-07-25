@@ -46,7 +46,8 @@ public class PrettyPrintTest {
             { "1 >= 0" },
             { "1 + 2 >= 1 * 1" },
             { "1 == i1" }, // revealed a bug
-// FIXME           { "- -1" },
+            { "-1" },
+            { "- -1" },
         };
     }
 
@@ -71,6 +72,7 @@ public class PrettyPrintTest {
             { "heap[o.f := 4][o.f := 5][anon(someset, h_2)]" },
             { "o.f @ h_2" },
             { "o.f @ heap[o.f := 3]" },
+            { "let o.f := 4 :: o.f + 2" },
         };
     }
 
@@ -78,7 +80,7 @@ public class PrettyPrintTest {
         return new String[][] {
             { "let x := 0 :: x * 2" },
             { "1 + (let x := 0 :: x * 2)" },
-            { "let o.f := 4 :: o.f + 2" },
+            { "let x, y := 1, 2 :: x + y" },  // revealed a bug
         };
     }
 
@@ -117,7 +119,7 @@ public class PrettyPrintTest {
         assertEquals(input, printed.toString());
     }
 
-    @Test @Parameters @Ignore
+    @Test @Parameters
     public void testLetExpressions(String input) throws Exception {
         Term parsed = TermParser.parse(st, input);
         AnnotatedString printed = new PrettyPrint().print(parsed);
