@@ -2,14 +2,13 @@ package edu.kit.iti.algover;
 
 import edu.kit.iti.algover.browser.BrowserController;
 import edu.kit.iti.algover.browser.FlatBrowserController;
-import edu.kit.iti.algover.prettyprint.AnnotatedString;
-import edu.kit.iti.algover.prettyprint.PrettyPrint;
-import edu.kit.iti.algover.sequent.SequentController;
-import edu.kit.iti.algover.browser.entities.*;
+import edu.kit.iti.algover.browser.entities.PVCGetterVisitor;
+import edu.kit.iti.algover.browser.entities.TreeTableEntity;
 import edu.kit.iti.algover.dafnystructures.DafnyFile;
 import edu.kit.iti.algover.editor.EditorController;
 import edu.kit.iti.algover.project.Project;
 import edu.kit.iti.algover.proof.PVC;
+import edu.kit.iti.algover.sequent.SequentController;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 

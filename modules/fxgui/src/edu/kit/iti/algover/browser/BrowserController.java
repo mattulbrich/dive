@@ -28,7 +28,8 @@ public abstract class BrowserController {
         this.project = project;
         this.view = new BrowserTreeTable(doubleClickListener);
 
-        view.getSelectionModel().selectedItemProperty().addListener(this::onTreeItemSelected);
+        view.getSelectionModel().selectedItemProperty()
+            .addListener(this::onTreeItemSelected);
 
         populateTreeTable();
     }
