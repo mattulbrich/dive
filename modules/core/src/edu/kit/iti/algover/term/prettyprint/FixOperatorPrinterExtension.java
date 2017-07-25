@@ -105,14 +105,16 @@ public class FixOperatorPrinterExtension implements PrettyPrintExtension {
      */
     private void printInfix(ApplTerm application, FixOperatorInfo fixOperator, PrettyPrintVisitor visitor) {
         PrettyPrintLayouter printer = visitor.getPrinter();
+        String op = fixOperator.getOp();
+
         printer.beginBlock(0);
-        printer.indentBlock(0, 2);
+        printer.indentBlock(0, op.length()+1);
         printer.beginTerm(0);
         visitor.setLeftPrecedence(fixOperator.getPrecedence());
         application.getTerm(0).accept(visitor, null);
         printer.endTerm();
 
-        printer.breakBlock(1, 0).append(fixOperator.getOp()).append(" ");
+        printer.breakBlock(1, 0).append(op).append(" ");
 
         printer.beginTerm(1);
         visitor.setLeftPrecedence(fixOperator.getPrecedence() +
