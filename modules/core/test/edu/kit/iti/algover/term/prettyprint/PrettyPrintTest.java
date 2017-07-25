@@ -3,7 +3,7 @@
  *
  * Copyright (C) 2015-2017 Karlsruhe Institute of Technology
  */
-package edu.kit.iti.algover.prettyprint;
+package edu.kit.iti.algover.term.prettyprint;
 
 import static org.junit.Assert.assertEquals;
 
@@ -15,6 +15,8 @@ import org.junit.runner.RunWith;
 import edu.kit.iti.algover.data.BuiltinSymbols;
 import edu.kit.iti.algover.data.SymbolTable;
 import edu.kit.iti.algover.parser.DafnyParserException;
+import edu.kit.iti.algover.term.prettyprint.AnnotatedString;
+import edu.kit.iti.algover.term.prettyprint.PrettyPrint;
 import edu.kit.iti.algover.term.FunctionSymbol;
 import edu.kit.iti.algover.term.Sort;
 import edu.kit.iti.algover.term.Term;

@@ -74,7 +74,7 @@
 		<javac srcdir="test" destdir="test-bin" classpath="bin:${libs}" debug="on" />
 	</target>
 
-	<target name="test" depends="compile-test, compile">
+	<target name="test" depends="compile-test, build">
 		<junit fork="yes" printsummary="yes">
 			<jvmarg value="-javaagent:${dir.lib}/nonnull.jar=edu.kit." />
 			<formatter type="xml" />
