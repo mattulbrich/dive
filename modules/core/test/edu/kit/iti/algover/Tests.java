@@ -25,6 +25,7 @@ import edu.kit.iti.algover.term.builder.ReplacementVisitorTest;
 import edu.kit.iti.algover.term.builder.TreeTermTranslationNoetherTest;
 import edu.kit.iti.algover.term.builder.TreeTermTranslatorTest;
 import edu.kit.iti.algover.term.builder.UpdateSequenterTest;
+import edu.kit.iti.algover.term.prettyprint.PrettyPrintTest;
 import edu.kit.iti.algover.util.TestImmutableList;
 import edu.kit.iti.algover.util.TestLabelIntroducer;
 import edu.kit.iti.algover.util.UtilTest;
@@ -52,6 +53,7 @@ import edu.kit.iti.algover.util.UtilTest;
     UtilTest.class,
     UpdateSequenterTest.class,
     InlineSequenterTest.class,
+    PrettyPrintTest.class,
     })
 public class Tests {
 }

@@ -9,8 +9,9 @@
 	<classpathentry kind="src" path="modules/core/res"/>
 	<classpathentry kind="src" path="modules/core/src"/>
 	<classpathentry kind="src" path="modules/gui/test"/>
+	<classpathentry kind="src" path="modules/fxgui/res"/>
+	<classpathentry kind="src" path="modules/fxgui/src"/>
 	<classpathentry kind="lib" path="/usr/lib/jvm/java-8-oracle/jre/lib/ext/jfxrt.jar" sourcepath="/home/mulbrich/Downloads/javafx-src.zip"/>
-	<classpathentry kind="lib" path="lib/richtextfx-fat-0.6.8.jar"/>
 	<classpathentry kind="lib" path="lib/antlr.jar" sourcepath="antlr-src.zip"/>
 	<classpathentry kind="lib" path="lib/miglayout-4.0-swing.jar"/>
 	<classpathentry kind="lib" path="lib/swingx-all-1.6.4.jar"/>
@@ -20,5 +21,6 @@
 	<classpathentry kind="lib" path="lib/jpplib.jar"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/java-8-oracle"/>
 	<classpathentry kind="lib" path="lib/controlsfx.jar"/>
+	<classpathentry kind="lib" path="lib/richtextfx-fat-0.7-M5.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

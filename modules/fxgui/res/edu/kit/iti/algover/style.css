@@ -1,0 +1,19 @@
+.overview .cell .indexed-cell .tree-table-cell .namecell {
+    -fx-font-family: monospace;
+}
+
+/* unfortunately doesn't work... */
+/* I wanted the sequent text to be white, when the cell around it was selected... */
+.list-view .list.cell:selected .term-view {
+    -fx-fill: whitesmoke;
+}
+
+.term-view {
+    -fx-font-family: monospace;
+    -fx-background-color: transparent;
+}
+
+.term-view .highlighted {
+    -rtfx-background-color: cadetblue;
+    -fx-fill: whitesmoke;
+}

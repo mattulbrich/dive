@@ -3,7 +3,7 @@
  *
  * Copyright (C) 2015-2017 Karlsruhe Institute of Technology
  */
-package edu.kit.iti.algover.prettyprint;
+package edu.kit.iti.algover.term.prettyprint;
 
 import static org.junit.Assert.assertEquals;
 
@@ -15,6 +15,8 @@ import org.junit.runner.RunWith;
 import edu.kit.iti.algover.data.BuiltinSymbols;
 import edu.kit.iti.algover.data.SymbolTable;
 import edu.kit.iti.algover.parser.DafnyParserException;
+import edu.kit.iti.algover.term.prettyprint.AnnotatedString;
+import edu.kit.iti.algover.term.prettyprint.PrettyPrint;
 import edu.kit.iti.algover.term.FunctionSymbol;
 import edu.kit.iti.algover.term.Sort;
 import edu.kit.iti.algover.term.Term;
@@ -37,6 +39,26 @@ public class PrettyPrintTest {
             { "1 * 2 + 3" },
             { "(1 + 2) * 3" },
             { "1 * (2 + 3)" },
+            { "1 < 2" },
+            { "1 <= 2" },
+            { "1 > 0" },
+            { "1 >= 0" },
+            { "1 + 2 >= 1 * 1" },
+// FIXME           { "- -1" },
+// FIXME           { "1 == i1" },
+        };
+    }
+
+    public String[][] parametersForTestLogic() {
+        return new String[][] {
+            { "true && false" },
+            { "b1 ==> b1 && b1" },
+            { "b1 && b1 ==> b1" },
+// FIXME           { "b1 ==> b1 ==> b1" },
+            { "(b1 ==> b1) && b1" },
+            { "b1 && (b1 || b1)" },
+            { "! !b1" },
+            { "!(b1 && b1)" },
         };
     }
 
@@ -64,11 +86,21 @@ public class PrettyPrintTest {
     public void setupTable() {
         st = new BuiltinSymbols();
         st.addFunctionSymbol(new FunctionSymbol("i1", Sort.INT));
+        st.addFunctionSymbol(new FunctionSymbol("b1", Sort.BOOL));
         st.addFunctionSymbol(new FunctionSymbol("anything", Sort.INT, Sort.INT));
     }
 
     @Test @Parameters
     public void testArithmetic(String input) throws DafnyParserException {
+
+        Term parsed = TermParser.parse(st, input);
+        AnnotatedString printed = new PrettyPrint().print(parsed);
+
+        assertEquals(input, printed.toString());
+    }
+
+    @Test @Parameters
+    public void testLogic(String input) throws DafnyParserException {
 
         Term parsed = TermParser.parse(st, input);
         AnnotatedString printed = new PrettyPrint().print(parsed);

@@ -1,0 +1,23 @@
+preamble
+begin
+    import test.dfy, test2.dfy, classtest.dfy;
+    lib test3.dfy;
+settings
+    [dafny_timeout] 24;
+    [key_timeout] 3;
+end
+script for PVC_ 3:
+{
+    command;
+    command2;
+        {
+            command;
+        }
+        {
+            command;
+        }
+}
+script for PVC_ 2:
+{
+    command1;
+}

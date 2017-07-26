@@ -1,0 +1,31 @@
+.code-keyword {
+    -fx-fill: #0000FF;
+}
+
+.specification-keyword {
+    -fx-fill: #800080;
+}
+
+.comment {
+    -fx-fill: #008000;
+}
+
+.type-literal {
+    -fx-fill: #008080;
+}
+
+.value-literal {
+    -fx-fill: #09885A;
+}
+
+.lowlighted {
+    -fx-fill: #9c9c9c
+}
+
+.guard-positive {
+    -fx-underline: true;
+}
+
+.guard-negative {
+    -fx-strikethrough: true;
+}

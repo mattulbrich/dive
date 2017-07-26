@@ -10,6 +10,7 @@
     <file name="./modules/core/build.xml"/>
     <!-- <file name="./modules/dafny/build.xml"/> -->
     <file name="./modules/gui/build.xml"/>
+    <file name="./modules/fxgui/build.xml"/>
     <!-- <file name="./modules/key/build.xml"/> -->
     <!-- <file name="./modules/smt/build.xml"/> -->
   </filelist>
@@ -80,6 +81,30 @@
         <attribute name="Implementation-Version" value="${VERSION} - ${NOW}"/>
         <attribute name="Class-Path" value="lib/antlr.jar lib/miglayout-4.0-swing.jar lib/rsyntaxtextarea-2.6.0-SNAPSHOT.jar lib/swingx-all-1.6.4.jar" />
         <attribute name="Main-Class" value="edu.kit.iti.algover.gui.GUIMain"/>
+        <attribute name="SplashScreen-Image" value="to/be/done.png"/>
+      </manifest>
+    </jar>
+  </target>
+
+  <target name="fxjar" depends="build" description="creates the jar file for the javafx gui">
+    <jar jarfile="algoverfx.jar">
+      <fileset dir="modules/core/bin/" />
+      <!--<fileset dir="modules/gui/bin/" /> -->
+      <fileset dir="modules/fxgui/bin/" />
+      <!-- <fileset dir="modules/dafny/bin/" /> -->
+      <!-- <fileset dir="modules/key/bin/" /> -->
+      <!-- <fileset dir="modules/smt/bin/" /> -->
+      <zipfileset dir="." includes="VERSION" prefix="META-INF"/>
+
+      <manifest>
+        <!-- Who is building this jar? -->
+        <attribute name="Built-By" value="${user.name}"/>
+        <!-- Information about the program itself -->
+        <attribute name="Implementation-Vendor" value="ITI, Karlsruhe Institute of Technology"/>
+        <attribute name="Implementation-Title" value="Algo Ver FX" />
+        <attribute name="Implementation-Version" value="${VERSION} - ${NOW}"/>
+        <attribute name="Class-Path" value="lib/antlr.jar lib/controlsfx.jar lib/jpplib.jar lib/nonnull.jar lib/richtextfx-fat-0.7-M5.jar" />
+        <attribute name="Main-Class" value="edu.kit.iti.algover.AlgoVerApplication"/>
         <attribute name="SplashScreen-Image" value="to/be/done.png"/>
       </manifest>
     </jar>
