@@ -55,7 +55,7 @@ class PrettyPrintVisitor implements TermVisitor<Void, Void, RuntimeException> {
     }
 
     /*
-     * print an application in non-operator prefix form.
+     * print an application in non-operator prefix form f(x,y).
      */
     private void printApplication(ApplTerm application, String fctname) {
         printer.beginBlock(fctname.length() + 1);
@@ -115,6 +115,11 @@ class PrettyPrintVisitor implements TermVisitor<Void, Void, RuntimeException> {
         return arg;
     }
 
+    /*
+     * try to find an extension that pretty prints the application.
+     * If there is one: handle to it (perhaps add "()")
+     * otherwise use usual function application notation
+     */
     @Override
     public Void visit(ApplTerm application, Void arg) {
 
@@ -154,17 +159,19 @@ class PrettyPrintVisitor implements TermVisitor<Void, Void, RuntimeException> {
             printer.append("(");
         }
 
-        printer.beginBlock(1);
+        Term inner = updateTerm.getTerm(0);
+        int indent = inner instanceof LetTerm ? 0 : 2;
+
+        printer.beginBlock(indent);
         printer.append("let ");
 
         List<Pair<VariableTerm, Term>> assignments = updateTerm.getSubstitutions();
         visit(assignments);
 
-        printer.append(" :: ").//resetPreviousStyle().
-            breakBlock(0, PrettyPrintLayouter.DEFAULT_INDENTATION);
+        printer.append(" ::").breakBlock(1, 0);
         printer.beginTerm(0);
         setLeftPrecedence(0);
-        visitMaybeParen(updateTerm.getTerm(0), Integer.MAX_VALUE);
+        visitMaybeParen(inner, Integer.MAX_VALUE);
         printer.endTerm();
         printer.endBlock();
 
@@ -175,11 +182,12 @@ class PrettyPrintVisitor implements TermVisitor<Void, Void, RuntimeException> {
         return arg;
     }
 
-    // used by AssignmentStatement, UpdateTerm and for text instantiation.
+    /*
+     * used by LetTerms
+     */
     public void visit(List<Pair<VariableTerm, Term>> assignments) {
 
         printer.beginBlock(0);
-        printer.indentBlock(0, 3);
 
         List<VariableTerm> receivers = Util.map(assignments, Pair::getFst);
         printer.append(Util.commatize(receivers));
