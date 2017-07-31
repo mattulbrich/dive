@@ -38,6 +38,7 @@
       (ARRAY_ACCESS a m) 
       (old 
         (ARRAY_ACCESS a m))))))
+  (modifies a)
   (BLOCK 
    (var t bool 
     (ARRAY_ACCESS a i)) 
@@ -64,7 +65,8 @@
       (|| 
        (! 
         (ARRAY_ACCESS a m)) 
-       (ARRAY_ACCESS a n)))))) 
+       (ARRAY_ACCESS a n))))))
+  (modifies a)
   (BLOCK 
    (var i int 0) 
    (var j int 

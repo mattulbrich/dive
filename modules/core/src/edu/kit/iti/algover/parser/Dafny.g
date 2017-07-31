@@ -171,7 +171,7 @@ method:
   '{' statements? '}'
   ->
     ^(METHOD[tok] ID ^(ARGS vars?) returns_? requires* ensures*
-        decreases? ^(BLOCK statements?))
+        decreases? modifies? ^(BLOCK statements?))
   ;
 
 function:
