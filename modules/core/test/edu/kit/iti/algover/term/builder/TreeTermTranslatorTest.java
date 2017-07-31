@@ -9,7 +9,6 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
 
@@ -17,7 +16,6 @@ import org.antlr.runtime.ANTLRStringStream;
 import org.antlr.runtime.CommonTokenStream;
 import org.antlr.runtime.RecognitionException;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -36,6 +34,7 @@ import edu.kit.iti.algover.term.Sort;
 import edu.kit.iti.algover.term.Term;
 import edu.kit.iti.algover.term.VariableTerm;
 import edu.kit.iti.algover.term.parser.TermParser;
+import edu.kit.iti.algover.util.ASTUtil;
 import edu.kit.iti.algover.util.ImmutableList;
 import edu.kit.iti.algover.util.TestUtil;
 import junitparams.JUnitParamsRunner;
@@ -44,8 +43,6 @@ import junitparams.Parameters;
 
 @RunWith(JUnitParamsRunner.class)
 public class TreeTermTranslatorTest {
-
-    private static final File FILE = new File("modules/core/test-res/edu/kit/iti/algover/term/builder/proj1");
 
     public String[][] parametersForTestTermTranslation() {
         return new String[][] {
@@ -275,6 +272,36 @@ public class TreeTermTranslatorTest {
         sum2 = term.getTerm(0).getTerm(0);
         assertTrue(sum1 instanceof VariableTerm);
         assertTrue(sum2 instanceof VariableTerm);
+    }
+
+    @Test
+    public void testWildcard() throws Exception {
+        TreeTermTranslator ttt = new TreeTermTranslator(symbTable);
+
+        DafnyTree wc = new DafnyTree(DafnyParser.WILDCARD, "*");
+        wc.setExpressionType(ASTUtil.id("int"));
+
+        Term res1 = ttt.build(wc);
+        Term res2 = ttt.build(wc);
+
+        assertEquals("unknown_1", res1.toString());
+        assertEquals("unknown_2", res2.toString());
+    }
+
+    @Test
+    public void testWildcardWithHint() throws Exception {
+        symbTable.addFunctionSymbol(new FunctionSymbol("knownvar_1", Sort.INT));
+        TreeTermTranslator ttt = new TreeTermTranslator(symbTable);
+
+        DafnyTree wc = new DafnyTree(DafnyParser.WILDCARD, "*");
+        wc.setExpressionType(ASTUtil.id("int"));
+        wc.addChild(ASTUtil.id("knownvar"));
+
+        Term res1 = ttt.build(wc);
+        Term res2 = ttt.build(wc);
+
+        assertEquals("knownvar_2", res1.toString());
+        assertEquals("knownvar_3", res2.toString());
     }
 
 }

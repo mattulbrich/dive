@@ -17,6 +17,7 @@ import edu.kit.iti.algover.dafnystructures.DafnyMethod;
 import edu.kit.iti.algover.project.Project;
 import edu.kit.iti.algover.util.HistoryMap;
 import edu.kit.iti.algover.util.TreeUtil;
+import nonnull.NonNull;
 
 /**
  * This visitor class can be used to resolve identifiers in the AST.
@@ -28,7 +29,8 @@ import edu.kit.iti.algover.util.TreeUtil;
  *
  * @author Mattias Ulbrich
  */
-public class ReferenceResolutionVisitor extends DafnyTreeDefaultVisitor<Void, ReferenceResolutionVisitor.Mode> {
+public class ReferenceResolutionVisitor
+     extends DafnyTreeDefaultVisitor<Void, ReferenceResolutionVisitor.Mode> {
 
     /**
      * The project whose references are to be resolved.
@@ -110,7 +112,17 @@ public class ReferenceResolutionVisitor extends DafnyTreeDefaultVisitor<Void, Re
         project.getFunctions().forEach(this::visitAll);
     }
 
-    public void visitExpression(DafnyTree expression, String classCtx) {
+    /**
+     * Visit the expression given expression in the context of the given class.
+     *
+     * This means that all fields of the class can be accessed without receiver.
+     *
+     * @param expression
+     *            the expression to resolve
+     * @param classCtx
+     *            the name of the class to use as context
+     */
+    public void visitExpression(@NonNull DafnyTree expression, @NonNull String classCtx) {
         DafnyClass clazz = project.getClass(classCtx);
         int rewindIdentifiersTo = identifierMap.getHistory();
         int rewindCallablesTo = callableMap.getHistory();
@@ -122,6 +134,11 @@ public class ReferenceResolutionVisitor extends DafnyTreeDefaultVisitor<Void, Re
         callableMap.rewindHistory(rewindCallablesTo);
     }
 
+    /**
+     * Visit an expression using this visitor.
+     *
+     * @param expression the expression to resolve
+     */
     public void visitExpression(DafnyTree expression) {
         expression.accept(this, Mode.EXPR);
     }
@@ -134,7 +151,8 @@ public class ReferenceResolutionVisitor extends DafnyTreeDefaultVisitor<Void, Re
         String declName = decl.getName();
         if (callableMap.containsKey(declName)) {
             addException(
-                    new DafnyException("Name clash: Callable entity named " + declName + " has already been defined.",
+                    new DafnyException("Name clash: Callable entity named "
+                                + declName + " has already been defined.",
                             decl.getRepresentation()));
             return;
         }

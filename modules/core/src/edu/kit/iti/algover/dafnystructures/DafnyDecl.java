@@ -20,6 +20,9 @@ import edu.kit.iti.algover.term.FunctionSymbol;
 
 /**
  * Base class for all Dafny declarations.
+ *
+ * @author Sarah Grebing
+ * @author Mattias Ulbrich
  */
 public abstract class DafnyDecl {
 

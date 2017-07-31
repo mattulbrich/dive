@@ -5,8 +5,15 @@
  */
 package edu.kit.iti.algover.util;
 
+import java.util.HashSet;
+import java.util.NoSuchElementException;
+import java.util.Set;
+
 import edu.kit.iti.algover.parser.DafnyParser;
 import edu.kit.iti.algover.parser.DafnyTree;
+import edu.kit.iti.algover.symbex.LocalVarDecl;
+import edu.kit.iti.algover.symbex.SymbexPath;
+import nonnull.NonNull;
 
 /**
  * The class ASTUtil is a collection of static method for operation on DafnyTrees.
@@ -264,11 +271,48 @@ public final class ASTUtil {
         return id;
     }
 
-    public static DafnyTree anonymise(String var) {
-        return create(DafnyParser.ASSIGN, id(var), new DafnyTree(DafnyParser.WILDCARD));
+    public static DafnyTree var(String name, Iterable<LocalVarDecl> immutableList) {
+        for (LocalVarDecl loc : immutableList) {
+            if(loc.getName().equals(name)) {
+                DafnyTree id = id(name);
+                id.setDeclarationReference(loc.getReference());
+                return id;
+            }
+        }
+
+        throw new NoSuchElementException("Variable " + name + " not defined.");
     }
 
-    public static DafnyTree assign(DafnyTree var, DafnyTree value) {
+    public static DafnyTree builtInVar(String name) {
+        DafnyTree builtin = new DafnyTree(DafnyParser.VAR, "builtin");
+        DafnyTree result = new DafnyTree(DafnyParser.ID, name);
+        result.setDeclarationReference(builtin);
+        return result;
+    }
+
+    public static DafnyTree anonymise(DafnyTree varDecl) {
+        DafnyTree id = id(varDecl.getChild(0).getText());
+        id.setDeclarationReference(varDecl);
+        DafnyTree wildcard = new DafnyTree(DafnyParser.WILDCARD);
+        wildcard.setExpressionType(varDecl.getChild(1));
+        return create(DafnyParser.ASSIGN, id, wildcard);
+    }
+
+    public static DafnyTree anonymiseHeap(SymbexPath path) {
+        DafnyTree heap = builtInVar("$heap");
+        DafnyTree mod = builtInVar("$mod");
+        DafnyTree anonHeap = freshVariable("$aheap", id("Heap"), path);
+        DafnyTree anon = call("$anon", heap, mod, anonHeap);
+        return assign(heap, anon);
+    }
+
+    private static DafnyTree call(String function, DafnyTree... args) {
+        DafnyTree argsTree = create(DafnyParser.ARGS, args);
+        DafnyTree id = id(function);
+        return create(DafnyParser.CALL, id, argsTree);
+    }
+
+    public static DafnyTree assign(@NonNull DafnyTree var, @NonNull DafnyTree value) {
         return create(DafnyParser.ASSIGN, var, value);
     }
 
@@ -288,5 +332,25 @@ public final class ASTUtil {
         return result;
     }
 
+    public static DafnyTree freshVariable(String base, DafnyTree type, SymbexPath path) {
 
+        Set<String> names = new HashSet<>();
+        for (LocalVarDecl tree : path.getDeclaredLocalVars()) {
+            names.add(tree.getName());
+        }
+
+        int count = 1;
+        String name = base + "_" + count;
+        while (names.contains(name)) {
+            count ++;
+            name = base + "_" + count;
+        }
+
+        DafnyTree decl = varDecl(id(name), type);
+        DafnyTree result = id(name);
+        result.setDeclarationReference(decl);
+        path.addDeclaredLocalVar(new LocalVarDecl(name, type, decl));
+
+        return result;
+    }
 }

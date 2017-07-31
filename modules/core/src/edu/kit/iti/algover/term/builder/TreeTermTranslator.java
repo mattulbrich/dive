@@ -27,6 +27,7 @@ import edu.kit.iti.algover.term.VariableTerm;
 import edu.kit.iti.algover.util.HistoryMap;
 import edu.kit.iti.algover.util.ImmutableList;
 import edu.kit.iti.algover.util.Pair;
+import nonnull.NonNull;
 
 /**
  * The Class TreeTermTranslator is used to create a {@link Term} object from a
@@ -289,6 +290,9 @@ public class TreeTermTranslator {
         case DafnyParser.CALL:
             return buildCall(tree);
 
+        case DafnyParser.WILDCARD:
+            return buildWildcard(tree);
+
         default:
             TermBuildException ex =
                 new TermBuildException("Cannot translate term: " + tree.toStringTree());
@@ -383,6 +387,29 @@ public class TreeTermTranslator {
         return new ApplTerm(f, Arrays.asList(t1));
 
     }
+
+    private Term buildWildcard(DafnyTree tree) throws TermBuildException {
+        Sort sort = buildSort(tree.getExpressionType());
+        String suggestedName;
+        if(tree.getChildCount() > 0) {
+            suggestedName = tree.getChild(0).getText();
+        } else {
+            suggestedName = "unknown";
+        }
+
+        int count = 1;
+        String name = suggestedName + "_" + count;
+        while(symbolTable.getFunctionSymbol(name) != null) {
+            count ++;
+            name = suggestedName + "_" + count;
+        }
+
+        FunctionSymbol fs = new FunctionSymbol(name, sort);
+        symbolTable.addFunctionSymbol(fs);
+
+        return new ApplTerm(fs);
+    }
+
 
     private Term buildNull(DafnyTree tree) throws TermBuildException {
         return tb._null();
@@ -501,7 +528,7 @@ public class TreeTermTranslator {
     // Currently that is still simple since only array<int>, arrayN<int> and set<int>
     // are supported besides int.
     // The name of the node is actually the type already... Will change in future!
-    private Sort buildSort(DafnyTree child) {
+    private Sort buildSort(@NonNull DafnyTree child) {
         return SymbexStateToFormula.treeToType(child);
     }
 

@@ -8,7 +8,6 @@ package edu.kit.iti.algover.parser;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Objects;
 
 import org.antlr.runtime.CommonToken;
 import org.antlr.runtime.RecognitionException;
@@ -209,7 +208,7 @@ public class DafnyTree extends CommonTree {
      *            must be of type {@link DafnyTree}.
      */
     @Override
-    public void addChild(Tree t) {
+    public void addChild(@NonNull Tree t) {
         assert t instanceof DafnyTree;
         super.addChild(t);
     }
@@ -389,8 +388,8 @@ public class DafnyTree extends CommonTree {
      * @param declarationReference
      *            the new declaration reference, not <code>null</code>
      */
-    public void setDeclarationReference(DafnyTree declarationReference) {
-        this.declarationReference = Objects.requireNonNull(declarationReference);
+    public void setDeclarationReference(@NonNull DafnyTree declarationReference) {
+        this.declarationReference = declarationReference;
     }
 
     /**

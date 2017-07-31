@@ -38,3 +38,12 @@ class ArrayProblems
       a.f := 0;
    }
 }
+
+class IllegalVariableRefs
+{
+   method m()
+      ensures local == 0
+   {
+      var local : int;
+   }
+}

@@ -72,17 +72,24 @@ public class TestUtil {
 
         List<DafnyException> exceptions = new ArrayList<>();
 
-        ReferenceResolutionVisitor refResolver = new ReferenceResolutionVisitor(p, exceptions );
+        ReferenceResolutionVisitor refResolver = new ReferenceResolutionVisitor(p, exceptions);
         refResolver.visitProject();
+
+        if(!exceptions.isEmpty()) {
+            for (DafnyException dafnyException : exceptions) {
+                dafnyException.printStackTrace();
+            }
+            throw exceptions.get(0);
+        }
 
         TypeResolution typeRes = new TypeResolution(exceptions);
         typeRes.visitProject(p);
 
-        for (DafnyException dafnyException : exceptions) {
-            dafnyException.printStackTrace();
-        }
 
         if(!exceptions.isEmpty()) {
+            for (DafnyException dafnyException : exceptions) {
+                dafnyException.printStackTrace();
+            }
             throw exceptions.get(0);
         }
 

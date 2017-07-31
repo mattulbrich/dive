@@ -62,6 +62,7 @@ public class ProjectFacade {
     }
 
     // REVIEW: "throws Exception" is usually not a very good idea.
+    // TODO Treat exceptions correctly after resolving visitations!
 
     /**
      * Build a new Project
