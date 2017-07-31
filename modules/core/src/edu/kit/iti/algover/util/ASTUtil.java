@@ -301,7 +301,7 @@ public final class ASTUtil {
     public static DafnyTree anonymiseHeap(SymbexPath path) {
         DafnyTree heap = builtInVar("$heap");
         DafnyTree mod = builtInVar("$mod");
-        DafnyTree anonHeap = freshVariable("$aheap", id("Heap"), path);
+        DafnyTree anonHeap = freshVariable("$aheap", id("heap"), path);
         DafnyTree anon = call("$anon", heap, mod, anonHeap);
         return assign(heap, anon);
     }

@@ -552,35 +552,44 @@ public class TreeTermTranslator {
 
     private Term buildNoetherLess(DafnyTree tree) throws TermBuildException {
         // TODO refactor this for seq<?> one day when seqs are available
-        DafnyTree lhs = tree.getChild(0);
-        DafnyTree rhs = tree.getChild(1);
 
-        assert rhs.getType() == DafnyParser.LISTEX
-                && lhs.getType() == DafnyParser.ID :
-            "limited support so far we inline the comparison";
+        DafnyTree dafnyLHS = tree.getChild(0);
+        DafnyTree dafnyRHS = tree.getChild(1);
 
-        Term result = tb.ff();
-        String basevar = lhs.toString();
-        Term[] vars = new Term[rhs.getChildCount()];
-        Term[] terms = new Term[rhs.getChildCount()];
+        Term lhs = build(dafnyLHS);
+        Term rhs = build(dafnyRHS);
 
-        for (int i = 0; i < rhs.getChildCount(); i++) {
-            FunctionSymbol f = symbolTable.getFunctionSymbol(basevar + "_" + i);
-            vars[i] = new ApplTerm(f);
-            terms[i] = build(rhs.getChild(i));
+        Term ge0 = tb.lessEqual(tb.zero, lhs);
+        Term lt = tb.less(lhs, rhs);
 
-            Term cond = tb.tt();
-            for (int j = 0; j < i; j++) {
-                ApplTerm eq = tb.eq(terms[j], vars[j]);
-                cond = tb.and(cond, eq);
-            }
+        return tb.and(ge0, lt);
 
-            cond = tb.and(cond, tb.lessEqual(tb.zero, terms[i]));
-            cond = tb.and(cond, tb.less(terms[i], vars[i]));
-            result = tb.or(result, cond);
-        }
-
-        return result;
+//        assert rhs.getType() == DafnyParser.LISTEX
+//                && lhs.getType() == DafnyParser.ID :
+//            "limited support so far we inline the comparison";
+//
+//        Term result = tb.ff();
+//        String basevar = lhs.toString();
+//        Term[] vars = new Term[rhs.getChildCount()];
+//        Term[] terms = new Term[rhs.getChildCount()];
+//
+//        for (int i = 0; i < rhs.getChildCount(); i++) {
+//            FunctionSymbol f = symbolTable.getFunctionSymbol(basevar + "_" + i);
+//            vars[i] = new ApplTerm(f);
+//            terms[i] = build(rhs.getChild(i));
+//
+//            Term cond = tb.tt();
+//            for (int j = 0; j < i; j++) {
+//                ApplTerm eq = tb.eq(terms[j], vars[j]);
+//                cond = tb.and(cond, eq);
+//            }
+//
+//            cond = tb.and(cond, tb.lessEqual(tb.zero, terms[i]));
+//            cond = tb.and(cond, tb.less(terms[i], vars[i]));
+//            result = tb.or(result, cond);
+//        }
+//
+//        return result;
     }
 
 

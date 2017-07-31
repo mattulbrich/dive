@@ -15,6 +15,7 @@ import edu.kit.iti.algover.data.SymbolTable;
 import edu.kit.iti.algover.parser.DafnyException;
 import edu.kit.iti.algover.parser.DafnyTree;
 import edu.kit.iti.algover.script.ScriptTree;
+import edu.kit.iti.algover.symbex.LocalVarDecl;
 import edu.kit.iti.algover.symbex.SymbexPath;
 import edu.kit.iti.algover.term.FunctionSymbol;
 import edu.kit.iti.algover.term.Sequent;
@@ -125,6 +126,12 @@ public class PVCBuilder {
         for (DafnyTree decl : ProgramDatabase.getAllVariableDeclarations(method.getRepresentation())) {
             String name = decl.getChild(0).toString();
             Sort sort = TreeUtil.toSort(decl.getChild(1));
+            map.add(new FunctionSymbol(name, sort));
+        }
+
+        for (LocalVarDecl lvd : pathThroughProgram.getDeclaredLocalVars()) {
+            String name = lvd.getName();
+            Sort sort = TreeUtil.toSort(lvd.getType());
             map.add(new FunctionSymbol(name, sort));
         }
 
