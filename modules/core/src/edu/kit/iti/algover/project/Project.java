@@ -7,6 +7,7 @@ package edu.kit.iti.algover.project;
 
 import edu.kit.iti.algover.dafnystructures.*;
 import edu.kit.iti.algover.parser.DafnyException;
+import edu.kit.iti.algover.proof.PVC;
 import edu.kit.iti.algover.proof.PVCCollection;
 import edu.kit.iti.algover.proof.PVCGroup;
 import edu.kit.iti.algover.settings.ProjectSettings;
@@ -58,7 +59,7 @@ public class Project {
 
     private Collection<FunctionSymbol> functionSymbols;
 
-
+    private Map<String, PVC> pvcByName;
     /**
      * Lookup map for PVCs
      */
@@ -78,6 +79,7 @@ public class Project {
         this.methods = DafnyDecl.toMap(pBuilder.getMethods());
         this.baseDir = pBuilder.getDir();
         this.pvcs = new HashMap<>();
+        this.pvcByName = new HashMap<>();
 
     }
 
@@ -171,6 +173,7 @@ public class Project {
     /**
      * Generates the PVCs for this project
      * Saves the PVCs to the lookupmap
+     * Saves the PVCs to the String lookup map
      * @return the root of the PVCGroup for this project
      */
 
@@ -187,8 +190,26 @@ public class Project {
         for (PVCCollection child : children) {
             pvcs.put(child.getDafnyDecl(), child);
         }
+        for (PVCCollection child : children) {
+            generateAndCollectPVCHelper(child);
+        }
 
         return root;
 
+    }
+
+    /**
+     * Fill hashmap with pvcs to reference via pathidentifier
+     *
+     * @param pvc
+     */
+    private void generateAndCollectPVCHelper(PVCCollection pvc) {
+        if (pvc.isPVCLeaf()) {
+            pvcByName.put(pvc.getPVC().getName(), pvc.getPVC());
+        } else {
+            for (PVCCollection pvcCollection : pvc.getChildren()) {
+                generateAndCollectPVCHelper(pvcCollection);
+            }
+        }
     }
 }

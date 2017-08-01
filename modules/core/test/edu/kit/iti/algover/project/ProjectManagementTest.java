@@ -62,7 +62,7 @@ public class ProjectManagementTest {
     public void userChangedSourceCode() {
         //ProjectManagement.saveFile(File, content);
         //Proof Management saveProject();
-        //ProofManagment.saveVersion();
+        //ProofManagement.saveVersion();
         //ProofManagement.getAllProofs.setStatus(Dirty)
     }
 

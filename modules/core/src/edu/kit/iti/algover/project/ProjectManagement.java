@@ -2,9 +2,11 @@ package edu.kit.iti.algover.project;
 
 import edu.kit.iti.algover.facade.ProjectFacade;
 import edu.kit.iti.algover.proof.PVCGroup;
+import edu.kit.iti.algover.proof.Proof;
 import javafx.beans.property.SimpleObjectProperty;
 
 import java.io.File;
+import java.util.HashMap;
 
 /**
  * Class handling project and proof management
@@ -23,6 +25,9 @@ public class ProjectManagement {
     private SimpleObjectProperty<Project> project = new SimpleObjectProperty<>(null);
 
     private PVCGroup allPVCs;
+
+
+    private HashMap<String, Proof> allProofs;
 
     /**
      * Load a Project from a given config file and set the property for the project
@@ -76,4 +81,17 @@ public class ProjectManagement {
         this.configFile = configFile;
     }
 
+    public HashMap<String, Proof> getAllProofs() {
+        return allProofs;
+    }
+
+    /**
+     * Return Proof object for a PVC if it exists, null otherwise
+     *
+     * @param pvcIdentifier
+     * @return
+     */
+    public Proof getProofForPVC(String pvcIdentifier) {
+        return getAllProofs().getOrDefault(pvcIdentifier, null);
+    }
 }
