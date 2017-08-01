@@ -54,4 +54,11 @@ public abstract class PVCCollection {
 
     public abstract PVCCollection getChild(int i);
 
+    /**
+     * Returns the PVC iff the object itself is a SinglePVC else null
+     *
+     * @return
+     */
+    public abstract PVC getPVC();
+
 }

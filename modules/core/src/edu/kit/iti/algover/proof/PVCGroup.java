@@ -30,6 +30,11 @@ public class PVCGroup extends PVCCollection {
     }
 
     @Override
+    public PVC getPVC() {
+        return null;
+    }
+
+    @Override
     public DafnyDecl getDafnyDecl(){
         return this.dd;
     }

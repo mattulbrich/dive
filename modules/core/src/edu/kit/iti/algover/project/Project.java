@@ -19,7 +19,11 @@ import java.util.*;
 // REVIEW: I miss a possibility to retrieve all parsed DafnyTrees (toplevel entities)
 // How can one obtain these?
 
+// SaG: by getting all PVCCollections from Map pvc and rertieving tree by
+// PVCCollection.getDafnyDecl().getRepresentation()
+
 // REVIEW: Would it make sense to habe a lookup table indexed by name?
+// Will be done
 
 /**
  * Class representing a project, that contains all relevant information for a
@@ -44,7 +48,7 @@ public class Project {
     private final ProjectSettings settings;
 
     /**
-     * Lookup maps to get classes, methods , fucntions and functionsymbols
+     * Lookup maps to get classes, methods , functions and functionsymbols
      */
     private Map<String, DafnyClass> classes;
 
@@ -53,6 +57,7 @@ public class Project {
     private Map<String, DafnyFunction> functions;
 
     private Collection<FunctionSymbol> functionSymbols;
+
 
     /**
      * Lookup map for PVCs
@@ -181,7 +186,6 @@ public class Project {
         List<PVCCollection> children = root.getChildren();
         for (PVCCollection child : children) {
             pvcs.put(child.getDafnyDecl(), child);
-
         }
 
         return root;

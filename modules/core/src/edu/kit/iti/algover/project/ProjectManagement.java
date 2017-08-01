@@ -35,6 +35,7 @@ public class ProjectManagement {
         try {
             p = ProjectFacade.getInstance().buildProjectWithConfigFile(config);
             this.allPVCs = p.generateAndCollectPVC();
+            this.setProject(p);
         } catch (Exception e) {
             System.out.println("Project from " + config.getName() + " could not be built");
             e.printStackTrace();
