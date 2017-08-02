@@ -1,14 +1,19 @@
 package edu.kit.iti.algover.proof;
 
+import javafx.beans.property.SimpleObjectProperty;
+
 /**
  * Proof Object
  */
 public class Proof {
+
+
     /**
      * Status of Proof
      */
-    private ProofStatus proofStatus;
+    //private ProofStatus proofStatus;
 
+    private SimpleObjectProperty<ProofStatus> proofStatus = new SimpleObjectProperty<>(null, "ProofStatusProperty");
     /**
      * Root of logical Proof
      */
@@ -20,14 +25,18 @@ public class Proof {
      */
     //private ScriptASTNode scriptRoot;
 
+    /**
+     * PVC Name for which this proof object is created
+     */
     private String pvcName;
 
-    public ProofStatus getProofStatus() {
-        return proofStatus;
-    }
 
-    public void setProofStatus(ProofStatus proofStatus) {
-        this.proofStatus = proofStatus;
+    public Proof(String pvcName) {
+        this.setPvcName(pvcName);
+        this.setProofRoot(null);
+        //set scriptRoot null
+        this.setProofStatus(ProofStatus.NOT_LOADED);
+
     }
 
     public ProofNode getProofRoot() {
@@ -46,6 +55,17 @@ public class Proof {
         this.pvcName = pvcName;
     }
 
+    public ProofStatus getProofStatus() {
+        return proofStatus.get();
+    }
+
+    public void setProofStatus(ProofStatus proofStatus) {
+        this.proofStatus.set(proofStatus);
+    }
+
+    public SimpleObjectProperty<ProofStatus> proofStatusProperty() {
+        return proofStatus;
+    }
 
     /**
      * Replay proof
@@ -53,6 +73,13 @@ public class Proof {
      * @return
      */
     public Proof replay() {
+        if (getProofStatus().equals(ProofStatus.DIRTY)) {
+            //reload
+            //
+            setProofStatus(ProofStatus.OPEN);
+        } else {
+            setProofStatus(ProofStatus.NON_EXISTING);
+        }
         return this;
     }
 }

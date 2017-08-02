@@ -30,6 +30,7 @@ public class ProjectManagementTest {
     Project p = null;
     Term testTerm;
     String testPVCName = "/POST:(&& (== 1 2) (== 2 3))";
+    ProjectManagement pm = null;
 
     @Before
     public void prepare() throws Exception {
@@ -49,17 +50,14 @@ public class ProjectManagementTest {
     private void makeTestTerm() throws DafnyParserException {
         Collection<FunctionSymbol> map = new ArrayList<>();
         SymbolTable symbTable = new MapSymbolTable(new BuiltinSymbols(), map);
-
         this.testTerm = TermParser.parse(symbTable, "1==2 && 2==3");
-
-
     }
 
 
 
     @Test
     public void loadExistingProject() throws Exception {
-        ProjectManagement pm = new ProjectManagement();
+        pm = new ProjectManagement();
         pm.loadProject(config);
         Project project = pm.getProject();
 
@@ -83,10 +81,10 @@ public class ProjectManagementTest {
         Proof proof = pm.getProofForPVC(testPVCName);
         Assert.assertEquals("Proof is not loaded yet", proof.getProofStatus(), ProofStatus.NOT_LOADED);
         //Assert.assertEquals(Status.DIRTY, proof.getStatus());
-        //pm.replayAllProofs();
-        //for (Proof pr : pm.getAllProofs()) {
-        //    AssertEquals(Status.NON_EXISTING, pr.getStatus());
-        //}
+        pm.replayAllProofs();
+        for (Proof pr : pm.getAllProofs().values()) {
+            Assert.assertEquals(ProofStatus.NON_EXISTING, pr.getProofStatus());
+        }
 
     }
 
@@ -100,6 +98,7 @@ public class ProjectManagementTest {
 
     @Test
     public void userChangedScript() {
+
         //ProjectManagement.saveScriptFile(pvcid, content);
         //Proof Management saveProject();
         //ProofManagment.saveVersion();

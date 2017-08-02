@@ -1,0 +1,10 @@
+//DummyScript will be replaced later by real script
+auto;
+cases{
+    case match '1==2'{
+        auto;
+    }
+    default:{
+        auto;
+    }
+}
