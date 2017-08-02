@@ -1,12 +1,24 @@
 package edu.kit.iti.algover.project;
 
+import edu.kit.iti.algover.data.BuiltinSymbols;
+import edu.kit.iti.algover.data.MapSymbolTable;
+import edu.kit.iti.algover.data.SymbolTable;
+import edu.kit.iti.algover.parser.DafnyParserException;
+import edu.kit.iti.algover.proof.PVC;
 import edu.kit.iti.algover.proof.PVCCollection;
+import edu.kit.iti.algover.proof.Proof;
+import edu.kit.iti.algover.proof.ProofStatus;
+import edu.kit.iti.algover.term.FunctionSymbol;
+import edu.kit.iti.algover.term.Sequent;
+import edu.kit.iti.algover.term.Term;
+import edu.kit.iti.algover.term.parser.TermParser;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
 import java.io.File;
-import java.util.List;
+import java.util.ArrayList;
+import java.util.Collection;
 
 /**
  * Tests for the methods for ProjectManagement
@@ -16,6 +28,8 @@ public class ProjectManagementTest {
     static final String testDir = ("modules/core/test-res/edu/kit/iti/algover/script").replace('/', File.separatorChar);
     static final File config = new File(testDir + File.separatorChar + "config2.xml");
     Project p = null;
+    Term testTerm;
+    String testPVCName = "/POST:(&& (== 1 2) (== 2 3))";
 
     @Before
     public void prepare() throws Exception {
@@ -28,11 +42,23 @@ public class ProjectManagementTest {
         pb.parseProjectConfigurationFile();
         Project p = pb.build();
         this.p = p;
+        makeTestTerm();
 
     }
 
+    private void makeTestTerm() throws DafnyParserException {
+        Collection<FunctionSymbol> map = new ArrayList<>();
+        SymbolTable symbTable = new MapSymbolTable(new BuiltinSymbols(), map);
+
+        this.testTerm = TermParser.parse(symbTable, "1==2 && 2==3");
+
+
+    }
+
+
+
     @Test
-    public void loadExistingProject() {
+    public void loadExistingProject() throws Exception {
         ProjectManagement pm = new ProjectManagement();
         pm.loadProject(config);
         Project project = pm.getProject();
@@ -41,15 +67,21 @@ public class ProjectManagementTest {
         Assert.assertEquals("config2.xml", pm.getConfigFile().getName());
 
         PVCCollection allPVCs = project.getAllVerificationConditions();
-        List<PVCCollection> children = allPVCs.getChildren();
-        for (PVCCollection child : children) {
-            if (!child.isPVCLeaf()) {
-                //traverse
-            }
-        }
-        //PVCs gegenchecken
-        //TODO PVCs erzeugen und dagegen pruefen
-        //Proof proof = pm.getProof(pvcName);
+        PVC testPVC = project.getPVCbyName(testPVCName);
+
+        Sequent s = testPVC.getSequent();
+
+        Assert.assertTrue("Sequents antecedent is empty", testPVC.getSequent().getAntecedent().isEmpty());
+        Assert.assertFalse("Sequents succedent is not empty", testPVC.getSequent().getSuccedent().isEmpty());
+
+        Term sequentTerm = s.getSuccedent().get(0).getTerm();
+        Term t = sequentTerm.getSubterms().get(0);
+
+        Assert.assertEquals(t.getSort(), testTerm.getSort());
+        Assert.assertEquals(t.getSubterms().size(), testTerm.getSubterms().size());
+
+        Proof proof = pm.getProofForPVC(testPVCName);
+        Assert.assertEquals("Proof is not loaded yet", proof.getProofStatus(), ProofStatus.NOT_LOADED);
         //Assert.assertEquals(Status.DIRTY, proof.getStatus());
         //pm.replayAllProofs();
         //for (Proof pr : pm.getAllProofs()) {

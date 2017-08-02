@@ -30,9 +30,8 @@ public class PVC {
     private final DafnyDecl declaration;
     private final Sequent sequent;
     /**
-     * local script of pvc, is identified by id
+     * local script of pvc
      */
-    // REVIEW: did not understand "is identified by"
     private ScriptTree localScript;
 
     /**

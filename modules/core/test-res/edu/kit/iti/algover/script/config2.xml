@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <configuration>
     <dafnyFile>test.dfy</dafnyFile>
-    <!--<dafnyFile>test2.dfy</dafnyFile>-->
+    <dafnyFile>test4.dfy</dafnyFile>
     <dafnyFile>extra.dfy</dafnyFile>
     <libFile>lib.dfy</libFile>
     <settings>

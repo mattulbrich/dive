@@ -23,8 +23,7 @@ import java.util.*;
 // SaG: by getting all PVCCollections from Map pvc and rertieving tree by
 // PVCCollection.getDafnyDecl().getRepresentation()
 
-// REVIEW: Would it make sense to habe a lookup table indexed by name?
-// Will be done
+
 
 /**
  * Class representing a project, that contains all relevant information for a
@@ -58,13 +57,11 @@ public class Project {
     private Map<String, DafnyFunction> functions;
 
     private Collection<FunctionSymbol> functionSymbols;
-
     private Map<String, PVC> pvcByName;
     /**
      * Lookup map for PVCs
      */
     private Map<DafnyDecl, PVCCollection> pvcs;
-
     /**
      * Constructor can only be called using a ProjectBuilder
      *
@@ -81,6 +78,10 @@ public class Project {
         this.pvcs = new HashMap<>();
         this.pvcByName = new HashMap<>();
 
+    }
+
+    public Map<String, PVC> getPvcCollectionByName() {
+        return pvcByName;
     }
 
     public File getBaseDir() {
@@ -147,6 +148,11 @@ public class Project {
 
     }
 
+    /**
+     * Return all PVCs by getting a reference to the PVCGroup root
+     *
+     * @return
+     */
     public PVCGroup getAllVerificationConditions() {
         return this.generateAndCollectPVC();
     }
@@ -160,6 +166,10 @@ public class Project {
     public PVCCollection getVerificationConditionsFor(DafnyDecl decl) {
         return pvcs.get(decl);
 
+    }
+
+    public PVC getPVCbyName(String name) {
+        return pvcByName.getOrDefault(name, null);
     }
 
     public Collection<FunctionSymbol> getAllDeclaredSymbols() {

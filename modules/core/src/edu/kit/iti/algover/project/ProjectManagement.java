@@ -1,12 +1,15 @@
 package edu.kit.iti.algover.project;
 
 import edu.kit.iti.algover.facade.ProjectFacade;
+import edu.kit.iti.algover.proof.PVC;
 import edu.kit.iti.algover.proof.PVCGroup;
 import edu.kit.iti.algover.proof.Proof;
+import edu.kit.iti.algover.proof.ProofStatus;
 import javafx.beans.property.SimpleObjectProperty;
 
 import java.io.File;
 import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Class handling project and proof management
@@ -26,27 +29,40 @@ public class ProjectManagement {
 
     private PVCGroup allPVCs;
 
+    private Map<String, PVC> allStrippedPVCs;
 
-    private HashMap<String, Proof> allProofs;
+    private Map<String, Proof> allProofs;
 
     /**
      * Load a Project from a given config file and set the property for the project
      *
      * @param config File
      */
-    public void loadProject(File config) {
+    public void loadProject(File config) throws Exception {
         this.configFile = config;
         Project p = null;
-        try {
-            p = ProjectFacade.getInstance().buildProjectWithConfigFile(config);
-            this.allPVCs = p.generateAndCollectPVC();
-            this.setProject(p);
-        } catch (Exception e) {
-            System.out.println("Project from " + config.getName() + " could not be built");
-            e.printStackTrace();
-        }
+        p = ProjectFacade.getInstance().buildProjectWithConfigFile(config);
+        this.allPVCs = p.generateAndCollectPVC();
+        this.allStrippedPVCs = p.getPvcCollectionByName();
+        this.setProject(p);
+        generateAllProofObjects();
+
     }
 
+    /**
+     * Genearte all proof objects for all available PVCs in allPVCs
+     */
+    private void generateAllProofObjects() {
+        allProofs = new HashMap<>();
+        for (String pvc : allStrippedPVCs.keySet()) {
+            Proof p = new Proof();
+            p.setProofStatus(ProofStatus.NOT_LOADED);
+            p.setPvcName(pvc);
+            allProofs.put(pvc, p);
+        }
+
+
+    }
     /**************************************************************************************************
      *
      *                                                  Getter and Setter
@@ -81,7 +97,7 @@ public class ProjectManagement {
         this.configFile = configFile;
     }
 
-    public HashMap<String, Proof> getAllProofs() {
+    public Map<String, Proof> getAllProofs() {
         return allProofs;
     }
 
