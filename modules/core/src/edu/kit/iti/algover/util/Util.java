@@ -336,7 +336,7 @@ public final class Util {
         }
     }
 
-    public static <E,F> List<F> map(List<E> input, Function<E,F> function) {
+    public static <E,F> List<F> map(Iterable<E> input, Function<E,F> function) {
         List<F> result;
         if(input instanceof RandomAccess) {
             result = new ArrayList<>();

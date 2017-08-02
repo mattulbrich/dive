@@ -6,6 +6,7 @@
 package edu.kit.iti.algover.util;
 
 import java.util.HashSet;
+import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Set;
 
@@ -351,6 +352,15 @@ public final class ASTUtil {
         result.setDeclarationReference(decl);
         path.addDeclaredLocalVar(new LocalVarDecl(name, type, decl));
 
+        return result;
+    }
+
+    /*
+     * Put decreases list into a list expression
+     */
+    public static DafnyTree listExpr(List<DafnyTree> entries) {
+        DafnyTree result = new DafnyTree(DafnyParser.LISTEX);
+        result.addChildren(entries);
         return result;
     }
 }

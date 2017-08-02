@@ -8,6 +8,7 @@ package edu.kit.iti.algover.symbex;
 import java.util.ArrayList;
 import java.util.Deque;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
@@ -198,7 +199,6 @@ public class Symbex {
         DafnyTree guard = stm.getChild(isLabel ? 1 : 0);
         DafnyTree body = stm.getLastChild();
         DafnyTree decreasesClause = stm.getFirstChildWithType(DafnyParser.DECREASES);
-        DafnyTree decreases = decreasesClause.getChild(0);
         // TODO reenable this for lexigraphic decreases clauses.
 //        DafnyTree decreases = toListExt(decreasesClause);
         List<DafnyTree> invariants = stm.getChildrenWithType(DafnyParser.INVARIANT);
@@ -213,9 +213,8 @@ public class Symbex {
         // 2. preserves invariant:
         // 2a. assume invariants
         SymbexPath preservePath = new SymbexPath(state);
-        DafnyTree decreaseVar = makeDecreaseVar(preservePath, stm);
         anonymise(preservePath, body);
-        preservePath.addAssignment(ASTUtil.assign(decreaseVar, decreases));
+        List<DafnyTree> decreaseVars = introduceDecreasesVars(stm, decreasesClause, preservePath);
         for (DafnyTree inv : invariants) {
             preservePath.addPathCondition(inv.getLastChild(), inv,
                     AssumptionType.ASSUMED_INVARIANT);
@@ -232,7 +231,9 @@ public class Symbex {
                 AssertionType.INVARIANT_PRESERVED);
 
         // 2c. show decreases clause:
-        DafnyTree decrReduced = ASTUtil.noetherLess(decreaseVar, decreases);
+        DafnyTree decrReduced = ASTUtil.noetherLess(
+                ASTUtil.listExpr(decreaseVars),
+                ASTUtil.listExpr(decreasesClause.getChildren()));
         AssertionElement decrProof = new AssertionElement(decrReduced, decreasesClause,
                 AssertionType.VARIANT_DECREASED);
         ImmutableList<AssertionElement> oldPOs = preservePath.getProofObligations();
@@ -249,13 +250,15 @@ public class Symbex {
         stack.add(state);
     }
 
-    /*
-     * Put decreases list into a list expression
-     */
-    private DafnyTree toListExt(DafnyTree decreases) {
-        DafnyTree list = new DafnyTree(DafnyParser.LISTEX);
-        list.addChildren(decreases.getChildren());
-        return list;
+    private List<DafnyTree> introduceDecreasesVars(DafnyTree stm, DafnyTree decreases, SymbexPath preservePath) {
+
+        List<DafnyTree> result = new ArrayList<>();
+        for (DafnyTree dec : decreases.getChildren()) {
+            DafnyTree decreaseVar = makeDecreaseVar(preservePath, stm);
+            preservePath.addAssignment(ASTUtil.assign(decreaseVar, dec));
+            result.add(decreaseVar);
+        }
+        return result;
     }
 
     /*

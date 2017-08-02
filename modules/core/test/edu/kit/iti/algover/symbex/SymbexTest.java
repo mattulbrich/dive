@@ -6,6 +6,7 @@
 package edu.kit.iti.algover.symbex;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
 
@@ -27,6 +28,7 @@ import edu.kit.iti.algover.symbex.PathConditionElement.AssumptionType;
 import edu.kit.iti.algover.util.ASTUtil;
 import edu.kit.iti.algover.util.ImmutableList;
 import edu.kit.iti.algover.util.TestUtil;
+import edu.kit.iti.algover.util.Util;
 
 public class SymbexTest {
 
@@ -57,7 +59,7 @@ public class SymbexTest {
         Symbex symbex = new Symbex();
         List<SymbexPath> results = symbex.symbolicExecution(tree);
 
-        System.out.println(results);
+        //System.out.println(results);
 
         assertEquals(7, results.size());
 
@@ -221,7 +223,7 @@ public class SymbexTest {
                     assertEquals(1, decr.getProofObligations().size());
                     AssertionElement po = decr.getProofObligations().get(0);
                     assertEquals("(decreases (+ p count))", po.getOrigin().toStringTree());
-                    assertEquals("(NOETHER_LESS $decr_1 (+ p count))", po.getExpression().toStringTree());
+                    assertEquals("(NOETHER_LESS (LISTEX $decr_1) (LISTEX (+ p count)))", po.getExpression().toStringTree());
                 }
             }
         }
@@ -626,5 +628,42 @@ public class SymbexTest {
                 + "(:= y z)]",
                 results.get(i).getAssignmentHistory().map(x->x.toStringTree()).toString());
 
+    }
+
+    @Test
+    public void testFromSymbex() throws Exception {
+
+        InputStream stream = getClass().getResourceAsStream("noetherTest.dfy");
+        DafnyTree fileTree = ParserTest.parseFile(stream);
+
+        // performs type analysis etc:
+        TestUtil.mockProject(fileTree);
+
+        DafnyTree tree = fileTree.getChild(0);
+        Symbex symbex = new Symbex();
+        List<SymbexPath> results = symbex.symbolicExecution(tree);
+
+        System.out.println(results);
+
+        assertEquals(4, results.size());
+
+        // preserves are interesting. Focus on of the two here
+        {
+            SymbexPath path = results.get(2);
+            List<String> localVars = Util.map(path.getDeclaredLocalVars(), x -> x.getName());
+            assertTrue(localVars.contains("$decr_1"));
+            assertTrue(Util.map(path.getDeclaredLocalVars(), x -> x.getName()).contains("$decr_2"));
+            assertFalse(Util.map(path.getDeclaredLocalVars(), x -> x.getName()).contains("$decr_3"));
+
+            List<String> assignments = Util.map(path.getAssignmentHistory(), x -> x.toStringTree());
+            assertTrue(assignments.contains("(ASSIGN $decr_1 b)"));
+            assertTrue(assignments.contains("(ASSIGN $decr_2 a)"));
+
+            assertEquals(1, path.getProofObligations().size());
+            AssertionElement proofObl = path.getProofObligations().getHead();
+            assertEquals(AssertionType.VARIANT_DECREASED, proofObl.getType());
+            assertEquals("(NOETHER_LESS (LISTEX $decr_1 $decr_2) (LISTEX b a))",
+                    proofObl.getExpression().toStringTree());
+        }
     }
 }
