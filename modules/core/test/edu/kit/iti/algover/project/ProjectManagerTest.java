@@ -23,14 +23,14 @@ import java.util.Collection;
 /**
  * Tests for the methods for ProjectManagement
  */
-public class ProjectManagementTest {
+public class ProjectManagerTest {
 
     static final String testDir = ("modules/core/test-res/edu/kit/iti/algover/script").replace('/', File.separatorChar);
     static final File config = new File(testDir + File.separatorChar + "config2.xml");
     Project p = null;
     Term testTerm;
     String testPVCName = "/POST:(&& (== 1 2) (== 2 3))";
-    ProjectManagement pm = null;
+    ProjectManager pm = null;
 
     @Before
     public void prepare() throws Exception {
@@ -57,7 +57,7 @@ public class ProjectManagementTest {
 
     @Test
     public void loadExistingProject() throws Exception {
-        pm = new ProjectManagement();
+        pm = new ProjectManager();
         pm.loadProject(config);
         Project project = pm.getProject();
 

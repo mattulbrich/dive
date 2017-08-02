@@ -17,7 +17,7 @@ import java.util.Map;
 /**
  * Class handling project and proof management
  */
-public class ProjectManagement {
+public class ProjectManager {
 
 
     /**
@@ -35,6 +35,13 @@ public class ProjectManagement {
     private Map<String, PVC> allStrippedPVCs;
 
     private Map<String, Proof> allProofs;
+
+    /**************************************************************************************************
+     *
+     *                                        Load
+     *
+     *************************************************************************************************/
+
 
     /**
      * Load a Project from a given config file and set the property for the project
@@ -66,6 +73,27 @@ public class ProjectManagement {
     }
 
     /**
+     * Find and parse script file for pvc
+     *
+     * @param pvc
+     * @return TODO should return ScriptAST
+     */
+    private void findAndParseScriptFile(String pvc) {
+        String filePath = project.get().getBaseDir().getAbsolutePath() + File.separatorChar + pvc + ".script";
+        //find file on disc
+        //ScriptAST root = ScriptParser.parse(scriptFile)
+    }
+
+    /**
+     * Load an alternative version of the project (which is saved as zip file)
+     *
+     * @param zipFile
+     */
+    public void loadProjectVersion(File zipFile) {
+
+    }
+
+    /**
      * Invalidate Proof for a pvc
      *
      * @param name pvcidentifier
@@ -91,6 +119,7 @@ public class ProjectManagement {
      * Replay all available proofs
      */
     public void replayAllProofs() {
+        saveProject();
         //save everything before replay
         for (Proof proof : allProofs.values()) {
             proof.replay();
@@ -98,20 +127,55 @@ public class ProjectManagement {
 
     }
 
+    /**************************************************************************************************
+     *
+     *                                        Save
+     *
+     *************************************************************************************************/
+
+
+    /**
+     * Save the whole Project contents
+     */
     public void saveProject() {
-
+        saveProjectVersion();
     }
 
-    public void saveToDfyFile(File file, String content) {
-
+    /**
+     * Save content to Dafny file
+     *
+     * @param file    to save content to
+     * @param content content to save
+     */
+    public void saveToDfyFile(File file, String content) throws IOException {
+        saverHelper(file.getAbsolutePath(), content);
     }
 
+
+    /**
+     * Save content to script file for pvc
+     * @param pvc
+     * @param content
+     * @throws IOException
+     */
     public void saveToScriptFile(String pvc, String content) throws IOException {
         String scriptFilePath = project.get().getBaseDir().getAbsolutePath() + File.separatorChar + pvc + ".script";
-        FileWriter fileWriter = new FileWriter(scriptFilePath, false);
+        saverHelper(scriptFilePath, content);
+
+    }
+
+    private void saverHelper(String pathToFile, String content) throws IOException {
+        FileWriter fileWriter = new FileWriter(pathToFile, false);
         fileWriter.write(content);
         fileWriter.flush();
         fileWriter.close();
+    }
+
+    /**
+     * Save project to a zipfile
+     */
+    public void saveProjectVersion() {
+
     }
 
 
