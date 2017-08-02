@@ -28,8 +28,6 @@ import java.util.List;
  * Created by sarah on 8/22/16.
  */
 
-// REVIEW: Perhaps this should really be a collection of static functions.
-// The singleton pattern does not seem to be really followed everywhere.
 
 public class ProjectFacade {
 
@@ -53,23 +51,13 @@ public class ProjectFacade {
       return instance;
     }
 
-    private int getGeneralPVCCounter() {
-        return generalPVCCounter;
-    }
-
-    private void setGeneralPVCCounter(int generalPVCCounter) {
-        this.generalPVCCounter += generalPVCCounter;
-    }
-
-    // REVIEW: "throws Exception" is usually not a very good idea.
-    // TODO Treat exceptions correctly after resolving visitations!
-
     /**
      * Build a new Project
      * @param dir
      * @return
+     * //TODO Create Parsing Exception for config file
      */
-    public Project buildProject(File dir) throws FileNotFoundException, Exception {
+    public static Project buildProject(File dir) throws FileNotFoundException, Exception {
         Project p = null;
         ProjectBuilder pb = new ProjectBuilder();
         pb.setDir(dir);
@@ -86,33 +74,60 @@ public class ProjectFacade {
         return p;
     }
 
+    /**
+     * Build a new Project
+     *
+     * @param configFile path to configuration file
+     * @return //TODO Create Parsing Exception for config file
+     */
+    public static Project buildProjectWithConfigFile(File configFile) throws FileNotFoundException, Exception {
+        Project p = null;
+        ProjectBuilder pb = new ProjectBuilder();
+        pb.setDir(configFile.getParentFile());
+        pb.setConfigFilename(configFile.getName());
+        pb.parseProjectConfigurationFile();
+        p = pb.build();
 
+        ArrayList<DafnyException> exceptions = new ArrayList<>();
+        ReferenceResolutionVisitor refResolver = new ReferenceResolutionVisitor(p, exceptions);
+        refResolver.visitProject();
+
+        TypeResolution typeRes = new TypeResolution(exceptions);
+        typeRes.visitProject(p);
+
+        return p;
+    }
 
     /**
      * Perform Symbolic Execution of a given DafnyTree (method)
      * @param decl  DafnyDecl representing a method
      * @return
      */
-    public List<SymbexPath> performSymbolicExecution(DafnyDecl decl){
+    public static List<SymbexPath> performSymbolicExecution(DafnyDecl decl) {
 
         Symbex symbex = new Symbex();
         List<SymbexPath> result = symbex.symbolicExecution(decl.getRepresentation());
         return result;
-
-
     }
 
-
-    public ProofNode createProofRoot(SymbexPath path){
+    public static ProofNode createProofRoot(SymbexPath path) {
         return null;
     }
 
-    public void translateToDafny(PVC verificationCondition){
+    public static void translateToDafny(PVC verificationCondition) {
         DafnyTranslator trans = new DafnyTranslator(verificationCondition, 1);
         //return file to which it will be translated
     }
 
-    public ScriptTree getScriptFor(int pvcId){
+    public static ScriptTree getScriptFor(int pvcId) {
         return null;
+    }
+
+    private int getGeneralPVCCounter() {
+        return generalPVCCounter;
+    }
+
+    private void setGeneralPVCCounter(int generalPVCCounter) {
+        this.generalPVCCounter += generalPVCCounter;
     }
 }

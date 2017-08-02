@@ -10,9 +10,6 @@ import edu.kit.iti.algover.term.Term;
 
 public class InlineSequenter extends UpdateSequenter {
 
-    private static final LetInlineVisitor LET_INLINE_VISITOR =
-            new LetInlineVisitor();
-
     @Override
     public String getName() {
         return "inline";
@@ -27,7 +24,7 @@ public class InlineSequenter extends UpdateSequenter {
     protected ProofFormula postProcess(ProofFormula formula) {
         Term term = formula.getTerm();
         try {
-            term = term.accept(LET_INLINE_VISITOR, null);
+            term = LetInlineVisitor.inline(term);
         } catch (TermBuildException e) {
             // have an exception concept here!
             e.printStackTrace();
