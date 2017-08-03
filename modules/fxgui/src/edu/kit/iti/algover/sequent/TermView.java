@@ -23,49 +23,68 @@ import java.util.OptionalInt;
 public class TermView extends CodeArea {
 
     private final Term term;
-    private final AnnotatedString str;
     private final TermViewListener listener;
+    private AnnotatedString annotatedString;
 
     public TermView(Term term, TermViewListener listener) {
         super("");
-        getStyleClass().add("term-view");
 
         this.term = term;
         this.listener = listener;
-        PrettyPrint p = new PrettyPrint();
-        this.str = p.print(term, 40);
+
+        getStyleClass().add("term-view");
         setFocusTraversable(false);
-
-        String prettyPrinted = str.toString();
-
-        // This is a hack, but it seems to be impossible without it...
-        Bounds bounds = TextUtil.computeTextBounds(prettyPrinted, getStyleClass(), getStylesheets());
-
-        replaceText(0, getLength(), prettyPrinted);
-
         setEditable(false);
 
-        final double safetyPadding = 1.1; // 10%, this is such a hack ... :(
-        double neededWidth  = safetyPadding * (bounds.getWidth()
-            + getPadding().getLeft() + getPadding().getRight()
-            + getInsets().getLeft() + getInsets().getRight());
-        double neededHeight = safetyPadding * (bounds.getHeight()
-            + getPadding().getBottom() + getPadding().getTop()
-            + getInsets().getBottom() + getInsets().getTop());
+        relayout();
 
-        setMinSize(neededWidth, neededHeight);
-        setPrefSize(neededWidth, neededHeight);
-
-        setOnMouseMoved(this::updateHighlghting);
+        setOnMouseMoved(this::updateHighlighting);
         setOnMousePressed(this::handleClick);
         setOnMouseExited(event -> clearStyle(0, getLength()));
+    }
+
+    private void relayout() {
+        String prettyPrinted = calculateText();
+        double neededHeight = calculateNeededHeight(prettyPrinted);
+
+        replaceText(0, getLength(), prettyPrinted);
+        setMinHeight(neededHeight);
+        setPrefHeight(neededHeight);
+        setHeight(neededHeight);
+    }
+
+    // Calculates text and updates annotatedString
+    private String calculateText() {
+        // Find out how many characters the text can be wide:
+        Bounds mChar = TextUtil.computeTextBounds("m", getStyleClass(), getStylesheets());
+
+        double charWidth = mChar.getWidth();
+
+        int charsFitting = (int) (getWidth() / charWidth);
+
+        // Prettyprint the term with the given amount of char width
+        PrettyPrint p = new PrettyPrint();
+        this.annotatedString = p.print(term, Math.max(20, charsFitting));
+
+        return annotatedString.toString();
+    }
+
+    private double calculateNeededHeight(String text) {
+        // This is a hack, but it seems to be impossible without it...
+        Bounds bounds = TextUtil.computeTextBounds(text, getStyleClass(), getStylesheets());
+
+        final double safetyPadding = 1.1; // 10%, this is such a hack ... :(
+
+        return safetyPadding * (bounds.getHeight()
+            + getPadding().getBottom() + getPadding().getTop()
+            + getInsets().getBottom() + getInsets().getTop());
     }
 
     private void handleClick(MouseEvent mouseEvent) {
         CharacterHit hit = hit(mouseEvent.getX(), mouseEvent.getY());
         OptionalInt charIdx = hit.getCharacterIndex();
         if (charIdx.isPresent()) {
-            AnnotatedString.TermElement elem = str.getTermElementAt(charIdx.getAsInt());
+            AnnotatedString.TermElement elem = annotatedString.getTermElementAt(charIdx.getAsInt());
             SubtermSelector subtermSelector = elem.getSubtermSelector();
             listener.handleClickOnSubterm(term, subtermSelector);
         } else {
@@ -74,11 +93,11 @@ public class TermView extends CodeArea {
         }
     }
 
-    private void updateHighlghting(MouseEvent mouseEvent) {
+    private void updateHighlighting(MouseEvent mouseEvent) {
         CharacterHit hit = hit(mouseEvent.getX(), mouseEvent.getY());
         OptionalInt charIdx = hit.getCharacterIndex();
         if (charIdx.isPresent()) {
-            AnnotatedString.TermElement elem = str.getTermElementAt(charIdx.getAsInt());
+            AnnotatedString.TermElement elem = annotatedString.getTermElementAt(charIdx.getAsInt());
             clearStyle(0, getLength());
             setStyleClass(elem.getBegin(), elem.getEnd(), "highlighted");
             mouseEvent.consume();
@@ -86,4 +105,10 @@ public class TermView extends CodeArea {
             clearStyle(0, getLength());
         }
     }
+
+    protected void layoutChildren() {
+        super.layoutChildren();
+        relayout();
+    }
+
 }
