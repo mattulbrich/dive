@@ -79,6 +79,7 @@ public class ProjectManagerTest {
         Assert.assertEquals(t.getSubterms().size(), testTerm.getSubterms().size());
 
         Proof proof = pm.getProofForPVC(testPVCName);
+
         Assert.assertEquals("Proof is not loaded yet", proof.getProofStatus(), ProofStatus.NOT_LOADED);
         //Assert.assertEquals(Status.DIRTY, proof.getStatus());
         pm.replayAllProofs();

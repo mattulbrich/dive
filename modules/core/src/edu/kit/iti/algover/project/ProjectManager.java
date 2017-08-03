@@ -9,8 +9,11 @@ import edu.kit.iti.algover.proof.ProofStatus;
 import javafx.beans.property.SimpleObjectProperty;
 
 import java.io.File;
-import java.io.FileWriter;
 import java.io.IOException;
+import java.io.Writer;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -118,7 +121,7 @@ public class ProjectManager {
     /**
      * Replay all available proofs
      */
-    public void replayAllProofs() {
+    public void replayAllProofs() throws IOException {
         saveProject();
         //save everything before replay
         for (Proof proof : allProofs.values()) {
@@ -137,8 +140,16 @@ public class ProjectManager {
     /**
      * Save the whole Project contents
      */
-    public void saveProject() {
-        saveProjectVersion();
+    public void saveProject() throws IOException {
+        for (Map.Entry<String, Proof> pvcProofEntry : allProofs.entrySet()) {
+            String pvcName = pvcProofEntry.getKey();
+            Proof proof = pvcProofEntry.getValue();
+            //proof.getScriptASTNode
+            //ScriptHelper.visitASTNODE -> String content
+            String content = "DummyContent";
+            saveToScriptFile(pvcName, content);
+        }
+
     }
 
     /**
@@ -165,17 +176,24 @@ public class ProjectManager {
     }
 
     private void saverHelper(String pathToFile, String content) throws IOException {
-        FileWriter fileWriter = new FileWriter(pathToFile, false);
-        fileWriter.write(content);
-        fileWriter.flush();
-        fileWriter.close();
+        Path path = Paths.get(pathToFile);
+        Writer writer;
+        if (Files.exists(path)) {
+            writer = Files.newBufferedWriter(path);
+        } else {
+            Path file = Files.createFile(path);
+            writer = Files.newBufferedWriter(file);
+        }
+        writer.write(content);
+        writer.flush();
+        writer.close();
     }
 
     /**
      * Save project to a zipfile
      */
-    public void saveProjectVersion() {
-
+    public void saveProjectVersion() throws IOException {
+        saveProject();
     }
 
 
