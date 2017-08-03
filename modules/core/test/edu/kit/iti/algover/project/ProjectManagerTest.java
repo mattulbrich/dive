@@ -75,6 +75,7 @@ public class ProjectManagerTest {
         Term sequentTerm = s.getSuccedent().get(0).getTerm();
         Term t = sequentTerm.getSubterms().get(0);
 
+
         Assert.assertEquals(t.getSort(), testTerm.getSort());
         Assert.assertEquals(t.getSubterms().size(), testTerm.getSubterms().size());
 

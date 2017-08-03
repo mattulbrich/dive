@@ -1,7 +1,9 @@
 package edu.kit.iti.algover.project;
 
 import com.google.common.annotations.VisibleForTesting;
-import edu.kit.iti.algover.facade.ProjectFacade;
+import edu.kit.iti.algover.parser.DafnyException;
+import edu.kit.iti.algover.parser.ReferenceResolutionVisitor;
+import edu.kit.iti.algover.parser.TypeResolution;
 import edu.kit.iti.algover.proof.PVC;
 import edu.kit.iti.algover.proof.PVCGroup;
 import edu.kit.iti.algover.proof.Proof;
@@ -9,11 +11,13 @@ import edu.kit.iti.algover.proof.ProofStatus;
 import javafx.beans.property.SimpleObjectProperty;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.Writer;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -45,6 +49,30 @@ public class ProjectManager {
      *
      *************************************************************************************************/
 
+    /**
+     * Build a new Project
+     *
+     * @param pathToConfig to config file
+     * @return new Project object
+     * //TODO Create Parsing Exception for config file
+     */
+    private static Project buildProject(Path pathToConfig) throws FileNotFoundException, Exception {
+        Project p = null;
+        ProjectBuilder pb = new ProjectBuilder();
+        pb.setDir(pathToConfig.normalize().getParent().toAbsolutePath().toFile());
+        pb.setConfigFilename(pathToConfig.getFileName().toString());
+        pb.parseProjectConfigurationFile();
+        p = pb.build();
+
+        ArrayList<DafnyException> exceptions = new ArrayList<>();
+        ReferenceResolutionVisitor refResolver = new ReferenceResolutionVisitor(p, exceptions);
+        refResolver.visitProject();
+
+        TypeResolution typeRes = new TypeResolution(exceptions);
+        typeRes.visitProject(p);
+
+        return p;
+    }
 
     /**
      * Load a Project from a given config file and set the property for the project
@@ -54,7 +82,7 @@ public class ProjectManager {
     public void loadProject(File config) throws Exception {
         this.configFile = config;
         Project p = null;
-        p = ProjectFacade.getInstance().buildProjectWithConfigFile(config);
+        p = buildProject(config.toPath());
         this.allPVCs = p.generateAndCollectPVC();
         this.allStrippedPVCs = p.getPvcCollectionByName();
         this.setProject(p);

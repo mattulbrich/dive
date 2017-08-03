@@ -27,8 +27,8 @@ import java.util.List;
  * Interface to create a project, to reload a project and do other project related stuff
  * Created by sarah on 8/22/16.
  */
-
-
+//Use ProjectManager instead
+@Deprecated
 public class ProjectFacade {
 
     /**
@@ -74,29 +74,7 @@ public class ProjectFacade {
         return p;
     }
 
-    /**
-     * Build a new Project
-     *
-     * @param configFile path to configuration file
-     * @return //TODO Create Parsing Exception for config file
-     */
-    public static Project buildProjectWithConfigFile(File configFile) throws FileNotFoundException, Exception {
-        Project p = null;
-        ProjectBuilder pb = new ProjectBuilder();
-        pb.setDir(configFile.getParentFile());
-        pb.setConfigFilename(configFile.getName());
-        pb.parseProjectConfigurationFile();
-        p = pb.build();
 
-        ArrayList<DafnyException> exceptions = new ArrayList<>();
-        ReferenceResolutionVisitor refResolver = new ReferenceResolutionVisitor(p, exceptions);
-        refResolver.visitProject();
-
-        TypeResolution typeRes = new TypeResolution(exceptions);
-        typeRes.visitProject(p);
-
-        return p;
-    }
 
     /**
      * Perform Symbolic Execution of a given DafnyTree (method)
