@@ -25,6 +25,7 @@ public class TermView extends CodeArea {
     private final Term term;
     private final TermViewListener listener;
     private AnnotatedString annotatedString;
+    private AnnotatedString.TermElement highlightedElement;
 
     public TermView(Term term, TermViewListener listener) {
         super("");
@@ -40,7 +41,10 @@ public class TermView extends CodeArea {
 
         setOnMouseMoved(this::updateHighlighting);
         setOnMousePressed(this::handleClick);
-        setOnMouseExited(event -> clearStyle(0, getLength()));
+        setOnMouseExited(event -> {
+            highlightedElement = null;
+            clearStyle(0, getLength());
+        });
     }
 
     private void relayout() {
@@ -48,6 +52,9 @@ public class TermView extends CodeArea {
         double neededHeight = calculateNeededHeight(prettyPrinted);
 
         replaceText(0, getLength(), prettyPrinted);
+        if (highlightedElement != null) {
+            setStyleClass(highlightedElement.getBegin(), highlightedElement.getEnd(), "highlighted");
+        }
         setMinHeight(neededHeight);
         setPrefHeight(neededHeight);
         setHeight(neededHeight);
@@ -97,10 +104,9 @@ public class TermView extends CodeArea {
         CharacterHit hit = hit(mouseEvent.getX(), mouseEvent.getY());
         OptionalInt charIdx = hit.getCharacterIndex();
         if (charIdx.isPresent()) {
-            AnnotatedString.TermElement elem = annotatedString.getTermElementAt(charIdx.getAsInt());
+            highlightedElement = annotatedString.getTermElementAt(charIdx.getAsInt());
             clearStyle(0, getLength());
-            setStyleClass(elem.getBegin(), elem.getEnd(), "highlighted");
-            mouseEvent.consume();
+            setStyleClass(highlightedElement.getBegin(), highlightedElement.getEnd(), "highlighted");
         } else {
             clearStyle(0, getLength());
         }
