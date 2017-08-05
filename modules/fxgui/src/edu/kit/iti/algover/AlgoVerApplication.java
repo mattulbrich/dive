@@ -29,7 +29,7 @@ public class AlgoVerApplication extends Application {
         // Let user choose a project directory
         DirectoryChooser chooser = new DirectoryChooser();
         chooser.setTitle("Choose project");
-        chooser.setInitialDirectory(new File("modules/fxgui/test-res/edu/kit/iti/algover"));
+        chooser.setInitialDirectory(new File("doc/examples"));
         File projectDir = chooser.showDialog(primaryStage);
 
         // Read all PVCs and update GUI
