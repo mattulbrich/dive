@@ -19,6 +19,7 @@ import edu.kit.iti.algover.symbex.ProgramDatabaseTest;
 import edu.kit.iti.algover.symbex.SymbexTest;
 import edu.kit.iti.algover.term.FunctionSymbolFamilyTest;
 import edu.kit.iti.algover.term.SortTest;
+import edu.kit.iti.algover.term.builder.InlineSequenterTest;
 import edu.kit.iti.algover.term.builder.LetInlineVisitorTest;
 import edu.kit.iti.algover.term.builder.ReplacementVisitorTest;
 import edu.kit.iti.algover.term.builder.TreeTermTranslationNoetherTest;
@@ -51,6 +52,7 @@ import edu.kit.iti.algover.util.UtilTest;
     ProgramDatabaseTest.class,
     UtilTest.class,
     UpdateSequenterTest.class,
+    InlineSequenterTest.class,
     PrettyPrintTest.class,
     })
 public class Tests {

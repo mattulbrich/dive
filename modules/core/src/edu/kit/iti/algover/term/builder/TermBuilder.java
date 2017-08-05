@@ -27,7 +27,7 @@ public class TermBuilder {
     }
 
     public final Term negate(Term t) throws TermBuildException {
-        return new ApplTerm(BuiltinSymbols.NEG, t);
+        return new ApplTerm(BuiltinSymbols.NOT, t);
     }
 
     /**

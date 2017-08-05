@@ -52,6 +52,7 @@ public class ReferenceResolutionVisitorTest {
                 "(CALL mc d (ARGS d))",
                 "(var a Unknown)",
                 "(FIELD_ACCESS a f)",
+                "(== local 0)",
         };
 
         List<DafnyException> exceptions = rrv.getExceptions();

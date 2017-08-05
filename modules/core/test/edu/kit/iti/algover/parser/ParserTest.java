@@ -58,6 +58,7 @@ public class ParserTest {
                 { "typeParameters.dfy" },
                 { "saddleback.dfy" },
                 { "../term/builder/sequenterTest.dfy" },
+                { "../symbex/noetherTest.dfy" },
                 });
     }
 

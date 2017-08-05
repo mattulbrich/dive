@@ -31,7 +31,8 @@ public class UpdateSequenter implements PVCSequenter {
     }
 
     @Override
-    public final Sequent translate(SymbexPath pathThroughProgram, SymbolTable makeSymbolTable) throws DafnyException {
+    public final Sequent translate(SymbexPath pathThroughProgram,
+            SymbolTable makeSymbolTable) throws DafnyException {
 
         TreeTermTranslator ttt = new TreeTermTranslator(makeSymbolTable);
         List<ProofFormula> ante = new ArrayList<>();
@@ -51,7 +52,8 @@ public class UpdateSequenter implements PVCSequenter {
         assert pathThroughProgram.getProofObligations().size() == 1;
         AssertionElement assertion = pathThroughProgram.getProofObligations().getHead();
         try {
-            Term term = ttt.build(pathThroughProgram.getAssignmentHistory(), assertion.getExpression());
+            Term term = ttt.build(pathThroughProgram.getAssignmentHistory(),
+                    assertion.getExpression());
             ProofFormula formula = new ProofFormula(id++, term);
             formula = postProcess(formula);
             List<ProofFormula> succ = Collections.singletonList(formula);

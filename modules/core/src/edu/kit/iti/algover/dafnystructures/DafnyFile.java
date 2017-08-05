@@ -12,6 +12,8 @@ import edu.kit.iti.algover.parser.DafnyException;
 
 /**
  * A file containting dafny declarations.
+ * @author Sarah Grebing
+ * @author Mattias Ulbrich
  */
 public class DafnyFile extends DafnyDecl {
 

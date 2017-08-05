@@ -8,6 +8,7 @@ package edu.kit.iti.algover.symbex;
 import java.util.ArrayList;
 import java.util.Deque;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
@@ -33,14 +34,15 @@ import edu.kit.iti.algover.util.ImmutableList;
 public class Symbex {
 
     /**
-     * The designated variable that represents the heap.
+     * This dummy node is used to indicate that the heap variable has been
+     * assigned to.
      */
-    public static final String HEAP_VAR = "#h";
+    public static final DafnyTree HEAP_VAR = new DafnyTree(DafnyParser.VAR, "heap");
 
     /**
      * The designated variable that represents decreases clauses.
      */
-    public static final String DECREASES_VAR = "#decr";
+    public static final String DECREASES_VAR = "$decr";
 
     /**
      * The Constant EMPTY_PROGRAM points to an empty AST.
@@ -197,7 +199,6 @@ public class Symbex {
         DafnyTree guard = stm.getChild(isLabel ? 1 : 0);
         DafnyTree body = stm.getLastChild();
         DafnyTree decreasesClause = stm.getFirstChildWithType(DafnyParser.DECREASES);
-        DafnyTree decreases = decreasesClause.getChild(0);
         // TODO reenable this for lexigraphic decreases clauses.
 //        DafnyTree decreases = toListExt(decreasesClause);
         List<DafnyTree> invariants = stm.getChildrenWithType(DafnyParser.INVARIANT);
@@ -212,9 +213,8 @@ public class Symbex {
         // 2. preserves invariant:
         // 2a. assume invariants
         SymbexPath preservePath = new SymbexPath(state);
-        DafnyTree decreaseVar = makeDecreaseVar(preservePath, stm);
         anonymise(preservePath, body);
-        preservePath.addAssignment(ASTUtil.assign(decreaseVar, decreases));
+        List<DafnyTree> decreaseVars = introduceDecreasesVars(stm, decreasesClause, preservePath);
         for (DafnyTree inv : invariants) {
             preservePath.addPathCondition(inv.getLastChild(), inv,
                     AssumptionType.ASSUMED_INVARIANT);
@@ -231,7 +231,9 @@ public class Symbex {
                 AssertionType.INVARIANT_PRESERVED);
 
         // 2c. show decreases clause:
-        DafnyTree decrReduced = ASTUtil.noetherLess(decreaseVar, decreases);
+        DafnyTree decrReduced = ASTUtil.noetherLess(
+                ASTUtil.listExpr(decreaseVars),
+                ASTUtil.listExpr(decreasesClause.getChildren()));
         AssertionElement decrProof = new AssertionElement(decrReduced, decreasesClause,
                 AssertionType.VARIANT_DECREASED);
         ImmutableList<AssertionElement> oldPOs = preservePath.getProofObligations();
@@ -248,13 +250,15 @@ public class Symbex {
         stack.add(state);
     }
 
-    /*
-     * Put decreases list into a list expression
-     */
-    private DafnyTree toListExt(DafnyTree decreases) {
-        DafnyTree list = new DafnyTree(DafnyParser.LISTEX);
-        list.addChildren(decreases.getChildren());
-        return list;
+    private List<DafnyTree> introduceDecreasesVars(DafnyTree stm, DafnyTree decreases, SymbexPath preservePath) {
+
+        List<DafnyTree> result = new ArrayList<>();
+        for (DafnyTree dec : decreases.getChildren()) {
+            DafnyTree decreaseVar = makeDecreaseVar(preservePath, stm);
+            preservePath.addAssignment(ASTUtil.assign(decreaseVar, dec));
+            result.add(decreaseVar);
+        }
+        return result;
     }
 
     /*
@@ -263,27 +267,12 @@ public class Symbex {
      * Add it to the declarations list and return its name.
      */
     private DafnyTree makeDecreaseVar(SymbexPath path, DafnyTree stm) {
-        Set<String> names = new HashSet<>();
-        for (LocalVarDecl tree : path.getDeclaredLocalVars()) {
-            names.add(tree.getName());
-        }
-
-        int cnt = 1;
-        String name = DECREASES_VAR;
-        while (names.contains(name)) {
-            name = DECREASES_VAR + cnt;
-            cnt++;
-        }
 
         // TODO go beyond integer here ...
         DafnyTree intType = new DafnyTree(DafnyParser.INT, "int");
-        path.addDeclaredLocalVar(new LocalVarDecl(name, intType, stm));
+        DafnyTree result = ASTUtil.freshVariable(DECREASES_VAR, intType, path);
 
-        DafnyTree id = ASTUtil.id(name);
-        DafnyTree ref = ASTUtil.varDecl(id, intType);
-
-        return ASTUtil.id(name, ref);
-
+        return result;
     }
 
     /*
@@ -336,10 +325,15 @@ public class Symbex {
      * @return the updated variable map
      */
     private void anonymise(SymbexPath path, DafnyTree body) {
-        Set<String> vars = new HashSet<String>();
+        Set<DafnyTree> vars = new HashSet<>();
         collectAssignedVars(body, vars);
-        for (String var : vars) {
-            path.addAssignment(ASTUtil.anonymise(var));
+        for (DafnyTree var : vars) {
+            if(var != HEAP_VAR) {
+                path.addAssignment(ASTUtil.anonymise(var));
+            }
+        }
+        if(vars.contains(HEAP_VAR)) {
+            path.addAssignment(ASTUtil.anonymiseHeap(path));
         }
     }
 
@@ -353,13 +347,21 @@ public class Symbex {
      * @param vars
      *            the set of variables to which to add found instances.
      */
-    private void collectAssignedVars(DafnyTree tree, Set<String> vars) {
+    private void collectAssignedVars(DafnyTree tree, Set<DafnyTree> vars) {
         switch (tree.getType()) {
         case DafnyParser.ASSIGN:
-            switch(tree.getChild(0).getType()) {
+            DafnyTree receiver = tree.getChild(0);
+            switch(receiver.getType()) {
             case DafnyParser.ID:
-                vars.add(tree.getChild(0).toString());
-                break;
+                switch(receiver.getDeclarationReference().getType()) {
+                case DafnyParser.VAR:
+                    vars.add(receiver.getDeclarationReference());
+                    break;
+                case DafnyParser.FIELD:
+                    vars.add(HEAP_VAR);
+                    break;
+                default: throw new Error(tree.toString());
+                }
             case DafnyParser.ARRAY_ACCESS:
             case DafnyParser.FIELD_ACCESS:
                 vars.add(HEAP_VAR);
@@ -372,8 +374,9 @@ public class Symbex {
             // TODO revise
             DafnyTree res = tree.getFirstChildWithType(DafnyParser.RESULTS);
             for (DafnyTree r : res.getChildren()) {
-                vars.add(r.toString());
+                vars.add(r.getDeclarationReference());
             }
+            // TODO Add check if method is strictly pure.
             vars.add(HEAP_VAR);
             break;
 
@@ -447,6 +450,8 @@ public class Symbex {
     /**
      * Create the initial symbolic execution state from the preconditions.
      *
+     * Add assignment to modifies variable.
+     *
      * @param function
      *            the function to analyse
      * @return the initial symbolic execution state
@@ -458,10 +463,19 @@ public class Symbex {
             result.addPathCondition(req.getLastChild(), req, AssumptionType.PRE);
         }
 
-        result.setBlockToExecute(function.getLastChild());
         result.setProofObligationsFromLastChild(
                 function.getChildrenWithType(DafnyParser.ENSURES),
                 AssertionType.POST);
+
+        DafnyTree modifies = function.getFirstChildWithType(DafnyParser.MODIFIES);
+        if(modifies == null) {
+            result.addAssignment(ASTUtil.assign(ASTUtil.builtInVar("$mod"),
+                    ASTUtil.builtInVar("$everything")));
+        } else {
+            result.addAssignment(ASTUtil.assign(ASTUtil.builtInVar("$mod"),
+                    modifies.getLastChild()));
+        }
+
 
         return result;
     }

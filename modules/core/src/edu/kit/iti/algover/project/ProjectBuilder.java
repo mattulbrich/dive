@@ -139,19 +139,22 @@ public class ProjectBuilder {
         return this;
     }
 
+    public void parseProjectConfigurationFile() throws IOException {
+        parseProjectConfigurationFile(new File(this.getDir() + "/" + getConfigFilename()));
+    }
 
     /**
      * This method invokes the problemloader to load and parse the project
      * configuration file.
-     *
+     * @param configFile absolute PPath to configuration file
      * @throws IOException
      * @throws RecognitionException
      *             TODO error handling
      */
-    public void parseProjectConfigurationFile() throws IOException {
+    public void parseProjectConfigurationFile(File configFile) throws IOException {
 
-        File absolutePath = new File(this.getDir() + "/" + getConfigFilename());
-        Configuration config = ConfigXMLLoader.loadConfigFile(absolutePath);
+
+        Configuration config = ConfigXMLLoader.loadConfigFile(configFile);
 
         if (config.getDafnyFiles() != null) {
             config.getDafnyFiles().stream().forEach(file -> {

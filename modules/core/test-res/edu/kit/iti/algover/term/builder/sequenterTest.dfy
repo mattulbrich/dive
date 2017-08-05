@@ -1,6 +1,7 @@
-method m(p : int) returns (r:int)
+method m(p : int, m : set<object>) returns (r:int)
   requires p > 0
   ensures r > 0
+  modifies m
 {
   var local : int;
   local := p;

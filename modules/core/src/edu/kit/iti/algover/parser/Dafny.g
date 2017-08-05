@@ -87,6 +87,7 @@ METHOD: 'method';
 MODIFIES: 'modifies';
 NULL: 'null';
 // PREDICATE : 'predicate';
+OBJECT : 'object';
 REQUIRES: 'requires';
 RETURN : 'return';
 RETURNS : 'returns';
@@ -171,7 +172,7 @@ method:
   '{' statements? '}'
   ->
     ^(METHOD[tok] ID ^(ARGS vars?) returns_? requires* ensures*
-        decreases? ^(BLOCK statements?))
+        decreases? modifies? ^(BLOCK statements?))
   ;
 
 function:
@@ -201,7 +202,7 @@ var:
 
 // one day this will be "id_param"
 type:
-    INT | BOOL
+    INT | BOOL | OBJECT
   | SET^ '<'! type '>'!
   | ARRAY^ '<'! type '>'!
   | SEQ^ '<'! type '>'!

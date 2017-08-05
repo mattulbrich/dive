@@ -8,6 +8,7 @@ package edu.kit.iti.algover.parser;
 
 import edu.kit.iti.algover.dafnystructures.DafnyFile;
 import edu.kit.iti.algover.project.Project;
+import edu.kit.iti.algover.util.LabelIntroducer;
 
 public class SyntacticSugarVistor {
 
@@ -27,6 +28,7 @@ public class SyntacticSugarVistor {
 
     public static void visit(DafnyTree t) {
         t.accept(new ParameterContractionVisitor(), null);
+        t.accept(new LabelIntroducer(), null);
     }
 
 

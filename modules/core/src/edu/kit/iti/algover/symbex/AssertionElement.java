@@ -7,7 +7,6 @@ package edu.kit.iti.algover.symbex;
 
 import edu.kit.iti.algover.parser.DafnyTree;
 import edu.kit.iti.algover.util.ASTUtil;
-import edu.kit.iti.algover.util.ImmutableList;
 
 /**
  * The Class PathCondition captures a single element of a path condition.
@@ -99,8 +98,6 @@ public class AssertionElement {
      *            the syntax element to refer to
      * @param type
      *            the type of the element
-     * @param assignmentHistory
-     *            the state in which it is explored
      */
     public AssertionElement(DafnyTree expression, DafnyTree refersTo, AssertionType type) {
 
