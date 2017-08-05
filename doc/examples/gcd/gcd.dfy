@@ -7,7 +7,6 @@ method gcd(a: int, b: int) returns (r: int)
         //Init
         r := a;
         x := b;
-
         while (r != x)
         invariant x > 0
         invariant r > 0
