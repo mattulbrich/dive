@@ -45,6 +45,8 @@ import nonnull.Nullable;
  * checked by assertions.
  *
  * @see TermSelector
+ *
+ * @author mulbrich
  */
 public final class SubtermSelector implements Comparable<SubtermSelector> {
 
@@ -301,15 +303,15 @@ public final class SubtermSelector implements Comparable<SubtermSelector> {
      *
      * @return the subterm of <code>term</code> specified by this selector
      *
-     * @throws ProofException
+     * @throws RuleException
      *             if the selection cannot be applied to the term.
      */
-    public Term selectSubterm(@NonNull Term term) throws Exception {
+    public Term selectSubterm(@NonNull Term term) throws RuleException {
 
         for (int i = 0; i < selectorInfo.length; i++) {
             byte subtermNo = selectorInfo[i];
             if(subtermNo >= term.countTerms()) {
-                throw new Exception("Cannot select " + subtermNo + " in "
+                throw new RuleException("Cannot select " + subtermNo + " in "
                         + term + " for " + this);
             }
 

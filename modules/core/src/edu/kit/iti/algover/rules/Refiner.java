@@ -5,8 +5,8 @@
  */
 package edu.kit.iti.algover.rules;
 
-public @interface Parameter {
+public interface Refiner {
 
-    String value();
+    ProofRuleApplication refine(ProofRuleApplication original, Parameters additionalParameters);
 
 }
