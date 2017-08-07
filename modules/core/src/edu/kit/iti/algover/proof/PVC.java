@@ -7,7 +7,6 @@ package edu.kit.iti.algover.proof;
 
 
 import edu.kit.iti.algover.dafnystructures.DafnyDecl;
-import edu.kit.iti.algover.script.ScriptTree;
 import edu.kit.iti.algover.symbex.SymbexPath;
 import edu.kit.iti.algover.term.Sequent;
 
@@ -32,7 +31,7 @@ public class PVC {
     /**
      * local script of pvc
      */
-    private ScriptTree localScript;
+    //private ScriptTree localScript;
 
     /**
      * Instantiates a new PVC. The informations are taken from a builder object.
@@ -55,9 +54,9 @@ public class PVC {
         return pvcID;
     }
 
-    public ScriptTree getLocalScript() {
+ /*   public ScriptTree getLocalScript() {
         return localScript;
-    }
+    }*/
 
     public SymbexPath getPathThroughProgram() {
         return pathThroughProgram;

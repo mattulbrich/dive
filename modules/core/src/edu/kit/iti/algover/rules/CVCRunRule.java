@@ -5,17 +5,10 @@
  */
 package edu.kit.iti.algover.rules;
 
-import edu.kit.iti.algover.proof.ProofFormula;
 import edu.kit.iti.algover.rules.ProofRuleApplication.Applicability;
-import edu.kit.iti.algover.script.ScriptTree;
-import edu.kit.iti.algover.smt.Z3Solver;
 import edu.kit.iti.algover.term.Sequent;
 
 public class CVCRunRule implements ProofRule<CVCRunRule.CVCArgs> {
-
-    public static class CVCArgs {
-        @Parameter("to") int timeout;
-    }
 
     @Override
     public String getName() {
@@ -46,10 +39,15 @@ public class CVCRunRule implements ProofRule<CVCRunRule.CVCArgs> {
                 });
     }
 
-    @Override
+    public static class CVCArgs {
+        @Parameter("to")
+        int timeout;
+    }
+
+/*    @Override
     public CVCArgs parseArguments(ScriptTree tree) {
         // TODO Auto-generated method stub
         return null;
-    }
+    }*/
 
 }

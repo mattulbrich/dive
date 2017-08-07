@@ -5,17 +5,12 @@
  */
 package edu.kit.iti.algover.rules;
 
-import edu.kit.iti.algover.script.ScriptTree;
 import edu.kit.iti.algover.term.Sequent;
 
 /**
  * Created by sarah on 11/2/15.
  */
 public class AndRight extends AbstractProofRule<AndRight.Parameters> {
-
-    public class Parameters {
-        @Parameter("deep") boolean deep;
-    }
 
     @Override
     public String getName() {
@@ -44,11 +39,16 @@ public class AndRight extends AbstractProofRule<AndRight.Parameters> {
         return null;
     }
 
+    public class Parameters {
+        @Parameter("deep")
+        boolean deep;
+    }
 
 
-    @Override
+
+   /* @Override
     public Parameters parseArguments(ScriptTree tree) {
         // TODO Auto-generated method stub
         return null;
-    }
+    }*/
 }

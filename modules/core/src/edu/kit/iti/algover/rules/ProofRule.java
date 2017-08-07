@@ -5,7 +5,6 @@
  */
 package edu.kit.iti.algover.rules;
 
-import edu.kit.iti.algover.script.ScriptTree;
 import edu.kit.iti.algover.term.Sequent;
 import nonnull.NonNull;
 import nonnull.Nullable;
@@ -24,6 +23,6 @@ public interface ProofRule<P> {
             @NonNull Sequent selection,
             @Nullable TermSelector selector) throws RuleException;
 
-    public @NonNull P parseArguments(ScriptTree tree) throws RuleException;
+    /* public @NonNull P parseArguments(ScriptTree tree) throws RuleException;*/
 
 }

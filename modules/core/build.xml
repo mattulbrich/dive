@@ -43,11 +43,13 @@
 		</java>
 	</target>
 	<target name="scriptParser" depends="init">
-		<java jar="${dir.lib}/antlr.jar" fork="true" dir="src" failonerror="true">
-			<arg value="-verbose" />
+		<java jar="${dir.lib}/antlr-4.7-complete.jar" fork="true" dir="src" failonerror="true">
+			<arg value="-visitor"/>
 			<arg value="-o" />
 			<arg value="../gen" />
-			<arg value="edu/kit/iti/algover/script/Script.g" />
+			<arg value="edu/kit/iti/algover/script/ScriptLanguage.g4"/>
+			<arg value="-package"/>
+			<arg value="edu.kit.iti.algover.script"/>
 		</java>
 	</target>
 	<!--<target name="ProjectParser" depends="init">

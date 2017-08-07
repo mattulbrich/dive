@@ -13,7 +13,6 @@ import edu.kit.iti.algover.project.Project;
 import edu.kit.iti.algover.project.ProjectBuilder;
 import edu.kit.iti.algover.proof.PVC;
 import edu.kit.iti.algover.proof.ProofNode;
-import edu.kit.iti.algover.script.ScriptTree;
 import edu.kit.iti.algover.symbex.Symbex;
 import edu.kit.iti.algover.symbex.SymbexPath;
 import edu.kit.iti.algover.theoremprover.DafnyTranslator;
@@ -97,9 +96,9 @@ public class ProjectFacade {
         //return file to which it will be translated
     }
 
-    public static ScriptTree getScriptFor(int pvcId) {
+   /* public static ScriptTree getScriptFor(int pvcId) {
         return null;
-    }
+    }*/
 
     private int getGeneralPVCCounter() {
         return generalPVCCounter;
