@@ -1,3 +1,8 @@
+/*
+ * This file is part of AlgoVer.
+ *
+ * Copyright (C) 2015-2017 Karlsruhe Institute of Technology
+ */
 package edu.kit.iti.algover.model;
 
 import edu.kit.iti.algover.project.Project;
@@ -34,7 +39,7 @@ public class PVCTreeModel implements TreeModel {
     public Object getChild(Object parent, int index) {
         PVCGroup parentPVC = (PVCGroup)parent;
 
-        return parentPVC.getChild(index);
+        return parentPVC.getChildren().get(index);
     }
 
     @Override

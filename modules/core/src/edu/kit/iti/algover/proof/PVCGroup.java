@@ -16,17 +16,13 @@ import java.util.List;
  */
 public class PVCGroup extends PVCCollection {
 
+    // REVIEW: dd is not a good field name
     private final DafnyDecl dd;
     private final List<PVCCollection> children;
 
     public PVCGroup(DafnyDecl dd){
         this.dd = dd;
         this.children = new ArrayList<>();
-    }
-
-
-    public PVCCollection getChild(int i){
-        return children.get(i);
     }
 
     @Override
@@ -45,17 +41,13 @@ public class PVCGroup extends PVCCollection {
     }
 
     @Override
-    public PVCCollection getRoot() {
-        if (getParent() == null) {
-            return this;
-        } else {
-            return getParent().getRoot();
-        }
+    public boolean isPVCLeaf() {
+        return false;
     }
 
     @Override
-    public boolean isPVCLeaf() {
-        return false;
+    public PVC getPVC() {
+        throw new UnsupportedOperationException("This is not a leaf");
     }
 
     @Override

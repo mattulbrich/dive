@@ -18,22 +18,17 @@ import java.util.List;
 public abstract class PVCCollection {
 
     /**
-     * The parent Collection (if the PVCCollection is part of a class or method for example)
+     * The parent Collection (if the PVCCollection is part of a class or method
+     * for example)
      */
     private PVCCollection parent;
 
     /**
-     * Get teh corresponsing DafnyDecl for this PVCCollection
+     * Get the corresponding DafnyDecl for this PVCCollection
      *
      * @return
      */
     public abstract DafnyDecl getDafnyDecl();
-
-    /**
-     * Return the root, inorder to traverse children
-     * @return
-     */
-    public abstract PVCCollection getRoot();
 
     /**
      * If this PVCCollection is a SinglePVC it is a leaf.
@@ -41,6 +36,7 @@ public abstract class PVCCollection {
      */
     public abstract boolean isPVCLeaf();
 
+    public abstract PVC getPVC();
 
     public abstract List<PVCCollection> getChildren();
 
@@ -51,7 +47,5 @@ public abstract class PVCCollection {
     protected void setParent(PVCCollection parent) {
         this.parent = parent;
     }
-
-    public abstract PVCCollection getChild(int i);
 
 }
