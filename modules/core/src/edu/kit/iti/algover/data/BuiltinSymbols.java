@@ -125,6 +125,16 @@ public class BuiltinSymbols extends MapSymbolTable {
     public static final FunctionSymbol MOD =
             new FunctionSymbol("$mod", Sort.get("sort", Sort.OBJECT));
 
+    public static final FunctionSymbolFamily LEN0 =
+            new FunctionSymbolFamily(
+                    new FunctionSymbol("$len0", Sort.INT,
+                            Sort.get("array", FunctionSymbolFamily.VAR1)), 1);
+
+    public static final FunctionSymbolFamily LEN1 =
+            new FunctionSymbolFamily(
+                    new FunctionSymbol("$len1", Sort.INT,
+                            Sort.get("array", FunctionSymbolFamily.VAR1)), 1);
+
     public static final FunctionSymbol NULL =
             new FunctionSymbol("null", Sort.NULL);
 
@@ -175,16 +185,6 @@ public class BuiltinSymbols extends MapSymbolTable {
 
             return family.instantiate(Util.readOnlyArrayList(sorts));
 
-        }
-
-        //
-        // multidim length functions
-        if (name.matches("\\$len[0-9]+")) {
-            String suffix = name.substring(4);
-            int dim = Integer.parseInt(suffix);
-            Sort arraySort = Sort.get("array" + (dim + 1));
-            FunctionSymbol len = new FunctionSymbol(name, Sort.INT, arraySort);
-            return len;
         }
 
         //

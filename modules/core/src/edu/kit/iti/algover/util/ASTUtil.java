@@ -363,4 +363,8 @@ public final class ASTUtil {
         result.addChildren(entries);
         return result;
     }
+
+    public static DafnyTree _false() {
+        return new DafnyTree(DafnyParser.FALSE, "false");
+    }
 }
