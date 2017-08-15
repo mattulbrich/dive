@@ -8,6 +8,9 @@ import edu.kit.iti.algover.dafnystructures.DafnyMethod;
 import edu.kit.iti.algover.project.Project;
 import javafx.scene.control.TreeItem;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.stream.Collectors;
 
 /**
@@ -20,38 +23,31 @@ public class FlatBrowserController extends BrowserController {
     }
 
     protected void populateTreeTable() {
-        TreeTableEntity rootNode = new OtherEntity("root");
+        TreeTableEntity rootEntity = new OtherEntity("root",
+                Arrays.asList(createClassesEntity(), createMethodsEntity()));
 
-        TreeItem<TreeTableEntity> root = new TreeItem<>(rootNode);
+        TreeItem<TreeTableEntity> root = createTreeItem(rootEntity);
         getView().setRoot(root);
         getView().setShowRoot(false);
 
-        root.getChildren().setAll(
-                createClassesTreeItem(),
-                createMethodsTreeItem()
-        );
     }
 
-    private TreeItem<TreeTableEntity> createMethodsTreeItem() {
-        TreeTableEntity methods = new OtherEntity("Methods");
-        TreeItem<TreeTableEntity> methodsItem = new TreeItem<>(methods);
-        methodsItem.getChildren().setAll(
-                getProject().getMethods().stream()
-                    .map(dafnyMethod -> getItemFromMethod(findFileWithMethod(dafnyMethod), dafnyMethod))
-                    .collect(Collectors.toList())
-        );
-        return methodsItem;
+    private TreeTableEntity createMethodsEntity() {
+        List<TreeTableEntity> children = new ArrayList<>();
+        getProject().getMethods().stream()
+            .map(dafnyMethod -> getEntityFromMethod(findFileWithMethod(dafnyMethod), dafnyMethod))
+            .forEach(children::add);
+
+        return new OtherEntity("Methods", children);
     }
 
-    private TreeItem<TreeTableEntity> createClassesTreeItem() {
-        TreeTableEntity classes = new OtherEntity("Classes");
-        TreeItem<TreeTableEntity> classesItem = new TreeItem<>(classes);
-        classesItem.getChildren().setAll(
-                getProject().getClasses().stream()
-                    .map(dafnyClass -> getItemFromClass(findFileWithClass(dafnyClass), dafnyClass))
-                    .collect(Collectors.toList())
-        );
-        return classesItem;
+    private TreeTableEntity createClassesEntity() {
+        List<TreeTableEntity> children = new ArrayList<>();
+        getProject().getClasses().stream()
+            .map(dafnyClass -> getEntityFromClass(findFileWithClass(dafnyClass), dafnyClass))
+            .forEach(children::add);
+
+        return new OtherEntity("Classes", children);
     }
 
     private DafnyFile findFileWithMethod(DafnyMethod dafnyMethod) {

@@ -13,7 +13,7 @@ import javafx.scene.control.TreeTableView;
 public class BrowserTreeTable extends TreeTableView<TreeTableEntity> {
 
     private TreeTableColumn<TreeTableEntity, TreeTableEntity> nameColumn;
-    private TreeTableColumn<TreeTableEntity, TreeTableEntity.ProofStatus> statusColumn;
+    private TreeTableColumn<TreeTableEntity, TreeTableEntity> statusColumn;
     private final TreeTableEntityEngagedListener engagedListener;
 
     public BrowserTreeTable(TreeTableEntityEngagedListener engagedListener) {
@@ -31,16 +31,16 @@ public class BrowserTreeTable extends TreeTableView<TreeTableEntity> {
 
         setColumnResizePolicy(CONSTRAINED_RESIZE_POLICY);
 
-        statusColumn.setMaxWidth(100);
+        statusColumn.setMaxWidth(120);
         statusColumn.setPrefWidth(100);
-        statusColumn.setMinWidth(40);
+        statusColumn.setMinWidth(80);
 
         nameColumn.setMinWidth(100);
 
         super.getColumns().setAll(nameColumn, statusColumn);
     }
 
-    private TreeTableCell<TreeTableEntity, TreeTableEntity.ProofStatus> statusCellRenderer(TreeTableColumn<TreeTableEntity, TreeTableEntity.ProofStatus> treeTableEntityProofStatusTreeTableColumn) {
+    private TreeTableCell<TreeTableEntity, TreeTableEntity> statusCellRenderer(TreeTableColumn<TreeTableEntity, TreeTableEntity> column) {
         return new StatusCell(engagedListener);
     }
 
@@ -52,7 +52,7 @@ public class BrowserTreeTable extends TreeTableView<TreeTableEntity> {
         return data.getValue().valueProperty();
     }
 
-    private ObservableValue<TreeTableEntity.ProofStatus> statusCellFactory(TreeTableColumn.CellDataFeatures<TreeTableEntity, TreeTableEntity.ProofStatus> data) {
-        return data.getValue().getValue().proofStatusProperty();
+    private ObservableValue<TreeTableEntity> statusCellFactory(TreeTableColumn.CellDataFeatures<TreeTableEntity, TreeTableEntity> data) {
+        return data.getValue().valueProperty();
     }
 }

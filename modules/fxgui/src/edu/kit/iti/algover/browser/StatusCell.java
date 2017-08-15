@@ -11,28 +11,25 @@ import javafx.scene.text.Text;
 /**
  * Created by Philipp on 14.08.2017.
  */
-public class StatusCell extends TreeTableCell<TreeTableEntity, TreeTableEntity.ProofStatus> {
+public class StatusCell extends TreeTableCell<TreeTableEntity, TreeTableEntity> {
 
     private final TreeTableEntityEngagedListener engagedListener;
 
     public StatusCell(TreeTableEntityEngagedListener engagedListener) {
         this.engagedListener = engagedListener;
         getStyleClass().add("status-cell");
+        setAlignment(Pos.CENTER);
     }
 
     @Override
-    protected void updateItem(TreeTableEntity.ProofStatus item, boolean empty) {
+    protected void updateItem(TreeTableEntity item, boolean empty) {
         super.updateItem(item, empty);
         setText(null);
         if (item != null && !empty) {
-            Text icon = GlyphsDude.createIcon(item.getIcon());
-            icon.setFill(item.getFill());
-            Label label = new Label(null, icon);
-            label.setAlignment(Pos.CENTER);
-            label.setTooltip(new Tooltip(item.getTooltip()));
-            setGraphic(label);
+            setGraphic(item.accept(TreeTableEntityStatusRenderer.INSTANCE));
         } else {
             setGraphic(null);
+            setTooltip(null);
         }
     }
 

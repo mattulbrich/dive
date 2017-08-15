@@ -1,63 +1,33 @@
 package edu.kit.iti.algover.browser.entities;
 
-import de.jensd.fx.glyphs.GlyphIcons;
-import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon;
 import edu.kit.iti.algover.dafnystructures.DafnyFile;
 import javafx.beans.property.*;
-import javafx.scene.paint.Color;
-import javafx.scene.paint.Paint;
-import javafx.scene.text.Font;
+
+import java.util.List;
 
 /**
  * Created by philipp on 26.06.17.
  */
 public abstract class TreeTableEntity {
 
-    public enum ProofStatus {
-        UNPROVEN(
-            FontAwesomeIcon.EXCLAMATION,
-            Color.RED,
-            "No proof for this PVC"),
-        PROVEN(
-            FontAwesomeIcon.CHECK,
-            Color.GREEN,
-            "Has been proven"),
-        DEPENDENT_ON_UNPROVEN(
-            FontAwesomeIcon.WARNING,
-            Color.ORANGE,
-            "Proof with unproven dependencies exists");
-
-        ProofStatus(GlyphIcons icon, Paint fill, String tooltip) {
-            this.icon = icon;
-            this.fill = fill;
-            this.tooltip = tooltip;
-        }
-
-        private final GlyphIcons icon;
-        private final Paint fill;
-        private final String tooltip;
-
-        public GlyphIcons getIcon() {
-            return icon;
-        }
-
-        public Paint getFill() {
-            return fill;
-        }
-
-        public String getTooltip() {
-            return tooltip;
-        }
-    }
-
     private final StringProperty text;
-    private final ObjectProperty<ProofStatus> proofStatus;
     private final DafnyFile location;
+    private final IntegerProperty numberChildren;
+    private final IntegerProperty provenChildren;
+    private final List<TreeTableEntity> children;
 
-    public TreeTableEntity(String text, DafnyFile location) {
+    public TreeTableEntity(String text, DafnyFile location, List<TreeTableEntity> children) {
         this.text = new SimpleStringProperty(text);
-        this.proofStatus = new SimpleObjectProperty<>(ProofStatus.values()[(int)(Math.random()*3)]);
+        this.children = children;
         this.location = location;
+        this.numberChildren = new SimpleIntegerProperty(
+                children.stream()
+                    .map(TreeTableEntity::getNumberChildren)
+                    .reduce(0, (x, y) -> x + y));
+        this.provenChildren = new SimpleIntegerProperty(
+                children.stream()
+                    .map(TreeTableEntity::getProvenChildren)
+                    .reduce(0, (x, y) -> x + y));
     }
 
     public abstract <T> T accept(TreeTableEntityVisitor<T> visitor);
@@ -74,19 +44,30 @@ public abstract class TreeTableEntity {
         return text;
     }
 
-    public ProofStatus getProofStatus() {
-        return proofStatus.get();
+    public int getNumberChildren() {
+        return numberChildren.get();
     }
 
-    public ObjectProperty<ProofStatus> proofStatusProperty() {
-        return proofStatus;
+    public IntegerProperty numberChildrenProperty() {
+        return numberChildren;
+    }
+
+    public int getProvenChildren() {
+        return provenChildren.get();
+    }
+
+    public IntegerProperty provenChildrenProperty() {
+        return provenChildren;
     }
 
     @Override
     public String toString() {
         return "TreeTableEntity{" +
                 "name=" + text.get() +
-                ", proofStatus=" + proofStatus.get() +
                 '}';
+    }
+
+    public List<TreeTableEntity> getChildren() {
+        return children;
     }
 }
