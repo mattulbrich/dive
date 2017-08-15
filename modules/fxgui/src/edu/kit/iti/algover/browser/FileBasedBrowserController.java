@@ -13,8 +13,8 @@ import java.util.stream.Collectors;
  */
 public class FileBasedBrowserController extends BrowserController {
 
-    public FileBasedBrowserController(Project project, TreeEntityDoubleClickListener doubleClickListener) {
-        super(project, doubleClickListener);
+    public FileBasedBrowserController(Project project, TreeTableEntityEngagedListener engagedListener) {
+        super(project, engagedListener);
     }
 
     protected void populateTreeTable() {

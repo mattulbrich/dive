@@ -1,7 +1,12 @@
 package edu.kit.iti.algover.browser.entities;
 
+import de.jensd.fx.glyphs.GlyphIcons;
+import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon;
 import edu.kit.iti.algover.dafnystructures.DafnyFile;
 import javafx.beans.property.*;
+import javafx.scene.paint.Color;
+import javafx.scene.paint.Paint;
+import javafx.scene.text.Font;
 
 /**
  * Created by philipp on 26.06.17.
@@ -9,20 +14,49 @@ import javafx.beans.property.*;
 public abstract class TreeTableEntity {
 
     public enum ProofStatus {
-        UNPROVEN,
-        PROVEN,
-        DEPENDENT_ON_UNPROVEN
+        UNPROVEN(
+            FontAwesomeIcon.EXCLAMATION,
+            Color.RED,
+            "No proof for this PVC"),
+        PROVEN(
+            FontAwesomeIcon.CHECK,
+            Color.GREEN,
+            "Has been proven"),
+        DEPENDENT_ON_UNPROVEN(
+            FontAwesomeIcon.WARNING,
+            Color.ORANGE,
+            "Proof with unproven dependencies exists");
+
+        ProofStatus(GlyphIcons icon, Paint fill, String tooltip) {
+            this.icon = icon;
+            this.fill = fill;
+            this.tooltip = tooltip;
+        }
+
+        private final GlyphIcons icon;
+        private final Paint fill;
+        private final String tooltip;
+
+        public GlyphIcons getIcon() {
+            return icon;
+        }
+
+        public Paint getFill() {
+            return fill;
+        }
+
+        public String getTooltip() {
+            return tooltip;
+        }
     }
 
     private final StringProperty text;
-    private final FloatProperty percentageProven;
     private final ObjectProperty<ProofStatus> proofStatus;
     private final DafnyFile location;
 
     public TreeTableEntity(String text, DafnyFile location) {
         this.text = new SimpleStringProperty(text);
-        this.percentageProven = new SimpleFloatProperty(0);
-        this.proofStatus = new SimpleObjectProperty<>(ProofStatus.UNPROVEN);
+        this.proofStatus = new SimpleObjectProperty<>(ProofStatus.values()[(int)(Math.random()*3)]);
         this.location = location;
     }
 
@@ -40,14 +74,6 @@ public abstract class TreeTableEntity {
         return text;
     }
 
-    public float getPercentageProven() {
-        return percentageProven.get();
-    }
-
-    public FloatProperty percentageProvenProperty() {
-        return percentageProven;
-    }
-
     public ProofStatus getProofStatus() {
         return proofStatus.get();
     }
@@ -60,7 +86,6 @@ public abstract class TreeTableEntity {
     public String toString() {
         return "TreeTableEntity{" +
                 "name=" + text.get() +
-                ", percentageProven=" + percentageProven.get() +
                 ", proofStatus=" + proofStatus.get() +
                 '}';
     }

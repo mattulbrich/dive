@@ -8,6 +8,7 @@ import edu.kit.iti.algover.dafnystructures.DafnyFile;
 import edu.kit.iti.algover.editor.EditorController;
 import edu.kit.iti.algover.project.Project;
 import edu.kit.iti.algover.proof.PVC;
+import edu.kit.iti.algover.sequent.SequentActionListener;
 import edu.kit.iti.algover.sequent.SequentController;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
@@ -15,7 +16,7 @@ import javafx.scene.input.KeyEvent;
 /**
  * Created by philipp on 27.06.17.
  */
-public class OverviewController {
+public class OverviewController implements SequentActionListener {
 
     private final Project project;
     private final BrowserController browserController;
@@ -25,10 +26,10 @@ public class OverviewController {
 
     public OverviewController(Project project) {
         this.project = project;
-        this.browserController = new FlatBrowserController(project, this::onDoubleClickEntity);
-        //this.browserController = new FileBasedBrowserController(project, this::onDoubleClickEntity);
+        this.browserController = new FlatBrowserController(project, this::onEngageEntity);
+        //this.browserController = new FileBasedBrowserController(project, this::onEngageEntity);
         this.editorController = new EditorController();
-        this.sequentController = new SequentController(project);
+        this.sequentController = new SequentController(project, this);
 
         this.view = new TimelineLayout(
                 browserController.getView(),
@@ -47,9 +48,9 @@ public class OverviewController {
         }
     }
 
-    private void onDoubleClickEntity(TreeTableEntity treeTableEntity) {
+    private void onEngageEntity(TreeTableEntity treeTableEntity) {
         PVC pvc = treeTableEntity.accept(new PVCGetterVisitor());
-        if (pvc != null) {
+        if (pvc != null && editorController.getView().getSelectionModel().getSelectedItem() != null) {
             sequentController.viewSequentForPVC(pvc);
             view.moveFrameRight();
         }
@@ -74,5 +75,10 @@ public class OverviewController {
 
     public TimelineLayout getView() {
         return view;
+    }
+
+    @Override
+    public void cancelProofEditing() {
+        view.moveFrameLeft();
     }
 }
