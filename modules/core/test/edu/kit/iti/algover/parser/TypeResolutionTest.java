@@ -3,40 +3,38 @@
  *
  * Copyright (C) 2015-2017 Karlsruhe Institute of Technology
  */
+
 package edu.kit.iti.algover.parser;
 
-import edu.kit.iti.algover.dafnystructures.DafnyMethod;
-import edu.kit.iti.algover.project.Project;
-import edu.kit.iti.algover.project.ProjectBuilder;
-import edu.kit.iti.algover.util.TreeUtil;
-import edu.kit.iti.algover.util.Util;
-import org.antlr.runtime.RecognitionException;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
-import org.junit.runners.Parameterized.Parameters;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.fail;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.junit.Assert.*;
+import org.antlr.runtime.RecognitionException;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 
-@RunWith(Parameterized.class)
+import edu.kit.iti.algover.dafnystructures.DafnyMethod;
+import edu.kit.iti.algover.project.Project;
+import edu.kit.iti.algover.project.ProjectBuilder;
+import edu.kit.iti.algover.util.TreeUtil;
+import edu.kit.iti.algover.util.Util;
+import junitparams.JUnitParamsRunner;
+import junitparams.Parameters;
+
+@RunWith(JUnitParamsRunner.class)
 public class TypeResolutionTest {
 
-    private final Project project;
-    private final String method;
-
-    public TypeResolutionTest(String method, Project project) {
+    public TypeResolutionTest() {
         super();
-        this.project = project;
-        this.method = method;
     }
 
-    @Parameters(name= "{0}")
-    public static Iterable<Object[]> data() throws Exception {
+    public Iterable<Object[]> parametersForTestVisitMethod() throws Exception {
         DafnyTree tree = ParserTest.parseFile(TypeResolutionTest.class.getResourceAsStream("typingTest.dfy"));
         DafnyFileParser.setFilename(tree, "typingTest.dfy");
         Project project = mockProject(tree);
@@ -57,14 +55,15 @@ public class TypeResolutionTest {
         return result;
     }
 
+    // Different from TestUtil.mockProject!
     private static Project mockProject(DafnyTree tree) throws IOException, DafnyException, DafnyParserException, RecognitionException {
         ProjectBuilder pb = new ProjectBuilder();
         pb.addDafnyTree("dummy", tree);
         return pb.build();
     }
 
-    @Test
-    public void testVisitMethod() throws Exception {
+    @Test @Parameters
+    public void testVisitMethod(String method, Project project) throws Exception {
         List<DafnyException> exceptions = new ArrayList<>();
         TypeResolution tr = new TypeResolution(exceptions);
         DafnyMethod m = project.getClass("C").getMethod(method);
@@ -122,5 +121,34 @@ public class TypeResolutionTest {
             buf.append("]");
         }
         return buf.toString();
+    }
+
+    // suspecting a bug
+    @Test
+    public void testEquality1() {
+        {
+            DafnyTree tree = new DafnyTree(DafnyParser.GT);
+            tree.addChild(new DafnyTree(DafnyParser.INT_LIT, "1"));
+            tree.addChild(new DafnyTree(DafnyParser.INT_LIT, "0"));
+
+            List<DafnyException> exceptions = new ArrayList<>();
+            tree.accept(new TypeResolution(exceptions ), null);
+
+            assertEquals("bool", tree.getExpressionType().toStringTree());
+            assertEquals(0, exceptions.size());
+        }
+        {
+            DafnyTree tree = new DafnyTree(DafnyParser.EQ);
+            tree.addChild(new DafnyTree(DafnyParser.INT_LIT, "1"));
+            tree.addChild(new DafnyTree(DafnyParser.INT_LIT, "0"));
+
+            List<DafnyException> exceptions = new ArrayList<>();
+            tree.accept(new TypeResolution(exceptions ), null);
+
+            System.out.println(toTypedString(tree));
+
+            assertEquals("bool", tree.getExpressionType().toStringTree());
+            assertEquals(0, exceptions.size());
+        }
     }
 }

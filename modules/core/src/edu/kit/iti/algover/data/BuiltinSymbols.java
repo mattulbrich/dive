@@ -32,6 +32,8 @@ import edu.kit.iti.algover.util.Util;
  */
 public class BuiltinSymbols extends MapSymbolTable {
 
+    private static final Sort SET_OBJECTS = Sort.get("set", Sort.OBJECT);
+
     // Checkstyle: OFF JavadocVariableCheck
 
     public static final FunctionSymbol AND =
@@ -43,7 +45,7 @@ public class BuiltinSymbols extends MapSymbolTable {
     public static final FunctionSymbol IMP =
             new FunctionSymbol("$imp", Sort.BOOL, Sort.BOOL, Sort.BOOL);
 
-    public static final FunctionSymbol NEG =
+    public static final FunctionSymbol NOT =
             new FunctionSymbol("$not", Sort.BOOL, Sort.BOOL);
 
     public static final FunctionSymbol GT =
@@ -64,6 +66,9 @@ public class BuiltinSymbols extends MapSymbolTable {
     public static final FunctionSymbol MINUS =
             new FunctionSymbol("$minus", Sort.INT, Sort.INT, Sort.INT);
 
+    public static final FunctionSymbol NEG =
+            new FunctionSymbol("$neg", Sort.INT, Sort.INT);
+
     public static final FunctionSymbol TIMES =
             new FunctionSymbol("$times", Sort.INT, Sort.INT, Sort.INT);
 
@@ -76,6 +81,7 @@ public class BuiltinSymbols extends MapSymbolTable {
                             FunctionSymbolFamily.VAR1), 1);
 
     private static final Sort SET1 = Sort.get("set", FunctionSymbolFamily.VAR1);
+
     public static final FunctionSymbolFamily UNION =
             new FunctionSymbolFamily(
                     new FunctionSymbol("$union", SET1, SET1, SET1), 1);
@@ -83,6 +89,12 @@ public class BuiltinSymbols extends MapSymbolTable {
     public static final FunctionSymbolFamily INTERSECT =
             new FunctionSymbolFamily(
                     new FunctionSymbol("$intersect", SET1, SET1, SET1), 1);
+
+    public static final FunctionSymbol EVERYTHING =
+            new FunctionSymbol("$everything", SET_OBJECTS);
+
+    public static final FunctionSymbol ANON =
+            new FunctionSymbol("$anon", Sort.HEAP, Sort.HEAP, SET_OBJECTS, Sort.HEAP);
 
     public static final FunctionSymbolFamily STORE =
             new FunctionSymbolFamily(
@@ -109,6 +121,9 @@ public class BuiltinSymbols extends MapSymbolTable {
 
     public static final FunctionSymbol HEAP =
             new FunctionSymbol("$heap", Sort.HEAP);
+
+    public static final FunctionSymbol MOD =
+            new FunctionSymbol("$mod", Sort.get("sort", Sort.OBJECT));
 
     public static final FunctionSymbol NULL =
             new FunctionSymbol("null", Sort.NULL);

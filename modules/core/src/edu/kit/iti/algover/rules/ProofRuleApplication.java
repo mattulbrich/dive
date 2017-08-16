@@ -5,11 +5,8 @@
  */
 package edu.kit.iti.algover.rules;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.function.Supplier;
-
 import edu.kit.iti.algover.proof.ProofNode;
+import edu.kit.iti.algover.util.ImmutableList;
 import nonnull.DeepNonNull;
 import nonnull.NonNull;
 import nonnull.Nullable;
@@ -28,12 +25,9 @@ import nonnull.Nullable;
  * not). To ultimately decide applicability, use the {@link #refine()} method
  * which returns a more concrete rule application.
  *
- * @param <E>
- *            the parameter type of the {@link ProofRule}
- *
  * @author mattias ulbrich
  */
-public final class ProofRuleApplication<E> {
+public final class ProofRuleApplication {
 
     /**
      * Applicability of a rule
@@ -52,23 +46,29 @@ public final class ProofRuleApplication<E> {
         MAYBE_APPLICABLE,
 
         /**
-         * The rule application cannot be applied. It does not match, does not
-         * advance the state, etc.
+         * The rule application can definitely not be applied. It does not
+         * match, does not advance the state, etc.
          */
-        NOT_APPLICABLE
+        NOT_APPLICABLE,
+
+        /**
+         * The rule cannot yet be applied. Some schema variables need
+         * instantiation.
+         */
+        INSTANTIATION_REQUIRED,
     };
 
     /**
      * The rule to which this application belongs.
      */
-    private final @NonNull ProofRule<E> rule;
+    private final @NonNull ProofRule rule;
 
     /**
      * The information about the branches into which this rule application
      * splits. Emtpy if closing rule app. Singleton list if the rule app does not
      * split etc.
      */
-    private final @Nullable List<BranchInfo> branchInfo;
+    private final @Nullable ImmutableList<BranchInfo> branchInfo;
 
     /**
      * The applicability of this rule application.
@@ -76,10 +76,17 @@ public final class ProofRuleApplication<E> {
     private final @NonNull Applicability applicability;
 
     /**
+     * Missing parameters. All parameters contained in this object require
+     * instantiation for the application of the rule to be possible. The
+     * parameters here are set immutable.
+     */
+    private final @NonNull Parameters openParameters;
+
+    /**
      * The code which can be used to refine this proof application. Can be
      * <code>null</code> if no refining routine is known for this application.
      */
-    private final @Nullable Supplier<ProofRuleApplication<E>> refiner;
+    private final @Nullable Refiner refiner;
 
     /**
      * When a proof rule application is applied, the proof script needs to be
@@ -91,23 +98,37 @@ public final class ProofRuleApplication<E> {
     /**
      * Instantiates a new proof rule application.
      *
-     * @param rule the rule to apply
-     * @param branchInfo info about the branches to be created
-     * @param applicability the applicability of this object.
-     * @param scriptTranscript the script transcript
-     * @param refiner the potential refiner
+     * The passed parameters object is set to immutable.
+     *
+     * @param rule
+     *            the rule to apply
+     * @param branchInfo
+     *            info about the branches to be created
+     * @param applicability
+     *            the applicability of this object.
+     * @param scriptTranscript
+     *            the script transcript
+     * @param openParameters
+     *            parameters that are missing for this application to be
+     *            executed (use {@link Parameters#EMPTY_PARAMETERS} if no
+     *            such parameters exist.
+     * @param refiner
+     *            the potential refiner
      */
     public ProofRuleApplication(
-            @NonNull ProofRule<E> rule,
-            @DeepNonNull List<BranchInfo> branchInfo,
+            @NonNull ProofRule rule,
+            @DeepNonNull ImmutableList<BranchInfo> branchInfo,
             @NonNull Applicability applicability,
             @NonNull String scriptTranscript,
-            @Nullable Supplier<ProofRuleApplication<E>> refiner) {
+            @NonNull Parameters openParameters,
+            @Nullable Refiner refiner) {
         this.rule = rule;
         this.branchInfo = branchInfo;
         this.applicability = applicability;
         this.refiner = refiner;
+        this.openParameters = openParameters;
         this.scriptTranscript = scriptTranscript;
+        openParameters.setImmutable();
     }
 
     /**
@@ -129,13 +150,44 @@ public final class ProofRuleApplication<E> {
      * Precondition: {@link #isRefinable()}
      *
      * @return the proof rule application after refinement.
+     *
+     * @throws RuleException
+     *             if the the refinement process fails
+     *
+     * @see #refine(Parameters)
      */
-    public ProofRuleApplication<E> refine() {
+    public ProofRuleApplication refine() throws RuleException {
+        return refine(Parameters.EMPTY_PARAMETERS);
+    }
+
+    /**
+     * Refine this {@link ProofRuleApplication} by returning a new element of
+     * the same class.
+     *
+     * This method may return the very same object.
+     *
+     * <p>
+     * This version of the refinement method takes {@link Parameters} as
+     * argument. This is in particular needed if a rule application is marked
+     * {@link Applicability#INSTANTIATION_REQUIRED}. The instantiation is the
+     * to be provided using the parameters. Other use cases are possible.
+     *
+     * <p>
+     * Precondition: {@link #isRefinable()}
+     *
+     * @return the proof rule application after refinement.
+     *
+     * @throws RuleException
+     *             if the the refinement process fails
+     *
+     * @see #refine()
+     */
+    private ProofRuleApplication refine(@NonNull Parameters parameters) throws RuleException {
         if(refiner == null) {
             return this;
         }
 
-        ProofRuleApplication<E> result = refiner.get();
+        ProofRuleApplication result = refiner.refine(this, parameters);
 
         if(result == null) {
             return thisWithoutRefiner();
@@ -145,8 +197,9 @@ public final class ProofRuleApplication<E> {
 
     }
 
-    private ProofRuleApplication<E> thisWithoutRefiner() {
-        return new ProofRuleApplication<E>(rule, branchInfo, applicability, scriptTranscript, null);
+    private ProofRuleApplication thisWithoutRefiner() {
+        return new ProofRuleApplication(rule, branchInfo, applicability,
+                scriptTranscript, openParameters, null);
     }
 
     /**
@@ -166,7 +219,7 @@ public final class ProofRuleApplication<E> {
      *
      * @return the rule
      */
-    public ProofRule<E> getRule() {
+    public ProofRule getRule() {
         return rule;
     }
 
@@ -184,16 +237,29 @@ public final class ProofRuleApplication<E> {
      *
      * @return an unmodifiable list of branch information
      */
-    public List<BranchInfo> getBranchInfo() {
-        return Collections.unmodifiableList(branchInfo);
+    public ImmutableList<BranchInfo> getBranchInfo() {
+        return branchInfo;
     }
 
     /**
      * Gets the script transcript of this application.
      *
-     * @return the script transcript
+     * @return the string for the script transcript
      */
-    public String getScriptTranscript() {
+    public @NonNull String getScriptTranscript() {
         return scriptTranscript;
+    }
+
+    /**
+     * Gets the parameters which were declared as remaining open.
+     *
+     * @return the open parameters
+     */
+    public @NonNull Parameters getOpenParameters() {
+        return openParameters;
+    }
+
+    public Refiner getRefiner() {
+        return refiner;
     }
 }

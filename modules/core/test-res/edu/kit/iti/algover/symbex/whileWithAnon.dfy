@@ -1,18 +1,31 @@
-method symbexTest(p : int)
-  ensures unmod == mod
+class C
 {
-  var unmod : int;
-  var mod : int;
+  var field : int;
+  var modset : set<C>;
 
-  unmod := 1;
-  mod := unmod;
-
-  mod := *;
-
-  while mod > unmod
-    invariant unmod == mod
-    decreases unmod+mod
+  method symbexTest(p : int)
+    ensures true
+    modifies modset
   {
-    mod := mod + 1;
+    var unmod : int;
+    var mod : int;
+
+    unmod := 1;
+    mod := unmod;
+
+    mod := mod + 2;
+
+    while mod > unmod
+      invariant unmod == mod
+      decreases unmod+mod
+    {
+      mod := mod + 1;
+      field := 1;
+    }
+
+    while mod > unmod
+      invariant true
+      decreases mod
+    { }
   }
 }

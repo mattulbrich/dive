@@ -24,6 +24,9 @@ import edu.kit.iti.algover.parser.DafnyTree;
  * You may also add/set elements manually.
  *
  * @see DafnyClass
+ *
+ * @author Sarah Grebing
+ * @author Mattias Ulbrich
  */
 public class DafnyClassBuilder {
 

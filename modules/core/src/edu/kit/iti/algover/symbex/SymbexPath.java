@@ -9,11 +9,14 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import edu.kit.iti.algover.data.BuiltinSymbols;
 import edu.kit.iti.algover.parser.DafnyParser;
 import edu.kit.iti.algover.parser.DafnyTree;
 import edu.kit.iti.algover.symbex.AssertionElement.AssertionType;
 import edu.kit.iti.algover.symbex.PathConditionElement.AssumptionType;
+import edu.kit.iti.algover.util.ASTUtil;
 import edu.kit.iti.algover.util.ImmutableList;
+import nonnull.NonNull;
 
 /**
  * This class captures intermediate and terminal states of paths in symbolic
@@ -45,32 +48,32 @@ public class SymbexPath {
     /**
      * The gathered path conditions.
      */
-    private ImmutableList<PathConditionElement> pathConditions;
+    private @NonNull ImmutableList<PathConditionElement> pathConditions;
 
     /**
      * The proof obligations to discharge.
      */
-    private ImmutableList<AssertionElement> proofObligations;
+    private @NonNull ImmutableList<AssertionElement> proofObligations;
 
     /**
      * The currently active variable assignment map.
      */
-    private ImmutableList<DafnyTree> assignmentHistory;
+    private @NonNull ImmutableList<DafnyTree> assignmentHistory;
 
     /**
      * The declared local variables up to this point.
      */
-    private ImmutableList<LocalVarDecl> declaredLocalVars;
+    private @NonNull ImmutableList<LocalVarDecl> declaredLocalVars;
 
     /**
      * The block that remains to be executed. may be an empty block.
      */
-    private DafnyTree blockToExecute;
+    private @NonNull DafnyTree blockToExecute;
 
     /**
      * The function to which this symbolic execution state belongs.
      */
-    private final DafnyTree method;
+    private final @NonNull DafnyTree method;
 
     /**
      * Instantiates a new symbolic execution state. It belongs to the given
@@ -85,7 +88,17 @@ public class SymbexPath {
         this.assignmentHistory = ImmutableList.nil();
         this.declaredLocalVars = ImmutableList.nil();
         this.proofObligations = ImmutableList.nil();
+        this.blockToExecute = function.getLastChild();
         this.method = function;
+    }
+
+    private ImmutableList<LocalVarDecl> initialLocalVars() {
+        DafnyTree dummy = new DafnyTree(DafnyParser.VAR, "dummy");
+        LocalVarDecl heap = new LocalVarDecl(BuiltinSymbols.HEAP.getName(),
+                ASTUtil.id("Heap"), dummy);
+        LocalVarDecl mod = new LocalVarDecl(BuiltinSymbols.MOD.getName(),
+                ASTUtil.id("set<object>"), dummy);
+        return ImmutableList.from(heap, mod);
     }
 
     /**

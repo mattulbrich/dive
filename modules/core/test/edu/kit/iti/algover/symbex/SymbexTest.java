@@ -6,6 +6,7 @@
 package edu.kit.iti.algover.symbex;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
 
@@ -26,6 +27,8 @@ import edu.kit.iti.algover.symbex.AssertionElement.AssertionType;
 import edu.kit.iti.algover.symbex.PathConditionElement.AssumptionType;
 import edu.kit.iti.algover.util.ASTUtil;
 import edu.kit.iti.algover.util.ImmutableList;
+import edu.kit.iti.algover.util.TestUtil;
+import edu.kit.iti.algover.util.Util;
 
 public class SymbexTest {
 
@@ -43,6 +46,10 @@ public class SymbexTest {
     public void loadTree() throws Exception {
         InputStream stream = getClass().getResourceAsStream("symbex.dfy");
         DafnyTree fileTree = ParserTest.parseFile(stream);
+
+        // performs type analysis etc:
+        TestUtil.mockProject(fileTree);
+
         this.tree = fileTree.getChild(0);
     }
 
@@ -52,7 +59,7 @@ public class SymbexTest {
         Symbex symbex = new Symbex();
         List<SymbexPath> results = symbex.symbolicExecution(tree);
 
-        System.out.println(results);
+        //System.out.println(results);
 
         assertEquals(7, results.size());
 
@@ -216,7 +223,7 @@ public class SymbexTest {
                     assertEquals(1, decr.getProofObligations().size());
                     AssertionElement po = decr.getProofObligations().get(0);
                     assertEquals("(decreases (+ p count))", po.getOrigin().toStringTree());
-                    assertEquals("(NOETHER_LESS #decr (+ p count))", po.getExpression().toStringTree());
+                    assertEquals("(NOETHER_LESS (LISTEX $decr_1) (LISTEX (+ p count)))", po.getExpression().toStringTree());
                 }
             }
         }
@@ -248,17 +255,21 @@ public class SymbexTest {
     @Test
     public void testHandleWhileAnonymisation() throws Exception {
         InputStream stream = getClass().getResourceAsStream("whileWithAnon.dfy");
-        this.tree = ParserTest.parseFile(stream).getFirstChildWithType(DafnyParser.METHOD);
+        DafnyTree parseTree = ParserTest.parseFile(stream);
+        TestUtil.mockProject(parseTree);
+        this.tree = parseTree
+                .getFirstChildWithType(DafnyParser.CLASS)
+                .getFirstChildWithType(DafnyParser.METHOD);
 
         Symbex symbex = new Symbex();
         List<SymbexPath> results = symbex.symbolicExecution(tree);
 
-        assertEquals(3, results.size());
+        assertEquals(5, results.size());
         {
             SymbexPath ss = results.get(0);
             assertEquals(AssertionType.INVARIANT_INITIALLY_VALID, ss.getCommonProofObligationType());
             ImmutableList<DafnyTree> list = ss.getAssignmentHistory();
-            assertEquals("[(:= unmod 1), (:= mod unmod), (:= mod *)]",
+            assertEquals("[(ASSIGN $mod modset), (:= unmod 1), (:= mod unmod), (:= mod (+ mod 2))]",
                     list.map(x -> x.toStringTree()).toString());
         }
         {
@@ -267,11 +278,14 @@ public class SymbexTest {
                 SymbexPath pres = ss.get(0);
                 assertEquals(AssertionType.INVARIANT_PRESERVED, pres.getCommonProofObligationType());
                 ImmutableList<DafnyTree> list = pres.getAssignmentHistory();
-                assertEquals(6, list.size());
-
-                assertEquals("[(:= unmod 1), (:= mod unmod), (:= mod *), "
-                        + "(ASSIGN mod WILDCARD), (ASSIGN #decr (+ unmod mod)), "
-                        + "(:= mod (+ mod 1))]",
+                assertEquals("[(ASSIGN $mod modset), "
+                        + "(:= unmod 1), (:= mod unmod), "
+                        + "(:= mod (+ mod 2)), "
+                        + "(ASSIGN mod WILDCARD), "
+                        + "(ASSIGN $heap (CALL $anon (ARGS $heap $mod $aheap_1))), "
+                        + "(ASSIGN $decr_1 (+ unmod mod)), "
+                        + "(:= mod (+ mod 1)), "
+                        + "(:= field 1)]",
                         list.map(x -> x.toStringTree()).toString());
             }
             {
@@ -280,12 +294,13 @@ public class SymbexTest {
             }
         }
         {
-            SymbexPath ss = results.get(2);
+            SymbexPath ss = results.get(4);
             assertEquals(AssertionType.POST, ss.getCommonProofObligationType());
             ImmutableList<DafnyTree> list = ss.getAssignmentHistory();
-            assertEquals(4, list.size());
-            assertEquals("[(:= unmod 1), (:= mod unmod), (:= mod *), "
-                    + "(ASSIGN mod WILDCARD)]",
+            assertEquals("[(ASSIGN $mod modset), "
+                    + "(:= unmod 1), (:= mod unmod), (:= mod (+ mod 2)), "
+                    + "(ASSIGN mod WILDCARD), "
+                    + "(ASSIGN $heap (CALL $anon (ARGS $heap $mod $aheap_1)))]",
                     list.map(x -> x.toStringTree()).toString());
         }
 
@@ -387,10 +402,10 @@ public class SymbexTest {
         assertEquals(2, results.size());
 
         ImmutableList<DafnyTree> pc = results.get(0).getAssignmentHistory();
-        assertEquals("[(:= x *), (:= y *), (:= x *)]", pc.map(x->x.toStringTree()).toString());
+        assertEquals("[(ASSIGN $mod $everything), (:= x *), (:= y *), (:= x *)]", pc.map(x->x.toStringTree()).toString());
 
         pc = results.get(1).getAssignmentHistory();
-        assertEquals("[(:= x *), (:= y *), (:= x *)]", pc.map(x->x.toStringTree()).toString());
+        assertEquals("[(ASSIGN $mod $everything), (:= x *), (:= y *), (:= x *)]", pc.map(x->x.toStringTree()).toString());
     }
 
     @Test
@@ -485,7 +500,9 @@ public class SymbexTest {
     @Test
     public void testHandleRuntimeAssertionsWhile() throws Exception {
         InputStream stream = getClass().getResourceAsStream("runtimeAssert.dfy");
-        this.tree = ParserTest.parseFile(stream).getChild(2);
+        DafnyTree parseTree = ParserTest.parseFile(stream);
+        TestUtil.mockProject(parseTree);
+        this.tree = parseTree.getChild(2);
 
         Symbex symbex = new Symbex();
         List<SymbexPath> results = symbex.symbolicExecution(tree);
@@ -503,7 +520,10 @@ public class SymbexTest {
             assertEquals(2, path.getPathConditions().size());
             assertEquals("(> i 2)", path.getPathConditions().get(0).getExpression().toStringTree());
             assertEquals("(> i 0)", path.getPathConditions().get(1).getExpression().toStringTree());
-            assertEquals("[(ASSIGN i WILDCARD), (ASSIGN #decr i)]",
+            assertEquals("[(ASSIGN $mod $everything), "
+                    + "(ASSIGN i WILDCARD), "
+                    + "(ASSIGN $heap (CALL $anon (ARGS $heap $mod $aheap_1))), "
+                    + "(ASSIGN $decr_1 i)]",
                     path.getAssignmentHistory().map(x->x.toStringTree()).toString());
         }
         {
@@ -514,7 +534,10 @@ public class SymbexTest {
             assertEquals(2, path.getPathConditions().size());
             assertEquals("(> i 2)", path.getPathConditions().get(0).getExpression().toStringTree());
             assertEquals("(> i 0)", path.getPathConditions().get(1).getExpression().toStringTree());
-            assertEquals("[(ASSIGN i WILDCARD), (ASSIGN #decr i)]",
+            assertEquals("[(ASSIGN $mod $everything), "
+                    + "(ASSIGN i WILDCARD), "
+                    + "(ASSIGN $heap (CALL $anon (ARGS $heap $mod $aheap_1))), "
+                    + "(ASSIGN $decr_1 i)]",
                     path.getAssignmentHistory().map(x->x.toStringTree()).toString());
         }
         {
@@ -592,7 +615,8 @@ public class SymbexTest {
 
         assertEquals(10, i);
 
-        assertEquals("[(:= z next), "
+        assertEquals("[(ASSIGN $mod $everything), "
+                + "(:= z next), "
                 + "(:= next z), "
                 + "(:= z (FIELD_ACCESS this next)), "
                 + "(:= (FIELD_ACCESS this next) z), "
@@ -604,5 +628,42 @@ public class SymbexTest {
                 + "(:= y z)]",
                 results.get(i).getAssignmentHistory().map(x->x.toStringTree()).toString());
 
+    }
+
+    @Test
+    public void testFromSymbex() throws Exception {
+
+        InputStream stream = getClass().getResourceAsStream("noetherTest.dfy");
+        DafnyTree fileTree = ParserTest.parseFile(stream);
+
+        // performs type analysis etc:
+        TestUtil.mockProject(fileTree);
+
+        DafnyTree tree = fileTree.getChild(0);
+        Symbex symbex = new Symbex();
+        List<SymbexPath> results = symbex.symbolicExecution(tree);
+
+        System.out.println(results);
+
+        assertEquals(4, results.size());
+
+        // preserves are interesting. Focus on of the two here
+        {
+            SymbexPath path = results.get(2);
+            List<String> localVars = Util.map(path.getDeclaredLocalVars(), x -> x.getName());
+            assertTrue(localVars.contains("$decr_1"));
+            assertTrue(Util.map(path.getDeclaredLocalVars(), x -> x.getName()).contains("$decr_2"));
+            assertFalse(Util.map(path.getDeclaredLocalVars(), x -> x.getName()).contains("$decr_3"));
+
+            List<String> assignments = Util.map(path.getAssignmentHistory(), x -> x.toStringTree());
+            assertTrue(assignments.contains("(ASSIGN $decr_1 b)"));
+            assertTrue(assignments.contains("(ASSIGN $decr_2 a)"));
+
+            assertEquals(1, path.getProofObligations().size());
+            AssertionElement proofObl = path.getProofObligations().getHead();
+            assertEquals(AssertionType.VARIANT_DECREASED, proofObl.getType());
+            assertEquals("(NOETHER_LESS (LISTEX $decr_1 $decr_2) (LISTEX b a))",
+                    proofObl.getExpression().toStringTree());
+        }
     }
 }

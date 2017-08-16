@@ -5,10 +5,11 @@
  */
 package edu.kit.iti.algover.proof;
 
-import edu.kit.iti.algover.rules.ProofRuleApplication;
-
 import java.util.LinkedList;
 import java.util.List;
+
+import edu.kit.iti.algover.rules.ProofRuleApplication;
+import edu.kit.iti.algover.term.Sequent;
 
 /**
  * Class represents one proof node. It has a pointer to its parent node and to the children nodes.
@@ -19,17 +20,21 @@ import java.util.List;
 public class ProofNode {
 
     private ProofNode parent;
-    private ProofRuleApplication<?> psr;
+    private ProofRuleApplication psr;
     private ProofHistory history;
     private List<ProofNode> children;
     private PVC rootPVC;
 
+    private Sequent sequent;
 
-
-    public ProofNode(ProofNode parent, ProofRuleApplication<?> psr, ProofHistory history){
+    public ProofNode(ProofNode parent, ProofRuleApplication psr, ProofHistory history){
         this.parent = parent;
         this.psr = psr;
         this.history = history;
         this.children = new LinkedList<ProofNode>();
+    }
+
+    public Sequent getSequent() {
+        return sequent;
     }
 }

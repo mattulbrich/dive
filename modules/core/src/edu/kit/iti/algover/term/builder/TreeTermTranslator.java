@@ -27,6 +27,7 @@ import edu.kit.iti.algover.term.VariableTerm;
 import edu.kit.iti.algover.util.HistoryMap;
 import edu.kit.iti.algover.util.ImmutableList;
 import edu.kit.iti.algover.util.Pair;
+import nonnull.NonNull;
 
 /**
  * The Class TreeTermTranslator is used to create a {@link Term} object from a
@@ -231,7 +232,11 @@ public class TreeTermTranslator {
         case DafnyParser.PLUS:
             return buildBinary(BuiltinSymbols.PLUS, tree);
         case DafnyParser.MINUS:
-            return buildBinary(BuiltinSymbols.MINUS, tree);
+            if(tree.getChildCount() == 1) {
+                return buildUnary(BuiltinSymbols.NEG, tree);
+            } else {
+                return buildBinary(BuiltinSymbols.MINUS, tree);
+            }
         case DafnyParser.TIMES:
             return buildBinary(BuiltinSymbols.TIMES, tree);
         case DafnyParser.UNION:
@@ -242,7 +247,7 @@ public class TreeTermTranslator {
             return buildBinary(symbolTable.getFunctionSymbol("$intersect[int]"), tree);
 
         case DafnyParser.NOT:
-            return buildUnary(BuiltinSymbols.NEG, tree);
+            return buildUnary(BuiltinSymbols.NOT, tree);
 
         case DafnyParser.EQ:
             return buildEquality(tree);
@@ -284,6 +289,9 @@ public class TreeTermTranslator {
 
         case DafnyParser.CALL:
             return buildCall(tree);
+
+        case DafnyParser.WILDCARD:
+            return buildWildcard(tree);
 
         default:
             TermBuildException ex =
@@ -379,6 +387,29 @@ public class TreeTermTranslator {
         return new ApplTerm(f, Arrays.asList(t1));
 
     }
+
+    private Term buildWildcard(DafnyTree tree) throws TermBuildException {
+        Sort sort = buildSort(tree.getExpressionType());
+        String suggestedName;
+        if(tree.getChildCount() > 0) {
+            suggestedName = tree.getChild(0).getText();
+        } else {
+            suggestedName = "unknown";
+        }
+
+        int count = 1;
+        String name = suggestedName + "_" + count;
+        while(symbolTable.getFunctionSymbol(name) != null) {
+            count ++;
+            name = suggestedName + "_" + count;
+        }
+
+        FunctionSymbol fs = new FunctionSymbol(name, sort);
+        symbolTable.addFunctionSymbol(fs);
+
+        return new ApplTerm(fs);
+    }
+
 
     private Term buildNull(DafnyTree tree) throws TermBuildException {
         return tb._null();
@@ -497,7 +528,7 @@ public class TreeTermTranslator {
     // Currently that is still simple since only array<int>, arrayN<int> and set<int>
     // are supported besides int.
     // The name of the node is actually the type already... Will change in future!
-    private Sort buildSort(DafnyTree child) {
+    private Sort buildSort(@NonNull DafnyTree child) {
         return SymbexStateToFormula.treeToType(child);
     }
 
@@ -521,21 +552,21 @@ public class TreeTermTranslator {
 
     private Term buildNoetherLess(DafnyTree tree) throws TermBuildException {
         // TODO refactor this for seq<?> one day when seqs are available
+
         DafnyTree lhs = tree.getChild(0);
         DafnyTree rhs = tree.getChild(1);
 
-        assert rhs.getType() == DafnyParser.LISTEX
-                && lhs.getType() == DafnyParser.ID :
-            "limited support so far we inline the comparison";
+        assert     lhs.getType() == DafnyParser.LISTEX
+                && rhs.getType() == DafnyParser.LISTEX
+                && lhs.getChildCount() == rhs.getChildCount():
+            "limited support so far, we inline the comparison";
 
         Term result = tb.ff();
-        String basevar = lhs.toString();
         Term[] vars = new Term[rhs.getChildCount()];
         Term[] terms = new Term[rhs.getChildCount()];
 
         for (int i = 0; i < rhs.getChildCount(); i++) {
-            FunctionSymbol f = symbolTable.getFunctionSymbol(basevar + "_" + i);
-            vars[i] = new ApplTerm(f);
+            vars[i] = build(lhs.getChild(i));
             terms[i] = build(rhs.getChild(i));
 
             Term cond = tb.tt();

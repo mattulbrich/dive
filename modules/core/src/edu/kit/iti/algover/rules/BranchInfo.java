@@ -11,6 +11,7 @@ import java.util.List;
 import edu.kit.iti.algover.proof.ProofNode;
 import edu.kit.iti.algover.term.Sequent;
 import edu.kit.iti.algover.term.Term;
+import edu.kit.iti.algover.util.ImmutableList;
 import edu.kit.iti.algover.util.Pair;
 import nonnull.DeepNonNull;
 import nonnull.NonNull;
@@ -30,9 +31,9 @@ public class BranchInfo {
     /**
      * The special case of a single branch which does not change anything.
      */
-    public static final List<BranchInfo> UNCHANGED =
-            Collections.singletonList(
-                    new BranchInfo(Sequent.EMPTY, Sequent.EMPTY, Collections.emptyList()));
+    public static final ImmutableList<BranchInfo> UNCHANGED =
+            ImmutableList.single(
+                    new BranchInfo(Sequent.EMPTY, Sequent.EMPTY, ImmutableList.nil()));
 
     /**
      * The special case of a closing rule with no branches.
@@ -53,7 +54,7 @@ public class BranchInfo {
     /**
      * The replacements.
      */
-    private final @DeepNonNull List<Pair<TermSelector, Term>> replacements;
+    private final @DeepNonNull ImmutableList<Pair<TermSelector, Term>> replacements;
 
     /**
      * Instantiates a new branch info.
@@ -63,10 +64,16 @@ public class BranchInfo {
      * @param replacements the replacements
      */
     public BranchInfo(@NonNull Sequent additions, @NonNull Sequent deletions,
-            @DeepNonNull List<Pair<TermSelector, Term>> replacements) {
+            @DeepNonNull ImmutableList<Pair<TermSelector, Term>> replacements) {
         this.additions = additions;
         this.deletions = deletions;
         this.replacements = replacements;
+    }
+
+    @SafeVarargs
+    public static BranchInfo makeReplacement(Pair<TermSelector, Term>... replacements) {
+        return new BranchInfo(Sequent.EMPTY, Sequent.EMPTY,
+                ImmutableList.<Pair<TermSelector, Term>>from(replacements));
     }
 
     /**
@@ -92,8 +99,8 @@ public class BranchInfo {
      *
      * @return an unmodifiable list of term replacements.
      */
-    public List<Pair<TermSelector, Term>> getReplacements() {
-        return Collections.unmodifiableList(replacements);
+    public Iterable<Pair<TermSelector, Term>> getReplacements() {
+        return replacements;
     }
 
 }

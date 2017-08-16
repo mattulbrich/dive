@@ -8,6 +8,7 @@ package edu.kit.iti.algover.sequent;
 import edu.kit.iti.algover.term.prettyprint.AnnotatedString;
 import edu.kit.iti.algover.term.prettyprint.PrettyPrint;
 import edu.kit.iti.algover.term.Term;
+import edu.kit.iti.algover.term.prettyprint.SubtermSelector;
 import edu.kit.iti.algover.util.TextUtil;
 import javafx.geometry.Bounds;
 import javafx.scene.input.MouseEvent;
@@ -23,16 +24,17 @@ public class TermView extends CodeArea {
 
     private final Term term;
     private final AnnotatedString str;
+    private final TermViewListener listener;
 
-    public TermView(Term term) {
+    public TermView(Term term, TermViewListener listener) {
         super("");
         getStyleClass().add("term-view");
 
         this.term = term;
+        this.listener = listener;
         PrettyPrint p = new PrettyPrint();
-        // REVIEW MU: I activated printing of infix operators here.
-        // p.setPrintingFix(false);
         this.str = p.print(term, 40);
+        setFocusTraversable(false);
 
         String prettyPrinted = str.toString();
 
@@ -55,8 +57,21 @@ public class TermView extends CodeArea {
         setPrefSize(neededWidth, neededHeight);
 
         setOnMouseMoved(this::updateHighlghting);
-        setOnMousePressed(this::updateHighlghting);
+        setOnMousePressed(this::handleClick);
         setOnMouseExited(event -> clearStyle(0, getLength()));
+    }
+
+    private void handleClick(MouseEvent mouseEvent) {
+        CharacterHit hit = hit(mouseEvent.getX(), mouseEvent.getY());
+        OptionalInt charIdx = hit.getCharacterIndex();
+        if (charIdx.isPresent()) {
+            AnnotatedString.TermElement elem = str.getTermElementAt(charIdx.getAsInt());
+            SubtermSelector subtermSelector = elem.getSubtermSelector();
+            listener.handleClickOnSubterm(term, subtermSelector);
+        } else {
+            // A click outside should select the whole item
+            listener.handleClickOutsideTerm();
+        }
     }
 
     private void updateHighlghting(MouseEvent mouseEvent) {

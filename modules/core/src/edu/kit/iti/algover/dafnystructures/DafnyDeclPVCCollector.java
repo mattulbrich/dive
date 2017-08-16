@@ -17,6 +17,7 @@ import java.util.List;
  * Visitor for DafnyDecl, that performs symbex on dafnydecl and returns PVCCollection
  * Created by sarah on 10/20/16.
  * refactored by mattias
+ * @author Sarah Grebing
  */
 public class DafnyDeclPVCCollector {
 

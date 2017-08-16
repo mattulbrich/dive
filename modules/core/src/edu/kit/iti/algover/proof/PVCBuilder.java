@@ -14,6 +14,8 @@ import edu.kit.iti.algover.data.SuffixSymbolTable;
 import edu.kit.iti.algover.data.SymbolTable;
 import edu.kit.iti.algover.parser.DafnyException;
 import edu.kit.iti.algover.parser.DafnyTree;
+import edu.kit.iti.algover.script.ScriptTree;
+import edu.kit.iti.algover.symbex.LocalVarDecl;
 import edu.kit.iti.algover.symbex.SymbexPath;
 import edu.kit.iti.algover.term.FunctionSymbol;
 import edu.kit.iti.algover.term.Sequent;
@@ -57,7 +59,7 @@ public class PVCBuilder {
     /**
      * local script of pvc, is identified by id
      */
-    //private ScriptTree localScript;
+    private ScriptTree localScript;
 
     /**
      * Path through program which represents state of this pvc
@@ -82,14 +84,14 @@ public class PVCBuilder {
         return this;
     }
 
-   /* public ScriptTree getLocalScript() {
+    public ScriptTree getLocalScript() {
         return localScript;
-    }*/
+    }
 
-   /* public PVCBuilder setLocalScript(ScriptTree localScript) {
+    public PVCBuilder setLocalScript(ScriptTree localScript) {
         this.localScript = localScript;
         return this;
-    }*/
+    }
 
     public SymbexPath getPathThroughProgram() {
         return pathThroughProgram;
@@ -124,6 +126,12 @@ public class PVCBuilder {
         for (DafnyTree decl : ProgramDatabase.getAllVariableDeclarations(method.getRepresentation())) {
             String name = decl.getChild(0).toString();
             Sort sort = TreeUtil.toSort(decl.getChild(1));
+            map.add(new FunctionSymbol(name, sort));
+        }
+
+        for (LocalVarDecl lvd : pathThroughProgram.getDeclaredLocalVars()) {
+            String name = lvd.getName();
+            Sort sort = TreeUtil.toSort(lvd.getType());
             map.add(new FunctionSymbol(name, sort));
         }
 

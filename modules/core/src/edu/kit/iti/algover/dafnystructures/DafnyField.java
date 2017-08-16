@@ -13,6 +13,8 @@ import edu.kit.iti.algover.parser.DafnyTree;
  *
  * Since fields have less properties than methods or functions, there is no
  * builder for such entities.
+ * @author Sarah Grebing
+ * @author Mattias Ulbrich
  *
  */
 // REVIEW. What does "global" mean here?

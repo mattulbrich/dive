@@ -44,10 +44,15 @@ import nonnull.Nullable;
  * first subterm of the third formula in the succedent.
  *
  * @see SubtermSelector
+ *
+ * @author mulbrich
  */
 public final class TermSelector implements Comparable<TermSelector> {
 
 
+    /**
+     * Indicator to denote left and right hand side of the sequent.
+     */
     public enum SequentPolarity { ANTECEDENT, SUCCEDENT };
 
     /**
@@ -62,14 +67,14 @@ public final class TermSelector implements Comparable<TermSelector> {
     private static final SubtermSelector EMPTY_SUBTERMSELECTOR = new SubtermSelector();
 
     /**
-     * We store the side as a boolean value. True iff in antecedent.
+     * We store the side of the sequent as a constant value.
      */
-    private @NonNull SequentPolarity polarity;
+    private final @NonNull SequentPolarity polarity;
 
     /**
      * the number of the selected term on its side.
      */
-    private short termNumber;
+    private final short termNumber;
 
     /**
      * If a subterm of the term is selected, then this field contains
@@ -342,6 +347,15 @@ public final class TermSelector implements Comparable<TermSelector> {
     }
 
     /**
+     * Gets the polarity of this term selector.
+     *
+     * @return the constant for antecedent or succedent
+     */
+    public @NonNull SequentPolarity getPolarity() {
+        return polarity;
+    }
+
+    /**
      * Checks if this selection refers to a top level term.
      *
      * @return true, if the subterm number is equal to 0
@@ -405,11 +419,10 @@ public final class TermSelector implements Comparable<TermSelector> {
      *
      * @return the term to which the selector refers
      *
-     * @throws ProofException
+     * @throws RuleException
      *             if the selection cannot be applied to the sequent.
      */
-    // TODO refine exception type
-    public @NonNull ProofFormula selectTopterm(@NonNull Sequent sequent) throws Exception {
+    public @NonNull ProofFormula selectTopterm(@NonNull Sequent sequent) throws RuleException {
         List<ProofFormula> terms;
         if (isAntecedent()) {
             terms = sequent.getAntecedent();
@@ -419,13 +432,22 @@ public final class TermSelector implements Comparable<TermSelector> {
 
         int termNo = getTermNo();
         if (termNo < 0 || termNo >= terms.size()) {
-            throw new Exception("Cannot select " + this + " in " + sequent);
+            throw new RuleException("Cannot select " + this + " in " + sequent);
         }
 
         return terms.get(termNo);
     }
 
-    public Sequent selectSequent(@NonNull Sequent sequent) throws Exception {
+    /**
+     * Create a sequent object from the selected toplevel formula.
+     *
+     * @param sequent
+     *            the sequent to choose from
+     * @return the sequent containing only the selected toplevel formula.
+     * @throws RuleException
+     *             if the selection cannot be applied to the sequent.
+     */
+    public Sequent selectAsSequent(@NonNull Sequent sequent) throws RuleException {
         ProofFormula formula = selectTopterm(sequent);
         if(isAntecedent()) {
             return new Sequent(Collections.singletonList(formula), Collections.emptyList());
@@ -450,11 +472,10 @@ public final class TermSelector implements Comparable<TermSelector> {
      *
      * @return the term to which the selector refers
      *
-     * @throws ProofException
+     * @throws RuleException
      *             if the selection cannot be applied to the sequent.
      */
-    // TODO refine exception
-    public @NonNull Term selectSubterm(@NonNull Sequent sequent) throws Exception {
+    public @NonNull Term selectSubterm(@NonNull Sequent sequent) throws RuleException {
         ProofFormula formula = selectTopterm(sequent);
         return subtermSelector.selectSubterm(formula.getTerm());
     }
@@ -477,7 +498,7 @@ public final class TermSelector implements Comparable<TermSelector> {
      * @return true iff the argument is a prefix to this selector.
      */
     public boolean hasPrefix(@NonNull TermSelector prefix) {
-        if(isAntecedent() != prefix.isAntecedent()) {
+        if(polarity != prefix.polarity) {
             return false;
         }
 
