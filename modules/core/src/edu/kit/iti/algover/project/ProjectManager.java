@@ -1,6 +1,5 @@
 package edu.kit.iti.algover.project;
 
-import com.google.common.annotations.VisibleForTesting;
 import edu.kit.iti.algover.parser.DafnyException;
 import edu.kit.iti.algover.parser.ReferenceResolutionVisitor;
 import edu.kit.iti.algover.parser.TypeResolution;
@@ -106,7 +105,6 @@ public class ProjectManager {
     /**
      * Generate all proof objects for all available PVCs in allPVCs
      */
-    @VisibleForTesting
     private void generateAllProofObjects() {
         allProofs = new HashMap<>();
         for (String pvc : allStrippedPVCs.keySet()) {
