@@ -5,6 +5,7 @@
  */
 package edu.kit.iti.algover.term.prettyprint;
 
+
 import edu.kit.iti.algover.term.ApplTerm;
 import edu.kit.iti.algover.term.FunctionSymbol;
 import edu.kit.iti.algover.term.FunctionSymbolFamily;
@@ -25,13 +26,6 @@ import java.util.List;
 import java.util.Map;
 
 public class FixOperatorPrinterExtension implements PrettyPrintExtension {
-
-    /**
-     * Checks if a character is an operator char.
-     */
-    private boolean isOperatorChar(char c) {
-        return "+-<>&|=*/!^@.:".indexOf(c) != -1;
-    }
 
     @Override
     public boolean canPrint(FunctionSymbol fs) {
@@ -121,6 +115,13 @@ public class FixOperatorPrinterExtension implements PrettyPrintExtension {
         application.getTerm(1).accept(visitor, null);
         printer.endTerm();
         printer.endBlock();
+    }
+
+    /**
+     * Checks if a character is an operator char.
+     */
+    private boolean isOperatorChar(char c) {
+        return "+-<>&|=*/!^@.:".indexOf(c) != -1;
     }
 }
 
