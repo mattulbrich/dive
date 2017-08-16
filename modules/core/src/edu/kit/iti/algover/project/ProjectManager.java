@@ -27,16 +27,7 @@ import java.util.Map;
  */
 public class ProjectManager {
 
-    String dummyContent =
-            "auto;\n" +
-                    "cases{\n" +
-                    "    case match '1==2'{\n" +
-                    "        auto;\n" +
-                    "    }\n" +
-                    "    default:{\n" +
-                    "        auto;\n" +
-                    "    }\n" +
-                    "}";
+
 
     /**
      * Reference to config file
@@ -60,6 +51,22 @@ public class ProjectManager {
      *                                        Load
      *
      *************************************************************************************************/
+
+    /**
+     * Load a Project from a given config file and set the property for the project
+     *
+     * @param config File
+     */
+    public void loadProject(File config) throws Exception {
+        this.configFile = config;
+        Project p = null;
+        p = buildProject(config.toPath());
+        this.allPVCs = p.generateAndCollectPVC();
+        this.allStrippedPVCs = p.getPvcCollectionByName();
+        this.setProject(p);
+        generateAllProofObjects();
+
+    }
 
     /**
      * Build a new Project
@@ -87,22 +94,6 @@ public class ProjectManager {
     }
 
     /**
-     * Load a Project from a given config file and set the property for the project
-     *
-     * @param config File
-     */
-    public void loadProject(File config) throws Exception {
-        this.configFile = config;
-        Project p = null;
-        p = buildProject(config.toPath());
-        this.allPVCs = p.generateAndCollectPVC();
-        this.allStrippedPVCs = p.getPvcCollectionByName();
-        this.setProject(p);
-        generateAllProofObjects();
-
-    }
-
-    /**
      * Generate all proof objects for all available PVCs in allPVCs
      */
     private void generateAllProofObjects() {
@@ -115,7 +106,7 @@ public class ProjectManager {
     }
 
     /**
-     * Find and parse script file for pvc
+     * Find and parse script file for pvc. Set the ASTroot in the corresponding proof object
      *
      * @param pvc
      * @return TODO should return ScriptAST
@@ -125,10 +116,17 @@ public class ProjectManager {
         String filePath = project.get().getBaseDir().getAbsolutePath() + pvc + ".script";
         //find file on disc
         Path p = Paths.get(filePath);
-        System.out.println(p.getFileName());
         ASTNode root = Facade.getAST(p.toFile());
-        System.out.println(root);
-        //ScriptAST root = ScriptParser.parse(scriptFile)
+        Proof proof = allProofs.get(pvc);
+        if (proof != null) {
+
+        } else {
+            proof = new Proof(pvc);
+        }
+        proof.setScriptRoot(root);
+
+        allProofs.putIfAbsent(pvc, proof);
+
     }
 
     /**
@@ -138,6 +136,15 @@ public class ProjectManager {
      */
     public void loadProjectVersion(File zipFile) {
 
+    }
+
+    /**
+     * Set all proofs to DIRTY
+     */
+    public void invalidateAllProofs() {
+        for (String pvc : allStrippedPVCs.keySet()) {
+            invalidateProofForPVC(pvc);
+        }
     }
 
     /**
@@ -154,12 +161,23 @@ public class ProjectManager {
     }
 
     /**
-     * Set all proofs to DIRTY
+     * Return Proof object for a PVC if it exists, null otherwise
+     *
+     * @param pvcIdentifier
+     * @return
      */
-    public void invalidateAllProofs() {
-        for (String pvc : allStrippedPVCs.keySet()) {
-            invalidateProofForPVC(pvc);
-        }
+    public Proof getProofForPVC(String pvcIdentifier) {
+        return getAllProofs().getOrDefault(pvcIdentifier, null);
+    }
+
+    /**************************************************************************************************
+     *
+     *                                        Save
+     *
+     *************************************************************************************************/
+
+    public Map<String, Proof> getAllProofs() {
+        return allProofs;
     }
 
     /**
@@ -174,13 +192,6 @@ public class ProjectManager {
 
     }
 
-    /**************************************************************************************************
-     *
-     *                                        Save
-     *
-     *************************************************************************************************/
-
-
     /**
      * Save the whole Project contents
      */
@@ -190,22 +201,21 @@ public class ProjectManager {
             Proof proof = pvcProofEntry.getValue();
             //proof.getScriptASTNode
             //ScriptHelper.visitASTNODE -> String content
-            String content = "DummyContent";
-            saveToScriptFile(pvcName, dummyContent);
+            String content =
+                    "auto;\n" +
+                            "cases{\n" +
+                            "    case match '1==2'{\n" +
+                            "        auto;\n" +
+                            "    }\n" +
+                            "    default:{\n" +
+                            "        auto;\n" +
+                            "    }\n" +
+                            "}";
+            //where to get content from
+            saveToScriptFile(pvcName, content);
         }
 
     }
-
-    /**
-     * Save content to Dafny file
-     *
-     * @param file    to save content to
-     * @param content content to save
-     */
-    public void saveToDfyFile(File file, String content) throws IOException {
-        saverHelper(file.getAbsolutePath(), content);
-    }
-
 
     /**
      * Save content to script file for pvc
@@ -234,14 +244,21 @@ public class ProjectManager {
     }
 
     /**
+     * Save content to Dafny file
+     *
+     * @param file    to save content to
+     * @param content content to save
+     */
+    public void saveToDfyFile(File file, String content) throws IOException {
+        saverHelper(file.getAbsolutePath(), content);
+    }
+
+    /**
      * Save project to a zipfile
      */
     public void saveProjectVersion() throws IOException {
         saveProject();
     }
-
-
-
 
     /**************************************************************************************************
      *
@@ -275,20 +292,6 @@ public class ProjectManager {
 
     public void setConfigFile(File configFile) {
         this.configFile = configFile;
-    }
-
-    public Map<String, Proof> getAllProofs() {
-        return allProofs;
-    }
-
-    /**
-     * Return Proof object for a PVC if it exists, null otherwise
-     *
-     * @param pvcIdentifier
-     * @return
-     */
-    public Proof getProofForPVC(String pvcIdentifier) {
-        return getAllProofs().getOrDefault(pvcIdentifier, null);
     }
 
 

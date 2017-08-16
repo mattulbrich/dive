@@ -1,9 +1,11 @@
 package edu.kit.iti.algover.proof;
 
+import edu.kit.iti.algover.script.ast.ASTNode;
 import javafx.beans.property.SimpleObjectProperty;
 
 /**
  * Proof Object
+ * This object contains the proof root as well as teh script root
  */
 public class Proof {
 
@@ -20,10 +22,11 @@ public class Proof {
     private ProofNode proofRoot;
 
 
+
     /**
      * Root of Script
      */
-    //private ScriptASTNode scriptRoot;
+    private ASTNode scriptRoot;
 
     /**
      * PVC Name for which this proof object is created
@@ -31,10 +34,11 @@ public class Proof {
     private String pvcName;
 
 
+
     public Proof(String pvcName) {
         this.setPvcName(pvcName);
         this.setProofRoot(null);
-        //set scriptRoot null
+        this.setProofRoot(null);
         this.setProofStatus(ProofStatus.NOT_LOADED);
 
     }
@@ -55,14 +59,6 @@ public class Proof {
         this.pvcName = pvcName;
     }
 
-    public ProofStatus getProofStatus() {
-        return proofStatus.get();
-    }
-
-    public void setProofStatus(ProofStatus proofStatus) {
-        this.proofStatus.set(proofStatus);
-    }
-
     public SimpleObjectProperty<ProofStatus> proofStatusProperty() {
         return proofStatus;
     }
@@ -81,5 +77,21 @@ public class Proof {
             setProofStatus(ProofStatus.NON_EXISTING);
         }
         return this;
+    }
+
+    public ProofStatus getProofStatus() {
+        return proofStatus.get();
+    }
+
+    public void setProofStatus(ProofStatus proofStatus) {
+        this.proofStatus.set(proofStatus);
+    }
+
+    public ASTNode getScriptRoot() {
+        return scriptRoot;
+    }
+
+    public void setScriptRoot(ASTNode scriptRoot) {
+        this.scriptRoot = scriptRoot;
     }
 }
