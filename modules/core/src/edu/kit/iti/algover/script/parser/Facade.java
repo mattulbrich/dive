@@ -33,7 +33,6 @@ import org.antlr.v4.runtime.ParserRuleContext;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.List;
 
 /**
  * This class captures high-level functions of this package.
@@ -70,13 +69,14 @@ public abstract class Facade {
      * @param stream
      * @return
      */
-    public static List<ProofScript> getAST(CharStream stream) {
+    public static ProofScript getAST(CharStream stream) {
         TransformAst astt = new TransformAst();
         ScriptLanguageParser.StartContext ctx = parseStream(stream);
         if (ctx.exception != null) throw ctx.exception;
         ctx.accept(astt);
-        return astt.getScripts();
+        return astt.getScript();
     }
+
 
     /**
      * Parses an AST from the given <code>inputfile</code>
@@ -85,11 +85,11 @@ public abstract class Facade {
      * @return
      * @throws IOException
      */
-    public static List<ProofScript> getAST(File inputfile) throws IOException {
+    public static ProofScript getAST(File inputfile) throws IOException {
         return getAST(CharStreams.fromPath(inputfile.toPath()));
     }
 
-    public static List<ProofScript> getAST(String input) {
+    public static ProofScript getAST(String input) {
         return getAST(CharStreams.fromString(input));
     }
 

@@ -1,6 +1,7 @@
 package edu.kit.iti.algover.script.exceptions;
 
-import edu.kit.formal.proofscriptparser.ast.CallStatement;
+
+import edu.kit.iti.algover.script.ast.CallStatement;
 
 /**
  * @author Alexander Weigl

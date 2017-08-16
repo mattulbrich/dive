@@ -14,7 +14,8 @@ import edu.kit.iti.algover.parser.DafnyTree;
 import edu.kit.iti.algover.symbex.AssertionElement;
 import edu.kit.iti.algover.symbex.PathConditionElement;
 import edu.kit.iti.algover.symbex.SymbexPath;
-import edu.kit.iti.algover.term.*;
+import edu.kit.iti.algover.term.FunctionSymbol;
+import edu.kit.iti.algover.term.Sort;
 import edu.kit.iti.algover.term.builder.TermBuildException;
 import edu.kit.iti.algover.util.ImmutableList;
 import edu.kit.iti.algover.util.Pair;
@@ -30,10 +31,10 @@ import java.util.*;
 @Deprecated
 public class DafnyTrans {
 
+    private final SymbolTable symbolTable;
     public String methodName;
     private DafnyTree method;
     private SymbexPath path;
-    private final SymbolTable symbolTable;
 
     public DafnyTrans(SymbexPath path) {
         this.path = path;

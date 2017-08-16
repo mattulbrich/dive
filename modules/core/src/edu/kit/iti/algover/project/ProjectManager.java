@@ -8,6 +8,8 @@ import edu.kit.iti.algover.proof.PVC;
 import edu.kit.iti.algover.proof.PVCGroup;
 import edu.kit.iti.algover.proof.Proof;
 import edu.kit.iti.algover.proof.ProofStatus;
+import edu.kit.iti.algover.script.ast.ASTNode;
+import edu.kit.iti.algover.script.parser.Facade;
 import javafx.beans.property.SimpleObjectProperty;
 
 import java.io.File;
@@ -26,6 +28,16 @@ import java.util.Map;
  */
 public class ProjectManager {
 
+    String dummyContent =
+            "auto;\n" +
+                    "cases{\n" +
+                    "    case match '1==2'{\n" +
+                    "        auto;\n" +
+                    "    }\n" +
+                    "    default:{\n" +
+                    "        auto;\n" +
+                    "    }\n" +
+                    "}";
 
     /**
      * Reference to config file
@@ -42,6 +54,7 @@ public class ProjectManager {
     private Map<String, PVC> allStrippedPVCs;
 
     private Map<String, Proof> allProofs;
+
 
     /**************************************************************************************************
      *
@@ -109,9 +122,14 @@ public class ProjectManager {
      * @param pvc
      * @return TODO should return ScriptAST
      */
-    private void findAndParseScriptFile(String pvc) {
-        String filePath = project.get().getBaseDir().getAbsolutePath() + File.separatorChar + pvc + ".script";
+
+    public void findAndParseScriptFile(String pvc) throws IOException {
+        String filePath = project.get().getBaseDir().getAbsolutePath() + pvc + ".script";
         //find file on disc
+        Path p = Paths.get(filePath);
+        System.out.println(p.getFileName());
+        ASTNode root = Facade.getAST(p.toFile());
+        System.out.println(root);
         //ScriptAST root = ScriptParser.parse(scriptFile)
     }
 
@@ -175,7 +193,7 @@ public class ProjectManager {
             //proof.getScriptASTNode
             //ScriptHelper.visitASTNODE -> String content
             String content = "DummyContent";
-            saveToScriptFile(pvcName, content);
+            saveToScriptFile(pvcName, dummyContent);
         }
 
     }

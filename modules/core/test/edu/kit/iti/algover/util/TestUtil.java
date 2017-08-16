@@ -5,20 +5,15 @@
  */
 package edu.kit.iti.algover.util;
 
+import edu.kit.iti.algover.parser.*;
+import edu.kit.iti.algover.project.Project;
+import edu.kit.iti.algover.project.ProjectBuilder;
+import org.antlr.runtime.RecognitionException;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Function;
-
-import org.antlr.runtime.RecognitionException;
-
-import edu.kit.iti.algover.parser.DafnyException;
-import edu.kit.iti.algover.parser.DafnyParserException;
-import edu.kit.iti.algover.parser.DafnyTree;
-import edu.kit.iti.algover.parser.ReferenceResolutionVisitor;
-import edu.kit.iti.algover.parser.TypeResolution;
-import edu.kit.iti.algover.project.Project;
-import edu.kit.iti.algover.project.ProjectBuilder;
 
 public class TestUtil {
 
@@ -75,7 +70,7 @@ public class TestUtil {
         ReferenceResolutionVisitor refResolver = new ReferenceResolutionVisitor(p, exceptions);
         refResolver.visitProject();
 
-        if(!exceptions.isEmpty()) {
+        if (!exceptions.isEmpty()) {
             for (DafnyException dafnyException : exceptions) {
                 dafnyException.printStackTrace();
             }

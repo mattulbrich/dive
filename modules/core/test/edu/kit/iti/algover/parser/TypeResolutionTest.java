@@ -6,19 +6,6 @@
 
 package edu.kit.iti.algover.parser;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.fail;
-
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.List;
-
-import org.antlr.runtime.RecognitionException;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-
 import edu.kit.iti.algover.dafnystructures.DafnyMethod;
 import edu.kit.iti.algover.project.Project;
 import edu.kit.iti.algover.project.ProjectBuilder;
@@ -26,12 +13,29 @@ import edu.kit.iti.algover.util.TreeUtil;
 import edu.kit.iti.algover.util.Util;
 import junitparams.JUnitParamsRunner;
 import junitparams.Parameters;
+import org.antlr.runtime.RecognitionException;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.List;
+
+import static org.junit.Assert.*;
 
 @RunWith(JUnitParamsRunner.class)
 public class TypeResolutionTest {
 
     public TypeResolutionTest() {
         super();
+    }
+
+    // Different from TestUtil.mockProject!
+    private static Project mockProject(DafnyTree tree) throws IOException, DafnyException, DafnyParserException, RecognitionException {
+        ProjectBuilder pb = new ProjectBuilder();
+        pb.addDafnyTree("dummy", tree);
+        return pb.build();
     }
 
     public Iterable<Object[]> parametersForTestVisitMethod() throws Exception {
@@ -55,14 +59,8 @@ public class TypeResolutionTest {
         return result;
     }
 
-    // Different from TestUtil.mockProject!
-    private static Project mockProject(DafnyTree tree) throws IOException, DafnyException, DafnyParserException, RecognitionException {
-        ProjectBuilder pb = new ProjectBuilder();
-        pb.addDafnyTree("dummy", tree);
-        return pb.build();
-    }
-
-    @Test @Parameters
+    @Test
+    @Parameters
     public void testVisitMethod(String method, Project project) throws Exception {
         List<DafnyException> exceptions = new ArrayList<>();
         TypeResolution tr = new TypeResolution(exceptions);
@@ -132,7 +130,7 @@ public class TypeResolutionTest {
             tree.addChild(new DafnyTree(DafnyParser.INT_LIT, "0"));
 
             List<DafnyException> exceptions = new ArrayList<>();
-            tree.accept(new TypeResolution(exceptions ), null);
+            tree.accept(new TypeResolution(exceptions), null);
 
             assertEquals("bool", tree.getExpressionType().toStringTree());
             assertEquals(0, exceptions.size());
@@ -143,7 +141,7 @@ public class TypeResolutionTest {
             tree.addChild(new DafnyTree(DafnyParser.INT_LIT, "0"));
 
             List<DafnyException> exceptions = new ArrayList<>();
-            tree.accept(new TypeResolution(exceptions ), null);
+            tree.accept(new TypeResolution(exceptions), null);
 
             System.out.println(toTypedString(tree));
 

@@ -5,21 +5,6 @@
  */
 package edu.kit.iti.algover.symbex;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertSame;
-import static org.junit.Assert.assertTrue;
-
-import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Deque;
-import java.util.LinkedList;
-import java.util.List;
-
-import org.junit.Before;
-import org.junit.Test;
-
 import edu.kit.iti.algover.parser.DafnyParser;
 import edu.kit.iti.algover.parser.DafnyTree;
 import edu.kit.iti.algover.parser.ParserTest;
@@ -29,18 +14,22 @@ import edu.kit.iti.algover.util.ASTUtil;
 import edu.kit.iti.algover.util.ImmutableList;
 import edu.kit.iti.algover.util.TestUtil;
 import edu.kit.iti.algover.util.Util;
+import org.junit.Before;
+import org.junit.Test;
+
+import java.io.InputStream;
+import java.util.*;
+
+import static org.junit.Assert.*;
 
 public class SymbexTest {
 
     private static final ImmutableList<DafnyTree> SOME_HISTORY =
             ImmutableList.single(ASTUtil.assign(ASTUtil.id("someVar"),
                     ASTUtil.intLiteral(42)));
-
-
-    private DafnyTree tree;
-
     private static final DafnyTree SOME_PROGRAM =
             new DafnyTree(-1, "SOME_PROGRAM");
+    private DafnyTree tree;
 
     @Before
     public void loadTree() throws Exception {
@@ -279,13 +268,13 @@ public class SymbexTest {
                 assertEquals(AssertionType.INVARIANT_PRESERVED, pres.getCommonProofObligationType());
                 ImmutableList<DafnyTree> list = pres.getAssignmentHistory();
                 assertEquals("[(ASSIGN $mod modset), "
-                        + "(:= unmod 1), (:= mod unmod), "
-                        + "(:= mod (+ mod 2)), "
-                        + "(ASSIGN mod WILDCARD), "
-                        + "(ASSIGN $heap (CALL $anon (ARGS $heap $mod $aheap_1))), "
-                        + "(ASSIGN $decr_1 (+ unmod mod)), "
-                        + "(:= mod (+ mod 1)), "
-                        + "(:= field 1)]",
+                                + "(:= unmod 1), (:= mod unmod), "
+                                + "(:= mod (+ mod 2)), "
+                                + "(ASSIGN mod WILDCARD), "
+                                + "(ASSIGN $heap (CALL $anon (ARGS $heap $mod $aheap_1))), "
+                                + "(ASSIGN $decr_1 (+ unmod mod)), "
+                                + "(:= mod (+ mod 1)), "
+                                + "(:= field 1)]",
                         list.map(x -> x.toStringTree()).toString());
             }
             {
@@ -298,9 +287,9 @@ public class SymbexTest {
             assertEquals(AssertionType.POST, ss.getCommonProofObligationType());
             ImmutableList<DafnyTree> list = ss.getAssignmentHistory();
             assertEquals("[(ASSIGN $mod modset), "
-                    + "(:= unmod 1), (:= mod unmod), (:= mod (+ mod 2)), "
-                    + "(ASSIGN mod WILDCARD), "
-                    + "(ASSIGN $heap (CALL $anon (ARGS $heap $mod $aheap_1)))]",
+                            + "(:= unmod 1), (:= mod unmod), (:= mod (+ mod 2)), "
+                            + "(ASSIGN mod WILDCARD), "
+                            + "(ASSIGN $heap (CALL $anon (ARGS $heap $mod $aheap_1)))]",
                     list.map(x -> x.toStringTree()).toString());
         }
 
@@ -402,10 +391,10 @@ public class SymbexTest {
         assertEquals(2, results.size());
 
         ImmutableList<DafnyTree> pc = results.get(0).getAssignmentHistory();
-        assertEquals("[(ASSIGN $mod $everything), (:= x *), (:= y *), (:= x *)]", pc.map(x->x.toStringTree()).toString());
+        assertEquals("[(ASSIGN $mod $everything), (:= x *), (:= y *), (:= x *)]", pc.map(x -> x.toStringTree()).toString());
 
         pc = results.get(1).getAssignmentHistory();
-        assertEquals("[(ASSIGN $mod $everything), (:= x *), (:= y *), (:= x *)]", pc.map(x->x.toStringTree()).toString());
+        assertEquals("[(ASSIGN $mod $everything), (:= x *), (:= y *), (:= x *)]", pc.map(x -> x.toStringTree()).toString());
     }
 
     @Test
@@ -521,9 +510,9 @@ public class SymbexTest {
             assertEquals("(> i 2)", path.getPathConditions().get(0).getExpression().toStringTree());
             assertEquals("(> i 0)", path.getPathConditions().get(1).getExpression().toStringTree());
             assertEquals("[(ASSIGN $mod $everything), "
-                    + "(ASSIGN i WILDCARD), "
-                    + "(ASSIGN $heap (CALL $anon (ARGS $heap $mod $aheap_1))), "
-                    + "(ASSIGN $decr_1 i)]",
+                            + "(ASSIGN i WILDCARD), "
+                            + "(ASSIGN $heap (CALL $anon (ARGS $heap $mod $aheap_1))), "
+                            + "(ASSIGN $decr_1 i)]",
                     path.getAssignmentHistory().map(x->x.toStringTree()).toString());
         }
         {
@@ -535,9 +524,9 @@ public class SymbexTest {
             assertEquals("(> i 2)", path.getPathConditions().get(0).getExpression().toStringTree());
             assertEquals("(> i 0)", path.getPathConditions().get(1).getExpression().toStringTree());
             assertEquals("[(ASSIGN $mod $everything), "
-                    + "(ASSIGN i WILDCARD), "
-                    + "(ASSIGN $heap (CALL $anon (ARGS $heap $mod $aheap_1))), "
-                    + "(ASSIGN $decr_1 i)]",
+                            + "(ASSIGN i WILDCARD), "
+                            + "(ASSIGN $heap (CALL $anon (ARGS $heap $mod $aheap_1))), "
+                            + "(ASSIGN $decr_1 i)]",
                     path.getAssignmentHistory().map(x->x.toStringTree()).toString());
         }
         {
@@ -616,7 +605,7 @@ public class SymbexTest {
         assertEquals(10, i);
 
         assertEquals("[(ASSIGN $mod $everything), "
-                + "(:= z next), "
+                        + "(:= z next), "
                 + "(:= next z), "
                 + "(:= z (FIELD_ACCESS this next)), "
                 + "(:= (FIELD_ACCESS this next) z), "

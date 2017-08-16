@@ -16,15 +16,15 @@
 
 package edu.kit.iti.algover.rules;
 
-import java.util.Collections;
-import java.util.List;
-
 import edu.kit.iti.algover.proof.ProofFormula;
 import edu.kit.iti.algover.term.Sequent;
 import edu.kit.iti.algover.term.Term;
 import edu.kit.iti.algover.util.FormatException;
 import nonnull.NonNull;
 import nonnull.Nullable;
+
+import java.util.Collections;
+import java.util.List;
 
 /**
  * The Class TermSelector is used to select a subterm from a sequent. It
@@ -51,31 +51,25 @@ public final class TermSelector implements Comparable<TermSelector> {
 
 
     /**
-     * Indicator to denote left and right hand side of the sequent.
-     */
-    public enum SequentPolarity { ANTECEDENT, SUCCEDENT };
-
-    /**
      * We use the Constant CLASS_EXC_INDICATOR to indicate the origin for error
      * messages. It holds the class name.
      */
     private static final String CLASS_EXC_INDICATOR = "TermSelector";
-
+    ;
     /**
      * We create only one empty subterm selector to save space.
      */
     private static final SubtermSelector EMPTY_SUBTERMSELECTOR = new SubtermSelector();
-
     /**
      * We store the side of the sequent as a constant value.
      */
-    private final @NonNull SequentPolarity polarity;
-
+    private final
+    @NonNull
+    SequentPolarity polarity;
     /**
      * the number of the selected term on its side.
      */
     private final short termNumber;
-
     /**
      * If a subterm of the term is selected, then this field contains
      * the path to it.
@@ -84,7 +78,6 @@ public final class TermSelector implements Comparable<TermSelector> {
      * level term as the 0th subterm.
      */
     private @NonNull SubtermSelector subtermSelector;
-
 
     /**
      * Instantiates a new toplevel term selector.
@@ -104,6 +97,7 @@ public final class TermSelector implements Comparable<TermSelector> {
         this.termNumber = (short) termNo;
         this.subtermSelector = EMPTY_SUBTERMSELECTOR;
     }
+
 
     /**
      * Instantiates a new term selector from path informations.
@@ -351,7 +345,9 @@ public final class TermSelector implements Comparable<TermSelector> {
      *
      * @return the constant for antecedent or succedent
      */
-    public @NonNull SequentPolarity getPolarity() {
+    public
+    @NonNull
+    SequentPolarity getPolarity() {
         return polarity;
     }
 
@@ -406,7 +402,6 @@ public final class TermSelector implements Comparable<TermSelector> {
         return subtermSelector.getPath();
     }
 
-
     /**
      * Apply the term selector to a sequent to select a particular top level
      * term. This method ignores the path selection information.
@@ -422,7 +417,9 @@ public final class TermSelector implements Comparable<TermSelector> {
      * @throws RuleException
      *             if the selection cannot be applied to the sequent.
      */
-    public @NonNull ProofFormula selectTopterm(@NonNull Sequent sequent) throws RuleException {
+    public
+    @NonNull
+    ProofFormula selectTopterm(@NonNull Sequent sequent) throws RuleException {
         List<ProofFormula> terms;
         if (isAntecedent()) {
             terms = sequent.getAntecedent();
@@ -441,11 +438,9 @@ public final class TermSelector implements Comparable<TermSelector> {
     /**
      * Create a sequent object from the selected toplevel formula.
      *
-     * @param sequent
-     *            the sequent to choose from
+     * @param sequent the sequent to choose from
      * @return the sequent containing only the selected toplevel formula.
-     * @throws RuleException
-     *             if the selection cannot be applied to the sequent.
+     * @throws RuleException if the selection cannot be applied to the sequent.
      */
     public Sequent selectAsSequent(@NonNull Sequent sequent) throws RuleException {
         ProofFormula formula = selectTopterm(sequent);
@@ -475,7 +470,9 @@ public final class TermSelector implements Comparable<TermSelector> {
      * @throws RuleException
      *             if the selection cannot be applied to the sequent.
      */
-    public @NonNull Term selectSubterm(@NonNull Sequent sequent) throws RuleException {
+    public
+    @NonNull
+    Term selectSubterm(@NonNull Sequent sequent) throws RuleException {
         ProofFormula formula = selectTopterm(sequent);
         return subtermSelector.selectSubterm(formula.getTerm());
     }
@@ -483,7 +480,6 @@ public final class TermSelector implements Comparable<TermSelector> {
     public SubtermSelector getSubtermSelector() {
         return subtermSelector;
     }
-
 
     /**
      * Checks whether this term selector has another term selector as prefix.
@@ -498,7 +494,7 @@ public final class TermSelector implements Comparable<TermSelector> {
      * @return true iff the argument is a prefix to this selector.
      */
     public boolean hasPrefix(@NonNull TermSelector prefix) {
-        if(polarity != prefix.polarity) {
+        if (polarity != prefix.polarity) {
             return false;
         }
 
@@ -507,5 +503,13 @@ public final class TermSelector implements Comparable<TermSelector> {
         }
 
         return getSubtermSelector().hasPrefix(prefix.getSubtermSelector());
+    }
+
+
+    /**
+     * Indicator to denote left and right hand side of the sequent.
+     */
+    public enum SequentPolarity {
+        ANTECEDENT, SUCCEDENT
     }
 }

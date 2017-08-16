@@ -8,9 +8,13 @@ start
     :   script
     ;
 
+/*namedScript
+    :   SCRIPT name=ID '(' signature=argList? ')' INDENT body=stmtList DEDENT
+    ;*/
+
 script
     : SCRIPT name=ID '(' signature=argList? ')' INDENT body=stmtList DEDENT
-    | stmtList
+    | body=stmtList
     ;
 
 

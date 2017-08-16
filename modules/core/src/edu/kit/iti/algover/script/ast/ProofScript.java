@@ -36,6 +36,7 @@ public class ProofScript extends ASTNode<ScriptLanguageParser.ScriptContext> {
     private String name = "_";
     private Signature signature = new Signature();
     private Statements body = new Statements();
+    private boolean isNamedScript = false;
 
     public ProofScript() {
     }
@@ -113,7 +114,21 @@ public class ProofScript extends ASTNode<ScriptLanguageParser.ScriptContext> {
         return this.name;
     }
 
-    public void setName(@NonNull String name) {
-        this.name = name;
+    public void setName(String name) {
+        if (name == null) {
+            this.name = " ";
+        } else {
+            this.name = name;
+
+        }
+
+    }
+
+    public boolean isNamedScript() {
+        return isNamedScript;
+    }
+
+    public void setNamedScript(boolean namedScript) {
+        isNamedScript = namedScript;
     }
 }

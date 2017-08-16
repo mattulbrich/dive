@@ -5,16 +5,16 @@
  */
 package edu.kit.iti.algover.util;
 
-import java.util.HashSet;
-import java.util.List;
-import java.util.NoSuchElementException;
-import java.util.Set;
-
 import edu.kit.iti.algover.parser.DafnyParser;
 import edu.kit.iti.algover.parser.DafnyTree;
 import edu.kit.iti.algover.symbex.LocalVarDecl;
 import edu.kit.iti.algover.symbex.SymbexPath;
 import nonnull.NonNull;
+
+import java.util.HashSet;
+import java.util.List;
+import java.util.NoSuchElementException;
+import java.util.Set;
 
 /**
  * The class ASTUtil is a collection of static method for operation on DafnyTrees.
@@ -274,7 +274,7 @@ public final class ASTUtil {
 
     public static DafnyTree var(String name, Iterable<LocalVarDecl> immutableList) {
         for (LocalVarDecl loc : immutableList) {
-            if(loc.getName().equals(name)) {
+            if (loc.getName().equals(name)) {
                 DafnyTree id = id(name);
                 id.setDeclarationReference(loc.getReference());
                 return id;
@@ -343,7 +343,7 @@ public final class ASTUtil {
         int count = 1;
         String name = base + "_" + count;
         while (names.contains(name)) {
-            count ++;
+            count++;
             name = base + "_" + count;
         }
 

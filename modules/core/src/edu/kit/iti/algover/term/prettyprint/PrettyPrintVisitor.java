@@ -5,8 +5,8 @@
  */
 package edu.kit.iti.algover.term.prettyprint;
 
-import edu.kit.iti.algover.term.prettyprint.AnnotatedString.Style;
 import edu.kit.iti.algover.term.*;
+import edu.kit.iti.algover.term.prettyprint.AnnotatedString.Style;
 import edu.kit.iti.algover.util.Pair;
 import edu.kit.iti.algover.util.Util;
 
@@ -126,19 +126,19 @@ class PrettyPrintVisitor implements TermVisitor<Void, Void, RuntimeException> {
         FunctionSymbol function = application.getFunctionSymbol();
         PrettyPrintExtension ppe = pp.getExtensionFor(function);
 
-        if(ppe == null) {
+        if (ppe == null) {
             printApplication(application, function.getName());
         } else {
             int rightPrecedence = ppe.getLeftPrecedence(application);
             boolean isInParens = leftPrecedence > rightPrecedence;
-            if(isInParens) {
+            if (isInParens) {
                 printer.append("(");
             }
 
             ppe.print(application, this);
             leftPrecedence = ppe.getRightPrecedence(application);
 
-            if(isInParens) {
+            if (isInParens) {
                 printer.append(")");
             }
         }
@@ -155,7 +155,7 @@ class PrettyPrintVisitor implements TermVisitor<Void, Void, RuntimeException> {
     @Override
     public Void visit(LetTerm updateTerm, Void arg) {
         boolean isInParens = leftPrecedence > 0;
-        if(isInParens) {
+        if (isInParens) {
             printer.append("(");
         }
 
@@ -175,7 +175,7 @@ class PrettyPrintVisitor implements TermVisitor<Void, Void, RuntimeException> {
         printer.endTerm();
         printer.endBlock();
 
-        if(isInParens) {
+        if (isInParens) {
             printer.append(")");
         }
 

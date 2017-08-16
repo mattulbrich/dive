@@ -14,7 +14,7 @@ import edu.kit.iti.algover.data.SuffixSymbolTable;
 import edu.kit.iti.algover.data.SymbolTable;
 import edu.kit.iti.algover.parser.DafnyException;
 import edu.kit.iti.algover.parser.DafnyTree;
-import edu.kit.iti.algover.script.ScriptTree;
+import edu.kit.iti.algover.script.ast.ASTNode;
 import edu.kit.iti.algover.symbex.LocalVarDecl;
 import edu.kit.iti.algover.symbex.SymbexPath;
 import edu.kit.iti.algover.term.FunctionSymbol;
@@ -59,7 +59,8 @@ public class PVCBuilder {
     /**
      * local script of pvc, is identified by id
      */
-    private ScriptTree localScript;
+    //private ScriptTree localScript;
+    private ASTNode scriptTree;
 
     /**
      * Path through program which represents state of this pvc
@@ -84,12 +85,12 @@ public class PVCBuilder {
         return this;
     }
 
-    public ScriptTree getLocalScript() {
-        return localScript;
+    public ASTNode getLocalScript() {
+        return scriptTree;
     }
 
-    public PVCBuilder setLocalScript(ScriptTree localScript) {
-        this.localScript = localScript;
+    public PVCBuilder setLocalScript(ASTNode localScript) {
+        this.scriptTree = localScript;
         return this;
     }
 

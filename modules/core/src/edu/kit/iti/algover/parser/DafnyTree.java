@@ -5,10 +5,8 @@
  */
 package edu.kit.iti.algover.parser;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-
+import nonnull.NonNull;
+import nonnull.Nullable;
 import org.antlr.runtime.CommonToken;
 import org.antlr.runtime.RecognitionException;
 import org.antlr.runtime.Token;
@@ -17,8 +15,9 @@ import org.antlr.runtime.tree.CommonTree;
 import org.antlr.runtime.tree.CommonTreeAdaptor;
 import org.antlr.runtime.tree.Tree;
 
-import nonnull.NonNull;
-import nonnull.Nullable;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * This class implements AST nodes for Dafny code.
@@ -44,48 +43,15 @@ import nonnull.Nullable;
  */
 public class DafnyTree extends CommonTree {
     /**
-     * The Adaptor is used by the {@link DafnyParser} to create DafnyTree
-     * instances.
-     */
-    public static class Adaptor extends CommonTreeAdaptor {
-
-        // Checkstyle: IGNORE JavadocMethodCheck
-        public Adaptor() {
-        }
-
-        @Override
-        public Object create(Token payload) {
-            return new DafnyTree(payload);
-        }
-
-        @Override
-        public Object errorNode(TokenStream input, Token start, Token stop,
-                RecognitionException e) {
-            return new DafnyTree(start);
-        }
-
-        @Override
-        public void setTokenBoundaries(Object t, Token startToken, Token stopToken) {
-            super.setTokenBoundaries(t, startToken, stopToken);
-            DafnyTree tree = (DafnyTree) t;
-            tree.startToken = startToken;
-            tree.stopToken = stopToken;
-        }
-    }
-
-    /**
      * A pointer (potentially <code>null</code>) to the declaration of the
      * identifier used in this node.
      */
     private @Nullable DafnyTree declarationReference = null;
-
-
     /**
      * A pointer (potentially <code>null</code>) to the type of the expression
      * captured by this node. Also used for assignment targets.
      */
     private @Nullable DafnyTree expressionType;
-
     /**
      * A reference to the file from which this tree has been originally parsed.
      *
@@ -93,7 +59,6 @@ public class DafnyTree extends CommonTree {
      * to an artificial filename.
      */
     private @Nullable String filename;
-
     /**
      * A reference to the starting token of this tree.
      *
@@ -103,7 +68,6 @@ public class DafnyTree extends CommonTree {
      * @see #getTokenStartIndex()
      */
     private @Nullable Token startToken;
-
     /**
      * A reference to the stopping token of this tree.
      *
@@ -427,6 +391,36 @@ public class DafnyTree extends CommonTree {
      */
     public void removeAllChildren() {
         children = null;
+    }
+
+    /**
+     * The Adaptor is used by the {@link DafnyParser} to create DafnyTree
+     * instances.
+     */
+    public static class Adaptor extends CommonTreeAdaptor {
+
+        // Checkstyle: IGNORE JavadocMethodCheck
+        public Adaptor() {
+        }
+
+        @Override
+        public Object create(Token payload) {
+            return new DafnyTree(payload);
+        }
+
+        @Override
+        public Object errorNode(TokenStream input, Token start, Token stop,
+                                RecognitionException e) {
+            return new DafnyTree(start);
+        }
+
+        @Override
+        public void setTokenBoundaries(Object t, Token startToken, Token stopToken) {
+            super.setTokenBoundaries(t, startToken, stopToken);
+            DafnyTree tree = (DafnyTree) t;
+            tree.startToken = startToken;
+            tree.stopToken = stopToken;
+        }
     }
 
 }

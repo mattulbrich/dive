@@ -7,13 +7,8 @@ package edu.kit.iti.algover.term.builder;
 
 import edu.kit.iti.algover.data.BuiltinSymbols;
 import edu.kit.iti.algover.data.SymbolTable;
-import edu.kit.iti.algover.term.ApplTerm;
-import edu.kit.iti.algover.term.FunctionSymbol;
-import edu.kit.iti.algover.term.QuantTerm;
+import edu.kit.iti.algover.term.*;
 import edu.kit.iti.algover.term.QuantTerm.Quantifier;
-import edu.kit.iti.algover.term.Sort;
-import edu.kit.iti.algover.term.Term;
-import edu.kit.iti.algover.term.VariableTerm;
 
 public class TermBuilder {
 

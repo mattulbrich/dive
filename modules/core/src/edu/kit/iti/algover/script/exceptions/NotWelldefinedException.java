@@ -1,4 +1,4 @@
-package edu.kit.formal.proofscriptparser;
+package edu.kit.iti.algover.script.exceptions;
 
 /*-
  * #%L
@@ -23,16 +23,14 @@ package edu.kit.formal.proofscriptparser;
  */
 
 
-import edu.kit.formal.proofscriptparser.ast.Expression;
-import lombok.AllArgsConstructor;
-import lombok.Data;
+import edu.kit.iti.algover.script.ast.Expression;
 
 /**
  * @author Alexander Weigl
  * @version 1 (01.05.17)
  */
-@Data
-@AllArgsConstructor
+//@Data
+//@AllArgsConstructor
 public class NotWelldefinedException extends Exception {
     private final Expression expr;
 

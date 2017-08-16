@@ -5,9 +5,6 @@
  */
 package edu.kit.iti.algover.rules;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import edu.kit.iti.algover.data.BuiltinSymbols;
 import edu.kit.iti.algover.proof.ProofFormula;
 import edu.kit.iti.algover.proof.ProofNode;
@@ -16,6 +13,9 @@ import edu.kit.iti.algover.term.ApplTerm;
 import edu.kit.iti.algover.term.FunctionSymbol;
 import edu.kit.iti.algover.term.Sequent;
 import edu.kit.iti.algover.term.Term;
+
+import java.util.HashMap;
+import java.util.Map;
 
 public class TrivialAndRight extends AbstractProofRule {
 
@@ -42,32 +42,32 @@ public class TrivialAndRight extends AbstractProofRule {
 
     @Override
     public ProofRuleApplication considerApplication(ProofNode target, Sequent selection,
-            TermSelector selector)
+                                                    TermSelector selector)
             throws RuleException {
 
-        if(selector != null && !selector.isToplevel()) {
+        if (selector != null && !selector.isToplevel()) {
             return ProofRuleApplicationBuilder.notApplicable(this);
         }
 
         ProofFormula formula = selector.selectTopterm(target.getSequent());
         Term term = formula.getTerm();
-        if(!(term instanceof ApplTerm)) {
+        if (!(term instanceof ApplTerm)) {
             return ProofRuleApplicationBuilder.notApplicable(this);
         }
-        ApplTerm appl = (ApplTerm)term;
+        ApplTerm appl = (ApplTerm) term;
         FunctionSymbol fs = appl.getFunctionSymbol();
 
-        if(fs != BuiltinSymbols.AND) {
+        if (fs != BuiltinSymbols.AND) {
             return ProofRuleApplicationBuilder.notApplicable(this);
         }
 
         ProofRuleApplicationBuilder builder = new ProofRuleApplicationBuilder(this);
 
         builder
-            .addReplacementBranch(selector, appl.getTerm(0))
-            .addReplacementBranch(selector, appl.getTerm(1))
-            .setApplicability(Applicability.APPLICABLE)
-            .setTranscript("andRight todo");
+                .addReplacementBranch(selector, appl.getTerm(0))
+                .addReplacementBranch(selector, appl.getTerm(1))
+                .setApplicability(Applicability.APPLICABLE)
+                .setTranscript("andRight todo");
 
         return builder.build();
     }

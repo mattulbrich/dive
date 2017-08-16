@@ -5,29 +5,19 @@
  */
 package edu.kit.iti.algover.term.builder;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-
 import edu.kit.iti.algover.SymbexStateToFormula;
 import edu.kit.iti.algover.data.BuiltinSymbols;
 import edu.kit.iti.algover.data.SymbolTable;
 import edu.kit.iti.algover.parser.DafnyParser;
 import edu.kit.iti.algover.parser.DafnyTree;
-import edu.kit.iti.algover.term.ApplTerm;
-import edu.kit.iti.algover.term.FunctionSymbol;
-import edu.kit.iti.algover.term.LetTerm;
-import edu.kit.iti.algover.term.QuantTerm;
+import edu.kit.iti.algover.term.*;
 import edu.kit.iti.algover.term.QuantTerm.Quantifier;
-import edu.kit.iti.algover.term.Sort;
-import edu.kit.iti.algover.term.Term;
-import edu.kit.iti.algover.term.VariableTerm;
 import edu.kit.iti.algover.util.HistoryMap;
 import edu.kit.iti.algover.util.ImmutableList;
 import edu.kit.iti.algover.util.Pair;
 import nonnull.NonNull;
+
+import java.util.*;
 
 /**
  * The Class TreeTermTranslator is used to create a {@link Term} object from a
@@ -232,7 +222,7 @@ public class TreeTermTranslator {
         case DafnyParser.PLUS:
             return buildBinary(BuiltinSymbols.PLUS, tree);
         case DafnyParser.MINUS:
-            if(tree.getChildCount() == 1) {
+            if (tree.getChildCount() == 1) {
                 return buildUnary(BuiltinSymbols.NEG, tree);
             } else {
                 return buildBinary(BuiltinSymbols.MINUS, tree);
@@ -290,8 +280,8 @@ public class TreeTermTranslator {
         case DafnyParser.CALL:
             return buildCall(tree);
 
-        case DafnyParser.WILDCARD:
-            return buildWildcard(tree);
+            case DafnyParser.WILDCARD:
+                return buildWildcard(tree);
 
         default:
             TermBuildException ex =
@@ -391,7 +381,7 @@ public class TreeTermTranslator {
     private Term buildWildcard(DafnyTree tree) throws TermBuildException {
         Sort sort = buildSort(tree.getExpressionType());
         String suggestedName;
-        if(tree.getChildCount() > 0) {
+        if (tree.getChildCount() > 0) {
             suggestedName = tree.getChild(0).getText();
         } else {
             suggestedName = "unknown";
@@ -399,8 +389,8 @@ public class TreeTermTranslator {
 
         int count = 1;
         String name = suggestedName + "_" + count;
-        while(symbolTable.getFunctionSymbol(name) != null) {
-            count ++;
+        while (symbolTable.getFunctionSymbol(name) != null) {
+            count++;
             name = suggestedName + "_" + count;
         }
 
@@ -556,10 +546,10 @@ public class TreeTermTranslator {
         DafnyTree lhs = tree.getChild(0);
         DafnyTree rhs = tree.getChild(1);
 
-        assert     lhs.getType() == DafnyParser.LISTEX
+        assert lhs.getType() == DafnyParser.LISTEX
                 && rhs.getType() == DafnyParser.LISTEX
-                && lhs.getChildCount() == rhs.getChildCount():
-            "limited support so far, we inline the comparison";
+                && lhs.getChildCount() == rhs.getChildCount() :
+                "limited support so far, we inline the comparison";
 
         Term result = tb.ff();
         Term[] vars = new Term[rhs.getChildCount()];

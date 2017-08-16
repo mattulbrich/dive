@@ -5,13 +5,13 @@
  */
 package edu.kit.iti.algover.dafnystructures;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-
 import edu.kit.iti.algover.parser.DafnyException;
 import edu.kit.iti.algover.parser.DafnyParser;
 import edu.kit.iti.algover.parser.DafnyTree;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
 
 /**
  * This is a mutable builder class for dafny classes. Collections are
@@ -75,12 +75,12 @@ public class DafnyClassBuilder {
         return name;
     }
 
-    public List<DafnyMethod> getMethods() {
-        return methods;
-    }
-
     public void setName(String name) {
         this.name = name;
+    }
+
+    public List<DafnyMethod> getMethods() {
+        return methods;
     }
 
     public List<DafnyFunction> getFunctions() {

@@ -2,7 +2,6 @@ package edu.kit.iti.algover.sequent;
 
 import edu.kit.iti.algover.term.Term;
 import edu.kit.iti.algover.term.prettyprint.SubtermSelector;
-import javafx.beans.Observable;
 import javafx.scene.control.ListCell;
 
 /**

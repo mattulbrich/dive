@@ -5,10 +5,10 @@
  */
 package edu.kit.iti.algover.dafnystructures;
 
+import edu.kit.iti.algover.parser.DafnyException;
+
 import java.util.Collection;
 import java.util.Map;
-
-import edu.kit.iti.algover.parser.DafnyException;
 
 /**
  * A file containting dafny declarations.

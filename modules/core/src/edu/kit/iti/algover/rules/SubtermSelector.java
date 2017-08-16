@@ -17,14 +17,14 @@
 
 package edu.kit.iti.algover.rules;
 
-import java.util.AbstractList;
-import java.util.Arrays;
-import java.util.List;
-
 import edu.kit.iti.algover.term.Term;
 import edu.kit.iti.algover.util.FormatException;
 import nonnull.NonNull;
 import nonnull.Nullable;
+
+import java.util.AbstractList;
+import java.util.Arrays;
+import java.util.List;
 
 /**
  * The Class TermSelector is used to select a subterm within a term.
@@ -60,18 +60,6 @@ public final class SubtermSelector implements Comparable<SubtermSelector> {
      * The path of subterm numbers.
      */
     private byte[] selectorInfo;
-
-    /**
-     * Helper class granting access the path as an unmodifiable list.
-     */
-    private class ListView extends AbstractList<Integer> {
-        @Override public Integer get(int index) {
-            return (int)selectorInfo[index];
-        }
-        @Override public int size() {
-            return selectorInfo.length;
-        }
-    }
 
     /**
      * Instantiates a new term selector from path informations.
@@ -359,5 +347,20 @@ public final class SubtermSelector implements Comparable<SubtermSelector> {
         }
 
         return true;
+    }
+
+    /**
+     * Helper class granting access the path as an unmodifiable list.
+     */
+    private class ListView extends AbstractList<Integer> {
+        @Override
+        public Integer get(int index) {
+            return (int) selectorInfo[index];
+        }
+
+        @Override
+        public int size() {
+            return selectorInfo.length;
+        }
     }
 }

@@ -5,10 +5,6 @@
  */
 package edu.kit.iti.algover.rules;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.function.Function;
-
 import edu.kit.iti.algover.rules.ProofRuleApplication.Applicability;
 import edu.kit.iti.algover.term.Sequent;
 import edu.kit.iti.algover.term.Term;
@@ -16,6 +12,9 @@ import edu.kit.iti.algover.util.ImmutableList;
 import edu.kit.iti.algover.util.Pair;
 import nonnull.NonNull;
 import nonnull.Nullable;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class ProofRuleApplicationBuilder {
 
@@ -38,6 +37,12 @@ public class ProofRuleApplicationBuilder {
         this.scriptTranscript = app.getScriptTranscript();
         this.openParameters = app.getOpenParameters();
         this.refiner = app.getRefiner();
+    }
+
+    public static ProofRuleApplication notApplicable(ProofRule rule) {
+        return new ProofRuleApplication(rule, BranchInfo.UNCHANGED,
+                Applicability.NOT_APPLICABLE, rule.getName(),
+                Parameters.EMPTY_PARAMETERS, null);
     }
 
     public ProofRuleApplication build() {
@@ -70,12 +75,6 @@ public class ProofRuleApplicationBuilder {
     public ProofRuleApplicationBuilder setRefiner(@Nullable Refiner refiner) {
         this.refiner = refiner;
         return this;
-    }
-
-    public static ProofRuleApplication notApplicable(ProofRule rule) {
-        return new ProofRuleApplication(rule, BranchInfo.UNCHANGED,
-                Applicability.NOT_APPLICABLE, rule.getName(),
-                Parameters.EMPTY_PARAMETERS, null);
     }
 
     public ProofRuleApplicationBuilder setClosing() {

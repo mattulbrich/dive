@@ -5,9 +5,6 @@
  */
 package edu.kit.iti.algover.rules;
 
-import java.util.Collections;
-import java.util.List;
-
 import edu.kit.iti.algover.proof.ProofNode;
 import edu.kit.iti.algover.term.Sequent;
 import edu.kit.iti.algover.term.Term;
@@ -15,6 +12,9 @@ import edu.kit.iti.algover.util.ImmutableList;
 import edu.kit.iti.algover.util.Pair;
 import nonnull.DeepNonNull;
 import nonnull.NonNull;
+
+import java.util.Collections;
+import java.util.List;
 
 /**
  * BranchInfos capture the information to obtain new {@link ProofNode}s during
@@ -54,7 +54,9 @@ public class BranchInfo {
     /**
      * The replacements.
      */
-    private final @DeepNonNull ImmutableList<Pair<TermSelector, Term>> replacements;
+    private final
+    @DeepNonNull
+    ImmutableList<Pair<TermSelector, Term>> replacements;
 
     /**
      * Instantiates a new branch info.
@@ -64,7 +66,7 @@ public class BranchInfo {
      * @param replacements the replacements
      */
     public BranchInfo(@NonNull Sequent additions, @NonNull Sequent deletions,
-            @DeepNonNull ImmutableList<Pair<TermSelector, Term>> replacements) {
+                      @DeepNonNull ImmutableList<Pair<TermSelector, Term>> replacements) {
         this.additions = additions;
         this.deletions = deletions;
         this.replacements = replacements;

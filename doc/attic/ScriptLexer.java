@@ -3,11 +3,6 @@
   package edu.kit.iti.algover.script;
 
 
-import org.antlr.runtime.*;
-import java.util.Stack;
-import java.util.List;
-import java.util.ArrayList;
-
 @SuppressWarnings("all")
 public class ScriptLexer extends Lexer {
 	public static final int EOF=-1;
@@ -859,7 +854,7 @@ public class ScriptLexer extends Lexer {
 				case 2 :
 					// edu/kit/iti/algover/script/Script.g:47:15: '..'
 					{
-					match(".."); 
+					match("modules/core");
 
 					}
 					break;

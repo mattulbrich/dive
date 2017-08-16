@@ -32,7 +32,6 @@ import org.antlr.v4.runtime.tree.ParseTree;
 import org.antlr.v4.runtime.tree.RuleNode;
 import org.antlr.v4.runtime.tree.TerminalNode;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -40,16 +39,28 @@ import java.util.List;
  * @version 1 (27.04.17)
  */
 public class TransformAst implements ScriptLanguageVisitor<Object> {
-    private List<ProofScript> scripts = new ArrayList<>(10);
+    //private List<ProofScript> scripts = new ArrayList<>(10);
 
-    public List<ProofScript> getScripts() {
+    /*public List<ProofScript> getScripts() {
         return scripts;
+    }*/
+    private ProofScript script;
+
+    public ProofScript getScript() {
+        return script;
     }
 
     @Override
     public ProofScript visitScript(ScriptLanguageParser.ScriptContext ctx) {
         ProofScript s = new ProofScript();
-        s.setName(ctx.name.getText());
+
+        if (ctx.name != null) {
+            s.setName(ctx.name.getText());
+            s.setNamedScript(true);
+        } else {
+
+            s.setName(" ");
+        }
         s.setRuleContext(ctx);
         if (ctx.signature != null)
             s.setSignature((Signature) ctx.signature.accept(this));
@@ -62,8 +73,10 @@ public class TransformAst implements ScriptLanguageVisitor<Object> {
         ProofScript s = (ProofScript) ctx.script().accept(this);
         //ctx.script().forEach(s ->
         //        scripts.add((ProofScript) s.accept(this)));
+        script = s;
         return s;
     }
+
 
     @Override
     public Signature visitArgList(ScriptLanguageParser.ArgListContext ctx) {

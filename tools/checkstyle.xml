@@ -231,7 +231,7 @@
       </module>
 
       <module name="VisibilityModifier">
-	<!-- <property name="allowPublicFinalFields" value="true" /> -->
+          <!-- <property name="allowPublicFinalFields" value="true" /> -->
 	<property name="severity" value="warning" />
       </module>
 
