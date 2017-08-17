@@ -11,14 +11,13 @@ import javafx.scene.control.TreeItem;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * Created by philipp on 26.06.17.
  */
 public class FlatBrowserController extends BrowserController {
 
-    public FlatBrowserController(Project project, TreeTableEntityEngagedListener engagedListener) {
+    public FlatBrowserController(Project project, PVCEntityEngageListener engagedListener) {
         super(project, engagedListener);
     }
 

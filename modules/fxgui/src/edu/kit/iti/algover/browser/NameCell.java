@@ -9,18 +9,8 @@ import javafx.scene.input.MouseEvent;
  */
 public class NameCell extends TreeTableCell<TreeTableEntity, TreeTableEntity> {
 
-    private final TreeTableEntityEngagedListener engagedListener;
-
-    public NameCell(TreeTableEntityEngagedListener engagedListener) {
-        this.engagedListener = engagedListener;
+    public NameCell() {
         getStyleClass().add("namecell");
-        addEventFilter(MouseEvent.MOUSE_CLICKED, this::onMouseClick);
-    }
-
-    private void onMouseClick(MouseEvent event) {
-        if (event.getClickCount() == 2 && engagedListener != null && getItem() != null) {
-            engagedListener.onDoubleClickTreeEntity(getItem());
-        }
     }
 
     @Override

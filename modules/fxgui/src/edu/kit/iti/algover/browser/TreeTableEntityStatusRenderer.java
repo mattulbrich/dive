@@ -3,67 +3,92 @@ package edu.kit.iti.algover.browser;
 import de.jensd.fx.glyphs.GlyphsDude;
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon;
 import edu.kit.iti.algover.browser.entities.*;
-import javafx.scene.Node;
-import javafx.scene.control.Label;
+import javafx.geometry.Pos;
+import javafx.scene.control.Button;
 import javafx.scene.control.Tooltip;
+import javafx.scene.layout.HBox;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Text;
 
-public class TreeTableEntityStatusRenderer implements TreeTableEntityVisitor<Node> {
+public class TreeTableEntityStatusRenderer implements TreeTableEntityVisitor<Void> {
 
-    public static final TreeTableEntityStatusRenderer INSTANCE = new TreeTableEntityStatusRenderer();
+    private final StatusCell cell;
+    private PVCEntityEngageListener engagedListener;
 
-    private TreeTableEntityStatusRenderer() {
+    public TreeTableEntityStatusRenderer(StatusCell cell) {
+        this.cell = cell;
     }
 
-    private Node groupingEntity(TreeTableEntity entity) {
-        Label label = new Label(entity.getProvenChildren() + "/" + entity.getNumberChildren());
+    public void applyRendering(TreeTableEntity entity, PVCEntityEngageListener engagedListener) {
+        entity.accept(this);
+        this.engagedListener = engagedListener;
+    }
+
+    private Void groupingEntity(TreeTableEntity entity) {
+        String text = entity.getProvenChildren() + "/" + entity.getNumberChildren();
+        cell.setText(text);
         if (entity.getProvenChildren() >= entity.getNumberChildren()) {
             Text icon = GlyphsDude.createIcon(FontAwesomeIcon.CHECK);
             icon.setFill(Color.LIMEGREEN);
-            label.setGraphic(icon);
-            label.setTooltip(new Tooltip("All PVCs proven"));
+            cell.setGraphic(icon);
+            cell.setTooltip(new Tooltip("All PVCs proven"));
         } else {
-            label.setTooltip(new Tooltip(
+            cell.setTooltip(new Tooltip(
                     entity.getProvenChildren()
                             + " from " + entity.getNumberChildren()
                             + " PVCs proven"));
         }
-        return label;
+        return null;
     }
 
     @Override
-    public Node visitPVC(PVCEntity entity) {
-        Label label = new Label();
-        Text icon = GlyphsDude.createIcon(entity.getProofStatus().getIcon());
-        icon.setFill(entity.getProofStatus().getFill());
-        label.setTooltip(new Tooltip(entity.getProofStatus().getTooltip()));
-        label.setGraphic(icon);
-        return label;
+    public Void visitPVC(PVCEntity entity) {
+        Text statusIcon = GlyphsDude.createIcon(entity.getProofStatus().getIcon());
+        statusIcon.setFill(entity.getProofStatus().getFill());
+
+        Text gearIcon = GlyphsDude.createIcon(FontAwesomeIcon.GEAR);
+        gearIcon.setFill(Color.DARKGREY);
+        Button gearButton = new Button("Edit", gearIcon);
+        gearButton.getStyleClass().add("undecorated-button");
+        gearButton.setTooltip(new Tooltip("Edit or start Proof"));
+        gearButton.setOnAction(event -> {
+            if (engagedListener != null) {
+                engagedListener.onEngageEntity(entity);
+            }
+        });
+
+        HBox box = new HBox(statusIcon, gearButton);
+        box.setSpacing(10);
+        box.setAlignment(Pos.CENTER);
+        Tooltip.install(box, new Tooltip(entity.getProofStatus().getTooltip()));
+
+        cell.setText("");
+        cell.setGraphic(box);
+        return null;
     }
 
     @Override
-    public Node visitMethod(MethodEntity entity) {
+    public Void visitMethod(MethodEntity entity) {
         return groupingEntity(entity);
     }
 
     @Override
-    public Node visitFile(FileEntity entity) {
+    public Void visitFile(FileEntity entity) {
         return groupingEntity(entity);
     }
 
     @Override
-    public Node visitClass(ClassEntity entity) {
+    public Void visitClass(ClassEntity entity) {
         return groupingEntity(entity);
     }
 
     @Override
-    public Node visitPVCGroup(PVCGroupEntity group) {
+    public Void visitPVCGroup(PVCGroupEntity group) {
         return groupingEntity(group);
     }
 
     @Override
-    public Node visitOther(OtherEntity entity) {
+    public Void visitOther(OtherEntity entity) {
         return groupingEntity(entity);
     }
 }

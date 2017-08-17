@@ -2,6 +2,7 @@ package edu.kit.iti.algover;
 
 import edu.kit.iti.algover.browser.BrowserController;
 import edu.kit.iti.algover.browser.FlatBrowserController;
+import edu.kit.iti.algover.browser.entities.PVCEntity;
 import edu.kit.iti.algover.browser.entities.PVCGetterVisitor;
 import edu.kit.iti.algover.browser.entities.TreeTableEntity;
 import edu.kit.iti.algover.dafnystructures.DafnyFile;
@@ -48,12 +49,12 @@ public class OverviewController implements SequentActionListener {
         }
     }
 
-    private void onEngageEntity(TreeTableEntity treeTableEntity) {
-        PVC pvc = treeTableEntity.accept(new PVCGetterVisitor());
-        if (pvc != null && editorController.getView().getSelectionModel().getSelectedItem() != null) {
-            sequentController.viewSequentForPVC(pvc);
-            view.moveFrameRight();
-        }
+    private void onEngageEntity(PVCEntity entity) {
+        PVC pvc = entity.getPVC();
+        editorController.viewFile(entity.getLocation());
+        editorController.viewPVCSelection(pvc);
+        sequentController.viewSequentForPVC(pvc);
+        view.moveFrameRight();
     }
 
     private void onBrowserItemSelected(TreeTableEntity treeTableEntity) {

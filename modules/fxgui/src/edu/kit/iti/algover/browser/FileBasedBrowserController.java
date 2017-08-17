@@ -5,7 +5,6 @@ import edu.kit.iti.algover.browser.entities.TreeTableEntity;
 import edu.kit.iti.algover.project.Project;
 import javafx.scene.control.TreeItem;
 
-import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -14,7 +13,7 @@ import java.util.stream.Collectors;
  */
 public class FileBasedBrowserController extends BrowserController {
 
-    public FileBasedBrowserController(Project project, TreeTableEntityEngagedListener engagedListener) {
+    public FileBasedBrowserController(Project project, PVCEntityEngageListener engagedListener) {
         super(project, engagedListener);
     }
 

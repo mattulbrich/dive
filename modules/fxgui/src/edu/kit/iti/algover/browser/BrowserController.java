@@ -26,7 +26,7 @@ public abstract class BrowserController {
 
     private BrowserSelectionListener selectionListener;
 
-    protected BrowserController(Project project, TreeTableEntityEngagedListener engagedListener) {
+    protected BrowserController(Project project, PVCEntityEngageListener engagedListener) {
         this.project = project;
         this.view = new BrowserTreeTable(engagedListener);
 

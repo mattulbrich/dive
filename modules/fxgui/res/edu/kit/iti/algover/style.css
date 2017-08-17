@@ -15,3 +15,12 @@
     -rtfx-background-color: cadetblue;
     -fx-fill: whitesmoke;
 }
+
+.undecorated-button {
+    -fx-padding: 0 0 0 0;
+    -fx-border: none;
+    -fx-border-color: none;
+    -fx-background: none;
+    -fx-background-color: none;
+    -fx-background-insets: none;
+}
