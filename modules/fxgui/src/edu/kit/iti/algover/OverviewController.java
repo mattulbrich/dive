@@ -11,6 +11,7 @@ import edu.kit.iti.algover.project.Project;
 import edu.kit.iti.algover.proof.PVC;
 import edu.kit.iti.algover.sequent.SequentActionListener;
 import edu.kit.iti.algover.sequent.SequentController;
+import edu.kit.iti.algover.timeline.TimelineLayout;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 

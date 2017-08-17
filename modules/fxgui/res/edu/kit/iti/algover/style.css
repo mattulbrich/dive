@@ -24,3 +24,7 @@
     -fx-background-color: none;
     -fx-background-insets: none;
 }
+
+.button-overlay {
+    -fx-background-fill: rgba(0, 0, 0, 0.5);
+}

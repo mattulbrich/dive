@@ -1,9 +1,10 @@
-package edu.kit.iti.algover;
+package edu.kit.iti.algover.timeline;
 
 import javafx.animation.KeyFrame;
 import javafx.animation.KeyValue;
 import javafx.animation.Timeline;
 import javafx.beans.value.WritableValue;
+import javafx.geometry.Insets;
 import javafx.scene.Node;
 import javafx.scene.SnapshotParameters;
 import javafx.scene.control.SplitPane;
@@ -11,6 +12,7 @@ import javafx.scene.image.ImageView;
 import javafx.scene.image.WritableImage;
 import javafx.scene.layout.StackPane;
 import javafx.util.Duration;
+import org.controlsfx.control.HiddenSidesPane;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -19,20 +21,33 @@ import java.util.List;
 /**
  * Created by philipp on 10.07.17.
  */
-public class TimelineLayout extends StackPane {
+public class TimelineLayout extends HiddenSidesPane {
+
+    private static final double HOVER_AREA = 20;
 
     private final List<Node> nodes;
     private final SplitPane splitPane;
+    private final GoLeftArrow goLeft;
+    private final GoRightArrow goRight;
 
     private int framePosition = 0;
 
     public TimelineLayout(Node... nodes) {
-        assert nodes.length >= 2;
+        if (nodes.length < 2) {
+            throw new IllegalArgumentException("Need at least to nodes for a timeline layout");
+        }
 
         this.nodes = new ArrayList<>();
         this.nodes.addAll(Arrays.asList(nodes));
+        this.goLeft = new GoLeftArrow(this);
+        this.goRight = new GoRightArrow(this);
         this.splitPane = new SplitPane();
-        getChildren().setAll(splitPane);
+        splitPane.setPadding(new Insets(0, HOVER_AREA, 0, HOVER_AREA));
+
+        setContent(splitPane);
+        setAnimationDelay(Duration.ZERO);
+        setAnimationDuration(Duration.millis(100));
+        setTriggerDistance(HOVER_AREA);
 
         updateFrame();
     }
@@ -45,6 +60,16 @@ public class TimelineLayout extends StackPane {
         assert framePosition < nodes.size() - 1;
 
         splitPane.getItems().setAll(nodes.get(framePosition), nodes.get(framePosition + 1));
+        if (framePosition == 0) {
+            setLeft(null);
+        } else {
+            setLeft(goLeft);
+        }
+        if (framePosition == nodes.size() - 2) {
+            setRight(null);
+        } else {
+            setRight(goRight);
+        }
     }
 
     public void addAndMoveRight(Node view) {
