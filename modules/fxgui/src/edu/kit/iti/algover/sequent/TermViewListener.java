@@ -1,6 +1,7 @@
 package edu.kit.iti.algover.sequent;
 
 import edu.kit.iti.algover.term.Term;
+import edu.kit.iti.algover.term.prettyprint.AnnotatedString;
 import edu.kit.iti.algover.term.prettyprint.SubtermSelector;
 
 /**
@@ -11,4 +12,5 @@ public interface TermViewListener {
 
     void handleClickOutsideTerm();
 
+    void handleSubtermSelection(AnnotatedString.TermElement highlightedElement);
 }

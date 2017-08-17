@@ -10,6 +10,7 @@ import javafx.scene.SnapshotParameters;
 import javafx.scene.control.SplitPane;
 import javafx.scene.image.ImageView;
 import javafx.scene.image.WritableImage;
+import javafx.scene.input.KeyCode;
 import javafx.scene.layout.StackPane;
 import javafx.util.Duration;
 import org.controlsfx.control.HiddenSidesPane;
@@ -48,6 +49,18 @@ public class TimelineLayout extends HiddenSidesPane {
         setAnimationDelay(Duration.ZERO);
         setAnimationDuration(Duration.millis(100));
         setTriggerDistance(HOVER_AREA);
+
+        setOnKeyReleased(event -> {
+            if (event.isControlDown()) {
+                if (event.getCode() == KeyCode.RIGHT) {
+                    moveFrameRight();
+                    event.consume();
+                } else if (event.getCode() == KeyCode.LEFT) {
+                    moveFrameLeft();
+                    event.consume();
+                }
+            }
+        });
 
         updateFrame();
     }

@@ -107,6 +107,7 @@ public class TermView extends CodeArea {
             highlightedElement = annotatedString.getTermElementAt(charIdx.getAsInt());
             clearStyle(0, getLength());
             setStyleClass(highlightedElement.getBegin(), highlightedElement.getEnd(), "highlighted");
+            listener.handleSubtermSelection(highlightedElement);
         } else {
             clearStyle(0, getLength());
         }

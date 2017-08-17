@@ -12,7 +12,7 @@
 }
 
 .term-view .highlighted {
-    -rtfx-background-color: cadetblue;
+    -rtfx-background-color: #62b3cf;
     -fx-fill: whitesmoke;
 }
 
