@@ -114,6 +114,18 @@ public class BuiltinSymbols extends MapSymbolTable {
                                     FunctionSymbolFamily.VAR1,
                                     FunctionSymbolFamily.VAR2)), 2);
 
+    public static final FunctionSymbolFamily ARRAY_SELECT =
+            new FunctionSymbolFamily(
+                    new FunctionSymbol("$array_select", FunctionSymbolFamily.VAR1,
+                            Sort.HEAP, Sort.get("array", FunctionSymbolFamily.VAR1),
+                            Sort.INT), 1);
+
+    public static final FunctionSymbolFamily ARRAY2_SELECT =
+            new FunctionSymbolFamily(
+                    new FunctionSymbol("$array2_select", FunctionSymbolFamily.VAR1,
+                            Sort.HEAP, Sort.get("array2", FunctionSymbolFamily.VAR1),
+                            Sort.INT, Sort.INT), 1);
+
     public static final FunctionSymbolFamily EQ =
             new FunctionSymbolFamily(
                     new FunctionSymbol("$eq", Sort.BOOL,

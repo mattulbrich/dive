@@ -81,6 +81,10 @@ public class TreeTermTranslatorTest {
             { "let c := null :: null == c",
                 "(let c := null :: $eq<object>(null, c))" },
 
+            // Heap accesses
+            { "a[0]", "$array_select<int>($heap, a, 0)" },
+            { "a2[1,2]", "$array2_select<int>($heap, a2, 1, 2)" },
+
             // From TermParserTest
             { "i1 + i2", "$plus(i1, i2)" },
             { "forall i: int :: 0 < i ==> i > 0",
@@ -111,6 +115,14 @@ public class TreeTermTranslatorTest {
             { "forall x,y,z:int :: unknown", "" },  // no more bound vars after this
             { "f(b1)", "Unexpected argument sort" },
             { "if true then b1 else i1", "Unexpected argument sort" },
+            { "a.Length0", "Elements of type 'array' have only the 'Length' property" },
+            // revealed wrong error message:
+            { "a2.Length", "Elements of type 'array2' have only the 'Length0' and 'Length1' properties" },
+            { "a2.Length2", "Elements of type 'array2' have only the 'Length0' and 'Length1' properties" },
+            { "i1.Length", "Unsupported sort for 'Length': int" },
+            { "a2[0]", "Access to 'array2' requires two index arguments" },
+            { "a[0,1]", "Access to 'array' requires one index argument" },
+            { "i1[i1]", "Unsupported array sort: int" },
         };
     }
 
