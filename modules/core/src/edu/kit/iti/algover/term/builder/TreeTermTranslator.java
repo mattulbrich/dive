@@ -382,8 +382,34 @@ public class TreeTermTranslator {
         }
 
         Term t1 = build(tree.getChild(0));
+        Sort sort = t1.getSort();
+        Sort arg;
+        FunctionSymbol f;
 
-        FunctionSymbol f = symbolTable.getFunctionSymbol("$len" + index);
+        switch(sort.getName()) {
+        case "array":
+            if(!suffix.isEmpty()) {
+                throw new TermBuildException("Elements of type 'array' have only "
+                        + "the 'Length' property");
+            }
+            arg = sort.getArguments().get(0);
+            f = symbolTable.getFunctionSymbol("$len<" + arg + ">");
+            break;
+
+        case "array2":
+            if(suffix.isEmpty() || index > 1) {
+                throw new TermBuildException("Elements of type 'array' have only "
+                        + "the 'Length0' and 'Length1' properties");
+            }
+
+            arg = sort.getArguments().get(0);
+            f = symbolTable.getFunctionSymbol("$len" + index + "<" + arg + ">");
+            break;
+
+        default:
+            throw new TermBuildException("Unsupported sort for Length: " + sort);
+        }
+
         return new ApplTerm(f, Arrays.asList(t1));
 
     }

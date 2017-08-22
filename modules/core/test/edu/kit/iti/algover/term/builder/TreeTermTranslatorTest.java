@@ -49,9 +49,9 @@ public class TreeTermTranslatorTest {
             { "i1 + i2*i3", "$plus(i1, $times(i2, i3))" },
             // revealed bug:
             { "i1 == i2*i3", "$eq<int>(i1, $times(i2, i3))" },
-            { "a.Length", "$len0(a)" },
-            //                { "a2.Length0", "$len0(a)" },
-            //                { "a2.Length1", "$len1(a)" },
+            { "a.Length", "$len<int>(a)" },
+            { "a2.Length0", "$len0<int>(a2)" },
+            { "a2.Length1", "$len1<int>(a2)" },
             // no 2-dim arrays for now
 
             // for coverage:
@@ -152,8 +152,8 @@ public class TreeTermTranslatorTest {
         map.add(new FunctionSymbol("b1", Sort.BOOL));
         map.add(new FunctionSymbol("b2", Sort.BOOL));
         map.add(new FunctionSymbol("b3", Sort.BOOL));
-        map.add(new FunctionSymbol("a", Sort.get("array1")));
-        map.add(new FunctionSymbol("a2", Sort.get("array2")));
+        map.add(new FunctionSymbol("a", Sort.get("array", Sort.INT)));
+        map.add(new FunctionSymbol("a2", Sort.get("array2", Sort.INT)));
         map.add(new FunctionSymbol("f", Sort.INT, Sort.INT));
         map.add(new FunctionSymbol("c", Sort.getClassSort("C")));
         map.add(new FunctionSymbol("c2", Sort.getClassSort("C")));

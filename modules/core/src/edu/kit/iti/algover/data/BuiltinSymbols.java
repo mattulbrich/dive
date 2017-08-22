@@ -125,15 +125,20 @@ public class BuiltinSymbols extends MapSymbolTable {
     public static final FunctionSymbol MOD =
             new FunctionSymbol("$mod", Sort.get("sort", Sort.OBJECT));
 
+    public static final FunctionSymbolFamily LEN =
+            new FunctionSymbolFamily(
+                    new FunctionSymbol("$len", Sort.INT,
+                            Sort.get("array", FunctionSymbolFamily.VAR1)), 1);
+
     public static final FunctionSymbolFamily LEN0 =
             new FunctionSymbolFamily(
                     new FunctionSymbol("$len0", Sort.INT,
-                            Sort.get("array", FunctionSymbolFamily.VAR1)), 1);
+                            Sort.get("array2", FunctionSymbolFamily.VAR1)), 1);
 
     public static final FunctionSymbolFamily LEN1 =
             new FunctionSymbolFamily(
                     new FunctionSymbol("$len1", Sort.INT,
-                            Sort.get("array", FunctionSymbolFamily.VAR1)), 1);
+                            Sort.get("array2", FunctionSymbolFamily.VAR1)), 1);
 
     public static final FunctionSymbol NULL =
             new FunctionSymbol("null", Sort.NULL);
@@ -147,7 +152,7 @@ public class BuiltinSymbols extends MapSymbolTable {
 
     // Checkstyle: ON JavadocVariableCheck
 
-    private Map<String, FunctionSymbolFamily> symbolFamilies =
+    private final Map<String, FunctionSymbolFamily> symbolFamilies =
             new HashMap<>();
 
 
