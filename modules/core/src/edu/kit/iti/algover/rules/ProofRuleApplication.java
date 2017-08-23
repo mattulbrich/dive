@@ -197,6 +197,10 @@ public final class ProofRuleApplication {
 
     }
 
+    /*
+     * create a copy of this object with the "refiner" field set to
+     * <code>null</code>.
+     */
     private ProofRuleApplication thisWithoutRefiner() {
         return new ProofRuleApplication(rule, branchInfo, applicability,
                 scriptTranscript, openParameters, null);

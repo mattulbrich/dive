@@ -5,16 +5,13 @@
  */
 package edu.kit.iti.algover.rules;
 
-import java.util.Collections;
-import java.util.List;
-
+import nonnull.DeepNonNull;
+import nonnull.NonNull;
 import edu.kit.iti.algover.proof.ProofNode;
 import edu.kit.iti.algover.term.Sequent;
 import edu.kit.iti.algover.term.Term;
 import edu.kit.iti.algover.util.ImmutableList;
 import edu.kit.iti.algover.util.Pair;
-import nonnull.DeepNonNull;
-import nonnull.NonNull;
 
 /**
  * BranchInfos capture the information to obtain new {@link ProofNode}s during
@@ -38,8 +35,8 @@ public class BranchInfo {
     /**
      * The special case of a closing rule with no branches.
      */
-    public static final List<BranchInfo> CLOSE =
-            Collections.emptyList();
+    public static final ImmutableList<BranchInfo> CLOSE =
+            ImmutableList.nil();
 
     /**
      * The additions to the sequent.
@@ -59,9 +56,9 @@ public class BranchInfo {
     /**
      * Instantiates a new branch info.
      *
-     * @param additions the additions
-     * @param deletions the deletions
-     * @param replacements the replacements
+     * @param additions the toplevel terms to be added to the node's sequent
+     * @param deletions the toplevel terms to be removed from the node's sequent
+     * @param replacements the terms to be replaced
      */
     public BranchInfo(@NonNull Sequent additions, @NonNull Sequent deletions,
             @DeepNonNull ImmutableList<Pair<TermSelector, Term>> replacements) {
@@ -70,6 +67,16 @@ public class BranchInfo {
         this.replacements = replacements;
     }
 
+    /**
+     * Instantiates a new branch info with empty additions and deletion
+     * sequences.
+     *
+     * The replacements are cosntructed from the arguments.
+     *
+     * @param replacements
+     *            the term replacements to be used.
+     * @return a freshly created object
+     */
     @SafeVarargs
     public static BranchInfo makeReplacement(Pair<TermSelector, Term>... replacements) {
         return new BranchInfo(Sequent.EMPTY, Sequent.EMPTY,

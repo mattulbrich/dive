@@ -1,31 +1,28 @@
-/*
- * This file is part of AlgoVer.
- *
- * Copyright (C) 2015-2017 Karlsruhe Institute of Technology
- */
 package edu.kit.iti.algover.rules.impl;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
-import edu.kit.iti.algover.data.BuiltinSymbols;
 import edu.kit.iti.algover.proof.ProofFormula;
 import edu.kit.iti.algover.proof.ProofNode;
 import edu.kit.iti.algover.rules.AbstractProofRule;
 import edu.kit.iti.algover.rules.Parameters;
 import edu.kit.iti.algover.rules.ProofRuleApplication;
+import edu.kit.iti.algover.rules.ProofRuleApplication.Applicability;
 import edu.kit.iti.algover.rules.ProofRuleApplicationBuilder;
 import edu.kit.iti.algover.rules.RuleException;
 import edu.kit.iti.algover.rules.TermSelector;
-import edu.kit.iti.algover.rules.ProofRuleApplication.Applicability;
-import edu.kit.iti.algover.term.ApplTerm;
-import edu.kit.iti.algover.term.FunctionSymbol;
+import edu.kit.iti.algover.rules.TermSelector.SequentPolarity;
 import edu.kit.iti.algover.term.Sequent;
 import edu.kit.iti.algover.term.Term;
 
-public class TrivialAndRight extends AbstractProofRule {
+// ALPHA ... Just for demo purposes so far.
 
-    public TrivialAndRight() {
+public class PropositionalExpansionRule extends AbstractProofRule {
+
+    public PropositionalExpansionRule() {
         super(makeRequiredParameters(), makeOptionalParameters());
     }
 
@@ -43,7 +40,7 @@ public class TrivialAndRight extends AbstractProofRule {
 
     @Override
     public String getName() {
-        return "andRight";
+        return "prop-expand";
     }
 
     @Override
@@ -51,28 +48,49 @@ public class TrivialAndRight extends AbstractProofRule {
             TermSelector selector)
             throws RuleException {
 
-        if(selector != null && !selector.isToplevel()) {
+        if(selector != null) {
             return ProofRuleApplicationBuilder.notApplicable(this);
         }
 
-        ProofFormula formula = selector.selectTopterm(target.getSequent());
-        Term term = formula.getTerm();
-        if(!(term instanceof ApplTerm)) {
-            return ProofRuleApplicationBuilder.notApplicable(this);
+        if(selection == null) {
+            selection = target.getSequent();
         }
-        ApplTerm appl = (ApplTerm)term;
-        FunctionSymbol fs = appl.getFunctionSymbol();
 
-        if(fs != BuiltinSymbols.AND) {
+        boolean allowSplit = true;
+
+        PropositionalExpander pex = new PropositionalExpander();
+        List<ProofFormula> deletionsAnte = new ArrayList<ProofFormula>();
+        List<ProofFormula> deletionsSucc = new ArrayList<ProofFormula>();
+
+        for (ProofFormula formula : selection.getAntecedent()) {
+            if(pex.expand(formula, SequentPolarity.ANTECEDENT, allowSplit)) {
+                deletionsAnte.add(formula);
+            }
+        }
+
+        for (ProofFormula formula : selection.getSuccedent()) {
+            if(pex.expand(formula, SequentPolarity.SUCCEDENT, allowSplit)) {
+                deletionsSucc.add(formula);
+            }
+        }
+
+        List<Sequent> sequents = pex.getSequents();
+
+        if(deletionsAnte.isEmpty() && deletionsSucc.isEmpty()) {
+            // nothing to be done
             return ProofRuleApplicationBuilder.notApplicable(this);
         }
 
         ProofRuleApplicationBuilder builder = new ProofRuleApplicationBuilder(this);
 
-        builder.newBranch().addReplacement(selector, appl.getTerm(0));
-        builder.newBranch().addReplacement(selector, appl.getTerm(1));
+        for (Sequent sequent : sequents) {
+            builder.newBranch().addAdditions(sequent)
+                   .addDeletionsAntecedent(deletionsAnte)
+                   .addDeletionsSuccedent(deletionsSucc);
+        }
+
         builder.setApplicability(Applicability.APPLICABLE)
-               .setTranscript("andRight todo");
+            .setTranscript("todo");
 
         return builder.build();
     }
@@ -83,4 +101,5 @@ public class TrivialAndRight extends AbstractProofRule {
 
         throw new Error("not finished yet");
     }
+
 }
