@@ -72,28 +72,28 @@ public enum Operator {
     MULTIPLY("*", "×", 20, Type.INT, Type.INT, Type.INT) {
         @Override
         public Value evaluate(Value... v) {
-            return evaluate((BinaryOperator<BigInteger>) BigInteger::multiply, v);
+            return evaluate((BinaryOperator<BigInteger>)BigInteger::multiply, v);
         }
     },
     /** */
     DIVISION("/", "÷", 20, Type.INT, Type.INT, Type.INT) {
         @Override
         public Value evaluate(Value... v) {
-            return evaluate((BinaryOperator<BigInteger>) BigInteger::divide, v);
+            return evaluate((BinaryOperator<BigInteger>)BigInteger::divide, v);
         }
     },
     /** */
     PLUS("+", 30, Type.INT, Type.INT, Type.INT) {
         @Override
         public Value evaluate(Value... v) {
-            return evaluate((BinaryOperator<BigInteger>) BigInteger::add, v);
+            return Operator.evaluate((BinaryOperator<BigInteger>)BigInteger::add, v);
         }
     },
     /** */
     MINUS("-", 30, Type.INT, Type.INT, Type.INT) {
         @Override
         public Value evaluate(Value... v) {
-            return evaluate((BinaryOperator<BigInteger>) BigInteger::subtract, v);
+            return evaluate((BiFunction<BigInteger,BigInteger,BigInteger>)BigInteger::subtract, v);
         }
     },
     /** */
