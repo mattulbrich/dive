@@ -373,10 +373,10 @@ public final class ASTUtil {
     public static String getFieldConstantName(DafnyTree reference) {
         assert reference.getType() == DafnyParser.FIELD;
 
-        Tree clss = reference.parent.getChild(0);
+        Tree clss = reference.parent;
         assert clss.getType() == DafnyParser.CLASS;
 
-        String clssName = clss.getText();
+        String clssName = clss.getChild(0).getText();
         String fieldName = reference.getChild(0).getText();
 
         return "field$" + clssName + "$" + fieldName;
