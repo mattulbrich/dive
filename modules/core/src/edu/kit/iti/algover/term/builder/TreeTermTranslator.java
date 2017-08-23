@@ -11,7 +11,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 
-import nonnull.NonNull;
 import edu.kit.iti.algover.SymbexStateToFormula;
 import edu.kit.iti.algover.data.BuiltinSymbols;
 import edu.kit.iti.algover.data.SymbolTable;
@@ -25,9 +24,11 @@ import edu.kit.iti.algover.term.QuantTerm.Quantifier;
 import edu.kit.iti.algover.term.Sort;
 import edu.kit.iti.algover.term.Term;
 import edu.kit.iti.algover.term.VariableTerm;
+import edu.kit.iti.algover.util.ASTUtil;
 import edu.kit.iti.algover.util.HistoryMap;
 import edu.kit.iti.algover.util.ImmutableList;
 import edu.kit.iti.algover.util.Pair;
+import nonnull.NonNull;
 
 /**
  * The Class TreeTermTranslator is used to create a {@link Term} object from a
@@ -284,6 +285,9 @@ public class TreeTermTranslator {
         case DafnyParser.ARRAY_ACCESS:
             return buildArrayAccess(tree);
 
+        case DafnyParser.FIELD_ACCESS:
+            return buildFieldAccess(tree);
+
         case DafnyParser.NOETHER_LESS:
             return buildNoetherLess(tree);
 
@@ -352,32 +356,39 @@ public class TreeTermTranslator {
                 throw new TermBuildException("Access to 'array' requires one index argument");
             }
 
-            FunctionSymbol select = symbolTable.getFunctionSymbol("$array_select<" +
-                    arraySort.getArguments().get(0) + ">");
-
             Term indexTerm = build(tree.getChild(1));
 
-            return new ApplTerm(select, new ApplTerm(BuiltinSymbols.HEAP),
-                    arrayTerm, indexTerm);
+            return tb.selectArray(new ApplTerm(BuiltinSymbols.HEAP), arrayTerm, indexTerm);
 
         case "array2":
             if(tree.getChildCount() != 3) {
                 throw new TermBuildException("Access to 'array2' requires two index arguments");
             }
 
-            select = symbolTable.getFunctionSymbol("$array2_select<" +
-                    arraySort.getArguments().get(0) + ">");
-
             Term index0 = build(tree.getChild(1));
             Term index1 = build(tree.getChild(2));
 
-            return new ApplTerm(select, new ApplTerm(BuiltinSymbols.HEAP),
+            return tb.selectArray2(new ApplTerm(BuiltinSymbols.HEAP),
                     arrayTerm, index0, index1);
+
 
         default:
             throw new TermBuildException("Unsupported array sort: " + arraySort);
         }
     }
+
+    private Term buildFieldAccess(DafnyTree tree) throws TermBuildException {
+
+        Term receiver = build(tree.getChild(0));
+
+        DafnyTree reference = tree.getChild(1).getDeclarationReference();
+        String fieldName = ASTUtil.getFieldConstantName(reference);
+        FunctionSymbol field = symbolTable.getFunctionSymbol(fieldName);
+
+        return tb.selectField(new ApplTerm(BuiltinSymbols.HEAP),
+                receiver, new ApplTerm(field));
+    }
+
 
     private Term buildLength(DafnyTree tree) throws TermBuildException {
         String functionName = tree.toString();

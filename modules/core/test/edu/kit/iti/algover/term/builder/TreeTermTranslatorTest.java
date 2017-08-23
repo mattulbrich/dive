@@ -84,6 +84,7 @@ public class TreeTermTranslatorTest {
             // Heap accesses
             { "a[0]", "$array_select<int>($heap, a, 0)" },
             { "a2[1,2]", "$array2_select<int>($heap, a2, 1, 2)" },
+            { "null", "null" },
 
             // From TermParserTest
             { "i1 + i2", "$plus(i1, i2)" },
@@ -314,6 +315,37 @@ public class TreeTermTranslatorTest {
 
         assertEquals("knownvar_2", res1.toString());
         assertEquals("knownvar_3", res2.toString());
+    }
+
+    @Test
+    public void testThis() throws Exception {
+        symbTable.addFunctionSymbol(new FunctionSymbol("this", Sort.get("C")));
+        DafnyTree tree = DafnyFileParser.parse(TestUtil.toStream("class C { var f : int; "
+                + "method m() returns (r : C) { r := this; } }"));
+        Project p = TestUtil.mockProject(tree);
+
+        TreeTermTranslator ttt = new TreeTermTranslator(symbTable);
+        DafnyTree thisRef = p.getClass("C").getMethod("m").getBody().getChild(0).getChild(1);
+        Term result = ttt.build(thisRef);
+
+        assertEquals("this", result.toString());
+    }
+
+    @Test
+    public void testFieldAccess() throws Exception {
+        symbTable.addFunctionSymbol(new FunctionSymbol("this", Sort.get("C")));
+        symbTable.addFunctionSymbol(new FunctionSymbol("field$C$f",
+                Sort.get("field", Sort.get("C"), Sort.INT)));
+        DafnyTree tree = DafnyFileParser.parse(TestUtil.toStream("class C { var f : int; "
+                + "method m() returns (r : int) { r := this.f; } }"));
+        Project p = TestUtil.mockProject(tree);
+
+        TreeTermTranslator ttt = new TreeTermTranslator(symbTable);
+        DafnyTree fieldRef = p.getClass("C").getMethod("m").getBody().getChild(0).getChild(1);
+        Term result = ttt.build(fieldRef);
+
+        assertEquals("$select<C,int>($heap, this, field$C$f)", result.toString());
+
     }
 
 }
