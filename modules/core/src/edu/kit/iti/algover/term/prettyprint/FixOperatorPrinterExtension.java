@@ -5,24 +5,25 @@
  */
 package edu.kit.iti.algover.term.prettyprint;
 
-import edu.kit.iti.algover.term.ApplTerm;
-import edu.kit.iti.algover.term.FunctionSymbol;
-import edu.kit.iti.algover.term.FunctionSymbolFamily;
-import edu.kit.iti.algover.term.FunctionSymbolFamily.InstantiatedFunctionSymbol;
-import edu.kit.iti.algover.term.Term;
-import edu.kit.iti.algover.term.prettyprint.FixOperatorCollection.FixOperatorInfo;
 
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.Unmarshaller;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElements;
 import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.JAXBContext;
+import javax.xml.bind.Unmarshaller;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import edu.kit.iti.algover.term.ApplTerm;
+import edu.kit.iti.algover.term.FunctionSymbol;
+import edu.kit.iti.algover.term.FunctionSymbolFamily;
+import edu.kit.iti.algover.term.FunctionSymbolFamily.InstantiatedFunctionSymbol;
+import edu.kit.iti.algover.term.Term;
+import edu.kit.iti.algover.term.prettyprint.FixOperatorCollection.FixOperatorInfo;
 
 public class FixOperatorPrinterExtension implements PrettyPrintExtension {
 

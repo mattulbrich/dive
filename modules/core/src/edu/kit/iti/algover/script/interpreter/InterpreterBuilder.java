@@ -3,7 +3,10 @@ package edu.kit.iti.algover.script.interpreter;
 
 import edu.kit.iti.algover.rules.ProofRule;
 import edu.kit.iti.algover.script.ast.ProofScript;
+import edu.kit.iti.algover.script.callhandling.BuiltinCommands;
+import edu.kit.iti.algover.script.callhandling.CommandHandler;
 import edu.kit.iti.algover.script.callhandling.DefaultLookup;
+import edu.kit.iti.algover.script.callhandling.ProofRuleHandler;
 import edu.kit.iti.algover.script.data.ProofNodeData;
 import edu.kit.iti.algover.script.parser.Visitor;
 
@@ -17,10 +20,30 @@ import java.util.Collection;
 
 public class InterpreterBuilder {
 
+    private final BuiltinCommands.AssertionCommand builtInAssert = new BuiltinCommands.AssertionCommand();
+    private final ProofRuleHandler prh = new ProofRuleHandler();
+    //add other builtInCommadnsHere
     /**
      * Lookup for all available rule and commandhandlers
      */
-    private DefaultLookup lookup = new DefaultLookup();
+    private DefaultLookup lookup = new DefaultLookup(getBuiltInAssert(), prh);
+
+    public BuiltinCommands.AssertionCommand getBuiltInAssert() {
+        return builtInAssert;
+    }
+
+/*
+If we want proof scripts to be called
+    @Getter
+    private final ProofScriptHandler psh = new ProofScriptHandler();
+
+    @Getter
+    private ProofScriptCommandBuilder pmc = new ProofScriptCommandBuilder();
+*/
+
+    public ProofRuleHandler getPrh() {
+        return prh;
+    }
     /**
      * Interpreter
      */

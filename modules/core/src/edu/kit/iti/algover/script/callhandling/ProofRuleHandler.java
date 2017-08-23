@@ -10,7 +10,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Created by sarah on 8/17/17.
+ * Handler for ProofRules
+ *
+ * @author S. Grebing
  */
 public class ProofRuleHandler implements CommandHandler<ProofNode> {
     List<ProofRule> rules = new ArrayList<>();
