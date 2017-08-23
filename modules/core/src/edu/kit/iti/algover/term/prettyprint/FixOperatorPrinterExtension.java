@@ -5,7 +5,6 @@
  */
 package edu.kit.iti.algover.term.prettyprint;
 
-
 import edu.kit.iti.algover.term.ApplTerm;
 import edu.kit.iti.algover.term.FunctionSymbol;
 import edu.kit.iti.algover.term.FunctionSymbolFamily;

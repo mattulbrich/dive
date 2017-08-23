@@ -7,6 +7,7 @@ import org.antlr.v4.runtime.ParserRuleContext;
 import java.util.List;
 
 /**
+ * Handling of exntry and exit points in interpreter
  * @author Alexander Weigl
  * @version 1 (21.05.17)
  */

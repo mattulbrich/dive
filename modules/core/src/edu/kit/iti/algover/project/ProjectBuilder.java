@@ -202,7 +202,7 @@ public class ProjectBuilder {
         for (Map.Entry<String, DafnyTree> en : dafnyTrees.entrySet()) {
             parseFile(true, en.getValue(), en.getKey());
         }
-
+        //TODO parse rules for project
         return new Project(this);
     }
 

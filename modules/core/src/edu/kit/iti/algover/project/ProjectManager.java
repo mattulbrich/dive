@@ -7,7 +7,9 @@ import edu.kit.iti.algover.proof.PVC;
 import edu.kit.iti.algover.proof.PVCGroup;
 import edu.kit.iti.algover.proof.Proof;
 import edu.kit.iti.algover.proof.ProofStatus;
+import edu.kit.iti.algover.rules.ProofRule;
 import edu.kit.iti.algover.script.ast.ASTNode;
+import edu.kit.iti.algover.script.interpreter.InterpreterBuilder;
 import edu.kit.iti.algover.script.parser.Facade;
 import javafx.beans.property.SimpleObjectProperty;
 
@@ -18,9 +20,7 @@ import java.io.Writer;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Class handling project and proof management
@@ -44,6 +44,9 @@ public class ProjectManager {
     private Map<String, PVC> allStrippedPVCs;
 
     private Map<String, Proof> allProofs;
+
+    private InterpreterBuilder ib = new InterpreterBuilder();
+
 
 
     /**************************************************************************************************
@@ -118,13 +121,12 @@ public class ProjectManager {
         Path p = Paths.get(filePath);
         ASTNode root = Facade.getAST(p.toFile());
         Proof proof = allProofs.get(pvc);
-        if (proof != null) {
-
-        } else {
+        if (proof == null) {
             proof = new Proof(pvc);
         }
         proof.setScriptRoot(root);
 
+        //proof.setInterpreter();
         allProofs.putIfAbsent(pvc, proof);
 
     }
@@ -199,9 +201,10 @@ public class ProjectManager {
         for (Map.Entry<String, Proof> pvcProofEntry : allProofs.entrySet()) {
             String pvcName = pvcProofEntry.getKey();
             Proof proof = pvcProofEntry.getValue();
-            //proof.getScriptASTNode
-            //ScriptHelper.visitASTNODE -> String content
-            String content =
+            String content = "";
+            if (proof.getScriptRoot() != null) {
+                ASTNode script = proof.getScriptRoot();
+                content =
                     "auto;\n" +
                             "cases{\n" +
                             "    case match '1==2'{\n" +
@@ -211,7 +214,8 @@ public class ProjectManager {
                             "        auto;\n" +
                             "    }\n" +
                             "}";
-            //where to get content from
+            }
+            //ScriptHelper.visitASTNODE -> String content
             saveToScriptFile(pvcName, content);
         }
 
@@ -258,6 +262,16 @@ public class ProjectManager {
      */
     public void saveProjectVersion() throws IOException {
         saveProject();
+    }
+
+    /**
+     * Return all available rules for project
+     *
+     * @return
+     */
+    public Collection<ProofRule> getAllRules() {
+        //get rules form project
+        return Collections.EMPTY_LIST;
     }
 
     /**************************************************************************************************

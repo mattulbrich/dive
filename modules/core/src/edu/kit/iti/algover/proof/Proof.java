@@ -1,6 +1,7 @@
 package edu.kit.iti.algover.proof;
 
 import edu.kit.iti.algover.script.ast.ASTNode;
+import edu.kit.iti.algover.script.interpreter.Interpreter;
 import javafx.beans.property.SimpleObjectProperty;
 
 /**
@@ -13,15 +14,12 @@ public class Proof {
     /**
      * Status of Proof
      */
-    //private ProofStatus proofStatus;
 
     private SimpleObjectProperty<ProofStatus> proofStatus = new SimpleObjectProperty<>(null, "ProofStatusProperty");
     /**
      * Root of logical Proof
      */
     private ProofNode proofRoot;
-
-
 
     /**
      * Root of Script
@@ -33,6 +31,11 @@ public class Proof {
      */
     private String pvcName;
 
+
+    /**
+     * Interpreter for this proof
+     */
+    private Interpreter<ProofNode> interpreter;
 
 
     public Proof(String pvcName) {
@@ -62,6 +65,15 @@ public class Proof {
     public SimpleObjectProperty<ProofStatus> proofStatusProperty() {
         return proofStatus;
     }
+
+    public Interpreter<ProofNode> getInterpreter() {
+        return interpreter;
+    }
+
+    public void setInterpreter(Interpreter<ProofNode> interpreter) {
+        this.interpreter = interpreter;
+    }
+
 
     /**
      * Replay proof

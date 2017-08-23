@@ -2,6 +2,7 @@ package edu.kit.iti.algover.script.interpreter;
 
 
 import edu.kit.iti.algover.script.ast.*;
+import edu.kit.iti.algover.script.callhandling.CommandLookup;
 import edu.kit.iti.algover.script.data.GoalNode;
 import edu.kit.iti.algover.script.data.State;
 import edu.kit.iti.algover.script.data.Value;
@@ -12,7 +13,6 @@ import edu.kit.iti.algover.script.parser.DefaultASTVisitor;
 import edu.kit.iti.algover.script.parser.Visitor;
 
 import java.util.*;
-import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -25,28 +25,32 @@ import java.util.stream.Stream;
 public class Interpreter<T> extends DefaultASTVisitor<Object>
         implements ScopeObservable {
     private static final int MAX_ITERATIONS = 5;
-    // @Getter
-  /*  private static final BiMap<Type, VariableAssignments.VarType> typeConversionBiMap =
-            new ImmutableBiMap.Builder<Type, VariableAssignments.VarType>()
-                    .put(Type.ANY, VariableAssignments.VarType.ANY)
-                    .put(Type.BOOL, VariableAssignments.VarType.BOOL)
-                    .put(Type.TERM, VariableAssignments.VarType.FORMULA) //TODO: parametrisierte Terms
-                    .put(Type.INT, VariableAssignments.VarType.INT)
-                    .put(Type.STRING, VariableAssignments.VarType.OBJECT)
-                    .put(Type.INT_ARRAY, VariableAssignments.VarType.INT_ARRAY)
-                    .put(Type.SEQ, VariableAssignments.VarType.SEQ)
-                    .build();*/
-    private static Logger logger = Logger.getLogger("interpreter");
-    //TODO later also include information about source line for each state (for debugging purposes and rewind purposes)
+
+    /**
+     * State stack. Contains the state that is being processed
+     */
     private Stack<State<T>> stateStack = new Stack<>();
+
+    /**
+     * Listener for entry and exit of ASTNodes
+     */
     private List<Visitor> entryListeners = new ArrayList<>(),
             exitListeners = new ArrayList<>();
-    private MatcherApi<T> matcherApi;
-    private boolean scrictSelectedGoalMode = false;
 
-    /*public CommandLookup getFunctionLookup() {
-        return functionLookup;
-    }*/
+    /**
+     * Matcher for match expressions
+     */
+    private MatcherApi<T> matcherApi;
+
+    /**
+     * Lookup for proof commands
+     */
+    private CommandLookup functionLookup;
+
+
+    public Interpreter(CommandLookup lookup) {
+        functionLookup = lookup;
+    }
 
     @Override
     public List<Visitor> getEntryListeners() {
@@ -66,27 +70,33 @@ public class Interpreter<T> extends DefaultASTVisitor<Object>
         this.matcherApi = matcherApi;
     }
 
-    public boolean isScrictSelectedGoalMode() {
-        return scrictSelectedGoalMode;
+    /**
+     * Lookup for call commands/rule applications
+     *
+     * @return
+     */
+    public CommandLookup getFunctionLookup() {
+        return functionLookup;
     }
-//private CommandLookup functionLookup;
-
-    public void setScrictSelectedGoalMode(boolean scrictSelectedGoalMode) {
-        this.scrictSelectedGoalMode = scrictSelectedGoalMode;
-    }
-
-  /*  public Interpreter(CommandLookup lookup) {
-        functionLookup = lookup;
-    }*/
 
     /**
-     * starting point is a statement list
+     * starting point is a ProofScript object
      */
     public void interpret(ProofScript script) {
         if (stateStack.empty()) {
             throw new InterpreterRuntimeException("no state on stack. call newState before interpret");
         }
         script.accept(this);
+    }
+
+    /**
+     * Interpret an ASTNode in state on top of stack
+     */
+    public void interpret(ASTNode node) {
+        if (stateStack.empty()) {
+            throw new InterpreterRuntimeException("no state on stack. call newState before interpret");
+        }
+        node.accept(this);
     }
 
 
@@ -491,7 +501,7 @@ public class Interpreter<T> extends DefaultASTVisitor<Object>
      * 2) foreach of these goals visit body of foreach
      * 3) collect all results after foreach
      *
-     * @param foreach
+     * @param
      * @return
      */
   /*  @Override
@@ -546,10 +556,6 @@ public class Interpreter<T> extends DefaultASTVisitor<Object>
         try {
             return stateStack.peek().getSelectedGoalNode();
         } catch (IllegalStateException e) {
-            if (scrictSelectedGoalMode)
-                throw e;
-
-            logger.warning("No goal selected. Returning first goal!");
             return getCurrentGoals().get(0);
         }
     }
@@ -564,7 +570,7 @@ public class Interpreter<T> extends DefaultASTVisitor<Object>
             return stateStack.peek();
         } catch (EmptyStackException e) {
             return new State<T>(null);
-            //FIXME
+
         }
     }
 

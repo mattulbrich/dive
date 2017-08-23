@@ -1,25 +1,22 @@
 package edu.kit.iti.algover.script;
 
+import edu.kit.iti.algover.script.ast.ASTNode;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 
 import java.io.FileNotFoundException;
+import java.io.InputStream;
 import java.net.URL;
 import java.util.Arrays;
 
 /**
- * Created by sarah on 8/18/16.
+ * Test class for testing the script parser
  */
 @RunWith(Parameterized.class)
 public class ScriptParserTest {
 
-
-
-
-
-        private static final boolean VERBOSE =
-                Boolean.getBoolean("algover.test.verbose");
+    private static final boolean VERBOSE = Boolean.getBoolean("algover.test.verbose");
     private final String filename;
 
     public ScriptParserTest(String filename) {
@@ -41,6 +38,7 @@ public class ScriptParserTest {
             if(url == null) {
                 throw new FileNotFoundException(filename);
             }
+            ASTNode t = parseScriptFile(url.openStream());
 
            /* ScriptTree t = parseFile(url.openStream());
 
@@ -49,6 +47,14 @@ public class ScriptParserTest {
                 System.out.println(t.toStringTree());
             }*/
         }
+
+    private ASTNode parseScriptFile(InputStream inputStream) {
+        if (inputStream == null) {
+            throw new NullPointerException();
+        }
+        return null;
+
+    }
 
        /* public static ScriptTree parseFile(InputStream stream) throws FileNotFoundException,
                 IOException, RecognitionException {
