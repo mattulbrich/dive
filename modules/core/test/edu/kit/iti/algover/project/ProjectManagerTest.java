@@ -84,7 +84,10 @@ public class ProjectManagerTest {
         Proof proof = pm.getProofForPVC(testPVCName);
 
         Assert.assertNull(proof.getScriptRoot());
+        pm.addDataToProofObject(testPVCName);
         pm.findAndParseScriptFile(testPVCName);
+        System.out.println("Current State " + proof.getInterpreter().getCurrentState().getSelectedGoalNode());
+        //pm.replayAllProofs();
 
         Proof proofAfter = pm.getProofForPVC(testPVCName);
 

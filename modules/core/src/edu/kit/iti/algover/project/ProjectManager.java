@@ -3,12 +3,12 @@ package edu.kit.iti.algover.project;
 import edu.kit.iti.algover.parser.DafnyException;
 import edu.kit.iti.algover.parser.ReferenceResolutionVisitor;
 import edu.kit.iti.algover.parser.TypeResolution;
-import edu.kit.iti.algover.proof.PVC;
-import edu.kit.iti.algover.proof.PVCGroup;
-import edu.kit.iti.algover.proof.Proof;
-import edu.kit.iti.algover.proof.ProofStatus;
+import edu.kit.iti.algover.proof.*;
 import edu.kit.iti.algover.rules.ProofRule;
 import edu.kit.iti.algover.script.ast.ASTNode;
+import edu.kit.iti.algover.script.data.GoalNode;
+import edu.kit.iti.algover.script.data.ProofNodeData;
+import edu.kit.iti.algover.script.interpreter.Interpreter;
 import edu.kit.iti.algover.script.interpreter.InterpreterBuilder;
 import edu.kit.iti.algover.script.parser.Facade;
 import javafx.beans.property.SimpleObjectProperty;
@@ -99,11 +99,10 @@ public class ProjectManager {
     /**
      * Generate all proof objects for all available PVCs in allPVCs
      */
-    private void generateAllProofObjects() {
+    private void generateAllProofObjects() throws IOException {
         allProofs = new HashMap<>();
         for (String pvc : allStrippedPVCs.keySet()) {
             Proof p = new Proof(pvc);
-            //load scriptfile for Proof if existing+parse it
             allProofs.put(pvc, p);
         }
     }
@@ -125,10 +124,25 @@ public class ProjectManager {
             proof = new Proof(pvc);
         }
         proof.setScriptRoot(root);
-
-        //proof.setInterpreter();
         allProofs.putIfAbsent(pvc, proof);
 
+    }
+
+    public void addDataToProofObject(String pvc) throws IOException {
+        Proof p = allProofs.get(pvc);
+        findAndParseScriptFile(pvc);
+        PVC pvcObject = allStrippedPVCs.get(pvc);
+        p.setProofRoot(new ProofNode(null, null, null, pvcObject.getSequent(), pvcObject));
+        buildIndividualInterpreter(p);
+
+
+    }
+
+    public void buildIndividualInterpreter(Proof p) {
+
+        InterpreterBuilder ib = new InterpreterBuilder();
+        Interpreter i = ib.startWith(p.getScriptRoot()).startState(new GoalNode<ProofNodeData>(null, new ProofNodeData(p.getProofRoot()))).build();
+        p.setInterpreter(i);
     }
 
     /**
@@ -189,7 +203,8 @@ public class ProjectManager {
         saveProject();
         //save everything before replay
         for (Proof proof : allProofs.values()) {
-            proof.replay();
+            //proof.replay();
+
         }
 
     }

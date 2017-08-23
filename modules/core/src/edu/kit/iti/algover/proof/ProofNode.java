@@ -27,11 +27,13 @@ public class ProofNode {
 
     private Sequent sequent;
 
-    public ProofNode(ProofNode parent, ProofRuleApplication psr, ProofHistory history) {
+    public ProofNode(ProofNode parent, ProofRuleApplication psr, ProofHistory history, Sequent seq, PVC rootPVC) {
         this.parent = parent;
         this.psr = psr;
         this.history = history;
         this.children = new LinkedList<ProofNode>();
+        this.sequent = seq;
+        this.rootPVC = rootPVC;
     }
 
     public Sequent getSequent() {

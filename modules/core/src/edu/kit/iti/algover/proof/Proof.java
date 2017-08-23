@@ -1,6 +1,7 @@
 package edu.kit.iti.algover.proof;
 
 import edu.kit.iti.algover.script.ast.ASTNode;
+import edu.kit.iti.algover.script.data.GoalNode;
 import edu.kit.iti.algover.script.interpreter.Interpreter;
 import javafx.beans.property.SimpleObjectProperty;
 
@@ -88,6 +89,15 @@ public class Proof {
         } else {
             setProofStatus(ProofStatus.NON_EXISTING);
         }
+        return this;
+    }
+
+    public Proof interpretScript() {
+        assert scriptRoot != null;
+        assert proofRoot != null;
+        interpreter.newState(new GoalNode<>(null, proofRoot));
+        getInterpreter().interpret(scriptRoot);
+        ProofNode pnext = getInterpreter().getSelectedNode().getData();
         return this;
     }
 
