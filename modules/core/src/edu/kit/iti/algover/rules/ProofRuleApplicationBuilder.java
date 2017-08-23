@@ -11,10 +11,7 @@ import java.util.List;
 import nonnull.NonNull;
 import nonnull.Nullable;
 import edu.kit.iti.algover.rules.ProofRuleApplication.Applicability;
-import edu.kit.iti.algover.term.Sequent;
-import edu.kit.iti.algover.term.Term;
 import edu.kit.iti.algover.util.ImmutableList;
-import edu.kit.iti.algover.util.Pair;
 import edu.kit.iti.algover.util.Util;
 
 /**
@@ -83,6 +80,14 @@ public class ProofRuleApplicationBuilder {
                 refiner);
     }
 
+    /**
+     * Create and return a new branch builder.
+     *
+     * The branch is built automatically from the child builder as soon as this
+     * app is built.
+     *
+     * @return the new branch info builder
+     */
     public BranchInfoBuilder newBranch() {
         BranchInfoBuilder builder = new BranchInfoBuilder();
         branches.add(builder);
