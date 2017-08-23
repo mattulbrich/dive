@@ -1,8 +1,8 @@
 package edu.kit.iti.algover.script.callhandling;
 
+import edu.kit.iti.algover.proof.ProofNode;
 import edu.kit.iti.algover.rules.ProofRule;
 import edu.kit.iti.algover.script.ast.CallStatement;
-import edu.kit.iti.algover.script.data.ProofNodeData;
 import edu.kit.iti.algover.script.data.VariableAssignment;
 import edu.kit.iti.algover.script.exceptions.ScriptCommandNotApplicableException;
 import edu.kit.iti.algover.script.interpreter.Interpreter;
@@ -13,7 +13,7 @@ import java.util.Map;
 /**
  * Created by sarah on 8/17/17.
  */
-public class RuleCommandHandler implements CommandHandler<ProofNodeData> {
+public class RuleCommandHandler implements CommandHandler<ProofNode> {
 
     private final Map<String, ProofRule> rules;
 
@@ -31,7 +31,7 @@ public class RuleCommandHandler implements CommandHandler<ProofNodeData> {
     }
 
     @Override
-    public void evaluate(Interpreter<ProofNodeData> interpreter,
+    public void evaluate(Interpreter<ProofNode> interpreter,
                          CallStatement call,
                          VariableAssignment params) throws IllegalStateException, RuntimeException, ScriptCommandNotApplicableException {
         if (!rules.containsKey(call.getCommand())) {

@@ -6,14 +6,12 @@ import edu.kit.iti.algover.rules.ProofRule;
 import edu.kit.iti.algover.script.ast.ASTNode;
 import edu.kit.iti.algover.script.ast.ProofScript;
 import edu.kit.iti.algover.script.callhandling.BuiltinCommands;
-import edu.kit.iti.algover.script.callhandling.CommandHandler;
 import edu.kit.iti.algover.script.callhandling.DefaultLookup;
 import edu.kit.iti.algover.script.callhandling.ProofRuleHandler;
 import edu.kit.iti.algover.script.data.GoalNode;
-import edu.kit.iti.algover.script.data.ProofNodeData;
 import edu.kit.iti.algover.script.parser.Visitor;
 
-import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Collection;
 
 /**
@@ -24,7 +22,7 @@ import java.util.Collection;
 public class InterpreterBuilder {
 
     private final BuiltinCommands.AssertionCommand builtInAssert = new BuiltinCommands.AssertionCommand();
-    private final ProofRuleHandler prh = new ProofRuleHandler();
+    private ProofRuleHandler prh = new ProofRuleHandler();
 
     //add other builtInCommadnsHere
 
@@ -47,7 +45,7 @@ public class InterpreterBuilder {
 
      * Interpreter
      */
-    private Interpreter<ProofNodeData> interpreter = new Interpreter<>(lookup);
+    private Interpreter<ProofNode> interpreter = new Interpreter<>(lookup);
 
     public void setEntryPoint(ASTNode entryPoint) {
         this.entryNode = entryPoint;
@@ -61,7 +59,7 @@ public class InterpreterBuilder {
         return lookup;
     }
 
-    public Interpreter<ProofNodeData> getInterpreter() {
+    public Interpreter<ProofNode> getInterpreter() {
         return interpreter;
     }
 
@@ -81,7 +79,7 @@ public class InterpreterBuilder {
      *
      * @return Interpreter
      */
-    public Interpreter<ProofNodeData> build() {
+    public Interpreter<ProofNode> build() {
         return interpreter;
     }
 
@@ -126,10 +124,16 @@ public class InterpreterBuilder {
         return this;
     }
 
-    public InterpreterBuilder startState(GoalNode<ProofNodeData> startGoal) {
+    public InterpreterBuilder startState(GoalNode<ProofNode> startGoal) {
         interpreter.newState(startGoal);
         return this;
     }
+
+    public InterpreterBuilder setProofRules(Collection<ProofRule> proofRules) {
+        this.prh = new ProofRuleHandler(new ArrayList<>(proofRules));
+        return this;
+    }
+
 
 
 /*    public InterpreterBuilder addMatcher(ProofApi api) {

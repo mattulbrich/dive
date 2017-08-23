@@ -1,18 +1,21 @@
 package edu.kit.iti.algover.script.callhandling;
 
 import edu.kit.iti.algover.proof.ProofNode;
-import edu.kit.iti.algover.rules.Parameters;
-import edu.kit.iti.algover.rules.ProofRule;
-import edu.kit.iti.algover.rules.ProofRuleApplication;
-import edu.kit.iti.algover.rules.RuleException;
+import edu.kit.iti.algover.rules.*;
 import edu.kit.iti.algover.script.ast.CallStatement;
 import edu.kit.iti.algover.script.ast.Expression;
 import edu.kit.iti.algover.script.data.GoalNode;
 import edu.kit.iti.algover.script.data.State;
+import edu.kit.iti.algover.script.data.Value;
 import edu.kit.iti.algover.script.data.VariableAssignment;
 import edu.kit.iti.algover.script.exceptions.ScriptCommandNotApplicableException;
+import edu.kit.iti.algover.script.interpreter.Evaluator;
 import edu.kit.iti.algover.script.interpreter.Interpreter;
+import edu.kit.iti.algover.util.ImmutableList;
+import jdk.nashorn.internal.codegen.types.Type;
+import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -57,10 +60,32 @@ public class ProofRuleHandler implements CommandHandler<ProofNode> {
 
         try {
             Parameters ruleParams = new Parameters();
-            call.getParameters().forEach((variable, expression) -> System.out.println(variable.getIdentifier() + expression));
+
+            Evaluator<ProofNode> evaluator = new Evaluator<>(params, pn);
+            call.getParameters().forEach((variable, expression) -> {
+                        Value val = evaluator.eval(expression);
+                        ruleParams.putValue(variable.getIdentifier(), convertValuesToTypedValues(val));
+                    }
+            );
+
             ProofRuleApplication proofRuleApplication = pr.makeApplication(pn.getData(), ruleParams);
             if (proofRuleApplication.getApplicability().equals(ProofRuleApplication.Applicability.APPLICABLE)) {
-                //TODO how do I get the applications results?
+                ImmutableList<BranchInfo> applicationInfos = proofRuleApplication.getBranchInfo();
+                if (applicationInfos.equals(BranchInfo.UNCHANGED)) {
+                    //TODO handle unchanged case
+                }
+                if (applicationInfos.equals(BranchInfo.CLOSE)) {
+                    //TODO handle closed case
+                }
+
+                applicationInfos.forEach(branchInfo -> {
+                    System.out.println("branchInfo = " + branchInfo);
+                    //TODO call methods that add/delete/cand replace terms
+                });
+
+                state.getGoals().remove(pn);
+                //state.getGoals().add(newCreatedGoals);
+                //newcreatedgoals must be goalnode<ProofNode>
             }
 
         } catch (RuleException e) {
@@ -69,6 +94,17 @@ public class ProofRuleHandler implements CommandHandler<ProofNode> {
 
         //TODO
 
+    }
+
+    private Parameters.TypedValue convertValuesToTypedValues(Value val) {
+        switch (val.getType()) {
+            case STRING:
+                return new Parameters.TypedValue(String.class, val.getData());
+            case INT:
+                return new Parameters.TypedValue(BigInteger.class, val.getData());
+            default:
+                throw new NotImplementedException();
+        }
     }
 
     @Override

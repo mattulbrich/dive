@@ -7,7 +7,6 @@ import edu.kit.iti.algover.proof.*;
 import edu.kit.iti.algover.rules.ProofRule;
 import edu.kit.iti.algover.script.ast.ASTNode;
 import edu.kit.iti.algover.script.data.GoalNode;
-import edu.kit.iti.algover.script.data.ProofNodeData;
 import edu.kit.iti.algover.script.interpreter.Interpreter;
 import edu.kit.iti.algover.script.interpreter.InterpreterBuilder;
 import edu.kit.iti.algover.script.parser.Facade;
@@ -141,7 +140,10 @@ public class ProjectManager {
     public void buildIndividualInterpreter(Proof p) {
 
         InterpreterBuilder ib = new InterpreterBuilder();
-        Interpreter i = ib.startWith(p.getScriptRoot()).startState(new GoalNode<ProofNodeData>(null, new ProofNodeData(p.getProofRoot()))).build();
+        Interpreter i = ib.startWith(p.getScriptRoot())
+                .setProofRules(this.getAllRules())
+                .startState(new GoalNode<ProofNode>(null, p.getProofRoot()))
+                .build();
         p.setInterpreter(i);
     }
 
