@@ -5,10 +5,10 @@
  */
 package edu.kit.iti.algover.sequent;
 
+import edu.kit.iti.algover.rules.SubtermSelector;
 import edu.kit.iti.algover.term.prettyprint.AnnotatedString;
 import edu.kit.iti.algover.term.prettyprint.PrettyPrint;
 import edu.kit.iti.algover.term.Term;
-import edu.kit.iti.algover.term.prettyprint.SubtermSelector;
 import edu.kit.iti.algover.util.TextUtil;
 import javafx.geometry.Bounds;
 import javafx.scene.input.MouseEvent;
