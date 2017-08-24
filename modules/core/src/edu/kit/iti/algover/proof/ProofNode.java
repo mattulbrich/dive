@@ -20,12 +20,20 @@ import java.util.List;
 public class ProofNode {
 
     private ProofNode parent;
+
+
     private ProofRuleApplication psr;
+
     private ProofHistory history;
+
     private List<ProofNode> children;
+
     private PVC rootPVC;
 
     private Sequent sequent;
+
+
+    private boolean isclosed;
 
     public ProofNode(ProofNode parent, ProofRuleApplication psr, ProofHistory history, Sequent seq, PVC rootPVC) {
         this.parent = parent;
@@ -34,9 +42,53 @@ public class ProofNode {
         this.children = new LinkedList<ProofNode>();
         this.sequent = seq;
         this.rootPVC = rootPVC;
+        isclosed = false;
     }
 
     public Sequent getSequent() {
         return sequent;
     }
+
+
+    public ProofNode getParent() {
+        return parent;
+    }
+
+    public ProofRuleApplication getPsr() {
+        return psr;
+    }
+
+    public void setPsr(ProofRuleApplication psr) {
+        this.psr = psr;
+    }
+
+    public ProofHistory getHistory() {
+        return history;
+    }
+
+    public List<ProofNode> getChildren() {
+        return children;
+    }
+
+    public void setChildren(List<ProofNode> children) {
+        this.children = children;
+    }
+
+    public PVC getRootPVC() {
+        return rootPVC;
+    }
+
+    public boolean isIsclosed() {
+        return isclosed;
+    }
+
+    public void setIsclosed(boolean isclosed) {
+        this.isclosed = isclosed;
+    }
+
+    public void setSequent(Sequent sequent) {
+        this.sequent = sequent;
+    }
+
+
 }

@@ -2,6 +2,7 @@ package edu.kit.iti.algover.proof;
 
 import edu.kit.iti.algover.script.ast.ASTNode;
 import edu.kit.iti.algover.script.data.GoalNode;
+import edu.kit.iti.algover.script.data.State;
 import edu.kit.iti.algover.script.interpreter.Interpreter;
 import javafx.beans.property.SimpleObjectProperty;
 
@@ -32,6 +33,7 @@ public class Proof {
      */
     private String pvcName;
 
+    private State<GoalNode<ProofNode>> currentState;
 
     /**
      * Interpreter for this proof

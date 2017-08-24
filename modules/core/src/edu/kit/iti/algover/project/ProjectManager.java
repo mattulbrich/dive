@@ -106,6 +106,16 @@ public class ProjectManager {
         }
     }
 
+    protected void addDataToProofObject(String pvc) throws IOException {
+        Proof p = allProofs.get(pvc);
+        findAndParseScriptFile(pvc);
+        PVC pvcObject = allStrippedPVCs.get(pvc);
+        p.setProofRoot(new ProofNode(null, null, null, pvcObject.getSequent(), pvcObject));
+        buildIndividualInterpreter(p);
+
+
+    }
+
     /**
      * Find and parse script file for pvc. Set the ASTroot in the corresponding proof object
      *
@@ -113,7 +123,7 @@ public class ProjectManager {
      * @return TODO should return ScriptAST
      */
 
-    public void findAndParseScriptFile(String pvc) throws IOException {
+    protected void findAndParseScriptFile(String pvc) throws IOException {
         String filePath = project.get().getBaseDir().getAbsolutePath() + pvc + ".script";
         //find file on disc
         Path p = Paths.get(filePath);
@@ -127,17 +137,7 @@ public class ProjectManager {
 
     }
 
-    public void addDataToProofObject(String pvc) throws IOException {
-        Proof p = allProofs.get(pvc);
-        findAndParseScriptFile(pvc);
-        PVC pvcObject = allStrippedPVCs.get(pvc);
-        p.setProofRoot(new ProofNode(null, null, null, pvcObject.getSequent(), pvcObject));
-        buildIndividualInterpreter(p);
-
-
-    }
-
-    public void buildIndividualInterpreter(Proof p) {
+    protected void buildIndividualInterpreter(Proof p) {
 
         InterpreterBuilder ib = new InterpreterBuilder();
         Interpreter i = ib.startWith(p.getScriptRoot())
