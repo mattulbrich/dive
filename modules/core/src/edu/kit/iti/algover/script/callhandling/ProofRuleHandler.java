@@ -45,6 +45,13 @@ public class ProofRuleHandler implements CommandHandler<ProofNode> {
         rules.forEach(proofRule -> ruleMap.put(proofRule.getName(), proofRule));
     }
 
+    /**
+     * Check whether call can be handled by this object
+     *
+     * @param call
+     * @return
+     * @throws IllegalArgumentException
+     */
     @Override
     public boolean handles(CallStatement call) throws IllegalArgumentException {
         for (ProofRule pr : rules)
@@ -54,6 +61,14 @@ public class ProofRuleHandler implements CommandHandler<ProofNode> {
         return false;
     }
 
+    /**
+     * Apply a rule to the proof node of the current interpreter state
+     * @param interpreter
+     * @param call
+     * @param params
+     * @throws IllegalStateException
+     * @throws ScriptCommandNotApplicableException
+     */
     @Override
     public void evaluate(Interpreter<ProofNode> interpreter, CallStatement call, VariableAssignment params) throws IllegalStateException, ScriptCommandNotApplicableException {
         if (!rules.contains(call.getCommand())) {
@@ -75,24 +90,8 @@ public class ProofRuleHandler implements CommandHandler<ProofNode> {
 
             ProofRuleApplication proofRuleApplication = pr.makeApplication(pn.getData(), ruleParams);
             if (proofRuleApplication.getApplicability().equals(ProofRuleApplication.Applicability.APPLICABLE)) {
-                ImmutableList<BranchInfo> applicationInfos = proofRuleApplication.getBranchInfo();
-                if (applicationInfos.equals(BranchInfo.UNCHANGED)) {
+                List<ProofNode> newNodes = RuleApplicator.applyRule(proofRuleApplication, pn.getData());
 
-                    //TODO handle unchanged case
-                }
-                if (applicationInfos.equals(BranchInfo.CLOSE)) {
-                    //TODO handle closed case
-                }
-                Sequent sequent = pn.getData().getSequent();
-                int numberOfChildrenExpected = applicationInfos.size();
-                List<ProofNode> children = new ArrayList<>();
-                applicationInfos.forEach(branchInfo -> {
-                    System.out.println("branchInfo = " + branchInfo);
-                    Sequent newSequent = createNewSequent(branchInfo, sequent);
-                    ProofNode pnNew = new ProofNode(pn.getData(), proofRuleApplication, pn.getData().getHistory(), newSequent, pn.getData().getRootPVC());
-                    children.add(pnNew);
-                });
-                assert numberOfChildrenExpected == children.size();
                 state.getGoals().remove(pn);
                 //state.getGoals().add(newCreatedGoals);
                 //newcreatedgoals must be goalnode<ProofNode>
@@ -104,53 +103,10 @@ public class ProofRuleHandler implements CommandHandler<ProofNode> {
             throw new ScriptCommandNotApplicableException(e);
         }
 
-        //TODO
 
     }
 
-    private Sequent createNewSequent(BranchInfo branchInfo, Sequent oldSeq) {
 
-
-        Sequent additions = branchInfo.getAdditions();
-        Sequent deletions = branchInfo.getDeletions();
-        Iterable<Pair<TermSelector, Term>> replacements = branchInfo.getReplacements();
-        List<Pair<TermSelector, Term>> antecReplacements = new ArrayList<>();
-        List<Pair<TermSelector, Term>> succReplacements = new ArrayList<>();
-        replacements.forEach(termSelectorTermPair -> {
-            if (termSelectorTermPair.getFst().equals(TermSelector.SequentPolarity.ANTECEDENT)) {
-                antecReplacements.add(termSelectorTermPair);
-            } else {
-                succReplacements.add(termSelectorTermPair);
-            }
-        });
-
-
-        List<ProofFormula> antec = changeSemisequent(additions.getAntecedent(), deletions.getAntecedent(), antecReplacements, oldSeq
-                .getAntecedent());
-        List<ProofFormula> succ = changeSemisequent(additions.getSuccedent(), deletions.getSuccedent(), succReplacements, oldSeq
-                .getSuccedent());
-
-
-        Sequent newSeq = new Sequent(antec, succ);
-        return newSeq;
-
-    }
-
-    private List<ProofFormula> changeSemisequent(List<ProofFormula> add, List<ProofFormula> delete, List<Pair<TermSelector, Term>> change, List<ProofFormula> oldSemiSeq) {
-        List<ProofFormula> newSemiSeq = new ArrayList<>(add);
-        oldSemiSeq.forEach(proofFormula -> {
-            //check if formula in deletions
-            if (!delete.contains(proofFormula)) {
-                //check if formula in changes
-                change.forEach(termSelectorTermPair -> {
-                    //do replacements
-                });
-                newSemiSeq.add(proofFormula);
-            }
-        });
-
-        return newSemiSeq;
-    }
 
     private Parameters.TypedValue convertValuesToTypedValues(Value val) {
         switch (val.getType()) {
