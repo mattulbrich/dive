@@ -318,7 +318,9 @@ public class Symbex {
             DafnyTree id = stm.getChild(0);
             DafnyTree expression = stm.getChild(2);
             handleExpression(stack, state, expression);
-            state.addAssignment(ASTUtil.assign(id, expression));
+            DafnyTree assign = ASTUtil.assign(id, expression);
+            assign.getChild(0).setDeclarationReference(stm);
+            state.addAssignment(assign);
         }
         state.setBlockToExecute(remainder);
         stack.push(state);
