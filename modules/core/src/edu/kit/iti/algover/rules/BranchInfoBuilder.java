@@ -1,3 +1,9 @@
+/*
+ * This file is part of AlgoVer.
+ *
+ * Copyright (C) 2015-2017 Karlsruhe Institute of Technology
+ */
+
 package edu.kit.iti.algover.rules;
 
 import java.util.ArrayList;
@@ -32,13 +38,18 @@ public class BranchInfoBuilder {
     private final List<ProofFormula> deletionsSuccedent = new ArrayList<>();
 
     private final List<Pair<TermSelector, Term>> replacements = new ArrayList<>();
+    private String label;
 
     public BranchInfoBuilder(BranchInfo info) {
-
+        additionsAntecedent.addAll(info.getAdditions().getAntecedent());
+        additionsSuccedent.addAll(info.getAdditions().getSuccedent());
+        deletionsAntecedent.addAll(info.getDeletions().getAntecedent());
+        deletionsSuccedent.addAll(info.getDeletions().getSuccedent());
+        replacements.addAll(info.getReplacements().asCollection());
+        label = info.getLabel();
     }
 
     public BranchInfoBuilder() {
-        // TODO Auto-generated constructor stub
     }
 
 
@@ -56,7 +67,7 @@ public class BranchInfoBuilder {
         Sequent additions = new Sequent(additionsAntecedent, additionsSuccedent);
         Sequent deletions = new Sequent(deletionsAntecedent, deletionsSuccedent);
 
-        return new BranchInfo(additions, deletions, ImmutableList.from(replacements));
+        return new BranchInfo(label, additions, deletions, ImmutableList.from(replacements));
     }
 
     public BranchInfoBuilder addAdditions(Sequent sequent) {
@@ -79,6 +90,14 @@ public class BranchInfoBuilder {
     public BranchInfoBuilder addDeletionsSuccedent(List<ProofFormula> deletionsSucc) {
         deletionsSuccedent.addAll(deletionsSucc);
         return this;
+    }
+
+    public String getLabel() {
+        return label;
+    }
+
+    public void setLabel(String label) {
+        this.label = label;
     }
 
 }

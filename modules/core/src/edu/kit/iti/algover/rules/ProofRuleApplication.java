@@ -263,7 +263,13 @@ public final class ProofRuleApplication {
         return openParameters;
     }
 
-    public Refiner getRefiner() {
+    /**
+     * Gets the refining code which may add information to the proof app by
+     * returning a new one.
+     *
+     * @return the refiner, <code>null</code> if none set!
+     */
+    public @Nullable Refiner getRefiner() {
         return refiner;
     }
 }

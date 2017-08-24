@@ -30,7 +30,7 @@ public class BranchInfo {
      */
     public static final ImmutableList<BranchInfo> UNCHANGED =
             ImmutableList.single(
-                    new BranchInfo(Sequent.EMPTY, Sequent.EMPTY, ImmutableList.nil()));
+                    new BranchInfo("", Sequent.EMPTY, Sequent.EMPTY, ImmutableList.nil()));
 
     /**
      * The special case of a closing rule with no branches.
@@ -53,15 +53,25 @@ public class BranchInfo {
      */
     private final @DeepNonNull ImmutableList<Pair<TermSelector, Term>> replacements;
 
+    private final String label;
+
     /**
      * Instantiates a new branch info.
      *
-     * @param additions the toplevel terms to be added to the node's sequent
-     * @param deletions the toplevel terms to be removed from the node's sequent
-     * @param replacements the terms to be replaced
+     * @param label
+     *            the label associated to this branch
+     * @param additions
+     *            the toplevel terms to be added to the node's sequent
+     * @param deletions
+     *            the toplevel terms to be removed from the node's sequent
+     * @param replacements
+     *            the terms to be replaced
      */
-    public BranchInfo(@NonNull Sequent additions, @NonNull Sequent deletions,
+    public BranchInfo(@NonNull String label,
+            @NonNull Sequent additions,
+            @NonNull Sequent deletions,
             @DeepNonNull ImmutableList<Pair<TermSelector, Term>> replacements) {
+        this.label = label;
         this.additions = additions;
         this.deletions = deletions;
         this.replacements = replacements;
@@ -79,7 +89,7 @@ public class BranchInfo {
      */
     @SafeVarargs
     public static BranchInfo makeReplacement(Pair<TermSelector, Term>... replacements) {
-        return new BranchInfo(Sequent.EMPTY, Sequent.EMPTY,
+        return new BranchInfo("", Sequent.EMPTY, Sequent.EMPTY,
                 ImmutableList.<Pair<TermSelector, Term>>from(replacements));
     }
 
@@ -97,7 +107,7 @@ public class BranchInfo {
      *
      * @return the deletions as sequent
      */
-    public Sequent getDeletions() {
+    public @NonNull Sequent getDeletions() {
         return deletions;
     }
 
@@ -106,8 +116,17 @@ public class BranchInfo {
      *
      * @return an unmodifiable list of term replacements.
      */
-    public Iterable<Pair<TermSelector, Term>> getReplacements() {
+    public @DeepNonNull ImmutableList<Pair<TermSelector, Term>> getReplacements() {
         return replacements;
+    }
+
+    /**
+     * Gets the branch label associated to this branch
+     *
+     * @return the label
+     */
+    public @NonNull String getLabel() {
+        return label;
     }
 
 }
