@@ -6,6 +6,7 @@
 package edu.kit.iti.algover.proof;
 
 import edu.kit.iti.algover.rules.ProofRuleApplication;
+import edu.kit.iti.algover.script.ast.ASTNode;
 import edu.kit.iti.algover.term.Sequent;
 
 import java.util.LinkedList;
@@ -34,6 +35,7 @@ public class ProofNode {
 
 
     private boolean isclosed;
+    private ASTNode mutator;
 
     public ProofNode(ProofNode parent, ProofRuleApplication psr, ProofHistory history, Sequent seq, PVC rootPVC) {
         this.parent = parent;
@@ -90,5 +92,11 @@ public class ProofNode {
         this.sequent = sequent;
     }
 
+    public ASTNode getMutator() {
+        return mutator;
+    }
 
+    public void setMutator(ASTNode mutator) {
+        this.mutator = mutator;
+    }
 }

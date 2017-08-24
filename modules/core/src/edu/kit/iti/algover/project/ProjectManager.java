@@ -6,6 +6,7 @@ import edu.kit.iti.algover.parser.TypeResolution;
 import edu.kit.iti.algover.proof.*;
 import edu.kit.iti.algover.rules.ProofRule;
 import edu.kit.iti.algover.script.ast.ASTNode;
+import edu.kit.iti.algover.script.ast.ProofScript;
 import edu.kit.iti.algover.script.data.GoalNode;
 import edu.kit.iti.algover.script.interpreter.Interpreter;
 import edu.kit.iti.algover.script.interpreter.InterpreterBuilder;
@@ -44,7 +45,6 @@ public class ProjectManager {
 
     private Map<String, Proof> allProofs;
 
-    private InterpreterBuilder ib = new InterpreterBuilder();
 
 
 
@@ -127,12 +127,12 @@ public class ProjectManager {
         String filePath = project.get().getBaseDir().getAbsolutePath() + pvc + ".script";
         //find file on disc
         Path p = Paths.get(filePath);
-        ASTNode root = Facade.getAST(p.toFile());
+        ProofScript root = Facade.getAST(p.toFile());
         Proof proof = allProofs.get(pvc);
         if (proof == null) {
             proof = new Proof(pvc);
         }
-        proof.setScriptRoot(root);
+        proof.setScript(root.getBody());
         allProofs.putIfAbsent(pvc, proof);
 
     }
@@ -140,7 +140,7 @@ public class ProjectManager {
     protected void buildIndividualInterpreter(Proof p) {
 
         InterpreterBuilder ib = new InterpreterBuilder();
-        Interpreter i = ib.startWith(p.getScriptRoot())
+        Interpreter i = ib.startWith(p.getScript())
                 .setProofRules(this.getAllRules())
                 .startState(new GoalNode<ProofNode>(null, p.getProofRoot()))
                 .build();
@@ -219,7 +219,7 @@ public class ProjectManager {
             String pvcName = pvcProofEntry.getKey();
             Proof proof = pvcProofEntry.getValue();
             String content = "";
-            if (proof.getScriptRoot() != null) {
+           /* if (proof.getScriptRoot() != null) {
                 ASTNode script = proof.getScriptRoot();
                 content =
                     "auto;\n" +
@@ -231,7 +231,7 @@ public class ProjectManager {
                             "        auto;\n" +
                             "    }\n" +
                             "}";
-            }
+            }*/
             //ScriptHelper.visitASTNODE -> String content
             saveToScriptFile(pvcName, content);
         }

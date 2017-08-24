@@ -17,6 +17,7 @@ public interface ScopeObservable {
      * (copy of current state) and pushed to the stack
      */
     default <T extends ParserRuleContext> void enterScope(ASTNode<T> node) {
+
         callListeners(getEntryListeners(), node);
     }
 

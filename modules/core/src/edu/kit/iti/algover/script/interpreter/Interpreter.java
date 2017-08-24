@@ -11,6 +11,7 @@ import edu.kit.iti.algover.script.exceptions.InterpreterRuntimeException;
 import edu.kit.iti.algover.script.exceptions.ScriptCommandNotApplicableException;
 import edu.kit.iti.algover.script.parser.DefaultASTVisitor;
 import edu.kit.iti.algover.script.parser.Visitor;
+import org.antlr.v4.runtime.ParserRuleContext;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -56,6 +57,7 @@ public class Interpreter<T> extends DefaultASTVisitor<Object>
     public List<Visitor> getEntryListeners() {
         return entryListeners;
     }
+
 
     @Override
     public List<Visitor> getExitListeners() {

@@ -83,7 +83,7 @@ public class ProjectManagerTest {
 
         Proof proof = pm.getProofForPVC(testPVCName);
 
-        Assert.assertNull(proof.getScriptRoot());
+        Assert.assertNotNull(proof.getScript());
         pm.addDataToProofObject(testPVCName);
         pm.findAndParseScriptFile(testPVCName);
         System.out.println("Current State " + proof.getInterpreter().getCurrentState().getSelectedGoalNode());
@@ -91,8 +91,8 @@ public class ProjectManagerTest {
 
         Proof proofAfter = pm.getProofForPVC(testPVCName);
 
-        System.out.println(proofAfter.getScriptRoot().toString());
-        Assert.assertNotNull(proofAfter.getScriptRoot());
+        System.out.println(proofAfter.getScript().toString());
+        Assert.assertNotNull(proofAfter.getScript());
         Assert.assertEquals("Proof is not loaded yet", proof.getProofStatus(), ProofStatus.NOT_LOADED);
 
         pm.saveProject();
