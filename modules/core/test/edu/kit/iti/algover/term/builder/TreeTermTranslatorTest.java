@@ -38,7 +38,7 @@ public class TreeTermTranslatorTest {
 
     private MapSymbolTable symbTable;
 
-    private static DafnyTree parse(String s) throws RecognitionException {
+    public static DafnyTree parse(String s) throws RecognitionException {
         // create the lexer attached to stream
         ANTLRStringStream input = new ANTLRStringStream(s);
 
