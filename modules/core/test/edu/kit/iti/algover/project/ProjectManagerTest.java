@@ -84,11 +84,13 @@ public class ProjectManagerTest {
         Proof proof = pm.getProofForPVC(testPVCName);
 
         Assert.assertNotNull(proof.getScript());
-        pm.addDataToProofObject(testPVCName);
+//        pm.initializeProofDataStructures(testPVCName);
         pm.findAndParseScriptFile(testPVCName);
-        System.out.println("Current State " + proof.getInterpreter().getCurrentState().getSelectedGoalNode());
+//        System.out.println("Current State " + proof.getInterpreter().getCurrentState().getSelectedGoalNode());
         //pm.replayAllProofs();
-
+        pm.getAllProofs().forEach((s1, proof1) -> {
+            proof1.invalidate();
+        });
         Proof proofAfter = pm.getProofForPVC(testPVCName);
 
         System.out.println(proofAfter.getScript().toString());

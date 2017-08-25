@@ -41,6 +41,9 @@ public class Proof {
      */
     private String pvcName;
 
+    /**
+     * Current state from interpreter
+     */
     private State<GoalNode<ProofNode>> currentState;
 
     /**
@@ -149,8 +152,18 @@ public class Proof {
     public void setScript(Statements script) {
         this.script = script;
     }
+
+    /**
+     * This method invalidates this proof object, sets the status to dirty
+     */
+    public void invalidate() {
+        this.setProofStatus(ProofStatus.DIRTY);
+    }
 }
 
+/**
+ * Class handling the creation of the proof tree when interpreting script.
+ */
 class ProofNodeInterpreterManager {
     final Interpreter<ProofNode> interpreter;
     private GoalNode<ProofNode> lastSelectedGoalNode;

@@ -12,6 +12,7 @@ import edu.kit.iti.algover.script.interpreter.Interpreter;
 import edu.kit.iti.algover.script.interpreter.InterpreterBuilder;
 import edu.kit.iti.algover.script.parser.Facade;
 import javafx.beans.property.SimpleObjectProperty;
+import javafx.fxml.LoadException;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -21,6 +22,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
+import java.util.function.Supplier;
 
 /**
  * Class handling project and proof management
@@ -39,13 +41,23 @@ public class ProjectManager {
      */
     private SimpleObjectProperty<Project> project = new SimpleObjectProperty<>(null);
 
+    /**
+     * All PVCs of the loaded project
+     */
     private PVCGroup allPVCs;
 
+    /**
+     * Map from PVC string to its PVC object
+     */
     private Map<String, PVC> allStrippedPVCs;
 
+    /**
+     * Map from pvc string to it proof object
+     */
     private Map<String, Proof> allProofs;
 
 
+    private Map<String, Supplier<String>> fileHooks = new HashMap<>();
 
 
     /**************************************************************************************************
@@ -56,6 +68,7 @@ public class ProjectManager {
 
     /**
      * Load a Project from a given config file and set the property for the project
+     * Generate all Proof objects and initialize their data structures
      *
      * @param config File
      */
@@ -68,10 +81,18 @@ public class ProjectManager {
         this.setProject(p);
         generateAllProofObjects();
 
+        this.allStrippedPVCs.forEach((s, pvc) -> {
+            try {
+                initializeProofDataStructures(s);
+            } catch (IOException e) {
+                e.printStackTrace();
+
+            }
+        });
     }
 
     /**
-     * Build a new Project
+     * Build a new Project by parsing the config file and performing symbolic execution
      *
      * @param pathToConfig to config file
      * @return new Project object
@@ -97,6 +118,7 @@ public class ProjectManager {
 
     /**
      * Generate all proof objects for all available PVCs in allPVCs
+     * The data strcutures of teh Proof object are null after this method call
      */
     private void generateAllProofObjects() throws IOException {
         allProofs = new HashMap<>();
@@ -106,7 +128,13 @@ public class ProjectManager {
         }
     }
 
-    protected void addDataToProofObject(String pvc) throws IOException {
+    /**
+     * Add available data to proof objects by searching proof scripts and adding the parsed script tree and setting the proof root
+     *
+     * @param pvc
+     * @throws IOException
+     */
+    protected void initializeProofDataStructures(String pvc) throws IOException {
         Proof p = allProofs.get(pvc);
         findAndParseScriptFile(pvc);
         PVC pvcObject = allStrippedPVCs.get(pvc);
@@ -123,7 +151,7 @@ public class ProjectManager {
      * @return TODO should return ScriptAST
      */
 
-    protected void findAndParseScriptFile(String pvc) throws IOException {
+    public void findAndParseScriptFile(String pvc) throws IOException {
         String filePath = project.get().getBaseDir().getAbsolutePath() + pvc + ".script";
         //find file on disc
         Path p = Paths.get(filePath);
@@ -137,11 +165,15 @@ public class ProjectManager {
 
     }
 
+    /**
+     * Build the individual interpreter for a proof object and set it
+     * @param p Proof for which the interpreter needs to be built
+     */
     protected void buildIndividualInterpreter(Proof p) {
 
         InterpreterBuilder ib = new InterpreterBuilder();
         Interpreter i = ib.startWith(p.getScript())
-                .setProofRules(this.getAllRules())
+                .setProofRules(this.project.get().getAllProofRules())
                 .startState(new GoalNode<ProofNode>(null, p.getProofRoot()))
                 .build();
         p.setInterpreter(i);
@@ -156,27 +188,6 @@ public class ProjectManager {
 
     }
 
-    /**
-     * Set all proofs to DIRTY
-     */
-    public void invalidateAllProofs() {
-        for (String pvc : allStrippedPVCs.keySet()) {
-            invalidateProofForPVC(pvc);
-        }
-    }
-
-    /**
-     * Invalidate Proof for a pvc
-     *
-     * @param name pvcidentifier
-     */
-    public void invalidateProofForPVC(String name) {
-        Proof pr = getProofForPVC(name);
-        if (pr != null) {
-            pr.setProofStatus(ProofStatus.DIRTY);
-        }
-
-    }
 
     /**
      * Return Proof object for a PVC if it exists, null otherwise
@@ -198,18 +209,7 @@ public class ProjectManager {
         return allProofs;
     }
 
-    /**
-     * Replay all available proofs
-     */
-    public void replayAllProofs() throws IOException {
-        saveProject();
-        //save everything before replay
-        for (Proof proof : allProofs.values()) {
-            //proof.replay();
 
-        }
-
-    }
 
     /**
      * Save the whole Project contents
@@ -233,7 +233,7 @@ public class ProjectManager {
                             "}";
             }*/
             //ScriptHelper.visitASTNODE -> String content
-            saveToScriptFile(pvcName, content);
+            //saveToScriptFile(pvcName, content);
         }
 
     }
@@ -244,11 +244,11 @@ public class ProjectManager {
      * @param content
      * @throws IOException
      */
-    public void saveToScriptFile(String pvc, String content) throws IOException {
+ /*   public void saveToScriptFile(String pvc, String content) throws IOException {
         String scriptFilePath = project.get().getBaseDir().getAbsolutePath() + File.separatorChar + pvc + ".script";
         saverHelper(scriptFilePath, content);
 
-    }
+    }*/
 
     private void saverHelper(String pathToFile, String content) throws IOException {
         Path path = Paths.get(pathToFile);
@@ -264,16 +264,18 @@ public class ProjectManager {
         writer.close();
     }
 
+
+
     /**
      * Save content to Dafny file
      *
      * @param file    to save content to
      * @param content content to save
      */
-    public void saveToDfyFile(File file, String content) throws IOException {
+/*    public void saveToDfyFile(File file, String content) throws IOException {
         saverHelper(file.getAbsolutePath(), content);
     }
-
+*/
     /**
      * Save project to a zipfile
      */
@@ -281,21 +283,32 @@ public class ProjectManager {
         saveProject();
     }
 
-    /**
-     * Return all available rules for project
-     *
-     * @return
-     */
-    public Collection<ProofRule> getAllRules() {
-        //get rules form project
-        return Collections.EMPTY_LIST;
-    }
 
     /**************************************************************************************************
      *
      *                                        Getter and Setter
      *
      *************************************************************************************************/
+
+    /**
+     * Add a filehook for saving content in case of project saving
+     *
+     * @param filename to which file the content shoudl be saved
+     * @param content  Supplier funtion from which content can be retrieved
+     */
+    public void addFileHook(String filename, Supplier<String> content) {
+        this.fileHooks.putIfAbsent(filename, content);
+    }
+
+    /**
+     * Remove file hook
+     *
+     * @param filename
+     */
+    public void removeFileHook(String filename) {
+        this.fileHooks.remove(filename);
+    }
+
     public Project getProject() {
         return project.get();
     }

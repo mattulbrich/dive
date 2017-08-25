@@ -10,6 +10,7 @@ import edu.kit.iti.algover.parser.DafnyException;
 import edu.kit.iti.algover.proof.PVC;
 import edu.kit.iti.algover.proof.PVCCollection;
 import edu.kit.iti.algover.proof.PVCGroup;
+import edu.kit.iti.algover.rules.ProofRule;
 import edu.kit.iti.algover.settings.ProjectSettings;
 import edu.kit.iti.algover.term.FunctionSymbol;
 
@@ -62,6 +63,13 @@ public class Project {
      * Lookup map for PVCs
      */
     private Map<DafnyDecl, PVCCollection> pvcs;
+
+
+    /**
+     * A collection of all proof rules available in this project
+     */
+    private Collection<ProofRule> allProofRules;
+
     /**
      * Constructor can only be called using a ProjectBuilder
      *
@@ -107,6 +115,11 @@ public class Project {
     public Collection<DafnyClass> getClasses() {
         return classes.values();
     }
+
+    public Collection<ProofRule> getAllProofRules() {
+        return allProofRules;
+    }
+
 
     /**
      * Gets a class from this project by name.
@@ -221,5 +234,12 @@ public class Project {
                 generateAndCollectPVCHelper(pvcCollection);
             }
         }
+    }
+
+    /**
+     * This method extracts the proof rules from and saves them to this object
+     */
+    public void extractProofRules() {
+
     }
 }
