@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<configuration>
+    <dafnyFile>sumandmax.dfy</dafnyFile>
+    <settings>
+        <set>
+            <entry>
+                <key>SMT Timeout</key>
+                <value>10</value>
+            </entry>
+        </set>
+    </settings>
+</configuration>

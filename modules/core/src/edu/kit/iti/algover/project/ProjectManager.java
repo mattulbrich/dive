@@ -46,6 +46,7 @@ public class ProjectManager {
      */
     private PVCGroup allPVCs;
 
+
     /**
      * Map from PVC string to its PVC object
      */
@@ -337,6 +338,16 @@ public class ProjectManager {
     public void setConfigFile(File configFile) {
         this.configFile = configFile;
     }
+
+    /**
+     * Get the plain PVCs as Map from pvcName -> PVC object
+     *
+     * @return
+     */
+    public Map<String, PVC> getAllStrippedPVCs() {
+        return allStrippedPVCs;
+    }
+
 
 
 }
