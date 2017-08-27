@@ -1,15 +1,11 @@
 package edu.kit.iti.algover.refrenceTypes;
 
 /**
- * Created by sarah on 9/7/16.
+ * An object that encapsulates the types of reference targets
+ * Created by sarah on 9/6/16.
  */
-public class Reference {
-    ReferenceTarget sourceObject;
-    ReferenceTarget targetObject;
+public abstract class Reference {
 
-    public Reference(ReferenceTarget sourceObject, ReferenceTarget targetObject) {
-        this.sourceObject = sourceObject;
-        this.targetObject = targetObject;
-    }
+    public abstract <R> R accept(ReferenceVisitor<R> visitor);
 
 }

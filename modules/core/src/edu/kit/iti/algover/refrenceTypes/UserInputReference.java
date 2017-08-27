@@ -1,9 +1,9 @@
 package edu.kit.iti.algover.refrenceTypes;
 
 /**
- * Target for referencing user input values.
+ * Reference for user input values.
  * <p>
- * One possible usecase are instantiations of quantifiers.
+ * One possible use case are instantiations of quantifiers.
  * {@link #getDescription()} could return
  * "Instantiated from forall" in that case.
  * <p>
@@ -11,16 +11,16 @@ package edu.kit.iti.algover.refrenceTypes;
  * <p>
  * Created by Philipp on 27.08.2017.
  */
-public class UserInputReferenceTarget extends ReferenceTarget {
+public class UserInputReference extends Reference {
 
     private final String description;
 
-    public UserInputReferenceTarget(String description) {
+    public UserInputReference(String description) {
         this.description = description;
     }
 
     @Override
-    public <R> R accept(ReferenceTargetVisitor<R> visitor) {
+    public <R> R accept(ReferenceVisitor<R> visitor) {
         return visitor.visit(this);
     }
 

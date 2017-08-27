@@ -13,18 +13,18 @@ import edu.kit.iti.algover.rules.TermSelector;
  * <p>
  * Created by Philipp on 27.08.2017.
  */
-public class ProofTermReferenceTarget extends ReferenceTarget {
+public class ProofTermReference extends Reference {
 
     private final ProofNodeSelector proofNodeSelector;
     private final TermSelector termSelector;
 
-    public ProofTermReferenceTarget(ProofNodeSelector proofNodeSelector, TermSelector termSelector) {
+    public ProofTermReference(ProofNodeSelector proofNodeSelector, TermSelector termSelector) {
         this.proofNodeSelector = proofNodeSelector;
         this.termSelector = termSelector;
     }
 
     @Override
-    public <R> R accept(ReferenceTargetVisitor<R> visitor) {
+    public <R> R accept(ReferenceVisitor<R> visitor) {
         return visitor.visit(this);
     }
 

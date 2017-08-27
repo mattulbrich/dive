@@ -31,9 +31,9 @@ public final class TermReferencesBuilder {
         this.proofNodeAfter = proofNodeAfter;
     }
 
-    private ReferenceSet buildReferencesAfterApplication(
+    private ReferenceGraph buildReferencesAfterApplication(
         Sequent before, Sequent after, TermSelector beforeChanged, TermSelector afterChanged) {
-        ReferenceSet references = new ReferenceSet();
+        ReferenceGraph references = new ReferenceGraph();
         try {
             Term termBefore = beforeChanged.selectSubterm(before);
             Term termAfter = afterChanged.selectSubterm(after);
@@ -56,8 +56,8 @@ public final class TermReferencesBuilder {
                     // reference equality means a term from before was referenced
                     if (beforeEntry.getValue() == term) {
                         references.addReference(
-                            new ProofTermReferenceTarget(proofNodeBefore, new TermSelector(beforeChanged, subselectorBefore)),
-                            new ProofTermReferenceTarget(proofNodeAfter, new TermSelector(afterChanged, subselectorAfter))
+                            new ProofTermReference(proofNodeBefore, new TermSelector(beforeChanged, subselectorBefore)),
+                            new ProofTermReference(proofNodeAfter, new TermSelector(afterChanged, subselectorAfter))
                         );
                     }
                 }
