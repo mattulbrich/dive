@@ -7,7 +7,7 @@ public class Reference {
     ReferenceTarget sourceObject;
     ReferenceTarget targetObject;
 
-    public Reference(ReferenceTarget sourceObject, ReferenceTarget targetObject){
+    public Reference(ReferenceTarget sourceObject, ReferenceTarget targetObject) {
         this.sourceObject = sourceObject;
         this.targetObject = targetObject;
     }
