@@ -133,11 +133,7 @@ public class TreeTermTranslator {
                             ref.getParent().getChild(0).getText(),
                             ref.getChild(0).getText());
                     Term value = build(expression);
-                    FunctionSymbol store =
-                            BuiltinSymbols.STORE.instantiate(
-                                    Arrays.asList(self.getSort(), value.getSort()));
-
-                    Term appl = new ApplTerm(store, getHeap(), self, field, value);
+                    Term appl = tb.storeField(getHeap(), self, field, value);
                     boundVars.put(HEAP_VAR.getName(), HEAP_VAR);
                     let = new LetTerm(HEAP_VAR, appl, buildLetCascade(tail, result));
                     boundVars.pop();
@@ -158,14 +154,12 @@ public class TreeTermTranslator {
             }
 
             case DafnyParser.ARRAY_ACCESS: {
-                // XXX
-                FunctionSymbol store = symbolTable.getFunctionSymbol("$storeArr[int]");
+                // TODO only for 1-dim at the moment
                 Term object = build(receiver.getChild(0));
                 Term index = build(receiver.getChild(1));
                 Term value = build(expression);
-                FunctionSymbol heap = BuiltinSymbols.HEAP;
-                ApplTerm heapTerm = new ApplTerm(heap);
-                Term appl = new ApplTerm(store, heapTerm, object, index, value);
+                Term heap = getHeap();
+                Term appl = tb.storeArray(heap, object, index, value);
                 boundVars.put(HEAP_VAR.getName(), HEAP_VAR);
                 let = new LetTerm(HEAP_VAR, appl, buildLetCascade(tail, result));
                 boundVars.pop();
