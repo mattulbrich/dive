@@ -14,6 +14,7 @@ import javax.swing.text.AttributeSet;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.Document;
 import java.util.*;
+import edu.kit.iti.algover.rules.SubtermSelector;
 
 /**
  * This class is used to render pretty-printed strings. It is used as a
