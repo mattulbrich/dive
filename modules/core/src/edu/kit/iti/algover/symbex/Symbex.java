@@ -199,8 +199,6 @@ public class Symbex {
         DafnyTree guard = stm.getChild(isLabel ? 1 : 0);
         DafnyTree body = stm.getLastChild();
         DafnyTree decreasesClause = stm.getFirstChildWithType(DafnyParser.DECREASES);
-        // TODO reenable this for lexigraphic decreases clauses.
-//        DafnyTree decreases = toListExt(decreasesClause);
         List<DafnyTree> invariants = stm.getChildrenWithType(DafnyParser.INVARIANT);
 
         // 1. initially valid.
@@ -231,11 +229,20 @@ public class Symbex {
                 AssertionType.INVARIANT_PRESERVED);
 
         // 2c. show decreases clause:
-        DafnyTree decrReduced = ASTUtil.noetherLess(
-                ASTUtil.listExpr(decreaseVars),
-                ASTUtil.listExpr(decreasesClause.getChildren()));
-        AssertionElement decrProof = new AssertionElement(decrReduced, decreasesClause,
-                AssertionType.VARIANT_DECREASED);
+
+        AssertionElement decrProof;
+        if(decreasesClause != null) {
+            DafnyTree decrReduced = ASTUtil.noetherLess(
+                    ASTUtil.listExpr(decreaseVars),
+                    ASTUtil.listExpr(decreasesClause.getChildren()));
+            decrProof = new AssertionElement(decrReduced, decreasesClause,
+                    AssertionType.VARIANT_DECREASED);
+        } else {
+            // no decreases clause specified ... fail!
+            decrProof = new AssertionElement(ASTUtil._false(), stm,
+                    AssertionType.VARIANT_DECREASED);
+        }
+
         ImmutableList<AssertionElement> oldPOs = preservePath.getProofObligations();
         preservePath.setProofObligations(oldPOs.append(decrProof));
         stack.add(preservePath);
@@ -253,10 +260,12 @@ public class Symbex {
     private List<DafnyTree> introduceDecreasesVars(DafnyTree stm, DafnyTree decreases, SymbexPath preservePath) {
 
         List<DafnyTree> result = new ArrayList<>();
-        for (DafnyTree dec : decreases.getChildren()) {
-            DafnyTree decreaseVar = makeDecreaseVar(preservePath, stm);
-            preservePath.addAssignment(ASTUtil.assign(decreaseVar, dec));
-            result.add(decreaseVar);
+        if(decreases != null) {
+            for (DafnyTree dec : decreases.getChildren()) {
+                DafnyTree decreaseVar = makeDecreaseVar(preservePath, stm);
+                preservePath.addAssignment(ASTUtil.assign(decreaseVar, dec));
+                result.add(decreaseVar);
+            }
         }
         return result;
     }
@@ -309,7 +318,9 @@ public class Symbex {
             DafnyTree id = stm.getChild(0);
             DafnyTree expression = stm.getChild(2);
             handleExpression(stack, state, expression);
-            state.addAssignment(ASTUtil.assign(id, expression));
+            DafnyTree assign = ASTUtil.assign(id, expression);
+            assign.getChild(0).setDeclarationReference(stm);
+            state.addAssignment(assign);
         }
         state.setBlockToExecute(remainder);
         stack.push(state);

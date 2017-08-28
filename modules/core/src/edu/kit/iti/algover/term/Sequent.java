@@ -8,6 +8,8 @@ package edu.kit.iti.algover.term;
 import edu.kit.iti.algover.proof.ProofFormula;
 import edu.kit.iti.algover.util.Util;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
@@ -21,7 +23,7 @@ public final class Sequent {
     private final ProofFormula antecedent[];
     private final ProofFormula succedent[];
 
-    public Sequent(List<ProofFormula> ante, List<ProofFormula> succ) {
+    public Sequent(Collection<ProofFormula> ante, Collection<ProofFormula> succ) {
         this.antecedent = Util.toArray(ante, ProofFormula.class);
         this.succedent = Util.toArray(succ, ProofFormula.class);
     }
@@ -34,6 +36,7 @@ public final class Sequent {
         return Util.readOnlyArrayList(succedent);
     }
 
+    @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
         sb.append(getAntecedent().toString());
@@ -45,5 +48,26 @@ public final class Sequent {
 
     public boolean isEmpty() {
         return antecedent.length + succedent.length == 0;
+    }
+
+    public Sequent union(Sequent other) {
+        ArrayList<ProofFormula> ante = new ArrayList<>();
+        ante.addAll(getAntecedent());
+        ante.addAll(other.getAntecedent());
+
+        ArrayList<ProofFormula> succ = new ArrayList<>();
+        succ.addAll(getSuccedent());
+        succ.addAll(other.getSuccedent());
+
+        // TODO duplicates?
+        return new Sequent(ante, succ);
+    }
+
+    public static Sequent singleAntecedent(ProofFormula formula) {
+        return new Sequent(Collections.singleton(formula), Collections.emptyList());
+    }
+
+    public static Sequent singleSuccedent(ProofFormula formula) {
+        return new Sequent(Collections.emptyList(), Collections.singleton(formula));
     }
 }

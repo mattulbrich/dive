@@ -49,9 +49,9 @@ public class TreeTermTranslatorTest {
             { "i1 + i2*i3", "$plus(i1, $times(i2, i3))" },
             // revealed bug:
             { "i1 == i2*i3", "$eq<int>(i1, $times(i2, i3))" },
-            { "a.Length", "$len0(a)" },
-            //                { "a2.Length0", "$len0(a)" },
-            //                { "a2.Length1", "$len1(a)" },
+            { "a.Length", "$len<int>(a)" },
+            { "a2.Length0", "$len0<int>(a2)" },
+            { "a2.Length1", "$len1<int>(a2)" },
             // no 2-dim arrays for now
 
             // for coverage:
@@ -80,6 +80,11 @@ public class TreeTermTranslatorTest {
             { "c == c2", "$eq<object>(c, c2)" },
             { "let c := null :: null == c",
                 "(let c := null :: $eq<object>(null, c))" },
+
+            // Heap accesses
+            { "a[0]", "$array_select<int>($heap, a, 0)" },
+            { "a2[1,2]", "$array2_select<int>($heap, a2, 1, 2)" },
+            { "null", "null" },
 
             // From TermParserTest
             { "i1 + i2", "$plus(i1, i2)" },
@@ -111,6 +116,14 @@ public class TreeTermTranslatorTest {
             { "forall x,y,z:int :: unknown", "" },  // no more bound vars after this
             { "f(b1)", "Unexpected argument sort" },
             { "if true then b1 else i1", "Unexpected argument sort" },
+            { "a.Length0", "Elements of type 'array' have only the 'Length' property" },
+            // revealed wrong error message:
+            { "a2.Length", "Elements of type 'array2' have only the 'Length0' and 'Length1' properties" },
+            { "a2.Length2", "Elements of type 'array2' have only the 'Length0' and 'Length1' properties" },
+            { "i1.Length", "Unsupported sort for 'Length': int" },
+            { "a2[0]", "Access to 'array2' requires two index arguments" },
+            { "a[0,1]", "Access to 'array' requires one index argument" },
+            { "i1[i1]", "Unsupported array sort: int" },
         };
     }
 
@@ -152,8 +165,8 @@ public class TreeTermTranslatorTest {
         map.add(new FunctionSymbol("b1", Sort.BOOL));
         map.add(new FunctionSymbol("b2", Sort.BOOL));
         map.add(new FunctionSymbol("b3", Sort.BOOL));
-        map.add(new FunctionSymbol("a", Sort.get("array1")));
-        map.add(new FunctionSymbol("a2", Sort.get("array2")));
+        map.add(new FunctionSymbol("a", Sort.get("array", Sort.INT)));
+        map.add(new FunctionSymbol("a2", Sort.get("array2", Sort.INT)));
         map.add(new FunctionSymbol("f", Sort.INT, Sort.INT));
         map.add(new FunctionSymbol("c", Sort.getClassSort("C")));
         map.add(new FunctionSymbol("c2", Sort.getClassSort("C")));
@@ -302,6 +315,37 @@ public class TreeTermTranslatorTest {
 
         assertEquals("knownvar_2", res1.toString());
         assertEquals("knownvar_3", res2.toString());
+    }
+
+    @Test
+    public void testThis() throws Exception {
+        symbTable.addFunctionSymbol(new FunctionSymbol("this", Sort.get("C")));
+        DafnyTree tree = DafnyFileParser.parse(TestUtil.toStream("class C { var f : int; "
+                + "method m() returns (r : C) { r := this; } }"));
+        Project p = TestUtil.mockProject(tree);
+
+        TreeTermTranslator ttt = new TreeTermTranslator(symbTable);
+        DafnyTree thisRef = p.getClass("C").getMethod("m").getBody().getChild(0).getChild(1);
+        Term result = ttt.build(thisRef);
+
+        assertEquals("this", result.toString());
+    }
+
+    @Test
+    public void testFieldAccess() throws Exception {
+        symbTable.addFunctionSymbol(new FunctionSymbol("this", Sort.get("C")));
+        symbTable.addFunctionSymbol(new FunctionSymbol("field$C$f",
+                Sort.get("field", Sort.get("C"), Sort.INT)));
+        DafnyTree tree = DafnyFileParser.parse(TestUtil.toStream("class C { var f : int; "
+                + "method m() returns (r : int) { r := this.f; } }"));
+        Project p = TestUtil.mockProject(tree);
+
+        TreeTermTranslator ttt = new TreeTermTranslator(symbTable);
+        DafnyTree fieldRef = p.getClass("C").getMethod("m").getBody().getChild(0).getChild(1);
+        Term result = ttt.build(fieldRef);
+
+        assertEquals("$select<C,int>($heap, this, field$C$f)", result.toString());
+
     }
 
 }

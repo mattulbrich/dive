@@ -49,11 +49,21 @@ import nonnull.Nullable;
  */
 public final class TermSelector implements Comparable<TermSelector> {
 
-
     /**
      * Indicator to denote left and right hand side of the sequent.
      */
-    public enum SequentPolarity { ANTECEDENT, SUCCEDENT };
+    public enum SequentPolarity { ANTECEDENT, SUCCEDENT;
+
+        /**
+         * Gets the opposite polarity.
+         *
+         * @return an non-<code>null</code> object of this class different from
+         *         <code>this</code>
+         */
+        public SequentPolarity getOpposite() {
+            return this == ANTECEDENT ? SUCCEDENT : ANTECEDENT;
+        }
+    };
 
     /**
      * We use the Constant CLASS_EXC_INDICATOR to indicate the origin for error

@@ -3,7 +3,7 @@
  *
  * Copyright (C) 2015-2017 Karlsruhe Institute of Technology
  */
-package edu.kit.iti.algover.rules;
+package edu.kit.iti.algover.rules.impl;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -11,6 +11,12 @@ import java.util.Map;
 import edu.kit.iti.algover.data.BuiltinSymbols;
 import edu.kit.iti.algover.proof.ProofFormula;
 import edu.kit.iti.algover.proof.ProofNode;
+import edu.kit.iti.algover.rules.AbstractProofRule;
+import edu.kit.iti.algover.rules.Parameters;
+import edu.kit.iti.algover.rules.ProofRuleApplication;
+import edu.kit.iti.algover.rules.ProofRuleApplicationBuilder;
+import edu.kit.iti.algover.rules.RuleException;
+import edu.kit.iti.algover.rules.TermSelector;
 import edu.kit.iti.algover.rules.ProofRuleApplication.Applicability;
 import edu.kit.iti.algover.term.ApplTerm;
 import edu.kit.iti.algover.term.FunctionSymbol;
@@ -63,11 +69,10 @@ public class TrivialAndRight extends AbstractProofRule {
 
         ProofRuleApplicationBuilder builder = new ProofRuleApplicationBuilder(this);
 
-        builder
-            .addReplacementBranch(selector, appl.getTerm(0))
-            .addReplacementBranch(selector, appl.getTerm(1))
-            .setApplicability(Applicability.APPLICABLE)
-            .setTranscript("andRight todo");
+        builder.newBranch().addReplacement(selector, appl.getTerm(0));
+        builder.newBranch().addReplacement(selector, appl.getTerm(1));
+        builder.setApplicability(Applicability.APPLICABLE)
+               .setTranscript("andRight todo");
 
         return builder.build();
     }

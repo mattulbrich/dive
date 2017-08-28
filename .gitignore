@@ -4,7 +4,7 @@
 /modules/*/gen
 *~
 *.Tests*
-*.jar
+# *.jar # we have some checked in jar files
 *.class
 *.idea
 *.iml

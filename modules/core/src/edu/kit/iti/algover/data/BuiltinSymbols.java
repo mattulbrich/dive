@@ -114,6 +114,18 @@ public class BuiltinSymbols extends MapSymbolTable {
                                     FunctionSymbolFamily.VAR1,
                                     FunctionSymbolFamily.VAR2)), 2);
 
+    public static final FunctionSymbolFamily ARRAY_SELECT =
+            new FunctionSymbolFamily(
+                    new FunctionSymbol("$array_select", FunctionSymbolFamily.VAR1,
+                            Sort.HEAP, Sort.get("array", FunctionSymbolFamily.VAR1),
+                            Sort.INT), 1);
+
+    public static final FunctionSymbolFamily ARRAY2_SELECT =
+            new FunctionSymbolFamily(
+                    new FunctionSymbol("$array2_select", FunctionSymbolFamily.VAR1,
+                            Sort.HEAP, Sort.get("array2", FunctionSymbolFamily.VAR1),
+                            Sort.INT, Sort.INT), 1);
+
     public static final FunctionSymbolFamily EQ =
             new FunctionSymbolFamily(
                     new FunctionSymbol("$eq", Sort.BOOL,
@@ -124,6 +136,21 @@ public class BuiltinSymbols extends MapSymbolTable {
 
     public static final FunctionSymbol MOD =
             new FunctionSymbol("$mod", Sort.get("sort", Sort.OBJECT));
+
+    public static final FunctionSymbolFamily LEN =
+            new FunctionSymbolFamily(
+                    new FunctionSymbol("$len", Sort.INT,
+                            Sort.get("array", FunctionSymbolFamily.VAR1)), 1);
+
+    public static final FunctionSymbolFamily LEN0 =
+            new FunctionSymbolFamily(
+                    new FunctionSymbol("$len0", Sort.INT,
+                            Sort.get("array2", FunctionSymbolFamily.VAR1)), 1);
+
+    public static final FunctionSymbolFamily LEN1 =
+            new FunctionSymbolFamily(
+                    new FunctionSymbol("$len1", Sort.INT,
+                            Sort.get("array2", FunctionSymbolFamily.VAR1)), 1);
 
     public static final FunctionSymbol NULL =
             new FunctionSymbol("null", Sort.NULL);
@@ -137,7 +164,7 @@ public class BuiltinSymbols extends MapSymbolTable {
 
     // Checkstyle: ON JavadocVariableCheck
 
-    private Map<String, FunctionSymbolFamily> symbolFamilies =
+    private final Map<String, FunctionSymbolFamily> symbolFamilies =
             new HashMap<>();
 
 
@@ -175,16 +202,6 @@ public class BuiltinSymbols extends MapSymbolTable {
 
             return family.instantiate(Util.readOnlyArrayList(sorts));
 
-        }
-
-        //
-        // multidim length functions
-        if (name.matches("\\$len[0-9]+")) {
-            String suffix = name.substring(4);
-            int dim = Integer.parseInt(suffix);
-            Sort arraySort = Sort.get("array" + (dim + 1));
-            FunctionSymbol len = new FunctionSymbol(name, Sort.INT, arraySort);
-            return len;
         }
 
         //

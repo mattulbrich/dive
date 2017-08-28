@@ -10,6 +10,8 @@ import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Set;
 
+import org.antlr.runtime.tree.Tree;
+
 import edu.kit.iti.algover.parser.DafnyParser;
 import edu.kit.iti.algover.parser.DafnyTree;
 import edu.kit.iti.algover.symbex.LocalVarDecl;
@@ -362,5 +364,21 @@ public final class ASTUtil {
         DafnyTree result = new DafnyTree(DafnyParser.LISTEX);
         result.addChildren(entries);
         return result;
+    }
+
+    public static DafnyTree _false() {
+        return new DafnyTree(DafnyParser.FALSE, "false");
+    }
+
+    public static String getFieldConstantName(DafnyTree reference) {
+        assert reference.getType() == DafnyParser.FIELD;
+
+        Tree clss = reference.parent;
+        assert clss.getType() == DafnyParser.CLASS;
+
+        String clssName = clss.getChild(0).getText();
+        String fieldName = reference.getChild(0).getText();
+
+        return "field$" + clssName + "$" + fieldName;
     }
 }

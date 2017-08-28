@@ -9,21 +9,31 @@ import java.io.FileInputStream;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
 import org.antlr.runtime.Token;
 
+import edu.kit.iti.algover.data.BuiltinSymbols;
 import edu.kit.iti.algover.parser.DafnyFileParser;
 import edu.kit.iti.algover.parser.DafnyTree;
+import edu.kit.iti.algover.project.Project;
+import edu.kit.iti.algover.proof.PVC;
+import edu.kit.iti.algover.proof.PVCCollection;
+import edu.kit.iti.algover.proof.PVCGroup;
+import edu.kit.iti.algover.proof.ProofFormula;
 import edu.kit.iti.algover.smt.Z3Solver;
 import edu.kit.iti.algover.symbex.Symbex;
 import edu.kit.iti.algover.symbex.SymbexPath;
+import edu.kit.iti.algover.term.Sequent;
 import edu.kit.iti.algover.term.Term;
 import edu.kit.iti.algover.term.builder.TermBuildException;
+import edu.kit.iti.algover.term.builder.TermBuilder;
 import edu.kit.iti.algover.util.Debug;
 import edu.kit.iti.algover.util.LabelIntroducer;
 import edu.kit.iti.algover.util.SymbexUtil;
+import edu.kit.iti.algover.util.TestUtil;
 import edu.kit.iti.algover.util.Util;
 
 public class DafnyZ3 {
@@ -39,28 +49,50 @@ public class DafnyZ3 {
 
         t.accept(new LabelIntroducer(), null);
 
-        Symbex symbex = new Symbex();
-        List<SymbexPath> symbexresult = symbex.symbolicExecution(t);
-        for (SymbexPath res : symbexresult) {
+        Project project = TestUtil.mockProject(t);
+
+        BuiltinSymbols symbolTable = new BuiltinSymbols();
+        TermBuilder tb = new TermBuilder(symbolTable);
+
+        PVCGroup pvcs = project.generateAndCollectPVC();
+        List<PVC> allPVCs = new ArrayList<>();
+        collectTo(pvcs, allPVCs);
+
+        for (PVC pvc : allPVCs) {
 
             if(VERBOSE) {
-               System.out.println(SymbexUtil.toString(res));
+                System.out.println(SymbexUtil.toString(pvc.getPathThroughProgram()));
             }
 
-            SymbexStateToFormula magic = new SymbexStateToFormula(t);
-            Z3Solver z3 = new Z3Solver(magic.getSymbolTable());
+            Sequent sequent = pvc.getSequent();
 
-            for (SymbexPath single : res.split()) {
-                Collection<Term> formulae = magic.from(single);
-                if (VERBOSE) {
-                    String smt = z3.createSMTInput(formulae);
-                    System.out.println(smt);
-                }
-                System.out.println(single);
-                System.out.println(z3.solve(formulae));
+            Z3Solver z3 = new Z3Solver(project, symbolTable);
+
+            List<Term> formulae = new ArrayList<>();
+            for (ProofFormula formula : sequent.getAntecedent()) {
+                formulae.add(formula.getTerm());
+            }
+            for (ProofFormula formula : sequent.getSuccedent()) {
+                formulae.add(tb.negate(formula.getTerm()));
+            }
+
+            if (VERBOSE) {
+                String smt = z3.createSMTInput(formulae);
+                System.out.println(smt);
+            }
+
+            System.out.println(z3.solve(formulae));
+        }
+    }
+
+    private static void collectTo(PVCCollection coll, List<PVC> allPVCs) {
+        if(coll.isPVCLeaf()) {
+            allPVCs.add(coll.getPVC());
+        } else {
+            for (PVCCollection child : coll.getChildren()) {
+                collectTo(child, allPVCs);
             }
         }
-
     }
 
     public static void main(String[] args) throws Exception {

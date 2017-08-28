@@ -24,6 +24,7 @@ import edu.kit.iti.algover.term.QuantTerm.Quantifier;
 import edu.kit.iti.algover.term.Sort;
 import edu.kit.iti.algover.term.Term;
 import edu.kit.iti.algover.term.VariableTerm;
+import edu.kit.iti.algover.util.ASTUtil;
 import edu.kit.iti.algover.util.HistoryMap;
 import edu.kit.iti.algover.util.ImmutableList;
 import edu.kit.iti.algover.util.Pair;
@@ -284,6 +285,9 @@ public class TreeTermTranslator {
         case DafnyParser.ARRAY_ACCESS:
             return buildArrayAccess(tree);
 
+        case DafnyParser.FIELD_ACCESS:
+            return buildFieldAccess(tree);
+
         case DafnyParser.NOETHER_LESS:
             return buildNoetherLess(tree);
 
@@ -346,31 +350,45 @@ public class TreeTermTranslator {
         Sort arraySort = arrayTerm.getSort();
         String arraySortName = arraySort.getName();
 
-        if (!arraySortName.matches("array[0-9]*")) {
-            throw new RuntimeException(tree.toStringTree());
+        switch(arraySortName) {
+        case "array":
+            if(tree.getChildCount() != 2) {
+                throw new TermBuildException("Access to 'array' requires one index argument");
+            }
+
+            Term indexTerm = build(tree.getChild(1));
+
+            return tb.selectArray(new ApplTerm(BuiltinSymbols.HEAP), arrayTerm, indexTerm);
+
+        case "array2":
+            if(tree.getChildCount() != 3) {
+                throw new TermBuildException("Access to 'array2' requires two index arguments");
+            }
+
+            Term index0 = build(tree.getChild(1));
+            Term index1 = build(tree.getChild(2));
+
+            return tb.selectArray2(new ApplTerm(BuiltinSymbols.HEAP),
+                    arrayTerm, index0, index1);
+
+
+        default:
+            throw new TermBuildException("Unsupported array sort: " + arraySort);
         }
-
-        int dimension = 0;
-        if (arraySortName.length() > 5) {
-            dimension = Integer.parseInt(arraySortName.substring(5));
-        }
-
-        FunctionSymbol select = symbolTable.getFunctionSymbol("$select" + dimension);
-
-        if (tree.getChildCount() != dimension + 1) {
-            throw new RuntimeException();
-        }
-
-        List<Term> args = new ArrayList<>();
-        args.add(new ApplTerm(BuiltinSymbols.HEAP));
-        args.add(arrayTerm);
-        for (int i = 1; i <= dimension; i++) {
-            args.add(build(tree.getChild(i)));
-        }
-
-        return new ApplTerm(select, args);
-
     }
+
+    private Term buildFieldAccess(DafnyTree tree) throws TermBuildException {
+
+        Term receiver = build(tree.getChild(0));
+
+        DafnyTree reference = tree.getChild(1).getDeclarationReference();
+        String fieldName = ASTUtil.getFieldConstantName(reference);
+        FunctionSymbol field = symbolTable.getFunctionSymbol(fieldName);
+
+        return tb.selectField(new ApplTerm(BuiltinSymbols.HEAP),
+                receiver, new ApplTerm(field));
+    }
+
 
     private Term buildLength(DafnyTree tree) throws TermBuildException {
         String functionName = tree.toString();
@@ -382,8 +400,34 @@ public class TreeTermTranslator {
         }
 
         Term t1 = build(tree.getChild(0));
+        Sort sort = t1.getSort();
+        Sort arg;
+        FunctionSymbol f;
 
-        FunctionSymbol f = symbolTable.getFunctionSymbol("$len" + index);
+        switch(sort.getName()) {
+        case "array":
+            if(!suffix.isEmpty()) {
+                throw new TermBuildException("Elements of type 'array' have only "
+                        + "the 'Length' property");
+            }
+            arg = sort.getArguments().get(0);
+            f = symbolTable.getFunctionSymbol("$len<" + arg + ">");
+            break;
+
+        case "array2":
+            if(suffix.isEmpty() || index > 1) {
+                throw new TermBuildException("Elements of type 'array2' have only "
+                        + "the 'Length0' and 'Length1' properties");
+            }
+
+            arg = sort.getArguments().get(0);
+            f = symbolTable.getFunctionSymbol("$len" + index + "<" + arg + ">");
+            break;
+
+        default:
+            throw new TermBuildException("Unsupported sort for 'Length': " + sort);
+        }
+
         return new ApplTerm(f, Arrays.asList(t1));
 
     }

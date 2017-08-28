@@ -5,7 +5,9 @@
  */
 package edu.kit.iti.algover.util;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Function;
@@ -94,6 +96,10 @@ public class TestUtil {
         }
 
         return p;
+    }
+
+    public static InputStream toStream(String string) {
+        return new ByteArrayInputStream(string.getBytes());
     }
 
 }

@@ -15,6 +15,7 @@ import java.util.Properties;
 import edu.kit.iti.algover.term.ApplTerm;
 import edu.kit.iti.algover.term.DefaultTermVisitor;
 import edu.kit.iti.algover.term.FunctionSymbol;
+import edu.kit.iti.algover.term.FunctionSymbolFamily.InstantiatedFunctionSymbol;
 import edu.kit.iti.algover.term.LetTerm;
 import edu.kit.iti.algover.term.QuantTerm;
 import edu.kit.iti.algover.term.SchemaVarTerm;
@@ -80,6 +81,12 @@ public class SMTTrans extends DefaultTermVisitor<Void, SExpr, RuntimeException> 
         String name = f.getName();
         if(OP_MAP.containsKey(name)) {
             name = OP_MAP.getProperty(name);
+        } else if(f instanceof InstantiatedFunctionSymbol) {
+            InstantiatedFunctionSymbol ifs = (InstantiatedFunctionSymbol) f;
+            String basename = ifs.getFamily().getBaseName();
+            if(OP_MAP.containsKey(basename)) {
+                name = OP_MAP.getProperty(basename);
+            }
         }
 
         List<SExpr> children = new ArrayList<>();
@@ -147,7 +154,10 @@ public class SMTTrans extends DefaultTermVisitor<Void, SExpr, RuntimeException> 
             switch(name) {
             case "int": return new SExpr("Int");
             case "set": return new SExpr("Array", "Int", "Boolean");
-            }        }
+            case "bool": return new SExpr("Bool");
+            case "null": return new SExpr("object");
+            }
+        }
         throw new UnsupportedOperationException("Unsupported sort: " + sort);
     }
 
