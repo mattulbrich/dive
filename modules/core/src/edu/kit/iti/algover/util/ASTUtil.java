@@ -16,6 +16,7 @@ import edu.kit.iti.algover.parser.DafnyParser;
 import edu.kit.iti.algover.parser.DafnyTree;
 import edu.kit.iti.algover.symbex.LocalVarDecl;
 import edu.kit.iti.algover.symbex.SymbexPath;
+import edu.kit.iti.algover.term.Sort;
 import nonnull.NonNull;
 
 /**
@@ -380,5 +381,17 @@ public final class ASTUtil {
         String fieldName = reference.getChild(0).getText();
 
         return "field$" + clssName + "$" + fieldName;
+    }
+
+    public static Sort toSort(DafnyTree tree) {
+        if(tree.getChildCount() == 0) {
+            return Sort.get(tree.getText());
+        } else {
+            Sort[] args = new Sort[tree.getChildCount()];
+            for (int i = 0; i < args.length; i++) {
+                args[i] = toSort(tree.getChild(i));
+            }
+            return Sort.get(tree.getText(), args);
+        }
     }
 }

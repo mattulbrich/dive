@@ -7,9 +7,12 @@ package edu.kit.iti.algover.term;
 
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import edu.kit.iti.algover.util.Util;
+import nonnull.NonNull;
 
 public class FunctionSymbolFamily {
 
@@ -56,6 +59,44 @@ public class FunctionSymbolFamily {
             return "";
         } else {
             return "<" + Util.join(instantiationSorts, ",") + ">";
+        }
+    }
+
+    /**
+     * Decode a parameterised function symbols into its parameters.
+     *
+     * @param parametrisedFunction
+     *            the string of a function with parameters {@code ...<...>}
+     * @return an immutable list of sorts
+     */
+    public static @NonNull List<Sort> parseSortParameters(@NonNull String parametrisedFunction) {
+        List<Sort> sorts = parseSort0(parametrisedFunction, new AtomicInteger()).getArguments();
+        return sorts;
+    }
+
+    private static Sort parseSort0(String string, AtomicInteger pos) {
+        StringBuilder name = new StringBuilder();
+        while(pos.get() < string.length() &&
+                "<>,".indexOf(string.charAt(pos.get())) == -1) {
+            name.append(string.charAt(pos.get()));
+            pos.incrementAndGet();
+        }
+
+        if(pos.get() < string.length() &&
+                string.charAt(pos.get()) == '<') {
+            List<Sort> args = new LinkedList<>();
+            do {
+                pos.incrementAndGet();
+                args.add(parseSort0(string, pos));
+            } while(pos.get() < string.length() &&
+                    string.charAt(pos.get()) == ',');
+
+            assert pos.get() == string.length() || string.charAt(pos.get()) == '>';
+            pos.incrementAndGet();
+
+            return Sort.get(name.toString(), args);
+        } else {
+            return Sort.get(name.toString());
         }
     }
 

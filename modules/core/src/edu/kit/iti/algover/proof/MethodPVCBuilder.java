@@ -22,6 +22,7 @@ import edu.kit.iti.algover.term.Sequent;
 import edu.kit.iti.algover.term.Sort;
 import edu.kit.iti.algover.term.builder.PVCSequenter;
 import edu.kit.iti.algover.term.builder.TermBuildException;
+import edu.kit.iti.algover.util.ASTUtil;
 import edu.kit.iti.algover.util.TreeUtil;
 
 import java.util.ArrayList;
@@ -92,7 +93,7 @@ public class MethodPVCBuilder {
 
         for (DafnyTree decl : ProgramDatabase.getAllVariableDeclarations(method.getRepresentation())) {
             String name = decl.getChild(0).toString();
-            Sort sort = TreeUtil.toSort(decl.getChild(1));
+            Sort sort = ASTUtil.toSort(decl.getChild(1));
             map.add(new FunctionSymbol(name, sort));
         }
 
