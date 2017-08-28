@@ -46,4 +46,9 @@ public class SinglePVC extends PVCCollection {
         return Collections.emptyList();
     }
 
+    @Override
+    protected void addTo(List<PVC> result) {
+        result.add(pvc);
+    }
+
 }

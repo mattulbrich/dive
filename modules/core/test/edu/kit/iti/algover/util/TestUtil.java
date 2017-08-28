@@ -24,6 +24,9 @@ import edu.kit.iti.algover.project.ProjectBuilder;
 
 public class TestUtil {
 
+    public static boolean VERBOSE =
+            Boolean.getBoolean("algover.verbose");
+
     public static String beautify(DafnyTree tree) {
         return beautify(tree, DafnyTree::toString);
     }

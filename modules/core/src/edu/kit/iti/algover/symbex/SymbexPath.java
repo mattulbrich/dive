@@ -76,6 +76,11 @@ public class SymbexPath {
     private final @NonNull DafnyTree method;
 
     /**
+     * The suffix to the path identifier, added to make the identifiers unique.
+     */
+    private int variantNumber;
+
+    /**
      * Instantiates a new symbolic execution state. It belongs to the given
      * function and is initialised with empty artifacts.
      *
@@ -307,6 +312,11 @@ public class SymbexPath {
         } else {
             result.append("/" + proofObligations.get(0));
         }
+
+        if(variantNumber != 0) {
+            result.append(".").append(variantNumber);
+        }
+
         return result.toString();
     }
 
@@ -345,6 +355,15 @@ public class SymbexPath {
             }
         }
         return result;
+    }
+
+    /**
+     * Increment the {@link #variantNumber} of this path by one.
+     *
+     * To make identifiers unique, names must be suffixed by number sometimes.
+     */
+    public void incrementVariant() {
+        variantNumber++;
     }
 
 }

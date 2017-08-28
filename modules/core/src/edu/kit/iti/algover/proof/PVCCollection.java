@@ -5,9 +5,10 @@
  */
 package edu.kit.iti.algover.proof;
 
-import edu.kit.iti.algover.dafnystructures.DafnyDecl;
-
+import java.util.ArrayList;
 import java.util.List;
+
+import edu.kit.iti.algover.dafnystructures.DafnyDecl;
 
 /**
  * Interface for datastructure,
@@ -39,6 +40,20 @@ public abstract class PVCCollection {
     public abstract PVC getPVC();
 
     public abstract List<PVCCollection> getChildren();
+
+    protected abstract void addTo(List<PVC> result);
+
+    /**
+     * Gets the contents of this collection, i.e., all PVCs which are contained
+     * within the data structure.
+     *
+     * @return a freshly created list object.
+     */
+    public final List<PVC> getContents() {
+        List<PVC> result = new ArrayList<>();
+        addTo(result);
+        return result;
+    }
 
     public PVCCollection getParent() {
         return parent;

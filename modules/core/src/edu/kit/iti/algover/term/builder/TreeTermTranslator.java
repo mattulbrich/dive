@@ -197,6 +197,7 @@ public class TreeTermTranslator {
     }
 
     private Term getHeap() throws TermBuildException {
+        // FIXME This is naive since someone might call their variable "heap" manually.
         VariableTerm bound = boundVars.get(HEAP_VAR.getName());
         if(bound != null) {
             return bound;

@@ -47,7 +47,7 @@ public class DafnyTranslator {
      */
     public DafnyTranslator(PVC verificationCondition, int noOfPOs) {
         this.path = verificationCondition.getPathThroughProgram();
-        this.pvcID = verificationCondition.getPvcID();
+        this.pvcID = 0; //XXX verificationCondition.getPvcID();
         this.method = verificationCondition.getPathThroughProgram().getMethod();
         this.map = verificationCondition.getPathThroughProgram().getAssignmentHistory();
         this.methodName = this.method.getChild(0).getText();

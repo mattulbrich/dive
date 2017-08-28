@@ -6,12 +6,18 @@
 package edu.kit.iti.algover.dafnystructures;
 
 
-import edu.kit.iti.algover.proof.*;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
+import edu.kit.iti.algover.proof.MethodPVCBuilder;
+import edu.kit.iti.algover.proof.PVC;
+import edu.kit.iti.algover.proof.PVCCollection;
+import edu.kit.iti.algover.proof.PVCGroup;
+import edu.kit.iti.algover.proof.SinglePVC;
 import edu.kit.iti.algover.symbex.Symbex;
 import edu.kit.iti.algover.symbex.SymbexPath;
 import edu.kit.iti.algover.term.builder.TermBuildException;
-
-import java.util.List;
 
 /**
  * Visitor for DafnyDecl, that performs symbex on dafnydecl and returns PVCCollection
@@ -46,6 +52,7 @@ public class DafnyDeclPVCCollector {
     }
 
     public PVCCollection visitMethod(DafnyMethod m) {
+        Set<String> seenNames = new HashSet<>();
         PVCGroup mGroup = new PVCGroup(m);
 
         Symbex symbex = new Symbex();
@@ -53,9 +60,9 @@ public class DafnyDeclPVCCollector {
         for (SymbexPath path : paths) {
             List<SymbexPath> subpaths = path.split();
             for (SymbexPath subpath : subpaths) {
-                PVCBuilder builder = new PVCBuilder();
+                giveUniqueIdentifier(subpath, seenNames);
+                MethodPVCBuilder builder = new MethodPVCBuilder();
                 builder
-                    .setPvcID(counter)
                     .setPathThroughProgram(subpath)
                     .setDeclaration(m);
                 counter++;
@@ -73,6 +80,12 @@ public class DafnyDeclPVCCollector {
         }
 
         return mGroup;
+    }
+
+    private void giveUniqueIdentifier(SymbexPath path, Set<String> seenNames) {
+        while(seenNames.contains(path.getPathIdentifier())) {
+            path.incrementVariant();
+        }
     }
 
     public PVCCollection visitFunction(DafnyFunction f) {

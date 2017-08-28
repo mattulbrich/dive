@@ -54,4 +54,10 @@ public class PVCGroup extends PVCCollection {
     public List<PVCCollection> getChildren() {
         return children;
     }
+
+    @Override
+    protected void addTo(List<PVC> result) {
+        // TODO Auto-generated method stub
+        getChildren().forEach(x -> x.addTo(result));
+    }
 }
