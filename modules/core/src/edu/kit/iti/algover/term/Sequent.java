@@ -36,6 +36,18 @@ public final class Sequent {
         return Util.readOnlyArrayList(succedent);
     }
 
+    public static Sequent singleAntecedent(ProofFormula formula) {
+        return new Sequent(Collections.singleton(formula), Collections.emptyList());
+    }
+
+    public static Sequent singleSuccedent(ProofFormula formula) {
+        return new Sequent(Collections.emptyList(), Collections.singleton(formula));
+    }
+
+    public boolean isEmpty() {
+        return antecedent.length + succedent.length == 0;
+    }
+
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
@@ -44,10 +56,6 @@ public final class Sequent {
         sb.append(getSuccedent().toString());
 
         return sb.toString();
-    }
-
-    public boolean isEmpty() {
-        return antecedent.length + succedent.length == 0;
     }
 
     public Sequent union(Sequent other) {
@@ -61,13 +69,5 @@ public final class Sequent {
 
         // TODO duplicates?
         return new Sequent(ante, succ);
-    }
-
-    public static Sequent singleAntecedent(ProofFormula formula) {
-        return new Sequent(Collections.singleton(formula), Collections.emptyList());
-    }
-
-    public static Sequent singleSuccedent(ProofFormula formula) {
-        return new Sequent(Collections.emptyList(), Collections.singleton(formula));
     }
 }

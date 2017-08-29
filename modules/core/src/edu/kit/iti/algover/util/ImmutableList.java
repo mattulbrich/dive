@@ -86,7 +86,7 @@ public class ImmutableList<T> implements Iterable<T> {
 
     public ImmutableList<T> appendAll(Iterable<T> iterable) {
         ImmutableList<T> result = this;
-        for(T elem : iterable) {
+        for (T elem : iterable) {
             result = result.append(elem);
         }
         return result;

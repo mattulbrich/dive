@@ -77,7 +77,7 @@ public class TestUtil {
         ReferenceResolutionVisitor refResolver = new ReferenceResolutionVisitor(p, exceptions);
         refResolver.visitProject();
 
-        if(!exceptions.isEmpty()) {
+        if (!exceptions.isEmpty()) {
             for (DafnyException dafnyException : exceptions) {
                 dafnyException.printStackTrace();
             }

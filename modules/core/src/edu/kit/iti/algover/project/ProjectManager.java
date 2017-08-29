@@ -156,13 +156,21 @@ public class ProjectManager {
         String filePath = project.get().getBaseDir().getAbsolutePath() + pvc + ".script";
         //find file on disc
         Path p = Paths.get(filePath);
-        ProofScript root = Facade.getAST(p.toFile());
-        Proof proof = allProofs.get(pvc);
-        if (proof == null) {
-            proof = new Proof(pvc);
+
+        try {
+            ProofScript root = Facade.getAST(p.toFile());
+            Proof proof = allProofs.get(pvc);
+            if (proof == null) {
+                proof = new Proof(pvc);
+            }
+            proof.setScript(root.getBody());
+            allProofs.putIfAbsent(pvc, proof);
+        } catch (IOException ex) {
+            Proof proof = allProofs.get(pvc);
+            proof.setScript(null);
+            proof.setProofStatus(ProofStatus.NON_EXISTING);
+
         }
-        proof.setScript(root.getBody());
-        allProofs.putIfAbsent(pvc, proof);
 
     }
 
@@ -173,11 +181,19 @@ public class ProjectManager {
     protected void buildIndividualInterpreter(Proof p) {
 
         InterpreterBuilder ib = new InterpreterBuilder();
-        Interpreter i = ib.startWith(p.getScript())
-                .setProofRules(this.project.get().getAllProofRules())
-                .startState(new GoalNode<ProofNode>(null, p.getProofRoot()))
-                .build();
-        p.setInterpreter(i);
+        if (p.getScript() == null) {
+            Interpreter i = ib
+                    .setProofRules(this.project.get().getAllProofRules())
+                    .startState(new GoalNode<ProofNode>(null, p.getProofRoot()))
+                    .build();
+            p.setInterpreter(i);
+        } else {
+            Interpreter i = ib.startWith(p.getScript())
+                    .setProofRules(this.project.get().getAllProofRules())
+                    .startState(new GoalNode<ProofNode>(null, p.getProofRoot()))
+                    .build();
+            p.setInterpreter(i);
+        }
     }
 
     /**

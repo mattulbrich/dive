@@ -51,7 +51,8 @@ public class BranchInfo {
     /**
      * The replacements.
      */
-    private final @DeepNonNull ImmutableList<Pair<TermSelector, Term>> replacements;
+    private final @DeepNonNull
+    ImmutableList<Pair<TermSelector, Term>> replacements;
 
     private final String label;
 
@@ -68,9 +69,9 @@ public class BranchInfo {
      *            the terms to be replaced
      */
     public BranchInfo(@NonNull String label,
-            @NonNull Sequent additions,
-            @NonNull Sequent deletions,
-            @DeepNonNull ImmutableList<Pair<TermSelector, Term>> replacements) {
+                      @NonNull Sequent additions,
+                      @NonNull Sequent deletions,
+                      @DeepNonNull ImmutableList<Pair<TermSelector, Term>> replacements) {
         this.label = label;
         this.additions = additions;
         this.deletions = deletions;
@@ -80,11 +81,10 @@ public class BranchInfo {
     /**
      * Instantiates a new branch info with empty additions and deletion
      * sequences.
-     *
+     * <p>
      * The replacements are cosntructed from the arguments.
      *
-     * @param replacements
-     *            the term replacements to be used.
+     * @param replacements the term replacements to be used.
      * @return a freshly created object
      */
     @SafeVarargs
@@ -107,7 +107,8 @@ public class BranchInfo {
      *
      * @return the deletions as sequent
      */
-    public @NonNull Sequent getDeletions() {
+    public @NonNull
+    Sequent getDeletions() {
         return deletions;
     }
 
@@ -116,7 +117,8 @@ public class BranchInfo {
      *
      * @return an unmodifiable list of term replacements.
      */
-    public @DeepNonNull ImmutableList<Pair<TermSelector, Term>> getReplacements() {
+    public @DeepNonNull
+    ImmutableList<Pair<TermSelector, Term>> getReplacements() {
         return replacements;
     }
 
@@ -125,7 +127,8 @@ public class BranchInfo {
      *
      * @return the label
      */
-    public @NonNull String getLabel() {
+    public @NonNull
+    String getLabel() {
         return label;
     }
 

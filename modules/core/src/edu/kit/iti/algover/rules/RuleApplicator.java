@@ -1,6 +1,6 @@
 package edu.kit.iti.algover.rules;
 
-import com.google.common.annotations.VisibleForTesting;
+
 import edu.kit.iti.algover.proof.ProofFormula;
 import edu.kit.iti.algover.proof.ProofNode;
 import edu.kit.iti.algover.term.Sequent;

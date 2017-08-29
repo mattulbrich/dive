@@ -17,7 +17,6 @@ import edu.kit.iti.algover.term.Term;
 import edu.kit.iti.algover.util.ImmutableList;
 import edu.kit.iti.algover.util.Pair;
 import jdk.nashorn.internal.codegen.types.Type;
-import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 import java.math.BigInteger;
 import java.util.ArrayList;
@@ -115,7 +114,9 @@ public class ProofRuleHandler implements CommandHandler<ProofNode> {
             case INT:
                 return new Parameters.TypedValue(BigInteger.class, val.getData());
             default:
-                throw new NotImplementedException();
+                System.out.println("Not implemented yet");
+                return null;
+
         }
     }
 

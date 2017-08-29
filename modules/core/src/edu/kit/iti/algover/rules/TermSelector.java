@@ -50,20 +50,11 @@ import nonnull.Nullable;
 public final class TermSelector implements Comparable<TermSelector> {
 
     /**
-     * Indicator to denote left and right hand side of the sequent.
+     * We store the side of the sequent as a constant value.
      */
-    public enum SequentPolarity { ANTECEDENT, SUCCEDENT;
-
-        /**
-         * Gets the opposite polarity.
-         *
-         * @return an non-<code>null</code> object of this class different from
-         *         <code>this</code>
-         */
-        public SequentPolarity getOpposite() {
-            return this == ANTECEDENT ? SUCCEDENT : ANTECEDENT;
-        }
-    };
+    private final @NonNull
+    SequentPolarity polarity;
+    ;
 
     /**
      * We use the Constant CLASS_EXC_INDICATOR to indicate the origin for error
@@ -77,9 +68,14 @@ public final class TermSelector implements Comparable<TermSelector> {
     private static final SubtermSelector EMPTY_SUBTERMSELECTOR = new SubtermSelector();
 
     /**
-     * We store the side of the sequent as a constant value.
+     * Gets the polarity of this term selector.
+     *
+     * @return the constant for antecedent or succedent
      */
-    private final @NonNull SequentPolarity polarity;
+    public @NonNull
+    SequentPolarity getPolarity() {
+        return polarity;
+    }
 
     /**
      * the number of the selected term on its side.
@@ -357,12 +353,21 @@ public final class TermSelector implements Comparable<TermSelector> {
     }
 
     /**
-     * Gets the polarity of this term selector.
+     * Create a sequent object from the selected toplevel formula.
      *
-     * @return the constant for antecedent or succedent
+     * @param sequent
+     *            the sequent to choose from
+     * @return the sequent containing only the selected toplevel formula.
+     * @throws RuleException
+     *             if the selection cannot be applied to the sequent.
      */
-    public @NonNull SequentPolarity getPolarity() {
-        return polarity;
+    public Sequent selectAsSequent(@NonNull Sequent sequent) throws RuleException {
+        ProofFormula formula = selectTopterm(sequent);
+        if (isAntecedent()) {
+            return new Sequent(Collections.singletonList(formula), Collections.emptyList());
+        } else {
+            return new Sequent(Collections.emptyList(), Collections.singletonList(formula));
+        }
     }
 
     /**
@@ -416,7 +421,6 @@ public final class TermSelector implements Comparable<TermSelector> {
         return subtermSelector.getPath();
     }
 
-
     /**
      * Apply the term selector to a sequent to select a particular top level
      * term. This method ignores the path selection information.
@@ -432,7 +436,8 @@ public final class TermSelector implements Comparable<TermSelector> {
      * @throws RuleException
      *             if the selection cannot be applied to the sequent.
      */
-    public @NonNull ProofFormula selectTopterm(@NonNull Sequent sequent) throws RuleException {
+    public @NonNull
+    ProofFormula selectTopterm(@NonNull Sequent sequent) throws RuleException {
         List<ProofFormula> terms;
         if (isAntecedent()) {
             terms = sequent.getAntecedent();
@@ -446,24 +451,6 @@ public final class TermSelector implements Comparable<TermSelector> {
         }
 
         return terms.get(termNo);
-    }
-
-    /**
-     * Create a sequent object from the selected toplevel formula.
-     *
-     * @param sequent
-     *            the sequent to choose from
-     * @return the sequent containing only the selected toplevel formula.
-     * @throws RuleException
-     *             if the selection cannot be applied to the sequent.
-     */
-    public Sequent selectAsSequent(@NonNull Sequent sequent) throws RuleException {
-        ProofFormula formula = selectTopterm(sequent);
-        if(isAntecedent()) {
-            return new Sequent(Collections.singletonList(formula), Collections.emptyList());
-        } else {
-            return new Sequent(Collections.emptyList(), Collections.singletonList(formula));
-        }
     }
 
     /**
@@ -485,15 +472,11 @@ public final class TermSelector implements Comparable<TermSelector> {
      * @throws RuleException
      *             if the selection cannot be applied to the sequent.
      */
-    public @NonNull Term selectSubterm(@NonNull Sequent sequent) throws RuleException {
+    public @NonNull
+    Term selectSubterm(@NonNull Sequent sequent) throws RuleException {
         ProofFormula formula = selectTopterm(sequent);
         return subtermSelector.selectSubterm(formula.getTerm());
     }
-
-    public SubtermSelector getSubtermSelector() {
-        return subtermSelector;
-    }
-
 
     /**
      * Checks whether this term selector has another term selector as prefix.
@@ -508,7 +491,7 @@ public final class TermSelector implements Comparable<TermSelector> {
      * @return true iff the argument is a prefix to this selector.
      */
     public boolean hasPrefix(@NonNull TermSelector prefix) {
-        if(polarity != prefix.polarity) {
+        if (polarity != prefix.polarity) {
             return false;
         }
 
@@ -517,5 +500,27 @@ public final class TermSelector implements Comparable<TermSelector> {
         }
 
         return getSubtermSelector().hasPrefix(prefix.getSubtermSelector());
+    }
+
+    public SubtermSelector getSubtermSelector() {
+        return subtermSelector;
+    }
+
+
+    /**
+     * Indicator to denote left and right hand side of the sequent.
+     */
+    public enum SequentPolarity {
+        ANTECEDENT, SUCCEDENT;
+
+        /**
+         * Gets the opposite polarity.
+         *
+         * @return an non-<code>null</code> object of this class different from
+         * <code>this</code>
+         */
+        public SequentPolarity getOpposite() {
+            return this == ANTECEDENT ? SUCCEDENT : ANTECEDENT;
+        }
     }
 }

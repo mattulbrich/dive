@@ -245,7 +245,8 @@ public final class ProofRuleApplication {
      *
      * @return the refiner, <code>null</code> if none set!
      */
-    public @Nullable Refiner getRefiner() {
+    public @Nullable
+    Refiner getRefiner() {
         return refiner;
     }
 

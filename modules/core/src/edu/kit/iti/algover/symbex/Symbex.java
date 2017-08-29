@@ -225,7 +225,7 @@ public class Symbex {
         // 2c. show decreases clause:
 
         AssertionElement decrProof;
-        if(decreasesClause != null) {
+        if (decreasesClause != null) {
             DafnyTree decrReduced = ASTUtil.noetherLess(
                     ASTUtil.listExpr(decreaseVars),
                     ASTUtil.listExpr(decreasesClause.getChildren()));
@@ -254,7 +254,7 @@ public class Symbex {
     private List<DafnyTree> introduceDecreasesVars(DafnyTree stm, DafnyTree decreases, SymbexPath preservePath) {
 
         List<DafnyTree> result = new ArrayList<>();
-        if(decreases != null) {
+        if (decreases != null) {
             for (DafnyTree dec : decreases.getChildren()) {
                 DafnyTree decreaseVar = makeDecreaseVar(preservePath, stm);
                 preservePath.addAssignment(ASTUtil.assign(decreaseVar, dec));
