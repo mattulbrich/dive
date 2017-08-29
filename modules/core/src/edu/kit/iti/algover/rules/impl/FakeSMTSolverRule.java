@@ -3,9 +3,15 @@
  *
  * Copyright (C) 2015-2017 Karlsruhe Institute of Technology
  */
-package edu.kit.iti.algover.rules;
+package edu.kit.iti.algover.rules.impl;
 
 import edu.kit.iti.algover.proof.ProofNode;
+import edu.kit.iti.algover.rules.AbstractProofRule;
+import edu.kit.iti.algover.rules.Parameters;
+import edu.kit.iti.algover.rules.ProofRuleApplication;
+import edu.kit.iti.algover.rules.ProofRuleApplicationBuilder;
+import edu.kit.iti.algover.rules.RuleException;
+import edu.kit.iti.algover.rules.TermSelector;
 import edu.kit.iti.algover.rules.ProofRuleApplication.Applicability;
 import edu.kit.iti.algover.term.Sequent;
 

@@ -14,6 +14,7 @@ import edu.kit.iti.algover.parser.ParserTest;
 import edu.kit.iti.algover.parser.ReferenceResolutionVisitorTest;
 import edu.kit.iti.algover.parser.TypeResolutionTest;
 import edu.kit.iti.algover.project.ProjectTest;
+import edu.kit.iti.algover.rules.impl.PropositionalExpanderTest;
 import edu.kit.iti.algover.script.ScriptParserTest;
 import edu.kit.iti.algover.symbex.ProgramDatabaseTest;
 import edu.kit.iti.algover.symbex.SymbexTest;
@@ -21,7 +22,6 @@ import edu.kit.iti.algover.term.FunctionSymbolFamilyTest;
 import edu.kit.iti.algover.term.SortTest;
 import edu.kit.iti.algover.term.builder.InlineSequenterTest;
 import edu.kit.iti.algover.term.builder.LetInlineVisitorTest;
-import edu.kit.iti.algover.term.builder.ReplaceVisitorTest;
 import edu.kit.iti.algover.term.builder.ReplacementVisitorTest;
 import edu.kit.iti.algover.term.builder.TreeTermTranslationNoetherTest;
 import edu.kit.iti.algover.term.builder.TreeTermTranslatorTest;
@@ -55,7 +55,7 @@ import edu.kit.iti.algover.util.UtilTest;
     UpdateSequenterTest.class,
     InlineSequenterTest.class,
     PrettyPrintTest.class,
-    ReplaceVisitorTest.class,
+    PropositionalExpanderTest.class,
     })
 public class Tests {
 }

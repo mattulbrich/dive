@@ -169,6 +169,10 @@ public final class ProofRuleApplication {
 
     }
 
+    /*
+     * create a copy of this object with the "refiner" field set to
+     * <code>null</code>.
+     */
     private ProofRuleApplication thisWithoutRefiner() {
         return new ProofRuleApplication(rule, branchInfo, applicability,
                 scriptTranscript, openParameters, null);
@@ -235,7 +239,13 @@ public final class ProofRuleApplication {
         return openParameters;
     }
 
-    public Refiner getRefiner() {
+    /**
+     * Gets the refining code which may add information to the proof app by
+     * returning a new one.
+     *
+     * @return the refiner, <code>null</code> if none set!
+     */
+    public @Nullable Refiner getRefiner() {
         return refiner;
     }
 

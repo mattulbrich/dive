@@ -63,7 +63,7 @@ public class TypeResolution extends DafnyTreeDefaultVisitor<DafnyTree, Void> {
         }
 
         assert ref.getType() == DafnyParser.VAR || ref.getType() == DafnyParser.FIELD;
-        DafnyTree type = ref.getLastChild();
+        DafnyTree type = ref.getChild(1);
         t.setExpressionType(type);
         return type;
     }
@@ -229,12 +229,18 @@ public class TypeResolution extends DafnyTreeDefaultVisitor<DafnyTree, Void> {
         return operation(t, BOOL_TYPE, "int", "int");
     }
 
-
-
-
     @Override
     public DafnyTree visitLENGTH(DafnyTree t, Void a) {
-        throw new UnsupportedOperationException("not yet implemented");
+        DafnyTree array = t.getChild(0);
+        DafnyTree arrayType = array.accept(this, null);
+
+        if (arrayType.getType() != DafnyParser.ARRAY) {
+            exceptions.add(new DafnyException(
+                    "Only arrays have a length", t));
+        }
+
+        t.setExpressionType(INT_TYPE);
+        return INT_TYPE;
     }
 
     @Override

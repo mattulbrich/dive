@@ -5,16 +5,13 @@
  */
 package edu.kit.iti.algover.rules;
 
+import nonnull.DeepNonNull;
+import nonnull.NonNull;
 import edu.kit.iti.algover.proof.ProofNode;
 import edu.kit.iti.algover.term.Sequent;
 import edu.kit.iti.algover.term.Term;
 import edu.kit.iti.algover.util.ImmutableList;
 import edu.kit.iti.algover.util.Pair;
-import nonnull.DeepNonNull;
-import nonnull.NonNull;
-
-import java.util.Collections;
-import java.util.List;
 
 /**
  * BranchInfos capture the information to obtain new {@link ProofNode}s during
@@ -33,13 +30,13 @@ public class BranchInfo {
      */
     public static final ImmutableList<BranchInfo> UNCHANGED =
             ImmutableList.single(
-                    new BranchInfo(Sequent.EMPTY, Sequent.EMPTY, ImmutableList.nil()));
+                    new BranchInfo("", Sequent.EMPTY, Sequent.EMPTY, ImmutableList.nil()));
 
     /**
      * The special case of a closing rule with no branches.
      */
-    public static final List<BranchInfo> CLOSE =
-            Collections.emptyList();
+    public static final ImmutableList<BranchInfo> CLOSE =
+            ImmutableList.nil();
 
     /**
      * The additions to the sequent.
@@ -54,27 +51,45 @@ public class BranchInfo {
     /**
      * The replacements.
      */
-    private final
-    @DeepNonNull
-    ImmutableList<Pair<TermSelector, Term>> replacements;
+    private final @DeepNonNull ImmutableList<Pair<TermSelector, Term>> replacements;
+
+    private final String label;
 
     /**
      * Instantiates a new branch info.
      *
-     * @param additions the additions
-     * @param deletions the deletions
-     * @param replacements the replacements
+     * @param label
+     *            the label associated to this branch
+     * @param additions
+     *            the toplevel terms to be added to the node's sequent
+     * @param deletions
+     *            the toplevel terms to be removed from the node's sequent
+     * @param replacements
+     *            the terms to be replaced
      */
-    public BranchInfo(@NonNull Sequent additions, @NonNull Sequent deletions,
-                      @DeepNonNull ImmutableList<Pair<TermSelector, Term>> replacements) {
+    public BranchInfo(@NonNull String label,
+            @NonNull Sequent additions,
+            @NonNull Sequent deletions,
+            @DeepNonNull ImmutableList<Pair<TermSelector, Term>> replacements) {
+        this.label = label;
         this.additions = additions;
         this.deletions = deletions;
         this.replacements = replacements;
     }
 
+    /**
+     * Instantiates a new branch info with empty additions and deletion
+     * sequences.
+     *
+     * The replacements are cosntructed from the arguments.
+     *
+     * @param replacements
+     *            the term replacements to be used.
+     * @return a freshly created object
+     */
     @SafeVarargs
     public static BranchInfo makeReplacement(Pair<TermSelector, Term>... replacements) {
-        return new BranchInfo(Sequent.EMPTY, Sequent.EMPTY,
+        return new BranchInfo("", Sequent.EMPTY, Sequent.EMPTY,
                 ImmutableList.<Pair<TermSelector, Term>>from(replacements));
     }
 
@@ -92,7 +107,7 @@ public class BranchInfo {
      *
      * @return the deletions as sequent
      */
-    public Sequent getDeletions() {
+    public @NonNull Sequent getDeletions() {
         return deletions;
     }
 
@@ -101,8 +116,17 @@ public class BranchInfo {
      *
      * @return an unmodifiable list of term replacements.
      */
-    public Iterable<Pair<TermSelector, Term>> getReplacements() {
+    public @DeepNonNull ImmutableList<Pair<TermSelector, Term>> getReplacements() {
         return replacements;
+    }
+
+    /**
+     * Gets the branch label associated to this branch
+     *
+     * @return the label
+     */
+    public @NonNull String getLabel() {
+        return label;
     }
 
 }

@@ -153,6 +153,21 @@ public class TermBuilder {
         return new ApplTerm(select, heap, recv, field);
     }
 
+    public Term selectArray(Term heap, Term array, Term index) throws TermBuildException {
+        FunctionSymbol select =
+                BuiltinSymbols.ARRAY_SELECT.instantiate(array.getSort().getArguments().get(0));
+
+        return new ApplTerm(select, heap, array, index);
+
+    }
+
+    public Term selectArray2(ApplTerm heap, Term array, Term index0, Term index1) throws TermBuildException {
+        FunctionSymbol select =
+                BuiltinSymbols.ARRAY2_SELECT.instantiate(array.getSort().getArguments().get(0));
+
+        return new ApplTerm(select, heap, array, index0, index1);
+    }
+
     public Term heap() throws TermBuildException {
         return new ApplTerm(BuiltinSymbols.HEAP);
     }
