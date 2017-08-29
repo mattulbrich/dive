@@ -37,11 +37,6 @@ public class SinglePVC extends PVCCollection {
     }
 
     @Override
-    public PVCCollection getRoot() {
-        return getParent().getRoot();
-    }
-
-    @Override
     public boolean isPVCLeaf() {
         return true;
     }
@@ -49,11 +44,6 @@ public class SinglePVC extends PVCCollection {
     @Override
     public List<PVCCollection> getChildren() {
         return Collections.emptyList();
-    }
-
-    @Override
-    public PVCCollection getChild(int i) {
-        return null;
     }
 
 }
