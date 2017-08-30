@@ -14,6 +14,7 @@ import edu.kit.iti.algover.term.Term;
 import edu.kit.iti.algover.term.parser.TermParser;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import java.io.File;
@@ -54,7 +55,7 @@ public class ProjectManagerTest {
     }
 
 
-
+    @Ignore
     @Test
     public void loadExistingProject() throws Exception {
         pm = new ProjectManager();
