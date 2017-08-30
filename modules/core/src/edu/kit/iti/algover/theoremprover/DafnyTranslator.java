@@ -6,7 +6,6 @@
 package edu.kit.iti.algover.theoremprover;
 
 import edu.kit.iti.algover.ProgramDatabase;
-import edu.kit.iti.algover.parser.DafnyParser;
 import edu.kit.iti.algover.parser.DafnyTree;
 import edu.kit.iti.algover.proof.PVC;
 import edu.kit.iti.algover.symbex.AssertionElement;
@@ -18,7 +17,9 @@ import edu.kit.iti.algover.util.Pair;
 import edu.kit.iti.algover.util.SymbexUtil;
 import edu.kit.iti.algover.util.TreeUtil;
 
-import java.util.*;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
 
 /**
  * Class handling the translation of a PVC to a Dafny Slice.

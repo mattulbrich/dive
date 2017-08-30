@@ -7,7 +7,6 @@ package edu.kit.iti.algover.proof;
 
 
 import edu.kit.iti.algover.dafnystructures.DafnyDecl;
-import edu.kit.iti.algover.script.ScriptTree;
 import edu.kit.iti.algover.symbex.SymbexPath;
 import edu.kit.iti.algover.term.Sequent;
 
@@ -30,10 +29,9 @@ public class PVC {
     private final DafnyDecl declaration;
     private final Sequent sequent;
     /**
-     * local script of pvc, is identified by id
+     * local script of pvc
      */
-    // REVIEW: did not understand "is identified by"
-    private ScriptTree localScript;
+    //private ScriptTree localScript;
 
     /**
      * Instantiates a new PVC. The informations are taken from a builder object.
@@ -56,9 +54,9 @@ public class PVC {
         return pvcID;
     }
 
-    public ScriptTree getLocalScript() {
+ /*   public ScriptTree getLocalScript() {
         return localScript;
-    }
+    }*/
 
     public SymbexPath getPathThroughProgram() {
         return pathThroughProgram;

@@ -1,0 +1,9 @@
+auto;
+cases{
+    case match '1==2'{
+        auto;
+    }
+    default:{
+        auto;
+    }
+}

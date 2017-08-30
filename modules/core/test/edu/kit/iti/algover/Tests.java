@@ -5,6 +5,7 @@
  */
 package edu.kit.iti.algover;
 
+import edu.kit.iti.algover.project.ProjectManagerTest;
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
 import org.junit.runners.Suite.SuiteClasses;
@@ -14,6 +15,7 @@ import edu.kit.iti.algover.parser.ParserTest;
 import edu.kit.iti.algover.parser.ReferenceResolutionVisitorTest;
 import edu.kit.iti.algover.parser.TypeResolutionTest;
 import edu.kit.iti.algover.project.ProjectTest;
+import edu.kit.iti.algover.rules.impl.PropositionalExpanderTest;
 import edu.kit.iti.algover.script.ScriptParserTest;
 import edu.kit.iti.algover.symbex.ProgramDatabaseTest;
 import edu.kit.iti.algover.symbex.SymbexTest;
@@ -54,6 +56,8 @@ import edu.kit.iti.algover.util.UtilTest;
     UpdateSequenterTest.class,
     InlineSequenterTest.class,
     PrettyPrintTest.class,
+        PropositionalExpanderTest.class,
+        ProjectManagerTest.class
     })
 public class Tests {
 }

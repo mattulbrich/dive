@@ -7,13 +7,8 @@ package edu.kit.iti.algover.term.builder;
 
 import edu.kit.iti.algover.data.BuiltinSymbols;
 import edu.kit.iti.algover.data.SymbolTable;
-import edu.kit.iti.algover.term.ApplTerm;
-import edu.kit.iti.algover.term.FunctionSymbol;
-import edu.kit.iti.algover.term.QuantTerm;
+import edu.kit.iti.algover.term.*;
 import edu.kit.iti.algover.term.QuantTerm.Quantifier;
-import edu.kit.iti.algover.term.Sort;
-import edu.kit.iti.algover.term.Term;
-import edu.kit.iti.algover.term.VariableTerm;
 
 public class TermBuilder {
 
@@ -156,6 +151,21 @@ public class TermBuilder {
         FunctionSymbol select = BuiltinSymbols.SELECT.instantiate(recv.getSort(),
                 field.getSort().getArguments().get(1));
         return new ApplTerm(select, heap, recv, field);
+    }
+
+    public Term selectArray(Term heap, Term array, Term index) throws TermBuildException {
+        FunctionSymbol select =
+                BuiltinSymbols.ARRAY_SELECT.instantiate(array.getSort().getArguments().get(0));
+
+        return new ApplTerm(select, heap, array, index);
+
+    }
+
+    public Term selectArray2(ApplTerm heap, Term array, Term index0, Term index1) throws TermBuildException {
+        FunctionSymbol select =
+                BuiltinSymbols.ARRAY2_SELECT.instantiate(array.getSort().getArguments().get(0));
+
+        return new ApplTerm(select, heap, array, index0, index1);
     }
 
     public Term heap() throws TermBuildException {

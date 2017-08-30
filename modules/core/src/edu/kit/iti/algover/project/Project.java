@@ -7,8 +7,10 @@ package edu.kit.iti.algover.project;
 
 import edu.kit.iti.algover.dafnystructures.*;
 import edu.kit.iti.algover.parser.DafnyException;
+import edu.kit.iti.algover.proof.PVC;
 import edu.kit.iti.algover.proof.PVCCollection;
 import edu.kit.iti.algover.proof.PVCGroup;
+import edu.kit.iti.algover.rules.ProofRule;
 import edu.kit.iti.algover.settings.ProjectSettings;
 import edu.kit.iti.algover.term.FunctionSymbol;
 
@@ -19,7 +21,10 @@ import java.util.*;
 // REVIEW: I miss a possibility to retrieve all parsed DafnyTrees (toplevel entities)
 // How can one obtain these?
 
-// REVIEW: Would it make sense to habe a lookup table indexed by name?
+// SaG: by getting all PVCCollections from Map pvc and rertieving tree by
+// PVCCollection.getDafnyDecl().getRepresentation()
+
+
 
 /**
  * Class representing a project, that contains all relevant information for a
@@ -44,7 +49,7 @@ public class Project {
     private final ProjectSettings settings;
 
     /**
-     * Lookup maps to get classes, methods , fucntions and functionsymbols
+     * Lookup maps to get classes, methods , functions and functionsymbols
      */
     private Map<String, DafnyClass> classes;
 
@@ -53,11 +58,17 @@ public class Project {
     private Map<String, DafnyFunction> functions;
 
     private Collection<FunctionSymbol> functionSymbols;
-
+    private Map<String, PVC> pvcByName;
     /**
      * Lookup map for PVCs
      */
     private Map<DafnyDecl, PVCCollection> pvcs;
+
+
+    /**
+     * A collection of all proof rules available in this project
+     */
+    private Collection<ProofRule> allProofRules;
 
     /**
      * Constructor can only be called using a ProjectBuilder
@@ -73,7 +84,12 @@ public class Project {
         this.methods = DafnyDecl.toMap(pBuilder.getMethods());
         this.baseDir = pBuilder.getDir();
         this.pvcs = new HashMap<>();
+        this.pvcByName = new HashMap<>();
 
+    }
+
+    public Map<String, PVC> getPvcCollectionByName() {
+        return pvcByName;
     }
 
     public File getBaseDir() {
@@ -99,6 +115,11 @@ public class Project {
     public Collection<DafnyClass> getClasses() {
         return classes.values();
     }
+
+    public Collection<ProofRule> getAllProofRules() {
+        return allProofRules;
+    }
+
 
     /**
      * Gets a class from this project by name.
@@ -140,6 +161,11 @@ public class Project {
 
     }
 
+    /**
+     * Return all PVCs by getting a reference to the PVCGroup root
+     *
+     * @return
+     */
     public PVCGroup getAllVerificationConditions() {
         return this.generateAndCollectPVC();
     }
@@ -155,6 +181,10 @@ public class Project {
 
     }
 
+    public PVC getPVCbyName(String name) {
+        return pvcByName.getOrDefault(name, null);
+    }
+
     public Collection<FunctionSymbol> getAllDeclaredSymbols() {
         if(functionSymbols == null) {
             functionSymbols = DeclarationSymbolCollector.collect(this);
@@ -166,6 +196,7 @@ public class Project {
     /**
      * Generates the PVCs for this project
      * Saves the PVCs to the lookupmap
+     * Saves the PVCs to the String lookup map
      * @return the root of the PVCGroup for this project
      */
 
@@ -181,10 +212,34 @@ public class Project {
         List<PVCCollection> children = root.getChildren();
         for (PVCCollection child : children) {
             pvcs.put(child.getDafnyDecl(), child);
-
+        }
+        for (PVCCollection child : children) {
+            generateAndCollectPVCHelper(child);
         }
 
         return root;
+
+    }
+
+    /**
+     * Fill hashmap with pvcs to reference via pathidentifier
+     *
+     * @param pvc
+     */
+    private void generateAndCollectPVCHelper(PVCCollection pvc) {
+        if (pvc.isPVCLeaf()) {
+            pvcByName.put(pvc.getPVC().getName(), pvc.getPVC());
+        } else {
+            for (PVCCollection pvcCollection : pvc.getChildren()) {
+                generateAndCollectPVCHelper(pvcCollection);
+            }
+        }
+    }
+
+    /**
+     * This method extracts the proof rules from and saves them to this object
+     */
+    public void extractProofRules() {
 
     }
 }

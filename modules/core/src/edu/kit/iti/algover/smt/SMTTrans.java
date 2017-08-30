@@ -15,6 +15,7 @@ import java.util.Properties;
 import edu.kit.iti.algover.term.ApplTerm;
 import edu.kit.iti.algover.term.DefaultTermVisitor;
 import edu.kit.iti.algover.term.FunctionSymbol;
+import edu.kit.iti.algover.term.FunctionSymbolFamily.InstantiatedFunctionSymbol;
 import edu.kit.iti.algover.term.LetTerm;
 import edu.kit.iti.algover.term.QuantTerm;
 import edu.kit.iti.algover.term.SchemaVarTerm;
@@ -73,21 +74,27 @@ public class SMTTrans extends DefaultTermVisitor<Void, SExpr, RuntimeException> 
         throw new Error("Missing method for " + term.getClass());
     }
 
-    @Override
-    public SExpr visit(ApplTerm term, Void arg) {
+    // That is fine for now. ... Later redefinition is expected
+    public static SExpr typeToSMT(Sort sort) {
 
-        FunctionSymbol f = term.getFunctionSymbol();
-        String name = f.getName();
-        if(OP_MAP.containsKey(name)) {
-            name = OP_MAP.getProperty(name);
+        String name = sort.getName();
+        if (name.matches("array[0-9]+")) {
+            int dim = Integer.parseInt(name.substring(5));
+            assert dim == 1 : "For the moment we are limited";
+            return new SExpr("Ref");
+        } else {
+            switch (name) {
+                case "int":
+                    return new SExpr("Int");
+                case "set":
+                    return new SExpr("Array", "Int", "Boolean");
+                case "bool":
+                    return new SExpr("Bool");
+                case "null":
+                    return new SExpr("object");
+            }
         }
-
-        List<SExpr> children = new ArrayList<>();
-        for (Term subterm : term.getSubterms()) {
-            children.add(subterm.accept(this, null));
-        }
-
-        return new SExpr(name, children);
+        throw new UnsupportedOperationException("Unsupported sort: " + sort);
     }
 
     @Override
@@ -135,20 +142,27 @@ public class SMTTrans extends DefaultTermVisitor<Void, SExpr, RuntimeException> 
         return new SExpr("let", new SExpr(substitutions), inner);
     }
 
-    // That is fine for now. ... Later redefinition is expected
-    public static SExpr typeToSMT(Sort sort) {
+    @Override
+    public SExpr visit(ApplTerm term, Void arg) {
 
-        String name = sort.getName();
-        if(name.matches("array[0-9]+")) {
-            int dim = Integer.parseInt(name.substring(5));
-            assert dim == 1 : "For the moment we are limited";
-            return new SExpr("Ref");
-        } else {
-            switch(name) {
-            case "int": return new SExpr("Int");
-            case "set": return new SExpr("Array", "Int", "Boolean");
-            }        }
-        throw new UnsupportedOperationException("Unsupported sort: " + sort);
+        FunctionSymbol f = term.getFunctionSymbol();
+        String name = f.getName();
+        if (OP_MAP.containsKey(name)) {
+            name = OP_MAP.getProperty(name);
+        } else if (f instanceof InstantiatedFunctionSymbol) {
+            InstantiatedFunctionSymbol ifs = (InstantiatedFunctionSymbol) f;
+            String basename = ifs.getFamily().getBaseName();
+            if (OP_MAP.containsKey(basename)) {
+                name = OP_MAP.getProperty(basename);
+            }
+        }
+
+        List<SExpr> children = new ArrayList<>();
+        for (Term subterm : term.getSubterms()) {
+            children.add(subterm.accept(this, null));
+        }
+
+        return new SExpr(name, children);
     }
 
 }

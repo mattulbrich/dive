@@ -5,10 +5,6 @@
  */
 package edu.kit.iti.algover.symbex;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-
 import edu.kit.iti.algover.data.BuiltinSymbols;
 import edu.kit.iti.algover.parser.DafnyParser;
 import edu.kit.iti.algover.parser.DafnyTree;
@@ -17,6 +13,10 @@ import edu.kit.iti.algover.symbex.PathConditionElement.AssumptionType;
 import edu.kit.iti.algover.util.ASTUtil;
 import edu.kit.iti.algover.util.ImmutableList;
 import nonnull.NonNull;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * This class captures intermediate and terminal states of paths in symbolic
@@ -46,34 +46,41 @@ import nonnull.NonNull;
 public class SymbexPath {
 
     /**
+     * The function to which this symbolic execution state belongs.
+     */
+    private final
+    @NonNull
+    DafnyTree method;
+    /**
      * The gathered path conditions.
      */
-    private @NonNull ImmutableList<PathConditionElement> pathConditions;
-
+    private
+    @NonNull
+    ImmutableList<PathConditionElement> pathConditions;
     /**
      * The proof obligations to discharge.
      */
-    private @NonNull ImmutableList<AssertionElement> proofObligations;
-
+    private
+    @NonNull
+    ImmutableList<AssertionElement> proofObligations;
     /**
      * The currently active variable assignment map.
      */
-    private @NonNull ImmutableList<DafnyTree> assignmentHistory;
-
+    private
+    @NonNull
+    ImmutableList<DafnyTree> assignmentHistory;
     /**
      * The declared local variables up to this point.
      */
-    private @NonNull ImmutableList<LocalVarDecl> declaredLocalVars;
-
+    private
+    @NonNull
+    ImmutableList<LocalVarDecl> declaredLocalVars;
     /**
      * The block that remains to be executed. may be an empty block.
      */
-    private @NonNull DafnyTree blockToExecute;
-
-    /**
-     * The function to which this symbolic execution state belongs.
-     */
-    private final @NonNull DafnyTree method;
+    private
+    @NonNull
+    DafnyTree blockToExecute;
 
     /**
      * Instantiates a new symbolic execution state. It belongs to the given
@@ -92,15 +99,6 @@ public class SymbexPath {
         this.method = function;
     }
 
-    private ImmutableList<LocalVarDecl> initialLocalVars() {
-        DafnyTree dummy = new DafnyTree(DafnyParser.VAR, "dummy");
-        LocalVarDecl heap = new LocalVarDecl(BuiltinSymbols.HEAP.getName(),
-                ASTUtil.id("Heap"), dummy);
-        LocalVarDecl mod = new LocalVarDecl(BuiltinSymbols.MOD.getName(),
-                ASTUtil.id("set<object>"), dummy);
-        return ImmutableList.from(heap, mod);
-    }
-
     /**
      * Instantiates a new symbolic execution state by copying from another state.
      *
@@ -114,6 +112,15 @@ public class SymbexPath {
         this.blockToExecute = state.blockToExecute;
         this.declaredLocalVars = state.declaredLocalVars;
         this.method = state.method;
+    }
+
+    private ImmutableList<LocalVarDecl> initialLocalVars() {
+        DafnyTree dummy = new DafnyTree(DafnyParser.VAR, "dummy");
+        LocalVarDecl heap = new LocalVarDecl(BuiltinSymbols.HEAP.getName(),
+                ASTUtil.id("Heap"), dummy);
+        LocalVarDecl mod = new LocalVarDecl(BuiltinSymbols.MOD.getName(),
+                ASTUtil.id("set<object>"), dummy);
+        return ImmutableList.from(heap, mod);
     }
 
     /**
@@ -228,19 +235,6 @@ public class SymbexPath {
         this.proofObligations = ImmutableList.single(proofObl);
     }
 
-    /**
-     * Sets the set proof obligations for this state. the argument is iterated
-     * into a new data structure and may be modified afterwards.
-     *
-     * @param iterable
-     *            the set of obligations
-     * @param type
-     *            the common type of the obligations, not <code>null</code>.
-     */
-    public void setProofObligations(Iterable<AssertionElement> iterable) {
-        this.proofObligations = ImmutableList.from(iterable);
-    }
-
     public void setProofObligations(Iterable<DafnyTree> expressions, DafnyTree referTo, AssertionType type) {
         this.proofObligations = ImmutableList.nil();
         for (DafnyTree dafnyTree : expressions) {
@@ -273,6 +267,17 @@ public class SymbexPath {
      */
     public ImmutableList<AssertionElement> getProofObligations() {
         return proofObligations;
+    }
+
+    /**
+     * Sets the set proof obligations for this state. the argument is iterated
+     * into a new data structure and may be modified afterwards.
+     *
+     * @param iterable the set of obligations
+     * @param type     the common type of the obligations, not <code>null</code>.
+     */
+    public void setProofObligations(Iterable<AssertionElement> iterable) {
+        this.proofObligations = ImmutableList.from(iterable);
     }
 
     /**

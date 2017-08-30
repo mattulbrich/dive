@@ -5,7 +5,9 @@
  */
 package edu.kit.iti.algover.util;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Function;
@@ -75,7 +77,7 @@ public class TestUtil {
         ReferenceResolutionVisitor refResolver = new ReferenceResolutionVisitor(p, exceptions);
         refResolver.visitProject();
 
-        if(!exceptions.isEmpty()) {
+        if (!exceptions.isEmpty()) {
             for (DafnyException dafnyException : exceptions) {
                 dafnyException.printStackTrace();
             }
@@ -94,6 +96,10 @@ public class TestUtil {
         }
 
         return p;
+    }
+
+    public static InputStream toStream(String string) {
+        return new ByteArrayInputStream(string.getBytes());
     }
 
 }

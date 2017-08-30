@@ -1,0 +1,5 @@
+# List here the available Java coded proof rules
+# Rule formulated as lemmas in Dafny are created separately.
+
+edu.kit.iti.algover.rules.FakeSMTSolverRule
+edu.kit.iti.algover.rules.TrivialAndRight

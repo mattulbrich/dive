@@ -5,18 +5,18 @@
  */
 package edu.kit.iti.algover.term.prettyprint;
 
+
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlElements;
+import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.JAXBContext;
+import javax.xml.bind.Unmarshaller;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.Unmarshaller;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlElements;
-import javax.xml.bind.annotation.XmlRootElement;
 
 import edu.kit.iti.algover.term.ApplTerm;
 import edu.kit.iti.algover.term.FunctionSymbol;
@@ -26,13 +26,6 @@ import edu.kit.iti.algover.term.Term;
 import edu.kit.iti.algover.term.prettyprint.FixOperatorCollection.FixOperatorInfo;
 
 public class FixOperatorPrinterExtension implements PrettyPrintExtension {
-
-    /**
-     * Checks if a character is an operator char.
-     */
-    private boolean isOperatorChar(char c) {
-        return "+-<>&|=*/!^@.:".indexOf(c) != -1;
-    }
 
     @Override
     public boolean canPrint(FunctionSymbol fs) {
@@ -55,7 +48,7 @@ public class FixOperatorPrinterExtension implements PrettyPrintExtension {
     public void print(ApplTerm application, PrettyPrintVisitor visitor) {
         FunctionSymbol f = application.getFunctionSymbol();
         FixOperatorInfo info = FixOperatorCollection.get(f);
-        if(f.getArity() == 1) {
+        if (f.getArity() == 1) {
             printPrefix(application, info, visitor);
         } else {
             assert f.getArity() == 2;
@@ -108,7 +101,7 @@ public class FixOperatorPrinterExtension implements PrettyPrintExtension {
         String op = fixOperator.getOp();
 
         printer.beginBlock(0);
-        printer.indentBlock(0, op.length()+1);
+        printer.indentBlock(0, op.length() + 1);
         printer.beginTerm(0);
         visitor.setLeftPrecedence(fixOperator.getPrecedence());
         application.getTerm(0).accept(visitor, null);
@@ -118,10 +111,17 @@ public class FixOperatorPrinterExtension implements PrettyPrintExtension {
 
         printer.beginTerm(1);
         visitor.setLeftPrecedence(fixOperator.getPrecedence() +
-                (fixOperator.isLeftAssociative() ? 1:0));
+                (fixOperator.isLeftAssociative() ? 1 : 0));
         application.getTerm(1).accept(visitor, null);
         printer.endTerm();
         printer.endBlock();
+    }
+
+    /**
+     * Checks if a character is an operator char.
+     */
+    private boolean isOperatorChar(char c) {
+        return "+-<>&|=*/!^@.:".indexOf(c) != -1;
     }
 }
 
@@ -130,8 +130,48 @@ class FixOperatorCollection {
 
     private static Map<String, FixOperatorInfo> MAP;
 
-    @XmlElements(@XmlElement(name="operator"))
+    @XmlElements(@XmlElement(name = "operator"))
     List<FixOperatorInfo> operators;
+
+    public static FixOperatorInfo get(FunctionSymbol fs) {
+        if (fs instanceof InstantiatedFunctionSymbol) {
+            FunctionSymbolFamily family = ((InstantiatedFunctionSymbol) fs).getFamily();
+            return get(family.getBaseName());
+        } else {
+            return get(fs.getName());
+        }
+    }
+
+    public static FixOperatorInfo get(String fctname) {
+        ensureMapExists();
+        return MAP.get(fctname);
+    }
+
+    private static void ensureMapExists() {
+        if (MAP == null) {
+            try (InputStream is = FixOperatorCollection.class.getResourceAsStream("operators.xml")) {
+                if (is == null) {
+                    throw new IOException("unknown resource");
+                }
+
+                JAXBContext jaxbContext = JAXBContext.newInstance(FixOperatorCollection.class);
+
+                Unmarshaller jaxbUnmarshaller = jaxbContext.createUnmarshaller();
+                FixOperatorCollection coll = (FixOperatorCollection) jaxbUnmarshaller.unmarshal(is);
+
+                Map<String, FixOperatorInfo> map = new HashMap<>();
+                for (FixOperatorInfo info : coll.operators) {
+                    map.put(info.name, info);
+                }
+
+                MAP = map;
+            } catch (Exception e) {
+                e.printStackTrace();
+                MAP = Collections.emptyMap();
+            }
+
+        }
+    }
 
     static class FixOperatorInfo {
 
@@ -168,46 +208,6 @@ class FixOperatorCollection {
             return "FixOperatorInfo [name=" + name + ", op=" + op + ", precedence=" + precedence + "]";
         }
 
-    }
-
-    public static FixOperatorInfo get(FunctionSymbol fs) {
-        if(fs instanceof InstantiatedFunctionSymbol) {
-            FunctionSymbolFamily family = ((InstantiatedFunctionSymbol)fs).getFamily();
-            return get(family.getBaseName());
-        } else {
-            return get(fs.getName());
-        }
-    }
-
-    public static FixOperatorInfo get(String fctname) {
-        ensureMapExists();
-        return MAP.get(fctname);
-    }
-
-    private static void ensureMapExists() {
-        if(MAP == null) {
-            try(InputStream is = FixOperatorCollection.class.getResourceAsStream("operators.xml")) {
-                if (is == null) {
-                    throw new IOException("unknown resource");
-                }
-
-                JAXBContext jaxbContext = JAXBContext.newInstance(FixOperatorCollection.class);
-
-                Unmarshaller jaxbUnmarshaller = jaxbContext.createUnmarshaller();
-                FixOperatorCollection coll = (FixOperatorCollection) jaxbUnmarshaller.unmarshal(is);
-
-                Map<String, FixOperatorInfo> map = new HashMap<>();
-                for (FixOperatorInfo info : coll.operators) {
-                    map.put(info.name, info);
-                }
-
-                MAP = map;
-            } catch (Exception e) {
-                e.printStackTrace();
-                MAP = Collections.emptyMap();
-            }
-
-        }
     }
 }
 

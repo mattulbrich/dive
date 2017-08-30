@@ -6,18 +6,14 @@
 
 package edu.kit.iti.algover.parser;
 
-import java.util.HashMap;
-import java.util.List;
-
-import edu.kit.iti.algover.dafnystructures.DafnyClass;
-import edu.kit.iti.algover.dafnystructures.DafnyDecl;
-import edu.kit.iti.algover.dafnystructures.DafnyField;
-import edu.kit.iti.algover.dafnystructures.DafnyFunction;
-import edu.kit.iti.algover.dafnystructures.DafnyMethod;
+import edu.kit.iti.algover.dafnystructures.*;
 import edu.kit.iti.algover.project.Project;
 import edu.kit.iti.algover.util.HistoryMap;
 import edu.kit.iti.algover.util.TreeUtil;
 import nonnull.NonNull;
+
+import java.util.HashMap;
+import java.util.List;
 
 /**
  * This visitor class can be used to resolve identifiers in the AST.
@@ -30,48 +26,29 @@ import nonnull.NonNull;
  * @author Mattias Ulbrich
  */
 public class ReferenceResolutionVisitor
-     extends DafnyTreeDefaultVisitor<Void, ReferenceResolutionVisitor.Mode> {
+        extends DafnyTreeDefaultVisitor<Void, ReferenceResolutionVisitor.Mode> {
 
     /**
      * The project whose references are to be resolved.
      */
     private final Project project;
-
-    /**
-     * The two modes of this visitor.
-     */
-    public static enum Mode {
-        /**
-         * Used when expressions are being visited. All identifiers refer to
-         * variables/fields.
-         */
-        EXPR,
-        /**
-         * Used when types are being visited. All identifiers refer to class
-         * names.
-         */
-        TYPE
-    };
-
     /**
      * The map for identifier names to declaration trees.
      *
      * Variables, fields, parameters, local variables are referenced here.
      */
     private final HistoryMap<String, DafnyTree> identifierMap = new HistoryMap<>(new HashMap<>());
-
+    ;
     /**
      * The map for identifiers to declaration trees for callable names.
      *
      * Functions and Methods are referenced here
      */
     private final HistoryMap<String, DafnyTree> callableMap = new HistoryMap<>(new HashMap<>());
-
     /**
      * The exceptions collected during visitation, may be <code>null</code>.
      */
     private final List<DafnyException> exceptions;
-
     /**
      * The type resolution is needed for resolving fields.
      */
@@ -114,13 +91,11 @@ public class ReferenceResolutionVisitor
 
     /**
      * Visit the expression given expression in the context of the given class.
-     *
+     * <p>
      * This means that all fields of the class can be accessed without receiver.
      *
-     * @param expression
-     *            the expression to resolve
-     * @param classCtx
-     *            the name of the class to use as context
+     * @param expression the expression to resolve
+     * @param classCtx   the name of the class to use as context
      */
     public void visitExpression(@NonNull DafnyTree expression, @NonNull String classCtx) {
         DafnyClass clazz = project.getClass(classCtx);
@@ -152,7 +127,7 @@ public class ReferenceResolutionVisitor
         if (callableMap.containsKey(declName)) {
             addException(
                     new DafnyException("Name clash: Callable entity named "
-                                + declName + " has already been defined.",
+                            + declName + " has already been defined.",
                             decl.getRepresentation()));
             return;
         }
@@ -200,8 +175,6 @@ public class ReferenceResolutionVisitor
         return null;
     }
 
-    // ==================================== Looking up
-
     /*
      * Look up an ID or raise an exception.
      */
@@ -230,6 +203,8 @@ public class ReferenceResolutionVisitor
         }
         return null;
     }
+
+    // ==================================== Looking up
 
     /*
      * Look up the field name of the receiver in the corresponding class ...
@@ -304,8 +279,6 @@ public class ReferenceResolutionVisitor
         return null;
     }
 
-    // ==================================== Visiting
-
     /*
      * Temporarily add quantified variable, visit matrix and remove variable.
      */
@@ -321,6 +294,8 @@ public class ReferenceResolutionVisitor
         identifierMap.rewindHistory(rewindTo);
         return null;
     }
+
+    // ==================================== Visiting
 
     /*
      * Temporarily add quantified variable, visit matrix and remove variable.
@@ -439,6 +414,22 @@ public class ReferenceResolutionVisitor
         assert mode == Mode.TYPE;
         t.getChild(0).accept(this, mode);
         return null;
+    }
+
+    /**
+     * The two modes of this visitor.
+     */
+    public static enum Mode {
+        /**
+         * Used when expressions are being visited. All identifiers refer to
+         * variables/fields.
+         */
+        EXPR,
+        /**
+         * Used when types are being visited. All identifiers refer to class
+         * names.
+         */
+        TYPE
     }
 
 }

@@ -5,6 +5,13 @@
  */
 package edu.kit.iti.algover.parser;
 
+import edu.kit.iti.algover.util.TestUtil;
+import edu.kit.iti.algover.util.Util;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
+import org.junit.runners.Parameterized.Parameters;
+
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -12,21 +19,18 @@ import java.io.InputStream;
 import java.net.URL;
 import java.util.Arrays;
 
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
-import org.junit.runners.Parameterized.Parameters;
-
-import edu.kit.iti.algover.util.TestUtil;
-import edu.kit.iti.algover.util.Util;
-
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
 @RunWith(Parameterized.class)
 public class ParserTest {
 
     private static final boolean VERBOSE =
             Boolean.getBoolean("algover.test.verbose");
+    private final String filename;
+
+    public ParserTest(String filename) {
+        this.filename = filename;
+    }
 
     @Parameters(name= "{0}")
     public static Iterable<Object[]> data() {
@@ -58,14 +62,40 @@ public class ParserTest {
                 { "typeParameters.dfy" },
                 { "saddleback.dfy" },
                 { "../term/builder/sequenterTest.dfy" },
-                { "../symbex/noetherTest.dfy" },
+                {"../symbex/noetherTest.dfy"},
                 });
     }
 
-    private final String filename;
+    private static String formatTree(DafnyTree tree) {
+        return tree.getText() +
+                String.format("[%s-%s]",
+                        tree.getStartToken().getText(), tree.getStopToken().getText());
+    }
 
-    public ParserTest(String filename) {
-        this.filename = filename;
+    public static DafnyTree parseFile(InputStream stream) throws DafnyParserException, IOException {
+        return parseFile(stream, null);
+    }
+
+    public static DafnyTree parseFile(InputStream stream, String filename) throws DafnyParserException, IOException {
+
+        if (stream == null) {
+            throw new NullPointerException();
+        }
+
+        DafnyTree result = DafnyFileParser.parse(stream, true);
+        DafnyFileParser.setFilename(result, filename);
+
+        return result;
+    }
+
+    public static void main(String[] args) throws Exception {
+        DafnyTree t;
+        if (args.length > 0) {
+            t = parseFile(new FileInputStream(args[0]));
+        } else {
+            t = parseFile(System.in);
+        }
+        System.out.println(TestUtil.beautify(t, ParserTest::formatTree));
     }
 
     @Test
@@ -99,38 +129,6 @@ public class ParserTest {
             // assertEquals("For inspection", Util.streamToString(expected.openStream()), TestUtil.beautify(t));
             assertEquals("Parsing result", expect, actual);
         }
-    }
-
-    private static String formatTree(DafnyTree tree) {
-        return tree.getText() +
-                String.format("[%s-%s]",
-                tree.getStartToken().getText(), tree.getStopToken().getText());
-    }
-
-    public static DafnyTree parseFile(InputStream stream) throws DafnyParserException, IOException {
-        return parseFile(stream, null);
-    }
-
-    public static DafnyTree parseFile(InputStream stream, String filename) throws DafnyParserException, IOException  {
-
-        if(stream == null) {
-            throw new NullPointerException();
-        }
-
-        DafnyTree result = DafnyFileParser.parse(stream, true);
-        DafnyFileParser.setFilename(result, filename);
-
-        return result;
-    }
-
-    public static void main(String[] args) throws Exception {
-        DafnyTree t;
-        if(args.length > 0) {
-            t = parseFile(new FileInputStream(args[0]));
-        } else {
-            t = parseFile(System.in);
-        }
-        System.out.println(TestUtil.beautify(t, ParserTest::formatTree));
     }
 
 }

@@ -15,7 +15,7 @@ $le = <\=
 $lt = <
 $ge = >\=
 $gt = >
-$eq_int = \=
+$eq = \=
 
 $select1 = select
 
