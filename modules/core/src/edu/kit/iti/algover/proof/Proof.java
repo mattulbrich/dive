@@ -60,6 +60,27 @@ public class Proof {
 
     }
 
+    /**
+     * Parse a string representing a script and set the script to the newly parsed script AST
+     *
+     * @param script
+     */
+    public void parseAndSetScript(String script) {
+        if (this.getScript() != null) {
+            saveOldDataStructures();
+        }
+        ProofScript scriptAST = Facade.getAST(script);
+        this.setScript(scriptAST.getBody());
+
+    }
+
+    /**
+     * Save the old script and the old proof for comparison when reloading
+     */
+    private void saveOldDataStructures() {
+    }
+
+
     public ProofNode getProofRoot() {
         return proofRoot;
     }
@@ -96,6 +117,9 @@ public class Proof {
      * @return
      */
     public Proof replay() {
+        if (getProofRoot() != null | getScript() != null) {
+            saveOldDataStructures();
+        }
         if (getProofStatus().equals(ProofStatus.DIRTY)) {
             //reload
             //
