@@ -8,7 +8,9 @@ import java.util.Set;
 import java.util.function.Function;
 
 /**
- * A Reference-graph. Its nodes are References.
+ * A Reference-graph. Its nodes are References, it is unidirectional and loopless.
+ * (adding loops via {@link #addReference(Reference, Reference)} will throw an
+ * {@link UnsupportedOperationException}.)
  * <p>
  * Created by Philipp on 27.08.2017.
  */
