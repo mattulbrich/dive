@@ -17,45 +17,13 @@ public class PropositionalExpander {
 
     private List<Sequent> sequents;
 
-    /* package visible for testing */
-    static class WorkSequent {
-        private ImmutableList<Term> succedent;
-        private ImmutableList<Term> antecedent;
-
-        public WorkSequent(WorkSequent s1, WorkSequent s2) {
-            this.antecedent = s1.antecedent.appendAll(s2.antecedent);
-            this.succedent = s1.succedent.appendAll(s2.succedent);
-        }
-
-        public WorkSequent() {
-            antecedent = ImmutableList.nil();
-            succedent = ImmutableList.nil();
-        }
-
-        public WorkSequent addAntecedent(Term term) {
-            antecedent = antecedent.append(term);
-            return this;
-        }
-
-        public WorkSequent addSuccedent(Term term) {
-            antecedent = antecedent.append(term);
-            return this;
-        }
-
-        @Override
-        public String toString() {
-            return antecedent + " ==> " + succedent;
-        }
-
-    }
-
     public boolean expand(ProofFormula formula, SequentPolarity polarity, boolean allowSplit) {
         ImmutableList<WorkSequent> expansion = expand(formula.getTerm(), polarity, allowSplit);
 
         List<Sequent> newSequents = new ArrayList<Sequent>();
-        if(expansion.size() == 1) {
+        if (expansion.size() == 1) {
             WorkSequent elem = expansion.getHead();
-            if(elem.antecedent.size() + elem.succedent.size() == 1) {
+            if (elem.antecedent.size() + elem.succedent.size() == 1) {
                 return false;
             }
         }
@@ -76,7 +44,7 @@ public class PropositionalExpander {
     }
 
     private Sequent singelSeq(ProofFormula formula, SequentPolarity polarity) {
-        if(polarity == SequentPolarity.ANTECEDENT) {
+        if (polarity == SequentPolarity.ANTECEDENT) {
             return Sequent.singleAntecedent(formula);
         } else {
             return Sequent.singleSuccedent(formula);
@@ -84,31 +52,31 @@ public class PropositionalExpander {
     }
 
     /* package visible for testing */
-    ImmutableList<WorkSequent> expand(Term formula, SequentPolarity polarity ,boolean allowSplit) {
+    ImmutableList<WorkSequent> expand(Term formula, SequentPolarity polarity, boolean allowSplit) {
 
-        if(   is(formula, BuiltinSymbols.AND) && polarity == SequentPolarity.ANTECEDENT
-           || is(formula, BuiltinSymbols.OR) && polarity == SequentPolarity.SUCCEDENT) {
+        if (is(formula, BuiltinSymbols.AND) && polarity == SequentPolarity.ANTECEDENT
+                || is(formula, BuiltinSymbols.OR) && polarity == SequentPolarity.SUCCEDENT) {
             Term a1 = formula.getSubterms().get(0);
             Term a2 = formula.getSubterms().get(1);
             return union(expand(a1, polarity, allowSplit), expand(a2, polarity, allowSplit));
         }
 
-        if(is(formula, BuiltinSymbols.IMP) && polarity == SequentPolarity.SUCCEDENT) {
+        if (is(formula, BuiltinSymbols.IMP) && polarity == SequentPolarity.SUCCEDENT) {
             Term a1 = formula.getSubterms().get(0);
             Term a2 = formula.getSubterms().get(1);
             return union(expand(a1, polarity.getOpposite(), allowSplit),
-                         expand(a2, polarity, allowSplit));
+                    expand(a2, polarity, allowSplit));
         }
 
-        if(allowSplit) {
-            if(   is(formula, BuiltinSymbols.AND) && polarity == SequentPolarity.SUCCEDENT
-               || is(formula, BuiltinSymbols.OR) && polarity == SequentPolarity.ANTECEDENT) {
-                     Term a1 = formula.getSubterms().get(0);
-                     Term a2 = formula.getSubterms().get(1);
-                     return split(expand(a1, polarity, allowSplit), expand(a2, polarity, allowSplit));
+        if (allowSplit) {
+            if (is(formula, BuiltinSymbols.AND) && polarity == SequentPolarity.SUCCEDENT
+                    || is(formula, BuiltinSymbols.OR) && polarity == SequentPolarity.ANTECEDENT) {
+                Term a1 = formula.getSubterms().get(0);
+                Term a2 = formula.getSubterms().get(1);
+                return split(expand(a1, polarity, allowSplit), expand(a2, polarity, allowSplit));
             }
 
-            if(is(formula, BuiltinSymbols.IMP) && polarity == SequentPolarity.ANTECEDENT) {
+            if (is(formula, BuiltinSymbols.IMP) && polarity == SequentPolarity.ANTECEDENT) {
                 Term a1 = formula.getSubterms().get(0);
                 Term a2 = formula.getSubterms().get(1);
                 return split(expand(a1, polarity.getOpposite(), allowSplit),
@@ -117,7 +85,7 @@ public class PropositionalExpander {
         }
 
         WorkSequent s = new WorkSequent();
-        if(polarity == SequentPolarity.ANTECEDENT) {
+        if (polarity == SequentPolarity.ANTECEDENT) {
             s.antecedent = ImmutableList.single(formula);
         } else {
             s.succedent = ImmutableList.single(formula);
@@ -160,6 +128,38 @@ public class PropositionalExpander {
 
     public List<Sequent> getSequents() {
         return sequents;
+    }
+
+    /* package visible for testing */
+    static class WorkSequent {
+        private ImmutableList<Term> succedent;
+        private ImmutableList<Term> antecedent;
+
+        public WorkSequent(WorkSequent s1, WorkSequent s2) {
+            this.antecedent = s1.antecedent.appendAll(s2.antecedent);
+            this.succedent = s1.succedent.appendAll(s2.succedent);
+        }
+
+        public WorkSequent() {
+            antecedent = ImmutableList.nil();
+            succedent = ImmutableList.nil();
+        }
+
+        public WorkSequent addAntecedent(Term term) {
+            antecedent = antecedent.append(term);
+            return this;
+        }
+
+        public WorkSequent addSuccedent(Term term) {
+            antecedent = antecedent.append(term);
+            return this;
+        }
+
+        @Override
+        public String toString() {
+            return antecedent + " ==> " + succedent;
+        }
+
     }
 
 

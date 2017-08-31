@@ -7,16 +7,16 @@
     <precedence>30</precedence>
   </operator>
   <operator>
-    <name>$minus</name>
-    <op>-</op>
-    <precedence>30</precedence>
+      <name>$minus</name>
+      <op>-</op>
+      <precedence>30</precedence>
   </operator>
-  <operator>
-    <name>$neg</name>
-    <op>-</op>
-    <precedence>80</precedence>
-  </operator>
-  <operator>
+    <operator>
+        <name>$neg</name>
+        <op>-</op>
+        <precedence>80</precedence>
+    </operator>
+    <operator>
     <name>$times</name>
     <op>*</op>
     <precedence>50</precedence>
@@ -59,7 +59,7 @@
     <name>$imp</name>
     <op>==></op>
     <precedence>5</precedence>
-    <leftAssociative>false</leftAssociative>
+      <leftAssociative>false</leftAssociative>
   </operator>
   <operator>
     <name>$not</name>
@@ -67,15 +67,15 @@
     <precedence>60</precedence>
   </operator>
 
-  <!-- other infix operators -->
-  <operator>
-    <name>$eq</name>
-    <op>==</op>
-    <precedence>52</precedence>
-  </operator>
-  <operator>
-    <name>$neq</name>
-    <op>!=</op>
-    <precedence>52</precedence>
+    <!-- other infix operators -->
+    <operator>
+        <name>$eq</name>
+        <op>==</op>
+        <precedence>52</precedence>
+    </operator>
+    <operator>
+        <name>$neq</name>
+        <op>!=</op>
+        <precedence>52</precedence>
   </operator>
 </operators>

@@ -32,12 +32,17 @@ public abstract class PVCCollection {
     public abstract DafnyDecl getDafnyDecl();
 
     /**
+     * Return the root, inorder to traverse children
+     * @return
+     */
+    //public abstract PVCCollection getRoot();
+
+    /**
      * If this PVCCollection is a SinglePVC it is a leaf.
      * @return
      */
     public abstract boolean isPVCLeaf();
 
-    public abstract PVC getPVC();
 
     public abstract List<PVCCollection> getChildren();
 
@@ -62,5 +67,14 @@ public abstract class PVCCollection {
     protected void setParent(PVCCollection parent) {
         this.parent = parent;
     }
+
+    //public abstract PVCCollection getChild(int i);
+
+    /**
+     * Returns the PVC iff the object itself is a SinglePVC else null
+     *
+     * @return
+     */
+    public abstract PVC getPVC();
 
 }

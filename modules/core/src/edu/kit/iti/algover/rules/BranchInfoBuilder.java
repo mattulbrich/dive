@@ -18,10 +18,10 @@ import edu.kit.iti.algover.util.Pair;
 
 /**
  * This is a builder (as in the builder pattern) for {@link BranchInfo}s.
- *
+ * <p>
  * All fields of the the rule application can be set using the according
  * methods.
- *
+ * <p>
  * {@link BranchInfoBuilder}s are usually constructed via the method
  * {@link ProofRuleApplicationBuilder#newBranch()} which connects this builder
  * automatically to the rule application builder

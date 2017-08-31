@@ -86,7 +86,7 @@ public class DafnyZ3 {
     }
 
     private static void collectTo(PVCCollection coll, List<PVC> allPVCs) {
-        if(coll.isPVCLeaf()) {
+        if (coll.isPVCLeaf()) {
             allPVCs.add(coll.getPVC());
         } else {
             for (PVCCollection child : coll.getChildren()) {

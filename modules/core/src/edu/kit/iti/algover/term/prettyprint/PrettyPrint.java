@@ -17,21 +17,16 @@
 
 package edu.kit.iti.algover.term.prettyprint;
 
-import java.beans.PropertyChangeListener;
-import java.beans.PropertyChangeSupport;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.ServiceLoader;
-
 import edu.kit.iti.algover.term.FunctionSymbol;
 import edu.kit.iti.algover.term.Term;
 import edu.kit.iti.algover.term.prettyprint.AnnotatedString.Style;
 import edu.kit.iti.algover.util.Util;
 import nonnull.NonNull;
 import nonnull.Nullable;
+
+import java.beans.PropertyChangeListener;
+import java.beans.PropertyChangeSupport;
+import java.util.*;
 
 /**
  * This class is the entry point to the pretty priting system. There are
@@ -73,7 +68,9 @@ public class PrettyPrint {
      * function symbols. With this mapping, it need not be checked which function
      * symbol is to be used for a function symbol.
      */
-    private final @NonNull Map<FunctionSymbol, PrettyPrintExtension> responsibleExtensions =
+    private final
+    @NonNull
+    Map<FunctionSymbol, PrettyPrintExtension> responsibleExtensions =
             new HashMap<>();
 
     /**
@@ -86,6 +83,10 @@ public class PrettyPrint {
      * may be null if no special attributes are to be set.
      */
     private Style initialStyle;
+    /**
+     * The system to manage properties
+     */
+    private PropertyChangeSupport propertiesSupport;
 
     /**
      * create a new pretty printer with the default properties preset.
@@ -180,11 +181,6 @@ public class PrettyPrint {
     }
 
     /**
-     * The system to manage properties
-     */
-    private PropertyChangeSupport propertiesSupport;
-
-    /**
      * get the style (attribute string) that is to be set in the beginning
      *
      * @return a string or possibly null
@@ -268,17 +264,18 @@ public class PrettyPrint {
      * Find the {@link PrettyPrintExtension} responsible for printing a function
      * symbol.
      *
-     * @param f
-     *            the function symbol to prettyprint.
+     * @param f the function symbol to prettyprint.
      * @return the extension that knows printing <code>f</code>, or
-     *         <code>null</code>
+     * <code>null</code>
      */
-    public @Nullable PrettyPrintExtension getExtensionFor(@NonNull FunctionSymbol f) {
-        if(responsibleExtensions.containsKey(f)) {
+    public
+    @Nullable
+    PrettyPrintExtension getExtensionFor(@NonNull FunctionSymbol f) {
+        if (responsibleExtensions.containsKey(f)) {
             return responsibleExtensions.get(f);
         } else {
             for (PrettyPrintExtension ppe : EXTENSIONS) {
-                if(ppe.canPrint(f)) {
+                if (ppe.canPrint(f)) {
                     responsibleExtensions.put(f, ppe);
                     return ppe;
                 }

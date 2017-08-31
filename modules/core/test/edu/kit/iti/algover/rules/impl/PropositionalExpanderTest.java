@@ -24,36 +24,36 @@ import edu.kit.iti.algover.util.ImmutableList;
 @RunWith(JUnitParamsRunner.class)
 public class PropositionalExpanderTest {
 
+    private MapSymbolTable symbTable;
+
     public Object[][] parametersForTestExpansion() {
-        return new Object[][] {
-                { "(a && b)", SequentPolarity.ANTECEDENT, false, "[[a, b] ==> []]" },
-                { "(a && b)", SequentPolarity.ANTECEDENT, true, "[[a, b] ==> []]" },
-                { "(a && b)", SequentPolarity.SUCCEDENT, false, "[[] ==> [$and(a, b)]]" },
-                { "(a && b)", SequentPolarity.SUCCEDENT, true, "[[] ==> [a], [] ==> [b]]" },
+        return new Object[][]{
+                {"(a && b)", SequentPolarity.ANTECEDENT, false, "[[a, b] ==> []]"},
+                {"(a && b)", SequentPolarity.ANTECEDENT, true, "[[a, b] ==> []]"},
+                {"(a && b)", SequentPolarity.SUCCEDENT, false, "[[] ==> [$and(a, b)]]"},
+                {"(a && b)", SequentPolarity.SUCCEDENT, true, "[[] ==> [a], [] ==> [b]]"},
 
-                { "(a || b)", SequentPolarity.ANTECEDENT, false, "[[$or(a, b)] ==> []]" },
-                { "(a || b)", SequentPolarity.ANTECEDENT, true, "[[a] ==> [], [b] ==> []]" },
-                { "(a || b)", SequentPolarity.SUCCEDENT, false, "[[] ==> [a, b]]" },
-                { "(a || b)", SequentPolarity.SUCCEDENT, true, "[[] ==> [a, b]]" },
+                {"(a || b)", SequentPolarity.ANTECEDENT, false, "[[$or(a, b)] ==> []]"},
+                {"(a || b)", SequentPolarity.ANTECEDENT, true, "[[a] ==> [], [b] ==> []]"},
+                {"(a || b)", SequentPolarity.SUCCEDENT, false, "[[] ==> [a, b]]"},
+                {"(a || b)", SequentPolarity.SUCCEDENT, true, "[[] ==> [a, b]]"},
 
-                { "(a ==> b)", SequentPolarity.ANTECEDENT, false, "[[$imp(a, b)] ==> []]" },
-                { "(a ==> b)", SequentPolarity.ANTECEDENT, true, "[[] ==> [a], [b] ==> []]" },
-                { "(a ==> b)", SequentPolarity.SUCCEDENT, false, "[[a] ==> [b]]" },
-                { "(a ==> b)", SequentPolarity.SUCCEDENT, true, "[[a] ==> [b]]" },
+                {"(a ==> b)", SequentPolarity.ANTECEDENT, false, "[[$imp(a, b)] ==> []]"},
+                {"(a ==> b)", SequentPolarity.ANTECEDENT, true, "[[] ==> [a], [b] ==> []]"},
+                {"(a ==> b)", SequentPolarity.SUCCEDENT, false, "[[a] ==> [b]]"},
+                {"(a ==> b)", SequentPolarity.SUCCEDENT, true, "[[a] ==> [b]]"},
 
-                { "(a ==> b) ==> (c ==> d)", SequentPolarity.SUCCEDENT, true,
-                "[[c] ==> [a, d], [b, c] ==> [d]]" },
+                {"(a ==> b) ==> (c ==> d)", SequentPolarity.SUCCEDENT, true,
+                        "[[c] ==> [a, d], [b, c] ==> [d]]"},
 
-                { "(a ==> b) ==> (c ==> d)", SequentPolarity.SUCCEDENT, false,
-                "[[$imp(a, b), c] ==> [d]]" },
+                {"(a ==> b) ==> (c ==> d)", SequentPolarity.SUCCEDENT, false,
+                        "[[$imp(a, b), c] ==> [d]]"},
 
-                { "a && b && c && d", SequentPolarity.SUCCEDENT, true,
-                "[[] ==> [a], [] ==> [b], [] ==> [c], [] ==> [d]]"
+                {"a && b && c && d", SequentPolarity.SUCCEDENT, true,
+                        "[[] ==> [a], [] ==> [b], [] ==> [c], [] ==> [d]]"
                 }
         };
     }
-
-    private MapSymbolTable symbTable;
 
     @Before
     public void setupTable() {
@@ -66,10 +66,11 @@ public class PropositionalExpanderTest {
     }
 
 
-    @Test @Parameters
+    @Test
+    @Parameters
     public void testExpansion(String formulaString,
-            SequentPolarity polarity, Boolean allowSplit,
-            String expected) throws Exception {
+                              SequentPolarity polarity, Boolean allowSplit,
+                              String expected) throws Exception {
 
         Term formula = TermParser.parse(symbTable, formulaString);
         PropositionalExpander pex = new PropositionalExpander();

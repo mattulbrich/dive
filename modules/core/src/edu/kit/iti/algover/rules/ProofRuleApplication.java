@@ -29,65 +29,40 @@ import nonnull.Nullable;
  */
 public final class ProofRuleApplication {
 
-    /**
-     * Applicability of a rule
-     */
-    public enum Applicability {
-
         /**
-         * This rule application can be used directly.
-         */
-        APPLICABLE,
-
-        /**
-         * It has not been decided yet whether this rule application can
-         * actually be used or not.
-         */
-        MAYBE_APPLICABLE,
-
-        /**
-         * The rule application can definitely not be applied. It does not
-         * match, does not advance the state, etc.
-         */
-        NOT_APPLICABLE,
-
-        /**
-         * The rule cannot yet be applied. Some schema variables need
-         * instantiation.
-         */
-        INSTANTIATION_REQUIRED,
-    };
-
-    /**
      * The rule to which this application belongs.
      */
-    private final @NonNull ProofRule rule;
-
+        private final
+        @NonNull
+        ProofRule rule;
+    ;
     /**
      * The information about the branches into which this rule application
      * splits. Emtpy if closing rule app. Singleton list if the rule app does not
      * split etc.
      */
-    private final @Nullable ImmutableList<BranchInfo> branchInfo;
-
+    private final
+    @Nullable
+    ImmutableList<BranchInfo> branchInfo;
     /**
      * The applicability of this rule application.
      */
     private final @NonNull Applicability applicability;
-
     /**
      * Missing parameters. All parameters contained in this object require
      * instantiation for the application of the rule to be possible. The
      * parameters here are set immutable.
      */
-    private final @NonNull Parameters openParameters;
-
+    private final
+    @NonNull
+    Parameters openParameters;
     /**
      * The code which can be used to refine this proof application. Can be
      * <code>null</code> if no refining routine is known for this application.
      */
-    private final @Nullable Refiner refiner;
-
+    private final
+    @Nullable
+    Refiner refiner;
     /**
      * When a proof rule application is applied, the proof script needs to be
      * augmented. This is the proof script transcript which describes this
@@ -163,23 +138,20 @@ public final class ProofRuleApplication {
     /**
      * Refine this {@link ProofRuleApplication} by returning a new element of
      * the same class.
-     *
+     * <p>
      * This method may return the very same object.
-     *
+     * <p>
      * <p>
      * This version of the refinement method takes {@link Parameters} as
      * argument. This is in particular needed if a rule application is marked
      * {@link Applicability#INSTANTIATION_REQUIRED}. The instantiation is the
      * to be provided using the parameters. Other use cases are possible.
-     *
+     * <p>
      * <p>
      * Precondition: {@link #isRefinable()}
      *
      * @return the proof rule application after refinement.
-     *
-     * @throws RuleException
-     *             if the the refinement process fails
-     *
+     * @throws RuleException if the the refinement process fails
      * @see #refine()
      */
     private ProofRuleApplication refine(@NonNull Parameters parameters) throws RuleException {
@@ -189,7 +161,7 @@ public final class ProofRuleApplication {
 
         ProofRuleApplication result = refiner.refine(this, parameters);
 
-        if(result == null) {
+        if (result == null) {
             return thisWithoutRefiner();
         }
 
@@ -250,7 +222,9 @@ public final class ProofRuleApplication {
      *
      * @return the string for the script transcript
      */
-    public @NonNull String getScriptTranscript() {
+    public
+    @NonNull
+    String getScriptTranscript() {
         return scriptTranscript;
     }
 
@@ -259,7 +233,9 @@ public final class ProofRuleApplication {
      *
      * @return the open parameters
      */
-    public @NonNull Parameters getOpenParameters() {
+    public
+    @NonNull
+    Parameters getOpenParameters() {
         return openParameters;
     }
 
@@ -269,7 +245,37 @@ public final class ProofRuleApplication {
      *
      * @return the refiner, <code>null</code> if none set!
      */
-    public @Nullable Refiner getRefiner() {
+    public @Nullable
+    Refiner getRefiner() {
         return refiner;
+    }
+
+    /**
+     * Applicability of a rule
+     */
+    public enum Applicability {
+
+        /**
+         * This rule application can be used directly.
+         */
+        APPLICABLE,
+
+        /**
+         * It has not been decided yet whether this rule application can
+         * actually be used or not.
+         */
+        MAYBE_APPLICABLE,
+
+        /**
+         * The rule application can definitely not be applied. It does not
+         * match, does not advance the state, etc.
+         */
+        NOT_APPLICABLE,
+
+        /**
+         * The rule cannot yet be applied. Some schema variables need
+         * instantiation.
+         */
+        INSTANTIATION_REQUIRED,
     }
 }

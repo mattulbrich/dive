@@ -5,8 +5,6 @@
  */
 package edu.kit.iti.algover.rules.impl;
 
-import java.util.Collections;
-
 import edu.kit.iti.algover.proof.ProofNode;
 import edu.kit.iti.algover.rules.AbstractProofRule;
 import edu.kit.iti.algover.rules.Parameters;
@@ -16,6 +14,8 @@ import edu.kit.iti.algover.rules.RuleException;
 import edu.kit.iti.algover.rules.TermSelector;
 import edu.kit.iti.algover.rules.ProofRuleApplication.Applicability;
 import edu.kit.iti.algover.term.Sequent;
+
+import java.util.Collections;
 
 public class FakeSMTSolverRule extends AbstractProofRule {
 
@@ -42,15 +42,18 @@ public class FakeSMTSolverRule extends AbstractProofRule {
     private ProofRuleApplication refine(ProofRuleApplication app, Parameters addParams) {
 
         // TODO This is demo only ...
-        try { Thread.sleep(2000); } catch(Exception ex) {}
+        try {
+            Thread.sleep(2000);
+        } catch (Exception ex) {
+        }
 
-        if(System.currentTimeMillis() % 2 == 0) {
+        if (System.currentTimeMillis() % 2 == 0) {
             return ProofRuleApplicationBuilder.notApplicable(this);
         } else {
             ProofRuleApplicationBuilder builder = new ProofRuleApplicationBuilder(app);
             builder.setRefiner(null)
-                .setApplicability(Applicability.APPLICABLE)
-                .setClosing();
+                    .setApplicability(Applicability.APPLICABLE)
+                    .setClosing();
             return builder.build();
         }
     }
@@ -58,14 +61,14 @@ public class FakeSMTSolverRule extends AbstractProofRule {
     @Override
     public ProofRuleApplication makeApplication(ProofNode target, Parameters parameters) throws RuleException {
 
-        if(parameters.getValue("fake") == null) {
+        if (parameters.getValue("fake") == null) {
             return ProofRuleApplicationBuilder.notApplicable(this);
         }
 
         ProofRuleApplicationBuilder builder = new ProofRuleApplicationBuilder(this);
         builder.setRefiner(null)
-            .setApplicability(Applicability.APPLICABLE)
-            .setClosing();
+                .setApplicability(Applicability.APPLICABLE)
+                .setClosing();
 
         return builder.build();
     }

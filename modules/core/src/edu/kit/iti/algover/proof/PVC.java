@@ -49,11 +49,9 @@ public class PVC {
     private final @NonNull Sequent sequent;
 
     /*
-     * local script of pvc, is identified by id.
+     * local script of pvc
      */
-    // REVIEW: did not understand "is identified by"
-    // REVIEW: I understand that scripts may change and are not held in PVCs.
-    // private final ScriptTree localScript = null;
+    //private final ScriptTree localScript = null;
 
     /**
      * The symbol table containing all symbols which occur in the

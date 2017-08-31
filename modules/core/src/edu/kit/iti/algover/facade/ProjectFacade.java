@@ -13,7 +13,6 @@ import edu.kit.iti.algover.project.Project;
 import edu.kit.iti.algover.project.ProjectBuilder;
 import edu.kit.iti.algover.proof.PVC;
 import edu.kit.iti.algover.proof.ProofNode;
-import edu.kit.iti.algover.script.ScriptTree;
 import edu.kit.iti.algover.symbex.Symbex;
 import edu.kit.iti.algover.symbex.SymbexPath;
 import edu.kit.iti.algover.theoremprover.DafnyTranslator;
@@ -27,8 +26,8 @@ import java.util.List;
  * Interface to create a project, to reload a project and do other project related stuff
  * Created by sarah on 8/22/16.
  */
-
-
+//Use ProjectManager instead
+@Deprecated
 public class ProjectFacade {
 
     /**
@@ -74,29 +73,7 @@ public class ProjectFacade {
         return p;
     }
 
-    /**
-     * Build a new Project
-     *
-     * @param configFile path to configuration file
-     * @return //TODO Create Parsing Exception for config file
-     */
-    public static Project buildProjectWithConfigFile(File configFile) throws FileNotFoundException, Exception {
-        Project p = null;
-        ProjectBuilder pb = new ProjectBuilder();
-        pb.setDir(configFile.getParentFile());
-        pb.setConfigFilename(configFile.getName());
-        pb.parseProjectConfigurationFile();
-        p = pb.build();
 
-        ArrayList<DafnyException> exceptions = new ArrayList<>();
-        ReferenceResolutionVisitor refResolver = new ReferenceResolutionVisitor(p, exceptions);
-        refResolver.visitProject();
-
-        TypeResolution typeRes = new TypeResolution(exceptions);
-        typeRes.visitProject(p);
-
-        return p;
-    }
 
     /**
      * Perform Symbolic Execution of a given DafnyTree (method)
@@ -119,9 +96,9 @@ public class ProjectFacade {
         //return file to which it will be translated
     }
 
-    public static ScriptTree getScriptFor(int pvcId) {
+   /* public static ScriptTree getScriptFor(int pvcId) {
         return null;
-    }
+    }*/
 
     private int getGeneralPVCCounter() {
         return generalPVCCounter;

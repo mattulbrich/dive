@@ -32,7 +32,11 @@ import edu.kit.iti.algover.util.Util;
  */
 public class BuiltinSymbols extends MapSymbolTable {
 
-    private static final Sort SET_OBJECTS = Sort.get("set", Sort.OBJECT);
+    public static final FunctionSymbolFamily ARRAY_SELECT =
+            new FunctionSymbolFamily(
+                    new FunctionSymbol("$array_select", FunctionSymbolFamily.VAR1,
+                            Sort.HEAP, Sort.get("array", FunctionSymbolFamily.VAR1),
+                            Sort.INT), 1);
 
     // Checkstyle: OFF JavadocVariableCheck
 
@@ -79,22 +83,25 @@ public class BuiltinSymbols extends MapSymbolTable {
                             Sort.BOOL,
                             FunctionSymbolFamily.VAR1,
                             FunctionSymbolFamily.VAR1), 1);
-
-    private static final Sort SET1 = Sort.get("set", FunctionSymbolFamily.VAR1);
-
-    public static final FunctionSymbolFamily UNION =
+    public static final FunctionSymbolFamily ARRAY2_SELECT =
             new FunctionSymbolFamily(
-                    new FunctionSymbol("$union", SET1, SET1, SET1), 1);
-
-    public static final FunctionSymbolFamily INTERSECT =
+                    new FunctionSymbol("$array2_select", FunctionSymbolFamily.VAR1,
+                            Sort.HEAP, Sort.get("array2", FunctionSymbolFamily.VAR1),
+                            Sort.INT, Sort.INT), 1);
+    public static final FunctionSymbolFamily LEN =
             new FunctionSymbolFamily(
-                    new FunctionSymbol("$intersect", SET1, SET1, SET1), 1);
-
-    public static final FunctionSymbol EVERYTHING =
-            new FunctionSymbol("$everything", SET_OBJECTS);
-
-    public static final FunctionSymbol ANON =
-            new FunctionSymbol("$anon", Sort.HEAP, Sort.HEAP, SET_OBJECTS, Sort.HEAP);
+                    new FunctionSymbol("$len", Sort.INT,
+                            Sort.get("array", FunctionSymbolFamily.VAR1)), 1);
+    public static final FunctionSymbolFamily LEN0 =
+            new FunctionSymbolFamily(
+                    new FunctionSymbol("$len0", Sort.INT,
+                            Sort.get("array2", FunctionSymbolFamily.VAR1)), 1);
+    public static final FunctionSymbolFamily LEN1 =
+            new FunctionSymbolFamily(
+                    new FunctionSymbol("$len1", Sort.INT,
+                            Sort.get("array2", FunctionSymbolFamily.VAR1)), 1);
+    public static final FunctionSymbol NULL =
+            new FunctionSymbol("null", Sort.NULL);
 
     public static final FunctionSymbolFamily STORE =
             new FunctionSymbolFamily(
@@ -130,18 +137,10 @@ public class BuiltinSymbols extends MapSymbolTable {
                             Sort.get("field",
                                     FunctionSymbolFamily.VAR1,
                                     FunctionSymbolFamily.VAR2)), 2);
-
-    public static final FunctionSymbolFamily ARRAY_SELECT =
-            new FunctionSymbolFamily(
-                    new FunctionSymbol("$array_select", FunctionSymbolFamily.VAR1,
-                            Sort.HEAP, Sort.get("array", FunctionSymbolFamily.VAR1),
-                            Sort.INT), 1);
-
-    public static final FunctionSymbolFamily ARRAY2_SELECT =
-            new FunctionSymbolFamily(
-                    new FunctionSymbol("$array2_select", FunctionSymbolFamily.VAR1,
-                            Sort.HEAP, Sort.get("array2", FunctionSymbolFamily.VAR1),
-                            Sort.INT, Sort.INT), 1);
+    public static final FunctionSymbol TRUE =
+            new FunctionSymbol("true", Sort.BOOL);
+    public static final FunctionSymbol FALSE =
+            new FunctionSymbol("false", Sort.BOOL);
 
     public static final FunctionSymbolFamily EQ =
             new FunctionSymbolFamily(
@@ -153,34 +152,19 @@ public class BuiltinSymbols extends MapSymbolTable {
 
     public static final FunctionSymbol MOD =
             new FunctionSymbol("$mod", Sort.get("sort", Sort.OBJECT));
-
-    public static final FunctionSymbolFamily LEN =
+    private static final Sort SET1 = Sort.get("set", FunctionSymbolFamily.VAR1);
+    public static final FunctionSymbolFamily UNION =
             new FunctionSymbolFamily(
-                    new FunctionSymbol("$len", Sort.INT,
-                            Sort.get("array", FunctionSymbolFamily.VAR1)), 1);
-
-    public static final FunctionSymbolFamily LEN0 =
+                    new FunctionSymbol("$union", SET1, SET1, SET1), 1);
+    public static final FunctionSymbolFamily INTERSECT =
             new FunctionSymbolFamily(
-                    new FunctionSymbol("$len0", Sort.INT,
-                            Sort.get("array2", FunctionSymbolFamily.VAR1)), 1);
-
-    public static final FunctionSymbolFamily LEN1 =
-            new FunctionSymbolFamily(
-                    new FunctionSymbol("$len1", Sort.INT,
-                            Sort.get("array2", FunctionSymbolFamily.VAR1)), 1);
-
-    public static final FunctionSymbol NULL =
-            new FunctionSymbol("null", Sort.NULL);
-
-    public static final FunctionSymbol TRUE =
-            new FunctionSymbol("true", Sort.BOOL);
-
-    public static final FunctionSymbol FALSE =
-            new FunctionSymbol("false", Sort.BOOL);
-
-
+                    new FunctionSymbol("$intersect", SET1, SET1, SET1), 1);
+    private static final Sort SET_OBJECTS = Sort.get("set", Sort.OBJECT);
+    public static final FunctionSymbol EVERYTHING =
+            new FunctionSymbol("$everything", SET_OBJECTS);
+    public static final FunctionSymbol ANON =
+            new FunctionSymbol("$anon", Sort.HEAP, Sort.HEAP, SET_OBJECTS, Sort.HEAP);
     // Checkstyle: ON JavadocVariableCheck
-
     private final Map<String, FunctionSymbolFamily> symbolFamilies =
             new HashMap<>();
 

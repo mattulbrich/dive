@@ -27,20 +27,6 @@ import edu.kit.iti.algover.util.Util;
 public abstract class SMTSolver {
 
     /**
-     * The possible results obtained from z3.
-     */
-    enum Result {
-        /** The input is unsatisfiable. */
-        UNSAT,
-        /** The satisfiability status of the input is unknown. */
-        UNKNOWN,
-        /** The input is satisfiable. */
-        SAT,
-        /** Indicates that an error has occurred when invoking the solver */
-        ERROR
-    }
-
-    /**
      * That is the SMT declarations and defintions to be sent before the
      * translation is sent to Z3.
      */
@@ -48,7 +34,7 @@ public abstract class SMTSolver {
 
     static {
         String result;
-        try(InputStream is = Z3Solver.class.getResourceAsStream("preamble.smt2")) {
+        try (InputStream is = Z3Solver.class.getResourceAsStream("preamble.smt2")) {
             result = Util.streamToString(is);
         } catch (Exception e) {
             e.printStackTrace();
@@ -74,14 +60,12 @@ public abstract class SMTSolver {
 
     /**
      * Creates smt input to be sent to the solver.
-     *
+     * <p>
      * This method is separate mainly for testing reasons.
      *
-     * @param formulae
-     *            the non-<code>null</code> set of formulae to analyse
+     * @param formulae the non-<code>null</code> set of formulae to analyse
      * @return the string representation for the formulae
-     * @throws IOException
-     *             Signals that an I/O exception has occurred.
+     * @throws IOException Signals that an I/O exception has occurred.
      */
     public String createSMTInput(Collection<Term> formulae) throws IOException {
 
@@ -90,8 +74,8 @@ public abstract class SMTSolver {
         sb.append(makePreamble());
 
         sb.append("; === Declarations ===\n\n");
-        for (FunctionSymbol fs: symbolTable.getAllSymbols()) {
-            if(!fs.getName().contains("$") && !fs.getName().matches("[0-9]+")) {
+        for (FunctionSymbol fs : symbolTable.getAllSymbols()) {
+            if (!fs.getName().contains("$") && !fs.getName().matches("[0-9]+")) {
                 sb.append(makeDecl(fs)).append("\n");
             }
         }
@@ -133,4 +117,26 @@ public abstract class SMTSolver {
     }
 
     public abstract Result solve(Collection<Term> formulae) throws IOException;
+
+    /**
+     * The possible results obtained from z3.
+     */
+    enum Result {
+        /**
+         * The input is unsatisfiable.
+         */
+        UNSAT,
+        /**
+         * The satisfiability status of the input is unknown.
+         */
+        UNKNOWN,
+        /**
+         * The input is satisfiable.
+         */
+        SAT,
+        /**
+         * Indicates that an error has occurred when invoking the solver
+         */
+        ERROR
+    }
 }

@@ -17,10 +17,10 @@ import edu.kit.iti.algover.util.Util;
 /**
  * This is a builder (as in the builder pattern) for
  * {@link ProofRuleApplication}s.
- *
+ * <p>
  * All fields of the the rule application can be set using the according
  * methods.
- *
+ * <p>
  * {@link #notApplicable(ProofRule)} creates an objects indicating that the
  * rule is not applicable here.
  */
@@ -39,7 +39,7 @@ public class ProofRuleApplicationBuilder {
 
     /**
      * Instantiates a new proof rule application builder with a rule.
-     *
+     * <p>
      * The transcript is initialised accordingly.
      *
      * @param rule the rule to be used.
@@ -56,11 +56,23 @@ public class ProofRuleApplicationBuilder {
      */
     public ProofRuleApplicationBuilder(ProofRuleApplication app) {
         this.rule = app.getRule();
-        this.branches.addAll(Util.map(app.getBranchInfo(), x-> new BranchInfoBuilder(x)));
+        this.branches.addAll(Util.map(app.getBranchInfo(), x -> new BranchInfoBuilder(x)));
         this.applicability = app.getApplicability();
         this.scriptTranscript = app.getScriptTranscript();
         this.openParameters = app.getOpenParameters();
         this.refiner = app.getRefiner();
+    }
+
+    /**
+     * Create a new application indication "Not applicable".
+     *
+     * @param rule the rule to encapsulate
+     * @return the proof rule application holding not-applicable for the rule
+     */
+    public static ProofRuleApplication notApplicable(ProofRule rule) {
+        return new ProofRuleApplication(rule, BranchInfo.UNCHANGED,
+                Applicability.NOT_APPLICABLE, rule.getName(),
+                Parameters.EMPTY_PARAMETERS, null);
     }
 
     /**
@@ -80,20 +92,6 @@ public class ProofRuleApplicationBuilder {
                 refiner);
     }
 
-    /**
-     * Create and return a new branch builder.
-     *
-     * The branch is built automatically from the child builder as soon as this
-     * app is built.
-     *
-     * @return the new branch info builder
-     */
-    public BranchInfoBuilder newBranch() {
-        BranchInfoBuilder builder = new BranchInfoBuilder();
-        branches.add(builder);
-        return builder;
-    }
-
     public ProofRuleApplicationBuilder setApplicability(@NonNull Applicability applicable) {
         this.applicability = applicable;
         return this;
@@ -110,16 +108,17 @@ public class ProofRuleApplicationBuilder {
     }
 
     /**
-     * Create a new application indication "Not applicable".
+     * Create and return a new branch builder.
+     * <p>
+     * The branch is built automatically from the child builder as soon as this
+     * app is built.
      *
-     * @param rule
-     *            the rule to encapsulate
-     * @return the proof rule application holding not-applicable for the rule
+     * @return the new branch info builder
      */
-    public static ProofRuleApplication notApplicable(ProofRule rule) {
-        return new ProofRuleApplication(rule, BranchInfo.UNCHANGED,
-                Applicability.NOT_APPLICABLE, rule.getName(),
-                Parameters.EMPTY_PARAMETERS, null);
+    public BranchInfoBuilder newBranch() {
+        BranchInfoBuilder builder = new BranchInfoBuilder();
+        branches.add(builder);
+        return builder;
     }
 
     /**

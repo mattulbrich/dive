@@ -228,7 +228,7 @@ public class TreeTermTranslator {
         case DafnyParser.PLUS:
             return buildBinary(BuiltinSymbols.PLUS, tree);
         case DafnyParser.MINUS:
-            if(tree.getChildCount() == 1) {
+            if (tree.getChildCount() == 1) {
                 return buildUnary(BuiltinSymbols.NEG, tree);
             } else {
                 return buildBinary(BuiltinSymbols.MINUS, tree);
@@ -280,8 +280,8 @@ public class TreeTermTranslator {
         case DafnyParser.ARRAY_ACCESS:
             return buildArrayAccess(tree);
 
-        case DafnyParser.FIELD_ACCESS:
-            return buildFieldAccess(tree);
+            case DafnyParser.FIELD_ACCESS:
+                return buildFieldAccess(tree);
 
         case DafnyParser.NOETHER_LESS:
             return buildNoetherLess(tree);
@@ -289,8 +289,8 @@ public class TreeTermTranslator {
         case DafnyParser.CALL:
             return buildCall(tree);
 
-        case DafnyParser.WILDCARD:
-            return buildWildcard(tree);
+            case DafnyParser.WILDCARD:
+                return buildWildcard(tree);
 
         default:
             TermBuildException ex =
@@ -345,30 +345,30 @@ public class TreeTermTranslator {
         Sort arraySort = arrayTerm.getSort();
         String arraySortName = arraySort.getName();
 
-        switch(arraySortName) {
-        case "array":
-            if(tree.getChildCount() != 2) {
-                throw new TermBuildException("Access to 'array' requires one index argument");
-            }
+        switch (arraySortName) {
+            case "array":
+                if (tree.getChildCount() != 2) {
+                    throw new TermBuildException("Access to 'array' requires one index argument");
+                }
 
-            Term indexTerm = build(tree.getChild(1));
+                Term indexTerm = build(tree.getChild(1));
 
-            return tb.selectArray(new ApplTerm(BuiltinSymbols.HEAP), arrayTerm, indexTerm);
+                return tb.selectArray(new ApplTerm(BuiltinSymbols.HEAP), arrayTerm, indexTerm);
 
-        case "array2":
-            if(tree.getChildCount() != 3) {
-                throw new TermBuildException("Access to 'array2' requires two index arguments");
-            }
+            case "array2":
+                if (tree.getChildCount() != 3) {
+                    throw new TermBuildException("Access to 'array2' requires two index arguments");
+                }
 
-            Term index0 = build(tree.getChild(1));
-            Term index1 = build(tree.getChild(2));
+                Term index0 = build(tree.getChild(1));
+                Term index1 = build(tree.getChild(2));
 
-            return tb.selectArray2(new ApplTerm(BuiltinSymbols.HEAP),
-                    arrayTerm, index0, index1);
+                return tb.selectArray2(new ApplTerm(BuiltinSymbols.HEAP),
+                        arrayTerm, index0, index1);
 
 
-        default:
-            throw new TermBuildException("Unsupported array sort: " + arraySort);
+            default:
+                throw new TermBuildException("Unsupported array sort: " + arraySort);
         }
     }
 
@@ -399,28 +399,28 @@ public class TreeTermTranslator {
         Sort arg;
         FunctionSymbol f;
 
-        switch(sort.getName()) {
-        case "array":
-            if(!suffix.isEmpty()) {
-                throw new TermBuildException("Elements of type 'array' have only "
-                        + "the 'Length' property");
-            }
-            arg = sort.getArguments().get(0);
-            f = symbolTable.getFunctionSymbol("$len<" + arg + ">");
-            break;
+        switch (sort.getName()) {
+            case "array":
+                if (!suffix.isEmpty()) {
+                    throw new TermBuildException("Elements of type 'array' have only "
+                            + "the 'Length' property");
+                }
+                arg = sort.getArguments().get(0);
+                f = symbolTable.getFunctionSymbol("$len<" + arg + ">");
+                break;
 
-        case "array2":
-            if(suffix.isEmpty() || index > 1) {
-                throw new TermBuildException("Elements of type 'array2' have only "
-                        + "the 'Length0' and 'Length1' properties");
-            }
+            case "array2":
+                if (suffix.isEmpty() || index > 1) {
+                    throw new TermBuildException("Elements of type 'array2' have only "
+                            + "the 'Length0' and 'Length1' properties");
+                }
 
-            arg = sort.getArguments().get(0);
-            f = symbolTable.getFunctionSymbol("$len" + index + "<" + arg + ">");
-            break;
+                arg = sort.getArguments().get(0);
+                f = symbolTable.getFunctionSymbol("$len" + index + "<" + arg + ">");
+                break;
 
-        default:
-            throw new TermBuildException("Unsupported sort for 'Length': " + sort);
+            default:
+                throw new TermBuildException("Unsupported sort for 'Length': " + sort);
         }
 
         return new ApplTerm(f, Arrays.asList(t1));
@@ -430,7 +430,7 @@ public class TreeTermTranslator {
     private Term buildWildcard(DafnyTree tree) throws TermBuildException {
         Sort sort = buildSort(tree.getExpressionType());
         String suggestedName;
-        if(tree.getChildCount() > 0) {
+        if (tree.getChildCount() > 0) {
             suggestedName = tree.getChild(0).getText();
         } else {
             suggestedName = "unknown";
@@ -438,8 +438,8 @@ public class TreeTermTranslator {
 
         int count = 1;
         String name = suggestedName + "_" + count;
-        while(symbolTable.getFunctionSymbol(name) != null) {
-            count ++;
+        while (symbolTable.getFunctionSymbol(name) != null) {
+            count++;
             name = suggestedName + "_" + count;
         }
 
@@ -595,10 +595,10 @@ public class TreeTermTranslator {
         DafnyTree lhs = tree.getChild(0);
         DafnyTree rhs = tree.getChild(1);
 
-        assert     lhs.getType() == DafnyParser.LISTEX
+        assert lhs.getType() == DafnyParser.LISTEX
                 && rhs.getType() == DafnyParser.LISTEX
-                && lhs.getChildCount() == rhs.getChildCount():
-            "limited support so far, we inline the comparison";
+                && lhs.getChildCount() == rhs.getChildCount() :
+                "limited support so far, we inline the comparison";
 
         Term result = tb.ff();
         Term[] vars = new Term[rhs.getChildCount()];

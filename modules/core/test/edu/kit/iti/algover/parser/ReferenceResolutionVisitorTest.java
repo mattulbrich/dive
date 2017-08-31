@@ -6,19 +6,15 @@
 
 package edu.kit.iti.algover.parser;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import edu.kit.iti.algover.project.Project;
+import edu.kit.iti.algover.project.ProjectBuilder;
+import edu.kit.iti.algover.util.TestUtil;
+import org.junit.Test;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import org.junit.Test;
-
-import edu.kit.iti.algover.project.Project;
-import edu.kit.iti.algover.project.ProjectBuilder;
-import edu.kit.iti.algover.util.TestUtil;
+import static org.junit.Assert.*;
 
 public class ReferenceResolutionVisitorTest {
 

@@ -26,15 +26,15 @@ public class PropositionalExpansionRule extends AbstractProofRule {
         super(makeRequiredParameters(), makeOptionalParameters());
     }
 
-    private static Map<String, Class<?>> makeOptionalParameters() {
-        Map<String, Class<?>> result = new HashMap<>();
-        result.put("deep", Boolean.class);
-        return result;
-    }
-
     private static Map<String, Class<?>> makeRequiredParameters() {
         Map<String, Class<?>> result = new HashMap<>();
         result.put("on", Term.class);
+        return result;
+    }
+
+    private static Map<String, Class<?>> makeOptionalParameters() {
+        Map<String, Class<?>> result = new HashMap<>();
+        result.put("deep", Boolean.class);
         return result;
     }
 
@@ -45,14 +45,14 @@ public class PropositionalExpansionRule extends AbstractProofRule {
 
     @Override
     public ProofRuleApplication considerApplication(ProofNode target, Sequent selection,
-            TermSelector selector)
+                                                    TermSelector selector)
             throws RuleException {
 
-        if(selector != null) {
+        if (selector != null) {
             return ProofRuleApplicationBuilder.notApplicable(this);
         }
 
-        if(selection == null) {
+        if (selection == null) {
             selection = target.getSequent();
         }
 
@@ -63,20 +63,20 @@ public class PropositionalExpansionRule extends AbstractProofRule {
         List<ProofFormula> deletionsSucc = new ArrayList<ProofFormula>();
 
         for (ProofFormula formula : selection.getAntecedent()) {
-            if(pex.expand(formula, SequentPolarity.ANTECEDENT, allowSplit)) {
+            if (pex.expand(formula, SequentPolarity.ANTECEDENT, allowSplit)) {
                 deletionsAnte.add(formula);
             }
         }
 
         for (ProofFormula formula : selection.getSuccedent()) {
-            if(pex.expand(formula, SequentPolarity.SUCCEDENT, allowSplit)) {
+            if (pex.expand(formula, SequentPolarity.SUCCEDENT, allowSplit)) {
                 deletionsSucc.add(formula);
             }
         }
 
         List<Sequent> sequents = pex.getSequents();
 
-        if(deletionsAnte.isEmpty() && deletionsSucc.isEmpty()) {
+        if (deletionsAnte.isEmpty() && deletionsSucc.isEmpty()) {
             // nothing to be done
             return ProofRuleApplicationBuilder.notApplicable(this);
         }
@@ -85,12 +85,12 @@ public class PropositionalExpansionRule extends AbstractProofRule {
 
         for (Sequent sequent : sequents) {
             builder.newBranch().addAdditions(sequent)
-                   .addDeletionsAntecedent(deletionsAnte)
-                   .addDeletionsSuccedent(deletionsSucc);
+                    .addDeletionsAntecedent(deletionsAnte)
+                    .addDeletionsSuccedent(deletionsSucc);
         }
 
         builder.setApplicability(Applicability.APPLICABLE)
-            .setTranscript("todo");
+                .setTranscript("todo");
 
         return builder.build();
     }
