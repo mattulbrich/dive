@@ -11,6 +11,7 @@ import edu.kit.iti.algover.script.data.GoalNode;
 import edu.kit.iti.algover.script.interpreter.Interpreter;
 import edu.kit.iti.algover.script.interpreter.InterpreterBuilder;
 import edu.kit.iti.algover.script.parser.Facade;
+import edu.kit.iti.algover.util.Util;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.fxml.LoadException;
 
@@ -153,7 +154,9 @@ public class ProjectManager {
      */
 
     public void findAndParseScriptFile(String pvc) throws IOException {
-        String filePath = project.get().getBaseDir().getAbsolutePath() + pvc + ".script";
+        String maskedFilename = Util.maskFileName(pvc);
+        String filePath = project.get().getBaseDir().getAbsolutePath()
+                + maskedFilename + ".script";
         //find file on disc
         Path p = Paths.get(filePath);
 
@@ -252,6 +255,8 @@ public class ProjectManager {
             //ScriptHelper.visitASTNODE -> String content
             //saveToScriptFile(pvcName, content);
         }
+
+        // REVIEW: When using saveHelper use "Util.maskFileName(pvcName)" here.
 
     }
 
