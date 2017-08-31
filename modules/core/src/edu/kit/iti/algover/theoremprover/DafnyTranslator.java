@@ -76,10 +76,10 @@ public class DafnyTranslator {
                 assertionType = "explicit_assertion";
                 createPO(assertionType);
                 break;
-            case IMPLICIT_ASSERT:
-                assertionType = "implicit_assertion";
-                createPO(assertionType);
-                break;
+//            case IMPLICIT_ASSERT:
+//                assertionType = "implicit_assertion";
+//                createPO(assertionType);
+//                break;
             case CALL_PRE:
                 assertionType = "call_pre";
                 break;

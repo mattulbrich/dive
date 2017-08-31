@@ -86,6 +86,7 @@ public class DafnyDeclPVCCollector {
         while(seenNames.contains(path.getPathIdentifier())) {
             path.incrementVariant();
         }
+        seenNames.add(path.getPathIdentifier());
     }
 
     public PVCCollection visitFunction(DafnyFunction f) {

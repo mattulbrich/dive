@@ -123,7 +123,7 @@ public class BuiltinSymbols extends MapSymbolTable {
 
     public static final FunctionSymbolFamily ARRAY2_STORE =
             new FunctionSymbolFamily(
-                    new FunctionSymbol("$store", Sort.HEAP,
+                    new FunctionSymbol("$array2_store", Sort.HEAP,
                             Sort.HEAP,
                             Sort.get("array", FunctionSymbolFamily.VAR1),
                             Sort.INT,

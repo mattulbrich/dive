@@ -6,6 +6,7 @@
 package edu.kit.iti.algover.proof;
 
 
+import edu.kit.iti.algover.dafnystructures.DafnyClass;
 import edu.kit.iti.algover.dafnystructures.DafnyDecl;
 import edu.kit.iti.algover.data.SymbolTable;
 import edu.kit.iti.algover.symbex.SymbexPath;
@@ -42,16 +43,10 @@ public class PVC {
      */
     private final @NonNull DafnyDecl declaration;
 
-
     /**
      * The sequent which serves as the root node in the proof tree.
      */
     private final @NonNull Sequent sequent;
-
-    /*
-     * local script of pvc
-     */
-    //private final ScriptTree localScript = null;
 
     /**
      * The symbol table containing all symbols which occur in the
@@ -77,7 +72,17 @@ public class PVC {
         this.declaration = builder.getDeclaration();
         this.sequent = builder.getSequent();
         this.symbolTable = builder.getSymbolTable();
-        this.identifier = declaration + "/" + pathThroughProgram.getPathIdentifier();
+        this.identifier = getDeclarationPrefix()
+                + "/" + pathThroughProgram.getPathIdentifier();
+    }
+
+    private String getDeclarationPrefix() {
+        DafnyDecl clss = declaration.getParentDecl();
+        if(clss instanceof DafnyClass) {
+            return clss.getName() + "." + declaration.getName();
+        } else {
+            return declaration.getName();
+        }
     }
 
     // REVIEW: make this getIdentifier()

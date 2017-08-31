@@ -126,4 +126,9 @@ public class FunctionSymbolFamily {
         return prototype.getName();
     }
 
+    @Override
+    public String toString() {
+        return "FunctionSymbolFamily [" + prototype + ", #vars=" + numberOfTypeVars + "]";
+    }
+
 }

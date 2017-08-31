@@ -56,8 +56,8 @@ import edu.kit.iti.algover.util.UtilTest;
     UpdateSequenterTest.class,
     InlineSequenterTest.class,
     PrettyPrintTest.class,
-        PropositionalExpanderTest.class,
-        ProjectManagerTest.class
+    PropositionalExpanderTest.class,
+    ProjectManagerTest.class,
     })
 public class Tests {
 }

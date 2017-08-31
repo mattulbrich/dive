@@ -92,11 +92,25 @@ public class AssertionElement {
         return refersTo;
     }
 
+    /* (non-Javadoc)
+     * @see java.lang.Object#toString()
+     */
     @Override
     public String toString() {
         String name = getName();
         String suffix = name == null ? "" : "[" + name + "]";
         return getType() + suffix + ":" + expression.toStringTree();
+    }
+
+    /**
+     * Gets the suffix which is added to the PCV label.
+     *
+     * @return the assertion type and a label if present.
+     */
+    public String getPVCLabelSuffix() {
+        String name = getName();
+        String suffix = name == null ? "" : "[" + name + "]";
+        return getType().identifier + suffix;
     }
 
     /**
@@ -106,48 +120,51 @@ public class AssertionElement {
         /**
          * Precondition to be checked prior to method invocation.
          */
-        CALL_PRE,
+        CALL_PRE("Call"),
 
         /**
          * Explicit assertion.
          */
-        EXPLICIT_ASSERT,
-
-        /**
-         * Implicit assertion (div by zero, null-access, in range, ...).
-         * TODO MU: This seems redundant compared to the RT_...
-         */
-        IMPLICIT_ASSERT,
+        EXPLICIT_ASSERT("Assert"),
 
         /**
          * Postcondition to be proved.
          */
-        POST,
+        POST("Post"),
 
         /**
          * Loop Invariant to be proved inductive.
          */
-        INVARIANT_PRESERVED,
+        INVARIANT_PRESERVED("Inv"),
 
         /**
          * Loop Invariant has to hold initially.
          */
-        INVARIANT_INITIALLY_VALID,
+        INVARIANT_INITIALLY_VALID("InitInv"),
 
         /**
          * Runtime Assertion: Receiver is different from null.
          */
-        RT_NONNULL,
+        RT_NONNULL("Null"),
 
         /**
          * Runtime Assertion: Array/Sequence index in bounds of receiver.
          */
-        RT_IN_BOUNDS,
+        RT_IN_BOUNDS("Bounds"),
 
         /**
          * Variant / measured by reduced.
          */
-        VARIANT_DECREASED,
+        VARIANT_DECREASED("Var");
+
+        /**
+         * The identifier used when constructing a UI-string for a symbex path.
+         */
+        public final String identifier;
+
+        AssertionType(String identifier) {
+            this.identifier = identifier;
+        }
     }
 
 }
