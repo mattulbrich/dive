@@ -16,6 +16,7 @@ import edu.kit.iti.algover.script.data.GoalNode;
 import edu.kit.iti.algover.script.interpreter.Interpreter;
 import edu.kit.iti.algover.script.interpreter.InterpreterBuilder;
 import edu.kit.iti.algover.script.parser.Facade;
+import edu.kit.iti.algover.util.Util;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.fxml.LoadException;
 
@@ -33,6 +34,8 @@ import java.util.function.Supplier;
  * Class handling project and proof management
  */
 public class ProjectManager {
+
+
 
     /**
      * Reference to config file
@@ -259,6 +262,8 @@ public class ProjectManager {
             //ScriptHelper.visitASTNODE -> String content
             //saveToScriptFile(pvcName, content);
         }
+
+        // REVIEW: When using saveHelper use "Util.maskFileName(pvcName)" here.
 
     }
 
