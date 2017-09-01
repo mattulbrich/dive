@@ -24,6 +24,9 @@ import edu.kit.iti.algover.project.ProjectBuilder;
 
 public class TestUtil {
 
+    public static boolean VERBOSE =
+            Boolean.getBoolean("algover.verbose");
+
     public static String beautify(DafnyTree tree) {
         return beautify(tree, DafnyTree::toString);
     }
@@ -69,7 +72,7 @@ public class TestUtil {
 
     public static Project mockProject(DafnyTree tree) throws IOException, DafnyParserException, DafnyException, RecognitionException {
         ProjectBuilder pb = new ProjectBuilder();
-        pb.addDafnyTree("dummy", tree);
+        pb.addDafnyTree("dummyFilenameForTesting.dfy", tree);
         Project p = pb.build();
 
         List<DafnyException> exceptions = new ArrayList<>();

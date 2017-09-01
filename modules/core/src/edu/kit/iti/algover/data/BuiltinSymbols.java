@@ -113,6 +113,23 @@ public class BuiltinSymbols extends MapSymbolTable {
                                     FunctionSymbolFamily.VAR2),
                             FunctionSymbolFamily.VAR2), 2);
 
+    public static final FunctionSymbolFamily ARRAY_STORE =
+            new FunctionSymbolFamily(
+                    new FunctionSymbol("$array_store", Sort.HEAP,
+                            Sort.HEAP,
+                            Sort.get("array", FunctionSymbolFamily.VAR1),
+                            Sort.INT,
+                            FunctionSymbolFamily.VAR1), 1);
+
+    public static final FunctionSymbolFamily ARRAY2_STORE =
+            new FunctionSymbolFamily(
+                    new FunctionSymbol("$array2_store", Sort.HEAP,
+                            Sort.HEAP,
+                            Sort.get("array", FunctionSymbolFamily.VAR1),
+                            Sort.INT,
+                            Sort.INT,
+                            FunctionSymbolFamily.VAR1), 1);
+
     public static final FunctionSymbolFamily SELECT =
             new FunctionSymbolFamily(
                     new FunctionSymbol("$select", FunctionSymbolFamily.VAR2,
@@ -177,14 +194,9 @@ public class BuiltinSymbols extends MapSymbolTable {
                 return null;
             }
 
-            // FIXME !!! THis will fail for things like $x<a<b,c>>
-            String[] args = name.substring(index + 1, name.length() - 1).split(",");
-            Sort[] sorts = new Sort[args.length];
-            for (int i = 0; i < sorts.length; i++) {
-                sorts[i] = Sort.get(args[i]);
-            }
-
-            return family.instantiate(Util.readOnlyArrayList(sorts));
+            assert name.endsWith(">");
+            List<Sort> params = FunctionSymbolFamily.parseSortParameters(name);
+            return family.instantiate(params);
 
         }
 

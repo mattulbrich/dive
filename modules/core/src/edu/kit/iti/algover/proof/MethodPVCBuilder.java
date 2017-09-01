@@ -22,45 +22,22 @@ import edu.kit.iti.algover.term.Sequent;
 import edu.kit.iti.algover.term.Sort;
 import edu.kit.iti.algover.term.builder.PVCSequenter;
 import edu.kit.iti.algover.term.builder.TermBuildException;
+import edu.kit.iti.algover.util.ASTUtil;
 import edu.kit.iti.algover.util.TreeUtil;
 
 import java.util.ArrayList;
 import java.util.Collection;
 
 /**
- * A PVC corresponds to a symbexpath. So it consists of assignments on the path through the program of
- * pathconditions and of a goal to prove. In addition it is uniquely identified by its ID. This ID has to be given from a central instance
- * New attempt to implement a PVC Builder.
- *
- * REVIEW: Is this a builder for method PVCs? I assume so. If so, rename it accordngly.
+ * Builder for {@link PVC} from a {@link DafnyMethod} and a {@link SymbexPath}.
  *
  * This class is not ready for multi-threading.
  *
- * Created by sarah on 8/18/16.
+ * @author mulbrich Created by sarah on 8/18/16.
+ * @author Revised by mattias on 8/27/17.
+ * @see PVC
  */
-public class PVCBuilder {
-    /**
-     * Counter for IDs for TopFormulas
-     */
-    private int formulaCounter = 0;
-
-    /**
-     * ID of proof verification condition, has to be unique
-     */
-    // REVIEW: What are the benefits of an integer ID?
-    /* I think it would rather be very important that the PO/PVCs have
-     * a unique srting id. In KeY, they had numbers at one point. Adding
-     * a single new method threw every finished proof overboard.
-     *
-     * Are there benefits in integer Ids?
-     */
-    private int pvcID;
-
-    /**
-     * local script of pvc, is identified by id
-     */
-    //private ScriptTree localScript;
-    private ASTNode scriptTree;
+public class MethodPVCBuilder {
 
     /**
      * Path through program which represents state of this pvc
@@ -74,31 +51,19 @@ public class PVCBuilder {
      */
     private DafnyDecl declaration;
 
-    public PVCBuilder() { }
+    private SymbolTable symbolTable;
 
-    public int getPvcID() {
-        return pvcID;
-    }
+    public MethodPVCBuilder() { }
 
-    public PVCBuilder setPvcID(int pvcID) {
-        this.pvcID = pvcID;
-        return this;
-    }
-
-    public ASTNode getLocalScript() {
-        return scriptTree;
-    }
-
-    public PVCBuilder setLocalScript(ASTNode localScript) {
-        this.scriptTree = localScript;
-        return this;
+    public PVC build() throws TermBuildException {
+        return new PVC(this);
     }
 
     public SymbexPath getPathThroughProgram() {
         return pathThroughProgram;
     }
 
-    public PVCBuilder setPathThroughProgram(SymbexPath pathThroughProgram) {
+    public MethodPVCBuilder setPathThroughProgram(SymbexPath pathThroughProgram) {
         this.pathThroughProgram = pathThroughProgram;
         return this;
     }
@@ -107,14 +72,16 @@ public class PVCBuilder {
         return declaration;
     }
 
-    public PVCBuilder setDeclaration(DafnyDecl decl) {
+    public MethodPVCBuilder setDeclaration(DafnyDecl decl) {
         this.declaration = decl;
         return this;
     }
 
-    public PVC build() throws TermBuildException {
-        formulaCounter = 0;
-        return new PVC(this);
+    public SymbolTable getSymbolTable() {
+        if(symbolTable == null) {
+            symbolTable = makeSymbolTable();
+        }
+        return symbolTable;
     }
 
     private SymbolTable makeSymbolTable() {
@@ -126,7 +93,7 @@ public class PVCBuilder {
 
         for (DafnyTree decl : ProgramDatabase.getAllVariableDeclarations(method.getRepresentation())) {
             String name = decl.getChild(0).toString();
-            Sort sort = TreeUtil.toSort(decl.getChild(1));
+            Sort sort = ASTUtil.toSort(decl.getChild(1));
             map.add(new FunctionSymbol(name, sort));
         }
 
@@ -149,7 +116,7 @@ public class PVCBuilder {
         }
 
         try {
-            return sequenter.translate(pathThroughProgram, makeSymbolTable());
+            return sequenter.translate(pathThroughProgram, getSymbolTable());
         } catch (DafnyException e) {
             // FIXME TODO Auto-generated catch block
             throw new Error(e);

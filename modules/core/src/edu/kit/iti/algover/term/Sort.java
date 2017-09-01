@@ -6,6 +6,7 @@
 package edu.kit.iti.algover.term;
 
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
@@ -93,7 +94,7 @@ public class Sort {
      *
      * (Would be an existential type)
      */
-    public static final Sort UNTYPED_SORT = get("<UNTYPED>");
+    public static final Sort UNTYPED_SORT = get("$UNTYPED");
 
     /**
      * The name of the type (w/o arguments).
@@ -134,6 +135,8 @@ public class Sort {
     private Sort(String name, Sort... arguments) {
         this.name = Objects.requireNonNull(name);
         this.arguments = Util.requireDeepNonNull(arguments);
+
+        assert !name.contains("<") : "Sort name with '<': " + name;
     }
 
     /**
@@ -163,6 +166,20 @@ public class Sort {
     public static Sort get(String name, Sort... arguments) {
         // could use Cache object if needed
         return new Sort(name, arguments);
+    }
+
+    /**
+     * Gets a sort object by name and arguments.
+     *
+     * @param name
+     *            the name of the sort to look up.
+     * @param arguments
+     *            non-<code>null</code> sorts that parametrise the object
+     *
+     * @return the sort can be a fresh object or taken from a cache.
+     */
+    public static Sort get(String name, Collection<Sort> arguments) {
+        return Sort.get(name, (Sort[]) arguments.toArray(new Sort[arguments.size()]));
     }
 
     /**
@@ -300,15 +317,19 @@ public class Sort {
             return true;
         }
 
-        if(isClassSort()) {
+        if(isClassSort() || isArray()) {
             return equals(other) || other.equals(OBJECT);
         }
 
         if(equals(NULL)) {
-            return equals(other) || other.isClassSort() || other.equals(OBJECT);
+            return equals(other) || other.isClassSort() || other.equals(OBJECT) || other.isArray();
         }
 
         return equals(other);
+    }
+
+    private boolean isArray() {
+        return getName().matches("array[23]?");
     }
 
 }

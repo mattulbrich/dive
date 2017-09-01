@@ -82,8 +82,8 @@ public class DafnyTrans {
             case POST:
                 assertionType = "post";
                 break;
-            case IMPLICIT_ASSERT:
-                break;
+//            case IMPLICIT_ASSERT:
+//                break;
             case CALL_PRE:
                 assertionType = "call_pre";
                 break;

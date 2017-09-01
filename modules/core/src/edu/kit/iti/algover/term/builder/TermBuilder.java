@@ -181,6 +181,15 @@ public class TermBuilder {
         return new ApplTerm(store, heapTerm, object, field, value);
     }
 
+    public Term storeArray(Term heap, Term object, Term index, Term value) throws TermBuildException {
+        Sort arraySort = object.getSort();
+        assert arraySort.getName().equals("array");
+        Sort elementSort = arraySort.getArguments().get(0);
+        FunctionSymbol store = BuiltinSymbols.ARRAY_STORE.instantiate(elementSort);
+
+        return new ApplTerm(store, heap, object, index, value);
+    }
+
     public Term _null() throws TermBuildException {
         return new ApplTerm(BuiltinSymbols.NULL);
     }
