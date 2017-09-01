@@ -31,7 +31,9 @@ import edu.kit.iti.algover.proof.PVC;
 public final class Util {
 
 
-    private Util() { throw new Error(); }
+    private Util() {
+        throw new Error();
+    }
 
     /**
      * Wrap an immutable list object around an array. The elements in the array
@@ -388,32 +390,35 @@ public final class Util {
 
     /**
      * Mask a file name to be universally usable on filesystems.
-     *
+     * <p>
      * In particular this is used to mask {@link PVC#getName()}.
-     *
+     * <p>
      * Alphanumeric characters ({@code A-Za-z0-9}) and some other characters are
      * taken verbatim. Spaces become "-", and "/" becomes "+".
      *
-     * @param s
-     *            the string to masked
+     * @param s the string to masked
      * @return the masked string
      */
     public static String maskFileName(String s) {
         StringBuilder sb = new StringBuilder();
-        for(int i = 0; i < s.length(); i++) {
+        for (int i = 0; i < s.length(); i++) {
             char c = s.charAt(i);
-            if(   ('0' <= c && c <= '9') || ('a' <= c && c <= 'z') || ('A' <= c && c <= 'Z')
-               || "_[]().,;".indexOf(c) >= 0 ) {
+            if (('0' <= c && c <= '9') || ('a' <= c && c <= 'z') || ('A' <= c && c <= 'Z')
+                    || "_[]().,;".indexOf(c) >= 0) {
                 sb.append(c);
             } else {
-                switch(c) {
-                case ' ': sb.append("-"); break;
-                case '/': sb.append("+"); break;
-                default:
-                    ByteBuffer bb = Charset.forName("UTF-8").encode(Character.toString(c));
-                    while(bb.hasRemaining()) {
-                        sb.append(String.format("%%%02x", bb.get()));
-                    }
+                switch (c) {
+                    case ' ':
+                        sb.append("-");
+                        break;
+                    case '/':
+                        sb.append("+");
+                        break;
+                    default:
+                        ByteBuffer bb = Charset.forName("UTF-8").encode(Character.toString(c));
+                        while (bb.hasRemaining()) {
+                            sb.append(String.format("%%%02x", bb.get()));
+                        }
                 }
             }
         }

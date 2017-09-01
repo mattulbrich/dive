@@ -13,10 +13,10 @@ package edu.kit.iti.algover.util;
  */
 public class ConsoleProgressMonitor implements ProgressMonitor {
 
-    private double displayed = -1.;
     private final ConsoleProgressMonitor parent;
     private final double factor;
     private final double offset;
+    private double displayed = -1.;
     private String msg;
 
     private ConsoleProgressMonitor(ConsoleProgressMonitor parent, double factor, double offset) {
@@ -34,19 +34,15 @@ public class ConsoleProgressMonitor implements ProgressMonitor {
     @Override
     public void setProgress(double progress) {
 
-        if(parent != null) {
+        if (parent != null) {
             parent.setProgress(offset + factor * progress);
         }
 
-        if(progress >= displayed+.1 || progress == 1.f) {
-            System.out.printf("%s%s %.1f%%%n", Util.duplicate("  ", getDepth()), msg, progress*100);
+        if (progress >= displayed + .1 || progress == 1.f) {
+            System.out.printf("%s%s %.1f%%%n", Util.duplicate("  ", getDepth()), msg, progress * 100);
             displayed = progress;
         }
 
-    }
-
-    private int getDepth() {
-        return parent == null ? 0 : parent.getDepth() + 1;
     }
 
     @Override
@@ -62,8 +58,12 @@ public class ConsoleProgressMonitor implements ProgressMonitor {
     @Override
     public ProgressMonitor getSubtaskMonitor(double from, double to) {
         ConsoleProgressMonitor result =
-                new ConsoleProgressMonitor(this, from, to-from);
+                new ConsoleProgressMonitor(this, from, to - from);
         return result;
+    }
+
+    private int getDepth() {
+        return parent == null ? 0 : parent.getDepth() + 1;
     }
 
 }

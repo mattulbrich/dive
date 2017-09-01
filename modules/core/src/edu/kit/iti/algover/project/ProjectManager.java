@@ -36,7 +36,6 @@ import java.util.function.Supplier;
 public class ProjectManager {
 
 
-
     /**
      * Reference to config file
      */
