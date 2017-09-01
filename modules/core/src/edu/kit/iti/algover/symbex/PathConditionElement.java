@@ -28,45 +28,54 @@ public class PathConditionElement {
         /**
          * The condition is a clause in a precondition.
          */
-        PRE,
+        PRE("pre"),
         /**
          * The condition is a positive if-condition (then branch).
          */
-        IF_THEN,
+        IF_THEN("then"),
         /**
          * The condition is a negative if-condition (else branch).
          */
-        IF_ELSE,
+        IF_ELSE("else"),
         /**
          * The condition is an assumed post condition of a function call.
          */
-        CALL_POST,
+        CALL_POST("call"),
         /**
          * The condition is a positive while-condition (body preserves case).
          */
-        WHILE_TRUE,
+        WHILE_TRUE("loop"),
         /**
          * The condition is a negative while-condition (use case).
          */
-        WHILE_FALSE,
+        WHILE_FALSE("loop_exit"),
         /**
          * The condition is an assumed loop invariant.
          */
-        ASSUMED_INVARIANT,
+        ASSUMED_INVARIANT("inv"),
         /**
          * The condition is an explicit assume statement.
          */
-        EXPLICIT_ASSUMPTION,
+        EXPLICIT_ASSUMPTION("assume"),
         /**
          * The condition is an assumed assertion after it has been proved.
          */
-        ASSUMED_ASSERTION,
+        ASSUMED_ASSERTION("assert"),
         /**
          * The condition comes from a guard during short-circuit evaluation.
          *
          * In a ==> b, a guards the well-definedness of b, e.g.
          */
-        GUARD_IN_EXPRESSION;
+        GUARD_IN_EXPRESSION("guard");
+
+        /**
+         * The identifier used when constructing a UI-string for a symbex path.
+         */
+        public final String identifier;
+
+        AssumptionType(String identifier) {
+            this.identifier = identifier;
+        }
     }
 
     /**
