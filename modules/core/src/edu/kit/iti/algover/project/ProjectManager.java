@@ -1,3 +1,8 @@
+/*
+ * This file is part of AlgoVer.
+ *
+ * Copyright (C) 2015-2017 Karlsruhe Institute of Technology
+ */
 package edu.kit.iti.algover.project;
 
 import edu.kit.iti.algover.parser.DafnyException;
@@ -29,7 +34,6 @@ import java.util.function.Supplier;
  * Class handling project and proof management
  */
 public class ProjectManager {
-
 
 
     /**
@@ -74,6 +78,7 @@ public class ProjectManager {
      *
      * @param config File
      */
+    // REVIEW: please do not use "throws Exception"
     public void loadProject(File config) throws Exception {
         this.configFile = config;
         Project p = null;
@@ -100,6 +105,7 @@ public class ProjectManager {
      * @return new Project object
      * //TODO Create Parsing Exception for config file
      */
+    // REVIEW: please do not use "throws Exception"
     private static Project buildProject(Path pathToConfig) throws FileNotFoundException, Exception {
         Project p = null;
         ProjectBuilder pb = new ProjectBuilder();
@@ -154,12 +160,11 @@ public class ProjectManager {
      */
 
     public void findAndParseScriptFile(String pvc) throws IOException {
-        String maskedFilename = Util.maskFileName(pvc);
-        String filePath = project.get().getBaseDir().getAbsolutePath()
-                + maskedFilename + ".script";
+        // REVIEW: on master use Util.maskFilename
+        String filePath = project.get().getBaseDir().getAbsolutePath() + pvc + ".script";
         //find file on disc
         Path p = Paths.get(filePath);
-
+        // REVIEW: Why using Path here if File is needed the line below?
         try {
             ProofScript root = Facade.getAST(p.toFile());
             Proof proof = allProofs.get(pvc);
@@ -169,6 +174,7 @@ public class ProjectManager {
             proof.setScript(root.getBody());
             allProofs.putIfAbsent(pvc, proof);
         } catch (IOException ex) {
+            // REVIEW: please do not ignore IOExceptions
             Proof proof = allProofs.get(pvc);
             proof.setScript(null);
             proof.setProofStatus(ProofStatus.NON_EXISTING);
@@ -272,6 +278,17 @@ public class ProjectManager {
 
     }*/
 
+    /* REVIEW I propose:
+        Path path = Paths.get(pathToFile);
+        if (!Files.exists(path)) {
+            Files.createFile(path);
+        }
+
+        try(Writer writer = Files.newBufferedWriter(path)) {
+            writer.write(content);
+            writer.flush();
+        }
+     */
     private void saverHelper(String pathToFile, String content) throws IOException {
         Path path = Paths.get(pathToFile);
         Writer writer;
@@ -365,6 +382,7 @@ public class ProjectManager {
      *
      * @return
      */
+    // REVIEW: Please motivate why "stripped".
     public Map<String, PVC> getAllStrippedPVCs() {
         return allStrippedPVCs;
     }

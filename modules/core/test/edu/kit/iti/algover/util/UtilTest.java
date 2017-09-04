@@ -20,7 +20,7 @@ import junitparams.Parameters;
 public class UtilTest {
 
     public static String[] parametersForTestMaskFileName() {
-        return new String[] {
+        return new String[]{
                 "abcdefg, abcdefg",
                 "Class/while_true/POST[label2], Class+while_true+POST[label2]",
                 "Class/while_true/POST[label-3], Class+while_true+POST[label%2d3]",
@@ -40,7 +40,8 @@ public class UtilTest {
 
     }
 
-    @Test @Parameters
+    @Test
+    @Parameters
     public void testMaskFileName(String filename, String expected) {
         assertEquals(expected, Util.maskFileName(filename));
     }
