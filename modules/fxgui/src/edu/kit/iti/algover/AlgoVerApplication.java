@@ -1,11 +1,9 @@
 package edu.kit.iti.algover;
 
-import edu.kit.iti.algover.facade.ProjectFacade;
-import edu.kit.iti.algover.project.Project;
-import edu.kit.iti.algover.util.Debug;
+import edu.kit.iti.algover.project.ProjectManager;
 import javafx.application.Application;
 import javafx.scene.Scene;
-import javafx.stage.DirectoryChooser;
+import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 
 import java.io.File;
@@ -27,16 +25,17 @@ public class AlgoVerApplication extends Application {
     @Override
     public void start(Stage primaryStage) throws Exception {
         // Let user choose a project directory
-        DirectoryChooser chooser = new DirectoryChooser();
-        chooser.setTitle("Choose project");
+        FileChooser chooser = new FileChooser();
+        chooser.setSelectedExtensionFilter(new FileChooser.ExtensionFilter("AlgoVer configuration xmls", "xml"));
+        chooser.setTitle("Choose project config file");
         chooser.setInitialDirectory(new File("doc/examples/"));
-        File projectDir = chooser.showDialog(primaryStage);
+        File projectConfigFile = chooser.showOpenDialog(primaryStage);
 
         // Read all PVCs and update GUI
-        Project project = ProjectFacade.getInstance().buildProject(projectDir);
-        project.generateAndCollectPVC();
+        ProjectManager manager = new ProjectManager();
+        manager.loadProject(projectConfigFile);
 
-        OverviewController controller = new OverviewController(project);
+        OverviewController controller = new OverviewController(manager.getProject());
         Scene scene = new Scene(controller.getView());
         scene.getStylesheets().add(AlgoVerApplication.class.getResource("style.css").toExternalForm());
         primaryStage.setScene(scene);
