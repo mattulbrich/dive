@@ -31,6 +31,7 @@ public class ProjectManagerTest {
     Project p = null;
     Term testTerm;
     String testPVCName = "m1/Post";
+    String testPVC2 = "x/Post";
     ProjectManager pm = null;
 
     @Before
@@ -86,9 +87,17 @@ public class ProjectManagerTest {
 
         Assert.assertNotNull(proof.getScript());
 //        pm.initializeProofDataStructures(testPVCName);
-        pm.findAndParseScriptFileForPVC(testPVCName);
-//        System.out.println("Current State " + proof.getInterpreter().getCurrentState().getSelectedGoalNode());
+        // pm.findAndParseScriptFileForPVC(testPVCName);
+
+        Assert.assertEquals("Proofscript is parsed", ProofStatus.SCRIPT_PARSED, proof.getProofStatus());
+
+        Proof proof2 = pm.getProofForPVC(testPVC2);
+        //  Assert.assertEquals("Proofscriot is not loaded yet", ProofStatus.NOT_LOADED, proof2.getProofStatus());
+        //  pm.findAndParseScriptFileForPVC(testPVC2);
+
+        //        System.out.println("Current State " + proof.getInterpreter().getCurrentState().getSelectedGoalNode());
         //pm.replayAllProofs();
+
         pm.getAllProofs().forEach((s1, proof1) -> {
             proof1.invalidate();
         });
