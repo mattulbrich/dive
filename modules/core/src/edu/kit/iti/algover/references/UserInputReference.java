@@ -1,4 +1,4 @@
-package edu.kit.iti.algover.refrenceTypes;
+package edu.kit.iti.algover.references;
 
 /**
  * Reference for user input values.
@@ -26,5 +26,12 @@ public class UserInputReference extends Reference {
 
     public String getDescription() {
         return description;
+    }
+
+    @Override
+    public String toString() {
+        return "UserInputReference{" +
+                "description='" + description + '\'' +
+                '}';
     }
 }

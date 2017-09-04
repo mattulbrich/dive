@@ -1,4 +1,4 @@
-package edu.kit.iti.algover.refrenceTypes;
+package edu.kit.iti.algover.references;
 
 /**
  * An object that encapsulates the types of reference targets

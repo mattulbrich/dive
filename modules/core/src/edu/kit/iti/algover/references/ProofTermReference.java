@@ -1,4 +1,4 @@
-package edu.kit.iti.algover.refrenceTypes;
+package edu.kit.iti.algover.references;
 
 import edu.kit.iti.algover.proof.ProofNodeSelector;
 import edu.kit.iti.algover.rules.TermSelector;
@@ -36,4 +36,11 @@ public class ProofTermReference extends Reference {
         return termSelector;
     }
 
+    @Override
+    public String toString() {
+        return "ProofTermReference{" +
+                "proofNodeSelector=" + proofNodeSelector +
+                ", termSelector=" + termSelector +
+                '}';
+    }
 }

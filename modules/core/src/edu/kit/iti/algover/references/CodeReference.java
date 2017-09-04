@@ -1,4 +1,4 @@
-package edu.kit.iti.algover.refrenceTypes;
+package edu.kit.iti.algover.references;
 
 import edu.kit.iti.algover.dafnystructures.DafnyFile;
 import org.antlr.runtime.Token;
@@ -38,5 +38,14 @@ public class CodeReference extends Reference {
 
     public Token getEndToken() {
         return endToken;
+    }
+
+    @Override
+    public String toString() {
+        return "CodeReference{" +
+                "file=" + file +
+                ", startToken=" + startToken +
+                ", endToken=" + endToken +
+                '}';
     }
 }

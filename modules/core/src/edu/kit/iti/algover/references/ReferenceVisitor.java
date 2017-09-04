@@ -1,4 +1,4 @@
-package edu.kit.iti.algover.refrenceTypes;
+package edu.kit.iti.algover.references;
 
 /**
  * Created by Philipp on 27.08.2017.

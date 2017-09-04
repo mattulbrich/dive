@@ -1,5 +1,7 @@
-package edu.kit.iti.algover.refrenceTypes;
+package edu.kit.iti.algover.references;
 
+import com.google.common.graph.EndpointPair;
+import com.google.common.graph.Graph;
 import com.google.common.graph.GraphBuilder;
 import com.google.common.graph.MutableGraph;
 
@@ -20,6 +22,10 @@ public class ReferenceGraph {
 
     public ReferenceGraph() {
         graph = GraphBuilder.directed().allowsSelfLoops(false).build();
+    }
+
+    public Graph<Reference> getGraph() {
+        return graph;
     }
 
     public void addReference(Reference from, Reference to) {
@@ -51,4 +57,15 @@ public class ReferenceGraph {
         }
     }
 
+    @Override
+    public String toString() {
+        StringBuilder builder = new StringBuilder("ReferenceGraph{\n");
+        for (EndpointPair<Reference> reference : graph.edges()) {
+            builder.append(reference.nodeU());
+            builder.append(" -> ");
+            builder.append(reference.nodeV());
+            builder.append('\n');
+        }
+        return builder.toString();
+    }
 }
