@@ -6,7 +6,7 @@
 	<property name="dir.tools" value="../../tools" />
 
 	<property name="libs"
-			  value="${dir.lib}/antlr.jar:${dir.lib}/junit4.jar:${dir.lib}/junitparams.jar:${dir.lib}/jpplib.jar:${dir.lib}/antlr-4.7-complete.jar"/>
+			  value="${dir.lib}/antlr.jar:${dir.lib}/junit4.jar:${dir.lib}/junitparams.jar:${dir.lib}/jpplib.jar:${dir.lib}/antlr-4.7-complete.jar:${dir.lib}/guava-23.0.jar"/>
 
 	<target name="init" description="initialize all directories">
 		<mkdir dir="bin" />
