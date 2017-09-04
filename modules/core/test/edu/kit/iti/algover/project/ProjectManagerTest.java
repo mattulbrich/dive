@@ -30,7 +30,7 @@ public class ProjectManagerTest {
     static final File config = new File(testDir + File.separatorChar + "config2.xml");
     Project p = null;
     Term testTerm;
-    String testPVCName = "/POST:(&& (== 1 2) (== 2 3))";
+    String testPVCName = "m1/Post";
     ProjectManager pm = null;
 
     @Before

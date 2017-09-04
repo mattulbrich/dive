@@ -14,6 +14,7 @@ import edu.kit.iti.algover.script.data.GoalNode;
 import edu.kit.iti.algover.script.interpreter.Interpreter;
 import edu.kit.iti.algover.script.interpreter.InterpreterBuilder;
 import edu.kit.iti.algover.script.parser.Facade;
+import edu.kit.iti.algover.util.FileUtil;
 import edu.kit.iti.algover.util.Util;
 import javafx.beans.property.SimpleObjectProperty;
 
@@ -141,7 +142,7 @@ public class ProjectManager {
      */
     protected void initializeProofDataStructures(String pvc) throws IOException {
         Proof p = allProofs.get(pvc);
-        findAndParseScriptFile(pvc);
+        findAndParseScriptFile(Util.maskFileName(pvc));
         PVC pvcObject = allStrippedPVCs.get(pvc);
         p.setProofRoot(new ProofNode(null, null, null, pvcObject.getSequent(), pvcObject));
         buildIndividualInterpreter(p);
@@ -158,19 +159,21 @@ public class ProjectManager {
 
     public void findAndParseScriptFile(String pvc) throws IOException {
 
-        String filePath = project.get().getBaseDir().getAbsolutePath() + Util.maskFileName(pvc) + ".script";
+        String filePath = project.get().getBaseDir().getAbsolutePath() + File.separatorChar + Util.maskFileName(pvc) + ".script";
         //find file on disc
-        Path p = Paths.get(filePath);
-        // REVIEW: Why using Path here if File is needed the line below?
+        File scriptFile = FileUtil.findFile(project.get().getBaseDir(), Util.maskFileName(pvc) + ".script");
 
-            ProofScript root = Facade.getAST(p.toFile());
+        if (scriptFile.exists()) {
+            ProofScript root = Facade.getAST(scriptFile);
             Proof proof = allProofs.get(pvc);
             if (proof == null) {
                 proof = new Proof(pvc);
             }
             proof.setScript(root.getBody());
             allProofs.putIfAbsent(pvc, proof);
-
+        } else {
+            throw new IOException("File " + filePath + " can not be found");
+        }
            /* Proof proof = allProofs.get(pvc);
             proof.setScript(null);
             proof.setProofStatus(ProofStatus.NON_EXISTING);
@@ -264,7 +267,6 @@ public class ProjectManager {
 
     /**
      * Save content to script file for pvc
-     * @param pvc
      * @param content
      * @throws IOException
      */
