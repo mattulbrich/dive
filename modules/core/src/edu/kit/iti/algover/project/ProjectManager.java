@@ -75,9 +75,10 @@ public class ProjectManager {
      * Generate all Proof objects and initialize their data structures
      *
      * @param config File
+     *
      */
-    // REVIEW: please do not use "throws Exception"
-    public void loadProject(File config) throws Exception {
+    //TODO change exception to specifc one when parsing exception exists
+    public void loadProject(File config) throws IOException, Exception {
         this.configFile = config;
         Project p = null;
         p = buildProject(config.toPath());
@@ -103,7 +104,6 @@ public class ProjectManager {
      * @return new Project object
      * //TODO Create Parsing Exception for config file
      */
-    // REVIEW: please do not use "throws Exception"
     private static Project buildProject(Path pathToConfig) throws FileNotFoundException, Exception {
         Project p = null;
         ProjectBuilder pb = new ProjectBuilder();
@@ -142,7 +142,7 @@ public class ProjectManager {
      */
     protected void initializeProofDataStructures(String pvc) throws IOException {
         Proof p = allProofs.get(pvc);
-        findAndParseScriptFile(Util.maskFileName(pvc));
+        findAndParseScriptFileForPVC(pvc);
         PVC pvcObject = allStrippedPVCs.get(pvc);
         p.setProofRoot(new ProofNode(null, null, null, pvcObject.getSequent(), pvcObject));
         buildIndividualInterpreter(p);
@@ -157,9 +157,8 @@ public class ProjectManager {
      * @return TODO should return ScriptAST
      */
 
-    public void findAndParseScriptFile(String pvc) throws IOException {
+    public void findAndParseScriptFileForPVC(String pvc) throws IOException {
 
-        String filePath = project.get().getBaseDir().getAbsolutePath() + File.separatorChar + Util.maskFileName(pvc) + ".script";
         //find file on disc
         File scriptFile = FileUtil.findFile(project.get().getBaseDir(), Util.maskFileName(pvc) + ".script");
 
@@ -170,15 +169,11 @@ public class ProjectManager {
                 proof = new Proof(pvc);
             }
             proof.setScript(root.getBody());
+            proof.setProofStatus(ProofStatus.SCRIPT_PARSED);
             allProofs.putIfAbsent(pvc, proof);
         } else {
-            throw new IOException("File " + filePath + " can not be found");
+            throw new IOException("File " + scriptFile.getName() + " can not be found");
         }
-           /* Proof proof = allProofs.get(pvc);
-            proof.setScript(null);
-            proof.setProofStatus(ProofStatus.NON_EXISTING);
-            */
-
 
     }
 

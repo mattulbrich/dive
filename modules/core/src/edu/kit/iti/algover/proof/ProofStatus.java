@@ -9,6 +9,6 @@ public enum ProofStatus {
     DIRTY, //outdated (a project dependency has invalidated the proof, needs reloading )
     OPEN, //proof is not closed yet
     CLOSED, //proof is closed
-    FAILING //there was a failure when loading proof or script
+    SCRIPT_PARSED, FAILING //there was a failure when loading proof or script
 
 }

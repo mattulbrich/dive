@@ -78,15 +78,15 @@ public class ProjectManagerTest {
 
         System.out.println(t.getSubterms());
         System.out.println(testTerm.getSubterms());
-
+        //subterm is "true"
         Assert.assertEquals(t.getSort(), testTerm.getSort());
-        Assert.assertEquals(t.getSubterms().size(), 1);
+        Assert.assertEquals(0, t.getSubterms().size());
 
         Proof proof = pm.getProofForPVC(testPVCName);
 
         Assert.assertNotNull(proof.getScript());
 //        pm.initializeProofDataStructures(testPVCName);
-        pm.findAndParseScriptFile(testPVCName);
+        pm.findAndParseScriptFileForPVC(testPVCName);
 //        System.out.println("Current State " + proof.getInterpreter().getCurrentState().getSelectedGoalNode());
         //pm.replayAllProofs();
         pm.getAllProofs().forEach((s1, proof1) -> {
@@ -96,7 +96,7 @@ public class ProjectManagerTest {
 
         System.out.println(proofAfter.getScript().toString());
         Assert.assertNotNull(proofAfter.getScript());
-        Assert.assertEquals("Proof is not loaded yet", proof.getProofStatus(), ProofStatus.NOT_LOADED);
+        Assert.assertEquals("Proof is not loaded yet", ProofStatus.DIRTY, proof.getProofStatus());
 
         pm.saveProject();
         //Assert.assertEquals(Status.DIRTY, proof.getStatus());
