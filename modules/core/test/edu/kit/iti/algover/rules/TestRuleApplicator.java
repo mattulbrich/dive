@@ -15,7 +15,6 @@ import edu.kit.iti.algover.term.builder.TermBuildException;
 import edu.kit.iti.algover.term.builder.TermBuilder;
 import edu.kit.iti.algover.term.builder.TreeTermTranslator;
 import edu.kit.iti.algover.term.builder.TreeTermTranslatorTest;
-import edu.kit.iti.algover.util.Pair;
 import org.antlr.runtime.RecognitionException;
 import org.junit.Before;
 import org.junit.Test;
@@ -39,6 +38,8 @@ public class TestRuleApplicator {
     @Before
     public void setup() throws RecognitionException, TermBuildException {
         setupTable();
+
+
         TermBuilder tb = new TermBuilder(symbTable);
 
         TreeTermTranslator ttt = new TreeTermTranslator(symbTable);

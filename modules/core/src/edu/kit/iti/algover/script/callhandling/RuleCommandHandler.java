@@ -13,6 +13,7 @@ import java.util.Map;
 /**
  * Created by sarah on 8/17/17.
  */
+@Deprecated
 public class RuleCommandHandler implements CommandHandler<ProofNode> {
 
     private final Map<String, ProofRule> rules;

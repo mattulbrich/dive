@@ -9,8 +9,6 @@ import edu.kit.iti.algover.parser.DafnyException;
 import edu.kit.iti.algover.parser.ReferenceResolutionVisitor;
 import edu.kit.iti.algover.parser.TypeResolution;
 import edu.kit.iti.algover.proof.*;
-import edu.kit.iti.algover.rules.ProofRule;
-import edu.kit.iti.algover.script.ast.ASTNode;
 import edu.kit.iti.algover.script.ast.ProofScript;
 import edu.kit.iti.algover.script.data.GoalNode;
 import edu.kit.iti.algover.script.interpreter.Interpreter;
@@ -18,7 +16,6 @@ import edu.kit.iti.algover.script.interpreter.InterpreterBuilder;
 import edu.kit.iti.algover.script.parser.Facade;
 import edu.kit.iti.algover.util.Util;
 import javafx.beans.property.SimpleObjectProperty;
-import javafx.fxml.LoadException;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -160,12 +157,12 @@ public class ProjectManager {
      */
 
     public void findAndParseScriptFile(String pvc) throws IOException {
-        // REVIEW: on master use Util.maskFilename
-        String filePath = project.get().getBaseDir().getAbsolutePath() + pvc + ".script";
+
+        String filePath = project.get().getBaseDir().getAbsolutePath() + Util.maskFileName(pvc) + ".script";
         //find file on disc
         Path p = Paths.get(filePath);
         // REVIEW: Why using Path here if File is needed the line below?
-        try {
+
             ProofScript root = Facade.getAST(p.toFile());
             Proof proof = allProofs.get(pvc);
             if (proof == null) {
@@ -173,13 +170,12 @@ public class ProjectManager {
             }
             proof.setScript(root.getBody());
             allProofs.putIfAbsent(pvc, proof);
-        } catch (IOException ex) {
-            // REVIEW: please do not ignore IOExceptions
-            Proof proof = allProofs.get(pvc);
+
+           /* Proof proof = allProofs.get(pvc);
             proof.setScript(null);
             proof.setProofStatus(ProofStatus.NON_EXISTING);
+            */
 
-        }
 
     }
 

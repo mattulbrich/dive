@@ -459,7 +459,7 @@ public class Interpreter<T> extends DefaultASTVisitor<Object>
         GoalNode<T> g = getSelectedNode();
         g.enterScope();
         try {
-            //functionLookup.callCommand(this, call, params);
+            functionLookup.callCommand(this, call, params);
         } catch (ScriptCommandNotApplicableException e) {
             //TODO handling of error state for each visit
             State<T> newErrorState = newState(null, null);

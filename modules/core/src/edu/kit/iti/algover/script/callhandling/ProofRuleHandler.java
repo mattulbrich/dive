@@ -1,10 +1,9 @@
 package edu.kit.iti.algover.script.callhandling;
 
-import edu.kit.iti.algover.proof.ProofFormula;
 import edu.kit.iti.algover.proof.ProofNode;
 import edu.kit.iti.algover.rules.*;
+import edu.kit.iti.algover.rules.ProofRule;
 import edu.kit.iti.algover.script.ast.CallStatement;
-import edu.kit.iti.algover.script.ast.Expression;
 import edu.kit.iti.algover.script.data.GoalNode;
 import edu.kit.iti.algover.script.data.State;
 import edu.kit.iti.algover.script.data.Value;
@@ -12,18 +11,10 @@ import edu.kit.iti.algover.script.data.VariableAssignment;
 import edu.kit.iti.algover.script.exceptions.ScriptCommandNotApplicableException;
 import edu.kit.iti.algover.script.interpreter.Evaluator;
 import edu.kit.iti.algover.script.interpreter.Interpreter;
-import edu.kit.iti.algover.term.Sequent;
 import edu.kit.iti.algover.term.Term;
-import edu.kit.iti.algover.util.ImmutableList;
-import edu.kit.iti.algover.util.Pair;
-import jdk.nashorn.internal.codegen.types.Type;
 
 import java.math.BigInteger;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
+import java.util.*;
 
 /**
  * Handler for ProofRules
@@ -34,11 +25,24 @@ public class ProofRuleHandler implements CommandHandler<ProofNode> {
     private List<ProofRule> rules = new ArrayList<>();
     private Map<String, ProofRule> ruleMap = new HashMap<>();
 
+    private ServiceLoader<ProofRule> loader;
 
     public ProofRuleHandler() {
+
+        loader = ServiceLoader.load(ProofRule.class);
+        loader.iterator().forEachRemaining(proofRule -> {
+            rules.add(proofRule);
+            ruleMap.put(proofRule.getName(), proofRule);
+        });
     }
 
     public ProofRuleHandler(List<ProofRule> rules) {
+
+        loader = ServiceLoader.load(ProofRule.class);
+        loader.iterator().forEachRemaining(proofRule -> {
+            rules.add(proofRule);
+            ruleMap.put(proofRule.getName(), proofRule);
+        });
 
         this.rules = rules;
         rules.forEach(proofRule -> ruleMap.put(proofRule.getName(), proofRule));
@@ -70,7 +74,7 @@ public class ProofRuleHandler implements CommandHandler<ProofNode> {
      */
     @Override
     public void evaluate(Interpreter<ProofNode> interpreter, CallStatement call, VariableAssignment params) throws IllegalStateException, ScriptCommandNotApplicableException {
-        if (!rules.contains(call.getCommand())) {
+        if (!ruleMap.keySet().contains(call.getCommand())) {
             throw new IllegalStateException();
         }
         ProofRule pr = ruleMap.get(call.getCommand());
@@ -113,6 +117,8 @@ public class ProofRuleHandler implements CommandHandler<ProofNode> {
                 return new Parameters.TypedValue(String.class, val.getData());
             case INT:
                 return new Parameters.TypedValue(BigInteger.class, val.getData());
+            case TERM:
+                return new Parameters.TypedValue(Term.class, val.getData());
             default:
                 System.out.println("Not implemented yet");
                 return null;

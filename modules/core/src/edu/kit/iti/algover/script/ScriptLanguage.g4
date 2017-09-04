@@ -1,16 +1,10 @@
 grammar ScriptLanguage;
-/*start
-    : stmtList
-    ;
-*/
+
 
 start
     :   script
     ;
 
-/*namedScript
-    :   SCRIPT name=ID '(' signature=argList? ')' INDENT body=stmtList DEDENT
-    ;*/
 
 script
     : SCRIPT name=ID '(' signature=argList? ')' INDENT body=stmtList DEDENT
@@ -32,21 +26,12 @@ stmtList
 
 
 statement
-    :   //scriptDecl
-         assignment
-   // |   repeatStmt
-    |   casesStmt
-   // |   forEachStmt
-   // |   theOnlyStmt
+    :
+        casesStmt
     |   scriptCommand
-  //  |   callStmt
+    | assignment
     ;
 
-/*scriptDecl
-    :
-    SCRIPT name=ID '(' signature=argList? ')' INDENT body=stmtList DEDENT
-    ;
-*/
 assignment
     :   variable=ID COLON type=ID SEMICOLON
     |   variable=ID (COLON type=ID)? ASSIGN expression SEMICOLON
@@ -56,7 +41,7 @@ expression
     :
         MINUS expression   #exprNegate
     |   NOT expression  #exprNot
-    |   expression '[' substExpressionList ']'  #exprSubst
+   // |   expression LBRACKET substExpressionList RBRACKET  #exprSubst
     |   expression MUL expression #exprMultiplication
     |   <assoc=right> expression DIV expression #exprDivision
     |   expression op=(PLUS|MINUS) expression #exprLineOperators
@@ -65,18 +50,17 @@ expression
     |   expression AND expression   #exprAnd
     |   expression OR expression    #exprOr
     |   expression IMP expression   #exprIMP
-    //|   expression EQUIV expression already covered by EQ/NEQ
     |   '(' expression ')' #exprParen
     | literals             #exprLiterals
     | matchPattern         #exprMatch
 ;
 
 
-substExpressionList
+/*substExpressionList
     :
     scriptVar '/' expression (',' substExpressionList)*
     ;
-
+*/
 literals :
         ID             #literalID
     |   DIGITS         #literalDigits
@@ -103,52 +87,28 @@ scriptVar
     :   '?' ID
     ;
 
-/*repeatStmt
-    :   REPEAT INDENT stmtList DEDENT
-    ;
-*/
+
 casesStmt
     :   CASES INDENT
             casesList*
-        (DEFAULT  COLON? INDENT
+        (DEFAULT  COLON INDENT?
             defList=stmtList
-          DEDENT)?
+          DEDENT?)?
         DEDENT
     ;
 
 casesList
-  //  : simpleCase
-   // | closableCase
-    :   CASE  (ISCLOSED | expression) COLON? INDENT stmtList DEDENT
-    ;
-/*simpleCase
-    : CASE expression COLON? INDENT stmtList DEDENT
-    ;
-closableCase
-    : CASE MATCH ISCLOSED COLON? INDENT stmtList DEDENT
-    ;
-*/
-/*forEachStmt
-    :   FOREACH INDENT stmtList DEDENT
+
+    :   CASE  ( guard=expression| CLOSES INDENT closesScript=stmtList DEDENT) COLON INDENT? bodyScript=stmtList DEDENT?
     ;
 
-theOnlyStmt
-    :   THEONLY INDENT stmtList DEDENT
-    ;
-    */
-
-scriptCommand
-    :   cmd=ID parameters? SEMICOLON
-    ;
 
 parameters: parameter+;
 parameter :  ((pname=ID '=')? expr=expression);
 
-/*
-callStmt
-    :   CALL scriptCommand SEMICOLON
+scriptCommand
+    :   cmd=ID parameters? SEMICOLON
     ;
-*/
 
 //LEXER Rules
 WS : [ \t\n\r]+ -> channel(HIDDEN) ;
@@ -159,7 +119,7 @@ MULTI_LINE_COMMENT  : '/*' (MULTI_LINE_COMMENT|.)*? '*/' -> channel(HIDDEN);
 
 CASES: 'cases';
 CASE: 'case';
-ISCLOSED: 'isCloseable';
+CLOSES: 'closes';
 DERIVABLE : 'derivable';
 DEFAULT: 'default';
 ASSIGN : ':=';
@@ -184,11 +144,12 @@ COLON : ':' ;
 
 
 STRING_LITERAL
-   : '\'' ('\'\'' | ~ ('\''))* '\''
+  : '"' ( '\'' | ~('"')*) '"'
+ //  : '\'' ('\'\'' | ~ ('\''))* '\''
    ;
 
 TERM_LITERAL
-   : '`' ~('`')* '`'
+   : '\'' ~('\'')* '\''
    ;
 
 PLUS : '+' ;
@@ -211,4 +172,4 @@ EXE_MARKER: '\u2316' -> channel(HIDDEN);
 
 DIGITS : DIGIT+ ;
 fragment DIGIT : [0-9] ;
-ID : [a-zA-Z] ([_a-zA-Z0-9] | '.' | '\\' | '[]')* ;
+ID : [a-zA-Z] ([_a-zA-Z0-9] | '.' | '\\' | LBRACKET RBRACKET)* ;
