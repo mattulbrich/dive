@@ -10,10 +10,13 @@ import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Set;
 
+import org.antlr.runtime.tree.Tree;
+
 import edu.kit.iti.algover.parser.DafnyParser;
 import edu.kit.iti.algover.parser.DafnyTree;
 import edu.kit.iti.algover.symbex.LocalVarDecl;
 import edu.kit.iti.algover.symbex.SymbexPath;
+import edu.kit.iti.algover.term.Sort;
 import nonnull.NonNull;
 
 /**
@@ -274,7 +277,7 @@ public final class ASTUtil {
 
     public static DafnyTree var(String name, Iterable<LocalVarDecl> immutableList) {
         for (LocalVarDecl loc : immutableList) {
-            if(loc.getName().equals(name)) {
+            if (loc.getName().equals(name)) {
                 DafnyTree id = id(name);
                 id.setDeclarationReference(loc.getReference());
                 return id;
@@ -343,7 +346,7 @@ public final class ASTUtil {
         int count = 1;
         String name = base + "_" + count;
         while (names.contains(name)) {
-            count ++;
+            count++;
             name = base + "_" + count;
         }
 
@@ -362,5 +365,33 @@ public final class ASTUtil {
         DafnyTree result = new DafnyTree(DafnyParser.LISTEX);
         result.addChildren(entries);
         return result;
+    }
+
+    public static DafnyTree _false() {
+        return new DafnyTree(DafnyParser.FALSE, "false");
+    }
+
+    public static String getFieldConstantName(DafnyTree reference) {
+        assert reference.getType() == DafnyParser.FIELD;
+
+        Tree clss = reference.parent;
+        assert clss.getType() == DafnyParser.CLASS;
+
+        String clssName = clss.getChild(0).getText();
+        String fieldName = reference.getChild(0).getText();
+
+        return "field$" + clssName + "$" + fieldName;
+    }
+
+    public static Sort toSort(DafnyTree tree) {
+        if(tree.getChildCount() == 0) {
+            return Sort.get(tree.getText());
+        } else {
+            Sort[] args = new Sort[tree.getChildCount()];
+            for (int i = 0; i < args.length; i++) {
+                args[i] = toSort(tree.getChild(i));
+            }
+            return Sort.get(tree.getText(), args);
+        }
     }
 }

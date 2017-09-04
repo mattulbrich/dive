@@ -20,61 +20,9 @@ import edu.kit.iti.algover.util.ASTUtil;
 public class AssertionElement {
 
     /**
-     * There are different reasons for assertions.
-     */
-    public enum AssertionType {
-        /**
-         * Precondition to be checked prior to method invocation.
-         */
-        CALL_PRE,
-
-        /**
-         * Explicit assertion.
-         */
-        EXPLICIT_ASSERT,
-
-        /**
-         * Implicit assertion (div by zero, null-access, in range, ...).
-         * TODO MU: This seems redundant compared to the RT_...
-         */
-        IMPLICIT_ASSERT,
-
-        /**
-         * Postcondition to be proved.
-         */
-        POST,
-
-        /**
-         * Loop Invariant to be proved inductive.
-         */
-        INVARIANT_PRESERVED,
-
-        /**
-         * Loop Invariant has to hold initially.
-         */
-        INVARIANT_INITIALLY_VALID,
-
-        /**
-         * Runtime Assertion: Receiver is different from null.
-         */
-        RT_NONNULL,
-
-        /**
-         * Runtime Assertion: Array/Sequence index in bounds of receiver.
-         */
-        RT_IN_BOUNDS,
-
-        /**
-         * Variant / measured by reduced.
-         */
-        VARIANT_DECREASED,
-    }
-
-    /**
      * The expression (first order formula) of this path condition.
      */
     private final DafnyTree expression;
-
     /**
      * The syntactical element (subtree) to which this path condition element
      * refers to.
@@ -83,7 +31,6 @@ public class AssertionElement {
      * {@link AssumptionType#PRE} that is the requires clause, etc.
      */
     private final DafnyTree refersTo;
-
     /**
      * The type of this condition element.
      */
@@ -119,7 +66,6 @@ public class AssertionElement {
         return type;
     }
 
-
     /**
      * Gets the formula/expression of this condition.
      *
@@ -146,11 +92,79 @@ public class AssertionElement {
         return refersTo;
     }
 
+    /* (non-Javadoc)
+     * @see java.lang.Object#toString()
+     */
     @Override
     public String toString() {
         String name = getName();
         String suffix = name == null ? "" : "[" + name + "]";
         return getType() + suffix + ":" + expression.toStringTree();
+    }
+
+    /**
+     * Gets the suffix which is added to the PCV label.
+     *
+     * @return the assertion type and a label if present.
+     */
+    public String getPVCLabelSuffix() {
+        String name = getName();
+        String suffix = name == null ? "" : "[" + name + "]";
+        return getType().identifier + suffix;
+    }
+
+    /**
+     * There are different reasons for assertions.
+     */
+    public enum AssertionType {
+        /**
+         * Precondition to be checked prior to method invocation.
+         */
+        CALL_PRE("Call"),
+
+        /**
+         * Explicit assertion.
+         */
+        EXPLICIT_ASSERT("Assert"),
+
+        /**
+         * Postcondition to be proved.
+         */
+        POST("Post"),
+
+        /**
+         * Loop Invariant to be proved inductive.
+         */
+        INVARIANT_PRESERVED("Inv"),
+
+        /**
+         * Loop Invariant has to hold initially.
+         */
+        INVARIANT_INITIALLY_VALID("InitInv"),
+
+        /**
+         * Runtime Assertion: Receiver is different from null.
+         */
+        RT_NONNULL("Null"),
+
+        /**
+         * Runtime Assertion: Array/Sequence index in bounds of receiver.
+         */
+        RT_IN_BOUNDS("Bounds"),
+
+        /**
+         * Variant / measured by reduced.
+         */
+        VARIANT_DECREASED("Var");
+
+        /**
+         * The identifier used when constructing a UI-string for a symbex path.
+         */
+        public final String identifier;
+
+        AssertionType(String identifier) {
+            this.identifier = identifier;
+        }
     }
 
 }

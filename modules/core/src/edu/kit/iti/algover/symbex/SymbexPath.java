@@ -5,10 +5,6 @@
  */
 package edu.kit.iti.algover.symbex;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-
 import edu.kit.iti.algover.data.BuiltinSymbols;
 import edu.kit.iti.algover.parser.DafnyParser;
 import edu.kit.iti.algover.parser.DafnyTree;
@@ -17,6 +13,10 @@ import edu.kit.iti.algover.symbex.PathConditionElement.AssumptionType;
 import edu.kit.iti.algover.util.ASTUtil;
 import edu.kit.iti.algover.util.ImmutableList;
 import nonnull.NonNull;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * This class captures intermediate and terminal states of paths in symbolic
@@ -27,8 +27,7 @@ import nonnull.NonNull;
  * <li>a list of gathered path conditions
  * <li>a list of proof obligations to be discharged
  * <li>the kind/nature of the proof obligations (all are of the same kind)
- * <li>the history of assignments under which the obligations are to be
- * examined
+ * <li>the history of assignments under which the obligations are to be examined
  * <li>the piece of code that remains yet to be examined (empty for terminal
  * states)
  * </ul>
@@ -42,8 +41,15 @@ import nonnull.NonNull;
  *
  * All references to the original code are in form of {@link DafnyTree} AST
  * references.
+ *
+ * @author mattias ulbrich
  */
 public class SymbexPath {
+
+    /**
+     * The function to which this symbolic execution state belongs.
+     */
+    private final @NonNull DafnyTree method;
 
     /**
      * The gathered path conditions.
@@ -71,9 +77,9 @@ public class SymbexPath {
     private @NonNull DafnyTree blockToExecute;
 
     /**
-     * The function to which this symbolic execution state belongs.
+     * The suffix to the path identifier, added to make the identifiers unique.
      */
-    private final @NonNull DafnyTree method;
+    private int variantNumber;
 
     /**
      * Instantiates a new symbolic execution state. It belongs to the given
@@ -92,17 +98,9 @@ public class SymbexPath {
         this.method = function;
     }
 
-    private ImmutableList<LocalVarDecl> initialLocalVars() {
-        DafnyTree dummy = new DafnyTree(DafnyParser.VAR, "dummy");
-        LocalVarDecl heap = new LocalVarDecl(BuiltinSymbols.HEAP.getName(),
-                ASTUtil.id("Heap"), dummy);
-        LocalVarDecl mod = new LocalVarDecl(BuiltinSymbols.MOD.getName(),
-                ASTUtil.id("set<object>"), dummy);
-        return ImmutableList.from(heap, mod);
-    }
-
     /**
-     * Instantiates a new symbolic execution state by copying from another state.
+     * Instantiates a new symbolic execution state by copying from another
+     * state.
      *
      * @param state
      *            the state to copy, not <code>null</code>
@@ -116,6 +114,13 @@ public class SymbexPath {
         this.method = state.method;
     }
 
+    private ImmutableList<LocalVarDecl> initialLocalVars() {
+        DafnyTree dummy = new DafnyTree(DafnyParser.VAR, "dummy");
+        LocalVarDecl heap = new LocalVarDecl(BuiltinSymbols.HEAP.getName(), ASTUtil.id("Heap"), dummy);
+        LocalVarDecl mod = new LocalVarDecl(BuiltinSymbols.MOD.getName(), ASTUtil.id("set<object>"), dummy);
+        return ImmutableList.from(heap, mod);
+    }
+
     /**
      * Adds a path condition to this state.
      *
@@ -127,8 +132,7 @@ public class SymbexPath {
      *            the type of the assumption, not <code>null</code>
      */
     public void addPathCondition(DafnyTree expr, DafnyTree stm, AssumptionType type) {
-        PathConditionElement pathCondition =
-                new PathConditionElement(expr, stm, type, assignmentHistory);
+        PathConditionElement pathCondition = new PathConditionElement(expr, stm, type, assignmentHistory);
         pathConditions = pathConditions.append(pathCondition);
     }
 
@@ -141,7 +145,6 @@ public class SymbexPath {
         return assignmentHistory;
     }
 
-
     /**
      * Sets the assignment history of this instance.
      *
@@ -151,7 +154,6 @@ public class SymbexPath {
     public void setAssignmentHistory(ImmutableList<DafnyTree> assignmentHistory) {
         this.assignmentHistory = assignmentHistory;
     }
-
 
     /**
      * Adds an assignment to the history of this instance.
@@ -228,19 +230,6 @@ public class SymbexPath {
         this.proofObligations = ImmutableList.single(proofObl);
     }
 
-    /**
-     * Sets the set proof obligations for this state. the argument is iterated
-     * into a new data structure and may be modified afterwards.
-     *
-     * @param iterable
-     *            the set of obligations
-     * @param type
-     *            the common type of the obligations, not <code>null</code>.
-     */
-    public void setProofObligations(Iterable<AssertionElement> iterable) {
-        this.proofObligations = ImmutableList.from(iterable);
-    }
-
     public void setProofObligations(Iterable<DafnyTree> expressions, DafnyTree referTo, AssertionType type) {
         this.proofObligations = ImmutableList.nil();
         for (DafnyTree dafnyTree : expressions) {
@@ -276,6 +265,19 @@ public class SymbexPath {
     }
 
     /**
+     * Sets the set proof obligations for this state. the argument is iterated
+     * into a new data structure and may be modified afterwards.
+     *
+     * @param iterable
+     *            the set of obligations
+     * @param type
+     *            the common type of the obligations, not <code>null</code>.
+     */
+    public void setProofObligations(Iterable<AssertionElement> iterable) {
+        this.proofObligations = ImmutableList.from(iterable);
+    }
+
+    /**
      * Gets the unique path identifier which enumerates all decisions made on
      * the path.
      *
@@ -291,7 +293,7 @@ public class SymbexPath {
             case IF_THEN:
             case WHILE_FALSE:
             case WHILE_TRUE:
-                result.append(type.toString()).append("/");
+                result.append(type.identifier).append("/");
                 break;
             }
         }
@@ -299,14 +301,19 @@ public class SymbexPath {
         if (proofObligations.size() > 1) {
             AssertionType type = getCommonProofObligationType();
             if (type != null) {
-                result.append("/").append(type);
+                result.append("/[+").append(type).append("]");
             }
             result.append("[+]");
         } else if (proofObligations.size() == 0) {
             result.append("[-]");
         } else {
-            result.append("/" + proofObligations.get(0));
+            result.append(proofObligations.get(0).getPVCLabelSuffix());
         }
+
+        if (variantNumber != 0) {
+            result.append(".").append(variantNumber);
+        }
+
         return result.toString();
     }
 
@@ -345,6 +352,15 @@ public class SymbexPath {
             }
         }
         return result;
+    }
+
+    /**
+     * Increment the {@link #variantNumber} of this path by one.
+     *
+     * To make identifiers unique, names must be suffixed by number sometimes.
+     */
+    public void incrementVariant() {
+        variantNumber++;
     }
 
 }

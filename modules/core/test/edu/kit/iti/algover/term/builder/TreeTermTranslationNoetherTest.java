@@ -5,30 +5,20 @@
  */
 package edu.kit.iti.algover.term.builder;
 
-import static org.junit.Assert.*;
-
-import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-
-import org.junit.Before;
-import org.junit.Test;
-
 import edu.kit.iti.algover.data.BuiltinSymbols;
 import edu.kit.iti.algover.data.MapSymbolTable;
 import edu.kit.iti.algover.parser.DafnyParser;
 import edu.kit.iti.algover.parser.DafnyTree;
-import edu.kit.iti.algover.parser.ParserTest;
-import edu.kit.iti.algover.symbex.AssertionElement;
-import edu.kit.iti.algover.symbex.Symbex;
-import edu.kit.iti.algover.symbex.SymbexPath;
-import edu.kit.iti.algover.symbex.AssertionElement.AssertionType;
 import edu.kit.iti.algover.term.FunctionSymbol;
 import edu.kit.iti.algover.term.Sort;
 import edu.kit.iti.algover.term.Term;
-import edu.kit.iti.algover.util.TestUtil;
-import edu.kit.iti.algover.util.Util;
+import org.junit.Before;
+import org.junit.Test;
+
+import java.util.ArrayList;
+import java.util.Collection;
+
+import static org.junit.Assert.assertEquals;
 
 public class TreeTermTranslationNoetherTest {
 

@@ -7,13 +7,8 @@ package edu.kit.iti.algover.term.builder;
 
 import edu.kit.iti.algover.data.BuiltinSymbols;
 import edu.kit.iti.algover.data.SymbolTable;
-import edu.kit.iti.algover.term.ApplTerm;
-import edu.kit.iti.algover.term.FunctionSymbol;
-import edu.kit.iti.algover.term.QuantTerm;
+import edu.kit.iti.algover.term.*;
 import edu.kit.iti.algover.term.QuantTerm.Quantifier;
-import edu.kit.iti.algover.term.Sort;
-import edu.kit.iti.algover.term.Term;
-import edu.kit.iti.algover.term.VariableTerm;
 
 public class TermBuilder {
 
@@ -158,6 +153,21 @@ public class TermBuilder {
         return new ApplTerm(select, heap, recv, field);
     }
 
+    public Term selectArray(Term heap, Term array, Term index) throws TermBuildException {
+        FunctionSymbol select =
+                BuiltinSymbols.ARRAY_SELECT.instantiate(array.getSort().getArguments().get(0));
+
+        return new ApplTerm(select, heap, array, index);
+
+    }
+
+    public Term selectArray2(ApplTerm heap, Term array, Term index0, Term index1) throws TermBuildException {
+        FunctionSymbol select =
+                BuiltinSymbols.ARRAY2_SELECT.instantiate(array.getSort().getArguments().get(0));
+
+        return new ApplTerm(select, heap, array, index0, index1);
+    }
+
     public Term heap() throws TermBuildException {
         return new ApplTerm(BuiltinSymbols.HEAP);
     }
@@ -169,6 +179,15 @@ public class TermBuilder {
         FunctionSymbol store = BuiltinSymbols.STORE.instantiate(classSort, valueSort);
 
         return new ApplTerm(store, heapTerm, object, field, value);
+    }
+
+    public Term storeArray(Term heap, Term object, Term index, Term value) throws TermBuildException {
+        Sort arraySort = object.getSort();
+        assert arraySort.getName().equals("array");
+        Sort elementSort = arraySort.getArguments().get(0);
+        FunctionSymbol store = BuiltinSymbols.ARRAY_STORE.instantiate(elementSort);
+
+        return new ApplTerm(store, heap, object, index, value);
     }
 
     public Term _null() throws TermBuildException {

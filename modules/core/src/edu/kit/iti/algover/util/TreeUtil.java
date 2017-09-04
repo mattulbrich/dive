@@ -201,16 +201,7 @@ public final class TreeUtil {
 
     // TODO: MU should put this into a different class
     public static Sort toSort(DafnyTree tree) {
-
-        if(tree.getChildCount() == 0) {
-            return Sort.get(tree.getText());
-        } else {
-            Sort[] args = new Sort[tree.getChildCount() - 1];
-            for (int i = 0; i < args.length; i++) {
-                args[i] = toSort(tree.getChild(i+1));
-            }
-            return Sort.get(tree.getText(), args);
-        }
+        return ASTUtil.toSort(tree);
     }
 
     /**

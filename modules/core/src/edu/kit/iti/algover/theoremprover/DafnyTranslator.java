@@ -6,7 +6,6 @@
 package edu.kit.iti.algover.theoremprover;
 
 import edu.kit.iti.algover.ProgramDatabase;
-import edu.kit.iti.algover.parser.DafnyParser;
 import edu.kit.iti.algover.parser.DafnyTree;
 import edu.kit.iti.algover.proof.PVC;
 import edu.kit.iti.algover.symbex.AssertionElement;
@@ -18,7 +17,9 @@ import edu.kit.iti.algover.util.Pair;
 import edu.kit.iti.algover.util.SymbexUtil;
 import edu.kit.iti.algover.util.TreeUtil;
 
-import java.util.*;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
 
 /**
  * Class handling the translation of a PVC to a Dafny Slice.
@@ -47,7 +48,7 @@ public class DafnyTranslator {
      */
     public DafnyTranslator(PVC verificationCondition, int noOfPOs) {
         this.path = verificationCondition.getPathThroughProgram();
-        this.pvcID = verificationCondition.getPvcID();
+        this.pvcID = 0; //XXX verificationCondition.getPvcID();
         this.method = verificationCondition.getPathThroughProgram().getMethod();
         this.map = verificationCondition.getPathThroughProgram().getAssignmentHistory();
         this.methodName = this.method.getChild(0).getText();
@@ -75,10 +76,10 @@ public class DafnyTranslator {
                 assertionType = "explicit_assertion";
                 createPO(assertionType);
                 break;
-            case IMPLICIT_ASSERT:
-                assertionType = "implicit_assertion";
-                createPO(assertionType);
-                break;
+//            case IMPLICIT_ASSERT:
+//                assertionType = "implicit_assertion";
+//                createPO(assertionType);
+//                break;
             case CALL_PRE:
                 assertionType = "call_pre";
                 break;

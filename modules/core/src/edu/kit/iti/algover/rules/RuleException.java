@@ -5,31 +5,36 @@
  */
 package edu.kit.iti.algover.rules;
 
+/**
+ * The Class RuleException can be used to indicate sth is wrong when operating
+ * with proof rules.
+ *
+ * @author Mattias Ulbrich
+ */
+@SuppressWarnings("serial")
 public class RuleException extends Exception {
+
+    // Checkstyle: OFF JavadocMethod
 
     public RuleException() {
         super();
-        // TODO Auto-generated constructor stub
     }
 
-    public RuleException(String message, Throwable cause, boolean enableSuppression, boolean writableStackTrace) {
+    public RuleException(String message, Throwable cause, boolean enableSuppression,
+                         boolean writableStackTrace) {
         super(message, cause, enableSuppression, writableStackTrace);
-        // TODO Auto-generated constructor stub
     }
 
     public RuleException(String message, Throwable cause) {
         super(message, cause);
-        // TODO Auto-generated constructor stub
     }
 
     public RuleException(String message) {
         super(message);
-        // TODO Auto-generated constructor stub
     }
 
     public RuleException(Throwable cause) {
         super(cause);
-        // TODO Auto-generated constructor stub
     }
 
 }

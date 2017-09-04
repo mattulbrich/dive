@@ -5,9 +5,10 @@
  */
 package edu.kit.iti.algover.proof;
 
-import edu.kit.iti.algover.dafnystructures.DafnyDecl;
-
+import java.util.ArrayList;
 import java.util.List;
+
+import edu.kit.iti.algover.dafnystructures.DafnyDecl;
 
 /**
  * Interface for datastructure,
@@ -18,12 +19,13 @@ import java.util.List;
 public abstract class PVCCollection {
 
     /**
-     * The parent Collection (if the PVCCollection is part of a class or method for example)
+     * The parent Collection (if the PVCCollection is part of a class or method
+     * for example)
      */
     private PVCCollection parent;
 
     /**
-     * Get teh corresponsing DafnyDecl for this PVCCollection
+     * Get the corresponding DafnyDecl for this PVCCollection
      *
      * @return
      */
@@ -33,7 +35,7 @@ public abstract class PVCCollection {
      * Return the root, inorder to traverse children
      * @return
      */
-    public abstract PVCCollection getRoot();
+    //public abstract PVCCollection getRoot();
 
     /**
      * If this PVCCollection is a SinglePVC it is a leaf.
@@ -44,6 +46,20 @@ public abstract class PVCCollection {
 
     public abstract List<PVCCollection> getChildren();
 
+    protected abstract void addTo(List<PVC> result);
+
+    /**
+     * Gets the contents of this collection, i.e., all PVCs which are contained
+     * within the data structure.
+     *
+     * @return a freshly created list object.
+     */
+    public final List<PVC> getContents() {
+        List<PVC> result = new ArrayList<>();
+        addTo(result);
+        return result;
+    }
+
     public PVCCollection getParent() {
         return parent;
     }
@@ -52,6 +68,13 @@ public abstract class PVCCollection {
         this.parent = parent;
     }
 
-    public abstract PVCCollection getChild(int i);
+    //public abstract PVCCollection getChild(int i);
+
+    /**
+     * Returns the PVC iff the object itself is a SinglePVC else null
+     *
+     * @return
+     */
+    public abstract PVC getPVC();
 
 }

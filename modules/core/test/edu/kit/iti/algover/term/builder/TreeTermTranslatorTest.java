@@ -4,20 +4,6 @@
  * Copyright (C) 2015-2017 Karlsruhe Institute of Technology
  */
 package edu.kit.iti.algover.term.builder;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
-
-import java.util.ArrayList;
-import java.util.Collection;
-
-import org.antlr.runtime.ANTLRStringStream;
-import org.antlr.runtime.CommonTokenStream;
-import org.antlr.runtime.RecognitionException;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
 
 import edu.kit.iti.algover.data.BuiltinSymbols;
 import edu.kit.iti.algover.data.MapSymbolTable;
@@ -27,31 +13,66 @@ import edu.kit.iti.algover.parser.DafnyParser;
 import edu.kit.iti.algover.parser.DafnyParser.expression_only_return;
 import edu.kit.iti.algover.parser.DafnyTree;
 import edu.kit.iti.algover.project.Project;
-import edu.kit.iti.algover.term.ApplTerm;
-import edu.kit.iti.algover.term.FunctionSymbol;
-import edu.kit.iti.algover.term.LetTerm;
-import edu.kit.iti.algover.term.Sort;
-import edu.kit.iti.algover.term.Term;
-import edu.kit.iti.algover.term.VariableTerm;
+import edu.kit.iti.algover.term.*;
 import edu.kit.iti.algover.term.parser.TermParser;
 import edu.kit.iti.algover.util.ASTUtil;
 import edu.kit.iti.algover.util.ImmutableList;
 import edu.kit.iti.algover.util.TestUtil;
 import junitparams.JUnitParamsRunner;
 import junitparams.Parameters;
+import org.antlr.runtime.ANTLRStringStream;
+import org.antlr.runtime.CommonTokenStream;
+import org.antlr.runtime.RecognitionException;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+
+import java.util.ArrayList;
+import java.util.Collection;
+
+import static org.junit.Assert.*;
 
 
 @RunWith(JUnitParamsRunner.class)
 public class TreeTermTranslatorTest {
+
+    private MapSymbolTable symbTable;
+
+    public static DafnyTree parse(String s) throws RecognitionException {
+        // create the lexer attached to stream
+        ANTLRStringStream input = new ANTLRStringStream(s);
+
+        DafnyLexer lexer = new DafnyLexer(input);
+        // create the buffer of tokens between the lexer and parser
+        CommonTokenStream tokens = new CommonTokenStream(lexer);
+        // create the parser attached to the token buffer
+        DafnyParser parser = new DafnyParser(tokens);
+        parser.setTreeAdaptor(new DafnyTree.Adaptor());
+        parser.setLogicMode(true);
+        // launch the parser starting at rule r, get return object
+        expression_only_return result;
+        try {
+            result = parser.expression_only();
+            DafnyTree t = result.getTree();
+            if (input.LA(1) != DafnyParser.EOF) {
+                throw new RecognitionException(input);
+            }
+            return t;
+        } catch (RecognitionException e) {
+            System.err.println(parser.getErrorMessage(e, parser.getTokenNames()));
+            throw e;
+        }
+        // pull out the tree and cast it
+    }
 
     public String[][] parametersForTestTermTranslation() {
         return new String[][] {
             { "i1 + i2*i3", "$plus(i1, $times(i2, i3))" },
             // revealed bug:
             { "i1 == i2*i3", "$eq<int>(i1, $times(i2, i3))" },
-            { "a.Length", "$len0(a)" },
-            //                { "a2.Length0", "$len0(a)" },
-            //                { "a2.Length1", "$len1(a)" },
+                {"a.Length", "$len<int>(a)"},
+                {"a2.Length0", "$len0<int>(a2)"},
+                {"a2.Length1", "$len1<int>(a2)"},
             // no 2-dim arrays for now
 
             // for coverage:
@@ -81,6 +102,11 @@ public class TreeTermTranslatorTest {
             { "let c := null :: null == c",
                 "(let c := null :: $eq<object>(null, c))" },
 
+                // Heap accesses
+                {"a[0]", "$array_select<int>($heap, a, 0)"},
+                {"a2[1,2]", "$array2_select<int>($heap, a2, 1, 2)"},
+                {"null", "null"},
+
             // From TermParserTest
             { "i1 + i2", "$plus(i1, i2)" },
             { "forall i: int :: 0 < i ==> i > 0",
@@ -91,12 +117,12 @@ public class TreeTermTranslatorTest {
               "(let i1, i2 := i2, i1 :: $plus(i1, i2))" },
             { "if i1 > 5 then i2 else i1",
               "$ite<int>($gt(i1, 5), i2, i1)" },
-            { "-1", "$neg(1)" },
+                {"-1", "$neg(1)"},
 
-            // Associativity
-            { "1+2-3", "$minus($plus(1, 2), 3)" },
-            { "1*2*3", "$times($times(1, 2), 3)" },
-            { "b1 ==> b2 ==> b3", "$imp(b1, $imp(b2, b3))" },
+                // Associativity
+                {"1+2-3", "$minus($plus(1, 2), 3)"},
+                {"1*2*3", "$times($times(1, 2), 3)"},
+                {"b1 ==> b2 ==> b3", "$imp(b1, $imp(b2, b3))"},
         };
     }
 
@@ -111,37 +137,16 @@ public class TreeTermTranslatorTest {
             { "forall x,y,z:int :: unknown", "" },  // no more bound vars after this
             { "f(b1)", "Unexpected argument sort" },
             { "if true then b1 else i1", "Unexpected argument sort" },
+                {"a.Length0", "Elements of type 'array' have only the 'Length' property"},
+                // revealed wrong error message:
+                {"a2.Length", "Elements of type 'array2' have only the 'Length0' and 'Length1' properties"},
+                {"a2.Length2", "Elements of type 'array2' have only the 'Length0' and 'Length1' properties"},
+                {"i1.Length", "Unsupported sort for 'Length': int"},
+                {"a2[0]", "Access to 'array2' requires two index arguments"},
+                {"a[0,1]", "Access to 'array' requires one index argument"},
+                {"i1[i1]", "Unsupported array sort: int"},
         };
     }
-
-    private static DafnyTree parse(String s) throws RecognitionException {
-        // create the lexer attached to stream
-        ANTLRStringStream input = new ANTLRStringStream(s);
-
-        DafnyLexer lexer = new DafnyLexer(input);
-        // create the buffer of tokens between the lexer and parser
-        CommonTokenStream tokens = new CommonTokenStream(lexer);
-        // create the parser attached to the token buffer
-        DafnyParser parser = new DafnyParser(tokens);
-        parser.setTreeAdaptor(new DafnyTree.Adaptor());
-        parser.setLogicMode(true);
-        // launch the parser starting at rule r, get return object
-        expression_only_return result;
-        try {
-            result = parser.expression_only();
-            DafnyTree t = result.getTree();
-            if(input.LA(1) != DafnyParser.EOF) {
-                throw new RecognitionException(input);
-            }
-            return t;
-        } catch (RecognitionException e) {
-            System.err.println(parser.getErrorMessage(e, parser.getTokenNames()));
-            throw e;
-        }
-        // pull out the tree and cast it
-    }
-
-    private MapSymbolTable symbTable;
 
     @Before
     public void setupTable() {
@@ -152,8 +157,8 @@ public class TreeTermTranslatorTest {
         map.add(new FunctionSymbol("b1", Sort.BOOL));
         map.add(new FunctionSymbol("b2", Sort.BOOL));
         map.add(new FunctionSymbol("b3", Sort.BOOL));
-        map.add(new FunctionSymbol("a", Sort.get("array1")));
-        map.add(new FunctionSymbol("a2", Sort.get("array2")));
+        map.add(new FunctionSymbol("a", Sort.get("array", Sort.INT)));
+        map.add(new FunctionSymbol("a2", Sort.get("array2", Sort.INT)));
         map.add(new FunctionSymbol("f", Sort.INT, Sort.INT));
         map.add(new FunctionSymbol("c", Sort.getClassSort("C")));
         map.add(new FunctionSymbol("c2", Sort.getClassSort("C")));
@@ -302,6 +307,37 @@ public class TreeTermTranslatorTest {
 
         assertEquals("knownvar_2", res1.toString());
         assertEquals("knownvar_3", res2.toString());
+    }
+
+    @Test
+    public void testThis() throws Exception {
+        symbTable.addFunctionSymbol(new FunctionSymbol("this", Sort.get("C")));
+        DafnyTree tree = DafnyFileParser.parse(TestUtil.toStream("class C { var f : int; "
+                + "method m() returns (r : C) { r := this; } }"));
+        Project p = TestUtil.mockProject(tree);
+
+        TreeTermTranslator ttt = new TreeTermTranslator(symbTable);
+        DafnyTree thisRef = p.getClass("C").getMethod("m").getBody().getChild(0).getChild(1);
+        Term result = ttt.build(thisRef);
+
+        assertEquals("this", result.toString());
+    }
+
+    @Test
+    public void testFieldAccess() throws Exception {
+        symbTable.addFunctionSymbol(new FunctionSymbol("this", Sort.get("C")));
+        symbTable.addFunctionSymbol(new FunctionSymbol("field$C$f",
+                Sort.get("field", Sort.get("C"), Sort.INT)));
+        DafnyTree tree = DafnyFileParser.parse(TestUtil.toStream("class C { var f : int; "
+                + "method m() returns (r : int) { r := this.f; } }"));
+        Project p = TestUtil.mockProject(tree);
+
+        TreeTermTranslator ttt = new TreeTermTranslator(symbTable);
+        DafnyTree fieldRef = p.getClass("C").getMethod("m").getBody().getChild(0).getChild(1);
+        Term result = ttt.build(fieldRef);
+
+        assertEquals("$select<C,int>($heap, this, field$C$f)", result.toString());
+
     }
 
 }

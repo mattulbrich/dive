@@ -19,27 +19,30 @@ public class LocalVarDecl {
     /**
      * The name of the declared variable.
      */
-    private final @NonNull String name;
+    private final
+    @NonNull
+    String name;
 
     /**
      * The type of the declared variable.
      */
-    private final @NonNull DafnyTree type;
+    private final
+    @NonNull
+    DafnyTree type;
 
     /**
      * The reference to the corresponding dafny tree declaration.
      */
-    private final @NonNull DafnyTree reference;
+    private final
+    @NonNull
+    DafnyTree reference;
 
     /**
      * Instantiates a new local variable declaration.
      *
-     * @param name
-     *            the name
-     * @param type
-     *            the type
-     * @param reference
-     *            the reference
+     * @param name      the name
+     * @param type      the type
+     * @param reference the reference
      */
     public LocalVarDecl(String name, DafnyTree type, DafnyTree reference) {
         this.name = name;

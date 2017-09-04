@@ -25,6 +25,7 @@ import edu.kit.iti.algover.term.builder.TreeTermTranslator;
 
 // THIS IS A TEMPORARY CLASS ...
 
+@Deprecated
 public class SymbexStateToFormula {
 
     private final DafnyTree method;

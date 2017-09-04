@@ -5,7 +5,8 @@
 	<property name="dir.lib" location="../../lib" />
 	<property name="dir.tools" value="../../tools" />
 
-	<property name="libs" value="${dir.lib}/antlr.jar:${dir.lib}/junit4.jar:${dir.lib}/jpplib.jar" />
+	<property name="libs"
+			  value="${dir.lib}/antlr.jar:${dir.lib}/junit4.jar:${dir.lib}/junitparams.jar:${dir.lib}/jpplib.jar:${dir.lib}/antlr-4.7-complete.jar:${dir.lib}/guava-23.0.jar"/>
 
 	<target name="init" description="initialize all directories">
 		<mkdir dir="bin" />
@@ -28,7 +29,8 @@
 		</copy>
 	</target>
 
-	<target name="compile" description="Compile all files" depends="visitor,init,scriptParser">
+	<target name="compile" description="Compile all files" depends="visitor,init, scriptParser">
+		<echo>"${libs}"</echo>
 		<javac destdir="bin" classpath="${libs}" debug="on">
 			<src path="src" />
 			<src path="gen" />
@@ -43,11 +45,13 @@
 		</java>
 	</target>
 	<target name="scriptParser" depends="init">
-		<java jar="${dir.lib}/antlr.jar" fork="true" dir="src" failonerror="true">
-			<arg value="-verbose" />
+		<java jar="${dir.lib}/antlr-4.7-complete.jar" fork="true" dir="src" failonerror="true">
+			<arg value="-visitor"/>
 			<arg value="-o" />
 			<arg value="../gen" />
-			<arg value="edu/kit/iti/algover/script/Script.g" />
+			<arg value="edu/kit/iti/algover/script/ScriptLanguage.g4"/>
+			<arg value="-package"/>
+			<arg value="edu.kit.iti.algover.script"/>
 		</java>
 	</target>
 	<!--<target name="ProjectParser" depends="init">

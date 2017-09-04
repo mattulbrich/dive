@@ -57,6 +57,7 @@ public class PVCHighlightingRule implements HighlightingRule {
     private final Span methodHeaderSpan;
 
     public PVCHighlightingRule(PVC pvc) {
+        // REVIEW: Caution! I changed getPathThroughProgram() to Nullable the other day.
         SymbexPath symbexPath = pvc.getPathThroughProgram();
 
         List<DafnyTree> assignmentsAsList = new ArrayList<>();

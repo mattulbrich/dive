@@ -283,6 +283,15 @@ ids:
   ID (','! ID)+
   ;
 
+
+//
+// ---------------- Sequents ... entry point for logic
+//
+
+sequent:
+  expressions? '|-' expressions?
+  ;
+
 //
 // ---------------- Expressions!
 //

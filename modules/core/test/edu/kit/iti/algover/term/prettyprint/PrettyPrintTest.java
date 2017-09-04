@@ -5,24 +5,21 @@
  */
 package edu.kit.iti.algover.term.prettyprint;
 
-import static org.junit.Assert.assertEquals;
-
-import org.junit.Before;
-import org.junit.Ignore;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-
 import edu.kit.iti.algover.data.BuiltinSymbols;
 import edu.kit.iti.algover.data.SymbolTable;
 import edu.kit.iti.algover.parser.DafnyParserException;
-import edu.kit.iti.algover.term.prettyprint.AnnotatedString;
-import edu.kit.iti.algover.term.prettyprint.PrettyPrint;
 import edu.kit.iti.algover.term.FunctionSymbol;
 import edu.kit.iti.algover.term.Sort;
 import edu.kit.iti.algover.term.Term;
 import edu.kit.iti.algover.term.parser.TermParser;
 import junitparams.JUnitParamsRunner;
 import junitparams.Parameters;
+import org.junit.Before;
+import org.junit.Ignore;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+
+import static org.junit.Assert.assertEquals;
 
 @RunWith(JUnitParamsRunner.class)
 public class PrettyPrintTest {
@@ -35,7 +32,7 @@ public class PrettyPrintTest {
             { "1 + i1" },
             { "1 + (2 + 3)" },
             { "1 + 2 + 3" },
-            { "1 + 2 - 3" },
+                {"1 + 2 - 3"},
             { "1 + 2 * 3" },
             { "1 * 2 + 3" },
             { "(1 + 2) * 3" },
@@ -45,9 +42,9 @@ public class PrettyPrintTest {
             { "1 > 0" },
             { "1 >= 0" },
             { "1 + 2 >= 1 * 1" },
-            { "1 == i1" }, // revealed a bug
-            { "-1" },
-            { "- -1" },
+                {"1 == i1"}, // revealed a bug
+                {"-1"},
+                {"- -1"},
         };
     }
 
@@ -56,7 +53,7 @@ public class PrettyPrintTest {
             { "true && false" },
             { "b1 ==> b1 && b1" },
             { "b1 && b1 ==> b1" },
-            { "b1 ==> b1 ==> b1" },
+                {"b1 ==> b1 ==> b1"},
             { "(b1 ==> b1) && b1" },
             { "b1 && (b1 || b1)" },
             { "! !b1" },
@@ -68,17 +65,17 @@ public class PrettyPrintTest {
         return new String[][] {
             { "if i1 == 0 then i1 else 0" },
             { "i1 + (if i1 == 0 then i1 else 0)" },
-            { "if b1 then let x := 0 :: x + 1 else if b1 then 0 else 1" }, // revealed a bug
+                {"if b1 then let x := 0 :: x + 1 else if b1 then 0 else 1"}, // revealed a bug
         };
     }
 
     public String[][] parametersForTestHeap() {
-        return new String[][] {
+        return new String[][]{
             { "o.f" },
             { "heap[o.f := 4][o.f := 5][anon(someset, h_2)]" },
             { "o.f @ h_2" },
             { "o.f @ heap[o.f := 3]" },
-            { "let o.f := 4 :: o.f + 2" },
+                {"let o.f := 4 :: o.f + 2"},
         };
     }
 
@@ -86,12 +83,12 @@ public class PrettyPrintTest {
         return new String[][] {
             { "let x := 0 :: x * 2" },
             { "1 + (let x := 0 :: x * 2)" },
-            { "(let x := 0 :: x * 2) + 1" },
-            { "let x := 0 :: let y := 0 :: x * y" },
-            { "let x := 0 :: (let y := 0 :: x * y) * x" },
-            { "let x, y := 1, 2 :: x + y" },  // revealed a bug
-            { "let x := 0 :: if b1 then x else 0" },
-            { "1 + (let x := 0 :: if b1 then x else 0)" }, // revealed a bug
+                {"(let x := 0 :: x * 2) + 1"},
+                {"let x := 0 :: let y := 0 :: x * y"},
+                {"let x := 0 :: (let y := 0 :: x * y) * x"},
+                {"let x, y := 1, 2 :: x + y"},  // revealed a bug
+                {"let x := 0 :: if b1 then x else 0"},
+                {"1 + (let x := 0 :: if b1 then x else 0)"}, // revealed a bug
         };
     }
 
@@ -130,7 +127,8 @@ public class PrettyPrintTest {
         assertEquals(input, printed.toString());
     }
 
-    @Test @Parameters
+    @Test
+    @Parameters
     public void testSpecialFunctions(String input) throws Exception {
         Term parsed = TermParser.parse(st, input);
         AnnotatedString printed = new PrettyPrint().print(parsed);
@@ -138,7 +136,8 @@ public class PrettyPrintTest {
         assertEquals(input, printed.toString());
     }
 
-    @Test @Parameters
+    @Test
+    @Parameters
     public void testLetExpressions(String input) throws Exception {
         Term parsed = TermParser.parse(st, input);
         AnnotatedString printed = new PrettyPrint().print(parsed);

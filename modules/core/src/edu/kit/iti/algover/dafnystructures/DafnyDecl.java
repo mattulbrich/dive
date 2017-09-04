@@ -5,18 +5,11 @@
  */
 package edu.kit.iti.algover.dafnystructures;
 
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
-
 import edu.kit.iti.algover.parser.DafnyException;
 import edu.kit.iti.algover.parser.DafnyTree;
 import edu.kit.iti.algover.term.FunctionSymbol;
+
+import java.util.*;
 
 /**
  * Base class for all Dafny declarations.
@@ -27,28 +20,17 @@ import edu.kit.iti.algover.term.FunctionSymbol;
 public abstract class DafnyDecl {
 
     /**
-     * The declaration within which this declaration is placed.
-     * May be <code>null</code> (in particular for {@link DafnyFile}s)
-     *
-     * This is set by the parent class when adding it as a child.
-     */
-    private DafnyDecl parentDecl;
-
-    /**
      * Filename of the file in which this DafnyDecl is stored.
      */
     private final String filename;
-
     /**
      * Reference to the AST that represents this declaration.
      */
     private final DafnyTree representation;
-
     /**
      * The name of this declaration.
      */
     private final String name;
-
     /**
      * a flag indicating whether this declaration is a library entity or not.
      *
@@ -56,6 +38,13 @@ public abstract class DafnyDecl {
      * for the library flag.
      */
     private final boolean inLibrary;
+    /**
+     * The declaration within which this declaration is placed.
+     * May be <code>null</code> (in particular for {@link DafnyFile}s)
+     * <p>
+     * This is set by the parent class when adding it as a child.
+     */
+    private DafnyDecl parentDecl;
 
     /**
      * Instantiates a new dafny declaration.
@@ -74,6 +63,50 @@ public abstract class DafnyDecl {
         this.filename = Objects.requireNonNull(filename);
         this.name = Objects.requireNonNull(name);
         this.inLibrary = inLib;
+    }
+
+    /**
+     * Check two maps of declarations for a name conflict.
+     *
+     * @param list1 one collections of declarations, indexed by name, not
+     *              <code>null</code>
+     * @param list2 another collections of declarations, indexed by name, not
+     *              <code>null</code>
+     * @throws DafnyException if two declarations by the same exist
+     */
+    protected static void checkNameConflict(Map<String, ? extends DafnyDecl> list1,
+                                            Map<String, ? extends DafnyDecl> list2) throws DafnyException {
+        Set<String> knownNames = new HashSet<>(list1.keySet());
+        knownNames.retainAll(list2.keySet());
+
+        if (!knownNames.isEmpty()) {
+            String name = knownNames.iterator().next();
+            DafnyDecl instance = list2.get(knownNames);
+            throw new DafnyException("Function/method " + name + " has been declared twice.",
+                    instance.getRepresentation());
+        }
+    }
+
+    /**
+     * Translate a list of dafny declarations to a map by their name.
+     * <p>
+     * This is a infrastructure method invoked by various builders.
+     *
+     * @param <D>  the generic type
+     * @param list the list
+     * @return the map
+     * @throws DafnyException the dafny exception
+     */
+    public static <D extends DafnyDecl> Map<String, D> toMap(List<D> list) throws DafnyException {
+        Map<String, D> result = new LinkedHashMap<String, D>();
+        for (D decl : list) {
+            if (result.containsKey(decl.getName())) {
+                // TODO bring up a sensible error message
+                throw new DafnyException("XXX", decl.getRepresentation());
+            }
+            result.put(decl.getName(), decl);
+        }
+        return result;
     }
 
     // REVIEW: What is a representation? Is this the AST source of this decl?
@@ -133,56 +166,6 @@ public abstract class DafnyDecl {
      * @return the result returned by the visitor
      */
     public abstract <R, A> R accept(DafnyDeclVisitor<R, A> visitor, A arg);
-
-    /**
-     * Check two maps of declarations for a name conflict.
-     *
-     * @param list1
-     *            one collections of declarations, indexed by name, not
-     *            <code>null</code>
-     * @param list2
-     *            another collections of declarations, indexed by name, not
-     *            <code>null</code>
-     * @throws DafnyException
-     *             if two declarations by the same exist
-     */
-    protected static void checkNameConflict(Map<String, ? extends DafnyDecl> list1,
-            Map<String, ? extends DafnyDecl> list2) throws DafnyException {
-        Set<String> knownNames = new HashSet<>(list1.keySet());
-        knownNames.retainAll(list2.keySet());
-
-        if (!knownNames.isEmpty()) {
-            String name = knownNames.iterator().next();
-            DafnyDecl instance = list2.get(knownNames);
-            throw new DafnyException("Function/method " + name + " has been declared twice.",
-                    instance.getRepresentation());
-        }
-    }
-
-    /**
-     * Translate a list of dafny declarations to a map by their name.
-     *
-     * This is a infrastructure method invoked by various builders.
-     *
-     * @param <D>
-     *            the generic type
-     * @param list
-     *            the list
-     * @return the map
-     * @throws DafnyException
-     *             the dafny exception
-     */
-    public static <D extends DafnyDecl> Map<String, D> toMap(List<D> list) throws DafnyException {
-        Map<String, D> result = new LinkedHashMap<String, D>();
-        for (D decl : list) {
-            if (result.containsKey(decl.getName())) {
-                // TODO bring up a sensible error message
-                throw new DafnyException("XXX", decl.getRepresentation());
-            }
-            result.put(decl.getName(), decl);
-        }
-        return result;
-    }
 
     public Collection<FunctionSymbol> getLocalSymbols() {
         return Collections.emptyList();

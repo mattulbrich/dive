@@ -9,6 +9,8 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.nio.ByteBuffer;
+import java.nio.charset.Charset;
 import java.util.AbstractList;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -17,11 +19,20 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
 import java.util.RandomAccess;
-import java.util.ServiceLoader;
 import java.util.function.Function;
 
+import edu.kit.iti.algover.proof.PVC;
 
+/**
+ * The Class Util is a collection of general purpose static methods.
+ *
+ * @author mattias ulbrich
+ */
 public final class Util {
+
+
+    private Util() { throw new Error(); }
+
     /**
      * Wrap an immutable list object around an array. The elements in the array
      * can by no means be replaced.
@@ -76,90 +87,6 @@ public final class Util {
      */
     public static <E> List<E> readOnlyArrayList(E[] array, int from, int to) {
         return new ReadOnlyArrayList<E>(array, from, to);
-    }
-
-    /**
-     * A wrapper class for the collection framework. It renders an array into an
-     * immutable list.
-     *
-     * @param <E>
-     *            the element type of the list.
-     */
-    private static final class ReadOnlyArrayList<E extends Object>
-            extends AbstractList<E> implements RandomAccess {
-        private final E[] array;
-        private final int from;
-        private final int to;
-
-        private ReadOnlyArrayList(E[] array, int from, int to) {
-            if(array == null) {
-                throw new NullPointerException();
-            }
-
-            if(from < 0) {
-                throw new IndexOutOfBoundsException("Must be within array bounds: " + from);
-            }
-
-            if(to > array.length) {
-                throw new IndexOutOfBoundsException("Must be at most array length (" +
-                        array.length + "): " + from);
-            }
-
-            if(to < from) {
-                throw new IndexOutOfBoundsException("Must be increasing: " +
-                        from + " ... " + to);
-            }
-
-            this.from = from;
-            this.to = to;
-            this.array = array;
-        }
-
-        @Override
-        public E get(int index) {
-            return array[index + from];
-        }
-
-        @Override
-        public int size() {
-            return to - from;
-        }
-
-        @Override
-        public E[] toArray() {
-            if(from == 0 && to == array.length) {
-                return array.clone();
-            } else {
-                @SuppressWarnings("unchecked")
-                E[] result = (E[]) new Object[to - from];
-                System.arraycopy(array, from, result, 0, to-from);
-                return result;
-            }
-        }
-
-        @Override
-        public int indexOf(Object o) {
-            if (o == null) {
-                for (int i = from; i < to; i++) {
-                    if (array[i] == null) {
-                        return i - from;
-                    }
-                }
-            } else {
-                for (int i = from; i < to; i++) {
-                    if (o.equals(array[i])) {
-                        return i - from;
-                    }
-                }
-            }
-            return -1;
-        }
-
-        @Override
-        public boolean contains(Object o) {
-            return indexOf(o) != -1;
-        }
-
     }
 
     /**
@@ -336,7 +263,7 @@ public final class Util {
         }
     }
 
-    public static <E,F> List<F> map(Iterable<E> input, Function<E,F> function) {
+    public static <E, F> List<F> map(Iterable<E> input, Function<E, F> function) {
         List<F> result;
         if(input instanceof RandomAccess) {
             result = new ArrayList<>();
@@ -374,6 +301,124 @@ public final class Util {
         ArrayList<E> result = new ArrayList<>();
         itb.forEach(result::add);
         return result;
+    }
+
+    /**
+     * A wrapper class for the collection framework. It renders an array into an
+     * immutable list.
+     *
+     * @param <E> the element type of the list.
+     */
+    private static final class ReadOnlyArrayList<E extends Object>
+            extends AbstractList<E> implements RandomAccess {
+        private final E[] array;
+        private final int from;
+        private final int to;
+
+        private ReadOnlyArrayList(E[] array, int from, int to) {
+            if (array == null) {
+                throw new NullPointerException();
+            }
+
+            if (from < 0) {
+                throw new IndexOutOfBoundsException("Must be within array bounds: " + from);
+            }
+
+            if (to > array.length) {
+                throw new IndexOutOfBoundsException("Must be at most array length (" +
+                        array.length + "): " + from);
+            }
+
+            if (to < from) {
+                throw new IndexOutOfBoundsException("Must be increasing: " +
+                        from + " ... " + to);
+            }
+
+            this.from = from;
+            this.to = to;
+            this.array = array;
+        }
+
+        @Override
+        public E get(int index) {
+            return array[index + from];
+        }
+
+        @Override
+        public int size() {
+            return to - from;
+        }
+
+        @Override
+        public E[] toArray() {
+            if (from == 0 && to == array.length) {
+                return array.clone();
+            } else {
+                @SuppressWarnings("unchecked")
+                E[] result = (E[]) new Object[to - from];
+                System.arraycopy(array, from, result, 0, to - from);
+                return result;
+            }
+        }
+
+        @Override
+        public int indexOf(Object o) {
+            if (o == null) {
+                for (int i = from; i < to; i++) {
+                    if (array[i] == null) {
+                        return i - from;
+                    }
+                }
+            } else {
+                for (int i = from; i < to; i++) {
+                    if (o.equals(array[i])) {
+                        return i - from;
+                    }
+                }
+            }
+            return -1;
+        }
+
+        @Override
+        public boolean contains(Object o) {
+            return indexOf(o) != -1;
+        }
+
+    }
+
+    /**
+     * Mask a file name to be universally usable on filesystems.
+     *
+     * In particular this is used to mask {@link PVC#getName()}.
+     *
+     * Alphanumeric characters ({@code A-Za-z0-9}) and some other characters are
+     * taken verbatim. Spaces become "-", and "/" becomes "+".
+     *
+     * @param s
+     *            the string to masked
+     * @return the masked string
+     */
+    public static String maskFileName(String s) {
+        StringBuilder sb = new StringBuilder();
+        for(int i = 0; i < s.length(); i++) {
+            char c = s.charAt(i);
+            if(   ('0' <= c && c <= '9') || ('a' <= c && c <= 'z') || ('A' <= c && c <= 'Z')
+               || "_[]().,;".indexOf(c) >= 0 ) {
+                sb.append(c);
+            } else {
+                switch(c) {
+                case ' ': sb.append("-"); break;
+                case '/': sb.append("+"); break;
+                default:
+                    ByteBuffer bb = Charset.forName("UTF-8").encode(Character.toString(c));
+                    while(bb.hasRemaining()) {
+                        sb.append(String.format("%%%02x", bb.get()));
+                    }
+                }
+            }
+        }
+
+        return sb.toString();
     }
 
 

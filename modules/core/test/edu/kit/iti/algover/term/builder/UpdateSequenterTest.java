@@ -5,12 +5,6 @@
  */
 package edu.kit.iti.algover.term.builder;
 
-import java.io.InputStream;
-import java.util.List;
-
-import org.junit.Ignore;
-import org.junit.Test;
-
 import edu.kit.iti.algover.dafnystructures.DafnyMethod;
 import edu.kit.iti.algover.parser.DafnyTree;
 import edu.kit.iti.algover.parser.ParserTest;
@@ -19,6 +13,11 @@ import edu.kit.iti.algover.symbex.Symbex;
 import edu.kit.iti.algover.symbex.SymbexPath;
 import edu.kit.iti.algover.term.Sequent;
 import edu.kit.iti.algover.util.TestUtil;
+import org.junit.Ignore;
+import org.junit.Test;
+
+import java.io.InputStream;
+import java.util.List;
 
 public class UpdateSequenterTest extends SequenterTest {
 
@@ -36,7 +35,8 @@ public class UpdateSequenterTest extends SequenterTest {
     }
 
     // used to debug a problem.
-    @Test @Ignore
+    @Test
+    @Ignore
     public void testLetProblem1() throws Exception {
         InputStream is = getClass().getResourceAsStream("gcd.dfy");
         DafnyTree top = ParserTest.parseFile(is, null);

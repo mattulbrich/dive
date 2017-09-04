@@ -5,10 +5,6 @@
  */
 package edu.kit.iti.algover.term.builder;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-
 import edu.kit.iti.algover.data.SymbolTable;
 import edu.kit.iti.algover.parser.DafnyException;
 import edu.kit.iti.algover.proof.ProofFormula;
@@ -17,6 +13,10 @@ import edu.kit.iti.algover.symbex.PathConditionElement;
 import edu.kit.iti.algover.symbex.SymbexPath;
 import edu.kit.iti.algover.term.Sequent;
 import edu.kit.iti.algover.term.Term;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 public class UpdateSequenter implements PVCSequenter {
 
@@ -32,7 +32,7 @@ public class UpdateSequenter implements PVCSequenter {
 
     @Override
     public final Sequent translate(SymbexPath pathThroughProgram,
-            SymbolTable makeSymbolTable) throws DafnyException {
+                                   SymbolTable makeSymbolTable) throws DafnyException {
 
         TreeTermTranslator ttt = new TreeTermTranslator(makeSymbolTable);
         List<ProofFormula> ante = new ArrayList<>();
