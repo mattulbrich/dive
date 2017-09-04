@@ -7,6 +7,7 @@ import edu.kit.iti.algover.script.data.State;
 import edu.kit.iti.algover.script.interpreter.Interpreter;
 import edu.kit.iti.algover.script.parser.DefaultASTVisitor;
 import edu.kit.iti.algover.script.parser.Facade;
+import edu.kit.iti.algover.util.Util;
 import javafx.beans.property.SimpleObjectProperty;
 import org.antlr.tool.Interp;
 import org.antlr.v4.runtime.Token;
@@ -69,7 +70,8 @@ public class Proof {
         if (this.getScript() != null) {
             saveOldDataStructures();
         }
-        ProofScript scriptAST = Facade.getAST(script);
+
+        ProofScript scriptAST = Facade.getAST(Util.maskFileName(script));
         this.setScript(scriptAST.getBody());
 
     }

@@ -235,15 +235,15 @@ public class TransformAst implements ScriptLanguageVisitor<Object> {
     //TODO implement
 
 
-    @Override
+   /* @Override
     public Object visitExprSubst(ScriptLanguageParser.ExprSubstContext ctx) {
         return null;
-    }
+    }*/
 
-    @Override
+   /*  @Override
     public Object visitSubstExpressionList(ScriptLanguageParser.SubstExpressionListContext ctx) {
         return null;
-    }
+    }*/
 
     @Override
     public Object visitLiteralID(ScriptLanguageParser.LiteralIDContext ctx) {
@@ -320,17 +320,17 @@ public class TransformAst implements ScriptLanguageVisitor<Object> {
 
     @Override
     public Object visitCasesList(ScriptLanguageParser.CasesListContext ctx) {
-
-        if (ctx.ISCLOSED() != null) {
+        //TODO try case
+        if (ctx.CLOSES() != null) {
             IsClosableCase isClosableCase = new IsClosableCase();
             isClosableCase.setRuleContext(ctx);
-            isClosableCase.setBody((Statements) ctx.stmtList().accept(this));
+            isClosableCase.setBody((Statements) ctx.bodyScript.accept(this));
             return isClosableCase;
         } else {
             SimpleCaseStatement caseStatement = new SimpleCaseStatement();
             caseStatement.setRuleContext(ctx);
             caseStatement.setGuard((Expression) ctx.expression().accept(this));
-            caseStatement.setBody((Statements) ctx.stmtList().accept(this));
+            caseStatement.setBody((Statements) ctx.bodyScript.accept(this));
             return caseStatement;
         }
      /*   CaseStatement caseStatement = new CaseStatement();

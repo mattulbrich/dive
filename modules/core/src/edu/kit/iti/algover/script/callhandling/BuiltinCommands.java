@@ -1,8 +1,10 @@
 package edu.kit.iti.algover.script.callhandling;
 
 import java.math.BigInteger;
+import java.util.HashMap;
 import java.util.Map;
 
+import edu.kit.iti.algover.rules.RuleException;
 import edu.kit.iti.algover.script.ast.CallStatement;
 import edu.kit.iti.algover.script.ast.Variable;
 import edu.kit.iti.algover.script.data.GoalNode;
@@ -10,6 +12,7 @@ import edu.kit.iti.algover.script.data.State;
 import edu.kit.iti.algover.script.data.Value;
 import edu.kit.iti.algover.script.data.VariableAssignment;
 import edu.kit.iti.algover.script.interpreter.Interpreter;
+import edu.kit.iti.algover.term.Term;
 import org.junit.Assert;
 
 
@@ -88,9 +91,13 @@ public abstract class BuiltinCommands {
             super("assert");
         }
 
+
         @Override
         public void evaluate(Interpreter interpreter, CallStatement call, VariableAssignment params) {
             Map<Variable, Value> m = params.asMap();
+            if (params.isEmpty()) {
+
+            }
             System.out.println("Not implemented yet");
 
             //Value<Boolean> exp = get(m, "val", "#1");
@@ -103,3 +110,34 @@ public abstract class BuiltinCommands {
     }
 }
 
+/* if (!ruleMap.keySet().contains(call.getCommand())) {
+            throw new IllegalStateException();
+        }
+        ProofRule pr = ruleMap.get(call.getCommand());
+        State<ProofNode> state = interpreter.getCurrentState();
+        GoalNode<ProofNode> pn = state.getSelectedGoalNode();
+
+        try {
+            Parameters ruleParams = new Parameters();
+
+            Evaluator<ProofNode> evaluator = new Evaluator<>(params, pn);
+            call.getParameters().forEach((variable, expression) -> {
+                        Value val = evaluator.eval(expression);
+                        ruleParams.putValue(variable.getIdentifier(), convertValuesToTypedValues(val));
+                    }
+            );
+
+            ProofRuleApplication proofRuleApplication = pr.makeApplication(pn.getData(), ruleParams);
+            if (proofRuleApplication.getApplicability().equals(ProofRuleApplication.Applicability.APPLICABLE)) {
+                List<ProofNode> newNodes = RuleApplicator.applyRule(proofRuleApplication, pn.getData());
+
+                state.getGoals().remove(pn);
+                //state.getGoals().add(newCreatedGoals);
+                //newcreatedgoals must be goalnode<ProofNode>
+            } else {
+                System.out.println("Warning command not applicable");
+            }
+
+        } catch (RuleException e) {
+            throw new ScriptCommandNotApplicableException(e);
+        }*/
