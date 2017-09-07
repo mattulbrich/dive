@@ -57,7 +57,7 @@ public class IntegrationTest1 {
 
             if (TestUtil.VERBOSE) {
                 String smt = z3.createSMTInput(formulae);
-                System.out.println(smt);
+                System.out.println(smt);//TestUtil.prettyPrintSMT(smt));
             }
 
             assertEquals("unsat", z3.solve(formulae));

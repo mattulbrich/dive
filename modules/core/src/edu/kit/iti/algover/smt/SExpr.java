@@ -1,7 +1,7 @@
 /*
  * This file is part of AlgoVer.
  *
- * Copyright (C) 2015-2016 Karlsruhe Institute of Technology
+ * Copyright (C) 2015-2017 Karlsruhe Institute of Technology
  */
 
 package edu.kit.iti.algover.smt;
@@ -25,33 +25,54 @@ import java.util.regex.Pattern;
  */
 public class SExpr {
 
+    public enum Type { INT, BOOL, UNIVERSE, NONE, HEAP }
+
     private static final Pattern EXTRACHAR_PATTERN =
             Pattern.compile("[^-A-Za-z0-9+/*=%?!.$_~&^<>@]");
 
     private final String name;
+    private final Type type;
 
     private List<SExpr> children;
 
     public SExpr(String name) {
+        this(name, Type.NONE);
+    }
+    public SExpr(String name, Type type) {
         this.name = name;
+        this.type = type;
         this.children = Collections.emptyList();
     }
 
     public SExpr(String name, List<SExpr> children) {
+        this(name, Type.NONE, children);
+    }
+
+    public SExpr(String name, Type type, List<SExpr> children) {
         this.name = name;
         this.children = children;
+        this.type = type;
     }
 
     public SExpr(String name, String... children) {
+        this(name, Type.NONE, children);
+    }
+
+    public SExpr(String name, Type type, String[] children) {
         this.name = name;
-        this.children = new ArrayList<SExpr>();
+        this.type = type;
+        this.children = new ArrayList<SExpr>(children.length);
         for (String string : children) {
             this.children.add(new SExpr(string));
         }
     }
 
     public SExpr(String name, SExpr... children) {
-        this(name, Arrays.asList(children));
+        this(name, Type.NONE, children);
+    }
+
+    public SExpr(String name, Type type, SExpr... children) {
+        this(name, type, Arrays.asList(children));
     }
 
     public SExpr(SExpr... children) {
@@ -92,5 +113,9 @@ public class SExpr {
         } else {
             sb.append(getEscapedName());
         }
+    }
+
+    public Type getType() {
+        return type;
     }
 }

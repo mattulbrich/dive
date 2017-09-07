@@ -75,6 +75,8 @@ public class Z3Solver extends SMTSolver {
             }
 
             return Result.ERROR;
+        } catch(SMTException ex) {
+            throw new IOException(ex);
         } finally {
             process.destroy();
         }
