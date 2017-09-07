@@ -71,6 +71,7 @@ public class MethodPVCBuilder {
     }
 
     public MethodPVCBuilder setPathThroughProgram(SymbexPath pathThroughProgram) {
+        this.sequent = null;
         this.pathThroughProgram = pathThroughProgram;
         return this;
     }
@@ -80,6 +81,7 @@ public class MethodPVCBuilder {
     }
 
     public MethodPVCBuilder setDeclaration(DafnyDecl decl) {
+        this.sequent = null;
         this.declaration = decl;
         return this;
     }
@@ -140,6 +142,7 @@ public class MethodPVCBuilder {
     }
 
     public Map<TermSelector, DafnyTree> getReferenceMap() {
+        ensureSequentExists();
         return Collections.unmodifiableMap(referenceMap);
     }
 
@@ -148,6 +151,7 @@ public class MethodPVCBuilder {
     }
 
     public void setSequenter(PVCSequenter sequenter) {
+        this.sequent = null;
         this.sequenter = sequenter;
     }
 
