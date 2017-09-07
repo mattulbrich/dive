@@ -5,6 +5,8 @@
 	<property name="dir.lib" location="../../lib" />
 	<property name="dir.tools" value="../../tools" />
 
+	<property name="z3.binary" value="z3" />
+
 	<property name="libs"
 			  value="${dir.lib}/antlr.jar:${dir.lib}/junit4.jar:${dir.lib}/junitparams.jar:${dir.lib}/jpplib.jar:${dir.lib}/antlr-4.7-complete.jar:${dir.lib}/guava-23.0.jar"/>
 
@@ -79,8 +81,10 @@
 	</target>
 
 	<target name="test" depends="compile-test, build">
+		<exec executable="${z3.binary}"><arg value="-version"/></exec>
 		<junit fork="yes" printsummary="yes">
 			<jvmarg value="-javaagent:${dir.lib}/nonnull.jar=edu.kit." />
+                        <jvmarg value="-Dedu.kit.iti.algover.z3_binary=${z3.binary}" />
 			<formatter type="xml" />
 			<assertions><enable/></assertions>
 			<classpath path="test-bin:bin:${libs}:${dir.lib}/hamcrest.jar" />
