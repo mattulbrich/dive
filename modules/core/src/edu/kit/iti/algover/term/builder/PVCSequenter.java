@@ -7,12 +7,16 @@ package edu.kit.iti.algover.term.builder;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.ServiceLoader;
 
 import edu.kit.iti.algover.data.SymbolTable;
 import edu.kit.iti.algover.parser.DafnyException;
+import edu.kit.iti.algover.parser.DafnyTree;
 import edu.kit.iti.algover.proof.PVC;
+import edu.kit.iti.algover.proof.Proof;
 import edu.kit.iti.algover.proof.ProofNode;
+import edu.kit.iti.algover.rules.TermSelector;
 import edu.kit.iti.algover.symbex.SymbexPath;
 import edu.kit.iti.algover.term.Sequent;
 import edu.kit.iti.algover.util.Util;
@@ -69,11 +73,16 @@ public interface PVCSequenter {
      *
      * @param pathThroughProgram
      *            the path to translate
-     * @param symbolTable the lookup table for defined symbols
+     * @param symbolTable
+     *            the lookup table for defined symbols
+     * @param referenceMap
+     *            if not <code>null</code>: a map into which all terms from
+     *            within the sequent have their origin referenced.
      * @return a freshly created sequent.
      * @throws DafnyException
      *             if an illegally composed dafny expression occurs.
      */
-    Sequent translate(SymbexPath pathThroughProgram, SymbolTable symbolTable)
-            throws DafnyException;
+    Sequent translate(SymbexPath pathThroughProgram, SymbolTable symbolTable,
+            Map<TermSelector, DafnyTree> referenceMap)
+                    throws DafnyException;
 }

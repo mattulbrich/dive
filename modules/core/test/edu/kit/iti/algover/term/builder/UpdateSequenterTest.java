@@ -5,19 +5,24 @@
  */
 package edu.kit.iti.algover.term.builder;
 
+import java.io.InputStream;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import org.junit.Ignore;
+import org.junit.Test;
+
 import edu.kit.iti.algover.dafnystructures.DafnyMethod;
 import edu.kit.iti.algover.parser.DafnyTree;
 import edu.kit.iti.algover.parser.ParserTest;
 import edu.kit.iti.algover.project.Project;
+import edu.kit.iti.algover.rules.TermSelector;
 import edu.kit.iti.algover.symbex.Symbex;
 import edu.kit.iti.algover.symbex.SymbexPath;
 import edu.kit.iti.algover.term.Sequent;
 import edu.kit.iti.algover.util.TestUtil;
-import org.junit.Ignore;
-import org.junit.Test;
-
-import java.io.InputStream;
-import java.util.List;
+import static org.junit.Assert.assertEquals;
 
 public class UpdateSequenterTest extends SequenterTest {
 
@@ -50,8 +55,10 @@ public class UpdateSequenterTest extends SequenterTest {
         PVCSequenter sequenter = makeSequenter();
         for (SymbexPath paths : results) {
             for (SymbexPath path : paths.split()) {
-                Sequent sequent = sequenter.translate(path, makeTable(method));
+                Sequent sequent = sequenter.translate(path, makeTable(method), null);
             }
         }
     }
+
+
 }
