@@ -40,7 +40,7 @@ public class InlineSequenterTest extends SequenterTest {
         return new InlineSequenter();
     }
 
-    @Test @Ignore
+    @Test
     public void testReferenceMap() throws Exception {
         InputStream is = getClass().getResourceAsStream("referencesTest.dfy");
         DafnyTree top = ParserTest.parseFile(is, null);

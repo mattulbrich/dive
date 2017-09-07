@@ -4,7 +4,8 @@ method m(x : int, a : array<int>) returns (r : int)
 
    var i : int;
 
-   i := x;
+   i := x + 3;
+   assume i > 0;
    i := i + 2;
    i := a[i];
    r := i;
