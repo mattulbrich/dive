@@ -78,7 +78,7 @@ public abstract class SMTSolver {
 
         sb.append("; === Declarations ===\n\n");
         for (FunctionSymbol fs : symbolTable.getAllSymbols()) {
-            if (!fs.getName().contains("$") && !fs.getName().matches("[0-9]+")
+            if (!fs.getName().matches("[0-9]+")
                     && SMTTrans.getOperationEntry(fs.getName()) == null) {
                 sb.append(makeDecl(fs)).append("\n");
                 sb.append(makeTyping(fs)).append("\n");
@@ -97,26 +97,6 @@ public abstract class SMTSolver {
         sb.append("(check-sat)\n");
 
         return sb.toString();
-    }
-
-    private SExpr makeTyping(FunctionSymbol fs) {
-        int arity = fs.getArity();
-        if (arity > 0) {
-            List<SExpr> formalParams = new ArrayList<>();
-            List<SExpr> actualParams = new ArrayList<>();
-            for (int i = 1; i <= arity; i++) {
-                formalParams.add(new SExpr("u" + i, "universe"));
-                actualParams.add(new SExpr("u" + i));
-            }
-            SExpr app = new SExpr("fct$" + fs.getName(), actualParams);
-            SExpr typing = SMTTrans.typingPredicate(app, fs.getResultSort());
-            SExpr quant = new SExpr("forall", new SExpr(formalParams), typing);
-            return new SExpr("assert", quant);
-        } else {
-            SExpr app = new SExpr("fct$" + fs.getName());
-            SExpr typing = SMTTrans.typingPredicate(app, fs.getResultSort());
-            return new SExpr("assert", typing);
-        }
     }
 
     private String makePreamble() {
@@ -142,7 +122,27 @@ public abstract class SMTSolver {
         List<SExpr> argList = Collections.nCopies(fs.getArity(), new SExpr("universe"));
         SExpr args = new SExpr(argList);
 
-        return new SExpr("declare-fun", name, new SExpr(args), new SExpr("universe"));
+        return new SExpr("declare-fun", name, args, new SExpr("universe"));
+    }
+
+    private SExpr makeTyping(FunctionSymbol fs) throws SMTException {
+        int arity = fs.getArity();
+        if (arity > 0) {
+            List<SExpr> formalParams = new ArrayList<>();
+            List<SExpr> actualParams = new ArrayList<>();
+            for (int i = 1; i <= arity; i++) {
+                formalParams.add(new SExpr("u" + i, "universe"));
+                actualParams.add(new SExpr("u" + i));
+            }
+            SExpr app = new SExpr("fct$" + fs.getName(), Type.UNIVERSE, actualParams);
+            SExpr typing = SMTTrans.typingPredicate(app, fs.getResultSort());
+            SExpr quant = new SExpr("forall", new SExpr(formalParams), typing);
+            return new SExpr("assert", quant);
+        } else {
+            SExpr app = new SExpr("fct$" + fs.getName(), Type.UNIVERSE);
+            SExpr typing = SMTTrans.typingPredicate(app, fs.getResultSort());
+            return new SExpr("assert", typing);
+        }
     }
 
     public abstract Result solve(Collection<Term> formulae) throws IOException;
@@ -150,7 +150,7 @@ public abstract class SMTSolver {
     /**
      * The possible results obtained from z3.
      */
-    enum Result {
+    public enum Result {
         /**
          * The input is unsatisfiable.
          */

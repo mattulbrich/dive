@@ -98,6 +98,11 @@
     <result>INT</result>
   </operator>
   <operator>
+    <function>null</function>
+    <smtFunction>null</smtFunction>
+    <result>UNIVERSE</result>
+  </operator>
+  <operator>
     <function>$array_select</function>
     <exporterClass>SelectSMTExporter</exporterClass>
   </operator>

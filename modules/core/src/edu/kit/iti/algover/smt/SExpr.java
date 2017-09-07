@@ -99,8 +99,9 @@ public class SExpr {
 
     private void appendTo(StringBuilder sb) {
         boolean noSpace = name.isEmpty();
+        String escapedName = getEscapedName();
         if(children.size() > 0) {
-            sb.append("(").append(getEscapedName());
+            sb.append("(").append(escapedName);
             for (SExpr child : children) {
                 if(!noSpace) {
                     sb.append(" ");
@@ -111,7 +112,11 @@ public class SExpr {
             }
             sb.append(")");
         } else {
-            sb.append(getEscapedName());
+            if(escapedName.length() == 0) {
+                sb.append("()");
+            } else {
+                sb.append(escapedName);
+            }
         }
     }
 

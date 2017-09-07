@@ -104,7 +104,7 @@ public class SMTTrans implements TermVisitor<Type, SExpr, SMTException> {
 
         SExpr qvar = new SExpr(varname, "universe");
         SExpr qqvar = new SExpr(qvar);
-        SExpr sortRest = typingPredicate(new SExpr(varname), boundVar.getSort());
+        SExpr sortRest = typingPredicate(new SExpr(varname, UNIVERSE), boundVar.getSort());
         SExpr formula = term.getTerm(0).accept(this, BOOL);
         SExpr impl = new SExpr("=>", sortRest, formula);
 
@@ -119,7 +119,7 @@ public class SMTTrans implements TermVisitor<Type, SExpr, SMTException> {
      * Some times cannot be translated from one type to another. An SMTException
      * is thrown in such cases.
      */
-    private SExpr adjust(SExpr expr, Type targetType) throws SMTException {
+    private static SExpr adjust(SExpr expr, Type targetType) throws SMTException {
         Type type = expr.getType();
         if(type == targetType) {
             return expr;
@@ -257,21 +257,12 @@ public class SMTTrans implements TermVisitor<Type, SExpr, SMTException> {
         return OP_MAP.lookup(name);
     }
 
-    public static SExpr typingPredicate(SExpr expr, Sort sort) {
-        if(sort.equals(Sort.OBJECT)) {
-            return new SExpr("ty$ref", expr);
-        }
+    public static SExpr typingPredicate(SExpr expr, Sort sort) throws SMTException {
+        return new SExpr("isA", BOOL, adjust(expr, UNIVERSE), sortTerm(sort));
+    }
 
-        SExpr sexpSort = sortTerm(sort);
-        // TODO FIXME. Type parameters omitted
-        SExpr result = new SExpr("=", new SExpr("ty", expr), sexpSort);
-
-        if(sort.isClassSort()) {
-            SExpr nullTy = new SExpr("=", new SExpr("ty", expr), new SExpr("ty$null"));
-            result = new SExpr("or", result, nullTy);
-        }
-
-        return result;
+    public static SExpr coerce(SExpr expr, Sort sort) throws SMTException {
+        return new SExpr("coerce", UNIVERSE, adjust(expr, UNIVERSE), sortTerm(sort));
     }
 
 }

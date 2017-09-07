@@ -133,9 +133,10 @@ public class TreeTermTranslator {
                 DafnyTree ref = receiver.getDeclarationReference();
                 if (ref.getType() != DafnyParser.FIELD) {
                     String name = receiver.getText();
-                    VariableTerm f = new VariableTerm(name, build(expression).getSort());
+                    Term assigned = build(expression);
+                    VariableTerm f = new VariableTerm(name, assigned.getSort());
                     boundVars.put(name, f);
-                    let = new LetTerm(f, build(expression), buildLetCascade(tail, result));
+                    let = new LetTerm(f, assigned, buildLetCascade(tail, result));
                     boundVars.pop();
                     return let;
                 } else {
