@@ -60,15 +60,18 @@ public interface ProofRule {
      * <p>
      * The parameters have to be passed as a parameters object.
      *
-     * @param target     the proof node onto whose sequent the rule is to be applied.
-     * @param parameters the parameters as parsed from the proof script.
+     * @param target
+     *            the proof node onto whose sequent the rule is to be applied.
+     * @param parameters
+     *            the parameters as parsed from the proof script.
      * @return the proof rule application that matches the selected target with
-     * the given parameters. May be {@link Applicability#NOT_APPLICABLE
-     * not applicable}.
-     * @throws RuleException if something is unexpected during creation. If a rule is not
-     *                       applicable, no exception should be raised.
-     *                       Missing/wrong/illtyped parameters should also throw an
-     *                       exception.
+     *         the given parameters. This should <b>not</b> be an application which
+     *         is not applicable. Instead an exception should be thrown!
+     * @throws RuleException
+     *             if something is unexpected during creation. If a rule is not
+     *             applicable, no exception should be raised.
+     *             Missing/wrong/illtyped parameters should also throw an
+     *             exception.
      */
     public ProofRuleApplication makeApplication(
             @NonNull ProofNode target,
