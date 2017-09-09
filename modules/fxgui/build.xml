@@ -6,7 +6,7 @@
 	<property name="dir.tools" value="../../tools" />
 	<property name="dir.core.bin" value="../core/bin" />
 
-	<property name="libs" value="${dir.lib}/antlr.jar:${dir.lib}/junit4.jar:${dir.lib}/controlsfx-8.40.13.jar:${dir.lib}/richtextfx-fat-0.7-M5.jar:${dir.lib}/fontawesomefx-8.9.jar:${dir.lib}/jpplib.jar:${dir.lib}/guava-23.0.jar" />
+	<property name="libs" value="${dir.lib}/antlr.jar:${dir.lib}/junit4.jar:${dir.lib}/controlsfx-8.40.13.jar:${dir.lib}/richtextfx-fat-0.7-M5.jar:${dir.lib}/fontawesomefx-8.9.jar:${dir.lib}/jpplib.jar:${dir.lib}/guava-23.0.jar:${dir.lib}/jfoenix.jar" />
 
 	<target name="init" description="initialize all directories">
 		<mkdir dir="bin" />
