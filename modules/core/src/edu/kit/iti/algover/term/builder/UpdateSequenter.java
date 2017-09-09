@@ -5,18 +5,22 @@
  */
 package edu.kit.iti.algover.term.builder;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+
 import edu.kit.iti.algover.data.SymbolTable;
 import edu.kit.iti.algover.parser.DafnyException;
+import edu.kit.iti.algover.parser.DafnyTree;
 import edu.kit.iti.algover.proof.ProofFormula;
+import edu.kit.iti.algover.references.ReferenceTools;
+import edu.kit.iti.algover.rules.TermSelector;
 import edu.kit.iti.algover.symbex.AssertionElement;
 import edu.kit.iti.algover.symbex.PathConditionElement;
 import edu.kit.iti.algover.symbex.SymbexPath;
 import edu.kit.iti.algover.term.Sequent;
 import edu.kit.iti.algover.term.Term;
-
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
 
 public class UpdateSequenter implements PVCSequenter {
 
@@ -32,7 +36,9 @@ public class UpdateSequenter implements PVCSequenter {
 
     @Override
     public final Sequent translate(SymbexPath pathThroughProgram,
-                                   SymbolTable makeSymbolTable) throws DafnyException {
+                                   SymbolTable makeSymbolTable,
+                                   Map<TermSelector, DafnyTree> refMap)
+                                           throws DafnyException {
 
         TreeTermTranslator ttt = new TreeTermTranslator(makeSymbolTable);
         List<ProofFormula> ante = new ArrayList<>();
@@ -57,7 +63,11 @@ public class UpdateSequenter implements PVCSequenter {
             ProofFormula formula = new ProofFormula(id++, term);
             formula = postProcess(formula);
             List<ProofFormula> succ = Collections.singletonList(formula);
-            return new Sequent(ante, succ);
+            Sequent sequent = new Sequent(ante, succ);
+            if(refMap != null) {
+                ReferenceTools.addSequentReferences(sequent, ttt.getReferenceMap(), refMap);
+            }
+            return sequent;
 
         } catch (TermBuildException e) {
             throw new DafnyException(assertion.getExpression(), e);
