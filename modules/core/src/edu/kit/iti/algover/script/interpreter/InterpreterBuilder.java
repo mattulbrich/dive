@@ -22,9 +22,10 @@ import java.util.Collection;
 public class InterpreterBuilder {
 
     private final BuiltinCommands.AssertionCommand builtInAssert = new BuiltinCommands.AssertionCommand();
+
     private ProofRuleHandler prh = new ProofRuleHandler();
 
-    //add other builtInCommadnsHere
+    //add other builtInCommandsHere
 
     /**
      * Lookup for all available rule and commandhandlers

@@ -34,9 +34,9 @@ public class TermLiteral extends Literal {
     private final String text;
 
     public TermLiteral(String text) {
-        if (text.charAt(0) == '`')
+        if (text.charAt(0) == '\'')
             text = text.substring(1);
-        if (text.charAt(text.length() - 1) == '`') //remove last backtick
+        if (text.charAt(text.length() - 1) == '\'') //remove last backtick
             text = text.substring(0, text.length() - 1);
         if (text.charAt(0) == '`')
             text = text.substring(0, text.length() - 2);

@@ -85,7 +85,7 @@ public class Project {
         this.baseDir = pBuilder.getDir();
         this.pvcs = new HashMap<>();
         this.pvcByName = new HashMap<>();
-
+        this.allProofRules = new ArrayList<>();
     }
 
     public Map<String, PVC> getPvcCollectionByName() {

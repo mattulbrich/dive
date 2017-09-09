@@ -9,16 +9,14 @@ import edu.kit.iti.algover.parser.DafnyException;
 import edu.kit.iti.algover.parser.ReferenceResolutionVisitor;
 import edu.kit.iti.algover.parser.TypeResolution;
 import edu.kit.iti.algover.proof.*;
-import edu.kit.iti.algover.rules.ProofRule;
-import edu.kit.iti.algover.script.ast.ASTNode;
 import edu.kit.iti.algover.script.ast.ProofScript;
 import edu.kit.iti.algover.script.data.GoalNode;
 import edu.kit.iti.algover.script.interpreter.Interpreter;
 import edu.kit.iti.algover.script.interpreter.InterpreterBuilder;
 import edu.kit.iti.algover.script.parser.Facade;
+import edu.kit.iti.algover.util.FileUtil;
 import edu.kit.iti.algover.util.Util;
 import javafx.beans.property.SimpleObjectProperty;
-import javafx.fxml.LoadException;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -77,9 +75,10 @@ public class ProjectManager {
      * Generate all Proof objects and initialize their data structures
      *
      * @param config File
+     *
      */
-    // REVIEW: please do not use "throws Exception"
-    public void loadProject(File config) throws Exception {
+    //TODO change exception to specifc one when parsing exception exists
+    public void loadProject(File config) throws IOException, Exception {
         this.configFile = config;
         Project p = null;
         p = buildProject(config.toPath());
@@ -105,7 +104,6 @@ public class ProjectManager {
      * @return new Project object
      * //TODO Create Parsing Exception for config file
      */
-    // REVIEW: please do not use "throws Exception"
     private static Project buildProject(Path pathToConfig) throws FileNotFoundException, Exception {
         Project p = null;
         ProjectBuilder pb = new ProjectBuilder();
@@ -144,7 +142,7 @@ public class ProjectManager {
      */
     protected void initializeProofDataStructures(String pvc) throws IOException {
         Proof p = allProofs.get(pvc);
-        findAndParseScriptFile(pvc);
+        findAndParseScriptFileForPVC(pvc);
         PVC pvcObject = allStrippedPVCs.get(pvc);
         p.setProofRoot(new ProofNode(null, null, null, pvcObject.getSequent(), pvcObject));
         buildIndividualInterpreter(p);
@@ -159,26 +157,22 @@ public class ProjectManager {
      * @return TODO should return ScriptAST
      */
 
-    public void findAndParseScriptFile(String pvc) throws IOException {
-        // REVIEW: on master use Util.maskFilename
-        String filePath = project.get().getBaseDir().getAbsolutePath() + pvc + ".script";
+    public void findAndParseScriptFileForPVC(String pvc) throws IOException {
+
         //find file on disc
-        Path p = Paths.get(filePath);
-        // REVIEW: Why using Path here if File is needed the line below?
-        try {
-            ProofScript root = Facade.getAST(p.toFile());
+        File scriptFile = FileUtil.findFile(project.get().getBaseDir(), Util.maskFileName(pvc) + ".script");
+
+        if (scriptFile.exists()) {
+            ProofScript root = Facade.getAST(scriptFile);
             Proof proof = allProofs.get(pvc);
             if (proof == null) {
                 proof = new Proof(pvc);
             }
             proof.setScript(root.getBody());
+            proof.setProofStatus(ProofStatus.SCRIPT_PARSED);
             allProofs.putIfAbsent(pvc, proof);
-        } catch (IOException ex) {
-            // REVIEW: please do not ignore IOExceptions
-            Proof proof = allProofs.get(pvc);
-            proof.setScript(null);
-            proof.setProofStatus(ProofStatus.NON_EXISTING);
-
+        } else {
+            throw new IOException("File " + scriptFile.getName() + " can not be found");
         }
 
     }
@@ -268,7 +262,6 @@ public class ProjectManager {
 
     /**
      * Save content to script file for pvc
-     * @param pvc
      * @param content
      * @throws IOException
      */
