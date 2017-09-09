@@ -2,12 +2,12 @@ package edu.kit.iti.algover.sequent;
 
 import de.jensd.fx.glyphs.GlyphsDude;
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon;
-import edu.kit.iti.algover.project.Project;
 import edu.kit.iti.algover.project.ProjectManager;
 import edu.kit.iti.algover.proof.PVC;
 import edu.kit.iti.algover.proof.Proof;
 import edu.kit.iti.algover.proof.ProofFormula;
 import edu.kit.iti.algover.proof.ProofNode;
+import edu.kit.iti.algover.rules.TermSelector;
 import edu.kit.iti.algover.term.Term;
 import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
@@ -52,8 +52,8 @@ public class SequentController {
         this.antecedentView = new ListView<>();
         this.succedentView = new ListView<>();
 
-        antecedentView.setCellFactory(this::createTermCell);
-        succedentView.setCellFactory(this::createTermCell);
+        antecedentView.setCellFactory(termListView -> createTermCell(TermSelector.SequentPolarity.ANTECEDENT, termListView));
+        succedentView.setCellFactory(termListView -> createTermCell(TermSelector.SequentPolarity.SUCCEDENT, termListView));
 
         this.cancelButton.setOnAction(event -> {
             if (this.listener != null) {
@@ -80,8 +80,8 @@ public class SequentController {
         view.setDividerPositions(0.7);
     }
 
-    private TermCell createTermCell(ListView<Term> termListView) {
-        return new TermCell();
+    private TermCell createTermCell(TermSelector.SequentPolarity polarity, ListView<Term> termListView) {
+        return new TermCell(polarity, listener);
     }
 
     public void viewSequentForPVC(PVC pvc) {

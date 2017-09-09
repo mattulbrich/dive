@@ -92,6 +92,7 @@ public class OverviewController implements SequentActionListener {
 
     @Override
     public void clickOnSubterm(TermSelector selector) {
+        view.moveFrameRight();
         ProofNode node = sequentController.getActiveProofNode();
         if (node != null) {
             ruleApplicationController.considerApplication(node, node.getSequent(), selector);
