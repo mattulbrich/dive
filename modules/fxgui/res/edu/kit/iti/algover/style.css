@@ -28,3 +28,7 @@
 .button-overlay {
     -fx-background-fill: rgba(0, 0, 0, 0.5);
 }
+
+.rule-view {
+    -fx-background-color: #fff;
+}
