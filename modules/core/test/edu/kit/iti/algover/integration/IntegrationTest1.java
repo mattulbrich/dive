@@ -8,6 +8,8 @@ package edu.kit.iti.algover.integration;
 import static org.junit.Assert.assertEquals;
 
 import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -27,6 +29,7 @@ import edu.kit.iti.algover.term.Sequent;
 import edu.kit.iti.algover.term.Term;
 import edu.kit.iti.algover.term.builder.TermBuilder;
 import edu.kit.iti.algover.util.TestUtil;
+import edu.kit.iti.algover.util.Util;
 
 /**
  * This is only the first round of integration tests. As soon as proof replaying
@@ -34,6 +37,16 @@ import edu.kit.iti.algover.util.TestUtil;
  */
 @RunWith(Parameterized.class)
 public class IntegrationTest1 {
+
+    private final static Path TEMP_DIR;
+    static {
+        try {
+            TEMP_DIR = Files.createTempDirectory("algover-z3-");
+            System.err.println("Z3 Director is " + TEMP_DIR);
+        } catch(Exception ex) {
+            throw new Error(ex);
+        }
+    }
 
     private PVC pvc;
     private Project project;
@@ -78,10 +91,12 @@ public class IntegrationTest1 {
             formulae.add(tb.negate(formula.getTerm()));
         }
 
+        String smt = z3.createSMTInput(formulae);
         if (TestUtil.VERBOSE) {
-            String smt = z3.createSMTInput(formulae);
             System.out.println(smt);//TestUtil.prettyPrintSMT(smt));
         }
+        Path file = TEMP_DIR.resolve(Util.maskFileName(pvc.getName()) + ".smt2");
+        Files.write(file, smt.getBytes());
 
         assertEquals(Result.UNSAT, z3.solve(formulae));
     }

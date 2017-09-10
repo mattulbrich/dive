@@ -103,8 +103,25 @@
     <result>UNIVERSE</result>
   </operator>
   <operator>
+    <function>$anon</function>
+    <smtFunction>$anon</smtFunction>
+    <argument>HEAP</argument>
+    <argument>UNIVERSE</argument>
+    <argument>HEAP</argument>
+    <result>HEAP</result>
+  </operator>
+  <operator>
+    <function>$everything</function>
+    <smtFunction>$everything</smtFunction>
+    <result>UNIVERSE</result>
+  </operator>
+  <operator>
     <function>$array_select</function>
     <exporterClass>SelectSMTExporter</exporterClass>
+  </operator>
+  <operator>
+    <function>$array_store</function>
+    <exporterClass>StoreSMTExporter</exporterClass>
   </operator>
 </SMT_operators>
 

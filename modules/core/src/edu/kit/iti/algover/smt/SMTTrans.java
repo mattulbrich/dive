@@ -132,8 +132,8 @@ public class SMTTrans implements TermVisitor<Type, SExpr, SMTException> {
                 return new SExpr("b2u", UNIVERSE, expr);
             case INT:
                 return new SExpr("i2u", UNIVERSE, expr);
-            case UNIVERSE:
-                return expr;
+            case HEAP:
+                return new SExpr("h2u", UNIVERSE, expr);
             default:
                 throw new SMTException("Cannot adjust " + expr +
                         "from " + type +
@@ -246,9 +246,7 @@ public class SMTTrans implements TermVisitor<Type, SExpr, SMTException> {
             children.add(subterm.accept(this, UNIVERSE));
         }
 
-        if (!name.contains("$")) {
-            name = "fct$" + name;
-        }
+        name = "fct$" + name;
 
         return adjust(new SExpr(name, UNIVERSE, children), arg);
     }
