@@ -74,18 +74,17 @@ public class ProjectTest {
 
     @Test
     public void testPVCgeneration() {
-        p.generateAndCollectPVC().getContents();
-        PVC pvc1 = p.getPVCbyName("single/Post");
+        PVC pvc1 = p.getPVCByName("single/Post");
         assertNotNull(pvc1);
 
-        p.getAllVerificationConditions();
-        PVC pvc2 = p.getPVCbyName("single/Post");
+        p.getAllPVCs();
+        PVC pvc2 = p.getPVCByName("single/Post");
         assertSame("Second request should give same pvc", pvc1, pvc2);
     }
 
     @Test
     public void testPVCByName() {
-        assertNotNull(p.getPVCbyName("single/Post"));
+        assertNotNull(p.getPVCByName("single/Post"));
     }
 
     //TODO test that classes and functions are correctly extracted

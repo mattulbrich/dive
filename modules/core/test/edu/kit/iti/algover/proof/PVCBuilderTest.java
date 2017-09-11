@@ -29,9 +29,9 @@ public class PVCBuilderTest {
         DafnyTree fileTree = ParserTest.parseFile(is);
         Project project = TestUtil.mockProject(fileTree);
 
-        PVCGroup group = project.getAllVerificationConditions();
+        PVCGroup group = project.getAllPVCs();
         for (PVC pvc : group.getContents()) {
-            System.out.println(pvc.getName());
+            System.out.println(pvc.getIdentifier());
         }
     }
 

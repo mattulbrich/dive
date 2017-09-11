@@ -60,7 +60,7 @@ public abstract class BrowserController {
 
     protected TreeItem<TreeTableEntity> getItemFromMethod(DafnyFile dafnyFile, DafnyMethod dafnyMethod) {
         TreeItem<TreeTableEntity> item = new TreeItem<>(new MethodEntity(dafnyMethod, dafnyFile));
-        PVCCollection collection = project.getVerificationConditionsFor(dafnyMethod);
+        PVCCollection collection = project.getPVCsFor(dafnyMethod);
         if (collection != null) {
             item.getChildren().setAll(
                 collection.getChildren().stream()

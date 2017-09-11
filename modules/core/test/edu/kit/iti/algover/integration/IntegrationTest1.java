@@ -40,7 +40,7 @@ public class IntegrationTest1 {
         // performs type analysis etc:
         Project project = TestUtil.mockProject(fileTree);
 
-        List<PVC> pvcs = project.generateAndCollectPVC().getContents();
+        List<PVC> pvcs = project.getAllPVCs().getContents();
 
         for (PVC pvc : pvcs) {
             Sequent sequent = pvc.getSequent();

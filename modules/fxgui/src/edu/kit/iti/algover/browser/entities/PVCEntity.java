@@ -11,7 +11,7 @@ public class PVCEntity extends TreeTableEntity {
     private final PVC pvc;
 
     public PVCEntity(PVC pvc, DafnyFile location) {
-        super(pvc.getName(), location);
+        super(pvc.getIdentifier(), location);
         this.pvc = pvc;
     }
 

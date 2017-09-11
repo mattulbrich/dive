@@ -1,3 +1,8 @@
+/*
+ * This file is part of AlgoVer.
+ *
+ * Copyright (C) 2015-2017 Karlsruhe Institute of Technology
+ */
 package edu.kit.iti.algover;
 
 import edu.kit.iti.algover.facade.ProjectFacade;
@@ -34,7 +39,7 @@ public class AlgoVerApplication extends Application {
 
         // Read all PVCs and update GUI
         Project project = ProjectFacade.getInstance().buildProject(projectDir);
-        project.generateAndCollectPVC();
+        project.getAllPVCs();
 
         OverviewController controller = new OverviewController(project);
         Scene scene = new Scene(controller.getView());
