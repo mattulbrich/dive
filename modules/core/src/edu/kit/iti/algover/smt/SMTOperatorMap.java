@@ -21,6 +21,8 @@ import javax.xml.bind.annotation.XmlRootElement;
 import edu.kit.iti.algover.smt.SExpr.Type;
 import edu.kit.iti.algover.smt.SMTOperatorMap.OperatorEntry;
 import edu.kit.iti.algover.term.ApplTerm;
+import edu.kit.iti.algover.term.FunctionSymbol;
+import edu.kit.iti.algover.term.FunctionSymbolFamily.InstantiatedFunctionSymbol;
 
 @XmlRootElement(name = "SMT_operators")
 public class SMTOperatorMap {
@@ -105,5 +107,16 @@ public class SMTOperatorMap {
 
     public boolean contains(String function) {
         return lookup(function) != null;
+    }
+
+    public OperatorEntry lookup(FunctionSymbol f) {
+        OperatorEntry entry = lookup(f.getName());
+        if(entry == null && f instanceof InstantiatedFunctionSymbol) {
+            InstantiatedFunctionSymbol ifs = (InstantiatedFunctionSymbol) f;
+            String basename = ifs.getFamily().getBaseName();
+            entry = lookup(basename);
+        }
+
+        return entry;
     }
 }

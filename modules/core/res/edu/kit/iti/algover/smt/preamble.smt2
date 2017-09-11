@@ -77,7 +77,7 @@
 (declare-fun fieldSerialNo (field) Int)
 
 (declare-fun arrIdx (Int) field)
-(assert (forall ((i Int)) (=> (>= i 0) (= (fieldSerialNo (arrIdx i)) i))))
+(assert (forall ((i Int)) (! (=> (>= i 0) (= (fieldSerialNo (arrIdx i)) i)) :pattern ((arrIdx i)) )))
 
 <fields:{ f |
 (declare-const |field$<f>| field)
@@ -89,7 +89,7 @@
 
 (declare-const $everything universe)
 (assert (forall ((u universe)) 
-  (= ($in u $everything) (isA u ty$object))))
+                (! (= ($in u $everything) (isA u ty$object)) :pattern (($in u $everything)) )))
 
 
 <!

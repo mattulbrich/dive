@@ -41,7 +41,9 @@ public class IntegrationTest1 {
     private final static Path TEMP_DIR;
     static {
         try {
-            TEMP_DIR = Files.createTempDirectory("algover-z3-");
+            TEMP_DIR = Files.createTempDirectory(
+                    String.format("algover-z3-%05d-",
+                            (System.currentTimeMillis()/1000)%100000));
             System.err.println("Z3 Director is " + TEMP_DIR);
         } catch(Exception ex) {
             throw new Error(ex);
@@ -59,7 +61,7 @@ public class IntegrationTest1 {
     @Parameters(name= "{0}")
     public static Iterable<Object[]> data() throws Exception {
 
-        InputStream stream = ParserTest.class.getResourceAsStream("full/sumandmax.dfy");
+        InputStream stream = IntegrationTest1.class.getResourceAsStream("sumAndMaxIntegration.dfy");
         DafnyTree fileTree = ParserTest.parseFile(stream);
 
         // performs type analysis etc:

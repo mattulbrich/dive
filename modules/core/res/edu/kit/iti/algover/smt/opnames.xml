@@ -8,6 +8,19 @@
     <argument>INT</argument>
   </operator>
   <operator>
+    <function>$minus</function>
+    <smtFunction>-</smtFunction>
+    <result>INT</result>
+    <argument>INT</argument>
+    <argument>INT</argument>
+  </operator>
+  <operator>
+    <function>$neg</function>
+    <smtFunction>-</smtFunction>
+    <result>INT</result>
+    <argument>INT</argument>
+  </operator>
+  <operator>
     <function>$times</function>
     <smtFunction>*</smtFunction>
     <result>INT</result>

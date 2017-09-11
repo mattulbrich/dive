@@ -79,7 +79,7 @@ public abstract class SMTSolver {
         sb.append("; === Declarations ===\n\n");
         for (FunctionSymbol fs : symbolTable.getAllSymbols()) {
             if (   !fs.getName().matches("[0-9]+")
-                && SMTTrans.getOperationEntry(fs.getName()) == null) {
+                && SMTTrans.getOperationEntry(fs) == null) {
                 sb.append(makeDecl(fs)).append("\n");
                 sb.append(makeTyping(fs)).append("\n");
             }

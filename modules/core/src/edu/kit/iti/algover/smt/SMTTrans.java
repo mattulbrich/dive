@@ -19,7 +19,6 @@ import edu.kit.iti.algover.smt.SMTOperatorMap.OperatorEntry;
 import edu.kit.iti.algover.smt.SMTOperatorMap.SMTExporter;
 import edu.kit.iti.algover.term.ApplTerm;
 import edu.kit.iti.algover.term.FunctionSymbol;
-import edu.kit.iti.algover.term.FunctionSymbolFamily.InstantiatedFunctionSymbol;
 import edu.kit.iti.algover.term.LetTerm;
 import edu.kit.iti.algover.term.QuantTerm;
 import edu.kit.iti.algover.term.SchemaVarTerm;
@@ -224,21 +223,16 @@ public class SMTTrans implements TermVisitor<Type, SExpr, SMTException> {
     public SExpr visit(ApplTerm term, Type arg) throws SMTException {
 
         FunctionSymbol f = term.getFunctionSymbol();
-        String name = f.getName();
-        OperatorEntry entry = OP_MAP.lookup(name);
-        if(entry == null && f instanceof InstantiatedFunctionSymbol) {
-            InstantiatedFunctionSymbol ifs = (InstantiatedFunctionSymbol) f;
-            String basename = ifs.getFamily().getBaseName();
-            entry = OP_MAP.lookup(basename);
-        }
+        OperatorEntry entry = OP_MAP.lookup(f);
 
         if(entry != null) {
             SMTExporter exporter = entry.getExporter();
             return adjust(exporter.translate(entry, this, term), arg);
         }
 
+        String name = f.getName();
         if(name.matches("[0-9]+")) {
-            return adjust(new SExpr(f.getName(), INT), arg);
+            return adjust(new SExpr(name, INT), arg);
         }
 
         List<SExpr> children = new ArrayList<>();
@@ -251,8 +245,8 @@ public class SMTTrans implements TermVisitor<Type, SExpr, SMTException> {
         return adjust(new SExpr(name, UNIVERSE, children), arg);
     }
 
-    public static OperatorEntry getOperationEntry(String name) {
-        return OP_MAP.lookup(name);
+    public static OperatorEntry getOperationEntry(FunctionSymbol fs) {
+        return OP_MAP.lookup(fs);
     }
 
     public static SExpr typingPredicate(SExpr expr, Sort sort) throws SMTException {
