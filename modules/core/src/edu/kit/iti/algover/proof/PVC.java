@@ -67,7 +67,7 @@ public class PVC {
      * @param builder the builder to take relevant info from, not <code>null</code>.
      * @see MethodPVCBuilder#build()
      */
-    public PVC(MethodPVCBuilder builder) {
+    public PVC(PVCBuilder builder) {
         this.pathThroughProgram = builder.getPathThroughProgram();
         this.declaration = builder.getDeclaration();
         this.sequent = builder.getSequent();
