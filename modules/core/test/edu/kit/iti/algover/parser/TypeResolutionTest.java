@@ -34,6 +34,7 @@ public class TypeResolutionTest {
     // Different from TestUtil.mockProject!
     private static Project mockProject(DafnyTree tree) throws IOException, DafnyException, DafnyParserException, RecognitionException {
         ProjectBuilder pb = new ProjectBuilder();
+        pb.disableNameResolution();
         pb.addDafnyTree("dummy", tree);
         return pb.build();
     }

@@ -7,6 +7,7 @@ package edu.kit.iti.algover.project;
 
 import edu.kit.iti.algover.dafnystructures.DafnyClass;
 import edu.kit.iti.algover.dafnystructures.DafnyFile;
+import edu.kit.iti.algover.proof.PVC;
 import edu.kit.iti.algover.settings.ProjectSettings;
 import org.junit.Before;
 import org.junit.Test;
@@ -69,6 +70,22 @@ public class ProjectTest {
         assertEquals(2, foo3.getMethods().size());
         assertNotNull(foo3.getMethod("arrayUpdate"));
         assertNotNull(foo3.getMethod("foo"));
+    }
+
+    @Test
+    public void testPVCgeneration() {
+        p.generateAndCollectPVC().getContents();
+        PVC pvc1 = p.getPVCbyName("single/Post");
+        assertNotNull(pvc1);
+
+        p.getAllVerificationConditions();
+        PVC pvc2 = p.getPVCbyName("single/Post");
+        assertSame("Second request should give same pvc", pvc1, pvc2);
+    }
+
+    @Test
+    public void testPVCByName() {
+        assertNotNull(p.getPVCbyName("single/Post"));
     }
 
     //TODO test that classes and functions are correctly extracted

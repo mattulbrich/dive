@@ -32,6 +32,7 @@ public class ReferenceResolutionVisitorTest {
     public void testFaulty() throws Exception {
         DafnyTree tree = ParserTest.parseFile(getClass().getResourceAsStream("faultyReferences.dfy"));
         ProjectBuilder pb = new ProjectBuilder();
+        pb.disableNameResolution();
         pb.addDafnyTree("dummy", tree);
         Project project = pb.build();
 
