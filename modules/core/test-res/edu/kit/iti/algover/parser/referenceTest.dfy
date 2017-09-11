@@ -69,4 +69,10 @@ class C {
       fl_var := 55;
       this.fl_var := 55;
    }
+
+   method returnsValue(p_param : array<int>) returns (ret_r : int)
+     ensures ret_r == p_param[0] + 1
+   {
+     ret_r := p_param[0] + 1;
+   }
 }
