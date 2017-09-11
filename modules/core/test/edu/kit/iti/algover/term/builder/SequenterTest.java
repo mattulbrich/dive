@@ -55,7 +55,7 @@ public abstract class SequenterTest {
 
         PVCSequenter sequenter = makeSequenter();
 
-        Sequent sequent = sequenter.translate(path, makeTable(method));
+        Sequent sequent = sequenter.translate(path, makeTable(method), null);
 
         assertEquals(expectedAntecedent(path.getPathIdentifier()),
                 Util.map(sequent.getAntecedent(), x->x.getTerm()).toString());

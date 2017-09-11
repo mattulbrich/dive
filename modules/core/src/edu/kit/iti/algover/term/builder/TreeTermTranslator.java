@@ -9,7 +9,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.IdentityHashMap;
 import java.util.List;
+import java.util.Map;
 
 import edu.kit.iti.algover.SymbexStateToFormula;
 import edu.kit.iti.algover.data.BuiltinSymbols;
@@ -60,7 +62,16 @@ public class TreeTermTranslator {
     private final HistoryMap<String, VariableTerm> boundVars =
             new HistoryMap<>(new HashMap<>());
 
+    /**
+     * The helper object to be used for term construction.
+     */
     private final TermBuilder tb;
+
+    /**
+     * This map is used to construct a map for all terms to their original
+     * DafnyTrees.
+     */
+    private final Map<Term, DafnyTree> referenceMap = new IdentityHashMap<>();
 
     /**
      * Instantiates a new term translator.
@@ -210,87 +221,128 @@ public class TreeTermTranslator {
      */
     public Term build(DafnyTree tree) throws TermBuildException {
 
+        Term result;
+
         switch (tree.getType()) {
         case DafnyParser.AND:
-            return buildBinary(BuiltinSymbols.AND, tree);
+            result = buildBinary(BuiltinSymbols.AND, tree);
+            break;
+
         case DafnyParser.OR:
-            return buildBinary(BuiltinSymbols.OR, tree);
+            result = buildBinary(BuiltinSymbols.OR, tree);
+            break;
+
         case DafnyParser.IMPLIES:
-            return buildBinary(BuiltinSymbols.IMP, tree);
+            result = buildBinary(BuiltinSymbols.IMP, tree);
+            break;
+
         case DafnyParser.GE:
-            return buildBinary(BuiltinSymbols.GE, tree);
+            result = buildBinary(BuiltinSymbols.GE, tree);
+            break;
+
         case DafnyParser.GT:
-            return buildBinary(BuiltinSymbols.GT, tree);
+            result = buildBinary(BuiltinSymbols.GT, tree);
+            break;
+
         case DafnyParser.LE:
-            return buildBinary(BuiltinSymbols.LE, tree);
+            result = buildBinary(BuiltinSymbols.LE, tree);
+            break;
+
         case DafnyParser.LT:
-            return buildBinary(BuiltinSymbols.LT, tree);
+            result = buildBinary(BuiltinSymbols.LT, tree);
+            break;
+
         case DafnyParser.PLUS:
-            return buildBinary(BuiltinSymbols.PLUS, tree);
+            result = buildBinary(BuiltinSymbols.PLUS, tree);
+            break;
+
         case DafnyParser.MINUS:
             if (tree.getChildCount() == 1) {
-                return buildUnary(BuiltinSymbols.NEG, tree);
+                result = buildUnary(BuiltinSymbols.NEG, tree);
             } else {
-                return buildBinary(BuiltinSymbols.MINUS, tree);
+                result = buildBinary(BuiltinSymbols.MINUS, tree);
             }
+            break;
+
         case DafnyParser.TIMES:
-            return buildBinary(BuiltinSymbols.TIMES, tree);
+            result = buildBinary(BuiltinSymbols.TIMES, tree);
+            break;
+
         case DafnyParser.UNION:
             // TODO generalize this beyond integer sets
-            return buildBinary(symbolTable.getFunctionSymbol("$union[int]"), tree);
+            result = buildBinary(symbolTable.getFunctionSymbol("$union[int]"), tree);
+            break;
+
         case DafnyParser.INTERSECT:
             // TODO generalize this beyond integer sets
-            return buildBinary(symbolTable.getFunctionSymbol("$intersect[int]"), tree);
+            result = buildBinary(symbolTable.getFunctionSymbol("$intersect[int]"), tree);
+            break;
 
         case DafnyParser.NOT:
-            return buildUnary(BuiltinSymbols.NOT, tree);
+            result = buildUnary(BuiltinSymbols.NOT, tree);
+            break;
 
         case DafnyParser.EQ:
-            return buildEquality(tree);
+            result = buildEquality(tree);
+            break;
 
         case DafnyParser.NEQ:
-            return tb.negate(buildEquality(tree));
+            result = tb.negate(buildEquality(tree));
+            break;
 
         case DafnyParser.ID:
         case DafnyParser.TRUE:
         case DafnyParser.FALSE:
         case DafnyParser.THIS:
         case DafnyParser.INT_LIT:
-            return buildIdentifier(tree);
+            result = buildIdentifier(tree);
+            break;
 
         case DafnyParser.NULL:
-            return buildNull(tree);
+            result = buildNull(tree);
+            break;
 
-        case DafnyParser.LABEL:
+        // case DafnyParser.LABEL:
 
         case DafnyParser.ALL:
-            return buildQuantifier(QuantTerm.Quantifier.FORALL, tree);
+            result = buildQuantifier(QuantTerm.Quantifier.FORALL, tree);
+            break;
+
         case DafnyParser.EX:
-            return buildQuantifier(QuantTerm.Quantifier.EXISTS, tree);
+            result = buildQuantifier(QuantTerm.Quantifier.EXISTS, tree);
+            break;
 
         case DafnyParser.LET:
-            return buildLet(tree);
+            result = buildLet(tree);
+            break;
 
         case DafnyParser.IF:
-            return buildIf(tree);
+            result = buildIf(tree);
+            break;
 
         case DafnyParser.LENGTH:
-            return buildLength(tree);
+            result = buildLength(tree);
+            break;
 
         case DafnyParser.ARRAY_ACCESS:
-            return buildArrayAccess(tree);
+            result = buildArrayAccess(tree);
+            break;
 
-            case DafnyParser.FIELD_ACCESS:
-                return buildFieldAccess(tree);
+        case DafnyParser.FIELD_ACCESS:
+            result = buildFieldAccess(tree);
+            break;
 
         case DafnyParser.NOETHER_LESS:
-            return buildNoetherLess(tree);
+            result = buildNoetherLess(tree);
+            break;
 
         case DafnyParser.CALL:
-            return buildCall(tree);
+            result = buildCall(tree);
+            break;
 
-            case DafnyParser.WILDCARD:
-                return buildWildcard(tree);
+        case DafnyParser.WILDCARD:
+            result = buildWildcard(tree);
+            break;
 
         default:
             TermBuildException ex =
@@ -299,6 +351,9 @@ public class TreeTermTranslator {
             throw ex;
         }
 
+        referenceMap.put(result, tree);
+
+        return result;
     }
 
     private Term buildIf(DafnyTree tree) throws TermBuildException {
@@ -626,6 +681,20 @@ public class TreeTermTranslator {
     /* for testing */
     int countBoundVars() {
         return boundVars.size();
+    }
+
+
+    /**
+     * Retrieves a map which assigns to every term the {@link DafnyTree} origin.
+     *
+     * Caution! This map is an identity map which maps to every term OBJECT
+     * IDENTITY. Two terms which are semantically and structurally equal may
+     * have different origins!
+     *
+     * @return the reference map
+     */
+    public Map<Term, DafnyTree> getReferenceMap() {
+        return referenceMap;
     }
 
 }
