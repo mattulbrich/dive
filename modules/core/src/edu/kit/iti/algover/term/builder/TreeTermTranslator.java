@@ -485,12 +485,11 @@ public class TreeTermTranslator {
 
     private Term buildWildcard(DafnyTree tree) throws TermBuildException {
         Sort sort = buildSort(tree.getExpressionType());
-        String suggestedName;
         if (tree.getChildCount() > 0) {
-            suggestedName = tree.getChild(0).getText();
-        } else {
-            suggestedName = "unknown";
+            return build(tree.getChild(0));
         }
+        String suggestedName;
+        suggestedName = "unknown";
 
         int count = 1;
         String name = suggestedName + "_" + count;
