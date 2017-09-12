@@ -142,10 +142,19 @@ public class ProjectManager {
      */
     protected void initializeProofDataStructures(String pvc) throws IOException {
         Proof p = allProofs.get(pvc);
-        findAndParseScriptFileForPVC(pvc);
-        PVC pvcObject = allStrippedPVCs.get(pvc);
-        p.setProofRoot(new ProofNode(null, null, null, pvcObject.getSequent(), pvcObject));
-        buildIndividualInterpreter(p);
+        try {
+            // Either the script file can be loaded, then that file is used for building the proof object
+            findAndParseScriptFileForPVC(pvc);
+            PVC pvcObject = allStrippedPVCs.get(pvc);
+            p.setProofRoot(new ProofNode(null, null, null, pvcObject.getSequent(), pvcObject));
+            buildIndividualInterpreter(p);
+        } catch (IOException e) {
+            // Or the proof object is simply stubbed
+            PVC pvcObject = allStrippedPVCs.get(pvc);
+            p.setProofRoot(new ProofNode(null, null, null, pvcObject.getSequent(), pvcObject));
+            // rethrow
+            throw e;
+        }
 
 
     }
