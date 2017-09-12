@@ -68,13 +68,15 @@ public class Z3Solver extends SMTSolver {
                     return Result.UNSAT;
                 case "sat":
                     return Result.SAT;
-                case "unkown":
+                case "unknown":
                     return Result.UNKNOWN;
                 }
                 System.err.println("Z3: " + line);
             }
 
             return Result.ERROR;
+        } catch(SMTException ex) {
+            throw new IOException(ex);
         } finally {
             process.destroy();
         }
@@ -86,7 +88,7 @@ public class Z3Solver extends SMTSolver {
      * Add parameters here ...
      */
     private Process buildProcess() throws IOException {
-        ProcessBuilder pb = new ProcessBuilder(COMMAND, "-t:20", "-in", "-smt2");
+        ProcessBuilder pb = new ProcessBuilder(COMMAND, "-T:3", "-in", "-smt2");
         return pb.start();
     }
 }

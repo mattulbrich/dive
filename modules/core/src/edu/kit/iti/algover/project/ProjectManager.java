@@ -45,21 +45,9 @@ public class ProjectManager {
     private SimpleObjectProperty<Project> project = new SimpleObjectProperty<>(null);
 
     /**
-     * All PVCs of the loaded project
-     */
-    private PVCGroup allPVCs;
-
-
-    /**
-     * Map from PVC string to its PVC object
-     */
-    private Map<String, PVC> allStrippedPVCs;
-
-    /**
-     * Map from pvc string to it proof object
+     * Map from PVC identifiers to corr. proofs.
      */
     private Map<String, Proof> allProofs;
-
 
     private Map<String, Supplier<String>> fileHooks = new HashMap<>();
 
@@ -82,12 +70,10 @@ public class ProjectManager {
         this.configFile = config;
         Project p = null;
         p = buildProject(config.toPath());
-        this.allPVCs = p.generateAndCollectPVC();
-        this.allStrippedPVCs = p.getPvcCollectionByName();
         this.setProject(p);
         generateAllProofObjects();
 
-        this.allStrippedPVCs.forEach((s, pvc) -> {
+        this.getPVCByNameMap().forEach((s, pvc) -> {
             try {
                 initializeProofDataStructures(s);
             } catch (IOException e) {
@@ -128,7 +114,7 @@ public class ProjectManager {
      */
     private void generateAllProofObjects() throws IOException {
         allProofs = new HashMap<>();
-        for (String pvc : allStrippedPVCs.keySet()) {
+        for (String pvc : getPVCByNameMap().keySet()) {
             Proof p = new Proof(pvc);
             allProofs.put(pvc, p);
         }
@@ -155,12 +141,17 @@ public class ProjectManager {
             // rethrow
             throw e;
         }
+        findAndParseScriptFile(pvc);
+        PVC pvcObject = getPVCByNameMap().get(pvc);
+        p.setProofRoot(new ProofNode(null, null, null, pvcObject.getSequent(), pvcObject));
+        buildIndividualInterpreter(p);
 
 
     }
 
     /**
-     * Find and parse script file for pvc. Set the ASTroot in the corresponding proof object
+     * Find and parse script file for pvc. Set the ASTroot in the corresponding
+     * proof object.
      *
      * @param pvc
      * @return TODO should return ScriptAST
@@ -271,6 +262,7 @@ public class ProjectManager {
 
     /**
      * Save content to script file for pvc
+     * @param pvc
      * @param content
      * @throws IOException
      */
@@ -280,7 +272,7 @@ public class ProjectManager {
 
     }*/
 
-    /* REVIEW I propose:
+    /* REVIEW I propose: static method
         Path path = Paths.get(pathToFile);
         if (!Files.exists(path)) {
             Files.createFile(path);
@@ -367,8 +359,8 @@ public class ProjectManager {
      *
      * @return PVCGroup that is the root for all PVCs of the loaded project
      */
-    public PVCGroup getAllPVCs() {
-        return this.allPVCs;
+    public PVCGroup getPVCGroup() {
+        return this.project.getValue().getAllPVCs();
     }
 
     public File getConfigFile() {
@@ -384,9 +376,8 @@ public class ProjectManager {
      *
      * @return
      */
-    // REVIEW: Please motivate why "stripped".
-    public Map<String, PVC> getAllStrippedPVCs() {
-        return allStrippedPVCs;
+    public Map<String, PVC> getPVCByNameMap() {
+        return this.project.getValue().getPVCByNameMap();
     }
 
 

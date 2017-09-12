@@ -9,7 +9,7 @@
 // that 'sum' or 'max' return as the sum and max, respectively, of the array.  The
 // given assumption that the array's elements are non-negative is not needed to establish
 // the requested postcondition.
-
+//// class C { var f:int;} class D { var g:object; }
 // ALGOVER SIMP: removed in contract clauses;
 method M(N: int, a: array<int>) returns (sum: int, max: int)
   requires 0 <= N && a != null && a.Length == N && (forall k : int :: 0 <= k && k < N ==> 0 <= a[k])
@@ -22,7 +22,8 @@ method M(N: int, a: array<int>) returns (sum: int, max: int)
   while (i < N)
     invariant i <= N && sum <= i * max
   {
-    if (max < a[i]) {
+    if max < a[i]
+    {
       max := a[i];
     }
     sum := sum + a[i];

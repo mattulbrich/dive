@@ -81,14 +81,14 @@ public class ProjectMain {
         /*
          * All pvcs in a tree
          */
-        PVCGroup pvcs = project.getAllVerificationConditions();
+        PVCGroup pvcs = project.getAllPVCs();
         System.out.println(Debug.toString(pvcs));
 
         /*
          * turn that into logic ... WORK IN PROGRESS
          */
 
-        SinglePVC pv = (SinglePVC) project.getVerificationConditionsFor(project.getMethod("m2")).getChildren().get(1);
+        SinglePVC pv = (SinglePVC) project.getPVCsFor(project.getMethod("m2")).getChildren().get(1);
         System.out.println(pv.getPVC().getSequent());
 
         // @Sarah: How do I get the actual pvc from a collection?

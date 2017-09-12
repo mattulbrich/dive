@@ -5,7 +5,20 @@
  */
 package edu.kit.iti.algover.project;
 
-import edu.kit.iti.algover.dafnystructures.*;
+import java.io.File;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.NoSuchElementException;
+
+import edu.kit.iti.algover.dafnystructures.DafnyClass;
+import edu.kit.iti.algover.dafnystructures.DafnyDecl;
+import edu.kit.iti.algover.dafnystructures.DafnyDeclPVCCollector;
+import edu.kit.iti.algover.dafnystructures.DafnyFile;
+import edu.kit.iti.algover.dafnystructures.DafnyFunction;
+import edu.kit.iti.algover.dafnystructures.DafnyMethod;
 import edu.kit.iti.algover.parser.DafnyException;
 import edu.kit.iti.algover.proof.PVC;
 import edu.kit.iti.algover.proof.PVCCollection;
@@ -13,9 +26,7 @@ import edu.kit.iti.algover.proof.PVCGroup;
 import edu.kit.iti.algover.rules.ProofRule;
 import edu.kit.iti.algover.settings.ProjectSettings;
 import edu.kit.iti.algover.term.FunctionSymbol;
-
-import java.io.File;
-import java.util.*;
+import nonnull.NonNull;
 
 
 // REVIEW: I miss a possibility to retrieve all parsed DafnyTrees (toplevel entities)
@@ -28,7 +39,10 @@ import java.util.*;
 
 /**
  * Class representing a project, that contains all relevant information for a
- * project that should be verified Created by sarah on 8/3/16.
+ * project that should be verified
+ *
+ * @author Created by sarah on 8/3/16.
+ * @author revised by mattias
  */
 public class Project {
 
@@ -49,26 +63,47 @@ public class Project {
     private final ProjectSettings settings;
 
     /**
-     * Lookup maps to get classes, methods , functions and functionsymbols
+     * Lookup maps to get Dafny classes of the project-
      */
-    private Map<String, DafnyClass> classes;
+    private final Map<String, DafnyClass> classes;
 
-    private Map<String, DafnyMethod> methods;
-
-    private Map<String, DafnyFunction> functions;
-
-    private Collection<FunctionSymbol> functionSymbols;
-    private Map<String, PVC> pvcByName;
     /**
-     * Lookup map for PVCs
+     * Lookup maps to get Dafny toplevel methods of the project-
      */
-    private Map<DafnyDecl, PVCCollection> pvcs;
+    private final Map<String, DafnyMethod> methods;
 
+    /**
+     * Lookup maps to get Dafny toplevel functions of the project-
+     */
+    private final Map<String, DafnyFunction> functions;
+
+    /**
+     * Lookup maps to get the {@link FunctionSymbol}s corresponding
+     * to the functions and fields of the project.
+     *
+     * Lazily created.
+     */
+    private Collection<FunctionSymbol> functionSymbols;
+
+    /**
+     * The tree data structure for all {@link PVC}s.
+     *
+     * Lazily created.
+     */
+    private PVCGroup pvcRoot;
+
+    /**
+     * A map from identifier to {@link PVC}.
+     *
+     * Lazily created.
+     */
+    private Map<String, PVC> pvcByName;
 
     /**
      * A collection of all proof rules available in this project
      */
     private Collection<ProofRule> allProofRules;
+
 
     /**
      * Constructor can only be called using a ProjectBuilder
@@ -83,13 +118,6 @@ public class Project {
         this.functions = DafnyDecl.toMap(pBuilder.getFunctions());
         this.methods = DafnyDecl.toMap(pBuilder.getMethods());
         this.baseDir = pBuilder.getDir();
-        this.pvcs = new HashMap<>();
-        this.pvcByName = new HashMap<>();
-        this.allProofRules = new ArrayList<>();
-    }
-
-    public Map<String, PVC> getPvcCollectionByName() {
-        return pvcByName;
     }
 
     public File getBaseDir() {
@@ -141,6 +169,7 @@ public class Project {
         return settings;
     }
 
+    @Override
     public String toString() {
         StringBuilder s = new StringBuilder();
         s.append("Project\n");
@@ -162,84 +191,107 @@ public class Project {
     }
 
     /**
-     * Return all PVCs by getting a reference to the PVCGroup root
+     * Return all PVCs of the project.
      *
-     * @return
+     * @return the PVCs as tree data structure.
      */
-    public PVCGroup getAllVerificationConditions() {
-        return this.generateAndCollectPVC();
+    public @NonNull PVCGroup getAllPVCs() {
+        ensurePVCsExist();
+        return pvcRoot;
     }
 
     /**
-     * Get PVCs for a DafnyDecl
+     * Gets a map from identifiers to project PVCs.
+     *
+     * @return an unmodifiable map.
+     */
+    public @NonNull Map<String, PVC> getPVCByNameMap() {
+        ensurePVCsExist();
+        return Collections.unmodifiableMap(pvcByName);
+    }
+
+    /**
+     * Get the PVCs for a DafnyDecl as tree.
      *
      * @param decl
-     * @return
+     *            the declaration to look up
+     * @return the corresponding PVC collection
+     * @throws NoSuchElementException
+     *             if the declaration is not known
      */
-    public PVCCollection getVerificationConditionsFor(DafnyDecl decl) {
-        return pvcs.get(decl);
-
-    }
-
-    public PVC getPVCbyName(String name) {
-        return pvcByName.getOrDefault(name, null);
-    }
-
-    public Collection<FunctionSymbol> getAllDeclaredSymbols() {
-        if(functionSymbols == null) {
-            functionSymbols = DeclarationSymbolCollector.collect(this);
+    public PVCCollection getPVCsFor(DafnyDecl decl) {
+        ensurePVCsExist();
+        for (PVCCollection child : pvcRoot.getChildren()) {
+            if(child.getDafnyDecl() == decl) {
+                return child;
+            }
         }
-        return Collections.unmodifiableCollection(functionSymbols);
-    }
 
+        throw new NoSuchElementException();
+    }
 
     /**
-     * Generates the PVCs for this project
-     * Saves the PVCs to the lookupmap
-     * Saves the PVCs to the String lookup map
-     * @return the root of the PVCGroup for this project
+     * Gets a PVC by identifier.
+     *
+     * @param name
+     *            the identifier to look up
+     * @return the created PVC with the name, or <code>null</code> if that
+     *         identifier has no PVC assigned to it.
      */
+    public PVC getPVCByName(String name) {
+        ensurePVCsExist();
+        return pvcByName.get(name);
+    }
 
-    public PVCGroup generateAndCollectPVC() {
+    /**
+     * Generates the PVCs for this project. Saves the PVCs to the String lookup
+     * map.
+     *
+     * This is not thread-safe, but can be made so easily.
+     */
+    private PVCGroup ensurePVCsExist() {
+
+        if(pvcRoot != null) {
+            return pvcRoot;
+        }
 
         PVCGroup root = new PVCGroup(null);
 
         DafnyDeclPVCCollector visitor = new DafnyDeclPVCCollector();
-
         for (DafnyFile file : this.getDafnyFiles()) {
             visitor.visitFile(file, root);
         }
-        List<PVCCollection> children = root.getChildren();
-        for (PVCCollection child : children) {
-            pvcs.put(child.getDafnyDecl(), child);
-        }
-        for (PVCCollection child : children) {
-            generateAndCollectPVCHelper(child);
+
+        pvcByName = new HashMap<>();
+        for (PVC pvc : root.getContents()) {
+            pvcByName.put(pvc.getIdentifier(), pvc);
         }
 
+        this.pvcRoot = root;
         return root;
 
     }
 
     /**
-     * Fill hashmap with pvcs to reference via pathidentifier
+     * Gets the all declared functions symbols.
      *
-     * @param pvc
+     * These are triggered by field and function declarations.
+     *
+     * @return the unmodifiable collection of all declared symbols
      */
-    private void generateAndCollectPVCHelper(PVCCollection pvc) {
-        if (pvc.isPVCLeaf()) {
-            pvcByName.put(pvc.getPVC().getName(), pvc.getPVC());
-        } else {
-            for (PVCCollection pvcCollection : pvc.getChildren()) {
-                generateAndCollectPVCHelper(pvcCollection);
-            }
+    public Collection<FunctionSymbol> getAllDeclaredSymbols() {
+        if(functionSymbols == null) {
+            functionSymbols = DeclarationSymbolCollector.collect(this);
         }
+
+        return Collections.unmodifiableCollection(functionSymbols);
     }
+
 
     /**
      * This method extracts the proof rules from and saves them to this object
      */
     public void extractProofRules() {
-
+        throw new Error("to be done");
     }
 }

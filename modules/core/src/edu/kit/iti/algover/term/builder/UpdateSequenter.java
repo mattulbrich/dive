@@ -10,8 +10,10 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
+import edu.kit.iti.algover.SymbexStateToFormula;
 import edu.kit.iti.algover.data.SymbolTable;
 import edu.kit.iti.algover.parser.DafnyException;
+import edu.kit.iti.algover.parser.DafnyParser;
 import edu.kit.iti.algover.parser.DafnyTree;
 import edu.kit.iti.algover.proof.ProofFormula;
 import edu.kit.iti.algover.references.ReferenceTools;
@@ -19,8 +21,11 @@ import edu.kit.iti.algover.rules.TermSelector;
 import edu.kit.iti.algover.symbex.AssertionElement;
 import edu.kit.iti.algover.symbex.PathConditionElement;
 import edu.kit.iti.algover.symbex.SymbexPath;
+import edu.kit.iti.algover.term.FunctionSymbol;
 import edu.kit.iti.algover.term.Sequent;
+import edu.kit.iti.algover.term.Sort;
 import edu.kit.iti.algover.term.Term;
+import edu.kit.iti.algover.util.ImmutableList;
 
 public class UpdateSequenter implements PVCSequenter {
 
@@ -43,6 +48,9 @@ public class UpdateSequenter implements PVCSequenter {
         TreeTermTranslator ttt = new TreeTermTranslator(makeSymbolTable);
         List<ProofFormula> ante = new ArrayList<>();
         int id = 0;
+
+        resolveWildcards(pathThroughProgram.getAssignmentHistory(),
+                makeSymbolTable);
 
         for (PathConditionElement pce : pathThroughProgram.getPathConditions()) {
             try {
@@ -73,6 +81,36 @@ public class UpdateSequenter implements PVCSequenter {
             throw new DafnyException(assertion.getExpression(), e);
         }
 
+    }
+
+    private void resolveWildcards(ImmutableList<DafnyTree> assignmentHistory, SymbolTable symbolTable) {
+        for (DafnyTree ass : assignmentHistory) {
+            DafnyTree value = ass.getChild(1);
+            if(value.getType() != DafnyParser.WILDCARD) {
+                continue;
+            }
+
+            DafnyTree receiver = ass.getChild(0);
+            String suggestedName;
+            if (receiver.getType() == DafnyParser.ID) {
+                suggestedName = receiver.getText();
+                // TODO : Field access, array access, ...
+            } else {
+                suggestedName = "unknown";
+            }
+
+            int count = 1;
+            String name = suggestedName + "_" + count;
+            while (symbolTable.getFunctionSymbol(name) != null) {
+                count++;
+                name = suggestedName + "_" + count;
+            }
+            Sort sort = SymbexStateToFormula.treeToType(receiver.getExpressionType());
+            symbolTable.addFunctionSymbol(new FunctionSymbol(name, sort));
+
+            value.removeAllChildren();
+            value.addChild(new DafnyTree(DafnyParser.ID, name));
+        }
     }
 
     protected ProofFormula postProcess(ProofFormula formula) {

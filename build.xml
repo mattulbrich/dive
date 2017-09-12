@@ -4,6 +4,8 @@
 <project name="AlgoVer" default="build" basedir=".">
 
   <property name="VERSION" value="0.0"/>
+  <property name="z3.binary" value="z3" />
+    <!-- if z3 is not in your path, call "ant -Dz3.binary=/path/to/z3" -->
 
   <!-- the list of all submodules. Order is of importance here -->
   <filelist id="modules" dir=".">
@@ -51,6 +53,7 @@
      
   <target name="test" description="run the tests in all modules">
     <subant target="test" verbose="true">
+      <property name="z3.binary" value="${z3.binary}" />
       <filelist refid="modules" />
     </subant>
     <concat>
