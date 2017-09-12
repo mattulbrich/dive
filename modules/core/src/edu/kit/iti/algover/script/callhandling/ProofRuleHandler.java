@@ -12,21 +12,34 @@ import edu.kit.iti.algover.script.exceptions.ScriptCommandNotApplicableException
 import edu.kit.iti.algover.script.interpreter.Evaluator;
 import edu.kit.iti.algover.script.interpreter.Interpreter;
 import edu.kit.iti.algover.term.Term;
+import edu.kit.iti.algover.term.builder.TermBuilder;
 
 import java.math.BigInteger;
 import java.util.*;
 
 /**
- * Handler for ProofRules
+ * Handler implementation for ProofRules that are implemented in Java ans implement the interface ProofRule
  *
+ * To use these proof rules, they are loaded using the Java ServiceLoader.
  * @author S. Grebing
  */
 public class ProofRuleHandler implements CommandHandler<ProofNode> {
+    /**
+     * List of all avaiöable rule objects
+     */
     private List<ProofRule> rules = new ArrayList<>();
+
+    /**
+     * Map of rulename (String) to its Rule object
+     */
     private Map<String, ProofRule> ruleMap = new HashMap<>();
+
 
     private ServiceLoader<ProofRule> loader;
 
+    /**
+     * Loads all rules via ServiceLoader and initializes the data structures
+     */
     public ProofRuleHandler() {
 
         loader = ServiceLoader.load(ProofRule.class);
@@ -36,6 +49,12 @@ public class ProofRuleHandler implements CommandHandler<ProofNode> {
         });
     }
 
+    /**
+     * Loads all rules implemenetd in Java via ServiceLoader and initializes the data structures
+     * The loads all rules that are passed as parameters and adds them to the datastructures.
+     *
+     * @param rules List of additional Proof rule objects
+     */
     public ProofRuleHandler(List<ProofRule> rules) {
 
         loader = ServiceLoader.load(ProofRule.class);
@@ -52,7 +71,7 @@ public class ProofRuleHandler implements CommandHandler<ProofNode> {
      * Check whether call can be handled by this object
      *
      * @param call
-     * @return
+     * @return true if the call command could be fpund among the available ProofRule objects
      * @throws IllegalArgumentException
      */
     @Override
@@ -90,7 +109,7 @@ public class ProofRuleHandler implements CommandHandler<ProofNode> {
                         ruleParams.putValue(variable.getIdentifier(), convertValuesToTypedValues(val));
                     }
             );
-
+//Terms throw a class cast exception at the moment
             ProofRuleApplication proofRuleApplication = pr.makeApplication(pn.getData(), ruleParams);
             if (proofRuleApplication.getApplicability().equals(ProofRuleApplication.Applicability.APPLICABLE)) {
                 List<ProofNode> newNodes = RuleApplicator.applyRule(proofRuleApplication, pn.getData());
@@ -118,6 +137,7 @@ public class ProofRuleHandler implements CommandHandler<ProofNode> {
             case INT:
                 return new Parameters.TypedValue(BigInteger.class, val.getData());
             case TERM:
+                //TODO build the term object from data
                 return new Parameters.TypedValue(Term.class, val.getData());
             default:
                 System.out.println("Not implemented yet");

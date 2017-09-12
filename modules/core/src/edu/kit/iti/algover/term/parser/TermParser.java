@@ -5,8 +5,12 @@
  */
 package edu.kit.iti.algover.term.parser;
 
-import java.util.HashMap;
+import java.util.*;
 
+import edu.kit.iti.algover.dafnystructures.DafnyFile;
+import edu.kit.iti.algover.proof.ProofFormula;
+import edu.kit.iti.algover.term.Sequent;
+import edu.kit.iti.algover.term.builder.TermBuildException;
 import org.antlr.runtime.ANTLRStringStream;
 import org.antlr.runtime.CommonTokenStream;
 import org.antlr.runtime.RecognitionException;
@@ -115,10 +119,94 @@ public class TermParser {
         return toTerm(t, new HistoryMap<>(new HashMap<>()));
     }
 
+    /**
+     * Parses a string to a {@link edu.kit.iti.algover.term.Sequent}.
+     *
+     * @param string the string to parse
+     * @return the corresponding term resulting from parsing
+     * @throws DafnyParserException if the term was illegally formed. The exception contains a
+     *                              reference to the erring part of the tree
+     */
+    public Sequent parseSequent(String string) throws DafnyParserException {
+
+        // create stream and lexer
+        ANTLRStringStream input = new ANTLRStringStream(string);
+        DafnyLexer lexer = new DafnyLexer(input);
+
+        // create the buffer of tokens between the lexer and parser
+        CommonTokenStream tokens = new CommonTokenStream(lexer);
+
+        // create the parser attached to the token buffer
+        DafnyParser parser = new DafnyParser(tokens);
+        parser.setTreeAdaptor(new DafnyTree.Adaptor());
+        parser.setLogicMode(true);
+
+        // launch the parser starting at rule r, get return object
+        DafnyParser.sequent_return result;
+        try {
+            result = parser.sequent();
+        } catch (RecognitionException e) {
+            String msg = parser.getErrorMessage(e, DafnyParser.tokenNames);
+            DafnyParserException lex = new DafnyParserException(msg, e);
+            lex.setLine(e.line);
+            lex.setColumn(e.charPositionInLine);
+            if (e.token != null) {
+                lex.setLength(e.token.getText().length());
+            }
+            throw lex;
+        }
+
+        // pull out the tree and cast it
+        DafnyTree t = result.getTree();
+
+        // syntactic desugaring
+        SyntacticSugarVistor.visit(t);
+        return toSequent(t, new HistoryMap<>(new HashMap<>()));
+    }
+
+    /**
+     * Create a Sequent form a DafnyTree
+     *
+     * @param t          DafnyTree representing a sequent
+     * @param historyMap
+     * @return Sequent object
+     * @throws DafnyParserException
+     */
+    private Sequent toSequent(DafnyTree t, Map<Object, Object> historyMap) throws DafnyParserException {
+        DafnyTree antec = t.getChild(0);
+        DafnyTree succ = t.getChild(1);
+        List<ProofFormula> antecList = translateSemiSequent(antec);
+        List<ProofFormula> succList = translateSemiSequent(succ);
+        Sequent sequent = new Sequent(antecList, succList);
+        return sequent;
+    }
+
+    private List<ProofFormula> translateSemiSequent(DafnyTree semiseq) throws DafnyParserException {
+        List<ProofFormula> retList = new ArrayList<>();
+        TreeTermTranslator ttt = new TreeTermTranslator(symbols);
+
+        for (DafnyTree antecForm : semiseq.getChildren()) {
+            try {
+                ProofFormula pf = new ProofFormula(0, toTerm(antecForm));
+                retList.add(pf);
+            } catch (Exception e) {
+                DafnyParserException lex = new DafnyParserException(e);
+                lex.setLine(antecForm.getLine());
+                lex.setColumn(antecForm.getCharPositionInLine());
+                lex.setLength(antecForm.getText().length());
+                throw lex;
+            }
+        }
+        return retList;
+    }
+
+    private Term toTerm(DafnyTree t) throws DafnyParserException {
+        return toTerm(t, Collections.emptyMap());
+    }
     /*
      * translate a parse tree into a Term.
      */
-    private Term toTerm(DafnyTree t, HistoryMap<String, VariableTerm> boundVariables) throws DafnyParserException {
+    private Term toTerm(DafnyTree t, Map<String, VariableTerm> boundVariables) throws DafnyParserException {
 
         try {
             TreeTermTranslator ttt = new TreeTermTranslator(symbols);

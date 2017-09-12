@@ -22,7 +22,7 @@ public class RuleApplicator {
     /**
      * Apply a Proof Rule to a proof node
      *
-     * @param proofRuleApplication teh proof rule application to be applied
+     * @param proofRuleApplication the proof rule application to be applied
      * @param pn                   the ProofNode to which the rule should be applied
      * @return a list of new proof nodes (children) resulting form the rule applciation
      */

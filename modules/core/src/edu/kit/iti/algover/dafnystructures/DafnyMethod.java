@@ -71,6 +71,7 @@ public class DafnyMethod extends DafnyDecl {
         this.body = b.getBody();
     }
 
+
     public List<DafnyTree> getParams() {
         return Collections.unmodifiableList(params);
     }

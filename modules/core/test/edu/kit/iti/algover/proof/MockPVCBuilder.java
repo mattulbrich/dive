@@ -5,10 +5,17 @@
  */
 package edu.kit.iti.algover.proof;
 
+import edu.kit.iti.algover.dafnystructures.DafnyClass;
+import edu.kit.iti.algover.dafnystructures.DafnyClassBuilder;
 import edu.kit.iti.algover.dafnystructures.DafnyDecl;
 import edu.kit.iti.algover.data.SymbolTable;
+import edu.kit.iti.algover.parser.DafnyException;
+import edu.kit.iti.algover.parser.DafnyTree;
+import edu.kit.iti.algover.rules.TermSelector;
 import edu.kit.iti.algover.symbex.SymbexPath;
 import edu.kit.iti.algover.term.Sequent;
+
+import java.util.Map;
 
 public class MockPVCBuilder implements PVCBuilder {
 
@@ -21,12 +28,14 @@ public class MockPVCBuilder implements PVCBuilder {
         return pathThroughProgram;
     }
 
-    public void setPathThroughProgram(SymbexPath pathThroughProgram) {
-        this.pathThroughProgram = pathThroughProgram;
-    }
-
+    @Override
     public DafnyDecl getDeclaration() {
         return declaration;
+    }
+
+    @Override
+    public Map<TermSelector, DafnyTree> getReferenceMap() {
+        return null;
     }
 
     public void setDeclaration(DafnyDecl declaration) {
@@ -43,6 +52,10 @@ public class MockPVCBuilder implements PVCBuilder {
 
     public SymbolTable getSymbolTable() {
         return symboltable;
+    }
+
+    public void setPathThroughProgram(SymbexPath pathThroughProgram) {
+        this.pathThroughProgram = pathThroughProgram;
     }
 
     public void setSymbolTable(SymbolTable symboltable) {

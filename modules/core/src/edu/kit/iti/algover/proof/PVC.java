@@ -88,6 +88,12 @@ public class PVC {
     }
 
     private String getDeclarationPrefix() {
+
+        if (declaration == null) {
+            // can appear in test cases
+            return "(null)";
+        }
+
         DafnyDecl clss = declaration.getParentDecl();
         if(clss instanceof DafnyClass) {
             return clss.getName() + "." + declaration.getName();

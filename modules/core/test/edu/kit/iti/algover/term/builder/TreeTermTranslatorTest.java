@@ -23,6 +23,7 @@ import junitparams.Parameters;
 import org.antlr.runtime.ANTLRStringStream;
 import org.antlr.runtime.CommonTokenStream;
 import org.antlr.runtime.RecognitionException;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -340,4 +341,19 @@ public class TreeTermTranslatorTest {
 
     }
 
+    public String[][] parametersForTestSequentTranslation() {
+        return new String[][]{
+                {"b1 ==> b2, b2 ==> b3 |- b1 && b2, b2&&b3",
+                        "[0: $imp(b1, b2), 0: $imp(b2, b3)] ==> [0: $and(b1, b2), 0: $and(b2, b3)]"}
+        };
+    }
+
+    @Test
+    @Parameters
+    public void testSequentTranslation(String seq, String exp) throws Exception {
+        TermParser tp = new TermParser(symbTable);
+        Sequent sequent = tp.parseSequent(seq);
+        System.out.println("tp = " + sequent);
+        Assert.assertEquals("First sequent ", exp, sequent.toString());
+    }
 }

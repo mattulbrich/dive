@@ -7,8 +7,12 @@ package edu.kit.iti.algover.proof;
 
 import edu.kit.iti.algover.dafnystructures.DafnyDecl;
 import edu.kit.iti.algover.data.SymbolTable;
+import edu.kit.iti.algover.parser.DafnyTree;
+import edu.kit.iti.algover.rules.TermSelector;
 import edu.kit.iti.algover.symbex.SymbexPath;
 import edu.kit.iti.algover.term.Sequent;
+
+import java.util.Map;
 
 public interface PVCBuilder {
 
@@ -20,4 +24,5 @@ public interface PVCBuilder {
 
     SymbolTable getSymbolTable();
 
+    Map<TermSelector, DafnyTree> getReferenceMap();
 }
