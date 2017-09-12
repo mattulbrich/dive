@@ -5,6 +5,26 @@
  */
 package edu.kit.iti.algover.term.builder;
 
+import static org.junit.Assert.assertEquals;
+
+import java.io.InputStream;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import org.junit.Ignore;
+import org.junit.Test;
+
+import edu.kit.iti.algover.dafnystructures.DafnyMethod;
+import edu.kit.iti.algover.parser.DafnyTree;
+import edu.kit.iti.algover.parser.ParserTest;
+import edu.kit.iti.algover.project.Project;
+import edu.kit.iti.algover.rules.TermSelector;
+import edu.kit.iti.algover.symbex.Symbex;
+import edu.kit.iti.algover.symbex.SymbexPath;
+import edu.kit.iti.algover.term.Sequent;
+import edu.kit.iti.algover.util.TestUtil;
+
 public class InlineSequenterTest extends SequenterTest {
 
     protected String expectedSuccedent(String string) {
@@ -18,5 +38,26 @@ public class InlineSequenterTest extends SequenterTest {
     @Override
     protected PVCSequenter makeSequenter() {
         return new InlineSequenter();
+    }
+
+    @Test
+    public void testReferenceMap() throws Exception {
+        InputStream is = getClass().getResourceAsStream("referencesTest.dfy");
+        DafnyTree top = ParserTest.parseFile(is, null);
+        // SyntacticSugarVistor.visit(top);
+        Project p = TestUtil.mockProject(top);
+        Symbex symbex = new Symbex();
+        DafnyMethod method = p.getMethod("m");
+        List<SymbexPath> results = symbex.symbolicExecution(method.getRepresentation());
+        assertEquals(3, results.size());
+
+        PVCSequenter sequenter = makeSequenter();
+        SymbexPath path = results.get(0);
+        Map<TermSelector, DafnyTree> map = new HashMap<>();
+        Sequent sequent = sequenter.translate(path, makeTable(method), map);
+
+        System.out.println(sequent);
+        System.out.println(map);
+
     }
 }

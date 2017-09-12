@@ -23,7 +23,7 @@ public class LetTerm extends Term {
     }
 
     public LetTerm(List<Pair<VariableTerm, Term>> substs, Term in) throws TermBuildException {
-        super(in.getSort(), new Term[] { in });
+        super(in.getSort(), createSubterms(in, substs));
         this.substitutions = new ArrayList<>(substs);
 
         for (Pair<VariableTerm, Term> pair : substs) {
@@ -33,6 +33,15 @@ public class LetTerm extends Term {
                 throw new TermBuildException("Illegally typed assignment to " + fst);
             }
         }
+    }
+
+    public static Term[] createSubterms(Term in, List<Pair<VariableTerm, Term>> substs) {
+        Term[] result = new Term[substs.size() + 1];
+        result[0] = in;
+        for (int i = 1; i < result.length; i++) {
+            result[i] = substs.get(i-1).snd;
+        }
+        return result;
     }
 
     @Override

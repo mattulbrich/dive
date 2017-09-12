@@ -2,10 +2,12 @@ package edu.kit.iti.algover.sequent;
 
 import de.jensd.fx.glyphs.GlyphsDude;
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon;
-import edu.kit.iti.algover.project.Project;
+import edu.kit.iti.algover.project.ProjectManager;
 import edu.kit.iti.algover.proof.PVC;
+import edu.kit.iti.algover.proof.Proof;
 import edu.kit.iti.algover.proof.ProofFormula;
-import edu.kit.iti.algover.term.Sequent;
+import edu.kit.iti.algover.proof.ProofNode;
+import edu.kit.iti.algover.rules.TermSelector;
 import edu.kit.iti.algover.term.Term;
 import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
@@ -26,9 +28,8 @@ import java.util.stream.Collectors;
  */
 public class SequentController {
 
-    private final Project project;
+    private final ProjectManager manager;
     private SequentActionListener listener;
-    private Sequent activeSequent;
 
     private final VBox upperBox;
     private final VBox lowerBox;
@@ -38,18 +39,21 @@ public class SequentController {
     private final FlowPane buttonsView;
     private final Button cancelButton;
 
-    public SequentController(Project project, SequentActionListener listener) {
-        this.project = project;
+    private Proof activeProof;
+    private ProofNode activeNode;
+
+    public SequentController(ProjectManager manager, SequentActionListener listener) {
+        this.manager = manager;
         this.listener = listener;
-        this.activeSequent = null;
+        this.activeProof = null;
 
         this.cancelButton = new Button("Cancel", GlyphsDude.createIcon(FontAwesomeIcon.CLOSE));
         this.buttonsView = new FlowPane(cancelButton);
         this.antecedentView = new ListView<>();
         this.succedentView = new ListView<>();
 
-        antecedentView.setCellFactory(this::createTermCell);
-        succedentView.setCellFactory(this::createTermCell);
+        antecedentView.setCellFactory(termListView -> createTermCell(TermSelector.SequentPolarity.ANTECEDENT, termListView));
+        succedentView.setCellFactory(termListView -> createTermCell(TermSelector.SequentPolarity.SUCCEDENT, termListView));
 
         this.cancelButton.setOnAction(event -> {
             if (this.listener != null) {
@@ -76,14 +80,15 @@ public class SequentController {
         view.setDividerPositions(0.7);
     }
 
-    private TermCell createTermCell(ListView<Term> termListView) {
-        return new TermCell();
+    private TermCell createTermCell(TermSelector.SequentPolarity polarity, ListView<Term> termListView) {
+        return new TermCell(polarity, listener);
     }
 
     public void viewSequentForPVC(PVC pvc) {
-        activeSequent = pvc.getSequent();
-        antecedentView.getItems().setAll(calculateAssertions(activeSequent.getAntecedent()));
-        succedentView.getItems().setAll(calculateAssertions(activeSequent.getSuccedent()));
+        activeProof = manager.getProofForPVC(pvc.getName());
+        activeNode = activeProof.getProofRoot();
+        antecedentView.getItems().setAll(calculateAssertions(activeNode.getSequent().getAntecedent()));
+        succedentView.getItems().setAll(calculateAssertions(activeNode.getSequent().getSuccedent()));
     }
 
     public void setSequentActionListener(SequentActionListener listener) {
@@ -96,5 +101,9 @@ public class SequentController {
 
     public SplitPane getView() {
         return view;
+    }
+
+    public ProofNode getActiveProofNode() {
+        return activeNode;
     }
 }

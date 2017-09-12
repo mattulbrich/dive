@@ -35,7 +35,7 @@ public class AlgoVerApplication extends Application {
         ProjectManager manager = new ProjectManager();
         manager.loadProject(projectConfigFile);
 
-        OverviewController controller = new OverviewController(manager.getProject());
+        OverviewController controller = new OverviewController(manager);
         Scene scene = new Scene(controller.getView());
         scene.getStylesheets().add(AlgoVerApplication.class.getResource("style.css").toExternalForm());
         primaryStage.setScene(scene);

@@ -6,9 +6,13 @@
 package edu.kit.iti.algover.proof;
 
 
+import java.util.Map;
+
 import edu.kit.iti.algover.dafnystructures.DafnyClass;
 import edu.kit.iti.algover.dafnystructures.DafnyDecl;
 import edu.kit.iti.algover.data.SymbolTable;
+import edu.kit.iti.algover.parser.DafnyTree;
+import edu.kit.iti.algover.rules.TermSelector;
 import edu.kit.iti.algover.symbex.SymbexPath;
 import edu.kit.iti.algover.term.Sequent;
 import nonnull.NonNull;
@@ -49,6 +53,12 @@ public class PVC {
     private final @NonNull Sequent sequent;
 
     /**
+     * A map which assigns all relevant term selectors to {@link #sequent}
+     * to the respective {@link DafnyTree}s from the sources.
+     */
+    private final @NonNull Map<TermSelector, DafnyTree> referenceMap;
+
+    /**
      * The symbol table containing all symbols which occur in the
      * {@link #sequent}.
      */
@@ -74,6 +84,7 @@ public class PVC {
         this.symbolTable = builder.getSymbolTable();
         this.identifier = getDeclarationPrefix()
                 + "/" + pathThroughProgram.getPathIdentifier();
+        this.referenceMap = builder.getReferenceMap();
     }
 
     private String getDeclarationPrefix() {
@@ -109,6 +120,10 @@ public class PVC {
     @Override
     public String toString() {
         return "PVC[" + getName() + "]";
+    }
+
+    public Map<TermSelector, DafnyTree> getReferenceMap() {
+        return referenceMap;
     }
 
 }
