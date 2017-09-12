@@ -71,7 +71,7 @@ public class IntegrationTest1 {
 
         List<Object[]> result = new ArrayList<>();
         for (PVC pvc : pvcs) {
-            result.add(new Object[] { pvc.getName(), pvc, project});
+            result.add(new Object[] { pvc.getIdentifier(), pvc, project});
         }
 
         return result;
@@ -97,7 +97,7 @@ public class IntegrationTest1 {
         if (TestUtil.VERBOSE) {
             System.out.println(smt);//TestUtil.prettyPrintSMT(smt));
         }
-        Path file = TEMP_DIR.resolve(Util.maskFileName(pvc.getName()) + ".smt2");
+        Path file = TEMP_DIR.resolve(Util.maskFileName(pvc.getIdentifier()) + ".smt2");
         Files.write(file, smt.getBytes());
 
         assertEquals(Result.UNSAT, z3.solve(formulae));

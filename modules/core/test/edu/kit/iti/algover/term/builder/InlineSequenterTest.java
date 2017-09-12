@@ -72,16 +72,7 @@ public class InlineSequenterTest extends SequenterTest {
         DafnyTree top = ParserTest.parseFile(is, null);
         Project p = TestUtil.mockProject(top);
 
-        // delete when sarah has fixed problems in Project class
-        p.generateAndCollectPVC();
-        ArrayList<DafnyException> exceptions = new ArrayList<>();
-        ReferenceResolutionVisitor refResolver = new ReferenceResolutionVisitor(p, exceptions);
-        refResolver.visitProject();
-        TypeResolution typeRes = new TypeResolution(exceptions);
-        typeRes.visitProject(p);
-        // end delete
-
-        PVC pvc = p.getPVCbyName("M/loop/else/Inv[I]");
+        PVC pvc = p.getPVCByName("M/loop/else/Inv[I]");
         SymbexPath path = pvc.getPathThroughProgram();
 
         PVCSequenter sequenter = makeSequenter();
