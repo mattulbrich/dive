@@ -123,6 +123,10 @@ public class ReferenceResolutionVisitorTest {
             } else if (name.startsWith("C_")) {
                 assertEquals(DafnyParser.CLASS, ref.getType());
                 assertEquals(name, ref.getChild(0).getText());
+            } else if (name.startsWith("ret_")) {
+                assertEquals(DafnyParser.VAR, ref.getType());
+                assertEquals(DafnyParser.RETURNS, ref.getParent().getType());
+                assertEquals(name, ref.getChild(0).getText());
             } else {
                 fail("Unsupported identifier " + name);
             }

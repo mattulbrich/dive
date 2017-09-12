@@ -8,6 +8,7 @@ package edu.kit.iti.algover.term.builder;
 import static org.junit.Assert.assertEquals;
 
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -16,9 +17,13 @@ import org.junit.Ignore;
 import org.junit.Test;
 
 import edu.kit.iti.algover.dafnystructures.DafnyMethod;
+import edu.kit.iti.algover.parser.DafnyException;
 import edu.kit.iti.algover.parser.DafnyTree;
 import edu.kit.iti.algover.parser.ParserTest;
+import edu.kit.iti.algover.parser.ReferenceResolutionVisitor;
+import edu.kit.iti.algover.parser.TypeResolution;
 import edu.kit.iti.algover.project.Project;
+import edu.kit.iti.algover.proof.PVC;
 import edu.kit.iti.algover.rules.TermSelector;
 import edu.kit.iti.algover.symbex.Symbex;
 import edu.kit.iti.algover.symbex.SymbexPath;
@@ -58,6 +63,33 @@ public class InlineSequenterTest extends SequenterTest {
 
         System.out.println(sequent);
         System.out.println(map);
+
+    }
+
+    @Test
+    public void testAnonymisationProblem() throws Exception {
+        InputStream is = getClass().getResourceAsStream("anonymisationProblem.dfy");
+        DafnyTree top = ParserTest.parseFile(is, null);
+        Project p = TestUtil.mockProject(top);
+
+        // delete when sarah has fixed problems in Project class
+        p.generateAndCollectPVC();
+        ArrayList<DafnyException> exceptions = new ArrayList<>();
+        ReferenceResolutionVisitor refResolver = new ReferenceResolutionVisitor(p, exceptions);
+        refResolver.visitProject();
+        TypeResolution typeRes = new TypeResolution(exceptions);
+        typeRes.visitProject(p);
+        // end delete
+
+        PVC pvc = p.getPVCbyName("M/loop/else/Inv[I]");
+        SymbexPath path = pvc.getPathThroughProgram();
+
+        PVCSequenter sequenter = makeSequenter();
+        Map<TermSelector, DafnyTree> map = new HashMap<>();
+        DafnyMethod method = (DafnyMethod) pvc.getDeclaration();
+        Sequent sequent = sequenter.translate(path, makeTable(method), map);
+
+        assertEquals("[0: $le(i_1, n), 1: $lt(i_1, n), 2: $not($eq<int>(i_1, 5))] ==> [3: $le($plus(i_1, 1), n)]", sequent.toString());
 
     }
 }

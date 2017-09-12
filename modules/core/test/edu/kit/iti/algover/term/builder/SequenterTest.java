@@ -82,6 +82,8 @@ public abstract class SequenterTest {
             map.add(new FunctionSymbol(name, sort));
         }
 
+        map.add(new FunctionSymbol("$aheap_1", Sort.HEAP));
+
         MapSymbolTable st = new SuffixSymbolTable(new BuiltinSymbols(), map);
         return st;
     }

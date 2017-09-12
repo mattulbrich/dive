@@ -297,6 +297,7 @@ public final class ASTUtil {
     public static DafnyTree anonymise(DafnyTree varDecl) {
         DafnyTree id = id(varDecl.getChild(0).getText());
         id.setDeclarationReference(varDecl);
+        id.setExpressionType(varDecl.getChild(1));
         DafnyTree wildcard = new DafnyTree(DafnyParser.WILDCARD);
         wildcard.setExpressionType(varDecl.getChild(1));
         return create(DafnyParser.ASSIGN, id, wildcard);
