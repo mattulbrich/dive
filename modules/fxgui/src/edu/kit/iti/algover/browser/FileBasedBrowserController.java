@@ -13,7 +13,7 @@ import java.util.stream.Collectors;
  */
 public class FileBasedBrowserController extends BrowserController {
 
-    public FileBasedBrowserController(Project project, PVCEntityEngageListener engagedListener) {
+    public FileBasedBrowserController(Project project, PVCClickEditListener engagedListener) {
         super(project, engagedListener);
     }
 

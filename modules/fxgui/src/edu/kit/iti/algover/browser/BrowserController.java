@@ -26,9 +26,9 @@ public abstract class BrowserController {
 
     private BrowserSelectionListener selectionListener;
 
-    protected BrowserController(Project project, PVCEntityEngageListener engagedListener) {
+    protected BrowserController(Project project, PVCClickEditListener editListener) {
         this.project = project;
-        this.view = new BrowserTreeTable(engagedListener);
+        this.view = new BrowserTreeTable(editListener);
 
         view.getSelectionModel().selectedItemProperty()
             .addListener(this::onTreeItemSelected);

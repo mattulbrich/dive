@@ -110,6 +110,7 @@ public class TermView extends CodeArea {
             listener.handleSubtermSelection(highlightedElement);
         } else {
             clearStyle(0, getLength());
+            listener.handleSubtermSelection(null);
         }
     }
 

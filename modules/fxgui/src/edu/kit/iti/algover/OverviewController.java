@@ -2,6 +2,10 @@ package edu.kit.iti.algover;
 
 import edu.kit.iti.algover.project.ProjectManager;
 import edu.kit.iti.algover.proof.ProofNode;
+import edu.kit.iti.algover.proof.ProofNodeSelector;
+import edu.kit.iti.algover.references.ProofTermReference;
+import edu.kit.iti.algover.references.Reference;
+import edu.kit.iti.algover.references.ReferenceGraph;
 import edu.kit.iti.algover.rule.RuleApplicationController;
 import edu.kit.iti.algover.browser.BrowserController;
 import edu.kit.iti.algover.browser.FlatBrowserController;
@@ -15,15 +19,15 @@ import edu.kit.iti.algover.rules.TermSelector;
 import edu.kit.iti.algover.sequent.SequentActionListener;
 import edu.kit.iti.algover.sequent.SequentController;
 import edu.kit.iti.algover.timeline.TimelineLayout;
-import javafx.scene.input.KeyCode;
-import javafx.scene.input.KeyEvent;
+
+import java.util.Set;
 
 /**
  * Created by philipp on 27.06.17.
  */
 public class OverviewController implements SequentActionListener {
 
-    private final ProjectManager project;
+    private final ProjectManager manager;
     private final BrowserController browserController;
     private final EditorController editorController;
     private final SequentController sequentController;
@@ -31,9 +35,9 @@ public class OverviewController implements SequentActionListener {
     private final TimelineLayout view;
 
     public OverviewController(ProjectManager manager) {
-        this.project = manager;
-        this.browserController = new FlatBrowserController(manager.getProject(), this::onEngageEntity);
-        //this.browserController = new FileBasedBrowserController(project, this::onEngageEntity);
+        this.manager = manager;
+        this.browserController = new FlatBrowserController(manager.getProject(), this::onClickPVCEdit);
+        //this.browserController = new FileBasedBrowserController(manager.getProject(), this::onClickPVCEdit);
         this.editorController = new EditorController();
         this.sequentController = new SequentController(manager, this);
         this.ruleApplicationController = new RuleApplicationController(manager);
@@ -45,27 +49,19 @@ public class OverviewController implements SequentActionListener {
                 ruleApplicationController.getView());
         view.setDividerPosition(0.2);
 
-        view.addEventHandler(KeyEvent.KEY_PRESSED, this::onKeyPress);
-
-        browserController.setSelectionListener(this::onBrowserItemSelected);
+        browserController.setSelectionListener(this::onSelectBrowserItem);
     }
 
-    private void onKeyPress(KeyEvent event) {
-        if (event.getCode() == KeyCode.ESCAPE) {
-            view.moveFrameLeft();
-        }
-    }
-
-    private void onEngageEntity(PVCEntity entity) {
+    private void onClickPVCEdit(PVCEntity entity) {
         PVC pvc = entity.getPVC();
         editorController.viewFile(entity.getLocation());
         editorController.viewPVCSelection(pvc);
-        sequentController.viewSequentForPVC(pvc);
+        sequentController.viewSequentForPVC(entity);
         ruleApplicationController.resetConsideration();
         view.moveFrameRight();
     }
 
-    private void onBrowserItemSelected(TreeTableEntity treeTableEntity) {
+    private void onSelectBrowserItem(TreeTableEntity treeTableEntity) {
         DafnyFile file = treeTableEntity.getLocation();
         if (file != null) {
             editorController.viewFile(file);
@@ -76,14 +72,6 @@ public class OverviewController implements SequentActionListener {
                 editorController.resetPVCSelection();
             }
         }
-    }
-
-    public ProjectManager getProject() {
-        return project;
-    }
-
-    public TimelineLayout getView() {
-        return view;
     }
 
     @Override
@@ -98,5 +86,20 @@ public class OverviewController implements SequentActionListener {
         if (node != null) {
             ruleApplicationController.considerApplication(node, node.getSequent(), selector);
         }
+    }
+
+    @Override
+    public void hoverOverSubterm(TermSelector selector) {
+        if (selector != null) {
+            Reference termRef =
+                    new ProofTermReference(new ProofNodeSelector(sequentController.getActiveProofNode()), selector);
+            Set<Reference> predecessors = sequentController.getReferenceGraph().allPredecessors(termRef);
+            System.out.println(predecessors);
+            System.out.println("-----------------------------------");
+        }
+    }
+
+    public TimelineLayout getView() {
+        return view;
     }
 }

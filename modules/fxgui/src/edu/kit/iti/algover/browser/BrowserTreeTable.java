@@ -14,10 +14,10 @@ public class BrowserTreeTable extends TreeTableView<TreeTableEntity> {
 
     private TreeTableColumn<TreeTableEntity, TreeTableEntity> nameColumn;
     private TreeTableColumn<TreeTableEntity, TreeTableEntity> statusColumn;
-    private final PVCEntityEngageListener engagedListener;
+    private final PVCClickEditListener editListener;
 
-    public BrowserTreeTable(PVCEntityEngageListener engagedListener) {
-        this.engagedListener = engagedListener;
+    public BrowserTreeTable(PVCClickEditListener editListener) {
+        this.editListener = editListener;
         this.nameColumn = new TreeTableColumn<>("name");
         this.statusColumn = new TreeTableColumn<>("status");
 
@@ -41,7 +41,7 @@ public class BrowserTreeTable extends TreeTableView<TreeTableEntity> {
     }
 
     private TreeTableCell<TreeTableEntity, TreeTableEntity> statusCellRenderer(TreeTableColumn<TreeTableEntity, TreeTableEntity> column) {
-        return new StatusCell(engagedListener);
+        return new StatusCell(editListener);
     }
 
     private TreeTableCell<TreeTableEntity, TreeTableEntity> nameCellRenderer(TreeTableColumn<TreeTableEntity, TreeTableEntity> column) {

@@ -17,7 +17,7 @@ import java.util.List;
  */
 public class FlatBrowserController extends BrowserController {
 
-    public FlatBrowserController(Project project, PVCEntityEngageListener engagedListener) {
+    public FlatBrowserController(Project project, PVCClickEditListener engagedListener) {
         super(project, engagedListener);
     }
 

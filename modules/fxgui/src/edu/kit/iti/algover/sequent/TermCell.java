@@ -33,12 +33,7 @@ public class TermCell extends ListCell<Term> implements TermViewListener {
 
     @Override
     public void handleClickOnSubterm(Term term, SubtermSelector subtermSelector) {
-        List<Integer> pathAsList = subtermSelector.getPath();
-        int[] path = new int[pathAsList.size()];
-        for (int i = 0; i < path.length; i++) {
-            path[i] = pathAsList.get(i);
-        }
-        listener.clickOnSubterm(new TermSelector(polarity, getIndex(), path));
+        listener.clickOnSubterm(subtermToTermSelector(subtermSelector));
     }
 
     @Override
@@ -50,5 +45,19 @@ public class TermCell extends ListCell<Term> implements TermViewListener {
     @Override
     public void handleSubtermSelection(AnnotatedString.TermElement highlightedElement) {
         getListView().getSelectionModel().clearSelection();
+        if (highlightedElement == null) {
+            listener.hoverOverSubterm(null);
+        } else {
+            listener.hoverOverSubterm(subtermToTermSelector(highlightedElement.getSubtermSelector()));
+        }
+    }
+
+    private TermSelector subtermToTermSelector(SubtermSelector subtermSelector) {
+        List<Integer> pathAsList = subtermSelector.getPath();
+        int[] path = new int[pathAsList.size()];
+        for (int i = 0; i < path.length; i++) {
+            path[i] = pathAsList.get(i);
+        }
+        return new TermSelector(polarity, getIndex(), path);
     }
 }

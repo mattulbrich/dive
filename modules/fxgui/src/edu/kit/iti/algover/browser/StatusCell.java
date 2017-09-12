@@ -9,9 +9,9 @@ import javafx.scene.control.TreeTableCell;
  */
 public class StatusCell extends TreeTableCell<TreeTableEntity, TreeTableEntity> {
 
-    private final PVCEntityEngageListener engagedListener;
+    private final PVCClickEditListener engagedListener;
 
-    public StatusCell(PVCEntityEngageListener engagedListener) {
+    public StatusCell(PVCClickEditListener engagedListener) {
         this.engagedListener = engagedListener;
         getStyleClass().add("status-cell");
         setAlignment(Pos.CENTER);

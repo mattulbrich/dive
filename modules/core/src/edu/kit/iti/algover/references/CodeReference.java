@@ -48,4 +48,26 @@ public class CodeReference extends Reference {
                 ", endToken=" + endToken +
                 '}';
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof CodeReference)) return false;
+
+        CodeReference that = (CodeReference) o;
+
+        if (!file.getFilename().equals(that.file.getFilename())) return false;
+        if (startToken.getLine() != that.startToken.getLine()) return false;
+        if (startToken.getCharPositionInLine() != that.startToken.getCharPositionInLine()) return false;
+        if (endToken.getLine() != that.endToken.getLine()) return false;
+        return endToken.getCharPositionInLine() != that.endToken.getCharPositionInLine();
+    }
+
+    @Override
+    public int hashCode() {
+        int result = file.getFilename().hashCode();
+        result = 31 * result + startToken.hashCode();
+        result = 31 * result + endToken.hashCode();
+        return result;
+    }
 }

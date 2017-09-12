@@ -12,4 +12,6 @@ public interface SequentActionListener {
 
     void clickOnSubterm(TermSelector selector);
 
+    void hoverOverSubterm(TermSelector selector);
+
 }

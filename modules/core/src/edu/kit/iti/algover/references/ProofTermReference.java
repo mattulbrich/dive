@@ -43,4 +43,22 @@ public class ProofTermReference extends Reference {
                 ", termSelector=" + termSelector +
                 '}';
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof ProofTermReference)) return false;
+
+        ProofTermReference that = (ProofTermReference) o;
+
+        if (!proofNodeSelector.equals(that.proofNodeSelector)) return false;
+        return termSelector.equals(that.termSelector);
+    }
+
+    @Override
+    public int hashCode() {
+        int result = proofNodeSelector.hashCode();
+        result = 31 * result + termSelector.hashCode();
+        return result;
+    }
 }

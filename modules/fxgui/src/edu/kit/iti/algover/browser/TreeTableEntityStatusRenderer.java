@@ -13,13 +13,13 @@ import javafx.scene.text.Text;
 public class TreeTableEntityStatusRenderer implements TreeTableEntityVisitor<Void> {
 
     private final StatusCell cell;
-    private PVCEntityEngageListener engagedListener;
+    private PVCClickEditListener engagedListener;
 
     public TreeTableEntityStatusRenderer(StatusCell cell) {
         this.cell = cell;
     }
 
-    public void applyRendering(TreeTableEntity entity, PVCEntityEngageListener engagedListener) {
+    public void applyRendering(TreeTableEntity entity, PVCClickEditListener engagedListener) {
         entity.accept(this);
         this.engagedListener = engagedListener;
     }

@@ -2,11 +2,13 @@ package edu.kit.iti.algover.sequent;
 
 import de.jensd.fx.glyphs.GlyphsDude;
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon;
+import edu.kit.iti.algover.browser.entities.PVCEntity;
 import edu.kit.iti.algover.project.ProjectManager;
 import edu.kit.iti.algover.proof.PVC;
 import edu.kit.iti.algover.proof.Proof;
 import edu.kit.iti.algover.proof.ProofFormula;
 import edu.kit.iti.algover.proof.ProofNode;
+import edu.kit.iti.algover.references.ReferenceGraph;
 import edu.kit.iti.algover.rules.TermSelector;
 import edu.kit.iti.algover.term.Term;
 import javafx.geometry.Insets;
@@ -38,6 +40,7 @@ public class SequentController {
     private final ListView<Term> succedentView;
     private final FlowPane buttonsView;
     private final Button cancelButton;
+    private ReferenceGraph referenceGraph;
 
     private Proof activeProof;
     private ProofNode activeNode;
@@ -46,6 +49,7 @@ public class SequentController {
         this.manager = manager;
         this.listener = listener;
         this.activeProof = null;
+        this.referenceGraph = new ReferenceGraph();
 
         this.cancelButton = new Button("Cancel", GlyphsDude.createIcon(FontAwesomeIcon.CLOSE));
         this.buttonsView = new FlowPane(cancelButton);
@@ -84,11 +88,16 @@ public class SequentController {
         return new TermCell(polarity, listener);
     }
 
-    public void viewSequentForPVC(PVC pvc) {
-        activeProof = manager.getProofForPVC(pvc.getName());
-        activeNode = activeProof.getProofRoot();
-        antecedentView.getItems().setAll(calculateAssertions(activeNode.getSequent().getAntecedent()));
-        succedentView.getItems().setAll(calculateAssertions(activeNode.getSequent().getSuccedent()));
+    public void viewSequentForPVC(PVCEntity pvcEntity) {
+        PVC pvc = pvcEntity.getPVC();
+        if (activeProof == null || !activeProof.getPvcName().equals(pvc.getName())) {
+            activeProof = manager.getProofForPVC(pvc.getName());
+            activeNode = activeProof.getProofRoot();
+            antecedentView.getItems().setAll(calculateAssertions(activeNode.getSequent().getAntecedent()));
+            succedentView.getItems().setAll(calculateAssertions(activeNode.getSequent().getSuccedent()));
+            referenceGraph = new ReferenceGraph();
+            referenceGraph.addFromReferenceMap(pvcEntity.getLocation(), pvc.getReferenceMap());
+        }
     }
 
     public void setSequentActionListener(SequentActionListener listener) {
@@ -105,5 +114,9 @@ public class SequentController {
 
     public ProofNode getActiveProofNode() {
         return activeNode;
+    }
+
+    public ReferenceGraph getReferenceGraph() {
+        return referenceGraph;
     }
 }
