@@ -40,7 +40,7 @@ import edu.kit.iti.algover.util.TreeUtil;
  * @author Revised by mattias on 8/27/17.
  * @see PVC
  */
-public class MethodPVCBuilder {
+public class MethodPVCBuilder implements PVCBuilder {
 
     /**
      * Path through program which represents state of this pvc

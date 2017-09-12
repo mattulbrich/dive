@@ -1,8 +1,20 @@
+/*
+ * This file is part of AlgoVer.
+ *
+ * Copyright (C) 2015-2017 Karlsruhe Institute of Technology
+ */
 package edu.kit.iti.algover.script;
 
+import edu.kit.iti.algover.dafnystructures.DafnyDecl;
+import edu.kit.iti.algover.dafnystructures.DafnyDeclVisitor;
+import edu.kit.iti.algover.dafnystructures.DafnyField;
+import edu.kit.iti.algover.dafnystructures.DafnyMethod;
+import edu.kit.iti.algover.data.SymbolTable;
 import edu.kit.iti.algover.model.FieldLeaf;
 import edu.kit.iti.algover.parser.DafnyTree;
 import edu.kit.iti.algover.parser.ParserTest;
+import edu.kit.iti.algover.proof.MockPVCBuilder;
+import edu.kit.iti.algover.proof.PVC;
 import edu.kit.iti.algover.proof.ProofNode;
 import edu.kit.iti.algover.script.ast.*;
 import edu.kit.iti.algover.script.data.GoalNode;
@@ -42,11 +54,19 @@ public class ScriptParserTest {
             ib.startWith(parsedScript);
             //ServiceLoader<> ruleLoader = new ServiceLoader<>();
 
-
             String[] antec = {"b1 ==> b2", "b2 ==> b3"};
             String[] succ = {"b1 && b2", "b2&&b3"};
-            Sequent s = InterpreterUtils.createTestSequent(antec, succ, InterpreterUtils.setupTable());
-            ib.startState(new GoalNode<>(null, new ProofNode(null, null, null, s, null)));
+
+            SymbolTable setupTable = InterpreterUtils.setupTable();
+            Sequent s = InterpreterUtils.createTestSequent(antec, succ, setupTable);
+
+            MockPVCBuilder b = new MockPVCBuilder();
+            b.setSymbolTable(setupTable);
+            b.setSequent(s);
+            // b.setDeclaration();
+            PVC pvc = b.build();
+
+            ib.startState(new GoalNode<>(null, new ProofNode(null, null, null, s, pvc)));
             Interpreter i = ib.build();
 
             System.out.println(((ProofNode) i.getCurrentState().getSelectedGoalNode().getData()).getSequent());
