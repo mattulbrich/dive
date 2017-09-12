@@ -61,6 +61,7 @@ public class OverviewController implements SequentActionListener {
         editorController.viewFile(entity.getLocation());
         editorController.viewPVCSelection(pvc);
         sequentController.viewSequentForPVC(pvc);
+        ruleApplicationController.resetConsideration();
         view.moveFrameRight();
     }
 

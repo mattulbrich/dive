@@ -25,8 +25,9 @@ public class TermCell extends ListCell<Term> implements TermViewListener {
     protected void updateItem(Term term, boolean empty) {
         super.updateItem(term, empty);
         if (!empty && term != null) {
-            setText(null);
             setGraphic(new TermView(term, this));
+        } else {
+            setGraphic(null);
         }
     }
 

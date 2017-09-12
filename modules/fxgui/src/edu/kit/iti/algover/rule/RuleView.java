@@ -48,9 +48,14 @@ public class RuleView extends StackPane {
             applicationOverlay = new RuleApplicationOverlay(application);
             getChildren().setAll(applicationOverlay, ruleNameLabel);
         } else {
-            applicationOverlay = null;
-            getStyleClass().removeAll("closes", "non-splitting", "splitting");
-            getChildren().setAll(ruleNameLabel);
+            resetConsideration();
         }
+    }
+
+    public void resetConsideration() {
+        application = null;
+        applicationOverlay = null;
+        getStyleClass().removeAll("closes", "non-splitting", "splitting");
+        getChildren().setAll(ruleNameLabel);
     }
 }

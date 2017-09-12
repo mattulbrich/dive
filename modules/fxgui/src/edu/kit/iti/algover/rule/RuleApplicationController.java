@@ -52,4 +52,8 @@ public class RuleApplicationController {
             ruleView.considerApplication(target, selection, selector);
         });
     }
+
+    public void resetConsideration() {
+        rules.forEach(RuleView::resetConsideration);
+    }
 }
