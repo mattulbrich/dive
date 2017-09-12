@@ -289,7 +289,7 @@ ids:
 //
 
 sequent:
-  expressions? '|-' expressions?
+  ante=expressions? '|-' succ=expressions? -> ^(SEQ ^(BLOCK $ante) ^(BLOCK $succ))
   ;
 
 //

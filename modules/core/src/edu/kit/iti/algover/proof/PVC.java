@@ -77,7 +77,7 @@ public class PVC {
      * @param builder the builder to take relevant info from, not <code>null</code>.
      * @see MethodPVCBuilder#build()
      */
-    public PVC(MethodPVCBuilder builder) {
+    public PVC(PVCBuilder builder) {
         this.pathThroughProgram = builder.getPathThroughProgram();
         this.declaration = builder.getDeclaration();
         this.sequent = builder.getSequent();
@@ -88,6 +88,12 @@ public class PVC {
     }
 
     private String getDeclarationPrefix() {
+
+        if (declaration == null) {
+            // can appear in test cases
+            return "(null)";
+        }
+
         DafnyDecl clss = declaration.getParentDecl();
         if(clss instanceof DafnyClass) {
             return clss.getName() + "." + declaration.getName();
