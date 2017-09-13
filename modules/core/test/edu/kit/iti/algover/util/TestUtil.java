@@ -109,16 +109,16 @@ public class TestUtil {
         StringBuilder sb = new StringBuilder();
 
         int level = 0;
-        for(int i = 0; i < smt.length(); i++) {
+        for (int i = 0; i < smt.length(); i++) {
             char c = smt.charAt(i);
             if (c == '(') {
                 System.out.println();
                 System.out.print(Util.duplicate(" ", level));
-                level ++;
+                level++;
             }
             System.out.print(c);
             if (c == ')') {
-                level --;
+                level--;
             }
         }
 

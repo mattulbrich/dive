@@ -58,8 +58,8 @@ import edu.kit.iti.algover.util.UtilTest;
     UpdateSequenterTest.class,
     InlineSequenterTest.class,
     PrettyPrintTest.class,
-    TermReferencesBuilderTest.class,
-    IntegrationTest1.class,
+        TermReferencesBuilderTest.class,
+        IntegrationTest1.class,
     })
 public class Tests {
 }

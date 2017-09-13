@@ -59,6 +59,14 @@ public class SMTTrans implements TermVisitor<Type, SExpr, SMTException> {
         }
     }
 
+    public static OperatorEntry getOperationEntry(FunctionSymbol fs) {
+        return OP_MAP.lookup(fs);
+    }
+
+    public static SExpr coerce(SExpr expr, Sort sort) throws SMTException {
+        return new SExpr("coerce", UNIVERSE, adjust(expr, UNIVERSE), sortTerm(sort));
+    }
+
     /**
      * Translate a formula into smt.
      *
@@ -70,6 +78,90 @@ public class SMTTrans implements TermVisitor<Type, SExpr, SMTException> {
      */
     public SExpr trans(@NonNull Term formula) throws SMTException {
         return formula.accept(this, BOOL);
+    }
+
+    /*
+     * An sexpr has a builtin type SExpr#getType, but another might be required.
+     * This method allows one to wrap expr into a conversion function that
+     * returns a sexpr of type targetType.
+     *
+     * Some times cannot be translated from one type to another. An SMTException
+     * is thrown in such cases.
+     */
+    private static SExpr adjust(SExpr expr, Type targetType) throws SMTException {
+        Type type = expr.getType();
+        if (type == targetType) {
+            return expr;
+        }
+
+        switch (targetType) {
+            case UNIVERSE:
+                switch (type) {
+                    case BOOL:
+                        return new SExpr("b2u", UNIVERSE, expr);
+                    case INT:
+                        return new SExpr("i2u", UNIVERSE, expr);
+                    case HEAP:
+                        return new SExpr("h2u", UNIVERSE, expr);
+                    default:
+                        throw new SMTException("Cannot adjust " + expr +
+                                "from " + type +
+                                " to " + targetType);
+                }
+
+            case NONE:
+                return expr; // well ... do not care
+
+            case BOOL:
+                if (type != UNIVERSE) {
+                    throw new SMTException("Cannot adjust " + expr +
+                            " from " + type +
+                            " to " + targetType);
+                }
+                return new SExpr("u2b", BOOL, expr);
+
+            case INT:
+                if (type != UNIVERSE) {
+                    throw new SMTException("Cannot adjust " + expr +
+                            " from " + type +
+                            " to " + targetType);
+                }
+                return new SExpr("u2i", INT, expr);
+
+            case HEAP:
+                if (type != UNIVERSE) {
+                    throw new SMTException("Cannot adjust " + expr +
+                            " from " + type +
+                            " to " + targetType);
+                }
+                return new SExpr("u2h", HEAP, expr);
+
+            default:
+                throw new Error("unreachable");
+        }
+    }
+
+    /*
+     * translate a sort into the corresponding smt expression
+     * of type "type".
+     *
+     * int becomes ty$int
+     * C (class) becomes class$C
+     * array<int> becomes (ty$array ty$int)
+     */
+    private static SExpr sortTerm(Sort sort) {
+        List<Sort> args = sort.getArguments();
+        if (args.isEmpty()) {
+            return new SExpr("ty$" + sort.getName());
+        } else {
+            List<SExpr> children = Util.map(args, SMTTrans::sortTerm);
+            return new SExpr("ty$" + sort.getName(), children);
+        }
+    }
+
+    @Override
+    public SExpr visit(SchemaVarTerm term, Type arg) {
+        throw new UnsupportedOperationException("Schema variables are not supported for SMT solving");
     }
 
     /*
@@ -88,14 +180,14 @@ public class SMTTrans implements TermVisitor<Type, SExpr, SMTException> {
 
         String quantifier;
         switch (term.getQuantifier()) {
-        case EXISTS:
-            quantifier = "exists";
-            break;
-        case FORALL:
-            quantifier = "forall";
-            break;
-        default:
-            throw new UnsupportedOperationException("Unknown quantifier: " + term);
+            case EXISTS:
+                quantifier = "exists";
+                break;
+            case FORALL:
+                quantifier = "forall";
+                break;
+            default:
+                throw new UnsupportedOperationException("Unknown quantifier: " + term);
         }
 
         VariableTerm boundVar = term.getBoundVar();
@@ -111,96 +203,41 @@ public class SMTTrans implements TermVisitor<Type, SExpr, SMTException> {
     }
 
     /*
-     * An sexpr has a builtin type SExpr#getType, but another might be required.
-     * This method allows one to wrap expr into a conversion function that
-     * returns a sexpr of type targetType.
-     *
-     * Some times cannot be translated from one type to another. An SMTException
-     * is thrown in such cases.
-     */
-    private static SExpr adjust(SExpr expr, Type targetType) throws SMTException {
-        Type type = expr.getType();
-        if(type == targetType) {
-            return expr;
-        }
-
-        switch(targetType) {
-        case UNIVERSE:
-            switch(type) {
-            case BOOL:
-                return new SExpr("b2u", UNIVERSE, expr);
-            case INT:
-                return new SExpr("i2u", UNIVERSE, expr);
-            case HEAP:
-                return new SExpr("h2u", UNIVERSE, expr);
-            default:
-                throw new SMTException("Cannot adjust " + expr +
-                        "from " + type +
-                        " to " + targetType);
-            }
-
-        case NONE:
-            return expr; // well ... do not care
-
-        case BOOL:
-            if(type != UNIVERSE) {
-                throw new SMTException("Cannot adjust " + expr +
-                        " from " + type +
-                        " to " + targetType);
-            }
-            return new SExpr("u2b", BOOL, expr);
-
-        case INT:
-            if(type != UNIVERSE) {
-                throw new SMTException("Cannot adjust " + expr +
-                        " from " + type +
-                        " to " + targetType);
-            }
-            return new SExpr("u2i", INT, expr);
-
-        case HEAP:
-            if(type != UNIVERSE) {
-                throw new SMTException("Cannot adjust " + expr +
-                        " from " + type +
-                        " to " + targetType);
-            }
-            return new SExpr("u2h", HEAP, expr);
-
-        default:
-            throw new Error("unreachable");
-        }
-    }
-
-
-    /*
-     * translate a sort into the corresponding smt expression
-     * of type "type".
-     *
-     * int becomes ty$int
-     * C (class) becomes class$C
-     * array<int> becomes (ty$array ty$int)
-     */
-    private static SExpr sortTerm(Sort sort) {
-        List<Sort> args = sort.getArguments();
-        if(args.isEmpty()) {
-            return new SExpr("ty$" + sort.getName());
-        } else {
-            List<SExpr> children = Util.map(args, SMTTrans::sortTerm);
-            return new SExpr("ty$" + sort.getName(), children);
-        }
-    }
-
-    @Override
-    public SExpr visit(SchemaVarTerm term, Type arg) {
-        throw new UnsupportedOperationException("Schema variables are not supported for SMT solving");
-    }
-
-    /*
      * Variable names are prefixed with "var$".
      */
     @Override
     public SExpr visit(VariableTerm term, Type arg) throws SMTException {
         return adjust(new SExpr("var$" + term.getName(), UNIVERSE), arg);
+    }
+
+    public static SExpr typingPredicate(SExpr expr, Sort sort) throws SMTException {
+        return new SExpr("isA", BOOL, adjust(expr, UNIVERSE), sortTerm(sort));
+    }
+
+    @Override
+    public SExpr visit(ApplTerm term, Type arg) throws SMTException {
+
+        FunctionSymbol f = term.getFunctionSymbol();
+        OperatorEntry entry = OP_MAP.lookup(f);
+
+        if (entry != null) {
+            SMTExporter exporter = entry.getExporter();
+            return adjust(exporter.translate(entry, this, term), arg);
+        }
+
+        String name = f.getName();
+        if (name.matches("[0-9]+")) {
+            return adjust(new SExpr(name, INT), arg);
+        }
+
+        List<SExpr> children = new ArrayList<>();
+        for (Term subterm : term.getSubterms()) {
+            children.add(subterm.accept(this, UNIVERSE));
+        }
+
+        name = "fct$" + name;
+
+        return adjust(new SExpr(name, UNIVERSE, children), arg);
     }
 
     /*
@@ -217,44 +254,6 @@ public class SMTTrans implements TermVisitor<Type, SExpr, SMTException> {
             substitutions.add(new SExpr("var$" + pair.fst.getName(), pair.snd.accept(this, UNIVERSE)));
         }
         return new SExpr("let", UNIVERSE, new SExpr(substitutions), inner);
-    }
-
-    @Override
-    public SExpr visit(ApplTerm term, Type arg) throws SMTException {
-
-        FunctionSymbol f = term.getFunctionSymbol();
-        OperatorEntry entry = OP_MAP.lookup(f);
-
-        if(entry != null) {
-            SMTExporter exporter = entry.getExporter();
-            return adjust(exporter.translate(entry, this, term), arg);
-        }
-
-        String name = f.getName();
-        if(name.matches("[0-9]+")) {
-            return adjust(new SExpr(name, INT), arg);
-        }
-
-        List<SExpr> children = new ArrayList<>();
-        for (Term subterm : term.getSubterms()) {
-            children.add(subterm.accept(this, UNIVERSE));
-        }
-
-        name = "fct$" + name;
-
-        return adjust(new SExpr(name, UNIVERSE, children), arg);
-    }
-
-    public static OperatorEntry getOperationEntry(FunctionSymbol fs) {
-        return OP_MAP.lookup(fs);
-    }
-
-    public static SExpr typingPredicate(SExpr expr, Sort sort) throws SMTException {
-        return new SExpr("isA", BOOL, adjust(expr, UNIVERSE), sortTerm(sort));
-    }
-
-    public static SExpr coerce(SExpr expr, Sort sort) throws SMTException {
-        return new SExpr("coerce", UNIVERSE, adjust(expr, UNIVERSE), sortTerm(sort));
     }
 
 }

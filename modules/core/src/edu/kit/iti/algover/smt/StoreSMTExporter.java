@@ -23,16 +23,16 @@ public class StoreSMTExporter implements SMTExporter {
     public SExpr translate(OperatorEntry entry, SMTTrans trans, ApplTerm term) throws SMTException {
 
         FunctionSymbol fs = term.getFunctionSymbol();
-        if(!(fs instanceof InstantiatedFunctionSymbol)) {
+        if (!(fs instanceof InstantiatedFunctionSymbol)) {
             throw new SMTException("This term cannot be translated using this exporter!");
         }
-        FunctionSymbolFamily family = ((InstantiatedFunctionSymbol)fs).getFamily();
+        FunctionSymbolFamily family = ((InstantiatedFunctionSymbol) fs).getFamily();
 
-        if(family == BuiltinSymbols.STORE) {
+        if (family == BuiltinSymbols.STORE) {
             throw new Error("t b d");
-        } else if(family == BuiltinSymbols.ARRAY_STORE) {
+        } else if (family == BuiltinSymbols.ARRAY_STORE) {
             return translateArrayStore(trans, term);
-        } else if(family == BuiltinSymbols.ARRAY2_STORE) {
+        } else if (family == BuiltinSymbols.ARRAY2_STORE) {
             throw new Error("t b d");
         } else {
             throw new SMTException("This term cannot be translated using this exporter!");

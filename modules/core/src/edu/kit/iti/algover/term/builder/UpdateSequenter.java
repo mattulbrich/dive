@@ -86,7 +86,7 @@ public class UpdateSequenter implements PVCSequenter {
     private void resolveWildcards(ImmutableList<DafnyTree> assignmentHistory, SymbolTable symbolTable) {
         for (DafnyTree ass : assignmentHistory) {
             DafnyTree value = ass.getChild(1);
-            if(value.getType() != DafnyParser.WILDCARD) {
+            if (value.getType() != DafnyParser.WILDCARD) {
                 continue;
             }
 

@@ -27,17 +27,66 @@ import edu.kit.iti.algover.term.FunctionSymbolFamily.InstantiatedFunctionSymbol;
 @XmlRootElement(name = "SMT_operators")
 public class SMTOperatorMap {
 
+    private Map<String, OperatorEntry> map;
+    @XmlElements(@XmlElement(name = "operator"))
+    private List<OperatorEntry> list;
+
+    public static SMTOperatorMap deserialize(URL url) throws IOException {
+        try (InputStream is = url.openStream()) {
+            JAXBContext jaxbContext =
+                    JAXBContext.newInstance(SMTOperatorMap.class);
+
+            Unmarshaller jaxbUnmarshaller = jaxbContext.createUnmarshaller();
+            SMTOperatorMap coll = (SMTOperatorMap) jaxbUnmarshaller.unmarshal(is);
+            return coll;
+        } catch (IOException ex) {
+            throw ex;
+        } catch (Exception ex) {
+            throw new IOException(ex);
+        }
+    }
+
+    public boolean contains(String function) {
+        return lookup(function) != null;
+    }
+
+    public OperatorEntry lookup(String operator) {
+        if (map == null) {
+            Map<String, OperatorEntry> newMap = new HashMap<>();
+            for (OperatorEntry entry : list) {
+                newMap.put(entry.function, entry);
+            }
+            map = newMap;
+        }
+        return map.get(operator);
+    }
+
+    public OperatorEntry lookup(FunctionSymbol f) {
+        OperatorEntry entry = lookup(f.getName());
+        if (entry == null && f instanceof InstantiatedFunctionSymbol) {
+            InstantiatedFunctionSymbol ifs = (InstantiatedFunctionSymbol) f;
+            String basename = ifs.getFamily().getBaseName();
+            entry = lookup(basename);
+        }
+
+        return entry;
+    }
+
     public interface SMTExporter {
         SExpr translate(OperatorEntry entry, SMTTrans trans, ApplTerm term) throws SMTException;
     }
 
     public static class OperatorEntry {
-        @XmlElement private String function;
-        @XmlElement private String smtFunction;
+        @XmlElement
+        private String function;
+        @XmlElement
+        private String smtFunction;
         @XmlElements(@XmlElement(name = "argument"))
-          private Type arguments[];
-        @XmlElement private Type result;
-        @XmlElement private String exporterClass;
+        private Type arguments[];
+        @XmlElement
+        private Type result;
+        @XmlElement
+        private String exporterClass;
         private SMTExporter exporter;
 
         public String getFunction() {
@@ -57,66 +106,20 @@ public class SMTOperatorMap {
         }
 
         public SMTExporter getExporter() throws SMTException {
-            if(exporter == null) {
+            if (exporter == null) {
                 String name = exporterClass;
-                if(name == null) {
+                if (name == null) {
                     name = "BuiltinSymbolSMTExporter";
                 }
                 name = "edu.kit.iti.algover.smt." + name;
 
                 try {
                     exporter = (SMTExporter) Class.forName(name).newInstance();
-                } catch(Exception e) {
+                } catch (Exception e) {
                     throw new SMTException(e);
                 }
             }
             return exporter;
         }
-    }
-
-    private Map<String, OperatorEntry> map;
-
-    @XmlElements(@XmlElement(name = "operator"))
-    private List<OperatorEntry> list;
-
-    public OperatorEntry lookup(String operator) {
-        if(map == null) {
-            Map<String, OperatorEntry> newMap = new HashMap<>();
-            for (OperatorEntry entry : list) {
-                newMap.put(entry.function, entry);
-            }
-            map = newMap;
-        }
-        return map.get(operator);
-    }
-
-    public static SMTOperatorMap deserialize(URL url) throws IOException {
-        try (InputStream is = url.openStream()) {
-            JAXBContext jaxbContext =
-                    JAXBContext.newInstance(SMTOperatorMap.class);
-
-            Unmarshaller jaxbUnmarshaller = jaxbContext.createUnmarshaller();
-            SMTOperatorMap coll = (SMTOperatorMap) jaxbUnmarshaller.unmarshal(is);
-            return coll;
-        } catch(IOException ex) {
-            throw ex;
-        } catch(Exception ex) {
-            throw new IOException(ex);
-        }
-    }
-
-    public boolean contains(String function) {
-        return lookup(function) != null;
-    }
-
-    public OperatorEntry lookup(FunctionSymbol f) {
-        OperatorEntry entry = lookup(f.getName());
-        if(entry == null && f instanceof InstantiatedFunctionSymbol) {
-            InstantiatedFunctionSymbol ifs = (InstantiatedFunctionSymbol) f;
-            String basename = ifs.getFamily().getBaseName();
-            entry = lookup(basename);
-        }
-
-        return entry;
     }
 }

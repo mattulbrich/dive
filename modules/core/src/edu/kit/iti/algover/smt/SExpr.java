@@ -25,19 +25,19 @@ import java.util.regex.Pattern;
  */
 public class SExpr {
 
-    public enum Type { INT, BOOL, UNIVERSE, NONE, HEAP }
+    private final Type type;
 
     private static final Pattern EXTRACHAR_PATTERN =
             Pattern.compile("[^-A-Za-z0-9+/*=%?!.$_~&^<>@]");
 
     private final String name;
-    private final Type type;
-
-    private List<SExpr> children;
 
     public SExpr(String name) {
         this(name, Type.NONE);
     }
+
+    private List<SExpr> children;
+
     public SExpr(String name, Type type) {
         this.name = name;
         this.type = type;
@@ -83,27 +83,13 @@ public class SExpr {
         this("", children);
     }
 
-    public String toString() {
-        StringBuilder sb = new StringBuilder();
-        appendTo(sb);
-        return sb.toString();
-    }
-
-    public String getEscapedName() {
-        if(EXTRACHAR_PATTERN.matcher(name).find()) {
-            return "|" + name + "|";
-        } else {
-            return name;
-        }
-    }
-
     private void appendTo(StringBuilder sb) {
         boolean noSpace = name.isEmpty();
         String escapedName = getEscapedName();
-        if(children.size() > 0) {
+        if (children.size() > 0) {
             sb.append("(").append(escapedName);
             for (SExpr child : children) {
-                if(!noSpace) {
+                if (!noSpace) {
                     sb.append(" ");
                 } else {
                     noSpace = false;
@@ -112,7 +98,7 @@ public class SExpr {
             }
             sb.append(")");
         } else {
-            if(escapedName.length() == 0) {
+            if (escapedName.length() == 0) {
                 sb.append("()");
             } else {
                 sb.append(escapedName);
@@ -120,7 +106,23 @@ public class SExpr {
         }
     }
 
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        appendTo(sb);
+        return sb.toString();
+    }
+
+    public String getEscapedName() {
+        if (EXTRACHAR_PATTERN.matcher(name).find()) {
+            return "|" + name + "|";
+        } else {
+            return name;
+        }
+    }
+
     public Type getType() {
         return type;
     }
+
+    public enum Type {INT, BOOL, UNIVERSE, NONE, HEAP}
 }

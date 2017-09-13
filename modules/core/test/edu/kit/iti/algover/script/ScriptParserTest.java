@@ -44,7 +44,7 @@ public class ScriptParserTest {
 
             DafnyTree t = DafnyFileParser.parse(new ByteArrayInputStream("method dummy() ensures true { }".getBytes()));
             Project p = TestUtil.mockProject(t);
-            PVC pvc = p.getAllVerificationConditions().getContents().get(0);
+            PVC pvc = p.getAllPVCs().getContents().get(0);
 
 
             String[] antec = {"b1 ==> b2", "b2 ==> b3"};
