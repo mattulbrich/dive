@@ -27,4 +27,8 @@ public class Span {
             Math.max(one.endCharInLine, other.endCharInLine)
         );
     }
+
+    public String toString() {
+        return "Span(" + beginLine + ":" + beginCharInLine + " to " + endLine + ":" + endCharInLine + ")";
+    }
 }

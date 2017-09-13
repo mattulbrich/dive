@@ -32,24 +32,24 @@ public class TermCell extends ListCell<Term> implements TermViewListener {
     }
 
     @Override
-    public void handleClickOnSubterm(Term term, SubtermSelector subtermSelector) {
-        listener.clickOnSubterm(subtermToTermSelector(subtermSelector));
+    public void handleClickOnSubterm(boolean controlDown, Term term, SubtermSelector subtermSelector) {
+        if (controlDown) {
+            listener.requestReferenceHighlighting(subtermToTermSelector(subtermSelector));
+        } else {
+            listener.considerApplication(subtermToTermSelector(subtermSelector));
+        }
     }
 
     @Override
     public void handleClickOutsideTerm() {
         getListView().getSelectionModel().select(getIndex());
         getListView().requestFocus();
+        listener.requestReferenceHighlighting(null);
     }
 
     @Override
     public void handleSubtermSelection(AnnotatedString.TermElement highlightedElement) {
         getListView().getSelectionModel().clearSelection();
-        if (highlightedElement == null) {
-            listener.hoverOverSubterm(null);
-        } else {
-            listener.hoverOverSubterm(subtermToTermSelector(highlightedElement.getSubtermSelector()));
-        }
     }
 
     private TermSelector subtermToTermSelector(SubtermSelector subtermSelector) {

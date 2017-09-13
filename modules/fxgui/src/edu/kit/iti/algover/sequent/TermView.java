@@ -93,7 +93,7 @@ public class TermView extends CodeArea {
         if (charIdx.isPresent()) {
             AnnotatedString.TermElement elem = annotatedString.getTermElementAt(charIdx.getAsInt());
             SubtermSelector subtermSelector = elem.getSubtermSelector();
-            listener.handleClickOnSubterm(term, subtermSelector);
+            listener.handleClickOnSubterm(mouseEvent.isControlDown(), term, subtermSelector);
         } else {
             // A click outside should select the whole item
             listener.handleClickOutsideTerm();

@@ -10,8 +10,8 @@ public interface SequentActionListener {
 
     void cancelProofEditing();
 
-    void clickOnSubterm(TermSelector selector);
+    void considerApplication(TermSelector selector);
 
-    void hoverOverSubterm(TermSelector selector);
+    void requestReferenceHighlighting(TermSelector selector);
 
 }

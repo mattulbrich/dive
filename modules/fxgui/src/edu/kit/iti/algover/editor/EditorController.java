@@ -3,6 +3,7 @@ package edu.kit.iti.algover.editor;
 import edu.kit.iti.algover.dafnystructures.DafnyFile;
 import edu.kit.iti.algover.parser.DafnyTree;
 import edu.kit.iti.algover.proof.PVC;
+import edu.kit.iti.algover.references.CodeReference;
 import edu.kit.iti.algover.symbex.AssertionElement;
 import edu.kit.iti.algover.symbex.PathConditionElement;
 import edu.kit.iti.algover.symbex.SymbexPath;
@@ -11,6 +12,7 @@ import javafx.collections.ListChangeListener;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
 import org.antlr.runtime.Token;
+import org.fxmisc.richtext.CodeArea;
 
 import java.io.IOException;
 import java.nio.file.FileSystems;
@@ -26,12 +28,17 @@ import java.util.stream.Collectors;
 // but maybe that has to wait until ProjectManager is ready
 public class EditorController {
 
+    private static final int PVC_LAYER = 0;
+    private static final int REFERENCE_LAYER = 1;
+
     private final TabPane view;
     private final Map<DafnyFile, Tab> tabsByFile;
+    private final LayeredHighlightingRule highlightingLayers;
 
     public EditorController() {
         this.view = new TabPane();
         this.tabsByFile = new HashMap<>();
+        this.highlightingLayers = new LayeredHighlightingRule(2);
         view.getTabs().addListener(this::onTabListChanges);
     }
 
@@ -55,7 +62,9 @@ public class EditorController {
                 Tab tab = new Tab();
                 tab.setText(dafnyFile.getFilename());
                 tab.setUserData(dafnyFile);
-                tab.setContent(new DafnyCodeArea(contentAsText));
+                DafnyCodeArea codeArea = new DafnyCodeArea(contentAsText);
+                codeArea.setHighlightingRule(highlightingLayers);
+                tab.setContent(codeArea);
                 tabsByFile.put(dafnyFile, tab);
                 view.getTabs().add(tab);
                 view.getSelectionModel().select(tab);
@@ -70,12 +79,7 @@ public class EditorController {
     }
 
     public void viewPVCSelection(PVC pvc) {
-        view.getTabs().stream()
-                .map(tab -> (DafnyCodeArea) tab.getContent())
-                .forEach(codeArea -> codeArea.setHighlightingRule(null));
-
-        DafnyCodeArea codeArea = getFocusedCodeArea();
-        codeArea.setHighlightingRule(new PVCHighlightingRule(pvc));
+        highlightingLayers.setLayer(PVC_LAYER, new PVCHighlightingRule(pvc));
 
         view.getTabs().stream()
                 .map(tab -> (DafnyCodeArea) tab.getContent())
@@ -83,9 +87,9 @@ public class EditorController {
     }
 
     public void resetPVCSelection() {
+        highlightingLayers.setLayer(PVC_LAYER, null);
         tabsByFile.forEach((key, value) -> {
             DafnyCodeArea codeArea = (DafnyCodeArea) value.getContent();
-            codeArea.setHighlightingRule(null);
             codeArea.rerenderHighlighting();
         });
     }
@@ -97,5 +101,13 @@ public class EditorController {
     private static String fileToString(String filename) throws IOException {
         Path path = FileSystems.getDefault().getPath(filename);
         return new String(Files.readAllBytes(path));
+    }
+
+    public void viewReferences(Set<CodeReference> codeReferences) {
+        highlightingLayers.setLayer(REFERENCE_LAYER, new ReferenceHighlightingRule(codeReferences));
+
+        view.getTabs().stream()
+                .map(tab -> (DafnyCodeArea) tab.getContent())
+                .forEach(DafnyCodeArea::rerenderHighlighting);
     }
 }

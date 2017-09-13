@@ -8,7 +8,7 @@ import edu.kit.iti.algover.term.prettyprint.AnnotatedString;
  * Created by philipp on 02.08.17.
  */
 public interface TermViewListener {
-    void handleClickOnSubterm(Term term, SubtermSelector subtermSelector);
+    void handleClickOnSubterm(boolean controlDown, Term term, SubtermSelector subtermSelector);
 
     void handleClickOutsideTerm();
 

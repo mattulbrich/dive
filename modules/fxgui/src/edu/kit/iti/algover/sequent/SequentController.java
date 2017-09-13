@@ -119,4 +119,8 @@ public class SequentController {
     public ReferenceGraph getReferenceGraph() {
         return referenceGraph;
     }
+
+    public Proof getActiveProof() {
+        return activeProof;
+    }
 }

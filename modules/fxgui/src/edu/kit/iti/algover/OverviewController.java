@@ -3,9 +3,7 @@ package edu.kit.iti.algover;
 import edu.kit.iti.algover.project.ProjectManager;
 import edu.kit.iti.algover.proof.ProofNode;
 import edu.kit.iti.algover.proof.ProofNodeSelector;
-import edu.kit.iti.algover.references.ProofTermReference;
-import edu.kit.iti.algover.references.Reference;
-import edu.kit.iti.algover.references.ReferenceGraph;
+import edu.kit.iti.algover.references.*;
 import edu.kit.iti.algover.rule.RuleApplicationController;
 import edu.kit.iti.algover.browser.BrowserController;
 import edu.kit.iti.algover.browser.FlatBrowserController;
@@ -20,6 +18,7 @@ import edu.kit.iti.algover.sequent.SequentActionListener;
 import edu.kit.iti.algover.sequent.SequentController;
 import edu.kit.iti.algover.timeline.TimelineLayout;
 
+import java.util.HashSet;
 import java.util.Set;
 
 /**
@@ -80,7 +79,7 @@ public class OverviewController implements SequentActionListener {
     }
 
     @Override
-    public void clickOnSubterm(TermSelector selector) {
+    public void considerApplication(TermSelector selector) {
         view.moveFrameRight();
         ProofNode node = sequentController.getActiveProofNode();
         if (node != null) {
@@ -89,14 +88,43 @@ public class OverviewController implements SequentActionListener {
     }
 
     @Override
-    public void hoverOverSubterm(TermSelector selector) {
+    public void requestReferenceHighlighting(TermSelector selector) {
         if (selector != null) {
             Reference termRef =
                     new ProofTermReference(new ProofNodeSelector(sequentController.getActiveProofNode()), selector);
             Set<Reference> predecessors = sequentController.getReferenceGraph().allPredecessors(termRef);
-            System.out.println(predecessors);
-            System.out.println("-----------------------------------");
+            Set<CodeReference> codeReferences = filterCodeReferences(predecessors);
+            codeReferences.forEach(codeReference -> {
+                System.out.println(codeReference);
+                System.out.println(
+                        codeReference.accept(new ReferencePrettyPrinter(sequentController.getActiveProof(), 100)));
+            });
+            editorController.viewReferences(codeReferences);
         }
+    }
+
+    private static Set<CodeReference> filterCodeReferences(Set<Reference> predecessors) {
+        Set<CodeReference> codeReferences = new HashSet<>();
+        predecessors.forEach(reference -> {
+            reference.accept(new ReferenceVisitor<Void>() {
+                @Override
+                public Void visit(CodeReference codeTarget) {
+                    codeReferences.add(codeTarget);
+                    return null;
+                }
+
+                @Override
+                public Void visit(ProofTermReference termTarget) {
+                    return null;
+                }
+
+                @Override
+                public Void visit(UserInputReference userInputTarget) {
+                    return null;
+                }
+            });
+        });
+        return codeReferences;
     }
 
     public TimelineLayout getView() {

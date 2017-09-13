@@ -29,3 +29,7 @@
 .guard-negative {
     -fx-strikethrough: true;
 }
+
+.reference-backlighted {
+    -rtfx-background-color: #999;
+}
