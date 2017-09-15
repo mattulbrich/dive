@@ -113,9 +113,10 @@ public class ProofRuleHandler implements CommandHandler<ProofNode> {
             ProofRuleApplication proofRuleApplication = pr.makeApplication(pn.getData(), ruleParams);
             if (proofRuleApplication.getApplicability().equals(ProofRuleApplication.Applicability.APPLICABLE)) {
                 List<ProofNode> newNodes = RuleApplicator.applyRule(proofRuleApplication, pn.getData());
+
                 //TODO new state creation
                 //state.getGoals().remove(pn);
-                // newNodes.forEach(g -> state.getGoals().add(new GoalNode<>(pn, g)));
+                //newNodes.forEach(g -> state.getGoals().add(new GoalNode<>(pn, g)));
                 //state.getGoals().addAll(newNodes);
                 //newcreatedgoals must be goalnode<ProofNode>
             } else {
@@ -138,8 +139,8 @@ public class ProofRuleHandler implements CommandHandler<ProofNode> {
             case INT:
                 return new Parameters.TypedValue(BigInteger.class, val.getData());
             case TERM:
-                //TODO build the term object from data
                 return new Parameters.TypedValue(Term.class, val.getData());
+            //TODO SemiSequent
             default:
                 System.out.println("Not implemented yet");
                 return null;
