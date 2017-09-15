@@ -31,5 +31,11 @@
 }
 
 .reference-backlighted {
-    -rtfx-background-color: #999;
+    -rtfx-background-color: #62b3cf;
+    /* Does not work, unfortunately
+     * should work according to https://github.com/TomasMikula/RichTextFX/wiki/RichTextFX-CSS-Reference-Guide#the-additional-css-properties-for-textext
+    -rtfx-border-stroke-color: #62b3cf;
+    -rtfx-border-stroke-width: 1px;
+    -rtfx-border-stroke-type: outside;
+    */
 }
