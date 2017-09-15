@@ -1,5 +1,5 @@
-fake fake=true;
-//andRight on='b1 && b2';
+//fake fake=true;
+andRight on='b1 && b2';
 //cases{
 //    case true:
 //        z3;
