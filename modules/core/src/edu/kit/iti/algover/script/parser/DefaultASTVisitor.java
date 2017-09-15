@@ -60,6 +60,11 @@ public class DefaultASTVisitor<T> implements Visitor<T> {
     }
 
     @Override
+    public T visit(SequentLiteral sequentLiteral) {
+        return defaultVisit(sequentLiteral);
+    }
+
+    @Override
     public T visit(StringLiteral stringLiteral) {
         return defaultVisit(stringLiteral);
     }

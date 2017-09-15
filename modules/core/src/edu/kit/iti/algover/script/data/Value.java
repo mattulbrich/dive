@@ -57,6 +57,10 @@ public class Value<T> {
         return new Value<>(Type.TERM, term.getText());
     }
 
+    public static Value<String> from(SequentLiteral seq) {
+        return new Value<>(Type.TERM, seq.getText());
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

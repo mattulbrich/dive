@@ -27,7 +27,6 @@ public class RuleApplicator {
      * @return a list of new proof nodes (children) resulting form the rule applciation
      */
     public static List<ProofNode> applyRule(ProofRuleApplication proofRuleApplication, ProofNode pn) {
-        List<ProofNode> list = new ArrayList<>();
         ImmutableList<BranchInfo> applicationInfos = proofRuleApplication.getBranchInfo();
         if (applicationInfos.equals(BranchInfo.UNCHANGED)) {
 
@@ -55,7 +54,7 @@ public class RuleApplicator {
         assert numberOfChildrenExpected == children.size();
 
 
-        return list;
+        return children;
     }
 
     /**

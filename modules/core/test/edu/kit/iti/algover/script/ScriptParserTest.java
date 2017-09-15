@@ -42,15 +42,21 @@ public class ScriptParserTest {
             ib.startWith(parsedScript);
             //ServiceLoader<> ruleLoader = new ServiceLoader<>();
 
+            SymbolTable setupTable = InterpreterUtils.setupTable();
+
             DafnyTree t = DafnyFileParser.parse(new ByteArrayInputStream("method dummy() ensures true { }".getBytes()));
             Project p = TestUtil.mockProject(t);
+
             PVC pvc = p.getAllPVCs().getContents().get(0);
 
+            setupTable.getAllSymbols().forEach(functionSymbol ->
+                    pvc.getSymbolTable().addFunctionSymbol(functionSymbol)
+            );
 
             String[] antec = {"b1 ==> b2", "b2 ==> b3"};
             String[] succ = {"b1 && b2", "b2&&b3"};
 
-            SymbolTable setupTable = InterpreterUtils.setupTable();
+
             Sequent s = InterpreterUtils.createTestSequent(antec, succ, setupTable);
 
             ib.startState(new GoalNode<>(null, new ProofNode(null, null, null, s, pvc)));

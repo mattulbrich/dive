@@ -96,6 +96,21 @@ public class Evaluator<T> extends DefaultASTVisitor<Value> implements ScopeObser
     }
 
     @Override
+    public Value visit(SequentLiteral sequentLiteral) {
+        Value seqValue = null;
+        try {
+
+            seqValue = new Value<>(Type.TERM, TermParser.parseSequent(((ProofNode) goal.getData()).getRootPVC().getSymbolTable(), sequentLiteral.getText()));
+
+        } catch (DafnyParserException e) {
+            System.out.println("Could not translate term " + sequentLiteral.getText());
+            e.printStackTrace();
+        }
+        return seqValue;
+
+    }
+
+    @Override
     public Value visit(StringLiteral string) {
         return Value.from(string);
     }

@@ -40,6 +40,8 @@ public interface Visitor<T> {
 
     T visit(TermLiteral term);
 
+    T visit(SequentLiteral sequentLiteral);
+
     T visit(StringLiteral string);
 
     T visit(Variable variable);

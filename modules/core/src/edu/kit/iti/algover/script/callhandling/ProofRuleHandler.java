@@ -113,9 +113,10 @@ public class ProofRuleHandler implements CommandHandler<ProofNode> {
             ProofRuleApplication proofRuleApplication = pr.makeApplication(pn.getData(), ruleParams);
             if (proofRuleApplication.getApplicability().equals(ProofRuleApplication.Applicability.APPLICABLE)) {
                 List<ProofNode> newNodes = RuleApplicator.applyRule(proofRuleApplication, pn.getData());
-
-                state.getGoals().remove(pn);
-                //state.getGoals().add(newCreatedGoals);
+                //TODO new state creation
+                //state.getGoals().remove(pn);
+                // newNodes.forEach(g -> state.getGoals().add(new GoalNode<>(pn, g)));
+                //state.getGoals().addAll(newNodes);
                 //newcreatedgoals must be goalnode<ProofNode>
             } else {
                 System.out.println("Warning command not applicable");

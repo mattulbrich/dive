@@ -82,8 +82,10 @@ public class TrivialAndRight extends AbstractProofRule {
     @Override
     public ProofRuleApplication makeApplication(ProofNode target, Parameters parameters) throws RuleException {
         checkParameters(parameters);
-
-        Term on = parameters.getValue("on").cast(Term.class).getValue();
+        Parameters.TypedValue<?> onValue = parameters.getValue("on");
+        //TODO what type should on have???
+        // System.out.println(onValue.getType());
+        Term on = onValue.cast(Term.class).getValue();
         ProofRuleApplicationBuilder builder = new ProofRuleApplicationBuilder(this);
 
         if(!(on instanceof ApplTerm)) {
