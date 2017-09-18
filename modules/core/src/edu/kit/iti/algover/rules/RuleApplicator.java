@@ -113,7 +113,7 @@ public class RuleApplicator {
             try {
                 ProofFormula nthForm = oldSemiSeq.get(ts.getTermNo());
                 Term replace = ReplaceVisitor.replace(nthForm.getTerm(), ts.getSubtermSelector(), newTerm);
-                nthForm = new ProofFormula(0, replace);
+                nthForm = new ProofFormula(replace);
             } catch (TermBuildException e) {
                 e.printStackTrace();
             }

@@ -236,7 +236,7 @@ public class TermParser {
 
         for (DafnyTree antecForm : semiseq.getChildren()) {
             try {
-                ProofFormula pf = new ProofFormula(0, toTerm(antecForm));
+                ProofFormula pf = new ProofFormula(toTerm(antecForm));
                 retList.add(pf);
             } catch (Exception e) {
                 DafnyParserException lex = generateDafnyParserException(antecForm, e);

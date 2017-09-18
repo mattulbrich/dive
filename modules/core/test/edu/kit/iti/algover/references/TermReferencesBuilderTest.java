@@ -31,11 +31,11 @@ public class TermReferencesBuilderTest {
 
     private static ProofNode mockProofNode(ProofNode parent, Term... terms) throws TermBuildException {
         List<ProofFormula> formulas = Arrays.stream(terms)
-                .map(term -> new ProofFormula(0, term))
+                .map(term -> new ProofFormula(term))
                 .collect(Collectors.toList());
         return new ProofNode(parent, null, null,
                 new Sequent(formulas, Collections.singleton(
-                        new ProofFormula(0, new ApplTerm(BuiltinSymbols.TRUE)))), null);
+                        new ProofFormula(new ApplTerm(BuiltinSymbols.TRUE)))), null);
     }
 
     public TermReferencesBuilderTest() throws TermBuildException, DafnyParserException, RuleException, FormatException {

@@ -54,7 +54,7 @@ public class ScriptParserTest {
             );
 
             String[] antec = {"b1 ==> b2", "b2 ==> b3"};
-            String[] succ = {"b1 && b2", "b2&&b3"};
+            String[] succ = {"b1 && b2", "b2 && b3"};
 
 
             Sequent s = InterpreterUtils.createTestSequent(antec, succ, setupTable);

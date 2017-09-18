@@ -109,21 +109,27 @@ public class ProofRuleHandler implements CommandHandler<ProofNode> {
                         ruleParams.putValue(variable.getIdentifier(), convertValuesToTypedValues(val));
                     }
             );
-//Terms throw a class cast exception at the moment
+
             ProofRuleApplication proofRuleApplication = pr.makeApplication(pn.getData(), ruleParams);
             if (proofRuleApplication.getApplicability().equals(ProofRuleApplication.Applicability.APPLICABLE)) {
                 List<ProofNode> newNodes = RuleApplicator.applyRule(proofRuleApplication, pn.getData());
                 List<GoalNode<ProofNode>> newGoals = new ArrayList<>();
+
+                //add new nodes, remove expanded node
                 newNodes.forEach(proofNode -> {
                     newGoals.add(new GoalNode<ProofNode>(pn, proofNode));
                 });
 
-                interpreter.newState(newGoals);
-                //TODO new state creation
-                //state.getGoals().remove(pn);
-                //newNodes.forEach(g -> state.getGoals().add(new GoalNode<>(pn, g)));
-                //state.getGoals().addAll(newNodes);
-                //newcreatedgoals must be goalnode<ProofNode>
+
+                //Zustandswechsel
+                if (newGoals.size() >= 1) {
+                    interpreter.getCurrentState().getGoals().addAll(newGoals);
+                    interpreter.getCurrentState().getGoals().remove(pn);
+                    interpreter.getCurrentState().setSelectedGoalNode(interpreter.getCurrentGoals().get(0));
+                } else {
+                    interpreter.getCurrentState().setSelectedGoalNode(null);
+                }
+
             } else {
                 System.out.println("Warning command not applicable");
             }
