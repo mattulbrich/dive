@@ -33,14 +33,18 @@
     -fx-background-color: #fff;
 }
 
-.rule-view.closes {
+.rule-view:closes {
     -fx-background-color: #0f0;
 }
 
-.rule-view.non-splitting {
+.rule-view:non-splitting {
     -fx-background-color: #AAF;
 }
 
-.rule-view.splitting {
+.rule-view:splitting {
     -fx-background-color: #FF0;
+}
+.rule-view:selected {
+    -fx-border-color: black;
+    -fx-border-width: 1px;
 }

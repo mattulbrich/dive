@@ -1,14 +1,13 @@
 package edu.kit.iti.algover.rule;
 
 import com.jfoenix.controls.JFXMasonryPane;
-import edu.kit.iti.algover.project.Project;
 import edu.kit.iti.algover.project.ProjectManager;
 import edu.kit.iti.algover.proof.ProofNode;
 import edu.kit.iti.algover.rules.ProofRule;
 import edu.kit.iti.algover.rules.TermSelector;
-import edu.kit.iti.algover.rules.impl.TrivialAndRight;
 import edu.kit.iti.algover.term.Sequent;
-import edu.kit.iti.algover.term.Term;
+import javafx.scene.control.SelectionModel;
+import javafx.scene.control.SingleSelectionModel;
 
 import java.util.ArrayList;
 import java.util.ServiceLoader;
@@ -23,12 +22,16 @@ public class RuleApplicationController {
 
     private final ArrayList<RuleView> rules;
 
+    private final SelectionModel<RuleView> selectionModel;
+
     public RuleApplicationController(ProjectManager manager) {
         view = new JFXMasonryPane();
         view.setCellWidth(RULE_CELL_WIDTH);
         view.setCellHeight(RULE_CELL_HEIGHT);
         view.setVSpacing(SPACING);
         view.setHSpacing(SPACING);
+
+        selectionModel = new RuleSelectionModel();
 
         rules = new ArrayList<>();
 
@@ -42,7 +45,7 @@ public class RuleApplicationController {
     }
 
     public void addRule(ProofRule rule) {
-        RuleView ruleView = new RuleView(rule);
+        RuleView ruleView = new RuleView(rule, selectionModel);
         rules.add(ruleView);
         view.getChildren().add(ruleView);
     }
@@ -55,5 +58,17 @@ public class RuleApplicationController {
 
     public void resetConsideration() {
         rules.forEach(RuleView::resetConsideration);
+    }
+
+    private class RuleSelectionModel extends SingleSelectionModel<RuleView> {
+        @Override
+        protected RuleView getModelItem(int i) {
+            return rules.get(i);
+        }
+
+        @Override
+        protected int getItemCount() {
+            return rules.size();
+        }
     }
 }

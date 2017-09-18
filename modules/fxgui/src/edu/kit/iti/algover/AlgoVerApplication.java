@@ -1,7 +1,11 @@
 package edu.kit.iti.algover;
 
+import com.sun.javafx.sg.prism.NGNode;
 import edu.kit.iti.algover.project.ProjectManager;
 import javafx.application.Application;
+import javafx.scene.Camera;
+import javafx.scene.ParallelCamera;
+import javafx.scene.PerspectiveCamera;
 import javafx.scene.Scene;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
