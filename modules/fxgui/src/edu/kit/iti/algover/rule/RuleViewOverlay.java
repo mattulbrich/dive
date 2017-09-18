@@ -5,10 +5,10 @@ import javafx.geometry.Pos;
 import javafx.scene.control.Label;
 import javafx.scene.layout.AnchorPane;
 
-public class RuleApplicationOverlay extends AnchorPane {
+public class RuleViewOverlay extends AnchorPane {
     private final ProofRuleApplication application;
 
-    public RuleApplicationOverlay(ProofRuleApplication application) {
+    public RuleViewOverlay(ProofRuleApplication application) {
         this.application = application;
 
         Label branchCount = new Label(application.getBranchCount() + " branches");

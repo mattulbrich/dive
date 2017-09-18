@@ -6,8 +6,6 @@ import edu.kit.iti.algover.rules.ProofRuleApplication;
 import edu.kit.iti.algover.rules.RuleException;
 import edu.kit.iti.algover.rules.TermSelector;
 import edu.kit.iti.algover.term.Sequent;
-import javafx.beans.Observable;
-import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.value.ObservableValue;
 import javafx.css.PseudoClass;
 import javafx.geometry.Pos;
@@ -27,7 +25,7 @@ public class RuleView extends StackPane {
     private final ProofRule rule;
 
     private ProofRuleApplication application;
-    private RuleApplicationOverlay applicationOverlay;
+    private RuleViewOverlay applicationOverlay;
 
     private final SelectionModel<RuleView> selectionModel;
 
@@ -71,7 +69,7 @@ public class RuleView extends StackPane {
     private void renderApplication() {
         if (application != null) {
             setPseudoClassStateFromBranches(application.getBranchCount());
-            applicationOverlay = new RuleApplicationOverlay(application);
+            applicationOverlay = new RuleViewOverlay(application);
             getChildren().setAll(applicationOverlay, ruleNameLabel);
         } else {
             resetConsideration();
