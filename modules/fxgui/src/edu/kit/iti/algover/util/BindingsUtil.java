@@ -1,6 +1,5 @@
 package edu.kit.iti.algover.util;
 
-import javafx.beans.binding.Bindings;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
 

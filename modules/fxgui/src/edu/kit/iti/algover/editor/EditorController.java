@@ -1,25 +1,19 @@
 package edu.kit.iti.algover.editor;
 
 import edu.kit.iti.algover.dafnystructures.DafnyFile;
-import edu.kit.iti.algover.parser.DafnyTree;
 import edu.kit.iti.algover.proof.PVC;
 import edu.kit.iti.algover.references.CodeReference;
-import edu.kit.iti.algover.symbex.AssertionElement;
-import edu.kit.iti.algover.symbex.PathConditionElement;
-import edu.kit.iti.algover.symbex.SymbexPath;
-import edu.kit.iti.algover.util.ImmutableList;
 import javafx.collections.ListChangeListener;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
-import org.antlr.runtime.Token;
-import org.fxmisc.richtext.CodeArea;
 
 import java.io.IOException;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.*;
-import java.util.stream.Collectors;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * Created by philipp on 26.06.17.

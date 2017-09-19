@@ -6,9 +6,9 @@
 package edu.kit.iti.algover.sequent;
 
 import edu.kit.iti.algover.rules.SubtermSelector;
+import edu.kit.iti.algover.term.Term;
 import edu.kit.iti.algover.term.prettyprint.AnnotatedString;
 import edu.kit.iti.algover.term.prettyprint.PrettyPrint;
-import edu.kit.iti.algover.term.Term;
 import edu.kit.iti.algover.util.TextUtil;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.value.ObservableValue;
@@ -107,8 +107,8 @@ public class TermView extends CodeArea {
         final double safetyPadding = 1.1; // 10%, this is such a hack ... :(
 
         return safetyPadding * (bounds.getHeight()
-            + getPadding().getBottom() + getPadding().getTop()
-            + getInsets().getBottom() + getInsets().getTop());
+                + getPadding().getBottom() + getPadding().getTop()
+                + getInsets().getBottom() + getInsets().getTop());
     }
 
     private void handleClick(MouseEvent mouseEvent) {
@@ -138,12 +138,12 @@ public class TermView extends CodeArea {
 
     private void updateStyleClasses() {
         clearStyle(0, getLength());
-        highlightFromElement(highlightedElement,"highlighted");
-        highlightFromElement(referenceSelectedElement,"reference-selected");
+        highlightFromElement(highlightedElement, "highlighted");
+        highlightFromElement(referenceSelectedElement, "reference-selected");
     }
 
     private void highlightFromElement(AnnotatedString.TermElement termElement, String cssClass) {
-        if (termElement != null)  {
+        if (termElement != null) {
             setStyleClass(termElement.getBegin(), termElement.getEnd(), cssClass);
         }
     }

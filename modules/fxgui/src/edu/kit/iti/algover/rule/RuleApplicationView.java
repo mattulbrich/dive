@@ -26,7 +26,7 @@ public class RuleApplicationView extends VBox {
         VBox.setVgrow(ruleGrid, Priority.ALWAYS);
         setSpacing(4);
 
-        setPadding(new Insets(10, 10, 10 ,10));
+        setPadding(new Insets(10, 10, 10, 10));
     }
 
     public RuleGridView getRuleGrid() {

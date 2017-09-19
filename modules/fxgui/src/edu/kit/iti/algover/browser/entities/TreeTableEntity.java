@@ -1,7 +1,10 @@
 package edu.kit.iti.algover.browser.entities;
 
 import edu.kit.iti.algover.dafnystructures.DafnyFile;
-import javafx.beans.property.*;
+import javafx.beans.property.IntegerProperty;
+import javafx.beans.property.SimpleIntegerProperty;
+import javafx.beans.property.SimpleStringProperty;
+import javafx.beans.property.StringProperty;
 
 import java.util.List;
 
@@ -22,12 +25,12 @@ public abstract class TreeTableEntity {
         this.location = location;
         this.numberChildren = new SimpleIntegerProperty(
                 children.stream()
-                    .map(TreeTableEntity::getNumberChildren)
-                    .reduce(0, (x, y) -> x + y));
+                        .map(TreeTableEntity::getNumberChildren)
+                        .reduce(0, (x, y) -> x + y));
         this.provenChildren = new SimpleIntegerProperty(
                 children.stream()
-                    .map(TreeTableEntity::getProvenChildren)
-                    .reduce(0, (x, y) -> x + y));
+                        .map(TreeTableEntity::getProvenChildren)
+                        .reduce(0, (x, y) -> x + y));
     }
 
     public abstract <T> T accept(TreeTableEntityVisitor<T> visitor);

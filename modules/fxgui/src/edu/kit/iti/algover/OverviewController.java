@@ -1,10 +1,5 @@
 package edu.kit.iti.algover;
 
-import edu.kit.iti.algover.project.ProjectManager;
-import edu.kit.iti.algover.proof.ProofNode;
-import edu.kit.iti.algover.proof.ProofNodeSelector;
-import edu.kit.iti.algover.references.*;
-import edu.kit.iti.algover.rule.RuleApplicationController;
 import edu.kit.iti.algover.browser.BrowserController;
 import edu.kit.iti.algover.browser.FlatBrowserController;
 import edu.kit.iti.algover.browser.entities.PVCEntity;
@@ -12,7 +7,15 @@ import edu.kit.iti.algover.browser.entities.PVCGetterVisitor;
 import edu.kit.iti.algover.browser.entities.TreeTableEntity;
 import edu.kit.iti.algover.dafnystructures.DafnyFile;
 import edu.kit.iti.algover.editor.EditorController;
+import edu.kit.iti.algover.project.ProjectManager;
 import edu.kit.iti.algover.proof.PVC;
+import edu.kit.iti.algover.proof.ProofNode;
+import edu.kit.iti.algover.proof.ProofNodeSelector;
+import edu.kit.iti.algover.references.CodeReference;
+import edu.kit.iti.algover.references.GetReferenceTypeVisitor;
+import edu.kit.iti.algover.references.ProofTermReference;
+import edu.kit.iti.algover.references.Reference;
+import edu.kit.iti.algover.rule.RuleApplicationController;
 import edu.kit.iti.algover.rules.TermSelector;
 import edu.kit.iti.algover.sequent.SequentActionListener;
 import edu.kit.iti.algover.sequent.SequentController;

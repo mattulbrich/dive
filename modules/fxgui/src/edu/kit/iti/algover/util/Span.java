@@ -21,10 +21,10 @@ public class Span {
         if (one.isInvalid()) return other;
         if (other.isInvalid()) return one;
         return new Span(
-            Math.min(one.beginLine, other.beginLine),
-            Math.max(one.endLine, other.endLine),
-            Math.min(one.beginCharInLine, other.beginCharInLine),
-            Math.max(one.endCharInLine, other.endCharInLine)
+                Math.min(one.beginLine, other.beginLine),
+                Math.max(one.endLine, other.endLine),
+                Math.min(one.beginCharInLine, other.beginCharInLine),
+                Math.max(one.endCharInLine, other.endCharInLine)
         );
     }
 

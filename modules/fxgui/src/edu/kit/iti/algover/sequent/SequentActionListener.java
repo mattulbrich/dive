@@ -1,6 +1,5 @@
 package edu.kit.iti.algover.sequent;
 
-import edu.kit.iti.algover.rules.SubtermSelector;
 import edu.kit.iti.algover.rules.TermSelector;
 
 /**

@@ -6,12 +6,8 @@ import javafx.animation.Timeline;
 import javafx.beans.value.WritableValue;
 import javafx.geometry.Insets;
 import javafx.scene.Node;
-import javafx.scene.SnapshotParameters;
 import javafx.scene.control.SplitPane;
-import javafx.scene.image.ImageView;
-import javafx.scene.image.WritableImage;
 import javafx.scene.input.KeyCode;
-import javafx.scene.layout.StackPane;
 import javafx.util.Duration;
 import org.controlsfx.control.HiddenSidesPane;
 
@@ -116,7 +112,7 @@ public class TimelineLayout extends HiddenSidesPane {
             return false;
         }
 
-        Node rightNode = nodes.get(framePosition+1);
+        Node rightNode = nodes.get(framePosition + 1);
 
         double divider = splitPane.getDividerPositions()[0];
         double rightNodeWidth = rightNode.getBoundsInParent().getWidth();

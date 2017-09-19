@@ -34,8 +34,8 @@ public class FlatBrowserController extends BrowserController {
     private TreeTableEntity createMethodsEntity() {
         List<TreeTableEntity> children = new ArrayList<>();
         getProject().getMethods().stream()
-            .map(dafnyMethod -> getEntityFromMethod(findFileWithMethod(dafnyMethod), dafnyMethod))
-            .forEach(children::add);
+                .map(dafnyMethod -> getEntityFromMethod(findFileWithMethod(dafnyMethod), dafnyMethod))
+                .forEach(children::add);
 
         return new OtherEntity("Methods", children);
     }
@@ -43,24 +43,24 @@ public class FlatBrowserController extends BrowserController {
     private TreeTableEntity createClassesEntity() {
         List<TreeTableEntity> children = new ArrayList<>();
         getProject().getClasses().stream()
-            .map(dafnyClass -> getEntityFromClass(findFileWithClass(dafnyClass), dafnyClass))
-            .forEach(children::add);
+                .map(dafnyClass -> getEntityFromClass(findFileWithClass(dafnyClass), dafnyClass))
+                .forEach(children::add);
 
         return new OtherEntity("Classes", children);
     }
 
     private DafnyFile findFileWithMethod(DafnyMethod dafnyMethod) {
         return getProject().getDafnyFiles().stream()
-            .filter(dafnyFile -> dafnyFile.getMethods().contains(dafnyMethod))
-            .findFirst()
-            .orElse(null);
+                .filter(dafnyFile -> dafnyFile.getMethods().contains(dafnyMethod))
+                .findFirst()
+                .orElse(null);
     }
 
     private DafnyFile findFileWithClass(DafnyClass dafnyClass) {
         return getProject().getDafnyFiles().stream()
-            .filter(dafnyFile -> dafnyFile.getClasses().contains(dafnyClass))
-            .findFirst()
-            .orElse(null);
+                .filter(dafnyFile -> dafnyFile.getClasses().contains(dafnyClass))
+                .findFirst()
+                .orElse(null);
     }
 
 }

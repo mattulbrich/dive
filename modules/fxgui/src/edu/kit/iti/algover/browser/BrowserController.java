@@ -31,7 +31,7 @@ public abstract class BrowserController {
         this.view = new BrowserTreeTable(editListener);
 
         view.getSelectionModel().selectedItemProperty()
-            .addListener(this::onTreeItemSelected);
+                .addListener(this::onTreeItemSelected);
 
         populateTreeTable();
     }
@@ -41,21 +41,21 @@ public abstract class BrowserController {
     protected TreeTableEntity getEntityFromFile(DafnyFile dafnyFile) {
         List<TreeTableEntity> children = new ArrayList<>();
         children.addAll(
-            dafnyFile.getClasses().stream()
-                .map(dafnyClass -> getEntityFromClass(dafnyFile, dafnyClass))
-                .collect(Collectors.toList()));
+                dafnyFile.getClasses().stream()
+                        .map(dafnyClass -> getEntityFromClass(dafnyFile, dafnyClass))
+                        .collect(Collectors.toList()));
         children.addAll(
-            dafnyFile.getMethods().stream()
-                .map(dafnyMethod -> getEntityFromMethod(dafnyFile, dafnyMethod))
-                .collect(Collectors.toList()));
+                dafnyFile.getMethods().stream()
+                        .map(dafnyMethod -> getEntityFromMethod(dafnyFile, dafnyMethod))
+                        .collect(Collectors.toList()));
         return new FileEntity(dafnyFile, children);
     }
 
     protected TreeTableEntity getEntityFromClass(DafnyFile dafnyFile, DafnyClass dafnyClass) {
         List<TreeTableEntity> children = new ArrayList<>();
         dafnyClass.getMethods().stream()
-            .map(dafnyMethod -> getEntityFromMethod(dafnyFile, dafnyMethod))
-            .forEach(children::add);
+                .map(dafnyMethod -> getEntityFromMethod(dafnyFile, dafnyMethod))
+                .forEach(children::add);
         return new ClassEntity(dafnyClass, dafnyFile, children);
     }
 
@@ -64,7 +64,7 @@ public abstract class BrowserController {
         PVCCollection collection = project.getVerificationConditionsFor(dafnyMethod);
         if (collection != null) {
 
-                collection.getChildren().stream()
+            collection.getChildren().stream()
                     .map(pvcCollection -> getEntityFromPVC(dafnyFile, pvcCollection))
                     .forEach(children::add);
         }
@@ -78,8 +78,8 @@ public abstract class BrowserController {
         } else {
             List<TreeTableEntity> children = new ArrayList<>();
             pvcCollection.getChildren().stream()
-                .map(subPvcCollection -> getEntityFromPVC(dafnyFile, subPvcCollection))
-                .forEach(children::add);
+                    .map(subPvcCollection -> getEntityFromPVC(dafnyFile, subPvcCollection))
+                    .forEach(children::add);
             return new PVCGroupEntity((PVCGroup) pvcCollection, dafnyFile, children);
         }
     }
@@ -96,8 +96,8 @@ public abstract class BrowserController {
     protected TreeItem<TreeTableEntity> createTreeItem(TreeTableEntity entity) {
         List<TreeItem<TreeTableEntity>> children =
                 entity.getChildren().stream()
-                    .map(this::createTreeItem)
-                    .collect(Collectors.toList());
+                        .map(this::createTreeItem)
+                        .collect(Collectors.toList());
 
         TreeItem<TreeTableEntity> item = new TreeItem<>(entity);
         item.getChildren().setAll(children);

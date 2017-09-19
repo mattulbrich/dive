@@ -5,7 +5,6 @@ import edu.kit.iti.algover.proof.ProofNode;
 import edu.kit.iti.algover.rules.ProofRule;
 import edu.kit.iti.algover.rules.RuleException;
 import edu.kit.iti.algover.rules.TermSelector;
-import edu.kit.iti.algover.script.parser.PrettyPrinter;
 import edu.kit.iti.algover.term.Sequent;
 import edu.kit.iti.algover.term.Term;
 import edu.kit.iti.algover.term.prettyprint.PrettyPrint;

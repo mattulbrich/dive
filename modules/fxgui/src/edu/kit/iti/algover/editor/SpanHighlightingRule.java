@@ -12,12 +12,12 @@ public abstract class SpanHighlightingRule implements HighlightingRule {
 
     protected static Span spanFromToken(Token token) {
         return new Span(
-            token.getLine(),
-            token.getLine(),
-            token.getCharPositionInLine(),
-            token.getText() == null
-                ? token.getCharPositionInLine()
-                : token.getText().length() + token.getCharPositionInLine()
+                token.getLine(),
+                token.getLine(),
+                token.getCharPositionInLine(),
+                token.getText() == null
+                        ? token.getCharPositionInLine()
+                        : token.getText().length() + token.getCharPositionInLine()
         );
     }
 

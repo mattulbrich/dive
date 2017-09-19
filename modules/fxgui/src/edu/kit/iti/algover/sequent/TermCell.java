@@ -1,16 +1,13 @@
 package edu.kit.iti.algover.sequent;
 
-import edu.kit.iti.algover.references.Reference;
 import edu.kit.iti.algover.rules.SubtermSelector;
 import edu.kit.iti.algover.rules.TermSelector;
 import edu.kit.iti.algover.term.Term;
 import edu.kit.iti.algover.term.prettyprint.AnnotatedString;
 import edu.kit.iti.algover.util.BindingsUtil;
 import javafx.beans.property.ObjectProperty;
-import javafx.beans.property.SimpleObjectProperty;
 import javafx.scene.control.ListCell;
 
-import javafx.beans.binding.Bindings;
 import java.util.List;
 
 /**

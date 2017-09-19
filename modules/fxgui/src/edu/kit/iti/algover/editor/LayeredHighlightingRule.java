@@ -2,9 +2,7 @@ package edu.kit.iti.algover.editor;
 
 import org.antlr.runtime.Token;
 
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
 
 public class LayeredHighlightingRule implements HighlightingRule {
 

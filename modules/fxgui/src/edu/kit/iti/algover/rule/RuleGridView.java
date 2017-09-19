@@ -6,8 +6,6 @@ import javafx.collections.ObservableList;
 import javafx.scene.control.SelectionModel;
 import javafx.scene.control.SingleSelectionModel;
 
-import java.util.ArrayList;
-
 public class RuleGridView extends JFXMasonryPane {
 
     public static final double RULE_CELL_WIDTH = 140;
