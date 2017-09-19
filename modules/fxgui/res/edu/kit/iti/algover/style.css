@@ -56,6 +56,16 @@
     -fx-fill: #E55;
 }
 
+.rule-view .label.rule-name .text {
+    -fx-font-family: monospace;
+}
+
+.rule-view .button.refine,
+.rule-view .button.apply {
+    -fx-font-size: 12px;
+}
+
+
 .label.branch-count .glyph-icon {
     -fx-scale-y: -1;
     -fx-fill: #555;

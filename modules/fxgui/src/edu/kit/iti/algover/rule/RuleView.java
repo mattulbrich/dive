@@ -37,6 +37,7 @@ public class RuleView extends StackPane {
         getStyleClass().addAll("rule-view");
         setPadding(new Insets(4, 4, 4, 4));
         ruleNameLabel = new Label(rule.getName());
+        ruleNameLabel.getStyleClass().add("rule-name");
         ruleNameLabel.setAlignment(Pos.CENTER);
 
         getChildren().setAll(ruleNameLabel);
