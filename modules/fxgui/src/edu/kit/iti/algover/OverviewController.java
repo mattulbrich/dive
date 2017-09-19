@@ -48,7 +48,7 @@ public class OverviewController implements SequentActionListener {
                 browserController.getView(),
                 editorController.getView(),
                 sequentController.getView(),
-                ruleApplicationController.getView());
+                ruleApplicationController.getRuleApplicationView());
         view.setDividerPosition(0.2);
 
         browserController.setSelectionListener(this::onSelectBrowserItem);
