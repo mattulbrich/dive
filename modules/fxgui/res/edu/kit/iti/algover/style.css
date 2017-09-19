@@ -45,15 +45,20 @@
 }
 
 .rule-view:closes .label.branch-count .text {
-    -fx-fill: #0f0;
+    -fx-fill: #5E5;
 }
 
 .rule-view:non-splitting .label.branch-count .text {
-    -fx-fill: #AAF;
+    -fx-fill: #555; /*#AAF;*/
 }
 
 .rule-view:splitting .label.branch-count .text {
-    -fx-fill: #FF0;
+    -fx-fill: #E55;
+}
+
+.label.branch-count .glyph-icon {
+    -fx-scale-y: -1;
+    -fx-fill: #555;
 }
 
 .display-1 {
