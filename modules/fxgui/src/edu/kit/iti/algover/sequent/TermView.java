@@ -10,6 +10,8 @@ import edu.kit.iti.algover.term.prettyprint.AnnotatedString;
 import edu.kit.iti.algover.term.prettyprint.PrettyPrint;
 import edu.kit.iti.algover.term.Term;
 import edu.kit.iti.algover.util.TextUtil;
+import javafx.beans.property.ObjectProperty;
+import javafx.beans.value.ObservableValue;
 import javafx.geometry.Bounds;
 import javafx.scene.input.MouseEvent;
 import org.fxmisc.richtext.CharacterHit;
@@ -24,14 +26,18 @@ public class TermView extends CodeArea {
 
     private final Term term;
     private final TermViewListener listener;
+    private final ObjectProperty<SubtermSelector> selectedSubterm;
+
     private AnnotatedString annotatedString;
     private AnnotatedString.TermElement highlightedElement;
+    private AnnotatedString.TermElement referenceSelectedElement;
 
-    public TermView(Term term, TermViewListener listener) {
+    public TermView(Term term, TermViewListener listener, ObjectProperty<SubtermSelector> selectedSubterm) {
         super("");
 
         this.term = term;
         this.listener = listener;
+        this.selectedSubterm = selectedSubterm;
 
         getStyleClass().add("term-view");
         setFocusTraversable(false);
@@ -39,12 +45,31 @@ public class TermView extends CodeArea {
 
         relayout();
 
-        setOnMouseMoved(this::updateHighlighting);
+        setOnMouseMoved(this::handleHover);
         setOnMousePressed(this::handleClick);
         setOnMouseExited(event -> {
             highlightedElement = null;
-            clearStyle(0, getLength());
+            updateStyleClasses();
         });
+        selectedSubterm.addListener(this::updateSelectedSubterm);
+    }
+
+    private void updateSelectedSubterm(ObservableValue<? extends SubtermSelector> obs, SubtermSelector before, SubtermSelector selected) {
+        AnnotatedString.TermElement selectedBefore = referenceSelectedElement;
+        if (selected != null) {
+            referenceSelectedElement = annotatedString.getAllTermElements().stream()
+                    .filter(termElement -> termElement.getSubtermSelector().equals(selected))
+                    .findFirst().orElse(null);
+            if (referenceSelectedElement == null) {
+                referenceSelectedElement = annotatedString.getEnvelopingTermElement();
+            }
+        } else {
+            referenceSelectedElement = null;
+        }
+        if (selectedBefore != referenceSelectedElement) {
+            updateStyleClasses();
+        }
+
     }
 
     private void relayout() {
@@ -52,9 +77,8 @@ public class TermView extends CodeArea {
         double neededHeight = calculateNeededHeight(prettyPrinted);
 
         replaceText(0, getLength(), prettyPrinted);
-        if (highlightedElement != null) {
-            setStyleClass(highlightedElement.getBegin(), highlightedElement.getEnd(), "highlighted");
-        }
+        updateStyleClasses();
+
         setMinHeight(neededHeight);
         setPrefHeight(neededHeight);
         setHeight(neededHeight);
@@ -100,17 +124,27 @@ public class TermView extends CodeArea {
         }
     }
 
-    private void updateHighlighting(MouseEvent mouseEvent) {
+    private void handleHover(MouseEvent mouseEvent) {
         CharacterHit hit = hit(mouseEvent.getX(), mouseEvent.getY());
         OptionalInt charIdx = hit.getCharacterIndex();
         if (charIdx.isPresent()) {
             highlightedElement = annotatedString.getTermElementAt(charIdx.getAsInt());
-            clearStyle(0, getLength());
-            setStyleClass(highlightedElement.getBegin(), highlightedElement.getEnd(), "highlighted");
-            listener.handleSubtermSelection(highlightedElement);
         } else {
-            clearStyle(0, getLength());
-            listener.handleSubtermSelection(null);
+            highlightedElement = null;
+        }
+        listener.handleSubtermSelection(highlightedElement);
+        updateStyleClasses();
+    }
+
+    private void updateStyleClasses() {
+        clearStyle(0, getLength());
+        highlightFromElement(highlightedElement,"highlighted");
+        highlightFromElement(referenceSelectedElement,"reference-selected");
+    }
+
+    private void highlightFromElement(AnnotatedString.TermElement termElement, String cssClass) {
+        if (termElement != null)  {
+            setStyleClass(termElement.getBegin(), termElement.getEnd(), cssClass);
         }
     }
 

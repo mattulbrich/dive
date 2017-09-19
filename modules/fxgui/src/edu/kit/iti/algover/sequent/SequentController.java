@@ -8,16 +8,19 @@ import edu.kit.iti.algover.proof.PVC;
 import edu.kit.iti.algover.proof.Proof;
 import edu.kit.iti.algover.proof.ProofFormula;
 import edu.kit.iti.algover.proof.ProofNode;
+import edu.kit.iti.algover.references.ProofTermReference;
+import edu.kit.iti.algover.references.Reference;
 import edu.kit.iti.algover.references.ReferenceGraph;
+import edu.kit.iti.algover.rules.RuleException;
 import edu.kit.iti.algover.rules.TermSelector;
 import edu.kit.iti.algover.term.Term;
+import edu.kit.iti.algover.util.BindingsUtil;
+import javafx.beans.property.ObjectProperty;
+import javafx.beans.property.SimpleObjectProperty;
 import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
-import javafx.scene.control.Button;
-import javafx.scene.control.Label;
-import javafx.scene.control.ListView;
-import javafx.scene.control.SplitPane;
+import javafx.scene.control.*;
 import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
@@ -33,6 +36,7 @@ public class SequentController {
     private final ProjectManager manager;
     private SequentActionListener listener;
 
+    // TODO: Extract SequentView class
     private final VBox upperBox;
     private final VBox lowerBox;
     private final SplitPane view;
@@ -40,8 +44,10 @@ public class SequentController {
     private final ListView<Term> succedentView;
     private final FlowPane buttonsView;
     private final Button cancelButton;
-    private ReferenceGraph referenceGraph;
 
+    private final ObjectProperty<ProofTermReference> selectedReference;
+    private final ObjectProperty<TermSelector> selectedTerm;
+    private ReferenceGraph referenceGraph;
     private Proof activeProof;
     private ProofNode activeNode;
 
@@ -50,6 +56,8 @@ public class SequentController {
         this.listener = listener;
         this.activeProof = null;
         this.referenceGraph = new ReferenceGraph();
+        this.selectedReference = new SimpleObjectProperty<>();
+        this.selectedTerm = BindingsUtil.convert(this::termSelectorFromReference, selectedReference);
 
         this.cancelButton = new Button("Cancel", GlyphsDude.createIcon(FontAwesomeIcon.CLOSE));
         this.buttonsView = new FlowPane(cancelButton);
@@ -71,7 +79,7 @@ public class SequentController {
         this.buttonsView.setPadding(new Insets(10, 10, 0, 10));
 
         this.upperBox = new VBox(buttonsView, antecedentView);
-        this.lowerBox = new VBox(new Label("==>"), succedentView);
+        this.lowerBox = new VBox(new Label("|-"), succedentView);
         this.upperBox.setSpacing(10);
         this.lowerBox.setSpacing(10);
         VBox.setVgrow(upperBox, Priority.ALWAYS);
@@ -85,7 +93,21 @@ public class SequentController {
     }
 
     private TermCell createTermCell(TermSelector.SequentPolarity polarity, ListView<Term> termListView) {
-        return new TermCell(polarity, listener);
+        return new TermCell(polarity, listener, selectedTerm);
+    }
+
+    private TermSelector termSelectorFromReference(ProofTermReference reference) {
+        try {
+            if (reference != null && activeProof != null && reference.getProofNodeSelector().get(activeProof) == activeNode) {
+                return reference.getTermSelector();
+            } else {
+                return null;
+            }
+        } catch (RuleException e) {
+            e.printStackTrace();
+            // TODO: Maybe error handling?
+            return null;
+        }
     }
 
     public void viewSequentForPVC(PVCEntity pvcEntity) {
@@ -122,5 +144,9 @@ public class SequentController {
 
     public Proof getActiveProof() {
         return activeProof;
+    }
+
+    public ObjectProperty<ProofTermReference> selectedReference() {
+        return selectedReference;
     }
 }

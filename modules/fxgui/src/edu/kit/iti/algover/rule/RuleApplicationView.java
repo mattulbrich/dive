@@ -1,6 +1,7 @@
 package edu.kit.iti.algover.rule;
 
 import javafx.geometry.Insets;
+import javafx.geometry.Pos;
 import javafx.scene.control.Label;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
@@ -16,8 +17,10 @@ public class RuleApplicationView extends VBox {
         getStyleClass().add("rule-application-view");
         rulesLabel.getStyleClass().add("display-1");
         termToConsider.getStyleClass().add("code");
+        termToConsider.setAlignment(Pos.CENTER);
 
         HBox heading = new HBox(rulesLabel, termToConsider);
+        HBox.setMargin(termToConsider, new Insets(4, 4, 4, 4));
         heading.setSpacing(10);
         getChildren().setAll(heading, ruleGrid);
         VBox.setVgrow(ruleGrid, Priority.ALWAYS);

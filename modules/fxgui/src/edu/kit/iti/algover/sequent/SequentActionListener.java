@@ -13,5 +13,4 @@ public interface SequentActionListener {
     void considerApplication(TermSelector selector);
 
     void requestReferenceHighlighting(TermSelector selector);
-
 }

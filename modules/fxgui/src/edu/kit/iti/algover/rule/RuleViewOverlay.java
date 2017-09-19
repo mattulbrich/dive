@@ -11,9 +11,17 @@ public class RuleViewOverlay extends AnchorPane {
     public RuleViewOverlay(ProofRuleApplication application) {
         this.application = application;
 
-        Label branchCount = new Label(application.getBranchCount() + " branches");
+        int count = application.getBranchCount();
+
+        Label branchCount = new Label(count + fromPlural(count, " branch", " branches"));
         branchCount.setAlignment(Pos.TOP_RIGHT);
+        branchCount.getStyleClass().add("branch-count");
         setRightAnchor(branchCount, 4.0);
         getChildren().add(branchCount);
+    }
+
+    private static String fromPlural(int count, String singular, String plural) {
+        if (count == 1) return singular;
+        else return plural;
     }
 }

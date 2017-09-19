@@ -18,7 +18,6 @@ public class ReferenceHighlightingRule extends SpanHighlightingRule {
         this.backlightedSpans = codeReferences.stream()
                 .map(this::referenceToSpan)
                 .collect(Collectors.toList());
-        System.out.println(backlightedSpans);
     }
 
     private Span referenceToSpan(CodeReference codeReference) {

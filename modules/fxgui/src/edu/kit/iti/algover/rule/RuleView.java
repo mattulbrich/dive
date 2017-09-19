@@ -8,6 +8,7 @@ import edu.kit.iti.algover.rules.TermSelector;
 import edu.kit.iti.algover.term.Sequent;
 import javafx.beans.value.ObservableValue;
 import javafx.css.PseudoClass;
+import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Label;
 import javafx.scene.control.SelectionModel;
@@ -34,6 +35,7 @@ public class RuleView extends StackPane {
         this.selectionModel = selectionModel;
 
         getStyleClass().addAll("rule-view");
+        setPadding(new Insets(4, 4, 4, 4));
         ruleNameLabel = new Label(rule.getName());
         ruleNameLabel.setAlignment(Pos.CENTER);
 

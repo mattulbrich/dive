@@ -16,6 +16,11 @@
     -fx-fill: whitesmoke;
 }
 
+.term-view .reference-selected {
+    -rtfx-background-color: #62b3cf;
+    -fx-fill: whitesmoke;
+}
+
 .undecorated-button {
     -fx-padding: 0 0 0 0;
     -fx-border: none;
@@ -31,22 +36,24 @@
 
 .rule-view {
     -fx-background-color: #fff;
+    -fx-border-radius: 4px;
+    -fx-border-color: #dedede;
 }
 
-.rule-view:closes {
-    -fx-background-color: #0f0;
-}
-
-.rule-view:non-splitting {
-    -fx-background-color: #AAF;
-}
-
-.rule-view:splitting {
-    -fx-background-color: #FF0;
-}
 .rule-view:selected {
-    -fx-border-color: black;
-    -fx-border-width: 1px;
+    -fx-border-color: #62b3cf;
+}
+
+.rule-view:closes .label.branch-count .text {
+    -fx-fill: #0f0;
+}
+
+.rule-view:non-splitting .label.branch-count .text {
+    -fx-fill: #AAF;
+}
+
+.rule-view:splitting .label.branch-count .text {
+    -fx-fill: #FF0;
 }
 
 .display-1 {

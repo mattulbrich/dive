@@ -10,8 +10,8 @@ import java.util.ArrayList;
 
 public class RuleGridView extends JFXMasonryPane {
 
-    public static final double RULE_CELL_WIDTH = 100;
-    public static final double RULE_CELL_HEIGHT = 60;
+    public static final double RULE_CELL_WIDTH = 140;
+    public static final double RULE_CELL_HEIGHT = 80;
     public static final double SPACING = 4;
 
     private final ObservableList<RuleView> rules;

@@ -10,6 +10,7 @@ import edu.kit.iti.algover.proof.ProofNodeSelector;
 import edu.kit.iti.algover.rules.TermSelector;
 import org.antlr.runtime.Token;
 
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
@@ -54,6 +55,9 @@ public class ReferenceGraph {
         Set<Reference> accumSet,
         Reference target,
         Function<Reference, Set<Reference>> getNeighbours) {
+        if (!graph.nodes().contains(target)) {
+            return;
+        }
         for (Reference predecessor : getNeighbours.apply(target)) {
             accumSet.add(predecessor);
             // only works when the graph does not have unidirectional cycles.

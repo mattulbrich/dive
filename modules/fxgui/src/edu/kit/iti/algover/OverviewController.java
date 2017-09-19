@@ -90,15 +90,11 @@ public class OverviewController implements SequentActionListener {
     @Override
     public void requestReferenceHighlighting(TermSelector selector) {
         if (selector != null) {
-            Reference termRef =
+            ProofTermReference termRef =
                     new ProofTermReference(new ProofNodeSelector(sequentController.getActiveProofNode()), selector);
+            sequentController.selectedReference().set(termRef);
             Set<Reference> predecessors = sequentController.getReferenceGraph().allPredecessors(termRef);
             Set<CodeReference> codeReferences = filterCodeReferences(predecessors);
-            codeReferences.forEach(codeReference -> {
-                System.out.println(codeReference);
-                System.out.println(
-                        codeReference.accept(new ReferencePrettyPrinter(sequentController.getActiveProof(), 100)));
-            });
             editorController.viewReferences(codeReferences);
         }
     }
@@ -106,23 +102,10 @@ public class OverviewController implements SequentActionListener {
     private static Set<CodeReference> filterCodeReferences(Set<Reference> predecessors) {
         Set<CodeReference> codeReferences = new HashSet<>();
         predecessors.forEach(reference -> {
-            reference.accept(new ReferenceVisitor<Void>() {
-                @Override
-                public Void visit(CodeReference codeTarget) {
-                    codeReferences.add(codeTarget);
-                    return null;
-                }
-
-                @Override
-                public Void visit(ProofTermReference termTarget) {
-                    return null;
-                }
-
-                @Override
-                public Void visit(UserInputReference userInputTarget) {
-                    return null;
-                }
-            });
+            CodeReference codeReference = reference.accept(new GetReferenceTypeVisitor<>(CodeReference.class));
+            if (codeReference != null) {
+                codeReferences.add(codeReference);
+            }
         });
         return codeReferences;
     }

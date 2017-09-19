@@ -1,11 +1,16 @@
 package edu.kit.iti.algover.sequent;
 
+import edu.kit.iti.algover.references.Reference;
 import edu.kit.iti.algover.rules.SubtermSelector;
 import edu.kit.iti.algover.rules.TermSelector;
 import edu.kit.iti.algover.term.Term;
 import edu.kit.iti.algover.term.prettyprint.AnnotatedString;
+import edu.kit.iti.algover.util.BindingsUtil;
+import javafx.beans.property.ObjectProperty;
+import javafx.beans.property.SimpleObjectProperty;
 import javafx.scene.control.ListCell;
 
+import javafx.beans.binding.Bindings;
 import java.util.List;
 
 /**
@@ -15,19 +20,29 @@ public class TermCell extends ListCell<Term> implements TermViewListener {
 
     private final SequentActionListener listener;
     private final TermSelector.SequentPolarity polarity;
+    private final ObjectProperty<TermSelector> selectedTerm;
 
-    public TermCell(TermSelector.SequentPolarity polarity, SequentActionListener listener) {
+    public TermCell(TermSelector.SequentPolarity polarity, SequentActionListener listener, ObjectProperty<TermSelector> selectedTerm) {
         this.polarity = polarity;
         this.listener = listener;
+        this.selectedTerm = selectedTerm;
     }
 
     @Override
     protected void updateItem(Term term, boolean empty) {
         super.updateItem(term, empty);
         if (!empty && term != null) {
-            setGraphic(new TermView(term, this));
+            setGraphic(new TermView(term, this, BindingsUtil.convert(this::updateSelectedSubterm, selectedTerm)));
         } else {
             setGraphic(null);
+        }
+    }
+
+    private SubtermSelector updateSelectedSubterm(TermSelector termSelector) {
+        if (termSelector != null && termSelector.getPolarity() == polarity && termSelector.getTermNo() == getIndex()) {
+            return termSelector.getSubtermSelector();
+        } else {
+            return null;
         }
     }
 
