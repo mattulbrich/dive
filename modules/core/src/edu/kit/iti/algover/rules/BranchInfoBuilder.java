@@ -15,6 +15,7 @@ import edu.kit.iti.algover.term.Sequent;
 import edu.kit.iti.algover.term.Term;
 import edu.kit.iti.algover.util.ImmutableList;
 import edu.kit.iti.algover.util.Pair;
+import edu.kit.iti.algover.util.Util;
 
 /**
  * This is a builder (as in the builder pattern) for {@link BranchInfo}s.
@@ -58,6 +59,11 @@ public class BranchInfoBuilder {
         return this;
     }
 
+    public BranchInfoBuilder addAdditionsSuccedent(ProofFormula proofFormula) {
+        additionsSuccedent.add(proofFormula);
+        return this;
+    }
+
     public BranchInfoBuilder addReplacement(@NonNull TermSelector selector, @NonNull Term term) {
         replacements.add(new Pair<>(selector, term));
         return this;
@@ -84,6 +90,11 @@ public class BranchInfoBuilder {
 
     public BranchInfoBuilder addDeletionsAntecedent(List<ProofFormula> deletionsAnte) {
         deletionsAntecedent.addAll(deletionsAnte);
+        return this;
+    }
+
+    public BranchInfoBuilder addDeletionsSuccedent(ProofFormula... deletionsSucc) {
+        addDeletionsSuccedent(Util.readOnlyArrayList(deletionsSucc));
         return this;
     }
 

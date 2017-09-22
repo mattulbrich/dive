@@ -1,11 +1,14 @@
+/*
+ * This file is part of AlgoVer.
+ *
+ * Copyright (C) 2015-2017 Karlsruhe Institute of Technology
+ */
 package edu.kit.iti.algover.project;
 
 import edu.kit.iti.algover.parser.DafnyException;
 import edu.kit.iti.algover.parser.ReferenceResolutionVisitor;
 import edu.kit.iti.algover.parser.TypeResolution;
 import edu.kit.iti.algover.proof.*;
-import edu.kit.iti.algover.rules.ProofRule;
-import edu.kit.iti.algover.script.ast.ASTNode;
 import edu.kit.iti.algover.script.ast.ProofScript;
 import edu.kit.iti.algover.script.data.GoalNode;
 import edu.kit.iti.algover.script.interpreter.Interpreter;
@@ -13,7 +16,6 @@ import edu.kit.iti.algover.script.interpreter.InterpreterBuilder;
 import edu.kit.iti.algover.script.parser.Facade;
 import edu.kit.iti.algover.util.Util;
 import javafx.beans.property.SimpleObjectProperty;
-import javafx.fxml.LoadException;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -31,7 +33,6 @@ import java.util.function.Supplier;
 public class ProjectManager {
 
 
-
     /**
      * Reference to config file
      */
@@ -43,21 +44,9 @@ public class ProjectManager {
     private SimpleObjectProperty<Project> project = new SimpleObjectProperty<>(null);
 
     /**
-     * All PVCs of the loaded project
-     */
-    private PVCGroup allPVCs;
-
-
-    /**
-     * Map from PVC string to its PVC object
-     */
-    private Map<String, PVC> allStrippedPVCs;
-
-    /**
-     * Map from pvc string to it proof object
+     * Map from PVC identifiers to corr. proofs.
      */
     private Map<String, Proof> allProofs;
-
 
     private Map<String, Supplier<String>> fileHooks = new HashMap<>();
 
@@ -73,17 +62,17 @@ public class ProjectManager {
      * Generate all Proof objects and initialize their data structures
      *
      * @param config File
+     *
      */
-    public void loadProject(File config) throws Exception {
+    //TODO change exception to specifc one when parsing exception exists
+    public void loadProject(File config) throws IOException, Exception {
         this.configFile = config;
         Project p = null;
         p = buildProject(config.toPath());
-        this.allPVCs = p.generateAndCollectPVC();
-        this.allStrippedPVCs = p.getPvcCollectionByName();
         this.setProject(p);
         generateAllProofObjects();
 
-        this.allStrippedPVCs.forEach((s, pvc) -> {
+        this.getPVCByNameMap().forEach((s, pvc) -> {
             try {
                 initializeProofDataStructures(s);
             } catch (IOException e) {
@@ -124,7 +113,7 @@ public class ProjectManager {
      */
     private void generateAllProofObjects() throws IOException {
         allProofs = new HashMap<>();
-        for (String pvc : allStrippedPVCs.keySet()) {
+        for (String pvc : getPVCByNameMap().keySet()) {
             Proof p = new Proof(pvc);
             allProofs.put(pvc, p);
         }
@@ -139,7 +128,7 @@ public class ProjectManager {
     protected void initializeProofDataStructures(String pvc) throws IOException {
         Proof p = allProofs.get(pvc);
         findAndParseScriptFile(pvc);
-        PVC pvcObject = allStrippedPVCs.get(pvc);
+        PVC pvcObject = getPVCByNameMap().get(pvc);
         p.setProofRoot(new ProofNode(null, null, null, pvcObject.getSequent(), pvcObject));
         buildIndividualInterpreter(p);
 
@@ -147,7 +136,8 @@ public class ProjectManager {
     }
 
     /**
-     * Find and parse script file for pvc. Set the ASTroot in the corresponding proof object
+     * Find and parse script file for pvc. Set the ASTroot in the corresponding
+     * proof object.
      *
      * @param pvc
      * @return TODO should return ScriptAST
@@ -262,7 +252,6 @@ public class ProjectManager {
 
     /**
      * Save content to script file for pvc
-     * @param pvc
      * @param content
      * @throws IOException
      */
@@ -272,6 +261,17 @@ public class ProjectManager {
 
     }*/
 
+    /* REVIEW I propose: static method
+        Path path = Paths.get(pathToFile);
+        if (!Files.exists(path)) {
+            Files.createFile(path);
+        }
+
+        try(Writer writer = Files.newBufferedWriter(path)) {
+            writer.write(content);
+            writer.flush();
+        }
+     */
     private void saverHelper(String pathToFile, String content) throws IOException {
         Path path = Paths.get(pathToFile);
         Writer writer;
@@ -348,8 +348,8 @@ public class ProjectManager {
      *
      * @return PVCGroup that is the root for all PVCs of the loaded project
      */
-    public PVCGroup getAllPVCs() {
-        return this.allPVCs;
+    public PVCGroup getPVCGroup() {
+        return this.project.getValue().getAllPVCs();
     }
 
     public File getConfigFile() {
@@ -365,8 +365,8 @@ public class ProjectManager {
      *
      * @return
      */
-    public Map<String, PVC> getAllStrippedPVCs() {
-        return allStrippedPVCs;
+    public Map<String, PVC> getPVCByNameMap() {
+        return this.project.getValue().getPVCByNameMap();
     }
 
 

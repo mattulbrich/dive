@@ -32,6 +32,7 @@ public class ReferenceResolutionVisitorTest {
     public void testFaulty() throws Exception {
         DafnyTree tree = ParserTest.parseFile(getClass().getResourceAsStream("faultyReferences.dfy"));
         ProjectBuilder pb = new ProjectBuilder();
+        pb.disableNameResolution();
         pb.addDafnyTree("dummy", tree);
         Project project = pb.build();
 
@@ -121,6 +122,10 @@ public class ReferenceResolutionVisitorTest {
                 assertEquals(name, ref.getChild(0).getText());
             } else if (name.startsWith("C_")) {
                 assertEquals(DafnyParser.CLASS, ref.getType());
+                assertEquals(name, ref.getChild(0).getText());
+            } else if (name.startsWith("ret_")) {
+                assertEquals(DafnyParser.VAR, ref.getType());
+                assertEquals(DafnyParser.RETURNS, ref.getParent().getType());
                 assertEquals(name, ref.getChild(0).getText());
             } else {
                 fail("Unsupported identifier " + name);

@@ -151,7 +151,7 @@ public class BuiltinSymbols extends MapSymbolTable {
             new FunctionSymbol("$heap", Sort.HEAP);
 
     public static final FunctionSymbol MOD =
-            new FunctionSymbol("$mod", Sort.get("sort", Sort.OBJECT));
+            new FunctionSymbol("$mod", Sort.get("set", Sort.OBJECT));
     private static final Sort SET1 = Sort.get("set", FunctionSymbolFamily.VAR1);
     public static final FunctionSymbolFamily UNION =
             new FunctionSymbolFamily(

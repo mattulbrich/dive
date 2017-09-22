@@ -96,8 +96,7 @@ public class PVC {
         }
     }
 
-    // REVIEW: make this getIdentifier()
-    public String getName() {
+    public String getIdentifier() {
         return identifier;
     }
 
@@ -119,7 +118,7 @@ public class PVC {
 
     @Override
     public String toString() {
-        return "PVC[" + getName() + "]";
+        return "PVC[" + getIdentifier() + "]";
     }
 
     public Map<TermSelector, DafnyTree> getReferenceMap() {

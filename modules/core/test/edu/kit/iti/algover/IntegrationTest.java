@@ -1,3 +1,8 @@
+/*
+ * This file is part of AlgoVer.
+ *
+ * Copyright (C) 2015-2017 Karlsruhe Institute of Technology
+ */
 package edu.kit.iti.algover;
 
 import edu.kit.iti.algover.project.ProjectManager;
@@ -24,7 +29,7 @@ public class IntegrationTest {
         //project manager should load project -> this parses all DafnyFiles, creates the PVCs, and empty proof objects
         pm.loadProject(config);
         //get all proofs
-        pm.getAllStrippedPVCs().forEach((s, pvc) -> System.out.println("pvc.getName() = " + pvc.getName()));
+        pm.getPVCByNameMap().forEach((s, pvc) -> System.out.println("pvc.getName() = " + pvc.getIdentifier()));
         //apply Z3 on all PVCs and build proofs+script
         pm.getAllProofs().forEach((s, proof) -> proof.interpretASTNode("fake"));
 
@@ -44,7 +49,7 @@ public class IntegrationTest {
         //project manager should load project -> this parses all DafnyFiles, creates the PVCs, and empty proof objects
         pm.loadProject(config);
         //get all proofs
-        pm.getAllStrippedPVCs().forEach((s, pvc) -> System.out.println("pvc.getName() = " + pvc.getName()));
+        pm.getPVCByNameMap().forEach((s, pvc) -> System.out.println("pvc.getName() = " + pvc.getIdentifier()));
         //apply Z3 on all PVCs and build proofs+script
         pm.getAllProofs().forEach((s, proof) -> proof.interpretASTNode("fake"));
     }
