@@ -4,9 +4,10 @@ method gcd(a: int, b: int) returns (r: int)
     ensures exists k:int :: exists l:int :: r == k*a + l*b
 {
     var x: int;
-    //Init
+
     r := a;
     x := b;
+
     while (r != x)
         invariant x > 0
         invariant r > 0
