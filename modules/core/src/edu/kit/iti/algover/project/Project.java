@@ -6,12 +6,7 @@
 package edu.kit.iti.algover.project;
 
 import java.io.File;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.NoSuchElementException;
+import java.util.*;
 
 import edu.kit.iti.algover.dafnystructures.DafnyClass;
 import edu.kit.iti.algover.dafnystructures.DafnyDecl;
@@ -118,6 +113,7 @@ public class Project {
         this.functions = DafnyDecl.toMap(pBuilder.getFunctions());
         this.methods = DafnyDecl.toMap(pBuilder.getMethods());
         this.baseDir = pBuilder.getDir();
+        this.allProofRules = new ArrayList<>();
     }
 
     public File getBaseDir() {
