@@ -374,6 +374,9 @@ public class Interpreter<T> extends DefaultASTVisitor<Object>
      */
     private VariableAssignment evaluateMatchInGoal(Expression matchExpression, GoalNode<T> goal) {
         enterScope(matchExpression);
+
+
+        exitScope(matchExpression);
        /* System.out.println("Goal to match " + goal.toCellTextForKeYData());
         MatchEvaluator mEval = new MatchEvaluator(goal.getAssignments(), goal, matcherApi);
         mEval.getEntryListeners().addAll(entryListeners);
