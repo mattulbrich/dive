@@ -80,6 +80,7 @@ public class Evaluator<T> extends DefaultASTVisitor<Value> implements ScopeObser
     /**
      * @param term
      * @return
+     * TODO let termParser parse a schematic term
      */
     @Override
     public Value visit(TermLiteral term) {

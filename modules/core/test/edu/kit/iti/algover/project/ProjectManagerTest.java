@@ -36,6 +36,7 @@ public class ProjectManagerTest {
     Project p = null;
     Term testTerm;
     String testPVCName = "m1/Post";
+    String testPVC2Name = "x/Post";
     String testPVC2 = "x/Post";
     ProjectManager pm = null;
 
@@ -72,7 +73,7 @@ public class ProjectManagerTest {
         Assert.assertEquals("config2.xml", pm.getConfigFile().getName());
 
         PVCCollection allPVCs = project.getAllPVCs();
-        PVC testPVC = project.getPVCByName(testPVCName);
+        PVC testPVC = project.getPVCByName(testPVC2Name);
 
         Sequent s = testPVC.getSequent();
 
@@ -86,9 +87,9 @@ public class ProjectManagerTest {
         System.out.println(testTerm.getSubterms());
         //subterm is "true"
         Assert.assertEquals(t.getSort(), testTerm.getSort());
-        Assert.assertEquals(0, t.getSubterms().size());
+        Assert.assertEquals(2, t.getSubterms().size());
 
-        Proof proof = pm.getProofForPVC(testPVCName);
+        Proof proof = pm.getProofForPVC(testPVC2Name);
 
         Assert.assertNotNull(proof.getScript());
 //        pm.initializeProofDataStructures(testPVCName);
@@ -97,11 +98,14 @@ public class ProjectManagerTest {
         Assert.assertEquals("Proofscript is parsed", ProofStatus.SCRIPT_PARSED, proof.getProofStatus());
 
         Proof proof2 = pm.getProofForPVC(testPVC2);
-        //  Assert.assertEquals("Proofscriot is not loaded yet", ProofStatus.NOT_LOADED, proof2.getProofStatus());
+        //  Assert.assertEquals("Proofscript is not loaded yet", ProofStatus.NOT_LOADED, proof2.getProofStatus());
         //  pm.findAndParseScriptFileForPVC(testPVC2);
 
-        //        System.out.println("Current State " + proof.getInterpreter().getCurrentState().getSelectedGoalNode());
+        //System.out.println("Current State " + proof.getInterpreter().getCurrentState().getSelectedGoalNode());
         //pm.replayAllProofs();
+
+        //this should be the way a script should be applied
+        System.out.println(proof2.interpretScript());
 
         pm.getAllProofs().forEach((s1, proof1) -> {
             proof1.invalidate();

@@ -20,21 +20,41 @@ import java.util.List;
  */
 public class ProofNode {
 
+    /**
+     * Pointer to parent proof node
+     */
     private ProofNode parent;
 
-
+    /**
+     * Proof Rule Application responsible for child
+     */
     private ProofRuleApplication psr;
 
     private ProofHistory history;
 
+    /**
+     * Pointer to children
+     */
     private List<ProofNode> children;
 
+    /**
+     * Root PVC
+     */
     private PVC rootPVC;
 
+    /**
+     * Sequent in this proof node
+     */
     private Sequent sequent;
 
-
+    /**
+     * Is closed node?
+     */
     private boolean isclosed;
+
+    /**
+     * Pointer to ASTNode that mutated this node
+     */
     private ASTNode mutator;
 
     public ProofNode(ProofNode parent, ProofRuleApplication psr, ProofHistory history, Sequent seq, PVC rootPVC) {
@@ -98,5 +118,10 @@ public class ProofNode {
 
     public void setMutator(ASTNode mutator) {
         this.mutator = mutator;
+    }
+
+    @Override
+    public String toString() {
+        return this.sequent.toString();
     }
 }
