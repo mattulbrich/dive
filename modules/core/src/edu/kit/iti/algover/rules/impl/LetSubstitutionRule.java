@@ -11,6 +11,13 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+/**
+ * A built-in rule that can be applied to let-terms inline all their bound variables via substitution.
+ *
+ * (see {@link SubstitutionVisitor} for an example.)
+ *
+ * @author philipp
+ */
 public class LetSubstitutionRule extends AbstractProofRule {
 
     private static Map<String, Class<?>> makeRequiredParameters() {
@@ -19,6 +26,12 @@ public class LetSubstitutionRule extends AbstractProofRule {
         return params;
     }
 
+    /**
+     * Builds a new SubstitutionRule.
+     *
+     * This rule only requires the "on" parameter, the term that it should be applied on.
+     * That term <strong>must</strong> be a let term.
+     */
     public LetSubstitutionRule() {
         super(makeRequiredParameters(), Collections.emptyMap());
     }
@@ -54,6 +67,8 @@ public class LetSubstitutionRule extends AbstractProofRule {
 
     @Override
     public ProofRuleApplication makeApplication(ProofNode target, Parameters parameters) throws RuleException {
+        checkParameters(parameters);
+
         throw new RuntimeException("not yet implemented"); // FIXME: Implement
     }
 }

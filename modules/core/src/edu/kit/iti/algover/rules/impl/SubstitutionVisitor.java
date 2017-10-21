@@ -12,7 +12,19 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+/**
+ * Visitor for applying substitutions on Terms. Carefully handles shadowing of variables:
+ * <code>let x := 5 :: let x, y := 6, x :: x</code> gets transformed into
+ * <code>let x, y := 6, 5 :: x</code>.
+ *
+ * @author philipp
+ */
 public class SubstitutionVisitor implements TermVisitor<Map<String, Term>, Term, NoExceptions> {
+
+    /**
+     * Variables get substituted, when they have something to be substituted in the
+     * substitution table "substitutions".
+     */
     @Override
     public Term visit(VariableTerm variableTerm, Map<String, Term> substitutions) throws NoExceptions {
         String varname = variableTerm.getName();
@@ -20,11 +32,18 @@ public class SubstitutionVisitor implements TermVisitor<Map<String, Term>, Term,
         return substitution == null ? variableTerm : substitution;
     }
 
+    /**
+     * SchemaVarTerms don't get changed.
+     */
     @Override
     public Term visit(SchemaVarTerm schemaVarTerm, Map<String, Term> substitutions) throws NoExceptions {
         return schemaVarTerm;
     }
 
+    /**
+     * Quantifiers shadow via their bound variable. Inside of them substitutions mentioning the bound variable mustn't be
+     * substituted.
+     */
     @Override
     public Term visit(QuantTerm quantTerm, Map<String, Term> substitutions) throws NoExceptions {
         Term inner = quantTerm.getTerm(0);
@@ -43,6 +62,9 @@ public class SubstitutionVisitor implements TermVisitor<Map<String, Term>, Term,
         }
     }
 
+    /**
+     * Applications simply move on with the substitution recursively.
+     */
     @Override
     public Term visit(ApplTerm applTerm, Map<String, Term> substitutions) throws NoExceptions {
         boolean anythingNew = false;
@@ -66,6 +88,10 @@ public class SubstitutionVisitor implements TermVisitor<Map<String, Term>, Term,
         }
     }
 
+    /**
+     * Let terms shadow with their bound variables for their inner term, but the expression that gets
+     * bound to the variables still get all substitutions.
+     */
     @Override
     public Term visit(LetTerm letTerm, Map<String, Term> substitutions) throws NoExceptions {
         // Substitute everything inside the let's definitions
