@@ -6,13 +6,21 @@ import edu.kit.iti.algover.term.LetTerm;
 import edu.kit.iti.algover.term.Sequent;
 import edu.kit.iti.algover.term.Term;
 
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.Collectors;
 
 public class LetSubstitutionRule extends AbstractProofRule {
 
-    public LetSubstitutionRule(Map<String, Class<?>> requiredParameters, Map<String, Class<?>> optionalParameters) {
-        super(requiredParameters, optionalParameters);
+    private static Map<String, Class<?>> makeRequiredParameters() {
+        Map<String, Class<?>> params = new HashMap<>();
+        params.put("on", Term.class);
+        return params;
+    }
+
+    public LetSubstitutionRule() {
+        super(makeRequiredParameters(), Collections.emptyMap());
     }
 
     @Override
@@ -40,11 +48,12 @@ public class LetSubstitutionRule extends AbstractProofRule {
         builder.setApplicability(ProofRuleApplication.Applicability.APPLICABLE);
         builder.newBranch()
                 .addReplacement(selector, innerWithSubstitutions);
+
         return builder.build();
     }
 
     @Override
     public ProofRuleApplication makeApplication(ProofNode target, Parameters parameters) throws RuleException {
-        throw new RuntimeException("not yet implemented");
+        throw new RuntimeException("not yet implemented"); // FIXME: Implement
     }
 }
