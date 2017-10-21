@@ -64,7 +64,7 @@ public class ApplTerm extends Term {
         }
 
         // it is sure that obj is of type ApplFunction
-        return ((ApplTerm) obj).function == function;
+        return ((ApplTerm) obj).function.equals(function);
     }
 
     @Override
