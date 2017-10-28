@@ -5,6 +5,7 @@ import edu.kit.iti.algover.rules.*;
 import edu.kit.iti.algover.term.LetTerm;
 import edu.kit.iti.algover.term.Sequent;
 import edu.kit.iti.algover.term.Term;
+import edu.kit.iti.algover.util.RuleUtil;
 
 import java.util.Collections;
 import java.util.HashMap;
@@ -49,18 +50,10 @@ public class LetSubstitutionRule extends AbstractProofRule {
         }
         LetTerm targetLet = (LetTerm) targetTerm;
 
-        Map<String, Term> substitutionMap =
-                targetLet.getSubstitutions()
-                        .stream()
-                        .collect(Collectors.toMap(pair -> pair.fst.getName(), pair -> pair.snd));
-
-        Term inner = targetLet.getTerm(0);
-        Term innerWithSubstitutions = inner.accept(new SubstitutionVisitor(), substitutionMap);
-
         ProofRuleApplicationBuilder builder = new ProofRuleApplicationBuilder(this);
         builder.setApplicability(ProofRuleApplication.Applicability.APPLICABLE);
         builder.newBranch()
-                .addReplacement(selector, innerWithSubstitutions);
+                .addReplacement(selector, applyLetSubstitution(targetLet));
 
         return builder.build();
     }
@@ -69,6 +62,32 @@ public class LetSubstitutionRule extends AbstractProofRule {
     public ProofRuleApplication makeApplication(ProofNode target, Parameters parameters) throws RuleException {
         checkParameters(parameters);
 
-        throw new RuntimeException("not yet implemented"); // FIXME: Implement
+        Term on = parameters.getValue("on").cast(Term.class).getValue();
+
+        if (!(on instanceof LetTerm)) {
+            throw new RuleException("Given Term is not a let term");
+        }
+
+        LetTerm targetLet = (LetTerm) on;
+
+        TermSelector selector = RuleUtil.matchSubtermInSequent(targetLet::equals, target.getSequent())
+                .orElseThrow(() -> new RuleException("Could not find 'on' term"));
+
+        ProofRuleApplicationBuilder builder = new ProofRuleApplicationBuilder(this);
+
+        builder.setApplicability(ProofRuleApplication.Applicability.APPLICABLE);
+        builder.newBranch().addReplacement(selector, applyLetSubstitution(targetLet));
+
+        return builder.build();
+    }
+
+    private static Term applyLetSubstitution(LetTerm targetLet) {
+        Map<String, Term> substitutionMap =
+                targetLet.getSubstitutions()
+                        .stream()
+                        .collect(Collectors.toMap(pair -> pair.fst.getName(), pair -> pair.snd));
+
+        Term inner = targetLet.getTerm(0);
+        return inner.accept(new SubstitutionVisitor(), substitutionMap);
     }
 }
