@@ -4,3 +4,4 @@
 edu.kit.iti.algover.rules.impl.FakeSMTSolverRule
 edu.kit.iti.algover.rules.impl.TrivialAndRight
 edu.kit.iti.algover.rules.impl.PropositionalExpansionRule
+edu.kit.iti.algover.rules.impl.LetSubstitutionRule

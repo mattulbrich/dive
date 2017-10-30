@@ -32,6 +32,8 @@ public class Proof {
      */
     private ProofNode proofRoot;
 
+    private ProofNode lastaddedNode;
+
     /**
      * Root of Script
      */
@@ -135,10 +137,11 @@ public class Proof {
     public Proof interpretScript() {
         assert script != null;
         assert proofRoot != null;
+        lastaddedNode = proofRoot;
         interpreter.newState(new GoalNode<>(null, proofRoot));
         script.forEach(getInterpreter()::interpret);
-
         ProofNode pnext = getInterpreter().getSelectedNode().getData();
+        // System.out.println("pnext.getSequent() = " + pnext.getSequent());
         return this;
     }
 
@@ -156,6 +159,7 @@ public class Proof {
         }
         ProofScript newAst = Facade.getAST(script);
         newAst.getBody().forEach(s -> {
+            System.out.println("Interpreting s = " + s);
             getInterpreter().interpret(s);
             this.script.add(s);
         });
@@ -205,6 +209,7 @@ class ProofNodeInterpreterManager {
         @Override
         public Void defaultVisit(ASTNode node) {
             lastSelectedGoalNode = interpreter.getSelectedNode();
+            System.out.println("node = " + node);
             return null;
         }
     }
@@ -212,6 +217,9 @@ class ProofNodeInterpreterManager {
     private class ExitListener extends DefaultASTVisitor<Void> {
         @Override
         public Void defaultVisit(ASTNode node) {
+            interpreter.getCurrentState().getGoals().forEach(proofNodeGoalNode -> {
+                // System.out.println("proofNodeGoalNode.getData().getSequent() = " + proofNodeGoalNode.getData().getSequent());
+            });
             for (ProofNode children : lastSelectedGoalNode.getData().getChildren()) {
                 children.setMutator(node);
             }

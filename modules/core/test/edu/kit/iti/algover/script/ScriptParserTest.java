@@ -65,8 +65,10 @@ public class ScriptParserTest {
             System.out.println(((ProofNode) i.getCurrentState().getSelectedGoalNode().getData()).getSequent());
 
             i.interpret(parsedScript);
+            for (Object o : i.getCurrentState().getGoals()) {
+                System.out.println(((ProofNode) ((GoalNode) o).getData()).getSequent());
 
-            System.out.println(((ProofNode) i.getCurrentState().getSelectedGoalNode().getData()).getSequent());
+            }
 
 
         }
