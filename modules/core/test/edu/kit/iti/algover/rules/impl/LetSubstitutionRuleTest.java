@@ -20,21 +20,9 @@ public class LetSubstitutionRuleTest {
 
     private final TermBuilder builder = new TermBuilder(new BuiltinSymbols());
 
-    private Term applyLetSubstition(Term letTerm) throws TermBuildException, RuleException {
-        ProofNode proofNode = ProofMockUtil.mockProofNode(null, new Term[] { letTerm }, new Term[0]);
-
-        LetSubstitutionRule letRule = new LetSubstitutionRule();
-
-        ProofRuleApplication application = letRule.considerApplication(proofNode, proofNode.getSequent(), new TermSelector(TermSelector.SequentPolarity.ANTECEDENT, 0));
-
-        assertEquals(ProofRuleApplication.Applicability.APPLICABLE, application.getApplicability());
-        assertFalse(application.isRefinable());
-        assertEquals(1, application.getBranchCount());
-        assertEquals(1, application.getBranchInfo().get(0).getReplacements().size());
-        assertTrue(application.getBranchInfo().get(0).getAdditions().isEmpty());
-        assertTrue(application.getBranchInfo().get(0).getDeletions().isEmpty());
-
-        return application.getBranchInfo().get(0).getReplacements().get(0).getSnd();
+    @Test
+    public void testBasicSubstitution() throws Exception {
+        testSubstitution(parse("let x := 5 :: x >= 5"), parse("5 >= 5"));
     }
 
     private void testSubstitution(Term letTerm, Term expected) throws Exception {
@@ -52,9 +40,21 @@ public class LetSubstitutionRuleTest {
         return TermParser.parse(new BuiltinSymbols(), str);
     }
 
-    @Test
-    public void testBasicSubstitution() throws Exception {
-        testSubstitution(parse("let x := 5 :: x >= 5"), parse("5 >= 5"));
+    private Term applyLetSubstition(Term letTerm) throws TermBuildException, RuleException {
+        ProofNode proofNode = ProofMockUtil.mockProofNode(null, new Term[]{letTerm}, new Term[0]);
+
+        LetSubstitutionRule letRule = new LetSubstitutionRule();
+
+        ProofRuleApplication application = letRule.considerApplication(proofNode, proofNode.getSequent(), new TermSelector(TermSelector.SequentPolarity.ANTECEDENT, 0));
+
+        assertEquals(ProofRuleApplication.Applicability.APPLICABLE, application.getApplicability());
+        assertFalse(application.isRefinable());
+        assertEquals(1, application.getBranchCount());
+        assertEquals(1, application.getBranchInfo().get(0).getReplacements().size());
+        assertTrue(application.getBranchInfo().get(0).getAdditions().isEmpty());
+        assertTrue(application.getBranchInfo().get(0).getDeletions().isEmpty());
+
+        return application.getBranchInfo().get(0).getReplacements().get(0).getSnd();
     }
 
     @Test

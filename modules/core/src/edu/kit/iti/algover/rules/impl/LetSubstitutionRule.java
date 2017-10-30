@@ -14,27 +14,27 @@ import java.util.stream.Collectors;
 
 /**
  * A built-in rule that can be applied to let-terms inline all their bound variables via substitution.
- *
+ * <p>
  * (see {@link SubstitutionVisitor} for an example.)
  *
  * @author philipp
  */
 public class LetSubstitutionRule extends AbstractProofRule {
 
-    private static Map<String, Class<?>> makeRequiredParameters() {
-        Map<String, Class<?>> params = new HashMap<>();
-        params.put("on", Term.class);
-        return params;
-    }
-
     /**
      * Builds a new SubstitutionRule.
-     *
+     * <p>
      * This rule only requires the "on" parameter, the term that it should be applied on.
      * That term <strong>must</strong> be a let term.
      */
     public LetSubstitutionRule() {
         super(makeRequiredParameters(), Collections.emptyMap());
+    }
+
+    private static Map<String, Class<?>> makeRequiredParameters() {
+        Map<String, Class<?>> params = new HashMap<>();
+        params.put("on", Term.class);
+        return params;
     }
 
     @Override

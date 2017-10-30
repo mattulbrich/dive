@@ -35,7 +35,7 @@ public class SchemaVarTerm extends Term {
 
     @Override
     public boolean equals(Object obj) {
-        if(!super.equals(obj)) {
+        if (!super.equals(obj)) {
             return false;
         }
 

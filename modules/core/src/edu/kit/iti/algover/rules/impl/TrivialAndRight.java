@@ -102,12 +102,12 @@ public class TrivialAndRight extends AbstractProofRule {
 
         builder.newBranch()
                 .addDeletionsSuccedent(target.getSequent().getSuccedent().get(no))
-                .addAdditionsSuccedent(new ProofFormula(0, on.getTerm(0)))
+                .addAdditionsSuccedent(new ProofFormula(on.getTerm(0)))
                 .setLabel("case 1");
 
         builder.newBranch()
                 .addDeletionsSuccedent(target.getSequent().getSuccedent().get(no))
-                .addAdditionsSuccedent(new ProofFormula(0, on.getTerm(1)))
+                .addAdditionsSuccedent(new ProofFormula(on.getTerm(1)))
                 .setLabel("case 2");
 
         return builder.build();

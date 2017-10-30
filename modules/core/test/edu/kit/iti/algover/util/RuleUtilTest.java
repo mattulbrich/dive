@@ -29,18 +29,6 @@ public class RuleUtilTest {
         symbols.addFunctionSymbol(new FunctionSymbol("f", Sort.INT));
     }
 
-    private static ProofFormula parse(int index, String term) {
-        return new ProofFormula(index, parseTerm(term));
-    }
-
-    private static Term parseTerm(String term) {
-        try {
-            return TermParser.parse(symbols, term);
-        } catch (DafnyParserException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
     private final Sequent exampleSequent =
             new Sequent(
                     Arrays.asList(
@@ -52,6 +40,18 @@ public class RuleUtilTest {
                             parse(0, "x > (y - 5)"),
                             parse(1, "let m := 0 :: x + m == x")
                     ));
+
+    private static ProofFormula parse(int index, String term) {
+        return new ProofFormula(parseTerm(term));
+    }
+
+    private static Term parseTerm(String term) {
+        try {
+            return TermParser.parse(symbols, term);
+        } catch (DafnyParserException e) {
+            throw new RuntimeException(e);
+        }
+    }
 
     public Object[][] parametersSubtermInSequent() throws FormatException {
         return new Object[][]{

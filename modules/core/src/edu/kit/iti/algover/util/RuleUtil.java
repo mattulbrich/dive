@@ -12,7 +12,7 @@ import java.util.function.Predicate;
 
 /**
  * Utilities for implementing Proof Rules.
- *
+ * <p>
  * Term matching: Always looks for the first match and then stops search.
  *
  * @author philipp
@@ -24,7 +24,7 @@ public class RuleUtil {
      * Starts with the antecedent, goes top to bottom of terms.
      *
      * @param predicate the predicate that the term you are looking for should match. For finding specific terms, use term::equals
-     * @param sequent the sequent to look for the term.
+     * @param sequent   the sequent to look for the term.
      * @return Either a filled optional with the first matching TermSelector inside, or Optional.empty() when none could be found.
      */
     public static Optional<TermSelector> matchSubtermInSequent(Predicate<Term> predicate, Sequent sequent) {
@@ -38,15 +38,15 @@ public class RuleUtil {
     /**
      * Finds a Subterm in only one of the polarities of a sequent. So if you are looking for a <strong>sub</strong>term
      * (i.e. it may be nested deep inside other terms) in the succedent, then use for example:
-     *
+     * <p>
      * <code>matchSubtermInPolarity(SequentPolarity.SUCCEDENT, termImLookingFor::equals, sequent.getSuccedent())</code>
-     *
+     * <p>
      * .
      *
-     * @param polarity the SequentPolarity you are looking for in. Used for constructing the appropriate TermSelector.
+     * @param polarity  the SequentPolarity you are looking for in. Used for constructing the appropriate TermSelector.
      * @param predicate the predicate that the term has to match. For finding specific terms, use specificTerm::equals
-     * @param formulas either the antecedent or succedent of a sequent (i.e. sequent.getAntedecent() or ...).
-     *                 Sublists of that result in incorrect indices in the TermSelector!
+     * @param formulas  either the antecedent or succedent of a sequent (i.e. sequent.getAntedecent() or ...).
+     *                  Sublists of that result in incorrect indices in the TermSelector!
      * @return Either a filled optional with the first matching TermSelector inside, or Optional.empty() when none could be found.
      */
     public static Optional<TermSelector> matchSubtermInPolarity(
@@ -81,6 +81,18 @@ public class RuleUtil {
     }
 
     /**
+     * Tries to find a term that matches the given predicate in the given term arbitrarily deeply nested (recursively),
+     * and, if found, returns a SubtermSelector.
+     *
+     * @param predicate    the predicate that the term has to match. If you're looking for a specificTerm, use <code>specificTerm::equals</code>.
+     * @param topLevelTerm
+     * @return Either a filled optional with the first matching SubtermSelector inside, or Optional.empty() when none could be found.
+     */
+    public static Optional<SubtermSelector> matchSubterm(Predicate<Term> predicate, Term topLevelTerm) {
+        return matchSubtermAccum(new SubtermSelector(), predicate, topLevelTerm);
+    }
+
+    /**
      * Shorthand for <code>{@link #matchTopLevel(Predicate, List) matchTopLevel}(predicate, sequent.getSuccedent())</code>
      */
     public static Optional<Integer> matchTopLevelInSuccedent(Predicate<Term> predicate, Sequent sequent) {
@@ -92,7 +104,7 @@ public class RuleUtil {
      * use {@link #matchSubtermInPolarity(TermSelector.SequentPolarity, Predicate, List)}.
      *
      * @param predicate the predicate that the term has to fulfill. If you're looking for specific terms, use specificTerm::equals
-     * @param formulas either the antecedent or succedent of a sequent: {@link Sequent#getAntecedent()} or {@link Sequent#getSuccedent()}.
+     * @param formulas  either the antecedent or succedent of a sequent: {@link Sequent#getAntecedent()} or {@link Sequent#getSuccedent()}.
      * @return Either an Optional of the index of the first matched top-level term, or Optional.empty() if none could be found.
      */
     public static Optional<Integer> matchTopLevel(Predicate<Term> predicate, List<ProofFormula> formulas) {
@@ -102,18 +114,6 @@ public class RuleUtil {
             }
         }
         return Optional.empty();
-    }
-
-    /**
-     * Tries to find a term that matches the given predicate in the given term arbitrarily deeply nested (recursively),
-     * and, if found, returns a SubtermSelector.
-     *
-     * @param predicate the predicate that the term has to match. If you're looking for a specificTerm, use <code>specificTerm::equals</code>.
-     * @param topLevelTerm
-     * @return Either a filled optional with the first matching SubtermSelector inside, or Optional.empty() when none could be found.
-     */
-    public static Optional<SubtermSelector> matchSubterm(Predicate<Term> predicate, Term topLevelTerm) {
-        return matchSubtermAccum(new SubtermSelector(), predicate, topLevelTerm);
     }
 
     /*
