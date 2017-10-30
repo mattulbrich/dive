@@ -3,6 +3,7 @@ package edu.kit.iti.algover.rule;
 import edu.kit.iti.algover.project.ProjectManager;
 import edu.kit.iti.algover.proof.ProofNode;
 import edu.kit.iti.algover.rules.ProofRule;
+import edu.kit.iti.algover.rules.ProofRuleApplication;
 import edu.kit.iti.algover.rules.RuleException;
 import edu.kit.iti.algover.rules.TermSelector;
 import edu.kit.iti.algover.term.Sequent;
@@ -14,12 +15,12 @@ import javafx.scene.control.SplitPane;
 
 import java.util.ServiceLoader;
 
-public class RuleApplicationController {
+public class RuleApplicationController implements RuleApplicationListener {
 
     private final SplitPane view;
     private final RuleApplicationView ruleApplicationView;
 
-    public RuleApplicationController(ProjectManager manager) {
+    public RuleApplicationController() {
         ruleApplicationView = new RuleApplicationView();
         view = new SplitPane(ruleApplicationView, new ScriptView());
         view.setDividerPositions(0.7);
@@ -35,7 +36,7 @@ public class RuleApplicationController {
     }
 
     public void addProofRule(ProofRule rule) {
-        ruleApplicationView.getRuleGrid().addRule(new RuleView(rule, ruleApplicationView.getRuleGrid().getSelectionModel()));
+        ruleApplicationView.getRuleGrid().addRule(new RuleView(rule, ruleApplicationView.getRuleGrid().getSelectionModel(), this));
     }
 
     public void considerApplication(ProofNode target, Sequent selection, TermSelector selector) {
@@ -56,4 +57,8 @@ public class RuleApplicationController {
         ruleApplicationView.getTermToConsider().setText("");
     }
 
+    @Override
+    public void appliedRule(ProofRuleApplication application) {
+        System.out.println("Changes: " + application.getBranchInfo().get(0).getReplacements());
+    }
 }

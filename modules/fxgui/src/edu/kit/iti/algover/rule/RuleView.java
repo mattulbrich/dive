@@ -29,10 +29,12 @@ public class RuleView extends StackPane {
     private RuleViewOverlay applicationOverlay;
 
     private final SelectionModel<RuleView> selectionModel;
+    private final RuleApplicationListener listener;
 
-    public RuleView(ProofRule rule, SelectionModel<RuleView> selectionModel) {
+    public RuleView(ProofRule rule, SelectionModel<RuleView> selectionModel, RuleApplicationListener listener) {
         this.rule = rule;
         this.selectionModel = selectionModel;
+        this.listener = listener;
 
         getStyleClass().addAll("rule-view");
         setPadding(new Insets(4, 4, 4, 4));
@@ -72,7 +74,7 @@ public class RuleView extends StackPane {
     private void renderApplication() {
         if (application != null) {
             setPseudoClassStateFromBranches(application.getBranchCount());
-            applicationOverlay = new RuleViewOverlay(application);
+            applicationOverlay = new RuleViewOverlay(application, listener);
             getChildren().setAll(applicationOverlay, ruleNameLabel);
         } else {
             resetConsideration();

@@ -42,7 +42,7 @@ public class OverviewController implements SequentActionListener {
         //this.browserController = new FileBasedBrowserController(manager.getProject(), this::onClickPVCEdit);
         this.editorController = new EditorController();
         this.sequentController = new SequentController(manager, this);
-        this.ruleApplicationController = new RuleApplicationController(manager);
+        this.ruleApplicationController = new RuleApplicationController();
 
         this.view = new TimelineLayout(
                 browserController.getView(),
