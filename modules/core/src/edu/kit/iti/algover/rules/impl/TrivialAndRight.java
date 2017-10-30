@@ -23,6 +23,7 @@ import edu.kit.iti.algover.term.ApplTerm;
 import edu.kit.iti.algover.term.FunctionSymbol;
 import edu.kit.iti.algover.term.Sequent;
 import edu.kit.iti.algover.term.Term;
+import edu.kit.iti.algover.util.RuleUtil;
 
 public class TrivialAndRight extends AbstractProofRule {
 
@@ -96,27 +97,17 @@ public class TrivialAndRight extends AbstractProofRule {
             throw new RuleException();
         }
 
-        // this should go somewhere more central since to be used quite often.
-        List<ProofFormula> succ = target.getSequent().getSuccedent();
-        int no;
-        for(no = 0; no < succ.size(); no++) {
-            if(succ.get(no).getTerm().equals(on)) {
-                break;
-            }
-        }
-
-        if(no == succ.size()) {
-            throw new RuleException("'on' not found");
-        }
+        int no = RuleUtil.matchTopLevelInSuccedent(on::equals, target.getSequent())
+                .orElseThrow(() -> new RuleException("'on' not found"));
 
         builder.newBranch()
-                .addDeletionsSuccedent(succ.get(no))
-                .addAdditionsSuccedent(new ProofFormula(on.getTerm(0)))
+                .addDeletionsSuccedent(target.getSequent().getSuccedent().get(no))
+                .addAdditionsSuccedent(new ProofFormula(0, on.getTerm(0)))
                 .setLabel("case 1");
 
         builder.newBranch()
-                .addDeletionsSuccedent(succ.get(no))
-                .addAdditionsSuccedent(new ProofFormula(on.getTerm(1)))
+                .addDeletionsSuccedent(target.getSequent().getSuccedent().get(no))
+                .addAdditionsSuccedent(new ProofFormula(0, on.getTerm(1)))
                 .setLabel("case 2");
 
         return builder.build();

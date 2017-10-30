@@ -33,4 +33,14 @@ public class SchemaVarTerm extends Term {
         return name;
     }
 
+    @Override
+    public boolean equals(Object obj) {
+        if(!super.equals(obj)) {
+            return false;
+        }
+
+        SchemaVarTerm other = (SchemaVarTerm) obj;
+        return other.name.equals(name);
+    }
+
 }

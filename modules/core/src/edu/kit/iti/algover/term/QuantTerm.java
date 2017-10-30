@@ -47,4 +47,14 @@ public class QuantTerm extends Term {
         return quantifier;
     }
 
+    @Override
+    public boolean equals(Object obj) {
+        if (!super.equals(obj)) {
+            return false;
+        }
+
+        QuantTerm other = (QuantTerm) obj;
+
+        return getBoundVar().equals(other.getBoundVar()) && getQuantifier().equals(other.getQuantifier());
+    }
 }

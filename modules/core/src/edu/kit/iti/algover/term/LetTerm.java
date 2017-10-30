@@ -67,4 +67,14 @@ public class LetTerm extends Term {
         return Collections.unmodifiableList(substitutions);
     }
 
+    @Override
+    public boolean equals(Object obj) {
+        if (!super.equals(obj)) {
+            return false;
+        }
+
+        LetTerm other = (LetTerm) obj;
+        return substitutions.equals(other.substitutions);
+    }
+
 }

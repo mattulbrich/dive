@@ -197,22 +197,6 @@ public class Sort {
         return new Sort(name, NO_ARGUMENTS);
     }
 
-    @Override
-    public int hashCode() {
-        return name.hashCode() + 31 * Arrays.hashCode(arguments);
-    }
-
-    @Override
-    public boolean equals(Object obj) {
-        if (obj instanceof Sort) {
-            Sort sort = (Sort) obj;
-            return name.equals(sort.name)
-                && isClassSort() == sort.isClassSort()
-                && Arrays.equals(arguments, sort.arguments);
-        }
-        return false;
-    }
-
     /**
      * Gets the name of this sort (w/o arguments).
      *
@@ -332,4 +316,21 @@ public class Sort {
         return getName().matches("array[23]?");
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        Sort sort = (Sort) o;
+
+        if (!name.equals(sort.name)) return false;
+        return Arrays.equals(arguments, sort.arguments);
+    }
+
+    @Override
+    public int hashCode() {
+        int result = name.hashCode();
+        result = 31 * result + Arrays.hashCode(arguments);
+        return result;
+    }
 }
