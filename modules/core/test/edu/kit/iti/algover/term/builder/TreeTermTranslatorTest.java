@@ -301,13 +301,13 @@ public class TreeTermTranslatorTest {
 
         DafnyTree wc = new DafnyTree(DafnyParser.WILDCARD, "*");
         wc.setExpressionType(ASTUtil.id("int"));
-        wc.addChild(ASTUtil.id("knownvar"));
+        wc.addChild(ASTUtil.id("knownvar_1"));
 
         Term res1 = ttt.build(wc);
         Term res2 = ttt.build(wc);
 
-        assertEquals("knownvar_2", res1.toString());
-        assertEquals("knownvar_3", res2.toString());
+        assertEquals("knownvar_1", res1.toString());
+        assertEquals("knownvar_1", res2.toString());
     }
 
     @Test

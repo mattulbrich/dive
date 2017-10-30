@@ -10,6 +10,8 @@ import edu.kit.iti.algover.parser.DafnyException;
 import edu.kit.iti.algover.parser.DafnyFileParser;
 import edu.kit.iti.algover.parser.DafnyParserException;
 import edu.kit.iti.algover.parser.DafnyTree;
+import edu.kit.iti.algover.parser.ReferenceResolutionVisitor;
+import edu.kit.iti.algover.parser.TypeResolution;
 import edu.kit.iti.algover.proof.PVC;
 import edu.kit.iti.algover.settings.ProjectSettings;
 import org.antlr.runtime.RecognitionException;
@@ -85,8 +87,12 @@ public class ProjectBuilder {
     /**
      * All processed classes (to be accessed by {@link Project}'s constructor)
      */
-
     private List<DafnyClass> classes;
+
+    /**
+     * For some tests, name resolution must be disabled.
+     */
+    private boolean disableNameResolution;
 
     public String getConfigFilename() {
         return configFilename;
@@ -202,8 +208,37 @@ public class ProjectBuilder {
         for (Map.Entry<String, DafnyTree> en : dafnyTrees.entrySet()) {
             parseFile(true, en.getValue(), en.getKey());
         }
+
+        Project project = new Project(this);
+        resolveNames(project);
+
         //TODO parse rules for project
-        return new Project(this);
+
+        return project;
+    }
+
+    /*
+     * Prepare the DafnyTrees by applying relevant visitors for name resolution
+     * etc.
+     */
+    private void resolveNames(Project p) throws DafnyException {
+
+        // for some test cases, name resolution must be switched off
+        if(disableNameResolution) {
+            return;
+        }
+
+        ArrayList<DafnyException> exceptions = new ArrayList<>();
+        ReferenceResolutionVisitor refResolver = new ReferenceResolutionVisitor(p, exceptions);
+        refResolver.visitProject();
+
+        TypeResolution typeRes = new TypeResolution(exceptions);
+        typeRes.visitProject(p);
+
+        // TODO make the other exceptions accessible as well;
+        if(!exceptions.isEmpty()) {
+            throw exceptions.get(0);
+        }
     }
 
     private void parseFile(boolean inLib, DafnyTree tree, String filename)
@@ -251,6 +286,13 @@ public class ProjectBuilder {
      */
     List<DafnyClass> getClasses() {
         return classes;
+    }
+
+    /**
+     * For testing!
+     */
+    public void disableNameResolution() {
+        this.disableNameResolution = true;
     }
 
 }

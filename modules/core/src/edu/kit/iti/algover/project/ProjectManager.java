@@ -14,7 +14,6 @@ import edu.kit.iti.algover.script.data.GoalNode;
 import edu.kit.iti.algover.script.interpreter.Interpreter;
 import edu.kit.iti.algover.script.interpreter.InterpreterBuilder;
 import edu.kit.iti.algover.script.parser.Facade;
-import edu.kit.iti.algover.util.FileUtil;
 import edu.kit.iti.algover.util.Util;
 import javafx.beans.property.SimpleObjectProperty;
 
@@ -45,21 +44,9 @@ public class ProjectManager {
     private SimpleObjectProperty<Project> project = new SimpleObjectProperty<>(null);
 
     /**
-     * All PVCs of the loaded project
-     */
-    private PVCGroup allPVCs;
-
-
-    /**
-     * Map from PVC string to its PVC object
-     */
-    private Map<String, PVC> allStrippedPVCs;
-
-    /**
-     * Map from pvc string to it proof object
+     * Map from PVC identifiers to corr. proofs.
      */
     private Map<String, Proof> allProofs;
-
 
     private Map<String, Supplier<String>> fileHooks = new HashMap<>();
 
@@ -82,12 +69,10 @@ public class ProjectManager {
         this.configFile = config;
         Project p = null;
         p = buildProject(config.toPath());
-        this.allPVCs = p.generateAndCollectPVC();
-        this.allStrippedPVCs = p.getPvcCollectionByName();
         this.setProject(p);
         generateAllProofObjects();
 
-        this.allStrippedPVCs.forEach((s, pvc) -> {
+        this.getPVCByNameMap().forEach((s, pvc) -> {
             try {
                 initializeProofDataStructures(s);
             } catch (IOException e) {
@@ -128,7 +113,7 @@ public class ProjectManager {
      */
     private void generateAllProofObjects() throws IOException {
         allProofs = new HashMap<>();
-        for (String pvc : allStrippedPVCs.keySet()) {
+        for (String pvc : getPVCByNameMap().keySet()) {
             Proof p = new Proof(pvc);
             allProofs.put(pvc, p);
         }
@@ -142,46 +127,42 @@ public class ProjectManager {
      */
     protected void initializeProofDataStructures(String pvc) throws IOException {
         Proof p = allProofs.get(pvc);
-        try {
-            // Either the script file can be loaded, then that file is used for building the proof object
-            findAndParseScriptFileForPVC(pvc);
-            PVC pvcObject = allStrippedPVCs.get(pvc);
-            p.setProofRoot(new ProofNode(null, null, null, pvcObject.getSequent(), pvcObject));
-            buildIndividualInterpreter(p);
-        } catch (IOException e) {
-            // Or the proof object is simply stubbed
-            PVC pvcObject = allStrippedPVCs.get(pvc);
-            p.setProofRoot(new ProofNode(null, null, null, pvcObject.getSequent(), pvcObject));
-            // rethrow
-            throw e;
-        }
+        findAndParseScriptFile(pvc);
+        PVC pvcObject = getPVCByNameMap().get(pvc);
+        p.setProofRoot(new ProofNode(null, null, null, pvcObject.getSequent(), pvcObject));
+        buildIndividualInterpreter(p);
 
 
     }
 
     /**
-     * Find and parse script file for pvc. Set the ASTroot in the corresponding proof object
+     * Find and parse script file for pvc. Set the ASTroot in the corresponding
+     * proof object.
      *
      * @param pvc
      * @return TODO should return ScriptAST
      */
 
-    public void findAndParseScriptFileForPVC(String pvc) throws IOException {
-
+    public void findAndParseScriptFile(String pvc) throws IOException {
+        String maskedFilename = Util.maskFileName(pvc);
+        String filePath = project.get().getBaseDir().getAbsolutePath()
+                + maskedFilename + ".script";
         //find file on disc
-        File scriptFile = FileUtil.findFile(project.get().getBaseDir(), Util.maskFileName(pvc) + ".script");
+        Path p = Paths.get(filePath);
 
-        if (scriptFile.exists()) {
-            ProofScript root = Facade.getAST(scriptFile);
+        try {
+            ProofScript root = Facade.getAST(p.toFile());
             Proof proof = allProofs.get(pvc);
             if (proof == null) {
                 proof = new Proof(pvc);
             }
             proof.setScript(root.getBody());
-            proof.setProofStatus(ProofStatus.SCRIPT_PARSED);
             allProofs.putIfAbsent(pvc, proof);
-        } else {
-            throw new IOException("File " + scriptFile.getName() + " can not be found");
+        } catch (IOException ex) {
+            Proof proof = allProofs.get(pvc);
+            proof.setScript(null);
+            proof.setProofStatus(ProofStatus.NON_EXISTING);
+
         }
 
     }
@@ -280,7 +261,7 @@ public class ProjectManager {
 
     }*/
 
-    /* REVIEW I propose:
+    /* REVIEW I propose: static method
         Path path = Paths.get(pathToFile);
         if (!Files.exists(path)) {
             Files.createFile(path);
@@ -367,8 +348,8 @@ public class ProjectManager {
      *
      * @return PVCGroup that is the root for all PVCs of the loaded project
      */
-    public PVCGroup getAllPVCs() {
-        return this.allPVCs;
+    public PVCGroup getPVCGroup() {
+        return this.project.getValue().getAllPVCs();
     }
 
     public File getConfigFile() {
@@ -384,9 +365,8 @@ public class ProjectManager {
      *
      * @return
      */
-    // REVIEW: Please motivate why "stripped".
-    public Map<String, PVC> getAllStrippedPVCs() {
-        return allStrippedPVCs;
+    public Map<String, PVC> getPVCByNameMap() {
+        return this.project.getValue().getPVCByNameMap();
     }
 
 

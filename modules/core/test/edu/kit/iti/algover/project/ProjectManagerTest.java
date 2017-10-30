@@ -1,3 +1,8 @@
+/*
+ * This file is part of AlgoVer.
+ *
+ * Copyright (C) 2015-2017 Karlsruhe Institute of Technology
+ */
 package edu.kit.iti.algover.project;
 
 import edu.kit.iti.algover.data.BuiltinSymbols;
@@ -66,8 +71,8 @@ public class ProjectManagerTest {
         Assert.assertEquals("Number of DafnyFiles", p.getDafnyFiles().size(), project.getDafnyFiles().size());
         Assert.assertEquals("config2.xml", pm.getConfigFile().getName());
 
-        PVCCollection allPVCs = project.getAllVerificationConditions();
-        PVC testPVC = project.getPVCbyName(testPVCName);
+        PVCCollection allPVCs = project.getAllPVCs();
+        PVC testPVC = project.getPVCByName(testPVCName);
 
         Sequent s = testPVC.getSequent();
 

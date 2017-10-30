@@ -5,6 +5,7 @@
  */
 package edu.kit.iti.algover.term;
 
+import java.util.Arrays;
 import java.util.List;
 
 import edu.kit.iti.algover.util.Util;
@@ -36,6 +37,26 @@ public class FunctionSymbol {
 
     public int getArity() {
         return argumentSorts.length;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        FunctionSymbol that = (FunctionSymbol) o;
+
+        if (!resultSort.equals(that.resultSort)) return false;
+        if (!Arrays.equals(argumentSorts, that.argumentSorts)) return false;
+        return name.equals(that.name);
+    }
+
+    @Override
+    public int hashCode() {
+        int result = resultSort.hashCode();
+        result = 31 * result + Arrays.hashCode(argumentSorts);
+        result = 31 * result + name.hashCode();
+        return result;
     }
 
     public String getName() {

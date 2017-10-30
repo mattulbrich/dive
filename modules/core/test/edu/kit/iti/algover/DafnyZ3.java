@@ -54,9 +54,7 @@ public class DafnyZ3 {
         BuiltinSymbols symbolTable = new BuiltinSymbols();
         TermBuilder tb = new TermBuilder(symbolTable);
 
-        PVCGroup pvcs = project.generateAndCollectPVC();
-        List<PVC> allPVCs = new ArrayList<>();
-        collectTo(pvcs, allPVCs);
+        List<PVC> allPVCs = project.getAllPVCs().getContents();
 
         for (PVC pvc : allPVCs) {
 
@@ -85,6 +83,7 @@ public class DafnyZ3 {
         }
     }
 
+    // no loinger required
     private static void collectTo(PVCCollection coll, List<PVC> allPVCs) {
         if (coll.isPVCLeaf()) {
             allPVCs.add(coll.getPVC());

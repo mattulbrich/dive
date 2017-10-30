@@ -57,7 +57,7 @@ public class PVCEntity extends TreeTableEntity {
     private final ObjectProperty<ProofStatus> proofStatus;
 
     public PVCEntity(PVC pvc, DafnyFile location) {
-        super(pvc.getName(), location, Collections.emptyList());
+        super(pvc.getIdentifier(), location, Collections.emptyList());
         this.pvc = pvc;
         this.proofStatus = new SimpleObjectProperty<>(ProofStatus.values()[(int) (Math.random() * 3)]);
         if (proofStatus.get() == ProofStatus.PROVEN) {

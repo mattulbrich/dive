@@ -114,8 +114,8 @@ public class SequentController {
 
     public void viewSequentForPVC(PVCEntity pvcEntity) {
         PVC pvc = pvcEntity.getPVC();
-        if (activeProof == null || !activeProof.getPvcName().equals(pvc.getName())) {
-            activeProof = manager.getProofForPVC(pvc.getName());
+        if (activeProof == null || !activeProof.getPvcName().equals(pvc.getIdentifier())) {
+            activeProof = manager.getProofForPVC(pvc.getIdentifier());
             activeNode = activeProof.getProofRoot();
             antecedentView.getItems().setAll(calculateAssertions(activeNode.getSequent().getAntecedent()));
             succedentView.getItems().setAll(calculateAssertions(activeNode.getSequent().getSuccedent()));

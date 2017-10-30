@@ -391,7 +391,7 @@ public final class Util {
     /**
      * Mask a file name to be universally usable on filesystems.
      * <p>
-     * In particular this is used to mask {@link PVC#getName()}.
+     * In particular this is used to mask {@link PVC#getIdentifier()}.
      * <p>
      * Alphanumeric characters ({@code A-Za-z0-9}) and some other characters are
      * taken verbatim. Spaces become "-", and "/" becomes "+".
