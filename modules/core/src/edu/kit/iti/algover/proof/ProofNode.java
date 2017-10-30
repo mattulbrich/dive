@@ -122,6 +122,14 @@ public class ProofNode {
 
     @Override
     public String toString() {
-        return this.sequent.toString();
+        StringBuilder sb = new StringBuilder();
+        sb.append(this.sequent.toString());
+        if (getPsr() != null) {
+            sb.append("Rulename " + getPsr().getRule().getName());
+        }
+        if (getMutator() != null) {
+            sb.append(getMutator().getNodeName());
+        }
+        return sb.toString();
     }
 }

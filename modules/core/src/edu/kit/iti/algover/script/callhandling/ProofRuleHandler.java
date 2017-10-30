@@ -113,7 +113,7 @@ public class ProofRuleHandler implements CommandHandler<ProofNode> {
             ProofRuleApplication proofRuleApplication = pr.makeApplication(pn.getData(), ruleParams);
             if (proofRuleApplication.getApplicability().equals(ProofRuleApplication.Applicability.APPLICABLE)) {
                 List<ProofNode> newNodes = RuleApplicator.applyRule(proofRuleApplication, pn.getData());
-                System.out.println("newNodes.get(0).getSequent() = " + newNodes.get(0).getSequent());
+                //System.out.println("newNodes.get(0).getSequent() = " + newNodes.get(0).getSequent());
                 List<GoalNode<ProofNode>> newGoals = new ArrayList<>();
 
                 //add new nodes, remove expanded node

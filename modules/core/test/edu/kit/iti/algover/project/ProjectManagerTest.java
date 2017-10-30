@@ -98,6 +98,7 @@ public class ProjectManagerTest {
         Assert.assertEquals("Proofscript is parsed", ProofStatus.SCRIPT_PARSED, proof.getProofStatus());
         System.out.println(pm.getProofForPVC(testPVC2).getProofRoot().getSequent());
         Proof proof2 = pm.getProofForPVC(testPVC2);
+
         //  Assert.assertEquals("Proofscript is not loaded yet", ProofStatus.NOT_LOADED, proof2.getProofStatus());
         //  pm.findAndParseScriptFileForPVC(testPVC2);
 
@@ -107,8 +108,7 @@ public class ProjectManagerTest {
         //this should be the way a script should be applied
         //proof2.interpretScript();
         System.out.println(proof2.interpretScript());
-        proof2.getScript();
-        //TODO throws an exception because the let term can not be translated by the dafnyparser
+
         pm.getAllProofs().forEach((s1, proof1) -> {
             proof1.invalidate();
         });

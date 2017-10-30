@@ -13,6 +13,8 @@ import org.antlr.tool.Interp;
 import org.antlr.v4.runtime.Token;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.LinkedList;
 import java.util.List;
 
 /**
@@ -183,6 +185,16 @@ public class Proof {
         this.script = script;
     }
 
+    /*public String proofToString(){
+        StringBuilder sb = new StringBuilder("Proof for "+this.pvcName);
+        sb.append(getProofRoot().toString());
+        List<ProofNode> children = getProofRoot().getChildren();
+            for (ProofNode child : children) {
+                sb.append(child.toString());
+            }
+        return sb.toString();
+    }*/
+
     /**
      * This method invalidates this proof object, sets the status to dirty
      */
@@ -209,7 +221,7 @@ class ProofNodeInterpreterManager {
         @Override
         public Void defaultVisit(ASTNode node) {
             lastSelectedGoalNode = interpreter.getSelectedNode();
-            System.out.println("node = " + node);
+            //System.out.println("node = " + node);
             return null;
         }
     }
@@ -217,9 +229,11 @@ class ProofNodeInterpreterManager {
     private class ExitListener extends DefaultASTVisitor<Void> {
         @Override
         public Void defaultVisit(ASTNode node) {
+            lastSelectedGoalNode.getData().setChildren(new ArrayList<>());
             interpreter.getCurrentState().getGoals().forEach(proofNodeGoalNode -> {
-                // System.out.println("proofNodeGoalNode.getData().getSequent() = " + proofNodeGoalNode.getData().getSequent());
+                lastSelectedGoalNode.getData().getChildren().add(proofNodeGoalNode.getData());
             });
+
             for (ProofNode children : lastSelectedGoalNode.getData().getChildren()) {
                 children.setMutator(node);
             }

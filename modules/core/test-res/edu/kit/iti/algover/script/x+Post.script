@@ -5,9 +5,9 @@ substitute on='let x := 1 :: 1== 2 && 2 == 3 ';
 andRight on='1== 2 && 2 == 3 ';
 cases{
     case match '1==2':
-        auto deep=true;
+        //auto deep=true;
 
     default:
-        auto;
+        //auto;
 
 }
