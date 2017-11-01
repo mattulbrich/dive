@@ -9,8 +9,7 @@ import edu.kit.iti.algover.rules.ProofRuleApplication;
 import edu.kit.iti.algover.script.ast.ASTNode;
 import edu.kit.iti.algover.term.Sequent;
 
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
 
 /**
  * Class represents one proof node. It has a pointer to its parent node and to the children nodes.
@@ -52,10 +51,11 @@ public class ProofNode {
      */
     private boolean isclosed;
 
+
     /**
      * Pointer to ASTNode that mutated this node
      */
-    private ASTNode mutator;
+    private List<ASTNode> mutator;
 
     public ProofNode(ProofNode parent, ProofRuleApplication psr, ProofHistory history, Sequent seq, PVC rootPVC) {
         this.parent = parent;
@@ -65,6 +65,7 @@ public class ProofNode {
         this.sequent = seq;
         this.rootPVC = rootPVC;
         isclosed = false;
+        mutator = new ArrayList<>();
     }
 
     public Sequent getSequent() {
@@ -112,12 +113,8 @@ public class ProofNode {
         this.sequent = sequent;
     }
 
-    public ASTNode getMutator() {
-        return mutator;
-    }
-
-    public void setMutator(ASTNode mutator) {
-        this.mutator = mutator;
+    public void addMutator(ASTNode mutator) {
+        this.mutator.add(mutator);
     }
 
     @Override
@@ -128,8 +125,16 @@ public class ProofNode {
             sb.append("Rulename " + getPsr().getRule().getName());
         }
         if (getMutator() != null) {
-            sb.append(getMutator().getNodeName());
+            getMutator().forEach(astNode -> sb.append(astNode.getNodeName()));
         }
         return sb.toString();
+    }
+
+    public List<ASTNode> getMutator() {
+        return mutator;
+    }
+
+    private void setMutator(List<ASTNode> mutator) {
+        this.mutator = mutator;
     }
 }

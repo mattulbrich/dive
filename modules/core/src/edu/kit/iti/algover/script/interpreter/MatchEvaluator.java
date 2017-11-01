@@ -47,6 +47,7 @@ public class MatchEvaluator extends DefaultASTVisitor<List<VariableAssignment>> 
     public MatchEvaluator(GoalNode goal, VariableAssignment assignmentsInState, MatcherApi matcher) {
         this.goal = goal;
         this.assignmentsInState = new VariableAssignment(assignmentsInState); //must be unmodifiable assignments
+
         this.matcher = matcher;
     }
 
@@ -228,9 +229,16 @@ public class MatchEvaluator extends DefaultASTVisitor<List<VariableAssignment>> 
     public List<VariableAssignment> visit(Variable variable) {
         //get variable value
         Value v = assignmentsInState.getValue(variable);
+
         if (v != null) {
-            // return v;
+         /*   VariableAssignment va  =new VariableAssignment(null);
+            va.declare(variable, assignmentsInState.getType(variable));
+            va.assign(variable, v);
+            List<VariableAssignment> list = new ArrayList<>();
+            list.add(va);
+            return list;*/
             return null;
+
         } else {
             throw new RuntimeException("Variable " + variable + " was not initialized");
         }

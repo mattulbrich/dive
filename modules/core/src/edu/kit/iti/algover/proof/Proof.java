@@ -219,14 +219,58 @@ class ProofNodeInterpreterManager {
 
     private class EntryListener extends DefaultASTVisitor<Void> {
         @Override
+        public Void visit(Statements statements) {
+            return null;
+        }
+
+        @Override
         public Void defaultVisit(ASTNode node) {
             lastSelectedGoalNode = interpreter.getSelectedNode();
-            //System.out.println("node = " + node);
+            return null;
+        }
+
+        @Override
+        public Void visit(AssignmentStatement assignment) {
+            return defaultVisit(assignment);
+        }
+
+        @Override
+        public Void visit(MatchExpression matchExpression) {
+            return null;
+        }
+
+        @Override
+        public Void visit(Signature signature) {
+            return null;
+        }
+
+        @Override
+        public Void visit(Parameters parameters) {
+            return null;
+        }
+
+        @Override
+        public Void visit(IntegerLiteral integer) {
             return null;
         }
     }
 
     private class ExitListener extends DefaultASTVisitor<Void> {
+        @Override
+        public Void visit(MatchExpression matchExpression) {
+            return null;
+        }
+
+        @Override
+        public Void visit(Signature signature) {
+            return null;
+        }
+
+        @Override
+        public Void visit(Parameters parameters) {
+            return null;
+        }
+
         @Override
         public Void defaultVisit(ASTNode node) {
             lastSelectedGoalNode.getData().setChildren(new ArrayList<>());
@@ -234,10 +278,21 @@ class ProofNodeInterpreterManager {
                 lastSelectedGoalNode.getData().getChildren().add(proofNodeGoalNode.getData());
             });
 
-            for (ProofNode children : lastSelectedGoalNode.getData().getChildren()) {
+            lastSelectedGoalNode.getData().addMutator(node);
+            /*for (ProofNode children : lastSelectedGoalNode.getData().getChildren()) {
                 children.setMutator(node);
-            }
+            }*/
             return null;
+        }
+
+        @Override
+        public Void visit(Statements statements) {
+            return null;
+        }
+
+        @Override
+        public Void visit(AssignmentStatement assignment) {
+            return defaultVisit(assignment);
         }
 
         @Override
