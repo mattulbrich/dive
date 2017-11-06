@@ -25,7 +25,7 @@ public class AlgoVerApplication extends Application {
     }
 
     // Used for calculating the syntax highlighting asynchronously
-    public static final ExecutorService SH_EXECUTOR = Executors.newSingleThreadExecutor();
+    private static final ExecutorService SYNTAX_HIGHLIGHTING_EXECUTOR = Executors.newSingleThreadExecutor();
 
     @Override
     public void start(Stage primaryStage) throws Exception {
@@ -40,7 +40,7 @@ public class AlgoVerApplication extends Application {
         ProjectManager manager = new ProjectManager();
         manager.loadProject(projectConfigFile);
 
-        OverviewController controller = new OverviewController(manager);
+        OverviewController controller = new OverviewController(manager, SYNTAX_HIGHLIGHTING_EXECUTOR);
         Scene scene = new Scene(controller.getView());
         scene.getStylesheets().add(AlgoVerApplication.class.getResource("style.css").toExternalForm());
         primaryStage.setScene(scene);
@@ -51,6 +51,6 @@ public class AlgoVerApplication extends Application {
 
     @Override
     public void stop() throws Exception {
-        SH_EXECUTOR.shutdown();
+        SYNTAX_HIGHLIGHTING_EXECUTOR.shutdown();
     }
 }

@@ -23,6 +23,7 @@ import edu.kit.iti.algover.timeline.TimelineLayout;
 
 import java.util.HashSet;
 import java.util.Set;
+import java.util.concurrent.ExecutorService;
 
 /**
  * Created by philipp on 27.06.17.
@@ -36,11 +37,11 @@ public class OverviewController implements SequentActionListener {
     private final RuleApplicationController ruleApplicationController;
     private final TimelineLayout view;
 
-    public OverviewController(ProjectManager manager) {
+    public OverviewController(ProjectManager manager, ExecutorService executor) {
         this.manager = manager;
         this.browserController = new FlatBrowserController(manager.getProject(), this::onClickPVCEdit);
         //this.browserController = new FileBasedBrowserController(manager.getProject(), this::onClickPVCEdit);
-        this.editorController = new EditorController();
+        this.editorController = new EditorController(executor);
         this.sequentController = new SequentController(manager, this);
         this.ruleApplicationController = new RuleApplicationController();
 

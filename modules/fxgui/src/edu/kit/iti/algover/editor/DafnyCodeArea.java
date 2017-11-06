@@ -15,6 +15,7 @@ import java.time.Duration;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Optional;
+import java.util.concurrent.ExecutorService;
 
 /**
  * Created by philipp on 28.06.17.
@@ -22,9 +23,11 @@ import java.util.Optional;
 public class DafnyCodeArea extends CodeArea {
 
     private HighlightingRule highlightingRule;
+    private final ExecutorService executor;
 
-    public DafnyCodeArea(String text) {
+    public DafnyCodeArea(String text, ExecutorService executor) {
         this.highlightingRule = (token, syntaxClasses) -> syntaxClasses;
+        this.executor = executor;
         getStylesheets().add(DafnyCodeArea.class.getResource("dafny-keywords.css").toExternalForm());
         setParagraphGraphicFactory(LineNumberFactory.get(this));
         setupAsyncSyntaxhighlighting(text);
@@ -66,7 +69,7 @@ public class DafnyCodeArea extends CodeArea {
                 return computeHighlighting(text);
             }
         };
-        AlgoVerApplication.SH_EXECUTOR.execute(task);
+        executor.execute(task);
         return task;
     }
 

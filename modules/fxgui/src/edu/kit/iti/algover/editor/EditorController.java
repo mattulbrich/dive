@@ -14,6 +14,7 @@ import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ExecutorService;
 
 /**
  * Created by philipp on 26.06.17.
@@ -28,8 +29,10 @@ public class EditorController {
     private final TabPane view;
     private final Map<DafnyFile, Tab> tabsByFile;
     private final LayeredHighlightingRule highlightingLayers;
+    private final ExecutorService executor;
 
-    public EditorController() {
+    public EditorController(ExecutorService executor) {
+        this.executor = executor;
         this.view = new TabPane();
         this.tabsByFile = new HashMap<>();
         this.highlightingLayers = new LayeredHighlightingRule(2);
@@ -56,7 +59,7 @@ public class EditorController {
                 Tab tab = new Tab();
                 tab.setText(dafnyFile.getFilename());
                 tab.setUserData(dafnyFile);
-                DafnyCodeArea codeArea = new DafnyCodeArea(contentAsText);
+                DafnyCodeArea codeArea = new DafnyCodeArea(contentAsText, executor);
                 codeArea.setHighlightingRule(highlightingLayers);
                 tab.setContent(codeArea);
                 tabsByFile.put(dafnyFile, tab);

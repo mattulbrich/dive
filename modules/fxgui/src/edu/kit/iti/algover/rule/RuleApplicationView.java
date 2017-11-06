@@ -16,6 +16,7 @@ public class RuleApplicationView extends VBox {
     public RuleApplicationView() {
         getStyleClass().add("rule-application-view");
         rulesLabel.getStyleClass().add("display-1");
+        rulesLabel.setMinSize(Label.USE_PREF_SIZE, Label.USE_PREF_SIZE);
         termToConsider.getStyleClass().add("code");
         termToConsider.setAlignment(Pos.CENTER);
 
