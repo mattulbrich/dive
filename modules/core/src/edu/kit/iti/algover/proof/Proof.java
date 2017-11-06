@@ -65,6 +65,13 @@ public class Proof {
 
     }
 
+    public void setNewScriptTextAndParser(String script) {
+        if (this.getScript() != null) {
+            saveOldDataStructures();
+        }
+        ProofScript scriptAST = Facade.getAST(script);
+        this.setScript(scriptAST.getBody());
+    }
     /**
      * Parse a string representing a script and set the script to the newly parsed script AST
      *
@@ -200,6 +207,7 @@ public class Proof {
      */
     public void invalidate() {
         this.setProofStatus(ProofStatus.DIRTY);
+
     }
 }
 
