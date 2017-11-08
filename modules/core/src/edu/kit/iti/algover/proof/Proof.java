@@ -192,15 +192,17 @@ public class Proof {
         this.script = script;
     }
 
-    /*public String proofToString(){
+    public String proofToString() {
         StringBuilder sb = new StringBuilder("Proof for "+this.pvcName);
         sb.append(getProofRoot().toString());
+
         List<ProofNode> children = getProofRoot().getChildren();
             for (ProofNode child : children) {
                 sb.append(child.toString());
+
             }
         return sb.toString();
-    }*/
+    }
 
     /**
      * This method invalidates this proof object, sets the status to dirty
@@ -259,6 +261,36 @@ class ProofNodeInterpreterManager {
 
         @Override
         public Void visit(IntegerLiteral integer) {
+            return null;
+        }
+
+        @Override
+        public Void visit(BinaryExpression binaryExpression) {
+            return null;
+        }
+
+        @Override
+        public Void visit(TermLiteral termLiteral) {
+            return null;
+        }
+
+        @Override
+        public Void visit(SequentLiteral sequentLiteral) {
+            return null;
+        }
+
+        @Override
+        public Void visit(StringLiteral stringLiteral) {
+            return null;
+        }
+
+        @Override
+        public Void visit(Variable variable) {
+            return null;
+        }
+
+        @Override
+        public Void visit(BooleanLiteral booleanLiteral) {
             return null;
         }
     }
@@ -320,6 +352,42 @@ class ProofNodeInterpreterManager {
 
         @Override
         public Void visit(SimpleCaseStatement simpleCaseStatement) {
+            return null;
+        }
+
+
+        @Override
+        public Void visit(IntegerLiteral integer) {
+            return null;
+        }
+
+        @Override
+        public Void visit(BinaryExpression binaryExpression) {
+            return null;
+        }
+
+        @Override
+        public Void visit(TermLiteral termLiteral) {
+            return null;
+        }
+
+        @Override
+        public Void visit(SequentLiteral sequentLiteral) {
+            return null;
+        }
+
+        @Override
+        public Void visit(StringLiteral stringLiteral) {
+            return null;
+        }
+
+        @Override
+        public Void visit(Variable variable) {
+            return null;
+        }
+
+        @Override
+        public Void visit(BooleanLiteral booleanLiteral) {
             return null;
         }
     }

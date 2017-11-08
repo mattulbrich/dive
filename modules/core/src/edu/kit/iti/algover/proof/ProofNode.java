@@ -122,7 +122,7 @@ public class ProofNode {
         StringBuilder sb = new StringBuilder();
         sb.append(this.sequent.toString());
         if (getPsr() != null) {
-            sb.append("Rulename " + getPsr().getRule().getName());
+            sb.append("\nRulename " + getPsr().getRule().getName());
         }
         if (getMutator() != null) {
             getMutator().forEach(astNode -> sb.append(astNode.getNodeName()));
