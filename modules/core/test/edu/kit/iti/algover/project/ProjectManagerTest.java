@@ -111,7 +111,7 @@ public class ProjectManagerTest {
         System.out.println(proof2.proofToString());
         proof2.invalidate();
 
-        String newScript = "substitute on='let $mod := $everything :: (let x := 1 :: 1== 2 && 2 == 3 )';\n" +
+       /* String newScript = "substitute on='let $mod := $everything :: (let x := 1 :: 1== 2 && 2 == 3 )';\n" +
                 "substitute on='let x := 1 :: 1== 2 && 2 == 3 '; \n" +
                 "x:int := 0; \n" +
                 "andRight on='1== 2 && 2 == 3 ';\n";
@@ -119,7 +119,7 @@ public class ProjectManagerTest {
         proof2.setNewScriptTextAndParser(newScript);
         System.out.println(proof2.getScript());
         System.out.println(proof2.interpretScript());
-
+*/
 
         pm.getAllProofs().forEach((s1, proof1) -> {
             proof1.invalidate();
