@@ -4,16 +4,15 @@ import de.jensd.fx.glyphs.GlyphsDude;
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon;
 import edu.kit.iti.algover.browser.entities.PVCEntity;
 import edu.kit.iti.algover.project.ProjectManager;
-import edu.kit.iti.algover.proof.PVC;
-import edu.kit.iti.algover.proof.Proof;
-import edu.kit.iti.algover.proof.ProofFormula;
-import edu.kit.iti.algover.proof.ProofNode;
+import edu.kit.iti.algover.proof.*;
 import edu.kit.iti.algover.references.ProofTermReference;
 import edu.kit.iti.algover.references.ReferenceGraph;
 import edu.kit.iti.algover.rules.RuleException;
 import edu.kit.iti.algover.rules.TermSelector;
 import edu.kit.iti.algover.term.Term;
+import edu.kit.iti.algover.term.prettyprint.AnnotatedString;
 import edu.kit.iti.algover.util.BindingsUtil;
+import edu.kit.iti.algover.util.SubSelection;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.geometry.Insets;
@@ -47,8 +46,10 @@ public class SequentController {
     private final FlowPane buttonsView;
     private final Button cancelButton;
 
-    private final ObjectProperty<ProofTermReference> selectedReference;
-    private final ObjectProperty<TermSelector> selectedTerm;
+    private final SubSelection<ProofTermReference> selectedReference;
+    private final SubSelection<TermSelector> selectedTerm;
+    private final SubSelection<TermSelector> lastClickedTerm;
+    private final SubSelection<AnnotatedString.TermElement> highlightedTerm;
     private ReferenceGraph referenceGraph;
     private Proof activeProof;
     private ProofNode activeNode;
@@ -58,8 +59,10 @@ public class SequentController {
         this.listener = listener;
         this.activeProof = null;
         this.referenceGraph = new ReferenceGraph();
-        this.selectedReference = new SimpleObjectProperty<>();
-        this.selectedTerm = BindingsUtil.convert(this::termSelectorFromReference, selectedReference);
+        this.selectedReference = new SubSelection<>(listener::requestReferenceHighlighting);
+        this.selectedTerm = selectedReference.subSelection(this::termSelectorFromReference, this::attachCurrentActiveProof);
+        this.lastClickedTerm = new SubSelection<>(listener::considerApplication);
+        this.highlightedTerm = new SubSelection<>(r -> {});
 
         this.cancelButton = new Button("Cancel", GlyphsDude.createIcon(FontAwesomeIcon.CLOSE));
         this.buttonsView = new FlowPane(cancelButton);
@@ -95,12 +98,20 @@ public class SequentController {
     }
 
     private TermCell createTermCell(TermSelector.SequentPolarity polarity, ListView<Term> termListView) {
-        return new TermCell(polarity, listener, selectedTerm);
+        return new TermCell(polarity, selectedTerm, lastClickedTerm, highlightedTerm);
+    }
+
+    private ProofTermReference attachCurrentActiveProof(TermSelector selector) {
+        if (activeNode != null) {
+            ProofNodeSelector nodeSelector = new ProofNodeSelector(activeNode);
+            return new ProofTermReference(nodeSelector, selector);
+        }
+        return null;
     }
 
     private TermSelector termSelectorFromReference(ProofTermReference reference) {
         try {
-            if (reference != null && activeProof != null && reference.getProofNodeSelector().get(activeProof) == activeNode) {
+            if (activeProof != null && reference.getProofNodeSelector().get(activeProof) == activeNode) {
                 return reference.getTermSelector();
             } else {
                 return null;
@@ -148,7 +159,7 @@ public class SequentController {
         return activeProof;
     }
 
-    public ObjectProperty<ProofTermReference> selectedReference() {
+    public SubSelection<ProofTermReference> referenceSelection() {
         return selectedReference;
     }
 }

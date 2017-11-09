@@ -92,14 +92,13 @@ public class OverviewController implements SequentActionListener {
     }
 
     @Override
-    public void requestReferenceHighlighting(TermSelector selector) {
-        if (selector != null) {
-            ProofTermReference termRef =
-                    new ProofTermReference(new ProofNodeSelector(sequentController.getActiveProofNode()), selector);
-            sequentController.selectedReference().set(termRef);
+    public void requestReferenceHighlighting(ProofTermReference termRef) {
+        if (termRef != null) {
             Set<Reference> predecessors = sequentController.getReferenceGraph().allPredecessors(termRef);
             Set<CodeReference> codeReferences = filterCodeReferences(predecessors);
             editorController.viewReferences(codeReferences);
+        } else {
+            editorController.viewReferences(new HashSet<>());
         }
     }
 

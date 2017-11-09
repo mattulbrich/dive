@@ -4,8 +4,9 @@ import edu.kit.iti.algover.rules.SubtermSelector;
 import edu.kit.iti.algover.rules.TermSelector;
 import edu.kit.iti.algover.term.Term;
 import edu.kit.iti.algover.term.prettyprint.AnnotatedString;
-import edu.kit.iti.algover.util.BindingsUtil;
-import javafx.beans.property.ObjectProperty;
+import edu.kit.iti.algover.util.SubSelection;
+import javafx.beans.Observable;
+import javafx.beans.value.ObservableValue;
 import javafx.scene.control.ListCell;
 
 import java.util.List;
@@ -13,23 +14,34 @@ import java.util.List;
 /**
  * Created by Philipp on 22.07.2017.
  */
-public class TermCell extends ListCell<Term> implements TermViewListener {
+public class TermCell extends ListCell<Term> {
 
-    private final SequentActionListener listener;
     private final TermSelector.SequentPolarity polarity;
-    private final ObjectProperty<TermSelector> selectedTerm;
+    private final SubSelection<TermSelector> referenceSelection;
+    private final SubSelection<TermSelector> lastClickedTerm;
+    private final SubSelection<AnnotatedString.TermElement> highlightedTerm;
 
-    public TermCell(TermSelector.SequentPolarity polarity, SequentActionListener listener, ObjectProperty<TermSelector> selectedTerm) {
+    public TermCell(TermSelector.SequentPolarity polarity,
+                    SubSelection<TermSelector> referenceSelection,
+                    SubSelection<TermSelector> lastClickedTerm,
+                    SubSelection<AnnotatedString.TermElement> highlightedTerm) {
         this.polarity = polarity;
-        this.listener = listener;
-        this.selectedTerm = selectedTerm;
+        this.referenceSelection = referenceSelection;
+        this.lastClickedTerm = lastClickedTerm;
+        this.highlightedTerm = highlightedTerm;
+        highlightedTerm.selected().addListener(invalidation -> resetListSelectionOnInnerTermSelection());
+        lastClickedTerm.selected().addListener(this::handleTopLevelTermSelect);
     }
 
     @Override
     protected void updateItem(Term term, boolean empty) {
         super.updateItem(term, empty);
         if (!empty && term != null) {
-            setGraphic(new TermView(term, this, BindingsUtil.convert(this::updateSelectedSubterm, selectedTerm)));
+            setGraphic(new TermView(
+                    term,
+                    referenceSelection.subSelection(this::updateSelectedSubterm, this::subtermToTermSelector),
+                    lastClickedTerm.subSelection(this::updateSelectedSubterm, this::subtermToTermSelector),
+                    highlightedTerm));
         } else {
             setGraphic(null);
         }
@@ -43,24 +55,13 @@ public class TermCell extends ListCell<Term> implements TermViewListener {
         }
     }
 
-    @Override
-    public void handleClickOnSubterm(boolean controlDown, Term term, SubtermSelector subtermSelector) {
-        if (controlDown) {
-            listener.requestReferenceHighlighting(subtermToTermSelector(subtermSelector));
-        } else {
-            listener.considerApplication(subtermToTermSelector(subtermSelector));
-        }
-    }
-
-    @Override
-    public void handleClickOutsideTerm() {
+    private void handleTopLevelTermSelect(ObservableValue<? extends TermSelector> observable, TermSelector before, TermSelector selector) {
         getListView().getSelectionModel().select(getIndex());
         getListView().requestFocus();
-        listener.requestReferenceHighlighting(null);
+        highlightedTerm.unsetGobally();
     }
 
-    @Override
-    public void handleSubtermSelection(AnnotatedString.TermElement highlightedElement) {
+    private void resetListSelectionOnInnerTermSelection() {
         getListView().getSelectionModel().clearSelection();
     }
 

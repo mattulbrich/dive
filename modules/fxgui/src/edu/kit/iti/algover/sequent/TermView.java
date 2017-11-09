@@ -9,8 +9,8 @@ import edu.kit.iti.algover.rules.SubtermSelector;
 import edu.kit.iti.algover.term.Term;
 import edu.kit.iti.algover.term.prettyprint.AnnotatedString;
 import edu.kit.iti.algover.term.prettyprint.PrettyPrint;
+import edu.kit.iti.algover.util.SubSelection;
 import edu.kit.iti.algover.util.TextUtil;
-import javafx.beans.property.ObjectProperty;
 import javafx.beans.value.ObservableValue;
 import javafx.geometry.Bounds;
 import javafx.scene.input.MouseEvent;
@@ -25,19 +25,25 @@ import java.util.OptionalInt;
 public class TermView extends CodeArea {
 
     private final Term term;
-    private final TermViewListener listener;
-    private final ObjectProperty<SubtermSelector> selectedSubterm;
+    private final SubSelection<SubtermSelector> referenceSelection;
+    private final SubSelection<SubtermSelector> lastClickedTerm;
+    private final SubSelection<AnnotatedString.TermElement> mouseOverTerm;
 
     private AnnotatedString annotatedString;
     private AnnotatedString.TermElement highlightedElement;
     private AnnotatedString.TermElement referenceSelectedElement;
 
-    public TermView(Term term, TermViewListener listener, ObjectProperty<SubtermSelector> selectedSubterm) {
+
+    public TermView(Term term,
+                    SubSelection<SubtermSelector> referenceSelection,
+                    SubSelection<SubtermSelector> lastClickedTerm,
+                    SubSelection<AnnotatedString.TermElement> mouseOverTerm) {
         super("");
 
         this.term = term;
-        this.listener = listener;
-        this.selectedSubterm = selectedSubterm;
+        this.referenceSelection = referenceSelection;
+        this.lastClickedTerm = lastClickedTerm;
+        this.mouseOverTerm = mouseOverTerm;
 
         getStyleClass().add("term-view");
         setFocusTraversable(false);
@@ -51,7 +57,7 @@ public class TermView extends CodeArea {
             highlightedElement = null;
             updateStyleClasses();
         });
-        selectedSubterm.addListener(this::updateSelectedSubterm);
+        referenceSelection.selected().addListener(this::updateSelectedSubterm);
     }
 
     private void updateSelectedSubterm(ObservableValue<? extends SubtermSelector> obs, SubtermSelector before, SubtermSelector selected) {
@@ -69,7 +75,6 @@ public class TermView extends CodeArea {
         if (selectedBefore != referenceSelectedElement) {
             updateStyleClasses();
         }
-
     }
 
     private void relayout() {
@@ -117,10 +122,16 @@ public class TermView extends CodeArea {
         if (charIdx.isPresent()) {
             AnnotatedString.TermElement elem = annotatedString.getTermElementAt(charIdx.getAsInt());
             SubtermSelector subtermSelector = elem.getSubtermSelector();
-            listener.handleClickOnSubterm(mouseEvent.isControlDown(), term, subtermSelector);
+            if (mouseEvent.isControlDown()) {
+                referenceSelection.select(subtermSelector);
+            } else {
+                lastClickedTerm.select(subtermSelector);
+            }
         } else {
             // A click outside should select the whole item
-            listener.handleClickOutsideTerm();
+            if (mouseEvent.isControlDown()) {
+                referenceSelection.select(new SubtermSelector());
+            }
         }
     }
 
@@ -132,7 +143,7 @@ public class TermView extends CodeArea {
         } else {
             highlightedElement = null;
         }
-        listener.handleSubtermSelection(highlightedElement);
+        mouseOverTerm.select(highlightedElement);
         updateStyleClasses();
     }
 
