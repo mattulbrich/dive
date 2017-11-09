@@ -12,6 +12,7 @@ import edu.kit.iti.algover.term.prettyprint.PrettyPrint;
 import edu.kit.iti.algover.util.SubSelection;
 import edu.kit.iti.algover.util.TextUtil;
 import javafx.beans.value.ObservableValue;
+import javafx.event.Event;
 import javafx.geometry.Bounds;
 import javafx.scene.input.MouseEvent;
 import org.fxmisc.richtext.CharacterHit;
@@ -119,19 +120,18 @@ public class TermView extends CodeArea {
     private void handleClick(MouseEvent mouseEvent) {
         CharacterHit hit = hit(mouseEvent.getX(), mouseEvent.getY());
         OptionalInt charIdx = hit.getCharacterIndex();
+
         if (charIdx.isPresent()) {
             AnnotatedString.TermElement elem = annotatedString.getTermElementAt(charIdx.getAsInt());
-            SubtermSelector subtermSelector = elem.getSubtermSelector();
+            SubtermSelector selector = elem.getSubtermSelector();
+
             if (mouseEvent.isControlDown()) {
-                referenceSelection.select(subtermSelector);
+                referenceSelection.select(selector);
             } else {
-                lastClickedTerm.select(subtermSelector);
+                lastClickedTerm.select(selector);
             }
         } else {
-            // A click outside should select the whole item
-            if (mouseEvent.isControlDown()) {
-                referenceSelection.select(new SubtermSelector());
-            }
+            Event.fireEvent(this.getParent(), mouseEvent);
         }
     }
 

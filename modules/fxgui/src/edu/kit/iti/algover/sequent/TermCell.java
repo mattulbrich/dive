@@ -29,8 +29,6 @@ public class TermCell extends ListCell<Term> {
         this.referenceSelection = referenceSelection;
         this.lastClickedTerm = lastClickedTerm;
         this.highlightedTerm = highlightedTerm;
-        highlightedTerm.selected().addListener(invalidation -> resetListSelectionOnInnerTermSelection());
-        lastClickedTerm.selected().addListener(this::handleTopLevelTermSelect);
     }
 
     @Override
@@ -53,16 +51,6 @@ public class TermCell extends ListCell<Term> {
         } else {
             return null;
         }
-    }
-
-    private void handleTopLevelTermSelect(ObservableValue<? extends TermSelector> observable, TermSelector before, TermSelector selector) {
-        getListView().getSelectionModel().select(getIndex());
-        getListView().requestFocus();
-        highlightedTerm.unsetGobally();
-    }
-
-    private void resetListSelectionOnInnerTermSelection() {
-        getListView().getSelectionModel().clearSelection();
     }
 
     private TermSelector subtermToTermSelector(SubtermSelector subtermSelector) {
