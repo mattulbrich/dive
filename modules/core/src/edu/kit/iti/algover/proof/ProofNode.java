@@ -90,6 +90,7 @@ public class ProofNode {
     }
 
     public List<ProofNode> getChildren() {
+        System.out.println("Requesting getting children");
         return children;
     }
 
@@ -120,6 +121,9 @@ public class ProofNode {
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
+        if (this.getParent() == null) {
+            sb.append("Root Node");
+        }
         sb.append(this.sequent.toString());
         if (getPsr() != null) {
             sb.append("\nRulename " + getPsr().getRule().getName());
