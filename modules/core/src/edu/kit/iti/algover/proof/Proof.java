@@ -277,7 +277,7 @@ class ProofNodeInterpreterManager {
 
         @Override
         public Void defaultVisit(ASTNode node) {
-            System.out.println("Entry " + node.getNodeName());
+            //System.out.println("Entry " + node.getNodeName());
             lastSelectedGoalNode = interpreter.getSelectedNode();
             return null;
         }
@@ -357,7 +357,7 @@ class ProofNodeInterpreterManager {
 
         @Override
         public Void defaultVisit(ASTNode node) {
-            System.out.println("Exit " + node.getNodeName());
+            //System.out.println("Exit " + node.getNodeName());
             lastSelectedGoalNode.getData().setChildren(new ArrayList<>());
             List<GoalNode<ProofNode>> goals = interpreter.getCurrentState().getGoals();
             if (goals.size() > 0) {
