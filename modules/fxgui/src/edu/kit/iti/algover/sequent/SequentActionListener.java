@@ -8,8 +8,6 @@ import edu.kit.iti.algover.rules.TermSelector;
  */
 public interface SequentActionListener {
 
-    void cancelProofEditing();
-
     void considerApplication(TermSelector selector);
 
     void requestReferenceHighlighting(ProofTermReference termReference);

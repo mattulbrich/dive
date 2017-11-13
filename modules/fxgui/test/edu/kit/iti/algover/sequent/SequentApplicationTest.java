@@ -17,10 +17,6 @@ public class SequentApplicationTest extends ApplicationTest implements SequentAc
         return new StackPane(controller.getView());
     }
 
-    @Override
-    public void cancelProofEditing() {
-
-    }
 
     @Override
     public void considerApplication(TermSelector selector) {

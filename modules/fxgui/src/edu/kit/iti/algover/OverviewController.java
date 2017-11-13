@@ -78,11 +78,6 @@ public class OverviewController implements SequentActionListener {
     }
 
     @Override
-    public void cancelProofEditing() {
-        view.moveFrameLeft();
-    }
-
-    @Override
     public void considerApplication(TermSelector selector) {
         view.moveFrameRight();
         ProofNode node = sequentController.getActiveProofNode();

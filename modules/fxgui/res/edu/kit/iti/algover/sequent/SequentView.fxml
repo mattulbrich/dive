@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.lang.*?>
+<?import java.util.*?>
+<?import javafx.scene.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<?import javafx.scene.text.Font?>
+<SplitPane
+        xmlns="http://javafx.com/javafx"
+        xmlns:fx="http://javafx.com/fxml"
+        orientation="VERTICAL"
+        dividerPositions="0.7">
+    <VBox spacing="10">
+        <ListView fx:id="antecedentView"></ListView>
+    </VBox>
+    <VBox spacing="10">
+        <Label fx:id="turnstile" text="⊢">
+            <font><Font name="sans serif" size="20"></Font></font>
+        </Label>
+        <ListView fx:id="succedentView"></ListView>
+    </VBox>
+</SplitPane>
