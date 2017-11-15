@@ -8,7 +8,7 @@ import edu.kit.iti.algover.rules.TermSelector;
  */
 public interface SequentActionListener {
 
-    void considerApplication(TermSelector selector);
+    void onClickSequentSubterm(TermSelector selector);
 
-    void requestReferenceHighlighting(ProofTermReference termReference);
+    void onRequestReferenceHighlighting(ProofTermReference termReference);
 }

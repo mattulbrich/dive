@@ -2,7 +2,6 @@ package edu.kit.iti.algover.sequent;
 
 import edu.kit.iti.algover.FxmlController;
 import edu.kit.iti.algover.browser.entities.PVCEntity;
-import edu.kit.iti.algover.project.ProjectManager;
 import edu.kit.iti.algover.proof.*;
 import edu.kit.iti.algover.references.ProofTermReference;
 import edu.kit.iti.algover.references.ReferenceGraph;
@@ -23,7 +22,6 @@ import java.util.stream.Collectors;
  */
 public class SequentController extends FxmlController {
 
-    private final ProjectManager manager;
     private final SequentActionListener listener;
 
     @FXML private ListView<Term> antecedentView;
@@ -37,15 +35,14 @@ public class SequentController extends FxmlController {
     private Proof activeProof;
     private ProofNode activeNode;
 
-    public SequentController(ProjectManager manager, SequentActionListener listener) {
+    public SequentController(SequentActionListener listener) {
         super("SequentView.fxml");
-        this.manager = manager;
         this.listener = listener;
         this.activeProof = null;
         this.referenceGraph = new ReferenceGraph();
-        this.selectedReference = new SubSelection<>(listener::requestReferenceHighlighting);
+        this.selectedReference = new SubSelection<>(listener::onRequestReferenceHighlighting);
         this.selectedTerm = selectedReference.subSelection(this::termSelectorFromReference, this::attachCurrentActiveProof);
-        this.lastClickedTerm = new SubSelection<>(listener::considerApplication);
+        this.lastClickedTerm = new SubSelection<>(listener::onClickSequentSubterm);
         // We don't care about the particular mouse-over selected term, that's why we won't do anything on events.
         // Our children however need to communicate somehow and share a common selected item.
         this.highlightedTerm = new SubSelection<>(r -> {});
@@ -65,10 +62,10 @@ public class SequentController extends FxmlController {
         });
     }
 
-    public void viewSequentForPVC(PVCEntity pvcEntity) {
+    public void viewSequentForPVC(PVCEntity pvcEntity, Proof proof) {
         PVC pvc = pvcEntity.getPVC();
         if (activeProof == null || !activeProof.getPvcName().equals(pvc.getIdentifier())) {
-            activeProof = manager.getProofForPVC(pvc.getIdentifier());
+            activeProof = proof;
             activeNode = activeProof.getProofRoot();
             antecedentView.getItems().setAll(calculateAssertions(activeNode.getSequent().getAntecedent()));
             succedentView.getItems().setAll(calculateAssertions(activeNode.getSequent().getSuccedent()));

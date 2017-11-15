@@ -1,5 +1,6 @@
 package edu.kit.iti.algover;
 
+import edu.kit.iti.algover.util.FormatException;
 import javafx.application.Application;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
@@ -23,7 +24,7 @@ public abstract class ApplicationTest extends Application {
         stage.show();
     }
 
-    protected abstract Parent constructView();
+    protected abstract Parent constructView() throws FormatException;
 
     @Override
     public void stop() throws Exception {

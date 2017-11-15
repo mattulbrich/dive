@@ -28,7 +28,7 @@ import java.util.concurrent.ExecutorService;
 /**
  * Created by philipp on 27.06.17.
  */
-public class OverviewController implements SequentActionListener {
+public class MainController implements SequentActionListener {
 
     private final ProjectManager manager;
     private final BrowserController browserController;
@@ -37,12 +37,12 @@ public class OverviewController implements SequentActionListener {
     private final RuleApplicationController ruleApplicationController;
     private final TimelineLayout view;
 
-    public OverviewController(ProjectManager manager, ExecutorService executor) {
+    public MainController(ProjectManager manager, ExecutorService executor) {
         this.manager = manager;
         this.browserController = new FlatBrowserController(manager.getProject(), this::onClickPVCEdit);
         //this.browserController = new FileBasedBrowserController(manager.getProject(), this::onClickPVCEdit);
         this.editorController = new EditorController(executor);
-        this.sequentController = new SequentController(manager, this);
+        this.sequentController = new SequentController(this);
         this.ruleApplicationController = new RuleApplicationController();
 
         this.view = new TimelineLayout(
@@ -55,16 +55,16 @@ public class OverviewController implements SequentActionListener {
         browserController.setSelectionListener(this::onSelectBrowserItem);
     }
 
-    private void onClickPVCEdit(PVCEntity entity) {
+    public void onClickPVCEdit(PVCEntity entity) {
         PVC pvc = entity.getPVC();
         editorController.viewFile(entity.getLocation());
         editorController.viewPVCSelection(pvc);
-        sequentController.viewSequentForPVC(entity);
+        sequentController.viewSequentForPVC(entity, manager.getProofForPVC(entity.getPVC().getIdentifier()));
         ruleApplicationController.resetConsideration();
         view.moveFrameRight();
     }
 
-    private void onSelectBrowserItem(TreeTableEntity treeTableEntity) {
+    public void onSelectBrowserItem(TreeTableEntity treeTableEntity) {
         DafnyFile file = treeTableEntity.getLocation();
         if (file != null) {
             editorController.viewFile(file);
@@ -78,7 +78,7 @@ public class OverviewController implements SequentActionListener {
     }
 
     @Override
-    public void considerApplication(TermSelector selector) {
+    public void onClickSequentSubterm(TermSelector selector) {
         view.moveFrameRight();
         ProofNode node = sequentController.getActiveProofNode();
         if (node != null) {
@@ -87,7 +87,7 @@ public class OverviewController implements SequentActionListener {
     }
 
     @Override
-    public void requestReferenceHighlighting(ProofTermReference termRef) {
+    public void onRequestReferenceHighlighting(ProofTermReference termRef) {
         if (termRef != null) {
             Set<Reference> predecessors = sequentController.getReferenceGraph().allPredecessors(termRef);
             Set<CodeReference> codeReferences = filterCodeReferences(predecessors);
