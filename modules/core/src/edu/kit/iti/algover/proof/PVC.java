@@ -102,8 +102,9 @@ public class PVC {
         }
     }
 
-    public String getIdentifier() {
-        return identifier;
+    @Override
+    public String toString() {
+        return "PVC[" + getIdentifier() + "]";
     }
 
     public SymbexPath getPathThroughProgram() {
@@ -122,9 +123,8 @@ public class PVC {
         return symbolTable;
     }
 
-    @Override
-    public String toString() {
-        return "PVC[" + getIdentifier() + "]";
+    public String getIdentifier() {
+        return identifier;
     }
 
     public Map<TermSelector, DafnyTree> getReferenceMap() {

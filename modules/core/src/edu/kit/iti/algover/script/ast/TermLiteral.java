@@ -38,7 +38,7 @@ public class TermLiteral extends Literal {
             text = text.substring(1);
         if (text.charAt(text.length() - 1) == '\'') //remove last backtick
             text = text.substring(0, text.length() - 1);
-        if (text.charAt(0) == '`')
+        if (text.charAt(0) == '\'')
             text = text.substring(0, text.length() - 2);
         this.text = text;
     }

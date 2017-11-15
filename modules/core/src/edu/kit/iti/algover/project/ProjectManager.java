@@ -14,6 +14,7 @@ import edu.kit.iti.algover.script.data.GoalNode;
 import edu.kit.iti.algover.script.interpreter.Interpreter;
 import edu.kit.iti.algover.script.interpreter.InterpreterBuilder;
 import edu.kit.iti.algover.script.parser.Facade;
+import edu.kit.iti.algover.util.FileUtil;
 import edu.kit.iti.algover.util.Util;
 import javafx.beans.property.SimpleObjectProperty;
 
@@ -127,12 +128,19 @@ public class ProjectManager {
      */
     protected void initializeProofDataStructures(String pvc) throws IOException {
         Proof p = allProofs.get(pvc);
-        findAndParseScriptFile(pvc);
-        PVC pvcObject = getPVCByNameMap().get(pvc);
-        p.setProofRoot(new ProofNode(null, null, null, pvcObject.getSequent(), pvcObject));
-        buildIndividualInterpreter(p);
-
-
+        try {
+            // Either the script file can be loaded, then that file is used for building the proof object
+            findAndParseScriptFileForPVC(pvc);
+            PVC pvcObject = getPVCByNameMap().get(pvc);
+            p.setProofRoot(new ProofNode(null, null, null, pvcObject.getSequent(), pvcObject));
+            buildIndividualInterpreter(p);
+        } catch (IOException e) {
+            // Or the proof object is simply stubbed
+            PVC pvcObject = getPVCByNameMap().get(pvc);
+            p.setProofRoot(new ProofNode(null, null, null, pvcObject.getSequent(), pvcObject));
+            // rethrow
+            throw e;
+        }
     }
 
     /**
@@ -143,26 +151,22 @@ public class ProjectManager {
      * @return TODO should return ScriptAST
      */
 
-    public void findAndParseScriptFile(String pvc) throws IOException {
-        String maskedFilename = Util.maskFileName(pvc);
-        String filePath = project.get().getBaseDir().getAbsolutePath()
-                + maskedFilename + ".script";
-        //find file on disc
-        Path p = Paths.get(filePath);
+    public void findAndParseScriptFileForPVC(String pvc) throws IOException {
 
-        try {
-            ProofScript root = Facade.getAST(p.toFile());
+        //find file on disc
+        File scriptFile = FileUtil.findFile(project.get().getBaseDir(), Util.maskFileName(pvc) + ".script");
+
+        if (scriptFile.exists()) {
+            ProofScript root = Facade.getAST(scriptFile);
             Proof proof = allProofs.get(pvc);
             if (proof == null) {
                 proof = new Proof(pvc);
             }
             proof.setScript(root.getBody());
+            proof.setProofStatus(ProofStatus.SCRIPT_PARSED);
             allProofs.putIfAbsent(pvc, proof);
-        } catch (IOException ex) {
-            Proof proof = allProofs.get(pvc);
-            proof.setScript(null);
-            proof.setProofStatus(ProofStatus.NON_EXISTING);
-
+        } else {
+            throw new IOException("File " + scriptFile.getName() + " can not be found");
         }
 
     }
@@ -251,39 +255,12 @@ public class ProjectManager {
     }
 
     /**
-     * Save content to script file for pvc
-     * @param content
-     * @throws IOException
+     * Get the plain PVCs as Map from pvcName -> PVC object
+     *
+     * @return
      */
- /*   public void saveToScriptFile(String pvc, String content) throws IOException {
-        String scriptFilePath = project.get().getBaseDir().getAbsolutePath() + File.separatorChar + pvc + ".script";
-        saverHelper(scriptFilePath, content);
-
-    }*/
-
-    /* REVIEW I propose: static method
-        Path path = Paths.get(pathToFile);
-        if (!Files.exists(path)) {
-            Files.createFile(path);
-        }
-
-        try(Writer writer = Files.newBufferedWriter(path)) {
-            writer.write(content);
-            writer.flush();
-        }
-     */
-    private void saverHelper(String pathToFile, String content) throws IOException {
-        Path path = Paths.get(pathToFile);
-        Writer writer;
-        if (Files.exists(path)) {
-            writer = Files.newBufferedWriter(path);
-        } else {
-            Path file = Files.createFile(path);
-            writer = Files.newBufferedWriter(file);
-        }
-        writer.write(content);
-        writer.flush();
-        writer.close();
+    public Map<String, PVC> getPVCByNameMap() {
+        return this.project.getValue().getPVCByNameMap();
     }
 
 
@@ -344,12 +321,40 @@ public class ProjectManager {
     }
 
     /**
-     * Return  all PVCs for the loaded project
-     *
-     * @return PVCGroup that is the root for all PVCs of the loaded project
+     * Save content to script file for pvc
+     * @param pvc
+     * @param content
+     * @throws IOException
      */
-    public PVCGroup getPVCGroup() {
-        return this.project.getValue().getAllPVCs();
+ /*   public void saveToScriptFile(String pvc, String content) throws IOException {
+        String scriptFilePath = project.get().getBaseDir().getAbsolutePath() + File.separatorChar + pvc + ".script";
+        saverHelper(scriptFilePath, content);
+
+    }*/
+
+    /* REVIEW I propose: static method
+        Path path = Paths.get(pathToFile);
+        if (!Files.exists(path)) {
+            Files.createFile(path);
+        }
+
+        try(Writer writer = Files.newBufferedWriter(path)) {
+            writer.write(content);
+            writer.flush();
+        }
+     */
+    private void saverHelper(String pathToFile, String content) throws IOException {
+        Path path = Paths.get(pathToFile);
+        Writer writer;
+        if (Files.exists(path)) {
+            writer = Files.newBufferedWriter(path);
+        } else {
+            Path file = Files.createFile(path);
+            writer = Files.newBufferedWriter(file);
+        }
+        writer.write(content);
+        writer.flush();
+        writer.close();
     }
 
     public File getConfigFile() {
@@ -361,12 +366,12 @@ public class ProjectManager {
     }
 
     /**
-     * Get the plain PVCs as Map from pvcName -> PVC object
+     * Return  all PVCs for the loaded project
      *
-     * @return
+     * @return PVCGroup that is the root for all PVCs of the loaded project
      */
-    public Map<String, PVC> getPVCByNameMap() {
-        return this.project.getValue().getPVCByNameMap();
+    public PVCGroup getPVCGroup() {
+        return this.project.getValue().getAllPVCs();
     }
 
 

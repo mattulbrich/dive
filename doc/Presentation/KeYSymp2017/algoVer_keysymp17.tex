@@ -169,7 +169,7 @@
 
 %%%%%%%%%%%%% TITLE PAGE %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-%\KITtitleimage{../images/logik.pdf}
+\KITtitleimage{../images/AlgoVerFirstSlide.png}
 
 \author[]{Sarah Grebing, Philipp Krüger, Mattias Ulbrich}
 
@@ -209,19 +209,29 @@
 \begin{frame}[c]{Interaction in Interactive Program Verification}
  Interaction on:
  \begin{itemize}
-  \item different levels of abstraction
-  \item different representation of the same problem
+  \item different levels of abstraction for interaction
+  \item different representations of the same problem
  \end{itemize}
+ \bigskip
 Switch between levels and/or representations is necessary.
-
 \end{frame}
 
 \begin{frame}[c]{Involved Entities in Interactive Program Verification}
  \begin{itemize}
-  \item program
+  \item program code
   \item specification
-  \item proof guidance/interaction
   \item proof representation/proof obligation
+  \item \emph{proof guidance/interaction}
+
+  \end{itemize}
+
+\end{frame}
+\begin{frame}[c]{Examples for State-of-the-Art Systems}
+ Three different kinds of Interaction Concepts:
+ \begin{itemize}
+  \item auto-active
+  \item point-and-click
+  \item text-based
  \end{itemize}
 
 \end{frame}
@@ -263,11 +273,11 @@ Switch between levels and/or representations is necessary.
 
 \begin{frame}[c]{Problems with Interaction in State-of-the-Art Systems}
  \begin{itemize}
-  \item interaction on different views
-  \item hidden-dependencies between views
-  \item context change for the user cognitively challenging
-  \item interaction on different abstraction-levels 
-  \item missing interaction possibilities in views
+  \item interaction on different representations
+  \item hidden dependencies between representations
+  \item context change cognitively challenging for the user 
+%   \item interaction on different abstraction-levels 
+  \item missing interaction possibilities on representations
  \end{itemize}
 
 \end{frame}
@@ -280,10 +290,10 @@ Switch between levels and/or representations is necessary.
 % 
 
 \begin{frame}[c]{Goal of our concept}
- An interactive program verification system that allows to implement and research different interaction concepts:
+ An interactive program verification system that allows implementing and researching different interaction concepts:
  \begin{itemize}
-  \item integration of all views
-  \item integration of all interaction concepts
+  \item integration of different representations as views
+  \item integration of different interaction concepts
   \item seamless transition between views 
 
  \end{itemize}
@@ -330,7 +340,7 @@ Switch between levels and/or representations is necessary.
 The user is ...
  \begin{enumerate}
   \item ... able to use appropriate view at all times
-  \item ... can easily switch views
+  \item ... can easily switch views without loosing focus
   \item ... is able to determine the results of costly actions before executing them  
  \end{enumerate}
 
@@ -410,8 +420,8 @@ Show the user different variant of the \emph{future} (principle of least surpris
 % verringern
 % * Anzeigen der Änderungen im Kontext
 % * Erlauben von Beweis-Explorationsmöglichkeiten
-\begin{frame}{Demo}
- 
+\begin{frame}[c]{Demo}
+ \includegraphics[width=\textwidth]{../images/AlgoVerWindow.png}
 \end{frame}
 
 \end{document}

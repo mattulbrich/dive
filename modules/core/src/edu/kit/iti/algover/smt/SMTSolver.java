@@ -78,8 +78,8 @@ public abstract class SMTSolver {
 
         sb.append("; === Declarations ===\n\n");
         for (FunctionSymbol fs : symbolTable.getAllSymbols()) {
-            if (   !fs.getName().matches("[0-9]+")
-                && SMTTrans.getOperationEntry(fs) == null) {
+            if (!fs.getName().matches("[0-9]+")
+                    && SMTTrans.getOperationEntry(fs) == null) {
                 sb.append(makeDecl(fs)).append("\n");
                 sb.append(makeTyping(fs)).append("\n");
             }
@@ -104,16 +104,6 @@ public abstract class SMTSolver {
         template.setAttribute("classes", Util.map(project.getClasses(), DafnyDecl::getName));
         template.setAttribute("fields", collectFields());
         return template.toString();
-    }
-
-    private List<String> collectFields() {
-        ArrayList<String> result = new ArrayList<>();
-        for (DafnyClass clss : project.getClasses()) {
-            for (DafnyField field : clss.getFields()) {
-                result.add(clss.getName() + "::" + field.getName());
-            }
-        }
-        return result;
     }
 
     private SExpr makeDecl(FunctionSymbol fs) {
@@ -143,6 +133,16 @@ public abstract class SMTSolver {
             SExpr typing = SMTTrans.typingPredicate(app, fs.getResultSort());
             return new SExpr("assert", typing);
         }
+    }
+
+    private List<String> collectFields() {
+        ArrayList<String> result = new ArrayList<>();
+        for (DafnyClass clss : project.getClasses()) {
+            for (DafnyField field : clss.getFields()) {
+                result.add(clss.getName() + "::" + field.getName());
+            }
+        }
+        return result;
     }
 
     public abstract Result solve(Collection<Term> formulae) throws IOException;

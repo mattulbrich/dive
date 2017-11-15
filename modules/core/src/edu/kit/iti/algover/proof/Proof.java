@@ -12,8 +12,7 @@ import javafx.beans.property.SimpleObjectProperty;
 import org.antlr.tool.Interp;
 import org.antlr.v4.runtime.Token;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 /**
  * Proof Object
@@ -31,6 +30,8 @@ public class Proof {
      * Root of logical Proof
      */
     private ProofNode proofRoot;
+
+    private ProofNode lastaddedNode;
 
     /**
      * Root of Script
@@ -61,6 +62,13 @@ public class Proof {
 
     }
 
+    public void setNewScriptTextAndParser(String script) {
+        if (this.getScript() != null) {
+            saveOldDataStructures();
+        }
+        ProofScript scriptAST = Facade.getAST(script);
+        this.setScript(scriptAST.getBody());
+    }
     /**
      * Parse a string representing a script and set the script to the newly parsed script AST
      *
@@ -135,10 +143,11 @@ public class Proof {
     public Proof interpretScript() {
         assert script != null;
         assert proofRoot != null;
+        lastaddedNode = proofRoot;
         interpreter.newState(new GoalNode<>(null, proofRoot));
         script.forEach(getInterpreter()::interpret);
-
         ProofNode pnext = getInterpreter().getSelectedNode().getData();
+        // System.out.println("pnext.getSequent() = " + pnext.getSequent());
         return this;
     }
 
@@ -156,6 +165,7 @@ public class Proof {
         }
         ProofScript newAst = Facade.getAST(script);
         newAst.getBody().forEach(s -> {
+            System.out.println("Interpreting s = " + s);
             getInterpreter().interpret(s);
             this.script.add(s);
         });
@@ -180,10 +190,68 @@ public class Proof {
     }
 
     /**
+     * http://www.connorgarvey.com/blog/?p=82
+     *
+     * @param node
+     * @return
+     */
+    public static String toStringTree(ProofNode node) {
+        final StringBuilder buffer = new StringBuilder();
+        return toStringTreeHelper(node, buffer, new LinkedList<Iterator<ProofNode>>()).toString();
+    }
+
+    private static String toStringTreeDrawLines(List<Iterator<ProofNode>> parentIterators, boolean amLast) {
+        StringBuilder result = new StringBuilder();
+        Iterator<Iterator<ProofNode>> it = parentIterators.iterator();
+        while (it.hasNext()) {
+            Iterator<ProofNode> anIt = it.next();
+            if (anIt.hasNext() || (!it.hasNext() && amLast)) {
+                result.append("   |");
+            } else {
+                result.append("    ");
+            }
+        }
+        return result.toString();
+    }
+
+    private static StringBuilder toStringTreeHelper(ProofNode node, StringBuilder buffer, List<Iterator<ProofNode>>
+            parentIterators) {
+        if (!parentIterators.isEmpty()) {
+            boolean amLast = !parentIterators.get(parentIterators.size() - 1).hasNext();
+            buffer.append("\n");
+            String lines = toStringTreeDrawLines(parentIterators, amLast);
+            buffer.append(lines);
+            buffer.append("\n");
+            buffer.append(lines);
+            buffer.append("- ");
+        }
+        buffer.append(node.toString());
+        if (!node.getChildren().isEmpty()) {
+            Iterator<ProofNode> it = node.getChildren().iterator();
+            parentIterators.add(it);
+            while (it.hasNext()) {
+                ProofNode child = it.next();
+                toStringTreeHelper(child, buffer, parentIterators);
+            }
+            parentIterators.remove(it);
+        }
+        return buffer;
+    }
+
+    public String proofToString() {
+        StringBuilder sb = new StringBuilder("Proof for " + this.pvcName);
+        if (this.getProofRoot() != null) {
+            sb.append(toStringTree(getProofRoot()));
+        }
+        return sb.toString();
+    }
+
+    /**
      * This method invalidates this proof object, sets the status to dirty
      */
     public void invalidate() {
         this.setProofStatus(ProofStatus.DIRTY);
+
     }
 }
 
@@ -203,19 +271,135 @@ class ProofNodeInterpreterManager {
 
     private class EntryListener extends DefaultASTVisitor<Void> {
         @Override
+        public Void visit(Statements statements) {
+            return null;
+        }
+
+        @Override
         public Void defaultVisit(ASTNode node) {
+            System.out.println("Entry " + node.getNodeName());
             lastSelectedGoalNode = interpreter.getSelectedNode();
+            return null;
+        }
+
+        @Override
+        public Void visit(AssignmentStatement assignment) {
+
+            return defaultVisit(assignment);
+        }
+
+        @Override
+        public Void visit(MatchExpression matchExpression) {
+            return null;
+        }
+
+        @Override
+        public Void visit(Signature signature) {
+            return null;
+        }
+
+        @Override
+        public Void visit(Parameters parameters) {
+            return null;
+        }
+
+        @Override
+        public Void visit(IntegerLiteral integer) {
+            return null;
+        }
+
+        @Override
+        public Void visit(BinaryExpression binaryExpression) {
+            return null;
+        }
+
+        @Override
+        public Void visit(TermLiteral termLiteral) {
+            return null;
+        }
+
+        @Override
+        public Void visit(SequentLiteral sequentLiteral) {
+            return null;
+        }
+
+        @Override
+        public Void visit(StringLiteral stringLiteral) {
+            return null;
+        }
+
+        @Override
+        public Void visit(Variable variable) {
+            return null;
+        }
+
+        @Override
+        public Void visit(BooleanLiteral booleanLiteral) {
             return null;
         }
     }
 
     private class ExitListener extends DefaultASTVisitor<Void> {
         @Override
-        public Void defaultVisit(ASTNode node) {
-            for (ProofNode children : lastSelectedGoalNode.getData().getChildren()) {
-                children.setMutator(node);
-            }
+        public Void visit(MatchExpression matchExpression) {
             return null;
+        }
+
+        @Override
+        public Void visit(Signature signature) {
+            return null;
+        }
+
+        @Override
+        public Void visit(Parameters parameters) {
+            return null;
+        }
+
+        @Override
+        public Void defaultVisit(ASTNode node) {
+            System.out.println("Exit " + node.getNodeName());
+            lastSelectedGoalNode.getData().setChildren(new ArrayList<>());
+            List<GoalNode<ProofNode>> goals = interpreter.getCurrentState().getGoals();
+            if (goals.size() > 0) {
+                for (GoalNode<ProofNode> goal : goals) {
+                    lastSelectedGoalNode.getData().getChildren().add(goal.getData());
+                }
+            }
+/*
+            interpreter.getCurrentState().getGoals().forEach(proofNodeGoalNode -> {
+                lastSelectedGoalNode.getData().getChildren().add(proofNodeGoalNode.getData());
+                System.out.println("Added ProofNode \n"+proofNodeGoalNode.getData()+ "\n to "+lastSelectedGoalNode.getData());
+            });
+*/
+
+            lastSelectedGoalNode.getData().addMutator(node);
+            /*for (ProofNode children : lastSelectedGoalNode.getData().getChildren()) {
+                children.setMutator(node);
+            }*/
+            return null;
+        }
+
+        @Override
+        public Void visit(Statements statements) {
+            return null;
+        }
+
+        @Override
+        public Void visit(AssignmentStatement assignment) {
+            LinkedList<ProofNode> singleChild = new LinkedList<>();
+            List<GoalNode<ProofNode>> goals = interpreter.getCurrentState().getGoals();
+            if (goals.size() == 1) {
+                //singleChild.add(goals.get(0).getData());
+                ProofNode pn = new ProofNode(lastSelectedGoalNode.getData(),
+                        null,
+                        null,
+                        goals.get(0).getData().getSequent(), lastSelectedGoalNode.getData().getRootPVC());
+                singleChild.add(pn);
+            }
+            lastSelectedGoalNode.getData().setChildren(singleChild);
+            lastSelectedGoalNode.getData().addMutator(assignment);
+            return null;
+            //return defaultVisit(assignment);
         }
 
         @Override
@@ -230,11 +414,47 @@ class ProofNodeInterpreterManager {
 
         @Override
         public Void visit(IsClosableCase isClosableCase) {
-            return super.visit(isClosableCase);
+            return null;
         }
 
         @Override
         public Void visit(SimpleCaseStatement simpleCaseStatement) {
+            return defaultVisit(simpleCaseStatement);
+        }
+
+
+        @Override
+        public Void visit(IntegerLiteral integer) {
+            return null;
+        }
+
+        @Override
+        public Void visit(BinaryExpression binaryExpression) {
+            return null;
+        }
+
+        @Override
+        public Void visit(TermLiteral termLiteral) {
+            return null;
+        }
+
+        @Override
+        public Void visit(SequentLiteral sequentLiteral) {
+            return null;
+        }
+
+        @Override
+        public Void visit(StringLiteral stringLiteral) {
+            return null;
+        }
+
+        @Override
+        public Void visit(Variable variable) {
+            return null;
+        }
+
+        @Override
+        public Void visit(BooleanLiteral booleanLiteral) {
             return null;
         }
     }

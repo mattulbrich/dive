@@ -75,14 +75,14 @@ public class Project {
     /**
      * Lookup maps to get the {@link FunctionSymbol}s corresponding
      * to the functions and fields of the project.
-     *
+     * <p>
      * Lazily created.
      */
     private Collection<FunctionSymbol> functionSymbols;
 
     /**
      * The tree data structure for all {@link PVC}s.
-     *
+     * <p>
      * Lazily created.
      */
     private PVCGroup pvcRoot;
@@ -199,57 +199,14 @@ public class Project {
     }
 
     /**
-     * Gets a map from identifiers to project PVCs.
-     *
-     * @return an unmodifiable map.
-     */
-    public @NonNull Map<String, PVC> getPVCByNameMap() {
-        ensurePVCsExist();
-        return Collections.unmodifiableMap(pvcByName);
-    }
-
-    /**
-     * Get the PVCs for a DafnyDecl as tree.
-     *
-     * @param decl
-     *            the declaration to look up
-     * @return the corresponding PVC collection
-     * @throws NoSuchElementException
-     *             if the declaration is not known
-     */
-    public PVCCollection getPVCsFor(DafnyDecl decl) {
-        ensurePVCsExist();
-        for (PVCCollection child : pvcRoot.getChildren()) {
-            if(child.getDafnyDecl() == decl) {
-                return child;
-            }
-        }
-
-        throw new NoSuchElementException();
-    }
-
-    /**
-     * Gets a PVC by identifier.
-     *
-     * @param name
-     *            the identifier to look up
-     * @return the created PVC with the name, or <code>null</code> if that
-     *         identifier has no PVC assigned to it.
-     */
-    public PVC getPVCByName(String name) {
-        ensurePVCsExist();
-        return pvcByName.get(name);
-    }
-
-    /**
      * Generates the PVCs for this project. Saves the PVCs to the String lookup
      * map.
-     *
+     * <p>
      * This is not thread-safe, but can be made so easily.
      */
     private PVCGroup ensurePVCsExist() {
 
-        if(pvcRoot != null) {
+        if (pvcRoot != null) {
             return pvcRoot;
         }
 
@@ -271,14 +228,55 @@ public class Project {
     }
 
     /**
-     * Gets the all declared functions symbols.
+     * Gets a map from identifiers to project PVCs.
      *
+     * @return an unmodifiable map.
+     */
+    public @NonNull Map<String, PVC> getPVCByNameMap() {
+        ensurePVCsExist();
+        return Collections.unmodifiableMap(pvcByName);
+    }
+
+    /**
+     * Get the PVCs for a DafnyDecl as tree.
+     *
+     * @param decl the declaration to look up
+     * @return the corresponding PVC collection
+     * @throws NoSuchElementException if the declaration is not known
+     */
+    public PVCCollection getPVCsFor(DafnyDecl decl) {
+        ensurePVCsExist();
+        for (PVCCollection child : pvcRoot.getChildren()) {
+            if (child.getDafnyDecl() == decl) {
+                return child;
+            }
+        }
+
+        throw new NoSuchElementException();
+    }
+
+    /**
+     * Gets a PVC by identifier.
+     *
+     * @param name
+     *            the identifier to look up
+     * @return the created PVC with the name, or <code>null</code> if that
+     *         identifier has no PVC assigned to it.
+     */
+    public PVC getPVCByName(String name) {
+        ensurePVCsExist();
+        return pvcByName.get(name);
+    }
+
+    /**
+     * Gets the all declared functions symbols.
+     * <p>
      * These are triggered by field and function declarations.
      *
      * @return the unmodifiable collection of all declared symbols
      */
     public Collection<FunctionSymbol> getAllDeclaredSymbols() {
-        if(functionSymbols == null) {
+        if (functionSymbols == null) {
             functionSymbols = DeclarationSymbolCollector.collect(this);
         }
 

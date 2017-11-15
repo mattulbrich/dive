@@ -1,0 +1,15 @@
+substitute on='let $mod := $everything :: (let x := 1 :: 1== 2 && 2 == 3 )';
+
+substitute on='let x := 1 :: 1== 2 && 2 == 3 ';
+x:int := 0;
+
+//andRight on='1== 2 && 2 == 3 ';
+
+//cases{
+//    case x = 0:
+        //auto deep=true;
+
+//    default:
+        //auto;
+
+//}

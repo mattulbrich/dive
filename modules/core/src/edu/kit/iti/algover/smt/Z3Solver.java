@@ -64,18 +64,18 @@ public class Z3Solver extends SMTSolver {
             String line;
             while((line = br.readLine()) != null) {
                 switch(line) {
-                case "unsat":
-                    return Result.UNSAT;
-                case "sat":
-                    return Result.SAT;
-                case "unknown":
-                    return Result.UNKNOWN;
+                    case "unsat":
+                        return Result.UNSAT;
+                    case "sat":
+                        return Result.SAT;
+                    case "unknown":
+                        return Result.UNKNOWN;
                 }
                 System.err.println("Z3: " + line);
             }
 
             return Result.ERROR;
-        } catch(SMTException ex) {
+        } catch (SMTException ex) {
             throw new IOException(ex);
         } finally {
             process.destroy();

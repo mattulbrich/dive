@@ -1,8 +1,8 @@
-//fake fake="z3";
-andRight on='|- b1 && b2';
-//cases{
-//    case true:
-//        z3;
-//    case false:
-//        z3;
-//}
+//fake fake=true;
+andRight on='b1 && b2';
+cases{
+    case "case 1":
+        z3;
+    case "case 2":
+        z3;
+}

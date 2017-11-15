@@ -80,6 +80,7 @@ public class Evaluator<T> extends DefaultASTVisitor<Value> implements ScopeObser
     /**
      * @param term
      * @return
+     * TODO let termParser parse a schematic term
      */
     @Override
     public Value visit(TermLiteral term) {
@@ -93,6 +94,21 @@ public class Evaluator<T> extends DefaultASTVisitor<Value> implements ScopeObser
         // return Value.from(term);
 
         return termV;
+    }
+
+    @Override
+    public Value visit(SequentLiteral sequentLiteral) {
+        Value seqValue = null;
+        try {
+
+            seqValue = new Value<>(Type.TERM, TermParser.parseSequent(((ProofNode) goal.getData()).getRootPVC().getSymbolTable(), sequentLiteral.getText()));
+
+        } catch (DafnyParserException e) {
+            System.out.println("Could not translate term " + sequentLiteral.getText());
+            e.printStackTrace();
+        }
+        return seqValue;
+
     }
 
     @Override

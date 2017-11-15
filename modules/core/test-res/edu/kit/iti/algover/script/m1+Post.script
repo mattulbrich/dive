@@ -1,9 +1,1 @@
-auto;
-cases{
-    case match '1==2':
-        auto deep=true;
-
-    default:
-        auto;
-
-}
+z3;

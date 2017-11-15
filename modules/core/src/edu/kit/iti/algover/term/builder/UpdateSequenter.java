@@ -47,7 +47,7 @@ public class UpdateSequenter implements PVCSequenter {
 
         TreeTermTranslator ttt = new TreeTermTranslator(makeSymbolTable);
         List<ProofFormula> ante = new ArrayList<>();
-        int id = 0;
+
 
         resolveWildcards(pathThroughProgram.getAssignmentHistory(),
                 makeSymbolTable);
@@ -55,7 +55,7 @@ public class UpdateSequenter implements PVCSequenter {
         for (PathConditionElement pce : pathThroughProgram.getPathConditions()) {
             try {
                 Term term = ttt.build(pce.getAssignmentHistory(), pce.getExpression());
-                ProofFormula formula = new ProofFormula(id++, term);
+                ProofFormula formula = new ProofFormula(term);
                 formula = postProcess(formula);
                 ante.add(formula);
             } catch (TermBuildException e) {
@@ -68,7 +68,7 @@ public class UpdateSequenter implements PVCSequenter {
         try {
             Term term = ttt.build(pathThroughProgram.getAssignmentHistory(),
                     assertion.getExpression());
-            ProofFormula formula = new ProofFormula(id++, term);
+            ProofFormula formula = new ProofFormula(term);
             formula = postProcess(formula);
             List<ProofFormula> succ = Collections.singletonList(formula);
             Sequent sequent = new Sequent(ante, succ);
@@ -86,7 +86,7 @@ public class UpdateSequenter implements PVCSequenter {
     private void resolveWildcards(ImmutableList<DafnyTree> assignmentHistory, SymbolTable symbolTable) {
         for (DafnyTree ass : assignmentHistory) {
             DafnyTree value = ass.getChild(1);
-            if(value.getType() != DafnyParser.WILDCARD) {
+            if (value.getType() != DafnyParser.WILDCARD) {
                 continue;
             }
 

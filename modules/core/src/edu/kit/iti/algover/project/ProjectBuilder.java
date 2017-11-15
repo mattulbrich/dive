@@ -224,7 +224,7 @@ public class ProjectBuilder {
     private void resolveNames(Project p) throws DafnyException {
 
         // for some test cases, name resolution must be switched off
-        if(disableNameResolution) {
+        if (disableNameResolution) {
             return;
         }
 
@@ -236,7 +236,7 @@ public class ProjectBuilder {
         typeRes.visitProject(p);
 
         // TODO make the other exceptions accessible as well;
-        if(!exceptions.isEmpty()) {
+        if (!exceptions.isEmpty()) {
             throw exceptions.get(0);
         }
     }

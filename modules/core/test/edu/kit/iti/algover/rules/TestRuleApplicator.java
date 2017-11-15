@@ -56,10 +56,10 @@ public class TestRuleApplicator {
 
         List<ProofFormula> antec = new ArrayList<>();
         List<ProofFormula> succ = new ArrayList<>();
-        antec.add(new ProofFormula(0, term1));
-        antec.add(new ProofFormula(0, term2));
-        succ.add(new ProofFormula(0, term3));
-        succ.add(new ProofFormula(0, term4));
+        antec.add(new ProofFormula(term1));
+        antec.add(new ProofFormula(term2));
+        succ.add(new ProofFormula(term3));
+        succ.add(new ProofFormula(term4));
         testSequent = new Sequent(antec, succ);
         //prApp = new ProofRuleApplication()
     }
@@ -101,10 +101,10 @@ public class TestRuleApplicator {
     @Test
     public void testAddAndDelete() throws TermBuildException {
         System.out.println(testSequent.getAntecedent());
-        ProofFormula f1 = new ProofFormula(0, term1);
-        ProofFormula f2 = new ProofFormula(0, term2);
-        ProofFormula f3 = new ProofFormula(0, term3);
-        ProofFormula f4 = new ProofFormula(0, term4);
+        ProofFormula f1 = new ProofFormula(term1);
+        ProofFormula f2 = new ProofFormula(term2);
+        ProofFormula f3 = new ProofFormula(term3);
+        ProofFormula f4 = new ProofFormula(term4);
         List<ProofFormula> add = new ArrayList<>();
         add.add(f4);
         add.add(f3);

@@ -65,6 +65,7 @@ literals :
         ID             #literalID
     |   DIGITS         #literalDigits
     |   TERM_LITERAL   #literalTerm
+    |   SEQUENT_LITERAL  #sequentLiteral
     |   STRING_LITERAL #literalString
     |   TRUE           #literalTrue
     |   FALSE          #literalFalse
@@ -141,6 +142,7 @@ INDENT : '{' ;
 DEDENT : '}' ;
 SEMICOLON : ';' ;
 COLON : ':' ;
+SEQUENTSYMBOL : '|-';
 
 
 STRING_LITERAL
@@ -148,9 +150,14 @@ STRING_LITERAL
  //  : '\'' ('\'\'' | ~ ('\''))* '\''
    ;
 
+SEQUENT_LITERAL
+  : '\''  ~('\'')*  SEQUENTSYMBOL  ~('\'')* '\''
+  ;
+
 TERM_LITERAL
    : '\'' ~('\'')* '\''
    ;
+
 
 PLUS : '+' ;
 MINUS : '-' ;
@@ -172,4 +179,4 @@ EXE_MARKER: '\u2316' -> channel(HIDDEN);
 
 DIGITS : DIGIT+ ;
 fragment DIGIT : [0-9] ;
-ID : [a-zA-Z] ([_a-zA-Z0-9] | '.' | '\\' | LBRACKET RBRACKET)* ;
+ID : [a-zA-Z] ([_a-zA-Z0-9] | '.' | '\\' | LBRACKET RBRACKET ~('|' | '-'))* ;

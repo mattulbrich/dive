@@ -27,7 +27,6 @@ public class RuleApplicator {
      * @return a list of new proof nodes (children) resulting form the rule applciation
      */
     public static List<ProofNode> applyRule(ProofRuleApplication proofRuleApplication, ProofNode pn) {
-        List<ProofNode> list = new ArrayList<>();
         ImmutableList<BranchInfo> applicationInfos = proofRuleApplication.getBranchInfo();
         if (applicationInfos.equals(BranchInfo.UNCHANGED)) {
 
@@ -40,7 +39,7 @@ public class RuleApplicator {
         int numberOfChildrenExpected = applicationInfos.size();
         List<ProofNode> children = new ArrayList<>();
         applicationInfos.forEach(branchInfo -> {
-            System.out.println("branchInfo = " + branchInfo);
+            // System.out.println("branchInfo = " + branchInfo);
             Sequent newSequent = null;
             try {
                 newSequent = createNewSequent(branchInfo, sequent);
@@ -55,7 +54,7 @@ public class RuleApplicator {
         assert numberOfChildrenExpected == children.size();
 
 
-        return list;
+        return children;
     }
 
     /**
@@ -107,19 +106,25 @@ public class RuleApplicator {
      */
     protected static List<ProofFormula> changeSemisequent(List<ProofFormula> add, List<ProofFormula> delete, List<Pair<TermSelector, Term>> change, List<ProofFormula> oldSemiSeq) throws TermBuildException{
         List<ProofFormula> newSemiSeq = new ArrayList<>(add);
-        int i = 0;
-        change.forEach(termSelectorTermPair -> {
-            Term newTerm = termSelectorTermPair.snd;
-            TermSelector ts = termSelectorTermPair.fst;
-            try {
-                ProofFormula nthForm = oldSemiSeq.get(ts.getTermNo());
-                Term replace = ReplaceVisitor.replace(nthForm.getTerm(), ts.getSubtermSelector(), newTerm);
-                nthForm = new ProofFormula(0, replace);
-            } catch (TermBuildException e) {
-                e.printStackTrace();
-            }
-        });
         List<Term> topLevels = new ArrayList<>();
+        int i = 0;
+        if (change.size() != 0) {
+            change.forEach(termSelectorTermPair -> {
+                Term newTerm = termSelectorTermPair.snd;
+                TermSelector ts = termSelectorTermPair.fst;
+                try {
+                    ProofFormula nthForm = oldSemiSeq.get(ts.getTermNo());
+                    topLevels.add(nthForm.getTerm());
+                    Term replace = ReplaceVisitor.replace(nthForm.getTerm(), ts.getSubtermSelector(), newTerm);
+                    nthForm = new ProofFormula(replace);
+                    newSemiSeq.add(nthForm);
+
+                } catch (TermBuildException e) {
+                    e.printStackTrace();
+                }
+            });
+        }
+
         delete.forEach(t -> topLevels.add(t.getTerm()));
 
         oldSemiSeq.forEach(proofFormula -> {

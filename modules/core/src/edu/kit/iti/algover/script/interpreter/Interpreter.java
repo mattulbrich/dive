@@ -374,19 +374,34 @@ public class Interpreter<T> extends DefaultASTVisitor<Object>
      */
     private VariableAssignment evaluateMatchInGoal(Expression matchExpression, GoalNode<T> goal) {
         enterScope(matchExpression);
-       /* System.out.println("Goal to match " + goal.toCellTextForKeYData());
-        MatchEvaluator mEval = new MatchEvaluator(goal.getAssignments(), goal, matcherApi);
+
+        System.out.println("Goal to match " + goal.getData());
+        MatchEvaluator mEval = new MatchEvaluator(goal, goal.getAssignments(), matcherApi);
         mEval.getEntryListeners().addAll(entryListeners);
         mEval.getExitListeners().addAll(exitListeners);
+        List<VariableAssignment> matchResult;
+        if (matchExpression.hasMatchExpression()) {
+            matchResult = mEval.eval(matchExpression);
+
+        } else {
+            matchResult = new ArrayList<>();
+            Evaluator eval = new Evaluator(goal.getAssignments(), goal);
+            Value eval1 = eval.eval(matchExpression);
+            if (eval1.getType().equals(Type.BOOL) && eval1.equals(Value.TRUE)) {
+                VariableAssignment emptyAssignment = new VariableAssignment(null);
+                matchResult.add(emptyAssignment);
+            }
+
+        }
         exitScope(matchExpression);
 
-        List<VariableAssignment> matchResult = mEval.eval(matchExpression);
         if (matchResult.isEmpty()) {
             return null;
         } else {
             return matchResult.get(0);
-        }*/
-        return null;
+        }
+
+//        return null;
 
         /*Evaluator eval = new Evaluator(goal.getAssignments(), goal);
         eval.setMatcher(matcherApi);

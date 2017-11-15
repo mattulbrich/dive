@@ -317,6 +317,13 @@ public class Sort {
     }
 
     @Override
+    public int hashCode() {
+        int result = name.hashCode();
+        result = 31 * result + Arrays.hashCode(arguments);
+        return result;
+    }
+
+    @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
@@ -325,12 +332,5 @@ public class Sort {
 
         if (!name.equals(sort.name)) return false;
         return Arrays.equals(arguments, sort.arguments);
-    }
-
-    @Override
-    public int hashCode() {
-        int result = name.hashCode();
-        result = 31 * result + Arrays.hashCode(arguments);
-        return result;
     }
 }

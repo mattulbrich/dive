@@ -18,7 +18,7 @@ public class ProofFormula {
      * The ID of this formula. Must be unique in the context of the PVC.
      */
     // REVIEW: Why is this needed?
-    private final int id;
+    // private final int id;
 
     /**
      * The actual term which is captured in this object.
@@ -31,14 +31,14 @@ public class ProofFormula {
     private final String label;
 
 
-    public ProofFormula(int id, Term formula, String label) {
-        this.id = id;
+    public ProofFormula(Term formula, String label) {
+        //this.id = id;
         this.formula = formula;
         this.label = label;
     }
 
-    public ProofFormula(int id, Term formula) {
-        this.id = id;
+    public ProofFormula(Term formula) {
+        // this.id = id;
         this.formula = formula;
         this.label = null;
     }
@@ -52,15 +52,15 @@ public class ProofFormula {
     public String toString(){
 
         if (label != null) {
-            return id + "[" + label + "]: " + formula.toString();
+            return "[" + label + "]: " + formula.toString();
         } else {
-            return id + ": " + formula.toString();
+            return formula.toString();
         }
     }
 
-    public int getID() {
+    /*public int getID() {
         return id;
-    }
+    }*/
 
     public String getLabel() {
         return label;

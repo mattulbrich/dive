@@ -9,8 +9,7 @@ import edu.kit.iti.algover.rules.ProofRuleApplication;
 import edu.kit.iti.algover.script.ast.ASTNode;
 import edu.kit.iti.algover.term.Sequent;
 
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
 
 /**
  * Class represents one proof node. It has a pointer to its parent node and to the children nodes.
@@ -20,22 +19,43 @@ import java.util.List;
  */
 public class ProofNode {
 
+    /**
+     * Pointer to parent proof node
+     */
     private ProofNode parent;
 
-
+    /**
+     * Proof Rule Application responsible for child
+     */
     private ProofRuleApplication psr;
 
     private ProofHistory history;
 
+    /**
+     * Pointer to children
+     */
     private List<ProofNode> children;
 
+    /**
+     * Root PVC
+     */
     private PVC rootPVC;
 
+    /**
+     * Sequent in this proof node
+     */
     private Sequent sequent;
 
-
+    /**
+     * Is closed node?
+     */
     private boolean isclosed;
-    private ASTNode mutator;
+
+
+    /**
+     * Pointer to ASTNode that mutated this node
+     */
+    private List<ASTNode> mutator;
 
     public ProofNode(ProofNode parent, ProofRuleApplication psr, ProofHistory history, Sequent seq, PVC rootPVC) {
         this.parent = parent;
@@ -45,6 +65,7 @@ public class ProofNode {
         this.sequent = seq;
         this.rootPVC = rootPVC;
         isclosed = false;
+        mutator = new ArrayList<>();
     }
 
     public Sequent getSequent() {
@@ -69,6 +90,7 @@ public class ProofNode {
     }
 
     public List<ProofNode> getChildren() {
+        System.out.println("Requesting getting children");
         return children;
     }
 
@@ -92,11 +114,31 @@ public class ProofNode {
         this.sequent = sequent;
     }
 
-    public ASTNode getMutator() {
+    public void addMutator(ASTNode mutator) {
+        this.mutator.add(mutator);
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        if (this.getParent() == null) {
+            sb.append("Root Node");
+        }
+        sb.append(this.sequent.toString());
+        if (getPsr() != null) {
+            sb.append("\nRulename " + getPsr().getRule().getName());
+        }
+        if (getMutator() != null) {
+            getMutator().forEach(astNode -> sb.append(astNode.getNodeName()));
+        }
+        return sb.toString();
+    }
+
+    public List<ASTNode> getMutator() {
         return mutator;
     }
 
-    public void setMutator(ASTNode mutator) {
+    private void setMutator(List<ASTNode> mutator) {
         this.mutator = mutator;
     }
 }

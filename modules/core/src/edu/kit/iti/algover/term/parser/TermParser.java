@@ -72,51 +72,20 @@ public class TermParser {
     }
 
     /**
-     * Parses a string to a {@link Term}.
+     * Parse a string to a {@link Sequent}.
      *
+     * @param symbols
+     *            the known symbols as lookup table
      * @param string
      *            the string to parse
-     * @return the corresponding term resulting from parsing
+     * @return the corresponding sequent resulting from parsing
      * @throws DafnyParserException
-     *             if the term was illegally formed. The exception contains a
+     *             if the sequent was illegally formed. The exception contains a
      *             reference to the erring part of the tree
      */
-    public Term parse(String string) throws DafnyParserException {
-
-        // create stream and lexer
-        ANTLRStringStream input = new ANTLRStringStream(string);
-        DafnyLexer lexer = new DafnyLexer(input);
-
-        // create the buffer of tokens between the lexer and parser
-        CommonTokenStream tokens = new CommonTokenStream(lexer);
-
-        // create the parser attached to the token buffer
-        DafnyParser parser = new DafnyParser(tokens);
-        parser.setTreeAdaptor(new DafnyTree.Adaptor());
-        parser.setLogicMode(true);
-
-        // launch the parser starting at rule r, get return object
-        expression_only_return result;
-        try {
-            result = parser.expression_only();
-        } catch (RecognitionException e) {
-            String msg = parser.getErrorMessage(e, DafnyParser.tokenNames);
-            DafnyParserException lex = new DafnyParserException(msg, e);
-            lex.setLine(e.line);
-            lex.setColumn(e.charPositionInLine);
-            if (e.token != null) {
-                lex.setLength(e.token.getText().length());
-            }
-            throw lex;
-        }
-
-        // pull out the tree and cast it
-        DafnyTree t = result.getTree();
-
-        // syntactic desugaring
-        SyntacticSugarVistor.visit(t);
-
-        return toTerm(t, new HistoryMap<>(new HashMap<>()));
+    public static Sequent parseSequent(@NonNull SymbolTable symbols, @NonNull String string) throws DafnyParserException {
+        TermParser tp = new TermParser(symbols);
+        return tp.parseSequent(string);
     }
 
     /**
@@ -146,13 +115,7 @@ public class TermParser {
         try {
             result = parser.sequent();
         } catch (RecognitionException e) {
-            String msg = parser.getErrorMessage(e, DafnyParser.tokenNames);
-            DafnyParserException lex = new DafnyParserException(msg, e);
-            lex.setLine(e.line);
-            lex.setColumn(e.charPositionInLine);
-            if (e.token != null) {
-                lex.setLength(e.token.getText().length());
-            }
+            DafnyParserException lex = generateDafnyParserException(parser, e);
             throw lex;
         }
 
@@ -162,6 +125,66 @@ public class TermParser {
         // syntactic desugaring
         SyntacticSugarVistor.visit(t);
         return toSequent(t, new HistoryMap<>(new HashMap<>()));
+    }
+
+    /**
+     * Generate a DafnyParserException when term parsing fails
+     *
+     * @param parser DafnyParser
+     * @param e      RecognitionException object
+     * @return DafynParserException
+     */
+    private DafnyParserException generateDafnyParserException(DafnyParser parser, RecognitionException e) {
+        String msg = parser.getErrorMessage(e, DafnyParser.tokenNames);
+        DafnyParserException lex = new DafnyParserException(msg, e);
+        lex.setLine(e.line);
+        lex.setColumn(e.charPositionInLine);
+        if (e.token != null) {
+            lex.setLength(e.token.getText().length());
+        }
+        return lex;
+    }
+
+    /**
+     * Parses a string to a {@link Term}.
+     *
+     * @param string
+     *            the string to parse
+     * @return the corresponding term resulting from parsing
+     * @throws DafnyParserException
+     *             if the term was illegally formed. The exception contains a
+     *             reference to the erring part of the tree
+     */
+    public Term parse(String string) throws DafnyParserException {
+
+        // create stream and lexer
+        ANTLRStringStream input = new ANTLRStringStream(string);
+        DafnyLexer lexer = new DafnyLexer(input);
+
+        // create the buffer of tokens between the lexer and parser
+        CommonTokenStream tokens = new CommonTokenStream(lexer);
+
+        // create the parser attached to the token buffer
+        DafnyParser parser = new DafnyParser(tokens);
+        parser.setTreeAdaptor(new DafnyTree.Adaptor());
+        parser.setLogicMode(true);
+
+        // launch the parser starting at rule r, get return object
+        expression_only_return result;
+        try {
+            result = parser.expression_only();
+        } catch (RecognitionException e) {
+            DafnyParserException lex = generateDafnyParserException(parser, e);
+            throw lex;
+        }
+
+        // pull out the tree and cast it
+        DafnyTree t = result.getTree();
+
+        // syntactic desugaring
+        SyntacticSugarVistor.visit(t);
+
+        return toTerm(t, new HistoryMap<>(new HashMap<>()));
     }
 
     /**
@@ -181,28 +204,6 @@ public class TermParser {
         return sequent;
     }
 
-    private List<ProofFormula> translateSemiSequent(DafnyTree semiseq) throws DafnyParserException {
-        List<ProofFormula> retList = new ArrayList<>();
-        TreeTermTranslator ttt = new TreeTermTranslator(symbols);
-
-        for (DafnyTree antecForm : semiseq.getChildren()) {
-            try {
-                ProofFormula pf = new ProofFormula(0, toTerm(antecForm));
-                retList.add(pf);
-            } catch (Exception e) {
-                DafnyParserException lex = new DafnyParserException(e);
-                lex.setLine(antecForm.getLine());
-                lex.setColumn(antecForm.getCharPositionInLine());
-                lex.setLength(antecForm.getText().length());
-                throw lex;
-            }
-        }
-        return retList;
-    }
-
-    private Term toTerm(DafnyTree t) throws DafnyParserException {
-        return toTerm(t, Collections.emptyMap());
-    }
     /*
      * translate a parse tree into a Term.
      */
@@ -211,12 +212,37 @@ public class TermParser {
         try {
             TreeTermTranslator ttt = new TreeTermTranslator(symbols);
             return ttt.build(t);
-        } catch(Exception e) {
-            DafnyParserException lex = new DafnyParserException(e);
-            lex.setLine(t.getLine());
-            lex.setColumn(t.getCharPositionInLine());
-            lex.setLength(t.getText().length());
+        } catch (Exception e) {
+            DafnyParserException lex = generateDafnyParserException(t, e);
             throw lex;
         }
+    }
+
+    private DafnyParserException generateDafnyParserException(DafnyTree antecForm, Exception e) {
+        DafnyParserException lex = new DafnyParserException(e);
+        lex.setLine(antecForm.getLine());
+        lex.setColumn(antecForm.getCharPositionInLine());
+        lex.setLength(antecForm.getText().length());
+        return lex;
+    }
+
+    private Term toTerm(DafnyTree t) throws DafnyParserException {
+        return toTerm(t, Collections.emptyMap());
+    }
+
+    private List<ProofFormula> translateSemiSequent(DafnyTree semiseq) throws DafnyParserException {
+        List<ProofFormula> retList = new ArrayList<>();
+        TreeTermTranslator ttt = new TreeTermTranslator(symbols);
+
+        for (DafnyTree antecForm : semiseq.getChildren()) {
+            try {
+                ProofFormula pf = new ProofFormula(toTerm(antecForm));
+                retList.add(pf);
+            } catch (Exception e) {
+                DafnyParserException lex = generateDafnyParserException(antecForm, e);
+                throw lex;
+            }
+        }
+        return retList;
     }
 }

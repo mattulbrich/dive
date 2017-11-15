@@ -31,11 +31,11 @@ public class ProofMockUtil {
     public static ProofNode mockProofNode(ProofNode parent, Term[] antedecentTerms, Term[] succedentTerms) throws TermBuildException {
         List<ProofFormula> antedecentFormulas = new ArrayList<>(antedecentTerms.length);
         for (int i = 0; i < antedecentTerms.length; i++) {
-            antedecentFormulas.add(new ProofFormula(i, antedecentTerms[i]));
+            antedecentFormulas.add(new ProofFormula(antedecentTerms[i]));
         }
         List<ProofFormula> succedentFormulas = new ArrayList<>(succedentTerms.length);
         for (int i = 0; i < succedentTerms.length; i++) {
-            succedentFormulas.add(new ProofFormula(i, succedentTerms[i]));
+            succedentFormulas.add(new ProofFormula(succedentTerms[i]));
         }
         return new ProofNode(parent, null, null,
                 new Sequent(antedecentFormulas, succedentFormulas), null);

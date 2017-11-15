@@ -127,7 +127,7 @@ RBRACKET: ']';
 LENGTH: 'Length' ('0' .. '9')*;
 ARRAY : 'array' (('1' .. '9') ('0' .. '9')*)?;
 
-ID : ('a' .. 'z' | 'A' .. 'Z' | '_' ) 
+ID : ('a' .. 'z' | 'A' .. 'Z' | '_' | '$' |'?')
      ('a' .. 'z' | 'A' .. 'Z' | '0' .. '9' | '_')*;
 
 LOGIC_ID : ('a' .. 'z' | 'A' .. 'Z' | '_' | '$')
@@ -289,7 +289,7 @@ ids:
 //
 
 sequent:
-  ante=expressions? '|-' succ=expressions? -> ^(SEQ ^(BLOCK $ante) ^(BLOCK $succ))
+  ante=expressions? '|-' succ=expressions? -> ^(SEQ ^(BLOCK $ante?) ^(BLOCK $succ?))
   ;
 
 //

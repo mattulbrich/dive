@@ -39,8 +39,8 @@ public class TermReferencesBuilderTest {
         Term yEqX = new ApplTerm(BuiltinSymbols.EQ.instantiate(Sort.INT), y, x);
 
         proof = new Proof("MOCKED PVC");
-        before = mockProofNode(null, new Term[] { xEqY }, new Term[0]);
-        after = mockProofNode(before, new Term[] { yEqX, xEqY }, new Term[0]);
+        before = mockProofNode(null, new Term[]{xEqY}, new Term[0]);
+        after = mockProofNode(before, new Term[]{yEqX, xEqY}, new Term[0]);
         afterReference = new ProofNodeSelector((byte) 0);
 
         before.getChildren().add(after);

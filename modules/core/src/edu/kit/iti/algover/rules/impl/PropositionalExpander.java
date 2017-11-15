@@ -30,8 +30,8 @@ public class PropositionalExpander {
 
 
         for (WorkSequent termSequent : expansion) {
-            List<ProofFormula> ante = Util.map(termSequent.antecedent, x -> new ProofFormula(0, x));
-            List<ProofFormula> succ = Util.map(termSequent.succedent, x -> new ProofFormula(0, x));
+            List<ProofFormula> ante = Util.map(termSequent.antecedent, x -> new ProofFormula(x));
+            List<ProofFormula> succ = Util.map(termSequent.succedent, x -> new ProofFormula(x));
             Sequent s = new Sequent(ante, succ);
             for (Sequent sequent : sequents) {
                 newSequents.add(sequent.union(s));

@@ -43,9 +43,9 @@ public class IntegrationTest1 {
         try {
             TEMP_DIR = Files.createTempDirectory(
                     String.format("algover-z3-%05d-",
-                            (System.currentTimeMillis()/1000)%100000));
+                            (System.currentTimeMillis() / 1000) % 100000));
             System.err.println("Z3 Director is " + TEMP_DIR);
-        } catch(Exception ex) {
+        } catch (Exception ex) {
             throw new Error(ex);
         }
     }
@@ -58,7 +58,7 @@ public class IntegrationTest1 {
         this.project = project;
     }
 
-    @Parameters(name= "{0}")
+    @Parameters(name = "{0}")
     public static Iterable<Object[]> data() throws Exception {
 
         InputStream stream = IntegrationTest1.class.getResourceAsStream("sumAndMaxIntegration.dfy");
@@ -71,7 +71,7 @@ public class IntegrationTest1 {
 
         List<Object[]> result = new ArrayList<>();
         for (PVC pvc : pvcs) {
-            result.add(new Object[] { pvc.getIdentifier(), pvc, project});
+            result.add(new Object[]{pvc.getIdentifier(), pvc, project});
         }
 
         return result;
@@ -81,7 +81,8 @@ public class IntegrationTest1 {
     public void testZ3Verification() throws Exception {
 
         Sequent sequent = pvc.getSequent();
-        pvc.getSymbolTable().getAllSymbols().forEach(System.out::println);;
+        pvc.getSymbolTable().getAllSymbols().forEach(System.out::println);
+
         Z3Solver z3 = new Z3Solver(project, pvc.getSymbolTable());
         TermBuilder tb = new TermBuilder(pvc.getSymbolTable());
 
