@@ -13,12 +13,12 @@
         orientation="VERTICAL"
         dividerPositions="0.7">
     <VBox spacing="10">
-        <ListView fx:id="antecedentView"></ListView>
+        <ListView fx:id="antecedentView" VBox.vgrow="ALWAYS" />
     </VBox>
     <VBox spacing="10">
         <Label fx:id="turnstile" text="⊢">
-            <font><Font name="sans serif" size="20"></Font></font>
+            <font><Font name="sans serif" size="20" /></font>
         </Label>
-        <ListView fx:id="succedentView"></ListView>
+        <ListView fx:id="succedentView" VBox.vgrow="ALWAYS" />
     </VBox>
 </SplitPane>

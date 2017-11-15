@@ -57,6 +57,7 @@ public class RuleView extends StackPane {
         if (selectionModel.getSelectedItem() != this) {
             selectionModel.select(this);
             pseudoClassStateChanged(PC_SELECTED, true);
+            requestFocus();
         } else {
             selectionModel.clearSelection();
         }
@@ -66,7 +67,7 @@ public class RuleView extends StackPane {
         try {
             application = rule.considerApplication(target, selection, selector);
         } catch (RuleException e) {
-            System.err.println("Cannot consider Application!");
+            System.err.println("Cannot consider Application: " + e);
         }
         renderApplication();
     }

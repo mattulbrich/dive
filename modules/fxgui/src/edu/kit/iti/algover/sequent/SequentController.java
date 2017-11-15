@@ -1,7 +1,6 @@
 package edu.kit.iti.algover.sequent;
 
-import de.jensd.fx.glyphs.GlyphsDude;
-import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon;
+import edu.kit.iti.algover.FxmlController;
 import edu.kit.iti.algover.browser.entities.PVCEntity;
 import edu.kit.iti.algover.project.ProjectManager;
 import edu.kit.iti.algover.proof.*;
@@ -9,41 +8,24 @@ import edu.kit.iti.algover.references.ProofTermReference;
 import edu.kit.iti.algover.references.ReferenceGraph;
 import edu.kit.iti.algover.rules.RuleException;
 import edu.kit.iti.algover.rules.TermSelector;
-import edu.kit.iti.algover.term.Sequent;
 import edu.kit.iti.algover.term.Term;
 import edu.kit.iti.algover.term.prettyprint.AnnotatedString;
-import edu.kit.iti.algover.util.BindingsUtil;
 import edu.kit.iti.algover.util.SubSelection;
-import javafx.beans.property.ObjectProperty;
-import javafx.beans.property.SimpleObjectProperty;
 import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
-import javafx.geometry.Insets;
-import javafx.geometry.Orientation;
-import javafx.geometry.Pos;
-import javafx.scene.Parent;
-import javafx.scene.control.Button;
-import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
-import javafx.scene.control.SplitPane;
-import javafx.scene.layout.FlowPane;
-import javafx.scene.layout.Priority;
-import javafx.scene.layout.VBox;
-import javafx.scene.text.Font;
+import javafx.scene.input.KeyCode;
 
-import java.io.IOException;
 import java.util.List;
 import java.util.stream.Collectors;
 
 /**
  * Created by philipp on 12.07.17.
  */
-public class SequentController {
+public class SequentController extends FxmlController {
 
     private final ProjectManager manager;
-    private SequentActionListener listener;
+    private final SequentActionListener listener;
 
-    private final Parent view;
     @FXML private ListView<Term> antecedentView;
     @FXML private ListView<Term> succedentView;
 
@@ -56,6 +38,7 @@ public class SequentController {
     private ProofNode activeNode;
 
     public SequentController(ProjectManager manager, SequentActionListener listener) {
+        super("SequentView.fxml");
         this.manager = manager;
         this.listener = listener;
         this.activeProof = null;
@@ -67,20 +50,31 @@ public class SequentController {
         // Our children however need to communicate somehow and share a common selected item.
         this.highlightedTerm = new SubSelection<>(r -> {});
 
-        FXMLLoader loader = new FXMLLoader(SequentController.class.getResource("SequentView.fxml"));
-        loader.setController(this);
-        try {
-            loader.load();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        this.view = loader.getRoot();
-    }
-
-    @FXML
-    public void initialize() {
         antecedentView.setCellFactory(termListView -> createTermCell(TermSelector.SequentPolarity.ANTECEDENT, termListView));
         succedentView.setCellFactory(termListView -> createTermCell(TermSelector.SequentPolarity.SUCCEDENT, termListView));
+
+        antecedentView.setOnKeyPressed(keyEvent -> {
+            if (keyEvent.getCode() == KeyCode.ESCAPE) {
+                antecedentView.getSelectionModel().select(null);
+            }
+        });
+        succedentView.setOnKeyPressed(keyEvent -> {
+            if (keyEvent.getCode() == KeyCode.ESCAPE) {
+                succedentView.getSelectionModel().select(null);
+            }
+        });
+    }
+
+    public void viewSequentForPVC(PVCEntity pvcEntity) {
+        PVC pvc = pvcEntity.getPVC();
+        if (activeProof == null || !activeProof.getPvcName().equals(pvc.getIdentifier())) {
+            activeProof = manager.getProofForPVC(pvc.getIdentifier());
+            activeNode = activeProof.getProofRoot();
+            antecedentView.getItems().setAll(calculateAssertions(activeNode.getSequent().getAntecedent()));
+            succedentView.getItems().setAll(calculateAssertions(activeNode.getSequent().getSuccedent()));
+            referenceGraph = new ReferenceGraph();
+            referenceGraph.addFromReferenceMap(pvcEntity.getLocation(), pvc.getReferenceMap());
+        }
     }
 
     private TermCell createTermCell(TermSelector.SequentPolarity polarity, ListView<Term> termListView) {
@@ -109,28 +103,8 @@ public class SequentController {
         }
     }
 
-    public void viewSequentForPVC(PVCEntity pvcEntity) {
-        PVC pvc = pvcEntity.getPVC();
-        if (activeProof == null || !activeProof.getPvcName().equals(pvc.getIdentifier())) {
-            activeProof = manager.getProofForPVC(pvc.getIdentifier());
-            activeNode = activeProof.getProofRoot();
-            antecedentView.getItems().setAll(calculateAssertions(activeNode.getSequent().getAntecedent()));
-            succedentView.getItems().setAll(calculateAssertions(activeNode.getSequent().getSuccedent()));
-            referenceGraph = new ReferenceGraph();
-            referenceGraph.addFromReferenceMap(pvcEntity.getLocation(), pvc.getReferenceMap());
-        }
-    }
-
-    public void setSequentActionListener(SequentActionListener listener) {
-        this.listener = listener;
-    }
-
     private List<Term> calculateAssertions(List<ProofFormula> proofFormulas) {
         return proofFormulas.stream().map(ProofFormula::getTerm).collect(Collectors.toList());
-    }
-
-    public Parent getView() {
-        return view;
     }
 
     public ProofNode getActiveProofNode() {

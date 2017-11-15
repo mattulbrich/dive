@@ -6,7 +6,7 @@ import javafx.collections.ObservableList;
 import javafx.scene.control.SelectionModel;
 import javafx.scene.control.SingleSelectionModel;
 
-public class RuleGridView extends JFXMasonryPane {
+public class RuleGrid extends JFXMasonryPane {
 
     public static final double RULE_CELL_WIDTH = 140;
     public static final double RULE_CELL_HEIGHT = 80;
@@ -15,7 +15,11 @@ public class RuleGridView extends JFXMasonryPane {
     private final ObservableList<RuleView> rules;
     private final SelectionModel<RuleView> selectionModel;
 
-    public RuleGridView(RuleView... rules) {
+    public RuleGrid() {
+        this(new RuleView[0]);
+    }
+
+    public RuleGrid(RuleView... rules) {
         super();
         this.rules = FXCollections.observableArrayList(rules);
         this.selectionModel = new RuleSelectionModel();
