@@ -18,26 +18,25 @@ import javafx.scene.control.SplitPane;
 
 import java.util.ServiceLoader;
 
-public class RuleApplicationController extends FxmlController implements RuleApplicationListener {
+public class RuleApplicationController extends FxmlController {
 
     @FXML private Label termToConsider;
     @FXML private RuleGrid ruleGrid;
     @FXML private ScriptView scriptView;
 
-    public RuleApplicationController() {
+    private final RuleApplicationListener listener;
+
+    public RuleApplicationController(RuleApplicationListener listener) {
         super("RuleApplicationView.fxml");
+        this.listener = listener;
 
         for (ProofRule rule : ServiceLoader.load(ProofRule.class)) {
             addProofRule(rule);
         }
     }
 
-    public Node getRuleApplicationView() {
-        return view;
-    }
-
     public void addProofRule(ProofRule rule) {
-        ruleGrid.addRule(new RuleView(rule, ruleGrid.getSelectionModel(), this));
+        ruleGrid.addRule(new RuleView(rule, ruleGrid.getSelectionModel(), listener));
     }
 
     public void considerApplication(ProofNode target, Sequent selection, TermSelector selector) {
@@ -58,8 +57,15 @@ public class RuleApplicationController extends FxmlController implements RuleApp
         termToConsider.setText("");
     }
 
-    @Override
-    public void appliedRule(ProofRuleApplication application) {
-        System.out.println("Changes: " + application.getBranchInfo().get(0).getReplacements());
+    public void applyRule(ProofRuleApplication application) {
+        scriptView.insertText(scriptView.getLength(), application.getScriptTranscript());
+    }
+
+    public Node getRuleApplicationView() {
+        return view;
+    }
+
+    public ScriptView getScriptView() {
+        return scriptView;
     }
 }

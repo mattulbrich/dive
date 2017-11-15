@@ -16,6 +16,8 @@ import edu.kit.iti.algover.references.GetReferenceTypeVisitor;
 import edu.kit.iti.algover.references.ProofTermReference;
 import edu.kit.iti.algover.references.Reference;
 import edu.kit.iti.algover.rule.RuleApplicationController;
+import edu.kit.iti.algover.rule.RuleApplicationListener;
+import edu.kit.iti.algover.rules.ProofRuleApplication;
 import edu.kit.iti.algover.rules.TermSelector;
 import edu.kit.iti.algover.sequent.SequentActionListener;
 import edu.kit.iti.algover.sequent.SequentController;
@@ -28,7 +30,7 @@ import java.util.concurrent.ExecutorService;
 /**
  * Created by philipp on 27.06.17.
  */
-public class MainController implements SequentActionListener {
+public class MainController implements SequentActionListener, RuleApplicationListener {
 
     private final ProjectManager manager;
     private final BrowserController browserController;
@@ -43,7 +45,7 @@ public class MainController implements SequentActionListener {
         //this.browserController = new FileBasedBrowserController(manager.getProject(), this::onClickPVCEdit);
         this.editorController = new EditorController(executor);
         this.sequentController = new SequentController(this);
-        this.ruleApplicationController = new RuleApplicationController();
+        this.ruleApplicationController = new RuleApplicationController(this);
 
         this.view = new TimelineLayout(
                 browserController.getView(),
@@ -106,6 +108,15 @@ public class MainController implements SequentActionListener {
             }
         });
         return codeReferences;
+    }
+
+    @Override
+    public void appliedRule(ProofRuleApplication application) {
+        ruleApplicationController.applyRule(application);
+        String newScript = ruleApplicationController.getScriptView().getText();
+        sequentController.getActiveProof().parseAndSetScript(newScript);
+        sequentController.tryMovingOn();
+        ruleApplicationController.resetConsideration();
     }
 
     public TimelineLayout getView() {

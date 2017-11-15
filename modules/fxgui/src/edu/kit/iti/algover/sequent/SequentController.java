@@ -5,8 +5,11 @@ import edu.kit.iti.algover.browser.entities.PVCEntity;
 import edu.kit.iti.algover.proof.*;
 import edu.kit.iti.algover.references.ProofTermReference;
 import edu.kit.iti.algover.references.ReferenceGraph;
+import edu.kit.iti.algover.rules.BranchInfo;
+import edu.kit.iti.algover.rules.ProofRuleApplication;
 import edu.kit.iti.algover.rules.RuleException;
 import edu.kit.iti.algover.rules.TermSelector;
+import edu.kit.iti.algover.term.Sequent;
 import edu.kit.iti.algover.term.Term;
 import edu.kit.iti.algover.term.prettyprint.AnnotatedString;
 import edu.kit.iti.algover.util.SubSelection;
@@ -71,6 +74,13 @@ public class SequentController extends FxmlController {
             succedentView.getItems().setAll(calculateAssertions(activeNode.getSequent().getSuccedent()));
             referenceGraph = new ReferenceGraph();
             referenceGraph.addFromReferenceMap(pvcEntity.getLocation(), pvc.getReferenceMap());
+        }
+    }
+
+    // What a method name
+    public void tryMovingOn() {
+        if (activeNode != null && activeNode.getChildren().size() > 0) {
+            activeNode = activeNode.getChildren().get(0);
         }
     }
 
