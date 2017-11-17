@@ -173,7 +173,9 @@ public class ProjectManager {
 
     /**
      * Build the individual interpreter for a proof object and set it
-     * @param p Proof for which the interpreter needs to be built
+     *
+     * @param p Proofobject for which the interpreter needs to be built
+     *
      */
     protected void buildIndividualInterpreter(Proof p) {
 

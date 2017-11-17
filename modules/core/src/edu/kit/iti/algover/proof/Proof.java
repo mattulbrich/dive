@@ -146,9 +146,15 @@ public class Proof {
         return this;
     }
 
+    /**
+     * Interpret Script. For this the interpretr, the script ast and teh proof root have to be set.
+     *
+     * @return
+     */
     public Proof interpretScript() {
         assert script != null;
         assert proofRoot != null;
+        assert interpreter != null;
         lastaddedNode = proofRoot;
         interpreter.newState(new GoalNode<>(null, proofRoot));
         script.forEach(getInterpreter()::interpret);
