@@ -62,6 +62,11 @@ public class Proof {
 
     }
 
+    /**
+     * Parses a script as string representation and sets the parsed AST
+     *
+     * @param script string representation of script
+     */
     public void setNewScriptTextAndParser(String script) {
         if (this.getScript() != null) {
             saveOldDataStructures();
@@ -69,12 +74,13 @@ public class Proof {
         ProofScript scriptAST = Facade.getAST(script);
         this.setScript(scriptAST.getBody());
     }
+
     /**
-     * Parse a string representing a script and set the script to the newly parsed script AST
+     * Parse a script in a script file  and set the script to the newly parsed script AST
      *
      * @param script
      */
-    public void parseAndSetScript(String script) {
+    public void parseScriptFileAndSetScript(String script) {
         if (this.getScript() != null) {
             saveOldDataStructures();
         }
