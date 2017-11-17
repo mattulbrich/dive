@@ -244,6 +244,11 @@ public class Proof {
         return buffer;
     }
 
+    /**
+     * Returns a string representation of the proof tree
+     *
+     * @return
+     */
     public String proofToString() {
         StringBuilder sb = new StringBuilder("Proof for " + this.pvcName);
         if (this.getProofRoot() != null) {
