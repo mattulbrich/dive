@@ -62,7 +62,7 @@ public class ProjectManagerTest {
     }
 
 
-    @Ignore
+
     @Test
     public void loadExistingProject() throws Exception {
         pm = new ProjectManager();
@@ -97,17 +97,21 @@ public class ProjectManagerTest {
 
         Assert.assertEquals("Proofscript is parsed", ProofStatus.SCRIPT_PARSED, proof.getProofStatus());
         System.out.println(pm.getProofForPVC(testPVC2).getProofRoot().getSequent());
+
+        //get the Proof object for a PVC
         Proof proof2 = pm.getProofForPVC(testPVC2);
 
-        //  Assert.assertEquals("Proofscript is not loaded yet", ProofStatus.NOT_LOADED, proof2.getProofStatus());
-        //  pm.findAndParseScriptFileForPVC(testPVC2);
+        //Assert.assertEquals("Proofscript is not loaded yet", ProofStatus.NOT_LOADED, proof2.getProofStatus());
+
+        //find and parse a script file for PVC
+        pm.findAndParseScriptFileForPVC(testPVC2);
 
         //System.out.println("Current State " + proof.getInterpreter().getCurrentState().getSelectedGoalNode());
         //pm.replayAllProofs();
 
-        //this should be the way a script should be applied
-        //proof2.interpretScript();
-        System.out.println(proof2.interpretScript());
+        //this should be the way a script should be interpreted
+        proof2.interpretScript();
+        //the way to print the proof tree
         System.out.println(proof2.proofToString());
         proof2.invalidate();
 
@@ -118,6 +122,7 @@ public class ProjectManagerTest {
         //set a new script text and parse it
         proof2.setNewScriptTextAndParser(newScript);
         System.out.println(proof2.getScript());
+        //interpret new Script
         System.out.println(proof2.interpretScript());
 
 

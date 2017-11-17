@@ -16,7 +16,8 @@ import java.util.*;
 
 /**
  * Proof Object
- * This object contains the proof root as well as teh script root
+ * This object contains the proof root as well as the script root
+ * It has to be build by the ProjectManager in order to contain a valid interpreter.
  */
 public class Proof {
 
@@ -182,6 +183,22 @@ public class Proof {
             this.script.add(s);
         });
 
+    }
+
+    /**
+     * Set a new Script , parse it and interpret script.
+     *
+     * @param scriptText
+     * @return this object
+     */
+    public Proof setNewScriptTextAndInterpret(String scriptText) {
+        if (interpreter == null) {
+            throw new RuntimeException("No interpreter is set");
+        } else {
+            this.setNewScriptTextAndParser(scriptText);
+            this.interpretScript();
+            return this;
+        }
     }
 
     public ProofStatus getProofStatus() {
