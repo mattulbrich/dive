@@ -291,6 +291,8 @@ public class Proof {
 
 /**
  * Class handling the creation of the proof tree when interpreting script.
+ * EntryListeners are informed when entering an ASTNode in the Interpreter
+ * ExitsListeners are informed at then end of ASTNodes
  */
 class ProofNodeInterpreterManager {
     final Interpreter<ProofNode> interpreter;
@@ -391,9 +393,14 @@ class ProofNodeInterpreterManager {
 
         @Override
         public Void defaultVisit(ASTNode node) {
+
             //System.out.println("Exit " + node.getNodeName());
             lastSelectedGoalNode.getData().setChildren(new ArrayList<>());
             List<GoalNode<ProofNode>> goals = interpreter.getCurrentState().getGoals();
+            if (goals.size() == 1 && goals.get(0).equals(lastSelectedGoalNode)) {
+                System.out.println("There was no change");
+                return null;
+            }
             if (goals.size() > 0) {
                 for (GoalNode<ProofNode> goal : goals) {
                     lastSelectedGoalNode.getData().getChildren().add(goal.getData());
@@ -418,6 +425,12 @@ class ProofNodeInterpreterManager {
             return null;
         }
 
+        /**
+         * When exiting an Assignment statement a new node has to be added, because assignments change the state as well
+         *
+         * @param assignment
+         * @return
+         */
         @Override
         public Void visit(AssignmentStatement assignment) {
             LinkedList<ProofNode> singleChild = new LinkedList<>();
@@ -428,6 +441,8 @@ class ProofNodeInterpreterManager {
                         null,
                         null,
                         goals.get(0).getData().getSequent(), lastSelectedGoalNode.getData().getRootPVC());
+                //TODO: needs to be fixed
+                pn.setVariableAssignments(goals.get(0).getAssignments());
                 singleChild.add(pn);
             }
             lastSelectedGoalNode.getData().setChildren(singleChild);
@@ -438,6 +453,7 @@ class ProofNodeInterpreterManager {
 
         @Override
         public Void visit(CasesStatement casesStatement) {
+
             return null;
         }
 

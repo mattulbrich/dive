@@ -20,6 +20,14 @@ import java.util.*;
  */
 public class ProofNode {
 
+    public VariableAssignment getVariableAssignments() {
+        return variableAssignments;
+    }
+
+    public void setVariableAssignments(VariableAssignment variableAssignments) {
+        this.variableAssignments = variableAssignments;
+    }
+
     /**
      * The variable assignments for this node
      */
