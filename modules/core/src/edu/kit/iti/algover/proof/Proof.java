@@ -16,7 +16,8 @@ import java.util.*;
 
 /**
  * Proof Object
- * This object contains the proof root as well as teh script root
+ * This object contains the proof root as well as the script root
+ * It has to be build by the ProjectManager in order to contain a valid interpreter.
  */
 public class Proof {
 
@@ -62,6 +63,11 @@ public class Proof {
 
     }
 
+    /**
+     * Parses a script as string representation and sets the parsed AST
+     *
+     * @param script string representation of script
+     */
     public void setNewScriptTextAndParser(String script) {
         if (this.getScript() != null) {
             saveOldDataStructures();
@@ -69,12 +75,13 @@ public class Proof {
         ProofScript scriptAST = Facade.getAST(script);
         this.setScript(scriptAST.getBody());
     }
+
     /**
-     * Parse a string representing a script and set the script to the newly parsed script AST
+     * Parse a script in a script file  and set the script to the newly parsed script AST
      *
      * @param script
      */
-    public void parseAndSetScript(String script) {
+    public void parseScriptFileAndSetScript(String script) {
         if (this.getScript() != null) {
             saveOldDataStructures();
         }
@@ -140,9 +147,15 @@ public class Proof {
         return this;
     }
 
+    /**
+     * Interpret Script. For this the interpretr, the script ast and teh proof root have to be set.
+     *
+     * @return
+     */
     public Proof interpretScript() {
         assert script != null;
         assert proofRoot != null;
+        assert interpreter != null;
         lastaddedNode = proofRoot;
         interpreter.newState(new GoalNode<>(null, proofRoot));
         script.forEach(getInterpreter()::interpret);
@@ -170,6 +183,22 @@ public class Proof {
             this.script.add(s);
         });
 
+    }
+
+    /**
+     * Set a new Script , parse it and interpret script.
+     *
+     * @param scriptText
+     * @return this object
+     */
+    public Proof setNewScriptTextAndInterpret(String scriptText) {
+        if (interpreter == null) {
+            throw new RuntimeException("No interpreter is set");
+        } else {
+            this.setNewScriptTextAndParser(scriptText);
+            this.interpretScript();
+            return this;
+        }
     }
 
     public ProofStatus getProofStatus() {
@@ -238,6 +267,11 @@ public class Proof {
         return buffer;
     }
 
+    /**
+     * Returns a string representation of the proof tree
+     *
+     * @return
+     */
     public String proofToString() {
         StringBuilder sb = new StringBuilder("Proof for " + this.pvcName);
         if (this.getProofRoot() != null) {
@@ -257,6 +291,8 @@ public class Proof {
 
 /**
  * Class handling the creation of the proof tree when interpreting script.
+ * EntryListeners are informed when entering an ASTNode in the Interpreter
+ * ExitsListeners are informed at then end of ASTNodes
  */
 class ProofNodeInterpreterManager {
     final Interpreter<ProofNode> interpreter;
@@ -277,7 +313,7 @@ class ProofNodeInterpreterManager {
 
         @Override
         public Void defaultVisit(ASTNode node) {
-            System.out.println("Entry " + node.getNodeName());
+            //System.out.println("Entry " + node.getNodeName());
             lastSelectedGoalNode = interpreter.getSelectedNode();
             return null;
         }
@@ -357,9 +393,14 @@ class ProofNodeInterpreterManager {
 
         @Override
         public Void defaultVisit(ASTNode node) {
-            System.out.println("Exit " + node.getNodeName());
+
+            //System.out.println("Exit " + node.getNodeName());
             lastSelectedGoalNode.getData().setChildren(new ArrayList<>());
             List<GoalNode<ProofNode>> goals = interpreter.getCurrentState().getGoals();
+            if (goals.size() == 1 && goals.get(0).equals(lastSelectedGoalNode)) {
+                System.out.println("There was no change");
+                return null;
+            }
             if (goals.size() > 0) {
                 for (GoalNode<ProofNode> goal : goals) {
                     lastSelectedGoalNode.getData().getChildren().add(goal.getData());
@@ -384,6 +425,12 @@ class ProofNodeInterpreterManager {
             return null;
         }
 
+        /**
+         * When exiting an Assignment statement a new node has to be added, because assignments change the state as well
+         *
+         * @param assignment
+         * @return
+         */
         @Override
         public Void visit(AssignmentStatement assignment) {
             LinkedList<ProofNode> singleChild = new LinkedList<>();
@@ -394,6 +441,8 @@ class ProofNodeInterpreterManager {
                         null,
                         null,
                         goals.get(0).getData().getSequent(), lastSelectedGoalNode.getData().getRootPVC());
+                //TODO: needs to be fixed
+                pn.setVariableAssignments(goals.get(0).getAssignments());
                 singleChild.add(pn);
             }
             lastSelectedGoalNode.getData().setChildren(singleChild);
@@ -404,6 +453,7 @@ class ProofNodeInterpreterManager {
 
         @Override
         public Void visit(CasesStatement casesStatement) {
+
             return null;
         }
 

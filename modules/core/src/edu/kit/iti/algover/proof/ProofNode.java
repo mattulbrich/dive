@@ -7,6 +7,7 @@ package edu.kit.iti.algover.proof;
 
 import edu.kit.iti.algover.rules.ProofRuleApplication;
 import edu.kit.iti.algover.script.ast.ASTNode;
+import edu.kit.iti.algover.script.data.VariableAssignment;
 import edu.kit.iti.algover.term.Sequent;
 
 import java.util.*;
@@ -18,6 +19,19 @@ import java.util.*;
  * *
  */
 public class ProofNode {
+
+    public VariableAssignment getVariableAssignments() {
+        return variableAssignments;
+    }
+
+    public void setVariableAssignments(VariableAssignment variableAssignments) {
+        this.variableAssignments = variableAssignments;
+    }
+
+    /**
+     * The variable assignments for this node
+     */
+    private VariableAssignment variableAssignments;
 
     /**
      * Pointer to parent proof node
@@ -90,7 +104,6 @@ public class ProofNode {
     }
 
     public List<ProofNode> getChildren() {
-        System.out.println("Requesting getting children");
         return children;
     }
 
