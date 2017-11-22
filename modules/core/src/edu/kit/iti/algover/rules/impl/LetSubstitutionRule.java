@@ -55,8 +55,8 @@ public class LetSubstitutionRule extends AbstractProofRule {
         builder.newBranch()
                 .addReplacement(selector, applyLetSubstitution(targetLet));
         builder.setApplicability(ProofRuleApplication.Applicability.APPLICABLE)
-                .setTranscript(getName() + " on=\"" +
-                        selector.selectSubterm(target.getSequent()) +  "\"");
+                .setTranscript(getName() + " on='" +
+                        selector.selectSubterm(target.getSequent()) +  "';");
 
         return builder.build();
     }
@@ -81,8 +81,8 @@ public class LetSubstitutionRule extends AbstractProofRule {
         builder.setApplicability(ProofRuleApplication.Applicability.APPLICABLE);
         builder.newBranch().addReplacement(selector, applyLetSubstitution(targetLet));
         builder.setApplicability(ProofRuleApplication.Applicability.APPLICABLE)
-                .setTranscript(getName() + " on=\"" +
-                        selector.selectSubterm(target.getSequent()) +  "\"");
+                .setTranscript(getName() + " on='" +
+                        selector.selectSubterm(target.getSequent()) +  "';");
 
         return builder.build();
     }

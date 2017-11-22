@@ -9,6 +9,7 @@ import edu.kit.iti.algover.rules.BranchInfo;
 import edu.kit.iti.algover.rules.ProofRuleApplication;
 import edu.kit.iti.algover.rules.RuleException;
 import edu.kit.iti.algover.rules.TermSelector;
+import edu.kit.iti.algover.script.interpreter.Interpreter;
 import edu.kit.iti.algover.term.Sequent;
 import edu.kit.iti.algover.term.Term;
 import edu.kit.iti.algover.term.prettyprint.AnnotatedString;
@@ -70,8 +71,7 @@ public class SequentController extends FxmlController {
         if (activeProof == null || !activeProof.getPvcName().equals(pvc.getIdentifier())) {
             activeProof = proof;
             activeNode = activeProof.getProofRoot();
-            antecedentView.getItems().setAll(calculateAssertions(activeNode.getSequent().getAntecedent()));
-            succedentView.getItems().setAll(calculateAssertions(activeNode.getSequent().getSuccedent()));
+            updateSequent(activeNode.getSequent());
             referenceGraph = new ReferenceGraph();
             referenceGraph.addFromReferenceMap(pvcEntity.getLocation(), pvc.getReferenceMap());
         }
@@ -81,7 +81,12 @@ public class SequentController extends FxmlController {
     public void tryMovingOn() {
         if (activeNode != null && activeNode.getChildren().size() > 0) {
             activeNode = activeNode.getChildren().get(0);
+            updateSequent(activeNode.getSequent());
         }
+    }
+    private void updateSequent(Sequent sequent) {
+        antecedentView.getItems().setAll(calculateAssertions(sequent.getAntecedent()));
+        succedentView.getItems().setAll(calculateAssertions(sequent.getSuccedent()));
     }
 
     private TermCell createTermCell(TermSelector.SequentPolarity polarity, ListView<Term> termListView) {

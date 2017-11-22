@@ -27,7 +27,7 @@ public class RuleApplicationTest extends ApplicationTest {
         ProjectManager manager = ProjectManagerMock.fromExample("gcd");
         MainController controller = new MainController(manager, SYNTAX_HIGHLIGHTING_EXECUTOR);
         controller.onClickPVCEdit(
-                new PVCEntity(manager.getPVCByNameMap().get("gcd/InitInv.2"), manager.getProject().getDafnyFiles().get(0)));
+                new PVCEntity(manager.getPVCByNameMap().get("gcd/InitInv.1"), manager.getProject().getDafnyFiles().get(0)));
         controller.onClickSequentSubterm(new TermSelector("S.0"));
         return new StackPane(controller.getView());
     }

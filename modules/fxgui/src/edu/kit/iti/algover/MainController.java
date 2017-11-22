@@ -9,6 +9,7 @@ import edu.kit.iti.algover.dafnystructures.DafnyFile;
 import edu.kit.iti.algover.editor.EditorController;
 import edu.kit.iti.algover.project.ProjectManager;
 import edu.kit.iti.algover.proof.PVC;
+import edu.kit.iti.algover.proof.Proof;
 import edu.kit.iti.algover.proof.ProofNode;
 import edu.kit.iti.algover.proof.ProofNodeSelector;
 import edu.kit.iti.algover.references.CodeReference;
@@ -61,7 +62,8 @@ public class MainController implements SequentActionListener, RuleApplicationLis
         PVC pvc = entity.getPVC();
         editorController.viewFile(entity.getLocation());
         editorController.viewPVCSelection(pvc);
-        sequentController.viewSequentForPVC(entity, manager.getProofForPVC(entity.getPVC().getIdentifier()));
+        Proof proof = manager.getProofForPVC(entity.getPVC().getIdentifier());
+        sequentController.viewSequentForPVC(entity, proof);
         ruleApplicationController.resetConsideration();
         view.moveFrameRight();
     }
@@ -114,7 +116,7 @@ public class MainController implements SequentActionListener, RuleApplicationLis
     public void appliedRule(ProofRuleApplication application) {
         ruleApplicationController.applyRule(application);
         String newScript = ruleApplicationController.getScriptView().getText();
-        sequentController.getActiveProof().parseAndSetScript(newScript);
+        sequentController.getActiveProof().setNewScriptTextAndInterpret(newScript);
         sequentController.tryMovingOn();
         ruleApplicationController.resetConsideration();
     }

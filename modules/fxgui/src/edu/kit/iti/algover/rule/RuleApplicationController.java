@@ -58,7 +58,7 @@ public class RuleApplicationController extends FxmlController {
     }
 
     public void applyRule(ProofRuleApplication application) {
-        scriptView.insertText(scriptView.getLength(), application.getScriptTranscript());
+        scriptView.insertText(scriptView.getLength(), application.getScriptTranscript() + "\n");
     }
 
     public Node getRuleApplicationView() {
