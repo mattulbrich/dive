@@ -118,6 +118,7 @@ public class MainController implements SequentActionListener, RuleApplicationLis
         // Currently, this will reset the script text completely. That means the
         // script has to be parsed and rebuilt completely.
         ruleApplicationController.applyRule(application);
+        ruleApplicationController.getRuleGrid().getSelectionModel().clearSelection();
         String newScript = ruleApplicationController.getScriptView().getText();
         sequentController.getActiveProof().setNewScriptTextAndInterpret(newScript);
         sequentController.tryMovingOn();

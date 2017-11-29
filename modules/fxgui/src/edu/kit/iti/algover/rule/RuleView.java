@@ -18,6 +18,7 @@ import javafx.scene.layout.StackPane;
 public class RuleView extends StackPane {
 
     private static final PseudoClass PC_SELECTED = PseudoClass.getPseudoClass("selected");
+    private static final PseudoClass PC_SELECTABLE = PseudoClass.getPseudoClass("selectable");
     private static final PseudoClass PC_CLOSES = PseudoClass.getPseudoClass("closes");
     private static final PseudoClass PC_SPLITTING = PseudoClass.getPseudoClass("splitting");
     private static final PseudoClass PC_NON_SPLITTING = PseudoClass.getPseudoClass("non-splitting");
@@ -27,6 +28,7 @@ public class RuleView extends StackPane {
 
     private ProofRuleApplication application;
     private RuleViewOverlay applicationOverlay;
+    private boolean selectable;
 
     private final SelectionModel<RuleView> selectionModel;
     private final RuleApplicationListener listener;
@@ -35,6 +37,7 @@ public class RuleView extends StackPane {
         this.rule = rule;
         this.selectionModel = selectionModel;
         this.listener = listener;
+        this.selectable = false;
 
         getStyleClass().addAll("rule-view");
         setPadding(new Insets(4, 4, 4, 4));
@@ -54,18 +57,21 @@ public class RuleView extends StackPane {
     }
 
     private void onClick(MouseEvent mouseEvent) {
-        if (selectionModel.getSelectedItem() != this) {
-            selectionModel.select(this);
-            pseudoClassStateChanged(PC_SELECTED, true);
-            requestFocus();
-        } else {
-            selectionModel.clearSelection();
+        if (isSelectable()) {
+            if (selectionModel.getSelectedItem() != this) {
+                selectionModel.select(this);
+                pseudoClassStateChanged(PC_SELECTED, true);
+                requestFocus();
+            } else {
+                selectionModel.clearSelection();
+            }
         }
     }
 
     public void considerApplication(ProofNode target, Sequent selection, TermSelector selector) {
         try {
             application = rule.considerApplication(target, selection, selector);
+            setSelectable(application != null && application.getApplicability() == ProofRuleApplication.Applicability.APPLICABLE);
         } catch (RuleException e) {
             System.err.println("Cannot consider Application: " + e);
         }
@@ -85,6 +91,7 @@ public class RuleView extends StackPane {
     public void resetConsideration() {
         application = null;
         applicationOverlay = null;
+        setSelectable(false);
         pseudoClassStateChanged(PC_CLOSES, false);
         pseudoClassStateChanged(PC_SPLITTING, false);
         pseudoClassStateChanged(PC_NON_SPLITTING, false);
@@ -109,5 +116,20 @@ public class RuleView extends StackPane {
                 pseudoClassStateChanged(PC_NON_SPLITTING, false);
                 return;
         }
+    }
+
+    private void setSelectable(boolean selectable) {
+        this.selectable = selectable;
+        pseudoClassStateChanged(PC_SELECTABLE, selectable);
+        if (!selectable) {
+            if (selectionModel.getSelectedItem() == this) {
+                selectionModel.clearSelection();
+                pseudoClassStateChanged(PC_SELECTED, false);
+            }
+        }
+    }
+
+    public boolean isSelectable() {
+        return selectable;
     }
 }

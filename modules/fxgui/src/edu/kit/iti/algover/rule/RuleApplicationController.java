@@ -65,6 +65,10 @@ public class RuleApplicationController extends FxmlController {
         return view;
     }
 
+    public RuleGrid getRuleGrid() {
+        return ruleGrid;
+    }
+
     public ScriptView getScriptView() {
         return scriptView;
     }
