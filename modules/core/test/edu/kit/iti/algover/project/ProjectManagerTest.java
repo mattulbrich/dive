@@ -158,6 +158,18 @@ public class ProjectManagerTest {
         proof.setNewScriptTextAndInterpret("substitute on='true';");
     }
 
+    // This test currently fails with a NullPointerException, but I felt like an empty script should be
+    // interpretable, even though it doesn't advance the proof state...
+    @Test
+    public void testEmptyScript() throws Exception {
+        pm = new ProjectManager();
+        pm.loadProject(config);
+
+        Proof proof = pm.getProofForPVC(testPVCName);
+
+        proof.setNewScriptTextAndInterpret("");
+    }
+
     @Test
     public void userChangedSourceCode() {
         //ProjectManagement.saveFile(File, content);
