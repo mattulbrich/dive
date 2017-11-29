@@ -13,6 +13,7 @@ import edu.kit.iti.algover.proof.PVC;
 import edu.kit.iti.algover.proof.PVCCollection;
 import edu.kit.iti.algover.proof.Proof;
 import edu.kit.iti.algover.proof.ProofStatus;
+import edu.kit.iti.algover.script.exceptions.ScriptCommandNotApplicableException;
 import edu.kit.iti.algover.term.FunctionSymbol;
 import edu.kit.iti.algover.term.Sequent;
 import edu.kit.iti.algover.term.Term;
@@ -142,6 +143,19 @@ public class ProjectManagerTest {
             Assert.assertEquals(ProofStatus.NON_EXISTING, pr.getProofStatus());
         }*/
 
+    }
+
+    // This test currently throws a NullPointerException, instead of the ScriptCommandNotApplicable exception.
+    // That exception is caught during execution at some point and during catching, a NullPointerException is
+    // generated. The point that happens is marked via "TODO handling of error state for each visit".
+    @Test(expected = ScriptCommandNotApplicableException.class)
+    public void testInapplicableScriptCommand() throws Exception {
+        pm = new ProjectManager();
+        pm.loadProject(config);
+
+        Proof proof = pm.getProofForPVC(testPVCName);
+
+        proof.setNewScriptTextAndInterpret("substitute on='true';");
     }
 
     @Test
