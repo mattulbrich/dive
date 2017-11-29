@@ -84,7 +84,7 @@ public class MainController implements SequentActionListener, RuleApplicationLis
     @Override
     public void onClickSequentSubterm(TermSelector selector) {
         view.moveFrameRight();
-        ProofNode node = sequentController.getActiveProofNode();
+        ProofNode node = sequentController.getActiveNode();
         if (node != null) {
             ruleApplicationController.considerApplication(node, node.getSequent(), selector);
         }
@@ -114,6 +114,9 @@ public class MainController implements SequentActionListener, RuleApplicationLis
 
     @Override
     public void appliedRule(ProofRuleApplication application) {
+        // This can be implemented as an incremental algorithm in the future here!
+        // Currently, this will reset the script text completely. That means the
+        // script has to be parsed and rebuilt completely.
         ruleApplicationController.applyRule(application);
         String newScript = ruleApplicationController.getScriptView().getText();
         sequentController.getActiveProof().setNewScriptTextAndInterpret(newScript);

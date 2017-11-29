@@ -37,7 +37,7 @@ public class SequentController extends FxmlController {
     private final SubSelection<AnnotatedString.TermElement> highlightedTerm;
     private ReferenceGraph referenceGraph;
     private Proof activeProof;
-    private ProofNode activeNode;
+    private ProofNodeSelector activeNode;
 
     public SequentController(SequentActionListener listener) {
         super("SequentView.fxml");
@@ -70,8 +70,8 @@ public class SequentController extends FxmlController {
         PVC pvc = pvcEntity.getPVC();
         if (activeProof == null || !activeProof.getPvcName().equals(pvc.getIdentifier())) {
             activeProof = proof;
-            activeNode = activeProof.getProofRoot();
-            updateSequent(activeNode.getSequent());
+            activeNode = new ProofNodeSelector();
+            updateSequent(getActiveNode().getSequent());
             referenceGraph = new ReferenceGraph();
             referenceGraph.addFromReferenceMap(pvcEntity.getLocation(), pvc.getReferenceMap());
         }
@@ -79,11 +79,27 @@ public class SequentController extends FxmlController {
 
     // What a method name
     public void tryMovingOn() {
-        if (activeNode != null && activeNode.getChildren().size() > 0) {
-            activeNode = activeNode.getChildren().get(0);
-            updateSequent(activeNode.getSequent());
+        if (activeNode != null) {
+            ProofNodeSelector newActiveNode = new ProofNodeSelector(activeNode, 0);
+            try {
+                ProofNode node = newActiveNode.get(activeProof);
+                updateSequent(node.getSequent());
+                activeNode = newActiveNode;
+            } catch (RuleException e) {
+                return;
+            }
         }
     }
+
+    public ProofNode getActiveNode() {
+        try {
+            return activeNode.get(activeProof);
+        } catch (RuleException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+
     private void updateSequent(Sequent sequent) {
         antecedentView.getItems().setAll(calculateAssertions(sequent.getAntecedent()));
         succedentView.getItems().setAll(calculateAssertions(sequent.getSuccedent()));
@@ -95,32 +111,21 @@ public class SequentController extends FxmlController {
 
     private ProofTermReference attachCurrentActiveProof(TermSelector selector) {
         if (activeNode != null) {
-            ProofNodeSelector nodeSelector = new ProofNodeSelector(activeNode);
-            return new ProofTermReference(nodeSelector, selector);
+            return new ProofTermReference(activeNode, selector);
         }
         return null;
     }
 
     private TermSelector termSelectorFromReference(ProofTermReference reference) {
-        try {
-            if (activeProof != null && reference.getProofNodeSelector().get(activeProof) == activeNode) {
-                return reference.getTermSelector();
-            } else {
-                return null;
-            }
-        } catch (RuleException e) {
-            e.printStackTrace();
-            // TODO: Maybe error handling?
+        if (activeProof != null && reference.getProofNodeSelector() == activeNode) {
+            return reference.getTermSelector();
+        } else {
             return null;
         }
     }
 
     private List<Term> calculateAssertions(List<ProofFormula> proofFormulas) {
         return proofFormulas.stream().map(ProofFormula::getTerm).collect(Collectors.toList());
-    }
-
-    public ProofNode getActiveProofNode() {
-        return activeNode;
     }
 
     public ReferenceGraph getReferenceGraph() {

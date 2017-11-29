@@ -16,6 +16,17 @@ public class ProofNodeSelector {
         this.path = path;
     }
 
+    public ProofNodeSelector(ProofNodeSelector prefix, int... path) {
+        this(concatArrays(prefix.path, path));
+    }
+
+    private static int[] concatArrays(int[] prefix, int[] suffix) {
+        int[] result = new int[prefix.length + suffix.length];
+        System.arraycopy(prefix, 0, result, 0, prefix.length);
+        System.arraycopy(suffix, 0, result, prefix.length, suffix.length);
+        return result;
+    }
+
     public ProofNodeSelector(ProofNode proofNode) {
         this(calculatePathFromNode(proofNode));
     }
