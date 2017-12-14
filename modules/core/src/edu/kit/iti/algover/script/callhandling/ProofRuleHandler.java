@@ -96,11 +96,13 @@ public class ProofRuleHandler implements CommandHandler<ProofNode> {
         if (!ruleMap.keySet().contains(call.getCommand())) {
             throw new IllegalStateException();
         }
+        //get the call command to apply and teh selected goal node
         ProofRule pr = ruleMap.get(call.getCommand());
         State<ProofNode> state = interpreter.getCurrentState();
         GoalNode<ProofNode> pn = state.getSelectedGoalNode();
 
         try {
+            //evaluate the parameters
             Parameters ruleParams = new Parameters();
 
             Evaluator<ProofNode> evaluator = new Evaluator<>(params, pn);
@@ -110,6 +112,7 @@ public class ProofRuleHandler implements CommandHandler<ProofNode> {
                     }
             );
 
+            //apply the rule
             ProofRuleApplication proofRuleApplication = pr.makeApplication(pn.getData(), ruleParams);
             if (proofRuleApplication.getApplicability().equals(ProofRuleApplication.Applicability.APPLICABLE)) {
                 List<ProofNode> newNodes = RuleApplicator.applyRule(proofRuleApplication, pn.getData());

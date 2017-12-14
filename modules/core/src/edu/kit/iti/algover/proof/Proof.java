@@ -273,7 +273,7 @@ public class Proof {
      * @return
      */
     public String proofToString() {
-        StringBuilder sb = new StringBuilder("Proof for " + this.pvcName);
+        StringBuilder sb = new StringBuilder("Proof for " + this.pvcName + "\n");
         if (this.getProofRoot() != null) {
             sb.append(toStringTree(getProofRoot()));
         }
@@ -404,6 +404,8 @@ class ProofNodeInterpreterManager {
             if (goals.size() > 0) {
                 for (GoalNode<ProofNode> goal : goals) {
                     lastSelectedGoalNode.getData().getChildren().add(goal.getData());
+
+                    goal.getData().setVariableAssignments(goal.getAssignments());
                 }
             }
 /*
