@@ -59,10 +59,10 @@ public class ScriptParserTest {
 
             Sequent s = InterpreterUtils.createTestSequent(antec, succ, setupTable);
 
-            ib.startState(new GoalNode<>(null, new ProofNode(null, null, null, s, pvc)));
+            ib.startState(new ProofNode(null, null, null, s, pvc));
             Interpreter i = ib.build();
 
-            System.out.println(((ProofNode) i.getCurrentState().getSelectedGoalNode().getData()).getSequent());
+            System.out.println(((ProofNode) i.getCurrentState().getSelectedGoalNode()).getSequent());
 
             i.interpret(parsedScript);
             for (Object o : i.getCurrentState().getGoals()) {

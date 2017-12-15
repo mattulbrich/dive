@@ -97,7 +97,7 @@ public class ProjectManagerTest {
         // pm.findAndParseScriptFileForPVC(testPVCName);
 
         Assert.assertEquals("Proofscript is parsed", ProofStatus.SCRIPT_PARSED, proof.getProofStatus());
-        System.out.println(pm.getProofForPVC(testPVC2).getProofRoot().getSequent());
+        System.out.println("Proof root for PVC " + testPVC2Name + " \n" + pm.getProofForPVC(testPVC2).getProofRoot().getSequent());
 
         //get the Proof object for a PVC
         Proof proof2 = pm.getProofForPVC(testPVC2);
@@ -114,9 +114,9 @@ public class ProjectManagerTest {
         proof2.interpretScript();
         //the way to print the proof tree
         System.out.println(proof2.proofToString());
-        proof2.invalidate();
+        // proof2.invalidate();
 
-        String newScript = "substitute on='let $mod := $everything :: (let x := 1 :: 1== 2 && 2 == 3 )';\n" +
+        /*String newScript = "substitute on='let $mod := $everything :: (let x := 1 :: 1== 2 && 2 == 3 )';\n" +
                 "substitute on='let x := 1 :: 1== 2 && 2 == 3 '; \n" +
                 "x:int := 0; \n" +
                 "andRight on='1== 2 && 2 == 3 ';\n";

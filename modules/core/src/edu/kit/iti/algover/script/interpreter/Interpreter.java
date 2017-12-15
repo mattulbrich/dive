@@ -1,9 +1,10 @@
 package edu.kit.iti.algover.script.interpreter;
 
 
+import edu.kit.iti.algover.proof.ProofNode;
 import edu.kit.iti.algover.script.ast.*;
 import edu.kit.iti.algover.script.callhandling.CommandLookup;
-import edu.kit.iti.algover.script.data.GoalNode;
+//import edu.kit.iti.algover.script.data.GoalNode;
 import edu.kit.iti.algover.script.data.State;
 import edu.kit.iti.algover.script.data.Value;
 import edu.kit.iti.algover.script.data.VariableAssignment;
@@ -11,7 +12,6 @@ import edu.kit.iti.algover.script.exceptions.InterpreterRuntimeException;
 import edu.kit.iti.algover.script.exceptions.ScriptCommandNotApplicableException;
 import edu.kit.iti.algover.script.parser.DefaultASTVisitor;
 import edu.kit.iti.algover.script.parser.Visitor;
-import org.antlr.v4.runtime.ParserRuleContext;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -130,24 +130,36 @@ public class Interpreter<T> extends DefaultASTVisitor<Object>
     public Object visit(AssignmentStatement assignmentStatement) {
         enterScope(assignmentStatement);
 
-        GoalNode<T> node = getSelectedNode();
+        //ProofNode node = getSelectedNode();
+        State<T> currentState = popState();
+        ProofNode node = currentState.getSelectedGoalNode();
+
+        ProofNode newNode = new ProofNode(node, null, node.getHistory(), node.getSequent(), node.getRootPVC());
+        newState(newNode);
+
         Type t = assignmentStatement.getType();
         Variable var = assignmentStatement.getLhs();
         Expression expr = assignmentStatement.getRhs();
         if (t != null) {
-            node.declareVariable(var, t);
+            newNode.declareVariable(var, t);
         }
 
         if (expr != null) {
-            Type type = node.getVariableType(var);
+            Type type = newNode.getVariableType(var);
             if (type == null) {
                 throw new RuntimeException("Type of Variable " + var + " is not declared yet");
             } else {
                 Value v = evaluate(expr);
-                node.setVariableValue(var, v);
+                newNode.setVariableValue(var, v);
             }
         }
+
+
+        //this.getCurrentState().getGoals().remove(node);
+        //this.getCurrentState().getGoals().add(newNode);
+        //this.getCurrentState().setSelectedGoalNode(newNode);
         exitScope(assignmentStatement);
+
 
         return null;
     }
@@ -157,14 +169,99 @@ public class Interpreter<T> extends DefaultASTVisitor<Object>
         return evaluate(getSelectedNode(), expr);
     }
 
-    private Value evaluate(GoalNode<T> g, Expression expr) {
-        enterScope(expr);
-        Evaluator evaluator = new Evaluator(g.getAssignments(), g);
-        evaluator.setMatcher(matcherApi);
-        evaluator.getEntryListeners().addAll(entryListeners);
-        evaluator.getExitListeners().addAll(exitListeners);
-        exitScope(expr);
-        return evaluator.eval(expr);
+    /**
+     * @param casesStatement
+     * @return
+     */
+    @Override
+    public Object visit(CasesStatement casesStatement) {
+        enterScope(casesStatement);
+        State<T> beforeCases = peekState();
+
+        //List<GoalNode<T>> allGoalsBeforeCases = beforeCases.getGoals();
+        List<ProofNode> allGoalsBeforeCases = beforeCases.getGoals();
+
+        //global List after all Case Statements
+        List<ProofNode> goalsAfterCases = new ArrayList<>();
+        //copy the list of goal nodes for keeping track of goals
+        Set<ProofNode> remainingGoalsSet = new HashSet<>(allGoalsBeforeCases);
+        //handle cases
+        List<CaseStatement> cases = casesStatement.getCases();
+
+//        for (GoalNode<T> goalBeforeCase : allGoalsBeforeCases) {
+        for (ProofNode goalBeforeCase : allGoalsBeforeCases) {
+            State<T> createdState = newState(goalBeforeCase);//to allow the case to retrieve goal
+            boolean result = false;
+            for (CaseStatement aCase : cases) {
+                result = (boolean) aCase.accept(this);
+                if (result) {
+                    //remove goal from set for default
+                    remainingGoalsSet.remove(goalBeforeCase);
+                    //case statement matched and was executed
+                    break;
+                }
+            }
+            //remove state from stack
+            State<T> stateAfterCase = popState();
+            //  System.out.println("State after Case " + stateAfterCase.getSelectedGoalNode().toCellTextForKeYData());
+            if (result && stateAfterCase.getGoals() != null) {
+                goalsAfterCases.addAll(stateAfterCase.getGoals());
+            }
+
+
+        }
+
+        //===========================================================================================//
+       /* for (CaseStatement aCase : cases) {
+            if (aCase.isClosedStmt) {
+                System.out.println("IsClosableStmt not implemented yet");
+            } else {
+                Map<GoalNode<T>, VariableAssignment> matchedGoals =
+                        matchGoal(remainingGoalsSet, (SimpleCaseStatement) aCase);
+                if (matchedGoals != null) {
+                    remainingGoalsSet.removeAll(matchedGoals.keySet());
+                    goalsAfterCases.addAll(executeCase(aCase.getBody(), matchedGoals));
+                }
+            }
+
+        }*/
+
+        //for all remaining goals execute default
+        if (!remainingGoalsSet.isEmpty()) {
+            VariableAssignment va = new VariableAssignment();
+            Statements defaultCase = casesStatement.getDefaultCase();
+            for (ProofNode goal : remainingGoalsSet) {
+
+                goalsAfterCases.addAll(executeBody(defaultCase, goal, va).getGoals());
+            }
+
+
+        }
+
+        //exit scope and create a new state using the union of all newly created goals
+
+        State<T> newStateAfterCases;
+        if (!goalsAfterCases.isEmpty()) {
+            //goalsAfterCases.forEach(node -> node.exitScope());
+            Stream<ProofNode> goalNodeStream = goalsAfterCases.stream().filter(tGoalNode -> true);
+            //!((KeYData) tGoalNode.getData()).getNode().isClosed());
+            List<ProofNode> openGoalListAfterCases = goalNodeStream.collect(Collectors.toList());
+            /*if (goalsAfterCases.size() == 1) {
+                newStateAfterCases = new State<T>(goalsAfterCases, 0);
+            } else {
+                // newStateAfterCases = new State<T>(goalsAfterCases, null);
+            }*/
+            if (openGoalListAfterCases.size() == 1) {
+                newStateAfterCases = new State<T>(openGoalListAfterCases, 0);
+            } else {
+                newStateAfterCases = new State<T>(openGoalListAfterCases, null);
+            }
+            stateStack.push(newStateAfterCases);
+        }
+
+        //stateStack.peek().getGoals().removeAll(beforeCases.getGoals());
+        exitScope(casesStatement);
+        return null;
     }
 
 
@@ -216,243 +313,6 @@ public class Interpreter<T> extends DefaultASTVisitor<Object>
         return false;
     }*/
 
-    @Override
-    public Object visit(SimpleCaseStatement simpleCaseStatement) {
-        Expression matchExpression = simpleCaseStatement.getGuard();
-        State<T> currentStateToMatch = peekState();
-        GoalNode<T> selectedGoal = currentStateToMatch.getSelectedGoalNode();
-        VariableAssignment va = evaluateMatchInGoal(matchExpression, selectedGoal);
-        if (va != null) {
-            enterScope(simpleCaseStatement);
-            executeBody(simpleCaseStatement.getBody(), selectedGoal, va);
-            //  executeCase(simpleCaseStatement.getBody(), )
-            exitScope(simpleCaseStatement);
-            return true;
-        } else {
-            return false;
-        }
-       /* Map<GoalNode<T>, VariableAssignment> matchedGoals =
-                matchGoal(remainingGoalsSet, (SimpleCaseStatement) aCase);
-        if (matchedGoals != null) {
-            remainingGoalsSet.removeAll(matchedGoals.keySet());
-            goalsAfterCases.addAll(executeCase(aCase.getBody(), matchedGoals));
-        }
-
-        HashMap<GoalNode<T>, VariableAssignment> matchedGoals = new HashMap<>();
-        Expression matchExpression = aCase.getGuard();
-        for (GoalNode<T> goal : allGoalsBeforeCases) {
-            VariableAssignment va = evaluateMatchInGoal(matchExpression, goal);
-            if (va != null) {
-                matchedGoals.put(goal, va);
-            }
-        }
-        return matchedGoals;
-
-        */
-
-    }
-
-    /**
-     * @param casesStatement
-     * @return
-     */
-    @Override
-    public Object visit(CasesStatement casesStatement) {
-        enterScope(casesStatement);
-        State<T> beforeCases = peekState();
-
-        List<GoalNode<T>> allGoalsBeforeCases = beforeCases.getGoals();
-
-        //global List after all Case Statements
-        List<GoalNode<T>> goalsAfterCases = new ArrayList<>();
-        //copy the list of goal nodes for keeping track of goals
-        Set<GoalNode<T>> remainingGoalsSet = new HashSet<>(allGoalsBeforeCases);
-        //handle cases
-        List<CaseStatement> cases = casesStatement.getCases();
-
-        for (GoalNode<T> goalBeforeCase : allGoalsBeforeCases) {
-            State<T> createdState = newState(goalBeforeCase);//to allow the case to retrieve goal
-            boolean result = false;
-            for (CaseStatement aCase : cases) {
-                result = (boolean) aCase.accept(this);
-                if (result) {
-                    //remove goal from set for default
-                    remainingGoalsSet.remove(goalBeforeCase);
-                    //case statement matched and was executed
-                    break;
-                }
-            }
-            //remove state from stack
-            State<T> stateAfterCase = popState();
-            //  System.out.println("State after Case " + stateAfterCase.getSelectedGoalNode().toCellTextForKeYData());
-            if (result && stateAfterCase.getGoals() != null) {
-                goalsAfterCases.addAll(stateAfterCase.getGoals());
-            }
-
-
-        }
-
-        //===========================================================================================//
-       /* for (CaseStatement aCase : cases) {
-            if (aCase.isClosedStmt) {
-                System.out.println("IsClosableStmt not implemented yet");
-            } else {
-                Map<GoalNode<T>, VariableAssignment> matchedGoals =
-                        matchGoal(remainingGoalsSet, (SimpleCaseStatement) aCase);
-                if (matchedGoals != null) {
-                    remainingGoalsSet.removeAll(matchedGoals.keySet());
-                    goalsAfterCases.addAll(executeCase(aCase.getBody(), matchedGoals));
-                }
-            }
-
-        }*/
-
-        //for all remaining goals execute default
-        if (!remainingGoalsSet.isEmpty()) {
-            VariableAssignment va = new VariableAssignment();
-            Statements defaultCase = casesStatement.getDefaultCase();
-            for (GoalNode<T> goal : remainingGoalsSet) {
-
-                goalsAfterCases.addAll(executeBody(defaultCase, goal, va).getGoals());
-            }
-
-
-        }
-
-        //exit scope and create a new state using the union of all newly created goals
-
-        State<T> newStateAfterCases;
-        if (!goalsAfterCases.isEmpty()) {
-            //goalsAfterCases.forEach(node -> node.exitScope());
-            Stream<GoalNode<T>> goalNodeStream = goalsAfterCases.stream().filter(tGoalNode -> true);
-            //!((KeYData) tGoalNode.getData()).getNode().isClosed());
-            List<GoalNode<T>> openGoalListAfterCases = goalNodeStream.collect(Collectors.toList());
-            /*if (goalsAfterCases.size() == 1) {
-                newStateAfterCases = new State<T>(goalsAfterCases, 0);
-            } else {
-                // newStateAfterCases = new State<T>(goalsAfterCases, null);
-            }*/
-            if (openGoalListAfterCases.size() == 1) {
-                newStateAfterCases = new State<T>(openGoalListAfterCases, 0);
-            } else {
-                newStateAfterCases = new State<T>(openGoalListAfterCases, null);
-            }
-            stateStack.push(newStateAfterCases);
-        }
-
-        //stateStack.peek().getGoals().removeAll(beforeCases.getGoals());
-        exitScope(casesStatement);
-        return null;
-    }
-
-    /**
-     * Match a set of goal nodes against a matchpattern of a case and return the matched goals together with instantiated variables
-     *
-     * @param allGoalsBeforeCases
-     * @param aCase
-     * @return
-     */
-    private Map<GoalNode<T>, VariableAssignment> matchGoal(Set<GoalNode<T>> allGoalsBeforeCases, SimpleCaseStatement aCase) {
-
-        HashMap<GoalNode<T>, VariableAssignment> matchedGoals = new HashMap<>();
-        Expression matchExpression = aCase.getGuard();
-        for (GoalNode<T> goal : allGoalsBeforeCases) {
-            VariableAssignment va = evaluateMatchInGoal(matchExpression, goal);
-            if (va != null) {
-                matchedGoals.put(goal, va);
-            }
-        }
-        return matchedGoals;
-    }
-
-    /**
-     * Evaluate a match in a specific goal
-     *
-     * @param matchExpression
-     * @param goal
-     * @return null, if match was false, return the first Assignment when match was true
-     */
-    private VariableAssignment evaluateMatchInGoal(Expression matchExpression, GoalNode<T> goal) {
-        enterScope(matchExpression);
-
-        System.out.println("Goal to match " + goal.getData());
-        MatchEvaluator mEval = new MatchEvaluator(goal, goal.getAssignments(), matcherApi);
-        mEval.getEntryListeners().addAll(entryListeners);
-        mEval.getExitListeners().addAll(exitListeners);
-        List<VariableAssignment> matchResult;
-        if (matchExpression.hasMatchExpression()) {
-            matchResult = mEval.eval(matchExpression);
-
-        } else {
-            matchResult = new ArrayList<>();
-            Evaluator eval = new Evaluator(goal.getAssignments(), goal);
-            Value eval1 = eval.eval(matchExpression);
-            if (eval1.getType().equals(Type.BOOL) && eval1.equals(Value.TRUE)) {
-                VariableAssignment emptyAssignment = new VariableAssignment(null);
-                matchResult.add(emptyAssignment);
-            }
-
-        }
-        exitScope(matchExpression);
-
-        if (matchResult.isEmpty()) {
-            return null;
-        } else {
-            return matchResult.get(0);
-        }
-
-//        return null;
-
-        /*Evaluator eval = new Evaluator(goal.getAssignments(), goal);
-        eval.setMatcher(matcherApi);
-        eval.getEntryListeners().addAll(entryListeners);
-        eval.getExitListeners().addAll(exitListeners);
-        exitScope(matchExpression);
-
-        Value v = eval.eval(matchExpression);
-        if (v.getData().equals(Value.TRUE)) {
-            if (eval.getMatchedVariables().size() == 0) {
-                return new VariableAssignment();
-            } else {
-                return eval.getMatchedVariables().get(0);
-            }
-        }
-        return null;*/
-    }
-
-    /**
-     * For each selected goal put a state onto the stack and visit the body of the case
-     *
-     * @param
-     * @param caseStmts
-     * @param goalsToApply @return
-     */
-    private List<GoalNode<T>> executeCase(Statements caseStmts,
-                                          Map<GoalNode<T>, VariableAssignment> goalsToApply) {
-        enterScope(caseStmts);
-        List<GoalNode<T>> goalsAfterCases = new ArrayList<>();
-
-        for (Map.Entry<GoalNode<T>, VariableAssignment> next : goalsToApply.entrySet()) {
-            State<T> s = executeBody(caseStmts, next.getKey(), next.getValue());
-            goalsAfterCases.addAll(s.getGoals());
-        }
-        exitScope(caseStmts);
-        return goalsAfterCases;
-
-
-    }
-
-    private State<T> executeBody(Statements caseStmts, GoalNode<T> goalNode, VariableAssignment va) {
-        enterScope(caseStmts);
-        goalNode.enterScope(va);
-        State<T> s = newState(goalNode);
-        caseStmts.accept(this);
-        popState(s);
-        exitScope(caseStmts);
-        return s;
-    }
-
-
     /**
      * Visiting a call statement results in:
      * 0) searching for the handler of the called command
@@ -471,7 +331,7 @@ public class Interpreter<T> extends DefaultASTVisitor<Object>
         //neuer VarScope
         //enter new variable scope
         VariableAssignment params = evaluateParameters(call.getParameters());
-        GoalNode<T> g = getSelectedNode();
+        ProofNode g = getSelectedNode();
         g.enterScope();
         try {
             functionLookup.callCommand(this, call, params);
@@ -485,32 +345,6 @@ public class Interpreter<T> extends DefaultASTVisitor<Object>
         exitScope(call);
         return null;
     }
-
-
-    public VariableAssignment evaluateParameters(Parameters parameters) {
-        VariableAssignment va = new VariableAssignment();
-        parameters.entrySet().forEach(entry -> {
-            Value val = evaluate(entry.getValue());
-            va.declare(entry.getKey(), val.getType());
-            va.assign(entry.getKey(), val);
-        });
-        return va;
-    }
-
-   /* @Override
-    public Object visit(TheOnlyStatement theOnly) {
-        List<GoalNode<T>> goals = getCurrentState().getGoals();
-        if (goals.size() > 1) {
-            throw new IllegalArgumentException(
-                    String.format("TheOnly at line %d: There are %d goals!",
-                            theOnly.getStartPosition().getLineNumber(),
-                            goals.size()));
-        }
-        enterScope(theOnly);
-        theOnly.getBody().accept(this);
-        exitScope(theOnly);
-        return null;
-    }*/
 
     /**
      * Visiting foreach:
@@ -561,20 +395,182 @@ public class Interpreter<T> extends DefaultASTVisitor<Object>
     @Override
     public Object visit(Signature signature) {
         exitScope(signature);
-        GoalNode<T> node = getSelectedNode();
+        ProofNode node = getSelectedNode();
         node.enterScope();
         signature.forEach(node::declareVariable);
         enterScope(signature);
         return null;
     }
 
+    @Override
+    public Object visit(SimpleCaseStatement simpleCaseStatement) {
+        Expression matchExpression = simpleCaseStatement.getGuard();
+        State<T> currentStateToMatch = peekState();
+        ProofNode selectedGoal = currentStateToMatch.getSelectedGoalNode();
+
+        //GoalNode<T> selectedGoal = currentStateToMatch.getSelectedGoalNode();
+        VariableAssignment va = evaluateMatchInGoal(matchExpression, selectedGoal);
+        if (va != null) {
+            enterScope(simpleCaseStatement);
+            executeBody(simpleCaseStatement.getBody(), selectedGoal, va);
+            //  executeCase(simpleCaseStatement.getBody(), )
+            exitScope(simpleCaseStatement);
+            return true;
+        } else {
+            return false;
+        }
+       /* Map<GoalNode<T>, VariableAssignment> matchedGoals =
+                matchGoal(remainingGoalsSet, (SimpleCaseStatement) aCase);
+        if (matchedGoals != null) {
+            remainingGoalsSet.removeAll(matchedGoals.keySet());
+            goalsAfterCases.addAll(executeCase(aCase.getBody(), matchedGoals));
+        }
+
+        HashMap<GoalNode<T>, VariableAssignment> matchedGoals = new HashMap<>();
+        Expression matchExpression = aCase.getGuard();
+        for (GoalNode<T> goal : allGoalsBeforeCases) {
+            VariableAssignment va = evaluateMatchInGoal(matchExpression, goal);
+            if (va != null) {
+                matchedGoals.put(goal, va);
+            }
+        }
+        return matchedGoals;
+
+        */
+
+    }
+
+    /**
+     * Evaluate a match in a specific goal
+     *
+     * @param matchExpression
+     * @param goal
+     * @return null, if match was false, return the first Assignment when match was true
+     */
+    private VariableAssignment evaluateMatchInGoal(Expression matchExpression, ProofNode goal) {
+        enterScope(matchExpression);
+
+        //System.out.println("Goal to match " + goal);
+        MatchEvaluator mEval = new MatchEvaluator(goal, goal.getAssignments(), matcherApi);
+        mEval.getEntryListeners().addAll(entryListeners);
+        mEval.getExitListeners().addAll(exitListeners);
+        List<VariableAssignment> matchResult;
+        if (matchExpression.hasMatchExpression()) {
+            matchResult = mEval.eval(matchExpression);
+
+        } else {
+            matchResult = new ArrayList<>();
+            Evaluator eval = new Evaluator(goal.getAssignments(), goal);
+            Value eval1 = eval.eval(matchExpression);
+            if (eval1.getType().equals(Type.BOOL) && eval1.equals(Value.TRUE)) {
+                VariableAssignment emptyAssignment = new VariableAssignment(null);
+                matchResult.add(emptyAssignment);
+            }
+
+        }
+        exitScope(matchExpression);
+
+        if (matchResult.isEmpty()) {
+            return null;
+        } else {
+            return matchResult.get(0);
+        }
+
+//        return null;
+
+        /*Evaluator eval = new Evaluator(goal.getAssignments(), goal);
+        eval.setMatcher(matcherApi);
+        eval.getEntryListeners().addAll(entryListeners);
+        eval.getExitListeners().addAll(exitListeners);
+        exitScope(matchExpression);
+
+        Value v = eval.eval(matchExpression);
+        if (v.getData().equals(Value.TRUE)) {
+            if (eval.getMatchedVariables().size() == 0) {
+                return new VariableAssignment();
+            } else {
+                return eval.getMatchedVariables().get(0);
+            }
+        }
+        return null;*/
+    }
+
+    private State<T> executeBody(Statements caseStmts, ProofNode goalNode, VariableAssignment va) {
+        enterScope(caseStmts);
+        goalNode.enterScope(va);
+        State<T> s = newState(goalNode);
+        caseStmts.accept(this);
+        popState();
+        exitScope(caseStmts);
+        return s;
+    }
+
     //region State Handling
-    public GoalNode<T> getSelectedNode() {
+    public ProofNode getSelectedNode() {
         try {
             return stateStack.peek().getSelectedGoalNode();
         } catch (IllegalStateException e) {
             return getCurrentGoals().get(0);
         }
+    }
+
+    /**
+     * Get goalnodes from current state
+     *
+     * @return
+     */
+    public List<ProofNode> getCurrentGoals() {
+        return getCurrentState().getGoals();
+    }
+
+
+    public VariableAssignment evaluateParameters(Parameters parameters) {
+        VariableAssignment va = new VariableAssignment();
+        parameters.entrySet().forEach(entry -> {
+            Value val = evaluate(entry.getValue());
+            va.declare(entry.getKey(), val.getType());
+            va.assign(entry.getKey(), val);
+        });
+        return va;
+    }
+
+   /* @Override
+    public Object visit(TheOnlyStatement theOnly) {
+        List<GoalNode<T>> goals = getCurrentState().getGoals();
+        if (goals.size() > 1) {
+            throw new IllegalArgumentException(
+                    String.format("TheOnly at line %d: There are %d goals!",
+                            theOnly.getStartPosition().getLineNumber(),
+                            goals.size()));
+        }
+        enterScope(theOnly);
+        theOnly.getBody().accept(this);
+        exitScope(theOnly);
+        return null;
+    }*/
+
+    /**
+     * Cretae a new state containing only the selected goal node and push to stack
+     *
+     * @param selected
+     * @return reference to state on stack
+     */
+    public State<T> newState(ProofNode selected) {
+        return newState(Collections.singletonList(selected), selected);
+    }
+
+    /**
+     * Create new state containing goals and selected goal node an push to stack
+     *
+     * @param goals
+     * @param selected
+     * @return state that is pushed to stack
+     */
+    public State<T> newState(List<ProofNode> goals, ProofNode selected) {
+        if (selected != null && !goals.contains(selected)) {
+            throw new IllegalStateException("selected goal not in list of goals");
+        }
+        return pushState(new State<>(goals, selected));
     }
 
     /**
@@ -591,38 +587,56 @@ public class Interpreter<T> extends DefaultASTVisitor<Object>
         }
     }
 
-    /**
-     * Create new state containing goals and selected goal node an push to stack
-     *
-     * @param goals
-     * @param selected
-     * @return state that is pushed to stack
-     */
-    public State<T> newState(List<GoalNode<T>> goals, GoalNode<T> selected) {
-        if (selected != null && !goals.contains(selected)) {
-            throw new IllegalStateException("selected goal not in list of goals");
-        }
-        return pushState(new State<>(goals, selected));
+    private Value evaluate(ProofNode g, Expression expr) {
+        enterScope(expr);
+        Evaluator evaluator = new Evaluator(g.getAssignments(), g);
+        evaluator.setMatcher(matcherApi);
+        evaluator.getEntryListeners().addAll(entryListeners);
+        evaluator.getExitListeners().addAll(exitListeners);
+        exitScope(expr);
+        return evaluator.eval(expr);
     }
 
     /**
-     * Cretae a ew state conatining the goals but without selected goal node and push to stack
+     * Match a set of goal nodes against a matchpattern of a case and return the matched goals together with instantiated variables
      *
-     * @param goals
+     * @param allGoalsBeforeCases
+     * @param aCase
      * @return
      */
-    public State<T> newState(List<GoalNode<T>> goals) {
-        return newState(goals, null);
+    private Map<ProofNode, VariableAssignment> matchGoal(Set<ProofNode> allGoalsBeforeCases, SimpleCaseStatement aCase) {
+
+        HashMap<ProofNode, VariableAssignment> matchedGoals = new HashMap<>();
+        Expression matchExpression = aCase.getGuard();
+        for (ProofNode goal : allGoalsBeforeCases) {
+            VariableAssignment va = evaluateMatchInGoal(matchExpression, goal);
+            if (va != null) {
+                matchedGoals.put(goal, va);
+            }
+        }
+        return matchedGoals;
     }
 
     /**
-     * Cretae a new state containing only the selected goal node and push to stack
+     * For each selected goal put a state onto the stack and visit the body of the case
      *
-     * @param selected
-     * @return reference to state on stack
+     * @param
+     * @param caseStmts
+     * @param goalsToApply @return
      */
-    public State<T> newState(GoalNode<T> selected) {
-        return newState(Collections.singletonList(selected), selected);
+    private List<ProofNode> executeCase(Statements caseStmts,
+                                        Map<ProofNode, VariableAssignment> goalsToApply) {
+        enterScope(caseStmts);
+        List<ProofNode> goalsAfterCases = new ArrayList<>();
+
+        for (Map.Entry<ProofNode, VariableAssignment> next : goalsToApply.entrySet()) {
+            State<T> s = executeBody(caseStmts, next.getKey(), next.getValue());
+            goalsAfterCases.addAll(s.getGoals());
+        }
+        exitScope(caseStmts);
+        return goalsAfterCases;
+
+
     }
 
     /**
@@ -672,12 +686,13 @@ public class Interpreter<T> extends DefaultASTVisitor<Object>
     }
 
     /**
-     * Get goalnodes from current state
+     * Cretae a ew state conatining the goals but without selected goal node and push to stack
      *
+     * @param goals
      * @return
      */
-    public List<GoalNode<T>> getCurrentGoals() {
-        return getCurrentState().getGoals();
+    public State<T> newState(List<ProofNode> goals) {
+        return newState(goals, null);
     }
 
 

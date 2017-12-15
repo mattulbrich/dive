@@ -9,7 +9,6 @@ import edu.kit.iti.algover.script.data.Value;
 import edu.kit.iti.algover.script.data.VariableAssignment;
 import edu.kit.iti.algover.script.parser.DefaultASTVisitor;
 import edu.kit.iti.algover.script.parser.Visitor;
-import edu.kit.iti.algover.term.Sequent;
 import edu.kit.iti.algover.term.parser.TermParser;
 
 import java.util.ArrayList;
@@ -23,12 +22,12 @@ import java.util.List;
  */
 public class Evaluator<T> extends DefaultASTVisitor<Value> implements ScopeObservable {
     private final VariableAssignment state;
-    private final GoalNode<T> goal;
+    private final ProofNode goal;
     private MatcherApi<T> matcher;
     private List<Visitor> entryListeners = new ArrayList<>(),
             exitListeners = new ArrayList<>();
 
-    public Evaluator(VariableAssignment assignment, GoalNode<T> node) {
+    public Evaluator(VariableAssignment assignment, ProofNode node) {
         state = new VariableAssignment(assignment); // unmodifiable version of assignment
         goal = node;
     }
@@ -86,7 +85,7 @@ public class Evaluator<T> extends DefaultASTVisitor<Value> implements ScopeObser
     public Value visit(TermLiteral term) {
         Value termV = null;
         try {
-            termV = new Value<>(Type.TERM, TermParser.parse(((ProofNode) goal.getData()).getRootPVC().getSymbolTable(), term.getText()));
+            termV = new Value<>(Type.TERM, TermParser.parse(((ProofNode) goal).getRootPVC().getSymbolTable(), term.getText()));
         } catch (DafnyParserException e) {
             System.out.println("Could not translate term " + term.getText());
             e.printStackTrace();
@@ -101,7 +100,7 @@ public class Evaluator<T> extends DefaultASTVisitor<Value> implements ScopeObser
         Value seqValue = null;
         try {
 
-            seqValue = new Value<>(Type.TERM, TermParser.parseSequent(((ProofNode) goal.getData()).getRootPVC().getSymbolTable(), sequentLiteral.getText()));
+            seqValue = new Value<>(Type.TERM, TermParser.parseSequent(((ProofNode) goal).getRootPVC().getSymbolTable(), sequentLiteral.getText()));
 
         } catch (DafnyParserException e) {
             System.out.println("Could not translate term " + sequentLiteral.getText());
@@ -152,7 +151,7 @@ public class Evaluator<T> extends DefaultASTVisitor<Value> implements ScopeObser
         return this.state;
     }
 
-    public GoalNode<T> getGoal() {
+    public ProofNode getGoal() {
         return this.goal;
     }
 
