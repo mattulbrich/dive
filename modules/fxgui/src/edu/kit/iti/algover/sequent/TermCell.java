@@ -2,11 +2,9 @@ package edu.kit.iti.algover.sequent;
 
 import edu.kit.iti.algover.rules.SubtermSelector;
 import edu.kit.iti.algover.rules.TermSelector;
-import edu.kit.iti.algover.term.Term;
 import edu.kit.iti.algover.term.prettyprint.AnnotatedString;
 import edu.kit.iti.algover.util.SubSelection;
-import javafx.beans.Observable;
-import javafx.beans.value.ObservableValue;
+import javafx.css.PseudoClass;
 import javafx.scene.control.ListCell;
 
 import java.util.List;
@@ -14,7 +12,11 @@ import java.util.List;
 /**
  * Created by Philipp on 22.07.2017.
  */
-public class TermCell extends ListCell<Term> {
+public class TermCell extends ListCell<TopLevelFormula> {
+
+    private static final PseudoClass PC_ADDED = PseudoClass.getPseudoClass("term-added");
+    private static final PseudoClass PC_DELETED = PseudoClass.getPseudoClass("term-deleted");
+    private static final PseudoClass PC_MODIFIED = PseudoClass.getPseudoClass("term-modified");
 
     private final TermSelector.SequentPolarity polarity;
     private final SubSelection<TermSelector> referenceSelection;
@@ -25,6 +27,7 @@ public class TermCell extends ListCell<Term> {
                     SubSelection<TermSelector> referenceSelection,
                     SubSelection<TermSelector> lastClickedTerm,
                     SubSelection<AnnotatedString.TermElement> highlightedTerm) {
+        getStyleClass().add("term-cell");
         this.polarity = polarity;
         this.referenceSelection = referenceSelection;
         this.lastClickedTerm = lastClickedTerm;
@@ -32,17 +35,55 @@ public class TermCell extends ListCell<Term> {
     }
 
     @Override
-    protected void updateItem(Term term, boolean empty) {
-        super.updateItem(term, empty);
-        if (!empty && term != null) {
+    protected void updateItem(TopLevelFormula formula, boolean empty) {
+        super.updateItem(formula, empty);
+        if (!empty && formula != null) {
+            setPseudoClasses(formula);
             setGraphic(new TermView(
-                    term,
+                    formula,
                     referenceSelection.subSelection(this::updateSelectedSubterm, this::subtermToTermSelector),
                     lastClickedTerm.subSelection(this::updateSelectedSubterm, this::subtermToTermSelector),
                     highlightedTerm));
         } else {
+            setPseudoClasses(null);
             setGraphic(null);
         }
+    }
+
+    protected void setPseudoClasses(TopLevelFormula formula) {
+        if (formula != null) {
+            setPseudoClassesFromChangeType(formula.getChangeType());
+        } else {
+            setPseudoClassesFromChangeType(TopLevelFormula.ChangeType.ORIGINAL);
+        }
+    }
+
+    protected void setPseudoClassesFromChangeType(TopLevelFormula.ChangeType changeType) {
+        System.out.println(getStyleClass());
+        switch (changeType) {
+            case ADDED:
+                pseudoClassStateChanged(PC_ADDED, true);
+                pseudoClassStateChanged(PC_DELETED, false);
+                pseudoClassStateChanged(PC_MODIFIED, false);
+                break;
+            case DELETED:
+                pseudoClassStateChanged(PC_ADDED, false);
+                pseudoClassStateChanged(PC_DELETED, true);
+                pseudoClassStateChanged(PC_MODIFIED, false);
+                break;
+            case MODIFIED:
+                pseudoClassStateChanged(PC_ADDED, false);
+                pseudoClassStateChanged(PC_DELETED, false);
+                pseudoClassStateChanged(PC_MODIFIED, true);
+                break;
+            case ORIGINAL:
+                pseudoClassStateChanged(PC_ADDED, false);
+                pseudoClassStateChanged(PC_DELETED, false);
+                pseudoClassStateChanged(PC_MODIFIED, false);
+                break;
+        }
+        System.out.println(changeType);
+        System.out.println(getPseudoClassStates());
     }
 
     private SubtermSelector updateSelectedSubterm(TermSelector termSelector) {

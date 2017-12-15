@@ -25,7 +25,7 @@ import java.util.OptionalInt;
  */
 public class TermView extends CodeArea {
 
-    private final Term term;
+    private final TopLevelFormula formula;
     private final SubSelection<SubtermSelector> referenceSelection;
     private final SubSelection<SubtermSelector> lastClickedTerm;
     private final SubSelection<AnnotatedString.TermElement> mouseOverTerm;
@@ -35,13 +35,13 @@ public class TermView extends CodeArea {
     private AnnotatedString.TermElement referenceSelectedElement;
 
 
-    public TermView(Term term,
+    public TermView(TopLevelFormula formula,
                     SubSelection<SubtermSelector> referenceSelection,
                     SubSelection<SubtermSelector> lastClickedTerm,
                     SubSelection<AnnotatedString.TermElement> mouseOverTerm) {
         super("");
 
-        this.term = term;
+        this.formula = formula;
         this.referenceSelection = referenceSelection;
         this.lastClickedTerm = lastClickedTerm;
         this.mouseOverTerm = mouseOverTerm;
@@ -101,7 +101,7 @@ public class TermView extends CodeArea {
 
         // Prettyprint the term with the given amount of char width
         PrettyPrint p = new PrettyPrint();
-        this.annotatedString = p.print(term, Math.max(20, charsFitting));
+        this.annotatedString = p.print(formula.getTerm(), Math.max(20, charsFitting));
 
         return annotatedString.toString();
     }
@@ -121,7 +121,7 @@ public class TermView extends CodeArea {
         CharacterHit hit = hit(mouseEvent.getX(), mouseEvent.getY());
         OptionalInt charIdx = hit.getCharacterIndex();
 
-        if (charIdx.isPresent()) {
+        if (charIdx.isPresent() && formula.getChangeType() == TopLevelFormula.ChangeType.ORIGINAL) {
             AnnotatedString.TermElement elem = annotatedString.getTermElementAt(charIdx.getAsInt());
             SubtermSelector selector = elem.getSubtermSelector();
 

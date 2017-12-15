@@ -9,17 +9,17 @@ import edu.kit.iti.algover.rules.BranchInfo;
 import edu.kit.iti.algover.rules.ProofRuleApplication;
 import edu.kit.iti.algover.rules.RuleException;
 import edu.kit.iti.algover.rules.TermSelector;
-import edu.kit.iti.algover.script.interpreter.Interpreter;
 import edu.kit.iti.algover.term.Sequent;
-import edu.kit.iti.algover.term.Term;
 import edu.kit.iti.algover.term.prettyprint.AnnotatedString;
 import edu.kit.iti.algover.util.SubSelection;
 import javafx.fxml.FXML;
+import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
 import javafx.scene.input.KeyCode;
+import javafx.util.Callback;
 
+import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * Created by philipp on 12.07.17.
@@ -28,8 +28,8 @@ public class SequentController extends FxmlController {
 
     private final SequentActionListener listener;
 
-    @FXML private ListView<Term> antecedentView;
-    @FXML private ListView<Term> succedentView;
+    @FXML private ListView<TopLevelFormula> antecedentView;
+    @FXML private ListView<TopLevelFormula> succedentView;
 
     private final SubSelection<ProofTermReference> selectedReference;
     private final SubSelection<TermSelector> selectedTerm;
@@ -51,8 +51,8 @@ public class SequentController extends FxmlController {
         // Our children however need to communicate somehow and share a common selected item.
         this.highlightedTerm = new SubSelection<>(r -> {});
 
-        antecedentView.setCellFactory(termListView -> createTermCell(TermSelector.SequentPolarity.ANTECEDENT, termListView));
-        succedentView.setCellFactory(termListView -> createTermCell(TermSelector.SequentPolarity.SUCCEDENT, termListView));
+        antecedentView.setCellFactory(makeTermCellFactory(TermSelector.SequentPolarity.ANTECEDENT));
+        succedentView.setCellFactory(makeTermCellFactory(TermSelector.SequentPolarity.SUCCEDENT));
 
         antecedentView.setOnKeyPressed(keyEvent -> {
             if (keyEvent.getCode() == KeyCode.ESCAPE) {
@@ -71,7 +71,7 @@ public class SequentController extends FxmlController {
         if (activeProof == null || !activeProof.getPvcName().equals(pvc.getIdentifier())) {
             activeProof = proof;
             activeNode = new ProofNodeSelector();
-            updateSequent(getActiveNode().getSequent());
+            updateSequent(getActiveNode().getSequent(), null);
             referenceGraph = new ReferenceGraph();
             referenceGraph.addFromReferenceMap(pvcEntity.getLocation(), pvc.getReferenceMap());
         }
@@ -83,7 +83,7 @@ public class SequentController extends FxmlController {
             ProofNodeSelector newActiveNode = new ProofNodeSelector(activeNode, 0);
             try {
                 ProofNode node = newActiveNode.get(activeProof);
-                updateSequent(node.getSequent());
+                updateSequent(node.getSequent(), null);
                 activeNode = newActiveNode;
             } catch (RuleException e) {
                 return;
@@ -99,14 +99,29 @@ public class SequentController extends FxmlController {
         }
     }
 
-
-    private void updateSequent(Sequent sequent) {
-        antecedentView.getItems().setAll(calculateAssertions(sequent.getAntecedent()));
-        succedentView.getItems().setAll(calculateAssertions(sequent.getSuccedent()));
+    public void viewProofApplicationPreview(ProofRuleApplication application) {
+        try {
+            updateSequent(activeNode.get(activeProof).getSequent(), application.getBranchInfo().get(0));
+        } catch (RuleException e) {
+            e.printStackTrace();
+        }
     }
 
-    private TermCell createTermCell(TermSelector.SequentPolarity polarity, ListView<Term> termListView) {
-        return new TermCell(polarity, selectedTerm, lastClickedTerm, highlightedTerm);
+    private void updateSequent(Sequent sequent, BranchInfo branchInfo) {
+        antecedentView.getItems().setAll(calculateAssertions(sequent.getAntecedent()));
+        succedentView.getItems().setAll(calculateAssertions(sequent.getSuccedent()));
+        if (branchInfo != null) {
+            for (ProofFormula addition : branchInfo.getAdditions().getAntecedent()) {
+                antecedentView.getItems().add(new TopLevelFormula(0, addition.getTerm(), TopLevelFormula.ChangeType.ADDED));
+            }
+            for (ProofFormula deletion : branchInfo.getDeletions().getAntecedent()) {
+                succedentView.getItems().add(new TopLevelFormula(0, deletion.getTerm(), TopLevelFormula.ChangeType.DELETED));
+            }
+        }
+    }
+
+    private Callback<ListView<TopLevelFormula>, ListCell<TopLevelFormula>> makeTermCellFactory(TermSelector.SequentPolarity polarity) {
+        return listView -> new TermCell(polarity, selectedTerm, lastClickedTerm, highlightedTerm);
     }
 
     private ProofTermReference attachCurrentActiveProof(TermSelector selector) {
@@ -124,8 +139,14 @@ public class SequentController extends FxmlController {
         }
     }
 
-    private List<Term> calculateAssertions(List<ProofFormula> proofFormulas) {
-        return proofFormulas.stream().map(ProofFormula::getTerm).collect(Collectors.toList());
+    private List<TopLevelFormula> calculateAssertions(List<ProofFormula> proofFormulas) {
+        ArrayList<TopLevelFormula> formulas = new ArrayList<>(proofFormulas.size());
+        for (int i = 0; i < proofFormulas.size(); i++) {
+            // Create a "default" kind of top-level-formula
+            // one that does not have a tag for being added / deleted / modified, so gets rendered normally.
+            formulas.add(new TopLevelFormula(i, proofFormulas.get(i).getTerm()));
+        }
+        return formulas;
     }
 
     public ReferenceGraph getReferenceGraph() {

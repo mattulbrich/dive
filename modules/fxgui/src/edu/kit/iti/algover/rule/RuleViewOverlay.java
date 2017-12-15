@@ -5,14 +5,8 @@ import de.jensd.fx.glyphs.GlyphsDude;
 import de.jensd.fx.glyphs.materialicons.MaterialIcon;
 import edu.kit.iti.algover.rules.ProofRuleApplication;
 import edu.kit.iti.algover.rules.RuleException;
-import javafx.geometry.Pos;
-import javafx.scene.Node;
-import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.layout.AnchorPane;
-import javafx.scene.paint.Paint;
-import javafx.scene.text.Text;
-import org.controlsfx.glyphfont.Glyph;
 
 
 public class RuleViewOverlay extends AnchorPane {
@@ -38,7 +32,7 @@ public class RuleViewOverlay extends AnchorPane {
         applyButton.setDisable(application.getApplicability() == ProofRuleApplication.Applicability.NOT_APPLICABLE);
 
         applyButton.setOnAction(actionEvent -> {
-            listener.appliedRule(this.application);
+            listener.onRuleApplication(this.application);
         });
 
         refineButton = new JFXButton("Refine");

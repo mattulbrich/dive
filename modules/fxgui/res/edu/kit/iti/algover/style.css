@@ -21,6 +21,18 @@
     -fx-fill: whitesmoke;
 }
 
+.list-cell.term-cell:term-added {
+    -fx-background-color: #55EE55;
+}
+
+.list-cell.term-cell:term-deleted {
+    -fx-background-color: #EE5555;
+}
+
+.term-cell:term-modified {
+    -fx-background-color: #f2aaf2;
+}
+
 .undecorated-button {
     -fx-padding: 0 0 0 0;
     -fx-border: none;

@@ -53,7 +53,11 @@ public class RuleView extends StackPane {
     }
 
     private void onSelectedItemChanged(ObservableValue<? extends RuleView> observableValue, RuleView selectedBefore, RuleView selectedNow) {
-        pseudoClassStateChanged(PC_SELECTED, selectedNow == this);
+        boolean isSelected = selectedNow == this;
+        pseudoClassStateChanged(PC_SELECTED, isSelected);
+        if (isSelected) {
+            listener.onPreviewRuleApplication(application);
+        }
     }
 
     private void onClick(MouseEvent mouseEvent) {
