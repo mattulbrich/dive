@@ -2,35 +2,39 @@
     -fx-font-family: monospace;
 }
 
-.list-view:focused .list-cell:selected .term-view .text {
+.list-view:focused .list-cell:selected .formula-view .text {
     -fx-fill: whitesmoke;
 }
 
-.term-view {
+.formula-view {
     -fx-font-family: monospace;
     -fx-background-color: transparent;
 }
 
-.term-view .highlighted {
+.formula-view .highlighted {
     -rtfx-background-color: #62b3cf;
     -fx-fill: whitesmoke;
 }
 
-.term-view .reference-selected {
+.formula-view .modified {
+    -rtfx-background-color: #55EE55;
+}
+
+.formula-view .reference-selected {
     -rtfx-background-color: #62b3cf;
     -fx-fill: whitesmoke;
 }
 
-.list-cell.term-cell:term-added {
+.list-cell.formula-cell:formula-added {
     -fx-background-color: #55EE55;
 }
 
-.list-cell.term-cell:term-deleted {
+.list-cell.formula-cell:formula-deleted {
     -fx-background-color: #EE5555;
 }
 
-.term-cell:term-modified {
-    -fx-background-color: #f2aaf2;
+.list-cell.formula-cell:formula-modified {
+    /* -fx-background-color: #f2aaf2; This looks ridiculous haha */
 }
 
 .undecorated-button {
