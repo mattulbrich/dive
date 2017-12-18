@@ -135,6 +135,7 @@ public class Interpreter<T> extends DefaultASTVisitor<Object>
         ProofNode node = currentState.getSelectedGoalNode();
 
         ProofNode newNode = new ProofNode(node, null, node.getHistory(), node.getSequent(), node.getRootPVC());
+        newNode.enterScope();
         newState(newNode);
 
         Type t = assignmentStatement.getType();
@@ -346,52 +347,6 @@ public class Interpreter<T> extends DefaultASTVisitor<Object>
         return null;
     }
 
-    /**
-     * Visiting foreach:
-     * 1) foreach goal in state create a new state with exact this goal
-     * 2) foreach of these goals visit body of foreach
-     * 3) collect all results after foreach
-     *
-     * @param
-     * @return
-     */
-  /*  @Override
-    public Object visit(ForeachStatement foreach) {
-        enterScope(foreach);
-        List<GoalNode<T>> allGoals = getCurrentGoals();
-        List<GoalNode<T>> goalsAfterForeach = new ArrayList<>();
-        Statements body = foreach.getBody();
-        for (GoalNode<T> goal : allGoals) {
-            newState(goal);
-            visit(body);
-            State<T> s = popState();
-            goalsAfterForeach.addAll(s.getGoals());
-        }
-        State<T> afterForeach = new State<T>(goalsAfterForeach, null);
-        stateStack.push(afterForeach);
-        exitScope(foreach);
-        return null;
-    }
-
-    @Override
-    public Object visit(RepeatStatement repeatStatement) {
-        enterScope(repeatStatement);
-        int counter = 0;
-        boolean b = false;
-        do {
-            counter++;
-            State<T> prev = getCurrentState();
-            repeatStatement.getBody().accept(this);
-            State<T> end = getCurrentState();
-
-            Set<GoalNode<T>> prevNodes = new HashSet<>(prev.getGoals());
-            Set<GoalNode<T>> endNodes = new HashSet<>(end.getGoals());
-            b = prevNodes.equals(endNodes);
-            b = b && counter <= MAX_ITERATIONS;
-        } while (b);
-        exitScope(repeatStatement);
-        return null;
-    }*/
     @Override
     public Object visit(Signature signature) {
         exitScope(signature);
@@ -419,24 +374,7 @@ public class Interpreter<T> extends DefaultASTVisitor<Object>
         } else {
             return false;
         }
-       /* Map<GoalNode<T>, VariableAssignment> matchedGoals =
-                matchGoal(remainingGoalsSet, (SimpleCaseStatement) aCase);
-        if (matchedGoals != null) {
-            remainingGoalsSet.removeAll(matchedGoals.keySet());
-            goalsAfterCases.addAll(executeCase(aCase.getBody(), matchedGoals));
-        }
 
-        HashMap<GoalNode<T>, VariableAssignment> matchedGoals = new HashMap<>();
-        Expression matchExpression = aCase.getGuard();
-        for (GoalNode<T> goal : allGoalsBeforeCases) {
-            VariableAssignment va = evaluateMatchInGoal(matchExpression, goal);
-            if (va != null) {
-                matchedGoals.put(goal, va);
-            }
-        }
-        return matchedGoals;
-
-        */
 
     }
 
@@ -476,23 +414,7 @@ public class Interpreter<T> extends DefaultASTVisitor<Object>
             return matchResult.get(0);
         }
 
-//        return null;
 
-        /*Evaluator eval = new Evaluator(goal.getAssignments(), goal);
-        eval.setMatcher(matcherApi);
-        eval.getEntryListeners().addAll(entryListeners);
-        eval.getExitListeners().addAll(exitListeners);
-        exitScope(matchExpression);
-
-        Value v = eval.eval(matchExpression);
-        if (v.getData().equals(Value.TRUE)) {
-            if (eval.getMatchedVariables().size() == 0) {
-                return new VariableAssignment();
-            } else {
-                return eval.getMatchedVariables().get(0);
-            }
-        }
-        return null;*/
     }
 
     private State<T> executeBody(Statements caseStmts, ProofNode goalNode, VariableAssignment va) {
@@ -534,20 +456,6 @@ public class Interpreter<T> extends DefaultASTVisitor<Object>
         return va;
     }
 
-   /* @Override
-    public Object visit(TheOnlyStatement theOnly) {
-        List<GoalNode<T>> goals = getCurrentState().getGoals();
-        if (goals.size() > 1) {
-            throw new IllegalArgumentException(
-                    String.format("TheOnly at line %d: There are %d goals!",
-                            theOnly.getStartPosition().getLineNumber(),
-                            goals.size()));
-        }
-        enterScope(theOnly);
-        theOnly.getBody().accept(this);
-        exitScope(theOnly);
-        return null;
-    }*/
 
     /**
      * Cretae a new state containing only the selected goal node and push to stack

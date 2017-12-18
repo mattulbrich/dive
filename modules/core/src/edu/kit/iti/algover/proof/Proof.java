@@ -73,8 +73,13 @@ public class Proof {
         if (this.getScript() != null) {
             saveOldDataStructures();
         }
-        ProofScript scriptAST = Facade.getAST(script);
-        this.setScript(scriptAST.getBody());
+        if (script.equals("")) {
+            ProofScript scriptAST = Facade.getAST("script empty (){}");
+            this.setScript(scriptAST.getBody());
+        } else {
+            ProofScript scriptAST = Facade.getAST(script);
+            this.setScript(scriptAST.getBody());
+        }
     }
 
     /**
@@ -348,9 +353,10 @@ class ProofNodeInterpreterManager {
         @Override
         public Void defaultVisit(ASTNode node) {
 
-            //System.out.println("Exit " + node.getNodeName());
             lastSelectedGoalNode.setChildren(new ArrayList<>());
+
             List<ProofNode> goals = interpreter.getCurrentState().getGoals();
+
             if (goals.size() == 1 && goals.get(0).equals(lastSelectedGoalNode)) {
                 System.out.println("There was no change");
                 return null;
@@ -358,21 +364,14 @@ class ProofNodeInterpreterManager {
             if (goals.size() > 0) {
                 for (ProofNode goal : goals) {
                     lastSelectedGoalNode.getChildren().add(goal);
-
+                    System.out.println(goal.getParent().equals(lastSelectedGoalNode));
+                    System.out.println(goal.getAssignments());
                     //goal.setVariableAssignments(goal.getAssignments());
                 }
             }
-/*
-            interpreter.getCurrentState().getGoals().forEach(proofNodeGoalNode -> {
-                lastSelectedGoalNode.getData().getChildren().add(proofNodeGoalNode.getData());
-                System.out.println("Added ProofNode \n"+proofNodeGoalNode.getData()+ "\n to "+lastSelectedGoalNode.getData());
-            });
-*/
 
             lastSelectedGoalNode.addMutator(node);
-            /*for (ProofNode children : lastSelectedGoalNode.getData().getChildren()) {
-                children.setMutator(node);
-            }*/
+            System.out.println(node.getRuleContext().getText());
             return null;
         }
 
