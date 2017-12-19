@@ -284,6 +284,11 @@ class ProofNodeInterpreterManager {
         }
 
         @Override
+        public Void visit(SimpleCaseStatement simpleCaseStatement) {
+            return null;
+        }
+
+        @Override
         public Void visit(MatchExpression matchExpression) {
             return null;
         }
@@ -336,6 +341,12 @@ class ProofNodeInterpreterManager {
 
     private class ExitListener extends DefaultASTVisitor<Void> {
         @Override
+        public Void visit(SimpleCaseStatement simpleCaseStatement) {
+            return null;
+        }
+
+
+        @Override
         public Void visit(MatchExpression matchExpression) {
             return null;
         }
@@ -376,6 +387,7 @@ class ProofNodeInterpreterManager {
         public Void visit(Statements statements) {
             return null;
         }
+
 
         /**
          * When exiting an Assignment statement a new node has to be added, because assignments change the state as well
@@ -422,10 +434,6 @@ class ProofNodeInterpreterManager {
             return null;
         }
 
-        @Override
-        public Void visit(SimpleCaseStatement simpleCaseStatement) {
-            return defaultVisit(simpleCaseStatement);
-        }
 
 
         @Override

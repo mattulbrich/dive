@@ -337,10 +337,12 @@ public class Interpreter<T> extends DefaultASTVisitor<Object>
         try {
             functionLookup.callCommand(this, call, params);
         } catch (ScriptCommandNotApplicableException e) {
-            //TODO handling of error state for each visit
-            State<T> newErrorState = newState(null, null);
+            System.out.println("Script Command \"" + call.getCommand() + "\" with parameters " + call.getParameters() + " was not applicable on sequent " + g.getSequent());
+            throw e;
+
+            /*State<T> newErrorState = newState(null, null);
             newErrorState.setErrorState(true);
-            pushState(newErrorState);
+            pushState(newErrorState);*/
         }
         g.exitScope();
         exitScope(call);
