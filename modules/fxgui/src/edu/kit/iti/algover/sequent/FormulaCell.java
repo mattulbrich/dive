@@ -49,13 +49,10 @@ public class FormulaCell extends ListCell<TopLevelFormula> {
     }
 
     protected BasicFormulaView createRespectiveFormulaView(TopLevelFormula formula) {
-        SubSelection<SubtermSelector> referenceSubSelection = referenceSelection.subSelection(this::updateSelectedSubterm, this::subtermToTermSelector);
-        SubSelection<SubtermSelector> lastClickedSubTerm = lastClickedTerm.subSelection(this::updateSelectedSubterm, this::subtermToTermSelector);
-
         return formula.accept(new TopLevelFormulaVisitor<BasicFormulaView>() {
             @Override
             public BasicFormulaView visitOriginalFormula(OriginalFormula formula) {
-                return new OriginalFormulaView(formula, referenceSubSelection, lastClickedSubTerm, mouseOverTerm);
+                return new OriginalFormulaView(formula, polarity, referenceSelection, lastClickedTerm, mouseOverTerm);
             }
 
             @Override
@@ -102,22 +99,5 @@ public class FormulaCell extends ListCell<TopLevelFormula> {
                 return null;
             }
         });
-    }
-
-    private SubtermSelector updateSelectedSubterm(TermSelector termSelector) {
-        if (termSelector != null && termSelector.getPolarity() == polarity && termSelector.getTermNo() == getIndex()) {
-            return termSelector.getSubtermSelector();
-        } else {
-            return null;
-        }
-    }
-
-    private TermSelector subtermToTermSelector(SubtermSelector subtermSelector) {
-        List<Integer> pathAsList = subtermSelector.getPath();
-        int[] path = new int[pathAsList.size()];
-        for (int i = 0; i < path.length; i++) {
-            path[i] = pathAsList.get(i);
-        }
-        return new TermSelector(polarity, getIndex(), path);
     }
 }
