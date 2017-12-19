@@ -364,14 +364,11 @@ class ProofNodeInterpreterManager {
             if (goals.size() > 0) {
                 for (ProofNode goal : goals) {
                     lastSelectedGoalNode.getChildren().add(goal);
-                    System.out.println(goal.getParent().equals(lastSelectedGoalNode));
-                    System.out.println(goal.getAssignments());
-                    //goal.setVariableAssignments(goal.getAssignments());
+
                 }
             }
 
             lastSelectedGoalNode.addMutator(node);
-            System.out.println(node.getRuleContext().getText());
             return null;
         }
 

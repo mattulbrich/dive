@@ -45,15 +45,22 @@ public final class ProofTreeUtil {
             buffer.append("- ");
         }
         buffer.append(node.toString());
+
         if (!node.getChildren().isEmpty()) {
-            Iterator<ProofNode> it = node.getChildren().iterator();
-            parentIterators.add(it);
-            while (it.hasNext()) {
-                ProofNode child = it.next();
+            if (node.getChildren().size() > 1) {
+                Iterator<ProofNode> it = node.getChildren().iterator();
+                parentIterators.add(it);
+                while (it.hasNext()) {
+                    ProofNode child = it.next();
+                    toStringTreeHelper(child, buffer, parentIterators);
+                }
+                parentIterators.remove(it);
+            } else {
+                ProofNode child = node.getChildren().get(0);
                 toStringTreeHelper(child, buffer, parentIterators);
             }
-            parentIterators.remove(it);
         }
+
         return buffer;
     }
 

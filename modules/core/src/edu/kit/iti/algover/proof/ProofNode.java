@@ -137,20 +137,29 @@ public class ProofNode {
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
+
         if (this.getParent() == null) {
-            sb.append("Root Node");
+            sb.append("Root Node:\n");
+        } else {
+            sb.append("Proof Node:\n");
         }
+
         if (!this.variableAssignments.isEmpty()) {
-            sb.append("Variable Assignments");
+            //sb.append("Variable Assignments");
             sb.append(variableAssignments.toString());
+        } else {
+            sb.append("Empty Assignments");
         }
-        sb.append(this.sequent.toString());
-        if (getPsr() != null) {
-            sb.append("\nRule that created this node " + getPsr().getRule().getName() + "\n");
+        sb.append("Sequent:\n" + this.sequent.toString() + "\n");
+        sb.append("\nMutator for this Node: ");
+        if (!mutator.isEmpty()) {
+            sb.append("\nMutator-Type: " + mutator.get(0).getNodeName());
+
+            sb.append("\n" + mutator.get(0).getRuleContext().getText());
+            if (mutator.size() != 1)
+                sb.append("\nNumber of Mutators: " + mutator.size());
         }
-        if (getMutator() != null) {
-            getMutator().forEach(astNode -> sb.append("Type of ASTNode " + astNode.getNodeName() + "\nStatement in line " + astNode.getStartPosition()));
-        }
+
         return sb.toString();
     }
 

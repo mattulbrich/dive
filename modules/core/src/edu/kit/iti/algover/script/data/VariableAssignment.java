@@ -250,7 +250,22 @@ public class VariableAssignment {
     }
 
     public String toString() {
-        return "Var-Assignments: (\nparent=" + this.getParent()
-                + ",\n values=" + this.getValues() + ",\n types=" + this.getTypes() + ")";
+        StringBuilder sb = new StringBuilder();
+        if (getParent() != null) {
+            sb.append(parent.toString());
+        }
+
+        if (!this.getValues().isEmpty()) {
+            sb.append("Variable-Assignments: {");
+            sb.append(this.getValues());
+            sb.append("}\n");
+        }
+      /*else{
+          sb.append("Empty Assignment ");
+      }*/
+
+        return sb.toString();
+        // return "Var-Assignments: (\nparent=" + this.getParent()
+        //         + ",\n values=" + this.getValues() + ",\n types=" + this.getTypes() + ")";
     }
 }

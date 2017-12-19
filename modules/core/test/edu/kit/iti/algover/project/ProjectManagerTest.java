@@ -113,6 +113,7 @@ public class ProjectManagerTest {
         //this should be the way a script should be interpreted
         proof2.interpretScript();
         //the way to print the proof tree
+        proof2.getProofRoot();
         System.out.println(proof2.proofToString());
         // proof2.invalidate();
 

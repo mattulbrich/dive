@@ -89,7 +89,7 @@ public class Variable extends Literal implements Comparable<Variable> {
     }
 
     public String toString() {
-        return "edu.kit.iti.algover.script.ast.Variable(identifier=" + this.getIdentifier() + ")";
+        return "Variable(name=" + this.getIdentifier() + ")";
     }
 
     public boolean equals(Object o) {
