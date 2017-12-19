@@ -113,7 +113,9 @@ public class Project {
         this.functions = DafnyDecl.toMap(pBuilder.getFunctions());
         this.methods = DafnyDecl.toMap(pBuilder.getMethods());
         this.baseDir = pBuilder.getDir();
+        this.pvcByName = new HashMap<>();
         this.allProofRules = new ArrayList<>();
+
     }
 
     public File getBaseDir() {
@@ -191,8 +193,7 @@ public class Project {
      *
      * @return the PVCs as tree data structure.
      */
-    public @NonNull
-    PVCGroup getAllPVCs() {
+    public @NonNull PVCGroup getAllPVCs() {
         ensurePVCsExist();
         return pvcRoot;
     }
@@ -231,8 +232,7 @@ public class Project {
      *
      * @return an unmodifiable map.
      */
-    public @NonNull
-    Map<String, PVC> getPVCByNameMap() {
+    public @NonNull Map<String, PVC> getPVCByNameMap() {
         ensurePVCsExist();
         return Collections.unmodifiableMap(pvcByName);
     }

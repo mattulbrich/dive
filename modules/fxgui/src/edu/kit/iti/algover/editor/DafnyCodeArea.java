@@ -15,6 +15,7 @@ import java.time.Duration;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Optional;
+import java.util.concurrent.ExecutorService;
 
 /**
  * Created by philipp on 28.06.17.
@@ -22,9 +23,11 @@ import java.util.Optional;
 public class DafnyCodeArea extends CodeArea {
 
     private HighlightingRule highlightingRule;
+    private final ExecutorService executor;
 
-    public DafnyCodeArea(String text) {
+    public DafnyCodeArea(String text, ExecutorService executor) {
         this.highlightingRule = (token, syntaxClasses) -> syntaxClasses;
+        this.executor = executor;
         getStylesheets().add(DafnyCodeArea.class.getResource("dafny-keywords.css").toExternalForm());
         setParagraphGraphicFactory(LineNumberFactory.get(this));
         setupAsyncSyntaxhighlighting(text);
@@ -32,20 +35,20 @@ public class DafnyCodeArea extends CodeArea {
 
     private void setupAsyncSyntaxhighlighting(String initialText) {
         richChanges()
-            .filter(ch -> !ch.getInserted().equals(ch.getRemoved())) // XXX
-            .successionEnds(Duration.ofMillis(500))
-            .hook(collectionRichTextChange -> getUndoManager().mark())
-            .supplyTask(this::computeHighlightingAsync)
-            .awaitLatest(richChanges())
-            .filterMap(t -> {
-                if (t.isSuccess()) {
-                    return Optional.of(t.get());
-                } else {
-                    t.getFailure().printStackTrace();
-                    return Optional.empty();
-                }
-            })
-            .subscribe(this::applyHighlighting);
+                .filter(ch -> !ch.getInserted().equals(ch.getRemoved())) // XXX
+                .successionEnds(Duration.ofMillis(500))
+                .hook(collectionRichTextChange -> getUndoManager().mark())
+                .supplyTask(this::computeHighlightingAsync)
+                .awaitLatest(richChanges())
+                .filterMap(t -> {
+                    if (t.isSuccess()) {
+                        return Optional.of(t.get());
+                    } else {
+                        t.getFailure().printStackTrace();
+                        return Optional.empty();
+                    }
+                })
+                .subscribe(this::applyHighlighting);
         replaceText(0, 0, initialText);
         getUndoManager().forgetHistory();
     }
@@ -66,7 +69,7 @@ public class DafnyCodeArea extends CodeArea {
                 return computeHighlighting(text);
             }
         };
-        AlgoVerApplication.SH_EXECUTOR.execute(task);
+        executor.execute(task);
         return task;
     }
 
@@ -84,10 +87,10 @@ public class DafnyCodeArea extends CodeArea {
         Token token;
         while ((token = lexer.nextToken()).getType() != Token.EOF) {
             builder.add(
-                highlightingRule.handleToken(
-                    token,
-                    styleClassForToken(token.getType())),
-                token.getText().length());
+                    highlightingRule.handleToken(
+                            token,
+                            styleClassForToken(token.getType())),
+                    token.getText().length());
         }
 
         return builder.create();

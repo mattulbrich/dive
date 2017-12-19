@@ -8,9 +8,9 @@ import javafx.scene.paint.Color;
 /**
  * Created by philipp on 12.07.17.
  */
-public class TreeTableEntityRenderer implements TreeTableEntityVisitor<Node> {
+public class TreeTableEntityNameRenderer implements TreeTableEntityVisitor<Node> {
 
-    public static final TreeTableEntityRenderer INSTANCE = new TreeTableEntityRenderer();
+    public static final TreeTableEntityNameRenderer INSTANCE = new TreeTableEntityNameRenderer();
 
     @Override
     public Node visitMethod(MethodEntity entity) {
@@ -29,12 +29,12 @@ public class TreeTableEntityRenderer implements TreeTableEntityVisitor<Node> {
 
     @Override
     public Node visitPVC(PVCEntity entity) {
-        return new Label("•"); // TODO: this can be just a _little_ more beautiful
+        return null; //return GlyphsDude.createIcon(FontAwesomeIcon.CIRCLE_ALT);
     }
 
     @Override
     public Node visitPVCGroup(PVCGroupEntity group) {
-        return new Label("•"); // TODO: here as well (see ^)
+        return null; //return GlyphsDude.createIcon(FontAwesomeIcon.CIRCLE_ALT);
     }
 
     @Override

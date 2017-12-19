@@ -4,8 +4,15 @@ import com.google.common.graph.EndpointPair;
 import com.google.common.graph.Graph;
 import com.google.common.graph.GraphBuilder;
 import com.google.common.graph.MutableGraph;
+import edu.kit.iti.algover.dafnystructures.DafnyFile;
+import edu.kit.iti.algover.parser.DafnyTree;
+import edu.kit.iti.algover.proof.ProofNodeSelector;
+import edu.kit.iti.algover.rules.TermSelector;
+import org.antlr.runtime.Token;
 
+import java.util.Collections;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 import java.util.function.Function;
 
@@ -48,6 +55,9 @@ public class ReferenceGraph {
         Set<Reference> accumSet,
         Reference target,
         Function<Reference, Set<Reference>> getNeighbours) {
+        if (!graph.nodes().contains(target)) {
+            return;
+        }
         for (Reference predecessor : getNeighbours.apply(target)) {
             accumSet.add(predecessor);
             // only works when the graph does not have unidirectional cycles.
@@ -55,6 +65,25 @@ public class ReferenceGraph {
             // the recursion base case is reached
             accumulateByNeighbouringFunc(accumSet, predecessor, getNeighbours);
         }
+    }
+
+    public void addFromReferenceMap(DafnyFile file, Map<TermSelector, DafnyTree> referenceMap) {
+        referenceMap.forEach((termSelector, dafnyTree) -> {
+            Token start = dafnyTree.getStartToken();
+            Token end = dafnyTree.getStopToken();
+
+            CodeReference codeReference = new CodeReference(file, start, end);
+
+            // Code references always point to the root of the proofs
+            ProofTermReference termReference = new ProofTermReference(new ProofNodeSelector(), termSelector);
+
+            addReference(codeReference, termReference);
+        });
+    }
+
+    // TODO
+    // implement via TermReferencesBuilder
+    public void addFromRuleApplication() {
     }
 
     @Override

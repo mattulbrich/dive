@@ -2,18 +2,97 @@
     -fx-font-family: monospace;
 }
 
-/* unfortunately doesn't work... */
-/* I wanted the sequent text to be white, when the cell around it was selected... */
-.list-view .list.cell:selected .term-view {
+.list-view:focused .list-cell:selected .formula-view .text {
     -fx-fill: whitesmoke;
 }
 
-.term-view {
+.formula-view {
     -fx-font-family: monospace;
     -fx-background-color: transparent;
 }
 
-.term-view .highlighted {
-    -rtfx-background-color: cadetblue;
+.formula-view .highlighted {
+    -rtfx-background-color: #62b3cf;
     -fx-fill: whitesmoke;
 }
+
+.formula-view .modified {
+    -rtfx-background-color: #55EE55;
+}
+
+.formula-view .reference-selected {
+    -rtfx-background-color: #62b3cf;
+    -fx-fill: whitesmoke;
+}
+
+.list-cell.formula-cell:formula-added {
+    -fx-background-color: #55EE55;
+}
+
+.list-cell.formula-cell:formula-deleted {
+    -fx-background-color: #EE5555;
+}
+
+.list-cell.formula-cell:formula-modified {
+    /* -fx-background-color: #f2aaf2; This looks ridiculous haha */
+}
+
+.undecorated-button {
+    -fx-padding: 0 0 0 0;
+    -fx-border: none;
+    -fx-border-color: none;
+    -fx-background: none;
+    -fx-background-color: none;
+    -fx-background-insets: none;
+}
+
+.button-overlay {
+    -fx-background-fill: rgba(0, 0, 0, 0.5);
+}
+
+.rule-view {
+    -fx-background-color: #fff;
+    -fx-border-radius: 4px;
+    -fx-border-color: #dedede;
+}
+
+.rule-view:selected {
+    -fx-border-color: #62b3cf;
+}
+
+.rule-view:closes .label.branch-count .text {
+    -fx-fill: #5E5;
+}
+
+.rule-view:non-splitting .label.branch-count .text {
+    -fx-fill: #555; /*#AAF;*/
+}
+
+.rule-view:splitting .label.branch-count .text {
+    -fx-fill: #E55;
+}
+
+.rule-view .label.rule-name .text {
+    -fx-font-family: monospace;
+}
+
+.rule-view .button.refine,
+.rule-view .button.apply {
+    -fx-font-size: 12px;
+}
+
+
+.label.branch-count .glyph-icon {
+    -fx-scale-y: -1;
+    -fx-fill: #555;
+}
+
+.display-1 {
+    -fx-font-size: 20px;
+}
+
+.code {
+    -fx-font-family: monospace;
+    -fx-background-color: white;
+}
+

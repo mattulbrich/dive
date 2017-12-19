@@ -5,7 +5,7 @@ import edu.kit.iti.algover.browser.entities.TreeTableEntity;
 import edu.kit.iti.algover.project.Project;
 import javafx.scene.control.TreeItem;
 
-import java.util.Collection;
+import java.util.List;
 import java.util.stream.Collectors;
 
 /**
@@ -13,21 +13,20 @@ import java.util.stream.Collectors;
  */
 public class FileBasedBrowserController extends BrowserController {
 
-    public FileBasedBrowserController(Project project, TreeEntityDoubleClickListener doubleClickListener) {
-        super(project, doubleClickListener);
+    public FileBasedBrowserController(Project project, PVCClickEditListener engagedListener) {
+        super(project, engagedListener);
     }
 
     protected void populateTreeTable() {
-        TreeTableEntity dafnyFiles = new OtherEntity("Dafny Files");
-        TreeItem<TreeTableEntity> dafnyFilesItem = new TreeItem<>(dafnyFiles);
-        getView().setRoot(dafnyFilesItem);
+        TreeTableEntity dafnyFiles = new OtherEntity("Dafny Files", getDafnyFileEntities());
 
-        dafnyFilesItem.getChildren().setAll(getDafnyFileItems());
+        TreeItem<TreeTableEntity> dafnyFilesItem = createTreeItem(dafnyFiles);
+        getView().setRoot(dafnyFilesItem);
     }
 
-    public Collection<TreeItem<TreeTableEntity>> getDafnyFileItems() {
+    public List<TreeTableEntity> getDafnyFileEntities() {
         return getProject().getDafnyFiles().stream()
-                .map(this::getItemFromFile)
+                .map(this::getEntityFromFile)
                 .collect(Collectors.toList());
     }
 }
