@@ -149,6 +149,17 @@ public class SequentController extends FxmlController {
                         continue formulaLoop;
                     }
                 }
+
+                List<ProofFormula> deletions = polarity == TermSelector.SequentPolarity.ANTECEDENT
+                        ? branchInfo.getDeletions().getAntecedent()
+                        : branchInfo.getDeletions().getSuccedent();
+
+                for (ProofFormula deleted : deletions) {
+                    if (proofFormulas.get(i).getTerm().equals(deleted.getTerm())) {
+                        formulas.add(new AddedOrDeletedFormula(AddedOrDeletedFormula.Type.DELETED, deleted.getTerm()));
+                        continue formulaLoop;
+                    }
+                }
             }
             formulas.add(new OriginalFormula(i, proofFormulas.get(i).getTerm()));
         }
@@ -156,15 +167,9 @@ public class SequentController extends FxmlController {
             List<ProofFormula> additions = polarity == TermSelector.SequentPolarity.ANTECEDENT
                     ? branchInfo.getAdditions().getAntecedent()
                     : branchInfo.getAdditions().getSuccedent();
-            List<ProofFormula> deletions = polarity == TermSelector.SequentPolarity.SUCCEDENT
-                    ? branchInfo.getDeletions().getSuccedent()
-                    : branchInfo.getDeletions().getSuccedent();
 
             for (ProofFormula addition : additions) {
                 formulas.add(new AddedOrDeletedFormula(AddedOrDeletedFormula.Type.ADDED, addition.getTerm()));
-            }
-            for (ProofFormula deletion : deletions) {
-                formulas.add(new AddedOrDeletedFormula(AddedOrDeletedFormula.Type.DELETED, deletion.getTerm()));
             }
         }
         return formulas;
