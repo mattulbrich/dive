@@ -69,10 +69,6 @@ public class BasicFormulaView extends CodeArea {
 
     protected void highlightFromElement(AnnotatedString.TermElement termElement, String cssClass) {
         if (termElement != null) {
-            // FIXME Bug: When currently highlighting an AnnotatedString.TermElement and resizing the FormulaView, its bounds get out of bound.
-            // I would like to just update the TermElement for the new annotated string, but I don't know how yet.
-            // A workaround would be to drop the highlightings, but that drop of highlighting would have to propagate to the top
-            // to even disable the highlighting in the code area too.
             setStyleClass(termElement.getBegin(), termElement.getEnd(), cssClass);
         }
     }
@@ -119,6 +115,18 @@ public class BasicFormulaView extends CodeArea {
         return safetyPadding * (bounds.getHeight()
                 + getPadding().getBottom() + getPadding().getTop()
                 + getInsets().getBottom() + getInsets().getTop());
+    }
+
+    protected AnnotatedString.TermElement getTermElementBySubtermSelector(SubtermSelector selector, AnnotatedString string) {
+        if (selector == null) {
+            return null;
+        }
+        if (selector.getDepth() == 0) {
+            return string.getEnvelopingTermElement();
+        }
+        return string.getAllTermElements().stream()
+                .filter(termElement -> termElement.getSubtermSelector().equals(selector))
+                .findFirst().orElse(null);
     }
 
 }

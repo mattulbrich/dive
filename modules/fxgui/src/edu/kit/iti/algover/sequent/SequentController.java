@@ -116,6 +116,14 @@ public class SequentController extends FxmlController {
         }
     }
 
+    public void resetProofApplicationPreview() {
+        try {
+            updateSequent(activeNode.get(activeProof).getSequent(), null);
+        } catch (RuleException e) {
+            e.printStackTrace();
+        }
+    }
+
     private void updateSequent(Sequent sequent, BranchInfo branchInfo) {
         antecedentView.getItems().setAll(calculateAssertions(sequent.getAntecedent(), TermSelector.SequentPolarity.ANTECEDENT, branchInfo));
         succedentView.getItems().setAll(calculateAssertions(sequent.getSuccedent(), TermSelector.SequentPolarity.SUCCEDENT, branchInfo));
@@ -127,6 +135,7 @@ public class SequentController extends FxmlController {
             // Short-circuit this loop if there is a ModifiedFormula to be built instead.
             if (branchInfo != null) {
                 // FIXME this makes the assumption that there will only ever by 1 replacement per top-level formula!
+                // maybe this is reasonable, but that should maybe be made more explicit if it is.
                 for (Pair<TermSelector, Term> replacementPair : branchInfo.getReplacements()) {
                     if (replacementPair.getFst().getPolarity() == polarity && replacementPair.getFst().getTermNo() == i) {
                         SubtermSelectorReplacementVisitor replacmentVisitor = new SubtermSelectorReplacementVisitor(replacementPair.getSnd());

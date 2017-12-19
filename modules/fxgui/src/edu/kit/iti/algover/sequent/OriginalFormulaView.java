@@ -15,7 +15,6 @@ public class OriginalFormulaView extends BasicFormulaView {
 
     private final OriginalFormula originalFormula;
 
-    protected AnnotatedString.TermElement referenceSelectedElement;
     protected final SubSelection<SubtermSelector> referenceSelection;
     protected final SubSelection<SubtermSelector> lastClickedTerm;
 
@@ -30,20 +29,7 @@ public class OriginalFormulaView extends BasicFormulaView {
     }
 
     private void updateReferenceSelected(ObservableValue<? extends SubtermSelector> obs, SubtermSelector before, SubtermSelector selected) {
-        AnnotatedString.TermElement selectedBefore = referenceSelectedElement;
-        if (selected != null) {
-            referenceSelectedElement = annotatedString.getAllTermElements().stream()
-                    .filter(termElement -> termElement.getSubtermSelector().equals(selected))
-                    .findFirst().orElse(null);
-            if (referenceSelectedElement == null) {
-                referenceSelectedElement = annotatedString.getEnvelopingTermElement();
-            }
-        } else {
-            referenceSelectedElement = null;
-        }
-        if (selectedBefore != referenceSelectedElement) {
-            updateStyleClasses();
-        }
+        updateStyleClasses();
     }
 
     private void handleClick(MouseEvent mouseEvent) {
@@ -67,6 +53,12 @@ public class OriginalFormulaView extends BasicFormulaView {
     @Override
     protected void updateStyleClasses() {
         super.updateStyleClasses();
-        highlightFromElement(referenceSelectedElement, "reference-selected");
+        if (referenceSelection != null) {
+            highlightFromElement(calculateReferenceSelected(), "reference-selected");
+        }
+    }
+
+    private AnnotatedString.TermElement calculateReferenceSelected() {
+        return getTermElementBySubtermSelector(referenceSelection.selected().get(), annotatedString);
     }
 }

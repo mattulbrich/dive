@@ -118,6 +118,11 @@ public class MainController implements SequentActionListener, RuleApplicationLis
     }
 
     @Override
+    public void onResetRuleApplicationPreview() {
+        sequentController.resetProofApplicationPreview();
+    }
+
+    @Override
     public void onRuleApplication(ProofRuleApplication application) {
         // This can be implemented as an incremental algorithm in the future here!
         // Currently, this will reset the script text completely. That means the

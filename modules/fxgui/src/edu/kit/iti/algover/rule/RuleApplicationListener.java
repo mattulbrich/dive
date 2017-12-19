@@ -6,4 +6,6 @@ public interface RuleApplicationListener {
     void onPreviewRuleApplication(ProofRuleApplication application);
 
     void onRuleApplication(ProofRuleApplication application);
+
+    void onResetRuleApplicationPreview();
 }

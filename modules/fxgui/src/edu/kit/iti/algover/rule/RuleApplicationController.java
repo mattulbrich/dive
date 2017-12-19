@@ -10,6 +10,8 @@ import edu.kit.iti.algover.rules.TermSelector;
 import edu.kit.iti.algover.term.Sequent;
 import edu.kit.iti.algover.term.Term;
 import edu.kit.iti.algover.term.prettyprint.PrettyPrint;
+import javafx.beans.Observable;
+import javafx.beans.value.ObservableValue;
 import javafx.fxml.FXML;
 import javafx.geometry.Orientation;
 import javafx.scene.Node;
@@ -32,6 +34,14 @@ public class RuleApplicationController extends FxmlController {
 
         for (ProofRule rule : ServiceLoader.load(ProofRule.class)) {
             addProofRule(rule);
+        }
+
+        ruleGrid.getSelectionModel().selectedItemProperty().addListener(this::onSelectedItemChanged);
+    }
+
+    private void onSelectedItemChanged(ObservableValue<? extends RuleView> obs, RuleView before, RuleView selected) {
+        if (selected == null) {
+            listener.onResetRuleApplicationPreview();
         }
     }
 
