@@ -5,12 +5,10 @@
  */
 package edu.kit.iti.algover;
 
-import edu.kit.iti.algover.facade.ProjectFacade;
-import edu.kit.iti.algover.project.Project;
-import edu.kit.iti.algover.util.Debug;
+import edu.kit.iti.algover.project.ProjectManager;
 import javafx.application.Application;
 import javafx.scene.Scene;
-import javafx.stage.DirectoryChooser;
+import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 
 import java.io.File;
@@ -27,21 +25,22 @@ public class AlgoVerApplication extends Application {
     }
 
     // Used for calculating the syntax highlighting asynchronously
-    public static final ExecutorService SH_EXECUTOR = Executors.newSingleThreadExecutor();
+    private static final ExecutorService SYNTAX_HIGHLIGHTING_EXECUTOR = Executors.newSingleThreadExecutor();
 
     @Override
     public void start(Stage primaryStage) throws Exception {
         // Let user choose a project directory
-        DirectoryChooser chooser = new DirectoryChooser();
-        chooser.setTitle("Choose project");
-        chooser.setInitialDirectory(new File("modules/fxgui/test-res/edu/kit/iti/algover"));
-        File projectDir = chooser.showDialog(primaryStage);
+        FileChooser chooser = new FileChooser();
+        chooser.setSelectedExtensionFilter(new FileChooser.ExtensionFilter("AlgoVer configuration xmls", "xml"));
+        chooser.setTitle("Choose project config file");
+        chooser.setInitialDirectory(new File("doc/examples/"));
+        File projectConfigFile = chooser.showOpenDialog(primaryStage);
 
         // Read all PVCs and update GUI
-        Project project = ProjectFacade.getInstance().buildProject(projectDir);
-        project.getAllPVCs();
+        ProjectManager manager = new ProjectManager();
+        manager.loadProject(projectConfigFile);
 
-        OverviewController controller = new OverviewController(project);
+        MainController controller = new MainController(manager, SYNTAX_HIGHLIGHTING_EXECUTOR);
         Scene scene = new Scene(controller.getView());
         scene.getStylesheets().add(AlgoVerApplication.class.getResource("style.css").toExternalForm());
         primaryStage.setScene(scene);
@@ -52,6 +51,6 @@ public class AlgoVerApplication extends Application {
 
     @Override
     public void stop() throws Exception {
-        SH_EXECUTOR.shutdown();
+        SYNTAX_HIGHLIGHTING_EXECUTOR.shutdown();
     }
 }

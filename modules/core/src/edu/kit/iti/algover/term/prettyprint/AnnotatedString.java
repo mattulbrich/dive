@@ -275,7 +275,7 @@ public class AnnotatedString implements Backend<NoExceptions> {
     /**
      * Gets the term element at an index in the string.
      *
-     * If no subterm is responsible for the posiiton, it is attributed to the
+     * If no subterm is responsible for the position, it is attributed to the
      * toplevel.
      *
      * @param index
@@ -294,11 +294,19 @@ public class AnnotatedString implements Backend<NoExceptions> {
             }
         }
         if(retval == null) {
-            retval = new TermElement();
-            retval.end = length();
-            retval.attr = new SubtermSelector();
+            retval = getEnvelopingTermElement();
         }
         return retval;
+    }
+
+    /**
+     * @return a TermElement that starts at 0 and ends at length().
+     */
+    public @NonNull TermElement getEnvelopingTermElement() {
+        TermElement termElement = new TermElement();
+        termElement.end = length();
+        termElement.attr = new SubtermSelector();
+        return termElement;
     }
 
     /**

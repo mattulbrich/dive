@@ -74,8 +74,8 @@ public class TrivialAndRight extends AbstractProofRule {
         builder.newBranch().addReplacement(selector, appl.getTerm(0));
         builder.newBranch().addReplacement(selector, appl.getTerm(1));
         builder.setApplicability(Applicability.APPLICABLE)
-                .setTranscript("andRight on=\"" +
-                        selector.selectSubterm(target.getSequent()) +  "\"");
+                .setTranscript("andRight on='" +
+                        selector.selectSubterm(target.getSequent()) +  "'\n");
 
         return builder.build();
     }

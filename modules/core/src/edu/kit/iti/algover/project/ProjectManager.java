@@ -138,6 +138,7 @@ public class ProjectManager {
             // Or the proof object is simply stubbed
             PVC pvcObject = getPVCByNameMap().get(pvc);
             p.setProofRoot(new ProofNode(null, null, null, pvcObject.getSequent(), pvcObject));
+            buildIndividualInterpreter(p);
             // rethrow
             throw e;
         }

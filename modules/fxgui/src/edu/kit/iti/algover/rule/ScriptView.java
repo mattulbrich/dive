@@ -1,4 +1,4 @@
-package edu.kit.iti.algover.sequent;
+package edu.kit.iti.algover.rule;
 
 import org.fxmisc.richtext.CodeArea;
 

@@ -3,6 +3,8 @@ package edu.kit.iti.algover.browser.entities;
 import edu.kit.iti.algover.dafnystructures.DafnyClass;
 import edu.kit.iti.algover.dafnystructures.DafnyFile;
 
+import java.util.List;
+
 /**
  * Created by philipp on 12.07.17.
  */
@@ -10,8 +12,8 @@ public class ClassEntity extends TreeTableEntity {
 
     private final DafnyClass dafnyClass;
 
-    public ClassEntity(DafnyClass dafnyClass, DafnyFile location) {
-        super(dafnyClass.getName(), location);
+    public ClassEntity(DafnyClass dafnyClass, DafnyFile location, List<TreeTableEntity> children) {
+        super(dafnyClass.getName(), location, children);
         this.dafnyClass = dafnyClass;
     }
 

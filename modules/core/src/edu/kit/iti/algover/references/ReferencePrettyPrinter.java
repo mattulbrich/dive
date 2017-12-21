@@ -30,11 +30,11 @@ public class ReferencePrettyPrinter implements ReferenceVisitor<String> {
             int startLine = codeTarget.getStartToken().getLine();
             int startChar = codeTarget.getStartToken().getCharPositionInLine();
             int endLine = codeTarget.getEndToken().getLine();
-            int endChar = codeTarget.getEndToken().getCharPositionInLine();
+            int endChar = codeTarget.getEndToken().getCharPositionInLine() + codeTarget.getEndToken().getText().length();
 
             StringBuilder builder = new StringBuilder();
             for (int i = startLine; i <= endLine; i++) {
-                String line = lines[i];
+                String line = lines[i - 1]; // 1-based index...... ...
                 if (i == startLine && i == endLine) {
                     builder.append(line.substring(startChar, endChar));
                 } else if (i == startLine) {

@@ -13,43 +13,46 @@ import javafx.scene.control.TreeTableView;
 public class BrowserTreeTable extends TreeTableView<TreeTableEntity> {
 
     private TreeTableColumn<TreeTableEntity, TreeTableEntity> nameColumn;
-    private TreeTableColumn<TreeTableEntity, Float> percentageProvenColumn;
-    private TreeTableColumn<TreeTableEntity, TreeTableEntity.ProofStatus> statusColumn;
-    private final TreeEntityDoubleClickListener doubleClickListener;
+    private TreeTableColumn<TreeTableEntity, TreeTableEntity> statusColumn;
+    private final PVCClickEditListener editListener;
 
-    public BrowserTreeTable(TreeEntityDoubleClickListener doubleClickListener) {
-        this.doubleClickListener = doubleClickListener;
+    public BrowserTreeTable(PVCClickEditListener editListener) {
+        this.editListener = editListener;
         this.nameColumn = new TreeTableColumn<>("name");
-        this.percentageProvenColumn = new TreeTableColumn<>("percentage proven");
         this.statusColumn = new TreeTableColumn<>("status");
 
         getStyleClass().addAll("browser");
 
         nameColumn.setCellValueFactory(this::nameCellFactory);
-        percentageProvenColumn.setCellValueFactory(this::percentageProvenCellFactory);
         statusColumn.setCellValueFactory(this::statusCellFactory);
 
         nameColumn.setCellFactory(this::nameCellRenderer);
+        statusColumn.setCellFactory(this::statusCellRenderer);
 
-        nameColumn.setPrefWidth(200);
-        percentageProvenColumn.setPrefWidth(50);
+        setColumnResizePolicy(CONSTRAINED_RESIZE_POLICY);
 
-        super.getColumns().setAll(nameColumn, percentageProvenColumn, statusColumn);
+        statusColumn.setMaxWidth(120);
+        statusColumn.setPrefWidth(100);
+        statusColumn.setMinWidth(80);
+
+        nameColumn.setMinWidth(100);
+
+        super.getColumns().setAll(nameColumn, statusColumn);
+    }
+
+    private TreeTableCell<TreeTableEntity, TreeTableEntity> statusCellRenderer(TreeTableColumn<TreeTableEntity, TreeTableEntity> column) {
+        return new StatusCell(editListener);
     }
 
     private TreeTableCell<TreeTableEntity, TreeTableEntity> nameCellRenderer(TreeTableColumn<TreeTableEntity, TreeTableEntity> column) {
-        return new NameCell(doubleClickListener);
+        return new NameCell();
     }
 
     private ObservableValue<TreeTableEntity> nameCellFactory(TreeTableColumn.CellDataFeatures<TreeTableEntity, TreeTableEntity> data) {
         return data.getValue().valueProperty();
     }
 
-    private ObservableValue<Float> percentageProvenCellFactory(TreeTableColumn.CellDataFeatures<TreeTableEntity, Float> data) {
-        return data.getValue().getValue().percentageProvenProperty().asObject();
-    }
-
-    private ObservableValue<TreeTableEntity.ProofStatus> statusCellFactory(TreeTableColumn.CellDataFeatures<TreeTableEntity, TreeTableEntity.ProofStatus> data) {
-        return data.getValue().getValue().proofStatusProperty();
+    private ObservableValue<TreeTableEntity> statusCellFactory(TreeTableColumn.CellDataFeatures<TreeTableEntity, TreeTableEntity> data) {
+        return data.getValue().valueProperty();
     }
 }
