@@ -117,10 +117,10 @@ public class ProjectManagerTest {
         System.out.println(proof2.proofToString());
         // proof2.invalidate();
 
-        String newScript = "substitute on='let $mod := $everything :: (let x := 1 :: 1== 2 && 2 == 3 )';\n" +
-                "substitute on='let x := 1 :: 1== 2 && 2 == 3 '; \n" +
+        String newScript = "substitute on='let $mod := $everything :: (let x := 1 :: 1== 2 && 2 == 3 && 4==5)';\n" +
+                "substitute on='let x := 1 :: 1== 2 && 2 == 3 &&4==5 '; \n" +
                 "x:int := 0; \n" +
-                "andRight on='1== 2 && 2 == 3 ';\n";
+                "andRight on='1== 2 && 2 == 3 &&4==5';\n";
         //set a new script text and parse it
         proof2.setNewScriptTextAndParser(newScript);
         System.out.println(proof2.getScript());
@@ -150,7 +150,7 @@ public class ProjectManagerTest {
     // That exception is caught during execution at some point and during catching, a NullPointerException is
     // generated. The point that happens is marked via "TODO handling of error state for each visit".
     @Test(expected = ScriptCommandNotApplicableException.class)
-    public void testInapplicableScriptCommand() throws Exception {
+    public void testInapplicableScriptCommand() throws ScriptCommandNotApplicableException, Exception {
         pm = new ProjectManager();
         pm.loadProject(config);
 
