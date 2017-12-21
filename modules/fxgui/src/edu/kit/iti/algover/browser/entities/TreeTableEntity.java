@@ -1,29 +1,36 @@
 package edu.kit.iti.algover.browser.entities;
 
 import edu.kit.iti.algover.dafnystructures.DafnyFile;
-import javafx.beans.property.*;
+import javafx.beans.property.IntegerProperty;
+import javafx.beans.property.SimpleIntegerProperty;
+import javafx.beans.property.SimpleStringProperty;
+import javafx.beans.property.StringProperty;
+
+import java.util.List;
 
 /**
  * Created by philipp on 26.06.17.
  */
 public abstract class TreeTableEntity {
 
-    public enum ProofStatus {
-        UNPROVEN,
-        PROVEN,
-        DEPENDENT_ON_UNPROVEN
-    }
-
     private final StringProperty text;
-    private final FloatProperty percentageProven;
-    private final ObjectProperty<ProofStatus> proofStatus;
     private final DafnyFile location;
+    private final IntegerProperty numberChildren;
+    private final IntegerProperty provenChildren;
+    private final List<TreeTableEntity> children;
 
-    public TreeTableEntity(String text, DafnyFile location) {
+    public TreeTableEntity(String text, DafnyFile location, List<TreeTableEntity> children) {
         this.text = new SimpleStringProperty(text);
-        this.percentageProven = new SimpleFloatProperty(0);
-        this.proofStatus = new SimpleObjectProperty<>(ProofStatus.UNPROVEN);
+        this.children = children;
         this.location = location;
+        this.numberChildren = new SimpleIntegerProperty(
+                children.stream()
+                        .map(TreeTableEntity::getNumberChildren)
+                        .reduce(0, (x, y) -> x + y));
+        this.provenChildren = new SimpleIntegerProperty(
+                children.stream()
+                        .map(TreeTableEntity::getProvenChildren)
+                        .reduce(0, (x, y) -> x + y));
     }
 
     public abstract <T> T accept(TreeTableEntityVisitor<T> visitor);
@@ -40,28 +47,30 @@ public abstract class TreeTableEntity {
         return text;
     }
 
-    public float getPercentageProven() {
-        return percentageProven.get();
+    public int getNumberChildren() {
+        return numberChildren.get();
     }
 
-    public FloatProperty percentageProvenProperty() {
-        return percentageProven;
+    public IntegerProperty numberChildrenProperty() {
+        return numberChildren;
     }
 
-    public ProofStatus getProofStatus() {
-        return proofStatus.get();
+    public int getProvenChildren() {
+        return provenChildren.get();
     }
 
-    public ObjectProperty<ProofStatus> proofStatusProperty() {
-        return proofStatus;
+    public IntegerProperty provenChildrenProperty() {
+        return provenChildren;
     }
 
     @Override
     public String toString() {
         return "TreeTableEntity{" +
                 "name=" + text.get() +
-                ", percentageProven=" + percentageProven.get() +
-                ", proofStatus=" + proofStatus.get() +
                 '}';
+    }
+
+    public List<TreeTableEntity> getChildren() {
+        return children;
     }
 }

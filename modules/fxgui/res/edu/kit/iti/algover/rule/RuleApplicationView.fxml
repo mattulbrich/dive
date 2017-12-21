@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.lang.*?>
+<?import java.util.*?>
+<?import javafx.scene.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<?import javafx.geometry.Insets?>
+<?import edu.kit.iti.algover.rule.RuleGrid?>
+<?import edu.kit.iti.algover.rule.ScriptView?>
+<SplitPane
+        xmlns="http://javafx.com/javafx"
+        xmlns:fx="http://javafx.com/fxml"
+        orientation="VERTICAL" dividerPositions="0.7">
+    <VBox spacing="4">
+        <padding><Insets topRightBottomLeft="10" /></padding>
+
+        <HBox spacing="10">
+            <Label text="Rules" styleClass="display-1" minWidth="-Infinity" minHeight="-Infinity" />
+            <Label fx:id="termToConsider" styleClass="code" alignment="CENTER">
+                <HBox.margin><Insets topRightBottomLeft="4" /></HBox.margin>
+            </Label>
+        </HBox>
+
+        <RuleGrid fx:id="ruleGrid" VBox.vgrow="ALWAYS"/>
+
+    </VBox>
+
+    <ScriptView fx:id="scriptView" />
+</SplitPane>

@@ -1,6 +1,5 @@
 package edu.kit.iti.algover.browser.entities;
 
-import edu.kit.iti.algover.browser.entities.*;
 import edu.kit.iti.algover.proof.PVC;
 
 /**

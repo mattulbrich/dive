@@ -3,6 +3,8 @@ package edu.kit.iti.algover.browser.entities;
 import edu.kit.iti.algover.dafnystructures.DafnyFile;
 import edu.kit.iti.algover.proof.PVCGroup;
 
+import java.util.List;
+
 /**
  * Created by philipp on 12.07.17.
  */
@@ -10,8 +12,8 @@ public class PVCGroupEntity extends TreeTableEntity {
 
     private final PVCGroup group;
 
-    public PVCGroupEntity(PVCGroup group, DafnyFile location) {
-        super("proof verification condition group", location);
+    public PVCGroupEntity(PVCGroup group, DafnyFile location, List<TreeTableEntity> children) {
+        super("proof verification condition group", location, children);
         this.group = group;
     }
 

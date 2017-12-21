@@ -2,15 +2,51 @@ package edu.kit.iti.algover.proof;
 
 import edu.kit.iti.algover.rules.RuleException;
 
+import java.util.Arrays;
+import java.util.Stack;
+
 /**
  * Created by Philipp on 27.08.2017.
  */
 public class ProofNodeSelector {
 
-    private final byte[] path;
+    private final int[] path;
 
-    public ProofNodeSelector(byte... path) {
+    public ProofNodeSelector(int... path) {
         this.path = path;
+    }
+
+    public ProofNodeSelector(ProofNodeSelector prefix, int... path) {
+        this(concatArrays(prefix.path, path));
+    }
+
+    private static int[] concatArrays(int[] prefix, int[] suffix) {
+        int[] result = new int[prefix.length + suffix.length];
+        System.arraycopy(prefix, 0, result, 0, prefix.length);
+        System.arraycopy(suffix, 0, result, prefix.length, suffix.length);
+        return result;
+    }
+
+    public ProofNodeSelector(ProofNode proofNode) {
+        this(calculatePathFromNode(proofNode));
+    }
+
+    private static int[] calculatePathFromNode(ProofNode proofNode) {
+        Stack<Integer> pathStack = new Stack<>();
+        ProofNode node = proofNode;
+        while (proofNode.getParent() != null) {
+            int childIndex = node.getParent().getChildren().indexOf(node);
+            if (childIndex < 0) {
+                throw new RuntimeException("This should not happen. Invalid ProofNode structure!");
+            }
+            pathStack.push(childIndex);
+            node = node.getParent();
+        }
+        int[] path = new int[pathStack.size()];
+        for (int i = 0; i < path.length; i++) {
+            path[i] = pathStack.pop();
+        }
+        return path;
     }
 
     public ProofNode get(Proof proof) throws RuleException {
@@ -44,4 +80,18 @@ public class ProofNodeSelector {
         return builder.toString();
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof ProofNodeSelector)) return false;
+
+        ProofNodeSelector that = (ProofNodeSelector) o;
+
+        return Arrays.equals(path, that.path);
+    }
+
+    @Override
+    public int hashCode() {
+        return Arrays.hashCode(path);
+    }
 }

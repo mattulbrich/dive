@@ -12,6 +12,8 @@ import edu.kit.iti.algover.proof.SinglePVC;
 import javafx.beans.value.ObservableValue;
 import javafx.scene.control.TreeItem;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.stream.Collectors;
 
 /**
@@ -24,63 +26,61 @@ public abstract class BrowserController {
 
     private BrowserSelectionListener selectionListener;
 
-    protected BrowserController(Project project, TreeEntityDoubleClickListener doubleClickListener) {
+    protected BrowserController(Project project, PVCClickEditListener editListener) {
         this.project = project;
-        this.view = new BrowserTreeTable(doubleClickListener);
+        this.view = new BrowserTreeTable(editListener);
 
         view.getSelectionModel().selectedItemProperty()
-            .addListener(this::onTreeItemSelected);
+                .addListener(this::onTreeItemSelected);
 
         populateTreeTable();
     }
 
     protected abstract void populateTreeTable();
 
-    protected TreeItem<TreeTableEntity> getItemFromFile(DafnyFile dafnyFile) {
-        TreeItem<TreeTableEntity> item = new TreeItem<>(new FileEntity(dafnyFile));
-        item.getChildren().addAll(
-            dafnyFile.getClasses().stream()
-                .map(dafnyClass -> getItemFromClass(dafnyFile, dafnyClass))
-                .collect(Collectors.toList()));
-        item.getChildren().addAll(
-            dafnyFile.getMethods().stream()
-                .map(dafnyMethod -> getItemFromMethod(dafnyFile, dafnyMethod))
-                .collect(Collectors.toList()));
-        return item;
+    protected TreeTableEntity getEntityFromFile(DafnyFile dafnyFile) {
+        List<TreeTableEntity> children = new ArrayList<>();
+        children.addAll(
+                dafnyFile.getClasses().stream()
+                        .map(dafnyClass -> getEntityFromClass(dafnyFile, dafnyClass))
+                        .collect(Collectors.toList()));
+        children.addAll(
+                dafnyFile.getMethods().stream()
+                        .map(dafnyMethod -> getEntityFromMethod(dafnyFile, dafnyMethod))
+                        .collect(Collectors.toList()));
+        return new FileEntity(dafnyFile, children);
     }
 
-    protected TreeItem<TreeTableEntity> getItemFromClass(DafnyFile dafnyFile, DafnyClass dafnyClass) {
-        TreeItem<TreeTableEntity> item = new TreeItem<>(new ClassEntity(dafnyClass, dafnyFile));
-        item.getChildren().setAll(
-            dafnyClass.getMethods().stream()
-                .map(dafnyMethod -> getItemFromMethod(dafnyFile, dafnyMethod))
-                .collect(Collectors.toList()));
-        return item;
+    protected TreeTableEntity getEntityFromClass(DafnyFile dafnyFile, DafnyClass dafnyClass) {
+        List<TreeTableEntity> children = new ArrayList<>();
+        dafnyClass.getMethods().stream()
+                .map(dafnyMethod -> getEntityFromMethod(dafnyFile, dafnyMethod))
+                .forEach(children::add);
+        return new ClassEntity(dafnyClass, dafnyFile, children);
     }
 
-    protected TreeItem<TreeTableEntity> getItemFromMethod(DafnyFile dafnyFile, DafnyMethod dafnyMethod) {
-        TreeItem<TreeTableEntity> item = new TreeItem<>(new MethodEntity(dafnyMethod, dafnyFile));
+    protected TreeTableEntity getEntityFromMethod(DafnyFile dafnyFile, DafnyMethod dafnyMethod) {
+        List<TreeTableEntity> children = new ArrayList<>();
         PVCCollection collection = project.getPVCsFor(dafnyMethod);
         if (collection != null) {
-            item.getChildren().setAll(
-                collection.getChildren().stream()
-                    .map(pvcCollection -> getItemFromPVC(dafnyFile, pvcCollection))
-                    .collect(Collectors.toList()));
+
+            collection.getChildren().stream()
+                    .map(pvcCollection -> getEntityFromPVC(dafnyFile, pvcCollection))
+                    .forEach(children::add);
         }
-        return item;
+        return new MethodEntity(dafnyMethod, dafnyFile, children);
     }
 
-    private TreeItem<TreeTableEntity> getItemFromPVC(DafnyFile dafnyFile, PVCCollection pvcCollection) {
+    private TreeTableEntity getEntityFromPVC(DafnyFile dafnyFile, PVCCollection pvcCollection) {
         if (pvcCollection.isPVCLeaf()) {
             PVC pvc = ((SinglePVC) pvcCollection).getPVC();
-            return new TreeItem<>(new PVCEntity(pvc, dafnyFile));
+            return new PVCEntity(pvc, dafnyFile);
         } else {
-            TreeItem<TreeTableEntity> item = new TreeItem<>(new PVCGroupEntity((PVCGroup) pvcCollection, dafnyFile));
-            item.getChildren().setAll(
-                pvcCollection.getChildren().stream()
-                    .map(subPvcCollection -> getItemFromPVC(dafnyFile, subPvcCollection))
-                    .collect(Collectors.toList()));
-            return item;
+            List<TreeTableEntity> children = new ArrayList<>();
+            pvcCollection.getChildren().stream()
+                    .map(subPvcCollection -> getEntityFromPVC(dafnyFile, subPvcCollection))
+                    .forEach(children::add);
+            return new PVCGroupEntity((PVCGroup) pvcCollection, dafnyFile, children);
         }
     }
 
@@ -91,6 +91,17 @@ public abstract class BrowserController {
         TreeTableEntity entity = entityFromTreeItem(item);
         if (entity == null || selectionListener == null) return;
         selectionListener.onBrowserItemSelected(entity);
+    }
+
+    protected TreeItem<TreeTableEntity> createTreeItem(TreeTableEntity entity) {
+        List<TreeItem<TreeTableEntity>> children =
+                entity.getChildren().stream()
+                        .map(this::createTreeItem)
+                        .collect(Collectors.toList());
+
+        TreeItem<TreeTableEntity> item = new TreeItem<>(entity);
+        item.getChildren().setAll(children);
+        return item;
     }
 
     protected TreeTableEntity entityFromTreeItem(TreeItem<TreeTableEntity> item) {
