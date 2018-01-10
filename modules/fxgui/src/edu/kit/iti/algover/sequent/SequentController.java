@@ -5,16 +5,16 @@ import edu.kit.iti.algover.browser.entities.PVCEntity;
 import edu.kit.iti.algover.proof.*;
 import edu.kit.iti.algover.references.ProofTermReference;
 import edu.kit.iti.algover.references.ReferenceGraph;
-import edu.kit.iti.algover.rules.*;
-import edu.kit.iti.algover.rules.impl.SubstitutionVisitor;
+import edu.kit.iti.algover.rules.BranchInfo;
+import edu.kit.iti.algover.rules.ProofRuleApplication;
+import edu.kit.iti.algover.rules.RuleException;
+import edu.kit.iti.algover.rules.TermSelector;
 import edu.kit.iti.algover.sequent.formulas.AddedOrDeletedFormula;
 import edu.kit.iti.algover.sequent.formulas.ModifiedFormula;
 import edu.kit.iti.algover.sequent.formulas.OriginalFormula;
 import edu.kit.iti.algover.sequent.formulas.TopLevelFormula;
 import edu.kit.iti.algover.term.Sequent;
 import edu.kit.iti.algover.term.Term;
-import edu.kit.iti.algover.term.TermVisitor;
-import edu.kit.iti.algover.term.builder.ReplacementVisitor;
 import edu.kit.iti.algover.term.prettyprint.AnnotatedString;
 import edu.kit.iti.algover.util.Pair;
 import edu.kit.iti.algover.util.SubSelection;
@@ -26,9 +26,7 @@ import javafx.scene.input.KeyCode;
 import javafx.util.Callback;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 /**
  * Created by philipp on 12.07.17.
@@ -40,10 +38,30 @@ public class SequentController extends FxmlController {
     @FXML private ListView<TopLevelFormula> antecedentView;
     @FXML private ListView<TopLevelFormula> succedentView;
 
+    // Subselections, see their docs for clarification
+    /**
+     * Whichever Term was clicked to reveal dependencies in terms of
+     * a Reference (as opposed to the actual TermSelector).
+     * (Currently set when control-clicking something on the sequent).
+     */
     private final SubSelection<ProofTermReference> selectedReference;
+    /**
+     * Whichever Term was clicked to reveal dependencies in terms of
+     * the actual TermSelector.
+     */
     private final SubSelection<TermSelector> selectedTerm;
+    /**
+     * The selection for the Term that Rules may be applied to.
+     * (Currently set when left-clicking something on the sequent).
+     * Shows up on the top of the RuleApplication view.
+     */
     private final SubSelection<TermSelector> lastClickedTerm;
+    /**
+     * The selection for the Term that the mouse is currently hovering over.
+     * This is used to highlight the Term that would be affected when clicked.
+     */
     private final SubSelection<AnnotatedString.TermElement> mouseOverTerm;
+
     private ReferenceGraph referenceGraph;
     private Proof activeProof;
     private ProofNodeSelector activeNode;
