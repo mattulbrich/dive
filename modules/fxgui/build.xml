@@ -5,6 +5,7 @@
 	<property name="dir.lib" value="../../lib" />
 	<property name="dir.tools" value="../../tools" />
 	<property name="dir.core.bin" value="../core/bin" />
+	<property name="dir.core.testbin" value="../core/test-bin" />
 
 	<property name="libs" value="${dir.lib}/antlr.jar:${dir.lib}/antlr-4.7-complete.jar:${dir.lib}/junit4.jar:${dir.lib}/controlsfx-8.40.13.jar:${dir.lib}/richtextfx-fat-1.0.0-SNAPSHOT.jar:${dir.lib}/fontawesomefx-8.9.jar:${dir.lib}/jpplib.jar:${dir.lib}/guava-23.0.jar:${dir.lib}/jfoenix.jar" />
 
@@ -35,13 +36,13 @@
 	</target>
 
 	<target name="compile-test" depends="compile, init, copy-test">
-		<javac srcdir="test" destdir="test-bin" classpath="bin:${libs}" debug="on" />
+		<javac srcdir="test" destdir="test-bin" classpath="bin:${dir.core.bin}:${dir.core.testbin}:bin:${libs}" debug="on" />
 	</target>
 
-	<target name="test" depends="compile-test, compile">
+	<target name="test" depends="compile, compile-test">
 		<junit fork="yes" printsummary="yes">
 			<formatter type="xml" />
-			<classpath path="bin:${libs}:lib/hamcrest.jar" />
+			<classpath path="test-bin:bin:${dir.core.bin}:${dir.core.testbin}:${libs}:${dir.lib}/hamcrest.jar" />
 		</junit>
 	</target>
 
