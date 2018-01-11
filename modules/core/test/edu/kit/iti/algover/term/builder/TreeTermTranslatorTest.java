@@ -1,7 +1,7 @@
 /*
  * This file is part of AlgoVer.
  *
- * Copyright (C) 2015-2017 Karlsruhe Institute of Technology
+ * Copyright (C) 2015-2018 Karlsruhe Institute of Technology
  */
 package edu.kit.iti.algover.term.builder;
 
@@ -40,6 +40,10 @@ public class TreeTermTranslatorTest {
     private MapSymbolTable symbTable;
 
     public static DafnyTree parse(String s) throws RecognitionException {
+        return parse(s, false);
+    }
+
+    public static DafnyTree parse(String s, boolean supportSchematic) throws RecognitionException {
         // create the lexer attached to stream
         ANTLRStringStream input = new ANTLRStringStream(s);
 
@@ -50,6 +54,7 @@ public class TreeTermTranslatorTest {
         DafnyParser parser = new DafnyParser(tokens);
         parser.setTreeAdaptor(new DafnyTree.Adaptor());
         parser.setLogicMode(true);
+        parser.setSchemaMode(supportSchematic);
         // launch the parser starting at rule r, get return object
         expression_only_return result;
         try {
@@ -127,6 +132,16 @@ public class TreeTermTranslatorTest {
         };
     }
 
+    public String[][] parametersForTestSchematic() {
+        return new String[][] {
+            { "?x+3", "$plus(?x, 3)" },
+            { "_*5", "$times(_, 5)" },
+            { "1 * ... x+y ...", "$times(1, (... $add(x, y) ...))" },
+            { "if ?x then ?x else 5", "$ite<int>(?x, ?x, 5)" },
+            { "forall i:int :: ?phi", "forall i:int :: ?phi" },
+        };
+    }
+
     public String[][] parametersForFailingParser() {
         return new String[][] {
             { "unknownFunction(1)", "Unknown symbol unknownFunction" },
@@ -138,14 +153,14 @@ public class TreeTermTranslatorTest {
             { "forall x,y,z:int :: unknown", "" },  // no more bound vars after this
             { "f(b1)", "Unexpected argument sort" },
             { "if true then b1 else i1", "Unexpected argument sort" },
-                {"a.Length0", "Elements of type 'array' have only the 'Length' property"},
-                // revealed wrong error message:
-                {"a2.Length", "Elements of type 'array2' have only the 'Length0' and 'Length1' properties"},
-                {"a2.Length2", "Elements of type 'array2' have only the 'Length0' and 'Length1' properties"},
-                {"i1.Length", "Unsupported sort for 'Length': int"},
-                {"a2[0]", "Access to 'array2' requires two index arguments"},
-                {"a[0,1]", "Access to 'array' requires one index argument"},
-                {"i1[i1]", "Unsupported array sort: int"},
+            {"a.Length0", "Elements of type 'array' have only the 'Length' property"},
+            // revealed wrong error message:
+            {"a2.Length", "Elements of type 'array2' have only the 'Length0' and 'Length1' properties"},
+            {"a2.Length2", "Elements of type 'array2' have only the 'Length0' and 'Length1' properties"},
+            {"i1.Length", "Unsupported sort for 'Length': int"},
+            {"a2[0]", "Access to 'array2' requires two index arguments"},
+            {"a[0,1]", "Access to 'array' requires one index argument"},
+            {"i1[i1]", "Unsupported array sort: int" },
         };
     }
 
@@ -197,6 +212,19 @@ public class TreeTermTranslatorTest {
             assertEquals(0, ttt.countBoundVars());
         }
 
+    }
+
+    @Test @Parameters
+    public void testSchematic(String input, String expected) throws Exception {
+        assertNotNull(symbTable);
+
+        TreeTermTranslator ttt = new TreeTermTranslator(symbTable);
+
+        DafnyTree t = parse(input, true);
+        Term term = ttt.build(t);
+
+        assertEquals(expected, term.toString());
+        assertEquals(0, ttt.countBoundVars());
     }
 
     // revealed a bug

@@ -1,7 +1,7 @@
 /*
  * This file is part of AlgoVer.
  *
- * Copyright (C) 2015-2017 Karlsruhe Institute of Technology
+ * Copyright (C) 2015-2018 Karlsruhe Institute of Technology
  */
 
 /*
@@ -52,9 +52,7 @@ public final class TermSelector implements Comparable<TermSelector> {
     /**
      * We store the side of the sequent as a constant value.
      */
-    private final @NonNull
-    SequentPolarity polarity;
-    ;
+    private final @NonNull SequentPolarity polarity;
 
     /**
      * We use the Constant CLASS_EXC_INDICATOR to indicate the origin for error
@@ -72,8 +70,7 @@ public final class TermSelector implements Comparable<TermSelector> {
      *
      * @return the constant for antecedent or succedent
      */
-    public @NonNull
-    SequentPolarity getPolarity() {
+    public @NonNull SequentPolarity getPolarity() {
         return polarity;
     }
 

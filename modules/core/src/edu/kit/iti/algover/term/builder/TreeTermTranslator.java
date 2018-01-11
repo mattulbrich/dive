@@ -1,7 +1,7 @@
 /*
  * This file is part of AlgoVer.
  *
- * Copyright (C) 2015-2017 Karlsruhe Institute of Technology
+ * Copyright (C) 2015-2018 Karlsruhe Institute of Technology
  */
 package edu.kit.iti.algover.term.builder;
 
@@ -23,6 +23,7 @@ import edu.kit.iti.algover.term.FunctionSymbol;
 import edu.kit.iti.algover.term.LetTerm;
 import edu.kit.iti.algover.term.QuantTerm;
 import edu.kit.iti.algover.term.QuantTerm.Quantifier;
+import edu.kit.iti.algover.term.SchemaVarTerm;
 import edu.kit.iti.algover.term.Sort;
 import edu.kit.iti.algover.term.Term;
 import edu.kit.iti.algover.term.VariableTerm;
@@ -34,7 +35,7 @@ import nonnull.NonNull;
 
 /**
  * The Class TreeTermTranslator is used to create a {@link Term} object from a
- * {@link DafnyTree}.
+ * {@link DafnyTree}. It supports schematic term entities.
  *
  * @see Term
  * @see DafnyTree
@@ -303,8 +304,6 @@ public class TreeTermTranslator {
             result = buildNull(tree);
             break;
 
-        // case DafnyParser.LABEL:
-
         case DafnyParser.ALL:
             result = buildQuantifier(QuantTerm.Quantifier.FORALL, tree);
             break;
@@ -344,6 +343,14 @@ public class TreeTermTranslator {
         case DafnyParser.WILDCARD:
             result = buildWildcard(tree);
             break;
+
+        case DafnyParser.UNDERSCORE:
+        case DafnyParser.SCHEMA_ID:
+            result = new SchemaVarTerm(tree.getText());
+            break;
+
+        case DafnyParser.ELLIPSIS:
+            throw new Error("... has not been implemented yet. Sorry");
 
         default:
             TermBuildException ex =
@@ -676,7 +683,6 @@ public class TreeTermTranslator {
 
         return result;
     }
-
 
     /* for testing */
     int countBoundVars() {

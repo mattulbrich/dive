@@ -54,6 +54,9 @@ tokens {
 
   private boolean logicMode = false;
   public void setLogicMode(boolean b) { this.logicMode = b; }
+
+  private boolean schemaMode = false;
+  public void setSchemaMode(boolean b) { this.schemaMode = b; }
 }
 
 // exit upon first error
@@ -99,6 +102,9 @@ TRUE: 'true';
 VAR: 'var';
 WHILE: 'while';
 
+DOUBLE_UNDERSCORE: '__';
+UNDERSCORE: '_';
+ELLIPSIS : '...';
 DOUBLECOLON: '::';
 ASSIGN: ':=';
 OR: '||';
@@ -130,8 +136,12 @@ ARRAY : 'array' (('1' .. '9') ('0' .. '9')*)?;
 ID : ('a' .. 'z' | 'A' .. 'Z' | '_' )
      ('a' .. 'z' | 'A' .. 'Z' | '0' .. '9' | '_')*;
 
-LOGIC_ID : ('a' .. 'z' | 'A' .. 'Z' | '_' | '$' | '?')
+LOGIC_ID : ('a' .. 'z' | 'A' .. 'Z' | '_' | '$')
            ('a' .. 'z' | 'A' .. 'Z' | '0' .. '9' | '_' | '$')*;
+
+SCHEMA_ID : '?' ID;
+
+
 
 INT_LIT : ('0' .. '9' ) ('0' .. '9' | '_')*;
 // glyph = "`~!@#$%^&*()-_=+[{]}|;:',<.>/?\\".
@@ -276,7 +286,7 @@ if_statement:
   | ELSE if_statement -> ^(IF label? expression_wildcard block ^(BLOCK if_statement))
   )
   ;
-  // not needed any more: ( options { greedy=true; } : 'else' 
+  // not needed any more: ( options { greedy=true; } : 'else'
   // everything is in blocks now
 
 ids:
@@ -358,9 +368,9 @@ endless_expr:
   ;
 
 let_expr:
-  LET ( 'var' )? ID (',' ID)* ':=' expression (',' expression)*
+  LET ( 'var' )? usual_or_logic_id (',' usual_or_logic_id)* ':=' expression (',' expression)*
     (';'|'::')  expression
-      -> ^(LET ^(VAR ID*) expression+)
+      -> ^(LET ^(VAR usual_or_logic_id*) expression+)
   ;
 
 postfix_expr:
@@ -373,12 +383,12 @@ postfix_expr:
   ;
 
 atom_expr:
-    ID
-  | ID '(' expressions? ')' -> ^(CALL ID ^(ARGS expressions?) )
-  | {logicMode}? logic_id_param
-      (                      -> logic_id_param
-      | '(' expressions? ')' -> ^(CALL logic_id_param ^(ARGS expressions?) )
-      )
+  usual_or_logic_id
+    (                      -> usual_or_logic_id
+    | '(' expressions? ')' -> ^(CALL usual_or_logic_id ^(ARGS expressions?) )
+    )
+  | {schemaMode}?
+  ( SCHEMA_ID | UNDERSCORE | DOUBLE_UNDERSCORE | ELLIPSIS expression ELLIPSIS! )
   | TRUE | FALSE | NULL | 'this'
   | INT_LIT
   | 'old'^ '('! expression ')'!
@@ -387,6 +397,11 @@ atom_expr:
   | '('! expression ')'!
   ;
 
+// Either usual or logic id
+usual_or_logic_id:
+    ID
+  | {logicMode}? logic_id_param
+  ;
 
 // Currently, only logic ids can have type parameters, will change later ...
 logic_id_param:

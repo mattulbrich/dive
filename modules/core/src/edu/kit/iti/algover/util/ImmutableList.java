@@ -1,7 +1,7 @@
 /*
  * This file is part of AlgoVer.
  *
- * Copyright (C) 2015-2017 Karlsruhe Institute of Technology
+ * Copyright (C) 2015-2018 Karlsruhe Institute of Technology
  */
 package edu.kit.iti.algover.util;
 
@@ -295,6 +295,14 @@ public class ImmutableList<T> implements Iterable<T> {
         ImmutableList<U> result = nil();
         for (T el : this) {
             result = result.append(function.apply(el));
+        }
+        return result;
+    }
+
+    public <U, E extends Exception> ImmutableList<U> flatMap(FunctionWithException<T, Iterable<U>, E> function) throws E {
+        ImmutableList<U> result = nil();
+        for (T el : this) {
+            result = result.appendAll(function.apply(el));
         }
         return result;
     }
