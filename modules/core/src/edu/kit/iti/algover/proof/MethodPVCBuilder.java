@@ -120,8 +120,9 @@ public class MethodPVCBuilder implements PVCBuilder {
         if(sequent == null) {
             PVCSequenter sequenter = this.sequenter;
             if(sequenter == null) {
-                assert !PVCSequenter.INSTANCES.isEmpty() :
-                    "there is no PCVSequenter";
+                if (PVCSequenter.INSTANCES.isEmpty()) {
+                    throw new RuntimeException("There is no PVCSequenter loaded. Maybe you need to configure to load the META-INF.services.");
+                }
                 sequenter = PVCSequenter.INSTANCES.get(0);
             }
 

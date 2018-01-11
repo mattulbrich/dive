@@ -17,6 +17,7 @@ public abstract class FxmlController {
         try {
             loader.load();
         } catch (IOException e) {
+            System.err.println("Could not load .fxml, maybe the filename was incorrect / the file was not configured to be a resource.");
             e.printStackTrace();
         }
         this.view = loader.getRoot();
