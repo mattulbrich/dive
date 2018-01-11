@@ -80,12 +80,13 @@ public class Evaluator<T> extends DefaultASTVisitor<Value> implements ScopeObser
      * @param term
      * @return
      * TODO let termParser parse a schematic term
+     * SymbolTable in Goal
      */
     @Override
     public Value visit(TermLiteral term) {
         Value termV = null;
         try {
-            termV = new Value<>(Type.TERM, TermParser.parse(((ProofNode) goal).getRootPVC().getSymbolTable(), term.getText()));
+            termV = new Value<>(Type.TERM, TermParser.parse(goal.getRootPVC().getSymbolTable(), term.getText()));
         } catch (DafnyParserException e) {
             System.out.println("Could not translate term " + term.getText());
             e.printStackTrace();

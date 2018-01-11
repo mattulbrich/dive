@@ -24,6 +24,7 @@ import org.junit.Assert;
 import org.junit.Test;
 
 import java.io.*;
+import java.util.List;
 
 /**
  * Test class for testing the script parser
@@ -62,12 +63,13 @@ public class ScriptParserTest {
             ib.startState(new ProofNode(null, null, null, s, pvc));
             Interpreter i = ib.build();
 
-            System.out.println(((ProofNode) i.getCurrentState().getSelectedGoalNode()).getSequent());
+            System.out.println((i.getCurrentState().getSelectedGoalNode()).getSequent());
 
             i.interpret(parsedScript);
-            for (Object o : i.getCurrentState().getGoals()) {
-                System.out.println(((ProofNode) ((GoalNode) o).getData()).getSequent());
 
+            List<ProofNode> goals = i.getCurrentState().getGoals();
+            for (ProofNode n : goals) {
+                System.out.println(n.getSequent());
             }
 
 
