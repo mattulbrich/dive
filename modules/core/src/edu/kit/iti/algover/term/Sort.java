@@ -1,7 +1,7 @@
 /*
  * This file is part of AlgoVer.
  *
- * Copyright (C) 2015-2017 Karlsruhe Institute of Technology
+ * Copyright (C) 2015-2018 Karlsruhe Institute of Technology
  */
 package edu.kit.iti.algover.term;
 
@@ -62,6 +62,8 @@ public class Sort {
     /**
      * The Constant FORMULA captures the boolean type. It may be that this will
      * be renamed to boolean eventually.
+     *
+     * @deprecated Use {@link #BOOL} instead.
      */
     @Deprecated
     public static final Sort FORMULA = BOOL;
@@ -325,12 +327,18 @@ public class Sort {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
 
         Sort sort = (Sort) o;
 
-        if (!name.equals(sort.name)) return false;
+        if (!name.equals(sort.name)) {
+            return false;
+        }
         return Arrays.equals(arguments, sort.arguments);
     }
 }

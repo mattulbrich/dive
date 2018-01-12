@@ -39,7 +39,7 @@ public class TermMatcherTest {
             { "?x + ?x", "2 + 2", "[[?x => 2 / 0]]" },
             { "f(f(_))", "f(f(f(5)))", "[[_0 => f(5) / 0.0]]" },
             { "h(__)", "h(1,2)", "[[_0 => 1 / 0, _1 => 2 / 1]]" },
-            { "exists i:int :: ?phi", "exists i:int :: i*i == 4" },
+            { "exists i:int :: ?phi", "exists i:int :: i*i == 4", "[[?phi => $eq<int>($times(i, i), 4) / 0]]" },
         };
     }
 
