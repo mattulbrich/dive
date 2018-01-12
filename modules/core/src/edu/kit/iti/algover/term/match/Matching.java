@@ -29,8 +29,10 @@ public class Matching {
         return null;
     }
 
-    public Matching add(MatchingEntry entry) {
-        assert get(entry.getKey()) == null;
+    public Matching add(String name, Term value, SubtermSelector sel) {
+        MatchingEntry entry = new MatchingEntry(name, value, sel);
+
+        assert get(name) == null;
 
         return new Matching(entries.append(entry));
     }
@@ -40,7 +42,15 @@ public class Matching {
         while(get("_" + no) != null) {
             no++;
         }
-        return add(new MatchingEntry("_" + no, value, selector));
+        return add("_" + no, value, selector);
+    }
+
+    public Matching addEllipsis(Term value, SubtermSelector selector) {
+        int no = 0;
+        while(get("..." + no) != null) {
+            no++;
+        }
+        return add("..." + no, value, selector);
     }
 
     public Term instantiate(Term t) throws TermBuildException {

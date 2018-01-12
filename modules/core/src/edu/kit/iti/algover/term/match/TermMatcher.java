@@ -11,6 +11,7 @@ import edu.kit.iti.algover.term.ApplTerm;
 import edu.kit.iti.algover.term.FunctionSymbol;
 import edu.kit.iti.algover.term.LetTerm;
 import edu.kit.iti.algover.term.QuantTerm;
+import edu.kit.iti.algover.term.SchemaOccurTerm;
 import edu.kit.iti.algover.term.QuantTerm.Quantifier;
 import edu.kit.iti.algover.term.SchemaVarTerm;
 import edu.kit.iti.algover.term.Term;
@@ -32,7 +33,7 @@ public class TermMatcher {
             if(schemaVarTerm.hasName()) {
                 MatchingEntry entry = m.get(schemaVarTerm.getName());
                 if(entry == null) {
-                    return ImmutableList.single(m.add(new MatchingEntry(schemaVarTerm.getName(), conc, sel)));
+                    return ImmutableList.single(m.add(schemaVarTerm.getName(), conc, sel));
                 } else {
                     Term alreadyThere = entry.getValue();
                     if(!alreadyThere.equals(conc)) {
@@ -44,6 +45,34 @@ public class TermMatcher {
             } else {
                 return ImmutableList.single(m.addUnnamed(conc, sel));
             }
+        }
+
+        @Override
+        public ImmutableList<Matching> visit(SchemaOccurTerm occurTerm, Triple<Term, Matching, SubtermSelector> arg)
+                throws MatchException {
+
+            Matching m = arg.snd;
+            Term conc = arg.fst;
+            SubtermSelector sel = arg.trd;
+
+            Term innerTerm = occurTerm.getTerm(0);
+
+            ImmutableList<Matching> result;
+            try {
+                result = innerTerm.accept(this, arg);
+                result = result.map(x -> x.addEllipsis(conc, sel));
+            } catch(MatchException ex) {
+                // it's ok not to match!
+                result = ImmutableList.nil();
+            }
+
+            for(int i = 0; i < conc.countTerms(); i++) {
+                Term subTerm = conc.getTerm(i);
+                SubtermSelector subSel = new SubtermSelector(sel, i);
+                    result = result.appendAll(occurTerm.accept(this, new Triple<>(subTerm, m, subSel)));
+            }
+
+            return result;
         }
 
         @Override
@@ -137,11 +166,15 @@ public class TermMatcher {
 
     }
 
-    public Iterable<Matching> match(Term schematicTerm, Term concreteTerm) throws Exception {
+    public ImmutableList<Matching> match(Term schematicTerm, Term concreteTerm) throws MatchException {
         return match(schematicTerm, concreteTerm, Matching.emptyMatching());
     }
 
-    private Iterable<Matching> match(Term schem, Term conc, Matching m) throws Exception {
+    public ImmutableList<Matching> matchOccurrences(Term schematicTerm, Term concreteTerm) throws MatchException {
+        return match(new SchemaOccurTerm(schematicTerm), concreteTerm);
+    }
+
+    private ImmutableList<Matching> match(Term schem, Term conc, Matching m) throws MatchException {
        return schem.accept(new Visitor(), new Triple<>(conc, m, new SubtermSelector()));
     }
 
