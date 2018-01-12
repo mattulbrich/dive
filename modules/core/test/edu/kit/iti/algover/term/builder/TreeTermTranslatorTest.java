@@ -108,10 +108,10 @@ public class TreeTermTranslatorTest {
             { "let c := null :: null == c",
                 "(let c := null :: $eq<object>(null, c))" },
 
-                // Heap accesses
-                {"a[0]", "$array_select<int>($heap, a, 0)"},
-                {"a2[1,2]", "$array2_select<int>($heap, a2, 1, 2)"},
-                {"null", "null"},
+            // Heap accesses
+            {"a[0]", "$array_select<int>($heap, a, 0)"},
+            {"a2[1,2]", "$array2_select<int>($heap, a2, 1, 2)"},
+            {"null", "null"},
 
             // From TermParserTest
             { "i1 + i2", "$plus(i1, i2)" },
@@ -123,12 +123,12 @@ public class TreeTermTranslatorTest {
               "(let i1, i2 := i2, i1 :: $plus(i1, i2))" },
             { "if i1 > 5 then i2 else i1",
               "$ite<int>($gt(i1, 5), i2, i1)" },
-                {"-1", "$neg(1)"},
+            {"-1", "$neg(1)"},
 
-                // Associativity
-                {"1+2-3", "$minus($plus(1, 2), 3)"},
-                {"1*2*3", "$times($times(1, 2), 3)"},
-                {"b1 ==> b2 ==> b3", "$imp(b1, $imp(b2, b3))"},
+            // Associativity
+            {"1+2-3", "$minus($plus(1, 2), 3)"},
+            {"1*2*3", "$times($times(1, 2), 3)"},
+            {"b1 ==> b2 ==> b3", "$imp(b1, $imp(b2, b3))"},
         };
     }
 
@@ -136,9 +136,9 @@ public class TreeTermTranslatorTest {
         return new String[][] {
             { "?x+3", "$plus(?x, 3)" },
             { "_*5", "$times(_, 5)" },
-            { "1 * ... x+y ...", "$times(1, (... $add(x, y) ...))" },
+            { "1 * ... i1+?x ...", "$times(1, (... $plus(i1, ?x) ...))" },
             { "if ?x then ?x else 5", "$ite<int>(?x, ?x, 5)" },
-            { "forall i:int :: ?phi", "forall i:int :: ?phi" },
+            { "forall i:int :: ?phi", "(forall i:int :: ?phi)" },
             { "args(__)", "args(_, _, _)" },
             { "args(__, ?x)", "args(_, _, ?x)" },
             { "args(__, ?x, ?y)", "args(_, ?x, ?y)" },
@@ -157,7 +157,7 @@ public class TreeTermTranslatorTest {
             { "forall x:int :: unknown", "" },  // no more bound vars after this
             { "forall x,y,z:int :: unknown", "" },  // no more bound vars after this
             { "f(b1)", "Unexpected argument sort" },
-            { "if true then b1 else i1", "Unexpected argument sort" },
+            { "if true then b1 else i1", "No common supertype for bool and int" },
             {"a.Length0", "Elements of type 'array' have only the 'Length' property"},
             // revealed wrong error message:
             {"a2.Length", "Elements of type 'array2' have only the 'Length0' and 'Length1' properties"},

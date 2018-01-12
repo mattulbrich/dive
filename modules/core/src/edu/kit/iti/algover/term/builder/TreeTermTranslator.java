@@ -24,6 +24,7 @@ import edu.kit.iti.algover.term.ApplTerm;
 import edu.kit.iti.algover.term.FunctionSymbol;
 import edu.kit.iti.algover.term.LetTerm;
 import edu.kit.iti.algover.term.QuantTerm;
+import edu.kit.iti.algover.term.SchemaOccurTerm;
 import edu.kit.iti.algover.term.QuantTerm.Quantifier;
 import edu.kit.iti.algover.term.SchemaVarTerm;
 import edu.kit.iti.algover.term.Sort;
@@ -355,10 +356,12 @@ public class TreeTermTranslator {
             break;
 
         case DafnyParser.ELLIPSIS:
-            throw new Error("... has not been implemented yet. Sorry");
+            result = new SchemaOccurTerm(build(tree.getChild(0)));
+            break;
 
         case DafnyParser.DOUBLE_BLANK:
-            // In order ...
+            // In order to avoid this error message, call "expandMultiBlank" on an arguments
+            // DafnyTree (ARGS)
             throw new TermBuildException("__ not supported in this place. "
                     + "Solution: Spell it out using the appropriate number of _. Sorry.");
 
@@ -384,7 +387,10 @@ public class TreeTermTranslator {
         Term thenExp = build(thenTree);
         Term elseExp = build(elseTree);
 
-        Sort sort = thenExp.getSort();
+        Sort thenSort = thenExp.getSort();
+        Sort elseSort = elseExp.getSort();
+        Sort sort = Sort.supremum(thenSort, elseSort);
+
         FunctionSymbol ifFct = BuiltinSymbols.ITE.instantiate(Collections.singletonList(sort));
 
         return new ApplTerm(ifFct, ifCond, thenExp, elseExp);

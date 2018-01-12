@@ -1,15 +1,15 @@
 /*
  * This file is part of AlgoVer.
  *
- * Copyright (C) 2015-2017 Karlsruhe Institute of Technology
+ * Copyright (C) 2015-2018 Karlsruhe Institute of Technology
  */
 
 package edu.kit.iti.algover.term;
 
 public class SchemaOccurTerm extends SchemaTerm {
 
-    public SchemaOccurTerm(Sort sort, Term occurTerm) {
-        super(sort, new Term[] { occurTerm });
+    public SchemaOccurTerm(Term occurTerm) {
+        super(Sort.UNTYPED_SORT, new Term[] { occurTerm });
     }
 
     @Override

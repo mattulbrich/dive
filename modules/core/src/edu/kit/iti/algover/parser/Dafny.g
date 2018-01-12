@@ -389,7 +389,7 @@ atom_expr:
     | '(' expressions? ')' -> ^(CALL usual_or_logic_id ^(ARGS expressions?) )
     )
   | {schemaMode}?
-  ( SCHEMA_ID | BLANK | ELLIPSIS expression ELLIPSIS! )
+  ( SCHEMA_ID | BLANK | ELLIPSIS^ expression ELLIPSIS! )
   | TRUE | FALSE | NULL | 'this'
   | INT_LIT
   | 'old'^ '('! expression ')'!

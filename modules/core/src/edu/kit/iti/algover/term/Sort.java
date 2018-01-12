@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 
+import edu.kit.iti.algover.term.builder.TermBuildException;
 import edu.kit.iti.algover.util.Util;
 
 /**
@@ -92,7 +93,7 @@ public class Sort {
 
     /**
      * The Constant UNTYPED_SORT for the totally arbitrary type
-     * of an untyped {@link SchemaVarTerm}.
+     * of an untyped {@link SchemaTerm}.
      *
      * (Would be an existential type)
      */
@@ -340,5 +341,22 @@ public class Sort {
             return false;
         }
         return Arrays.equals(arguments, sort.arguments);
+    }
+
+    public static Sort supremum(Sort sort1, Sort sort2) throws TermBuildException {
+        if(sort1.isSubtypeOf(sort2)) {
+            return sort2;
+        }
+
+        if(sort2.isSubtypeOf(sort1)) {
+            return sort1;
+        }
+
+        if((sort1.isClassSort() || sort1.isArray()) &&
+           (sort2.isClassSort() || sort2.isArray())) {
+            return OBJECT;
+        }
+
+        throw new TermBuildException("No common supertype for " + sort1 + " and " + sort2);
     }
 }
