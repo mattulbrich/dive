@@ -13,6 +13,8 @@ import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.antlr.runtime.CommonToken;
+
 import edu.kit.iti.algover.SymbexStateToFormula;
 import edu.kit.iti.algover.data.BuiltinSymbols;
 import edu.kit.iti.algover.data.SymbolTable;
@@ -344,13 +346,21 @@ public class TreeTermTranslator {
             result = buildWildcard(tree);
             break;
 
-        case DafnyParser.UNDERSCORE:
+        case DafnyParser.BLANK:
+            result = new SchemaVarTerm("_");
+            break;
+
         case DafnyParser.SCHEMA_ID:
             result = new SchemaVarTerm(tree.getText());
             break;
 
         case DafnyParser.ELLIPSIS:
             throw new Error("... has not been implemented yet. Sorry");
+
+        case DafnyParser.DOUBLE_BLANK:
+            // In order ...
+            throw new TermBuildException("__ not supported in this place. "
+                    + "Solution: Spell it out using the appropriate number of _. Sorry.");
 
         default:
             TermBuildException ex =
@@ -394,7 +404,9 @@ public class TreeTermTranslator {
         }
 
         List<Term> argTerms = new ArrayList<>();
-        for (DafnyTree arg : tree.getChild(1).getChildren()) {
+        DafnyTree args = tree.getFirstChildWithType(DafnyParser.ARGS);
+        expandMultiBlanks(args, fct.getArity());
+        for (DafnyTree arg : args.getChildren()) {
             argTerms.add(build(arg));
         }
 
@@ -683,6 +695,49 @@ public class TreeTermTranslator {
 
         return result;
     }
+
+    /*
+     * Take a ARGS tree and expand the __ that it might contain into several _.
+     *
+     * By the grammar, __ can only be the first or last element of an expression
+     * list.
+     *
+     * The value targetArity specifies the number of elements that args should
+     * have in the end.
+     */
+    private void expandMultiBlanks(DafnyTree args, int targetArity) {
+        DafnyTree first = args.getChild(0);
+        DafnyTree last = args.getLastChild();
+        int childCount = args.getChildCount();
+
+        if (first.getType() == DafnyParser.DOUBLE_BLANK) {
+            CommonToken token = new CommonToken(first.getToken());
+            token.setType(DafnyParser.BLANK);
+            args.replaceChildren(0, 0, new DafnyTree(token));
+
+            for (int i = childCount; i < targetArity; i++) {
+                token = new CommonToken(first.getToken());
+                token.setType(DafnyParser.BLANK);
+                args.insertChild(0, new DafnyTree(token));
+            }
+        } else
+
+        if (last.getType() == DafnyParser.DOUBLE_BLANK) {
+            CommonToken token = new CommonToken(first.getToken());
+            token.setType(DafnyParser.BLANK);
+            args.replaceChildren(childCount-1, childCount-1, new DafnyTree(token));
+
+            for (int i = childCount; i < targetArity; i++) {
+                token = new CommonToken(first.getToken());
+                token.setType(DafnyParser.BLANK);
+                args.addChild(new DafnyTree(token));
+            }
+        }
+
+        assert args.getChildren().stream()
+                .allMatch(x -> x.getType() != DafnyParser.DOUBLE_BLANK);
+    }
+
 
     /* for testing */
     int countBoundVars() {

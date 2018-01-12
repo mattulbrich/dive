@@ -38,6 +38,8 @@ public class TermMatcherTest {
             { "_ + _", "2 + 3", "[[_0 => 2 / 0, _1 => 3 / 1]]" },
             { "?x + ?x", "2 + 2", "[[?x => 2 / 0]]" },
             { "f(f(_))", "f(f(f(5)))", "[[_0 => f(5) / 0.0]]" },
+            { "h(__)", "h(1,2)", "[[_0 => 1 / 0, _1 => 2 / 1]]" },
+            { "exists i:int :: ?phi", "exists i:int :: i*i == 4" },
         };
     }
 
@@ -55,6 +57,7 @@ public class TermMatcherTest {
         Collection<FunctionSymbol> map = new ArrayList<>();
         map.add(new FunctionSymbol("f", Sort.INT, Sort.INT));
         map.add(new FunctionSymbol("g", Sort.INT, Sort.INT));
+        map.add(new FunctionSymbol("h", Sort.INT, Sort.INT, Sort.INT));
         symbTable = new MapSymbolTable(new BuiltinSymbols(), map);
     }
 

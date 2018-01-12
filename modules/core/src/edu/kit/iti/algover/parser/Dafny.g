@@ -102,8 +102,8 @@ TRUE: 'true';
 VAR: 'var';
 WHILE: 'while';
 
-DOUBLE_UNDERSCORE: '__';
-UNDERSCORE: '_';
+DOUBLE_BLANK: '__';
+BLANK: '_';
 ELLIPSIS : '...';
 DOUBLECOLON: '::';
 ASSIGN: ':=';
@@ -312,7 +312,8 @@ expression_wildcard:
   ;
 
 expressions:
-  expression ( ','! expression )*
+    expression ( ','! expression )* ( {schemaMode}? ','! DOUBLE_BLANK )?
+  | {schemaMode}? DOUBLE_BLANK ( ','! expression )*
   ;
 
 expression:
@@ -388,7 +389,7 @@ atom_expr:
     | '(' expressions? ')' -> ^(CALL usual_or_logic_id ^(ARGS expressions?) )
     )
   | {schemaMode}?
-  ( SCHEMA_ID | UNDERSCORE | DOUBLE_UNDERSCORE | ELLIPSIS expression ELLIPSIS! )
+  ( SCHEMA_ID | BLANK | ELLIPSIS expression ELLIPSIS! )
   | TRUE | FALSE | NULL | 'this'
   | INT_LIT
   | 'old'^ '('! expression ')'!

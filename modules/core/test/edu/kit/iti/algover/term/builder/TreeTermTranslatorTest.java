@@ -139,6 +139,11 @@ public class TreeTermTranslatorTest {
             { "1 * ... x+y ...", "$times(1, (... $add(x, y) ...))" },
             { "if ?x then ?x else 5", "$ite<int>(?x, ?x, 5)" },
             { "forall i:int :: ?phi", "forall i:int :: ?phi" },
+            { "args(__)", "args(_, _, _)" },
+            { "args(__, ?x)", "args(_, _, ?x)" },
+            { "args(__, ?x, ?y)", "args(_, ?x, ?y)" },
+            { "args(?y, __)", "args(?y, _, _)" },
+            { "args(?x, ?y, __)", "args(?x, ?y, _)" },
         };
     }
 
@@ -161,6 +166,8 @@ public class TreeTermTranslatorTest {
             {"a2[0]", "Access to 'array2' requires two index arguments"},
             {"a[0,1]", "Access to 'array' requires one index argument"},
             {"i1[i1]", "Unsupported array sort: int" },
+            { "args(__, ?x, ?y, ?z)", "Illegal number of arguments" },
+            { "args(?x, ?y, ?z, __)", "Illegal number of arguments" },
         };
     }
 
@@ -178,6 +185,7 @@ public class TreeTermTranslatorTest {
         map.add(new FunctionSymbol("f", Sort.INT, Sort.INT));
         map.add(new FunctionSymbol("c", Sort.getClassSort("C")));
         map.add(new FunctionSymbol("c2", Sort.getClassSort("C")));
+        map.add(new FunctionSymbol("args", Sort.INT, Sort.INT, Sort.BOOL, Sort.BOOL));
         symbTable = new MapSymbolTable(new BuiltinSymbols(), map);
     }
 
@@ -200,7 +208,7 @@ public class TreeTermTranslatorTest {
 
         TreeTermTranslator ttt = new TreeTermTranslator(symbTable);
 
-        DafnyTree t = parse(input);
+        DafnyTree t = parse(input, true);
         try {
             ttt.build(t);
             fail("Should not reach this here");
