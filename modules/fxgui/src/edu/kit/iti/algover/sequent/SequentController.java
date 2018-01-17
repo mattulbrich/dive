@@ -62,10 +62,22 @@ public class SequentController extends FxmlController {
      */
     private final SubSelection<AnnotatedString.TermElement> mouseOverTerm;
 
+    // TODO: Don't save the ReferenceGraph at the sequent controller level in the future
+    // it should ideally be placed somewhere in the backend, since the ProofScript's interpreter
+    // has to closely work with the reference graph to keep it updated
     private ReferenceGraph referenceGraph;
-    private Proof activeProof;
+    private Proof activeProof; // Maybe place it inside the Proof or PVC class instead
     private ProofNodeSelector activeNode;
 
+    /**
+     * Builds the controller and GUI for the sequent view, that is the two ListViews of
+     * {@Link TopLevelFormula}s.
+     *
+     * This loads the GUI from the .fxml resource file
+     * <tt>res/edu/kit/iti/algover/sequent/SequentView.fxml</tt>.
+     *
+     * @param listener
+     */
     public SequentController(SequentActionListener listener) {
         super("SequentView.fxml");
         this.listener = listener;
@@ -93,6 +105,13 @@ public class SequentController extends FxmlController {
         });
     }
 
+    /**
+     * Fills the ListViews with the formulas in the very first sequent (from the root
+     * of the {@link ProofNode} tree).
+     *
+     * @param pvcEntity the PVC for which to show the root sequent
+     * @param proof the existing proof or proof stub for the pvc
+     */
     public void viewSequentForPVC(PVCEntity pvcEntity, Proof proof) {
         PVC pvc = pvcEntity.getPVC();
         if (activeProof == null || !activeProof.getPvcName().equals(pvc.getIdentifier())) {
@@ -104,6 +123,10 @@ public class SequentController extends FxmlController {
         }
     }
 
+    // TODO: Add other means for navigating the ProofNode tree
+    // In the future this should maybe only automatically move on to child ProofNodes, when
+    // the rule that was just applied only resulted in a single child.
+    // Currently I didn't implement this, since it would make testing branching rules impossible
     // What a method name
     public void tryMovingOn() {
         if (activeNode != null) {
@@ -118,14 +141,12 @@ public class SequentController extends FxmlController {
         }
     }
 
-    public ProofNode getActiveNode() {
-        try {
-            return activeNode.get(activeProof);
-        } catch (RuleException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
+    /**
+     * View a preview for a rule application. This highlights the added/removed {@link TopLevelFormula}s
+     * and changed {@link Term}s.
+     *
+     * @param application a proof rule instantiation to read the changes from (via their {@link ProofRuleApplication#getBranchInfo()}).
+     */
     public void viewProofApplicationPreview(ProofRuleApplication application) {
         try {
             updateSequent(activeNode.get(activeProof).getSequent(), application.getBranchInfo().get(0));
@@ -134,6 +155,9 @@ public class SequentController extends FxmlController {
         }
     }
 
+    /**
+     * Removes any highlighting added by the {@link #viewProofApplicationPreview(ProofRuleApplication)} method.
+     */
     public void resetProofApplicationPreview() {
         try {
             updateSequent(activeNode.get(activeProof).getSequent(), null);
@@ -213,6 +237,14 @@ public class SequentController extends FxmlController {
             return reference.getTermSelector();
         } else {
             return null;
+        }
+    }
+
+    public ProofNode getActiveNode() {
+        try {
+            return activeNode.get(activeProof);
+        } catch (RuleException e) {
+            throw new RuntimeException(e);
         }
     }
 
