@@ -47,7 +47,6 @@ public class NotLeftRule extends AbstractProofRule {
             return ProofRuleApplicationBuilder.notApplicable(this);
         }
 
-        ApplTerm applTerm = (ApplTerm)term;
         builder.setApplicability(ProofRuleApplication.Applicability.APPLICABLE);
         builder.setTranscript("notLeft on='" + term + "';");
 
