@@ -9,10 +9,21 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+/**
+ * This highlighting rule implements highlighting a set of references into the
+ * code.
+ *
+ * This is for example used for highlighting the parts of the code that resulted
+ * in a term that the user selected to find the origin of.
+ */
 public class ReferenceHighlightingRule extends SpanHighlightingRule {
 
     private final List<Span> backlightedSpans;
 
+    /**
+     * @param codeReferences a set of {@link CodeReference}s to highlight in the {@link DafnyCodeArea}.
+     *                       Highlighted spans get the "reference-backlighted" class added.
+     */
     public ReferenceHighlightingRule(Set<CodeReference> codeReferences) {
         this.backlightedSpans = codeReferences.stream()
                 .map(this::referenceToSpan)
