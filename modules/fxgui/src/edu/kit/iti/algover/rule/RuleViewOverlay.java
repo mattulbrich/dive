@@ -3,13 +3,21 @@ package edu.kit.iti.algover.rule;
 import com.jfoenix.controls.JFXButton;
 import de.jensd.fx.glyphs.GlyphsDude;
 import de.jensd.fx.glyphs.materialicons.MaterialIcon;
+import edu.kit.iti.algover.rules.Parameters;
 import edu.kit.iti.algover.rules.ProofRuleApplication;
 import edu.kit.iti.algover.rules.RuleException;
+import javafx.css.PseudoClass;
 import javafx.scene.control.Label;
 import javafx.scene.layout.AnchorPane;
 
+import java.util.Map;
+
 
 public class RuleViewOverlay extends AnchorPane {
+
+    private static final PseudoClass PC_CLOSES = PseudoClass.getPseudoClass("closes");
+    private static final PseudoClass PC_SPLITTING = PseudoClass.getPseudoClass("splitting");
+    private static final PseudoClass PC_NON_SPLITTING = PseudoClass.getPseudoClass("non-splitting");
 
     private ProofRuleApplication application;
 
@@ -26,10 +34,11 @@ public class RuleViewOverlay extends AnchorPane {
 
         branchCount = new Label(count + "", GlyphsDude.createIcon(MaterialIcon.CALL_SPLIT, "20px"));
         branchCount.getStyleClass().add("branch-count");
+        setPseudoClassStateFromBranches(count);
 
         applyButton = new JFXButton("Apply");
         applyButton.getStyleClass().add("apply");
-        applyButton.setDisable(application.getApplicability() == ProofRuleApplication.Applicability.NOT_APPLICABLE);
+        applyButton.setDisable(application.getApplicability() != ProofRuleApplication.Applicability.APPLICABLE);
 
         applyButton.setOnAction(actionEvent -> {
             listener.onRuleApplication(this.application);
@@ -46,6 +55,12 @@ public class RuleViewOverlay extends AnchorPane {
             }
         });
 
+        for (Map.Entry<String, Parameters.TypedValue<?>> entry : application.getOpenParameters().entrySet()) {
+            String parameterName = entry.getKey();
+            Parameters.TypedValue<?> value = entry.getValue();
+            System.out.println(parameterName + ": " + value);
+        }
+
         getChildren().addAll(branchCount, applyButton, refineButton);
         setTopAnchor(branchCount, 0.0);
         setRightAnchor(branchCount, 0.0);
@@ -56,4 +71,26 @@ public class RuleViewOverlay extends AnchorPane {
         setBottomAnchor(refineButton, 0.0);
         setRightAnchor(refineButton, 0.0);
     }
+
+
+    private void setPseudoClassStateFromBranches(int branches) {
+        switch (branches) {
+            case 0:
+                branchCount.pseudoClassStateChanged(PC_CLOSES, true);
+                branchCount.pseudoClassStateChanged(PC_SPLITTING, false);
+                branchCount.pseudoClassStateChanged(PC_NON_SPLITTING, false);
+                return;
+            case 1:
+                branchCount.pseudoClassStateChanged(PC_CLOSES, false);
+                branchCount.pseudoClassStateChanged(PC_SPLITTING, false);
+                branchCount.pseudoClassStateChanged(PC_NON_SPLITTING, true);
+                return;
+            default:
+                branchCount.pseudoClassStateChanged(PC_CLOSES, false);
+                branchCount.pseudoClassStateChanged(PC_SPLITTING, true);
+                branchCount.pseudoClassStateChanged(PC_NON_SPLITTING, false);
+                return;
+        }
+    }
+
 }

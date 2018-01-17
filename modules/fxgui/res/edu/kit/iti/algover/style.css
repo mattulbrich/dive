@@ -60,15 +60,15 @@
     -fx-border-color: #62b3cf;
 }
 
-.rule-view:closes .label.branch-count .text {
+.rule-view .label.branch-count:closes .text {
     -fx-fill: #5E5;
 }
 
-.rule-view:non-splitting .label.branch-count .text {
+.rule-view .label.branch-count:non-splitting .text {
     -fx-fill: #555; /*#AAF;*/
 }
 
-.rule-view:splitting .label.branch-count .text {
+.rule-view .label.branch-count:splitting .text {
     -fx-fill: #E55;
 }
 
