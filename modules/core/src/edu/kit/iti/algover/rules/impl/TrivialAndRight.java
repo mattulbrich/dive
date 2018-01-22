@@ -1,7 +1,7 @@
 /*
  * This file is part of AlgoVer.
  *
- * Copyright (C) 2015-2017 Karlsruhe Institute of Technology
+ * Copyright (C) 2015-2018 Karlsruhe Institute of Technology
  */
 package edu.kit.iti.algover.rules.impl;
 
@@ -28,7 +28,7 @@ import edu.kit.iti.algover.util.RuleUtil;
 public class TrivialAndRight extends AbstractProofRule {
 
     public TrivialAndRight() {
-        super(makeRequiredParameters(), makeOptionalParameters());
+        super(ON_PARAM, DEEP_PARAM);
     }
 
     private static Map<String, Class<?>> makeOptionalParameters() {
@@ -83,10 +83,7 @@ public class TrivialAndRight extends AbstractProofRule {
     @Override
     public ProofRuleApplication makeApplication(ProofNode target, Parameters parameters) throws RuleException {
         checkParameters(parameters);
-        Parameters.TypedValue<?> onValue = parameters.getValue("on");
-        //TODO what type should on have???
-        // System.out.println(onValue.getType());
-        Term on = onValue.cast(Term.class).getValue();
+        Term on = parameters.getValue(ON_PARAM);
         ProofRuleApplicationBuilder builder = new ProofRuleApplicationBuilder(this);
 
         if(!(on instanceof ApplTerm)) {

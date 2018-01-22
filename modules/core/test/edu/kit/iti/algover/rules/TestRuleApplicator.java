@@ -1,3 +1,8 @@
+/*
+ * This file is part of AlgoVer.
+ *
+ * Copyright (C) 2015-2018 Karlsruhe Institute of Technology
+ */
 package edu.kit.iti.algover.rules;
 
 import edu.kit.iti.algover.data.BuiltinSymbols;
@@ -90,7 +95,7 @@ public class TestRuleApplicator {
 
         TermSelector ts = new TermSelector(TermSelector.SequentPolarity.SUCCEDENT, 1);
         Parameters params = new Parameters();
-        params.putValue("on", new Parameters.TypedValue<>(Term.class, term3));
+        params.putValue("on", term3);
 
         //System.out.println(pr.makeApplication(pn, params));
         //RuleApplicator.applyRule(prApp, new ProofNode(null, null, null, testSequent, null));
