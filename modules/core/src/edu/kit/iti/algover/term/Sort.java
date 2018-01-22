@@ -14,6 +14,7 @@ import java.util.Set;
 
 import edu.kit.iti.algover.term.builder.TermBuildException;
 import edu.kit.iti.algover.util.Util;
+import nonnull.NonNull;
 
 /**
  * The Class Sort models a sort-type in the logic.
@@ -343,7 +344,16 @@ public class Sort {
         return Arrays.equals(arguments, sort.arguments);
     }
 
-    public static Sort supremum(Sort sort1, Sort sort2) throws TermBuildException {
+    /**
+     * Compute the common super sort for the two arguments if it exists.
+     * If it does not exist, an exception is raised.
+     *
+     * @param sort1 the first sort to compare
+     * @param sort2 the second sort to compare
+     * @return the most specific sort which is top sort to both arguments.
+     * @throws TermBuildException if there is no common supersort
+     */
+    public static @NonNull Sort supremum(@NonNull Sort sort1, @NonNull Sort sort2) throws TermBuildException {
         if(sort1.isSubtypeOf(sort2)) {
             return sort2;
         }

@@ -8,6 +8,16 @@ package edu.kit.iti.algover.term.match;
 import edu.kit.iti.algover.rules.SubtermSelector;
 import edu.kit.iti.algover.term.Term;
 
+/**
+ * A matching entry is a simple data object class which encapsulates an entry
+ * into a {@link Matching} table.
+ *
+ * <p>It comprises the name of the schematic entity, the term value, the
+ * selector where this can be found.
+ *
+ * @author Mattias Ulbrich
+ * @see Matching
+ */
 public class MatchingEntry {
 
     private final String key;

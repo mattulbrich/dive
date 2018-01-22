@@ -7,6 +7,15 @@ package edu.kit.iti.algover.term.match;
 
 import edu.kit.iti.algover.term.Term;
 
+/**
+ * This exception is used to indicate that a schematic term cannot be
+ * matched against another type.
+ *
+ * This is one of the exceptions which could be thrown on a more regular basis
+ * since it neatly implements a backtracking control flow during matching.
+ *
+ * @author mattias ulbrich
+ */
 @SuppressWarnings("serial")
 public class MatchException extends Exception {
 

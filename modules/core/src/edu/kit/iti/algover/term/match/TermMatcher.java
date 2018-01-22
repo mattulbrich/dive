@@ -20,12 +20,36 @@ import edu.kit.iti.algover.term.VariableTerm;
 import edu.kit.iti.algover.util.ImmutableList;
 import edu.kit.iti.algover.util.Triple;
 
+/**
+ * This is the class that contains the actual algorithm that implements term
+ * matching.
+ *
+ * <p>Vital in its operation is the visitor class {@link Visitor} that does the
+ * actual work.</p>
+ *
+ * <p>The visitor uses {@link Triple}s of some kind. This is since the {@link
+ * Visitor} interface only allows for single argument.</p>
+ *
+ * @author Mattias Ulbrich
+ */
 public class TermMatcher {
 
-    private class Visitor implements TermVisitor<Triple<Term, Matching, SubtermSelector>, ImmutableList<Matching>, MatchException> {
+    private class Visitor
+            implements TermVisitor<Triple<Term, Matching, SubtermSelector>,
+                                   ImmutableList<Matching>, MatchException> {
 
+        /*
+         * If schema variable has a name like "?x":
+         *   If it is instantiated: Verify that the instantiation is equal
+         *          to comparison term
+         *   If it is not instantiated: Instantiate it with the comparison term.
+         * If it is unnamed, add the unnamed assignment to the matching.
+         */
         @Override
-        public ImmutableList<Matching> visit(SchemaVarTerm schemaVarTerm, Triple<Term, Matching, SubtermSelector> arg) throws MatchException {
+        public ImmutableList<Matching> visit(SchemaVarTerm schemaVarTerm,
+                                             Triple<Term, Matching, SubtermSelector> arg)
+                throws MatchException {
+
             Matching m = arg.snd;
             Term conc = arg.fst;
             SubtermSelector sel = arg.trd;
@@ -47,8 +71,15 @@ public class TermMatcher {
             }
         }
 
+        /*
+         * a "...term..." is matched by matching the inner term recursively
+         * against all substerms of the comparison term.
+         *
+         * This may lead to several Matchings, not just one.
+         */
         @Override
-        public ImmutableList<Matching> visit(SchemaOccurTerm occurTerm, Triple<Term, Matching, SubtermSelector> arg)
+        public ImmutableList<Matching> visit(SchemaOccurTerm occurTerm,
+                                             Triple<Term, Matching, SubtermSelector> arg)
                 throws MatchException {
 
             Matching m = arg.snd;
@@ -75,8 +106,13 @@ public class TermMatcher {
             return result;
         }
 
+        /*
+         * Variables must be euqal.
+         */
         @Override
-        public ImmutableList<Matching> visit(VariableTerm varTerm, Triple<Term, Matching, SubtermSelector> arg) throws MatchException {
+        public ImmutableList<Matching> visit(VariableTerm varTerm,
+                                             Triple<Term, Matching, SubtermSelector> arg)
+                throws MatchException {
             Matching m = arg.snd;
             Term conc = arg.fst;
 
@@ -87,6 +123,10 @@ public class TermMatcher {
             }
         }
 
+        /*
+         * Function applications must be on the same function symbol and
+         * recursively be matchable.
+         */
         @Override
         public ImmutableList<Matching> visit(ApplTerm applTerm, Triple<Term, Matching, SubtermSelector> arg) throws MatchException {
             Matching m = arg.snd;
@@ -122,8 +162,16 @@ public class TermMatcher {
             return matchings;
         }
 
+        /*
+         * For a quantifier, the type and the variable must be the same and
+         * the matrix must be matchable.
+         *
+         * TODO In the future have some notion of schematic bound variable.
+         */
         @Override
-        public ImmutableList<Matching> visit(QuantTerm quantTerm, Triple<Term, Matching, SubtermSelector> arg) throws MatchException {
+        public ImmutableList<Matching> visit(QuantTerm quantTerm,
+                                             Triple<Term, Matching, SubtermSelector> arg)
+                throws MatchException {
             Matching m = arg.snd;
             Term conc = arg.fst;
             SubtermSelector sel = arg.trd;
@@ -157,25 +205,85 @@ public class TermMatcher {
             return subSchem.accept(this, new Triple<>(subConc, m, subSel));
         }
 
+        /*
+         * TODO Not implemented yet.
+         */
         @Override
         public ImmutableList<Matching> visit(LetTerm letTerm, Triple<Term, Matching, SubtermSelector> arg)
                 throws MatchException {
+            // TODO not implemented yet, just fail it ...
             throw new MatchException(letTerm, arg.fst);
         }
-
-
     }
 
-    public ImmutableList<Matching> match(Term schematicTerm, Term concreteTerm) throws MatchException {
+    /**
+     * Match a schematic term against another term.
+     *
+     * <p> The result may be 0, 1 or more {@link Matching}s. This is since the
+     * ellipsis operator may match differently at different points. </p>
+     *
+     * <p> The second term will in most cases be a term w/o schematic entities.
+     * This is not strictly required, however. But matching happens only in the
+     * first argument. Hence, {@code ?x} matches against {@code 42}, but not
+     * {@code 42} does not match against {@code ?x}. </p>
+     *
+     * @param schematicTerm the term with the schema entities
+     * @param concreteTerm  the term to match against
+     * @return a list of all matchings which unify the two arguments.
+     */
+    public ImmutableList<Matching> match(Term schematicTerm, Term concreteTerm) {
         return match(schematicTerm, concreteTerm, Matching.emptyMatching());
     }
 
-    public ImmutableList<Matching> matchOccurrences(Term schematicTerm, Term concreteTerm) throws MatchException {
+    /**
+     * Match a schematic term against another term at any position within the
+     * term.
+     *
+     * <p> The result may be 0, 1 or more {@link Matching}s. This is since the
+     * ellipsis operator may match differently at different points. </p>
+     *
+     * <p> The second term will in most cases be a term w/o schematic entities.
+     * This is not strictly required, however. But matching happens only in the
+     * first argument. Hence, {@code ?x} matches against {@code 42}, but not
+     * {@code 42} does not match against {@code ?x}. </p>
+     *
+     * <p>Technically, a {@link SchemaOccurTerm} (ellipsis) is used to model
+     * the schematic term to match.</p>
+     *
+     * @param schematicTerm the term with the schema entities
+     * @param concreteTerm  the term to match against
+     * @return a list of all matchings which unify the two arguments.
+     */
+    public ImmutableList<Matching> matchOccurrences(Term schematicTerm, Term concreteTerm) {
         return match(new SchemaOccurTerm(schematicTerm), concreteTerm);
     }
 
-    private ImmutableList<Matching> match(Term schem, Term conc, Matching m) throws MatchException {
-       return schem.accept(new Visitor(), new Triple<>(conc, m, new SubtermSelector()));
+    /**
+     * Match a schematic term against another term.
+     *
+     * <p> The result may be 0, 1 or more {@link Matching}s. This is since the
+     * ellipsis operator may match differently at different points. </p>
+     *
+     * <p> The second term will in most cases be a term w/o schematic entities.
+     * This is not strictly required, however. But matching happens only in the
+     * first argument. Hence, {@code ?x} matches against {@code 42}, but not
+     * {@code 42} does not match against {@code ?x}. </p>
+     *
+     * <p>This method does not start with an empty matching context but with the
+     * one specified in m.</p>
+     *
+     * @param schem the term with the schema entities
+     * @param conc  the term to match against
+     * @param m     the matching to begin from.
+     * @return a list of all matchings which unify the two arguments.
+     */
+    private ImmutableList<Matching> match(Term schem, Term conc, Matching m) {
+        try {
+            return schem.accept(new Visitor(), new Triple<>(conc, m, new SubtermSelector()));
+        } catch (MatchException e) {
+            // The exception indicates that they do not match
+            return ImmutableList.nil();
+        }
     }
 
 

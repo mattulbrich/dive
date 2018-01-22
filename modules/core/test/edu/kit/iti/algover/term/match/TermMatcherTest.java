@@ -10,6 +10,7 @@ import static org.junit.Assert.assertNotNull;
 import java.util.ArrayList;
 import java.util.Collection;
 
+import edu.kit.iti.algover.util.ImmutableList;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -97,13 +98,9 @@ public class TermMatcherTest {
         t = TreeTermTranslatorTest.parse(conc, true);
         Term concTerm = ttt.build(t);
 
-        try {
-            TermMatcher m = new TermMatcher();
-            Iterable<Matching> result = m.match(schemTerm, concTerm);
-            System.out.println(result);
-            fail("Should have failed.");
-        } catch(MatchException ex) {
-            // expected
-        }
+        TermMatcher m = new TermMatcher();
+        Iterable<Matching> result = m.match(schemTerm, concTerm);
+
+        assertEquals(ImmutableList.nil(), result);
     }
 }
