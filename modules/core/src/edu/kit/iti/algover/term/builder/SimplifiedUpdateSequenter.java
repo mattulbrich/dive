@@ -28,10 +28,11 @@ public class SimplifiedUpdateSequenter extends UpdateSequenter {
 
         Term simplified = formula.getTerm().accept(new LetRemover(), null);
         return new ProofFormula(simplified);
-
     }
 
     private static class LetRemover extends DefaultTermVisitor<Void, Term, TermBuildException> {
+
+        public static final RelevanceChecker RELEVANCE_CHECKER = new RelevanceChecker();
 
         @Override
         protected Term defaultVisit(Term term, Void arg) {
@@ -45,9 +46,11 @@ public class SimplifiedUpdateSequenter extends UpdateSequenter {
 
             Term matrix = term.getTerm(0);
 
+            matrix = matrix.accept(this, null);
+
             for (Pair<VariableTerm, Term> subst : substs) {
                 VariableTerm var = subst.fst;
-                Boolean relevant = matrix.accept(new RelevanceChecker(), var);
+                Boolean relevant = matrix.accept(RELEVANCE_CHECKER, var);
                 if(relevant) {
                     newsubsts.add(subst);
                 }

@@ -53,7 +53,7 @@ public class MethodPVCBuilder implements PVCBuilder {
     private PVCSequenter sequenter;
 
     /**
-     * DafnyMethid to which this PVC belongs
+     * DafnyMethod to which this PVC belongs
      */
     private DafnyMethod declaration;
 
@@ -129,6 +129,8 @@ public class MethodPVCBuilder implements PVCBuilder {
 
             try {
                 this.referenceMap = new HashMap<TermSelector, DafnyTree>();
+                System.out.println(sequenter.getName() + " " + getPathThroughProgram().getPathIdentifier()
+                        );
                 this.sequent =
                         sequenter.translate(pathThroughProgram, getSymbolTable(), referenceMap);
             } catch (DafnyException e) {
