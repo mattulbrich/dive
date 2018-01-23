@@ -113,7 +113,7 @@ public class UpdateSequenter implements PVCSequenter {
         }
     }
 
-    protected ProofFormula postProcess(ProofFormula formula) {
+    protected ProofFormula postProcess(ProofFormula formula) throws TermBuildException {
         return formula;
     }
 
