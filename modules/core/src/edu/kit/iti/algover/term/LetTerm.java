@@ -26,6 +26,10 @@ public class LetTerm extends Term {
         super(in.getSort(), createSubterms(in, substs));
         this.substitutions = new ArrayList<>(substs);
 
+        if (substs.isEmpty()) {
+            throw new TermBuildException("Let term with empty variable assignment");
+        }
+
         for (Pair<VariableTerm, Term> pair : substs) {
             VariableTerm fst = Objects.requireNonNull(pair.fst);
             Term snd = Objects.requireNonNull(pair.snd);

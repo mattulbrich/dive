@@ -11,6 +11,27 @@ import edu.kit.iti.algover.util.Pair;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * This sequenter is a specialisation of an update sequenter.
+ *
+ * It removes all let-assignments which are irrelevant. An assignment is called
+ * invariant if the assigned variable does not occur in the matrix of the
+ * let-term.
+ *
+ * <p> For example: In the term
+ * <pre>
+ *     let x,y,z:=1,2,3 :: let a,b:=x,y :: a > 0
+ * </pre>
+ * z is irrelevant since it does never occur. x and y occur in the assignments
+ * of the second (inner) let. However, since b is irrelevant, the assignment to
+ * y is also irrelevant. This sequenter would return the following term (reduced
+ * to the relevant assignments) as result:
+ * <pre>
+ *     let x := 1 :: let a := x :: a > 0.
+ * </pre>
+ *
+ * @author Mattias Ulbrich
+ */
 public class SimplifiedUpdateSequenter extends UpdateSequenter {
 
     @Override

@@ -8,6 +8,13 @@ package edu.kit.iti.algover.term.builder;
 import edu.kit.iti.algover.proof.ProofFormula;
 import edu.kit.iti.algover.term.Term;
 
+/**
+ * This sequenter takes is a specialisation of an update sequenter.
+ *
+ * It removes the let-cascade by inlining the updates.
+ *
+ * @author Mattias Ulbrich
+ */
 public class InlineSequenter extends UpdateSequenter {
 
     @Override

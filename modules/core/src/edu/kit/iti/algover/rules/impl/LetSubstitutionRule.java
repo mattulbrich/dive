@@ -68,7 +68,7 @@ public class LetSubstitutionRule extends AbstractProofRule {
         Term on = parameters.getValue("on").cast(Term.class).getValue();
 
         if (!(on instanceof LetTerm)) {
-            throw new RuleException("Given Term is not a let term");
+            throw new RuleException("Given term is not a let term");
         }
 
         LetTerm targetLet = (LetTerm) on;
