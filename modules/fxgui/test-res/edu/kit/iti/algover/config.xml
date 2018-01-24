@@ -5,14 +5,13 @@
     <dafnyFile>test3.dfy</dafnyFile>
     <dafnyFile>classtest.dfy</dafnyFile>
     <settings>
-        <set>
             <entry>
                 <key>KeY Timeout</key>
                 <value>10</value>
             </entry>
             <entry>
                 <key>Dafny Timeout</key>
-                <value>5</value>
+                <value>24</value>
             </entry>
             <entry>
                 <key>SMT Timeout</key>
@@ -20,8 +19,7 @@
             </entry>
             <entry>
                 <key>Unroll Loops</key>
-                <value>false</value>
+                <value>true</value>
             </entry>
-        </set>
     </settings>
 </configuration>

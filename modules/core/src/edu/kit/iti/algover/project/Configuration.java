@@ -7,6 +7,7 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 import java.io.File;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Class representing the XML-file that contains all information necessary to create a project
@@ -17,22 +18,22 @@ public class Configuration {
     /**
      * The dafny files that are treated as library files, i.e. no proof obligation is generqated for the DafnyDecls in the libarary files
      */
-    List<File> libFiles;
+    private List<File> libFiles;
     /**
      * The problem files of a system for which proof obligations should be generated
      */
-    List<File> dafnyFiles;
+    private List<File> dafnyFiles;
     /**
      * Settings of the project
      */
-    ProjectSettings projectSettings;
+    private Map<String, String> projectSettings;
 
     @XmlElement(name = "settings")
-    public ProjectSettings getProjectSettings() {
+    public Map<String, String> getSettings() {
         return projectSettings;
     }
 
-    public void setProjectSettings(ProjectSettings projectSettings) {
+    public void setSettings(Map<String, String> projectSettings) {
         this.projectSettings = projectSettings;
     }
 

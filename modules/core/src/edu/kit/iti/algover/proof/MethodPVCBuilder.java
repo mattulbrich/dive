@@ -5,6 +5,7 @@
  */
 package edu.kit.iti.algover.proof;
 
+import java.lang.IllegalStateException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -20,7 +21,9 @@ import edu.kit.iti.algover.data.SuffixSymbolTable;
 import edu.kit.iti.algover.data.SymbolTable;
 import edu.kit.iti.algover.parser.DafnyException;
 import edu.kit.iti.algover.parser.DafnyTree;
+import edu.kit.iti.algover.project.Project;
 import edu.kit.iti.algover.rules.TermSelector;
+import edu.kit.iti.algover.settings.ProjectSettings;
 import edu.kit.iti.algover.symbex.LocalVarDecl;
 import edu.kit.iti.algover.symbex.SymbexPath;
 import edu.kit.iti.algover.term.FunctionSymbol;
@@ -63,7 +66,19 @@ public class MethodPVCBuilder implements PVCBuilder {
 
     private Map<TermSelector, DafnyTree> referenceMap;
 
-    public MethodPVCBuilder() { }
+    public MethodPVCBuilder(Project project) {
+        if(project != null) {
+            this.sequenter = findSequenter(project.getSettings().getString(ProjectSettings.SEQUENTER));
+        }
+    }
+
+    private static PVCSequenter findSequenter(String string) {
+        for (PVCSequenter instance : PVCSequenter.INSTANCES) {
+            if(instance.getName().equals(string))
+                return instance;
+        }
+        throw new IllegalStateException("This should not happen since settings can be validated");
+    }
 
     public PVC build() throws TermBuildException {
         return new PVC(this);
@@ -120,17 +135,8 @@ public class MethodPVCBuilder implements PVCBuilder {
 
     public void ensureSequentExists() {
         if(sequent == null) {
-            PVCSequenter sequenter = this.sequenter;
-            if(sequenter == null) {
-                assert !PVCSequenter.INSTANCES.isEmpty() :
-                    "there is no PVCSequenter";
-                sequenter = PVCSequenter.INSTANCES.get(0);
-            }
-
             try {
                 this.referenceMap = new HashMap<TermSelector, DafnyTree>();
-                System.out.println(sequenter.getName() + " " + getPathThroughProgram().getPathIdentifier()
-                        );
                 this.sequent =
                         sequenter.translate(pathThroughProgram, getSymbolTable(), referenceMap);
             } catch (DafnyException e) {
