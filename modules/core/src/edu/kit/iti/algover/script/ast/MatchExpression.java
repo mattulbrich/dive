@@ -145,7 +145,7 @@ public class MatchExpression extends Expression<ScriptLanguageParser.MatchPatter
     }
 
     public String toString() {
-        return "edu.kit.iti.algover.script.ast.MatchExpression(signature=" + this.getSignature() + ", pattern=" + this.getPattern() + ", isDerivable=" + this.isDerivable() + ", derivableTerm=" + this.getDerivableTerm() + ")";
+        return "MatchExpression(signature=" + this.getSignature() + ", pattern=" + this.getPattern() + ", isDerivable=" + this.isDerivable() + ", derivableTerm=" + this.getDerivableTerm() + ")";
     }
 
     public boolean isDerivable() {

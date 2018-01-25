@@ -12,6 +12,7 @@ import edu.kit.iti.algover.util.Pair;
 
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -24,22 +25,28 @@ public class RuleApplicator {
      *
      * @param proofRuleApplication the proof rule application to be applied
      * @param pn                   the ProofNode to which the rule should be applied
-     * @return a list of new proof nodes (children) resulting form the rule applciation
+     * @return a list of new proof nodes (children) resulting form the rule application
      */
     public static List<ProofNode> applyRule(ProofRuleApplication proofRuleApplication, ProofNode pn) {
+
         ImmutableList<BranchInfo> applicationInfos = proofRuleApplication.getBranchInfo();
         if (applicationInfos.equals(BranchInfo.UNCHANGED)) {
-
-            //TODO handle unchanged case
+            ProofNode unchanged = new ProofNode(pn, proofRuleApplication, pn.getHistory(), pn.getSequent(), pn.getRootPVC());
+            //pn.getChildren().add(unchanged);
+            List<ProofNode> retList = new ArrayList<>();
+            retList.add(unchanged);
+            return retList;
         }
         if (applicationInfos.equals(BranchInfo.CLOSE)) {
             //TODO handle closed case
         }
         Sequent sequent = pn.getSequent();
+
         int numberOfChildrenExpected = applicationInfos.size();
+
         List<ProofNode> children = new ArrayList<>();
+
         applicationInfos.forEach(branchInfo -> {
-            // System.out.println("branchInfo = " + branchInfo);
             Sequent newSequent = null;
             try {
                 newSequent = createNewSequent(branchInfo, sequent);

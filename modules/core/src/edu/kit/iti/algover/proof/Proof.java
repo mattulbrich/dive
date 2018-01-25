@@ -2,11 +2,12 @@ package edu.kit.iti.algover.proof;
 
 import edu.kit.iti.algover.script.ScriptLanguageParser;
 import edu.kit.iti.algover.script.ast.*;
-import edu.kit.iti.algover.script.data.GoalNode;
+//import edu.kit.iti.algover.script.data.GoalNode;
 import edu.kit.iti.algover.script.data.State;
 import edu.kit.iti.algover.script.interpreter.Interpreter;
 import edu.kit.iti.algover.script.parser.DefaultASTVisitor;
 import edu.kit.iti.algover.script.parser.Facade;
+import edu.kit.iti.algover.util.ProofTreeUtil;
 import edu.kit.iti.algover.util.Util;
 import javafx.beans.property.SimpleObjectProperty;
 import org.antlr.tool.Interp;
@@ -47,7 +48,7 @@ public class Proof {
     /**
      * Current state from interpreter
      */
-    private State<GoalNode<ProofNode>> currentState;
+    private State<ProofNode> currentState;
 
     /**
      * Interpreter for this proof
@@ -72,8 +73,13 @@ public class Proof {
         if (this.getScript() != null) {
             saveOldDataStructures();
         }
-        ProofScript scriptAST = Facade.getAST(script);
-        this.setScript(scriptAST.getBody());
+        if (script.equals("")) {
+            ProofScript scriptAST = Facade.getAST("script empty (){}");
+            this.setScript(scriptAST.getBody());
+        } else {
+            ProofScript scriptAST = Facade.getAST(script);
+            this.setScript(scriptAST.getBody());
+        }
     }
 
     /**
@@ -157,9 +163,9 @@ public class Proof {
         assert proofRoot != null;
         assert interpreter != null;
         lastaddedNode = proofRoot;
-        interpreter.newState(new GoalNode<>(null, proofRoot));
+        interpreter.newState(proofRoot);
         script.forEach(getInterpreter()::interpret);
-        ProofNode pnext = getInterpreter().getSelectedNode().getData();
+        ProofNode pnext = getInterpreter().getSelectedNode();
         // System.out.println("pnext.getSequent() = " + pnext.getSequent());
         return this;
     }
@@ -218,54 +224,6 @@ public class Proof {
         this.script = script;
     }
 
-    /**
-     * http://www.connorgarvey.com/blog/?p=82
-     *
-     * @param node
-     * @return
-     */
-    public static String toStringTree(ProofNode node) {
-        final StringBuilder buffer = new StringBuilder();
-        return toStringTreeHelper(node, buffer, new LinkedList<Iterator<ProofNode>>()).toString();
-    }
-
-    private static String toStringTreeDrawLines(List<Iterator<ProofNode>> parentIterators, boolean amLast) {
-        StringBuilder result = new StringBuilder();
-        Iterator<Iterator<ProofNode>> it = parentIterators.iterator();
-        while (it.hasNext()) {
-            Iterator<ProofNode> anIt = it.next();
-            if (anIt.hasNext() || (!it.hasNext() && amLast)) {
-                result.append("   |");
-            } else {
-                result.append("    ");
-            }
-        }
-        return result.toString();
-    }
-
-    private static StringBuilder toStringTreeHelper(ProofNode node, StringBuilder buffer, List<Iterator<ProofNode>>
-            parentIterators) {
-        if (!parentIterators.isEmpty()) {
-            boolean amLast = !parentIterators.get(parentIterators.size() - 1).hasNext();
-            buffer.append("\n");
-            String lines = toStringTreeDrawLines(parentIterators, amLast);
-            buffer.append(lines);
-            buffer.append("\n");
-            buffer.append(lines);
-            buffer.append("- ");
-        }
-        buffer.append(node.toString());
-        if (!node.getChildren().isEmpty()) {
-            Iterator<ProofNode> it = node.getChildren().iterator();
-            parentIterators.add(it);
-            while (it.hasNext()) {
-                ProofNode child = it.next();
-                toStringTreeHelper(child, buffer, parentIterators);
-            }
-            parentIterators.remove(it);
-        }
-        return buffer;
-    }
 
     /**
      * Returns a string representation of the proof tree
@@ -275,7 +233,7 @@ public class Proof {
     public String proofToString() {
         StringBuilder sb = new StringBuilder("Proof for " + this.pvcName + "\n");
         if (this.getProofRoot() != null) {
-            sb.append(toStringTree(getProofRoot()));
+            sb.append(ProofTreeUtil.toStringTree(getProofRoot()));
         }
         return sb.toString();
     }
@@ -296,7 +254,7 @@ public class Proof {
  */
 class ProofNodeInterpreterManager {
     final Interpreter<ProofNode> interpreter;
-    private GoalNode<ProofNode> lastSelectedGoalNode;
+    private ProofNode lastSelectedGoalNode;
 
     public ProofNodeInterpreterManager(Interpreter<ProofNode> interpreter) {
         this.interpreter = interpreter;
@@ -313,15 +271,21 @@ class ProofNodeInterpreterManager {
 
         @Override
         public Void defaultVisit(ASTNode node) {
-            //System.out.println("Entry " + node.getNodeName());
             lastSelectedGoalNode = interpreter.getSelectedNode();
             return null;
         }
 
         @Override
         public Void visit(AssignmentStatement assignment) {
-
             return defaultVisit(assignment);
+            /*if(lastSelectedGoalNode == null )
+                return defaultVisit(assignment);
+            return null;*/
+        }
+
+        @Override
+        public Void visit(SimpleCaseStatement simpleCaseStatement) {
+            return null;
         }
 
         @Override
@@ -377,6 +341,12 @@ class ProofNodeInterpreterManager {
 
     private class ExitListener extends DefaultASTVisitor<Void> {
         @Override
+        public Void visit(SimpleCaseStatement simpleCaseStatement) {
+            return null;
+        }
+
+
+        @Override
         public Void visit(MatchExpression matchExpression) {
             return null;
         }
@@ -394,31 +364,22 @@ class ProofNodeInterpreterManager {
         @Override
         public Void defaultVisit(ASTNode node) {
 
-            //System.out.println("Exit " + node.getNodeName());
-            lastSelectedGoalNode.getData().setChildren(new ArrayList<>());
-            List<GoalNode<ProofNode>> goals = interpreter.getCurrentState().getGoals();
+            lastSelectedGoalNode.setChildren(new ArrayList<>());
+
+            List<ProofNode> goals = interpreter.getCurrentState().getGoals();
+
             if (goals.size() == 1 && goals.get(0).equals(lastSelectedGoalNode)) {
                 System.out.println("There was no change");
                 return null;
             }
             if (goals.size() > 0) {
-                for (GoalNode<ProofNode> goal : goals) {
-                    lastSelectedGoalNode.getData().getChildren().add(goal.getData());
+                for (ProofNode goal : goals) {
+                    lastSelectedGoalNode.getChildren().add(goal);
 
-                    goal.getData().setVariableAssignments(goal.getAssignments());
                 }
             }
-/*
-            interpreter.getCurrentState().getGoals().forEach(proofNodeGoalNode -> {
-                lastSelectedGoalNode.getData().getChildren().add(proofNodeGoalNode.getData());
-                System.out.println("Added ProofNode \n"+proofNodeGoalNode.getData()+ "\n to "+lastSelectedGoalNode.getData());
-            });
-*/
 
-            lastSelectedGoalNode.getData().addMutator(node);
-            /*for (ProofNode children : lastSelectedGoalNode.getData().getChildren()) {
-                children.setMutator(node);
-            }*/
+            lastSelectedGoalNode.addMutator(node);
             return null;
         }
 
@@ -426,6 +387,7 @@ class ProofNodeInterpreterManager {
         public Void visit(Statements statements) {
             return null;
         }
+
 
         /**
          * When exiting an Assignment statement a new node has to be added, because assignments change the state as well
@@ -435,22 +397,25 @@ class ProofNodeInterpreterManager {
          */
         @Override
         public Void visit(AssignmentStatement assignment) {
-            LinkedList<ProofNode> singleChild = new LinkedList<>();
-            List<GoalNode<ProofNode>> goals = interpreter.getCurrentState().getGoals();
+         /*   LinkedList<ProofNode> singleChild = new LinkedList<>();
+            List<ProofNode> goals = interpreter.getCurrentState().getGoals();
+
+
             if (goals.size() == 1) {
                 //singleChild.add(goals.get(0).getData());
-                ProofNode pn = new ProofNode(lastSelectedGoalNode.getData(),
+                ProofNode pn = new ProofNode(lastSelectedGoalNode,
                         null,
-                        null,
-                        goals.get(0).getData().getSequent(), lastSelectedGoalNode.getData().getRootPVC());
-                //TODO: needs to be fixed
-                pn.setVariableAssignments(goals.get(0).getAssignments());
-                singleChild.add(pn);
+                        lastSelectedGoalNode.getHistory(),
+                        goals.get(0).getSequent(), lastSelectedGoalNode.getRootPVC());
+                pn.setVariableAssignments(lastSelectedGoalNode.getVariableAssignments().deepCopy());
+
+                goals.get(0).addMutator(assignment);
+                singleChild.add(goals.get(0));
             }
-            lastSelectedGoalNode.getData().setChildren(singleChild);
-            lastSelectedGoalNode.getData().addMutator(assignment);
-            return null;
-            //return defaultVisit(assignment);
+            lastSelectedGoalNode.setChildren(singleChild);
+            //lastSelectedGoalNode.addMutator(assignment);
+            return null;*/
+            return defaultVisit(assignment);
         }
 
         @Override
@@ -469,10 +434,6 @@ class ProofNodeInterpreterManager {
             return null;
         }
 
-        @Override
-        public Void visit(SimpleCaseStatement simpleCaseStatement) {
-            return defaultVisit(simpleCaseStatement);
-        }
 
 
         @Override
