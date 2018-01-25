@@ -125,7 +125,7 @@ public class InterpreterBuilder {
         return this;
     }
 
-    public InterpreterBuilder startState(GoalNode<ProofNode> startGoal) {
+    public InterpreterBuilder startState(ProofNode startGoal) {
         interpreter.newState(startGoal);
         return this;
     }

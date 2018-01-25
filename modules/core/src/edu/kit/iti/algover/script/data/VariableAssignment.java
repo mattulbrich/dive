@@ -82,9 +82,22 @@ public class VariableAssignment {
     }
 
     /**
-     * @param name
-     * @param type
-     * @return
+     * Declare a variable
+     *
+     * @param name variable name
+     * @param type variable type
+     * @return the updated VariableAssignment
+     */
+    public VariableAssignment declare(String name, Type type) {
+        return declare(new Variable(name), type);
+    }
+
+    /**
+     * Declare a variable
+     *
+     * @param name variable name
+     * @param type variable type
+     * @return the updated VariableAssignment
      * @throws NullPointerException
      * @throws RuntimeException
      */
@@ -98,10 +111,6 @@ public class VariableAssignment {
         } else {
             throw new RuntimeException("Variable " + name + " is already declared with type " + type.toString());
         }
-    }
-
-    public VariableAssignment declare(String name, Type type) {
-        return declare(new Variable(name), type);
     }
 
 
@@ -124,6 +133,8 @@ public class VariableAssignment {
     }
 
     /**
+     * Assign a value to a variable
+     *
      * @param name
      * @param value
      * @return
@@ -133,8 +144,9 @@ public class VariableAssignment {
         if (this.getTypes().containsKey(name)) {
             this.values.put(name, value);
         } else {
-            if (parent != null) {
-                parent.assign(name, value);
+            if (parent != null && parent.getType(name) != null) {
+                this.values.put(name, value);
+
             } else {
                 throw new RuntimeException("Variable " + name + " needs to be declared first");
             }
@@ -238,6 +250,22 @@ public class VariableAssignment {
     }
 
     public String toString() {
-        return "edu.kit.iti.algover.script.data.VariableAssignment(parent=" + this.getParent() + ",\n values=" + this.getValues() + ",\n types=" + this.getTypes() + ")";
+        StringBuilder sb = new StringBuilder();
+        if (getParent() != null) {
+            sb.append(parent.toString());
+        }
+
+        if (!this.getValues().isEmpty()) {
+            sb.append("Variable-Assignments: {");
+            sb.append(this.getValues());
+            sb.append("}\n");
+        }
+      /*else{
+          sb.append("Empty Assignment ");
+      }*/
+
+        return sb.toString();
+        // return "Var-Assignments: (\nparent=" + this.getParent()
+        //         + ",\n values=" + this.getValues() + ",\n types=" + this.getTypes() + ")";
     }
 }

@@ -4,6 +4,7 @@ import java.math.BigInteger;
 import java.util.HashMap;
 import java.util.Map;
 
+import edu.kit.iti.algover.proof.ProofNode;
 import edu.kit.iti.algover.rules.RuleException;
 import edu.kit.iti.algover.script.ast.CallStatement;
 import edu.kit.iti.algover.script.ast.Variable;
@@ -47,8 +48,8 @@ public abstract class BuiltinCommands {
 
         @Override
         public void evaluate(Interpreter<T> interpreter, CallStatement call, VariableAssignment params) {
-            for (GoalNode<T> gn : interpreter.getCurrentGoals()) {
-                System.out.format("%s %s%n  %s%n", gn == interpreter.getSelectedNode() ? "*" : " ", gn.getData(), gn.getAssignments().asMap());
+            for (ProofNode gn : interpreter.getCurrentGoals()) {
+                System.out.format("%s %s%n  %s%n", gn == interpreter.getSelectedNode() ? "*" : " ", gn, gn.getAssignments().asMap());
             }
         }
     }
@@ -68,7 +69,7 @@ public abstract class BuiltinCommands {
                     new Variable("#1"),
                     Value.from(2));
             int num = val.getData().intValue();
-            GoalNode<String> g = interpreter.getSelectedNode();
+            ProofNode g = interpreter.getSelectedNode();
             State<String> s = interpreter.getCurrentState();
             State<String> state = new State<>(s.getGoals(), null);
             state.getGoals().remove(s.getSelectedGoalNode());

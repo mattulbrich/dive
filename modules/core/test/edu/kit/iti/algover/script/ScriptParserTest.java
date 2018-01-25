@@ -26,6 +26,7 @@ import org.junit.Ignore;
 import org.junit.Test;
 
 import java.io.*;
+import java.util.List;
 
 /**
  * IMPORTANT
@@ -65,17 +66,16 @@ public class ScriptParserTest {
 
             Sequent s = InterpreterUtils.createTestSequent(antec, succ, setupTable);
 
-            ib.startState(new GoalNode<>(null, new ProofNode(null, null, null, s, pvc)));
+            ib.startState(new ProofNode(null, null, null, s, pvc));
             Interpreter i = ib.build();
 
+            System.out.println((i.getCurrentState().getSelectedGoalNode()).getSequent());
 
             i.interpret(parsedScript);
-            State<ProofNode> currentState = i.getCurrentState();
-            System.out.println(((ProofNode) currentState.getSelectedGoalNode().getData()).getSequent());
 
-            for (Object o : currentState.getGoals()) {
-                System.out.println(((ProofNode) ((GoalNode) o).getData()).getSequent());
-
+            List<ProofNode> goals = i.getCurrentState().getGoals();
+            for (ProofNode n : goals) {
+                System.out.println(n.getSequent());
             }
 
 

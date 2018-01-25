@@ -358,9 +358,9 @@ endless_expr:
   ;
 
 let_expr:
-  LET ( 'var' )? ID (',' ID)* ':=' expression (',' expression)*
+  LET ( 'var' )? usual_or_logic_id (',' usual_or_logic_id)* ':=' expression (',' expression)*
     (';'|'::')  expression
-      -> ^(LET ^(VAR ID*) expression+)
+      -> ^(LET ^(VAR usual_or_logic_id*) expression+)
   ;
 
 postfix_expr:
@@ -373,12 +373,11 @@ postfix_expr:
   ;
 
 atom_expr:
-    ID
-  | ID '(' expressions? ')' -> ^(CALL ID ^(ARGS expressions?) )
-  | {logicMode}? logic_id_param
-      (                      -> logic_id_param
-      | '(' expressions? ')' -> ^(CALL logic_id_param ^(ARGS expressions?) )
-      )
+    usual_or_logic_id
+    (
+         -> usual_or_logic_id
+    | '(' expressions? ')' -> ^(CALL usual_or_logic_id ^(ARGS expressions?) )
+    )
   | TRUE | FALSE | NULL | 'this'
   | INT_LIT
   | 'old'^ '('! expression ')'!
@@ -387,6 +386,11 @@ atom_expr:
   | '('! expression ')'!
   ;
 
+// Either usual or logic id
+usual_or_logic_id:
+    ID
+  | {logicMode}? logic_id_param
+  ;
 
 // Currently, only logic ids can have type parameters, will change later ...
 logic_id_param:

@@ -1,5 +1,6 @@
 package edu.kit.iti.algover.script.interpreter;
 
+import edu.kit.iti.algover.proof.ProofNode;
 import edu.kit.iti.algover.script.ast.*;
 import edu.kit.iti.algover.script.data.GoalNode;
 import edu.kit.iti.algover.script.data.Value;
@@ -17,7 +18,7 @@ public class MatchEvaluator extends DefaultASTVisitor<List<VariableAssignment>> 
     /**
      * GoalNode for which matching expression is evaluated
      */
-    private final GoalNode goal;
+    private final ProofNode goal;
     /**
      * Variable Assignments for the matching expression
      */
@@ -39,12 +40,11 @@ public class MatchEvaluator extends DefaultASTVisitor<List<VariableAssignment>> 
 
     /**
      * Evaluator for MatchingExpressions
-     *
-     * @param goal
+     *  @param goal
      * @param assignmentsInState
      * @param matcher
      */
-    public MatchEvaluator(GoalNode goal, VariableAssignment assignmentsInState, MatcherApi matcher) {
+    public MatchEvaluator(ProofNode goal, VariableAssignment assignmentsInState, MatcherApi matcher) {
         this.goal = goal;
         this.assignmentsInState = new VariableAssignment(assignmentsInState); //must be unmodifiable assignments
 
@@ -52,7 +52,7 @@ public class MatchEvaluator extends DefaultASTVisitor<List<VariableAssignment>> 
     }
 
 
-    public GoalNode getGoal() {
+    public ProofNode getGoal() {
         return goal;
     }
 
