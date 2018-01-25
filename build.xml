@@ -113,6 +113,14 @@
     </jar>
   </target>
 
+  <target name="run" description="runs the FX GUI from the jar file" depends="fxjar">
+    <java jar="algoverfx.jar"
+	  fork="true"
+	  failonerror="true"
+	  maxmemory="2000m">
+    </java>
+  </target>
+
   <!--
   <target name="copyright" 
 	  description="Update copyright notes in java files">

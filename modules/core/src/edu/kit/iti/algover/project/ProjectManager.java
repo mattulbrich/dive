@@ -65,22 +65,15 @@ public class ProjectManager {
      * @param config File
      *
      */
-    //TODO change exception to specifc one when parsing exception exists
     public void loadProject(File config) throws IOException, Exception {
         this.configFile = config;
         Project p = null;
         p = buildProject(config.toPath());
         this.setProject(p);
         generateAllProofObjects();
-
-        this.getPVCByNameMap().forEach((s, pvc) -> {
-            try {
-                initializeProofDataStructures(s);
-            } catch (IOException e) {
-                e.printStackTrace();
-
-            }
-        });
+        for (String s: this.getPVCByNameMap().keySet()) {
+            initializeProofDataStructures(s);
+        }
     }
 
     /**
@@ -121,27 +114,28 @@ public class ProjectManager {
     }
 
     /**
-     * Add available data to proof objects by searching proof scripts and adding the parsed script tree and setting the proof root
+     * Add available data to proof objects by searching proof scripts and adding
+     * the parsed script tree and setting the proof root.
      *
-     * @param pvc
-     * @throws IOException
+     * @param pvcName name of the PVC to be initialized
+     * @throws IOException if reading the file fails. NB: If the proof file does
+     *                     not exist, no exception is thrown.
      */
-    protected void initializeProofDataStructures(String pvc) throws IOException {
-        Proof p = allProofs.get(pvc);
+    private void initializeProofDataStructures(String pvcName) throws IOException {
+        Proof p = allProofs.get(pvcName);
+        PVC pvcObject = getPVCByNameMap().get(pvcName);
+        p.setProofRoot(new ProofNode(null, null, null, pvcObject.getSequent(), pvcObject));
+
         try {
-            // Either the script file can be loaded, then that file is used for building the proof object
-            findAndParseScriptFileForPVC(pvc);
-            PVC pvcObject = getPVCByNameMap().get(pvc);
-            p.setProofRoot(new ProofNode(null, null, null, pvcObject.getSequent(), pvcObject));
-            buildIndividualInterpreter(p);
-        } catch (IOException e) {
+            // Either the script file can be loaded, then that file is used for
+            // building the proof object
+            findAndParseScriptFileForPVC(pvcName);
+        } catch (FileNotFoundException e) {
+            // REVIEW MU: What does "stubbed" mean?
             // Or the proof object is simply stubbed
-            PVC pvcObject = getPVCByNameMap().get(pvc);
-            p.setProofRoot(new ProofNode(null, null, null, pvcObject.getSequent(), pvcObject));
-            buildIndividualInterpreter(p);
-            // rethrow
-            throw e;
         }
+
+        buildIndividualInterpreter(p);
     }
 
     /**
@@ -167,7 +161,7 @@ public class ProjectManager {
             proof.setProofStatus(ProofStatus.SCRIPT_PARSED);
             allProofs.putIfAbsent(pvc, proof);
         } else {
-            throw new IOException("File " + scriptFile.getName() + " can not be found");
+            throw new FileNotFoundException("File " + scriptFile.getName() + " can not be found");
         }
 
     }

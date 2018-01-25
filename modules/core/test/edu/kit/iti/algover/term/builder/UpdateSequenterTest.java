@@ -140,10 +140,10 @@ public class UpdateSequenterTest extends SequenterTest {
             assertEquals(expected, fromMap.toStringTree());
         }
 
-        for (Map.Entry<TermSelector, DafnyTree> en : map.entrySet()) {
-            Term x = en.getKey().selectSubterm(sequent);
-            System.out.println(en.getKey() + " / " + x + " : " + en.getValue().toStringTree());
-        }
+//        for (Map.Entry<TermSelector, DafnyTree> en : map.entrySet()) {
+//            Term x = en.getKey().selectSubterm(sequent);
+//            System.out.println(en.getKey() + " / " + x + " : " + en.getValue().toStringTree());
+//        }
 
     }
 

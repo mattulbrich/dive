@@ -238,6 +238,6 @@ public class VariableAssignment {
     }
 
     public String toString() {
-        return "edu.kit.iti.algover.script.data.VariableAssignment(parent=" + this.getParent() + ", values=" + this.getValues() + ", types=" + this.getTypes() + ")";
+        return "edu.kit.iti.algover.script.data.VariableAssignment(parent=" + this.getParent() + ",\n values=" + this.getValues() + ",\n types=" + this.getTypes() + ")";
     }
 }

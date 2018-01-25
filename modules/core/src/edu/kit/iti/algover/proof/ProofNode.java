@@ -137,12 +137,16 @@ public class ProofNode {
         if (this.getParent() == null) {
             sb.append("Root Node");
         }
+        if (!this.variableAssignments.isEmpty()) {
+            sb.append("Variable Assignments");
+            sb.append(variableAssignments.toString());
+        }
         sb.append(this.sequent.toString());
         if (getPsr() != null) {
-            sb.append("\nRulename " + getPsr().getRule().getName());
+            sb.append("\nRule that created this node " + getPsr().getRule().getName() + "\n");
         }
         if (getMutator() != null) {
-            getMutator().forEach(astNode -> sb.append(astNode.getNodeName()));
+            getMutator().forEach(astNode -> sb.append("Type of ASTNode " + astNode.getNodeName() + "\nStatement in line " + astNode.getStartPosition()));
         }
         return sb.toString();
     }
