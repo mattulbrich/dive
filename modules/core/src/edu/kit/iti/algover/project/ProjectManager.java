@@ -180,13 +180,13 @@ public class ProjectManager {
         if (p.getScript() == null) {
             Interpreter i = ib
                     .setProofRules(this.project.get().getAllProofRules())
-                    .startState(new GoalNode<ProofNode>(null, p.getProofRoot()))
+                    .startState(p.getProofRoot())
                     .build();
             p.setInterpreter(i);
         } else {
             Interpreter i = ib.startWith(p.getScript())
                     .setProofRules(this.project.get().getAllProofRules())
-                    .startState(new GoalNode<ProofNode>(null, p.getProofRoot()))
+                    .startState(p.getProofRoot())
                     .build();
             p.setInterpreter(i);
         }
