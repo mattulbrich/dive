@@ -399,4 +399,14 @@ public class ImmutableList<T> implements Iterable<T> {
         return result;
     }
 
+    public T findFirst(Predicate<T> predicate) {
+        ImmutableList<T> result = nil();
+        for (T el : this) {
+            if(predicate.test(el)) {
+                return el;
+            }
+        }
+        return null;
+    }
+
 }
