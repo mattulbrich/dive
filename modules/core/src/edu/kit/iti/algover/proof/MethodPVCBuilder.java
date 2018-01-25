@@ -36,7 +36,7 @@ import edu.kit.iti.algover.util.TreeUtil;
  *
  * This class is not ready for multi-threading.
  *
- * @author mulbrich Created by sarah on 8/18/16.
+ * @author Created by sarah on 8/18/16.
  * @author Revised by mattias on 8/27/17.
  * @see PVC
  */
@@ -47,12 +47,15 @@ public class MethodPVCBuilder implements PVCBuilder {
      */
     private SymbexPath pathThroughProgram;
 
+    /**
+     * The procedure that produces the {@link Sequent} for this builder.
+     */
     private PVCSequenter sequenter;
 
     /**
-     * DafnyDecl to which this PVC belongs
+     * DafnyMethid to which this PVC belongs
      */
-    private DafnyDecl declaration;
+    private DafnyMethod declaration;
 
     private SymbolTable symbolTable;
 
@@ -80,7 +83,7 @@ public class MethodPVCBuilder implements PVCBuilder {
         return declaration;
     }
 
-    public MethodPVCBuilder setDeclaration(DafnyDecl decl) {
+    public MethodPVCBuilder setDeclaration(DafnyMethod decl) {
         this.sequent = null;
         this.declaration = decl;
         return this;
@@ -97,8 +100,7 @@ public class MethodPVCBuilder implements PVCBuilder {
 
         Collection<FunctionSymbol> map = new ArrayList<>();
 
-        // FIXME: This builder is probably meant only for methods. store method instead of declaration
-        DafnyMethod method = (DafnyMethod) declaration;
+        DafnyMethod method = declaration;
 
         for (DafnyTree decl : ProgramDatabase.getAllVariableDeclarations(method.getRepresentation())) {
             String name = decl.getChild(0).toString();
@@ -121,7 +123,7 @@ public class MethodPVCBuilder implements PVCBuilder {
             PVCSequenter sequenter = this.sequenter;
             if(sequenter == null) {
                 assert !PVCSequenter.INSTANCES.isEmpty() :
-                    "there is no PCVSequenter";
+                    "there is no PVCSequenter";
                 sequenter = PVCSequenter.INSTANCES.get(0);
             }
 
