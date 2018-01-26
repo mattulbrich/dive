@@ -148,19 +148,15 @@ public class ProofRuleHandler implements CommandHandler<ProofNode> {
 
 
 
-    private Parameters.TypedValue convertValuesToTypedValues(Value val) {
+    private Object convertValuesToTypedValues(Value val) {
         switch (val.getType()) {
             case STRING:
-                return new Parameters.TypedValue(String.class, val.getData());
             case INT:
-                return new Parameters.TypedValue(BigInteger.class, val.getData());
             case TERM:
-                return new Parameters.TypedValue(Term.class, val.getData());
-            //TODO SemiSequent
-            default:
-                System.out.println("Not implemented yet");
-                return null;
+                return val.getData();
 
+            default:
+                throw new Error("not implemented yet");
         }
     }
 

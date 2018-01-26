@@ -1,3 +1,8 @@
+/*
+ * This file is part of AlgoVer.
+ *
+ * Copyright (C) 2015-2018 Karlsruhe Institute of Technology
+ */
 package edu.kit.iti.algover.rules.impl;
 
 import edu.kit.iti.algover.proof.ProofNode;
@@ -28,13 +33,7 @@ public class LetSubstitutionRule extends AbstractProofRule {
      * That term <strong>must</strong> be a let term.
      */
     public LetSubstitutionRule() {
-        super(makeRequiredParameters(), Collections.emptyMap());
-    }
-
-    private static Map<String, Class<?>> makeRequiredParameters() {
-        Map<String, Class<?>> params = new HashMap<>();
-        params.put("on", Term.class);
-        return params;
+        super(ON_PARAM);
     }
 
     @Override
@@ -65,7 +64,7 @@ public class LetSubstitutionRule extends AbstractProofRule {
     public ProofRuleApplication makeApplication(ProofNode target, Parameters parameters) throws RuleException {
         checkParameters(parameters);
 
-        Term on = parameters.getValue("on").cast(Term.class).getValue();
+        Term on = parameters.getValue(ON_PARAM);
 
         if (!(on instanceof LetTerm)) {
             throw new RuleException("Given term is not a let term");

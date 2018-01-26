@@ -1,7 +1,7 @@
 /*
  * This file is part of AlgoVer.
  *
- * Copyright (C) 2015-2017 Karlsruhe Institute of Technology
+ * Copyright (C) 2015-2018 Karlsruhe Institute of Technology
  */
 package edu.kit.iti.algover.rules.impl;
 
@@ -20,7 +20,7 @@ import java.util.Collections;
 public class FakeSMTSolverRule extends AbstractProofRule {
 
     public FakeSMTSolverRule() {
-        super(Collections.emptyMap(), Collections.emptyMap());
+        super();
     }
 
     @Override
