@@ -1,5 +1,6 @@
 package edu.kit.iti.algover.rules.impl;
 
+import org.junit.Assert;
 import org.junit.Test;
 
 /**
@@ -12,5 +13,6 @@ public class DafnyRuleTest {
         System.out.println("current dir = " + dir);
         String file = "./test-res/edu/kit/iti/algover/dafnyrules/addzero.dfy";
         DafnyRule r = new DafnyRule(file);
+        Assert.assertEquals("addZero", r.getName());
     }
 }
