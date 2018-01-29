@@ -54,6 +54,9 @@ tokens {
 
   private boolean logicMode = false;
   public void setLogicMode(boolean b) { this.logicMode = b; }
+
+  private boolean schemaMode = false;
+  public void setSchemaMode(boolean b) { this.schemaMode = b; }
 }
 
 // exit upon first error
@@ -99,6 +102,9 @@ TRUE: 'true';
 VAR: 'var';
 WHILE: 'while';
 
+DOUBLE_BLANK: '__';
+BLANK: '_';
+ELLIPSIS : '...';
 DOUBLECOLON: '::';
 ASSIGN: ':=';
 OR: '||';
@@ -130,8 +136,12 @@ ARRAY : 'array' (('1' .. '9') ('0' .. '9')*)?;
 ID : ('a' .. 'z' | 'A' .. 'Z' | '_' )
      ('a' .. 'z' | 'A' .. 'Z' | '0' .. '9' | '_')*;
 
-LOGIC_ID : ('a' .. 'z' | 'A' .. 'Z' | '_' | '$' | '?')
+LOGIC_ID : ('a' .. 'z' | 'A' .. 'Z' | '_' | '$')
            ('a' .. 'z' | 'A' .. 'Z' | '0' .. '9' | '_' | '$')*;
+
+SCHEMA_ID : '?' ID;
+
+
 
 INT_LIT : ('0' .. '9' ) ('0' .. '9' | '_')*;
 // glyph = "`~!@#$%^&*()-_=+[{]}|;:',<.>/?\\".
@@ -276,7 +286,7 @@ if_statement:
   | ELSE if_statement -> ^(IF label? expression_wildcard block ^(BLOCK if_statement))
   )
   ;
-  // not needed any more: ( options { greedy=true; } : 'else' 
+  // not needed any more: ( options { greedy=true; } : 'else'
   // everything is in blocks now
 
 ids:
@@ -302,7 +312,8 @@ expression_wildcard:
   ;
 
 expressions:
-  expression ( ','! expression )*
+    expression ( ','! expression )* ( {schemaMode}? ','! DOUBLE_BLANK )?
+  | {schemaMode}? DOUBLE_BLANK ( ','! expression )*
   ;
 
 expression:
@@ -373,11 +384,12 @@ postfix_expr:
   ;
 
 atom_expr:
-    usual_or_logic_id
-    (
-         -> usual_or_logic_id
+  usual_or_logic_id
+    (                      -> usual_or_logic_id
     | '(' expressions? ')' -> ^(CALL usual_or_logic_id ^(ARGS expressions?) )
     )
+  | {schemaMode}?
+  ( SCHEMA_ID | BLANK | ELLIPSIS^ expression ELLIPSIS! )
   | TRUE | FALSE | NULL | 'this'
   | INT_LIT
   | 'old'^ '('! expression ')'!
@@ -401,3 +413,4 @@ logic_id_param:
 quantifier:
   (ALL^ | EX^) ID (','! ID)* ':'! type '::'! expression
   ;
+
