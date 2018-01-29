@@ -37,7 +37,7 @@ public class DafnyRule extends AbstractProofRule {
     private Term replaceTerm;
 
     public DafnyRule(String file) {
-        super(new HashMap<>(), new HashMap<>());
+        super();
         fileName = file;
         DafnyFile dfi = null;
         try {
