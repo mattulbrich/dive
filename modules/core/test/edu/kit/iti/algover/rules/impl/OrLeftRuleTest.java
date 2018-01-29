@@ -68,7 +68,7 @@ public class OrLeftRuleTest {
 
         TermSelector ts = new TermSelector(TermSelector.SequentPolarity.ANTECEDENT, 0);
         Parameters params = new Parameters();
-        params.putValue("on", new Parameters.TypedValue<>(Term.class, testSequent.getAntecedent().get(0).getTerm()));
+        params.putValue("on", testSequent.getAntecedent().get(0).getTerm());
 
         ProofRuleApplication pra = orLeftRule.considerApplication(pn, testSequent, ts);
         assertEquals(pra.getApplicability(), ProofRuleApplication.Applicability.APPLICABLE);
@@ -109,7 +109,7 @@ public class OrLeftRuleTest {
         ProofNode pn = new ProofNode(null, null, null, testSequent, null);
 
         Parameters params = new Parameters();
-        params.putValue("on", new Parameters.TypedValue<>(Term.class, testSequent.getAntecedent().get(1).getTerm()));
+        params.putValue("on", testSequent.getAntecedent().get(1).getTerm());
 
         orLeftRule.makeApplication(pn, params);
     }
@@ -120,7 +120,7 @@ public class OrLeftRuleTest {
         ProofNode pn = new ProofNode(null, null, null, testSequent, null);
 
         Parameters params = new Parameters();
-        params.putValue("on", new Parameters.TypedValue<>(Term.class, testSequent.getSuccedent().get(1).getTerm()));
+        params.putValue("on", testSequent.getSuccedent().get(1).getTerm());
 
         orLeftRule.makeApplication(pn, params);
     }

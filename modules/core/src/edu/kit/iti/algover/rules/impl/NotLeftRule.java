@@ -19,13 +19,7 @@ import java.util.HashMap;
 public class NotLeftRule extends AbstractProofRule {
 
     public NotLeftRule() {
-        super(createParams(), new HashMap<>());
-    }
-
-    static private HashMap<String, Class<?>> createParams() {
-        HashMap<String, Class<?>> params = new HashMap<>();
-        params.put("on", Term.class);
-        return params;
+        super(ON_PARAM);
     }
 
     @Override
@@ -62,7 +56,8 @@ public class NotLeftRule extends AbstractProofRule {
 
     @Override
     public ProofRuleApplication makeApplication(ProofNode target, Parameters parameters) throws RuleException {
-        Term on = parameters.getValue("on").cast(Term.class).getValue();
+        checkParameters(parameters);
+        Term on = parameters.getValue(ON_PARAM);
 
         ProofRuleApplicationBuilder builder = new ProofRuleApplicationBuilder(this);
         try {

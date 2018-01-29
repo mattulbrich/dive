@@ -19,13 +19,7 @@ import java.util.Optional;
 public class OrLeftRule extends AbstractProofRule {
 
     public OrLeftRule() {
-        super(createParams(), new HashMap<>());
-    }
-
-    private static HashMap createParams() {
-        HashMap<String, Class<?>> params = new HashMap<>();
-        params.put("on", Term.class);
-        return params;
+        super(ON_PARAM);
     }
 
     @Override
@@ -63,7 +57,8 @@ public class OrLeftRule extends AbstractProofRule {
 
     @Override
     public ProofRuleApplication makeApplication(ProofNode target, Parameters parameters) throws RuleException {
-        Term p = parameters.getValue("on").cast(Term.class).getValue();
+        checkParameters(parameters);
+        Term p = parameters.getValue(ON_PARAM);
         if(!(p instanceof ApplTerm)) {
             throw new RuleException("orLeft has to be applied to an ApplicationTerm");
         }
