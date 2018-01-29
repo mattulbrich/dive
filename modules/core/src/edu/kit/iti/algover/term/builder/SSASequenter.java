@@ -1,7 +1,15 @@
+/*
+ * This file is part of AlgoVer.
+ *
+ * Copyright (C) 2015-2018 Karlsruhe Institute of Technology
+ *
+ */
+
 package edu.kit.iti.algover.term.builder;
 
 import edu.kit.iti.algover.data.SymbolTable;
 import edu.kit.iti.algover.parser.DafnyException;
+import edu.kit.iti.algover.parser.DafnyParser;
 import edu.kit.iti.algover.parser.DafnyTree;
 import edu.kit.iti.algover.proof.ProofFormula;
 import edu.kit.iti.algover.rules.TermSelector;
@@ -20,6 +28,16 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * The Single Static Assignment Sequenter is an alternative to the other sequenters based on the {@link
+ * UpdateSequenter}.
+ *
+ * <p> Where those have one formula per path condition or proof obligation with a local assignment history (possibly
+ * inlined, simplified or aggregated), this sequenter collects the assignments as equalities on the sequent. Thus,
+ * the same variable x may occur under different names x, x_1, x_2, etc.
+ *
+ * @author Mattias Ulbrich
+ */
 public class SSASequenter implements PVCSequenter {
 
     private static final SSAInstantiationVisitor SSA_INSTANTIATION_VISITOR = new SSAInstantiationVisitor();
@@ -35,7 +53,8 @@ public class SSASequenter implements PVCSequenter {
     }
 
     @Override
-    public Sequent translate(SymbexPath pathThroughProgram, SymbolTable symbolTable, Map<TermSelector, DafnyTree> referenceMap) throws DafnyException {
+    public Sequent translate(SymbexPath pathThroughProgram, SymbolTable symbolTable,
+                             Map<TermSelector, DafnyTree> referenceMap) throws DafnyException {
 
         List<ProofFormula> antecedent = new ArrayList<>();
 
@@ -45,34 +64,30 @@ public class SSASequenter implements PVCSequenter {
         TreeTermTranslator ttt = new TreeTermTranslator(symbolTable);
 
         for (PathConditionElement element : pathThroughProgram.getPathConditions()) {
-            try {
-                ImmutableList<Pair<FunctionSymbol, FunctionSymbol>> mapping = endMapping.takeFirst(element.getAssignmentHistory().size());
-
-                Term condition = ttt.build(element.getExpression());
-                Term replacedCondition = condition.accept(SSA_INSTANTIATION_VISITOR, mapping);
-                if (replacedCondition == null) {
-                    replacedCondition = condition;
-                }
-                antecedent.add(new ProofFormula(replacedCondition));
-            } catch (TermBuildException ex) {
-                throw new DafnyException(element.getExpression(), ex);
-            }
+            ImmutableList<Pair<FunctionSymbol, FunctionSymbol>> mapping =
+                    endMapping.takeFirst(element.getAssignmentHistory().size());
+            antecedent.add(createProofFormula(mapping, ttt, element.getExpression()));
         }
 
         assert pathThroughProgram.getProofObligations().size() == 1;
-        AssertionElement assertion = pathThroughProgram.getProofObligations().getHead();
-        ProofFormula succedent;
-        try {
-            Term condition = ttt.build(assertion.getExpression());
-            Term replacedCondition = condition.accept(SSA_INSTANTIATION_VISITOR, endMapping);
-            if(replacedCondition == null)
-                replacedCondition = condition;
-            succedent = new ProofFormula(replacedCondition);
-        } catch (TermBuildException ex) {
-            throw new DafnyException(assertion.getExpression(), ex);
-        }
+        AssertionElement assertion = pathThroughProgram.getProofObligations().getLast();
+        ProofFormula succedent = createProofFormula(endMapping, ttt, assertion.getExpression());
 
         return new Sequent(antecedent, Collections.singletonList(succedent));
+    }
+
+    private ProofFormula createProofFormula(ImmutableList<Pair<FunctionSymbol, FunctionSymbol>> mapping,
+                                            TreeTermTranslator ttt,
+                                            DafnyTree expression) throws DafnyException {
+        try {
+            Term condition = ttt.build(expression);
+            Term replacedCondition = condition.accept(SSA_INSTANTIATION_VISITOR, mapping);
+            if(replacedCondition == null)
+                replacedCondition = condition;
+            return new ProofFormula(replacedCondition);
+        } catch (TermBuildException ex) {
+            throw new DafnyException(expression, ex);
+        }
     }
 
     private ImmutableList<Pair<FunctionSymbol,FunctionSymbol>> createMapping(ImmutableList<DafnyTree> assignmentHistory,
@@ -85,20 +100,26 @@ public class SSASequenter implements PVCSequenter {
         for (DafnyTree dafnyTree : assignmentHistory) {
             try {
                 String lhs = dafnyTree.getChild(0).getText();
-                Term rhs = ttt.build(dafnyTree.getChild(1));
-                Term replaced = rhs.accept(SSA_INSTANTIATION_VISITOR, mapping);
-                if (replaced == null) {
-                    replaced = rhs;
-                }
-
                 FunctionSymbol fsymb = symbolTable.getFunctionSymbol(lhs);
                 FunctionSymbol fsymbNew = createNextFunctionSymbol(fsymb, symbolTable);
                 symbolTable.addFunctionSymbol(fsymbNew);
 
+                ImmutableList<Pair<FunctionSymbol, FunctionSymbol>> oldMapping = mapping;
+                mapping = mapping.append(new Pair<>(fsymb, fsymbNew));
+
+                DafnyTree assignedExpr = dafnyTree.getChild(1);
+                if(assignedExpr.getType() == DafnyParser.WILDCARD) {
+                    continue;
+                }
+
+                Term rhs = ttt.build(assignedExpr);
+                Term replaced = rhs.accept(SSA_INSTANTIATION_VISITOR, oldMapping);
+                if (replaced == null) {
+                    replaced = rhs;
+                }
+
                 TermBuilder tb = new TermBuilder(symbolTable);
                 antecedent.add(new ProofFormula(tb.eq(new ApplTerm(fsymbNew), replaced)));
-
-                mapping = mapping.append(new Pair(fsymb, fsymbNew));
             } catch (TermBuildException ex) {
                 throw new DafnyException(dafnyTree, ex);
             }
