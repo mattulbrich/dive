@@ -65,7 +65,8 @@ public class PrettyPrintTest {
         return new String[][] {
             { "if i1 == 0 then i1 else 0" },
             { "i1 + (if i1 == 0 then i1 else 0)" },
-                {"if b1 then let x := 0 :: x + 1 else if b1 then 0 else 1"}, // revealed a bug
+            { "if b1 then let x := 0 :: x + 1 else if b1 then 0 else 1" }, // revealed a bug
+            { "a.Length" }, { "a2.Length0" }, { "a2.Length1" },
         };
     }
 
@@ -99,6 +100,8 @@ public class PrettyPrintTest {
         st.addFunctionSymbol(new FunctionSymbol("i1", Sort.INT));
         st.addFunctionSymbol(new FunctionSymbol("b1", Sort.BOOL));
         st.addFunctionSymbol(new FunctionSymbol("anything", Sort.INT, Sort.INT));
+        st.addFunctionSymbol(new FunctionSymbol("a", Sort.get("array", Sort.INT)));
+        st.addFunctionSymbol(new FunctionSymbol("a2", Sort.get("array2", Sort.INT)));
     }
 
     @Test @Parameters

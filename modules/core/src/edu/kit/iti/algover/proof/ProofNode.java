@@ -7,6 +7,9 @@ package edu.kit.iti.algover.proof;
 
 import edu.kit.iti.algover.rules.ProofRuleApplication;
 import edu.kit.iti.algover.script.ast.ASTNode;
+import edu.kit.iti.algover.script.ast.Type;
+import edu.kit.iti.algover.script.ast.Variable;
+import edu.kit.iti.algover.script.data.Value;
 import edu.kit.iti.algover.script.data.VariableAssignment;
 import edu.kit.iti.algover.term.Sequent;
 
@@ -20,13 +23,7 @@ import java.util.*;
  */
 public class ProofNode {
 
-    public VariableAssignment getVariableAssignments() {
-        return variableAssignments;
-    }
 
-    public void setVariableAssignments(VariableAssignment variableAssignments) {
-        this.variableAssignments = variableAssignments;
-    }
 
     /**
      * The variable assignments for this node
@@ -71,6 +68,11 @@ public class ProofNode {
      */
     private List<ASTNode> mutator;
 
+
+    public ProofNode(ProofNode parent, Sequent seq) {
+
+    }
+
     public ProofNode(ProofNode parent, ProofRuleApplication psr, ProofHistory history, Sequent seq, PVC rootPVC) {
         this.parent = parent;
         this.psr = psr;
@@ -80,6 +82,7 @@ public class ProofNode {
         this.rootPVC = rootPVC;
         isclosed = false;
         mutator = new ArrayList<>();
+        this.variableAssignments = new VariableAssignment(parent == null ? null : parent.deepCopyAssignments());
     }
 
     public Sequent getSequent() {
@@ -134,16 +137,29 @@ public class ProofNode {
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
+
         if (this.getParent() == null) {
-            sb.append("Root Node");
+            sb.append("Root Node:\n");
+        } else {
+            sb.append("Proof Node:\n");
         }
-        sb.append(this.sequent.toString());
-        if (getPsr() != null) {
-            sb.append("\nRulename " + getPsr().getRule().getName());
+
+        if (!this.variableAssignments.isEmpty()) {
+            //sb.append("Variable Assignments");
+            sb.append(variableAssignments.toString());
+        } else {
+            sb.append("Empty Assignments");
         }
-        if (getMutator() != null) {
-            getMutator().forEach(astNode -> sb.append(astNode.getNodeName()));
+        sb.append("Sequent:\n" + this.sequent.toString() + "\n");
+        sb.append("\nMutator for this Node: ");
+        if (!mutator.isEmpty()) {
+            sb.append("\nMutator-Type: " + mutator.get(0).getNodeName());
+
+            sb.append("\n" + mutator.get(0).getRuleContext().getText());
+            if (mutator.size() != 1)
+                sb.append("\nNumber of Mutators: " + mutator.size());
         }
+
         return sb.toString();
     }
 
@@ -153,5 +169,92 @@ public class ProofNode {
 
     private void setMutator(List<ASTNode> mutator) {
         this.mutator = mutator;
+    }
+
+    private VariableAssignment deepCopyAssignments() {
+        return this.variableAssignments.deepCopy();
+    }
+
+    /****************************************************************************************************************
+     *
+     *                                          Section  for Handling VariableAssignments
+     *
+     ****************************************************************************************************************/
+
+    public VariableAssignment getVariableAssignments() {
+        return variableAssignments;
+    }
+
+    public void setVariableAssignments(VariableAssignment variableAssignments) {
+        this.variableAssignments = variableAssignments;
+    }
+
+    /**
+     * @param varname
+     * @return value of variable if it exists
+     */
+    public Value getVariableValue(Variable varname) {
+        return variableAssignments.getValue(varname);
+
+    }
+
+    /**
+     * Lookup the type of the variable in the type map
+     *
+     * @param varname
+     * @return
+     */
+    public Type getVariableType(Variable varname) {
+        Type t = this.getAssignments().getType(varname);
+        if (t == null) {
+            throw new RuntimeException("Variable " + varname + " must be declared first");
+        } else {
+
+            return t;
+        }
+    }
+
+    public VariableAssignment getAssignments() {
+        return this.variableAssignments;
+    }
+
+    /**
+     * Add a variable declaration to the type map (TODO Default value in map?)
+     *
+     * @param name
+     * @param type
+     * @throws NullPointerException
+     */
+    public void declareVariable(Variable name, Type type) {
+        this.getAssignments().declare(name, type);
+    }
+
+    /**
+     * Set the value of a variable in the value map
+     *
+     * @param name
+     * @param value
+     */
+    public void setVariableValue(Variable name, Value value) {
+        getAssignments().assign(name, value);
+    }
+
+    /**
+     * Enter new variable scope and push onto stack
+     */
+    public VariableAssignment enterScope() {
+        variableAssignments = variableAssignments.push();
+        return variableAssignments;
+    }
+
+
+    public VariableAssignment exitScope() {
+        this.variableAssignments = this.variableAssignments.pop();
+        return variableAssignments;
+    }
+
+    public VariableAssignment enterScope(VariableAssignment va) {
+        variableAssignments = variableAssignments.push(va);
+        return variableAssignments;
     }
 }

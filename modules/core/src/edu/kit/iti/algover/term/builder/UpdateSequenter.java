@@ -27,6 +27,24 @@ import edu.kit.iti.algover.term.Sort;
 import edu.kit.iti.algover.term.Term;
 import edu.kit.iti.algover.util.ImmutableList;
 
+/**
+ * Update sequencer are a family of different sequent translation algorithms
+ * that result in a let-cascade modelling the history assignments.
+ *
+ * For example, the program
+ * <pre>
+ *     a := 1; a := a + 1; assert a > 0;
+ * </pre>
+ * would generally be translated into
+ * <pre>
+ *     let a:=1 :: let a:=a+1 :: a > 0
+ * </pre>
+ *
+ * The method {@link #postProcess(ProofFormula)} discerns the different members
+ * of the family. They modify the original let-cascade according to their needs.
+ *
+ * @author Mattias Ulbrich
+ */
 public class UpdateSequenter implements PVCSequenter {
 
     @Override
@@ -113,7 +131,17 @@ public class UpdateSequenter implements PVCSequenter {
         }
     }
 
-    protected ProofFormula postProcess(ProofFormula formula) {
+    /**
+     * Modify the let-cascaded term that result from a translation.
+     *
+     * Originally, the method is the identity.
+     *
+     * @param formula The formula to rephrase.
+     * @return A formula equivalent (yet syntactically different) to the
+     * argument
+     * @throws TermBuildException if the translation fails.
+     */
+    protected ProofFormula postProcess(ProofFormula formula) throws TermBuildException {
         return formula;
     }
 

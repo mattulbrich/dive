@@ -56,11 +56,13 @@ public class ProjectFacade {
      * @return
      * //TODO Create Parsing Exception for config file
      */
+    // REVIEW Duplicated method: in ProjectManager and ProjectFacade.
     public static Project buildProject(File dir) throws FileNotFoundException, Exception {
         Project p = null;
         ProjectBuilder pb = new ProjectBuilder();
         pb.setDir(dir);
         pb.parseProjectConfigurationFile();
+        pb.validateProjectConfiguration();
         p = pb.build();
 
         ArrayList<DafnyException> exceptions = new ArrayList<>();

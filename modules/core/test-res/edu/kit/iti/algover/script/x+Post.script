@@ -1,14 +1,19 @@
-substitute on='let $mod := $everything :: (let x := 1 :: 1== 2 && 2 == 3 )';
-
-substitute on='let x := 1 :: 1== 2 && 2 == 3 ';
-
 x:int := 0;
+//y:int := 1;
 
-andRight on='1== 2 && 2 == 3 ';
+substitute on='let $mod := $everything :: (let x := 1 :: 1== 2 && 2 == 3 && 4==5 )';
+//x := x+1;
+
+substitute on='let x := 1 :: 1== 2 && 2 == 3 && 4==5';
+
+andRight on='1== 2 && 2 == 3 && 4==5 ';
 
 cases{
     case x = 0:
-        x := x+1;
+       y:int := 1;
+      // andRight on='1==2 && 2 == 3 ';
+       x := x+1;
+
        //fake;
        // auto deep=true;
 
