@@ -5,7 +5,7 @@
     <dafnyFile>test3.dfy</dafnyFile>
     <dafnyFile>classtest.dfy</dafnyFile>
     <settings>
-        <set>
+
             <entry>
                 <key>KeY Timeout</key>
                 <value>10</value>
@@ -22,6 +22,6 @@
                 <key>Unroll Loops</key>
                 <value>false</value>
             </entry>
-        </set>
+
     </settings>
 </configuration>

@@ -5,6 +5,7 @@
  */
 package edu.kit.iti.algover.proof;
 
+import java.lang.IllegalStateException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -20,7 +21,9 @@ import edu.kit.iti.algover.data.SuffixSymbolTable;
 import edu.kit.iti.algover.data.SymbolTable;
 import edu.kit.iti.algover.parser.DafnyException;
 import edu.kit.iti.algover.parser.DafnyTree;
+import edu.kit.iti.algover.project.Project;
 import edu.kit.iti.algover.rules.TermSelector;
+import edu.kit.iti.algover.settings.ProjectSettings;
 import edu.kit.iti.algover.symbex.LocalVarDecl;
 import edu.kit.iti.algover.symbex.SymbexPath;
 import edu.kit.iti.algover.term.FunctionSymbol;
@@ -36,7 +39,7 @@ import edu.kit.iti.algover.util.TreeUtil;
  *
  * This class is not ready for multi-threading.
  *
- * @author mulbrich Created by sarah on 8/18/16.
+ * @author Created by sarah on 8/18/16.
  * @author Revised by mattias on 8/27/17.
  * @see PVC
  */
@@ -47,12 +50,15 @@ public class MethodPVCBuilder implements PVCBuilder {
      */
     private SymbexPath pathThroughProgram;
 
+    /**
+     * The procedure that produces the {@link Sequent} for this builder.
+     */
     private PVCSequenter sequenter;
 
     /**
-     * DafnyDecl to which this PVC belongs
+     * DafnyMethod to which this PVC belongs
      */
-    private DafnyDecl declaration;
+    private DafnyMethod declaration;
 
     private SymbolTable symbolTable;
 
@@ -60,7 +66,19 @@ public class MethodPVCBuilder implements PVCBuilder {
 
     private Map<TermSelector, DafnyTree> referenceMap;
 
-    public MethodPVCBuilder() { }
+    public MethodPVCBuilder(Project project) {
+        if(project != null) {
+            this.sequenter = findSequenter(project.getSettings().getString(ProjectSettings.SEQUENTER));
+        }
+    }
+
+    private static PVCSequenter findSequenter(String string) {
+        for (PVCSequenter instance : PVCSequenter.INSTANCES) {
+            if(instance.getName().equals(string))
+                return instance;
+        }
+        throw new IllegalStateException("This should not happen since settings can be validated");
+    }
 
     public PVC build() throws TermBuildException {
         return new PVC(this);
@@ -80,7 +98,7 @@ public class MethodPVCBuilder implements PVCBuilder {
         return declaration;
     }
 
-    public MethodPVCBuilder setDeclaration(DafnyDecl decl) {
+    public MethodPVCBuilder setDeclaration(DafnyMethod decl) {
         this.sequent = null;
         this.declaration = decl;
         return this;
@@ -97,8 +115,7 @@ public class MethodPVCBuilder implements PVCBuilder {
 
         Collection<FunctionSymbol> map = new ArrayList<>();
 
-        // FIXME: This builder is probably meant only for methods. store method instead of declaration
-        DafnyMethod method = (DafnyMethod) declaration;
+        DafnyMethod method = declaration;
 
         for (DafnyTree decl : ProgramDatabase.getAllVariableDeclarations(method.getRepresentation())) {
             String name = decl.getChild(0).toString();
@@ -118,13 +135,6 @@ public class MethodPVCBuilder implements PVCBuilder {
 
     public void ensureSequentExists() {
         if(sequent == null) {
-            PVCSequenter sequenter = this.sequenter;
-            if(sequenter == null) {
-                assert !PVCSequenter.INSTANCES.isEmpty() :
-                    "there is no PCVSequenter";
-                sequenter = PVCSequenter.INSTANCES.get(0);
-            }
-
             try {
                 this.referenceMap = new HashMap<TermSelector, DafnyTree>();
                 this.sequent =

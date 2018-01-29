@@ -25,7 +25,7 @@ import java.util.*;
  */
 public class ProofRuleHandler implements CommandHandler<ProofNode> {
     /**
-     * List of all avaiöable rule objects
+     * List of all available rule objects
      */
     private List<ProofRule> rules = new ArrayList<>();
 
@@ -96,35 +96,40 @@ public class ProofRuleHandler implements CommandHandler<ProofNode> {
         if (!ruleMap.keySet().contains(call.getCommand())) {
             throw new IllegalStateException();
         }
+        //get the call command to apply and teh selected goal node
         ProofRule pr = ruleMap.get(call.getCommand());
         State<ProofNode> state = interpreter.getCurrentState();
-        GoalNode<ProofNode> pn = state.getSelectedGoalNode();
+        ProofNode parent = state.getSelectedGoalNode();
 
         try {
+            //evaluate the parameters
             Parameters ruleParams = new Parameters();
+            Evaluator<ProofNode> evaluator = new Evaluator<>(params, parent);
 
-            Evaluator<ProofNode> evaluator = new Evaluator<>(params, pn);
             call.getParameters().forEach((variable, expression) -> {
                         Value val = evaluator.eval(expression);
                         ruleParams.putValue(variable.getIdentifier(), convertValuesToTypedValues(val));
                     }
             );
 
-            ProofRuleApplication proofRuleApplication = pr.makeApplication(pn.getData(), ruleParams);
-            if (proofRuleApplication.getApplicability().equals(ProofRuleApplication.Applicability.APPLICABLE)) {
-                List<ProofNode> newNodes = RuleApplicator.applyRule(proofRuleApplication, pn.getData());
-                //System.out.println("newNodes.get(0).getSequent() = " + newNodes.get(0).getSequent());
-                List<GoalNode<ProofNode>> newGoals = new ArrayList<>();
+            //apply the rule
+            ProofRuleApplication proofRuleApplication = pr.makeApplication(parent, ruleParams);
 
-                //add new nodes, remove expanded node
+            if (proofRuleApplication.getApplicability().equals(ProofRuleApplication.Applicability.APPLICABLE)) {
+
+                List<ProofNode> newNodes = RuleApplicator.applyRule(proofRuleApplication, parent);
+
+                List<ProofNode> newGoals = new ArrayList<>();
+
+                //add new nodes to state, remove expanded node from state
                 newNodes.forEach(proofNode -> {
-                    newGoals.add(new GoalNode<ProofNode>(pn, proofNode));
+                    newGoals.add(proofNode);
                 });
 
                 //Zustandswechsel
                 if (newGoals.size() >= 1) {
                     interpreter.getCurrentState().getGoals().addAll(newGoals);
-                    interpreter.getCurrentState().getGoals().remove(pn);
+                    interpreter.getCurrentState().getGoals().remove(parent);
                     interpreter.getCurrentState().setSelectedGoalNode(interpreter.getCurrentGoals().get(0));
                 } else {
                     interpreter.getCurrentState().setSelectedGoalNode(null);
@@ -143,19 +148,15 @@ public class ProofRuleHandler implements CommandHandler<ProofNode> {
 
 
 
-    private Parameters.TypedValue convertValuesToTypedValues(Value val) {
+    private Object convertValuesToTypedValues(Value val) {
         switch (val.getType()) {
             case STRING:
-                return new Parameters.TypedValue(String.class, val.getData());
             case INT:
-                return new Parameters.TypedValue(BigInteger.class, val.getData());
             case TERM:
-                return new Parameters.TypedValue(Term.class, val.getData());
-            //TODO SemiSequent
-            default:
-                System.out.println("Not implemented yet");
-                return null;
+                return val.getData();
 
+            default:
+                throw new Error("not implemented yet");
         }
     }
 

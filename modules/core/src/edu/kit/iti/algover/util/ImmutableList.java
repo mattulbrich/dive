@@ -1,7 +1,7 @@
 /*
  * This file is part of AlgoVer.
  *
- * Copyright (C) 2015-2017 Karlsruhe Institute of Technology
+ * Copyright (C) 2015-2018 Karlsruhe Institute of Technology
  */
 package edu.kit.iti.algover.util;
 
@@ -9,6 +9,7 @@ import java.util.AbstractCollection;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.function.Function;
+import java.util.function.Predicate;
 
 import edu.kit.iti.algover.term.Sequent;
 
@@ -18,6 +19,10 @@ import edu.kit.iti.algover.term.Sequent;
  *
  * The lists are immutable and memory can be shared by instances if they use the
  * same tail.
+ *
+ * The numbering of the elements begins at the far end, i.e., elements are
+ * <b>appended</b> not prepended. The "tail" pointer and the "head" therefore point
+ * to the lower-indexed elements and the last element of the list, respectively.
  *
  * @param <T>
  *            the payload type for the list
@@ -35,7 +40,7 @@ public class ImmutableList<T> implements Iterable<T> {
     private static final ImmutableList<Object> NIL = new ImmutableList<>();
 
     /**
-     * The payload data of the head.
+     * The payload data of this node.
      */
     private final T data;
 
@@ -59,9 +64,9 @@ public class ImmutableList<T> implements Iterable<T> {
     }
 
     /**
-     * Instantiates a new list with by prepending data to the tail.
+     * Instantiates a new list with by appending data.
      *
-     * @param data the data
+     * @param data the data to addd, may be <code>null</code>
      * @param tail the tail, not <code>null</code>
      */
     public ImmutableList(T data, ImmutableList<T> tail) {
@@ -72,18 +77,32 @@ public class ImmutableList<T> implements Iterable<T> {
     }
 
     /**
-     * Prepend one data element to the list.
+     * Append one data element to the list.
      *
      * Existing lists are not modified but a new list is returned.
      *
      * @param data
-     *            the data to prepend
+     *            the data to append
+     *
      * @return a fresh list which has this list as tail and data as payload.
      */
     public ImmutableList<T> append(T data) {
         return new ImmutableList<T>(data, this);
     }
 
+    /**
+     * Append a collection of elemnets to the list.
+     *
+     * The resulting list contains all elements of this list and then all
+     * elements of the provided argument, in order of iteration.
+     *
+     * A call to this method is as good as iterating over the argument
+     * and repeatedly calling {@link #append(Object)}.
+     *
+     * @param iterable the collection of data to add.
+     *
+     * @return
+     */
     public ImmutableList<T> appendAll(Iterable<T> iterable) {
         ImmutableList<T> result = this;
         for (T elem : iterable) {
@@ -125,11 +144,20 @@ public class ImmutableList<T> implements Iterable<T> {
 
     }
 
+    /*
+     * Caution: Since the iteration begins at the head and iterates through
+     * the tail, the list must be reversed first to keep the original order.
+     */
     @Override
     public Iterator<T> iterator() {
         return new Itr<T>(reverse());
     }
 
+    /**
+     * Get the number of elements in this list
+     *
+     * @return the size of the list.
+     */
     public int size() {
         return size;
     }
@@ -190,6 +218,15 @@ public class ImmutableList<T> implements Iterable<T> {
         return result;
     }
 
+    /**
+     * Get a list that contains the same elements but in reverse order, i.e.,
+     * <pre>
+     *     get(i) == reverse().get(size() - 1 - i)
+     * </pre>
+     * for all {@code 0 <= i < size()}.
+     *
+     * @return a fresh list with reversed order
+     */
     public ImmutableList<T> reverse() {
         ImmutableList<T> result = nil();
         ImmutableList<T> ptr = this;
@@ -242,6 +279,14 @@ public class ImmutableList<T> implements Iterable<T> {
         return false;
     }
 
+    /**
+     * Get this object seen as a {@link Collection} object.
+     *
+     * To interact with the JDK framework, this list can also
+     * be seen as an immutable collection.
+     *
+     * @return a fresh wrapper around this object with same size and iteration order.
+     */
     public Collection<T> asCollection() {
         return new AbstractCollection<T>() {
 
@@ -262,32 +307,77 @@ public class ImmutableList<T> implements Iterable<T> {
         return asCollection().toString();
     }
 
+    /**
+     * Get the element at position index from the list.
+     *
+     * The 0th element is first appended element, while
+     * the size()-1-th element is the most recently appended one.
+     *
+     * @param index the index to retrieve, {@code 0 <= index < size()}
+     * @return the element at that index
+     * @throws IndexOutOfBoundsException if the index is either negative or beyond the list size.
+     */
     public T get(int index) {
+        return takeFirst(index + 1).data;
+    }
 
-        int count = size - 1 - index;
+    public ImmutableList<T> takeFirst(int n) {
+        return dropLast(size - n);
+    }
 
-        if(count < 0) {
+    public ImmutableList<T> dropLast(int n) {
+        if(n < 0) {
             throw new IndexOutOfBoundsException();
         }
 
         ImmutableList<T> p = this;
-        while(count > 0 && p != null) {
+        while(n > 0 && p != null) {
             p = p.tail;
-            count --;
+            n --;
         }
 
         if(p == null) {
             throw new IndexOutOfBoundsException();
         }
 
-        return p.data;
+        return p;
     }
 
     public ImmutableList<T> getTail() {
         return tail;
     }
 
+    public ImmutableList<T> subList(int from, int len) {
+
+        if(from == 0) {
+            return takeFirst(len);
+        }
+
+        if(from < 0 || len < 0) {
+            throw new IndexOutOfBoundsException();
+        }
+
+        ImmutableList<T> p = takeFirst(from + len);
+        ImmutableList<T> result = nil();
+
+        for (int i = 0; i < len; i++) {
+            result = result.append(p.data);
+            p = p.getTail();
+        }
+
+        return result.reverse();
+    }
+
+    /**
+     * Please use {@link #getLast()} instead.
+     * @return
+     */
+    @Deprecated
     public T getHead() {
+        return getLast();
+    }
+
+    public T getLast() {
         return data;
     }
 
@@ -298,4 +388,15 @@ public class ImmutableList<T> implements Iterable<T> {
         }
         return result;
     }
+
+    public ImmutableList<T> filter(Predicate<T> predicate) {
+        ImmutableList<T> result = nil();
+        for (T el : this) {
+            if(predicate.test(el)) {
+                result = result.append(el);
+            }
+        }
+        return result;
+    }
+
 }

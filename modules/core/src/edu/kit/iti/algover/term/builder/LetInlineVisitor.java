@@ -23,6 +23,8 @@ import edu.kit.iti.algover.util.Pair;
  * The static method {@link #inline(Term)} can be used as entry point.
  *
  * @author mulbrich
+ *
+ * @see edu.kit.iti.algover.rules.impl.SubstitutionVisitor
  */
 public class LetInlineVisitor extends
         ReplacementVisitor<HistoryMap<VariableTerm, Term>> {
