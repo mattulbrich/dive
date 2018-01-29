@@ -7,6 +7,7 @@ import edu.kit.iti.algover.rules.*;
 import edu.kit.iti.algover.term.ApplTerm;
 import edu.kit.iti.algover.term.Sequent;
 import edu.kit.iti.algover.term.Term;
+import edu.kit.iti.algover.util.Pair;
 import edu.kit.iti.algover.util.RuleUtil;
 
 import java.util.Collections;
@@ -45,7 +46,7 @@ public class OrLeftRule extends AbstractProofRule {
 
         ProofRuleApplicationBuilder builder = new ProofRuleApplicationBuilder(this);
         builder.setApplicability(ProofRuleApplication.Applicability.APPLICABLE);
-        builder.setTranscript("orLeft on='" + at + "';");
+        builder.setTranscript(getTranscript(new Pair<>("on", at)));
 
         builder.newBranch().addDeletionsAntecedent(Collections.singletonList(new ProofFormula(at))).
                 addAdditionAntecedent(new ProofFormula(at.getTerm(0)));

@@ -10,13 +10,13 @@ import edu.kit.iti.algover.proof.ProofFormula;
 import edu.kit.iti.algover.proof.ProofNode;
 import edu.kit.iti.algover.rules.*;
 import edu.kit.iti.algover.term.builder.ReplacementVisitor;
-//import edu.kit.iti.algover.term.match.Matching;
-//import edu.kit.iti.algover.term.match.TermMatcher;
+import edu.kit.iti.algover.term.match.Matching;
+import edu.kit.iti.algover.term.match.TermMatcher;
 import edu.kit.iti.algover.term.*;
 import edu.kit.iti.algover.term.builder.TermBuildException;
-import edu.kit.iti.algover.term.builder.TermBuilder;
 import edu.kit.iti.algover.term.builder.TreeTermTranslator;
 import edu.kit.iti.algover.util.ImmutableList;
+import edu.kit.iti.algover.util.Pair;
 import edu.kit.iti.algover.util.RuleUtil;
 
 
@@ -31,13 +31,13 @@ public class DafnyRule extends AbstractProofRule {
     private String name;
     private String fileName;
     private SymbolTable symbolTable;
-    private List<String> schemaVars;
+    private List<String> programVars;
     private DafnyTree tree;
-    private Term searchTerm;
-    private Term replaceTerm;
+    private final Term searchTerm;
+    private final Term replaceTerm;
 
     public DafnyRule(String file) {
-        super();
+        super(ON_PARAM);
         fileName = file;
         DafnyFile dfi = null;
         try {
@@ -73,15 +73,18 @@ public class DafnyRule extends AbstractProofRule {
 
         symbolTable = makeSymbolTable();
         TreeTermTranslator ttt = new TreeTermTranslator(symbolTable);
+        Term st = null;
+        Term rt = null;
         try {
-            searchTerm = ttt.build(equalsClause.getChild(0));
-            System.out.println(searchTerm);
-            searchTerm = searchTerm.accept(new ReplaceProgrammVariableVisitor(), schemaVars);
-            System.out.println(searchTerm);
-            replaceTerm = ttt.build(equalsClause.getChild(1));
+            st = ttt.build(equalsClause.getChild(0));
+            st = st.accept(new ReplaceProgramVariableVisitor(), programVars);
+            rt = ttt.build(equalsClause.getChild(1));
+            rt = rt.accept(new ReplaceProgramVariableVisitor(), programVars);
         } catch (TermBuildException e) {
             System.out.println("Error parsing equalsClause");
         }
+        searchTerm = st;
+        replaceTerm = rt;
     }
 
     /**
@@ -92,13 +95,13 @@ public class DafnyRule extends AbstractProofRule {
     private SymbolTable makeSymbolTable() {
 
         Collection<FunctionSymbol> map = new ArrayList<>();
-        schemaVars = new ArrayList<>();
+        programVars = new ArrayList<>();
 
         for (DafnyTree decl : ProgramDatabase.getAllVariableDeclarations(tree)) {
             String name = decl.getChild(0).toString();
             Sort sort = treeToType(decl.getChild(1));
             map.add(new FunctionSymbol(name, sort));
-            schemaVars.add(name);
+            programVars.add(name);
         }
 
         MapSymbolTable st = new MapSymbolTable(new BuiltinSymbols(), map);
@@ -120,7 +123,7 @@ public class DafnyRule extends AbstractProofRule {
 
     @Override
     public ProofRuleApplication considerApplication(ProofNode target, Sequent selection, TermSelector selector) throws RuleException {
-        /*Term selected = selector.selectTopterm(target.getSequent()).getTerm();
+        Term selected = selector.selectTopterm(target.getSequent()).getTerm();
         TermMatcher tm = new TermMatcher();
         ImmutableList<Matching> matchings = tm.match(searchTerm, selected);
         if(matchings.size() == 0) {
@@ -128,22 +131,22 @@ public class DafnyRule extends AbstractProofRule {
         }
         ProofRuleApplicationBuilder proofRuleApplicationBuilder;
         try {
-            replaceTerm = matchings.get(0).instantiate(replaceTerm);
+            Term rt = matchings.get(0).instantiate(replaceTerm);
             proofRuleApplicationBuilder = new ProofRuleApplicationBuilder(this);
             proofRuleApplicationBuilder.setApplicability(ProofRuleApplication.Applicability.APPLICABLE);
-            proofRuleApplicationBuilder.setTranscript(getTranscript());
-            proofRuleApplicationBuilder.newBranch().addReplacement(selector, replaceTerm);
+            proofRuleApplicationBuilder.setTranscript(getTranscript(new Pair<>("on", selected)));
+            proofRuleApplicationBuilder.newBranch().addReplacement(selector, rt);
         } catch (TermBuildException e) {
             throw new RuleException();
         }
 
-        return proofRuleApplicationBuilder.build();*/
-        return null;
+        return proofRuleApplicationBuilder.build();
     }
 
     @Override
     public ProofRuleApplication makeApplication(ProofNode target, Parameters parameters) throws RuleException {
-        /*Term on = parameters.getValue("on").cast(Term.class).getValue();
+        Term on = parameters.getValue(ON_PARAM);
+
         TermMatcher tm = new TermMatcher();
         ImmutableList<Matching> matchings = tm.match(searchTerm, on);
         if(matchings.size() == 0) {
@@ -152,31 +155,24 @@ public class DafnyRule extends AbstractProofRule {
 
         ProofRuleApplicationBuilder proofRuleApplicationBuilder;
         try {
-            replaceTerm = matchings.get(0).instantiate(replaceTerm);
+            Term rt = matchings.get(0).instantiate(replaceTerm);
             proofRuleApplicationBuilder = new ProofRuleApplicationBuilder(this);
             if(Optional.empty().equals(RuleUtil.matchTopLevelInAntedecent(on::equals, target.getSequent()))) {
                 proofRuleApplicationBuilder.newBranch().addDeletionsSuccedent(new ProofFormula(on)).
-                        addAdditionsSuccedent(new ProofFormula(replaceTerm));
+                        addAdditionsSuccedent(new ProofFormula(rt));
             } else {
                 proofRuleApplicationBuilder.newBranch().addDeletionsAntecedent(Collections.singletonList(new ProofFormula(on))).
-                        addAdditionAntecedent(new ProofFormula(replaceTerm));
+                        addAdditionAntecedent(new ProofFormula(rt));
             }
         } catch (TermBuildException e) {
             throw new RuleException();
         }
 
-        return proofRuleApplicationBuilder.build();*/
-        return null;
-    }
-
-    private String getTranscript() {
-        String res = name;
-        return name;
+        return proofRuleApplicationBuilder.build();
     }
 }
 
-class ReplaceProgrammVariableVisitor extends ReplacementVisitor<List<String>> {
-
+class ReplaceProgramVariableVisitor extends ReplacementVisitor<List<String>> {
     @Override
     public Term visit(ApplTerm applTerm, List<String> programmVariables) throws TermBuildException {
         if(programmVariables.contains(applTerm.getFunctionSymbol().getName())) {

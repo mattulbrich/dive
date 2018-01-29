@@ -5,12 +5,14 @@
  */
 package edu.kit.iti.algover.rules;
 
+import java.beans.ParameterDescriptor;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
 import edu.kit.iti.algover.term.Term;
+import edu.kit.iti.algover.util.Pair;
 
 /**
  * This class should serve as base class for all {@link ProofRule} implementations.
@@ -88,6 +90,40 @@ public abstract class AbstractProofRule implements ProofRule {
         if (!required.isEmpty()) {
             throw new RuleException("Missing required arguments: " + required);
         }
+    }
+
+    protected final String getTranscript(Pair<String, Object>... params) throws RuleException {
+        String res = getName();
+        Map<String, ParameterDescription<?>> required = new HashMap<>();
+        for (String name : allParameters.keySet()) {
+            if(allParameters.get(name).isRequired()) {
+                required.put(name, allParameters.get(name));
+            }
+        }
+        if(params.length < required.size()) {
+            throw new RuleException(getName() + " needs at least " + required.size() +
+                    " parameters but got only " + params.length);
+        }
+        for(Pair<String, Object> p : params) {
+            if(!allParameters.containsKey(p.getFst())) {
+                throw new RuleException("No parameter named " + p.getFst() + " for Rule " + getName());
+            }
+            if(!allParameters.get(p.getFst()).acceptsValue(p.getSnd())) {
+                throw new RuleException(
+                        "ParameterDescription " + p.getFst() + " has class " + p.getSnd().getClass() +
+                                ", but I expected " + allParameters.get(p) +
+                                " (class " + allParameters.get(p).getType() + ")");
+            }
+            res += " " + p.getFst() + "='" + p.getSnd() + "',";
+            required.remove(p.getFst());
+        }
+        if (!required.isEmpty()) {
+            throw new RuleException("Missing required arguments: " + required);
+        }
+
+        res = res.substring(0, res.length() - 1);
+        res += ";";
+        return res;
     }
 
 }
