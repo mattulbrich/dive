@@ -2,6 +2,7 @@
 /modules/*/bin
 /modules/*/test-bin
 /modules/*/gen
+/out
 *~
 *.Tests*
 # *.jar # we have some checked in jar files
