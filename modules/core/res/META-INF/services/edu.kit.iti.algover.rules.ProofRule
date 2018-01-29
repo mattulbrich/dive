@@ -8,6 +8,4 @@ edu.kit.iti.algover.rules.impl.LetSubstitutionRule
 edu.kit.iti.algover.rules.impl.TestTrueAssumption
 edu.kit.iti.algover.rules.impl.RemoveAssumptionRule
 edu.kit.iti.algover.rules.impl.NotLeftRule
-#edu.kit.iti.algover.rules.impl.ClosingEqualityRule
-#edu.kit.iti.algover.rules.impl.MockUpClosingRule
 edu.kit.iti.algover.rules.impl.OrLeftRule
