@@ -1,3 +1,8 @@
+/*
+ * This file is part of AlgoVer.
+ *
+ * Copyright (C) 2015-2018 Karlsruhe Institute of Technology
+ */
 package edu.kit.iti.algover.rules.impl;
 
 import edu.kit.iti.algover.proof.ProofFormula;
@@ -11,7 +16,7 @@ import java.util.Collections;
 public class RemoveAssumptionRule extends AbstractProofRule {
 
     public RemoveAssumptionRule() {
-        super(Collections.singletonMap("on", Term.class), Collections.emptyMap());
+        super(ON_PARAM);
     }
 
     @Override
@@ -41,7 +46,7 @@ public class RemoveAssumptionRule extends AbstractProofRule {
 
         checkParameters(parameters);
 
-        Term toDelete = parameters.getValue("on").cast(Term.class).getValue();
+        Term toDelete = parameters.getValue(ON_PARAM);
 
         builder.newBranch()
                 .addDeletionsAntecedent(Collections.singletonList(new ProofFormula(toDelete)));

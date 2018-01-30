@@ -71,8 +71,7 @@ public abstract class SequenterTest {
 
     protected abstract String expectedAntecedent(String pathIdentifier);
 
-
-    SymbolTable makeTable(DafnyMethod method) {
+    protected SymbolTable makeTable(DafnyMethod method) {
 
         Collection<FunctionSymbol> map = new ArrayList<>();
 

@@ -5,10 +5,13 @@
  */
 package edu.kit.iti.algover.project;
 
+import javax.xml.XMLConstants;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
 import javax.xml.bind.Unmarshaller;
+import javax.xml.validation.Schema;
+import javax.xml.validation.SchemaFactory;
 import java.io.File;
 
 /**
@@ -35,16 +38,23 @@ public class ConfigXMLLoader {
 
         try {
 
+            SchemaFactory sf = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
+            assert ConfigXMLLoader.class.getResourceAsStream("config-schema.xsd") != null;
+            Schema schema = sf.newSchema(ConfigXMLLoader.class.getResource("config-schema.xsd"));
+
             JAXBContext jaxbContext = JAXBContext.newInstance(Configuration.class);
 
             Unmarshaller jaxbUnmarshaller = jaxbContext.createUnmarshaller();
+            jaxbUnmarshaller.setSchema(schema);
             Configuration config = (Configuration) jaxbUnmarshaller.unmarshal(configFile);
 
             return config;
 
-        } catch (JAXBException e) {
+        } catch (Exception e) {
+            // REVIEW: Have an exception handling concept!
             e.printStackTrace();
         }
+        // REVIEW: Do not return null.
         return null;
 
     }

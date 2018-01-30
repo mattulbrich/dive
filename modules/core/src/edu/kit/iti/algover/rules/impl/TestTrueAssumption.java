@@ -1,3 +1,8 @@
+/*
+ * This file is part of AlgoVer.
+ *
+ * Copyright (C) 2015-2018 Karlsruhe Institute of Technology
+ */
 package edu.kit.iti.algover.rules.impl;
 
 import edu.kit.iti.algover.data.BuiltinSymbols;
@@ -13,7 +18,7 @@ import java.util.HashMap;
 public class TestTrueAssumption extends AbstractProofRule {
 
     public TestTrueAssumption() {
-        super(new HashMap<>(), new HashMap<>());
+        super();
     }
 
     @Override

@@ -6,6 +6,17 @@
 package edu.kit.iti.algover.term.builder;
 
 import edu.kit.iti.algover.proof.ProofFormula;
+import edu.kit.iti.algover.term.LetTerm;
+import edu.kit.iti.algover.term.Term;
+import edu.kit.iti.algover.term.VariableTerm;
+import edu.kit.iti.algover.util.Pair;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
 
 public class ParallelUpdateSequenter extends UpdateSequenter {
 
@@ -20,7 +31,52 @@ public class ParallelUpdateSequenter extends UpdateSequenter {
     }
 
     @Override
-    protected ProofFormula postProcess(ProofFormula formula) {
-        throw new UnsupportedOperationException("not yet implemented");
+    protected ProofFormula postProcess(ProofFormula formula) throws TermBuildException {
+        Map<VariableTerm, Term> substitution = new LinkedHashMap<>();
+
+        Term term = formula.getTerm();
+        while(term instanceof LetTerm) {
+            LetTerm letTerm = (LetTerm) term;
+            updateSubstitution(substitution,letTerm.getSubstitutions());
+            term = letTerm.getTerm(0);
+        }
+
+        List<Pair<VariableTerm, Term>> newAssignments = new ArrayList<>();
+        substitution.forEach((v, t) -> newAssignments.add(new Pair<>(v, t)));
+
+        Term resultTerm;
+        if(newAssignments.isEmpty()) {
+            resultTerm = term;
+        } else {
+            resultTerm = new LetTerm(newAssignments, term);
+        }
+
+        return new ProofFormula(resultTerm);
+    }
+
+    private void updateSubstitution(Map<VariableTerm, Term> substitution, List<Pair<VariableTerm, Term>> assignments) throws TermBuildException {
+        Map<VariableTerm, Term> update = new LinkedHashMap<>();
+        for (Pair<VariableTerm, Term> entry : assignments) {
+            Term instantiated = entry.snd.accept(InstantiationVisitor.INSTANCE, substitution);
+            if (instantiated == null) {
+                // will be null if it is not substituted.
+                instantiated = entry.snd;
+            }
+            update.put(entry.fst, instantiated);
+        }
+        substitution.putAll(update);
+    }
+}
+
+/**
+ * This little class applies the substitution it receives as argument to the
+ * term it walks over.
+ */
+class InstantiationVisitor extends ReplacementVisitor<Map<VariableTerm, Term>> {
+    public static final InstantiationVisitor INSTANCE = new InstantiationVisitor();
+
+    @Override
+    public Term visit(VariableTerm variableTerm, Map<VariableTerm, Term> substitution) throws TermBuildException {
+        return substitution.get(variableTerm);
     }
 }

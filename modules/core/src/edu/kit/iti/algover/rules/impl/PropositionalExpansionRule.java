@@ -1,3 +1,8 @@
+/*
+ * This file is part of AlgoVer.
+ *
+ * Copyright (C) 2015-2018 Karlsruhe Institute of Technology
+ */
 package edu.kit.iti.algover.rules.impl;
 
 import java.util.ArrayList;
@@ -23,19 +28,7 @@ import edu.kit.iti.algover.term.Term;
 public class PropositionalExpansionRule extends AbstractProofRule {
 
     public PropositionalExpansionRule() {
-        super(makeRequiredParameters(), makeOptionalParameters());
-    }
-
-    private static Map<String, Class<?>> makeRequiredParameters() {
-        Map<String, Class<?>> result = new HashMap<>();
-        result.put("on", Term.class);
-        return result;
-    }
-
-    private static Map<String, Class<?>> makeOptionalParameters() {
-        Map<String, Class<?>> result = new HashMap<>();
-        result.put("deep", Boolean.class);
-        return result;
+        super(ON_PARAM, DEEP_PARAM);
     }
 
     @Override

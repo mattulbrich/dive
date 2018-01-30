@@ -1,46 +1,88 @@
 /*
  * This file is part of AlgoVer.
  *
- * Copyright (C) 2015-2017 Karlsruhe Institute of Technology
+ * Copyright (C) 2015-2018 Karlsruhe Institute of Technology
  */
 package edu.kit.iti.algover.rules;
 
-import edu.kit.iti.algover.rules.Parameters.TypedValue;
-
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+import edu.kit.iti.algover.term.Term;
+
+/**
+ * This class should serve as base class for all {@link ProofRule} implementations.
+ *
+ * Its main feature is the possibility to check actual arguments against the formal parameters.
+ *
+ * @author Mattias Ulbrich
+ */
 public abstract class AbstractProofRule implements ProofRule {
 
-    private Map<String, Class<?>> requiredParameters;
-    private Map<String, Class<?>> optionalParameters;
+    /**
+     * The parameter for "on" is very common for rules.
+     */
+    public static final ParameterDescription<Term> ON_PARAM =
+            new ParameterDescription<>("on", ParameterType.TERM, true);
 
-    public AbstractProofRule(Map<String, Class<?>> requiredParameters, Map<String, Class<?>> optionalParameters) {
-        this.requiredParameters = requiredParameters;
-        this.optionalParameters = optionalParameters;
+    /**
+     * The parameter "deep" is used for propositional rules that
+     * are to be applied exhaustively.
+     */
+    public static final ParameterDescription<Boolean> DEEP_PARAM =
+            new ParameterDescription<>("deep", ParameterType.BOOLEAN, false);
+
+    /**
+     * This map captures the parameters made
+     * known to the class in the constructor.
+     */
+    private final Map<String, ParameterDescription<?>> allParameters = new HashMap<>();
+
+
+    /**
+     * Instantiate a new object.
+     *
+     * @param parameters a list of all parameters that this proof rule accepts.
+     */
+    public AbstractProofRule(ParameterDescription<?>... parameters) {
+        for (ParameterDescription<?> p : parameters) {
+            allParameters.put(p.getName(), p);
+        }
     }
 
+    /**
+     * Check the actual parameters obtained as method parameter against the formal parameters stored
+     * in {@link #allParameters},
+     *
+     * @param parameters the map of parameters against values.
+     * @throws RuleException if a required parameter has been omitted or an unknown parameter has
+     *                       been used
+     */
     protected final void checkParameters(Parameters parameters) throws RuleException {
-        Set<String> required = new HashSet<>(requiredParameters.keySet());
-        for (Map.Entry<String, TypedValue<?>> en : parameters.entrySet()) {
-            Class<?> t = requiredParameters.get(en.getKey());
-            if (t == null) {
-                t = optionalParameters.get(en.getKey());
+        Set<ParameterDescription<?>> required = new HashSet<>();
+        for (ParameterDescription<?> p : allParameters.values()) {
+            if(p.isRequired()) {
+                required.add(p);
             }
+        }
+
+        for (Map.Entry<String, Object> en : parameters.entrySet()) {
+            ParameterDescription<?> t = allParameters.get(en.getKey());
 
             if (t == null) {
                 throw new RuleException("Unknown parameter '" + en.getKey() + "'");
             }
 
-            TypedValue<?> value = en.getValue();
-            if (!value.isType(t)) {
+            Object value = en.getValue();
+            if (!t.acceptsValue(value)) {
                 throw new RuleException(
-                        "Parameter " + en.getKey() + " has type " + value.getType() +
-                                ", but I expected " + t);
+                        "ParameterDescription " + en.getKey() + " has class " + value.getClass() +
+                                ", but I expected " + t + " (class " + t.getType() + ")");
             }
 
-            required.remove(en.getKey());
+            required.remove(t);
         }
 
         if (!required.isEmpty()) {

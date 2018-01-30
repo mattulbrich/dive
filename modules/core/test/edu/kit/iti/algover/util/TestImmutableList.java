@@ -9,6 +9,7 @@ import static org.junit.Assert.*;
 
 import java.util.Arrays;
 import java.util.Iterator;
+import java.util.List;
 
 import org.junit.Test;
 
@@ -33,7 +34,7 @@ public class TestImmutableList {
     public void testFromArray() {
         ImmutableList<String> s = ImmutableList.from(Arrays.asList("1", "2", "3", "4", "5", "6"));
         for(int i = 6; i >= 1; i--) {
-            assertEquals(Integer.toString(i), s.getHead());
+            assertEquals(Integer.toString(i), s.getLast());
             s = s.getTail();
         }
     }
@@ -47,7 +48,7 @@ public class TestImmutableList {
         assertEquals(s, s3);
 
         for(int i = 1; i <= 6; i++) {
-            assertEquals(Integer.toString(i), s2.getHead());
+            assertEquals(Integer.toString(i), s2.getLast());
             s2 = s2.getTail();
         }
     }
@@ -71,5 +72,101 @@ public class TestImmutableList {
     public void testAsCollection() throws Exception {
         ImmutableList<String> s = ImmutableList.from(Arrays.asList("1", "2", "3", "4", "5", "6"));
         assertEqualIterators(s.iterator(), s.asCollection().iterator());
+    }
+
+    @Test
+    public void testContains() {
+        ImmutableList<String> s = ImmutableList.from(Arrays.asList("1", "1", "3", "4", "5", "6"));
+        assertTrue(s.contains("1"));
+        assertFalse(s.contains("2"));
+        assertTrue(s.contains("6"));
+    }
+
+    @Test
+    public void testAppendAll() {
+        ImmutableList<String> s = ImmutableList.from(Arrays.asList("1", "2", "3", "4", "5", "6"));
+        ImmutableList<String> t = ImmutableList.from(Arrays.asList("7", "8", "9"));
+        ImmutableList<String> u = ImmutableList.from(Arrays.asList("1", "2", "3", "4", "5", "6", "7", "8", "9"));
+        assertEquals(u, s.appendAll(t));
+
+        List<String> a = Arrays.asList("7", "8", "9");
+        assertEquals(u, s.appendAll(a));
+    }
+
+    @Test
+    public void testFrom() {
+        ImmutableList<String> s = ImmutableList.from(Arrays.asList("1", "2", "3", "4", "5", "6"));
+        ImmutableList<String> t = ImmutableList.from("1", "2", "3", "4", "5", "6");
+        assertEquals(t, s);
+    }
+
+    @Test
+    public void testTakeFirstDropLast() {
+        ImmutableList<String> s = ImmutableList.from(Arrays.asList("1", "2", "3", "4", "5", "6"));
+        ImmutableList<String> ex = ImmutableList.from(Arrays.asList("1", "2"));
+        assertEquals(ex, s.takeFirst(2));
+        assertEquals(ex, s.dropLast(4));
+
+        assertEquals(ImmutableList.nil(), s.takeFirst(0));
+        assertEquals(ImmutableList.nil(), s.dropLast(s.size()));
+    }
+
+    @Test
+    public void testSubList() {
+
+        ImmutableList<String> s = ImmutableList.from(Arrays.asList("1", "2", "3", "4", "5", "6"));
+        ImmutableList<String> ex1 = ImmutableList.from(Arrays.asList("1", "2"));
+        ImmutableList<String> ex2 = ImmutableList.from(Arrays.asList("3", "4", "5"));
+
+        assertEquals(ex1, s.subList(0, 2));
+        assertEquals(ex2, s.subList(2, 3));
+        assertEquals(ImmutableList.nil(), s.subList(1, 0));
+
+        try {
+            // should throw!
+            s.subList(3, -2);
+            fail();
+        } catch (IndexOutOfBoundsException ex) {
+
+        }
+
+        try {
+            // should throw!
+            s.subList(100, 0);
+            fail();
+        } catch (IndexOutOfBoundsException ex) {
+
+        }
+    }
+
+    @Test
+    public void testMap() {
+        ImmutableList<String> s = ImmutableList.from(Arrays.asList("1", "2", "3", "4", "5", "6"));
+        ImmutableList<Integer> t = ImmutableList.from(1, 2, 3, 4, 5, 6);
+        assertEquals(t, s.map(Integer::parseInt));
+    }
+
+    @Test
+    public void testFilter() {
+        ImmutableList<String> s = ImmutableList.from(Arrays.asList("1", "2", "3", "4", "5", "6"));
+        ImmutableList<String> t = ImmutableList.from(Arrays.asList("2", "4", "6"));
+        assertEquals(t, s.filter(x -> Integer.parseInt(x) % 2 == 0));
+    }
+
+    @Test
+    public void testFindFirst() {
+        ImmutableList<String> s = ImmutableList.from(Arrays.asList("1", "2", "3", "4", "5", "6"));
+        assertEquals("2", s.findFirst(x -> Integer.parseInt(x) % 2 == 0));
+    }
+
+    @Test
+    public void testEquals() {
+        ImmutableList<String> s = ImmutableList.from(Arrays.asList("1", "2", "3", "4"));
+        ImmutableList<String> s2 = ImmutableList.from(Arrays.asList("1", "2", "3", "4"));
+        ImmutableList<String> t = ImmutableList.from(Arrays.asList("1", "2", "3"));
+
+        assertTrue(s.equals(s2));
+        assertFalse(s.equals(t));
+        assertFalse(t.equals(s));
     }
 }

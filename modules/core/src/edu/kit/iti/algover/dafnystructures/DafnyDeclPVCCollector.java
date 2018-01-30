@@ -10,6 +10,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import edu.kit.iti.algover.project.Project;
 import edu.kit.iti.algover.proof.MethodPVCBuilder;
 import edu.kit.iti.algover.proof.PVC;
 import edu.kit.iti.algover.proof.PVCCollection;
@@ -28,13 +29,10 @@ import edu.kit.iti.algover.term.builder.TermBuildException;
 public class DafnyDeclPVCCollector {
 
 
-    /**
-     * The counter to create uniquely numbered PVCs.
-     */
-    private int counter;
+    private Project project;
 
-
-    public DafnyDeclPVCCollector() {
+    public DafnyDeclPVCCollector(Project project) {
+        this.project = project;
     }
 
     public PVCCollection visitClass(DafnyClass cl) {
@@ -61,11 +59,10 @@ public class DafnyDeclPVCCollector {
             List<SymbexPath> subpaths = path.split();
             for (SymbexPath subpath : subpaths) {
                 giveUniqueIdentifier(subpath, seenNames);
-                MethodPVCBuilder builder = new MethodPVCBuilder();
+                MethodPVCBuilder builder = new MethodPVCBuilder(project);
                 builder
                     .setPathThroughProgram(subpath)
                     .setDeclaration(m);
-                counter++;
 
                 PVC pvc;
                 try {

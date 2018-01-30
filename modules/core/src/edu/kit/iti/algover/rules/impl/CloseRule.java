@@ -13,18 +13,10 @@ import java.util.Optional;
 
 public class CloseRule extends AbstractProofRule {
 
-    private static Map<String, Class<?>> parameters(Pair<String, Class<?>>... pairs) {
-        Map<String, Class<?>> map = new HashMap<>();
-        for (Pair<String, Class<?>> pair : pairs) {
-            map.put(pair.fst, pair.snd);
-        }
-        return map;
-    }
-
     public CloseRule() {
         super(
-                parameters(new Pair<>("on", Term.class)),
-                parameters());
+                new ParameterDescription<>("on", ParameterType.TERM, true)
+        );
     }
 
     @Override
@@ -50,7 +42,7 @@ public class CloseRule extends AbstractProofRule {
     public ProofRuleApplication makeApplication(ProofNode target, Parameters parameters) throws RuleException {
         checkParameters(parameters);
 
-        Term on = parameters.getValue("on").cast(Term.class).getValue();
+        Term on = (Term) parameters.getValue("on");
 
         return buildApplication(target, on);
     }

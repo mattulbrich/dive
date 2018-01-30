@@ -3,6 +3,7 @@ package edu.kit.iti.algover.rule;
 import com.jfoenix.controls.JFXButton;
 import de.jensd.fx.glyphs.GlyphsDude;
 import de.jensd.fx.glyphs.materialicons.MaterialIcon;
+import edu.kit.iti.algover.rules.ParameterDescription;
 import edu.kit.iti.algover.rules.Parameters;
 import edu.kit.iti.algover.rules.ProofRuleApplication;
 import edu.kit.iti.algover.rules.RuleException;
@@ -55,9 +56,9 @@ public class RuleViewOverlay extends AnchorPane {
             }
         });
 
-        for (Map.Entry<String, Parameters.TypedValue<?>> entry : application.getOpenParameters().entrySet()) {
+        for (Map.Entry<String, Object> entry : application.getOpenParameters().entrySet()) {
             String parameterName = entry.getKey();
-            Parameters.TypedValue<?> value = entry.getValue();
+            Object value = entry.getValue();
             System.out.println(parameterName + ": " + value);
         }
 
