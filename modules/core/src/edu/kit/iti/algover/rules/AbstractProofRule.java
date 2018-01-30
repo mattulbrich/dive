@@ -76,7 +76,7 @@ public abstract class AbstractProofRule implements ProofRule {
             }
 
             Object value = en.getValue();
-            if (t.acceptsValue(value)) {
+            if (!t.acceptsValue(value)) {
                 throw new RuleException(
                         "ParameterDescription " + en.getKey() + " has class " + value.getClass() +
                                 ", but I expected " + t + " (class " + t.getType() + ")");
