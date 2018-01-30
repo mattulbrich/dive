@@ -5,10 +5,7 @@ import edu.kit.iti.algover.browser.entities.PVCEntity;
 import edu.kit.iti.algover.proof.*;
 import edu.kit.iti.algover.references.ProofTermReference;
 import edu.kit.iti.algover.references.ReferenceGraph;
-import edu.kit.iti.algover.rules.BranchInfo;
-import edu.kit.iti.algover.rules.ProofRuleApplication;
-import edu.kit.iti.algover.rules.RuleException;
-import edu.kit.iti.algover.rules.TermSelector;
+import edu.kit.iti.algover.rules.*;
 import edu.kit.iti.algover.sequent.formulas.AddedOrDeletedFormula;
 import edu.kit.iti.algover.sequent.formulas.ModifiedFormula;
 import edu.kit.iti.algover.sequent.formulas.OriginalFormula;
@@ -178,20 +175,30 @@ public class SequentController extends FxmlController {
         formulaLoop: for (int i = 0; i < proofFormulas.size(); i++) {
             // Short-circuit this loop if there is a ModifiedFormula to be built instead.
             if (branchInfo != null) {
-                // FIXME this makes the assumption that there will only ever by 1 replacement per top-level formula!
-                // maybe this is reasonable, but that should maybe be made more explicit if it is.
+                Term term = proofFormulas.get(i).getTerm();
+                List<SubtermSelector> modifiedParts = new ArrayList<>();
+
                 for (Pair<TermSelector, Term> replacementPair : branchInfo.getReplacements()) {
+                    // If there were replacements for the current term
                     if (replacementPair.getFst().getPolarity() == polarity && replacementPair.getFst().getTermNo() == i) {
+
+                        // This algorithm assumes that there are no replacements _within_ other replacements
+                        // I _really_ think that's a reasonable assumption. Maybe there should be documentation
+                        // and / or a test for that invariant in ProofRuleApplication?
                         SubtermSelectorReplacementVisitor replacmentVisitor = new SubtermSelectorReplacementVisitor(replacementPair.getSnd());
                         try {
-                            Term newTerm = proofFormulas.get(i).getTerm().accept(replacmentVisitor, replacementPair.getFst().getSubtermSelector());
-                            formulas.add(new ModifiedFormula(replacementPair.getFst().getSubtermSelector(), newTerm));
+                            term = term.accept(replacmentVisitor, replacementPair.getFst().getSubtermSelector());
+                            modifiedParts.add(replacementPair.getFst().getSubtermSelector());
                         } catch (RuleException e) {
                             // In this case the SubtermSelector did not fit the Term!
-                            new RuntimeException(e);
+                            throw new RuntimeException(e);
                         }
-                        continue formulaLoop;
                     }
+                }
+
+                if (!modifiedParts.isEmpty()) {
+                    formulas.add(new ModifiedFormula(modifiedParts, term));
+                    continue formulaLoop;
                 }
 
                 List<ProofFormula> deletions = polarity == TermSelector.SequentPolarity.ANTECEDENT
