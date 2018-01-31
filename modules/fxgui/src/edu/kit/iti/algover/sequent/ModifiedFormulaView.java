@@ -20,6 +20,7 @@ public class ModifiedFormulaView extends BasicFormulaView {
     protected void updateStyleClasses() {
         // TODO this is weird. I would expect to recalculate the highlighted term in the "relayout" method...
         // but the annotatedString changes in between
+        // FIXME NullPointer!
         calculateHighlighted().forEach(termElement -> highlightFromElement(termElement, "modified"));
     }
 
@@ -27,7 +28,7 @@ public class ModifiedFormulaView extends BasicFormulaView {
         // This is not really pretty too. This is because updateStyleClasses is called by the super-constructor
         // before this constructor ran through...
         if (modifiedFormula == null) {
-            return null;
+            return Stream.empty();
         }
 
         return modifiedFormula.getModifiedParts().stream().map(modifiedSelector -> {

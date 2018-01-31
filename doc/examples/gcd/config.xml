@@ -4,7 +4,7 @@
     <settings>
         <entry>
             <key>Sequent Generation Type</key>
-            <value>ssa</value>
+            <value>ass-seq</value>
         </entry>
     </settings>
 </configuration>
