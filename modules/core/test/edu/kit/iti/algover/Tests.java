@@ -56,6 +56,7 @@ import edu.kit.iti.algover.util.UtilTest;
     SortTest.class,
     ProjectTest.class,
     ScriptParserTest.class,
+        ProjectManagerTest.class,
     ProgramDatabaseTest.class,
     UtilTest.class,
     SimplifiedUpdateSequenterTest.class,
