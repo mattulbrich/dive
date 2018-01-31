@@ -32,8 +32,9 @@ import java.util.Collection;
  */
 public class ProjectManagerTest {
 
-    static final String testDir = ("modules/core/test-res/edu/kit/iti/algover/script").replace('/', File.separatorChar);
-    static final File config = new File(testDir + File.separatorChar + "config2.xml");
+    private static final String testDir = "modules/core/test-res/edu/kit/iti/algover/script".replace('/', File.separatorChar);
+    private static final String config = "config2.xml";
+
     Project p = null;
     Term testTerm;
     String testPVCName = "m1/Post";
@@ -48,7 +49,7 @@ public class ProjectManagerTest {
 
         ProjectBuilder pb = new ProjectBuilder();
         pb.setDir(f1);
-        pb.setConfigFilename("config2.xml");
+        pb.setConfigFilename(config);
         pb.parseProjectConfigurationFile();
         Project p = pb.build();
         this.p = p;
@@ -66,12 +67,12 @@ public class ProjectManagerTest {
 
     @Test
     public void loadExistingProject() throws Exception {
-        pm = new ProjectManager();
-        pm.loadProject(config);
+        // REVIEW: Why is this a field in the class.
+        pm = new ProjectManager(new File(testDir), config);
         Project project = pm.getProject();
 
         Assert.assertEquals("Number of DafnyFiles", p.getDafnyFiles().size(), project.getDafnyFiles().size());
-        Assert.assertEquals("config2.xml", pm.getConfigFile().getName());
+        // Assert.assertEquals("config2.xml", pm.getConfigFile().getName());
 
         PVCCollection allPVCs = project.getAllPVCs();
         PVC testPVC = project.getPVCByName(testPVC2Name);
@@ -151,8 +152,7 @@ public class ProjectManagerTest {
     // generated. The point that happens is marked via "TODO handling of error state for each visit".
     @Test(expected = ScriptCommandNotApplicableException.class)
     public void testInapplicableScriptCommand() throws ScriptCommandNotApplicableException, Exception {
-        pm = new ProjectManager();
-        pm.loadProject(config);
+        pm = new ProjectManager(new File(testDir), config);
 
         Proof proof = pm.getProofForPVC(testPVCName);
 
@@ -163,8 +163,7 @@ public class ProjectManagerTest {
     // interpretable, even though it doesn't advance the proof state...
     @Test
     public void testEmptyScript() throws Exception {
-        pm = new ProjectManager();
-        pm.loadProject(config);
+        pm = new ProjectManager(new File(testDir), config);
 
         Proof proof = pm.getProofForPVC(testPVCName);
 

@@ -6,6 +6,7 @@
 package edu.kit.iti.algover.project;
 
 import edu.kit.iti.algover.parser.DafnyException;
+import edu.kit.iti.algover.parser.DafnyParserException;
 import edu.kit.iti.algover.parser.ReferenceResolutionVisitor;
 import edu.kit.iti.algover.parser.TypeResolution;
 import edu.kit.iti.algover.proof.*;
@@ -15,9 +16,12 @@ import edu.kit.iti.algover.script.interpreter.Interpreter;
 import edu.kit.iti.algover.script.interpreter.InterpreterBuilder;
 import edu.kit.iti.algover.script.parser.Facade;
 import edu.kit.iti.algover.util.FileUtil;
+import edu.kit.iti.algover.util.FormatException;
 import edu.kit.iti.algover.util.Util;
 import javafx.beans.property.SimpleObjectProperty;
+import org.xml.sax.SAXException;
 
+import javax.xml.bind.JAXBException;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -29,27 +33,63 @@ import java.util.*;
 import java.util.function.Supplier;
 
 /**
+ * REVIEW: This explanation does not really cover the purpose of this class.
+ *
  * Class handling project and proof management
+ *
+ * @author Sarah Grebing
+ * @author Mattias Ulbrich, refactored Jan 2018
  */
 public class ProjectManager {
 
+    private static final String CONFIG_DEFAULT_NAME = ProjectBuilder.CONFIG_DEFAULT_FILENAME;
 
     /**
-     * Reference to config file
+     * Property for project
      */
-    private File configFile;
-
-    /**
-     * Property for Project
-     */
-    private SimpleObjectProperty<Project> project = new SimpleObjectProperty<>(null);
+    private final Project project;
 
     /**
      * Map from PVC identifiers to corr. proofs.
      */
     private Map<String, Proof> allProofs;
 
+    // REVIEW Documentation?
     private Map<String, Supplier<String>> fileHooks = new HashMap<>();
+
+    /**
+     * Build a new Project by parsing the config file and performing symbolic execution
+     *
+     * @param directory      the directory where the problem resides in
+     * @param configFilename the filename of the configuration within this directory
+     * @throws DafnyException       if name/type resolution fails
+     * @throws DafnyParserException if dafny parsing fails
+     * @throws IOException          if XML is wrongly formatted or files cannot be read
+     * @throws FormatException      if the settings in the config file are illegally formatted.
+     */
+    public ProjectManager(File directory, String configFilename) throws FormatException, DafnyParserException, IOException, DafnyException {
+        this.project = buildProject(directory, configFilename);
+
+        generateAllProofObjects();
+        for (String s: this.getPVCByNameMap().keySet()) {
+            initializeProofDataStructures(s);
+        }
+    }
+
+    /**
+     * Build a new Project by parsing the config file and performing symbolic execution.
+     *
+     * <p>The configname is taken to be the default, i.e. {@link #CONFIG_DEFAULT_NAME}.
+     *
+     * @param directory      the directory where the problem resides in
+     * @throws DafnyException       if name/type resolution fails
+     * @throws DafnyParserException if dafny parsing fails
+     * @throws IOException          if XML is wrongly formatted or files cannot be read
+     * @throws FormatException      if the settings in the config file are illegally formatted.
+     */
+    public ProjectManager(File directory) throws DafnyParserException, IOException, DafnyException, FormatException {
+        this(directory, CONFIG_DEFAULT_NAME);
+    }
 
 
     /**************************************************************************************************
@@ -59,48 +99,44 @@ public class ProjectManager {
      *************************************************************************************************/
 
     /**
-     * Load a Project from a given config file and set the property for the project
-     * Generate all Proof objects and initialize their data structures
-     *
-     * @param config File
-     *
-     */
-    public void loadProject(File config) throws IOException, Exception {
-        this.configFile = config;
-        Project p = null;
-        p = buildProject(config.toPath());
-        this.setProject(p);
-        generateAllProofObjects();
-        for (String s: this.getPVCByNameMap().keySet()) {
-            initializeProofDataStructures(s);
-        }
-    }
-
-    /**
      * Build a new Project by parsing the config file and performing symbolic execution
      *
-     * @param pathToConfig to config file
-     * @return new Project object
-     * //TODO Create Parsing Exception for config file
+     * @param path           the directory where the problem resides in
+     * @param configFilename the filename of the configuration within this directory
+     * @return a freshly created project read from the directory and configFilename
+     * @throws DafnyException       if name/type resolution fails
+     * @throws DafnyParserException if dafny parsing fails
+     * @throws IOException          if XML is wrongly formatted or files cannot be read
+     * @throws FormatException      if the settings in the config file are illegally formatted.
      */
-    // REVIEW Duplicated method: in ProjectManager and ProjectFacade.
-    private static Project buildProject(Path pathToConfig) throws FileNotFoundException, Exception {
-        Project p = null;
+    private static Project buildProject(File path, String configFilename)
+            throws DafnyException, DafnyParserException, IOException, FormatException {
         ProjectBuilder pb = new ProjectBuilder();
-        pb.setDir(pathToConfig.normalize().getParent().toAbsolutePath().toFile());
-        pb.setConfigFilename(pathToConfig.getFileName().toString());
-        pb.parseProjectConfigurationFile();
-        pb.validateProjectConfiguration();
-        p = pb.build();
+        pb.setDir(path);
+        pb.setConfigFilename(configFilename);
+        try {
+            pb.parseProjectConfigurationFile();
+            pb.validateProjectConfiguration();
+        } catch (JAXBException|SAXException e) {
+            // subsume the XML exceptions under IOException.
+            throw new IOException(e);
+        }
+
+        Project result = pb.build();
 
         ArrayList<DafnyException> exceptions = new ArrayList<>();
-        ReferenceResolutionVisitor refResolver = new ReferenceResolutionVisitor(p, exceptions);
+        ReferenceResolutionVisitor refResolver = new ReferenceResolutionVisitor(result, exceptions);
         refResolver.visitProject();
 
         TypeResolution typeRes = new TypeResolution(exceptions);
-        typeRes.visitProject(p);
+        typeRes.visitProject(result);
 
-        return p;
+        if(!exceptions.isEmpty()) {
+            // TODO Is it wise to only return the first exception?
+            throw exceptions.get(0);
+        }
+
+        return result;
     }
 
     /**
@@ -151,19 +187,21 @@ public class ProjectManager {
     public void findAndParseScriptFileForPVC(String pvc) throws IOException {
 
         //find file on disc
-        File scriptFile = FileUtil.findFile(project.get().getBaseDir(), Util.maskFileName(pvc) + ".script");
+        File proofDir = new File(project.getBaseDir(), "proofs");
+        File scriptFile = FileUtil.findFile(proofDir, Util.maskFileName(pvc) + ".script");
 
         if (scriptFile.exists()) {
             ProofScript root = Facade.getAST(scriptFile);
             Proof proof = allProofs.get(pvc);
             if (proof == null) {
+                // REVIEW: Can that ever be null?
                 proof = new Proof(pvc);
             }
             proof.setScript(root.getBody());
             proof.setProofStatus(ProofStatus.SCRIPT_PARSED);
             allProofs.putIfAbsent(pvc, proof);
         } else {
-            throw new FileNotFoundException("File " + scriptFile.getName() + " can not be found");
+            throw new FileNotFoundException("File " + scriptFile + " cannot be found");
         }
 
     }
@@ -179,13 +217,13 @@ public class ProjectManager {
         InterpreterBuilder ib = new InterpreterBuilder();
         if (p.getScript() == null) {
             Interpreter i = ib
-                    .setProofRules(this.project.get().getAllProofRules())
+                    .setProofRules(this.project.getAllProofRules())
                     .startState(p.getProofRoot())
                     .build();
             p.setInterpreter(i);
         } else {
             Interpreter i = ib.startWith(p.getScript())
-                    .setProofRules(this.project.get().getAllProofRules())
+                    .setProofRules(this.project.getAllProofRules())
                     .startState(p.getProofRoot())
                     .build();
             p.setInterpreter(i);
@@ -259,7 +297,7 @@ public class ProjectManager {
      * @return
      */
     public Map<String, PVC> getPVCByNameMap() {
-        return this.project.getValue().getPVCByNameMap();
+        return this.project.getPVCByNameMap();
     }
 
 
@@ -308,18 +346,10 @@ public class ProjectManager {
     }
 
     public Project getProject() {
-        return project.get();
-    }
-
-    public void setProject(Project project) {
-        this.project.set(project);
-    }
-
-    public SimpleObjectProperty<Project> projectProperty() {
         return project;
     }
 
-    /**
+    /* *
      * Save content to script file for pvc
      * @param pvc
      * @param content
@@ -356,13 +386,13 @@ public class ProjectManager {
         writer.close();
     }
 
-    public File getConfigFile() {
-        return configFile;
-    }
+//    public File getConfigFile() {
+//        return configFile;
+//    }
 
-    public void setConfigFile(File configFile) {
-        this.configFile = configFile;
-    }
+//    public void setConfigFile(File configFile) {
+//        this.configFile = configFile;
+//    }
 
     /**
      * Return  all PVCs for the loaded project
@@ -370,7 +400,7 @@ public class ProjectManager {
      * @return PVCGroup that is the root for all PVCs of the loaded project
      */
     public PVCGroup getPVCGroup() {
-        return this.project.getValue().getAllPVCs();
+        return this.project.getAllPVCs();
     }
 
 
