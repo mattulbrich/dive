@@ -3,6 +3,7 @@ package edu.kit.iti.algover.rules.impl;
 import edu.kit.iti.algover.data.BuiltinSymbols;
 import edu.kit.iti.algover.data.MapSymbolTable;
 import edu.kit.iti.algover.data.SymbolTable;
+import edu.kit.iti.algover.parser.DafnyException;
 import edu.kit.iti.algover.parser.DafnyTree;
 import edu.kit.iti.algover.proof.ProofFormula;
 import edu.kit.iti.algover.proof.ProofNode;
@@ -17,6 +18,7 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -55,18 +57,19 @@ public class DafnyRuleTest {
 
 
     @Test
-    public void initializationTest() {
+    public void initializationTest() throws DafnyRuleException{
         String dir = System.getProperty("user.dir");
         //System.out.println("current dir = " + dir);
         String file = "./test-res/edu/kit/iti/algover/dafnyrules/addzero.dfy";
-        DafnyRule r = new DafnyRule(file);
+        DafnyRule r = DafnyRuleUtil.generateDafnyRuleFromFile(file);
         Assert.assertEquals("addZero", r.getName());
     }
 
     @Test
-    public void basicApplicationAddZeroTest() throws RuleException {
+    public void basicApplicationAddZeroTest() throws RuleException, DafnyRuleException {
         String file = "./test-res/edu/kit/iti/algover/dafnyrules/addzero.dfy";
-        ProofRule dafnyRule = new DafnyRule(file);
+
+        ProofRule dafnyRule = DafnyRuleUtil.generateDafnyRuleFromFile(file);
         ProofNode pn = new ProofNode(null, null, null, testSequent, null);
 
         TermSelector ts = new TermSelector(TermSelector.SequentPolarity.ANTECEDENT, 0);
@@ -85,9 +88,9 @@ public class DafnyRuleTest {
     }
 
     @Test
-    public void basicApplicationCommAddTest() throws RuleException {
+    public void basicApplicationCommAddTest() throws RuleException, DafnyRuleException  {
         String file = "./test-res/edu/kit/iti/algover/dafnyrules/commutativeAddition.dfy";
-        ProofRule dafnyRule = new DafnyRule(file);
+        ProofRule dafnyRule = DafnyRuleUtil.generateDafnyRuleFromFile(file);
         ProofNode pn = new ProofNode(null, null, null, testSequent, null);
 
         TermSelector ts = new TermSelector(TermSelector.SequentPolarity.SUCCEDENT, 0);

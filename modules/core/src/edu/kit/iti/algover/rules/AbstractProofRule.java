@@ -92,8 +92,19 @@ public abstract class AbstractProofRule implements ProofRule {
         }
     }
 
+    /**
+     *
+     * Generates a fitting transcript for the rule and the given parameters.
+     *
+     * @param params the parameters for which the transcript shoud be generated
+     * @return a default transcript for the given parameters
+     * @throws RuleException
+     */
     protected final String getTranscript(Pair<String, Object>... params) throws RuleException {
         String res = getName();
+        if(allParameters.size() == 0) {
+            return res + ";";
+        }
         Map<String, ParameterDescription<?>> required = new HashMap<>();
         for (String name : allParameters.keySet()) {
             if(allParameters.get(name).isRequired()) {

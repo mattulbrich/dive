@@ -36,84 +36,12 @@ public class DafnyRule extends AbstractProofRule {
     private final Term searchTerm;
     private final Term replaceTerm;
 
-    public DafnyRule(String file) {
+    public DafnyRule(String name, Term st, Term rt) {
         super(ON_PARAM);
-        fileName = file;
-        DafnyFile dfi = null;
-        try {
-            tree = DafnyFileParser.parse(new File(fileName));
-            DafnyFileBuilder dfb = new DafnyFileBuilder();
-            dfb.setInLibrary(false);
-            dfb.setFilename(fileName);
-            dfb.parseRepresentation(tree);
-            dfi = dfb.build();
-        } catch (IOException e) {
-            System.out.println("DafnyRule with file name " + fileName + " could not be loaded.");
-        } catch (DafnyParserException e) {
-            System.out.println("Error parsing rule " + fileName + ".");
-        } catch (DafnyException e) {
-            System.out.println("Error building Dafny class.");
-        }
 
-        Collection<DafnyMethod> methods = dfi.getMethods();
-        if(methods.size() != 1) {
-            System.out.println("DafnyRuleFiles may only contain EXACTLY one method but found " + methods.size() + ".");
-        }
-        DafnyMethod method = (DafnyMethod)methods.toArray()[0];
-        name = method.getName();
-
-        List<DafnyTree> ensuresClauses = method.getEnsuresClauses();
-        if(ensuresClauses.size() != 1) {
-            System.out.println("DafnyRules may only contain EXACTLY one ensures but found " + ensuresClauses.size() + ".");
-        }
-        DafnyTree ensuresClause = ensuresClauses.get(0);
-
-        List<DafnyTree> equalsClauses = ensuresClause.getChildrenWithType(DafnyParser.EQ);
-        DafnyTree equalsClause = equalsClauses.get(0);
-
-        symbolTable = makeSymbolTable();
-        TreeTermTranslator ttt = new TreeTermTranslator(symbolTable);
-        Term st = null;
-        Term rt = null;
-        try {
-            st = ttt.build(equalsClause.getChild(0));
-            st = st.accept(new ReplaceProgramVariableVisitor(), programVars);
-            rt = ttt.build(equalsClause.getChild(1));
-            rt = rt.accept(new ReplaceProgramVariableVisitor(), programVars);
-        } catch (TermBuildException e) {
-            System.out.println("Error parsing equalsClause");
-        }
+        this.name = name;
         searchTerm = st;
         replaceTerm = rt;
-    }
-
-    /**
-     *
-     * @return Symboltable containing all variable declarations and builtin function symbols
-     * Author: Mattias Ulbrich
-     */
-    private SymbolTable makeSymbolTable() {
-
-        Collection<FunctionSymbol> map = new ArrayList<>();
-        programVars = new ArrayList<>();
-
-        for (DafnyTree decl : ProgramDatabase.getAllVariableDeclarations(tree)) {
-            String name = decl.getChild(0).toString();
-            Sort sort = treeToType(decl.getChild(1));
-            map.add(new FunctionSymbol(name, sort));
-            programVars.add(name);
-        }
-
-        MapSymbolTable st = new MapSymbolTable(new BuiltinSymbols(), map);
-        return st;
-    }
-
-    private static Sort treeToType(DafnyTree tree) {
-        String name = tree.toString();
-        if("array".equals(name)) {
-            name = "array1";
-        }
-        return Sort.get(name);
     }
 
     @Override
@@ -169,16 +97,5 @@ public class DafnyRule extends AbstractProofRule {
         }
 
         return proofRuleApplicationBuilder.build();
-    }
-}
-
-class ReplaceProgramVariableVisitor extends ReplacementVisitor<List<String>> {
-    @Override
-    public Term visit(ApplTerm applTerm, List<String> programmVariables) throws TermBuildException {
-        if(programmVariables.contains(applTerm.getFunctionSymbol().getName())) {
-            return new SchemaVarTerm("?" + applTerm.getFunctionSymbol().getName(), applTerm.getSort());
-        } else {
-            return super.visit(applTerm, programmVariables);
-        }
     }
 }
