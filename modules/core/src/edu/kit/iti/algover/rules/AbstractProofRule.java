@@ -125,14 +125,13 @@ public abstract class AbstractProofRule implements ProofRule {
                                 ", but I expected " + allParameters.get(p) +
                                 " (class " + allParameters.get(p).getType() + ")");
             }
-            res += " " + p.getFst() + "='" + p.getSnd() + "',";
+            res += " " + p.getFst() + "='" + p.getSnd() + "'";
             required.remove(p.getFst());
         }
         if (!required.isEmpty()) {
             throw new RuleException("Missing required arguments: " + required);
         }
 
-        res = res.substring(0, res.length() - 1);
         res += ";";
         return res;
     }
