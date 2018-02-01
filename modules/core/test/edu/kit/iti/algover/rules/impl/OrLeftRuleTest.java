@@ -1,6 +1,5 @@
 package edu.kit.iti.algover.rules.impl;
 
-import antlr.RecognitionException;
 import edu.kit.iti.algover.data.BuiltinSymbols;
 import edu.kit.iti.algover.data.MapSymbolTable;
 import edu.kit.iti.algover.data.SymbolTable;
@@ -11,11 +10,9 @@ import edu.kit.iti.algover.rules.*;
 import edu.kit.iti.algover.term.FunctionSymbol;
 import edu.kit.iti.algover.term.Sequent;
 import edu.kit.iti.algover.term.Sort;
-import edu.kit.iti.algover.term.Term;
 import edu.kit.iti.algover.term.builder.TermBuildException;
 import edu.kit.iti.algover.term.builder.TreeTermTranslator;
 import edu.kit.iti.algover.term.builder.TreeTermTranslatorTest;
-import edu.kit.iti.algover.term.parser.TermParser;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -24,7 +21,6 @@ import java.util.Collection;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertTrue;
 
 /**
@@ -57,6 +53,7 @@ public class OrLeftRuleTest {
         dece.add(new ProofFormula(ttt.build(t3)));
 
         testSequent = new Sequent(ante, dece);
+        System.out.println("testSequent = " + testSequent);
 
     }
 
