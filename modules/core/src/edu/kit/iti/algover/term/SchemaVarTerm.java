@@ -1,11 +1,13 @@
 /*
  * This file is part of AlgoVer.
  *
- * Copyright (C) 2015-2017 Karlsruhe Institute of Technology
+ * Copyright (C) 2015-2018 Karlsruhe Institute of Technology
  */
 package edu.kit.iti.algover.term;
 
-public class SchemaVarTerm extends Term {
+import java.util.Objects;
+
+public class SchemaVarTerm extends SchemaTerm {
 
     private final String name;
 
@@ -21,6 +23,10 @@ public class SchemaVarTerm extends Term {
     @Override
     public String toString() {
         return name;
+    }
+
+    public boolean hasName() {
+        return !name.equals("_");
     }
 
     @Override
@@ -40,7 +46,11 @@ public class SchemaVarTerm extends Term {
         }
 
         SchemaVarTerm other = (SchemaVarTerm) obj;
-        return other.name.equals(name);
+        return Objects.equals(other.name, name);
+    }
+
+    public static Term newUnnamedInstance() {
+        return new SchemaVarTerm("_");
     }
 
 }

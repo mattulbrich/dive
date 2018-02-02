@@ -1,7 +1,7 @@
 /*
  * This file is part of AlgoVer.
  *
- * Copyright (C) 2015-2017 Karlsruhe Institute of Technology
+ * Copyright (C) 2015-2018 Karlsruhe Institute of Technology
  */
 package edu.kit.iti.algover.term.builder;
 
@@ -29,6 +29,8 @@ import edu.kit.iti.algover.util.Pair;
  *
  * @param <A>
  *            the generic type of the argument given to the visitor methods.
+ *
+ * @author Mattias Ulbrich
  */
 public class ReplacementVisitor<A> implements TermVisitor<A, Term, TermBuildException> {
 

@@ -1,7 +1,7 @@
 /*
  * This file is part of AlgoVer.
  *
- * Copyright (C) 2015-2017 Karlsruhe Institute of Technology
+ * Copyright (C) 2015-2018 Karlsruhe Institute of Technology
  */
 package edu.kit.iti.algover.term;
 
@@ -12,7 +12,9 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 
+import edu.kit.iti.algover.term.builder.TermBuildException;
 import edu.kit.iti.algover.util.Util;
+import nonnull.NonNull;
 
 /**
  * The Class Sort models a sort-type in the logic.
@@ -62,6 +64,8 @@ public class Sort {
     /**
      * The Constant FORMULA captures the boolean type. It may be that this will
      * be renamed to boolean eventually.
+     *
+     * @deprecated Use {@link #BOOL} instead.
      */
     @Deprecated
     public static final Sort FORMULA = BOOL;
@@ -90,7 +94,7 @@ public class Sort {
 
     /**
      * The Constant UNTYPED_SORT for the totally arbitrary type
-     * of an untyped {@link SchemaVarTerm}.
+     * of an untyped {@link SchemaTerm}.
      *
      * (Would be an existential type)
      */
@@ -325,12 +329,44 @@ public class Sort {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
 
         Sort sort = (Sort) o;
 
-        if (!name.equals(sort.name)) return false;
+        if (!name.equals(sort.name)) {
+            return false;
+        }
         return Arrays.equals(arguments, sort.arguments);
+    }
+
+    /**
+     * Compute the common super sort for the two arguments if it exists.
+     * If it does not exist, an exception is raised.
+     *
+     * @param sort1 the first sort to compare
+     * @param sort2 the second sort to compare
+     * @return the most specific sort which is top sort to both arguments.
+     * @throws TermBuildException if there is no common supersort
+     */
+    public static @NonNull Sort supremum(@NonNull Sort sort1, @NonNull Sort sort2) throws TermBuildException {
+        if(sort1.isSubtypeOf(sort2)) {
+            return sort2;
+        }
+
+        if(sort2.isSubtypeOf(sort1)) {
+            return sort1;
+        }
+
+        if((sort1.isClassSort() || sort1.isArray()) &&
+           (sort2.isClassSort() || sort2.isArray())) {
+            return OBJECT;
+        }
+
+        throw new TermBuildException("No common supertype for " + sort1 + " and " + sort2);
     }
 }
