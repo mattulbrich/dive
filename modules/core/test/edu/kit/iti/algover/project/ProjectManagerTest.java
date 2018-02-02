@@ -27,6 +27,8 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
 
+import static org.junit.Assert.assertTrue;
+
 /**
  * Tests for the methods for ProjectManagement
  */
@@ -79,7 +81,7 @@ public class ProjectManagerTest {
 
         Sequent s = testPVC.getSequent();
 
-        Assert.assertTrue("Sequents antecedent is empty", testPVC.getSequent().getAntecedent().isEmpty());
+        assertTrue("Sequents antecedent is empty", testPVC.getSequent().getAntecedent().isEmpty());
         Assert.assertFalse("Sequents succedent is not empty", testPVC.getSequent().getSuccedent().isEmpty());
 
         Term sequentTerm = s.getSuccedent().get(0).getTerm();
@@ -169,6 +171,10 @@ public class ProjectManagerTest {
         Proof proof = pm.getProofForPVC(testPVCName);
 
         proof.setScriptTextAndInterpret("");
+        assertTrue(proof.getProofRoot().getChildren().isEmpty());
+
+        proof.setScriptTextAndInterpret(" /* empty script */ ");
+        assertTrue(proof.getProofRoot().getChildren().isEmpty());
     }
 
     @Test

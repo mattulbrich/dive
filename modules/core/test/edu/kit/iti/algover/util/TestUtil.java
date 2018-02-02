@@ -130,8 +130,12 @@ public class TestUtil {
 
 
     public static void setField(Object object, String fieldName, Object value) {
+        setField(object, object.getClass(), fieldName, value);
+    }
+
+    public static void setField(Object object, Class<?> inClass, String fieldName, Object value) {
         try {
-            Field f = object.getClass().getField(fieldName);
+            Field f = inClass.getDeclaredField(fieldName);
             f.setAccessible(true);
             f.set(object, value);
         } catch(Exception ex) {
