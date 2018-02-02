@@ -34,11 +34,13 @@ import java.util.concurrent.ExecutorService;
 public class MainController implements SequentActionListener, RuleApplicationListener {
 
     private final ProjectManager manager;
+    private final TimelineLayout view;
+
+    // All controllers for the views, sorted from left-to-right in the way they appear in the GUI
     private final BrowserController browserController;
     private final EditorController editorController;
     private final SequentController sequentController;
     private final RuleApplicationController ruleApplicationController;
-    private final TimelineLayout view;
 
     public MainController(ProjectManager manager, ExecutorService executor) {
         this.manager = manager;

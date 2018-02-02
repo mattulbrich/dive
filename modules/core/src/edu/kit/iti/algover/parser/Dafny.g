@@ -384,12 +384,14 @@ postfix_expr:
   ;
 
 atom_expr:
+
   usual_or_logic_id
     (                      -> usual_or_logic_id
     | '(' expressions? ')' -> ^(CALL usual_or_logic_id ^(ARGS expressions?) )
     )
   | {schemaMode}?
   ( SCHEMA_ID | BLANK | ELLIPSIS^ expression ELLIPSIS! )
+
   | TRUE | FALSE | NULL | 'this'
   | INT_LIT
   | 'old'^ '('! expression ')'!

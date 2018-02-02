@@ -19,9 +19,6 @@ public class RuleView extends StackPane {
 
     private static final PseudoClass PC_SELECTED = PseudoClass.getPseudoClass("selected");
     private static final PseudoClass PC_SELECTABLE = PseudoClass.getPseudoClass("selectable");
-    private static final PseudoClass PC_CLOSES = PseudoClass.getPseudoClass("closes");
-    private static final PseudoClass PC_SPLITTING = PseudoClass.getPseudoClass("splitting");
-    private static final PseudoClass PC_NON_SPLITTING = PseudoClass.getPseudoClass("non-splitting");
 
     private final Label ruleNameLabel;
     private final ProofRule rule;
@@ -84,7 +81,6 @@ public class RuleView extends StackPane {
 
     private void renderApplication() {
         if (application != null) {
-            setPseudoClassStateFromBranches(application.getBranchCount());
             applicationOverlay = new RuleViewOverlay(application, listener);
             getChildren().setAll(applicationOverlay, ruleNameLabel);
         } else {
@@ -96,30 +92,7 @@ public class RuleView extends StackPane {
         application = null;
         applicationOverlay = null;
         setSelectable(false);
-        pseudoClassStateChanged(PC_CLOSES, false);
-        pseudoClassStateChanged(PC_SPLITTING, false);
-        pseudoClassStateChanged(PC_NON_SPLITTING, false);
         getChildren().setAll(ruleNameLabel);
-    }
-
-    private void setPseudoClassStateFromBranches(int branches) {
-        switch (branches) {
-            case 0:
-                pseudoClassStateChanged(PC_CLOSES, true);
-                pseudoClassStateChanged(PC_SPLITTING, false);
-                pseudoClassStateChanged(PC_NON_SPLITTING, false);
-                return;
-            case 1:
-                pseudoClassStateChanged(PC_CLOSES, false);
-                pseudoClassStateChanged(PC_SPLITTING, false);
-                pseudoClassStateChanged(PC_NON_SPLITTING, true);
-                return;
-            default:
-                pseudoClassStateChanged(PC_CLOSES, false);
-                pseudoClassStateChanged(PC_SPLITTING, true);
-                pseudoClassStateChanged(PC_NON_SPLITTING, false);
-                return;
-        }
     }
 
     private void setSelectable(boolean selectable) {

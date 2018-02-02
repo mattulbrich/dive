@@ -8,6 +8,8 @@ package edu.kit.iti.algover;
 import edu.kit.iti.algover.project.ProjectManagerTest;
 import edu.kit.iti.algover.references.TermReferencesBuilderTest;
 import edu.kit.iti.algover.rules.impl.LetSubstitutionRuleTest;
+import edu.kit.iti.algover.term.builder.ParallelUpdateSequenterTest;
+import edu.kit.iti.algover.term.builder.SimplifiedUpdateSequenterTest;
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
 import org.junit.runners.Suite.SuiteClasses;
@@ -55,9 +57,12 @@ import edu.kit.iti.algover.util.UtilTest;
     SortTest.class,
     ProjectTest.class,
     ScriptParserTest.class,
+        ProjectManagerTest.class,
     ProgramDatabaseTest.class,
     UtilTest.class,
+    SimplifiedUpdateSequenterTest.class,
     UpdateSequenterTest.class,
+    ParallelUpdateSequenterTest.class,
     InlineSequenterTest.class,
     PrettyPrintTest.class,
     TermReferencesBuilderTest.class,

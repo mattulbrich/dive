@@ -18,6 +18,8 @@ import java.util.stream.Collectors;
  * <code>let x, y := 6, 5 :: x</code>.
  *
  * @author philipp
+ *
+ * @see edu.kit.iti.algover.term.builder.LetInlineVisitor
  */
 public class SubstitutionVisitor implements TermVisitor<Map<String, Term>, Term, NoExceptions> {
 

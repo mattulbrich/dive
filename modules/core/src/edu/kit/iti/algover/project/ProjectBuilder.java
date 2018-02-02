@@ -14,9 +14,13 @@ import edu.kit.iti.algover.parser.ReferenceResolutionVisitor;
 import edu.kit.iti.algover.parser.TypeResolution;
 import edu.kit.iti.algover.proof.PVC;
 import edu.kit.iti.algover.settings.ProjectSettings;
+import edu.kit.iti.algover.util.FormatException;
 import org.antlr.runtime.RecognitionException;
+import org.xml.sax.SAXException;
 
+import javax.xml.bind.JAXBException;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -112,6 +116,11 @@ public class ProjectBuilder {
         return this;
     }
 
+    public ProjectBuilder setSettings(Map<String, String> settings) {
+        this.settings = new ProjectSettings(settings);
+        return this;
+    }
+
     public List<String> getLibraryFiles() {
         return libraryFiles;
     }
@@ -145,20 +154,14 @@ public class ProjectBuilder {
         return this;
     }
 
-    public void parseProjectConfigurationFile() throws IOException {
-        parseProjectConfigurationFile(new File(this.getDir() + "/" + getConfigFilename()));
-    }
-
+    // REVIEW Problemloader?
     /**
      * This method invokes the problemloader to load and parse the project
      * configuration file.
-     * @param configFile absolute PPath to configuration file
-     * @throws IOException
-     * @throws RecognitionException
-     *             TODO error handling
      */
-    public void parseProjectConfigurationFile(File configFile) throws IOException {
+    public void parseProjectConfigurationFile() throws IOException, JAXBException, SAXException {
 
+        File configFile = new File(this.getDir() + "/" + getConfigFilename());
 
         Configuration config = ConfigXMLLoader.loadConfigFile(configFile);
 
@@ -173,7 +176,34 @@ public class ProjectBuilder {
             });
         }
 
-        this.setSettings(config.getProjectSettings());
+        Map<String, String> settings = config.getSettings();
+        if(settings != null) {
+            this.setSettings(settings);
+        }
+    }
+
+    /**
+     * Ensures that the information in the config file was valid.
+     *
+     * <p>In particular: Settings are valid and files exist.
+     *
+     * @throws IOException if file(s) do not exist
+     * @throws FormatException if settings are illegal
+     */
+    public void validateProjectConfiguration() throws IOException, FormatException {
+        this.getSettings().validate();
+
+        for(String f : this.getLibraryFiles()) {
+            if(!new File(dir, f).exists()) {
+                throw new FileNotFoundException(f);
+            }
+        }
+
+        for(String f : this.getDafnyFiles()) {
+            if(!new File(dir, f).exists()) {
+                throw new FileNotFoundException(f);
+            }
+        }
     }
 
     /**
@@ -216,6 +246,7 @@ public class ProjectBuilder {
 
         return project;
     }
+
 
     /*
      * Prepare the DafnyTrees by applying relevant visitors for name resolution

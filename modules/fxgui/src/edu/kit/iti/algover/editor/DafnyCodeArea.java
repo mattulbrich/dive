@@ -18,6 +18,12 @@ import java.util.Optional;
 import java.util.concurrent.ExecutorService;
 
 /**
+ * Shows a dafny-syntax-highlighted code editor.
+ *
+ * Syntax highlighting is done asynchronously using an {@link ExecutorService}.
+ *
+ * Additional highlighting on top is configurable via {@link #setHighlightingRule(HighlightingRule)}.
+ *
  * Created by philipp on 28.06.17.
  */
 public class DafnyCodeArea extends CodeArea {
@@ -25,6 +31,12 @@ public class DafnyCodeArea extends CodeArea {
     private HighlightingRule highlightingRule;
     private final ExecutorService executor;
 
+    /**
+     * @param text the initial code inside the code editor
+     * @param executor the executor service to be used for asynchronously
+     *                 calculating syntax highlighting (that is: running the parser,
+     *                 computing style spans)
+     */
     public DafnyCodeArea(String text, ExecutorService executor) {
         this.highlightingRule = (token, syntaxClasses) -> syntaxClasses;
         this.executor = executor;
@@ -53,6 +65,11 @@ public class DafnyCodeArea extends CodeArea {
         getUndoManager().forgetHistory();
     }
 
+    /**
+     * Toggles a re-rendering of the syntax highlighting. Call this method
+     * if you exchanged the additionally configurable {@link HighlightingRule},
+     * i.e. after a call to {@link #setHighlightingRule(HighlightingRule)}.
+     */
     public void rerenderHighlighting() {
         Task<StyleSpans<Collection<String>>> task = computeHighlightingAsync();
         task.setOnSucceeded(event -> {
@@ -143,6 +160,13 @@ public class DafnyCodeArea extends CodeArea {
         return highlightingRule;
     }
 
+    /**
+     * Set another highlighting rule. This rule will compute additional highlighting and has
+     * the lexers computed highlighting classes information available.
+     *
+     * @param highlightingRule the highlighting rule to execute on top of the dafny syntax highlighting
+     * @see HighlightingRule
+     */
     public void setHighlightingRule(HighlightingRule highlightingRule) {
         if (highlightingRule == null) {
             this.highlightingRule = (token, syntaxClasses) -> syntaxClasses;

@@ -115,7 +115,6 @@ public class Project {
         this.baseDir = pBuilder.getDir();
         this.pvcByName = new HashMap<>();
         this.allProofRules = new ArrayList<>();
-
     }
 
     public File getBaseDir() {
@@ -212,7 +211,7 @@ public class Project {
 
         PVCGroup root = new PVCGroup(null);
 
-        DafnyDeclPVCCollector visitor = new DafnyDeclPVCCollector();
+        DafnyDeclPVCCollector visitor = new DafnyDeclPVCCollector(this);
         for (DafnyFile file : this.getDafnyFiles()) {
             visitor.visitFile(file, root);
         }

@@ -6,15 +6,12 @@ import edu.kit.iti.algover.proof.*;
 import edu.kit.iti.algover.references.ProofTermReference;
 import edu.kit.iti.algover.references.ReferenceGraph;
 import edu.kit.iti.algover.rules.*;
-import edu.kit.iti.algover.rules.impl.SubstitutionVisitor;
 import edu.kit.iti.algover.sequent.formulas.AddedOrDeletedFormula;
 import edu.kit.iti.algover.sequent.formulas.ModifiedFormula;
 import edu.kit.iti.algover.sequent.formulas.OriginalFormula;
 import edu.kit.iti.algover.sequent.formulas.TopLevelFormula;
 import edu.kit.iti.algover.term.Sequent;
 import edu.kit.iti.algover.term.Term;
-import edu.kit.iti.algover.term.TermVisitor;
-import edu.kit.iti.algover.term.builder.ReplacementVisitor;
 import edu.kit.iti.algover.term.prettyprint.AnnotatedString;
 import edu.kit.iti.algover.util.Pair;
 import edu.kit.iti.algover.util.SubSelection;
@@ -26,9 +23,7 @@ import javafx.scene.input.KeyCode;
 import javafx.util.Callback;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 /**
  * Created by philipp on 12.07.17.
@@ -40,14 +35,46 @@ public class SequentController extends FxmlController {
     @FXML private ListView<TopLevelFormula> antecedentView;
     @FXML private ListView<TopLevelFormula> succedentView;
 
+    // Subselections, see their docs for clarification
+    /**
+     * Whichever Term was clicked to reveal dependencies in terms of
+     * a Reference (as opposed to the actual TermSelector).
+     * (Currently set when control-clicking something on the sequent).
+     */
     private final SubSelection<ProofTermReference> selectedReference;
+    /**
+     * Whichever Term was clicked to reveal dependencies in terms of
+     * the actual TermSelector.
+     */
     private final SubSelection<TermSelector> selectedTerm;
+    /**
+     * The selection for the Term that Rules may be applied to.
+     * (Currently set when left-clicking something on the sequent).
+     * Shows up on the top of the RuleApplication view.
+     */
     private final SubSelection<TermSelector> lastClickedTerm;
+    /**
+     * The selection for the Term that the mouse is currently hovering over.
+     * This is used to highlight the Term that would be affected when clicked.
+     */
     private final SubSelection<AnnotatedString.TermElement> mouseOverTerm;
+
+    // TODO: Don't save the ReferenceGraph at the sequent controller level in the future
+    // it should ideally be placed somewhere in the backend, since the ProofScript's interpreter
+    // has to closely work with the reference graph to keep it updated
     private ReferenceGraph referenceGraph;
-    private Proof activeProof;
+    private Proof activeProof; // Maybe place it inside the Proof or PVC class instead
     private ProofNodeSelector activeNode;
 
+    /**
+     * Builds the controller and GUI for the sequent view, that is the two ListViews of
+     * {@Link TopLevelFormula}s.
+     *
+     * This loads the GUI from the .fxml resource file
+     * <tt>res/edu/kit/iti/algover/sequent/SequentView.fxml</tt>.
+     *
+     * @param listener
+     */
     public SequentController(SequentActionListener listener) {
         super("SequentView.fxml");
         this.listener = listener;
@@ -75,6 +102,13 @@ public class SequentController extends FxmlController {
         });
     }
 
+    /**
+     * Fills the ListViews with the formulas in the very first sequent (from the root
+     * of the {@link ProofNode} tree).
+     *
+     * @param pvcEntity the PVC for which to show the root sequent
+     * @param proof the existing proof or proof stub for the pvc
+     */
     public void viewSequentForPVC(PVCEntity pvcEntity, Proof proof) {
         PVC pvc = pvcEntity.getPVC();
         if (activeProof == null || !activeProof.getPvcName().equals(pvc.getIdentifier())) {
@@ -86,6 +120,10 @@ public class SequentController extends FxmlController {
         }
     }
 
+    // TODO: Add other means for navigating the ProofNode tree
+    // In the future this should maybe only automatically move on to child ProofNodes, when
+    // the rule that was just applied only resulted in a single child.
+    // Currently I didn't implement this, since it would make testing branching rules impossible
     // What a method name
     public void tryMovingOn() {
         if (activeNode != null) {
@@ -100,14 +138,12 @@ public class SequentController extends FxmlController {
         }
     }
 
-    public ProofNode getActiveNode() {
-        try {
-            return activeNode.get(activeProof);
-        } catch (RuleException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
+    /**
+     * View a preview for a rule application. This highlights the added/removed {@link TopLevelFormula}s
+     * and changed {@link Term}s.
+     *
+     * @param application a proof rule instantiation to read the changes from (via their {@link ProofRuleApplication#getBranchInfo()}).
+     */
     public void viewProofApplicationPreview(ProofRuleApplication application) {
         try {
             updateSequent(activeNode.get(activeProof).getSequent(), application.getBranchInfo().get(0));
@@ -116,6 +152,9 @@ public class SequentController extends FxmlController {
         }
     }
 
+    /**
+     * Removes any highlighting added by the {@link #viewProofApplicationPreview(ProofRuleApplication)} method.
+     */
     public void resetProofApplicationPreview() {
         try {
             updateSequent(activeNode.get(activeProof).getSequent(), null);
@@ -136,20 +175,30 @@ public class SequentController extends FxmlController {
         formulaLoop: for (int i = 0; i < proofFormulas.size(); i++) {
             // Short-circuit this loop if there is a ModifiedFormula to be built instead.
             if (branchInfo != null) {
-                // FIXME this makes the assumption that there will only ever by 1 replacement per top-level formula!
-                // maybe this is reasonable, but that should maybe be made more explicit if it is.
+                Term term = proofFormulas.get(i).getTerm();
+                List<SubtermSelector> modifiedParts = new ArrayList<>();
+
                 for (Pair<TermSelector, Term> replacementPair : branchInfo.getReplacements()) {
+                    // If there were replacements for the current term
                     if (replacementPair.getFst().getPolarity() == polarity && replacementPair.getFst().getTermNo() == i) {
+
+                        // This algorithm assumes that there are no replacements _within_ other replacements
+                        // I _really_ think that's a reasonable assumption. Maybe there should be documentation
+                        // and / or a test for that invariant in ProofRuleApplication?
                         SubtermSelectorReplacementVisitor replacmentVisitor = new SubtermSelectorReplacementVisitor(replacementPair.getSnd());
                         try {
-                            Term newTerm = proofFormulas.get(i).getTerm().accept(replacmentVisitor, replacementPair.getFst().getSubtermSelector());
-                            formulas.add(new ModifiedFormula(replacementPair.getFst().getSubtermSelector(), newTerm));
+                            term = term.accept(replacmentVisitor, replacementPair.getFst().getSubtermSelector());
+                            modifiedParts.add(replacementPair.getFst().getSubtermSelector());
                         } catch (RuleException e) {
                             // In this case the SubtermSelector did not fit the Term!
-                            new RuntimeException(e);
+                            throw new RuntimeException(e);
                         }
-                        continue formulaLoop;
                     }
+                }
+
+                if (!modifiedParts.isEmpty()) {
+                    formulas.add(new ModifiedFormula(modifiedParts, term));
+                    continue formulaLoop;
                 }
 
                 List<ProofFormula> deletions = polarity == TermSelector.SequentPolarity.ANTECEDENT
@@ -195,6 +244,14 @@ public class SequentController extends FxmlController {
             return reference.getTermSelector();
         } else {
             return null;
+        }
+    }
+
+    public ProofNode getActiveNode() {
+        try {
+            return activeNode.get(activeProof);
+        } catch (RuleException e) {
+            throw new RuntimeException(e);
         }
     }
 

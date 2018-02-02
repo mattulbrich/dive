@@ -4,20 +4,19 @@
 <project name="AlgoVer" default="build" basedir=".">
 
   <property name="VERSION" value="0.0"/>
-    <property name="z3.binary" value="z3"/>
-    <!-- if z3 is not in your path, call "ant -Dz3.binary=/path/to/z3" -->
+  
+  <property name="z3.binary" value="z3"/>
+  <!-- if z3 is not in your path, call "ant -Dz3.binary=/path/to/z3" -->
 
   <!-- the list of all submodules. Order is of importance here -->
   <filelist id="modules" dir=".">
     <file name="./modules/core/build.xml"/>
-    <!-- <file name="./modules/dafny/build.xml"/> -->
-    <file name="./modules/gui/build.xml"/>
     <file name="./modules/fxgui/build.xml"/>
+    <!-- <file name="./modules/cli/build.xml"/> -->
+    <!-- <file name="./modules/dafny/build.xml"/> -->
     <!-- <file name="./modules/key/build.xml"/> -->
     <!-- <file name="./modules/smt/build.xml"/> -->
   </filelist>
-
-  <!-- YOU MAY CHANGE THIS -->
 
   <target name="version" description="create a file with timestamp and version number">
     <tstamp> 
@@ -42,7 +41,6 @@
     <subant target="clean">
       <filelist refid="modules" />
     </subant>
-    <delete file="tools/MakeDafnyTreeVisitor.class" />
   </target>
 
   <target name="checkstyle" description="Run checkstyle in all modules">
@@ -56,14 +54,15 @@
         <property name="z3.binary" value="${z3.binary}"/>
       <filelist refid="modules" />
     </subant>
-    <concat>
+<!--<concat>
       <fileset dir="modules"><include name="**/TEST*.txt"/></fileset>
       <filterchain>    
 	<linecontainsregexp>
 	  <regexp pattern="^(Testsuite: |Tests run: )"/>
 	</linecontainsregexp>
       </filterchain>
-    </concat>
+      </concat>
+-->
   </target>
    
   <target name="jar" depends="build" description="creates the jar file">
@@ -111,6 +110,14 @@
         <attribute name="SplashScreen-Image" value="to/be/done.png"/>
       </manifest>
     </jar>
+  </target>
+
+  <target name="run" description="runs the FX GUI from the jar file" depends="fxjar">
+    <java jar="algoverfx.jar"
+	  fork="true"
+	  failonerror="true"
+	  maxmemory="2000m">
+    </java>
   </target>
 
   <!--

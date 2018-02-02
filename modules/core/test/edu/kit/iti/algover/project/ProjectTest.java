@@ -9,13 +9,24 @@ import edu.kit.iti.algover.dafnystructures.DafnyClass;
 import edu.kit.iti.algover.dafnystructures.DafnyFile;
 import edu.kit.iti.algover.proof.PVC;
 import edu.kit.iti.algover.settings.ProjectSettings;
+import edu.kit.iti.algover.util.FormatException;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 
 import java.io.File;
+import java.io.IOException;
+import java.lang.reflect.Field;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 import static org.junit.Assert.*;
+import org.xml.sax.SAXException;
+
+import javax.xml.bind.JAXBException;
 
 
 /**
@@ -25,6 +36,9 @@ import static org.junit.Assert.*;
 public class ProjectTest {
     static final String testDir = "modules/core/test-res/edu/kit/iti/algover/project";
     Project p = null;
+
+    @Rule
+    public final ExpectedException exception = ExpectedException.none();
 
     @Before
     public void prepare() throws Exception {
@@ -51,10 +65,35 @@ public class ProjectTest {
     }
 
     @Test
-    public void testSettings(){
+    public void testSettings() throws FormatException {
         ProjectSettings testSettings = p.getSettings();
-        String value = testSettings.getValue(ProjectSettings.DAFNY_TIMEOUT);
-        assertEquals(Integer.parseInt(value), 24);
+        testSettings.validate();
+        String value = testSettings.getString(ProjectSettings.DAFNY_TIMEOUT);
+        assertEquals(24, Integer.parseInt(value));
+        assertEquals(24, testSettings.getInt(ProjectSettings.DAFNY_TIMEOUT));
+        assertEquals(true, testSettings.getBoolean(ProjectSettings.SYMBEX_UNROLL_LOOPS));
+    }
+
+    @Test
+    public void testSettingsInsane() throws Exception {
+        ProjectSettings testSettings = p.getSettings();
+
+        Field fieldSet = ProjectSettings.class.getDeclaredField("set");
+        fieldSet.setAccessible(true);
+        ((Map) fieldSet.get(testSettings)).put(ProjectSettings.DAFNY_TIMEOUT, "No integer");
+
+        exception.expect(FormatException.class);
+        testSettings.validate();
+    }
+
+    @Test
+    public void testConfigurationValidation() throws IOException, FormatException, JAXBException, SAXException {
+        final File f1 = new File(testDir);
+
+        ProjectBuilder pb = new ProjectBuilder();
+        pb.setDir(f1);
+        pb.parseProjectConfigurationFile();
+        pb.validateProjectConfiguration();
     }
 
     @Test

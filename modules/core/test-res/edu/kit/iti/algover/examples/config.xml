@@ -2,11 +2,11 @@
 <configuration>
     <dafnyFile>sumandmax.dfy</dafnyFile>
     <settings>
-        <set>
+
             <entry>
                 <key>SMT Timeout</key>
                 <value>10</value>
             </entry>
-        </set>
+
     </settings>
 </configuration>

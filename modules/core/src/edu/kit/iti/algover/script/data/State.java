@@ -1,5 +1,7 @@
 package edu.kit.iti.algover.script.data;
 
+import edu.kit.iti.algover.proof.ProofNode;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -16,41 +18,36 @@ public class State<T> {
     /**
      * All goalnodes in this state
      */
-    private List<GoalNode<T>> goals;
+    private List<ProofNode> goals;
 
 
     /**
      * Currently selected GoalNode
      */
-    private GoalNode<T> selectedGoalNode;
+    private ProofNode selectedGoalNode;
 
     private boolean errorState;
 
 
-    public State(Collection<GoalNode<T>> goals, GoalNode selected) {
+    public State(List<ProofNode> goals, int n) {
+        this(goals, goals.get(n));
+    }
+
+
+    public State(Collection<ProofNode> goals, ProofNode selected) {
         this.goals = new ArrayList<>(goals);
         this.selectedGoalNode = selected;
         assert selected == null || goals.contains(selected);
     }
 
-
-    public State(List<GoalNode<T>> goals, int n) {
-        this(goals, goals.get(n));
-    }
-
-    public State(GoalNode<T> goal) {
+    public State(ProofNode goal) {
         assert goal != null;
         goals = new ArrayList<>();
         goals.add(goal);
         setSelectedGoalNode(goal);
     }
 
-
-    public List<GoalNode<T>> getGoals() {
-        return goals;
-    }
-
-    public GoalNode<T> getSelectedGoalNode() {
+    public ProofNode getSelectedGoalNode() {
         if (selectedGoalNode == null) {
             throw new IllegalStateException("no selected node");
         } else {
@@ -61,7 +58,11 @@ public class State<T> {
         }
     }
 
-    public void setSelectedGoalNode(GoalNode<T> gn) {
+    public List<ProofNode> getGoals() {
+        return goals;
+    }
+
+    public void setSelectedGoalNode(ProofNode gn) {
         this.selectedGoalNode = gn;
     }
 
@@ -71,8 +72,8 @@ public class State<T> {
      * @return
      */
     public State<T> copy() {
-        List<GoalNode<T>> copiedGoals = new ArrayList<>(goals);
-        GoalNode<T> refToSelGoal = selectedGoalNode;
+        List<ProofNode> copiedGoals = new ArrayList<>(goals);
+        ProofNode refToSelGoal = selectedGoalNode;
         return new State<T>(copiedGoals, refToSelGoal);
     }
 
