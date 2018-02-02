@@ -19,7 +19,7 @@ import edu.kit.iti.algover.util.Util;
  *
  * Terms are immutable objects.
  *
- * TODO add anchors and/or labels to this class
+ * @author Mattias Ulbrich
  */
 public abstract class Term {
 
@@ -108,11 +108,15 @@ public abstract class Term {
      *            the generic type for arguments
      * @param <R>
      *            the generic type for results
+     * @param <E>
+     *            the exception the visitation is allowed to throw.
      * @param visitor
      *            the visitor to work on this
      * @param arg
      *            the generic argument
      * @return the result of the visitor.
+     * @throws E
+     *             whenever the visitation fails. (Implementation-dependent)
      */
     public abstract <A, R, E extends Exception>
          R accept(TermVisitor<A, R, E> visitor, A arg) throws E;

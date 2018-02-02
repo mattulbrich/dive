@@ -1,7 +1,7 @@
 /*
  * This file is part of AlgoVer.
  *
- * Copyright (C) 2015-2017 Karlsruhe Institute of Technology
+ * Copyright (C) 2015-2018 Karlsruhe Institute of Technology
  */
 package edu.kit.iti.algover.term.builder;
 
@@ -40,6 +40,10 @@ public class TreeTermTranslatorTest {
     private MapSymbolTable symbTable;
 
     public static DafnyTree parse(String s) throws RecognitionException {
+        return parse(s, false);
+    }
+
+    public static DafnyTree parse(String s, boolean supportSchematic) throws RecognitionException {
         // create the lexer attached to stream
         ANTLRStringStream input = new ANTLRStringStream(s);
 
@@ -50,6 +54,7 @@ public class TreeTermTranslatorTest {
         DafnyParser parser = new DafnyParser(tokens);
         parser.setTreeAdaptor(new DafnyTree.Adaptor());
         parser.setLogicMode(true);
+        parser.setSchemaMode(supportSchematic);
         // launch the parser starting at rule r, get return object
         expression_only_return result;
         try {
@@ -103,10 +108,10 @@ public class TreeTermTranslatorTest {
             { "let c := null :: null == c",
                 "(let c := null :: $eq<object>(null, c))" },
 
-                // Heap accesses
-                {"a[0]", "$array_select<int>($heap, a, 0)"},
-                {"a2[1,2]", "$array2_select<int>($heap, a2, 1, 2)"},
-                {"null", "null"},
+            // Heap accesses
+            {"a[0]", "$array_select<int>($heap, a, 0)"},
+            {"a2[1,2]", "$array2_select<int>($heap, a2, 1, 2)"},
+            {"null", "null"},
 
             // From TermParserTest
             { "i1 + i2", "$plus(i1, i2)" },
@@ -118,12 +123,27 @@ public class TreeTermTranslatorTest {
               "(let i1, i2 := i2, i1 :: $plus(i1, i2))" },
             { "if i1 > 5 then i2 else i1",
               "$ite<int>($gt(i1, 5), i2, i1)" },
-                {"-1", "$neg(1)"},
+            {"-1", "$neg(1)"},
 
-                // Associativity
-                {"1+2-3", "$minus($plus(1, 2), 3)"},
-                {"1*2*3", "$times($times(1, 2), 3)"},
-                {"b1 ==> b2 ==> b3", "$imp(b1, $imp(b2, b3))"},
+            // Associativity
+            {"1+2-3", "$minus($plus(1, 2), 3)"},
+            {"1*2*3", "$times($times(1, 2), 3)"},
+            {"b1 ==> b2 ==> b3", "$imp(b1, $imp(b2, b3))"},
+        };
+    }
+
+    public String[][] parametersForTestSchematic() {
+        return new String[][] {
+            { "?x+3", "$plus(?x, 3)" },
+            { "_*5", "$times(_, 5)" },
+            { "1 * ... i1+?x ...", "$times(1, (... $plus(i1, ?x) ...))" },
+            { "if ?x then ?x else 5", "$ite<int>(?x, ?x, 5)" },
+            { "forall i:int :: ?phi", "(forall i:int :: ?phi)" },
+            { "args(__)", "args(_, _, _)" },
+            { "args(__, ?x)", "args(_, _, ?x)" },
+            { "args(__, ?x, ?y)", "args(_, ?x, ?y)" },
+            { "args(?y, __)", "args(?y, _, _)" },
+            { "args(?x, ?y, __)", "args(?x, ?y, _)" },
         };
     }
 
@@ -137,15 +157,17 @@ public class TreeTermTranslatorTest {
             { "forall x:int :: unknown", "" },  // no more bound vars after this
             { "forall x,y,z:int :: unknown", "" },  // no more bound vars after this
             { "f(b1)", "Unexpected argument sort" },
-            { "if true then b1 else i1", "Unexpected argument sort" },
-                {"a.Length0", "Elements of type 'array' have only the 'Length' property"},
-                // revealed wrong error message:
-                {"a2.Length", "Elements of type 'array2' have only the 'Length0' and 'Length1' properties"},
-                {"a2.Length2", "Elements of type 'array2' have only the 'Length0' and 'Length1' properties"},
-                {"i1.Length", "Unsupported sort for 'Length': int"},
-                {"a2[0]", "Access to 'array2' requires two index arguments"},
-                {"a[0,1]", "Access to 'array' requires one index argument"},
-                {"i1[i1]", "Unsupported array sort: int"},
+            { "if true then b1 else i1", "No common supertype for bool and int" },
+            {"a.Length0", "Elements of type 'array' have only the 'Length' property"},
+            // revealed wrong error message:
+            {"a2.Length", "Elements of type 'array2' have only the 'Length0' and 'Length1' properties"},
+            {"a2.Length2", "Elements of type 'array2' have only the 'Length0' and 'Length1' properties"},
+            {"i1.Length", "Unsupported sort for 'Length': int"},
+            {"a2[0]", "Access to 'array2' requires two index arguments"},
+            {"a[0,1]", "Access to 'array' requires one index argument"},
+            {"i1[i1]", "Unsupported array sort: int" },
+            { "args(__, ?x, ?y, ?z)", "Illegal number of arguments" },
+            { "args(?x, ?y, ?z, __)", "Illegal number of arguments" },
         };
     }
 
@@ -163,6 +185,7 @@ public class TreeTermTranslatorTest {
         map.add(new FunctionSymbol("f", Sort.INT, Sort.INT));
         map.add(new FunctionSymbol("c", Sort.getClassSort("C")));
         map.add(new FunctionSymbol("c2", Sort.getClassSort("C")));
+        map.add(new FunctionSymbol("args", Sort.INT, Sort.INT, Sort.BOOL, Sort.BOOL));
         symbTable = new MapSymbolTable(new BuiltinSymbols(), map);
     }
 
@@ -185,7 +208,7 @@ public class TreeTermTranslatorTest {
 
         TreeTermTranslator ttt = new TreeTermTranslator(symbTable);
 
-        DafnyTree t = parse(input);
+        DafnyTree t = parse(input, true);
         try {
             ttt.build(t);
             fail("Should not reach this here");
@@ -197,6 +220,19 @@ public class TreeTermTranslatorTest {
             assertEquals(0, ttt.countBoundVars());
         }
 
+    }
+
+    @Test @Parameters
+    public void testSchematic(String input, String expected) throws Exception {
+        assertNotNull(symbTable);
+
+        TreeTermTranslator ttt = new TreeTermTranslator(symbTable);
+
+        DafnyTree t = parse(input, true);
+        Term term = ttt.build(t);
+
+        assertEquals(expected, term.toString());
+        assertEquals(0, ttt.countBoundVars());
     }
 
     // revealed a bug

@@ -1,7 +1,7 @@
 /*
  * This file is part of AlgoVer.
  *
- * Copyright (C) 2015-2017 Karlsruhe Institute of Technology
+ * Copyright (C) 2015-2018 Karlsruhe Institute of Technology
  */
 package edu.kit.iti.algover.term;
 
@@ -17,11 +17,12 @@ public class QuantTerm extends Term {
     private final Quantifier quantifier;
 
     public QuantTerm(Quantifier quantifier, VariableTerm boundVar, Term term) throws TermBuildException {
-        super(Sort.FORMULA, new Term[] { term });
+        super(Sort.BOOL, new Term[] { term });
+
         this.boundVar = boundVar;
         this.quantifier = quantifier;
 
-        if(!term.getSort().equals(Sort.FORMULA)) {
+        if(!term.getSort().isSubtypeOf(Sort.BOOL)) {
             throw new TermBuildException("Cannot quantify over " + term + "; it is not a formula.");
         }
     }
