@@ -12,6 +12,7 @@ import edu.kit.iti.algover.rules.TermSelector;
 import edu.kit.iti.algover.term.*;
 import edu.kit.iti.algover.term.builder.TermBuildException;
 import edu.kit.iti.algover.util.FormatException;
+import edu.kit.iti.algover.util.TestUtil;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -38,13 +39,13 @@ public class TermReferencesBuilderTest {
         Term xEqY = new ApplTerm(BuiltinSymbols.EQ.instantiate(Sort.INT), x, y);
         Term yEqX = new ApplTerm(BuiltinSymbols.EQ.instantiate(Sort.INT), y, x);
 
-        proof = new Proof("MOCKED PVC");
+        proof = new Proof(null, null);
         before = mockProofNode(null, new Term[]{xEqY}, new Term[0]);
         after = mockProofNode(before, new Term[]{yEqX, xEqY}, new Term[0]);
         afterReference = new ProofNodeSelector((byte) 0);
 
         before.getChildren().add(after);
-        proof.setProofRoot(before);
+        TestUtil.setField(proof, "proofRoot", before);
 
         graph = new ReferenceGraph();
         builder = new TermReferencesBuilder(graph, proof, new ProofNodeSelector());

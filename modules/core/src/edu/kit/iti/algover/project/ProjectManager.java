@@ -11,14 +11,14 @@ import edu.kit.iti.algover.parser.ReferenceResolutionVisitor;
 import edu.kit.iti.algover.parser.TypeResolution;
 import edu.kit.iti.algover.proof.*;
 import edu.kit.iti.algover.script.ast.ProofScript;
-import edu.kit.iti.algover.script.data.GoalNode;
 import edu.kit.iti.algover.script.interpreter.Interpreter;
 import edu.kit.iti.algover.script.interpreter.InterpreterBuilder;
 import edu.kit.iti.algover.script.parser.Facade;
 import edu.kit.iti.algover.util.FileUtil;
 import edu.kit.iti.algover.util.FormatException;
+import edu.kit.iti.algover.util.ObservableValue;
 import edu.kit.iti.algover.util.Util;
-import javafx.beans.property.SimpleObjectProperty;
+import nonnull.Nullable;
 import org.xml.sax.SAXException;
 
 import javax.xml.bind.JAXBException;
@@ -40,25 +40,40 @@ import java.util.function.Supplier;
  * @author Sarah Grebing
  * @author Mattias Ulbrich, refactored Jan 2018
  */
-public class ProjectManager {
+public final class ProjectManager {
 
     private static final String CONFIG_DEFAULT_NAME = ProjectBuilder.CONFIG_DEFAULT_FILENAME;
 
     /**
-     * Property for project
+     * The project managed in this object.
+     *
+     * The project may change when {@link #reload()} is called.
      */
-    private final Project project;
+    private final ObservableValue<Project> project =
+            new ObservableValue<>("ProjectManager.project", Project.class);
+
+    /**
+     * the name of the config.xml file within the directory.
+     */
+    private final String configFilename;
+
+    /**
+     * the directory in which the project resides.
+     */
+    private final File directory;
 
     /**
      * Map from PVC identifiers to corr. proofs.
+     *
+     * Invariant: There exists a proof for every identifier within the project.
      */
-    private Map<String, Proof> allProofs;
+    private Map<String, Proof> proofs;
 
     // REVIEW Documentation?
     private Map<String, Supplier<String>> fileHooks = new HashMap<>();
 
     /**
-     * Build a new Project by parsing the config file and performing symbolic execution
+     * Build a new project by parsing the config file and performing symbolic execution
      *
      * @param directory      the directory where the problem resides in
      * @param configFilename the filename of the configuration within this directory
@@ -68,12 +83,9 @@ public class ProjectManager {
      * @throws FormatException      if the settings in the config file are illegally formatted.
      */
     public ProjectManager(File directory, String configFilename) throws FormatException, DafnyParserException, IOException, DafnyException {
-        this.project = buildProject(directory, configFilename);
-
-        generateAllProofObjects();
-        for (String s: this.getPVCByNameMap().keySet()) {
-            initializeProofDataStructures(s);
-        }
+        this.directory = directory;
+        this.configFilename = configFilename;
+        reload();
     }
 
     /**
@@ -91,12 +103,22 @@ public class ProjectManager {
         this(directory, CONFIG_DEFAULT_NAME);
     }
 
-
-    /**************************************************************************************************
+    /**
+     * Reload the project.
      *
-     *                                        Load
+     * <P>Reparse the source code and the config files and. Regenerate the proof objects throwing away existing
+     * objects.
      *
-     *************************************************************************************************/
+     * @throws DafnyException       if name/type resolution fails
+     * @throws DafnyParserException if dafny parsing fails
+     * @throws IOException          if XML is wrongly formatted or files cannot be read
+     * @throws FormatException      if the settings in the config file are illegally formatted.
+     */
+    public void reload() throws DafnyException, DafnyParserException, IOException, FormatException {
+        Project project = buildProject(directory, configFilename);
+        generateAllProofObjects(project);
+        this.project.setValue(project);
+    }
 
     /**
      * Build a new Project by parsing the config file and performing symbolic execution
@@ -132,7 +154,7 @@ public class ProjectManager {
         typeRes.visitProject(result);
 
         if(!exceptions.isEmpty()) {
-            // TODO Is it wise to only return the first exception?
+            // TODO ->MU: Is it wise to only return the first exception?
             throw exceptions.get(0);
         }
 
@@ -140,103 +162,47 @@ public class ProjectManager {
     }
 
     /**
-     * Generate all proof objects for all available PVCs in allPVCs
-     * The data strcutures of teh Proof object are null after this method call
-     */
-    private void generateAllProofObjects() throws IOException {
-        allProofs = new HashMap<>();
-        for (String pvc : getPVCByNameMap().keySet()) {
-            Proof p = new Proof(pvc);
-            allProofs.put(pvc, p);
-        }
-    }
-
-    /**
-     * Add available data to proof objects by searching proof scripts and adding
-     * the parsed script tree and setting the proof root.
+     * Generate all proof all available PVCs.
      *
-     * @param pvcName name of the PVC to be initialized
-     * @throws IOException if reading the file fails. NB: If the proof file does
-     *                     not exist, no exception is thrown.
+     * Load and parse the script text if present.
      */
-    private void initializeProofDataStructures(String pvcName) throws IOException {
-        Proof p = allProofs.get(pvcName);
-        PVC pvcObject = getPVCByNameMap().get(pvcName);
-        p.setProofRoot(new ProofNode(null, null, null, pvcObject.getSequent(), pvcObject));
-
-        try {
-            // Either the script file can be loaded, then that file is used for
-            // building the proof object
-            findAndParseScriptFileForPVC(pvcName);
-        } catch (FileNotFoundException e) {
-            // REVIEW MU: What does "stubbed" mean?
-            // Or the proof object is simply stubbed
-        }
-
-        buildIndividualInterpreter(p);
-    }
-
-    /**
-     * Find and parse script file for pvc. Set the ASTroot in the corresponding
-     * proof object.
-     *
-     * @param pvc
-     * @return TODO should return ScriptAST
-     */
-
-    public void findAndParseScriptFileForPVC(String pvc) throws IOException {
-
-        //find file on disc
-        File proofDir = new File(project.getBaseDir(), "proofs");
-        File scriptFile = FileUtil.findFile(proofDir, Util.maskFileName(pvc) + ".script");
-
-        if (scriptFile.exists()) {
-            ProofScript root = Facade.getAST(scriptFile);
-            Proof proof = allProofs.get(pvc);
-            if (proof == null) {
-                // REVIEW: Can that ever be null?
-                proof = new Proof(pvc);
+    private void generateAllProofObjects(Project project) throws IOException {
+        proofs = new HashMap<>();
+        for (PVC pvc : project.getPVCByNameMap().values()) {
+            Proof p = new Proof(project, pvc);
+            try {
+                String script = loadScriptForPVC(pvc.getIdentifier());
+                p.setScriptText(script);
+            } catch(FileNotFoundException ex) {
+                // Ignore? Set status?
+                // FIXME
             }
-            proof.setScript(root.getBody());
-            proof.setProofStatus(ProofStatus.SCRIPT_PARSED);
-            allProofs.putIfAbsent(pvc, proof);
-        } else {
-            throw new FileNotFoundException("File " + scriptFile + " cannot be found");
-        }
 
-    }
-
-    /**
-     * Build the individual interpreter for a proof object and set it
-     *
-     * @param p Proofobject for which the interpreter needs to be built
-     *
-     */
-    protected void buildIndividualInterpreter(Proof p) {
-
-        InterpreterBuilder ib = new InterpreterBuilder();
-        if (p.getScript() == null) {
-            Interpreter i = ib
-                    .setProofRules(this.project.getAllProofRules())
-                    .startState(p.getProofRoot())
-                    .build();
-            p.setInterpreter(i);
-        } else {
-            Interpreter i = ib.startWith(p.getScript())
-                    .setProofRules(this.project.getAllProofRules())
-                    .startState(p.getProofRoot())
-                    .build();
-            p.setInterpreter(i);
+            proofs.put(pvc.getIdentifier(), p);
         }
     }
 
+    public String loadScriptForPVC(String pvc) throws IOException {
+        // find file on disc
+        File proofDir = new File(directory, "scripts");
+        File scriptFile = new File(proofDir, Util.maskFileName(pvc) + ".script");
+
+        if(!scriptFile.exists()) {
+            throw new FileNotFoundException(scriptFile.getAbsolutePath());
+        }
+
+        return new String(Files.readAllBytes(scriptFile.toPath()));
+    }
+
     /**
-     * Load an alternative version of the project (which is saved as zip file)
+     * Load an alternative version of the project (which is saved as zip file).
+     *
+     * Future ....
      *
      * @param zipFile
      */
     public void loadProjectVersion(File zipFile) {
-
+        throw new Error("Not yet");
     }
 
 
@@ -247,26 +213,18 @@ public class ProjectManager {
      * @return
      */
     public Proof getProofForPVC(String pvcIdentifier) {
-        return getAllProofs().getOrDefault(pvcIdentifier, null);
+        return getAllProofs().get(pvcIdentifier);
     }
-
-    /**************************************************************************************************
-     *
-     *                                        Save
-     *
-     *************************************************************************************************/
 
     public Map<String, Proof> getAllProofs() {
-        return allProofs;
+        return Collections.unmodifiableMap(proofs);
     }
-
-
 
     /**
      * Save the whole Project contents
      */
     public void saveProject() throws IOException {
-        for (Map.Entry<String, Proof> pvcProofEntry : allProofs.entrySet()) {
+        for (Map.Entry<String, Proof> pvcProofEntry : proofs.entrySet()) {
             String pvcName = pvcProofEntry.getKey();
             Proof proof = pvcProofEntry.getValue();
             String content = "";
@@ -297,34 +255,15 @@ public class ProjectManager {
      * @return
      */
     public Map<String, PVC> getPVCByNameMap() {
-        return this.project.getPVCByNameMap();
+        return this.project.getValue().getPVCByNameMap();
     }
 
-
-
-    /**
-     * Save content to Dafny file
-     *
-     * @param file    to save content to
-     * @param content content to save
-     */
-/*    public void saveToDfyFile(File file, String content) throws IOException {
-        saverHelper(file.getAbsolutePath(), content);
-    }
-*/
     /**
      * Save project to a zipfile
      */
     public void saveProjectVersion() throws IOException {
         saveProject();
     }
-
-
-    /**************************************************************************************************
-     *
-     *                                        Getter and Setter
-     *
-     *************************************************************************************************/
 
     /**
      * Add a filehook for saving content in case of project saving
@@ -346,7 +285,7 @@ public class ProjectManager {
     }
 
     public Project getProject() {
-        return project;
+        return project.getValue();
     }
 
     /* *
@@ -400,7 +339,7 @@ public class ProjectManager {
      * @return PVCGroup that is the root for all PVCs of the loaded project
      */
     public PVCGroup getPVCGroup() {
-        return this.project.getAllPVCs();
+        return this.getProject().getAllPVCs();
     }
 
 

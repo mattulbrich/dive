@@ -132,7 +132,7 @@ public class MainController implements SequentActionListener, RuleApplicationLis
         ruleApplicationController.applyRule(application);
         ruleApplicationController.getRuleGrid().getSelectionModel().clearSelection();
         String newScript = ruleApplicationController.getScriptView().getText();
-        sequentController.getActiveProof().setNewScriptTextAndInterpret(newScript);
+        sequentController.getActiveProof().setScriptTextAndInterpret(newScript);
         sequentController.tryMovingOn();
         ruleApplicationController.resetConsideration();
     }

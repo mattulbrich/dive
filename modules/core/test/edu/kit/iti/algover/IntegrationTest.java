@@ -31,7 +31,9 @@ public class IntegrationTest {
         //get all proofs
         pm.getPVCByNameMap().forEach((s, pvc) -> System.out.println("pvc.getName() = " + pvc.getIdentifier()));
         //apply Z3 on all PVCs and build proofs+script
-        pm.getAllProofs().forEach((s, proof) -> proof.interpretASTNode("fake"));
+        pm.getAllProofs().forEach((s, proof) -> {
+            proof.setScriptTextAndInterpret("fake");
+        });
 
     }
 
@@ -49,6 +51,6 @@ public class IntegrationTest {
         //get all proofs
         pm.getPVCByNameMap().forEach((s, pvc) -> System.out.println("pvc.getName() = " + pvc.getIdentifier()));
         //apply Z3 on all PVCs and build proofs+script
-        pm.getAllProofs().forEach((s, proof) -> proof.interpretASTNode("fake"));
+        pm.getAllProofs().forEach((s, proof) -> proof.setScriptTextAndInterpret("fake"));
     }
 }

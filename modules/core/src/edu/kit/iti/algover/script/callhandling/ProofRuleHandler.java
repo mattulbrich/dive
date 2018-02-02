@@ -152,6 +152,7 @@ public class ProofRuleHandler implements CommandHandler<ProofNode> {
         switch (val.getType()) {
             case STRING:
             case INT:
+            case BOOL:
             case TERM:
                 return val.getData();
 

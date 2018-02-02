@@ -69,8 +69,8 @@ public class ProofNode {
     private List<ASTNode> mutator;
 
 
-    public ProofNode(ProofNode parent, Sequent seq) {
-
+    public static ProofNode createRoot(PVC pvc) {
+        return new ProofNode(null, null, null, pvc.getSequent(), pvc);
     }
 
     public ProofNode(ProofNode parent, ProofRuleApplication psr, ProofHistory history, Sequent seq, PVC rootPVC) {

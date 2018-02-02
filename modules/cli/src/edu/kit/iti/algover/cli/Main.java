@@ -75,9 +75,11 @@ public class Main {
 
         Proof proof = pm.getProofForPVC(pvc);
         try {
-            pm.findAndParseScriptFileForPVC(pvc);
+            String script = pm.loadScriptForPVC(pvc);
+            proof.setScriptText(script);
         } catch(FileNotFoundException ex) {
-            proof.setNewScriptTextAndParser(defaultScript);
+            System.out.println(" ... No script for " + pvc + ". Using default script.");
+            proof.setScriptText(defaultScript);
         }
 
         try {

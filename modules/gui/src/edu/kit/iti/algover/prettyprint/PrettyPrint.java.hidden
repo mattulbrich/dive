@@ -188,7 +188,7 @@ public class PrettyPrint {
     }
 
     /**
-     * Adds the property change listener.
+     * Adds the observableValue change listener.
      *
      * @param listener
      *            the listener
@@ -201,23 +201,23 @@ public class PrettyPrint {
     }
 
     /**
-     * Adds a property change listener for a particular property.
+     * Adds a observableValue change listener for a particular observableValue.
      *
-     * @param property
-     *            the property
+     * @param observableValue
+     *            the observableValue
      * @param listener
      *            the listener
      */
-    public void addPropertyChangeListener(String property,
+    public void addPropertyChangeListener(String observableValue,
             PropertyChangeListener listener) {
         if(propertiesSupport == null) {
             propertiesSupport = new PropertyChangeSupport(this);
         }
-        propertiesSupport.addPropertyChangeListener(property, listener);
+        propertiesSupport.addPropertyChangeListener(observableValue, listener);
     }
 
     /**
-     * Removes the property change listener.
+     * Removes the observableValue change listener.
      *
      * @param listener the listener
      */
@@ -228,18 +228,18 @@ public class PrettyPrint {
     }
 
     /**
-     * Fire property changed.
+     * Fire observableValue changed.
      *
-     * @param property
-     *            the property
+     * @param observableValue
+     *            the observableValue
      * @param oldVal
      *            the old value
      * @param newVal
      *            the new value
      */
-    private <E> void firePropertyChanged(String property, E oldVal, E newVal) {
+    private <E> void firePropertyChanged(String observableValue, E oldVal, E newVal) {
         if(propertiesSupport != null && !Objects.equals(oldVal, newVal)) {
-            propertiesSupport.firePropertyChange(property, oldVal, newVal);
+            propertiesSupport.firePropertyChange(observableValue, oldVal, newVal);
         }
     }
 

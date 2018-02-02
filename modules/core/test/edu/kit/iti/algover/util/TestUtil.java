@@ -8,10 +8,13 @@ package edu.kit.iti.algover.util;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Function;
 
+import edu.kit.iti.algover.proof.Proof;
+import edu.kit.iti.algover.proof.ProofNode;
 import org.antlr.runtime.RecognitionException;
 
 import edu.kit.iti.algover.parser.DafnyException;
@@ -126,4 +129,13 @@ public class TestUtil {
     }
 
 
+    public static void setField(Object object, String fieldName, Object value) {
+        try {
+            Field f = object.getClass().getField(fieldName);
+            f.setAccessible(true);
+            f.set(object, value);
+        } catch(Exception ex) {
+            throw new RuntimeException(ex);
+        }
+    }
 }

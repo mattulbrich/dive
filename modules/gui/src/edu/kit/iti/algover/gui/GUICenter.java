@@ -36,11 +36,11 @@ public class GUICenter {
 
 
     /**
-     * Property that is set, if a project is completely loaded and the project object is returned
+     * ObservableValue that is set, if a project is completely loaded and the project object is returned
      */
     public static final String PROJECT_LOADED = "project_loaded";
     /**
-     * Property that is set, if the dafny source has been edited
+     * ObservableValue that is set, if the dafny source has been edited
      */
     public static final String DAFNY_SOURCE_CHANGED = "dafny_source_changed";
     public static final String LOGICAL_VIEW_CHANGED = "logical_view_changed";

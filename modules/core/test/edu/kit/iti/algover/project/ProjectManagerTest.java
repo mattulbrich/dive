@@ -97,7 +97,7 @@ public class ProjectManagerTest {
 //        pm.initializeProofDataStructures(testPVCName);
         // pm.findAndParseScriptFileForPVC(testPVCName);
 
-        Assert.assertEquals("Proofscript is parsed", ProofStatus.SCRIPT_PARSED, proof.getProofStatus());
+        Assert.assertEquals("Proofscript is parsed", ProofStatus.CHANGED_SCRIPT, proof.getProofStatus());
         System.out.println("Proof root for PVC " + testPVC2Name + " \n" + pm.getProofForPVC(testPVC2).getProofRoot().getSequent());
 
         //get the Proof object for a PVC
@@ -106,7 +106,8 @@ public class ProjectManagerTest {
         //Assert.assertEquals("Proofscript is not loaded yet", ProofStatus.NOT_LOADED, proof2.getProofStatus());
 
         //find and parse a script file for PVC
-        pm.findAndParseScriptFileForPVC(testPVC2);
+        String script = pm.loadScriptForPVC(testPVC2);
+        pm.getProofForPVC(testPVC2).setScriptText(script);
 
         //System.out.println("Current State " + proof.getInterpreter().getCurrentState().getSelectedGoalNode());
         //pm.replayAllProofs();
@@ -123,10 +124,10 @@ public class ProjectManagerTest {
                 "x:int := 0; \n" +
                 "andRight on='1== 2 && 2 == 3 &&4==5';\n";
         //set a new script text and parse it
-        proof2.setNewScriptTextAndParser(newScript);
+        proof2.setScriptText(newScript);
         System.out.println(proof2.getScript());
         //interpret new Script
-        System.out.println(proof2.interpretScript());
+        proof2.interpretScript();
 
 
         pm.getAllProofs().forEach((s1, proof1) -> {
@@ -156,7 +157,7 @@ public class ProjectManagerTest {
 
         Proof proof = pm.getProofForPVC(testPVCName);
 
-        proof.setNewScriptTextAndInterpret("substitute on='true';");
+        proof.setScriptTextAndInterpret("substitute on='true';");
     }
 
     // This test currently fails with a NullPointerException, but I felt like an empty script should be
@@ -167,7 +168,7 @@ public class ProjectManagerTest {
 
         Proof proof = pm.getProofForPVC(testPVCName);
 
-        proof.setNewScriptTextAndInterpret("");
+        proof.setScriptTextAndInterpret("");
     }
 
     @Test
