@@ -66,7 +66,7 @@ public class ScriptParserTest {
 
             Sequent s = InterpreterUtils.createTestSequent(antec, succ, setupTable);
 
-            ib.startState(new ProofNode(null, null, null, s, pvc));
+            ib.startState(new ProofNode(null, null, s, pvc));
             Interpreter i = ib.build();
 
             System.out.println((i.getCurrentState().getSelectedGoalNode()).getSequent());

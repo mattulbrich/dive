@@ -78,14 +78,15 @@ public class Main {
             String script = pm.loadScriptForPVC(pvc);
             proof.setScriptText(script);
         } catch(FileNotFoundException ex) {
-            System.out.println(" ... No script for " + pvc + ". Using default script.");
+            System.err.println(" ... No script for " + pvc + ". Using default script.");
             proof.setScriptText(defaultScript);
         }
 
         try {
             proof.interpretScript();
             ProofStatus status = proof.getProofStatus();
-            System.out.println(pvc + " : " + status);
+            System.err.println(pvc + " : " + status);
+            System.err.println(proof.proofToString());
         } catch(Exception ex) {
             System.err.println(pvc + " : EXCEPTION");
             ex.printStackTrace();

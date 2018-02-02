@@ -37,7 +37,7 @@ public class ProofMockUtil {
         for (int i = 0; i < succedentTerms.length; i++) {
             succedentFormulas.add(new ProofFormula(succedentTerms[i]));
         }
-        return new ProofNode(parent, null, null,
+        return new ProofNode(parent, null,
                 new Sequent(antedecentFormulas, succedentFormulas), null);
     }
 }

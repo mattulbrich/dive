@@ -69,19 +69,19 @@ public class ProjectManagerTest {
 
     @Test
     public void loadExistingProject() throws Exception {
-        // REVIEW: Why is this a field in the class.
+        // REVIEW: Why is pm a field in the class.
         pm = new ProjectManager(new File(testDir), config);
         Project project = pm.getProject();
 
         Assert.assertEquals("Number of DafnyFiles", p.getDafnyFiles().size(), project.getDafnyFiles().size());
-        // Assert.assertEquals("config2.xml", pm.getConfigFile().getName());
+        Assert.assertEquals("config2.xml", pm.getConfigFilename());
 
         PVCCollection allPVCs = project.getAllPVCs();
         PVC testPVC = project.getPVCByName(testPVC2Name);
 
         Sequent s = testPVC.getSequent();
 
-        assertTrue("Sequents antecedent is empty", testPVC.getSequent().getAntecedent().isEmpty());
+        Assert.assertTrue("Sequents antecedent is empty", testPVC.getSequent().getAntecedent().isEmpty());
         Assert.assertFalse("Sequents succedent is not empty", testPVC.getSequent().getSuccedent().isEmpty());
 
         Term sequentTerm = s.getSuccedent().get(0).getTerm();
@@ -100,6 +100,10 @@ public class ProjectManagerTest {
         // pm.findAndParseScriptFileForPVC(testPVCName);
 
         Assert.assertEquals("Proofscript is parsed", ProofStatus.CHANGED_SCRIPT, proof.getProofStatus());
+
+        proof.interpretScript();
+        Assert.assertEquals("Proofscript has run", ProofStatus.OPEN, proof.getProofStatus());
+
         System.out.println("Proof root for PVC " + testPVC2Name + " \n" + pm.getProofForPVC(testPVC2).getProofRoot().getSequent());
 
         //get the Proof object for a PVC
@@ -170,7 +174,7 @@ public class ProjectManagerTest {
 
         Proof proof = pm.getProofForPVC(testPVCName);
 
-        proof.setScriptTextAndInterpret("");
+        proof.setScriptTextAndInterpret(" ");
         assertTrue(proof.getProofRoot().getChildren().isEmpty());
 
         proof.setScriptTextAndInterpret(" /* empty script */ ");

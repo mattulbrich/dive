@@ -42,12 +42,12 @@ public class Proof {
     private @Nullable ProofNode proofRoot;
 
     /**
-     * The script AST.
+     * The script text.
      *
      * mutable, can be null if no script set so far.
      * If a proofRoot is present, it results from this very script object.
      */
-    private @Nullable Statements script;
+    private @Nullable String script;
 
     /**
      * The project to which this proof belongs
@@ -88,13 +88,8 @@ public class Proof {
         proofStatus.addObserver(listener);
     }
 
-    public Statements getScript() {
+    public String getScript() {
         return script;
-    }
-
-    public void setScript(Statements script) {
-        this.script = script;
-        this.proofStatus.setValue(ProofStatus.CHANGED_SCRIPT);
     }
 
     /**
@@ -107,11 +102,9 @@ public class Proof {
             saveOldDataStructures();
         }
 
-        // REVIEW: Are there no exceptions thrown by the parser? :-O
-        // TODO Exception handling
-        ProofScript scriptAST = Facade.getAST(script);
+        this.script = script;
 
-        this.setScript(scriptAST.getBody());
+        this.proofStatus.setValue(ProofStatus.CHANGED_SCRIPT);
     }
 
     private Interpreter buildIndividualInterpreter() {
@@ -125,21 +118,25 @@ public class Proof {
     }
 
     /**
-     * Interpret Script. A script AST must have been set previously.
-     *
+     * Interpret Script. A script must have been set previously.
      */
     public void interpretScript() {
         assert script != null;
 
         ProofNode newRoot = ProofNode.createRoot(pvc);
 
+        // REVIEW: Are there no exceptions thrown by the parser? :-O
+        // TODO Exception handling
+        ProofScript scriptAST = Facade.getAST(script);
+
         Interpreter interpreter = buildIndividualInterpreter();
         interpreter.newState(newRoot);
 
         // TODO Exception handling
-        script.forEach(interpreter::interpret);
+        scriptAST.getBody().forEach(interpreter::interpret);
 
         // TODO proof state handling.
+        this.proofRoot = newRoot;
     }
 
     /**
@@ -170,6 +167,8 @@ public class Proof {
         StringBuilder sb = new StringBuilder("Proof for " + this.pvc.getIdentifier() + "\n");
         if (this.getProofRoot() != null) {
             sb.append(ProofTreeUtil.toStringTree(getProofRoot()));
+        } else {
+            sb.append("<null> proof");
         }
         return sb.toString();
     }
@@ -289,7 +288,6 @@ class ProofNodeInterpreterManager {
             return null;
         }
 
-
         @Override
         public Void visit(MatchExpression matchExpression) {
             return null;
@@ -307,8 +305,6 @@ class ProofNodeInterpreterManager {
 
         @Override
         public Void defaultVisit(ASTNode node) {
-
-            lastSelectedGoalNode.setChildren(new ArrayList<>());
 
             List<ProofNode> goals = interpreter.getCurrentState().getGoals();
 

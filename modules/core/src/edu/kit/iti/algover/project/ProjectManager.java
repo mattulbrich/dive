@@ -14,6 +14,7 @@ import edu.kit.iti.algover.script.ast.ProofScript;
 import edu.kit.iti.algover.script.interpreter.Interpreter;
 import edu.kit.iti.algover.script.interpreter.InterpreterBuilder;
 import edu.kit.iti.algover.script.parser.Facade;
+import edu.kit.iti.algover.settings.ProjectSettings;
 import edu.kit.iti.algover.util.FileUtil;
 import edu.kit.iti.algover.util.FormatException;
 import edu.kit.iti.algover.util.ObservableValue;
@@ -170,13 +171,13 @@ public final class ProjectManager {
         proofs = new HashMap<>();
         for (PVC pvc : project.getPVCByNameMap().values()) {
             Proof p = new Proof(project, pvc);
+            String script;
             try {
-                String script = loadScriptForPVC(pvc.getIdentifier());
-                p.setScriptText(script);
+                script = loadScriptForPVC(pvc.getIdentifier());
             } catch(FileNotFoundException ex) {
-                // Ignore? Set status?
-                // FIXME
+                script = project.getSettings().getString(ProjectSettings.DEFAULT_SCRIPT);
             }
+            p.setScriptText(script);
 
             proofs.put(pvc.getIdentifier(), p);
         }
@@ -342,6 +343,11 @@ public final class ProjectManager {
         return this.getProject().getAllPVCs();
     }
 
+    public String getConfigFilename() {
+        return configFilename;
+    }
 
-
+    public File getDirectory() {
+        return directory;
+    }
 }
