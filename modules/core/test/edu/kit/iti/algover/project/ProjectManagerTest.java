@@ -100,9 +100,11 @@ public class ProjectManagerTest {
         // pm.findAndParseScriptFileForPVC(testPVCName);
 
         Assert.assertEquals("Proofscript is parsed", ProofStatus.CHANGED_SCRIPT, proof.getProofStatus());
+        Assert.assertNull(proof.getFailException());
 
         proof.interpretScript();
         Assert.assertEquals("Proofscript has run", ProofStatus.OPEN, proof.getProofStatus());
+        Assert.assertNull(proof.getFailException());
 
         System.out.println("Proof root for PVC " + testPVC2Name + " \n" + pm.getProofForPVC(testPVC2).getProofRoot().getSequent());
 
@@ -120,6 +122,8 @@ public class ProjectManagerTest {
 
         //this should be the way a script should be interpreted
         proof2.interpretScript();
+        Assert.assertNull(proof.getFailException());
+
         //the way to print the proof tree
         //proof2.getProofRoot();
         System.out.println(proof2.proofToString());
@@ -134,7 +138,7 @@ public class ProjectManagerTest {
         System.out.println(proof2.getScript());
         //interpret new Script
         proof2.interpretScript();
-
+        Assert.assertNull(proof.getFailException());
 
         pm.getAllProofs().forEach((s1, proof1) -> {
             proof1.invalidate();
@@ -164,6 +168,7 @@ public class ProjectManagerTest {
         Proof proof = pm.getProofForPVC(testPVCName);
 
         proof.setScriptTextAndInterpret("substitute on='true';");
+        throw proof.getFailException();
     }
 
     // This test currently fails with a NullPointerException, but I felt like an empty script should be
@@ -176,9 +181,11 @@ public class ProjectManagerTest {
 
         proof.setScriptTextAndInterpret(" ");
         assertTrue(proof.getProofRoot().getChildren().isEmpty());
+        Assert.assertNull(proof.getFailException());
 
         proof.setScriptTextAndInterpret(" /* empty script */ ");
         assertTrue(proof.getProofRoot().getChildren().isEmpty());
+        Assert.assertNull(proof.getFailException());
     }
 
     @Test

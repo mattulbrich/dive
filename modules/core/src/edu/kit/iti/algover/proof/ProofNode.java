@@ -23,8 +23,6 @@ import java.util.*;
  */
 public class ProofNode {
 
-
-
     /**
      * The variable assignments for this node
      */
@@ -106,8 +104,20 @@ public class ProofNode {
         return closed;
     }
 
-    public void setClosed(boolean isclosed) {
-        this.closed = isclosed;
+    public void setClosed(boolean closed) {
+        assert !closed || children.isEmpty() : "Only empty nodes can be closed";
+        this.closed = closed;
+    }
+
+    /**
+     * Returns true if there is no leaf in the tree beneath that is an open goal
+     *
+     * @return true if the spanned subtree is closed.
+     */
+    public boolean allLeavesClosed() {
+        return isClosed() ||
+                (!getChildren().isEmpty()
+                        && getChildren().stream().allMatch(ProofNode::allLeavesClosed));
     }
 
     public void addMutator(ASTNode mutator) {

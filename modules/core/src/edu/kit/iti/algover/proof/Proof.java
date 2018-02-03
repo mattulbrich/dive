@@ -2,16 +2,14 @@ package edu.kit.iti.algover.proof;
 
 import edu.kit.iti.algover.project.Project;
 import edu.kit.iti.algover.script.ast.*;
-//import edu.kit.iti.algover.script.data.GoalNode;
 import edu.kit.iti.algover.script.interpreter.Interpreter;
 import edu.kit.iti.algover.script.interpreter.InterpreterBuilder;
 import edu.kit.iti.algover.script.parser.DefaultASTVisitor;
 import edu.kit.iti.algover.script.parser.Facade;
 import edu.kit.iti.algover.util.ObservableValue;
 import edu.kit.iti.algover.util.ProofTreeUtil;
-import javafx.beans.property.SimpleObjectProperty;
+import nonnull.NonNull;
 import nonnull.Nullable;
-import org.antlr.v4.runtime.Token;
 
 import java.util.*;
 
@@ -59,16 +57,22 @@ public class Proof {
      */
     private final PVC pvc;
 
-    public Proof(Project project, PVC pvc) {
+    /**
+     * The exception with which interpretation has failed.
+     */
+    /*@ invariant failException != null <==> poofStatus.getValue() == FAIL; */
+    private Exception failException;
+
+    public Proof(@NonNull Project project, @NonNull PVC pvc) {
         this.project = project;
         this.pvc = pvc;
     }
 
-    public Project getProject() {
+    public @NonNull Project getProject() {
         return project;
     }
 
-    public PVC getPVC() {
+    public @NonNull  PVC getPVC() {
         return pvc;
     }
 
@@ -82,6 +86,10 @@ public class Proof {
 
     public ProofStatus getProofStatus() {
         return proofStatus.getValue();
+    }
+
+    public Exception getFailException() {
+        return failException;
     }
 
     public void addProofStatusListener(ObservableValue.ChangeListener<ProofStatus> listener) {
@@ -125,18 +133,33 @@ public class Proof {
 
         ProofNode newRoot = ProofNode.createRoot(pvc);
 
-        // REVIEW: Are there no exceptions thrown by the parser? :-O
-        // TODO Exception handling
-        ProofScript scriptAST = Facade.getAST(script);
+        try {
+            // REVIEW: Are there no exceptions thrown by the parser? :-O
+            // TODO Exception handling
+            ProofScript scriptAST = Facade.getAST(script);
 
-        Interpreter interpreter = buildIndividualInterpreter();
-        interpreter.newState(newRoot);
+            Interpreter interpreter = buildIndividualInterpreter();
+            interpreter.newState(newRoot);
 
-        // TODO Exception handling
-        scriptAST.getBody().forEach(interpreter::interpret);
+            // TODO Exception handling
+            scriptAST.getBody().forEach(interpreter::interpret);
 
-        // TODO proof state handling.
-        this.proofRoot = newRoot;
+            this.proofRoot = newRoot;
+            this.failException = null;
+            proofStatus.setValue(newRoot.allLeavesClosed() ? ProofStatus.CLOSED : ProofStatus.OPEN);
+
+        } catch(Exception ex) {
+
+            // publish the proof root even if the proof has (partially) failed.
+            this.proofRoot = newRoot;
+            this.failException = ex;
+
+            // TODO proof state handling.
+            proofStatus.setValue(ProofStatus.FAILING);
+
+        }
+
+
     }
 
     /**
