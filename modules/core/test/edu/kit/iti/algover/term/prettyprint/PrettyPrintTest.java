@@ -24,6 +24,8 @@ import static org.junit.Assert.assertEquals;
 @RunWith(JUnitParamsRunner.class)
 public class PrettyPrintTest {
 
+    private static final Sort C = Sort.get("C");
+
     private SymbolTable st;
 
     public String[][] parametersForTestArithmetic() {
@@ -76,7 +78,7 @@ public class PrettyPrintTest {
             { "heap[o.f := 4][o.f := 5][anon(someset, h_2)]" },
             { "o.f @ h_2" },
             { "o.f @ heap[o.f := 3]" },
-                {"let o.f := 4 :: o.f + 2"},
+            { "let o.f := 4 :: o.f + 2" },
         };
     }
 
@@ -102,6 +104,9 @@ public class PrettyPrintTest {
         st.addFunctionSymbol(new FunctionSymbol("anything", Sort.INT, Sort.INT));
         st.addFunctionSymbol(new FunctionSymbol("a", Sort.get("array", Sort.INT)));
         st.addFunctionSymbol(new FunctionSymbol("a2", Sort.get("array2", Sort.INT)));
+
+        st.addFunctionSymbol(new FunctionSymbol("o", C));
+        st.addFunctionSymbol(new FunctionSymbol("field$C$f", Sort.get("field", C, Sort.INT)));
     }
 
     @Test @Parameters

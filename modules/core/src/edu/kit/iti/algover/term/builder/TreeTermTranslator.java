@@ -457,9 +457,18 @@ public class TreeTermTranslator {
 
         Term receiver = build(tree.getChild(0));
 
-        DafnyTree reference = tree.getChild(1).getDeclarationReference();
-        String fieldName = ASTUtil.getFieldConstantName(reference);
+        if(!receiver.getSort().isClassSort()) {
+            throw new TermBuildException("field access only possible for class sorts");
+        }
+
+        String classId = receiver.getSort().toString();
+        String fieldId = tree.getChild(1).getText();
+        String fieldName = "field$" + classId + "$" + fieldId;
         FunctionSymbol field = symbolTable.getFunctionSymbol(fieldName);
+
+        if(field == null) {
+            throw new TermBuildException("Field " + fieldId + " not found in class " + classId);
+        }
 
         return tb.selectField(new ApplTerm(BuiltinSymbols.HEAP),
                 receiver, new ApplTerm(field));

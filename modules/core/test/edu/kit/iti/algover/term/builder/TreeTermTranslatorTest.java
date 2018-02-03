@@ -129,6 +129,11 @@ public class TreeTermTranslatorTest {
             {"1+2-3", "$minus($plus(1, 2), 3)"},
             {"1*2*3", "$times($times(1, 2), 3)"},
             {"b1 ==> b2 ==> b3", "$imp(b1, $imp(b2, b3))"},
+
+            // Heap accesses
+            { "c.f", "$select<C,int>($heap, c, field$C$f)" },
+            // { "c.f@loopHeap", "$select<C,int>(loopHeap, c, field$C$f)"}
+
         };
     }
 
@@ -186,6 +191,8 @@ public class TreeTermTranslatorTest {
         map.add(new FunctionSymbol("c", Sort.getClassSort("C")));
         map.add(new FunctionSymbol("c2", Sort.getClassSort("C")));
         map.add(new FunctionSymbol("args", Sort.INT, Sort.INT, Sort.BOOL, Sort.BOOL));
+        map.add(new FunctionSymbol("field$C$f", Sort.get("field", Sort.getClassSort("C"), Sort.INT)));
+        map.add(new FunctionSymbol("loopHeap", Sort.HEAP));
         symbTable = new MapSymbolTable(new BuiltinSymbols(), map);
     }
 
@@ -363,8 +370,6 @@ public class TreeTermTranslatorTest {
     @Test
     public void testFieldAccess() throws Exception {
         symbTable.addFunctionSymbol(new FunctionSymbol("this", Sort.get("C")));
-        symbTable.addFunctionSymbol(new FunctionSymbol("field$C$f",
-                Sort.get("field", Sort.get("C"), Sort.INT)));
         DafnyTree tree = DafnyFileParser.parse(TestUtil.toStream("class C { var f : int; "
                 + "method m() returns (r : int) { r := this.f; } }"));
         Project p = TestUtil.mockProject(tree);
