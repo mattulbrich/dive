@@ -5,13 +5,9 @@
  */
 package edu.kit.iti.algover.rules.impl;
 
+import com.sun.org.apache.xpath.internal.operations.Bool;
 import edu.kit.iti.algover.proof.ProofNode;
-import edu.kit.iti.algover.rules.AbstractProofRule;
-import edu.kit.iti.algover.rules.Parameters;
-import edu.kit.iti.algover.rules.ProofRuleApplication;
-import edu.kit.iti.algover.rules.ProofRuleApplicationBuilder;
-import edu.kit.iti.algover.rules.RuleException;
-import edu.kit.iti.algover.rules.TermSelector;
+import edu.kit.iti.algover.rules.*;
 import edu.kit.iti.algover.rules.ProofRuleApplication.Applicability;
 import edu.kit.iti.algover.term.Sequent;
 
@@ -19,8 +15,11 @@ import java.util.Collections;
 
 public class FakeSMTSolverRule extends AbstractProofRule {
 
+    private static final ParameterDescription<Boolean> CLOSE_PARAM =
+            new ParameterDescription<>( "close", ParameterType.BOOLEAN,false);
+
     public FakeSMTSolverRule() {
-        super();
+        super(CLOSE_PARAM);
     }
 
     @Override
@@ -34,20 +33,16 @@ public class FakeSMTSolverRule extends AbstractProofRule {
 
         ProofRuleApplicationBuilder builder = new ProofRuleApplicationBuilder(this);
         builder.setApplicability(Applicability.MAYBE_APPLICABLE);
-        builder.setRefiner(this::refine);
+        builder.setRefiner((x,y) -> refine(x, selection));
         return builder.build();
     }
 
 
-    private ProofRuleApplication refine(ProofRuleApplication app, Parameters addParams) {
+    private ProofRuleApplication refine(ProofRuleApplication app, Sequent sequent) {
 
-        // TODO This is demo only ...
-        try {
-            Thread.sleep(2000);
-        } catch (Exception ex) {
-        }
+        boolean decision = sequent.toString().hashCode() % 2 == 0;
 
-        if (System.currentTimeMillis() % 2 == 0) {
+        if (!decision) {
             return ProofRuleApplicationBuilder.notApplicable(this);
         } else {
             ProofRuleApplicationBuilder builder = new ProofRuleApplicationBuilder(app);
@@ -61,7 +56,15 @@ public class FakeSMTSolverRule extends AbstractProofRule {
     @Override
     public ProofRuleApplication makeApplication(ProofNode target, Parameters parameters) throws RuleException {
 
-        if (parameters.getValue("fake") == null) {
+        boolean decision;
+        if(parameters.hasValue(CLOSE_PARAM)) {
+            decision = parameters.getValue(CLOSE_PARAM);
+        } else {
+            decision
+                    = target.getSequent().toString().hashCode() % 2 == 0;
+        }
+
+        if (!decision) {
             return ProofRuleApplicationBuilder.notApplicable(this);
         }
 

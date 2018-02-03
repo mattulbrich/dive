@@ -156,6 +156,11 @@ public class MethodPVCBuilder implements PVCBuilder {
         return Collections.unmodifiableMap(referenceMap);
     }
 
+    @Override
+    public String getPathIdentifier() {
+        return pathThroughProgram.getPathIdentifier();
+    }
+
     public PVCSequenter getSequenter() {
         return sequenter;
     }

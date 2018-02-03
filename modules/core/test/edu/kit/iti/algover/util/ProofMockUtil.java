@@ -14,6 +14,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
+// consider merging into TestUtil.
 public class ProofMockUtil {
 
     public static Term TRUE;

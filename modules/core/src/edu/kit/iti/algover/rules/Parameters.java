@@ -81,6 +81,16 @@ public class Parameters {
     }
 
     /**
+     * Checks if a value is present in the mapping.
+     *
+     * @param param
+     *            the key to look up
+     */
+    public boolean hasValue(@NonNull ParameterDescription<?> param) {
+        return valueMap.containsKey(param.getName());
+    }
+
+    /**
      * Gets a value from the mapping.
      *
      * The key to look up is taken from the name in the parameter description

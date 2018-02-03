@@ -83,7 +83,7 @@ public class PVC {
         this.sequent = builder.getSequent();
         this.symbolTable = builder.getSymbolTable();
         this.identifier = getDeclarationPrefix()
-                + "/" + pathThroughProgram.getPathIdentifier();
+                + "/" + builder.getPathIdentifier();
         this.referenceMap = builder.getReferenceMap();
     }
 

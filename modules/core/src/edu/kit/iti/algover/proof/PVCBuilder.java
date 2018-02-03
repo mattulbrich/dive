@@ -25,4 +25,14 @@ public interface PVCBuilder {
     SymbolTable getSymbolTable();
 
     Map<TermSelector, DafnyTree> getReferenceMap();
+
+    /**
+     * Returns the path identifier for this pvc.
+     *
+     * Can be obtained from path through program for methods, but not
+     * for functions.
+     *
+     * @return a locally unique non-null string
+     */
+    String getPathIdentifier();
 }

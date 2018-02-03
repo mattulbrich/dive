@@ -23,6 +23,7 @@ public class MockPVCBuilder implements PVCBuilder {
     private DafnyDecl declaration;
     private Sequent sequece;
     private SymbolTable symboltable;
+    private String pathIdentifier;
 
     public SymbexPath getPathThroughProgram() {
         return pathThroughProgram;
@@ -36,6 +37,15 @@ public class MockPVCBuilder implements PVCBuilder {
     @Override
     public Map<TermSelector, DafnyTree> getReferenceMap() {
         return null;
+    }
+
+    @Override
+    public String getPathIdentifier() {
+        return pathIdentifier;
+    }
+
+    public void setPathIdentifier(String pathIdentifier) {
+        this.pathIdentifier = pathIdentifier;
     }
 
     public void setDeclaration(DafnyDecl declaration) {
