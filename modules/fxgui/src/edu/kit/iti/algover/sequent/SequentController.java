@@ -142,13 +142,18 @@ public class SequentController extends FxmlController {
      * View a preview for a rule application. This highlights the added/removed {@link TopLevelFormula}s
      * and changed {@link Term}s.
      *
+     * If the application has no {@link BranchInfo}s (because it is a closing rule, for example), then
+     * it does not update the view.
+     *
      * @param application a proof rule instantiation to read the changes from (via their {@link ProofRuleApplication#getBranchInfo()}).
      */
     public void viewProofApplicationPreview(ProofRuleApplication application) {
-        try {
-            updateSequent(activeNode.get(activeProof).getSequent(), application.getBranchInfo().get(0));
-        } catch (RuleException e) {
-            e.printStackTrace();
+        if (application.getBranchInfo().size() > 0) {
+            try {
+                updateSequent(activeNode.get(activeProof).getSequent(), application.getBranchInfo().get(0));
+            } catch (RuleException e) {
+                e.printStackTrace();
+            }
         }
     }
 

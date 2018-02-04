@@ -67,6 +67,7 @@ public class MainController implements SequentActionListener, RuleApplicationLis
         Proof proof = manager.getProofForPVC(entity.getPVC().getIdentifier());
         sequentController.viewSequentForPVC(entity, proof);
         ruleApplicationController.resetConsideration();
+        ruleApplicationController.getScriptController().setProof(proof);
         view.moveFrameRight();
     }
 
