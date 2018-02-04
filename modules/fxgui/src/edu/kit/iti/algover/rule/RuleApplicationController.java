@@ -2,6 +2,7 @@ package edu.kit.iti.algover.rule;
 
 import edu.kit.iti.algover.FxmlController;
 import edu.kit.iti.algover.proof.ProofNode;
+import edu.kit.iti.algover.proof.ProofNodeSelector;
 import edu.kit.iti.algover.rules.ProofRule;
 import edu.kit.iti.algover.rules.ProofRuleApplication;
 import edu.kit.iti.algover.rules.RuleException;
@@ -15,6 +16,7 @@ import javafx.scene.Node;
 import javafx.scene.control.Label;
 
 import java.util.ServiceLoader;
+import java.util.function.Consumer;
 
 public class RuleApplicationController extends FxmlController {
 
@@ -26,10 +28,10 @@ public class RuleApplicationController extends FxmlController {
 
     private final ScriptController scriptController;
 
-    public RuleApplicationController(RuleApplicationListener listener) {
+    public RuleApplicationController(RuleApplicationListener listener, Consumer<ProofNodeSelector> onSwitchProofNode) {
         super("RuleApplicationView.fxml");
         this.listener = listener;
-        this.scriptController = new ScriptController(scriptView);
+        this.scriptController = new ScriptController(scriptView, onSwitchProofNode);
 
         for (ProofRule rule : ServiceLoader.load(ProofRule.class)) {
             addProofRule(rule);

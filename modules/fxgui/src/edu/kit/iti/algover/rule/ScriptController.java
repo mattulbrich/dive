@@ -4,18 +4,23 @@ import edu.kit.iti.algover.proof.Proof;
 import edu.kit.iti.algover.proof.ProofNode;
 import edu.kit.iti.algover.proof.ProofNodeSelector;
 import edu.kit.iti.algover.script.ast.ASTNode;
+import edu.kit.iti.algover.script.ast.CallStatement;
 import edu.kit.iti.algover.script.ast.Position;
 import javafx.scene.input.MouseEvent;
 import org.fxmisc.richtext.CharacterHit;
 
+import java.util.function.Consumer;
+
 public class ScriptController {
 
     private final ScriptView view;
+    private final Consumer<ProofNodeSelector> onSwitchViewedNode;
 
     private Proof proof;
 
-    public ScriptController(ScriptView view) {
+    public ScriptController(ScriptView view, Consumer<ProofNodeSelector> onSwitchViewedNode) {
         this.view = view;
+        this.onSwitchViewedNode = onSwitchViewedNode;
 
         view.setOnMouseClicked(this::mouseClicked);
     }
@@ -23,11 +28,29 @@ public class ScriptController {
     private void mouseClicked(MouseEvent mouseEvent) {
         CharacterHit hit = view.hit(mouseEvent.getX(), mouseEvent.getY());
         hit.getCharacterIndex().ifPresent(charIdx -> {
-            QueryScriptByPositionVisitor visitor = new QueryScriptByPositionVisitor(computePositionFromCharIdx(charIdx, view.getText()));
+            Position position = computePositionFromCharIdx(charIdx, view.getText());
+            QueryScriptByPositionVisitor visitor = new QueryScriptByPositionVisitor(position);
             ASTNode foundNode = visitor.visit(proof.getScript());
-            ProofNodeSelector selector = findSelectorPointingTo(new ProofNodeSelector(), proof.getProofRoot(), foundNode);
-            System.out.println(selector);
+
+            if (foundNode != null) {
+                ProofNodeSelector selector = findSelectorPointingTo(new ProofNodeSelector(), proof.getProofRoot(), foundNode);
+                // TODO: I don't like that you have to click on the text specifically!
+                // Ideally I should put a listener on the caret position (but only on click I guess?)
+                if (foundNode instanceof CallStatement &&
+                        acrossHalf(foundNode.getStartPosition(), foundNode.getEndPosition(), position)) {
+                    selector = new ProofNodeSelector(selector, 0);
+                }
+                System.out.println(selector);
+                onSwitchViewedNode.accept(selector);
+            }
         });
+    }
+
+    private boolean acrossHalf(Position startPosition, Position endPosition, Position position) {
+        if (startPosition.getLineNumber() == endPosition.getLineNumber()) {
+            return position.getCharInLine() > (startPosition.getCharInLine() + endPosition.getCharInLine()) / 2;
+        }
+        return position.getLineNumber() > (startPosition.getLineNumber() + endPosition.getLineNumber()) / 2;
     }
 
     private ProofNodeSelector findSelectorPointingTo(ProofNodeSelector pathSoFar, ProofNode proofNode, ASTNode node) {

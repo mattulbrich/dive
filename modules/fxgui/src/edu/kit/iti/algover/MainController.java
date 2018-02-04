@@ -48,7 +48,7 @@ public class MainController implements SequentActionListener, RuleApplicationLis
         //this.browserController = new FileBasedBrowserController(manager.getProject(), this::onClickPVCEdit);
         this.editorController = new EditorController(executor);
         this.sequentController = new SequentController(this);
-        this.ruleApplicationController = new RuleApplicationController(this);
+        this.ruleApplicationController = new RuleApplicationController(this, this::onSwitchProofNode);
 
         this.view = new TimelineLayout(
                 browserController.getView(),
@@ -136,6 +136,11 @@ public class MainController implements SequentActionListener, RuleApplicationLis
         sequentController.getActiveProof().setNewScriptTextAndInterpret(newScript);
         sequentController.tryMovingOn();
         ruleApplicationController.resetConsideration();
+    }
+
+    // when the user clicked somewhere in the proof script to change the proof node that should be viewed
+    private void onSwitchProofNode(ProofNodeSelector proofNodeSelector) {
+        sequentController.viewProofNode(proofNodeSelector);
     }
 
     public TimelineLayout getView() {

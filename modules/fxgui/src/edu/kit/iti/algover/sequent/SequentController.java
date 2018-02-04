@@ -25,6 +25,7 @@ import javafx.util.Callback;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Created by philipp on 12.07.17.
@@ -179,6 +180,12 @@ public class SequentController extends FxmlController {
         }
     }
 
+    public void viewProofNode(ProofNodeSelector proofNodeSelector) {
+        proofNodeSelector.optionalGet(activeProof).ifPresent(proofNode -> {
+            updateSequent(proofNode.getSequent(), null);
+        });
+    }
+
     private void updateSequent(Sequent sequent, BranchInfo branchInfo) {
         antecedentView.getItems().setAll(calculateAssertions(sequent.getAntecedent(), TermSelector.SequentPolarity.ANTECEDENT, branchInfo));
         succedentView.getItems().setAll(calculateAssertions(sequent.getSuccedent(), TermSelector.SequentPolarity.SUCCEDENT, branchInfo));
@@ -282,4 +289,5 @@ public class SequentController extends FxmlController {
     public SubSelection<ProofTermReference> referenceSelection() {
         return selectedReference;
     }
+
 }
