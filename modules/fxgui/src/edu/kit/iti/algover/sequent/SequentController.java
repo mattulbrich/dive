@@ -17,6 +17,7 @@ import edu.kit.iti.algover.util.Pair;
 import edu.kit.iti.algover.util.SubSelection;
 import edu.kit.iti.algover.util.SubtermSelectorReplacementVisitor;
 import javafx.fxml.FXML;
+import javafx.scene.control.Label;
 import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
 import javafx.scene.input.KeyCode;
@@ -32,6 +33,7 @@ public class SequentController extends FxmlController {
 
     private final SequentActionListener listener;
 
+    @FXML private Label goalTypeLabel;
     @FXML private ListView<TopLevelFormula> antecedentView;
     @FXML private ListView<TopLevelFormula> succedentView;
 
@@ -133,6 +135,15 @@ public class SequentController extends FxmlController {
                 updateSequent(node.getSequent(), null);
                 activeNode = newActiveNode;
             } catch (RuleException e) {
+                // An invalid newActiveNode is no issue, we're only trying to move on. If there were no
+                // children, we don't want the view to change to the new proof node
+                return;
+            }
+            try {
+                goalTypeLabel.setText(activeNode.get(activeProof).isIsclosed() ? "Closed Goal" : "Open Goal");
+            } catch (RuleException e) {
+                System.err.println("Invalid ProofNodeSelector generated");
+                e.printStackTrace();
                 return;
             }
         }

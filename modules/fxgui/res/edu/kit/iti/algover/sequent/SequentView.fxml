@@ -13,6 +13,7 @@
         orientation="VERTICAL"
         dividerPositions="0.7">
     <VBox spacing="10">
+        <Label fx:id="goalTypeLabel" text="Open Goal" />
         <ListView fx:id="antecedentView" VBox.vgrow="ALWAYS" />
     </VBox>
     <VBox spacing="10">
