@@ -1,7 +1,7 @@
 /*
  * This file is part of AlgoVer.
  *
- * Copyright (C) 2015-2017 Karlsruhe Institute of Technology
+ * Copyright (C) 2015-2018 Karlsruhe Institute of Technology
  */
 package edu.kit.iti.algover;
 
@@ -32,6 +32,7 @@ import edu.kit.iti.algover.term.builder.ReplacementVisitorTest;
 import edu.kit.iti.algover.term.builder.TreeTermTranslationNoetherTest;
 import edu.kit.iti.algover.term.builder.TreeTermTranslatorTest;
 import edu.kit.iti.algover.term.builder.UpdateSequenterTest;
+import edu.kit.iti.algover.term.match.TermMatcherTest;
 import edu.kit.iti.algover.term.prettyprint.PrettyPrintTest;
 import edu.kit.iti.algover.util.TestImmutableList;
 import edu.kit.iti.algover.util.TestLabelIntroducer;
@@ -56,6 +57,7 @@ import edu.kit.iti.algover.util.UtilTest;
     SortTest.class,
     ProjectTest.class,
     ScriptParserTest.class,
+        ProjectManagerTest.class,
     ProgramDatabaseTest.class,
     UtilTest.class,
     SimplifiedUpdateSequenterTest.class,
@@ -63,9 +65,10 @@ import edu.kit.iti.algover.util.UtilTest;
     ParallelUpdateSequenterTest.class,
     InlineSequenterTest.class,
     PrettyPrintTest.class,
-        TermReferencesBuilderTest.class,
-        IntegrationTest1.class,
-        LetSubstitutionRuleTest.class
+    TermReferencesBuilderTest.class,
+    IntegrationTest1.class,
+    LetSubstitutionRuleTest.class,
+    TermMatcherTest.class,
     })
 public class Tests {
 }

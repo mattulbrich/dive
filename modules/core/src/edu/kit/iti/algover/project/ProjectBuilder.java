@@ -16,7 +16,9 @@ import edu.kit.iti.algover.proof.PVC;
 import edu.kit.iti.algover.settings.ProjectSettings;
 import edu.kit.iti.algover.util.FormatException;
 import org.antlr.runtime.RecognitionException;
+import org.xml.sax.SAXException;
 
+import javax.xml.bind.JAXBException;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -157,7 +159,7 @@ public class ProjectBuilder {
      * This method invokes the problemloader to load and parse the project
      * configuration file.
      */
-    public void parseProjectConfigurationFile() throws IOException {
+    public void parseProjectConfigurationFile() throws IOException, JAXBException, SAXException {
 
         File configFile = new File(this.getDir() + "/" + getConfigFilename());
 

@@ -1,7 +1,7 @@
 /*
  * This file is part of AlgoVer.
  *
- * Copyright (C) 2015-2017 Karlsruhe Institute of Technology
+ * Copyright (C) 2015-2018 Karlsruhe Institute of Technology
  */
 package edu.kit.iti.algover.term.builder;
 
@@ -13,6 +13,8 @@ import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.antlr.runtime.CommonToken;
+
 import edu.kit.iti.algover.SymbexStateToFormula;
 import edu.kit.iti.algover.data.BuiltinSymbols;
 import edu.kit.iti.algover.data.SymbolTable;
@@ -22,7 +24,9 @@ import edu.kit.iti.algover.term.ApplTerm;
 import edu.kit.iti.algover.term.FunctionSymbol;
 import edu.kit.iti.algover.term.LetTerm;
 import edu.kit.iti.algover.term.QuantTerm;
+import edu.kit.iti.algover.term.SchemaOccurTerm;
 import edu.kit.iti.algover.term.QuantTerm.Quantifier;
+import edu.kit.iti.algover.term.SchemaVarTerm;
 import edu.kit.iti.algover.term.Sort;
 import edu.kit.iti.algover.term.Term;
 import edu.kit.iti.algover.term.VariableTerm;
@@ -34,7 +38,7 @@ import nonnull.NonNull;
 
 /**
  * The Class TreeTermTranslator is used to create a {@link Term} object from a
- * {@link DafnyTree}.
+ * {@link DafnyTree}. It supports schematic term entities.
  *
  * @see Term
  * @see DafnyTree
@@ -303,8 +307,6 @@ public class TreeTermTranslator {
             result = buildNull(tree);
             break;
 
-        // case DafnyParser.LABEL:
-
         case DafnyParser.ALL:
             result = buildQuantifier(QuantTerm.Quantifier.FORALL, tree);
             break;
@@ -345,6 +347,24 @@ public class TreeTermTranslator {
             result = buildWildcard(tree);
             break;
 
+        case DafnyParser.BLANK:
+            result = new SchemaVarTerm("_");
+            break;
+
+        case DafnyParser.SCHEMA_ID:
+            result = new SchemaVarTerm(tree.getText());
+            break;
+
+        case DafnyParser.ELLIPSIS:
+            result = new SchemaOccurTerm(build(tree.getChild(0)));
+            break;
+
+        case DafnyParser.DOUBLE_BLANK:
+            // In order to avoid this error message, call "expandMultiBlank" on an arguments
+            // DafnyTree (ARGS)
+            throw new TermBuildException("__ not supported in this place. "
+                    + "Solution: Spell it out using the appropriate number of _. Sorry.");
+
         default:
             TermBuildException ex =
                 new TermBuildException("Cannot translate term: " + tree.toStringTree());
@@ -367,7 +387,10 @@ public class TreeTermTranslator {
         Term thenExp = build(thenTree);
         Term elseExp = build(elseTree);
 
-        Sort sort = thenExp.getSort();
+        Sort thenSort = thenExp.getSort();
+        Sort elseSort = elseExp.getSort();
+        Sort sort = Sort.supremum(thenSort, elseSort);
+
         FunctionSymbol ifFct = BuiltinSymbols.ITE.instantiate(Collections.singletonList(sort));
 
         return new ApplTerm(ifFct, ifCond, thenExp, elseExp);
@@ -387,7 +410,9 @@ public class TreeTermTranslator {
         }
 
         List<Term> argTerms = new ArrayList<>();
-        for (DafnyTree arg : tree.getChild(1).getChildren()) {
+        DafnyTree args = tree.getFirstChildWithType(DafnyParser.ARGS);
+        expandMultiBlanks(args, fct.getArity());
+        for (DafnyTree arg : args.getChildren()) {
             argTerms.add(build(arg));
         }
 
@@ -432,9 +457,18 @@ public class TreeTermTranslator {
 
         Term receiver = build(tree.getChild(0));
 
-        DafnyTree reference = tree.getChild(1).getDeclarationReference();
-        String fieldName = ASTUtil.getFieldConstantName(reference);
+        if(!receiver.getSort().isClassSort()) {
+            throw new TermBuildException("field access only possible for class sorts");
+        }
+
+        String classId = receiver.getSort().toString();
+        String fieldId = tree.getChild(1).getText();
+        String fieldName = "field$" + classId + "$" + fieldId;
         FunctionSymbol field = symbolTable.getFunctionSymbol(fieldName);
+
+        if(field == null) {
+            throw new TermBuildException("Field " + fieldId + " not found in class " + classId);
+        }
 
         return tb.selectField(new ApplTerm(BuiltinSymbols.HEAP),
                 receiver, new ApplTerm(field));
@@ -675,6 +709,48 @@ public class TreeTermTranslator {
         }
 
         return result;
+    }
+
+    /*
+     * Take a ARGS tree and expand the __ that it might contain into several _.
+     *
+     * By the grammar, __ can only be the first or last element of an expression
+     * list.
+     *
+     * The value targetArity specifies the number of elements that args should
+     * have in the end.
+     */
+    private void expandMultiBlanks(DafnyTree args, int targetArity) {
+        DafnyTree first = args.getChild(0);
+        DafnyTree last = args.getLastChild();
+        int childCount = args.getChildCount();
+
+        if (first.getType() == DafnyParser.DOUBLE_BLANK) {
+            CommonToken token = new CommonToken(first.getToken());
+            token.setType(DafnyParser.BLANK);
+            args.replaceChildren(0, 0, new DafnyTree(token));
+
+            for (int i = childCount; i < targetArity; i++) {
+                token = new CommonToken(first.getToken());
+                token.setType(DafnyParser.BLANK);
+                args.insertChild(0, new DafnyTree(token));
+            }
+        } else
+
+        if (last.getType() == DafnyParser.DOUBLE_BLANK) {
+            CommonToken token = new CommonToken(first.getToken());
+            token.setType(DafnyParser.BLANK);
+            args.replaceChildren(childCount-1, childCount-1, new DafnyTree(token));
+
+            for (int i = childCount; i < targetArity; i++) {
+                token = new CommonToken(first.getToken());
+                token.setType(DafnyParser.BLANK);
+                args.addChild(new DafnyTree(token));
+            }
+        }
+
+        assert args.getChildren().stream()
+                .allMatch(x -> x.getType() != DafnyParser.DOUBLE_BLANK);
     }
 
 
