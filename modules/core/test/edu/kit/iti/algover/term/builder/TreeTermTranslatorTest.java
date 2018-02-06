@@ -91,6 +91,9 @@ public class TreeTermTranslatorTest {
             { "i1 != i2", "$not($eq<int>(i1, i2))" },
             { "i1 - 1 - 2", "$minus($minus(i1, 1), 2)" },
 
+            { "!b1", "$not(b1)" },
+            { "-i1", "$neg(i1)" },
+
             { "false && true", "$and(false, true)" },
             { "b1 || b2 ==> b3", "$imp($or(b1, b2), b3)" },
             { "forall x,y,z:int :: x > y+z",
@@ -126,13 +129,13 @@ public class TreeTermTranslatorTest {
             {"-1", "$neg(1)"},
 
             // Associativity
-            {"1+2-3", "$minus($plus(1, 2), 3)"},
-            {"1*2*3", "$times($times(1, 2), 3)"},
-            {"b1 ==> b2 ==> b3", "$imp(b1, $imp(b2, b3))"},
+            { "1+2-3", "$minus($plus(1, 2), 3)" },
+            { "1*2*3", "$times($times(1, 2), 3)" },
+            { "b1 ==> b2 ==> b3", "$imp(b1, $imp(b2, b3))" },
 
             // Heap accesses
             { "c.f", "$select<C,int>($heap, c, field$C$f)" },
-            // { "c.f@loopHeap", "$select<C,int>(loopHeap, c, field$C$f)"}
+            { "c.f@loopHeap", "$select<C,int>(loopHeap, c, field$C$f)"},
 
         };
     }
@@ -173,6 +176,10 @@ public class TreeTermTranslatorTest {
             {"i1[i1]", "Unsupported array sort: int" },
             { "args(__, ?x, ?y, ?z)", "Illegal number of arguments" },
             { "args(?x, ?y, ?z, __)", "Illegal number of arguments" },
+            { "c.f@1", "heap suffixes must specify a heap" },
+            { "c.g", "Field g not found in class C" },
+            { "1.f", "field access only possible for class sorts" },
+            { "1@loopHeap", "heap suffixes are only allowed for heap select terms" },
         };
     }
 

@@ -339,6 +339,10 @@ public class TreeTermTranslator {
             result = buildNoetherLess(tree);
             break;
 
+        case DafnyParser.AT:
+            result = buildExplicitHeapAccess(tree);
+            break;
+
         case DafnyParser.CALL:
             result = buildCall(tree);
             break;
@@ -709,6 +713,30 @@ public class TreeTermTranslator {
         }
 
         return result;
+    }
+
+    private Term buildExplicitHeapAccess(DafnyTree tree) throws TermBuildException {
+
+        Term heapAccess = build(tree.getChild(0));
+        Term heapTerm = build(tree.getChild(1));
+
+        if(!(heapAccess instanceof ApplTerm)) {
+            throw new TermBuildException("heap suffixes are only allowed for heap select terms");
+        }
+
+        ApplTerm appl = (ApplTerm) heapAccess;
+        if(appl.countTerms() < 1 || !appl.getTerm(0).getSort().equals(Sort.HEAP)) {
+            throw new TermBuildException("heap suffixes are only allowed for heap select terms");
+        }
+
+        if(!heapTerm.getSort().equals(Sort.HEAP)) {
+            throw new TermBuildException("heap suffixes must specify a heap");
+        }
+
+        ArrayList<Term> args = new ArrayList<>(heapAccess.getSubterms());
+        args.set(0, heapTerm);
+
+        return new ApplTerm(appl.getFunctionSymbol(), args);
     }
 
     /*
