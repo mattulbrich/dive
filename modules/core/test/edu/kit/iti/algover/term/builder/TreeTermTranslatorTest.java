@@ -137,6 +137,9 @@ public class TreeTermTranslatorTest {
             { "c.f", "$select<C,int>($heap, c, field$C$f)" },
             { "c.f@loopHeap", "$select<C,int>(loopHeap, c, field$C$f)"},
 
+            // Heap updates
+            { "$heap[c.f := 1]", "$store<C,int>($heap, c, field$C$f, 1)"},
+
         };
     }
 
@@ -180,6 +183,9 @@ public class TreeTermTranslatorTest {
             { "c.g", "Field g not found in class C" },
             { "1.f", "field access only possible for class sorts" },
             { "1@loopHeap", "heap suffixes are only allowed for heap select terms" },
+            { "b1[c.f:=1]", "Heap updates must be applied to heaps" },
+            { "loopHeap[c := c]", "Heap updates must modify a heap location" },
+            { "loopHeap[c.f := true]", "Unexpected argument sort for argument 4 to $store" },
         };
     }
 

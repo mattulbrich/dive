@@ -5,16 +5,6 @@
  */
 package edu.kit.iti.algover.term.builder;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.IdentityHashMap;
-import java.util.List;
-import java.util.Map;
-
-import org.antlr.runtime.CommonToken;
-
 import edu.kit.iti.algover.SymbexStateToFormula;
 import edu.kit.iti.algover.data.BuiltinSymbols;
 import edu.kit.iti.algover.data.SymbolTable;
@@ -22,19 +12,29 @@ import edu.kit.iti.algover.parser.DafnyParser;
 import edu.kit.iti.algover.parser.DafnyTree;
 import edu.kit.iti.algover.term.ApplTerm;
 import edu.kit.iti.algover.term.FunctionSymbol;
+import edu.kit.iti.algover.term.FunctionSymbolFamily;
+import edu.kit.iti.algover.term.FunctionSymbolFamily.InstantiatedFunctionSymbol;
 import edu.kit.iti.algover.term.LetTerm;
 import edu.kit.iti.algover.term.QuantTerm;
-import edu.kit.iti.algover.term.SchemaOccurTerm;
 import edu.kit.iti.algover.term.QuantTerm.Quantifier;
+import edu.kit.iti.algover.term.SchemaOccurTerm;
 import edu.kit.iti.algover.term.SchemaVarTerm;
 import edu.kit.iti.algover.term.Sort;
 import edu.kit.iti.algover.term.Term;
 import edu.kit.iti.algover.term.VariableTerm;
-import edu.kit.iti.algover.util.ASTUtil;
 import edu.kit.iti.algover.util.HistoryMap;
 import edu.kit.iti.algover.util.ImmutableList;
 import edu.kit.iti.algover.util.Pair;
 import nonnull.NonNull;
+import org.antlr.runtime.CommonToken;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.IdentityHashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * The Class TreeTermTranslator is used to create a {@link Term} object from a
@@ -295,6 +295,7 @@ public class TreeTermTranslator {
             result = tb.negate(buildEquality(tree));
             break;
 
+        case DafnyParser.LOGIC_ID:
         case DafnyParser.ID:
         case DafnyParser.TRUE:
         case DafnyParser.FALSE:
@@ -341,6 +342,10 @@ public class TreeTermTranslator {
 
         case DafnyParser.AT:
             result = buildExplicitHeapAccess(tree);
+            break;
+
+        case DafnyParser.HEAP_UPDATE:
+            result = buildHeapUpdate(tree);
             break;
 
         case DafnyParser.CALL:
@@ -737,6 +742,45 @@ public class TreeTermTranslator {
         args.set(0, heapTerm);
 
         return new ApplTerm(appl.getFunctionSymbol(), args);
+    }
+
+    private Term buildHeapUpdate(DafnyTree tree) throws TermBuildException {
+
+        assert tree.getChildCount() == 3 : "I need heap, location, value";
+
+        Term heap = build(tree.getChild(0));
+        if(!heap.getSort().equals(Sort.HEAP)) {
+            throw new TermBuildException("Heap updates must be applied to heaps");
+        }
+
+        FunctionSymbolFamily symbol;
+        Term location = build(tree.getChild(1));
+        try {
+            ApplTerm appl = (ApplTerm) location;
+            FunctionSymbol fs = appl.getFunctionSymbol();
+            InstantiatedFunctionSymbol ifs = (InstantiatedFunctionSymbol) fs;
+            symbol = ifs.getFamily();
+        } catch(ClassCastException ex) {
+            throw new TermBuildException("Heap updates must modify a heap location", ex);
+        }
+
+        Term value = build(tree.getChild(2));
+
+        if(symbol == BuiltinSymbols.SELECT) {
+            Term obj = location.getTerm(1);
+            Term field = location.getTerm(2);
+            FunctionSymbol store = BuiltinSymbols.STORE.instantiate(obj.getSort(), location.getSort());
+            return new ApplTerm(store, heap, obj, field, value);
+
+        } else if(symbol == BuiltinSymbols.ARRAY_SELECT) {
+            throw new Error("Not implemented, yet");
+
+        } else if(symbol == BuiltinSymbols.ARRAY2_SELECT) {
+            throw new Error("Not implemented, yet");
+
+        } else {
+            throw new TermBuildException("Heap updated must modify a heap location");
+        }
     }
 
     /*
