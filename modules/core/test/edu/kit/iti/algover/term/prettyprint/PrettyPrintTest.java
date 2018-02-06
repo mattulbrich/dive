@@ -75,9 +75,9 @@ public class PrettyPrintTest {
     public String[][] parametersForTestHeap() {
         return new String[][]{
             { "o.f" },
-            { "heap[o.f := 4][o.f := 5][anon(someset, h_2)]" },
-            { "o.f @ h_2" },
-            { "o.f @ heap[o.f := 3]" },
+            { "o.f@h2" },
+            { "o.f@$heap[o.f := 3]" },
+            { "$heap[o.f := 4][o.f := 5][anon(someset, h_2)]" },
             { "let o.f := 4 :: o.f + 2" },
         };
     }
@@ -101,6 +101,7 @@ public class PrettyPrintTest {
         st = new BuiltinSymbols();
         st.addFunctionSymbol(new FunctionSymbol("i1", Sort.INT));
         st.addFunctionSymbol(new FunctionSymbol("b1", Sort.BOOL));
+        st.addFunctionSymbol(new FunctionSymbol("h2", Sort.HEAP));
         st.addFunctionSymbol(new FunctionSymbol("anything", Sort.INT, Sort.INT));
         st.addFunctionSymbol(new FunctionSymbol("a", Sort.get("array", Sort.INT)));
         st.addFunctionSymbol(new FunctionSymbol("a2", Sort.get("array2", Sort.INT)));
@@ -127,7 +128,7 @@ public class PrettyPrintTest {
         assertEquals(input, printed.toString());
     }
 
-    @Test @Parameters @Ignore
+    @Test @Parameters
     public void testHeap(String input) throws Exception {
         Term parsed = TermParser.parse(st, input);
         AnnotatedString printed = new PrettyPrint().print(parsed);
