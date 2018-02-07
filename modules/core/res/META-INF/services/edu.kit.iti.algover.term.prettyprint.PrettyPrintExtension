@@ -2,3 +2,4 @@ edu.kit.iti.algover.term.prettyprint.FixOperatorPrinterExtension
 edu.kit.iti.algover.term.prettyprint.IfThenElsePrinterExtension
 edu.kit.iti.algover.term.prettyprint.ArrayLengthPrinterExtension
 edu.kit.iti.algover.term.prettyprint.HeapSelectionPrinterExtension
+edu.kit.iti.algover.term.prettyprint.HeapStorePrinterExtension
