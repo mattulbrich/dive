@@ -31,8 +31,8 @@ public class HeapStorePrinterExtension implements PrettyPrintExtension {
         FunctionSymbolFamily family = ifs.getFamily();
 
         return  family == BuiltinSymbols.STORE ||
-                family == BuiltinSymbols.ARRAY_STORE ||
-                family == BuiltinSymbols.ARRAY2_STORE;
+                family == BuiltinSymbols.ARRAY_STORE /*||
+                family == BuiltinSymbols.ARRAY2_STORE*/;
     }
 
     @Override
@@ -117,8 +117,27 @@ public class HeapStorePrinterExtension implements PrettyPrintExtension {
             value.accept(visitor, null);
             printer.endTerm();
 
-        } else {
-            visitor.visit(application, null);
+        } else if(family == BuiltinSymbols.ARRAY_STORE) {
+
+            Term arr = application.getTerm(1);
+            Term index = application.getTerm(2);
+            Term value = application.getTerm(3);
+
+            printer.beginTerm(1);
+            arr.accept(visitor, null);
+            printer.endTerm();
+
+            printer.append("[");
+            printer.beginTerm(2);
+            index.accept(visitor, null);
+            printer.endTerm();
+            printer.append("]");
+
+            printer.append(" := ");
+
+            printer.beginTerm(2);
+            value.accept(visitor, null);
+            printer.endTerm();
         }
 
         printer.append("]");

@@ -26,8 +26,8 @@ public class HeapSelectionPrinterExtension implements PrettyPrintExtension {
         FunctionSymbolFamily family = ifs.getFamily();
 
         return  family == BuiltinSymbols.SELECT ||
-                family == BuiltinSymbols.ARRAY_SELECT ||
-                family == BuiltinSymbols.ARRAY2_SELECT;
+                family == BuiltinSymbols.ARRAY_SELECT /*||
+                family == BuiltinSymbols.ARRAY2_SELECT*/;
     }
 
     @Override
@@ -79,9 +79,34 @@ public class HeapSelectionPrinterExtension implements PrettyPrintExtension {
                 printer.endTerm();
             }
 
+        } else if(family == BuiltinSymbols.ARRAY_SELECT) {
+            Term heap = application.getTerm(0);
+            Term array = application.getTerm(1);
+            Term index = application.getTerm(2);
+
+            printer.beginTerm(1);
+            array.accept(visitor, null);
+            printer.endTerm();
+
+            printer.append("[");
+            printer.beginTerm(2);
+            index.accept(visitor, null);
+            printer.endTerm();
+            printer.append("]");
+
+            if (heap instanceof ApplTerm &&
+                    ((ApplTerm) heap).getFunctionSymbol() == BuiltinSymbols.HEAP) {
+                // do not print
+            } else {
+                printer.append("@");
+
+                printer.beginTerm(0);
+                heap.accept(visitor, null);
+                printer.endTerm();
+            }
 
         } else {
-            visitor.visit(application, null);
+            throw new Error("should not be reached");
         }
     }
 }

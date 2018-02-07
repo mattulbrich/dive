@@ -792,7 +792,11 @@ public class TreeTermTranslator {
             return new ApplTerm(store, heap, obj, field, value);
 
         } else if(symbol == BuiltinSymbols.ARRAY_SELECT) {
-            throw new Error("Not implemented, yet");
+            Term obj = location.getTerm(1);
+            Term index = location.getTerm(2);
+            // TODO make this right. ...
+            FunctionSymbol store = BuiltinSymbols.ARRAY_STORE.instantiate(obj.getSort().getArguments().get(0));
+            return new ApplTerm(store, heap, obj, index, value);
 
         } else if(symbol == BuiltinSymbols.ARRAY2_SELECT) {
             throw new Error("Not implemented, yet");
