@@ -126,7 +126,7 @@ public class TreeTermTranslatorTest {
               "(let i1, i2 := i2, i1 :: $plus(i1, i2))" },
             { "if i1 > 5 then i2 else i1",
               "$ite<int>($gt(i1, 5), i2, i1)" },
-            {"-1", "$neg(1)"},
+            { "-1", "$neg(1)" },
 
             // Associativity
             { "1+2-3", "$minus($plus(1, 2), 3)" },
@@ -135,10 +135,12 @@ public class TreeTermTranslatorTest {
 
             // Heap accesses
             { "c.f", "$select<C,int>($heap, c, field$C$f)" },
-            { "c.f@loopHeap", "$select<C,int>(loopHeap, c, field$C$f)"},
+            { "c.f@loopHeap", "$select<C,int>(loopHeap, c, field$C$f)" },
 
             // Heap updates
-            { "$heap[c.f := 1]", "$store<C,int>($heap, c, field$C$f, 1)"},
+            { "$heap[c.f := 1]", "$store<C,int>($heap, c, field$C$f, 1)" },
+            { "$heap[$anon(mod, loopHeap)]", "$anon($heap, mod, loopHeap)" },
+            { "$heap[$create(c)]", "$create($heap, c)" },
 
         };
     }
@@ -206,6 +208,7 @@ public class TreeTermTranslatorTest {
         map.add(new FunctionSymbol("args", Sort.INT, Sort.INT, Sort.BOOL, Sort.BOOL));
         map.add(new FunctionSymbol("field$C$f", Sort.get("field", Sort.getClassSort("C"), Sort.INT)));
         map.add(new FunctionSymbol("loopHeap", Sort.HEAP));
+        map.add(new FunctionSymbol("mod", Sort.get("set", Sort.OBJECT)));
         symbTable = new MapSymbolTable(new BuiltinSymbols(), map);
     }
 

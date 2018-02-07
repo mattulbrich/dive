@@ -329,7 +329,7 @@ public class TreeTermTranslator {
             break;
 
         case DafnyParser.ARRAY_ACCESS:
-            result = buildArrayAccess(tree);
+            result = buildBracketAccess(tree);
             break;
 
         case DafnyParser.FIELD_ACCESS:
@@ -429,7 +429,7 @@ public class TreeTermTranslator {
     }
 
 
-    private Term buildArrayAccess(DafnyTree tree) throws TermBuildException {
+    private Term buildBracketAccess(DafnyTree tree) throws TermBuildException {
 
         Term arrayTerm = build(tree.getChild(0));
         Sort arraySort = arrayTerm.getSort();
@@ -456,6 +456,25 @@ public class TreeTermTranslator {
                 return tb.selectArray2(new ApplTerm(BuiltinSymbols.HEAP),
                         arrayTerm, index0, index1);
 
+        case "heap":
+            DafnyTree indexTree = tree.getChild(1);
+            if(indexTree.getType() != DafnyParser.CALL) {
+                throw new TermBuildException("Heap updates must be applied to function calls");
+            }
+
+            List<Term> arguments = new ArrayList<>();
+            arguments.add(arrayTerm);
+            for (DafnyTree dafnyTree : indexTree.getFirstChildWithType(DafnyParser.ARGS).getChildren()) {
+                arguments.add(build(dafnyTree));
+            }
+
+            String name = indexTree.getChild(0).getText();
+            FunctionSymbol fs = symbolTable.getFunctionSymbol(name);
+            if (fs == null) {
+                throw new TermBuildException("Unknown symbol heap update function " + name);
+            }
+
+            return new ApplTerm(fs, arguments);
 
             default:
                 throw new TermBuildException("Unsupported array sort: " + arraySort);

@@ -386,7 +386,14 @@ postfix_expr:
   | '.' ID '(' expressions? ')' -> ^( CALL ID $postfix_expr ^(ARGS expressions?) )
   | '.' ID -> ^( FIELD_ACCESS $postfix_expr ID )
   )*
-  ( '@'  {logicMode}?  atom_expr -> ^('@' $postfix_expr atom_expr ) )?
+  ( '@'  {logicMode}?  heap_postfix_expr -> ^('@' $postfix_expr heap_postfix_expr ) )?
+  ;
+
+// This rule has been instantiated to avoid the following error message
+// for the '@' in postfix_expr
+// Dafny.g:382:78: reference $postfix_expr is ambiguous; rule postfix_expr is enclosing rule and referenced in the production (assuming enclosing rule)
+heap_postfix_expr:
+  postfix_expr
   ;
 
 atom_expr:

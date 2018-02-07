@@ -162,8 +162,13 @@ public class BuiltinSymbols extends MapSymbolTable {
     private static final Sort SET_OBJECTS = Sort.get("set", Sort.OBJECT);
     public static final FunctionSymbol EVERYTHING =
             new FunctionSymbol("$everything", SET_OBJECTS);
+
     public static final FunctionSymbol ANON =
             new FunctionSymbol("$anon", Sort.HEAP, Sort.HEAP, SET_OBJECTS, Sort.HEAP);
+
+    public static final FunctionSymbol CREATE =
+            new FunctionSymbol("$create", Sort.HEAP, Sort.HEAP, Sort.OBJECT);
+
     // Checkstyle: ON JavadocVariableCheck
     private final Map<String, FunctionSymbolFamily> symbolFamilies =
             new HashMap<>();
