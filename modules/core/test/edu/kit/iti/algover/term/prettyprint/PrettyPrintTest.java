@@ -78,8 +78,8 @@ public class PrettyPrintTest {
             { "o.f@h2" },
             { "o.f@$heap[o.f := 3]" },
             { "$heap[o.f := 42]" },
-            { "$heap[o.f := 4][o.f := 5][anon(someset, h_2)]" },
-            { "let o.f := 4 :: o.f + 2" },
+            { "$heap[o.f := 4][o.f := 5][$anon($mod, h2)]" },
+         //   { "let o.f := 4 :: o.f + 2" },  // well, some time in the future perhaps :)
         };
     }
 

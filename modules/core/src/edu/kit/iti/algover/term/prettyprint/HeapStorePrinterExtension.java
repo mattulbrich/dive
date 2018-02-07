@@ -17,6 +17,11 @@ import edu.kit.iti.algover.term.Term;
 public class HeapStorePrinterExtension implements PrettyPrintExtension {
     @Override
     public boolean canPrint(FunctionSymbol functionSymbol) {
+
+        if(functionSymbol == BuiltinSymbols.ANON || functionSymbol == BuiltinSymbols.CREATE) {
+            return true;
+        }
+
         if(!(functionSymbol instanceof InstantiatedFunctionSymbol)) {
             return false;
         }
@@ -44,6 +49,37 @@ public class HeapStorePrinterExtension implements PrettyPrintExtension {
 
     @Override
     public void print(ApplTerm application, PrettyPrintVisitor visitor) {
+        FunctionSymbol functionSymbol = application.getFunctionSymbol();
+        if (functionSymbol == BuiltinSymbols.ANON || functionSymbol == BuiltinSymbols.CREATE) {
+            printFunction(application, visitor);
+        } else {
+            printStore(application, visitor);
+        }
+    }
+
+    private void printFunction(ApplTerm application, PrettyPrintVisitor visitor) {
+        PrettyPrintLayouter printer = visitor.getPrinter();
+        Term baseheap = application.getTerm(0);
+
+        printer.beginTerm(0);
+        baseheap.accept(visitor, null);
+        printer.endTerm();
+
+        printer.append("[" + application.getFunctionSymbol().getName() + "(");
+        for (int i = 1; i < application.countTerms(); i++) {
+            if(i > 1) {
+                printer.append(", ");
+            }
+            printer.beginTerm(i);
+            application.getTerm(i).accept(visitor, null);
+            printer.endTerm();
+        }
+
+        printer.append(")]");
+
+    }
+
+    private void printStore(ApplTerm application, PrettyPrintVisitor visitor) {
         InstantiatedFunctionSymbol ifs =
                 (InstantiatedFunctionSymbol) application.getFunctionSymbol();
         FunctionSymbolFamily family = ifs.getFamily();
@@ -81,7 +117,6 @@ public class HeapStorePrinterExtension implements PrettyPrintExtension {
             value.accept(visitor, null);
             printer.endTerm();
 
-
         } else {
             visitor.visit(application, null);
         }
@@ -89,3 +124,4 @@ public class HeapStorePrinterExtension implements PrettyPrintExtension {
         printer.append("]");
     }
 }
+
