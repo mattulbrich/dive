@@ -83,6 +83,12 @@ public class PrettyPrintTest {
             { "$heap[o.f := 42]" },
             { "$heap[o.f := 4][o.f := 5][$anon($mod, h2)]" },
          //   { "let o.f := 4 :: o.f + 2" },  // well, some time in the future perhaps :)
+
+            // Precedences
+            { "o.f + 1"}, { "1 + o.f"},
+            { "a[0] + 1" }, { "1 + a[0]" },
+            { "1 + o.f@h2"}, { "o.f@h2 + 1"},
+            { "1 + a[0]@h2"}, { "a[0]@h2 + 1"},
         };
     }
 

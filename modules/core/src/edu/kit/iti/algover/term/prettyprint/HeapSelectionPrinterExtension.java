@@ -32,14 +32,14 @@ public class HeapSelectionPrinterExtension implements PrettyPrintExtension {
 
     @Override
     public int getLeftPrecedence(ApplTerm application) {
-        // TODO find that out! It is relevant
-        return 0;
+        // return a very large number (higher than any in/pre-fix operator)
+        return 1000;
     }
 
     @Override
     public int getRightPrecedence(ApplTerm application) {
-        // TODO find that out! It is relevant
-        return 0;
+        // return a very large number (higher than any in/pre-fix operator)
+        return 1000;
     }
 
     @Override
