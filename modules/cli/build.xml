@@ -2,15 +2,17 @@
 <project name="AlgoVer-cli" default="build" basedir=".">
 
 
-	<property name="dir.lib" value="../../lib" />
+	<property name="dir.lib" location="../../lib" />
+	<property name="dir.testres" location="test-res" />
 	<property name="dir.tools" value="../../tools" />
 	<property name="dir.core.bin" value="../core/bin" />
+	<property name="dir.core.testbin" value="../core/test-bin" />
 
-	<property name="libs" value="${dir.lib}/antlr.jar:${dir.lib}/junit4.jar" />
+	<property name="libs" value="${dir.lib}/antlr.jar:${dir.lib}/antlr-4.7-complete.jar:${dir.lib}/junit4.jar:${dir.lib}/controlsfx-8.40.13.jar:${dir.lib}/richtextfx-fat-1.0.0-SNAPSHOT.jar:${dir.lib}/fontawesomefx-8.9.jar:${dir.lib}/jpplib.jar:${dir.lib}/guava-23.0.jar:${dir.lib}/jfoenix.jar" />
 
 	<target name="init" description="initialize all directories">
 		<mkdir dir="bin" />
-		<!-- <mkdir dir="test-bin" /> -->
+		<mkdir dir="test-bin" />
 	</target>
 
 	<target name="copy-test" depends="init">
@@ -34,15 +36,19 @@
 	</target>
 
 	<target name="compile-test" depends="compile, init, copy-test">
-		<javac srcdir="test" destdir="test-bin" classpath="bin:${libs}" debug="on" />
+		<javac srcdir="test" destdir="test-bin" classpath="bin:${libs}:${dir.core.bin}:${dir.core.testbin}" debug="on" />
 	</target>
 
-	<target name="test"> <!-- depends="compile-test, compile"> -->
-		<!--<junit fork="yes" printsummary="yes">-->
-			<!--<formatter type="xml" />-->
-			<!--<classpath path="bin:${libs}:lib/hamcrest.jar" />-->
-			<!--<test name="edu.kit.iti.algover.cli.Tests" />-->
-		<!--</junit>-->
+	<target name="test" depends="compile-test, compile">
+		<junit fork="yes" printsummary="yes">
+			<jvmarg value="-javaagent:${dir.lib}/nonnull.jar=edu.kit." />
+			<jvmarg value="-Dedu.kit.iti.algover.z3_binary=${z3.binary}"/>
+			<jvmarg value="-Dalgover.cli.test-res=${dir.testres}" />
+			<formatter type="xml" />
+			<assertions><enable/></assertions>
+			<classpath path="test-bin:bin:${libs}:${dir.lib}/hamcrest.jar:${dir.core.bin}:${dir.core.testbin}" />
+			<test name="edu.kit.iti.algover.cli.Tests" />
+		</junit>
 	</target>
 
 	<target name="clean">

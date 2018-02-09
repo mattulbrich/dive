@@ -10,107 +10,143 @@ package edu.kit.iti.algover.cli;
 import edu.kit.iti.algover.dafnystructures.DafnyClass;
 import edu.kit.iti.algover.dafnystructures.DafnyDecl;
 import edu.kit.iti.algover.dafnystructures.DafnyMethod;
+import edu.kit.iti.algover.parser.DafnyException;
+import edu.kit.iti.algover.parser.DafnyParserException;
 import edu.kit.iti.algover.project.ProjectManager;
 import edu.kit.iti.algover.proof.PVC;
 import edu.kit.iti.algover.proof.Proof;
 import edu.kit.iti.algover.proof.ProofStatus;
 import edu.kit.iti.algover.util.CommandLine;
+import edu.kit.iti.algover.util.FormatException;
 
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.List;
+import java.util.function.Predicate;
 
+/**
+ * This is the entry point of AlgoVer when used as a command line tool.
+ *
+ * Run the tool with "-help" or refer to {@link #prepareCommandLine()} to
+ * find out about the command line options.
+ *
+ * @author Mattias Ulbrich
+ */
 public class Main {
 
     public static final String OPTION_CONFIG_FILENAME = "-c";
-    public static final String DEFAULT_CONFIG_FILENAME = "config.xml";
+    public static final String OPTION_VERBOSE = "-verbose";
+    public static final String OPTION_METHOD = "-method";
+    public static final String OPTION_CLASS = "-class";
+    public static final String OPTION_PVC_MATCH = "-pvcMatch";
+    public static final String OPTION_HELP = "-help";
 
-    public static void main(String[] args) throws Exception {
+    public static void main(String[] args) {
         CommandLine cl = prepareCommandLine();
+        try {
 
-        cl.parse(args);
+            cl.parse(args);
 
-        if(cl.isSet("-help")) {
-            cl.printUsage(System.out);
-            return;
-        }
+            if (cl.isSet(OPTION_HELP)) {
+                cl.printUsage(System.out);
+                return;
+            }
 
-        if(cl.getArguments().isEmpty()) {
-            throw new IllegalArgumentException("Please specify the directory/-ies which are to be checked");
-        }
+            if (cl.getArguments().isEmpty()) {
+                throw new IllegalArgumentException("Please specify the directory/-ies which are to be checked");
+            }
 
-        for (String arg : cl.getArguments()) {
-            processDirectory(arg, cl);
+            boolean success = true;
+            for (String arg : cl.getArguments()) {
+                success &= processDirectory(arg, cl);
+            }
+
+        } catch(Exception ex) {
+            if(cl.isSet(OPTION_VERBOSE)) {
+                ex.printStackTrace();
+            } else {
+                System.err.println("Error: " + ex.getMessage());
+            }
         }
 
     }
 
-    private static void processDirectory(String dir, CommandLine cl) throws Exception {
+    private static boolean processDirectory(String dir, CommandLine cl) {
 
-        String configFilename = cl.getString(OPTION_CONFIG_FILENAME, DEFAULT_CONFIG_FILENAME);
-        ProjectManager pm = new ProjectManager(new File(dir), configFilename);
+        String configFilename = cl.getString(OPTION_CONFIG_FILENAME, AlgoVerService.DEFAULT_CONFIG_FILENAME);
 
-        String methodMatch = cl.getString("-method", null);
-        String classMatch = cl.getString("-class", null);
-
-        List<PVC> allPVCs = pm.getPVCGroup().getContents();
-        for (PVC pvc : allPVCs) {
+        String methodMatch = cl.getString(OPTION_METHOD, null);
+        String classMatch = cl.getString(OPTION_CLASS, null);
+        String pvcRegexMatch = cl.getString(OPTION_PVC_MATCH, ".*");
+        Predicate<PVC> filter = pvc -> {
             DafnyDecl decl = pvc.getDeclaration();
 
             if(decl instanceof DafnyMethod) {
-                if(methodMatch != null && !methodMatch.equals(decl.getName())) {
-                    continue;
+                if (methodMatch != null && !methodMatch.equals(decl.getName())) {
+                    return false;
                 }
+
                 DafnyDecl parent = decl.getParentDecl();
-                if(classMatch != null && parent instanceof DafnyClass && !classMatch.equals(parent.getName())) {
-                    continue;
+                if (classMatch != null && parent instanceof DafnyClass && !classMatch.equals(parent.getName())) {
+                    return false;
                 }
             }
 
-            processPVC(cl, pm, pvc.getIdentifier());
+            return pvc.getIdentifier().matches(pvcRegexMatch);
+        };
 
-        }
+        boolean verbose = cl.isSet(OPTION_VERBOSE);
 
-    }
-
-    private static void processPVC(CommandLine cl, ProjectManager pm, String pvc) throws IOException {
-
-        String defaultScript = cl.getString("-defScript", "z3;");
-
-        Proof proof = pm.getProofForPVC(pvc);
-        try {
-            String script = pm.loadScriptForPVC(pvc);
-            proof.setScriptText(script);
-        } catch(FileNotFoundException ex) {
-            System.err.println(" ... No script for " + pvc + ". Using default script.");
-            proof.setScriptText(defaultScript);
-        }
+        AlgoVerService service = new AlgoVerService(new File(dir));
+        service.setConfigName(configFilename);
+        service.setPVCFilter(filter);
+        service.setVerbose(verbose);
 
         try {
-            proof.interpretScript();
-            ProofStatus status = proof.getProofStatus();
-            System.err.println(pvc + " : " + status);
-            System.err.println(proof.proofToString());
 
-            if(proof.getFailException() != null) {
-                proof.getFailException().printStackTrace();
+            boolean result = true;
+            List<Proof> proofs = service.runVerification();
+            for (Proof proof : proofs) {
+                if (proof.getProofStatus() != ProofStatus.CLOSED) {
+                    if (result) {
+                        System.err.println("Unclosed proofs for " + dir);
+                    }
+                    System.err.println("  " + proof.getPVCName() + " : " + proof.getProofStatus());
+                }
+                result = false;
             }
-        } catch(Exception ex) {
-            System.err.println(pvc + " : EXCEPTION");
-            ex.printStackTrace();
+            return result;
+
+        } catch (Exception ex) {
+
+            System.err.println("Error while verifying " + dir + ":");
+            if(verbose) {
+                ex.printStackTrace();
+            } else {
+                System.err.println(ex.getMessage());
+            }
+            return false;
+
         }
 
     }
 
     private static CommandLine prepareCommandLine() {
         CommandLine result = new CommandLine();
-        result.addOption(OPTION_CONFIG_FILENAME, "configFile", "Name of the configuration file, default: " + DEFAULT_CONFIG_FILENAME);
-        result.addOption("-method", "methodName", "only check VCs for given method");
-        result.addOption("-class", "className", "only check VCs for given class");
-        result.addOption("-pvcMatch", "regex", "only check VCs whose name matches the argument");
-        result.addOption("-defScript", "script", "default script if none is stored in the files");
-        result.addOption("-help", null, "Show help");
+        result.addOption(OPTION_CONFIG_FILENAME, "configFile",
+                "Name of the configuration file, default: " +
+                        AlgoVerService.DEFAULT_CONFIG_FILENAME);
+        result.addOption(OPTION_METHOD, "methodName",
+                "only check VCs for given method");
+        result.addOption(OPTION_CLASS, "className",
+                "only check VCs for given class");
+        result.addOption(OPTION_PVC_MATCH, "regex",
+                "only check VCs whose name matches the argument");
+        result.addOption(OPTION_VERBOSE, null,
+                "Be verbose in the output");
+        result.addOption(OPTION_HELP, null,
+                "Show help");
         return result;
     }
 }
