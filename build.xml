@@ -54,15 +54,14 @@
         <property name="z3.binary" value="${z3.binary}"/>
       <filelist refid="modules" />
     </subant>
-<!--<concat>
-      <fileset dir="modules"><include name="**/TEST*.txt"/></fileset>
+    <concat>
+      <fileset dir="modules"><include name="**/TEST*.xml"/></fileset>
       <filterchain>    
 	<linecontainsregexp>
-	  <regexp pattern="^(Testsuite: |Tests run: )"/>
+	  <regexp pattern="^&lt;testsuite"/>
 	</linecontainsregexp>
       </filterchain>
       </concat>
--->
   </target>
    
   <target name="jar" depends="build" description="creates the jar file">
