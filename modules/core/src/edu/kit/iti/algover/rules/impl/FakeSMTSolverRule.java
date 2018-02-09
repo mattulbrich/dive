@@ -5,7 +5,6 @@
  */
 package edu.kit.iti.algover.rules.impl;
 
-import com.sun.org.apache.xpath.internal.operations.Bool;
 import edu.kit.iti.algover.proof.ProofNode;
 import edu.kit.iti.algover.rules.*;
 import edu.kit.iti.algover.rules.ProofRuleApplication.Applicability;

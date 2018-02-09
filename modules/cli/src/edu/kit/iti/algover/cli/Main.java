@@ -31,6 +31,11 @@ public class Main {
 
         cl.parse(args);
 
+        if(cl.isSet("-help")) {
+            cl.printUsage(System.out);
+            return;
+        }
+
         if(cl.getArguments().isEmpty()) {
             throw new IllegalArgumentException("Please specify the directory/-ies which are to be checked");
         }
@@ -87,6 +92,10 @@ public class Main {
             ProofStatus status = proof.getProofStatus();
             System.err.println(pvc + " : " + status);
             System.err.println(proof.proofToString());
+
+            if(proof.getFailException() != null) {
+                proof.getFailException().printStackTrace();
+            }
         } catch(Exception ex) {
             System.err.println(pvc + " : EXCEPTION");
             ex.printStackTrace();
@@ -101,6 +110,7 @@ public class Main {
         result.addOption("-class", "className", "only check VCs for given class");
         result.addOption("-pvcMatch", "regex", "only check VCs whose name matches the argument");
         result.addOption("-defScript", "script", "default script if none is stored in the files");
+        result.addOption("-help", null, "Show help");
         return result;
     }
 }
