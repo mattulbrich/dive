@@ -44,9 +44,9 @@ public class PrettyPrintTest {
             { "1 > 0" },
             { "1 >= 0" },
             { "1 + 2 >= 1 * 1" },
-                {"1 == i1"}, // revealed a bug
-                {"-1"},
-                {"- -1"},
+            { "1 == i1" }, // revealed a bug
+            { "-1" },
+            { "- -1" },
         };
     }
 
@@ -75,10 +75,20 @@ public class PrettyPrintTest {
     public String[][] parametersForTestHeap() {
         return new String[][]{
             { "o.f" },
-            { "heap[o.f := 4][o.f := 5][anon(someset, h_2)]" },
-            { "o.f @ h_2" },
-            { "o.f @ heap[o.f := 3]" },
-            { "let o.f := 4 :: o.f + 2" },
+            { "a[0]" },
+            { "o.f@h2" },
+            { "a[i1]@h2" },
+            { "o.f@$heap[o.f := 3]" },
+            { "a[i1]@$heap[a[0] := 42]" },
+            { "$heap[o.f := 42]" },
+            { "$heap[o.f := 4][o.f := 5][$anon($mod, h2)]" },
+         //   { "let o.f := 4 :: o.f + 2" },  // well, some time in the future perhaps :)
+
+            // Precedences
+            { "o.f + 1"}, { "1 + o.f"},
+            { "a[0] + 1" }, { "1 + a[0]" },
+            { "1 + o.f@h2"}, { "o.f@h2 + 1"},
+            { "1 + a[0]@h2"}, { "a[0]@h2 + 1"},
         };
     }
 
@@ -101,6 +111,7 @@ public class PrettyPrintTest {
         st = new BuiltinSymbols();
         st.addFunctionSymbol(new FunctionSymbol("i1", Sort.INT));
         st.addFunctionSymbol(new FunctionSymbol("b1", Sort.BOOL));
+        st.addFunctionSymbol(new FunctionSymbol("h2", Sort.HEAP));
         st.addFunctionSymbol(new FunctionSymbol("anything", Sort.INT, Sort.INT));
         st.addFunctionSymbol(new FunctionSymbol("a", Sort.get("array", Sort.INT)));
         st.addFunctionSymbol(new FunctionSymbol("a2", Sort.get("array2", Sort.INT)));
@@ -127,7 +138,7 @@ public class PrettyPrintTest {
         assertEquals(input, printed.toString());
     }
 
-    @Test @Parameters @Ignore
+    @Test @Parameters
     public void testHeap(String input) throws Exception {
         Term parsed = TermParser.parse(st, input);
         AnnotatedString printed = new PrettyPrint().print(parsed);
