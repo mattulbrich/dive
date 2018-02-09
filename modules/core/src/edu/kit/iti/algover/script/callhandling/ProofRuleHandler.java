@@ -115,6 +115,7 @@ public class ProofRuleHandler implements CommandHandler<ProofNode> {
             //apply the rule
             ProofRuleApplication proofRuleApplication = pr.makeApplication(parent, ruleParams);
 
+            // REVIEW: For enums please use ==, not equals.
             if (proofRuleApplication.getApplicability().equals(ProofRuleApplication.Applicability.APPLICABLE)) {
 
                 List<ProofNode> newNodes = RuleApplicator.applyRule(proofRuleApplication, parent);
@@ -122,6 +123,7 @@ public class ProofRuleHandler implements CommandHandler<ProofNode> {
                 List<ProofNode> newGoals = new ArrayList<>();
 
                 //add new nodes to state, remove expanded node from state
+                // REVIEW why not newGoals.addAll(newNodes) ?
                 newNodes.forEach(proofNode -> {
                     newGoals.add(proofNode);
                 });

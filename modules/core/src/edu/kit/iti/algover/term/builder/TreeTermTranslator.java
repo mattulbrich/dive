@@ -426,17 +426,28 @@ public class TreeTermTranslator {
         Sort arraySort = arrayTerm.getSort();
         String arraySortName = arraySort.getName();
 
+        Term indexTerm;
+
         switch (arraySortName) {
             case "array":
                 if (tree.getChildCount() != 2) {
                     throw new TermBuildException("Access to 'array' requires one index argument");
                 }
 
-                Term indexTerm = build(tree.getChild(1));
+                indexTerm = build(tree.getChild(1));
 
                 return tb.selectArray(new ApplTerm(BuiltinSymbols.HEAP), arrayTerm, indexTerm);
 
-            case "array2":
+            case "seq":
+                if (tree.getChildCount() != 2) {
+                    throw new TermBuildException("Access to 'array' requires one index argument");
+                }
+
+                indexTerm = build(tree.getChild(1));
+
+                return tb.seqGet(arrayTerm, indexTerm);
+
+        case "array2":
                 if (tree.getChildCount() != 3) {
                     throw new TermBuildException("Access to 'array2' requires two index arguments");
                 }
@@ -491,7 +502,7 @@ public class TreeTermTranslator {
                 break;
 
             case "array2":
-                if (suffix.isEmpty() || index > 1) {
+                if (!suffix.matches("[01]")) {
                     throw new TermBuildException("Elements of type 'array2' have only "
                             + "the 'Length0' and 'Length1' properties");
                 }
@@ -499,6 +510,13 @@ public class TreeTermTranslator {
                 arg = sort.getArguments().get(0);
                 f = symbolTable.getFunctionSymbol("$len" + index + "<" + arg + ">");
                 break;
+
+            case "seq":
+                if (!suffix.isEmpty()) {
+                    throw new TermBuildException("Elements of type 'seq' have only "
+                            + "the 'Length' property");
+                }
+                return tb.seqLen(t1);
 
             default:
                 throw new TermBuildException("Unsupported sort for 'Length': " + sort);

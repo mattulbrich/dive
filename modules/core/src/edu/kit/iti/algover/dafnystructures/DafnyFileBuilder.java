@@ -100,7 +100,8 @@ public class DafnyFileBuilder {
                 classes.add(classBuilder.build());
                 break;
             default:
-                throw new Error("unreachable");
+                System.err.println(child.toStringTree());
+                throw new Error("unexpected toplevel AST element of type " + child.getType());
             }
         }
     }
