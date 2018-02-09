@@ -12,6 +12,7 @@ import edu.kit.iti.algover.dafnystructures.DafnyClass;
 import edu.kit.iti.algover.dafnystructures.DafnyDecl;
 import edu.kit.iti.algover.data.SymbolTable;
 import edu.kit.iti.algover.parser.DafnyTree;
+import edu.kit.iti.algover.project.Project;
 import edu.kit.iti.algover.rules.TermSelector;
 import edu.kit.iti.algover.symbex.SymbexPath;
 import edu.kit.iti.algover.term.Sequent;
@@ -63,7 +64,7 @@ public class PVC {
      * {@link #sequent}.
      */
     private final @NonNull SymbolTable symbolTable;
-
+    private final Project project;
     /**
      * The identifier of this PVC.
      *
@@ -78,6 +79,7 @@ public class PVC {
      * @see MethodPVCBuilder#build()
      */
     public PVC(PVCBuilder builder) {
+        this.project = builder.getProject();
         this.pathThroughProgram = builder.getPathThroughProgram();
         this.declaration = builder.getDeclaration();
         this.sequent = builder.getSequent();
@@ -131,4 +133,7 @@ public class PVC {
         return referenceMap;
     }
 
+    public Project getProject() {
+        return project;
+    }
 }
