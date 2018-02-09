@@ -1,17 +1,15 @@
 package edu.kit.iti.algover.proof;
 
-import edu.kit.iti.algover.script.ScriptLanguageParser;
+import edu.kit.iti.algover.project.Project;
 import edu.kit.iti.algover.script.ast.*;
-//import edu.kit.iti.algover.script.data.GoalNode;
-import edu.kit.iti.algover.script.data.State;
 import edu.kit.iti.algover.script.interpreter.Interpreter;
+import edu.kit.iti.algover.script.interpreter.InterpreterBuilder;
 import edu.kit.iti.algover.script.parser.DefaultASTVisitor;
 import edu.kit.iti.algover.script.parser.Facade;
+import edu.kit.iti.algover.util.ObservableValue;
 import edu.kit.iti.algover.util.ProofTreeUtil;
-import edu.kit.iti.algover.util.Util;
-import javafx.beans.property.SimpleObjectProperty;
-import org.antlr.tool.Interp;
-import org.antlr.v4.runtime.Token;
+import nonnull.NonNull;
+import nonnull.Nullable;
 
 import java.util.*;
 
@@ -19,49 +17,87 @@ import java.util.*;
  * Proof Object
  * This object contains the proof root as well as the script root
  * It has to be build by the ProjectManager in order to contain a valid interpreter.
+ *
+ * @author Sarah Grebing
+ * @author M. Ulbrich, refactoring Jan 2018
  */
 public class Proof {
 
+    /**
+     * Status of proof.
+     *
+     * This is a value that fires notification upon change
+     */
+    private final ObservableValue<ProofStatus> proofStatus =
+            new ObservableValue<>("ProofStatusProperty", ProofStatus.class, ProofStatus.NON_EXISTING);
 
     /**
-     * Status of Proof
+     * root of logical proof, only present as soon as a proof has been conducted.
+     * (Even the empty script produces a one-node prooftree.)
+     *
+     * if proof state is ProofState#CHANGED_SCRIPT or ProofState#NON_EXISTING, then this ought to be null.
      */
-
-    private SimpleObjectProperty<ProofStatus> proofStatus = new SimpleObjectProperty<>(null, "ProofStatusProperty");
-    /**
-     * Root of logical Proof
-     */
-    private ProofNode proofRoot;
-
-    private ProofNode lastaddedNode;
+    private @Nullable ProofNode proofRoot;
 
     /**
-     * Root of Script
+     * The script text.
+     *
+     * mutable, can be null if no script set so far.
+     * If a proofRoot is present, it results from this very script object.
      */
-    private Statements script;
+    private @Nullable String script;
 
     /**
-     * PVC Name for which this proof object is created
+     * The project to which this proof belongs
      */
-    private String pvcName;
+    private final Project project;
 
     /**
-     * Current state from interpreter
+     * PVC for which this proof object is created
      */
-    private State<ProofNode> currentState;
+    private final PVC pvc;
 
     /**
-     * Interpreter for this proof
+     * The exception with which interpretation has failed.
      */
-    private Interpreter<ProofNode> interpreter;
+    /*@ invariant failException != null <==> poofStatus.getValue() == FAIL; */
+    private Exception failException;
 
+    public Proof(@NonNull Project project, @NonNull PVC pvc) {
+        this.project = project;
+        this.pvc = pvc;
+    }
 
-    public Proof(String pvcName) {
-        this.setPvcName(pvcName);
-        this.setProofRoot(null);
-        this.setProofStatus(ProofStatus.NOT_LOADED);
-        this.script = new Statements();
+    public @NonNull Project getProject() {
+        return project;
+    }
 
+    public @NonNull  PVC getPVC() {
+        return pvc;
+    }
+
+    public @Nullable ProofNode getProofRoot() {
+        return proofRoot;
+    }
+
+    public String getPVCName() {
+        return pvc.getIdentifier();
+    }
+
+    public ProofStatus getProofStatus() {
+        return proofStatus.getValue();
+    }
+
+    public Exception getFailException() {
+        return failException;
+    }
+
+    public void addProofStatusListener(ObservableValue.ChangeListener<ProofStatus> listener) {
+        proofStatus.addObserver(listener);
+    }
+
+    public String getScript() {
+        return script;
     }
 
     /**
@@ -69,159 +105,79 @@ public class Proof {
      *
      * @param script string representation of script
      */
-    public void setNewScriptTextAndParser(String script) {
-        if (this.getScript() != null) {
-            saveOldDataStructures();
-        }
-        if (script.equals("")) {
-            ProofScript scriptAST = Facade.getAST("script empty (){}");
-            this.setScript(scriptAST.getBody());
-        } else {
-            ProofScript scriptAST = Facade.getAST(script);
-            this.setScript(scriptAST.getBody());
-        }
-    }
-
-    /**
-     * Parse a script in a script file  and set the script to the newly parsed script AST
-     *
-     * @param script
-     */
-    public void parseScriptFileAndSetScript(String script) {
+    public void setScriptText(String script) {
         if (this.getScript() != null) {
             saveOldDataStructures();
         }
 
-        ProofScript scriptAST = Facade.getAST(Util.maskFileName(script));
-        this.setScript(scriptAST.getBody());
+        this.script = script;
 
+        this.proofStatus.setValue(ProofStatus.CHANGED_SCRIPT);
+    }
+
+    private Interpreter buildIndividualInterpreter() {
+
+        InterpreterBuilder ib = new InterpreterBuilder();
+        Interpreter i = ib
+                .setProofRules(this.project.getAllProofRules())
+                .startState(getProofRoot())
+                .build();
+        return i;
     }
 
     /**
-     * Save the old script and the old proof for comparison when reloading
+     * Interpret Script. A script must have been set previously.
      */
-    private void saveOldDataStructures() {
-    }
-
-
-    public ProofNode getProofRoot() {
-        return proofRoot;
-    }
-
-    public void setProofRoot(ProofNode proofRoot) {
-        this.proofRoot = proofRoot;
-    }
-
-    public String getPvcName() {
-        return pvcName;
-    }
-
-    public void setPvcName(String pvcName) {
-        this.pvcName = pvcName;
-    }
-
-    public SimpleObjectProperty<ProofStatus> proofStatusProperty() {
-        return proofStatus;
-    }
-
-    public Interpreter<ProofNode> getInterpreter() {
-        return interpreter;
-    }
-
-    public void setInterpreter(Interpreter<ProofNode> interpreter) {
-        this.interpreter = interpreter;
-        new ProofNodeInterpreterManager(interpreter);
-    }
-
-
-    /**
-     * Replay proof
-     *
-     * @return
-     */
-    public Proof replay() {
-        if (getProofRoot() != null | getScript() != null) {
-            saveOldDataStructures();
-        }
-        if (getProofStatus().equals(ProofStatus.DIRTY)) {
-            //reload
-            //
-            setProofStatus(ProofStatus.OPEN);
-        } else {
-            setProofStatus(ProofStatus.NON_EXISTING);
-        }
-        return this;
-    }
-
-    /**
-     * Interpret Script. For this the interpretr, the script ast and teh proof root have to be set.
-     *
-     * @return
-     */
-    public Proof interpretScript() {
+    public void interpretScript() {
         assert script != null;
-        assert proofRoot != null;
-        assert interpreter != null;
-        lastaddedNode = proofRoot;
-        interpreter.newState(proofRoot);
-        script.forEach(getInterpreter()::interpret);
-        ProofNode pnext = getInterpreter().getSelectedNode();
-        // System.out.println("pnext.getSequent() = " + pnext.getSequent());
-        return this;
-    }
 
-    /**
-     * Interpret next String representation of possible ASTNode and update the ASTNode as well as the ProofNode
-     *
-     * @param script
-     */
-    public void interpretASTNode(String script) {
-        if (this.script != null && !this.script.isEmpty()) {
-            int i = this.script.size();
-            Statement lastStatement = this.script.get(i - 1);
-            Token lastToken = lastStatement.getRuleContext().getStop();
-            script = script.substring(lastToken.getStopIndex());
+        ProofNode newRoot = ProofNode.createRoot(pvc);
+
+        try {
+            // REVIEW: Are there no exceptions thrown by the parser? :-O
+            // TODO Exception handling
+            ProofScript scriptAST = Facade.getAST(script);
+
+            Interpreter interpreter = buildIndividualInterpreter();
+            interpreter.newState(newRoot);
+
+            // TODO Exception handling
+            scriptAST.getBody().forEach(interpreter::interpret);
+
+            this.proofRoot = newRoot;
+            this.failException = null;
+            proofStatus.setValue(newRoot.allLeavesClosed() ? ProofStatus.CLOSED : ProofStatus.OPEN);
+
+        } catch(Exception ex) {
+
+            // publish the proof root even if the proof has (partially) failed.
+            this.proofRoot = newRoot;
+            this.failException = ex;
+
+            // TODO proof state handling.
+            proofStatus.setValue(ProofStatus.FAILING);
+
         }
-        ProofScript newAst = Facade.getAST(script);
-        newAst.getBody().forEach(s -> {
-            System.out.println("Interpreting s = " + s);
-            getInterpreter().interpret(s);
-            this.script.add(s);
-        });
+
 
     }
 
     /**
-     * Set a new Script , parse it and interpret script.
+     * Set a new script, parse it and interpret it.
+     *
+     * <p>Convenience method for
+     * <pre>
+     *     setScriptText(scriptText);
+     *     interpretScript();
+     * </pre>
      *
      * @param scriptText
      * @return this object
      */
-    public Proof setNewScriptTextAndInterpret(String scriptText) {
-        if (interpreter == null) {
-            throw new RuntimeException("No interpreter is set");
-        } else {
-            this.setNewScriptTextAndParser(scriptText);
-            this.interpretScript();
-            return this;
-        }
-    }
-
-    public ProofStatus getProofStatus() {
-        return proofStatus.get();
-    }
-
-    public void setProofStatus(ProofStatus proofStatus) {
-        this.proofStatus.set(proofStatus);
-    }
-
-
-    public Statements getScript() {
-        return script;
-    }
-
-    public void setScript(Statements script) {
-        this.script = script;
+    public Proof setScriptTextAndInterpret(String scriptText) {
+        setScriptText(scriptText);
+        interpretScript();
+        return this;
     }
 
 
@@ -231,9 +187,11 @@ public class Proof {
      * @return
      */
     public String proofToString() {
-        StringBuilder sb = new StringBuilder("Proof for " + this.pvcName + "\n");
+        StringBuilder sb = new StringBuilder("Proof for " + this.pvc.getIdentifier() + "\n");
         if (this.getProofRoot() != null) {
             sb.append(ProofTreeUtil.toStringTree(getProofRoot()));
+        } else {
+            sb.append("<null> proof");
         }
         return sb.toString();
     }
@@ -242,10 +200,18 @@ public class Proof {
      * This method invalidates this proof object, sets the status to dirty
      */
     public void invalidate() {
-        this.setProofStatus(ProofStatus.DIRTY);
+        this.proofStatus.setValue(ProofStatus.DIRTY);
+    }
 
+    /**
+     * Save the old script and the old proof for comparison when reloading
+     */
+    private void saveOldDataStructures() {
+        // future ...
     }
 }
+
+// REVIEW : Needed? Was never run.
 
 /**
  * Class handling the creation of the proof tree when interpreting script.
@@ -345,7 +311,6 @@ class ProofNodeInterpreterManager {
             return null;
         }
 
-
         @Override
         public Void visit(MatchExpression matchExpression) {
             return null;
@@ -363,8 +328,6 @@ class ProofNodeInterpreterManager {
 
         @Override
         public Void defaultVisit(ASTNode node) {
-
-            lastSelectedGoalNode.setChildren(new ArrayList<>());
 
             List<ProofNode> goals = interpreter.getCurrentState().getGoals();
 

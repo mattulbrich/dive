@@ -231,10 +231,11 @@ public class TypeResolution extends DafnyTreeDefaultVisitor<DafnyTree, Void> {
 
     @Override
     public DafnyTree visitLENGTH(DafnyTree t, Void a) {
-        DafnyTree array = t.getChild(0);
-        DafnyTree arrayType = array.accept(this, null);
+        DafnyTree arg = t.getChild(0);
+        DafnyTree type = arg.accept(this, null);
 
-        if (arrayType.getType() != DafnyParser.ARRAY) {
+        if (type.getType() != DafnyParser.ARRAY &&
+            type.getType() != DafnyParser.SEQ) {
             exceptions.add(new DafnyException(
                     "Only arrays have a length", t));
         }
@@ -245,10 +246,10 @@ public class TypeResolution extends DafnyTreeDefaultVisitor<DafnyTree, Void> {
 
     @Override
     public DafnyTree visitARRAY_ACCESS(DafnyTree t, Void a) {
-        DafnyTree array = t.getChild(0);
+        DafnyTree receiver = t.getChild(0);
         DafnyTree index = t.getChild(1);
 
-        DafnyTree arrayType = array.accept(this, null);
+        DafnyTree recvType = receiver.accept(this, null);
         DafnyTree indexType = index.accept(this, null);
 
         if (indexType.getType() != DafnyParser.INT) {
@@ -256,12 +257,13 @@ public class TypeResolution extends DafnyTreeDefaultVisitor<DafnyTree, Void> {
                     "Array index not of type int, but " + indexType, index));
         }
 
-        if (arrayType.getType() != DafnyParser.ARRAY) {
+        if (recvType.getType() != DafnyParser.ARRAY &&
+            recvType.getType() != DafnyParser.SEQ) {
             exceptions.add(new DafnyException(
                     "Only arrays can be indexed", t));
         }
 
-        DafnyTree ty = arrayType.getChild(0);
+        DafnyTree ty = recvType.getChild(0);
         t.setExpressionType(ty);
         return ty;
     }

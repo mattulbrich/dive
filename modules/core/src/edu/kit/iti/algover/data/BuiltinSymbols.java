@@ -137,8 +137,10 @@ public class BuiltinSymbols extends MapSymbolTable {
                             Sort.get("field",
                                     FunctionSymbolFamily.VAR1,
                                     FunctionSymbolFamily.VAR2)), 2);
+
     public static final FunctionSymbol TRUE =
             new FunctionSymbol("true", Sort.BOOL);
+
     public static final FunctionSymbol FALSE =
             new FunctionSymbol("false", Sort.BOOL);
 
@@ -152,22 +154,39 @@ public class BuiltinSymbols extends MapSymbolTable {
 
     public static final FunctionSymbol MOD =
             new FunctionSymbol("$mod", Sort.get("set", Sort.OBJECT));
+
     private static final Sort SET1 = Sort.get("set", FunctionSymbolFamily.VAR1);
+
     public static final FunctionSymbolFamily UNION =
             new FunctionSymbolFamily(
                     new FunctionSymbol("$union", SET1, SET1, SET1), 1);
+
     public static final FunctionSymbolFamily INTERSECT =
             new FunctionSymbolFamily(
                     new FunctionSymbol("$intersect", SET1, SET1, SET1), 1);
+
+    private static final Sort SEQ1 = Sort.get("seq", FunctionSymbolFamily.VAR1);
+
+    public static final FunctionSymbolFamily SEQ_LEN =
+            new FunctionSymbolFamily(
+                    new FunctionSymbol("$seq_len", Sort.INT, SEQ1), 1);
+
+    public static final FunctionSymbolFamily SEQ_GET =
+            new FunctionSymbolFamily(
+                    new FunctionSymbol("$seq_get", FunctionSymbolFamily.VAR1,
+                            SEQ1, Sort.INT), 1);
+
     private static final Sort SET_OBJECTS = Sort.get("set", Sort.OBJECT);
+
     public static final FunctionSymbol EVERYTHING =
             new FunctionSymbol("$everything", SET_OBJECTS);
+
     public static final FunctionSymbol ANON =
             new FunctionSymbol("$anon", Sort.HEAP, Sort.HEAP, SET_OBJECTS, Sort.HEAP);
+
     // Checkstyle: ON JavadocVariableCheck
     private final Map<String, FunctionSymbolFamily> symbolFamilies =
             new HashMap<>();
-
 
     public BuiltinSymbols() {
         super(collectSymbols());

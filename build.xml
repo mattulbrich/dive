@@ -12,7 +12,7 @@
   <filelist id="modules" dir=".">
     <file name="./modules/core/build.xml"/>
     <file name="./modules/fxgui/build.xml"/>
-    <!-- <file name="./modules/cli/build.xml"/> -->
+    <file name="./modules/cli/build.xml"/>
     <!-- <file name="./modules/dafny/build.xml"/> -->
     <!-- <file name="./modules/key/build.xml"/> -->
     <!-- <file name="./modules/smt/build.xml"/> -->

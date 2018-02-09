@@ -409,7 +409,6 @@ public class ImmutableList<T> implements Iterable<T> {
     }
 
     public T findFirst(Predicate<T> predicate) {
-        ImmutableList<T> result = nil();
         for (T el : this) {
             if(predicate.test(el)) {
                 return el;
@@ -418,5 +417,15 @@ public class ImmutableList<T> implements Iterable<T> {
         return null;
     }
 
+    public T findLast(Predicate<T> predicate) {
+        ImmutableList<T> l = this;
+        while(l.tail != null) {
+            if(predicate.test(l.data)) {
+                return l.data;
+            }
+            l = l.tail;
+        }
+        return null;
+    }
 
 }

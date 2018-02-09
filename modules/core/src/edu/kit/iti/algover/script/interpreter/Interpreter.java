@@ -134,7 +134,7 @@ public class Interpreter<T> extends DefaultASTVisitor<Object>
         State<T> currentState = popState();
         ProofNode node = currentState.getSelectedGoalNode();
 
-        ProofNode newNode = new ProofNode(node, null, node.getHistory(), node.getSequent(), node.getRootPVC());
+        ProofNode newNode = new ProofNode(node, null, node.getSequent(), node.getPVC());
         newNode.enterScope();
         newState(newNode);
 
