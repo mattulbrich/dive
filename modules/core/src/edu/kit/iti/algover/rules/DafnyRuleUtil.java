@@ -60,6 +60,8 @@ public class DafnyRuleUtil {
         }
         DafnyTree ensuresClause = ensuresClauses.get(0);
 
+        List<DafnyTree> requiresClauses = method.getRequiresClauses();
+
         List<DafnyTree> equalsClauses = ensuresClause.getChildrenWithType(DafnyParser.EQ);
         DafnyTree equalsClause = equalsClauses.get(0);
 
@@ -67,15 +69,20 @@ public class DafnyRuleUtil {
         TreeTermTranslator ttt = new TreeTermTranslator(symbolTable);
         Term st = null;
         Term rt = null;
+        List<Term> rts = new ArrayList<>();
         try {
             st = ttt.build(equalsClause.getChild(0));
             st = st.accept(new ReplaceProgramVariableVisitor(), programVars);
             rt = ttt.build(equalsClause.getChild(1));
             rt = rt.accept(new ReplaceProgramVariableVisitor(), programVars);
+            for(DafnyTree dt : requiresClauses) {
+                Term t = ttt.build(dt.getChild(0));
+                rts.add(t.accept(new ReplaceProgramVariableVisitor(), programVars));
+            }
         } catch (TermBuildException e) {
             throw new DafnyRuleException("Error parsing equalsClause");
         }
-        return new DafnyRule(name, st, rt);
+        return new DafnyRule(name, st, rt, rts);
     }
 
     /**

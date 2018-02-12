@@ -82,7 +82,7 @@ public class RuleApplicator {
         List<Pair<TermSelector, Term>> antecReplacements = new ArrayList<>();
         List<Pair<TermSelector, Term>> succReplacements = new ArrayList<>();
         replacements.forEach(termSelectorTermPair -> {
-            if (termSelectorTermPair.getFst().equals(TermSelector.SequentPolarity.ANTECEDENT)) {
+            if (termSelectorTermPair.getFst().isAntecedent()) {
                 antecReplacements.add(termSelectorTermPair);
             } else {
                 succReplacements.add(termSelectorTermPair);

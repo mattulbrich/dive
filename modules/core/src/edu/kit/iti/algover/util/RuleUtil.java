@@ -5,7 +5,10 @@ import edu.kit.iti.algover.rules.SubtermSelector;
 import edu.kit.iti.algover.rules.TermSelector;
 import edu.kit.iti.algover.term.Sequent;
 import edu.kit.iti.algover.term.Term;
+import edu.kit.iti.algover.term.match.TermMatcher;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Predicate;
@@ -137,6 +140,55 @@ public class RuleUtil {
             }
             return Optional.empty();
         }
+    }
+
+    public static List<TermSelector> getSelectorForTerm(Term term, Sequent sequent) {
+        List<TermSelector> res = new ArrayList<>();
+        res.addAll(getSelectorForTermInAntecedent(term, sequent.getAntecedent()));
+        res.addAll(getSelectorForTermInSuccedent(term, sequent.getSuccedent()));
+        return res;
+    }
+
+    public static TermSelector getSingleSelectorForTerm(Term term, Sequent sequent) throws IllegalArgumentException {
+        List<TermSelector> res = new ArrayList<>();
+        res.addAll(getSelectorForTermInAntecedent(term, sequent.getAntecedent()));
+        res.addAll(getSelectorForTermInSuccedent(term, sequent.getSuccedent()));
+        if(res.size() == 1) {
+            return res.get(0);
+        } else {
+            throw new IllegalArgumentException("Termselector is ambiguous.");
+        }
+    }
+
+    public static List<TermSelector> getSelectorForTermInAntecedent(Term term, List<ProofFormula> antecedent) {
+        List<TermSelector> res = new ArrayList<>();
+        for(int i = 0; i < antecedent.size(); ++i) {
+            res.addAll(TermContainsTerm(antecedent.get(i).getTerm(), term, new TermSelector(TermSelector.SequentPolarity.ANTECEDENT, i)));
+        }
+        return res;
+    }
+
+    public static List<TermSelector> getSelectorForTermInSuccedent(Term term, List<ProofFormula> succedent) {
+        List<TermSelector> res = new ArrayList<>();
+        for(int i = 0; i < succedent.size(); ++i) {
+            res.addAll(TermContainsTerm(succedent.get(i).getTerm(), term, new TermSelector(TermSelector.SequentPolarity.SUCCEDENT, i)));
+        }
+        return res;
+    }
+
+    private static List<TermSelector> TermContainsTerm(Term inTerm, Term searchTerm, TermSelector ts) {
+        TermMatcher tm = new TermMatcher();
+        if(tm.match(searchTerm, inTerm).size() != 0) {
+            return Arrays.asList(ts);
+        }
+        if(inTerm.getSubterms().size() == 0) {
+            return new ArrayList<>();
+        }
+        List<TermSelector> res = new ArrayList<>();
+        for(int i = 0; i < inTerm.getSubterms().size(); ++i) {
+            res.addAll(TermContainsTerm(inTerm.getTerm(i), searchTerm, new TermSelector(ts, i)));
+        }
+        return res;
     }
 
 }

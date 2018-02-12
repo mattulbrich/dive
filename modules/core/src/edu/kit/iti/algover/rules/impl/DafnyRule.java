@@ -29,12 +29,9 @@ import java.util.*;
  */
 public class DafnyRule extends AbstractProofRule {
     private String name;
-    private String fileName;
-    private SymbolTable symbolTable;
-    private List<String> programVars;
-    private DafnyTree tree;
     private final Term searchTerm;
     private final Term replaceTerm;
+    private final List<Term> requiresTerms;
 
     public DafnyRule(String name, Term st, Term rt) {
         super(ON_PARAM);
@@ -42,6 +39,16 @@ public class DafnyRule extends AbstractProofRule {
         this.name = name;
         searchTerm = st;
         replaceTerm = rt;
+        requiresTerms = new ArrayList<>();
+    }
+
+    public DafnyRule(String name, Term st, Term rt, List<Term> requiresTerms) {
+        super(ON_PARAM);
+
+        this.name = name;
+        searchTerm = st;
+        replaceTerm = rt;
+        this.requiresTerms = requiresTerms;
     }
 
     @Override
@@ -51,7 +58,8 @@ public class DafnyRule extends AbstractProofRule {
 
     @Override
     public ProofRuleApplication considerApplication(ProofNode target, Sequent selection, TermSelector selector) throws RuleException {
-        Term selected = selector.selectTopterm(target.getSequent()).getTerm();
+        Term selected = selector.selectSubterm(target.getSequent());
+        //Term selected = selector.selectTopterm(target.getSequent()).getTerm();
         TermMatcher tm = new TermMatcher();
         ImmutableList<Matching> matchings = tm.match(searchTerm, selected);
         if(matchings.size() == 0) {
@@ -60,10 +68,17 @@ public class DafnyRule extends AbstractProofRule {
         ProofRuleApplicationBuilder proofRuleApplicationBuilder;
         try {
             Term rt = matchings.get(0).instantiate(replaceTerm);
+            List<Term> rts = new ArrayList<>();
+            for(Term t : requiresTerms) {
+                rts.add(matchings.get(0).instantiate(t));
+            }
             proofRuleApplicationBuilder = new ProofRuleApplicationBuilder(this);
             proofRuleApplicationBuilder.setApplicability(ProofRuleApplication.Applicability.APPLICABLE);
             proofRuleApplicationBuilder.setTranscript(getTranscript(new Pair<>("on", selected)));
             proofRuleApplicationBuilder.newBranch().addReplacement(selector, rt);
+            /*for(Term t : rts) {
+                proofRuleApplicationBuilder.newBranch().addAdditionAntecedent(new ProofFormula(t));
+            }*/
         } catch (TermBuildException e) {
             throw new RuleException();
         }
@@ -81,16 +96,27 @@ public class DafnyRule extends AbstractProofRule {
             throw new RuleException();
         }
 
-        ProofRuleApplicationBuilder proofRuleApplicationBuilder;
+        ProofRuleApplicationBuilder proofRuleApplicationBuilder = new ProofRuleApplicationBuilder(this);
         try {
             Term rt = matchings.get(0).instantiate(replaceTerm);
-            proofRuleApplicationBuilder = new ProofRuleApplicationBuilder(this);
-            if(Optional.empty().equals(RuleUtil.matchTopLevelInAntedecent(on::equals, target.getSequent()))) {
-                proofRuleApplicationBuilder.newBranch().addDeletionsSuccedent(new ProofFormula(on)).
-                        addAdditionsSuccedent(new ProofFormula(rt));
-            } else {
-                proofRuleApplicationBuilder.newBranch().addDeletionsAntecedent(Collections.singletonList(new ProofFormula(on))).
-                        addAdditionAntecedent(new ProofFormula(rt));
+            List<Term> rts = new ArrayList<>();
+            for(Term t : requiresTerms) {
+                rts.add(matchings.get(0).instantiate(t));
+            }
+
+            try {
+                TermSelector ts = RuleUtil.getSingleSelectorForTerm(on, target.getSequent());
+                //ts = new TermSelector(TermSelector.SequentPolarity.ANTECEDENT, 0, 1);
+                proofRuleApplicationBuilder.newBranch().addReplacement(ts, rt);
+            } catch (IllegalArgumentException e) {
+                throw new RuleException("Rule application is ambiguous.");
+            }
+
+            for(Term t : rts) {
+                BranchInfoBuilder bib = proofRuleApplicationBuilder.newBranch();
+                bib.addDeletionsAntecedent(target.getSequent().getAntecedent());
+                bib.addDeletionsSuccedent(target.getSequent().getSuccedent());
+                bib.addAdditionsSuccedent(new ProofFormula(t));
             }
         } catch (TermBuildException e) {
             throw new RuleException();

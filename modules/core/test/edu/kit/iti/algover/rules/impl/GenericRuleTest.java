@@ -50,9 +50,18 @@ public class GenericRuleTest {
      * @return parameters for the applicable-Test
      */
     public Object [][] parametersForGenericRuleTestApplicable() {
+        ProofRule pr = null;
+        try {
+            pr = DafnyRuleUtil.generateDafnyRuleFromFile("./test-res/edu/kit/iti/algover/dafnyrules/addzero2.dfy");
+        } catch(DafnyRuleException e) {
+            System.out.println("Error creating DafnyRule.");
+            e.printStackTrace();
+        }
         return new Object[][] {
                 {new OrLeftRule(), "b1 || b2 |- b1", new TermSelector(TermSelector.SequentPolarity.ANTECEDENT, 0),
-                        new ArrayList<>(Arrays.asList("[b1] ==> [b1]", "[b2] ==> [b1]")), null}
+                        new ArrayList<>(Arrays.asList("[b1] ==> [b1]", "[b2] ==> [b1]")), null},
+                {pr, "i1 + i2 == 0  |- i3 == 0", new TermSelector(TermSelector.SequentPolarity.ANTECEDENT, 0, 0),
+                        new ArrayList<>(Arrays.asList("[$eq<int>(i1, 0)] ==> [$eq<int>(i3, 0)]", "[] ==> [$eq<int>(i2, 0)]")), null}
         };
     }
 
@@ -83,10 +92,10 @@ public class GenericRuleTest {
         symbolTable.addFunctionSymbol(new FunctionSymbol("b2", Sort.BOOL));
         symbolTable.addFunctionSymbol(new FunctionSymbol("b3", Sort.BOOL));
         symbolTable.addFunctionSymbol(new FunctionSymbol("b4", Sort.BOOL));
-        symbolTable.addFunctionSymbol(new FunctionSymbol("i1", Sort.BOOL));
-        symbolTable.addFunctionSymbol(new FunctionSymbol("i2", Sort.BOOL));
-        symbolTable.addFunctionSymbol(new FunctionSymbol("i3", Sort.BOOL));
-        symbolTable.addFunctionSymbol(new FunctionSymbol("i4", Sort.BOOL));
+        symbolTable.addFunctionSymbol(new FunctionSymbol("i1", Sort.INT));
+        symbolTable.addFunctionSymbol(new FunctionSymbol("i2", Sort.INT));
+        symbolTable.addFunctionSymbol(new FunctionSymbol("i3", Sort.INT));
+        symbolTable.addFunctionSymbol(new FunctionSymbol("i4", Sort.INT));
     }
 
 
@@ -119,7 +128,7 @@ public class GenericRuleTest {
         ProofNode pn = new ProofNode(null, null, null, s, null);
 
         Parameters params = new Parameters();
-        params.putValue("on", ts.selectTopterm(s).getTerm());
+        params.putValue("on", ts.selectSubterm(s));
 
         ProofRuleApplication pra = pr.considerApplication(pn, s, ts);
         assertEquals(pra.getApplicability(), ProofRuleApplication.Applicability.APPLICABLE);
@@ -129,8 +138,10 @@ public class GenericRuleTest {
         List<ProofNode> newNodes = RuleApplicator.applyRule(pra, pn);
 
         assertEquals(newNodes.size(), results.size());
+
         for (int i = 0; i < newNodes.size(); ++i) {
-            assertTrue(results.contains(newNodes.get(i).getSequent().toString()));
+            //assertTrue(results.contains(newNodes.get(i).getSequent().toString()));
+            assertEquals(results.get(i), newNodes.get(i).getSequent().toString());
         }
     }
 
@@ -190,32 +201,11 @@ public class GenericRuleTest {
         ProofNode pn = new ProofNode(null, null, null, s, null);
 
         Parameters params = new Parameters();
-        params.putValue("on", ts.selectTopterm(s).getTerm());
+        params.putValue("on", ts.selectSubterm(s));
 
         ProofRuleApplication pra = pr.makeApplication(pn, params);
         RuleApplicator.applyRule(pra, pn);
     }
-
-    /*@Test(expected = RuleException.class)
-    @junitparams.Parameters
-    public void genericRuleTestConsiderException(ProofRule pr, String input, TermSelector ts,
-                                             Pair<String, Sort>... usedVars)
-            throws DafnyParserException, RuleException {
-        Sequent s;
-        if(usedVars == null) {
-            s = parseSequent(input);
-        } else {
-            s = parseSequent(input, usedVars);
-        }
-
-        ProofNode pn = new ProofNode(null, null, null, s, null);
-
-        Parameters params = new Parameters();
-        params.putValue("on", ts.selectTopterm(s).getTerm());
-
-        ProofRuleApplication pra = pr.makeApplication(pn, params);
-        RuleApplicator.applyRule(pra, pn);
-    }*/
 
     public static Sequent parseSequent(String sequent, Pair<String, Sort>... usedVars) throws DafnyParserException {
         SymbolTable symbolTable = new BuiltinSymbols();

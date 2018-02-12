@@ -2,9 +2,14 @@ package edu.kit.iti.algover.util;
 
 import edu.kit.iti.algover.data.BuiltinSymbols;
 import edu.kit.iti.algover.parser.DafnyParserException;
+import edu.kit.iti.algover.parser.DafnyTree;
 import edu.kit.iti.algover.proof.ProofFormula;
+import edu.kit.iti.algover.rules.RuleException;
 import edu.kit.iti.algover.rules.TermSelector;
 import edu.kit.iti.algover.term.*;
+import edu.kit.iti.algover.term.builder.TermBuildException;
+import edu.kit.iti.algover.term.builder.TreeTermTranslator;
+import edu.kit.iti.algover.term.builder.TreeTermTranslatorTest;
 import edu.kit.iti.algover.term.parser.TermParser;
 import junitparams.JUnitParamsRunner;
 import junitparams.Parameters;
@@ -12,6 +17,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import java.util.Arrays;
+import java.util.List;
 import java.util.Optional;
 
 import static edu.kit.iti.algover.rules.TermSelector.SequentPolarity.ANTECEDENT;
@@ -27,6 +33,14 @@ public class RuleUtilTest {
         symbols.addFunctionSymbol(new FunctionSymbol("x", Sort.INT));
         symbols.addFunctionSymbol(new FunctionSymbol("y", Sort.INT));
         symbols.addFunctionSymbol(new FunctionSymbol("f", Sort.INT));
+        symbols.addFunctionSymbol(new FunctionSymbol("b1", Sort.BOOL));
+        symbols.addFunctionSymbol(new FunctionSymbol("b2", Sort.BOOL));
+        symbols.addFunctionSymbol(new FunctionSymbol("b3", Sort.BOOL));
+        symbols.addFunctionSymbol(new FunctionSymbol("b4", Sort.BOOL));
+        symbols.addFunctionSymbol(new FunctionSymbol("i1", Sort.INT));
+        symbols.addFunctionSymbol(new FunctionSymbol("i2", Sort.INT));
+        symbols.addFunctionSymbol(new FunctionSymbol("i3", Sort.INT));
+        symbols.addFunctionSymbol(new FunctionSymbol("i4", Sort.INT));
     }
 
     private final Sequent exampleSequent =
@@ -110,5 +124,45 @@ public class RuleUtilTest {
             return false;
         }
         return true;
+    }
+
+    @Test
+    public void testGetSelectorForTerm() throws DafnyParserException, org.antlr.runtime.RecognitionException, TermBuildException, RuleException {
+        TermParser tp = new TermParser(symbols);
+        Sequent s = null;
+        try {
+            s = (tp.parseSequent("b1 || b2 |- b1"));
+        } catch(Exception e) {
+            System.out.println("couldnt parse");
+        }
+
+        TreeTermTranslator ttt = new TreeTermTranslator(symbols);
+        DafnyTree searchTree = TreeTermTranslatorTest.parse("b1 || b2");
+        Term searchTerm = ttt.build(searchTree);
+
+        List<TermSelector> list = RuleUtil.getSelectorForTerm(searchTerm, s);
+
+        assertEquals(1, list.size());
+        assertEquals("A.0", list.get(0).toString());
+    }
+
+    @Test
+    public void TestGetSelectorForTerm2() throws DafnyParserException, org.antlr.runtime.RecognitionException, TermBuildException, RuleException {
+        TermParser tp = new TermParser(symbols);
+        Sequent s = null;
+        try {
+            s = (tp.parseSequent("i1 + i2 + i3 |- i1 - 1"));
+        } catch(Exception e) {
+            System.out.println("couldnt parse");
+        }
+
+        TreeTermTranslator ttt = new TreeTermTranslator(symbols);
+        DafnyTree searchTree = TreeTermTranslatorTest.parse("i1 + i2");
+        Term searchTerm = ttt.build(searchTree);
+
+        List<TermSelector> list = RuleUtil.getSelectorForTerm(searchTerm, s);
+
+        assertEquals(1, list.size());
+        assertEquals("A.0.0", list.get(0).toString());
     }
 }
