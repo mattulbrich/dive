@@ -15,7 +15,7 @@ public class CloseRule extends AbstractProofRule {
 
     public CloseRule() {
         super(
-                new ParameterDescription<>("on", ParameterType.TERM, true)
+                ON_PARAM
         );
     }
 
@@ -42,7 +42,7 @@ public class CloseRule extends AbstractProofRule {
     public ProofRuleApplication makeApplication(ProofNode target, Parameters parameters) throws RuleException {
         checkParameters(parameters);
 
-        Term on = (Term) parameters.getValue("on");
+        Term on = parameters.getValue(ON_PARAM);
 
         return buildApplication(target, on);
     }

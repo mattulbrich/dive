@@ -8,17 +8,17 @@ package edu.kit.iti.algover.util;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Function;
 
+import edu.kit.iti.algover.parser.*;
+import edu.kit.iti.algover.proof.Proof;
+import edu.kit.iti.algover.proof.ProofNode;
+import org.antlr.runtime.Parser;
 import org.antlr.runtime.RecognitionException;
 
-import edu.kit.iti.algover.parser.DafnyException;
-import edu.kit.iti.algover.parser.DafnyParserException;
-import edu.kit.iti.algover.parser.DafnyTree;
-import edu.kit.iti.algover.parser.ReferenceResolutionVisitor;
-import edu.kit.iti.algover.parser.TypeResolution;
 import edu.kit.iti.algover.project.Project;
 import edu.kit.iti.algover.project.ProjectBuilder;
 
@@ -68,6 +68,11 @@ public class TestUtil {
         for (int i = 0; i < indent; i++) {
             buf.append(' ');
         }
+    }
+
+    public static Project mockProject(String s) throws DafnyParserException, DafnyException, RecognitionException, IOException {
+        DafnyTree tree = ParserTest.parseFile(new ByteArrayInputStream(s.getBytes()));
+        return mockProject(tree);
     }
 
     public static Project mockProject(DafnyTree tree) throws IOException, DafnyParserException, DafnyException, RecognitionException {
@@ -126,4 +131,17 @@ public class TestUtil {
     }
 
 
+    public static void setField(Object object, String fieldName, Object value) {
+        setField(object, object.getClass(), fieldName, value);
+    }
+
+    public static void setField(Object object, Class<?> inClass, String fieldName, Object value) {
+        try {
+            Field f = inClass.getDeclaredField(fieldName);
+            f.setAccessible(true);
+            f.set(object, value);
+        } catch(Exception ex) {
+            throw new RuntimeException(ex);
+        }
+    }
 }

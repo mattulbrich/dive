@@ -25,20 +25,12 @@ public class FileUtil {
      * At the moment no error handling if more than one script file exists
      *
      */
-    // REVIEW: this seems strange.
-    /* why not the following ??
-     *  f = new File(dir, name);
-     *  if(!f.exists()) throw ...
-     */
-    public static File findFile(File dir, String name) throws FileNotFoundException{
-        File[] allFilesinDir = dir.listFiles();
-        for (File f: allFilesinDir) {
-            if(f.getName().equals(name)){
-                return f;
-            }
+    // REVIEW: Is this sensible?
+    public static File findFile(File dir, String name) throws FileNotFoundException {
+        File f = new File(dir, name);
+        if(!f.exists()) {
+            throw new FileNotFoundException(f.getAbsolutePath());
         }
-        throw new FileNotFoundException("No file exists with name "+name);
-
-
+        return f;
     }
 }

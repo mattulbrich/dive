@@ -45,6 +45,7 @@ import edu.kit.iti.algover.util.TreeUtil;
  */
 public class MethodPVCBuilder implements PVCBuilder {
 
+    private final Project project;
     /**
      * Path through program which represents state of this pvc
      */
@@ -67,6 +68,7 @@ public class MethodPVCBuilder implements PVCBuilder {
     private Map<TermSelector, DafnyTree> referenceMap;
 
     public MethodPVCBuilder(Project project) {
+        this.project = project;
         if(project != null) {
             this.sequenter = findSequenter(project.getSettings().getString(ProjectSettings.SEQUENTER));
         }
@@ -154,6 +156,16 @@ public class MethodPVCBuilder implements PVCBuilder {
     public Map<TermSelector, DafnyTree> getReferenceMap() {
         ensureSequentExists();
         return Collections.unmodifiableMap(referenceMap);
+    }
+
+    @Override
+    public String getPathIdentifier() {
+        return pathThroughProgram.getPathIdentifier();
+    }
+
+    @Override
+    public Project getProject() {
+        return project;
     }
 
     public PVCSequenter getSequenter() {

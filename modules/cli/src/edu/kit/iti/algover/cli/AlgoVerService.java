@@ -1,0 +1,181 @@
+/*
+ * This file is part of AlgoVer.
+ *
+ * Copyright (C) 2015-2018 Karlsruhe Institute of Technology
+ *
+ */
+
+package edu.kit.iti.algover.cli;
+
+import edu.kit.iti.algover.parser.DafnyException;
+import edu.kit.iti.algover.parser.DafnyParserException;
+import edu.kit.iti.algover.project.ProjectManager;
+import edu.kit.iti.algover.proof.PVC;
+import edu.kit.iti.algover.proof.Proof;
+import edu.kit.iti.algover.proof.ProofStatus;
+import edu.kit.iti.algover.util.FormatException;
+import nonnull.NonNull;
+import nonnull.Nullable;
+
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.function.Predicate;
+
+/**
+ * A class which allows accessing the AlgoVer-System on a rather high level,
+ * only specifying the directory to apply it on.
+ *
+ * @author Mattias Ulbrich
+ */
+public class AlgoVerService {
+
+    /**
+     * The default file name used for the configuration file.
+     */
+    public static final String DEFAULT_CONFIG_FILENAME = "config.xml";
+
+    /**
+     * The directory to analyse
+     */
+    private final @NonNull File directory;
+
+    /**
+     * The actually used configuration file name, defaults to
+     * {@link #DEFAULT_CONFIG_FILENAME}.
+     */
+    private String configName = DEFAULT_CONFIG_FILENAME;
+
+    /**
+     * A filter to focus the analysis to the PVCs which are interesting.
+     * Defaults to a predicate which does not filter at all.
+     */
+    private Predicate<PVC> pvcFilter = x -> true;
+
+    /**
+     * Verbosity flag. If set to true, print more to stderr.
+     */
+    private boolean verbose = false;
+
+    /**
+     * Intermediate result. The manager is stored after parsing.
+     */
+    private @Nullable ProjectManager projectManager;
+
+    /**
+     * Instantiate an AlgoVer run instance.
+     *
+     * @param directory the directory containing config and code.
+     */
+    public AlgoVerService(@NonNull File directory) {
+        this.directory = directory;
+    }
+
+    /**
+     * After setting the parameters, actually run the verification.
+     *
+     * @return the list of proofs created during the course of the verification.
+     * @throws DafnyException       if name/type resolution fails
+     * @throws DafnyParserException if dafny parsing fails
+     * @throws IOException          if XML is wrongly formatted or files cannot be read
+     * @throws FormatException      if the settings in the config file are illegally formatted.
+     */
+    public @NonNull List<Proof> runVerification()
+            throws DafnyParserException, IOException, DafnyException, FormatException {
+        ProjectManager pm = getProjectManager();
+        List<PVC> allPVCs = pm.getPVCGroup().getContents();
+        List<Proof> allProofs = new ArrayList<>();
+        for (PVC pvc : allPVCs) {
+            if(pvcFilter.test(pvc)) {
+                allProofs.add(processPVC(pm, pvc));
+            }
+        }
+
+        return allProofs;
+    }
+
+    /*
+     * Process one PVC at a time.
+     */
+    private Proof processPVC(ProjectManager pm, PVC pvc) throws IOException {
+        String id = pvc.getIdentifier();
+        Proof proof = pm.getProofForPVC(id);
+
+        if (verbose) {
+            System.err.println("Working on " + id);
+        }
+
+        try {
+            String script = pm.loadScriptForPVC(id);
+            proof.setScriptText(script);
+        } catch(FileNotFoundException ex) {
+            if (verbose) {
+                System.err.println(" ... No script. Using default script.");
+            }
+        }
+
+        proof.interpretScript();
+        ProofStatus status = proof.getProofStatus();
+
+        if (verbose) {
+            System.err.println(pvc + " : " + status);
+            System.err.println(proof.proofToString());
+
+            if (proof.getFailException() != null) {
+                proof.getFailException().printStackTrace();
+            }
+        }
+
+        return proof;
+    }
+
+    // Getters and setters ...
+
+    public File getDirectory() {
+        return directory;
+    }
+
+    public @NonNull String getConfigName() {
+        return this.configName;
+    }
+
+    public void setConfigName(@NonNull String configName) {
+        this.configName = configName;
+    }
+
+    public @NonNull Predicate<PVC> getPVCFilter() {
+        return this.pvcFilter;
+    }
+
+    public void setPVCFilter(@NonNull Predicate<PVC> pvcFilter) {
+        this.pvcFilter = pvcFilter;
+    }
+
+    public boolean isVerbose() {
+        return this.verbose;
+    }
+
+    public void setVerbose(boolean verbose) {
+        this.verbose = verbose;
+    }
+
+    /**
+     * Create or retrieve the projectmanager for this service.
+     *
+     * This is good to separate parsing from actual verification.
+     * @return the unique manager for this endevaour.
+     * @throws DafnyException       if name/type resolution fails
+     * @throws DafnyParserException if dafny parsing fails
+     * @throws IOException          if XML is wrongly formatted or files cannot be read
+     * @throws FormatException      if the settings in the config file are illegally formatted.
+     */
+    public ProjectManager getProjectManager()
+            throws DafnyParserException, IOException, DafnyException, FormatException {
+        if (projectManager == null) {
+            this.projectManager = new ProjectManager(directory, configName);
+        }
+        return projectManager;
+    }
+}
