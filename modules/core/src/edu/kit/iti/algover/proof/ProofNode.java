@@ -126,9 +126,6 @@ public class ProofNode {
         this.isclosed = isclosed;
     }
 
-    public void setSequent(Sequent sequent) {
-        this.sequent = sequent;
-    }
 
     public void addMutator(ASTNode mutator) {
         this.mutator.add(mutator);
