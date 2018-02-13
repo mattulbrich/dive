@@ -7,6 +7,7 @@ package edu.kit.iti.algover.term.prettyprint;
 
 import edu.kit.iti.algover.data.BuiltinSymbols;
 import edu.kit.iti.algover.data.SymbolTable;
+import edu.kit.iti.algover.parser.DafnyException;
 import edu.kit.iti.algover.parser.DafnyParserException;
 import edu.kit.iti.algover.term.FunctionSymbol;
 import edu.kit.iti.algover.term.Sort;
@@ -121,7 +122,7 @@ public class PrettyPrintTest {
     }
 
     @Test @Parameters
-    public void testArithmetic(String input) throws DafnyParserException {
+    public void testArithmetic(String input) throws DafnyParserException, DafnyException {
 
         Term parsed = TermParser.parse(st, input);
         AnnotatedString printed = new PrettyPrint().print(parsed);
@@ -130,7 +131,7 @@ public class PrettyPrintTest {
     }
 
     @Test @Parameters
-    public void testLogic(String input) throws DafnyParserException {
+    public void testLogic(String input) throws DafnyParserException, DafnyException {
 
         Term parsed = TermParser.parse(st, input);
         AnnotatedString printed = new PrettyPrint().print(parsed);
@@ -165,7 +166,7 @@ public class PrettyPrintTest {
     }
 
     @Test
-    public void testNonFix() throws DafnyParserException {
+    public void testNonFix() throws DafnyParserException, DafnyException {
         Term parsed = TermParser.parse(st, "anything(i1+1)");
         AnnotatedString printed = new PrettyPrint().print(parsed);
 

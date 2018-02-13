@@ -59,7 +59,7 @@ public class ProjectManagerTest {
 
     }
 
-    private void makeTestTerm() throws DafnyParserException {
+    private void makeTestTerm() throws Exception {
         Collection<FunctionSymbol> map = new ArrayList<>();
         SymbolTable symbTable = new MapSymbolTable(new BuiltinSymbols(), map);
         this.testTerm = TermParser.parse(symbTable, "1==2 && 2==3");

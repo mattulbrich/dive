@@ -347,7 +347,7 @@ and_expr:
 
 rel_expr:
   add_expr ( ( '<'^ | '>'^  | '=='^ | '!='^ |
-              '<='^ | '>='^ | 'in'^ | '!in'^ ) add_expr )?
+              '<='^ | '>='^ | 'in'^ | '!in'^ ) add_expr )*
   ;
 
 add_expr:

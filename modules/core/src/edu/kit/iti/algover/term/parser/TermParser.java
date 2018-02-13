@@ -66,7 +66,7 @@ public class TermParser {
      *             if the term was illegally formed. The exception contains a
      *             reference to the erring part of the tree
      */
-    public static Term parse(@NonNull SymbolTable symbols, @NonNull String string) throws DafnyParserException {
+    public static Term parse(@NonNull SymbolTable symbols, @NonNull String string) throws DafnyParserException, DafnyException {
         TermParser tp = new TermParser(symbols);
         return tp.parse(string);
     }
@@ -83,7 +83,7 @@ public class TermParser {
      *             if the sequent was illegally formed. The exception contains a
      *             reference to the erring part of the tree
      */
-    public static Sequent parseSequent(@NonNull SymbolTable symbols, @NonNull String string) throws DafnyParserException {
+    public static Sequent parseSequent(@NonNull SymbolTable symbols, @NonNull String string) throws DafnyParserException, DafnyException {
         TermParser tp = new TermParser(symbols);
         return tp.parseSequent(string);
     }
@@ -96,7 +96,7 @@ public class TermParser {
      * @throws DafnyParserException if the term was illegally formed. The exception contains a
      *                              reference to the erring part of the tree
      */
-    public Sequent parseSequent(String string) throws DafnyParserException {
+    public Sequent parseSequent(String string) throws DafnyParserException, DafnyException {
 
         // create stream and lexer
         ANTLRStringStream input = new ANTLRStringStream(string);
@@ -124,6 +124,7 @@ public class TermParser {
 
         // syntactic desugaring
         SyntacticSugarVistor.visit(t);
+
         return toSequent(t, new HistoryMap<>(new HashMap<>()));
     }
 
@@ -155,7 +156,7 @@ public class TermParser {
      *             if the term was illegally formed. The exception contains a
      *             reference to the erring part of the tree
      */
-    public Term parse(String string) throws DafnyParserException {
+    public Term parse(String string) throws DafnyParserException, DafnyException {
 
         // create stream and lexer
         ANTLRStringStream input = new ANTLRStringStream(string);

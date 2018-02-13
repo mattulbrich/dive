@@ -36,7 +36,7 @@ public class LetInlineVisitorTest {
     }
 
     @Test @Parameters
-    public void test(String input, String expected) throws DafnyParserException, TermBuildException {
+    public void test(String input, String expected) throws Exception {
         BuiltinSymbols s = new BuiltinSymbols();
         s.addFunctionSymbol(new FunctionSymbol("i", Sort.INT));
         s.addFunctionSymbol(new FunctionSymbol("j", Sort.INT));

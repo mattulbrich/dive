@@ -1,6 +1,7 @@
 package edu.kit.iti.algover.script.interpreter;
 
 
+import edu.kit.iti.algover.parser.DafnyException;
 import edu.kit.iti.algover.parser.DafnyParserException;
 import edu.kit.iti.algover.proof.ProofNode;
 import edu.kit.iti.algover.script.ast.*;
@@ -87,7 +88,7 @@ public class Evaluator<T> extends DefaultASTVisitor<Value> implements ScopeObser
         Value termV = null;
         try {
             termV = new Value<>(Type.TERM, TermParser.parse(goal.getPVC().getSymbolTable(), term.getText()));
-        } catch (DafnyParserException e) {
+        } catch (DafnyException | DafnyParserException e) {
             System.out.println("Could not translate term " + term.getText());
             e.printStackTrace();
         }
@@ -103,7 +104,7 @@ public class Evaluator<T> extends DefaultASTVisitor<Value> implements ScopeObser
 
             seqValue = new Value<>(Type.TERM, TermParser.parseSequent(((ProofNode) goal).getPVC().getSymbolTable(), sequentLiteral.getText()));
 
-        } catch (DafnyParserException e) {
+        } catch (DafnyException | DafnyParserException e) {
             System.out.println("Could not translate term " + sequentLiteral.getText());
             e.printStackTrace();
         }
