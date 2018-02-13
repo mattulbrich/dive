@@ -45,6 +45,9 @@ import static edu.kit.iti.algover.smt.SMTSolver.Result.SAT;
  */
 public class Z3Rule extends AbstractProofRule {
 
+    private static final String PREAMBLE =
+            "(assert (forall ((m (Array Int Int))) (>= (select m (- 1)) 0)))\n";
+
     @Override
     public String getName() {
         return "z3";
@@ -97,6 +100,8 @@ public class Z3Rule extends AbstractProofRule {
 
         StringBuilder sb = new StringBuilder();
 
+        sb.append(PREAMBLE);
+
         try {
             for (FunctionSymbol fs : symbolTable.getAllSymbols()) {
                 if (fs.getResultSort().equals(Sort.INT) && fs.getArity() == 0) {
@@ -126,14 +131,14 @@ public class Z3Rule extends AbstractProofRule {
 
 
             String smt = sb.toString();
-            System.out.println(smt);
+            // System.out.println(smt);
             out.write(smt.getBytes());
             out.close();
 
             BufferedReader br = new BufferedReader(new InputStreamReader(in));
             String line;
             while((line = br.readLine()) != null) {
-                System.err.println("Z3: " + line);
+                // System.err.println("Z3: " + line);
                 switch(line) {
                 case "unsat":
                     return true;
