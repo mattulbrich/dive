@@ -181,7 +181,9 @@ public class ProjectManagerTest {
 
         proof.setScriptTextAndInterpret(" ");
         assertTrue(proof.getProofRoot().getChildren().isEmpty());
-        Assert.assertNull(proof.getFailException());
+        if (proof.getFailException() != null)
+            proof.getFailException().printStackTrace();
+        Assert.assertNull(proof.getFailException()); //Warum soll hier eine Fail exception fallen? Der Proof Root existiert doch
 
         proof.setScriptTextAndInterpret(" /* empty script */ ");
         assertTrue(proof.getProofRoot().getChildren().isEmpty());

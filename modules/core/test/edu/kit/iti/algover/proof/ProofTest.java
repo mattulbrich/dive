@@ -14,6 +14,7 @@ import edu.kit.iti.algover.term.Term;
 import edu.kit.iti.algover.term.builder.TermBuilder;
 import edu.kit.iti.algover.term.parser.TermParser;
 import edu.kit.iti.algover.util.TestUtil;
+import org.antlr.runtime.RecognitionException;
 import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.BeforeClass;
@@ -70,15 +71,24 @@ public class ProofTest {
         Assert.assertNotNull(p.getProofRoot());
     }
 
-    @Test
+    @Test(expected = org.antlr.v4.runtime.RecognitionException.class)
     public void gibberish() throws Exception {
         Proof p = makeProof("true");
-        p.setScriptTextAndInterpret("this does not make sense");
+        p.setScriptTextAndInterpret("!§$%&");
         Assert.assertEquals(ProofStatus.FAILING, p.getProofStatus());
-        Assert.assertNotNull(p.getFailException());
         Assert.assertNotNull(p.getProofRoot());
+        throw p.getFailException();
+    }
+
+    @Test
+    public void extraInput() throws Exception {
+        Proof p = makeProof("true");
+        p.setScriptTextAndInterpret("fake; 123");
+        Assert.assertEquals(ProofStatus.FAILING, p.getProofStatus());
         if(TestUtil.VERBOSE)
             p.getFailException().printStackTrace();
+        Assert.assertNotNull(p.getFailException());
+        Assert.assertNotNull(p.getProofRoot());
     }
 
     @Test

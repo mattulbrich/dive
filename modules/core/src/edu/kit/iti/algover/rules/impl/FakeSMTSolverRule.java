@@ -55,6 +55,8 @@ public class FakeSMTSolverRule extends AbstractProofRule {
     @Override
     public ProofRuleApplication makeApplication(ProofNode target, Parameters parameters) throws RuleException {
 
+        checkParameters(parameters);
+
         boolean decision;
         if(parameters.hasValue(CLOSE_PARAM)) {
             decision = parameters.getValue(CLOSE_PARAM);

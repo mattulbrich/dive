@@ -149,7 +149,6 @@ public class Proof {
             proofStatus.setValue(newRoot.allLeavesClosed() ? ProofStatus.CLOSED : ProofStatus.OPEN);
 
         } catch(Exception ex) {
-
             // publish the proof root even if the proof has (partially) failed.
             this.proofRoot = newRoot;
             this.failException = ex;

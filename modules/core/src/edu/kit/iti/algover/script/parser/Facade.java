@@ -26,10 +26,7 @@ import edu.kit.iti.algover.script.ScriptLanguageLexer;
 import edu.kit.iti.algover.script.ScriptLanguageParser;
 import edu.kit.iti.algover.script.ast.ASTNode;
 import edu.kit.iti.algover.script.ast.ProofScript;
-import org.antlr.v4.runtime.CharStream;
-import org.antlr.v4.runtime.CharStreams;
-import org.antlr.v4.runtime.CommonTokenStream;
-import org.antlr.v4.runtime.ParserRuleContext;
+import org.antlr.v4.runtime.*;
 
 import java.io.File;
 import java.io.IOException;
@@ -72,7 +69,9 @@ public abstract class Facade {
     public static ProofScript getAST(CharStream stream) {
         TransformAst astt = new TransformAst();
         ScriptLanguageParser.StartContext ctx = parseStream(stream);
-        if (ctx.exception != null) throw ctx.exception;
+
+        RecognitionException exception = ctx.exception;
+        if (exception != null) throw exception;
         ctx.accept(astt);
         return astt.getScript();
     }
