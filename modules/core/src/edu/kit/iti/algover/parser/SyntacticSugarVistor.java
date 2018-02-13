@@ -28,7 +28,10 @@ public class SyntacticSugarVistor {
 
     public static void visit(DafnyTree t) throws DafnyException {
         t.accept(new ParameterContractionVisitor(), null);
-        t.accept(new LabelIntroducer(), null);
+
+        // deactivating the label introduction for the moment.
+        // t.accept(new LabelIntroducer(), null);
+
         new ChainedRelationsVisitor().walk(t);
     }
 

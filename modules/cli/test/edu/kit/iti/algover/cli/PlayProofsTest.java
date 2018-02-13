@@ -13,6 +13,7 @@ import edu.kit.iti.algover.proof.Proof;
 import edu.kit.iti.algover.proof.ProofStatus;
 import edu.kit.iti.algover.util.FormatException;
 import edu.kit.iti.algover.util.TestUtil;
+import org.junit.Assume;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -69,8 +70,15 @@ public class PlayProofsTest {
     }
 
     @Test
-    @Ignore // as long as the script replay are not there ... and no z3 ...
+    // @Ignore // as long as the script replay are not there ... and no z3 ...
     public void run() throws FormatException, DafnyParserException, DafnyException, IOException {
+
+        try {
+            parse();
+        } catch(Throwable ex) {
+            Assume.assumeNoException("Parsing works fine", ex);
+        }
+
         List<Proof> proofs = service.runVerification();
 
         for (Proof proof : proofs) {

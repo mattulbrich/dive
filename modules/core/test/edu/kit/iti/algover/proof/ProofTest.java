@@ -23,6 +23,8 @@ import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import java.util.Collections;
+
 public class ProofTest {
 
     private static Project project;
@@ -46,6 +48,7 @@ public class ProofTest {
         Term term = TermParser.parse(symboltable, termStr);
         pb.setSequent(Sequent.singleSuccedent(new ProofFormula(term)));
         pb.setPathIdentifier("test");
+        pb.setReferenceMap(Collections.emptyMap());
         PVC pvc = pb.build();
         return new Proof(project, pvc);
     }
