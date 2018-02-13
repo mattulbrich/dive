@@ -17,6 +17,7 @@ import edu.kit.iti.algover.proof.PVC;
 import edu.kit.iti.algover.proof.Proof;
 import edu.kit.iti.algover.proof.ProofStatus;
 import edu.kit.iti.algover.util.CommandLine;
+import edu.kit.iti.algover.util.ExceptionDetails;
 import edu.kit.iti.algover.util.FormatException;
 
 import java.io.File;
@@ -62,12 +63,16 @@ public class Main {
                 success &= processDirectory(arg, cl);
             }
 
+            System.out.println("Build " + (success ? "SUCCEEDED" : "FAILED"));
+
+            System.exit(success ? 0 : 1);
+
         } catch(Exception ex) {
             if(cl.isSet(OPTION_VERBOSE)) {
                 ex.printStackTrace();
-            } else {
-                System.err.println("Error: " + ex.getMessage());
             }
+
+            ExceptionDetails.printNiceErrorMessage(ex);
         }
 
     }
@@ -123,11 +128,10 @@ public class Main {
             System.err.println("Error while verifying " + dir + ":");
             if(verbose) {
                 ex.printStackTrace();
-            } else {
-                System.err.println(ex.getMessage());
             }
-            return false;
+            ExceptionDetails.printNiceErrorMessage(ex);
 
+            return false;
         }
 
     }
