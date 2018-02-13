@@ -86,6 +86,7 @@ public class TestRuleApplicator {
         symbTable = new MapSymbolTable(new BuiltinSymbols(), map);
     }
 
+    // REVIEW: What is the assertion in this test? Only that no exception is thrown?
     @Test
     public void test() throws RuleException {
         System.out.println(testSequent);
@@ -103,6 +104,7 @@ public class TestRuleApplicator {
 
     }
 
+    // REVIEW: What is the assertion in this test? Only that no exception is thrown?
     @Test
     public void testAddAndDelete() throws TermBuildException {
         System.out.println(testSequent.getAntecedent());
