@@ -84,7 +84,7 @@ public class DafnyParserException extends Exception {
      * <pre>/path/to/file:42:2: Error message</pre>
      */
     @Override
-    public String toString() {
+    public String getMessage() {
         StringBuilder sb = new StringBuilder();
         if (filename != null) {
             sb.append(filename);
@@ -108,6 +108,10 @@ public class DafnyParserException extends Exception {
         sb.append(super.getMessage());
 
         return sb.toString();
+    }
+
+    public String getErrorMessage() {
+        return super.getMessage();
     }
 
     public int getLine() {
