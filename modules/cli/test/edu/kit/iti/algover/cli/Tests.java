@@ -7,7 +7,6 @@
 
 package edu.kit.iti.algover.cli;
 
-import edu.kit.iti.algover.parser.ParserTest;
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
 import org.junit.runners.Suite.SuiteClasses;

@@ -9,12 +9,15 @@ package edu.kit.iti.algover.proof;
 
 import edu.kit.iti.algover.data.BuiltinSymbols;
 import edu.kit.iti.algover.project.Project;
+import edu.kit.iti.algover.rules.RuleException;
+import edu.kit.iti.algover.script.exceptions.ScriptCommandNotApplicableException;
 import edu.kit.iti.algover.term.Sequent;
 import edu.kit.iti.algover.term.Term;
 import edu.kit.iti.algover.term.builder.TermBuilder;
 import edu.kit.iti.algover.term.parser.TermParser;
 import edu.kit.iti.algover.util.TestUtil;
 import org.antlr.runtime.RecognitionException;
+import org.antlr.v4.runtime.misc.ParseCancellationException;
 import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.BeforeClass;
@@ -34,7 +37,7 @@ public class ProofTest {
         project = null;
     }
 
-    public Proof makeProof(String termStr) throws Exception {
+    private Proof makeProof(String termStr) throws Exception {
         BuiltinSymbols symboltable = new BuiltinSymbols();
         TermBuilder tb = new TermBuilder(symboltable);
         MockPVCBuilder pb = new MockPVCBuilder();
@@ -71,35 +74,37 @@ public class ProofTest {
         Assert.assertNotNull(p.getProofRoot());
     }
 
-    @Test(expected = org.antlr.v4.runtime.RecognitionException.class)
+    @Test(expected = ParseCancellationException.class)
     public void gibberish() throws Exception {
         Proof p = makeProof("true");
         p.setScriptTextAndInterpret("!§$%&");
         Assert.assertEquals(ProofStatus.FAILING, p.getProofStatus());
         Assert.assertNotNull(p.getProofRoot());
+        if(TestUtil.VERBOSE)
+            p.getFailException().printStackTrace();
         throw p.getFailException();
     }
 
-    @Test
+    @Test(expected = ParseCancellationException.class)
     public void extraInput() throws Exception {
         Proof p = makeProof("true");
         p.setScriptTextAndInterpret("fake; 123");
         Assert.assertEquals(ProofStatus.FAILING, p.getProofStatus());
+        Assert.assertNotNull(p.getProofRoot());
         if(TestUtil.VERBOSE)
             p.getFailException().printStackTrace();
-        Assert.assertNotNull(p.getFailException());
-        Assert.assertNotNull(p.getProofRoot());
+        throw p.getFailException();
     }
 
-    @Test
+    @Test(expected = ScriptCommandNotApplicableException.class)
     public void illegalParameter() throws Exception {
         Proof p = makeProof("true");
         p.setScriptTextAndInterpret("fake unknownParameter=true;");
         Assert.assertEquals(ProofStatus.FAILING, p.getProofStatus());
-        Assert.assertNotNull(p.getFailException());
         Assert.assertNotNull(p.getProofRoot());
         if(TestUtil.VERBOSE)
             p.getFailException().printStackTrace();
+        throw p.getFailException();
     }
 
 }
