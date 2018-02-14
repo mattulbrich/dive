@@ -40,8 +40,10 @@ public class DafnyRuleUtil {
             dfb.parseRepresentation(tree);
             dfi = dfb.build();
         } catch (IOException e) {
+            e.printStackTrace();
             throw new DafnyRuleException("DafnyRule with file name " + fileName + " could not be loaded.");
         } catch (DafnyParserException e) {
+            e.printStackTrace();
             throw new DafnyRuleException("Error parsing rule " + fileName + ".");
         } catch (DafnyException e) {
             throw new DafnyRuleException("Error parsing dafny tree for file " + fileName + ".");

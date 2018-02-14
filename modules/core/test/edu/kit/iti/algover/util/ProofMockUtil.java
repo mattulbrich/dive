@@ -41,4 +41,22 @@ public class ProofMockUtil {
         return new ProofNode(parent, null,
                 new Sequent(antedecentFormulas, succedentFormulas), null);
     }
+
+    public static ProofNode mockProofNode(ProofNode parent, ProofFormula[] antedecentTerms, ProofFormula[] succedentTerms) throws TermBuildException {
+        List<ProofFormula> antedecentFormulas = new ArrayList<>(antedecentTerms.length);
+        antedecentFormulas.addAll(Arrays.asList(antedecentTerms));
+        List<ProofFormula> succedentFormulas = new ArrayList<>(succedentTerms.length);
+        succedentFormulas.addAll(Arrays.asList(succedentTerms));
+        return new ProofNode(parent, null,
+                new Sequent(antedecentFormulas, succedentFormulas), null);
+    }
+
+    public static ProofNode mockProofNode(ProofNode parent, List<ProofFormula> antedecentTerms, List<ProofFormula> succedentTerms) throws TermBuildException {
+        List<ProofFormula> antedecentFormulas = new ArrayList<>(antedecentTerms.size());
+        antedecentFormulas.addAll(antedecentTerms);
+        List<ProofFormula> succedentFormulas = new ArrayList<>(succedentTerms.size());
+        succedentFormulas.addAll(succedentTerms);
+        return new ProofNode(parent, null,
+                new Sequent(antedecentFormulas, succedentFormulas), null);
+    }
 }

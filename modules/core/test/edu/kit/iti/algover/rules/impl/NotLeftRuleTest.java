@@ -16,6 +16,7 @@ import edu.kit.iti.algover.term.builder.TermBuildException;
 import edu.kit.iti.algover.term.builder.TreeTermTranslator;
 import edu.kit.iti.algover.term.builder.TreeTermTranslatorTest;
 import edu.kit.iti.algover.term.parser.TermParser;
+import edu.kit.iti.algover.util.ProofMockUtil;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -60,9 +61,9 @@ public class NotLeftRuleTest {
 
 
     @Test
-    public void basicTest() throws RuleException {
+    public void basicTest() throws RuleException, TermBuildException {
         ProofRule notLeftRule = new NotLeftRule();
-        ProofNode pn = new ProofNode(null, null, null, testSequent, null);
+        ProofNode pn = ProofMockUtil.mockProofNode(null, testSequent.getAntecedent(), testSequent.getSuccedent());
 
         TermSelector ts = new TermSelector(TermSelector.SequentPolarity.ANTECEDENT, 0);
         Parameters params = new Parameters();

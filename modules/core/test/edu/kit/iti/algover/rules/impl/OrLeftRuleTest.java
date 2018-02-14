@@ -13,6 +13,7 @@ import edu.kit.iti.algover.term.Sort;
 import edu.kit.iti.algover.term.builder.TermBuildException;
 import edu.kit.iti.algover.term.builder.TreeTermTranslator;
 import edu.kit.iti.algover.term.builder.TreeTermTranslatorTest;
+import edu.kit.iti.algover.util.ProofMockUtil;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -59,9 +60,9 @@ public class OrLeftRuleTest {
 
 
     @Test
-    public void basicTest() throws RuleException {
+    public void basicTest() throws RuleException, TermBuildException {
         ProofRule orLeftRule = new OrLeftRule();
-        ProofNode pn = new ProofNode(null, null, null, testSequent, null);
+        ProofNode pn = ProofMockUtil.mockProofNode(null, testSequent.getAntecedent(), testSequent.getSuccedent());
 
         TermSelector ts = new TermSelector(TermSelector.SequentPolarity.ANTECEDENT, 0);
         Parameters params = new Parameters();
@@ -80,9 +81,9 @@ public class OrLeftRuleTest {
     }
 
     @Test
-    public void notApplicableTest() throws RuleException {
+    public void notApplicableTest() throws RuleException, TermBuildException {
         ProofRule orLeftRule = new OrLeftRule();
-        ProofNode pn = new ProofNode(null, null, null, testSequent, null);
+        ProofNode pn = ProofMockUtil.mockProofNode(null, testSequent.getAntecedent(), testSequent.getSuccedent());
 
         TermSelector ts = new TermSelector(TermSelector.SequentPolarity.SUCCEDENT, 1);
 
@@ -101,9 +102,9 @@ public class OrLeftRuleTest {
     }
 
     @Test(expected = RuleException.class)
-    public void throwExceptionTest() throws RuleException {
+    public void throwExceptionTest() throws RuleException, TermBuildException {
         ProofRule orLeftRule = new OrLeftRule();
-        ProofNode pn = new ProofNode(null, null, null, testSequent, null);
+        ProofNode pn = ProofMockUtil.mockProofNode(null, testSequent.getAntecedent(), testSequent.getSuccedent());
 
         Parameters params = new Parameters();
         params.putValue("on", testSequent.getAntecedent().get(1).getTerm());
@@ -112,9 +113,9 @@ public class OrLeftRuleTest {
     }
 
     @Test(expected = RuleException.class)
-    public void throwExceptionTest1() throws RuleException {
+    public void throwExceptionTest1() throws RuleException, TermBuildException {
         ProofRule orLeftRule = new OrLeftRule();
-        ProofNode pn = new ProofNode(null, null, null, testSequent, null);
+        ProofNode pn = ProofMockUtil.mockProofNode(null, testSequent.getAntecedent(), testSequent.getSuccedent());
 
         Parameters params = new Parameters();
         params.putValue("on", testSequent.getSuccedent().get(1).getTerm());

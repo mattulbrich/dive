@@ -9,8 +9,10 @@ import edu.kit.iti.algover.rules.Parameters;
 import edu.kit.iti.algover.term.FunctionSymbol;
 import edu.kit.iti.algover.term.Sequent;
 import edu.kit.iti.algover.term.Sort;
+import edu.kit.iti.algover.term.builder.TermBuildException;
 import edu.kit.iti.algover.term.parser.TermParser;
 import edu.kit.iti.algover.util.Pair;
+import edu.kit.iti.algover.util.ProofMockUtil;
 import junitparams.JUnitParamsRunner;
 import org.junit.Before;
 import org.junit.Test;
@@ -52,10 +54,11 @@ public class GenericRuleTest {
     public Object [][] parametersForGenericRuleTestApplicable() {
         ProofRule pr = null;
         try {
-            pr = DafnyRuleUtil.generateDafnyRuleFromFile("./test-res/edu/kit/iti/algover/dafnyrules/addzero2.dfy");
+            pr = DafnyRuleUtil.generateDafnyRuleFromFile("./modules/core/test-res/edu/kit/iti/algover/dafnyrules/addzero2.dfy");
         } catch(DafnyRuleException e) {
             System.out.println("Error creating DafnyRule.");
             e.printStackTrace();
+            return new Object[0][0];
         }
         return new Object[][] {
                 {new OrLeftRule(), "b1 || b2 |- b1", new TermSelector(TermSelector.SequentPolarity.ANTECEDENT, 0),
@@ -117,7 +120,7 @@ public class GenericRuleTest {
     @junitparams.Parameters
     public void genericRuleTestApplicable(ProofRule pr, String input, TermSelector ts,
                                 List<String> results, Pair<String, Sort>... usedVars)
-            throws DafnyParserException, RuleException {
+            throws DafnyParserException, RuleException, TermBuildException {
         Sequent s = null;
         if(usedVars == null) {
             s = parseSequent(input);
@@ -125,7 +128,7 @@ public class GenericRuleTest {
             s = parseSequent(input, usedVars);
         }
 
-        ProofNode pn = new ProofNode(null, null, null, s, null);
+        ProofNode pn = ProofMockUtil.mockProofNode(null, s.getAntecedent(), s.getSuccedent());
 
         Parameters params = new Parameters();
         params.putValue("on", ts.selectSubterm(s));
@@ -161,7 +164,7 @@ public class GenericRuleTest {
     @junitparams.Parameters
     public void genericRuleTestNotApplicable(ProofRule pr, String input, TermSelector ts,
                                           Pair<String, Sort>... usedVars)
-            throws DafnyParserException, RuleException {
+            throws DafnyParserException, RuleException, TermBuildException {
         Sequent s;
         if(usedVars == null) {
             s = parseSequent(input);
@@ -169,7 +172,7 @@ public class GenericRuleTest {
             s = parseSequent(input, usedVars);
         }
 
-        ProofNode pn = new ProofNode(null, null, null, s, null);
+        ProofNode pn = ProofMockUtil.mockProofNode(null, s.getAntecedent(), s.getSuccedent());
 
         ProofRuleApplication pra = pr.considerApplication(pn, s, ts);
         assertEquals(pra.getApplicability(), ProofRuleApplication.Applicability.NOT_APPLICABLE);
@@ -190,7 +193,7 @@ public class GenericRuleTest {
     @junitparams.Parameters
     public void genericRuleTestMakeException(ProofRule pr, String input, TermSelector ts,
                                              Pair<String, Sort>... usedVars)
-            throws DafnyParserException, RuleException {
+            throws DafnyParserException, RuleException, TermBuildException {
         Sequent s;
         if(usedVars == null) {
             s = parseSequent(input);
@@ -198,7 +201,7 @@ public class GenericRuleTest {
             s = parseSequent(input, usedVars);
         }
 
-        ProofNode pn = new ProofNode(null, null, null, s, null);
+        ProofNode pn = ProofMockUtil.mockProofNode(null, s.getAntecedent(), s.getSuccedent());
 
         Parameters params = new Parameters();
         params.putValue("on", ts.selectSubterm(s));
