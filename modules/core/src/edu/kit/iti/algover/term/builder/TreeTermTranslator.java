@@ -22,6 +22,7 @@ import edu.kit.iti.algover.term.SchemaVarTerm;
 import edu.kit.iti.algover.term.Sort;
 import edu.kit.iti.algover.term.Term;
 import edu.kit.iti.algover.term.VariableTerm;
+import edu.kit.iti.algover.util.ASTUtil;
 import edu.kit.iti.algover.util.HistoryMap;
 import edu.kit.iti.algover.util.ImmutableList;
 import edu.kit.iti.algover.util.Pair;
@@ -117,11 +118,14 @@ public class TreeTermTranslator {
         if (history.size() == 0) {
             return build(expression);
         } else {
-            return buildLetExpression(history.getHead(),
+            return buildLetExpression(history.getLast(),
                     history.getTail(), expression);
         }
     }
 
+    /*
+     * see #buildLetCascade
+     */
     private Term buildLetExpression(DafnyTree assignment, ImmutableList<DafnyTree> tail, DafnyTree result)
             throws TermBuildException {
         DafnyTree errorTree = assignment;
@@ -174,12 +178,19 @@ public class TreeTermTranslator {
                 Term object = build(receiver.getChild(0));
                 Term index = build(receiver.getChild(1));
                 Term value = build(expression);
-                Term heap = getHeap();
-                Term appl = tb.storeArray(heap, object, index, value);
-                boundVars.put(HEAP_VAR.getName(), HEAP_VAR);
-                let = new LetTerm(HEAP_VAR, appl, buildLetCascade(tail, result));
-                boundVars.pop();
-                return let;
+                if (object.getSort().getName().equals("array")) {
+                    Term heap = getHeap();
+                    Term appl = tb.storeArray(heap, object, index, value);
+                    boundVars.put(HEAP_VAR.getName(), HEAP_VAR);
+                    let = new LetTerm(HEAP_VAR, appl, buildLetCascade(tail, result));
+                    boundVars.pop();
+                    return let;
+                } else if (object.getSort().getName().equals("seq")) {
+                    DafnyTree call = ASTUtil.call("$seq_upd<int>", receiver.getChild(0),
+                            receiver.getChild(1), expression);
+                    DafnyTree assign = ASTUtil.assign(receiver.getChild(0), call);
+                    return buildLetExpression(assign, tail, result);
+                }
             }
 
             //            case DafnyParser.LISTEX:
@@ -502,7 +513,7 @@ public class TreeTermTranslator {
 
         String classId = receiver.getSort().toString();
         String fieldId = tree.getChild(1).getText();
-        String fieldName = "field$" + classId + "$" + fieldId;
+        String fieldName = TermBuilder.fieldName(classId, fieldId);
         FunctionSymbol field = symbolTable.getFunctionSymbol(fieldName);
 
         if(field == null) {

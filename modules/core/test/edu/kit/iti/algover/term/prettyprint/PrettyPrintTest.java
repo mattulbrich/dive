@@ -118,7 +118,7 @@ public class PrettyPrintTest {
         st.addFunctionSymbol(new FunctionSymbol("a2", Sort.get("array2", Sort.INT)));
 
         st.addFunctionSymbol(new FunctionSymbol("o", C));
-        st.addFunctionSymbol(new FunctionSymbol("field$C$f", Sort.get("field", C, Sort.INT)));
+        st.addFunctionSymbol(new FunctionSymbol("C$$f", Sort.get("field", C, Sort.INT)));
     }
 
     @Test @Parameters

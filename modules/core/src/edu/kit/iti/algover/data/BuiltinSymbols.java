@@ -176,6 +176,11 @@ public class BuiltinSymbols extends MapSymbolTable {
                     new FunctionSymbol("$seq_get", FunctionSymbolFamily.VAR1,
                             SEQ1, Sort.INT), 1);
 
+    public static final FunctionSymbolFamily SEQ_UPDATE =
+            new FunctionSymbolFamily(
+                    new FunctionSymbol("$seq_upd", SEQ1,
+                            SEQ1, Sort.INT, FunctionSymbolFamily.VAR1), 1);
+
     private static final Sort SET_OBJECTS = Sort.get("set", Sort.OBJECT);
 
     public static final FunctionSymbol EVERYTHING =

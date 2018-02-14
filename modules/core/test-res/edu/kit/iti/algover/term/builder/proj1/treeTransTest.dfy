@@ -23,3 +23,18 @@ class C {
       d.field := null;
    }
 }
+
+class Seq {
+
+   var fsq : seq<int>;
+
+   method s()
+     ensures true
+   {
+     var sq : seq<int>;
+
+     sq[0] := 2;
+     // fsq[1] := 3;
+     this.fsq[2] := 4;
+   }
+}

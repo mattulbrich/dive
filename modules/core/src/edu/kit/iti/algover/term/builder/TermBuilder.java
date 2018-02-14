@@ -143,8 +143,15 @@ public class TermBuilder {
         return cons("this");
     }
 
+
+
     public Term makeFieldConst(String clazz, String field) throws TermBuildException {
-        return cons(clazz + "$$" + field);
+        return cons(fieldName(clazz, field));
+    }
+
+    // FIXME TODO REVIEW change this to "field$" + clazz + "$" + field
+    public static String fieldName(String clazz, String field) {
+        return clazz + "$$" + field;
     }
 
     public Term selectField(Term heap, Term recv, Term field) throws TermBuildException {
