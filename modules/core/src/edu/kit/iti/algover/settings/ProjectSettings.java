@@ -7,6 +7,7 @@ import edu.kit.iti.algover.util.StringValidators;
 import edu.kit.iti.algover.util.Util;
 import nonnull.NonNull;
 
+import javax.xml.bind.annotation.XmlType;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -46,6 +47,7 @@ public class ProjectSettings {
     public static final String SYMBEX_UNROLL_LOOPS = "Unroll Loops";
     public static final String SYMBEX_INLINE_METHODS = "Inline Methods";
     public static final String SEQUENTER = "Sequent Generation Type";
+    public static final String DEFAULT_SCRIPT = "Default Script";
 
     private static final Property DEFINED_PROPERTIES[] = {
             new Property(DAFNY_TIMEOUT, "5", StringValidators.POSITIVE_VALIDATOR),
@@ -56,6 +58,7 @@ public class ProjectSettings {
             new Property(SEQUENTER,
                     PVCSequenter.INSTANCES.get(0).getName(),
                     StringValidators.oneOfValidator(Util.map(PVCSequenter.INSTANCES, PVCSequenter::getName))),
+            new Property(DEFAULT_SCRIPT, "", StringValidators.ANY_VALIDATOR),
     };
 
     /**

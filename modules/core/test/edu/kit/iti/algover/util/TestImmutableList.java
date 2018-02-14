@@ -154,6 +154,12 @@ public class TestImmutableList {
     }
 
     @Test
+    public void testFindFirst() {
+        ImmutableList<String> s = ImmutableList.from(Arrays.asList("1", "2", "3", "4", "5", "6"));
+        assertEquals("2", s.findFirst(x -> Integer.parseInt(x) % 2 == 0));
+    }
+
+    @Test
     public void testEquals() {
         ImmutableList<String> s = ImmutableList.from(Arrays.asList("1", "2", "3", "4"));
         ImmutableList<String> s2 = ImmutableList.from(Arrays.asList("1", "2", "3", "4"));

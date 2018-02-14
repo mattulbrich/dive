@@ -91,6 +91,9 @@ public class TreeTermTranslatorTest {
             { "i1 != i2", "$not($eq<int>(i1, i2))" },
             { "i1 - 1 - 2", "$minus($minus(i1, 1), 2)" },
 
+            { "!b1", "$not(b1)" },
+            { "-i1", "$neg(i1)" },
+
             { "false && true", "$and(false, true)" },
             { "b1 || b2 ==> b3", "$imp($or(b1, b2), b3)" },
             { "forall x,y,z:int :: x > y+z",
@@ -123,12 +126,22 @@ public class TreeTermTranslatorTest {
               "(let i1, i2 := i2, i1 :: $plus(i1, i2))" },
             { "if i1 > 5 then i2 else i1",
               "$ite<int>($gt(i1, 5), i2, i1)" },
-            {"-1", "$neg(1)"},
+            { "-1", "$neg(1)" },
 
             // Associativity
-            {"1+2-3", "$minus($plus(1, 2), 3)"},
-            {"1*2*3", "$times($times(1, 2), 3)"},
-            {"b1 ==> b2 ==> b3", "$imp(b1, $imp(b2, b3))"},
+            { "1+2-3", "$minus($plus(1, 2), 3)" },
+            { "1*2*3", "$times($times(1, 2), 3)" },
+            { "b1 ==> b2 ==> b3", "$imp(b1, $imp(b2, b3))" },
+
+            // Heap accesses
+            { "c.f", "$select<C,int>($heap, c, field$C$f)" },
+            { "c.f@loopHeap", "$select<C,int>(loopHeap, c, field$C$f)" },
+
+            // Heap updates
+            { "$heap[c.f := 1]", "$store<C,int>($heap, c, field$C$f, 1)" },
+            { "$heap[$anon(mod, loopHeap)]", "$anon($heap, mod, loopHeap)" },
+            { "$heap[$create(c)]", "$create($heap, c)" },
+
         };
     }
 
@@ -168,6 +181,13 @@ public class TreeTermTranslatorTest {
             {"i1[i1]", "Unsupported array sort: int" },
             { "args(__, ?x, ?y, ?z)", "Illegal number of arguments" },
             { "args(?x, ?y, ?z, __)", "Illegal number of arguments" },
+            { "c.f@1", "heap suffixes must specify a heap" },
+            { "c.g", "Field g not found in class C" },
+            { "1.f", "field access only possible for class sorts" },
+            { "1@loopHeap", "heap suffixes are only allowed for heap select terms" },
+            { "b1[c.f:=1]", "Heap updates must be applied to heaps" },
+            { "loopHeap[c := c]", "Heap updates must modify a heap location" },
+            { "loopHeap[c.f := true]", "Unexpected argument sort for argument 4 to $store" },
         };
     }
 
@@ -186,6 +206,9 @@ public class TreeTermTranslatorTest {
         map.add(new FunctionSymbol("c", Sort.getClassSort("C")));
         map.add(new FunctionSymbol("c2", Sort.getClassSort("C")));
         map.add(new FunctionSymbol("args", Sort.INT, Sort.INT, Sort.BOOL, Sort.BOOL));
+        map.add(new FunctionSymbol("field$C$f", Sort.get("field", Sort.getClassSort("C"), Sort.INT)));
+        map.add(new FunctionSymbol("loopHeap", Sort.HEAP));
+        map.add(new FunctionSymbol("mod", Sort.get("set", Sort.OBJECT)));
         symbTable = new MapSymbolTable(new BuiltinSymbols(), map);
     }
 
@@ -363,8 +386,6 @@ public class TreeTermTranslatorTest {
     @Test
     public void testFieldAccess() throws Exception {
         symbTable.addFunctionSymbol(new FunctionSymbol("this", Sort.get("C")));
-        symbTable.addFunctionSymbol(new FunctionSymbol("field$C$f",
-                Sort.get("field", Sort.get("C"), Sort.INT)));
         DafnyTree tree = DafnyFileParser.parse(TestUtil.toStream("class C { var f : int; "
                 + "method m() returns (r : int) { r := this.f; } }"));
         Project p = TestUtil.mockProject(tree);

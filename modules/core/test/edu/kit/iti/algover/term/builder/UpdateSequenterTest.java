@@ -48,7 +48,6 @@ public class UpdateSequenterTest extends SequenterTest {
 
     // used to debug a problem.
     @Test
-    @Ignore
     public void testLetProblem1() throws Exception {
         InputStream is = getClass().getResourceAsStream("gcd.dfy");
         DafnyTree top = ParserTest.parseFile(is, null);

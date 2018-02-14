@@ -30,6 +30,7 @@ public class AlgoVerApplication extends Application {
     @Override
     public void start(Stage primaryStage) throws Exception {
         // Let user choose a project directory
+        // REVIEW: MU: Let the user choose a directory, not the config file ...?
         FileChooser chooser = new FileChooser();
         chooser.setSelectedExtensionFilter(new FileChooser.ExtensionFilter("AlgoVer configuration xmls", "xml"));
         chooser.setTitle("Choose project config file");
@@ -37,8 +38,7 @@ public class AlgoVerApplication extends Application {
         File projectConfigFile = chooser.showOpenDialog(primaryStage);
 
         // Read all PVCs and update GUI
-        ProjectManager manager = new ProjectManager();
-        manager.loadProject(projectConfigFile);
+        ProjectManager manager = new ProjectManager(projectConfigFile.getParentFile(), projectConfigFile.getName());
 
         MainController controller = new MainController(manager, SYNTAX_HIGHLIGHTING_EXECUTOR);
         Scene scene = new Scene(controller.getView());

@@ -17,10 +17,10 @@ import java.util.Set;
 import java.util.concurrent.ExecutorService;
 
 /**
+ * Controller for the view that handles all {@link DafnyCodeArea} tabs.
+ *
  * Created by philipp on 26.06.17.
  */
-// TODO: Implement saving files / updating files when they change on disk
-// but maybe that has to wait until ProjectManager is ready
 public class EditorController {
 
     private static final int PVC_LAYER = 0;
@@ -31,6 +31,11 @@ public class EditorController {
     private final LayeredHighlightingRule highlightingLayers;
     private final ExecutorService executor;
 
+    /**
+     * Initializes the controller without any code editor tabs.
+     *
+     * @param executor used by the code area components to asynchronously execute syntax highlighting calculations
+     */
     public EditorController(ExecutorService executor) {
         this.executor = executor;
         this.view = new TabPane();
@@ -49,6 +54,12 @@ public class EditorController {
         }
     }
 
+    /**
+     * If the Editor tab was already open, focus and show it, if not,
+     * open a new tab that shows the given file.
+     *
+     * @param dafnyFile the file to be viewed to the user
+     */
     public void viewFile(DafnyFile dafnyFile) {
         Tab existingTab = tabsByFile.get(dafnyFile);
         if (existingTab != null) {
@@ -75,6 +86,11 @@ public class EditorController {
         return (DafnyCodeArea) view.getSelectionModel().getSelectedItem().getContent();
     }
 
+    /**
+     * Highlight the symbolic execution path of given PVC using the {@link PVCHighlightingRule}.
+     *
+     * @param pvc the PVC to use for highlighting
+     */
     public void viewPVCSelection(PVC pvc) {
         highlightingLayers.setLayer(PVC_LAYER, new PVCHighlightingRule(pvc));
 
@@ -83,6 +99,10 @@ public class EditorController {
                 .forEach(DafnyCodeArea::rerenderHighlighting);
     }
 
+    /**
+     * Resets any symbolic execution path in the editors. Only regular syntax or reference
+     * highlighting will occur after this call.
+     */
     public void resetPVCSelection() {
         highlightingLayers.setLayer(PVC_LAYER, null);
         tabsByFile.forEach((key, value) -> {
@@ -100,6 +120,11 @@ public class EditorController {
         return new String(Files.readAllBytes(path));
     }
 
+    /**
+     * Highlights all given {@link CodeReference}s using the {@link ReferenceHighlightingRule}.
+     *
+     * @param codeReferences code references to highlight
+     */
     public void viewReferences(Set<CodeReference> codeReferences) {
         highlightingLayers.setLayer(REFERENCE_LAYER, new ReferenceHighlightingRule(codeReferences));
 

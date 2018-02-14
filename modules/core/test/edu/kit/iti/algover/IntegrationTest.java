@@ -18,20 +18,22 @@ public class IntegrationTest {
     @Ignore
     @Test
     public void testSumAndMax() throws Exception {
-        String dir = "modules/core/test-res/edu/kit/iti/algover/examples".
+        String dirStr = "modules/core/test-res/edu/kit/iti/algover/examples".
                 replace('/', File.separatorChar);
-        System.out.println(dir);
-        //config file
-        File config = new File(dir + File.separatorChar + "config.xml");
+        // System.out.println(dir);
+        File dir = new File(dirStr);
 
-        ProjectManager pm = new ProjectManager();
+        //config file
+        String config = "config.xml";
 
         //project manager should load project -> this parses all DafnyFiles, creates the PVCs, and empty proof objects
-        pm.loadProject(config);
+        ProjectManager pm = new ProjectManager(dir, config);
         //get all proofs
         pm.getPVCByNameMap().forEach((s, pvc) -> System.out.println("pvc.getName() = " + pvc.getIdentifier()));
         //apply Z3 on all PVCs and build proofs+script
-        pm.getAllProofs().forEach((s, proof) -> proof.interpretASTNode("fake"));
+        pm.getAllProofs().forEach((s, proof) -> {
+            proof.setScriptTextAndInterpret("fake");
+        });
 
     }
 
@@ -42,15 +44,13 @@ public class IntegrationTest {
                 replace('/', File.separatorChar);
         System.out.println(dir);
         //config file
-        File config = new File(dir + File.separatorChar + "config.xml");
-
-        ProjectManager pm = new ProjectManager();
+        String config = "config.xml";
 
         //project manager should load project -> this parses all DafnyFiles, creates the PVCs, and empty proof objects
-        pm.loadProject(config);
+        ProjectManager pm = new ProjectManager(new File(dir), config);
         //get all proofs
         pm.getPVCByNameMap().forEach((s, pvc) -> System.out.println("pvc.getName() = " + pvc.getIdentifier()));
         //apply Z3 on all PVCs and build proofs+script
-        pm.getAllProofs().forEach((s, proof) -> proof.interpretASTNode("fake"));
+        pm.getAllProofs().forEach((s, proof) -> proof.setScriptTextAndInterpret("fake"));
     }
 }

@@ -31,7 +31,7 @@ public class RuleApplicator {
 
         ImmutableList<BranchInfo> applicationInfos = proofRuleApplication.getBranchInfo();
         if (applicationInfos.equals(BranchInfo.UNCHANGED)) {
-            ProofNode unchanged = new ProofNode(pn, proofRuleApplication, pn.getHistory(), pn.getSequent(), pn.getRootPVC());
+            ProofNode unchanged = new ProofNode(pn, proofRuleApplication, pn.getSequent(), pn.getPVC());
             //pn.getChildren().add(unchanged);
             List<ProofNode> retList = new ArrayList<>();
             retList.add(unchanged);
@@ -50,7 +50,7 @@ public class RuleApplicator {
             Sequent newSequent = null;
             try {
                 newSequent = createNewSequent(branchInfo, sequent);
-                ProofNode pnNew = new ProofNode(pn, proofRuleApplication, pn.getHistory(), newSequent, pn.getRootPVC());
+                ProofNode pnNew = new ProofNode(pn, proofRuleApplication, newSequent, pn.getPVC());
                 children.add(pnNew);
 
             } catch (TermBuildException e) {

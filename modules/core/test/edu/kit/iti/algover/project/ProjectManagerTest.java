@@ -27,13 +27,16 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
 
+import static org.junit.Assert.assertTrue;
+
 /**
  * Tests for the methods for ProjectManagement
  */
 public class ProjectManagerTest {
 
-    static final String testDir = ("modules/core/test-res/edu/kit/iti/algover/script").replace('/', File.separatorChar);
-    static final File config = new File(testDir + File.separatorChar + "config2.xml");
+    private static final String testDir = "modules/core/test-res/edu/kit/iti/algover/script".replace('/', File.separatorChar);
+    private static final String config = "config2.xml";
+
     Project p = null;
     Term testTerm;
     String testPVCName = "m1/Post";
@@ -48,7 +51,7 @@ public class ProjectManagerTest {
 
         ProjectBuilder pb = new ProjectBuilder();
         pb.setDir(f1);
-        pb.setConfigFilename("config2.xml");
+        pb.setConfigFilename(config);
         pb.parseProjectConfigurationFile();
         Project p = pb.build();
         this.p = p;
@@ -66,12 +69,12 @@ public class ProjectManagerTest {
 
     @Test
     public void loadExistingProject() throws Exception {
-        pm = new ProjectManager();
-        pm.loadProject(config);
+        // REVIEW: Why is pm a field in the class.
+        pm = new ProjectManager(new File(testDir), config);
         Project project = pm.getProject();
 
         Assert.assertEquals("Number of DafnyFiles", p.getDafnyFiles().size(), project.getDafnyFiles().size());
-        Assert.assertEquals("config2.xml", pm.getConfigFile().getName());
+        Assert.assertEquals("config2.xml", pm.getConfigFilename());
 
         PVCCollection allPVCs = project.getAllPVCs();
         PVC testPVC = project.getPVCByName(testPVC2Name);
@@ -96,7 +99,13 @@ public class ProjectManagerTest {
 //        pm.initializeProofDataStructures(testPVCName);
         // pm.findAndParseScriptFileForPVC(testPVCName);
 
-        Assert.assertEquals("Proofscript is parsed", ProofStatus.SCRIPT_PARSED, proof.getProofStatus());
+        Assert.assertEquals("Proofscript is parsed", ProofStatus.CHANGED_SCRIPT, proof.getProofStatus());
+        Assert.assertNull(proof.getFailException());
+
+        proof.interpretScript();
+        Assert.assertEquals("Proofscript has run", ProofStatus.OPEN, proof.getProofStatus());
+        Assert.assertNull(proof.getFailException());
+
         System.out.println("Proof root for PVC " + testPVC2Name + " \n" + pm.getProofForPVC(testPVC2).getProofRoot().getSequent());
 
         //get the Proof object for a PVC
@@ -105,28 +114,31 @@ public class ProjectManagerTest {
         //Assert.assertEquals("Proofscript is not loaded yet", ProofStatus.NOT_LOADED, proof2.getProofStatus());
 
         //find and parse a script file for PVC
-        pm.findAndParseScriptFileForPVC(testPVC2);
+        String script = pm.loadScriptForPVC(testPVC2);
+        pm.getProofForPVC(testPVC2).setScriptText(script);
 
         //System.out.println("Current State " + proof.getInterpreter().getCurrentState().getSelectedGoalNode());
         //pm.replayAllProofs();
 
         //this should be the way a script should be interpreted
         proof2.interpretScript();
+        Assert.assertNull(proof.getFailException());
+
         //the way to print the proof tree
         //proof2.getProofRoot();
         System.out.println(proof2.proofToString());
         // proof2.invalidate();
 
-        String newScript = "substitute on='let $mod := $everything :: (let x := 1 :: 1== 2 && 2 == 3 && 4==5)';\n" +
-                "substitute on='let x := 1 :: 1== 2 && 2 == 3 &&4==5 '; \n" +
+        String newScript = "//substitute on='let $mod := $everything :: (let x := 1 :: 1== 2 && 2 == 3 && 4==5)';\n" +
+                "//substitute on='let x := 1 :: 1== 2 && 2 == 3 &&4==5 '; \n" +
                 "x:int := 0; \n" +
                 "andRight on='1== 2 && 2 == 3 &&4==5';\n";
         //set a new script text and parse it
-        proof2.setNewScriptTextAndParser(newScript);
+        proof2.setScriptText(newScript);
         System.out.println(proof2.getScript());
         //interpret new Script
-        System.out.println(proof2.interpretScript());
-
+        proof2.interpretScript();
+        Assert.assertNull(proof.getFailException());
 
         pm.getAllProofs().forEach((s1, proof1) -> {
             proof1.invalidate();
@@ -151,24 +163,31 @@ public class ProjectManagerTest {
     // generated. The point that happens is marked via "TODO handling of error state for each visit".
     @Test(expected = ScriptCommandNotApplicableException.class)
     public void testInapplicableScriptCommand() throws ScriptCommandNotApplicableException, Exception {
-        pm = new ProjectManager();
-        pm.loadProject(config);
+        pm = new ProjectManager(new File(testDir), config);
 
         Proof proof = pm.getProofForPVC(testPVCName);
 
-        proof.setNewScriptTextAndInterpret("substitute on='true';");
+        proof.setScriptTextAndInterpret("substitute on='true';");
+        throw proof.getFailException();
     }
 
     // This test currently fails with a NullPointerException, but I felt like an empty script should be
     // interpretable, even though it doesn't advance the proof state...
     @Test
     public void testEmptyScript() throws Exception {
-        pm = new ProjectManager();
-        pm.loadProject(config);
+        pm = new ProjectManager(new File(testDir), config);
 
         Proof proof = pm.getProofForPVC(testPVCName);
 
-        proof.setNewScriptTextAndInterpret("");
+        proof.setScriptTextAndInterpret(" ");
+        assertTrue(proof.getProofRoot().getChildren().isEmpty());
+        if (proof.getFailException() != null)
+            proof.getFailException().printStackTrace();
+        Assert.assertNull(proof.getFailException()); //Warum soll hier eine Fail exception fallen? Der Proof Root existiert doch
+
+        proof.setScriptTextAndInterpret(" /* empty script */ ");
+        assertTrue(proof.getProofRoot().getChildren().isEmpty());
+        Assert.assertNull(proof.getFailException());
     }
 
     @Test

@@ -77,10 +77,10 @@ public class RuleUtil {
     }
 
     /**
-     * Shorthand for <code>{@link #matchTopLevel(Predicate, List) matchTopLevel}(predicate, sequent.getAntecedent())</code>
+     * Shorthand for <code>{@link #matchTopLevelIndex(Predicate, List) matchTopLevel}(predicate, sequent.getAntecedent())</code>
      */
     public static Optional<Integer> matchTopLevelInAntedecent(Predicate<Term> predicate, Sequent sequent) {
-        return matchTopLevel(predicate, sequent.getAntecedent());
+        return matchTopLevelIndex(predicate, sequent.getAntecedent());
     }
 
     /**
@@ -96,10 +96,10 @@ public class RuleUtil {
     }
 
     /**
-     * Shorthand for <code>{@link #matchTopLevel(Predicate, List) matchTopLevel}(predicate, sequent.getSuccedent())</code>
+     * Shorthand for <code>{@link #matchTopLevelIndex(Predicate, List) matchTopLevel}(predicate, sequent.getSuccedent())</code>
      */
     public static Optional<Integer> matchTopLevelInSuccedent(Predicate<Term> predicate, Sequent sequent) {
-        return matchTopLevel(predicate, sequent.getSuccedent());
+        return matchTopLevelIndex(predicate, sequent.getSuccedent());
     }
 
     /**
@@ -110,13 +110,22 @@ public class RuleUtil {
      * @param formulas  either the antecedent or succedent of a sequent: {@link Sequent#getAntecedent()} or {@link Sequent#getSuccedent()}.
      * @return Either an Optional of the index of the first matched top-level term, or Optional.empty() if none could be found.
      */
-    public static Optional<Integer> matchTopLevel(Predicate<Term> predicate, List<ProofFormula> formulas) {
+    public static Optional<Integer> matchTopLevelIndex(Predicate<Term> predicate, List<ProofFormula> formulas) {
         for (int i = 0; i < formulas.size(); i++) {
             if (predicate.test(formulas.get(i).getTerm())) {
                 return Optional.of(i);
             }
         }
         return Optional.empty();
+    }
+
+    public static Optional<TermSelector> matchTopLevel(Predicate<Term> predicate, Sequent sequent) {
+        Optional<TermSelector> antecedent =
+                matchTopLevelInAntedecent(predicate, sequent).map(idx -> new TermSelector(TermSelector.SequentPolarity.ANTECEDENT, idx));
+        if (antecedent.isPresent()) {
+            return antecedent;
+        }
+        return matchTopLevelInSuccedent(predicate, sequent).map(idx -> new TermSelector(TermSelector.SequentPolarity.SUCCEDENT, idx));
     }
 
     /*

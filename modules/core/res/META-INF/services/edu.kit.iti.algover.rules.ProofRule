@@ -7,5 +7,4 @@ edu.kit.iti.algover.rules.impl.PropositionalExpansionRule
 edu.kit.iti.algover.rules.impl.LetSubstitutionRule
 edu.kit.iti.algover.rules.impl.TestTrueAssumption
 edu.kit.iti.algover.rules.impl.RemoveAssumptionRule
-edu.kit.iti.algover.rules.impl.NotLeftRule
-edu.kit.iti.algover.rules.impl.OrLeftRule
+edu.kit.iti.algover.rules.impl.CloseRule

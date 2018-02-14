@@ -16,7 +16,9 @@ import edu.kit.iti.algover.proof.PVC;
 import edu.kit.iti.algover.settings.ProjectSettings;
 import edu.kit.iti.algover.util.FormatException;
 import org.antlr.runtime.RecognitionException;
+import org.xml.sax.SAXException;
 
+import javax.xml.bind.JAXBException;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -36,6 +38,11 @@ import java.util.Map;
  */
 
 public class ProjectBuilder {
+
+    /**
+     * The default filename for configuration xml documents.
+     */
+    public static final String CONFIG_DEFAULT_FILENAME = "config.xml";
 
     /**
      * List of Dafnyfiles that serve as library files (i.e., no {@link PVC} is
@@ -64,7 +71,7 @@ public class ProjectBuilder {
     /**
      * The name of the file containing the configuration.
      */
-    private String configFilename = "config.xml";
+    private String configFilename = CONFIG_DEFAULT_FILENAME;
 
     /**
      * Setting of project
@@ -157,9 +164,9 @@ public class ProjectBuilder {
      * This method invokes the problemloader to load and parse the project
      * configuration file.
      */
-    public void parseProjectConfigurationFile() throws IOException {
+    public void parseProjectConfigurationFile() throws IOException, JAXBException, SAXException {
 
-        File configFile = new File(this.getDir() + "/" + getConfigFilename());
+        File configFile = new File(getDir() + File.separator + getConfigFilename());
 
         Configuration config = ConfigXMLLoader.loadConfigFile(configFile);
 

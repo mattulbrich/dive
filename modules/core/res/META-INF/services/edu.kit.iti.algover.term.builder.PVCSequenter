@@ -2,3 +2,4 @@ edu.kit.iti.algover.term.builder.SimplifiedUpdateSequenter
 edu.kit.iti.algover.term.builder.UpdateSequenter
 edu.kit.iti.algover.term.builder.InlineSequenter
 edu.kit.iti.algover.term.builder.ParallelUpdateSequenter
+edu.kit.iti.algover.term.builder.SSASequenter

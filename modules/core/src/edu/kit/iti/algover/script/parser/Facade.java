@@ -26,10 +26,8 @@ import edu.kit.iti.algover.script.ScriptLanguageLexer;
 import edu.kit.iti.algover.script.ScriptLanguageParser;
 import edu.kit.iti.algover.script.ast.ASTNode;
 import edu.kit.iti.algover.script.ast.ProofScript;
-import org.antlr.v4.runtime.CharStream;
-import org.antlr.v4.runtime.CharStreams;
-import org.antlr.v4.runtime.CommonTokenStream;
-import org.antlr.v4.runtime.ParserRuleContext;
+import org.antlr.v4.runtime.*;
+import org.antlr.v4.runtime.misc.ParseCancellationException;
 
 import java.io.File;
 import java.io.IOException;
@@ -49,6 +47,9 @@ public abstract class Facade {
      */
     public static ScriptLanguageParser getParser(CharStream stream) {
         ScriptLanguageParser slp = new ScriptLanguageParser(new CommonTokenStream(new ScriptLanguageLexer(stream)));
+        BailOutErrorStrategy errorHandler = new BailOutErrorStrategy();
+        slp.setErrorHandler(errorHandler);
+        slp.addErrorListener(errorHandler.ERROR_LISTENER);
         return slp;
     }
 
@@ -59,7 +60,7 @@ public abstract class Facade {
      * @param stream containing the proof script
      * @return
      */
-    public static ScriptLanguageParser.StartContext parseStream(CharStream stream) {
+    public static ScriptLanguageParser.StartContext parseStream(CharStream stream) throws RecognitionException, ParseCancellationException {
         return getParser(stream).start();
     }
 
@@ -69,10 +70,16 @@ public abstract class Facade {
      * @param stream
      * @return
      */
-    public static ProofScript getAST(CharStream stream) {
-        TransformAst astt = new TransformAst();
+    public static ProofScript getAST(CharStream stream) throws RecognitionException, ParseCancellationException {
+
         ScriptLanguageParser.StartContext ctx = parseStream(stream);
-        if (ctx.exception != null) throw ctx.exception;
+        RecognitionException exception = ctx.exception;
+
+        if (exception != null) {
+            throw exception;
+        }
+
+        TransformAst astt = new TransformAst();
         ctx.accept(astt);
         return astt.getScript();
     }

@@ -115,17 +115,17 @@ public class ProofRuleHandler implements CommandHandler<ProofNode> {
             //apply the rule
             ProofRuleApplication proofRuleApplication = pr.makeApplication(parent, ruleParams);
 
-            if (proofRuleApplication.getApplicability().equals(ProofRuleApplication.Applicability.APPLICABLE)) {
+            if (proofRuleApplication.getApplicability() == ProofRuleApplication.Applicability.APPLICABLE) {
 
                 List<ProofNode> newNodes = RuleApplicator.applyRule(proofRuleApplication, parent);
 
                 List<ProofNode> newGoals = new ArrayList<>();
 
                 //add new nodes to state, remove expanded node from state
-                newNodes.forEach(proofNode -> {
+               /* newNodes.forEach(proofNode -> {
                     newGoals.add(proofNode);
-                });
-
+                });*/
+                newGoals.addAll(newNodes);
                 //Zustandswechsel
                 if (newGoals.size() >= 1) {
                     interpreter.getCurrentState().getGoals().addAll(newGoals);
@@ -133,6 +133,9 @@ public class ProofRuleHandler implements CommandHandler<ProofNode> {
                     interpreter.getCurrentState().setSelectedGoalNode(interpreter.getCurrentGoals().get(0));
                 } else {
                     interpreter.getCurrentState().setSelectedGoalNode(null);
+                    parent.setClosed(true);
+                    parent.addMutator(call);
+
                 }
 
             } else {
@@ -152,6 +155,7 @@ public class ProofRuleHandler implements CommandHandler<ProofNode> {
         switch (val.getType()) {
             case STRING:
             case INT:
+            case BOOL:
             case TERM:
                 return val.getData();
 
