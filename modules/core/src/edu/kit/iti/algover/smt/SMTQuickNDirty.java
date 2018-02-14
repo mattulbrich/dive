@@ -92,11 +92,15 @@ public class SMTQuickNDirty implements TermVisitor<Void, SExpr, RuntimeException
 
         switch(n) {
         case "$seq_len<int>":
-            return new SExpr("select", applTerm.getTerm(0).accept(this, null),
-                    new SExpr("-", new SExpr("1")));
+            return new SExpr("seqlen", applTerm.getTerm(0).accept(this, null));
+        case "$seq_upd<int>":
+            return new SExpr("store",
+                    applTerm.getTerm(0).accept(this, null),
+                    applTerm.getTerm(1).accept(this, null),
+                    applTerm.getTerm(2).accept(this, null));
         default:
             if(fs.getArity() != 0)
-                throw new RuntimeException(fs.toString());
+                throw new UnsupportedOperationException(fs.toString());
             return new SExpr("pv$" + fs.getName());
         }
     }

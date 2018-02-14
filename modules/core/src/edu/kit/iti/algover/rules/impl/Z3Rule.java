@@ -46,7 +46,8 @@ import static edu.kit.iti.algover.smt.SMTSolver.Result.SAT;
 public class Z3Rule extends AbstractProofRule {
 
     private static final String PREAMBLE =
-            "(assert (forall ((m (Array Int Int))) (>= (select m (- 1)) 0)))\n";
+            "(define-fun seqlen ((a (Array Int Int))) Int (let ((x (select a (- 1)))) (ite (>= 0 x) x 0)))\n" +
+            "(assert (forall ((m (Array Int Int))) (>= (seqlen m) 0)))\n";
 
     @Override
     public String getName() {
