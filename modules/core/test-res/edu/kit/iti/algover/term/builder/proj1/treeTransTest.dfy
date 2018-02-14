@@ -34,7 +34,7 @@ class Seq {
      var sq : seq<int>;
 
      sq[0] := 2;
-     // fsq[1] := 3;
+     fsq[1] := 3;
      this.fsq[2] := 4;
    }
 }

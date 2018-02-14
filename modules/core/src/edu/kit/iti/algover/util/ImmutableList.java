@@ -381,7 +381,7 @@ public class ImmutableList<T> implements Iterable<T> {
         return data;
     }
 
-    public <U> ImmutableList<U> map(Function<T, U> function) {
+    public <U, E extends Exception> ImmutableList<U> map(FunctionWithException<T, U, E> function) throws E {
         ImmutableList<U> result = nil();
         for (T el : this) {
             result = result.append(function.apply(el));

@@ -84,7 +84,7 @@ public class TypeResolutionTest {
 
         if(expectedErrorTrees.length == 0) {
             InputStream is = getClass().getResourceAsStream(method + ".expected.typing");
-            assertNotNull("missing resource!", is);
+            assertNotNull("missing resource: " + method + ".expected.typing", is);
             String expect = Util.streamToString(is).replaceAll("\\s+", " ").trim();
             String actual = toTypedString(m.getRepresentation()).replaceAll("\\s+", " ").trim();
             assertEquals("Parsing result", expect, actual);

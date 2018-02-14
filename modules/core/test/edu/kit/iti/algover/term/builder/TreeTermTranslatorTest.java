@@ -349,6 +349,8 @@ public class TreeTermTranslatorTest {
         Term expected = TermParser.parse(symbTable,
                 "let sq := $seq_upd<int>(sq, 0, 2) :: " +
                         "let heap := $store<Seq, seq<int>>($heap, this, " +
+                        "Seq$$fsq, $seq_upd<int>($select<Seq,seq<int>>($heap, this, Seq$$fsq), 1, 3)) :: " +
+                        "let heap := $store<Seq,seq<int>>(heap, this, " +
                         "Seq$$fsq, $seq_upd<int>($select<Seq, seq<int>>($heap, this, Seq$$fsq), 2, 4)) :: " +
                         "true");
 

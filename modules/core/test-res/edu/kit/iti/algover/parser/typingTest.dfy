@@ -150,4 +150,13 @@ class C
       var localVar2 : C := 0;
    }
 
+   method sequenceTest(s1 : seq<int>)
+   {
+      var s2 : seq<int>;
+
+      s2 := s1;
+      s2[0] := 0;
+      s1[1] := s2[1];
+   }
+
 }
