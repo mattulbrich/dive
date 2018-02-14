@@ -101,16 +101,18 @@ public class DafnyRule extends AbstractProofRule {
             Term rt = matchings.get(0).instantiate(replaceTerm);
             List<Term> rts = new ArrayList<>();
             for(Term t : requiresTerms) {
+                Term term = matchings.get(0).instantiate(t);
+
                 rts.add(matchings.get(0).instantiate(t));
             }
 
-            try {
-                TermSelector ts = RuleUtil.getSingleSelectorForTerm(on, target.getSequent());
-                //ts = new TermSelector(TermSelector.SequentPolarity.ANTECEDENT, 0, 1);
-                proofRuleApplicationBuilder.newBranch().addReplacement(ts, rt);
-            } catch (IllegalArgumentException e) {
-                throw new RuleException("Rule application is ambiguous.");
+
+            List<TermSelector> l = RuleUtil.matchSubtermsInSequent(on::equals, target.getSequent());
+            if(l.size() != 1) {
+                throw new RuleException("Machting of on parameter is ambiguous");
             }
+            proofRuleApplicationBuilder.newBranch().addReplacement(l.get(0), rt);
+
 
             for(Term t : rts) {
                 BranchInfoBuilder bib = proofRuleApplicationBuilder.newBranch();

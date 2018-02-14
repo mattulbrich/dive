@@ -125,44 +125,4 @@ public class RuleUtilTest {
         }
         return true;
     }
-
-    @Test
-    public void testGetSelectorForTerm() throws DafnyParserException, org.antlr.runtime.RecognitionException, TermBuildException, RuleException {
-        TermParser tp = new TermParser(symbols);
-        Sequent s = null;
-        try {
-            s = (tp.parseSequent("b1 || b2 |- b1"));
-        } catch(Exception e) {
-            System.out.println("couldnt parse");
-        }
-
-        TreeTermTranslator ttt = new TreeTermTranslator(symbols);
-        DafnyTree searchTree = TreeTermTranslatorTest.parse("b1 || b2");
-        Term searchTerm = ttt.build(searchTree);
-
-        List<TermSelector> list = RuleUtil.getSelectorForTerm(searchTerm, s);
-
-        assertEquals(1, list.size());
-        assertEquals("A.0", list.get(0).toString());
-    }
-
-    @Test
-    public void TestGetSelectorForTerm2() throws DafnyParserException, org.antlr.runtime.RecognitionException, TermBuildException, RuleException {
-        TermParser tp = new TermParser(symbols);
-        Sequent s = null;
-        try {
-            s = (tp.parseSequent("i1 + i2 + i3 |- i1 - 1"));
-        } catch(Exception e) {
-            System.out.println("couldnt parse");
-        }
-
-        TreeTermTranslator ttt = new TreeTermTranslator(symbols);
-        DafnyTree searchTree = TreeTermTranslatorTest.parse("i1 + i2");
-        Term searchTerm = ttt.build(searchTree);
-
-        List<TermSelector> list = RuleUtil.getSelectorForTerm(searchTerm, s);
-
-        assertEquals(1, list.size());
-        assertEquals("A.0.0", list.get(0).toString());
-    }
 }
