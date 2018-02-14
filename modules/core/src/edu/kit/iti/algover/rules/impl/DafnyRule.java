@@ -115,10 +115,12 @@ public class DafnyRule extends AbstractProofRule {
 
 
             for(Term t : rts) {
-                BranchInfoBuilder bib = proofRuleApplicationBuilder.newBranch();
-                bib.addDeletionsAntecedent(target.getSequent().getAntecedent());
-                bib.addDeletionsSuccedent(target.getSequent().getSuccedent());
-                bib.addAdditionsSuccedent(new ProofFormula(t));
+                if(!RuleUtil.matchSubtermInSequent(t::equals, target.getSequent()).isPresent()) {
+                    BranchInfoBuilder bib = proofRuleApplicationBuilder.newBranch();
+                    bib.addDeletionsAntecedent(new ProofFormula(on));
+                    bib.addDeletionsSuccedent(target.getSequent().getSuccedent());
+                    bib.addAdditionsSuccedent(new ProofFormula(t));
+                }
             }
         } catch (TermBuildException e) {
             throw new RuleException();
