@@ -61,7 +61,7 @@ public class PlayProofsTest {
     public PlayProofsTest(File directory, String configFile) {
         service = new AlgoVerService(directory);
         service.setConfigName(configFile);
-        service.setVerbose(TestUtil.VERBOSE);
+        service.setVerbosityLevel(TestUtil.VERBOSE ? 2 : 0);
     }
 
     @Test

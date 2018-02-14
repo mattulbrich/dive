@@ -55,14 +55,17 @@ public class AlgoVerService {
     private Predicate<PVC> pvcFilter = x -> true;
 
     /**
-     * Verbosity flag. If set to true, print more to stderr.
+     * Verbosity flag.
+     * If set to 1: Show progress on stderr
+     * If set to 2: Print more info to stderr.
+     * etc.
      */
-    private boolean verbose = false;
+    private int verbosityLevel = 0;
 
     /**
      * Intermediate result. The manager is stored after parsing.
      */
-    private @Nullable ProjectManager projectManager;
+    private @Nullable ProjectManager projectManager = null;
 
     /**
      * Instantiate an AlgoVer run instance.
@@ -103,7 +106,7 @@ public class AlgoVerService {
         String id = pvc.getIdentifier();
         Proof proof = pm.getProofForPVC(id);
 
-        if (verbose) {
+        if (verbosityLevel > 0) {
             System.err.println("Working on " + id);
         }
 
@@ -111,7 +114,7 @@ public class AlgoVerService {
             String script = pm.loadScriptForPVC(id);
             proof.setScriptText(script);
         } catch(FileNotFoundException ex) {
-            if (verbose) {
+            if (verbosityLevel > 1) {
                 System.err.println(" ... No script. Using default script.");
             }
         }
@@ -119,12 +122,15 @@ public class AlgoVerService {
         proof.interpretScript();
         ProofStatus status = proof.getProofStatus();
 
-        if (verbose) {
-            System.err.println(pvc + " : " + status);
-            System.err.println(proof.proofToString());
+        if (verbosityLevel > 0) {
+            System.err.println(" ... " + status);
 
-            if (proof.getFailException() != null) {
-                proof.getFailException().printStackTrace();
+            if(verbosityLevel > 1) {
+                System.err.println(proof.proofToString());
+
+                if (proof.getFailException() != null) {
+                    proof.getFailException().printStackTrace();
+                }
             }
         }
 
@@ -153,12 +159,12 @@ public class AlgoVerService {
         this.pvcFilter = pvcFilter;
     }
 
-    public boolean isVerbose() {
-        return this.verbose;
+    public int getVerbosityLevel() {
+        return verbosityLevel;
     }
 
-    public void setVerbose(boolean verbose) {
-        this.verbose = verbose;
+    public void setVerbosityLevel(int verbosityLevel) {
+        this.verbosityLevel = verbosityLevel;
     }
 
     /**

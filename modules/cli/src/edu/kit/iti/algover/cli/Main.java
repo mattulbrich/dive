@@ -38,6 +38,7 @@ public class Main {
 
     public static final String OPTION_CONFIG_FILENAME = "-c";
     public static final String OPTION_VERBOSE = "-verbose";
+    public static final String OPTION_VERY_VERBOSE = "-vverbose";
     public static final String OPTION_METHOD = "-method";
     public static final String OPTION_CLASS = "-class";
     public static final String OPTION_PVC_MATCH = "-pvcMatch";
@@ -103,10 +104,14 @@ public class Main {
 
         boolean verbose = cl.isSet(OPTION_VERBOSE);
 
+        int verbosity = 0;
+        if(verbose) verbosity ++;
+        if(cl.isSet(OPTION_VERY_VERBOSE)) verbosity ++;
+
         AlgoVerService service = new AlgoVerService(new File(dir));
         service.setConfigName(configFilename);
         service.setPVCFilter(filter);
-        service.setVerbose(verbose);
+        service.setVerbosityLevel(verbosity);
 
         try {
 
@@ -118,8 +123,8 @@ public class Main {
                         System.err.println("Unclosed proofs for " + dir);
                     }
                     System.err.println("  " + proof.getPVCName() + " : " + proof.getProofStatus());
+                    result = false;
                 }
-                result = false;
             }
             return result;
 
@@ -149,6 +154,8 @@ public class Main {
                 "only check VCs whose name matches the argument");
         result.addOption(OPTION_VERBOSE, null,
                 "Be verbose in the output");
+        result.addOption(OPTION_VERY_VERBOSE, null,
+                "Be very verbose in the output");
         result.addOption(OPTION_HELP, null,
                 "Show help");
         return result;
