@@ -100,6 +100,10 @@ public class DafnyMethod extends DafnyDecl {
         return modifiesClause;
     }
 
+    public boolean isLemma() {
+        return getRepresentation().getText().equals("lemma");
+    }
+
     // REVIEW: toString(/) shouldbe oneliner
     @Override
     public String toString() {

@@ -28,23 +28,25 @@ import java.util.*;
  * Created by jklamroth on 1/25/18.
  */
 public class DafnyRule extends AbstractProofRule {
+
+    /**
+     * The dafny declaration which gave rise to this rule.
+     */
+    private final DafnyMethod method;
+
     private String name;
     private final Term searchTerm;
     private final Term replaceTerm;
     private final List<Term> requiresTerms;
 
-    public DafnyRule(String name, Term st, Term rt) {
-        super(ON_PARAM);
-
-        this.name = name;
-        searchTerm = st;
-        replaceTerm = rt;
-        requiresTerms = new ArrayList<>();
+    public DafnyRule(DafnyMethod method, String name, Term st, Term rt) {
+        this(method, name, st, rt, Collections.emptyList());
     }
 
-    public DafnyRule(String name, Term st, Term rt, List<Term> requiresTerms) {
+    public DafnyRule(DafnyMethod method, String name, Term st, Term rt, List<Term> requiresTerms) {
         super(ON_PARAM);
 
+        this.method = method;
         this.name = name;
         searchTerm = st;
         replaceTerm = rt;
@@ -127,5 +129,9 @@ public class DafnyRule extends AbstractProofRule {
         }
 
         return proofRuleApplicationBuilder.build();
+    }
+
+    public DafnyMethod getMethod() {
+        return method;
     }
 }

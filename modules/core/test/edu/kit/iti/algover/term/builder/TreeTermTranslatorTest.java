@@ -54,7 +54,7 @@ public class TreeTermTranslatorTest {
         DafnyParser parser = new DafnyParser(tokens);
         parser.setTreeAdaptor(new DafnyTree.Adaptor());
         parser.setLogicMode(true);
-        //parser.setSchemaMode(supportSchematic);
+        parser.setSchemaMode(supportSchematic);
         // launch the parser starting at rule r, get return object
         expression_only_return result;
         try {

@@ -8,11 +8,13 @@ import edu.kit.iti.algover.data.BuiltinSymbols;
 import edu.kit.iti.algover.data.MapSymbolTable;
 import edu.kit.iti.algover.data.SymbolTable;
 import edu.kit.iti.algover.parser.*;
+import edu.kit.iti.algover.project.Project;
 import edu.kit.iti.algover.rules.impl.DafnyRule;
 import edu.kit.iti.algover.term.*;
 import edu.kit.iti.algover.term.builder.ReplacementVisitor;
 import edu.kit.iti.algover.term.builder.TermBuildException;
 import edu.kit.iti.algover.term.builder.TreeTermTranslator;
+import edu.kit.iti.algover.util.Util;
 
 import java.io.File;
 import java.io.IOException;
@@ -22,9 +24,24 @@ import java.util.List;
 
 /**
  * Created by jklamroth on 2/1/18.
+ * Added to by m. ulbrich.
  */
 public class DafnyRuleUtil {
     private static List<String> programVars;
+
+    public static List<DafnyRule> generateDafnyRules(Project project) throws DafnyRuleException {
+
+        Collection<DafnyMethod> methods = project.getMethods();
+
+        List<DafnyRule> result = new ArrayList<>();
+        for (DafnyMethod method : methods) {
+            if (method.isLemma()) {
+                result.add(generateRule(method));
+            }
+        }
+
+        return result;
+    }
 
     public static DafnyRule generateDafnyRuleFromFile(String fileName)  throws DafnyRuleException {
         String name;
@@ -54,6 +71,15 @@ public class DafnyRuleUtil {
             throw new DafnyRuleException("DafnyRuleFiles may only contain EXACTLY one method but found " + methods.size() + ".");
         }
         DafnyMethod method = (DafnyMethod)methods.toArray()[0];
+        return generateRule(method);
+    }
+
+    private static DafnyRule generateRule(DafnyMethod method) throws DafnyRuleException {
+        String name;
+        SymbolTable symbolTable;
+
+        // REVIEW How do we deal with name clashes? What if a lemma is called "cut" or "case"?
+        // One idea: prefix the name with "lemma_" or "l_". Alternatives?
         name = method.getName();
 
         List<DafnyTree> ensuresClauses = method.getEnsuresClauses();
@@ -67,7 +93,7 @@ public class DafnyRuleUtil {
         List<DafnyTree> equalsClauses = ensuresClause.getChildrenWithType(DafnyParser.EQ);
         DafnyTree equalsClause = equalsClauses.get(0);
 
-        symbolTable = makeSymbolTable(tree);
+        symbolTable = makeSymbolTable(method.getRepresentation());
         TreeTermTranslator ttt = new TreeTermTranslator(symbolTable);
         Term st = null;
         Term rt = null;
@@ -84,7 +110,7 @@ public class DafnyRuleUtil {
         } catch (TermBuildException e) {
             throw new DafnyRuleException("Error parsing equalsClause");
         }
-        return new DafnyRule(name, st, rt, rts);
+        return new DafnyRule(method, name, st, rt, rts);
     }
 
     /**

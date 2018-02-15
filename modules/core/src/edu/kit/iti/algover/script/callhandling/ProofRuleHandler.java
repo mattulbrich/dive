@@ -42,6 +42,8 @@ public class ProofRuleHandler implements CommandHandler<ProofNode> {
      */
     public ProofRuleHandler() {
 
+        // REVIEW: Now, the project is meant to contain these rules and the DafnyRule s. -> Use project,getAllRules()
+        // REVIEW: WHy is the loader retained after completion of the constructor?
         loader = ServiceLoader.load(ProofRule.class);
         loader.iterator().forEachRemaining(proofRule -> {
             rules.add(proofRule);
