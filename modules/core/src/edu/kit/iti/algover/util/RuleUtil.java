@@ -40,12 +40,12 @@ public class RuleUtil {
     }
 
     /**
-     * Tries to match the first Term in the whole sequent, from top to bottom.
+     * Finds all matches of the given Term in the whole sequent, from top to bottom.
      * Starts with the antecedent, goes top to bottom of terms.
      *
      * @param predicate the predicate that the term you are looking for should match. For finding specific terms, use term::equals
      * @param sequent   the sequent to look for the term.
-     * @return Either a filled optional with the first matching TermSelector inside, or Optional.empty() when none could be found.
+     * @return A List of TermSelectors pointing to the matches found.
      */
     public static List<TermSelector> matchSubtermsInSequent(Predicate<Term> predicate, Sequent sequent) {
         List<TermSelector> inAntecedent = matchSubtermsInPolarity(TermSelector.SequentPolarity.ANTECEDENT, predicate, sequent.getAntecedent());
@@ -81,7 +81,7 @@ public class RuleUtil {
     }
 
     /**
-     * Finds a Subterm in only one of the polarities of a sequent. So if you are looking for a <strong>sub</strong>term
+     * Finds all Subterms in only one of the polarities of a sequent. So if you are looking for a <strong>sub</strong>term
      * (i.e. it may be nested deep inside other terms) in the succedent, then use for example:
      * <p>
      * <code>matchSubtermInPolarity(SequentPolarity.SUCCEDENT, termImLookingFor::equals, sequent.getSuccedent())</code>
@@ -92,7 +92,7 @@ public class RuleUtil {
      * @param predicate the predicate that the term has to match. For finding specific terms, use specificTerm::equals
      * @param formulas  either the antecedent or succedent of a sequent (i.e. sequent.getAntedecent() or ...).
      *                  Sublists of that result in incorrect indices in the TermSelector!
-     * @return Either a filled optional with the first matching TermSelector inside, or Optional.empty() when none could be found.
+     * @return A List of TermSelectors pointing to the matches found.
      */
     public static List<TermSelector> matchSubtermsInPolarity(
             TermSelector.SequentPolarity polarity, Predicate<Term> predicate, List<ProofFormula> formulas) {
@@ -137,12 +137,12 @@ public class RuleUtil {
     }
 
     /**
-     * Tries to find a term that matches the given predicate in the given term arbitrarily deeply nested (recursively),
-     * and, if found, returns a SubtermSelector.
+     * Finds all terms that matche the given predicate in the given term arbitrarily deeply nested (recursively),
+     * and returns a list of SubtermSelectors.
      *
      * @param predicate    the predicate that the term has to match. If you're looking for a specificTerm, use <code>specificTerm::equals</code>.
      * @param topLevelTerm
-     * @return Either a filled optional with the first matching SubtermSelector inside, or Optional.empty() when none could be found.
+     * @return A List of TermSelectors pointing to the matches found.
      */
     public static List<SubtermSelector> matchSubterms(Predicate<Term> predicate, Term topLevelTerm) {
         return matchSubtermsAccum(new SubtermSelector(), predicate, topLevelTerm);
