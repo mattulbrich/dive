@@ -48,7 +48,9 @@ public class SMTQuickNDirty implements TermVisitor<Void, SExpr, RuntimeException
         ops.put("$plus", "+");
         ops.put("$minus", "-");
         ops.put("$times", "*");
-        ops.put("$seq_get<int>", "select");
+        ops.put("$seq_upd<int>", "sequpd");
+        ops.put("$seq_len<int>", "seqlen");
+        ops.put("$seq_get<int>", "seqget");
     }
 
     @Override

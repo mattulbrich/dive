@@ -31,12 +31,10 @@ method selectionSort(a: seq<int>) returns (r: seq<int>)
       }
       y := y + 1;
     }
-    var t:int := r[m];
-    r[m] := r[x];
-    r[x] := t;
-    // assert r[x] <= r[x+1];
+    var t:int := a[m];
+    a[m] := a[x];
+    a[x] := t;
 
     x := x + 1;
-    // assert r[x-1] <= r[x];
   }
 }
