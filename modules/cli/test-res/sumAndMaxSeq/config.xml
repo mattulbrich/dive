@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<configuration>
+    <dafnyFile>sumAndMax.dfy</dafnyFile>
+    <settings>
+      <entry><key>Default Script</key><value>z3;</value></entry>
+    </settings>
+</configuration>

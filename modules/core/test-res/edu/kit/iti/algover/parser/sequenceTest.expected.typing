@@ -1,0 +1,7 @@
+(method sequenceTest (ARGS (VAR s1 (seq int)))
+        (BLOCK
+         (var s2 (seq int))
+         (:= s2[seq<int>] s1[seq<int>])
+         (:= (ARRAY_ACCESS s2[seq<int>] 0[int])[int] 0[int])
+         (:= (ARRAY_ACCESS s1[seq<int>] 1[int])[int]
+             (ARRAY_ACCESS s2[seq<int>] 1[int])[int])))

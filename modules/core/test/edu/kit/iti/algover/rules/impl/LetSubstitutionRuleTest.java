@@ -36,7 +36,7 @@ public class LetSubstitutionRuleTest {
         assertEquals(expected, result);
     }
 
-    private static Term parse(String str) throws DafnyParserException {
+    private static Term parse(String str) throws Exception {
         return TermParser.parse(new BuiltinSymbols(), str);
     }
 

@@ -47,15 +47,15 @@ public class DafnyException extends Exception {
         return tree;
     }
 
-    @Override
-    public String getMessage() {
-        String result = super.getMessage();
-        if (tree != null) {
-            // TODO deal with fileName == null;
-            result += " (" + tree.getFilename() + ":" + tree.getLine()
-                    + ":" + tree.getCharPositionInLine() + ")";
-        }
-        return result;
-    }
+//    @Override
+//    public String getMessage() {
+//        String result = super.getMessage();
+//        if (tree != null) {
+//            // TODO deal with fileName == null;
+//            result += " (" + tree.getFilename() + ":" + tree.getLine()
+//                    + ":" + tree.getCharPositionInLine() + ")";
+//        }
+//        return result;
+//    }
 
 }

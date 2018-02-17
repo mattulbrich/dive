@@ -58,10 +58,10 @@ public class TransformAst implements ScriptLanguageVisitor<Object> {
             s.setName(ctx.name.getText());
             s.setNamedScript(true);
         } else {
-
-            s.setName(" ");
+            s.setName("");
         }
         s.setRuleContext(ctx);
+
         if (ctx.signature != null)
             s.setSignature((Signature) ctx.signature.accept(this));
         s.setBody((Statements) ctx.body.accept(this));

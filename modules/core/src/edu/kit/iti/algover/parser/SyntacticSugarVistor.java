@@ -12,7 +12,7 @@ import edu.kit.iti.algover.util.LabelIntroducer;
 
 public class SyntacticSugarVistor {
 
-    public static void visitProject(Project project) {
+    public static void visitProject(Project project) throws DafnyException {
         // TODO Auto-generated method stub
 
         // a < b < c
@@ -26,9 +26,13 @@ public class SyntacticSugarVistor {
         }
     }
 
-    public static void visit(DafnyTree t) {
+    public static void visit(DafnyTree t) throws DafnyException {
         t.accept(new ParameterContractionVisitor(), null);
-        t.accept(new LabelIntroducer(), null);
+
+        // deactivating the label introduction for the moment.
+        // t.accept(new LabelIntroducer(), null);
+
+        new ChainedRelationsVisitor().walk(t);
     }
 
 

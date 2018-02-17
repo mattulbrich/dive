@@ -114,7 +114,7 @@ public class SequentController extends FxmlController {
      */
     public void viewSequentForPVC(PVCEntity pvcEntity, Proof proof) {
         PVC pvc = pvcEntity.getPVC();
-        if (activeProof == null || !activeProof.getPvcName().equals(pvc.getIdentifier())) {
+        if (activeProof == null || !activeProof.getPVCName().equals(pvc.getIdentifier())) {
             activeProof = proof;
             activeNode = new ProofNodeSelector();
             updateSequent(getActiveNode().getSequent(), null);

@@ -5,11 +5,14 @@
  */
 package edu.kit.iti.algover;
 
+import edu.kit.iti.algover.parser.ParserErrorTest;
 import edu.kit.iti.algover.project.ProjectManagerTest;
+import edu.kit.iti.algover.proof.ProofTest;
 import edu.kit.iti.algover.references.TermReferencesBuilderTest;
 import edu.kit.iti.algover.rules.impl.LetSubstitutionRuleTest;
 import edu.kit.iti.algover.term.builder.ParallelUpdateSequenterTest;
 import edu.kit.iti.algover.term.builder.SimplifiedUpdateSequenterTest;
+import edu.kit.iti.algover.term.builder.TreeAssignmentTranslatorTest;
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
 import org.junit.runners.Suite.SuiteClasses;
@@ -41,9 +44,11 @@ import edu.kit.iti.algover.util.UtilTest;
 @RunWith(Suite.class)
 @SuiteClasses({
     ParserTest.class,
+    ParserErrorTest.class,
     SymbexTest.class,
     ProgramDatabaseTest.class,
     TreeTermTranslatorTest.class,
+    TreeAssignmentTranslatorTest.class,
     ReplacementVisitorTest.class,
     LetInlineVisitorTest.class,
     ParameterContractionVisitorTest.class,
@@ -56,6 +61,7 @@ import edu.kit.iti.algover.util.UtilTest;
     TypeResolutionTest.class,
     SortTest.class,
     ProjectTest.class,
+        ProofTest.class,
     ScriptParserTest.class,
         ProjectManagerTest.class,
     ProgramDatabaseTest.class,

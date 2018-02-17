@@ -5,16 +5,6 @@
  */
 package edu.kit.iti.algover.term.builder;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.IdentityHashMap;
-import java.util.List;
-import java.util.Map;
-
-import org.antlr.runtime.CommonToken;
-
 import edu.kit.iti.algover.SymbexStateToFormula;
 import edu.kit.iti.algover.data.BuiltinSymbols;
 import edu.kit.iti.algover.data.SymbolTable;
@@ -22,10 +12,12 @@ import edu.kit.iti.algover.parser.DafnyParser;
 import edu.kit.iti.algover.parser.DafnyTree;
 import edu.kit.iti.algover.term.ApplTerm;
 import edu.kit.iti.algover.term.FunctionSymbol;
+import edu.kit.iti.algover.term.FunctionSymbolFamily;
+import edu.kit.iti.algover.term.FunctionSymbolFamily.InstantiatedFunctionSymbol;
 import edu.kit.iti.algover.term.LetTerm;
 import edu.kit.iti.algover.term.QuantTerm;
-import edu.kit.iti.algover.term.SchemaOccurTerm;
 import edu.kit.iti.algover.term.QuantTerm.Quantifier;
+import edu.kit.iti.algover.term.SchemaOccurTerm;
 import edu.kit.iti.algover.term.SchemaVarTerm;
 import edu.kit.iti.algover.term.Sort;
 import edu.kit.iti.algover.term.Term;
@@ -35,6 +27,15 @@ import edu.kit.iti.algover.util.HistoryMap;
 import edu.kit.iti.algover.util.ImmutableList;
 import edu.kit.iti.algover.util.Pair;
 import nonnull.NonNull;
+import org.antlr.runtime.CommonToken;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.IdentityHashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * The Class TreeTermTranslator is used to create a {@link Term} object from a
@@ -117,11 +118,14 @@ public class TreeTermTranslator {
         if (history.size() == 0) {
             return build(expression);
         } else {
-            return buildLetExpression(history.getHead(),
+            return buildLetExpression(history.getLast(),
                     history.getTail(), expression);
         }
     }
 
+    /*
+     * see #buildLetCascade
+     */
     private Term buildLetExpression(DafnyTree assignment, ImmutableList<DafnyTree> tail, DafnyTree result)
             throws TermBuildException {
         DafnyTree errorTree = assignment;
@@ -174,12 +178,19 @@ public class TreeTermTranslator {
                 Term object = build(receiver.getChild(0));
                 Term index = build(receiver.getChild(1));
                 Term value = build(expression);
-                Term heap = getHeap();
-                Term appl = tb.storeArray(heap, object, index, value);
-                boundVars.put(HEAP_VAR.getName(), HEAP_VAR);
-                let = new LetTerm(HEAP_VAR, appl, buildLetCascade(tail, result));
-                boundVars.pop();
-                return let;
+                if (object.getSort().getName().equals("array")) {
+                    Term heap = getHeap();
+                    Term appl = tb.storeArray(heap, object, index, value);
+                    boundVars.put(HEAP_VAR.getName(), HEAP_VAR);
+                    let = new LetTerm(HEAP_VAR, appl, buildLetCascade(tail, result));
+                    boundVars.pop();
+                    return let;
+                } else if (object.getSort().getName().equals("seq")) {
+                    DafnyTree call = ASTUtil.call("$seq_upd<int>", receiver.getChild(0),
+                            receiver.getChild(1), expression);
+                    DafnyTree assign = ASTUtil.assign(receiver.getChild(0), call);
+                    return buildLetExpression(assign, tail, result);
+                }
             }
 
             //            case DafnyParser.LISTEX:
@@ -295,6 +306,7 @@ public class TreeTermTranslator {
             result = tb.negate(buildEquality(tree));
             break;
 
+        case DafnyParser.LOGIC_ID:
         case DafnyParser.ID:
         case DafnyParser.TRUE:
         case DafnyParser.FALSE:
@@ -328,7 +340,7 @@ public class TreeTermTranslator {
             break;
 
         case DafnyParser.ARRAY_ACCESS:
-            result = buildArrayAccess(tree);
+            result = buildBracketAccess(tree);
             break;
 
         case DafnyParser.FIELD_ACCESS:
@@ -337,6 +349,14 @@ public class TreeTermTranslator {
 
         case DafnyParser.NOETHER_LESS:
             result = buildNoetherLess(tree);
+            break;
+
+        case DafnyParser.AT:
+            result = buildExplicitHeapAccess(tree);
+            break;
+
+        case DafnyParser.HEAP_UPDATE:
+            result = buildHeapUpdate(tree);
             break;
 
         case DafnyParser.CALL:
@@ -420,11 +440,13 @@ public class TreeTermTranslator {
     }
 
 
-    private Term buildArrayAccess(DafnyTree tree) throws TermBuildException {
+    private Term buildBracketAccess(DafnyTree tree) throws TermBuildException {
 
         Term arrayTerm = build(tree.getChild(0));
         Sort arraySort = arrayTerm.getSort();
         String arraySortName = arraySort.getName();
+
+        Term indexTerm;
 
         switch (arraySortName) {
             case "array":
@@ -432,11 +454,20 @@ public class TreeTermTranslator {
                     throw new TermBuildException("Access to 'array' requires one index argument");
                 }
 
-                Term indexTerm = build(tree.getChild(1));
+                indexTerm = build(tree.getChild(1));
 
                 return tb.selectArray(new ApplTerm(BuiltinSymbols.HEAP), arrayTerm, indexTerm);
 
-            case "array2":
+            case "seq":
+                if (tree.getChildCount() != 2) {
+                    throw new TermBuildException("Access to 'array' requires one index argument");
+                }
+
+                indexTerm = build(tree.getChild(1));
+
+                return tb.seqGet(arrayTerm, indexTerm);
+
+        case "array2":
                 if (tree.getChildCount() != 3) {
                     throw new TermBuildException("Access to 'array2' requires two index arguments");
                 }
@@ -447,6 +478,25 @@ public class TreeTermTranslator {
                 return tb.selectArray2(new ApplTerm(BuiltinSymbols.HEAP),
                         arrayTerm, index0, index1);
 
+        case "heap":
+            DafnyTree indexTree = tree.getChild(1);
+            if(indexTree.getType() != DafnyParser.CALL) {
+                throw new TermBuildException("Heap updates must be applied to function calls");
+            }
+
+            List<Term> arguments = new ArrayList<>();
+            arguments.add(arrayTerm);
+            for (DafnyTree dafnyTree : indexTree.getFirstChildWithType(DafnyParser.ARGS).getChildren()) {
+                arguments.add(build(dafnyTree));
+            }
+
+            String name = indexTree.getChild(0).getText();
+            FunctionSymbol fs = symbolTable.getFunctionSymbol(name);
+            if (fs == null) {
+                throw new TermBuildException("Unknown symbol heap update function " + name);
+            }
+
+            return new ApplTerm(fs, arguments);
 
             default:
                 throw new TermBuildException("Unsupported array sort: " + arraySort);
@@ -463,7 +513,7 @@ public class TreeTermTranslator {
 
         String classId = receiver.getSort().toString();
         String fieldId = tree.getChild(1).getText();
-        String fieldName = "field$" + classId + "$" + fieldId;
+        String fieldName = TermBuilder.fieldName(classId, fieldId);
         FunctionSymbol field = symbolTable.getFunctionSymbol(fieldName);
 
         if(field == null) {
@@ -500,7 +550,7 @@ public class TreeTermTranslator {
                 break;
 
             case "array2":
-                if (suffix.isEmpty() || index > 1) {
+                if (!suffix.matches("[01]")) {
                     throw new TermBuildException("Elements of type 'array2' have only "
                             + "the 'Length0' and 'Length1' properties");
                 }
@@ -508,6 +558,13 @@ public class TreeTermTranslator {
                 arg = sort.getArguments().get(0);
                 f = symbolTable.getFunctionSymbol("$len" + index + "<" + arg + ">");
                 break;
+
+            case "seq":
+                if (!suffix.isEmpty()) {
+                    throw new TermBuildException("Elements of type 'seq' have only "
+                            + "the 'Length' property");
+                }
+                return tb.seqLen(t1);
 
             default:
                 throw new TermBuildException("Unsupported sort for 'Length': " + sort);
@@ -709,6 +766,73 @@ public class TreeTermTranslator {
         }
 
         return result;
+    }
+
+    private Term buildExplicitHeapAccess(DafnyTree tree) throws TermBuildException {
+
+        Term heapAccess = build(tree.getChild(0));
+        Term heapTerm = build(tree.getChild(1));
+
+        if(!(heapAccess instanceof ApplTerm)) {
+            throw new TermBuildException("heap suffixes are only allowed for heap select terms");
+        }
+
+        ApplTerm appl = (ApplTerm) heapAccess;
+        if(appl.countTerms() < 1 || !appl.getTerm(0).getSort().equals(Sort.HEAP)) {
+            throw new TermBuildException("heap suffixes are only allowed for heap select terms");
+        }
+
+        if(!heapTerm.getSort().equals(Sort.HEAP)) {
+            throw new TermBuildException("heap suffixes must specify a heap");
+        }
+
+        ArrayList<Term> args = new ArrayList<>(heapAccess.getSubterms());
+        args.set(0, heapTerm);
+
+        return new ApplTerm(appl.getFunctionSymbol(), args);
+    }
+
+    private Term buildHeapUpdate(DafnyTree tree) throws TermBuildException {
+
+        assert tree.getChildCount() == 3 : "I need heap, location, value";
+
+        Term heap = build(tree.getChild(0));
+        if(!heap.getSort().equals(Sort.HEAP)) {
+            throw new TermBuildException("Heap updates must be applied to heaps");
+        }
+
+        FunctionSymbolFamily symbol;
+        Term location = build(tree.getChild(1));
+        try {
+            ApplTerm appl = (ApplTerm) location;
+            FunctionSymbol fs = appl.getFunctionSymbol();
+            InstantiatedFunctionSymbol ifs = (InstantiatedFunctionSymbol) fs;
+            symbol = ifs.getFamily();
+        } catch(ClassCastException ex) {
+            throw new TermBuildException("Heap updates must modify a heap location", ex);
+        }
+
+        Term value = build(tree.getChild(2));
+
+        if(symbol == BuiltinSymbols.SELECT) {
+            Term obj = location.getTerm(1);
+            Term field = location.getTerm(2);
+            FunctionSymbol store = BuiltinSymbols.STORE.instantiate(obj.getSort(), location.getSort());
+            return new ApplTerm(store, heap, obj, field, value);
+
+        } else if(symbol == BuiltinSymbols.ARRAY_SELECT) {
+            Term obj = location.getTerm(1);
+            Term index = location.getTerm(2);
+            // TODO make this right. ...
+            FunctionSymbol store = BuiltinSymbols.ARRAY_STORE.instantiate(obj.getSort().getArguments().get(0));
+            return new ApplTerm(store, heap, obj, index, value);
+
+        } else if(symbol == BuiltinSymbols.ARRAY2_SELECT) {
+            throw new Error("Not implemented, yet");
+
+        } else {
+            throw new TermBuildException("Heap updated must modify a heap location");
+        }
     }
 
     /*

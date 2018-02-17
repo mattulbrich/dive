@@ -5,6 +5,7 @@
  */
 package edu.kit.iti.algover.term.builder;
 
+import edu.kit.iti.algover.parser.DafnyException;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -89,7 +90,7 @@ public class ReplacementVisitorTest {
 
     // revealed a bug
     @Test @Parameters
-    public void testIdentity(String test) throws DafnyParserException, TermBuildException {
+    public void testIdentity(String test) throws DafnyParserException, TermBuildException, DafnyException {
 
         BuiltinSymbols s = new BuiltinSymbols();
         s.addFunctionSymbol(new FunctionSymbol("i", Sort.INT));
@@ -104,7 +105,7 @@ public class ReplacementVisitorTest {
 
     // revealed a bug!
     @Test @Parameters
-    public void testNull(String test) throws DafnyParserException, TermBuildException {
+    public void testNull(String test) throws DafnyParserException, TermBuildException, DafnyException {
         BuiltinSymbols s = new BuiltinSymbols();
         s.addFunctionSymbol(new FunctionSymbol("i", Sort.INT));
         s.addFunctionSymbol(new FunctionSymbol("_i", Sort.INT));

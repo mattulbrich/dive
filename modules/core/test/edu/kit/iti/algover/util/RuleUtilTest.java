@@ -1,6 +1,7 @@
 package edu.kit.iti.algover.util;
 
 import edu.kit.iti.algover.data.BuiltinSymbols;
+import edu.kit.iti.algover.parser.DafnyException;
 import edu.kit.iti.algover.parser.DafnyParserException;
 import edu.kit.iti.algover.proof.ProofFormula;
 import edu.kit.iti.algover.rules.TermSelector;
@@ -48,7 +49,7 @@ public class RuleUtilTest {
     private static Term parseTerm(String term) {
         try {
             return TermParser.parse(symbols, term);
-        } catch (DafnyParserException e) {
+        } catch (DafnyException|DafnyParserException e) {
             throw new RuntimeException(e);
         }
     }

@@ -311,7 +311,7 @@ public final class ASTUtil {
         return assign(heap, anon);
     }
 
-    private static DafnyTree call(String function, DafnyTree... args) {
+    public static DafnyTree call(String function, DafnyTree... args) {
         DafnyTree argsTree = create(DafnyParser.ARGS, args);
         DafnyTree id = id(function);
         return create(DafnyParser.CALL, id, argsTree);

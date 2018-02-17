@@ -11,6 +11,7 @@ import edu.kit.iti.algover.parser.DafnyFileParser;
 import edu.kit.iti.algover.parser.DafnyParserException;
 import edu.kit.iti.algover.parser.DafnyTree;
 import edu.kit.iti.algover.parser.ReferenceResolutionVisitor;
+import edu.kit.iti.algover.parser.SyntacticSugarVistor;
 import edu.kit.iti.algover.parser.TypeResolution;
 import edu.kit.iti.algover.proof.PVC;
 import edu.kit.iti.algover.settings.ProjectSettings;
@@ -40,6 +41,11 @@ import java.util.Map;
 public class ProjectBuilder {
 
     /**
+     * The default filename for configuration xml documents.
+     */
+    public static final String CONFIG_DEFAULT_FILENAME = "config.xml";
+
+    /**
      * List of Dafnyfiles that serve as library files (i.e., no {@link PVC} is
      * generated for them)
      */
@@ -66,7 +72,7 @@ public class ProjectBuilder {
     /**
      * The name of the file containing the configuration.
      */
-    private String configFilename = "config.xml";
+    private String configFilename = CONFIG_DEFAULT_FILENAME;
 
     /**
      * Setting of project
@@ -161,7 +167,7 @@ public class ProjectBuilder {
      */
     public void parseProjectConfigurationFile() throws IOException, JAXBException, SAXException {
 
-        File configFile = new File(this.getDir() + "/" + getConfigFilename());
+        File configFile = new File(getDir() + File.separator + getConfigFilename());
 
         Configuration config = ConfigXMLLoader.loadConfigFile(configFile);
 
@@ -240,6 +246,7 @@ public class ProjectBuilder {
         }
 
         Project project = new Project(this);
+        SyntacticSugarVistor.visitProject(project);
         resolveNames(project);
 
         //TODO parse rules for project
@@ -263,10 +270,14 @@ public class ProjectBuilder {
         ReferenceResolutionVisitor refResolver = new ReferenceResolutionVisitor(p, exceptions);
         refResolver.visitProject();
 
+        // TODO make the other exceptions accessible as well;
+        if (!exceptions.isEmpty()) {
+            throw exceptions.get(0);
+        }
+
         TypeResolution typeRes = new TypeResolution(exceptions);
         typeRes.visitProject(p);
 
-        // TODO make the other exceptions accessible as well;
         if (!exceptions.isEmpty()) {
             throw exceptions.get(0);
         }
