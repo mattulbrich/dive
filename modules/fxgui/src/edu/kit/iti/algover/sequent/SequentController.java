@@ -141,7 +141,7 @@ public class SequentController extends FxmlController {
                 return;
             }
             try {
-                goalTypeLabel.setText(activeNode.get(activeProof).isIsclosed() ? "Closed Goal" : "Open Goal");
+                goalTypeLabel.setText(activeNode.get(activeProof).isClosed() ? "Closed Goal" : "Open Goal");
             } catch (RuleException e) {
                 System.err.println("Invalid ProofNodeSelector generated");
                 e.printStackTrace();

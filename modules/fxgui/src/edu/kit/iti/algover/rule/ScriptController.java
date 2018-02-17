@@ -30,7 +30,7 @@ public class ScriptController {
         hit.getCharacterIndex().ifPresent(charIdx -> {
             Position position = computePositionFromCharIdx(charIdx, view.getText());
             QueryScriptByPositionVisitor visitor = new QueryScriptByPositionVisitor(position);
-            ASTNode foundNode = visitor.visit(proof.getScript());
+            ASTNode foundNode = visitor.visit(proof.getProofScript().getBody());
 
             if (foundNode != null) {
                 ProofNodeSelector selector = findSelectorPointingTo(new ProofNodeSelector(), proof.getProofRoot(), foundNode);
