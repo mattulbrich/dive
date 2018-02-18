@@ -39,6 +39,7 @@ public class Proof {
      */
     private @Nullable ProofNode proofRoot;
 
+
     /**
      * The script text.
      *
@@ -67,6 +68,7 @@ public class Proof {
      */
     /*@ invariant failException != null <==> poofStatus.getValue() == FAIL; */
     private Exception failException;
+
 
     public Proof(@NonNull Project project, @NonNull PVC pvc) {
         this.project = project;
@@ -120,16 +122,6 @@ public class Proof {
         this.proofStatus.setValue(ProofStatus.CHANGED_SCRIPT);
     }
 
-    private Interpreter buildIndividualInterpreter() {
-
-        InterpreterBuilder ib = new InterpreterBuilder();
-        Interpreter i = ib
-                .setProofRules(this.project.getAllProofRules())
-                .startState(getProofRoot())
-                .build();
-        return i;
-    }
-
     /**
      * Interpret Script. A script must have been set previously.
      *
@@ -147,6 +139,7 @@ public class Proof {
             this.scriptAST = Facade.getAST(script);
 
             Interpreter interpreter = buildIndividualInterpreter();
+            new ProofNodeInterpreterManager(interpreter);
             interpreter.newState(newRoot);
 
             // TODO Exception handling
@@ -167,6 +160,17 @@ public class Proof {
         }
 
 
+    }
+
+    private Interpreter buildIndividualInterpreter() {
+
+        InterpreterBuilder ib = new InterpreterBuilder();
+        Interpreter i = ib
+                .setProofRules(this.project.getAllProofRules())
+                .startState(getProofRoot())
+                .build();
+
+        return i;
     }
 
     /**
@@ -343,12 +347,17 @@ class ProofNodeInterpreterManager {
 
         @Override
         public Void defaultVisit(ASTNode node) {
+            lastSelectedGoalNode.setChildren(new ArrayList<>());
 
             List<ProofNode> goals = interpreter.getCurrentState().getGoals();
 
             if (goals.size() == 1 && goals.get(0).equals(lastSelectedGoalNode)) {
                 System.out.println("There was no change");
                 return null;
+            }
+            if (goals.isEmpty()) {
+                lastSelectedGoalNode.setClosed(true);
+                System.out.println("Goalist goals.size() = " + goals.size() + "is empty we have reached a full proof");
             }
             if (goals.size() > 0) {
                 for (ProofNode goal : goals) {
