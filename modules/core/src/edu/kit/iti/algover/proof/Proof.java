@@ -48,6 +48,11 @@ public class Proof {
     private @Nullable String script;
 
     /**
+     * The script AST
+     */
+    private @Nullable ProofScript scriptAST;
+
+    /**
      * The project to which this proof belongs
      */
     private final Project project;
@@ -126,7 +131,10 @@ public class Proof {
     }
 
     /**
-     * Interpret Script. A script text must have been set previously.
+     * Interpret Script. A script must have been set previously.
+     *
+     * This will also parse the previously set script text. After this
+     * {@link #getProofScript()} will return a valid script, if parsing is successful.
      */
     public void interpretScript() {
         assert script != null;
@@ -134,11 +142,14 @@ public class Proof {
         ProofNode newRoot = ProofNode.createRoot(pvc);
 
         try {
-            ProofScript scriptAST = Facade.getAST(script);
+            // REVIEW: Are there no exceptions thrown by the parser? :-O
+            // TODO Exception handling
+            this.scriptAST = Facade.getAST(script);
 
             Interpreter interpreter = buildIndividualInterpreter();
             interpreter.newState(newRoot);
 
+            // TODO Exception handling
             scriptAST.getBody().forEach(interpreter::interpret);
 
             this.proofRoot = newRoot;
@@ -190,6 +201,14 @@ public class Proof {
             sb.append("<null> proof");
         }
         return sb.toString();
+    }
+
+    /**
+     * @return an instance encapsulating the script AST.
+     *         Is null as long as {@link #interpretScript()} has not yet been called validly.
+     */
+    public ProofScript getProofScript() {
+        return scriptAST;
     }
 
     /**

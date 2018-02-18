@@ -21,33 +21,36 @@ import edu.kit.iti.algover.rules.ProofRuleApplicationBuilder;
 import edu.kit.iti.algover.rules.RuleException;
 import edu.kit.iti.algover.rules.TermSelector;
 import edu.kit.iti.algover.smt.SMTQuickNDirty;
-import edu.kit.iti.algover.smt.SMTSolver.Result;
-import edu.kit.iti.algover.smt.Z3Solver;
 import edu.kit.iti.algover.term.FunctionSymbol;
 import edu.kit.iti.algover.term.Sequent;
 import edu.kit.iti.algover.term.Sort;
-import edu.kit.iti.algover.term.Term;
-import edu.kit.iti.algover.term.builder.TermBuilder;
 
 import java.io.BufferedReader;
-import java.io.IOException;
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
-import java.util.ArrayList;
-import java.util.List;
-
-import static edu.kit.iti.algover.smt.SMTSolver.Result.SAT;
 
 
 /*
  * This is a quick and dirty implementation until the real one is available
+ * Code quality is lower than elsewhere since this is a temporary implementation.
  */
 public class Z3Rule extends AbstractProofRule {
 
+    private static String SMT_TMP_DIR = System.getProperty("algover.smttmp");
+
     private static final String PREAMBLE =
-            "(define-fun seqlen ((a (Array Int Int))) Int (let ((x (select a (- 1)))) (ite (>= 0 x) x 0)))\n" +
-            "(assert (forall ((m (Array Int Int))) (>= (seqlen m) 0)))\n";
+            //"(define-fun seqlen ((a (Array Int Int))) Int (let ((x (select a (- 1)))) (ite (>= 0 x) x 0)))\n" +
+            "(declare-sort Seqq 0)\n" +
+            "(declare-fun seqget (Seqq Int) Int)\n" +
+            "(declare-fun sequpd (Seqq Int Int) Seqq)\n" +
+            "(declare-fun seqlen (Seqq) Int)\n" +
+            "(assert (forall ((m Seqq)) (>= (seqlen m) 0)))\n" +
+            "(assert (forall ((m Seqq)(i Int)(v Int)) (= (seqlen (sequpd m i v)) (seqlen m))))\n" +
+            "(assert (forall ((m Seqq)(i Int)(v Int)(j Int)) (= (seqget (sequpd m i v) j) (ite (= i j) v (seqget m j)))))\n"
+            ;
 
     @Override
     public String getName() {
@@ -66,7 +69,7 @@ public class Z3Rule extends AbstractProofRule {
     private ProofRuleApplication refine(ProofNode target, ProofRuleApplication app) {
         PVC pvc = target.getPVC();
 
-        if(quickAndDirty(target.getSequent(), pvc.getSymbolTable())) {
+        if(quickAndDirty(target.getPVC().getIdentifier(), target.getSequent(), pvc.getSymbolTable())) {
             ProofRuleApplicationBuilder builder = new ProofRuleApplicationBuilder(app);
             builder.setApplicability(Applicability.APPLICABLE);
             builder.setRefiner(null);
@@ -84,7 +87,7 @@ public class Z3Rule extends AbstractProofRule {
     public ProofRuleApplication makeApplication(ProofNode target, Parameters parameters) throws RuleException {
         PVC pvc = target.getPVC();
 
-        if(quickAndDirty(target.getSequent(), pvc.getSymbolTable())) {
+        if(quickAndDirty(target.getPVC().getIdentifier(), target.getSequent(), pvc.getSymbolTable())) {
             ProofRuleApplicationBuilder builder = new ProofRuleApplicationBuilder(this);
             builder.setApplicability(Applicability.APPLICABLE);
             builder.setRefiner(null);
@@ -97,7 +100,7 @@ public class Z3Rule extends AbstractProofRule {
         }
     }
 
-    private boolean quickAndDirty(Sequent sequent, SymbolTable symbolTable) {
+    private boolean quickAndDirty(String identifier, Sequent sequent, SymbolTable symbolTable) {
 
         StringBuilder sb = new StringBuilder();
 
@@ -109,7 +112,7 @@ public class Z3Rule extends AbstractProofRule {
                     sb.append("(declare-const pv$" + fs.getName() + " Int)\n");
                 }
                 if (fs.getResultSort().equals(Sort.get("seq", Sort.INT)) && fs.getArity() == 0) {
-                    sb.append("(declare-const pv$" + fs.getName() + " (Array Int Int))\n");
+                    sb.append("(declare-const pv$" + fs.getName() + " Seqq)\n");
                 }
             }
             for (ProofFormula proofFormula : sequent.getAntecedent()) {
@@ -130,8 +133,14 @@ public class Z3Rule extends AbstractProofRule {
             OutputStream out = process.getOutputStream();
             InputStream in = process.getInputStream();
 
-
             String smt = sb.toString();
+            if(SMT_TMP_DIR != null) {
+                File f = new File(SMT_TMP_DIR, System.currentTimeMillis() + identifier.replaceAll("/","+") + ".smt2");
+                FileOutputStream fos = new FileOutputStream(f);
+                fos.write(smt.getBytes());
+                fos.close();
+            }
+
             // System.out.println(smt);
             out.write(smt.getBytes());
             out.close();
