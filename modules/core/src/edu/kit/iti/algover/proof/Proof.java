@@ -126,7 +126,7 @@ public class Proof {
     }
 
     /**
-     * Interpret Script. A script must have been set previously.
+     * Interpret Script. A script text must have been set previously.
      */
     public void interpretScript() {
         assert script != null;
@@ -134,14 +134,11 @@ public class Proof {
         ProofNode newRoot = ProofNode.createRoot(pvc);
 
         try {
-            // REVIEW: Are there no exceptions thrown by the parser? :-O
-            // TODO Exception handling
             ProofScript scriptAST = Facade.getAST(script);
 
             Interpreter interpreter = buildIndividualInterpreter();
             interpreter.newState(newRoot);
 
-            // TODO Exception handling
             scriptAST.getBody().forEach(interpreter::interpret);
 
             this.proofRoot = newRoot;

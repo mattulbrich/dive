@@ -229,24 +229,9 @@ public final class ProjectManager {
             String pvcName = pvcProofEntry.getKey();
             Proof proof = pvcProofEntry.getValue();
             String content = "";
-           /* if (proof.getScriptRoot() != null) {
-                ASTNode script = proof.getScriptRoot();
-                content =
-                    "auto;\n" +
-                            "cases{\n" +
-                            "    case match '1==2'{\n" +
-                            "        auto;\n" +
-                            "    }\n" +
-                            "    default:{\n" +
-                            "        auto;\n" +
-                            "    }\n" +
-                            "}";
-            }*/
             //ScriptHelper.visitASTNODE -> String content
-            //saveToScriptFile(pvcName, content);
+            //saveToScriptFile(Util.maskFileName(pvcName), content);
         }
-
-        // REVIEW: When using saveHelper use "Util.maskFileName(pvcName)" here.
 
     }
 
