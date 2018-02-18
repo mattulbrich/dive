@@ -2,6 +2,7 @@ package edu.kit.iti.algover.proof;
 
 import edu.kit.iti.algover.project.Project;
 import edu.kit.iti.algover.script.ast.*;
+import edu.kit.iti.algover.script.exceptions.ScriptCommandNotApplicableException;
 import edu.kit.iti.algover.script.interpreter.Interpreter;
 import edu.kit.iti.algover.script.interpreter.InterpreterBuilder;
 import edu.kit.iti.algover.script.parser.DefaultASTVisitor;
@@ -148,6 +149,13 @@ public class Proof {
             this.proofRoot = newRoot;
             this.failException = null;
             proofStatus.setValue(newRoot.allLeavesClosed() ? ProofStatus.CLOSED : ProofStatus.OPEN);
+
+        } catch (ScriptCommandNotApplicableException snap) {
+            //TODO rethink this decision
+            this.proofRoot = newRoot;
+            this.failException = snap;
+            proofStatus.setValue(ProofStatus.OPEN);
+
 
         } catch(Exception ex) {
             // publish the proof root even if the proof has (partially) failed.
