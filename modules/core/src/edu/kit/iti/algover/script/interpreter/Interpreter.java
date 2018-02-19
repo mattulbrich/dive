@@ -94,7 +94,7 @@ public class Interpreter<T> extends DefaultASTVisitor<Object>
     /**
      * Interpret an ASTNode in state on top of stack
      */
-    public void interpret(ASTNode node) {
+    public void interpret(ASTNode node) throws ScriptCommandNotApplicableException {
         if (stateStack.empty()) {
             throw new InterpreterRuntimeException("no state on stack. call newState before interpret");
         }

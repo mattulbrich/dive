@@ -96,6 +96,15 @@ public class ProofNode {
         return children;
     }
 
+    /**
+     * This is essential and needed for proof construction, otherwise the proofnodemanager has no chance to add children
+     *
+     * @param children
+     */
+    public void setChildren(List<ProofNode> children) {
+        this.children.addAll(children);
+    }
+
     public PVC getPVC() {
         return pvc;
     }

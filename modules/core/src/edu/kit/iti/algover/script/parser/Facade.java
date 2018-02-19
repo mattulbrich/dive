@@ -92,11 +92,11 @@ public abstract class Facade {
      * @return
      * @throws IOException
      */
-    public static ProofScript getAST(File inputfile) throws IOException {
+    public static ProofScript getAST(File inputfile) throws IOException, RecognitionException, ParseCancellationException {
         return getAST(CharStreams.fromPath(inputfile.toPath()));
     }
 
-    public static ProofScript getAST(String input) {
+    public static ProofScript getAST(String input) throws RecognitionException, ParseCancellationException {
         return getAST(CharStreams.fromString(input));
     }
 
