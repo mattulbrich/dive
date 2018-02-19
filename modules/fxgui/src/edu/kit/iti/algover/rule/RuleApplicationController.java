@@ -3,6 +3,8 @@ package edu.kit.iti.algover.rule;
 import edu.kit.iti.algover.FxmlController;
 import edu.kit.iti.algover.proof.ProofNode;
 import edu.kit.iti.algover.proof.ProofNodeSelector;
+import edu.kit.iti.algover.rule.script.ScriptController;
+import edu.kit.iti.algover.rule.script.ScriptView;
 import edu.kit.iti.algover.rules.ProofRule;
 import edu.kit.iti.algover.rules.ProofRuleApplication;
 import edu.kit.iti.algover.rules.RuleException;
@@ -33,17 +35,13 @@ public class RuleApplicationController extends FxmlController {
         this.listener = listener;
         this.scriptController = new ScriptController(scriptView, onSwitchProofNode);
 
+        scriptView.setListener(listener);
+
         for (ProofRule rule : ServiceLoader.load(ProofRule.class)) {
             addProofRule(rule);
         }
 
         ruleGrid.getSelectionModel().selectedItemProperty().addListener(this::onSelectedItemChanged);
-    }
-
-    private void onSelectedItemChanged(ObservableValue<? extends RuleView> obs, RuleView before, RuleView selected) {
-        if (selected == null) {
-            listener.onResetRuleApplicationPreview();
-        }
     }
 
     public void addProofRule(ProofRule rule) {
@@ -70,6 +68,12 @@ public class RuleApplicationController extends FxmlController {
 
     public void applyRule(ProofRuleApplication application) {
         scriptView.insertText(scriptView.getLength(), application.getScriptTranscript() + "\n");
+    }
+
+    private void onSelectedItemChanged(ObservableValue<? extends RuleView> obs, RuleView before, RuleView selected) {
+        if (selected == null) {
+            listener.onResetRuleApplicationPreview();
+        }
     }
 
     public Node getRuleApplicationView() {

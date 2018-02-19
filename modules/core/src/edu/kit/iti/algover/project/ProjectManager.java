@@ -185,14 +185,18 @@ public final class ProjectManager {
 
     public String loadScriptForPVC(String pvc) throws IOException {
         // find file on disc
-        File proofDir = new File(directory, "scripts");
-        File scriptFile = new File(proofDir, Util.maskFileName(pvc) + ".script");
+        File scriptFile = getScriptFileForPVC(pvc);
 
         if(!scriptFile.exists()) {
             throw new FileNotFoundException(scriptFile.getAbsolutePath());
         }
 
         return new String(Files.readAllBytes(scriptFile.toPath()));
+    }
+
+    public File getScriptFileForPVC(String pvcIdentifier) {
+        File proofDir = new File(directory, "scripts");
+        return new File(proofDir, Util.maskFileName(pvcIdentifier) + ".script");
     }
 
     /**
@@ -228,11 +232,14 @@ public final class ProjectManager {
         for (Map.Entry<String, Proof> pvcProofEntry : proofs.entrySet()) {
             String pvcName = pvcProofEntry.getKey();
             Proof proof = pvcProofEntry.getValue();
-            String content = "";
-            //ScriptHelper.visitASTNODE -> String content
-            //saveToScriptFile(Util.maskFileName(pvcName), content);
+            saveProofScriptForPVC(pvcName, proof);
         }
 
+    }
+
+    public void saveProofScriptForPVC(String pvcIdentifier, Proof proof) throws IOException {
+        File scriptFile = getScriptFileForPVC(pvcIdentifier);
+        saverHelper(scriptFile.getPath(), proof.getScript());
     }
 
     /**
@@ -303,6 +310,7 @@ public final class ProjectManager {
         if (Files.exists(path)) {
             writer = Files.newBufferedWriter(path);
         } else {
+            Files.createDirectories(path.getParent());
             Path file = Files.createFile(path);
             writer = Files.newBufferedWriter(file);
         }

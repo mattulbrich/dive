@@ -8,7 +8,7 @@
 
 <?import javafx.geometry.Insets?>
 <?import edu.kit.iti.algover.rule.RuleGrid?>
-<?import edu.kit.iti.algover.rule.ScriptView?>
+<?import edu.kit.iti.algover.rule.script.ScriptView?>
 <SplitPane
         xmlns="http://javafx.com/javafx"
         xmlns:fx="http://javafx.com/fxml"

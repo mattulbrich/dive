@@ -7,6 +7,7 @@ import edu.kit.iti.algover.browser.entities.PVCGetterVisitor;
 import edu.kit.iti.algover.browser.entities.TreeTableEntity;
 import edu.kit.iti.algover.dafnystructures.DafnyFile;
 import edu.kit.iti.algover.editor.EditorController;
+import edu.kit.iti.algover.project.Project;
 import edu.kit.iti.algover.project.ProjectManager;
 import edu.kit.iti.algover.proof.*;
 import edu.kit.iti.algover.references.CodeReference;
@@ -21,6 +22,7 @@ import edu.kit.iti.algover.sequent.SequentActionListener;
 import edu.kit.iti.algover.sequent.SequentController;
 import edu.kit.iti.algover.timeline.TimelineLayout;
 
+import java.io.IOException;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
@@ -138,7 +140,19 @@ public class MainController implements SequentActionListener, RuleApplicationLis
         ruleApplicationController.resetConsideration();
     }
 
-    // when the user clicked somewhere in the proof script to change the proof node that should be viewed
+    @Override
+    public void onScriptSave() {
+        String pvcIdentifier = sequentController.getActiveProof().getPVC().getIdentifier();
+        try {
+            manager.saveProofScriptForPVC(pvcIdentifier, sequentController.getActiveProof());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * when the user clicked somewhere in the proof script to change the proof node that should be viewed
+     */
     private void onSwitchProofNode(ProofNodeSelector proofNodeSelector) {
         sequentController.viewProofNode(proofNodeSelector);
     }
