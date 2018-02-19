@@ -159,4 +159,10 @@ class C
       s1[1] := s2[1];
    }
 
+   method quantifiers()
+     ensures forall i : int :: i == i
+     ensures exists x : int :: x == 0
+     ensures let x,y := 1,true :: y && x > 0
+   {}
+
 }

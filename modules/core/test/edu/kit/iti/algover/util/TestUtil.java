@@ -16,11 +16,17 @@ import java.util.function.Function;
 import edu.kit.iti.algover.parser.*;
 import edu.kit.iti.algover.proof.Proof;
 import edu.kit.iti.algover.proof.ProofNode;
+import org.antlr.runtime.ANTLRStringStream;
+import org.antlr.runtime.CommonTokenStream;
 import org.antlr.runtime.Parser;
+import org.antlr.runtime.ParserRuleReturnScope;
 import org.antlr.runtime.RecognitionException;
 
 import edu.kit.iti.algover.project.Project;
 import edu.kit.iti.algover.project.ProjectBuilder;
+import org.hamcrest.BaseMatcher;
+import org.hamcrest.Description;
+import org.hamcrest.Matcher;
 
 public class TestUtil {
 
@@ -110,6 +116,20 @@ public class TestUtil {
         return new ByteArrayInputStream(string.getBytes());
     }
 
+    public static DafnyTree toTree(
+            FunctionWithException<DafnyParser,ParserRuleReturnScope,RecognitionException> parserRule,
+            String string) throws RecognitionException {
+        ANTLRStringStream input = new ANTLRStringStream(string);
+        DafnyLexer lexer = new DafnyLexer(input);
+        CommonTokenStream tokens = new CommonTokenStream(lexer);
+
+        DafnyParser parser = new DafnyParser(tokens);
+        parser.setTreeAdaptor(new DafnyTree.Adaptor());
+        parser.setLogicMode(true);
+        DafnyTree tree = (DafnyTree) parserRule.apply(parser).getTree();
+        return tree;
+    }
+
     public static CharSequence prettyPrintSMT(String smt) {
         StringBuilder sb = new StringBuilder();
 
@@ -143,5 +163,19 @@ public class TestUtil {
         } catch(Exception ex) {
             throw new RuntimeException(ex);
         }
+    }
+
+    public static Matcher<Object> isContainedIn(List<?> list) {
+        return new BaseMatcher<Object>() {
+            @Override
+            public boolean matches(Object o) {
+                return list.contains(o);
+            }
+
+            @Override
+            public void describeTo(Description description) {
+                description.appendText("not contained in " + list);
+            }
+        };
     }
 }

@@ -2,10 +2,10 @@
  (method Find 
   (ARGS 
    (VAR a 
-    (array int)) 
-   (VAR key int)) 
+    (TYPE (array int)))
+   (VAR key (TYPE int))) 
   (returns 
-   (VAR index int)) 
+   (VAR index (TYPE int))) 
   (requires 
    (!= a null)) 
   (ensures 
@@ -19,7 +19,7 @@
   (ensures 
    (==> 
     (< index 0) 
-    (forall k int 
+    (forall k (TYPE int) 
      (==> 
       (&& 
        (<= 0 k) 
@@ -38,7 +38,7 @@
       (<= index 
        (Length a)))) 
     (invariant 
-     (forall k int 
+     (forall k (TYPE int) 
       (==> 
        (&& 
         (<= 0 k) 

@@ -62,10 +62,29 @@ public class TypeResolution extends DafnyTreeDefaultVisitor<DafnyTree, Void> {
             return UNKNOWN_TYPE;
         }
 
-        assert ref.getType() == DafnyParser.VAR || ref.getType() == DafnyParser.FIELD;
-        DafnyTree type = ref.getChild(1);
-        t.setExpressionType(type);
-        return type;
+        switch (ref.getType()) {
+        case DafnyParser.VAR:
+        case DafnyParser.FIELD:
+        case DafnyParser.ALL:
+        case DafnyParser.EX:
+            DafnyTree type = ref.getFirstChildWithType(DafnyParser.TYPE).getChild(0);
+            t.setExpressionType(type);
+            return type;
+
+        case DafnyParser.LET:
+            // find the relative number of variable and take type of appropriate expression
+            DafnyTree vars = ref.getChild(0);
+            for (int i = 0; i < vars.getChildCount(); i++) {
+                if(vars.getChild(i).getText().equals(t.getText())) {
+                    DafnyTree ty = ref.getChild(i + 1).getExpressionType();
+                    t.setExpressionType(ty);
+                    return ty;
+                }
+            }
+
+        default:
+            throw new Error("Should not be reachable " + ref.getType());
+        }
     }
 
     // ------------------- structural visitation
@@ -88,8 +107,9 @@ public class TypeResolution extends DafnyTreeDefaultVisitor<DafnyTree, Void> {
     public DafnyTree visitVAR(DafnyTree tree, Void a) {
         if(tree.getChildCount() > 2) {
             DafnyTree ty = tree.getChild(2).accept(this, null);
-            String ty1 = TreeUtil.toTypeString(tree.getChild(1));
+            String ty1 = TreeUtil.toTypeString(tree.getFirstChildWithType(DafnyParser.TYPE).getChild(0));
             String ty2 = TreeUtil.toTypeString(ty);
+            // CAUTION: Subtyping
             if(!ty1.equals(ty2)) {
                 exceptions.add(new DafnyException("Assigning a value of type " + ty2 + " to an entitity"
                         + " of type " + ty1, tree));
@@ -180,15 +200,32 @@ public class TypeResolution extends DafnyTreeDefaultVisitor<DafnyTree, Void> {
 
     @Override
     public DafnyTree visitALL(DafnyTree t, Void a) {
-        // TODO Auto-generated method stub
-        return super.visitALL(t, a);
+        DafnyTree matrixTy = t.getLastChild().accept(this, null);
+        if (!matrixTy.equals(BOOL_TYPE)) {
+            exceptions.add(new DafnyException("Matrix of a quantifier must be Boolean", t));
+        }
+        return BOOL_TYPE;
     }
 
     @Override
     public DafnyTree visitEX(DafnyTree t, Void a) {
-        // TODO Auto-generated method stub
-        return super.visitEX(t, a);
+        DafnyTree matrixTy = t.getLastChild().accept(this, null);
+        if (!matrixTy.equals(BOOL_TYPE)) {
+            exceptions.add(new DafnyException("Matrix of a quantifier must be Boolean", t));
+        }
+        return BOOL_TYPE;
     }
+
+    @Override
+    public DafnyTree visitLET(DafnyTree t, Void a) {
+
+        for (int i = 0; i < t.getChildCount(); i++) {
+            DafnyTree child = t.getChild(i);
+            child.accept(this, null);
+        }
+        return t.getLastChild().getExpressionType();
+    }
+
 
     @Override
     public DafnyTree visitEQ(DafnyTree t, Void a) {
@@ -237,7 +274,7 @@ public class TypeResolution extends DafnyTreeDefaultVisitor<DafnyTree, Void> {
         if (type.getType() != DafnyParser.ARRAY &&
             type.getType() != DafnyParser.SEQ) {
             exceptions.add(new DafnyException(
-                    "Only arrays have a length", t));
+                    "Only arrays and sequences have a length", t));
         }
 
         t.setExpressionType(INT_TYPE);
@@ -296,12 +333,12 @@ public class TypeResolution extends DafnyTreeDefaultVisitor<DafnyTree, Void> {
 
         for (int i = 0; i < formal.size(); i++) {
             String act = TreeUtil.toTypeString(actual.get(i).accept(this, null));
-            String expected = TreeUtil.toTypeString(formal.get(i).getChild(1));
+            String expected = TreeUtil.toTypeString(formal.get(i).getFirstChildWithType(DafnyParser.TYPE).getChild(0));
 
             if (!act.equals(expected)) {
                 exceptions.add(new DafnyException(
                         String.format("Wrong type for argument %d in "
-                                + "called function/method %s. Expected %s, but got %s.",
+                                + "call to %s. Expected %s, but got %s.",
                                 i+1, call.getText(), expected, act), t));
             }
         }
@@ -338,7 +375,7 @@ public class TypeResolution extends DafnyTreeDefaultVisitor<DafnyTree, Void> {
         assert fieldDecl.getType() != DafnyParser.VAR:
             "Field decl must be a var decl";
 
-        DafnyTree result = fieldDecl.getChild(1);
+        DafnyTree result = fieldDecl.getFirstChildWithType(DafnyParser.TYPE).getChild(0);
         t.setExpressionType(result);
         return result;
     }
@@ -370,6 +407,7 @@ public class TypeResolution extends DafnyTreeDefaultVisitor<DafnyTree, Void> {
             ty = parent.getChild(0).getExpressionType();
             assert parent.getChild(1) == t : "null must be 2nd child";
             t.setExpressionType(ty);
+            // TODO This should be translation to sort and then check for classtype?
             if (ty.getType() != DafnyParser.ID) {
                 exceptions.add(new DafnyException("assigning null to a non-reference entity", parent));
             }
@@ -377,7 +415,7 @@ public class TypeResolution extends DafnyTreeDefaultVisitor<DafnyTree, Void> {
 
         case DafnyParser.VAR:
             assert parent.getChild(2) == t : "null must be 3rd child";
-            ty = parent.getChild(1);
+            ty = parent.getFirstChildWithType(DafnyParser.TYPE).getChild(0);
             t.setExpressionType(ty);
             if (ty.getType() != DafnyParser.ID) {
                 exceptions.add(new DafnyException("assigning null to a non-reference entity", parent));

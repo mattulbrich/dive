@@ -20,6 +20,7 @@ import org.junit.runner.RunWith;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import static org.junit.Assert.*;
@@ -53,10 +54,11 @@ public class TypeResolutionTest {
             fail("Unexpected exceptions");
         }
 
-        ArrayList<Object[]> result = new ArrayList<>();
+        List<Object[]> result = new ArrayList<>();
         for (DafnyMethod method : project.getClass("C").getMethods()) {
             result.add(new Object[] { method.getName(), project });
         }
+        // result = Collections.singletonList(new Object[] { "quantifiers", project});
         return result;
     }
 
@@ -91,7 +93,7 @@ public class TypeResolutionTest {
         }
     }
 
-    private String toTypedString(DafnyTree tree) {
+    public static String toTypedString(DafnyTree tree) {
         List<DafnyTree> children = tree.getChildren();
         StringBuilder buf = new StringBuilder();
         if (children == null || children.isEmpty()) {

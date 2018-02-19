@@ -20,6 +20,7 @@ import edu.kit.iti.algover.data.MapSymbolTable;
 import edu.kit.iti.algover.data.SuffixSymbolTable;
 import edu.kit.iti.algover.data.SymbolTable;
 import edu.kit.iti.algover.parser.DafnyException;
+import edu.kit.iti.algover.parser.DafnyParser;
 import edu.kit.iti.algover.parser.DafnyTree;
 import edu.kit.iti.algover.project.Project;
 import edu.kit.iti.algover.rules.TermSelector;
@@ -121,7 +122,7 @@ public class MethodPVCBuilder implements PVCBuilder {
 
         for (DafnyTree decl : ProgramDatabase.getAllVariableDeclarations(method.getRepresentation())) {
             String name = decl.getChild(0).toString();
-            Sort sort = ASTUtil.toSort(decl.getChild(1));
+            Sort sort = ASTUtil.toSort(decl.getFirstChildWithType(DafnyParser.TYPE).getChild(0));
             map.add(new FunctionSymbol(name, sort));
         }
 
