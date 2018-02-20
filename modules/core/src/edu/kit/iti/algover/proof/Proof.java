@@ -150,13 +150,13 @@ public class Proof {
             this.failException = null;
             proofStatus.setValue(newRoot.allLeavesClosed() ? ProofStatus.CLOSED : ProofStatus.OPEN);
 
-        } catch (ScriptCommandNotApplicableException snap) {
+        /*} catch (ScriptCommandNotApplicableException snap) {
             //TODO rethink this decision
             this.proofRoot = newRoot;
             this.failException = snap;
             proofStatus.setValue(ProofStatus.OPEN);
 
-
+*/
         } catch(Exception ex) {
             // publish the proof root even if the proof has (partially) failed.
             this.proofRoot = newRoot;

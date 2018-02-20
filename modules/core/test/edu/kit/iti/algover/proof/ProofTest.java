@@ -74,7 +74,7 @@ public class ProofTest {
     public void negativeFake() throws Exception {
         Proof p = makeProof("true");
         p.setScriptTextAndInterpret("fake close=false;");
-        //Assert.assertEquals(ProofStatus.OPEN, p.getProofStatus());
+        Assert.assertEquals(ProofStatus.FAILING, p.getProofStatus());
         Assert.assertNotNull(p.getProofRoot());
     }
 
