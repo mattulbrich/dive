@@ -58,11 +58,15 @@ public class ProofNodeCheckpointsBuilder extends DefaultASTVisitor<Void> {
     public Void visit(SimpleCaseStatement simpleCaseStatement) {
         Position position = simpleCaseStatement.getGuard().getEndPosition();
         // TODO: Find out how to get a ProofNodeSelector out of a specific case
+        // (so that you can click inside an empty case to see what it's sequent state looks like)
+        // (same for the CaseStatement visit)
+        simpleCaseStatement.getBody().accept(this);
         return null;
     }
 
     @Override
     public Void visit(CaseStatement caseStatement) {
+        caseStatement.getBody().accept(this);
         return null;
     }
 

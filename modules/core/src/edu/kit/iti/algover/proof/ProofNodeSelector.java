@@ -104,4 +104,13 @@ public class ProofNodeSelector {
         return Arrays.hashCode(path);
     }
 
+    public int[] getPath() {
+        return path;
+    }
+
+    public ProofNodeSelector getParentSelector() {
+        int[] newPath = new int[path.length - 1];
+        System.arraycopy(path, 0, newPath, 0, newPath.length);
+        return new ProofNodeSelector(newPath);
+    }
 }

@@ -16,32 +16,37 @@ import javafx.beans.value.ObservableValue;
 import javafx.fxml.FXML;
 import javafx.scene.Node;
 import javafx.scene.control.Label;
+import javafx.scene.control.SplitPane;
+import org.fxmisc.flowless.VirtualizedScrollPane;
 
 import java.util.ServiceLoader;
+import java.util.concurrent.ExecutorService;
 import java.util.function.Consumer;
 
 public class RuleApplicationController extends FxmlController {
 
+    @FXML private SplitPane splitPane;
     @FXML private Label termToConsider;
     @FXML private RuleGrid ruleGrid;
-    @FXML private ScriptView scriptView;
+
+    private final ScriptView scriptView;
 
     private final RuleApplicationListener listener;
 
     private final ScriptController scriptController;
 
-    public RuleApplicationController(RuleApplicationListener listener, Consumer<ProofNodeSelector> onSwitchProofNode) {
+    public RuleApplicationController(ExecutorService executor, RuleApplicationListener listener) {
         super("RuleApplicationView.fxml");
         this.listener = listener;
-        this.scriptController = new ScriptController(scriptView, onSwitchProofNode);
-
-        scriptView.setListener(listener);
+        this.scriptController = new ScriptController(executor, listener);
+        this.scriptView = scriptController.getView();
 
         for (ProofRule rule : ServiceLoader.load(ProofRule.class)) {
             addProofRule(rule);
         }
 
         ruleGrid.getSelectionModel().selectedItemProperty().addListener(this::onSelectedItemChanged);
+        splitPane.getItems().add(new VirtualizedScrollPane<>(scriptView));
     }
 
     public void addProofRule(ProofRule rule) {

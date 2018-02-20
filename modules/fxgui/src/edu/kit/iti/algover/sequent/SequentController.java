@@ -123,30 +123,22 @@ public class SequentController extends FxmlController {
         }
     }
 
-    // TODO: Add other means for navigating the ProofNode tree
-    // In the future this should maybe only automatically move on to child ProofNodes, when
-    // the rule that was just applied only resulted in a single child.
-    // Currently I didn't implement this, since it would make testing branching rules impossible
-    // What a method name
     public void tryMovingOn() {
         if (activeNode != null) {
-            ProofNodeSelector newActiveNode = new ProofNodeSelector(activeNode, 0);
             try {
-                ProofNode node = newActiveNode.get(activeProof);
-                updateSequent(node.getSequent(), null);
-                activeNode = newActiveNode;
+                ProofNode nodeBefore = activeNode.get(activeProof);
+
+                if (nodeBefore.getChildren().size() == 1) {
+                    ProofNodeSelector newActiveNode = new ProofNodeSelector(activeNode, 0);
+                    ProofNode node = newActiveNode.get(activeProof);
+                    updateSequent(node.getSequent(), null);
+                    activeNode = newActiveNode;
+                }
             } catch (RuleException e) {
-                // An invalid newActiveNode is no issue, we're only trying to move on. If there were no
-                // children, we don't want the view to change to the new proof node
+                e.printStackTrace(); // should not happen, as long as the activeNode selector is correct
                 return;
             }
-            try {
-                goalTypeLabel.setText(activeNode.get(activeProof).isClosed() ? "Closed Goal" : "Open Goal");
-            } catch (RuleException e) {
-                System.err.println("Invalid ProofNodeSelector generated");
-                e.printStackTrace();
-                return;
-            }
+            updateGoalTypeLabel();
         }
     }
 
@@ -182,7 +174,9 @@ public class SequentController extends FxmlController {
 
     public void viewProofNode(ProofNodeSelector proofNodeSelector) {
         proofNodeSelector.optionalGet(activeProof).ifPresent(proofNode -> {
+            activeNode = proofNodeSelector;
             updateSequent(proofNode.getSequent(), null);
+            updateGoalTypeLabel();
         });
     }
 
@@ -250,6 +244,22 @@ public class SequentController extends FxmlController {
         }
         return formulas;
     }
+
+    private void updateGoalTypeLabel() {
+        try {
+            ProofNode node = activeNode.get(activeProof);
+            if (node.getChildren().size() == 0) {
+                goalTypeLabel.setText(node.isClosed() ? "Closed Goal" : "Open Goal");
+            } else {
+                goalTypeLabel.setText("Node");
+            }
+        } catch (RuleException e) {
+            System.err.println("Invalid ProofNodeSelector generated");
+            e.printStackTrace();
+            return;
+        }
+    }
+
 
     private Callback<ListView<TopLevelFormula>, ListCell<TopLevelFormula>> makeTermCellFactory(TermSelector.SequentPolarity polarity) {
         return listView -> new FormulaCell(polarity, selectedTerm, lastClickedTerm, mouseOverTerm);
