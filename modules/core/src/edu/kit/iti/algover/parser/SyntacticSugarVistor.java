@@ -21,7 +21,8 @@ public class SyntacticSugarVistor {
 
         // [ ] var i := 0
 
-        // [ ] forall i :: [i]  ... default to int or do inference
+        // [x] forall i :: [i]  ... default to int
+        // [ ] or better do inference
 
         for (DafnyFile df : project.getDafnyFiles()) {
             visit(df.getRepresentation());
@@ -37,8 +38,7 @@ public class SyntacticSugarVistor {
         // t.accept(new LabelIntroducer(), null);
 
         new ChainedRelationsVisitor().walk(t);
-
-        // t.accept(new ImplicitlyTypedVariableVisitor(), null);
+        new ImplicitlyTypedVariableVisitor().walk(t);
     }
 
 
