@@ -31,6 +31,7 @@ public class DafnyRuleUtil {
         SymbolTable symbolTable;
         DafnyTree tree = null;
         DafnyFile dfi = null;
+        RulePo
 
         try {
             tree = DafnyFileParser.parse(new File(fileName));
@@ -64,16 +65,34 @@ public class DafnyRuleUtil {
 
         List<DafnyTree> requiresClauses = method.getRequiresClauses();
 
-        List<DafnyTree> equalsClauses = ensuresClause.getChildrenWithType(DafnyParser.EQ);
-        DafnyTree equalsClause = equalsClauses.get(0);
+
+        DafnyTree equalsClause = null;
+        DafnyTree implClause = null;
+        if(ensuresClause.getChildCount() != 1) {
+            throw new DafnyRuleException("The requires clause has to contain exactly 1 child of either typ EQ or IMGPLIES");
+        }
+        if(ensuresClause.getChild(0).getType() == DafnyParser.EQ) {
+            equalsClause = ensuresClause.getChild(0);
+        } else if (ensuresClause.getChild(0).getType() == DafnyParser.IMPLIES) {
+            implClause = ensuresClause.getChild(0);
+        } else {
+            throw  new DafnyRuleException("DafnyRules have to contain an equality or implication.");
+        }
 
         symbolTable = makeSymbolTable(tree);
         TreeTermTranslator ttt = new TreeTermTranslator(symbolTable);
         Term st = null;
         Term rt = null;
+
         List<Term> rts = new ArrayList<>();
         try {
-            st = ttt.build(equalsClause.getChild(0));
+            if(equalsClause != null) {
+                st = ttt.build(equalsClause.getChild(0));
+            } else if(implClause != null) {
+                st = ttt.build(implClause.getChild(0));
+            } else {
+                throw new DafnyRuleException("No equals or implies clause found.");
+            }
             st = st.accept(new ReplaceProgramVariableVisitor(), programVars);
             rt = ttt.build(equalsClause.getChild(1));
             rt = rt.accept(new ReplaceProgramVariableVisitor(), programVars);
@@ -115,6 +134,10 @@ public class DafnyRuleUtil {
         }
         return Sort.get(name);
     }
+
+    public enum rulePolarity {
+        ANTECEDENT, SUCCEDENT, BOTH;
+    }
 }
 
 class ReplaceProgramVariableVisitor extends ReplacementVisitor<List<String>> {
@@ -127,3 +150,5 @@ class ReplaceProgramVariableVisitor extends ReplacementVisitor<List<String>> {
         }
     }
 }
+
+

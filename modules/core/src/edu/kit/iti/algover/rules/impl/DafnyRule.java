@@ -33,6 +33,8 @@ public class DafnyRule extends AbstractProofRule {
     private final Term replaceTerm;
     private final List<Term> requiresTerms;
 
+
+
     public DafnyRule(String name, Term st, Term rt) {
         super(ON_PARAM);
 
