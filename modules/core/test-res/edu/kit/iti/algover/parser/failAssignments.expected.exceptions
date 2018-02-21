@@ -4,5 +4,5 @@
 (:= c 0)
 (:= c i)
 (:= c true)
-(var localVar1 int null)
-(var localVar2 C 0)
+(var localVar1 (TYPE int) null)
+(var localVar2 (TYPE C) 0)

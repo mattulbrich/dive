@@ -35,8 +35,16 @@ public class TermBuildException extends Exception {
         return location;
     }
 
-    public void setLocation(DafnyTree location) {
+    public TermBuildException setLocation(DafnyTree location) {
         this.location = location;
+        return this;
+    }
+
+    public TermBuildException setLocationIfUnset(DafnyTree location) {
+        if(!hasLocation()) {
+            setLocation(location);
+        }
+        return this;
     }
 
     public boolean hasLocation() {

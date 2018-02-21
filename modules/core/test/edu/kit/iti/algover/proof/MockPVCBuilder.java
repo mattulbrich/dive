@@ -28,6 +28,8 @@ public class MockPVCBuilder implements PVCBuilder {
     private SymbolTable symboltable;
     private String pathIdentifier;
 
+    private Map<TermSelector,DafnyTree> referenceMap;
+
     public SymbexPath getPathThroughProgram() {
         return pathThroughProgram;
     }
@@ -39,7 +41,11 @@ public class MockPVCBuilder implements PVCBuilder {
 
     @Override
     public Map<TermSelector, DafnyTree> getReferenceMap() {
-        return null;
+        return referenceMap;
+    }
+
+    public void setReferenceMap(Map<TermSelector, DafnyTree> referenceMap) {
+        this.referenceMap = referenceMap;
     }
 
     @Override

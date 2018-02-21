@@ -150,4 +150,19 @@ class C
       var localVar2 : C := 0;
    }
 
+   method sequenceTest(s1 : seq<int>)
+   {
+      var s2 : seq<int>;
+
+      s2 := s1;
+      s2[0] := 0;
+      s1[1] := s2[1];
+   }
+
+   method quantifiers()
+     ensures forall i : int :: i == i
+     ensures exists x : int :: x == 0
+     ensures let x,y := 1,true :: y && x > 0
+   {}
+
 }

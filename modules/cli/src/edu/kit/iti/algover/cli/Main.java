@@ -17,6 +17,7 @@ import edu.kit.iti.algover.proof.PVC;
 import edu.kit.iti.algover.proof.Proof;
 import edu.kit.iti.algover.proof.ProofStatus;
 import edu.kit.iti.algover.util.CommandLine;
+import edu.kit.iti.algover.util.ExceptionDetails;
 import edu.kit.iti.algover.util.FormatException;
 
 import java.io.File;
@@ -37,6 +38,7 @@ public class Main {
 
     public static final String OPTION_CONFIG_FILENAME = "-c";
     public static final String OPTION_VERBOSE = "-verbose";
+    public static final String OPTION_VERY_VERBOSE = "-vverbose";
     public static final String OPTION_METHOD = "-method";
     public static final String OPTION_CLASS = "-class";
     public static final String OPTION_PVC_MATCH = "-pvcMatch";
@@ -62,12 +64,16 @@ public class Main {
                 success &= processDirectory(arg, cl);
             }
 
+            System.out.println("Build " + (success ? "SUCCEEDED" : "FAILED"));
+
+            System.exit(success ? 0 : 1);
+
         } catch(Exception ex) {
             if(cl.isSet(OPTION_VERBOSE)) {
                 ex.printStackTrace();
-            } else {
-                System.err.println("Error: " + ex.getMessage());
             }
+
+            ExceptionDetails.printNiceErrorMessage(ex);
         }
 
     }
@@ -98,10 +104,14 @@ public class Main {
 
         boolean verbose = cl.isSet(OPTION_VERBOSE);
 
+        int verbosity = 0;
+        if(verbose) verbosity ++;
+        if(cl.isSet(OPTION_VERY_VERBOSE)) verbosity ++;
+
         AlgoVerService service = new AlgoVerService(new File(dir));
         service.setConfigName(configFilename);
         service.setPVCFilter(filter);
-        service.setVerbose(verbose);
+        service.setVerbosityLevel(verbosity);
 
         try {
 
@@ -113,8 +123,8 @@ public class Main {
                         System.err.println("Unclosed proofs for " + dir);
                     }
                     System.err.println("  " + proof.getPVCName() + " : " + proof.getProofStatus());
+                    result = false;
                 }
-                result = false;
             }
             return result;
 
@@ -123,11 +133,10 @@ public class Main {
             System.err.println("Error while verifying " + dir + ":");
             if(verbose) {
                 ex.printStackTrace();
-            } else {
-                System.err.println(ex.getMessage());
             }
-            return false;
+            ExceptionDetails.printNiceErrorMessage(ex);
 
+            return false;
         }
 
     }
@@ -145,6 +154,8 @@ public class Main {
                 "only check VCs whose name matches the argument");
         result.addOption(OPTION_VERBOSE, null,
                 "Be verbose in the output");
+        result.addOption(OPTION_VERY_VERBOSE, null,
+                "Be very verbose in the output");
         result.addOption(OPTION_HELP, null,
                 "Show help");
         return result;

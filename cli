@@ -1,6 +1,9 @@
 #!/bin/sh
 
+dir=`dirname $0`
+
 # No spaces in file names!
-cp=`echo "lib/* modules/core/bin modules/cli/bin" | tr ' ' ':'`
+#cp=`echo "$dir/lib/* $dir/modules/core/bin $dir/modules/cli/bin" | tr ' ' ':'`
+cp="$dir/lib/*:$dir/modules/core/bin:$dir/modules/cli/bin"
 
 java -ea -classpath $cp edu.kit.iti.algover.cli.Main "$@"

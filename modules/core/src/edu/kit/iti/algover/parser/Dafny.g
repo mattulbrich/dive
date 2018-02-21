@@ -7,6 +7,7 @@ options {
 
 tokens {
   COMPILATION_UNIT;
+  TYPE;
   RESULTS;
   ARGS;
   BLOCK;
@@ -71,7 +72,7 @@ ALL: 'forall';
 ASSERT: 'assert';
 ASSUME: 'assume';
 BOOL : 'bool';
-// CASE: 'case'; 
+// CASE: 'case';
 CLASS: 'class';
 DECREASES: 'decreases';
 ELSE: 'else';
@@ -148,7 +149,7 @@ SCHEMA_ID : '?' ID;
 INT_LIT : ('0' .. '9' ) ('0' .. '9' | '_')*;
 // glyph = "`~!@#$%^&*()-_=+[{]}|;:',<.>/?\\".
 
-WS : (' '|'\t'|'\n'|'\r')                     { $channel = HIDDEN; };
+WS : (' '|'\t'|'\n'|'\r')                { $channel = HIDDEN; };
 SINGLELINE_COMMENT: '//' ~('\r' | '\n')* { $channel = HIDDEN; };
 MULTILINE_COMMENT: '/*' .* '*/'          { $channel = HIDDEN; };
 
@@ -199,8 +200,8 @@ function:
   ;
 
 field:
-  ( 'ghost' )? 'var' ID ':' type ';'
-    -> ^(FIELD ID type)
+  ( 'ghost' )? 'var' ID ':' typeRef ';'
+    -> ^(FIELD ID typeRef)
   ;
 
 vars:
@@ -209,7 +210,7 @@ vars:
   ;
 
 var:
-  ID ':' type -> ^(VAR ID type)
+  ID ':' typeRef -> ^(VAR ID typeRef)
   ;
 
 // one day this will be "id_param"
@@ -220,6 +221,10 @@ type:
   | SEQ^ '<'! type '>'!
   | ID^ ( '<'! type ( ','! type )* '>'! )?
   ;
+
+typeRef:
+    type -> ^(TYPE type)
+    ;
 
 returns_:
   RETURNS^ '('! vars ')'!
@@ -254,7 +259,16 @@ statements:
   ;
 
 statement:
-    VAR^ ID ':'! type (':='! expression)? ';'!
+/* To support var i, j: int read ref manual p. 186:
+When there are some elements with cardinality one and others with
+cardinality greater than one, the elements with cardinality one are
+duplicated as the parser creates the tree. In the following rule, the ’int’
+token has cardinality one and is replicated for every ID token found on
+the input stream:
+decl : 'int' ID (',' ID)* -> ^('int' ID)+ ;
+*/
+
+    VAR^ ID ':'! typeRef (':='! expression)? ';'!
 
   | postfix_expr
       ( ASSIGN value=expression_wildcard ';'
@@ -347,7 +361,7 @@ and_expr:
 
 rel_expr:
   add_expr ( ( '<'^ | '>'^  | '=='^ | '!='^ |
-              '<='^ | '>='^ | 'in'^ | '!in'^ ) add_expr )?
+              '<='^ | '>='^ | 'in'^ | '!in'^ ) add_expr )*
   ;
 
 add_expr:
@@ -426,5 +440,5 @@ logic_id_param:
   ;
 
 quantifier:
-  (ALL^ | EX^) ID (','! ID)* ':'! type '::'! expression
+  (ALL^ | EX^) ID (','! ID)* ':'! typeRef? '::'! expression
   ;

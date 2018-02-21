@@ -3,15 +3,15 @@
  (method[method-}] max[max-max] 
   (ARGS[a-int] 
    (VAR[a->] a[a-a] 
-    (array[array->] int[int-int])) 
-   (VAR[n-int] n[n-n] int[int-int])) 
+    (TYPE[array->] (array[array->] int[int-int])))
+   (VAR[n-int] n[n-n] (TYPE[int-int] int[int-int])))
   (returns[returns-)] 
-   (VAR[m-int] m[m-m] int[int-int])) 
+   (VAR[m-int] m[m-m] (TYPE[int-int] int[int-int])))
   (requires[requires-0] 
    (>[n-0] n[n-n] 0[0-0])) 
   (ensures[ensures-)] 
    (label[label-:] greater[greater-greater]) 
-   (forall[(-)] i[i-i] int[int-int] 
+   (forall[(-)] i[i-i] (TYPE[int-int] int[int-int])
     (==>[0-]] 
      (&&[0-n] 
       (<=[0-i] 0[0-0] i[i-i]) 
@@ -21,7 +21,7 @@
       (ARRAY_ACCESS[a-]] a[a-a] i[i-i]))))) 
   (ensures[ensures-)] 
    (label[label-:] witness[witness-witness]) 
-   (exists[(-)] i[i-i] int[int-int] 
+   (exists[(-)] i[i-i] (TYPE[int-int] int[int-int])
     (&&[0-]] 
      (&&[0-n] 
       (<=[0-i] 0[0-0] i[i-i]) 
@@ -34,7 +34,7 @@
    (assume[assume-;] 
     (==[n-Length] n[n-n] 
      (Length[a-Length] a[a-a]))) 
-   (var[var-;] i[i-i] int[int-int] 0[0-0]) 
+   (var[var-;] i[i-i] (TYPE[int-int] int[int-int]) 0[0-0]) 
    (:=[m-;] m[m-m] 0[0-0]) 
    (while[label-}] 
     (label[label-:] mainLoop[mainLoop-mainLoop]) 
@@ -46,7 +46,7 @@
       (<=[i-n] i[i-i] n[n-n]))) 
     (invariant[invariant-)] 
      (label[label-:] greater[greater-greater]) 
-     (forall[(-)] j[j-j] int[int-int] 
+     (forall[(-)] j[j-j] (TYPE[int-int] int[int-int])
       (==>[0-]] 
        (&&[0-i] 
         (<=[0-j] 0[0-0] j[j-j]) 
@@ -58,7 +58,7 @@
      (label[label-:] witness[witness-witness]) 
      (||[m-)] 
       (==[m-0] m[m-m] 0[0-0]) 
-      (exists[(-)] j[j-j] int[int-int] 
+      (exists[(-)] j[j-j] (TYPE[int-int] int[int-int])
        (&&[0-]] 
         (&&[0-i] 
          (<=[0-j] 0[0-0] j[j-j]) 

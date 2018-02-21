@@ -9,6 +9,7 @@ package edu.kit.iti.algover.parser;
 import edu.kit.iti.algover.project.Project;
 import edu.kit.iti.algover.project.ProjectBuilder;
 import edu.kit.iti.algover.util.TestUtil;
+import edu.kit.iti.algover.util.Util;
 import org.junit.Test;
 
 import java.util.ArrayList;
@@ -47,7 +48,7 @@ public class ReferenceResolutionVisitorTest {
                 "(FIELD_ACCESS d cf)",
                 "(FIELD_ACCESS d cf)",
                 "(CALL mc d (ARGS d))",
-                "(var a Unknown)",
+                "(TYPE Unknown)",
                 "(FIELD_ACCESS a f)",
                 "(== local 0)",
         };
@@ -127,6 +128,9 @@ public class ReferenceResolutionVisitorTest {
                 assertEquals(DafnyParser.VAR, ref.getType());
                 assertEquals(DafnyParser.RETURNS, ref.getParent().getType());
                 assertEquals(name, ref.getChild(0).getText());
+            } else if (name.startsWith("vl_")) {
+                assertEquals(DafnyParser.LET, ref.getType());
+                assertThat(name, TestUtil.isContainedIn(Util.map(ref.getFirstChildWithType(DafnyParser.VAR).getChildren(), x->x.getText())));
             } else {
                 fail("Unsupported identifier " + name);
             }

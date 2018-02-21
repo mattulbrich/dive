@@ -59,7 +59,7 @@ public class ProjectManagerTest {
 
     }
 
-    private void makeTestTerm() throws DafnyParserException {
+    private void makeTestTerm() throws Exception {
         Collection<FunctionSymbol> map = new ArrayList<>();
         SymbolTable symbTable = new MapSymbolTable(new BuiltinSymbols(), map);
         this.testTerm = TermParser.parse(symbTable, "1==2 && 2==3");
@@ -183,7 +183,7 @@ public class ProjectManagerTest {
         assertTrue(proof.getProofRoot().getChildren().isEmpty());
         if (proof.getFailException() != null)
             proof.getFailException().printStackTrace();
-        Assert.assertNull(proof.getFailException()); //Warum soll hier eine Fail exception fallen? Der Proof Root existiert doch
+        Assert.assertNull(proof.getFailException());
 
         proof.setScriptTextAndInterpret(" /* empty script */ ");
         assertTrue(proof.getProofRoot().getChildren().isEmpty());

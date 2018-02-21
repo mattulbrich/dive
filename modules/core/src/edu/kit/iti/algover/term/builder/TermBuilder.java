@@ -143,8 +143,15 @@ public class TermBuilder {
         return cons("this");
     }
 
+
+
     public Term makeFieldConst(String clazz, String field) throws TermBuildException {
-        return cons(clazz + "$$" + field);
+        return cons(fieldName(clazz, field));
+    }
+
+    // FIXME TODO REVIEW change this to "field$" + clazz + "$" + field
+    public static String fieldName(String clazz, String field) {
+        return clazz + "$$" + field;
     }
 
     public Term selectField(Term heap, Term recv, Term field) throws TermBuildException {
@@ -198,18 +205,26 @@ public class TermBuilder {
         Sort seqSort = seqTerm.getSort();
         assert seqSort.getName().equals("seq");
         Sort elementSort = seqSort.getArguments().get(0);
-        FunctionSymbol store = BuiltinSymbols.SEQ_LEN.instantiate(elementSort);
+        FunctionSymbol seqlen = BuiltinSymbols.SEQ_LEN.instantiate(elementSort);
 
-        return new ApplTerm(store, seqTerm);
+        return new ApplTerm(seqlen, seqTerm);
     }
 
     public Term seqGet(Term seqTerm, Term indexTerm) throws TermBuildException {
         Sort seqSort = seqTerm.getSort();
         assert seqSort.getName().equals("seq");
         Sort elementSort = seqSort.getArguments().get(0);
-        FunctionSymbol store = BuiltinSymbols.SEQ_GET.instantiate(elementSort);
+        FunctionSymbol seqget = BuiltinSymbols.SEQ_GET.instantiate(elementSort);
 
-        return new ApplTerm(store, seqTerm, indexTerm);
+        return new ApplTerm(seqget, seqTerm, indexTerm);
     }
 
+    public Term seqUpd(Term seqTerm, Term indexTerm, Term value) throws TermBuildException {
+        Sort seqSort = seqTerm.getSort();
+        assert seqSort.getName().equals("seq");
+        Sort elementSort = seqSort.getArguments().get(0);
+        FunctionSymbol sequpd = BuiltinSymbols.SEQ_UPDATE.instantiate(elementSort);
+
+        return new ApplTerm(sequpd, seqTerm, indexTerm, value);
+    }
 }
