@@ -23,8 +23,6 @@ import java.util.*;
  */
 public class ProofNode {
 
-
-
     /**
      * The variable assignments for this node
      */
@@ -33,35 +31,34 @@ public class ProofNode {
     /**
      * Pointer to parent proof node
      */
-    private ProofNode parent;
+    private final ProofNode parent;
 
     /**
      * Proof Rule Application responsible for child
      */
-    private ProofRuleApplication psr;
+    private final ProofRuleApplication psr;
 
-    private ProofHistory history;
+    // private ProofHistory history;
 
     /**
      * Pointer to children
      */
-    private List<ProofNode> children;
+    private final List<ProofNode> children = new LinkedList<ProofNode>();;
 
     /**
      * Root PVC
      */
-    private PVC rootPVC;
+    private final PVC pvc;
 
     /**
      * Sequent in this proof node
      */
-    private Sequent sequent;
+    private final Sequent sequent;
 
     /**
      * Is closed node?
      */
-    private boolean isclosed;
-
+    private boolean closed;
 
     /**
      * Pointer to ASTNode that mutated this node
@@ -69,26 +66,23 @@ public class ProofNode {
     private List<ASTNode> mutator;
 
 
-    public ProofNode(ProofNode parent, Sequent seq) {
-
+    public static ProofNode createRoot(PVC pvc) {
+        return new ProofNode(null, null, pvc.getSequent(), pvc);
     }
 
-    public ProofNode(ProofNode parent, ProofRuleApplication psr, ProofHistory history, Sequent seq, PVC rootPVC) {
+    public ProofNode(ProofNode parent, ProofRuleApplication psr, Sequent seq, PVC rootPVC) {
         this.parent = parent;
         this.psr = psr;
-        this.history = history;
-        this.children = new LinkedList<ProofNode>();
         this.sequent = seq;
-        this.rootPVC = rootPVC;
-        isclosed = false;
-        mutator = new ArrayList<>();
+        this.pvc = rootPVC;
+        this.closed = false;
+        this.mutator = new ArrayList<>();
         this.variableAssignments = new VariableAssignment(parent == null ? null : parent.deepCopyAssignments());
     }
 
     public Sequent getSequent() {
         return sequent;
     }
-
 
     public ProofNode getParent() {
         return parent;
@@ -98,36 +92,32 @@ public class ProofNode {
         return psr;
     }
 
-    public void setPsr(ProofRuleApplication psr) {
-        this.psr = psr;
-    }
-
-    public ProofHistory getHistory() {
-        return history;
-    }
-
     public List<ProofNode> getChildren() {
         return children;
     }
 
-    public void setChildren(List<ProofNode> children) {
-        this.children = children;
+    public PVC getPVC() {
+        return pvc;
     }
 
-    public PVC getRootPVC() {
-        return rootPVC;
+    public boolean isClosed() {
+        return closed;
     }
 
-    public boolean isIsclosed() {
-        return isclosed;
+    public void setClosed(boolean closed) {
+        assert !closed || children.isEmpty() : "Only empty nodes can be closed";
+        this.closed = closed;
     }
 
-    public void setIsclosed(boolean isclosed) {
-        this.isclosed = isclosed;
-    }
-
-    public void setSequent(Sequent sequent) {
-        this.sequent = sequent;
+    /**
+     * Returns true if there is no leaf in the tree beneath that is an open goal
+     *
+     * @return true if the spanned subtree is closed.
+     */
+    public boolean allLeavesClosed() {
+        return isClosed() ||
+                (!getChildren().isEmpty()
+                        && getChildren().stream().allMatch(ProofNode::allLeavesClosed));
     }
 
     public void addMutator(ASTNode mutator) {

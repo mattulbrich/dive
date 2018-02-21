@@ -2,7 +2,7 @@ grammar ScriptLanguage;
 
 
 start
-    :   script
+    :   script EOF
     ;
 
 
@@ -27,8 +27,8 @@ stmtList
 
 statement
     :
-        casesStmt
-    |   scriptCommand
+      casesStmt
+    | scriptCommand
     | assignment
     ;
 

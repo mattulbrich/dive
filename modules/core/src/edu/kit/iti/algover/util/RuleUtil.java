@@ -22,6 +22,7 @@ import java.util.function.Predicate;
  */
 public class RuleUtil {
 
+
     /**
      * Tries to match the first Term in the whole sequent, from top to bottom.
      * Starts with the antecedent, goes top to bottom of terms.
@@ -36,6 +37,20 @@ public class RuleUtil {
             return inAntecedent;
         }
         return matchSubtermInPolarity(TermSelector.SequentPolarity.SUCCEDENT, predicate, sequent.getSuccedent());
+    }
+
+    /**
+     * Tries to match the first Term in the whole sequent, from top to bottom.
+     * Starts with the antecedent, goes top to bottom of terms.
+     *
+     * @param predicate the predicate that the term you are looking for should match. For finding specific terms, use term::equals
+     * @param sequent   the sequent to look for the term.
+     * @return Either a filled optional with the first matching TermSelector inside, or Optional.empty() when none could be found.
+     */
+    public static List<TermSelector> matchSubtermsInSequent(Predicate<Term> predicate, Sequent sequent) {
+        List<TermSelector> inAntecedent = matchSubtermsInPolarity(TermSelector.SequentPolarity.ANTECEDENT, predicate, sequent.getAntecedent());
+        inAntecedent.addAll(matchSubtermsInPolarity(TermSelector.SequentPolarity.SUCCEDENT, predicate, sequent.getSuccedent()));
+        return inAntecedent;
     }
 
     /**
@@ -65,6 +80,32 @@ public class RuleUtil {
         return Optional.empty();
     }
 
+    /**
+     * Finds a Subterm in only one of the polarities of a sequent. So if you are looking for a <strong>sub</strong>term
+     * (i.e. it may be nested deep inside other terms) in the succedent, then use for example:
+     * <p>
+     * <code>matchSubtermInPolarity(SequentPolarity.SUCCEDENT, termImLookingFor::equals, sequent.getSuccedent())</code>
+     * <p>
+     * .
+     *
+     * @param polarity  the SequentPolarity you are looking for in. Used for constructing the appropriate TermSelector.
+     * @param predicate the predicate that the term has to match. For finding specific terms, use specificTerm::equals
+     * @param formulas  either the antecedent or succedent of a sequent (i.e. sequent.getAntedecent() or ...).
+     *                  Sublists of that result in incorrect indices in the TermSelector!
+     * @return Either a filled optional with the first matching TermSelector inside, or Optional.empty() when none could be found.
+     */
+    public static List<TermSelector> matchSubtermsInPolarity(
+            TermSelector.SequentPolarity polarity, Predicate<Term> predicate, List<ProofFormula> formulas) {
+        List<TermSelector> res = new ArrayList<>();
+        for (int i = 0; i < formulas.size(); i++) {
+            List<SubtermSelector> list = matchSubterms(predicate, formulas.get(i).getTerm());
+            for(SubtermSelector sts : list) {
+                res.add(new TermSelector(new TermSelector(polarity, i), sts));
+            }
+        }
+        return res;
+    }
+
     /*
      * From a SubtermSelector selector, creates something like new TermSelector(polarity, index, selector.getPath()).
      */
@@ -77,10 +118,10 @@ public class RuleUtil {
     }
 
     /**
-     * Shorthand for <code>{@link #matchTopLevel(Predicate, List) matchTopLevel}(predicate, sequent.getAntecedent())</code>
+     * Shorthand for <code>{@link #matchTopLevelIndex(Predicate, List) matchTopLevel}(predicate, sequent.getAntecedent())</code>
      */
     public static Optional<Integer> matchTopLevelInAntedecent(Predicate<Term> predicate, Sequent sequent) {
-        return matchTopLevel(predicate, sequent.getAntecedent());
+        return matchTopLevelIndex(predicate, sequent.getAntecedent());
     }
 
     /**
@@ -96,10 +137,22 @@ public class RuleUtil {
     }
 
     /**
-     * Shorthand for <code>{@link #matchTopLevel(Predicate, List) matchTopLevel}(predicate, sequent.getSuccedent())</code>
+     * Tries to find a term that matches the given predicate in the given term arbitrarily deeply nested (recursively),
+     * and, if found, returns a SubtermSelector.
+     *
+     * @param predicate    the predicate that the term has to match. If you're looking for a specificTerm, use <code>specificTerm::equals</code>.
+     * @param topLevelTerm
+     * @return Either a filled optional with the first matching SubtermSelector inside, or Optional.empty() when none could be found.
+     */
+    public static List<SubtermSelector> matchSubterms(Predicate<Term> predicate, Term topLevelTerm) {
+        return matchSubtermsAccum(new SubtermSelector(), predicate, topLevelTerm);
+    }
+
+    /**
+     * Shorthand for <code>{@link #matchTopLevelIndex(Predicate, List) matchTopLevel}(predicate, sequent.getSuccedent())</code>
      */
     public static Optional<Integer> matchTopLevelInSuccedent(Predicate<Term> predicate, Sequent sequent) {
-        return matchTopLevel(predicate, sequent.getSuccedent());
+        return matchTopLevelIndex(predicate, sequent.getSuccedent());
     }
 
     /**
@@ -110,13 +163,22 @@ public class RuleUtil {
      * @param formulas  either the antecedent or succedent of a sequent: {@link Sequent#getAntecedent()} or {@link Sequent#getSuccedent()}.
      * @return Either an Optional of the index of the first matched top-level term, or Optional.empty() if none could be found.
      */
-    public static Optional<Integer> matchTopLevel(Predicate<Term> predicate, List<ProofFormula> formulas) {
+    public static Optional<Integer> matchTopLevelIndex(Predicate<Term> predicate, List<ProofFormula> formulas) {
         for (int i = 0; i < formulas.size(); i++) {
             if (predicate.test(formulas.get(i).getTerm())) {
                 return Optional.of(i);
             }
         }
         return Optional.empty();
+    }
+
+    public static Optional<TermSelector> matchTopLevel(Predicate<Term> predicate, Sequent sequent) {
+        Optional<TermSelector> antecedent =
+                matchTopLevelInAntedecent(predicate, sequent).map(idx -> new TermSelector(TermSelector.SequentPolarity.ANTECEDENT, idx));
+        if (antecedent.isPresent()) {
+            return antecedent;
+        }
+        return matchTopLevelInSuccedent(predicate, sequent).map(idx -> new TermSelector(TermSelector.SequentPolarity.SUCCEDENT, idx));
     }
 
     /*
@@ -142,53 +204,27 @@ public class RuleUtil {
         }
     }
 
-    public static List<TermSelector> getSelectorForTerm(Term term, Sequent sequent) {
-        List<TermSelector> res = new ArrayList<>();
-        res.addAll(getSelectorForTermInAntecedent(term, sequent.getAntecedent()));
-        res.addAll(getSelectorForTermInSuccedent(term, sequent.getSuccedent()));
-        return res;
-    }
-
-    public static TermSelector getSingleSelectorForTerm(Term term, Sequent sequent) throws IllegalArgumentException {
-        List<TermSelector> res = new ArrayList<>();
-        res.addAll(getSelectorForTermInAntecedent(term, sequent.getAntecedent()));
-        res.addAll(getSelectorForTermInSuccedent(term, sequent.getSuccedent()));
-        if(res.size() == 1) {
-            return res.get(0);
+    /*
+     * This just tail-recursively (even though this does not optimize in the jvm yet) looks for a matching predicate inside the terms
+     * subterms (and also the term itself), with the assumption, that term is already a subterm, that can be selected via the given
+     * "alreadySelected" SubtermSelector.
+     */
+    private static List<SubtermSelector> matchSubtermsAccum(SubtermSelector alreadySelected, Predicate<Term> predicate, Term term) {
+        List<SubtermSelector> res = new ArrayList<>();
+        if (predicate.test(term)) {
+            res.add(alreadySelected);
         } else {
-            throw new IllegalArgumentException("Termselector is ambiguous.");
-        }
-    }
-
-    public static List<TermSelector> getSelectorForTermInAntecedent(Term term, List<ProofFormula> antecedent) {
-        List<TermSelector> res = new ArrayList<>();
-        for(int i = 0; i < antecedent.size(); ++i) {
-            res.addAll(TermContainsTerm(antecedent.get(i).getTerm(), term, new TermSelector(TermSelector.SequentPolarity.ANTECEDENT, i)));
-        }
-        return res;
-    }
-
-    public static List<TermSelector> getSelectorForTermInSuccedent(Term term, List<ProofFormula> succedent) {
-        List<TermSelector> res = new ArrayList<>();
-        for(int i = 0; i < succedent.size(); ++i) {
-            res.addAll(TermContainsTerm(succedent.get(i).getTerm(), term, new TermSelector(TermSelector.SequentPolarity.SUCCEDENT, i)));
+            for (int subtermIndex = 0; subtermIndex < term.getSubterms().size(); subtermIndex++) {
+                Optional<SubtermSelector> foundSelector =
+                        matchSubtermAccum(
+                                new SubtermSelector(alreadySelected, subtermIndex),
+                                predicate,
+                                term.getTerm(subtermIndex));
+                if (foundSelector.isPresent()) {
+                    res.add(foundSelector.get());
+                }
+            }
         }
         return res;
     }
-
-    private static List<TermSelector> TermContainsTerm(Term inTerm, Term searchTerm, TermSelector ts) {
-        TermMatcher tm = new TermMatcher();
-        if(tm.match(searchTerm, inTerm).size() != 0) {
-            return Arrays.asList(ts);
-        }
-        if(inTerm.getSubterms().size() == 0) {
-            return new ArrayList<>();
-        }
-        List<TermSelector> res = new ArrayList<>();
-        for(int i = 0; i < inTerm.getSubterms().size(); ++i) {
-            res.addAll(TermContainsTerm(inTerm.getTerm(i), searchTerm, new TermSelector(ts, i)));
-        }
-        return res;
-    }
-
 }

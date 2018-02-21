@@ -24,6 +24,9 @@ import java.util.List;
 import java.util.Map;
 
 import static org.junit.Assert.*;
+import org.xml.sax.SAXException;
+
+import javax.xml.bind.JAXBException;
 
 
 /**
@@ -84,7 +87,7 @@ public class ProjectTest {
     }
 
     @Test
-    public void testConfigurationValidation() throws IOException, FormatException {
+    public void testConfigurationValidation() throws IOException, FormatException, JAXBException, SAXException {
         final File f1 = new File(testDir);
 
         ProjectBuilder pb = new ProjectBuilder();

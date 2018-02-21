@@ -8,10 +8,7 @@ import edu.kit.iti.algover.browser.entities.TreeTableEntity;
 import edu.kit.iti.algover.dafnystructures.DafnyFile;
 import edu.kit.iti.algover.editor.EditorController;
 import edu.kit.iti.algover.project.ProjectManager;
-import edu.kit.iti.algover.proof.PVC;
-import edu.kit.iti.algover.proof.Proof;
-import edu.kit.iti.algover.proof.ProofNode;
-import edu.kit.iti.algover.proof.ProofNodeSelector;
+import edu.kit.iti.algover.proof.*;
 import edu.kit.iti.algover.references.CodeReference;
 import edu.kit.iti.algover.references.GetReferenceTypeVisitor;
 import edu.kit.iti.algover.references.ProofTermReference;
@@ -34,11 +31,13 @@ import java.util.concurrent.ExecutorService;
 public class MainController implements SequentActionListener, RuleApplicationListener {
 
     private final ProjectManager manager;
+    private final TimelineLayout view;
+
+    // All controllers for the views, sorted from left-to-right in the way they appear in the GUI
     private final BrowserController browserController;
     private final EditorController editorController;
     private final SequentController sequentController;
     private final RuleApplicationController ruleApplicationController;
-    private final TimelineLayout view;
 
     public MainController(ProjectManager manager, ExecutorService executor) {
         this.manager = manager;
@@ -63,6 +62,9 @@ public class MainController implements SequentActionListener, RuleApplicationLis
         editorController.viewFile(entity.getLocation());
         editorController.viewPVCSelection(pvc);
         Proof proof = manager.getProofForPVC(entity.getPVC().getIdentifier());
+        // MU: currently proofs are not automatically interpreted and/or uptodate. Make sure they are.
+        if(proof.getProofStatus() == ProofStatus.NON_EXISTING  || proof.getProofStatus() == ProofStatus.CHANGED_SCRIPT)
+            proof.interpretScript();
         sequentController.viewSequentForPVC(entity, proof);
         ruleApplicationController.resetConsideration();
         view.moveFrameRight();
@@ -130,7 +132,7 @@ public class MainController implements SequentActionListener, RuleApplicationLis
         ruleApplicationController.applyRule(application);
         ruleApplicationController.getRuleGrid().getSelectionModel().clearSelection();
         String newScript = ruleApplicationController.getScriptView().getText();
-        sequentController.getActiveProof().setNewScriptTextAndInterpret(newScript);
+        sequentController.getActiveProof().setScriptTextAndInterpret(newScript);
         sequentController.tryMovingOn();
         ruleApplicationController.resetConsideration();
     }

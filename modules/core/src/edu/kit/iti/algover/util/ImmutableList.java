@@ -389,6 +389,15 @@ public class ImmutableList<T> implements Iterable<T> {
         return result;
     }
 
+
+    public <U, E extends Exception> ImmutableList<U> flatMap(FunctionWithException<T, Iterable<U>, E> function) throws E {
+        ImmutableList<U> result = nil();
+        for (T el : this) {
+            result = result.appendAll(function.apply(el));
+        }
+        return result;
+    }
+
     public ImmutableList<T> filter(Predicate<T> predicate) {
         ImmutableList<T> result = nil();
         for (T el : this) {
@@ -399,11 +408,24 @@ public class ImmutableList<T> implements Iterable<T> {
         return result;
     }
 
-    public <U, E extends Exception> ImmutableList<U> flatMap(FunctionWithException<T, Iterable<U>, E> function) throws E {
-        ImmutableList<U> result = nil();
+    public T findFirst(Predicate<T> predicate) {
         for (T el : this) {
-            result = result.appendAll(function.apply(el));
+            if(predicate.test(el)) {
+                return el;
+            }
         }
-        return result;
+        return null;
     }
+
+    public T findLast(Predicate<T> predicate) {
+        ImmutableList<T> l = this;
+        while(l.tail != null) {
+            if(predicate.test(l.data)) {
+                return l.data;
+            }
+            l = l.tail;
+        }
+        return null;
+    }
+
 }

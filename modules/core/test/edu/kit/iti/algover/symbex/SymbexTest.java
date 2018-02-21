@@ -8,6 +8,7 @@ package edu.kit.iti.algover.symbex;
 import edu.kit.iti.algover.parser.DafnyParser;
 import edu.kit.iti.algover.parser.DafnyTree;
 import edu.kit.iti.algover.parser.ParserTest;
+import edu.kit.iti.algover.project.Project;
 import edu.kit.iti.algover.symbex.AssertionElement.AssertionType;
 import edu.kit.iti.algover.symbex.PathConditionElement.AssumptionType;
 import edu.kit.iti.algover.util.ASTUtil;
@@ -383,7 +384,8 @@ public class SymbexTest {
     @Test
     public void testHandleHavoc() throws Exception {
         InputStream stream = getClass().getResourceAsStream("havoc.dfy");
-        this.tree = ParserTest.parseFile(stream).getFirstChildWithType(DafnyParser.METHOD);
+        Project project = TestUtil.mockProject(ParserTest.parseFile(stream));
+        this.tree = project.getMethod("havocTest").getRepresentation();
 
         Symbex symbex = new Symbex();
         List<SymbexPath> results = symbex.symbolicExecution(tree);
@@ -400,7 +402,8 @@ public class SymbexTest {
     @Test
     public void testHandleRuntimeAssertions() throws Exception {
         InputStream stream = getClass().getResourceAsStream("runtimeAssert.dfy");
-        this.tree = ParserTest.parseFile(stream).getChild(0);
+        Project project = TestUtil.mockProject(ParserTest.parseFile(stream));
+        this.tree = project.getMethod("runtimeChecks").getRepresentation();
 
         Symbex symbex = new Symbex();
         List<SymbexPath> results = symbex.symbolicExecution(tree);
@@ -451,7 +454,8 @@ public class SymbexTest {
     @Test
     public void testHandleRuntimeAssertionsIf() throws Exception {
         InputStream stream = getClass().getResourceAsStream("runtimeAssert.dfy");
-        this.tree = ParserTest.parseFile(stream).getChild(1);
+        Project project = TestUtil.mockProject(ParserTest.parseFile(stream));
+        this.tree = project.getMethod("runtimeInIf").getRepresentation();
 
         Symbex symbex = new Symbex();
         List<SymbexPath> results = symbex.symbolicExecution(tree);
@@ -548,7 +552,9 @@ public class SymbexTest {
     @Test
     public void testHandleHeapUpdates() throws Exception {
         InputStream stream = getClass().getResourceAsStream("../parser/reftypes.dfy");
-        this.tree = ParserTest.parseFile(stream).getChild(0).getFirstChildWithType(DafnyParser.METHOD);
+        Project project = TestUtil.mockProject(ParserTest.parseFile(stream));
+
+        this.tree = project.getClass("LinkedList").getMethod("m").getRepresentation();
 
         Symbex symbex = new Symbex();
         List<SymbexPath> results = symbex.symbolicExecution(tree);

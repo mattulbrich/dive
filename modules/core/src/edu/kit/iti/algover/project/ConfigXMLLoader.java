@@ -5,11 +5,17 @@
  */
 package edu.kit.iti.algover.project;
 
+import org.xml.sax.SAXException;
+
+import javax.xml.XMLConstants;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
 import javax.xml.bind.Unmarshaller;
+import javax.xml.validation.Schema;
+import javax.xml.validation.SchemaFactory;
 import java.io.File;
+import java.io.IOException;
 
 /**
  * Handles loading XML config files.
@@ -31,21 +37,21 @@ public class ConfigXMLLoader {
      *            non-<code>null</code> file object of the xml file.
      * @return {@link Configuration} object holding all fields of the XML file
      */
-    public static Configuration loadConfigFile(File configFile) {
+    public static Configuration loadConfigFile(File configFile) throws JAXBException, SAXException {
 
-        try {
+
+            SchemaFactory sf = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
+            assert ConfigXMLLoader.class.getResourceAsStream("config-schema.xsd") != null;
+            Schema schema = sf.newSchema(ConfigXMLLoader.class.getResource("config-schema.xsd"));
 
             JAXBContext jaxbContext = JAXBContext.newInstance(Configuration.class);
 
             Unmarshaller jaxbUnmarshaller = jaxbContext.createUnmarshaller();
+            jaxbUnmarshaller.setSchema(schema);
             Configuration config = (Configuration) jaxbUnmarshaller.unmarshal(configFile);
 
             return config;
 
-        } catch (JAXBException e) {
-            e.printStackTrace();
-        }
-        return null;
 
     }
 

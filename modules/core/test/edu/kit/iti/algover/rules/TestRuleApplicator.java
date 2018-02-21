@@ -86,12 +86,13 @@ public class TestRuleApplicator {
         symbTable = new MapSymbolTable(new BuiltinSymbols(), map);
     }
 
+    // REVIEW: What is the assertion in this test? Only that no exception is thrown?
     @Test
     public void test() throws RuleException {
         System.out.println(testSequent);
 
         ProofRule pr = new TrivialAndRight();
-        ProofNode pn = new ProofNode(null, null, null, testSequent, null);
+        ProofNode pn = new ProofNode(null, null, testSequent, null);
 
         TermSelector ts = new TermSelector(TermSelector.SequentPolarity.SUCCEDENT, 1);
         Parameters params = new Parameters();
@@ -103,6 +104,7 @@ public class TestRuleApplicator {
 
     }
 
+    // REVIEW: What is the assertion in this test? Only that no exception is thrown?
     @Test
     public void testAddAndDelete() throws TermBuildException {
         System.out.println(testSequent.getAntecedent());

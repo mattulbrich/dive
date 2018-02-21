@@ -194,4 +194,22 @@ public class TermBuilder {
         return new ApplTerm(BuiltinSymbols.NULL);
     }
 
+    public Term seqLen(Term seqTerm) throws TermBuildException {
+        Sort seqSort = seqTerm.getSort();
+        assert seqSort.getName().equals("seq");
+        Sort elementSort = seqSort.getArguments().get(0);
+        FunctionSymbol store = BuiltinSymbols.SEQ_LEN.instantiate(elementSort);
+
+        return new ApplTerm(store, seqTerm);
+    }
+
+    public Term seqGet(Term seqTerm, Term indexTerm) throws TermBuildException {
+        Sort seqSort = seqTerm.getSort();
+        assert seqSort.getName().equals("seq");
+        Sort elementSort = seqSort.getArguments().get(0);
+        FunctionSymbol store = BuiltinSymbols.SEQ_GET.instantiate(elementSort);
+
+        return new ApplTerm(store, seqTerm, indexTerm);
+    }
+
 }

@@ -88,6 +88,11 @@ public class BranchInfoBuilder {
         return this;
     }
 
+    public BranchInfoBuilder addDeletionsAntecedent(ProofFormula... deletionsAnte) {
+        deletionsAntecedent.addAll(Util.readOnlyArrayList(deletionsAnte));
+        return this;
+    }
+
     public BranchInfoBuilder addDeletionsAntecedent(List<ProofFormula> deletionsAnte) {
         deletionsAntecedent.addAll(deletionsAnte);
         return this;

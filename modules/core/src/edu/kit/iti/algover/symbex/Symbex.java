@@ -562,6 +562,10 @@ public class Symbex {
             // No check for explicit this references ...
             return;
         }
+        if (expression.getExpressionType().getText().equals("seq")) {
+            // No check for seq, olny for array.
+            return;
+        }
         DafnyTree check = ASTUtil.notEquals(expression, ASTUtil._null());
         nonNull.setBlockToExecute(Symbex.EMPTY_PROGRAM);
         nonNull.setProofObligation(check, expression, AssertionType.RT_NONNULL);

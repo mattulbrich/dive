@@ -6,6 +6,7 @@
 
 package edu.kit.iti.algover.util;
 
+@FunctionalInterface
 public interface FunctionWithException<From, To, E extends Exception> {
 
     To apply(From from) throws E;

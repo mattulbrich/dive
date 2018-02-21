@@ -3,13 +3,15 @@ package edu.kit.iti.algover.sequent.formulas;
 import edu.kit.iti.algover.rules.SubtermSelector;
 import edu.kit.iti.algover.term.Term;
 
+import java.util.Collection;
+
 public class ModifiedFormula extends TopLevelFormula {
 
-    private final SubtermSelector modifiedPart;
+    private final Collection<SubtermSelector> modifiedParts;
 
-    public ModifiedFormula(SubtermSelector modifiedPart, Term term) {
+    public ModifiedFormula(Collection<SubtermSelector> modifiedParts, Term term) {
         super(term);
-        this.modifiedPart = modifiedPart;
+        this.modifiedParts = modifiedParts;
     }
 
     @Override
@@ -17,7 +19,7 @@ public class ModifiedFormula extends TopLevelFormula {
         return visitor.visitModifiedFormula(this);
     }
 
-    public SubtermSelector getModifiedPart() {
-        return modifiedPart;
+    public Collection<SubtermSelector> getModifiedParts() {
+        return modifiedParts;
     }
 }

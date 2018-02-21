@@ -198,7 +198,7 @@ public class Sort {
      */
     public static Sort getClassSort(String name) {
         assert !BUILTIN_SORT_NAMES.contains(name);
-        return new Sort(name, NO_ARGUMENTS);
+        return get(name, NO_ARGUMENTS);
     }
 
     /**

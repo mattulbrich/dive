@@ -14,6 +14,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
+// consider merging into TestUtil.
 public class ProofMockUtil {
 
     public static Term TRUE;
@@ -37,7 +38,25 @@ public class ProofMockUtil {
         for (int i = 0; i < succedentTerms.length; i++) {
             succedentFormulas.add(new ProofFormula(succedentTerms[i]));
         }
-        return new ProofNode(parent, null, null,
+        return new ProofNode(parent, null,
+                new Sequent(antedecentFormulas, succedentFormulas), null);
+    }
+
+    public static ProofNode mockProofNode(ProofNode parent, ProofFormula[] antedecentTerms, ProofFormula[] succedentTerms) throws TermBuildException {
+        List<ProofFormula> antedecentFormulas = new ArrayList<>(antedecentTerms.length);
+        antedecentFormulas.addAll(Arrays.asList(antedecentTerms));
+        List<ProofFormula> succedentFormulas = new ArrayList<>(succedentTerms.length);
+        succedentFormulas.addAll(Arrays.asList(succedentTerms));
+        return new ProofNode(parent, null,
+                new Sequent(antedecentFormulas, succedentFormulas), null);
+    }
+
+    public static ProofNode mockProofNode(ProofNode parent, List<ProofFormula> antedecentTerms, List<ProofFormula> succedentTerms) throws TermBuildException {
+        List<ProofFormula> antedecentFormulas = new ArrayList<>(antedecentTerms.size());
+        antedecentFormulas.addAll(antedecentTerms);
+        List<ProofFormula> succedentFormulas = new ArrayList<>(succedentTerms.size());
+        succedentFormulas.addAll(succedentTerms);
+        return new ProofNode(parent, null,
                 new Sequent(antedecentFormulas, succedentFormulas), null);
     }
 }

@@ -5,8 +5,8 @@
     <dafnyFile>extra.dfy</dafnyFile>
     <libFile>lib.dfy</libFile>
     <settings>
-        <set>
-            <entry>
+
+        <entry>
                 <key>KeY Timeout</key>
                 <value>10</value>
             </entry>
@@ -22,6 +22,6 @@
                 <key>Unroll Loops</key>
                 <value>false</value>
             </entry>
-        </set>
+
     </settings>
 </configuration>

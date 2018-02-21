@@ -18,6 +18,7 @@ tokens {
   ARRAY_ACCESS;
   NOETHER_LESS;
   WILDCARD;
+  HEAP_UPDATE;
 }
 
 @parser::header {
@@ -123,6 +124,7 @@ GE: '>=';
 EQ: '==';
 NEQ: '!=';
 DOT: '.';
+AT: '@';
 BLOCK_BEGIN: '{';
 BLOCK_END: '}';
 LPAREN: '(';
@@ -374,22 +376,35 @@ let_expr:
       -> ^(LET ^(VAR usual_or_logic_id*) expression+)
   ;
 
+// Apparantly, antlr requires explicit lookaheads for all cases here ...
 postfix_expr:
   ( atom_expr -> atom_expr )   // see ANTLR ref. page 175
-  ( '[' expressions ']' -> ^( ARRAY_ACCESS $postfix_expr expressions )
+  ( '[' expression ( {logicMode}? ':=' expression ']'     -> ^( HEAP_UPDATE $postfix_expr expression expression )
+                   | ( ',' expression )* ']' -> ^( ARRAY_ACCESS $postfix_expr expression+ )
+                   )
   | '.' LENGTH -> ^( LENGTH $postfix_expr )
   | '.' ID '(' expressions? ')' -> ^( CALL ID $postfix_expr ^(ARGS expressions?) )
   | '.' ID -> ^( FIELD_ACCESS $postfix_expr ID )
   )*
+  ( '@'  {logicMode}?  heap_postfix_expr -> ^('@' $postfix_expr heap_postfix_expr ) )?
+  ;
+
+// This rule has been instantiated to avoid the following error message
+// for the '@' in postfix_expr
+// Dafny.g:382:78: reference $postfix_expr is ambiguous; rule postfix_expr is enclosing rule and referenced in the production (assuming enclosing rule)
+heap_postfix_expr:
+  postfix_expr
   ;
 
 atom_expr:
+
   usual_or_logic_id
     (                      -> usual_or_logic_id
     | '(' expressions? ')' -> ^(CALL usual_or_logic_id ^(ARGS expressions?) )
     )
   | {schemaMode}?
   ( SCHEMA_ID | BLANK | ELLIPSIS^ expression ELLIPSIS! )
+
   | TRUE | FALSE | NULL | 'this'
   | INT_LIT
   | 'old'^ '('! expression ')'!
@@ -413,4 +428,3 @@ logic_id_param:
 quantifier:
   (ALL^ | EX^) ID (','! ID)* ':'! type '::'! expression
   ;
-

@@ -5,9 +5,9 @@
 	<property name="dir.lib" location="../../lib" />
 	<property name="dir.tools" value="../../tools" />
 
-    <property name="z3.binary" value="z3"/>
+	<property name="z3.binary" value="z3"/>
 
-    <property name="libs"
+	<property name="libs"
 			  value="${dir.lib}/antlr.jar:${dir.lib}/junit4.jar:${dir.lib}/hamcrest.jar:${dir.lib}/junitparams.jar:${dir.lib}/jpplib.jar:${dir.lib}/antlr-4.7-complete.jar:${dir.lib}/guava-23.0.jar"/>
 
 	<target name="init" description="initialize all directories">
@@ -56,24 +56,6 @@
 			<arg value="edu.kit.iti.algover.script"/>
 		</java>
 	</target>
-	<!--<target name="matcher" depends="init">
-		<java jar="${dir.lib}/antlr-4.7-complete.jar" fork="true" dir="src" failonerror="true">
-			<arg value="-visitor"/>
-			<arg value="-o" />
-			<arg value="../gen" />
-			<arg value="edu/kit/iti/algover/matcher/MatchPattern.g4"/>
-			<arg value="-package"/>
-			<arg value="edu.kit.iti.algover.matcher"/>
-		</java>
-	</target> -->
-	<!--<target name="ProjectParser" depends="init">
-        <java jar="${dir.lib}/antlr.jar" fork="true" dir="src" failonerror="true">
-            <arg value="-verbose" />
-            <arg value="-o" />
-            <arg value="../gen" />
-            <arg value="edu/kit/iti/algover/project/ProjectStructure.g" />
-        </java>
-    </target> -->
 	<target name="visitor" depends="antlr">
 		<javac srcdir="${dir.tools}" destdir="${dir.tools}" includes="MakeDafnyTreeVisitor.java" debug="on" />
 		<mkdir dir="gen/edu/kit/iti/algover/parser" />
@@ -91,12 +73,12 @@
 	</target>
 
 	<target name="test" depends="compile-test, build">
-        <exec executable="${z3.binary}">
-            <arg value="-version"/>
-        </exec>
+	        <exec executable="${z3.binary}">
+        		<arg value="-version"/>
+	        </exec>
 		<junit fork="yes" printsummary="yes">
 			<jvmarg value="-javaagent:${dir.lib}/nonnull.jar=edu.kit." />
-            <jvmarg value="-Dedu.kit.iti.algover.z3_binary=${z3.binary}"/>
+			<jvmarg value="-Dedu.kit.iti.algover.z3_binary=${z3.binary}"/>
 			<formatter type="xml" />
 			<assertions><enable/></assertions>
 			<classpath path="test-bin:bin:${libs}:${dir.lib}/hamcrest.jar" />
@@ -108,6 +90,7 @@
 		<delete dir="bin" />
 		<delete dir="test-bin" />
 		<delete dir="gen" />
+		<delete file="${dir.tools}/MakeDafnyTreeVisitor.class" />
 	</target>
 
 	<target name="checkstyle">

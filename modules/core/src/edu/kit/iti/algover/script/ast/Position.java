@@ -23,7 +23,10 @@ package edu.kit.iti.algover.script.ast;
  */
 
 
+import edu.kit.iti.algover.parser.DafnyParser;
+import static edu.kit.iti.algover.parser.DafnyParser.EOF;
 import nonnull.NonNull;
+import org.antlr.v4.runtime.CommonToken;
 import org.antlr.v4.runtime.Token;
 
 /**
@@ -46,6 +49,7 @@ public class Position implements Copyable<Position> {
     }
 
     public static Position from(Token token) {
+        if (token == null) return from(new CommonToken(DafnyParser.EOF));
         return new Position(token.getLine(), token.getCharPositionInLine());
     }
 
