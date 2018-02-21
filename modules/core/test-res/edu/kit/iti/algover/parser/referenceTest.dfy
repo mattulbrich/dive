@@ -90,8 +90,7 @@ method varDecls() returns (ret_r : int)
      ret_r := l_i+l_x1+l_x2+l_y+l_v;
  }
 
-/* *************
 method double_quantifiers()
   ensures forall va_i, va_j : int :: va_i > va_j
+  ensures exists vx_i, vx_j : int :: vx_i > vx_j
 {}
-*/
