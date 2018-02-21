@@ -67,7 +67,14 @@ public class TypeResolution extends DafnyTreeDefaultVisitor<DafnyTree, Void> {
         case DafnyParser.FIELD:
         case DafnyParser.ALL:
         case DafnyParser.EX:
-            DafnyTree type = ref.getFirstChildWithType(DafnyParser.TYPE).getChild(0);
+            DafnyTree typeTree = ref.getFirstChildWithType(DafnyParser.TYPE);
+            DafnyTree type;
+            if (typeTree == null) {
+                // this is the case for
+                type = ref.getLastChild().getExpressionType();
+            } else {
+                type = typeTree.getChild(0);
+            }
             t.setExpressionType(type);
             return type;
 

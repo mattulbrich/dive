@@ -254,23 +254,27 @@ block:
   '{' statements? '}' -> ^(BLOCK statements?)
   ;
 
+/* To support var i, j: int read ref manual p. 186:
+ When there are some elements with cardinality one and others with
+ cardinality greater than one, the elements with cardinality one are
+ duplicated as the parser creates the tree. In the following rule, the ’int’
+ token has cardinality one and is replicated for every ID token found on
+ the input stream:
+    decl : 'int' ID (',' ID)* -> ^('int' ID)+ ;
+*/
+varDecl:
+    VAR ID ( ',' ID )+ ':' typeRef ';' -> ^(VAR ID typeRef)+
+  | VAR^ ID ( ':'! typeRef (':='! expression)?
+           | ':='! expression ) ';'!
+  ;
+
 statements:
-  ( statement )+
+  ( statement | varDecl )+
   ;
 
 statement:
-/* To support var i, j: int read ref manual p. 186:
-When there are some elements with cardinality one and others with
-cardinality greater than one, the elements with cardinality one are
-duplicated as the parser creates the tree. In the following rule, the ’int’
-token has cardinality one and is replicated for every ID token found on
-the input stream:
-decl : 'int' ID (',' ID)* -> ^('int' ID)+ ;
-*/
 
-    VAR^ ID ':'! typeRef (':='! expression)? ';'!
-
-  | postfix_expr
+    postfix_expr
       ( ASSIGN value=expression_wildcard ';'
       { if(!LVALUE_TOKENTYPES.member($postfix_expr.tree.getType()))
             throw new MismatchedSetException(LVALUE_TOKENTYPES, input); }

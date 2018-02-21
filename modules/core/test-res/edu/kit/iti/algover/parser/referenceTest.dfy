@@ -77,4 +77,21 @@ class C {
    {
      ret_r := p_param[0] + 1;
    }
+
 }
+
+method varDecls() returns (ret_r : int)
+ {
+     var l_i : int;
+     var l_x1, l_x2 : int;
+     var l_y : int := 42;
+     var l_v := 44;
+
+     ret_r := l_i+l_x1+l_x2+l_y+l_v;
+ }
+
+/* *************
+method double_quantifiers()
+  ensures forall va_i, va_j : int :: va_i > va_j
+{}
+*/
