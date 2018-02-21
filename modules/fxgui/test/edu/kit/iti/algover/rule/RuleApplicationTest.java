@@ -22,12 +22,14 @@ import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
 
 public class RuleApplicationTest extends ApplicationTest {
+    private static final String PVCID = "gcd/InitInv.1";
+
     @Override
     protected Parent constructView() throws FormatException {
         ProjectManager manager = ProjectManagerMock.fromExample("gcd");
         MainController controller = new MainController(manager, SYNTAX_HIGHLIGHTING_EXECUTOR);
         controller.onClickPVCEdit(
-                new PVCEntity(manager.getPVCByNameMap().get("gcd/InitInv.1"), manager.getProject().getDafnyFiles().get(0)));
+                new PVCEntity(manager.getProofForPVC(PVCID), manager.getPVCByNameMap().get(PVCID), manager.getProject().getDafnyFiles().get(0)));
         controller.onClickSequentSubterm(new TermSelector("S.0"));
         return new StackPane(controller.getView());
     }
