@@ -1,4 +1,6 @@
 /bin
+/out
+/tmp
 /modules/*/bin
 /modules/*/test-bin
 /modules/*/gen
@@ -9,3 +11,4 @@
 *.class
 *.idea
 *.iml
+*.sane-bak

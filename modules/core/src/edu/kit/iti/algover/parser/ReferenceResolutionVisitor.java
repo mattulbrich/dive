@@ -295,6 +295,24 @@ public class ReferenceResolutionVisitor
         return null;
     }
 
+    /*
+     * Temporarily add quantified variable(s), visit matrix and remove variable.
+     */
+    @Override
+    public Void visitLET(DafnyTree t, Mode a) {
+        int rewindTo = identifierMap.getHistory();
+        List<DafnyTree> vars = t.getFirstChildWithType(DafnyParser.VAR).getChildren();
+        for (DafnyTree boundVar : vars) {
+            identifierMap.put(boundVar.getText(), t);
+        }
+        // do not revisit the variables.
+        for (int i = 1; i < t.getChildCount(); i++) {
+            t.getChild(i).accept(this, a);
+        }
+        identifierMap.rewindHistory(rewindTo);
+        return null;
+    }
+
     // ==================================== Visiting
 
     /*

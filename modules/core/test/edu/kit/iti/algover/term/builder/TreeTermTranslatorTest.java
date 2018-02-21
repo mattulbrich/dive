@@ -25,7 +25,9 @@ import org.antlr.runtime.CommonTokenStream;
 import org.antlr.runtime.RecognitionException;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 
 import java.util.ArrayList;
@@ -36,6 +38,9 @@ import static org.junit.Assert.*;
 
 @RunWith(JUnitParamsRunner.class)
 public class TreeTermTranslatorTest {
+
+    @Rule
+    public ExpectedException thrown = ExpectedException.none();
 
     private MapSymbolTable symbTable;
 
@@ -134,11 +139,11 @@ public class TreeTermTranslatorTest {
             { "b1 ==> b2 ==> b3", "$imp(b1, $imp(b2, b3))" },
 
             // Heap accesses
-            { "c.f", "$select<C,int>($heap, c, field$C$f)" },
-            { "c.f@loopHeap", "$select<C,int>(loopHeap, c, field$C$f)" },
+            { "c.f", "$select<C,int>($heap, c, C$$f)" },
+            { "c.f@loopHeap", "$select<C,int>(loopHeap, c, C$$f)" },
 
             // Heap updates
-            { "$heap[c.f := 1]", "$store<C,int>($heap, c, field$C$f, 1)" },
+            { "$heap[c.f := 1]", "$store<C,int>($heap, c, C$$f, 1)" },
             { "$heap[$anon(mod, loopHeap)]", "$anon($heap, mod, loopHeap)" },
             { "$heap[$create(c)]", "$create($heap, c)" },
 
@@ -206,7 +211,7 @@ public class TreeTermTranslatorTest {
         map.add(new FunctionSymbol("c", Sort.getClassSort("C")));
         map.add(new FunctionSymbol("c2", Sort.getClassSort("C")));
         map.add(new FunctionSymbol("args", Sort.INT, Sort.INT, Sort.BOOL, Sort.BOOL));
-        map.add(new FunctionSymbol("field$C$f", Sort.get("field", Sort.getClassSort("C"), Sort.INT)));
+        map.add(new FunctionSymbol("C$$f", Sort.get("field", Sort.getClassSort("C"), Sort.INT)));
         map.add(new FunctionSymbol("loopHeap", Sort.HEAP));
         map.add(new FunctionSymbol("mod", Sort.get("set", Sort.OBJECT)));
         symbTable = new MapSymbolTable(new BuiltinSymbols(), map);
@@ -232,14 +237,13 @@ public class TreeTermTranslatorTest {
         TreeTermTranslator ttt = new TreeTermTranslator(symbTable);
 
         DafnyTree t = parse(input, true);
+
+        thrown.expect(TermBuildException.class);
+        thrown.expectMessage(errMsg);
+
         try {
             ttt.build(t);
-            fail("Should not reach this here");
-        } catch (TermBuildException e) {
-            if(!e.getMessage().contains(errMsg)) {
-                e.printStackTrace();
-            }
-            assertTrue(e.getMessage().contains(errMsg));
+        } finally {
             assertEquals(0, ttt.countBoundVars());
         }
 
@@ -319,6 +323,40 @@ public class TreeTermTranslatorTest {
         assertEquals(expected.toString(), result.toString());
     }
 
+    @Test
+    public void letCascadeSeq() throws Exception {
+        symbTable.addFunctionSymbol(new FunctionSymbol("this", Sort.getClassSort("Seq")));
+        symbTable.addFunctionSymbol(new FunctionSymbol("Seq$$fsq",
+                Sort.get("field", Sort.getClassSort("Seq"), Sort.get("seq", Sort.INT))));
+        symbTable.addFunctionSymbol(new FunctionSymbol("sq", Sort.get("seq", Sort.INT)));
+
+        DafnyTree tree = DafnyFileParser.parse(getClass().getResourceAsStream("proj1/treeTransTest.dfy"));
+        Project p = TestUtil.mockProject(tree);
+
+        DafnyTree method = p.getClass("Seq").getMethod("s").getRepresentation();
+        DafnyTree block = method.getFirstChildWithType(DafnyParser.BLOCK);
+
+        ImmutableList<DafnyTree> assignments =
+                ImmutableList.<DafnyTree>from(block.getChildren()).
+                        filter(x -> x.getType() == DafnyParser.ASSIGN);
+
+        DafnyTree post = method.getFirstChildWithType(DafnyParser.ENSURES).getLastChild();
+
+        TreeTermTranslator ttt = new TreeTermTranslator(symbTable);
+
+        Term result = ttt.build(assignments, post);
+
+        Term expected = TermParser.parse(symbTable,
+                "let sq := $seq_upd<int>(sq, 0, 2) :: " +
+                        "let heap := $store<Seq, seq<int>>($heap, this, " +
+                        "Seq$$fsq, $seq_upd<int>($select<Seq,seq<int>>($heap, this, Seq$$fsq), 1, 3)) :: " +
+                        "let heap := $store<Seq,seq<int>>(heap, this, " +
+                        "Seq$$fsq, $seq_upd<int>($select<Seq, seq<int>>($heap, this, Seq$$fsq), 2, 4)) :: " +
+                        "true");
+
+        assertEquals(expected.toString(), result.toString());
+    }
+
     // from a bug
     @Test
     public void testLetProblem() throws Exception {
@@ -394,7 +432,7 @@ public class TreeTermTranslatorTest {
         DafnyTree fieldRef = p.getClass("C").getMethod("m").getBody().getChild(0).getChild(1);
         Term result = ttt.build(fieldRef);
 
-        assertEquals("$select<C,int>($heap, this, field$C$f)", result.toString());
+        assertEquals("$select<C,int>($heap, this, C$$f)", result.toString());
 
     }
 

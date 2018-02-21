@@ -11,6 +11,7 @@ import edu.kit.iti.algover.parser.DafnyFileParser;
 import edu.kit.iti.algover.parser.DafnyParserException;
 import edu.kit.iti.algover.parser.DafnyTree;
 import edu.kit.iti.algover.parser.ReferenceResolutionVisitor;
+import edu.kit.iti.algover.parser.SyntacticSugarVistor;
 import edu.kit.iti.algover.parser.TypeResolution;
 import edu.kit.iti.algover.proof.PVC;
 import edu.kit.iti.algover.settings.ProjectSettings;
@@ -245,6 +246,7 @@ public class ProjectBuilder {
         }
 
         Project project = new Project(this);
+        SyntacticSugarVistor.visitProject(project);
         resolveNames(project);
 
         //TODO parse rules for project
@@ -268,10 +270,14 @@ public class ProjectBuilder {
         ReferenceResolutionVisitor refResolver = new ReferenceResolutionVisitor(p, exceptions);
         refResolver.visitProject();
 
+        // TODO make the other exceptions accessible as well;
+        if (!exceptions.isEmpty()) {
+            throw exceptions.get(0);
+        }
+
         TypeResolution typeRes = new TypeResolution(exceptions);
         typeRes.visitProject(p);
 
-        // TODO make the other exceptions accessible as well;
         if (!exceptions.isEmpty()) {
             throw exceptions.get(0);
         }

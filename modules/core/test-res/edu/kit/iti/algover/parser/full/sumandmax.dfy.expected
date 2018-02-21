@@ -2,12 +2,12 @@
 (COMPILATION_UNIT 
  (method M 
   (ARGS 
-   (VAR N int) 
+   (VAR N (TYPE int)) 
    (VAR a 
-    (array int))) 
+    (TYPE (array int)))) 
   (returns 
-   (VAR sum int) 
-   (VAR max int)) 
+   (VAR sum (TYPE int)) 
+   (VAR max (TYPE int))) 
   (requires 
    (&& 
     (&& 
@@ -15,7 +15,7 @@
        (<= 0 N) 
        (!= a null))
       (== (Length a) N))
-      (forall k int 
+      (forall k (TYPE int) 
        (==> 
         (&& 
          (<= 0 k) 
@@ -28,7 +28,7 @@
   (BLOCK 
    (:= sum 0) 
    (:= max 0) 
-   (var i int 0) 
+   (var i (TYPE int) 0) 
    (while 
     (< i N) 
     (invariant 
@@ -51,7 +51,7 @@
  (method Main ARGS 
   (BLOCK 
    (var a 
-    (array int)) 
+    (TYPE (array int))) 
    (:= 
     (ARRAY_ACCESS a 0) 9) 
    (:= 
@@ -72,6 +72,6 @@
     (ARRAY_ACCESS a 8) 10) 
    (:= 
     (ARRAY_ACCESS a 9) 6) 
-   (var s int) 
-   (var m int))))
+   (var s (TYPE int)) 
+   (var m (TYPE int)))))
 

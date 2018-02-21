@@ -24,8 +24,10 @@ import edu.kit.iti.algover.util.TestUtil;
 import org.junit.Assert;
 import org.junit.Ignore;
 import org.junit.Test;
+import org.junit.runners.Parameterized;
 
 import java.io.*;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -37,17 +39,25 @@ import java.util.List;
 
 public class ScriptParserTest {
 
-    static final String testDir = ("modules/core/test-res/edu/kit/iti/algover/script").replace('/', File.separatorChar);
-    static final String filename = "project.script";
+    static final String testDir = ("modules/core/test-res/edu/kit/iti/algover/script/scripts").replace('/', File.separatorChar);
+    static final String filename = "x+Post.script";
     ASTNode parsedScript;
 
-        @Test
-        @Ignore
+    @Parameterized.Parameters(name = "{0}")
+    public static Iterable<Object[]> data() {
+        return Arrays.asList(new Object[][]{
+                {"x+Post.script"}
+        });
+    }
+
+   /* public static ASTNode parseScript(File filename){
+
+    }
+       /* @Test
         public void testInterpretSimple() throws Exception {
             testParseSimpleScript();
             InterpreterBuilder ib = new InterpreterBuilder();
             ib.startWith(parsedScript);
-            //ServiceLoader<> ruleLoader = new ServiceLoader<>();
 
             SymbolTable setupTable = InterpreterUtils.setupTable();
 
@@ -79,11 +89,11 @@ public class ScriptParserTest {
             }
 
 
-        }
+        }*/
+
 
 
     @Test
-    @Ignore
     public void testParseSimpleScript() throws Exception {
         File file = new File(testDir + File.separatorChar + filename);
 
@@ -92,16 +102,11 @@ public class ScriptParserTest {
             }
         parsedScript = Facade.getAST(file);
         ProofScript script = (ProofScript) parsedScript;
-
         Assert.assertNotNull(parsedScript);
-        //Assert.assertSame("The Scripts are not identical", 2, script.getBody().size());
         Statement s = script.getBody().get(0);
-
-        //Assert.assertEquals("The first statement is a call statement", "CallStatement", s.getNodeName());
-        CallStatement call = (CallStatement) s;
-        //Assert.assertEquals("The call statement is a rule command", "andRight", call.getCommand());
+        Assert.assertEquals("The first statement is an Assignment statement", "AssignmentStatement", s.getNodeName());
+        AssignmentStatement assignment = (AssignmentStatement) s;
         }
-
 
 
 }

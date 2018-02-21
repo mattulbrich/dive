@@ -66,7 +66,6 @@ public class UpdateSequenter implements PVCSequenter {
         TreeTermTranslator ttt = new TreeTermTranslator(makeSymbolTable);
         List<ProofFormula> ante = new ArrayList<>();
 
-
         resolveWildcards(pathThroughProgram.getAssignmentHistory(),
                 makeSymbolTable);
 

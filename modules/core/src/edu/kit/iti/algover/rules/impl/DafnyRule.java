@@ -61,7 +61,6 @@ public class DafnyRule extends AbstractProofRule {
     @Override
     public ProofRuleApplication considerApplication(ProofNode target, Sequent selection, TermSelector selector) throws RuleException {
         Term selected = selector.selectSubterm(target.getSequent());
-        //Term selected = selector.selectTopterm(target.getSequent()).getTerm();
         TermMatcher tm = new TermMatcher();
         ImmutableList<Matching> matchings = tm.match(searchTerm, selected);
         if(matchings.size() == 0) {
@@ -78,9 +77,12 @@ public class DafnyRule extends AbstractProofRule {
             proofRuleApplicationBuilder.setApplicability(ProofRuleApplication.Applicability.APPLICABLE);
             proofRuleApplicationBuilder.setTranscript(getTranscript(new Pair<>("on", selected)));
             proofRuleApplicationBuilder.newBranch().addReplacement(selector, rt);
-            /*for(Term t : rts) {
-                proofRuleApplicationBuilder.newBranch().addAdditionAntecedent(new ProofFormula(t));
-            }*/
+            for(Term t : rts) {
+                BranchInfoBuilder bib = proofRuleApplicationBuilder.newBranch();
+                bib.addDeletionsAntecedent(target.getSequent().getAntecedent());
+                bib.addDeletionsSuccedent(target.getSequent().getSuccedent());
+                bib.addAdditionsSuccedent(new ProofFormula(t));
+            }
         } catch (TermBuildException e) {
             throw new RuleException();
         }
@@ -99,6 +101,8 @@ public class DafnyRule extends AbstractProofRule {
         }
 
         ProofRuleApplicationBuilder proofRuleApplicationBuilder = new ProofRuleApplicationBuilder(this);
+        proofRuleApplicationBuilder.setApplicability(ProofRuleApplication.Applicability.APPLICABLE);
+        proofRuleApplicationBuilder.setTranscript(getTranscript(new Pair<>("on", on)));
         try {
             Term rt = matchings.get(0).instantiate(replaceTerm);
             List<Term> rts = new ArrayList<>();

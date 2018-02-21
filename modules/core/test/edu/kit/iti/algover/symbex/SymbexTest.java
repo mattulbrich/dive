@@ -8,6 +8,7 @@ package edu.kit.iti.algover.symbex;
 import edu.kit.iti.algover.parser.DafnyParser;
 import edu.kit.iti.algover.parser.DafnyTree;
 import edu.kit.iti.algover.parser.ParserTest;
+import edu.kit.iti.algover.parser.TypeResolutionTest;
 import edu.kit.iti.algover.project.Project;
 import edu.kit.iti.algover.symbex.AssertionElement.AssertionType;
 import edu.kit.iti.algover.symbex.PathConditionElement.AssumptionType;
@@ -158,6 +159,9 @@ public class SymbexTest {
         assertEquals(0, next.getPathConditions().size());
     }
 
+
+
+    // bug in handlling wildcard anonymisation
     @Test
     public void testHandleWhile() {
         DafnyTree whileStm = tree.getLastChild().getChild(4);
@@ -242,6 +246,7 @@ public class SymbexTest {
     }
 
     // revealed a bug, and another
+    // and another months later ...
     @Test
     public void testHandleWhileAnonymisation() throws Exception {
         InputStream stream = getClass().getResourceAsStream("whileWithAnon.dfy");
@@ -269,14 +274,16 @@ public class SymbexTest {
                 assertEquals(AssertionType.INVARIANT_PRESERVED, pres.getCommonProofObligationType());
                 ImmutableList<DafnyTree> list = pres.getAssignmentHistory();
                 assertEquals("[(ASSIGN $mod modset), "
-                                + "(:= unmod 1), (:= mod unmod), "
-                                + "(:= mod (+ mod 2)), "
-                                + "(ASSIGN mod WILDCARD), "
+                                + "(:= unmod[int] 1[int]), (:= mod[int] unmod[int]), "
+                                + "(:= mod[int] (+ mod[int] 2[int])[int]), "
+                                + "(ASSIGN mod[int] WILDCARD[int]), "
                                 + "(ASSIGN $heap (CALL $anon (ARGS $heap $mod $aheap_1))), "
-                                + "(ASSIGN $decr_1 (+ unmod mod)), "
-                                + "(:= mod (+ mod 1)), "
-                                + "(:= field 1)]",
-                        list.map(x -> x.toStringTree()).toString());
+                                + "(ASSIGN $decr_1 (+ unmod[int] mod[int])[int]), "
+                                + "(:= mod[int] (+ mod[int] 1[int])[int]), "
+                                + "(:= field[int] 1[int])]",
+                        list.map(x -> TypeResolutionTest.toTypedString(x)).toString());
+
+
             }
             {
                 SymbexPath decr = ss.get(1);

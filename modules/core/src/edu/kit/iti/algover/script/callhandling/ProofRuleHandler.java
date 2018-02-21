@@ -71,7 +71,7 @@ public class ProofRuleHandler implements CommandHandler<ProofNode> {
      * Check whether call can be handled by this object
      *
      * @param call
-     * @return true if the call command could be fpund among the available ProofRule objects
+     * @return true if the call command could be found among the available ProofRule objects
      * @throws IllegalArgumentException
      */
     @Override
@@ -96,7 +96,7 @@ public class ProofRuleHandler implements CommandHandler<ProofNode> {
         if (!ruleMap.keySet().contains(call.getCommand())) {
             throw new IllegalStateException();
         }
-        //get the call command to apply and teh selected goal node
+        //get the call command to apply and the selected goal node
         ProofRule pr = ruleMap.get(call.getCommand());
         State<ProofNode> state = interpreter.getCurrentState();
         ProofNode parent = state.getSelectedGoalNode();
@@ -122,11 +122,8 @@ public class ProofRuleHandler implements CommandHandler<ProofNode> {
                 List<ProofNode> newGoals = new ArrayList<>();
 
                 //add new nodes to state, remove expanded node from state
-               /* newNodes.forEach(proofNode -> {
-                    newGoals.add(proofNode);
-                });*/
                 newGoals.addAll(newNodes);
-                //Zustandswechsel
+                //change state depending on whether proof branch is closed or not
                 if (newGoals.size() >= 1) {
                     interpreter.getCurrentState().getGoals().addAll(newGoals);
                     interpreter.getCurrentState().getGoals().remove(parent);
@@ -139,11 +136,11 @@ public class ProofRuleHandler implements CommandHandler<ProofNode> {
                 }
 
             } else {
-                System.out.println("Warning command not applicable");
+                throw new ScriptCommandNotApplicableException(pr, call);
             }
 
         } catch (RuleException e) {
-            throw new ScriptCommandNotApplicableException(e);
+            throw new ScriptCommandNotApplicableException(e, pr, call);
         }
 
 

@@ -297,9 +297,10 @@ public final class ASTUtil {
     public static DafnyTree anonymise(DafnyTree varDecl) {
         DafnyTree id = id(varDecl.getChild(0).getText());
         id.setDeclarationReference(varDecl);
-        id.setExpressionType(varDecl.getChild(1));
+        DafnyTree type = varDecl.getFirstChildWithType(DafnyParser.TYPE).getChild(0);
+        id.setExpressionType(type);
         DafnyTree wildcard = new DafnyTree(DafnyParser.WILDCARD);
-        wildcard.setExpressionType(varDecl.getChild(1));
+        wildcard.setExpressionType(type);
         return create(DafnyParser.ASSIGN, id, wildcard);
     }
 
@@ -311,7 +312,7 @@ public final class ASTUtil {
         return assign(heap, anon);
     }
 
-    private static DafnyTree call(String function, DafnyTree... args) {
+    public static DafnyTree call(String function, DafnyTree... args) {
         DafnyTree argsTree = create(DafnyParser.ARGS, args);
         DafnyTree id = id(function);
         return create(DafnyParser.CALL, id, argsTree);
