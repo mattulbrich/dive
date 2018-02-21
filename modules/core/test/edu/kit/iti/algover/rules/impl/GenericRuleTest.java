@@ -2,6 +2,7 @@ package edu.kit.iti.algover.rules.impl;
 
 import edu.kit.iti.algover.data.BuiltinSymbols;
 import edu.kit.iti.algover.data.SymbolTable;
+import edu.kit.iti.algover.parser.DafnyException;
 import edu.kit.iti.algover.parser.DafnyParserException;
 import edu.kit.iti.algover.proof.ProofNode;
 import edu.kit.iti.algover.rules.*;
@@ -123,7 +124,7 @@ public class GenericRuleTest {
     @junitparams.Parameters
     public void genericRuleTestApplicable(ProofRule pr, String input, TermSelector ts,
                                 List<String> results, Pair<String, Sort>... usedVars)
-            throws DafnyParserException, RuleException, TermBuildException {
+            throws DafnyParserException, DafnyException, RuleException, TermBuildException {
         Sequent s = null;
         if(usedVars == null) {
             s = parseSequent(input);
@@ -167,7 +168,7 @@ public class GenericRuleTest {
     @junitparams.Parameters
     public void genericRuleTestNotApplicable(ProofRule pr, String input, TermSelector ts,
                                           Pair<String, Sort>... usedVars)
-            throws DafnyParserException, RuleException, TermBuildException {
+            throws DafnyParserException, DafnyException, RuleException, TermBuildException {
         Sequent s;
         if(usedVars == null) {
             s = parseSequent(input);
@@ -196,7 +197,7 @@ public class GenericRuleTest {
     @junitparams.Parameters
     public void genericRuleTestMakeException(ProofRule pr, String input, TermSelector ts,
                                              Pair<String, Sort>... usedVars)
-            throws DafnyParserException, RuleException, TermBuildException {
+            throws DafnyParserException, DafnyException, RuleException, TermBuildException {
         Sequent s;
         if(usedVars == null) {
             s = parseSequent(input);
@@ -213,7 +214,7 @@ public class GenericRuleTest {
         RuleApplicator.applyRule(pra, pn);
     }
 
-    public static Sequent parseSequent(String sequent, Pair<String, Sort>... usedVars) throws DafnyParserException {
+    public static Sequent parseSequent(String sequent, Pair<String, Sort>... usedVars) throws DafnyParserException, DafnyException {
         SymbolTable symbolTable = new BuiltinSymbols();
         for(Pair<String, Sort> p : usedVars) {
             symbolTable.addFunctionSymbol(new FunctionSymbol(p.getFst(), p.getSnd()));
@@ -222,7 +223,7 @@ public class GenericRuleTest {
         return tp.parseSequent(sequent);
     }
 
-    private Sequent parseSequent(String sequent) throws DafnyParserException {
+    private Sequent parseSequent(String sequent) throws DafnyParserException, DafnyException {
         TermParser tp = new TermParser(symbolTable);
         return tp.parseSequent(sequent);
     }
