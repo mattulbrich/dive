@@ -94,6 +94,14 @@ public class ParserErrorTest {
         parse("method m(a:seq<int>) { a[0] := 0; }");
     }
 
+    // After grammar change
+    @Test
+    public void wrongTypeVarDecl() throws Exception {
+        thrown.expect(DafnyException.class);
+        thrown.expectMessage("Assigning a value of type int to an entitity of type bool");
+        parse("method m() { var b : bool := 42; }");
+    }
+
     private void parse(String program) throws Exception {
         TestUtil.mockProject(program);
     }
