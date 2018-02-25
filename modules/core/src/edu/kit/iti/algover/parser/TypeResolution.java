@@ -359,7 +359,7 @@ public class TypeResolution extends DafnyTreeDefaultVisitor<DafnyTree, Void> {
                 if(rets.getChildCount() > 1) {
                     exceptions.add(new DafnyException("Sorry, no supoprt for multi return yet.", t));
                 }
-                result = rets.getChild(0).getChild(1);
+                result = rets.getChild(0).getFirstChildWithType(DafnyParser.TYPE).getChild(0);
             }
         } else {
             assert decl.getType() == DafnyParser.FUNCTION;
