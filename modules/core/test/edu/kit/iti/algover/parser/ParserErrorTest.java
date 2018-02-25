@@ -8,6 +8,7 @@
 package edu.kit.iti.algover.parser;
 
 import edu.kit.iti.algover.util.TestUtil;
+import org.antlr.runtime.MismatchedSetException;
 import org.hamcrest.BaseMatcher;
 import org.hamcrest.Description;
 import org.hamcrest.Matcher;
@@ -100,6 +101,41 @@ public class ParserErrorTest {
         thrown.expect(DafnyException.class);
         thrown.expectMessage("Assigning a value of type int to an entitity of type bool");
         parse("method m() { var b : bool := 42; }");
+    }
+
+    @Test @Ignore
+    public void illegalReference() throws Exception {
+        thrown.expect(DafnyException.class);
+        thrown.expectMessage("Unknown identifier: m");
+        parse("method m() returns (r: int) { m.o := 42; }");
+    }
+
+    @Test
+    public void unknownField() throws Exception {
+        thrown.expect(DafnyException.class);
+        thrown.expectMessage("Unknown field mx in class C");
+        parse("class C { method m() returns (r: int) { this.mx := 42; } }");
+    }
+
+    @Test @Ignore
+    public void illegalThis() throws Exception {
+        thrown.expect(DafnyException.class);
+        thrown.expectMessage("xxxx");
+        parse("method m() { if this == null {} }");
+    }
+
+    @Test
+    public void assignToMethod() throws Exception {
+        thrown.expect(DafnyParserException.class);
+        thrown.expectMessage("mismatched input ':=' expecting ';'");
+        parse("class C { method m() { this.m() := 42; } }");
+    }
+
+    @Test
+    public void expressionAsStatement() throws Exception {
+        thrown.expect(DafnyParserException.class);
+        thrown.expectMessage("mismatched input '+' expecting LPAREN");
+        parse("class C { var f:int; } method m(c:C) { c.f+1; } }");
     }
 
     private void parse(String program) throws Exception {
