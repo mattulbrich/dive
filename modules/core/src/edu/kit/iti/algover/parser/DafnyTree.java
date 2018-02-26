@@ -5,6 +5,7 @@
  */
 package edu.kit.iti.algover.parser;
 
+import edu.kit.iti.algover.util.Util;
 import nonnull.NonNull;
 import nonnull.Nullable;
 import org.antlr.runtime.CommonToken;
@@ -146,6 +147,19 @@ public class DafnyTree extends CommonTree {
     @Override
     public DafnyTree dupNode() {
         DafnyTree result = new DafnyTree(this);
+        return result;
+    }
+
+    /**
+     * Create a tree with the same in depth content as this node.
+     * This uses the copy constructor {@link #DafnyTree(DafnyTree)} and
+     * calls #dupTree on the children recursively.
+     *
+     * @return a freshly created DafnyTree instance.
+     */
+    public DafnyTree dupTree() {
+        DafnyTree result = new DafnyTree(this);
+        result.addChildren(Util.map(getChildren(), DafnyTree::dupTree));
         return result;
     }
 
