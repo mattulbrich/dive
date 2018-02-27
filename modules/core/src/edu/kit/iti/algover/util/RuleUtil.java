@@ -1,16 +1,17 @@
 package edu.kit.iti.algover.util;
 
+import edu.kit.iti.algover.data.BuiltinSymbols;
 import edu.kit.iti.algover.proof.ProofFormula;
+import edu.kit.iti.algover.rules.RuleException;
 import edu.kit.iti.algover.rules.SubtermSelector;
 import edu.kit.iti.algover.rules.TermSelector;
+import edu.kit.iti.algover.term.ApplTerm;
 import edu.kit.iti.algover.term.Sequent;
 import edu.kit.iti.algover.term.Term;
+import edu.kit.iti.algover.term.builder.TreeTermTranslator;
 import edu.kit.iti.algover.term.match.TermMatcher;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.function.Predicate;
 
 /**
@@ -228,11 +229,43 @@ public class RuleUtil {
         return res;
     }
 
-    public static TermSelector.SequentPolarity getTruePolarity(TermSelector ts) {
-        return TermSelector.SequentPolarity.ANTECEDENT;
+    public static TermSelector.SequentPolarity getTruePolarity(TermSelector ts, Sequent s) throws RuleException {
+        if(ts.isAntecedent() && getNumNegations(ts, s, 0) % 2 == 0) {
+            return TermSelector.SequentPolarity.ANTECEDENT;
+        }
+        if(ts.isSuccedent() && getNumNegations(ts, s, 0) % 2 == 1) {
+            return TermSelector.SequentPolarity.ANTECEDENT;
+        }
+        return TermSelector.SequentPolarity.SUCCEDENT;
     }
 
-    public static int getNumNegations(TermSelector ts, Sequent s) {
-        return 0;
+    public static int getNumNegations(TermSelector ts, Sequent s, int idx) throws RuleException {
+        if(idx <= ts.getSubtermSelector().getDepth()) {
+            int[] array;
+            try {
+                array = ts.getPath().subList(0, idx).stream().mapToInt(i->i).toArray();
+            } catch (IllegalArgumentException e) {
+                array = new int[]{};
+            }
+            TermSelector currentTs;
+            if(array.length != 0) {
+                currentTs = new TermSelector(ts.getPolarity(), ts.getTermNo(), array);
+            } else {
+                currentTs = new TermSelector(ts.getPolarity(), ts.getTermNo());
+            }
+            Term t = currentTs.selectSubterm(s);
+            if (t instanceof ApplTerm) {
+                if (((ApplTerm) t).getFunctionSymbol() == BuiltinSymbols.NOT) {
+                    return getNumNegations(ts, s, idx + 1) + 1;
+                }
+            }
+        } else {
+            return 0;
+        }
+        return getNumNegations(ts, s, idx + 1);
+    }
+
+    private String[] test(String ... s ) {
+        return null;
     }
 }

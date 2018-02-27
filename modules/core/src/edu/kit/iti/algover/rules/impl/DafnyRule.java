@@ -18,6 +18,7 @@ import edu.kit.iti.algover.term.builder.TreeTermTranslator;
 import edu.kit.iti.algover.util.ImmutableList;
 import edu.kit.iti.algover.util.Pair;
 import edu.kit.iti.algover.util.RuleUtil;
+import nonnull.NonNull;
 
 
 import java.io.File;
@@ -56,7 +57,7 @@ public class DafnyRule extends AbstractProofRule {
         this.requiresTerms = requiresTerms;
     }
 
-    public DafnyRule(String name, Term st, Term rt, List<Term> requiresTerms, RulePolarity polarity) {
+    public DafnyRule(String name, @NonNull Term st, @NonNull Term rt, List<Term> requiresTerms, RulePolarity polarity) {
         super(ON_PARAM);
 
         this.name = name;
@@ -77,6 +78,9 @@ public class DafnyRule extends AbstractProofRule {
         TermMatcher tm = new TermMatcher();
         ImmutableList<Matching> matchings = tm.match(searchTerm, selected);
         if(matchings.size() == 0) {
+            return ProofRuleApplicationBuilder.notApplicable(this);
+        }
+        if(!this.polarity.conforms(RuleUtil.getTruePolarity(selector, selection))) {
             return ProofRuleApplicationBuilder.notApplicable(this);
         }
         ProofRuleApplicationBuilder proofRuleApplicationBuilder;
@@ -127,6 +131,9 @@ public class DafnyRule extends AbstractProofRule {
             List<TermSelector> l = RuleUtil.matchSubtermsInSequent(on::equals, target.getSequent());
             if(l.size() != 1) {
                 throw new RuleException("Machting of on parameter is ambiguous");
+            }
+            if(!this.polarity.conforms(RuleUtil.getTruePolarity(l.get(0), target.getSequent()))) {
+                throw new RuleException("Rule cant be applied due to not conforming polarity.");
             }
             proofRuleApplicationBuilder.newBranch().addReplacement(l.get(0), rt);
 

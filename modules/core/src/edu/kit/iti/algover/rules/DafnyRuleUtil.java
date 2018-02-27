@@ -105,6 +105,7 @@ public class DafnyRuleUtil {
                 rts.add(t.accept(new ReplaceProgramVariableVisitor(), programVars));
             }
         } catch (TermBuildException e) {
+            e.printStackTrace();
             throw new DafnyRuleException("Error parsing equalsClause");
         }
         return new DafnyRule(name, st, rt, rts, polarity);
