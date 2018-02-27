@@ -227,4 +227,12 @@ public class RuleUtil {
         }
         return res;
     }
+
+    public static TermSelector.SequentPolarity getTruePolarity(TermSelector ts) {
+        return TermSelector.SequentPolarity.ANTECEDENT;
+    }
+
+    public static int getNumNegations(TermSelector ts, Sequent s) {
+        return 0;
+    }
 }

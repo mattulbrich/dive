@@ -32,6 +32,7 @@ public class DafnyRule extends AbstractProofRule {
     private final Term searchTerm;
     private final Term replaceTerm;
     private final List<Term> requiresTerms;
+    private final RulePolarity polarity;
 
 
 
@@ -41,6 +42,7 @@ public class DafnyRule extends AbstractProofRule {
         this.name = name;
         searchTerm = st;
         replaceTerm = rt;
+        this.polarity = RulePolarity.BOTH;
         requiresTerms = new ArrayList<>();
     }
 
@@ -50,6 +52,17 @@ public class DafnyRule extends AbstractProofRule {
         this.name = name;
         searchTerm = st;
         replaceTerm = rt;
+        this.polarity = RulePolarity.BOTH;
+        this.requiresTerms = requiresTerms;
+    }
+
+    public DafnyRule(String name, Term st, Term rt, List<Term> requiresTerms, RulePolarity polarity) {
+        super(ON_PARAM);
+
+        this.name = name;
+        searchTerm = st;
+        replaceTerm = rt;
+        this.polarity = polarity;
         this.requiresTerms = requiresTerms;
     }
 
@@ -107,8 +120,6 @@ public class DafnyRule extends AbstractProofRule {
             Term rt = matchings.get(0).instantiate(replaceTerm);
             List<Term> rts = new ArrayList<>();
             for(Term t : requiresTerms) {
-                Term term = matchings.get(0).instantiate(t);
-
                 rts.add(matchings.get(0).instantiate(t));
             }
 
@@ -133,5 +144,18 @@ public class DafnyRule extends AbstractProofRule {
         }
 
         return proofRuleApplicationBuilder.build();
+    }
+
+    public enum RulePolarity {
+        ANTECEDENT, SUCCEDENT, BOTH;
+
+        public boolean conforms(TermSelector.SequentPolarity p) {
+            if(p == TermSelector.SequentPolarity.ANTECEDENT && this == RulePolarity.SUCCEDENT) {
+                return false;
+            } else if(p == TermSelector.SequentPolarity.SUCCEDENT && this == RulePolarity.ANTECEDENT) {
+                return false;
+            }
+            return true;
+        }
     }
 }

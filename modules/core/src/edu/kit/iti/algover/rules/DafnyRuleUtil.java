@@ -13,6 +13,7 @@ import edu.kit.iti.algover.term.*;
 import edu.kit.iti.algover.term.builder.ReplacementVisitor;
 import edu.kit.iti.algover.term.builder.TermBuildException;
 import edu.kit.iti.algover.term.builder.TreeTermTranslator;
+import edu.kit.iti.algover.util.RuleUtil;
 
 import java.io.File;
 import java.io.IOException;
@@ -31,7 +32,7 @@ public class DafnyRuleUtil {
         SymbolTable symbolTable;
         DafnyTree tree = null;
         DafnyFile dfi = null;
-        RulePolarity polarity = RulePolarity.BOTH;
+        DafnyRule.RulePolarity polarity = DafnyRule.RulePolarity.BOTH;
 
         try {
             tree = DafnyFileParser.parse(new File(fileName));
@@ -69,7 +70,7 @@ public class DafnyRuleUtil {
         DafnyTree equalsClause = null;
         DafnyTree implClause = null;
         if(ensuresClause.getChildCount() != 1) {
-            throw new DafnyRuleException("The requires clause has to contain exactly 1 child of either typ EQ or IMGPLIES");
+            throw new DafnyRuleException("The requires clause has to contain exactly 1 child of either typ EQ or IMPLIES");
         }
         if(ensuresClause.getChild(0).getType() == DafnyParser.EQ) {
             equalsClause = ensuresClause.getChild(0);
@@ -88,13 +89,16 @@ public class DafnyRuleUtil {
         try {
             if(equalsClause != null) {
                 st = ttt.build(equalsClause.getChild(0));
+                rt = ttt.build(equalsClause.getChild(1));
+                polarity = DafnyRule.RulePolarity.BOTH;
             } else if(implClause != null) {
                 st = ttt.build(implClause.getChild(0));
+                rt = ttt.build(implClause.getChild(1));
+                polarity = DafnyRule.RulePolarity.ANTECEDENT;
             } else {
                 throw new DafnyRuleException("No equals or implies clause found.");
             }
             st = st.accept(new ReplaceProgramVariableVisitor(), programVars);
-            rt = ttt.build(equalsClause.getChild(1));
             rt = rt.accept(new ReplaceProgramVariableVisitor(), programVars);
             for(DafnyTree dt : requiresClauses) {
                 Term t = ttt.build(dt.getChild(0));
@@ -103,7 +107,7 @@ public class DafnyRuleUtil {
         } catch (TermBuildException e) {
             throw new DafnyRuleException("Error parsing equalsClause");
         }
-        return new DafnyRule(name, st, rt, rts);
+        return new DafnyRule(name, st, rt, rts, polarity);
     }
 
     /**
@@ -133,10 +137,6 @@ public class DafnyRuleUtil {
             name = "array1";
         }
         return Sort.get(name);
-    }
-
-    public enum RulePolarity {
-        ANTECEDENT, SUCCEDENT, BOTH;
     }
 }
 
