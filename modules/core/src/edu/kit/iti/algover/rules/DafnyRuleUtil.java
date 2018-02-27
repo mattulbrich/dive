@@ -31,7 +31,7 @@ public class DafnyRuleUtil {
         SymbolTable symbolTable;
         DafnyTree tree = null;
         DafnyFile dfi = null;
-        RulePo
+        RulePolarity polarity = RulePolarity.BOTH;
 
         try {
             tree = DafnyFileParser.parse(new File(fileName));
@@ -135,7 +135,7 @@ public class DafnyRuleUtil {
         return Sort.get(name);
     }
 
-    public enum rulePolarity {
+    public enum RulePolarity {
         ANTECEDENT, SUCCEDENT, BOTH;
     }
 }
