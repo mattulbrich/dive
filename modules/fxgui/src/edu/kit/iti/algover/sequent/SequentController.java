@@ -1,5 +1,7 @@
 package edu.kit.iti.algover.sequent;
 
+import de.jensd.fx.glyphs.GlyphsDude;
+import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon;
 import edu.kit.iti.algover.FxmlController;
 import edu.kit.iti.algover.browser.entities.PVCEntity;
 import edu.kit.iti.algover.proof.*;
@@ -155,6 +157,7 @@ public class SequentController extends FxmlController {
         if (application.getBranchInfo().size() > 0) {
             try {
                 updateSequent(activeNode.get(activeProof).getSequent(), application.getBranchInfo().get(0));
+                updateGoalTypeLabel();
             } catch (RuleException e) {
                 e.printStackTrace();
             }
@@ -167,6 +170,7 @@ public class SequentController extends FxmlController {
     public void resetProofApplicationPreview() {
         try {
             updateSequent(activeNode.get(activeProof).getSequent(), null);
+            updateGoalTypeLabel();
         } catch (RuleException e) {
             e.printStackTrace();
         }
@@ -175,7 +179,12 @@ public class SequentController extends FxmlController {
     public void viewProofNode(ProofNodeSelector proofNodeSelector) {
         proofNodeSelector.optionalGet(activeProof).ifPresent(proofNode -> {
             activeNode = proofNodeSelector;
-            updateSequent(proofNode.getSequent(), null);
+            BranchInfo branchInfo = null;
+            ProofRuleApplication application = proofNode.getPsr();
+            if (application != null && application.getBranchInfo().size() == 1) {
+                branchInfo = application.getBranchInfo().get(0);
+            }
+            updateSequent(proofNode.getSequent(), branchInfo);
             updateGoalTypeLabel();
         });
     }
@@ -249,9 +258,16 @@ public class SequentController extends FxmlController {
         try {
             ProofNode node = activeNode.get(activeProof);
             if (node.getChildren().size() == 0) {
-                goalTypeLabel.setText(node.isClosed() ? "Closed Goal" : "Open Goal");
+                if (node.isClosed()) {
+                    goalTypeLabel.setText("Closed Goal");
+                    goalTypeLabel.setGraphic(GlyphsDude.createIcon(FontAwesomeIcon.CHECK));
+                } else {
+                    goalTypeLabel.setText("Open Goal");
+                    goalTypeLabel.setGraphic(GlyphsDude.createIcon(FontAwesomeIcon.BULLSEYE));
+                }
             } else {
                 goalTypeLabel.setText("Node");
+                goalTypeLabel.setGraphic(null);
             }
         } catch (RuleException e) {
             System.err.println("Invalid ProofNodeSelector generated");

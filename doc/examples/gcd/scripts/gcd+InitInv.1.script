@@ -1,5 +1,4 @@
-substitute on='(let $mod := $everything :: (let r := a :: (let x := b :: $gt(r, 0))))';
-substitute on='(let r := a :: (let x := b :: $gt(r, 0)))';
-substitute on='(let x := b :: $gt(a, 0))';
-close on='$gt(a, 0)';
-
+substitute on='(let $mod := $everything :: (let r := a :: (let x := b :: r > 0)))';
+substitute on='(let r := a :: (let x := b :: r > 0))';
+substitute on='(let x := b :: a > 0)';
+close on='a > 0';

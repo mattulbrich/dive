@@ -13,6 +13,9 @@ public class ProofNodeCheckpointsBuilder extends DefaultASTVisitor<Void> {
 
     public static List<ProofNodeCheckpoint> build(Proof proof) {
         ProofNodeCheckpointsBuilder builder = new ProofNodeCheckpointsBuilder(proof.getProofRoot());
+        if (proof.getProofScript() == null) {
+            return builder.checkpoints;
+        }
         proof.getProofScript().accept(builder);
         return builder.checkpoints;
     }
