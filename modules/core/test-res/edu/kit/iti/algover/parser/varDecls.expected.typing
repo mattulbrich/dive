@@ -1,0 +1,10 @@
+(method varDecls ARGS (returns (VAR ret_r (TYPE int))) 
+  (BLOCK 
+    (var l_i (TYPE int)) 
+    (var l_x1 (TYPE int))
+    (var l_x2 (TYPE int))
+    (var l_y (TYPE int) 42[int])
+    (var l_v 44)
+
+    (:= ret_r[int] (+ (+ (+ (+ l_i[int] l_x1[int])[int] l_x2[int])[int] l_y[int])[int] l_v)[int])))
+

@@ -19,7 +19,7 @@ public class ChainedRelationsVisitor {
                 walk(act(t));
                 return;
             } else if(leftRelType != 0) {
-                throw new DafnyException("Illegally chained relational expression", t);
+                throw new DafnyException("Illegally chained relational expressions", t);
             }
         }
 
@@ -43,12 +43,11 @@ public class ChainedRelationsVisitor {
         t.getParent().replaceChildren(index, index, replacement);
 
         t.removeAllChildren();
-        t.addChild(b);
+        t.addChild(b.dupTree());
         t.addChild(c);
 
         replacement.addChild(left);
         replacement.addChild(t);
-
 
         return replacement;
     }

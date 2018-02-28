@@ -10,6 +10,7 @@
  * fl_ = field
  * vx = exists var
  * va = forall var
+ * vl = let var
  */
 
 method m_topmethod()
@@ -35,7 +36,8 @@ class C {
    method m_method(p_param: int)
      requires label req_label: p_param > 0 && fl_var < 0
      ensures label ens_label: p_param < 0 && fl_var > 0
-     ensures (forall va_x: int :: va_x > 0 ==> f_global(va_x) > 0)
+     ensures forall va_x: int :: va_x > 0 ==> f_global(va_x) > 0
+     ensures let vl_1, vl_2 := 11, 22 :: vl_1 < vl_2
    {
       var l_top: int;
 
@@ -75,4 +77,20 @@ class C {
    {
      ret_r := p_param[0] + 1;
    }
+
 }
+
+method varDecls() returns (ret_r : int)
+ {
+     var l_i : int;
+     var l_x1, l_x2 : int;
+     var l_y : int := 42;
+     var l_v := 44;
+
+     ret_r := l_i+l_x1+l_x2+l_y+l_v;
+ }
+
+method double_quantifiers()
+  ensures forall va_i, va_j : int :: va_i > va_j
+  ensures exists vx_i, vx_j : int :: vx_i > vx_j
+{}

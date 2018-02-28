@@ -12,6 +12,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+import edu.kit.iti.algover.parser.DafnyParser;
 import org.junit.Test;
 
 import edu.kit.iti.algover.ProgramDatabase;
@@ -77,7 +78,7 @@ public abstract class SequenterTest {
 
         for (DafnyTree decl : ProgramDatabase.getAllVariableDeclarations(method.getRepresentation())) {
             String name = decl.getChild(0).toString();
-            Sort sort = TreeUtil.toSort(decl.getChild(1));
+            Sort sort = TreeUtil.toSort(decl.getFirstChildWithType(DafnyParser.TYPE).getChild(0));
             map.add(new FunctionSymbol(name, sort));
         }
 

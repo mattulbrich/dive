@@ -3,9 +3,9 @@
  (method swap 
   (ARGS 
    (VAR a 
-    (array bool)) 
-   (VAR i int) 
-   (VAR j int)) 
+    (TYPE (array bool))) 
+   (VAR i (TYPE int)) 
+   (VAR j (TYPE int))) 
   (requires 
    (!= a null)) 
   (requires 
@@ -25,7 +25,7 @@
     (old 
       (ARRAY_ACCESS a i))))
   (ensures 
-   (forall m int 
+   (forall m (TYPE int) 
     (==> 
      (&& 
       (&& 
@@ -40,7 +40,7 @@
         (ARRAY_ACCESS a m))))))
   (modifies a)
   (BLOCK 
-   (var t bool 
+   (var t (TYPE bool)
     (ARRAY_ACCESS a i)) 
    (:= 
     (ARRAY_ACCESS a i) 
@@ -50,12 +50,12 @@
  (method two_way_sort 
   (ARGS 
    (VAR a 
-    (array bool))) 
+    (TYPE (array bool)))) 
   (requires 
    (!= a null)) 
   (ensures 
-   (forall m int 
-    (forall n int 
+   (forall m (TYPE int) 
+    (forall n (TYPE int) 
      (==> 
       (&& 
        (&& 
@@ -68,8 +68,8 @@
        (ARRAY_ACCESS a n))))))
   (modifies a)
   (BLOCK 
-   (var i int 0) 
-   (var j int 
+   (var i (TYPE int) 0) 
+   (var j (TYPE int) 
     (- 
      (Length a) 1)) 
    (while 
@@ -81,15 +81,15 @@
        (<= i (+ j 1))) 
       (<= (+ j 1) (Length a)))) 
     (invariant 
-     (forall m int 
-      (==> 
+     (forall m (TYPE int) 
+           (==> 
        (&& 
         (<= 0 m) 
         (< m i)) 
        (! 
         (ARRAY_ACCESS a m))))) 
     (invariant 
-     (forall n int 
+     (forall n (TYPE int) 
       (==> 
        (&& 
         (< j n) 

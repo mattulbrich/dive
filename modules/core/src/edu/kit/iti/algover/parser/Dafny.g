@@ -7,6 +7,7 @@ options {
 
 tokens {
   COMPILATION_UNIT;
+  TYPE;
   RESULTS;
   ARGS;
   BLOCK;
@@ -71,7 +72,7 @@ ALL: 'forall';
 ASSERT: 'assert';
 ASSUME: 'assume';
 BOOL : 'bool';
-// CASE: 'case'; 
+// CASE: 'case';
 CLASS: 'class';
 DECREASES: 'decreases';
 ELSE: 'else';
@@ -89,6 +90,7 @@ LEMMA: 'lemma';
 LET: 'let';
 METHOD: 'method';
 MODIFIES: 'modifies';
+NEW: 'new';
 NULL: 'null';
 // PREDICATE : 'predicate';
 OBJECT : 'object';
@@ -148,7 +150,7 @@ SCHEMA_ID : '?' ID;
 INT_LIT : ('0' .. '9' ) ('0' .. '9' | '_')*;
 // glyph = "`~!@#$%^&*()-_=+[{]}|;:',<.>/?\\".
 
-WS : (' '|'\t'|'\n'|'\r')                     { $channel = HIDDEN; };
+WS : (' '|'\t'|'\n'|'\r')                { $channel = HIDDEN; };
 SINGLELINE_COMMENT: '//' ~('\r' | '\n')* { $channel = HIDDEN; };
 MULTILINE_COMMENT: '/*' .* '*/'          { $channel = HIDDEN; };
 
@@ -199,8 +201,8 @@ function:
   ;
 
 field:
-  ( 'ghost' )? 'var' ID ':' type ';'
-    -> ^(FIELD ID type)
+  ( 'ghost' )? 'var' ID ':' typeRef ';'
+    -> ^(FIELD ID typeRef)
   ;
 
 vars:
@@ -209,7 +211,7 @@ vars:
   ;
 
 var:
-  ID ':' type -> ^(VAR ID type)
+  ID ':' typeRef -> ^(VAR ID typeRef)
   ;
 
 // one day this will be "id_param"
@@ -220,6 +222,10 @@ type:
   | SEQ^ '<'! type '>'!
   | ID^ ( '<'! type ( ','! type )* '>'! )?
   ;
+
+typeRef:
+    type -> ^(TYPE type)
+    ;
 
 returns_:
   RETURNS^ '('! vars ')'!
@@ -249,25 +255,35 @@ block:
   '{' statements? '}' -> ^(BLOCK statements?)
   ;
 
+/* To support var i, j: int read ref manual p. 186:
+ When there are some elements with cardinality one and others with
+ cardinality greater than one, the elements with cardinality one are
+ duplicated as the parser creates the tree. In the following rule, the ’int’
+ token has cardinality one and is replicated for every ID token found on
+ the input stream:
+    decl : 'int' ID (',' ID)* -> ^('int' ID)+ ;
+*/
+varDecl:
+    VAR ID ( ',' ID )+ ':' typeRef ';' -> ^(VAR ID typeRef)+
+  | VAR^ ID ( ':'! typeRef (':='! (expression | new_expression))?
+           | ':='! (expression | new_expression) ) ';'!
+  ;
+
 statements:
-  ( statement )+
+  ( statement | varDecl )+
   ;
 
 statement:
-    VAR^ ID ':'! type (':='! expression)? ';'!
 
-  | postfix_expr
-      ( ASSIGN value=expression_wildcard ';'
-      { if(!LVALUE_TOKENTYPES.member($postfix_expr.tree.getType()))
-            throw new MismatchedSetException(LVALUE_TOKENTYPES, input); }
-         -> ^(ASSIGN postfix_expr expression_wildcard)
-      | ';'
-      { if($postfix_expr.tree.getType() != CALL)
-            throw new MismatchedTokenException($postfix_expr.start.getType(), input); }
-         -> postfix_expr
+    (lvalue ASSIGN) => lvalue ASSIGN
+      (  expression_wildcard ';' -> ^(ASSIGN lvalue expression_wildcard)
+      |  new_expression ';' -> ^(ASSIGN lvalue new_expression)
       )
 
-  | label? WHILE expression_wildcard invariant* modifies? decreases? block
+  | call_statement
+
+  | (label? WHILE) =>
+    label? WHILE expression_wildcard invariant* modifies? decreases? block
            -> ^(WHILE label? expression_wildcard invariant* modifies? decreases? block)
 
   | if_statement
@@ -277,6 +293,16 @@ statement:
   | 'assume'^ label? expression ';'!
 
   | 'return'^ ';'!
+  ;
+
+call_statement:
+    ( usual_or_logic_id '(' ) => usual_or_logic_id '(' expressions? ')' ';' -> ^( CALL usual_or_logic_id ^(ARGS expressions?) )
+  | ( atom_expr -> atom_expr )   // see ANTLR ref. page 175
+    ( ( '.' ID -> ^( FIELD_ACCESS $call_statement ID )
+      | '[' expression ( ',' expression )* ']' -> ^( ARRAY_ACCESS $call_statement expression+ )
+      )*
+      '.' ID '(' expressions? ')' -> ^( CALL ID $call_statement ^(ARGS expressions?) )
+    )+ ';'
   ;
 
 
@@ -314,8 +340,8 @@ expression_wildcard:
   ;
 
 expressions:
-    expression ( ','! expression )* ( {schemaMode}? ','! DOUBLE_BLANK )?
-  | {schemaMode}? DOUBLE_BLANK ( ','! expression )*
+    expression ( ','! expression )* ( {schemaMode}? => ','! DOUBLE_BLANK )?
+  | {schemaMode}? => DOUBLE_BLANK ( ','! expression )*
   ;
 
 expression:
@@ -376,7 +402,6 @@ let_expr:
       -> ^(LET ^(VAR usual_or_logic_id*) expression+)
   ;
 
-// Apparantly, antlr requires explicit lookaheads for all cases here ...
 postfix_expr:
   ( atom_expr -> atom_expr )   // see ANTLR ref. page 175
   ( '[' expression ( {logicMode}? ':=' expression ']'     -> ^( HEAP_UPDATE $postfix_expr expression expression )
@@ -387,6 +412,17 @@ postfix_expr:
   | '.' ID -> ^( FIELD_ACCESS $postfix_expr ID )
   )*
   ( '@'  {logicMode}?  heap_postfix_expr -> ^('@' $postfix_expr heap_postfix_expr ) )?
+  ;
+
+// very similar to postfix_expr
+lvalue:
+    ID^
+  | ( atom_expr -> atom_expr )   // see ANTLR ref. page 175
+    (  ( '.' ID '(' expressions? ')' -> ^( CALL ID $lvalue ^(ARGS expressions?) ) )*
+       ( '[' expression ( ',' expression )* ']' -> ^( ARRAY_ACCESS $lvalue expression+ )
+       | '.' ID -> ^( FIELD_ACCESS $lvalue ID )
+       )
+    )+
   ;
 
 // This rule has been instantiated to avoid the following error message
@@ -402,7 +438,7 @@ atom_expr:
     (                      -> usual_or_logic_id
     | '(' expressions? ')' -> ^(CALL usual_or_logic_id ^(ARGS expressions?) )
     )
-  | {schemaMode}?
+  | {schemaMode}? =>
   ( SCHEMA_ID | BLANK | ELLIPSIS^ expression ELLIPSIS! )
 
   | TRUE | FALSE | NULL | 'this'
@@ -426,5 +462,12 @@ logic_id_param:
   ;
 
 quantifier:
-  (ALL^ | EX^) ID (','! ID)* ':'! type '::'! expression
+  (ALL^ | EX^) ID (','! ID)* ( ':'! typeRef )? '::'! expression
+  ;
+
+new_expression:
+  'new' clss=ID ( '.' meth=ID '(' expressions ')'
+                     -> ^( 'new' $clss $meth? ^(ARGS expressions) )
+                |    -> ^( 'new' $clss )
+                )
   ;

@@ -9,3 +9,4 @@ edu.kit.iti.algover.rules.impl.TestTrueAssumption
 edu.kit.iti.algover.rules.impl.RemoveAssumptionRule
 edu.kit.iti.algover.rules.impl.CloseRule
 edu.kit.iti.algover.rules.impl.Z3Rule
+edu.kit.iti.algover.rules.impl.SkipRule

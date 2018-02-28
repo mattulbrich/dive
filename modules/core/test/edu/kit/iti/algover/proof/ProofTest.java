@@ -69,13 +69,24 @@ public class ProofTest {
         Assert.assertNotNull(p.getProofRoot());
     }
 
-    //TODO SaG -> MU: the rule application is not applicable, the proofstatus should be failing, shouldn't it?
-    @Test
+    @Test(expected = ScriptCommandNotApplicableException.class)
     public void negativeFake() throws Exception {
         Proof p = makeProof("true");
         p.setScriptTextAndInterpret("fake close=false;");
-        //Assert.assertEquals(ProofStatus.OPEN, p.getProofStatus());
+        Assert.assertEquals(ProofStatus.FAILING, p.getProofStatus());
         Assert.assertNotNull(p.getProofRoot());
+        if(TestUtil.VERBOSE)
+            p.getFailException().printStackTrace();
+        throw p.getFailException();
+    }
+
+    @Test
+    public void skip() throws Exception {
+        Proof p = makeProof("true");
+        p.setScriptTextAndInterpret("skip;");
+        Assert.assertEquals(ProofStatus.OPEN, p.getProofStatus());
+        Assert.assertNotNull(p.getProofRoot());
+        Assert.assertNull(p.getFailException());
     }
 
     @Test(expected = ParseCancellationException.class)

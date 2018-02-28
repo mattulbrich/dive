@@ -159,4 +159,20 @@ class C
       s1[1] := s2[1];
    }
 
+   method quantifiers()
+     ensures forall i : int :: i == i
+     ensures exists x : int :: x == 0
+     ensures let x,y := 1,true :: y && x > 0
+   {}
+
+   method varDecls() returns (ret_r : int)
+   {
+     var l_i : int;
+     var l_x1, l_x2 : int;
+     var l_y : int := 42;
+     var l_v := 44;
+
+     ret_r := l_i+l_x1+l_x2+l_y+l_v;
+   }
+
 }

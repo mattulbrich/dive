@@ -1,0 +1,9 @@
+(COMPILATION_UNIT
+  (method manyVars ARGS
+  (BLOCK
+     (var i (TYPE int))
+     (var x1 (TYPE int))
+     (var x2 (TYPE int))
+     (var x3 (TYPE int))
+     (var y (TYPE int) 42)
+     (var v 44))))

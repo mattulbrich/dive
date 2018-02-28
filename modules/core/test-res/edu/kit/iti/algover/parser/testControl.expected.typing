@@ -1,6 +1,6 @@
 (method testControl ARGS
         (BLOCK
-         (var i int)
+         (var i (TYPE int))
          (if (> i[int] 0[int])[bool]
              (BLOCK (:= i[int] (+ i[int] 1[int])[int]))
            (BLOCK (:= i[int] (+ i[int] 1[int])[int])))

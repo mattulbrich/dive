@@ -3,9 +3,14 @@ package edu.kit.iti.algover.util;
 import edu.kit.iti.algover.data.BuiltinSymbols;
 import edu.kit.iti.algover.parser.DafnyException;
 import edu.kit.iti.algover.parser.DafnyParserException;
+import edu.kit.iti.algover.parser.DafnyTree;
 import edu.kit.iti.algover.proof.ProofFormula;
+import edu.kit.iti.algover.rules.RuleException;
 import edu.kit.iti.algover.rules.TermSelector;
 import edu.kit.iti.algover.term.*;
+import edu.kit.iti.algover.term.builder.TermBuildException;
+import edu.kit.iti.algover.term.builder.TreeTermTranslator;
+import edu.kit.iti.algover.term.builder.TreeTermTranslatorTest;
 import edu.kit.iti.algover.term.parser.TermParser;
 import junitparams.JUnitParamsRunner;
 import junitparams.Parameters;
@@ -13,6 +18,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import java.util.Arrays;
+import java.util.List;
 import java.util.Optional;
 
 import static edu.kit.iti.algover.rules.TermSelector.SequentPolarity.ANTECEDENT;
@@ -28,6 +34,14 @@ public class RuleUtilTest {
         symbols.addFunctionSymbol(new FunctionSymbol("x", Sort.INT));
         symbols.addFunctionSymbol(new FunctionSymbol("y", Sort.INT));
         symbols.addFunctionSymbol(new FunctionSymbol("f", Sort.INT));
+        symbols.addFunctionSymbol(new FunctionSymbol("b1", Sort.BOOL));
+        symbols.addFunctionSymbol(new FunctionSymbol("b2", Sort.BOOL));
+        symbols.addFunctionSymbol(new FunctionSymbol("b3", Sort.BOOL));
+        symbols.addFunctionSymbol(new FunctionSymbol("b4", Sort.BOOL));
+        symbols.addFunctionSymbol(new FunctionSymbol("i1", Sort.INT));
+        symbols.addFunctionSymbol(new FunctionSymbol("i2", Sort.INT));
+        symbols.addFunctionSymbol(new FunctionSymbol("i3", Sort.INT));
+        symbols.addFunctionSymbol(new FunctionSymbol("i4", Sort.INT));
     }
 
     private final Sequent exampleSequent =

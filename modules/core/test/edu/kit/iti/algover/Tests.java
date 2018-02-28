@@ -5,6 +5,8 @@
  */
 package edu.kit.iti.algover;
 
+import edu.kit.iti.algover.parser.ChainedRelationsVisitorTest;
+import edu.kit.iti.algover.parser.ImplicitlyTypedVariableVisitorTest;
 import edu.kit.iti.algover.parser.ParserErrorTest;
 import edu.kit.iti.algover.project.ProjectManagerTest;
 import edu.kit.iti.algover.proof.ProofTest;
@@ -75,6 +77,8 @@ import edu.kit.iti.algover.util.UtilTest;
     IntegrationTest1.class,
     LetSubstitutionRuleTest.class,
     TermMatcherTest.class,
+    ChainedRelationsVisitorTest.class,
+    ImplicitlyTypedVariableVisitorTest.class,
     })
 public class Tests {
 }

@@ -650,7 +650,7 @@ public class TreeTermTranslator {
         // make the order correct
         vars = vars.reverse();
 
-        Sort sort = buildSort(tree.getChild(tree.getChildCount()-2));
+        Sort sort = buildSort(tree.getFirstChildWithType(DafnyParser.TYPE).getChild(0));
 
         DafnyTree formulaTree = tree.getLastChild();
         return buildQuantifier(q, vars, sort, formulaTree);

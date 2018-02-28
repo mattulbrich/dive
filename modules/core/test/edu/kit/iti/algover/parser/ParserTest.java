@@ -12,6 +12,7 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
 
+import java.io.ByteArrayInputStream;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -20,6 +21,7 @@ import java.net.URL;
 import java.util.Arrays;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 @RunWith(Parameterized.class)
 public class ParserTest {
@@ -62,7 +64,10 @@ public class ParserTest {
                 { "typeParameters.dfy" },
                 { "saddleback.dfy" },
                 { "../term/builder/sequenterTest.dfy" },
-                {"../symbex/noetherTest.dfy"},
+                { "../symbex/noetherTest.dfy" },
+                { "vars.dfy" },
+                { "newCommand.dfy" },
+                { "methodCalls.dfy" },
                 });
     }
 

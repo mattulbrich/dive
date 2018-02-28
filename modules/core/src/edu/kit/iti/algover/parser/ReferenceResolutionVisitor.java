@@ -285,32 +285,45 @@ public class ReferenceResolutionVisitor
     @Override
     public Void visitALL(DafnyTree t, Mode a) {
         int rewindTo = identifierMap.getHistory();
-        String boundVar = t.getChild(0).getText();
-        identifierMap.put(boundVar, t);
-        // do not revisit the name.
-        for (int i = 2; i < t.getChildCount(); i++) {
+        for (int i = 0; i < t.getChildCount()-2; i++) {
+            String boundVar = t.getChild(i).getText();
+            identifierMap.put(boundVar, t);
+            // do not revisit the name.
+        }
+        t.getFirstChildWithType(DafnyParser.TYPE).accept(this, Mode.TYPE);
+        t.getLastChild().accept(this, Mode.EXPR);
+        identifierMap.rewindHistory(rewindTo);
+        return null;
+    }
+
+    @Override
+    public Void visitEX(DafnyTree t, Mode a) {
+        // Reuse the code for universal quantifier.
+        return visitALL(t, a);
+    }
+
+    /*
+     * Temporarily add quantified variable(s), visit matrix and remove variable.
+     */
+    @Override
+    public Void visitLET(DafnyTree t, Mode a) {
+        int rewindTo = identifierMap.getHistory();
+        List<DafnyTree> vars = t.getFirstChildWithType(DafnyParser.VAR).getChildren();
+        for (DafnyTree boundVar : vars) {
+            identifierMap.put(boundVar.getText(), t);
+        }
+        // do not revisit the variables.
+        for (int i = 1; i < t.getChildCount(); i++) {
             t.getChild(i).accept(this, a);
         }
         identifierMap.rewindHistory(rewindTo);
         return null;
     }
 
-    // ==================================== Visiting
-
     /*
      * Temporarily add quantified variable, visit matrix and remove variable.
      */
-    @Override
-    public Void visitEX(DafnyTree t, Mode a) {
-        int rewindTo = identifierMap.getHistory();
-        String boundVar = t.getChild(0).getText();
-        identifierMap.put(boundVar, t);
-        // do not revisit the name.
-        t.getChild(1).accept(this, Mode.TYPE);
-        t.getChild(2).accept(this, Mode.EXPR);
-        identifierMap.rewindHistory(rewindTo);
-        return null;
-    }
+    // ==================================== Visiting
 
     /*
      * Remember the rewind position for the block and rewind after visitation.

@@ -265,7 +265,7 @@ public final class ASTUtil {
     /**
      * Returns an identifier token with the given variable/id name.
      *
-     * @param id non-<code>null</code> name of identifier
+     * @param name non-<code>null</code> name of identifier
      * @param ref a tree to point to as declaration reference
      * @return a freshly created dafny tree
      */
@@ -297,9 +297,10 @@ public final class ASTUtil {
     public static DafnyTree anonymise(DafnyTree varDecl) {
         DafnyTree id = id(varDecl.getChild(0).getText());
         id.setDeclarationReference(varDecl);
-        id.setExpressionType(varDecl.getChild(1));
+        DafnyTree type = varDecl.getFirstChildWithType(DafnyParser.TYPE).getChild(0);
+        id.setExpressionType(type);
         DafnyTree wildcard = new DafnyTree(DafnyParser.WILDCARD);
-        wildcard.setExpressionType(varDecl.getChild(1));
+        wildcard.setExpressionType(type);
         return create(DafnyParser.ASSIGN, id, wildcard);
     }
 
@@ -394,5 +395,9 @@ public final class ASTUtil {
             }
             return Sort.get(tree.getText(), args);
         }
+    }
+
+    public static DafnyTree type(String type) {
+        return create(DafnyParser.TYPE, id(type));
     }
 }
