@@ -56,7 +56,7 @@ public class GenericRuleTest {
         ProofRule pr = null;
         ProofRule pr1 = null;
         try {
-            //pr = DafnyRuleUtil.generateDafnyRuleFromFile("./test-res/edu/kit/iti/algover/dafnyrules/addzero2.dfy");
+            pr = DafnyRuleUtil.generateDafnyRuleFromFile("./test-res/edu/kit/iti/algover/dafnyrules/addzero2.dfy");
             pr1 = DafnyRuleUtil.generateDafnyRuleFromFile("./test-res/edu/kit/iti/algover/dafnyrules/ReplaceAssumption.dfy");
         } catch(DafnyRuleException e) {
             System.out.println("Error creating DafnyRule.");
@@ -64,12 +64,12 @@ public class GenericRuleTest {
             return new Object[0][0];
         }
         return new Object[][] {
-                //{new OrLeftRule(), "b1 || b2 |- b1", new TermSelector(TermSelector.SequentPolarity.ANTECEDENT, 0),
-                    //    new ArrayList<>(Arrays.asList("[b1] ==> [b1]", "[b2] ==> [b1]")), null},
-                //{pr, "i1 + i2 == 0  |- i3 == 0", new TermSelector(TermSelector.SequentPolarity.ANTECEDENT, 0, 0),
-                  //      new ArrayList<>(Arrays.asList("[$eq<int>(i1, 0)] ==> [$eq<int>(i3, 0)]", "[$eq<int>($plus(i1, i2), 0)] ==> [$eq<int>(i2, 0)]")), null},
-                //{pr, "i1 + i2 == 0, i2 == 0  |- i1 == 0", new TermSelector(TermSelector.SequentPolarity.ANTECEDENT, 0, 0),
-                      //  new ArrayList<>(Arrays.asList("[$eq<int>(i1, 0), $eq<int>(i2, 0)] ==> [$eq<int>(i1, 0)]")), null},
+                {new OrLeftRule(), "b1 || b2 |- b1", new TermSelector(TermSelector.SequentPolarity.ANTECEDENT, 0),
+                        new ArrayList<>(Arrays.asList("[b1] ==> [b1]", "[b2] ==> [b1]")), null},
+                {pr, "i1 + i2 == 0  |- i3 == 0", new TermSelector(TermSelector.SequentPolarity.ANTECEDENT, 0, 0),
+                        new ArrayList<>(Arrays.asList("[$eq<int>(i1, 0)] ==> [$eq<int>(i3, 0)]", "[$eq<int>($plus(i1, i2), 0)] ==> [$eq<int>(i2, 0)]")), null},
+                {pr, "i1 + i2 == 0, i2 == 0  |- i1 == 0", new TermSelector(TermSelector.SequentPolarity.ANTECEDENT, 0, 0),
+                        new ArrayList<>(Arrays.asList("[$eq<int>(i1, 0), $eq<int>(i2, 0)] ==> [$eq<int>(i1, 0)]")), null},
                 {pr1, "b1 |- b2", new TermSelector(TermSelector.SequentPolarity.ANTECEDENT, 0),
                         new ArrayList<>(Arrays.asList("[true] ==> [b2]")), null},
                 {pr1, "b1  |- !b2", new TermSelector(TermSelector.SequentPolarity.SUCCEDENT, 0),

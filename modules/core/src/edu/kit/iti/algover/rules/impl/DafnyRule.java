@@ -109,32 +109,39 @@ public class DafnyRule extends AbstractProofRule {
 
     @Override
     public ProofRuleApplication makeApplication(ProofNode target, Parameters parameters) throws RuleException {
-        Term on = parameters.getValue(ON_PARAM);
-
-        TermMatcher tm = new TermMatcher();
-        ImmutableList<Matching> matchings = tm.match(searchTerm, on);
-        if(matchings.size() == 0) {
-            throw new RuleException();
-        }
-
         ProofRuleApplicationBuilder proofRuleApplicationBuilder = new ProofRuleApplicationBuilder(this);
-        proofRuleApplicationBuilder.setApplicability(ProofRuleApplication.Applicability.APPLICABLE);
-        proofRuleApplicationBuilder.setTranscript(getTranscript(new Pair<>("on", on)));
         try {
-            Term rt = matchings.get(0).instantiate(replaceTerm);
-            List<Term> rts = new ArrayList<>();
-            for(Term t : requiresTerms) {
-                rts.add(matchings.get(0).instantiate(t));
-            }
-
+            Term on = parameters.getValue(ON_PARAM);
 
             List<TermSelector> l = RuleUtil.matchSubtermsInSequent(on::equals, target.getSequent());
             if(l.size() != 1) {
                 throw new RuleException("Machting of on parameter is ambiguous");
             }
+            ImmutableList<Matching> matchings;
+            Term rt;
             if(!this.polarity.conforms(RuleUtil.getTruePolarity(l.get(0), target.getSequent()))) {
-                throw new RuleException("Rule cant be applied due to not conforming polarity.");
+                TermMatcher tm = new TermMatcher();
+                matchings = tm.match(replaceTerm, on);
+                if(matchings.size() == 0) {
+                    throw new RuleException();
+                }
+                rt = matchings.get(0).instantiate(searchTerm);
+            } else {
+                TermMatcher tm = new TermMatcher();
+                matchings = tm.match(searchTerm, on);
+                if(matchings.size() == 0) {
+                    throw new RuleException();
+                }
+                rt = matchings.get(0).instantiate(replaceTerm);
             }
+
+            proofRuleApplicationBuilder.setApplicability(ProofRuleApplication.Applicability.APPLICABLE);
+            proofRuleApplicationBuilder.setTranscript(getTranscript(new Pair<>("on", on)));
+            List<Term> rts = new ArrayList<>();
+            for(Term t : requiresTerms) {
+                rts.add(matchings.get(0).instantiate(t));
+            }
+
             proofRuleApplicationBuilder.newBranch().addReplacement(l.get(0), rt);
 
 
@@ -144,6 +151,7 @@ public class DafnyRule extends AbstractProofRule {
                     bib.addDeletionsAntecedent(new ProofFormula(on));
                     bib.addDeletionsSuccedent(target.getSequent().getSuccedent());
                     bib.addAdditionsSuccedent(new ProofFormula(t));
+                    bib.setLabel("condition for Rule: " + this.getName());
                 }
             }
         } catch (TermBuildException e) {
