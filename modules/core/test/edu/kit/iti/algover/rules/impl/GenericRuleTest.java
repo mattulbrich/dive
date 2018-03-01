@@ -52,28 +52,22 @@ public class GenericRuleTest {
      *      ones: boolean variables b1,...,b4, int variables i1,...,i4
      * @return parameters for the applicable-Test
      */
-    public Object [][] parametersForGenericRuleTestApplicable() {
+    public Object [][] parametersForGenericRuleTestApplicable() throws DafnyRuleException {
         ProofRule pr = null;
         ProofRule pr1 = null;
-        try {
-            pr = DafnyRuleUtil.generateDafnyRuleFromFile("./test-res/edu/kit/iti/algover/dafnyrules/addzero2.dfy");
-            pr1 = DafnyRuleUtil.generateDafnyRuleFromFile("./test-res/edu/kit/iti/algover/dafnyrules/ReplaceAssumption.dfy");
-        } catch(DafnyRuleException e) {
-            System.out.println("Error creating DafnyRule.");
-            e.printStackTrace();
-            return new Object[0][0];
-        }
+        pr = DafnyRuleUtil.generateDafnyRuleFromFile("./modules/core/test-res/edu/kit/iti/algover/dafnyrules/addzero2.dfy");
+        pr1 = DafnyRuleUtil.generateDafnyRuleFromFile("./modules/core/test-res/edu/kit/iti/algover/dafnyrules/WeakenAssumption.dfy");
         return new Object[][] {
                 {new OrLeftRule(), "b1 || b2 |- b1", new TermSelector(TermSelector.SequentPolarity.ANTECEDENT, 0),
                         new ArrayList<>(Arrays.asList("[b1] ==> [b1]", "[b2] ==> [b1]")), null},
                 {pr, "i1 + i2 == 0  |- i3 == 0", new TermSelector(TermSelector.SequentPolarity.ANTECEDENT, 0, 0),
-                        new ArrayList<>(Arrays.asList("[$eq<int>(i1, 0)] ==> [$eq<int>(i3, 0)]", "[$eq<int>($plus(i1, i2), 0)] ==> [$eq<int>(i2, 0)]")), null},
+                        new ArrayList<>(Arrays.asList("[$eq<int>(i1, 0)] ==> [$eq<int>(i3, 0)]", "[] ==> [$eq<int>(i2, 0)]")), null},
                 {pr, "i1 + i2 == 0, i2 == 0  |- i1 == 0", new TermSelector(TermSelector.SequentPolarity.ANTECEDENT, 0, 0),
                         new ArrayList<>(Arrays.asList("[$eq<int>(i1, 0), $eq<int>(i2, 0)] ==> [$eq<int>(i1, 0)]")), null},
-                {pr1, "b1 |- b2", new TermSelector(TermSelector.SequentPolarity.ANTECEDENT, 0),
-                        new ArrayList<>(Arrays.asList("[true] ==> [b2]")), null},
-                {pr1, "b1  |- !b2", new TermSelector(TermSelector.SequentPolarity.SUCCEDENT, 0),
-                        new ArrayList<>(Arrays.asList("[b1] ==> [!true]")), null},
+                {pr1, "b1 && b2 |- b2", new TermSelector(TermSelector.SequentPolarity.ANTECEDENT, 0),
+                        new ArrayList<>(Arrays.asList("[b1] ==> [b2]")), null},
+                {pr1, "b1 |- !(b1 && b2)", new TermSelector(TermSelector.SequentPolarity.SUCCEDENT, 0, 0),
+                        new ArrayList<>(Arrays.asList("[b1] ==> [$not(b1)]")), null},
 
         };
     }
