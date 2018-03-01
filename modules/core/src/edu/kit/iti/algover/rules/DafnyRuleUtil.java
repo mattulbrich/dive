@@ -82,7 +82,7 @@ public class DafnyRuleUtil {
                 rts.add(t.accept(new ReplaceProgramVariableVisitor(), programVars));
             }
         } catch (TermBuildException e) {
-            throw new DafnyRuleException("Error parsing equalsClause");
+            throw new DafnyRuleException("Error parsing equalsClause", e);
         }
         return new DafnyRule(name, st, rt, rts);
     }
@@ -99,7 +99,7 @@ public class DafnyRuleUtil {
 
         for (DafnyTree decl : ProgramDatabase.getAllVariableDeclarations(tree)) {
             String name = decl.getChild(0).toString();
-            Sort sort = treeToType(decl.getChild(1));
+            Sort sort = treeToType(decl.getFirstChildWithType(DafnyParser.TYPE).getChild(0));
             map.add(new FunctionSymbol(name, sort));
             programVars.add(name);
         }
