@@ -13,6 +13,7 @@ import edu.kit.iti.algover.term.*;
 import edu.kit.iti.algover.term.builder.ReplacementVisitor;
 import edu.kit.iti.algover.term.builder.TermBuildException;
 import edu.kit.iti.algover.term.builder.TreeTermTranslator;
+import edu.kit.iti.algover.util.Pair;
 import edu.kit.iti.algover.util.RuleUtil;
 
 import java.io.File;
@@ -84,8 +85,8 @@ public class DafnyRuleUtil {
         TreeTermTranslator ttt = new TreeTermTranslator(symbolTable);
         Term st = null;
         Term rt = null;
+        List<Pair<Term,String>> rts = new ArrayList<>();
 
-        List<Term> rts = new ArrayList<>();
         try {
             if(equalsClause != null) {
                 st = ttt.build(equalsClause.getChild(0));
@@ -101,8 +102,16 @@ public class DafnyRuleUtil {
             st = st.accept(new ReplaceProgramVariableVisitor(), programVars);
             rt = rt.accept(new ReplaceProgramVariableVisitor(), programVars);
             for(DafnyTree dt : requiresClauses) {
-                Term t = ttt.build(dt.getChild(0));
-                rts.add(t.accept(new ReplaceProgramVariableVisitor(), programVars));
+                if(dt.getChildCount() == 1) {
+                    Term t = ttt.build(dt.getChild(0));
+                    String label = "";
+                    rts.add(new Pair<Term, String>(t.accept(new ReplaceProgramVariableVisitor(), programVars), label));
+                } else if(dt.getChildCount() == 2) {
+                    Term t = ttt.build(dt.getChild(1));
+                    String label = dt.getChild(1).getChild(0).toString();
+                    rts.add(new Pair<Term, String>(t.accept(new ReplaceProgramVariableVisitor(), programVars), label));
+                }
+
             }
         } catch (TermBuildException e) {
             e.printStackTrace();

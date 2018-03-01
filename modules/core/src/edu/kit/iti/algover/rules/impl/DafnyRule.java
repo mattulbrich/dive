@@ -32,7 +32,7 @@ public class DafnyRule extends AbstractProofRule {
     private String name;
     private final Term searchTerm;
     private final Term replaceTerm;
-    private final List<Term> requiresTerms;
+    private final List<Pair<Term, String>> requiresTerms;
     private final RulePolarity polarity;
 
 
@@ -47,7 +47,7 @@ public class DafnyRule extends AbstractProofRule {
         requiresTerms = new ArrayList<>();
     }
 
-    public DafnyRule(String name, Term st, Term rt, List<Term> requiresTerms) {
+    public DafnyRule(String name, Term st, Term rt, List<Pair<Term,String>> requiresTerms) {
         super(ON_PARAM);
 
         this.name = name;
@@ -57,7 +57,7 @@ public class DafnyRule extends AbstractProofRule {
         this.requiresTerms = requiresTerms;
     }
 
-    public DafnyRule(String name, @NonNull Term st, @NonNull Term rt, List<Term> requiresTerms, RulePolarity polarity) {
+    public DafnyRule(String name, @NonNull Term st, @NonNull Term rt, List<Pair<Term, String>> requiresTerms, RulePolarity polarity) {
         super(ON_PARAM);
 
         this.name = name;
@@ -75,30 +75,41 @@ public class DafnyRule extends AbstractProofRule {
     @Override
     public ProofRuleApplication considerApplication(ProofNode target, Sequent selection, TermSelector selector) throws RuleException {
         Term selected = selector.selectSubterm(target.getSequent());
-        TermMatcher tm = new TermMatcher();
-        ImmutableList<Matching> matchings = tm.match(searchTerm, selected);
-        if(matchings.size() == 0) {
-            return ProofRuleApplicationBuilder.notApplicable(this);
-        }
-        if(!this.polarity.conforms(RuleUtil.getTruePolarity(selector, selection))) {
-            return ProofRuleApplicationBuilder.notApplicable(this);
-        }
         ProofRuleApplicationBuilder proofRuleApplicationBuilder;
         try {
-            Term rt = matchings.get(0).instantiate(replaceTerm);
-            List<Term> rts = new ArrayList<>();
-            for(Term t : requiresTerms) {
-                rts.add(matchings.get(0).instantiate(t));
+            Term rt;
+            ImmutableList<Matching> matchings;
+            if(!this.polarity.conforms(RuleUtil.getTruePolarity(selector, target.getSequent()))) {
+                TermMatcher tm = new TermMatcher();
+                matchings = tm.match(replaceTerm, selected);
+                if(matchings.size() == 0) {
+                    throw new RuleException();
+                }
+                rt = matchings.get(0).instantiate(searchTerm);
+            } else {
+                TermMatcher tm = new TermMatcher();
+                matchings = tm.match(searchTerm, selected);
+                if(matchings.size() == 0) {
+                    throw new RuleException();
+                }
+                rt = matchings.get(0).instantiate(replaceTerm);
+            }
+            List<Pair<Term, String>> rts = new ArrayList<>();
+            for(Pair<Term, String> lt : requiresTerms) {
+                rts.add(new Pair<Term, String>(matchings.get(0).instantiate(lt.getFst()), lt.getSnd()));
             }
             proofRuleApplicationBuilder = new ProofRuleApplicationBuilder(this);
             proofRuleApplicationBuilder.setApplicability(ProofRuleApplication.Applicability.APPLICABLE);
             proofRuleApplicationBuilder.setTranscript(getTranscript(new Pair<>("on", selected)));
             proofRuleApplicationBuilder.newBranch().addReplacement(selector, rt);
-            for(Term t : rts) {
-                BranchInfoBuilder bib = proofRuleApplicationBuilder.newBranch();
-                bib.addDeletionsAntecedent(target.getSequent().getAntecedent());
-                bib.addDeletionsSuccedent(target.getSequent().getSuccedent());
-                bib.addAdditionsSuccedent(new ProofFormula(t));
+            for(Pair<Term, String> lt : rts) {
+                if(!RuleUtil.matchSubtermInSequent(lt.getFst()::equals, target.getSequent()).isPresent()) {
+                    BranchInfoBuilder bib = proofRuleApplicationBuilder.newBranch();
+                    bib.addDeletionsAntecedent(target.getSequent().getAntecedent());
+                    bib.addDeletionsSuccedent(target.getSequent().getSuccedent());
+                    bib.addAdditionsSuccedent(new ProofFormula(lt.getFst()));
+                    bib.setLabel(lt.getSnd());
+                }
             }
         } catch (TermBuildException e) {
             throw new RuleException();
@@ -137,21 +148,20 @@ public class DafnyRule extends AbstractProofRule {
 
             proofRuleApplicationBuilder.setApplicability(ProofRuleApplication.Applicability.APPLICABLE);
             proofRuleApplicationBuilder.setTranscript(getTranscript(new Pair<>("on", on)));
-            List<Term> rts = new ArrayList<>();
-            for(Term t : requiresTerms) {
-                rts.add(matchings.get(0).instantiate(t));
+            List<Pair<Term, String>> rts = new ArrayList<>();
+            for(Pair<Term, String> lt : requiresTerms) {
+                rts.add(new Pair<Term, String>(matchings.get(0).instantiate(lt.getFst()), lt.getSnd()));
             }
 
             proofRuleApplicationBuilder.newBranch().addReplacement(l.get(0), rt);
 
-
-            for(Term t : rts) {
-                if(!RuleUtil.matchSubtermInSequent(t::equals, target.getSequent()).isPresent()) {
+            for(Pair<Term, String> lt : rts) {
+                if(!RuleUtil.matchSubtermInSequent(lt.getFst()::equals, target.getSequent()).isPresent()) {
                     BranchInfoBuilder bib = proofRuleApplicationBuilder.newBranch();
-                    bib.addDeletionsAntecedent(new ProofFormula(on));
+                    bib.addDeletionsAntecedent(target.getSequent().getAntecedent());
                     bib.addDeletionsSuccedent(target.getSequent().getSuccedent());
-                    bib.addAdditionsSuccedent(new ProofFormula(t));
-                    bib.setLabel("condition for Rule: " + this.getName());
+                    bib.addAdditionsSuccedent(new ProofFormula(lt.getFst()));
+                    bib.setLabel(lt.getSnd());
                 }
             }
         } catch (TermBuildException e) {
