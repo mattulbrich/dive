@@ -11,4 +11,8 @@ public class DafnyRuleException extends Exception {
     public DafnyRuleException(String message) {
         super(message);
     }
+
+    public DafnyRuleException(String message, Throwable cause) {
+        super(message, cause);
+    }
 }

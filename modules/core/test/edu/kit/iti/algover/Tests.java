@@ -5,11 +5,13 @@
  */
 package edu.kit.iti.algover;
 
+import edu.kit.iti.algover.parser.ChainedRelationsVisitorTest;
+import edu.kit.iti.algover.parser.ImplicitlyTypedVariableVisitorTest;
 import edu.kit.iti.algover.parser.ParserErrorTest;
 import edu.kit.iti.algover.project.ProjectManagerTest;
 import edu.kit.iti.algover.proof.ProofTest;
 import edu.kit.iti.algover.references.TermReferencesBuilderTest;
-import edu.kit.iti.algover.rules.impl.*;
+import edu.kit.iti.algover.rules.impl.DafnyRuleTest;
 import edu.kit.iti.algover.term.builder.ParallelUpdateSequenterTest;
 import edu.kit.iti.algover.term.builder.SimplifiedUpdateSequenterTest;
 import edu.kit.iti.algover.term.builder.TreeAssignmentTranslatorTest;
@@ -66,6 +68,7 @@ import edu.kit.iti.algover.util.UtilTest;
         ProjectManagerTest.class,
     ProgramDatabaseTest.class,
     UtilTest.class,
+    DafnyRuleTest.class,
     SimplifiedUpdateSequenterTest.class,
     UpdateSequenterTest.class,
     ParallelUpdateSequenterTest.class,
@@ -75,8 +78,8 @@ import edu.kit.iti.algover.util.UtilTest;
     IntegrationTest1.class,
     LetSubstitutionRuleTest.class,
     TermMatcherTest.class,
-        GenericRuleTest.class,
-        DafnyRuleTest.class,
+    ChainedRelationsVisitorTest.class,
+    ImplicitlyTypedVariableVisitorTest.class,
         RuleUtilTest.class
     })
 public class Tests {

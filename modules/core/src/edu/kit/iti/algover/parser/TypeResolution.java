@@ -7,6 +7,7 @@ package edu.kit.iti.algover.parser;
 
 import java.util.List;
 
+import edu.kit.iti.algover.util.ASTUtil;
 import org.antlr.runtime.tree.Tree;
 
 import edu.kit.iti.algover.project.Project;
@@ -67,7 +68,14 @@ public class TypeResolution extends DafnyTreeDefaultVisitor<DafnyTree, Void> {
         case DafnyParser.FIELD:
         case DafnyParser.ALL:
         case DafnyParser.EX:
-            DafnyTree type = ref.getFirstChildWithType(DafnyParser.TYPE).getChild(0);
+            DafnyTree typeTree = ref.getFirstChildWithType(DafnyParser.TYPE);
+            DafnyTree type;
+            if (typeTree == null) {
+                // this is the case for
+                type = ref.getLastChild().getExpressionType();
+            } else {
+                type = typeTree.getChild(0);
+            }
             t.setExpressionType(type);
             return type;
 
@@ -297,7 +305,11 @@ public class TypeResolution extends DafnyTreeDefaultVisitor<DafnyTree, Void> {
         if (recvType.getType() != DafnyParser.ARRAY &&
             recvType.getType() != DafnyParser.SEQ) {
             exceptions.add(new DafnyException(
-                    "Only arrays can be indexed", t));
+                    "Only arrays or sequences can be indexed", t));
+            // set a fake type to avoid internal exceptions when continuing
+            DafnyTree ty = ASTUtil.id("<unknownType>");
+            t.setExpressionType(ty);
+            return ty;
         }
 
         DafnyTree ty = recvType.getChild(0);
@@ -352,7 +364,7 @@ public class TypeResolution extends DafnyTreeDefaultVisitor<DafnyTree, Void> {
                 if(rets.getChildCount() > 1) {
                     exceptions.add(new DafnyException("Sorry, no supoprt for multi return yet.", t));
                 }
-                result = rets.getChild(0).getChild(1);
+                result = rets.getChild(0).getFirstChildWithType(DafnyParser.TYPE).getChild(0);
             }
         } else {
             assert decl.getType() == DafnyParser.FUNCTION;

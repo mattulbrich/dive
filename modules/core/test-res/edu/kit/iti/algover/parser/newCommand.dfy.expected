@@ -1,0 +1,10 @@
+(COMPILATION_UNIT
+  (class C
+    (method Init (ARGS (VAR i (TYPE int))) BLOCK)
+    (method m ARGS
+      (BLOCK
+        (var c (new C))
+        (var c2 (TYPE C) (new C))
+        (var c3 (new C Init (ARGS 42)))
+        (:= c (new C))
+        (:= c2 (new C Init (ARGS 44)))))))

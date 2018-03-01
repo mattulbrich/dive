@@ -265,7 +265,7 @@ public final class ASTUtil {
     /**
      * Returns an identifier token with the given variable/id name.
      *
-     * @param id non-<code>null</code> name of identifier
+     * @param name non-<code>null</code> name of identifier
      * @param ref a tree to point to as declaration reference
      * @return a freshly created dafny tree
      */
@@ -395,5 +395,9 @@ public final class ASTUtil {
             }
             return Sort.get(tree.getText(), args);
         }
+    }
+
+    public static DafnyTree type(String type) {
+        return create(DafnyParser.TYPE, id(type));
     }
 }

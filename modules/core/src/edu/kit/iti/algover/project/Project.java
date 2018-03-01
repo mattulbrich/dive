@@ -169,22 +169,11 @@ public class Project {
     @Override
     public String toString() {
         StringBuilder s = new StringBuilder();
-        s.append("Project\n");
-        if(classes.size() != 0) {
-            s.append("with " + this.classes.size() + " classe(s): \n");
-            for (DafnyClass dClass : this.getClasses()) {
-                s.append(dClass.toString());
-            }
-        } else {
-            s.append("with " + this.methods.size() + " method(s): \n");
-            for (DafnyMethod m : this.getMethods()) {
-
-                s.append(m.toString());
-            }
-        }
+        s.append("Project(");
+        s.append(this.classes.size() + " classe(s), ");
+        s.append(this.methods.size() + " method(s))");
 
         return s.toString();
-
     }
 
     /**

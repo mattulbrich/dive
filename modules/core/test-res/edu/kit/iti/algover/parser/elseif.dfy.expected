@@ -1,0 +1,7 @@
+(COMPILATION_UNIT
+    (method ifthenelse (ARGS (VAR x (TYPE int)))
+        (BLOCK (if (> x 10)
+                BLOCK
+                (BLOCK (if (> x 5)
+                        BLOCK
+                        (BLOCK (if (> x 0) BLOCK BLOCK))))))))

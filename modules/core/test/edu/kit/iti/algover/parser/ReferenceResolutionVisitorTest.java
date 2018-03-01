@@ -117,10 +117,10 @@ public class ReferenceResolutionVisitorTest {
                 assertEquals(name, ref.getChild(0).getText());
             } else if (name.startsWith("vx_")) {
                 assertEquals(DafnyParser.EX, ref.getType());
-                assertEquals(name, ref.getChild(0).getText());
+                assertTrue(Util.map(ref.getChildren(), x -> x.getText()).contains(name));
             } else if (name.startsWith("va_")) {
                 assertEquals(DafnyParser.ALL, ref.getType());
-                assertEquals(name, ref.getChild(0).getText());
+                assertTrue(Util.map(ref.getChildren(), x -> x.getText()).contains(name));
             } else if (name.startsWith("C_")) {
                 assertEquals(DafnyParser.CLASS, ref.getType());
                 assertEquals(name, ref.getChild(0).getText());
