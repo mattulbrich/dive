@@ -12,6 +12,7 @@ import edu.kit.iti.algover.project.ProjectManagerTest;
 import edu.kit.iti.algover.proof.ProofTest;
 import edu.kit.iti.algover.references.TermReferencesBuilderTest;
 import edu.kit.iti.algover.rules.impl.DafnyRuleTest;
+import edu.kit.iti.algover.rules.impl.LetSubstitutionRuleTest;
 import edu.kit.iti.algover.term.builder.ParallelUpdateSequenterTest;
 import edu.kit.iti.algover.term.builder.SimplifiedUpdateSequenterTest;
 import edu.kit.iti.algover.term.builder.TreeAssignmentTranslatorTest;
