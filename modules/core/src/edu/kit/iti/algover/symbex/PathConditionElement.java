@@ -66,7 +66,12 @@ public class PathConditionElement {
          *
          * In a ==> b, a guards the well-definedness of b, e.g.
          */
-        GUARD_IN_EXPRESSION("guard");
+        GUARD_IN_EXPRESSION("guard"),
+        /**
+         * The condition is either a free condition (wellformedness) or a technical
+         * assumption (new object is not created).
+         */
+        IMPLICIT_ASSUMPTION("implicit");
 
         /**
          * The identifier used when constructing a UI-string for a symbex path.

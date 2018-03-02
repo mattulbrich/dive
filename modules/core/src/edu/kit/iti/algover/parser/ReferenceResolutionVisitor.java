@@ -279,6 +279,29 @@ public class ReferenceResolutionVisitor
         return null;
     }
 
+    @Override
+    public Void visitNEW(DafnyTree t, Mode mode) {
+        t.getChild(0).accept(this, Mode.TYPE);
+        DafnyTree call = t.getFirstChildWithType(DafnyParser.CALL);
+        if (call != null) {
+            // TODO This will not work for parametrised classes ...
+            String type = t.getChild(0).getText();
+            DafnyClass clazz = project.getClass(type);
+            if (clazz == null) {
+                addException(new DafnyException("Unknown class: " + type, t));
+                return null;
+            }
+            DafnyMethod method = clazz.getMethod(call.getChild(0).getText());
+            if (method == null) {
+                addException(new DafnyException("Unknown method " + call.getChild(0).getText() +
+                        " in class " + type, t));
+                return null;
+            }
+            call.getChild(0).setDeclarationReference(method.getRepresentation());
+        }
+        return null;
+    }
+
     /*
      * Temporarily add quantified variable, visit matrix and remove variable.
      */

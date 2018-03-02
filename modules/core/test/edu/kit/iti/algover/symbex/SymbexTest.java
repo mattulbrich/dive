@@ -14,6 +14,7 @@ import edu.kit.iti.algover.symbex.AssertionElement.AssertionType;
 import edu.kit.iti.algover.symbex.PathConditionElement.AssumptionType;
 import edu.kit.iti.algover.util.ASTUtil;
 import edu.kit.iti.algover.util.ImmutableList;
+import edu.kit.iti.algover.util.SymbexUtil;
 import edu.kit.iti.algover.util.TestUtil;
 import edu.kit.iti.algover.util.Util;
 import org.junit.Before;
@@ -33,7 +34,7 @@ public class SymbexTest {
             new DafnyTree(-1, "SOME_PROGRAM");
     private DafnyTree tree;
 
-    @Before
+    // @Before ... not for all test cases!
     public void loadTree() throws Exception {
         InputStream stream = getClass().getResourceAsStream("symbex.dfy");
         DafnyTree fileTree = ParserTest.parseFile(stream);
@@ -47,6 +48,7 @@ public class SymbexTest {
     @Test
     public void testSymbolicExecution() throws Exception {
 
+        loadTree();
         Symbex symbex = new Symbex();
         List<SymbexPath> results = symbex.symbolicExecution(tree);
 
@@ -67,8 +69,9 @@ public class SymbexTest {
     }
 
     @Test
-    public void testHandleAssert() {
+    public void testHandleAssert() throws Exception {
 
+        loadTree();
         DafnyTree assertionStm = tree.getLastChild().getChild(6);
         assertEquals(DafnyParser.ASSERT, assertionStm.getType());
 
@@ -93,7 +96,8 @@ public class SymbexTest {
     }
 
     @Test
-    public void testHandleAssignment() {
+    public void testHandleAssignment() throws Exception {
+        loadTree();
         DafnyTree assStm = tree.getLastChild().getChild(2);
         assertEquals(DafnyParser.ASSIGN, assStm.getType());
 
@@ -115,7 +119,8 @@ public class SymbexTest {
     }
 
     @Test
-    public void testHandleVarDecl1() {
+    public void testHandleVarDecl1() throws Exception {
+        loadTree();
         DafnyTree decl = tree.getLastChild().getChild(0);
         assertEquals(DafnyParser.VAR, decl.getType());
 
@@ -138,7 +143,8 @@ public class SymbexTest {
 
     // revealed a bug
     @Test
-    public void testHandleVarDecl2() {
+    public void testHandleVarDecl2() throws Exception {
+        loadTree();
         DafnyTree decl = tree.getLastChild().getChild(9);
         assertEquals(DafnyParser.VAR, decl.getType());
 
@@ -159,11 +165,36 @@ public class SymbexTest {
         assertEquals(0, next.getPathConditions().size());
     }
 
+    // revealed a bug
+    @Test
+    public void testHandleVarDecl3() throws Exception {
+        loadTree();
+        DafnyTree decl = tree.getLastChild().getChild(10);
+        assertEquals(DafnyParser.VAR, decl.getType());
+
+        Symbex symbex = new Symbex();
+        Deque<SymbexPath> stack = new LinkedList<SymbexPath>();
+        List<SymbexPath> results = new ArrayList<SymbexPath>();
+        SymbexPath state = new SymbexPath(tree);
+        state.setAssignmentHistory(SOME_HISTORY);
+
+        symbex.handleVarDecl(stack, state, decl, SOME_PROGRAM);
+
+        assertEquals(1, stack.size());
+        assertEquals(0, results.size());
+
+        SymbexPath next = stack.pop();
+        assertSame(SOME_PROGRAM, next.getBlockToExecute());
+        assertEquals("(ASSIGN init_wo_type 41)", next.getAssignmentHistory().getHead().toStringTree());
+        assertEquals(0, next.getPathConditions().size());
+    }
+
 
 
     // bug in handlling wildcard anonymisation
     @Test
-    public void testHandleWhile() {
+    public void testHandleWhile() throws Exception {
+        loadTree();
         DafnyTree whileStm = tree.getLastChild().getChild(4);
         assertEquals(DafnyParser.WHILE,  whileStm.getType());
 
@@ -303,7 +334,8 @@ public class SymbexTest {
 
     }
     @Test
-    public void testHandleIf() {
+    public void testHandleIf() throws Exception {
+        loadTree();
         DafnyTree decl = tree.getLastChild().getChild(7);
         assertEquals(DafnyParser.IF, decl.getType());
 
@@ -335,8 +367,10 @@ public class SymbexTest {
 
     // Revealed a bug
     @Test
-    public void testHandleIfNoElse() {
-        DafnyTree decl = tree.getLastChild().getChild(10);
+    public void testHandleIfNoElse() throws Exception {
+        loadTree();
+
+        DafnyTree decl = tree.getLastChild().getChild(11);
         assertEquals(DafnyParser.IF, decl.getType());
 
         Symbex symbex = new Symbex();
@@ -366,7 +400,9 @@ public class SymbexTest {
     }
 
     @Test
-    public void testHandleAssume() {
+    public void testHandleAssume() throws Exception {
+        loadTree();
+
         DafnyTree decl = tree.getLastChild().getChild(8);
         assertEquals(DafnyParser.ASSUME, decl.getType());
 
@@ -668,4 +704,159 @@ public class SymbexTest {
                     proofObl.getExpression().toStringTree());
         }
     }
+
+    @Test
+    public void testMethodCalls() throws Exception {
+        InputStream stream = getClass().getResourceAsStream("methodCalls.dfy");
+        DafnyTree fileTree = ParserTest.parseFile(stream);
+
+        // performs type analysis etc:
+        Project project = TestUtil.mockProject(fileTree);
+
+        DafnyTree tree = project.getMethod("test").getRepresentation();
+        Symbex symbex = new Symbex();
+        List<SymbexPath> results = symbex.symbolicExecution(tree);
+
+        assertEquals(4, results.size());
+        int index = 0;
+        {
+            SymbexPath path = results.get(index++);
+            assertEquals("EstPre[CallMe]", path.getPathIdentifier());
+            assertEquals(0, path.getPathConditions().size());
+            assertEquals("[(ASSIGN $mod $everything)]", path.getAssignmentHistory().map(DafnyTree::toStringTree).toString());
+            assertEquals("[(SUBST (SUBST r $res_CallMe_1) (SUBST p 22) (== p 1))]",
+                    path.getProofObligations().map(x -> x.getExpression().toStringTree()).toString());
+        }
+        {
+            SymbexPath path = results.get(index++);
+            assertEquals("EstPre[CallMe]", path.getPathIdentifier());
+            assertEquals(1, path.getPathConditions().size());
+            assertEquals("(SUBST (SUBST r $res_CallMe_1) (SUBST p 22) (== r 2))",
+                    path.getPathConditions().getLast().getExpression().toStringTree());
+            assertEquals("[(ASSIGN $mod $everything), (ASSIGN x $res_CallMe_1)]",
+                    path.getAssignmentHistory().map(DafnyTree::toStringTree).toString());
+            assertEquals("[(SUBST (SUBST r $res_CallMe_2) (SUBST p 23) (== p 1))]",
+                    path.getProofObligations().map(x -> x.getExpression().toStringTree()).toString());
+        }
+        {
+            SymbexPath path = results.get(index++);
+            assertEquals("EstPre[Meth]", path.getPathIdentifier());
+            assertEquals(2, path.getPathConditions().size());
+            assertEquals("(SUBST (SUBST r $res_CallMe_2) (SUBST p 23) (== r 2))",
+                    path.getPathConditions().getLast().getExpression().toStringTree());
+            assertEquals("[(ASSIGN $mod $everything), (ASSIGN x $res_CallMe_1), (ASSIGN y $res_CallMe_2)]",
+                    path.getAssignmentHistory().map(DafnyTree::toStringTree).toString());
+            assertEquals("[(SUBST (SUBST this c) (SUBST p 24) (== p 21))]",
+                    path.getProofObligations().map(x -> x.getExpression().toStringTree()).toString());
+        }
+        {
+            SymbexPath path = results.get(index++);
+            assertEquals("Post", path.getPathIdentifier());
+            assertEquals(3, path.getPathConditions().size());
+            assertEquals("(SUBST (SUBST this c) (SUBST p 24) true)",
+                    path.getPathConditions().getLast().getExpression().toStringTree());
+            assertEquals("[(== c c)]",
+                    path.getProofObligations().map(x -> x.getExpression().toStringTree()).toString());
+        }
+    }
+
+    @Test
+    public void testObjectCreation() throws Exception {
+        InputStream stream = getClass().getResourceAsStream("objectCreation.dfy");
+        DafnyTree fileTree = ParserTest.parseFile(stream);
+
+        // performs type analysis etc:
+        Project project = TestUtil.mockProject(fileTree);
+
+        DafnyTree tree = project.getMethod("test").getRepresentation();
+        DafnyTree code = tree.getFirstChildWithType(DafnyParser.BLOCK);
+        Symbex symbex = new Symbex();
+
+        {
+            Deque<SymbexPath> stack = new LinkedList<SymbexPath>();
+            SymbexPath state = new SymbexPath(tree);
+            DafnyTree ass = code.getChild(1);
+            symbex.handleAssign(stack, state, ass, SOME_PROGRAM);
+
+            assertEquals(1, stack.size());
+            state = stack.getFirst();
+
+            assertEquals("[IMPLICIT_ASSUMPTION[null]:(not (CALL $isCreated (ARGS $heap $new_1)))]",
+                    state.getPathConditions().toString());
+
+            assertEquals("[(ASSIGN $heap (CALL create (ARGS $heap $new_1))), (ASSIGN c $new_1)]", state.getAssignmentHistory().map(x -> x.toStringTree()).toString());
+
+            assertEquals(0, state.getProofObligations().size());
+        }
+        {
+            Deque<SymbexPath> stack = new LinkedList<SymbexPath>();
+            SymbexPath state = new SymbexPath(tree);
+            DafnyTree ass = code.getChild(2);
+            symbex.handleAssign(stack, state, ass, SOME_PROGRAM);
+
+            assertEquals(2, stack.size());
+            state = stack.removeFirst();
+
+            assertEquals(0, state.getProofObligations().size());
+            assertEquals("[IMPLICIT_ASSUMPTION[null]:(not (CALL $isCreated (ARGS $heap $new_1))), " +
+                            "CALL_POST[null]:(SUBST (SUBST this $new_1) (SUBST p 23) (== this this))]",
+                    state.getPathConditions().toString());
+            assertEquals("[(ASSIGN $heap (CALL create (ARGS $heap $new_1))), (ASSIGN c $new_1)]", state.getAssignmentHistory().map(x -> x.toStringTree()).toString());
+
+            state = stack.removeFirst();
+
+            assertEquals("[CALL_PRE[Init]:(SUBST (SUBST this $new_1) (SUBST p 23) (== p 1))]", state.getProofObligations().toString());
+            assertEquals("[IMPLICIT_ASSUMPTION[null]:(not (CALL $isCreated (ARGS $heap $new_1)))]",
+                    state.getPathConditions().toString());
+            assertEquals("[(ASSIGN $heap (CALL create (ARGS $heap $new_1)))]", state.getAssignmentHistory().map(x -> x.toStringTree()).toString());
+        }
+        {
+            Deque<SymbexPath> stack = new LinkedList<SymbexPath>();
+            SymbexPath state = new SymbexPath(tree);
+            DafnyTree ass = code.getChild(3);
+            symbex.handleVarDecl(stack, state, ass, SOME_PROGRAM);
+
+            assertEquals(2, stack.size());
+            state = stack.removeFirst();
+
+            assertEquals(0, state.getProofObligations().size());
+            assertEquals("[IMPLICIT_ASSUMPTION[null]:(not (CALL $isCreated (ARGS $heap $new_1))), " +
+                            "CALL_POST[null]:(SUBST (SUBST this $new_1) (SUBST p 42) (== this this))]",
+                    state.getPathConditions().toString());
+            assertEquals("[(ASSIGN $heap (CALL create (ARGS $heap $new_1))), (ASSIGN c2 $new_1)]", state.getAssignmentHistory().map(x -> x.toStringTree()).toString());
+
+            state = stack.removeFirst();
+
+            assertEquals("[CALL_PRE[Init]:(SUBST (SUBST this $new_1) (SUBST p 42) (== p 1))]", state.getProofObligations().toString());
+            assertEquals("[IMPLICIT_ASSUMPTION[null]:(not (CALL $isCreated (ARGS $heap $new_1)))]",
+                    state.getPathConditions().toString());
+            assertEquals("[(ASSIGN $heap (CALL create (ARGS $heap $new_1)))]", state.getAssignmentHistory().map(x -> x.toStringTree()).toString());
+        }
+        {
+            Deque<SymbexPath> stack = new LinkedList<SymbexPath>();
+            SymbexPath state = new SymbexPath(tree);
+            DafnyTree ass = code.getChild(4);
+            symbex.handleVarDecl(stack, state, ass, SOME_PROGRAM);
+
+            assertEquals(2, stack.size());
+            state = stack.removeFirst();
+
+            assertEquals(0, state.getProofObligations().size());
+            assertEquals("[IMPLICIT_ASSUMPTION[null]:(not (CALL $isCreated (ARGS $heap $new_1))), " +
+                            "CALL_POST[null]:(SUBST (SUBST r $res_Init2_1) (SUBST this $new_1) (== this this))]",
+                    state.getPathConditions().toString());
+            assertEquals("[(ASSIGN $heap (CALL create (ARGS $heap $new_1))), (ASSIGN c3 $new_1)]", state.getAssignmentHistory().map(x -> x.toStringTree()).toString());
+
+            state = stack.removeFirst();
+
+            assertEquals("[CALL_PRE[Init2]:(SUBST (SUBST r $res_Init2_1) (SUBST this $new_1) (== 1 1))]", state.getProofObligations().toString());
+            assertEquals("[IMPLICIT_ASSUMPTION[null]:(not (CALL $isCreated (ARGS $heap $new_1)))]",
+                    state.getPathConditions().toString());
+            assertEquals("[(ASSIGN $heap (CALL create (ARGS $heap $new_1)))]", state.getAssignmentHistory().map(x -> x.toStringTree()).toString());
+        }
+
+        // ... two cases are still missing
+
+    }
+
 }

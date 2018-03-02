@@ -370,6 +370,15 @@ public class TypeResolution extends DafnyTreeDefaultVisitor<DafnyTree, Void> {
     }
 
     @Override
+    public DafnyTree visitNEW(DafnyTree t, Void a) {
+        DafnyTree clss = t.getChild(0).getDeclarationReference();
+        assert clss.getType() == DafnyParser.CLASS;
+        DafnyTree ty = clss.getChild(0);
+        t.setExpressionType(ty);
+        return ty;
+    }
+
+    @Override
     public DafnyTree visitFIELD_ACCESS(DafnyTree t, Void a) {
         DafnyTree receiver = t.getChild(0);
         DafnyTree field = t.getChild(1);

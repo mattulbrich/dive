@@ -7,7 +7,10 @@
 package edu.kit.iti.algover;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.IdentityHashMap;
 import java.util.List;
+import java.util.Set;
 
 import edu.kit.iti.algover.parser.DafnyParser;
 import edu.kit.iti.algover.parser.DafnyTree;
@@ -105,4 +108,43 @@ public class ProgramDatabase {
         return null;
     }
 
+    // TODO Implement this -- assuming the type resolution is there ...
+    public static boolean isStrictlyPure(DafnyTree method) {
+        Set<DafnyTree> alreadyVisited = Collections.newSetFromMap(new IdentityHashMap<DafnyTree, Boolean>());
+        return checkStrictlyPure(method, alreadyVisited);
+    }
+
+    private static boolean checkStrictlyPure(DafnyTree tree, Set<DafnyTree> alreadyVisited) {
+        switch(tree.getType()) {
+        case DafnyParser.METHOD:
+            if(!alreadyVisited.contains(tree)) {
+                return true;
+            }
+            alreadyVisited.add(tree);
+            break;
+
+        case DafnyParser.CALL:
+            if(tree.getDeclarationReference().getType() == DafnyParser.METHOD) {
+                boolean callIsSPure = checkStrictlyPure(tree.getDeclarationReference(), alreadyVisited);
+                if (!callIsSPure) {
+                    return false;
+                }
+            }
+            break;
+
+        case DafnyParser.ASSIGN:
+            switch(tree.getChild(0).getType()) {
+            case DafnyParser.ID:
+                if(tree.getChild(0).getType() == DafnyParser.FIELD) {
+                    return true;
+                }
+
+            case DafnyParser.ARRAY_ACCESS: // TODO this might be a sequence ... caution!
+            case DafnyParser.FIELD_ACCESS:
+                return true;
+            }
+        }
+
+        return tree.getChildren().stream().allMatch(x->checkStrictlyPure(x, alreadyVisited));
+    }
 }

@@ -5,6 +5,7 @@
  */
 package edu.kit.iti.algover.symbex;
 
+import edu.kit.iti.algover.parser.DafnyParser;
 import edu.kit.iti.algover.parser.DafnyTree;
 import edu.kit.iti.algover.util.ASTUtil;
 
@@ -85,6 +86,10 @@ public class AssertionElement {
      *         specified.
      */
     public String getName() {
+        if(refersTo.getType() == DafnyParser.CALL) {
+            // method name if this induced by a method call ...
+            return refersTo.getChild(0).getText();
+        }
         return ASTUtil.getLabel(refersTo);
     }
 
@@ -120,7 +125,7 @@ public class AssertionElement {
         /**
          * Precondition to be checked prior to method invocation.
          */
-        CALL_PRE("Call"),
+        CALL_PRE("EstPre"),
 
         /**
          * Explicit assertion.

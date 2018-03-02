@@ -9,6 +9,7 @@ tokens {
   COMPILATION_UNIT;
   TYPE;
   RESULTS;
+  SUBST; // used in symbolic execution
   ARGS;
   BLOCK;
   CALL;
@@ -466,8 +467,8 @@ quantifier:
   ;
 
 new_expression:
-  'new' clss=ID ( '.' meth=ID '(' expressions ')'
-                     -> ^( 'new' $clss $meth? ^(ARGS expressions) )
+  'new' clss=ID ( '.' meth=ID '(' expressions? ')'
+                     -> ^( 'new' $clss ^(CALL $meth? ^(ARGS expressions?) ))
                 |    -> ^( 'new' $clss )
                 )
   ;
