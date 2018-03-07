@@ -80,17 +80,12 @@ public class DafnyRule extends AbstractProofRule {
             Term rt;
             ImmutableList<Matching> matchings;
             if(!this.polarity.conforms(RuleUtil.getTruePolarity(selector, target.getSequent()))) {
-                TermMatcher tm = new TermMatcher();
-                matchings = tm.match(replaceTerm, selected);
-                if(matchings.size() == 0) {
-                    throw new RuleException();
-                }
-                rt = matchings.get(0).instantiate(searchTerm);
+                return ProofRuleApplicationBuilder.notApplicable(this);
             } else {
                 TermMatcher tm = new TermMatcher();
                 matchings = tm.match(searchTerm, selected);
                 if(matchings.size() == 0) {
-                    throw new RuleException();
+                    return ProofRuleApplicationBuilder.notApplicable(this);
                 }
                 rt = matchings.get(0).instantiate(replaceTerm);
             }
@@ -131,12 +126,7 @@ public class DafnyRule extends AbstractProofRule {
             ImmutableList<Matching> matchings;
             Term rt;
             if(!this.polarity.conforms(RuleUtil.getTruePolarity(l.get(0), target.getSequent()))) {
-                TermMatcher tm = new TermMatcher();
-                matchings = tm.match(replaceTerm, on);
-                if(matchings.size() == 0) {
-                    throw new RuleException();
-                }
-                rt = matchings.get(0).instantiate(searchTerm);
+                throw new RuleException("Rule cant be applied to this term due to not conforming polarity.");
             } else {
                 TermMatcher tm = new TermMatcher();
                 matchings = tm.match(searchTerm, on);

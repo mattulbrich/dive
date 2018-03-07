@@ -53,10 +53,8 @@ public class GenericRuleTest {
      * @return parameters for the applicable-Test
      */
     public Object [][] parametersForGenericRuleTestApplicable() throws DafnyRuleException {
-        ProofRule pr = null;
-        ProofRule pr1 = null;
-        pr = DafnyRuleUtil.generateDafnyRuleFromFile("./modules/core/test-res/edu/kit/iti/algover/dafnyrules/addzero2.dfy");
-        pr1 = DafnyRuleUtil.generateDafnyRuleFromFile("./modules/core/test-res/edu/kit/iti/algover/dafnyrules/WeakenAssumption.dfy");
+        ProofRule pr = DafnyRuleUtil.generateDafnyRuleFromFile("./modules/core/test-res/edu/kit/iti/algover/dafnyrules/addzero2.dfy");
+        ProofRule pr1 = DafnyRuleUtil.generateDafnyRuleFromFile("./modules/core/test-res/edu/kit/iti/algover/dafnyrules/WeakenAssumption.dfy");
         return new Object[][] {
                 {new OrLeftRule(), "b1 || b2 |- b1", new TermSelector(TermSelector.SequentPolarity.ANTECEDENT, 0),
                         new ArrayList<>(Arrays.asList("[b1] ==> [b1]", "[b2] ==> [b1]")), null},
@@ -72,17 +70,29 @@ public class GenericRuleTest {
         };
     }
 
-    public Object [][] parametersForGenericRuleTestNotApplicable() {
+    public Object [][] parametersForGenericRuleTestNotApplicable() throws DafnyRuleException {
+        ProofRule pr = DafnyRuleUtil.generateDafnyRuleFromFile("./modules/core/test-res/edu/kit/iti/algover/dafnyrules/addzero2.dfy");
+        ProofRule pr1 = DafnyRuleUtil.generateDafnyRuleFromFile("./modules/core/test-res/edu/kit/iti/algover/dafnyrules/WeakenAssumption.dfy");
         return new Object[][] {
                 {new OrLeftRule(), "b1 || b2 |- b1", new TermSelector(TermSelector.SequentPolarity.SUCCEDENT, 0),
-                        null}
+                        null},
+                {pr, "i1 == 0, i2 == 0  |- i1 == 0", new TermSelector(TermSelector.SequentPolarity.ANTECEDENT, 0), null},
+                {pr1, "b1 |- b2", new TermSelector(TermSelector.SequentPolarity.ANTECEDENT, 0), null},
+                {pr1, "b2 |- b1 && b2", new TermSelector(TermSelector.SequentPolarity.SUCCEDENT, 0), null},
+
         };
     }
 
-    public Object [][] parametersForGenericRuleTestMakeException() {
+    public Object [][] parametersForGenericRuleTestMakeException()  throws DafnyRuleException {
+        ProofRule pr = DafnyRuleUtil.generateDafnyRuleFromFile("./modules/core/test-res/edu/kit/iti/algover/dafnyrules/addzero2.dfy");
+        ProofRule pr1 = DafnyRuleUtil.generateDafnyRuleFromFile("./modules/core/test-res/edu/kit/iti/algover/dafnyrules/WeakenAssumption.dfy");
         return new Object[][] {
                 {new OrLeftRule(), "b1 || b2 |- b1", new TermSelector(TermSelector.SequentPolarity.SUCCEDENT, 0),
-                        null}
+                        null},
+                {pr, "i1 == 0, i2 == 0  |- i1 == 0", new TermSelector(TermSelector.SequentPolarity.ANTECEDENT, 0), null},
+                {pr, "i1 + i2 == 0, i2 + i1 == 0  |- i1 == 0", new TermSelector(TermSelector.SequentPolarity.ANTECEDENT, 0), null},
+                {pr1, "b1 |- b2", new TermSelector(TermSelector.SequentPolarity.ANTECEDENT, 0), null},
+                {pr1, "b2 |- b1 && b2", new TermSelector(TermSelector.SequentPolarity.SUCCEDENT, 0), null},
         };
     }
 
@@ -211,7 +221,7 @@ public class GenericRuleTest {
         params.putValue("on", ts.selectSubterm(s));
 
         ProofRuleApplication pra = pr.makeApplication(pn, params);
-        RuleApplicator.applyRule(pra, pn);
+        List<ProofNode> newNodes = RuleApplicator.applyRule(pra, pn);
     }
 
     public static Sequent parseSequent(String sequent, Pair<String, Sort>... usedVars) throws DafnyParserException, DafnyException {
