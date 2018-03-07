@@ -5,6 +5,7 @@
 /modules/*/test-bin
 /modules/*/gen
 /out
+/VERSION
 *~
 *.Tests*
 # *.jar # we have some checked in jar files
