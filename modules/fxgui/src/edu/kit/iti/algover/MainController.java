@@ -26,6 +26,8 @@ import edu.kit.iti.algover.sequent.SequentActionListener;
 import edu.kit.iti.algover.sequent.SequentController;
 import edu.kit.iti.algover.timeline.TimelineLayout;
 import edu.kit.iti.algover.util.FormatException;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.event.ActionEvent;
 import javafx.scene.Node;
 import javafx.scene.Parent;
@@ -63,6 +65,21 @@ public class MainController implements SequentActionListener, RuleApplicationLis
         this.editorController = new EditorController(executor);
         this.sequentController = new SequentController(this);
         this.ruleApplicationController = new RuleApplicationController(executor, this);
+
+        this.editorController.anyFileChangedProperty().addListener(new ChangeListener<Boolean>() {
+            @Override
+            public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) {
+                if(newValue) {
+                    browserController.getView().setDisable(true);
+                    sequentController.getView().setDisable(true);
+                    ruleApplicationController.getView().setDisable(true);
+                } else {
+                    browserController.getView().setDisable(false);
+                    sequentController.getView().setDisable(false);
+                    ruleApplicationController.getView().setDisable(false);
+                }
+            }
+        });
 
 
         JFXButton saveButton = new JFXButton("Save", GlyphsDude.createIcon(FontAwesomeIcon.SAVE));

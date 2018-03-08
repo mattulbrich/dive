@@ -3,6 +3,10 @@ package edu.kit.iti.algover.editor;
 import edu.kit.iti.algover.dafnystructures.DafnyFile;
 import edu.kit.iti.algover.proof.PVC;
 import edu.kit.iti.algover.references.CodeReference;
+import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.SimpleBooleanProperty;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.collections.ListChangeListener;
 import javafx.scene.Node;
 import javafx.scene.control.Tab;
@@ -33,6 +37,9 @@ public class EditorController {
     private final LayeredHighlightingRule highlightingLayers;
     private final ExecutorService executor;
 
+    private BooleanProperty anyFileChangedProperty;
+    private int numFilesChanged = 0;
+
     /**
      * Initializes the controller without any code editor tabs.
      *
@@ -43,6 +50,7 @@ public class EditorController {
         this.view = new TabPane();
         this.tabsByFile = new HashMap<>();
         this.highlightingLayers = new LayeredHighlightingRule(2);
+        this.anyFileChangedProperty = new SimpleBooleanProperty(false);
         view.getTabs().addListener(this::onTabListChanges);
     }
 
@@ -73,6 +81,23 @@ public class EditorController {
                 tab.setText(dafnyFile.getFilename());
                 tab.setUserData(dafnyFile);
                 DafnyCodeArea codeArea = new DafnyCodeArea(contentAsText, executor);
+                codeArea.getTextChangedProperty().addListener(new ChangeListener<Boolean>() {
+                    @Override
+                    public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) {
+                        if(!oldValue && newValue) {
+                            numFilesChanged++;
+                        } else if(!newValue && oldValue) {
+                            numFilesChanged--;
+                        }
+                        System.out.println(numFilesChanged);
+                        if(numFilesChanged == 0) {
+                            anyFileChangedProperty.setValue(false);
+                        } else {
+                            anyFileChangedProperty.setValue(true);
+                        }
+                        System.out.println(anyFileChangedProperty.get());
+                    }
+                });
                 codeArea.setHighlightingRule(highlightingLayers);
                 tab.setContent(new VirtualizedScrollPane<>(codeArea));
                 tabsByFile.put(dafnyFile, tab);
@@ -137,5 +162,17 @@ public class EditorController {
         view.getTabs().stream()
                 .map(tab -> (DafnyCodeArea) tab.getContent())
                 .forEach(DafnyCodeArea::rerenderHighlighting);
+    }
+
+    public BooleanProperty anyFileChangedProperty() {
+        return anyFileChangedProperty;
+    }
+
+    public boolean getAnyFileChanged() {
+        return anyFileChangedProperty.get();
+    }
+
+    public void setAnyFileChanged(boolean value) {
+        anyFileChangedProperty.setValue(value);
     }
 }
