@@ -28,12 +28,27 @@ import java.util.List;
 public class DafnyRuleUtil {
     private static List<String> programVars;
 
+
+    public static List<DafnyRule> generateDafnyRules(Project project) throws DafnyRuleException {
+
+        Collection<DafnyMethod> methods = project.getMethods();
+
+        List<DafnyRule> result = new ArrayList<>();
+        for (DafnyMethod method : methods) {
+            if (method.isLemma()) {
+                result.add(generateRule(method));
+            }
+        }
+
+        return result;
+    }
+
     public static DafnyRule generateDafnyRuleFromFile(String fileName)  throws DafnyRuleException {
         String name;
         SymbolTable symbolTable;
         DafnyTree tree = null;
         DafnyFile dfi = null;
-        DafnyRule.RulePolarity polarity = DafnyRule.RulePolarity.BOTH;
+
 
         try {
             tree = DafnyFileParser.parse(new File(fileName));
@@ -55,6 +70,17 @@ public class DafnyRuleUtil {
             throw new DafnyRuleException("DafnyRuleFiles may only contain EXACTLY one method but found " + methods.size() + ".");
         }
         DafnyMethod method = (DafnyMethod)methods.toArray()[0];
+        return generateRule(method);
+    }
+
+    private static DafnyRule generateRule(DafnyMethod method) throws DafnyRuleException {
+        String name;
+        SymbolTable symbolTable;
+        DafnyRule.RulePolarity polarity = DafnyRule.RulePolarity.BOTH;
+
+        // REVIEW How do we deal with name clashes? What if a lemma is called "cut" or "case"?
+        // One idea: prefix the name with "lemma_" or "l_". Alternatives?
+
         name = method.getName();
 
         List<DafnyTree> ensuresClauses = method.getEnsuresClauses();
@@ -79,7 +105,7 @@ public class DafnyRuleUtil {
             throw  new DafnyRuleException("DafnyRules have to contain an equality or implication.");
         }
 
-        symbolTable = makeSymbolTable(tree);
+        symbolTable = makeSymbolTable(method.getRepresentation());
         TreeTermTranslator ttt = new TreeTermTranslator(symbolTable);
         Term st = null;
         Term rt = null;
@@ -114,7 +140,7 @@ public class DafnyRuleUtil {
         } catch (TermBuildException e) {
             throw new DafnyRuleException("Error parsing equalsClause", e);
         }
-        return new DafnyRule(name, st, rt, rts, polarity);
+        return new DafnyRule(method, name, st, rt, rts, polarity);
     }
 
     /**

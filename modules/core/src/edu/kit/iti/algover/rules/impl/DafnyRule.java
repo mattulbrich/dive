@@ -29,6 +29,11 @@ import java.util.*;
  * Created by jklamroth on 1/25/18.
  */
 public class DafnyRule extends AbstractProofRule {
+    /**
+     * The dafny declaration which gave rise to this rule.
+     */
+    private final DafnyMethod method;
+
     private String name;
     private final Term searchTerm;
     private final Term replaceTerm;
@@ -37,7 +42,7 @@ public class DafnyRule extends AbstractProofRule {
 
 
 
-    public DafnyRule(String name, Term st, Term rt) {
+    public DafnyRule(DafnyMethod method, String name, Term st, Term rt) {
         super(ON_PARAM);
 
         this.name = name;
@@ -45,9 +50,10 @@ public class DafnyRule extends AbstractProofRule {
         replaceTerm = rt;
         this.polarity = RulePolarity.BOTH;
         requiresTerms = new ArrayList<>();
+        this.method = method;
     }
 
-    public DafnyRule(String name, Term st, Term rt, List<Pair<Term,String>> requiresTerms) {
+    public DafnyRule(DafnyMethod method, String name, Term st, Term rt, List<Pair<Term,String>> requiresTerms) {
         super(ON_PARAM);
 
         this.name = name;
@@ -55,9 +61,10 @@ public class DafnyRule extends AbstractProofRule {
         replaceTerm = rt;
         this.polarity = RulePolarity.BOTH;
         this.requiresTerms = requiresTerms;
+        this.method = method;
     }
 
-    public DafnyRule(String name, @NonNull Term st, @NonNull Term rt, List<Pair<Term, String>> requiresTerms, RulePolarity polarity) {
+    public DafnyRule(DafnyMethod method, String name, @NonNull Term st, @NonNull Term rt, List<Pair<Term, String>> requiresTerms, RulePolarity polarity) {
         super(ON_PARAM);
 
         this.name = name;
@@ -65,11 +72,16 @@ public class DafnyRule extends AbstractProofRule {
         replaceTerm = rt;
         this.polarity = polarity;
         this.requiresTerms = requiresTerms;
+        this.method = method;
     }
 
     @Override
     public String getName() {
         return name;
+    }
+
+    public DafnyMethod getMethod() {
+        return method;
     }
 
     @Override
