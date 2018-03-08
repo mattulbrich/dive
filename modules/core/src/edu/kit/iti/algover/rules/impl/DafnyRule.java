@@ -42,22 +42,11 @@ public class DafnyRule extends AbstractProofRule {
     private final RulePolarity polarity;
 
     public DafnyRule(DafnyMethod method, String name, Term st, Term rt) {
-        this(method, name, st, rt, Collections.emptyList());
-    public DafnyRule(DafnyMethod method, String name, Term st, Term rt) {
-        this.polarity = RulePolarity.BOTH;
-        this.method = method;
+        this(method, name, st, rt, Collections.emptyList(), RulePolarity.BOTH);
     }
 
     public DafnyRule(DafnyMethod method, String name, Term st, Term rt, List<Pair<Term,String>> requiresTerms) {
-        super(ON_PARAM);
-
-        this.method = method;
-        this.name = name;
-        searchTerm = st;
-        replaceTerm = rt;
-        this.polarity = RulePolarity.BOTH;
-        this.requiresTerms = requiresTerms;
-        this.method = method;
+        this(method, name, st, rt, requiresTerms, RulePolarity.BOTH);
     }
 
     public DafnyRule(DafnyMethod method, String name, @NonNull Term st, @NonNull Term rt, List<Pair<Term, String>> requiresTerms, RulePolarity polarity) {

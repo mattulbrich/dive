@@ -14,8 +14,7 @@ import edu.kit.iti.algover.term.*;
 import edu.kit.iti.algover.term.builder.ReplacementVisitor;
 import edu.kit.iti.algover.term.builder.TermBuildException;
 import edu.kit.iti.algover.term.builder.TreeTermTranslator;
-import edu.kit.iti.algover.util.Util;
-import edu.kit.iti.algover.util.RuleUtil;
+import edu.kit.iti.algover.util.Pair;
 
 import java.io.File;
 import java.io.IOException;
