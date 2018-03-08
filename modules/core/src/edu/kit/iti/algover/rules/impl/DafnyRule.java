@@ -34,28 +34,24 @@ public class DafnyRule extends AbstractProofRule {
      */
     private final DafnyMethod method;
 
+
     private String name;
     private final Term searchTerm;
     private final Term replaceTerm;
     private final List<Pair<Term, String>> requiresTerms;
     private final RulePolarity polarity;
 
-
-
     public DafnyRule(DafnyMethod method, String name, Term st, Term rt) {
-        super(ON_PARAM);
-
-        this.name = name;
-        searchTerm = st;
-        replaceTerm = rt;
+        this(method, name, st, rt, Collections.emptyList());
+    public DafnyRule(DafnyMethod method, String name, Term st, Term rt) {
         this.polarity = RulePolarity.BOTH;
-        requiresTerms = new ArrayList<>();
         this.method = method;
     }
 
     public DafnyRule(DafnyMethod method, String name, Term st, Term rt, List<Pair<Term,String>> requiresTerms) {
         super(ON_PARAM);
 
+        this.method = method;
         this.name = name;
         searchTerm = st;
         replaceTerm = rt;

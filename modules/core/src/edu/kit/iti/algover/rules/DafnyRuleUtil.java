@@ -8,12 +8,13 @@ import edu.kit.iti.algover.data.BuiltinSymbols;
 import edu.kit.iti.algover.data.MapSymbolTable;
 import edu.kit.iti.algover.data.SymbolTable;
 import edu.kit.iti.algover.parser.*;
+import edu.kit.iti.algover.project.Project;
 import edu.kit.iti.algover.rules.impl.DafnyRule;
 import edu.kit.iti.algover.term.*;
 import edu.kit.iti.algover.term.builder.ReplacementVisitor;
 import edu.kit.iti.algover.term.builder.TermBuildException;
 import edu.kit.iti.algover.term.builder.TreeTermTranslator;
-import edu.kit.iti.algover.util.Pair;
+import edu.kit.iti.algover.util.Util;
 import edu.kit.iti.algover.util.RuleUtil;
 
 import java.io.File;
@@ -24,6 +25,7 @@ import java.util.List;
 
 /**
  * Created by jklamroth on 2/1/18.
+ * Added to by m. ulbrich.
  */
 public class DafnyRuleUtil {
     private static List<String> programVars;
