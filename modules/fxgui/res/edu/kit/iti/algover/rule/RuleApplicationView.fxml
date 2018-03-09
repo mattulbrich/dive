@@ -8,11 +8,12 @@
 
 <?import javafx.geometry.Insets?>
 <?import edu.kit.iti.algover.rule.RuleGrid?>
-<?import edu.kit.iti.algover.rule.ScriptView?>
 <SplitPane
         xmlns="http://javafx.com/javafx"
         xmlns:fx="http://javafx.com/fxml"
-        orientation="VERTICAL" dividerPositions="0.7">
+        orientation="VERTICAL"
+        dividerPositions="0.7"
+        fx:id="splitPane">
     <VBox spacing="4">
         <padding><Insets topRightBottomLeft="10" /></padding>
 
@@ -26,6 +27,8 @@
         <RuleGrid fx:id="ruleGrid" VBox.vgrow="ALWAYS"/>
 
     </VBox>
-
-    <ScriptView fx:id="scriptView" />
+    <!--
+    Here the RuleApplicationController is going to insert a new VirtualizedScrollPane(new ScriptView(...)),
+    but it can't be done in FXML because of constructor args...
+    -->
 </SplitPane>

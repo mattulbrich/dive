@@ -1,8 +1,10 @@
 package edu.kit.iti.algover.rule;
 
 import edu.kit.iti.algover.FxmlController;
-import edu.kit.iti.algover.project.ProjectManager;
 import edu.kit.iti.algover.proof.ProofNode;
+import edu.kit.iti.algover.proof.ProofNodeSelector;
+import edu.kit.iti.algover.rule.script.ScriptController;
+import edu.kit.iti.algover.rule.script.ScriptView;
 import edu.kit.iti.algover.rules.ProofRule;
 import edu.kit.iti.algover.rules.ProofRuleApplication;
 import edu.kit.iti.algover.rules.RuleException;
@@ -10,39 +12,41 @@ import edu.kit.iti.algover.rules.TermSelector;
 import edu.kit.iti.algover.term.Sequent;
 import edu.kit.iti.algover.term.Term;
 import edu.kit.iti.algover.term.prettyprint.PrettyPrint;
-import javafx.beans.Observable;
 import javafx.beans.value.ObservableValue;
 import javafx.fxml.FXML;
-import javafx.geometry.Orientation;
 import javafx.scene.Node;
 import javafx.scene.control.Label;
 import javafx.scene.control.SplitPane;
+import org.fxmisc.flowless.VirtualizedScrollPane;
 
 import java.util.ServiceLoader;
+import java.util.concurrent.ExecutorService;
+import java.util.function.Consumer;
 
 public class RuleApplicationController extends FxmlController {
 
+    @FXML private SplitPane splitPane;
     @FXML private Label termToConsider;
     @FXML private RuleGrid ruleGrid;
-    @FXML private ScriptView scriptView;
+
+    private final ScriptView scriptView;
 
     private final RuleApplicationListener listener;
 
-    public RuleApplicationController(RuleApplicationListener listener) {
+    private final ScriptController scriptController;
+
+    public RuleApplicationController(ExecutorService executor, RuleApplicationListener listener) {
         super("RuleApplicationView.fxml");
         this.listener = listener;
+        this.scriptController = new ScriptController(executor, listener);
+        this.scriptView = scriptController.getView();
 
         for (ProofRule rule : ServiceLoader.load(ProofRule.class)) {
             addProofRule(rule);
         }
 
         ruleGrid.getSelectionModel().selectedItemProperty().addListener(this::onSelectedItemChanged);
-    }
-
-    private void onSelectedItemChanged(ObservableValue<? extends RuleView> obs, RuleView before, RuleView selected) {
-        if (selected == null) {
-            listener.onResetRuleApplicationPreview();
-        }
+        splitPane.getItems().add(new VirtualizedScrollPane<>(scriptView));
     }
 
     public void addProofRule(ProofRule rule) {
@@ -71,6 +75,12 @@ public class RuleApplicationController extends FxmlController {
         scriptView.insertText(scriptView.getLength(), application.getScriptTranscript() + "\n");
     }
 
+    private void onSelectedItemChanged(ObservableValue<? extends RuleView> obs, RuleView before, RuleView selected) {
+        if (selected == null) {
+            listener.onResetRuleApplicationPreview();
+        }
+    }
+
     public Node getRuleApplicationView() {
         return view;
     }
@@ -81,5 +91,9 @@ public class RuleApplicationController extends FxmlController {
 
     public ScriptView getScriptView() {
         return scriptView;
+    }
+
+    public ScriptController getScriptController() {
+        return scriptController;
     }
 }

@@ -1,5 +1,7 @@
 package edu.kit.iti.algover.sequent;
 
+import de.jensd.fx.glyphs.GlyphsDude;
+import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon;
 import edu.kit.iti.algover.FxmlController;
 import edu.kit.iti.algover.browser.entities.PVCEntity;
 import edu.kit.iti.algover.proof.*;
@@ -17,6 +19,7 @@ import edu.kit.iti.algover.util.Pair;
 import edu.kit.iti.algover.util.SubSelection;
 import edu.kit.iti.algover.util.SubtermSelectorReplacementVisitor;
 import javafx.fxml.FXML;
+import javafx.scene.control.Label;
 import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
 import javafx.scene.input.KeyCode;
@@ -24,6 +27,7 @@ import javafx.util.Callback;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Created by philipp on 12.07.17.
@@ -32,6 +36,7 @@ public class SequentController extends FxmlController {
 
     private final SequentActionListener listener;
 
+    @FXML private Label goalTypeLabel;
     @FXML private ListView<TopLevelFormula> antecedentView;
     @FXML private ListView<TopLevelFormula> succedentView;
 
@@ -120,21 +125,22 @@ public class SequentController extends FxmlController {
         }
     }
 
-    // TODO: Add other means for navigating the ProofNode tree
-    // In the future this should maybe only automatically move on to child ProofNodes, when
-    // the rule that was just applied only resulted in a single child.
-    // Currently I didn't implement this, since it would make testing branching rules impossible
-    // What a method name
     public void tryMovingOn() {
         if (activeNode != null) {
-            ProofNodeSelector newActiveNode = new ProofNodeSelector(activeNode, 0);
             try {
-                ProofNode node = newActiveNode.get(activeProof);
-                updateSequent(node.getSequent(), null);
-                activeNode = newActiveNode;
+                ProofNode nodeBefore = activeNode.get(activeProof);
+
+                if (nodeBefore.getChildren().size() == 1) {
+                    ProofNodeSelector newActiveNode = new ProofNodeSelector(activeNode, 0);
+                    ProofNode node = newActiveNode.get(activeProof);
+                    updateSequent(node.getSequent(), null);
+                    activeNode = newActiveNode;
+                }
             } catch (RuleException e) {
+                e.printStackTrace(); // should not happen, as long as the activeNode selector is correct
                 return;
             }
+            updateGoalTypeLabel();
         }
     }
 
@@ -142,13 +148,19 @@ public class SequentController extends FxmlController {
      * View a preview for a rule application. This highlights the added/removed {@link TopLevelFormula}s
      * and changed {@link Term}s.
      *
+     * If the application has no {@link BranchInfo}s (because it is a closing rule, for example), then
+     * it does not update the view.
+     *
      * @param application a proof rule instantiation to read the changes from (via their {@link ProofRuleApplication#getBranchInfo()}).
      */
     public void viewProofApplicationPreview(ProofRuleApplication application) {
-        try {
-            updateSequent(activeNode.get(activeProof).getSequent(), application.getBranchInfo().get(0));
-        } catch (RuleException e) {
-            e.printStackTrace();
+        if (application.getBranchInfo().size() > 0) {
+            try {
+                updateSequent(activeNode.get(activeProof).getSequent(), application.getBranchInfo().get(0));
+                updateGoalTypeLabel();
+            } catch (RuleException e) {
+                e.printStackTrace();
+            }
         }
     }
 
@@ -158,9 +170,23 @@ public class SequentController extends FxmlController {
     public void resetProofApplicationPreview() {
         try {
             updateSequent(activeNode.get(activeProof).getSequent(), null);
+            updateGoalTypeLabel();
         } catch (RuleException e) {
             e.printStackTrace();
         }
+    }
+
+    public void viewProofNode(ProofNodeSelector proofNodeSelector) {
+        proofNodeSelector.optionalGet(activeProof).ifPresent(proofNode -> {
+            activeNode = proofNodeSelector;
+            BranchInfo branchInfo = null;
+            ProofRuleApplication application = proofNode.getPsr();
+            if (application != null && application.getBranchInfo().size() == 1) {
+                branchInfo = application.getBranchInfo().get(0);
+            }
+            updateSequent(proofNode.getSequent(), branchInfo);
+            updateGoalTypeLabel();
+        });
     }
 
     private void updateSequent(Sequent sequent, BranchInfo branchInfo) {
@@ -228,6 +254,29 @@ public class SequentController extends FxmlController {
         return formulas;
     }
 
+    private void updateGoalTypeLabel() {
+        try {
+            ProofNode node = activeNode.get(activeProof);
+            if (node.getChildren().size() == 0) {
+                if (node.isClosed()) {
+                    goalTypeLabel.setText("Closed Goal");
+                    goalTypeLabel.setGraphic(GlyphsDude.createIcon(FontAwesomeIcon.CHECK));
+                } else {
+                    goalTypeLabel.setText("Open Goal");
+                    goalTypeLabel.setGraphic(GlyphsDude.createIcon(FontAwesomeIcon.BULLSEYE));
+                }
+            } else {
+                goalTypeLabel.setText("Node");
+                goalTypeLabel.setGraphic(null);
+            }
+        } catch (RuleException e) {
+            System.err.println("Invalid ProofNodeSelector generated");
+            e.printStackTrace();
+            return;
+        }
+    }
+
+
     private Callback<ListView<TopLevelFormula>, ListCell<TopLevelFormula>> makeTermCellFactory(TermSelector.SequentPolarity polarity) {
         return listView -> new FormulaCell(polarity, selectedTerm, lastClickedTerm, mouseOverTerm);
     }
@@ -266,4 +315,5 @@ public class SequentController extends FxmlController {
     public SubSelection<ProofTermReference> referenceSelection() {
         return selectedReference;
     }
+
 }

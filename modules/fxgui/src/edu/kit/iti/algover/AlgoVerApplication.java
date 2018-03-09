@@ -39,6 +39,8 @@ public class AlgoVerApplication extends Application {
 
         // Read all PVCs and update GUI
         ProjectManager manager = new ProjectManager(projectConfigFile.getParentFile(), projectConfigFile.getName());
+        // TODO Maybe don't do this initially (might hurt UX, when there are a lot of proofs)
+        manager.getAllProofs().values().forEach(proof -> proof.interpretScript());
 
         MainController controller = new MainController(manager, SYNTAX_HIGHLIGHTING_EXECUTOR);
         Scene scene = new Scene(controller.getView());

@@ -3,7 +3,10 @@ package edu.kit.iti.algover.browser.entities;
 import de.jensd.fx.glyphs.GlyphIcons;
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon;
 import edu.kit.iti.algover.dafnystructures.DafnyFile;
+import edu.kit.iti.algover.project.ProjectManager;
 import edu.kit.iti.algover.proof.PVC;
+import edu.kit.iti.algover.proof.Proof;
+import edu.kit.iti.algover.proof.ProofStatus;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.scene.paint.Color;
@@ -20,15 +23,28 @@ public class PVCEntity extends TreeTableEntity {
         UNPROVEN(
                 FontAwesomeIcon.EXCLAMATION,
                 Color.RED,
-                "No proof for this PVC"),
+                "No proof for this PVC"
+        ),
         PROVEN(
                 FontAwesomeIcon.CHECK,
                 Color.LIMEGREEN,
-                "Has been proven"),
-        DEPENDENT_ON_UNPROVEN(
+                "Has been proven"
+        ),
+        SCRIPT_FAILING(
                 FontAwesomeIcon.WARNING,
                 Color.ORANGE,
-                "Proof with unproven dependencies exists");
+                "Proof Script execution fails"
+        ),
+        DIRTY(
+                FontAwesomeIcon.ASTERISK,
+                Color.DARKGREY,
+                "Proof Script needs to be rerun"
+        ),
+        MISSING_SCRIPT(
+                FontAwesomeIcon.FILE_CODE_ALT,
+                Color.BLUE,
+                "Missing a Proof Script"
+        );
 
         ProofStatus(GlyphIcons icon, Paint fill, String tooltip) {
             this.icon = icon;
@@ -51,15 +67,29 @@ public class PVCEntity extends TreeTableEntity {
         public String getTooltip() {
             return tooltip;
         }
+
+        public static ProofStatus from(edu.kit.iti.algover.proof.ProofStatus proofStatus) {
+            switch (proofStatus) {
+                case CLOSED: return PROVEN;
+                case OPEN: return UNPROVEN;
+                case FAILING: return SCRIPT_FAILING;
+                case DIRTY: return DIRTY;
+                case CHANGED_SCRIPT: return DIRTY; // TODO Maybe improve these mappings
+                case NON_EXISTING: return MISSING_SCRIPT;
+                default:
+                    throw new RuntimeException("Missing case: " + proofStatus);
+            }
+        }
     }
 
     private final PVC pvc;
     private final ObjectProperty<ProofStatus> proofStatus;
 
-    public PVCEntity(PVC pvc, DafnyFile location) {
+    public PVCEntity(Proof proof, PVC pvc, DafnyFile location) {
         super(pvc.getIdentifier(), location, Collections.emptyList());
         this.pvc = pvc;
-        this.proofStatus = new SimpleObjectProperty<>(ProofStatus.values()[(int) (Math.random() * 3)]);
+        // TODO: In the future somehow update this Property as soon as updates are found
+        this.proofStatus = new SimpleObjectProperty<>(ProofStatus.from(proof.getProofStatus()));
         if (proofStatus.get() == ProofStatus.PROVEN) {
             provenChildrenProperty().set(1);
         }

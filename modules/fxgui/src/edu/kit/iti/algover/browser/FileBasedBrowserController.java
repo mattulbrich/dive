@@ -3,9 +3,11 @@ package edu.kit.iti.algover.browser;
 import edu.kit.iti.algover.browser.entities.OtherEntity;
 import edu.kit.iti.algover.browser.entities.TreeTableEntity;
 import edu.kit.iti.algover.project.Project;
+import edu.kit.iti.algover.proof.Proof;
 import javafx.scene.control.TreeItem;
 
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
@@ -13,8 +15,8 @@ import java.util.stream.Collectors;
  */
 public class FileBasedBrowserController extends BrowserController {
 
-    public FileBasedBrowserController(Project project, PVCClickEditListener engagedListener) {
-        super(project, engagedListener);
+    public FileBasedBrowserController(Project project, Map<String, Proof> proofsByPVC, PVCClickEditListener engagedListener) {
+        super(project, proofsByPVC, engagedListener);
     }
 
     protected void populateTreeTable() {
