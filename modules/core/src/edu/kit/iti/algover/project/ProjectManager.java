@@ -70,7 +70,9 @@ public final class ProjectManager {
      */
     private Map<String, Proof> proofs;
 
-    // REVIEW Documentation?
+    /**
+     * Map containing all filehooks for open files in the GUI
+     */
     private Map<String, Supplier<String>> fileHooks = new HashMap<>();
 
     /**
@@ -237,9 +239,29 @@ public final class ProjectManager {
 
     }
 
+    /**
+     * Save the proof script for a PVC given by its interpreted proof
+     *
+     * @param pvcIdentifier
+     * @param proof
+     * @throws IOException
+     */
     public void saveProofScriptForPVC(String pvcIdentifier, Proof proof) throws IOException {
         File scriptFile = getScriptFileForPVC(pvcIdentifier);
         saverHelper(scriptFile.getPath(), proof.getScript());
+    }
+
+    /**
+     * Save a script String for a PVC that has not been parsed/interpretd to a proof yet.
+     * ATTENTION: should only be called if user was asked first
+     *
+     * @param pvcIdentifier
+     * @param dirtyScript
+     * @throws IOException
+     */
+    public void saveDirtyProofScriptForPVC(String pvcIdentifier, String dirtyScript) throws IOException {
+        File scriptFile = getScriptFileForPVC(pvcIdentifier);
+        saverHelper(scriptFile.getPath(), dirtyScript);
     }
 
     /**
@@ -281,6 +303,7 @@ public final class ProjectManager {
         return project.getValue();
     }
 
+
     /* *
      * Save content to script file for pvc
      * @param pvc
@@ -318,14 +341,6 @@ public final class ProjectManager {
         writer.flush();
         writer.close();
     }
-
-//    public File getConfigFile() {
-//        return configFile;
-//    }
-
-//    public void setConfigFile(File configFile) {
-//        this.configFile = configFile;
-//    }
 
     /**
      * Return  all PVCs for the loaded project
