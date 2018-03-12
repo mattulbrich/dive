@@ -73,7 +73,7 @@ public final class ProjectManager {
     /**
      * Map containing all filehooks for open files in the GUI
      */
-    private Map<String, Supplier<String>> fileHooks = new HashMap<>();
+    // private Map<String, Supplier<String>> fileHooks = new HashMap<>();
 
     /**
      * Build a new project by parsing the config file and performing symbolic execution
@@ -251,18 +251,6 @@ public final class ProjectManager {
         saverHelper(scriptFile.getPath(), proof.getScript());
     }
 
-    /**
-     * Save a script String for a PVC that has not been parsed/interpretd to a proof yet.
-     * ATTENTION: should only be called if user was asked first
-     *
-     * @param pvcIdentifier
-     * @param dirtyScript
-     * @throws IOException
-     */
-    public void saveDirtyProofScriptForPVC(String pvcIdentifier, String dirtyScript) throws IOException {
-        File scriptFile = getScriptFileForPVC(pvcIdentifier);
-        saverHelper(scriptFile.getPath(), dirtyScript);
-    }
 
     /**
      * Get the plain PVCs as Map from pvcName -> PVC object
@@ -286,18 +274,18 @@ public final class ProjectManager {
      * @param filename to which file the content shoudl be saved
      * @param content  Supplier funtion from which content can be retrieved
      */
-    public void addFileHook(String filename, Supplier<String> content) {
+ /*   public void addFileHook(String filename, Supplier<String> content) {
         this.fileHooks.putIfAbsent(filename, content);
-    }
+    }*/
 
     /**
      * Remove file hook
      *
      * @param filename
      */
-    public void removeFileHook(String filename) {
+ /*   public void removeFileHook(String filename) {
         this.fileHooks.remove(filename);
-    }
+    }*/
 
     public Project getProject() {
         return project.getValue();
