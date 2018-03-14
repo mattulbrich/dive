@@ -10,6 +10,7 @@ import edu.kit.iti.algover.data.SymbolTable;
 import edu.kit.iti.algover.parser.*;
 import edu.kit.iti.algover.project.Project;
 import edu.kit.iti.algover.rules.impl.DafnyRule;
+import edu.kit.iti.algover.script.ScriptLanguageLexer;
 import edu.kit.iti.algover.term.*;
 import edu.kit.iti.algover.term.builder.ReplacementVisitor;
 import edu.kit.iti.algover.term.builder.TermBuildException;
@@ -19,8 +20,11 @@ import edu.kit.iti.algover.util.Pair;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
+import java.util.stream.Collector;
+import java.util.stream.Collectors;
 
 /**
  * Created by jklamroth on 2/1/18.
@@ -30,20 +34,47 @@ public class DafnyRuleUtil {
     private static List<String> programVars;
 
 
+    /**
+     * Generates all a DafnyRule for each method of the given project which is a lemma.
+     *
+     * @param project the project for which the rules are created
+     * @return the created rules
+     * @throws DafnyRuleException if rule generation fails (see generateRule) or if name of lemma doesn´t me requirements
+     */
     public static List<DafnyRule> generateDafnyRules(Project project) throws DafnyRuleException {
 
         Collection<DafnyMethod> methods = project.getMethods();
 
         List<DafnyRule> result = new ArrayList<>();
+        List<String> lemmaRuleNames = new ArrayList<>();
+
         for (DafnyMethod method : methods) {
             if (method.isLemma()) {
+                List<String> builtinRuleNames = project.getBuiltinProofRules().stream().
+                        map(ProofRule::getName).
+                        collect(Collectors.toList());
+                String[] scriptTokens = ScriptLanguageLexer.tokenNames;
+                if(lemmaRuleNames.contains(method.getName())) {
+                    throw new DafnyRuleException("Duplicated lemma name: " + method.getName());
+                } else if(builtinRuleNames.contains(method.getName())) {
+                    //TODO: warning "lemma is going to be hidden due to name conflict with builtin rule"
+                } else if(Arrays.asList(scriptTokens).contains(method.getName())) {
+                    throw new DafnyRuleException("Script keyword " + method.getName() + "not allowed as name for lemma.");
+                }
                 result.add(generateRule(method));
+                lemmaRuleNames.add(method.getName());
             }
         }
-
         return result;
     }
 
+    /**
+     * Creates a DafnyRule for a given file.
+     *
+     * @param fileName path to the file
+     * @return the created DafnyRule
+     * @throws DafnyRuleException if rule generation fails (see generateRule), if file not found, if parsing cant be done
+     */
     public static DafnyRule generateDafnyRuleFromFile(String fileName)  throws DafnyRuleException {
         String name;
         SymbolTable symbolTable;
@@ -74,6 +105,21 @@ public class DafnyRuleUtil {
         return generateRule(method);
     }
 
+
+    /**
+     * Generates a DafnyRule from a given DafnyMethod.
+     * The method has contain exactly 1 ensures clause which states the substitution the rule is applying.
+     * This substitutions may be aquivalences (such applicable on antecedent and succedent) or approximations (as such
+     * applicable only on the antecedent or negated on the succedent).
+     * An arbitrary number of sideconditions may be stated in requires-clauses. If requires-clause will lead to an
+     * additional branch when applying the DafnyRule (except the condition is met trivially).
+     *
+     * @param method the DafnyMethod
+     * @return the generated rule
+     * @throws DafnyRuleException if DafnyMethod doesn´t meet requirements for DafnyRule-creation which are:
+     *                              - exactly 1 ensures clause
+     *                              - ensures clause is either a implication or a aquivalence
+     */
     private static DafnyRule generateRule(DafnyMethod method) throws DafnyRuleException {
         String name;
         SymbolTable symbolTable;
@@ -81,8 +127,9 @@ public class DafnyRuleUtil {
 
         // REVIEW How do we deal with name clashes? What if a lemma is called "cut" or "case"?
         // One idea: prefix the name with "lemma_" or "l_". Alternatives?
-
         name = method.getName();
+
+
 
         List<DafnyTree> ensuresClauses = method.getEnsuresClauses();
         if(ensuresClauses.size() != 1) {

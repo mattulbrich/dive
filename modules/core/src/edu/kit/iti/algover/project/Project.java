@@ -105,6 +105,18 @@ public class Project {
      */
     private @Nullable Collection<ProofRule> allProofRules;
 
+    /**
+     * A collection of all builtin proof rules available in this project.
+     *
+     */
+    private Collection<ProofRule> builtinProofRules;
+
+    /**
+     * A collection of all lemmas available in this project.
+     *
+     */
+    private Collection<ProofRule> lemmaProofRules;
+
 
     /**
      * Constructor can only be called using a ProjectBuilder
@@ -152,6 +164,20 @@ public class Project {
             allProofRules = Collections.unmodifiableList(makeAllProofRule());
         }
         return allProofRules;
+    }
+
+    public Collection<ProofRule> getLemmaProofRules() {
+        if(lemmaProofRules == null) {
+            lemmaProofRules = Collections.unmodifiableList(makeLemmaProofRules());
+        }
+        return lemmaProofRules;
+    }
+
+    public Collection<ProofRule> getBuiltinProofRules() {
+        if(builtinProofRules == null) {
+            builtinProofRules = Collections.unmodifiableList(makeBuiltinProofRules());
+        }
+        return builtinProofRules;
     }
 
     /**
@@ -344,14 +370,31 @@ public class Project {
 
 
     /**
-     * This method creates the rules available in this project.
+     * This method creates all the rules available in this project.
      * This is lazily evaluated if needed only.
      */
     private List<ProofRule> makeAllProofRule() {
         List<ProofRule> result = new ArrayList<>();
-        ServiceLoader<ProofRule> loader = ServiceLoader.load(ProofRule.class);
-        loader.forEach(result::add);
+        if (lemmaProofRules == null) {
+            result.addAll(makeLemmaProofRules());
+        } else {
+            result.addAll(lemmaProofRules);
+        }
 
+        if (builtinProofRules == null) {
+            result.addAll(makeBuiltinProofRules());
+        } else {
+            result.addAll(builtinProofRules);
+        }        
+        return result;
+    }
+
+    /**
+     * This method creates the lemmas available in this project.
+     * This is lazily evaluated if needed only.
+     */
+    private List<ProofRule> makeLemmaProofRules() {
+        List<ProofRule> result = new ArrayList<>();
         // Extract rules from the lemmas.
         try {
             result.addAll(DafnyRuleUtil.generateDafnyRules(this));
@@ -359,7 +402,17 @@ public class Project {
             // FIXME FIXME ... exception concept needed here
             e.printStackTrace();
         }
+        return result;
+    }
 
+    /**
+     * This method creates the builtin rules available in this project.
+     * This is lazily evaluated if needed only.
+     */
+    private List<ProofRule> makeBuiltinProofRules() {
+        List<ProofRule> result = new ArrayList<>();
+        ServiceLoader<ProofRule> loader = ServiceLoader.load(ProofRule.class);
+        loader.forEach(result::add);
         return result;
     }
 }
