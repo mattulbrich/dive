@@ -230,15 +230,15 @@ public class ProjectBuilder {
         this.functions = new ArrayList<>();
         this.classes = new ArrayList<>();
 
-        // parse DafnyFile
-        for (String file: this.getDafnyFiles()) {
-            DafnyTree tree = DafnyFileParser.parse(new File(dir, file));
-            parseFile(false, tree, file);
-        }
-
+        // parse DafnyFiles: first libs, then sources
         for (String file: this.getLibraryFiles()) {
             DafnyTree tree = DafnyFileParser.parse(new File(dir, file));
             parseFile(true, tree, file);
+        }
+
+        for (String file: this.getDafnyFiles()) {
+            DafnyTree tree = DafnyFileParser.parse(new File(dir, file));
+            parseFile(false, tree, file);
         }
 
         for (Map.Entry<String, DafnyTree> en : dafnyTrees.entrySet()) {

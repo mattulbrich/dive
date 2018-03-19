@@ -60,7 +60,7 @@ public class DafnyRuleTest {
     @Test
     public void initializationTest() throws DafnyRuleException{
         String dir = System.getProperty("user.dir");
-        System.out.println("current dir = " + dir);
+        //System.out.println("current dir = " + dir);
         String file = "./modules/core/test-res/edu/kit/iti/algover/dafnyrules/addzero.dfy";
         DafnyRule r = DafnyRuleUtil.generateDafnyRuleFromFile(file);
         Assert.assertEquals("addZero", r.getName());

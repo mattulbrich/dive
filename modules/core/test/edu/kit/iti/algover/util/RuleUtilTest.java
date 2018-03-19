@@ -23,6 +23,7 @@ import java.util.Optional;
 
 import static edu.kit.iti.algover.rules.TermSelector.SequentPolarity.ANTECEDENT;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 @RunWith(JUnitParamsRunner.class)
 public class RuleUtilTest {
@@ -125,5 +126,41 @@ public class RuleUtilTest {
             return false;
         }
         return true;
+    }
+
+    public Object[][] parametersGetNumNegations() throws DafnyException, DafnyParserException {
+        Sequent s = TermParser.parseSequent(symbols, "!b1, !!b1, !(!b1 && b2) |- b3");
+        return new Object[][]{
+                {1, s, new TermSelector(TermSelector.SequentPolarity.ANTECEDENT, 0)},
+                {2, s, new TermSelector(TermSelector.SequentPolarity.ANTECEDENT, 1, 0)},
+                {1, s, new TermSelector(TermSelector.SequentPolarity.ANTECEDENT, 1)},
+                {2, s, new TermSelector(TermSelector.SequentPolarity.ANTECEDENT, 2, 0, 0)},
+                {1, s, new TermSelector(TermSelector.SequentPolarity.ANTECEDENT, 2, 0, 1)},
+                {0, s, new TermSelector(TermSelector.SequentPolarity.SUCCEDENT, 0)}
+        };
+    }
+
+    @Test
+    @Parameters(method = "parametersGetNumNegations")
+    public void testGetNumNegations(int expectedNum, Sequent s, TermSelector ts) throws RuleException {
+        assertEquals(expectedNum, RuleUtil.getNumNegations(ts, s, 0));
+    }
+
+    public Object[][] parametersGetTruePolarity() throws DafnyException, DafnyParserException {
+        Sequent s = TermParser.parseSequent(symbols, "!b1, !!b1, !(!b1 && b2) |- b3");
+        return new Object[][]{
+                {TermSelector.SequentPolarity.SUCCEDENT, s, new TermSelector(TermSelector.SequentPolarity.ANTECEDENT, 0)},
+                {TermSelector.SequentPolarity.ANTECEDENT, s, new TermSelector(TermSelector.SequentPolarity.ANTECEDENT, 1, 0)},
+                {TermSelector.SequentPolarity.SUCCEDENT, s, new TermSelector(TermSelector.SequentPolarity.ANTECEDENT, 1)},
+                {TermSelector.SequentPolarity.ANTECEDENT, s, new TermSelector(TermSelector.SequentPolarity.ANTECEDENT, 2, 0, 0)},
+                {TermSelector.SequentPolarity.SUCCEDENT, s, new TermSelector(TermSelector.SequentPolarity.ANTECEDENT, 2, 0, 1)},
+                {TermSelector.SequentPolarity.SUCCEDENT, s, new TermSelector(TermSelector.SequentPolarity.SUCCEDENT, 0)}
+        };
+    }
+
+    @Test
+    @Parameters(method = "parametersGetTruePolarity")
+    public void testGetTruePolarity(TermSelector.SequentPolarity expectedPol, Sequent s, TermSelector ts) throws RuleException {
+        assertEquals(expectedPol, RuleUtil.getTruePolarity(ts, s));
     }
 }

@@ -12,10 +12,12 @@ import edu.kit.iti.algover.project.ProjectManagerTest;
 import edu.kit.iti.algover.proof.ProofTest;
 import edu.kit.iti.algover.references.TermReferencesBuilderTest;
 import edu.kit.iti.algover.rules.impl.DafnyRuleTest;
+import edu.kit.iti.algover.rules.impl.GenericRuleTest;
 import edu.kit.iti.algover.rules.impl.LetSubstitutionRuleTest;
 import edu.kit.iti.algover.term.builder.ParallelUpdateSequenterTest;
 import edu.kit.iti.algover.term.builder.SimplifiedUpdateSequenterTest;
 import edu.kit.iti.algover.term.builder.TreeAssignmentTranslatorTest;
+import edu.kit.iti.algover.util.RuleUtilTest;
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
 import org.junit.runners.Suite.SuiteClasses;
@@ -26,7 +28,6 @@ import edu.kit.iti.algover.parser.ParserTest;
 import edu.kit.iti.algover.parser.ReferenceResolutionVisitorTest;
 import edu.kit.iti.algover.parser.TypeResolutionTest;
 import edu.kit.iti.algover.project.ProjectTest;
-import edu.kit.iti.algover.rules.impl.PropositionalExpanderTest;
 import edu.kit.iti.algover.script.ScriptParserTest;
 import edu.kit.iti.algover.symbex.ProgramDatabaseTest;
 import edu.kit.iti.algover.symbex.SymbexTest;
@@ -70,6 +71,7 @@ import edu.kit.iti.algover.util.UtilTest;
     ProgramDatabaseTest.class,
     UtilTest.class,
     DafnyRuleTest.class,
+    GenericRuleTest.class,
     SimplifiedUpdateSequenterTest.class,
     UpdateSequenterTest.class,
     ParallelUpdateSequenterTest.class,
@@ -81,6 +83,7 @@ import edu.kit.iti.algover.util.UtilTest;
     TermMatcherTest.class,
     ChainedRelationsVisitorTest.class,
     ImplicitlyTypedVariableVisitorTest.class,
+        RuleUtilTest.class
     })
 public class Tests {
 }

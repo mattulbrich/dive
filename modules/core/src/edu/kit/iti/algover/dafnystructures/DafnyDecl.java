@@ -102,7 +102,8 @@ public abstract class DafnyDecl {
         for (D decl : list) {
             if (result.containsKey(decl.getName())) {
                 // TODO bring up a sensible error message
-                throw new DafnyException("XXX", decl.getRepresentation());
+                throw new DafnyException("Declaration " + decl.getName() + " doubled.",
+                        decl.getRepresentation());
             }
             result.put(decl.getName(), decl);
         }
