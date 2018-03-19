@@ -80,6 +80,18 @@ public final class ASTUtil {
         return new DafnyTree(DafnyParser.NULL, "null");
     }
 
+
+    /**
+     * Returns a new constant tree for the <code>this</code> literal.
+     *
+     * @return a freshly created tree
+     */
+    // Checkstyle: IGNORE MethodNameCheck
+    public static DafnyTree _this() {
+        return new DafnyTree(DafnyParser.THIS, "this");
+    }
+
+
     /**
      * Returns a tree for an equality on asts.
      *
@@ -407,21 +419,21 @@ public final class ASTUtil {
         return create(DafnyParser.TYPE, id(type));
     }
 
-    public static DafnyTree subs(List<Pair<String, DafnyTree>> subs, DafnyTree expression) {
+    public static DafnyTree letCascade(List<Pair<String, DafnyTree>> subs, DafnyTree expression) {
 
-        DafnyTree result = new DafnyTree(DafnyParser.SUBST);
+        DafnyTree result = new DafnyTree(DafnyParser.LET);
+        DafnyTree vars = new DafnyTree(DafnyParser.VAR);
+        result.addChild(vars);
         for (Pair<String, DafnyTree> sub : subs) {
-            DafnyTree elem = new DafnyTree(DafnyParser.SUBST);
-            elem.addChild(new DafnyTree(DafnyParser.ID, sub.fst));
-            elem.addChild(sub.snd);
-            result.addChild(elem);
+            vars.addChild(id(sub.fst));
+            result.addChild(sub.snd);
         }
         result.addChild(expression);
         return result;
 
     }
 
-    public static Collection<Pair<String,DafnyTree>> methodParameterSubs(DafnyTree method, DafnyTree args) {
+    public static Collection<Pair<String, DafnyTree>> methodParameterSubs(DafnyTree method, DafnyTree args) {
         List<Pair<String, DafnyTree>> result = new ArrayList<>();
         DafnyTree formalParams = method.getFirstChildWithType(DafnyParser.ARGS);
         assert formalParams.getChildCount() == args.getChildCount();

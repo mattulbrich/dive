@@ -11,12 +11,14 @@ import edu.kit.iti.algover.parser.DafnyFileParser;
 import edu.kit.iti.algover.parser.DafnyLexer;
 import edu.kit.iti.algover.parser.DafnyParser;
 import edu.kit.iti.algover.parser.DafnyParser.expression_only_return;
+import edu.kit.iti.algover.parser.DafnyParserException;
 import edu.kit.iti.algover.parser.DafnyTree;
 import edu.kit.iti.algover.project.Project;
 import edu.kit.iti.algover.term.*;
 import edu.kit.iti.algover.term.parser.TermParser;
 import edu.kit.iti.algover.util.ASTUtil;
 import edu.kit.iti.algover.util.ImmutableList;
+import edu.kit.iti.algover.util.Pair;
 import edu.kit.iti.algover.util.TestUtil;
 import junitparams.JUnitParamsRunner;
 import junitparams.Parameters;
@@ -30,8 +32,11 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 
+import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.List;
 
 import static org.junit.Assert.*;
 
@@ -146,7 +151,6 @@ public class TreeTermTranslatorTest {
             { "$heap[c.f := 1]", "$store<C,int>($heap, c, C$$f, 1)" },
             { "$heap[$anon(mod, loopHeap)]", "$anon($heap, mod, loopHeap)" },
             { "$heap[$create(c)]", "$create($heap, c)" },
-
         };
     }
 
@@ -451,4 +455,29 @@ public class TreeTermTranslatorTest {
         System.out.println("tp = " + sequent);
         Assert.assertEquals("First sequent ", exp, sequent.toString());
     }
+
+    @Test
+    public void testSubst() throws Exception {
+        symbTable.addFunctionSymbol(new FunctionSymbol("obj", Sort.get("C")));
+        symbTable.addFunctionSymbol(new FunctionSymbol("this", Sort.get("C")));
+        symbTable.addFunctionSymbol(new FunctionSymbol("ff", Sort.INT, Sort.INT, Sort.INT));
+
+        DafnyTree tree = DafnyFileParser.parse(TestUtil.toStream("class C { var f : int; "
+                + "method m(c : C) returns (r : int) { r := this.f + c.f + r; } }"));
+        Project p = TestUtil.mockProject(tree);
+
+        DafnyTree add = p.getClass("C").getMethod("m").getBody().getChild(0).getChild(1);
+        List<Pair<String, DafnyTree>> substs = Arrays.asList(
+                new Pair<>("this", ASTUtil.id("obj")),
+                new Pair<>("c", ASTUtil._this()),
+                new Pair<>("r", ASTUtil.call("ff", ASTUtil.intLiteral(2), ASTUtil.intLiteral(3)))
+                );
+        DafnyTree subst = ASTUtil.letCascade(substs, add);
+        TreeTermTranslator ttt = new TreeTermTranslator(symbTable);
+        Term result = ttt.build(subst);
+        Term expected = TermParser.parse(symbTable, "let this,c,r := obj,this,ff(2,3) :: this.f + c.f + r");
+
+        assertEquals(expected, result);
+    }
+
 }

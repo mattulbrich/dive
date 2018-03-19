@@ -111,6 +111,10 @@ public class ImmutableList<T> implements Iterable<T> {
         return result;
     }
 
+    public boolean isEmpty() {
+        return size() == 0;
+    }
+
     /*
      * The iterator - It simply keeps a pointer which is advanced.
      */

@@ -724,36 +724,36 @@ public class SymbexTest {
             assertEquals("EstPre[CallMe]", path.getPathIdentifier());
             assertEquals(0, path.getPathConditions().size());
             assertEquals("[(ASSIGN $mod $everything)]", path.getAssignmentHistory().map(DafnyTree::toStringTree).toString());
-            assertEquals("[(SUBST (SUBST r $res_CallMe_1) (SUBST p 22) (== p 1))]",
+            assertEquals("[(LET (VAR r p) $res_CallMe_1 22 (== p 1))]",
                     path.getProofObligations().map(x -> x.getExpression().toStringTree()).toString());
         }
         {
             SymbexPath path = results.get(index++);
             assertEquals("EstPre[CallMe]", path.getPathIdentifier());
             assertEquals(1, path.getPathConditions().size());
-            assertEquals("(SUBST (SUBST r $res_CallMe_1) (SUBST p 22) (== r 2))",
+            assertEquals("(LET (VAR r p) $res_CallMe_1 22 (== r 2))",
                     path.getPathConditions().getLast().getExpression().toStringTree());
             assertEquals("[(ASSIGN $mod $everything), (ASSIGN x $res_CallMe_1)]",
                     path.getAssignmentHistory().map(DafnyTree::toStringTree).toString());
-            assertEquals("[(SUBST (SUBST r $res_CallMe_2) (SUBST p 23) (== p 1))]",
+            assertEquals("[(LET (VAR r p) $res_CallMe_2 23 (== p 1))]",
                     path.getProofObligations().map(x -> x.getExpression().toStringTree()).toString());
         }
         {
             SymbexPath path = results.get(index++);
             assertEquals("EstPre[Meth]", path.getPathIdentifier());
             assertEquals(2, path.getPathConditions().size());
-            assertEquals("(SUBST (SUBST r $res_CallMe_2) (SUBST p 23) (== r 2))",
+            assertEquals("(LET (VAR r p) $res_CallMe_2 23 (== r 2))",
                     path.getPathConditions().getLast().getExpression().toStringTree());
             assertEquals("[(ASSIGN $mod $everything), (ASSIGN x $res_CallMe_1), (ASSIGN y $res_CallMe_2)]",
                     path.getAssignmentHistory().map(DafnyTree::toStringTree).toString());
-            assertEquals("[(SUBST (SUBST this c) (SUBST p 24) (== p 21))]",
+            assertEquals("[(LET (VAR this p) c 24 (== p 21))]",
                     path.getProofObligations().map(x -> x.getExpression().toStringTree()).toString());
         }
         {
             SymbexPath path = results.get(index++);
             assertEquals("Post", path.getPathIdentifier());
             assertEquals(3, path.getPathConditions().size());
-            assertEquals("(SUBST (SUBST this c) (SUBST p 24) true)",
+            assertEquals("(LET (VAR this p) c 24 true)",
                     path.getPathConditions().getLast().getExpression().toStringTree());
             assertEquals("[(== c c)]",
                     path.getProofObligations().map(x -> x.getExpression().toStringTree()).toString());
@@ -799,13 +799,13 @@ public class SymbexTest {
 
             assertEquals(0, state.getProofObligations().size());
             assertEquals("[IMPLICIT_ASSUMPTION[null]:(not (CALL $isCreated (ARGS $heap $new_1))), " +
-                            "CALL_POST[null]:(SUBST (SUBST this $new_1) (SUBST p 23) (== this this))]",
+                            "CALL_POST[null]:(LET (VAR this p) $new_1 23 (== this this))]",
                     state.getPathConditions().toString());
             assertEquals("[(ASSIGN $heap (CALL create (ARGS $heap $new_1))), (ASSIGN c $new_1)]", state.getAssignmentHistory().map(x -> x.toStringTree()).toString());
 
             state = stack.removeFirst();
 
-            assertEquals("[CALL_PRE[Init]:(SUBST (SUBST this $new_1) (SUBST p 23) (== p 1))]", state.getProofObligations().toString());
+            assertEquals("[CALL_PRE[Init]:(LET (VAR this p) $new_1 23 (== p 1))]", state.getProofObligations().toString());
             assertEquals("[IMPLICIT_ASSUMPTION[null]:(not (CALL $isCreated (ARGS $heap $new_1)))]",
                     state.getPathConditions().toString());
             assertEquals("[(ASSIGN $heap (CALL create (ARGS $heap $new_1)))]", state.getAssignmentHistory().map(x -> x.toStringTree()).toString());
@@ -821,13 +821,13 @@ public class SymbexTest {
 
             assertEquals(0, state.getProofObligations().size());
             assertEquals("[IMPLICIT_ASSUMPTION[null]:(not (CALL $isCreated (ARGS $heap $new_1))), " +
-                            "CALL_POST[null]:(SUBST (SUBST this $new_1) (SUBST p 42) (== this this))]",
+                            "CALL_POST[null]:(LET (VAR this p) $new_1 42 (== this this))]",
                     state.getPathConditions().toString());
             assertEquals("[(ASSIGN $heap (CALL create (ARGS $heap $new_1))), (ASSIGN c2 $new_1)]", state.getAssignmentHistory().map(x -> x.toStringTree()).toString());
 
             state = stack.removeFirst();
 
-            assertEquals("[CALL_PRE[Init]:(SUBST (SUBST this $new_1) (SUBST p 42) (== p 1))]", state.getProofObligations().toString());
+            assertEquals("[CALL_PRE[Init]:(LET (VAR this p) $new_1 42 (== p 1))]", state.getProofObligations().toString());
             assertEquals("[IMPLICIT_ASSUMPTION[null]:(not (CALL $isCreated (ARGS $heap $new_1)))]",
                     state.getPathConditions().toString());
             assertEquals("[(ASSIGN $heap (CALL create (ARGS $heap $new_1)))]", state.getAssignmentHistory().map(x -> x.toStringTree()).toString());
@@ -843,13 +843,13 @@ public class SymbexTest {
 
             assertEquals(0, state.getProofObligations().size());
             assertEquals("[IMPLICIT_ASSUMPTION[null]:(not (CALL $isCreated (ARGS $heap $new_1))), " +
-                            "CALL_POST[null]:(SUBST (SUBST r $res_Init2_1) (SUBST this $new_1) (== this this))]",
+                            "CALL_POST[null]:(LET (VAR r this) $res_Init2_1 $new_1 (== this this))]",
                     state.getPathConditions().toString());
             assertEquals("[(ASSIGN $heap (CALL create (ARGS $heap $new_1))), (ASSIGN c3 $new_1)]", state.getAssignmentHistory().map(x -> x.toStringTree()).toString());
 
             state = stack.removeFirst();
 
-            assertEquals("[CALL_PRE[Init2]:(SUBST (SUBST r $res_Init2_1) (SUBST this $new_1) (== 1 1))]", state.getProofObligations().toString());
+            assertEquals("[CALL_PRE[Init2]:(LET (VAR r this) $res_Init2_1 $new_1 (== 1 1))]", state.getProofObligations().toString());
             assertEquals("[IMPLICIT_ASSUMPTION[null]:(not (CALL $isCreated (ARGS $heap $new_1)))]",
                     state.getPathConditions().toString());
             assertEquals("[(ASSIGN $heap (CALL create (ARGS $heap $new_1)))]", state.getAssignmentHistory().map(x -> x.toStringTree()).toString());

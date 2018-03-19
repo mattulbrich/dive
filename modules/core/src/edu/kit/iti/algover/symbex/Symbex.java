@@ -44,11 +44,6 @@ public class Symbex {
     public static final String DECREASES_VAR = "$decr";
 
     /**
-     * Method calls are handled externally.
-     */
-    public MethodCallSymbex methodCallSymbex;
-
-    /**
      * The Constant EMPTY_PROGRAM points to an empty AST.
      */
     private static final DafnyTree EMPTY_PROGRAM =
@@ -190,7 +185,7 @@ public class Symbex {
             reqState.setBlockToExecute(EMPTY_PROGRAM);
             DafnyTree condition = req.getLastChild();
             // wrap that into a substitution
-            condition = ASTUtil.subs(subs, condition);
+            condition = ASTUtil.letCascade(subs, condition);
             reqState.setProofObligation(condition, refersTo, AssertionType.CALL_PRE);
             stack.add(reqState);
         }
@@ -201,14 +196,14 @@ public class Symbex {
             if(mod == null) {
                 mod = ASTUtil.builtInVar("$everything");
             }
-            mod = ASTUtil.subs(subs, mod);
+            mod = ASTUtil.letCascade(subs, mod);
             state.addAssignment(ASTUtil.anonymiseHeap(state, mod));
         }
 
         // now assume the postcondition (and some free postconditions)
         for (DafnyTree ens : method.getChildrenWithType(DafnyParser.ENSURES)) {
             DafnyTree condition = ens.getLastChild();
-            condition = ASTUtil.subs(subs, condition);
+            condition = ASTUtil.letCascade(subs, condition);
             state.addPathCondition(condition, refersTo, AssumptionType.CALL_POST);
         }
 

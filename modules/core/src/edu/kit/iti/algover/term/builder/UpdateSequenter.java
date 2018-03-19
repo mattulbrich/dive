@@ -25,6 +25,7 @@ import edu.kit.iti.algover.term.FunctionSymbol;
 import edu.kit.iti.algover.term.Sequent;
 import edu.kit.iti.algover.term.Sort;
 import edu.kit.iti.algover.term.Term;
+import edu.kit.iti.algover.util.ASTUtil;
 import edu.kit.iti.algover.util.ImmutableList;
 
 /**
@@ -59,15 +60,16 @@ public class UpdateSequenter implements PVCSequenter {
 
     @Override
     public final Sequent translate(SymbexPath pathThroughProgram,
-                                   SymbolTable makeSymbolTable,
+                                   SymbolTable symbolTable,
                                    Map<TermSelector, DafnyTree> refMap)
                                            throws DafnyException {
 
-        TreeTermTranslator ttt = new TreeTermTranslator(makeSymbolTable);
+        TreeTermTranslator ttt = new TreeTermTranslator(symbolTable);
+        TreeAssignmentTranslator tat = new TreeAssignmentTranslator(symbolTable);
         List<ProofFormula> ante = new ArrayList<>();
 
         resolveWildcards(pathThroughProgram.getAssignmentHistory(),
-                makeSymbolTable);
+                symbolTable);
 
         for (PathConditionElement pce : pathThroughProgram.getPathConditions()) {
             try {
@@ -100,6 +102,9 @@ public class UpdateSequenter implements PVCSequenter {
 
     }
 
+    /*
+     * replace assignments to the wildcard operator * by fresh constants.
+     */
     private void resolveWildcards(ImmutableList<DafnyTree> assignmentHistory, SymbolTable symbolTable) {
         for (DafnyTree ass : assignmentHistory) {
             DafnyTree value = ass.getChild(1);
@@ -122,7 +127,7 @@ public class UpdateSequenter implements PVCSequenter {
                 count++;
                 name = suggestedName + "_" + count;
             }
-            Sort sort = SymbexStateToFormula.treeToType(receiver.getExpressionType());
+            Sort sort = ASTUtil.toSort(receiver.getExpressionType());
             symbolTable.addFunctionSymbol(new FunctionSymbol(name, sort));
 
             value.removeAllChildren();

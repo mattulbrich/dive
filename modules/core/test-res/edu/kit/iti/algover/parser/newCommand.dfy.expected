@@ -5,6 +5,6 @@
       (BLOCK
         (var c (new C))
         (var c2 (TYPE C) (new C))
-        (var c3 (new C Init (ARGS 42)))
+        (var c3 (new C (CALL Init (ARGS 42))))
         (:= c (new C))
-        (:= c2 (new C Init (ARGS 44)))))))
+        (:= c2 (new C (CALL Init (ARGS 44))))))))

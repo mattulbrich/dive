@@ -67,6 +67,9 @@ public class TreeTermTranslator {
     private final HistoryMap<String, VariableTerm> boundVars =
             new HistoryMap<>(new HashMap<>());
 
+    private final HistoryMap<String, DafnyTree> substitutions =
+            new HistoryMap<>(new HashMap<>());
+
     /**
      * The helper object to be used for term construction.
      */
@@ -675,7 +678,6 @@ public class TreeTermTranslator {
 
     }
 
-
     private Term buildLet(DafnyTree tree) throws TermBuildException {
 
         List<DafnyTree> targets = tree.getChild(0).getChildren();
@@ -897,4 +899,14 @@ public class TreeTermTranslator {
         return referenceMap;
     }
 
+    public void bindVariable(VariableTerm var) {
+        boundVars.put(var.getName(), var);
+    }
+
+    public void unbindVariable(VariableTerm var) {
+        if (!boundVars.peek().equals(var)) {
+            throw new IllegalStateException("This is not the last bound variable");
+        }
+        boundVars.pop();
+    }
 }
