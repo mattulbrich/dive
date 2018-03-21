@@ -62,7 +62,7 @@ public class MainController implements SequentActionListener, RuleApplicationLis
         this.manager = manager;
         this.browserController = new FlatBrowserController(manager.getProject(), manager.getAllProofs(), this::onClickPVCEdit);
         //this.browserController = new FileBasedBrowserController(manager.getProject(), manager.getAllProofs(), this::onClickPVCEdit);
-        this.editorController = new EditorController(executor);
+        this.editorController = new EditorController(executor, manager.getProject().getBaseDir().getAbsolutePath());
         this.editorController.anyFileChangedProperty().addListener(this::onDafnyFileChangedInEditor);
         this.sequentController = new SequentController(this);
         this.ruleApplicationController = new RuleApplicationController(executor, this);
