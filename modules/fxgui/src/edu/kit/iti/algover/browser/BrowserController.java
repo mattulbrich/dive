@@ -19,9 +19,9 @@ import java.util.stream.Collectors;
  */
 public abstract class BrowserController {
 
-    private final Project project;
+    private Project project;
     private final BrowserTreeTable view;
-    private final Map<String, Proof> proofsByPVC;
+    private Map<String, Proof> proofsByPVC;
 
     private BrowserSelectionListener selectionListener;
 
@@ -123,5 +123,11 @@ public abstract class BrowserController {
 
     public void setSelectionListener(BrowserSelectionListener selectionListener) {
         this.selectionListener = selectionListener;
+    }
+
+    public void onRefresh(Project project, Map<String, Proof> proofsByPVC) {
+        this.project = project;
+        this.proofsByPVC = proofsByPVC;
+        populateTreeTable();
     }
 }

@@ -221,8 +221,8 @@ public class EditorController implements DafnyCodeAreaListener {
                 bw.flush();
                 bw.close();
                 fw.close();
-                codeArea.updateProofText();
                 changedFiles.remove(tab.getText());
+                codeArea.updateProofText();
                 if(tab.getText().endsWith("*")) {
                     tab.setText(tab.getText().substring(0, tab.getText().length() - 1));
                 }
