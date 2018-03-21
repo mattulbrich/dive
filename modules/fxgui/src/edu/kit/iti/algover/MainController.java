@@ -63,24 +63,9 @@ public class MainController implements SequentActionListener, RuleApplicationLis
         this.browserController = new FlatBrowserController(manager.getProject(), manager.getAllProofs(), this::onClickPVCEdit);
         //this.browserController = new FileBasedBrowserController(manager.getProject(), manager.getAllProofs(), this::onClickPVCEdit);
         this.editorController = new EditorController(executor);
+        this.editorController.anyFileChangedProperty().addListener(this::onDafnyFileChangedInEditor);
         this.sequentController = new SequentController(this);
         this.ruleApplicationController = new RuleApplicationController(executor, this);
-
-        this.editorController.anyFileChangedProperty().addListener(new ChangeListener<Boolean>() {
-            @Override
-            public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) {
-                if(newValue) {
-                    browserController.getView().setDisable(true);
-                    sequentController.getView().setDisable(true);
-                    ruleApplicationController.getView().setDisable(true);
-                } else {
-                    browserController.getView().setDisable(false);
-                    sequentController.getView().setDisable(false);
-                    ruleApplicationController.getView().setDisable(false);
-                }
-            }
-        });
-
 
         JFXButton saveButton = new JFXButton("Save", GlyphsDude.createIcon(FontAwesomeIcon.SAVE));
         JFXButton refreshButton = new JFXButton("Refresh", GlyphsDude.createIcon(FontAwesomeIcon.REFRESH));
@@ -125,6 +110,18 @@ public class MainController implements SequentActionListener, RuleApplicationLis
         ruleApplicationController.resetConsideration();
         ruleApplicationController.getScriptController().setProof(proof);
         timelineView.moveFrameRight();
+    }
+
+    public void onDafnyFileChangedInEditor(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) {
+        if(newValue) {
+            browserController.getView().setDisable(true);
+            sequentController.getView().setDisable(true);
+            ruleApplicationController.getView().setDisable(true);
+        } else {
+            browserController.getView().setDisable(false);
+            sequentController.getView().setDisable(false);
+            ruleApplicationController.getView().setDisable(false);
+        }
     }
 
     public void onSelectBrowserItem(TreeTableEntity treeTableEntity) {

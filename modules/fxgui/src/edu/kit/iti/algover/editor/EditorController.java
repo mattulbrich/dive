@@ -81,23 +81,7 @@ public class EditorController {
                 tab.setText(dafnyFile.getFilename());
                 tab.setUserData(dafnyFile);
                 DafnyCodeArea codeArea = new DafnyCodeArea(contentAsText, executor);
-                codeArea.getTextChangedProperty().addListener(new ChangeListener<Boolean>() {
-                    @Override
-                    public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) {
-                        if(!oldValue && newValue) {
-                            numFilesChanged++;
-                        } else if(!newValue && oldValue) {
-                            numFilesChanged--;
-                        }
-                        System.out.println(numFilesChanged);
-                        if(numFilesChanged == 0) {
-                            anyFileChangedProperty.setValue(false);
-                        } else {
-                            anyFileChangedProperty.setValue(true);
-                        }
-                        System.out.println(anyFileChangedProperty.get());
-                    }
-                });
+                codeArea.getTextChangedProperty().addListener(this::onTextChanged);
                 codeArea.setHighlightingRule(highlightingLayers);
                 tab.setContent(new VirtualizedScrollPane<>(codeArea));
                 tabsByFile.put(dafnyFile, tab);
@@ -124,6 +108,20 @@ public class EditorController {
         view.getTabs().stream()
                 .map(tab -> codeAreaFromContent(tab.getContent()))
                 .forEach(DafnyCodeArea::rerenderHighlighting);
+    }
+
+    private void onTextChanged(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) {
+        if(!oldValue && newValue) {
+            numFilesChanged++;
+        } else if(!newValue && oldValue) {
+            numFilesChanged--;
+        }
+        System.out.println(numFilesChanged);
+        if(numFilesChanged == 0) {
+            anyFileChangedProperty.setValue(false);
+        } else {
+            anyFileChangedProperty.setValue(true);
+        }
     }
 
     /**
@@ -168,11 +166,11 @@ public class EditorController {
         return anyFileChangedProperty;
     }
 
-    public boolean getAnyFileChanged() {
+    private boolean getAnyFileChanged() {
         return anyFileChangedProperty.get();
     }
 
-    public void setAnyFileChanged(boolean value) {
+    private void setAnyFileChanged(boolean value) {
         anyFileChangedProperty.setValue(value);
     }
 }
