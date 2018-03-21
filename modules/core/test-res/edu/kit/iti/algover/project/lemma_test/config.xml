@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<configuration>
+    <dafnyFile>src1.dfy</dafnyFile>
+    <dafnyFile>src2.dfy</dafnyFile>
+    <libFile>lib1.dfy</libFile>
+    <libFile>lib2.dfy</libFile>
+</configuration>

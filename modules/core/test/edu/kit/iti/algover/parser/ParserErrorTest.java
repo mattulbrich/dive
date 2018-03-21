@@ -71,10 +71,10 @@ public class ParserErrorTest {
     }
 
     // from an exception
-    @Test @Ignore
-    public void illegalAccess() throws Exception {
+    @Test
+    public void illegalArrayAccess() throws Exception {
         thrown.expect(DafnyException.class);
-        thrown.expectMessage("");
+        thrown.expectMessage("Only arrays or sequences can be indexed");
         parse("method m(i:int) { i[0] := 0; }");
     }
 

@@ -70,8 +70,10 @@ public final class ProjectManager {
      */
     private Map<String, Proof> proofs;
 
-    // REVIEW Documentation?
-    private Map<String, Supplier<String>> fileHooks = new HashMap<>();
+    /**
+     * Map containing all filehooks for open files in the GUI
+     */
+    // private Map<String, Supplier<String>> fileHooks = new HashMap<>();
 
     /**
      * Build a new project by parsing the config file and performing symbolic execution
@@ -237,10 +239,18 @@ public final class ProjectManager {
 
     }
 
+    /**
+     * Save the proof script for a PVC given by its interpreted proof
+     *
+     * @param pvcIdentifier
+     * @param proof
+     * @throws IOException
+     */
     public void saveProofScriptForPVC(String pvcIdentifier, Proof proof) throws IOException {
         File scriptFile = getScriptFileForPVC(pvcIdentifier);
         saverHelper(scriptFile.getPath(), proof.getScript());
     }
+
 
     /**
      * Get the plain PVCs as Map from pvcName -> PVC object
@@ -264,22 +274,23 @@ public final class ProjectManager {
      * @param filename to which file the content shoudl be saved
      * @param content  Supplier funtion from which content can be retrieved
      */
-    public void addFileHook(String filename, Supplier<String> content) {
+ /*   public void addFileHook(String filename, Supplier<String> content) {
         this.fileHooks.putIfAbsent(filename, content);
-    }
+    }*/
 
     /**
      * Remove file hook
      *
      * @param filename
      */
-    public void removeFileHook(String filename) {
+ /*   public void removeFileHook(String filename) {
         this.fileHooks.remove(filename);
-    }
+    }*/
 
     public Project getProject() {
         return project.getValue();
     }
+
 
     /* *
      * Save content to script file for pvc
@@ -318,14 +329,6 @@ public final class ProjectManager {
         writer.flush();
         writer.close();
     }
-
-//    public File getConfigFile() {
-//        return configFile;
-//    }
-
-//    public void setConfigFile(File configFile) {
-//        this.configFile = configFile;
-//    }
 
     /**
      * Return  all PVCs for the loaded project
