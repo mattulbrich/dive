@@ -25,6 +25,17 @@ import edu.kit.iti.algover.term.FunctionSymbolFamily.InstantiatedFunctionSymbol;
 import edu.kit.iti.algover.term.Term;
 import edu.kit.iti.algover.term.prettyprint.FixOperatorCollection.FixOperatorInfo;
 
+/**
+ * Pretty print infix and prefix operators.
+ *
+ * The information about the available operators and their pretty synatx is obtained
+ * from a serialized xml file.
+ *
+ * @see FixOperatorCollection
+ * @see FixOperatorInfo
+ *
+ * @author mulbrich
+ */
 public class FixOperatorPrinterExtension implements PrettyPrintExtension {
 
     @Override
@@ -62,7 +73,7 @@ public class FixOperatorPrinterExtension implements PrettyPrintExtension {
      * Possibly insert an extra space if needed, that is if
      * two operators follow directly one another.
      */
-    private void printPrefix(ApplTerm application, FixOperatorInfo fixOperator, PrettyPrintVisitor visitor) {
+    private static void printPrefix(ApplTerm application, FixOperatorInfo fixOperator, PrettyPrintVisitor visitor) {
 
         assert application.getFunctionSymbol().getArity() == 1;
 
@@ -96,7 +107,7 @@ public class FixOperatorPrinterExtension implements PrettyPrintExtension {
      * All operators are left associative automatically.
      *
      */
-    private void printInfix(ApplTerm application, FixOperatorInfo fixOperator, PrettyPrintVisitor visitor) {
+    private static void printInfix(ApplTerm application, FixOperatorInfo fixOperator, PrettyPrintVisitor visitor) {
         PrettyPrintLayouter printer = visitor.getPrinter();
         String op = fixOperator.getOp();
 
@@ -120,7 +131,7 @@ public class FixOperatorPrinterExtension implements PrettyPrintExtension {
     /**
      * Checks if a character is an operator char.
      */
-    private boolean isOperatorChar(char c) {
+    private static boolean isOperatorChar(char c) {
         return "+-<>&|=*/!^@.:".indexOf(c) != -1;
     }
 }
