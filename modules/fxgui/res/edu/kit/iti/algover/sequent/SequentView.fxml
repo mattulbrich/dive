@@ -7,12 +7,15 @@
 <?import javafx.scene.layout.*?>
 
 <?import javafx.scene.text.Font?>
+<?import javafx.geometry.Insets?>
 <SplitPane
         xmlns="http://javafx.com/javafx"
         xmlns:fx="http://javafx.com/fxml"
         orientation="VERTICAL"
         dividerPositions="0.7">
+    <padding><Insets top="10" bottom="10"/></padding>
     <VBox spacing="10">
+        <Label fx:id="goalTypeLabel" text="Open Goal" />
         <ListView fx:id="antecedentView" VBox.vgrow="ALWAYS" />
     </VBox>
     <VBox spacing="10">

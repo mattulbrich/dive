@@ -6,19 +6,21 @@ import edu.kit.iti.algover.dafnystructures.DafnyClass;
 import edu.kit.iti.algover.dafnystructures.DafnyFile;
 import edu.kit.iti.algover.dafnystructures.DafnyMethod;
 import edu.kit.iti.algover.project.Project;
+import edu.kit.iti.algover.proof.Proof;
 import javafx.scene.control.TreeItem;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Created by philipp on 26.06.17.
  */
 public class FlatBrowserController extends BrowserController {
 
-    public FlatBrowserController(Project project, PVCClickEditListener engagedListener) {
-        super(project, engagedListener);
+    public FlatBrowserController(Project project, Map<String, Proof> proofsByPVC, PVCClickEditListener engagedListener) {
+        super(project, proofsByPVC, engagedListener);
     }
 
     protected void populateTreeTable() {

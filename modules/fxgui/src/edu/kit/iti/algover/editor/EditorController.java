@@ -4,8 +4,10 @@ import edu.kit.iti.algover.dafnystructures.DafnyFile;
 import edu.kit.iti.algover.proof.PVC;
 import edu.kit.iti.algover.references.CodeReference;
 import javafx.collections.ListChangeListener;
+import javafx.scene.Node;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
+import org.fxmisc.flowless.VirtualizedScrollPane;
 
 import java.io.IOException;
 import java.nio.file.FileSystems;
@@ -72,7 +74,7 @@ public class EditorController {
                 tab.setUserData(dafnyFile);
                 DafnyCodeArea codeArea = new DafnyCodeArea(contentAsText, executor);
                 codeArea.setHighlightingRule(highlightingLayers);
-                tab.setContent(codeArea);
+                tab.setContent(new VirtualizedScrollPane<>(codeArea));
                 tabsByFile.put(dafnyFile, tab);
                 view.getTabs().add(tab);
                 view.getSelectionModel().select(tab);
@@ -83,7 +85,7 @@ public class EditorController {
     }
 
     private DafnyCodeArea getFocusedCodeArea() {
-        return (DafnyCodeArea) view.getSelectionModel().getSelectedItem().getContent();
+        return codeAreaFromContent(view.getSelectionModel().getSelectedItem().getContent());
     }
 
     /**
@@ -95,7 +97,7 @@ public class EditorController {
         highlightingLayers.setLayer(PVC_LAYER, new PVCHighlightingRule(pvc));
 
         view.getTabs().stream()
-                .map(tab -> (DafnyCodeArea) tab.getContent())
+                .map(tab -> codeAreaFromContent(tab.getContent()))
                 .forEach(DafnyCodeArea::rerenderHighlighting);
     }
 
@@ -106,13 +108,17 @@ public class EditorController {
     public void resetPVCSelection() {
         highlightingLayers.setLayer(PVC_LAYER, null);
         tabsByFile.forEach((key, value) -> {
-            DafnyCodeArea codeArea = (DafnyCodeArea) value.getContent();
+            DafnyCodeArea codeArea = codeAreaFromContent(value.getContent());
             codeArea.rerenderHighlighting();
         });
     }
 
     public TabPane getView() {
         return view;
+    }
+
+    private DafnyCodeArea codeAreaFromContent(Node content) {
+        return ((VirtualizedScrollPane<DafnyCodeArea>) content).getContent();
     }
 
     private static String fileToString(String filename) throws IOException {

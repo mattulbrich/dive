@@ -28,6 +28,13 @@ public class Span {
         );
     }
 
+    public boolean containsPosition(int line, int charInLine) {
+        return
+                beginLine <= line && line <= endLine
+                && (line != beginLine || beginCharInLine <= charInLine)
+                && (line != endLine   || charInLine <= endCharInLine);
+    }
+
     public String toString() {
         return "Span(" + beginLine + ":" + beginCharInLine + " to " + endLine + ":" + endCharInLine + ")";
     }

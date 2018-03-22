@@ -6,18 +6,31 @@ import edu.kit.iti.algover.term.FunctionSymbol;
 import edu.kit.iti.algover.term.FunctionSymbolFamily;
 import edu.kit.iti.algover.term.FunctionSymbolFamily.InstantiatedFunctionSymbol;
 
+/**
+ * Pretty print the array length attribute.
+ *
+ * This currently covers the length of one- and two-dimensional arrays and of sequences.
+ *
+ * @author Mattias Ulbrich
+ */
 public class ArrayLengthPrinterExtension implements PrettyPrintExtension {
+
+    /**
+     * To be used for precedence: Length binds pretty strongly
+     */
+    private static final int LENGTH_PRECEDENCE = 1000;
+
     @Override
     public boolean canPrint(FunctionSymbol functionSymbol) {
        return getLengthString(functionSymbol) != null;
     }
 
-    private String getLengthString(FunctionSymbol functionSymbol) {
+    private static String getLengthString(FunctionSymbol functionSymbol) {
         if (functionSymbol instanceof InstantiatedFunctionSymbol) {
             InstantiatedFunctionSymbol symbol = (InstantiatedFunctionSymbol) functionSymbol;
 
             FunctionSymbolFamily family = symbol.getFamily();
-            if(family == BuiltinSymbols.LEN) {
+            if(family == BuiltinSymbols.LEN || family == BuiltinSymbols.SEQ_LEN) {
                 return "Length";
             }
 
@@ -34,12 +47,12 @@ public class ArrayLengthPrinterExtension implements PrettyPrintExtension {
 
     @Override
     public int getLeftPrecedence(ApplTerm application) {
-        return 0;
+        return LENGTH_PRECEDENCE;
     }
 
     @Override
     public int getRightPrecedence(ApplTerm application) {
-        return 0;
+        return LENGTH_PRECEDENCE;
     }
 
     @Override

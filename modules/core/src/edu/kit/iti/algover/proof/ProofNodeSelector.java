@@ -3,6 +3,7 @@ package edu.kit.iti.algover.proof;
 import edu.kit.iti.algover.rules.RuleException;
 
 import java.util.Arrays;
+import java.util.Optional;
 import java.util.Stack;
 
 /**
@@ -49,6 +50,14 @@ public class ProofNodeSelector {
         return path;
     }
 
+    public Optional<ProofNode> optionalGet(Proof proof) {
+        try {
+            return Optional.of(get(proof));
+        } catch (RuleException e) {
+            return Optional.empty();
+        }
+    }
+
     public ProofNode get(Proof proof) throws RuleException {
         return getNode(proof.getProofRoot());
     }
@@ -93,5 +102,15 @@ public class ProofNodeSelector {
     @Override
     public int hashCode() {
         return Arrays.hashCode(path);
+    }
+
+    public int[] getPath() {
+        return path;
+    }
+
+    public ProofNodeSelector getParentSelector() {
+        int[] newPath = new int[path.length - 1];
+        System.arraycopy(path, 0, newPath, 0, newPath.length);
+        return new ProofNodeSelector(newPath);
     }
 }

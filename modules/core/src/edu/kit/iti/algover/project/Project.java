@@ -19,10 +19,15 @@ import edu.kit.iti.algover.parser.DafnyException;
 import edu.kit.iti.algover.proof.PVC;
 import edu.kit.iti.algover.proof.PVCCollection;
 import edu.kit.iti.algover.proof.PVCGroup;
+import edu.kit.iti.algover.rules.DafnyRuleException;
+import edu.kit.iti.algover.rules.DafnyRuleUtil;
 import edu.kit.iti.algover.rules.ProofRule;
+import edu.kit.iti.algover.rules.impl.DafnyRule;
 import edu.kit.iti.algover.settings.ProjectSettings;
 import edu.kit.iti.algover.term.FunctionSymbol;
+import nonnull.DeepNonNull;
 import nonnull.NonNull;
+import nonnull.Nullable;
 
 
 // REVIEW: I miss a possibility to retrieve all parsed DafnyTrees (toplevel entities)
@@ -96,9 +101,22 @@ public class Project {
     private Map<String, PVC> pvcByName;
 
     /**
-     * A collection of all proof rules available in this project
+     * A collection of all proof rules available in this project.
+     *
      */
-    private Collection<ProofRule> allProofRules;
+    private @Nullable Collection<ProofRule> allProofRules;
+
+    /**
+     * A collection of all builtin proof rules available in this project.
+     *
+     */
+    private Collection<ProofRule> builtinProofRules;
+
+    /**
+     * A collection of all lemmas available in this project.
+     *
+     */
+    private Collection<ProofRule> lemmaProofRules;
 
     /**
      * A map assigning to all method/function declarations the SCC number in the callgraph.
@@ -119,7 +137,7 @@ public class Project {
         this.methods = DafnyDecl.toMap(pBuilder.getMethods());
         this.baseDir = pBuilder.getDir();
         this.pvcByName = new HashMap<>();
-        this.allProofRules = new ArrayList<>();
+        this.allProofRules = null;
     }
 
     public File getBaseDir() {
@@ -147,7 +165,86 @@ public class Project {
     }
 
     public Collection<ProofRule> getAllProofRules() {
+        if(allProofRules == null) {
+            allProofRules = Collections.unmodifiableList(makeAllProofRule());
+        }
         return allProofRules;
+    }
+
+    public Collection<ProofRule> getLemmaProofRules() {
+        if(lemmaProofRules == null) {
+            lemmaProofRules = Collections.unmodifiableList(makeLemmaProofRules());
+        }
+        return lemmaProofRules;
+    }
+
+    public Collection<ProofRule> getBuiltinProofRules() {
+        if(builtinProofRules == null) {
+            builtinProofRules = Collections.unmodifiableList(makeBuiltinProofRules());
+        }
+        return builtinProofRules;
+    }
+
+    /**
+     * Get the list of available rules for a particular PVC.
+     *
+     * The set of availbe rules differs between the PVCs since a lemma
+     * cannot be used to prove itself on the logic level.
+     *
+     * (Mutually) recursive lemmas need to be referenced from within their
+     * code thus providing a proof which is guaranteed wellfounded.
+     *
+     * <h4>Examples</h4>
+     * <pre>
+     *     lemma l1() ensures 1 == 0 { }
+     * </pre>
+     * We are not allowed to prove l1 using the lemma itself.
+     *
+     * <pre>
+     *     lemma l1() ensures false { }
+     *     lemma l2() ensures false { }
+     * </pre>
+     * Excluing l1 in the proof of l1 does not suffice. Here we also must break
+     * the cyclic situation in which l2 proves l1 and l1 proves l2. Hence
+     * l1 must not have a forward reference to l2.
+     *
+     * @author m. ulbrich
+     *
+     * @param pvc the PVC for which the set of available rules is to be computed.
+     *
+     * @return the (possibly immutable) set of rules available to the proof of pvc.
+     */
+    public @DeepNonNull Collection<ProofRule> getProofRules(@NonNull PVC pvc) {
+        DafnyDecl decl = pvc.getDeclaration();
+        if (!(decl instanceof DafnyMethod)) {
+            // (*) if not proving lemma: all lemmas are allowed.
+            return getAllProofRules();
+        }
+
+        DafnyMethod method = (DafnyMethod) decl;
+        if(!method.isLemma()) {
+            // see (*).
+            return getAllProofRules();
+        }
+
+        // otherwise: Filter all lemmas that are behind the currently proven one.
+        List<ProofRule> result = new ArrayList<ProofRule>();
+        // if true, we have passed the current lemma: do not add anymore
+        boolean noLemmas = false;
+        for (ProofRule proofRule : getAllProofRules()) {
+            if(proofRule instanceof DafnyRule) {
+                if(!noLemmas) {
+                    DafnyMethod lemma = ((DafnyRule) proofRule).getMethod();
+                    // make noLemmas true if we hit the target method.
+                    noLemmas = lemma == method;
+                }
+                if (noLemmas) continue;
+            }
+
+            result.add(proofRule);
+        }
+
+        return result;
     }
 
 
@@ -278,10 +375,50 @@ public class Project {
 
 
     /**
-     * This method extracts the proof rules from and saves them to this object
+     * This method creates all the rules available in this project.
+     * This is lazily evaluated if needed only.
      */
-    public void extractProofRules() {
-        throw new Error("to be done");
+    private List<ProofRule> makeAllProofRule() {
+        List<ProofRule> result = new ArrayList<>();
+        if (lemmaProofRules == null) {
+            result.addAll(makeLemmaProofRules());
+        } else {
+            result.addAll(lemmaProofRules);
+        }
+
+        if (builtinProofRules == null) {
+            result.addAll(makeBuiltinProofRules());
+        } else {
+            result.addAll(builtinProofRules);
+        }        
+        return result;
+    }
+
+    /**
+     * This method creates the lemmas available in this project.
+     * This is lazily evaluated if needed only.
+     */
+    private List<ProofRule> makeLemmaProofRules() {
+        List<ProofRule> result = new ArrayList<>();
+        // Extract rules from the lemmas.
+        try {
+            result.addAll(DafnyRuleUtil.generateDafnyRules(this));
+        } catch (DafnyRuleException e) {
+            // FIXME FIXME ... exception concept needed here
+            e.printStackTrace();
+        }
+        return result;
+    }
+
+    /**
+     * This method creates the builtin rules available in this project.
+     * This is lazily evaluated if needed only.
+     */
+    private List<ProofRule> makeBuiltinProofRules() {
+        List<ProofRule> result = new ArrayList<>();
+        ServiceLoader<ProofRule> loader = ServiceLoader.load(ProofRule.class);
+        loader.forEach(result::add);
+        return result;
     }
 
     public Map<DafnyDecl, Integer> getSCCMap() {

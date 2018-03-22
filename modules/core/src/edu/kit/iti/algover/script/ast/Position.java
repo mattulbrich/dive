@@ -32,7 +32,7 @@ import org.antlr.v4.runtime.Token;
 /**
  * @author Alexander Weigl
  */
-public class Position implements Copyable<Position> {
+public class Position implements Copyable<Position>, Comparable<Position> {
     @NonNull
     final int lineNumber;
     @NonNull
@@ -92,5 +92,14 @@ public class Position implements Copyable<Position> {
 
     public String toString() {
         return "edu.kit.iti.algover.script.ast.Position(lineNumber=" + this.getLineNumber() + ", charInLine=" + this.getCharInLine() + ")";
+    }
+
+    @Override
+    public int compareTo(Position position) {
+        if (getLineNumber() != position.getLineNumber()) {
+            return Integer.signum(getLineNumber() - position.getLineNumber());
+        } else {
+            return Integer.signum(getCharInLine() - position.getCharInLine());
+        }
     }
 }

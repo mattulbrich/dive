@@ -5,15 +5,13 @@ import edu.kit.iti.algover.dafnystructures.DafnyClass;
 import edu.kit.iti.algover.dafnystructures.DafnyFile;
 import edu.kit.iti.algover.dafnystructures.DafnyMethod;
 import edu.kit.iti.algover.project.Project;
-import edu.kit.iti.algover.proof.PVC;
-import edu.kit.iti.algover.proof.PVCCollection;
-import edu.kit.iti.algover.proof.PVCGroup;
-import edu.kit.iti.algover.proof.SinglePVC;
+import edu.kit.iti.algover.proof.*;
 import javafx.beans.value.ObservableValue;
 import javafx.scene.control.TreeItem;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
@@ -23,11 +21,13 @@ public abstract class BrowserController {
 
     private final Project project;
     private final BrowserTreeTable view;
+    private final Map<String, Proof> proofsByPVC;
 
     private BrowserSelectionListener selectionListener;
 
-    protected BrowserController(Project project, PVCClickEditListener editListener) {
+    protected BrowserController(Project project, Map<String, Proof> proofsByPVC, PVCClickEditListener editListener) {
         this.project = project;
+        this.proofsByPVC = proofsByPVC;
         this.view = new BrowserTreeTable(editListener);
 
         view.getSelectionModel().selectedItemProperty()
@@ -74,7 +74,7 @@ public abstract class BrowserController {
     private TreeTableEntity getEntityFromPVC(DafnyFile dafnyFile, PVCCollection pvcCollection) {
         if (pvcCollection.isPVCLeaf()) {
             PVC pvc = ((SinglePVC) pvcCollection).getPVC();
-            return new PVCEntity(pvc, dafnyFile);
+            return new PVCEntity(proofsByPVC.get(pvc.getIdentifier()), pvc, dafnyFile);
         } else {
             List<TreeTableEntity> children = new ArrayList<>();
             pvcCollection.getChildren().stream()

@@ -2,6 +2,7 @@ package edu.kit.iti.algover.editor;
 
 import edu.kit.iti.algover.AlgoVerApplication;
 import edu.kit.iti.algover.parser.DafnyLexer;
+import edu.kit.iti.algover.util.AsyncHighlightingCodeArea;
 import javafx.application.Platform;
 import javafx.concurrent.Task;
 import org.antlr.runtime.ANTLRStringStream;
@@ -26,7 +27,7 @@ import java.util.concurrent.ExecutorService;
  *
  * Created by philipp on 28.06.17.
  */
-public class DafnyCodeArea extends CodeArea {
+public class DafnyCodeArea extends AsyncHighlightingCodeArea {
 
     private HighlightingRule highlightingRule;
     private final ExecutorService executor;
@@ -38,30 +39,14 @@ public class DafnyCodeArea extends CodeArea {
      *                 computing style spans)
      */
     public DafnyCodeArea(String text, ExecutorService executor) {
+        super(executor);
         this.highlightingRule = (token, syntaxClasses) -> syntaxClasses;
         this.executor = executor;
-        getStylesheets().add(DafnyCodeArea.class.getResource("dafny-keywords.css").toExternalForm());
+        getStylesheets().add(AlgoVerApplication.class.getResource("syntax-highlighting.css").toExternalForm());
         setParagraphGraphicFactory(LineNumberFactory.get(this));
-        setupAsyncSyntaxhighlighting(text);
-    }
 
-    private void setupAsyncSyntaxhighlighting(String initialText) {
-        richChanges()
-                .filter(ch -> !ch.getInserted().equals(ch.getRemoved())) // XXX
-                .successionEnds(Duration.ofMillis(500))
-                .hook(collectionRichTextChange -> getUndoManager().mark())
-                .supplyTask(this::computeHighlightingAsync)
-                .awaitLatest(richChanges())
-                .filterMap(t -> {
-                    if (t.isSuccess()) {
-                        return Optional.of(t.get());
-                    } else {
-                        t.getFailure().printStackTrace();
-                        return Optional.empty();
-                    }
-                })
-                .subscribe(this::applyHighlighting);
-        replaceText(0, 0, initialText);
+        setEditable(false);
+        replaceText(text);
         getUndoManager().forgetHistory();
     }
 
@@ -71,27 +56,15 @@ public class DafnyCodeArea extends CodeArea {
      * i.e. after a call to {@link #setHighlightingRule(HighlightingRule)}.
      */
     public void rerenderHighlighting() {
-        Task<StyleSpans<Collection<String>>> task = computeHighlightingAsync();
+        Task<StyleSpans<Collection<String>>> task = runAsyncHighlightingTask();
         task.setOnSucceeded(event -> {
             final StyleSpans<Collection<String>> styleSpans = task.getValue();
             Platform.runLater(() -> applyHighlighting(styleSpans));
         });
     }
 
-    private Task<StyleSpans<Collection<String>>> computeHighlightingAsync() {
-        final String text = getText();
-        Task<StyleSpans<Collection<String>>> task = new Task<StyleSpans<Collection<String>>>() {
-            @Override
-            protected StyleSpans<Collection<String>> call() throws Exception {
-                return computeHighlighting(text);
-            }
-        };
-        executor.execute(task);
-        return task;
-    }
-
-    // This method should always run asynchronously to the javafx event thread
-    private StyleSpans<Collection<String>> computeHighlighting(String text) {
+    @Override
+    protected StyleSpans<Collection<String>> computeHighlighting(String text) {
         StyleSpansBuilder<Collection<String>> builder = new StyleSpansBuilder<>();
 
         if (text.isEmpty()) {
@@ -150,10 +123,6 @@ public class DafnyCodeArea extends CodeArea {
             default:
                 return Collections.emptyList();
         }
-    }
-
-    private void applyHighlighting(StyleSpans<Collection<String>> styleSpans) {
-        setStyleSpans(0, styleSpans);
     }
 
     public HighlightingRule getHighlightingRule() {
