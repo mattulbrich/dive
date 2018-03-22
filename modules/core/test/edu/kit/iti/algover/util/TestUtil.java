@@ -9,10 +9,14 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Field;
+import java.lang.reflect.Method;
+import java.lang.reflect.Parameter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Function;
 
+import edu.kit.iti.algover.dafnystructures.DafnyMethod;
+import edu.kit.iti.algover.dafnystructures.TarjansAlgorithm;
 import edu.kit.iti.algover.parser.*;
 import edu.kit.iti.algover.proof.Proof;
 import edu.kit.iti.algover.proof.ProofNode;
@@ -160,6 +164,33 @@ public class TestUtil {
             Field f = inClass.getDeclaredField(fieldName);
             f.setAccessible(true);
             f.set(object, value);
+        } catch(Exception ex) {
+            throw new RuntimeException(ex);
+        }
+    }
+
+    public static Object call(Object object, String methodName, Object... args) {
+        return call(object, object.getClass(), methodName, args);
+    }
+
+    public static Object call(Object object, Class<?> inClass, String methodName, Object... args) {
+        try {
+            methodName = methodName.intern();
+            Method[] ms = inClass.getDeclaredMethods();
+            for (Method m : ms) {
+                if(m.getName() != methodName || m.getParameterCount() != args.length) {
+                    continue;
+                }
+                for (int i = 0; i < args.length; i++) {
+                    Class<?> param = m.getParameterTypes()[i];
+                    if(args[i] != null && !param.isAssignableFrom(args[i].getClass())) {
+                        continue;
+                    }
+                }
+                m.setAccessible(true);
+                return m.invoke(object, args);
+            }
+            throw new NoSuchMethodException("Not found!");
         } catch(Exception ex) {
             throw new RuntimeException(ex);
         }
