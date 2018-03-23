@@ -8,10 +8,10 @@ package edu.kit.iti.algover.util;
 import java.util.AbstractCollection;
 import java.util.Collection;
 import java.util.Iterator;
-import java.util.function.Function;
-import java.util.function.Predicate;
+import java.util.NoSuchElementException;
 
-import edu.kit.iti.algover.term.Sequent;
+import nonnull.NonNull;
+import nonnull.Nullable;
 
 /**
  * The Class ImmutableList captures an CONS/NIL style linked list with one-way
@@ -29,6 +29,7 @@ import edu.kit.iti.algover.term.Sequent;
  *
  * @author Mattias Ulbrich
  */
+@NonNull
 public class ImmutableList<T> implements Iterable<T> {
 
     /**
@@ -42,7 +43,7 @@ public class ImmutableList<T> implements Iterable<T> {
     /**
      * The payload data of this node.
      */
-    private final T data;
+    private @Nullable final T data;
 
     /**
      * The length of the list. (redundant)
@@ -52,7 +53,7 @@ public class ImmutableList<T> implements Iterable<T> {
     /**
      * The tail of the linked list
      */
-    private final ImmutableList<T> tail;
+    private @Nullable final ImmutableList<T> tail;
 
     /*
      * Used to create the #NIL object.
@@ -66,11 +67,10 @@ public class ImmutableList<T> implements Iterable<T> {
     /**
      * Instantiates a new list with by appending data.
      *
-     * @param data the data to addd, may be <code>null</code>
+     * @param data the data to add, may be <code>null</code>
      * @param tail the tail, not <code>null</code>
      */
-    public ImmutableList(T data, ImmutableList<T> tail) {
-        super();
+    public ImmutableList(@Nullable T data, @NonNull ImmutableList<T> tail) {
         this.data = data;
         this.tail = tail;
         this.size = tail.size + 1;
@@ -79,7 +79,7 @@ public class ImmutableList<T> implements Iterable<T> {
     /**
      * Append one data element to the list.
      *
-     * Existing lists are not modified but a new list is returned.
+     * Existing lists are not modified, but a new list is returned.
      *
      * @param data
      *            the data to append
@@ -101,9 +101,10 @@ public class ImmutableList<T> implements Iterable<T> {
      *
      * @param iterable the collection of data to add.
      *
-     * @return
+     * @return a fresh list which contains all elements of this list and
+     * then all elements of <code>iterable</code>
      */
-    public ImmutableList<T> appendAll(Iterable<T> iterable) {
+    public ImmutableList<T> appendAll(@NonNull Iterable<T> iterable) {
         ImmutableList<T> result = this;
         for (T elem : iterable) {
             result = result.append(elem);
@@ -116,6 +117,9 @@ public class ImmutableList<T> implements Iterable<T> {
      */
     private static class Itr<T> implements Iterator<T> {
 
+        /**
+         * the currently active list fragement. Next value is its head.
+         */
         private ImmutableList<T> ptr;
 
         public Itr(ImmutableList<T> ptr) {
@@ -270,6 +274,15 @@ public class ImmutableList<T> implements Iterable<T> {
         return hc;
     }
 
+    /**
+     * Returns <tt>true</tt> if this immutable list contains the specified
+     * element. More formally, returns <tt>true</tt> if and only if it
+     * contains an element <tt>e</tt> such that
+     * <tt>(t==null&nbsp;?&nbsp;t==null&nbsp;:&nbsp;t.equals(e))</tt>.
+     *
+     * @param t element whose presence in this list is to be tested
+     * @return <tt>true</tt> if this list contains the specified element
+     */
     public boolean contains(T t) {
         for (T t2 : this) {
             if(t == null ? t2 == null : t.equals(t2)) {
@@ -302,6 +315,17 @@ public class ImmutableList<T> implements Iterable<T> {
         };
     }
 
+    /**
+     * Returns a string representation of this list.
+     *
+     * The string representation consists of a list of the collection's elements
+     * in the order they are returned by its iterator, enclosed in square
+     * brackets (<tt>"[]"</tt>).  Adjacent elements are separated by the
+     * characters <tt>", "</tt> (comma and space).  Elements are converted to
+     * strings as by {@link String#valueOf(Object)}.
+     *
+     * @return a string representation of this immutable list.
+     */
     @Override
     public String toString() {
         return asCollection().toString();
@@ -310,21 +334,44 @@ public class ImmutableList<T> implements Iterable<T> {
     /**
      * Get the element at position index from the list.
      *
-     * The 0th element is first appended element, while
-     * the size()-1-th element is the most recently appended one.
+     * The 0th element is first appended element, while the size()-1-th element
+     * is the most recently appended one.
      *
      * @param index the index to retrieve, {@code 0 <= index < size()}
      * @return the element at that index
-     * @throws IndexOutOfBoundsException if the index is either negative or beyond the list size.
+     * @throws IndexOutOfBoundsException if the index is either negative or
+     *                                   beyond the list size.
      */
     public T get(int index) {
         return takeFirst(index + 1).data;
     }
 
+    /**
+     * Returns the sub list containing the first {@code n} elements of this list
+     * (in iteration order).
+     *
+     * <p>Technically, this method, cals {@link #getTail()} {@code size() - n}
+     * times. </p>
+     *
+     * @param n an integer with {@code 0 <= n <= size()}
+     * @return an immutable sub list of length {@code n}
+     * @throws IndexOutOfBoundsException if {@code 0 > n || n > size()}
+     */
     public ImmutableList<T> takeFirst(int n) {
         return dropLast(size - n);
     }
 
+    /**
+     * Returns the sub list containing all but the last {@code n} elements of
+     * this list (in iteration order).
+     *
+     * <p>Technically, this method, cals {@link #getTail()} {@code n} times.
+     * </p>
+     *
+     * @param n an integer with {@code 0 <= n <= size()}
+     * @return an immutable sub list of length {@code n}
+     * @throws IndexOutOfBoundsException if {@code 0 > n || n > size()}
+     */
     public ImmutableList<T> dropLast(int n) {
         if(n < 0) {
             throw new IndexOutOfBoundsException();
@@ -347,6 +394,20 @@ public class ImmutableList<T> implements Iterable<T> {
         return tail;
     }
 
+    /**
+     * Returns the sub list containing a sub range of the elements of this list.
+     * For admissible values for {@code from} and {@code to}, the result is the
+     * list of values
+     * <pre>
+     *     [ this.get(from), this.get(from+1), ..., this.get(from + len - 1) ]
+     * </pre>
+     *
+     * @param from the first index to incorporate in the resulting list
+     * @param len  the number of elements to take into the resulting list.
+     * @return an immutable sub list of length {@code len}
+     * @throws IndexOutOfBoundsException if {@code from < 0 || len < null ||
+     *                                   from+len > size()}
+     */
     public ImmutableList<T> subList(int from, int len) {
 
         if(from == 0) {
@@ -369,19 +430,50 @@ public class ImmutableList<T> implements Iterable<T> {
     }
 
     /**
-     * Please use {@link #getLast()} instead.
-     * @return
+     * Returns the head of this linked list.
+     *
+     * Please use method {@link #getLast()} instead as this better shows the
+     * placement of the returned element.
+     *
+     * @return the last element of this list.
+     * @throws NoSuchElementException if this list is empty.
      */
     @Deprecated
     public T getHead() {
         return getLast();
     }
 
+    /**
+     * Returns the last element of this list.
+     *
+     * @return the last element of this list.
+     * @throws NoSuchElementException if this list is empty.
+     */
     public T getLast() {
+        if(size == 0) {
+            throw new NoSuchElementException();
+        }
+
         return data;
     }
 
-    public <U, E extends Exception> ImmutableList<U> map(FunctionWithException<T, U, E> function) throws E {
+    /**
+     * Produces a new list by applying a function to the elements of this list.
+     *
+     * The resulting list is as if invocating
+     * <pre>
+     *     [ function.apply(get(0)), ..., function.apply(get(size()-1)) ]
+     * </pre>
+     *
+     * @param function the function to apply to the elments of the list
+     * @param <U>      The result type of the function, the content type for the
+     *                 resulting list.
+     * @param <E>      The type of exceptions that are potentially thrown by
+     *                 function.
+     * @return a freshly created list of the same length as this.
+     * @throws E if the function application throws an exception.
+     */
+    public <U, E extends Exception> ImmutableList<U> map(@NonNull FunctionWithException<T, U, E> function) throws E {
         ImmutableList<U> result = nil();
         for (T el : this) {
             result = result.append(function.apply(el));
@@ -390,6 +482,27 @@ public class ImmutableList<T> implements Iterable<T> {
     }
 
 
+    /**
+     * Produces a new list by applying a function to the elements of this list
+     * followed by a flattening of their contents.
+     *
+     * The resulting list is as if invocating
+     * <pre>
+     *     function.apply(get(0))
+     *       .appendAll(function.apply(get(1)))
+     *       .appendAll(function.apply(get(2)))
+     *       . ...
+     *       .appendAll(function.apply(get(size()-1)))
+     * </pre>
+     *
+     * @param function the function to apply to the elments of the list
+     * @param <U>      The result type of the function, the content type for the
+     *                 resulting list.
+     * @param <E>      The type of exceptions that are potentially thrown by
+     *                 function.
+     * @return a freshly created list of the same length as this.
+     * @throws E if the function application throws an exception.
+     */
     public <U, E extends Exception> ImmutableList<U> flatMap(FunctionWithException<T, Iterable<U>, E> function) throws E {
         ImmutableList<U> result = nil();
         for (T el : this) {
@@ -398,29 +511,63 @@ public class ImmutableList<T> implements Iterable<T> {
         return result;
     }
 
-    public ImmutableList<T> filter(Predicate<T> predicate) {
+    /**
+     * Produces a new list by that selects only those elements from this list
+     * which satisfy a predicate.
+     *
+     * @param predicate the function used to compute the filtration
+     * @param <E>       The type of exceptions that are potentially thrown by
+     *                  function.
+     * @return a freshly created list which contains only the filtered elements.
+     * @throws E if the function application throws an exception.
+     */
+    public <E extends Exception> ImmutableList<T> filter(FunctionWithException<T, Boolean, E> predicate) throws E {
         ImmutableList<T> result = nil();
         for (T el : this) {
-            if(predicate.test(el)) {
+            if(predicate.apply(el)) {
                 result = result.append(el);
             }
         }
         return result;
     }
 
-    public T findFirst(Predicate<T> predicate) {
+    /**
+     * Returns the first element in this list that satisfies the specified
+     * predicate. First element means the element with the lowest iteration
+     * index.
+     *
+     * @param predicate the function used to check acceptance
+     * @param <E>       The type of exceptions that are potentially thrown by
+     *                  function.
+     * @return the first element in this list satifying {@code predicate},
+     * {@code null} if no element satisfies the predicate.
+     * @throws E if the function application throws an exception.
+     */
+    public @Nullable <E extends Exception> T findFirst(FunctionWithException<T, Boolean, E> predicate) throws E {
         for (T el : this) {
-            if(predicate.test(el)) {
+            if(predicate.apply(el)) {
                 return el;
             }
         }
         return null;
     }
 
-    public T findLast(Predicate<T> predicate) {
+    /**
+     * Returns the last element in this list that satisfies the specified
+     * predicate. Last element means the element with the highest iteration
+     * index.
+     *
+     * @param predicate the function used to check acceptance
+     * @param <E>       The type of exceptions that are potentially thrown by
+     *                  function.
+     * @return the last element in this list satifying {@code predicate},
+     * {@code null} if no element satisfies the predicate.
+     * @throws E if the function application throws an exception.
+     */
+    public @Nullable <E extends Exception> T findLast(FunctionWithException<T, Boolean, E> predicate) throws E {
         ImmutableList<T> l = this;
         while(l.tail != null) {
-            if(predicate.test(l.data)) {
+            if(predicate.apply(l.data)) {
                 return l.data;
             }
             l = l.tail;
