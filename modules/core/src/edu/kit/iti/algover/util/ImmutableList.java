@@ -473,7 +473,8 @@ public class ImmutableList<T> implements Iterable<T> {
      * @return a freshly created list of the same length as this.
      * @throws E if the function application throws an exception.
      */
-    public <U, E extends Exception> ImmutableList<U> map(@NonNull FunctionWithException<T, U, E> function) throws E {
+    public <U, E extends Exception> ImmutableList<U>
+            map(@NonNull FunctionWithException<T, U, E> function) throws E {
         ImmutableList<U> result = nil();
         for (T el : this) {
             result = result.append(function.apply(el));
@@ -503,7 +504,8 @@ public class ImmutableList<T> implements Iterable<T> {
      * @return a freshly created list of the same length as this.
      * @throws E if the function application throws an exception.
      */
-    public <U, E extends Exception> ImmutableList<U> flatMap(FunctionWithException<T, Iterable<U>, E> function) throws E {
+    public <U, E extends Exception> ImmutableList<U>
+            flatMap(FunctionWithException<T, Iterable<U>, E> function) throws E {
         ImmutableList<U> result = nil();
         for (T el : this) {
             result = result.appendAll(function.apply(el));
@@ -521,7 +523,8 @@ public class ImmutableList<T> implements Iterable<T> {
      * @return a freshly created list which contains only the filtered elements.
      * @throws E if the function application throws an exception.
      */
-    public <E extends Exception> ImmutableList<T> filter(FunctionWithException<T, Boolean, E> predicate) throws E {
+    public <E extends Exception> ImmutableList<T>
+            filter(FunctionWithException<T, Boolean, E> predicate) throws E {
         ImmutableList<T> result = nil();
         for (T el : this) {
             if(predicate.apply(el)) {
@@ -543,7 +546,8 @@ public class ImmutableList<T> implements Iterable<T> {
      * {@code null} if no element satisfies the predicate.
      * @throws E if the function application throws an exception.
      */
-    public @Nullable <E extends Exception> T findFirst(FunctionWithException<T, Boolean, E> predicate) throws E {
+    public @Nullable <E extends Exception> T
+            findFirst(FunctionWithException<T, Boolean, E> predicate) throws E {
         for (T el : this) {
             if(predicate.apply(el)) {
                 return el;
@@ -564,7 +568,8 @@ public class ImmutableList<T> implements Iterable<T> {
      * {@code null} if no element satisfies the predicate.
      * @throws E if the function application throws an exception.
      */
-    public @Nullable <E extends Exception> T findLast(FunctionWithException<T, Boolean, E> predicate) throws E {
+    public @Nullable <E extends Exception> T
+            findLast(FunctionWithException<T, Boolean, E> predicate) throws E {
         ImmutableList<T> l = this;
         while(l.tail != null) {
             if(predicate.apply(l.data)) {
