@@ -2,7 +2,6 @@ package edu.kit.iti.algover.proof;
 
 import edu.kit.iti.algover.project.Project;
 import edu.kit.iti.algover.script.ast.*;
-import edu.kit.iti.algover.script.exceptions.ScriptCommandNotApplicableException;
 import edu.kit.iti.algover.script.interpreter.Interpreter;
 import edu.kit.iti.algover.script.interpreter.InterpreterBuilder;
 import edu.kit.iti.algover.script.parser.DefaultASTVisitor;
@@ -139,7 +138,9 @@ public class Proof {
             // TODO Exception handling
             this.scriptAST = Facade.getAST(script);
 
-            Interpreter interpreter = buildIndividualInterpreter();
+            Interpreter<ProofNode> interpreter = buildIndividualInterpreter();
+
+            // Caution: Keep this pure constructor call, it performs the computation!
             new ProofNodeInterpreterManager(interpreter);
             interpreter.newState(newRoot);
 
@@ -170,10 +171,10 @@ public class Proof {
 
     }
 
-    private Interpreter buildIndividualInterpreter() {
+    private Interpreter<ProofNode> buildIndividualInterpreter() {
 
         InterpreterBuilder ib = new InterpreterBuilder();
-        Interpreter i = ib
+        Interpreter<ProofNode> i = ib
                 .setProofRules(this.project.getAllProofRules())
                 .startState(getProofRoot())
                 .build();
@@ -263,7 +264,7 @@ class ProofNodeInterpreterManager {
         }
 
         @Override
-        public Void defaultVisit(ASTNode node) {
+        public Void defaultVisit(ASTNode<?> node) {
             lastSelectedGoalNode = interpreter.getSelectedNode();
             return null;
         }
@@ -354,7 +355,7 @@ class ProofNodeInterpreterManager {
         }
 
         @Override
-        public Void defaultVisit(ASTNode node) {
+        public Void defaultVisit(ASTNode<?> node) {
             lastSelectedGoalNode.setChildren(new ArrayList<>());
 
             List<ProofNode> goals = interpreter.getCurrentState().getGoals();
