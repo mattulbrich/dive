@@ -420,13 +420,4 @@ public class Project {
         loader.forEach(result::add);
         return result;
     }
-
-    public Map<DafnyDecl, Integer> getSCCMap() {
-        if(sccMap == null) {
-            TarjansAlgorithm tarjan = new TarjansAlgorithm(this);
-            tarjan.computeSCCs();
-            sccMap = tarjan.getSCCs();
-        }
-        return sccMap;
-    }
 }

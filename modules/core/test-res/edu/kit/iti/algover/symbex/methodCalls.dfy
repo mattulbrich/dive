@@ -23,3 +23,15 @@ method test(c: Clss)
 
   c.Meth(24);
 }
+
+method recursive(n: int) returns (r: int)
+  requires n >= 0
+  ensures r == 0
+{
+  if n == 0
+  {
+    r := n;
+  } else {
+    r := recursive(n - 1);
+  }
+}

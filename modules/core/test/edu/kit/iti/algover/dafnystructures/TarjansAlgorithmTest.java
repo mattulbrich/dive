@@ -40,7 +40,6 @@ public class TarjansAlgorithmTest {
     public void testSCCComputation() throws Exception {
         TarjansAlgorithm ta = new TarjansAlgorithm(project);
         ta.computeSCCs();
-        Map<DafnyDecl, Integer> sccs = ta.getSCCs();
 
         fail("implement test here");
 

@@ -34,11 +34,11 @@ import junitparams.Parameters;
 public class UpdateSequenterTest extends SequenterTest {
 
     protected String expectedSuccedent(String string) {
-        return "[(let $mod := m :: (let local := p :: (let r := local :: $gt(r, 0))))]";
+        return "[(let $mod := m :: (let $decr := $plus(p, 1) :: (let local := p :: (let r := local :: $gt(r, 0)))))]";
     }
 
     protected String expectedAntecedent(String string) {
-        return "[$gt(p, 0), (let $mod := m :: (let local := p :: $gt(local, 0)))]";
+        return "[$gt(p, 0), (let $mod := m :: (let $decr := $plus(p, 1) :: (let local := p :: $gt(local, 0))))]";
     }
 
     @Override
@@ -78,12 +78,13 @@ public class UpdateSequenterTest extends SequenterTest {
         return new String[][] {
             { "A.0", null, null },
             { "A.0.0", null, null },
-            { "A.0.0.0", "$gt(i, 0)", "(> i 0)" },
-            { "A.0.0.0.0", "i", "i" },
-            { "A.0.0.0.1", "0", "0" },
-            { "A.0.0.1", "$plus(x, 3)", "(+ x 3)" },
-            { "A.0.0.1.0", "x", "x" },
-            { "A.0.0.1.1", "3", "3" },
+            { "A.0.0.1", "0", "0" },
+            { "A.0.0.0.0", "$gt(i, 0)", "(> i 0)" },
+            { "A.0.0.0.0.0", "i", "i" },
+            { "A.0.0.0.0.1", "0", "0" },
+            { "A.0.0.0.1", "$plus(x, 3)", "(+ x 3)" },
+            { "A.0.0.0.1.0", "x", "x" },
+            { "A.0.0.0.1.1", "3", "3" },
             { "A.0.1", "$everything", "$everything" }, // artificial
 
             { "S.0", null, null },
@@ -91,20 +92,22 @@ public class UpdateSequenterTest extends SequenterTest {
             { "S.0.0.0", null, null },
             { "S.0.0.0.0", null, null },
             { "S.0.0.0.0.0", null, null },
-            { "S.0.0.0.0.0.0", "$gt(r, 0)", "(> r 0)" },
-            { "S.0.0.0.0.0.0.0", "r", "r" },
-            { "S.0.0.0.0.0.0.1", "0", "0" },
-            { "S.0.0.0.0.0.1", "i", "i" },
-            { "S.0.0.0.0.1", "$array_select<int>($heap, a, i)", "(ARRAY_ACCESS a i)" },
-            { "S.0.0.0.0.1.0", null, null},
-            { "S.0.0.0.0.1.1", "a", "a" },
-            { "S.0.0.0.0.1.2", "i", "i" },
-            { "S.0.0.0.1", "$plus(i, 2)", "(+ i 2)" },
-            { "S.0.0.0.1.0", "i", "i" },
-            { "S.0.0.0.1.1", "2", "2" },
-            { "S.0.0.1", "$plus(x, 3)", "(+ x 3)" },
-            { "S.0.0.1.0", "x", "x" },
-            { "S.0.0.1.1", "3", "3" },
+            { "S.0.0.0.0.0.0", null, null },
+            { "S.0.0.0.0.0.0.0", "$gt(r, 0)", "(> r 0)" },
+            { "S.0.0.0.0.0.0.0.0", "r", "r" },
+            { "S.0.0.0.0.0.0.0.1", "0", "0" },
+            { "S.0.0.0.0.0.0.1", "i", "i" },
+            { "S.0.0.0.0.0.1", "$array_select<int>($heap, a, i)", "(ARRAY_ACCESS a i)" },
+            { "S.0.0.0.0.0.1.0", null, null},
+            { "S.0.0.0.0.0.1.1", "a", "a" },
+            { "S.0.0.0.0.0.1.2", "i", "i" },
+            { "S.0.0.0.0.1", "$plus(i, 2)", "(+ i 2)" },
+            { "S.0.0.0.0.1.0", "i", "i" },
+            { "S.0.0.0.0.1.1", "2", "2" },
+            { "S.0.0.0.1", "$plus(x, 3)", "(+ x 3)" },
+            { "S.0.0.0.1.0", "x", "x" },
+            { "S.0.0.0.1.1", "3", "3" },
+            { "S.0.0.1", "0", "0" },
             { "S.0.1", "$everything", "$everything" } // artificial
         };
     }
@@ -125,15 +128,16 @@ public class UpdateSequenterTest extends SequenterTest {
         Map<TermSelector, DafnyTree> map = new HashMap<>();
         Sequent sequent = sequenter.translate(path, makeTable(method), map);
 
-//        System.out.println(sequent);
-//        System.out.println(map);
+        System.out.println(sequent);
+        System.out.println(map);
+        map.forEach((ts, tree) -> System.out.printf("%20s %s%n", ts, tree.toStringTree()));
 
         TermSelector selector = new TermSelector(sel);
         Term actual = selector.selectSubterm(sequent);
 
         DafnyTree fromMap = map.get(selector);
-        if(fromMap == null) {
-            assertNull(expected);
+        if(term == null) {
+            assertNull(fromMap);
         } else {
             assertEquals(term, actual.toString());
             assertEquals(expected, fromMap.toStringTree());

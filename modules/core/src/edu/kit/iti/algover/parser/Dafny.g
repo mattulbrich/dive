@@ -174,6 +174,7 @@ clazz:
   '}'!
   ;
 
+// TODO Make order independent
 method:
   ( 'ghost' )?
   tok = ('method' | 'lemma')

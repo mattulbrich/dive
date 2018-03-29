@@ -51,12 +51,12 @@ public class ParallelUpdateSequenterTest extends SequenterTest {
 
     // for the normal upd-sequenter "[$gt(p, 0), (let $mod := m :: (let local := p :: $gt(local, 0)))]";
     protected String expectedAntecedent(String string) {
-        return "[$gt(p, 0), (let $mod, local := m, p :: $gt(local, 0))]";
+        return "[$gt(p, 0), (let $mod, $decr, local := m, $plus(p, 1), p :: $gt(local, 0))]";
     }
 
     // for the normal upd-sequenter "[(let $mod := m :: (let local := p :: (let r := local :: $gt(r, 0))))]";
     protected String expectedSuccedent(String string) {
-        return "[(let $mod, local, r := m, p, p :: $gt(r, 0))]";
+        return "[(let $mod, $decr, local, r := m, $plus(p, 1), p, p :: $gt(r, 0))]";
     }
 
     @Override

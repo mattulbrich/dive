@@ -113,6 +113,9 @@ public class TestUtil {
             throw exceptions.get(0);
         }
 
+        TarjansAlgorithm ta = new TarjansAlgorithm(p);
+        ta.computeSCCs();
+
         return p;
     }
 

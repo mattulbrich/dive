@@ -42,6 +42,7 @@ import java.util.Stack;
  */
 public class TarjansAlgorithm {
 
+    public static final int CALLGRAPH_SCC = -2;
     /**
      * The project for which the computation takes place.
      */
@@ -56,12 +57,6 @@ public class TarjansAlgorithm {
      * The index values used in the algorithm,
      */
     private final Map<DafnyDecl, Integer> indexes = new IdentityHashMap<>();
-
-    /**
-     * The assignment of the actual SCCs. Two declarations belong to the same
-     * SCC iff they have the same value in this map.
-     */
-    private final Map<DafnyDecl, Integer> sccs = new IdentityHashMap<>();
 
     /**
      * The stack "S" used within the algorithm
@@ -88,18 +83,6 @@ public class TarjansAlgorithm {
     }
 
     /**
-     * Get a map that assigns to dafny declarations the SCC they belong to.
-     * Two declarations are in the same SCC iff the are mapped to the same value in the resulting map.
-     *
-     * The result map contains sensible values only after calling {@link #computeSCCs()}.
-     *
-     * @return an immutable view to the scc map of the algorithm.
-     */
-    public @NonNull Map<DafnyDecl, Integer> getSCCs() {
-        return Collections.unmodifiableMap(sccs);
-    }
-
-    /**
      * initialise SCC computation.
      *
      * This clears all data structures used in this object.
@@ -112,7 +95,6 @@ public class TarjansAlgorithm {
         stack.clear();
         lowlinks.clear();
         indexes.clear();
-        sccs.clear();
 
         for (DafnyDecl decl : getAllCallableDecls()) {
             if (!indexes.containsKey(decl)) {
@@ -151,9 +133,10 @@ public class TarjansAlgorithm {
         // If v is a root node, pop the stack and generate an SCC
         if (lowlinks.get(decl) == indexes.get(decl)) {
             DafnyDecl w;
+            DafnyTree sccTree = new DafnyTree(CALLGRAPH_SCC, "scc_" + curSCC);
             do {
                 w = stack.pop();
-                sccs.put(w, curSCC);
+                w.getRepresentation().setExpressionType(sccTree);
             } while (w != decl);
 
             curSCC++;

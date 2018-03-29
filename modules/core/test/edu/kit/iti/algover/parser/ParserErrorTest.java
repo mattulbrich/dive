@@ -138,6 +138,13 @@ public class ParserErrorTest {
         parse("class C { var f:int; } method m(c:C) { c.f+1; } }");
     }
 
+    @Test
+    public void doubleDecreases() throws Exception {
+        thrown.expect(DafnyParserException.class);
+        thrown.expectMessage("mismatched input 'decreases' expecting BLOCK_BEGIN");
+        parse("method m() decreases 0 decreases 0 {}");
+    }
+
     private void parse(String program) throws Exception {
         TestUtil.mockProject(program);
     }

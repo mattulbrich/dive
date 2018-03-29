@@ -7,6 +7,7 @@ package edu.kit.iti.algover.symbex;
 
 import antlr.collections.AST;
 import edu.kit.iti.algover.ProgramDatabase;
+import edu.kit.iti.algover.dafnystructures.TarjansAlgorithm;
 import edu.kit.iti.algover.parser.DafnyException;
 import edu.kit.iti.algover.parser.DafnyParser;
 import edu.kit.iti.algover.parser.DafnyTree;
@@ -145,6 +146,7 @@ public class Symbex {
      *
      * var $resultN : R;
      * assert pre_m;
+     * assert variant_m < my_variant   (if appropriate)
      * $heap := anon($heap, mod, anonheap);
      * assume post_m;
      * assume isCreated($resultN) (if appropriate)
@@ -188,6 +190,28 @@ public class Symbex {
             condition = ASTUtil.letCascade(subs, condition);
             reqState.setProofObligation(condition, refersTo, AssertionType.CALL_PRE);
             stack.add(reqState);
+        }
+
+        // variant if in recursion loop.
+        DafnyTree callerSCC = state.getMethod().getExpressionType();
+        DafnyTree calleeSCC = method.getExpressionType();
+        assert callerSCC.getType() == TarjansAlgorithm.CALLGRAPH_SCC
+            && calleeSCC.getType() == TarjansAlgorithm.CALLGRAPH_SCC;
+        if(callerSCC.getText().equals(calleeSCC.getText())) {
+            // both in same stron. conn. component ==> potential cycle
+            DafnyTree decr = method.getFirstChildWithType(DafnyParser.DECREASES);
+            if(decr == null) {
+                decr = ASTUtil.intLiteral(0);
+                // TODO rather throw an exception?
+            }
+            decr = ASTUtil.letCascade(subs, decr);
+            DafnyTree condition = ASTUtil.noetherLess(decr, ASTUtil.id("$decr"));
+            // wrap that into a substitution
+            condition = ASTUtil.letCascade(subs, condition);
+            SymbexPath decrState = new SymbexPath(state);
+            decrState.setBlockToExecute(EMPTY_PROGRAM);
+            decrState.setProofObligation(condition, refersTo, AssertionType.VARIANT_DECREASED);
+            stack.add(decrState);
         }
 
         // Modify heap if not strictly pure
@@ -640,6 +664,14 @@ public class Symbex {
                     modifies.getLastChild()));
         }
 
+        DafnyTree decreases = function.getFirstChildWithType(DafnyParser.DECREASES);
+        if(decreases == null) {
+            result.addAssignment(ASTUtil.assign(ASTUtil.builtInVar("$decr"),
+                    ASTUtil.intLiteral(0)));
+        } else {
+            result.addAssignment(ASTUtil.assign(ASTUtil.builtInVar("$decr"),
+                    decreases.getLastChild()));
+        }
 
         return result;
     }
