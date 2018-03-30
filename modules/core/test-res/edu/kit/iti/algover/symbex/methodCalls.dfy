@@ -7,10 +7,16 @@ method CallMe(p : int) returns (r : int )
 
 class Clss {
 
+  var field : int;
+
   method Meth(p : int)
     requires p == 21
     ensures true
-  {}
+    modifies this
+  {
+    // not strictly pure:
+    field := 42;
+  }
 }
 
 method test(c: Clss)
@@ -27,6 +33,7 @@ method test(c: Clss)
 method recursive(n: int) returns (r: int)
   requires n >= 0
   ensures r == 0
+  decreases 2*n
 {
   if n == 0
   {

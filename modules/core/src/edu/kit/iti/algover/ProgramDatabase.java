@@ -117,15 +117,15 @@ public class ProgramDatabase {
     private static boolean checkStrictlyPure(DafnyTree tree, Set<DafnyTree> alreadyVisited) {
         switch(tree.getType()) {
         case DafnyParser.METHOD:
-            if(!alreadyVisited.contains(tree)) {
+            if(alreadyVisited.contains(tree)) {
                 return true;
             }
             alreadyVisited.add(tree);
             break;
 
         case DafnyParser.CALL:
-            if(tree.getDeclarationReference().getType() == DafnyParser.METHOD) {
-                boolean callIsSPure = checkStrictlyPure(tree.getDeclarationReference(), alreadyVisited);
+            if(tree.getChild(0).getDeclarationReference().getType() == DafnyParser.METHOD) {
+                boolean callIsSPure = checkStrictlyPure(tree.getChild(0).getDeclarationReference(), alreadyVisited);
                 if (!callIsSPure) {
                     return false;
                 }
@@ -135,13 +135,14 @@ public class ProgramDatabase {
         case DafnyParser.ASSIGN:
             switch(tree.getChild(0).getType()) {
             case DafnyParser.ID:
-                if(tree.getChild(0).getType() == DafnyParser.FIELD) {
-                    return true;
+                if(tree.getChild(0).getDeclarationReference().getType() == DafnyParser.FIELD) {
+                    return false;
                 }
+                break;
 
             case DafnyParser.ARRAY_ACCESS: // TODO this might be a sequence ... caution!
             case DafnyParser.FIELD_ACCESS:
-                return true;
+                return false;
             }
         }
 
