@@ -112,6 +112,13 @@ public class ImmutableList<T> implements Iterable<T> {
         return result;
     }
 
+    /**
+     * Checks if this list does not contain any element.
+     * Equivalent to {@code size() == 0}.
+     *
+     * @return true iff the list is empty, i.e., does not contain
+     *         any element.
+     */
     public boolean isEmpty() {
         return size() == 0;
     }

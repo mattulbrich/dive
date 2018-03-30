@@ -14,7 +14,6 @@ import edu.kit.iti.algover.dafnystructures.DafnyDeclPVCCollector;
 import edu.kit.iti.algover.dafnystructures.DafnyFile;
 import edu.kit.iti.algover.dafnystructures.DafnyFunction;
 import edu.kit.iti.algover.dafnystructures.DafnyMethod;
-import edu.kit.iti.algover.dafnystructures.TarjansAlgorithm;
 import edu.kit.iti.algover.parser.DafnyException;
 import edu.kit.iti.algover.proof.PVC;
 import edu.kit.iti.algover.proof.PVCCollection;
@@ -118,10 +117,6 @@ public class Project {
      */
     private Collection<ProofRule> lemmaProofRules;
 
-    /**
-     * A map assigning to all method/function declarations the SCC number in the callgraph.
-     */
-    private Map<DafnyDecl, Integer> sccMap;
 
     /**
      * Constructor can only be called using a ProjectBuilder

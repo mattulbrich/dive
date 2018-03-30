@@ -279,6 +279,9 @@ public class ReferenceResolutionVisitor
         return null;
     }
 
+    /*
+     * resolve the name of the class and the constructor method.
+     */
     @Override
     public Void visitNEW(DafnyTree t, Mode mode) {
         t.getChild(0).accept(this, Mode.TYPE);

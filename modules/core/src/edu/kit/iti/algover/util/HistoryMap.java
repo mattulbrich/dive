@@ -56,7 +56,7 @@ public class HistoryMap<K, V> extends AbstractMap<K, V> {
     }
 
     public V peek() {
-        Pair<K, V> top = undoHistory.pop();
+        Pair<K, V> top = undoHistory.peek();
         return get(top.fst);
     }
 }

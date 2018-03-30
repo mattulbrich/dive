@@ -67,9 +67,6 @@ public class TreeTermTranslator {
     private final HistoryMap<String, VariableTerm> boundVars =
             new HistoryMap<>(new HashMap<>());
 
-    private final HistoryMap<String, DafnyTree> substitutions =
-            new HistoryMap<>(new HashMap<>());
-
     /**
      * The helper object to be used for term construction.
      */
@@ -899,6 +896,7 @@ public class TreeTermTranslator {
         return referenceMap;
     }
 
+    // TODO doc when TAT is finished
     public void bindVariable(VariableTerm var) {
         boundVars.put(var.getName(), var);
     }

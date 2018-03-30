@@ -17,7 +17,6 @@ import edu.kit.iti.algover.util.ASTUtil;
 import edu.kit.iti.algover.util.ImmutableList;
 import edu.kit.iti.algover.util.Pair;
 
-import javax.xml.stream.events.DTD;
 import java.util.*;
 
 /**

@@ -7,7 +7,6 @@ package edu.kit.iti.algover.dafnystructures;
 
 import edu.kit.iti.algover.parser.DafnyTree;
 
-import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 

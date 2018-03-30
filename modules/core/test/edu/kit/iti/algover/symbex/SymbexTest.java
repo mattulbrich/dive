@@ -819,7 +819,7 @@ public class SymbexTest {
         }
         {
             SymbexPath path = results.get(index++);
-            assertEquals("else/Var[recursive]", path.getPathIdentifier());
+            assertEquals("else/Term[recursive]", path.getPathIdentifier());
             assertEquals(2, path.getPathConditions().size());
             assertEquals("[(>= n 0), (not (== n 0))]",
                     path.getPathConditions().map(x -> x.getExpression().toStringTree()).toString());
