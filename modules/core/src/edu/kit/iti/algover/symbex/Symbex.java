@@ -203,6 +203,8 @@ public class Symbex {
             if(decr == null) {
                 decr = ASTUtil.intLiteral(0);
                 // TODO rather throw an exception?
+            } else {
+                decr = decr.getLastChild();
             }
             decr = ASTUtil.letCascade(subs, decr);
             DafnyTree condition = ASTUtil.noetherLess(decr, ASTUtil.id("$decr"));
@@ -217,8 +219,10 @@ public class Symbex {
         // Modify heap if not strictly pure
         if(!ProgramDatabase.isStrictlyPure(method)) {
             DafnyTree mod = method.getFirstChildWithType(DafnyParser.MODIFIES);
-            if(mod == null) {
+            if (mod == null) {
                 mod = ASTUtil.builtInVar("$everything");
+            } else {
+                mod = mod.getLastChild();
             }
             mod = ASTUtil.letCascade(subs, mod);
             state.addAssignment(ASTUtil.anonymiseHeap(state, mod));

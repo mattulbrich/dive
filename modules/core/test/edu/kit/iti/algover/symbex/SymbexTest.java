@@ -762,7 +762,9 @@ public class SymbexTest {
                     path.getPathConditions().getLast().getExpression().toStringTree());
             assertEquals("[(== c c)]",
                     path.getProofObligations().map(x -> x.getExpression().toStringTree()).toString());
-            assertEquals("[(ASSIGN $mod $everything), (ASSIGN $decr 0), (ASSIGN x $res_CallMe_1), (ASSIGN y $res_CallMe_2), (ASSIGN $heap $anon($heap, X, X))]",
+            assertEquals("[(ASSIGN $mod $everything), (ASSIGN $decr 0), " +
+                            "(ASSIGN x $res_CallMe_1), (ASSIGN y $res_CallMe_2), " +
+                            "(ASSIGN $heap (CALL $anon (ARGS $heap (LET (VAR this p) c 24 this) $aheap_1)))]",
                     path.getAssignmentHistory().map(DafnyTree::toStringTree).toString());
         }
     }
