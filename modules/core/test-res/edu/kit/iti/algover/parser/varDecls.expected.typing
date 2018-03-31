@@ -4,7 +4,7 @@
     (var l_x1 (TYPE int))
     (var l_x2 (TYPE int))
     (var l_y (TYPE int) 42[int])
-    (var l_v 44)
+    (var l_v (TYPE int) 44[int])
 
-    (:= ret_r[int] (+ (+ (+ (+ l_i[int] l_x1[int])[int] l_x2[int])[int] l_y[int])[int] l_v)[int])))
+    (:= ret_r[int] (+ (+ (+ (+ l_i[int] l_x1[int])[int] l_x2[int])[int] l_y[int])[int] l_v[int])[int])))
 
