@@ -8,9 +8,12 @@ package edu.kit.iti.algover.rules;
 import edu.kit.iti.algover.data.BuiltinSymbols;
 import edu.kit.iti.algover.data.MapSymbolTable;
 import edu.kit.iti.algover.data.SymbolTable;
+import edu.kit.iti.algover.parser.DafnyException;
+import edu.kit.iti.algover.parser.DafnyParserException;
 import edu.kit.iti.algover.parser.DafnyTree;
 import edu.kit.iti.algover.proof.ProofFormula;
 import edu.kit.iti.algover.proof.ProofNode;
+import edu.kit.iti.algover.rules.impl.LetSubstitutionRule;
 import edu.kit.iti.algover.rules.impl.TrivialAndRight;
 import edu.kit.iti.algover.term.FunctionSymbol;
 import edu.kit.iti.algover.term.Sequent;
@@ -20,6 +23,9 @@ import edu.kit.iti.algover.term.builder.TermBuildException;
 import edu.kit.iti.algover.term.builder.TermBuilder;
 import edu.kit.iti.algover.term.builder.TreeTermTranslator;
 import edu.kit.iti.algover.term.builder.TreeTermTranslatorTest;
+import edu.kit.iti.algover.term.parser.TermParser;
+import edu.kit.iti.algover.util.FormatException;
+import edu.kit.iti.algover.util.ProofMockUtil;
 import org.antlr.runtime.RecognitionException;
 import org.junit.Before;
 import org.junit.Test;
@@ -27,6 +33,8 @@ import org.junit.Test;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+
+import static org.junit.Assert.assertEquals;
 
 public class TestRuleApplicator {
 
@@ -122,5 +130,31 @@ public class TestRuleApplicator {
         List<ProofFormula> testSemi = testSequent.getAntecedent();
 
         System.out.println(RuleApplicator.changeSemisequent(add, del, new ArrayList<>(), testSemi));
+    }
+
+    @Test
+    public void testExhaustiveApplication() throws DafnyException, DafnyParserException, TermBuildException, FormatException, RuleException {
+        TermParser tp = new TermParser(symbTable);
+        Sequent seq = tp.parseSequent("(let b1 := b2 :: b1) |- b2");
+
+        ProofRule letSub = new LetSubstitutionRule();
+        ProofNode pn = ProofMockUtil.mockProofNode(null, seq.getAntecedent(), seq.getSuccedent());
+        ProofRuleApplication pra = letSub.considerApplication(pn, seq, new TermSelector("A.0"));
+        List<ProofNode> proofNodes = RuleApplicator.applyRuleExhaustive(pra, pn, new TermSelector("A.0"));
+        assertEquals(1, proofNodes.size());
+        assertEquals("[b2] ==> [b2]", proofNodes.get(0).getSequent().toString());
+
+        seq = tp.parseSequent("let b3 := b1 :: let b1 := b2 :: b3 |- b2");
+
+        letSub = new LetSubstitutionRule();
+        pn = ProofMockUtil.mockProofNode(null, seq.getAntecedent(), seq.getSuccedent());
+        pra = letSub.considerApplication(pn, seq, new TermSelector("A.0"));
+        proofNodes = RuleApplicator.applyRuleExhaustive(pra, pn, new TermSelector("A.0"));
+        proofNodes.forEach(p -> {
+            System.out.println(p);
+        });
+        assertEquals(1, proofNodes.size());
+        assertEquals("[b2] ==> [b2]", proofNodes.get(0).getSequent().toString());
+
     }
 }

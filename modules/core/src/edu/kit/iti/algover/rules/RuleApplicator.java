@@ -1,6 +1,7 @@
 package edu.kit.iti.algover.rules;
 
 
+import com.sun.xml.internal.rngom.digested.DDataPattern;
 import edu.kit.iti.algover.proof.ProofFormula;
 import edu.kit.iti.algover.proof.ProofNode;
 import edu.kit.iti.algover.term.Sequent;
@@ -9,6 +10,7 @@ import edu.kit.iti.algover.term.builder.ReplaceVisitor;
 import edu.kit.iti.algover.term.builder.TermBuildException;
 import edu.kit.iti.algover.util.ImmutableList;
 import edu.kit.iti.algover.util.Pair;
+import edu.kit.iti.algover.util.RuleUtil;
 
 
 import java.util.ArrayList;
@@ -62,6 +64,25 @@ public class RuleApplicator {
 
 
         return children;
+    }
+
+    public static List<ProofNode> applyRuleExhaustive(ProofRuleApplication proofRuleApplication, ProofNode pn, TermSelector ts)  throws RuleException {
+        List<ProofNode> nodes = applyRule(proofRuleApplication, pn);
+        List<ProofNode> newNodes = nodes;
+        do {
+            nodes = newNodes;
+            newNodes = new ArrayList<>();
+            for (ProofNode node : nodes) {
+                ProofRuleApplication newPra = proofRuleApplication.getRule().considerApplication(node, node.getSequent(), ts);
+                if(newPra.getApplicability().equals(ProofRuleApplication.Applicability.APPLICABLE)) {
+                    newNodes.addAll(applyRuleExhaustive(newPra, node, ts));
+                } else {
+                    newNodes.add(node);
+                }
+            }
+        } while(!nodes.equals(newNodes));
+
+        return newNodes;
     }
 
     /**
