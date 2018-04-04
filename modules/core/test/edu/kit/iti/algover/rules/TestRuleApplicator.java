@@ -141,7 +141,7 @@ public class TestRuleApplicator {
         ProofRule letSub = new LetSubstitutionRule();
         ProofNode pn = ProofMockUtil.mockProofNode(null, seq.getAntecedent(), seq.getSuccedent());
         ProofRuleApplication pra = letSub.considerApplication(pn, seq, new TermSelector("A.0"));
-        List<ProofNode> proofNodes = RuleApplicator.applyRuleExhaustive(pra, pn, new TermSelector("A.0"));
+        List<ProofNode> proofNodes = RuleApplicator.applyRuleExhaustive(letSub, pn, new TermSelector("A.0"));
         assertEquals(1, proofNodes.size());
         assertEquals("[b2] ==> [b2]", proofNodes.get(0).getSequent().toString());
 
@@ -150,7 +150,7 @@ public class TestRuleApplicator {
         letSub = new LetSubstitutionRule();
         pn = ProofMockUtil.mockProofNode(null, seq.getAntecedent(), seq.getSuccedent());
         pra = letSub.considerApplication(pn, seq, new TermSelector("A.0"));
-        proofNodes = RuleApplicator.applyRuleExhaustive(pra, pn, new TermSelector("A.0"));
+        proofNodes = RuleApplicator.applyRuleExhaustive(letSub, pn, new TermSelector("A.0"));
         assertEquals(1, proofNodes.size());
         assertEquals("[$or(true, false)] ==> [b2]", proofNodes.get(0).getSequent().toString());
 
@@ -159,7 +159,7 @@ public class TestRuleApplicator {
         letSub = new OrLeftRule();
         pn = ProofMockUtil.mockProofNode(null, seq.getAntecedent(), seq.getSuccedent());
         pra = letSub.considerApplication(pn, seq, new TermSelector("A.0"));
-        proofNodes = RuleApplicator.applyRuleExhaustive(pra, pn, new TermSelector("A.0"));
+        proofNodes = RuleApplicator.applyRuleExhaustive(letSub, pn, new TermSelector("A.0"));
 
         assertEquals(3, proofNodes.size());
         assertEquals("[b1, b2] ==> [b2]", proofNodes.get(0).getSequent().toString());
@@ -171,7 +171,7 @@ public class TestRuleApplicator {
         letSub = new OrLeftRule();
         pn = ProofMockUtil.mockProofNode(null, seq.getAntecedent(), seq.getSuccedent());
         pra = letSub.considerApplication(pn, seq, new TermSelector("A.0"));
-        proofNodes = RuleApplicator.applyRuleExhaustive(pra, pn, new TermSelector("A.0"));
+        proofNodes = RuleApplicator.applyRuleExhaustive(letSub, pn, new TermSelector("A.0"));
         assertEquals(1, proofNodes.size());
         assertEquals("[$and(b1, $or(b2, b3)), b2] ==> [b2]", proofNodes.get(0).getSequent().toString());
 
@@ -180,7 +180,7 @@ public class TestRuleApplicator {
         letSub = new OrLeftRule();
         pn = ProofMockUtil.mockProofNode(null, seq.getAntecedent(), seq.getSuccedent());
         pra = letSub.considerApplication(pn, seq, new TermSelector("A.0"));
-        proofNodes = RuleApplicator.applyRuleExhaustive(pra, pn, new TermSelector("A.0"));
+        proofNodes = RuleApplicator.applyRuleExhaustive(letSub, pn, new TermSelector("A.0"));
         assertEquals(2, proofNodes.size());
         assertEquals("[b1, b2] ==> [b2]", proofNodes.get(0).getSequent().toString());
         assertEquals("[$and(b2, b3), b2] ==> [b2]", proofNodes.get(1).getSequent().toString());
@@ -195,7 +195,7 @@ public class TestRuleApplicator {
         }
         pn = ProofMockUtil.mockProofNode(null, seq.getAntecedent(), seq.getSuccedent());
         pra = letSub.considerApplication(pn, seq, new TermSelector("A.0"));
-        proofNodes = RuleApplicator.applyRuleExhaustive(pra, pn, new TermSelector("A.0"));
+        proofNodes = RuleApplicator.applyRuleExhaustive(letSub, pn, new TermSelector("A.0"));
         assertEquals(1, proofNodes.size());
         assertEquals("[$plus($plus(i1, 0), 1)] ==> [b2]", proofNodes.get(0).getSequent().toString());
 
@@ -209,7 +209,7 @@ public class TestRuleApplicator {
         }
         pn = ProofMockUtil.mockProofNode(null, seq.getAntecedent(), seq.getSuccedent());
         pra = letSub.considerApplication(pn, seq, new TermSelector("A.0"));
-        proofNodes = RuleApplicator.applyRuleExhaustive(pra, pn, new TermSelector("A.0"));
+        proofNodes = RuleApplicator.applyRuleExhaustive(letSub, pn, new TermSelector("A.0"));
         assertEquals(4, proofNodes.size());
         assertEquals("[] ==> [$eq<int>(0, 0)]", proofNodes.get(0).getSequent().toString());
         assertEquals("[] ==> [$eq<int>(1, 0)]", proofNodes.get(1).getSequent().toString());

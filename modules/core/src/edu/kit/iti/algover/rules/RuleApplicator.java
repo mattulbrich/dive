@@ -66,9 +66,27 @@ public class RuleApplicator {
         return children;
     }
 
-    public static List<ProofNode> applyRuleExhaustive(ProofRuleApplication proofRuleApplication, ProofNode pn, TermSelector ts)  throws RuleException {
-        List<ProofNode> nodes = applyRule(proofRuleApplication, pn);
+    /**
+     * Applies a rule recursivly as often as possible.
+     * @param proofRule the proofRule to be applied
+     * @param pn the proof node one which the application will take place
+     * @param ts the TermSelector pointing to the inital Term that the rule will process
+     * @return the list of proof nodes resulting from the exhaustive application of the rule
+     * @throws RuleException
+     */
+    public static List<ProofNode> applyRuleExhaustive(ProofRule proofRule, ProofNode pn, TermSelector ts)  throws RuleException {
+        ProofRuleApplication proofRuleApplication = new ProofRuleApplicationBuilder(proofRule)
+                .setApplicability(ProofRuleApplication.Applicability.NOT_APPLICABLE)
+                .build();
+        if(ts.isValidForSequent(pn.getSequent())) {
+            proofRuleApplication = proofRuleApplication.getRule().considerApplication(pn, pn.getSequent(), ts);
+        }
+        List<ProofNode> nodes = new ArrayList<>(Collections.singletonList(pn));
         List<ProofNode> newNodes = new ArrayList<>(nodes);
+        if (proofRuleApplication.getApplicability().equals(ProofRuleApplication.Applicability.APPLICABLE)) {
+            nodes = applyRule(proofRuleApplication, pn);
+            newNodes = new ArrayList<>(nodes);
+        }
 
         for (ProofNode node : nodes) {
             ProofRuleApplication newPra = new ProofRuleApplicationBuilder(proofRuleApplication.getRule())
@@ -78,7 +96,7 @@ public class RuleApplicator {
                 newPra = proofRuleApplication.getRule().considerApplication(node, node.getSequent(), ts);
             }
             if (newPra.getApplicability().equals(ProofRuleApplication.Applicability.APPLICABLE)) {
-                newNodes.addAll(applyRuleExhaustive(newPra, node, ts));
+                newNodes.addAll(applyRuleExhaustive(proofRule, node, ts));
                 newNodes.remove(node);
             }
         }
