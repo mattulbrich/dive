@@ -104,6 +104,35 @@ public class RuleApplicator {
         return newNodes;
     }
 
+    public static String getScriptForExhaustiveRuleApplication(ProofRule proofRule, ProofNode pn, TermSelector ts)  throws RuleException {
+        String script = "";
+        ProofRuleApplication proofRuleApplication = new ProofRuleApplicationBuilder(proofRule)
+                .setApplicability(ProofRuleApplication.Applicability.NOT_APPLICABLE)
+                .build();
+        if(ts.isValidForSequent(pn.getSequent())) {
+            proofRuleApplication = proofRuleApplication.getRule().considerApplication(pn, pn.getSequent(), ts);
+        }
+        List<ProofNode> nodes = new ArrayList<>(Collections.singletonList(pn));
+        if (proofRuleApplication.getApplicability().equals(ProofRuleApplication.Applicability.APPLICABLE)) {
+            nodes = applyRule(proofRuleApplication, pn);
+            script += proofRuleApplication.getScriptTranscript() + "\n";
+        }
+
+        for (ProofNode node : nodes) {
+            ProofRuleApplication newPra = new ProofRuleApplicationBuilder(proofRuleApplication.getRule())
+                    .setApplicability(ProofRuleApplication.Applicability.NOT_APPLICABLE)
+                    .build();
+            if(ts.isValidForSequent(node.getSequent())) {
+                newPra = proofRuleApplication.getRule().considerApplication(node, node.getSequent(), ts);
+            }
+            if (newPra.getApplicability().equals(ProofRuleApplication.Applicability.APPLICABLE)) {
+                script += getScriptForExhaustiveRuleApplication(proofRule, node, ts);
+            }
+        }
+
+        return script;
+    }
+
     private static TermSelector[] getAllChildSelectors(TermSelector ts, Sequent s) throws RuleException {
         Term selectedTerm;
         try {

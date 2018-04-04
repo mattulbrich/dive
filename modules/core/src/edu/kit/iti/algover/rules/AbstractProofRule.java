@@ -11,6 +11,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+import edu.kit.iti.algover.term.Sequent;
 import edu.kit.iti.algover.term.Term;
 import edu.kit.iti.algover.util.Pair;
 
@@ -134,6 +135,12 @@ public abstract class AbstractProofRule implements ProofRule {
 
         res += ";";
         return res;
+    }
+
+    protected final String getTranscript(TermSelector ts, Sequent s) throws RuleException {
+        Term on = ts.selectSubterm(s);
+        return getTranscript(new Pair<>("on", on));
+
     }
 
 }

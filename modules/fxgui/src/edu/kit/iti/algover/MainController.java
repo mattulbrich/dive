@@ -20,6 +20,7 @@ import edu.kit.iti.algover.references.ProofTermReference;
 import edu.kit.iti.algover.references.Reference;
 import edu.kit.iti.algover.rule.RuleApplicationController;
 import edu.kit.iti.algover.rule.RuleApplicationListener;
+import edu.kit.iti.algover.rules.ProofRule;
 import edu.kit.iti.algover.rules.ProofRuleApplication;
 import edu.kit.iti.algover.rules.TermSelector;
 import edu.kit.iti.algover.sequent.SequentActionListener;
@@ -170,6 +171,19 @@ public class MainController implements SequentActionListener, RuleApplicationLis
         // Currently, this will reset the script text completely. That means the
         // script has to be parsed and rebuilt completely.
         ruleApplicationController.applyRule(application);
+        ruleApplicationController.getRuleGrid().getSelectionModel().clearSelection();
+        String newScript = ruleApplicationController.getScriptView().getText();
+        sequentController.getActiveProof().setScriptTextAndInterpret(newScript);
+        sequentController.tryMovingOn();
+        ruleApplicationController.resetConsideration();
+    }
+
+    @Override
+    public void onRuleExApplication(ProofRule rule, TermSelector ts) {
+        // This can be implemented as an incremental algorithm in the future here!
+        // Currently, this will reset the script text completely. That means the
+        // script has to be parsed and rebuilt completely.
+        ruleApplicationController.applyExRule(rule, sequentController.getActiveNode(), ts);
         ruleApplicationController.getRuleGrid().getSelectionModel().clearSelection();
         String newScript = ruleApplicationController.getScriptView().getText();
         sequentController.getActiveProof().setScriptTextAndInterpret(newScript);
