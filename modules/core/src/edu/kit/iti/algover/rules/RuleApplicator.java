@@ -71,12 +71,15 @@ public class RuleApplicator {
         List<ProofNode> newNodes = new ArrayList<>(nodes);
 
         for (ProofNode node : nodes) {
-            for(TermSelector cts : getAllChildSelectors(ts, node.getSequent())) {
-                ProofRuleApplication newPra = proofRuleApplication.getRule().considerApplication(node, node.getSequent(), cts);
-                if (newPra.getApplicability().equals(ProofRuleApplication.Applicability.APPLICABLE)) {
-                    newNodes.addAll(applyRuleExhaustive(newPra, node, cts));
-                    newNodes.remove(node);
-                }
+            ProofRuleApplication newPra = new ProofRuleApplicationBuilder(proofRuleApplication.getRule())
+                    .setApplicability(ProofRuleApplication.Applicability.NOT_APPLICABLE)
+                    .build();
+            if(ts.isValidForSequent(node.getSequent())) {
+                newPra = proofRuleApplication.getRule().considerApplication(node, node.getSequent(), ts);
+            }
+            if (newPra.getApplicability().equals(ProofRuleApplication.Applicability.APPLICABLE)) {
+                newNodes.addAll(applyRuleExhaustive(newPra, node, ts));
+                newNodes.remove(node);
             }
         }
 
@@ -84,12 +87,16 @@ public class RuleApplicator {
     }
 
     private static TermSelector[] getAllChildSelectors(TermSelector ts, Sequent s) throws RuleException {
-        Term selectedTerm = ts.selectSubterm(s);
+        Term selectedTerm;
+        try {
+            selectedTerm = ts.selectSubterm(s);
+        } catch (RuleException e) {
+            return new TermSelector[0];
+        }
         int numSuberms = selectedTerm.getSubterms().size();
-        TermSelector[] res = new TermSelector[numSuberms + 1];
-        res[0] = ts;
+        TermSelector[] res = new TermSelector[numSuberms];
         for(int i = 0; i < numSuberms; ++i) {
-            res[i + 1] = new TermSelector(ts, i);
+            res[i] = new TermSelector(ts, i);
         }
         return res;
     }

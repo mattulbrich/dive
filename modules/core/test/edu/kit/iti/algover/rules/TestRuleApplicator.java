@@ -166,5 +166,54 @@ public class TestRuleApplicator {
         assertEquals("[b2, b2] ==> [b2]", proofNodes.get(1).getSequent().toString());
         assertEquals("[b3, b2] ==> [b2]", proofNodes.get(2).getSequent().toString());
 
+        seq = tp.parseSequent("b1 && (b2 || b3), b2 |- b2");
+
+        letSub = new OrLeftRule();
+        pn = ProofMockUtil.mockProofNode(null, seq.getAntecedent(), seq.getSuccedent());
+        pra = letSub.considerApplication(pn, seq, new TermSelector("A.0"));
+        proofNodes = RuleApplicator.applyRuleExhaustive(pra, pn, new TermSelector("A.0"));
+        assertEquals(1, proofNodes.size());
+        assertEquals("[$and(b1, $or(b2, b3)), b2] ==> [b2]", proofNodes.get(0).getSequent().toString());
+
+        seq = tp.parseSequent("b1 || (b2 && b3), b2 |- b2");
+
+        letSub = new OrLeftRule();
+        pn = ProofMockUtil.mockProofNode(null, seq.getAntecedent(), seq.getSuccedent());
+        pra = letSub.considerApplication(pn, seq, new TermSelector("A.0"));
+        proofNodes = RuleApplicator.applyRuleExhaustive(pra, pn, new TermSelector("A.0"));
+        assertEquals(2, proofNodes.size());
+        assertEquals("[b1, b2] ==> [b2]", proofNodes.get(0).getSequent().toString());
+        assertEquals("[$and(b2, b3), b2] ==> [b2]", proofNodes.get(1).getSequent().toString());
+
+        seq = tp.parseSequent("i1 + 0 + 1 + 0 |- b2");
+
+        try {
+            letSub = DafnyRuleUtil.generateDafnyRuleFromFile("./modules/core/test-res/edu/kit/iti/algover/dafnyrules/addzero.dfy");
+        } catch (DafnyRuleException e) {
+            System.out.println("Exception corrued during laoding dafny rule addzero2.dfy.");
+            e.printStackTrace();
+        }
+        pn = ProofMockUtil.mockProofNode(null, seq.getAntecedent(), seq.getSuccedent());
+        pra = letSub.considerApplication(pn, seq, new TermSelector("A.0"));
+        proofNodes = RuleApplicator.applyRuleExhaustive(pra, pn, new TermSelector("A.0"));
+        assertEquals(1, proofNodes.size());
+        assertEquals("[$plus($plus(i1, 0), 1)] ==> [b2]", proofNodes.get(0).getSequent().toString());
+
+        seq = tp.parseSequent("i1 + 0 + 1 + 0 |- b2");
+
+        try {
+            letSub = DafnyRuleUtil.generateDafnyRuleFromFile("./modules/core/test-res/edu/kit/iti/algover/dafnyrules/addzero2.dfy");
+        } catch (DafnyRuleException e) {
+            System.out.println("Exception corrued during laoding dafny rule addzero2.dfy.");
+            e.printStackTrace();
+        }
+        pn = ProofMockUtil.mockProofNode(null, seq.getAntecedent(), seq.getSuccedent());
+        pra = letSub.considerApplication(pn, seq, new TermSelector("A.0"));
+        proofNodes = RuleApplicator.applyRuleExhaustive(pra, pn, new TermSelector("A.0"));
+        assertEquals(4, proofNodes.size());
+        assertEquals("[] ==> [$eq<int>(0, 0)]", proofNodes.get(0).getSequent().toString());
+        assertEquals("[] ==> [$eq<int>(1, 0)]", proofNodes.get(1).getSequent().toString());
+        assertEquals("[i1] ==> [b2]", proofNodes.get(2).getSequent().toString());
+        assertEquals("[] ==> [$eq<int>(0, 0)]", proofNodes.get(3).getSequent().toString());
     }
 }
