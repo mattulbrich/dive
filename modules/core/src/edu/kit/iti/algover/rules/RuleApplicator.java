@@ -1,7 +1,6 @@
 package edu.kit.iti.algover.rules;
 
 
-import com.sun.xml.internal.rngom.digested.DDataPattern;
 import edu.kit.iti.algover.proof.ProofFormula;
 import edu.kit.iti.algover.proof.ProofNode;
 import edu.kit.iti.algover.term.Sequent;
@@ -13,6 +12,7 @@ import edu.kit.iti.algover.util.Pair;
 import edu.kit.iti.algover.util.RuleUtil;
 
 
+import javax.xml.soap.Node;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -68,21 +68,30 @@ public class RuleApplicator {
 
     public static List<ProofNode> applyRuleExhaustive(ProofRuleApplication proofRuleApplication, ProofNode pn, TermSelector ts)  throws RuleException {
         List<ProofNode> nodes = applyRule(proofRuleApplication, pn);
-        List<ProofNode> newNodes = nodes;
-        do {
-            nodes = newNodes;
-            newNodes = new ArrayList<>();
-            for (ProofNode node : nodes) {
-                ProofRuleApplication newPra = proofRuleApplication.getRule().considerApplication(node, node.getSequent(), ts);
-                if(newPra.getApplicability().equals(ProofRuleApplication.Applicability.APPLICABLE)) {
-                    newNodes.addAll(applyRuleExhaustive(newPra, node, ts));
-                } else {
-                    newNodes.add(node);
+        List<ProofNode> newNodes = new ArrayList<>(nodes);
+
+        for (ProofNode node : nodes) {
+            for(TermSelector cts : getAllChildSelectors(ts, node.getSequent())) {
+                ProofRuleApplication newPra = proofRuleApplication.getRule().considerApplication(node, node.getSequent(), cts);
+                if (newPra.getApplicability().equals(ProofRuleApplication.Applicability.APPLICABLE)) {
+                    newNodes.addAll(applyRuleExhaustive(newPra, node, cts));
+                    newNodes.remove(node);
                 }
             }
-        } while(!nodes.equals(newNodes));
+        }
 
         return newNodes;
+    }
+
+    private static TermSelector[] getAllChildSelectors(TermSelector ts, Sequent s) throws RuleException {
+        Term selectedTerm = ts.selectSubterm(s);
+        int numSuberms = selectedTerm.getSubterms().size();
+        TermSelector[] res = new TermSelector[numSuberms + 1];
+        res[0] = ts;
+        for(int i = 0; i < numSuberms; ++i) {
+            res[i + 1] = new TermSelector(ts, i);
+        }
+        return res;
     }
 
     /**

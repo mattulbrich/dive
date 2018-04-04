@@ -14,6 +14,7 @@ import edu.kit.iti.algover.parser.DafnyTree;
 import edu.kit.iti.algover.proof.ProofFormula;
 import edu.kit.iti.algover.proof.ProofNode;
 import edu.kit.iti.algover.rules.impl.LetSubstitutionRule;
+import edu.kit.iti.algover.rules.impl.OrLeftRule;
 import edu.kit.iti.algover.rules.impl.TrivialAndRight;
 import edu.kit.iti.algover.term.FunctionSymbol;
 import edu.kit.iti.algover.term.Sequent;
@@ -144,17 +145,26 @@ public class TestRuleApplicator {
         assertEquals(1, proofNodes.size());
         assertEquals("[b2] ==> [b2]", proofNodes.get(0).getSequent().toString());
 
-        seq = tp.parseSequent("let b3 := b1 :: let b1 := b2 :: b3 |- b2");
+        seq = tp.parseSequent("let b3 := true :: let b2 := false :: b3 || b2 |- b2");
 
         letSub = new LetSubstitutionRule();
         pn = ProofMockUtil.mockProofNode(null, seq.getAntecedent(), seq.getSuccedent());
         pra = letSub.considerApplication(pn, seq, new TermSelector("A.0"));
         proofNodes = RuleApplicator.applyRuleExhaustive(pra, pn, new TermSelector("A.0"));
-        proofNodes.forEach(p -> {
-            System.out.println(p);
-        });
         assertEquals(1, proofNodes.size());
-        assertEquals("[b2] ==> [b2]", proofNodes.get(0).getSequent().toString());
+        assertEquals("[$or(true, false)] ==> [b2]", proofNodes.get(0).getSequent().toString());
+
+        seq = tp.parseSequent("b1 || (b2 || b3), b2 |- b2");
+
+        letSub = new OrLeftRule();
+        pn = ProofMockUtil.mockProofNode(null, seq.getAntecedent(), seq.getSuccedent());
+        pra = letSub.considerApplication(pn, seq, new TermSelector("A.0"));
+        proofNodes = RuleApplicator.applyRuleExhaustive(pra, pn, new TermSelector("A.0"));
+
+        assertEquals(3, proofNodes.size());
+        assertEquals("[b1, b2] ==> [b2]", proofNodes.get(0).getSequent().toString());
+        assertEquals("[b2, b2] ==> [b2]", proofNodes.get(1).getSequent().toString());
+        assertEquals("[b3, b2] ==> [b2]", proofNodes.get(2).getSequent().toString());
 
     }
 }
