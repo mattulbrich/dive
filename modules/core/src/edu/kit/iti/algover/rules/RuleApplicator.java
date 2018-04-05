@@ -1,6 +1,7 @@
 package edu.kit.iti.algover.rules;
 
 
+import edu.kit.iti.algover.proof.Proof;
 import edu.kit.iti.algover.proof.ProofFormula;
 import edu.kit.iti.algover.proof.ProofNode;
 import edu.kit.iti.algover.term.Sequent;
@@ -188,41 +189,39 @@ public class RuleApplicator {
     /**
      * Change a semisequent according to the infos from the rule application
      *
-     * @param add        formauls to add to the oldsequent
-     * @param delete     formulas to delet from the old sequent
-     * @param change     fromulas that have to be changed
+     * @param add        formulas to add to the old sequent
+     * @param delete     formulas to delete from the old sequent
+     * @param change     formulas that have to be changed
      * @param oldSemiSeq teh old sequent which needs to be changed
-     * @return a new Sequent that considers tthe change information
+     * @return a new Sequent that considers the change information
      * @throws TermBuildException
      */
     protected static List<ProofFormula> changeSemisequent(List<ProofFormula> add, List<ProofFormula> delete, List<Pair<TermSelector, Term>> change, List<ProofFormula> oldSemiSeq) throws TermBuildException{
-        List<ProofFormula> newSemiSeq = new ArrayList<>(add);
-        List<Term> topLevels = new ArrayList<>();
-        int i = 0;
+        List<ProofFormula> newSemiSeq = new ArrayList<>(oldSemiSeq);
         if (change.size() != 0) {
             change.forEach(termSelectorTermPair -> {
                 Term newTerm = termSelectorTermPair.snd;
                 TermSelector ts = termSelectorTermPair.fst;
                 try {
                     ProofFormula nthForm = oldSemiSeq.get(ts.getTermNo());
-                    topLevels.add(nthForm.getTerm());
                     Term replace = ReplaceVisitor.replace(nthForm.getTerm(), ts.getSubtermSelector(), newTerm);
-                    nthForm = new ProofFormula(replace);
-                    newSemiSeq.add(nthForm);
-
+                    newSemiSeq.set(ts.getTermNo(), new ProofFormula(replace));
                 } catch (TermBuildException e) {
                     e.printStackTrace();
                 }
             });
         }
 
-        delete.forEach(t -> topLevels.add(t.getTerm()));
-
-        oldSemiSeq.forEach(proofFormula -> {
-            if(!topLevels.contains(proofFormula.getTerm())){
-                newSemiSeq.add(proofFormula);
+        for(ProofFormula pf : delete) {
+            for(int i = newSemiSeq.size() - 1; i >= 0; --i) {
+                ProofFormula f = newSemiSeq.get(i);
+                if(f.getTerm().equals(pf.getTerm())) {
+                    newSemiSeq.remove(f);
+                }
             }
-        });
+        }
+        newSemiSeq.addAll(add);
+
         return newSemiSeq;
     }
 }
