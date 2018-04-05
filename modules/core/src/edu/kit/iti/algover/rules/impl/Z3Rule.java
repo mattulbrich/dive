@@ -63,6 +63,7 @@ public class Z3Rule extends AbstractProofRule {
         builder.setApplicability(Applicability.MAYBE_APPLICABLE);
         builder.setClosing();
         builder.setRefiner((app, param) -> refine(target, app));
+        builder.setTranscript(this.getTranscript());
         return builder.build();
     }
 
@@ -91,11 +92,13 @@ public class Z3Rule extends AbstractProofRule {
             ProofRuleApplicationBuilder builder = new ProofRuleApplicationBuilder(this);
             builder.setApplicability(Applicability.APPLICABLE);
             builder.setRefiner(null);
+            builder.setTranscript(this.getTranscript());
             return builder.build();
         } else {
             ProofRuleApplicationBuilder builder = new ProofRuleApplicationBuilder(this);
             builder.setApplicability(Applicability.NOT_APPLICABLE);
             builder.setRefiner(null);
+            builder.setTranscript(this.getTranscript());
             return builder.build();
         }
     }
