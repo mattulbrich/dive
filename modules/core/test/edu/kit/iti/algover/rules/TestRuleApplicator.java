@@ -215,5 +215,31 @@ public class TestRuleApplicator {
         assertEquals("[] ==> [$eq<int>(1, 0)]", proofNodes.get(1).getSequent().toString());
         assertEquals("[i1] ==> [b2]", proofNodes.get(2).getSequent().toString());
         assertEquals("[] ==> [$eq<int>(0, 0)]", proofNodes.get(3).getSequent().toString());
+
+    }
+
+    @Test
+    public void testDeepExhaustiveApplication() throws DafnyException, DafnyParserException, TermBuildException, FormatException, RuleException {
+        TermParser tp = new TermParser(symbTable);
+        Sequent seq;
+
+        ProofRule letSub = null;
+        ProofNode pn;
+
+        seq = tp.parseSequent("i1 + 0 + 1 + 0, i3 + 0 |- b2");
+
+        try {
+            letSub = DafnyRuleUtil.generateDafnyRuleFromFile("./modules/core/test-res/edu/kit/iti/algover/dafnyrules/addzero.dfy");
+        } catch (DafnyRuleException e) {
+            System.out.println("Exception corrued during laoding dafny rule addzero2.dfy.");
+            e.printStackTrace();
+        }
+        pn = ProofMockUtil.mockProofNode(null, seq.getAntecedent(), seq.getSuccedent());
+        List<ProofNode> proofNodes = RuleApplicator.applyRuleDeepExhaustive(letSub, pn, new TermSelector("A.0"));
+        proofNodes.forEach(node -> {
+            System.out.println("node = " + node);
+        });
+        assertEquals(1, proofNodes.size());
+        assertEquals("[$plus(i1, 1), $plus(i3, 0)] ==> [b2]", proofNodes.get(0).getSequent().toString());
     }
 }

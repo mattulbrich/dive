@@ -75,7 +75,7 @@ public class RuleApplicator {
      * @return the list of proof nodes resulting from the exhaustive application of the rule
      * @throws RuleException
      */
-    private static List<ProofNode> applyRuleExhaustive(ProofRule proofRule, ProofNode pn, TermSelector ts)  throws RuleException {
+    public static List<ProofNode> applyRuleExhaustive(ProofRule proofRule, ProofNode pn, TermSelector ts)  throws RuleException {
         ProofRuleApplication proofRuleApplication = new ProofRuleApplicationBuilder(proofRule)
                 .setApplicability(ProofRuleApplication.Applicability.NOT_APPLICABLE)
                 .build();
@@ -99,6 +99,49 @@ public class RuleApplicator {
             if (newPra.getApplicability().equals(ProofRuleApplication.Applicability.APPLICABLE)) {
                 newNodes.addAll(applyRuleExhaustive(proofRule, node, ts));
                 newNodes.remove(node);
+            }
+        }
+
+        return newNodes;
+    }
+
+    /**
+     * Applies a rule recursivly as often as possible.
+     * @param proofRule the proofRule to be applied
+     * @param pn the proof node one which the application will take place
+     * @param ts the TermSelector pointing to the inital Term that the rule will process
+     * @return the list of proof nodes resulting from the exhaustive application of the rule
+     * @throws RuleException
+     */
+    public static List<ProofNode> applyRuleDeepExhaustive(ProofRule proofRule, ProofNode pn, TermSelector ts)  throws RuleException {
+        ProofRuleApplication proofRuleApplication = new ProofRuleApplicationBuilder(proofRule)
+                .setApplicability(ProofRuleApplication.Applicability.NOT_APPLICABLE)
+                .build();
+        if(ts.isValidForSequent(pn.getSequent())) {
+            proofRuleApplication = proofRuleApplication.getRule().considerApplication(pn, pn.getSequent(), ts);
+        }
+        List<ProofNode> nodes = new ArrayList<>(Collections.singletonList(pn));
+        List<ProofNode> newNodes = new ArrayList<>(nodes);
+        if (proofRuleApplication.getApplicability().equals(ProofRuleApplication.Applicability.APPLICABLE)) {
+            nodes = applyRule(proofRuleApplication, pn);
+            newNodes = new ArrayList<>(nodes);
+        }
+
+        for (ProofNode node : nodes) {
+            ProofRuleApplication newPra = new ProofRuleApplicationBuilder(proofRuleApplication.getRule())
+                    .setApplicability(ProofRuleApplication.Applicability.NOT_APPLICABLE)
+                    .build();
+            if(ts.isValidForSequent(node.getSequent())) {
+                newPra = proofRuleApplication.getRule().considerApplication(node, node.getSequent(), ts);
+            }
+            if (newPra.getApplicability().equals(ProofRuleApplication.Applicability.APPLICABLE)) {
+                newNodes.addAll(applyRuleExhaustive(proofRule, node, ts));
+                newNodes.remove(node);
+            } else {
+                for(TermSelector cts : getAllChildSelectors(ts, pn.getSequent())) {
+                    newNodes.addAll(applyRuleExhaustive(proofRule, node, cts));
+                    newNodes.remove(node);
+                }
             }
         }
 
