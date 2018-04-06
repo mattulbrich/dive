@@ -75,7 +75,7 @@ public class RuleApplicator {
      * @return the list of proof nodes resulting from the exhaustive application of the rule
      * @throws RuleException
      */
-    public static List<ProofNode> applyRuleExhaustive(ProofRule proofRule, ProofNode pn, TermSelector ts)  throws RuleException {
+    private static List<ProofNode> applyRuleExhaustive(ProofRule proofRule, ProofNode pn, TermSelector ts)  throws RuleException {
         ProofRuleApplication proofRuleApplication = new ProofRuleApplicationBuilder(proofRule)
                 .setApplicability(ProofRuleApplication.Applicability.NOT_APPLICABLE)
                 .build();
@@ -105,6 +105,15 @@ public class RuleApplicator {
         return newNodes;
     }
 
+    /**
+     * Generates a script that applies a rule exhaustively on the given TermSelector. Meaning as long as the rule is
+     * applicable to the specified termselector it is applied.
+     * @param proofRule the rule to be applied
+     * @param pn the proofnode the rule should be applied on
+     * @param ts the termselector pointing to the term this rule should be applied to
+     * @return the script describing all rule applications
+     * @throws RuleException
+     */
     public static String getScriptForExhaustiveRuleApplication(ProofRule proofRule, ProofNode pn, TermSelector ts)  throws RuleException {
         String script = "";
         ProofRuleApplication proofRuleApplication = new ProofRuleApplicationBuilder(proofRule)
@@ -188,6 +197,11 @@ public class RuleApplicator {
 
     /**
      * Change a semisequent according to the infos from the rule application
+     *
+     * IMPORTANT: exhaustive rule application expects the following behaviour when changing the sequent:
+     *      - additions are always made at the end (so they dont effect termselectors)
+     *      - replacements are always applied in a way that the replacements are in the same position as the original
+     *      terms
      *
      * @param add        formulas to add to the old sequent
      * @param delete     formulas to delete from the old sequent
