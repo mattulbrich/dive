@@ -132,7 +132,11 @@ public class MethodPVCBuilder implements PVCBuilder {
             map.add(new FunctionSymbol(name, sort));
         }
 
+        // TODO is this suffix stuff still needed?
         MapSymbolTable st = new SuffixSymbolTable(new BuiltinSymbols(), map);
+
+        project.getAllDeclaredSymbols().forEach(st::addFunctionSymbol);
+
         return st;
     }
 
