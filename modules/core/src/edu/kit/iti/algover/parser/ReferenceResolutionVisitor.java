@@ -430,9 +430,13 @@ public class ReferenceResolutionVisitor
     @Override
     public Void visitVAR(DafnyTree t, Mode a) {
         identifierMap.put(t.getChild(0).getText(), t);
-        t.getChild(1).accept(this, Mode.TYPE);
-        if (t.getChildCount() > 2) {
-            t.getChild(2).accept(this, Mode.EXPR);
+        // bugfix #44
+        DafnyTree ty = t.getFirstChildWithType(DafnyParser.TYPE);
+        if(ty != null) {
+            ty.accept(this, Mode.TYPE);
+        }
+        if (t.getLastChild().getType() != DafnyParser.TYPE) {
+            t.getLastChild().accept(this, Mode.EXPR);
         }
         return null;
     }
