@@ -6,14 +6,12 @@
 package edu.kit.iti.algover.rules;
 
 import java.beans.ParameterDescriptor;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 import edu.kit.iti.algover.term.Sequent;
 import edu.kit.iti.algover.term.Term;
 import edu.kit.iti.algover.util.Pair;
+import edu.kit.iti.algover.util.RuleUtil;
 
 /**
  * This class should serve as base class for all {@link ProofRule} implementations.
@@ -34,8 +32,8 @@ public abstract class AbstractProofRule implements ProofRule {
      * The parameter "deep" is used for propositional rules that
      * are to be applied exhaustively.
      */
-    public static final ParameterDescription<Boolean> DEEP_PARAM =
-            new ParameterDescription<>("deep", ParameterType.BOOLEAN, false);
+    public static final ParameterDescription<String> TYPE_PARAM =
+            new ParameterDescription<>("type", ParameterType.STRING, false);
 
     /**
      * This map captures the parameters made
@@ -75,7 +73,12 @@ public abstract class AbstractProofRule implements ProofRule {
             ParameterDescription<?> t = allParameters.get(en.getKey());
 
             if (t == null) {
-                throw new RuleException("Unknown parameter '" + en.getKey() + "'");
+                if(en.getKey().equals("type") && en.getValue() instanceof String) {
+                    allParameters.put("type", TYPE_PARAM);
+                    t = allParameters.get(en.getKey());
+                } else {
+                    throw new RuleException("Unknown parameter '" + en.getKey() + "'");
+                }
             }
 
             Object value = en.getValue();
@@ -91,6 +94,49 @@ public abstract class AbstractProofRule implements ProofRule {
         if (!required.isEmpty()) {
             throw new RuleException("Missing required arguments: " + required);
         }
+    }
+
+    protected ProofRuleApplicationBuilder handleControlParameters(Parameters params, Sequent s) throws RuleException {
+        ProofRuleApplicationBuilder rab = new ProofRuleApplicationBuilder(this);
+        return handleControlParameters(params, s, rab);
+    }
+
+    protected ProofRuleApplicationBuilder handleControlParameters(Parameters params, Sequent s, ProofRuleApplicationBuilder rab) throws RuleException {
+        if(params.getValue("type") == null) {
+            return rab;
+        }
+
+        switch ((String)params.getValue("type")) {
+            case "exhaustive":
+                rab.setExhaustive(true);
+                break;
+            case "deep":
+                rab.setExhaustive(true);
+                rab.setDeep(true);
+                break;
+            case "global":
+                rab.setExhaustive(true);
+                rab.setGlobal(true);
+                break;
+            case "globalDeep":
+                rab.setGlobal(true);
+                rab.setExhaustive(true);
+                rab.setDeep(true);
+                break;
+            case "once":
+                break;
+            default:
+                throw new RuleException("Unknown rule application type: " + params.getValue("type") + ".");
+
+        }
+
+        Term t = params.getValue(ON_PARAM);
+        Optional<TermSelector> ots = RuleUtil.matchSubtermInSequent(t::equals, s);
+        if(ots.isPresent()) {
+            rab.setOn(ots.get());
+        }
+
+        return rab;
     }
 
     /**
@@ -137,6 +183,15 @@ public abstract class AbstractProofRule implements ProofRule {
         return res;
     }
 
+    /**
+     *
+     * Generates a fitting transcript for the rule applied on the term selected by a TermSelector.
+     *
+     * @param ts the TermSelector
+     * @param s the sequent to get the script for
+     * @return a default transcript for the given parameters
+     * @throws RuleException
+     */
     protected final String getTranscript(TermSelector ts, Sequent s) throws RuleException {
         Term on = ts.selectSubterm(s);
         return getTranscript(new Pair<>("on", on));

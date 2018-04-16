@@ -75,7 +75,7 @@ public class LetSubstitutionRule extends AbstractProofRule {
         TermSelector selector = RuleUtil.matchSubtermInSequent(targetLet::equals, target.getSequent())
                 .orElseThrow(() -> new RuleException("Could not find 'on' term"));
 
-        ProofRuleApplicationBuilder builder = new ProofRuleApplicationBuilder(this);
+        ProofRuleApplicationBuilder builder = handleControlParameters(parameters, target.getSequent());
 
         builder.setApplicability(ProofRuleApplication.Applicability.APPLICABLE);
         builder.newBranch().addReplacement(selector, applyLetSubstitution(targetLet));

@@ -242,4 +242,68 @@ public class TestRuleApplicator {
         assertEquals(1, proofNodes.size());
         assertEquals("[$plus(i1, 1), $plus(i3, 0)] ==> [b2]", proofNodes.get(0).getSequent().toString());
     }
+
+    @Test
+    public void testDifferentTypeApplication() throws DafnyException, DafnyParserException, TermBuildException, FormatException, RuleException {
+        TermParser tp = new TermParser(symbTable);
+
+        Sequent seq = tp.parseSequent("let b3 := true :: let b2 := false :: b3 || b2 |- b2");
+
+        ProofRule letSub = new LetSubstitutionRule();
+        ProofNode pn = ProofMockUtil.mockProofNode(null, seq.getAntecedent(), seq.getSuccedent());
+        Parameters parameters = new Parameters();
+        parameters.putValue("on", new TermSelector("A.0").selectSubterm(seq));
+        parameters.putValue("type", "once");
+        ProofRuleApplication pra = letSub.makeApplication(pn, parameters);
+        List<ProofNode> proofNodes = RuleApplicator.applyRule(pra, pn);
+        assertEquals(1, proofNodes.size());
+        assertEquals("[(let b2 := false :: $or(true, b2))] ==> [b2]", proofNodes.get(0).getSequent().toString());
+
+        seq = tp.parseSequent("let b3 := true :: let b2 := false :: b3 || b2 |- b2");
+
+        letSub = new LetSubstitutionRule();
+        pn = ProofMockUtil.mockProofNode(null, seq.getAntecedent(), seq.getSuccedent());
+        parameters = new Parameters();
+        parameters.putValue("on", new TermSelector("A.0").selectSubterm(seq));
+        parameters.putValue("type", "exhaustive");
+        pra = letSub.makeApplication(pn, parameters);
+        proofNodes = RuleApplicator.applyRule(pra, pn);
+        assertEquals(1, proofNodes.size());
+        assertEquals("[$or(true, false)] ==> [b2]", proofNodes.get(0).getSequent().toString());
+
+        seq = tp.parseSequent("i1 + 0 + 1 + 0 |- b2");
+
+        try {
+            letSub = DafnyRuleUtil.generateDafnyRuleFromFile("./modules/core/test-res/edu/kit/iti/algover/dafnyrules/addzero.dfy");
+        } catch (DafnyRuleException e) {
+            System.out.println("Exception corrued during laoding dafny rule addzero2.dfy.");
+            e.printStackTrace();
+        }
+        pn = ProofMockUtil.mockProofNode(null, seq.getAntecedent(), seq.getSuccedent());
+        parameters = new Parameters();
+        parameters.putValue("on", new TermSelector("A.0").selectSubterm(seq));
+        parameters.putValue("type", "exhaustive");
+        pra = letSub.makeApplication(pn, parameters);
+        proofNodes = RuleApplicator.applyRule(pra, pn);
+        assertEquals(1, proofNodes.size());
+        assertEquals("[$plus($plus(i1, 0), 1)] ==> [b2]", proofNodes.get(0).getSequent().toString());
+
+        seq = tp.parseSequent("i1 + 0 + 1 + 0 |- b2");
+
+        try {
+            letSub = DafnyRuleUtil.generateDafnyRuleFromFile("./modules/core/test-res/edu/kit/iti/algover/dafnyrules/addzero.dfy");
+        } catch (DafnyRuleException e) {
+            System.out.println("Exception corrued during laoding dafny rule addzero2.dfy.");
+            e.printStackTrace();
+        }
+        pn = ProofMockUtil.mockProofNode(null, seq.getAntecedent(), seq.getSuccedent());
+        parameters = new Parameters();
+        parameters.putValue("on", new TermSelector("A.0").selectSubterm(seq));
+        parameters.putValue("type", "deep");
+        pra = letSub.makeApplication(pn, parameters);
+        proofNodes = RuleApplicator.applyRule(pra, pn);
+        assertEquals(1, proofNodes.size());
+        assertEquals("[$plus(i1, 1)] ==> [b2]", proofNodes.get(0).getSequent().toString());
+
+    }
 }

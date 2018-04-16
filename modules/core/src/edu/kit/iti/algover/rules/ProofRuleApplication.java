@@ -70,6 +70,11 @@ public final class ProofRuleApplication {
      */
     private final @NonNull String scriptTranscript;
 
+    private final boolean exhaustive;
+    private final boolean deep;
+    private final boolean global;
+    private final TermSelector on;
+
     /**
      * Instantiates a new proof rule application.
      *
@@ -89,6 +94,14 @@ public final class ProofRuleApplication {
      *            such parameters exist.
      * @param refiner
      *            the potential refiner
+     * @param exhaustive
+     *            whether the rule should be applied exhaustive
+     * @param deep
+     *            whether the rule should be applied deep exhaustive
+     * @param deep
+     *            whether the rule should be applied global
+     * @param on
+     *            pointing to the Term this application is applied to
      */
     public ProofRuleApplication(
             @NonNull ProofRule rule,
@@ -96,7 +109,11 @@ public final class ProofRuleApplication {
             @NonNull Applicability applicability,
             @NonNull String scriptTranscript,
             @NonNull Parameters openParameters,
-            @Nullable Refiner refiner) {
+            @Nullable Refiner refiner,
+            @NonNull boolean exhaustive,
+            @NonNull boolean deep,
+            @NonNull boolean global,
+            @Nullable TermSelector on) {
         this.rule = rule;
         this.branchInfo = branchInfo;
         this.applicability = applicability;
@@ -104,6 +121,10 @@ public final class ProofRuleApplication {
         this.openParameters = openParameters;
         this.scriptTranscript = scriptTranscript;
         openParameters.setImmutable();
+        this.exhaustive = exhaustive;
+        this.deep = deep;
+        this.global = global;
+        this.on = on;
     }
 
     /**
@@ -175,7 +196,7 @@ public final class ProofRuleApplication {
      */
     private ProofRuleApplication thisWithoutRefiner() {
         return new ProofRuleApplication(rule, branchInfo, applicability,
-                scriptTranscript, openParameters, null);
+                scriptTranscript, openParameters, null, exhaustive, deep, global, on);
     }
 
     /**
@@ -215,6 +236,39 @@ public final class ProofRuleApplication {
      */
     public ImmutableList<BranchInfo> getBranchInfo() {
         return branchInfo;
+    }
+
+
+    /**
+     * checks if this application is exhaustive.
+     * @return if its exhaustive
+     */
+    public boolean isExhaustive() {
+        return exhaustive;
+    }
+
+    /**
+     * checks if this application is deep.
+     * @return if its deep
+     */
+    public boolean isDeep() {
+        return deep;
+    }
+
+    /**
+     * checks if this application is global.
+     * @return if its global
+     */
+    public boolean isGlobal() {
+        return global;
+    }
+
+    /**
+     * Gets the termSelector for the on parameter
+     * @return the termselector
+     */
+    public TermSelector getOn() {
+        return on;
     }
 
     /**

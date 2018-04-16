@@ -112,7 +112,7 @@ public class DafnyRule extends AbstractProofRule {
 
     @Override
     public ProofRuleApplication makeApplication(ProofNode target, Parameters parameters) throws RuleException {
-        ProofRuleApplicationBuilder proofRuleApplicationBuilder = new ProofRuleApplicationBuilder(this);
+        ProofRuleApplicationBuilder proofRuleApplicationBuilder = handleControlParameters(parameters, target.getSequent());
         try {
             Term on = parameters.getValue(ON_PARAM);
 

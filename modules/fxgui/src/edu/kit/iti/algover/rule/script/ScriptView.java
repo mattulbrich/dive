@@ -76,6 +76,8 @@ public class ScriptView extends AsyncHighlightingCodeArea {
             case ScriptLanguageLexer.SINGLE_LINE_COMMENT:
             case ScriptLanguageLexer.MULTI_LINE_COMMENT:
                 return Collections.singleton("comment");
+            case ScriptLanguageLexer.STRING_LITERAL:
+                return Collections.singleton("value-literal");
             default:
                 return Collections.emptyList();
         }

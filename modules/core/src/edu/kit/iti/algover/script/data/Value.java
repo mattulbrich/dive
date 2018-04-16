@@ -1,5 +1,6 @@
 package edu.kit.iti.algover.script.data;
 
+import com.sun.deploy.security.ValidationState;
 import edu.kit.iti.algover.script.ast.*;
 
 import java.math.BigInteger;
@@ -34,6 +35,10 @@ public class Value<T> {
     }
 
     public static Value<String> from(StringLiteral s) {
+        String str = s.getText();
+        if(str.startsWith("\"") && str.endsWith("\"")) {
+            return new Value<>(Type.STRING, str.substring(1, str.length() - 1));
+        }
         return new Value<>(Type.STRING, s.getText());
     }
 

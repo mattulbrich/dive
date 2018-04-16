@@ -13,6 +13,7 @@ import edu.kit.iti.algover.util.Pair;
 import edu.kit.iti.algover.util.RuleUtil;
 
 
+import javax.naming.OperationNotSupportedException;
 import javax.xml.soap.Node;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -23,6 +24,22 @@ import java.util.List;
  */
 public class RuleApplicator {
 
+    public static List<ProofNode> applyRule(ProofRuleApplication proofRuleApplication, ProofNode pn)  throws RuleException {
+        if(proofRuleApplication.isExhaustive()) {
+            if(proofRuleApplication.isDeep() && proofRuleApplication.isGlobal()) {
+                //TODO
+            }
+            if(proofRuleApplication.isDeep()) {
+                return applyRuleDeepExhaustive(proofRuleApplication.getRule(), pn, proofRuleApplication.getOn());
+            }
+            if(proofRuleApplication.isGlobal()) {
+                //TODO
+            }
+            return applyRuleExhaustive(proofRuleApplication.getRule(), pn, proofRuleApplication.getOn());
+        }
+        return applyRuleOnce(proofRuleApplication, pn);
+    }
+
     /**
      * Apply a Proof Rule to a proof node
      *
@@ -30,7 +47,7 @@ public class RuleApplicator {
      * @param pn                   the ProofNode to which the rule should be applied
      * @return a list of new proof nodes (children) resulting form the rule application
      */
-    public static List<ProofNode> applyRule(ProofRuleApplication proofRuleApplication, ProofNode pn) {
+    public static List<ProofNode> applyRuleOnce(ProofRuleApplication proofRuleApplication, ProofNode pn) {
 
         ImmutableList<BranchInfo> applicationInfos = proofRuleApplication.getBranchInfo();
         if (applicationInfos.equals(BranchInfo.UNCHANGED)) {

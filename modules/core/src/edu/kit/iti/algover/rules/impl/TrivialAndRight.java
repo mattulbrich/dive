@@ -28,7 +28,7 @@ import edu.kit.iti.algover.util.RuleUtil;
 public class TrivialAndRight extends AbstractProofRule {
 
     public TrivialAndRight() {
-        super(ON_PARAM, DEEP_PARAM);
+        super(ON_PARAM);
     }
 
     private static Map<String, Class<?>> makeOptionalParameters() {

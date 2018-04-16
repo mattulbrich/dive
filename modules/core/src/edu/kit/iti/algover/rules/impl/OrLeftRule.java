@@ -74,7 +74,7 @@ public class OrLeftRule extends AbstractProofRule {
         if(!ots.isPresent()) {
             throw new RuleException("on is ambiguos.");
         }
-        ProofRuleApplicationBuilder builder = new ProofRuleApplicationBuilder(this);
+        ProofRuleApplicationBuilder builder = handleControlParameters(parameters, target.getSequent());
         builder.newBranch().addReplacement(ots.get(), on.getTerm(0));
         builder.newBranch().addReplacement(ots.get(), on.getTerm(1));
 
