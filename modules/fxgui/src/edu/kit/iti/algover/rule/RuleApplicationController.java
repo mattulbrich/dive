@@ -38,6 +38,7 @@ public class RuleApplicationController extends FxmlController {
         this.scriptController = new ScriptController(executor, listener);
         this.scriptView = scriptController.getView();
 
+        //TODO: laod rules from project.getallRules to include lemmas
         for (ProofRule rule : ServiceLoader.load(ProofRule.class)) {
             addProofRule(rule);
         }

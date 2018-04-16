@@ -60,6 +60,7 @@ public class RuleViewOverlay extends AnchorPane {
             } catch (RuleException e) {
                 e.printStackTrace();
             }
+            applyButton.setDisable(this.application.getApplicability() != ProofRuleApplication.Applicability.APPLICABLE);
         });
 
         for (Map.Entry<String, Object> entry : application.getOpenParameters().entrySet()) {
