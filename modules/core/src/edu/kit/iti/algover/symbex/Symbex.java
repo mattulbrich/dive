@@ -5,12 +5,17 @@
  */
 package edu.kit.iti.algover.symbex;
 
+import antlr.collections.AST;
+import edu.kit.iti.algover.ProgramDatabase;
+import edu.kit.iti.algover.dafnystructures.TarjansAlgorithm;
+import edu.kit.iti.algover.parser.DafnyException;
 import edu.kit.iti.algover.parser.DafnyParser;
 import edu.kit.iti.algover.parser.DafnyTree;
 import edu.kit.iti.algover.symbex.AssertionElement.AssertionType;
 import edu.kit.iti.algover.symbex.PathConditionElement.AssumptionType;
 import edu.kit.iti.algover.util.ASTUtil;
 import edu.kit.iti.algover.util.ImmutableList;
+import edu.kit.iti.algover.util.Pair;
 
 import java.util.*;
 
@@ -103,14 +108,166 @@ public class Symbex {
                     handleAssume(stack, state, stm, remainder);
                     break;
 
+                case DafnyParser.CALL:
+                    handleCallStatement(stack, state, stm, remainder);
+                    break;
+
                 default:
-                    throw new UnsupportedOperationException("Unknown code: "
+                    throw new UnsupportedOperationException("Unsupported statement: "
                                 + DafnyParser.tokenNames[stm.getType()]);
                 }
             }
         }
 
         return results;
+    }
+
+    private void handleCallStatement(Deque<SymbexPath> stack, SymbexPath state, DafnyTree stm, DafnyTree remainder) {
+
+        DafnyTree receiver;
+        DafnyTree method = stm.getChild(0).getDeclarationReference();
+        DafnyTree args = stm.getLastChild();
+
+        if(stm.getChildCount() > 2) {
+            receiver = stm.getChild(1);
+        } else {
+            receiver = null;
+        }
+
+        SymbexPath newState = new SymbexPath(state);
+        handleMethodCall(stack, newState, stm, receiver, true, method, args);
+        newState.setBlockToExecute(remainder);
+        stack.add(newState);
+    }
+
+    /**
+     * Handle a call statement (w/o receiver)
+     *
+     * var $resultN : R;
+     * assert pre_m;
+     * assert variant_m < my_variant   (if appropriate)
+     * $heap := anon($heap, mod, anonheap);
+     * assume post_m;
+     * assume isCreated($resultN) (if appropriate)
+     *
+     *
+     * @returns a DafnyTree which can be used to access
+     * the result of the call for later use.
+     */
+    private DafnyTree handleMethodCall(Deque<SymbexPath> stack, SymbexPath state,
+                                       DafnyTree refersTo,
+                                       DafnyTree receiver, boolean nullCheckReceiver,
+                                       DafnyTree method, DafnyTree args) {
+
+        assert method.getType() == DafnyParser.METHOD;
+
+        String methodname = method.getChild(0).getText();
+        List<Pair<String, DafnyTree>> subs = new ArrayList<>();
+
+        // bring up result value
+        DafnyTree returns = method.getFirstChildWithType(DafnyParser.RETURNS);
+        DafnyTree result = null;
+        if(returns != null) {
+            DafnyTree type = returns.getChild(0).getFirstChildWithType(DafnyParser.TYPE).getChild(0);
+            result = ASTUtil.freshVariable("$res_" + methodname, type, state);
+            subs.add(new Pair<>(returns.getChild(0).getChild(0).getText(), result));
+        }
+
+        // Receiver must be mapped to "this"
+        if(receiver != null) {
+            subs.add(new Pair<>("this", receiver));
+        }
+
+        subs.addAll(ASTUtil.methodParameterSubs(method, args));
+
+        // Preconditions satisfied
+        for (DafnyTree req : method.getChildrenWithType(DafnyParser.REQUIRES)) {
+            SymbexPath reqState = new SymbexPath(state);
+            reqState.setBlockToExecute(EMPTY_PROGRAM);
+            DafnyTree condition = req.getLastChild();
+            // wrap that into a substitution
+            condition = ASTUtil.letCascade(subs, condition);
+            reqState.setProofObligation(condition, refersTo, AssertionType.CALL_PRE);
+            stack.add(reqState);
+        }
+
+        // variant if in recursion loop.
+        DafnyTree callerSCC = state.getMethod().getExpressionType();
+        DafnyTree calleeSCC = method.getExpressionType();
+        assert callerSCC.getType() == TarjansAlgorithm.CALLGRAPH_SCC
+            && calleeSCC.getType() == TarjansAlgorithm.CALLGRAPH_SCC;
+        if(callerSCC.getText().equals(calleeSCC.getText())) {
+            // both in same stron. conn. component ==> potential cycle
+            DafnyTree decr = method.getFirstChildWithType(DafnyParser.DECREASES);
+            if(decr == null) {
+                decr = ASTUtil.intLiteral(0);
+                // TODO rather throw an exception?
+            } else {
+                decr = decr.getLastChild();
+            }
+            decr = ASTUtil.letCascade(subs, decr);
+            DafnyTree condition = ASTUtil.noetherLess(decr, ASTUtil.id("$decr"));
+            // wrap that into a substitution
+            condition = ASTUtil.letCascade(subs, condition);
+            SymbexPath decrState = new SymbexPath(state);
+            decrState.setBlockToExecute(EMPTY_PROGRAM);
+            decrState.setProofObligation(condition, refersTo, AssertionType.VARIANT_DECREASED);
+            stack.add(decrState);
+        }
+
+        // Modify heap if not strictly pure
+        if(!ProgramDatabase.isStrictlyPure(method)) {
+            DafnyTree mod = method.getFirstChildWithType(DafnyParser.MODIFIES);
+            if (mod == null) {
+                mod = ASTUtil.builtInVar("$everything");
+            } else {
+                mod = mod.getLastChild();
+            }
+            mod = ASTUtil.letCascade(subs, mod);
+            state.addAssignment(ASTUtil.anonymiseHeap(state, mod));
+        }
+
+        // now assume the postcondition (and some free postconditions)
+        for (DafnyTree ens : method.getChildrenWithType(DafnyParser.ENSURES)) {
+            DafnyTree condition = ens.getLastChild();
+            condition = ASTUtil.letCascade(subs, condition);
+            state.addPathCondition(condition, refersTo, AssumptionType.CALL_POST);
+        }
+
+        return result;
+    }
+
+    /*
+     * new C.Init(p) becomes
+     *
+     * var $newN : C;
+     * assume !isCreated($heap);
+     * $heap := create($heap, $newN);
+     *
+     * there may be more if a constructor method is mentioned.
+     *
+     */
+    private DafnyTree handleNewCommand(Deque<SymbexPath> stack, SymbexPath current, DafnyTree newExpr, DafnyTree stm) {
+
+        assert newExpr.getType() == DafnyParser.NEW;
+
+        DafnyTree clss = newExpr.getChild(0);
+
+        DafnyTree newObj = ASTUtil.freshVariable("$new", clss, current);
+
+        current.addPathCondition(ASTUtil.negate(ASTUtil.call("$isCreated", ASTUtil.builtInVar("$heap"), newObj)), stm,
+                AssumptionType.IMPLICIT_ASSUMPTION);
+        current.addAssignment(ASTUtil.assign(ASTUtil.id("$heap"),
+                ASTUtil.call("create", ASTUtil.builtInVar("$heap"), newObj.dupTree())));
+
+        if (newExpr.getChildCount() > 1) {
+            DafnyTree call = newExpr.getChild(1);
+            DafnyTree method = call.getChild(0).getDeclarationReference();
+            DafnyTree args = call.getChild(1);
+            handleMethodCall(stack, current, call, newObj, false, method, args);
+        }
+
+        return newObj;
     }
 
     /*
@@ -290,10 +447,34 @@ public class Symbex {
     void handleAssign(Deque<SymbexPath> stack, SymbexPath state,
             DafnyTree stm, DafnyTree remainder) {
         DafnyTree assignee = stm.getChild(0);
-        DafnyTree expression = stm.getChild(1);
         handleExpression(stack, state, assignee);
-        handleExpression(stack, state, expression);
-        state.addAssignment(stm);
+
+        DafnyTree expression = stm.getChild(1);
+        switch(expression.getType()) {
+        case DafnyParser.CALL:
+            DafnyTree decl = expression.getChild(expression.getChildCount()-2).getDeclarationReference();
+            if(decl.getType() == DafnyParser.METHOD) {
+                DafnyTree receiver = expression.getChildCount() > 2 ? expression.getChild(1) : null;
+                DafnyTree args = expression.getFirstChildWithType(DafnyParser.ARGS);
+                DafnyTree resultVar = handleMethodCall(stack, state, expression, receiver, true, decl, args);
+                state.addAssignment(ASTUtil.assign(assignee, resultVar));
+            } else {
+                handleExpression(stack, state, expression);
+                state.addAssignment(stm);
+            }
+            break;
+
+        case DafnyParser.NEW:
+            DafnyTree newVar = handleNewCommand(stack, state, expression, stm);
+            state.addAssignment(ASTUtil.assign(assignee, newVar));
+            break;
+
+        default:
+            handleExpression(stack, state, expression);
+            state.addAssignment(stm);
+            break;
+        }
+
         state.setBlockToExecute(remainder);
         stack.push(state);
     }
@@ -308,16 +489,18 @@ public class Symbex {
      */
     void handleVarDecl(Deque<SymbexPath> stack, SymbexPath state,
             DafnyTree stm, DafnyTree remainder) {
-        if (stm.getChildCount() >= 3) {
+        DafnyTree last = stm.getLastChild();
+        if(last.getType() == DafnyParser.TYPE) {
+            state.setBlockToExecute(remainder);
+            stack.push(state);
+        } else {
             DafnyTree id = stm.getChild(0);
-            DafnyTree expression = stm.getChild(2);
-            handleExpression(stack, state, expression);
+            DafnyTree expression = last;
             DafnyTree assign = ASTUtil.assign(id, expression);
             assign.getChild(0).setDeclarationReference(stm);
-            state.addAssignment(assign);
+            // defer to assignment handling in this case
+            handleAssign(stack, state, assign, remainder);
         }
-        state.setBlockToExecute(remainder);
-        stack.push(state);
     }
 
     /**
@@ -368,11 +551,13 @@ public class Symbex {
                     default:
                         throw new Error(tree.toString());
                 }
+
             case DafnyParser.ARRAY_ACCESS:
             case DafnyParser.FIELD_ACCESS:
                 vars.add(HEAP_VAR);
                 break;
-            default: throw new Error(tree.toString());
+
+                default: throw new Error(tree.toString());
             }
             break;
 
@@ -482,6 +667,14 @@ public class Symbex {
                     modifies.getLastChild()));
         }
 
+        DafnyTree decreases = function.getFirstChildWithType(DafnyParser.DECREASES);
+        if(decreases == null) {
+            result.addAssignment(ASTUtil.assign(ASTUtil.builtInVar("$decr"),
+                    ASTUtil.intLiteral(0)));
+        } else {
+            result.addAssignment(ASTUtil.assign(ASTUtil.builtInVar("$decr"),
+                    decreases.getLastChild()));
+        }
 
         return result;
     }

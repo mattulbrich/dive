@@ -32,6 +32,10 @@ class C_Class {
       p_param.fl_var
    }
 
+   method m_Init(p_param: int)
+      requires p_param > 0
+   { }
+
    method m_method(p_param: C_Class) returns (p_return: C_Class)
      requires p_param != fl_var
      ensures p_param != fl_var
@@ -66,4 +70,14 @@ class C_Class {
       m_topmethod();
       m_method(f_global(f_class(l_top)));
    }
+}
+
+method objectCreation()
+  ensures true
+{
+  var l_x := new C_Class;
+
+  var l_y : C_Class;
+  l_y := new C_Class;
+  l_y := new C_Class.m_Init(42);
 }

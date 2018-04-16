@@ -37,7 +37,7 @@ public class PlayProofsTest {
 
     private final AlgoVerService service;
 
-    @Parameters
+    @Parameters(name= "{0}")
     public static Collection<Object[]> data() {
         System.err.println(new File(".").getAbsolutePath());
 

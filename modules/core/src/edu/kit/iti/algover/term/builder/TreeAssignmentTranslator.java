@@ -12,7 +12,9 @@ import edu.kit.iti.algover.data.SymbolTable;
 import edu.kit.iti.algover.parser.DafnyParser;
 import edu.kit.iti.algover.parser.DafnyTree;
 import edu.kit.iti.algover.term.FunctionSymbol;
+import edu.kit.iti.algover.term.LetTerm;
 import edu.kit.iti.algover.term.Term;
+import edu.kit.iti.algover.term.VariableTerm;
 import edu.kit.iti.algover.util.ImmutableList;
 import edu.kit.iti.algover.util.Pair;
 
@@ -33,6 +35,31 @@ public class TreeAssignmentTranslator {
     public ImmutableList<Pair<FunctionSymbol, Term>>
                 translateAssignments(ImmutableList<DafnyTree> assignments) throws TermBuildException {
         return assignments.map(this::translateAssignment);
+    }
+
+    public Term translateToLet(ImmutableList<DafnyTree> assignments, DafnyTree expression) throws TermBuildException {
+        return translateToLet0(assignments.reverse(), expression);
+    }
+
+    private Term translateToLet0(ImmutableList<DafnyTree> assignments, DafnyTree expression) throws TermBuildException {
+
+        if(assignments.isEmpty()) {
+            return translator.build(expression);
+        }
+
+        DafnyTree ass = assignments.getLast();
+        Pair<FunctionSymbol, Term> assPair = translateAssignment(ass);
+        VariableTerm var = new VariableTerm(assPair.fst.getName(), assPair.fst.getResultSort());
+        Term expr = assPair.snd;
+        translator.bindVariable(var);
+        Term inner = translateToLet0(assignments.getTail(), expression);
+        translator.unbindVariable(var);
+
+        return new LetTerm(var, expr, inner);
+    }
+
+    public ImmutableList<Term> translateToSSA(ImmutableList<DafnyTree> assignments, DafnyTree expression) throws TermBuildException {
+    throw new Error();
     }
 
     private Pair<FunctionSymbol, Term> translateAssignment(DafnyTree tree) throws TermBuildException {
@@ -125,7 +152,4 @@ public class TreeAssignmentTranslator {
 
         return new Pair<>(symbol, assigned);
     }
-
-
-
 }

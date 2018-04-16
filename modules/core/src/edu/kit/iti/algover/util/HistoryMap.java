@@ -54,4 +54,9 @@ public class HistoryMap<K, V> extends AbstractMap<K, V> {
     public void pop() {
         rewindHistory(getHistory()-1);
     }
+
+    public V peek() {
+        Pair<K, V> top = undoHistory.peek();
+        return get(top.fst);
+    }
 }

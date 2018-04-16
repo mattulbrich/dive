@@ -174,6 +174,7 @@ clazz:
   '}'!
   ;
 
+// TODO Make order independent
 method:
   ( 'ghost' )?
   tok = ('method' | 'lemma')
@@ -397,10 +398,17 @@ endless_expr:
   ;
 
 let_expr:
-  LET ( 'var' )? usual_or_logic_id (',' usual_or_logic_id)* ':=' expression (',' expression)*
+  LET ( 'var' )? usual_or_logic_id_or_this (',' usual_or_logic_id_or_this)* ':=' expression (',' expression)*
     (';'|'::')  expression
-      -> ^(LET ^(VAR usual_or_logic_id*) expression+)
+      -> ^(LET ^(VAR usual_or_logic_id_or_this+) expression+)
   ;
+
+// in logic (not in programs!) it is allowed to write "let this := a ; ..."
+usual_or_logic_id_or_this:
+    usual_or_logic_id
+  | {logicMode}? t=THIS -> ^(ID[t])
+  ;
+
 
 postfix_expr:
   ( atom_expr -> atom_expr )   // see ANTLR ref. page 175
@@ -466,8 +474,8 @@ quantifier:
   ;
 
 new_expression:
-  'new' clss=ID ( '.' meth=ID '(' expressions ')'
-                     -> ^( 'new' $clss $meth? ^(ARGS expressions) )
+  'new' clss=ID ( '.' meth=ID '(' expressions? ')'
+                     -> ^( 'new' $clss ^(CALL $meth? ^(ARGS expressions?) ))
                 |    -> ^( 'new' $clss )
                 )
   ;

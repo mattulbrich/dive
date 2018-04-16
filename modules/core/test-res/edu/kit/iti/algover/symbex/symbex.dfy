@@ -32,6 +32,8 @@ method symbexTest(p : int)
 
   // direct initialisation
   var init_direct : int := 43;
+  // without type!
+  var init_wo_type := 41;
 
   if p == count
   {

@@ -192,6 +192,9 @@ public class BuiltinSymbols extends MapSymbolTable {
     public static final FunctionSymbol CREATE =
             new FunctionSymbol("$create", Sort.HEAP, Sort.HEAP, Sort.OBJECT);
 
+    public static final FunctionSymbol IS_CREATED =
+            new FunctionSymbol("$isCreated", Sort.BOOL, Sort.HEAP, Sort.OBJECT);
+
     // Checkstyle: ON JavadocVariableCheck
     private final Map<String, FunctionSymbolFamily> symbolFamilies =
             new HashMap<>();

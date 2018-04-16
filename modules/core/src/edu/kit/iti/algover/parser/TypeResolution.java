@@ -70,12 +70,12 @@ public class TypeResolution extends DafnyTreeDefaultVisitor<DafnyTree, Void> {
         case DafnyParser.EX:
             DafnyTree typeTree = ref.getFirstChildWithType(DafnyParser.TYPE);
             DafnyTree type;
-            if (typeTree == null) {
-                // this is the case for
-                type = ref.getLastChild().getExpressionType();
-            } else {
+//            if (typeTree == null) {
+//                // this is the case for "var i := 0"
+//                type = ref.getLastChild().getExpressionType();
+//            } else {
                 type = typeTree.getChild(0);
-            }
+//            }
             t.setExpressionType(type);
             return type;
 
@@ -113,14 +113,23 @@ public class TypeResolution extends DafnyTreeDefaultVisitor<DafnyTree, Void> {
 
     @Override
     public DafnyTree visitVAR(DafnyTree tree, Void a) {
-        if(tree.getChildCount() > 2) {
-            DafnyTree ty = tree.getChild(2).accept(this, null);
-            String ty1 = TreeUtil.toTypeString(tree.getFirstChildWithType(DafnyParser.TYPE).getChild(0));
-            String ty2 = TreeUtil.toTypeString(ty);
-            // CAUTION: Subtyping
-            if(!ty1.equals(ty2)) {
-                exceptions.add(new DafnyException("Assigning a value of type " + ty2 + " to an entitity"
-                        + " of type " + ty1, tree));
+        if(tree.getLastChild().getType() != DafnyParser.TYPE) {
+            // this is a variable declaration with assignment ...
+            DafnyTree ty = tree.getLastChild().accept(this, null);
+            DafnyTree explicitType = tree.getFirstChildWithType(DafnyParser.TYPE);
+            if (explicitType != null) {
+                String ty1 = TreeUtil.toTypeString(explicitType.getChild(0));
+                String ty2 = TreeUtil.toTypeString(ty);
+                // TODO FIXME CAUTION: Subtyping
+                if(!ty1.equals(ty2)) {
+                    exceptions.add(new DafnyException("Assigning a value of type " + ty2 + " to an entitity"
+                            + " of type " + ty1, tree));
+                }
+            } else {
+                // if no explicit type, add it as artificial element
+                DafnyTree newTyNode = new DafnyTree(DafnyParser.TYPE);
+                newTyNode.addChild(ty.dupTree());
+                tree.insertChild(tree.getChildCount() - 1, newTyNode);
             }
         }
         return null;
@@ -227,7 +236,8 @@ public class TypeResolution extends DafnyTreeDefaultVisitor<DafnyTree, Void> {
     @Override
     public DafnyTree visitLET(DafnyTree t, Void a) {
 
-        for (int i = 0; i < t.getChildCount(); i++) {
+        // do not visit the list of variables!
+        for (int i = 1; i < t.getChildCount(); i++) {
             DafnyTree child = t.getChild(i);
             child.accept(this, null);
         }
@@ -372,6 +382,15 @@ public class TypeResolution extends DafnyTreeDefaultVisitor<DafnyTree, Void> {
         }
         t.setExpressionType(result);
         return result;
+    }
+
+    @Override
+    public DafnyTree visitNEW(DafnyTree t, Void a) {
+        DafnyTree clss = t.getChild(0).getDeclarationReference();
+        assert clss.getType() == DafnyParser.CLASS;
+        DafnyTree ty = clss.getChild(0);
+        t.setExpressionType(ty);
+        return ty;
     }
 
     @Override

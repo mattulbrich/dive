@@ -5,11 +5,14 @@
  */
 package edu.kit.iti.algover.util;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Set;
 
+import edu.kit.iti.algover.term.builder.TermBuilder;
 import org.antlr.runtime.tree.Tree;
 
 import edu.kit.iti.algover.parser.DafnyParser;
@@ -76,6 +79,18 @@ public final class ASTUtil {
     public static DafnyTree _null() {
         return new DafnyTree(DafnyParser.NULL, "null");
     }
+
+
+    /**
+     * Returns a new constant tree for the <code>this</code> literal.
+     *
+     * @return a freshly created tree
+     */
+    // Checkstyle: IGNORE MethodNameCheck
+    public static DafnyTree _this() {
+        return new DafnyTree(DafnyParser.THIS, "this");
+    }
+
 
     /**
      * Returns a tree for an equality on asts.
@@ -304,12 +319,15 @@ public final class ASTUtil {
         return create(DafnyParser.ASSIGN, id, wildcard);
     }
 
-    public static DafnyTree anonymiseHeap(SymbexPath path) {
+    public static DafnyTree anonymiseHeap(SymbexPath path, DafnyTree mod) {
         DafnyTree heap = builtInVar("$heap");
-        DafnyTree mod = builtInVar("$mod");
         DafnyTree anonHeap = freshVariable("$aheap", id("heap"), path);
         DafnyTree anon = call("$anon", heap, mod, anonHeap);
         return assign(heap, anon);
+    }
+
+    public static DafnyTree anonymiseHeap(SymbexPath path) {
+        return anonymiseHeap(path, builtInVar("$mod"));
     }
 
     public static DafnyTree call(String function, DafnyTree... args) {
@@ -382,7 +400,7 @@ public final class ASTUtil {
         String clssName = clss.getChild(0).getText();
         String fieldName = reference.getChild(0).getText();
 
-        return "field$" + clssName + "$" + fieldName;
+        return TermBuilder.fieldName(clssName, fieldName);
     }
 
     public static Sort toSort(DafnyTree tree) {
@@ -399,5 +417,31 @@ public final class ASTUtil {
 
     public static DafnyTree type(String type) {
         return create(DafnyParser.TYPE, id(type));
+    }
+
+    public static DafnyTree letCascade(List<Pair<String, DafnyTree>> subs, DafnyTree expression) {
+
+        DafnyTree result = new DafnyTree(DafnyParser.LET);
+        DafnyTree vars = new DafnyTree(DafnyParser.VAR);
+        result.addChild(vars);
+        for (Pair<String, DafnyTree> sub : subs) {
+            vars.addChild(id(sub.fst));
+            result.addChild(sub.snd);
+        }
+        result.addChild(expression);
+        return result;
+
+    }
+
+    public static Collection<Pair<String, DafnyTree>> methodParameterSubs(DafnyTree method, DafnyTree args) {
+        List<Pair<String, DafnyTree>> result = new ArrayList<>();
+        DafnyTree formalParams = method.getFirstChildWithType(DafnyParser.ARGS);
+        assert formalParams.getChildCount() == args.getChildCount();
+
+        for (int i = 0; i < args.getChildCount(); i++) {
+            result.add(new Pair<>(formalParams.getChild(i).getChild(0).getText(), args.getChild(i)));
+        }
+
+        return result;
     }
 }
