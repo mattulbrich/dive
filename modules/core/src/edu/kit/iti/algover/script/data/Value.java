@@ -1,6 +1,5 @@
 package edu.kit.iti.algover.script.data;
 
-import com.sun.deploy.security.ValidationState;
 import edu.kit.iti.algover.script.ast.*;
 
 import java.math.BigInteger;
