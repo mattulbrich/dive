@@ -8,7 +8,6 @@ package edu.kit.iti.algover.project;
 import edu.kit.iti.algover.data.BuiltinSymbols;
 import edu.kit.iti.algover.data.MapSymbolTable;
 import edu.kit.iti.algover.data.SymbolTable;
-import edu.kit.iti.algover.parser.DafnyParserException;
 import edu.kit.iti.algover.proof.PVC;
 import edu.kit.iti.algover.proof.PVCCollection;
 import edu.kit.iti.algover.proof.Proof;
@@ -20,7 +19,6 @@ import edu.kit.iti.algover.term.Term;
 import edu.kit.iti.algover.term.parser.TermParser;
 import org.junit.Assert;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import java.io.File;
@@ -39,10 +37,8 @@ public class ProjectManagerTest {
 
     Project p = null;
     Term testTerm;
-    String testPVCName = "m1/Post";
-    String testPVC2Name = "x/Post";
-    String testPVC2 = "x/Post";
-    ProjectManager pm = null;
+    String testPVCm1Post = "m1/Post";
+    String testPVCxPost = "x/Post";
 
     @Before
     public void prepare() throws Exception {
@@ -69,15 +65,14 @@ public class ProjectManagerTest {
 
     @Test
     public void loadExistingProject() throws Exception {
-        // REVIEW: Why is pm a field in the class.
-        pm = new ProjectManager(new File(testDir), config);
+        ProjectManager pm = new ProjectManager(new File(testDir), config);
         Project project = pm.getProject();
 
         Assert.assertEquals("Number of DafnyFiles", p.getDafnyFiles().size(), project.getDafnyFiles().size());
         Assert.assertEquals("config2.xml", pm.getConfigFilename());
 
         PVCCollection allPVCs = project.getAllPVCs();
-        PVC testPVC = project.getPVCByName(testPVC2Name);
+        PVC testPVC = project.getPVCByName(testPVCxPost);
 
         Sequent s = testPVC.getSequent();
 
@@ -93,11 +88,11 @@ public class ProjectManagerTest {
         Assert.assertEquals(t.getSort(), testTerm.getSort());
         Assert.assertEquals(2, t.getSubterms().size());
 
-        Proof proof = pm.getProofForPVC(testPVC2Name);
+        Proof proof = pm.getProofForPVC(testPVCxPost);
 
         Assert.assertNotNull(proof.getScript());
-//        pm.initializeProofDataStructures(testPVCName);
-        // pm.findAndParseScriptFileForPVC(testPVCName);
+//        pm.initializeProofDataStructures(testPVCm1Post);
+        // pm.findAndParseScriptFileForPVC(testPVCm1Post);
 
         Assert.assertEquals("Proofscript is parsed", ProofStatus.CHANGED_SCRIPT, proof.getProofStatus());
         Assert.assertNull(proof.getFailException());
@@ -106,16 +101,16 @@ public class ProjectManagerTest {
         Assert.assertEquals("Proofscript has run", ProofStatus.OPEN, proof.getProofStatus());
         Assert.assertNull(proof.getFailException());
 
-        System.out.println("Proof root for PVC " + testPVC2Name + " \n" + pm.getProofForPVC(testPVC2).getProofRoot().getSequent());
+        System.out.println("Proof root for PVC " + testPVCxPost + " \n" + pm.getProofForPVC(testPVCxPost).getProofRoot().getSequent());
 
         //get the Proof object for a PVC
-        Proof proof2 = pm.getProofForPVC(testPVC2);
+        Proof proof2 = pm.getProofForPVC(testPVCxPost);
 
         //Assert.assertEquals("Proofscript is not loaded yet", ProofStatus.NOT_LOADED, proof2.getProofStatus());
 
         //find and parse a script file for PVC
-        String script = pm.loadScriptForPVC(testPVC2);
-        pm.getProofForPVC(testPVC2).setScriptText(script);
+        String script = pm.loadScriptForPVC(testPVCxPost);
+        pm.getProofForPVC(testPVCxPost).setScriptText(script);
 
         //System.out.println("Current State " + proof.getInterpreter().getCurrentState().getSelectedGoalNode());
         //pm.replayAllProofs();
@@ -143,7 +138,7 @@ public class ProjectManagerTest {
         pm.getAllProofs().forEach((s1, proof1) -> {
             proof1.invalidate();
         });
-        Proof proofAfter = pm.getProofForPVC(testPVCName);
+        Proof proofAfter = pm.getProofForPVC(testPVCm1Post);
 
         System.out.println(proofAfter.getScript().toString());
         Assert.assertNotNull(proofAfter.getScript());
@@ -163,9 +158,9 @@ public class ProjectManagerTest {
     // generated. The point that happens is marked via "TODO handling of error state for each visit".
     @Test(expected = ScriptCommandNotApplicableException.class)
     public void testInapplicableScriptCommand() throws ScriptCommandNotApplicableException, Exception {
-        pm = new ProjectManager(new File(testDir), config);
+        ProjectManager pm = new ProjectManager(new File(testDir), config);
 
-        Proof proof = pm.getProofForPVC(testPVCName);
+        Proof proof = pm.getProofForPVC(testPVCm1Post);
 
         proof.setScriptTextAndInterpret("substitute on='true';");
         throw proof.getFailException();
@@ -175,9 +170,9 @@ public class ProjectManagerTest {
     // interpretable, even though it doesn't advance the proof state...
     @Test
     public void testEmptyScript() throws Exception {
-        pm = new ProjectManager(new File(testDir), config);
+        ProjectManager pm = new ProjectManager(new File(testDir), config);
 
-        Proof proof = pm.getProofForPVC(testPVCName);
+        Proof proof = pm.getProofForPVC(testPVCm1Post);
 
         proof.setScriptTextAndInterpret(" ");
         assertTrue(proof.getProofRoot().getChildren().isEmpty());
@@ -207,6 +202,15 @@ public class ProjectManagerTest {
         //ProofManagement.getProofForPVC(pvcid).setStatus(Dirty)
         //ProofManagement.replayProofs();s
 
+    }
+
+    @Test
+    public void interpretScriptExhaustiveRules() throws Exception {
+        ProjectManager pm = new ProjectManager(new File(testDir), config);
+        Proof proof = pm.getProofForPVC("foo/Post");
+        proof.interpretScript(); //Hier Zeile die exhaustive sein soll einfuegen
+        if (proof.getFailException() != null)
+            proof.getFailException().printStackTrace();
     }
 
 }
