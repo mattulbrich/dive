@@ -40,6 +40,7 @@ import javafx.scene.control.ToolBar;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
+import org.controlsfx.control.StatusBar;
 
 import java.io.IOException;
 import java.util.HashSet;
@@ -62,6 +63,7 @@ public class MainController implements SequentActionListener, RuleApplicationLis
     private final SequentController sequentController;
     private final RuleApplicationController ruleApplicationController;
     private final ToolBar toolbar;
+    private final StatusBar statusBar;
 
 
     public MainController(ProjectManager manager, ExecutorService executor) {
@@ -82,6 +84,9 @@ public class MainController implements SequentActionListener, RuleApplicationLis
 
         this.toolbar = new ToolBar(saveButton, refreshButton);
 
+        this.statusBar = new StatusBar();
+        this.statusBar.setText("Load successful.");
+
         this.timelineView = new TimelineLayout(
                 browserController.getView(),
                 editorController.getView(),
@@ -89,10 +94,26 @@ public class MainController implements SequentActionListener, RuleApplicationLis
                 ruleApplicationController.getRuleApplicationView());
         timelineView.setDividerPosition(0.2);
 
-        this.view = new VBox(toolbar, timelineView);
+        this.view = new VBox(toolbar, timelineView, statusBar);
         VBox.setVgrow(timelineView, Priority.ALWAYS);
 
         browserController.setSelectionListener(this::onSelectBrowserItem);
+    }
+
+    /**
+     * Updates the text of the StatusBar
+     * @param text the new text
+     */
+    public void setStatusBarText(String text) {
+        statusBar.setText(text);
+    }
+
+    /**
+     * Updates the progress of the StatusBar
+     * @param progress the new progress (should be between 0 and 1)
+     */
+    public void setStatusBarProgress(double progress) {
+        statusBar.setProgress(progress);
     }
 
     private void onClickSave(ActionEvent actionEvent) {
