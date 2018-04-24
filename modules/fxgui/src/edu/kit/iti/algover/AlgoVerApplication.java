@@ -8,6 +8,7 @@ package edu.kit.iti.algover;
 import edu.kit.iti.algover.project.ProjectManager;
 import javafx.application.Application;
 import javafx.scene.Scene;
+import javafx.stage.DirectoryChooser;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 
@@ -29,13 +30,15 @@ public class AlgoVerApplication extends Application {
 
     @Override
     public void start(Stage primaryStage) throws Exception {
-        // Let user choose a project directory
-        // REVIEW: MU: Let the user choose a directory, not the config file ...?
-        FileChooser chooser = new FileChooser();
-        chooser.setSelectedExtensionFilter(new FileChooser.ExtensionFilter("AlgoVer configuration xmls", "xml"));
-        chooser.setTitle("Choose project config file");
+        DirectoryChooser chooser = new DirectoryChooser();
+        chooser.setTitle("Choose project folder");
         chooser.setInitialDirectory(new File("doc/examples/"));
-        File projectConfigFile = chooser.showOpenDialog(primaryStage);
+        File projectFolder = chooser.showDialog(primaryStage);
+        File projectConfigFile = new File(projectFolder.getAbsolutePath() + "/config.xml");
+        if(!projectConfigFile.exists()) {
+            System.out.println("Could not find config file in selected folder.");
+            return;
+        }
 
         // Read all PVCs and update GUI
         ProjectManager manager = new ProjectManager(projectConfigFile.getParentFile(), projectConfigFile.getName());
