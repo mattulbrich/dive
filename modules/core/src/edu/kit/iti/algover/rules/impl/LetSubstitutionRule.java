@@ -34,6 +34,7 @@ public class LetSubstitutionRule extends AbstractProofRule {
      */
     public LetSubstitutionRule() {
         super(ON_PARAM);
+        mayBeExhaustive = true;
     }
 
     @Override
