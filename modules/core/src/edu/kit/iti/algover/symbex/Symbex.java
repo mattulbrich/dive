@@ -330,7 +330,7 @@ public class Symbex {
      * @return the updated variable map
      */
     private void anonymise(SymbexPath path, DafnyTree body) {
-        Set<DafnyTree> vars = new HashSet<>();
+        Set<DafnyTree> vars = new LinkedHashSet<>();
         collectAssignedVars(body, vars);
         for (DafnyTree var : vars) {
             if (var != HEAP_VAR) {

@@ -1,1 +1,1 @@
-substitute type="exhaustive" on='(let i := i_1 :: (let max := max_1 :: $not($gt($array_select<int>($heap, a, i), max))))';
+substitute type="exhaustive" on='(let max := max_1 :: (let i := i_1 :: $not($gt($array_select<int>($heap, a, i), max))))';

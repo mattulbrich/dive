@@ -160,10 +160,8 @@ public class ProjectBuilder {
         return this;
     }
 
-    // REVIEW Problemloader?
     /**
-     * This method invokes the problemloader to load and parse the project
-     * configuration file.
+     * This method loads the configuration file, extracts all entities and sets member variables accordingly
      */
     public void parseProjectConfigurationFile() throws IOException, JAXBException, SAXException {
 

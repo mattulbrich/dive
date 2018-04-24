@@ -1,4 +1,10 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <configuration>
     <dafnyFile>sumAndMax.dfy</dafnyFile>
+    <!-- <settings>
+         <entry>
+         <key>Sequent Generation Type</key>
+         <value>ass-seq</value>
+         </entry>
+     </settings>-->
 </configuration>
