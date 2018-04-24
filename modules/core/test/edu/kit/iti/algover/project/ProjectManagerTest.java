@@ -206,9 +206,13 @@ public class ProjectManagerTest {
 
     @Test
     public void interpretScriptExhaustiveRules() throws Exception {
-        ProjectManager pm = new ProjectManager(new File(testDir), config);
-        Proof proof = pm.getProofForPVC("foo/Post");
+        ProjectManager pm = new ProjectManager(new File(testDir), "configsum.xml");
+        Proof proof = pm.getProofForPVC("sumAndMax/loop/else/Inv");
         proof.interpretScript(); //Hier Zeile die exhaustive sein soll einfuegen
+        //REVIEW indeterminism concerning order of let clauses between gui and backend
+        //example:
+        // Taken from GUI: substitute on='(let max := max_1 :: (let i := i_1 :: $not($gt($array_select<int>($heap, a, i), max))))';
+        // Now used in Backend: substitute on='(let i := i_1 :: (let max := max_1 :: $not($gt($array_select<int>($heap, a, i), max))))';
         if (proof.getFailException() != null)
             proof.getFailException().printStackTrace();
     }
