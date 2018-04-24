@@ -19,6 +19,7 @@ import org.fxmisc.flowless.VirtualizedScrollPane;
 import java.util.ServiceLoader;
 import java.util.concurrent.ExecutorService;
 import java.util.function.Consumer;
+import java.util.logging.Logger;
 
 public class RuleApplicationController extends FxmlController {
 
@@ -32,11 +33,15 @@ public class RuleApplicationController extends FxmlController {
 
     private final ScriptController scriptController;
 
+    private final Logger logger;
+
     public RuleApplicationController(ExecutorService executor, RuleApplicationListener listener) {
         super("RuleApplicationView.fxml");
         this.listener = listener;
         this.scriptController = new ScriptController(executor, listener);
         this.scriptView = scriptController.getView();
+
+        logger = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
 
         //TODO: laod rules from project.getallRules to include lemmas
         for (ProofRule rule : ServiceLoader.load(ProofRule.class)) {
@@ -98,9 +103,10 @@ public class RuleApplicationController extends FxmlController {
     public void applyExRule(ProofRule rule, ProofNode pn, TermSelector ts) {
         try {
             scriptView.insertText(scriptView.getLength(), RuleApplicator.getScriptForExhaustiveRuleApplication(rule, pn, ts) + "\n");
+            logger.info("Applied rule " + rule.getName() + " exhaustively.");
         } catch (RuleException e) {
             //TODO handle exeptions
-            System.out.println("Error while trying to apply rule " + rule.getName() + " exhaustive.");
+            logger.severe("Error while trying to apply rule " + rule.getName() + " exhaustive.");
         }
     }
 }

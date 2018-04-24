@@ -28,6 +28,7 @@ import edu.kit.iti.algover.sequent.SequentActionListener;
 import edu.kit.iti.algover.sequent.SequentController;
 import edu.kit.iti.algover.timeline.TimelineLayout;
 import edu.kit.iti.algover.util.FormatException;
+import edu.kit.iti.algover.util.StatusBarLoggingHandler;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.concurrent.Task;
@@ -46,6 +47,9 @@ import java.io.IOException;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
+import java.util.logging.Handler;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * Created by philipp on 27.06.17.
@@ -98,6 +102,10 @@ public class MainController implements SequentActionListener, RuleApplicationLis
         VBox.setVgrow(timelineView, Priority.ALWAYS);
 
         browserController.setSelectionListener(this::onSelectBrowserItem);
+
+        Logger logger = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
+        logger.addHandler(new StatusBarLoggingHandler(statusBar));
+        logger.setUseParentHandlers(false);
     }
 
     /**
