@@ -223,7 +223,7 @@ public class SequentController extends FxmlController {
                 }
 
                 if (!modifiedParts.isEmpty()) {
-                    formulas.add(new ModifiedFormula(modifiedParts, term));
+                    formulas.add(new ModifiedFormula(modifiedParts, term, i));
                     continue formulaLoop;
                 }
 

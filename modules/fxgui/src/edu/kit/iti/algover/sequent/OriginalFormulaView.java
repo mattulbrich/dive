@@ -16,7 +16,7 @@ import java.util.OptionalInt;
 public class OriginalFormulaView extends BasicFormulaView {
 
     private final OriginalFormula originalFormula;
-    private final TermSelector.SequentPolarity polarity;
+    protected final TermSelector.SequentPolarity polarity;
 
     protected final SubSelection<SubtermSelector> referenceSelection;
     protected final SubSelection<SubtermSelector> lastClickedTerm;
