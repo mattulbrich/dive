@@ -35,14 +35,12 @@ import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
 import javafx.scene.Node;
 import javafx.scene.Parent;
-import javafx.scene.control.Alert;
-import javafx.scene.control.Button;
-import javafx.scene.control.ToolBar;
+import javafx.scene.control.*;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 import org.controlsfx.control.StatusBar;
-
 import java.io.IOException;
 import java.util.HashSet;
 import java.util.Set;
@@ -68,6 +66,7 @@ public class MainController implements SequentActionListener, RuleApplicationLis
     private final RuleApplicationController ruleApplicationController;
     private final ToolBar toolbar;
     private final StatusBar statusBar;
+    private final StatusBarLoggingHandler statusBarLoggingHandler;
 
 
     public MainController(ProjectManager manager, ExecutorService executor) {
@@ -89,7 +88,9 @@ public class MainController implements SequentActionListener, RuleApplicationLis
         this.toolbar = new ToolBar(saveButton, refreshButton);
 
         this.statusBar = new StatusBar();
-        this.statusBar.setText("Load successful.");
+        this.statusBar.setOnMouseClicked(this::onStatusBarClicked);
+        ContextMenu contextMenu = new ContextMenu();
+        statusBar.setContextMenu(contextMenu);
 
         this.timelineView = new TimelineLayout(
                 browserController.getView(),
@@ -104,8 +105,20 @@ public class MainController implements SequentActionListener, RuleApplicationLis
         browserController.setSelectionListener(this::onSelectBrowserItem);
 
         Logger logger = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
-        logger.addHandler(new StatusBarLoggingHandler(statusBar));
+        statusBarLoggingHandler = new StatusBarLoggingHandler(statusBar);
+        logger.addHandler(statusBarLoggingHandler);
         logger.setUseParentHandlers(false);
+        logger.info("Loading complete.");
+        logger.warning("Test");
+    }
+
+    private void onStatusBarClicked(MouseEvent event) {
+        ContextMenu contextMenu = statusBar.getContextMenu();
+        contextMenu.getItems().clear();
+        statusBarLoggingHandler.getHistory(5).forEach(
+                log -> contextMenu.getItems().add(new MenuItem(log))
+        );
+        contextMenu.show(statusBar, event.getScreenX(), event.getScreenY());
     }
 
     /**
@@ -256,6 +269,7 @@ public class MainController implements SequentActionListener, RuleApplicationLis
         sequentController.getActiveProof().setScriptTextAndInterpret(newScript);
         sequentController.tryMovingOn();
         ruleApplicationController.resetConsideration();
+        Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).info("Successfully applied rule " + application.getRule().getName() + ".");
     }
 
     @Override
