@@ -23,6 +23,7 @@ import edu.kit.iti.algover.term.ApplTerm;
 import edu.kit.iti.algover.term.FunctionSymbol;
 import edu.kit.iti.algover.term.Sequent;
 import edu.kit.iti.algover.term.Term;
+import edu.kit.iti.algover.util.Pair;
 import edu.kit.iti.algover.util.RuleUtil;
 
 public class TrivialAndRight extends AbstractProofRule {
@@ -74,8 +75,7 @@ public class TrivialAndRight extends AbstractProofRule {
         builder.newBranch().addReplacement(selector, appl.getTerm(0));
         builder.newBranch().addReplacement(selector, appl.getTerm(1));
         builder.setApplicability(Applicability.APPLICABLE)
-                .setTranscript("andRight on='" +
-                        selector.selectSubterm(target.getSequent()) +  "';\n");
+                .setTranscript(getTranscript(new Pair<>("on", selector.selectSubterm(target.getSequent()))));
 
         return builder.build();
     }
@@ -106,6 +106,9 @@ public class TrivialAndRight extends AbstractProofRule {
                 .addDeletionsSuccedent(target.getSequent().getSuccedent().get(no))
                 .addAdditionsSuccedent(new ProofFormula(on.getTerm(1)))
                 .setLabel("case 2");
+
+        builder.setApplicability(Applicability.APPLICABLE)
+                .setTranscript(getTranscript(new Pair<>("on", on)));
 
         return builder.build();
     }
