@@ -127,8 +127,8 @@ public class BranchInfo {
      *
      * @return the label
      */
-    public @NonNull
-    String getLabel() {
+    //REVIEW this was @NON-NULL but never was implemented this way. so i removed it. Maybe add this at a later point?
+    public String getLabel() {
         return label;
     }
 
