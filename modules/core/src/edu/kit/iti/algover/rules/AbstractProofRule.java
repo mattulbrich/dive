@@ -220,6 +220,9 @@ public abstract class AbstractProofRule implements ProofRule {
         if(pra.getBranchCount() > 1) {
             res += "\ncases {\n";
             for(BranchInfo bi : pra.getBranchInfo()) {
+                if(bi.getLabel() == null) {
+                    throw new RuleException("Branchlabel may not be null for branching rule: " + getName());
+                }
                 res += "\tcase \"" + bi.getLabel() + "\": {\n\t\n\t}\n";
             }
             res += "}\n";

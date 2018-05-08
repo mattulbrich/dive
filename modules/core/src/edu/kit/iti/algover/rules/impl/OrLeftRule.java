@@ -54,8 +54,8 @@ public class OrLeftRule extends AbstractProofRule {
         ProofRuleApplicationBuilder builder = new ProofRuleApplicationBuilder(this);
         builder.setApplicability(ProofRuleApplication.Applicability.APPLICABLE);
 
-        builder.newBranch().addReplacement(selector, at.getTerm(0));
-        builder.newBranch().addReplacement(selector, at.getTerm(1));
+        builder.newBranch().addReplacement(selector, at.getTerm(0)).setLabel("case 1");
+        builder.newBranch().addReplacement(selector, at.getTerm(1)).setLabel("case 2");
 
         return builder.build();
     }
@@ -80,8 +80,8 @@ public class OrLeftRule extends AbstractProofRule {
             throw new RuleException("on is ambiguos.");
         }
         ProofRuleApplicationBuilder builder = handleControlParameters(parameters, target.getSequent());
-        builder.newBranch().addReplacement(ots.get(), on.getTerm(0));
-        builder.newBranch().addReplacement(ots.get(), on.getTerm(1));
+        builder.newBranch().addReplacement(ots.get(), on.getTerm(0)).setLabel("case 1");
+        builder.newBranch().addReplacement(ots.get(), on.getTerm(1)).setLabel("case 2");
 
         return builder.build();
     }

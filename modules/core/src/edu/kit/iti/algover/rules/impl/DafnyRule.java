@@ -97,7 +97,7 @@ public class DafnyRule extends AbstractProofRule {
             }
             proofRuleApplicationBuilder = new ProofRuleApplicationBuilder(this);
             proofRuleApplicationBuilder.setApplicability(ProofRuleApplication.Applicability.APPLICABLE);
-            proofRuleApplicationBuilder.newBranch().addReplacement(l.get(0), rt);
+            proofRuleApplicationBuilder.newBranch().addReplacement(l.get(0), rt).setLabel("case 0");
             for(Pair<Term, String> lt : rts) {
                 if(!RuleUtil.matchSubtermInSequent(lt.getFst()::equals, target.getSequent()).isPresent()) {
                     BranchInfoBuilder bib = proofRuleApplicationBuilder.newBranch();
@@ -143,7 +143,7 @@ public class DafnyRule extends AbstractProofRule {
                 rts.add(new Pair<Term, String>(matchings.get(0).instantiate(lt.getFst()), lt.getSnd()));
             }
 
-            proofRuleApplicationBuilder.newBranch().addReplacement(l.get(0), rt);
+            proofRuleApplicationBuilder.newBranch().addReplacement(l.get(0), rt).setLabel("case 0");
 
             for(Pair<Term, String> lt : rts) {
                 if(!RuleUtil.matchSubtermInSequent(lt.getFst()::equals, target.getSequent()).isPresent()) {
