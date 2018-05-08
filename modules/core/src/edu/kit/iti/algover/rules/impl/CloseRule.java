@@ -25,23 +25,20 @@ public class CloseRule extends AbstractProofRule {
     }
 
     @Override
-    public ProofRuleApplication considerApplication(ProofNode target, Sequent selection, TermSelector selector) throws RuleException {
-        Term on = selector.selectSubterm(selection);
+    public ProofRuleApplication considerApplicationImpl(ProofNode target, Parameters parameters) throws RuleException {
+        Term on = parameters.getValue(ON_PARAM);
 
         try {
             return buildApplication(target, on);
         } catch (RuleException e) {
             ProofRuleApplicationBuilder builder = new ProofRuleApplicationBuilder(this);
             builder.setApplicability(ProofRuleApplication.Applicability.NOT_APPLICABLE);
-            builder.setTranscript(getName() + " on='" + on + "';\n");
             return builder.build();
         }
     }
 
     @Override
-    public ProofRuleApplication makeApplication(ProofNode target, Parameters parameters) throws RuleException {
-        checkParameters(parameters);
-
+    public ProofRuleApplication makeApplicationImpl(ProofNode target, Parameters parameters) throws RuleException {
         Term on = parameters.getValue(ON_PARAM);
 
         return buildApplication(target, on);
@@ -61,7 +58,6 @@ public class CloseRule extends AbstractProofRule {
         ProofRuleApplicationBuilder builder = new ProofRuleApplicationBuilder(this);
 
         builder.setApplicability(ProofRuleApplication.Applicability.APPLICABLE);
-        builder.setTranscript(getName() + " on='" + on + "';\n");
 
         builder.setClosing();
 

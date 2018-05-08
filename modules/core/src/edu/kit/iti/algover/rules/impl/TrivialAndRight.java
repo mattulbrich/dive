@@ -50,10 +50,14 @@ public class TrivialAndRight extends AbstractProofRule {
     }
 
     @Override
-    public ProofRuleApplication considerApplication(ProofNode target, Sequent selection,
-                                                    TermSelector selector)
+    public ProofRuleApplication considerApplicationImpl(ProofNode target, Parameters parameters)
             throws RuleException {
-
+        Term on = parameters.getValue(ON_PARAM);
+        List<TermSelector> l = RuleUtil.matchSubtermsInSequent(on::equals, target.getSequent());
+        if(l.size() != 1) {
+            throw new RuleException("Machting of on parameter is ambiguous");
+        }
+        TermSelector selector = l.get(0);
         if (selector != null && !selector.isToplevel()) {
             return ProofRuleApplicationBuilder.notApplicable(this);
         }
@@ -72,17 +76,15 @@ public class TrivialAndRight extends AbstractProofRule {
 
         ProofRuleApplicationBuilder builder = new ProofRuleApplicationBuilder(this);
 
-        builder.newBranch().addReplacement(selector, appl.getTerm(0));
-        builder.newBranch().addReplacement(selector, appl.getTerm(1));
-        builder.setApplicability(Applicability.APPLICABLE)
-                .setTranscript(getTranscript(new Pair<>("on", selector.selectSubterm(target.getSequent()))));
+        builder.newBranch().addReplacement(selector, appl.getTerm(0)).setLabel("case 1");
+        builder.newBranch().addReplacement(selector, appl.getTerm(1)).setLabel("case 2");
+        builder.setApplicability(Applicability.APPLICABLE);
 
         return builder.build();
     }
 
     @Override
-    public ProofRuleApplication makeApplication(ProofNode target, Parameters parameters) throws RuleException {
-        checkParameters(parameters);
+    public ProofRuleApplication makeApplicationImpl(ProofNode target, Parameters parameters) throws RuleException {
         Term on = parameters.getValue(ON_PARAM);
         ProofRuleApplicationBuilder builder = new ProofRuleApplicationBuilder(this);
 
@@ -107,8 +109,7 @@ public class TrivialAndRight extends AbstractProofRule {
                 .addAdditionsSuccedent(new ProofFormula(on.getTerm(1)))
                 .setLabel("case 2");
 
-        builder.setApplicability(Applicability.APPLICABLE)
-                .setTranscript(getTranscript(new Pair<>("on", on)));
+        builder.setApplicability(Applicability.APPLICABLE);
 
         return builder.build();
     }

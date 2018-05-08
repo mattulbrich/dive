@@ -7,10 +7,12 @@ public class ProofNodeCheckpoint {
 
     public final ProofNodeSelector selector;
     public final Position position;
+    public final Position caretPosition;
 
-    public ProofNodeCheckpoint(ProofNodeSelector selector, Position position) {
+    public ProofNodeCheckpoint(ProofNodeSelector selector, Position position, Position caretPosition) {
         this.selector = selector;
         this.position = position;
+        this.caretPosition = caretPosition;
     }
 
     @Override
@@ -18,6 +20,7 @@ public class ProofNodeCheckpoint {
         return "ProofNodeCheckpoint{" +
                 "selector=" + selector +
                 ", position=" + position +
+                ", caretPosition=" + caretPosition +
                 '}';
     }
 }

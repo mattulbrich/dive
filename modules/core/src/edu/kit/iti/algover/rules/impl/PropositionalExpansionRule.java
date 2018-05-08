@@ -22,6 +22,7 @@ import edu.kit.iti.algover.rules.TermSelector;
 import edu.kit.iti.algover.rules.TermSelector.SequentPolarity;
 import edu.kit.iti.algover.term.Sequent;
 import edu.kit.iti.algover.term.Term;
+import edu.kit.iti.algover.util.RuleUtil;
 
 // ALPHA ... Just for demo purposes so far.
 
@@ -37,16 +38,15 @@ public class PropositionalExpansionRule extends AbstractProofRule {
     }
 
     @Override
-    public ProofRuleApplication considerApplication(ProofNode target, Sequent selection,
-                                                    TermSelector selector)
-            throws RuleException {
-
-        if (selector != null) {
+    public ProofRuleApplication considerApplicationImpl(ProofNode target, Parameters parameters) throws RuleException {
+        Term on = parameters.getValue(ON_PARAM);
+        List<TermSelector> l = RuleUtil.matchSubtermsInSequent(on::equals, target.getSequent());
+        if(l.size() != 1) {
             return ProofRuleApplicationBuilder.notApplicable(this);
         }
-
-        if (selection == null) {
-            selection = target.getSequent();
+        TermSelector selector = l.get(0);
+        if (selector != null) {
+            return ProofRuleApplicationBuilder.notApplicable(this);
         }
 
         boolean allowSplit = true;
@@ -55,13 +55,13 @@ public class PropositionalExpansionRule extends AbstractProofRule {
         List<ProofFormula> deletionsAnte = new ArrayList<ProofFormula>();
         List<ProofFormula> deletionsSucc = new ArrayList<ProofFormula>();
 
-        for (ProofFormula formula : selection.getAntecedent()) {
+        for (ProofFormula formula : target.getSequent().getAntecedent()) {
             if (pex.expand(formula, SequentPolarity.ANTECEDENT, allowSplit)) {
                 deletionsAnte.add(formula);
             }
         }
 
-        for (ProofFormula formula : selection.getSuccedent()) {
+        for (ProofFormula formula : target.getSequent().getSuccedent()) {
             if (pex.expand(formula, SequentPolarity.SUCCEDENT, allowSplit)) {
                 deletionsSucc.add(formula);
             }
@@ -82,17 +82,60 @@ public class PropositionalExpansionRule extends AbstractProofRule {
                     .addDeletionsSuccedent(deletionsSucc);
         }
 
-        builder.setApplicability(Applicability.APPLICABLE)
-                .setTranscript("todo");
+        builder.setApplicability(Applicability.APPLICABLE);
 
         return builder.build();
     }
 
     @Override
-    public ProofRuleApplication makeApplication(ProofNode target, Parameters parameters) throws RuleException {
-        checkParameters(parameters);
+    public ProofRuleApplication makeApplicationImpl(ProofNode target, Parameters parameters) throws RuleException {
+        //TODO just copy and pasted from considerApplicationImpl maybe correct or improve
+        Term on = parameters.getValue(ON_PARAM);
+        List<TermSelector> l = RuleUtil.matchSubtermsInSequent(on::equals, target.getSequent());
+        if(l.size() != 1) {
+            throw new RuleException("Machting of on parameter is ambiguous");
+        }
+        TermSelector selector = l.get(0);
+        if (selector != null) {
+            return ProofRuleApplicationBuilder.notApplicable(this);
+        }
 
-        throw new Error("not finished yet");
+        boolean allowSplit = true;
+
+        PropositionalExpander pex = new PropositionalExpander();
+        List<ProofFormula> deletionsAnte = new ArrayList<ProofFormula>();
+        List<ProofFormula> deletionsSucc = new ArrayList<ProofFormula>();
+
+        for (ProofFormula formula : target.getSequent().getAntecedent()) {
+            if (pex.expand(formula, SequentPolarity.ANTECEDENT, allowSplit)) {
+                deletionsAnte.add(formula);
+            }
+        }
+
+        for (ProofFormula formula : target.getSequent().getSuccedent()) {
+            if (pex.expand(formula, SequentPolarity.SUCCEDENT, allowSplit)) {
+                deletionsSucc.add(formula);
+            }
+        }
+
+        List<Sequent> sequents = pex.getSequents();
+
+        if (deletionsAnte.isEmpty() && deletionsSucc.isEmpty()) {
+            // nothing to be done
+            return ProofRuleApplicationBuilder.notApplicable(this);
+        }
+
+        ProofRuleApplicationBuilder builder = new ProofRuleApplicationBuilder(this);
+
+        for (Sequent sequent : sequents) {
+            builder.newBranch().addAdditions(sequent)
+                    .addDeletionsAntecedent(deletionsAnte)
+                    .addDeletionsSuccedent(deletionsSucc);
+        }
+
+        builder.setApplicability(Applicability.APPLICABLE);
+
+        return builder.build();
     }
 
 }

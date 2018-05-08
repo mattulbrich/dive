@@ -8,10 +8,12 @@ package edu.kit.iti.algover.rules;
 import java.beans.ParameterDescriptor;
 import java.util.*;
 
+import edu.kit.iti.algover.proof.ProofNode;
 import edu.kit.iti.algover.term.Sequent;
 import edu.kit.iti.algover.term.Term;
 import edu.kit.iti.algover.util.Pair;
 import edu.kit.iti.algover.util.RuleUtil;
+import jdk.nashorn.internal.ir.BreakableNode;
 
 /**
  * This class should serve as base class for all {@link ProofRule} implementations.
@@ -61,7 +63,7 @@ public abstract class AbstractProofRule implements ProofRule {
      * @throws RuleException if a required parameter has been omitted or an unknown parameter has
      *                       been used
      */
-    protected final void checkParameters(Parameters parameters) throws RuleException {
+    private final void checkParameters(Parameters parameters) throws RuleException {
         Set<ParameterDescription<?>> required = new HashSet<>();
         for (ParameterDescription<?> p : allParameters.values()) {
             if(p.isRequired()) {
@@ -94,6 +96,41 @@ public abstract class AbstractProofRule implements ProofRule {
         if (!required.isEmpty()) {
             throw new RuleException("Missing required arguments: " + required);
         }
+    }
+
+    protected Parameters extractParameters(ProofNode target, Sequent selection, TermSelector selector) throws RuleException {
+        Parameters params = new Parameters();
+        if(selector != null) {
+            Term on = selector.selectSubterm(selection);
+            params.putValue("on", on);
+        }
+        return params;
+    }
+
+    protected abstract ProofRuleApplication considerApplicationImpl(ProofNode target, Parameters parameters) throws RuleException;
+
+    public final ProofRuleApplication considerApplication(ProofNode target, Sequent selection, TermSelector selector) throws RuleException {
+        Parameters params = extractParameters(target, selection, selector);
+        return considerApplication(target, params);
+    }
+
+    public final ProofRuleApplication considerApplication(ProofNode target, Parameters parameters) throws RuleException {
+        ProofRuleApplication pra = considerApplicationImpl(target, parameters);
+        ProofRuleApplicationBuilder builder = new ProofRuleApplicationBuilder(pra);
+        if(pra.getApplicability() == ProofRuleApplication.Applicability.APPLICABLE) {
+            builder.setTranscript(getTranscript(pra, parameters));
+        }
+        return builder.build();
+    }
+
+
+    protected abstract ProofRuleApplication makeApplicationImpl(ProofNode target, Parameters parameters) throws RuleException;
+
+    public final ProofRuleApplication makeApplication(ProofNode target, Parameters parameters) throws RuleException {
+        checkParameters(parameters);
+        ProofRuleApplication pra = makeApplicationImpl(target, parameters);
+        String transcript = getTranscript(pra, parameters);
+        return new ProofRuleApplicationBuilder(pra).setTranscript(transcript).build();
     }
 
     protected ProofRuleApplicationBuilder handleControlParameters(Parameters params, Sequent s) throws RuleException {
@@ -143,11 +180,11 @@ public abstract class AbstractProofRule implements ProofRule {
      *
      * Generates a fitting transcript for the rule and the given parameters.
      *
-     * @param params the parameters for which the transcript shoud be generated
-     * @return a default transcript for the given parameters
+     * @param params the parameters for which the transcript should be generated
+     * @return a valid transcript for the given parameters
      * @throws RuleException
      */
-    protected final String getTranscript(Pair<String, Object>... params) throws RuleException {
+    private final String getTranscript(ProofRuleApplication pra, Parameters params) throws RuleException {
         String res = getName();
         if(allParameters.size() == 0) {
             return res + ";";
@@ -158,44 +195,35 @@ public abstract class AbstractProofRule implements ProofRule {
                 required.put(name, allParameters.get(name));
             }
         }
-        if(params.length < required.size()) {
+        if(params.entrySet().size() < required.size()) {
             throw new RuleException(getName() + " needs at least " + required.size() +
-                    " parameters but got only " + params.length);
+                    " parameters but got only " + params.entrySet().size());
         }
-        for(Pair<String, Object> p : params) {
-            if(!allParameters.containsKey(p.getFst())) {
-                throw new RuleException("No parameter named " + p.getFst() + " for Rule " + getName());
+        for(Map.Entry<String, Object> p : params.entrySet()) {
+            if(!allParameters.containsKey(p.getKey())) {
+                throw new RuleException("No parameter named " + p.getKey() + " for Rule " + getName());
             }
-            if(!allParameters.get(p.getFst()).acceptsValue(p.getSnd())) {
+            if(!allParameters.get(p.getKey()).acceptsValue(p.getValue())) {
                 throw new RuleException(
-                        "ParameterDescription " + p.getFst() + " has class " + p.getSnd().getClass() +
+                        "ParameterDescription " + p.getKey() + " has class " + p.getValue().getClass() +
                                 ", but I expected " + allParameters.get(p) +
                                 " (class " + allParameters.get(p).getType() + ")");
             }
-            res += " " + p.getFst() + "='" + p.getSnd() + "'";
-            required.remove(p.getFst());
+            res += " " + p.getKey() + "='" + p.getValue() + "'";
+            required.remove(p.getKey());
         }
         if (!required.isEmpty()) {
             throw new RuleException("Missing required arguments: " + required);
         }
 
         res += ";";
+        if(pra.getBranchCount() > 1) {
+            res += "\ncases {\n";
+            for(BranchInfo bi : pra.getBranchInfo()) {
+                res += "\tcase \"" + bi.getLabel() + "\": {\n\t\n\t}\n";
+            }
+            res += "}\n";
+        }
         return res;
     }
-
-    /**
-     *
-     * Generates a fitting transcript for the rule applied on the term selected by a TermSelector.
-     *
-     * @param ts the TermSelector
-     * @param s the sequent to get the script for
-     * @return a default transcript for the given parameters
-     * @throws RuleException
-     */
-    protected final String getTranscript(TermSelector ts, Sequent s) throws RuleException {
-        Term on = ts.selectSubterm(s);
-        return getTranscript(new Pair<>("on", on));
-
-    }
-
 }

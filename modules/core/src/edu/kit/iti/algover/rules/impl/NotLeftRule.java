@@ -9,9 +9,11 @@ import edu.kit.iti.algover.term.ApplTerm;
 import edu.kit.iti.algover.term.Sequent;
 import edu.kit.iti.algover.term.Term;
 import edu.kit.iti.algover.term.builder.TermBuildException;
+import edu.kit.iti.algover.util.RuleUtil;
 
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 
 /**
  * Created by jklamroth on 1/11/18.
@@ -28,21 +30,26 @@ public class NotLeftRule extends AbstractProofRule {
     }
 
     @Override
-    public ProofRuleApplication considerApplication(ProofNode target, Sequent selection, TermSelector selector) throws RuleException {
+    public ProofRuleApplication considerApplicationImpl(ProofNode target, Parameters parameters) throws RuleException {
         ProofRuleApplicationBuilder builder = new ProofRuleApplicationBuilder(this);
 
-        if(selector == null || !selector.isToplevel()) {
+        Term on = parameters.getValue(ON_PARAM);
+        List<TermSelector> l = RuleUtil.matchSubtermsInSequent(on::equals, target.getSequent());
+        if(l.size() != 1) {
             return ProofRuleApplicationBuilder.notApplicable(this);
         }
 
-        ProofFormula formula = selector.selectTopterm(target.getSequent());
+        if(l.get(0) == null || !l.get(0).isToplevel()) {
+            return ProofRuleApplicationBuilder.notApplicable(this);
+        }
+
+        ProofFormula formula = l.get(0).selectTopterm(target.getSequent());
         Term term = formula.getTerm();
         if(!(term instanceof ApplTerm)) {
             return ProofRuleApplicationBuilder.notApplicable(this);
         }
 
         builder.setApplicability(ProofRuleApplication.Applicability.APPLICABLE);
-        builder.setTranscript("notLeft on='" + term + "';");
 
         try {
             builder.newBranch().addDeletionsAntecedent(Collections.singletonList(new ProofFormula(term)))
@@ -55,8 +62,7 @@ public class NotLeftRule extends AbstractProofRule {
     }
 
     @Override
-    public ProofRuleApplication makeApplication(ProofNode target, Parameters parameters) throws RuleException {
-        checkParameters(parameters);
+    public ProofRuleApplication makeApplicationImpl(ProofNode target, Parameters parameters) throws RuleException {
         Term on = parameters.getValue(ON_PARAM);
 
         ProofRuleApplicationBuilder builder = new ProofRuleApplicationBuilder(this);

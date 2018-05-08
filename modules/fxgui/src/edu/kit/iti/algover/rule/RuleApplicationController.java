@@ -75,7 +75,7 @@ public class RuleApplicationController extends FxmlController {
     }
 
     public void applyRule(ProofRuleApplication application) {
-        scriptView.insertText(scriptView.getLength(), application.getScriptTranscript() + "\n");
+        scriptController.insertTextForSelectedNode(application.getScriptTranscript() + "\n");
     }
 
     private void onSelectedItemChanged(ObservableValue<? extends RuleView> obs, RuleView before, RuleView selected) {
@@ -102,7 +102,7 @@ public class RuleApplicationController extends FxmlController {
 
     public void applyExRule(ProofRule rule, ProofNode pn, TermSelector ts) {
         try {
-            scriptView.insertText(scriptView.getLength(), RuleApplicator.getScriptForExhaustiveRuleApplication(rule, pn, ts) + "\n");
+            scriptController.insertTextForSelectedNode(RuleApplicator.getScriptForExhaustiveRuleApplication(rule, pn, ts) + "\n");
             logger.info("Applied rule " + rule.getName() + " exhaustively.");
         } catch (RuleException e) {
             //TODO handle exeptions

@@ -10,8 +10,10 @@ import edu.kit.iti.algover.proof.ProofNode;
 import edu.kit.iti.algover.rules.*;
 import edu.kit.iti.algover.term.Sequent;
 import edu.kit.iti.algover.term.Term;
+import edu.kit.iti.algover.util.RuleUtil;
 
 import java.util.Collections;
+import java.util.List;
 
 public class RemoveAssumptionRule extends AbstractProofRule {
 
@@ -25,15 +27,20 @@ public class RemoveAssumptionRule extends AbstractProofRule {
     }
 
     @Override
-    public ProofRuleApplication considerApplication(ProofNode target, Sequent selection, TermSelector selector) throws RuleException {
+    public ProofRuleApplication considerApplicationImpl(ProofNode target, Parameters parameters) throws RuleException {
+        Term on = parameters.getValue(ON_PARAM);
+        List<TermSelector> l = RuleUtil.matchSubtermsInSequent(on::equals, target.getSequent());
+        if(l.size() != 1) {
+            return ProofRuleApplicationBuilder.notApplicable(this);
+        }
+        TermSelector selector = l.get(0);
         ProofRuleApplicationBuilder builder = new ProofRuleApplicationBuilder(this);
 
         if (!selector.isToplevel() || !selector.isAntecedent()) {
             builder.setApplicability(ProofRuleApplication.Applicability.NOT_APPLICABLE);
         } else {
             builder.setApplicability(ProofRuleApplication.Applicability.APPLICABLE);
-            ProofFormula deleted = selector.selectTopterm(selection);
-            builder.setTranscript(buildTransscript(deleted.getTerm()));
+            ProofFormula deleted = selector.selectTopterm(target.getSequent());
             builder.newBranch()
                     .addDeletionsAntecedent(Collections.singletonList(deleted));
         }
@@ -41,10 +48,8 @@ public class RemoveAssumptionRule extends AbstractProofRule {
     }
 
     @Override
-    public ProofRuleApplication makeApplication(ProofNode target, Parameters parameters) throws RuleException {
+    public ProofRuleApplication makeApplicationImpl(ProofNode target, Parameters parameters) throws RuleException {
         ProofRuleApplicationBuilder builder = new ProofRuleApplicationBuilder(this);
-
-        checkParameters(parameters);
 
         Term toDelete = parameters.getValue(ON_PARAM);
 
@@ -52,9 +57,5 @@ public class RemoveAssumptionRule extends AbstractProofRule {
                 .addDeletionsAntecedent(Collections.singletonList(new ProofFormula(toDelete)));
 
         return builder.build();
-    }
-
-    private String buildTransscript(Term on) {
-        return getName() + " on='" + on + "';";
     }
 }
