@@ -107,6 +107,15 @@ public abstract class AbstractProofRule implements ProofRule {
         }
     }
 
+    /**
+     * Extracts parameters from a given termselector and a sequent.
+     *
+     * @param target the ProofNode the rule will be applied to
+     * @param selection the sequent this rule will be applied on
+     * @param selector a TermSelector pointing to the currently selected Term in the GUI
+     * @return Parameters for the application of the rule
+     * @throws RuleException
+     */
     protected Parameters extractParameters(ProofNode target, Sequent selection, TermSelector selector) throws RuleException {
         Parameters params = new Parameters();
         if(selector != null) {
@@ -116,13 +125,43 @@ public abstract class AbstractProofRule implements ProofRule {
         return params;
     }
 
+    /**
+     * The concrete implementation of {@link #considerApplication(ProofNode, Parameters)} for each rule.
+     *
+     * @param target the ProofNode this rule is to be applied on
+     * @param parameters the parameters for the rule application
+     * @return the resulting ProofRuleApplication
+     * @throws RuleException
+     */
     protected abstract ProofRuleApplication considerApplicationImpl(ProofNode target, Parameters parameters) throws RuleException;
 
+    /**
+     * Same as {@link #considerApplication(ProofNode, Sequent, TermSelector)} but for GUI convenience with different
+     * parameters. To extract the actual parameters {@link #extractParameters(ProofNode, Sequent, TermSelector)} is
+     * called. For a non standard parameter extraction override it.
+     *
+     * @param target    the proof node onto whose sequent the rule is to be applied.
+     * @param selection a subsequent of the target's sequent. These are the
+     *                  UI-selected top formulas.
+     * @param selector  if a subformula has been selected, it is this selector that
+     *                  represents it.
+     * @return
+     * @throws RuleException
+     */
     public final ProofRuleApplication considerApplication(ProofNode target, Sequent selection, TermSelector selector) throws RuleException {
         Parameters params = extractParameters(target, selection, selector);
         return considerApplication(target, params);
     }
 
+    /**
+     * considers the application of this rule. Returns a ProofRuleApplication which might be either applicable or
+     * not applicable for the given parameters.
+     *
+     * @param target the ProofNode for which to consider the application of the rule
+     * @param parameters the parameters for the rule application
+     * @return the resulting application
+     * @throws RuleException
+     */
     public final ProofRuleApplication considerApplication(ProofNode target, Parameters parameters) throws RuleException {
         ProofRuleApplication pra = considerApplicationImpl(target, parameters);
         ProofRuleApplicationBuilder builder = new ProofRuleApplicationBuilder(pra);
@@ -132,9 +171,27 @@ public abstract class AbstractProofRule implements ProofRule {
         return builder.build();
     }
 
-
+    /**
+     * The concrete implementation of {@link #makeApplication(ProofNode, Parameters)} for each rule.
+     *
+     * @param target the ProofNode this rule is to be applied on
+     * @param parameters the parameters for the rule application
+     * @return the resulting ProofRuleApplication
+     * @throws RuleException
+     */
     protected abstract ProofRuleApplication makeApplicationImpl(ProofNode target, Parameters parameters) throws RuleException;
 
+    /**
+     * Creates a ProofRuleApplication encoding all changes made by the rule when applied with given parameters to a
+     * certain ProofNode.
+     *
+     * @param target
+     *            the proof node onto whose sequent the rule is to be applied.
+     * @param parameters
+     *            the parameters as parsed from the proof script.
+     * @return the ProofRuleApplication
+     * @throws RuleException
+     */
     public final ProofRuleApplication makeApplication(ProofNode target, Parameters parameters) throws RuleException {
         checkParameters(parameters);
         ProofRuleApplication pra = makeApplicationImpl(target, parameters);
@@ -142,11 +199,28 @@ public abstract class AbstractProofRule implements ProofRule {
         return new ProofRuleApplicationBuilder(pra).setTranscript(transcript).build();
     }
 
+    /**
+     * Creates a ProofRuleApplication conforming with the given parameters for a given sequent.
+     *
+     * @param params the parameters
+     * @param s the sequent
+     * @return the new application
+     * @throws RuleException
+     */
     protected ProofRuleApplicationBuilder handleControlParameters(Parameters params, Sequent s) throws RuleException {
         ProofRuleApplicationBuilder rab = new ProofRuleApplicationBuilder(this);
         return handleControlParameters(params, s, rab);
     }
 
+    /**
+     * This method sets the appropriate control parameters of a ProofRuleApplication builder for the given parameters.
+     *
+     * @param params the given parameters
+     * @param s the sequent the application opperates on
+     * @param rab the ProofRuleApplication to be updated according to the parameters
+     * @return the updated application
+     * @throws RuleException
+     */
     protected ProofRuleApplicationBuilder handleControlParameters(Parameters params, Sequent s, ProofRuleApplicationBuilder rab) throws RuleException {
         if(params.getValue("type") == null) {
             return rab;
