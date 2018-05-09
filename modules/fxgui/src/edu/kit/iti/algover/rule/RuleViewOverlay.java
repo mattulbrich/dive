@@ -3,10 +3,7 @@ package edu.kit.iti.algover.rule;
 import com.jfoenix.controls.JFXButton;
 import de.jensd.fx.glyphs.GlyphsDude;
 import de.jensd.fx.glyphs.materialicons.MaterialIcon;
-import edu.kit.iti.algover.rules.ParameterDescription;
-import edu.kit.iti.algover.rules.Parameters;
-import edu.kit.iti.algover.rules.ProofRuleApplication;
-import edu.kit.iti.algover.rules.RuleException;
+import edu.kit.iti.algover.rules.*;
 import javafx.css.PseudoClass;
 import javafx.scene.control.Label;
 import javafx.scene.layout.AnchorPane;
@@ -21,14 +18,17 @@ public class RuleViewOverlay extends AnchorPane {
     private static final PseudoClass PC_NON_SPLITTING = PseudoClass.getPseudoClass("non-splitting");
 
     private ProofRuleApplication application;
+    private TermSelector selector;
 
     private final Label branchCount;
     private final JFXButton applyButton;
     private final JFXButton refineButton;
+    private final JFXButton applyExButton;
     private final RuleApplicationListener listener;
 
-    public RuleViewOverlay(ProofRuleApplication application, RuleApplicationListener listener) {
+    public RuleViewOverlay(ProofRuleApplication application, RuleApplicationListener listener, TermSelector selector) {
         this.application = application;
+        this.selector = selector;
         this.listener = listener;
 
         int count = application.getBranchCount();
@@ -40,9 +40,15 @@ public class RuleViewOverlay extends AnchorPane {
         applyButton = new JFXButton("Apply");
         applyButton.getStyleClass().add("apply");
         applyButton.setDisable(application.getApplicability() != ProofRuleApplication.Applicability.APPLICABLE);
-
         applyButton.setOnAction(actionEvent -> {
             listener.onRuleApplication(this.application);
+        });
+
+        applyExButton = new JFXButton("Apply Exh.");
+        applyExButton.getStyleClass().add("applyEx");
+        applyExButton.setDisable(application.getApplicability() != ProofRuleApplication.Applicability.APPLICABLE);
+        applyExButton.setOnAction(actionEvent -> {
+            listener.onRuleExApplication(this.application.getRule(), selector);
         });
 
         refineButton = new JFXButton("Refine");
@@ -54,6 +60,7 @@ public class RuleViewOverlay extends AnchorPane {
             } catch (RuleException e) {
                 e.printStackTrace();
             }
+            applyButton.setDisable(this.application.getApplicability() != ProofRuleApplication.Applicability.APPLICABLE);
         });
 
         for (Map.Entry<String, Object> entry : application.getOpenParameters().entrySet()) {
@@ -62,12 +69,15 @@ public class RuleViewOverlay extends AnchorPane {
             System.out.println(parameterName + ": " + value);
         }
 
-        getChildren().addAll(branchCount, applyButton, refineButton);
+        getChildren().addAll(branchCount, applyButton, refineButton, applyExButton);
         setTopAnchor(branchCount, 0.0);
         setRightAnchor(branchCount, 0.0);
 
         setBottomAnchor(applyButton, 0.0);
         setLeftAnchor(applyButton, 0.0);
+
+        setTopAnchor(applyExButton, 0.0);
+        setLeftAnchor(applyExButton, 0.0);
 
         setBottomAnchor(refineButton, 0.0);
         setRightAnchor(refineButton, 0.0);

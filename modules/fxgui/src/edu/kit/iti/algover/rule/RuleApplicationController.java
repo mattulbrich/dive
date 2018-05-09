@@ -5,10 +5,7 @@ import edu.kit.iti.algover.proof.ProofNode;
 import edu.kit.iti.algover.proof.ProofNodeSelector;
 import edu.kit.iti.algover.rule.script.ScriptController;
 import edu.kit.iti.algover.rule.script.ScriptView;
-import edu.kit.iti.algover.rules.ProofRule;
-import edu.kit.iti.algover.rules.ProofRuleApplication;
-import edu.kit.iti.algover.rules.RuleException;
-import edu.kit.iti.algover.rules.TermSelector;
+import edu.kit.iti.algover.rules.*;
 import edu.kit.iti.algover.term.Sequent;
 import edu.kit.iti.algover.term.Term;
 import edu.kit.iti.algover.term.prettyprint.PrettyPrint;
@@ -41,6 +38,7 @@ public class RuleApplicationController extends FxmlController {
         this.scriptController = new ScriptController(executor, listener);
         this.scriptView = scriptController.getView();
 
+        //TODO: laod rules from project.getallRules to include lemmas
         for (ProofRule rule : ServiceLoader.load(ProofRule.class)) {
             addProofRule(rule);
         }
@@ -95,5 +93,14 @@ public class RuleApplicationController extends FxmlController {
 
     public ScriptController getScriptController() {
         return scriptController;
+    }
+
+    public void applyExRule(ProofRule rule, ProofNode pn, TermSelector ts) {
+        try {
+            scriptView.insertText(scriptView.getLength(), RuleApplicator.getScriptForExhaustiveRuleApplication(rule, pn, ts) + "\n");
+        } catch (RuleException e) {
+            //TODO handle exeptions
+            System.out.println("Error while trying to apply rule " + rule.getName() + " exhaustive.");
+        }
     }
 }

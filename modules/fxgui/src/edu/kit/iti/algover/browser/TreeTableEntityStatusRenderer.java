@@ -3,6 +3,8 @@ package edu.kit.iti.algover.browser;
 import de.jensd.fx.glyphs.GlyphsDude;
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon;
 import edu.kit.iti.algover.browser.entities.*;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
 import javafx.scene.control.Tooltip;
@@ -14,6 +16,7 @@ public class TreeTableEntityStatusRenderer implements TreeTableEntityVisitor<Voi
 
     private final StatusCell cell;
     private PVCClickEditListener engagedListener;
+    private Button gearButton;
 
     public TreeTableEntityStatusRenderer(StatusCell cell) {
         this.cell = cell;
@@ -22,6 +25,14 @@ public class TreeTableEntityStatusRenderer implements TreeTableEntityVisitor<Voi
     public void applyRendering(TreeTableEntity entity, PVCClickEditListener engagedListener) {
         entity.accept(this);
         this.engagedListener = engagedListener;
+        if(entity instanceof PVCEntity) {
+            ((PVCEntity)entity).proofStatusProperty().addListener(new ChangeListener<PVCEntity.ProofStatus>() {
+                @Override
+                public void changed(ObservableValue<? extends PVCEntity.ProofStatus> observable, PVCEntity.ProofStatus oldValue, PVCEntity.ProofStatus newValue) {
+                    updateProofStatusIcon(newValue);
+                }
+            });
+        }
     }
 
     private Void groupingEntity(TreeTableEntity entity) {
@@ -48,7 +59,7 @@ public class TreeTableEntityStatusRenderer implements TreeTableEntityVisitor<Voi
 
         Text gearIcon = GlyphsDude.createIcon(FontAwesomeIcon.GEAR);
         gearIcon.setFill(Color.DARKGREY);
-        Button gearButton = new Button("Edit", gearIcon);
+        gearButton = new Button("Edit", gearIcon);
         gearButton.getStyleClass().add("undecorated-button");
         gearButton.setTooltip(new Tooltip("Edit or start Proof"));
         gearButton.setOnAction(event -> {
@@ -90,5 +101,14 @@ public class TreeTableEntityStatusRenderer implements TreeTableEntityVisitor<Voi
     @Override
     public Void visitOther(OtherEntity entity) {
         return groupingEntity(entity);
+    }
+
+    public void updateProofStatusIcon(PVCEntity.ProofStatus proofStatus) {
+        Text statusIcon = GlyphsDude.createIcon(proofStatus.getIcon());
+        statusIcon.setFill(proofStatus.getFill());
+        HBox box = new HBox(statusIcon, gearButton);
+        box.setSpacing(10);
+        box.setAlignment(Pos.CENTER);
+        cell.setGraphic(box);
     }
 }

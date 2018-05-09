@@ -1,21 +1,29 @@
 package edu.kit.iti.algover.editor;
 
+import de.jensd.fx.glyphs.GlyphsDude;
+import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon;
 import edu.kit.iti.algover.AlgoVerApplication;
 import edu.kit.iti.algover.parser.DafnyLexer;
 import edu.kit.iti.algover.util.AsyncHighlightingCodeArea;
 import javafx.application.Platform;
+import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.SimpleBooleanProperty;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.concurrent.Task;
+import javafx.event.EventHandler;
+import javafx.scene.control.ContextMenu;
+import javafx.scene.control.MenuItem;
+import javafx.scene.input.KeyCombination;
+import javafx.scene.input.KeyEvent;
 import org.antlr.runtime.ANTLRStringStream;
 import org.antlr.runtime.Token;
-import org.fxmisc.richtext.CodeArea;
 import org.fxmisc.richtext.LineNumberFactory;
 import org.fxmisc.richtext.model.StyleSpans;
 import org.fxmisc.richtext.model.StyleSpansBuilder;
 
-import java.time.Duration;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Optional;
 import java.util.concurrent.ExecutorService;
 
 /**
@@ -31,6 +39,9 @@ public class DafnyCodeArea extends AsyncHighlightingCodeArea {
 
     private HighlightingRule highlightingRule;
     private final ExecutorService executor;
+    private BooleanProperty textChangedProperty;
+    private String currentProofText;
+    private DafnyCodeAreaListener listener;
 
     /**
      * @param text the initial code inside the code editor
@@ -38,16 +49,59 @@ public class DafnyCodeArea extends AsyncHighlightingCodeArea {
      *                 calculating syntax highlighting (that is: running the parser,
      *                 computing style spans)
      */
-    public DafnyCodeArea(String text, ExecutorService executor) {
+    public DafnyCodeArea(String text, ExecutorService executor, DafnyCodeAreaListener listener) {
         super(executor);
         this.highlightingRule = (token, syntaxClasses) -> syntaxClasses;
         this.executor = executor;
+        this.listener = listener;
         getStylesheets().add(AlgoVerApplication.class.getResource("syntax-highlighting.css").toExternalForm());
         setParagraphGraphicFactory(LineNumberFactory.get(this));
 
-        setEditable(false);
+        textChangedProperty = new SimpleBooleanProperty(true);
+
+        currentProofText = text;
+
+        textProperty().addListener(new ChangeListener<String>() {
+            @Override
+            public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
+                rerenderHighlighting();
+                if(textIsSimilar(currentProofText, newValue)) {
+                    textChangedProperty.setValue(false);
+                } else{
+                    textChangedProperty.setValue(true);
+                }
+            }
+        });
+
         replaceText(text);
         getUndoManager().forgetHistory();
+
+        initContextMenu();
+    }
+
+    private void initContextMenu() {
+        MenuItem save = new MenuItem("Save dafny file", GlyphsDude.createIcon(FontAwesomeIcon.SAVE));
+        MenuItem saveAll = new MenuItem("Save all dafny files", GlyphsDude.createIcon(FontAwesomeIcon.SAVE));
+
+        save.setOnAction(event -> listener.saveSelectedFile());
+        saveAll.setOnAction(event -> listener.saveAllFiles());
+
+        ContextMenu menu = new ContextMenu(
+                save,
+                saveAll
+        );
+        setContextMenu(menu);
+    }
+
+    public void updateProofText() {
+        currentProofText = getText();
+        textChangedProperty.setValue(false);
+    }
+
+    private boolean textIsSimilar(String s1, String s2) {
+        s1 = s1.replaceAll("\\s*", " ");
+        s2 = s2.replaceAll("\\s*", " ");
+        return s1.equals(s2);
     }
 
     /**
@@ -142,5 +196,17 @@ public class DafnyCodeArea extends AsyncHighlightingCodeArea {
         } else {
             this.highlightingRule = highlightingRule;
         }
+    }
+
+    public BooleanProperty getTextChangedProperty() {
+        return textChangedProperty;
+    }
+
+    public boolean getTextChanged() {
+        return textChangedProperty.get();
+    }
+
+    public void setTextChanged(boolean value) {
+        textChangedProperty.setValue(value);
     }
 }

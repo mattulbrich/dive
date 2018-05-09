@@ -48,10 +48,8 @@ public class OrLeftRule extends AbstractProofRule {
         builder.setApplicability(ProofRuleApplication.Applicability.APPLICABLE);
         builder.setTranscript(getTranscript(new Pair<>("on", at)));
 
-        builder.newBranch().addDeletionsAntecedent(Collections.singletonList(new ProofFormula(at))).
-                addAdditionAntecedent(new ProofFormula(at.getTerm(0)));
-        builder.newBranch().addDeletionsAntecedent(Collections.singletonList(new ProofFormula(at))).
-                addAdditionAntecedent(new ProofFormula(at.getTerm(1)));
+        builder.newBranch().addReplacement(selector, at.getTerm(0));
+        builder.newBranch().addReplacement(selector, at.getTerm(1));
 
         return builder.build();
     }
@@ -72,11 +70,13 @@ public class OrLeftRule extends AbstractProofRule {
         }
 
 
-        ProofRuleApplicationBuilder builder = new ProofRuleApplicationBuilder(this);
-        builder.newBranch().addDeletionsAntecedent(Collections.singletonList(new ProofFormula(on))).
-                addAdditionAntecedent(new ProofFormula(on.getTerm(0)));
-        builder.newBranch().addDeletionsAntecedent(Collections.singletonList(new ProofFormula(on))).
-                addAdditionAntecedent(new ProofFormula(on.getTerm(1)));
+        Optional<TermSelector> ots = RuleUtil.matchSubtermInSequent(on::equals, target.getSequent());
+        if(!ots.isPresent()) {
+            throw new RuleException("on is ambiguos.");
+        }
+        ProofRuleApplicationBuilder builder = handleControlParameters(parameters, target.getSequent());
+        builder.newBranch().addReplacement(ots.get(), on.getTerm(0));
+        builder.newBranch().addReplacement(ots.get(), on.getTerm(1));
 
         return builder.build();
     }

@@ -8,6 +8,10 @@ import edu.kit.iti.algover.script.ast.ProofScript;
 import edu.kit.iti.algover.util.RuleApp;
 import javafx.beans.Observable;
 import javafx.concurrent.Task;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyCodeCombination;
+import javafx.scene.input.KeyCombination;
+import javafx.scene.input.KeyEvent;
 import org.fxmisc.richtext.model.StyleSpans;
 
 import java.time.Duration;
@@ -18,6 +22,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.function.Consumer;
 
 public class ScriptController implements ScriptViewListener {
+    KeyCombination saveShortcut = new KeyCodeCombination(KeyCode.S, KeyCombination.CONTROL_DOWN);
 
     private final ScriptView view;
     private final RuleApplicationListener listener;
@@ -27,9 +32,16 @@ public class ScriptController implements ScriptViewListener {
 
     public ScriptController(ExecutorService executor, RuleApplicationListener listener) {
         this.view = new ScriptView(executor, this);
+        this.view.setOnKeyReleased(this::handleShortcuts);
         this.listener = listener;
 
         view.caretPositionProperty().addListener(this::onCaretPositionChanged);
+    }
+
+    private void handleShortcuts(KeyEvent keyEvent) {
+        if(saveShortcut.match(keyEvent)) {
+            listener.onScriptSave();
+        }
     }
 
     public void setProof(Proof proof) {

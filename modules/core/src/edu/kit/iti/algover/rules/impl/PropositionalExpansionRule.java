@@ -28,7 +28,7 @@ import edu.kit.iti.algover.term.Term;
 public class PropositionalExpansionRule extends AbstractProofRule {
 
     public PropositionalExpansionRule() {
-        super(ON_PARAM, DEEP_PARAM);
+        super(ON_PARAM);
     }
 
     @Override

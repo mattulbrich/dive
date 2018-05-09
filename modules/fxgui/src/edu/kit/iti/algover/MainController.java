@@ -12,6 +12,7 @@ import edu.kit.iti.algover.dafnystructures.DafnyFile;
 import edu.kit.iti.algover.editor.EditorController;
 import edu.kit.iti.algover.parser.DafnyException;
 import edu.kit.iti.algover.parser.DafnyParserException;
+import edu.kit.iti.algover.project.Project;
 import edu.kit.iti.algover.project.ProjectManager;
 import edu.kit.iti.algover.proof.*;
 import edu.kit.iti.algover.references.CodeReference;
@@ -20,15 +21,20 @@ import edu.kit.iti.algover.references.ProofTermReference;
 import edu.kit.iti.algover.references.Reference;
 import edu.kit.iti.algover.rule.RuleApplicationController;
 import edu.kit.iti.algover.rule.RuleApplicationListener;
+import edu.kit.iti.algover.rules.ProofRule;
 import edu.kit.iti.algover.rules.ProofRuleApplication;
 import edu.kit.iti.algover.rules.TermSelector;
 import edu.kit.iti.algover.sequent.SequentActionListener;
 import edu.kit.iti.algover.sequent.SequentController;
 import edu.kit.iti.algover.timeline.TimelineLayout;
 import edu.kit.iti.algover.util.FormatException;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
+import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
 import javafx.scene.Node;
 import javafx.scene.Parent;
+import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.ToolBar;
 import javafx.scene.layout.HBox;
@@ -46,6 +52,7 @@ import java.util.concurrent.ExecutorService;
 public class MainController implements SequentActionListener, RuleApplicationListener {
 
     private final ProjectManager manager;
+    private final ExecutorService executor;
     private final TimelineLayout timelineView;
     private final VBox view;
 
@@ -56,14 +63,16 @@ public class MainController implements SequentActionListener, RuleApplicationLis
     private final RuleApplicationController ruleApplicationController;
     private final ToolBar toolbar;
 
+
     public MainController(ProjectManager manager, ExecutorService executor) {
         this.manager = manager;
+        this.executor = executor;
         this.browserController = new FlatBrowserController(manager.getProject(), manager.getAllProofs(), this::onClickPVCEdit);
         //this.browserController = new FileBasedBrowserController(manager.getProject(), manager.getAllProofs(), this::onClickPVCEdit);
-        this.editorController = new EditorController(executor);
+        this.editorController = new EditorController(executor, manager.getProject().getBaseDir().getAbsolutePath());
+        this.editorController.anyFileChangedProperty().addListener(this::onDafnyFileChangedInEditor);
         this.sequentController = new SequentController(this);
         this.ruleApplicationController = new RuleApplicationController(executor, this);
-
 
         JFXButton saveButton = new JFXButton("Save", GlyphsDude.createIcon(FontAwesomeIcon.SAVE));
         JFXButton refreshButton = new JFXButton("Refresh", GlyphsDude.createIcon(FontAwesomeIcon.REFRESH));
@@ -88,12 +97,43 @@ public class MainController implements SequentActionListener, RuleApplicationLis
 
     private void onClickSave(ActionEvent actionEvent) {
         // TODO: Save the project
+        try {
+            editorController.saveAllFiles();
+            manager.saveProject();
+        } catch (IOException e) {
+            Alert alert = new Alert(Alert.AlertType.INFORMATION, "Error saving the project.");
+            alert.showAndWait();
+        }
     }
 
     private void onClickRefresh(ActionEvent actionEvent) {
         // TODO: Implement refreshing
         // Also implement it asynchronously:
         // Jobs should get queued / Buttons disabled while an action runs, but the UI shouldn't freeze!
+        Task<Boolean> t = new Task<Boolean>() {
+            @Override
+            protected Boolean call() throws Exception {
+                try {
+                    manager.reload();
+                } catch (IOException e) {
+                    return false;
+                }
+                return true;
+            }
+        };
+        executor.execute(t);
+        t.setOnSucceeded(event -> {
+            if(t.getValue()) {
+                System.out.println("reload worked");
+                browserController.onRefresh(manager.getProject(), manager.getAllProofs());
+                browserController.getView().setDisable(false);
+                sequentController.getView().setDisable(false);
+                ruleApplicationController.getView().setDisable(false);
+            } else {
+                Alert alert = new Alert(Alert.AlertType.INFORMATION, "Error refreshing the project.");
+                alert.showAndWait();
+            }
+        });
     }
 
     public void onClickPVCEdit(PVCEntity entity) {
@@ -108,6 +148,18 @@ public class MainController implements SequentActionListener, RuleApplicationLis
         ruleApplicationController.resetConsideration();
         ruleApplicationController.getScriptController().setProof(proof);
         timelineView.moveFrameRight();
+    }
+
+    public void onDafnyFileChangedInEditor(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) {
+        if(newValue) {
+            browserController.getView().setDisable(true);
+            sequentController.getView().setDisable(true);
+            ruleApplicationController.getView().setDisable(true);
+        } /*else {
+            browserController.getView().setDisable(false);
+            sequentController.getView().setDisable(false);
+            ruleApplicationController.getView().setDisable(false);
+        }*/
     }
 
     public void onSelectBrowserItem(TreeTableEntity treeTableEntity) {
@@ -173,8 +225,22 @@ public class MainController implements SequentActionListener, RuleApplicationLis
         ruleApplicationController.getRuleGrid().getSelectionModel().clearSelection();
         String newScript = ruleApplicationController.getScriptView().getText();
         sequentController.getActiveProof().setScriptTextAndInterpret(newScript);
-        sequentController.tryMovingOn();
+        sequentController.tryMovingOnEx(); //SaG: was tryMovingOn()
         ruleApplicationController.resetConsideration();
+    }
+
+    @Override
+    public void onRuleExApplication(ProofRule rule, TermSelector ts) {
+        // This can be implemented as an incremental algorithm in the future here!
+        // Currently, this will reset the script text completely. That means the
+        // script has to be parsed and rebuilt completely.
+        ruleApplicationController.applyExRule(rule, sequentController.getActiveNode(), ts);
+        ruleApplicationController.getRuleGrid().getSelectionModel().clearSelection();
+        String newScript = ruleApplicationController.getScriptView().getText();
+        sequentController.getActiveProof().setScriptTextAndInterpret(newScript);
+        sequentController.tryMovingOnEx();
+        ruleApplicationController.resetConsideration();
+
     }
 
     @Override

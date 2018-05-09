@@ -77,7 +77,8 @@
 }
 
 .rule-view .button.refine,
-.rule-view .button.apply {
+.rule-view .button.apply,
+.rule-view .button.applyEx {
     -fx-font-size: 12px;
 }
 
