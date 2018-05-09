@@ -5,12 +5,12 @@ import edu.kit.iti.algover.term.Term;
 
 import java.util.Collection;
 
-public class ModifiedFormula extends TopLevelFormula {
+public class ModifiedFormula extends OriginalFormula {
 
     private final Collection<SubtermSelector> modifiedParts;
 
-    public ModifiedFormula(Collection<SubtermSelector> modifiedParts, Term term) {
-        super(term);
+    public ModifiedFormula(Collection<SubtermSelector> modifiedParts, Term term, int indexInSequent) {
+        super(indexInSequent, term);
         this.modifiedParts = modifiedParts;
     }
 
@@ -22,4 +22,5 @@ public class ModifiedFormula extends TopLevelFormula {
     public Collection<SubtermSelector> getModifiedParts() {
         return modifiedParts;
     }
+
 }

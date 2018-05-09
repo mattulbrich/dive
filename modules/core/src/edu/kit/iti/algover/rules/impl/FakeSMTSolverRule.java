@@ -27,12 +27,12 @@ public class FakeSMTSolverRule extends AbstractProofRule {
     }
 
     @Override
-    public ProofRuleApplication considerApplication(ProofNode target, Sequent selection, TermSelector selector)
+    public ProofRuleApplication considerApplicationImpl(ProofNode target, Parameters parameters)
             throws RuleException {
 
         ProofRuleApplicationBuilder builder = new ProofRuleApplicationBuilder(this);
         builder.setApplicability(Applicability.MAYBE_APPLICABLE);
-        builder.setRefiner((x,y) -> refine(x, selection));
+        builder.setRefiner((x,y) -> refine(x, target.getSequent()));
         return builder.build();
     }
 
@@ -53,10 +53,7 @@ public class FakeSMTSolverRule extends AbstractProofRule {
     }
 
     @Override
-    public ProofRuleApplication makeApplication(ProofNode target, Parameters parameters) throws RuleException {
-
-        checkParameters(parameters);
-
+    public ProofRuleApplication makeApplicationImpl(ProofNode target, Parameters parameters) throws RuleException {
         boolean decision;
         if(parameters.hasValue(CLOSE_PARAM)) {
             decision = parameters.getValue(CLOSE_PARAM);

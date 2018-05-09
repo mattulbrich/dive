@@ -160,7 +160,7 @@ public class AssertionElement {
         /**
          * Variant / measured by reduced.
          */
-        VARIANT_DECREASED("Term");
+        VARIANT_DECREASED("Dec");
 
         /**
          * The identifier used when constructing a UI-string for a symbex path.

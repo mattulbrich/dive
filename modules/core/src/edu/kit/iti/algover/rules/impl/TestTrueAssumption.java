@@ -31,7 +31,6 @@ public class TestTrueAssumption extends AbstractProofRule {
         builder.setApplicability(ProofRuleApplication.Applicability.APPLICABLE);
         try {
             builder.newBranch().addAdditionAntecedent(new ProofFormula(new ApplTerm(BuiltinSymbols.TRUE)));
-            builder.setTranscript("testTrueAssumption;");
         } catch (TermBuildException e) {
             e.printStackTrace();
             builder.setApplicability(ProofRuleApplication.Applicability.NOT_APPLICABLE);
@@ -40,12 +39,12 @@ public class TestTrueAssumption extends AbstractProofRule {
     }
 
     @Override
-    public ProofRuleApplication considerApplication(ProofNode target, Sequent selection, TermSelector selector) throws RuleException {
+    public ProofRuleApplication considerApplicationImpl(ProofNode target, Parameters parameters) throws RuleException {
         return buildApplication();
     }
 
     @Override
-    public ProofRuleApplication makeApplication(ProofNode target, Parameters parameters) throws RuleException {
+    public ProofRuleApplication makeApplicationImpl(ProofNode target, Parameters parameters) throws RuleException {
         return buildApplication();
     }
 

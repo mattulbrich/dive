@@ -18,6 +18,10 @@
     -fx-fill: #09885A;
 }
 
+.highlight-line {
+    -rtfx-background-color: #8f939b;
+}
+
 .lowlighted {
     -fx-fill: #9c9c9c
 }

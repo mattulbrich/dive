@@ -97,3 +97,15 @@
     -fx-background-color: white;
 }
 
+.log:error .text {
+    -fx-fill: #E55;
+}
+
+.log:warning .text {
+    -fx-fill: #E1A21A;
+}
+
+.log:info .text {
+    -fx-fill: #2CAE26;
+}
+

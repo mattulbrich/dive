@@ -1,23 +1,23 @@
 
-d minSubArray(numArray : array<int>, minSum : int) returns (minSize : int)
-  requires numArray.Length >= 1
-  requires forall k :: 0 <= k < numArray.Length ==> numArray[k] > 0
-  ensures forall k :: 0 <= k < numArray.Length - 1 ==> forall j :: 1 < j < minSize ==> sumArray(numArray, k, j) < minSum
+method minSubArray(numArray : seq<int>, minSum : int) returns (minFound : int)
+  requires |numArray| >= 1
+  requires forall k :: 0 <= k < |numArray| ==> numArray[k] > 0
+  ensures forall k :: 0 <= k < |numArray| - 1 ==> forall j :: 1 < j < minFound ==> sumArray(numArray, k, j) < minSum
   {
     var start : int := 0;
     var end : int := 0;
     var sum : int := numArray[0];
-    var minFound : int := numArray.Length;
+    minFound := |numArray|;
     
-    while(end < numArray.Length) 
-      decreases numArray.Length - end 
+    while(end < |numArray|) 
+      decreases |numArray| - end 
     {
-      while (sum < minSum && end < numArray.Length) {
+      while (sum < minSum && end < |numArray|) {
         sum := sum + numArray[end];
         end := end + 1;
       }
       
-      while(sum > minSum && start < numArray.Length) {
+      while(sum > minSum && start < |numArray|) {
         if end - start < minFound  {
           minFound := end - start;
         }
@@ -25,17 +25,15 @@ d minSubArray(numArray : array<int>, minSum : int) returns (minSize : int)
         sum := sum - numArray[start];
         start := start + 1;
       }
-    }  
-    return minFound;  
+    }   
   }
 
 
-function sumArray (numArray : array<int>, start : int, size : int) : int
+function sumArray (numArray : seq<int>, start : int, size : int) : int
   requires start >= 0
-  reads numArray
-  decreases numArray.Length - start
+  decreases |numArray| - start
 {
-  if size > 0 && start < numArray.Length
+  if size > 0 && start < |numArray|
   then sumArray(numArray, start + 1, size - 1) + numArray[start]
   else 0
 }

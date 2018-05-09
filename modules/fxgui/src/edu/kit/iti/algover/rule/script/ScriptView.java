@@ -6,18 +6,22 @@ import edu.kit.iti.algover.AlgoVerApplication;
 import edu.kit.iti.algover.script.ScriptLanguageLexer;
 import edu.kit.iti.algover.script.parser.Facade;
 import edu.kit.iti.algover.util.AsyncHighlightingCodeArea;
+import javafx.application.Platform;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.MenuItem;
 import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.Token;
+import org.fxmisc.richtext.model.StyleSpan;
 import org.fxmisc.richtext.model.StyleSpans;
 import org.fxmisc.richtext.model.StyleSpansBuilder;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.List;
 import java.util.concurrent.ExecutorService;
 
 /**
@@ -58,8 +62,15 @@ public class ScriptView extends AsyncHighlightingCodeArea {
 
         Token token;
         while ((token = lexer.nextToken()).getType() != Token.EOF) {
-            builder.add(styleClassForToken(token.getType()),
-                    token.getText().length());
+            if(token.getLine() == getCurrentParagraph() + 1) {
+                Collection<String> sytle = new ArrayList<>(styleClassForToken(token.getType()));
+                sytle.add("highlight-line");
+                builder.add(sytle,
+                        token.getText().length());
+            } else {
+                builder.add(styleClassForToken(token.getType()),
+                        token.getText().length());
+            }
         }
 
         lexer.reset();
@@ -83,4 +94,32 @@ public class ScriptView extends AsyncHighlightingCodeArea {
         }
     }
 
+    public void highlightLine() {
+        StyleSpansBuilder<Collection<String>> builder = new StyleSpansBuilder<>();
+        String text = getText();
+
+        ScriptLanguageLexer lexer = null;
+        try {
+            InputStream stream = new ByteArrayInputStream(text.getBytes(StandardCharsets.UTF_8));
+            lexer = new ScriptLanguageLexer(CharStreams.fromStream(stream, StandardCharsets.UTF_8));
+        } catch (Exception e) {
+            System.out.println("couldnt not render new highlighting.");
+        }
+
+        if(lexer != null) {
+            Token token;
+            while ((token = lexer.nextToken()).getType() != Token.EOF) {
+                if(token.getLine() == getCurrentParagraph() + 1) {
+                    Collection<String> sytle = new ArrayList<>(styleClassForToken(token.getType()));
+                    sytle.add("highlight-line");
+                    builder.add(sytle,
+                            token.getText().length());
+                } else {
+                    builder.add(styleClassForToken(token.getType()),
+                            token.getText().length());
+                }
+            }
+            applyHighlighting(builder.create());
+        }
+    }
 }

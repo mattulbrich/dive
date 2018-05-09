@@ -4,7 +4,7 @@ import edu.kit.iti.algover.term.Term;
 
 public class OriginalFormula extends TopLevelFormula {
 
-    private final int indexInSequent;
+    protected final int indexInSequent;
 
     public OriginalFormula(int indexInSequent, Term term) {
         super(term);

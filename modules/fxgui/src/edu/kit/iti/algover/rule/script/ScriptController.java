@@ -55,13 +55,28 @@ public class ScriptController implements ScriptViewListener {
 
     private void onCaretPositionChanged(Observable observable) {
         switchViewedNode();
+        view.highlightLine();
     }
+
+
 
     private void switchViewedNode() {
         Position caretPosition = computePositionFromCharIdx(view.getCaretPosition(), view.getText());
 
-        ProofNodeCheckpoint lastCheckpoint = checkpoints.get(0); // There should always be at least 1 checkpoint (the one at the start)
+        ProofNodeCheckpoint checkpoint = getCheckpointForCaretPosition(caretPosition);
 
+        // If the selector points to nowhere, its probably because the rule closed the proof and didn't generate
+        // another child...
+        // REVIEW This is kind of ugly. In the future this off-by-one fix has to be removed
+        if (!checkpoint.selector.optionalGet(proof).isPresent()) {
+            this.listener.onSwitchViewedNode(checkpoint.selector.getParentSelector());
+        }
+
+        this.listener.onSwitchViewedNode(checkpoint.selector);
+    }
+
+    private ProofNodeCheckpoint getCheckpointForCaretPosition(Position caretPosition) {
+        ProofNodeCheckpoint lastCheckpoint = checkpoints.get(0); // There should always be at least 1 checkpoint (the one at the start)
         // REVIEW Maybe stop iterating after finding checkpoints greater than the current position
         for (int i = 1; i < checkpoints.size(); i++) {
             ProofNodeCheckpoint checkpoint = checkpoints.get(i);
@@ -70,13 +85,7 @@ public class ScriptController implements ScriptViewListener {
             }
         }
 
-        // If the selector points to nowhere, its probably because the rule closed the proof and didn't generate
-        // another child...
-        // REVIEW This is kind of ugly. In the future this off-by-one fix has to be removed
-        if (!lastCheckpoint.selector.optionalGet(proof).isPresent()) {
-            this.listener.onSwitchViewedNode(lastCheckpoint.selector.getParentSelector());
-        }
-        this.listener.onSwitchViewedNode(lastCheckpoint.selector);
+        return lastCheckpoint;
     }
 
     private Position computePositionFromCharIdx(int charIdx, String text) {
@@ -95,6 +104,15 @@ public class ScriptController implements ScriptViewListener {
         return new Position(line, charInLine);
     }
 
+    private int computeCharIdxFromPosition(Position position, String text) {
+        int charIdx = 0;
+        for(int i = 0; i < position.getLineNumber() - 1; ++i) {
+            charIdx += text.substring(0, text.indexOf('\n')).length() + 1;
+            text = text.substring(text.indexOf('\n') + 1);
+        }
+        return charIdx + position.getCharInLine();
+    }
+
     @Override
     public void onScriptSave() {
         listener.onScriptSave();
@@ -109,5 +127,12 @@ public class ScriptController implements ScriptViewListener {
 
     public ScriptView getView() {
         return view;
+    }
+
+    public void insertTextForSelectedNode(String text) {
+        Position caretPosition = computePositionFromCharIdx(view.getCaretPosition(), view.getText());
+        ProofNodeCheckpoint checkpoint = getCheckpointForCaretPosition(caretPosition);
+        int insertAt = computeCharIdxFromPosition(checkpoint.caretPosition, view.getText());
+        view.insertText(insertAt, text);
     }
 }

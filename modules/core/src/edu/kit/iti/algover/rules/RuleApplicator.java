@@ -71,6 +71,7 @@ public class RuleApplicator {
             try {
                 newSequent = createNewSequent(branchInfo, sequent);
                 ProofNode pnNew = new ProofNode(pn, proofRuleApplication, newSequent, pn.getPVC());
+                pnNew.setLabel(branchInfo.getLabel());
                 children.add(pnNew);
 
             } catch (TermBuildException e) {

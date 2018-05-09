@@ -5,6 +5,7 @@
  */
 package edu.kit.iti.algover.proof;
 
+import edu.kit.iti.algover.rules.BranchInfo;
 import edu.kit.iti.algover.rules.ProofRuleApplication;
 import edu.kit.iti.algover.script.ast.ASTNode;
 import edu.kit.iti.algover.script.ast.Type;
@@ -64,6 +65,12 @@ public class ProofNode {
      * Pointer to ASTNode that mutated this node
      */
     private List<ASTNode> mutator;
+
+    /**
+     * The label a rule application has given this Node on application.
+     * (see {@link BranchInfo#label})
+     */
+    private String label = null;
 
 
     public static ProofNode createRoot(PVC pvc) {
@@ -255,5 +262,16 @@ public class ProofNode {
     public VariableAssignment enterScope(VariableAssignment va) {
         variableAssignments = variableAssignments.push(va);
         return variableAssignments;
+    }
+
+    /**
+     * non-obligatory label for handling cases
+     */
+    public String getLabel() {
+        return label;
+    }
+
+    public void setLabel(String label) {
+        this.label = label;
     }
 }

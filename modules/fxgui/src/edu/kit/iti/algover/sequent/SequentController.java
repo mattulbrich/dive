@@ -205,7 +205,7 @@ public class SequentController extends FxmlController {
             activeNode = proofNodeSelector;
             BranchInfo branchInfo = null;
             ProofRuleApplication application = proofNode.getPsr();
-            if (application != null && application.getBranchInfo().size() == 1) {
+           if (application != null && application.getBranchInfo().size() == 1) {
                 branchInfo = application.getBranchInfo().get(0);
             }
             updateSequent(proofNode.getSequent(), branchInfo);
@@ -247,7 +247,7 @@ public class SequentController extends FxmlController {
                 }
 
                 if (!modifiedParts.isEmpty()) {
-                    formulas.add(new ModifiedFormula(modifiedParts, term));
+                    formulas.add(new ModifiedFormula(modifiedParts, term, i));
                     continue formulaLoop;
                 }
 

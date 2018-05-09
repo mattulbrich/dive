@@ -70,13 +70,18 @@ public class DafnyRule extends AbstractProofRule {
     }
 
     @Override
-    public ProofRuleApplication considerApplication(ProofNode target, Sequent selection, TermSelector selector) throws RuleException {
-        Term selected = selector.selectSubterm(target.getSequent());
+    public ProofRuleApplication considerApplicationImpl(ProofNode target, Parameters parameters) throws RuleException {
+        Term selected = parameters.getValue(ON_PARAM);
+        List<TermSelector> l = RuleUtil.matchSubtermsInSequent(selected::equals, target.getSequent());
+        if(l.size() != 1) {
+            return ProofRuleApplicationBuilder.notApplicable(this);
+        }
+
         ProofRuleApplicationBuilder proofRuleApplicationBuilder;
         try {
             Term rt;
             ImmutableList<Matching> matchings;
-            if(!this.polarity.conforms(RuleUtil.getTruePolarity(selector, target.getSequent()))) {
+            if(!this.polarity.conforms(RuleUtil.getTruePolarity(l.get(0), target.getSequent()))) {
                 return ProofRuleApplicationBuilder.notApplicable(this);
             } else {
                 TermMatcher tm = new TermMatcher();
@@ -92,8 +97,7 @@ public class DafnyRule extends AbstractProofRule {
             }
             proofRuleApplicationBuilder = new ProofRuleApplicationBuilder(this);
             proofRuleApplicationBuilder.setApplicability(ProofRuleApplication.Applicability.APPLICABLE);
-            proofRuleApplicationBuilder.setTranscript(getTranscript(new Pair<>("on", selected)));
-            proofRuleApplicationBuilder.newBranch().addReplacement(selector, rt);
+            proofRuleApplicationBuilder.newBranch().addReplacement(l.get(0), rt).setLabel("case 0");
             for(Pair<Term, String> lt : rts) {
                 if(!RuleUtil.matchSubtermInSequent(lt.getFst()::equals, target.getSequent()).isPresent()) {
                     BranchInfoBuilder bib = proofRuleApplicationBuilder.newBranch();
@@ -111,7 +115,7 @@ public class DafnyRule extends AbstractProofRule {
     }
 
     @Override
-    public ProofRuleApplication makeApplication(ProofNode target, Parameters parameters) throws RuleException {
+    public ProofRuleApplication makeApplicationImpl(ProofNode target, Parameters parameters) throws RuleException {
         ProofRuleApplicationBuilder proofRuleApplicationBuilder = handleControlParameters(parameters, target.getSequent());
         try {
             Term on = parameters.getValue(ON_PARAM);
@@ -134,13 +138,12 @@ public class DafnyRule extends AbstractProofRule {
             }
 
             proofRuleApplicationBuilder.setApplicability(ProofRuleApplication.Applicability.APPLICABLE);
-            proofRuleApplicationBuilder.setTranscript(getTranscript(new Pair<>("on", on)));
             List<Pair<Term, String>> rts = new ArrayList<>();
             for(Pair<Term, String> lt : requiresTerms) {
                 rts.add(new Pair<Term, String>(matchings.get(0).instantiate(lt.getFst()), lt.getSnd()));
             }
 
-            proofRuleApplicationBuilder.newBranch().addReplacement(l.get(0), rt);
+            proofRuleApplicationBuilder.newBranch().addReplacement(l.get(0), rt).setLabel("case 0");
 
             for(Pair<Term, String> lt : rts) {
                 if(!RuleUtil.matchSubtermInSequent(lt.getFst()::equals, target.getSequent()).isPresent()) {
