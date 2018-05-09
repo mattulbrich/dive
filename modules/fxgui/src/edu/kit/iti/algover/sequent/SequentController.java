@@ -125,6 +125,8 @@ public class SequentController extends FxmlController {
         }
     }
 
+    //SaG: was used before having exhaustive RuleApp; Remove later if no Bug is found!
+    @Deprecated
     public void tryMovingOn() {
         if (activeNode != null) {
             try {
@@ -143,6 +145,28 @@ public class SequentController extends FxmlController {
             updateGoalTypeLabel();
         }
     }
+
+    public void tryMovingOnEx() {
+        if (activeNode != null) {
+            try {
+                ProofNode nodeBefore = activeNode.get(activeProof);
+                while (nodeBefore.getChildren().size() > 0) {
+                    if (nodeBefore.getChildren().size() == 1) {
+                        ProofNodeSelector newActiveNode = new ProofNodeSelector(activeNode, 0);
+                        ProofNode node = newActiveNode.get(activeProof);
+                        updateSequent(node.getSequent(), null);
+                        activeNode = newActiveNode;
+                        nodeBefore = activeNode.get(activeProof);
+                    }
+                }
+            } catch (RuleException e) {
+                e.printStackTrace(); // should not happen, as long as the activeNode selector is correct
+                return;
+            }
+            updateGoalTypeLabel();
+        }
+    }
+
 
     /**
      * View a preview for a rule application. This highlights the added/removed {@link TopLevelFormula}s

@@ -51,7 +51,7 @@ public class DafnyFunction extends DafnyDecl {
     /**
      * The result type of the function. Non-<code>null</code>.
      */
-    private DafnyTree returnType;
+    private final DafnyTree returnType;
 
     /**
      * Instantiates a new function from a builder object.
@@ -67,6 +67,7 @@ public class DafnyFunction extends DafnyDecl {
         this.requiresClauses = Objects.requireNonNull(b.getRequiresClauses());
         this.expression = Objects.requireNonNull(b.getExpression());
         this.decreasesClause = b.getDecreasesClause();
+        this.returnType = b.getReturnType();
     }
 
     public List<DafnyTree> getParameters() {

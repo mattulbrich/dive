@@ -16,6 +16,7 @@ import edu.kit.iti.algover.dafnystructures.DafnyMethod;
 import edu.kit.iti.algover.parser.DafnyTree;
 import edu.kit.iti.algover.term.FunctionSymbol;
 import edu.kit.iti.algover.term.Sort;
+import edu.kit.iti.algover.term.builder.TermBuilder;
 import edu.kit.iti.algover.util.TreeUtil;
 
 // REVIEW: Document!
@@ -48,7 +49,7 @@ public class DeclarationSymbolCollector {
             Sort result = TreeUtil.toSort(field.getType());
             Sort container = Sort.getClassSort(clss.getName());
             Sort sort = Sort.get("field", container, result);
-            String name = clss.getName() + "$" + field.getName();
+            String name = TermBuilder.fieldName(clss.getName(), field.getName());
             collected.add(new FunctionSymbol(name, sort));
         }
 

@@ -94,3 +94,12 @@ method double_quantifiers()
   ensures forall va_i, va_j : int :: va_i > va_j
   ensures exists vx_i, vx_j : int :: vx_i > vx_j
 {}
+
+// bug report #44
+method getSum (p_a: int, p_b: int) returns (ret_m: int)
+    requires p_a > 0 && p_b > 0
+    ensures ret_m > 0
+{
+    var l_sum := p_a + p_b;
+    ret_m := l_sum;
+}

@@ -267,7 +267,7 @@ public class MainController implements SequentActionListener, RuleApplicationLis
         ruleApplicationController.getRuleGrid().getSelectionModel().clearSelection();
         String newScript = ruleApplicationController.getScriptView().getText();
         sequentController.getActiveProof().setScriptTextAndInterpret(newScript);
-        sequentController.tryMovingOn();
+        sequentController.tryMovingOnEx(); //SaG: was tryMovingOn()
         ruleApplicationController.resetConsideration();
         Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).info("Successfully applied rule " + application.getRule().getName() + ".");
     }
@@ -281,8 +281,9 @@ public class MainController implements SequentActionListener, RuleApplicationLis
         ruleApplicationController.getRuleGrid().getSelectionModel().clearSelection();
         String newScript = ruleApplicationController.getScriptView().getText();
         sequentController.getActiveProof().setScriptTextAndInterpret(newScript);
-        sequentController.tryMovingOn();
+        sequentController.tryMovingOnEx();
         ruleApplicationController.resetConsideration();
+
     }
 
     @Override

@@ -5,6 +5,7 @@
  */
 package edu.kit.iti.algover.dafnystructures;
 
+import edu.kit.iti.algover.parser.DafnyParser;
 import edu.kit.iti.algover.parser.DafnyTree;
 
 /**
@@ -50,7 +51,9 @@ public class DafnyField extends DafnyDecl {
      * @param tree the AST from which the field is to be read
      */
     public DafnyField(String filename, boolean inLibrary, DafnyTree tree) {
-        this(filename, tree, tree.getChild(1), tree.getChild(0).getText(), inLibrary);
+        this(filename, tree,
+                tree.getFirstChildWithType(DafnyParser.TYPE).getChild(0),
+                tree.getChild(0).getText(), inLibrary);
     }
 
 

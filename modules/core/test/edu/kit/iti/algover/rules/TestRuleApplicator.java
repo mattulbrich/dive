@@ -276,7 +276,7 @@ public class TestRuleApplicator {
         try {
             letSub = DafnyRuleUtil.generateDafnyRuleFromFile("./modules/core/test-res/edu/kit/iti/algover/dafnyrules/addzero.dfy");
         } catch (DafnyRuleException e) {
-            System.out.println("Exception corrued during laoding dafny rule addzero2.dfy.");
+            System.out.println("Exception occurred during loading dafny rule addzero2.dfy.");
             e.printStackTrace();
         }
         pn = ProofMockUtil.mockProofNode(null, seq.getAntecedent(), seq.getSuccedent());

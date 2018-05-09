@@ -31,18 +31,27 @@ public abstract class AbstractProofRule implements ProofRule {
             new ParameterDescription<>("on", ParameterType.TERM, true);
 
     /**
-     * The parameter "deep" is used for propositional rules that
-     * are to be applied exhaustively.
+     * The parameter "type" is used to describe whether or not a rule is applied
+     * exhaustively, deep or globally.
      */
     public static final ParameterDescription<String> TYPE_PARAM =
             new ParameterDescription<>("type", ParameterType.STRING, false);
+
+    /**
+     * Whether or not this rule may be applied exhaustively.
+     */
+    protected boolean mayBeExhaustive = true;
+
+    /**
+     * Whether or not this rule may be applied deep exhaustively.
+     */
+    protected boolean mayBeDeep = true;
 
     /**
      * This map captures the parameters made
      * known to the class in the constructor.
      */
     private final Map<String, ParameterDescription<?>> allParameters = new HashMap<>();
-
 
     /**
      * Instantiate a new object.
@@ -145,26 +154,45 @@ public abstract class AbstractProofRule implements ProofRule {
 
         switch ((String)params.getValue("type")) {
             case "exhaustive":
+                if(!mayBeExhaustive) {
+                    throw new RuleException("Rule " + getName() + " can not be applied exhaustively.");
+                }
                 rab.setExhaustive(true);
                 break;
             case "deep":
+                if(!mayBeExhaustive) {
+                    throw new RuleException("Rule " + getName() + " can not be applied exhaustively.");
+                }
                 rab.setExhaustive(true);
+                if(!mayBeDeep) {
+                    throw new RuleException("Rule " + getName() + " can not be applied deep exhaustively.");
+                }
                 rab.setDeep(true);
                 break;
-            case "global":
+            case "globalExhaustive":
+                if(!mayBeExhaustive) {
+                    throw new RuleException("Rule " + getName() + " can not be applied exhaustively.");
+                }
                 rab.setExhaustive(true);
                 rab.setGlobal(true);
                 break;
             case "globalDeep":
                 rab.setGlobal(true);
+                if(!mayBeExhaustive) {
+                    throw new RuleException("Rule " + getName() + " can not be applied exhaustively.");
+                }
                 rab.setExhaustive(true);
+                if(!mayBeDeep) {
+                    throw new RuleException("Rule " + getName() + " can not be applied deep exhaustively.");
+                }
                 rab.setDeep(true);
                 break;
+            case "globalOnce":
+                rab.setGlobal(true);
             case "once":
                 break;
             default:
                 throw new RuleException("Unknown rule application type: " + params.getValue("type") + ".");
-
         }
 
         Term t = params.getValue(ON_PARAM);

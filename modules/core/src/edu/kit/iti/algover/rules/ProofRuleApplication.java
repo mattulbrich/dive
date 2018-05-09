@@ -56,6 +56,7 @@ public final class ProofRuleApplication {
     private final
     @NonNull
     Parameters openParameters;
+
     /**
      * The code which can be used to refine this proof application. Can be
      * <code>null</code> if no refining routine is known for this application.
@@ -63,6 +64,7 @@ public final class ProofRuleApplication {
     private final
     @Nullable
     Refiner refiner;
+
     /**
      * When a proof rule application is applied, the proof script needs to be
      * augmented. This is the proof script transcript which describes this
@@ -70,9 +72,29 @@ public final class ProofRuleApplication {
      */
     private final @NonNull String scriptTranscript;
 
+    /**
+     * A rule may be applied exhaustively meaning that it is recursively applied to the term resulting from the
+     * previous application as long as possible. This parameter describes whether or not the rule application
+     * is exhaustive or not.
+     */
     private final boolean exhaustive;
+
+    /**
+     * Similar to exhaustive rule applications a rule might be applied deep exhaustive. In this case the recursive
+     * applications continue even if there is a term where the rule is not applicable (in this case it is applied to
+     * all child-terms).
+     */
     private final boolean deep;
+
+    /**
+     * A rule might be applied globally meaning it is not only applied to 1 specific term but to all proofformulas
+     * in the sequent. This may be combined with exhaustive or deep exhaustive applications.
+     */
     private final boolean global;
+
+    /**
+     * This TermSelector points to the term this rule is going to be applied on.
+     */
     private final TermSelector on;
 
     /**
