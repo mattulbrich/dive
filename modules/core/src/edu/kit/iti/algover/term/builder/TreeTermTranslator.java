@@ -339,6 +339,10 @@ public class TreeTermTranslator {
             result = buildLength(tree);
             break;
 
+        case DafnyParser.CARD:
+            result = buildCardinality(tree);
+            break;
+
         case DafnyParser.ARRAY_ACCESS:
             result = buildBracketAccess(tree);
             break;
@@ -559,19 +563,36 @@ public class TreeTermTranslator {
                 f = symbolTable.getFunctionSymbol("$len" + index + "<" + arg + ">");
                 break;
 
-            case "seq":
-                if (!suffix.isEmpty()) {
-                    throw new TermBuildException("Elements of type 'seq' have only "
-                            + "the 'Length' property");
-                }
-                return tb.seqLen(t1);
-
             default:
-                throw new TermBuildException("Unsupported sort for 'Length': " + sort);
+                throw new TermBuildException("Unsupported sort for '" +
+                        functionName + "': " + sort);
         }
 
-        return new ApplTerm(f, Arrays.asList(t1));
+        return new ApplTerm(f, t1);
+    }
 
+    private Term buildCardinality(DafnyTree tree) throws TermBuildException {
+
+        Term inner = build(tree.getChild(0));
+        FunctionSymbol function;
+
+        Sort sort = inner.getSort();
+        switch (sort.getName()) {
+        case "set":
+            function = BuiltinSymbols.CARD.instantiate(
+                    sort.getArguments().get(0));
+            break;
+
+        case "seq":
+            function = BuiltinSymbols.SEQ_LEN.instantiate(
+                    sort.getArguments().get(0));
+            break;
+
+        default:
+            throw new TermBuildException("Unsupported sort for |...|: " + sort);
+        }
+
+        return new ApplTerm(function, inner);
     }
 
     private Term buildWildcard(DafnyTree tree) throws TermBuildException {

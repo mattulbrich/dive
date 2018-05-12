@@ -133,6 +133,7 @@ LPAREN: '(';
 RPAREN: ')';
 LBRACKET: '[';
 RBRACKET: ']';
+CARD: '|';
 
 LENGTH: 'Length' ('0' .. '9')*;
 ARRAY : 'array' (('1' .. '9') ('0' .. '9')*)?;
@@ -453,7 +454,7 @@ atom_expr:
   | INT_LIT
   | 'old'^ '('! expression ')'!
   | 'fresh'^ '('! expression ')'!
-//  | '|'^ expression '|'!
+  | '|'^ expression '|'!
   | '('! expression ')'!
   ;
 

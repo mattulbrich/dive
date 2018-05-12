@@ -151,6 +151,10 @@ public class TreeTermTranslatorTest {
             { "$heap[c.f := 1]", "$store<C,int>($heap, c, C$$f, 1)" },
             { "$heap[$anon(mod, loopHeap)]", "$anon($heap, mod, loopHeap)" },
             { "$heap[$create(c)]", "$create($heap, c)" },
+
+            // Cardinalities
+            { "|mod|", "$card<object>(mod)" },
+            { "|xseq|", "$seq_len<int>(xseq)" },
         };
     }
 
@@ -218,6 +222,7 @@ public class TreeTermTranslatorTest {
         map.add(new FunctionSymbol("C$$f", Sort.get("field", Sort.getClassSort("C"), Sort.INT)));
         map.add(new FunctionSymbol("loopHeap", Sort.HEAP));
         map.add(new FunctionSymbol("mod", Sort.get("set", Sort.OBJECT)));
+        map.add(new FunctionSymbol("xseq", Sort.get("seq", Sort.INT)));
         symbTable = new MapSymbolTable(new BuiltinSymbols(), map);
     }
 

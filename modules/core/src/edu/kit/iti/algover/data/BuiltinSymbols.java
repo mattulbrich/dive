@@ -166,6 +166,10 @@ public class BuiltinSymbols extends MapSymbolTable {
             new FunctionSymbolFamily(
                     new FunctionSymbol("$intersect", SET1, SET1, SET1), 1);
 
+    public static final FunctionSymbolFamily CARD =
+            new FunctionSymbolFamily(
+                    new FunctionSymbol("$card", Sort.INT, SET1), 1);
+
     private static final Sort SEQ1 = Sort.get("seq", FunctionSymbolFamily.VAR1);
 
     public static final FunctionSymbolFamily SEQ_LEN =
