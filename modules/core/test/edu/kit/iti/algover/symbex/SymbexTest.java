@@ -832,6 +832,47 @@ public class SymbexTest {
     }
 
     @Test
+    public void testFieldAssignment() throws Exception {
+        InputStream stream = getClass().getResourceAsStream("fieldAssignment.dfy");
+        DafnyTree fileTree = ParserTest.parseFile(stream);
+
+        // performs type analysis etc:
+        Project project = TestUtil.mockProject(fileTree);
+
+        DafnyTree tree = project.getMethod("getNumber").getRepresentation();
+        DafnyTree code = tree.getFirstChildWithType(DafnyParser.BLOCK);
+        Symbex symbex = new Symbex();
+        List<SymbexPath> paths = symbex.symbolicExecution(tree);
+
+        assertEquals(2, paths.size());
+        {
+            SymbexPath path = paths.get(0);
+
+            assertEquals("[PRE[null]:(!= o null)]",
+                    path.getPathConditions().toString());
+
+            assertEquals("[(ASSIGN $mod o), (ASSIGN $decr 0), (:= (FIELD_ACCESS o y) 8)]",
+                    path.getAssignmentHistory().map(x -> x.toStringTree()).toString());
+
+            assertEquals("[POST:(> (FIELD_ACCESS o y) 5)]",
+                    path.getProofObligations().toString());
+        }
+        {
+            SymbexPath path = paths.get(1);
+
+            assertEquals("[PRE[null]:(!= o null)]",
+                    path.getPathConditions().toString());
+
+            assertEquals("[(ASSIGN $mod o), (ASSIGN $decr 0)]",
+                    path.getAssignmentHistory().map(x -> x.toStringTree()).toString());
+
+            assertEquals("[RT_NONNULL:(!= o null)]",
+                    path.getProofObligations().toString());
+        }
+
+    }
+
+    @Test
     public void testObjectCreation() throws Exception {
         InputStream stream = getClass().getResourceAsStream("objectCreation.dfy");
         DafnyTree fileTree = ParserTest.parseFile(stream);

@@ -108,7 +108,7 @@ public class TreeTermTranslator {
      * @throws TermBuildException
      *             if terms in the tree are not well-formed.
      */
-    public Term build(ImmutableList<DafnyTree> history, DafnyTree expression)
+    private Term build(ImmutableList<DafnyTree> history, DafnyTree expression)
             throws TermBuildException {
         return buildLetCascade(history.reverse(), expression);
     }

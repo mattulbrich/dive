@@ -152,6 +152,7 @@ public class BuiltinSymbols extends MapSymbolTable {
     public static final FunctionSymbol HEAP =
             new FunctionSymbol("$heap", Sort.HEAP);
 
+    // Assignable variable for the modifies set
     public static final FunctionSymbol MOD =
             new FunctionSymbol("$mod", Sort.get("set", Sort.OBJECT));
 
