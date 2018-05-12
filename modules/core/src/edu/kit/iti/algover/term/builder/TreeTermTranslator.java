@@ -319,6 +319,14 @@ public class TreeTermTranslator {
             result = buildNull(tree);
             break;
 
+        case DafnyParser.SETEX:
+            result = buildSetExtension(tree);
+            break;
+
+        case DafnyParser.LISTEX:
+            result = buildListExtension(tree);
+            break;
+
         case DafnyParser.ALL:
             result = buildQuantifier(QuantTerm.Quantifier.FORALL, tree);
             break;
@@ -621,6 +629,54 @@ public class TreeTermTranslator {
         return tb._null();
     }
 
+    // can be reused by set, seq and multiset
+    private Term buildExtension(FunctionSymbolFamily emptyFamily,
+                                FunctionSymbolFamily addFamily,
+                                DafnyTree tree) throws TermBuildException {
+
+        assert tree.getChildCount() > 0 :
+                "Currently empty list and set are not supported via extensions";
+
+        Sort sort = null;
+        List<Term> arguments = new ArrayList<>();
+
+        for (DafnyTree child : tree.getChildren()) {
+            Term term = build(child);
+            arguments.add(term);
+            Sort termSort = term.getSort();
+            if (sort == null) {
+                sort = termSort;
+            } else {
+                if (!termSort.equals(sort)) {
+                    if (termSort.isClassSort() && sort.isClassSort()) {
+                        sort = Sort.OBJECT;
+                    } else {
+                        throw new TermBuildException(
+                                "List extension with incomparable types: " +
+                                        sort + " and " + termSort);
+                    }
+                }
+            }
+        }
+
+        FunctionSymbol add = addFamily.instantiate(sort);
+        FunctionSymbol empty = emptyFamily.instantiate(sort);
+
+        ApplTerm result = new ApplTerm(empty);
+        for (Term term : arguments) {
+            result = new ApplTerm(add, term, result);
+        }
+
+        return result;
+    }
+
+    private Term buildListExtension(DafnyTree tree) throws TermBuildException {
+        return buildExtension(BuiltinSymbols.SEQ_EMPTY, BuiltinSymbols.SEQ_CONS, tree);
+    }
+
+    private Term buildSetExtension(DafnyTree tree) throws TermBuildException {
+        return buildExtension(BuiltinSymbols.EMPTY_SET, BuiltinSymbols.SET_ADD, tree);
+    }
 
     private Term buildEquality(DafnyTree tree) throws TermBuildException {
         assert tree.getChildCount() == 2;

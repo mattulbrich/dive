@@ -152,9 +152,11 @@ public class TreeTermTranslatorTest {
             { "$heap[$anon(mod, loopHeap)]", "$anon($heap, mod, loopHeap)" },
             { "$heap[$create(c)]", "$create($heap, c)" },
 
-            // Cardinalities
-            { "|mod|", "$card<object>(mod)" },
+            // Set, Seqs and cardinalities
+            { "|mod|", "$set_card<object>(mod)" },
             { "|xseq|", "$seq_len<int>(xseq)" },
+            { "{1,2,3}", "$set_add<int>(3, $set_add<int>(2, $set_add<int>(1, $empty<int>)))" },
+            { "[1,2,3]", "$seq_cons<int>(3, $seq_cons<int>(2, $seq_cons<int>(1, $seq_empty<int>)))" },
         };
     }
 

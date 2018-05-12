@@ -16,6 +16,7 @@ tokens {
   FIELD_ACCESS;
   LISTEX; // not supported currently
   SETEX; // not supported currently
+  MULTISETEX; // not supported currently
   ARRAY_ACCESS;
   NOETHER_LESS;
   WILDCARD;
@@ -90,6 +91,7 @@ LEMMA: 'lemma';
 LET: 'let';
 METHOD: 'method';
 MODIFIES: 'modifies';
+MULTISET: 'multiset';
 NEW: 'new';
 NULL: 'null';
 // PREDICATE : 'predicate';
@@ -456,6 +458,9 @@ atom_expr:
   | 'fresh'^ '('! expression ')'!
   | '|'^ expression '|'!
   | '('! expression ')'!
+  | '{' ( expression ( ',' expression )* )? '}' -> ^(SETEX expression*)
+  | '[' ( expression ( ',' expression )* )? ']' -> ^(LISTEX expression*)
+  | 'multiset' '{' expression ( ',' expression )* '}' -> ^(MULTISETEX expression+)
   ;
 
 // Either usual or logic id
