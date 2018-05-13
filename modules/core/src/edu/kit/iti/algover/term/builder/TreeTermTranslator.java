@@ -344,7 +344,15 @@ public class TreeTermTranslator {
             break;
 
         case DafnyParser.LENGTH:
-            result = buildLength(tree);
+
+            // XXX FIXME HACK Sequences length is different
+            if(build(tree.getChild(0)).getSort().getName().equals("seq")) {
+                System.err.println("Deprecated: Used .Length to access length of sequence: " +
+                    tree.toStringTree());
+                result = buildCardinality(tree);
+            } else {
+                result = buildLength(tree);
+            }
             break;
 
         case DafnyParser.CARD:
