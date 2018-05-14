@@ -5,6 +5,8 @@
  */
 package edu.kit.iti.algover.term.match;
 
+import edu.kit.iti.algover.term.Sequent;
+import edu.kit.iti.algover.util.InterpreterUtils;
 import static org.junit.Assert.assertNotNull;
 
 import java.util.ArrayList;
@@ -102,5 +104,71 @@ public class TermMatcherTest {
         Iterable<Matching> result = m.match(schemTerm, concTerm);
 
         assertEquals(ImmutableList.nil(), result);
+    }
+
+    @Test
+    public void matchSeq() throws Exception {
+        String[] schemAntec = {"?x", "g(?x)"};
+        String[] schemSucc = {};
+        String[] conAntec = {"f(0)", "g(4)", "g(1)"};
+        String[] concSucc = {};
+        matchSeqHelper(schemAntec, schemSucc, conAntec, concSucc);
+    }
+
+    private void matchSeqHelper(String[] schemSeqAntec, String[] schemSeqSucc, String[] concrSeqAntec, String[] concrSeqSucc) throws Exception {
+        assertNotNull(symbTable);
+
+
+        Sequent schemSeq = InterpreterUtils.createTestSequentHelper(schemSeqAntec, schemSeqSucc, symbTable, true);
+        Sequent concSeq = InterpreterUtils.createTestSequentHelper(concrSeqAntec, concrSeqSucc, symbTable, true);
+
+        SequentMatcher sm = new SequentMatcher();
+        ImmutableList<Matching> match = sm.match(schemSeq, concSeq);
+        if (match.isEmpty()) {
+            System.out.format("SchemaSequent: %s does not match concrete sequent: %s",
+                    schemSeq,
+                    concSeq);
+        } else {
+            System.out.format("SchemaSequent: %s  matches concrete sequent: %s",
+                    schemSeq,
+                    concSeq);
+            System.out.println(" with matching = " + match);
+        }
+    }
+
+    @Test
+    public void matchSeq1() throws Exception {
+        String[] schemAntec = {"f(?x)"};
+        String[] schemSucc = {"g(f(?x))"};
+        String[] conAntec = {"f(1)"};
+        String[] concSucc = {"g(f(1))", "f(4)"};
+        matchSeqHelper(schemAntec, schemSucc, conAntec, concSucc);
+    }
+
+    @Test
+    public void matchSeq2() throws Exception {
+        String[] schemAntec = {"f(1)"};
+        String[] schemSucc = {"g(f(1))"};
+        String[] conAntec = {"f(1)"};
+        String[] concSucc = {"g(f(1))", "f(4)"};
+        matchSeqHelper(schemAntec, schemSucc, conAntec, concSucc);
+    }
+
+    @Test
+    public void matchSeq3() throws Exception {
+        String[] schemAntec = {"?x"};
+        String[] schemSucc = {"?x"};
+        String[] conAntec = {"f(1)"};
+        String[] concSucc = {"g(1)", "f(1)"};
+        matchSeqHelper(schemAntec, schemSucc, conAntec, concSucc);
+    }
+
+    @Test
+    public void matchSeq4() throws Exception {
+        String[] schemAntec = {"_"};
+        String[] schemSucc = {"_"};
+        String[] conAntec = {"f(1)"};
+        String[] concSucc = {"g(1)", "f(1)"};
+        matchSeqHelper(schemAntec, schemSucc, conAntec, concSucc);
     }
 }

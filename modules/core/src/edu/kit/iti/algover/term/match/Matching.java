@@ -13,6 +13,8 @@ import edu.kit.iti.algover.util.ImmutableList;
 import nonnull.NonNull;
 import nonnull.Nullable;
 
+import java.util.Set;
+
 /**
  * Instances of this class are used to describe matching results. Essentially it
  * captures variable assignments.
@@ -35,6 +37,10 @@ public class Matching {
      * The empty matching, no assigned variables.
      */
     private static final Matching EMPTY = new Matching(ImmutableList.nil());
+
+    public ImmutableList<MatchingEntry> getEntries() {
+        return entries;
+    }
 
     /**
      * the list of variable assignments.
@@ -156,5 +162,6 @@ public class Matching {
     public String toString() {
         return entries.toString();
     }
+
 
 }
