@@ -21,6 +21,7 @@ tokens {
   NOETHER_LESS;
   WILDCARD;
   HEAP_UPDATE;
+  TYPED_SCHEMA;
 }
 
 @parser::header {
@@ -119,8 +120,6 @@ PLUS: '+';
 MINUS: '-';
 NOT: '!';
 TIMES: '*';
-UNION: '++';
-INTERSECT: '**';
 LT: '<';
 LE: '<=';
 GT: '>';
@@ -450,8 +449,11 @@ atom_expr:
     | '(' expressions? ')' -> ^(CALL usual_or_logic_id ^(ARGS expressions?) )
     )
   | {schemaMode}? =>
-  ( SCHEMA_ID | BLANK | ELLIPSIS^ expression ELLIPSIS! )
-
+      ( schema_entity
+        (    -> schema_entity
+        | '(' ':' type ')' -> ^(TYPED_SCHEMA schema_entity type)
+        )
+      )
   | TRUE | FALSE | NULL | 'this'
   | INT_LIT
   | 'old'^ '('! expression ')'!
@@ -461,6 +463,10 @@ atom_expr:
   | '{' ( expression ( ',' expression )* )? '}' -> ^(SETEX expression*)
   | '[' ( expression ( ',' expression )* )? ']' -> ^(LISTEX expression*)
   | 'multiset' '{' expression ( ',' expression )* '}' -> ^(MULTISETEX expression+)
+  ;
+
+schema_entity:
+  SCHEMA_ID | BLANK | ELLIPSIS^ expression ELLIPSIS!
   ;
 
 // Either usual or logic id

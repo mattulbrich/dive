@@ -160,7 +160,12 @@ public class AssertionElement {
         /**
          * Variant / measured by reduced.
          */
-        VARIANT_DECREASED("Dec");
+        VARIANT_DECREASED("Dec"),
+
+        /**
+         * Assigned object is in the "modifies" set.
+         */
+        MODIFIES("Modifies");
 
         /**
          * The identifier used when constructing a UI-string for a symbex path.

@@ -448,6 +448,7 @@ public class Symbex {
             DafnyTree stm, DafnyTree remainder) {
         DafnyTree assignee = stm.getChild(0);
         handleExpression(stack, state, assignee);
+        addModifiesCheck(stack, state, assignee);
 
         DafnyTree expression = stm.getChild(1);
         switch(expression.getType()) {
@@ -477,6 +478,26 @@ public class Symbex {
 
         state.setBlockToExecute(remainder);
         stack.push(state);
+    }
+
+
+    private void addModifiesCheck(Deque<SymbexPath> stack, SymbexPath current,
+                                  DafnyTree receiver) {
+        switch(receiver.getType()) {
+        case DafnyParser.FIELD_ACCESS:
+        case DafnyParser.ARRAY_ACCESS:
+            SymbexPath nonNull = new SymbexPath(current);
+            // the first argument is the modified object
+            DafnyTree object = receiver.getChild(0);
+            if(object.getType() == DafnyParser.THIS) {
+                // no modifies check for the this object!
+                return;
+            }
+            DafnyTree check = ASTUtil.inMod(object);
+            nonNull.setBlockToExecute(Symbex.EMPTY_PROGRAM);
+            nonNull.setProofObligation(check, check, AssertionType.MODIFIES);
+            stack.push(nonNull);
+        }
     }
 
     /*

@@ -18,11 +18,14 @@ import edu.kit.iti.algover.term.LetTerm;
 import edu.kit.iti.algover.term.QuantTerm;
 import edu.kit.iti.algover.term.QuantTerm.Quantifier;
 import edu.kit.iti.algover.term.SchemaOccurTerm;
+import edu.kit.iti.algover.term.SchemaTerm;
 import edu.kit.iti.algover.term.SchemaVarTerm;
 import edu.kit.iti.algover.term.Sort;
 import edu.kit.iti.algover.term.Term;
 import edu.kit.iti.algover.term.VariableTerm;
 import edu.kit.iti.algover.util.ASTUtil;
+import edu.kit.iti.algover.util.BiFunctionWithException;
+import edu.kit.iti.algover.util.FunctionWithException;
 import edu.kit.iti.algover.util.HistoryMap;
 import edu.kit.iti.algover.util.ImmutableList;
 import edu.kit.iti.algover.util.Pair;
@@ -36,6 +39,7 @@ import java.util.HashMap;
 import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.BiFunction;
 
 /**
  * The Class TreeTermTranslator is used to create a {@link Term} object from a
@@ -227,7 +231,6 @@ public class TreeTermTranslator {
         }
     }
 
-
     /**
      * Builds a term for a dafny tree.
      *
@@ -269,7 +272,23 @@ public class TreeTermTranslator {
             break;
 
         case DafnyParser.PLUS:
-            result = buildBinary(BuiltinSymbols.PLUS, tree);
+            result = buildBinary(
+                symmetricBinarySymbol(sort -> {
+                switch(sort.getName()) {
+                case "int":
+                    return BuiltinSymbols.PLUS;
+                case "set":
+                    return BuiltinSymbols.UNION.instantiate(sort.getArgument(0));
+                case "seq":
+                    return BuiltinSymbols.SEQ_CONCAT.
+                            instantiate(sort.getArgument(0));
+                case "multiset":
+                    // TODO
+                    throw new Error("IMPLEMENT ME!");
+                default:
+                    throw new TermBuildException("'+' is not supported for these arguments");
+                }
+            }), tree);
             break;
 
         case DafnyParser.MINUS:
@@ -281,17 +300,30 @@ public class TreeTermTranslator {
             break;
 
         case DafnyParser.TIMES:
-            result = buildBinary(BuiltinSymbols.TIMES, tree);
+            result = buildBinary(symmetricBinarySymbol(sort -> {
+                switch(sort.getName()) {
+                case "int":
+                    return BuiltinSymbols.TIMES;
+                case "set":
+                    return BuiltinSymbols.INTERSECT.instantiate(sort.getArgument(0));
+                case "multiset":
+                    // TODO
+                    throw new Error("IMPLEMENT ME!");
+                default:
+                    throw new TermBuildException("'*' is not supported for these arguments");
+                }
+            }), tree);
             break;
 
-        case DafnyParser.UNION:
-            // TODO generalize this beyond integer sets
-            result = buildBinary(symbolTable.getFunctionSymbol("$union[int]"), tree);
-            break;
-
-        case DafnyParser.INTERSECT:
-            // TODO generalize this beyond integer sets
-            result = buildBinary(symbolTable.getFunctionSymbol("$intersect[int]"), tree);
+        case DafnyParser.IN:
+            result = buildBinary((x,y) -> {
+                switch(y.getSort().getName()) {
+                case "set":
+                    return BuiltinSymbols.SET_IN.instantiate(y.getSort().getArgument(0));
+                default:
+                    throw new Error("Not yet implemented");
+                }
+            }, tree);
             break;
 
         case DafnyParser.NOT:
@@ -328,11 +360,11 @@ public class TreeTermTranslator {
             break;
 
         case DafnyParser.ALL:
-            result = buildQuantifier(QuantTerm.Quantifier.FORALL, tree);
+            result = buildQuantifier(Quantifier.FORALL, tree);
             break;
 
         case DafnyParser.EX:
-            result = buildQuantifier(QuantTerm.Quantifier.EXISTS, tree);
+            result = buildQuantifier(Quantifier.EXISTS, tree);
             break;
 
         case DafnyParser.LET:
@@ -405,6 +437,12 @@ public class TreeTermTranslator {
             throw new TermBuildException("__ not supported in this place. "
                     + "Solution: Spell it out using the appropriate number of _. Sorry.");
 
+        case DafnyParser.TYPED_SCHEMA:
+            result = build(tree.getChild(0));
+            Sort sort = ASTUtil.toSort(tree.getChild(1));
+            result = ((SchemaTerm)result).refineSort(sort);
+            break;
+
         default:
             TermBuildException ex =
                 new TermBuildException("Cannot translate term: " + tree.toStringTree());
@@ -436,6 +474,22 @@ public class TreeTermTranslator {
         return new ApplTerm(ifFct, ifCond, thenExp, elseExp);
     }
 
+    private BiFunctionWithException<Term, Term, FunctionSymbol, TermBuildException>
+            symmetricBinarySymbol(FunctionWithException<Sort, FunctionSymbol, TermBuildException> decider) {
+        return new BiFunctionWithException<Term, Term, FunctionSymbol, TermBuildException>() {
+            @Override
+            public FunctionSymbol apply(Term a, Term b) throws TermBuildException {
+                Sort sort = a.getSort();
+                if (sort.equals(Sort.UNTYPED_SORT)) {
+                    sort = b.getSort();
+                }
+                if (sort.equals(Sort.UNTYPED_SORT)) {
+                    throw new TermBuildException("Untyped sort cannot be resolved");
+                }
+                return decider.apply(sort);
+            }
+        };
+    }
 
     private Term buildCall(DafnyTree tree) throws TermBuildException {
 
@@ -816,6 +870,18 @@ public class TreeTermTranslator {
 
         Term t1 = build(tree.getChild(0));
         Term t2 = build(tree.getChild(1));
+        return new ApplTerm(f, Arrays.asList(t1, t2));
+    }
+    
+    private Term buildBinary(
+            BiFunctionWithException<Term, Term, FunctionSymbol, TermBuildException> functionDecider,
+            DafnyTree tree) throws TermBuildException {
+        assert tree.getChildCount() == 2 :
+                "Unexpected argument " + tree.toStringTree();
+
+        Term t1 = build(tree.getChild(0));
+        Term t2 = build(tree.getChild(1));
+        FunctionSymbol f = functionDecider.apply(t1, t2);
         return new ApplTerm(f, Arrays.asList(t1, t2));
     }
 

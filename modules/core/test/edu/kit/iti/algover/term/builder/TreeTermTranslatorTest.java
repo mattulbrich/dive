@@ -157,12 +157,17 @@ public class TreeTermTranslatorTest {
             { "|xseq|", "$seq_len<int>(xseq)" },
             { "{1,2,3}", "$set_add<int>(3, $set_add<int>(2, $set_add<int>(1, $empty<int>)))" },
             { "[1,2,3]", "$seq_cons<int>(3, $seq_cons<int>(2, $seq_cons<int>(1, $seq_empty<int>)))" },
+            { "xseq + xseq", "$seq_concat<int>(xseq, xseq)" },
+            { "mod * mod", "$intersect<object>(mod, mod)" },
+            { "mod + mod", "$union<object>(mod, mod)" },
         };
     }
 
     public String[][] parametersForTestSchematic() {
         return new String[][] {
             { "?x+3", "$plus(?x, 3)" },
+            { "3+?x", "$plus(3, ?x)" },
+            { "5*_", "$times(5, _)" },
             { "_*5", "$times(_, 5)" },
             { "1 * ... i1+?x ...", "$times(1, (... $plus(i1, ?x) ...))" },
             { "if ?x then ?x else 5", "$ite<int>(?x, ?x, 5)" },
@@ -203,6 +208,7 @@ public class TreeTermTranslatorTest {
             { "b1[c.f:=1]", "Heap updates must be applied to heaps" },
             { "loopHeap[c := c]", "Heap updates must modify a heap location" },
             { "loopHeap[c.f := true]", "Unexpected argument sort for argument 4 to $store" },
+            { "xseq + mod", "Unexpected argument sort for argument 2 to $seq_concat<int>" },
         };
     }
 

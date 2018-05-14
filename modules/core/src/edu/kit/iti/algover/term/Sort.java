@@ -280,6 +280,17 @@ public class Sort {
     }
 
     /**
+     * Gets a type argument of this sort instance.
+     *
+     * @return the argument at position index.
+     * @throws IndexOutOfBoundsException if the index does not refer to a valid
+     *                                   argument index
+     */
+    public Sort getArgument(int index) {
+        return arguments[index];
+    }
+
+    /**
      * Checks if this sort belongs to a Dafny class.
      *
      * Checks if the name is a builtin name

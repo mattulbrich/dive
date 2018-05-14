@@ -412,11 +412,6 @@ public class TypeResolution extends DafnyTreeDefaultVisitor<DafnyTree, Void> {
     }
 
     @Override
-    public DafnyTree visitINTERSECT(DafnyTree t, Void a) {
-        throw new UnsupportedOperationException("not yet implemented");
-    }
-
-    @Override
     public DafnyTree visitLISTEX(DafnyTree t, Void a) {
         throw new UnsupportedOperationException("not yet implemented");
     }
