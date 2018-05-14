@@ -80,7 +80,10 @@ class PrettyPrintLayouter {
      */
     public PrettyPrintLayouter append(@NonNull String string) {
         layouter.print(string);
-        lastCharacter = string.charAt(string.length()-1);
+        if(!string.isEmpty()) {
+            // MU: added this if-condition as bugfix
+            lastCharacter = string.charAt(string.length() - 1);
+        }
         modCount ++;
         return this;
     }
@@ -123,7 +126,7 @@ class PrettyPrintLayouter {
      * @param currentSubTermIndex the current sub term index
      * @return  a reference to <tt>this</tt>
      */
-    public PrettyPrintLayouter beginTerm(int currentSubTermIndex) {
+    public PrettyPrintLayouter beginTerm(int... currentSubTermIndex) {
         layouter.mark(new LayoutMark.BeginTerm(currentSubTermIndex));
         return this;
     }
