@@ -56,7 +56,7 @@ public class TreeTermTranslator {
      * The Constant HEAP_VAR is the variable used for for heap assignments.
      */
     private static final VariableTerm HEAP_VAR =
-            new VariableTerm("heap", Sort.HEAP);
+            new VariableTerm("$heap", Sort.HEAP);
 
     /**
      * The symbol table from which the function symbols etc are to be taken.
@@ -222,7 +222,8 @@ public class TreeTermTranslator {
     }
 
     private Term getHeap() throws TermBuildException {
-        // FIXME This is naive since someone might call their variable "heap" manually.
+        // This is naive since someone might call their variable "heap" manually.
+        // Mitigated sind "$heap" is now protected by $.
         VariableTerm bound = boundVars.get(HEAP_VAR.getName());
         if(bound != null) {
             return bound;
@@ -524,7 +525,7 @@ public class TreeTermTranslator {
 
                 indexTerm = build(tree.getChild(1));
 
-                return tb.selectArray(new ApplTerm(BuiltinSymbols.HEAP), arrayTerm, indexTerm);
+                return tb.selectArray(getHeap(), arrayTerm, indexTerm);
 
             case "seq":
                 if (tree.getChildCount() != 2) {
@@ -588,8 +589,7 @@ public class TreeTermTranslator {
             throw new TermBuildException("Field " + fieldId + " not found in class " + classId);
         }
 
-        return tb.selectField(new ApplTerm(BuiltinSymbols.HEAP),
-                receiver, new ApplTerm(field));
+        return tb.selectField(getHeap(), receiver, new ApplTerm(field));
     }
 
 
