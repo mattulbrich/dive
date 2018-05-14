@@ -479,13 +479,7 @@ public class TreeTermTranslator {
         return new BiFunctionWithException<Term, Term, FunctionSymbol, TermBuildException>() {
             @Override
             public FunctionSymbol apply(Term a, Term b) throws TermBuildException {
-                Sort sort = a.getSort();
-                if (sort.equals(Sort.UNTYPED_SORT)) {
-                    sort = b.getSort();
-                }
-                if (sort.equals(Sort.UNTYPED_SORT)) {
-                    throw new TermBuildException("Untyped sort cannot be resolved");
-                }
+                Sort sort = Sort.supremum(a.getSort(), b.getSort());
                 return decider.apply(sort);
             }
         };

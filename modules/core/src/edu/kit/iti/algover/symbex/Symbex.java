@@ -488,8 +488,7 @@ public class Symbex {
         case DafnyParser.ARRAY_ACCESS:
             DafnyTree type = receiver.getChild(0).getExpressionType();
             Sort sort = ASTUtil.toSort(type);
-            if(!(sort.isClassSort() || sort.getName().startsWith("array"))) {
-                // FIXME XXX Introduce sort.isObjectSort() or something
+            if(!(sort.isClassSort() || sort.isArray())) {
                 // Assigning a sequence/map/... is not relevant
                 return;
             }

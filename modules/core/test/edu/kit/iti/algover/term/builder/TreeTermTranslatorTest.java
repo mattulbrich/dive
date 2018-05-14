@@ -154,12 +154,13 @@ public class TreeTermTranslatorTest {
 
             // Set, Seqs and cardinalities
             { "|mod|", "$set_card<object>(mod)" },
-            { "|xseq|", "$seq_len<int>(xseq)" },
+            { "|iseq|", "$seq_len<int>(iseq)" },
             { "{1,2,3}", "$set_add<int>(3, $set_add<int>(2, $set_add<int>(1, $empty<int>)))" },
             { "[1,2,3]", "$seq_cons<int>(3, $seq_cons<int>(2, $seq_cons<int>(1, $seq_empty<int>)))" },
-            { "xseq + xseq", "$seq_concat<int>(xseq, xseq)" },
+            { "iseq + iseq", "$seq_concat<int>(iseq, iseq)" },
             { "mod * mod", "$intersect<object>(mod, mod)" },
             { "mod + mod", "$union<object>(mod, mod)" },
+            { "cseq + dseq", "$seq_concat<object>(cseq, dseq)" },
         };
     }
 
@@ -208,7 +209,8 @@ public class TreeTermTranslatorTest {
             { "b1[c.f:=1]", "Heap updates must be applied to heaps" },
             { "loopHeap[c := c]", "Heap updates must modify a heap location" },
             { "loopHeap[c.f := true]", "Unexpected argument sort for argument 4 to $store" },
-            { "xseq + mod", "Unexpected argument sort for argument 2 to $seq_concat<int>" },
+            { "iseq + mod", "No common supertype for seq<int> and set<object>" },
+            { "true + true", "'+' is not supported for these arguments" },
         };
     }
 
@@ -230,7 +232,9 @@ public class TreeTermTranslatorTest {
         map.add(new FunctionSymbol("C$$f", Sort.get("field", Sort.getClassSort("C"), Sort.INT)));
         map.add(new FunctionSymbol("loopHeap", Sort.HEAP));
         map.add(new FunctionSymbol("mod", Sort.get("set", Sort.OBJECT)));
-        map.add(new FunctionSymbol("xseq", Sort.get("seq", Sort.INT)));
+        map.add(new FunctionSymbol("iseq", Sort.get("seq", Sort.INT)));
+        map.add(new FunctionSymbol("cseq", Sort.get("seq", Sort.getClassSort("C"))));
+        map.add(new FunctionSymbol("dseq", Sort.get("seq", Sort.getClassSort("D"))));
         symbTable = new MapSymbolTable(new BuiltinSymbols(), map);
     }
 
