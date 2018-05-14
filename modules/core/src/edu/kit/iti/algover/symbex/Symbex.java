@@ -13,6 +13,7 @@ import edu.kit.iti.algover.parser.DafnyParser;
 import edu.kit.iti.algover.parser.DafnyTree;
 import edu.kit.iti.algover.symbex.AssertionElement.AssertionType;
 import edu.kit.iti.algover.symbex.PathConditionElement.AssumptionType;
+import edu.kit.iti.algover.term.Sort;
 import edu.kit.iti.algover.util.ASTUtil;
 import edu.kit.iti.algover.util.ImmutableList;
 import edu.kit.iti.algover.util.Pair;
@@ -484,8 +485,17 @@ public class Symbex {
     private void addModifiesCheck(Deque<SymbexPath> stack, SymbexPath current,
                                   DafnyTree receiver) {
         switch(receiver.getType()) {
-        case DafnyParser.FIELD_ACCESS:
         case DafnyParser.ARRAY_ACCESS:
+            DafnyTree type = receiver.getChild(0).getExpressionType();
+            Sort sort = ASTUtil.toSort(type);
+            if(!(sort.isClassSort() || sort.getName().startsWith("array"))) {
+                // FIXME XXX Introduce sort.isObjectSort() or something
+                // Assigning a sequence/map/... is not relevant
+                return;
+            }
+            // fall through intended!
+
+        case DafnyParser.FIELD_ACCESS:
             SymbexPath nonNull = new SymbexPath(current);
             // the first argument is the modified object
             DafnyTree object = receiver.getChild(0);
