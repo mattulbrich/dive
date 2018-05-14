@@ -361,7 +361,8 @@ class ProofNodeInterpreterManager {
             List<ProofNode> goals = interpreter.getCurrentState().getGoals();
 
             if (goals.size() == 1 && goals.get(0).equals(lastSelectedGoalNode)) {
-                System.out.println("There was no change");
+                // XXX MU: Removed this as this cluttered the output.
+                // System.out.println("There was no change");
                 return null;
             }
             if (goals.isEmpty()) {
