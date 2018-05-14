@@ -331,11 +331,11 @@ public class TreeTermTranslator {
             break;
 
         case DafnyParser.EQ:
-            result = buildEquality(tree);
+            result = buildBinary(symmetricBinarySymbol(sort -> BuiltinSymbols.EQ.instantiate(sort)), tree);
             break;
 
         case DafnyParser.NEQ:
-            result = tb.negate(buildEquality(tree));
+            result = buildBinary(symmetricBinarySymbol(sort -> BuiltinSymbols.EQ.instantiate(sort)), tree);            result = tb.negate(result);
             break;
 
         case DafnyParser.LOGIC_ID:
@@ -732,21 +732,6 @@ public class TreeTermTranslator {
 
     private Term buildSetExtension(DafnyTree tree) throws TermBuildException {
         return buildExtension(BuiltinSymbols.EMPTY_SET, BuiltinSymbols.SET_ADD, tree);
-    }
-
-    private Term buildEquality(DafnyTree tree) throws TermBuildException {
-        assert tree.getChildCount() == 2;
-
-        Term t1 = build(tree.getChild(0));
-        Term t2 = build(tree.getChild(1));
-
-        Sort sort = t1.getSort();
-        if (Sort.NULL.isSubtypeOf(sort)) {
-            sort = Sort.OBJECT;
-        }
-
-        FunctionSymbol f = symbolTable.getFunctionSymbol("$eq<" + sort + ">");
-        return new ApplTerm(f, Arrays.asList(t1, t2));
     }
 
     private Term buildIdentifier(DafnyTree tree) throws TermBuildException {

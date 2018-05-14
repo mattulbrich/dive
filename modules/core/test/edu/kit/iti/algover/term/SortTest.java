@@ -7,7 +7,10 @@ package edu.kit.iti.algover.term;
 
 import static org.junit.Assert.*;
 
+import edu.kit.iti.algover.term.builder.TermBuildException;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 
 import junitparams.JUnitParamsRunner;
@@ -17,6 +20,10 @@ import junitparams.Parameters;
 public class SortTest {
 
     private Sort CLASS_SORT = Sort.getClassSort("Demo");
+    private Sort OTHER_CLASS_SORT = Sort.getClassSort("Demo2");
+
+    @Rule
+    public ExpectedException thrown = ExpectedException.none();
 
     public Object[][] parametersForTestClassSorts() {
         return new Object[][] {
@@ -60,6 +67,20 @@ public class SortTest {
         };
     }
 
+    private static final Sort INT_ARRAY = Sort.get("array", Sort.INT);
+
+    public Object[][] parametersForTestSupremum() {
+        return new Object[][] {
+            { Sort.NULL, Sort.NULL, Sort.NULL },
+            { Sort.NULL, Sort.OBJECT, Sort.OBJECT },
+            { CLASS_SORT, Sort.NULL, CLASS_SORT },
+            { CLASS_SORT, OTHER_CLASS_SORT, Sort.OBJECT },
+            { INT_ARRAY, CLASS_SORT, Sort.OBJECT },
+            { INT_ARRAY, Sort.NULL, INT_ARRAY },
+            { Sort.INT, Sort.OBJECT, null }
+        };
+    }
+
     @Test
     // revealed a bug
     public void testConstructor() {
@@ -83,6 +104,22 @@ public class SortTest {
     @Test @Parameters
     public void testClassSorts(Sort sort, boolean isClassSort) {
         assertEquals(isClassSort, sort.isClassSort());
+    }
+
+    @Test @Parameters
+    public void testSupremum(Sort s1, Sort s2, Sort expected) throws TermBuildException {
+        if(expected == null) {
+            thrown.expect(TermBuildException.class);
+            thrown.expectMessage("No common supertype for ");
+        }
+
+        Sort sup = Sort.supremum(s1, s2);
+        Sort sup2 = Sort.supremum(s2, s1);
+
+        assertEquals(expected, sup);
+        assertEquals(sup, sup2);
+        assertTrue(s1.isSubtypeOf(sup));
+        assertTrue(s2.isSubtypeOf(sup));
     }
 
 }
