@@ -69,49 +69,6 @@ public class SequentMatcher {
 
     }
 
-    /**
-     * Reduce all matchings.
-     * If same variable names are referencing different term values in matchings of both semisequents,
-     * matching has to be reduced to "No match". Otherwise matchings should be merged and duplicates should be removed
-     *
-     * @param succMatchings
-     * @param antecMatchings
-     * @return
-     */
-    private ImmutableList<Matching> reduceConform(ImmutableList<Matching> succMatchings, ImmutableList<Matching> antecMatchings) {
-        //if one side di not match at all
-        if (succMatchings.isEmpty() || antecMatchings.isEmpty()) {
-            return ImmutableList.nil();
-        }
-        if (succMatchings.size() == 1 && antecMatchings.size() == 1) {
-            Matching matching = reduceConform(succMatchings.get(0), antecMatchings.get(0));
-            if (matching != null) {
-                return ImmutableList.single(matching);
-            } else {
-                return ImmutableList.nil();
-            }
-        } else {
-            //build product
-            List<Matching> returnedMatchings = new ArrayList<>();
-            antecMatchings.forEach(matching -> {
-                succMatchings.forEach(matching1 -> {
-                    Matching m = reduceConform(matching1, matching);
-                    System.out.println("m = " + m);
-                    if (m != null) {
-                        returnedMatchings.add(m);
-
-                    }
-                });
-            });
-
-            System.out.println("antecMatchings = " + antecMatchings);
-            System.out.println("succMatchings = " + succMatchings);
-            System.out.println("returnedMatchings = " + returnedMatchings);
-            return ImmutableList.from(returnedMatchings);
-
-        }
-
-    }
 
     /**
      * Match a semisequent pattern against a concrete semisequent
@@ -150,11 +107,8 @@ public class SequentMatcher {
             }
         }
 
-        //   System.out.println("mapOfMatches = " + mapOfMatches);
-
         List<Matching> matchings = new ArrayList<>();
         reduceDisjoint(mapOfMatches, schemCedent, matchings);
-        //  System.out.println("matchings = " + matchings);
         if (mapOfMatches.values().stream().allMatch(Map::isEmpty))
             //if no match has been found the sequent does not match return nil
             return ImmutableList.nil();
@@ -163,9 +117,55 @@ public class SequentMatcher {
         return ret;
     }
 
+    /**
+     * Reduce all found matchings by checking their compatibility and combining the matchings
+     *
+     * @param mapOfMatches
+     * @param patternFormulas
+     * @param matchings
+     */
     private void reduceDisjoint(Map<ProofFormula, Map<ProofFormula, ImmutableList<Matching>>> mapOfMatches,
                                 List<ProofFormula> patternFormulas, List<Matching> matchings) {
         reduceDisjoint(mapOfMatches, patternFormulas, matchings, 0, Matching.emptyMatching(), new HashSet<>());
+
+    }
+
+    /**
+     * Reduce all matchings.
+     * If same variable names are referencing different term values in matchings of both semisequents,
+     * matching has to be reduced to "No match". Otherwise matchings should be merged and duplicates should be removed
+     *
+     * @param succMatchings
+     * @param antecMatchings
+     * @return
+     */
+    private ImmutableList<Matching> reduceConform(ImmutableList<Matching> succMatchings, ImmutableList<Matching> antecMatchings) {
+        //if one side did not match at all
+        if (succMatchings.isEmpty() || antecMatchings.isEmpty()) {
+            return ImmutableList.nil();
+        }
+        if (succMatchings.size() == 1 && antecMatchings.size() == 1) {
+            Matching matching = reduceConform(succMatchings.get(0), antecMatchings.get(0));
+            if (matching != null) {
+                return ImmutableList.single(matching);
+            } else {
+                return ImmutableList.nil();
+            }
+        } else {
+            //build product
+            List<Matching> returnedMatchings = new ArrayList<>();
+            antecMatchings.forEach(matching -> {
+                succMatchings.forEach(matching1 -> {
+                    Matching m = reduceConform(matching1, matching);
+                    if (m != null) {
+                        returnedMatchings.add(m);
+
+                    }
+                });
+            });
+            return ImmutableList.from(returnedMatchings);
+
+        }
 
     }
 
@@ -183,7 +183,6 @@ public class SequentMatcher {
         ProofFormula currentPatternForm = patternFormulas.get(position);
         Sets.SetView<ProofFormula> topLevelFormulas =
                 Sets.difference(mapOfMatches.get(currentPatternForm).keySet(), chosenProofFormula);
-        //System.out.println("topLevelFormulas = " + topLevelFormulas);
 
         if (topLevelFormulas.size() == 0) {
             return;
@@ -191,11 +190,8 @@ public class SequentMatcher {
 
         for (ProofFormula formula : topLevelFormulas) {
             ImmutableList<Matching> m = mapOfMatches.get(currentPatternForm).get(formula);
-            //   System.out.println("m = " + m);
             if (m.size() == 1) {
                 Matching matching = m.get(0);
-                matching.toString();
-
                 Matching temp = reduceConform(matching, returnMatching);
                 if (temp != null) {
                     chosenProofFormula.add(formula);
@@ -223,8 +219,7 @@ public class SequentMatcher {
 
 
         //filter out if variable assignments are not referencing the same termvalue
-        // ImmutableList<MatchingEntry> combinedEntries = entriesOfExisting;
-        // Matching returnMatching = new Matching(combinedEntries);
+        //TODO: This is the place where joining of matchingentries has to take place if more than one subtermselector is needed
         for (String s : keyListNew) {
 
             if (keyListExisting.contains(s)) {
@@ -238,21 +233,15 @@ public class SequentMatcher {
                         System.out.println("We arrived at a don't care, picking the first entry of existing");
                     }
                 }
-                //else {
-                //   returnMatching.add(alreadyExistingMatching.get(s).getKey(), alreadyExistingMatching.get(s).getValue(), alreadyExistingMatching.get(s).getSelector());
-                //}
 
             } else {
                 //add entry as it was not in matching before
-                //returnMatching.add(newM.get(s).getKey(), newM.get(s).getValue(), newM.get(s).getSelector());
                 MatchingEntry newEntry = entriesOfNew.findFirst(matchingEntry -> matchingEntry.getKey().equals(s));
                 alreadyExistingMatching.add(newEntry.getKey(), newEntry.getValue(), newEntry.getSelector());
-                //  combinedEntries.append(newEntry);
             }
 
         }
         return alreadyExistingMatching;
-        //return returnMatching;
 
     }
 }
