@@ -171,4 +171,13 @@ public class TermMatcherTest {
         String[] concSucc = {"g(1)", "f(1)"};
         matchSeqHelper(schemAntec, schemSucc, conAntec, concSucc);
     }
+
+    @Test
+    public void matchSeq5() throws Exception {
+        String[] schemAntec = {"... ?x+_ ..."};
+        String[] schemSucc = {"f(?x)"};
+        String[] conAntec = {"(2+3)+(4+5) == 1"};
+        String[] concSucc = {"f(2)", "f(4)"};
+        matchSeqHelper(schemAntec, schemSucc, conAntec, concSucc);
+    }
 }

@@ -62,7 +62,7 @@ public class SequentMatcher {
 
         succMatchings = match(succedent, conc.getSuccedent(), m);
         antecMatchings = match(antecedent, conc.getAntecedent(), m);
-        //matchings have to be conformly reduced s.t. variable assignaments on both sides are not contradictory
+        //matchings have to be conformly reduced s.t. variable assignments on both sides are not contradictory
 
         return reduceConform(succMatchings, antecMatchings);
 
@@ -175,15 +175,19 @@ public class SequentMatcher {
                                 Matching returnMatching,
                                 Set<ProofFormula> chosenProofFormula) {
 
+        //if we have reached the end of all pattern formulas we are done
         if (position >= patternFormulas.size()) {
             matchings.add(returnMatching);
             return;
         }
 
+        //take the next pattern
         ProofFormula currentPatternForm = patternFormulas.get(position);
+
+        System.out.println("chosenProofFormula = " + chosenProofFormula);
         Sets.SetView<ProofFormula> topLevelFormulas =
                 Sets.difference(mapOfMatches.get(currentPatternForm).keySet(), chosenProofFormula);
-
+        System.out.println("topLevelFormulas = " + topLevelFormulas);
         if (topLevelFormulas.size() == 0) {
             return;
         }
@@ -194,9 +198,22 @@ public class SequentMatcher {
                 Matching matching = m.get(0);
                 Matching temp = reduceConform(matching, returnMatching);
                 if (temp != null) {
+                    //add the formula to chosen proof formulas. Now it cannot be chosen again in the next round
                     chosenProofFormula.add(formula);
                     reduceDisjoint(mapOfMatches, patternFormulas, matchings, position + 1, temp, chosenProofFormula);
+                    chosenProofFormula.remove(formula);
                 }
+            } else {
+                for (Matching singleMatch : m) {
+                    Matching temp = reduceConform(singleMatch, returnMatching);
+                    if (temp != null) {
+                        chosenProofFormula.add(formula);
+                        reduceDisjoint(mapOfMatches, patternFormulas, matchings, position + 1, temp, chosenProofFormula);
+                        chosenProofFormula.remove(formula);
+                    }
+
+                }
+
             }
 
         }
