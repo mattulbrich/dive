@@ -11,6 +11,7 @@ import edu.kit.iti.algover.term.ApplTerm;
 import edu.kit.iti.algover.term.FunctionSymbol;
 import edu.kit.iti.algover.term.LetTerm;
 import edu.kit.iti.algover.term.QuantTerm;
+import edu.kit.iti.algover.term.SchemaCaptureTerm;
 import edu.kit.iti.algover.term.SchemaOccurTerm;
 import edu.kit.iti.algover.term.QuantTerm.Quantifier;
 import edu.kit.iti.algover.term.SchemaVarTerm;
@@ -47,8 +48,7 @@ public class TermMatcher {
          */
         @Override
         public ImmutableList<Matching> visit(SchemaVarTerm schemaVarTerm,
-                                             Triple<Term, Matching, SubtermSelector> arg)
-                throws MatchException {
+                                             Triple<Term, Matching, SubtermSelector> arg) {
 
             Matching m = arg.snd;
             Term conc = arg.fst;
@@ -61,7 +61,8 @@ public class TermMatcher {
                 } else {
                     Term alreadyThere = entry.getValue();
                     if(!alreadyThere.equals(conc)) {
-                        throw new MatchException(schemaVarTerm, conc);
+                        // must not throw an exception since other matching might work!
+                        return ImmutableList.nil();
                     } else {
                         return ImmutableList.single(m);
                     }
@@ -69,6 +70,34 @@ public class TermMatcher {
             } else {
                 return ImmutableList.single(m.addUnnamed(conc, sel));
             }
+        }
+
+        /* a caputure is (easily) matched by matching the contained term and
+         * storing the result in the matching object. If a conflicting is there
+         * present, fail matching.
+         */
+
+        @Override
+        public ImmutableList<Matching> visit(SchemaCaptureTerm captureTerm,
+                                             Triple<Term, Matching, SubtermSelector> arg) throws MatchException {
+
+            Matching m = arg.snd;
+            Term conc = arg.fst;
+            SubtermSelector sel = arg.trd;
+
+            Term innerTerm = captureTerm.getTerm(0);
+
+            MatchingEntry entry = m.get(captureTerm.getName());
+            if(entry == null) {
+                m = m.add(captureTerm.getName(), conc, sel);
+            } else {
+                Term alreadyThere = entry.getValue();
+                if (!alreadyThere.equals(conc)) {
+                    throw new MatchException(captureTerm, conc);
+                }
+            }
+
+            return innerTerm.accept(this, new Triple<>(conc, m, sel));
         }
 
         /*
