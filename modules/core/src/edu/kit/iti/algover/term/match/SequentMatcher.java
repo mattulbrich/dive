@@ -257,40 +257,4 @@ public class SequentMatcher {
     }
 }
 
-/*
-private void reduceDisjoint(HashMap<Term, Map<SequentFormula, Matchings>> map,
-                            List<Term> patterns,
-                            List<Matchings> matchings,
-                            int currentPatternPos,
-                            Matchings ret,
-                            Set<SequentFormula> chosenSequentFormulas) {
-    if (currentPatternPos >= patterns.size()) { // end of selection process is reached
-        matchings.add(ret);
-        return;
-    }
 
-    Term currentPattern = patterns.get(currentPatternPos);
-    Sets.SetView<SequentFormula> topLevelFormulas =
-            Sets.difference(map.get(currentPattern).keySet(), chosenSequentFormulas);
-
-    if (topLevelFormulas.size() == 0) {
-        return; // all top level formulas has been chosen, we have no matches left
-    }
-
-    for (SequentFormula formula : topLevelFormulas) { // chose a toplevel formula
-        // the matchings for current pattern against the toplevel
-        Matchings m = map.get(currentPattern).get(formula);
-        //join them with the current Matchings
-        Matchings mm = m.reduceConform(ret);
-        chosenSequentFormulas.add(formula); // adding the formula, so other matchings can not choose it
-
-        // recursion: choose the next matchings for the next pattern
-        reduceDisjoint(map, patterns, matchings,
-                currentPatternPos + 1, mm, chosenSequentFormulas);
-
-        chosenSequentFormulas.remove(formula); // delete the formula, so it is free to choose, again
-    }
-}
-
-
-* */
