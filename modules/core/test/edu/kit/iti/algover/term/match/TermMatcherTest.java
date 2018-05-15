@@ -61,6 +61,7 @@ public class TermMatcherTest {
         };
     }
 
+
     @Before
     public void setupTable() {
         Collection<FunctionSymbol> map = new ArrayList<>();

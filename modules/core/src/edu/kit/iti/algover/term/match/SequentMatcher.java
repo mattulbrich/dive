@@ -1,15 +1,10 @@
 package edu.kit.iti.algover.term.match;
 
 import com.google.common.collect.Sets;
-import com.sun.org.apache.xerces.internal.impl.xpath.regex.Match;
-import edu.kit.iti.algover.proof.Proof;
 import edu.kit.iti.algover.proof.ProofFormula;
-import edu.kit.iti.algover.rules.SubtermSelector;
-import edu.kit.iti.algover.term.SchemaOccurTerm;
 import edu.kit.iti.algover.term.Sequent;
 import edu.kit.iti.algover.term.Term;
 import edu.kit.iti.algover.util.ImmutableList;
-import edu.kit.iti.algover.util.Triple;
 
 import java.util.*;
 
@@ -193,18 +188,8 @@ public class SequentMatcher {
 
         for (ProofFormula formula : topLevelFormulas) {
             ImmutableList<Matching> m = mapOfMatches.get(currentPatternForm).get(formula);
-            /*if (m.size() == 1) {
-                Matching matching = m.get(0);
-                Matching temp = reduceConform(matching, returnMatching);
-                if (temp != null) {
-                    //add the formula to chosen proof formulas. Now it cannot be chosen again in the next round
-                    chosenProofFormula.add(formula);
-                    System.out.println("formula = " + formula);
-                    reduceDisjoint(mapOfMatches, patternFormulas, matchings, position + 1, temp, chosenProofFormula);
-                    chosenProofFormula.remove(formula);
-                }
-            } else {*/
-                for (Matching singleMatch : m) {
+
+            for (Matching singleMatch : m) {
                     Matching temp = reduceConform(singleMatch, returnMatching);
                     if (temp != null) {
                         chosenProofFormula.add(formula);
