@@ -184,26 +184,26 @@ public class SequentMatcher {
         //take the next pattern
         ProofFormula currentPatternForm = patternFormulas.get(position);
 
-        System.out.println("chosenProofFormula = " + chosenProofFormula);
         Sets.SetView<ProofFormula> topLevelFormulas =
                 Sets.difference(mapOfMatches.get(currentPatternForm).keySet(), chosenProofFormula);
-        System.out.println("topLevelFormulas = " + topLevelFormulas);
+
         if (topLevelFormulas.size() == 0) {
             return;
         }
 
         for (ProofFormula formula : topLevelFormulas) {
             ImmutableList<Matching> m = mapOfMatches.get(currentPatternForm).get(formula);
-            if (m.size() == 1) {
+            /*if (m.size() == 1) {
                 Matching matching = m.get(0);
                 Matching temp = reduceConform(matching, returnMatching);
                 if (temp != null) {
                     //add the formula to chosen proof formulas. Now it cannot be chosen again in the next round
                     chosenProofFormula.add(formula);
+                    System.out.println("formula = " + formula);
                     reduceDisjoint(mapOfMatches, patternFormulas, matchings, position + 1, temp, chosenProofFormula);
                     chosenProofFormula.remove(formula);
                 }
-            } else {
+            } else {*/
                 for (Matching singleMatch : m) {
                     Matching temp = reduceConform(singleMatch, returnMatching);
                     if (temp != null) {
@@ -214,7 +214,7 @@ public class SequentMatcher {
 
                 }
 
-            }
+            //}
 
         }
 
@@ -236,7 +236,7 @@ public class SequentMatcher {
 
 
         //filter out if variable assignments are not referencing the same termvalue
-        //TODO: This is the place where joining of matchingentries has to take place if more than one subtermselector is needed
+        //TODO: This is the place where joining of matching entries has to take place if more than one subtermselector is needed
         for (String s : keyListNew) {
 
             if (keyListExisting.contains(s)) {
@@ -244,7 +244,7 @@ public class SequentMatcher {
                 Term existingEntry = alreadyExistingMatching.get(s).getValue();
                 if (!existingEntry.equals(newEntry)) {
                     if (!s.startsWith("_")) {
-                        System.out.println("Entries are not conform");
+                        System.out.println("Entries " + newM.get(s) + " " + alreadyExistingMatching.get(s) + " are not conform");
                         return null;
                     } else {
                         System.out.println("We arrived at a don't care, picking the first entry of existing");
