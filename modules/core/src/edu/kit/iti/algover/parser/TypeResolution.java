@@ -69,13 +69,12 @@ public class TypeResolution extends DafnyTreeDefaultVisitor<DafnyTree, Void> {
         case DafnyParser.ALL:
         case DafnyParser.EX:
             DafnyTree typeTree = ref.getFirstChildWithType(DafnyParser.TYPE);
-            DafnyTree type;
-//            if (typeTree == null) {
-//                // this is the case for "var i := 0"
-//                type = ref.getLastChild().getExpressionType();
-//            } else {
-                type = typeTree.getChild(0);
-//            }
+            if (typeTree == null) {
+                // this is the case for "var i := 0" if ref has not been visited by type resolution, yet.
+                ref.accept(this, a);
+                typeTree = ref.getFirstChildWithType(DafnyParser.TYPE);
+            }
+            DafnyTree type = typeTree.getChild(0);
             t.setExpressionType(type);
             return type;
 
@@ -409,11 +408,6 @@ public class TypeResolution extends DafnyTreeDefaultVisitor<DafnyTree, Void> {
         DafnyTree result = fieldDecl.getFirstChildWithType(DafnyParser.TYPE).getChild(0);
         t.setExpressionType(result);
         return result;
-    }
-
-    @Override
-    public DafnyTree visitINTERSECT(DafnyTree t, Void a) {
-        throw new UnsupportedOperationException("not yet implemented");
     }
 
     @Override

@@ -17,16 +17,52 @@ import edu.kit.iti.algover.term.Term;
 import edu.kit.iti.algover.term.VariableTerm;
 import edu.kit.iti.algover.util.ImmutableList;
 import edu.kit.iti.algover.util.Pair;
+import nonnull.NonNull;
 
+import java.util.Map;
+
+/**
+ * The Class TreeAssignmentTranslator is used to create a {@link Term}
+ * object from a {@link DafnyTree} together with an assignment history.
+ * The latter is represented by a list of DafnyTrees.
+ *
+ * For the translation of individual expressions, a {@link TreeTermTranslator}
+ * is used.
+ *
+ * @see Term
+ * @see DafnyTree
+ * @see TreeTermTranslator
+ *
+ * @author Mattias Ulbrich
+ */
 public class TreeAssignmentTranslator {
 
+    /**
+     * The translator used for the translation of expressions
+     */
     private final TreeTermTranslator translator;
+
+    /**
+     * The symbol table for lookup. Can be extended during translation!
+     */
     private final SymbolTable symbols;
+
+    /**
+     * bound to {@link #symbols}, used to create expressions.
+     */
     private final TermBuilder tb;
+
+    /**
+     * Reference for convenience
+     */
     private static final FunctionSymbol HEAP_SYMB = BuiltinSymbols.HEAP;
 
-
-    public TreeAssignmentTranslator(SymbolTable symbols) {
+    /**
+     * Create a fresh translator.
+     *
+     * @param symbols the symbol table for lookup
+     */
+    public TreeAssignmentTranslator(@NonNull SymbolTable symbols) {
         this.symbols = symbols;
         this.translator = new TreeTermTranslator(symbols);
         this.tb = new TermBuilder(symbols);
@@ -37,6 +73,21 @@ public class TreeAssignmentTranslator {
         return assignments.map(this::translateAssignment);
     }
 
+    /**
+     * Builds a let-cascaded term for a tree and a variable map.
+     *
+     * All assignments in {@code map} are translated to cascading
+     * {@link LetTerm}s. The {@code expression} is then embedded into the
+     * cascade
+     *
+     * @param assignments
+     *            the non-<code>null</code> list of observed assignments
+     * @param expression
+     *            the expression to be translated
+     * @return the term which represents the let-cascade
+     * @throws TermBuildException
+     *             if terms in the tree are not well-formed.
+     */
     public Term translateToLet(ImmutableList<DafnyTree> assignments, DafnyTree expression) throws TermBuildException {
         return translateToLet0(assignments.reverse(), expression);
     }
@@ -142,14 +193,35 @@ public class TreeAssignmentTranslator {
         FunctionSymbol symbol = symbols.getFunctionSymbol(receiver.getText());
 
         if(symbol == null) {
-            throw new TermBuildException("Unknown identifier " + name).setLocation(receiver);
+            // There is no defined symbol there, so create an artificial one.
+            // This is the case, e.g., for $decr or $decr_1, ...
+            symbol = new FunctionSymbol(receiver.getText(), assigned.getSort());
+            symbols.addFunctionSymbol(symbol);
         }
 
         if(!assigned.getSort().isSubtypeOf(symbol.getResultSort())) {
-            throw new TermBuildException("The sorts of the variable and expression do not agree: Assigning " +
-                    assigned.getSort() + " to " + symbol.getResultSort());
+            throw new TermBuildException("The sorts of the variable and " +
+                    "expression do not agree: Assigning a value of type " +
+                    assigned.getSort() + " to an entity of type " +
+                    symbol.getResultSort());
         }
 
         return new Pair<>(symbol, assigned);
+    }
+
+    /**
+     * Retrieves a map which assigns to every term the {@link DafnyTree} origin.
+     *
+     * The instance is taken from the internal {@link TreeTermTranslator}
+     * instance.
+     *
+     * Caution! This map is an identity map which maps to every term OBJECT
+     * IDENTITY. Two terms which are semantically and structurally equal may
+     * have different origins!
+     *
+     * @return the reference map
+     */
+    public @NonNull Map<Term,DafnyTree> getReferenceMap() {
+        return translator.getReferenceMap();
     }
 }

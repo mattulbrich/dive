@@ -86,9 +86,9 @@ public class TreeTermTranslatorTest {
             { "i1 + i2*i3", "$plus(i1, $times(i2, i3))" },
             // revealed bug:
             { "i1 == i2*i3", "$eq<int>(i1, $times(i2, i3))" },
-                {"a.Length", "$len<int>(a)"},
-                {"a2.Length0", "$len0<int>(a2)"},
-                {"a2.Length1", "$len1<int>(a2)"},
+            {"a.Length", "$len<int>(a)"},
+            {"a2.Length0", "$len0<int>(a2)"},
+            {"a2.Length1", "$len1<int>(a2)"},
             // no 2-dim arrays for now
 
             // for coverage:
@@ -116,10 +116,10 @@ public class TreeTermTranslatorTest {
             { "let x := 3 :: x > i1", "(let x := 3 :: $gt(x, i1))" },
             { "$plus(1, 2)", "$plus(1, 2)" },
 
-            { "c == null", "$eq<object>(c, null)" },
-            { "c == c2", "$eq<object>(c, c2)" },
+            { "c == null", "$eq<C>(c, null)" },
+            { "c == c2", "$eq<C>(c, c2)" },
             { "let c := null :: null == c",
-                "(let c := null :: $eq<object>(null, c))" },
+                "(let c := null :: $eq<null>(null, c))" },
 
             // Heap accesses
             {"a[0]", "$array_select<int>($heap, a, 0)"},
@@ -151,12 +151,24 @@ public class TreeTermTranslatorTest {
             { "$heap[c.f := 1]", "$store<C,int>($heap, c, C$$f, 1)" },
             { "$heap[$anon(mod, loopHeap)]", "$anon($heap, mod, loopHeap)" },
             { "$heap[$create(c)]", "$create($heap, c)" },
+
+            // Set, Seqs and cardinalities
+            { "|mod|", "$set_card<object>(mod)" },
+            { "|iseq|", "$seq_len<int>(iseq)" },
+            { "{1,2,3}", "$set_add<int>(3, $set_add<int>(2, $set_add<int>(1, $empty<int>)))" },
+            { "[1,2,3]", "$seq_cons<int>(3, $seq_cons<int>(2, $seq_cons<int>(1, $seq_empty<int>)))" },
+            { "iseq + iseq", "$seq_concat<int>(iseq, iseq)" },
+            { "mod * mod", "$intersect<object>(mod, mod)" },
+            { "mod + mod", "$union<object>(mod, mod)" },
+            { "cseq + dseq", "$seq_concat<object>(cseq, dseq)" },
         };
     }
 
     public String[][] parametersForTestSchematic() {
         return new String[][] {
             { "?x+3", "$plus(?x, 3)" },
+            { "3+?x", "$plus(3, ?x)" },
+            { "5*_", "$times(5, _)" },
             { "_*5", "$times(_, 5)" },
             { "1 * ... i1+?x ...", "$times(1, (... $plus(i1, ?x) ...))" },
             { "if ?x then ?x else 5", "$ite<int>(?x, ?x, 5)" },
@@ -173,7 +185,7 @@ public class TreeTermTranslatorTest {
         return new String[][] {
             { "unknownFunction(1)", "Unknown symbol unknownFunction" },
             { "unknownIdentifier", "Unknown identifier unknownIdentifier" },
-            { "b1 == i1", "Unexpected argument sort for argument 2" },
+            { "b1 == i1", "No common supertype for bool and int" },
             { "let x,y:=1 :: y", "Mismatched assignments in let expression:" },
             { "let x:=1 :: unknown", "" },  // no more bound vars after this
             { "forall x:int :: unknown", "" },  // no more bound vars after this
@@ -197,6 +209,8 @@ public class TreeTermTranslatorTest {
             { "b1[c.f:=1]", "Heap updates must be applied to heaps" },
             { "loopHeap[c := c]", "Heap updates must modify a heap location" },
             { "loopHeap[c.f := true]", "Unexpected argument sort for argument 4 to $store" },
+            { "iseq + mod", "No common supertype for seq<int> and set<object>" },
+            { "true + true", "'+' is not supported for these arguments" },
         };
     }
 
@@ -218,6 +232,9 @@ public class TreeTermTranslatorTest {
         map.add(new FunctionSymbol("C$$f", Sort.get("field", Sort.getClassSort("C"), Sort.INT)));
         map.add(new FunctionSymbol("loopHeap", Sort.HEAP));
         map.add(new FunctionSymbol("mod", Sort.get("set", Sort.OBJECT)));
+        map.add(new FunctionSymbol("iseq", Sort.get("seq", Sort.INT)));
+        map.add(new FunctionSymbol("cseq", Sort.get("seq", Sort.getClassSort("C"))));
+        map.add(new FunctionSymbol("dseq", Sort.get("seq", Sort.getClassSort("D"))));
         symbTable = new MapSymbolTable(new BuiltinSymbols(), map);
     }
 
@@ -266,100 +283,101 @@ public class TreeTermTranslatorTest {
         assertEquals(0, ttt.countBoundVars());
     }
 
-    // revealed a bug
-    @Test
-    public void letCascade() throws Exception {
-
-        DafnyTree tree = DafnyFileParser.parse(getClass().getResourceAsStream("proj1/treeTransTest.dfy"));
-        Project p = TestUtil.mockProject(tree);
-
-        DafnyTree method = p.getMethod("m").getRepresentation();
-        DafnyTree block = method.getFirstChildWithType(DafnyParser.BLOCK);
-
-        DafnyTree post = method.getFirstChildWithType(DafnyParser.ENSURES).getLastChild();
-
-        ImmutableList<DafnyTree> assignments =
-                ImmutableList.<DafnyTree>from(block.getChildren().subList(1, block.getChildCount()));
-
-        assertNotNull(symbTable);
-
-        TreeTermTranslator ttt = new TreeTermTranslator(symbTable);
-
-        Term result = ttt.build(assignments, post);
-
-        Term expected = TermParser.parse(symbTable,
-                "let x:=5 :: let x:=i1+x :: let i2 := i1*2 :: i2 > 0");
-
-        assertEquals(expected, result);
-    }
-
-    @Test
-    public void letCascadeHeap() throws Exception {
-
-        symbTable.addFunctionSymbol(new FunctionSymbol("this", Sort.getClassSort("C")));
-        symbTable.addFunctionSymbol(new FunctionSymbol("d", Sort.getClassSort("D")));
-        symbTable.addFunctionSymbol(new FunctionSymbol("C$$field", Sort.get("field", Sort.getClassSort("C"), Sort.INT)));
-        symbTable.addFunctionSymbol(new FunctionSymbol("D$$field", Sort.get("field", Sort.getClassSort("D"), Sort.getClassSort("D"))));
-
-        DafnyTree tree = DafnyFileParser.parse(getClass().getResourceAsStream("proj1/treeTransTest.dfy"));
-        Project p = TestUtil.mockProject(tree);
-
-        DafnyTree method = p.getClass("C").getMethod("n").getRepresentation();
-        DafnyTree block = method.getFirstChildWithType(DafnyParser.BLOCK);
-
-        DafnyTree post = method.getFirstChildWithType(DafnyParser.ENSURES).getLastChild();
-
-        ImmutableList<DafnyTree> assignments =
-                ImmutableList.<DafnyTree>from(block.getChildren());
-
-        assertNotNull(symbTable);
-
-        TreeTermTranslator ttt = new TreeTermTranslator(symbTable);
-
-        Term result = ttt.build(assignments, post);
-
-        Term expected = TermParser.parse(symbTable,
-                "let heap := $store<C,int>($heap, this, C$$field, "
-                + "$plus($select<C, int>($heap, this, C$$field), 1)) :: "
-                + "let heap := $store<D, D>(heap, d, D$$field, null) :: "
-                + "$select<C, int>(heap, this, C$$field) > 0");
-
-        assertEquals(expected.toString(), result.toString());
-    }
-
-    @Test
-    public void letCascadeSeq() throws Exception {
-        symbTable.addFunctionSymbol(new FunctionSymbol("this", Sort.getClassSort("Seq")));
-        symbTable.addFunctionSymbol(new FunctionSymbol("Seq$$fsq",
-                Sort.get("field", Sort.getClassSort("Seq"), Sort.get("seq", Sort.INT))));
-        symbTable.addFunctionSymbol(new FunctionSymbol("sq", Sort.get("seq", Sort.INT)));
-
-        DafnyTree tree = DafnyFileParser.parse(getClass().getResourceAsStream("proj1/treeTransTest.dfy"));
-        Project p = TestUtil.mockProject(tree);
-
-        DafnyTree method = p.getClass("Seq").getMethod("s").getRepresentation();
-        DafnyTree block = method.getFirstChildWithType(DafnyParser.BLOCK);
-
-        ImmutableList<DafnyTree> assignments =
-                ImmutableList.<DafnyTree>from(block.getChildren()).
-                        filter(x -> x.getType() == DafnyParser.ASSIGN);
-
-        DafnyTree post = method.getFirstChildWithType(DafnyParser.ENSURES).getLastChild();
-
-        TreeTermTranslator ttt = new TreeTermTranslator(symbTable);
-
-        Term result = ttt.build(assignments, post);
-
-        Term expected = TermParser.parse(symbTable,
-                "let sq := $seq_upd<int>(sq, 0, 2) :: " +
-                        "let heap := $store<Seq, seq<int>>($heap, this, " +
-                        "Seq$$fsq, $seq_upd<int>($select<Seq,seq<int>>($heap, this, Seq$$fsq), 1, 3)) :: " +
-                        "let heap := $store<Seq,seq<int>>(heap, this, " +
-                        "Seq$$fsq, $seq_upd<int>($select<Seq, seq<int>>($heap, this, Seq$$fsq), 2, 4)) :: " +
-                        "true");
-
-        assertEquals(expected.toString(), result.toString());
-    }
+    // Moved to TreeAssignmentTranslatorTest
+//    // revealed a bug
+//    @Test
+//    public void letCascade() throws Exception {
+//
+//        DafnyTree tree = DafnyFileParser.parse(getClass().getResourceAsStream("proj1/treeTransTest.dfy"));
+//        Project p = TestUtil.mockProject(tree);
+//
+//        DafnyTree method = p.getMethod("m").getRepresentation();
+//        DafnyTree block = method.getFirstChildWithType(DafnyParser.BLOCK);
+//
+//        DafnyTree post = method.getFirstChildWithType(DafnyParser.ENSURES).getLastChild();
+//
+//        ImmutableList<DafnyTree> assignments =
+//                ImmutableList.<DafnyTree>from(block.getChildren().subList(1, block.getChildCount()));
+//
+//        assertNotNull(symbTable);
+//
+//        TreeTermTranslator ttt = new TreeTermTranslator(symbTable);
+//
+//        Term result = ttt.build(assignments, post);
+//
+//        Term expected = TermParser.parse(symbTable,
+//                "let x:=5 :: let x:=i1+x :: let i2 := i1*2 :: i2 > 0");
+//
+//        assertEquals(expected, result);
+//    }
+//
+//    @Test
+//    public void letCascadeHeap() throws Exception {
+//
+//        symbTable.addFunctionSymbol(new FunctionSymbol("this", Sort.getClassSort("C")));
+//        symbTable.addFunctionSymbol(new FunctionSymbol("d", Sort.getClassSort("D")));
+//        symbTable.addFunctionSymbol(new FunctionSymbol("C$$field", Sort.get("field", Sort.getClassSort("C"), Sort.INT)));
+//        symbTable.addFunctionSymbol(new FunctionSymbol("D$$field", Sort.get("field", Sort.getClassSort("D"), Sort.getClassSort("D"))));
+//
+//        DafnyTree tree = DafnyFileParser.parse(getClass().getResourceAsStream("proj1/treeTransTest.dfy"));
+//        Project p = TestUtil.mockProject(tree);
+//
+//        DafnyTree method = p.getClass("C").getMethod("n").getRepresentation();
+//        DafnyTree block = method.getFirstChildWithType(DafnyParser.BLOCK);
+//
+//        DafnyTree post = method.getFirstChildWithType(DafnyParser.ENSURES).getLastChild();
+//
+//        ImmutableList<DafnyTree> assignments =
+//                ImmutableList.<DafnyTree>from(block.getChildren());
+//
+//        assertNotNull(symbTable);
+//
+//        TreeTermTranslator ttt = new TreeTermTranslator(symbTable);
+//
+//        Term result = ttt.build(assignments, post);
+//
+//        Term expected = TermParser.parse(symbTable,
+//                "let heap := $store<C,int>($heap, this, C$$field, "
+//                + "$plus($select<C, int>($heap, this, C$$field), 1)) :: "
+//                + "let heap := $store<D, D>(heap, d, D$$field, null) :: "
+//                + "$select<C, int>(heap, this, C$$field) > 0");
+//
+//        assertEquals(expected.toString(), result.toString());
+//    }
+//
+//    @Test
+//    public void letCascadeSeq() throws Exception {
+//        symbTable.addFunctionSymbol(new FunctionSymbol("this", Sort.getClassSort("Seq")));
+//        symbTable.addFunctionSymbol(new FunctionSymbol("Seq$$fsq",
+//                Sort.get("field", Sort.getClassSort("Seq"), Sort.get("seq", Sort.INT))));
+//        symbTable.addFunctionSymbol(new FunctionSymbol("sq", Sort.get("seq", Sort.INT)));
+//
+//        DafnyTree tree = DafnyFileParser.parse(getClass().getResourceAsStream("proj1/treeTransTest.dfy"));
+//        Project p = TestUtil.mockProject(tree);
+//
+//        DafnyTree method = p.getClass("Seq").getMethod("s").getRepresentation();
+//        DafnyTree block = method.getFirstChildWithType(DafnyParser.BLOCK);
+//
+//        ImmutableList<DafnyTree> assignments =
+//                ImmutableList.<DafnyTree>from(block.getChildren()).
+//                        filter(x -> x.getType() == DafnyParser.ASSIGN);
+//
+//        DafnyTree post = method.getFirstChildWithType(DafnyParser.ENSURES).getLastChild();
+//
+//        TreeTermTranslator ttt = new TreeTermTranslator(symbTable);
+//
+//        Term result = ttt.build(assignments, post);
+//
+//        Term expected = TermParser.parse(symbTable,
+//                "let sq := $seq_upd<int>(sq, 0, 2) :: " +
+//                        "let heap := $store<Seq, seq<int>>($heap, this, " +
+//                        "Seq$$fsq, $seq_upd<int>($select<Seq,seq<int>>($heap, this, Seq$$fsq), 1, 3)) :: " +
+//                        "let heap := $store<Seq,seq<int>>(heap, this, " +
+//                        "Seq$$fsq, $seq_upd<int>($select<Seq, seq<int>>($heap, this, Seq$$fsq), 2, 4)) :: " +
+//                        "true");
+//
+//        assertEquals(expected.toString(), result.toString());
+//    }
 
     // from a bug
     @Test

@@ -16,10 +16,12 @@ tokens {
   FIELD_ACCESS;
   LISTEX; // not supported currently
   SETEX; // not supported currently
+  MULTISETEX; // not supported currently
   ARRAY_ACCESS;
   NOETHER_LESS;
   WILDCARD;
   HEAP_UPDATE;
+  TYPED_SCHEMA;
 }
 
 @parser::header {
@@ -90,6 +92,7 @@ LEMMA: 'lemma';
 LET: 'let';
 METHOD: 'method';
 MODIFIES: 'modifies';
+MULTISET: 'multiset';
 NEW: 'new';
 NULL: 'null';
 // PREDICATE : 'predicate';
@@ -117,8 +120,6 @@ PLUS: '+';
 MINUS: '-';
 NOT: '!';
 TIMES: '*';
-UNION: '++';
-INTERSECT: '**';
 LT: '<';
 LE: '<=';
 GT: '>';
@@ -133,6 +134,7 @@ LPAREN: '(';
 RPAREN: ')';
 LBRACKET: '[';
 RBRACKET: ']';
+CARD: '|';
 
 LENGTH: 'Length' ('0' .. '9')*;
 ARRAY : 'array' (('1' .. '9') ('0' .. '9')*)?;
@@ -447,14 +449,24 @@ atom_expr:
     | '(' expressions? ')' -> ^(CALL usual_or_logic_id ^(ARGS expressions?) )
     )
   | {schemaMode}? =>
-  ( SCHEMA_ID | BLANK | ELLIPSIS^ expression ELLIPSIS! )
-
+      ( schema_entity
+        (    -> schema_entity
+        | '(' ':' type ')' -> ^(TYPED_SCHEMA schema_entity type)
+        )
+      )
   | TRUE | FALSE | NULL | 'this'
   | INT_LIT
   | 'old'^ '('! expression ')'!
   | 'fresh'^ '('! expression ')'!
-//  | '|'^ expression '|'!
+  | '|'^ expression '|'!
   | '('! expression ')'!
+  | '{' ( expression ( ',' expression )* )? '}' -> ^(SETEX expression*)
+  | '[' ( expression ( ',' expression )* )? ']' -> ^(LISTEX expression*)
+  | 'multiset' '{' expression ( ',' expression )* '}' -> ^(MULTISETEX expression+)
+  ;
+
+schema_entity:
+  SCHEMA_ID | BLANK | ELLIPSIS^ expression ELLIPSIS!
   ;
 
 // Either usual or logic id

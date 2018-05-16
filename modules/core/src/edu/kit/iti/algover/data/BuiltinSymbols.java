@@ -152,8 +152,14 @@ public class BuiltinSymbols extends MapSymbolTable {
     public static final FunctionSymbol HEAP =
             new FunctionSymbol("$heap", Sort.HEAP);
 
+    // Assignable variable for the modifies set
     public static final FunctionSymbol MOD =
             new FunctionSymbol("$mod", Sort.get("set", Sort.OBJECT));
+
+    // Assignable variable for the decreases clause
+    // TODO Go beyond integers here one day.
+    public static final FunctionSymbol DECR =
+            new FunctionSymbol("$decr", Sort.INT);
 
     private static final Sort SET1 = Sort.get("set", FunctionSymbolFamily.VAR1);
 
@@ -164,6 +170,23 @@ public class BuiltinSymbols extends MapSymbolTable {
     public static final FunctionSymbolFamily INTERSECT =
             new FunctionSymbolFamily(
                     new FunctionSymbol("$intersect", SET1, SET1, SET1), 1);
+
+    public static final FunctionSymbolFamily EMPTY_SET =
+            new FunctionSymbolFamily(
+                    new FunctionSymbol("$empty", SET1), 1);
+
+    public static final FunctionSymbolFamily CARD =
+            new FunctionSymbolFamily(
+                    new FunctionSymbol("$set_card", Sort.INT, SET1), 1);
+
+    public static final FunctionSymbolFamily SET_ADD =
+            new FunctionSymbolFamily(
+                    new FunctionSymbol("$set_add", SET1, FunctionSymbolFamily.VAR1, SET1), 1);
+
+    public static final FunctionSymbolFamily SET_IN =
+            new FunctionSymbolFamily(
+                    new FunctionSymbol("$set_in", Sort.BOOL, FunctionSymbolFamily.VAR1, SET1), 1);
+
 
     private static final Sort SEQ1 = Sort.get("seq", FunctionSymbolFamily.VAR1);
 
@@ -180,6 +203,18 @@ public class BuiltinSymbols extends MapSymbolTable {
             new FunctionSymbolFamily(
                     new FunctionSymbol("$seq_upd", SEQ1,
                             SEQ1, Sort.INT, FunctionSymbolFamily.VAR1), 1);
+
+    public static final FunctionSymbolFamily SEQ_EMPTY =
+            new FunctionSymbolFamily(
+                    new FunctionSymbol("$seq_empty", SEQ1), 1);
+
+    public static final FunctionSymbolFamily SEQ_CONS =
+            new FunctionSymbolFamily(
+                    new FunctionSymbol("$seq_cons", SEQ1, FunctionSymbolFamily.VAR1, SEQ1), 1);
+
+    public static final FunctionSymbolFamily SEQ_CONCAT =
+            new FunctionSymbolFamily(
+                    new FunctionSymbol("$seq_concat", SEQ1, SEQ1, SEQ1), 1);
 
     private static final Sort SET_OBJECTS = Sort.get("set", Sort.OBJECT);
 
@@ -284,4 +319,5 @@ public class BuiltinSymbols extends MapSymbolTable {
 
         }
     }
+
 }

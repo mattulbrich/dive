@@ -18,11 +18,14 @@ import edu.kit.iti.algover.term.LetTerm;
 import edu.kit.iti.algover.term.QuantTerm;
 import edu.kit.iti.algover.term.QuantTerm.Quantifier;
 import edu.kit.iti.algover.term.SchemaOccurTerm;
+import edu.kit.iti.algover.term.SchemaTerm;
 import edu.kit.iti.algover.term.SchemaVarTerm;
 import edu.kit.iti.algover.term.Sort;
 import edu.kit.iti.algover.term.Term;
 import edu.kit.iti.algover.term.VariableTerm;
 import edu.kit.iti.algover.util.ASTUtil;
+import edu.kit.iti.algover.util.BiFunctionWithException;
+import edu.kit.iti.algover.util.FunctionWithException;
 import edu.kit.iti.algover.util.HistoryMap;
 import edu.kit.iti.algover.util.ImmutableList;
 import edu.kit.iti.algover.util.Pair;
@@ -36,6 +39,7 @@ import java.util.HashMap;
 import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.BiFunction;
 
 /**
  * The Class TreeTermTranslator is used to create a {@link Term} object from a
@@ -52,7 +56,7 @@ public class TreeTermTranslator {
      * The Constant HEAP_VAR is the variable used for for heap assignments.
      */
     private static final VariableTerm HEAP_VAR =
-            new VariableTerm("heap", Sort.HEAP);
+            new VariableTerm("$heap", Sort.HEAP);
 
     /**
      * The symbol table from which the function symbols etc are to be taken.
@@ -108,7 +112,7 @@ public class TreeTermTranslator {
      * @throws TermBuildException
      *             if terms in the tree are not well-formed.
      */
-    public Term build(ImmutableList<DafnyTree> history, DafnyTree expression)
+    private Term build(ImmutableList<DafnyTree> history, DafnyTree expression)
             throws TermBuildException {
         return buildLetCascade(history.reverse(), expression);
     }
@@ -218,7 +222,8 @@ public class TreeTermTranslator {
     }
 
     private Term getHeap() throws TermBuildException {
-        // FIXME This is naive since someone might call their variable "heap" manually.
+        // This is naive since someone might call their variable "heap" manually.
+        // Mitigated sind "$heap" is now protected by $.
         VariableTerm bound = boundVars.get(HEAP_VAR.getName());
         if(bound != null) {
             return bound;
@@ -226,7 +231,6 @@ public class TreeTermTranslator {
             return tb.heap();
         }
     }
-
 
     /**
      * Builds a term for a dafny tree.
@@ -269,7 +273,23 @@ public class TreeTermTranslator {
             break;
 
         case DafnyParser.PLUS:
-            result = buildBinary(BuiltinSymbols.PLUS, tree);
+            result = buildBinary(
+                symmetricBinarySymbol(sort -> {
+                switch(sort.getName()) {
+                case "int":
+                    return BuiltinSymbols.PLUS;
+                case "set":
+                    return BuiltinSymbols.UNION.instantiate(sort.getArgument(0));
+                case "seq":
+                    return BuiltinSymbols.SEQ_CONCAT.
+                            instantiate(sort.getArgument(0));
+                case "multiset":
+                    // TODO
+                    throw new Error("IMPLEMENT ME!");
+                default:
+                    throw new TermBuildException("'+' is not supported for these arguments");
+                }
+            }), tree);
             break;
 
         case DafnyParser.MINUS:
@@ -281,17 +301,30 @@ public class TreeTermTranslator {
             break;
 
         case DafnyParser.TIMES:
-            result = buildBinary(BuiltinSymbols.TIMES, tree);
+            result = buildBinary(symmetricBinarySymbol(sort -> {
+                switch(sort.getName()) {
+                case "int":
+                    return BuiltinSymbols.TIMES;
+                case "set":
+                    return BuiltinSymbols.INTERSECT.instantiate(sort.getArgument(0));
+                case "multiset":
+                    // TODO
+                    throw new Error("IMPLEMENT ME!");
+                default:
+                    throw new TermBuildException("'*' is not supported for these arguments");
+                }
+            }), tree);
             break;
 
-        case DafnyParser.UNION:
-            // TODO generalize this beyond integer sets
-            result = buildBinary(symbolTable.getFunctionSymbol("$union[int]"), tree);
-            break;
-
-        case DafnyParser.INTERSECT:
-            // TODO generalize this beyond integer sets
-            result = buildBinary(symbolTable.getFunctionSymbol("$intersect[int]"), tree);
+        case DafnyParser.IN:
+            result = buildBinary((x,y) -> {
+                switch(y.getSort().getName()) {
+                case "set":
+                    return BuiltinSymbols.SET_IN.instantiate(y.getSort().getArgument(0));
+                default:
+                    throw new Error("Not yet implemented");
+                }
+            }, tree);
             break;
 
         case DafnyParser.NOT:
@@ -299,11 +332,11 @@ public class TreeTermTranslator {
             break;
 
         case DafnyParser.EQ:
-            result = buildEquality(tree);
+            result = buildBinary(symmetricBinarySymbol(sort -> BuiltinSymbols.EQ.instantiate(sort)), tree);
             break;
 
         case DafnyParser.NEQ:
-            result = tb.negate(buildEquality(tree));
+            result = buildBinary(symmetricBinarySymbol(sort -> BuiltinSymbols.EQ.instantiate(sort)), tree);            result = tb.negate(result);
             break;
 
         case DafnyParser.LOGIC_ID:
@@ -319,12 +352,20 @@ public class TreeTermTranslator {
             result = buildNull(tree);
             break;
 
+        case DafnyParser.SETEX:
+            result = buildSetExtension(tree);
+            break;
+
+        case DafnyParser.LISTEX:
+            result = buildListExtension(tree);
+            break;
+
         case DafnyParser.ALL:
-            result = buildQuantifier(QuantTerm.Quantifier.FORALL, tree);
+            result = buildQuantifier(Quantifier.FORALL, tree);
             break;
 
         case DafnyParser.EX:
-            result = buildQuantifier(QuantTerm.Quantifier.EXISTS, tree);
+            result = buildQuantifier(Quantifier.EXISTS, tree);
             break;
 
         case DafnyParser.LET:
@@ -336,7 +377,19 @@ public class TreeTermTranslator {
             break;
 
         case DafnyParser.LENGTH:
-            result = buildLength(tree);
+
+            // XXX FIXME HACK Sequences length is different
+            if(build(tree.getChild(0)).getSort().getName().equals("seq")) {
+                System.err.println("Deprecated: Used .Length to access length of sequence: " +
+                    tree.toStringTree());
+                result = buildCardinality(tree);
+            } else {
+                result = buildLength(tree);
+            }
+            break;
+
+        case DafnyParser.CARD:
+            result = buildCardinality(tree);
             break;
 
         case DafnyParser.ARRAY_ACCESS:
@@ -385,6 +438,12 @@ public class TreeTermTranslator {
             throw new TermBuildException("__ not supported in this place. "
                     + "Solution: Spell it out using the appropriate number of _. Sorry.");
 
+        case DafnyParser.TYPED_SCHEMA:
+            result = build(tree.getChild(0));
+            Sort sort = ASTUtil.toSort(tree.getChild(1));
+            result = ((SchemaTerm)result).refineSort(sort);
+            break;
+
         default:
             TermBuildException ex =
                 new TermBuildException("Cannot translate term: " + tree.toStringTree());
@@ -416,6 +475,16 @@ public class TreeTermTranslator {
         return new ApplTerm(ifFct, ifCond, thenExp, elseExp);
     }
 
+    private BiFunctionWithException<Term, Term, FunctionSymbol, TermBuildException>
+            symmetricBinarySymbol(FunctionWithException<Sort, FunctionSymbol, TermBuildException> decider) {
+        return new BiFunctionWithException<Term, Term, FunctionSymbol, TermBuildException>() {
+            @Override
+            public FunctionSymbol apply(Term a, Term b) throws TermBuildException {
+                Sort sort = Sort.supremum(a.getSort(), b.getSort());
+                return decider.apply(sort);
+            }
+        };
+    }
 
     private Term buildCall(DafnyTree tree) throws TermBuildException {
 
@@ -456,7 +525,7 @@ public class TreeTermTranslator {
 
                 indexTerm = build(tree.getChild(1));
 
-                return tb.selectArray(new ApplTerm(BuiltinSymbols.HEAP), arrayTerm, indexTerm);
+                return tb.selectArray(getHeap(), arrayTerm, indexTerm);
 
             case "seq":
                 if (tree.getChildCount() != 2) {
@@ -520,8 +589,7 @@ public class TreeTermTranslator {
             throw new TermBuildException("Field " + fieldId + " not found in class " + classId);
         }
 
-        return tb.selectField(new ApplTerm(BuiltinSymbols.HEAP),
-                receiver, new ApplTerm(field));
+        return tb.selectField(getHeap(), receiver, new ApplTerm(field));
     }
 
 
@@ -559,19 +627,36 @@ public class TreeTermTranslator {
                 f = symbolTable.getFunctionSymbol("$len" + index + "<" + arg + ">");
                 break;
 
-            case "seq":
-                if (!suffix.isEmpty()) {
-                    throw new TermBuildException("Elements of type 'seq' have only "
-                            + "the 'Length' property");
-                }
-                return tb.seqLen(t1);
-
             default:
-                throw new TermBuildException("Unsupported sort for 'Length': " + sort);
+                throw new TermBuildException("Unsupported sort for '" +
+                        functionName + "': " + sort);
         }
 
-        return new ApplTerm(f, Arrays.asList(t1));
+        return new ApplTerm(f, t1);
+    }
 
+    private Term buildCardinality(DafnyTree tree) throws TermBuildException {
+
+        Term inner = build(tree.getChild(0));
+        FunctionSymbol function;
+
+        Sort sort = inner.getSort();
+        switch (sort.getName()) {
+        case "set":
+            function = BuiltinSymbols.CARD.instantiate(
+                    sort.getArguments().get(0));
+            break;
+
+        case "seq":
+            function = BuiltinSymbols.SEQ_LEN.instantiate(
+                    sort.getArguments().get(0));
+            break;
+
+        default:
+            throw new TermBuildException("Unsupported sort for |...|: " + sort);
+        }
+
+        return new ApplTerm(function, inner);
     }
 
     private Term buildWildcard(DafnyTree tree) throws TermBuildException {
@@ -600,20 +685,53 @@ public class TreeTermTranslator {
         return tb._null();
     }
 
+    // can be reused by set, seq and multiset
+    private Term buildExtension(FunctionSymbolFamily emptyFamily,
+                                FunctionSymbolFamily addFamily,
+                                DafnyTree tree) throws TermBuildException {
 
-    private Term buildEquality(DafnyTree tree) throws TermBuildException {
-        assert tree.getChildCount() == 2;
+        assert tree.getChildCount() > 0 :
+                "Currently empty list and set are not supported via extensions";
 
-        Term t1 = build(tree.getChild(0));
-        Term t2 = build(tree.getChild(1));
+        Sort sort = null;
+        List<Term> arguments = new ArrayList<>();
 
-        Sort sort = t1.getSort();
-        if (Sort.NULL.isSubtypeOf(sort)) {
-            sort = Sort.OBJECT;
+        for (DafnyTree child : tree.getChildren()) {
+            Term term = build(child);
+            arguments.add(term);
+            Sort termSort = term.getSort();
+            if (sort == null) {
+                sort = termSort;
+            } else {
+                if (!termSort.equals(sort)) {
+                    if (termSort.isClassSort() && sort.isClassSort()) {
+                        sort = Sort.OBJECT;
+                    } else {
+                        throw new TermBuildException(
+                                "List extension with incomparable types: " +
+                                        sort + " and " + termSort);
+                    }
+                }
+            }
         }
 
-        FunctionSymbol f = symbolTable.getFunctionSymbol("$eq<" + sort + ">");
-        return new ApplTerm(f, Arrays.asList(t1, t2));
+        FunctionSymbol add = addFamily.instantiate(sort);
+        FunctionSymbol empty = emptyFamily.instantiate(sort);
+
+        ApplTerm result = new ApplTerm(empty);
+        for (Term term : arguments) {
+            result = new ApplTerm(add, term, result);
+        }
+
+        return result;
+    }
+
+    private Term buildListExtension(DafnyTree tree) throws TermBuildException {
+        return buildExtension(BuiltinSymbols.SEQ_EMPTY, BuiltinSymbols.SEQ_CONS, tree);
+    }
+
+    private Term buildSetExtension(DafnyTree tree) throws TermBuildException {
+        return buildExtension(BuiltinSymbols.EMPTY_SET, BuiltinSymbols.SET_ADD, tree);
     }
 
     private Term buildIdentifier(DafnyTree tree) throws TermBuildException {
@@ -731,6 +849,18 @@ public class TreeTermTranslator {
 
         Term t1 = build(tree.getChild(0));
         Term t2 = build(tree.getChild(1));
+        return new ApplTerm(f, Arrays.asList(t1, t2));
+    }
+    
+    private Term buildBinary(
+            BiFunctionWithException<Term, Term, FunctionSymbol, TermBuildException> functionDecider,
+            DafnyTree tree) throws TermBuildException {
+        assert tree.getChildCount() == 2 :
+                "Unexpected argument " + tree.toStringTree();
+
+        Term t1 = build(tree.getChild(0));
+        Term t2 = build(tree.getChild(1));
+        FunctionSymbol f = functionDecider.apply(t1, t2);
         return new ApplTerm(f, Arrays.asList(t1, t2));
     }
 

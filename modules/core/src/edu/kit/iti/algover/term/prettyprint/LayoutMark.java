@@ -11,9 +11,9 @@ interface LayoutMark {
     public void handle(AnnotatedString as);
 
     class BeginTerm implements LayoutMark {
-        private final int subtermno;
+        private final int[] subtermno;
 
-        public BeginTerm(int subtermno) {
+        public BeginTerm(int... subtermno) {
             this.subtermno = subtermno;
         }
 

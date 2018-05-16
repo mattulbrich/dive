@@ -54,6 +54,14 @@ class PrettyPrintVisitor implements TermVisitor<Void, Void, RuntimeException> {
         printer.append(name);
     }
 
+
+    /*
+     * print an application in non-operator prefix form f(x,y).
+     */
+    public void printApplication(ApplTerm application) {
+        printApplication(application, application.getFunctionSymbol().getName());
+    }
+
     /*
      * print an application in non-operator prefix form f(x,y).
      */
