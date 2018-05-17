@@ -11,6 +11,7 @@ import java.util.*;
 import edu.kit.iti.algover.proof.ProofNode;
 import edu.kit.iti.algover.term.Sequent;
 import edu.kit.iti.algover.term.Term;
+import edu.kit.iti.algover.term.prettyprint.PrettyPrint;
 import edu.kit.iti.algover.util.Pair;
 import edu.kit.iti.algover.util.RuleUtil;
 import jdk.nashorn.internal.ir.BreakableNode;
@@ -316,7 +317,13 @@ public abstract class AbstractProofRule implements ProofRule {
                                 ", but I expected " + allParameters.get(p) +
                                 " (class " + allParameters.get(p).getType() + ")");
             }
-            res += " " + p.getKey() + "='" + p.getValue() + "'";
+            if(allParameters.get(p.getKey()).getType().equals(ParameterType.TERM)) {
+                PrettyPrint prettyPrint = new PrettyPrint();
+                String pp = prettyPrint.print((Term)p.getValue()).toString();
+                res += " " + p.getKey() + "='" + pp + "'";
+            } else {
+                res += " " + p.getKey() + "=\"" + p.getValue() + "\"";
+            }
             required.remove(p.getKey());
         }
         if (!required.isEmpty()) {
