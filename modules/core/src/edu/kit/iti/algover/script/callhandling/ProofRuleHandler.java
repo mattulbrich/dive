@@ -58,6 +58,7 @@ public class ProofRuleHandler implements CommandHandler<ProofNode> {
      * @param rules List of additional Proof rule objects
      */
     public ProofRuleHandler(List<ProofRule> rules) {
+        this.rules = rules;
 
         loader = ServiceLoader.load(ProofRule.class);
         loader.iterator().forEachRemaining(proofRule -> {
@@ -65,7 +66,6 @@ public class ProofRuleHandler implements CommandHandler<ProofNode> {
             ruleMap.put(proofRule.getName(), proofRule);
         });
 
-        this.rules = rules;
         rules.forEach(proofRule -> ruleMap.put(proofRule.getName(), proofRule));
     }
 
