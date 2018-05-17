@@ -351,7 +351,7 @@ public class AnnotatedString implements Backend<NoExceptions> {
      * @param subtermno
      *            the number of the sub term (index into the parents' children)
      */
-    public void handleBeginTerm(int subtermno) {
+    public void handleBeginTerm(int[] subtermno) {
         TermElement el = new TermElement();
         el.begin = length();
         if(elementStack.isEmpty()) {

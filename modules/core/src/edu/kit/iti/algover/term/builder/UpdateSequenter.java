@@ -64,7 +64,7 @@ public class UpdateSequenter implements PVCSequenter {
                                    Map<TermSelector, DafnyTree> refMap)
                                            throws DafnyException {
 
-        TreeTermTranslator ttt = new TreeTermTranslator(symbolTable);
+        // TreeTermTranslator ttt = new TreeTermTranslator(symbolTable);
         TreeAssignmentTranslator tat = new TreeAssignmentTranslator(symbolTable);
         List<ProofFormula> ante = new ArrayList<>();
 
@@ -73,7 +73,7 @@ public class UpdateSequenter implements PVCSequenter {
 
         for (PathConditionElement pce : pathThroughProgram.getPathConditions()) {
             try {
-                Term term = ttt.build(pce.getAssignmentHistory(), pce.getExpression());
+                Term term = tat.translateToLet(pce.getAssignmentHistory(), pce.getExpression());
                 ProofFormula formula = new ProofFormula(term);
                 formula = postProcess(formula);
                 ante.add(formula);
@@ -85,14 +85,14 @@ public class UpdateSequenter implements PVCSequenter {
         assert pathThroughProgram.getProofObligations().size() == 1;
         AssertionElement assertion = pathThroughProgram.getProofObligations().getHead();
         try {
-            Term term = ttt.build(pathThroughProgram.getAssignmentHistory(),
+            Term term = tat.translateToLet(pathThroughProgram.getAssignmentHistory(),
                     assertion.getExpression());
             ProofFormula formula = new ProofFormula(term);
             formula = postProcess(formula);
             List<ProofFormula> succ = Collections.singletonList(formula);
             Sequent sequent = new Sequent(ante, succ);
             if(refMap != null) {
-                ReferenceTools.addSequentReferences(sequent, ttt.getReferenceMap(), refMap);
+                ReferenceTools.addSequentReferences(sequent, tat.getReferenceMap(), refMap);
             }
             return sequent;
 

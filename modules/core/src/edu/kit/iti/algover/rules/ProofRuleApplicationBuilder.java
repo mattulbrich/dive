@@ -50,7 +50,7 @@ public class ProofRuleApplicationBuilder {
      */
     public ProofRuleApplicationBuilder(@NonNull ProofRule rule) {
         this.rule = rule;
-        this.scriptTranscript = rule.getName();
+        this.scriptTranscript = rule.getName() + ";";
         this.exhaustive = false;
         this.deep = false;
         this.global = false;

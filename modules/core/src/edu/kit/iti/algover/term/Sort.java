@@ -280,6 +280,17 @@ public class Sort {
     }
 
     /**
+     * Gets a type argument of this sort instance.
+     *
+     * @return the argument at position index.
+     * @throws IndexOutOfBoundsException if the index does not refer to a valid
+     *                                   argument index
+     */
+    public Sort getArgument(int index) {
+        return arguments[index];
+    }
+
+    /**
      * Checks if this sort belongs to a Dafny class.
      *
      * Checks if the name is a builtin name
@@ -301,22 +312,37 @@ public class Sort {
      *         argument.
      */
     public boolean isSubtypeOf(Sort other) {
+
+        if (equals(other)) {
+            return true;
+        }
+
         if(equals(UNTYPED_SORT)) {
             return true;
         }
 
         if(isClassSort() || isArray()) {
-            return equals(other) || other.equals(OBJECT);
+            return other.equals(OBJECT);
         }
 
         if(equals(NULL)) {
-            return equals(other) || other.isClassSort() || other.equals(OBJECT) || other.isArray();
+            return other.isClassSort() || other.equals(OBJECT) || other.isArray();
         }
 
-        return equals(other);
+        if(name.equals(other.name)) {
+            switch (name) {
+            case "set":
+            case "multiset":
+            case "seq":
+                return getArgument(0).isSubtypeOf(other.getArgument(0));
+            // case "map": that would be contravariant in the first argument!
+            }
+        }
+
+        return false;
     }
 
-    private boolean isArray() {
+    public boolean isArray() {
         return getName().matches("array[23]?");
     }
 
@@ -365,6 +391,17 @@ public class Sort {
         if((sort1.isClassSort() || sort1.isArray()) &&
            (sort2.isClassSort() || sort2.isArray())) {
             return OBJECT;
+        }
+
+        if(sort1.name.equals(sort2.name)) {
+            switch (sort1.name) {
+            case "set":
+            case "multiset":
+            case "seq":
+                Sort innersup = supremum(sort1.getArgument(0), sort2.getArgument(0));
+                return get(sort1.name, innersup);
+            // case "map": that would be contravariant in the first argument!
+            }
         }
 
         throw new TermBuildException("No common supertype for " + sort1 + " and " + sort2);

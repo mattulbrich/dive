@@ -140,6 +140,7 @@ public class UpdateSequenterTest extends SequenterTest {
             assertNull(fromMap);
         } else {
             assertEquals(term, actual.toString());
+            assertNotNull(fromMap);
             assertEquals(expected, fromMap.toStringTree());
         }
 

@@ -13,6 +13,8 @@ import edu.kit.iti.algover.project.ProjectManager;
 import edu.kit.iti.algover.proof.PVC;
 import edu.kit.iti.algover.proof.Proof;
 import edu.kit.iti.algover.proof.ProofStatus;
+import edu.kit.iti.algover.term.Sequent;
+import edu.kit.iti.algover.term.prettyprint.PrettyPrint;
 import edu.kit.iti.algover.util.FormatException;
 import nonnull.NonNull;
 import nonnull.Nullable;
@@ -117,6 +119,14 @@ public class AlgoVerService {
             if (verbosityLevel > 1) {
                 System.err.println(" ... No script. Using default script.");
             }
+        }
+
+        if(verbosityLevel > 1) {
+            PrettyPrint pp = new PrettyPrint();
+            Sequent seq = pvc.getSequent();
+            seq.getAntecedent().forEach(f -> System.err.println(pp.print(f.getTerm())));
+            System.err.println("|-");
+            seq.getSuccedent().forEach(f -> System.err.println(pp.print(f.getTerm())));
         }
 
         proof.interpretScript();

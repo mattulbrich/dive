@@ -105,8 +105,13 @@ public class Main {
         boolean verbose = cl.isSet(OPTION_VERBOSE);
 
         int verbosity = 0;
-        if(verbose) verbosity ++;
-        if(cl.isSet(OPTION_VERY_VERBOSE)) verbosity ++;
+        if(verbose) {
+            verbosity = 1;
+        }
+        if(cl.isSet(OPTION_VERY_VERBOSE)) {
+            verbosity = 2;
+            verbose = true;
+        }
 
         AlgoVerService service = new AlgoVerService(new File(dir));
         service.setConfigName(configFilename);

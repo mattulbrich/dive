@@ -106,6 +106,13 @@ public class PrettyPrintTest {
         };
     }
 
+    public String[][] parametersForTestADTExpressions() {
+        return new String[][] {
+            { "|sq|" }, { "|st|" }, { "st + st" }, { "sq + sq" },
+            { "{1, 2, 3}" }, { "[1, 2, 3]"},
+        };
+    }
+
 
     @Before
     public void setupTable() {
@@ -116,6 +123,9 @@ public class PrettyPrintTest {
         st.addFunctionSymbol(new FunctionSymbol("anything", Sort.INT, Sort.INT));
         st.addFunctionSymbol(new FunctionSymbol("a", Sort.get("array", Sort.INT)));
         st.addFunctionSymbol(new FunctionSymbol("a2", Sort.get("array2", Sort.INT)));
+
+        st.addFunctionSymbol(new FunctionSymbol("sq", Sort.get("seq", Sort.INT)));
+        st.addFunctionSymbol(new FunctionSymbol("st", Sort.get("set", Sort.INT)));
 
         st.addFunctionSymbol(new FunctionSymbol("o", C));
         st.addFunctionSymbol(new FunctionSymbol("C$$f", Sort.get("field", C, Sort.INT)));
@@ -150,6 +160,15 @@ public class PrettyPrintTest {
     @Test
     @Parameters
     public void testSpecialFunctions(String input) throws Exception {
+        Term parsed = TermParser.parse(st, input);
+        AnnotatedString printed = new PrettyPrint().print(parsed);
+
+        assertEquals(input, printed.toString());
+    }
+
+    @Test
+    @Parameters
+    public void testADTExpressions(String input) throws Exception {
         Term parsed = TermParser.parse(st, input);
         AnnotatedString printed = new PrettyPrint().print(parsed);
 
@@ -218,4 +237,25 @@ public class PrettyPrintTest {
                 "Element[begin=9;end=10;attr=1.1]]", as.describeAllElements());
     }
 
+    @Test
+    public void testAnnotationsExtension() throws Exception {
+        PrettyPrint pp = new PrettyPrint();
+        String string = "{1, 2 + 2, 3}";
+        Term t = TermParser.parse(st, string);
+        AnnotatedString as = new PrettyPrint().print(t);
+        assertEquals(string, as.toString());
+
+        assertEquals("[Element[begin=1;end=2;attr=1.1.0], " +
+                        "Element[begin=4;end=9;attr=1.0], " +
+                        "Element[begin=4;end=5;attr=1.0.0], " +
+                        "Element[begin=8;end=9;attr=1.0.1], " +
+                        "Element[begin=11;end=12;attr=0]]", as.describeAllElements());
+
+        for (AnnotatedString.TermElement termElement : as.getAllTermElements()) {
+            Term subterm = termElement.getSubtermSelector().selectSubterm(t);
+            String subtermString = pp.print(subterm).toString();
+            String substring = string.substring(termElement.getBegin(), termElement.getEnd());
+            assertEquals(subtermString, substring);
+        }
+    }
 }
