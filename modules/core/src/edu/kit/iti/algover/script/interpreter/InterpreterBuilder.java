@@ -15,6 +15,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 
 /**
+ * TODO Refactor build interpreter in build and not before
  * @author S.Grebing
  *
  */
@@ -120,10 +121,6 @@ public class InterpreterBuilder {
         return this;
     }
 
-    public InterpreterBuilder rules(Collection<ProofRule> commands) {
-        //commands.forEach(m -> pmc.getCommands().put(m.getName(), m));
-        return this;
-    }
 
     public InterpreterBuilder startState(ProofNode startGoal) {
         interpreter.newState(startGoal);
@@ -131,56 +128,12 @@ public class InterpreterBuilder {
     }
 
     public InterpreterBuilder setProofRules(Collection<ProofRule> proofRules) {
-        this.prh = new ProofRuleHandler(new ArrayList<>(proofRules));
+        prh = new ProofRuleHandler(new ArrayList<>(proofRules));
+        lookup = new DefaultLookup(getBuiltInAssert(), this.prh);
+        interpreter.setFunctionLookup(lookup);
         return this;
     }
 
 
 
-/*    public InterpreterBuilder addMatcher(ProofApi api) {
-        ScriptApi scriptApi = api.getScriptApi();
-        interpreter.setMatcherApi(new KeYMatcher(scriptApi, interpreter));
-        return this;
-    }
-
-
-
-    public InterpreterBuilder startState() {
-        if (proof == null || keyEnvironment == null)
-            throw new IllegalStateException("Call proof(..) before startState");
-
-        final ProofApi pa = new ProofApi(proof, keyEnvironment);
-        final ProjectedNode root = pa.getFirstOpenGoal();
-        final KeyData keyData = new KeyData(root.getProofNode(), pa.getEnv(), pa.getProof());
-        final GoalNode<KeyData> startGoal = new GoalNode<>(null, keyData, keyData.isClosedNode());
-        return startState(startGoal);
-    }
-
-    private InterpreterBuilder startState(GoalNode<KeyData> startGoal) {
-        interpreter.newState(startGoal);
-        return this;
-    }
-
- /*
-      @Getter
-    private final ProofScriptHandler psh = new ProofScriptHandler();
-    @Getter
-    private final MacroCommandHandler pmh = new MacroCommandHandler();
-    @Getter
-    private final RuleCommandHandler pmr = new RuleCommandHandler();
-    @Getter
-    private ProofScriptCommandBuilder pmc = new ProofScriptCommandBuilder();
-    @Getter
-    private ProofScript entryPoint;
-    @Getter
-    private Proof proof;
-    @Getter
-    private KeYEnvironment keyEnvironment;
-    @Getter
-    private HistoryListener historyLogger;
-    @Getter
-    private ScopeLogger logger;
-    @Getter
-    private DefaultLookup lookup = new DefaultLookup(psh, pmh, pmr, pmc);
-    private Interpreter<KeyData> interpreter = new Interpreter<>(lookup);*/
 }
