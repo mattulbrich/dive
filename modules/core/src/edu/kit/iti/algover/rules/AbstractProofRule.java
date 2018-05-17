@@ -168,6 +168,7 @@ public abstract class AbstractProofRule implements ProofRule {
         if(pra.getApplicability() == ProofRuleApplication.Applicability.APPLICABLE) {
             builder.setTranscript(getTranscript(pra, parameters));
         }
+        System.out.println(getName() + ": " + pra.getScriptTranscript());
         return builder.build();
     }
 
@@ -269,10 +270,12 @@ public abstract class AbstractProofRule implements ProofRule {
                 throw new RuleException("Unknown rule application type: " + params.getValue("type") + ".");
         }
 
-        Term t = params.getValue(ON_PARAM);
-        Optional<TermSelector> ots = RuleUtil.matchSubtermInSequent(t::equals, s);
-        if(ots.isPresent()) {
-            rab.setOn(ots.get());
+        if(allParameters.containsKey("on")) {
+            Term t = params.getValue(ON_PARAM);
+            Optional<TermSelector> ots = RuleUtil.matchSubtermInSequent(t::equals, s);
+            if (ots.isPresent()) {
+                rab.setOn(ots.get());
+            }
         }
 
         return rab;
@@ -288,9 +291,11 @@ public abstract class AbstractProofRule implements ProofRule {
      */
     private final String getTranscript(ProofRuleApplication pra, Parameters params) throws RuleException {
         String res = getName();
-        if(allParameters.size() == 0) {
+        if(allParameters.size() == 0 && pra.getBranchCount() < 2) {
+            System.out.println(res + ";");
             return res + ";";
         }
+
         Map<String, ParameterDescription<?>> required = new HashMap<>();
         for (String name : allParameters.keySet()) {
             if(allParameters.get(name).isRequired()) {
@@ -329,6 +334,7 @@ public abstract class AbstractProofRule implements ProofRule {
             }
             res += "}\n";
         }
+        System.out.println(res);
         return res;
     }
 }
