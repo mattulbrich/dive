@@ -112,8 +112,9 @@ public class BranchInfoBuilder {
         return label;
     }
 
-    public void setLabel(String label) {
+    public BranchInfoBuilder setLabel(String label) {
         this.label = label;
+        return  this;
     }
 
 }
