@@ -1,6 +1,7 @@
 package edu.kit.iti.algover.rule;
 
 import edu.kit.iti.algover.FxmlController;
+import edu.kit.iti.algover.project.ProjectManager;
 import edu.kit.iti.algover.proof.ProofNode;
 import edu.kit.iti.algover.proof.ProofNodeSelector;
 import edu.kit.iti.algover.rule.script.ScriptController;
@@ -35,7 +36,7 @@ public class RuleApplicationController extends FxmlController {
 
     private final Logger logger;
 
-    public RuleApplicationController(ExecutorService executor, RuleApplicationListener listener) {
+    public RuleApplicationController(ExecutorService executor, RuleApplicationListener listener, ProjectManager manager) {
         super("RuleApplicationView.fxml");
         this.listener = listener;
         this.scriptController = new ScriptController(executor, listener);
@@ -44,7 +45,7 @@ public class RuleApplicationController extends FxmlController {
         logger = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
 
         //TODO: laod rules from project.getallRules to include lemmas
-        for (ProofRule rule : ServiceLoader.load(ProofRule.class)) {
+        for (ProofRule rule : manager.getProject().getAllProofRules()) {
             addProofRule(rule);
         }
 
