@@ -29,6 +29,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
 import java.util.concurrent.ExecutorService;
+import java.util.logging.Logger;
 
 /**
  * Controller for the view that handles all {@link DafnyCodeArea} tabs.
@@ -232,9 +233,9 @@ public class EditorController implements DafnyCodeAreaListener {
                 if(changedFiles.size() == 0) {
                     anyFileChangedProperty().setValue(false);
                 }
+                Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).info("Successfully saved file " + filename + ".");
             } catch(IOException e) {
-                Alert alert = new Alert(Alert.AlertType.INFORMATION, "Error writing the file.");
-                alert.showAndWait();
+                Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).severe("Error saving file" + filename + ".");
             }
         }
     }
