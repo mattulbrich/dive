@@ -109,8 +109,7 @@ public class MainController implements SequentActionListener, RuleApplicationLis
         statusBarLoggingHandler = new StatusBarLoggingHandler(statusBar);
         logger.addHandler(statusBarLoggingHandler);
         logger.setUseParentHandlers(false);
-        logger.info("Loading complete.");
-        logger.warning("Test");
+        logger.info("Load of project '" + manager.getDirectory().getName() + "' successful.");
     }
 
     private void onStatusBarClicked(MouseEvent event) {
@@ -143,6 +142,7 @@ public class MainController implements SequentActionListener, RuleApplicationLis
         try {
             editorController.saveAllFiles();
             manager.saveProject();
+            Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).info("Successfully saved project.");
         } catch (IOException e) {
             Alert alert = new Alert(Alert.AlertType.INFORMATION, "Error saving the project.");
             alert.showAndWait();
@@ -171,6 +171,7 @@ public class MainController implements SequentActionListener, RuleApplicationLis
                 browserController.getView().setDisable(false);
                 sequentController.getView().setDisable(false);
                 ruleApplicationController.getView().setDisable(false);
+                Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).info("Successfully reloading project.");
             } else {
                 Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).severe("Error reloading the project.");
             }
@@ -297,7 +298,9 @@ public class MainController implements SequentActionListener, RuleApplicationLis
         String pvcIdentifier = sequentController.getActiveProof().getPVC().getIdentifier();
         try {
             manager.saveProofScriptForPVC(pvcIdentifier, sequentController.getActiveProof());
+            Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).info("Successfully saved script " + pvcIdentifier + ".");
         } catch (IOException e) {
+            Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).severe("Error saving script.");
             e.printStackTrace();
         }
     }
