@@ -52,9 +52,9 @@ public class SubtermSelectorReplacementVisitor implements TermVisitor<SubtermSel
             return simpleReplacement;
         }
 
-        List<Term> subterms = new ArrayList<>(applTerm.getSubterms().size());
+        List<Term> subterms = new ArrayList<>();
 
-        for (int i = 0; i < subterms.size(); i++) {
+        for (int i = 0; i < applTerm.getSubterms().size(); i++) {
             if (i == selector.getPath().get(0)) {
                 subterms.add(applTerm.getSubterms().get(i).accept(this, buildSubselector(selector)));
             } else {
