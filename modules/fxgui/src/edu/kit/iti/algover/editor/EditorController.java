@@ -43,7 +43,10 @@ public class EditorController implements DafnyCodeAreaListener {
     private static final int REFERENCE_LAYER = 1;
 
     private final TabPane view;
-    private final Map<DafnyFile, Tab> tabsByFile;
+    //Maps the filename to the tab this file is open in.
+    //TODO the filename seems not to be optimal since theoretically there may be several files with the same name
+    //TODO but the DafnyFile is not suitable since it may change on reloads
+    private final Map<String, Tab> tabsByFile;
     private final LayeredHighlightingRule highlightingLayers;
     private final ExecutorService executor;
 
@@ -93,7 +96,7 @@ public class EditorController implements DafnyCodeAreaListener {
      * @param dafnyFile the file to be viewed to the user
      */
     public void viewFile(DafnyFile dafnyFile) {
-        Tab existingTab = tabsByFile.get(dafnyFile);
+        Tab existingTab = tabsByFile.get(dafnyFile.getFilename());
         if (existingTab != null) {
             view.getSelectionModel().select(existingTab);
         } else {
@@ -106,7 +109,7 @@ public class EditorController implements DafnyCodeAreaListener {
                 codeArea.getTextChangedProperty().addListener(this::onTextChanged);
                 codeArea.setHighlightingRule(highlightingLayers);
                 tab.setContent(new VirtualizedScrollPane<>(codeArea));
-                tabsByFile.put(dafnyFile, tab);
+                tabsByFile.put(dafnyFile.getFilename(), tab);
                 view.getTabs().add(tab);
                 view.getSelectionModel().select(tab);
             } catch (IOException e) {

@@ -33,6 +33,7 @@ import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
+import javafx.event.EventType;
 import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.control.*;
@@ -149,8 +150,7 @@ public class MainController implements SequentActionListener, RuleApplicationLis
     }
 
     private void onClickRefresh(ActionEvent actionEvent) {
-        // TODO: Implement refreshing
-        // Also implement it asynchronously:
+        // TODO implement it asynchronously:
         // Jobs should get queued / Buttons disabled while an action runs, but the UI shouldn't freeze!
         Task<Boolean> t = new Task<Boolean>() {
             @Override
@@ -166,15 +166,21 @@ public class MainController implements SequentActionListener, RuleApplicationLis
         executor.execute(t);
         t.setOnSucceeded(event -> {
             if(t.getValue()) {
-                System.out.println("reload worked");
+                manager.getAllProofs().values().forEach(p -> p.interpretScript());
                 browserController.onRefresh(manager.getProject(), manager.getAllProofs());
                 browserController.getView().setDisable(false);
                 sequentController.getView().setDisable(false);
                 ruleApplicationController.getView().setDisable(false);
             } else {
-                Alert alert = new Alert(Alert.AlertType.INFORMATION, "Error refreshing the project.");
-                alert.showAndWait();
+                Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).severe("Error reloading the project.");
             }
+        });
+        //TODO somehow get proper exceptions and handling them
+        t.setOnFailed(event -> {
+            Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).severe("Error reloading the project. Check your changed files for syntax errors.");
+        });
+        t.setOnCancelled(event -> {
+            Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).severe("Error reloading the project.");
         });
     }
 
