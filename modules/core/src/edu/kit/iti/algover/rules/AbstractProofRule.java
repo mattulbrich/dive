@@ -169,7 +169,6 @@ public abstract class AbstractProofRule implements ProofRule {
         if(pra.getApplicability() == ProofRuleApplication.Applicability.APPLICABLE) {
             builder.setTranscript(getTranscript(pra, parameters));
         }
-        System.out.println(getName() + ": " + pra.getScriptTranscript());
         return builder.build();
     }
 
@@ -293,7 +292,6 @@ public abstract class AbstractProofRule implements ProofRule {
     private final String getTranscript(ProofRuleApplication pra, Parameters params) throws RuleException {
         String res = getName();
         if(allParameters.size() == 0 && pra.getBranchCount() < 2) {
-            System.out.println(res + ";");
             return res + ";";
         }
 
@@ -341,7 +339,6 @@ public abstract class AbstractProofRule implements ProofRule {
             }
             res += "}\n";
         }
-        System.out.println(res);
         return res;
     }
 }
