@@ -77,7 +77,7 @@ public class MainController implements SequentActionListener, RuleApplicationLis
         this.editorController = new EditorController(executor, manager.getProject().getBaseDir().getAbsolutePath());
         this.editorController.anyFileChangedProperty().addListener(this::onDafnyFileChangedInEditor);
         this.sequentController = new SequentController(this);
-        this.ruleApplicationController = new RuleApplicationController(executor, this);
+        this.ruleApplicationController = new RuleApplicationController(executor, this, manager);
 
         JFXButton saveButton = new JFXButton("Save", GlyphsDude.createIcon(FontAwesomeIcon.SAVE));
         JFXButton refreshButton = new JFXButton("Refresh", GlyphsDude.createIcon(FontAwesomeIcon.REFRESH));
