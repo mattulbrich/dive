@@ -66,6 +66,14 @@ public class GenericRuleTest {
                         new ArrayList<>(Arrays.asList("[b1] ==> [b2]")), null},
                 {pr1, "b1 |- !(b1 && b2)", new TermSelector(TermSelector.SequentPolarity.SUCCEDENT, 0, 0),
                         new ArrayList<>(Arrays.asList("[b1] ==> [$not(b1)]")), null},
+                {new ModusPonensRule(), "b1, b1 ==> b1 || b2 |- ", new TermSelector(TermSelector.SequentPolarity.ANTECEDENT, 1),
+                        new ArrayList<>(Arrays.asList("[b1, $or(b1, b2)] ==> []")), null},
+                {new AndLeftRule(), "b1 && b2 |- ", new TermSelector(TermSelector.SequentPolarity.ANTECEDENT, 0),
+                        new ArrayList<>(Arrays.asList("[b1, b2] ==> []")), null},
+                {new OrRightRule(), "b1 |- b1 || b2)", new TermSelector(TermSelector.SequentPolarity.SUCCEDENT, 0),
+                        new ArrayList<>(Arrays.asList("[b1] ==> [b1, b2]")), null},
+                {new ModusTollensRule(), "!b2 |- b1 ==> b2)", new TermSelector(TermSelector.SequentPolarity.SUCCEDENT, 0),
+                        new ArrayList<>(Arrays.asList("[$not(b2)] ==> [$not(b1)]")), null},
 
         };
     }

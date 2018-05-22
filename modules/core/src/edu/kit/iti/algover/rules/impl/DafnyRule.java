@@ -122,7 +122,7 @@ public class DafnyRule extends AbstractProofRule {
 
             List<TermSelector> l = RuleUtil.matchSubtermsInSequent(on::equals, target.getSequent());
             if(l.size() != 1) {
-                throw new RuleException("Machting of on parameter is ambiguous");
+                throw new RuleException("Matching of on parameter is ambiguous");
             }
             ImmutableList<Matching> matchings;
             Term rt;
