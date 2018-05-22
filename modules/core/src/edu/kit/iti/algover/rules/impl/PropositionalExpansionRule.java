@@ -93,7 +93,7 @@ public class PropositionalExpansionRule extends AbstractProofRule {
         Term on = parameters.getValue(ON_PARAM);
         List<TermSelector> l = RuleUtil.matchSubtermsInSequent(on::equals, target.getSequent());
         if(l.size() != 1) {
-            throw new RuleException("Machting of on parameter is ambiguous");
+            throw new RuleException("Matching of on parameter is ambiguous");
         }
         TermSelector selector = l.get(0);
         if (selector != null) {
