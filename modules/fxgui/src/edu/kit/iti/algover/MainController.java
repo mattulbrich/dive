@@ -9,6 +9,7 @@ import edu.kit.iti.algover.browser.entities.PVCEntity;
 import edu.kit.iti.algover.browser.entities.PVCGetterVisitor;
 import edu.kit.iti.algover.browser.entities.TreeTableEntity;
 import edu.kit.iti.algover.dafnystructures.DafnyFile;
+import edu.kit.iti.algover.dafnystructures.DafnyMethod;
 import edu.kit.iti.algover.editor.EditorController;
 import edu.kit.iti.algover.parser.DafnyException;
 import edu.kit.iti.algover.parser.DafnyParserException;
@@ -41,6 +42,7 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
+import org.controlsfx.control.BreadCrumbBar;
 import org.controlsfx.control.StatusBar;
 import java.io.IOException;
 import java.util.HashSet;
@@ -119,6 +121,28 @@ public class MainController implements SequentActionListener, RuleApplicationLis
                 log -> contextMenu.getItems().add(new MenuItem(log))
         );
         contextMenu.show(statusBar, event.getScreenX(), event.getScreenY());
+    }
+
+    public TreeItem getBreadCrumbModel() {
+        TreeItem lastitem = null;
+        TreeItem root = new TreeItem("root");
+        for(DafnyFile f : manager.getProject().getDafnyFiles()) {
+            TreeItem fileChild = new TreeItem(f.getFilename());
+            fileChild.setValue(f);
+            root.getChildren().add(fileChild);
+            for(DafnyMethod m : f.getMethods()) {
+                TreeItem methodChild = new TreeItem(m.getName());
+                methodChild.setValue(m);
+                fileChild.getChildren().add(methodChild);
+                PVCCollection collection = manager.getProject().getPVCsFor(m);
+                for(PVC pvc : collection.getContents()) {
+                    lastitem = new TreeItem(pvc.getIdentifier());
+                    lastitem.setValue(pvc);
+                    methodChild.getChildren().add(lastitem);
+                }
+            }
+        }
+        return lastitem;
     }
 
     /**
