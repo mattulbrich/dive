@@ -1,9 +1,13 @@
 package edu.kit.iti.algover.editor;
 
 import edu.kit.iti.algover.dafnystructures.DafnyFile;
+import edu.kit.iti.algover.parser.DafnyException;
+import edu.kit.iti.algover.parser.DafnyParserException;
+import edu.kit.iti.algover.parser.DafnyTree;
 import edu.kit.iti.algover.project.Project;
 import edu.kit.iti.algover.proof.PVC;
 import edu.kit.iti.algover.references.CodeReference;
+import edu.kit.iti.algover.util.ExceptionDetails;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.value.ChangeListener;
@@ -18,6 +22,9 @@ import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyCodeCombination;
 import javafx.scene.input.KeyCombination;
 import javafx.scene.input.KeyEvent;
+import org.antlr.runtime.CommonToken;
+import org.antlr.runtime.RecognitionException;
+import org.antlr.runtime.Token;
 import org.fxmisc.flowless.VirtualizedScrollPane;
 
 import java.io.BufferedWriter;
@@ -43,6 +50,9 @@ public class EditorController implements DafnyCodeAreaListener {
     private static final int PVC_LAYER = 0;
     private static final int REFERENCE_LAYER = 1;
 
+    private static final int ERROR_LAYER = 2;
+
+
     private final TabPane view;
     //Maps the filename to the tab this file is open in.
     //TODO the filename seems not to be optimal since theoretically there may be several files with the same name
@@ -66,7 +76,7 @@ public class EditorController implements DafnyCodeAreaListener {
         this.view = new TabPane();
         this.tabsByFile = new HashMap<>();
         this.changedFiles = new ArrayList<>();
-        this.highlightingLayers = new LayeredHighlightingRule(2);
+        this.highlightingLayers = new LayeredHighlightingRule(3);
         this.anyFileChangedProperty = new SimpleBooleanProperty(false);
         view.getTabs().addListener(this::onTabListChanges);
         view.setOnKeyReleased(this::handleShortcuts);
@@ -107,8 +117,10 @@ public class EditorController implements DafnyCodeAreaListener {
                 tab.setText(dafnyFile.getFilename());
                 tab.setUserData(dafnyFile);
                 DafnyCodeArea codeArea = new DafnyCodeArea(contentAsText, executor, this);
-                codeArea.getTextChangedProperty().addListener(this::onTextChanged);
                 codeArea.setHighlightingRule(highlightingLayers);
+                CommonToken mist = new CommonToken(11, "mist");
+                mist.setLine(4);
+                showException(new DafnyException(new DafnyTree(mist)));
                 tab.setContent(new VirtualizedScrollPane<>(codeArea));
                 tabsByFile.put(dafnyFile.getFilename(), tab);
                 view.getTabs().add(tab);
@@ -134,6 +146,23 @@ public class EditorController implements DafnyCodeAreaListener {
         view.getTabs().stream()
                 .map(tab -> codeAreaFromContent(tab.getContent()))
                 .forEach(DafnyCodeArea::rerenderHighlighting);
+    }
+
+    public void showException(Exception exception) {
+        highlightingLayers.setLayer(ERROR_LAYER, new HighlightingRule() {
+
+            ExceptionDetails.ExceptionReportInfo ri = ExceptionDetails.extractReportInfo(exception);
+            int line = ri.getLine();
+
+            @Override
+            public Collection<String> handleToken(Token token, Collection<String> syntaxClasses) {
+                int tokenLine = token.getLine();
+                if (tokenLine == line) {
+                    return Collections.singleton("error");
+                }
+                return syntaxClasses;
+            }
+        });
     }
 
     private void onTextChanged(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) {
@@ -185,8 +214,9 @@ public class EditorController implements DafnyCodeAreaListener {
     public void viewReferences(Set<CodeReference> codeReferences) {
         highlightingLayers.setLayer(REFERENCE_LAYER, new ReferenceHighlightingRule(codeReferences));
 
+
         view.getTabs().stream()
-                .map(tab -> (DafnyCodeArea) tab.getContent())
+                .map(tab -> codeAreaFromContent(tab.getContent()))
                 .forEach(DafnyCodeArea::rerenderHighlighting);
     }
 
@@ -239,4 +269,5 @@ public class EditorController implements DafnyCodeAreaListener {
             }
         }
     }
+
 }

@@ -43,3 +43,7 @@
     -rtfx-border-stroke-type: outside;
     */
 }
+
+.error {
+    -rtfx-background-color: red;
+}
