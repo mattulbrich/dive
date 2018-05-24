@@ -28,6 +28,7 @@ import edu.kit.iti.algover.rules.TermSelector;
 import edu.kit.iti.algover.sequent.SequentActionListener;
 import edu.kit.iti.algover.sequent.SequentController;
 import edu.kit.iti.algover.timeline.TimelineLayout;
+import edu.kit.iti.algover.util.CostumBreadCrumbBar;
 import edu.kit.iti.algover.util.FormatException;
 import edu.kit.iti.algover.util.StatusBarLoggingHandler;
 import javafx.beans.value.ChangeListener;
@@ -88,6 +89,12 @@ public class MainController implements SequentActionListener, RuleApplicationLis
         saveButton.setOnAction(this::onClickSave);
         refreshButton.setOnAction(this::onClickRefresh);
 
+        TreeItem ti = getBreadCrumbModel();
+        CostumBreadCrumbBar breadCrumbBar = new CostumBreadCrumbBar(ti);
+        breadCrumbBar.setSelectedCrumb(ti);
+        breadCrumbBar.setOnCrumbAction(this::onCrumbSelected);
+
+
         this.toolbar = new ToolBar(saveButton, refreshButton);
 
         this.statusBar = new StatusBar();
@@ -102,7 +109,7 @@ public class MainController implements SequentActionListener, RuleApplicationLis
                 ruleApplicationController.getRuleApplicationView());
         timelineView.setDividerPosition(0.2);
 
-        this.view = new VBox(toolbar, timelineView, statusBar);
+        this.view = new VBox(toolbar, breadCrumbBar, timelineView, statusBar);
         VBox.setVgrow(timelineView, Priority.ALWAYS);
 
         browserController.setSelectionListener(this::onSelectBrowserItem);
@@ -114,6 +121,10 @@ public class MainController implements SequentActionListener, RuleApplicationLis
         logger.info("Load of project '" + manager.getDirectory().getName() + "' successful.");
     }
 
+    private void onCrumbSelected(ActionEvent event) {
+
+    }
+
     private void onStatusBarClicked(MouseEvent event) {
         ContextMenu contextMenu = statusBar.getContextMenu();
         contextMenu.getItems().clear();
@@ -121,6 +132,10 @@ public class MainController implements SequentActionListener, RuleApplicationLis
                 log -> contextMenu.getItems().add(new MenuItem(log))
         );
         contextMenu.show(statusBar, event.getScreenX(), event.getScreenY());
+    }
+
+    public Button breadCrumbFactory(TreeItem<String> item) {
+        return new Button("test");
     }
 
     public TreeItem getBreadCrumbModel() {
