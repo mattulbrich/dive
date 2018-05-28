@@ -126,6 +126,15 @@ public class TermMatcherTest {
 
     }
 
+    @Test
+    public void matchSeq6() throws Exception {
+        String[] schemAntec = {"(... ?x ...) + (... ?y ...) == ?z"};
+        String[] schemSucc = {};
+        String[] conAntec = {"2 + 3 == 5"};
+        String[] concSucc = {};
+        matchSeqHelper(schemAntec, schemSucc, conAntec, concSucc);
+    }
+
     private void matchSeqHelper(String[] schemSeqAntec, String[] schemSeqSucc, String[] concrSeqAntec, String[] concrSeqSucc) throws Exception {
         assertNotNull(symbTable);
 
@@ -133,8 +142,8 @@ public class TermMatcherTest {
         Sequent schemSeq = InterpreterUtils.createTestSequentHelper(schemSeqAntec, schemSeqSucc, symbTable, true);
         Sequent concSeq = InterpreterUtils.createTestSequentHelper(concrSeqAntec, concrSeqSucc, symbTable, true);
 
+        //    OldSequentMatcher sm = new OldSequentMatcher();
         SequentMatcher sm = new SequentMatcher();
-
         ImmutableList<Matching> match = sm.match(schemSeq, concSeq);
         if (match.isEmpty()) {
             System.out.format("SchemaSequent: %s does not match concrete sequent: %s",
@@ -150,12 +159,12 @@ public class TermMatcherTest {
             }
         }
 
-        SequentMatcherAlternative sma = new SequentMatcherAlternative();
+  /*      SequentMatcher sma = new SequentMatcher();
         ImmutableList<Matching> match1 = sma.match(schemSeq, concSeq);
         System.out.println("\nAlternative match1 = " + match1);
         for (Matching m : match1) {
             System.out.println("m = " + m);
-        }
+        }*/
     }
 
     @Test
@@ -164,15 +173,6 @@ public class TermMatcherTest {
         String[] schemSucc = {"g(f(?x))"};
         String[] conAntec = {"f(1)"};
         String[] concSucc = {"g(f(1))", "f(4)"};
-        matchSeqHelper(schemAntec, schemSucc, conAntec, concSucc);
-    }
-
-    @Test
-    public void matchSeq3() throws Exception {
-        String[] schemAntec = {"?x"};
-        String[] schemSucc = {"?x"};
-        String[] conAntec = {"f(1)"};
-        String[] concSucc = {"g(1)", "f(1)"};
         matchSeqHelper(schemAntec, schemSucc, conAntec, concSucc);
     }
 
@@ -194,4 +194,23 @@ public class TermMatcherTest {
         String[] concSucc = {"f(2)", "f(4)"};
         matchSeqHelper(schemAntec, schemSucc, conAntec, concSucc);
     }
+
+    @Test
+    public void matchSeq7() throws Exception {
+        String[] schemAntec = {"... ?x + 5 ..."};
+        String[] schemSucc = {"... 4 + ?x ..."};
+        String[] conAntec = {"2 + 5 > 1"};
+        String[] concSucc = {"4 + 2 > 3 && true"};
+        matchSeqHelper(schemAntec, schemSucc, conAntec, concSucc);
+    }
+
+    @Test
+    public void matchSeq3() throws Exception {
+        String[] schemAntec = {"?X+?Y"};
+        String[] schemSucc = {"f(?Y)"};
+        String[] conAntec = {"1+2", "2+1", "1+1"};
+        String[] concSucc = {"f(2)", "f(1)"};
+        matchSeqHelper(schemAntec, schemSucc, conAntec, concSucc);
+    }
+
 }

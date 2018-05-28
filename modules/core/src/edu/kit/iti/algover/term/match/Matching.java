@@ -7,6 +7,7 @@
 package edu.kit.iti.algover.term.match;
 
 import edu.kit.iti.algover.rules.SubtermSelector;
+import edu.kit.iti.algover.rules.TermSelector;
 import edu.kit.iti.algover.term.Term;
 import edu.kit.iti.algover.term.builder.TermBuildException;
 import edu.kit.iti.algover.util.ImmutableList;
@@ -164,4 +165,8 @@ public class Matching {
     }
 
 
+    public void refineContext(TermSelector.SequentPolarity polarity, int no2) {
+        //TODO
+
+    }
 }
