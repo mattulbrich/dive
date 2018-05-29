@@ -45,7 +45,7 @@ public class StatusBarLoggingHandler extends Handler {
     }
 
     public List<String> getHistory(int i) {
-        if(history.size() >= 5) {
+        if(history.size() > i) {
             return history.subList(history.size() - i - 1, history.size() - 1);
         }
         return history;

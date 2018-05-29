@@ -119,13 +119,11 @@ public class EditorController implements DafnyCodeAreaListener {
                 tab.setUserData(dafnyFile);
                 DafnyCodeArea codeArea = new DafnyCodeArea(contentAsText, executor, this);
                 codeArea.setHighlightingRule(highlightingLayers);
-                CommonToken mist = new CommonToken(11, "mist");
-                mist.setLine(4);
-                showException(new DafnyException(new DafnyTree(mist)));
                 tab.setContent(new VirtualizedScrollPane<>(codeArea));
                 tabsByFile.put(dafnyFile.getFilename(), tab);
                 view.getTabs().add(tab);
                 view.getSelectionModel().select(tab);
+                codeArea.getTextChangedProperty().addListener(this::onTextChanged);
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -151,16 +149,25 @@ public class EditorController implements DafnyCodeAreaListener {
 
     public void showException(Exception exception) {
         highlightingLayers.setLayer(ERROR_LAYER, new HighlightingRule() {
-
             ExceptionDetails.ExceptionReportInfo ri = ExceptionDetails.extractReportInfo(exception);
             int line = ri.getLine();
 
             @Override
             public Collection<String> handleToken(Token token, Collection<String> syntaxClasses) {
                 int tokenLine = token.getLine();
-                if (tokenLine == line) {
+                if (tokenLine == line - 1) {
                     return Collections.singleton("error");
                 }
+                return syntaxClasses;
+            }
+        });
+        getFocusedCodeArea().rerenderHighlighting();
+    }
+
+    public void resetExceptionLayer() {
+        highlightingLayers.setLayer(ERROR_LAYER, new HighlightingRule() {
+            @Override
+            public Collection<String> handleToken(Token token, Collection<String> syntaxClasses) {
                 return syntaxClasses;
             }
         });
@@ -180,6 +187,7 @@ public class EditorController implements DafnyCodeAreaListener {
         } else {
             anyFileChangedProperty.setValue(true);
         }
+        resetExceptionLayer();
     }
 
     /**
