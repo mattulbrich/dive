@@ -119,7 +119,13 @@ public class ScriptView extends AsyncHighlightingCodeArea {
                             token.getText().length());
                 }
             }
-            applyHighlighting(builder.create());
+            try {
+                builder.create();
+                applyHighlighting(builder.create());
+            } catch (IllegalStateException e) {
+                //This shouldnt be a problem since it only singlas that there are no spans
+            }
+
         }
     }
 }
