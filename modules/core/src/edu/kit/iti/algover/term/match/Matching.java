@@ -166,7 +166,7 @@ public class Matching {
 
 
     public void refineContext(TermSelector.SequentPolarity polarity, int no2) {
-        //TODO
+        this.entries.forEach(matchingEntry -> matchingEntry.refineContext(polarity, no2));
 
     }
 }

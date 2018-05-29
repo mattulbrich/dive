@@ -48,22 +48,36 @@ public class MatchingEntry {
         return selector;
     }
 
-    public @Nullable
-    TermSelector getTermSelector() {
-        //if(polarity != null)
-        //return new TermSelector(polarity, termNo, selector);
-        // thow IllegalState
-        return null;
-    }
-
     @Override
     public String toString() {
-        return key + " => " + value + " / " + selector;
+        String sel;
+        if (polarity != null) {
+            sel = getTermSelector().toString();
+        } else {
+            sel = getSelector().toString();
+        }
+        return key + " => " + value + " / " + sel;
     }
 
-    public void refineContext() {
-        if (polarity == null) {
+    public @Nullable
+    TermSelector getTermSelector() throws IllegalStateException {
+        if (polarity != null)
+            return new TermSelector(new TermSelector(this.polarity, this.termNo), this.getSelector());
+        else
+            throw new IllegalStateException("There is no Termselector present in this MatchingEntry");
+    }
 
+    /**
+     * Refine the MatchingEntry by information from the toplevel formula the mathcingentry belomgs to
+     *
+     * @param polarity on which side of the sequent
+     * @param termNo   which formula in the semisequent
+     * @return MatchingEntry
+     */
+    public void refineContext(TermSelector.SequentPolarity polarity, int termNo) throws IllegalStateException {
+        if (this.polarity == null) {
+            this.polarity = polarity;
+            this.termNo = termNo;
         }
     }
 }
