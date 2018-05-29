@@ -31,6 +31,7 @@ import edu.kit.iti.algover.timeline.TimelineLayout;
 import edu.kit.iti.algover.util.CostumBreadCrumbBar;
 import edu.kit.iti.algover.util.FormatException;
 import edu.kit.iti.algover.util.StatusBarLoggingHandler;
+import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.concurrent.Task;
@@ -47,11 +48,13 @@ import org.controlsfx.control.BreadCrumbBar;
 import org.controlsfx.control.StatusBar;
 import java.io.IOException;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.logging.Handler;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
 /**
  * Created by philipp on 27.06.17.
@@ -71,6 +74,7 @@ public class MainController implements SequentActionListener, RuleApplicationLis
     private final ToolBar toolbar;
     private final StatusBar statusBar;
     private final StatusBarLoggingHandler statusBarLoggingHandler;
+    CostumBreadCrumbBar<Object> breadCrumbBar;
 
 
     public MainController(ProjectManager manager, ExecutorService executor) {
@@ -89,10 +93,10 @@ public class MainController implements SequentActionListener, RuleApplicationLis
         saveButton.setOnAction(this::onClickSave);
         refreshButton.setOnAction(this::onClickRefresh);
 
-        TreeItem ti = getBreadCrumbModel();
-        CostumBreadCrumbBar breadCrumbBar = new CostumBreadCrumbBar(ti);
+        TreeItem<Object> ti = getBreadCrumbModel();
+        breadCrumbBar = new CostumBreadCrumbBar(ti, this::onCrumbSelected);
+        breadCrumbBar.setStringFactory(this::getStringForTreeItem);
         breadCrumbBar.setSelectedCrumb(ti);
-        breadCrumbBar.setOnCrumbAction(this::onCrumbSelected);
 
 
         this.toolbar = new ToolBar(saveButton, refreshButton);
@@ -121,8 +125,35 @@ public class MainController implements SequentActionListener, RuleApplicationLis
         logger.info("Load of project '" + manager.getDirectory().getName() + "' successful.");
     }
 
-    private void onCrumbSelected(ActionEvent event) {
-
+    private void onCrumbSelected(ObservableValue observableValue, Object oldValue, Object newValue) {
+        TreeItem<Object> item = (TreeItem<Object>) newValue;
+        if(item.getValue() instanceof PVC) {
+            PVC pvc = (PVC)item.getValue();
+            try {
+                DafnyFile file = (DafnyFile)item.getParent().getParent().getValue();
+                timelineView.moveFrameLeft();
+                timelineView.moveFrameLeft();
+                onClickPVCEdit(new PVCEntity(manager.getProofForPVC(pvc.getIdentifier()), pvc, file));
+            } catch (NullPointerException e) {
+                Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).warning("Could not select pvc.");
+            } catch (ClassCastException c) {
+                Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).warning("Could not select pvc.");
+            }
+        }
+        if(item.getValue() instanceof DafnyFile) {
+            editorController.viewFile((DafnyFile)item.getValue());
+            timelineView.moveFrameLeft();
+            timelineView.moveFrameLeft();
+            editorController.resetPVCSelection();
+        }
+        if(item.getValue() instanceof DafnyMethod) {
+            if(item.getParent().getValue() instanceof DafnyFile) {
+                editorController.viewFile((DafnyFile) item.getParent().getValue());
+                timelineView.moveFrameLeft();
+                timelineView.moveFrameLeft();
+                editorController.resetPVCSelection();
+            }
+        }
     }
 
     private void onStatusBarClicked(MouseEvent event) {
@@ -134,19 +165,15 @@ public class MainController implements SequentActionListener, RuleApplicationLis
         contextMenu.show(statusBar, event.getScreenX(), event.getScreenY());
     }
 
-    public Button breadCrumbFactory(TreeItem<String> item) {
-        return new Button("test");
-    }
-
-    public TreeItem getBreadCrumbModel() {
-        TreeItem lastitem = null;
-        TreeItem root = new TreeItem("root");
+    public TreeItem<Object> getBreadCrumbModel() {
+        TreeItem<Object> lastitem = null;
+        TreeItem<Object> root = new TreeItem("root");
         for(DafnyFile f : manager.getProject().getDafnyFiles()) {
-            TreeItem fileChild = new TreeItem(f.getFilename());
+            TreeItem<Object> fileChild = new TreeItem(f.getFilename());
             fileChild.setValue(f);
             root.getChildren().add(fileChild);
             for(DafnyMethod m : f.getMethods()) {
-                TreeItem methodChild = new TreeItem(m.getName());
+                TreeItem<Object> methodChild = new TreeItem(m.getName());
                 methodChild.setValue(m);
                 fileChild.getChildren().add(methodChild);
                 PVCCollection collection = manager.getProject().getPVCsFor(m);
@@ -157,7 +184,7 @@ public class MainController implements SequentActionListener, RuleApplicationLis
                 }
             }
         }
-        return lastitem;
+        return root;
     }
 
     /**
@@ -226,6 +253,7 @@ public class MainController implements SequentActionListener, RuleApplicationLis
 
     public void onClickPVCEdit(PVCEntity entity) {
         PVC pvc = entity.getPVC();
+        breadCrumbBar.setSelectedCrumb(getTreeItemForPVC(pvc));
         editorController.viewFile(entity.getLocation());
         editorController.viewPVCSelection(pvc);
         Proof proof = manager.getProofForPVC(entity.getPVC().getIdentifier());
@@ -250,6 +278,20 @@ public class MainController implements SequentActionListener, RuleApplicationLis
         }*/
     }
 
+    private String getStringForTreeItem(TreeItem<Object> item) {
+        Object value = item.getValue();
+        if(value instanceof DafnyFile) {
+            return ((DafnyFile) value).getFilename();
+        }
+        if(value instanceof DafnyMethod) {
+            return ((DafnyMethod) value).getName();
+        }
+        if(value instanceof PVC) {
+            return ((PVC) value).getIdentifier();
+        }
+        return "error";
+    }
+
     public void onSelectBrowserItem(TreeTableEntity treeTableEntity) {
         DafnyFile file = treeTableEntity.getLocation();
         if (file != null) {
@@ -257,9 +299,25 @@ public class MainController implements SequentActionListener, RuleApplicationLis
             PVC pvc = treeTableEntity.accept(new PVCGetterVisitor());
             if (pvc != null) {
                 editorController.viewPVCSelection(pvc);
+                breadCrumbBar.setSelectedCrumb(getTreeItemForPVC(pvc));
             } else {
                 editorController.resetPVCSelection();
             }
+        }
+    }
+
+    private TreeItem<Object> getTreeItemForPVC(PVC pvc) {
+        List<TreeItem<Object>> files = breadCrumbBar.getModel().getChildren();
+        List<TreeItem<Object>> methods = files.stream().flatMap(m -> m.getChildren().stream()).
+                collect(Collectors.toList());
+        List<TreeItem<Object>> pvcs = methods.stream().flatMap(m -> m.getChildren().stream()).
+                filter(p -> ((PVC)(p.getValue())).equals(pvc)).collect(Collectors.toList());
+        if(pvcs.size() == 1) {
+            return pvcs.get(0);
+        } else {
+            System.out.println(pvcs.size());
+            System.out.println("this shoudnt happen. couldnt select breadcrumbitem for pvc");
+            return null;
         }
     }
 

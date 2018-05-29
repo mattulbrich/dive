@@ -94,7 +94,8 @@ public class EditorController implements DafnyCodeAreaListener {
         while (change.next()) {
             if (change.wasRemoved()) {
                 for (Tab removedTab : change.getRemoved()) {
-                    tabsByFile.remove(removedTab.getUserData());
+                    DafnyFile f = (DafnyFile)(removedTab.getUserData());
+                    tabsByFile.remove(f.getFilename());
                 }
             }
         }
