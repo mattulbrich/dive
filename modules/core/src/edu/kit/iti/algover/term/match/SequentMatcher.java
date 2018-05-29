@@ -8,6 +8,13 @@ import edu.kit.iti.algover.util.ImmutableList;
 public class SequentMatcher {
     private TermMatcher tm = new TermMatcher();
 
+    /**
+     * Matches a schematic seuqent against a concrete sequent
+     *
+     * @param schema
+     * @param seq
+     * @return a list of matchings
+     */
     public ImmutableList<Matching> match(Sequent schema, Sequent seq) {
 
         ImmutableList<ProofFormula> schemaAnte = ImmutableList.from(schema.getAntecedent());
@@ -25,6 +32,7 @@ public class SequentMatcher {
         return ms;
     }
 
+
     private ImmutableList<Matching> matchSemiSequent(ImmutableList<ProofFormula> schemaList, ImmutableList<ProofFormula> list, TermSelector.SequentPolarity polarity, Matching m) {
 
         if (schemaList.isEmpty())
@@ -39,7 +47,6 @@ public class SequentMatcher {
 
         for (ProofFormula formula : list) {
             ImmutableList<Matching> newMatches = tm.match(schema.getTerm(), formula.getTerm(), m);
-            // TODO Update polarity and formula number in the new matches
             if (!newMatches.isEmpty()) {
                 final int no2 = no;
                 newMatches.forEach(x -> x.refineContext(polarity, no2));

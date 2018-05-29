@@ -164,9 +164,16 @@ public class Matching {
         return entries.toString();
     }
 
+    /**
+     * Refine the MatchingEntries by information from the toplevel formula the mathcingentry belomgs to
+     *
+     * @param polarity on which side of the sequent
+     * @param termNo   which formula in the semisequent
+     * @return MatchingEntry
+     */
 
-    public void refineContext(TermSelector.SequentPolarity polarity, int no2) {
-        this.entries.forEach(matchingEntry -> matchingEntry.refineContext(polarity, no2));
+    public void refineContext(TermSelector.SequentPolarity polarity, int termNo) {
+        this.entries.forEach(matchingEntry -> matchingEntry.refineContext(polarity, termNo));
 
     }
 }
