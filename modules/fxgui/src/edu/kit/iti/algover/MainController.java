@@ -218,6 +218,7 @@ public class MainController implements SequentActionListener, RuleApplicationLis
     private void onClickRefresh(ActionEvent actionEvent) {
         // TODO implement it asynchronously:
         // Jobs should get queued / Buttons disabled while an action runs, but the UI shouldn't freeze!
+        editorController.resetExceptionLayer();
         Task<Boolean> t = new Task<Boolean>() {
             @Override
             protected Boolean call() throws Exception {
@@ -237,6 +238,7 @@ public class MainController implements SequentActionListener, RuleApplicationLis
                 browserController.getView().setDisable(false);
                 sequentController.getView().setDisable(false);
                 ruleApplicationController.getView().setDisable(false);
+                breadCrumbBar.setDisable(false);
                 Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).info("Successfully reloading project.");
             } else {
                 Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).severe("Error reloading the project.");
@@ -244,7 +246,12 @@ public class MainController implements SequentActionListener, RuleApplicationLis
         });
         //TODO somehow get proper exceptions and handling them
         t.setOnFailed(event -> {
-            Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).severe("Error reloading the project. Check your changed files for syntax errors.");
+            if(t.getException() instanceof Exception) {
+                editorController.showException((Exception) t.getException());
+                Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).severe("Error reloading the project: " + t.getException().getMessage());
+            } else {
+                Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).severe("Error reloading the project. Check your changed files for syntax errors.");
+            }
         });
         t.setOnCancelled(event -> {
             Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).severe("Error reloading the project.");
@@ -271,6 +278,7 @@ public class MainController implements SequentActionListener, RuleApplicationLis
             browserController.getView().setDisable(true);
             sequentController.getView().setDisable(true);
             ruleApplicationController.getView().setDisable(true);
+            breadCrumbBar.setDisable(true);
         } /*else {
             browserController.getView().setDisable(false);
             sequentController.getView().setDisable(false);
