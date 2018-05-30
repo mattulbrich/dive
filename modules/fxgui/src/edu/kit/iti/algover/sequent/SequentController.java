@@ -18,6 +18,7 @@ import edu.kit.iti.algover.term.prettyprint.AnnotatedString;
 import edu.kit.iti.algover.util.Pair;
 import edu.kit.iti.algover.util.SubSelection;
 import edu.kit.iti.algover.util.SubtermSelectorReplacementVisitor;
+import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListCell;
@@ -318,6 +319,11 @@ public class SequentController extends FxmlController {
         } else {
             return null;
         }
+    }
+
+    public void clear() {
+        antecedentView.getItems().clear();
+        succedentView.getItems().clear();
     }
 
     public ProofNode getActiveNode() {
