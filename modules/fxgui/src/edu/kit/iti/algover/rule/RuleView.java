@@ -73,7 +73,6 @@ public class RuleView extends StackPane {
     public void considerApplication(ProofNode target, Sequent selection, TermSelector selector) {
         try {
             application = rule.considerApplication(target, selection, selector);
-            System.out.println(application.getApplicability() != ProofRuleApplication.Applicability.NOT_APPLICABLE);
             this.selection = selector;
             setSelectable(application != null && application.getApplicability() == ProofRuleApplication.Applicability.APPLICABLE);
         } catch (RuleException e) {
