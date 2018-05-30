@@ -67,13 +67,13 @@ public class GenericRuleTest {
                 {pr1, "b1 |- !(b1 && b2)", new TermSelector(TermSelector.SequentPolarity.SUCCEDENT, 0, 0),
                         new ArrayList<>(Arrays.asList("[b1] ==> [$not(b1)]")), null},
                 {new ModusPonensRule(), "b1, b1 ==> b1 || b2 |- ", new TermSelector(TermSelector.SequentPolarity.ANTECEDENT, 1),
-                        new ArrayList<>(Arrays.asList("[b1, $or(b1, b2)] ==> []")), null},
+                        new ArrayList<>(Arrays.asList("[b1, $or(b1, b2)] ==> []", "[b1, $imp(b1, $or(b1, b2))] ==> [b1]")), null},
                 {new AndLeftRule(), "b1 && b2 |- ", new TermSelector(TermSelector.SequentPolarity.ANTECEDENT, 0),
                         new ArrayList<>(Arrays.asList("[b1, b2] ==> []")), null},
                 {new OrRightRule(), "b1 |- b1 || b2)", new TermSelector(TermSelector.SequentPolarity.SUCCEDENT, 0),
                         new ArrayList<>(Arrays.asList("[b1] ==> [b1, b2]")), null},
                 {new ModusTollensRule(), "!b2 |- b1 ==> b2)", new TermSelector(TermSelector.SequentPolarity.SUCCEDENT, 0),
-                        new ArrayList<>(Arrays.asList("[$not(b2)] ==> [$not(b1)]")), null},
+                        new ArrayList<>(Arrays.asList("[$not(b2)] ==> [$not(b1)]", "[$not(b2)] ==> [$not(b2)]")), null},
 
         };
     }
@@ -162,7 +162,7 @@ public class GenericRuleTest {
         pra = pr.makeApplication(pn, params);
         List<ProofNode> newNodes = RuleApplicator.applyRule(pra, pn);
 
-        assertEquals(newNodes.size(), results.size());
+        assertEquals(results.size(), newNodes.size());
 
         for (int i = 0; i < newNodes.size(); ++i) {
             //assertTrue(results.contains(newNodes.get(i).getSequent().toString()));

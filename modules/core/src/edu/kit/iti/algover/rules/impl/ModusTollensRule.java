@@ -47,6 +47,8 @@ public class ModusTollensRule extends AbstractProofRule {
             return ProofRuleApplicationBuilder.notApplicable(this);
         }
 
+        ProofRuleApplicationBuilder builder = handleControlParameters(parameters, target.getSequent());
+
         Term notTerm;
         try {
             notTerm = new ApplTerm(BuiltinSymbols.NOT, appl.getTerm(1));
@@ -54,20 +56,16 @@ public class ModusTollensRule extends AbstractProofRule {
             throw new RuleException("Failed to build negated term.", e);
         }
 
-        Optional<Integer> ts = RuleUtil.matchTopLevelInAntedecent(notTerm::equals, target.getSequent());
-        if(!ts.isPresent()) {
-            return ProofRuleApplicationBuilder.notApplicable(this);
-        }
-
-        ProofRuleApplicationBuilder builder = handleControlParameters(parameters, target.getSequent());
-
+        Term notTerm2;
         try {
-            notTerm = new ApplTerm(BuiltinSymbols.NOT, appl.getTerm(0));
+            notTerm2 = new ApplTerm(BuiltinSymbols.NOT, appl.getTerm(0));
         } catch (TermBuildException e) {
             throw new RuleException("Failed to build negated term.", e);
         }
 
-        builder.newBranch().addReplacement(selector, notTerm);
+        builder.newBranch().addReplacement(selector, notTerm2).setLabel("mainBranch");
+        builder.newBranch().addDeletionsSuccedent(target.getSequent().getSuccedent()).
+                addAdditionsSuccedent(new ProofFormula(notTerm)).setLabel("assumption");
         builder.setApplicability(ProofRuleApplication.Applicability.APPLICABLE);
 
         return builder.build();
@@ -101,21 +99,17 @@ public class ModusTollensRule extends AbstractProofRule {
             throw new RuleException("Failed to build negated term.", e);
         }
 
-        Optional<Integer> ts = RuleUtil.matchTopLevelInAntedecent(notTerm::equals, target.getSequent());
-        if(!ts.isPresent()) {
-            throw new RuleException("Modus Tollens is not applicable since the required TopLevel term could not be found.");
-        }
-
         ProofRuleApplicationBuilder builder = handleControlParameters(parameters, target.getSequent());
-
+        Term notTerm2;
         try {
-            notTerm = new ApplTerm(BuiltinSymbols.NOT, appl.getTerm(0));
+            notTerm2 = new ApplTerm(BuiltinSymbols.NOT, appl.getTerm(0));
         } catch (TermBuildException e) {
             throw new RuleException("Failed to build negated term.", e);
         }
 
-        builder.newBranch().addReplacement(selector, notTerm);
-        builder.setApplicability(ProofRuleApplication.Applicability.APPLICABLE);
+        builder.newBranch().addReplacement(selector, notTerm2).setLabel("mainBranch");
+        builder.newBranch().addDeletionsSuccedent(target.getSequent().getSuccedent()).
+                addAdditionsSuccedent(new ProofFormula(notTerm)).setLabel("assumption");
 
         return builder.build();
     }
