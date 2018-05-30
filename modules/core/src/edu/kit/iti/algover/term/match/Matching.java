@@ -7,11 +7,14 @@
 package edu.kit.iti.algover.term.match;
 
 import edu.kit.iti.algover.rules.SubtermSelector;
+import edu.kit.iti.algover.rules.TermSelector;
 import edu.kit.iti.algover.term.Term;
 import edu.kit.iti.algover.term.builder.TermBuildException;
 import edu.kit.iti.algover.util.ImmutableList;
 import nonnull.NonNull;
 import nonnull.Nullable;
+
+import java.util.Set;
 
 /**
  * Instances of this class are used to describe matching results. Essentially it
@@ -35,6 +38,10 @@ public class Matching {
      * The empty matching, no assigned variables.
      */
     private static final Matching EMPTY = new Matching(ImmutableList.nil());
+
+    public ImmutableList<MatchingEntry> getEntries() {
+        return entries;
+    }
 
     /**
      * the list of variable assignments.
@@ -157,4 +164,16 @@ public class Matching {
         return entries.toString();
     }
 
+    /**
+     * Refine the MatchingEntries by information from the toplevel formula the mathcingentry belomgs to
+     *
+     * @param polarity on which side of the sequent
+     * @param termNo   which formula in the semisequent
+     * @return MatchingEntry
+     */
+
+    public void refineContext(TermSelector.SequentPolarity polarity, int termNo) {
+        this.entries.forEach(matchingEntry -> matchingEntry.refineContext(polarity, termNo));
+
+    }
 }

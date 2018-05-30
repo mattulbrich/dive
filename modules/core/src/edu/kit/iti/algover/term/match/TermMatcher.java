@@ -7,6 +7,7 @@ package edu.kit.iti.algover.term.match;
 
 
 import edu.kit.iti.algover.rules.SubtermSelector;
+import edu.kit.iti.algover.rules.TermSelector;
 import edu.kit.iti.algover.term.ApplTerm;
 import edu.kit.iti.algover.term.FunctionSymbol;
 import edu.kit.iti.algover.term.LetTerm;
@@ -216,6 +217,16 @@ public class TermMatcher {
         }
     }
 
+  /*   TermMatcher() {
+    polaritay option
+
+    }
+
+   TermMatcher(TermSelector.SequentPolarity polarity, int termNo) {
+        this.polarity = polarity;
+        this.termNo = termNo;
+    }*/
+
     /**
      * Match a schematic term against another term.
      *
@@ -277,7 +288,7 @@ public class TermMatcher {
      * @param m     the matching to begin from.
      * @return a list of all matchings which unify the two arguments.
      */
-    private ImmutableList<Matching> match(Term schem, Term conc, Matching m) {
+    public ImmutableList<Matching> match(Term schem, Term conc, Matching m) {
         try {
             return schem.accept(new Visitor(), new Triple<>(conc, m, new SubtermSelector()));
         } catch (MatchException e) {

@@ -18,18 +18,23 @@ import java.util.Collection;
 import java.util.List;
 
 public class InterpreterUtils {
+
     public static Sequent createTestSequent(String[] antec, String[] succ, SymbolTable symbTable) throws RecognitionException, TermBuildException {
+        return createTestSequentHelper(antec, succ, symbTable, false);
+    }
+
+    public static Sequent createTestSequentHelper(String[] antec, String[] succ, SymbolTable symbTable, boolean schemaEnable) throws RecognitionException, TermBuildException {
         TermBuilder tb = new TermBuilder(symbTable);
         TreeTermTranslator ttt = new TreeTermTranslator(symbTable);
 
         List<ProofFormula> antecTerms = new ArrayList();
         List<ProofFormula> succTerms = new ArrayList<>();
         for (String s : antec) {
-            antecTerms.add(new ProofFormula(ttt.build(TreeTermTranslatorTest.parse(s))));
+            antecTerms.add(new ProofFormula(ttt.build(TreeTermTranslatorTest.parse(s, schemaEnable))));
 
         }
         for (String s : succ) {
-            succTerms.add(new ProofFormula(ttt.build(TreeTermTranslatorTest.parse(s))));
+            succTerms.add(new ProofFormula(ttt.build(TreeTermTranslatorTest.parse(s, schemaEnable))));
         }
         return new Sequent(antecTerms, succTerms);
     }
