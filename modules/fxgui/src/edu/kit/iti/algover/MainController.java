@@ -127,33 +127,35 @@ public class MainController implements SequentActionListener, RuleApplicationLis
 
     private void onCrumbSelected(ObservableValue observableValue, Object oldValue, Object newValue) {
         TreeItem<Object> item = (TreeItem<Object>) newValue;
-        if(item.getValue() instanceof PVC) {
-            PVC pvc = (PVC)item.getValue();
-            try {
-                DafnyFile file = (DafnyFile)item.getParent().getParent().getValue();
-                timelineView.moveFrameLeft();
-                timelineView.moveFrameLeft();
-                onClickPVCEdit(new PVCEntity(manager.getProofForPVC(pvc.getIdentifier()), pvc, file));
-            } catch (NullPointerException e) {
-                Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).warning("Could not select pvc.");
-            } catch (ClassCastException c) {
-                Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).warning("Could not select pvc.");
+        Platform.runLater(() -> {
+            if(item.getValue() instanceof PVC) {
+                PVC pvc = (PVC)item.getValue();
+                try {
+                    DafnyFile file = (DafnyFile)item.getParent().getParent().getValue();
+                    timelineView.moveFrameLeft();
+                    timelineView.moveFrameLeft();
+                    onClickPVCEdit(new PVCEntity(manager.getProofForPVC(pvc.getIdentifier()), pvc, file));
+                } catch (NullPointerException e) {
+                    Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).warning("Could not select pvc.");
+                } catch (ClassCastException c) {
+                    Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).warning("Could not select pvc.");
+                }
             }
-        }
-        if(item.getValue() instanceof DafnyFile) {
-            editorController.viewFile((DafnyFile)item.getValue());
-            timelineView.moveFrameLeft();
-            timelineView.moveFrameLeft();
-            editorController.resetPVCSelection();
-        }
-        if(item.getValue() instanceof DafnyMethod) {
-            if(item.getParent().getValue() instanceof DafnyFile) {
-                editorController.viewFile((DafnyFile) item.getParent().getValue());
+            if(item.getValue() instanceof DafnyFile) {
+                editorController.viewFile((DafnyFile)item.getValue());
                 timelineView.moveFrameLeft();
                 timelineView.moveFrameLeft();
                 editorController.resetPVCSelection();
             }
-        }
+            if(item.getValue() instanceof DafnyMethod) {
+                if(item.getParent().getValue() instanceof DafnyFile) {
+                    editorController.viewFile((DafnyFile) item.getParent().getValue());
+                    timelineView.moveFrameLeft();
+                    timelineView.moveFrameLeft();
+                    editorController.resetPVCSelection();
+                }
+            }
+        });
     }
 
     private void onStatusBarClicked(MouseEvent event) {
@@ -310,7 +312,10 @@ public class MainController implements SequentActionListener, RuleApplicationLis
                 breadCrumbBar.setSelectedCrumb(getTreeItemForPVC(pvc));
             } else {
                 editorController.resetPVCSelection();
+                sequentController.clear();
             }
+        } else {
+            sequentController.clear();
         }
     }
 
@@ -323,7 +328,6 @@ public class MainController implements SequentActionListener, RuleApplicationLis
         if(pvcs.size() == 1) {
             return pvcs.get(0);
         } else {
-            System.out.println(pvcs.size());
             System.out.println("this shoudnt happen. couldnt select breadcrumbitem for pvc");
             return null;
         }
@@ -331,10 +335,12 @@ public class MainController implements SequentActionListener, RuleApplicationLis
 
     @Override
     public void onClickSequentSubterm(TermSelector selector) {
-        timelineView.moveFrameRight();
-        ProofNode node = sequentController.getActiveNode();
-        if (node != null) {
-            ruleApplicationController.considerApplication(node, node.getSequent(), selector);
+        if(selector != null) {
+            timelineView.moveFrameRight();
+            ProofNode node = sequentController.getActiveNode();
+            if (node != null) {
+                ruleApplicationController.considerApplication(node, node.getSequent(), selector);
+            }
         }
     }
 

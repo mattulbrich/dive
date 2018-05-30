@@ -83,8 +83,25 @@ public class RuleGrid extends JFXMasonryPane {
         rules.addAll(allRules.stream().filter(
                 ruleView -> filterFunction.test(ruleView)
         ).collect(Collectors.toList()));
+
+        //REVIEW this should better be done dynamically but since it does not update automatically this at least
+        //prevents that some arent shown at all
+        rules.stream().forEach(ruleView -> {
+            if (ruleView.getPrefWidth() == -1.0) {
+                ruleView.setPrefWidth(140.0);
+            }
+        });
+        rules.stream().forEach(ruleView -> {
+            if (ruleView.getPrefHeight() == -1.0) {
+                ruleView.setPrefHeight(80.0);
+            }
+        });
+        rules.stream().forEach(ruleView -> ruleView.requestLayout());
+        rules.stream().forEach(ruleView -> ruleView.autosize());
+
         this.getChildren().clear();
         this.getChildren().addAll(rules);
+        requestLayout();
     }
 
     public List<RuleView> getAllRules() {
