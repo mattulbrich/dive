@@ -46,14 +46,11 @@ public class ModusPonensRule extends AbstractProofRule {
             return ProofRuleApplicationBuilder.notApplicable(this);
         }
 
-        Optional<Integer> ts = RuleUtil.matchTopLevelInAntedecent(appl.getTerm(0)::equals, target.getSequent());
-        if(!ts.isPresent()) {
-            return ProofRuleApplicationBuilder.notApplicable(this);
-        }
-
         ProofRuleApplicationBuilder builder = handleControlParameters(parameters, target.getSequent());
 
-        builder.newBranch().addReplacement(selector, appl.getTerm(1));
+        builder.newBranch().addReplacement(selector, appl.getTerm(1)).setLabel("mainBranch");
+        builder.newBranch().addDeletionsSuccedent(target.getSequent().getSuccedent()).
+                addAdditionsSuccedent(new ProofFormula(appl.getTerm(0))).setLabel("assumption");
         builder.setApplicability(ProofRuleApplication.Applicability.APPLICABLE);
 
         return builder.build();
@@ -80,14 +77,11 @@ public class ModusPonensRule extends AbstractProofRule {
             throw new RuleException("Modus Ponens is only applicable on implications.");
         }
 
-        Optional<Integer> ts = RuleUtil.matchTopLevelInAntedecent(appl.getTerm(0)::equals, target.getSequent());
-        if(!ts.isPresent()) {
-            throw new RuleException("Modus Ponens is not applicable because the required TopLevel formula could not be found.");
-        }
-
         ProofRuleApplicationBuilder builder = handleControlParameters(parameters, target.getSequent());
 
-        builder.newBranch().addReplacement(selector, appl.getTerm(1));
+        builder.newBranch().addReplacement(selector, appl.getTerm(1)).setLabel("mainBranch");
+        builder.newBranch().addDeletionsSuccedent(target.getSequent().getSuccedent()).
+                addAdditionsSuccedent(new ProofFormula(appl.getTerm(0))).setLabel("assumption");
         builder.setApplicability(ProofRuleApplication.Applicability.APPLICABLE);
 
         return builder.build();
