@@ -1,6 +1,11 @@
 package edu.kit.iti.algover.smttrans.translate;
 
+import java.util.Arrays;
 import java.util.List;
+
+import com.google.common.base.CharMatcher;
+import com.google.common.base.Splitter;
+import com.google.common.collect.Iterables;
 
 import edu.kit.iti.algover.smttrans.translate.expressions.SMTExpression;
 import edu.kit.iti.algover.term.ApplTerm;
@@ -8,29 +13,49 @@ import edu.kit.iti.algover.term.LetTerm;
 import edu.kit.iti.algover.term.QuantTerm;
 import edu.kit.iti.algover.term.TermVisitor;
 import edu.kit.iti.algover.term.VariableTerm;
+import edu.kit.iti.algover.util.Util;
+import edu.kit.iti.algover.smttrans.data.OperationMatcher;
 
-public class SMTVisitor implements TermVisitor<List<String>, SMTExpression, RuntimeException> {
+public class SMTVisitor implements TermVisitor<Type, SMTExpression, RuntimeException> {
 
     @Override
-    public SMTExpression visit(VariableTerm variableTerm, List<String> arg) throws RuntimeException {
-    	return null;
+    public SMTExpression visit(VariableTerm variableTerm, Type t) throws RuntimeException {
+        return null;
     }
 
     @Override
-    public SMTExpression visit(QuantTerm quantTerm, List<String> arg) throws RuntimeException {
-    	return null;
+    public SMTExpression visit(QuantTerm quantTerm, Type t) throws RuntimeException {
+        return null;
     }
 
     @Override
-    public SMTExpression visit(ApplTerm applTerm, List<String> arg) throws RuntimeException {
-    		return null;
+    public SMTExpression visit(ApplTerm applTerm, Type t) throws RuntimeException {
+        Type currentType = Type.typeOperation(applTerm.getFunctionSymbol().getName());
+        List<SMTExpression> children = Util.map(applTerm.getSubterms(), x -> x.accept(SMTVisitor.this, currentType));
+
+        if (applTerm.countTerms() == 0) { // const
+            
+            System.out.println("CONST " + applTerm.toString() + " : " + t.toString());
+            //System.out.println("CONST-FS: ");
+             //return new SMTConstExpression(operator, arg, nul);
+        }
+       // if (Iterables.size(operators) > 1) {
+            // return new SMTExpression(OperationMatcher.matchOp(Iterables.get(operators,
+            // 0)), ops.subList(1, ops.size()),
+            // children);
+       // } else {
+            // return new SMTExpression(OperationMatcher.matchOp(Iterables.get(operators,
+            // 0)), children);
+       // }
+        
+        return null;
 
     }
 
     @Override
-    public SMTExpression visit(LetTerm letTerm, List<String> arg) throws RuntimeException {
+    public SMTExpression visit(LetTerm letTerm, Type t) throws RuntimeException {
 
-    	return null;
+        return null;
     }
 
     // public SExpr visit(LetTerm letTerm, Void arg) {

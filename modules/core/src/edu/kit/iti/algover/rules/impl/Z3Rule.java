@@ -100,7 +100,7 @@ public class Z3Rule extends AbstractProofRule {
             SMTExpression e = pa.getTerm().accept(new SMTVisitor(), null);
             SMTTerm t = new SMTTerm(e);
             terms.add(t);
-            System.out.println("SMT-LIB: " + t.toPSMT().getPSMTExpressions());
+            //System.out.println("SMT-LIB: " + t.toPSMT().getPSMTExpressions());
 
             
         }
