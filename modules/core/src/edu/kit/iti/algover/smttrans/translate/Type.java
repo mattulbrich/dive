@@ -17,11 +17,32 @@ public class Type {
 
     private final String ARRNAME = "array";
 
+    public final static Type makeBoolType() {
+        List<String> l = new ArrayList<>();
+        l.add("Bool");
+        return new Type(l);
+    }
+
+    public final static Type makeIntType() {
+        List<String> l = new ArrayList<>();
+        l.add("Int");
+        return new Type(l);
+    }
+
     private List<String> typeData;
 
     public Type(List<String> types) {
         this.typeData = inferType(types);
 
+    }
+
+    public int getArity() {
+        return typeData.size();
+    }
+
+    public Type pop() {
+        List<String> l = typeData.subList(1, typeData.size());
+        return new Type(typeData);
     }
 
     public static Type typeOperation(String poly) {
@@ -31,6 +52,11 @@ public class Type {
         List<String> ops = Arrays.asList(Iterables.toArray(operators, String.class));
         return new Type(ops);
 
+    }
+    
+    public static String getFS(String poly) {
+        String[] s = poly.split("<");
+        return s[0];
     }
 
     private List<String> inferType(List<String> data) {
@@ -42,7 +68,6 @@ public class Type {
                     continue;
                 d = opt.getSMT();
             }
-            System.out.println("NAME " + d);
             if (d.toLowerCase().equals(ARRNAME))
                 d = OperationType.ARR.getSMT();
             type.add(d);

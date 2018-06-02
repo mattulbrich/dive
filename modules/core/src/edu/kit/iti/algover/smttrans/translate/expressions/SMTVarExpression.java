@@ -1,22 +1,28 @@
 package edu.kit.iti.algover.smttrans.translate.expressions;
 
 import java.util.ArrayList;
-import java.util.List;
 
-import edu.kit.iti.algover.smttrans.data.Operation;
 import edu.kit.iti.algover.smttrans.translate.Type;
 
-public class SMTVarExpression extends SMTExpression{
+public class SMTVarExpression extends SMTExpression {
 
-    public SMTVarExpression(Operation op, Type type) {
-        super(op, type, new ArrayList<>());
+    private String name;
 
+    public SMTVarExpression(String name, Type type) { // TODO children ?
+        super("$var", type, new ArrayList<>());
+        this.name = name;
     }
 
     @Override
     public String toPSMT() {
-        
-        return "CONST";
+        StringBuilder sb = new StringBuilder();
+        sb.append("(");
+        sb.append(this.name);
+        sb.append(" ");
+        sb.append(this.type.toString());
+        sb.append(")");
+        sb.append(System.lineSeparator());
+        return sb.toString();
     }
 
 }

@@ -7,6 +7,8 @@ public class OperationMatcher {
 
 	private static HashMap<String, Operation> opmap = new HashMap<>();
 	static {
+	    opmap.put("$const", Operation.CONST);
+	    opmap.put("$var", Operation.VAR);
 		opmap.put("$not", Operation.NOT);
 		opmap.put("$ge", Operation.GE);
 		opmap.put("$eq", Operation.EQ);

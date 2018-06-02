@@ -7,7 +7,7 @@ import edu.kit.iti.algover.smttrans.translate.Type;
 
 public class SMTLetExpression extends SMTExpression{
 
-    public SMTLetExpression(Operation op, Type type, List<SMTExpression> children) {
+    public SMTLetExpression(String op, Type type, List<SMTExpression> children) {
         super(op, type, children);
         // TODO Auto-generated constructor stub
     }

@@ -1,26 +1,23 @@
 package edu.kit.iti.algover.smttrans.translate;
 
-import java.util.Arrays;
 import java.util.List;
 
-import com.google.common.base.CharMatcher;
-import com.google.common.base.Splitter;
-import com.google.common.collect.Iterables;
-
+import edu.kit.iti.algover.smttrans.translate.expressions.SMTApplExpression;
+import edu.kit.iti.algover.smttrans.translate.expressions.SMTConstExpression;
 import edu.kit.iti.algover.smttrans.translate.expressions.SMTExpression;
+import edu.kit.iti.algover.smttrans.translate.expressions.SMTVarExpression;
 import edu.kit.iti.algover.term.ApplTerm;
 import edu.kit.iti.algover.term.LetTerm;
 import edu.kit.iti.algover.term.QuantTerm;
 import edu.kit.iti.algover.term.TermVisitor;
 import edu.kit.iti.algover.term.VariableTerm;
 import edu.kit.iti.algover.util.Util;
-import edu.kit.iti.algover.smttrans.data.OperationMatcher;
 
 public class SMTVisitor implements TermVisitor<Type, SMTExpression, RuntimeException> {
 
     @Override
     public SMTExpression visit(VariableTerm variableTerm, Type t) throws RuntimeException {
-        return null;
+        return new SMTVarExpression(variableTerm.getName(), t); // ?
     }
 
     @Override
@@ -30,25 +27,42 @@ public class SMTVisitor implements TermVisitor<Type, SMTExpression, RuntimeExcep
 
     @Override
     public SMTExpression visit(ApplTerm applTerm, Type t) throws RuntimeException {
+        String fs = applTerm.getFunctionSymbol().getName();
         Type currentType = Type.typeOperation(applTerm.getFunctionSymbol().getName());
         List<SMTExpression> children = Util.map(applTerm.getSubterms(), x -> x.accept(SMTVisitor.this, currentType));
 
         if (applTerm.countTerms() == 0) { // const
-            
-            System.out.println("CONST " + applTerm.toString() + " : " + t.toString());
-            //System.out.println("CONST-FS: ");
-             //return new SMTConstExpression(operator, arg, nul);
+
+            SMTConstExpression sc = new SMTConstExpression(fs, t);
+            // System.out.println(sc.toPSMT());
+            return sc;
         }
-       // if (Iterables.size(operators) > 1) {
-            // return new SMTExpression(OperationMatcher.matchOp(Iterables.get(operators,
-            // 0)), ops.subList(1, ops.size()),
-            // children);
-       // } else {
-            // return new SMTExpression(OperationMatcher.matchOp(Iterables.get(operators,
-            // 0)), children);
-       // }
+       // System.out.println(applTerm.toString());
+
+        System.out.println("T " + currentType.toString());
+        System.out.println("FS " + fs);
         
-        return null;
+//        if (currentType.getArity() > 1) {
+//            return new SMTApplExpression(Type.getFS(fs), currentType.pop(), children);
+//        } 
+//            return new SMTApplExpression(Type.getFS(fs), Type.makeBoolType(), children);
+        
+
+         SMTApplExpression sa = new SMTApplExpression(Type.getFS(fs), currentType, children);
+
+        // if (Iterables.size(operators) > 1) {
+        // return new
+        // SMTExpression(OperationMatcher.matchOp(Iterables.get(operators,0)),
+        // ops.subList(1, ops.size()),children);
+        // } else {
+        // return new
+        // SMTExpression(OperationMatcher.matchOp(Iterables.get(operators,0)),
+        // children);
+        // }
+         
+         return sa;
+
+
 
     }
 

@@ -7,19 +7,25 @@ import edu.kit.iti.algover.smttrans.translate.Type;
 
 public class SMTApplExpression extends SMTExpression{
 
-    public SMTApplExpression(Operation op, Type type, List<SMTExpression> children) {
+    public SMTApplExpression(String op, Type type, List<SMTExpression> children) {
         super(op, type, children);
-        // TODO Auto-generated constructor stub
     }
 
     @Override
     public String toPSMT() {
         
+        
         StringBuilder sb = new StringBuilder();
         sb.append("( ");
-        sb.append(op.name() + " ");
+        
+        try {
+        sb.append(op.toSMTLib(this.type) + " ");
         for (SMTExpression c : children) {
             sb.append(c.toPSMT());
+        }
+        
+        } catch (NullPointerException e) {
+            
         }
         return sb.toString();
         

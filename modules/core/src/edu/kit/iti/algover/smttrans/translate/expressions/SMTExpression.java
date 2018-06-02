@@ -4,6 +4,7 @@ import java.util.Collection;
 import java.util.List;
 
 import edu.kit.iti.algover.smttrans.data.Operation;
+import edu.kit.iti.algover.smttrans.data.OperationMatcher;
 import edu.kit.iti.algover.smttrans.translate.Type;
 
 public abstract class SMTExpression {
@@ -14,8 +15,8 @@ public abstract class SMTExpression {
 
 	public abstract String toPSMT();
 	
-	public SMTExpression(Operation op, Type type, List<SMTExpression> children) {
-		this.op = op;
+	public SMTExpression(String op, Type type, List<SMTExpression> children) {
+		this.op = OperationMatcher.matchOp(op);
 		this.type = type;
 		this.children = children;
 	}
