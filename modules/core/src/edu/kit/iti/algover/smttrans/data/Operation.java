@@ -8,7 +8,7 @@ import edu.kit.iti.algover.smttrans.translate.Type;
 
 public enum Operation {
 
-    PLUS, MINUS, TIMES, GT, LT, EQ, NOT, GE, LE, NEG, ITE, ARR2SELECT, ARRSTORE, ARR2STORE, FIELDSTORE, FIELDSELECT, DECR, SETUNION, SETINTERSECT, SETCARD, SEQCONCAT, ISCREATED, CREATE, ANON, SEQCONS, SEQEMPTY, SEQUPD, SEQGET, SEQLEN, SETIN, SETADD, CONST, ARRLEN, ARR2LEN0, ARR2LEN1, EXISTS, FORALL, LET, ARRSELECT, VAR;
+    PLUS, MINUS, TIMES, GT, LT, EQ, NOT, GE, LE, NEG, ITE, ARR2SELECT, ARRSTORE, ARR2STORE, FIELDSTORE, FIELDSELECT, DECR, SETUNION, SETINTERSECT, SETCARD, SEQCONCAT, ISCREATED, CREATE, ANON, SEQCONS, SEQEMPTY, SEQUPD, SEQGET, SEQLEN, SETIN, SETADD, CONST, ARRLEN, ARR2LEN0, ARR2LEN1, EXISTS, FORALL, LET, ARRSELECT, VAR, HEAP;
 
     private String smt;
     private Boolean poly;
@@ -19,6 +19,7 @@ public enum Operation {
 
         ARRSELECT.smt = "arrselect";
         ARRSELECT.poly = true;
+        ARRSELECT.type = OperationType.ARR;
         ARR2SELECT.type = OperationType.ARR;
         ARR2LEN0.smt = "arr2len0";
         ARR2LEN0.poly = true;
@@ -153,6 +154,11 @@ public enum Operation {
         SETADD.smt = "";
         SETADD.poly = true;
         SETADD.type = OperationType.SET;
+        
+        HEAP.smt = ""; //TODO
+        HEAP.poly = false;
+        HEAP.type = OperationType.SORT;
+        
     }
 
     public String toSMTLib(Type type) {

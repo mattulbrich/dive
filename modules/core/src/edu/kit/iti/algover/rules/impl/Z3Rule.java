@@ -107,7 +107,10 @@ public class Z3Rule extends AbstractProofRule {
         }
         for (ProofFormula ps : succedent) {
             // negate
-            ps.getTerm().accept(new SMTVisitor(), null);
+            SMTExpression e = ps.getTerm().accept(new SMTVisitor(), null);
+            SMTTerm t = new SMTTerm(e);
+            
+            System.out.println("SMT-LIB: " + t.toPSMT());
         }
 
 

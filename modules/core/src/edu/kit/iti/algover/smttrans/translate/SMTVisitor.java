@@ -3,6 +3,7 @@ package edu.kit.iti.algover.smttrans.translate;
 import java.util.ArrayList;
 import java.util.List;
 
+import edu.kit.iti.algover.smttrans.data.Operation;
 import edu.kit.iti.algover.smttrans.translate.expressions.SMTApplExpression;
 import edu.kit.iti.algover.smttrans.translate.expressions.SMTConstExpression;
 import edu.kit.iti.algover.smttrans.translate.expressions.SMTExpression;
@@ -21,13 +22,60 @@ public class SMTVisitor implements TermVisitor<Type, SMTExpression, RuntimeExcep
 
     @Override
     public SMTExpression visit(VariableTerm variableTerm, Type t) throws RuntimeException {
-        return new SMTVarExpression(variableTerm.getName(), t); // ?
+        return new SMTVarExpression(variableTerm.getName(), variableTerm.getTerm(0).accept(this, t)); // ?
     }
 
     @Override
     public SMTExpression visit(QuantTerm quantTerm, Type t) throws RuntimeException {
-        return null;
+
+        Operation quantifier;
+        switch (quantTerm.getQuantifier()) {
+        case EXISTS:
+            quantifier = Operation.EXISTS;
+            break;
+        case FORALL:
+            quantifier = Operation.FORALL;
+            break;
+        default:
+            throw new UnsupportedOperationException("Unknown quantifier"); 
+        }
+      //multiple bound vars ?
+        VariableTerm boundVar = quantTerm.getBoundVar();
+        // String varname = "var$" + boundVar.getName();
+        //
+        // SExpr qvar = new SExpr(varname, "Int");
+        // SExpr qqvar = new SExpr(qvar);
+        // SExpr formula = term.getTerm(0).accept(this, null);
+        //
+        // return new SExpr(quantifier, BOOL, qqvar, formula);
+        
+        
+        return new SMTConstExpression("debug", Type.makeIntType());
     }
+
+    // @Override
+    // public SExpr visit(QuantTerm term, Void arg) {
+    // String quantifier;
+    // switch (term.getQuantifier()) {
+    // case EXISTS:
+    // quantifier = "exists";
+    // break;
+    // case FORALL:
+    // quantifier = "forall";
+    // break;
+    // default:
+    // throw new UnsupportedOperationException("Unknown quantifier: " + term);
+    // }
+    //
+    // VariableTerm boundVar = term.getBoundVar();
+    // String varname = "var$" + boundVar.getName();
+    //
+    // SExpr qvar = new SExpr(varname, "Int");
+    // SExpr qqvar = new SExpr(qvar);
+    // SExpr formula = term.getTerm(0).accept(this, null);
+    //
+    // return new SExpr(quantifier, BOOL, qqvar, formula);
+    // }
 
     @Override
     public SMTExpression visit(ApplTerm applTerm, Type t) throws RuntimeException {
@@ -69,17 +117,16 @@ public class SMTVisitor implements TermVisitor<Type, SMTExpression, RuntimeExcep
 
     @Override
     public SMTExpression visit(LetTerm letTerm, Type t) throws RuntimeException {
-        System.out.println("LT " + letTerm.toString());
+        // System.out.println("LT " + letTerm.toString());
         SMTExpression inner = letTerm.getTerm(0).accept(this, t);
         List<SMTExpression> subs = new ArrayList<>();
 
+        System.out.println("!");
         for (Pair<VariableTerm, Term> pair : letTerm.getSubstitutions()) {
-            // subs.add(new SMTVarExpression(pair.fst.getName(),
-            // pair.snd.accept(this, null)));
+            subs.add(new SMTVarExpression(pair.fst.getName(), pair.snd.accept(this, t)));
+            System.out.println(pair.toString());
         }
-        // return new SMTLetExpression("let", UNIVERSE, new SExpr(substitutions),
-        // inner);
-        return null;
+        return new SMTLetExpression(subs, inner);
     }
 
     // public SExpr visit(LetTerm letTerm, Void arg) {

@@ -17,6 +17,7 @@ public class Type {
 
     private final String ARRNAME = "array";
 
+   
     public final static Type makeBoolType() {
         List<String> l = new ArrayList<>();
         l.add("Bool");
@@ -32,8 +33,11 @@ public class Type {
     private List<String> typeData;
 
     public Type(List<String> types) {
-        this.typeData = inferType(types);
 
+            
+        
+        this.typeData = inferType(types);
+        
     }
 
     public int getArity() {

@@ -14,6 +14,9 @@ public enum OperationType {
         INT.smt = "Int";
         BOOL.smt = "Bool";
         SEQ.smt = "Seqq";
+        SORT.smt = "SORT";
+        ANY.smt = "ANY";
+        NONE.smt = "NONE";
     }
 
 
