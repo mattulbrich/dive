@@ -15,7 +15,7 @@ public class SMTQuantExpression extends SMTExpression{
     @Override
     public String toPSMT() {
         // TODO Auto-generated method stub
-        return null;
+        return "QUANT";
     }
 
 }

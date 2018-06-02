@@ -18,8 +18,13 @@ public class SMTTerm {
         return dependencies;
     }
 
-    public SMTContainer toPSMT() {
-        return null;
-    }
+//    public SMTContainer toPSMT() {
+//        return null;
+//    }
 
+    
+    //debug
+    public String toPSMT() {
+        return expression.toPSMT();
+    }
 }

@@ -14,8 +14,15 @@ public class SMTApplExpression extends SMTExpression{
 
     @Override
     public String toPSMT() {
-        // TODO Auto-generated method stub
-        return null;
+        
+        StringBuilder sb = new StringBuilder();
+        sb.append("( ");
+        sb.append(op.name() + " ");
+        for (SMTExpression c : children) {
+            sb.append(c.toPSMT());
+        }
+        return sb.toString();
+        
     }
 
 }

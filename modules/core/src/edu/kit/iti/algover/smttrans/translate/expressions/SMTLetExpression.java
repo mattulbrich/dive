@@ -14,8 +14,7 @@ public class SMTLetExpression extends SMTExpression{
 
     @Override
     public String toPSMT() {
-        // TODO Auto-generated method stub
-        return null;
+       return "LET";
     }
 
 }

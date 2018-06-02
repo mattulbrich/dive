@@ -1,20 +1,26 @@
 package edu.kit.iti.algover.smttrans.translate;
 
+import java.util.ArrayList;
+
 import java.util.Arrays;
 import java.util.List;
 
 import com.google.common.base.CharMatcher;
 import com.google.common.base.Splitter;
 import com.google.common.collect.Iterables;
-import com.google.common.primitives.Ints;
+
+import edu.kit.iti.algover.smttrans.data.OperationMatcher;
+
+import edu.kit.iti.algover.smttrans.data.OperationType;
 
 public class Type {
 
-    List<String> typeData;
+    private final String ARRNAME = "array";
+
+    private List<String> typeData;
 
     public Type(List<String> types) {
-        // this.typeData = inferType(types); // TODO
-        this.typeData = types;
+        this.typeData = inferType(types);
 
     }
 
@@ -27,18 +33,20 @@ public class Type {
 
     }
 
-    private List<String> inferType(List<String> data) { // TODO
-        List<String> type;
-        if (data.get(0).startsWith("$")) {
-            type = data.subList(1, data.size());
-        } else {
-            type = data;
+    private List<String> inferType(List<String> data) {
+        List<String> type = new ArrayList<>();
+        for (String d : data) {
+            if (d.startsWith("$")) { // function
+                OperationType opt = OperationMatcher.matchOp(d).getType();
+                if (opt == OperationType.ANY)
+                    continue;
+                d = opt.getSMT();
+            }
+            System.out.println("NAME " + d);
+            if (d.toLowerCase().equals(ARRNAME))
+                d = OperationType.ARR.getSMT();
+            type.add(d);
         }
-        // if (type.size() == 1) { //TODO necessary ?
-        // String t = (Ints.tryParse(type.get(0)) == null) ? "Bool" : "Int"; // TODO
-        // Sorts
-        //
-        // }
         return type;
     }
 

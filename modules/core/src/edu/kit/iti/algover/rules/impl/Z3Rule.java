@@ -101,6 +101,7 @@ public class Z3Rule extends AbstractProofRule {
             SMTTerm t = new SMTTerm(e);
             terms.add(t);
             //System.out.println("SMT-LIB: " + t.toPSMT().getPSMTExpressions());
+            //System.out.println("SMT-LIB: " + t.toPSMT());
 
             
         }
@@ -109,9 +110,6 @@ public class Z3Rule extends AbstractProofRule {
             ps.getTerm().accept(new SMTVisitor(), null);
         }
 
-        // for (SMTDeclaration d : declarations) {
-        // System.out.println(d.toPSMT());
-        // }
 
         return "";
     }

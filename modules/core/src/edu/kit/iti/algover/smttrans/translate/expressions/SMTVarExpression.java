@@ -16,7 +16,7 @@ public class SMTVarExpression extends SMTExpression{
     @Override
     public String toPSMT() {
         
-        return null;
+        return "CONST";
     }
 
 }

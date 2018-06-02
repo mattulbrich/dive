@@ -4,175 +4,172 @@ import java.util.ArrayList;
 
 import java.util.List;
 
+import edu.kit.iti.algover.smttrans.translate.Type;
 
 public enum Operation {
 
-	PLUS, MINUS, TIMES, GT, LT, EQ, NOT, GE, LE, NEG, ITE, ARR2SELECT, ARRSTORE, ARR2STORE, FIELDSTORE, FIELDSELECT, DECR, SETUNION, SETINTERSECT, SETCARD, SEQCONCAT, ISCREATED, CREATE, ANON, SEQCONS, SEQEMPTY, SEQUPD, SEQGET, SEQLEN, SETIN, SETADD, CONST, ARRLEN, ARR2LEN0, ARR2LEN1, EXISTS, FORALL, LET, ARRSELECT;
+    PLUS, MINUS, TIMES, GT, LT, EQ, NOT, GE, LE, NEG, ITE, ARR2SELECT, ARRSTORE, ARR2STORE, FIELDSTORE, FIELDSELECT, DECR, SETUNION, SETINTERSECT, SETCARD, SEQCONCAT, ISCREATED, CREATE, ANON, SEQCONS, SEQEMPTY, SEQUPD, SEQGET, SEQLEN, SETIN, SETADD, CONST, ARRLEN, ARR2LEN0, ARR2LEN1, EXISTS, FORALL, LET, ARRSELECT;
 
-	private String smt;
-	private Boolean poly;
-//	private DeclType type;
-	private List<Axiom> instantiations = new ArrayList<>();
+    private String smt;
+    private Boolean poly;
+    private OperationType type;
+    private List<Axiom> instantiations = new ArrayList<>();
 
-	static {
-	    
-	    ARRSELECT.smt = "arrselect";
-	    ARRSELECT.poly = true;
-//	    ARR2SELECT.type = DeclType.ARR;
-		ARR2LEN0.smt = "arr2len0";
-		ARR2LEN0.poly = true;
-	//	ARR2LEN0.type = DeclType.ARR2;
-		
+    static {
 
-		ARR2LEN1.smt = "arr2len1";
-		ARR2LEN1.poly = true;
-		//ARR2LEN1.type = DeclType.ARR2;
+        ARRSELECT.smt = "arrselect";
+        ARRSELECT.poly = true;
+        ARR2SELECT.type = OperationType.ARR;
+        ARR2LEN0.smt = "arr2len0";
+        ARR2LEN0.poly = true;
+        ARR2LEN0.type = OperationType.ARR2;
 
-		ARRLEN.smt = "arrlen";
-		ARRLEN.poly = true;
-		//ARRLEN.type = DeclType.ARR;
+        ARR2LEN1.smt = "arr2len1";
+        ARR2LEN1.poly = true;
+        ARR2LEN1.type = OperationType.ARR2;
 
-		PLUS.smt = "+";
-		PLUS.poly = false;
-	//	PLUS.type = DeclType.NONE;
+        ARRLEN.smt = "arrlen";
+        ARRLEN.poly = true;
+        ARRLEN.type = OperationType.ARR;
 
-		MINUS.smt = "-";
-		MINUS.poly = false;
-		//MINUS.type = DeclType.NONE;
+        PLUS.smt = "+";
+        PLUS.poly = false;
+        PLUS.type = OperationType.INT;
 
-		TIMES.smt = "*";
-		TIMES.poly = false;
-		//TIMES.type = DeclType.NONE;
+        MINUS.smt = "-";
+        MINUS.poly = false;
+        MINUS.type = OperationType.INT;
 
-		GT.smt = ">";
-		GT.poly = false;
-		//GT.type = DeclType.NONE;
+        TIMES.smt = "*";
+        TIMES.poly = false;
+        TIMES.type = OperationType.INT;
 
-		LT.smt = "<";
-		LT.poly = false;
-		//LT.type = DeclType.NONE;
+        GT.smt = ">";
+        GT.poly = false;
+        GT.type = OperationType.INT;
 
-		EQ.smt = "=";
-		EQ.poly = false;
-		//EQ.type = DeclType.ANY;
+        LT.smt = "<";
+        LT.poly = false;
+        LT.type = OperationType.INT;
 
-		NOT.smt = "not";
-		NOT.poly = false;
-		//NOT.type = DeclType.NONE;
+        EQ.smt = "=";
+        EQ.poly = false;
+        EQ.type = OperationType.ANY;
 
-		GE.smt = ">=";
-		GE.poly = false;
-		//GE.type = DeclType.NONE;
+        NOT.smt = "not";
+        NOT.poly = false;
+        NOT.type = OperationType.BOOL;
 
-		LE.smt = "<=";
-		LE.poly = false;
-		//LE.type = DeclType.NONE;
+        GE.smt = ">=";
+        GE.poly = false;
+        GE.type = OperationType.INT;
 
-		NEG.smt = "";
-		NEG.poly = false;
-		//NEG.type = DeclType.NONE;
+        LE.smt = "<=";
+        LE.poly = false;
+        LE.type = OperationType.INT;
 
-		ITE.smt = "";
-		ITE.poly = false;
+        NEG.smt = "";
+        NEG.poly = false;
+        NEG.type = OperationType.INT;
 
-		ARR2SELECT.smt = "";
-		ARR2SELECT.poly = true;
-		//ARR2SELECT.type = DeclType.ARR2;
+        ITE.smt = "";
+        ITE.poly = false;
 
-		ARRSTORE.smt = "";
-		ARRSTORE.poly = true;
-		//ARRSTORE.type = DeclType.ARR;
+        ARR2SELECT.smt = "";
+        ARR2SELECT.poly = true;
+        ARR2SELECT.type = OperationType.ARR2;
 
-		ARR2STORE.smt = "";
-		ARR2STORE.poly = true;
-		//ARR2STORE.type = DeclType.ARR2;
+        ARRSTORE.smt = "";
+        ARRSTORE.poly = true;
+        ARRSTORE.type = OperationType.ARR;
 
-		FIELDSTORE.smt = "";
-		FIELDSTORE.poly = true;
-		//FIELDSTORE.type = DeclType.SORT;
+        ARR2STORE.smt = "";
+        ARR2STORE.poly = true;
+        ARR2STORE.type = OperationType.ARR2;
 
-		FIELDSELECT.smt = "";
-		FIELDSELECT.poly = true;
-		//FIELDSTORE.type = DeclType.SORT;
+        FIELDSTORE.smt = "";
+        FIELDSTORE.poly = true;
+        FIELDSTORE.type = OperationType.SORT;
 
-		DECR.smt = "";
-		DECR.poly = false;
+        FIELDSELECT.smt = "";
+        FIELDSELECT.poly = true;
+        FIELDSELECT.type = OperationType.SORT;
 
-		SETUNION.smt = "";
-		SETUNION.poly = true;
-		//SETUNION.type = DeclType.SET;
+        DECR.smt = "";
+        DECR.poly = false;
 
-		SETINTERSECT.smt = "";
-		SETINTERSECT.poly = true;
-		//SETINTERSECT.type = DeclType.SET;
+        SETUNION.smt = "";
+        SETUNION.poly = true;
+        SETUNION.type = OperationType.SET;
 
-		SETCARD.smt = "";
-		SETCARD.poly = true;
-		//SETCARD.type = DeclType.SET;
+        SETINTERSECT.smt = "";
+        SETINTERSECT.poly = true;
+        SETINTERSECT.type = OperationType.SET;
 
-		SEQCONCAT.smt = "";
-		SEQCONCAT.poly = true;
-		//SEQCONCAT.type = DeclType.SEQ;
+        SETCARD.smt = "";
+        SETCARD.poly = true;
+        SETCARD.type = OperationType.SET;
 
-		ISCREATED.smt = "";
-		ISCREATED.poly = true;
-	//	ISCREATED.type = DeclType.SORT;
+        SEQCONCAT.smt = "";
+        SEQCONCAT.poly = true;
+        SEQCONCAT.type = OperationType.SEQ;
 
-		CREATE.smt = "";
-		CREATE.poly = true;
-//		CREATE.type = DeclType.SORT;
+        ISCREATED.smt = "";
+        ISCREATED.poly = true;
+        ISCREATED.type = OperationType.SORT;
 
-		ANON.smt = "";
-		ANON.poly = false;
-		//ANON.type = DeclType.SORT;
+        CREATE.smt = "";
+        CREATE.poly = true;
+        CREATE.type = OperationType.SORT;
 
-		SEQCONS.smt = "";
-		SEQCONS.poly = true;
-		//SEQCONS.type = DeclType.SEQ;
+        ANON.smt = "";
+        ANON.poly = false;
+        ANON.type = OperationType.SORT;
 
-		SEQEMPTY.smt = "";
-		SEQEMPTY.poly = true;
-		//SEQEMPTY.type = DeclType.SEQ;
+        SEQCONS.smt = "";
+        SEQCONS.poly = true;
+        SEQCONS.type = OperationType.SEQ;
 
-		SEQUPD.smt = "";
-		SEQUPD.poly = true;
-		//SEQUPD.type = DeclType.SEQ;
+        SEQEMPTY.smt = "";
+        SEQEMPTY.poly = true;
+        SEQEMPTY.type = OperationType.SEQ;
 
-		SEQGET.smt = "";
-		SEQGET.poly = true;
-		//SEQGET.type = DeclType.SEQ;
+        SEQUPD.smt = "";
+        SEQUPD.poly = true;
+        SEQUPD.type = OperationType.SEQ;
 
-		SEQLEN.smt = "";
-		SEQLEN.poly = true;
-	//	SEQLEN.type = DeclType.SEQ;
+        SEQGET.smt = "";
+        SEQGET.poly = true;
+        SEQGET.type = OperationType.SEQ;
 
-		SETIN.smt = "";
-		SETIN.poly = true;
-//		SETIN.type = DeclType.SET;
+        SEQLEN.smt = "";
+        SEQLEN.poly = true;
+        SEQLEN.type = OperationType.SEQ;
 
-		SETADD.smt = "";
-		SETADD.poly = true;
-		//SETADD.type = DeclType.SET;
-	}
+        SETIN.smt = "";
+        SETIN.poly = true;
+        SETIN.type = OperationType.SET;
 
-	public String toSMTLib(List<String> type) {
-		// special cases here ...
+        SETADD.smt = "";
+        SETADD.poly = true;
+        SETADD.type = OperationType.SET;
+    }
 
-		if (poly) {
-			String typedSMT = smt;
-			for (String t : type) {
-				typedSMT += t;
-			}
-			return typedSMT;
-		}
-		return smt;
-	}
-	
+    public String toSMTLib(Type type) {
+        // special cases here ...
 
-	
-	public Boolean getPoly() {
-		return poly;
-	}
+        if (poly) {
+            return smt + type.toString();
+        }
+        return smt;
+    }
 
+    public Boolean isPoly() {
+        return poly;
+    }
+    
+    public OperationType getType() {
+        return type;
+    }
 
 }
