@@ -20,7 +20,7 @@ public class SMTConstExpression extends SMTExpression {
     public String toPSMT() { //TODO unique null
         
 
-        return this.name;
+        return this.name + " ";
     }
 
 }

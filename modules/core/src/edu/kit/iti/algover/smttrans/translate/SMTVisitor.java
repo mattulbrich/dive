@@ -1,16 +1,20 @@
 package edu.kit.iti.algover.smttrans.translate;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import edu.kit.iti.algover.smttrans.translate.expressions.SMTApplExpression;
 import edu.kit.iti.algover.smttrans.translate.expressions.SMTConstExpression;
 import edu.kit.iti.algover.smttrans.translate.expressions.SMTExpression;
+import edu.kit.iti.algover.smttrans.translate.expressions.SMTLetExpression;
 import edu.kit.iti.algover.smttrans.translate.expressions.SMTVarExpression;
 import edu.kit.iti.algover.term.ApplTerm;
 import edu.kit.iti.algover.term.LetTerm;
 import edu.kit.iti.algover.term.QuantTerm;
+import edu.kit.iti.algover.term.Term;
 import edu.kit.iti.algover.term.TermVisitor;
 import edu.kit.iti.algover.term.VariableTerm;
+import edu.kit.iti.algover.util.Pair;
 import edu.kit.iti.algover.util.Util;
 
 public class SMTVisitor implements TermVisitor<Type, SMTExpression, RuntimeException> {
@@ -37,18 +41,17 @@ public class SMTVisitor implements TermVisitor<Type, SMTExpression, RuntimeExcep
             // System.out.println(sc.toPSMT());
             return sc;
         }
-       // System.out.println(applTerm.toString());
+        // System.out.println(applTerm.toString());
 
-        System.out.println("T " + currentType.toString());
-        System.out.println("FS " + fs);
-        
-//        if (currentType.getArity() > 1) {
-//            return new SMTApplExpression(Type.getFS(fs), currentType.pop(), children);
-//        } 
-//            return new SMTApplExpression(Type.getFS(fs), Type.makeBoolType(), children);
-        
+        // System.out.println("T " + currentType.toString());
+        // System.out.println("FS " + fs);
 
-         SMTApplExpression sa = new SMTApplExpression(Type.getFS(fs), currentType, children);
+        // if (currentType.getArity() > 1) {
+        // return new SMTApplExpression(Type.getFS(fs), currentType.pop(), children);
+        // }
+        // return new SMTApplExpression(Type.getFS(fs), Type.makeBoolType(), children);
+
+        SMTApplExpression sa = new SMTApplExpression(Type.getFS(fs), currentType, children);
 
         // if (Iterables.size(operators) > 1) {
         // return new
@@ -59,16 +62,23 @@ public class SMTVisitor implements TermVisitor<Type, SMTExpression, RuntimeExcep
         // SMTExpression(OperationMatcher.matchOp(Iterables.get(operators,0)),
         // children);
         // }
-         
-         return sa;
 
-
+        return sa;
 
     }
 
     @Override
     public SMTExpression visit(LetTerm letTerm, Type t) throws RuntimeException {
+        System.out.println("LT " + letTerm.toString());
+        SMTExpression inner = letTerm.getTerm(0).accept(this, t);
+        List<SMTExpression> subs = new ArrayList<>();
 
+        for (Pair<VariableTerm, Term> pair : letTerm.getSubstitutions()) {
+            // subs.add(new SMTVarExpression(pair.fst.getName(),
+            // pair.snd.accept(this, null)));
+        }
+        // return new SMTLetExpression("let", UNIVERSE, new SExpr(substitutions),
+        // inner);
         return null;
     }
 

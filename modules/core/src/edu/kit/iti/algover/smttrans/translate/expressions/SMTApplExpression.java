@@ -16,17 +16,14 @@ public class SMTApplExpression extends SMTExpression{
         
         
         StringBuilder sb = new StringBuilder();
-        sb.append("( ");
-        
-        try {
+        sb.append("(");
         sb.append(op.toSMTLib(this.type) + " ");
         for (SMTExpression c : children) {
             sb.append(c.toPSMT());
         }
         
-        } catch (NullPointerException e) {
-            
-        }
+        sb.append(") ");
+        
         return sb.toString();
         
     }
