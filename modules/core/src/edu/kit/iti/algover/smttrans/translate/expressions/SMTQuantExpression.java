@@ -1,10 +1,13 @@
 package edu.kit.iti.algover.smttrans.translate.expressions;
 
 import java.util.ArrayList;
+import java.util.LinkedHashSet;
 import java.util.List;
 
 import edu.kit.iti.algover.smttrans.data.Operation;
+import edu.kit.iti.algover.smttrans.translate.Dependency;
 import edu.kit.iti.algover.smttrans.translate.Type;
+import edu.kit.iti.algover.util.Pair;
 
 public class SMTQuantExpression extends SMTExpression {
 
@@ -19,16 +22,16 @@ public class SMTQuantExpression extends SMTExpression {
     }
 
     @Override
-    public String toPSMT() {
+    public Pair<LinkedHashSet<Dependency>, String> toPSMT() {
         StringBuilder sb = new StringBuilder();
         sb.append("(");
         sb.append(op.toSMTLib(type));
         sb.append("(");
-        sb.append(qVar.toPSMT());
+        sb.append(qVar.toPSMT().snd);
         sb.append(")");
-        sb.append(formula.toPSMT());
+        sb.append(formula.toPSMT().snd);
         sb.append(")");
-        return sb.toString();
+        return new Pair<LinkedHashSet<Dependency>, String>(null,sb.toString());
     }
 
 }

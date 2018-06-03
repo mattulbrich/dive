@@ -1,10 +1,11 @@
 package edu.kit.iti.algover.smttrans.translate.expressions;
 
-import java.util.ArrayList;
+import java.util.LinkedHashSet;
 import java.util.List;
 
 import edu.kit.iti.algover.smttrans.data.Operation;
-import edu.kit.iti.algover.smttrans.translate.Type;
+import edu.kit.iti.algover.smttrans.translate.Dependency;
+import edu.kit.iti.algover.util.Pair;
 
 public class SMTLetExpression extends SMTExpression {
 
@@ -18,13 +19,18 @@ public class SMTLetExpression extends SMTExpression {
     }
 
     @Override
-    public String toPSMT() {
+    public Pair<LinkedHashSet<Dependency>, String> toPSMT() {
+        
         StringBuilder sb = new StringBuilder();
         for (SMTExpression s : subs) {
-            sb.append(s.toPSMT());
+            sb.append(s.toPSMT().snd);
         }
-        sb.append(inner.toPSMT());
-        return sb.toString();
+        sb.append(")");
+        sb.append("(assert ");
+        sb.append(inner.toPSMT().snd);
+        sb.append(")");
+        //return sb.toString();
+        return new Pair<LinkedHashSet<Dependency>, String>(null, sb.toString());
     }
 
 }

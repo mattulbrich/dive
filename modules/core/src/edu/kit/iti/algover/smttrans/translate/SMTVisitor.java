@@ -53,13 +53,13 @@ public class SMTVisitor implements TermVisitor<Type, SMTExpression, RuntimeExcep
         // return new SExpr(quantifier, BOOL, qqvar, formula);
         
        SMTExpression formula = quantTerm.getTerm(0).accept(this, t);
-        System.out.println("QUANT: " + quantTerm.toString());
+       // System.out.println("QUANT: " + quantTerm.toString());
         
-        System.out.println("Q " + quantifier.name());
-        System.out.println("BV: " + boundVar.toString() + " : " + boundVar.getSort().getName());
+       // System.out.println("Q " + quantifier.name());
+       // System.out.println("BV: " + boundVar.toString() + " : " + boundVar.getSort().getName());
         //SMTExpression var = boundVar.accept(this, t);
         SMTVarExpression var = new SMTVarExpression(boundVar.getName(), new SMTConstExpression(boundVar.getSort().getName()));
-        System.out.println("F " + quantTerm.getTerm(0).toString());
+     //   System.out.println("F " + quantTerm.getTerm(0).toString());
         return new SMTQuantExpression(quantifier, Type.makeBoolType(), var, formula);
        // return new SMTConstExpression("debug", Type.makeIntType());
     }
@@ -132,10 +132,10 @@ public class SMTVisitor implements TermVisitor<Type, SMTExpression, RuntimeExcep
         SMTExpression inner = letTerm.getTerm(0).accept(this, t);
         List<SMTExpression> subs = new ArrayList<>();
 
-        System.out.println("!");
+      //  System.out.println("!");
         for (Pair<VariableTerm, Term> pair : letTerm.getSubstitutions()) {
             subs.add(new SMTVarExpression(pair.fst.getName(), pair.snd.accept(this, t)));
-            System.out.println(pair.toString());
+        //    System.out.println(pair.toString());
         }
         return new SMTLetExpression(subs, inner);
     }

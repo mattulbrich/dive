@@ -2,11 +2,14 @@ package edu.kit.iti.algover.smttrans.translate.expressions;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.LinkedHashSet;
 import java.util.List;
 
 import edu.kit.iti.algover.smttrans.data.Operation;
 import edu.kit.iti.algover.smttrans.data.OperationMatcher;
+import edu.kit.iti.algover.smttrans.translate.Dependency;
 import edu.kit.iti.algover.smttrans.translate.Type;
+import edu.kit.iti.algover.util.Pair;
 
 public abstract class SMTExpression {
 
@@ -14,7 +17,7 @@ public abstract class SMTExpression {
     protected Type type;
     protected List<SMTExpression> children;
 
-    public abstract String toPSMT();
+    public abstract Pair<LinkedHashSet<Dependency>, String> toPSMT();
 
     public SMTExpression(String op, Type type, List<SMTExpression> children) {
         this.op = OperationMatcher.matchOp(op);
