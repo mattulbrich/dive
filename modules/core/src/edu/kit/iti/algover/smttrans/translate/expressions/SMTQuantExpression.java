@@ -24,6 +24,7 @@ public class SMTQuantExpression extends SMTExpression {
     @Override
     public Pair<LinkedHashSet<Dependency>, String> toPSMT() {
         StringBuilder sb = new StringBuilder();
+        LinkedHashSet<Dependency> set = new LinkedHashSet<>();
         sb.append("(");
         sb.append(op.toSMTLib(type));
         sb.append("(");
@@ -31,7 +32,7 @@ public class SMTQuantExpression extends SMTExpression {
         sb.append(")");
         sb.append(formula.toPSMT().snd);
         sb.append(")");
-        return new Pair<LinkedHashSet<Dependency>, String>(null,sb.toString());
+        return new Pair<LinkedHashSet<Dependency>, String>(set,sb.toString());
     }
 
 }

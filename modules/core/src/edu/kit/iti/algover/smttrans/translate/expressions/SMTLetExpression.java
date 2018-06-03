@@ -20,7 +20,7 @@ public class SMTLetExpression extends SMTExpression {
 
     @Override
     public Pair<LinkedHashSet<Dependency>, String> toPSMT() {
-        
+        LinkedHashSet<Dependency> set = new LinkedHashSet<>();
         StringBuilder sb = new StringBuilder();
         for (SMTExpression s : subs) {
             sb.append(s.toPSMT().snd);
@@ -30,7 +30,7 @@ public class SMTLetExpression extends SMTExpression {
         sb.append(inner.toPSMT().snd);
         sb.append(")");
         //return sb.toString();
-        return new Pair<LinkedHashSet<Dependency>, String>(null, sb.toString());
+        return new Pair<LinkedHashSet<Dependency>, String>(set, sb.toString());
     }
 
 }

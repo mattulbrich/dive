@@ -34,7 +34,7 @@ public enum Operation {
       
         ARR2SELECT.type = OperationType.ARR;
         
-        AND.smt = "$and";
+        AND.smt = "and";
         AND.poly = false;
         AND.type = OperationType.NONE;
         
@@ -49,6 +49,7 @@ public enum Operation {
         IMP.smt = "=>";
         IMP.poly = false;
         IMP.type = OperationType.NONE;
+        
         ARRLEN.smt = "arrlen";
         ARRLEN.poly = true;
         ARRLEN.type = OperationType.ARR;
@@ -175,7 +176,7 @@ public enum Operation {
         SETADD.poly = true;
         SETADD.type = OperationType.SET;
 
-        HEAP.smt = ""; // TODO
+        HEAP.smt = "heap"; // TODO
         HEAP.poly = false;
         HEAP.type = OperationType.SORT;
 

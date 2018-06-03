@@ -29,6 +29,9 @@ public class SMTTerm {
     public String toPSMT() {
         
         Pair<LinkedHashSet<Dependency>, String> data = expression.toPSMT();
+        for (Dependency d : data.fst) {
+            System.out.println(d.toString());
+        }
         StringBuilder sb = new StringBuilder();
         sb.append("(assert ");
         //sb.append(expression.toPSMT());
