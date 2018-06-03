@@ -8,7 +8,7 @@ import edu.kit.iti.algover.smttrans.translate.Type;
 
 public enum Operation {
 
-    PLUS, MINUS, TIMES, GT, LT, EQ, NOT, GE, LE, NEG, ITE, ARR2SELECT, ARRSTORE, ARR2STORE, FIELDSTORE, FIELDSELECT, DECR, SETUNION, SETINTERSECT, SETCARD, SEQCONCAT, ISCREATED, CREATE, ANON, SEQCONS, SEQEMPTY, SEQUPD, SEQGET, SEQLEN, SETIN, SETADD, CONST, ARRLEN, ARR2LEN0, ARR2LEN1, EXISTS, FORALL, LET, ARRSELECT, VAR, HEAP;
+    PLUS, MINUS, TIMES, IMP, GT, LT, EQ, NOT, GE, LE, NEG, ITE, ARR2SELECT, ARRSTORE, ARR2STORE, FIELDSTORE, FIELDSELECT, DECR, SETUNION, SETINTERSECT, SETCARD, SEQCONCAT, ISCREATED, CREATE, ANON, SEQCONS, SEQEMPTY, SEQUPD, SEQGET, SEQLEN, SETIN, SETADD, CONST, ARRLEN, ARR2LEN0, ARR2LEN1, EXISTS, FORALL, LET, ARRSELECT, VAR, HEAP, AND;
 
     private String smt;
     private Boolean poly;
@@ -17,10 +17,27 @@ public enum Operation {
 
     static {
 
+        
+        FORALL.smt = "forall";
+        FORALL.poly = false;
+        FORALL.type = OperationType.NONE;
+        
+        EXISTS.smt = "exists";
+        EXISTS.poly = false;
+        EXISTS.type = OperationType.NONE;
+        
         ARRSELECT.smt = "arrselect";
         ARRSELECT.poly = true;
         ARRSELECT.type = OperationType.ARR;
+        
+        
+      
         ARR2SELECT.type = OperationType.ARR;
+        
+        AND.smt = "$and";
+        AND.poly = false;
+        AND.type = OperationType.NONE;
+        
         ARR2LEN0.smt = "arr2len0";
         ARR2LEN0.poly = true;
         ARR2LEN0.type = OperationType.ARR2;
@@ -29,6 +46,9 @@ public enum Operation {
         ARR2LEN1.poly = true;
         ARR2LEN1.type = OperationType.ARR2;
 
+        IMP.smt = "=>";
+        IMP.poly = false;
+        IMP.type = OperationType.NONE;
         ARRLEN.smt = "arrlen";
         ARRLEN.poly = true;
         ARRLEN.type = OperationType.ARR;
@@ -154,11 +174,11 @@ public enum Operation {
         SETADD.smt = "";
         SETADD.poly = true;
         SETADD.type = OperationType.SET;
-        
-        HEAP.smt = ""; //TODO
+
+        HEAP.smt = ""; // TODO
         HEAP.poly = false;
         HEAP.type = OperationType.SORT;
-        
+
     }
 
     public String toSMTLib(Type type) {
@@ -173,7 +193,7 @@ public enum Operation {
     public Boolean isPoly() {
         return poly;
     }
-    
+
     public OperationType getType() {
         return type;
     }

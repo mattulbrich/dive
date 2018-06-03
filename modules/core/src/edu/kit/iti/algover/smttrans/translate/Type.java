@@ -17,7 +17,6 @@ public class Type {
 
     private final String ARRNAME = "array";
 
-   
     public final static Type makeBoolType() {
         List<String> l = new ArrayList<>();
         l.add("Bool");
@@ -32,12 +31,20 @@ public class Type {
 
     private List<String> typeData;
 
+    public Type() {
+        this.typeData = new ArrayList<>();
+    }
+
     public Type(List<String> types) {
 
-            
-        
-        this.typeData = inferType(types);
-        
+//        try {
+            this.typeData = inferType(types);
+//        } catch (NullPointerException e) {
+//            System.out.println("NULL: ");
+//            System.out.println(types.toString());
+//            this.typeData = types;
+//        }
+
     }
 
     public int getArity() {
@@ -57,7 +64,7 @@ public class Type {
         return new Type(ops);
 
     }
-    
+
     public static String getFS(String poly) {
         String[] s = poly.split("<");
         return s[0];
@@ -87,4 +94,5 @@ public class Type {
         }
         return ty;
     }
+
 }

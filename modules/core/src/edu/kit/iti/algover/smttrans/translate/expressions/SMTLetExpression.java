@@ -12,7 +12,7 @@ public class SMTLetExpression extends SMTExpression {
     private List<SMTExpression> subs;
 
     public SMTLetExpression(List<SMTExpression> subs, SMTExpression inner) {
-        super("$let", null, new ArrayList<>());
+        super(Operation.LET);
         this.subs = subs;
         this.inner = inner;
     }
