@@ -6,6 +6,7 @@
 package edu.kit.iti.algover.proof;
 
 import java.lang.IllegalStateException;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;

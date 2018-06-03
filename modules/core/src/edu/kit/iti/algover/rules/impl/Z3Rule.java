@@ -21,6 +21,7 @@ import edu.kit.iti.algover.rules.ProofRuleApplicationBuilder;
 import edu.kit.iti.algover.rules.RuleException;
 import edu.kit.iti.algover.rules.TermSelector;
 import edu.kit.iti.algover.smt.SMTQuickNDirty;
+import edu.kit.iti.algover.smttrans.access.SolverAccess;
 import edu.kit.iti.algover.smttrans.translate.SMTTerm;
 import edu.kit.iti.algover.smttrans.translate.SMTVisitor;
 import edu.kit.iti.algover.smttrans.translate.expressions.SMTExpression;
@@ -70,6 +71,7 @@ public class Z3Rule extends AbstractProofRule {
     }
 
     private ProofRuleApplication refine(ProofNode target, ProofRuleApplication app) {
+        SolverAccess.evaluate("");
         PVC pvc = target.getPVC();
         String smtlib = translateToSMT(target.getPVC().getIdentifier(), target.getSequent(), pvc.getSymbolTable());
         // if(quickAndDirty(target.getPVC().getIdentifier(), target.getSequent(),

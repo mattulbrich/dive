@@ -4,7 +4,7 @@
 <project name="AlgoVer" default="build" basedir=".">
 
   <property name="VERSION" value="0.0"/>
-  
+
   <property name="z3.binary" value="z3"/>
   <!-- if z3 is not in your path, call "ant -Dz3.binary=/path/to/z3" -->
 
@@ -19,18 +19,18 @@
   </filelist>
 
   <target name="version" description="create a file with timestamp and version number">
-    <tstamp> 
+    <tstamp>
       <format property="NOW" pattern="yyyy-MM-dd kk:mm" locale="en,UK"/>
     </tstamp>
     <echo file="VERSION" append="false">${VERSION} - ${NOW}</echo>
   </target>
-  
-  <target name="init" description="run init in all modules"> 
+
+  <target name="init" description="run init in all modules">
     <subant target="build" verbose="true">
       <filelist refid="modules" />
     </subant>
   </target>
-  
+
   <target name="build" description="run build in all modules">
     <subant target="build" verbose="true">
       <filelist refid="modules" />
@@ -48,7 +48,7 @@
       <filelist refid="modules" />
     </subant>
   </target>
-     
+
   <target name="test" description="run the tests in all modules">
     <subant target="test" verbose="true">
         <property name="z3.binary" value="${z3.binary}"/>
@@ -56,14 +56,14 @@
     </subant>
     <concat>
       <fileset dir="modules"><include name="**/TEST*.xml"/></fileset>
-      <filterchain>    
+      <filterchain>
 	<linecontainsregexp>
 	  <regexp pattern="^&lt;testsuite"/>
 	</linecontainsregexp>
       </filterchain>
       </concat>
   </target>
-   
+
   <target name="jar" depends="build" description="creates the jar file">
     <jar jarfile="algover.jar">
       <fileset dir="modules/core/bin/" />
@@ -72,7 +72,7 @@
       <!-- <fileset dir="modules/key/bin/" /> -->
       <!-- <fileset dir="modules/smt/bin/" /> -->
       <zipfileset dir="." includes="VERSION" prefix="META-INF"/>
-      
+
       <manifest>
         <!-- Who is building this jar? -->
         <attribute name="Built-By" value="${user.name}"/>
@@ -104,7 +104,7 @@
         <attribute name="Implementation-Vendor" value="ITI, Karlsruhe Institute of Technology"/>
         <attribute name="Implementation-Title" value="Algo Ver FX" />
         <attribute name="Implementation-Version" value="${VERSION} - ${NOW}"/>
-        <attribute name="Class-Path" value="lib/antlr.jar lib/antlr-4.7-complete.jar lib/controlsfx-8.40.13.jar lib/jpplib.jar lib/nonnull.jar lib/richtextfx-fat-1.0.0-SNAPSHOT.jar lib/fontawesomefx-8.9.jar lib/guava-23.0.jar lib/jfoenix.jar" />
+        <attribute name="Class-Path" value="lib/antlr.jar lib/antlr-4.7-complete.jar lib/controlsfx-8.40.13.jar lib/jpplib.jar lib/nonnull.jar lib/richtextfx-fat-1.0.0-SNAPSHOT.jar lib/fontawesomefx-8.9.jar lib/guava-23.0.jar lib/jfoenix.jar lib/com.microsoft.z3.jar" />
         <attribute name="Main-Class" value="edu.kit.iti.algover.AlgoVerApplication"/>
         <attribute name="SplashScreen-Image" value="to/be/done.png"/>
       </manifest>
@@ -120,7 +120,7 @@
   </target>
 
   <!--
-  <target name="copyright" 
+  <target name="copyright"
 	  description="Update copyright notes in java files">
     <taskdef name="copyright" classname="CopyrightTask" classpath="lib" />
     <copyright file="LICENSE.header">
