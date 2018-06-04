@@ -2,6 +2,8 @@ package edu.kit.iti.algover.proof;
 
 import edu.kit.iti.algover.project.Project;
 import edu.kit.iti.algover.script.ast.*;
+import edu.kit.iti.algover.script.exceptions.InterpreterRuntimeException;
+import edu.kit.iti.algover.script.exceptions.ScriptCommandNotApplicableException;
 import edu.kit.iti.algover.script.interpreter.Interpreter;
 import edu.kit.iti.algover.script.interpreter.InterpreterBuilder;
 import edu.kit.iti.algover.script.parser.DefaultASTVisitor;
@@ -128,13 +130,12 @@ public class Proof {
      * This will also parse the previously set script text. After this
      * {@link #getProofScript()} will return a valid script, if parsing is successful.
      */
-    public void interpretScript() {
+    public void interpretScript() throws InterpreterRuntimeException, ScriptCommandNotApplicableException {
         assert script != null;
 
         ProofNode newRoot = ProofNode.createRoot(pvc);
 
         try {
-            // REVIEW: Are there no exceptions thrown by the parser? :-O
             // TODO Exception handling
             this.scriptAST = Facade.getAST(script);
 
@@ -144,20 +145,24 @@ public class Proof {
             new ProofNodeInterpreterManager(interpreter);
             interpreter.newState(newRoot);
 
-            // TODO Exception handling
             scriptAST.getBody().forEach(interpreter::interpret);
-
             this.proofRoot = newRoot;
             this.failException = null;
             proofStatus.setValue(newRoot.allLeavesClosed() ? ProofStatus.CLOSED : ProofStatus.OPEN);
 
-        /*} catch (ScriptCommandNotApplicableException snap) {
-            //TODO rethink this decision
+        } catch (ScriptCommandNotApplicableException snap) {
+
             this.proofRoot = newRoot;
             this.failException = snap;
-            proofStatus.setValue(ProofStatus.OPEN);
+            proofStatus.setValue(ProofStatus.FAILING);
+            throw snap;
+        } catch (InterpreterRuntimeException ire) {
+            this.proofRoot = newRoot;
+            this.failException = ire;
+            proofStatus.setValue(ProofStatus.FAILING);
 
-*/
+            throw ire;
+
         } catch(Exception ex) {
             // publish the proof root even if the proof has (partially) failed.
             this.proofRoot = newRoot;
@@ -239,8 +244,6 @@ public class Proof {
     }
 }
 
-// REVIEW : Needed? Was never run.
-
 /**
  * Class handling the creation of the proof tree when interpreting script.
  * EntryListeners are informed when entering an ASTNode in the Interpreter
@@ -250,6 +253,12 @@ class ProofNodeInterpreterManager {
     final Interpreter<ProofNode> interpreter;
     private ProofNode lastSelectedGoalNode;
 
+    /**
+     * The proofNodeInterpreterManager adds an entry and an exit listner to the interpreter to listen what event happen
+     * during AST-Node visiting
+     *
+     * @param interpreter
+     */
     public ProofNodeInterpreterManager(Interpreter<ProofNode> interpreter) {
         this.interpreter = interpreter;
         interpreter.getExitListeners().add(new ExitListener());
