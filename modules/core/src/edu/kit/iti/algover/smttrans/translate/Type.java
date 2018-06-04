@@ -15,6 +15,31 @@ import edu.kit.iti.algover.smttrans.data.OperationType;
 
 public class Type {
 
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = 1;
+        result = prime * result + ((typeData == null) ? 0 : typeData.hashCode());
+        return result;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (obj == null)
+            return false;
+        if (getClass() != obj.getClass())
+            return false;
+        Type other = (Type) obj;
+        if (typeData == null) {
+            if (other.typeData != null)
+                return false;
+        } else if (!typeData.equals(other.typeData))
+            return false;
+        return true;
+    }
+
     private final String ARRNAME = "array";
 
     public final static Type makeBoolType() {

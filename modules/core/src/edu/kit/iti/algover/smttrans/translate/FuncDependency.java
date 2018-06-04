@@ -1,5 +1,6 @@
 package edu.kit.iti.algover.smttrans.translate;
 
+import java.util.LinkedHashSet;
 import java.util.List;
 
 import edu.kit.iti.algover.smttrans.data.Axiom;
@@ -15,13 +16,35 @@ public class FuncDependency extends Dependency {
     }
 
     @Override
-    public List<Axiom> instantiate() {
-        // TODO Auto-generated method stub
-        return null;
+    public LinkedHashSet<String> instantiate() {
+        LinkedHashSet<String> inst = new LinkedHashSet<>();
+        return inst;
     }
     @Override
     public String toString() {
         return op.name() + " : " + this.t.toString();
+    }
+
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = super.hashCode();
+        result = prime * result + ((op == null) ? 0 : op.hashCode());
+        return result;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (!super.equals(obj))
+            return false;
+        if (!(obj instanceof FuncDependency))
+            return false;
+        FuncDependency other = (FuncDependency) obj;
+        if (op != other.op)
+            return false;
+        return true;
     }
 
 }

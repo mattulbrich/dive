@@ -22,6 +22,7 @@ import edu.kit.iti.algover.rules.RuleException;
 import edu.kit.iti.algover.rules.TermSelector;
 import edu.kit.iti.algover.smt.SMTQuickNDirty;
 import edu.kit.iti.algover.smttrans.access.SolverAccess;
+import edu.kit.iti.algover.smttrans.data.SMTContainer;
 import edu.kit.iti.algover.smttrans.translate.SMTTerm;
 import edu.kit.iti.algover.smttrans.translate.SMTVisitor;
 import edu.kit.iti.algover.smttrans.translate.expressions.SMTExpression;
@@ -71,9 +72,10 @@ public class Z3Rule extends AbstractProofRule {
     }
 
     private ProofRuleApplication refine(ProofNode target, ProofRuleApplication app) {
-        SolverAccess.evaluate("");
+       // SolverAccess.evaluate("");
         PVC pvc = target.getPVC();
-        String smtlib = translateToSMT(target.getPVC().getIdentifier(), target.getSequent(), pvc.getSymbolTable());
+        String smtlib = translateToSMT(target.getPVC().getIdentifier(), target.getSequent(), pvc.getSymbolTable()).toPSMT();
+        System.out.println(smtlib);
         // if(quickAndDirty(target.getPVC().getIdentifier(), target.getSequent(),
         // pvc.getSymbolTable())) {
         // ProofRuleApplicationBuilder builder = new ProofRuleApplicationBuilder(app);
@@ -90,20 +92,19 @@ public class Z3Rule extends AbstractProofRule {
     }
     
 
-    private String translateToSMT(String identifier, Sequent sequent, SymbolTable symbolTable) {
+    private SMTContainer translateToSMT(String identifier, Sequent sequent, SymbolTable symbolTable) {
         List<ProofFormula> antecedent = sequent.getAntecedent();
         List<ProofFormula> succedent = sequent.getSuccedent();
 
-        List<SMTTerm> terms = new ArrayList<>();
-        //Set<SMTDeclaration> declarations = new LinkedHashSet<>();
+        List<SMTTerm> aTerms = new ArrayList<>();
+        List<SMTTerm> sTerms = new ArrayList<>();
+        
 
         for (ProofFormula pa : antecedent) {
 
             SMTExpression e = pa.getTerm().accept(new SMTVisitor(), null);
             SMTTerm t = new SMTTerm(e);
-            terms.add(t);
-            //System.out.println("SMT-LIB: " + t.toPSMT().getPSMTExpressions());
-            System.out.println("SMT-LIB: " + t.toPSMT());
+            aTerms.add(t);
 
             
         }
@@ -111,12 +112,12 @@ public class Z3Rule extends AbstractProofRule {
             // negate
             SMTExpression e = ps.getTerm().accept(new SMTVisitor(), null);
             SMTTerm t = new SMTTerm(e);
-            
-            System.out.println("SMT-LIB: " + t.toPSMT());
+            sTerms.add(t);
+           
         }
 
 
-        return "";
+        return new SMTContainer(aTerms, sTerms);
     }
 
     @Override

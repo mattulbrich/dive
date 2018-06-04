@@ -10,35 +10,27 @@ import edu.kit.iti.algover.util.Pair;
 public class SMTTerm {
 
     private SMTExpression expression;
-    private List<Dependency> dependencies;
+    private LinkedHashSet<Dependency> dependencies = new LinkedHashSet<>();
+    private String psmt = "";
 
     public SMTTerm(SMTExpression e) {
         this.expression = e;
+        Pair<LinkedHashSet<Dependency>, String> data = expression.toPSMT();
+        this.dependencies.addAll(data.fst);
+        this.psmt = data.snd;
     }
 
-    public List<Dependency> getDependencies() {
+    public LinkedHashSet<Dependency> getDependencies() {
         return dependencies;
     }
 
-//    public SMTContainer toPSMT() {
-//        return null;
-//    }
-
-    
-    //debug
     public String toPSMT() {
-        
-        Pair<LinkedHashSet<Dependency>, String> data = expression.toPSMT();
-        for (Dependency d : data.fst) {
-            System.out.println(d.toString());
-        }
         StringBuilder sb = new StringBuilder();
         sb.append("(assert ");
-        //sb.append(expression.toPSMT());
-        sb.append(data.snd);
+        sb.append(this.psmt);
         sb.append(")");
         String result = sb.toString().replaceAll("\\s+(?=[),])", "");
         return result.replaceAll("\\)+(?=[^\\)])", ") ");
-        
+
     }
 }
