@@ -183,7 +183,6 @@ public class TermMatcherTest {
         String[] conAntec = {"f(1)"};
         String[] concSucc = {"g(1)", "f(1)"};
         matchSeqHelper(schemAntec, schemSucc, conAntec, concSucc);
-        //may reveil a bug
     }
 
     @Test
@@ -212,5 +211,15 @@ public class TermMatcherTest {
         String[] concSucc = {"f(2)", "f(1)"};
         matchSeqHelper(schemAntec, schemSucc, conAntec, concSucc);
     }
+
+    @Test
+    public void matchSeqEindeutig() throws Exception {
+        String[] schemAntec = {"2+1"};
+        String[] schemSucc = {};
+        String[] conAntec = {"f(1)==f(1)", "2+1", "2+1"};
+        String[] concSucc = {};
+        matchSeqHelper(schemAntec, schemSucc, conAntec, concSucc);
+    }
+
 
 }
