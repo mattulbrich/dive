@@ -86,7 +86,7 @@ public class Interpreter<T> extends DefaultASTVisitor<Object>
      */
     public void interpret(ProofScript script) {
         if (stateStack.empty()) {
-            throw new InterpreterRuntimeException("no state on stack. call newState before interpret");
+            throw new InterpreterRuntimeException("No state on stack. call newState before interpret");
         }
         script.accept(this);
     }
