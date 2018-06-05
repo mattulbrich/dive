@@ -5,6 +5,7 @@ import java.util.List;
 
 import edu.kit.iti.algover.smttrans.data.Operation;
 import edu.kit.iti.algover.smttrans.translate.expressions.SMTApplExpression;
+import edu.kit.iti.algover.smttrans.translate.expressions.SMTBVExpression;
 import edu.kit.iti.algover.smttrans.translate.expressions.SMTConstExpression;
 import edu.kit.iti.algover.smttrans.translate.expressions.SMTExpression;
 import edu.kit.iti.algover.smttrans.translate.expressions.SMTLetExpression;
@@ -23,8 +24,7 @@ public class SMTVisitor implements TermVisitor<Type, SMTExpression, RuntimeExcep
 
     @Override
     public SMTExpression visit(VariableTerm variableTerm, Type t) throws RuntimeException {
-        //return new SMTVarExpression(variableTerm.getName(), variableTerm.getTerm(0).accept(this, t)); // ?
-        return new SMTConstExpression(variableTerm.getName()); //TODO
+        return new SMTConstExpression(variableTerm.getName());
     }
 
     @Override
@@ -58,8 +58,12 @@ public class SMTVisitor implements TermVisitor<Type, SMTExpression, RuntimeExcep
        // System.out.println("Q " + quantifier.name());
        // System.out.println("BV: " + boundVar.toString() + " : " + boundVar.getSort().getName());
         //SMTExpression var = boundVar.accept(this, t);
-        SMTVarExpression var = new SMTVarExpression(boundVar.getName(), new SMTConstExpression(boundVar.getSort().getName()));
-     //   System.out.println("F " + quantTerm.getTerm(0).toString());
+       
+       
+       //SMTVarExpression var = new SMTVarExpression(boundVar.getName(), new SMTConstExpression(boundVar.getSort().getName()));
+       SMTBVExpression var = new SMTBVExpression(boundVar.getName(),new Type(boundVar.getSort().getName()));
+       
+       //   System.out.println("F " + quantTerm.getTerm(0).toString());
         return new SMTQuantExpression(quantifier, Type.makeBoolType(), var, formula);
        // return new SMTConstExpression("debug", Type.makeIntType());
     }

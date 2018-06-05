@@ -73,10 +73,12 @@ public class AxiomContainer {
 
     }
 
-    public static String instantiateSort(OperationType type, Type t) {
+    public static List<String> instantiateSort(OperationType type, Type t) {
         // TODO Auto-generated method stub
+        List<String> l = new ArrayList<>();
         String s = sorts.getOrDefault(type, t.toString()); // TODO sort
-        return null;
+        l.add("(declare-sort " + s + ")");
+        return l;
     }
 
 }

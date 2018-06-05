@@ -1,6 +1,47 @@
 package edu.kit.iti.algover.smttrans.data;
 
 public enum Axiom {
-    SET_1, SET_2, ARR_INST, SORT_INST, ARR2_INST,
+    /**
+     * Sorts
+     */
+
+    // sets
+    SET_INST, SETEMPTY_INST,
+
+    // multisets
+    MULTISET_INST, MULTISETEMTPY_INST,
+
+    // sequences
+    SEQQ_INST, SEQEMTY_INST,
+
+    // Heap/Arrays
+
+    /**
+     * Functions
+     */
+
+    // sets
+    SET_UNION, SET_INTERSECT, SET_MINUS, SET_CARD, SET_SUBSET, SET_SINGLE, SET_INSERT, SET_SELECT, SET_IN,
+
+    // multisets
+    MULTISET_UNION, MULTISET_INTERSECT, MULTISET_MINUS, MULTISET_CARD, MULTISET_SUBSET, MULTISET_INSERT, MULTISET_SELECT, MULTISET_IN, MULTISET_SINGLE, MULTISET_MAX, MULTISET_MIN,
+
+    // sequences
+    SEQ_GET, SEQ_SUBSELECT, SEQ_CONCAT, SEQ_APPEND, SEQ_LEN, SEQ_SINGLE,
+    /**
+     * Axioms
+     */
+
+    // sets
+    SET_1, SET_2, SET_3, SET_4, SET_5, SET_CARD_1, SET_CARD_2, SET_CARD_3, SET_CARD_4,
+
+    // multisets
+    MULTISET_1, MULTISET_2, MULTISET_3, MULTISET_4, MULTISET_5, MULTISET_6, MULTISET_7, MULTISET_8, MULTISET_CARD_1, MULTISET_CARD_2, MULTISET_CARD_3, MULTISET_CARD_4,
+
+    // sequences
+    SEQ_1, SEQ_2, SEQ_3, SEQ_4, SEQ_5, SEQ_LEN_1, SEQ_LEN_2, SEQ_LEN_3, SEQ_LEN_4, SEQ_LEN_5,
+
+    // Heap/Arrays
+    ARR_1, ARR2_1, HEAP_1, HEAP_2, HEAP_3, HEAP_4, HEAP_5, HEAP_6
 
 }

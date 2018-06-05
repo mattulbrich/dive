@@ -28,6 +28,7 @@ public class SMTTerm {
 
     public String toPSMT() {
         StringBuilder sb = new StringBuilder();
+        sb.append("\r\n");
         sb.append("(assert ");
         sb.append(this.psmt);
         sb.append(")");

@@ -26,6 +26,7 @@ public class SMTLetExpression extends SMTExpression {
             sb.append(s.toPSMT().snd);
         }
         sb.append(")");
+        sb.append("\r\n");
         sb.append("(assert ");
         sb.append(inner.toPSMT().snd);
         sb.append(")");

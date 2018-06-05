@@ -72,6 +72,12 @@ public class Type {
 
     }
 
+    public Type(String name) {
+        List<String> t = new ArrayList<>();
+        t.add(name);
+        this.typeData = inferType(t);
+    }
+
     public int getArity() {
         return typeData.size();
     }

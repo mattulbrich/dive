@@ -19,11 +19,13 @@ public class ConstDependency extends Dependency {
         
         //declare-const
         StringBuilder sb = new StringBuilder();
+
         sb.append("(declare-const ");
         sb.append(name);
         sb.append(" ");
         sb.append(t.toString());
         sb.append(")");
+        sb.append("\r\n"); 
         inst.add(sb.toString());
         return inst;
     }
