@@ -27,6 +27,9 @@ public class SMTConstExpression extends SMTExpression {
         super(Operation.CONST);
         if(name.toLowerCase().equals("null")) {
             this.name = name + type.toString();
+        //} else if (name.startsWith("$")){
+          //  this.name = name.replace("$", "");
+        //}
         } else {
             this.name = name;
         }

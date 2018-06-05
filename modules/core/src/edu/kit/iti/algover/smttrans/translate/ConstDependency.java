@@ -14,6 +14,7 @@ public class ConstDependency extends Dependency {
     @Override
     public LinkedHashSet<String> instantiate() {
         LinkedHashSet<String> inst = new LinkedHashSet<>();
+        
         //declare sort with type
         
         //declare-const

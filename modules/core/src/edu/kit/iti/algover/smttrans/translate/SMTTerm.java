@@ -17,6 +17,8 @@ public class SMTTerm {
         this.expression = e;
         Pair<LinkedHashSet<Dependency>, String> data = expression.toPSMT();
         this.dependencies.addAll(data.fst);
+      
+        //this.dependencies.forEach(d-> System.out.println(d.instantiate()));
         this.psmt = data.snd;
     }
 
@@ -29,7 +31,7 @@ public class SMTTerm {
         sb.append("(assert ");
         sb.append(this.psmt);
         sb.append(")");
-        String result = sb.toString().replaceAll("\\s+(?=[),])", "");
+        String result = sb.toString().replaceAll("\\s+(?=[),])", "").replace("$", ""); //TODO
         return result.replaceAll("\\)+(?=[^\\)])", ") ");
 
     }

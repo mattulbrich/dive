@@ -198,5 +198,9 @@ public enum Operation {
     public OperationType getType() {
         return type;
     }
+    
+    public List<Axiom> getInstantiations() {
+        return instantiations;
+    }
 
 }

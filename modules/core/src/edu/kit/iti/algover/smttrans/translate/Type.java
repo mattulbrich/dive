@@ -62,13 +62,13 @@ public class Type {
 
     public Type(List<String> types) {
 
-//        try {
-            this.typeData = inferType(types);
-//        } catch (NullPointerException e) {
-//            System.out.println("NULL: ");
-//            System.out.println(types.toString());
-//            this.typeData = types;
-//        }
+        // try {
+        this.typeData = inferType(types);
+        // } catch (NullPointerException e) {
+        // System.out.println("NULL: ");
+        // System.out.println(types.toString());
+        // this.typeData = types;
+        // }
 
     }
 
@@ -88,6 +88,10 @@ public class Type {
         List<String> ops = Arrays.asList(Iterables.toArray(operators, String.class));
         return new Type(ops);
 
+    }
+
+    public List<String> getTypeData() {
+        return typeData;
     }
 
     public static String getFS(String poly) {

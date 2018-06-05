@@ -16,10 +16,12 @@ public class SMTContainer {
         this.antecedent = a;
         this.succedent = s;
         for (SMTTerm t : a) {
-            this.dependencies.addAll(t.getDependencies());
-        }
+            this.dependencies.addAll(t.getDependencies());  
+                   }
         for (SMTTerm t : s) {
+            
             this.dependencies.addAll(t.getDependencies());
+
         }
     }
 
@@ -42,10 +44,12 @@ public class SMTContainer {
             if (d instanceof ConstDependency) {
                 constants.addAll(axioms);
             } else {
-                functions.addAll(functions);
+                functions.addAll(axioms);
             }
         }
 
+//        constants.forEach(c -> System.out.println("C: " + c));
+//        constants.forEach(f -> System.out.println("F: " + f));
         StringBuilder sb = new StringBuilder();
         constants.forEach(c -> sb.append(c));
         functions.forEach(f -> sb.append(f));

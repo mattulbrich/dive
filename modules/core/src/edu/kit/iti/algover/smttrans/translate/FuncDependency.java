@@ -4,6 +4,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 
 import edu.kit.iti.algover.smttrans.data.Axiom;
+import edu.kit.iti.algover.smttrans.data.AxiomContainer;
 import edu.kit.iti.algover.smttrans.data.Operation;
 
 public class FuncDependency extends Dependency {
@@ -18,6 +19,15 @@ public class FuncDependency extends Dependency {
     @Override
     public LinkedHashSet<String> instantiate() {
         LinkedHashSet<String> inst = new LinkedHashSet<>();
+        
+//        inst.add(AxiomContainer.instantiateSort(op.getType(), t));
+//        for (Axiom a : op.getInstantiations()) {
+//            
+//            inst.add(AxiomContainer.instantiateAxiom(a,t));
+//        }
+//        
+        inst.add(AxiomContainer.instantiateAxiom(Axiom.SET_1, t));//debug
+        //System.out.println(inst.toString());
         return inst;
     }
     @Override

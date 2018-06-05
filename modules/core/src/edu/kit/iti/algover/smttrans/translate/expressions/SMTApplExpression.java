@@ -21,6 +21,7 @@ public class SMTApplExpression extends SMTExpression{
         LinkedHashSet<Dependency> set = new LinkedHashSet<>();
         FuncDependency d = new FuncDependency(op, type);
         set.add(d);
+        
         StringBuilder sb = new StringBuilder();
         sb.append("(");
         sb.append(op.toSMTLib(this.type) + " ");
