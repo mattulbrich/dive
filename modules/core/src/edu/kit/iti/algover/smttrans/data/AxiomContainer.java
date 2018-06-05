@@ -13,33 +13,40 @@ import edu.kit.iti.algover.smttrans.translate.Type;
 
 public class AxiomContainer {
 
-    private static Map<Axiom, String> axioms = new HashMap<>();
-    private static Map<OperationType, String> sorts = new HashMap<>();
+
 
     private static final Pattern typeVars = Pattern.compile("(?<=par.)\\((.*?)\\)");
 
     static {
 
-        String setInst = "(define-sort Set (T) (Array T Bool))";
-        String seqqInst = "";
-        String mSetInst = "";
-        String heapInst = "";
-
-        sorts.put(OperationType.ARR, "");
-        sorts.put(OperationType.ARR2, "");
-        sorts.put(OperationType.SEQ, "");
-        sorts.put(OperationType.SET, "");
-        sorts.put(OperationType.MULTISET, "");
-
-        String set1 = "(assert (par (T)\r\n" + "(forall\r\n" + "(\r\n" + "    (s1 (Set T))\r\n" + "    (s2 (Set T))\r\n"
-                + "    (t T)\r\n" + ")\r\n" + "    (! \r\n" + "        (= (select (unionT s1 s2) t)\r\n"
-                + "        (or (select s1 t) (select s2 t))) \r\n" + "        :pattern (( select (unionT s1 s2) t))\r\n"
-                + "    ) \r\n" + ")))";
-        axioms.put(Axiom.SET_1, set1);
+//        String setInst = "(define-sort Set (T) (Array T Bool))";
+//        String seqqInst = "";
+//        String mSetInst = "";
+//        String heapInst = "";
+//
+//        sorts.put(OperationType.ARR, "");
+//        sorts.put(OperationType.ARR2, "");
+//        sorts.put(OperationType.SEQ, "");
+//        sorts.put(OperationType.SET, "");
+//        sorts.put(OperationType.MULTISET, "");
+//
+//        String set1 = "(assert (par (T)\r\n" + "(forall\r\n" + "(\r\n" + "    (s1 (Set T))\r\n" + "    (s2 (Set T))\r\n"
+//                + "    (t T)\r\n" + ")\r\n" + "    (! \r\n" + "        (= (select (unionT s1 s2) t)\r\n"
+//                + "        (or (select s1 t) (select s2 t))) \r\n" + "        :pattern (( select (unionT s1 s2) t))\r\n"
+//                + "    ) \r\n" + ")))";
+//        
+//        
+//        
+//        axioms.put(Axiom.SET_1, set1);
+        
+        
+        
+        
+        
     }
 
     public static String instantiateAxiom(Axiom a, Type t) {
-        return typeAxiom(axioms.get(a), t);
+        return typeAxiom(a.getSmt(), t);
     }
 
     private static String typeAxiom(String axiom, Type type) {
@@ -74,10 +81,9 @@ public class AxiomContainer {
     }
 
     public static List<String> instantiateSort(OperationType type, Type t) {
-        // TODO Auto-generated method stub
         List<String> l = new ArrayList<>();
-        String s = sorts.getOrDefault(type, t.toString()); // TODO sort
-        l.add("(declare-sort " + s + ")");
+        //String s = sorts.getOrDefault(type, t.toString()); // TODO sort
+        //l.add("(declare-sort " + s + ")");
         return l;
     }
 
