@@ -84,7 +84,7 @@ public class Type {
 
     public Type pop() {
         List<String> l = typeData.subList(1, typeData.size());
-        return new Type(typeData);
+        return new Type(l);
     }
 
     public static Type typeOperation(String poly) {

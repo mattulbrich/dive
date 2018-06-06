@@ -27,7 +27,8 @@ public class SMTVarExpression extends SMTExpression {
         sb.append(this.name);
         sb.append(" ");
         sb.append(partner.toPSMT().snd);
-        sb.append(")");
+        sb.append(") ");
+        
         return new Pair<LinkedHashSet<Dependency>, String>(set,sb.toString());
     }
 

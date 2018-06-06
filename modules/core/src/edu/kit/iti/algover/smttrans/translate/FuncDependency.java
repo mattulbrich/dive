@@ -20,7 +20,7 @@ public class FuncDependency extends Dependency {
     public LinkedHashSet<String> instantiate() {
         LinkedHashSet<String> inst = new LinkedHashSet<>();
         
-        inst.addAll(AxiomContainer.instantiateSort(op.getType(), t));
+        inst.addAll(AxiomContainer.instantiateSort(op.getType(), t)); 
         for (Axiom a : op.getInstantiations()) {
             
             inst.add(AxiomContainer.instantiateAxiom(a,t));

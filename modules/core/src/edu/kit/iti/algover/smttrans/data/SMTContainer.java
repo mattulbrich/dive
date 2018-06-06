@@ -16,10 +16,10 @@ public class SMTContainer {
         this.antecedent = a;
         this.succedent = s;
         for (SMTTerm t : a) {
-            this.dependencies.addAll(t.getDependencies());  
-                   }
+            this.dependencies.addAll(t.getDependencies());
+        }
         for (SMTTerm t : s) {
-            
+
             this.dependencies.addAll(t.getDependencies());
 
         }
@@ -34,26 +34,66 @@ public class SMTContainer {
         return sb.toString();
     }
 
+    // private String instantiateDep() {
+    //
+    // LinkedHashSet<String> constants = new LinkedHashSet<>();
+    // LinkedHashSet<String> functions = new LinkedHashSet<>();
+    //
+    // for (Dependency d : dependencies) {
+    // LinkedHashSet<String> axioms = d.instantiate();
+    //
+    // if (d instanceof ConstDependency) {
+    // constants.addAll(axioms);
+    // } else {
+    // functions.addAll(axioms);
+    // }
+    // }
+    //
+    //
+    // StringBuilder sb = new StringBuilder();
+    // constants.forEach(c -> sb.append(c));
+    // functions.forEach(f -> sb.append(f));
+    // return sb.toString();
+    //
+    // }
+
     private String instantiateDep() {
 
+        // LinkedHashSet<String> constants = new LinkedHashSet<>();
+        // LinkedHashSet<String> functions = new LinkedHashSet<>();
+        LinkedHashSet<String> sorts = new LinkedHashSet<>();
         LinkedHashSet<String> constants = new LinkedHashSet<>();
         LinkedHashSet<String> functions = new LinkedHashSet<>();
-        for (Dependency d : dependencies) {
-            LinkedHashSet<String> axioms = d.instantiate();
+        LinkedHashSet<String> axioms = new LinkedHashSet<>();
 
-            if (d instanceof ConstDependency) {
-                constants.addAll(axioms);
-            } else {
-                functions.addAll(axioms);
+        for (Dependency d : dependencies) {
+            LinkedHashSet<String> set = d.instantiate();
+            for (String s : set) {
+                if (s.startsWith("(declare-sort")) {
+                    sorts.add(s);
+                    continue;
+                } else if (s.startsWith("(declare-const")) {
+                    constants.add(s);
+                    continue;
+                } else {
+                    axioms.add(s);
+
+                }
             }
+            // if (d instanceof ConstDependency) {
+            // constants.addAll(axioms);
+            // } else {
+            // functions.addAll(axioms);
+            // }
         }
 
-//        constants.forEach(c -> System.out.println("C: " + c));
-//        constants.forEach(f -> System.out.println("F: " + f));
         StringBuilder sb = new StringBuilder();
-        constants.forEach(c -> sb.append(c));
-        functions.forEach(f -> sb.append(f));
+        sorts.forEach(s -> sb.append(s + "\r\n"));
+        constants.forEach(c -> sb.append(c + "\r\n"));
+        functions.forEach(f -> sb.append(f + "\r\n"));
+        axioms.forEach(a -> sb.append(a + "\r\n"));
         return sb.toString();
 
     }
+
 }

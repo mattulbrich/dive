@@ -2,6 +2,7 @@ package edu.kit.iti.algover.smttrans.data;
 
 public enum Axiom {
 
+    
     /**
      * Sorts
      */
@@ -70,11 +71,11 @@ public enum Axiom {
 
         // Heap/Arrays
         FIELD_INST.smt = "(declare-sort Field 2)";
-        HEAP_INST.smt = "(declare-sort Heap)";
+        HEAP_INST.smt = "(declare-sort Heap)\r\n";
         TYPE_INST.smt = "(declare-sort Type)";
         OBJECT_INST.smt = "(declare-sort Object)";
-        ARR_1_INST.smt = "(declare-sort Arr 1)";
-        ARR_2_INST.smt = "(declare-sort Arr2 1)";
+        ARR_1_INST.smt = "(declare-sort (par (T)ArrT))";
+        ARR_2_INST.smt = "(declare-sort (par (T)Arr2T))";
         TYPE_CONST.smt = "(declare-const (par (C) (Type.C Type)))";
 
         /**
@@ -129,7 +130,7 @@ public enum Axiom {
         MODH.smt = "(declare-fun modh (Heap (Set Object)) Heap)";
         ARRSELECT.smt = "(declare-fun (par (T) (arrselectT (Heap (Arr T) Int) T)))";
         ARRSTORE.smt = "(declare-fun (par (T) (arrstoreT (Heap (Arr T) Int T) Heap)))";
-        ARRLEN.smt = "(declare-fun (par (T) (arrlenT  ((Arr T)) Int)))";
+        ARRLEN.smt = "(declare-fun (par (T)(arrlenT ((Arr T)) Int)))";
         ARR2SELECT.smt = "(declare-fun (par (T) (arr2selectT (Heap (Arr2 T) Int Int) T)))";
         ARR2STORE.smt = "(declare-fun (par (T) (arr2storeT (Heap (Arr2 T) Int Int T) Heap)))";
         ARR2LEN0.smt = "(declare-fun (par (T) (arr2Tlen0  ((Arr2 T)) Int)))";

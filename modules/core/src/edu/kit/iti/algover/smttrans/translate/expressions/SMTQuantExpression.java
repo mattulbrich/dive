@@ -31,8 +31,9 @@ public class SMTQuantExpression extends SMTExpression {
         sb.append(qVar.toPSMT().snd);
         sb.append(")");
         sb.append(formula.toPSMT().snd);
-        sb.append(")");
-        return new Pair<LinkedHashSet<Dependency>, String>(set,sb.toString());
+       // sb.append(")");
+        String smt = sb.toString();
+        return new Pair<LinkedHashSet<Dependency>, String>(set,smt.substring(0,smt.length()-2)); //delete last parantheses
     }
 
 }
