@@ -152,13 +152,11 @@ public class SequentController extends FxmlController {
             try {
                 ProofNode nodeBefore = activeNode.get(activeProof);
                 while (nodeBefore.getChildren().size() > 0) {
-                    if (nodeBefore.getChildren().size() == 1) {
                         ProofNodeSelector newActiveNode = new ProofNodeSelector(activeNode, 0);
                         ProofNode node = newActiveNode.get(activeProof);
                         updateSequent(node.getSequent(), null);
                         activeNode = newActiveNode;
                         nodeBefore = activeNode.get(activeProof);
-                    }
                 }
             } catch (RuleException e) {
                 e.printStackTrace(); // should not happen, as long as the activeNode selector is correct
