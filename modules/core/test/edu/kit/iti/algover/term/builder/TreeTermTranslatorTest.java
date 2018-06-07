@@ -170,6 +170,9 @@ public class TreeTermTranslatorTest {
             { "3+?x", "$plus(3, ?x)" },
             { "5*_", "$times(5, _)" },
             { "_*5", "$times(_, 5)" },
+            { "_+_(:int)", "$plus(_, _)" },
+            { "?x(:set<object>) + ?y", "$union<object>(?x, ?y)" },
+            { "(?a: ?x+3)", "(?a: $plus(?x, 3))" },
             { "1 * ... i1+?x ...", "$times(1, (... $plus(i1, ?x) ...))" },
             { "if ?x then ?x else 5", "$ite<int>(?x, ?x, 5)" },
             { "forall i:int :: ?phi", "(forall i:int :: ?phi)" },
@@ -210,7 +213,7 @@ public class TreeTermTranslatorTest {
             { "loopHeap[c := c]", "Heap updates must modify a heap location" },
             { "loopHeap[c.f := true]", "Unexpected argument sort for argument 4 to $store" },
             { "iseq + mod", "No common supertype for seq<int> and set<object>" },
-            { "true + true", "'+' is not supported for these arguments" },
+            { "true + true", "'+' is not supported for sort bool" },
         };
     }
 

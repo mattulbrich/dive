@@ -466,7 +466,7 @@ atom_expr:
   ;
 
 schema_entity:
-  SCHEMA_ID | BLANK | ELLIPSIS^ expression ELLIPSIS!
+  SCHEMA_ID | BLANK | ELLIPSIS^ expression ELLIPSIS! | '('! SCHEMA_ID^ ':'! expression ')'!
   ;
 
 // Either usual or logic id
