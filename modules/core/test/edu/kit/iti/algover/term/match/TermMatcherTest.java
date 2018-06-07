@@ -42,7 +42,6 @@ public class TermMatcherTest {
                 {"let x := ?y :: ?x+?y == _", "let x := 15 :: x+15 == 15", "[[?x => x / 0.0.0, ?y => 15 / 0.0.1, _0 => 15 / 0.1]]"},
                 {"let x := 5 :: x+5 == 10", "let x := 5 :: x+5 == 10", "[[]]"},
                 {"let x := ?y :: ?x+?y == 10", "let x := 5 :: x+5 == 10", "[[?x => x / 0.0.0, ?y => 5 / 0.0.1]]"},
-
                 {"?x + ?y", "2 + 3", "[[?x => 2 / 0, ?y => 3 / 1]]"},
             { "_ + _", "2 + 3", "[[_0 => 2 / 0, _1 => 3 / 1]]" },
             { "?x + ?x", "2 + 2", "[[?x => 2 / 0]]" },
@@ -67,6 +66,26 @@ public class TermMatcherTest {
             { "forall i:int :: ?phi", "forall j:int :: true" },
         };
     }
+
+    public String[][][] parametersForSequentMatch() {
+        return new String[][][]{
+                //SchemAntec, SchemSucc, ConcAntec, ConcSucc, Exp
+                {{"?x", "g(?x)"}, {}, {"f(0)", "g(4)", "g(1)"}, {}, {"[]"}},
+                {{"f(1)"}, {"g(f(1))"}, {"f(1)"}, {"g(f(1))", "f(4)"}, {"[[]]"}},
+                {{"(... ?x ...) + (... ?y ...) == ?z"}, {}, {"2 + 3 == 5"}, {}, {"[[?x => 2 / A.0.0.0, ...0 => 2 / A.0.0.0, ?y => 3 / A.0.0.1, ...1 => 3 / A.0.0.1, ?z => 5 / A.0.1]]"}},
+                {{"f(?x)"}, {"g(f(?x))"}, {"f(1)"}, {"g(f(1))", "f(4)"}, {"[[?x => 1 / A.0.0]]"}},
+                {{"_"}, {"_"}, {"f(1)"}, {"g(1)", "f(1)"}, {"[[_0 => f(1) / A.0, _1 => g(1) / S.0], [_0 => f(1) / A.0, _1 => f(1) / S.1]]"}},
+                {{"... ?x+_ ..."}, {"f(?x)"}, {"(2+3)+(4+5) == 1"}, {"f(2)", "f(4)"}, {"[[?x => 2 / A.0.0.0.0, _0 => 3 / A.0.0.0.1, ...0 => $plus(2, 3) / A.0.0.0], [?x => 4 / A.0.0.1.0, _0 => 5 / A.0.0.1.1, ...0 => $plus(4, 5) / A.0.0.1]]"}},
+                {{"... ?x + 5 ..."}, {"... 4 + ?x ..."}, {"2 + 5 > 1"}, {"4 + 2 > 3 && true"}, {"[[?x => 2 / A.0.0.0, ...0 => $plus(2, 5) / A.0.0, ...1 => $plus(4, 2) / S.0.0.0]]"}},
+                {{"?X+?Y"}, {"f(?Y)"}, {"1+2", "2+1", "1+1"}, {"f(2)", "f(1)"}, {"[[?X => 1 / A.0.0, ?Y => 2 / A.0.1], [?X => 2 / A.1.0, ?Y => 1 / A.1.1], [?X => 1 / A.2.0, ?Y => 1 / A.2.1]]"}},
+                {{"2+1"}, {}, {"f(1)==f(1)", "2+1", "2+1"}, {}, {"[[], []]"}},
+                {{"...let x := 5 :: x+5 == 10..."}, {}, {"let x := 5 :: x+5 == 10"}, {}, {"[[...0 => (let x := 5 :: $eq<int>($plus(x, 5), 10)) / A.0]]"}},
+
+        };
+    }
+
+
+
 
 
     @Before
@@ -115,34 +134,14 @@ public class TermMatcherTest {
     }
 
     @Test
-    public void matchSeq() throws Exception {
-        String[] schemAntec = {"?x", "g(?x)"};
-        String[] schemSucc = {};
-        String[] conAntec = {"f(0)", "g(4)", "g(1)"};
-        String[] concSucc = {};
-        matchSeqHelper(schemAntec, schemSucc, conAntec, concSucc);
+    @Parameters
+    public void SequentMatch(String[] schemSeqAntec, String[] schemSeqSucc, String[] concrSeqAntec, String[] concrSeqSucc, String[] exp) throws Exception {
+        ImmutableList<Matching> matchings = matchSeqHelper(schemSeqAntec, schemSeqSucc, concrSeqAntec, concrSeqSucc);
+        assertEquals(exp[0], matchings.toString());
     }
 
-    @Test
-    public void matchSeq2() throws Exception {
-        String[] schemAntec = {"f(1)"};
-        String[] schemSucc = {"g(f(1))"};
-        String[] conAntec = {"f(1)"};
-        String[] concSucc = {"g(f(1))", "f(4)"};
-        matchSeqHelper(schemAntec, schemSucc, conAntec, concSucc);
 
-    }
-
-    @Test
-    public void matchSeq6() throws Exception {
-        String[] schemAntec = {"(... ?x ...) + (... ?y ...) == ?z"};
-        String[] schemSucc = {};
-        String[] conAntec = {"2 + 3 == 5"};
-        String[] concSucc = {};
-        matchSeqHelper(schemAntec, schemSucc, conAntec, concSucc);
-    }
-
-    private void matchSeqHelper(String[] schemSeqAntec, String[] schemSeqSucc, String[] concrSeqAntec, String[] concrSeqSucc) throws Exception {
+    private ImmutableList<Matching> matchSeqHelper(String[] schemSeqAntec, String[] schemSeqSucc, String[] concrSeqAntec, String[] concrSeqSucc) throws Exception {
         assertNotNull(symbTable);
 
 
@@ -152,7 +151,8 @@ public class TermMatcherTest {
         //    OldSequentMatcher sm = new OldSequentMatcher();
         SequentMatcher sm = new SequentMatcher();
         ImmutableList<Matching> match = sm.match(schemSeq, concSeq);
-        if (match.isEmpty()) {
+
+/*        if (match.isEmpty()) {
             System.out.format("SchemaSequent: %s does not match concrete sequent: %s",
                     schemSeq,
                     concSeq);
@@ -164,77 +164,8 @@ public class TermMatcherTest {
             for (Matching m : match) {
                 System.out.println("m = " + m);
             }
-        }
-
-  /*      SequentMatcher sma = new SequentMatcher();
-        ImmutableList<Matching> match1 = sma.match(schemSeq, concSeq);
-        System.out.println("\nAlternative match1 = " + match1);
-        for (Matching m : match1) {
-            System.out.println("m = " + m);
         }*/
-    }
-
-    @Test
-    public void matchSeq1() throws Exception {
-        String[] schemAntec = {"f(?x)"};
-        String[] schemSucc = {"g(f(?x))"};
-        String[] conAntec = {"f(1)"};
-        String[] concSucc = {"g(f(1))", "f(4)"};
-        matchSeqHelper(schemAntec, schemSucc, conAntec, concSucc);
-    }
-
-    @Test
-    public void matchSeq4() throws Exception {
-        String[] schemAntec = {"_"};
-        String[] schemSucc = {"_"};
-        String[] conAntec = {"f(1)"};
-        String[] concSucc = {"g(1)", "f(1)"};
-        matchSeqHelper(schemAntec, schemSucc, conAntec, concSucc);
-    }
-
-    @Test
-    public void matchSeq5() throws Exception {
-        String[] schemAntec = {"... ?x+_ ..."};
-        String[] schemSucc = {"f(?x)"};
-        String[] conAntec = {"(2+3)+(4+5) == 1"};
-        String[] concSucc = {"f(2)", "f(4)"};
-        matchSeqHelper(schemAntec, schemSucc, conAntec, concSucc);
-    }
-
-    @Test
-    public void matchSeq7() throws Exception {
-        String[] schemAntec = {"... ?x + 5 ..."};
-        String[] schemSucc = {"... 4 + ?x ..."};
-        String[] conAntec = {"2 + 5 > 1"};
-        String[] concSucc = {"4 + 2 > 3 && true"};
-        matchSeqHelper(schemAntec, schemSucc, conAntec, concSucc);
-    }
-
-    @Test
-    public void matchSeq3() throws Exception {
-        String[] schemAntec = {"?X+?Y"};
-        String[] schemSucc = {"f(?Y)"};
-        String[] conAntec = {"1+2", "2+1", "1+1"};
-        String[] concSucc = {"f(2)", "f(1)"};
-        matchSeqHelper(schemAntec, schemSucc, conAntec, concSucc);
-    }
-
-    @Test
-    public void matchSeqEindeutig() throws Exception {
-        String[] schemAntec = {"2+1"};
-        String[] schemSucc = {};
-        String[] conAntec = {"f(1)==f(1)", "2+1", "2+1"};
-        String[] concSucc = {};
-        matchSeqHelper(schemAntec, schemSucc, conAntec, concSucc);
-    }
-
-    @Test
-    public void matchSeqTest() throws Exception {
-        String[] schemAntec = {"...let x := 5 :: x+5 == 10..."};
-        String[] schemSucc = {};
-        String[] conAntec = {"let x := 5 :: x+5 == 10"};
-        String[] concSucc = {};
-        matchSeqHelper(schemAntec, schemSucc, conAntec, concSucc);
+        return match;
     }
 
 
