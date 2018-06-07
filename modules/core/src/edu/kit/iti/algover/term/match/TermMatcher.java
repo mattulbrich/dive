@@ -19,7 +19,11 @@ import edu.kit.iti.algover.term.Term;
 import edu.kit.iti.algover.term.TermVisitor;
 import edu.kit.iti.algover.term.VariableTerm;
 import edu.kit.iti.algover.util.ImmutableList;
+import edu.kit.iti.algover.util.Pair;
 import edu.kit.iti.algover.util.Triple;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * This is the class that contains the actual algorithm that implements term
@@ -207,24 +211,52 @@ public class TermMatcher {
         }
 
         /*
-         * TODO Not implemented yet.
+         * Two let terms match iff:
+         * * the variables are in the same order, have the same name and the values match
+         * * the in term match
          */
         @Override
         public ImmutableList<Matching> visit(LetTerm letTerm, Triple<Term, Matching, SubtermSelector> arg)
                 throws MatchException {
             Matching m = arg.snd;
+
             Term conc = arg.fst;
             SubtermSelector sel = arg.trd;
+
+            //shortcuts
             if (letTerm.equals(conc)) {
                 return ImmutableList.single(m);
             }
             if (!(conc instanceof LetTerm)) {
                 throw new MatchException(letTerm, conc);
             }
-            //LetTerm concreteLet = (LetTerm) conc;
+            LetTerm concreteLet = (LetTerm) conc;
 
-            // TODO matching in lets not implemented yet, just fail it ...
-            throw new MatchException(letTerm, arg.fst);
+
+            //match IN term
+            Term subSchem = letTerm.getTerm(0);
+            Term subConc = conc.getTerm(0);
+            SubtermSelector subSel = new SubtermSelector(sel, 0);
+            ImmutableList<Matching> matchings = subSchem.accept(this, new Triple<>(subConc, m, subSel));
+            if (matchings.isEmpty()) {
+                throw new MatchException(subSchem, subConc);
+            }
+
+            List<VariableTerm> varsConcrete = concreteLet.getSubstitutions().stream().map(variableTermTermPair -> variableTermTermPair.getFst()).collect(Collectors.toList());
+            List<VariableTerm> varsSchema = letTerm.getSubstitutions().stream().map(variableTermTermPair -> variableTermTermPair.getFst()).collect(Collectors.toList());
+
+
+            for (int i = 0; i < concreteLet.getSubstitutions().size(); i++) {
+                Term substSchem = letTerm.getSubstitutions().get(i).getSnd();
+                Term substConc = ((LetTerm) conc).getSubstitutions().get(i).getSnd();
+                SubtermSelector substSel = new SubtermSelector(sel, i);
+                matchings = matchings.flatMap(x ->
+                        substSchem.accept(this, new Triple<>(substConc, x, substSel)));
+            }
+
+            return matchings;
+
+
         }
     }
 
