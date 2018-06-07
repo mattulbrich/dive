@@ -37,8 +37,9 @@ public class TermMatcherTest {
 
     public String[][] parametersForTestMatching() {
         return new String[][] {
+                {"let x := true :: _", "let x := 5 :: 2*x == 10", "[]"},
+                {"let x := ?y :: _", "let x := 5 :: x+5 == 10", "[[_0 => $eq<int>($plus(x, 5), 10) / 0, ?y => 5 / 0]]"},
                 {"let x := ?y :: ?x+?y == _", "let x := 15 :: x+15 == 15", "[[?x => x / 0.0.0, ?y => 15 / 0.0.1, _0 => 15 / 0.1]]"},
-
                 {"let x := 5 :: x+5 == 10", "let x := 5 :: x+5 == 10", "[[]]"},
                 {"let x := ?y :: ?x+?y == 10", "let x := 5 :: x+5 == 10", "[[?x => x / 0.0.0, ?y => 5 / 0.0.1]]"},
 

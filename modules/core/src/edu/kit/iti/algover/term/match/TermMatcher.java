@@ -8,16 +8,8 @@ package edu.kit.iti.algover.term.match;
 
 import edu.kit.iti.algover.rules.SubtermSelector;
 import edu.kit.iti.algover.rules.TermSelector;
-import edu.kit.iti.algover.term.ApplTerm;
-import edu.kit.iti.algover.term.FunctionSymbol;
-import edu.kit.iti.algover.term.LetTerm;
-import edu.kit.iti.algover.term.QuantTerm;
-import edu.kit.iti.algover.term.SchemaOccurTerm;
+import edu.kit.iti.algover.term.*;
 import edu.kit.iti.algover.term.QuantTerm.Quantifier;
-import edu.kit.iti.algover.term.SchemaVarTerm;
-import edu.kit.iti.algover.term.Term;
-import edu.kit.iti.algover.term.TermVisitor;
-import edu.kit.iti.algover.term.VariableTerm;
 import edu.kit.iti.algover.util.ImmutableList;
 import edu.kit.iti.algover.util.Pair;
 import edu.kit.iti.algover.util.Triple;
@@ -242,10 +234,26 @@ public class TermMatcher {
                 throw new MatchException(subSchem, subConc);
             }
 
+            //substitution variable handling: check that the variable names are the same, in the same order and may either have the same sort or UNTYPED
             List<VariableTerm> varsConcrete = concreteLet.getSubstitutions().stream().map(variableTermTermPair -> variableTermTermPair.getFst()).collect(Collectors.toList());
             List<VariableTerm> varsSchema = letTerm.getSubstitutions().stream().map(variableTermTermPair -> variableTermTermPair.getFst()).collect(Collectors.toList());
 
+            for (int i = 0; i < varsConcrete.size(); i++) {
+                VariableTerm concreteVariableTerm = varsConcrete.get(i);
+                VariableTerm schemaVariableTerm = varsSchema.get(i);
 
+                //check the names and the sorts
+                if (!concreteVariableTerm.getName().equals(schemaVariableTerm.getName())) {
+                    throw new MatchException(schemaVariableTerm, concreteVariableTerm);
+                } else {
+                    if (schemaVariableTerm.getSort() != Sort.UNTYPED_SORT && !schemaVariableTerm.getSort().equals(concreteVariableTerm.getSort())) {
+                        throw new MatchException(schemaVariableTerm, concreteVariableTerm);
+                    }
+                }
+
+            }
+
+            //match the substitutions
             for (int i = 0; i < concreteLet.getSubstitutions().size(); i++) {
                 Term substSchem = letTerm.getSubstitutions().get(i).getSnd();
                 Term substConc = ((LetTerm) conc).getSubstitutions().get(i).getSnd();
