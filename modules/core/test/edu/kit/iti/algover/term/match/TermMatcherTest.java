@@ -37,7 +37,10 @@ public class TermMatcherTest {
 
     public String[][] parametersForTestMatching() {
         return new String[][] {
-            { "?x + ?y", "2 + 3", "[[?x => 2 / 0, ?y => 3 / 1]]" },
+                {"let x := 5 :: x+5 == 10", "let x := 5 :: x+5 == 10", "[[]]"},
+                {"let ?x := 5 :: ?x+5 == 10", "let x := 5 :: x+5 == 10", "[[]]"},
+
+                {"?x + ?y", "2 + 3", "[[?x => 2 / 0, ?y => 3 / 1]]"},
             { "_ + _", "2 + 3", "[[_0 => 2 / 0, _1 => 3 / 1]]" },
             { "?x + ?x", "2 + 2", "[[?x => 2 / 0]]" },
             { "f(f(_))", "f(f(f(5)))", "[[_0 => f(5) / 0.0]]" },
@@ -49,6 +52,7 @@ public class TermMatcherTest {
                "[[?x => $plus(2, 3) / 0, _0 => $plus(4, 5) / 1, ...0 => $plus($plus(2, 3), $plus(4, 5)) / ], "
               + "[?x => 2 / 0.0, _0 => 3 / 0.1, ...0 => $plus(2, 3) / 0], "
               + "[?x => 4 / 1.0, _0 => 5 / 1.1, ...0 => $plus(4, 5) / 1]]" },
+                {"2+3", "2+3", "[[]]"},
         };
     }
 
@@ -217,6 +221,15 @@ public class TermMatcherTest {
         String[] schemAntec = {"2+1"};
         String[] schemSucc = {};
         String[] conAntec = {"f(1)==f(1)", "2+1", "2+1"};
+        String[] concSucc = {};
+        matchSeqHelper(schemAntec, schemSucc, conAntec, concSucc);
+    }
+
+    @Test
+    public void matchSeqTest() throws Exception {
+        String[] schemAntec = {"...let x := 5 :: x+5 == 10..."};
+        String[] schemSucc = {};
+        String[] conAntec = {"let x := 5 :: x+5 == 10"};
         String[] concSucc = {};
         matchSeqHelper(schemAntec, schemSucc, conAntec, concSucc);
     }

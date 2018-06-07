@@ -212,7 +212,18 @@ public class TermMatcher {
         @Override
         public ImmutableList<Matching> visit(LetTerm letTerm, Triple<Term, Matching, SubtermSelector> arg)
                 throws MatchException {
-            // TODO not implemented yet, just fail it ...
+            Matching m = arg.snd;
+            Term conc = arg.fst;
+            SubtermSelector sel = arg.trd;
+            if (letTerm.equals(conc)) {
+                return ImmutableList.single(m);
+            }
+            if (!(conc instanceof LetTerm)) {
+                throw new MatchException(letTerm, conc);
+            }
+            //LetTerm concreteLet = (LetTerm) conc;
+
+            // TODO matching in lets not implemented yet, just fail it ...
             throw new MatchException(letTerm, arg.fst);
         }
     }
