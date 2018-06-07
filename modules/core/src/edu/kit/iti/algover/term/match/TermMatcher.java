@@ -143,7 +143,9 @@ public class TermMatcher {
             FunctionSymbol f1 = applTerm.getFunctionSymbol();
             FunctionSymbol f2 = applTerm2.getFunctionSymbol();
 
-            if(f1 != f2) {
+            //  if(f1 != f2) {
+            //SaG-> Mu: Muss hier nicht der equals aufruf hin statt !=???? Wiel eines der Testfälle schlägt fehl
+            if (!f1.equals(f2)) {
                 throw new MatchException(applTerm, conc);
             }
 

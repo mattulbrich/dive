@@ -32,7 +32,7 @@ public class FakeSMTSolverRule extends AbstractProofRule {
 
         ProofRuleApplicationBuilder builder = new ProofRuleApplicationBuilder(this);
         builder.setApplicability(Applicability.MAYBE_APPLICABLE);
-        builder.setRefiner((x,y) -> refine(x, target.getSequent()));
+        builder.setRefiner((x, y) -> refine(x, target.getSequent()));
         return builder.build();
     }
 

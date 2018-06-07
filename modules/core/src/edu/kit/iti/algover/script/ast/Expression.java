@@ -73,10 +73,9 @@ public abstract class Expression<T extends ParserRuleContext> extends ASTNode<T>
             throws NotWelldefinedException;
 
     /**
-     *
      * @return
      */
-    public String  getText() {
+    public String getText() {
         return this.ruleContext.getText();
     }
 

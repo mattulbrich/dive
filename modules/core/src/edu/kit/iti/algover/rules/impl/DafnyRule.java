@@ -73,7 +73,7 @@ public class DafnyRule extends AbstractProofRule {
     public ProofRuleApplication considerApplicationImpl(ProofNode target, Parameters parameters) throws RuleException {
         Term selected = parameters.getValue(ON_PARAM);
         List<TermSelector> l = RuleUtil.matchSubtermsInSequent(selected::equals, target.getSequent());
-        if(l.size() != 1) {
+        if (l.size() != 1) {
             return ProofRuleApplicationBuilder.notApplicable(this);
         }
 
@@ -81,7 +81,7 @@ public class DafnyRule extends AbstractProofRule {
         try {
             Term rt;
             ImmutableList<Matching> matchings;
-            if(!this.polarity.conforms(RuleUtil.getTruePolarity(l.get(0), target.getSequent()))) {
+            if (!this.polarity.conforms(RuleUtil.getTruePolarity(l.get(0), target.getSequent()))) {
                 return ProofRuleApplicationBuilder.notApplicable(this);
             } else {
                 TermMatcher tm = new TermMatcher();
