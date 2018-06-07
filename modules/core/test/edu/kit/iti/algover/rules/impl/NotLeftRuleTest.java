@@ -74,7 +74,7 @@ public class NotLeftRuleTest {
         List<ProofNode> newNodes = RuleApplicator.applyRule(pra, pn);
         assertTrue(newNodes.size() == 1);
 
-        assertEquals("[] ==> [$not($or(b1, b2)), b1, b2]", newNodes.get(0).getSequent().toString());
+        assertEquals("[] ==> [b1, b2, $not($or(b1, b2))]", newNodes.get(0).getSequent().toString());
     }
 
 

@@ -53,4 +53,9 @@ public class SchemaVarTerm extends SchemaTerm {
         return new SchemaVarTerm("_");
     }
 
+    @Override
+    public SchemaTerm refineSort(Sort newSort) {
+        assert getSort().equals(Sort.UNTYPED_SORT);
+        return new SchemaVarTerm(name, newSort);
+    }
 }

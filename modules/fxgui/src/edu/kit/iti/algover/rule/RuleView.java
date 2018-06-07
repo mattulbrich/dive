@@ -24,6 +24,7 @@ public class RuleView extends StackPane {
     private final ProofRule rule;
 
     private ProofRuleApplication application;
+    private TermSelector selection;
     private RuleViewOverlay applicationOverlay;
     private boolean selectable;
 
@@ -72,6 +73,7 @@ public class RuleView extends StackPane {
     public void considerApplication(ProofNode target, Sequent selection, TermSelector selector) {
         try {
             application = rule.considerApplication(target, selection, selector);
+            this.selection = selector;
             setSelectable(application != null && application.getApplicability() == ProofRuleApplication.Applicability.APPLICABLE);
         } catch (RuleException e) {
             System.err.println("Cannot consider Application: " + e);
@@ -81,7 +83,7 @@ public class RuleView extends StackPane {
 
     private void renderApplication() {
         if (application != null) {
-            applicationOverlay = new RuleViewOverlay(application, listener);
+            applicationOverlay = new RuleViewOverlay(application, listener, selection);
             getChildren().setAll(applicationOverlay, ruleNameLabel);
         } else {
             resetConsideration();

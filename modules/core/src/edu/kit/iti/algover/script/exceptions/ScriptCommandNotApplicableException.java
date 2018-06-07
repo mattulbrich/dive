@@ -17,12 +17,12 @@ public class ScriptCommandNotApplicableException extends RuntimeException {
     }
 
     public ScriptCommandNotApplicableException(ProofRule r, CallStatement call) {
-        System.out.println("Rule " + r.getName() + " in line  " + call.getStartPosition().getLineNumber() + "was not applicable");
+        System.out.println("Rule " + r.getName() + " in line " + call.getStartPosition().getLineNumber() + " was not applicable");
     }
 
 
     public ScriptCommandNotApplicableException(Exception e, ProofRule r, CallStatement call) {
-        System.out.println("Rule " + r.getName() + " in line  " + call.getStartPosition().getLineNumber() + "was not applicable");
+        System.out.println("Rule " + r.getName() + " in line " + call.getStartPosition().getLineNumber() + " was not applicable");
         e.printStackTrace();
     }
 

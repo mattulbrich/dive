@@ -596,6 +596,7 @@ public class SymbexTest {
     }
 
     // discovered missing in-depth analysis for RT checks
+    // and in modifies analysis
     @Test
     public void testHandleHeapUpdates() throws Exception {
         InputStream stream = getClass().getResourceAsStream("../parser/reftypes.dfy");
@@ -609,7 +610,7 @@ public class SymbexTest {
 
         // results.forEach(x->System.out.println(SymbexUtil.toString(x)));
 
-        assertEquals(11, results.size());
+        assertEquals(15, results.size());
 
         int i = 0;
         assertEquals(AssertionType.RT_NONNULL, results.get(i).getCommonProofObligationType());
@@ -620,8 +621,16 @@ public class SymbexTest {
         assertEquals("[(!= x null)]", results.get(i).getProofObligations().map(x -> x.getExpression().toStringTree()).toString());
 
         i++;
+        assertEquals(AssertionType.MODIFIES, results.get(i).getCommonProofObligationType());
+        assertEquals("[(IN x $mod)]", results.get(i).getProofObligations().map(x -> x.getExpression().toStringTree()).toString());
+
+        i++;
         assertEquals(AssertionType.RT_NONNULL, results.get(i).getCommonProofObligationType());
         assertEquals("[(!= z null)]", results.get(i).getProofObligations().map(x -> x.getExpression().toStringTree()).toString());
+
+        i++;
+        assertEquals(AssertionType.MODIFIES, results.get(i).getCommonProofObligationType());
+        assertEquals("[(IN z $mod)]", results.get(i).getProofObligations().map(x -> x.getExpression().toStringTree()).toString());
 
         i++;
         assertEquals(AssertionType.RT_NONNULL, results.get(i).getCommonProofObligationType());
@@ -630,6 +639,10 @@ public class SymbexTest {
         i++;
         assertEquals(AssertionType.RT_NONNULL, results.get(i).getCommonProofObligationType());
         assertEquals("[(!= x null)]", results.get(i).getProofObligations().map(x -> x.getExpression().toStringTree()).toString());
+
+        i++;
+        assertEquals(AssertionType.MODIFIES, results.get(i).getCommonProofObligationType());
+        assertEquals("[(IN (FIELD_ACCESS x next) $mod)]", results.get(i).getProofObligations().map(x -> x.getExpression().toStringTree()).toString());
 
         i++;
         assertEquals(AssertionType.RT_NONNULL, results.get(i).getCommonProofObligationType());
@@ -644,6 +657,10 @@ public class SymbexTest {
         assertEquals("[(>= 0 0), (< 0 (Length a))]", results.get(i).getProofObligations().map(x -> x.getExpression().toStringTree()).toString());
 
         i++;
+        assertEquals(AssertionType.MODIFIES, results.get(i).getCommonProofObligationType());
+        assertEquals("[(IN a $mod)]", results.get(i).getProofObligations().map(x -> x.getExpression().toStringTree()).toString());
+
+        i++;
         assertEquals(AssertionType.RT_NONNULL, results.get(i).getCommonProofObligationType());
         assertEquals("[(!= a null)]", results.get(i).getProofObligations().map(x -> x.getExpression().toStringTree()).toString());
 
@@ -655,7 +672,7 @@ public class SymbexTest {
         assertEquals(AssertionType.POST, results.get(i).getCommonProofObligationType());
         assertEquals("[(== 1 1)]", results.get(i).getProofObligations().map(x -> x.getExpression().toStringTree()).toString());
 
-        assertEquals(10, i);
+        assertEquals(14, i);
 
         assertEquals("[(ASSIGN $mod $everything), "
                         + "(ASSIGN $decr 0), "
@@ -819,7 +836,8 @@ public class SymbexTest {
         }
         {
             SymbexPath path = results.get(index++);
-            assertEquals("else/Term[recursive]", path.getPathIdentifier());
+
+            assertEquals("else/Dec[recursive]", path.getPathIdentifier());
             assertEquals(2, path.getPathConditions().size());
             assertEquals("[(>= n 0), (not (== n 0))]",
                     path.getPathConditions().map(x -> x.getExpression().toStringTree()).toString());
@@ -828,6 +846,59 @@ public class SymbexTest {
             assertEquals("[(LET (VAR r n) $res_recursive_1 (- n 1) (NOETHER_LESS (LET (VAR r n) $res_recursive_1 (- n 1) (* 2 n)) $decr))]",
                     path.getProofObligations().map(x -> x.getExpression().toStringTree()).toString());
         }
+    }
+
+    @Test
+    public void testFieldAssignment() throws Exception {
+        InputStream stream = getClass().getResourceAsStream("fieldAssignment.dfy");
+        DafnyTree fileTree = ParserTest.parseFile(stream);
+
+        // performs type analysis etc:
+        Project project = TestUtil.mockProject(fileTree);
+
+        DafnyTree tree = project.getMethod("getNumber").getRepresentation();
+        DafnyTree code = tree.getFirstChildWithType(DafnyParser.BLOCK);
+        Symbex symbex = new Symbex();
+        List<SymbexPath> paths = symbex.symbolicExecution(tree);
+
+        assertEquals(3, paths.size());
+        {
+            SymbexPath path = paths.get(0);
+
+            assertEquals("[PRE[null]:(!= o null)]",
+                    path.getPathConditions().toString());
+
+            assertEquals("[(ASSIGN $mod (SETEX o)), (ASSIGN $decr 0), (:= (FIELD_ACCESS o y) 8)]",
+                    path.getAssignmentHistory().map(x -> x.toStringTree()).toString());
+
+            assertEquals("[POST:(> (FIELD_ACCESS o y) 5)]",
+                    path.getProofObligations().toString());
+        }
+        {
+            SymbexPath path = paths.get(1);
+
+            assertEquals("[PRE[null]:(!= o null)]",
+                    path.getPathConditions().toString());
+
+            assertEquals("[(ASSIGN $mod (SETEX o)), (ASSIGN $decr 0)]",
+                    path.getAssignmentHistory().map(x -> x.toStringTree()).toString());
+
+            assertEquals("[MODIFIES:(IN o $mod)]",
+                    path.getProofObligations().toString());
+        }
+        {
+            SymbexPath path = paths.get(2);
+
+            assertEquals("[PRE[null]:(!= o null)]",
+                    path.getPathConditions().toString());
+
+            assertEquals("[(ASSIGN $mod (SETEX o)), (ASSIGN $decr 0)]",
+                    path.getAssignmentHistory().map(x -> x.toStringTree()).toString());
+
+            assertEquals("[RT_NONNULL:(!= o null)]",
+                    path.getProofObligations().toString());
+        }
+
     }
 
     @Test

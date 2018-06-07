@@ -444,4 +444,11 @@ public final class ASTUtil {
 
         return result;
     }
+
+    public static DafnyTree inMod(DafnyTree receiver) {
+        DafnyTree result = new DafnyTree(DafnyParser.IN);
+        result.addChild(receiver.dupTree());
+        result.addChild(builtInVar("$mod"));
+        return result;
+    }
 }

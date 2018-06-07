@@ -25,7 +25,7 @@ public class SkipRule extends AbstractProofRule {
     }
 
     @Override
-    public ProofRuleApplication considerApplication(ProofNode target, Sequent selection, TermSelector selector) throws RuleException {
+    public ProofRuleApplication considerApplicationImpl(ProofNode target, Parameters parameters) throws RuleException {
         ProofRuleApplicationBuilder b = new ProofRuleApplicationBuilder(this);
         b.setApplicability(Applicability.APPLICABLE);
         BranchInfoBuilder br = b.newBranch();
@@ -34,7 +34,7 @@ public class SkipRule extends AbstractProofRule {
     }
 
     @Override
-    public ProofRuleApplication makeApplication(ProofNode target, Parameters parameters) throws RuleException {
+    public ProofRuleApplication makeApplicationImpl(ProofNode target, Parameters parameters) throws RuleException {
         ProofRuleApplicationBuilder b = new ProofRuleApplicationBuilder(this);
         b.setApplicability(Applicability.APPLICABLE);
         BranchInfoBuilder br = b.newBranch();

@@ -1,18 +1,26 @@
 package edu.kit.iti.algover.sequent;
 
+import edu.kit.iti.algover.rules.SubtermSelector;
+import edu.kit.iti.algover.rules.TermSelector;
 import edu.kit.iti.algover.sequent.formulas.ModifiedFormula;
+import edu.kit.iti.algover.sequent.formulas.OriginalFormula;
 import edu.kit.iti.algover.term.prettyprint.AnnotatedString;
 import edu.kit.iti.algover.util.SubSelection;
 
 import java.util.List;
 import java.util.stream.Stream;
 
-public class ModifiedFormulaView extends BasicFormulaView {
+public class ModifiedFormulaView extends OriginalFormulaView {
 
     private final ModifiedFormula modifiedFormula;
 
-    public ModifiedFormulaView(ModifiedFormula formula, SubSelection<AnnotatedString.TermElement> mouseOverTerm) {
-        super(formula, mouseOverTerm);
+    public ModifiedFormulaView(
+            ModifiedFormula formula,
+            TermSelector.SequentPolarity polarity,
+            SubSelection<TermSelector> referenceSelection,
+            SubSelection<TermSelector> lastClickedTerm,
+            SubSelection<AnnotatedString.TermElement> mouseOverTerm) {
+        super(formula, polarity, referenceSelection, lastClickedTerm, mouseOverTerm);
         this.modifiedFormula = formula;
     }
 
@@ -22,6 +30,7 @@ public class ModifiedFormulaView extends BasicFormulaView {
         // but the annotatedString changes in between
         // FIXME NullPointer!
         calculateHighlighted().forEach(termElement -> highlightFromElement(termElement, "modified"));
+        highlightFromElement(highlightedElement, "highlighted");
     }
 
     private Stream<AnnotatedString.TermElement> calculateHighlighted() {
@@ -41,6 +50,20 @@ public class ModifiedFormulaView extends BasicFormulaView {
                         .orElseThrow(() -> new RuntimeException("Cannot find TermElement for modified term part."));
             }
         });
+    }
+
+    /**
+     * @param subtermSelector the selector that points to a subterm within this formula.
+     * @return the given subterm lifted to a term selector that points at the correct forumla index and polarity in the
+     *         sequent.
+     */
+    private TermSelector liftSubtermSelector(SubtermSelector subtermSelector) {
+        List<Integer> pathAsList = subtermSelector.getPath();
+        int[] path = new int[pathAsList.size()];
+        for (int i = 0; i < path.length; i++) {
+            path[i] = pathAsList.get(i);
+        }
+        return new TermSelector(polarity, modifiedFormula.getIndexInSequent(), path);
     }
 
 }

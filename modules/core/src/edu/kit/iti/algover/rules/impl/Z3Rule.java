@@ -58,7 +58,7 @@ public class Z3Rule extends AbstractProofRule {
     }
 
     @Override
-    public ProofRuleApplication considerApplication(ProofNode target, Sequent selection, TermSelector selector) throws RuleException {
+    public ProofRuleApplication considerApplicationImpl(ProofNode target, Parameters parameters) throws RuleException {
         ProofRuleApplicationBuilder builder = new ProofRuleApplicationBuilder(this);
         builder.setApplicability(Applicability.MAYBE_APPLICABLE);
         builder.setClosing();
@@ -84,7 +84,7 @@ public class Z3Rule extends AbstractProofRule {
     }
 
     @Override
-    public ProofRuleApplication makeApplication(ProofNode target, Parameters parameters) throws RuleException {
+    public ProofRuleApplication makeApplicationImpl(ProofNode target, Parameters parameters) throws RuleException {
         PVC pvc = target.getPVC();
 
         if(quickAndDirty(target.getPVC().getIdentifier(), target.getSequent(), pvc.getSymbolTable())) {

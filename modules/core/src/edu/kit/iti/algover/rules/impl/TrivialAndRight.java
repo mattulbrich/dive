@@ -23,12 +23,13 @@ import edu.kit.iti.algover.term.ApplTerm;
 import edu.kit.iti.algover.term.FunctionSymbol;
 import edu.kit.iti.algover.term.Sequent;
 import edu.kit.iti.algover.term.Term;
+import edu.kit.iti.algover.util.Pair;
 import edu.kit.iti.algover.util.RuleUtil;
 
 public class TrivialAndRight extends AbstractProofRule {
 
     public TrivialAndRight() {
-        super(ON_PARAM, DEEP_PARAM);
+        super(ON_PARAM);
     }
 
     private static Map<String, Class<?>> makeOptionalParameters() {
@@ -49,10 +50,14 @@ public class TrivialAndRight extends AbstractProofRule {
     }
 
     @Override
-    public ProofRuleApplication considerApplication(ProofNode target, Sequent selection,
-                                                    TermSelector selector)
+    public ProofRuleApplication considerApplicationImpl(ProofNode target, Parameters parameters)
             throws RuleException {
-
+        Term on = parameters.getValue(ON_PARAM);
+        List<TermSelector> l = RuleUtil.matchSubtermsInSequent(on::equals, target.getSequent());
+        if(l.size() != 1) {
+            throw new RuleException("Machting of on parameter is ambiguous");
+        }
+        TermSelector selector = l.get(0);
         if (selector != null && !selector.isToplevel()) {
             return ProofRuleApplicationBuilder.notApplicable(this);
         }
@@ -71,18 +76,15 @@ public class TrivialAndRight extends AbstractProofRule {
 
         ProofRuleApplicationBuilder builder = new ProofRuleApplicationBuilder(this);
 
-        builder.newBranch().addReplacement(selector, appl.getTerm(0));
-        builder.newBranch().addReplacement(selector, appl.getTerm(1));
-        builder.setApplicability(Applicability.APPLICABLE)
-                .setTranscript("andRight on='" +
-                        selector.selectSubterm(target.getSequent()) +  "'\n");
+        builder.newBranch().addReplacement(selector, appl.getTerm(0)).setLabel("case 1");
+        builder.newBranch().addReplacement(selector, appl.getTerm(1)).setLabel("case 2");
+        builder.setApplicability(Applicability.APPLICABLE);
 
         return builder.build();
     }
 
     @Override
-    public ProofRuleApplication makeApplication(ProofNode target, Parameters parameters) throws RuleException {
-        checkParameters(parameters);
+    public ProofRuleApplication makeApplicationImpl(ProofNode target, Parameters parameters) throws RuleException {
         Term on = parameters.getValue(ON_PARAM);
         ProofRuleApplicationBuilder builder = new ProofRuleApplicationBuilder(this);
 
@@ -106,6 +108,8 @@ public class TrivialAndRight extends AbstractProofRule {
                 .addDeletionsSuccedent(target.getSequent().getSuccedent().get(no))
                 .addAdditionsSuccedent(new ProofFormula(on.getTerm(1)))
                 .setLabel("case 2");
+
+        builder.setApplicability(Applicability.APPLICABLE);
 
         return builder.build();
     }

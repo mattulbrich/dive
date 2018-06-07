@@ -28,7 +28,7 @@ import edu.kit.iti.algover.term.prettyprint.FixOperatorCollection.FixOperatorInf
 /**
  * Pretty print infix and prefix operators.
  *
- * The information about the available operators and their pretty synatx is obtained
+ * The information about the available operators and their pretty syntax is obtained
  * from a serialized xml file.
  *
  * @see FixOperatorCollection

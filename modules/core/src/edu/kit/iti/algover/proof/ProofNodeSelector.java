@@ -62,7 +62,7 @@ public class ProofNodeSelector {
         return getNode(proof.getProofRoot());
     }
 
-    private ProofNode getNode(ProofNode node) throws RuleException {
+    public ProofNode getNode(ProofNode node) throws RuleException {
         ProofNode currentNode = node;
         for (int i = 0; i < path.length; i++) {
             if (currentNode.getChildren().size() <= path[i]) {

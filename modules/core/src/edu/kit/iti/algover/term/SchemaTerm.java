@@ -11,4 +11,6 @@ public abstract class SchemaTerm extends Term {
         super(sort, subterms);
     }
 
+    public abstract SchemaTerm refineSort(Sort newSort);
+
 }

@@ -21,6 +21,7 @@ import edu.kit.iti.algover.term.Sort;
 import edu.kit.iti.algover.term.Term;
 import edu.kit.iti.algover.term.builder.TermBuildException;
 import edu.kit.iti.algover.term.builder.TermBuilder;
+import edu.kit.iti.algover.term.builder.TreeAssignmentTranslator;
 import edu.kit.iti.algover.term.builder.TreeTermTranslator;
 
 // THIS IS A TEMPORARY CLASS ...
@@ -66,17 +67,18 @@ public class SymbexStateToFormula {
 
         Collection<Term> result = new ArrayList<>();
 
-        TreeTermTranslator ttt = new TreeTermTranslator(symbolTable);
+        // TreeTermTranslator ttt = new TreeTermTranslator(symbolTable);
+        TreeAssignmentTranslator tat = new TreeAssignmentTranslator(symbolTable);
 
         for(PathConditionElement pce : symbexState.getPathConditions()) {
-            Term formula = ttt.build(pce.getAssignmentHistory(), pce.getExpression());
+            Term formula = tat.translateToLet(pce.getAssignmentHistory(), pce.getExpression());
             result.add(formula);
         }
 
         assert symbexState.getProofObligations().size() == 1;
         AssertionElement po = symbexState.getProofObligations().getHead();
         DafnyTree expression = po.getExpression();
-        Term formula = ttt.build(symbexState.getAssignmentHistory(), expression);
+        Term formula = tat.translateToLet(symbexState.getAssignmentHistory(), expression);
         result.add(termBuilder.negate(formula));
 
         return result;

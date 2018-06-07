@@ -12,6 +12,7 @@ import edu.kit.iti.algover.util.RuleUtil;
 
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Optional;
 
 /**
@@ -29,7 +30,13 @@ public class OrLeftRule extends AbstractProofRule {
     }
 
     @Override
-    public ProofRuleApplication considerApplication(ProofNode target, Sequent selection, TermSelector selector) throws RuleException {
+    public ProofRuleApplication considerApplicationImpl(ProofNode target, Parameters parameters) throws RuleException {
+        Term on = parameters.getValue(ON_PARAM);
+        List<TermSelector> l = RuleUtil.matchSubtermsInSequent(on::equals, target.getSequent());
+        if(l.size() != 1) {
+            return ProofRuleApplicationBuilder.notApplicable(this);
+        }
+        TermSelector selector = l.get(0);
         if(selector == null || !selector.isToplevel() || selector.isSuccedent()) {
             return ProofRuleApplicationBuilder.notApplicable(this);
         }
@@ -46,19 +53,15 @@ public class OrLeftRule extends AbstractProofRule {
 
         ProofRuleApplicationBuilder builder = new ProofRuleApplicationBuilder(this);
         builder.setApplicability(ProofRuleApplication.Applicability.APPLICABLE);
-        builder.setTranscript(getTranscript(new Pair<>("on", at)));
 
-        builder.newBranch().addDeletionsAntecedent(Collections.singletonList(new ProofFormula(at))).
-                addAdditionAntecedent(new ProofFormula(at.getTerm(0)));
-        builder.newBranch().addDeletionsAntecedent(Collections.singletonList(new ProofFormula(at))).
-                addAdditionAntecedent(new ProofFormula(at.getTerm(1)));
+        builder.newBranch().addReplacement(selector, at.getTerm(0)).setLabel("case 1");
+        builder.newBranch().addReplacement(selector, at.getTerm(1)).setLabel("case 2");
 
         return builder.build();
     }
 
     @Override
-    public ProofRuleApplication makeApplication(ProofNode target, Parameters parameters) throws RuleException {
-        checkParameters(parameters);
+    public ProofRuleApplication makeApplicationImpl(ProofNode target, Parameters parameters) throws RuleException {
         Term p = parameters.getValue(ON_PARAM);
         if(!(p instanceof ApplTerm)) {
             throw new RuleException("orLeft has to be applied to an ApplicationTerm");
@@ -72,11 +75,13 @@ public class OrLeftRule extends AbstractProofRule {
         }
 
 
-        ProofRuleApplicationBuilder builder = new ProofRuleApplicationBuilder(this);
-        builder.newBranch().addDeletionsAntecedent(Collections.singletonList(new ProofFormula(on))).
-                addAdditionAntecedent(new ProofFormula(on.getTerm(0)));
-        builder.newBranch().addDeletionsAntecedent(Collections.singletonList(new ProofFormula(on))).
-                addAdditionAntecedent(new ProofFormula(on.getTerm(1)));
+        Optional<TermSelector> ots = RuleUtil.matchSubtermInSequent(on::equals, target.getSequent());
+        if(!ots.isPresent()) {
+            throw new RuleException("on is ambiguos.");
+        }
+        ProofRuleApplicationBuilder builder = handleControlParameters(parameters, target.getSequent());
+        builder.newBranch().addReplacement(ots.get(), on.getTerm(0)).setLabel("case 1");
+        builder.newBranch().addReplacement(ots.get(), on.getTerm(1)).setLabel("case 2");
 
         return builder.build();
     }

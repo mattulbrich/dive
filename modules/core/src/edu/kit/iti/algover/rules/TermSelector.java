@@ -499,6 +499,21 @@ public final class TermSelector implements Comparable<TermSelector> {
         return getSubtermSelector().hasPrefix(prefix.getSubtermSelector());
     }
 
+    /**
+     * Returns a bool stating whether or not this TermSelector is valid for the given sequent (meaning it points to
+     * a Term)
+     * @param s The sequent the TermSelector should be checked for
+     * @return whether or not this selector is valid for the given sequent
+     */
+    public boolean isValidForSequent(Sequent s) {
+        try {
+            this.selectSubterm(s);
+            return true;
+        } catch (RuleException e) {
+            return false;
+        }
+    }
+
     public SubtermSelector getSubtermSelector() {
         return subtermSelector;
     }

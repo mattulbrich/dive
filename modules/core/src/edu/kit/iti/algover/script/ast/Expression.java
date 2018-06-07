@@ -71,4 +71,13 @@ public abstract class Expression<T extends ParserRuleContext> extends ASTNode<T>
      */
     public abstract Type getType(Signature signature)
             throws NotWelldefinedException;
+
+    /**
+     *
+     * @return
+     */
+    public String  getText() {
+        return this.ruleContext.getText();
+    }
+
 }

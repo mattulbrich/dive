@@ -8,8 +8,12 @@ package edu.kit.iti.algover.term;
 
 public class SchemaOccurTerm extends SchemaTerm {
 
+    public SchemaOccurTerm(Term occurTerm, Sort sort) {
+        super(sort, new Term[] { occurTerm });
+    }
+
     public SchemaOccurTerm(Term occurTerm) {
-        super(Sort.UNTYPED_SORT, new Term[] { occurTerm });
+        this(occurTerm, Sort.UNTYPED_SORT);
     }
 
     @Override
@@ -22,4 +26,9 @@ public class SchemaOccurTerm extends SchemaTerm {
         return visitor.visit(this, arg);
     }
 
+    @Override
+    public SchemaTerm refineSort(Sort newSort) {
+        assert getSort().equals(Sort.UNTYPED_SORT);
+        return new SchemaOccurTerm(getTerm(0), newSort);
+    }
 }

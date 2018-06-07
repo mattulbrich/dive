@@ -1,21 +1,33 @@
 package edu.kit.iti.algover.editor;
 
 import edu.kit.iti.algover.dafnystructures.DafnyFile;
+import edu.kit.iti.algover.project.Project;
 import edu.kit.iti.algover.proof.PVC;
 import edu.kit.iti.algover.references.CodeReference;
+import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.SimpleBooleanProperty;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.collections.ListChangeListener;
 import javafx.scene.Node;
+import javafx.scene.control.Alert;
+import javafx.scene.control.ButtonType;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyCodeCombination;
+import javafx.scene.input.KeyCombination;
+import javafx.scene.input.KeyEvent;
 import org.fxmisc.flowless.VirtualizedScrollPane;
 
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.ExecutorService;
 
 /**
@@ -23,7 +35,9 @@ import java.util.concurrent.ExecutorService;
  *
  * Created by philipp on 26.06.17.
  */
-public class EditorController {
+public class EditorController implements DafnyCodeAreaListener {
+    KeyCombination saveShortcut = new KeyCodeCombination(KeyCode.S, KeyCombination.CONTROL_DOWN);
+    KeyCombination saveAllShortcut = new KeyCodeCombination(KeyCode.S, KeyCombination.CONTROL_DOWN, KeyCombination.SHIFT_DOWN);
 
     private static final int PVC_LAYER = 0;
     private static final int REFERENCE_LAYER = 1;
@@ -33,17 +47,33 @@ public class EditorController {
     private final LayeredHighlightingRule highlightingLayers;
     private final ExecutorService executor;
 
+    private BooleanProperty anyFileChangedProperty;
+    private List<String> changedFiles;
+    private String baseDir;
+
     /**
      * Initializes the controller without any code editor tabs.
      *
      * @param executor used by the code area components to asynchronously execute syntax highlighting calculations
      */
-    public EditorController(ExecutorService executor) {
+    public EditorController(ExecutorService executor, String baseDir) {
         this.executor = executor;
+        this.baseDir = baseDir;
         this.view = new TabPane();
         this.tabsByFile = new HashMap<>();
+        this.changedFiles = new ArrayList<>();
         this.highlightingLayers = new LayeredHighlightingRule(2);
+        this.anyFileChangedProperty = new SimpleBooleanProperty(false);
         view.getTabs().addListener(this::onTabListChanges);
+        view.setOnKeyReleased(this::handleShortcuts);
+    }
+
+    private void handleShortcuts(KeyEvent keyEvent) {
+        if(saveAllShortcut.match(keyEvent)) {
+            saveAllFiles();
+        } else if (saveShortcut.match(keyEvent)) {
+            saveSelectedFile();
+        }
     }
 
     private void onTabListChanges(ListChangeListener.Change<? extends Tab> change) {
@@ -72,7 +102,8 @@ public class EditorController {
                 Tab tab = new Tab();
                 tab.setText(dafnyFile.getFilename());
                 tab.setUserData(dafnyFile);
-                DafnyCodeArea codeArea = new DafnyCodeArea(contentAsText, executor);
+                DafnyCodeArea codeArea = new DafnyCodeArea(contentAsText, executor, this);
+                codeArea.getTextChangedProperty().addListener(this::onTextChanged);
                 codeArea.setHighlightingRule(highlightingLayers);
                 tab.setContent(new VirtualizedScrollPane<>(codeArea));
                 tabsByFile.put(dafnyFile, tab);
@@ -99,6 +130,22 @@ public class EditorController {
         view.getTabs().stream()
                 .map(tab -> codeAreaFromContent(tab.getContent()))
                 .forEach(DafnyCodeArea::rerenderHighlighting);
+    }
+
+    private void onTextChanged(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) {
+        Tab selectedTab = view.getSelectionModel().getSelectedItem();
+        if(!changedFiles.contains(selectedTab.getText()) && newValue) {
+            selectedTab.setText(selectedTab.getText() + "*");
+            changedFiles.add(selectedTab.getText());
+        } else if(changedFiles.contains(selectedTab.getText()) && !newValue) {
+            changedFiles.remove(selectedTab.getText());
+            selectedTab.setText(selectedTab.getText().substring(0, selectedTab.getText().length() - 1));
+        }
+        if(changedFiles.size() == 0) {
+            anyFileChangedProperty.setValue(false);
+        } else {
+            anyFileChangedProperty.setValue(true);
+        }
     }
 
     /**
@@ -137,5 +184,55 @@ public class EditorController {
         view.getTabs().stream()
                 .map(tab -> (DafnyCodeArea) tab.getContent())
                 .forEach(DafnyCodeArea::rerenderHighlighting);
+    }
+
+    public BooleanProperty anyFileChangedProperty() {
+        return anyFileChangedProperty;
+    }
+
+    private boolean getAnyFileChanged() {
+        return anyFileChangedProperty.get();
+    }
+
+    private void setAnyFileChanged(boolean value) {
+        anyFileChangedProperty.setValue(value);
+    }
+
+    @Override
+    public void saveSelectedFile() {
+        Tab selectedTab = view.getSelectionModel().getSelectedItem();
+        saveFileForTab(selectedTab);
+    }
+
+    @Override
+    public void saveAllFiles() {
+        view.getTabs().stream().forEach(tab -> saveFileForTab(tab));
+    }
+
+    private void saveFileForTab(Tab tab) {
+        if(tab.getUserData() instanceof  DafnyFile) {
+            String filename = ((DafnyFile) tab.getUserData()).getFilename();
+            String absFilepath = baseDir + "/" + filename;
+            try {
+                FileWriter fw = new FileWriter(absFilepath);
+                BufferedWriter bw = new BufferedWriter(fw);
+                DafnyCodeArea codeArea = codeAreaFromContent(tab.getContent());
+                bw.write(codeArea.getText());
+                bw.flush();
+                bw.close();
+                fw.close();
+                changedFiles.remove(tab.getText());
+                codeArea.updateProofText();
+                if(tab.getText().endsWith("*")) {
+                    tab.setText(tab.getText().substring(0, tab.getText().length() - 1));
+                }
+                if(changedFiles.size() == 0) {
+                    anyFileChangedProperty().setValue(false);
+                }
+            } catch(IOException e) {
+                Alert alert = new Alert(Alert.AlertType.INFORMATION, "Error writing the file.");
+                alert.showAndWait();
+            }
+        }
     }
 }

@@ -13,6 +13,7 @@ import edu.kit.iti.algover.parser.DafnyParser;
 import edu.kit.iti.algover.parser.DafnyTree;
 import edu.kit.iti.algover.symbex.AssertionElement.AssertionType;
 import edu.kit.iti.algover.symbex.PathConditionElement.AssumptionType;
+import edu.kit.iti.algover.term.Sort;
 import edu.kit.iti.algover.util.ASTUtil;
 import edu.kit.iti.algover.util.ImmutableList;
 import edu.kit.iti.algover.util.Pair;
@@ -448,6 +449,7 @@ public class Symbex {
             DafnyTree stm, DafnyTree remainder) {
         DafnyTree assignee = stm.getChild(0);
         handleExpression(stack, state, assignee);
+        addModifiesCheck(stack, state, assignee);
 
         DafnyTree expression = stm.getChild(1);
         switch(expression.getType()) {
@@ -477,6 +479,34 @@ public class Symbex {
 
         state.setBlockToExecute(remainder);
         stack.push(state);
+    }
+
+
+    private void addModifiesCheck(Deque<SymbexPath> stack, SymbexPath current,
+                                  DafnyTree receiver) {
+        switch(receiver.getType()) {
+        case DafnyParser.ARRAY_ACCESS:
+            DafnyTree type = receiver.getChild(0).getExpressionType();
+            Sort sort = ASTUtil.toSort(type);
+            if(!(sort.isClassSort() || sort.isArray())) {
+                // Assigning a sequence/map/... is not relevant
+                return;
+            }
+            // fall through intended!
+
+        case DafnyParser.FIELD_ACCESS:
+            SymbexPath nonNull = new SymbexPath(current);
+            // the first argument is the modified object
+            DafnyTree object = receiver.getChild(0);
+            if(object.getType() == DafnyParser.THIS) {
+                // no modifies check for the this object!
+                return;
+            }
+            DafnyTree check = ASTUtil.inMod(object);
+            nonNull.setBlockToExecute(Symbex.EMPTY_PROGRAM);
+            nonNull.setProofObligation(check, check, AssertionType.MODIFIES);
+            stack.push(nonNull);
+        }
     }
 
     /*
@@ -513,7 +543,7 @@ public class Symbex {
      * @return the updated variable map
      */
     private void anonymise(SymbexPath path, DafnyTree body) {
-        Set<DafnyTree> vars = new HashSet<>();
+        Set<DafnyTree> vars = new LinkedHashSet<>();
         collectAssignedVars(body, vars);
         for (DafnyTree var : vars) {
             if (var != HEAP_VAR) {

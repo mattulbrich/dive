@@ -62,7 +62,7 @@ public class FormulaCell extends ListCell<TopLevelFormula> {
 
             @Override
             public BasicFormulaView visitModifiedFormula(ModifiedFormula formula) {
-                return new ModifiedFormulaView(formula, mouseOverTerm);
+                return new ModifiedFormulaView(formula, polarity, referenceSelection, lastClickedTerm, mouseOverTerm);
             }
         });
     }

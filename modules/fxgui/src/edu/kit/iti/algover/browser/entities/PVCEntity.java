@@ -7,6 +7,7 @@ import edu.kit.iti.algover.project.ProjectManager;
 import edu.kit.iti.algover.proof.PVC;
 import edu.kit.iti.algover.proof.Proof;
 import edu.kit.iti.algover.proof.ProofStatus;
+import edu.kit.iti.algover.util.ObservableValue;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.scene.paint.Color;
@@ -89,6 +90,7 @@ public class PVCEntity extends TreeTableEntity {
         super(pvc.getIdentifier(), location, Collections.emptyList());
         this.pvc = pvc;
         // TODO: In the future somehow update this Property as soon as updates are found
+        proof.addProofStatusListener(this::changed);
         this.proofStatus = new SimpleObjectProperty<>(ProofStatus.from(proof.getProofStatus()));
         if (proofStatus.get() == ProofStatus.PROVEN) {
             provenChildrenProperty().set(1);
@@ -116,6 +118,10 @@ public class PVCEntity extends TreeTableEntity {
     public void setProven() {
         proofStatus.set(ProofStatus.PROVEN);
         numberChildrenProperty().set(1);
+    }
+
+    private void changed(ObservableValue<edu.kit.iti.algover.proof.ProofStatus> observableValue, edu.kit.iti.algover.proof.ProofStatus oldValue, edu.kit.iti.algover.proof.ProofStatus newValue) {
+        proofStatus.setValue(ProofStatus.from(newValue));
     }
 
 }
