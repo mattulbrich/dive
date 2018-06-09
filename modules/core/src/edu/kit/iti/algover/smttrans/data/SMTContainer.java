@@ -8,6 +8,7 @@ import edu.kit.iti.algover.smttrans.translate.SMTTerm;
 
 public class SMTContainer {
 
+    private static final String DIVIDER = "=================================";
     private List<SMTTerm> antecedent;
     private List<SMTTerm> succedent;
     private LinkedHashSet<Dependency> dependencies = new LinkedHashSet<>();
@@ -25,42 +26,62 @@ public class SMTContainer {
         }
     }
 
-    public String toPSMT() {
+    public String toSMT() {
         StringBuilder sb = new StringBuilder();
 
         sb.append(instantiateDep());
-        antecedent.forEach(t -> sb.append(t.toPSMT()));
-        succedent.forEach(s -> sb.append(s.toPSMT())); // negate
+        antecedent.forEach(t -> sb.append(t.toSMT()));
+        succedent.forEach(s -> sb.append(s.toSMT())); // negate
+        return sb.toString();
+    }
+    
+    public String toPSMT() {
+        StringBuilder sb = new StringBuilder();
+        sb.append(declareDep());
+        antecedent.forEach(t -> sb.append(t.toSMT()));
+        succedent.forEach(s -> sb.append(s.toSMT())); // negate
         return sb.toString();
     }
 
-    // private String instantiateDep() {
-    //
-    // LinkedHashSet<String> constants = new LinkedHashSet<>();
-    // LinkedHashSet<String> functions = new LinkedHashSet<>();
-    //
-    // for (Dependency d : dependencies) {
-    // LinkedHashSet<String> axioms = d.instantiate();
-    //
-    // if (d instanceof ConstDependency) {
-    // constants.addAll(axioms);
-    // } else {
-    // functions.addAll(axioms);
-    // }
-    // }
-    //
-    //
-    // StringBuilder sb = new StringBuilder();
-    // constants.forEach(c -> sb.append(c));
-    // functions.forEach(f -> sb.append(f));
-    // return sb.toString();
-    //
-    // }
 
+    private String declareDep() {
+
+        LinkedHashSet<String> sorts = new LinkedHashSet<>();
+        LinkedHashSet<String> constants = new LinkedHashSet<>();
+        LinkedHashSet<String> functions = new LinkedHashSet<>();
+        LinkedHashSet<String> axioms = new LinkedHashSet<>();
+
+        for (Dependency d : dependencies) {
+            LinkedHashSet<String> set = d.declare();
+            
+            for (String s : set) {
+                if (s.startsWith("(inst-sort")) {
+                    sorts.add(s);
+                    continue;
+                } else if (s.startsWith("(inst-const")) {
+                    constants.add(s);
+                    continue;
+                } else {
+                    axioms.add(s);
+                }
+   
+                
+           }
+            
+        }
+
+        StringBuilder sb = new StringBuilder();
+        sorts.forEach(s -> sb.append(s + "\r\n"));
+        constants.forEach(c -> sb.append(c + "\r\n"));
+        functions.forEach(f -> sb.append(f + "\r\n"));
+        axioms.forEach(a -> sb.append(a + "\r\n"));
+        sb.append(DIVIDER);
+        return sb.toString();
+
+    }
+    
     private String instantiateDep() {
 
-        // LinkedHashSet<String> constants = new LinkedHashSet<>();
-        // LinkedHashSet<String> functions = new LinkedHashSet<>();
         LinkedHashSet<String> sorts = new LinkedHashSet<>();
         LinkedHashSet<String> constants = new LinkedHashSet<>();
         LinkedHashSet<String> functions = new LinkedHashSet<>();
@@ -80,11 +101,7 @@ public class SMTContainer {
 
                 }
             }
-            // if (d instanceof ConstDependency) {
-            // constants.addAll(axioms);
-            // } else {
-            // functions.addAll(axioms);
-            // }
+            
         }
 
         StringBuilder sb = new StringBuilder();

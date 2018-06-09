@@ -19,7 +19,7 @@ public class SMTBVExpression extends SMTExpression {
     }
 
     @Override
-    public Pair<LinkedHashSet<Dependency>, String> toPSMT() {
+    public Pair<LinkedHashSet<Dependency>, String> toSMT() {
         StringBuilder sb = new StringBuilder();
         LinkedHashSet<Dependency> set = new LinkedHashSet<>();
         sb.append("(");

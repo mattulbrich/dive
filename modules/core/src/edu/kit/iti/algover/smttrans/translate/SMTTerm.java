@@ -15,7 +15,7 @@ public class SMTTerm {
 
     public SMTTerm(SMTExpression e) {
         this.expression = e;
-        Pair<LinkedHashSet<Dependency>, String> data = expression.toPSMT();
+        Pair<LinkedHashSet<Dependency>, String> data = expression.toSMT();
         this.dependencies.addAll(data.fst);
       
        
@@ -26,7 +26,7 @@ public class SMTTerm {
         return dependencies;
     }
 
-    public String toPSMT() {
+    public String toSMT() {
         StringBuilder sb = new StringBuilder();
         sb.append("\r\n");
         sb.append("(assert ");

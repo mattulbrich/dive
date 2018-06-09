@@ -1,6 +1,7 @@
 package edu.kit.iti.algover.smttrans.data;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -12,28 +13,6 @@ public class AxiomContainer {
     private static final Pattern typeVars = Pattern.compile("(?<=par.)\\((.*?)\\)");
 
     static {
-
-        // String setInst = "(define-sort Set (T) (Array T Bool))";
-        // String seqqInst = "";
-        // String mSetInst = "";
-        // String heapInst = "";
-        //
-        // sorts.put(OperationType.ARR, "");
-        // sorts.put(OperationType.ARR2, "");
-        // sorts.put(OperationType.SEQ, "");
-        // sorts.put(OperationType.SET, "");
-        // sorts.put(OperationType.MULTISET, "");
-        //
-        // String set1 = "(assert (par (T)\r\n" + "(forall\r\n" + "(\r\n" + " (s1 (Set
-        // T))\r\n" + " (s2 (Set T))\r\n"
-        // + " (t T)\r\n" + ")\r\n" + " (! \r\n" + " (= (select (unionT s1 s2) t)\r\n"
-        // + " (or (select s1 t) (select s2 t))) \r\n" + " :pattern (( select (unionT s1
-        // s2) t))\r\n"
-        // + " ) \r\n" + ")))";
-        //
-        //
-        //
-        // axioms.put(Axiom.SET_1, set1);
 
     }
 
@@ -77,6 +56,21 @@ public class AxiomContainer {
         if(t.getArity() > 1) //not built in 
             sorts.add("(declare-sort " + t.toString() + ")");
         for (String o : optype.getDependencies()) {
+            sorts.add(o);
+        }
+        return sorts;
+    }
+
+    public static String declareAxiom(Axiom a, Type t) {
+        String r = "(inst-ax :: " + a.name() + " :: " + t.toString() + ")";
+        return r;
+    }
+
+    public static List<String> declareSort(OperationType optype, Type t) {
+        ArrayList<String> sorts = new ArrayList<>();
+        if(t.getArity() > 1) //not built in 
+            sorts.add("(inst-sort :: " + t.toString() + ")");
+        for (String o : optype.getDependenciesDecl()) {
             sorts.add(o);
         }
         return sorts;

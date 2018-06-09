@@ -74,8 +74,13 @@ public class Z3Rule extends AbstractProofRule {
     private ProofRuleApplication refine(ProofNode target, ProofRuleApplication app) {
        // SolverAccess.evaluate("");
         PVC pvc = target.getPVC();
-        String smtlib = translateToSMT(target.getPVC().getIdentifier(), target.getSequent(), pvc.getSymbolTable()).toPSMT();
-        System.out.println(smtlib);
+        SMTContainer sc = translateToSMT(target.getPVC().getIdentifier(), target.getSequent(), pvc.getSymbolTable());
+        //String smtlib = translateToSMT(target.getPVC().getIdentifier(), target.getSequent(), pvc.getSymbolTable()).toPSMT();
+        System.out.println(sc.toPSMT());
+        System.out.println("          ");
+        System.out.println("          ");
+        System.out.println("          ");
+        System.out.println(sc.toSMT());
         // if(quickAndDirty(target.getPVC().getIdentifier(), target.getSequent(),
         // pvc.getSymbolTable())) {
         // ProofRuleApplicationBuilder builder = new ProofRuleApplicationBuilder(app);
@@ -99,6 +104,8 @@ public class Z3Rule extends AbstractProofRule {
         List<SMTTerm> aTerms = new ArrayList<>();
         List<SMTTerm> sTerms = new ArrayList<>();
         
+        System.out.println(symbolTable.getAllSymbols().toString());
+     
 
         for (ProofFormula pa : antecedent) {
 

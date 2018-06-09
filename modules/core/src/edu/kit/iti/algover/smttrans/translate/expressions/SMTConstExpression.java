@@ -36,7 +36,7 @@ public class SMTConstExpression extends SMTExpression {
     }
 
     @Override
-    public Pair<LinkedHashSet<Dependency>, String> toPSMT() {
+    public Pair<LinkedHashSet<Dependency>, String> toSMT() {
         LinkedHashSet<Dependency> set = new LinkedHashSet<>();
         if (!Dependency.isStringNumeric(name)) {
             ConstDependency d = new ConstDependency(name, type);

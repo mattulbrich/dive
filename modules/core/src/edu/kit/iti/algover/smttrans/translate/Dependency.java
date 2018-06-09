@@ -40,6 +40,7 @@ public abstract class Dependency {
     }
 
     public abstract LinkedHashSet<String> instantiate();
+    public abstract LinkedHashSet<String> declare();
 
     public static boolean isStringNumeric(String str) {
         DecimalFormatSymbols currentLocaleSymbols = DecimalFormatSymbols.getInstance();

@@ -17,7 +17,7 @@ public abstract class SMTExpression {
     protected Type type;
     protected List<SMTExpression> children;
 
-    public abstract Pair<LinkedHashSet<Dependency>, String> toPSMT();
+    public abstract Pair<LinkedHashSet<Dependency>, String> toSMT();
 
     public SMTExpression(String op, Type type, List<SMTExpression> children) {
         this.op = OperationMatcher.matchOp(op);
@@ -52,6 +52,10 @@ public abstract class SMTExpression {
         this.op = op;
         this.type = new Type();
         this.children = new ArrayList<>();
+    }
+    
+    public Type getType() {
+        return type;
     }
 
 }

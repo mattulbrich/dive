@@ -138,6 +138,8 @@ public class SMTVisitor implements TermVisitor<Type, SMTExpression, RuntimeExcep
 
       //  System.out.println("!");
         for (Pair<VariableTerm, Term> pair : letTerm.getSubstitutions()) {
+            System.out.println("!!! " + pair.fst.getName());
+            
             subs.add(new SMTVarExpression(pair.fst.getName(), pair.snd.accept(this, t)));
         //    System.out.println(pair.toString());
         }

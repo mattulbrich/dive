@@ -25,7 +25,7 @@ public class ConstDependency extends Dependency {
         sb.append(" ");
         sb.append(t.toString());
         sb.append(")");
-        sb.append("\r\n"); 
+        //sb.append("\r\n"); 
         inst.add(sb.toString());
         return inst;
     }
@@ -61,6 +61,21 @@ public class ConstDependency extends Dependency {
     public String toString() {
         
         return this.name + " : " + this.t.toString();
+    }
+
+    @Override
+    public LinkedHashSet<String> declare() {
+        LinkedHashSet<String> inst = new LinkedHashSet<>();
+            
+        StringBuilder sb = new StringBuilder();
+
+        sb.append("(inst-const ");
+        sb.append(name);
+        sb.append(" :: ");
+        sb.append(t.toString());
+        sb.append(")");
+        inst.add(sb.toString());
+        return inst;
     }
 
 }

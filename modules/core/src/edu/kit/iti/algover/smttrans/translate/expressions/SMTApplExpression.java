@@ -16,7 +16,7 @@ public class SMTApplExpression extends SMTExpression{
     }
 
     @Override
-    public Pair<LinkedHashSet<Dependency>, String> toPSMT() {
+    public Pair<LinkedHashSet<Dependency>, String> toSMT() {
         
         LinkedHashSet<Dependency> set = new LinkedHashSet<>();
         FuncDependency d = new FuncDependency(op, type);
@@ -26,7 +26,7 @@ public class SMTApplExpression extends SMTExpression{
         sb.append("(");
         sb.append(op.toSMTLib(this.type) + " ");
         for (SMTExpression c : children) {
-            Pair<LinkedHashSet<Dependency>, String> cd = c.toPSMT();
+            Pair<LinkedHashSet<Dependency>, String> cd = c.toSMT();
             set.addAll(cd.fst);
             sb.append(cd.snd);
         }

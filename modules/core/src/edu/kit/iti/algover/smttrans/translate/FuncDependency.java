@@ -57,4 +57,17 @@ public class FuncDependency extends Dependency {
         return true;
     }
 
+    @Override
+    public LinkedHashSet<String> declare() {
+        LinkedHashSet<String> inst = new LinkedHashSet<>();
+        
+        inst.addAll(AxiomContainer.declareSort(op.getType(), t)); 
+        for (Axiom a : op.getInstantiations()) {
+            
+            inst.add(AxiomContainer.declareAxiom(a,t));
+        }
+        
+        return inst;
+    }
+
 }

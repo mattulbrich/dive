@@ -22,15 +22,15 @@ public class SMTQuantExpression extends SMTExpression {
     }
 
     @Override
-    public Pair<LinkedHashSet<Dependency>, String> toPSMT() {
+    public Pair<LinkedHashSet<Dependency>, String> toSMT() {
         StringBuilder sb = new StringBuilder();
         LinkedHashSet<Dependency> set = new LinkedHashSet<>();
         sb.append("(");
         sb.append(op.toSMTLib(type));
         sb.append("(");
-        sb.append(qVar.toPSMT().snd);
+        sb.append(qVar.toSMT().snd);
         sb.append(")");
-        sb.append(formula.toPSMT().snd);
+        sb.append(formula.toSMT().snd);
        // sb.append(")");
         String smt = sb.toString();
         return new Pair<LinkedHashSet<Dependency>, String>(set,smt.substring(0,smt.length()-2)); //delete last parantheses
