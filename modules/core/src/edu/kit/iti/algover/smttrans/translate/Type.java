@@ -9,9 +9,11 @@ import com.google.common.base.CharMatcher;
 import com.google.common.base.Splitter;
 import com.google.common.collect.Iterables;
 
+import edu.kit.iti.algover.data.SymbolTable;
 import edu.kit.iti.algover.smttrans.data.OperationMatcher;
 
 import edu.kit.iti.algover.smttrans.data.OperationType;
+import edu.kit.iti.algover.term.Sort;
 
 public class Type {
 
@@ -41,7 +43,15 @@ public class Type {
     }
 
     private final String ARRNAME = "array";
+    private static SymbolTable table;
+    
+    public static void setTable(SymbolTable t) {
+        table = t;
+    }
 
+    public static Sort typeConst(String name) {
+       return table.getFunctionSymbol(name).getResultSort();
+    }
     public final static Type makeBoolType() {
         List<String> l = new ArrayList<>();
         l.add("Bool");

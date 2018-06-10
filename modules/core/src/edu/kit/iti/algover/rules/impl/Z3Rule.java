@@ -25,6 +25,7 @@ import edu.kit.iti.algover.smttrans.access.SolverAccess;
 import edu.kit.iti.algover.smttrans.data.SMTContainer;
 import edu.kit.iti.algover.smttrans.translate.SMTTerm;
 import edu.kit.iti.algover.smttrans.translate.SMTVisitor;
+import edu.kit.iti.algover.smttrans.translate.Type;
 import edu.kit.iti.algover.smttrans.translate.expressions.SMTExpression;
 import edu.kit.iti.algover.term.FunctionSymbol;
 import edu.kit.iti.algover.term.Sequent;
@@ -98,6 +99,8 @@ public class Z3Rule extends AbstractProofRule {
     
 
     private SMTContainer translateToSMT(String identifier, Sequent sequent, SymbolTable symbolTable) {
+        Type.setTable(symbolTable);
+        System.out.println(symbolTable.getAllSymbols().toString());
         List<ProofFormula> antecedent = sequent.getAntecedent();
         List<ProofFormula> succedent = sequent.getSuccedent();
 

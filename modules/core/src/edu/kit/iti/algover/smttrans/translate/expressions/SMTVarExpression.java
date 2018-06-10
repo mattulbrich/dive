@@ -23,7 +23,7 @@ public class SMTVarExpression extends SMTExpression {
     public Pair<LinkedHashSet<Dependency>, String> toSMT() {
         StringBuilder sb = new StringBuilder();
         LinkedHashSet<Dependency> set = new LinkedHashSet<>();
-        set.add(new ConstDependency(this.name, Type.makeIntType())); //TODO Typing -> FunctionSymbols
+        set.add(new ConstDependency(this.name, new Type(Type.typeConst(this.name).getName())));
         sb.append("(");
         sb.append(Operation.EQ.toSMTLib(type));
         sb.append(" ");
