@@ -1,39 +1,35 @@
 package edu.kit.iti.algover.smttrans.translate.expressions;
 
-import java.util.ArrayList;
-import java.util.LinkedHashSet;
-import java.util.List;
-
-import edu.kit.iti.algover.smttrans.data.Operation;
-import edu.kit.iti.algover.smttrans.translate.Dependency;
-import edu.kit.iti.algover.smttrans.translate.Type;
-import edu.kit.iti.algover.util.Pair;
+import edu.kit.iti.algover.term.QuantTerm.Quantifier;
 
 public class SMTQuantExpression extends SMTExpression {
 
     private SMTExpression qVar;
     private SMTExpression formula;
+    private Quantifier quantifier;
     
-    public SMTQuantExpression(Operation op, Type type, SMTExpression qvar, SMTExpression formula) {
-        super(op, type);
+    public SMTQuantExpression(Quantifier quantifier, SMTExpression qvar, SMTExpression formula) {
+        super();
+        this.quantifier = quantifier;
         this.qVar = qvar;
         this.formula = formula;
 
     }
 
     @Override
-    public Pair<LinkedHashSet<Dependency>, String> toSMT() {
+    public String toSMT() {
         StringBuilder sb = new StringBuilder();
-        LinkedHashSet<Dependency> set = new LinkedHashSet<>();
+//        LinkedHashSet<Dependency> set = new LinkedHashSet<>();
         sb.append("(");
-        sb.append(op.toSMTLib(type));
+        sb.append(quantifier.name());
         sb.append("(");
-        sb.append(qVar.toSMT().snd);
+        sb.append(qVar.toSMT());
         sb.append(")");
-        sb.append(formula.toSMT().snd);
+        sb.append(formula.toSMT());
        // sb.append(")");
-        String smt = sb.toString();
-        return new Pair<LinkedHashSet<Dependency>, String>(set,smt.substring(0,smt.length()-2)); //delete last parantheses
+//        String smt = sb.toString();
+//        return new Pair<LinkedHashSet<Dependency>, String>(set,smt.substring(0,smt.length()-2)); //delete last parantheses
+        return sb.toString();
     }
 
 }
