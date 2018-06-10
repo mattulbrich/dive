@@ -1,43 +1,34 @@
 package edu.kit.iti.algover.smttrans.translate.expressions;
 
+import java.util.ArrayList;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 
+import edu.kit.iti.algover.smttrans.translate.FuncSignature;
 import edu.kit.iti.algover.term.FunctionSymbol;
+import edu.kit.iti.algover.term.Sort;
+import edu.kit.iti.algover.util.Util;
 
-public class SMTApplExpression extends SMTExpression{
+public class SMTApplExpression extends SMTExpression {
 
     public SMTApplExpression(FunctionSymbol fs, List<SMTExpression> children) {
         super(fs, children);
+        this.sign = new FuncSignature(fs);
     }
 
     @Override
     public String toSMT() {
-        
         StringBuilder sb = new StringBuilder();
-        
-
-        
-//        LinkedHashSet<Dependency> set = new LinkedHashSet<>();
-//        FuncDependency d = new FuncDependency(op, type);
-//        set.add(d);
-//        
-//        StringBuilder sb = new StringBuilder();
         sb.append("(");
-//        sb.append(op.toSMTLib(this.type) + " ");
-        sb.append(fs.getName());
+        sb.append(sign.show() + " ");
+        
         for (SMTExpression c : children) {
- //           Pair<LinkedHashSet<Dependency>, String> cd = c.toSMT();
-//            set.addAll(cd.fst);
-//            sb.append(cd.snd);
             sb.append(c.toSMT());
         }
-//        
         sb.append(") ");
-//        
-//        return new Pair<LinkedHashSet<Dependency>, String>(set,sb.toString());
-        
         return sb.toString();
-        
+
     }
 
 }

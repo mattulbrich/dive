@@ -1,9 +1,6 @@
 package edu.kit.iti.algover.smttrans.translate.expressions;
 
-import java.util.LinkedHashSet;
 import java.util.List;
-
-import edu.kit.iti.algover.util.Pair;
 
 public class SMTLetExpression extends SMTExpression {
 
@@ -25,7 +22,7 @@ public class SMTLetExpression extends SMTExpression {
             String sp = s.toSMT();
             //set.addAll(sp.fst);
             sb.append(sp);
-            sb.append(s.toSMT());
+           // sb.append(s.toSMT());
        }
 //        
         sb.append(")"); 

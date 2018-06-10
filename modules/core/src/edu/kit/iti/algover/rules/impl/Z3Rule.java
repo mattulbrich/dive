@@ -26,6 +26,7 @@ import edu.kit.iti.algover.smttrans.access.SolverAccess;
 import edu.kit.iti.algover.smttrans.data.SMTContainer;
 import edu.kit.iti.algover.smttrans.translate.SMTTerm;
 import edu.kit.iti.algover.smttrans.translate.SMTVisitor;
+import edu.kit.iti.algover.smttrans.translate.TypeContext;
 import edu.kit.iti.algover.smttrans.translate.expressions.SMTExpression;
 import edu.kit.iti.algover.term.FunctionSymbol;
 import edu.kit.iti.algover.term.Sequent;
@@ -77,10 +78,10 @@ public class Z3Rule extends AbstractProofRule {
         PVC pvc = target.getPVC();
         SMTContainer sc = translateToSMT(target.getPVC().getIdentifier(), target.getSequent(), pvc.getSymbolTable());
         //String smtlib = translateToSMT(target.getPVC().getIdentifier(), target.getSequent(), pvc.getSymbolTable()).toPSMT();
-        System.out.println(sc.toPSMT());
-        System.out.println("          ");
-        System.out.println("          ");
-        System.out.println("          ");
+    //    System.out.println(sc.toPSMT());
+     //   System.out.println("          ");
+      //  System.out.println("          ");
+       // System.out.println("          ");
         System.out.println(sc.toSMT());
         // if(quickAndDirty(target.getPVC().getIdentifier(), target.getSequent(),
         // pvc.getSymbolTable())) {
@@ -99,8 +100,17 @@ public class Z3Rule extends AbstractProofRule {
     
 
     private SMTContainer translateToSMT(String identifier, Sequent sequent, SymbolTable symbolTable) {
-      //  Type.setTable(symbolTable);
-        System.out.println(symbolTable.getAllSymbols().toString());
+        TypeContext.setSymbolTable(symbolTable);
+        //System.out.println(symbolTable.getAllSymbols().toString());
+        
+        
+        for (FunctionSymbol fs : symbolTable.getAllSymbols()) {
+            if(!fs.getName().startsWith("$")) {
+                System.out.println("FS " + fs.getName());
+                System.out.println(fs.getResultSort().getName());
+            }
+        }
+        
         List<ProofFormula> antecedent = sequent.getAntecedent();
         List<ProofFormula> succedent = sequent.getSuccedent();
 
