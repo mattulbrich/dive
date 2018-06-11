@@ -13,6 +13,7 @@ import com.google.common.base.Splitter;
 import com.google.common.collect.Iterables;
 
 import edu.kit.iti.algover.data.SymbolTable;
+import edu.kit.iti.algover.smttrans.data.Operation;
 import edu.kit.iti.algover.smttrans.data.OperationMatcher;
 
 public class TypeContext {
@@ -124,12 +125,16 @@ public class TypeContext {
         String typedOp = CharMatcher.anyOf(">").removeFrom(poly);
         Iterable<String> operators = Splitter.on("<").split(typedOp);
         List<String> ops = Arrays.asList(Iterables.toArray(operators, String.class));
-        String sname = OperationMatcher.matchOp(ops.get(0)).toSMT();
+        Operation op = OperationMatcher.matchOp(ops.get(0));
+        String sname = op.toSMT();
         List<String> result = new ArrayList<>();
         result.add(sname);
+        if (!op.isPoly())
+            return result;
         for (String o : ops.subList(1, ops.size())) {
             result.add(nmap.computeIfAbsent(o, x -> x.substring(0, 1).toUpperCase() + x.substring(1)));
         }
+        
         return result;
 
     }

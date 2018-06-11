@@ -1,14 +1,17 @@
 package edu.kit.iti.algover.smttrans.translate.expressions;
 
+import edu.kit.iti.algover.smttrans.translate.ConstSignature;
+import edu.kit.iti.algover.term.FunctionSymbol;
+
 public class SMTVarExpression extends SMTExpression {
 
-    private String name;
+    
     private SMTExpression partner;
 
-    public SMTVarExpression(String name, SMTExpression partner) {
-        super();
-        this.name = name;
+    public SMTVarExpression(FunctionSymbol fs, SMTExpression partner) {
+        super(fs);
         this.partner = partner;
+        this.sign = new ConstSignature(fs);
     }
 
     @Override
@@ -20,7 +23,7 @@ public class SMTVarExpression extends SMTExpression {
         sb.append("(");
         sb.append("="); // TODO eq
         sb.append(" ");
-        sb.append(this.name);
+        sb.append(sign.show());
         sb.append(" ");
         sb.append(partner.toSMT());
         sb.append(") ");

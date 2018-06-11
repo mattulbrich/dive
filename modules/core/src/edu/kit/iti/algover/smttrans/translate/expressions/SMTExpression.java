@@ -18,10 +18,9 @@ public abstract class SMTExpression {
         this.children = c;
     }
 
-    public SMTExpression() {
-
-    }
-
+public SMTExpression () {
+    
+}
     public SMTExpression(FunctionSymbol f) {
         this.fs = f;
     }

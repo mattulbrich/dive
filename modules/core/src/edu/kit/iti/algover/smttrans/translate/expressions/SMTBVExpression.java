@@ -2,16 +2,21 @@ package edu.kit.iti.algover.smttrans.translate.expressions;
 
 import java.util.LinkedHashSet;
 
+import edu.kit.iti.algover.smttrans.translate.VarSignature;
 import edu.kit.iti.algover.smttrans.translate.TypeContext;
+import edu.kit.iti.algover.term.FunctionSymbol;
+import edu.kit.iti.algover.term.Sort;
 import edu.kit.iti.algover.util.Pair;
 
 public class SMTBVExpression extends SMTExpression {
 
-    private String name;
+   // private String name;
+   // private Sort type;
 
-    public SMTBVExpression(String name) {
-        super();
-        this.name = name;
+    public SMTBVExpression(FunctionSymbol fs) {
+        //FunctionSymbol fs = new FunctionSymbol(name, type);
+        super(fs);
+        this.sign = new VarSignature(fs);
     }
 
     @Override
@@ -19,11 +24,12 @@ public class SMTBVExpression extends SMTExpression {
         StringBuilder sb = new StringBuilder();
 
         sb.append("(");
-        sb.append(name);
-        sb.append(" ");
-        sb.append(TypeContext.typeVar(name));
-
-//        sb.append(type.toString());
+        sb.append(sign.show());
+//        sb.append(name);
+//        sb.append(" ");
+//        
+//        //sb.append(type.getName());
+//        sb.append(type.getName().substring(0, 1).toUpperCase() + type.getName().substring(1));
         sb.append(")");
         return sb.toString();
     }

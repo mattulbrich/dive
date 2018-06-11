@@ -25,20 +25,19 @@ public class SMTVisitor implements TermVisitor<Void, SMTExpression, RuntimeExcep
 
     @Override
     public SMTExpression visit(VariableTerm variableTerm, Void t) throws RuntimeException {
-        return new SMTConstExpression(variableTerm.getName());
+        String name = variableTerm.getName();
+        return new SMTConstExpression(new FunctionSymbol(name, variableTerm.getSort()));
     }
 
     @Override
     public SMTExpression visit(QuantTerm quantTerm, Void t) throws RuntimeException {
 
-
         VariableTerm boundVar = quantTerm.getBoundVar();
 
         SMTExpression formula = quantTerm.getTerm(0).accept(this, t);
 
-        SMTBVExpression var = new SMTBVExpression(boundVar.getName());
+        SMTBVExpression var = new SMTBVExpression(new FunctionSymbol(boundVar.getName(), boundVar.getSort()));
 
-      
         return new SMTQuantExpression(quantTerm.getQuantifier(), var, formula);
 
     }
@@ -51,7 +50,7 @@ public class SMTVisitor implements TermVisitor<Void, SMTExpression, RuntimeExcep
 
         if (applTerm.countTerms() == 0) { // const
 
-            SMTConstExpression sc = new SMTConstExpression(fs.getName());
+            SMTConstExpression sc = new SMTConstExpression(fs);
 
             return sc;
         }
@@ -70,7 +69,8 @@ public class SMTVisitor implements TermVisitor<Void, SMTExpression, RuntimeExcep
 
         for (Pair<VariableTerm, Term> pair : letTerm.getSubstitutions()) {
 
-            subs.add(new SMTVarExpression(pair.fst.getName(), pair.snd.accept(this, null)));
+            subs.add(new SMTVarExpression(new FunctionSymbol(pair.fst.getName(), pair.fst.getSort()),
+                    pair.snd.accept(this, null)));
 
         }
         return new SMTLetExpression(subs, inner);
