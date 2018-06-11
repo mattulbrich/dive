@@ -25,11 +25,6 @@ public class SMTBVExpression extends SMTExpression {
 
         sb.append("(");
         sb.append(sign.show());
-//        sb.append(name);
-//        sb.append(" ");
-//        
-//        //sb.append(type.getName());
-//        sb.append(type.getName().substring(0, 1).toUpperCase() + type.getName().substring(1));
         sb.append(")");
         return sb.toString();
     }

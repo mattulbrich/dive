@@ -87,6 +87,7 @@ public class Z3Rule extends AbstractProofRule {
         // System.out.println(" ");
         // System.out.println(" ");
         System.out.println(sc.toSMT());
+        System.out.println(sc.toPSMT());
         // if(quickAndDirty(target.getPVC().getIdentifier(), target.getSequent(),
         // pvc.getSymbolTable())) {
         // ProofRuleApplicationBuilder builder = new ProofRuleApplicationBuilder(app);
@@ -128,7 +129,7 @@ public class Z3Rule extends AbstractProofRule {
       //  System.out.println(symbolTable.getAllSymbols().toString());
 
         for (ProofFormula pa : antecedent) {
-            System.out.println("Label: " + pa.getLabel());
+         //   System.out.println("Label: " + pa.getLabel());
 
             SMTExpression e = pa.getTerm().accept(new SMTVisitor(), null);
             SMTTerm t = new SMTTerm(e);
@@ -143,7 +144,7 @@ public class Z3Rule extends AbstractProofRule {
 
         }
         
-        System.out.println(TypeContext.getSymbolTable().getAllSymbols().toString()) ;
+      //  System.out.println(TypeContext.getSymbolTable().getAllSymbols().toString()) ;
 
         return new SMTContainer(aTerms, sTerms);
     }

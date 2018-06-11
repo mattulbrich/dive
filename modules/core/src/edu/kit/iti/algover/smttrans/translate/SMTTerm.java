@@ -32,8 +32,6 @@ public class SMTTerm {
         sb.append(this.psmt);
         sb.append(")");
       String result = sb.toString().replaceAll("\\s+(?=[),])", "").replace("$", ""); //TODO
-      //  String result = sb.toString().replace("$", "");
-       // return result.replaceAll("\\)+(?=[^\\)])", ") ");
       return result.toString();
     }
 }

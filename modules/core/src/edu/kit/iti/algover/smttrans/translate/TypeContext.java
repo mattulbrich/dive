@@ -5,9 +5,12 @@ import java.text.DecimalFormatSymbols;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
+import com.google.common.base.CharMatcher;
 import com.google.common.base.Splitter;
 import com.google.common.collect.Iterables;
 
@@ -16,6 +19,7 @@ import edu.kit.iti.algover.data.SymbolTable;
 import edu.kit.iti.algover.smttrans.data.Operation;
 import edu.kit.iti.algover.smttrans.data.OperationMatcher;
 import edu.kit.iti.algover.term.FunctionSymbol;
+import edu.kit.iti.algover.term.Sort;
 
 public class TypeContext {
     private static SymbolTable symbolTable = new MapSymbolTable(new HashSet<FunctionSymbol>());
@@ -35,27 +39,35 @@ public class TypeContext {
 
     }
 
-
-    public static String opToSMT(FunctionSymbol fs) { //TODO types, declarations -> Axiome
-        //System.out.println("Poly " + poly);
+    public static String opToSMT(FunctionSymbol fs) { // TODO needed ?
+        // System.out.println("Poly " + poly);
         String poly = fs.getName();
         Iterable<String> operators = Splitter.on("<").split(poly);
-      
-      List<String> ops = Arrays.asList(Iterables.toArray(operators, String.class));
-      
-     // System.out.println("FS " + ops.get(0));
-      
-      
-      Operation op = OperationMatcher.matchOp(ops.get(0));
-      String sname = op.toSMT();
-      
-        
+
+        List<String> ops = Arrays.asList(Iterables.toArray(operators, String.class));
+
+        // System.out.println("FS " + ops.get(0));
+
+        Operation op = OperationMatcher.matchOp(ops.get(0));
+        String sname = op.toSMT();
 
         return sname;
 
-
     }
 
+    public static String normalizeSort(Sort s) {
+        String name = s.getName();
+
+        String typed = CharMatcher.anyOf(">").removeFrom(name);
+        Iterable<String> types = Splitter.on("<").split(typed);
+        List<String> sorts = Arrays.asList(Iterables.toArray(types, String.class));
+
+        String r = "";
+        for (String so : sorts) {
+            r += so.substring(0, 1).toUpperCase() + so.substring(1);
+        }
+        return r;
+    }
 
     public static boolean isBoolean(String str) {
         return (str.toLowerCase().equals("true") || str.toLowerCase().equals("false"));
@@ -82,33 +94,56 @@ public class TypeContext {
         }
         return true;
     }
+
     public static SymbolTable getSymbolTable() {
         return symbolTable;
     }
-    public static void addSymbol(FunctionSymbol fs) { //TODO null,heap etc... Sorts (check argument sorts)
+
+    public static Set<Dependency> getDependencies() {
+        Set<Dependency> deps = new LinkedHashSet<>();
+        for (FunctionSymbol fs : symbolTable.getAllSymbols()) {
+          //  System.out.println("Entry: " + fs.getName());
+            if (fs.getName().startsWith("$")) {
+                Dependency d = new FuncDependency(fs);
+                deps.add(d);
+            } else {
+                Dependency d = new ConstDependency(fs);
+                deps.add(d);
+            }
+        } // debug 
+//        for (Dependency d : deps) {
+//            System.out.println("d:" + d.instantiate().toString());
+//        }
+        return deps;
+    }
+
+    public static void addSymbol(FunctionSymbol fs) { // TODO null,heap etc... Sorts (check argument sorts)
         String name = fs.getName();
-        //System.out.println("POLYFS " + name);
-        if(isNumeric(name) || isBoolean(name))
+        // System.out.println("POLYFS " + name);
+        if (isNumeric(name) || isBoolean(name))
             return;
-        
+
         if (name.startsWith("$")) {
-            
-          Iterable<String> operators = Splitter.on("<").split(name);
-          
-          List<String> ops = Arrays.asList(Iterables.toArray(operators, String.class));
-          
-          
-          Operation op = OperationMatcher.matchOp(ops.get(0));
-          if (!op.isPoly())
-              return;
+            Operation op = getOp(name);
+
+            if (!op.isPoly())
+                return;
         }
-  
-        
-        
+
         FunctionSymbol nfs = new FunctionSymbol(name, fs.getResultSort(), fs.getArgumentSorts());
         if (!symbolTable.getAllSymbols().contains(nfs))
             symbolTable = symbolTable.addFunctionSymbol(nfs);
 
+    }
+
+    public static Operation getOp(String name) {
+
+        Iterable<String> operators = Splitter.on("<").split(name);
+
+        List<String> ops = Arrays.asList(Iterables.toArray(operators, String.class));
+
+        Operation op = OperationMatcher.matchOp(ops.get(0));
+        return op;
     }
 
 }

@@ -14,8 +14,7 @@ public class VarSignature extends Signature {
         sb.append(fs.getName());
 
         sb.append(" ");
-        sb.append(
-                fs.getResultSort().getName().substring(0, 1).toUpperCase() + fs.getResultSort().getName().substring(1));
+        sb.append(TypeContext.normalizeSort(fs.getResultSort()));
         return sb.toString();
     }
 
