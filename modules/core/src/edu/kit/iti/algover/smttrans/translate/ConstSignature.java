@@ -16,4 +16,17 @@ public class ConstSignature extends Signature {
         return sb.toString();
     }
 
+    @Override
+    public String declare() {
+        StringBuilder sb = new StringBuilder();
+        sb.append("(declareConst");
+        sb.append(show());
+        sb.append(" ");
+        sb.append(fs.getResultSort().getName());
+        sb.append(")");
+        sb.append("\r\n");
+        return sb.toString();    
+    }
+    
+
 }

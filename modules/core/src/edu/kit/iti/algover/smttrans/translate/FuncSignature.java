@@ -14,11 +14,21 @@ public class FuncSignature extends Signature{
     @Override
     public String show() {
         StringBuilder sb = new StringBuilder();
-        List<String> parts = TypeContext.typeOperation(fs.getName());
-        for(String p : parts) {
-            sb.append(p);
-        }    
+        String s = TypeContext.opToSMT(fs);
+        sb.append(s);
         return sb.toString();
     }
+
+    @Override
+    public String declare() {
+        StringBuilder sb = new StringBuilder();
+        sb.append("(declareFun");
+        sb.append(show());
+        sb.append(")");
+        sb.append("\r\n");
+        return sb.toString();    
+    }
+    
+    
 
 }

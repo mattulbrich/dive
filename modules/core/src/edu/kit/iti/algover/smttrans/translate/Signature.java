@@ -14,4 +14,6 @@ public abstract class Signature {
     
     
     public abstract String show();
+    public abstract String declare();
+    //public abstract String instantiate(); maybe List<>
 }

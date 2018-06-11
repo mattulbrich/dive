@@ -1,14 +1,8 @@
 package edu.kit.iti.algover.smttrans.translate.expressions;
 
-import java.util.ArrayList;
-import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.Set;
-
 import edu.kit.iti.algover.smttrans.translate.FuncSignature;
 import edu.kit.iti.algover.term.FunctionSymbol;
-import edu.kit.iti.algover.term.Sort;
-import edu.kit.iti.algover.util.Util;
 
 public class SMTApplExpression extends SMTExpression {
 

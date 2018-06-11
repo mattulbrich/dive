@@ -10,7 +10,7 @@
 package edu.kit.iti.algover.rules.impl;
 
 import edu.kit.iti.algover.data.SymbolTable;
-
+import edu.kit.iti.algover.parser.DafnyTree;
 import edu.kit.iti.algover.proof.PVC;
 import edu.kit.iti.algover.proof.ProofFormula;
 import edu.kit.iti.algover.proof.ProofNode;
@@ -40,6 +40,7 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 /*
@@ -74,14 +75,17 @@ public class Z3Rule extends AbstractProofRule {
     }
 
     private ProofRuleApplication refine(ProofNode target, ProofRuleApplication app) {
-       // SolverAccess.evaluate("");
+        // SolverAccess.evaluate("");
         PVC pvc = target.getPVC();
-        SMTContainer sc = translateToSMT(target.getPVC().getIdentifier(), target.getSequent(), pvc.getSymbolTable());
-        //String smtlib = translateToSMT(target.getPVC().getIdentifier(), target.getSequent(), pvc.getSymbolTable()).toPSMT();
-    //    System.out.println(sc.toPSMT());
-     //   System.out.println("          ");
-      //  System.out.println("          ");
-       // System.out.println("          ");
+        Map<TermSelector, DafnyTree> referenceMap = pvc.getReferenceMap();
+        SMTContainer sc = translateToSMT(target.getPVC().getIdentifier(), target.getSequent(), pvc.getSymbolTable(),
+                referenceMap);
+        // String smtlib = translateToSMT(target.getPVC().getIdentifier(),
+        // target.getSequent(), pvc.getSymbolTable()).toPSMT();
+        // System.out.println(sc.toPSMT());
+        // System.out.println(" ");
+        // System.out.println(" ");
+        // System.out.println(" ");
         System.out.println(sc.toSMT());
         // if(quickAndDirty(target.getPVC().getIdentifier(), target.getSequent(),
         // pvc.getSymbolTable())) {
@@ -97,45 +101,49 @@ public class Z3Rule extends AbstractProofRule {
         // }
         return null;
     }
-    
 
-    private SMTContainer translateToSMT(String identifier, Sequent sequent, SymbolTable symbolTable) {
-        TypeContext.setSymbolTable(symbolTable);
-        //System.out.println(symbolTable.getAllSymbols().toString());
+    private SMTContainer translateToSMT(String identifier, Sequent sequent, SymbolTable symbolTable,
+            Map<TermSelector, DafnyTree> refs) {
+         //TODO symbolTable not needed ?
         
+       
+
         
-        for (FunctionSymbol fs : symbolTable.getAllSymbols()) {
-            if(!fs.getName().startsWith("$")) {
-                System.out.println("FS " + fs.getName());
-                System.out.println(fs.getResultSort().getName());
-            }
-        }
-        
+
+        // System.out.println(symbolTable.getAllSymbols().toString());
+
+//        for (FunctionSymbol fs : symbolTable.getAllSymbols()) {
+//            if (!fs.getName().startsWith("$")) {
+//                System.out.println("FS " + fs.getName());
+//                System.out.println(fs.getResultSort().getName());
+//            }
+//        }
+
         List<ProofFormula> antecedent = sequent.getAntecedent();
         List<ProofFormula> succedent = sequent.getSuccedent();
 
         List<SMTTerm> aTerms = new ArrayList<>();
         List<SMTTerm> sTerms = new ArrayList<>();
-        
-        System.out.println(symbolTable.getAllSymbols().toString());
-     
+
+      //  System.out.println(symbolTable.getAllSymbols().toString());
 
         for (ProofFormula pa : antecedent) {
+            System.out.println("Label: " + pa.getLabel());
 
             SMTExpression e = pa.getTerm().accept(new SMTVisitor(), null);
             SMTTerm t = new SMTTerm(e);
             aTerms.add(t);
 
-            
         }
         for (ProofFormula ps : succedent) {
             // negate
             SMTExpression e = ps.getTerm().accept(new SMTVisitor(), null);
             SMTTerm t = new SMTTerm(e);
             sTerms.add(t);
-           
-        }
 
+        }
+        
+        System.out.println(TypeContext.getSymbolTable().getAllSymbols().toString()) ;
 
         return new SMTContainer(aTerms, sTerms);
     }

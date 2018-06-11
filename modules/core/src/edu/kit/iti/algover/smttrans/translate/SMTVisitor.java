@@ -26,7 +26,7 @@ public class SMTVisitor implements TermVisitor<Void, SMTExpression, RuntimeExcep
     @Override
     public SMTExpression visit(VariableTerm variableTerm, Void t) throws RuntimeException {
         String name = variableTerm.getName();
-        return new SMTConstExpression(new FunctionSymbol(name, variableTerm.getSort()));
+        return new SMTConstExpression(FSFactory.makeFS(name, variableTerm.getSort()));
     }
 
     @Override
@@ -36,7 +36,7 @@ public class SMTVisitor implements TermVisitor<Void, SMTExpression, RuntimeExcep
 
         SMTExpression formula = quantTerm.getTerm(0).accept(this, t);
 
-        SMTBVExpression var = new SMTBVExpression(new FunctionSymbol(boundVar.getName(), boundVar.getSort()));
+        SMTBVExpression var = new SMTBVExpression(FSFactory.makeFS(boundVar.getName(), boundVar.getSort()));
 
         return new SMTQuantExpression(quantTerm.getQuantifier(), var, formula);
 
@@ -44,7 +44,7 @@ public class SMTVisitor implements TermVisitor<Void, SMTExpression, RuntimeExcep
 
     @Override
     public SMTExpression visit(ApplTerm applTerm, Void t) throws RuntimeException {
-        FunctionSymbol fs = applTerm.getFunctionSymbol();
+        FunctionSymbol fs = FSFactory.makeFS(applTerm.getFunctionSymbol());
 
         List<SMTExpression> children = Util.map(applTerm.getSubterms(), x -> x.accept(SMTVisitor.this, null));
 
@@ -63,13 +63,14 @@ public class SMTVisitor implements TermVisitor<Void, SMTExpression, RuntimeExcep
 
     @Override
     public SMTExpression visit(LetTerm letTerm, Void t) throws RuntimeException {
+       
 
         SMTExpression inner = letTerm.getTerm(0).accept(this, null);
         List<SMTExpression> subs = new ArrayList<>();
 
         for (Pair<VariableTerm, Term> pair : letTerm.getSubstitutions()) {
 
-            subs.add(new SMTVarExpression(new FunctionSymbol(pair.fst.getName(), pair.fst.getSort()),
+            subs.add(new SMTVarExpression(FSFactory.makeFS(pair.fst.getName(), pair.fst.getSort()),
                     pair.snd.accept(this, null)));
 
         }
