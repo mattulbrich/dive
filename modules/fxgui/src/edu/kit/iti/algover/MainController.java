@@ -27,6 +27,7 @@ import edu.kit.iti.algover.rules.ProofRuleApplication;
 import edu.kit.iti.algover.rules.TermSelector;
 import edu.kit.iti.algover.sequent.SequentActionListener;
 import edu.kit.iti.algover.sequent.SequentController;
+import edu.kit.iti.algover.sequent.SequentTabViewController;
 import edu.kit.iti.algover.timeline.TimelineLayout;
 import edu.kit.iti.algover.util.CostumBreadCrumbBar;
 import edu.kit.iti.algover.util.FormatException;
@@ -69,7 +70,7 @@ public class MainController implements SequentActionListener, RuleApplicationLis
     // All controllers for the views, sorted from left-to-right in the way they appear in the GUI
     private final BrowserController browserController;
     private final EditorController editorController;
-    private final SequentController sequentController;
+    private final SequentTabViewController sequentController;
     private final RuleApplicationController ruleApplicationController;
     private final ToolBar toolbar;
     private final StatusBar statusBar;
@@ -84,7 +85,7 @@ public class MainController implements SequentActionListener, RuleApplicationLis
         //this.browserController = new FileBasedBrowserController(manager.getProject(), manager.getAllProofs(), this::onClickPVCEdit);
         this.editorController = new EditorController(executor, manager.getProject().getBaseDir().getAbsolutePath());
         this.editorController.anyFileChangedProperty().addListener(this::onDafnyFileChangedInEditor);
-        this.sequentController = new SequentController(this);
+        this.sequentController = new SequentTabViewController(this);
         this.ruleApplicationController = new RuleApplicationController(executor, this, manager);
 
         JFXButton saveButton = new JFXButton("Save", GlyphsDude.createIcon(FontAwesomeIcon.SAVE));
@@ -312,10 +313,10 @@ public class MainController implements SequentActionListener, RuleApplicationLis
                 breadCrumbBar.setSelectedCrumb(getTreeItemForPVC(pvc));
             } else {
                 editorController.resetPVCSelection();
-                sequentController.clear();
+                sequentController.getActiveSequentController().clear();
             }
         } else {
-            sequentController.clear();
+            sequentController.getActiveSequentController().clear();
         }
     }
 
@@ -337,7 +338,7 @@ public class MainController implements SequentActionListener, RuleApplicationLis
     public void onClickSequentSubterm(TermSelector selector) {
         if(selector != null) {
             timelineView.moveFrameRight();
-            ProofNode node = sequentController.getActiveNode();
+            ProofNode node = sequentController.getActiveSequentController().getActiveNode();
             if (node != null) {
                 ruleApplicationController.considerApplication(node, node.getSequent(), selector);
             }
@@ -347,7 +348,7 @@ public class MainController implements SequentActionListener, RuleApplicationLis
     @Override
     public void onRequestReferenceHighlighting(ProofTermReference termRef) {
         if (termRef != null) {
-            Set<Reference> predecessors = sequentController.getReferenceGraph().allPredecessors(termRef);
+            Set<Reference> predecessors = sequentController.getActiveSequentController().getReferenceGraph().allPredecessors(termRef);
             Set<CodeReference> codeReferences = filterCodeReferences(predecessors);
             editorController.viewReferences(codeReferences);
         } else {
@@ -368,12 +369,12 @@ public class MainController implements SequentActionListener, RuleApplicationLis
 
     @Override
     public void onPreviewRuleApplication(ProofRuleApplication application) {
-        sequentController.viewProofApplicationPreview(application);
+        sequentController.getActiveSequentController().viewProofApplicationPreview(application);
     }
 
     @Override
     public void onResetRuleApplicationPreview() {
-        sequentController.resetProofApplicationPreview();
+        sequentController.getActiveSequentController().resetProofApplicationPreview();
     }
 
     @Override
@@ -384,8 +385,8 @@ public class MainController implements SequentActionListener, RuleApplicationLis
         ruleApplicationController.applyRule(application);
         ruleApplicationController.getRuleGrid().getSelectionModel().clearSelection();
         String newScript = ruleApplicationController.getScriptView().getText();
-        sequentController.getActiveProof().setScriptTextAndInterpret(newScript);
-        sequentController.tryMovingOnEx(); //SaG: was tryMovingOn()
+        sequentController.getActiveSequentController().getActiveProof().setScriptTextAndInterpret(newScript);
+        sequentController.getActiveSequentController().tryMovingOnEx(); //SaG: was tryMovingOn()
         ruleApplicationController.resetConsideration();
         Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).info("Successfully applied rule " + application.getRule().getName() + ".");
     }
@@ -395,20 +396,20 @@ public class MainController implements SequentActionListener, RuleApplicationLis
         // This can be implemented as an incremental algorithm in the future here!
         // Currently, this will reset the script text completely. That means the
         // script has to be parsed and rebuilt completely.
-        ruleApplicationController.applyExRule(rule, sequentController.getActiveNode(), ts);
+        ruleApplicationController.applyExRule(rule, sequentController.getActiveSequentController().getActiveNode(), ts);
         ruleApplicationController.getRuleGrid().getSelectionModel().clearSelection();
         String newScript = ruleApplicationController.getScriptView().getText();
-        sequentController.getActiveProof().setScriptTextAndInterpret(newScript);
-        sequentController.tryMovingOnEx();
+        sequentController.getActiveSequentController().getActiveProof().setScriptTextAndInterpret(newScript);
+        sequentController.getActiveSequentController().tryMovingOnEx();
         ruleApplicationController.resetConsideration();
 
     }
 
     @Override
     public void onScriptSave() {
-        String pvcIdentifier = sequentController.getActiveProof().getPVC().getIdentifier();
+        String pvcIdentifier = sequentController.getActiveSequentController().getActiveProof().getPVC().getIdentifier();
         try {
-            manager.saveProofScriptForPVC(pvcIdentifier, sequentController.getActiveProof());
+            manager.saveProofScriptForPVC(pvcIdentifier, sequentController.getActiveSequentController().getActiveProof());
             Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).info("Successfully saved script " + pvcIdentifier + ".");
         } catch (IOException e) {
             Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).severe("Error saving script.");
