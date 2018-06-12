@@ -26,8 +26,8 @@ public class SMTContainer {
         StringBuilder sb = new StringBuilder();
 
         sb.append(instantiateDep());
-        antecedent.forEach(t -> sb.append(t.toSMT()));
-        succedent.forEach(s -> sb.append(s.toSMT())); // negate
+        antecedent.forEach(t -> sb.append(t.toSMT(false)));
+        succedent.forEach(s -> sb.append(s.toSMT(true))); // negate
 
         return sb.toString();
     }
@@ -35,8 +35,8 @@ public class SMTContainer {
     public String toPSMT() {
         StringBuilder sb = new StringBuilder();
         sb.append(declareDep());
-        antecedent.forEach(t -> sb.append(t.toSMT()));
-        succedent.forEach(s -> sb.append(s.toSMT())); // negate
+        antecedent.forEach(t -> sb.append(t.toSMT(false)));
+        succedent.forEach(s -> sb.append(s.toSMT(true))); // negate
         return sb.toString();
     }
 

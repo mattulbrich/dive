@@ -15,7 +15,7 @@ public class SMTConstExpression extends SMTExpression {
 
 
     @Override
-    public String toSMT() {
+    public String toSMT(boolean negate) {
         return sign.show() + " ";
     }
 

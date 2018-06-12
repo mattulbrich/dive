@@ -20,7 +20,7 @@ public class SMTBVExpression extends SMTExpression {
     }
 
     @Override
-    public String toSMT() {
+    public String toSMT(boolean negate) {
         StringBuilder sb = new StringBuilder();
 
         sb.append("(");

@@ -12,13 +12,13 @@ public class SMTApplExpression extends SMTExpression {
     }
 
     @Override
-    public String toSMT() {
+    public String toSMT(boolean negate) {
         StringBuilder sb = new StringBuilder();
         sb.append("(");
         sb.append(sign.show() + " ");
         
         for (SMTExpression c : children) {
-            sb.append(c.toSMT());
+            sb.append(c.toSMT(negate));
         }
         sb.append(") ");
         return sb.toString();

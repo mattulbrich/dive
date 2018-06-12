@@ -14,12 +14,12 @@ public class SMTLetExpression extends SMTExpression {
     }
 
     @Override
-    public String toSMT() {
+    public String toSMT(boolean negate) {
         StringBuilder sb = new StringBuilder();
 //        LinkedHashSet<Dependency> set = new LinkedHashSet<>();
 //        StringBuilder sb = new StringBuilder();
         for (SMTExpression s : subs) {
-            String sp = s.toSMT();
+            String sp = s.toSMT(negate);
             //set.addAll(sp.fst);
             sb.append(sp);
            // sb.append(s.toSMT());
@@ -28,7 +28,7 @@ public class SMTLetExpression extends SMTExpression {
         sb.append(")"); 
         sb.append("\r\n");
         sb.append("(assert"); //INNER
-        String ip = inner.toSMT();
+        String ip = inner.toSMT(negate);
 //        set.addAll(ip.fst);
         sb.append(ip);
         sb.append(")");

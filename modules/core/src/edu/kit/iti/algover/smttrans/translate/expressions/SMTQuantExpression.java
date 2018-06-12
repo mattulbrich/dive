@@ -18,8 +18,11 @@ public class SMTQuantExpression extends SMTExpression {
     }
 
     @Override
-    public String toSMT() {
+    public String toSMT(boolean negate) {
         StringBuilder sb = new StringBuilder();
+        if (negate) {
+            sb.append("(not ");
+        }
         sb.append("(");
         if (quantifier == quantifier.EXISTS) {
             sb.append(Operation.EXISTS.toSMT());
@@ -27,10 +30,13 @@ public class SMTQuantExpression extends SMTExpression {
             sb.append(Operation.FORALL.toSMT());
         }
         sb.append("(");
-        sb.append(qVar.toSMT());
+        sb.append(qVar.toSMT(negate));
         sb.append(")");
-        sb.append(formula.toSMT().substring(0,formula.toSMT().length()-4)); //delete last two parantheses
+        sb.append(formula.toSMT(negate).substring(0,formula.toSMT(negate).length()-4)); //delete last two parantheses
         sb.append(")");
+        if (negate) {
+            sb.append(")");
+        }
 
         return sb.toString();
     }

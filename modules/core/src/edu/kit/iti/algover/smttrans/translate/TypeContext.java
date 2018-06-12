@@ -57,13 +57,11 @@ public class TypeContext {
 
         Operation op = OperationMatcher.matchOp(ops.get(0));
         String sname = op.toSMT();
-        
-        
-       
 
         if (op.isPoly()) {
-            for (String s : ops.subList(1,ops.size())) {
-                sname += nmap.computeIfAbsent(s, x -> s.substring(0, 1).toUpperCase() + s.substring(1));;
+            for (String s : ops.subList(1, ops.size())) {
+                sname += nmap.computeIfAbsent(s, x -> s.substring(0, 1).toUpperCase() + s.substring(1));
+                ;
             }
         }
         return sname;
@@ -134,7 +132,7 @@ public class TypeContext {
 
     public static void addSymbol(FunctionSymbol fs) { // TODO null,heap etc... Sorts (check argument sorts)
         String name = fs.getName();
-        // System.out.println("POLYFS " + name);
+
         if (isNumeric(name) || isBoolean(name))
             return;
 

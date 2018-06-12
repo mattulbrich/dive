@@ -76,6 +76,7 @@ public class Z3Rule extends AbstractProofRule {
     }
 
     private ProofRuleApplication refine(ProofNode target, ProofRuleApplication app) {
+       // System.out.println("PVC: " + target.getPVC().getSequent().toString());
         //SolverAccess.evaluate("");
         Z3Access z3 = new Z3Access();
         z3.accessSolver();
@@ -89,8 +90,10 @@ public class Z3Rule extends AbstractProofRule {
         // System.out.println(" ");
         // System.out.println(" ");
         // System.out.println(" ");
-        System.out.println(sc.toSMT());
-        System.out.println(sc.toPSMT());
+        
+        //System.out.println(sc.toSMT());
+        //System.out.println(sc.toPSMT());
+        
         // if(quickAndDirty(target.getPVC().getIdentifier(), target.getSequent(),
         // pvc.getSymbolTable())) {
         // ProofRuleApplicationBuilder builder = new ProofRuleApplicationBuilder(app);

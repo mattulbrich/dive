@@ -11,7 +11,7 @@ public abstract class SMTExpression {
     protected List<SMTExpression> children = new ArrayList<>();
     protected Signature sign;
 
-    public abstract String toSMT();
+    public abstract String toSMT(boolean negate);
 
     public SMTExpression(FunctionSymbol f, List<SMTExpression> c) {
         this.fs = f;
