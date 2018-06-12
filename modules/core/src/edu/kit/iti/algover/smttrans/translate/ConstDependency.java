@@ -17,9 +17,6 @@ public class ConstDependency extends Dependency {
     public LinkedHashSet<String> instantiate() {
         LinkedHashSet<String> inst = new LinkedHashSet<>();
         
-        //declare sort with type
-        
-        //declare-const
         StringBuilder sb = new StringBuilder();
 
         sb.append("(declare-const ");
@@ -31,6 +28,20 @@ public class ConstDependency extends Dependency {
         return inst;
     }
     
+    @Override
+    public LinkedHashSet<String> declare() {
+        LinkedHashSet<String> inst = new LinkedHashSet<>();
+            
+        StringBuilder sb = new StringBuilder();
+
+        sb.append("(declare-const ");
+        sb.append(name);
+        sb.append(" :: ");
+        sb.append(TypeContext.normalizeSort(fs.getResultSort()));
+        sb.append(")");
+        inst.add(sb.toString());
+        return inst;
+    }
     
     
     @Override
@@ -64,19 +75,6 @@ public class ConstDependency extends Dependency {
         return this.name + " : " + this.fs.getName();
     }
 
-    @Override
-    public LinkedHashSet<String> declare() {
-        LinkedHashSet<String> inst = new LinkedHashSet<>();
-            
-        StringBuilder sb = new StringBuilder();
 
-        sb.append("(inst-const ");
-        sb.append(name);
-        sb.append(" :: ");
-        sb.append(fs.getName());
-        sb.append(")");
-        inst.add(sb.toString());
-        return inst;
-    }
 
 }

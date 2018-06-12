@@ -2,6 +2,9 @@ package edu.kit.iti.algover.smttrans.data;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import edu.kit.iti.algover.term.FunctionSymbol;
+
 import static java.util.Arrays.asList;
 //import static edu.kit.iti.algover.smttrans.data.Axiom.*; //TODO later
 
@@ -35,7 +38,7 @@ public enum Operation {
         ARRSELECT.smt = "arrselect";
         ARRSELECT.poly = true;
         ARRSELECT.type = OperationType.ARR;
-        ARRSELECT.instantiations = asList(Axiom.ARR_1);
+        ARRSELECT.instantiations = asList(Axiom.ARR_1, Axiom.ARRSELECT, Axiom.ARRSTORE);
 
         ARR2SELECT.smt = "arr2select";
         ARR2SELECT.poly = true;
@@ -200,14 +203,6 @@ public enum Operation {
 
     }
 
-//    public String toSMTLib(Type type) {
-//        // special cases here ...
-//
-//        if (poly) {
-//            return smt + type.toString();
-//        }
-//        return smt;
-//    }
     
     public String toSMT() {
         return smt;

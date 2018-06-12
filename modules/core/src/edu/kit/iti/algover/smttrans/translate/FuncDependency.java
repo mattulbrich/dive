@@ -18,7 +18,7 @@ public class FuncDependency extends Dependency {
     }
 
     @Override
-    public LinkedHashSet<String> instantiate() {
+    public LinkedHashSet<String> instantiate() { //TODO
         LinkedHashSet<String> inst = new LinkedHashSet<>();
         
         inst.addAll(AxiomContainer.instantiateSort(op.getType(), fs)); 

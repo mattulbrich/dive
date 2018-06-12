@@ -2,6 +2,7 @@ package edu.kit.iti.algover.smttrans.translate;
 //
 
 import java.text.DecimalFormatSymbols;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -9,6 +10,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import com.google.common.base.CharMatcher;
 import com.google.common.base.Splitter;
@@ -39,24 +41,37 @@ public class TypeContext {
 
     }
 
-    public static String opToSMT(FunctionSymbol fs) { // TODO needed ?
+    public static boolean isBuiltIn(Sort s) {
+        String name = s.getName().toLowerCase();
+        return name.equals(AV_BOOLNAME) || name.equals(AV_INTNAME);
+    }
+
+    public static String opToSMT(FunctionSymbol fs) {
         // System.out.println("Poly " + poly);
         String poly = fs.getName();
-        Iterable<String> operators = Splitter.on("<").split(poly);
-
+        String typed = CharMatcher.anyOf(">").removeFrom(poly);
+        Iterable<String> operators = Splitter.on("<").split(typed);
         List<String> ops = Arrays.asList(Iterables.toArray(operators, String.class));
 
         // System.out.println("FS " + ops.get(0));
 
         Operation op = OperationMatcher.matchOp(ops.get(0));
         String sname = op.toSMT();
+        
+        
+       
 
+        if (op.isPoly()) {
+            for (String s : ops.subList(1,ops.size())) {
+                sname += nmap.computeIfAbsent(s, x -> s.substring(0, 1).toUpperCase() + s.substring(1));;
+            }
+        }
         return sname;
 
     }
 
     public static String normalizeSort(Sort s) {
-        String name = s.getName();
+        String name = s.toString();
 
         String typed = CharMatcher.anyOf(">").removeFrom(name);
         Iterable<String> types = Splitter.on("<").split(typed);
@@ -64,7 +79,7 @@ public class TypeContext {
 
         String r = "";
         for (String so : sorts) {
-            r += so.substring(0, 1).toUpperCase() + so.substring(1);
+            r += nmap.computeIfAbsent(so, x -> so.substring(0, 1).toUpperCase() + so.substring(1));
         }
         return r;
     }
@@ -102,7 +117,7 @@ public class TypeContext {
     public static Set<Dependency> getDependencies() {
         Set<Dependency> deps = new LinkedHashSet<>();
         for (FunctionSymbol fs : symbolTable.getAllSymbols()) {
-          //  System.out.println("Entry: " + fs.getName());
+            // System.out.println("Entry: " + fs.getName());
             if (fs.getName().startsWith("$")) {
                 Dependency d = new FuncDependency(fs);
                 deps.add(d);
@@ -110,10 +125,10 @@ public class TypeContext {
                 Dependency d = new ConstDependency(fs);
                 deps.add(d);
             }
-        } // debug 
-//        for (Dependency d : deps) {
-//            System.out.println("d:" + d.instantiate().toString());
-//        }
+        } // debug
+          // for (Dependency d : deps) {
+          // System.out.println("d:" + d.instantiate().toString());
+          // }
         return deps;
     }
 
@@ -144,6 +159,33 @@ public class TypeContext {
 
         Operation op = OperationMatcher.matchOp(ops.get(0));
         return op;
+    }
+
+    public static List<String> getSubTypes(Sort sort) {
+
+        String typed = CharMatcher.anyOf(">").removeFrom(sort.toString());
+        Iterable<String> types = Splitter.on("<").split(typed);
+        List<String> subsorts = Arrays.asList(Iterables.toArray(types, String.class)).stream()
+                .map(so -> nmap.computeIfAbsent(so, x -> so.substring(0, 1).toUpperCase() + so.substring(1)))
+                .collect(Collectors.toList());
+
+        return subsorts;
+    }
+
+    public static List<List<String>> getSubTypes(List<Sort> argumentSorts) {
+        List<List<String>> sorts = new ArrayList<>();
+        for (Sort sort : argumentSorts) {
+
+            sorts.add(getSubTypes(sort));
+
+        }
+        return sorts;
+    }
+
+    public static boolean isFunc(String name) {
+        if (name.startsWith("$"))
+            return true;
+        return false;
     }
 
 }

@@ -23,6 +23,7 @@ import edu.kit.iti.algover.rules.RuleException;
 import edu.kit.iti.algover.rules.TermSelector;
 import edu.kit.iti.algover.smt.SMTQuickNDirty;
 import edu.kit.iti.algover.smttrans.access.SolverAccess;
+import edu.kit.iti.algover.smttrans.access.Z3Access;
 import edu.kit.iti.algover.smttrans.data.SMTContainer;
 import edu.kit.iti.algover.smttrans.translate.SMTTerm;
 import edu.kit.iti.algover.smttrans.translate.SMTVisitor;
@@ -75,7 +76,9 @@ public class Z3Rule extends AbstractProofRule {
     }
 
     private ProofRuleApplication refine(ProofNode target, ProofRuleApplication app) {
-        // SolverAccess.evaluate("");
+        //SolverAccess.evaluate("");
+        Z3Access z3 = new Z3Access();
+        z3.accessSolver();
         PVC pvc = target.getPVC();
         Map<TermSelector, DafnyTree> referenceMap = pvc.getReferenceMap();
         SMTContainer sc = translateToSMT(target.getPVC().getIdentifier(), target.getSequent(), pvc.getSymbolTable(),

@@ -13,6 +13,9 @@ import com.microsoft.z3.Version;
 public class SolverAccess {
 	
 	public static SolverResponse evaluate(String smt) {
+	    
+	    //debug
+	    
 
 		SolverResponse sr = new SolverResponse();
 		System.out.print("Z3 Full Version String: ");
