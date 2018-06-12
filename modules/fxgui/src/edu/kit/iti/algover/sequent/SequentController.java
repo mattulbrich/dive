@@ -23,6 +23,7 @@ import javafx.fxml.FXML;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
+import javafx.scene.control.TabPane;
 import javafx.scene.input.KeyCode;
 import javafx.util.Callback;
 
@@ -158,6 +159,7 @@ public class SequentController extends FxmlController {
                         activeNode = newActiveNode;
                         nodeBefore = activeNode.get(activeProof);
                 }
+                listener.onSwitchViewedNode(activeNode);
             } catch (RuleException e) {
                 e.printStackTrace(); // should not happen, as long as the activeNode selector is correct
                 return;
@@ -199,13 +201,13 @@ public class SequentController extends FxmlController {
         }
     }
 
-    public void viewProofNode(ProofNodeSelector proofNodeSelector) {
+    public void viewProofNode(ProofNodeSelector proofNodeSelector, int idx) {
         proofNodeSelector.optionalGet(activeProof).ifPresent(proofNode -> {
             activeNode = proofNodeSelector;
             BranchInfo branchInfo = null;
             ProofRuleApplication application = proofNode.getPsr();
-           if (application != null && application.getBranchInfo().size() == 1) {
-                branchInfo = application.getBranchInfo().get(0);
+            if (application != null) {
+                branchInfo = application.getBranchInfo().get(idx);
             }
             updateSequent(proofNode.getSequent(), branchInfo);
             updateGoalTypeLabel();
@@ -214,7 +216,15 @@ public class SequentController extends FxmlController {
 
     private void updateSequent(Sequent sequent, BranchInfo branchInfo) {
         antecedentView.getItems().setAll(calculateAssertions(sequent.getAntecedent(), TermSelector.SequentPolarity.ANTECEDENT, branchInfo));
-        succedentView.getItems().setAll(calculateAssertions(sequent.getSuccedent(), TermSelector.SequentPolarity.SUCCEDENT, branchInfo));
+        List<ProofFormula> before = sequent.getSuccedent();
+        System.out.println(sequent.getSuccedent());
+        List<TopLevelFormula> after = calculateAssertions(sequent.getSuccedent(), TermSelector.SequentPolarity.SUCCEDENT, branchInfo);
+        if(before.size() != after.size()) {
+            System.out.println(branchInfo.getAdditions());
+            System.out.println(branchInfo.getDeletions());
+            System.out.println(branchInfo.getReplacements());
+        }
+        succedentView.getItems().setAll(after);
     }
 
     private List<TopLevelFormula> calculateAssertions(List<ProofFormula> proofFormulas, TermSelector.SequentPolarity polarity, BranchInfo branchInfo) {
@@ -342,6 +352,18 @@ public class SequentController extends FxmlController {
 
     public SubSelection<ProofTermReference> referenceSelection() {
         return selectedReference;
+    }
+
+    public void setActiveNode(ProofNodeSelector pns) {
+        activeNode = pns;
+    }
+
+    public void setActiveProof(Proof p) {
+        activeProof = p;
+    }
+
+    public ProofNodeSelector getActiveNodeSelector() {
+        return activeNode;
     }
 
 }
