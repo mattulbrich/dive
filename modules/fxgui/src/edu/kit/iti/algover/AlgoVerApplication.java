@@ -35,7 +35,7 @@ public class AlgoVerApplication extends Application {
         chooser.setInitialDirectory(new File("doc/examples/"));
         File projectFolder = chooser.showDialog(primaryStage);
         File projectConfigFile = new File(projectFolder.getAbsolutePath() + "/config.xml");
-        if(!projectConfigFile.exists()) {
+        if (!projectConfigFile.exists()) {
             System.out.println("Could not find config file in selected folder.");
             return;
         }

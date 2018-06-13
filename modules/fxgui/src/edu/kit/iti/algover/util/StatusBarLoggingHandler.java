@@ -45,18 +45,18 @@ public class StatusBarLoggingHandler extends Handler {
     }
 
     public List<String> getHistory(int i) {
-        if(history.size() > i) {
+        if (history.size() > i) {
             return history.subList(history.size() - i - 1, history.size() - 1);
         }
         return history;
     }
 
     private void setPseudoClassStateFromBranches(Level logLvl) {
-        if(logLvl.equals(Level.SEVERE)) {
+        if (logLvl.equals(Level.SEVERE)) {
             statusBar.pseudoClassStateChanged(PseudoClass.getPseudoClass("error"), true);
             statusBar.pseudoClassStateChanged(PseudoClass.getPseudoClass("warning"), false);
             statusBar.pseudoClassStateChanged(PseudoClass.getPseudoClass("info"), false);
-        } else if(logLvl.equals(Level.WARNING)) {
+        } else if (logLvl.equals(Level.WARNING)) {
             statusBar.pseudoClassStateChanged(PseudoClass.getPseudoClass("error"), false);
             statusBar.pseudoClassStateChanged(PseudoClass.getPseudoClass("warning"), true);
             statusBar.pseudoClassStateChanged(PseudoClass.getPseudoClass("info"), false);

@@ -25,8 +25,8 @@ public class TreeTableEntityStatusRenderer implements TreeTableEntityVisitor<Voi
     public void applyRendering(TreeTableEntity entity, PVCClickEditListener engagedListener) {
         entity.accept(this);
         this.engagedListener = engagedListener;
-        if(entity instanceof PVCEntity) {
-            ((PVCEntity)entity).proofStatusProperty().addListener(new ChangeListener<PVCEntity.ProofStatus>() {
+        if (entity instanceof PVCEntity) {
+            ((PVCEntity) entity).proofStatusProperty().addListener(new ChangeListener<PVCEntity.ProofStatus>() {
                 @Override
                 public void changed(ObservableValue<? extends PVCEntity.ProofStatus> observable, PVCEntity.ProofStatus oldValue, PVCEntity.ProofStatus newValue) {
                     updateProofStatusIcon(newValue);

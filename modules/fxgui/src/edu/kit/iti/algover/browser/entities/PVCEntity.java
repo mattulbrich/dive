@@ -71,12 +71,18 @@ public class PVCEntity extends TreeTableEntity {
 
         public static ProofStatus from(edu.kit.iti.algover.proof.ProofStatus proofStatus) {
             switch (proofStatus) {
-                case CLOSED: return PROVEN;
-                case OPEN: return UNPROVEN;
-                case FAILING: return SCRIPT_FAILING;
-                case DIRTY: return DIRTY;
-                case CHANGED_SCRIPT: return DIRTY; // TODO Maybe improve these mappings
-                case NON_EXISTING: return MISSING_SCRIPT;
+                case CLOSED:
+                    return PROVEN;
+                case OPEN:
+                    return UNPROVEN;
+                case FAILING:
+                    return SCRIPT_FAILING;
+                case DIRTY:
+                    return DIRTY;
+                case CHANGED_SCRIPT:
+                    return DIRTY; // TODO Maybe improve these mappings
+                case NON_EXISTING:
+                    return MISSING_SCRIPT;
                 default:
                     throw new RuntimeException("Missing case: " + proofStatus);
             }

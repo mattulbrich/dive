@@ -54,7 +54,7 @@ public class ProofNodeCheckpointsBuilder extends DefaultASTVisitor<Void> {
             try {
                 lastHandledNode = selectorBefore.getNode(rootProofNode);
                 lastHandledSelector = selectorBefore;
-            } catch(RuleException ex) {
+            } catch (RuleException ex) {
                 System.out.println("Could not select last handled node.");
             }
             checkpoints.add(new ProofNodeCheckpoint(selector, position, new Position(position.getLineNumber() + 1, 0)));
@@ -71,15 +71,15 @@ public class ProofNodeCheckpointsBuilder extends DefaultASTVisitor<Void> {
     @Override
     public Void visit(SimpleCaseStatement simpleCaseStatement) {
         int selectedChildIdx = -1;
-        for(int i = 0; i < lastHandledNode.getChildren().size(); ++i) {
+        for (int i = 0; i < lastHandledNode.getChildren().size(); ++i) {
             //TODO only label matching no sequent matching supported as of yet
-            if(simpleCaseStatement.getGuard().getText().
+            if (simpleCaseStatement.getGuard().getText().
                     substring(1, simpleCaseStatement.getGuard().getText().length() - 1).
                     equals(lastHandledNode.getChildren().get(i).getLabel())) {
                 selectedChildIdx = i;
             }
         }
-        if(selectedChildIdx != -1) {
+        if (selectedChildIdx != -1) {
             ProofNodeSelector selector = new ProofNodeSelector(lastHandledSelector, selectedChildIdx);
             Position position = simpleCaseStatement.getStartPosition();
             Position guardPosition = simpleCaseStatement.getGuard().getEndPosition();

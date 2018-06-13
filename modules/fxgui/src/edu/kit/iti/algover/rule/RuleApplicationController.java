@@ -21,9 +21,12 @@ import java.util.logging.Logger;
 
 public class RuleApplicationController extends FxmlController {
 
-    @FXML private SplitPane splitPane;
-    @FXML private Label termToConsider;
-    @FXML private RuleGrid ruleGrid;
+    @FXML
+    private SplitPane splitPane;
+    @FXML
+    private Label termToConsider;
+    @FXML
+    private RuleGrid ruleGrid;
 
     private final ScriptView scriptView;
 

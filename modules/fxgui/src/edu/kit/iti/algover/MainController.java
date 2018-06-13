@@ -49,6 +49,7 @@ import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 import org.controlsfx.control.BreadCrumbBar;
 import org.controlsfx.control.StatusBar;
+
 import java.io.IOException;
 import java.util.HashSet;
 import java.util.List;
@@ -131,10 +132,10 @@ public class MainController implements SequentActionListener, RuleApplicationLis
     private void onCrumbSelected(ObservableValue observableValue, Object oldValue, Object newValue) {
         TreeItem<Object> item = (TreeItem<Object>) newValue;
         Platform.runLater(() -> {
-            if(item.getValue() instanceof PVC) {
-                PVC pvc = (PVC)item.getValue();
+            if (item.getValue() instanceof PVC) {
+                PVC pvc = (PVC) item.getValue();
                 try {
-                    DafnyFile file = (DafnyFile)item.getParent().getParent().getValue();
+                    DafnyFile file = (DafnyFile) item.getParent().getParent().getValue();
                     timelineView.moveFrameLeft();
                     timelineView.moveFrameLeft();
                     onClickPVCEdit(new PVCEntity(manager.getProofForPVC(pvc.getIdentifier()), pvc, file));
@@ -144,14 +145,14 @@ public class MainController implements SequentActionListener, RuleApplicationLis
                     Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).warning("Could not select pvc.");
                 }
             }
-            if(item.getValue() instanceof DafnyFile) {
-                editorController.viewFile((DafnyFile)item.getValue());
+            if (item.getValue() instanceof DafnyFile) {
+                editorController.viewFile((DafnyFile) item.getValue());
                 timelineView.moveFrameLeft();
                 timelineView.moveFrameLeft();
                 editorController.resetPVCSelection();
             }
-            if(item.getValue() instanceof DafnyMethod) {
-                if(item.getParent().getValue() instanceof DafnyFile) {
+            if (item.getValue() instanceof DafnyMethod) {
+                if (item.getParent().getValue() instanceof DafnyFile) {
                     editorController.viewFile((DafnyFile) item.getParent().getValue());
                     timelineView.moveFrameLeft();
                     timelineView.moveFrameLeft();
@@ -173,16 +174,16 @@ public class MainController implements SequentActionListener, RuleApplicationLis
     public TreeItem<Object> getBreadCrumbModel() {
         TreeItem<Object> lastitem = null;
         TreeItem<Object> root = new TreeItem("root");
-        for(DafnyFile f : manager.getProject().getDafnyFiles()) {
+        for (DafnyFile f : manager.getProject().getDafnyFiles()) {
             TreeItem<Object> fileChild = new TreeItem(f.getFilename());
             fileChild.setValue(f);
             root.getChildren().add(fileChild);
-            for(DafnyMethod m : f.getMethods()) {
+            for (DafnyMethod m : f.getMethods()) {
                 TreeItem<Object> methodChild = new TreeItem(m.getName());
                 methodChild.setValue(m);
                 fileChild.getChildren().add(methodChild);
                 PVCCollection collection = manager.getProject().getPVCsFor(m);
-                for(PVC pvc : collection.getContents()) {
+                for (PVC pvc : collection.getContents()) {
                     lastitem = new TreeItem(pvc.getIdentifier());
                     lastitem.setValue(pvc);
                     methodChild.getChildren().add(lastitem);
@@ -194,6 +195,7 @@ public class MainController implements SequentActionListener, RuleApplicationLis
 
     /**
      * Updates the text of the StatusBar
+     *
      * @param text the new text
      */
     public void setStatusBarText(String text) {
@@ -202,6 +204,7 @@ public class MainController implements SequentActionListener, RuleApplicationLis
 
     /**
      * Updates the progress of the StatusBar
+     *
      * @param progress the new progress (should be between 0 and 1)
      */
     public void setStatusBarProgress(double progress) {
@@ -237,7 +240,7 @@ public class MainController implements SequentActionListener, RuleApplicationLis
         };
         executor.execute(t);
         t.setOnSucceeded(event -> {
-            if(t.getValue()) {
+            if (t.getValue()) {
                 manager.getAllProofs().values().forEach(p -> p.interpretScript());
                 browserController.onRefresh(manager.getProject(), manager.getAllProofs());
                 browserController.getView().setDisable(false);
@@ -254,7 +257,7 @@ public class MainController implements SequentActionListener, RuleApplicationLis
         });
         //TODO somehow get proper exceptions and handling them
         t.setOnFailed(event -> {
-            if(t.getException() instanceof Exception) {
+            if (t.getException() instanceof Exception) {
                 editorController.showException((Exception) t.getException());
                 Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).severe("Error reloading the project: " + t.getException().getMessage());
             } else {
@@ -273,7 +276,7 @@ public class MainController implements SequentActionListener, RuleApplicationLis
         editorController.viewPVCSelection(pvc);
         Proof proof = manager.getProofForPVC(entity.getPVC().getIdentifier());
         // MU: currently proofs are not automatically interpreted and/or uptodate. Make sure they are.
-        if(proof.getProofStatus() == ProofStatus.NON_EXISTING  || proof.getProofStatus() == ProofStatus.CHANGED_SCRIPT)
+        if (proof.getProofStatus() == ProofStatus.NON_EXISTING || proof.getProofStatus() == ProofStatus.CHANGED_SCRIPT)
             proof.interpretScript();
         sequentController.viewSequentForPVC(entity, proof);
         ruleApplicationController.resetConsideration();
@@ -282,7 +285,7 @@ public class MainController implements SequentActionListener, RuleApplicationLis
     }
 
     public void onDafnyFileChangedInEditor(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) {
-        if(newValue) {
+        if (newValue) {
             browserController.getView().setDisable(true);
             sequentController.getView().setDisable(true);
             ruleApplicationController.getView().setDisable(true);
@@ -296,13 +299,13 @@ public class MainController implements SequentActionListener, RuleApplicationLis
 
     private String getStringForTreeItem(TreeItem<Object> item) {
         Object value = item.getValue();
-        if(value instanceof DafnyFile) {
+        if (value instanceof DafnyFile) {
             return ((DafnyFile) value).getFilename();
         }
-        if(value instanceof DafnyMethod) {
+        if (value instanceof DafnyMethod) {
             return ((DafnyMethod) value).getName();
         }
-        if(value instanceof PVC) {
+        if (value instanceof PVC) {
             return ((PVC) value).getIdentifier();
         }
         return "error";
@@ -330,8 +333,8 @@ public class MainController implements SequentActionListener, RuleApplicationLis
         List<TreeItem<Object>> methods = files.stream().flatMap(m -> m.getChildren().stream()).
                 collect(Collectors.toList());
         List<TreeItem<Object>> pvcs = methods.stream().flatMap(m -> m.getChildren().stream()).
-                filter(p -> ((PVC)(p.getValue())).equals(pvc)).collect(Collectors.toList());
-        if(pvcs.size() == 1) {
+                filter(p -> ((PVC) (p.getValue())).equals(pvc)).collect(Collectors.toList());
+        if (pvcs.size() == 1) {
             return pvcs.get(0);
         } else {
             System.out.println("this shoudnt happen. couldnt select breadcrumbitem for pvc");
@@ -341,7 +344,7 @@ public class MainController implements SequentActionListener, RuleApplicationLis
 
     @Override
     public void onClickSequentSubterm(TermSelector selector) {
-        if(selector != null) {
+        if (selector != null) {
             timelineView.moveFrameRight();
             ProofNode node = sequentController.getActiveSequentController().getActiveNode();
             if (node != null) {

@@ -54,7 +54,7 @@ public class RuleParameterDialog extends Dialog {
         gridPane.getColumnConstraints().add(col1);
 
         int row = 0;
-        for(Map.Entry<String, ParameterDescription<?>> e : rule.getAllParameters().entrySet()) {
+        for (Map.Entry<String, ParameterDescription<?>> e : rule.getAllParameters().entrySet()) {
             gridPane.add(new Label(e.getKey()), 0, row);
             TextField tf = new TextField();
             tf.setMinWidth(200.0);
@@ -87,22 +87,22 @@ public class RuleParameterDialog extends Dialog {
     }
 
     private Validator<String> getValidatorForType(ParameterType<?> type) {
-        if(type == ParameterType.TERM) {
+        if (type == ParameterType.TERM) {
             return this::termValidator;
-        } else if(type == ParameterType.BOOLEAN) {
+        } else if (type == ParameterType.BOOLEAN) {
             return this::booleanValidator;
         }
         return null;
     }
 
     private void setParametersFromTextFields() {
-        for(int i = 0; i < gridPane.getChildren().size()/2; ++i) {
-            TextField tf = (TextField)gridPane.getChildren().get(i*2 + 1);
+        for (int i = 0; i < gridPane.getChildren().size() / 2; ++i) {
+            TextField tf = (TextField) gridPane.getChildren().get(i * 2 + 1);
             String text = tf.getText();
             try {
                 Term t = termParser.parse(text);
-                parameters.putValue(((Label)(gridPane.getChildren().get(i*2))).getText(), t);
-            } catch (DafnyParserException e){
+                parameters.putValue(((Label) (gridPane.getChildren().get(i * 2))).getText(), t);
+            } catch (DafnyParserException e) {
                 //e.printStackTrace();
                 parameters = null;
                 return;
@@ -114,8 +114,9 @@ public class RuleParameterDialog extends Dialog {
 
         }
     }
+
     private ValidationResult booleanValidator(Control c, String newValue) {
-        if(newValue == "true" || newValue == "True") {
+        if (newValue == "true" || newValue == "True") {
 
         }
         return new ValidationResult();
