@@ -29,8 +29,13 @@ public class FSFactory {
         } else {
             nfs = new FunctionSymbol(fs.getName(), fs.getResultSort(), fs.getArgumentSorts());
         }
+        try {
+            
+        
         TypeContext.addSymbol(nfs);
-
+        } catch (NullPointerException e) {
+           System.err.println("NULL: " + fs.getName());
+        }
         return nfs;
     }
 

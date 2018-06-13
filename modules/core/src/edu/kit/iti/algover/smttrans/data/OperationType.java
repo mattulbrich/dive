@@ -21,6 +21,7 @@ public enum OperationType {
         BOOL.smt = "Bool";
         SEQ.smt = "Seqq";
         SORT.smt = "SORT";
+        SORT.dependencies = Arrays.asList("Heap","heap Heap");
         ANY.smt = "ANY";
         NONE.smt = "NONE";
     }

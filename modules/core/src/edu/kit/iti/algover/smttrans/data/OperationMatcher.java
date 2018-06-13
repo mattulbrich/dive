@@ -28,6 +28,7 @@ public class OperationMatcher {
         opmap.put("$imp", Operation.IMP);
         opmap.put("$and", Operation.AND);
         opmap.put("$lt", Operation.LT);
+        opmap.put("$gt", Operation.GT);
 
         opmap.put("$array2_select", Operation.ARR2SELECT);
         opmap.put("$len", Operation.ARRLEN);
@@ -55,11 +56,13 @@ public class OperationMatcher {
         opmap.put("$anon", Operation.ANON);
         opmap.put("$create", Operation.CREATE);
         opmap.put("$isCreated", Operation.ISCREATED);
-
-        // opmap.put("$mod", Operation.MOD);
-        // opmap.put("$everything", Operation.SETCARD);
-        // opmap.put("$empty", Operation.ARRSTORE);
+        //TODO
+        
+        opmap.put("$mod", Operation.MOD);
+         opmap.put("$everything", Operation.SETCARD);
+         opmap.put("$empty", Operation.ARRSTORE);
         opmap.put("$heap", Operation.HEAP);
+        opmap.put("$aheap_1", Operation.AHEAP);
     }
 
     public static Operation matchOp(String op) {

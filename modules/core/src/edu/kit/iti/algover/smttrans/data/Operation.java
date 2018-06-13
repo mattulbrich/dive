@@ -10,7 +10,7 @@ import static java.util.Arrays.asList;
 
 public enum Operation {
 
-    PLUS, MINUS, TIMES, IMP, GT, LT, EQ, NOT, GE, LE, NEG, ITE, ARR2SELECT, ARRSTORE, ARR2STORE, FIELDSTORE, FIELDSELECT, DECR, SETUNION, SETINTERSECT, SETCARD, SEQCONCAT, ISCREATED, CREATE, ANON, SEQCONS, SEQEMPTY, SEQUPD, SEQGET, SEQLEN, SETIN, SETADD, CONST, ARRLEN, ARR2LEN0, ARR2LEN1, EXISTS, FORALL, LET, ARRSELECT, VAR, HEAP, AND, BV;
+    PLUS, MINUS, TIMES, IMP, GT, LT, EQ, NOT, GE, LE, NEG, ITE, ARR2SELECT, ARRSTORE, ARR2STORE, FIELDSTORE, FIELDSELECT, DECR, SETUNION, SETINTERSECT, SETCARD, SEQCONCAT, ISCREATED, CREATE, ANON, SEQCONS, SEQEMPTY, SEQUPD, SEQGET, SEQLEN, SETIN, SETADD, CONST, ARRLEN, ARR2LEN0, ARR2LEN1, EXISTS, FORALL, LET, ARRSELECT, VAR, HEAP, AND, BV, MOD, AHEAP;
 
     private String smt;
     private Boolean poly;
@@ -67,7 +67,7 @@ public enum Operation {
         SETCARD.smt = "setcard";
         SETCARD.poly = true;
         SETCARD.type = OperationType.SET;
-        SETCARD.instantiations = asList();
+        SETCARD.instantiations = asList(Axiom.SET_CARD, Axiom.SET_CARD_1, Axiom.SETEMPTY_INST);
 
         SETIN.smt = "select";
         SETIN.poly = true;
@@ -89,6 +89,16 @@ public enum Operation {
         ANON.type = OperationType.SORT;
         ANON.instantiations = asList();
 
+        MOD.smt = "";
+        MOD.poly = false;
+        MOD.type = OperationType.SET;
+        MOD.instantiations=asList();
+        
+        AHEAP.smt = "aheap";
+        AHEAP.poly = false;
+        AHEAP.type = OperationType.SORT;
+        AHEAP.instantiations=asList();
+        
         SEQCONS.smt = "";
         SEQCONS.poly = true;
         SEQCONS.type = OperationType.SEQ;
@@ -112,7 +122,7 @@ public enum Operation {
         SEQLEN.smt = "seqlen";
         SEQLEN.poly = true;
         SEQLEN.type = OperationType.SEQ;
-        SEQLEN.instantiations = asList();
+        SEQLEN.instantiations = asList(Axiom.SEQ_LEN);
 
         SEQCONCAT.smt = "seqconcat";
         SEQCONCAT.poly = true;
@@ -127,12 +137,12 @@ public enum Operation {
         FIELDSTORE.smt = "fieldstore";
         FIELDSTORE.poly = true;
         FIELDSTORE.type = OperationType.SORT;
-        FIELDSTORE.instantiations = asList();
+        FIELDSTORE.instantiations = asList(Axiom.HEAP_1);
 
         FIELDSELECT.smt = "fieldselect";
         FIELDSELECT.poly = true;
         FIELDSELECT.type = OperationType.SORT;
-        FIELDSELECT.instantiations = asList();
+        FIELDSELECT.instantiations = asList(Axiom.HEAP_1);
 
         /**
          * 
