@@ -7,7 +7,8 @@ public enum Axiom {
      */
 
     // sets
-    SET_INST, SETEMPTY_INST,
+    //SET_INST, 
+    SETEMPTY_INST,
 
     // multisets
     MULTISET_INST, MULTISETEMTPY_INST,
@@ -57,7 +58,7 @@ public enum Axiom {
          */
 
         // sets
-        SET_INST.smt = "(define-sort Set (T) (Array T Bool))";
+       // SET_INST.smt = "(define-sort Set (T) (Array T Bool))"; //TODO
         SETEMPTY_INST.smt = "(declare-const (par (T) (setEmptyT (Set T))))";
 
         // multisets
@@ -114,7 +115,7 @@ public enum Axiom {
         SEQ_CONCAT.smt = "(declare-fun (par (T)(seqconcatT ((Seq T) (Seq T)) (Seq T))))";
         SEQ_APPEND.smt = "(declare-fun (par (T)(seqappendT ((Seq T) T) (Seq T))))";
         SEQ_LEN.smt = "(declare-fun (par (T)(seqlenT ((Seq T)) Int)))";
-        
+
         SEQ_SINGLE.smt = "(define-fun (par (T) (seqsingleT ((t T))  (Seq T)  \r\n" + "(seqappendT emtpyseqT t)\r\n"
                 + ")))";
 
@@ -141,33 +142,33 @@ public enum Axiom {
          */
 
         // sets
-        SET_1.smt = "(assert (par (T)\r\n" + "(forall\r\n" + "(\r\n" + "    (s1 (Set T))\r\n" + "    (s2 (Set T))\r\n"
+        SET_1.smt = "(assert (par (T)\r\n" + "((forall\r\n" + "(\r\n" + "    (s1 (Set T))\r\n" + "    (s2 (Set T))\r\n"
                 + "    (t T)\r\n" + ")\r\n" + "    (! \r\n" + "        (= (select (unionT s1 s2) t)\r\n"
                 + "        (or (select s1 t) (select s2 t))) \r\n" + "        :pattern (( select (unionT s1 s2) t))\r\n"
-                + "    ) \r\n" + ")))";
-        SET_2.smt = "(assert (par (T)\r\n" + "(forall\r\n" + "(\r\n" + "    (s1 (Set T))\r\n" + "    (s2 (Set T))\r\n"
+                + "    ) \r\n" + "))))";
+        SET_2.smt = "(assert (par (T)\r\n" + "((forall\r\n" + "(\r\n" + "    (s1 (Set T))\r\n" + "    (s2 (Set T))\r\n"
                 + "    (t T)\r\n" + ")\r\n" + "    (! \r\n" + "        (= (select (intersectT s1 s2) t)\r\n"
                 + "        (and (select s1 t) (select s2 t))) \r\n"
-                + "        :pattern ((select (intersectT s1 s2) t))\r\n" + "    ) \r\n" + ")))";
-        SET_3.smt = "(assert (par (T)\r\n" + "(forall\r\n" + "(\r\n" + "    (s1 (Set T))\r\n" + "    (s2 (Set T))\r\n"
+                + "        :pattern ((select (intersectT s1 s2) t))\r\n" + "    ) \r\n" + "))))";
+        SET_3.smt = "(assert (par (T)\r\n" + "((forall\r\n" + "(\r\n" + "    (s1 (Set T))\r\n" + "    (s2 (Set T))\r\n"
                 + "    (t T)\r\n" + ")\r\n" + "    (! \r\n" + "        (= (select (setminusT s1 s2) t)\r\n"
                 + "        (and (select s1 t) (not (select s2 t)))) \r\n"
-                + "        :pattern ((select (setminusT s1 s2) t))\r\n" + "    ) \r\n" + ")))";
-        SET_4.smt = "(assert (par (T)\r\n" + "(forall\r\n" + "(\r\n" + "    (s1 (Set T))\r\n" + "    (s2 (Set T))\r\n"
+                + "        :pattern ((select (setminusT s1 s2) t))\r\n" + "    ) \r\n" + "))))";
+        SET_4.smt = "(assert (par (T)\r\n" + "((forall\r\n" + "(\r\n" + "    (s1 (Set T))\r\n" + "    (s2 (Set T))\r\n"
                 + "    (t T)\r\n" + ")\r\n" + "    (! \r\n" + "        (= (subsetT s1 s2)\r\n"
                 + "        (=> (select s1 t) (select s2 t))) \r\n"
-                + "        :pattern ((subset s1 s2) (select s1 t))\r\n" + "    ) \r\n" + ")))";
-        SET_5.smt = "(assert (par (T)\r\n" + "(forall\r\n" + "(\r\n" + "    (s (Set T))\r\n" + ")\r\n" + "    (! \r\n"
-                + "        (=> (= (cardT s) 0)\r\n" + "        (= s setEmptyT)) \r\n"
-                + "        :pattern ((cardT s))\r\n" + "    ) \r\n" + ")))";
-        SET_CARD_1.smt = "(assert (par (T)((= (setcardT setEmptyT) 0))))";
-        SET_CARD_2.smt = "(assert (par (T)\r\n" + "(forall\r\n" + "(\r\n" + "    (s (Set T))\r\n" + ")\r\n"
-                + "    (! \r\n" + "        (>=  (setcardT s) 0) \r\n" + "        :pattern ((setcardT s))\r\n" + "    ) \r\n"
-                + ")))";
+                + "        :pattern ((subset s1 s2) (select s1 t))\r\n" + "    ) \r\n" + "))))";
+        SET_5.smt = "(assert (par (T)(" + "(forall\r\n" + "(\r\n" + "    (s (Set T))\r\n" + ")\r\n" + "    (! \r\n"
+                + "        (=> (= (setcardT s) 0)\r\n" + "        (= s setEmptyT)) \r\n"
+                + "        :pattern ((setcardT s))\r\n" + "    ) \r\n" + "))))";
+        SET_CARD_1.smt = "(assert (par (T) ((= (setcardT setEmptyT) 0))))";
+        SET_CARD_2.smt = "(assert (par (T)\r\n" + "((forall\r\n" + "(\r\n" + "    (s (Set T))\r\n" + ")\r\n"
+                + "    (! \r\n" + "        (>=  (setcardT s) 0) \r\n" + "        :pattern ((setcardT s))\r\n"
+                + "    ) \r\n" + "))))";
         SET_CARD_3.smt = "(assert (par (T)\r\n" + "(forall\r\n" + "(\r\n" + "    (s1 (Set T))\r\n"
                 + "    (s2 (Set T))\r\n" + ")\r\n" + "    (! \r\n" + "        (=> (subsetT s1 s2)\r\n"
-                + "        (<= (setcardT s1) (setcardT s2))  \r\n" + "        ) \r\n" + "        :pattern ((setcardT s))\r\n"
-                + "    ) \r\n" + ")))";
+                + "        (<= (setcardT s1) (setcardT s2))  \r\n" + "        ) \r\n"
+                + "        :pattern ((setcardT s))\r\n" + "    ) \r\n" + ")))";
         SET_CARD_4.smt = "(assert (par (T)\r\n" + "(forall\r\n" + "(\r\n" + "    (s (Set T))\r\n" + "    (t T)\r\n"
                 + ")\r\n" + "    (! \r\n"
                 + "        (= (cardT (store s t true))  (ite (select s t)  (cardT s) (+ (cardT s) 1) )) \r\n"
@@ -224,8 +225,8 @@ public enum Axiom {
                 + "    (i Int)\r\n" + ")\r\n" + "    (!\r\n" + "    (=> (and  (>= i 0) (<= i (seqlenT s))  )\r\n"
                 + "    (= (seqgetT (seqappendT s t) i) (ite (= i (- (seqlenT s) 1) )  t  (seqgetT s i) )\r\n"
                 + "    )):pattern ((seqappendT s t) (seqgetT s i))\r\n" + "      )\r\n" + "))))";
-        SEQ_2.smt = "(assert (par (T) (\r\n" + "(forall\r\n" + "(\r\n" + "    (s1 (Seq T))\r\n"
-                + "    (s2 (Seq T))\r\n" + "    (i Int)\r\n" + ")\r\n" + "    (!\r\n"
+        SEQ_2.smt = "(assert (par (T) (\r\n" + "(forall\r\n" + "(\r\n" + "    (s1 (Seq T))\r\n" + "    (s2 (Seq T))\r\n"
+                + "    (i Int)\r\n" + ")\r\n" + "    (!\r\n"
                 + "    (=>  (and (>= i 0) (<= i (- (+ (seqlenT s1) (seqlenT s2)) 2)  ) )\r\n"
                 + "    (= (seqgetT (seqconcatT s1 s2) i)   (ite (< (seqlenT s1) i)  (seqgetT s1 i) (seqgetT s2 i) )\r\n"
                 + "      )):pattern ((seqconcatT s1 s2) (seqgetT s1 i))\r\n" + "      )\r\n" + "))))";
@@ -234,15 +235,15 @@ public enum Axiom {
                 + "    (=> (and (<= 0 i k j) (< j (seqlenT s)) )\r\n"
                 + "    (= (seqgetT (subseqselectT s i j) k)   (seqgetT s (+ i k)) \r\n"
                 + "      )):pattern ((subseqselectT s i j) (seqgetT s k))\r\n" + "      )\r\n" + "))))";
-        SEQ_4.smt = "(assert (par (T) (\r\n" + "(forall\r\n" + "(\r\n" + "    (s1 (Seq T))\r\n"
-                + "    (s2 (Seq T))\r\n" + ")\r\n" + "    (! \r\n" + "    (=>\r\n"
-                + "    (and (= (seqlenT s1) (seqlenT s2))\r\n" + "    (forall\r\n" + "    ((i Int))\r\n"
-                + "    (!   \r\n" + "    (=> (and (>= 0 i) (< i (seqlenT s1)))\r\n"
+        SEQ_4.smt = "(assert (par (T) (\r\n" + "(forall\r\n" + "(\r\n" + "    (s1 (Seq T))\r\n" + "    (s2 (Seq T))\r\n"
+                + ")\r\n" + "    (! \r\n" + "    (=>\r\n" + "    (and (= (seqlenT s1) (seqlenT s2))\r\n"
+                + "    (forall\r\n" + "    ((i Int))\r\n" + "    (!   \r\n"
+                + "    (=> (and (>= 0 i) (< i (seqlenT s1)))\r\n"
                 + "    (= (seqgetT s1 i)(seqgetT s2 i))) :pattern((seqgetT s1 i) (seqgetT s2 i))\r\n" + "    )))\r\n"
                 + "    (= s1 s2)\r\n" + "    ) :pattern((seqlenT s1) (seqlenT s2))\r\n" + ")))))";
-        SEQ_5.smt = "(assert (par (T) (\r\n" + "(forall\r\n" + "(\r\n" + "    (s (Seq T))\r\n" + ")\r\n"
-                + "    (! \r\n" + "    (=>  (= (seqlenT s) 0) \r\n" + "    (= s emtpyseqT)\r\n"
-                + "    ):pattern ((seqlenT s))\r\n" + "    )\r\n" + "))))";
+        SEQ_5.smt = "(assert (par (T) (\r\n" + "(forall\r\n" + "(\r\n" + "    (s (Seq T))\r\n" + ")\r\n" + "    (! \r\n"
+                + "    (=>  (= (seqlenT s) 0) \r\n" + "    (= s emtpyseqT)\r\n" + "    ):pattern ((seqlenT s))\r\n"
+                + "    )\r\n" + "))))";
         SEQ_LEN_1.smt = "(assert (par (T) ((= (seqlenT emtpyseqT) 0))))";
         SEQ_LEN_2.smt = "(assert (par (T) (\r\n" + "(forall\r\n" + "(\r\n" + "    (s (Seq T))\r\n" + ")\r\n"
                 + "    (! \r\n" + "    (>= (seqlenT s) 0):pattern((seqlenT s))\r\n" + "    ) \r\n" + "))))";

@@ -81,7 +81,7 @@ public class AxiomContainer {
                 for (String typ : ty) {
 
                     String pre = "(" + typ + " " + t + ")";
-                    if (axiom.contains(pre)) {
+                    if (axiom.contains(pre)) { //TODO setemptyT
                         axiom = axiom.replace(pre, complete);
                         axiom = axiom.replace(t, pop);
                     }

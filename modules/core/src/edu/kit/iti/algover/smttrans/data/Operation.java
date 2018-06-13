@@ -67,7 +67,7 @@ public enum Operation {
         SETCARD.smt = "setcard";
         SETCARD.poly = true;
         SETCARD.type = OperationType.SET;
-        SETCARD.instantiations = asList(Axiom.SET_CARD, Axiom.SET_CARD_1, Axiom.SETEMPTY_INST);
+        SETCARD.instantiations = asList(Axiom.SET_CARD,Axiom.SET_CARD_1,Axiom.SET_CARD_2,Axiom.SETEMPTY_INST); //Axiom.SET_INST,Axiom.SET_CARD, Axiom.SET_5, Axiom.SETEMPTY_INST, Axiom.SET_CARD_1
 
         SETIN.smt = "select";
         SETIN.poly = true;
@@ -127,7 +127,7 @@ public enum Operation {
         SEQCONCAT.smt = "seqconcat";
         SEQCONCAT.poly = true;
         SEQCONCAT.type = OperationType.SEQ;
-        SEQCONCAT.instantiations = asList();
+        SEQCONCAT.instantiations = asList(Axiom.SEQ_CONCAT);
 
         HEAP.smt = "heap"; // TODO
         HEAP.poly = false;

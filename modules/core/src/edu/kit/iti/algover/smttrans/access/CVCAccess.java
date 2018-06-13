@@ -13,6 +13,18 @@ import java.util.List;
 
 public class CVCAccess extends SolverAccess {
 
+    public String d3 = "(declare-const a Int)\r\n" + 
+            "(declare-const b Int)\r\n" + 
+            "(declare-const c Int)\r\n" + 
+            "(declare-const d Int)\r\n" + 
+            "\r\n" + 
+            "(define-fun getSum ((x!1 Int) (x!2 Int) (x!3 Int) (x!4 Int)) Int\r\n" + 
+            "   (+ a b c d)\r\n" + 
+            ")\r\n" + 
+            "(assert (> a 0))\r\n" + 
+            "(assert (> b 0))\r\n" + 
+            "(assert (> c 0))\r\n" + 
+            "(assert (not(> (getSum a b c d) 0)))";
     @Override
     public SolverResponse accessSolver(String smt) {
         //Process process;
@@ -21,13 +33,14 @@ public class CVCAccess extends SolverAccess {
           //  Process process = buildProcess();
             File f = File.createTempFile("file",".smt2");
             BufferedWriter bw = new BufferedWriter(new FileWriter(f));
-            bw.write(smt);
+            //bw.write(smt);
+            bw.write(d3);
             bw.write("(check-sat)");
             bw.write("(get-model)");
             bw.close();
             Runtime rt = Runtime.getRuntime();
             System.out.println("F " + f.getAbsolutePath() );
-            Process process = rt.exec("cvc4 --lang smt " + f.getAbsolutePath());
+            Process process = rt.exec("cvc4 -m --lang smt " + f.getAbsolutePath());
            
 //            OutputStream out = process.getOutputStream();
             InputStream in = process.getInputStream();
@@ -40,7 +53,7 @@ public class CVCAccess extends SolverAccess {
             BufferedReader br = new BufferedReader(new InputStreamReader(in));
             String line;
             while ((line = br.readLine()) != null) {
-                // System.out.println(line);
+                 System.out.println(line);
                 data.add(line);
             }
             

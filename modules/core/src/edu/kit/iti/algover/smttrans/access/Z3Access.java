@@ -72,8 +72,8 @@ public class Z3Access extends SolverAccess {
             OutputStream out = process.getOutputStream();
             InputStream in = process.getInputStream();
             //out.write(debugsmt.getBytes());
-            out.write(smt.getBytes());
-            //out.write(d3.getBytes());
+           // out.write(smt.getBytes());
+            out.write(d3.getBytes());
             out.write("(check-sat)".getBytes());
             out.write("(get-model)".getBytes());
             out.close();
@@ -96,7 +96,7 @@ public class Z3Access extends SolverAccess {
             
                 }
             }
-            System.out.println(data);
+         //   System.out.println(data);
             if (data.isEmpty())
                 return new SolverResponse(Response.ERROR);
             

@@ -14,7 +14,7 @@ public class Model {
         
     }
     
-    /**
+    /** z3
      *  (define-fun c () Int    1)
      [java]
      [java]
@@ -28,13 +28,26 @@ public class Model {
      * @return
      */
     
+    /** cvc4
+     * 
+     *     [java] (model
+     [java] (define-fun a () Int 1)
+     [java] (define-fun b () Int 1)
+     [java] (define-fun c () Int 1)
+     [java] (define-fun d () Int (- 3))
+     [java] )
+     * 
+     * @return
+     */
+    
     private Map<String,String> parseModel() {
         HashMap<String, String> m = new HashMap<>();
         for (String d : contents) {
             //d = d.replace("(define-fun", "").trim();
             //System.out.println("D: " + d);
             String[] parts = d.split(" ");
-            System.out.println("NAME " + parts[1]);
+            if (parts.length > 1) //cvc4
+                System.out.println("NAME " + parts[1]);
 //            for (String p : parts) {
 //                System.out.println("P " + p);
 //               
