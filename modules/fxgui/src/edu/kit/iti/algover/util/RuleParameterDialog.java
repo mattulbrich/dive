@@ -70,8 +70,8 @@ public class RuleParameterDialog extends Dialog {
         });
 
         Button cancelButton = new Button("Cancel");
-        okButton.setMinWidth(70.0);
-        okButton.setOnAction(action -> {
+        cancelButton.setMinWidth(70.0);
+        cancelButton.setOnAction(action -> {
             parameters = null;
             window.hide();
         });
