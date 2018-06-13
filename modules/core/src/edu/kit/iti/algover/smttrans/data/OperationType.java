@@ -13,7 +13,7 @@ public enum OperationType {
 
     static {
         ARR.smt = "Arr";
-        ARR.dependencies = Arrays.asList("heap Heap");
+        ARR.dependencies = Arrays.asList("Heap","heap Heap");
         ARR2.smt = "Arr2";
         SET.smt = "Set";
         MULTISET.smt = "mSet";
@@ -39,7 +39,7 @@ public enum OperationType {
                 sb.append(d);
             } else {
                 sb.append("sort ");
-                sb.append(d);
+                sb.append(d + " 0");
             }
             sb.append(")");
             inst.add(sb.toString());

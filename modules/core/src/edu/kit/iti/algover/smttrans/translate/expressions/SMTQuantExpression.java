@@ -32,7 +32,8 @@ public class SMTQuantExpression extends SMTExpression {
         sb.append("(");
         sb.append(qVar.toSMT(false));
         sb.append(")");
-        sb.append(formula.toSMT(false).substring(0,formula.toSMT(false).length()-4)); //delete last two parantheses
+        //sb.append(formula.toSMT(false).substring(0,formula.toSMT(false).length()-4)); //TODO
+        sb.append(formula.toSMT(false));
         sb.append(")");
         if (negate) {
             sb.append(")");

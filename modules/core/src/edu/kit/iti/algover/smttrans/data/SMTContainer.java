@@ -22,22 +22,36 @@ public class SMTContainer {
 
     }
 
+    private static String cleanUp(String ax) {
+        int balance = 0;
+        for (int i = 0; i < ax.length(); i++) {
+            Character c = ax.charAt(i);
+            if (c.equals('(')) {
+                balance--;
+            } if (c.equals(')')) {
+                balance++;
+            }
+        }
+        
+        return ax.substring(0, ax.length()-balance);
+    }
     public String toSMT() {
         StringBuilder sb = new StringBuilder();
 
         sb.append(instantiateDep());
-        antecedent.forEach(t -> sb.append(t.toSMT(false)));
-        succedent.forEach(s -> sb.append(s.toSMT(true))); // negate
+        antecedent.forEach(t -> sb.append(cleanUp(t.toSMT(false))));
+        succedent.forEach(s -> sb.append(cleanUp(s.toSMT(true)))); // negate
 
-        return sb.toString();
+        
+        return cleanUp(sb.toString());
     }
 
     public String toPSMT() {
         StringBuilder sb = new StringBuilder();
         sb.append(declareDep());
-        antecedent.forEach(t -> sb.append(t.toSMT(false)));
-        succedent.forEach(s -> sb.append(s.toSMT(true))); // negate
-        return sb.toString();
+        antecedent.forEach(t -> sb.append(cleanUp(t.toSMT(false))));
+        succedent.forEach(s -> sb.append(cleanUp(s.toSMT(true)))); // negate
+        return cleanUp(sb.toString());
     }
 
     private String declareDep() {

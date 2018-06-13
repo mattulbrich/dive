@@ -32,7 +32,7 @@ public enum Operation {
         ARRLEN.smt = "arrlen";
         ARRLEN.poly = true;
         ARRLEN.type = OperationType.ARR;
-        ARRLEN.instantiations = asList(Axiom.ARR_1, Axiom.ARRLEN, Axiom.ARR_2); //
+        ARRLEN.instantiations = asList(Axiom.ARR_1, Axiom.ARRLEN, Axiom.ARR_2, Axiom.ARRSTORE, Axiom.ARRSELECT);
 
         ARRSELECT.smt = "arrselect";
         ARRSELECT.poly = true;

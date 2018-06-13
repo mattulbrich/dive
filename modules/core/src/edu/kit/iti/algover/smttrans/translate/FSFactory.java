@@ -11,7 +11,7 @@ public class FSFactory {
         FunctionSymbol nfs;
 
         if (!TypeContext.isNumeric(name) && !(TypeContext.isBoolean(name))) {
-            nfs = new FunctionSymbol(name + ".1", sort);
+            nfs = new FunctionSymbol(name.replace("_","."), sort);
         } else {
             nfs = new FunctionSymbol(name, sort);
         }
@@ -25,7 +25,7 @@ public class FSFactory {
         String name = fs.getName();
 
         if (!TypeContext.isNumeric(name) && !(TypeContext.isBoolean(name))&& !(TypeContext.isFunc(name))) {
-            nfs = new FunctionSymbol(fs.getName() + ".1", fs.getResultSort(), fs.getArgumentSorts());
+            nfs = new FunctionSymbol(fs.getName().replace("_", "."), fs.getResultSort(), fs.getArgumentSorts());
         } else {
             nfs = new FunctionSymbol(fs.getName(), fs.getResultSort(), fs.getArgumentSorts());
         }

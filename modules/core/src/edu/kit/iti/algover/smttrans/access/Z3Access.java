@@ -82,7 +82,8 @@ public class Z3Access extends SolverAccess {
             String line;
             int balance = 0;
             String expr = "";
-            while ((line = br.readLine()) != null) {
+            while ((line = br.readLine()) != null) {    
+                                                  // System.out.println(line);                 
                 if(line.replaceAll("\\s+","").toLowerCase().equals("(model"))
                     continue;
                 // System.out.println(line);
@@ -95,6 +96,10 @@ public class Z3Access extends SolverAccess {
             
                 }
             }
+            System.out.println(data);
+            if (data.isEmpty())
+                return new SolverResponse(Response.ERROR);
+            
             if (data.get(0).toLowerCase().contains("unsat")) {
                 return new SolverResponse(Response.UNSAT);
             }
