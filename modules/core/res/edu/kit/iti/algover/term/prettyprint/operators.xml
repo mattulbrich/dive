@@ -1,4 +1,11 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<!--
+  ~ This file is part of AlgoVer.
+  ~
+  ~ Copyright (C) 2015-2018 Karlsruhe Institute of Technology
+  ~
+  -->
+
 <operators>
   <!-- integer operations -->
   <operator>
@@ -7,16 +14,16 @@
     <precedence>30</precedence>
   </operator>
   <operator>
-      <name>$minus</name>
-      <op>-</op>
-      <precedence>30</precedence>
+    <name>$minus</name>
+    <op>-</op>
+    <precedence>30</precedence>
   </operator>
-    <operator>
-        <name>$neg</name>
-        <op>-</op>
-        <precedence>80</precedence>
-    </operator>
-    <operator>
+  <operator>
+    <name>$neg</name>
+    <op>-</op>
+    <precedence>80</precedence>
+  </operator>
+  <operator>
     <name>$times</name>
     <op>*</op>
     <precedence>50</precedence>
@@ -59,7 +66,7 @@
     <name>$imp</name>
     <op>==></op>
     <precedence>5</precedence>
-      <leftAssociative>false</leftAssociative>
+    <leftAssociative>false</leftAssociative>
   </operator>
   <operator>
     <name>$not</name>
@@ -67,41 +74,41 @@
     <precedence>60</precedence>
   </operator>
 
-    <!-- other general infix operators -->
-    <operator>
-        <name>$eq</name>
-        <op>==</op>
-        <precedence>52</precedence>
-    </operator>
-    <operator>
-        <name>$neq</name>
-        <op>!=</op>
-        <precedence>52</precedence>
+  <!-- other general infix operators -->
+  <operator>
+    <name>$eq</name>
+    <op>==</op>
+    <precedence>25</precedence>
+  </operator>
+  <operator>
+    <name>$neq</name>
+    <op>!=</op>
+    <precedence>25</precedence>
   </operator>
 
-    <!-- set operators -->
-    <operator>
-        <name>$union</name>
-        <op>+</op>
-        <precedence>30</precedence>
-    </operator>
-    <operator>
-        <name>$intersect</name>
-        <op>*</op>
-        <precedence>30</precedence>
-    </operator>
-    <operator>
-        <name>$set_in</name>
-        <op>in</op>
-        <precedence>20</precedence>
-        <!-- double check that !!!! -->
-    </operator>
+  <!-- set operators -->
+  <operator>
+    <name>$union</name>
+    <op>+</op>
+    <precedence>30</precedence>
+  </operator>
+  <operator>
+    <name>$intersect</name>
+    <op>*</op>
+    <precedence>30</precedence>
+  </operator>
+  <operator>
+    <name>$set_in</name>
+    <op>in</op>
+    <precedence>20</precedence>
+    <!-- double check that !!!! -->
+  </operator>
 
-    <!-- seq operators -->
-    <operator>
-        <name>$seq_concat</name>
-        <op>+</op>
-        <precedence>50</precedence>
-    </operator>
+  <!-- seq operators -->
+  <operator>
+    <name>$seq_concat</name>
+    <op>+</op>
+    <precedence>50</precedence>
+  </operator>
 
 </operators>

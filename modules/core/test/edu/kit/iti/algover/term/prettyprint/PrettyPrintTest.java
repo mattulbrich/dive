@@ -1,7 +1,8 @@
 /*
  * This file is part of AlgoVer.
  *
- * Copyright (C) 2015-2017 Karlsruhe Institute of Technology
+ * Copyright (C) 2015-2018 Karlsruhe Institute of Technology
+ *
  */
 package edu.kit.iti.algover.term.prettyprint;
 
@@ -45,6 +46,7 @@ public class PrettyPrintTest {
             { "1 > 0" },
             { "1 >= 0" },
             { "1 + 2 >= 1 * 1" },
+            { "1 + 1 == 2" },
             { "1 == i1" }, // revealed a bug
             { "-1" },
             { "- -1" },
