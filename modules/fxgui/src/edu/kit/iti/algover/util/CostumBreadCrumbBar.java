@@ -86,4 +86,8 @@ public class CostumBreadCrumbBar<T> extends HBox {
     public TreeItem<T> getModel() {
         return root;
     }
+
+    public void updateModel(TreeItem<T> newRoot) {
+        root = newRoot;
+    }
 }

@@ -244,6 +244,9 @@ public class MainController implements SequentActionListener, RuleApplicationLis
                 sequentController.getView().setDisable(false);
                 ruleApplicationController.getView().setDisable(false);
                 breadCrumbBar.setDisable(false);
+                TreeItem<Object> ti = getBreadCrumbModel();
+                breadCrumbBar.updateModel(ti);
+                breadCrumbBar.setSelectedCrumb(ti);
                 Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).info("Successfully reloading project.");
             } else {
                 Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).severe("Error reloading the project.");
