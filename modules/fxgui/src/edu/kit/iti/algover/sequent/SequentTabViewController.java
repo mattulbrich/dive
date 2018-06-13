@@ -73,7 +73,7 @@ public class SequentTabViewController {
                     }
                 }
                 if(view.getTabs().size() == 1) {
-                    view.getTabs().get(0).setText("single Branch");
+                    view.getTabs().get(0).setText("default");
                 }
             }
         });
