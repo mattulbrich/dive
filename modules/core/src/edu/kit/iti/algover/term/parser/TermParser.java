@@ -46,6 +46,11 @@ public class TermParser {
     private final @NonNull SymbolTable symbols;
 
     /**
+     * If true, then the parser is allowed digest ?a, _, and ...
+     */
+    private boolean schemaMode;
+
+    /**
      * Instantiates a new term parser.
      *
      * @param symbols the known symbols for lookup
@@ -109,6 +114,7 @@ public class TermParser {
         DafnyParser parser = new DafnyParser(tokens);
         parser.setTreeAdaptor(new DafnyTree.Adaptor());
         parser.setLogicMode(true);
+        parser.setSchemaMode(schemaMode);
 
         // launch the parser starting at rule r, get return object
         DafnyParser.sequent_return result;
@@ -217,6 +223,14 @@ public class TermParser {
             DafnyParserException lex = generateDafnyParserException(t, e);
             throw lex;
         }
+    }
+
+    public boolean isSchemaMode() {
+        return schemaMode;
+    }
+
+    public void setSchemaMode(boolean schemaMode) {
+        this.schemaMode = schemaMode;
     }
 
     private DafnyParserException generateDafnyParserException(DafnyTree antecForm, Exception e) {
