@@ -90,11 +90,12 @@ public class Z3Rule extends AbstractProofRule {
 
         // TODO null-Type
         
-        System.out.println(sc.toSMT().replace("Null", "ArrInt"));
+        System.out.println(sc.toSMT().replace("Null", "X"));
         //System.out.println(sc.toPSMT().replace("Null", "ArrInt"));
         
-        SolverResponse r1 = cvcaccess.accessSolver(sc.toSMT().replace("Null", "ArrInt"));
-      //  SolverResponse r1 = z3access.accessSolver(sc.toSMT().replace("Null", "X"));
+       // SolverResponse r1 = cvcaccess.accessSolver(sc.toSMT().replace("Null", "ArrInt"));
+        SolverResponse r1 = z3access.accessSolver(sc.toSMT().replace("Null", "X"));
+      
         System.out.println(r1.getResponse().name());
         if (r1.getResponse() == Response.SAT)
             System.out.println(r1.getModel().toString());

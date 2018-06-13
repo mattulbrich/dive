@@ -25,7 +25,7 @@ public class FSFactory {
         String name = fs.getName();
 
         if (!TypeContext.isNumeric(name) && !(TypeContext.isBoolean(name))&& !(TypeContext.isFunc(name))) {
-            nfs = new FunctionSymbol(fs.getName().replace("_", "."), fs.getResultSort(), fs.getArgumentSorts());
+            nfs = new FunctionSymbol(fs.getName().replace("_", ".").replace("$$", "."), fs.getResultSort(), fs.getArgumentSorts());
         } else {
             nfs = new FunctionSymbol(fs.getName(), fs.getResultSort(), fs.getArgumentSorts());
         }

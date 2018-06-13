@@ -137,12 +137,12 @@ public enum Operation {
         FIELDSTORE.smt = "fieldstore";
         FIELDSTORE.poly = true;
         FIELDSTORE.type = OperationType.SORT;
-        FIELDSTORE.instantiations = asList(Axiom.HEAP_1);
+        FIELDSTORE.instantiations = asList(Axiom.HEAP_1,Axiom.FIELDSTORE,Axiom.FIELDSELECT);
 
         FIELDSELECT.smt = "fieldselect";
         FIELDSELECT.poly = true;
         FIELDSELECT.type = OperationType.SORT;
-        FIELDSELECT.instantiations = asList(Axiom.HEAP_1);
+        FIELDSELECT.instantiations = asList(Axiom.HEAP_1,Axiom.FIELDSELECT,Axiom.FIELDSTORE);
 
         /**
          * 

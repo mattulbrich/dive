@@ -57,12 +57,29 @@ public class TypeContext {
 
         Operation op = OperationMatcher.matchOp(ops.get(0));
         String sname = op.toSMT();
-
+        // sname += nmap.computeIfAbsent(s, x -> s.substring(0, 1).toUpperCase() +
+        // s.substring(1));
         if (op.isPoly()) {
+
+            for (String s : ops.subList(1, ops.size())) {
+
+                if (s.contains(",")) {
+
+                    String[] parts = s.split(",");
+                    for (String p : parts) {
+                        sname += nmap.computeIfAbsent(p, x -> p.substring(0, 1).toUpperCase() + p.substring(1));
+                        sname += ".";
+                    }
+                    sname = sname.substring(0, sname.length() - 1);
+                }
+                return sname;
+            }
+
             for (String s : ops.subList(1, ops.size())) {
                 sname += nmap.computeIfAbsent(s, x -> s.substring(0, 1).toUpperCase() + s.substring(1));
-                ;
+
             }
+
         }
         return sname;
 
@@ -76,7 +93,17 @@ public class TypeContext {
         List<String> sorts = Arrays.asList(Iterables.toArray(types, String.class));
 
         String r = "";
+
         for (String so : sorts) {
+            if (so.contains(",")) {
+                String[] parts = so.split(",");
+                for (String p : parts) {
+                    r += nmap.computeIfAbsent(p, x -> p.substring(0, 1).toUpperCase() + p.substring(1));
+                    r += ".";
+                }
+                r = r.substring(0, r.length() - 1);
+                return r;
+            }
             r += nmap.computeIfAbsent(so, x -> so.substring(0, 1).toUpperCase() + so.substring(1));
         }
         return r;

@@ -58,18 +58,23 @@ public class AxiomContainer {
             }
             axiom = axiom.replaceFirst("\\(par \\(", "");
             axiom = axiom.replaceFirst("\\)", "");
+            
 
         }
 
         List<List<String>> subtypes = TypeContext.getSubTypes(type.getArgumentSorts());
 
-        for (String t : typeVariables) {
+        if (typeVariables.size() == 1) {
+            String t = typeVariables.get(0);
 
             for (List<String> ty : subtypes) {
+
                 StringBuilder c = new StringBuilder();
                 ty.forEach(c::append);
+
                 String complete = c.toString();
                 StringBuilder p = new StringBuilder();
+
                 ty.subList(1, ty.size()).forEach(p::append);
 
                 String pop = p.toString();
@@ -82,6 +87,60 @@ public class AxiomContainer {
                     }
 
                 }
+            }
+
+        } else { // TODO better version (multiple TV)
+ 
+            List<String> preambleTypes = new ArrayList<>();
+            List<String> types = new ArrayList<>();
+
+            for (List<String> st : subtypes) {
+                if (!(st.size() > 1))
+                    continue;
+                for (String sst : st) {
+                    if (!sst.contains(",")) {
+                        preambleTypes.add(sst.substring(0, 1).toUpperCase() + sst.substring(1));
+                    } else {
+                        String[] parts = sst.split(",");
+                        for (String p : parts) {
+                            types.add(p.substring(0, 1).toUpperCase() + p.substring(1)); // TODO method
+                        }
+                    }
+                }
+            }
+            
+            StringBuilder psb = new StringBuilder("(");
+            preambleTypes.forEach(psb::append);
+           
+            String preamble = psb.toString();
+              StringBuilder sb = new StringBuilder(preamble);
+              for  (String t : typeVariables) {
+                  sb.append(" " + t);
+              }
+              sb.append(")");
+             String pre = sb.toString();
+             StringBuilder cb = new StringBuilder();
+             preambleTypes.forEach(cb::append);
+             
+             for (String tString : types) {
+                 cb.append(tString);
+                 cb.append(".");
+             }
+  
+             String complete = cb.toString().substring(0,cb.toString().length()-1); 
+       
+            
+             axiom = axiom.replace(pre, complete);
+            for (int i = 0; i < typeVariables.size(); i++) {
+                String tv = typeVariables.get(i);
+                String ty = types.get(i);
+
+          
+      
+           
+                axiom = axiom.replace(tv, ty);
+
+
             }
         }
         // System.out.println("AX: " + axiom);
