@@ -9,11 +9,11 @@ import java.math.BigInteger;
  *
  * @author S.Grebing
  * @author A. Weigl
- *         //TODO alle restlichen typen ergaenzen
+ *
  */
 public class Value<T> {
-    public static final Value TRUE = new Value<>(Type.BOOL, true);
-    public static final Value FALSE = new Value<>(Type.BOOL, false);
+    public static final Value<Boolean> TRUE = new Value<>(Type.BOOL, true);
+    public static final Value<Boolean> FALSE = new Value<>(Type.BOOL, false);
 
     private final Type type;
     private final T data;
