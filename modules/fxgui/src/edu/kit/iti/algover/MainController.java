@@ -10,6 +10,8 @@ import edu.kit.iti.algover.browser.entities.PVCGetterVisitor;
 import edu.kit.iti.algover.browser.entities.TreeTableEntity;
 import edu.kit.iti.algover.dafnystructures.DafnyFile;
 import edu.kit.iti.algover.dafnystructures.DafnyMethod;
+import edu.kit.iti.algover.data.BuiltinSymbols;
+import edu.kit.iti.algover.data.SymbolTable;
 import edu.kit.iti.algover.editor.EditorController;
 import edu.kit.iti.algover.parser.DafnyException;
 import edu.kit.iti.algover.parser.DafnyParserException;
@@ -415,6 +417,16 @@ public class MainController implements SequentActionListener, RuleApplicationLis
             Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).severe("Error saving script.");
             e.printStackTrace();
         }
+    }
+
+    @Override
+    public PVC getCurrentPVC() {
+        return sequentController.getActiveSequentController().getActiveProof().getPVC();
+    }
+
+    @Override
+    public ProofNode getCurrentProofNode() {
+        return sequentController.getActiveSequentController().getActiveNode();
     }
 
     /**
