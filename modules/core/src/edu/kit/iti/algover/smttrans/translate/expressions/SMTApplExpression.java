@@ -14,13 +14,19 @@ public class SMTApplExpression extends SMTExpression {
     @Override
     public String toSMT(boolean negate) {
         StringBuilder sb = new StringBuilder();
+        if (negate)
+            sb.append("(not");
         sb.append("(");
+       
         sb.append(sign.show() + " ");
         
         for (SMTExpression c : children) {
-            sb.append(c.toSMT(negate));
+            sb.append(c.toSMT(false)); //TODO correct ?
         }
+        if(negate)
+            sb.append(")");
         sb.append(") ");
+        
         return sb.toString();
 
     }

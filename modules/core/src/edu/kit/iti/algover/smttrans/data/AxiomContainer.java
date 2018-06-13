@@ -96,7 +96,7 @@ public class AxiomContainer {
         for (Sort s : t.getArgumentSorts()) {
 
             if (!TypeContext.isBuiltIn(s)) {
-                sorts.add("(declare-sort " + TypeContext.normalizeSort(s) + ")");
+                sorts.add("(declare-sort " + TypeContext.normalizeSort(s) + " 0)");
             }
 
         }

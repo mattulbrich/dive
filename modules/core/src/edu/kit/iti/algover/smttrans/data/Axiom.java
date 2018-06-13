@@ -2,7 +2,6 @@ package edu.kit.iti.algover.smttrans.data;
 
 public enum Axiom {
 
-    
     /**
      * Sorts
      */
@@ -49,7 +48,7 @@ public enum Axiom {
     SEQ_1, SEQ_2, SEQ_3, SEQ_4, SEQ_5, SEQ_LEN_1, SEQ_LEN_2, SEQ_LEN_3, SEQ_LEN_4, SEQ_LEN_5,
 
     // Heap/Arrays
-    ARR_1, ARR2_1, HEAP_1, HEAP_2, HEAP_3, HEAP_4, HEAP_5, HEAP_6;
+    ARR_1, ARR_2, ARR2_1, HEAP_1, HEAP_2, HEAP_3, HEAP_4, HEAP_5, HEAP_6;
 
     static {
 
@@ -263,6 +262,8 @@ public enum Axiom {
         ARR_1.smt = "(assert (par (T) (\r\n" + "(forall\r\n" + "(\r\n" + "    (i Int)\r\n" + "    (h Heap)\r\n"
                 + "    (a (Arr T))\r\n" + "    (v T)\r\n" + ")\r\n" + "(!\r\n"
                 + "    (= (arrselectT (arrstoreT h a i v) a i) v) :pattern((arrstoreT h a i v))\r\n" + ")))))";
+        ARR_2.smt = "(assert (par (T) (\r\n" + "(forall\r\n" + "(\r\n" + "    (a (Arr T))\r\n" + ")\r\n" + "(!\r\n"
+                + "    (> (arrlenT a) 0) :pattern((arrlenT a))\r\n" + ")))))";
         ARR2_1.smt = "(assert (par (T) (\r\n" + "(forall\r\n" + "(\r\n" + "    (i Int)\r\n" + "    (j Int)\r\n"
                 + "    (h Heap)\r\n" + "    (a (Arr2 T))\r\n" + "    (v T)\r\n" + ")\r\n" + "(!\r\n"
                 + "    (= (arr2selectT (arr2storeT h a i j v) a i j) v) :pattern((arr2storeT h a i j v) )\r\n"

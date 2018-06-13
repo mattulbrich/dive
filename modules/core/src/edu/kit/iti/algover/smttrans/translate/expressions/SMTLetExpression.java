@@ -19,7 +19,7 @@ public class SMTLetExpression extends SMTExpression {
 //        LinkedHashSet<Dependency> set = new LinkedHashSet<>();
 //        StringBuilder sb = new StringBuilder();
         for (SMTExpression s : subs) {
-            String sp = s.toSMT(negate);
+            String sp = s.toSMT(false);
             //set.addAll(sp.fst);
             sb.append(sp);
            // sb.append(s.toSMT());

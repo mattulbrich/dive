@@ -22,7 +22,10 @@ import edu.kit.iti.algover.rules.ProofRuleApplicationBuilder;
 import edu.kit.iti.algover.rules.RuleException;
 import edu.kit.iti.algover.rules.TermSelector;
 import edu.kit.iti.algover.smt.SMTQuickNDirty;
+import edu.kit.iti.algover.smttrans.access.CVCAccess;
+import edu.kit.iti.algover.smttrans.access.Response;
 import edu.kit.iti.algover.smttrans.access.SolverAccess;
+import edu.kit.iti.algover.smttrans.access.SolverResponse;
 import edu.kit.iti.algover.smttrans.access.Z3Access;
 import edu.kit.iti.algover.smttrans.data.SMTContainer;
 import edu.kit.iti.algover.smttrans.translate.SMTTerm;
@@ -76,24 +79,43 @@ public class Z3Rule extends AbstractProofRule {
     }
 
     private ProofRuleApplication refine(ProofNode target, ProofRuleApplication app) {
-       // System.out.println("PVC: " + target.getPVC().getSequent().toString());
-        //SolverAccess.evaluate("");
-        Z3Access z3 = new Z3Access();
-        z3.accessSolver();
+         System.out.println("PVC: " + target.getPVC().getSequent().toString());
+        // SolverAccess.evaluate("");
+        SolverAccess z3access = new Z3Access();
+        SolverAccess cvcaccess = new CVCAccess();
         PVC pvc = target.getPVC();
         Map<TermSelector, DafnyTree> referenceMap = pvc.getReferenceMap();
         SMTContainer sc = translateToSMT(target.getPVC().getIdentifier(), target.getSequent(), pvc.getSymbolTable(),
                 referenceMap);
+
+        // TODO null-Type
+        
+        System.out.println(sc.toSMT().replace("Null", "ArrInt"));
+        
+        
+        SolverResponse r1 = z3access.accessSolver(sc.toSMT().replace("Null", "ArrInt"));
+        
+        System.out.println(r1.getResponse().name());
+        if (r1.getResponse() == Response.SAT)
+            System.out.println(r1.getModel().toString());
+        
+        
+        
+        
+        //  r1 = cvcaccess.accessSolver(sc.toSMT().replace("Null", "ArrInt"));
+      //  System.out.println(r1.getResponse().name());
+
+        
         // String smtlib = translateToSMT(target.getPVC().getIdentifier(),
         // target.getSequent(), pvc.getSymbolTable()).toPSMT();
         // System.out.println(sc.toPSMT());
         // System.out.println(" ");
         // System.out.println(" ");
         // System.out.println(" ");
-        
-        //System.out.println(sc.toSMT());
-        //System.out.println(sc.toPSMT());
-        
+
+        // System.out.println(sc.toSMT());
+        // System.out.println(sc.toPSMT());
+
         // if(quickAndDirty(target.getPVC().getIdentifier(), target.getSequent(),
         // pvc.getSymbolTable())) {
         // ProofRuleApplicationBuilder builder = new ProofRuleApplicationBuilder(app);
@@ -111,20 +133,16 @@ public class Z3Rule extends AbstractProofRule {
 
     private SMTContainer translateToSMT(String identifier, Sequent sequent, SymbolTable symbolTable,
             Map<TermSelector, DafnyTree> refs) {
-         //TODO symbolTable not needed ?
-        
-       
-
-        
+        // TODO symbolTable not needed ?
 
         // System.out.println(symbolTable.getAllSymbols().toString());
 
-//        for (FunctionSymbol fs : symbolTable.getAllSymbols()) {
-//            if (!fs.getName().startsWith("$")) {
-//                System.out.println("FS " + fs.getName());
-//                System.out.println(fs.getResultSort().getName());
-//            }
-//        }
+        // for (FunctionSymbol fs : symbolTable.getAllSymbols()) {
+        // if (!fs.getName().startsWith("$")) {
+        // System.out.println("FS " + fs.getName());
+        // System.out.println(fs.getResultSort().getName());
+        // }
+        // }
 
         List<ProofFormula> antecedent = sequent.getAntecedent();
         List<ProofFormula> succedent = sequent.getSuccedent();
@@ -132,10 +150,10 @@ public class Z3Rule extends AbstractProofRule {
         List<SMTTerm> aTerms = new ArrayList<>();
         List<SMTTerm> sTerms = new ArrayList<>();
 
-      //  System.out.println(symbolTable.getAllSymbols().toString());
+        // System.out.println(symbolTable.getAllSymbols().toString());
 
         for (ProofFormula pa : antecedent) {
-         //   System.out.println("Label: " + pa.getLabel());
+            // System.out.println("Label: " + pa.getLabel());
 
             SMTExpression e = pa.getTerm().accept(new SMTVisitor(), null);
             SMTTerm t = new SMTTerm(e);
@@ -149,8 +167,8 @@ public class Z3Rule extends AbstractProofRule {
             sTerms.add(t);
 
         }
-        
-      //  System.out.println(TypeContext.getSymbolTable().getAllSymbols().toString()) ;
+
+        // System.out.println(TypeContext.getSymbolTable().getAllSymbols().toString()) ;
 
         return new SMTContainer(aTerms, sTerms);
     }

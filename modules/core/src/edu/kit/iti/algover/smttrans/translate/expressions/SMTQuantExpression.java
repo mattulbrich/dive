@@ -30,9 +30,9 @@ public class SMTQuantExpression extends SMTExpression {
             sb.append(Operation.FORALL.toSMT());
         }
         sb.append("(");
-        sb.append(qVar.toSMT(negate));
+        sb.append(qVar.toSMT(false));
         sb.append(")");
-        sb.append(formula.toSMT(negate).substring(0,formula.toSMT(negate).length()-4)); //delete last two parantheses
+        sb.append(formula.toSMT(false).substring(0,formula.toSMT(false).length()-4)); //delete last two parantheses
         sb.append(")");
         if (negate) {
             sb.append(")");

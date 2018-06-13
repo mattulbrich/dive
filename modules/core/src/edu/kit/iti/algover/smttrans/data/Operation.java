@@ -8,7 +8,6 @@ import edu.kit.iti.algover.term.FunctionSymbol;
 import static java.util.Arrays.asList;
 //import static edu.kit.iti.algover.smttrans.data.Axiom.*; //TODO later
 
-
 public enum Operation {
 
     PLUS, MINUS, TIMES, IMP, GT, LT, EQ, NOT, GE, LE, NEG, ITE, ARR2SELECT, ARRSTORE, ARR2STORE, FIELDSTORE, FIELDSELECT, DECR, SETUNION, SETINTERSECT, SETCARD, SEQCONCAT, ISCREATED, CREATE, ANON, SEQCONS, SEQEMPTY, SEQUPD, SEQGET, SEQLEN, SETIN, SETADD, CONST, ARRLEN, ARR2LEN0, ARR2LEN1, EXISTS, FORALL, LET, ARRSELECT, VAR, HEAP, AND, BV;
@@ -33,7 +32,7 @@ public enum Operation {
         ARRLEN.smt = "arrlen";
         ARRLEN.poly = true;
         ARRLEN.type = OperationType.ARR;
-        ARRLEN.instantiations = asList(Axiom.ARR_1, Axiom.ARRLEN);
+        ARRLEN.instantiations = asList(Axiom.ARR_1, Axiom.ARRLEN, Axiom.ARR_2); //
 
         ARRSELECT.smt = "arrselect";
         ARRSELECT.poly = true;
@@ -203,7 +202,6 @@ public enum Operation {
 
     }
 
-    
     public String toSMT() {
         return smt;
     }

@@ -13,7 +13,7 @@ public enum OperationType {
 
     static {
         ARR.smt = "Arr";
-        ARR.dependencies = Arrays.asList("Heap", "heap Heap");
+        ARR.dependencies = Arrays.asList("heap Heap");
         ARR2.smt = "Arr2";
         SET.smt = "Set";
         MULTISET.smt = "mSet";
