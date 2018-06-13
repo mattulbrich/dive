@@ -175,6 +175,7 @@ public class TermParser {
         DafnyParser parser = new DafnyParser(tokens);
         parser.setTreeAdaptor(new DafnyTree.Adaptor());
         parser.setLogicMode(true);
+        parser.setSchemaMode(schemaMode);
 
         // launch the parser starting at rule r, get return object
         expression_only_return result;

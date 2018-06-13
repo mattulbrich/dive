@@ -87,7 +87,9 @@ public class Evaluator<T> extends DefaultASTVisitor<Value> implements ScopeObser
     public Value visit(TermLiteral term) {
         Value termV = null;
         try {
-            termV = new Value<>(Type.TERM, TermParser.parse(goal.getPVC().getSymbolTable(), term.getText()));
+            TermParser tp = new TermParser(goal.getPVC().getSymbolTable());
+            tp.setSchemaMode(true);
+            termV = new Value<>(Type.TERM, tp.parse(term.getText()));
         } catch (DafnyException | DafnyParserException e) {
             System.out.println("Could not translate term " + term.getText());
             e.printStackTrace();
