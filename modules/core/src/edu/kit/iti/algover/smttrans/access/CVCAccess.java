@@ -1,6 +1,9 @@
 package edu.kit.iti.algover.smttrans.access;
 
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -12,18 +15,27 @@ public class CVCAccess extends SolverAccess {
 
     @Override
     public SolverResponse accessSolver(String smt) {
-        Process process;
+        //Process process;
 
         try {
-            process = buildProcess();
-
-            OutputStream out = process.getOutputStream();
+          //  Process process = buildProcess();
+            File f = File.createTempFile("file",".smt2");
+            BufferedWriter bw = new BufferedWriter(new FileWriter(f));
+            bw.write(smt);
+            bw.write("(check-sat)");
+            bw.write("(get-model)");
+            bw.close();
+            Runtime rt = Runtime.getRuntime();
+            System.out.println("F " + f.getAbsolutePath() );
+            Process process = rt.exec("cvc4 --lang smt " + f.getAbsolutePath());
+           
+//            OutputStream out = process.getOutputStream();
             InputStream in = process.getInputStream();
             //out.write(debugsmt.getBytes());
-            out.write(smt.getBytes());
-            out.write("(check-sat)".getBytes());
-            out.write("(get-model)".getBytes());
-            out.close();
+//            out.write(smt.getBytes());
+//            out.write("(check-sat)".getBytes());
+//            out.write("(get-model)".getBytes());
+//            out.close();
             List<String> data = new ArrayList<>();
             BufferedReader br = new BufferedReader(new InputStreamReader(in));
             String line;
