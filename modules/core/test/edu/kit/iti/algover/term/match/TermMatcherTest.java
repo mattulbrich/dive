@@ -5,14 +5,14 @@
  */
 package edu.kit.iti.algover.term.match;
 
-import edu.kit.iti.algover.term.Sequent;
-import edu.kit.iti.algover.util.InterpreterUtils;
 import static org.junit.Assert.assertNotNull;
 
 import java.util.ArrayList;
 import java.util.Collection;
 
+import edu.kit.iti.algover.term.Sequent;
 import edu.kit.iti.algover.util.ImmutableList;
+import edu.kit.iti.algover.util.InterpreterUtils;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -55,22 +55,33 @@ public class TermMatcherTest {
             { "h(__)", "h(1,2)", "[[_0 => 1 / 0, _1 => 2 / 1]]" },
             { "exists i:int :: ?phi", "exists i:int :: i*i == 4",
               "[[?phi => $eq<int>($times(i, i), 4) / 0]]" },
-                {"... 1 ...", "2+1", "[[...0 => 1 / 1]]"},
-                {"... ?x + _(:int) ...", "(2+3)+(4+5)",
+            { "... 1 ...", "2+1", "[[...0 => 1 / 1]]" },
+            { "... ?x + _(:int) ...", "(2+3)+(4+5)",
                "[[?x => $plus(2, 3) / 0, _0 => $plus(4, 5) / 1, ...0 => $plus($plus(2, 3), $plus(4, 5)) / ], "
               + "[?x => 2 / 0.0, _0 => 3 / 0.1, ...0 => $plus(2, 3) / 0], "
               + "[?x => 4 / 1.0, _0 => 5 / 1.1, ...0 => $plus(4, 5) / 1]]" },
-                {"2+3", "2+3", "[[]]"},
+            { "(?x: 2 + ?z) + ?y", "(2+2)+3", "[[?x => $plus(2, 2) / 0, ?z => 2 / 0.1, ?y => 3 / 1]]" },
+            { "(?a: ... (?b: ?x+?y(:int)) ...)", "(2*3)+(4+5)",
+              "[[?a => $plus($times(2, 3), $plus(4, 5)) / , ?b => $plus($times(2, 3), $plus(4, 5)) / , " +
+                      "?x => $times(2, 3) / 0, ?y => $plus(4, 5) / 1, ...0 => $plus($times(2, 3), $plus(4, 5)) / ], " +
+               "[?a => $plus($times(2, 3), $plus(4, 5)) / , ?b => $plus(4, 5) / 1, " +
+                      "?x => 4 / 1.0, ?y => 5 / 1.1, ...0 => $plus(4, 5) / 1]]" },
+            { "(... (?x:2) ...) + ?x(:int)", "f(3*2) + 2", "[[?x => 2 / 0.0.1, ...0 => 2 / 0.0.1]]" },
+            { "(... ?x ...) + ?x(:int)", "f(3*2+(3+5)) + 2", "[[?x => 2 / 0.0.0.1, ...0 => 2 / 0.0.0.1]]" },
+        //  { "exists ?x :: ?x > ?y", "exists a:int :: a > 25", "" },
+        //  { "let ?x := _ :: ... f(?x) ...", "let something := 22+33 :: h(g(something), something)", "" },
         };
     }
 
     public String[][] parametersForNoMatch() {
         return new String[][] {
-                {"?x(:int) + ?x", "2 + 3"},
-                {"?x(:int) + ?x", "2 * 2"},
-                {"?x(:set<int>) + ?y", "2 + 3"},
+            { "?x(:int) + ?x", "2 + 3" },
+            { "?x(:int) + ?x", "2 * 2" },
+            { "?x(:set<int>) + ?y", "2 + 3" },
             { "f(0)", "g(0)" },
             { "forall i:int :: ?phi", "forall j:int :: true" },
+            { "(?x: ?x+2)", "2+2" },
+            { "(?x:2) + ?x", "2+3" },
         };
     }
 
