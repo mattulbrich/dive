@@ -48,10 +48,6 @@ public abstract class AbstractProofRule implements ProofRule {
      */
     protected boolean mayBeDeep = true;
 
-    /**
-     * This map captures the parameters made
-     * known to the class in the constructor.
-     */
     private final Map<String, ParameterDescription<?>> allParameters = new HashMap<>();
 
     /**
@@ -166,7 +162,7 @@ public abstract class AbstractProofRule implements ProofRule {
     public final ProofRuleApplication considerApplication(ProofNode target, Parameters parameters) throws RuleException {
         ProofRuleApplication pra = considerApplicationImpl(target, parameters);
         ProofRuleApplicationBuilder builder = new ProofRuleApplicationBuilder(pra);
-        if(pra.getApplicability() == ProofRuleApplication.Applicability.APPLICABLE) {
+        if(pra.getApplicability() == ProofRuleApplication.Applicability.APPLICABLE && pra.getBranchCount() > 0) {
             builder.setTranscript(getTranscript(pra, parameters));
         }
         return builder.build();
@@ -340,5 +336,13 @@ public abstract class AbstractProofRule implements ProofRule {
             res += "}\n";
         }
         return res;
+    }
+
+    /**
+     * This map captures the parameters made
+     * known to the class in the constructor.
+     */
+    public Map<String, ParameterDescription<?>> getAllParameters() {
+        return allParameters;
     }
 }
