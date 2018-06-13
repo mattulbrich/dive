@@ -40,7 +40,7 @@ import java.util.logging.Logger;
 
 /**
  * Controller for the view that handles all {@link DafnyCodeArea} tabs.
- *
+ * <p>
  * Created by philipp on 26.06.17.
  */
 public class EditorController implements DafnyCodeAreaListener {
@@ -83,7 +83,7 @@ public class EditorController implements DafnyCodeAreaListener {
     }
 
     private void handleShortcuts(KeyEvent keyEvent) {
-        if(saveAllShortcut.match(keyEvent)) {
+        if (saveAllShortcut.match(keyEvent)) {
             saveAllFiles();
         } else if (saveShortcut.match(keyEvent)) {
             saveSelectedFile();
@@ -94,7 +94,7 @@ public class EditorController implements DafnyCodeAreaListener {
         while (change.next()) {
             if (change.wasRemoved()) {
                 for (Tab removedTab : change.getRemoved()) {
-                    DafnyFile f = (DafnyFile)(removedTab.getUserData());
+                    DafnyFile f = (DafnyFile) (removedTab.getUserData());
                     tabsByFile.remove(f.getFilename());
                 }
             }
@@ -175,14 +175,14 @@ public class EditorController implements DafnyCodeAreaListener {
 
     private void onTextChanged(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) {
         Tab selectedTab = view.getSelectionModel().getSelectedItem();
-        if(!changedFiles.contains(selectedTab.getText()) && newValue) {
+        if (!changedFiles.contains(selectedTab.getText()) && newValue) {
             selectedTab.setText(selectedTab.getText() + "*");
             changedFiles.add(selectedTab.getText());
-        } else if(changedFiles.contains(selectedTab.getText()) && !newValue) {
+        } else if (changedFiles.contains(selectedTab.getText()) && !newValue) {
             changedFiles.remove(selectedTab.getText());
             selectedTab.setText(selectedTab.getText().substring(0, selectedTab.getText().length() - 1));
         }
-        if(changedFiles.size() == 0) {
+        if (changedFiles.size() == 0) {
             anyFileChangedProperty.setValue(false);
         } else {
             anyFileChangedProperty.setValue(true);
@@ -253,7 +253,7 @@ public class EditorController implements DafnyCodeAreaListener {
     }
 
     private void saveFileForTab(Tab tab) {
-        if(tab.getUserData() instanceof  DafnyFile) {
+        if (tab.getUserData() instanceof DafnyFile) {
             String filename = ((DafnyFile) tab.getUserData()).getFilename();
             String absFilepath = baseDir + "/" + filename;
             try {
@@ -266,14 +266,14 @@ public class EditorController implements DafnyCodeAreaListener {
                 fw.close();
                 changedFiles.remove(tab.getText());
                 codeArea.updateProofText();
-                if(tab.getText().endsWith("*")) {
+                if (tab.getText().endsWith("*")) {
                     tab.setText(tab.getText().substring(0, tab.getText().length() - 1));
                 }
-                if(changedFiles.size() == 0) {
+                if (changedFiles.size() == 0) {
                     anyFileChangedProperty().setValue(false);
                 }
                 Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).info("Successfully saved file " + filename + ".");
-            } catch(IOException e) {
+            } catch (IOException e) {
                 Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).severe("Error saving file" + filename + ".");
             }
         }

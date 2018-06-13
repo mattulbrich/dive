@@ -36,7 +36,7 @@ public class SequentTabViewController {
         activeNode = proofNodeSelector;
         proofNodeSelector.optionalGet(controllers.get(view.getSelectionModel().getSelectedIndex()).getActiveProof()).ifPresent(proofNode -> {
             ProofRuleApplication pra = proofNode.getPsr();
-            if(pra != null) {
+            if (pra != null) {
                 if (pra.getBranchCount() == controllers.size()) {
                     for (int i = 0; i < pra.getBranchCount(); ++i) {
                         controllers.get(i).setActiveNode(activeNode);
@@ -72,7 +72,7 @@ public class SequentTabViewController {
                         controllers.remove(controllers.size() - 1);
                     }
                 }
-                if(view.getTabs().size() == 1) {
+                if (view.getTabs().size() == 1) {
                     view.getTabs().get(0).setText("default");
                 }
             }

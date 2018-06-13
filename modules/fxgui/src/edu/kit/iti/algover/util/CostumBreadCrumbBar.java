@@ -42,14 +42,14 @@ public class CostumBreadCrumbBar<T> extends HBox {
         this.getChildren().clear();
         TreeItem i = item;
         List l = new ArrayList();
-        while(i != null) {
+        while (i != null) {
             MenuButton b = new MenuButton(getStringForTreeItem.apply(i));
-            if(i.getParent() != null) {
+            if (i.getParent() != null) {
                 for (Object ch : i.getParent().getChildren()) {
                     MenuItem menuItem = new MenuItem(getStringForTreeItem.apply((TreeItem) ch));
                     menuItem.setOnAction(action -> {
-                        selectedCrumb.set((TreeItem)ch);
-                        Platform.runLater(() -> setSelectedCrumb((TreeItem)ch));
+                        selectedCrumb.set((TreeItem) ch);
+                        Platform.runLater(() -> setSelectedCrumb((TreeItem) ch));
                     });
                     b.getItems().add(menuItem);
                 }
@@ -59,13 +59,13 @@ public class CostumBreadCrumbBar<T> extends HBox {
         }
         l.remove(l.size() - 1);
 
-        while(item.getChildren().size() > 0) {
-            MenuButton b = new MenuButton(getStringForTreeItem.apply((TreeItem)item.getChildren().get(0)));
-            for(Object ch : item.getChildren()) {
+        while (item.getChildren().size() > 0) {
+            MenuButton b = new MenuButton(getStringForTreeItem.apply((TreeItem) item.getChildren().get(0)));
+            for (Object ch : item.getChildren()) {
                 MenuItem menuItem = new MenuItem(getStringForTreeItem.apply((TreeItem) ch));
                 menuItem.setOnAction(action -> {
-                    selectedCrumb.set((TreeItem)ch);
-                    Platform.runLater(() -> setSelectedCrumb((TreeItem)ch));
+                    selectedCrumb.set((TreeItem) ch);
+                    Platform.runLater(() -> setSelectedCrumb((TreeItem) ch));
                 });
                 b.getItems().add(menuItem);
             }

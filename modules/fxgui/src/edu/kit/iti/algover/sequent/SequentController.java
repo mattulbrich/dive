@@ -38,9 +38,12 @@ public class SequentController extends FxmlController {
 
     private final SequentActionListener listener;
 
-    @FXML private Label goalTypeLabel;
-    @FXML private ListView<TopLevelFormula> antecedentView;
-    @FXML private ListView<TopLevelFormula> succedentView;
+    @FXML
+    private Label goalTypeLabel;
+    @FXML
+    private ListView<TopLevelFormula> antecedentView;
+    @FXML
+    private ListView<TopLevelFormula> succedentView;
 
     // Subselections, see their docs for clarification
     /**
@@ -76,7 +79,7 @@ public class SequentController extends FxmlController {
     /**
      * Builds the controller and GUI for the sequent view, that is the two ListViews of
      * {@Link TopLevelFormula}s.
-     *
+     * <p>
      * This loads the GUI from the .fxml resource file
      * <tt>res/edu/kit/iti/algover/sequent/SequentView.fxml</tt>.
      *
@@ -92,7 +95,8 @@ public class SequentController extends FxmlController {
         this.lastClickedTerm = new SubSelection<>(listener::onClickSequentSubterm);
         // We don't care about the particular mouse-over selected term, that's why we won't do anything on events.
         // Our children however need to communicate somehow and share a common selected item.
-        this.mouseOverTerm = new SubSelection<>(r -> {});
+        this.mouseOverTerm = new SubSelection<>(r -> {
+        });
 
         antecedentView.setCellFactory(makeTermCellFactory(TermSelector.SequentPolarity.ANTECEDENT));
         succedentView.setCellFactory(makeTermCellFactory(TermSelector.SequentPolarity.SUCCEDENT));
@@ -114,7 +118,7 @@ public class SequentController extends FxmlController {
      * of the {@link ProofNode} tree).
      *
      * @param pvcEntity the PVC for which to show the root sequent
-     * @param proof the existing proof or proof stub for the pvc
+     * @param proof     the existing proof or proof stub for the pvc
      */
     public void viewSequentForPVC(PVCEntity pvcEntity, Proof proof) {
         PVC pvc = pvcEntity.getPVC();
@@ -153,11 +157,11 @@ public class SequentController extends FxmlController {
             try {
                 ProofNode nodeBefore = activeNode.get(activeProof);
                 while (nodeBefore.getChildren().size() > 0) {
-                        ProofNodeSelector newActiveNode = new ProofNodeSelector(activeNode, 0);
-                        ProofNode node = newActiveNode.get(activeProof);
-                        updateSequent(node.getSequent(), null);
-                        activeNode = newActiveNode;
-                        nodeBefore = activeNode.get(activeProof);
+                    ProofNodeSelector newActiveNode = new ProofNodeSelector(activeNode, 0);
+                    ProofNode node = newActiveNode.get(activeProof);
+                    updateSequent(node.getSequent(), null);
+                    activeNode = newActiveNode;
+                    nodeBefore = activeNode.get(activeProof);
                 }
                 listener.onSwitchViewedNode(activeNode);
             } catch (RuleException e) {
@@ -172,7 +176,7 @@ public class SequentController extends FxmlController {
     /**
      * View a preview for a rule application. This highlights the added/removed {@link TopLevelFormula}s
      * and changed {@link Term}s.
-     *
+     * <p>
      * If the application has no {@link BranchInfo}s (because it is a closing rule, for example), then
      * it does not update the view.
      *
@@ -219,7 +223,7 @@ public class SequentController extends FxmlController {
         List<ProofFormula> before = sequent.getSuccedent();
         System.out.println(sequent.getSuccedent());
         List<TopLevelFormula> after = calculateAssertions(sequent.getSuccedent(), TermSelector.SequentPolarity.SUCCEDENT, branchInfo);
-        if(before.size() != after.size()) {
+        if (before.size() != after.size()) {
             System.out.println(branchInfo.getAdditions());
             System.out.println(branchInfo.getDeletions());
             System.out.println(branchInfo.getReplacements());
@@ -231,7 +235,8 @@ public class SequentController extends FxmlController {
         ArrayList<TopLevelFormula> formulas = new ArrayList<>(proofFormulas.size());
 
         // Render original, modified and deleted proof formulas
-        formulaLoop: for (int i = 0; i < proofFormulas.size(); i++) {
+        formulaLoop:
+        for (int i = 0; i < proofFormulas.size(); i++) {
             // Short-circuit this loop if there is a ModifiedFormula to be built instead.
             if (branchInfo != null) {
                 Term term = proofFormulas.get(i).getTerm();
