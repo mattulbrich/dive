@@ -28,11 +28,11 @@ import java.util.concurrent.ExecutorService;
 
 /**
  * Shows a dafny-syntax-highlighted code editor.
- *
+ * <p>
  * Syntax highlighting is done asynchronously using an {@link ExecutorService}.
- *
+ * <p>
  * Additional highlighting on top is configurable via {@link #setHighlightingRule(HighlightingRule)}.
- *
+ * <p>
  * Created by philipp on 28.06.17.
  */
 public class DafnyCodeArea extends AsyncHighlightingCodeArea {
@@ -44,7 +44,7 @@ public class DafnyCodeArea extends AsyncHighlightingCodeArea {
     private DafnyCodeAreaListener listener;
 
     /**
-     * @param text the initial code inside the code editor
+     * @param text     the initial code inside the code editor
      * @param executor the executor service to be used for asynchronously
      *                 calculating syntax highlighting (that is: running the parser,
      *                 computing style spans)
@@ -65,9 +65,9 @@ public class DafnyCodeArea extends AsyncHighlightingCodeArea {
             @Override
             public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
                 rerenderHighlighting();
-                if(textIsSimilar(currentProofText, newValue)) {
+                if (textIsSimilar(currentProofText, newValue)) {
                     textChangedProperty.setValue(false);
-                } else{
+                } else {
                     textChangedProperty.setValue(true);
                 }
             }

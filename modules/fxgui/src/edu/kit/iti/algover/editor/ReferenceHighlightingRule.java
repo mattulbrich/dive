@@ -12,7 +12,7 @@ import java.util.stream.Collectors;
 /**
  * This highlighting rule implements highlighting a set of references into the
  * code.
- *
+ * <p>
  * This is for example used for highlighting the parts of the code that resulted
  * in a term that the user selected to find the origin of.
  */

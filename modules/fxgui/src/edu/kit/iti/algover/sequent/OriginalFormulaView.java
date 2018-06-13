@@ -74,7 +74,7 @@ public class OriginalFormulaView extends BasicFormulaView {
     /**
      * @param termSelector the term selector that may update this view's selected subterm.
      * @return either null, if the term selector points at another top-level term, or
-     *         the extracted subterm selector if it pointed to this formula.
+     * the extracted subterm selector if it pointed to this formula.
      */
     private SubtermSelector reduceTermSelector(TermSelector termSelector) {
         if (termSelector != null && termSelector.getPolarity() == polarity && termSelector.getTermNo() == originalFormula.getIndexInSequent()) {
@@ -87,7 +87,7 @@ public class OriginalFormulaView extends BasicFormulaView {
     /**
      * @param subtermSelector the selector that points to a subterm within this formula.
      * @return the given subterm lifted to a term selector that points at the correct forumla index and polarity in the
-     *         sequent.
+     * sequent.
      */
     private TermSelector liftSubtermSelector(SubtermSelector subtermSelector) {
         List<Integer> pathAsList = subtermSelector.getPath();
