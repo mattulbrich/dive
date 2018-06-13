@@ -263,6 +263,7 @@ public final class ProofRuleApplication {
 
     /**
      * checks if this application is exhaustive.
+     *
      * @return if its exhaustive
      */
     public boolean isExhaustive() {
@@ -271,6 +272,7 @@ public final class ProofRuleApplication {
 
     /**
      * checks if this application is deep.
+     *
      * @return if its deep
      */
     public boolean isDeep() {
@@ -279,6 +281,7 @@ public final class ProofRuleApplication {
 
     /**
      * checks if this application is global.
+     *
      * @return if its global
      */
     public boolean isGlobal() {
@@ -287,6 +290,7 @@ public final class ProofRuleApplication {
 
     /**
      * Gets the termSelector for the on parameter
+     *
      * @return the termselector
      */
     public TermSelector getOn() {

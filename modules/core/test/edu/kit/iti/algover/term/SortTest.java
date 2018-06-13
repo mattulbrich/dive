@@ -20,8 +20,7 @@ import junitparams.Parameters;
 public class SortTest {
 
     private Sort CLASS_SORT = Sort.getClassSort("Demo");
-    private Sort OTHER_CLASS_SORT = Sort.getClassSort("Demo2");
-
+    private static final Sort INT_ARRAY = Sort.get("array", Sort.INT);
     @Rule
     public ExpectedException thrown = ExpectedException.none();
 
@@ -67,17 +66,17 @@ public class SortTest {
         };
     }
 
-    private static final Sort INT_ARRAY = Sort.get("array", Sort.INT);
+    private Sort OTHER_CLASS_SORT = Sort.getClassSort("Demo2");
 
     public Object[][] parametersForTestSupremum() {
-        return new Object[][] {
-            { Sort.NULL, Sort.NULL, Sort.NULL },
-            { Sort.NULL, Sort.OBJECT, Sort.OBJECT },
-            { CLASS_SORT, Sort.NULL, CLASS_SORT },
-            { CLASS_SORT, OTHER_CLASS_SORT, Sort.OBJECT },
-            { INT_ARRAY, CLASS_SORT, Sort.OBJECT },
-            { INT_ARRAY, Sort.NULL, INT_ARRAY },
-            { Sort.INT, Sort.OBJECT, null }
+        return new Object[][]{
+                {Sort.NULL, Sort.NULL, Sort.NULL},
+                {Sort.NULL, Sort.OBJECT, Sort.OBJECT},
+                {CLASS_SORT, Sort.NULL, CLASS_SORT},
+                {CLASS_SORT, OTHER_CLASS_SORT, Sort.OBJECT},
+                {INT_ARRAY, CLASS_SORT, Sort.OBJECT},
+                {INT_ARRAY, Sort.NULL, INT_ARRAY},
+                {Sort.INT, Sort.OBJECT, null}
         };
     }
 
@@ -106,9 +105,10 @@ public class SortTest {
         assertEquals(isClassSort, sort.isClassSort());
     }
 
-    @Test @Parameters
+    @Test
+    @Parameters
     public void testSupremum(Sort s1, Sort s2, Sort expected) throws TermBuildException {
-        if(expected == null) {
+        if (expected == null) {
             thrown.expect(TermBuildException.class);
             thrown.expectMessage("No common supertype for ");
         }

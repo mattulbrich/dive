@@ -86,9 +86,9 @@ public class TreeTermTranslatorTest {
             { "i1 + i2*i3", "$plus(i1, $times(i2, i3))" },
             // revealed bug:
             { "i1 == i2*i3", "$eq<int>(i1, $times(i2, i3))" },
-            {"a.Length", "$len<int>(a)"},
-            {"a2.Length0", "$len0<int>(a2)"},
-            {"a2.Length1", "$len1<int>(a2)"},
+                {"a.Length", "$len<int>(a)"},
+                {"a2.Length0", "$len0<int>(a2)"},
+                {"a2.Length1", "$len1<int>(a2)"},
             // no 2-dim arrays for now
 
             // for coverage:
@@ -116,10 +116,10 @@ public class TreeTermTranslatorTest {
             { "let x := 3 :: x > i1", "(let x := 3 :: $gt(x, i1))" },
             { "$plus(1, 2)", "$plus(1, 2)" },
 
-            { "c == null", "$eq<C>(c, null)" },
-            { "c == c2", "$eq<C>(c, c2)" },
+                {"c == null", "$eq<C>(c, null)"},
+                {"c == c2", "$eq<C>(c, c2)"},
             { "let c := null :: null == c",
-                "(let c := null :: $eq<null>(null, c))" },
+                    "(let c := null :: $eq<null>(null, c))"},
 
             // Heap accesses
             {"a[0]", "$array_select<int>($heap, a, 0)"},
@@ -152,23 +152,23 @@ public class TreeTermTranslatorTest {
             { "$heap[$anon(mod, loopHeap)]", "$anon($heap, mod, loopHeap)" },
             { "$heap[$create(c)]", "$create($heap, c)" },
 
-            // Set, Seqs and cardinalities
-            { "|mod|", "$set_card<object>(mod)" },
-            { "|iseq|", "$seq_len<int>(iseq)" },
-            { "{1,2,3}", "$set_add<int>(3, $set_add<int>(2, $set_add<int>(1, $empty<int>)))" },
-            { "[1,2,3]", "$seq_cons<int>(3, $seq_cons<int>(2, $seq_cons<int>(1, $seq_empty<int>)))" },
-            { "iseq + iseq", "$seq_concat<int>(iseq, iseq)" },
-            { "mod * mod", "$intersect<object>(mod, mod)" },
-            { "mod + mod", "$union<object>(mod, mod)" },
-            { "cseq + dseq", "$seq_concat<object>(cseq, dseq)" },
+                // Set, Seqs and cardinalities
+                {"|mod|", "$set_card<object>(mod)"},
+                {"|iseq|", "$seq_len<int>(iseq)"},
+                {"{1,2,3}", "$set_add<int>(3, $set_add<int>(2, $set_add<int>(1, $empty<int>)))"},
+                {"[1,2,3]", "$seq_cons<int>(3, $seq_cons<int>(2, $seq_cons<int>(1, $seq_empty<int>)))"},
+                {"iseq + iseq", "$seq_concat<int>(iseq, iseq)"},
+                {"mod * mod", "$intersect<object>(mod, mod)"},
+                {"mod + mod", "$union<object>(mod, mod)"},
+                {"cseq + dseq", "$seq_concat<object>(cseq, dseq)"},
         };
     }
 
     public String[][] parametersForTestSchematic() {
         return new String[][] {
             { "?x+3", "$plus(?x, 3)" },
-            { "3+?x", "$plus(3, ?x)" },
-            { "5*_", "$times(5, _)" },
+                {"3+?x", "$plus(3, ?x)"},
+                {"5*_", "$times(5, _)"},
             { "_*5", "$times(_, 5)" },
             { "1 * ... i1+?x ...", "$times(1, (... $plus(i1, ?x) ...))" },
             { "if ?x then ?x else 5", "$ite<int>(?x, ?x, 5)" },
@@ -185,7 +185,7 @@ public class TreeTermTranslatorTest {
         return new String[][] {
             { "unknownFunction(1)", "Unknown symbol unknownFunction" },
             { "unknownIdentifier", "Unknown identifier unknownIdentifier" },
-            { "b1 == i1", "No common supertype for bool and int" },
+                {"b1 == i1", "No common supertype for bool and int"},
             { "let x,y:=1 :: y", "Mismatched assignments in let expression:" },
             { "let x:=1 :: unknown", "" },  // no more bound vars after this
             { "forall x:int :: unknown", "" },  // no more bound vars after this
@@ -209,8 +209,8 @@ public class TreeTermTranslatorTest {
             { "b1[c.f:=1]", "Heap updates must be applied to heaps" },
             { "loopHeap[c := c]", "Heap updates must modify a heap location" },
             { "loopHeap[c.f := true]", "Unexpected argument sort for argument 4 to $store" },
-            { "iseq + mod", "No common supertype for seq<int> and set<object>" },
-            { "true + true", "'+' is not supported for these arguments" },
+                {"iseq + mod", "No common supertype for seq<int> and set<object>"},
+                {"true + true", "'+' is not supported for these arguments"},
         };
     }
 

@@ -8,12 +8,12 @@ package edu.kit.iti.algover.term;
 
 public class SchemaOccurTerm extends SchemaTerm {
 
-    public SchemaOccurTerm(Term occurTerm, Sort sort) {
-        super(sort, new Term[] { occurTerm });
-    }
-
     public SchemaOccurTerm(Term occurTerm) {
         this(occurTerm, Sort.UNTYPED_SORT);
+    }
+
+    public SchemaOccurTerm(Term occurTerm, Sort sort) {
+        super(sort, new Term[]{occurTerm});
     }
 
     @Override

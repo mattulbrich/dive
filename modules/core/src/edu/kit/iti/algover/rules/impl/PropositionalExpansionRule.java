@@ -41,7 +41,7 @@ public class PropositionalExpansionRule extends AbstractProofRule {
     public ProofRuleApplication considerApplicationImpl(ProofNode target, Parameters parameters) throws RuleException {
         Term on = parameters.getValue(ON_PARAM);
         List<TermSelector> l = RuleUtil.matchSubtermsInSequent(on::equals, target.getSequent());
-        if(l.size() != 1) {
+        if (l.size() != 1) {
             return ProofRuleApplicationBuilder.notApplicable(this);
         }
         TermSelector selector = l.get(0);
@@ -92,7 +92,7 @@ public class PropositionalExpansionRule extends AbstractProofRule {
         //TODO just copy and pasted from considerApplicationImpl maybe correct or improve
         Term on = parameters.getValue(ON_PARAM);
         List<TermSelector> l = RuleUtil.matchSubtermsInSequent(on::equals, target.getSequent());
-        if(l.size() != 1) {
+        if (l.size() != 1) {
             throw new RuleException("Machting of on parameter is ambiguous");
         }
         TermSelector selector = l.get(0);

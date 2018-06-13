@@ -502,6 +502,7 @@ public final class TermSelector implements Comparable<TermSelector> {
     /**
      * Returns a bool stating whether or not this TermSelector is valid for the given sequent (meaning it points to
      * a Term)
+     *
      * @param s The sequent the TermSelector should be checked for
      * @return whether or not this selector is valid for the given sequent
      */
