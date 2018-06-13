@@ -71,8 +71,9 @@ public class TypeContext {
                         sname += ".";
                     }
                     sname = sname.substring(0, sname.length() - 1);
+                    return sname;
                 }
-                return sname;
+               
             }
 
             for (String s : ops.subList(1, ops.size())) {
