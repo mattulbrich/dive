@@ -57,7 +57,7 @@ public enum Operation {
         SETUNION.smt = "union";
         SETUNION.poly = true;
         SETUNION.type = OperationType.SET;
-        SETUNION.instantiations = asList(Axiom.SET_UNION);
+        SETUNION.instantiations = asList(Axiom.SET_UNION,Axiom.SET_2);
 
         SETINTERSECT.smt = "intersect";
         SETINTERSECT.poly = true;
@@ -67,8 +67,8 @@ public enum Operation {
         SETCARD.smt = "setcard";
         SETCARD.poly = true;
         SETCARD.type = OperationType.SET;
-        SETCARD.instantiations = asList(Axiom.SET_CARD,Axiom.SET_CARD_1,Axiom.SET_CARD_2,Axiom.SETEMPTY_INST); //Axiom.SET_INST,Axiom.SET_CARD, Axiom.SET_5, Axiom.SETEMPTY_INST, Axiom.SET_CARD_1
-
+        SETCARD.instantiations = asList(Axiom.SET_IN,Axiom.SET_1, Axiom.SET_6,Axiom.SET_INSERT,Axiom.SET_CARD,Axiom.SET_CARD_1,Axiom.SET_CARD_2,Axiom.SETEMPTY_INST); //,Axiom.SETEMPTY_INST,Axiom.SET_INST,Axiom.SET_CARD, Axiom.SET_5, Axiom.SETEMPTY_INST, Axiom.SET_CARD_1
+        // TODO Axiom.SET_CARD_4 -> timeout
         SETIN.smt = "select";
         SETIN.poly = true;
         SETIN.type = OperationType.SET;

@@ -7,7 +7,7 @@ public enum Axiom {
      */
 
     // sets
-    //SET_INST, 
+    // SET_INST,
     SETEMPTY_INST,
 
     // multisets
@@ -40,7 +40,7 @@ public enum Axiom {
      */
 
     // sets
-    SET_1, SET_2, SET_3, SET_4, SET_5, SET_CARD_1, SET_CARD_2, SET_CARD_3, SET_CARD_4,
+    SET_1, SET_2, SET_3, SET_4, SET_5, SET_6, SET_CARD_1, SET_CARD_2, SET_CARD_3, SET_CARD_4,
 
     // multisets
     MULTISET_1, MULTISET_2, MULTISET_3, MULTISET_4, MULTISET_5, MULTISET_6, MULTISET_7, MULTISET_8, MULTISET_CARD_1, MULTISET_CARD_2, MULTISET_CARD_3, MULTISET_CARD_4,
@@ -58,7 +58,7 @@ public enum Axiom {
          */
 
         // sets
-       // SET_INST.smt = "(define-sort Set (T) (Array T Bool))"; //TODO
+        // SET_INST.smt = "(define-sort Set (T) (Array T Bool))"; //TODO
         SETEMPTY_INST.smt = "(declare-const (par (T) (setEmptyT (Set T))))";
 
         // multisets
@@ -90,9 +90,9 @@ public enum Axiom {
         SET_SUBSET.smt = "(declare-fun (par (T) (subsetT ((Set T) (Set T)) Bool)))";
         SET_SINGLE.smt = "(define-fun  (par (T) (setsingle ((t T) (s (Set T))) (Set T)))\r\n"
                 + "(store setEmpty t true)\r\n" + ")";
-        SET_INSERT.smt = "";
+        SET_INSERT.smt = "(declare-fun (par (T) (setInsertT ((Set T) T) (Set T))))";
         SET_SELECT.smt = "";
-        SET_IN.smt = "";
+        SET_IN.smt = "(declare-fun (par (T) (inSetT ((Set T) T)  Bool)))";
 
         // multisets
         MULTISET_UNION.smt = "(declare-fun (par (T) (munionT ((MultiSet T) (MultiSet T)) (MultiSet T))))";
@@ -142,37 +142,40 @@ public enum Axiom {
          */
 
         // sets
-        SET_1.smt = "(assert (par (T)\r\n" + "((forall\r\n" + "(\r\n" + "    (s1 (Set T))\r\n" + "    (s2 (Set T))\r\n"
-                + "    (t T)\r\n" + ")\r\n" + "    (! \r\n" + "        (= (select (unionT s1 s2) t)\r\n"
-                + "        (or (select s1 t) (select s2 t))) \r\n" + "        :pattern (( select (unionT s1 s2) t))\r\n"
-                + "    ) \r\n" + "))))";
+        SET_1.smt = "(assert (par (T)\r\n" + "((forall\r\n" + "(\r\n" + "    (s1 (Set T))\r\n" + "    (t T)\r\n"
+                + ")\r\n" + "    (! \r\n" + "        (= (inSetT (setInsertT s1 t) t) true) \r\n"
+                + "        :pattern ((inSetT (setInsertT s1 t) t))\r\n" + "    ) \r\n" + "))))";
         SET_2.smt = "(assert (par (T)\r\n" + "((forall\r\n" + "(\r\n" + "    (s1 (Set T))\r\n" + "    (s2 (Set T))\r\n"
-                + "    (t T)\r\n" + ")\r\n" + "    (! \r\n" + "        (= (select (intersectT s1 s2) t)\r\n"
-                + "        (and (select s1 t) (select s2 t))) \r\n"
-                + "        :pattern ((select (intersectT s1 s2) t))\r\n" + "    ) \r\n" + "))))";
+                + "    (t T)\r\n" + ")\r\n" + "    (! \r\n" + "        (= (inSetT (unionT s1 s2) t)\r\n"
+                + "        (or (inSetT s1 t) (inSetT s2 t))) \r\n" + "        :pattern (( inSetT (unionT s1 s2) t))\r\n"
+                + "    ) \r\n" + "))))";
         SET_3.smt = "(assert (par (T)\r\n" + "((forall\r\n" + "(\r\n" + "    (s1 (Set T))\r\n" + "    (s2 (Set T))\r\n"
-                + "    (t T)\r\n" + ")\r\n" + "    (! \r\n" + "        (= (select (setminusT s1 s2) t)\r\n"
-                + "        (and (select s1 t) (not (select s2 t)))) \r\n"
-                + "        :pattern ((select (setminusT s1 s2) t))\r\n" + "    ) \r\n" + "))))";
+                + "    (t T)\r\n" + ")\r\n" + "    (! \r\n" + "        (= (inSetT (intersectT s1 s2) t)\r\n"
+                + "        (and (inSetT s1 t) (inSetT s2 t))) \r\n"
+                + "        :pattern ((inSetT (intersectT s1 s2) t))\r\n" + "    ) \r\n" + "))))";
         SET_4.smt = "(assert (par (T)\r\n" + "((forall\r\n" + "(\r\n" + "    (s1 (Set T))\r\n" + "    (s2 (Set T))\r\n"
+                + "    (t T)\r\n" + ")\r\n" + "    (! \r\n" + "        (= (inSetT (setminusT s1 s2) t)\r\n"
+                + "        (and (inSetT s1 t) (not (inSetT s2 t)))) \r\n"
+                + "        :pattern ((inSetT (setminusT s1 s2) t))\r\n" + "    ) \r\n" + "))))";
+        SET_5.smt = "(assert (par (T)\r\n" + "((forall\r\n" + "(\r\n" + "    (s1 (Set T))\r\n" + "    (s2 (Set T))\r\n"
                 + "    (t T)\r\n" + ")\r\n" + "    (! \r\n" + "        (= (subsetT s1 s2)\r\n"
-                + "        (=> (select s1 t) (select s2 t))) \r\n"
-                + "        :pattern ((subset s1 s2) (select s1 t))\r\n" + "    ) \r\n" + "))))";
-        SET_5.smt = "(assert (par (T)(" + "(forall\r\n" + "(\r\n" + "    (s (Set T))\r\n" + ")\r\n" + "    (! \r\n"
+                + "        (=> (inSetT s1 t) (inSetT s2 t))) \r\n"
+                + "        :pattern ((subset s1 s2) (inSetT s1 t))\r\n" + "    ) \r\n" + "))))";
+        SET_6.smt = "(assert (par (T)\r\n" + "((forall\r\n" + "(\r\n" + "    (s (Set T))\r\n" + ")\r\n" + "    (! \r\n"
                 + "        (=> (= (setcardT s) 0)\r\n" + "        (= s setEmptyT)) \r\n"
                 + "        :pattern ((setcardT s))\r\n" + "    ) \r\n" + "))))";
         SET_CARD_1.smt = "(assert (par (T) ((= (setcardT setEmptyT) 0))))";
         SET_CARD_2.smt = "(assert (par (T)\r\n" + "((forall\r\n" + "(\r\n" + "    (s (Set T))\r\n" + ")\r\n"
                 + "    (! \r\n" + "        (>=  (setcardT s) 0) \r\n" + "        :pattern ((setcardT s))\r\n"
                 + "    ) \r\n" + "))))";
-        SET_CARD_3.smt = "(assert (par (T)\r\n" + "(forall\r\n" + "(\r\n" + "    (s1 (Set T))\r\n"
+        SET_CARD_3.smt = "(assert (par (T)\r\n" + "((forall\r\n" + "(\r\n" + "    (s1 (Set T))\r\n"
                 + "    (s2 (Set T))\r\n" + ")\r\n" + "    (! \r\n" + "        (=> (subsetT s1 s2)\r\n"
                 + "        (<= (setcardT s1) (setcardT s2))  \r\n" + "        ) \r\n"
-                + "        :pattern ((setcardT s))\r\n" + "    ) \r\n" + ")))";
-        SET_CARD_4.smt = "(assert (par (T)\r\n" + "(forall\r\n" + "(\r\n" + "    (s (Set T))\r\n" + "    (t T)\r\n"
+                + "        :pattern ((setcardT s))\r\n" + "    ) \r\n" + "))))";
+        SET_CARD_4.smt = "(assert (par (T)\r\n" + "((forall\r\n" + "(\r\n" + "    (s (Set T))\r\n" + "    (t T)\r\n"
                 + ")\r\n" + "    (! \r\n"
-                + "        (= (cardT (store s t true))  (ite (select s t)  (cardT s) (+ (cardT s) 1) )) \r\n"
-                + "        :pattern ((store s t true))\r\n" + "    ) \r\n" + ")))";
+                + "        (= (setcardT (setInsertT s t))  (ite (inSetT s t)  (setcardT s) (+ (setcardT s) 1) )) \r\n"
+                + "        :pattern ((setcardT(setInsertT s t)) (inSetT s t))\r\n" + "    ) \r\n" + "))))";
 
         // multisets
         MULTISET_1.smt = "(assert (par (T)\r\n" + "(forall\r\n" + "(\r\n" + "    (s1 (MultiSet T))\r\n"
