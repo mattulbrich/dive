@@ -5,6 +5,8 @@
  */
 package edu.kit.iti.algover.term;
 
+import edu.kit.iti.algover.term.match.MatchException;
+
 public interface TermVisitor<A, R, E extends Exception> {
 
     R visit(VariableTerm variableTerm, A arg) throws E;
@@ -21,6 +23,10 @@ public interface TermVisitor<A, R, E extends Exception> {
 
     default R visit(SchemaVarTerm schemaVarTerm, A arg) throws E {
         return visitSchemaTerm(schemaVarTerm, arg);
+    }
+
+    default R visit(SchemaCaptureTerm schemaCaptureTerm, A arg) throws E {
+        return visitSchemaTerm(schemaCaptureTerm, arg);
     }
 
     default R visitSchemaTerm(SchemaTerm schemaTerm, A arg) throws E {

@@ -1,4 +1,11 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<!--
+  ~ This file is part of AlgoVer.
+  ~
+  ~ Copyright (C) 2015-2018 Karlsruhe Institute of Technology
+  ~
+  -->
+
 <operators>
   <!-- integer operations -->
   <operator>
@@ -71,12 +78,12 @@
   <operator>
     <name>$eq</name>
     <op>==</op>
-    <precedence>52</precedence>
+    <precedence>25</precedence>
   </operator>
   <operator>
     <name>$neq</name>
     <op>!=</op>
-    <precedence>52</precedence>
+    <precedence>25</precedence>
   </operator>
 
   <!-- set operators -->

@@ -1,7 +1,8 @@
 /*
  * This file is part of AlgoVer.
  *
- * Copyright (C) 2015-2017 Karlsruhe Institute of Technology
+ * Copyright (C) 2015-2018 Karlsruhe Institute of Technology
+ *
  */
 package edu.kit.iti.algover.term.prettyprint;
 
@@ -45,6 +46,7 @@ public class PrettyPrintTest {
             { "1 > 0" },
             { "1 >= 0" },
             { "1 + 2 >= 1 * 1" },
+            { "1 + 1 == 2" },
             { "1 == i1" }, // revealed a bug
             { "-1" },
             { "- -1" },
@@ -107,9 +109,9 @@ public class PrettyPrintTest {
     }
 
     public String[][] parametersForTestADTExpressions() {
-        return new String[][] {
-            { "|sq|" }, { "|st|" }, { "st + st" }, { "sq + sq" },
-            { "{1, 2, 3}" }, { "[1, 2, 3]"},
+        return new String[][]{
+                {"|sq|"}, {"|st|"}, {"st + st"}, {"sq + sq"},
+                {"{1, 2, 3}"}, {"[1, 2, 3]"},
         };
     }
 
@@ -246,10 +248,10 @@ public class PrettyPrintTest {
         assertEquals(string, as.toString());
 
         assertEquals("[Element[begin=1;end=2;attr=1.1.0], " +
-                        "Element[begin=4;end=9;attr=1.0], " +
-                        "Element[begin=4;end=5;attr=1.0.0], " +
-                        "Element[begin=8;end=9;attr=1.0.1], " +
-                        "Element[begin=11;end=12;attr=0]]", as.describeAllElements());
+                "Element[begin=4;end=9;attr=1.0], " +
+                "Element[begin=4;end=5;attr=1.0.0], " +
+                "Element[begin=8;end=9;attr=1.0.1], " +
+                "Element[begin=11;end=12;attr=0]]", as.describeAllElements());
 
         for (AnnotatedString.TermElement termElement : as.getAllTermElements()) {
             Term subterm = termElement.getSubtermSelector().selectSubterm(t);

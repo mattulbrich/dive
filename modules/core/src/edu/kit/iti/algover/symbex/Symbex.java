@@ -484,28 +484,28 @@ public class Symbex {
 
     private void addModifiesCheck(Deque<SymbexPath> stack, SymbexPath current,
                                   DafnyTree receiver) {
-        switch(receiver.getType()) {
-        case DafnyParser.ARRAY_ACCESS:
-            DafnyTree type = receiver.getChild(0).getExpressionType();
-            Sort sort = ASTUtil.toSort(type);
-            if(!(sort.isClassSort() || sort.isArray())) {
-                // Assigning a sequence/map/... is not relevant
-                return;
-            }
-            // fall through intended!
+        switch (receiver.getType()) {
+            case DafnyParser.ARRAY_ACCESS:
+                DafnyTree type = receiver.getChild(0).getExpressionType();
+                Sort sort = ASTUtil.toSort(type);
+                if (!(sort.isClassSort() || sort.isArray())) {
+                    // Assigning a sequence/map/... is not relevant
+                    return;
+                }
+                // fall through intended!
 
-        case DafnyParser.FIELD_ACCESS:
-            SymbexPath nonNull = new SymbexPath(current);
-            // the first argument is the modified object
-            DafnyTree object = receiver.getChild(0);
-            if(object.getType() == DafnyParser.THIS) {
-                // no modifies check for the this object!
-                return;
-            }
-            DafnyTree check = ASTUtil.inMod(object);
-            nonNull.setBlockToExecute(Symbex.EMPTY_PROGRAM);
-            nonNull.setProofObligation(check, check, AssertionType.MODIFIES);
-            stack.push(nonNull);
+            case DafnyParser.FIELD_ACCESS:
+                SymbexPath nonNull = new SymbexPath(current);
+                // the first argument is the modified object
+                DafnyTree object = receiver.getChild(0);
+                if (object.getType() == DafnyParser.THIS) {
+                    // no modifies check for the this object!
+                    return;
+                }
+                DafnyTree check = ASTUtil.inMod(object);
+                nonNull.setBlockToExecute(Symbex.EMPTY_PROGRAM);
+                nonNull.setProofObligation(check, check, AssertionType.MODIFIES);
+                stack.push(nonNull);
         }
     }
 

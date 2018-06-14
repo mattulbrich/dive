@@ -65,9 +65,9 @@ public class DafnyCodeArea extends AsyncHighlightingCodeArea {
             @Override
             public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
                 rerenderHighlighting();
-                if(textIsSimilar(currentProofText, newValue)) {
+                if (textIsSimilar(currentProofText, newValue)) {
                     textChangedProperty.setValue(false);
-                } else{
+                } else {
                     textChangedProperty.setValue(true);
                 }
             }
@@ -77,6 +77,12 @@ public class DafnyCodeArea extends AsyncHighlightingCodeArea {
         getUndoManager().forgetHistory();
 
         initContextMenu();
+    }
+
+    private boolean textIsSimilar(String s1, String s2) {
+        s1 = s1.replaceAll("\\s*", " ");
+        s2 = s2.replaceAll("\\s*", " ");
+        return s1.equals(s2);
     }
 
     private void initContextMenu() {
@@ -96,12 +102,6 @@ public class DafnyCodeArea extends AsyncHighlightingCodeArea {
     public void updateProofText() {
         currentProofText = getText();
         textChangedProperty.setValue(false);
-    }
-
-    private boolean textIsSimilar(String s1, String s2) {
-        s1 = s1.replaceAll("\\s*", " ");
-        s2 = s2.replaceAll("\\s*", " ");
-        return s1.equals(s2);
     }
 
     /**

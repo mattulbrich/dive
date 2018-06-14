@@ -18,12 +18,12 @@ public class RuleViewOverlay extends AnchorPane {
     private static final PseudoClass PC_NON_SPLITTING = PseudoClass.getPseudoClass("non-splitting");
 
     private ProofRuleApplication application;
-    private TermSelector selector;
+    private final JFXButton applyExButton;
 
     private final Label branchCount;
     private final JFXButton applyButton;
     private final JFXButton refineButton;
-    private final JFXButton applyExButton;
+    private TermSelector selector;
     private final RuleApplicationListener listener;
 
     public RuleViewOverlay(ProofRuleApplication application, RuleApplicationListener listener, TermSelector selector) {

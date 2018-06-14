@@ -30,7 +30,7 @@ public class RemoveAssumptionRule extends AbstractProofRule {
     public ProofRuleApplication considerApplicationImpl(ProofNode target, Parameters parameters) throws RuleException {
         Term on = parameters.getValue(ON_PARAM);
         List<TermSelector> l = RuleUtil.matchSubtermsInSequent(on::equals, target.getSequent());
-        if(l.size() != 1) {
+        if (l.size() != 1) {
             return ProofRuleApplicationBuilder.notApplicable(this);
         }
         TermSelector selector = l.get(0);

@@ -48,7 +48,7 @@ public class LetSubstitutionRule extends AbstractProofRule {
     public ProofRuleApplication considerApplicationImpl(ProofNode target, Parameters parameters) throws RuleException {
         Term targetTerm = parameters.getValue(ON_PARAM);
         List<TermSelector> l = RuleUtil.matchSubtermsInSequent(targetTerm::equals, target.getSequent());
-        if(l.size() != 1) {
+        if (l.size() != 1) {
             return ProofRuleApplicationBuilder.notApplicable(this);
         }
         if (!(targetTerm instanceof LetTerm)) {
