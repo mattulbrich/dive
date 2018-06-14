@@ -33,8 +33,8 @@ public class CVCAccess extends SolverAccess {
           //  Process process = buildProcess();
             File f = File.createTempFile("file",".smt2");
             BufferedWriter bw = new BufferedWriter(new FileWriter(f));
-            //bw.write(smt);
-            bw.write(d3);
+            bw.write(smt);
+            //bw.write(d3);
             bw.write("(check-sat)");
             bw.write("(get-model)");
             bw.close();

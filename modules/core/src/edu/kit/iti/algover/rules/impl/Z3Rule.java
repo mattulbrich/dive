@@ -89,15 +89,30 @@ public class Z3Rule extends AbstractProofRule {
                 referenceMap);
 
         // TODO null-Type
+        String smt;
+        System.out.println();
+        System.out.println();
+        System.out.println("PSMT: ");
+        System.out.println();
+        smt = sc.toPSMT().replace("Null", "ArrInt").replace("setcardT","setcardInt").replace("setEmptyT", "setEmptyInt");
+        System.out.println(smt);
+        System.out.println();
+        System.out.println();
+        System.out.println("SMT: ");
+        System.out.println();
+        smt = sc.toSMT().replace("Null", "ArrInt").replace("setcardT","setcardInt").replace("setEmptyT", "setEmptyInt");
+        System.out.println(smt);
+        System.out.println();
         
-        System.out.println(sc.toSMT().replace("Null", "ArrInt").replace("setcardT","setcardInt").replace("setEmptyT", "setEmptyInt"));
+        //System.out.println(sc.toSMT().replace("Null", "ArrInt").replace("setcardT","setcardInt").replace("setEmptyT", "setEmptyInt"));
        // System.out.println(sc.toPSMT());
         //System.out.println(sc.toPSMT().replace("Null", "ArrInt"));
         
        // SolverResponse r1 = cvcaccess.accessSolver(sc.toSMT().replace("Null", "ArrInt"));
         SolverResponse r1 = z3access.accessSolver(sc.toSMT().replace("Null", "ArrInt").replace("setcardT","setcardInt").replace("setEmptyT", "setEmptyInt"));
         
-      
+        //SolverResponse r2 = cvcaccess.accessSolver(sc.toSMT().replace("Null", "ArrInt").replace("setcardT","setcardInt").replace("setEmptyT", "setEmptyInt"));
+        
         System.out.println(r1.getResponse().name());
         if (r1.getResponse() == Response.SAT)
             System.out.println(r1.getModel().toString());
