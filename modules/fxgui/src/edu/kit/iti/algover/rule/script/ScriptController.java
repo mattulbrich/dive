@@ -39,7 +39,7 @@ public class ScriptController implements ScriptViewListener {
     }
 
     private void handleShortcuts(KeyEvent keyEvent) {
-        if (saveShortcut.match(keyEvent)) {
+        if(saveShortcut.match(keyEvent)) {
             listener.onScriptSave();
         }
     }
@@ -57,6 +57,7 @@ public class ScriptController implements ScriptViewListener {
         switchViewedNode();
         view.highlightLine();
     }
+
 
 
     private void switchViewedNode() {
@@ -103,11 +104,13 @@ public class ScriptController implements ScriptViewListener {
         return new Position(line, charInLine);
     }
 
-    public void insertTextForSelectedNode(String text) {
-        Position caretPosition = computePositionFromCharIdx(view.getCaretPosition(), view.getText());
-        ProofNodeCheckpoint checkpoint = getCheckpointForCaretPosition(caretPosition);
-        int insertAt = computeCharIdxFromPosition(checkpoint.caretPosition, view.getText());
-        view.insertText(insertAt, text);
+    private int computeCharIdxFromPosition(Position position, String text) {
+        int charIdx = 0;
+        for(int i = 0; i < position.getLineNumber() - 1; ++i) {
+            charIdx += text.substring(0, text.indexOf('\n')).length() + 1;
+            text = text.substring(text.indexOf('\n') + 1);
+        }
+        return charIdx + position.getCharInLine();
     }
 
     @Override
@@ -126,12 +129,10 @@ public class ScriptController implements ScriptViewListener {
         return view;
     }
 
-    private int computeCharIdxFromPosition(Position position, String text) {
-        int charIdx = 0;
-        for (int i = 0; i < position.getLineNumber() - 1; ++i) {
-            charIdx += text.substring(0, text.indexOf('\n')).length() + 1;
-            text = text.substring(text.indexOf('\n') + 1);
-        }
-        return charIdx + position.getCharInLine();
+    public void insertTextForSelectedNode(String text) {
+        Position caretPosition = computePositionFromCharIdx(view.getCaretPosition(), view.getText());
+        ProofNodeCheckpoint checkpoint = getCheckpointForCaretPosition(caretPosition);
+        int insertAt = computeCharIdxFromPosition(checkpoint.caretPosition, view.getText());
+        view.insertText(insertAt, text);
     }
 }

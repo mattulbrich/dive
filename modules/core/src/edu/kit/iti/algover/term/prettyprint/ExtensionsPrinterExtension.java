@@ -14,7 +14,7 @@ import java.util.List;
 public class ExtensionsPrinterExtension implements PrettyPrintExtension {
     @Override
     public boolean canPrint(FunctionSymbol functionSymbol) {
-        return isInstanceOf(functionSymbol, BuiltinSymbols.SET_ADD) ||
+        return  isInstanceOf(functionSymbol, BuiltinSymbols.SET_ADD) ||
                 isInstanceOf(functionSymbol, BuiltinSymbols.SEQ_CONS);
     }
 
@@ -46,10 +46,10 @@ public class ExtensionsPrinterExtension implements PrettyPrintExtension {
 
         Term t = application;
         FunctionSymbol fs = firstFS;
-        while (fs == firstFS) {
+        while(fs == firstFS) {
             collectedEntries.add(t.getTerm(0));
             t = t.getTerm(1);
-            if (t instanceof ApplTerm) {
+            if(t instanceof ApplTerm) {
                 ApplTerm a = (ApplTerm) t;
                 fs = a.getFunctionSymbol();
             } else {

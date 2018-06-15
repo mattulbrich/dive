@@ -275,22 +275,22 @@ public class TreeTermTranslator {
 
         case DafnyParser.PLUS:
             result = buildBinary(
-                    symmetricBinarySymbol(sort -> {
-                        switch (sort.getName()) {
-                            case "int":
-                                return BuiltinSymbols.PLUS;
-                            case "set":
-                                return BuiltinSymbols.UNION.instantiate(sort.getArgument(0));
-                            case "seq":
-                                return BuiltinSymbols.SEQ_CONCAT.
-                                        instantiate(sort.getArgument(0));
-                            case "multiset":
-                                // TODO
-                                throw new Error("IMPLEMENT ME!");
-                            default:
-                                throw new TermBuildException("'+' is not supported for these arguments");
-                        }
-                    }), tree);
+                symmetricBinarySymbol(sort -> {
+                switch(sort.getName()) {
+                case "int":
+                    return BuiltinSymbols.PLUS;
+                case "set":
+                    return BuiltinSymbols.UNION.instantiate(sort.getArgument(0));
+                case "seq":
+                    return BuiltinSymbols.SEQ_CONCAT.
+                            instantiate(sort.getArgument(0));
+                case "multiset":
+                    // TODO
+                    throw new Error("IMPLEMENT ME!");
+                default:
+                    throw new TermBuildException("'+' is not supported for these arguments");
+                }
+            }), tree);
             break;
 
         case DafnyParser.MINUS:
@@ -303,29 +303,29 @@ public class TreeTermTranslator {
 
         case DafnyParser.TIMES:
             result = buildBinary(symmetricBinarySymbol(sort -> {
-                switch (sort.getName()) {
-                    case "int":
-                        return BuiltinSymbols.TIMES;
-                    case "set":
-                        return BuiltinSymbols.INTERSECT.instantiate(sort.getArgument(0));
-                    case "multiset":
-                        // TODO
-                        throw new Error("IMPLEMENT ME!");
-                    default:
-                        throw new TermBuildException("'*' is not supported for these arguments");
+                switch(sort.getName()) {
+                case "int":
+                    return BuiltinSymbols.TIMES;
+                case "set":
+                    return BuiltinSymbols.INTERSECT.instantiate(sort.getArgument(0));
+                case "multiset":
+                    // TODO
+                    throw new Error("IMPLEMENT ME!");
+                default:
+                    throw new TermBuildException("'*' is not supported for these arguments");
                 }
             }), tree);
             break;
 
-            case DafnyParser.IN:
-                result = buildBinary((x, y) -> {
-                    switch (y.getSort().getName()) {
-                        case "set":
-                            return BuiltinSymbols.SET_IN.instantiate(y.getSort().getArgument(0));
-                        default:
-                            throw new Error("Not yet implemented");
-                    }
-                }, tree);
+        case DafnyParser.IN:
+            result = buildBinary((x,y) -> {
+                switch(y.getSort().getName()) {
+                case "set":
+                    return BuiltinSymbols.SET_IN.instantiate(y.getSort().getArgument(0));
+                default:
+                    throw new Error("Not yet implemented");
+                }
+            }, tree);
             break;
 
         case DafnyParser.NOT:
@@ -354,13 +354,13 @@ public class TreeTermTranslator {
             result = buildNull(tree);
             break;
 
-            case DafnyParser.SETEX:
-                result = buildSetExtension(tree);
-                break;
+        case DafnyParser.SETEX:
+            result = buildSetExtension(tree);
+            break;
 
-            case DafnyParser.LISTEX:
-                result = buildListExtension(tree);
-                break;
+        case DafnyParser.LISTEX:
+            result = buildListExtension(tree);
+            break;
 
         case DafnyParser.ALL:
             result = buildQuantifier(Quantifier.FORALL, tree);
@@ -381,17 +381,17 @@ public class TreeTermTranslator {
         case DafnyParser.LENGTH:
 
             // XXX FIXME HACK Sequences length is different
-            if (build(tree.getChild(0)).getSort().getName().equals("seq")) {
+            if(build(tree.getChild(0)).getSort().getName().equals("seq")) {
                 System.err.println("Deprecated: Used .Length to access length of sequence: " +
-                        tree.toStringTree());
+                    tree.toStringTree());
                 result = buildCardinality(tree);
             } else {
                 result = buildLength(tree);
             }
             break;
 
-            case DafnyParser.CARD:
-                result = buildCardinality(tree);
+        case DafnyParser.CARD:
+            result = buildCardinality(tree);
             break;
 
         case DafnyParser.ARRAY_ACCESS:
@@ -444,11 +444,11 @@ public class TreeTermTranslator {
             throw new TermBuildException("__ not supported in this place. "
                     + "Solution: Spell it out using the appropriate number of _. Sorry.");
 
-            case DafnyParser.TYPED_SCHEMA:
-                result = build(tree.getChild(0));
-                Sort sort = ASTUtil.toSort(tree.getChild(1));
-                result = ((SchemaTerm) result).refineSort(sort);
-                break;
+        case DafnyParser.TYPED_SCHEMA:
+            result = build(tree.getChild(0));
+            Sort sort = ASTUtil.toSort(tree.getChild(1));
+            result = ((SchemaTerm)result).refineSort(sort);
+            break;
 
         default:
             TermBuildException ex =
@@ -482,7 +482,7 @@ public class TreeTermTranslator {
     }
 
     private BiFunctionWithException<Term, Term, FunctionSymbol, TermBuildException>
-    symmetricBinarySymbol(FunctionWithException<Sort, FunctionSymbol, TermBuildException> decider) {
+            symmetricBinarySymbol(FunctionWithException<Sort, FunctionSymbol, TermBuildException> decider) {
         return new BiFunctionWithException<Term, Term, FunctionSymbol, TermBuildException>() {
             @Override
             public FunctionSymbol apply(Term a, Term b) throws TermBuildException {
@@ -651,18 +651,18 @@ public class TreeTermTranslator {
 
         Sort sort = inner.getSort();
         switch (sort.getName()) {
-            case "set":
-                function = BuiltinSymbols.CARD.instantiate(
-                        sort.getArguments().get(0));
-                break;
+        case "set":
+            function = BuiltinSymbols.CARD.instantiate(
+                    sort.getArguments().get(0));
+            break;
 
-            case "seq":
-                function = BuiltinSymbols.SEQ_LEN.instantiate(
-                        sort.getArguments().get(0));
-                break;
+        case "seq":
+            function = BuiltinSymbols.SEQ_LEN.instantiate(
+                    sort.getArguments().get(0));
+            break;
 
-            default:
-                throw new TermBuildException("Unsupported sort for |...|: " + sort);
+        default:
+            throw new TermBuildException("Unsupported sort for |...|: " + sort);
         }
 
         return new ApplTerm(function, inner);

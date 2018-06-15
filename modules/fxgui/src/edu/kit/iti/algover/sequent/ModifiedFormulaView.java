@@ -55,7 +55,7 @@ public class ModifiedFormulaView extends OriginalFormulaView {
     /**
      * @param subtermSelector the selector that points to a subterm within this formula.
      * @return the given subterm lifted to a term selector that points at the correct forumla index and polarity in the
-     * sequent.
+     *         sequent.
      */
     private TermSelector liftSubtermSelector(SubtermSelector subtermSelector) {
         List<Integer> pathAsList = subtermSelector.getPath();
