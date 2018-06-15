@@ -205,7 +205,8 @@ public class AxiomContainer {
         String r = "";
         for (Sort s : t.getArgumentSorts()) {
             if (isApplicable(a.getSmt(), s)) {
-                r += "(inst-ax :: " + a.name() + " :: " + TypeContext.normalizeSort(s) + ")";
+                //r += "(inst-ax :: " + a.name() + " :: " + TypeContext.normalizeSort(s) + ")";
+                r += a.getSmt() + " :: " + TypeContext.normalizeSort(s);
             }
         }
         return r;

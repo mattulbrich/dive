@@ -1,14 +1,26 @@
 package edu.kit.iti.algover.smttrans.translate;
 
-import java.text.DecimalFormatSymbols;
-
 import edu.kit.iti.algover.term.FunctionSymbol;
 import edu.kit.iti.algover.term.Sort;
 
 public class FSFactory {
+    
+    private static Sort current;// = Sort.get("ArrInt"); //TODO dynamically
+    
+    private static FunctionSymbol handleNull() {
+        FunctionSymbol fs = new FunctionSymbol("null", current);
+        TypeContext.addSymbol(fs);
+        return fs;
+        
+    }
 
     public static FunctionSymbol makeFS(String name, Sort sort) {
         FunctionSymbol nfs;
+    
+            if (name.toLowerCase().equals("null")) {
+                return handleNull();
+            }
+                
 
         if (!TypeContext.isNumeric(name) && !(TypeContext.isBoolean(name))) {
             nfs = new FunctionSymbol(name.replace("_","."), sort);
@@ -21,8 +33,15 @@ public class FSFactory {
 
     public static FunctionSymbol makeFS(FunctionSymbol fs) {
 
+        
+        if (fs.getName().startsWith("$"))
+            current = Sort.get(TypeContext.parseFuncSignature(fs.getName()));
         FunctionSymbol nfs;
         String name = fs.getName();
+
+        if (name.toLowerCase().equals("null")) {
+            return handleNull();
+        }
 
         if (!TypeContext.isNumeric(name) && !(TypeContext.isBoolean(name))&& !(TypeContext.isFunc(name))) {
             nfs = new FunctionSymbol(fs.getName().replace("_", ".").replace("$$", "."), fs.getResultSort(), fs.getArgumentSorts());

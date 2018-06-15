@@ -84,12 +84,12 @@ public enum Operation {
         CREATE.type = OperationType.SORT;
         CREATE.instantiations = asList();
 
-        ANON.smt = "";
+        ANON.smt = "ANON";
         ANON.poly = false;
         ANON.type = OperationType.SORT;
         ANON.instantiations = asList();
 
-        MOD.smt = "";
+        MOD.smt = "MOD";
         MOD.poly = false;
         MOD.type = OperationType.SET;
         MOD.instantiations=asList();
@@ -99,7 +99,7 @@ public enum Operation {
         AHEAP.type = OperationType.SORT;
         AHEAP.instantiations=asList();
         
-        SEQCONS.smt = "";
+        SEQCONS.smt = "SEQCONS";
         SEQCONS.poly = true;
         SEQCONS.type = OperationType.SEQ;
         SEQCONS.instantiations = asList();
@@ -200,14 +200,14 @@ public enum Operation {
         LE.poly = false;
         LE.type = OperationType.INT;
 
-        NEG.smt = "";
+        NEG.smt = "NEG";
         NEG.poly = false;
         NEG.type = OperationType.INT;
 
-        ITE.smt = "";
+        ITE.smt = "ITE";
         ITE.poly = false;
 
-        DECR.smt = "";
+        DECR.smt = "DECR";
         DECR.poly = false;
 
     }

@@ -86,9 +86,22 @@ public class TypeContext {
 
     }
 
-    public static String normalizeSort(Sort s) {
-        String name = s.toString();
+    public static String parseFuncSignature(String name) {
+        
 
+      if (name.indexOf('<') == -1)
+              return "";
+      
+      name =  name.substring(name.indexOf("<")+1);
+       
+        
+
+        return parsePolyString(name.trim());
+    }
+    
+    
+    public static String parsePolyString(String name) {
+     
         String typed = CharMatcher.anyOf(">").removeFrom(name);
         Iterable<String> types = Splitter.on("<").split(typed);
         List<String> sorts = Arrays.asList(Iterables.toArray(types, String.class));
@@ -105,9 +118,16 @@ public class TypeContext {
                 r = r.substring(0, r.length() - 1);
                 return r;
             }
+   
             r += nmap.computeIfAbsent(so, x -> so.substring(0, 1).toUpperCase() + so.substring(1));
         }
         return r;
+    }
+    public static String normalizeSort(Sort s) {
+        String name = s.toString();
+        return parsePolyString(name);
+
+
     }
 
     public static boolean isBoolean(String str) {
@@ -160,7 +180,10 @@ public class TypeContext {
 
     public static void addSymbol(FunctionSymbol fs) { // TODO null,heap etc... Sorts (check argument sorts)
         String name = fs.getName();
-
+        
+        
+       
+        System.out.println("NAME " + name);
         if (isNumeric(name) || isBoolean(name))
             return;
 
