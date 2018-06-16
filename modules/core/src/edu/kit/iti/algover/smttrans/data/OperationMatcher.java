@@ -62,10 +62,13 @@ public class OperationMatcher {
          opmap.put("$everything", Operation.EVERYTHING);
          opmap.put("$empty", Operation.ARRSTORE);
         opmap.put("$heap", Operation.HEAP);
-        opmap.put("$aheap_1", Operation.AHEAP);
+        opmap.put("$aheap", Operation.AHEAP);
     }
 
     public static Operation matchOp(String op) {
+        
+        
+        
         Iterable<String> operators = Splitter.on(".").split(op);
 
         List<String> ops = Arrays.asList(Iterables.toArray(operators, String.class));

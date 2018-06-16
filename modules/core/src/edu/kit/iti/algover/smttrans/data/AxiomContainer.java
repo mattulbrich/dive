@@ -150,7 +150,7 @@ public class AxiomContainer {
 
     }
 
-    public static List<String> instantiateSort(OperationType optype, FunctionSymbol t) {
+    public static List<String> instantiateSort(FunctionSymbol t) {
 
         ArrayList<String> sorts = new ArrayList<>();
 
@@ -162,9 +162,7 @@ public class AxiomContainer {
 
         }
 
-        for (String o : optype.getDependencies()) {
-            sorts.add(o);
-        }
+
         return sorts;
     }
 
@@ -214,7 +212,7 @@ public class AxiomContainer {
         return r;
     }
 
-    public static List<String> declareSort(OperationType optype, FunctionSymbol t) {
+    public static List<String> declareSort(FunctionSymbol t) {
         ArrayList<String> sorts = new ArrayList<>();
 
         for (Sort s : t.getArgumentSorts()) {
@@ -223,9 +221,7 @@ public class AxiomContainer {
                 sorts.add("(inst-sort :: " + TypeContext.normalizeSort(s) + ")");
             }
         }
-        for (String o : optype.getDependencies()) {
-            sorts.add(o);
-        }
+  
         return sorts;
         // ArrayList<String> sorts = new ArrayList<>();
         // if(t.getArity() > 1) //not built in

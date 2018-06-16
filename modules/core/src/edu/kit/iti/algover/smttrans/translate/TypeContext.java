@@ -4,11 +4,9 @@ package edu.kit.iti.algover.smttrans.translate;
 import java.text.DecimalFormatSymbols;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -200,6 +198,7 @@ public class TypeContext {
 
     public static void addSymbol(FunctionSymbol fs) {
         String name = fs.getName();
+        Operation op = null;
 
          System.out.println("NAME " + name);
         if (isNumeric(name) || isBoolean(name))
@@ -207,7 +206,7 @@ public class TypeContext {
 
         if (name.startsWith("$")) {
 
-            Operation op = getOp(name);
+             op = getOp(name);
 
             if (specialOps.contains(op)) {
 
@@ -218,7 +217,7 @@ public class TypeContext {
 
         }
         FunctionSymbol nfs;
-        if (!isFunc(name)) {
+        if (!isFunc(name) && !specialOps.contains(op)) {
             nfs = new FunctionSymbol(Names.makeSMTName(name), fs.getResultSort(), fs.getArgumentSorts());
         } else {
 
@@ -261,8 +260,15 @@ public class TypeContext {
     }
 
     public static boolean isFunc(String name) {
-        if (name.startsWith("$"))
+        if (name.startsWith("$")) {
+        
+            for (String n : nmap.keySet()) {
+                if (name.startsWith(n)) {
+                    return false;
+                }
+            }
             return true;
+        }
         return false;
     }
 

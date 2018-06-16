@@ -18,13 +18,5 @@ public class VarSignature extends Signature {
         return sb.toString();
     }
 
-    @Override
-    public String declare() {
-        StringBuilder sb = new StringBuilder();
-        sb.append("(declareVar");
-        sb.append(show());
-        sb.append(")");
-        sb.append("\r\n");
-        return sb.toString();    
-    }
+
 }

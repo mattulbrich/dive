@@ -19,15 +19,7 @@ public class FuncSignature extends Signature{
         return sb.toString();
     }
 
-    @Override
-    public String declare() {
-        StringBuilder sb = new StringBuilder();
-        sb.append("(declareFun");
-        sb.append(show());
-        sb.append(")");
-        sb.append("\r\n");
-        return sb.toString();    
-    }
+
     
     
 

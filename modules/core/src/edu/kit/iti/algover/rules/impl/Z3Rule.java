@@ -88,7 +88,7 @@ public class Z3Rule extends AbstractProofRule {
         SMTContainer sc = translateToSMT(target.getPVC().getIdentifier(), target.getSequent(), pvc.getSymbolTable(),
                 referenceMap);
 
-        // TODO null-Type
+       
         String smt;
         System.out.println();
         System.out.println();
@@ -114,8 +114,8 @@ public class Z3Rule extends AbstractProofRule {
         //SolverResponse r2 = cvcaccess.accessSolver(sc.toSMT().replace("Null", "ArrInt").replace("setcardT","setcardInt").replace("setEmptyT", "setEmptyInt"));
         
         System.out.println(r1.getResponse().name());
-        if (r1.getResponse() == Response.SAT)
-            System.out.println(r1.getModel().toString());
+        //if (r1.getResponse() == Response.SAT)
+           // System.out.println(r1.getModel().toString());
         
         
         
