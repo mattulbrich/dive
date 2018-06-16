@@ -1,5 +1,7 @@
 package edu.kit.iti.algover.smttrans.data;
 
+import edu.kit.iti.algover.smttrans.translate.TypeContext;
+
 public enum Axiom {
 
     /**
@@ -17,7 +19,7 @@ public enum Axiom {
     SEQ_INST, SEQEMTY_INST,
 
     // Heap/Arrays
-    FIELD_INST, HEAP_INST, TYPE_INST, OBJECT_INST, ARR_1_INST, ARR_2_INST, TYPE_CONST,
+    FIELD_INST, HEAP_INST, TYPE_INST, OBJECT_INST, ARR_1_INST, ARR_2_INST, TYPE_CONST,EVERYTHING,
 
     /**
      * Functions
@@ -71,7 +73,7 @@ public enum Axiom {
 
         // Heap/Arrays
         FIELD_INST.smt = "(declare-sort Field 2)";
-        HEAP_INST.smt = "(declare-sort Heap)\r\n";
+        HEAP_INST.smt = "(declare-const heap Heap)";
         TYPE_INST.smt = "(declare-sort Type)";
         OBJECT_INST.smt = "(declare-sort Object)";
         ARR_1_INST.smt = "(declare-sort (par (T)ArrT))";
@@ -128,7 +130,8 @@ public enum Axiom {
         ANON.smt = "(declare-fun anon (Heap (Set Object) Heap) Heap)";
         CREATE.smt = "(declare-fun create  (Heap Object) Heap)";
         CREATED.smt = "(declare-fun created  (Heap Object) Bool)";
-        MODH.smt = "(declare-fun modh (Heap (Set Object)) Heap)";
+        MODH.smt = "(declare-const modh SetObject)";
+        EVERYTHING.smt = "(declare-const everything SetObject)";
         ARRSELECT.smt = "(declare-fun (par (T) (arrselectT (Heap (Arr T) Int) T)))";
         ARRSTORE.smt = "(declare-fun (par (T) (arrstoreT (Heap (Arr T) Int T) Heap)))";
         ARRLEN.smt = "(declare-fun (par (T)(arrlenT ((Arr T)) Int)))";

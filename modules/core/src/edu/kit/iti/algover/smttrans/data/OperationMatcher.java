@@ -56,10 +56,10 @@ public class OperationMatcher {
         opmap.put("$anon", Operation.ANON);
         opmap.put("$create", Operation.CREATE);
         opmap.put("$isCreated", Operation.ISCREATED);
-        //TODO
+        //TODO decr...
         
         opmap.put("$mod", Operation.MOD);
-         opmap.put("$everything", Operation.SETCARD);
+         opmap.put("$everything", Operation.EVERYTHING);
          opmap.put("$empty", Operation.ARRSTORE);
         opmap.put("$heap", Operation.HEAP);
         opmap.put("$aheap_1", Operation.AHEAP);

@@ -14,6 +14,8 @@ import java.util.stream.Collectors;
 
 import com.google.common.base.CharMatcher;
 import com.google.common.base.Splitter;
+import com.google.common.collect.BiMap;
+import com.google.common.collect.HashBiMap;
 import com.google.common.collect.Iterables;
 
 import edu.kit.iti.algover.data.MapSymbolTable;
@@ -25,21 +27,43 @@ import edu.kit.iti.algover.term.Sort;
 
 public class TypeContext {
     private static SymbolTable symbolTable = new MapSymbolTable(new HashSet<FunctionSymbol>());
-    public static final String AV_ARRNAME = "array"; // TODO more
+    public static final String AV_ARRNAME = "array";
     public static final String SMT_ARRNAME = "Arr";
     public static final String AV_INTNAME = "int";
     public static final String SMT_INTNAME = "Int";
     public static final String AV_BOOLNAME = "bool";
     public static final String SMT_BOOLNAME = "Bool";
-    // public static final String AV_HEAPNAME = "heap";
-    // public static final String SMT_HEAPNAME = "heap";
-    private static Map<String, String> nmap = new HashMap<>();
+    public static final String AV_HEAPNAME = "$heap";
+    public static final String SMT_HEAPNAME = "heap";
+    public static final String AV_MODNAME = "$mod";
+    public static final String AV_ANON = "$anon";
+    public static final String AV_EVERYTHINGNAME = "$everything";
+    public static final String AV_AHEAP = "$aheap";
+    private static BiMap<String, String> nmap = HashBiMap.create();
+    private static List<Operation> specialOps = Arrays.asList(Operation.HEAP, Operation.AHEAP, Operation.ANON,
+            Operation.MOD, Operation.EVERYTHING);
     static {
         nmap.put(AV_ARRNAME, SMT_ARRNAME);
         nmap.put(AV_INTNAME, SMT_INTNAME);
         nmap.put(AV_BOOLNAME, SMT_BOOLNAME);
+        nmap.put(AV_MODNAME, Operation.MOD.toSMT());
+        nmap.put(AV_HEAPNAME, Operation.HEAP.toSMT());
+        nmap.put(AV_ANON, Operation.ANON.toSMT());
+        nmap.put(AV_EVERYTHINGNAME, Operation.EVERYTHING.toSMT());
+        nmap.put(AV_AHEAP, Operation.AHEAP.toSMT());
 
     }
+
+    public static BiMap<String, String> getDefaults() {
+
+        return nmap;
+    }
+
+    // public static boolean isBuiltInVar(String name) {
+    // String n = name.substring(1);
+    // return n.equals(AV_HEAPNAME) || n.equals(AV_MODNAME) ||
+    // n.equals(AV_EVERYTHINGNAME);
+    // }
 
     public static boolean isBuiltIn(Sort s) {
         String name = s.getName().toLowerCase();
@@ -73,7 +97,7 @@ public class TypeContext {
                     sname = sname.substring(0, sname.length() - 1);
                     return sname;
                 }
-               
+
             }
 
             for (String s : ops.subList(1, ops.size())) {
@@ -87,21 +111,17 @@ public class TypeContext {
     }
 
     public static String parseFuncSignature(String name) {
-        
 
-      if (name.indexOf('<') == -1)
-              return "";
-      
-      name =  name.substring(name.indexOf("<")+1);
-       
-        
+        if (name.indexOf('<') == -1)
+            return "";
+
+        name = name.substring(name.indexOf("<") + 1);
 
         return parsePolyString(name.trim());
     }
-    
-    
+
     public static String parsePolyString(String name) {
-     
+
         String typed = CharMatcher.anyOf(">").removeFrom(name);
         Iterable<String> types = Splitter.on("<").split(typed);
         List<String> sorts = Arrays.asList(Iterables.toArray(types, String.class));
@@ -118,15 +138,15 @@ public class TypeContext {
                 r = r.substring(0, r.length() - 1);
                 return r;
             }
-   
+
             r += nmap.computeIfAbsent(so, x -> so.substring(0, 1).toUpperCase() + so.substring(1));
         }
         return r;
     }
+
     public static String normalizeSort(Sort s) {
         String name = s.toString();
         return parsePolyString(name);
-
 
     }
 
@@ -178,23 +198,32 @@ public class TypeContext {
         return deps;
     }
 
-    public static void addSymbol(FunctionSymbol fs) { // TODO null,heap etc... Sorts (check argument sorts)
+    public static void addSymbol(FunctionSymbol fs) {
         String name = fs.getName();
-        
-        
-       
-        System.out.println("NAME " + name);
+
+         System.out.println("NAME " + name);
         if (isNumeric(name) || isBoolean(name))
             return;
 
         if (name.startsWith("$")) {
+
             Operation op = getOp(name);
 
-            if (!op.isPoly())
-                return;
-        }
+            if (specialOps.contains(op)) {
 
-        FunctionSymbol nfs = new FunctionSymbol(name, fs.getResultSort(), fs.getArgumentSorts());
+            } else {
+                if (!op.isPoly())
+                    return;
+            }
+
+        }
+        FunctionSymbol nfs;
+        if (!isFunc(name)) {
+            nfs = new FunctionSymbol(Names.makeSMTName(name), fs.getResultSort(), fs.getArgumentSorts());
+        } else {
+
+            nfs = new FunctionSymbol(name, fs.getResultSort(), fs.getArgumentSorts());
+        }
         if (!symbolTable.getAllSymbols().contains(nfs))
             symbolTable = symbolTable.addFunctionSymbol(nfs);
 

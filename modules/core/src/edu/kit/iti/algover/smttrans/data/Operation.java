@@ -10,7 +10,7 @@ import static java.util.Arrays.asList;
 
 public enum Operation {
 
-    PLUS, MINUS, TIMES, IMP, GT, LT, EQ, NOT, GE, LE, NEG, ITE, ARR2SELECT, ARRSTORE, ARR2STORE, FIELDSTORE, FIELDSELECT, DECR, SETUNION, SETINTERSECT, SETCARD, SEQCONCAT, ISCREATED, CREATE, ANON, SEQCONS, SEQEMPTY, SEQUPD, SEQGET, SEQLEN, SETIN, SETADD, CONST, ARRLEN, ARR2LEN0, ARR2LEN1, EXISTS, FORALL, LET, ARRSELECT, VAR, HEAP, AND, BV, MOD, AHEAP;
+    PLUS, MINUS, TIMES, IMP, GT, LT, EQ, NOT, GE, LE, NEG, ITE, ARR2SELECT, ARRSTORE, ARR2STORE, FIELDSTORE, FIELDSELECT, DECR, SETUNION, SETINTERSECT, SETCARD, SEQCONCAT, ISCREATED, CREATE, ANON, SEQCONS, SEQEMPTY, SEQUPD, SEQGET, SEQLEN, SETIN, SETADD, CONST, ARRLEN, ARR2LEN0, ARR2LEN1, EXISTS, FORALL, LET, ARRSELECT, VAR, HEAP, AND, BV, MOD, AHEAP, EVERYTHING;
 
     private String smt;
     private Boolean poly;
@@ -19,6 +19,12 @@ public enum Operation {
 
     static {
 
+        
+        EVERYTHING.smt = "everything";
+        EVERYTHING.poly = false;
+        EVERYTHING.type = OperationType.SORT;
+        EVERYTHING.instantiations = asList(Axiom.EVERYTHING);
+        
         ARR2LEN0.smt = "arr2len0";
         ARR2LEN0.poly = true;
         ARR2LEN0.type = OperationType.ARR2;
@@ -84,17 +90,17 @@ public enum Operation {
         CREATE.type = OperationType.SORT;
         CREATE.instantiations = asList();
 
-        ANON.smt = "ANON";
+        ANON.smt = "anon";
         ANON.poly = false;
         ANON.type = OperationType.SORT;
         ANON.instantiations = asList();
 
-        MOD.smt = "MOD";
+        MOD.smt = "modh";
         MOD.poly = false;
         MOD.type = OperationType.SET;
-        MOD.instantiations=asList();
+        MOD.instantiations=asList(Axiom.MODH);
         
-        AHEAP.smt = "aheap";
+        AHEAP.smt = "AHEAP";
         AHEAP.poly = false;
         AHEAP.type = OperationType.SORT;
         AHEAP.instantiations=asList();
@@ -129,10 +135,10 @@ public enum Operation {
         SEQCONCAT.type = OperationType.SEQ;
         SEQCONCAT.instantiations = asList(Axiom.SEQ_CONCAT);
 
-        HEAP.smt = "heap"; // TODO
+        HEAP.smt = "heap";
         HEAP.poly = false;
         HEAP.type = OperationType.SORT;
-        HEAP.instantiations = asList();
+        HEAP.instantiations = asList(Axiom.HEAP_INST);
 
         FIELDSTORE.smt = "fieldstore";
         FIELDSTORE.poly = true;

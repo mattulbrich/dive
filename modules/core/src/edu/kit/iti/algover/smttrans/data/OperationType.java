@@ -13,7 +13,7 @@ public enum OperationType {
 
     static {
         ARR.smt = "Arr";
-        ARR.dependencies = Arrays.asList("Heap","heap Heap");
+        ARR.dependencies = Arrays.asList(); //"Heap","heap Heap"
         ARR2.smt = "Arr2";
         SET.smt = "Set";
         MULTISET.smt = "mSet";
@@ -21,7 +21,7 @@ public enum OperationType {
         BOOL.smt = "Bool";
         SEQ.smt = "Seqq";
         SORT.smt = "SORT";
-        SORT.dependencies = Arrays.asList("Heap","heap Heap");
+        SORT.dependencies = Arrays.asList(); //"Heap","heap Heap"
         ANY.smt = "ANY";
         NONE.smt = "NONE";
     }

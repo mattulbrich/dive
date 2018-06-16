@@ -64,6 +64,8 @@ public class AxiomContainer {
 
         List<List<String>> subtypes = TypeContext.getSubTypes(type.getArgumentSorts());
 
+        if (typeVariables.isEmpty()) 
+            return axiom;
         if (typeVariables.size() == 1) {
             String t = typeVariables.get(0);
 
