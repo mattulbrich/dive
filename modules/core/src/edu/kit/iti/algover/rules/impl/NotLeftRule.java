@@ -35,11 +35,11 @@ public class NotLeftRule extends AbstractProofRule {
 
         Term on = parameters.getValue(ON_PARAM);
         List<TermSelector> l = RuleUtil.matchSubtermsInSequent(on::equals, target.getSequent());
-        if (l.size() != 1) {
+        if(l.size() != 1) {
             return ProofRuleApplicationBuilder.notApplicable(this);
         }
 
-        if (l.get(0) == null || !l.get(0).isToplevel()) {
+        if(l.get(0) == null || !l.get(0).isToplevel()) {
             return ProofRuleApplicationBuilder.notApplicable(this);
         }
 

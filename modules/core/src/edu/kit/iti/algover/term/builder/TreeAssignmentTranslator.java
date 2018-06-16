@@ -25,33 +25,37 @@ import java.util.Map;
  * The Class TreeAssignmentTranslator is used to create a {@link Term}
  * object from a {@link DafnyTree} together with an assignment history.
  * The latter is represented by a list of DafnyTrees.
- * <p>
+ *
  * For the translation of individual expressions, a {@link TreeTermTranslator}
  * is used.
  *
- * @author Mattias Ulbrich
  * @see Term
  * @see DafnyTree
  * @see TreeTermTranslator
+ *
+ * @author Mattias Ulbrich
  */
 public class TreeAssignmentTranslator {
+
+    /**
+     * The translator used for the translation of expressions
+     */
+    private final TreeTermTranslator translator;
+
+    /**
+     * The symbol table for lookup. Can be extended during translation!
+     */
+    private final SymbolTable symbols;
+
+    /**
+     * bound to {@link #symbols}, used to create expressions.
+     */
+    private final TermBuilder tb;
 
     /**
      * Reference for convenience
      */
     private static final FunctionSymbol HEAP_SYMB = BuiltinSymbols.HEAP;
-    /**
-     * The translator used for the translation of expressions
-     */
-    private final TreeTermTranslator translator;
-    /**
-     * The symbol table for lookup. Can be extended during translation!
-     */
-    private final SymbolTable symbols;
-    /**
-     * bound to {@link #symbols}, used to create expressions.
-     */
-    private final TermBuilder tb;
 
     /**
      * Create a fresh translator.
@@ -65,21 +69,24 @@ public class TreeAssignmentTranslator {
     }
 
     public ImmutableList<Pair<FunctionSymbol, Term>>
-    translateAssignments(ImmutableList<DafnyTree> assignments) throws TermBuildException {
+                translateAssignments(ImmutableList<DafnyTree> assignments) throws TermBuildException {
         return assignments.map(this::translateAssignment);
     }
 
     /**
      * Builds a let-cascaded term for a tree and a variable map.
-     * <p>
+     *
      * All assignments in {@code map} are translated to cascading
      * {@link LetTerm}s. The {@code expression} is then embedded into the
      * cascade
      *
-     * @param assignments the non-<code>null</code> list of observed assignments
-     * @param expression  the expression to be translated
+     * @param assignments
+     *            the non-<code>null</code> list of observed assignments
+     * @param expression
+     *            the expression to be translated
      * @return the term which represents the let-cascade
-     * @throws TermBuildException if terms in the tree are not well-formed.
+     * @throws TermBuildException
+     *             if terms in the tree are not well-formed.
      */
     public Term translateToLet(ImmutableList<DafnyTree> assignments, DafnyTree expression) throws TermBuildException {
         return translateToLet0(assignments.reverse(), expression);
@@ -103,7 +110,7 @@ public class TreeAssignmentTranslator {
     }
 
     public ImmutableList<Term> translateToSSA(ImmutableList<DafnyTree> assignments, DafnyTree expression) throws TermBuildException {
-        throw new Error();
+    throw new Error();
     }
 
     private Pair<FunctionSymbol, Term> translateAssignment(DafnyTree tree) throws TermBuildException {
@@ -122,14 +129,14 @@ public class TreeAssignmentTranslator {
 
     private Pair<FunctionSymbol, Term> translateAssignment(DafnyTree receiver, Term term) throws TermBuildException {
         switch(receiver.getType()) {
-            case DafnyParser.ID:
-                return translateID(receiver, term);
-            case DafnyParser.ARRAY_ACCESS:
-                return translateSubAccess(receiver, term);
-            case DafnyParser.FIELD_ACCESS:
-                return translateFieldAccess(receiver, term);
-            default:
-                throw new TermBuildException("Cannot resolve this assignment target").setLocation(receiver);
+        case DafnyParser.ID:
+            return translateID(receiver, term);
+        case DafnyParser.ARRAY_ACCESS:
+            return translateSubAccess(receiver, term);
+        case DafnyParser.FIELD_ACCESS:
+            return translateFieldAccess(receiver, term);
+        default:
+            throw new TermBuildException("Cannot resolve this assignment target").setLocation(receiver);
         }
     }
 
@@ -192,7 +199,7 @@ public class TreeAssignmentTranslator {
             symbols.addFunctionSymbol(symbol);
         }
 
-        if (!assigned.getSort().isSubtypeOf(symbol.getResultSort())) {
+        if(!assigned.getSort().isSubtypeOf(symbol.getResultSort())) {
             throw new TermBuildException("The sorts of the variable and " +
                     "expression do not agree: Assigning a value of type " +
                     assigned.getSort() + " to an entity of type " +
@@ -204,18 +211,17 @@ public class TreeAssignmentTranslator {
 
     /**
      * Retrieves a map which assigns to every term the {@link DafnyTree} origin.
-     * <p>
+     *
      * The instance is taken from the internal {@link TreeTermTranslator}
      * instance.
-     * <p>
+     *
      * Caution! This map is an identity map which maps to every term OBJECT
      * IDENTITY. Two terms which are semantically and structurally equal may
      * have different origins!
      *
      * @return the reference map
      */
-    public @NonNull
-    Map<Term, DafnyTree> getReferenceMap() {
+    public @NonNull Map<Term,DafnyTree> getReferenceMap() {
         return translator.getReferenceMap();
     }
 }

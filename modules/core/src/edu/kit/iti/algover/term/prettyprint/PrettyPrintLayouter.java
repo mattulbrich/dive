@@ -80,7 +80,7 @@ class PrettyPrintLayouter {
      */
     public PrettyPrintLayouter append(@NonNull String string) {
         layouter.print(string);
-        if (!string.isEmpty()) {
+        if(!string.isEmpty()) {
             // MU: added this if-condition as bugfix
             lastCharacter = string.charAt(string.length() - 1);
         }

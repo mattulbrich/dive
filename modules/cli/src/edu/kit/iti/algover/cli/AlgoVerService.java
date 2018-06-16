@@ -121,7 +121,7 @@ public class AlgoVerService {
             }
         }
 
-        if (verbosityLevel > 1) {
+        if(verbosityLevel > 1) {
             PrettyPrint pp = new PrettyPrint();
             Sequent seq = pvc.getSequent();
             seq.getAntecedent().forEach(f -> System.err.println(pp.print(f.getTerm())));

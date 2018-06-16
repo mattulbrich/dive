@@ -123,7 +123,6 @@ public class MainController implements SequentActionListener, RuleApplicationLis
 
     /**
      * Updates the text of the StatusBar
-     *
      * @param text the new text
      */
     public void setStatusBarText(String text) {
@@ -132,7 +131,6 @@ public class MainController implements SequentActionListener, RuleApplicationLis
 
     /**
      * Updates the progress of the StatusBar
-     *
      * @param progress the new progress (should be between 0 and 1)
      */
     public void setStatusBarProgress(double progress) {
@@ -167,7 +165,7 @@ public class MainController implements SequentActionListener, RuleApplicationLis
         };
         executor.execute(t);
         t.setOnSucceeded(event -> {
-            if (t.getValue()) {
+            if(t.getValue()) {
                 System.out.println("reload worked");
                 browserController.onRefresh(manager.getProject(), manager.getAllProofs());
                 browserController.getView().setDisable(false);
@@ -195,7 +193,7 @@ public class MainController implements SequentActionListener, RuleApplicationLis
     }
 
     public void onDafnyFileChangedInEditor(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) {
-        if (newValue) {
+        if(newValue) {
             browserController.getView().setDisable(true);
             sequentController.getView().setDisable(true);
             ruleApplicationController.getView().setDisable(true);

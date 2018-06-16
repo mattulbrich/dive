@@ -280,41 +280,14 @@ public class Sort {
     }
 
     /**
-     * Compute the common super sort for the two arguments if it exists.
-     * If it does not exist, an exception is raised.
+     * Gets a type argument of this sort instance.
      *
-     * @param sort1 the first sort to compare
-     * @param sort2 the second sort to compare
-     * @return the most specific sort which is top sort to both arguments.
-     * @throws TermBuildException if there is no common supersort
+     * @return the argument at position index.
+     * @throws IndexOutOfBoundsException if the index does not refer to a valid
+     *                                   argument index
      */
-    public static @NonNull
-    Sort supremum(@NonNull Sort sort1, @NonNull Sort sort2) throws TermBuildException {
-        if (sort1.isSubtypeOf(sort2)) {
-            return sort2;
-        }
-
-        if (sort2.isSubtypeOf(sort1)) {
-            return sort1;
-        }
-
-        if ((sort1.isClassSort() || sort1.isArray()) &&
-                (sort2.isClassSort() || sort2.isArray())) {
-            return OBJECT;
-        }
-
-        if (sort1.name.equals(sort2.name)) {
-            switch (sort1.name) {
-                case "set":
-                case "multiset":
-                case "seq":
-                    Sort innersup = supremum(sort1.getArgument(0), sort2.getArgument(0));
-                    return get(sort1.name, innersup);
-                // case "map": that would be contravariant in the first argument!
-            }
-        }
-
-        throw new TermBuildException("No common supertype for " + sort1 + " and " + sort2);
+    public Sort getArgument(int index) {
+        return arguments[index];
     }
 
     /**
@@ -327,17 +300,6 @@ public class Sort {
      */
     public boolean isClassSort() {
         return !BUILTIN_SORT_NAMES.contains(getName());
-    }
-
-    /**
-     * Gets a type argument of this sort instance.
-     *
-     * @return the argument at position index.
-     * @throws IndexOutOfBoundsException if the index does not refer to a valid
-     *                                   argument index
-     */
-    public Sort getArgument(int index) {
-        return arguments[index];
     }
 
     /**
@@ -367,17 +329,21 @@ public class Sort {
             return other.isClassSort() || other.equals(OBJECT) || other.isArray();
         }
 
-        if (name.equals(other.name)) {
+        if(name.equals(other.name)) {
             switch (name) {
-                case "set":
-                case "multiset":
-                case "seq":
-                    return getArgument(0).isSubtypeOf(other.getArgument(0));
-                // case "map": that would be contravariant in the first argument!
+            case "set":
+            case "multiset":
+            case "seq":
+                return getArgument(0).isSubtypeOf(other.getArgument(0));
+            // case "map": that would be contravariant in the first argument!
             }
         }
 
         return false;
+    }
+
+    public boolean isArray() {
+        return getName().matches("array[23]?");
     }
 
     @Override
@@ -404,7 +370,40 @@ public class Sort {
         return Arrays.equals(arguments, sort.arguments);
     }
 
-    public boolean isArray() {
-        return getName().matches("array[23]?");
+    /**
+     * Compute the common super sort for the two arguments if it exists.
+     * If it does not exist, an exception is raised.
+     *
+     * @param sort1 the first sort to compare
+     * @param sort2 the second sort to compare
+     * @return the most specific sort which is top sort to both arguments.
+     * @throws TermBuildException if there is no common supersort
+     */
+    public static @NonNull Sort supremum(@NonNull Sort sort1, @NonNull Sort sort2) throws TermBuildException {
+        if(sort1.isSubtypeOf(sort2)) {
+            return sort2;
+        }
+
+        if(sort2.isSubtypeOf(sort1)) {
+            return sort1;
+        }
+
+        if((sort1.isClassSort() || sort1.isArray()) &&
+           (sort2.isClassSort() || sort2.isArray())) {
+            return OBJECT;
+        }
+
+        if(sort1.name.equals(sort2.name)) {
+            switch (sort1.name) {
+            case "set":
+            case "multiset":
+            case "seq":
+                Sort innersup = supremum(sort1.getArgument(0), sort2.getArgument(0));
+                return get(sort1.name, innersup);
+            // case "map": that would be contravariant in the first argument!
+            }
+        }
+
+        throw new TermBuildException("No common supertype for " + sort1 + " and " + sort2);
     }
 }

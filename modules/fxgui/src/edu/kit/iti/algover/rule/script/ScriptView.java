@@ -62,7 +62,7 @@ public class ScriptView extends AsyncHighlightingCodeArea {
 
         Token token;
         while ((token = lexer.nextToken()).getType() != Token.EOF) {
-            if (token.getLine() == getCurrentParagraph() + 1) {
+            if(token.getLine() == getCurrentParagraph() + 1) {
                 Collection<String> sytle = new ArrayList<>(styleClassForToken(token.getType()));
                 sytle.add("highlight-line");
                 builder.add(sytle,
@@ -106,10 +106,10 @@ public class ScriptView extends AsyncHighlightingCodeArea {
             System.out.println("couldnt not render new highlighting.");
         }
 
-        if (lexer != null) {
+        if(lexer != null) {
             Token token;
             while ((token = lexer.nextToken()).getType() != Token.EOF) {
-                if (token.getLine() == getCurrentParagraph() + 1) {
+                if(token.getLine() == getCurrentParagraph() + 1) {
                     Collection<String> sytle = new ArrayList<>(styleClassForToken(token.getType()));
                     sytle.add("highlight-line");
                     builder.add(sytle,

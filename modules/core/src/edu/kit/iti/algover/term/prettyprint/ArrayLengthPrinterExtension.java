@@ -26,6 +26,17 @@ public class ArrayLengthPrinterExtension implements PrettyPrintExtension {
        return getLengthString(functionSymbol) != null;
     }
 
+    private static String getBeforeString(FunctionSymbol functionSymbol) {
+        if (functionSymbol instanceof InstantiatedFunctionSymbol) {
+            InstantiatedFunctionSymbol symbol = (InstantiatedFunctionSymbol) functionSymbol;
+            FunctionSymbolFamily family = symbol.getFamily();
+            if (family == BuiltinSymbols.SEQ_LEN || family == BuiltinSymbols.CARD) {
+                return "|";
+            }
+        }
+        return "";
+    }
+
     private static String getLengthString(FunctionSymbol functionSymbol) {
         if (functionSymbol instanceof InstantiatedFunctionSymbol) {
             InstantiatedFunctionSymbol symbol = (InstantiatedFunctionSymbol) functionSymbol;
@@ -36,30 +47,24 @@ public class ArrayLengthPrinterExtension implements PrettyPrintExtension {
                 return "|";
             }
 
-            if (family == BuiltinSymbols.LEN) {
+            if(family == BuiltinSymbols.LEN) {
                 return ".Length";
             }
 
-            if (family == BuiltinSymbols.LEN0) {
+            if(family == BuiltinSymbols.LEN0) {
                 return ".Length0";
             }
 
-            if (family == BuiltinSymbols.LEN1) {
+            if(family == BuiltinSymbols.LEN1) {
                 return ".Length1";
             }
         }
         return null;
     }
 
-    private static String getBeforeString(FunctionSymbol functionSymbol) {
-        if (functionSymbol instanceof InstantiatedFunctionSymbol) {
-            InstantiatedFunctionSymbol symbol = (InstantiatedFunctionSymbol) functionSymbol;
-            FunctionSymbolFamily family = symbol.getFamily();
-            if (family == BuiltinSymbols.SEQ_LEN || family == BuiltinSymbols.CARD) {
-                return "|";
-            }
-        }
-        return "";
+    @Override
+    public int getLeftPrecedence(ApplTerm application) {
+        return LENGTH_PRECEDENCE;
     }
 
     @Override
@@ -78,10 +83,5 @@ public class ArrayLengthPrinterExtension implements PrettyPrintExtension {
         printer.endTerm();
         printer.append(getLengthString(application.getFunctionSymbol()));
         printer.endBlock();
-    }
-
-    @Override
-    public int getLeftPrecedence(ApplTerm application) {
-        return LENGTH_PRECEDENCE;
     }
 }
