@@ -8,6 +8,14 @@ public class Names {
     //private static BiMap<String, String> names = HashBiMap.create();
   private static BiMap<String, String> names = TypeContext.getDefaults();
     private static String PREFIX = "~";
+    
+    public static String getPrefix() {
+        return PREFIX;
+    }
+    
+    public static BiMap<String, String> getNames() {
+        return names;
+    }
 
     public static String makeSMTName(String avName) {
         String smtName = PREFIX + avName;
