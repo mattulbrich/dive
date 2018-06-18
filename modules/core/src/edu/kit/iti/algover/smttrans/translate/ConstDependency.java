@@ -2,6 +2,8 @@ package edu.kit.iti.algover.smttrans.translate;
 
 import java.util.LinkedHashSet;
 
+import edu.kit.iti.algover.smttrans.data.Axiom;
+import edu.kit.iti.algover.smttrans.data.AxiomContainer;
 import edu.kit.iti.algover.term.FunctionSymbol;
 
 public class ConstDependency extends Dependency {
@@ -17,6 +19,9 @@ public class ConstDependency extends Dependency {
     public LinkedHashSet<String> instantiate() {
         LinkedHashSet<String> inst = new LinkedHashSet<>();
         
+
+        inst.addAll(AxiomContainer.instantiateSort(fs)); 
+
         StringBuilder sb = new StringBuilder();
 
         sb.append("(declare-const ");
@@ -25,6 +30,7 @@ public class ConstDependency extends Dependency {
         sb.append(TypeContext.normalizeSort(fs.getResultSort()));
         sb.append(")");
         inst.add(sb.toString());
+     //   System.out.println(inst);
         return inst;
     }
     
@@ -32,8 +38,9 @@ public class ConstDependency extends Dependency {
     public LinkedHashSet<String> declare() {
         LinkedHashSet<String> inst = new LinkedHashSet<>();
             
+        
         StringBuilder sb = new StringBuilder();
-
+        inst.addAll(AxiomContainer.declareSort(fs));
         sb.append("(declare-const ");
         sb.append(name);
         sb.append(" :: ");

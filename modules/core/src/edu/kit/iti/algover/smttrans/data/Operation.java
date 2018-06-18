@@ -93,7 +93,7 @@ public enum Operation {
         ANON.smt = "anon";
         ANON.poly = false;
       //  ANON.type = OperationType.SORT;
-        ANON.instantiations = asList();
+        ANON.instantiations = asList(Axiom.ANON);
 
         MOD.smt = "modh";
         MOD.poly = false;

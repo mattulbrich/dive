@@ -40,7 +40,7 @@ public class TypeContext {
     public static final String AV_DECR = "$decr";
     private static BiMap<String, String> nmap = HashBiMap.create();
     private static BiMap<String, String> smap = HashBiMap.create();
-    private static List<Operation> specialOps = Arrays.asList(Operation.HEAP, Operation.ANON, Operation.AHEAP, //, Operation.ANON
+    private static List<Operation> specialOps = Arrays.asList(Operation.HEAP, Operation.AHEAP, // , Operation.ANON
             Operation.MOD, Operation.EVERYTHING, Operation.DECR);
     static {
         smap.put(AV_ARRNAME, SMT_ARRNAME);
@@ -49,12 +49,11 @@ public class TypeContext {
         smap.put(AV_HEAPNAME, SMT_HEAPNAME);
         smap.put(AV_AHEAP, Operation.AHEAP.toSMT());
         smap.put(AV_DECR, Operation.DECR.toSMT());
-       
-        
+
         nmap.put(AV_MODNAME, Operation.MOD.toSMT());
-//        nmap.put(AV_HEAPNAME, Operation.HEAP.toSMT());
- //       nmap.put(AV_ANON, Operation.ANON.toSMT());
-//        nmap.put(AV_EVERYTHINGNAME, Operation.EVERYTHING.toSMT());
+        // nmap.put(AV_HEAPNAME, Operation.HEAP.toSMT());
+        // nmap.put(AV_ANON, Operation.ANON.toSMT());
+        // nmap.put(AV_EVERYTHINGNAME, Operation.EVERYTHING.toSMT());
         nmap.put(AV_AHEAP, Operation.AHEAP.toSMT());
 
     }
@@ -152,9 +151,9 @@ public class TypeContext {
     public static String normalizeSort(Sort s) {
         String name = s.toString();
 
-         if (smap.containsKey(name))
-             return smap.get(name);
-        
+        if (smap.containsKey(name))
+            return smap.get(name);
+
         return parsePolyString(name);
 
     }
@@ -211,15 +210,14 @@ public class TypeContext {
         String name = fs.getName();
         Operation op = null;
 
-   
         if (isNumeric(name) || isBoolean(name))
             return;
 
         if (name.startsWith("$")) {
 
-             op = getOp(name);
+            op = getOp(name);
 
-            if (specialOps.contains(op)) {
+            if (specialOps.contains(op) || op.equals(Operation.ANON)) { // TODO
 
             } else {
                 if (!op.isPoly())
@@ -230,15 +228,15 @@ public class TypeContext {
         FunctionSymbol nfs;
         if (!isFunc(name) && !specialOps.contains(op)) {
             nfs = new FunctionSymbol(Names.makeSMTName(name), fs.getResultSort(), fs.getArgumentSorts());
-        } else if(specialOps.contains(op)){
-            nfs = new FunctionSymbol(Names.makeSMTName(name.substring(1)),fs.getResultSort(), fs.getArgumentSorts());
+        } else if (specialOps.contains(op)) {
+            nfs = new FunctionSymbol(Names.makeSMTName(name.substring(1)), fs.getResultSort(), fs.getArgumentSorts());
         } else {
             nfs = new FunctionSymbol(name, fs.getResultSort(), fs.getArgumentSorts());
         }
         if (!symbolTable.getAllSymbols().contains(nfs)) {
-            
-            
+
             symbolTable = symbolTable.addFunctionSymbol(nfs);
+            // System.out.println(symbolTable.getAllSymbols().toString());
 
         }
     }
@@ -251,6 +249,24 @@ public class TypeContext {
 
         Operation op = OperationMatcher.matchOp(ops.get(0));
         return op;
+    }
+
+    public static List<String> getSubTypes(FunctionSymbol type) {
+        List<String> types = new ArrayList<>();
+        for (Sort s : type.getArgumentSorts()) {
+            if(s.getArguments().size() == 0) {
+              types.add(normalizeSort(s));
+            } else {
+                   String ty = "";
+                   for (Sort t : s.getArguments()) {
+                       ty += normalizeSort(t);
+                   }
+                   types.add(ty);
+            }
+             
+            
+        }
+        return types;
     }
 
     public static List<String> getSubTypes(Sort sort) {
@@ -276,7 +292,7 @@ public class TypeContext {
 
     public static boolean isFunc(String name) {
         if (name.startsWith("$")) {
-        
+
             for (String n : smap.keySet()) {
                 if (name.startsWith(n)) {
                     return false;
