@@ -23,7 +23,7 @@ public enum Operation {
         EVERYTHING.smt = "everything";
         EVERYTHING.poly = false;
      //   EVERYTHING.type = OperationType.SORT;
-        EVERYTHING.instantiations = asList(Axiom.EVERYTHING);
+        EVERYTHING.instantiations = asList(); //Axiom.EVERYTHING
         
         ARR2LEN0.smt = "arr2len0";
         ARR2LEN0.poly = true;
@@ -98,7 +98,7 @@ public enum Operation {
         MOD.smt = "modh";
         MOD.poly = false;
        // MOD.type = OperationType.SET;
-        MOD.instantiations=asList(Axiom.MODH);
+        MOD.instantiations=asList(); //Axiom.MODH
         
         AHEAP.smt = "AHEAP";
         AHEAP.poly = false;
@@ -138,7 +138,7 @@ public enum Operation {
         HEAP.smt = "heap";
         HEAP.poly = false;
       //  HEAP.type = OperationType.SORT;
-        HEAP.instantiations = asList(Axiom.HEAP_INST);
+        HEAP.instantiations = asList(); //Axiom.HEAP_INST
 
         FIELDSTORE.smt = "fieldstore";
         FIELDSTORE.poly = true;

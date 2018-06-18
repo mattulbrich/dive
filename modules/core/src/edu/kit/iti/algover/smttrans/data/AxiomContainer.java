@@ -162,7 +162,6 @@ public class AxiomContainer {
 
         }
 
-
         return sorts;
     }
 

@@ -24,6 +24,9 @@ public class Names {
     }
 
     public static String toSMT(String key) {
+        if (key.startsWith("$")) {
+            return names.getOrDefault(key.substring(1),key.substring(1));
+        }
         return names.getOrDefault(key,key);
 
     }

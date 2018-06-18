@@ -31,23 +31,30 @@ public class TypeContext {
     public static final String SMT_INTNAME = "Int";
     public static final String AV_BOOLNAME = "bool";
     public static final String SMT_BOOLNAME = "Bool";
-    public static final String AV_HEAPNAME = "$heap";
-    public static final String SMT_HEAPNAME = "heap";
+    public static final String AV_HEAPNAME = "heap";
+    public static final String SMT_HEAPNAME = "Heap";
     public static final String AV_MODNAME = "$mod";
     public static final String AV_ANON = "$anon";
     public static final String AV_EVERYTHINGNAME = "$everything";
     public static final String AV_AHEAP = "$aheap";
+    public static final String AV_DECR = "$decr";
     private static BiMap<String, String> nmap = HashBiMap.create();
-    private static List<Operation> specialOps = Arrays.asList(Operation.HEAP, Operation.AHEAP, Operation.ANON,
-            Operation.MOD, Operation.EVERYTHING);
+    private static BiMap<String, String> smap = HashBiMap.create();
+    private static List<Operation> specialOps = Arrays.asList(Operation.HEAP, Operation.ANON, Operation.AHEAP, //, Operation.ANON
+            Operation.MOD, Operation.EVERYTHING, Operation.DECR);
     static {
-        nmap.put(AV_ARRNAME, SMT_ARRNAME);
-        nmap.put(AV_INTNAME, SMT_INTNAME);
-        nmap.put(AV_BOOLNAME, SMT_BOOLNAME);
+        smap.put(AV_ARRNAME, SMT_ARRNAME);
+        smap.put(AV_INTNAME, SMT_INTNAME);
+        smap.put(AV_BOOLNAME, SMT_BOOLNAME);
+        smap.put(AV_HEAPNAME, SMT_HEAPNAME);
+        smap.put(AV_AHEAP, Operation.AHEAP.toSMT());
+        smap.put(AV_DECR, Operation.DECR.toSMT());
+       
+        
         nmap.put(AV_MODNAME, Operation.MOD.toSMT());
-        nmap.put(AV_HEAPNAME, Operation.HEAP.toSMT());
-        nmap.put(AV_ANON, Operation.ANON.toSMT());
-        nmap.put(AV_EVERYTHINGNAME, Operation.EVERYTHING.toSMT());
+//        nmap.put(AV_HEAPNAME, Operation.HEAP.toSMT());
+ //       nmap.put(AV_ANON, Operation.ANON.toSMT());
+//        nmap.put(AV_EVERYTHINGNAME, Operation.EVERYTHING.toSMT());
         nmap.put(AV_AHEAP, Operation.AHEAP.toSMT());
 
     }
@@ -144,6 +151,10 @@ public class TypeContext {
 
     public static String normalizeSort(Sort s) {
         String name = s.toString();
+
+         if (smap.containsKey(name))
+             return smap.get(name);
+        
         return parsePolyString(name);
 
     }
@@ -200,7 +211,7 @@ public class TypeContext {
         String name = fs.getName();
         Operation op = null;
 
-         System.out.println("NAME " + name);
+   
         if (isNumeric(name) || isBoolean(name))
             return;
 
@@ -219,13 +230,17 @@ public class TypeContext {
         FunctionSymbol nfs;
         if (!isFunc(name) && !specialOps.contains(op)) {
             nfs = new FunctionSymbol(Names.makeSMTName(name), fs.getResultSort(), fs.getArgumentSorts());
+        } else if(specialOps.contains(op)){
+            nfs = new FunctionSymbol(Names.makeSMTName(name.substring(1)),fs.getResultSort(), fs.getArgumentSorts());
         } else {
-
             nfs = new FunctionSymbol(name, fs.getResultSort(), fs.getArgumentSorts());
         }
-        if (!symbolTable.getAllSymbols().contains(nfs))
+        if (!symbolTable.getAllSymbols().contains(nfs)) {
+            
+            
             symbolTable = symbolTable.addFunctionSymbol(nfs);
 
+        }
     }
 
     public static Operation getOp(String name) {
@@ -262,7 +277,7 @@ public class TypeContext {
     public static boolean isFunc(String name) {
         if (name.startsWith("$")) {
         
-            for (String n : nmap.keySet()) {
+            for (String n : smap.keySet()) {
                 if (name.startsWith(n)) {
                     return false;
                 }

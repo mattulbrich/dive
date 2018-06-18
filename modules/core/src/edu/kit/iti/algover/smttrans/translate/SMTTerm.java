@@ -21,7 +21,7 @@ public class SMTTerm {
         sb.append("(assert ");
         sb.append(expression.toSMT(negate));
         sb.append(")");
-        String result = sb.toString().replaceAll("\\s+(?=[),])", "").replace("$", ""); // TODO
+        String result = sb.toString().replaceAll("\\s+(?=[),])", ""); // TODO .replace("$", "");
         return result.toString();
     }
 }
