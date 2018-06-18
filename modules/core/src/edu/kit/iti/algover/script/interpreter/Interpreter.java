@@ -86,19 +86,25 @@ public class Interpreter<T> extends DefaultASTVisitor<Object>
     }
 
     /**
-     * starting point is a ProofScript object
+     * Interpret a proof script
+     * @param script the parsed proof script AST
+     * @throws ScriptCommandNotApplicableException
+     * @throws InterpreterRuntimeException
      */
-    public void interpret(ProofScript script) {
+    public void interpret(ProofScript script) throws ScriptCommandNotApplicableException, InterpreterRuntimeException {
         if (stateStack.empty()) {
-            throw new InterpreterRuntimeException("no state on stack. call newState before interpret");
+            throw new InterpreterRuntimeException("No state on stack. call newState before interpret");
         }
         script.accept(this);
     }
 
     /**
      * Interpret an ASTNode in state on top of stack
+     * @param node
+     * @throws ScriptCommandNotApplicableException
+     * @throws InterpreterRuntimeException
      */
-    public void interpret(ASTNode node) throws ScriptCommandNotApplicableException {
+    public void interpret(ASTNode node) throws ScriptCommandNotApplicableException, InterpreterRuntimeException {
         if (stateStack.empty()) {
             throw new InterpreterRuntimeException("no state on stack. call newState before interpret");
         }

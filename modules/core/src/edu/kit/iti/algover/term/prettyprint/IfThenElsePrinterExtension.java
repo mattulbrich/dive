@@ -40,6 +40,7 @@ public class IfThenElsePrinterExtension implements PrettyPrintExtension {
         printer.append("if ");
 
         printer.beginTerm(0);
+        visitor.setLeftPrecedence(0);
         application.getTerm(0).accept(visitor, null);
         printer.endTerm();
 

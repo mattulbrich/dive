@@ -5,13 +5,15 @@ import edu.kit.iti.algover.parser.DafnyException;
 import edu.kit.iti.algover.parser.DafnyParserException;
 import edu.kit.iti.algover.proof.ProofNode;
 import edu.kit.iti.algover.script.ast.*;
-import edu.kit.iti.algover.script.data.GoalNode;
 import edu.kit.iti.algover.script.data.Value;
 import edu.kit.iti.algover.script.data.VariableAssignment;
 import edu.kit.iti.algover.script.parser.DefaultASTVisitor;
 import edu.kit.iti.algover.script.parser.Visitor;
+import edu.kit.iti.algover.term.Sequent;
+import edu.kit.iti.algover.term.Term;
 import edu.kit.iti.algover.term.parser.TermParser;
 
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -37,14 +39,14 @@ public class Evaluator<T> extends DefaultASTVisitor<Value> implements ScopeObser
      * Evaluation of an expression.
      *
      * @param truth
-     * @return
+     * @return the value of the evaluated expression
      */
-    public Value eval(Expression truth) {
+    public Value<T> eval(Expression truth) {
         return (Value) truth.accept(this);
     }
 
     @Override
-    public Value visit(BinaryExpression e) {
+    public Value<T> visit(BinaryExpression e) {
         Value v1 = (Value) e.getLeft().accept(this);
         Value v2 = (Value) e.getRight().accept(this);
         Operator op = e.getOperator();
@@ -58,7 +60,7 @@ public class Evaluator<T> extends DefaultASTVisitor<Value> implements ScopeObser
      * @return
      */
     @Override
-    public Value visit(MatchExpression match) {
+    public Value<Boolean> visit(MatchExpression match) throws IllegalStateException{
         if (match.getSignature() != null && !match.getSignature().isEmpty()) {
             throw new IllegalStateException("not supported");
         }
@@ -78,49 +80,57 @@ public class Evaluator<T> extends DefaultASTVisitor<Value> implements ScopeObser
     }
 
     /**
+     * Visit a termliteral and evaluate it to the term object by using the termparser. The symboltable for parsing is taken form the goal node
      * @param term
-     * @return
-     * TODO let termParser parse a schematic term
-     * SymbolTable in Goal
+     * @return A value of type term
+     *
      */
     @Override
-    public Value visit(TermLiteral term) {
-        Value termV = null;
+    public Value<Term> visit(TermLiteral term){
+        Value<Term> termV = null;
         try {
-            termV = new Value<>(Type.TERM, TermParser.parse(goal.getPVC().getSymbolTable(), term.getText()));
+            TermParser tp = new TermParser(goal.getPVC().getSymbolTable());
+            tp.setSchemaMode(true);
+            termV = new Value<>(Type.TERM, tp.parse(term.getText()));
         } catch (DafnyException | DafnyParserException e) {
             System.out.println("Could not translate term " + term.getText());
-            e.printStackTrace();
+            throw new RuntimeException(e);
         }
         // return Value.from(term);
 
         return termV;
     }
 
+    /**
+     * Visit a Sequentliteral and evaluate it using the termparser.
+     * @param sequentLiteral
+     * @return a value object wrapping a sequent
+     */
     @Override
-    public Value visit(SequentLiteral sequentLiteral) {
-        Value seqValue = null;
+    public Value<Sequent> visit(SequentLiteral sequentLiteral){
+        Value<Sequent> seqValue = null;
         try {
-
-            seqValue = new Value<>(Type.TERM, TermParser.parseSequent(((ProofNode) goal).getPVC().getSymbolTable(), sequentLiteral.getText()));
+            TermParser tp = new TermParser(goal.getPVC().getSymbolTable());
+            tp.setSchemaMode(true);
+            seqValue = new Value<>(Type.TERM, tp.parseSequent(sequentLiteral.getText()));
 
         } catch (DafnyException | DafnyParserException e) {
             System.out.println("Could not translate term " + sequentLiteral.getText());
-            e.printStackTrace();
+           throw new RuntimeException(e);
         }
         return seqValue;
 
     }
 
     @Override
-    public Value visit(StringLiteral string) {
+    public Value<String> visit(StringLiteral string) {
         return Value.from(string);
     }
 
     @Override
-    public Value visit(Variable variable) {
+    public Value<T> visit(Variable variable){
         //get variable value
-        Value v = state.getValue(variable);
+        Value<T> v = state.getValue(variable);
         if (v != null) {
             return v;
         } else {
@@ -130,21 +140,21 @@ public class Evaluator<T> extends DefaultASTVisitor<Value> implements ScopeObser
     }
 
     @Override
-    public Value visit(BooleanLiteral bool) {
+    public Value<Boolean> visit(BooleanLiteral bool) {
         return bool.isValue() ? Value.TRUE : Value.FALSE;
     }
 
 
     @Override
-    public Value visit(IntegerLiteral integer) {
+    public Value<BigInteger> visit(IntegerLiteral integer) {
         return Value.from(integer);
     }
 
     @Override
-    public Value visit(UnaryExpression e) {
+    public Value<T> visit(UnaryExpression e) {
         Operator op = e.getOperator();
         Expression expr = e.getExpression();
-        Value exValue = (Value) expr.accept(this);
+        Value<T> exValue = (Value) expr.accept(this);
         return op.evaluate(exValue);
     }
 

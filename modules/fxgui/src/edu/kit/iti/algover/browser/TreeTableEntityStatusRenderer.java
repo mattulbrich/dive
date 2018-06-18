@@ -52,30 +52,13 @@ public class TreeTableEntityStatusRenderer implements TreeTableEntityVisitor<Voi
         return null;
     }
 
-    @Override
-    public Void visitPVC(PVCEntity entity) {
-        Text statusIcon = GlyphsDude.createIcon(entity.getProofStatus().getIcon());
-        statusIcon.setFill(entity.getProofStatus().getFill());
-
-        Text gearIcon = GlyphsDude.createIcon(FontAwesomeIcon.GEAR);
-        gearIcon.setFill(Color.DARKGREY);
-        gearButton = new Button("Edit", gearIcon);
-        gearButton.getStyleClass().add("undecorated-button");
-        gearButton.setTooltip(new Tooltip("Edit or start Proof"));
-        gearButton.setOnAction(event -> {
-            if (engagedListener != null) {
-                engagedListener.onEngageEntity(entity);
-            }
-        });
-
+    public void updateProofStatusIcon(PVCEntity.ProofStatus proofStatus) {
+        Text statusIcon = GlyphsDude.createIcon(proofStatus.getIcon());
+        statusIcon.setFill(proofStatus.getFill());
         HBox box = new HBox(statusIcon, gearButton);
         box.setSpacing(10);
         box.setAlignment(Pos.CENTER);
-        Tooltip.install(box, new Tooltip(entity.getProofStatus().getTooltip()));
-
-        cell.setText("");
         cell.setGraphic(box);
-        return null;
     }
 
     @Override
@@ -103,12 +86,29 @@ public class TreeTableEntityStatusRenderer implements TreeTableEntityVisitor<Voi
         return groupingEntity(entity);
     }
 
-    public void updateProofStatusIcon(PVCEntity.ProofStatus proofStatus) {
-        Text statusIcon = GlyphsDude.createIcon(proofStatus.getIcon());
-        statusIcon.setFill(proofStatus.getFill());
+    @Override
+    public Void visitPVC(PVCEntity entity) {
+        Text statusIcon = GlyphsDude.createIcon(entity.getProofStatus().getIcon());
+        statusIcon.setFill(entity.getProofStatus().getFill());
+
+        Text gearIcon = GlyphsDude.createIcon(FontAwesomeIcon.GEAR);
+        gearIcon.setFill(Color.DARKGREY);
+        gearButton = new Button("Edit", gearIcon);
+        gearButton.getStyleClass().add("undecorated-button");
+        gearButton.setTooltip(new Tooltip("Edit or start Proof"));
+        gearButton.setOnAction(event -> {
+            if (engagedListener != null) {
+                engagedListener.onEngageEntity(entity);
+            }
+        });
+
         HBox box = new HBox(statusIcon, gearButton);
         box.setSpacing(10);
         box.setAlignment(Pos.CENTER);
+        Tooltip.install(box, new Tooltip(entity.getProofStatus().getTooltip()));
+
+        cell.setText("");
         cell.setGraphic(box);
+        return null;
     }
 }
