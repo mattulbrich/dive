@@ -55,7 +55,8 @@ public class AxiomContainer {
         String ax = "";
         String tv = "";
 
-
+        if (!axiom.contains("(par"))
+            return new Pair<>(new ArrayList<>(),axiom);
         StringTokenizer tokenizer = new StringTokenizer(axiom, "(",true);
         while (tokenizer.hasMoreTokens()) {
             String token = tokenizer.nextToken();
