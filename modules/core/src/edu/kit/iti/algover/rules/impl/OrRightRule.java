@@ -7,6 +7,9 @@ import edu.kit.iti.algover.rules.*;
 import edu.kit.iti.algover.term.ApplTerm;
 import edu.kit.iti.algover.term.FunctionSymbol;
 import edu.kit.iti.algover.term.Term;
+import edu.kit.iti.algover.term.match.Matching;
+import edu.kit.iti.algover.term.match.SequentMatcher;
+import edu.kit.iti.algover.util.ImmutableList;
 import edu.kit.iti.algover.util.RuleUtil;
 
 import java.util.List;
@@ -26,12 +29,8 @@ public class OrRightRule extends AbstractProofRule {
 
     @Override
     protected ProofRuleApplication considerApplicationImpl(ProofNode target, Parameters parameters) throws RuleException {
-        Term on = parameters.getValue(ON_PARAM);
-        List<TermSelector> l = RuleUtil.matchSubtermsInSequent(on::equals, target.getSequent());
-        if(l.size() != 1) {
-            throw new RuleException("Matching of on parameter is ambiguous");
-        }
-        TermSelector selector = l.get(0);
+        TermSelector selector = tsForParameter.get("on");
+
         if(!selector.isToplevel()) {
             return ProofRuleApplicationBuilder.notApplicable(this);
         }
@@ -62,12 +61,8 @@ public class OrRightRule extends AbstractProofRule {
 
     @Override
     protected ProofRuleApplication makeApplicationImpl(ProofNode target, Parameters parameters) throws RuleException {
-        Term on = parameters.getValue(ON_PARAM);
-        List<TermSelector> l = RuleUtil.matchSubtermsInSequent(on::equals, target.getSequent());
-        if(l.size() != 1) {
-            throw new RuleException("Matching of on parameter is ambiguous.");
-        }
-        TermSelector selector = l.get(0);
+        TermSelector selector = tsForParameter.get("on");
+
         if(!selector.isToplevel()) {
             throw new RuleException("orRight may only be applied to TopLevel terms.");
         }
