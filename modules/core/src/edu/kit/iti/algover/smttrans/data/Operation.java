@@ -26,19 +26,20 @@ public enum Operation {
 
         ARR2LEN0.smt = "arr2len0";
         ARR2LEN0.poly = true;
-        ARR2LEN0.instantiations = asList(Axiom.ARR2LEN0,Axiom.ARR_2_INST, Axiom.ARR2LEN1);
+        ARR2LEN0.instantiations = asList(Axiom.ARR2LEN0, Axiom.ARR2LEN1); //,Axiom.ARR_2_INST,
 
         ARR2LEN1.smt = "arr2len1";
         ARR2LEN1.poly = true;
-        ARR2LEN1.instantiations = asList(Axiom.HEAP_INST, Axiom.HEAP_INST_2,Axiom.ARR2LEN1,Axiom.ARR2LEN0,Axiom.ARR_2_INST);
+        ARR2LEN1.instantiations = asList(Axiom.HEAP_INST, Axiom.HEAP_INST_2,Axiom.ARR2LEN1,Axiom.ARR2LEN0); //,Axiom.ARR_2_INST
 
+       
         ARRLEN.smt = "arrlen";
         ARRLEN.poly = true;
-        ARRLEN.instantiations = asList(Axiom.HEAP_INST, Axiom.HEAP_INST_2,Axiom.ARR_1_INST, Axiom.ARRLEN, Axiom.ARR_2);
+        ARRLEN.instantiations = asList(Axiom.HEAP_INST, Axiom.HEAP_INST_2, Axiom.ARRLEN, Axiom.ARR_2); //,Axiom.ARR_1_INST
 
         ARRSELECT.smt = "arrselect";
         ARRSELECT.poly = true;
-        ARRSELECT.instantiations = asList(Axiom.HEAP_INST, Axiom.HEAP_INST_2,Axiom.ARR_1_INST,Axiom.ARR_1, Axiom.ARRSELECT, Axiom.ARRSTORE);
+        ARRSELECT.instantiations = asList(Axiom.HEAP_INST, Axiom.HEAP_INST_2 ,Axiom.ARR_1, Axiom.ARRSELECT, Axiom.ARRSTORE); //,Axiom.ARR_1_INST
 
         ARR2SELECT.smt = "arr2select";
         ARR2SELECT.poly = true;
@@ -56,13 +57,16 @@ public enum Operation {
         SETUNION.poly = true;
         SETUNION.instantiations = asList(Axiom.SETEMPTY_INST,Axiom.SET_IN,Axiom.SET_INSERT,Axiom.SET_1,Axiom.SET_6,Axiom.SET_UNION,Axiom.SET_2);
 
+        SETADD.smt = "setInsert";
+        SETADD.poly = true;
+        SETADD.instantiations = asList(Axiom.SETEMPTY_INST,Axiom.SET_IN,Axiom.SET_INSERT,Axiom.SET_1,Axiom.SET_6,Axiom.SET_INSERT,Axiom.SET_CARD);
         SETINTERSECT.smt = "intersect";
         SETINTERSECT.poly = true;
         SETINTERSECT.instantiations = asList(Axiom.SETEMPTY_INST,Axiom.SET_IN,Axiom.SET_INSERT,Axiom.SET_1,Axiom.SET_6,Axiom.SET_INTERSECT,Axiom.SET_3);
 
         SETCARD.smt = "setcard";
         SETCARD.poly = true;
-        SETCARD.instantiations = asList(Axiom.SETEMPTY_INST,Axiom.SET_IN,Axiom.SET_INSERT,Axiom.SET_1,Axiom.SET_6,Axiom.SET_CARD,Axiom.SET_CARD_1,Axiom.SET_CARD_2,Axiom.SET_CARD_3); //,Axiom.SET_CARD_4
+        SETCARD.instantiations = asList(Axiom.SETEMPTY_INST,Axiom.SET_IN,Axiom.SET_INSERT,Axiom.SET_1,Axiom.SET_6,Axiom.SET_CARD,Axiom.SET_CARD_1,Axiom.SET_CARD_2); //,Axiom.SET_CARD_3,Axiom.SET_CARD_4
         //asList(Axiom.SET_IN,Axiom.SET_1, Axiom.SET_6,Axiom.SET_INSERT,Axiom.SET_CARD,Axiom.SET_CARD_1,Axiom.SET_CARD_2,Axiom.SETEMPTY_INST); //,Axiom.SETEMPTY_INST,Axiom.SET_INST,Axiom.SET_CARD, Axiom.SET_5, Axiom.SETEMPTY_INST, Axiom.SET_CARD_1
         // TODO Axiom.SET_CARD_4 -> timeout
         SETIN.smt = "inSet";
@@ -91,27 +95,27 @@ public enum Operation {
         
         SEQCONS.smt = "SEQCONS";
         SEQCONS.poly = true;
-        SEQCONS.instantiations = asList();
+        SEQCONS.instantiations = asList(Axiom.SEQEMTY_INST); //TODO
 
         SEQEMPTY.smt = "emptyseq";
         SEQEMPTY.poly = true;
-        SEQEMPTY.instantiations = asList();
+        SEQEMPTY.instantiations = asList(Axiom.SEQEMTY_INST,Axiom.SEQ_LEN,Axiom.SEQ_LEN_5);
 
         SEQUPD.smt = "seqstore";
         SEQUPD.poly = true;
-        SEQUPD.instantiations = asList();
+        SEQUPD.instantiations = asList(Axiom.SEQEMTY_INST); //TODO
 
         SEQGET.smt = "seqget";
         SEQGET.poly = true;
-        SEQGET.instantiations = asList();
+        SEQGET.instantiations = asList(Axiom.SEQEMTY_INST,Axiom.SEQ_GET,Axiom.SEQ_4);
 
         SEQLEN.smt = "seqlen";
         SEQLEN.poly = true;
-        SEQLEN.instantiations = asList(Axiom.SEQ_LEN);
+        SEQLEN.instantiations = asList(Axiom.SEQEMTY_INST,Axiom.SEQ_LEN, Axiom.SEQ_LEN_1);
 
         SEQCONCAT.smt = "seqconcat";
         SEQCONCAT.poly = true;
-        SEQCONCAT.instantiations = asList(Axiom.SEQ_CONCAT);
+        SEQCONCAT.instantiations = asList(Axiom.SEQEMTY_INST,Axiom.SEQ_CONCAT,Axiom.SEQ_LEN,Axiom.SEQ_LEN_5);
 
         HEAP.smt = "heap";
         HEAP.poly = false;
