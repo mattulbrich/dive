@@ -13,3 +13,12 @@ method getNumber(o: X, p : Y)
     var x := o;
     o.y := 8;
 }
+
+method getNumber2(o: X, p : Y)
+    requires o != null
+    ensures o.y > 10
+    modifies {o,p}
+{
+    var x := o;
+    o.y := 8;
+}

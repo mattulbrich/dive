@@ -100,6 +100,8 @@ public class AxiomContainer {
      //    System.out.println("TV " + tvs);
      //    System.out.println("Types " + types);
 
+//        if (tvs.size() != types.size()) // debug TODO
+//            return "";
         for (int i = 0; i < tvs.size(); i++) {
             ax = ax.replace(tvs.get(i), types.get(i));
         }

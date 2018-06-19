@@ -4,6 +4,7 @@ import java.util.ArrayList;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.StringTokenizer;
 
 import com.google.common.collect.BiMap;
@@ -32,16 +33,23 @@ public class Model {
         this.vars = parseVars();
         this.assignments = parseModel(parseFuncs(contents));
 
-      //  System.out.println(parseVars().toString());
-      //  System.out.println(parseFuncs(contents).toString());
+        System.out.println(parseVars().toString());
+        System.out.println(parseFuncs(contents).toString());
         parseModel(parseFuncs(contents));
         printAssignments();
     }
 
     
     private void printAssignments() {
-    System.out.println("=== Model ===");
+    
+        
+        Set<String> namedVars = vars.keySet(); //TODO
+        
+        System.out.println("=== Model ===");
+    
+    
         for (List<String> a : assignments) {
+          //  System.out.println("a " + a);
             StringBuilder sb = new StringBuilder();
             sb.append(a.get(0).split("!")[0]);
             sb.append("(");

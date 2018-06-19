@@ -96,7 +96,7 @@ public class Z3Access extends SolverAccess {
             
                 }
             }
-            System.out.println(data);
+          //  System.out.println(data);
             if (data.isEmpty())
                 return new SolverResponse(Response.ERROR);
             

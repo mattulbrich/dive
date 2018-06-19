@@ -66,7 +66,7 @@ public enum Operation {
 
         SETCARD.smt = "setcard";
         SETCARD.poly = true;
-        SETCARD.instantiations = asList(Axiom.SETEMPTY_INST,Axiom.SET_IN,Axiom.SET_INSERT,Axiom.SET_1,Axiom.SET_6,Axiom.SET_CARD,Axiom.SET_CARD_1,Axiom.SET_CARD_2); //,Axiom.SET_CARD_3,Axiom.SET_CARD_4
+        SETCARD.instantiations = asList(Axiom.SETEMPTY_INST,Axiom.SET_IN,Axiom.SET_INSERT,Axiom.SET_1,Axiom.SET_6,Axiom.SET_CARD,Axiom.SET_CARD,Axiom.SET_CARD_1,Axiom.SET_CARD_2); //,Axiom.SET_CARD_3,Axiom.SET_CARD_4
         //asList(Axiom.SET_IN,Axiom.SET_1, Axiom.SET_6,Axiom.SET_INSERT,Axiom.SET_CARD,Axiom.SET_CARD_1,Axiom.SET_CARD_2,Axiom.SETEMPTY_INST); //,Axiom.SETEMPTY_INST,Axiom.SET_INST,Axiom.SET_CARD, Axiom.SET_5, Axiom.SETEMPTY_INST, Axiom.SET_CARD_1
         // TODO Axiom.SET_CARD_4 -> timeout
         SETIN.smt = "inSet";
@@ -83,7 +83,7 @@ public enum Operation {
 
         ANON.smt = "anon";
         ANON.poly = false;
-        ANON.instantiations = asList(Axiom.ANON, Axiom.HEAP_4);
+        ANON.instantiations = asList(Axiom.ANON); //Axiom.HEAP_4
 
         MOD.smt = "modh";
         MOD.poly = false;
