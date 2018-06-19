@@ -12,6 +12,7 @@ import javafx.scene.control.TabPane;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Created by jklamroth on 6/7/18.
@@ -33,50 +34,86 @@ public class SequentTabViewController {
     }
 
     public void viewProofNode(ProofNodeSelector proofNodeSelector) {
+        ProofNodeSelector oldParentSelector = activeNode.getParentSelector();
         activeNode = proofNodeSelector;
-        proofNodeSelector.optionalGet(controllers.get(view.getSelectionModel().getSelectedIndex()).getActiveProof()).ifPresent(proofNode -> {
-            ProofRuleApplication pra = proofNode.getPsr();
-            if (pra != null) {
-                if (pra.getBranchCount() == controllers.size()) {
-                    for (int i = 0; i < pra.getBranchCount(); ++i) {
-                        controllers.get(i).setActiveNode(activeNode);
-                        controllers.get(i).setActiveProof(activeProof);
-                        controllers.get(i).viewProofNode(proofNodeSelector, i);
-                        view.getTabs().get(i).setText(pra.getBranchInfo().get(i).getLabel());
-                    }
-                } else if (pra.getBranchCount() > controllers.size()) {
-                    for (int i = 0; i < controllers.size(); ++i) {
-                        controllers.get(i).setActiveNode(activeNode);
-                        controllers.get(i).setActiveProof(activeProof);
-                        controllers.get(i).viewProofNode(proofNodeSelector, i);
-                        view.getTabs().get(i).setText(pra.getBranchInfo().get(i).getLabel());
-                    }
-                    for (int i = controllers.size(); i < pra.getBranchCount(); ++i) {
-                        SequentController controller = new SequentController(listener);
-                        controllers.add(controller);
-                        view.getTabs().add(new Tab(pra.getBranchInfo().get(i).getLabel(), controller.getView()));
-                        controllers.get(i).setActiveNode(activeNode);
-                        controllers.get(i).setActiveProof(activeProof);
-                        controllers.get(i).viewProofNode(proofNodeSelector, i);
-                    }
-                } else if (pra.getBranchCount() < controllers.size()) {
-                    for (int i = 0; i < pra.getBranchCount(); ++i) {
-                        controllers.get(i).setActiveNode(activeNode);
-                        controllers.get(i).setActiveProof(activeProof);
-                        controllers.get(i).resetProofApplicationPreview();
-                        controllers.get(i).viewProofNode(proofNodeSelector, i);
-                        view.getTabs().get(i).setText(pra.getBranchInfo().get(i).getLabel());
-                    }
-                    view.getTabs().remove(pra.getBranchCount(), controllers.size());
-                    while (controllers.size() > pra.getBranchCount()) {
-                        controllers.remove(controllers.size() - 1);
-                    }
+        ProofNodeSelector parentSelector = activeNode.getParentSelector();
+        int numChildren;
+        if(parentSelector != null) {
+            if(parentSelector.equals(oldParentSelector)) {
+                view.getSelectionModel().select(activeNode.getPath()[activeNode.getPath().length - 1]);
+                return;
+            }
+            Optional<ProofNode> parentNode = parentSelector.optionalGet(activeProof);
+            if(parentNode.isPresent()) {
+                numChildren = parentNode.get().getChildren().size();
+            } else {
+                numChildren = 1;
+            }
+            if (numChildren == controllers.size()) {
+                for (int i = 0; i < numChildren; ++i) {
+                    ProofNodeSelector ithNode = new ProofNodeSelector(parentSelector, i);
+                    controllers.get(i).setActiveNode(ithNode);
+                    controllers.get(i).setActiveProof(activeProof);
+                    controllers.get(i).viewProofNode(ithNode);
+                    final int tmp = i;
+                    ithNode.optionalGet(activeProof).ifPresent(node -> {
+                        view.getTabs().get(tmp).setText(node.getLabel());
+                    });
                 }
-                if (view.getTabs().size() == 1) {
-                    view.getTabs().get(0).setText("default");
+            } else if (numChildren > controllers.size()) {
+                for (int i = 0; i < controllers.size(); ++i) {
+                    ProofNodeSelector ithNode = new ProofNodeSelector(parentSelector, i);
+                    controllers.get(i).setActiveNode(ithNode);
+                    controllers.get(i).setActiveProof(activeProof);
+                    controllers.get(i).viewProofNode(ithNode);
+                    final int tmp = i;
+                    ithNode.optionalGet(activeProof).ifPresent(node -> {
+                        view.getTabs().get(tmp).setText(node.getLabel());
+                    });
+                }
+                for (int i = controllers.size(); i < numChildren; ++i) {
+                    ProofNodeSelector ithNode = new ProofNodeSelector(parentSelector, i);
+                    SequentController controller = new SequentController(listener);
+                    controllers.add(controller);
+                    ithNode.optionalGet(activeProof).ifPresent(node -> {
+                        view.getTabs().add(new Tab(node.getLabel(), controller.getView()));
+                    });
+                    controllers.get(i).setActiveNode(ithNode);
+                    controllers.get(i).setActiveProof(activeProof);
+                    controllers.get(i).viewProofNode(ithNode);
+                }
+            } else if (numChildren < controllers.size()) {
+                for (int i = 0; i < numChildren; ++i) {
+                    ProofNodeSelector ithNode = new ProofNodeSelector(parentSelector, i);
+                    controllers.get(i).setActiveNode(ithNode);
+                    controllers.get(i).setActiveProof(activeProof);
+                    controllers.get(i).viewProofNode(ithNode);
+                    final int tmp = i;
+                    ithNode.optionalGet(activeProof).ifPresent(node -> {
+                        view.getTabs().get(tmp).setText(node.getLabel());
+                    });
+                }
+                view.getTabs().remove(numChildren, controllers.size());
+                while (controllers.size() > numChildren) {
+                    controllers.remove(controllers.size() - 1);
                 }
             }
-        });
+            if (view.getTabs().size() == 1) {
+                view.getTabs().get(0).setText("default");
+            }
+        } else {
+            controllers.clear();
+            view.getTabs().clear();
+            ProofNodeSelector ithNode = activeNode;
+            SequentController controller = new SequentController(listener);
+            controllers.add(controller);
+            ithNode.optionalGet(activeProof).ifPresent(node -> {
+                view.getTabs().add(new Tab(node.getLabel(), controller.getView()));
+            });
+            controllers.get(0).setActiveNode(ithNode);
+            controllers.get(0).setActiveProof(activeProof);
+            controllers.get(0).viewProofNode(ithNode);
+        }
     }
 
     public TabPane getView() {
