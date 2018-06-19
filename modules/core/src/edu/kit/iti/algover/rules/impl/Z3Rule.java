@@ -94,14 +94,18 @@ public class Z3Rule extends AbstractProofRule {
 //        System.out.println();
 //        System.out.println("PSMT: ");
 //        System.out.println();
- //       smt = sc.toPSMT();
-//        System.out.println(smt);
+//       smt = sc.toPSMT();
+ //       System.out.println(smt);
 //        System.out.println();
 //        System.out.println();
+       
+//       
 //        System.out.println("SMT: ");
 //        System.out.println();
-        smt = sc.toSMT();
+       smt = sc.toSMT();
         System.out.println(smt);
+//        
+//        
 //        System.out.println();
 //        
  

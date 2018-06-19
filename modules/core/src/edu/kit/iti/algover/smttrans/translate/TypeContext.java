@@ -51,6 +51,13 @@ public class TypeContext {
         smap.put(AV_DECR, Operation.DECR.toSMT());
 
         nmap.put(AV_MODNAME, Operation.MOD.toSMT());
+
+        nmap.put(AV_ARRNAME, SMT_ARRNAME);
+        nmap.put(AV_INTNAME, SMT_INTNAME);
+        nmap.put(AV_BOOLNAME, SMT_BOOLNAME);
+        nmap.put(AV_HEAPNAME, SMT_HEAPNAME);
+        nmap.put(AV_AHEAP, Operation.AHEAP.toSMT());
+        nmap.put(AV_DECR, Operation.DECR.toSMT());
         // nmap.put(AV_HEAPNAME, Operation.HEAP.toSMT());
         // nmap.put(AV_ANON, Operation.ANON.toSMT());
         // nmap.put(AV_EVERYTHINGNAME, Operation.EVERYTHING.toSMT());
@@ -151,11 +158,23 @@ public class TypeContext {
     public static String normalizeSort(Sort s) {
         String name = s.toString();
 
-        if (smap.containsKey(name))
+        
+        if (smap.containsKey(name)) {
+           // System.out.println("N " + name);
             return smap.get(name);
-
-        return parsePolyString(name);
-
+        }
+           
+        
+//        if (!name.contains("<")) {
+//            for (String t : smap.keySet()) {
+//                name = name.replaceAll("(?i)"+t, smap.get(t));
+//            }
+//        }
+        String r = parsePolyString(name);
+//        if(r.equals("ArrayInt"))
+//            return "ArrInt";
+//        //return parsePolyString(name);
+        return r;
     }
 
     public static boolean isBoolean(String str) {
@@ -254,17 +273,16 @@ public class TypeContext {
     public static List<String> getSubTypes(FunctionSymbol type) {
         List<String> types = new ArrayList<>();
         for (Sort s : type.getArgumentSorts()) {
-            if(s.getArguments().size() == 0) {
-              types.add(normalizeSort(s));
+            if (s.getArguments().size() == 0) {
+                types.add(normalizeSort(s));
             } else {
-                   String ty = "";
-                   for (Sort t : s.getArguments()) {
-                       ty += normalizeSort(t);
-                   }
-                   types.add(ty);
+                String ty = "";
+                for (Sort t : s.getArguments()) {
+                    ty += normalizeSort(t);
+                }
+                types.add(ty);
             }
-             
-            
+
         }
         return types;
     }
@@ -301,6 +319,40 @@ public class TypeContext {
             return true;
         }
         return false;
+    }
+
+    private static String normalizeName(String s) {
+        String r = "";
+        String[] parts = s.split(" ");
+        if (parts.length == 1)
+            return s.substring(0, 1).toUpperCase() + s.substring(1);
+        for (String p : parts) {
+            r += p.substring(0, 1).toUpperCase() + p.substring(1);
+        }
+
+        return s;
+
+    }
+
+    public static List<String> getFuncArguments(FunctionSymbol type) {
+        ArrayList<String> r = new ArrayList<>();
+
+        String sign = type.toString().split("\\(")[0];
+        int i = sign.indexOf("<");
+        sign = sign.substring(i + 1);
+        sign = CharMatcher.anyOf(">").replaceFrom(sign, " ");
+        String[] parts = sign.split(",");
+        for (String p : parts) {
+
+            r.add(normalizeName(p.trim()));
+
+        }
+        // System.out.println("SIGN " + sign.substring(i+1));
+        // String typed = CharMatcher.anyOf(">").removeFrom(type.toString());
+        // Iterable<String> types = Splitter.on("<").split(typed);
+        // List<String> subsorts = Arrays.asList(Iterables.toArray(types,
+        // String.class));
+        return r;
     }
 
 }

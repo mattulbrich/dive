@@ -18,118 +18,127 @@ import edu.kit.iti.algover.util.Pair;
 public class AxiomContainer {
 
     private static final Pattern typeVars = Pattern.compile("(?<=par.)\\((.*?)\\)");
+    private static final Pattern openPar = Pattern.compile("\\(");
 
     static {
 
     }
 
     public static String instantiateAxiom(Axiom a, FunctionSymbol t) {
-        return typeAxiom(a.getSmt(), t);
+        
+   
+                return typeAxiom(a.getSmt(), t);
+       
+            
     }
 
     private static String removeParantheses(String ax) {
-        List<Integer> open = new ArrayList<>();
-        List<Integer> close = new ArrayList<>();
-        for (int i = 0; i < ax.length(); i++) {
-            char c = ax.charAt(i);
-            if (c == '(') {
-                open.add(i);
-            }
-            if (c == ')') {
-                close.add(i);
-            }
+        
+        
+        if (ax.startsWith("(assert")) {
 
+            return ax.substring(0, ax.length()-1);
         }
+        
+        if (ax.startsWith("(declare-")) {
+            StringBuilder sb = new StringBuilder("(");
+            String r = ax.substring(1).replaceFirst(openPar.pattern(), "").trim();
+            sb.append(r.substring(0, r.length()-2));
+            return sb.toString();
+        }
+        return ax;
 
-        return ax.substring(0, open.get(1)) + ax.substring(open.get(1) + 1, close.get(close.size() - 1) - 1);
     }
 
     private static Pair<List<String>, String> prepare(String axiom) {
+;
         String ax = "";
         String tv = "";
-        StringTokenizer tokenizer = new StringTokenizer(axiom, "(");
-        boolean isAssert = axiom.startsWith("(assert");
+
+
+        StringTokenizer tokenizer = new StringTokenizer(axiom, "(",true);
         while (tokenizer.hasMoreTokens()) {
-
             String token = tokenizer.nextToken();
-
             String t = token.trim();
             if (t.equals("par")) {
-
-                tv = tokenizer.nextToken().replace(")", "");
-                if (isAssert)
-                    ax += "(";
-                continue;
+                tokenizer.nextToken();
+                String ct = tokenizer.nextToken().replace(")",""); //first tv
+                tv += ct;
+                ct = tokenizer.nextToken().trim();
+                while (!ct.equals("(")) { // multiple tv
+                    tv += " " + ct;
+                    ct = tokenizer.nextToken().trim();
+                }
+                token = tokenizer.nextToken();
             }
-            ax += "(" + token;
+            
+            ax += token;
 
         }
+        
+
 
         List<String> r = new ArrayList<>();
         for (String t : tv.split(" ")) {
             r.add(t.trim());
         }
+
         return new Pair<List<String>, String>(r, removeParantheses(ax));
 
     }
 
-    // TODO applicable, whitespace error
-    private static String replace(String tv, String ty, String ax) {
-
-        ax = ax.replaceAll("(?<!\\))\\s+" + tv, ty); // |\\([^a-zA-Z0-9\\s] //
-        ax = ax.replace(tv, ty);
-        return ax;
-
-    }
-
     private static String typeAxiom(String axiom, FunctionSymbol type) {
-
+      //  System.out.println("Axiom " + axiom);
+      //  System.out.println("Type " + type.toString());
         Pair<List<String>, String> p = prepare(axiom);
         List<String> tvs = p.fst;
-        List<String> types = TypeContext.getSubTypes(type);
+        List<String> types = TypeContext.getFuncArguments(type);
+     //  types = TypeContext.getSubTypes(type);
+      
         String ax = p.snd;
-        // System.out.println("TV " + tvs);
-        // System.out.println("Types " + types);
+     //    System.out.println("TV " + tvs);
+     //    System.out.println("Types " + types);
 
         for (int i = 0; i < tvs.size(); i++) {
-            ax = replace(tvs.get(i), types.get(i), ax);
+            ax = ax.replace(tvs.get(i), types.get(i));
         }
 
         return ax;
     }
 
+
+
     private static boolean isApplicable(String axiom, Sort sort) {
 
-        // List<String> typeVariables = new ArrayList<String>();
-        //
-        //
-        // Matcher matcher = typeVars.matcher(axiom);
-        // if (matcher.find()) {
-        // String[] tvs = matcher.group(1).split(" ");
-        // for (String s : tvs) {
-        // typeVariables.add(s);
-        // axiom = axiom.replaceFirst(s, "");
-        // }
-        // axiom = axiom.replaceFirst("\\(par \\(", "");
-        // axiom = axiom.replaceFirst("\\)", "");
-        // }
-        //
-        // List<String> subtypes = TypeContext.getSubTypes(sort);
-        //
-        // for (String t : typeVariables) {
-        //
-        // for (String ty : subtypes) {
-        //
-        // String pre = "(" + ty + " " + t + ")";
-        // if (axiom.contains(pre)) {
-        // return true;
-        // }
-        //
-        // }
-        // }
+        List<String> typeVariables = new ArrayList<String>();
 
-        return true;
+        // remove par, TV
+        Matcher matcher = typeVars.matcher(axiom);
+        if (matcher.find()) {
+            String[] tvs = matcher.group(1).split(" ");
+            for (String s : tvs) {
+                typeVariables.add(s);
+                axiom = axiom.replaceFirst(s, "");
+            }
+            axiom = axiom.replaceFirst("\\(par \\(", "");
+            axiom = axiom.replaceFirst("\\)", "");
+        }
 
+        List<String> subtypes = TypeContext.getSubTypes(sort);
+
+        for (String t : typeVariables) {
+
+            for (String ty : subtypes) {
+
+                String pre = "(" + ty + " " + t + ")";
+                if (axiom.contains(pre)) {
+                    return true;
+                }
+
+            }
+        }
+
+        return false;
     }
 
     public static List<String> instantiateSort(FunctionSymbol t) {
