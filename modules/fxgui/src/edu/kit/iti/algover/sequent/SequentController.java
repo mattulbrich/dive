@@ -205,13 +205,13 @@ public class SequentController extends FxmlController {
         }
     }
 
-    public void viewProofNode(ProofNodeSelector proofNodeSelector, int idx) {
+    public void viewProofNode(ProofNodeSelector proofNodeSelector) {
         proofNodeSelector.optionalGet(activeProof).ifPresent(proofNode -> {
             activeNode = proofNodeSelector;
             BranchInfo branchInfo = null;
             ProofRuleApplication application = proofNode.getPsr();
-            if (application != null) {
-                branchInfo = application.getBranchInfo().get(idx);
+            if (application != null && application.getBranchInfo().size() == 1) {
+                branchInfo = application.getBranchInfo().get(0);
             }
             updateSequent(proofNode.getSequent(), branchInfo);
             updateGoalTypeLabel();
