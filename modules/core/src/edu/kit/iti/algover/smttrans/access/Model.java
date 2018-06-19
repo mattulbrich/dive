@@ -32,15 +32,15 @@ public class Model {
         this.vars = parseVars();
         this.assignments = parseModel(parseFuncs(contents));
 
-        System.out.println(parseVars().toString());
-        System.out.println(parseFuncs(contents).toString());
+      //  System.out.println(parseVars().toString());
+      //  System.out.println(parseFuncs(contents).toString());
         parseModel(parseFuncs(contents));
         printAssignments();
     }
 
     
     private void printAssignments() {
-    
+    System.out.println("=== Model ===");
         for (List<String> a : assignments) {
             StringBuilder sb = new StringBuilder();
             sb.append(a.get(0).split("!")[0]);
@@ -52,7 +52,10 @@ public class Model {
             sb.append(a.get(2));
             System.out.println(sb.toString());
             
+            
         }
+        
+        System.out.println("=== ===");
     }
     /**
      * z3 (define-fun c () Int 1) [java] [java] [java] (define-fun b () Int 1)
@@ -153,7 +156,7 @@ public class Model {
          
            
         }
-        System.out.println(funcAssignments.toString());
+     //   System.out.println(funcAssignments.toString());
         return funcAssignments;
 
     }

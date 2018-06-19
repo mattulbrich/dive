@@ -118,8 +118,8 @@ public class Z3Rule extends AbstractProofRule {
         System.out.println(r1.getResponse().name());
         
         
-        if (r1.getResponse() == Response.SAT)
-            System.out.println(r1.getModel().toString());
+        //if (r1.getResponse() == Response.SAT)
+           // System.out.println(r1.getModel().toString());
         
         
         

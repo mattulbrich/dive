@@ -86,7 +86,7 @@ public class Z3Access extends SolverAccess {
 //                                                  System.out.println(line);                 
                 if(line.replaceAll("\\s+","").toLowerCase().equals("(model"))
                     continue;
-                // System.out.println(line);
+                 System.out.println(line);
                 balance -= line.length() - line.replace("(", "").length();
                 balance += line.length() - line.replace(")", "").length();
                 expr += line;
