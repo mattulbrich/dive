@@ -10,6 +10,9 @@ import edu.kit.iti.algover.proof.ProofNode;
 import edu.kit.iti.algover.rules.*;
 import edu.kit.iti.algover.term.Sequent;
 import edu.kit.iti.algover.term.Term;
+import edu.kit.iti.algover.term.match.Matching;
+import edu.kit.iti.algover.term.match.SequentMatcher;
+import edu.kit.iti.algover.util.ImmutableList;
 import edu.kit.iti.algover.util.RuleUtil;
 
 import java.util.Collections;
@@ -28,12 +31,7 @@ public class RemoveAssumptionRule extends AbstractProofRule {
 
     @Override
     public ProofRuleApplication considerApplicationImpl(ProofNode target, Parameters parameters) throws RuleException {
-        Term on = parameters.getValue(ON_PARAM);
-        List<TermSelector> l = RuleUtil.matchSubtermsInSequent(on::equals, target.getSequent());
-        if(l.size() != 1) {
-            return ProofRuleApplicationBuilder.notApplicable(this);
-        }
-        TermSelector selector = l.get(0);
+        TermSelector selector = tsForParameter.get("on");
         ProofRuleApplicationBuilder builder = new ProofRuleApplicationBuilder(this);
 
         if (!selector.isToplevel() || !selector.isAntecedent()) {

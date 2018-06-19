@@ -11,6 +11,7 @@ import edu.kit.iti.algover.proof.ProofNode;
 import edu.kit.iti.algover.rules.*;
 import edu.kit.iti.algover.term.builder.ReplacementVisitor;
 import edu.kit.iti.algover.term.match.Matching;
+import edu.kit.iti.algover.term.match.SequentMatcher;
 import edu.kit.iti.algover.term.match.TermMatcher;
 import edu.kit.iti.algover.term.*;
 import edu.kit.iti.algover.term.builder.TermBuildException;
@@ -72,16 +73,19 @@ public class DafnyRule extends AbstractProofRule {
     @Override
     public ProofRuleApplication considerApplicationImpl(ProofNode target, Parameters parameters) throws RuleException {
         Term selected = parameters.getValue(ON_PARAM);
-        List<TermSelector> l = RuleUtil.matchSubtermsInSequent(selected::equals, target.getSequent());
-        if(l.size() != 1) {
-            return ProofRuleApplicationBuilder.notApplicable(this);
+        SequentMatcher sm = new SequentMatcher();
+        Sequent s = new Sequent(Collections.singletonList(new ProofFormula(selected)), Collections.emptyList());
+        ImmutableList<Matching> matchings1 = sm.match(s, target.getSequent());
+        if(matchings1.size() != 1) {
+            throw new RuleException("Matching of on parameter is ambiguous");
         }
+        TermSelector selector = matchings1.get(0).getEntries().get(0).getTermSelector();
 
         ProofRuleApplicationBuilder proofRuleApplicationBuilder;
         try {
             Term rt;
             ImmutableList<Matching> matchings;
-            if(!this.polarity.conforms(RuleUtil.getTruePolarity(l.get(0), target.getSequent()))) {
+            if(!this.polarity.conforms(RuleUtil.getTruePolarity(selector, target.getSequent()))) {
                 return ProofRuleApplicationBuilder.notApplicable(this);
             } else {
                 TermMatcher tm = new TermMatcher();
@@ -97,7 +101,7 @@ public class DafnyRule extends AbstractProofRule {
             }
             proofRuleApplicationBuilder = new ProofRuleApplicationBuilder(this);
             proofRuleApplicationBuilder.setApplicability(ProofRuleApplication.Applicability.APPLICABLE);
-            proofRuleApplicationBuilder.newBranch().addReplacement(l.get(0), rt).setLabel("case 0");
+            proofRuleApplicationBuilder.newBranch().addReplacement(selector, rt).setLabel("case 0");
             for(Pair<Term, String> lt : rts) {
                 if(!RuleUtil.matchSubtermInSequent(lt.getFst()::equals, target.getSequent()).isPresent()) {
                     BranchInfoBuilder bib = proofRuleApplicationBuilder.newBranch();
@@ -119,14 +123,11 @@ public class DafnyRule extends AbstractProofRule {
         ProofRuleApplicationBuilder proofRuleApplicationBuilder = handleControlParameters(parameters, target.getSequent());
         try {
             Term on = parameters.getValue(ON_PARAM);
+            TermSelector selector = tsForParameter.get("on");
 
-            List<TermSelector> l = RuleUtil.matchSubtermsInSequent(on::equals, target.getSequent());
-            if(l.size() != 1) {
-                throw new RuleException("Matching of on parameter is ambiguous");
-            }
             ImmutableList<Matching> matchings;
             Term rt;
-            if(!this.polarity.conforms(RuleUtil.getTruePolarity(l.get(0), target.getSequent()))) {
+            if(!this.polarity.conforms(RuleUtil.getTruePolarity(selector, target.getSequent()))) {
                 throw new RuleException("Rule cant be applied to this term due to not conforming polarity.");
             } else {
                 TermMatcher tm = new TermMatcher();
@@ -143,7 +144,7 @@ public class DafnyRule extends AbstractProofRule {
                 rts.add(new Pair<Term, String>(matchings.get(0).instantiate(lt.getFst()), lt.getSnd()));
             }
 
-            proofRuleApplicationBuilder.newBranch().addReplacement(l.get(0), rt).setLabel("case 0");
+            proofRuleApplicationBuilder.newBranch().addReplacement(selector, rt).setLabel("case 0");
 
             for(Pair<Term, String> lt : rts) {
                 if(!RuleUtil.matchSubtermInSequent(lt.getFst()::equals, target.getSequent()).isPresent()) {

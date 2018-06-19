@@ -8,13 +8,19 @@ package edu.kit.iti.algover.rules;
 import java.beans.ParameterDescriptor;
 import java.util.*;
 
+import edu.kit.iti.algover.proof.ProofFormula;
 import edu.kit.iti.algover.proof.ProofNode;
-import edu.kit.iti.algover.term.Sequent;
-import edu.kit.iti.algover.term.Term;
+import edu.kit.iti.algover.term.*;
+import edu.kit.iti.algover.term.builder.ReplaceVisitor;
+import edu.kit.iti.algover.term.builder.TermBuildException;
+import edu.kit.iti.algover.term.match.Matching;
+import edu.kit.iti.algover.term.match.SequentMatcher;
 import edu.kit.iti.algover.term.prettyprint.PrettyPrint;
+import edu.kit.iti.algover.util.ImmutableList;
 import edu.kit.iti.algover.util.Pair;
 import edu.kit.iti.algover.util.RuleUtil;
 import jdk.nashorn.internal.ir.BreakableNode;
+import org.junit.Rule;
 
 /**
  * This class should serve as base class for all {@link ProofRule} implementations.
@@ -49,6 +55,8 @@ public abstract class AbstractProofRule implements ProofRule {
     protected boolean mayBeDeep = true;
 
     private final Map<String, ParameterDescription<?>> allParameters = new HashMap<>();
+
+    protected Map<String, TermSelector> tsForParameter = new HashMap<>();
 
     /**
      * Instantiate a new object.
@@ -116,10 +124,107 @@ public abstract class AbstractProofRule implements ProofRule {
     protected Parameters extractParameters(ProofNode target, Sequent selection, TermSelector selector) throws RuleException {
         Parameters params = new Parameters();
         if(selector != null) {
-            Term on = selector.selectSubterm(selection);
+            Sequent on = getUniqueMatchingTerm(selection, selector);
             params.putValue("on", on);
         }
         return params;
+    }
+
+    /**
+     * Extracts all schematic Parameters and replaces them with concrete Terms. Also fills
+     * {@link AbstractProofRule#tsForParameter} which provides a TermSelector for each Term included in the Parameters.
+     *
+     * @param schematicParams the Parameters including schematic parameters
+     * @param sequent the sequent the rule will be applied to
+     * @throws RuleException Should only happen if there are two identical Terms as TopLevelFormulas
+     */
+    private void extractSchematicParameters(Parameters schematicParams, Sequent sequent) throws RuleException {
+        for(Map.Entry<String, Object> en : schematicParams.entrySet()) {
+            if(en.getValue() instanceof Sequent) {
+                SequentMatcher sm = new SequentMatcher();
+                ImmutableList<Matching> matchings = sm.match((Sequent)en.getValue(), sequent);
+                if(matchings.size() == 0) {
+                    throw new RuleException("Could not find schematic parameter " + en.getValue().toString());
+                }
+                if(matchings.size() > 1) {
+                    throw new RuleException("Schematic parameter " + en.getValue().toString() + " is ambiguous.");
+                }
+                tsForParameter.put(en.getKey(), matchings.get(0).get(en.getKey()).getTermSelector());
+                schematicParams.putValue(en.getKey(),
+                        matchings.get(0).get(en.getKey()).getTermSelector().selectSubterm(sequent));
+            }
+            if(en.getValue() instanceof Term) {
+                Optional<TermSelector> ots = RuleUtil.matchSubtermInSequent(((Term)en.getValue())::equals, sequent);
+                if(ots.isPresent()) {
+                    tsForParameter.put(en.getKey(), ots.get());
+                } else {
+                    throw new RuleException("Could not match parameter " + en.getValue());
+                }
+            }
+        }
+    }
+
+    private Sequent getUniqueMatchingTerm(Sequent sequent, TermSelector selector) throws RuleException {
+        Term t = selector.selectSubterm(sequent);
+        Term schemaCaptureTerm = new SchemaCaptureTerm("on", t);
+        t = new SchemaOccurTerm(schemaCaptureTerm);
+        SequentMatcher sequentMatcher = new SequentMatcher();
+        Sequent schemaSeq;
+        if(selector.isSuccedent()) {
+            schemaSeq = new Sequent(Collections.emptyList(), Collections.singletonList(new ProofFormula(t)));
+        } else {
+            schemaSeq = new Sequent(Collections.singletonList(new ProofFormula(t)), Collections.emptyList());
+        }
+        ImmutableList<Matching> matchings = sequentMatcher.match(schemaSeq, sequent);
+        if(matchings.size() == 1) {
+            return schemaSeq;
+        }
+        TermSelector parentSelector = getParentSelector(selector);
+        if(parentSelector == null) {
+            throw new RuleException("There is no unique matching term for a Parameter.");
+        }
+        return getUniqueMatchingTermRec(sequent, parentSelector,
+                selector.getPath().get(selector.getPath().size() - 1), schemaCaptureTerm);
+    }
+
+    private Sequent getUniqueMatchingTermRec(Sequent sequent, TermSelector selector, int childIdx, Term childTerm) throws RuleException {
+        Term t = selector.selectSubterm(sequent);
+        Term schemaVarTerm = null;
+        try {
+            schemaVarTerm = ReplaceVisitor.replace(t, new SubtermSelector(childIdx), childTerm);
+        } catch (TermBuildException e) {
+            throw new RuleException("Error finding unique matching term.", e);
+        }
+        t = new SchemaOccurTerm(schemaVarTerm);
+        SequentMatcher sequentMatcher = new SequentMatcher();
+        Sequent schemaSeq;
+        if(selector.isSuccedent()) {
+            schemaSeq = new Sequent(Collections.emptyList(), Collections.singletonList(new ProofFormula(t)));
+        } else {
+            schemaSeq = new Sequent(Collections.singletonList(new ProofFormula(t)), Collections.emptyList());
+        }
+        ImmutableList<Matching> matchings = sequentMatcher.match(schemaSeq, sequent);
+        if(matchings.size() == 1) {
+            return schemaSeq;
+        }
+        TermSelector parentSelector = getParentSelector(selector);
+        if(parentSelector == null) {
+            throw new RuleException("There is no unique matching term for a Parameter.");
+        }
+        return getUniqueMatchingTermRec(sequent, parentSelector, selector.getPath().get(selector.getPath().size() - 1), schemaVarTerm);
+    }
+
+    private TermSelector getParentSelector(TermSelector selector) {
+        if(selector.getPath().size() <= 0) {
+            return null;
+        }
+        List<Integer> path = selector.getPath();
+        int intPath[] = new int[selector.getPath().size() - 1];
+        for(int i = 0; i < intPath.length; ++i) {
+            intPath[i] = selector.getPath().get(i);
+        }
+
+        return new TermSelector(selector.getPolarity(), selector.getTermNo(), intPath);
     }
 
     /**
@@ -147,6 +252,7 @@ public abstract class AbstractProofRule implements ProofRule {
      */
     public final ProofRuleApplication considerApplication(ProofNode target, Sequent selection, TermSelector selector) throws RuleException {
         Parameters params = extractParameters(target, selection, selector);
+        extractSchematicParameters(params, selection);
         return considerApplication(target, params);
     }
 
@@ -160,6 +266,7 @@ public abstract class AbstractProofRule implements ProofRule {
      * @throws RuleException
      */
     public final ProofRuleApplication considerApplication(ProofNode target, Parameters parameters) throws RuleException {
+        extractSchematicParameters(parameters, target.getSequent());
         ProofRuleApplication pra = considerApplicationImpl(target, parameters);
         ProofRuleApplicationBuilder builder = new ProofRuleApplicationBuilder(pra);
         if(pra.getApplicability() == ProofRuleApplication.Applicability.APPLICABLE && pra.getBranchCount() > 0) {
@@ -191,6 +298,7 @@ public abstract class AbstractProofRule implements ProofRule {
      */
     public final ProofRuleApplication makeApplication(ProofNode target, Parameters parameters) throws RuleException {
         checkParameters(parameters);
+        extractSchematicParameters(parameters, target.getSequent());
         ProofRuleApplication pra = makeApplicationImpl(target, parameters);
         String transcript = getTranscript(pra, parameters);
         return new ProofRuleApplicationBuilder(pra).setTranscript(transcript).build();
