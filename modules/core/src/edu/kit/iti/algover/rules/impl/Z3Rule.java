@@ -100,22 +100,22 @@ public class Z3Rule extends AbstractProofRule {
         System.out.println();
        
        
-        System.out.println("SMT: ");
-        System.out.println();
-       smt = sc.toSMT();
-        System.out.println(smt);
+   //     System.out.println("SMT: ");
+   //     System.out.println();
+ //      smt = sc.toSMT();
+   //     System.out.println(smt);
 //        
 //        
-        System.out.println();
+     //   System.out.println();
         
  
-        SolverResponse r1 = z3access.accessSolver(sc.toSMT());
+    //    SolverResponse r1 = z3access.accessSolver(sc.toSMT());
         
         //SolverResponse r2 = cvcaccess.accessSolver(sc.toSMT().replace("Null", "ArrInt").replace("setcardT","setcardInt").replace("setEmptyT", "setEmptyInt"));
         
        
         
-        System.out.println(r1.getResponse().name());
+  //      System.out.println(r1.getResponse().name());
         
         
         //if (r1.getResponse() == Response.SAT)

@@ -112,36 +112,20 @@ public class AxiomContainer {
 
 
     private static boolean isApplicable(String axiom, Sort sort) {
+        
 
-        List<String> typeVariables = new ArrayList<String>();
+        
+        
+        if (!axiom.contains("(par"))
+            return false;
+        Pair<List<String>, String> p = prepare(axiom);
+        List<String> tvs = p.fst;
+        if (tvs.size() != TypeContext.normalizeSort(sort).split("\\.").length)
+            return false;
+        
 
-        // remove par, TV
-        Matcher matcher = typeVars.matcher(axiom);
-        if (matcher.find()) {
-            String[] tvs = matcher.group(1).split(" ");
-            for (String s : tvs) {
-                typeVariables.add(s);
-                axiom = axiom.replaceFirst(s, "");
-            }
-            axiom = axiom.replaceFirst("\\(par \\(", "");
-            axiom = axiom.replaceFirst("\\)", "");
-        }
-
-        List<String> subtypes = TypeContext.getSubTypes(sort);
-
-        for (String t : typeVariables) {
-
-            for (String ty : subtypes) {
-
-                String pre = "(" + ty + " " + t + ")";
-                if (axiom.contains(pre)) {
-                    return true;
-                }
-
-            }
-        }
-
-        return false;
+        return true;
+        
     }
 
     public static List<String> instantiateSort(FunctionSymbol t) {
@@ -168,7 +152,7 @@ public class AxiomContainer {
         String r = "";
         for (Sort s : t.getArgumentSorts()) {
             if (isApplicable(a.getSmt(), s)) {
-                r += a.getSmt() + " :: " + TypeContext.normalizeSort(s);
+                r += a.getSmt() + " :: " + TypeContext.normalizeSort(s) + "\r\n";
             }
         }
         return r;
@@ -184,9 +168,9 @@ public class AxiomContainer {
             }
 
         }
-        if (!TypeContext.isBuiltIn(t.getResultSort())) {
-            sorts.add("(declare-sort " + TypeContext.normalizeSort(t.getResultSort()) + " 0)");
-        }
+//        if (!TypeContext.isBuiltIn(t.getResultSort())) {
+//            sorts.add("(declare-sort " + TypeContext.normalizeSort(t.getResultSort()) + " 0)");
+//        }
         return sorts;
     }
 
