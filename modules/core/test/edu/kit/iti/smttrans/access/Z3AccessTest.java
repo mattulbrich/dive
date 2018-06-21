@@ -9,9 +9,9 @@ import edu.kit.iti.algover.smttrans.access.SolverResponse;
 import edu.kit.iti.algover.smttrans.access.Z3Access;
 
 public class Z3AccessTest {
-
     @Test
     public void unsatTest() throws Exception {
+        
         String smt = "\r\n" + "            (declare-sort Heap 0)\r\n" + "      (declare-sort ArrInt 0)\r\n"
                 + "      (declare-const ~a ArrInt)\r\n" + "      (declare-const ~null ArrInt)\r\n"
                 + "      (declare-const ~heap Heap)\r\n" + "      (declare-const ~i Int)\r\n"
