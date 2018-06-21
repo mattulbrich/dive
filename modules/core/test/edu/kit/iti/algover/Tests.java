@@ -46,6 +46,7 @@ import edu.kit.iti.algover.util.TestLabelIntroducer;
 import edu.kit.iti.algover.util.UtilTest;
 import edu.kit.iti.smttrans.access.Z3AccessTest;
 import edu.kit.iti.smttrans.translate.SetTest;
+import edu.kit.iti.smttrans.translate.SumAndMaxTest;
 
 @RunWith(Suite.class)
 @SuiteClasses({
@@ -86,8 +87,10 @@ import edu.kit.iti.smttrans.translate.SetTest;
 //    ChainedRelationsVisitorTest.class,
 //    ImplicitlyTypedVariableVisitorTest.class,
 //        RuleUtilTest.class,
-        Z3AccessTest.class, 
-        SetTest.class
+     
+    //Z3AccessTest.class, 
+       // SetTest.class,
+        SumAndMaxTest.class
     })
 public class Tests {
 }

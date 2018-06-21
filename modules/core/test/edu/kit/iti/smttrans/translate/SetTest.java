@@ -1,18 +1,10 @@
 package edu.kit.iti.smttrans.translate;
 
-import static org.junit.Assert.assertTrue;
-
 import java.io.File;
-import java.util.ArrayList;
-import java.util.Collection;
-
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-import edu.kit.iti.algover.data.BuiltinSymbols;
-import edu.kit.iti.algover.data.MapSymbolTable;
-import edu.kit.iti.algover.data.SymbolTable;
 import edu.kit.iti.algover.project.Project;
 import edu.kit.iti.algover.project.ProjectBuilder;
 import edu.kit.iti.algover.project.ProjectManager;
@@ -20,11 +12,7 @@ import edu.kit.iti.algover.proof.PVC;
 import edu.kit.iti.algover.proof.PVCCollection;
 import edu.kit.iti.algover.proof.Proof;
 import edu.kit.iti.algover.proof.ProofStatus;
-import edu.kit.iti.algover.script.exceptions.ScriptCommandNotApplicableException;
-import edu.kit.iti.algover.term.FunctionSymbol;
 import edu.kit.iti.algover.term.Sequent;
-import edu.kit.iti.algover.term.Term;
-import edu.kit.iti.algover.term.parser.TermParser;
 
 public class SetTest {
 
