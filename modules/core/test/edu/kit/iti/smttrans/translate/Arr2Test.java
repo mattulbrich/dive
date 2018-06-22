@@ -1,23 +1,20 @@
 package edu.kit.iti.smttrans.translate;
 
 import java.io.File;
+
 import org.junit.Assert;
-import org.junit.Before;
 import org.junit.Test;
 
 import edu.kit.iti.algover.project.Project;
-import edu.kit.iti.algover.project.ProjectBuilder;
 import edu.kit.iti.algover.project.ProjectManager;
 import edu.kit.iti.algover.proof.PVC;
 import edu.kit.iti.algover.proof.PVCCollection;
 import edu.kit.iti.algover.proof.Proof;
 import edu.kit.iti.algover.proof.ProofStatus;
-import edu.kit.iti.algover.term.Sequent;
 
-public class SetTest {
-
+public class Arr2Test {
     private static final String testDir = "modules/core/test-res/edu/kit/iti/algover/smttrans".replace('/', File.separatorChar);
-    private static final String config = "setsconfig.xml";
+    private static final String config = "arr2config.xml";
 
 
 
@@ -43,4 +40,6 @@ public class SetTest {
         pm.saveProject();
 
     }
+
+
 }

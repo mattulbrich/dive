@@ -138,10 +138,10 @@ public enum Axiom {
         ARRSELECT.smt = "(declare-fun (par (T) (arrselectT (Heap (ArrT) Int) T)))";
         ARRSTORE.smt = "(declare-fun (par (T) (arrstoreT (Heap (ArrT) Int T) Heap)))";
         ARRLEN.smt = "(declare-fun (par (T)(arrlenT (ArrT) Int)))";
-        ARR2SELECT.smt = "(declare-fun (par (T) (arr2selectT (Heap (Arr2 T) Int Int) T)))";
+        ARR2SELECT.smt = "(declare-fun (par (T) (arr2selectT (Heap (Arr2T) Int Int) T)))";
         ARR2STORE.smt = "(declare-fun (par (T) (arr2storeT (Heap (Arr2T) Int Int T) Heap)))";
-        ARR2LEN0.smt = "(declare-fun (par (T) (arr2Tlen0  ((Arr2T)) Int)))";
-        ARR2LEN1.smt = "(declare-fun (par (T) (arr2Tlen1 ((Arr2T)) Int)))";
+        ARR2LEN0.smt = "(declare-fun (par (T) (arr2len0T  ((Arr2T)) Int)))";
+        ARR2LEN1.smt = "(declare-fun (par (T) (arr2len1T ((Arr2T)) Int)))";
 
         /**
          * Axioms
@@ -276,7 +276,7 @@ public enum Axiom {
         ARR_2.smt = "(assert (par (T) (forall\r\n" + "(\r\n" + "    (a (ArrT))\r\n" + ")\r\n" + "(!\r\n"
                 + "    (> (arrlenT a) 0) :pattern((arrlenT a))\r\n" + "))))";
         ARR2_1.smt = "(assert (par (T) (forall\r\n" + "(\r\n" + "    (i Int)\r\n" + "    (j Int)\r\n"
-                + "    (h Heap)\r\n" + "    (a (Arr2 T))\r\n" + "    (v T)\r\n" + ")\r\n" + "(!\r\n"
+                + "    (h Heap)\r\n" + "    (a (Arr2T))\r\n" + "    (v T)\r\n" + ")\r\n" + "(!\r\n"
                 + "    (= (arr2selectT (arr2storeT h a i j v) a i j) v) :pattern((arr2storeT h a i j v) )\r\n"
                 + "))))";
         HEAP_1.smt = "(assert (par (C T) (forall\r\n" + "(\r\n" + "    (v T)\r\n" + "    (h Heap)\r\n"

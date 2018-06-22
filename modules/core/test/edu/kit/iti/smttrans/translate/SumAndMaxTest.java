@@ -2,17 +2,15 @@ package edu.kit.iti.smttrans.translate;
 
 import java.io.File;
 import org.junit.Assert;
-import org.junit.Before;
 import org.junit.Test;
 
 import edu.kit.iti.algover.project.Project;
-import edu.kit.iti.algover.project.ProjectBuilder;
 import edu.kit.iti.algover.project.ProjectManager;
 import edu.kit.iti.algover.proof.PVC;
 import edu.kit.iti.algover.proof.PVCCollection;
 import edu.kit.iti.algover.proof.Proof;
 import edu.kit.iti.algover.proof.ProofStatus;
-import edu.kit.iti.algover.rules.impl.Z3Rule;
+
 
 public class SumAndMaxTest {
 

@@ -27,6 +27,8 @@ public class TypeContext {
     private static SymbolTable symbolTable = new MapSymbolTable(new HashSet<FunctionSymbol>());
     public static final String AV_ARRNAME = "array";
     public static final String SMT_ARRNAME = "Arr";
+    public static final String AV_ARR2NAME = "array2";
+    public static final String SMT_ARR2NAME = "Arr2";
     public static final String AV_INTNAME = "int";
     public static final String SMT_INTNAME = "Int";
     public static final String AV_BOOLNAME = "bool";
@@ -49,10 +51,12 @@ public class TypeContext {
         smap.put(AV_HEAPNAME, SMT_HEAPNAME);
         smap.put(AV_AHEAP, Operation.AHEAP.toSMT());
         smap.put(AV_DECR, Operation.DECR.toSMT());
+        smap.put(AV_ARR2NAME, SMT_ARR2NAME);
 
         nmap.put(AV_MODNAME, Operation.MOD.toSMT());
 
         nmap.put(AV_ARRNAME, SMT_ARRNAME);
+        nmap.put(AV_ARR2NAME, SMT_ARR2NAME);
         nmap.put(AV_INTNAME, SMT_INTNAME);
         nmap.put(AV_BOOLNAME, SMT_BOOLNAME);
         nmap.put(AV_HEAPNAME, SMT_HEAPNAME);

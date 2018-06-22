@@ -24,6 +24,7 @@ import edu.kit.iti.algover.smt.SMTQuickNDirty;
 import edu.kit.iti.algover.smttrans.access.CVCAccess;
 import edu.kit.iti.algover.smttrans.access.Response;
 import edu.kit.iti.algover.smttrans.access.SolverAccess;
+import edu.kit.iti.algover.smttrans.access.SolverParameter;
 import edu.kit.iti.algover.smttrans.access.SolverResponse;
 import edu.kit.iti.algover.smttrans.access.Z3Access;
 import edu.kit.iti.algover.smttrans.data.SMTContainer;
@@ -126,7 +127,8 @@ public class Z3Rule extends AbstractProofRule {
 
         System.out.println();
 
-        SolverResponse r1 = z3access.accessSolver(sc.toSMT());
+        SolverParameter p = new SolverParameter(smt,3, true);
+        SolverResponse r1 = z3access.accessSolver(p);
 
         // SolverResponse r2 = cvcaccess.accessSolver(sc.toSMT().replace("Null",
         // "ArrInt").replace("setcardT","setcardInt").replace("setEmptyT",

@@ -9,6 +9,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public class CVCAccess extends SolverAccess {
@@ -26,9 +27,10 @@ public class CVCAccess extends SolverAccess {
             "(assert (> c 0))\r\n" + 
             "(assert (not(> (getSum a b c d) 0)))";
     @Override
-    public SolverResponse accessSolver(String smt) {
+    public SolverResponse accessSolver(SolverParameter p) {
+        
         //Process process;
-
+        String smt = p.getSMT();
         try {
           //  Process process = buildProcess();
             File f = File.createTempFile("file",".smt2");
