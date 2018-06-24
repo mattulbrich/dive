@@ -10,7 +10,7 @@ import static java.util.Arrays.asList;
 
 public enum Operation {
 
-    PLUS, MINUS, TIMES, IMP, GT, LT, EQ, NOT, GE, LE, NEG, ITE, ARR2SELECT, ARRSTORE, ARR2STORE, FIELDSTORE, FIELDSELECT, DECR, SETUNION, SETINTERSECT, SETCARD, SEQCONCAT, ISCREATED, CREATE, ANON, SEQCONS, SEQEMPTY, SEQUPD, SEQGET, SEQLEN, SETIN, SETADD, CONST, ARRLEN, ARR2LEN0, ARR2LEN1, EXISTS, FORALL, LET, ARRSELECT, VAR, HEAP, AND, BV, MOD, AHEAP, EVERYTHING;
+  OR, SETEMPTY, PLUS, MINUS, TIMES, IMP, GT, LT, EQ, NOT, GE, LE, NEG, ITE, ARR2SELECT, ARRSTORE, ARR2STORE, FIELDSTORE, FIELDSELECT, DECR, SETUNION, SETINTERSECT, SETCARD, SEQCONCAT, ISCREATED, CREATE, ANON, SEQCONS, SEQEMPTY, SEQUPD, SEQGET, SEQLEN, SETIN, SETADD, CONST, ARRLEN, ARR2LEN0, ARR2LEN1, EXISTS, FORALL, LET, ARRSELECT, VAR, HEAP, AND, BV, MOD, AHEAP, EVERYTHING;
 
     private String smt;
     private Boolean poly;
@@ -97,9 +97,14 @@ public enum Operation {
         SEQCONS.poly = true;
         SEQCONS.instantiations = asList(Axiom.SEQEMTY_INST); //TODO
 
-        SEQEMPTY.smt = "emptyseq";
+        SEQEMPTY.smt = "seqEmpty";
         SEQEMPTY.poly = true;
         SEQEMPTY.instantiations = asList(Axiom.SEQEMTY_INST,Axiom.SEQ_LEN,Axiom.SEQ_LEN_5);
+        
+        SETEMPTY.smt = "setEmpty";
+        SETEMPTY.poly = true;
+        SETEMPTY.instantiations = asList(Axiom.SETEMPTY_INST,Axiom.SET_CARD,Axiom.SET_6,Axiom.SET_CARD_1);
+        
 
         SEQUPD.smt = "seqstore";
         SEQUPD.poly = true;
@@ -141,6 +146,9 @@ public enum Operation {
 
         AND.smt = "and";
         AND.poly = false;
+        
+        OR.smt = "or";
+        OR.poly = false;
 
         IMP.smt = "=>";
         IMP.poly = false;
@@ -174,7 +182,7 @@ public enum Operation {
         LE.poly = false;
 
 
-        NEG.smt = "NEG";
+        NEG.smt = "-";
         NEG.poly = false;
 
 

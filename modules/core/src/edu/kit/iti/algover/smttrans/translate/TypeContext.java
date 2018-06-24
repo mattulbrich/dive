@@ -27,6 +27,8 @@ public class TypeContext {
     private static SymbolTable symbolTable = new MapSymbolTable(new HashSet<FunctionSymbol>());
     public static final String AV_ARRNAME = "array";
     public static final String SMT_ARRNAME = "Arr";
+    public static final String AV_SETEMPTYNAME = "empty<object>";
+    public static final String SMT_SETEMPTYNAME = "setEmptyObject";
     public static final String AV_ARR2NAME = "array2";
     public static final String SMT_ARR2NAME = "Arr2";
     public static final String AV_INTNAME = "int";
@@ -54,7 +56,7 @@ public class TypeContext {
         smap.put(AV_ARR2NAME, SMT_ARR2NAME);
 
         nmap.put(AV_MODNAME, Operation.MOD.toSMT());
-
+        nmap.put(AV_SETEMPTYNAME, SMT_SETEMPTYNAME);
         nmap.put(AV_ARRNAME, SMT_ARRNAME);
         nmap.put(AV_ARR2NAME, SMT_ARR2NAME);
         nmap.put(AV_INTNAME, SMT_INTNAME);
@@ -162,22 +164,20 @@ public class TypeContext {
     public static String normalizeSort(Sort s) {
         String name = s.toString();
 
-        
         if (smap.containsKey(name)) {
-           // System.out.println("N " + name);
+            // System.out.println("N " + name);
             return smap.get(name);
         }
-           
-        
-//        if (!name.contains("<")) {
-//            for (String t : smap.keySet()) {
-//                name = name.replaceAll("(?i)"+t, smap.get(t));
-//            }
-//        }
+
+        // if (!name.contains("<")) {
+        // for (String t : smap.keySet()) {
+        // name = name.replaceAll("(?i)"+t, smap.get(t));
+        // }
+        // }
         String r = parsePolyString(name);
-//        if(r.equals("ArrayInt"))
-//            return "ArrInt";
-//        //return parsePolyString(name);
+        // if(r.equals("ArrayInt"))
+        // return "ArrInt";
+        // //return parsePolyString(name);
         return r;
     }
 

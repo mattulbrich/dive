@@ -1,7 +1,7 @@
 package edu.kit.iti.algover.smttrans.access;
 
 import java.util.ArrayList;
-
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -21,8 +21,8 @@ public class Model {
     private List<String> contents;
     private BiMap<String, String> vars;
     private List<List<String>> assignments;
-    private static final String DECL = "(declare-fun";
-    private static final String DEF = "(define-fun";
+    private static final String DECL = "declare-fun";
+    private static final String DEF = "define-fun";
     private static final String PRE = Names.getPrefix();
     private static final String ITE = "(ite";
     private static final String VAL = "val";
@@ -30,13 +30,15 @@ public class Model {
 
     public Model(List<String> contents) {
         this.contents = contents;
-        this.vars = parseVars();
-        this.assignments = parseModel(parseFuncs(contents));
+        //this.vars = parseVars();
+      //  this.assignments = parseModel(parseFuncs(contents));
+        parseVars();
+        
 
-        System.out.println(parseVars().toString());
-        System.out.println(parseFuncs(contents).toString());
-        parseModel(parseFuncs(contents));
-        printAssignments();
+//        System.out.println(parseVars().toString());
+//        System.out.println(parseFuncs(contents).toString());
+//        parseModel(parseFuncs(contents));
+//        printAssignments();
     }
 
     
@@ -65,57 +67,6 @@ public class Model {
         
         System.out.println("=== ===");
     }
-    /**
-     * z3 (define-fun c () Int 1) [java] [java] [java] (define-fun b () Int 1)
-     * [java] [java] [java] (define-fun a () Int 1) [java] [java] [java] (define-fun
-     * d () Int (- 3))
-     * 
-     * @return
-     */
-
-    /**
-     * cvc4
-     * 
-     * [java] (model [java] (define-fun a () Int 1) [java] (define-fun b () Int 1)
-     * [java] (define-fun c () Int 1) [java] (define-fun d () Int (- 3)) [java] )
-     * 
-     * @return
-     */
-
-    /**
-     * (model [java] ;; universe for SetInt: [java] ;; SetInt!val!2 SetInt!val!4
-     * SetInt!val!1 SetInt!val!0 SetInt!va l!3 [java] ;; ----------- [java] ;;
-     * definitions for universe elements: [java] (declare-fun SetInt!val!2 ()
-     * SetInt) [java] (declare-fun SetInt!val!4 () SetInt) [java] (declare-fun
-     * SetInt!val!1 () SetInt) [java] (declare-fun SetInt!val!0 () SetInt) [java]
-     * (declare-fun SetInt!val!3 () SetInt) [java] ;; cardinality constraint: [java]
-     * (forall ((x SetInt)) [java] (or (= x SetInt!val!2) [java] (= x SetInt!val!4)
-     * [java] (= x SetInt!val!1) [java] (= x SetInt!val!0) [java] (= x
-     * SetInt!val!3))) [java] ;; ----------- [java] (define-fun setEmptyInt ()
-     * SetInt [java] SetInt!val!0) [java] (define-fun s2 () SetInt [java]
-     * SetInt!val!2) [java] (define-fun s1 () SetInt [java] SetInt!val!1) [java]
-     * (define-fun inSetInt ((x!0 SetInt) (x!1 Int)) Bool [java] true) [java]
-     * (define-fun setInsertInt ((x!0 SetInt) (x!1 Int)) SetInt [java] SetInt!val!4)
-     * [java] (define-fun setcardInt!16 ((x!0 SetInt)) Int [java] (ite (= x!0
-     * SetInt!val!0) 0 [java] (ite (= x!0 SetInt!val!2) 6 [java] 1))) [java]
-     * (define-fun k!15 ((x!0 SetInt)) SetInt [java] (ite (= x!0 SetInt!val!0)
-     * SetInt!val!0 [java] (ite (= x!0 SetInt!val!2) SetInt!val!2 [java] (ite (= x!0
-     * SetInt!val!4) SetInt!val!4 [java] (ite (= x!0 SetInt!val!1) SetInt!val!1
-     * [java] SetInt!val!3))))) [java] (define-fun setcardInt ((x!0 SetInt)) Int
-     * [java] (setcardInt!16 (k!15 x!0))) [java] (define-fun unionInt ((x!0 SetInt)
-     * (x!1 SetInt)) SetInt [java] SetInt!val!3) [java] )
-     * 
-     * @return
-     */
-    /**
-     * Decl: (declare-fun SetInt!val!2 () SetInt) [java] Decl: (declare-fun
-     * SetInt!val!4 () SetInt) [java] Decl: (declare-fun SetInt!val!1 () SetInt)
-     * [java] Decl: (declare-fun SetInt!val!0 () SetInt) [java] Decl: (declare-fun
-     * SetInt!val!3 () SetInt)
-     * 
-     * 
-     * @return
-     */
 
     private boolean isRelevant(String s) {
         if (TypeContext.isNumeric(s.replace("(", "").replace(")", "")))
@@ -194,39 +145,67 @@ public class Model {
         return nmodel;
     }
 
-    private BiMap<String, String> parseVars() {
-        BiMap<String, String> subs = HashBiMap.create();
+    private List<List<String>> parseVars() {
+        //BiMap<String, String> subs = HashBiMap.create();
 
+        List<List<String>> vars = new ArrayList<>();
         for (String d : contents) {
-            String line = d.trim();
+            String line = d.trim().replaceAll(" +", " ");
+            line = line.substring(1,line.length()-1);
+//            if(line.startsWith(";"))
+//                continue;
             // System.out.println();
             // System.out.println(line);
             // System.out.println();
-            if (line.startsWith(DEF) && line.contains(PRE)) {
-
-                String[] parts = line.split("(?<![\\(,\\)])\\s+");
-
-                String k = "";
-                String v = "";
-                for (String p : parts) {
-
-                    if (p.contains(PRE)) {
-                        k = p;
-                        continue;
-                    }
-                    if (p.contains(VAL)) {
-                        v = p;
-                        continue;
-                    }
-                }
-
-                subs.put(k, v.substring(0, v.length() - 1));
+//            System.out.println("L " + line);
+            if (line.startsWith(DECL)) {
+                List<String> parts = Arrays.asList(line.split("(?<![\\(,\\)])\\s+"));
+                    System.out.println(parts.toString());
+                List<String> decl = new ArrayList<>();
+                decl.add("Decl: ");
+                decl.addAll(parts.subList(1,parts.size()));
+                vars.add(decl);
+                continue;
             }
+            
+            if (line.startsWith(DEF)) {
+                List<String> parts = Arrays.asList(line.split("(?<![\\(,\\)])\\s+"));
+                    System.out.println(parts.toString());
+                List<String> decl = new ArrayList<>();
+                decl.add("Def: ");
+                decl.addAll(parts.subList(1,parts.size()));
+                vars.add(decl);
+                continue;
+            }
+            
+            
+
+//               
+//
+//                String k = "";
+//                String v = "";
+//                for (String p : parts) {
+//
+//                    if (p.contains(PRE)) {
+//                        k = p;
+//                        continue;
+//                    }
+//                    if (p.contains(VAL)) {
+//                        v = p;
+//                        continue;
+//                    }
+//                }
+//
+//                subs.put(k, v.substring(0, v.length() - 1));
+//            }
+//
+//        }
 
         }
-
-        // System.out.println(subs.toString());
-        return subs;
+//
+//        System.out.println(subs.toString());
+        System.out.println("Vars " + vars.toString());
+        return vars;
     }
 
     @Override

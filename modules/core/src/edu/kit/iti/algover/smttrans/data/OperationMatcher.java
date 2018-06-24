@@ -24,7 +24,7 @@ public class OperationMatcher {
         opmap.put("$neg", Operation.NEG);
         opmap.put("$times", Operation.TIMES);
         opmap.put("$ite", Operation.ITE);
-
+        opmap.put("$or", Operation.OR);
         opmap.put("$imp", Operation.IMP);
         opmap.put("$and", Operation.AND);
         opmap.put("$lt", Operation.LT);
@@ -60,7 +60,7 @@ public class OperationMatcher {
         
         opmap.put("$mod", Operation.MOD);
          opmap.put("$everything", Operation.EVERYTHING);
-         opmap.put("$empty", Operation.ARRSTORE);
+         opmap.put("$empty", Operation.SETEMPTY);
         opmap.put("$heap", Operation.HEAP);
         opmap.put("$aheap", Operation.AHEAP);
     }
