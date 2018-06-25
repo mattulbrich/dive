@@ -14,6 +14,8 @@ public class SMTTerm {
         this.expression = e;
 
     }
+    
+
 
     public String toSMT(boolean negate) {
         StringBuilder sb = new StringBuilder();

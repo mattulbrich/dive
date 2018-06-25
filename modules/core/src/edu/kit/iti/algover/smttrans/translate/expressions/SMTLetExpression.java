@@ -16,24 +16,24 @@ public class SMTLetExpression extends SMTExpression {
     @Override
     public String toSMT(boolean negate) {
         StringBuilder sb = new StringBuilder();
-//        LinkedHashSet<Dependency> set = new LinkedHashSet<>();
-//        StringBuilder sb = new StringBuilder();
         for (SMTExpression s : subs) {
-            String sp = s.toSMT(false);
-            //set.addAll(sp.fst);
-            sb.append(sp);
-           // sb.append(s.toSMT());
-       }
-//        
-        sb.append(")"); 
-        sb.append("\r\n");
-        sb.append("(assert"); //INNER
-        String ip = inner.toSMT(negate);
-//        set.addAll(ip.fst);
-        sb.append(ip);
+
+            sb.append(s.toSMT(false));
+        }
         sb.append(")");
-//        //return sb.toString();
-//        return new Pair<LinkedHashSet<Dependency>, String>(set, sb.toString());
+        sb.append("\r\n");
+        sb.append("(assert");
+        if (inner instanceof SMTConstExpression) {
+            sb.append(" (not ");
+            sb.append(inner.toSMT(negate));
+            sb.append("))");
+
+        } else {
+
+            sb.append(inner.toSMT(negate));
+            sb.append(")");
+        }
+        ;
         return sb.toString();
     }
 

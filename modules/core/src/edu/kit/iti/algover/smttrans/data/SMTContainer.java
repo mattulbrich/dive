@@ -41,6 +41,7 @@ public class SMTContainer {
         sb.append(instantiateDep());
         antecedent.forEach(t -> sb.append(cleanUp(t.toSMT(false))));
         succedent.forEach(s -> sb.append(cleanUp(s.toSMT(true)))); // negate
+    
 
         
         return cleanUp(sb.toString());
@@ -71,7 +72,7 @@ public class SMTContainer {
                 } else if (s.startsWith("(inst-const")) {
                     constants.add(s);
                     continue;
-                } else if (s.startsWith("(inst-fun")) { //TODO ?
+                } else if (s.startsWith("(inst-fun")) { 
                     functions.add(s);
                     continue;
 
