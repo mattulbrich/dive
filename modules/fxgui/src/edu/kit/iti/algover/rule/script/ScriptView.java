@@ -3,12 +3,15 @@ package edu.kit.iti.algover.rule.script;
 import de.jensd.fx.glyphs.GlyphsDude;
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon;
 import edu.kit.iti.algover.AlgoVerApplication;
+import edu.kit.iti.algover.editor.HighlightingRule;
+import edu.kit.iti.algover.parser.DafnyLexer;
 import edu.kit.iti.algover.script.ScriptLanguageLexer;
 import edu.kit.iti.algover.script.parser.Facade;
 import edu.kit.iti.algover.util.AsyncHighlightingCodeArea;
 import javafx.application.Platform;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.MenuItem;
+import org.antlr.runtime.ANTLRStringStream;
 import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.Token;
 import org.fxmisc.richtext.model.StyleSpan;
@@ -30,10 +33,12 @@ import java.util.concurrent.ExecutorService;
 public class ScriptView extends AsyncHighlightingCodeArea {
 
     private final ScriptViewListener listener;
+    private HighlightingRulev4 highlightingRule;
 
     public ScriptView(ExecutorService executor, ScriptViewListener listener) {
         super(executor);
         this.listener = listener;
+        this.highlightingRule = (token, syntaxClasses) -> syntaxClasses;
 
         getStylesheets().add(AlgoVerApplication.class.getResource("syntax-highlighting.css").toExternalForm());
 
@@ -46,6 +51,8 @@ public class ScriptView extends AsyncHighlightingCodeArea {
         );
         setContextMenu(menu);
         setupAsyncSyntaxhighlighting();
+
+        textProperty().addListener((observable, oldValue, newValue) -> listener.onAsyncScriptTextChanged(newValue));
     }
 
     @Override
@@ -61,21 +68,15 @@ public class ScriptView extends AsyncHighlightingCodeArea {
         ScriptLanguageLexer lexer = new ScriptLanguageLexer(CharStreams.fromStream(stream, StandardCharsets.UTF_8));
 
         Token token;
-        while ((token = lexer.nextToken()).getType() != Token.EOF) {
-            if (token.getLine() == getCurrentParagraph() + 1) {
-                Collection<String> sytle = new ArrayList<>(styleClassForToken(token.getType()));
-                sytle.add("highlight-line");
-                builder.add(sytle,
-                        token.getText().length());
-            } else {
-                builder.add(styleClassForToken(token.getType()),
-                        token.getText().length());
-            }
+        while ((token = lexer.nextToken()).getType() != org.antlr.runtime.Token.EOF) {
+            builder.add(
+                    highlightingRule.handleToken(
+                            token,
+                            styleClassForToken(token.getType())),
+                    token.getText().length());
         }
 
-        lexer.reset();
-
-        listener.onAsyncScriptTextChanged(text);
+        //listener.onAsyncScriptTextChanged(text);
 
         return builder.create();
     }
@@ -94,6 +95,21 @@ public class ScriptView extends AsyncHighlightingCodeArea {
         }
     }
 
+    /**
+     * Set another highlighting rule. This rule will compute additional highlighting and has
+     * the lexers computed highlighting classes information available.
+     *
+     * @param highlightingRule the highlighting rule to execute on top of the dafny syntax highlighting
+     * @see HighlightingRule
+     */
+    public void setHighlightingRule(HighlightingRulev4 highlightingRule) {
+        if (highlightingRule == null) {
+            this.highlightingRule = (token, syntaxClasses) -> syntaxClasses;
+        } else {
+            this.highlightingRule = highlightingRule;
+        }
+    }
+
     public void highlightLine() {
         StyleSpansBuilder<Collection<String>> builder = new StyleSpansBuilder<>();
         String text = getText();
@@ -109,15 +125,15 @@ public class ScriptView extends AsyncHighlightingCodeArea {
         if (lexer != null) {
             Token token;
             while ((token = lexer.nextToken()).getType() != Token.EOF) {
-                if (token.getLine() == getCurrentParagraph() + 1) {
-                    Collection<String> sytle = new ArrayList<>(styleClassForToken(token.getType()));
-                    sytle.add("highlight-line");
-                    builder.add(sytle,
-                            token.getText().length());
-                } else {
+//                if (token.getLine() == getCurrentParagraph() + 1) {
+//                    Collection<String> sytle = new ArrayList<>(styleClassForToken(token.getType()));
+//                    sytle.add("highlight-line");
+//                    builder.add(sytle,
+//                            token.getText().length());
+//                } else {
                     builder.add(styleClassForToken(token.getType()),
                             token.getText().length());
-                }
+//                }
             }
             try {
                 builder.create();
