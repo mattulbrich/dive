@@ -178,8 +178,8 @@ public class Model {
             definitions.add(v);
         }
 
-        System.out.println("Declarations " + declaratations.toString());
-        System.out.println(vMap.toString());
+      //  System.out.println("Declarations " + declaratations.toString());
+      //  System.out.println(vMap.toString());
         return new Pair<List<List<String>>, List<List<String>>>(declaratations, definitions);
     }
 
@@ -214,7 +214,7 @@ public class Model {
 
             if (line.startsWith(DEF)) {
                 List<String> parts = Arrays.asList(line.split("(?<![\\(,\\)])\\s+"));
-                System.out.println(parts.toString());
+             //   System.out.println(parts.toString());
                 List<String> decl = new ArrayList<>();
                 decl.add("Def: ");
                 decl.addAll(parts.subList(1, parts.size()));
@@ -224,7 +224,7 @@ public class Model {
 
         }
 
-        System.out.println("Vars " + vars.toString());
+      //  System.out.println("Vars " + vars.toString());
         return vars;
     }
 

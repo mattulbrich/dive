@@ -94,7 +94,7 @@ public enum Axiom {
         SET_SUBSET.smt = "(declare-fun (par (T) (subsetT (SetT SetT) Bool)))";
         SET_SINGLE.smt = "(define-fun  (par (T) (setsingle ((t T) (s (SetT))) (SetT)))\r\n"
                 + "(store setEmpty t true)\r\n" + ")";
-        SET_INSERT.smt = "(declare-fun (par (T) (setInsertT ((SetT) T) (SetT))))";
+        SET_INSERT.smt = "(declare-fun (par (T) (setInsertT (T (SetT)) (SetT))))";
         SET_SELECT.smt = "";
         SET_IN.smt = "(declare-fun (par (T) (inSetT (T (SetT))  Bool)))";
 
@@ -104,12 +104,12 @@ public enum Axiom {
         MULTISET_MINUS.smt = "(declare-fun (par (T) (msetminusT ((MultiSetT) (MultiSetT)) (MultiSetT))))";
         MULTISET_CARD.smt = "(declare-fun (par (T) (mcardT ((MultiSetT)) Int)))";
         MULTISET_SUBSET.smt = "(declare-fun (par (T) (msubsetT ((MultiSetT) (MultiSetT)) Bool)))";
-        MULTISET_INSERT.smt = "(declare-fun (par (T) (msetinsertT  ((MultiSetT) T) (MultiSetT))))";
+        MULTISET_INSERT.smt = "(declare-fun (par (T) (msetinsertT  (T (MultiSetT)) (MultiSetT))))";
         MULTISET_SELECT.smt = "(declare-fun (par (T) (msetselectT ((MultiSetT) T) Int)))";
         MULTISET_IN.smt = "(define-fun (par (T) (inmsetT ((s (MultiSetT))  (t T)) Bool\r\n"
                 + "(> (msetselectT s t) 0)\r\n" + ")))";
         MULTISET_SINGLE.smt = "(define-fun (par (T) (setsingleT ((t T) (s (MultiSetT))) (MultiSetT)\r\n"
-                + "(msetinsertT msetEmptyT t)\r\n" + ")))";
+                + "(msetinsertT t msetEmptyT)\r\n" + ")))";
         MULTISET_MAX.smt = "(define-fun max ((x Int) (y Int)) Int\r\n" + "  (ite (<= x y) y x))";
         MULTISET_MIN.smt = "(define-fun min ((x Int) (y Int)) Int\r\n" + "  (ite (<= x y) x y))";
 
@@ -124,8 +124,8 @@ public enum Axiom {
                 + ")))";
 
         // Heap/Arrays
-        O2C.smt = "(declare-fun (par (C) (o2c (Object) C)))";
-        C2O.smt = "(declare-fun (par (C) (c2o (C) Object)))";
+        O2C.smt = "(declare-fun (par (C) (o2C (Object) C)))";
+        C2O.smt = "(declare-fun (par (C) (C2o (C) Object)))";
         TYPEOF.smt = "(declare-fun typeOf (Object) Type)";
         FIELDSTORE.smt = "(declare-fun (par (C T) (fieldstoreC.T (Heap C (FieldC.T) T) Heap)))";
         FIELDSELECT.smt = "(declare-fun (par (C T) (fieldselectC.T (Heap C (FieldC.T)) T)))";
@@ -149,8 +149,8 @@ public enum Axiom {
 
         // sets
         SET_1.smt = "(assert (par (T)\r\n" + "(forall\r\n" + "(\r\n" + "    (s1 SetT)\r\n" + "    (t T)\r\n"
-                + ")\r\n" + "    (! \r\n" + "        (= (inSetT t (setInsertT s1 t)) true) \r\n"
-                + "        :pattern ((inSetT t (setInsertT s1 t)))\r\n" + "    ) \r\n" + ")))";
+                + ")\r\n" + "    (! \r\n" + "        (= (inSetT t (setInsertT t s1)) true) \r\n"
+                + "        :pattern ((inSetT t (setInsertT t s1)))\r\n" + "    ) \r\n" + ")))";
         SET_2.smt = "(assert (par (T)\r\n" + "(forall\r\n" + "(\r\n" + "    (s1 SetT)\r\n" + "    (s2 SetT)\r\n"
                 + "    (t T)\r\n" + ")\r\n" + "    (! \r\n" + "        (= (inSetT t (unionT s1 s2))\r\n"
                 + "        (or (inSetT t s1) (inSetT t s2))) \r\n" + "        :pattern (( inSetT t (unionT s1 s2)))\r\n"
@@ -180,8 +180,8 @@ public enum Axiom {
                 + "        :pattern ((setcardT s))\r\n" + "    ) \r\n" + ")))";
         SET_CARD_4.smt = "(assert (par (T)\r\n" + "(forall\r\n" + "(\r\n" + "    (s (SetT))\r\n" + "    (t T)\r\n"
                 + ")\r\n" + "    (! \r\n"
-                + "        (= (setcardT (setInsertT s t))  (ite (inSetT t s)  (setcardT s) (+ (setcardT s) 1) )) \r\n"
-                + "        :pattern ((setcardT(setInsertT s t)) (inSetT t s))\r\n" + "    ) \r\n" + ")))";
+                + "        (= (setcardT (setInsertT t s))  (ite (inSetT t s)  (setcardT s) (+ (setcardT s) 1) )) \r\n"
+                + "        :pattern ((setcardT(setInsertT t s)) (inSetT t s))\r\n" + "    ) \r\n" + ")))";
 
         // multisets
         MULTISET_1.smt = "(assert (par (T)\r\n" + "(forall\r\n" + "(\r\n" + "    (s1 (MultiSetT))\r\n"
@@ -211,7 +211,7 @@ public enum Axiom {
                 + "        ):pattern ((msetselectT s1 t) (msetselectT s2 t))\r\n" + "    )\r\n" + ")))";
         MULTISET_7.smt = "(assert (par (T)\r\n" + "(forall\r\n" + "(\r\n" + "    (s (MultiSetT))\r\n" + "    (t T)\r\n"
                 + ")\r\n" + "    (!\r\n"
-                + "        (= (msetselectT (msetinsertT s t) t) (+ (msetselectT s t) 1)) :pattern((msetinsertT s t))\r\n"
+                + "        (= (msetselectT (msetinsertT t s) t) (+ (msetselectT s t) 1)) :pattern((msetinsertT t s))\r\n"
                 + "    )\r\n" + "     \r\n" + ")))";
         MULTISET_8.smt = "(assert (par (T)\r\n" + "(forall\r\n" + "(\r\n" + "    (s (MultiSetT))\r\n" + ")\r\n"
                 + "    (! \r\n" + "        (=> (= (mcardT s) 0)\r\n" + "        (= s msetEmptyT)) \r\n"
@@ -226,8 +226,8 @@ public enum Axiom {
                 + "    ) \r\n" + ")))";
         MULTISET_CARD_4.smt = "(assert (par (T)\r\n" + "(forall\r\n" + "(\r\n" + "    (s (MultiSetT))\r\n"
                 + "    (t T)\r\n" + ")\r\n" + "    (! \r\n"
-                + "        (= (mcardT (msetinsertT s t))  (+ (mcardT s) 1))\r\n"
-                + "        :pattern ((msetinsertT s t))\r\n" + "    ) \r\n" + ")))";
+                + "        (= (mcardT (msetinsertT t s))  (+ (mcardT s) 1))\r\n"
+                + "        :pattern ((msetinsertT t s))\r\n" + "    ) \r\n" + ")))";
 
         // sequences
         SEQ_1.smt = "(assert (par (T) (forall\r\n" + "(\r\n" + "    (s (SeqT))\r\n" + "    (t T)\r\n"

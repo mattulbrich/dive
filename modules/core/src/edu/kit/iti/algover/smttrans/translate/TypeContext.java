@@ -4,9 +4,11 @@ package edu.kit.iti.algover.smttrans.translate;
 import java.text.DecimalFormatSymbols;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -18,10 +20,13 @@ import com.google.common.collect.Iterables;
 
 import edu.kit.iti.algover.data.MapSymbolTable;
 import edu.kit.iti.algover.data.SymbolTable;
+import edu.kit.iti.algover.smttrans.data.Axiom;
+import edu.kit.iti.algover.smttrans.data.AxiomContainer;
 import edu.kit.iti.algover.smttrans.data.Operation;
 import edu.kit.iti.algover.smttrans.data.OperationMatcher;
 import edu.kit.iti.algover.term.FunctionSymbol;
 import edu.kit.iti.algover.term.Sort;
+import edu.kit.iti.algover.util.Pair;
 
 public class TypeContext {
     private static SymbolTable symbolTable = new MapSymbolTable(new HashSet<FunctionSymbol>());
@@ -67,8 +72,6 @@ public class TypeContext {
         // nmap.put(AV_HEAPNAME, Operation.HEAP.toSMT());
         // nmap.put(AV_ANON, Operation.ANON.toSMT());
         // nmap.put(AV_EVERYTHINGNAME, Operation.EVERYTHING.toSMT());
-        nmap.put(AV_AHEAP, Operation.AHEAP.toSMT());
-
     }
 
     public static BiMap<String, String> getDefaults() {
@@ -85,6 +88,90 @@ public class TypeContext {
     public static boolean isBuiltIn(Sort s) {
         String name = s.getName().toLowerCase();
         return name.equals(AV_BOOLNAME) || name.equals(AV_INTNAME);
+    }
+
+    public static String addCasts(String smt) { // TODO better version
+
+        List<String> sorts = new ArrayList<>();
+        List<Pair<String, String>> consts = new ArrayList<>();
+        List<String> critical = new ArrayList<>();
+        Map<String, String> creplace = new HashMap<>();
+        List<String> lines = Arrays.asList(smt.split("\\r?\\n"));
+        Map<String, List<String>> casts = new HashMap<>();
+
+        for (String l : lines) {
+
+            if (l.trim().startsWith("(assert") && (l.contains("setInsertObject") || l.contains("inSetObject"))) {
+                critical.add(l);
+            }
+            if (l.trim().startsWith("(declare-sort") && (!l.contains("Object"))) {
+                sorts.add(l.split(" ")[1]);
+            }
+        }
+
+        for (String sort : sorts) { // TODO axioms, declarations
+            String c2o = "(" + sort + "2o";
+            String o2c = "(o2" + sort;
+            casts.put(sort, Arrays.asList(c2o, o2c));
+
+            for (String l : lines) {
+
+                if (l.trim().startsWith("(declare-const") && (l.contains(sort))) {
+                    consts.add(new Pair<String, String>(l.split(" ")[1], l.split(" ")[2].replace(")", "")));
+
+                }
+            }
+        }
+
+        for (String c : critical) {
+            String nc = c;
+
+            for (Pair<String, String> p : consts) {
+
+                String cr = casts.get(p.snd).get(0) + " " + p.fst + ")";
+                nc = nc.replace(p.fst, cr);
+
+            }
+            creplace.put(c, nc);
+        }
+
+        String nsmt = "";
+        int i;
+        for (i = 0; i < lines.size(); i++) {
+            if (lines.get(i).startsWith("(assert")) {
+                break;
+            }
+            nsmt += lines.get(i) + "\r\n";
+
+        }
+
+        
+        for (String t : sorts) {
+            
+        //declarations
+        nsmt += "(declare-fun o2C (Object) C)".replace("C", t) + "\r\n";
+        nsmt += "(declare-fun C2o (C) Object)".replace("C", t) + "\r\n";
+        
+        //axioms
+        
+        
+        
+        
+        }
+        // insert axioms,decl
+
+        for (;i < lines.size(); i++) {
+
+            String line = lines.get(i);
+
+            if (critical.contains(line)) {
+                nsmt += creplace.get(line) + "\r\n";
+            } else {
+                nsmt += line + "\r\n";
+            }
+        }
+        return nsmt;
+
     }
 
     public static String opToSMT(FunctionSymbol fs) {
@@ -240,7 +327,7 @@ public class TypeContext {
 
             op = getOp(name);
 
-            if (specialOps.contains(op) || op.equals(Operation.ANON)) { // TODO
+            if (specialOps.contains(op) || op.equals(Operation.ANON)) {
 
             } else {
                 if (!op.isPoly())

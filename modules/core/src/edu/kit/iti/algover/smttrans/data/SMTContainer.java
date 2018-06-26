@@ -42,7 +42,9 @@ public class SMTContainer {
         antecedent.forEach(t -> sb.append(cleanUp(t.toSMT(false))));
         succedent.forEach(s -> sb.append(cleanUp(s.toSMT(true)))); // negate
     
-
+        String r = cleanUp(sb.toString());
+        if (r.contains("Object"))  //TODO better version
+            return TypeContext.addCasts(r);
         
         return cleanUp(sb.toString());
     }
@@ -52,6 +54,11 @@ public class SMTContainer {
         sb.append(declareDep());
         antecedent.forEach(t -> sb.append(cleanUp(t.toSMT(false))));
         succedent.forEach(s -> sb.append(cleanUp(s.toSMT(true)))); // negate
+        
+        String r = cleanUp(sb.toString());
+        if (r.contains("Object"))  //TODO better version
+            return TypeContext.addCasts(r);
+        
         return cleanUp(sb.toString());
     }
 
