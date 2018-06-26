@@ -56,6 +56,9 @@ public abstract class AbstractProofRule implements ProofRule {
 
     private final Map<String, ParameterDescription<?>> allParameters = new HashMap<>();
 
+    /**
+     * Holds a TermSelctor for each parameter of the type Term.
+     */
     protected Map<String, TermSelector> tsForParameter = new HashMap<>();
 
     /**
@@ -164,6 +167,14 @@ public abstract class AbstractProofRule implements ProofRule {
         }
     }
 
+    /**
+     * Extracts a possibly schematic Term which is unique for the given TermSelector.
+     *
+     * @param sequent The sequent the TermSelector is related to.
+     * @param selector The selector
+     * @return a possibly schematic Term
+     * @throws RuleException if no unique matching term is available (only if 2 identical Terms in same polarity)
+     */
     private Sequent getUniqueMatchingTerm(Sequent sequent, TermSelector selector) throws RuleException {
         Term t = selector.selectSubterm(sequent);
         Term schemaCaptureTerm = new SchemaCaptureTerm("on", t);
@@ -187,6 +198,16 @@ public abstract class AbstractProofRule implements ProofRule {
                 selector.getPath().get(selector.getPath().size() - 1), schemaCaptureTerm);
     }
 
+    /**
+     * Recursive version for {@link AbstractProofRule#getUniqueMatchingTerm(Sequent, TermSelector)}.
+     *
+     * @param sequent
+     * @param selector
+     * @param childIdx
+     * @param childTerm
+     * @return
+     * @throws RuleException
+     */
     private Sequent getUniqueMatchingTermRec(Sequent sequent, TermSelector selector, int childIdx, Term childTerm) throws RuleException {
         Term t = selector.selectSubterm(sequent);
         Term schemaVarTerm = null;
@@ -214,6 +235,12 @@ public abstract class AbstractProofRule implements ProofRule {
         return getUniqueMatchingTermRec(sequent, parentSelector, selector.getPath().get(selector.getPath().size() - 1), schemaVarTerm);
     }
 
+    /**
+     * Gets a TermSelector which points to the parent term of the term selected by the given TermSelector
+     *
+     * @param selector the selector
+     * @return the parent selector
+     */
     private TermSelector getParentSelector(TermSelector selector) {
         if(selector.getPath().size() <= 0) {
             return null;
