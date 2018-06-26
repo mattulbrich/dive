@@ -66,81 +66,86 @@ public class Model {
             if (!de.isEmpty())
                 def.add(sub(de));
         }
-        // System.out.println("Dec " + decl);
-        // System.out.println("Def " + def);
-        // for (List<String> d1 : def) {
-        // System.out.println("IN " + d1);
-        // System.out.println("OUT " + parseModel(d1));
-        // }
-        decl.addAll(def);
+//         System.out.println("Dec " + decl);
+//         System.out.println("Def " + def);
+         for (List<String> d1 : def) {
+//         System.out.println("IN " + d1);
+//         System.out.println("OUT " + parseFuncDef(d1));
+         decl.addAll(parseFuncDef(d1));
+         }
+        
         return decl;
 
     }
 
-    private List<List<String>> parseModel(List<String> model) {
-        List<String> a = new ArrayList<>();
-        List<List<String>> funcAssignments = new ArrayList<>();
-        String func = "";
-        for (String line : model) {
-            line = line.replace("(", "").replace(")", "");
-            StringTokenizer t = new StringTokenizer(line);
-            func = t.nextToken();
-            while (t.hasMoreTokens()) {
-
-                String token = t.nextToken();
-                if (!isRelevant(token)) {
-                    continue;
-                }
-                a.add(token);
-
-            }
-
-            for (int i = 0; i < a.size() - 1; i += 2) {
-                List<String> b = new ArrayList<>();
-                b.add(func);
-                b.add(a.get(i));
-                b.add(a.get(i + 1));
-                funcAssignments.add(b);
-            }
-
-            if (a.size() % 2 == 1) {
-                List<String> c = new ArrayList<>();
-                c.add(func);
-                c.add(DEFAULT);
-                c.add(a.get(a.size() - 1));
-                funcAssignments.add(c);
-            }
-
+    private List<List<String>> parseFuncDef(List<String> model) {
+        
+        List<List<String>> results = new ArrayList<>();
+        StringBuilder sb = new StringBuilder();
+        //model.subList(1, model.size()).forEach(sb::append);
+        for (String m : model.subList(1, model.size())) {
+            sb.append(" " + m + " ");
         }
-        // System.out.println(funcAssignments.toString());
-        return funcAssignments;
+
+        
+        String line = sb.toString().trim().replaceAll(" +", " ");
+        
+  
+        //System.out.println("line " + line);
+        String[] parts = line.split("\\(ite");
+        
+        List<String> subparts = Arrays.asList(parts);
+        //System.out.println("Parts " + subparts.toString());
+        
+        
+        if (subparts.size() == 1) {
+            
+            results.add(Arrays.asList(line)); //NO ITE -> TODO
+            return results;
+        } 
+        
+        List<Pair<String, String>> sp = new ArrayList<>();
+        String fname = subparts.get(0).split(" ")[0];
+        String dValue = "";
+        for (String arg : subparts.subList(1, subparts.size())) {
+            List<String> a = Arrays.asList(arg.trim().replace("(", "").replace(")", "").split(" "));
+            
+            sp.add(new Pair<String, String>(a.get(2),a.get(3)));
+            //p.add(a.get(3));
+            if (a.size() > 4)
+                dValue = a.get(4);
+           // System.out.println("a " + a.toString());
+        }
+        
+        
+        for (Pair<String, String> p : sp) {
+            results.add(Arrays.asList(fname + "(" + p.fst+")" + " = " + p.snd));
+            
+        }
+
+        String d = fname + "(" + "default" +")" + " = " + dValue;
+        results.add(Arrays.asList(d));
+        
+        
+        
+//            StringBuilder sb2 = new StringBuilder();
+//            int i = 0;
+//            while (!parts[i].equals(ITE)) {
+//                i++;
+//            }
+//            for (int j = i; j < parts.length; j++) {
+//                sb2.append(" " + parts[j]);
+//            }
+//            String r = sb2.toString();
+//            a.add(r.substring(0, r.length()));
+            
+            
+          //  System.out.println(a);
+            return results;
 
     }
 
-    private List<String> parseFuncs(List<String> model) {
-        List<String> nmodel = new ArrayList<>();
-        for (String d : contents) {
-            String line = d.trim();
-            if (line.startsWith(DEF) && !line.contains(PRE)) {
-                String[] parts = line.split("(?<![\\(,\\)])\\s+");
-                String fsign = parts[1];
-                if (fsign.contains("!")) {
-                    StringBuilder sb = new StringBuilder(fsign);
-                    int i = 0;
-                    while (!parts[i].equals(ITE)) {
-                        i++;
-                    }
-                    for (int j = i; j < parts.length; j++) {
-                        sb.append(" " + parts[j]);
-                    }
-                    String r = sb.toString();
-                    nmodel.add(r.substring(0, r.length() - 1));
-                }
 
-            }
-        }
-        return nmodel;
-    }
 
     private Pair<List<List<String>>, List<List<String>>> parseVars(List<List<String>> vars) {
         List<List<String>> declaratations = new ArrayList<>();
@@ -235,7 +240,8 @@ public class Model {
         } else {
 
             for (List<String> v : vars) {
-                String line = "";
+                String line = v.get(0).startsWith("Decl") ? "" : "Def: ";
+                
 
                 for (String l : v) {
                     line += " " + l;
