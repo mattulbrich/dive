@@ -73,13 +73,7 @@ public class DafnyRule extends AbstractProofRule {
     @Override
     public ProofRuleApplication considerApplicationImpl(ProofNode target, Parameters parameters) throws RuleException {
         Term selected = parameters.getValue(ON_PARAM);
-        SequentMatcher sm = new SequentMatcher();
-        Sequent s = new Sequent(Collections.singletonList(new ProofFormula(selected)), Collections.emptyList());
-        ImmutableList<Matching> matchings1 = sm.match(s, target.getSequent());
-        if(matchings1.size() != 1) {
-            throw new RuleException("Matching of on parameter is ambiguous");
-        }
-        TermSelector selector = matchings1.get(0).getEntries().get(0).getTermSelector();
+        TermSelector selector = tsForParameter.get("on");
 
         ProofRuleApplicationBuilder proofRuleApplicationBuilder;
         try {

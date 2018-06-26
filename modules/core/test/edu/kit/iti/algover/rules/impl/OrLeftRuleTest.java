@@ -42,7 +42,7 @@ public class OrLeftRuleTest {
         TreeTermTranslator ttt = new TreeTermTranslator(symbTable);
 
         DafnyTree t1 = TreeTermTranslatorTest.parse("b1 || b2");
-        DafnyTree t2 = TreeTermTranslatorTest.parse("b1");
+        DafnyTree t2 = TreeTermTranslatorTest.parse("b3");
         DafnyTree t3 = TreeTermTranslatorTest.parse("b2 || b1");
         DafnyTree t4 = TreeTermTranslatorTest.parse("b3");
 
