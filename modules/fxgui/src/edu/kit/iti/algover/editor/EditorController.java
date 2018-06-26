@@ -155,7 +155,7 @@ public class EditorController implements DafnyCodeAreaListener {
             @Override
             public Collection<String> handleToken(Token token, Collection<String> syntaxClasses) {
                 int tokenLine = token.getLine();
-                if (tokenLine == line - 1) {
+                if (tokenLine == line) {
                     return Collections.singleton("error");
                 }
                 return syntaxClasses;

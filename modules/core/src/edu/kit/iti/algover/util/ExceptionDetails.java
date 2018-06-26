@@ -10,6 +10,7 @@ package edu.kit.iti.algover.util;
 import edu.kit.iti.algover.parser.DafnyException;
 import edu.kit.iti.algover.parser.DafnyParserException;
 import edu.kit.iti.algover.parser.DafnyTree;
+import edu.kit.iti.algover.script.exceptions.ScriptCommandNotApplicableException;
 import org.antlr.runtime.RecognitionException;
 import org.antlr.runtime.Token;
 import org.antlr.v4.runtime.misc.ParseCancellationException;
@@ -17,6 +18,7 @@ import org.antlr.v4.runtime.misc.ParseCancellationException;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.InputMismatchException;
 import java.util.List;
 
 /**
@@ -129,6 +131,21 @@ public final class ExceptionDetails {
                 result.length = rex.token.getText().length();
             }
             return result;
+        }
+
+        if(ex instanceof InputMismatchException) {
+            InputMismatchException pex = (InputMismatchException) ex;
+            Throwable cause = pex.getCause();
+            ExceptionReportInfo report = extractReportInfo(cause);
+            // we are likely to have a better error message.
+            if(!pex.getMessage().isEmpty()) {
+                report.message = ex.getMessage();
+            }
+            return report;
+        }
+
+        if(ex instanceof ScriptCommandNotApplicableException) {
+            ScriptCommandNotApplicableException snap = (ScriptCommandNotApplicableException) ex;
         }
 
         // ... add other classes here!
