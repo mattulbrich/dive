@@ -22,6 +22,7 @@ import edu.kit.iti.algover.rules.RuleException;
 import edu.kit.iti.algover.rules.TermSelector;
 import edu.kit.iti.algover.smt.SMTQuickNDirty;
 import edu.kit.iti.algover.smttrans.access.CVCAccess;
+import edu.kit.iti.algover.smttrans.access.Model;
 import edu.kit.iti.algover.smttrans.access.Response;
 import edu.kit.iti.algover.smttrans.access.SolverAccess;
 import edu.kit.iti.algover.smttrans.access.SolverParameter;
@@ -50,6 +51,12 @@ import java.util.Map;
  * Code quality is lower than elsewhere since this is a temporary implementation.
  */
 public class Z3Rule extends AbstractProofRule {
+     //debug ???
+    private static Model model = new Model(new ArrayList<>()); //empty model
+    
+    public static Model getModel() {
+        return model;
+    }
 
     @Override
     public String getName() {
@@ -100,6 +107,8 @@ public class Z3Rule extends AbstractProofRule {
             return builder.build();
         }
     }
+    
+    
 
     private boolean isValid(ProofNode target) {
       //  System.out.println("PVC: " + target.getPVC().getSequent().toString());
@@ -107,6 +116,7 @@ public class Z3Rule extends AbstractProofRule {
         SolverAccess z3access = new Z3Access();
         SolverAccess cvcaccess = new CVCAccess();
         PVC pvc = target.getPVC();
+        //System.out.println("ID " + pvc.getIdentifier());
 
         SMTContainer sc = translateToSMT(target.getPVC().getIdentifier(), target.getSequent(), pvc.getSymbolTable());
 
@@ -123,7 +133,7 @@ public class Z3Rule extends AbstractProofRule {
 //        System.out.println("SMT: ");
 //        System.out.println();
         smt = sc.toSMT();
-        System.out.println(smt);
+//        System.out.println(smt);
 //
 //        System.out.println();
 
@@ -135,9 +145,15 @@ public class Z3Rule extends AbstractProofRule {
         // "setEmptyInt"));
 
         System.out.println(r1.getResponse().name());
-
-        //if (r1.getResponse() == Response.SAT)
-          //  System.out.println(r1.getModel().toString());
+        //System.out.println(r1.getModel().getDeclarations());
+        //System.out.println(r1.getModel().getDeclarations());
+        if (r1.getResponse() == Response.SAT) {
+            model = r1.getModel();
+            System.out.println(model.getDeclarations());
+            System.out.println(model.getDefinitions());
+        }
+          
+            //System.out.println(r1.getModel().toString());
 
         return evaluate(r1.getResponse());
     }

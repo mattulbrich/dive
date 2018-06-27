@@ -136,6 +136,9 @@ public class TypeContext {
         }
 
         String nsmt = "";
+        if (!critical.isEmpty())
+            nsmt += "(declare-sort Object 0)";
+
         int i;
         for (i = 0; i < lines.size(); i++) {
             if (lines.get(i).startsWith("(assert")) {
@@ -145,22 +148,21 @@ public class TypeContext {
 
         }
 
-        
         for (String t : sorts) {
-            
-        //declarations
-        nsmt += "(declare-fun o2C (Object) C)".replace("C", t) + "\r\n";
-        nsmt += "(declare-fun C2o (C) Object)".replace("C", t) + "\r\n";
-        
-        //axioms
-        
-        
-        
-        
+
+            // declarations
+
+            if (critical.contains(t)) {
+
+                nsmt += "(declare-fun o2C (Object) C)".replace("C", t) + "\r\n";
+                nsmt += "(declare-fun C2o (C) Object)".replace("C", t) + "\r\n";
+            }
+            // axioms
+
         }
         // insert axioms,decl
 
-        for (;i < lines.size(); i++) {
+        for (; i < lines.size(); i++) {
 
             String line = lines.get(i);
 

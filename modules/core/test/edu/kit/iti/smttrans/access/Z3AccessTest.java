@@ -5,6 +5,7 @@ import static org.junit.Assert.assertEquals;
 import org.junit.Test;
 
 import edu.kit.iti.algover.smttrans.access.Response;
+import edu.kit.iti.algover.smttrans.access.SolverParameter;
 import edu.kit.iti.algover.smttrans.access.SolverResponse;
 import edu.kit.iti.algover.smttrans.access.Z3Access;
 
@@ -29,7 +30,7 @@ public class Z3AccessTest {
                 + "      (assert(= ~i 1))\r\n"
                 + "      (assert(not (forall((k Int))(=> (and (<= 0 ~k) (< ~k ~i)) (<= (arrselectInt ~heap ~a ~k) ~max)))))";
         Z3Access a = new Z3Access();
-        SolverResponse r = a.accessSolver(smt);
+        SolverResponse r = a.accessSolver(new SolverParameter(smt));
         assertEquals(r.getResponse(), Response.UNSAT);
 
     }
@@ -59,7 +60,7 @@ public class Z3AccessTest {
                 + "      (assert (< (setcardInt ~s1) 3))\r\n" + "      (assert (> (setcardInt ~s2) 5))\r\n"
                 + "      (assert (not(> (setcardInt (unionInt ~s1 ~s2)) 4)))";
         Z3Access a = new Z3Access();
-        SolverResponse r = a.accessSolver(smt);
+        SolverResponse r = a.accessSolver(new SolverParameter(smt));
         assertEquals(r.getResponse(), Response.SAT);
         // r.getModel()
 

@@ -34,6 +34,7 @@ public class SumAndMaxTest {
             proof.interpretScript();
 
             Assert.assertEquals(proof.getProofStatus(), ProofStatus.CLOSED);
+            
             Assert.assertNull(proof.getFailException());
 
         }

@@ -7,6 +7,12 @@ public class SolverParameter {
     private boolean log;
 
     
+    public SolverParameter (String smt) {
+        this.smt = smt;
+        this.timeout = 3;
+        this.log = false;
+    }
+    
     public SolverParameter(String smt, int timeout,boolean log) {
         this.log = log;
         this.timeout = timeout;

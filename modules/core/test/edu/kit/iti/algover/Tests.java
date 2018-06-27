@@ -93,12 +93,12 @@ import edu.kit.iti.smttrans.translate.SumAndMaxTest;
 //    ImplicitlyTypedVariableVisitorTest.class,
 //        RuleUtilTest.class,
      
-    //Z3AccessTest.class, 
-       // SetTest.class,
-        SumAndMaxTest.class,
-        IntegerTest.class,
+   Z3AccessTest.class, 
+        SetTest.class,
+         SumAndMaxTest.class,
+ //       IntegerTest.class,
 //        FolTest.class
-//        SetTest.class,
+  //      SetTest.class,
 //        Arr1Test.class,
 //        Arr2Test.class,
 //        SeqTest.class
