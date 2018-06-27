@@ -52,26 +52,26 @@ public enum Operation {
         ARR2STORE.smt = "arr2store";
         ARR2STORE.poly = true;
         ARR2STORE.instantiations = asList(Axiom.HEAP_INST, Axiom.HEAP_INST_2,Axiom.ARR2_1, Axiom.ARR2SELECT,Axiom.ARR2STORE);
-
+        
         SETUNION.smt = "union";
         SETUNION.poly = true;
-        SETUNION.instantiations = asList(Axiom.SETEMPTY_INST,Axiom.SET_IN,Axiom.SET_INSERT,Axiom.SET_1,Axiom.SET_6,Axiom.SET_UNION,Axiom.SET_2);
+        SETUNION.instantiations = asList(Axiom.SETEMPTY_INST,Axiom.SET_IN,Axiom.SET_INSERT,Axiom.SET_1,Axiom.SET_2,Axiom.SET_8,Axiom.SET_UNION,Axiom.SET_2);
 
         SETADD.smt = "setInsert";
         SETADD.poly = true;
-        SETADD.instantiations = asList(Axiom.SETEMPTY_INST,Axiom.SET_IN,Axiom.SET_INSERT,Axiom.SET_1,Axiom.SET_6,Axiom.SET_INSERT,Axiom.SET_CARD);
+        SETADD.instantiations = asList(Axiom.SETEMPTY_INST,Axiom.SET_IN,Axiom.SET_INSERT,Axiom.SET_1,Axiom.SET_2,Axiom.SET_8,Axiom.SET_INSERT,Axiom.SET_CARD);
         SETINTERSECT.smt = "intersect";
         SETINTERSECT.poly = true;
-        SETINTERSECT.instantiations = asList(Axiom.SETEMPTY_INST,Axiom.SET_IN,Axiom.SET_INSERT,Axiom.SET_1,Axiom.SET_6,Axiom.SET_INTERSECT,Axiom.SET_3);
+        SETINTERSECT.instantiations = asList(Axiom.SETEMPTY_INST,Axiom.SET_IN,Axiom.SET_INSERT,Axiom.SET_1,Axiom.SET_2,Axiom.SET_8,Axiom.SET_INTERSECT,Axiom.SET_3);
 
         SETCARD.smt = "setcard";
         SETCARD.poly = true;
-        SETCARD.instantiations = asList(Axiom.SETEMPTY_INST,Axiom.SET_IN,Axiom.SET_INSERT,Axiom.SET_1,Axiom.SET_6,Axiom.SET_CARD,Axiom.SET_CARD,Axiom.SET_CARD_1,Axiom.SET_CARD_2); //,Axiom.SET_CARD_3,Axiom.SET_CARD_4
+        SETCARD.instantiations = asList(Axiom.SETEMPTY_INST,Axiom.SET_IN,Axiom.SET_INSERT,Axiom.SET_1,Axiom.SET_2,Axiom.SET_8,Axiom.SET_CARD,Axiom.SET_CARD,Axiom.SET_CARD_1,Axiom.SET_CARD_2); //,Axiom.SET_CARD_3,Axiom.SET_CARD_4
         //asList(Axiom.SET_IN,Axiom.SET_1, Axiom.SET_6,Axiom.SET_INSERT,Axiom.SET_CARD,Axiom.SET_CARD_1,Axiom.SET_CARD_2,Axiom.SETEMPTY_INST); //,Axiom.SETEMPTY_INST,Axiom.SET_INST,Axiom.SET_CARD, Axiom.SET_5, Axiom.SETEMPTY_INST, Axiom.SET_CARD_1
         // TODO Axiom.SET_CARD_4 -> timeout
         SETIN.smt = "inSet";
         SETIN.poly = true;
-        SETIN.instantiations = asList(Axiom.SETEMPTY_INST,Axiom.SET_IN,Axiom.SET_INSERT,Axiom.SET_1,Axiom.SET_6,Axiom.SET_IN);
+        SETIN.instantiations = asList(Axiom.SETEMPTY_INST,Axiom.SET_IN,Axiom.SET_INSERT,Axiom.SET_1,Axiom.SET_2,Axiom.SET_8,Axiom.SET_IN);
 
         ISCREATED.smt = "isCreated";
         ISCREATED.poly = true;
@@ -103,7 +103,7 @@ public enum Operation {
         
         SETEMPTY.smt = "setEmpty";
         SETEMPTY.poly = true;
-        SETEMPTY.instantiations = asList(Axiom.SETEMPTY_INST,Axiom.SET_CARD,Axiom.SET_6,Axiom.SET_CARD_1);
+        SETEMPTY.instantiations = asList(Axiom.SETEMPTY_INST,Axiom.SET_CARD,Axiom.SET_8,Axiom.SET_CARD_1);
         
 
         SEQUPD.smt = "seqstore";

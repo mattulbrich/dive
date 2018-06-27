@@ -136,8 +136,6 @@ public class TypeContext {
         }
 
         String nsmt = "";
-        if (!critical.isEmpty())
-            nsmt += "(declare-sort Object 0)";
 
         int i;
         for (i = 0; i < lines.size(); i++) {
@@ -148,17 +146,28 @@ public class TypeContext {
 
         }
 
+        if (!critical.isEmpty() && !nsmt.contains("(declare-sort Object 0)"))
+            nsmt += "(declare-sort Object 0) + \r\n";
+        if (!critical.isEmpty()) {
+            
+        
         for (String t : sorts) {
 
             // declarations
 
-            if (critical.contains(t)) {
-
                 nsmt += "(declare-fun o2C (Object) C)".replace("C", t) + "\r\n";
                 nsmt += "(declare-fun C2o (C) Object)".replace("C", t) + "\r\n";
-            }
+                nsmt += "(declare-fun typeC (Object) Bool)".replace("C", t) + "\r\n";
+                
             // axioms
+            
+                nsmt += "(assert (forall ((c C)) (! (= (o2C (C2o c)) c) :pattern ((o2C (C2o c))))))".replace("C", t) + "\r\n";
+                nsmt += "(assert (forall ((c C)) (! (typeC (C2o c)) :pattern ((o2C (C2o c))))))".replace("C", t) + "\r\n";
+                nsmt += "(assert (forall ((o Object)) (=>(typeC o) (= (C2o (o2C o)) o))))".replace("C", t) + "\r\n";
+            
+      
 
+        }
         }
         // insert axioms,decl
 

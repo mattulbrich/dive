@@ -47,6 +47,7 @@ import edu.kit.iti.algover.util.UtilTest;
 import edu.kit.iti.smttrans.access.Z3AccessTest;
 import edu.kit.iti.smttrans.translate.Arr1Test;
 import edu.kit.iti.smttrans.translate.Arr2Test;
+import edu.kit.iti.smttrans.translate.ClassTest;
 import edu.kit.iti.smttrans.translate.FolTest;
 import edu.kit.iti.smttrans.translate.IntegerTest;
 import edu.kit.iti.smttrans.translate.SeqTest;
@@ -96,6 +97,7 @@ import edu.kit.iti.smttrans.translate.SumAndMaxTest;
    Z3AccessTest.class, 
         SetTest.class,
          SumAndMaxTest.class,
+         ClassTest.class
  //       IntegerTest.class,
 //        FolTest.class
   //      SetTest.class,
