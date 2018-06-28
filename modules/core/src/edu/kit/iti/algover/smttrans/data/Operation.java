@@ -108,7 +108,7 @@ public enum Operation {
 
         SEQUPD.smt = "seqstore";
         SEQUPD.poly = true;
-        SEQUPD.instantiations = asList(Axiom.SEQEMTY_INST); //TODO
+        SEQUPD.instantiations = asList(Axiom.SEQEMTY_INST, Axiom.SEQ_STORE,Axiom.SEQ_0);
 
         SEQGET.smt = "seqget";
         SEQGET.poly = true;

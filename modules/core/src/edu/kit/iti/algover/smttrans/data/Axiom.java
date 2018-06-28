@@ -33,7 +33,7 @@ public enum Axiom {
     MULTISET_UNION, MULTISET_INTERSECT, MULTISET_MINUS, MULTISET_CARD, MULTISET_SUBSET, MULTISET_INSERT, MULTISET_SELECT, MULTISET_IN, MULTISET_SINGLE, MULTISET_MAX, MULTISET_MIN,
 
     // sequences
-    SEQ_GET, SEQ_SUBSELECT, SEQ_CONCAT, SEQ_APPEND, SEQ_LEN, SEQ_SINGLE,
+    SEQ_GET, SEQ_SUBSELECT, SEQ_CONCAT, SEQ_APPEND, SEQ_LEN, SEQ_SINGLE, SEQ_STORE,
 
     // Heap/Arrays
     O2C, C2O, FIELDSTORE, FIELDSELECT, ANON, CREATE, CREATED, MODH, ARRSELECT, ARR2SELECT, ARR2STORE, ARR2LEN0, ARR2LEN1, ARRLEN, ARRSTORE, TYPEOF,
@@ -49,7 +49,7 @@ public enum Axiom {
     MULTISET_1, MULTISET_2, MULTISET_3, MULTISET_4, MULTISET_5, MULTISET_6, MULTISET_7, MULTISET_8, MULTISET_CARD_1, MULTISET_CARD_2, MULTISET_CARD_3, MULTISET_CARD_4,
 
     // sequences
-    SEQ_1, SEQ_2, SEQ_3, SEQ_4, SEQ_5, SEQ_LEN_1, SEQ_LEN_2, SEQ_LEN_3, SEQ_LEN_4, SEQ_LEN_5,
+    SEQ_0, SEQ_1, SEQ_2, SEQ_3, SEQ_4, SEQ_5, SEQ_LEN_1, SEQ_LEN_2, SEQ_LEN_3, SEQ_LEN_4, SEQ_LEN_5,
 
     // Heap/Arrays
     ARR_1, ARR_2, ARR2_1, HEAP_1, HEAP_2, HEAP_3, HEAP_4, HEAP_5, HEAP_6, HEAP_INST_2;
@@ -115,6 +115,7 @@ public enum Axiom {
 
         // sequences
         SEQ_GET.smt = "(declare-fun (par (T)(seqgetT((SeqT) Int) T)))";
+        SEQ_STORE.smt = "(declare-fun (par (T)(seqstoreT((SeqT) Int T) (SeqT))))";
         SEQ_SUBSELECT.smt = "(declare-fun (par (T)(subseqselectT ((SeqT) Int Int) (SeqT))))";
         SEQ_CONCAT.smt = "(declare-fun (par (T)(seqconcatT ((SeqT) (SeqT)) (SeqT))))";
         SEQ_APPEND.smt = "(declare-fun (par (T)(seqappendT ((SeqT) T) (SeqT))))";
@@ -155,7 +156,7 @@ public enum Axiom {
         SET_2.smt = "(assert (par (T) (forall ((a (SetT)) (i T) (j T))\r\n" + "      (=> (distinct i j)\r\n"
                 + "               (= (inSetT j (setInsertT i a )) (inSetT  j a))))))";
 
-        SET_3.smt = "(assert (par (T) (forall ((a (SetT)) (b (SetT)))\r\n" //TODO timeout, needed ?
+        SET_3.smt = "(assert (par (T) (forall ((a (SetT)) (b (SetT)))\r\n" // TODO timeout, needed ?
                 + "      (=> (forall ((i T)) (= (inSetT i a) (inSetT i b)))\r\n" + "(= a b)))))";
         SET_4.smt = "(assert (par (T)\r\n" + "(forall\r\n" + "(\r\n" + "    (s1 SetT)\r\n" + "    (s2 SetT)\r\n"
                 + "    (t T)\r\n" + ")\r\n" + "    (! \r\n" + "        (= (inSetT t (unionT s1 s2))\r\n"
@@ -236,6 +237,9 @@ public enum Axiom {
                 + "        :pattern ((msetinsertT t s))\r\n" + "    ) \r\n" + ")))";
 
         // sequences
+        SEQ_0.smt = "(assert  (par (T) (forall\r\n" + "(\r\n" + " (s1 (SeqT))\r\n" + " (i Int)\r\n"
+                + "    (t T)\r\n" + ")\r\n" + "    (!\r\n"
+                + "    (= (seqgetT (seqstoreT s1 i t) i)t) :pattern((seqstoreT s1 i t))\r\n" + "))))";
         SEQ_1.smt = "(assert (par (T) (forall\r\n" + "(\r\n" + "    (s (SeqT))\r\n" + "    (t T)\r\n"
                 + "    (i Int)\r\n" + ")\r\n" + "    (!\r\n" + "    (=> (and  (>= i 0) (<= i (seqlenT s))  )\r\n"
                 + "    (= (seqgetT (seqappendT s t) i) (ite (= i (- (seqlenT s) 1) )  t  (seqgetT s i) )\r\n"

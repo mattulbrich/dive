@@ -1,11 +1,3 @@
-method folModel (i : int, j: int) returns (k: int)
-requires i < 0
-requires j > 0
-ensures k < i
-{
-k := i - j;
-}
-
 method fol (a : bool, b: bool) returns (c: bool)
 requires a
 requires b

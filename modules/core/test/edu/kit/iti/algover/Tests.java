@@ -97,13 +97,12 @@ import edu.kit.iti.smttrans.translate.SumAndMaxTest;
    Z3AccessTest.class, 
         SetTest.class,
          SumAndMaxTest.class,
-         ClassTest.class
- //       IntegerTest.class,
-//        FolTest.class
-  //      SetTest.class,
-//        Arr1Test.class,
+         ClassTest.class,
+        IntegerTest.class,
+        FolTest.class,
+        Arr1Test.class,
 //        Arr2Test.class,
-//        SeqTest.class
+        SeqTest.class
         
     })
 public class Tests {
