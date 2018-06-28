@@ -10,6 +10,10 @@ import edu.kit.iti.algover.parser.DafnyTree;
 import edu.kit.iti.algover.term.Sort;
 import edu.kit.iti.algover.term.builder.TermBuildException;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
+
 /**
  * Utility Class for teh translation of DafnyTrees to Strings taht represent infix repersentations
  * Created by sarah on 9/1/16.
@@ -202,6 +206,49 @@ public final class TreeUtil {
     // TODO: MU should put this into a different class
     public static Sort toSort(DafnyTree tree) {
         return ASTUtil.toSort(tree);
+    }
+
+    public static Sort parseSort(String sortString) {
+        return parseSort(sortString, new AtomicInteger());
+    }
+
+    private static Sort parseSort(String sortString, AtomicInteger pos) {
+        StringBuilder sb = new StringBuilder();
+        int len = sortString.length();
+        while(pos.get() < len) {
+            char c = sortString.charAt(pos.get());
+            if ("<>,".indexOf(c) != -1) {
+                break;
+            }
+            sb.append(c);
+            pos.incrementAndGet();
+        }
+
+        List<Sort> children = null;
+        if(pos.get() < len) {
+            char c = sortString.charAt(pos.get());
+            if(c != '<') {
+                return Sort.get(sb.toString());
+            }
+            pos.incrementAndGet();
+            children = new ArrayList<>();
+            children.add(parseSort(sortString, pos));
+        }
+
+        while(pos.get() < len) {
+            char c = sortString.charAt(pos.get());
+            pos.incrementAndGet();
+            switch(c) {
+            case ',':
+                children.add(parseSort(sortString, pos));
+                break;
+            case '>':
+                return Sort.get(sb.toString(), children);
+            default:
+                throw new IllegalStateException();
+            }
+        }
+        return Sort.get(sb.toString());
     }
 
     /**
