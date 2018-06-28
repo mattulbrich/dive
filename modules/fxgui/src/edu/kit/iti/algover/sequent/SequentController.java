@@ -220,14 +220,7 @@ public class SequentController extends FxmlController {
 
     private void updateSequent(Sequent sequent, BranchInfo branchInfo) {
         antecedentView.getItems().setAll(calculateAssertions(sequent.getAntecedent(), TermSelector.SequentPolarity.ANTECEDENT, branchInfo));
-        List<ProofFormula> before = sequent.getSuccedent();
-        System.out.println(sequent.getSuccedent());
         List<TopLevelFormula> after = calculateAssertions(sequent.getSuccedent(), TermSelector.SequentPolarity.SUCCEDENT, branchInfo);
-        if (before.size() != after.size()) {
-            System.out.println(branchInfo.getAdditions());
-            System.out.println(branchInfo.getDeletions());
-            System.out.println(branchInfo.getReplacements());
-        }
         succedentView.getItems().setAll(after);
     }
 
