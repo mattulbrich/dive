@@ -109,7 +109,7 @@ public class ProofNodeSelector {
     }
 
     public ProofNodeSelector getParentSelector() {
-        if(path.length < 2) {
+        if(path.length < 1) {
             return null;
         }
         int[] newPath = new int[path.length - 1];
