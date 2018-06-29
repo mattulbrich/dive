@@ -26,6 +26,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.ExecutorService;
 import java.util.function.Consumer;
+import java.util.logging.Logger;
 
 public class ScriptController implements ScriptViewListener {
     KeyCombination saveShortcut = new KeyCodeCombination(KeyCode.S, KeyCombination.CONTROL_DOWN);
@@ -137,9 +138,9 @@ public class ScriptController implements ScriptViewListener {
         proof.setScriptTextAndInterpret(text);
         if(proof.getFailException() != null) {
             renderException(proof.getFailException());
+            Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).severe(proof.getFailException().getMessage());
         }
         checkpoints = ProofNodeCheckpointsBuilder.build(proof);
-
         // TODO switchViewedNode();
     }
 
