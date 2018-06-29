@@ -141,6 +141,7 @@ public class MainController implements SequentActionListener, RuleApplicationLis
                     onClickPVCEdit(new PVCEntity(manager.getProofForPVC(pvc.getIdentifier()), pvc, file));
                 } catch (NullPointerException e) {
                     Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).warning("Could not select pvc.");
+                    e.printStackTrace();
                 } catch (ClassCastException c) {
                     Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).warning("Could not select pvc.");
                 }

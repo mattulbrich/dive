@@ -87,7 +87,8 @@ public class RuleViewOverlay extends AnchorPane {
 
     private void onRuleApplication(ActionEvent ae) {
         if (application.getRule().getAllParameters().size() > 1 ||
-                !application.getRule().getAllParameters().containsKey("on")) {
+                (application.getRule().getAllParameters().size() == 1 &&
+                !application.getRule().getAllParameters().containsKey("on"))) {
             RuleParameterDialog d = new RuleParameterDialog(this.application.getRule(), listener.getCurrentPVC().getSymbolTable());
             d.showAndWait();
             if (d.getParameters() != null) {
