@@ -43,24 +43,25 @@ public class AbstractRuleTest {
     public void getUniqueMatchingParameterTest()
             throws FormatException, TermBuildException, RuleException, DafnyParserException, DafnyException {
         TrivialAndRight rule = new TrivialAndRight();
-        TermSelector selector = new TermSelector("A.0.0");
+        TermSelector selector = new TermSelector("A.0");
         TermParser tp = new TermParser(symbolTable);
-        Sequent sequent = tp.parseSequent("i1 < i2 && i1 < i2 |- i1 < i2");
+        Sequent sequent = tp.parseSequent("i1 < i2 && i1 < i2 |- i1 < i2 && i1 < i2");
         Parameters params = rule.extractParameters(
                 ProofMockUtil.mockProofNode(null, Collections.emptyList(), Collections.emptyList()),
                 sequent,
                 selector
         );
         assertEquals(1, params.entrySet().size());
-        assertEquals("[(... $and((on: $lt(i1, i2)), $lt(i1, i2)) ...)] ==> []", params.getValue("on").toString());
-        rule.considerApplication(
+        assertEquals("[(... (on: $and($lt(i1, i2), $lt(i1, i2))) ...)] ==> []", params.getValue("on").toString());
+        ProofRuleApplication app = rule.makeApplication(
                 ProofMockUtil.mockProofNode(null, sequent.getAntecedent(), sequent.getSuccedent()),
                 params
         );
+        System.out.println(app.getScriptTranscript());
         assertEquals(1, rule.tsForParameter.size());
         assertEquals(selector, rule.tsForParameter.get("on"));
         assertEquals(1, params.entrySet().size());
-        assertEquals("$lt(i1, i2)", params.getValue("on").toString());
+        assertEquals("[(... (on: $and($lt(i1, i2), $lt(i1, i2))) ...)] ==> []", params.getValue("on").toString());
     }
 
     @Test(expected = RuleException.class)

@@ -141,30 +141,36 @@ public abstract class AbstractProofRule implements ProofRule {
      * @param sequent the sequent the rule will be applied to
      * @throws RuleException Should only happen if there are two identical Terms as TopLevelFormulas
      */
-    private void extractSchematicParameters(Parameters schematicParams, Sequent sequent) throws RuleException {
+    private Parameters extractSchematicParameters(Parameters schematicParams, Sequent sequent) throws RuleException {
+        Parameters extractedParameters = new Parameters();
         for(Map.Entry<String, Object> en : schematicParams.entrySet()) {
             if(en.getValue() instanceof Sequent) {
                 SequentMatcher sm = new SequentMatcher();
-                ImmutableList<Matching> matchings = sm.match((Sequent)en.getValue(), sequent);
-                if(matchings.size() == 0) {
+                ImmutableList<Matching> matchings = sm.match((Sequent) en.getValue(), sequent);
+                if (matchings.size() == 0) {
                     throw new RuleException("Could not find schematic parameter " + en.getValue().toString());
                 }
-                if(matchings.size() > 1) {
+                if (matchings.size() > 1) {
                     throw new RuleException("Schematic parameter " + en.getValue().toString() + " is ambiguous.");
                 }
                 tsForParameter.put(en.getKey(), matchings.get(0).get(en.getKey()).getTermSelector());
-                schematicParams.putValue(en.getKey(),
+                extractedParameters.putValue(en.getKey(),
                         matchings.get(0).get(en.getKey()).getTermSelector().selectSubterm(sequent));
-            }
-            if(en.getValue() instanceof Term) {
+            } else if(en.getValue() instanceof Term) {
                 Optional<TermSelector> ots = RuleUtil.matchSubtermInSequent(((Term)en.getValue())::equals, sequent);
                 if(ots.isPresent()) {
                     tsForParameter.put(en.getKey(), ots.get());
+                    extractedParameters.putValue(en.getKey(),
+                            ots.get().selectSubterm(sequent));
                 } else {
                     throw new RuleException("Could not match parameter " + en.getValue());
                 }
+            } else {
+                extractedParameters.putValue(en.getKey(),
+                        en.getValue());
             }
         }
+        return extractedParameters;
     }
 
     /**
@@ -279,7 +285,6 @@ public abstract class AbstractProofRule implements ProofRule {
      */
     public final ProofRuleApplication considerApplication(ProofNode target, Sequent selection, TermSelector selector) throws RuleException {
         Parameters params = extractParameters(target, selection, selector);
-        extractSchematicParameters(params, selection);
         return considerApplication(target, params);
     }
 
@@ -293,8 +298,8 @@ public abstract class AbstractProofRule implements ProofRule {
      * @throws RuleException
      */
     public final ProofRuleApplication considerApplication(ProofNode target, Parameters parameters) throws RuleException {
-        extractSchematicParameters(parameters, target.getSequent());
-        ProofRuleApplication pra = considerApplicationImpl(target, parameters);
+        Parameters extractedParams = extractSchematicParameters(parameters, target.getSequent());
+        ProofRuleApplication pra = considerApplicationImpl(target, extractedParams);
         ProofRuleApplicationBuilder builder = new ProofRuleApplicationBuilder(pra);
         if(pra.getApplicability() == ProofRuleApplication.Applicability.APPLICABLE && pra.getBranchCount() > 0) {
             builder.setTranscript(getTranscript(pra, parameters));
@@ -324,9 +329,9 @@ public abstract class AbstractProofRule implements ProofRule {
      * @throws RuleException
      */
     public final ProofRuleApplication makeApplication(ProofNode target, Parameters parameters) throws RuleException {
-        checkParameters(parameters);
-        extractSchematicParameters(parameters, target.getSequent());
-        ProofRuleApplication pra = makeApplicationImpl(target, parameters);
+        Parameters extractedParams = extractSchematicParameters(parameters, target.getSequent());
+        checkParameters(extractedParams);
+        ProofRuleApplication pra = makeApplicationImpl(target, extractedParams);
         String transcript = getTranscript(pra, parameters);
         return new ProofRuleApplicationBuilder(pra).setTranscript(transcript).build();
     }
@@ -440,16 +445,15 @@ public abstract class AbstractProofRule implements ProofRule {
             if(!allParameters.containsKey(p.getKey())) {
                 throw new RuleException("No parameter named " + p.getKey() + " for Rule " + getName());
             }
-            if(!allParameters.get(p.getKey()).acceptsValue(p.getValue())) {
-                throw new RuleException(
-                        "ParameterDescription " + p.getKey() + " has class " + p.getValue().getClass() +
-                                ", but I expected " + allParameters.get(p) +
-                                " (class " + allParameters.get(p).getType() + ")");
-            }
             if(allParameters.get(p.getKey()).getType().equals(ParameterType.TERM)) {
                 PrettyPrint prettyPrint = new PrettyPrint();
-                String pp = prettyPrint.print((Term)p.getValue()).toString();
-                res += " " + p.getKey() + "='" + pp + "'";
+                if(p.getValue() instanceof Term) {
+                    String pp = prettyPrint.print((Term) p.getValue()).toString();
+                    res += " " + p.getKey() + "='" + pp + "'";
+                } else {
+                    String pp = ((Sequent) p.getValue()).toString();
+                    res += " " + p.getKey() + "='" + pp + "'";
+                }
             } else {
                 res += " " + p.getKey() + "=\"" + p.getValue() + "\"";
             }
