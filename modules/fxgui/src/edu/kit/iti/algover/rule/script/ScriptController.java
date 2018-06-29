@@ -78,10 +78,14 @@ public class ScriptController implements ScriptViewListener {
         // another child...
         // REVIEW This is kind of ugly. In the future this off-by-one fix has to be removed
         if (!checkpoint.selector.optionalGet(proof).isPresent()) {
-            this.listener.onSwitchViewedNode(checkpoint.selector.getParentSelector());
+            if(checkpoint.selector.getParentSelector() != null) {
+                this.listener.onSwitchViewedNode(checkpoint.selector.getParentSelector());
+            } else {
+                this.listener.onSwitchViewedNode(checkpoint.selector);
+            }
         }
 
-        this.listener.onSwitchViewedNode(checkpoint.selector);
+        //this.listener.onSwitchViewedNode(checkpoint.selector);
     }
 
     private ProofNodeCheckpoint getCheckpointForCaretPosition(Position caretPosition) {
