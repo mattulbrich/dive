@@ -149,6 +149,7 @@ public final class ProjectManager {
 
         Project result = pb.build();
 
+        // FIXME This is already performed in build()!!
         ArrayList<DafnyException> exceptions = new ArrayList<>();
         ReferenceResolutionVisitor refResolver = new ReferenceResolutionVisitor(result, exceptions);
         refResolver.visitProject();

@@ -1,7 +1,8 @@
 method max(a : array<int>, n: int) returns (m : int)
   requires n > 0
-  ensures label greater: (forall i:int :: 0 <= i && i < n ==> a[m] >= a[i])
-  ensures label witness: (exists i:int :: 0 <= i && i < n && a[m] == a[i])
+  // this also tests "|" in quantifiers
+  ensures label greater: (forall i | 0 <= i && i < n :: a[m] >= a[i])
+  ensures label witness: (exists i : int | 0 <= i && i < n :: a[m] == a[i])
   decreases 0
 {
 

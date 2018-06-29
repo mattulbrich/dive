@@ -11,24 +11,24 @@
    (>[n-0] n[n-n] 0[0-0])) 
   (ensures[ensures-)] 
    (label[label-:] greater[greater-greater]) 
-   (forall[(-)] i[i-i] (TYPE[int-int] int[int-int])
-    (==>[0-]] 
+   (forall[(-)] i[i-i]
+    (|[|-n]
      (&&[0-n] 
       (<=[0-i] 0[0-0] i[i-i]) 
-      (<[i-n] i[i-i] n[n-n])) 
+      (<[i-n] i[i-i] n[n-n])))
      (>=[a-]] 
       (ARRAY_ACCESS[a-]] a[a-a] m[m-m]) 
-      (ARRAY_ACCESS[a-]] a[a-a] i[i-i]))))) 
+      (ARRAY_ACCESS[a-]] a[a-a] i[i-i]))))
   (ensures[ensures-)] 
    (label[label-:] witness[witness-witness]) 
    (exists[(-)] i[i-i] (TYPE[int-int] int[int-int])
-    (&&[0-]] 
+    (|[|-n]
      (&&[0-n] 
       (<=[0-i] 0[0-0] i[i-i]) 
-      (<[i-n] i[i-i] n[n-n])) 
+      (<[i-n] i[i-i] n[n-n])))
      (==[a-]] 
       (ARRAY_ACCESS[a-]] a[a-a] m[m-m]) 
-      (ARRAY_ACCESS[a-]] a[a-a] i[i-i]))))) 
+      (ARRAY_ACCESS[a-]] a[a-a] i[i-i]))))
   (decreases[decreases-0] 0[0-0]) 
   (BLOCK[assume-}] 
    (assume[assume-;] 
