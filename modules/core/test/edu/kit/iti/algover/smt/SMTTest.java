@@ -8,6 +8,7 @@
 package edu.kit.iti.algover.smt;
 
 import edu.kit.iti.algover.data.BuiltinSymbols;
+import edu.kit.iti.algover.data.MapSymbolTable;
 import edu.kit.iti.algover.data.SymbolTable;
 import edu.kit.iti.algover.parser.DafnyException;
 import edu.kit.iti.algover.parser.DafnyParserException;
@@ -83,6 +84,8 @@ public class SMTTest {
     @Test
     public void verifyZ3() {
         System.out.println(sequent);
+        
+        
     }
 
     @Test

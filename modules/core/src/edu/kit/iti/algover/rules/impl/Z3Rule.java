@@ -24,6 +24,7 @@ import edu.kit.iti.algover.smt.SMTQuickNDirty;
 import edu.kit.iti.algover.smttrans.access.CVCAccess;
 import edu.kit.iti.algover.smttrans.access.Model;
 import edu.kit.iti.algover.smttrans.access.Response;
+import edu.kit.iti.algover.smttrans.access.SMTLog;
 import edu.kit.iti.algover.smttrans.access.SolverAccess;
 import edu.kit.iti.algover.smttrans.access.SolverParameter;
 import edu.kit.iti.algover.smttrans.access.SolverResponse;
@@ -125,8 +126,9 @@ public class Z3Rule extends AbstractProofRule {
         // System.out.println();
         // System.out.println("PSMT: ");
         // System.out.println();
-        // smt = sc.toPSMT();
-        // System.out.println(smt);
+         smt = sc.toPSMT();
+         SMTLog.writeFile(smt, pvc.getIdentifier()+".psmt");
+         System.out.println(smt);
         // System.out.println();
         // System.out.println();
 
@@ -134,6 +136,7 @@ public class Z3Rule extends AbstractProofRule {
 //        System.out.println();
         smt = sc.toSMT();
         System.out.println(smt);
+        SMTLog.writeFile(smt, pvc.getIdentifier()+".smt2");
 //
 //        System.out.println();
 
@@ -149,8 +152,9 @@ public class Z3Rule extends AbstractProofRule {
         //System.out.println(r1.getModel().getDeclarations());
         if (r1.getResponse() == Response.SAT) {
             model = r1.getModel();
-            System.out.println(model.getDeclarations());
-            System.out.println(model.getDefinitions());
+            //System.out.println(model.getDeclarations());
+            //System.out.println(model.getDefinitions());
+            model.printVars();
         }
           
             //System.out.println(r1.getModel().toString());

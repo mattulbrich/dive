@@ -29,6 +29,7 @@ import edu.kit.iti.algover.parser.ReferenceResolutionVisitorTest;
 import edu.kit.iti.algover.parser.TypeResolutionTest;
 import edu.kit.iti.algover.project.ProjectTest;
 import edu.kit.iti.algover.script.ScriptParserTest;
+import edu.kit.iti.algover.smt.SMTTest;
 import edu.kit.iti.algover.symbex.ProgramDatabaseTest;
 import edu.kit.iti.algover.symbex.SymbexTest;
 import edu.kit.iti.algover.term.FunctionSymbolFamilyTest;
@@ -102,7 +103,8 @@ import edu.kit.iti.smttrans.translate.SumAndMaxTest;
         FolTest.class,
         Arr1Test.class,
 //        Arr2Test.class,
-        SeqTest.class
+        SeqTest.class,
+        SMTTest.class
         
     })
 public class Tests {

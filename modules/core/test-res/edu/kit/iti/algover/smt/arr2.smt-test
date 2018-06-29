@@ -1,0 +1,7 @@
+a: arr2<int>
+
+---
+
+a == $empty<int>,
+$set_in<int>(1, a)
+|-

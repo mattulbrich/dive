@@ -38,6 +38,9 @@ public class Model {
     }
 
     public List<String> getDeclarations() {
+        
+        
+        
         return vars.stream().filter(l -> l.get(0).startsWith("Decl")).map(l -> l.subList(1, l.size()))
                 .flatMap(List::stream).collect(Collectors.toList());
     }
@@ -63,6 +66,14 @@ public class Model {
     }
 
     public List<String> getDefinition(String func) {
+        
+        if (vars.isEmpty()) {
+        List<String> result = new ArrayList<>();
+        for (String v : vMap.keySet()) {
+            result.add("Def: " + v + " = " + vMap.get(v));
+        }
+        return result;
+        }
         return vars.stream().filter(l -> l.get(0).startsWith(func)).flatMap(List::stream).collect(Collectors.toList());
 
     }
@@ -224,7 +235,7 @@ public class Model {
 
             if (line.startsWith(DECL)) {
                 List<String> parts = Arrays.asList(line.split("(?<![\\(,\\)])\\s+"));
-                System.out.println(parts.toString());
+                //System.out.println(parts.toString());
                 List<String> decl = new ArrayList<>();
                 decl.add("Decl: ");
                 decl.addAll(parts.subList(1, parts.size()));
