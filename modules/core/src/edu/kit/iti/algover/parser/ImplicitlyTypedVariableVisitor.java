@@ -19,7 +19,7 @@ public class ImplicitlyTypedVariableVisitor {
             DafnyTree type = tree.getFirstChildWithType(DafnyParser.TYPE);
             if(type == null) {
                 // TODO in the far future replace this with type inference ... (probably not here)
-                tree.insertChild(tree.getChildCount() - 1, ASTUtil.type("int"));
+                tree.insertChild(tree.getChildCount() - 1, ASTUtil.type(new DafnyTree(DafnyParser.INT, "int")));
             }
         }
 
