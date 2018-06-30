@@ -288,7 +288,13 @@ statement:
   | call_statement
 
   | (label? WHILE) =>
-    label? WHILE expression_wildcard invariant* modifies? decreases? block
+    label? WHILE expression_wildcard
+        (( invariant
+         | {stream_modifies.size()<1}? => modifies
+         | {stream_decreases.size()<1}? => decreases
+         ) ( ';' )?
+        )*
+        block
            -> ^(WHILE label? expression_wildcard invariant* modifies? decreases? block)
 
   | if_statement
@@ -298,6 +304,8 @@ statement:
   | 'assume'^ label? expression ';'!
 
   | 'return'^ ';'!
+
+  | 'print'^ expressions ';'!
   ;
 
 call_statement:
