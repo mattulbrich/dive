@@ -395,7 +395,8 @@ public class TypeResolution extends DafnyTreeDefaultVisitor<DafnyTree, Void> {
                         "Array index not of type int, but " + sizeType, size));
             }
 
-            DafnyTree ty = ASTUtil.create(DafnyParser.ARRAY, type.dupTree());
+            DafnyTree ty = new DafnyTree(DafnyParser.ARRAY, "array");
+            ty.addChild(type.dupTree());
             t.setExpressionType(ty);
             return ty;
 
