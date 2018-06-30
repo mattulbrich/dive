@@ -102,6 +102,7 @@ public class ParserTest {
         } else {
             t = parseFile(System.in);
         }
+        // w/o boundaries: remove formatTree parameter
         System.out.println(TestUtil.beautify(t, ParserTest::formatTree));
     }
 
