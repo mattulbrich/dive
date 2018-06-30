@@ -351,7 +351,6 @@ expressions:
 
 expression:
     equiv_expr
-  | endless_expr
   ;
 
 expression_only:
@@ -359,40 +358,42 @@ expression_only:
   ;
 
 equiv_expr:
-  implies_expr ( '<==>'^ implies_expr )*
+  implies_expr ( ('<==>') => '<==>'^ implies_expr )*
   ;
 
 // right assoc
 implies_expr:
-  or_expr ( '==>'^ implies_expr )?
+  or_expr ( ('==>') => '==>'^ implies_expr )?
   ;
 
 // left assoc
 or_expr:
-  and_expr ( '||'^ and_expr )*
+  and_expr ( ('||') => '||'^ and_expr )*
   ;
 
 and_expr:
-  rel_expr ( '&&'^ rel_expr )*
+  rel_expr ( ('&&') => '&&'^ rel_expr )*
   ;
 
+rel_op: ( '<' | '>'  | '==' | '!=' | '<=' | '>=' | 'in' | '!in' ) ;
 rel_expr:
-  add_expr ( ( '<'^ | '>'^  | '=='^ | '!='^ |
-              '<='^ | '>='^ | 'in'^ | '!in'^ ) add_expr )*
+  add_expr ( (rel_op) => rel_op^ add_expr )*
   ;
 
+add_op: ('+' | '-') ;
 add_expr:
-  mul_expr ( ('+' | '-')^ mul_expr )*
+  mul_expr ( (add_op) => add_op^ mul_expr )*
   ;
 
+mul_op: ('*' | '/' | '%') ;
 mul_expr:
-  prefix_expr ( ('*' | '/' | '%')^ prefix_expr )*
+  prefix_expr ( (mul_op) => mul_op^ prefix_expr )*
   ;
 
 prefix_expr:
-    '-'^ prefix_expr
-  | '!'^ prefix_expr
+    ( '-'^ | '!'^ ) prefix_expr
   | postfix_expr
+  | endless_expr
   ;
 
 endless_expr:
@@ -412,7 +413,6 @@ usual_or_logic_id_or_this:
     usual_or_logic_id
   | {logicMode}? t=THIS -> ^(ID[t])
   ;
-
 
 postfix_expr:
   ( atom_expr -> atom_expr )   // see ANTLR ref. page 175
