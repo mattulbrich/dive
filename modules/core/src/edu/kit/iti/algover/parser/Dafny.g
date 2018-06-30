@@ -95,8 +95,10 @@ MODIFIES: 'modifies';
 MULTISET: 'multiset';
 NEW: 'new';
 NULL: 'null';
-// PREDICATE : 'predicate';
 OBJECT : 'object';
+OLD : 'old';
+// PREDICATE : 'predicate';
+PRINT : 'print';
 REQUIRES: 'requires';
 RETURN : 'return';
 RETURNS : 'returns';
@@ -517,6 +519,6 @@ new_expression:
                      -> ^( 'new' $clss ^(CALL $meth? ^(ARGS expressions?) ))
                   |    -> ^( 'new' $clss )
                   )
-        | t=(ID|INT|BOOL) '[' expression ']' -> ^( 'new' $t expression )
+        | t=(ID|INT|BOOL) '[' expression ']' -> ^( 'new' ^(ARRAY_ACCESS $t expression) )
         )
   ;

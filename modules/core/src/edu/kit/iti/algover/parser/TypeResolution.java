@@ -385,11 +385,28 @@ public class TypeResolution extends DafnyTreeDefaultVisitor<DafnyTree, Void> {
 
     @Override
     public DafnyTree visitNEW(DafnyTree t, Void a) {
-        DafnyTree clss = t.getChild(0).getDeclarationReference();
-        assert clss.getType() == DafnyParser.CLASS;
-        DafnyTree ty = clss.getChild(0);
-        t.setExpressionType(ty);
-        return ty;
+        if (t.getChild(0).getType() == DafnyParser.ARRAY_ACCESS) {
+            DafnyTree size = t.getChild(0).getChild(1);
+            DafnyTree type = t.getChild(0).getChild(0);
+
+            DafnyTree sizeType = size.accept(this, null);
+            if (sizeType.getType() != DafnyParser.INT) {
+                exceptions.add(new DafnyException(
+                        "Array index not of type int, but " + sizeType, size));
+            }
+
+            DafnyTree ty = ASTUtil.create(DafnyParser.ARRAY, type.dupTree());
+            t.setExpressionType(ty);
+            return ty;
+
+        } else {
+
+            DafnyTree clss = t.getChild(0).getDeclarationReference();
+            assert clss.getType() == DafnyParser.CLASS;
+            DafnyTree ty = clss.getChild(0);
+            t.setExpressionType(ty);
+            return ty;
+        }
     }
 
     @Override
