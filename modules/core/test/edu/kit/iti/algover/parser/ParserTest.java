@@ -59,6 +59,7 @@ public class ParserTest {
                 { "full/sumandmax.dfy" },
                 { "full/find.dfy" },
                 { "full/twoway.dfy" },
+                { "full/Problem2-Invert.dfy" },
                 { "unqualifiedCallsInExp.dfy" },
                 { "letexpressions.dfy" },
                 { "typeParameters.dfy" },

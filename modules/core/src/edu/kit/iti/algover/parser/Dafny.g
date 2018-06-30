@@ -176,16 +176,18 @@ clazz:
   '}'!
   ;
 
-// TODO Make order independent
 method:
   ( 'ghost' )?
   tok = ('method' | 'lemma')
   ID '(' vars? ')'
   ( returns_ )?
-  ( requires )*
-  ( ensures )*
-  ( modifies )?
-  ( decreases )?
+  ( ( requires
+    | ensures
+    | {stream_modifies.size()<1}? => modifies
+    | {stream_decreases.size()<1}? => decreases
+    )
+    ( ';' )?
+  )*
   '{' statements? '}'
   ->
     ^(METHOD[tok] ID ^(ARGS vars?) returns_? requires* ensures*
