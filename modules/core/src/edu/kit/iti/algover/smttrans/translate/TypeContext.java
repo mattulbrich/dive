@@ -33,7 +33,7 @@ public class TypeContext {
     public static final String AV_ARRNAME = "array";
     public static final String SMT_ARRNAME = "Arr";
     public static final String AV_SETEMPTYNAME = "empty<object>";
-    public static final String SMT_SETEMPTYNAME = "setEmptyObject";
+    public static final String SMT_SETEMPTYNAME = "setEmpty<Object>";
     public static final String AV_ARR2NAME = "array2";
     public static final String SMT_ARR2NAME = "Arr2";
     public static final String AV_INTNAME = "int";
@@ -101,7 +101,7 @@ public class TypeContext {
 
         for (String l : lines) {
 
-            if (l.trim().startsWith("(assert") && (l.contains("setInsertObject") || l.contains("inSetObject"))) {
+            if (l.trim().startsWith("(assert") && (l.contains("setInsert<Object>") || l.contains("inSet<Object>"))) {
                 critical.add(l);
             }
             if (l.trim().startsWith("(declare-sort") && (!l.contains("Object"))) {
@@ -206,21 +206,23 @@ public class TypeContext {
 
                     String[] parts = s.split(",");
                     for (String p : parts) {
-                        sname += nmap.computeIfAbsent(p, x -> p.substring(0, 1).toUpperCase() + p.substring(1));
+                        sname +=  "<" + nmap.computeIfAbsent(p, x -> p.substring(0, 1).toUpperCase() + p.substring(1))+ ">";
                         sname += ".";
                     }
-                    sname = sname.substring(0, sname.length() - 1);
+                   
+                    sname = sname.substring(0, sname.length() - 1).replace(">.<", ".");;
                     return sname;
                 }
 
             }
 
             for (String s : ops.subList(1, ops.size())) {
-                sname += nmap.computeIfAbsent(s, x -> s.substring(0, 1).toUpperCase() + s.substring(1));
+                sname += "<" + nmap.computeIfAbsent(s, x -> s.substring(0, 1).toUpperCase() + s.substring(1)) + ">";
 
             }
 
         }
+        //System.out.println("OP2SMT " + sname);
         return sname;
 
     }
@@ -247,16 +249,16 @@ public class TypeContext {
             if (so.contains(",")) {
                 String[] parts = so.split(",");
                 for (String p : parts) {
-                    r += nmap.computeIfAbsent(p, x -> p.substring(0, 1).toUpperCase() + p.substring(1));
+                    r += "<" + nmap.computeIfAbsent(p, x -> p.substring(0, 1).toUpperCase() + p.substring(1)) + ">";
                     r += ".";
                 }
-                r = r.substring(0, r.length() - 1);
-                return r;
+                r = r.substring(0, r.length() - 1).replace(">.<", ".");
+                return r.replaceFirst("<", "").replaceFirst(">", "");
             }
 
-            r += nmap.computeIfAbsent(so, x -> so.substring(0, 1).toUpperCase() + so.substring(1));
+            r += "<" + nmap.computeIfAbsent(so, x -> so.substring(0, 1).toUpperCase() + so.substring(1)) + ">";
         }
-        return r;
+        return r.replaceFirst("<", "").replaceFirst(">", "");
     }
 
     public static String normalizeSort(Sort s) {
@@ -432,7 +434,7 @@ public class TypeContext {
             r += p.substring(0, 1).toUpperCase() + p.substring(1);
         }
 
-        return s;
+        return r;
 
     }
 
