@@ -13,6 +13,7 @@ import edu.kit.iti.algover.parser.DafnyParser;
 import edu.kit.iti.algover.parser.DafnyParser.expression_only_return;
 import edu.kit.iti.algover.parser.DafnyParserException;
 import edu.kit.iti.algover.parser.DafnyTree;
+import edu.kit.iti.algover.parser.SyntacticSugarVistor;
 import edu.kit.iti.algover.project.Project;
 import edu.kit.iti.algover.term.*;
 import edu.kit.iti.algover.term.parser.TermParser;
@@ -120,6 +121,11 @@ public class TreeTermTranslatorTest {
             { "c == c2", "$eq<C>(c, c2)" },
             { "let c := null :: null == c",
                 "(let c := null :: $eq<null>(null, c))" },
+
+            // endless expressions
+            { "1 + if b1 then 1 else 0", "$plus(1, $ite<int>(b1, 1, 0))" },
+            { "if b1 then 1 else 0 + 1", "$ite<int>(b1, 1, $plus(0, 1))" },
+            { "true && forall i:int :: i==i", "$and(true, (forall i:int :: $eq<int>(i, i)))" },
 
             // Heap accesses
             {"a[0]", "$array_select<int>($heap, a, 0)"},

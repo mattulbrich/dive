@@ -148,9 +148,21 @@ LOGIC_ID : ('a' .. 'z' | 'A' .. 'Z' | '_' | '$')
 SCHEMA_ID : '?' ID;
 
 
-
 INT_LIT : ('0' .. '9' ) ('0' .. '9' | '_')*;
 // glyph = "`~!@#$%^&*()-_=+[{]}|;:',<.>/?\\".
+
+
+fragment HEXDIGIT : '0'..'9' |'a'..'f' |'A'..'F' ;
+fragment STRING_CHAR : ~( '"' | '\\' | '\n' | '\r' ) ;
+STRING_LIT :
+      '"'
+      ( STRING_CHAR
+        | '\\\'' | '\\\"' | '\\\\' | '\\0' | '\\n' | '\\r' | '\\t'
+        | '\\u' HEXDIGIT HEXDIGIT HEXDIGIT HEXDIGIT
+      )*
+      '"'
+      ;
+
 
 WS : (' '|'\t'|'\n'|'\r')                { $channel = HIDDEN; };
 SINGLELINE_COMMENT: '//' ~('\r' | '\n')* { $channel = HIDDEN; };
@@ -466,6 +478,7 @@ atom_expr:
       )
   | TRUE | FALSE | NULL | 'this'
   | INT_LIT
+  | STRING_LIT
   | 'old'^ '('! expression ')'!
   | 'fresh'^ '('! expression ')'!
   | '|'^ expression '|'!
@@ -500,8 +513,10 @@ quantifier_guard:
   ;
 
 new_expression:
-  'new' clss=ID ( '.' meth=ID '(' expressions? ')'
+  'new' ( clss=ID ( '.' meth=ID '(' expressions? ')'
                      -> ^( 'new' $clss ^(CALL $meth? ^(ARGS expressions?) ))
-                |    -> ^( 'new' $clss )
-                )
+                  |    -> ^( 'new' $clss )
+                  )
+        | t=(ID|INT|BOOL) '[' expression ']' -> ^( 'new' $t expression )
+        )
   ;

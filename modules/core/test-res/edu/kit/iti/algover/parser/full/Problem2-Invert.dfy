@@ -26,20 +26,19 @@
 // connect the two.
 
 method M(N: int, A: array<int>, B: array<int>)
-  requires A != null && B != null
-  requires 0 <= N && N == A.Length && N == B.Length && A != B
-  requires forall k :: 0 <= k < N ==> 0 <= A[k] < N
-  requires forall j,k :: 0 <= j < k < N ==> A[j] != A[k]  // A is injective
-  requires forall m :: 0 <= m < N && inImage(m) ==> exists k :: 0 <= k && k < N && A[k] == m  // A is surjective
-  modifies B
-  ensures forall k :: 0 <= k < N ==> 0 <= B[k] < N
-  ensures forall k :: 0 <= k < N ==> B[A[k]] == k == A[B[k]]  // A and B are each other's inverses
-  ensures forall j,k :: 0 <= j < k < N ==> B[j] != B[k]  // (which means that) B is injective
+  requires 0 <= N && N == A.Length && N == B.Length && A != B;
+  requires forall k :: 0 <= k < N ==> 0 <= A[k] < N;
+  requires forall j,k :: 0 <= j < k < N ==> A[j] != A[k];  // A is injective
+  requires forall m :: 0 <= m < N && inImage(m) ==> exists k :: 0 <= k && k < N && A[k] == m;  // A is surjective
+  modifies B;
+  ensures forall k :: 0 <= k < N ==> 0 <= B[k] < N;
+  ensures forall k :: 0 <= k < N ==> B[A[k]] == k == A[B[k]];  // A and B are each other's inverses
+  ensures forall j,k :: 0 <= j < k < N ==> B[j] != B[k];  // (which means that) B is injective
 {
   var n := 0;
   while n < N
-    invariant n <= N
-    invariant forall k :: 0 <= k < n ==> B[A[k]] == k
+    invariant n <= N;
+    invariant forall k :: 0 <= k < n ==> B[A[k]] == k;
   {
     B[A[n]] := n;
     n := n + 1;
@@ -81,4 +80,3 @@ method PrintArray(a: array<int>)
     i := i + 1;
   }
 }
-
