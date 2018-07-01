@@ -70,12 +70,13 @@ public class TypeContext {
 
     }
 
-    public static BiMap<String, String> getDefaults() {
-        return nmap;
+    public static boolean isBuiltIn(String s) {
+        String name = s.toLowerCase();
+        return name.equals(AV_BOOLNAME) || name.equals(AV_INTNAME);
     }
 
-    public static boolean isBuiltIn(String name) {
-        return name.equals(AV_BOOLNAME) || name.equals(AV_INTNAME);
+    public static BiMap<String, String> getDefaults() {
+        return nmap;
     }
 
     private static Pair<Integer, Integer> getArgumentRange(String name) {
@@ -101,69 +102,72 @@ public class TypeContext {
             return new ArrayList<>();
         return Arrays.asList(name.substring(range.fst, range.snd).split(","));
     }
-    
+
     public static String replaceLast(String string, String toReplace, String replacement) {
         int pos = string.lastIndexOf(toReplace);
         if (pos > -1) {
-            return string.substring(0, pos)
-                 + replacement
-                 + string.substring(pos + toReplace.length(), string.length());
+            return string.substring(0, pos) + replacement + string.substring(pos + toReplace.length(), string.length());
         } else {
             return string;
         }
     }
-    
-    
+
     private static String normalizeSort(String name) {
-        
+
         List<String> sorts = Arrays.asList(name.split("<"));
-        
+
         StringBuilder sb = new StringBuilder();
         for (String s : sorts) {
             sb.append("<");
             sb.append(s.substring(0, 1).toUpperCase());
             sb.append(s.substring(1));
         }
-        
+
         return sb.toString().replaceFirst("<", "");
-        
+
     }
-    
+
     private static String addTypeArguments(String name, List<String> arguments) {
-        
+
         StringBuilder sb = new StringBuilder(name);
         sb.append("<");
         for (String a : arguments) {
             sb.append(normalizeSort(a));
-            sb.append(",");
+            sb.append(".");
         }
         sb.append(">");
-       // System.out.println("RE " + replaceLast(sb.toString(),",",""));
-        return replaceLast(sb.toString(),",","");
-        
+        // System.out.println("RE " + replaceLast(sb.toString(),",",""));
+        return replaceLast(sb.toString(), ".", "");
+
     }
+
     public static String opToSMT(FunctionSymbol fs) {
 
         String name = fs.getName();
-       // System.out.println("FS " + fs.toString());
-       // System.out.println(getTypeArguments(name));
-        List<String> typeArgs = getTypeArguments(name);       
+        // System.out.println("FS " + fs.toString());
+        // System.out.println(getTypeArguments(name));
+        List<String> typeArgs = getTypeArguments(name);
         boolean hasTypeArguments = !typeArgs.isEmpty();
-        
-        Operation op = hasTypeArguments ? OperationMatcher.matchOp(name.split("<")[0]):OperationMatcher.matchOp(name);
-  
-           
+
+        Operation op = hasTypeArguments ? OperationMatcher.matchOp(name.split("<")[0]) : OperationMatcher.matchOp(name);
+
         if (!op.isPoly()) {
 
-           // System.out.println("RE " + op.toSMT());
+            // System.out.println("RE " + op.toSMT());
             return op.toSMT();
         }
         return addTypeArguments(op.toSMT(), typeArgs);
 
     }
 
-    
-    
+    public static Operation getOperation(String name) {
+        List<String> typeArgs = getTypeArguments(name);
+        boolean hasTypeArguments = !typeArgs.isEmpty();
+        Operation op = hasTypeArguments ? OperationMatcher.matchOp(name.split("<")[0]) : OperationMatcher.matchOp(name);
+        return op;
+
+    }
+
     public static boolean isBoolean(String str) {
         return (str.toLowerCase().equals("true") || str.toLowerCase().equals("false"));
     }
@@ -194,52 +198,72 @@ public class TypeContext {
         return symbolTable;
     }
 
-    
-    
-    public static void addSymbol(FunctionSymbol fs) {
+    private static boolean isBuiltInType(String name) {
+
+        if (isNumeric(name) || isBoolean(name))
+            return true;
+
+        return false;
+    }
+
+    private static boolean isRelevant(FunctionSymbol fs) {
         String name = fs.getName();
         System.out.println("NAME " + fs.getName());
         Operation op = null;
+        if (isBuiltInType(name))
+            return false;
 
-        if (isNumeric(name) || isBoolean(name))
-            return;
-
-//        if (name.startsWith("$")) {
-//
-//            op = getOp(name);
-//
-//            if (specialOps.contains(op) || op.equals(Operation.ANON)) {
-//
-//            } else {
-//                if (!op.isPoly())
-//                    return;
-//            }
-//
-//        }
-
-//        if (!isFunc(name) && !specialOps.contains(op)) {
-//            nfs = new FunctionSymbol(Names.makeSMTName(name), fs.getResultSort(), fs.getArgumentSorts());
-//        } else if (specialOps.contains(op)) {
-//            nfs = new FunctionSymbol(Names.makeSMTName(name.substring(1)), fs.getResultSort(), fs.getArgumentSorts());
-//        } else {
-//            nfs = new FunctionSymbol(name, fs.getResultSort(), fs.getArgumentSorts());
-//        }
-        
-        //FunctionSymbol nfs;
-        if (!symbolTable.getAllSymbols().contains(fs)) {
-
-            symbolTable = symbolTable.addFunctionSymbol(fs);
-             System.out.println("OK");
-
+        if (isFunc(name)) {
+            op = getOperation(name);
+            
+            if (op.isBuiltIn()) {
+                return false;
+            }
         }
+
+        return true;
     }
 
-    
-    //============================================================//
-    
-    
-    
-    
+    public static void addSymbol(FunctionSymbol fs) {
+        if (!isRelevant(fs))
+            return;
+
+        if (!symbolTable.getAllSymbols().contains(fs)) {
+            symbolTable = symbolTable.addFunctionSymbol(fs);
+            System.out.println("OK");
+            System.out.println(symbolTable.getAllSymbols());
+
+        }
+
+        // if (name.startsWith("$")) {
+        //
+        // op = getOp(name);
+        //
+        // if (specialOps.contains(op) || op.equals(Operation.ANON)) {
+        //
+        // } else {
+        // if (!op.isPoly())
+        // return;
+        // }
+        //
+        // }
+
+        // if (!isFunc(name) && !specialOps.contains(op)) {
+        // nfs = new FunctionSymbol(Names.makeSMTName(name), fs.getResultSort(),
+        // fs.getArgumentSorts());
+        // } else if (specialOps.contains(op)) {
+        // nfs = new FunctionSymbol(Names.makeSMTName(name.substring(1)),
+        // fs.getResultSort(), fs.getArgumentSorts());
+        // } else {
+        // nfs = new FunctionSymbol(name, fs.getResultSort(), fs.getArgumentSorts());
+        // }
+
+        // FunctionSymbol nfs;
+
+    }
+
+    // ============================================================//
+
     public static String parseFuncSignature(String name) {
 
         if (name.indexOf('<') == -1)
@@ -294,7 +318,6 @@ public class TypeContext {
         return r;
     }
 
-    
     public static Set<Dependency> getDependencies() {
         Set<Dependency> deps = new LinkedHashSet<>();
         for (FunctionSymbol fs : symbolTable.getAllSymbols()) {
@@ -311,17 +334,6 @@ public class TypeContext {
           // System.out.println("d:" + d.instantiate().toString());
           // }
         return deps;
-    }
-
-   
-    public static Operation getOp(String name) {
-
-        Iterable<String> operators = Splitter.on("<").split(name);
-
-        List<String> ops = Arrays.asList(Iterables.toArray(operators, String.class));
-
-        Operation op = OperationMatcher.matchOp(ops.get(0));
-        return op;
     }
 
     public static List<String> getSubTypes(FunctionSymbol type) {

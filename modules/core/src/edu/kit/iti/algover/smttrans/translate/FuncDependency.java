@@ -13,7 +13,7 @@ public class FuncDependency extends Dependency {
 
     public FuncDependency(FunctionSymbol fs) {
         super(fs);
-        this.op = TypeContext.getOp(fs.getName());
+        this.op = TypeContext.getOperation(fs.getName());
     }
 
     @Override

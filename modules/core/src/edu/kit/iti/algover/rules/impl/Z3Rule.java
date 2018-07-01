@@ -135,7 +135,7 @@ public class Z3Rule extends AbstractProofRule {
 //        System.out.println("SMT: ");
 //        System.out.println();
         smt = sc.toSMT();
-   //     System.out.println(smt);
+        System.out.println(smt);
       //  SMTLog.writeFile(smt, pvc.getIdentifier()+".smt2");
 //
 //        System.out.println();
