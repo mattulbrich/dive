@@ -13,7 +13,7 @@ public enum Operation {
   OR, SETEMPTY, PLUS, MINUS, TIMES, IMP, GT, LT, EQ, NOT, GE, LE, NEG, ITE, ARR2SELECT, ARRSTORE, ARR2STORE, FIELDSTORE, FIELDSELECT, DECR, SETUNION, SETINTERSECT, SETCARD, SEQCONCAT, ISCREATED, CREATE, ANON, SEQCONS, SEQEMPTY, SEQUPD, SEQGET, SEQLEN, SETIN, SETADD, CONST, ARRLEN, ARR2LEN0, ARR2LEN1, EXISTS, FORALL, LET, ARRSELECT, VAR, HEAP, AND, BV, MOD, AHEAP, EVERYTHING;
 
     private String smt;
-    private Boolean poly;
+    private Boolean poly = false;
    
     private List<Axiom> instantiations = new ArrayList<>();
 
@@ -21,7 +21,6 @@ public enum Operation {
 
         
         EVERYTHING.smt = "everything";
-        EVERYTHING.poly = false;
         EVERYTHING.instantiations = asList(); //Axiom.EVERYTHING
 
         ARR2LEN0.smt = "arr2len0";
@@ -82,15 +81,14 @@ public enum Operation {
         CREATE.instantiations = asList();
 
         ANON.smt = "anon";
-        ANON.poly = false;
         ANON.instantiations = asList(Axiom.ANON); //Axiom.HEAP_4
 
         MOD.smt = "modh";
-        MOD.poly = false;
+
         MOD.instantiations=asList(Axiom.MODH); //Axiom.MODH
         
         AHEAP.smt = "aheap";
-        AHEAP.poly = false;
+
         AHEAP.instantiations=asList();
         
         SEQCONS.smt = "SEQCONS";
@@ -123,7 +121,7 @@ public enum Operation {
         SEQCONCAT.instantiations = asList(Axiom.SEQEMTY_INST,Axiom.SEQ_CONCAT,Axiom.SEQ_LEN,Axiom.SEQ_LEN_5);
 
         HEAP.smt = "heap";
-        HEAP.poly = false;
+
         HEAP.instantiations = asList(Axiom.HEAP_INST); //Axiom.HEAP_INST
 
         FIELDSTORE.smt = "fieldstore";
@@ -139,58 +137,38 @@ public enum Operation {
          */
 
         FORALL.smt = "forall";
-        FORALL.poly = false;
 
         EXISTS.smt = "exists";
-        EXISTS.poly = false;
 
         AND.smt = "and";
-        AND.poly = false;
         
         OR.smt = "or";
-        OR.poly = false;
 
         IMP.smt = "=>";
-        IMP.poly = false;
 
         PLUS.smt = "+";
-        PLUS.poly = false;
 
         MINUS.smt = "-";
-        MINUS.poly = false;
 
         TIMES.smt = "*";
-        TIMES.poly = false;
 
         GT.smt = ">";
-        GT.poly = false;
 
         LT.smt = "<";
-        LT.poly = false;
 
         EQ.smt = "=";
-        EQ.poly = false;
 
         NOT.smt = "not";
-        NOT.poly = false;
 
         GE.smt = ">=";
-        GE.poly = false;
-
 
         LE.smt = "<=";
-        LE.poly = false;
-
 
         NEG.smt = "-";
-        NEG.poly = false;
-
 
         ITE.smt = "ITE";
-        ITE.poly = false;
-
         DECR.smt = "DECR";
-        DECR.poly = false;
+
 
     }
 

@@ -1,7 +1,6 @@
 package edu.kit.iti.algover.smttrans.translate;
 
 import java.util.LinkedHashSet;
-import java.util.List;
 
 import edu.kit.iti.algover.smttrans.data.Axiom;
 import edu.kit.iti.algover.smttrans.data.AxiomContainer;
@@ -18,7 +17,7 @@ public class FuncDependency extends Dependency {
     }
 
     @Override
-    public LinkedHashSet<String> instantiate() { //TODO
+    public LinkedHashSet<String> instantiate() {
         LinkedHashSet<String> inst = new LinkedHashSet<>();
         
         inst.addAll(AxiomContainer.instantiateSort(fs)); 
@@ -27,8 +26,6 @@ public class FuncDependency extends Dependency {
             inst.add(AxiomContainer.instantiateAxiom(a,fs));
         }
         
-       // inst.add(AxiomContainer.instantiateAxiom(Axiom.SET_1, t));//debug
-        //System.out.println(inst.toString());
         return inst;
     }
     @Override

@@ -21,7 +21,7 @@ public class SMTApplExpression extends SMTExpression {
         sb.append(sign.show() + " ");
         
         for (SMTExpression c : children) {
-            sb.append(c.toSMT(false)); //TODO correct ?
+            sb.append(c.toSMT(false));
         }
         if(negate)
             sb.append(")");

@@ -1,7 +1,7 @@
 package edu.kit.iti.algover.smttrans.translate;
-//
 
 import java.text.DecimalFormatSymbols;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -20,8 +20,6 @@ import com.google.common.collect.Iterables;
 
 import edu.kit.iti.algover.data.MapSymbolTable;
 import edu.kit.iti.algover.data.SymbolTable;
-import edu.kit.iti.algover.smttrans.data.Axiom;
-import edu.kit.iti.algover.smttrans.data.AxiomContainer;
 import edu.kit.iti.algover.smttrans.data.Operation;
 import edu.kit.iti.algover.smttrans.data.OperationMatcher;
 import edu.kit.iti.algover.term.FunctionSymbol;
@@ -69,162 +67,179 @@ public class TypeContext {
         nmap.put(AV_HEAPNAME, SMT_HEAPNAME);
         nmap.put(AV_AHEAP, Operation.AHEAP.toSMT());
         nmap.put(AV_DECR, Operation.DECR.toSMT());
-        // nmap.put(AV_HEAPNAME, Operation.HEAP.toSMT());
-        // nmap.put(AV_ANON, Operation.ANON.toSMT());
-        // nmap.put(AV_EVERYTHINGNAME, Operation.EVERYTHING.toSMT());
+
     }
 
     public static BiMap<String, String> getDefaults() {
-
         return nmap;
     }
 
-    // public static boolean isBuiltInVar(String name) {
-    // String n = name.substring(1);
-    // return n.equals(AV_HEAPNAME) || n.equals(AV_MODNAME) ||
-    // n.equals(AV_EVERYTHINGNAME);
-    // }
-
-    public static boolean isBuiltIn(Sort s) {
-        String name = s.getName().toLowerCase();
+    public static boolean isBuiltIn(String name) {
         return name.equals(AV_BOOLNAME) || name.equals(AV_INTNAME);
     }
 
-    public static String addCasts(String smt) { // TODO better version
+    private static Pair<Integer, Integer> getArgumentRange(String name) {
+        int i = 0;
+        int j = 0;
 
-        List<String> sorts = new ArrayList<>();
-        List<Pair<String, String>> consts = new ArrayList<>();
-        List<String> critical = new ArrayList<>();
-        Map<String, String> creplace = new HashMap<>();
-        List<String> lines = Arrays.asList(smt.split("\\r?\\n"));
-        Map<String, List<String>> casts = new HashMap<>();
-
-        for (String l : lines) {
-
-            if (l.trim().startsWith("(assert") && (l.contains("setInsertObject") || l.contains("inSetObject"))) {
-                critical.add(l);
+        for (int k = 0; k < name.length(); k++) {
+            if (name.charAt(k) == '<') {
+                i = k;
             }
-            if (l.trim().startsWith("(declare-sort") && (!l.contains("Object"))) {
-                sorts.add(l.split(" ")[1]);
+            if (name.charAt(k) == '>') {
+                j = k;
             }
         }
 
-        for (String sort : sorts) { // TODO axioms, declarations
-            String c2o = "(" + sort + "2o";
-            String o2c = "(o2" + sort;
-            casts.put(sort, Arrays.asList(c2o, o2c));
+        return new Pair<Integer, Integer>(i + 1, j);
+    }
 
-            for (String l : lines) {
+    private static List<String> getTypeArguments(String name) {
 
-                if (l.trim().startsWith("(declare-const") && (l.contains(sort))) {
-                    consts.add(new Pair<String, String>(l.split(" ")[1], l.split(" ")[2].replace(")", "")));
-
-                }
-            }
+        Pair<Integer, Integer> range = getArgumentRange(name);
+        if (range.fst > range.snd) // no type arguments
+            return new ArrayList<>();
+        return Arrays.asList(name.substring(range.fst, range.snd).split(","));
+    }
+    
+    public static String replaceLast(String string, String toReplace, String replacement) {
+        int pos = string.lastIndexOf(toReplace);
+        if (pos > -1) {
+            return string.substring(0, pos)
+                 + replacement
+                 + string.substring(pos + toReplace.length(), string.length());
+        } else {
+            return string;
         }
-
-        for (String c : critical) {
-            String nc = c;
-
-            for (Pair<String, String> p : consts) {
-
-                String cr = casts.get(p.snd).get(0) + " " + p.fst + ")";
-                nc = nc.replace(p.fst, cr);
-
-            }
-            creplace.put(c, nc);
-        }
-
-        String nsmt = "";
-
-        int i;
-        for (i = 0; i < lines.size(); i++) {
-            if (lines.get(i).startsWith("(assert")) {
-                break;
-            }
-            nsmt += lines.get(i) + "\r\n";
-
-        }
-
-        if (!critical.isEmpty() && !nsmt.contains("(declare-sort Object 0)"))
-            nsmt += "(declare-sort Object 0) + \r\n";
-        if (!critical.isEmpty()) {
-            
+    }
+    
+    
+    private static String normalizeSort(String name) {
         
-        for (String t : sorts) {
-
-            // declarations
-
-                nsmt += "(declare-fun o2C (Object) C)".replace("C", t) + "\r\n";
-                nsmt += "(declare-fun C2o (C) Object)".replace("C", t) + "\r\n";
-                nsmt += "(declare-fun typeC (Object) Bool)".replace("C", t) + "\r\n";
-                
-            // axioms
-            
-                nsmt += "(assert (forall ((c C)) (! (= (o2C (C2o c)) c) :pattern ((o2C (C2o c))))))".replace("C", t) + "\r\n";
-                nsmt += "(assert (forall ((c C)) (! (typeC (C2o c)) :pattern ((o2C (C2o c))))))".replace("C", t) + "\r\n";
-                nsmt += "(assert (forall ((o Object)) (=>(typeC o) (= (C2o (o2C o)) o))))".replace("C", t) + "\r\n";
-            
-      
-
+        List<String> sorts = Arrays.asList(name.split("<"));
+        
+        StringBuilder sb = new StringBuilder();
+        for (String s : sorts) {
+            sb.append("<");
+            sb.append(s.substring(0, 1).toUpperCase());
+            sb.append(s.substring(1));
         }
-        }
-        // insert axioms,decl
-
-        for (; i < lines.size(); i++) {
-
-            String line = lines.get(i);
-
-            if (critical.contains(line)) {
-                nsmt += creplace.get(line) + "\r\n";
-            } else {
-                nsmt += line + "\r\n";
-            }
-        }
-        return nsmt;
-
+        
+        return sb.toString().replaceFirst("<", "");
+        
     }
-
+    
+    private static String addTypeArguments(String name, List<String> arguments) {
+        
+        StringBuilder sb = new StringBuilder(name);
+        sb.append("<");
+        for (String a : arguments) {
+            sb.append(normalizeSort(a));
+            sb.append(",");
+        }
+        sb.append(">");
+       // System.out.println("RE " + replaceLast(sb.toString(),",",""));
+        return replaceLast(sb.toString(),",","");
+        
+    }
     public static String opToSMT(FunctionSymbol fs) {
-        // System.out.println("Poly " + poly);
-        String poly = fs.getName();
-        String typed = CharMatcher.anyOf(">").removeFrom(poly);
-        Iterable<String> operators = Splitter.on("<").split(typed);
-        List<String> ops = Arrays.asList(Iterables.toArray(operators, String.class));
 
-        // System.out.println("FS " + ops.get(0));
+        String name = fs.getName();
+       // System.out.println("FS " + fs.toString());
+       // System.out.println(getTypeArguments(name));
+        List<String> typeArgs = getTypeArguments(name);       
+        boolean hasTypeArguments = !typeArgs.isEmpty();
+        
+        Operation op = hasTypeArguments ? OperationMatcher.matchOp(name.split("<")[0]):OperationMatcher.matchOp(name);
+  
+           
+        if (!op.isPoly()) {
 
-        Operation op = OperationMatcher.matchOp(ops.get(0));
-        String sname = op.toSMT();
-        // sname += nmap.computeIfAbsent(s, x -> s.substring(0, 1).toUpperCase() +
-        // s.substring(1));
-        if (op.isPoly()) {
-
-            for (String s : ops.subList(1, ops.size())) {
-
-                if (s.contains(",")) {
-
-                    String[] parts = s.split(",");
-                    for (String p : parts) {
-                        sname += nmap.computeIfAbsent(p, x -> p.substring(0, 1).toUpperCase() + p.substring(1));
-                        sname += ".";
-                    }
-                    sname = sname.substring(0, sname.length() - 1);
-                    return sname;
-                }
-
-            }
-
-            for (String s : ops.subList(1, ops.size())) {
-                sname += nmap.computeIfAbsent(s, x -> s.substring(0, 1).toUpperCase() + s.substring(1));
-
-            }
-
+           // System.out.println("RE " + op.toSMT());
+            return op.toSMT();
         }
-        return sname;
+        return addTypeArguments(op.toSMT(), typeArgs);
 
     }
 
+    
+    
+    public static boolean isBoolean(String str) {
+        return (str.toLowerCase().equals("true") || str.toLowerCase().equals("false"));
+    }
+
+    public static boolean isNumeric(String str) {
+        DecimalFormatSymbols currentLocaleSymbols = DecimalFormatSymbols.getInstance();
+        char localeMinusSign = currentLocaleSymbols.getMinusSign();
+
+        if (!Character.isDigit(str.charAt(0)) && str.charAt(0) != localeMinusSign)
+            return false;
+
+        boolean isDecimalSeparatorFound = false;
+        char localeDecimalSeparator = currentLocaleSymbols.getDecimalSeparator();
+
+        for (char c : str.substring(1).toCharArray()) {
+            if (!Character.isDigit(c)) {
+                if (c == localeDecimalSeparator && !isDecimalSeparatorFound) {
+                    isDecimalSeparatorFound = true;
+                    continue;
+                }
+                return false;
+            }
+        }
+        return true;
+    }
+
+    public static SymbolTable getSymbolTable() {
+        return symbolTable;
+    }
+
+    
+    
+    public static void addSymbol(FunctionSymbol fs) {
+        String name = fs.getName();
+        System.out.println("NAME " + fs.getName());
+        Operation op = null;
+
+        if (isNumeric(name) || isBoolean(name))
+            return;
+
+//        if (name.startsWith("$")) {
+//
+//            op = getOp(name);
+//
+//            if (specialOps.contains(op) || op.equals(Operation.ANON)) {
+//
+//            } else {
+//                if (!op.isPoly())
+//                    return;
+//            }
+//
+//        }
+
+//        if (!isFunc(name) && !specialOps.contains(op)) {
+//            nfs = new FunctionSymbol(Names.makeSMTName(name), fs.getResultSort(), fs.getArgumentSorts());
+//        } else if (specialOps.contains(op)) {
+//            nfs = new FunctionSymbol(Names.makeSMTName(name.substring(1)), fs.getResultSort(), fs.getArgumentSorts());
+//        } else {
+//            nfs = new FunctionSymbol(name, fs.getResultSort(), fs.getArgumentSorts());
+//        }
+        
+        //FunctionSymbol nfs;
+        if (!symbolTable.getAllSymbols().contains(fs)) {
+
+            symbolTable = symbolTable.addFunctionSymbol(fs);
+             System.out.println("OK");
+
+        }
+    }
+
+    
+    //============================================================//
+    
+    
+    
+    
     public static String parseFuncSignature(String name) {
 
         if (name.indexOf('<') == -1)
@@ -279,36 +294,7 @@ public class TypeContext {
         return r;
     }
 
-    public static boolean isBoolean(String str) {
-        return (str.toLowerCase().equals("true") || str.toLowerCase().equals("false"));
-    }
-
-    public static boolean isNumeric(String str) {
-        DecimalFormatSymbols currentLocaleSymbols = DecimalFormatSymbols.getInstance();
-        char localeMinusSign = currentLocaleSymbols.getMinusSign();
-
-        if (!Character.isDigit(str.charAt(0)) && str.charAt(0) != localeMinusSign)
-            return false;
-
-        boolean isDecimalSeparatorFound = false;
-        char localeDecimalSeparator = currentLocaleSymbols.getDecimalSeparator();
-
-        for (char c : str.substring(1).toCharArray()) {
-            if (!Character.isDigit(c)) {
-                if (c == localeDecimalSeparator && !isDecimalSeparatorFound) {
-                    isDecimalSeparatorFound = true;
-                    continue;
-                }
-                return false;
-            }
-        }
-        return true;
-    }
-
-    public static SymbolTable getSymbolTable() {
-        return symbolTable;
-    }
-
+    
     public static Set<Dependency> getDependencies() {
         Set<Dependency> deps = new LinkedHashSet<>();
         for (FunctionSymbol fs : symbolTable.getAllSymbols()) {
@@ -327,41 +313,7 @@ public class TypeContext {
         return deps;
     }
 
-    public static void addSymbol(FunctionSymbol fs) {
-        String name = fs.getName();
-        Operation op = null;
-
-        if (isNumeric(name) || isBoolean(name))
-            return;
-
-        if (name.startsWith("$")) {
-
-            op = getOp(name);
-
-            if (specialOps.contains(op) || op.equals(Operation.ANON)) {
-
-            } else {
-                if (!op.isPoly())
-                    return;
-            }
-
-        }
-        FunctionSymbol nfs;
-        if (!isFunc(name) && !specialOps.contains(op)) {
-            nfs = new FunctionSymbol(Names.makeSMTName(name), fs.getResultSort(), fs.getArgumentSorts());
-        } else if (specialOps.contains(op)) {
-            nfs = new FunctionSymbol(Names.makeSMTName(name.substring(1)), fs.getResultSort(), fs.getArgumentSorts());
-        } else {
-            nfs = new FunctionSymbol(name, fs.getResultSort(), fs.getArgumentSorts());
-        }
-        if (!symbolTable.getAllSymbols().contains(nfs)) {
-
-            symbolTable = symbolTable.addFunctionSymbol(nfs);
-            // System.out.println(symbolTable.getAllSymbols().toString());
-
-        }
-    }
-
+   
     public static Operation getOp(String name) {
 
         Iterable<String> operators = Splitter.on("<").split(name);
@@ -432,7 +384,7 @@ public class TypeContext {
             r += p.substring(0, 1).toUpperCase() + p.substring(1);
         }
 
-        return s;
+        return r;
 
     }
 
@@ -455,6 +407,100 @@ public class TypeContext {
         // List<String> subsorts = Arrays.asList(Iterables.toArray(types,
         // String.class));
         return r;
+    }
+
+    public static String addCasts(String smt) { // TODO better version
+
+        List<String> sorts = new ArrayList<>();
+        List<Pair<String, String>> consts = new ArrayList<>();
+        List<String> critical = new ArrayList<>();
+        Map<String, String> creplace = new HashMap<>();
+        List<String> lines = Arrays.asList(smt.split("\\r?\\n"));
+        Map<String, List<String>> casts = new HashMap<>();
+
+        for (String l : lines) {
+
+            if (l.trim().startsWith("(assert") && (l.contains("setInsertObject") || l.contains("inSetObject"))) {
+                critical.add(l);
+            }
+            if (l.trim().startsWith("(declare-sort") && (!l.contains("Object"))) {
+                sorts.add(l.split(" ")[1]);
+            }
+        }
+
+        for (String sort : sorts) { // TODO axioms, declarations
+            String c2o = "(" + sort + "2o";
+            String o2c = "(o2" + sort;
+            casts.put(sort, Arrays.asList(c2o, o2c));
+
+            for (String l : lines) {
+
+                if (l.trim().startsWith("(declare-const") && (l.contains(sort))) {
+                    consts.add(new Pair<String, String>(l.split(" ")[1], l.split(" ")[2].replace(")", "")));
+
+                }
+            }
+        }
+
+        for (String c : critical) {
+            String nc = c;
+
+            for (Pair<String, String> p : consts) {
+
+                String cr = casts.get(p.snd).get(0) + " " + p.fst + ")";
+                nc = nc.replace(p.fst, cr);
+
+            }
+            creplace.put(c, nc);
+        }
+
+        String nsmt = "";
+
+        int i;
+        for (i = 0; i < lines.size(); i++) {
+            if (lines.get(i).startsWith("(assert")) {
+                break;
+            }
+            nsmt += lines.get(i) + "\r\n";
+
+        }
+
+        if (!critical.isEmpty() && !nsmt.contains("(declare-sort Object 0)"))
+            nsmt += "(declare-sort Object 0) + \r\n";
+        if (!critical.isEmpty()) {
+
+            for (String t : sorts) {
+
+                // declarations
+
+                nsmt += "(declare-fun o2C (Object) C)".replace("C", t) + "\r\n";
+                nsmt += "(declare-fun C2o (C) Object)".replace("C", t) + "\r\n";
+                nsmt += "(declare-fun typeC (Object) Bool)".replace("C", t) + "\r\n";
+
+                // axioms
+
+                nsmt += "(assert (forall ((c C)) (! (= (o2C (C2o c)) c) :pattern ((o2C (C2o c))))))".replace("C", t)
+                        + "\r\n";
+                nsmt += "(assert (forall ((c C)) (! (typeC (C2o c)) :pattern ((o2C (C2o c))))))".replace("C", t)
+                        + "\r\n";
+                nsmt += "(assert (forall ((o Object)) (=>(typeC o) (= (C2o (o2C o)) o))))".replace("C", t) + "\r\n";
+
+            }
+        }
+        // insert axioms,decl
+
+        for (; i < lines.size(); i++) {
+
+            String line = lines.get(i);
+
+            if (critical.contains(line)) {
+                nsmt += creplace.get(line) + "\r\n";
+            } else {
+                nsmt += line + "\r\n";
+            }
+        }
+        return nsmt;
+
     }
 
 }

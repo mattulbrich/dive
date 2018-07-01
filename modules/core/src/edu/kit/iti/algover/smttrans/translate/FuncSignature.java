@@ -1,7 +1,5 @@
 package edu.kit.iti.algover.smttrans.translate;
 
-import java.util.List;
-
 import edu.kit.iti.algover.term.FunctionSymbol;
 
 public class FuncSignature extends Signature{

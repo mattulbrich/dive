@@ -30,7 +30,6 @@ public class ConstDependency extends Dependency {
         sb.append(TypeContext.normalizeSort(fs.getResultSort()));
         sb.append(")");
         inst.add(sb.toString());
-     //   System.out.println(inst);
         return inst;
     }
     

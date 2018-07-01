@@ -63,7 +63,6 @@ public class SMTVisitor implements TermVisitor<Void, SMTExpression, RuntimeExcep
 
     @Override
     public SMTExpression visit(LetTerm letTerm, Void t) throws RuntimeException {
-       
 
         SMTExpression inner = letTerm.getTerm(0).accept(this, null);
         List<SMTExpression> subs = new ArrayList<>();

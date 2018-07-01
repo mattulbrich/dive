@@ -18,18 +18,13 @@ public class SMTVarExpression extends SMTExpression {
     @Override
     public String toSMT(boolean negate) {
         StringBuilder sb = new StringBuilder();
-        // LinkedHashSet<Dependency> set = new LinkedHashSet<>();
-        // set.add(new ConstDependency(this.name, new
-        // Type(Type.typeConst(this.name).getName())));
         sb.append("(");
-        sb.append(Operation.EQ.toSMT()); // TODO eq
+        sb.append(Operation.EQ.toSMT());
         sb.append(" ");
         sb.append(sign.show());
         sb.append(" ");
         sb.append(partner.toSMT(negate));
         sb.append(") ");
-        //
-        // return new Pair<LinkedHashSet<Dependency>, String>(set,sb.toString());
         return sb.toString();
     }
 

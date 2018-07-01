@@ -1,10 +1,6 @@
 package edu.kit.iti.algover.smttrans.translate;
 
-import java.util.LinkedHashSet;
-import java.util.List;
-
 import edu.kit.iti.algover.smttrans.translate.expressions.SMTExpression;
-import edu.kit.iti.algover.util.Pair;
 
 public class SMTTerm {
 
@@ -23,7 +19,7 @@ public class SMTTerm {
         sb.append("(assert ");
         sb.append(expression.toSMT(negate));
         sb.append(")");
-        String result = sb.toString().replaceAll("\\s+(?=[),])", ""); // TODO .replace("$", "");
-        return result.toString();
+        String result = sb.toString().replaceAll("\\s+(?=[),])", "");
+        return result.trim().replaceAll(" +", " ");
     }
 }

@@ -127,16 +127,16 @@ public class Z3Rule extends AbstractProofRule {
         // System.out.println("PSMT: ");
         // System.out.println();
          smt = sc.toPSMT();
-         SMTLog.writeFile(smt, pvc.getIdentifier()+".psmt");
-         System.out.println(smt);
+        // SMTLog.writeFile(smt, pvc.getIdentifier()+".psmt");
+        // System.out.println(smt);
         // System.out.println();
         // System.out.println();
 
 //        System.out.println("SMT: ");
 //        System.out.println();
         smt = sc.toSMT();
-        System.out.println(smt);
-        SMTLog.writeFile(smt, pvc.getIdentifier()+".smt2");
+   //     System.out.println(smt);
+      //  SMTLog.writeFile(smt, pvc.getIdentifier()+".smt2");
 //
 //        System.out.println();
 
@@ -152,9 +152,9 @@ public class Z3Rule extends AbstractProofRule {
         //System.out.println(r1.getModel().getDeclarations());
         if (r1.getResponse() == Response.SAT) {
             model = r1.getModel();
-            System.out.println(model.getDeclarations());
-            System.out.println(model.getDefinitions());
-            model.printVars();
+           // System.out.println(model.getDeclarations());
+           // System.out.println(model.getDefinitions());
+           // model.printVars();
         }
           
             //System.out.println(r1.getModel().toString());

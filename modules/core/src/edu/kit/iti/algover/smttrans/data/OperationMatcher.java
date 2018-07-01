@@ -56,23 +56,23 @@ public class OperationMatcher {
         opmap.put("$anon", Operation.ANON);
         opmap.put("$create", Operation.CREATE);
         opmap.put("$isCreated", Operation.ISCREATED);
-        //TODO decr...
-        
+        // TODO decr...
+
         opmap.put("$mod", Operation.MOD);
-         opmap.put("$everything", Operation.EVERYTHING);
-         opmap.put("$empty", Operation.SETEMPTY);
+        opmap.put("$everything", Operation.EVERYTHING);
+        opmap.put("$empty", Operation.SETEMPTY);
         opmap.put("$heap", Operation.HEAP);
         opmap.put("$aheap", Operation.AHEAP);
     }
 
     public static Operation matchOp(String op) {
-        
-        
-        
-        Iterable<String> operators = Splitter.on(".").split(op);
 
-        List<String> ops = Arrays.asList(Iterables.toArray(operators, String.class));
-
-        return opmap.get(ops.get(0));
+//        Iterable<String> operators = Splitter.on(".").split(op);
+//
+//        List<String> ops = Arrays.asList(Iterables.toArray(operators, String.class));
+//
+//        return opmap.get(ops.get(0));
+        
+        return opmap.get(op);
     }
 }

@@ -1,12 +1,7 @@
 package edu.kit.iti.algover.smttrans.translate.expressions;
 
-import java.util.LinkedHashSet;
-
 import edu.kit.iti.algover.smttrans.translate.VarSignature;
-import edu.kit.iti.algover.smttrans.translate.TypeContext;
 import edu.kit.iti.algover.term.FunctionSymbol;
-import edu.kit.iti.algover.term.Sort;
-import edu.kit.iti.algover.util.Pair;
 
 public class SMTBVExpression extends SMTExpression {
 
