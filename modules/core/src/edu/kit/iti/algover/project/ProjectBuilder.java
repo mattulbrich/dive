@@ -246,6 +246,8 @@ public class ProjectBuilder {
         Project project = new Project(this);
         SyntacticSugarVistor.visitProject(project);
         resolveNames(project);
+        TarjansAlgorithm tarjan = new TarjansAlgorithm(project);
+        tarjan.computeSCCs();
 
         //TODO parse rules for project
 

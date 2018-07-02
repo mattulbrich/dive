@@ -17,6 +17,7 @@ import edu.kit.iti.algover.term.Sort;
 import edu.kit.iti.algover.util.ASTUtil;
 import edu.kit.iti.algover.util.ImmutableList;
 import edu.kit.iti.algover.util.Pair;
+import nonnull.Nullable;
 
 import java.util.*;
 
@@ -111,6 +112,10 @@ public class Symbex {
 
                 case DafnyParser.CALL:
                     handleCallStatement(stack, state, stm, remainder);
+                    break;
+
+                case DafnyParser.PRINT:
+                    // TODO just ignore it for now ... RT tests for arguments ...
                     break;
 
                 default:
@@ -239,27 +244,76 @@ public class Symbex {
     }
 
     /*
+     * handle "new C;" (possible "new C.method()")
+     * as well as "new int[10]"
+     */
+    private DafnyTree handleNewCommand(Deque<SymbexPath> stack, SymbexPath current, DafnyTree newExpr, DafnyTree stm) {
+        switch (newExpr.getChild(0).getType()) {
+        case DafnyParser.ARRAY_ACCESS:
+            return handleNewArray(stack, current, newExpr, stm);
+        case DafnyParser.ID:
+            return handleNewClass(stack, current, newExpr, stm);
+        default:
+            throw new Error("Unexpected 'new' command: " + stm);
+        }
+    }
+
+    /*
+     * new type[size] becomes
+     *
+     * assert runtime assertions for "size";
+     * var $newN : array<type>;
+     * assume !isCreated($heap, $newN);
+     * $heap := create($heap, $newN);
+     * assume $newN.Length == size;
+     */
+    private DafnyTree handleNewArray(Deque<SymbexPath> stack, SymbexPath current, DafnyTree newExpr, DafnyTree stm) {
+        assert newExpr.getType() == DafnyParser.NEW;
+
+        DafnyTree child = newExpr.getChild(0);
+        assert child.getType() == DafnyParser.ARRAY_ACCESS;
+
+        DafnyTree type = child.getChild(0);
+        DafnyTree size = child.getChild(1);
+        DafnyTree arrayType = ASTUtil.create(DafnyParser.ARRAY, "array", type);
+
+        handleExpression(stack, current, size);
+        addIndexInRangeCheck(stack, current, size, null);
+
+        DafnyTree newObj = ASTUtil.freshVariable("$new", arrayType, current);
+        current.addPathCondition(ASTUtil.negate(ASTUtil.builtIn(ASTUtil.call("$isCreated", ASTUtil.builtInVar("$heap"), newObj))), stm,
+                AssumptionType.IMPLICIT_ASSUMPTION);
+        current.addAssignment(ASTUtil.assign(ASTUtil.builtIn(ASTUtil.id("$heap")),
+                ASTUtil.builtIn(ASTUtil.call("$create", ASTUtil.builtInVar("$heap"), newObj.dupTree()))));
+        current.addPathCondition(ASTUtil.equals(ASTUtil.length(newObj), size), stm,
+                AssumptionType.IMPLICIT_ASSUMPTION);
+
+        return newObj;
+    }
+
+    /*
      * new C.Init(p) becomes
      *
      * var $newN : C;
-     * assume !isCreated($heap);
+     * assume !isCreated($heap, $newN);
      * $heap := create($heap, $newN);
      *
      * there may be more if a constructor method is mentioned.
      *
      */
-    private DafnyTree handleNewCommand(Deque<SymbexPath> stack, SymbexPath current, DafnyTree newExpr, DafnyTree stm) {
+    private DafnyTree handleNewClass(Deque<SymbexPath> stack, SymbexPath current, DafnyTree newExpr, DafnyTree stm) {
 
         assert newExpr.getType() == DafnyParser.NEW;
 
         DafnyTree clss = newExpr.getChild(0);
+        assert clss.getType() == DafnyParser.ID;
 
         DafnyTree newObj = ASTUtil.freshVariable("$new", clss, current);
 
-        current.addPathCondition(ASTUtil.negate(ASTUtil.call("$isCreated", ASTUtil.builtInVar("$heap"), newObj)), stm,
+        current.addPathCondition(ASTUtil.negate(ASTUtil.builtIn(ASTUtil.call("$isCreated", ASTUtil.builtInVar("$heap"), newObj))), stm,
                 AssumptionType.IMPLICIT_ASSUMPTION);
-        current.addAssignment(ASTUtil.assign(ASTUtil.id("$heap"),
-                ASTUtil.call("create", ASTUtil.builtInVar("$heap"), newObj.dupTree())));
+        current.addAssignment(ASTUtil.assign(ASTUtil.builtIn(ASTUtil.id("$heap")),
+                ASTUtil.builtIn(ASTUtil.call("$create", ASTUtil.builtInVar("$heap"), newObj.dupTree()))));
 
         if (newExpr.getChildCount() > 1) {
             DafnyTree call = newExpr.getChild(1);
@@ -754,6 +808,7 @@ public class Symbex {
             handleExpression(stack, current, child1);
             break;
 
+        case DafnyParser.LENGTH:
         case DafnyParser.FIELD_ACCESS:
             child0 = expression.getChild(0);
             addNonNullCheck(stack, current, child0);
@@ -767,12 +822,17 @@ public class Symbex {
         }
     }
 
+    /*
+     * Use "null" for array if only lower bounds check
+     */
     private void addIndexInRangeCheck(Deque<SymbexPath> stack, SymbexPath current,
-            DafnyTree idx, DafnyTree array) {
+            DafnyTree idx, @Nullable DafnyTree array) {
         SymbexPath bounds = new SymbexPath(current);
         List<DafnyTree> pos = new ArrayList<>();
         pos.add(ASTUtil.greaterEqual(idx, ASTUtil.intLiteral(0)));
-        pos.add(ASTUtil.less(idx, ASTUtil.length(array)));
+        if (array != null) {
+            pos.add(ASTUtil.less(idx, ASTUtil.length(array)));
+        }
         bounds.setProofObligations(pos, idx, AssertionType.RT_IN_BOUNDS);
         bounds.setBlockToExecute(Symbex.EMPTY_PROGRAM);
         stack.push(bounds);

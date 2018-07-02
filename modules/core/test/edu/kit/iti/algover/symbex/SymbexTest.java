@@ -453,14 +453,14 @@ public class SymbexTest {
         Symbex symbex = new Symbex();
         List<SymbexPath> results = symbex.symbolicExecution(tree);
 
-        assertEquals(5, results.size());
-
+        assertEquals(6, results.size());
+        int cnt = 0;
         {
-            SymbexPath path = results.get(0);
+            SymbexPath path = results.get(cnt++);
             assertEquals(AssertionType.POST, path.getCommonProofObligationType());
         }
         {
-            SymbexPath path = results.get(1);
+            SymbexPath path = results.get(cnt++);
             assertEquals(AssertionType.RT_IN_BOUNDS, path.getCommonProofObligationType());
             ImmutableList<AssertionElement> pos = path.getProofObligations();
             assertEquals(2, pos.size());
@@ -470,7 +470,7 @@ public class SymbexTest {
             assertEquals("(not (> y 0))", path.getPathConditions().get(0).getExpression().toStringTree());
         }
         {
-            SymbexPath path = results.get(2);
+            SymbexPath path = results.get(cnt++);
             assertEquals(AssertionType.RT_NONNULL, path.getCommonProofObligationType());
             AssertionElement po = path.getProofObligations().get(0);
             assertEquals("(!= a null)", po.getExpression().toStringTree());
@@ -478,7 +478,14 @@ public class SymbexTest {
             assertEquals("(not (> y 0))", path.getPathConditions().get(0).getExpression().toStringTree());
         }
         {
-            SymbexPath path = results.get(3);
+            SymbexPath path = results.get(cnt++);
+            assertEquals(AssertionType.RT_NONNULL, path.getCommonProofObligationType());
+            AssertionElement po = path.getProofObligations().get(0);
+            assertEquals("(!= a2 null)", po.getExpression().toStringTree());
+            assertEquals(0, path.getPathConditions().size());
+        }
+        {
+            SymbexPath path = results.get(cnt++);
             assertEquals(AssertionType.RT_IN_BOUNDS, path.getCommonProofObligationType());
             ImmutableList<AssertionElement> pos = path.getProofObligations();
             assertEquals(2, pos.size());
@@ -487,7 +494,7 @@ public class SymbexTest {
             assertEquals(0, path.getPathConditions().size());
         }
         {
-            SymbexPath path = results.get(4);
+            SymbexPath path = results.get(cnt++);
             assertEquals(AssertionType.RT_NONNULL, path.getCommonProofObligationType());
             AssertionElement po = path.getProofObligations().get(0);
             assertEquals("(!= a null)", po.getExpression().toStringTree());
@@ -912,7 +919,7 @@ public class SymbexTest {
         DafnyTree tree = project.getMethod("test").getRepresentation();
         DafnyTree code = tree.getFirstChildWithType(DafnyParser.BLOCK);
         Symbex symbex = new Symbex();
-
+        // code[0] is a variable declaration
         {
             Deque<SymbexPath> stack = new LinkedList<SymbexPath>();
             SymbexPath state = new SymbexPath(tree);
@@ -925,7 +932,7 @@ public class SymbexTest {
             assertEquals("[IMPLICIT_ASSUMPTION[null]:(not (CALL $isCreated (ARGS $heap $new_1)))]",
                     state.getPathConditions().toString());
 
-            assertEquals("[(ASSIGN $heap (CALL create (ARGS $heap $new_1))), (ASSIGN c $new_1)]", state.getAssignmentHistory().map(x -> x.toStringTree()).toString());
+            assertEquals("[(ASSIGN $heap (CALL $create (ARGS $heap $new_1))), (ASSIGN c $new_1)]", state.getAssignmentHistory().map(x -> x.toStringTree()).toString());
 
             assertEquals(0, state.getProofObligations().size());
         }
@@ -942,14 +949,14 @@ public class SymbexTest {
             assertEquals("[IMPLICIT_ASSUMPTION[null]:(not (CALL $isCreated (ARGS $heap $new_1))), " +
                             "CALL_POST[null]:(LET (VAR this p) $new_1 23 (== this this))]",
                     state.getPathConditions().toString());
-            assertEquals("[(ASSIGN $heap (CALL create (ARGS $heap $new_1))), (ASSIGN c $new_1)]", state.getAssignmentHistory().map(x -> x.toStringTree()).toString());
+            assertEquals("[(ASSIGN $heap (CALL $create (ARGS $heap $new_1))), (ASSIGN c $new_1)]", state.getAssignmentHistory().map(x -> x.toStringTree()).toString());
 
             state = stack.removeFirst();
 
             assertEquals("[CALL_PRE[Init]:(LET (VAR this p) $new_1 23 (== p 1))]", state.getProofObligations().toString());
             assertEquals("[IMPLICIT_ASSUMPTION[null]:(not (CALL $isCreated (ARGS $heap $new_1)))]",
                     state.getPathConditions().toString());
-            assertEquals("[(ASSIGN $heap (CALL create (ARGS $heap $new_1)))]", state.getAssignmentHistory().map(x -> x.toStringTree()).toString());
+            assertEquals("[(ASSIGN $heap (CALL $create (ARGS $heap $new_1)))]", state.getAssignmentHistory().map(x -> x.toStringTree()).toString());
         }
         {
             Deque<SymbexPath> stack = new LinkedList<SymbexPath>();
@@ -964,14 +971,14 @@ public class SymbexTest {
             assertEquals("[IMPLICIT_ASSUMPTION[null]:(not (CALL $isCreated (ARGS $heap $new_1))), " +
                             "CALL_POST[null]:(LET (VAR this p) $new_1 42 (== this this))]",
                     state.getPathConditions().toString());
-            assertEquals("[(ASSIGN $heap (CALL create (ARGS $heap $new_1))), (ASSIGN c2 $new_1)]", state.getAssignmentHistory().map(x -> x.toStringTree()).toString());
+            assertEquals("[(ASSIGN $heap (CALL $create (ARGS $heap $new_1))), (ASSIGN c2 $new_1)]", state.getAssignmentHistory().map(x -> x.toStringTree()).toString());
 
             state = stack.removeFirst();
 
             assertEquals("[CALL_PRE[Init]:(LET (VAR this p) $new_1 42 (== p 1))]", state.getProofObligations().toString());
             assertEquals("[IMPLICIT_ASSUMPTION[null]:(not (CALL $isCreated (ARGS $heap $new_1)))]",
                     state.getPathConditions().toString());
-            assertEquals("[(ASSIGN $heap (CALL create (ARGS $heap $new_1)))]", state.getAssignmentHistory().map(x -> x.toStringTree()).toString());
+            assertEquals("[(ASSIGN $heap (CALL $create (ARGS $heap $new_1)))]", state.getAssignmentHistory().map(x -> x.toStringTree()).toString());
         }
         {
             Deque<SymbexPath> stack = new LinkedList<SymbexPath>();
@@ -986,17 +993,65 @@ public class SymbexTest {
             assertEquals("[IMPLICIT_ASSUMPTION[null]:(not (CALL $isCreated (ARGS $heap $new_1))), " +
                             "CALL_POST[null]:(LET (VAR r this) $res_Init2_1 $new_1 (== this this))]",
                     state.getPathConditions().toString());
-            assertEquals("[(ASSIGN $heap (CALL create (ARGS $heap $new_1))), (ASSIGN c3 $new_1)]", state.getAssignmentHistory().map(x -> x.toStringTree()).toString());
+            assertEquals("[(ASSIGN $heap (CALL $create (ARGS $heap $new_1))), (ASSIGN c3 $new_1)]", state.getAssignmentHistory().map(x -> x.toStringTree()).toString());
 
             state = stack.removeFirst();
 
             assertEquals("[CALL_PRE[Init2]:(LET (VAR r this) $res_Init2_1 $new_1 (== 1 1))]", state.getProofObligations().toString());
             assertEquals("[IMPLICIT_ASSUMPTION[null]:(not (CALL $isCreated (ARGS $heap $new_1)))]",
                     state.getPathConditions().toString());
-            assertEquals("[(ASSIGN $heap (CALL create (ARGS $heap $new_1)))]", state.getAssignmentHistory().map(x -> x.toStringTree()).toString());
+            assertEquals("[(ASSIGN $heap (CALL $create (ARGS $heap $new_1)))]", state.getAssignmentHistory().map(x -> x.toStringTree()).toString());
+        }
+        {
+            Deque<SymbexPath> stack = new LinkedList<SymbexPath>();
+            SymbexPath state = new SymbexPath(tree);
+            DafnyTree ass = code.getChild(5);
+            symbex.handleVarDecl(stack, state, ass, SOME_PROGRAM);
+
+            assertEquals(2, stack.size());
+            state = stack.removeFirst();
+
+            assertEquals(0, state.getProofObligations().size());
+            assertEquals("[IMPLICIT_ASSUMPTION[null]:(not (CALL $isCreated (ARGS $heap $new_1))), " +
+                            "IMPLICIT_ASSUMPTION[null]:(= (Length $new_1) 10)]",
+                    state.getPathConditions().toString());
+            assertEquals("[(ASSIGN $heap (CALL $create (ARGS $heap $new_1))), (ASSIGN c4 $new_1)]", state.getAssignmentHistory().map(x -> x.toStringTree()).toString());
+
+            state = stack.removeFirst();
+
+            assertEquals("[RT_IN_BOUNDS:(>= 10 0)]", state.getProofObligations().toString());
+            assertEquals("[]", state.getPathConditions().toString());
+            assertEquals("[]", state.getAssignmentHistory().map(x -> x.toStringTree()).toString());
+        }
+        // code[6] is variable declaration
+        {
+            Deque<SymbexPath> stack = new LinkedList<SymbexPath>();
+            SymbexPath state = new SymbexPath(tree);
+            DafnyTree ass = code.getChild(7);
+            symbex.handleVarDecl(stack, state, ass, SOME_PROGRAM);
+
+            assertEquals(3, stack.size());
+            state = stack.removeFirst();
+
+            assertEquals(0, state.getProofObligations().size());
+            assertEquals("[IMPLICIT_ASSUMPTION[null]:(not (CALL $isCreated (ARGS $heap $new_1))), " +
+                            "IMPLICIT_ASSUMPTION[null]:(= (Length $new_1) (Length c4))]",
+                    state.getPathConditions().toString());
+            assertEquals("[(ASSIGN $heap (CALL $create (ARGS $heap $new_1))), (ASSIGN c5 $new_1)]", state.getAssignmentHistory().map(x -> x.toStringTree()).toString());
+
+            state = stack.removeFirst();
+
+            assertEquals("[RT_IN_BOUNDS:(>= (Length c4) 0)]", state.getProofObligations().toString());
+            assertEquals("[]", state.getPathConditions().toString());
+            assertEquals("[]", state.getAssignmentHistory().map(x -> x.toStringTree()).toString());
+
+            state = stack.removeFirst();
+
+            assertEquals("[RT_NONNULL:(!= c4 null)]", state.getProofObligations().toString());
+            assertEquals("[]", state.getPathConditions().toString());
+            assertEquals("[]", state.getAssignmentHistory().map(x -> x.toStringTree()).toString());
         }
 
-        // ... two cases are still missing
 
     }
 

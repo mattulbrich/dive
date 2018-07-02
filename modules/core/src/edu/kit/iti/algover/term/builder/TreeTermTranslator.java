@@ -378,6 +378,10 @@ public class TreeTermTranslator {
             result = buildIf(tree);
             break;
 
+        case DafnyParser.OLD:
+            result = buildOld(tree);
+            break;
+
         case DafnyParser.LENGTH:
 
             // XXX FIXME HACK Sequences length is different
@@ -929,6 +933,16 @@ public class TreeTermTranslator {
 
         return new ApplTerm(appl.getFunctionSymbol(), args);
     }
+
+    private Term buildOld(DafnyTree tree) throws TermBuildException {
+
+        boundVars.put(HEAP_VAR.getName(), HEAP_VAR);
+        Term inner = build(tree.getChild(0));
+        boundVars.pop();
+
+        return new LetTerm(HEAP_VAR, HEAP_VAR, inner);
+    }
+
 
     private Term buildHeapUpdate(DafnyTree tree) throws TermBuildException {
 
