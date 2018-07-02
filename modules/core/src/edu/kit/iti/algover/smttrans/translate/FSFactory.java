@@ -34,9 +34,13 @@ public class FSFactory {
     public static FunctionSymbol makeFS(FunctionSymbol fs) {
 
         
-        if (fs.getName().startsWith("$"))
-            current = Sort.get(TypeContext.parseFuncSignature(fs.getName()));
-        FunctionSymbol nfs;
+        if (fs.getName().startsWith("$")) {
+            
+
+            current = Sort.get(TypeContext.getNullSort(fs.getName()));
+           
+        }
+            FunctionSymbol nfs;
         String name = fs.getName();
 
         if (name.toLowerCase().equals("null")) {

@@ -45,39 +45,30 @@ public class TypeContext {
     public static final String AV_EVERYTHINGNAME = "$everything";
     public static final String AV_AHEAP = "$aheap";
     public static final String AV_DECR = "$decr";
-    private static BiMap<String, String> nmap = HashBiMap.create();
-    private static BiMap<String, String> smap = HashBiMap.create();
-    private static List<Operation> specialOps = Arrays.asList(Operation.HEAP, Operation.AHEAP, // , Operation.ANON
-            Operation.MOD, Operation.EVERYTHING, Operation.DECR);
-    static {
-        smap.put(AV_ARRNAME, SMT_ARRNAME);
-        smap.put(AV_INTNAME, SMT_INTNAME);
-        smap.put(AV_BOOLNAME, SMT_BOOLNAME);
-        smap.put(AV_HEAPNAME, SMT_HEAPNAME);
-        smap.put(AV_AHEAP, Operation.AHEAP.toSMT());
-        smap.put(AV_DECR, Operation.DECR.toSMT());
-        smap.put(AV_ARR2NAME, SMT_ARR2NAME);
+//    private static BiMap<String, String> nmap = HashBiMap.create();
 
-        nmap.put(AV_MODNAME, Operation.MOD.toSMT());
-        nmap.put(AV_SETEMPTYNAME, SMT_SETEMPTYNAME);
-        nmap.put(AV_ARRNAME, SMT_ARRNAME);
-        nmap.put(AV_ARR2NAME, SMT_ARR2NAME);
-        nmap.put(AV_INTNAME, SMT_INTNAME);
-        nmap.put(AV_BOOLNAME, SMT_BOOLNAME);
-        nmap.put(AV_HEAPNAME, SMT_HEAPNAME);
-        nmap.put(AV_AHEAP, Operation.AHEAP.toSMT());
-        nmap.put(AV_DECR, Operation.DECR.toSMT());
+//    static {
 
-    }
+//        nmap.put(AV_MODNAME, Operation.MOD.toSMT());
+//        nmap.put(AV_SETEMPTYNAME, SMT_SETEMPTYNAME);
+//        nmap.put(AV_ARRNAME, SMT_ARRNAME);
+//        nmap.put(AV_ARR2NAME, SMT_ARR2NAME);
+//        nmap.put(AV_INTNAME, SMT_INTNAME);
+//        nmap.put(AV_BOOLNAME, SMT_BOOLNAME);
+//        nmap.put(AV_HEAPNAME, SMT_HEAPNAME);
+//        nmap.put(AV_AHEAP, Operation.AHEAP.toSMT());
+//        nmap.put(AV_DECR, Operation.DECR.toSMT());
+//
+//    }
 
     public static boolean isBuiltIn(String s) {
         String name = s.toLowerCase();
-        return name.equals(AV_BOOLNAME) || name.equals(AV_INTNAME);
+        return name.equals(AV_BOOLNAME) || name.equals(AV_INTNAME) || name.equals(AV_HEAPNAME);
     }
 
-    public static BiMap<String, String> getDefaults() {
-        return nmap;
-    }
+//    public static BiMap<String, String> getDefaults() {
+//        return nmap;
+//    }
 
     private static Pair<Integer, Integer> getArgumentRange(String name) {
         int i = 0;
@@ -95,12 +86,15 @@ public class TypeContext {
         return new Pair<Integer, Integer>(i + 1, j);
     }
 
-    private static List<String> getTypeArguments(String name) {
+    public static List<String> getTypeArguments(String name) {
 
         Pair<Integer, Integer> range = getArgumentRange(name);
         if (range.fst > range.snd) // no type arguments
             return new ArrayList<>();
-        return Arrays.asList(name.substring(range.fst, range.snd).split(","));
+        
+        List<String> r = new ArrayList<>();
+        Arrays.asList(name.substring(range.fst, range.snd).split(",")).forEach(x -> r.add(normalizeSort(x)));
+        return r;
     }
 
     public static String replaceLast(String string, String toReplace, String replacement) {
@@ -111,8 +105,16 @@ public class TypeContext {
             return string;
         }
     }
+    
+    
+    public static String normalizeSort (String name, String sorts) {
+        //String r = addTypeArguments(normalizeSort(fs.getResultSort().getName()), getTypeArguments(fs.toString())); 
+      String r = addTypeArguments(normalizeSort(name), getTypeArguments(sorts)); 
+        
+        return r.replace("<>", "");
+    }
 
-    private static String normalizeSort(String name) {
+    public static String normalizeSort(String name) {
 
         List<String> sorts = Arrays.asList(name.split("<"));
 
@@ -136,16 +138,13 @@ public class TypeContext {
             sb.append(".");
         }
         sb.append(">");
-        // System.out.println("RE " + replaceLast(sb.toString(),",",""));
         return replaceLast(sb.toString(), ".", "");
 
     }
 
     public static String opToSMT(FunctionSymbol fs) {
 
-        String name = fs.getName();
-        // System.out.println("FS " + fs.toString());
-        // System.out.println(getTypeArguments(name));
+        String name = fs.getName();;
         List<String> typeArgs = getTypeArguments(name);
         boolean hasTypeArguments = !typeArgs.isEmpty();
 
@@ -153,7 +152,6 @@ public class TypeContext {
 
         if (!op.isPoly()) {
 
-            // System.out.println("RE " + op.toSMT());
             return op.toSMT();
         }
         return addTypeArguments(op.toSMT(), typeArgs);
@@ -208,7 +206,7 @@ public class TypeContext {
 
     private static boolean isRelevant(FunctionSymbol fs) {
         String name = fs.getName();
-        System.out.println("NAME " + fs.getName());
+       // System.out.println("NAME " + fs.getName());
         Operation op = null;
         if (isBuiltInType(name))
             return false;
@@ -230,196 +228,46 @@ public class TypeContext {
 
         if (!symbolTable.getAllSymbols().contains(fs)) {
             symbolTable = symbolTable.addFunctionSymbol(fs);
-            System.out.println("OK");
-            System.out.println(symbolTable.getAllSymbols());
+           // System.out.println("OK");
+           // System.out.println(symbolTable.getAllSymbols());
 
         }
 
-        // if (name.startsWith("$")) {
-        //
-        // op = getOp(name);
-        //
-        // if (specialOps.contains(op) || op.equals(Operation.ANON)) {
-        //
-        // } else {
-        // if (!op.isPoly())
-        // return;
-        // }
-        //
-        // }
-
-        // if (!isFunc(name) && !specialOps.contains(op)) {
-        // nfs = new FunctionSymbol(Names.makeSMTName(name), fs.getResultSort(),
-        // fs.getArgumentSorts());
-        // } else if (specialOps.contains(op)) {
-        // nfs = new FunctionSymbol(Names.makeSMTName(name.substring(1)),
-        // fs.getResultSort(), fs.getArgumentSorts());
-        // } else {
-        // nfs = new FunctionSymbol(name, fs.getResultSort(), fs.getArgumentSorts());
-        // }
-
-        // FunctionSymbol nfs;
 
     }
 
-    // ============================================================//
 
-    public static String parseFuncSignature(String name) {
 
-        if (name.indexOf('<') == -1)
-            return "";
-
-        name = name.substring(name.indexOf("<") + 1);
-
-        return parsePolyString(name.trim());
+    
+    public static String getNullSort(String s) { //TODO deal with null
+        return "X";
     }
 
-    public static String parsePolyString(String name) {
-
-        String typed = CharMatcher.anyOf(">").removeFrom(name);
-        Iterable<String> types = Splitter.on("<").split(typed);
-        List<String> sorts = Arrays.asList(Iterables.toArray(types, String.class));
-
-        String r = "";
-
-        for (String so : sorts) {
-            if (so.contains(",")) {
-                String[] parts = so.split(",");
-                for (String p : parts) {
-                    r += nmap.computeIfAbsent(p, x -> p.substring(0, 1).toUpperCase() + p.substring(1));
-                    r += ".";
-                }
-                r = r.substring(0, r.length() - 1);
-                return r;
-            }
-
-            r += nmap.computeIfAbsent(so, x -> so.substring(0, 1).toUpperCase() + so.substring(1));
-        }
-        return r;
+    
+    public static boolean isFunc(String name) {
+        return name.startsWith("$");
     }
 
-    public static String normalizeSort(Sort s) {
-        String name = s.toString();
 
-        if (smap.containsKey(name)) {
-            // System.out.println("N " + name);
-            return smap.get(name);
-        }
-
-        // if (!name.contains("<")) {
-        // for (String t : smap.keySet()) {
-        // name = name.replaceAll("(?i)"+t, smap.get(t));
-        // }
-        // }
-        String r = parsePolyString(name);
-        // if(r.equals("ArrayInt"))
-        // return "ArrInt";
-        // //return parsePolyString(name);
-        return r;
-    }
 
     public static Set<Dependency> getDependencies() {
         Set<Dependency> deps = new LinkedHashSet<>();
         for (FunctionSymbol fs : symbolTable.getAllSymbols()) {
-            // System.out.println("Entry: " + fs.getName());
-            if (fs.getName().startsWith("$")) {
+            if (isFunc(fs.getName())) {
                 Dependency d = new FuncDependency(fs);
                 deps.add(d);
             } else {
                 Dependency d = new ConstDependency(fs);
                 deps.add(d);
             }
-        } // debug
-          // for (Dependency d : deps) {
-          // System.out.println("d:" + d.instantiate().toString());
-          // }
+        } 
         return deps;
     }
 
-    public static List<String> getSubTypes(FunctionSymbol type) {
-        List<String> types = new ArrayList<>();
-        for (Sort s : type.getArgumentSorts()) {
-            if (s.getArguments().size() == 0) {
-                types.add(normalizeSort(s));
-            } else {
-                String ty = "";
-                for (Sort t : s.getArguments()) {
-                    ty += normalizeSort(t);
-                }
-                types.add(ty);
-            }
 
-        }
-        return types;
-    }
 
-    public static List<String> getSubTypes(Sort sort) {
+    
 
-        String typed = CharMatcher.anyOf(">").removeFrom(sort.toString());
-        Iterable<String> types = Splitter.on("<").split(typed);
-        List<String> subsorts = Arrays.asList(Iterables.toArray(types, String.class)).stream()
-                .map(so -> nmap.computeIfAbsent(so, x -> so.substring(0, 1).toUpperCase() + so.substring(1)))
-                .collect(Collectors.toList());
-
-        return subsorts;
-    }
-
-    public static List<List<String>> getSubTypes(List<Sort> argumentSorts) {
-        List<List<String>> sorts = new ArrayList<>();
-        for (Sort sort : argumentSorts) {
-
-            sorts.add(getSubTypes(sort));
-
-        }
-        return sorts;
-    }
-
-    public static boolean isFunc(String name) {
-        if (name.startsWith("$")) {
-
-            for (String n : smap.keySet()) {
-                if (name.startsWith(n)) {
-                    return false;
-                }
-            }
-            return true;
-        }
-        return false;
-    }
-
-    private static String normalizeName(String s) {
-        String r = "";
-        String[] parts = s.split(" ");
-        if (parts.length == 1)
-            return s.substring(0, 1).toUpperCase() + s.substring(1);
-        for (String p : parts) {
-            r += p.substring(0, 1).toUpperCase() + p.substring(1);
-        }
-
-        return r;
-
-    }
-
-    public static List<String> getFuncArguments(FunctionSymbol type) {
-        ArrayList<String> r = new ArrayList<>();
-
-        String sign = type.toString().split("\\(")[0];
-        int i = sign.indexOf("<");
-        sign = sign.substring(i + 1);
-        sign = CharMatcher.anyOf(">").replaceFrom(sign, " ");
-        String[] parts = sign.split(",");
-        for (String p : parts) {
-
-            r.add(normalizeName(p.trim()));
-
-        }
-        // System.out.println("SIGN " + sign.substring(i+1));
-        // String typed = CharMatcher.anyOf(">").removeFrom(type.toString());
-        // Iterable<String> types = Splitter.on("<").split(typed);
-        // List<String> subsorts = Arrays.asList(Iterables.toArray(types,
-        // String.class));
-        return r;
-    }
 
     public static String addCasts(String smt) { // TODO better version
 

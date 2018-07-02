@@ -80,7 +80,7 @@ public class AxiomContainer {
     private static String typeAxiom(String axiom, FunctionSymbol type) {
         Pair<List<String>, String> p = prepare(axiom);
         List<String> tvs = p.fst;
-        List<String> types = TypeContext.getFuncArguments(type);
+        List<String> types = TypeContext.getTypeArguments(type.getName());
 
         String ax = p.snd;
 
@@ -97,7 +97,7 @@ public class AxiomContainer {
             return false;
         Pair<List<String>, String> p = prepare(axiom);
         List<String> tvs = p.fst;
-        if (tvs.size() != TypeContext.normalizeSort(sort).split("\\.").length)
+        if (tvs.size() != TypeContext.normalizeSort(sort.getName()).split("\\.").length)
             return false;
 
         return true;
@@ -111,13 +111,18 @@ public class AxiomContainer {
         for (Sort s : t.getArgumentSorts()) {
 
             if (!TypeContext.isBuiltIn(s.getName())) {
-                sorts.add("(declare-sort " + TypeContext.normalizeSort(s) + " 0)");
+                //System.out.println("SORT1 " + s.toString());
+                
+                //String r = addTypeArguments(normalizeSort(fs.getResultSort().getName()), getTypeArguments(fs.toString())); 
+                
+                sorts.add("(declare-sort " + TypeContext.normalizeSort(s.getName(), s.toString()) + " 0)");
             }
 
         }
 
         if (!TypeContext.isBuiltIn(t.getResultSort().getName())) {
-            sorts.add("(declare-sort " + TypeContext.normalizeSort(t.getResultSort()) + " 0)");
+            //System.out.println("SORT2 " + t.toString());
+            sorts.add("(declare-sort " + TypeContext.normalizeSort(t.getResultSort().getName(),t.toString() ) + " 0)");
         }
 
         return sorts;
@@ -128,7 +133,7 @@ public class AxiomContainer {
         String r = "";
         for (Sort s : t.getArgumentSorts()) {
             if (isApplicable(a.getSmt(), s)) {
-                r += a.getSmt() + " :: " + TypeContext.normalizeSort(s) + "\r\n";
+                r += a.getSmt() + " :: " + TypeContext.normalizeSort(s.getName()) + "\r\n";
             }
         }
         return r;
@@ -140,7 +145,7 @@ public class AxiomContainer {
         for (Sort s : t.getArgumentSorts()) {
 
             if (!TypeContext.isBuiltIn(s.getName())) {
-                sorts.add("(inst-sort :: " + TypeContext.normalizeSort(s) + ")");
+                sorts.add("(inst-sort :: " + TypeContext.normalizeSort(s.getName()) + ")");
             }
 
         }
