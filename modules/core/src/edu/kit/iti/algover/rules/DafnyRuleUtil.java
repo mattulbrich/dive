@@ -39,9 +39,9 @@ public class DafnyRuleUtil {
      *
      * @param project the project for which the rules are created
      * @return the created rules
-     * @throws DafnyRuleException if rule generation fails (see generateRule) or if name of lemma doesn´t me requirements
+     * @throws DafnyRuleException if rule generation fails (see generateRule) or if name of lemma doesn't me requirements
      */
-    public static List<DafnyRule> generateDafnyRules(Project project) throws DafnyRuleException {
+    public static List<DafnyRule> generateDafnyRules(Project project) throws DafnyException {
 
         Collection<DafnyMethod> methods = project.getMethods();
 
@@ -55,13 +55,19 @@ public class DafnyRuleUtil {
                         collect(Collectors.toList());
                 String[] scriptTokens = ScriptLanguageLexer.tokenNames;
                 if(lemmaRuleNames.contains(method.getName())) {
-                    throw new DafnyRuleException("Duplicated lemma name: " + method.getName());
+                    throw new DafnyException("Duplicated lemma name: " + method.getName(), method.getRepresentation());
                 } else if(builtinRuleNames.contains(method.getName())) {
                     //TODO: warning "lemma is going to be hidden due to name conflict with builtin rule"
                 } else if(Arrays.asList(scriptTokens).contains(method.getName())) {
-                    throw new DafnyRuleException("Script keyword " + method.getName() + "not allowed as name for lemma.");
+                    throw new DafnyException("Script keyword " + method.getName() + " not allowed as name for lemma.", method.getRepresentation());
                 }
-                result.add(generateRule(method));
+
+                try {
+                    result.add(generateRule(method));
+                } catch (DafnyRuleException e) {
+                    throw new DafnyException(method.getRepresentation(), e);
+                }
+
                 lemmaRuleNames.add(method.getName());
             }
         }
