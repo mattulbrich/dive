@@ -38,37 +38,40 @@ public class TypeContext {
     public static final String SMT_INTNAME = "Int";
     public static final String AV_BOOLNAME = "bool";
     public static final String SMT_BOOLNAME = "Bool";
-    public static final String AV_HEAPNAME = "heap";
+    public static final String AV_HEAPNAME = "$heap";
     public static final String SMT_HEAPNAME = "Heap";
     public static final String AV_MODNAME = "$mod";
     public static final String AV_ANON = "$anon";
     public static final String AV_EVERYTHINGNAME = "$everything";
     public static final String AV_AHEAP = "$aheap";
     public static final String AV_DECR = "$decr";
-//    private static BiMap<String, String> nmap = HashBiMap.create();
 
-//    static {
+    private static Set<Dependency> preamble = new LinkedHashSet<>();
 
-//        nmap.put(AV_MODNAME, Operation.MOD.toSMT());
-//        nmap.put(AV_SETEMPTYNAME, SMT_SETEMPTYNAME);
-//        nmap.put(AV_ARRNAME, SMT_ARRNAME);
-//        nmap.put(AV_ARR2NAME, SMT_ARR2NAME);
-//        nmap.put(AV_INTNAME, SMT_INTNAME);
-//        nmap.put(AV_BOOLNAME, SMT_BOOLNAME);
-//        nmap.put(AV_HEAPNAME, SMT_HEAPNAME);
-//        nmap.put(AV_AHEAP, Operation.AHEAP.toSMT());
-//        nmap.put(AV_DECR, Operation.DECR.toSMT());
-//
-//    }
+    // private static BiMap<String, String> nmap = HashBiMap.create();
+
+    // static {
+
+    // nmap.put(AV_MODNAME, Operation.MOD.toSMT());
+    // nmap.put(AV_SETEMPTYNAME, SMT_SETEMPTYNAME);
+    // nmap.put(AV_ARRNAME, SMT_ARRNAME);
+    // nmap.put(AV_ARR2NAME, SMT_ARR2NAME);
+    // nmap.put(AV_INTNAME, SMT_INTNAME);
+    // nmap.put(AV_BOOLNAME, SMT_BOOLNAME);
+    // nmap.put(AV_HEAPNAME, SMT_HEAPNAME);
+    // nmap.put(AV_AHEAP, Operation.AHEAP.toSMT());
+    // nmap.put(AV_DECR, Operation.DECR.toSMT());
+    //
+    // }
 
     public static boolean isBuiltIn(String s) {
         String name = s.toLowerCase();
         return name.equals(AV_BOOLNAME) || name.equals(AV_INTNAME) || name.equals(AV_HEAPNAME);
     }
 
-//    public static BiMap<String, String> getDefaults() {
-//        return nmap;
-//    }
+    // public static BiMap<String, String> getDefaults() {
+    // return nmap;
+    // }
 
     private static Pair<Integer, Integer> getArgumentRange(String name) {
         int i = 0;
@@ -91,7 +94,7 @@ public class TypeContext {
         Pair<Integer, Integer> range = getArgumentRange(name);
         if (range.fst > range.snd) // no type arguments
             return new ArrayList<>();
-        
+
         List<String> r = new ArrayList<>();
         Arrays.asList(name.substring(range.fst, range.snd).split(",")).forEach(x -> r.add(normalizeSort(x)));
         return r;
@@ -105,12 +108,12 @@ public class TypeContext {
             return string;
         }
     }
-    
-    
-    public static String normalizeSort (String name, String sorts) {
-        //String r = addTypeArguments(normalizeSort(fs.getResultSort().getName()), getTypeArguments(fs.toString())); 
-      String r = addTypeArguments(normalizeSort(name), getTypeArguments(sorts)); 
-        
+
+    public static String normalizeSort(String name, String sorts) {
+        // String r = addTypeArguments(normalizeSort(fs.getResultSort().getName()),
+        // getTypeArguments(fs.toString()));
+        String r = addTypeArguments(normalizeSort(name), getTypeArguments(sorts));
+
         return r.replace("<>", "");
     }
 
@@ -144,7 +147,8 @@ public class TypeContext {
 
     public static String opToSMT(FunctionSymbol fs) {
 
-        String name = fs.getName();;
+        String name = fs.getName();
+        ;
         List<String> typeArgs = getTypeArguments(name);
         boolean hasTypeArguments = !typeArgs.isEmpty();
 
@@ -206,14 +210,14 @@ public class TypeContext {
 
     private static boolean isRelevant(FunctionSymbol fs) {
         String name = fs.getName();
-       // System.out.println("NAME " + fs.getName());
+
         Operation op = null;
         if (isBuiltInType(name))
             return false;
 
         if (isFunc(name)) {
             op = getOperation(name);
-            
+
             if (op.isBuiltIn()) {
                 return false;
             }
@@ -226,32 +230,29 @@ public class TypeContext {
         if (!isRelevant(fs))
             return;
 
-        if (!symbolTable.getAllSymbols().contains(fs)) {
+        if (isFunc(fs.getName()) && getOperation(fs.getName()).isSpecial()) {
+
+            preamble.addAll(SymbolHandler.handleOperation(getOperation(fs.getName())));
+
+        } else if (!symbolTable.getAllSymbols().contains(fs)) {
             symbolTable = symbolTable.addFunctionSymbol(fs);
-           // System.out.println("OK");
-           // System.out.println(symbolTable.getAllSymbols());
 
         }
-
-
     }
 
-
-
-    
-    public static String getNullSort(String s) { //TODO deal with null
+    public static String getNullSort(String s) { // TODO deal with null
         return "X";
     }
 
-    
     public static boolean isFunc(String name) {
         return name.startsWith("$");
     }
 
-
-
     public static Set<Dependency> getDependencies() {
         Set<Dependency> deps = new LinkedHashSet<>();
+        deps.addAll(preamble);
+        preamble.clear(); // cleanup
+
         for (FunctionSymbol fs : symbolTable.getAllSymbols()) {
             if (isFunc(fs.getName())) {
                 Dependency d = new FuncDependency(fs);
@@ -260,14 +261,9 @@ public class TypeContext {
                 Dependency d = new ConstDependency(fs);
                 deps.add(d);
             }
-        } 
+        }
         return deps;
     }
-
-
-
-    
-
 
     public static String addCasts(String smt) { // TODO better version
 

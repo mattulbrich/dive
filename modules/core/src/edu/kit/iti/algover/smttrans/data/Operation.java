@@ -15,12 +15,11 @@ public enum Operation {
     private String smt;
     private boolean poly = false;
     private boolean builtin = false;
+    private boolean special = false;
     private List<Axiom> instantiations = new ArrayList<>();
 
     static {
 
-        EVERYTHING.smt = "everything";
-        EVERYTHING.instantiations = asList(); // Axiom.EVERYTHING
 
         ARR2LEN0.smt = "arr2len0";
         ARR2LEN0.poly = true;
@@ -88,12 +87,26 @@ public enum Operation {
 
         ANON.smt = "anon";
         ANON.instantiations = asList(Axiom.ANON); // Axiom.HEAP_4
+        ANON.special = true;
 
         MOD.smt = "modh";
         MOD.instantiations = asList(Axiom.MODH); // Axiom.MODH
+        MOD.special = true;
 
         AHEAP.smt = "aheap";
         AHEAP.instantiations = asList();
+        AHEAP.special = true;
+        
+        HEAP.smt = "heap";
+//        HEAP.instantiations = asList(Axiom.HEAP_INST); // Axiom.HEAP_INST
+        HEAP.special = true;
+        
+        DECR.smt = "decr";
+        
+        
+        EVERYTHING.smt = "everything";
+        EVERYTHING.instantiations = asList(); // Axiom.EVERYTHING
+        
 
         SEQCONS.smt = "SEQCONS";
         SEQCONS.poly = true;
@@ -123,9 +136,7 @@ public enum Operation {
         SEQCONCAT.poly = true;
         SEQCONCAT.instantiations = asList(Axiom.SEQEMTY_INST, Axiom.SEQ_CONCAT, Axiom.SEQ_LEN, Axiom.SEQ_LEN_5);
 
-        HEAP.smt = "heap";
 
-        HEAP.instantiations = asList(Axiom.HEAP_INST); // Axiom.HEAP_INST
 
         FIELDSTORE.smt = "fieldstore";
         FIELDSTORE.poly = true;
@@ -174,9 +185,9 @@ public enum Operation {
         LE.builtin = true;
         NEG.smt = "-";
         NEG.builtin = true;
-        ITE.smt = "ITE";
+        ITE.smt = "ite";
         ITE.builtin = true;
-        DECR.smt = "DECR";
+
 
     }
 
@@ -188,6 +199,9 @@ public enum Operation {
         return poly;
     }
     
+    public boolean isSpecial() {
+        return special;
+    }
     public boolean isBuiltIn() {
         return builtin;
     }

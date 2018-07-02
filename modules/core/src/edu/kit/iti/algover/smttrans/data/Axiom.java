@@ -60,7 +60,7 @@ public enum Axiom {
 
         // sets
         // SET_INST.smt = "(define-sort Set (T) (Array T Bool))"; //TODO
-        SETEMPTY_INST.smt = "(declare-const (par (T) (setEmptyT (SetT))))";
+        SETEMPTY_INST.smt = "(declare-const (par (T) (setEmpty<T> (Set<T>))))";
 
         // multisets
         MULTISET_INST.smt = "(declare-sort MultiSet 1)";

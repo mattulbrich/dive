@@ -20,6 +20,6 @@ public class SMTTerm {
         sb.append(expression.toSMT(negate));
         sb.append(")");
         String result = sb.toString().replaceAll("\\s+(?=[),])", "");
-        return result.trim().replaceAll(" +", " ");
+        return result; // .trim().replaceAll(" +", " ")
     }
 }

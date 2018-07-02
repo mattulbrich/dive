@@ -67,12 +67,12 @@ public class OperationMatcher {
 
     public static Operation matchOp(String op) {
 
-//        Iterable<String> operators = Splitter.on(".").split(op);
-//
-//        List<String> ops = Arrays.asList(Iterables.toArray(operators, String.class));
-//
-//        return opmap.get(ops.get(0));
+        Iterable<String> operators = Splitter.on(".").split(op);
+
+        List<String> ops = Arrays.asList(Iterables.toArray(operators, String.class));
+
+        return opmap.get(ops.get(0));
         
-        return opmap.get(op);
+
     }
 }
