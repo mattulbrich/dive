@@ -105,7 +105,11 @@ public class TypeContext {
 
     public static String normalizeReturnSort(FunctionSymbol fs) {
 
-        return normalizeName(fs.toString().split(":")[1].trim());
+        //return normalizeName();
+        //System.out.println("N " + fs.toString());
+        String sign = fs.toString().split(":")[1].trim();
+        String name = sign.split("<")[0].trim();
+        return normalizeSort(name, sign);
     }
 
     public static String normalizeName(String name) {

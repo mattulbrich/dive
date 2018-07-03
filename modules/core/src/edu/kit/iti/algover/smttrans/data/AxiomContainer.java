@@ -78,7 +78,7 @@ public class AxiomContainer {
     }
 
     private static String typeAxiom(String axiom, FunctionSymbol type) {
-        System.out.println(type.getName());
+        //System.out.println(type.getName());
         Pair<List<String>, String> p = prepare(axiom);
         List<String> tvs = p.fst;
         List<String> types = TypeContext.getTypeArguments(type.getName());
