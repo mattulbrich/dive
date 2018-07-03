@@ -33,6 +33,7 @@ import edu.kit.iti.algover.term.Sort;
 import edu.kit.iti.algover.term.builder.PVCSequenter;
 import edu.kit.iti.algover.term.builder.TermBuildException;
 import edu.kit.iti.algover.util.ASTUtil;
+import edu.kit.iti.algover.util.ExceptionDetails;
 import edu.kit.iti.algover.util.TreeUtil;
 
 /**
@@ -133,7 +134,8 @@ public class MethodPVCBuilder implements PVCBuilder {
         }
 
         // TODO is this suffix stuff still needed?
-        MapSymbolTable st = new SuffixSymbolTable(new BuiltinSymbols(), map);
+        // MapSymbolTable st = new SuffixSymbolTable(new BuiltinSymbols(), map);
+        MapSymbolTable st = new MapSymbolTable(new BuiltinSymbols(), map);
 
         project.getAllDeclaredSymbols().forEach(st::addFunctionSymbol);
 
@@ -147,6 +149,7 @@ public class MethodPVCBuilder implements PVCBuilder {
                 this.sequent =
                         sequenter.translate(pathThroughProgram, getSymbolTable(), referenceMap);
             } catch (DafnyException e) {
+                ExceptionDetails.printNiceErrorMessage(e);
                 // FIXME TODO Auto-generated catch block
                 throw new Error(e);
             }

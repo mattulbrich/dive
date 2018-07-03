@@ -499,6 +499,7 @@ public class TreeTermTranslator {
         };
     }
 
+    // TODO This is not really done yet.
     private Term buildCall(DafnyTree tree) throws TermBuildException {
 
         assert tree.getChildCount() == 2
@@ -506,12 +507,19 @@ public class TreeTermTranslator {
 
         String id = tree.getChild(0).getText();
         FunctionSymbol fct = symbolTable.getFunctionSymbol(id);
+        List<Term> argTerms = new ArrayList<>();
+
+        if(fct == null) {
+            id = "$$" + id;
+            fct = symbolTable.getFunctionSymbol(id);
+            argTerms.add(getHeap());
+        }
+
         if (fct == null) {
             throw new TermBuildException("Unknown symbol "
                     + id + ". Remember that method calls not allowed in expressions.");
         }
 
-        List<Term> argTerms = new ArrayList<>();
         DafnyTree args = tree.getFirstChildWithType(DafnyParser.ARGS);
         expandMultiBlanks(args, fct.getArity());
         for (DafnyTree arg : args.getChildren()) {

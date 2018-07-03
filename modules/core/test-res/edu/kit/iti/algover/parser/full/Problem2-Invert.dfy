@@ -29,7 +29,7 @@ method M(N: int, A: array<int>, B: array<int>)
   requires 0 <= N && N == A.Length && N == B.Length && A != B;
   requires forall k :: 0 <= k < N ==> 0 <= A[k] < N;
   requires forall j,k :: 0 <= j < k < N ==> A[j] != A[k];  // A is injective
-  requires forall m :: 0 <= m < N && /*inImagexx(m)*/true ==> exists k :: 0 <= k && k < N && A[k] == m;  // A is surjective
+  requires forall m :: 0 <= m < N && inImage(m) ==> exists k :: 0 <= k && k < N && A[k] == m;  // A is surjective
   modifies { B };
   ensures forall k :: 0 <= k < N ==> 0 <= B[k] < N;
   ensures forall k :: 0 <= k < N ==> B[A[k]] == k == A[B[k]];  // A and B are each other's inverses
@@ -45,11 +45,11 @@ method M(N: int, A: array<int>, B: array<int>)
   }
   assert forall i :: 0 <= i < N ==> A[i] == old(A[i]);  // the elements of A were not changed by the loop
   // it now follows from the surjectivity of A that A is the inverse of B:
-  assert forall j :: 0 <= j < N && /*inImage(j)*/true ==> 0 <= B[j] < N && A[B[j]] == j;
+  assert forall j :: 0 <= j < N && inImage(j) ==> 0 <= B[j] < N && A[B[j]] == j;
   assert forall j,k :: 0 <= j < k < N ==> B[j] != B[k];
 }
 
-// function inImage(i: int): bool { true }  // this function is used to trigger the surjective quantification
+function inImage(i: int): bool { true }  // this function is used to trigger the surjective quantification
 
 method Main()
 {
