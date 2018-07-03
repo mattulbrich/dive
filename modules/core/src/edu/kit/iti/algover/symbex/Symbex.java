@@ -216,7 +216,9 @@ public class Symbex {
                 decr = decr.getLastChild();
             }
             decr = ASTUtil.letCascade(subs, decr);
-            DafnyTree condition = ASTUtil.noetherLess(decr, ASTUtil.id("$decr"));
+            DafnyTree condition = ASTUtil.noetherLess(
+                    ASTUtil.create(DafnyParser.LISTEX, decr),
+                    ASTUtil.create(DafnyParser.LISTEX, ASTUtil.id("$decr")));
             // wrap that into a substitution
             condition = ASTUtil.letCascade(subs, condition);
             SymbexPath decrState = new SymbexPath(state);
@@ -652,6 +654,7 @@ public class Symbex {
                     default:
                         throw new Error(tree.toString());
                 }
+                break;
 
             case DafnyParser.ARRAY_ACCESS:
             case DafnyParser.FIELD_ACCESS:
@@ -663,11 +666,6 @@ public class Symbex {
             break;
 
         case DafnyParser.CALL:
-            // TODO revise
-            DafnyTree res = tree.getFirstChildWithType(DafnyParser.RESULTS);
-            for (DafnyTree r : res.getChildren()) {
-                vars.add(r.getDeclarationReference());
-            }
             // TODO Add check if method is strictly pure.
             vars.add(HEAP_VAR);
             break;

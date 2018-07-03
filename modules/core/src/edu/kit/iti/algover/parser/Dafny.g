@@ -8,7 +8,6 @@ options {
 tokens {
   COMPILATION_UNIT;
   TYPE;
-  RESULTS;
   ARGS;
   BLOCK;
   CALL;

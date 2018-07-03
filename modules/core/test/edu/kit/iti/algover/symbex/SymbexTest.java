@@ -5,6 +5,7 @@
  */
 package edu.kit.iti.algover.symbex;
 
+import edu.kit.iti.algover.parser.DafnyException;
 import edu.kit.iti.algover.parser.DafnyParser;
 import edu.kit.iti.algover.parser.DafnyParserException;
 import edu.kit.iti.algover.parser.DafnyTree;
@@ -18,6 +19,7 @@ import edu.kit.iti.algover.util.ImmutableList;
 import edu.kit.iti.algover.util.SymbexUtil;
 import edu.kit.iti.algover.util.TestUtil;
 import edu.kit.iti.algover.util.Util;
+import org.antlr.runtime.RecognitionException;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -1092,6 +1094,44 @@ public class SymbexTest {
                     path.getAssignmentHistory().map(x -> x.toStringTree()).toString());
             assertEquals("[(== 1 1)]",
                     path.getProofObligations().map(x -> x.getExpression().toStringTree()).toString());
+        }
+    }
+
+    @Test
+    public void testCollectAssignedVars() throws Exception {
+
+        Symbex symbex = new Symbex();
+        {
+            Project p = TestUtil.mockProject("method n() { } method m() { n(); }");
+            DafnyTree t = p.getMethod("m").getBody();
+            HashSet<DafnyTree> set = new HashSet<>();
+            TestUtil.call(symbex, "collectAssignedVars", t, set);
+            assertEquals("[heap]", Util.map(set, DafnyTree::toStringTree).toString());
+        }
+        {
+            Project p = TestUtil.mockProject("method n() returns (x:int) { } " +
+                    "method m() { var x:int; x := n(); }");
+            DafnyTree t = p.getMethod("m").getBody();
+            Set<DafnyTree> set = new HashSet<>();
+            TestUtil.call(symbex, "collectAssignedVars", t, set);
+            List<String> map = Util.map(set, DafnyTree::toStringTree);
+            map.sort(null);
+            assertEquals("[(var x (TYPE int)), heap]", map.toString());
+        }
+        {
+            Project p = TestUtil.mockProject("method m() { var x:int; x := 5; }");
+            DafnyTree t = p.getMethod("m").getBody();
+            HashSet<DafnyTree> set = new HashSet<>();
+            TestUtil.call(symbex, "collectAssignedVars", t, set);
+            assertEquals("[(var x (TYPE int))]", Util.map(set, DafnyTree::toStringTree).toString());
+        }
+        {
+            Project p = TestUtil.mockProject("function f(): int { 2 } " +
+                    "method m() { var x:int; x := f(); }");
+            DafnyTree t = p.getMethod("m").getBody();
+            HashSet<DafnyTree> set = new HashSet<>();
+            TestUtil.call(symbex, "collectAssignedVars", t, set);
+            assertEquals("[(var x (TYPE int))]", Util.map(set, DafnyTree::toStringTree).toString());
         }
     }
 
