@@ -482,7 +482,11 @@ logic_id_param:
   ;
 
 quantifier:
-  (ALL^ | EX^) ID (','! ID)* ( ':'! typeRef )? '::'! expression
+  (ALL^ | EX^) ID (','! ID)* ( ':'! typeRef )?  ( quantifier_guard )? '::'! expression
+  ;
+
+quantifier_guard:
+  '|'^ expression
   ;
 
 new_expression:

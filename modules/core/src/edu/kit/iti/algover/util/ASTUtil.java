@@ -415,8 +415,8 @@ public final class ASTUtil {
         }
     }
 
-    public static DafnyTree type(String type) {
-        return create(DafnyParser.TYPE, id(type));
+    public static DafnyTree type(DafnyTree type) {
+        return create(DafnyParser.TYPE, type);
     }
 
     public static DafnyTree letCascade(List<Pair<String, DafnyTree>> subs, DafnyTree expression) {
