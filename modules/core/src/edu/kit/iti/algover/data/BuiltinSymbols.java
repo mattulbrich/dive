@@ -76,6 +76,9 @@ public class BuiltinSymbols extends MapSymbolTable {
     public static final FunctionSymbol TIMES =
             new FunctionSymbol("$times", Sort.INT, Sort.INT, Sort.INT);
 
+    public static final FunctionSymbol DIV =
+            new FunctionSymbol("$div", Sort.INT, Sort.INT, Sort.INT);
+
     public static final FunctionSymbolFamily ITE =
             new FunctionSymbolFamily(
                     new FunctionSymbol("$ite",

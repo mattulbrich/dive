@@ -121,6 +121,7 @@ PLUS: '+';
 MINUS: '-';
 NOT: '!';
 TIMES: '*';
+DIV: '/';
 LT: '<';
 LE: '<=';
 GT: '>';

@@ -301,6 +301,10 @@ public class TreeTermTranslator {
             }
             break;
 
+        case DafnyParser.DIV:
+            result = buildBinary(BuiltinSymbols.DIV, tree);
+            break;
+
         case DafnyParser.TIMES:
             result = buildBinary(symmetricBinarySymbol(sort -> {
                 switch(sort.getName()) {
