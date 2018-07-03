@@ -128,7 +128,7 @@ public enum Axiom {
         TYPEOF.smt = "(declare-fun typeOf (Object) Type)";
         FIELDSTORE.smt = "(declare-fun (par (C T) (fieldstore<C.T> (Heap C (Field<C.T>) T) Heap)))";
         FIELDSELECT.smt = "(declare-fun (par (C T) (fieldselect<C.T> (Heap C (Field<C.T>)) T)))";
-        ANON.smt = "(declare-fun anon (Heap (SetObject) Heap) Heap)";
+        ANON.smt = "(declare-fun anon (Heap (Set<Object>) Heap) Heap)";
         // ANON.smt = "(declare-fun (par (T) (anon ((ArrT)) Int)))";
         CREATE.smt = "(declare-fun create  (Heap Object) Heap)";
         CREATED.smt = "(declare-fun created  (Heap Object) Bool)";

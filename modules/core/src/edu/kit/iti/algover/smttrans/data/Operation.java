@@ -87,15 +87,15 @@ public enum Operation {
 
         ANON.smt = "anon";
         ANON.instantiations = asList(Axiom.ANON); // Axiom.HEAP_4
-        ANON.special = true;
+//        ANON.special = true;
 
-        MOD.smt = "modh";
-        MOD.instantiations = asList(Axiom.MODH); // Axiom.MODH
+        MOD.smt = "mod";
+       // MOD.instantiations = asList(Axiom.MODH); // Axiom.MODH
         MOD.special = true;
 
         AHEAP.smt = "aheap";
         AHEAP.instantiations = asList();
-        AHEAP.special = true;
+//        AHEAP.special = true;
         
         HEAP.smt = "heap";
 //        HEAP.instantiations = asList(Axiom.HEAP_INST); // Axiom.HEAP_INST
@@ -103,22 +103,24 @@ public enum Operation {
         
         DECR.smt = "decr";
         
-        
-        EVERYTHING.smt = "everything";
-        EVERYTHING.instantiations = asList(); // Axiom.EVERYTHING
-        
-
-        SEQCONS.smt = "SEQCONS";
-        SEQCONS.poly = true;
-        SEQCONS.instantiations = asList(Axiom.SEQEMTY_INST); // TODO
-
         SEQEMPTY.smt = "seqEmpty";
         SEQEMPTY.poly = true;
         SEQEMPTY.instantiations = asList(Axiom.SEQEMTY_INST, Axiom.SEQ_LEN, Axiom.SEQ_LEN_5);
 
         SETEMPTY.smt = "setEmpty";
         SETEMPTY.poly = true;
-        SETEMPTY.instantiations = asList(Axiom.SETEMPTY_INST, Axiom.SET_CARD, Axiom.SET_CARD_1);
+        SETEMPTY.instantiations = asList(Axiom.SET_CARD, Axiom.SET_CARD_1);
+       
+        EVERYTHING.smt = "everything";
+        EVERYTHING.instantiations = asList(); // Axiom.EVERYTHING
+        EVERYTHING.special = true;
+        
+
+        SEQCONS.smt = "SEQCONS";
+        SEQCONS.poly = true;
+        SEQCONS.instantiations = asList(Axiom.SEQEMTY_INST); // TODO
+
+
 
         SEQUPD.smt = "seqstore";
         SEQUPD.poly = true;

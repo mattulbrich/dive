@@ -30,48 +30,34 @@ public class TypeContext {
     private static SymbolTable symbolTable = new MapSymbolTable(new HashSet<FunctionSymbol>());
     public static final String AV_ARRNAME = "array";
     public static final String SMT_ARRNAME = "Arr";
-    public static final String AV_SETEMPTYNAME = "empty<object>";
-    public static final String SMT_SETEMPTYNAME = "setEmptyObject";
     public static final String AV_ARR2NAME = "array2";
     public static final String SMT_ARR2NAME = "Arr2";
     public static final String AV_INTNAME = "int";
     public static final String SMT_INTNAME = "Int";
     public static final String AV_BOOLNAME = "bool";
     public static final String SMT_BOOLNAME = "Bool";
-    public static final String AV_HEAPNAME = "$heap";
+    public static final String AV_HEAPNAME = "heap";
     public static final String SMT_HEAPNAME = "Heap";
-    public static final String AV_MODNAME = "$mod";
-    public static final String AV_ANON = "$anon";
-    public static final String AV_EVERYTHINGNAME = "$everything";
-    public static final String AV_AHEAP = "$aheap";
-    public static final String AV_DECR = "$decr";
 
     private static Set<Dependency> preamble = new LinkedHashSet<>();
+    private static final Set<Operation> emptySorts = new LinkedHashSet<>(
+            Arrays.asList(Operation.SETEMPTY, Operation.SEQEMPTY));
 
-    // private static BiMap<String, String> nmap = HashBiMap.create();
+    private static BiMap<String, String> nmap = HashBiMap.create();
 
-    // static {
+    static {
 
-    // nmap.put(AV_MODNAME, Operation.MOD.toSMT());
-    // nmap.put(AV_SETEMPTYNAME, SMT_SETEMPTYNAME);
-    // nmap.put(AV_ARRNAME, SMT_ARRNAME);
-    // nmap.put(AV_ARR2NAME, SMT_ARR2NAME);
-    // nmap.put(AV_INTNAME, SMT_INTNAME);
-    // nmap.put(AV_BOOLNAME, SMT_BOOLNAME);
-    // nmap.put(AV_HEAPNAME, SMT_HEAPNAME);
-    // nmap.put(AV_AHEAP, Operation.AHEAP.toSMT());
-    // nmap.put(AV_DECR, Operation.DECR.toSMT());
-    //
-    // }
+        nmap.put(AV_ARRNAME, SMT_ARRNAME);
+        nmap.put(AV_ARR2NAME, SMT_ARR2NAME);
+        nmap.put(AV_INTNAME, SMT_INTNAME);
+        nmap.put(AV_BOOLNAME, SMT_BOOLNAME);
+
+    }
 
     public static boolean isBuiltIn(String s) {
         String name = s.toLowerCase();
         return name.equals(AV_BOOLNAME) || name.equals(AV_INTNAME) || name.equals(AV_HEAPNAME);
     }
-
-    // public static BiMap<String, String> getDefaults() {
-    // return nmap;
-    // }
 
     private static Pair<Integer, Integer> getArgumentRange(String name) {
         int i = 0;
@@ -96,7 +82,7 @@ public class TypeContext {
             return new ArrayList<>();
 
         List<String> r = new ArrayList<>();
-        Arrays.asList(name.substring(range.fst, range.snd).split(",")).forEach(x -> r.add(normalizeSort(x)));
+        Arrays.asList(name.substring(range.fst, range.snd).split(",")).forEach(x -> r.add(normalizeName(x)));
         return r;
     }
 
@@ -112,24 +98,46 @@ public class TypeContext {
     public static String normalizeSort(String name, String sorts) {
         // String r = addTypeArguments(normalizeSort(fs.getResultSort().getName()),
         // getTypeArguments(fs.toString()));
-        String r = addTypeArguments(normalizeSort(name), getTypeArguments(sorts));
+        String r = addTypeArguments(normalizeName(name), getTypeArguments(sorts));
 
         return r.replace("<>", "");
     }
 
-    public static String normalizeSort(String name) {
+    public static String normalizeReturnSort(FunctionSymbol fs) {
+
+        return normalizeName(fs.toString().split(":")[1].trim());
+    }
+
+    public static String normalizeName(String name) {
 
         List<String> sorts = Arrays.asList(name.split("<"));
 
         StringBuilder sb = new StringBuilder();
         for (String s : sorts) {
             sb.append("<");
-            sb.append(s.substring(0, 1).toUpperCase());
-            sb.append(s.substring(1));
+            sb.append(nmap.getOrDefault(s, s.substring(0, 1).toUpperCase() + s.substring(1)));
+            // sb.append(s.substring(0, 1).toUpperCase());
+            // sb.append(s.substring(1));
         }
 
-        return sb.toString().replaceFirst("<", "");
+        return cleanUp(sb.toString().replaceFirst("<", ""));
 
+    }
+
+    private static String cleanUp(String name) {
+
+        int j = 0;
+        int k = 0;
+
+        for (int i = 0; i < name.length(); i++) {
+            if (name.charAt(i) == '<') {
+                j++;
+            } else if (name.charAt(i) == '>') {
+                k++;
+            }
+        }
+
+        return name.substring(0, name.length() - (k - j));
     }
 
     private static String addTypeArguments(String name, List<String> arguments) {
@@ -137,7 +145,7 @@ public class TypeContext {
         StringBuilder sb = new StringBuilder(name);
         sb.append("<");
         for (String a : arguments) {
-            sb.append(normalizeSort(a));
+            sb.append(normalizeName(a));
             sb.append(".");
         }
         sb.append(">");
@@ -226,6 +234,38 @@ public class TypeContext {
         return true;
     }
 
+    private static boolean isEmptySort(FunctionSymbol fs) {
+        return (isFunc(fs.getName()) && emptySorts.contains(getOperation(fs.getName())));
+    }
+
+    private static Sort normalizeSort(Sort s) {
+        // System.out.println("Sort " + s.toString());
+        String sort = s.toString();
+        List<String> parts = Arrays.asList(sort.replaceAll(">", "").split("<"));
+        String name = parts.get(0);
+        name = name.substring(0, 1).toUpperCase() + name.substring(1);
+        // System.out.println(parts);
+        sort = addTypeArguments(name, parts.subList(1, parts.size()));
+
+        return Sort.get(sort);
+    }
+
+    private static FunctionSymbol makeEmptySort(Operation op, FunctionSymbol fs) {
+
+        String sname = addTypeArguments(op.toSMT(), getTypeArguments(fs.getName()));
+        String aname = fs.getName().substring(1, fs.getName().length());
+
+        FunctionSymbol nfs = new FunctionSymbol(Names.makeSMTName(aname, sname), normalizeSort(fs.getResultSort()));
+
+        return nfs;
+
+    }
+
+    private static FunctionSymbol handleEmptySort(FunctionSymbol fs) {
+        Operation op = getOperation(fs.getName());
+        return makeEmptySort(op, fs);
+    }
+
     public static void addSymbol(FunctionSymbol fs) {
         if (!isRelevant(fs))
             return;
@@ -234,17 +274,45 @@ public class TypeContext {
 
             preamble.addAll(SymbolHandler.handleOperation(getOperation(fs.getName())));
 
-        } else if (!symbolTable.getAllSymbols().contains(fs)) {
-            symbolTable = symbolTable.addFunctionSymbol(fs);
+        } else {
 
+            FunctionSymbol nfs = null;
+
+            if (isEmptySort(fs)) {
+                nfs = handleEmptySort(fs);
+
+            } else {
+
+                nfs = isFunc(fs.getName()) ? new FunctionSymbol(fs.getName(), fs.getResultSort(), fs.getArgumentSorts())
+                        : new FunctionSymbol(Names.makeSMTName(fs.getName()), fs.getResultSort(),
+                                fs.getArgumentSorts());
+
+            }
+
+            if (!symbolTable.getAllSymbols().contains(nfs)) {
+
+                symbolTable = symbolTable.addFunctionSymbol(nfs);
+
+            }
         }
     }
 
-    public static String getNullSort(String s) { // TODO deal with null
-        return "X";
+    public static String getNullSort(String s) {
+
+        if (!s.startsWith("$eq"))
+            return null;
+
+        String sign = s.replace("$eq<", "").substring(0, s.length() - 5);
+
+        String result = addTypeArguments(normalizeName(sign.split("<")[0]), getTypeArguments(sign)).replace("<>", "");
+
+        return result;
     }
 
     public static boolean isFunc(String name) {
+        if (name.startsWith("$aheap")) // special case , TODO
+            return false;
+
         return name.startsWith("$");
     }
 
@@ -276,7 +344,7 @@ public class TypeContext {
 
         for (String l : lines) {
 
-            if (l.trim().startsWith("(assert") && (l.contains("setInsertObject") || l.contains("inSetObject"))) {
+            if (l.trim().startsWith("(assert") && (l.contains("setInsert<Object>") || l.contains("inSet<Object>"))) {
                 critical.add(l);
             }
             if (l.trim().startsWith("(declare-sort") && (!l.contains("Object"))) {
@@ -323,6 +391,7 @@ public class TypeContext {
 
         if (!critical.isEmpty() && !nsmt.contains("(declare-sort Object 0)"))
             nsmt += "(declare-sort Object 0) + \r\n";
+
         if (!critical.isEmpty()) {
 
             for (String t : sorts) {
@@ -355,6 +424,7 @@ public class TypeContext {
                 nsmt += line + "\r\n";
             }
         }
+
         return nsmt;
 
     }

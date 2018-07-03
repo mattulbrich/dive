@@ -8,7 +8,7 @@ public class FSFactory {
     private static Sort current;// = Sort.get("ArrInt"); //TODO dynamically
     
     private static FunctionSymbol handleNull() {
-        FunctionSymbol fs = new FunctionSymbol("null", current);
+        FunctionSymbol fs = new FunctionSymbol("null"+"<"+current.toString()+">", current);
         TypeContext.addSymbol(fs);
         return fs;
         
@@ -37,7 +37,10 @@ public class FSFactory {
         if (fs.getName().startsWith("$")) {
             
 
-            current = Sort.get(TypeContext.getNullSort(fs.getName()));
+            
+            String s = TypeContext.getNullSort(fs.getName());
+            if (s != null)
+                current = Sort.get(s);
            
         }
             FunctionSymbol nfs;
