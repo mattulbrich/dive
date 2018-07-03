@@ -171,6 +171,11 @@ public class TypeResolution extends DafnyTreeDefaultVisitor<DafnyTree, Void> {
     }
 
     @Override
+    public DafnyTree visitDIV(DafnyTree t, Void a) {
+        return operation(t, INT_TYPE, "int", "int");
+    }
+
+    @Override
     public DafnyTree visitMINUS(DafnyTree t, Void a) {
         return operation(t, INT_TYPE, "int", "int");
     }
