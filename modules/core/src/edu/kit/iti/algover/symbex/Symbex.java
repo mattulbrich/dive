@@ -52,21 +52,21 @@ public class Symbex {
             new DafnyTree(DafnyParser.BLOCK);
 
     /**
-     * Performs symbolic execution on a function.
+     * Performs symbolic execution on a method.
      *
      * It returns all proof obligations which arise during this execution. At
      * the moment, the process is neither scriptable nor configurable.
      *
-     * @param function
-     *            the function to execute, not <code>null</code>
+     * @param method
+     *            the method to execute, not <code>null</code>
      * @return a freshly created list of symbolic execution states, not
      *         <code>null</code>
      */
-    public List<SymbexPath> symbolicExecution(DafnyTree function) {
+    public List<SymbexPath> symbolicExecution(DafnyTree method) {
 
-        assert function != null;
-        assert function.getType() == DafnyParser.METHOD;
-        SymbexPath initial = makeFromPreconditions(function);
+        assert method != null;
+        assert method.getType() == DafnyParser.METHOD;
+        SymbexPath initial = makeFromPreconditions(method);
 
         Deque<SymbexPath> stack = new LinkedList<SymbexPath>();
         List<SymbexPath> results = new ArrayList<SymbexPath>();
@@ -116,6 +116,10 @@ public class Symbex {
 
                 case DafnyParser.PRINT:
                     // TODO just ignore it for now ... RT tests for arguments ...
+                    break;
+
+                case DafnyParser.RETURN:
+                    handleReturnStatement(stack, state, method);
                     break;
 
                 default:
@@ -247,6 +251,7 @@ public class Symbex {
      * handle "new C;" (possible "new C.method()")
      * as well as "new int[10]"
      */
+
     private DafnyTree handleNewCommand(Deque<SymbexPath> stack, SymbexPath current, DafnyTree newExpr, DafnyTree stm) {
         switch (newExpr.getChild(0).getType()) {
         case DafnyParser.ARRAY_ACCESS:
@@ -257,7 +262,6 @@ public class Symbex {
             throw new Error("Unexpected 'new' command: " + stm);
         }
     }
-
     /*
      * new type[size] becomes
      *
@@ -267,6 +271,7 @@ public class Symbex {
      * $heap := create($heap, $newN);
      * assume $newN.Length == size;
      */
+
     private DafnyTree handleNewArray(Deque<SymbexPath> stack, SymbexPath current, DafnyTree newExpr, DafnyTree stm) {
         assert newExpr.getType() == DafnyParser.NEW;
 
@@ -290,7 +295,6 @@ public class Symbex {
 
         return newObj;
     }
-
     /*
      * new C.Init(p) becomes
      *
@@ -301,6 +305,7 @@ public class Symbex {
      * there may be more if a constructor method is mentioned.
      *
      */
+
     private DafnyTree handleNewClass(Deque<SymbexPath> stack, SymbexPath current, DafnyTree newExpr, DafnyTree stm) {
 
         assert newExpr.getType() == DafnyParser.NEW;
@@ -323,6 +328,18 @@ public class Symbex {
         }
 
         return newObj;
+    }
+
+    private void handleReturnStatement(Deque<SymbexPath> stack, SymbexPath state, DafnyTree method) {
+
+        // No more code
+        state.setBlockToExecute(EMPTY_PROGRAM);
+
+        state.setProofObligationsFromLastChild(
+                method.getChildrenWithType(DafnyParser.ENSURES),
+                AssertionType.POST);
+
+        stack.add(state);
     }
 
     /*
@@ -727,22 +744,22 @@ public class Symbex {
      *
      * Add assignment to modifies variable.
      *
-     * @param function
-     *            the function to analyse
+     * @param method
+     *            the method to analyse
      * @return the initial symbolic execution state
      */
-    private SymbexPath makeFromPreconditions(DafnyTree function) {
-        SymbexPath result = new SymbexPath(function);
+    private SymbexPath makeFromPreconditions(DafnyTree method) {
+        SymbexPath result = new SymbexPath(method);
 
-        for (DafnyTree req : function.getChildrenWithType(DafnyParser.REQUIRES)) {
+        for (DafnyTree req : method.getChildrenWithType(DafnyParser.REQUIRES)) {
             result.addPathCondition(req.getLastChild(), req, AssumptionType.PRE);
         }
 
         result.setProofObligationsFromLastChild(
-                function.getChildrenWithType(DafnyParser.ENSURES),
+                method.getChildrenWithType(DafnyParser.ENSURES),
                 AssertionType.POST);
 
-        DafnyTree modifies = function.getFirstChildWithType(DafnyParser.MODIFIES);
+        DafnyTree modifies = method.getFirstChildWithType(DafnyParser.MODIFIES);
         if (modifies == null) {
             result.addAssignment(ASTUtil.assign(ASTUtil.builtInVar("$mod"),
                     ASTUtil.builtInVar("$everything")));
@@ -751,7 +768,7 @@ public class Symbex {
                     modifies.getLastChild()));
         }
 
-        DafnyTree decreases = function.getFirstChildWithType(DafnyParser.DECREASES);
+        DafnyTree decreases = method.getFirstChildWithType(DafnyParser.DECREASES);
         if(decreases == null) {
             result.addAssignment(ASTUtil.assign(ASTUtil.builtInVar("$decr"),
                     ASTUtil.intLiteral(0)));

@@ -6,6 +6,7 @@
 package edu.kit.iti.algover.symbex;
 
 import edu.kit.iti.algover.parser.DafnyParser;
+import edu.kit.iti.algover.parser.DafnyParserException;
 import edu.kit.iti.algover.parser.DafnyTree;
 import edu.kit.iti.algover.parser.ParserTest;
 import edu.kit.iti.algover.parser.TypeResolutionTest;
@@ -20,6 +21,7 @@ import edu.kit.iti.algover.util.Util;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.*;
 
@@ -1051,8 +1053,46 @@ public class SymbexTest {
             assertEquals("[]", state.getPathConditions().toString());
             assertEquals("[]", state.getAssignmentHistory().map(x -> x.toStringTree()).toString());
         }
+    }
 
+    @Test
+    public void testHandleReturn() throws Exception {
+        InputStream stream = getClass().getResourceAsStream("return.dfy");
+        DafnyTree fileTree = ParserTest.parseFile(stream);
 
+        // performs type analysis etc:
+        Project project = TestUtil.mockProject(fileTree);
+
+        DafnyTree tree = project.getMethod("m").getRepresentation();
+        DafnyTree code = tree.getFirstChildWithType(DafnyParser.BLOCK);
+        Symbex symbex = new Symbex();
+        List<SymbexPath> paths = symbex.symbolicExecution(tree);
+
+        assertEquals(4, paths.size());
+        int cnt = 0;
+        assertEquals(AssertionType.INVARIANT_INITIALLY_VALID, paths.get(cnt++).getCommonProofObligationType());
+        assertEquals(null, paths.get(cnt++).getCommonProofObligationType());
+        assertEquals(AssertionType.POST, paths.get(cnt++).getCommonProofObligationType());
+        assertEquals(AssertionType.POST, paths.get(cnt++).getCommonProofObligationType());
+
+        {
+            // first return statement
+            SymbexPath path = paths.get(2);
+            assertEquals("[(ASSIGN $mod $everything), (ASSIGN $decr 0), (ASSIGN v WILDCARD), " +
+                            "(ASSIGN $heap (CALL $anon (ARGS $heap $mod $aheap_1))), (ASSIGN $decr_1 v)]",
+                    path.getAssignmentHistory().map(x -> x.toStringTree()).toString());
+            assertEquals("[(== 1 1)]",
+                    path.getProofObligations().map(x -> x.getExpression().toStringTree()).toString());
+        }
+        {
+            // first return statement
+            SymbexPath path = paths.get(3);
+            assertEquals("[(ASSIGN $mod $everything), (ASSIGN $decr 0), (ASSIGN v WILDCARD), " +
+                            "(ASSIGN $heap (CALL $anon (ARGS $heap $mod $aheap_1)))]",
+                    path.getAssignmentHistory().map(x -> x.toStringTree()).toString());
+            assertEquals("[(== 1 1)]",
+                    path.getProofObligations().map(x -> x.getExpression().toStringTree()).toString());
+        }
     }
 
 }
