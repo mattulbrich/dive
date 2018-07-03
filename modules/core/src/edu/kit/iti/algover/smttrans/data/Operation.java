@@ -112,7 +112,7 @@ public enum Operation {
         SETEMPTY.instantiations = asList(Axiom.SET_CARD, Axiom.SET_CARD_1);
        
         EVERYTHING.smt = "everything";
-        EVERYTHING.instantiations = asList(); // Axiom.EVERYTHING
+        EVERYTHING.instantiations = asList(Axiom.SET_IN,Axiom.SET_INSERT,Axiom.SET_1,Axiom.EVERYTHING); // 
         EVERYTHING.special = true;
         
 

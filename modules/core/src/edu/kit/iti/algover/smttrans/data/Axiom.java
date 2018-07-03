@@ -1,5 +1,7 @@
 package edu.kit.iti.algover.smttrans.data;
 
+import edu.kit.iti.algover.smttrans.translate.Names;
+
 public enum Axiom {
 
     /**
@@ -75,7 +77,7 @@ public enum Axiom {
        
         HEAP_INST.smt = "(declare-sort Heap 0)";
         TYPE_INST.smt = "(declare-sort Type)";
-        OBJECT_INST.smt = "(declare-sort Object)";
+       // OBJECT_INST.smt = "(declare-sort Object)";
         // ARR_1_INST.smt = "(declare-sort (par (T) (ArrT)))";
         // ARR_2_INST.smt = "(declare-sort (par (T) (Arr2T)))";
         TYPE_CONST.smt = "(declare-const (par (C) (Type.C Type)))";
@@ -133,7 +135,7 @@ public enum Axiom {
         CREATE.smt = "(declare-fun create  (Heap Object) Heap)";
         CREATED.smt = "(declare-fun created  (Heap Object) Bool)";
         MODH.smt = "(declare-const modh SetObject)";
-        EVERYTHING.smt = "(declare-const everything SetObject)";
+        EVERYTHING.smt = "(assert (forall ((o Object)) (inSet<Object> o "+ Names.getPrefix()+"everything)))";
         ARRSELECT.smt = "(declare-fun (par (T) (arrselect<T> (Heap (Arr<T>) Int) T)))";
         ARRSTORE.smt = "(declare-fun (par (T) (arrstore<T> (Heap (Arr<T>) Int T) Heap)))";
         ARRLEN.smt = "(declare-fun (par (T)(arrlen<T> (Arr<T>) Int)))";

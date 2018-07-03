@@ -2,6 +2,8 @@ package edu.kit.iti.algover.smttrans.translate;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import edu.kit.iti.algover.data.BuiltinSymbols;
 import edu.kit.iti.algover.smttrans.data.Operation;
 import edu.kit.iti.algover.term.FunctionSymbol;
 import edu.kit.iti.algover.term.Sort;
@@ -34,7 +36,7 @@ public class SymbolHandler {
     private static List<Dependency> handleMod(Operation op) {
         List<Dependency> r = new ArrayList<>();                                                
         ConstDependency d = new ConstDependency(new FunctionSymbol(Names.makeSMTName(op.toSMT()), Sort.get("Set<Object>")));
-       
+      
         r.add(d);
         return r;
     }
@@ -49,7 +51,10 @@ public class SymbolHandler {
     private static List<Dependency> handleEverything(Operation op) {
         List<Dependency> r = new ArrayList<>();
         ConstDependency d = new ConstDependency(new FunctionSymbol(Names.makeSMTName(op.toSMT()), Sort.get("Set<Object>")));
+        FuncDependency f = new FuncDependency(new FunctionSymbol("$everything<Object>", Sort.get("Object")));
+      
         r.add(d);
+        r.add(f);
         return r;
 
     }
