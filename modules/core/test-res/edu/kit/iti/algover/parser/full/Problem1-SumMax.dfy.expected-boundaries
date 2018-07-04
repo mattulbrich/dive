@@ -1,4 +1,4 @@
-(COMPILATION_UNIT[method-}] 
+(COMPILATION_UNIT[method-<EOF>]
  (method[method-}] M[M-M] 
   (ARGS[N->] (VAR[N-int] N[N-N] (TYPE[int-int] int[int-int]))
              (VAR[a->] a[a-a] (TYPE[array->] (array[array->] int[int-int])))) 
@@ -38,7 +38,7 @@
    (:=[a-;] (ARRAY_ACCESS[a-]] a[a-a] 8[8-8]) 10[10-10]) 
    (:=[a-;] (ARRAY_ACCESS[a-]] a[a-a] 9[9-9]) 6[6-6]) 
    (var[var-int] s[s-s] (TYPE[int-int] int[int-int])) 
-   (var[var-int] m[m-m] (TYPE[int-int] int[int-int])) 
+   (var[var-int] m[m-m] (TYPE[int-int] int[int-int]))
    (:=[s-;] s[s-s] m[m-m] 
     (CALL[M-;] M[M-M] (ARGS[10-a] 10[10-10] a[a-a]))) 
    (print[print-;] "N = "["N = "-"N = "] (Length[a-Length] a[a-a]) "  sum = "["  sum = "-"  sum = "] s[s-s] "  max = "["  max = "-"  max = "] m[m-m] "\n"["\n"-"\n"])
