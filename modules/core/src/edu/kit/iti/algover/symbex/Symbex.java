@@ -661,23 +661,26 @@ public class Symbex {
                 vars.add(HEAP_VAR);
                 break;
 
-                default: throw new Error(tree.toString());
+            default: throw new Error("Unsupported assignment target: " + tree.toString());
             }
             break;
 
         case DafnyParser.CALL:
-            // TODO Add check if method is strictly pure.
-            vars.add(HEAP_VAR);
-            break;
-
-        default:
-            List<DafnyTree> children = tree.getChildren();
-            if (children != null) {
-                for (DafnyTree r : children) {
-                    collectAssignedVars(r, vars);
-                }
+            // TODO ... is this index right?
+            DafnyTree callee = tree.getChild(0);
+            DafnyTree declRef = callee.getDeclarationReference();
+            if (declRef.getType() == DafnyParser.METHOD) {
+                // TODO Add check if method is strictly pure.
+                vars.add(HEAP_VAR);
             }
             break;
+        }
+
+        List<DafnyTree> children = tree.getChildren();
+        if (children != null) {
+            for (DafnyTree r : children) {
+                collectAssignedVars(r, vars);
+            }
         }
     }
 

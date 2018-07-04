@@ -5,34 +5,74 @@
  */
 package edu.kit.iti.algover.proof;
 
-import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Date;
+import java.util.List;
+import java.util.Properties;
 
+import edu.kit.iti.algover.parser.DafnyException;
+import edu.kit.iti.algover.parser.DafnyParserException;
+import edu.kit.iti.algover.project.ProjectBuilder;
+import edu.kit.iti.algover.settings.ProjectSettings;
+import edu.kit.iti.algover.term.Sequent;
+import edu.kit.iti.algover.util.Util;
 import org.junit.Test;
 
 import edu.kit.iti.algover.parser.DafnyTree;
 import edu.kit.iti.algover.parser.ParserTest;
 import edu.kit.iti.algover.project.Project;
 import edu.kit.iti.algover.util.TestUtil;
+import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
+import org.junit.runners.Parameterized.Parameter;
+import org.junit.runners.Parameterized.Parameters;
 
+import static org.junit.Assert.*;
+
+/*
+ * This test checks that files are parseable and can produce good projects.
+ * (PVC generation works w/o exception).
+ *
+ * The actual content is not checked because it would be incomprehensible.
+ */
+@RunWith(Parameterized.class)
 public class PVCBuilderTest {
 
-    private static final File FILE =
-            new File("modules/core/test-res/edu/kit/iti/algover/proof/proj1");
+    public static final String SEQUENTER_KEY = "sequenter";
 
-    // This is more an integration test ... just should not throw exceptions.
-    // Sum and max is the first benchmark milestone for September 17
-    @Test
-    public void testSumAndMax() throws Exception {
+    @Parameter
+    public String filename;
 
-        InputStream is = ParserTest.class.getResourceAsStream("full/sumandmax.dfy");
-        DafnyTree fileTree = ParserTest.parseFile(is);
-        Project project = TestUtil.mockProject(fileTree);
+    @Parameters(name = "{0}")
+    public static Collection<? extends Object> parameters() throws Exception {
 
-        PVCGroup group = project.getAllPVCs();
-        for (PVC pvc : group.getContents()) {
-            System.out.println(pvc.getIdentifier());
+        InputStream is = PVCBuilderTest.class.getResourceAsStream("pvcBuilder/INDEX");
+        if (is == null) {
+            fail("File not found: pvcBuilder/INDEX");
         }
+
+        String[] filenames = Util.streamToString(is).split("\n");
+        return Arrays.asList(filenames);
+    }
+
+    @Test
+    public void test() throws Exception {
+
+        InputStream is = PVCBuilderTest.class.getResourceAsStream("pvcBuilder/" + filename);
+        DafnyTree fileTree = ParserTest.parseFile(is);
+        is.close();
+
+        Project project = TestUtil.mockProject(fileTree);
+        PVCGroup pvcGroup = project.getAllPVCs();
+
+        // success if no exception occurs!
     }
 
 }

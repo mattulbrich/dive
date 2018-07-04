@@ -1,9 +1,0 @@
-<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<configuration>
-    <dafnyFile>BS.dfy</dafnyFile>
-    <dafnyFile>fib.dfy</dafnyFile>
-    <dafnyFile>Find.dfy</dafnyFile>
-    <dafnyFile>FindZero.dfy</dafnyFile>
-    <dafnyFile>Sum.dfy</dafnyFile>
-    <settings><entry><key>Default Script</key><value>fake close=true;</value></entry></settings>
-</configuration>

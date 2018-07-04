@@ -514,8 +514,7 @@ public class TreeTermTranslator {
         List<Term> argTerms = new ArrayList<>();
 
         if(fct == null) {
-            id = "$$" + id;
-            fct = symbolTable.getFunctionSymbol(id);
+            fct = symbolTable.getFunctionSymbol("$$" + id);
             argTerms.add(getHeap());
         }
 

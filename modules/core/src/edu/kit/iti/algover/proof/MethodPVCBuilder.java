@@ -76,12 +76,13 @@ public class MethodPVCBuilder implements PVCBuilder {
         }
     }
 
-    private static PVCSequenter findSequenter(String string) {
+    public static PVCSequenter findSequenter(String string) {
         for (PVCSequenter instance : PVCSequenter.INSTANCES) {
             if(instance.getName().equals(string))
                 return instance;
         }
-        throw new IllegalStateException("This should not happen since settings can be validated");
+        // This should not happen since settings can be validated
+        throw new IllegalStateException("Unknown sequenter: " + string);
     }
 
     public PVC build() throws TermBuildException {
