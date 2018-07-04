@@ -457,11 +457,35 @@ public class SymbexTest {
         Symbex symbex = new Symbex();
         List<SymbexPath> results = symbex.symbolicExecution(tree);
 
-        assertEquals(6, results.size());
         int cnt = 0;
         {
             SymbexPath path = results.get(cnt++);
             assertEquals(AssertionType.POST, path.getCommonProofObligationType());
+        }
+        {
+            SymbexPath path = results.get(cnt++);
+            assertEquals(AssertionType.RT_IN_BOUNDS, path.getCommonProofObligationType());
+            ImmutableList<AssertionElement> pos = path.getProofObligations();
+            assertEquals(2, pos.size());
+            assertEquals("(>= y 0)", pos.get(0).getExpression().toStringTree());
+            assertEquals("(< y (Length1 multiDim))", pos.get(1).getExpression().toStringTree());
+            assertEquals(0, path.getPathConditions().size());
+        }
+        {
+            SymbexPath path = results.get(cnt++);
+            assertEquals(AssertionType.RT_IN_BOUNDS, path.getCommonProofObligationType());
+            ImmutableList<AssertionElement> pos = path.getProofObligations();
+            assertEquals(2, pos.size());
+            assertEquals("(>= x 0)", pos.get(0).getExpression().toStringTree());
+            assertEquals("(< x (Length0 multiDim))", pos.get(1).getExpression().toStringTree());
+            assertEquals(0, path.getPathConditions().size());
+        }
+        {
+            SymbexPath path = results.get(cnt++);
+            assertEquals(AssertionType.RT_NONNULL, path.getCommonProofObligationType());
+            AssertionElement po = path.getProofObligations().get(0);
+            assertEquals("(!= multiDim null)", po.getExpression().toStringTree());
+            assertEquals(0, path.getPathConditions().size());
         }
         {
             SymbexPath path = results.get(cnt++);
@@ -551,8 +575,8 @@ public class SymbexTest {
     public void testHandleRuntimeAssertionsWhile() throws Exception {
         InputStream stream = getClass().getResourceAsStream("runtimeAssert.dfy");
         DafnyTree parseTree = ParserTest.parseFile(stream);
-        TestUtil.mockProject(parseTree);
-        this.tree = parseTree.getChild(2);
+        Project project = TestUtil.mockProject(parseTree);
+        this.tree = project.getMethod("runtimeInWhile").getRepresentation();
 
         Symbex symbex = new Symbex();
         List<SymbexPath> results = symbex.symbolicExecution(tree);

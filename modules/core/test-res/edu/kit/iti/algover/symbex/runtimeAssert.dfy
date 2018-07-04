@@ -6,9 +6,11 @@ method runtimeChecks()
    var y:int;
    var x:int;
    var b:bool;
+   var multiDim: array2<int>;
 
    x := a[y] + a2.Length;
    b := y > 0 || a[y] > 0;
+   b := multiDim[x,y] > 0;
  }
  
  method runtimeInIf()

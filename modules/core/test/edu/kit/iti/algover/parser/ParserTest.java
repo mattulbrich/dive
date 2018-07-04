@@ -63,7 +63,6 @@ public class ParserTest {
                 { "unqualifiedCallsInExp.dfy" },
                 { "letexpressions.dfy" },
                 { "typeParameters.dfy" },
-                { "saddleback.dfy" },
                 { "../term/builder/sequenterTest.dfy" },
                 { "../symbex/noetherTest.dfy" },
                 { "vars.dfy" },

@@ -5,10 +5,8 @@
  */
 package edu.kit.iti.algover.symbex;
 
-import antlr.collections.AST;
 import edu.kit.iti.algover.ProgramDatabase;
 import edu.kit.iti.algover.dafnystructures.TarjansAlgorithm;
-import edu.kit.iti.algover.parser.DafnyException;
 import edu.kit.iti.algover.parser.DafnyParser;
 import edu.kit.iti.algover.parser.DafnyTree;
 import edu.kit.iti.algover.symbex.AssertionElement.AssertionType;
@@ -285,7 +283,7 @@ public class Symbex {
         DafnyTree arrayType = ASTUtil.create(DafnyParser.ARRAY, "array", type);
 
         handleExpression(stack, current, size);
-        addIndexInRangeCheck(stack, current, size, null);
+        addIndexInRangeCheck(stack, current, size, null, "");
 
         DafnyTree newObj = ASTUtil.freshVariable("$new", arrayType, current);
         current.addPathCondition(ASTUtil.negate(ASTUtil.builtIn(ASTUtil.call("$isCreated", ASTUtil.builtInVar("$heap"), newObj))), stm,
@@ -819,11 +817,15 @@ public class Symbex {
 
         case DafnyParser.ARRAY_ACCESS:
             child0 = expression.getChild(0);
-            child1 = expression.getChild(1);
-            addNonNullCheck(stack, current, child0);
-            addIndexInRangeCheck(stack, current, child1, child0);
             handleExpression(stack, current, child0);
-            handleExpression(stack, current, child1);
+            addNonNullCheck(stack, current, child0);
+
+            for (int i = 1; i < expression.getChildCount(); i++) {
+                DafnyTree child = expression.getChild(i);
+                String suffix = expression.getChildCount() > 2 ? Integer.toString(i - 1) : "";
+                addIndexInRangeCheck(stack, current, child, child0, suffix);
+                handleExpression(stack, current, child);
+            }
             break;
 
         case DafnyParser.LENGTH:
@@ -844,12 +846,13 @@ public class Symbex {
      * Use "null" for array if only lower bounds check
      */
     private void addIndexInRangeCheck(Deque<SymbexPath> stack, SymbexPath current,
-            DafnyTree idx, @Nullable DafnyTree array) {
+                                      DafnyTree idx, @Nullable DafnyTree array,
+                                      String arrayLengthSuffix) {
         SymbexPath bounds = new SymbexPath(current);
         List<DafnyTree> pos = new ArrayList<>();
         pos.add(ASTUtil.greaterEqual(idx, ASTUtil.intLiteral(0)));
         if (array != null) {
-            pos.add(ASTUtil.less(idx, ASTUtil.length(array)));
+            pos.add(ASTUtil.less(idx, ASTUtil.length(array, arrayLengthSuffix)));
         }
         bounds.setProofObligations(pos, idx, AssertionType.RT_IN_BOUNDS);
         bounds.setBlockToExecute(Symbex.EMPTY_PROGRAM);

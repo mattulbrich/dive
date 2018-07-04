@@ -277,6 +277,18 @@ public final class ASTUtil {
     }
 
     /**
+     * Returns a tree for the length of an higher-dim array.
+     *
+     * @param array the reference whose length is to be taken, not <code>null</code>
+     * @return a freshly created dafny tree
+     */
+    public static DafnyTree length(DafnyTree array, String dim) {
+        DafnyTree result = new DafnyTree(DafnyParser.LENGTH, "Length" + dim);
+        result.addChild(array);
+        return result;
+    }
+
+    /**
      * Returns an identifier token with the given variable/id name.
      *
      * @param id non-<code>null</code> name of identifier
