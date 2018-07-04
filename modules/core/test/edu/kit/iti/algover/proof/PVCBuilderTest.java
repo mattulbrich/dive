@@ -5,30 +5,17 @@
  */
 package edu.kit.iti.algover.proof;
 
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.io.IOException;
 import java.io.InputStream;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
-import java.util.Date;
-import java.util.List;
-import java.util.Properties;
-
-import edu.kit.iti.algover.parser.DafnyException;
-import edu.kit.iti.algover.parser.DafnyParserException;
-import edu.kit.iti.algover.project.ProjectBuilder;
-import edu.kit.iti.algover.settings.ProjectSettings;
-import edu.kit.iti.algover.term.Sequent;
 import edu.kit.iti.algover.util.Util;
-import org.junit.Test;
 
 import edu.kit.iti.algover.parser.DafnyTree;
 import edu.kit.iti.algover.parser.ParserTest;
 import edu.kit.iti.algover.project.Project;
 import edu.kit.iti.algover.util.TestUtil;
+import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameter;
@@ -44,8 +31,6 @@ import static org.junit.Assert.*;
  */
 @RunWith(Parameterized.class)
 public class PVCBuilderTest {
-
-    public static final String SEQUENTER_KEY = "sequenter";
 
     @Parameter
     public String filename;
@@ -66,6 +51,11 @@ public class PVCBuilderTest {
     public void test() throws Exception {
 
         InputStream is = PVCBuilderTest.class.getResourceAsStream("pvcBuilder/" + filename);
+
+        if (is == null) {
+            throw new FileNotFoundException("File not found: pvcBuilder/" + filename);
+        }
+
         DafnyTree fileTree = ParserTest.parseFile(is);
         is.close();
 

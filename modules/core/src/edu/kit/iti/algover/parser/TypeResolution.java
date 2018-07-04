@@ -8,6 +8,7 @@ package edu.kit.iti.algover.parser;
 import java.util.List;
 
 import edu.kit.iti.algover.util.ASTUtil;
+import edu.kit.iti.algover.util.Util;
 import org.antlr.runtime.tree.Tree;
 
 import edu.kit.iti.algover.project.Project;
@@ -376,9 +377,12 @@ public class TypeResolution extends DafnyTreeDefaultVisitor<DafnyTree, Void> {
                 result = null;
             } else {
                 if(rets.getChildCount() > 1) {
-                    exceptions.add(new DafnyException("Sorry, no supoprt for multi return yet.", t));
+                    List<DafnyTree> types = Util.map(rets.getChildren(),
+                            x -> x.getFirstChildWithType(DafnyParser.TYPE).getChild(0));
+                    result = ASTUtil.listExpr(types);
+                } else {
+                    result = rets.getChild(0).getFirstChildWithType(DafnyParser.TYPE).getChild(0);
                 }
-                result = rets.getChild(0).getFirstChildWithType(DafnyParser.TYPE).getChild(0);
             }
         } else {
             assert decl.getType() == DafnyParser.FUNCTION;

@@ -299,6 +299,9 @@ statement:
       |  new_expression ';' -> ^(ASSIGN lvalue new_expression)
       )
 
+  | (lvalue ',') => lvalue (',' lvalue)+ ASSIGN call_statement
+      -> ^(ASSIGN lvalue+ call_statement)
+
   | call_statement
 
   | (label? WHILE) =>

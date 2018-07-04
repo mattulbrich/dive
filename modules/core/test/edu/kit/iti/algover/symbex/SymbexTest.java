@@ -773,7 +773,6 @@ public class SymbexTest {
         Symbex symbex = new Symbex();
         List<SymbexPath> results = symbex.symbolicExecution(tree);
 
-        assertEquals(4, results.size());
         int index = 0;
         {
             SymbexPath path = results.get(index++);
@@ -808,16 +807,26 @@ public class SymbexTest {
         {
             SymbexPath path = results.get(index++);
             assertEquals("Post", path.getPathIdentifier());
-            assertEquals(3, path.getPathConditions().size());
-            assertEquals("(LET (VAR this p) c 24 true)",
-                    path.getPathConditions().getLast().getExpression().toStringTree());
+            assertEquals(4, path.getPathConditions().size());
+         //   assertEquals("(LET (VAR a b) $res_multiReturn_1 $res_multiReturn_2 (&& (== a 1) (== b 2)))",
+         //           path.getPathConditions().getLast().getExpression().toStringTree());
             assertEquals("[(== c c)]",
                     path.getProofObligations().map(x -> x.getExpression().toStringTree()).toString());
             assertEquals("[(ASSIGN $mod $everything), (ASSIGN $decr 0), " +
                             "(ASSIGN x $res_CallMe_1), (ASSIGN y $res_CallMe_2), " +
-                            "(ASSIGN $heap (CALL $anon (ARGS $heap (LET (VAR this p) c 24 this) $aheap_1)))]",
+                            "(ASSIGN $heap (CALL $anon (ARGS $heap (LET (VAR this p) c 24 this) $aheap_1))), " +
+                            "(ASSIGN x $res_multiReturn_1), (ASSIGN y $res_multiReturn_2)]",
                     path.getAssignmentHistory().map(DafnyTree::toStringTree).toString());
         }
+        {
+            SymbexPath path = results.get(index++);
+            assertEquals("EstPre[multiReturn]", path.getPathIdentifier());
+            assertEquals(3, path.getPathConditions().size());
+            assertEquals(5, path.getAssignmentHistory().size());
+            assertEquals("[(LET (VAR a b) $res_multiReturn_1 $res_multiReturn_2 (== 42 42))]",
+                    path.getProofObligations().map(x -> x.getExpression().toStringTree()).toString());
+        }
+        assertEquals(index, results.size());
     }
 
     // identified a bug

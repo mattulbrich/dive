@@ -151,7 +151,7 @@ public class Symbex {
     }
 
     /**
-     * Handle a call statement (w/o receiver)
+     * Handle a call statement
      *
      * var $resultN : R;
      * assert pre_m;
@@ -164,7 +164,7 @@ public class Symbex {
      * @returns a DafnyTree which can be used to access
      * the result of the call for later use.
      */
-    private DafnyTree handleMethodCall(Deque<SymbexPath> stack, SymbexPath state,
+    private List<DafnyTree> handleMethodCall(Deque<SymbexPath> stack, SymbexPath state,
                                        DafnyTree refersTo,
                                        DafnyTree receiver, boolean nullCheckReceiver,
                                        DafnyTree method, DafnyTree args) {
@@ -176,11 +176,14 @@ public class Symbex {
 
         // bring up result value
         DafnyTree returns = method.getFirstChildWithType(DafnyParser.RETURNS);
-        DafnyTree result = null;
+        List<DafnyTree> result = new ArrayList<>();
         if(returns != null) {
-            DafnyTree type = returns.getChild(0).getFirstChildWithType(DafnyParser.TYPE).getChild(0);
-            result = ASTUtil.freshVariable("$res_" + methodname, type, state);
-            subs.add(new Pair<>(returns.getChild(0).getChild(0).getText(), result));
+            for (DafnyTree ret : returns.getChildren()) {
+                DafnyTree type = ret.getFirstChildWithType(DafnyParser.TYPE).getChild(0);
+                DafnyTree newVar = ASTUtil.freshVariable("$res_" + methodname, type, state);
+                result.add(newVar);
+                subs.add(new Pair<>(ret.getChild(0).getText(), newVar));
+            }
         }
 
         // Receiver must be mapped to "this"
@@ -520,6 +523,13 @@ public class Symbex {
      */
     void handleAssign(Deque<SymbexPath> stack, SymbexPath state,
             DafnyTree stm, DafnyTree remainder) {
+        
+        if(stm.getChildCount() > 2) {
+            // multi-return method invocation like "x,y := meth();" 
+            handleMultiReturnAssign(stack, state, stm, remainder);
+            return;
+        }
+        
         DafnyTree assignee = stm.getChild(0);
         handleExpression(stack, state, assignee);
         addModifiesCheck(stack, state, assignee);
@@ -531,8 +541,9 @@ public class Symbex {
             if(decl.getType() == DafnyParser.METHOD) {
                 DafnyTree receiver = expression.getChildCount() > 2 ? expression.getChild(1) : null;
                 DafnyTree args = expression.getFirstChildWithType(DafnyParser.ARGS);
-                DafnyTree resultVar = handleMethodCall(stack, state, expression, receiver, true, decl, args);
-                state.addAssignment(ASTUtil.assign(assignee, resultVar));
+                List<DafnyTree> resultVars = handleMethodCall(stack, state, expression, receiver, true, decl, args);
+                assert resultVars.size() == 1 : "This is a single result method situation";
+                state.addAssignment(ASTUtil.assign(assignee, resultVars.get(0)));
             } else {
                 handleExpression(stack, state, expression);
                 state.addAssignment(stm);
@@ -548,6 +559,33 @@ public class Symbex {
             handleExpression(stack, state, expression);
             state.addAssignment(stm);
             break;
+        }
+
+        state.setBlockToExecute(remainder);
+        stack.push(state);
+    }
+
+    private void handleMultiReturnAssign(Deque<SymbexPath> stack, SymbexPath state, DafnyTree stm, DafnyTree remainder) {
+        DafnyTree expression = stm.getLastChild();
+        assert expression.getType() == DafnyParser.CALL : "Should be prevented by parser";
+
+        for (int i = 0; i < stm.getChildCount() - 1; i++) {
+            DafnyTree assignee = stm.getChild(i);
+            handleExpression(stack, state, assignee);
+            addModifiesCheck(stack, state, assignee);
+        }
+
+        DafnyTree decl = expression.getChild(expression.getChildCount()-2).getDeclarationReference();
+        assert decl.getType() == DafnyParser.METHOD : "Should be prevented by reference resolution";
+
+
+        DafnyTree receiver = expression.getChildCount() > 2 ? expression.getChild(1) : null;
+        DafnyTree args = expression.getFirstChildWithType(DafnyParser.ARGS);
+        List<DafnyTree> resultVars = handleMethodCall(stack, state, expression, receiver, true, decl, args);
+
+        int no = 0;
+        for (DafnyTree resultVar : resultVars) {
+            state.addAssignment(ASTUtil.assign(stm.getChild(no++), resultVar));
         }
 
         state.setBlockToExecute(remainder);
