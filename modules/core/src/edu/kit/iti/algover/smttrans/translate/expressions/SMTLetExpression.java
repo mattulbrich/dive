@@ -16,12 +16,18 @@ public class SMTLetExpression extends SMTExpression {
     @Override
     public String toSMT(boolean negate) {
         StringBuilder sb = new StringBuilder();
-        for (SMTExpression s : subs) {
 
-            sb.append(s.toSMT(false));
+        sb.append(subs.get(0).toSMT(false));
+        sb.append(")" + "\r\n");
+
+        if (subs.size() > 1) {
+            for (SMTExpression s : subs.subList(1, subs.size())) {
+
+                sb.append("(assert " + s.toSMT(false) + ")" + "\r\n");
+            }
+
         }
-        sb.append(")");
-        sb.append("\r\n");
+
         sb.append("(assert");
         if (inner instanceof SMTConstExpression) {
             sb.append(" (not ");
