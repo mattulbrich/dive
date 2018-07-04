@@ -60,7 +60,11 @@ public class OperationMatcher {
         opmap.put("$anon", Operation.ANON);
         opmap.put("$create", Operation.CREATE);
         opmap.put("$isCreated", Operation.ISCREATED);
-
+                opmap.put("$mod", Operation.MOD);
+                opmap.put("$everything", Operation.EVERYTHING);
+                opmap.put("$empty", Operation.SETEMPTY);
+                opmap.put("$heap", Operation.HEAP);
+              opmap.put("$aheap", Operation.AHEAP);
 
         opmap.put("$multi_minus",Operation.MULTIMINUS);
         opmap.put("$multi_union",Operation.MULTIUNION);
@@ -69,15 +73,19 @@ public class OperationMatcher {
         opmap.put("$multi_set_card",Operation.MULTICARD );
         opmap.put("$multi_set_in",Operation.MULTIIN );
         opmap.put("$multi_set_add", Operation.MULTIADD);
+      
     }
 
     public static Operation matchOp(String op) {
 
+//        if (op.startsWith("$$"))
+//            return Operation.FUNC;
+        
         Iterable<String> operators = Splitter.on(".").split(op);
 
         List<String> ops = Arrays.asList(Iterables.toArray(operators, String.class));
 
-        return opmap.get(ops.get(0));
+        return opmap.getOrDefault(ops.get(0),Operation.FUNC);
         
 
     }

@@ -44,6 +44,9 @@ public class TypeContext {
             Arrays.asList(Operation.SETEMPTY, Operation.SEQEMPTY));
     private static final Set<Operation> builtinConsts = new LinkedHashSet<>(
             Arrays.asList(Operation.AHEAP, Operation.DECR));
+
+    private static final Set<String> builtinTypes = new LinkedHashSet<>(
+            Arrays.asList(AV_BOOLNAME, AV_INTNAME, AV_HEAPNAME));
     private static BiMap<String, String> nmap = HashBiMap.create();
 
     static {
@@ -56,8 +59,11 @@ public class TypeContext {
     }
 
     public static boolean isBuiltIn(String s) {
-        String name = s.toLowerCase();
-        return name.equals(AV_BOOLNAME) || name.equals(AV_INTNAME) || name.equals(AV_HEAPNAME);
+        return builtinTypes.contains(s.toLowerCase());
+    }
+
+    public static void setSymbolTable(SymbolTable symbolTable) {
+        TypeContext.symbolTable = symbolTable;
     }
 
     private static Pair<Integer, Integer> getArgumentRange(String name) {
@@ -106,8 +112,8 @@ public class TypeContext {
 
     public static String normalizeReturnSort(FunctionSymbol fs) {
 
-        //return normalizeName();
-        //System.out.println("N " + fs.toString());
+        // return normalizeName();
+        // System.out.println("N " + fs.toString());
         String sign = fs.toString().split(":")[1].trim();
         String name = sign.split("<")[0].trim();
         return normalizeSort(name, sign);
@@ -161,7 +167,7 @@ public class TypeContext {
     public static String opToSMT(FunctionSymbol fs) {
 
         String name = fs.getName();
-        ;
+
         List<String> typeArgs = getTypeArguments(name);
         boolean hasTypeArguments = !typeArgs.isEmpty();
 
@@ -277,7 +283,7 @@ public class TypeContext {
 
         if (isFunc(fs.getName()) && getOperation(fs.getName()).isSpecial()) {
 
-            preamble.addAll(SymbolHandler.handleOperation(getOperation(fs.getName())));
+            preamble.addAll(SymbolHandler.handleOperation(fs));
 
         } else {
 
@@ -315,14 +321,15 @@ public class TypeContext {
     }
 
     public static boolean isFunc(String name) {
-        
+
         for (Operation op : builtinConsts) {
-            if (name.startsWith("$"+op.toSMT()))
+            if (name.startsWith("$" + op.toSMT()))
                 return false;
         }
-        
-//        if (name.startsWith("$aheap") || name.startsWith("$decr")) // special case , TODO
-//            return false;
+
+        // if (name.startsWith("$aheap") || name.startsWith("$decr")) // special case ,
+        // TODO
+        // return false;
 
         return name.startsWith("$");
     }
@@ -363,7 +370,7 @@ public class TypeContext {
             }
         }
 
-        for (String sort : sorts) { // TODO axioms, declarations
+        for (String sort : sorts) {
             String c2o = "(" + sort + "2o";
             String o2c = "(o2" + sort;
             casts.put(sort, Arrays.asList(c2o, o2c));
@@ -422,8 +429,19 @@ public class TypeContext {
                 nsmt += "(assert (forall ((o Object)) (=>(typeC o) (= (C2o (o2C o)) o))))".replace("C", t) + "\r\n";
 
             }
+
+            for (String t : sorts) {
+
+                for (String s : sorts) {
+
+                    if (s.equals(t))
+                        continue;
+                    nsmt += "(assert (forall ((o Object )) (=> (typeC o) (not (typeV o)))))".replace("C", t)
+                            .replace("V", s) + "\r\n";
+                }
+            }
+
         }
-        // insert axioms,decl
 
         for (; i < lines.size(); i++) {
 

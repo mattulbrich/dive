@@ -34,7 +34,7 @@ import java.util.Collection;
 import static org.junit.Assert.*;
 
 @RunWith(Parameterized.class)
-public class Arr2Test {
+public class Arr2UnitTest {
 
     @Parameter
     public String name;

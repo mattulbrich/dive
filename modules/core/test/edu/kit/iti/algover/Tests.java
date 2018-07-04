@@ -12,12 +12,14 @@ import org.junit.runners.Suite.SuiteClasses;
 import edu.kit.iti.algover.smt.SMTTest;
 import edu.kit.iti.algover.smttrans.access.Z3AccessTest;
 import edu.kit.iti.algover.smttrans.translate.Arr1Test;
-import edu.kit.iti.algover.smttrans.translate.Arr2Test;
+import edu.kit.iti.algover.smttrans.translate.Arr2UnitTest;
 import edu.kit.iti.algover.smttrans.translate.ClassTest;
+import edu.kit.iti.algover.smttrans.translate.DafnyExampleTest;
 import edu.kit.iti.algover.smttrans.translate.FolTest;
 import edu.kit.iti.algover.smttrans.translate.IntegerTest;
 import edu.kit.iti.algover.smttrans.translate.SeqTest;
 import edu.kit.iti.algover.smttrans.translate.SetTest;
+import edu.kit.iti.algover.smttrans.translate.SetUnitTest;
 import edu.kit.iti.algover.smttrans.translate.SumAndMaxTest;
 
 @RunWith(Suite.class)
@@ -68,7 +70,9 @@ import edu.kit.iti.algover.smttrans.translate.SumAndMaxTest;
 //        IntegerTest.class,
 //        FolTest.class,
 //        Arr1Test.class,
-        Arr2Test.class,
+//        Arr2UnitTest.class,
+    DafnyExampleTest.class
+    //    SetUnitTest.class
 //        SeqTest.class,
  //       SMTTest.class
 //        

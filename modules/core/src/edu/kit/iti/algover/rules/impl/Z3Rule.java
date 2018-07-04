@@ -10,6 +10,7 @@
 package edu.kit.iti.algover.rules.impl;
 
 import edu.kit.iti.algover.data.SymbolTable;
+
 import edu.kit.iti.algover.proof.PVC;
 import edu.kit.iti.algover.proof.ProofFormula;
 import edu.kit.iti.algover.proof.ProofNode;
@@ -94,8 +95,6 @@ public class Z3Rule extends AbstractProofRule {
 
     @Override
     public ProofRuleApplication makeApplicationImpl(ProofNode target, Parameters parameters) throws RuleException {
-        PVC pvc = target.getPVC();
-
         if (isValid(target)) {
             ProofRuleApplicationBuilder builder = new ProofRuleApplicationBuilder(this);
             builder.setApplicability(Applicability.APPLICABLE);
@@ -119,7 +118,7 @@ public class Z3Rule extends AbstractProofRule {
         PVC pvc = target.getPVC();
         //System.out.println("ID " + pvc.getIdentifier());
 
-        SMTContainer sc = translateToSMT(target.getPVC().getIdentifier(), target.getSequent(), pvc.getSymbolTable());
+        SMTContainer sc = translateToSMT(target.getSequent(), pvc.getSymbolTable());
 
         String smt;
         // System.out.println();
@@ -136,7 +135,7 @@ public class Z3Rule extends AbstractProofRule {
 //        System.out.println();
         smt = sc.toSMT();
         System.out.println(smt);
-      //  SMTLog.writeFile(smt, pvc.getIdentifier()+".smt2");
+        SMTLog.writeFile(smt, pvc.getIdentifier()+".smt2");
 //
 //        System.out.println();
 
@@ -172,7 +171,7 @@ public class Z3Rule extends AbstractProofRule {
         }
     }
 
-    private SMTContainer translateToSMT(String identifier, Sequent sequent, SymbolTable symbolTable) {
+    private SMTContainer translateToSMT(Sequent sequent, SymbolTable symbolTable) {
 
         List<ProofFormula> antecedent = sequent.getAntecedent();
         List<ProofFormula> succedent = sequent.getSuccedent();
