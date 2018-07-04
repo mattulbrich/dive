@@ -1157,4 +1157,15 @@ public class SymbexTest {
         }
     }
 
+    @Test
+    public void testPrintStatement() throws Exception {
+        Symbex symbex = new Symbex();
+        Project p = TestUtil.mockProject("method m() ensures 2==2 { print \"1\", \"2\"; assert 1==1; }");
+        List<SymbexPath> result = symbex.symbolicExecution(p.getMethod("m").getRepresentation());
+        int cnt = 0;
+        assertEquals(AssertionType.EXPLICIT_ASSERT, result.get(cnt++).getCommonProofObligationType());
+        assertEquals(AssertionType.POST, result.get(cnt++).getCommonProofObligationType());
+        assertEquals(2, cnt);
+    }
+
 }

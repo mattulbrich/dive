@@ -114,6 +114,8 @@ public class Symbex {
 
                 case DafnyParser.PRINT:
                     // TODO just ignore it for now ... RT tests for arguments ...
+                    state.setBlockToExecute(remainder);
+                    stack.add(state);
                     break;
 
                 case DafnyParser.RETURN:
