@@ -42,7 +42,8 @@ public class TypeContext {
     private static Set<Dependency> preamble = new LinkedHashSet<>();
     private static final Set<Operation> emptySorts = new LinkedHashSet<>(
             Arrays.asList(Operation.SETEMPTY, Operation.SEQEMPTY));
-
+    private static final Set<Operation> builtinConsts = new LinkedHashSet<>(
+            Arrays.asList(Operation.AHEAP, Operation.DECR));
     private static BiMap<String, String> nmap = HashBiMap.create();
 
     static {
@@ -314,8 +315,14 @@ public class TypeContext {
     }
 
     public static boolean isFunc(String name) {
-        if (name.startsWith("$aheap")) // special case , TODO
-            return false;
+        
+        for (Operation op : builtinConsts) {
+            if (name.startsWith("$"+op.toSMT()))
+                return false;
+        }
+        
+//        if (name.startsWith("$aheap") || name.startsWith("$decr")) // special case , TODO
+//            return false;
 
         return name.startsWith("$");
     }

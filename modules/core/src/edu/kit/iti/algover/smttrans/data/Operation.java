@@ -10,7 +10,7 @@ import static java.util.Arrays.asList;
 
 public enum Operation {
 
-    OR, SETEMPTY, PLUS, MINUS, TIMES, IMP, GT, LT, EQ, NOT, GE, LE, NEG, ITE, ARR2SELECT, ARRSTORE, ARR2STORE, FIELDSTORE, FIELDSELECT, DECR, SETUNION, SETINTERSECT, SETCARD, SEQCONCAT, ISCREATED, CREATE, ANON, SEQCONS, SEQEMPTY, SEQUPD, SEQGET, SEQLEN, SETIN, SETADD, CONST, ARRLEN, ARR2LEN0, ARR2LEN1, EXISTS, FORALL, LET, ARRSELECT, VAR, HEAP, AND, BV, MOD, AHEAP, EVERYTHING;
+    OR, SETEMPTY, PLUS, MINUS, TIMES, IMP, GT, DIV,LT, EQ, NOT, GE, LE, NEG, ITE, ARR2SELECT, ARRSTORE, ARR2STORE, FIELDSTORE, FIELDSELECT, DECR, SETUNION, SETINTERSECT, SETCARD, SEQCONCAT, ISCREATED, CREATE, ANON, SEQCONS, SEQEMPTY, SEQUPD, SEQGET, SEQLEN, SETIN, SETADD, CONST, ARRLEN, ARR2LEN0, ARR2LEN1, EXISTS, FORALL, LET, ARRSELECT, VAR, HEAP, AND, BV, MOD, AHEAP, EVERYTHING;
 
     private String smt;
     private boolean poly = false;
@@ -170,6 +170,8 @@ public enum Operation {
         PLUS.builtin = true;
         MINUS.smt = "-";
         MINUS.builtin = true;
+        
+        
         TIMES.smt = "*";
         TIMES.builtin = true;
         GT.smt = ">";
@@ -180,7 +182,8 @@ public enum Operation {
         EQ.builtin = true;
         NOT.smt = "not";
         NOT.builtin = true;
-        
+        DIV.smt= "/";
+        DIV.builtin = true;
         GE.smt = ">=";
         GE.builtin = true;
         LE.smt = "<=";

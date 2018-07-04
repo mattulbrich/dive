@@ -1,4 +1,5 @@
 method FindZero(a: array<int>) returns (r: int)
+  requires a != null
   requires forall i :: 0 <= i < a.Length ==> 0 <= a[i]
   requires forall i :: 0 <= i && i+1 < a.Length ==> a[i]-1 <= a[i+1]
   ensures 0 <= r ==> r < a.Length && a[r] == 0
@@ -15,7 +16,8 @@ method FindZero(a: array<int>) returns (r: int)
   r := -1;
 }
 
-lemma Lemma(a: array<int>, k: int, m: int)
+method Lemma(a: array<int>, k: int, m: int)
+  requires a != null
   requires forall i :: 0 <= i < a.Length ==> 0 <= a[i]
   requires forall i :: 0 <= i && i+1 < a.Length ==> a[i]-1 <= a[i+1]
   requires 0 <= k

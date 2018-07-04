@@ -1,4 +1,6 @@
 function fib(n: int): int
+  requires n >= 0
+//  decreases n
 {
    if n == 0 then 0 else
    if n == 1 then 1 else

@@ -1,4 +1,5 @@
 method BinarySearch(a: array<int>, key: int) returns (r: int)
+  requires a != null
   requires forall i,j :: 0 <= i < j < a.Length ==> a[i] <= a[j]
   ensures 0 <= r ==> r < a.Length && a[r] == key
   ensures forall k: int :: 0 <= k < a.Length ==> r < 0 ==> a[k] != key
@@ -17,8 +18,10 @@ method BinarySearch(a: array<int>, key: int) returns (r: int)
     } else if a[mid] < key {
       lo := mid + 1;
     } else {
-      return mid;
+      r := mid;
+      return;
     }
   }
-  return -1;
+  r := -1;
+  return;
 }

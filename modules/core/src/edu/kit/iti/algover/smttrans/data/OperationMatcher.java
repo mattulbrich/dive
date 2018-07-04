@@ -29,7 +29,7 @@ public class OperationMatcher {
         opmap.put("$and", Operation.AND);
         opmap.put("$lt", Operation.LT);
         opmap.put("$gt", Operation.GT);
-
+        opmap.put("$div", Operation.DIV);
         opmap.put("$array2_select", Operation.ARR2SELECT);
         opmap.put("$len", Operation.ARRLEN);
         opmap.put("$len0", Operation.ARR2LEN0);
