@@ -2,11 +2,12 @@ method runtimeChecks()
   ensures true
 {
    var a:array<int>;
+   var a2:array<int>;
    var y:int;
    var x:int;
    var b:bool;
 
-   x := a[y];
+   x := a[y] + a2.Length;
    b := y > 0 || a[y] > 0;
  }
  

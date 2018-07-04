@@ -2,4 +2,4 @@
   (ensures (forall i (TYPE int) (== i[int] i[int])[bool]))
   (ensures (exists x (TYPE int) (== x[int] 0[int])[bool]))
   (ensures (let (VAR x y) 1[int] true[bool] (&& y[bool] (> x[int] 0[int])[bool])[bool]))
-  BLOCK)
+  BLOCK)[scc_10]

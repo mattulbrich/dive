@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Set;
 
+import edu.kit.iti.algover.parser.DafnyLexer;
 import edu.kit.iti.algover.term.builder.TermBuilder;
 import org.antlr.runtime.tree.Tree;
 
@@ -37,6 +38,14 @@ public final class ASTUtil {
 
     public static DafnyTree create(int type, DafnyTree... children) {
         DafnyTree result = new DafnyTree(type);
+        for (DafnyTree child : children) {
+            result.addChild(child);
+        }
+        return result;
+    }
+
+    public static DafnyTree create(int type, String image, DafnyTree... children) {
+        DafnyTree result = new DafnyTree(type, image);
         for (DafnyTree child : children) {
             result.addChild(child);
         }
@@ -303,10 +312,8 @@ public final class ASTUtil {
     }
 
     public static DafnyTree builtInVar(String name) {
-        DafnyTree builtin = new DafnyTree(DafnyParser.VAR, "builtin");
         DafnyTree result = new DafnyTree(DafnyParser.ID, name);
-        result.setDeclarationReference(builtin);
-        return result;
+        return builtIn(result);
     }
 
     public static DafnyTree anonymise(DafnyTree varDecl) {
@@ -334,6 +341,11 @@ public final class ASTUtil {
         DafnyTree argsTree = create(DafnyParser.ARGS, args);
         DafnyTree id = id(function);
         return create(DafnyParser.CALL, id, argsTree);
+    }
+
+    public static DafnyTree builtIn(DafnyTree tree) {
+        tree.setDeclarationReference(new DafnyTree(DafnyParser.VAR, "builtin"));
+        return tree;
     }
 
     public static DafnyTree assign(@NonNull DafnyTree var, @NonNull DafnyTree value) {
@@ -451,4 +463,5 @@ public final class ASTUtil {
         result.addChild(builtInVar("$mod"));
         return result;
     }
+
 }

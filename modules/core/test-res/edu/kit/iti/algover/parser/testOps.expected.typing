@@ -8,4 +8,4 @@
          (:= b[bool] (>= 1[int] 2[int])[bool])
          (:= i[int] (+ 1[int] 1[int])[int])
          (:= i[int] (- 1[int] 1[int])[int])
-         (:= i[int] (* 1[int] 1[int])[int])))
+         (:= i[int] (* 1[int] 1[int])[int])))[scc_6]

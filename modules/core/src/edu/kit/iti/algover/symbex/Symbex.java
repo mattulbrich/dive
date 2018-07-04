@@ -17,6 +17,7 @@ import edu.kit.iti.algover.term.Sort;
 import edu.kit.iti.algover.util.ASTUtil;
 import edu.kit.iti.algover.util.ImmutableList;
 import edu.kit.iti.algover.util.Pair;
+import nonnull.Nullable;
 
 import java.util.*;
 
@@ -51,21 +52,21 @@ public class Symbex {
             new DafnyTree(DafnyParser.BLOCK);
 
     /**
-     * Performs symbolic execution on a function.
+     * Performs symbolic execution on a method.
      *
      * It returns all proof obligations which arise during this execution. At
      * the moment, the process is neither scriptable nor configurable.
      *
-     * @param function
-     *            the function to execute, not <code>null</code>
+     * @param method
+     *            the method to execute, not <code>null</code>
      * @return a freshly created list of symbolic execution states, not
      *         <code>null</code>
      */
-    public List<SymbexPath> symbolicExecution(DafnyTree function) {
+    public List<SymbexPath> symbolicExecution(DafnyTree method) {
 
-        assert function != null;
-        assert function.getType() == DafnyParser.METHOD;
-        SymbexPath initial = makeFromPreconditions(function);
+        assert method != null;
+        assert method.getType() == DafnyParser.METHOD;
+        SymbexPath initial = makeFromPreconditions(method);
 
         Deque<SymbexPath> stack = new LinkedList<SymbexPath>();
         List<SymbexPath> results = new ArrayList<SymbexPath>();
@@ -111,6 +112,14 @@ public class Symbex {
 
                 case DafnyParser.CALL:
                     handleCallStatement(stack, state, stm, remainder);
+                    break;
+
+                case DafnyParser.PRINT:
+                    // TODO just ignore it for now ... RT tests for arguments ...
+                    break;
+
+                case DafnyParser.RETURN:
+                    handleReturnStatement(stack, state, method);
                     break;
 
                 default:
@@ -207,7 +216,9 @@ public class Symbex {
                 decr = decr.getLastChild();
             }
             decr = ASTUtil.letCascade(subs, decr);
-            DafnyTree condition = ASTUtil.noetherLess(decr, ASTUtil.id("$decr"));
+            DafnyTree condition = ASTUtil.noetherLess(
+                    ASTUtil.create(DafnyParser.LISTEX, decr),
+                    ASTUtil.create(DafnyParser.LISTEX, ASTUtil.id("$decr")));
             // wrap that into a substitution
             condition = ASTUtil.letCascade(subs, condition);
             SymbexPath decrState = new SymbexPath(state);
@@ -239,27 +250,77 @@ public class Symbex {
     }
 
     /*
+     * handle "new C;" (possible "new C.method()")
+     * as well as "new int[10]"
+     */
+
+    private DafnyTree handleNewCommand(Deque<SymbexPath> stack, SymbexPath current, DafnyTree newExpr, DafnyTree stm) {
+        switch (newExpr.getChild(0).getType()) {
+        case DafnyParser.ARRAY_ACCESS:
+            return handleNewArray(stack, current, newExpr, stm);
+        case DafnyParser.ID:
+            return handleNewClass(stack, current, newExpr, stm);
+        default:
+            throw new Error("Unexpected 'new' command: " + stm);
+        }
+    }
+    /*
+     * new type[size] becomes
+     *
+     * assert runtime assertions for "size";
+     * var $newN : array<type>;
+     * assume !isCreated($heap, $newN);
+     * $heap := create($heap, $newN);
+     * assume $newN.Length == size;
+     */
+
+    private DafnyTree handleNewArray(Deque<SymbexPath> stack, SymbexPath current, DafnyTree newExpr, DafnyTree stm) {
+        assert newExpr.getType() == DafnyParser.NEW;
+
+        DafnyTree child = newExpr.getChild(0);
+        assert child.getType() == DafnyParser.ARRAY_ACCESS;
+
+        DafnyTree type = child.getChild(0);
+        DafnyTree size = child.getChild(1);
+        DafnyTree arrayType = ASTUtil.create(DafnyParser.ARRAY, "array", type);
+
+        handleExpression(stack, current, size);
+        addIndexInRangeCheck(stack, current, size, null);
+
+        DafnyTree newObj = ASTUtil.freshVariable("$new", arrayType, current);
+        current.addPathCondition(ASTUtil.negate(ASTUtil.builtIn(ASTUtil.call("$isCreated", ASTUtil.builtInVar("$heap"), newObj))), stm,
+                AssumptionType.IMPLICIT_ASSUMPTION);
+        current.addAssignment(ASTUtil.assign(ASTUtil.builtIn(ASTUtil.id("$heap")),
+                ASTUtil.builtIn(ASTUtil.call("$create", ASTUtil.builtInVar("$heap"), newObj.dupTree()))));
+        current.addPathCondition(ASTUtil.equals(ASTUtil.length(newObj), size), stm,
+                AssumptionType.IMPLICIT_ASSUMPTION);
+
+        return newObj;
+    }
+    /*
      * new C.Init(p) becomes
      *
      * var $newN : C;
-     * assume !isCreated($heap);
+     * assume !isCreated($heap, $newN);
      * $heap := create($heap, $newN);
      *
      * there may be more if a constructor method is mentioned.
      *
      */
-    private DafnyTree handleNewCommand(Deque<SymbexPath> stack, SymbexPath current, DafnyTree newExpr, DafnyTree stm) {
+
+    private DafnyTree handleNewClass(Deque<SymbexPath> stack, SymbexPath current, DafnyTree newExpr, DafnyTree stm) {
 
         assert newExpr.getType() == DafnyParser.NEW;
 
         DafnyTree clss = newExpr.getChild(0);
+        assert clss.getType() == DafnyParser.ID;
 
         DafnyTree newObj = ASTUtil.freshVariable("$new", clss, current);
 
-        current.addPathCondition(ASTUtil.negate(ASTUtil.call("$isCreated", ASTUtil.builtInVar("$heap"), newObj)), stm,
+        current.addPathCondition(ASTUtil.negate(ASTUtil.builtIn(ASTUtil.call("$isCreated", ASTUtil.builtInVar("$heap"), newObj))), stm,
                 AssumptionType.IMPLICIT_ASSUMPTION);
-        current.addAssignment(ASTUtil.assign(ASTUtil.id("$heap"),
-                ASTUtil.call("create", ASTUtil.builtInVar("$heap"), newObj.dupTree())));
+        current.addAssignment(ASTUtil.assign(ASTUtil.builtIn(ASTUtil.id("$heap")),
+                ASTUtil.builtIn(ASTUtil.call("$create", ASTUtil.builtInVar("$heap"), newObj.dupTree()))));
 
         if (newExpr.getChildCount() > 1) {
             DafnyTree call = newExpr.getChild(1);
@@ -269,6 +330,18 @@ public class Symbex {
         }
 
         return newObj;
+    }
+
+    private void handleReturnStatement(Deque<SymbexPath> stack, SymbexPath state, DafnyTree method) {
+
+        // No more code
+        state.setBlockToExecute(EMPTY_PROGRAM);
+
+        state.setProofObligationsFromLastChild(
+                method.getChildrenWithType(DafnyParser.ENSURES),
+                AssertionType.POST);
+
+        stack.add(state);
     }
 
     /*
@@ -581,6 +654,7 @@ public class Symbex {
                     default:
                         throw new Error(tree.toString());
                 }
+                break;
 
             case DafnyParser.ARRAY_ACCESS:
             case DafnyParser.FIELD_ACCESS:
@@ -592,11 +666,6 @@ public class Symbex {
             break;
 
         case DafnyParser.CALL:
-            // TODO revise
-            DafnyTree res = tree.getFirstChildWithType(DafnyParser.RESULTS);
-            for (DafnyTree r : res.getChildren()) {
-                vars.add(r.getDeclarationReference());
-            }
             // TODO Add check if method is strictly pure.
             vars.add(HEAP_VAR);
             break;
@@ -673,22 +742,22 @@ public class Symbex {
      *
      * Add assignment to modifies variable.
      *
-     * @param function
-     *            the function to analyse
+     * @param method
+     *            the method to analyse
      * @return the initial symbolic execution state
      */
-    private SymbexPath makeFromPreconditions(DafnyTree function) {
-        SymbexPath result = new SymbexPath(function);
+    private SymbexPath makeFromPreconditions(DafnyTree method) {
+        SymbexPath result = new SymbexPath(method);
 
-        for (DafnyTree req : function.getChildrenWithType(DafnyParser.REQUIRES)) {
+        for (DafnyTree req : method.getChildrenWithType(DafnyParser.REQUIRES)) {
             result.addPathCondition(req.getLastChild(), req, AssumptionType.PRE);
         }
 
         result.setProofObligationsFromLastChild(
-                function.getChildrenWithType(DafnyParser.ENSURES),
+                method.getChildrenWithType(DafnyParser.ENSURES),
                 AssertionType.POST);
 
-        DafnyTree modifies = function.getFirstChildWithType(DafnyParser.MODIFIES);
+        DafnyTree modifies = method.getFirstChildWithType(DafnyParser.MODIFIES);
         if (modifies == null) {
             result.addAssignment(ASTUtil.assign(ASTUtil.builtInVar("$mod"),
                     ASTUtil.builtInVar("$everything")));
@@ -697,7 +766,7 @@ public class Symbex {
                     modifies.getLastChild()));
         }
 
-        DafnyTree decreases = function.getFirstChildWithType(DafnyParser.DECREASES);
+        DafnyTree decreases = method.getFirstChildWithType(DafnyParser.DECREASES);
         if(decreases == null) {
             result.addAssignment(ASTUtil.assign(ASTUtil.builtInVar("$decr"),
                     ASTUtil.intLiteral(0)));
@@ -754,6 +823,7 @@ public class Symbex {
             handleExpression(stack, current, child1);
             break;
 
+        case DafnyParser.LENGTH:
         case DafnyParser.FIELD_ACCESS:
             child0 = expression.getChild(0);
             addNonNullCheck(stack, current, child0);
@@ -767,12 +837,17 @@ public class Symbex {
         }
     }
 
+    /*
+     * Use "null" for array if only lower bounds check
+     */
     private void addIndexInRangeCheck(Deque<SymbexPath> stack, SymbexPath current,
-            DafnyTree idx, DafnyTree array) {
+            DafnyTree idx, @Nullable DafnyTree array) {
         SymbexPath bounds = new SymbexPath(current);
         List<DafnyTree> pos = new ArrayList<>();
         pos.add(ASTUtil.greaterEqual(idx, ASTUtil.intLiteral(0)));
-        pos.add(ASTUtil.less(idx, ASTUtil.length(array)));
+        if (array != null) {
+            pos.add(ASTUtil.less(idx, ASTUtil.length(array)));
+        }
         bounds.setProofObligations(pos, idx, AssertionType.RT_IN_BOUNDS);
         bounds.setBlockToExecute(Symbex.EMPTY_PROGRAM);
         stack.push(bounds);

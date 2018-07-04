@@ -145,6 +145,13 @@ public class ParserErrorTest {
         parse("method m() decreases 0 decreases 0 {}");
     }
 
+    @Test
+    public void doubleModifies() throws Exception {
+        thrown.expect(DafnyParserException.class);
+        thrown.expectMessage("mismatched input 'modifies' expecting BLOCK_BEGIN");
+        parse("method m() modifies x modifies x {}");
+    }
+
     private void parse(String program) throws Exception {
         TestUtil.mockProject(program);
     }

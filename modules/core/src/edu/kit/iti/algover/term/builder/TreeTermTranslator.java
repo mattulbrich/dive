@@ -301,6 +301,10 @@ public class TreeTermTranslator {
             }
             break;
 
+        case DafnyParser.DIV:
+            result = buildBinary(BuiltinSymbols.DIV, tree);
+            break;
+
         case DafnyParser.TIMES:
             result = buildBinary(symmetricBinarySymbol(sort -> {
                 switch(sort.getName()) {
@@ -376,6 +380,10 @@ public class TreeTermTranslator {
 
         case DafnyParser.IF:
             result = buildIf(tree);
+            break;
+
+        case DafnyParser.OLD:
+            result = buildOld(tree);
             break;
 
         case DafnyParser.LENGTH:
@@ -495,6 +503,7 @@ public class TreeTermTranslator {
         };
     }
 
+    // TODO This is not really done yet.
     private Term buildCall(DafnyTree tree) throws TermBuildException {
 
         assert tree.getChildCount() == 2
@@ -502,12 +511,19 @@ public class TreeTermTranslator {
 
         String id = tree.getChild(0).getText();
         FunctionSymbol fct = symbolTable.getFunctionSymbol(id);
+        List<Term> argTerms = new ArrayList<>();
+
+        if(fct == null) {
+            id = "$$" + id;
+            fct = symbolTable.getFunctionSymbol(id);
+            argTerms.add(getHeap());
+        }
+
         if (fct == null) {
             throw new TermBuildException("Unknown symbol "
                     + id + ". Remember that method calls not allowed in expressions.");
         }
 
-        List<Term> argTerms = new ArrayList<>();
         DafnyTree args = tree.getFirstChildWithType(DafnyParser.ARGS);
         expandMultiBlanks(args, fct.getArity());
         for (DafnyTree arg : args.getChildren()) {
@@ -929,6 +945,16 @@ public class TreeTermTranslator {
 
         return new ApplTerm(appl.getFunctionSymbol(), args);
     }
+
+    private Term buildOld(DafnyTree tree) throws TermBuildException {
+
+        boundVars.put(HEAP_VAR.getName(), HEAP_VAR);
+        Term inner = build(tree.getChild(0));
+        boundVars.pop();
+
+        return new LetTerm(HEAP_VAR, HEAP_VAR, inner);
+    }
+
 
     private Term buildHeapUpdate(DafnyTree tree) throws TermBuildException {
 
