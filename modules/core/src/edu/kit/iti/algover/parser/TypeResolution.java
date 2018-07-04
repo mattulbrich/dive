@@ -355,7 +355,9 @@ public class TypeResolution extends DafnyTreeDefaultVisitor<DafnyTree, Void> {
         List<DafnyTree> formal = decl.getFirstChildWithType(DafnyParser.ARGS).getChildren();
 
         if(formal.size() != actual.size()) {
-            exceptions.add(new DafnyException("xxx", t));
+            exceptions.add(new DafnyException("Wrong number of arguments in call to " +
+                    call.getText() + ". Expected " + formal.size() +
+                    ", but received " + actual.size(), t));
         }
 
         for (int i = 0; i < formal.size(); i++) {
@@ -545,8 +547,18 @@ public class TypeResolution extends DafnyTreeDefaultVisitor<DafnyTree, Void> {
     @Override
     public DafnyTree visitASSIGN(DafnyTree t, Void a) {
         DafnyTree result = visitDepth(t);
-        String ty1 = TreeUtil.toTypeString(t.getChild(0).getExpressionType());
-        String ty2 = TreeUtil.toTypeString(t.getChild(1).getExpressionType());
+        String ty1;
+        if (t.getChildCount() == 2) {
+            // single assignment x := term;
+            ty1 = TreeUtil.toTypeString(t.getChild(0).getExpressionType());
+        } else {
+            // multi-return: x,y := M();
+            List<DafnyTree> lhs = t.getChildren().subList(0, t.getChildCount() - 1);
+            List<DafnyTree> types = Util.map(lhs, DafnyTree::getExpressionType);
+            ty1 = TreeUtil.toTypeString(ASTUtil.listExpr(types));
+        }
+
+        String ty2 = TreeUtil.toTypeString(t.getLastChild().getExpressionType());
         if (!ty1.equals(ty2)) {
             exceptions.add(new DafnyException("Assigning a value of type " + ty2 + " to an entitity"
                     + " of type " + ty1, t));

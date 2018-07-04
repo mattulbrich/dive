@@ -175,4 +175,8 @@ class C
      ret_r := l_i+l_x1+l_x2+l_y+l_v;
    }
 
+   method multiReturn() returns (a:int, b:int)
+   {
+     multiReturn();
+   }
 }

@@ -215,8 +215,12 @@ public final class TreeUtil {
      */
     public static String toTypeString(DafnyTree tree) {
         StringBuilder sb = new StringBuilder();
-        assert tree.getText() != null;
-        sb.append(tree.getText());
+        String text = tree.getText();
+        if(text == null) {
+            sb.append(DafnyParser.tokenNames[tree.getType()]);
+        } else {
+            sb.append(text);
+        }
         if(tree.getChildCount() > 0) {
             sb.append("<").append(Util.join(Util.map(tree.getChildren(), TreeUtil::toTypeString), ",")).append(">");
         }
