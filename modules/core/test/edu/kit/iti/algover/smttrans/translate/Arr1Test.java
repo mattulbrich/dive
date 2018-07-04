@@ -1,4 +1,4 @@
-package edu.kit.iti.smttrans.translate;
+package edu.kit.iti.algover.smttrans.translate;
 
 import java.io.File;
 
@@ -12,9 +12,9 @@ import edu.kit.iti.algover.proof.PVCCollection;
 import edu.kit.iti.algover.proof.Proof;
 import edu.kit.iti.algover.proof.ProofStatus;
 
-public class Arr2Test {
+public class Arr1Test {
     private static final String testDir = "modules/core/test-res/edu/kit/iti/algover/smttrans".replace('/', File.separatorChar);
-    private static final String config = "arr2config.xml";
+    private static final String config = "arr1config.xml";
 
 
 

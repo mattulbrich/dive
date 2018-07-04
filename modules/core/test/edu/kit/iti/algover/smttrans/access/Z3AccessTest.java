@@ -1,4 +1,4 @@
-package edu.kit.iti.smttrans.access;
+package edu.kit.iti.algover.smttrans.access;
 
 import static org.junit.Assert.assertEquals;
 

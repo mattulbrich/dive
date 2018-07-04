@@ -7,6 +7,10 @@ import java.util.List;
 import com.google.common.base.Splitter;
 import com.google.common.collect.Iterables;
 
+import edu.kit.iti.algover.term.FunctionSymbol;
+import edu.kit.iti.algover.term.FunctionSymbolFamily;
+import edu.kit.iti.algover.term.Sort;
+
 public class OperationMatcher {
 
     private static HashMap<String, Operation> opmap = new HashMap<>();
@@ -42,7 +46,7 @@ public class OperationMatcher {
         opmap.put("$decr", Operation.DECR);
         opmap.put("$union", Operation.SETUNION);
         opmap.put("$intersect", Operation.SETINTERSECT);
-
+        opmap.put("$set_minus", Operation.SETMINUS);
         opmap.put("$set_card", Operation.SETCARD);
         opmap.put("$set_add", Operation.SETADD);
         opmap.put("$set_in", Operation.SETIN);
@@ -56,13 +60,15 @@ public class OperationMatcher {
         opmap.put("$anon", Operation.ANON);
         opmap.put("$create", Operation.CREATE);
         opmap.put("$isCreated", Operation.ISCREATED);
-        // TODO decr...
 
-        opmap.put("$mod", Operation.MOD);
-        opmap.put("$everything", Operation.EVERYTHING);
-        opmap.put("$empty", Operation.SETEMPTY);
-        opmap.put("$heap", Operation.HEAP);
-        opmap.put("$aheap", Operation.AHEAP);
+
+        opmap.put("$multi_minus",Operation.MULTIMINUS);
+        opmap.put("$multi_union",Operation.MULTIUNION);
+        opmap.put("$multi_intersect",Operation.MULTIINTERSECT );
+        opmap.put("$multi_empty", Operation.MULTIEMPTY);
+        opmap.put("$multi_set_card",Operation.MULTICARD );
+        opmap.put("$multi_set_in",Operation.MULTIIN );
+        opmap.put("$multi_set_add", Operation.MULTIADD);
     }
 
     public static Operation matchOp(String op) {

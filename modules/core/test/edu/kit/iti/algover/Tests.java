@@ -10,14 +10,15 @@ import org.junit.runners.Suite;
 import org.junit.runners.Suite.SuiteClasses;
 
 import edu.kit.iti.algover.smt.SMTTest;
-import edu.kit.iti.smttrans.access.Z3AccessTest;
-import edu.kit.iti.smttrans.translate.Arr1Test;
-import edu.kit.iti.smttrans.translate.ClassTest;
-import edu.kit.iti.smttrans.translate.FolTest;
-import edu.kit.iti.smttrans.translate.IntegerTest;
-import edu.kit.iti.smttrans.translate.SeqTest;
-import edu.kit.iti.smttrans.translate.SetTest;
-import edu.kit.iti.smttrans.translate.SumAndMaxTest;
+import edu.kit.iti.algover.smttrans.access.Z3AccessTest;
+import edu.kit.iti.algover.smttrans.translate.Arr1Test;
+import edu.kit.iti.algover.smttrans.translate.Arr2Test;
+import edu.kit.iti.algover.smttrans.translate.ClassTest;
+import edu.kit.iti.algover.smttrans.translate.FolTest;
+import edu.kit.iti.algover.smttrans.translate.IntegerTest;
+import edu.kit.iti.algover.smttrans.translate.SeqTest;
+import edu.kit.iti.algover.smttrans.translate.SetTest;
+import edu.kit.iti.algover.smttrans.translate.SumAndMaxTest;
 
 @RunWith(Suite.class)
 @SuiteClasses({
@@ -60,16 +61,16 @@ import edu.kit.iti.smttrans.translate.SumAndMaxTest;
 //    ImplicitlyTypedVariableVisitorTest.class,
 //        RuleUtilTest.class,
      
-   Z3AccessTest.class, 
-        SetTest.class,
-         SumAndMaxTest.class,
-         ClassTest.class,
-        IntegerTest.class,
-        FolTest.class,
-        Arr1Test.class,
-//        Arr2Test.class,
-        SeqTest.class,
-        SMTTest.class
+//   Z3AccessTest.class, 
+//        SetTest.class,
+//         SumAndMaxTest.class,
+//         ClassTest.class,
+//        IntegerTest.class,
+//        FolTest.class,
+//        Arr1Test.class,
+        Arr2Test.class,
+//        SeqTest.class,
+ //       SMTTest.class
 //        
 //=======
 //    ParserTest.class,

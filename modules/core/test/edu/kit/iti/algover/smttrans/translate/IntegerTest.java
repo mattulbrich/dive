@@ -1,4 +1,4 @@
-package edu.kit.iti.smttrans.translate;
+package edu.kit.iti.algover.smttrans.translate;
 
 import static java.util.Arrays.asList;
 

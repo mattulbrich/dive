@@ -99,17 +99,17 @@ public enum Axiom {
         SET_IN.smt = "(declare-fun (par (T) (inSet<T> (T (Set<T>)) Bool)))";
 
         // multisets
-        MULTISET_UNION.smt = "(declare-fun (par (T) (munionT ((MultiSetT) (MultiSetT)) (MultiSetT))))";
-        MULTISET_INTERSECT.smt = "(declare-fun (par (T) (mintersectT ((MultiSetT) (MultiSetT)) (MultiSetT))))";
-        MULTISET_MINUS.smt = "(declare-fun (par (T) (msetminusT ((MultiSetT) (MultiSetT)) (MultiSetT))))";
-        MULTISET_CARD.smt = "(declare-fun (par (T) (mcardT ((MultiSetT)) Int)))";
-        MULTISET_SUBSET.smt = "(declare-fun (par (T) (msubsetT ((MultiSetT) (MultiSetT)) Bool)))";
-        MULTISET_INSERT.smt = "(declare-fun (par (T) (msetinsertT  (T (MultiSetT)) (MultiSetT))))";
-        MULTISET_SELECT.smt = "(declare-fun (par (T) (msetselectT ((MultiSetT) T) Int)))";
-        MULTISET_IN.smt = "(define-fun (par (T) (inmsetT ((s (MultiSetT))  (t T)) Bool\r\n"
-                + "(> (msetselectT s t) 0)\r\n" + ")))";
-        MULTISET_SINGLE.smt = "(define-fun (par (T) (setsingleT ((t T) (s (MultiSetT))) (MultiSetT)\r\n"
-                + "(msetinsertT t msetEmptyT)\r\n" + ")))";
+        MULTISET_UNION.smt = "(declare-fun (par (T) (munion<T> ((MultiSet<T>) (MultiSet<T>)) (MultiSet<T>))))";
+        MULTISET_INTERSECT.smt = "(declare-fun (par (T) (mintersect<T> ((MultiSet<T>) (MultiSet<T>)) (MultiSet<T>))))";
+        MULTISET_MINUS.smt = "(declare-fun (par (T) (msetminus<T> ((MultiSet<T>) (MultiSet<T>)) (MultiSet<T>))))";
+        MULTISET_CARD.smt = "(declare-fun (par (T) (mcard<T> ((MultiSetT)) Int)))";
+        MULTISET_SUBSET.smt = "(declare-fun (par (T) (msubset<T> ((MultiSet<T>) (MultiSet<T>)) Bool)))";
+        MULTISET_INSERT.smt = "(declare-fun (par (T) (msetinsert<T>  (T (MultiSet<T>)) (MultiSet<T>))))";
+        MULTISET_SELECT.smt = "(declare-fun (par (T) (msetselect<T> ((MultiSet<T>) T) Int)))";
+        MULTISET_IN.smt = "(define-fun (par (T) (inmset<T> ((s (MultiSet<T>))  (t T)) Bool\r\n"
+                + "(> (msetselect<T> s t) 0)\r\n" + ")))";
+        MULTISET_SINGLE.smt = "(define-fun (par (T) (setsingle<T> ((t T) (s (MultiSet<T>))) (MultiSet<T>)\r\n"
+                + "(msetinsert<T> t msetEmpty<T>)\r\n" + ")))";
         MULTISET_MAX.smt = "(define-fun max ((x Int) (y Int)) Int\r\n" + "  (ite (<= x y) y x))";
         MULTISET_MIN.smt = "(define-fun min ((x Int) (y Int)) Int\r\n" + "  (ite (<= x y) x y))";
 

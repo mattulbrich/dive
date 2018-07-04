@@ -10,7 +10,7 @@ import static java.util.Arrays.asList;
 
 public enum Operation {
 
-    OR, SETEMPTY, PLUS, MINUS, TIMES, IMP, GT, DIV,LT, EQ, NOT, GE, LE, NEG, ITE, ARR2SELECT, ARRSTORE, ARR2STORE, FIELDSTORE, FIELDSELECT, DECR, SETUNION, SETINTERSECT, SETCARD, SEQCONCAT, ISCREATED, CREATE, ANON, SEQCONS, SEQEMPTY, SEQUPD, SEQGET, SEQLEN, SETIN, SETADD, CONST, ARRLEN, ARR2LEN0, ARR2LEN1, EXISTS, FORALL, LET, ARRSELECT, VAR, HEAP, AND, BV, MOD, AHEAP, EVERYTHING;
+    OR, SETEMPTY, PLUS, MINUS, TIMES, IMP, GT, DIV, LT, EQ, NOT, GE, LE, NEG, ITE, ARR2SELECT, ARRSTORE, ARR2STORE, FIELDSTORE, FIELDSELECT, DECR, SETUNION, SETINTERSECT, SETCARD, SEQCONCAT, ISCREATED, CREATE, ANON, SEQCONS, SEQEMPTY, SEQUPD, SEQGET, SEQLEN, SETIN, SETADD, CONST, ARRLEN, ARR2LEN0, ARR2LEN1, EXISTS, FORALL, LET, ARRSELECT, VAR, HEAP, AND, BV, MOD, AHEAP, EVERYTHING, MULTIUNION, MULTIINTERSECT, MULTIEMPTY, MULTICARD, MULTIADD, MULTIIN, SETMINUS, MULTIMINUS;
 
     private String smt;
     private boolean poly = false;
@@ -19,7 +19,6 @@ public enum Operation {
     private List<Axiom> instantiations = new ArrayList<>();
 
     static {
-
 
         ARR2LEN0.smt = "arr2len0";
         ARR2LEN0.poly = true;
@@ -63,6 +62,8 @@ public enum Operation {
         SETINTERSECT.instantiations = asList(Axiom.SETEMPTY_INST, Axiom.SET_IN, Axiom.SET_INSERT, Axiom.SET_1,
                 Axiom.SET_2, Axiom.SET_INTERSECT, Axiom.SET_3);
 
+        SETMINUS.smt = "setMinus";
+        SETMINUS.poly = true;
         SETCARD.smt = "setcard";
         SETCARD.poly = true;
         SETCARD.instantiations = asList(Axiom.SETEMPTY_INST, Axiom.SET_IN, Axiom.SET_INSERT, Axiom.SET_1, Axiom.SET_2,
@@ -77,6 +78,22 @@ public enum Operation {
         SETIN.instantiations = asList(Axiom.SETEMPTY_INST, Axiom.SET_IN, Axiom.SET_INSERT, Axiom.SET_1, Axiom.SET_2,
                 Axiom.SET_IN);
 
+        MULTIUNION.smt = "munion";
+        MULTIUNION.poly = true;
+
+        MULTIMINUS.smt = "msetminus";
+        MULTIMINUS.poly = true;
+        MULTIINTERSECT.smt = "mintersect";
+        MULTIINTERSECT.poly = true;
+        MULTIEMPTY.smt = "msetEmpty";
+        MULTIEMPTY.poly = true;
+        MULTICARD.smt = "mcard";
+        MULTICARD.poly = true;
+        
+        MULTIADD.smt = "msetAdd";
+        MULTIADD.poly = true;
+        MULTIIN.smt = "inmset";
+        MULTIIN.poly = true;
         ISCREATED.smt = "isCreated";
         ISCREATED.poly = true;
         ISCREATED.instantiations = asList();
@@ -87,22 +104,22 @@ public enum Operation {
 
         ANON.smt = "anon";
         ANON.instantiations = asList(Axiom.ANON); // Axiom.HEAP_4
-//        ANON.special = true;
+        // ANON.special = true;
 
         MOD.smt = "mod";
-       // MOD.instantiations = asList(Axiom.MODH); // Axiom.MODH
+        // MOD.instantiations = asList(Axiom.MODH); // Axiom.MODH
         MOD.special = true;
 
         AHEAP.smt = "aheap";
         AHEAP.instantiations = asList();
-//        AHEAP.special = true;
-        
+        // AHEAP.special = true;
+
         HEAP.smt = "heap";
-//        HEAP.instantiations = asList(Axiom.HEAP_INST); // Axiom.HEAP_INST
+        // HEAP.instantiations = asList(Axiom.HEAP_INST); // Axiom.HEAP_INST
         HEAP.special = true;
-        
+
         DECR.smt = "decr";
-        
+
         SEQEMPTY.smt = "seqEmpty";
         SEQEMPTY.poly = true;
         SEQEMPTY.instantiations = asList(Axiom.SEQEMTY_INST, Axiom.SEQ_LEN, Axiom.SEQ_LEN_5);
@@ -110,17 +127,14 @@ public enum Operation {
         SETEMPTY.smt = "setEmpty";
         SETEMPTY.poly = true;
         SETEMPTY.instantiations = asList(Axiom.SET_CARD, Axiom.SET_CARD_1);
-       
+
         EVERYTHING.smt = "everything";
-        EVERYTHING.instantiations = asList(Axiom.SET_IN,Axiom.SET_INSERT,Axiom.SET_1,Axiom.EVERYTHING); // 
+        EVERYTHING.instantiations = asList(Axiom.SET_IN, Axiom.SET_INSERT, Axiom.SET_1, Axiom.EVERYTHING); //
         EVERYTHING.special = true;
-        
 
         SEQCONS.smt = "SEQCONS";
         SEQCONS.poly = true;
         SEQCONS.instantiations = asList(Axiom.SEQEMTY_INST); // TODO
-
-
 
         SEQUPD.smt = "seqstore";
         SEQUPD.poly = true;
@@ -138,8 +152,6 @@ public enum Operation {
         SEQCONCAT.poly = true;
         SEQCONCAT.instantiations = asList(Axiom.SEQEMTY_INST, Axiom.SEQ_CONCAT, Axiom.SEQ_LEN, Axiom.SEQ_LEN_5);
 
-
-
         FIELDSTORE.smt = "fieldstore";
         FIELDSTORE.poly = true;
         FIELDSTORE.instantiations = asList(Axiom.HEAP_1, Axiom.HEAP_INST, Axiom.FIELDSTORE, Axiom.FIELDSELECT);
@@ -154,24 +166,23 @@ public enum Operation {
 
         FORALL.smt = "forall";
         FORALL.builtin = true;
-        
+
         EXISTS.smt = "exists";
         EXISTS.builtin = true;
-        
+
         AND.smt = "and";
         AND.builtin = true;
-        
+
         OR.smt = "or";
         OR.builtin = true;
-        
+
         IMP.smt = "=>";
         IMP.builtin = true;
         PLUS.smt = "+";
         PLUS.builtin = true;
         MINUS.smt = "-";
         MINUS.builtin = true;
-        
-        
+
         TIMES.smt = "*";
         TIMES.builtin = true;
         GT.smt = ">";
@@ -182,7 +193,7 @@ public enum Operation {
         EQ.builtin = true;
         NOT.smt = "not";
         NOT.builtin = true;
-        DIV.smt= "/";
+        DIV.smt = "/";
         DIV.builtin = true;
         GE.smt = ">=";
         GE.builtin = true;
@@ -193,7 +204,6 @@ public enum Operation {
         ITE.smt = "ite";
         ITE.builtin = true;
 
-
     }
 
     public String toSMT() {
@@ -203,10 +213,11 @@ public enum Operation {
     public boolean isPoly() {
         return poly;
     }
-    
+
     public boolean isSpecial() {
         return special;
     }
+
     public boolean isBuiltIn() {
         return builtin;
     }
