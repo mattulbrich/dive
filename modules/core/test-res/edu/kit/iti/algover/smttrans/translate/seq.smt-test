@@ -1,0 +1,12 @@
+s1: seq<int>
+s2: seq<int>
+s3: seq<int>
+i : int
+---
+
+s1 == $seq_empty<int>,
+$seq_get<int>(s2,0) == 1,
+s3 == $seq_cons<int>(1,s1)
+
+|-
+$seq_get<int>(s1,0) == 1

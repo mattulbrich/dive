@@ -95,6 +95,8 @@ public class Z3Rule extends AbstractProofRule {
 
     @Override
     public ProofRuleApplication makeApplicationImpl(ProofNode target, Parameters parameters) throws RuleException {
+       
+
         if (isValid(target)) {
             ProofRuleApplicationBuilder builder = new ProofRuleApplicationBuilder(this);
             builder.setApplicability(Applicability.APPLICABLE);
@@ -126,7 +128,7 @@ public class Z3Rule extends AbstractProofRule {
         // System.out.println("PSMT: ");
         // System.out.println();
          smt = sc.toPSMT();
-        // SMTLog.writeFile(smt, pvc.getIdentifier()+".psmt");
+         SMTLog.writeFile(smt, pvc.getIdentifier()+".psmt");
         // System.out.println(smt);
         // System.out.println();
         // System.out.println();

@@ -70,7 +70,7 @@ public enum Axiom {
 
         // sequences
         SEQ_INST.smt = "(declare-sort Seq 1)";
-        SEQEMTY_INST.smt = "(declare-const (par (T) (emtpyseqT SeqT)))";
+        SEQEMTY_INST.smt = "(declare-const (par (T) (emtpyseq<T> Seq<T>)))";
 
         // Heap/Arrays
         FIELD_INST.smt = "(declare-sort Field 2)";
