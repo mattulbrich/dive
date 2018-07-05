@@ -66,6 +66,7 @@ public class PVCHighlightingRule extends SpanHighlightingRule {
         treesAfterMethodHeader.add(symbexPath.getMethod().getFirstChildWithType(DafnyParser.REQUIRES));
         treesAfterMethodHeader.add(symbexPath.getMethod().getFirstChildWithType(DafnyParser.ENSURES));
         treesAfterMethodHeader.add(symbexPath.getMethod().getFirstChildWithType(DafnyParser.DECREASES));
+        treesAfterMethodHeader.add(symbexPath.getMethod().getFirstChildWithType(DafnyParser.BLOCK));
 
         Token firstTokenAfterHeader = treesAfterMethodHeader.stream()
                 .filter(Objects::nonNull)

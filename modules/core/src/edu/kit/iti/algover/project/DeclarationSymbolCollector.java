@@ -13,6 +13,7 @@ import edu.kit.iti.algover.dafnystructures.DafnyClass;
 import edu.kit.iti.algover.dafnystructures.DafnyField;
 import edu.kit.iti.algover.dafnystructures.DafnyFunction;
 import edu.kit.iti.algover.dafnystructures.DafnyMethod;
+import edu.kit.iti.algover.parser.DafnyParser;
 import edu.kit.iti.algover.parser.DafnyTree;
 import edu.kit.iti.algover.term.FunctionSymbol;
 import edu.kit.iti.algover.term.Sort;
@@ -71,7 +72,8 @@ public class DeclarationSymbolCollector {
             args = new Sort[parameters.size() + 1];
             args[0] = Sort.HEAP;
             for (int i = 1; i < args.length; i++) {
-                args[i] = TreeUtil.toSort(parameters.get(i-1).getChild(1));
+                args[i] = TreeUtil.toSort(parameters.get(i-1).
+                        getFirstChildWithType(DafnyParser.TYPE).getChild(0));
             }
         } else {
             name = clss.getName() + "$$" + f.getName();
@@ -79,7 +81,8 @@ public class DeclarationSymbolCollector {
             args[0] = Sort.HEAP;
             args[1] = Sort.getClassSort(clss.getName());
             for (int i = 2; i < args.length; i++) {
-                args[i] = TreeUtil.toSort(parameters.get(i-2).getChild(1));
+                args[i] = TreeUtil.toSort(parameters.get(i-2).
+                        getFirstChildWithType(DafnyParser.TYPE).getChild(0));
             }
         }
 

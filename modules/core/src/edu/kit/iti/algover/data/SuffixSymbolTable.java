@@ -9,6 +9,7 @@ import java.util.Collection;
 
 import edu.kit.iti.algover.term.FunctionSymbol;
 
+@Deprecated
 public class SuffixSymbolTable extends MapSymbolTable {
 
     public SuffixSymbolTable(Collection<FunctionSymbol> symbols) {

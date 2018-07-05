@@ -78,6 +78,30 @@ public class ParserErrorTest {
         parse("method m(i:int) { i[0] := 0; }");
     }
 
+    @Test
+    public void wrongMultiDimension1() throws Exception {
+        thrown.expect(DafnyException.class);
+        thrown.expectMessage("Assigning a value of type int to an entitity of type LISTEX<int,int>");
+        parse("method m() returns (a:int) { } " +
+                "method test() { var x,y:int; x,y := m(); }");
+    }
+
+    @Test
+    public void wrongMultiDimension2() throws Exception {
+        thrown.expect(DafnyException.class);
+        thrown.expectMessage("Assigning a value of type LISTEX<int,int> to an entitity of type int");
+        parse("method m() returns (a:int, b:int) { } " +
+                "method test() { var x,y:int; x := m(); }");
+    }
+
+    @Test
+    public void wrongNumberOfArgs() throws Exception {
+        thrown.expect(DafnyException.class);
+        thrown.expectMessage("Wrong number of arguments in call to m. Expected 1, but received 2");
+        parse("method m(x : int) { } " +
+                "method test() { m(1,2); }");
+    }
+
 
     // correctness feature request.
     @Test @Ignore
@@ -143,6 +167,13 @@ public class ParserErrorTest {
         thrown.expect(DafnyParserException.class);
         thrown.expectMessage("mismatched input 'decreases' expecting BLOCK_BEGIN");
         parse("method m() decreases 0 decreases 0 {}");
+    }
+
+    @Test
+    public void doubleModifies() throws Exception {
+        thrown.expect(DafnyParserException.class);
+        thrown.expectMessage("mismatched input 'modifies' expecting BLOCK_BEGIN");
+        parse("method m() modifies x modifies x {}");
     }
 
     private void parse(String program) throws Exception {

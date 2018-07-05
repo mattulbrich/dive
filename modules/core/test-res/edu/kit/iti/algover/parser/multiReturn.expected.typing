@@ -1,0 +1,2 @@
+(method multiReturn ARGS (returns (VAR a (TYPE int)) (VAR b (TYPE int)))
+  (BLOCK (CALL multiReturn ARGS)[LISTEX<int,int>]))[scc_12]

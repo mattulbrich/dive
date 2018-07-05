@@ -81,3 +81,12 @@ method objectCreation()
   l_y := new C_Class;
   l_y := new C_Class.m_Init(42);
 }
+
+// after a bug
+method arrayCreation(p_ar : array<int>)
+  ensures true
+{
+  var l_ar : array<int>;
+
+  l_ar := new int[p_ar.Length];
+}

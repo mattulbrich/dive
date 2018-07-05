@@ -1,0 +1,90 @@
+
+(COMPILATION_UNIT 
+ (method M 
+  (ARGS (VAR N (TYPE int)) 
+   (VAR A (TYPE (array int))) 
+   (VAR B (TYPE (array int)))) 
+  (requires
+   (&& (&& (&& (<= 0 N) (== N (Length A))) (== N (Length B))) (!= A B))) 
+  (requires 
+   (forall k (==> (< (<= 0 k) N) (< (<= 0 (ARRAY_ACCESS A k)) N)))) 
+  (requires 
+   (forall j k 
+    (==> (< (< (<= 0 j) k) N)
+         (!= (ARRAY_ACCESS A j) (ARRAY_ACCESS A k))))) 
+  (requires 
+   (forall m 
+    (==> 
+     (&& (< (<= 0 m) N) (CALL inImage (ARGS m))) 
+     (exists k (&& (&& (<= 0 k) (< k N)) (== (ARRAY_ACCESS A k) m)))))) 
+  (ensures 
+   (forall k (==> (< (<= 0 k) N) (< (<= 0 (ARRAY_ACCESS B k)) N)))) 
+  (ensures 
+   (forall k 
+    (==> (< (<= 0 k) N) 
+     (== 
+      (== (ARRAY_ACCESS B (ARRAY_ACCESS A k)) k) 
+      (ARRAY_ACCESS A (ARRAY_ACCESS B k)))))) 
+  (ensures 
+   (forall j k 
+    (==> 
+     (< (< (<= 0 j) k) N) 
+     (!= (ARRAY_ACCESS B j) (ARRAY_ACCESS B k))))) 
+  (modifies (SETEX B)) 
+  (BLOCK 
+   (var n 0) 
+   (while (< n N) 
+    (invariant (<= n N)) 
+    (invariant 
+     (forall k (==> (< (<= 0 k) n) (== (ARRAY_ACCESS B (ARRAY_ACCESS A k)) k)))) 
+    (BLOCK 
+     (:= (ARRAY_ACCESS B (ARRAY_ACCESS A n)) n) 
+     (:= n (+ n 1)))) 
+   (assert 
+    (forall i 
+     (==> (< (<= 0 i) N) 
+      (== (ARRAY_ACCESS A i) (old (ARRAY_ACCESS A i)))))) 
+   (assert 
+    (forall j 
+     (==> 
+      (&& (< (<= 0 j) N) (CALL inImage (ARGS j))) 
+      (&& (< (<= 0 (ARRAY_ACCESS B j)) N)
+       (== (ARRAY_ACCESS A (ARRAY_ACCESS B j)) j))))) 
+   (assert 
+    (forall j k 
+     (==> (< (< (<= 0 j) k) N) 
+      (!= (ARRAY_ACCESS B j) (ARRAY_ACCESS B k)))))))
+      
+ (method Main ARGS 
+  (BLOCK 
+   (var a (new (ARRAY_ACCESS int 10))) 
+   (:= (ARRAY_ACCESS a 0) 9) 
+   (:= (ARRAY_ACCESS a 1) 3) 
+   (:= (ARRAY_ACCESS a 2) 8) 
+   (:= (ARRAY_ACCESS a 3) 2) 
+   (:= (ARRAY_ACCESS a 4) 7) 
+   (:= (ARRAY_ACCESS a 5) 4) 
+   (:= (ARRAY_ACCESS a 6) 0) 
+   (:= (ARRAY_ACCESS a 7) 1) 
+   (:= (ARRAY_ACCESS a 8) 5) 
+   (:= (ARRAY_ACCESS a 9) 6) 
+   (var b (new (ARRAY_ACCESS int 10))) 
+   (CALL M (ARGS 10 a b)) 
+   (print "a:\n") 
+   (CALL PrintArray (ARGS a)) 
+   (print "b:\n") 
+   (CALL PrintArray (ARGS b))))
+   
+ (method PrintArray 
+  (ARGS (VAR a (TYPE (array int)))) 
+  (BLOCK 
+   (var i 0) 
+   (while (< i (Length a)) 
+    (BLOCK 
+     (print (ARRAY_ACCESS a i) "\n") 
+     (:= i (+ i 1))))))
+     
+ (FUNCTION inImage 
+  (ARGS (VAR i (TYPE int))) 
+  (RETURNS bool) 
+  (BLOCK true)))

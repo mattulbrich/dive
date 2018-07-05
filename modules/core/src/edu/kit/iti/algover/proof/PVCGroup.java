@@ -6,6 +6,7 @@
 package edu.kit.iti.algover.proof;
 
 import edu.kit.iti.algover.dafnystructures.DafnyDecl;
+import nonnull.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -17,10 +18,10 @@ import java.util.List;
 public class PVCGroup extends PVCCollection {
 
     // REVIEW: dd is not a good field name
-    private final DafnyDecl dd;
+    private final @Nullable DafnyDecl dd;
     private final List<PVCCollection> children;
 
-    public PVCGroup(DafnyDecl dd){
+    public PVCGroup(@Nullable DafnyDecl dd){
         this.dd = dd;
         this.children = new ArrayList<>();
     }

@@ -8,7 +8,6 @@ options {
 tokens {
   COMPILATION_UNIT;
   TYPE;
-  RESULTS;
   ARGS;
   BLOCK;
   CALL;
@@ -95,8 +94,10 @@ MODIFIES: 'modifies';
 MULTISET: 'multiset';
 NEW: 'new';
 NULL: 'null';
-// PREDICATE : 'predicate';
 OBJECT : 'object';
+OLD : 'old';
+// PREDICATE : 'predicate';
+PRINT : 'print';
 REQUIRES: 'requires';
 RETURN : 'return';
 RETURNS : 'returns';
@@ -120,6 +121,7 @@ PLUS: '+';
 MINUS: '-';
 NOT: '!';
 TIMES: '*';
+DIV: '/';
 LT: '<';
 LE: '<=';
 GT: '>';
@@ -148,9 +150,21 @@ LOGIC_ID : ('a' .. 'z' | 'A' .. 'Z' | '_' | '$')
 SCHEMA_ID : '?' ID;
 
 
-
 INT_LIT : ('0' .. '9' ) ('0' .. '9' | '_')*;
 // glyph = "`~!@#$%^&*()-_=+[{]}|;:',<.>/?\\".
+
+
+fragment HEXDIGIT : '0'..'9' |'a'..'f' |'A'..'F' ;
+fragment STRING_CHAR : ~( '"' | '\\' | '\n' | '\r' ) ;
+STRING_LIT :
+      '"'
+      ( STRING_CHAR
+        | '\\\'' | '\\\"' | '\\\\' | '\\0' | '\\n' | '\\r' | '\\t'
+        | '\\u' HEXDIGIT HEXDIGIT HEXDIGIT HEXDIGIT
+      )*
+      '"'
+      ;
+
 
 WS : (' '|'\t'|'\n'|'\r')                { $channel = HIDDEN; };
 SINGLELINE_COMMENT: '//' ~('\r' | '\n')* { $channel = HIDDEN; };
@@ -176,16 +190,18 @@ clazz:
   '}'!
   ;
 
-// TODO Make order independent
 method:
   ( 'ghost' )?
   tok = ('method' | 'lemma')
   ID '(' vars? ')'
   ( returns_ )?
-  ( requires )*
-  ( ensures )*
-  ( modifies )?
-  ( decreases )?
+  ( ( requires
+    | ensures
+    | {stream_modifies.size()<1}? => modifies
+    | {stream_decreases.size()<1}? => decreases
+    )
+    ( ';' )?
+  )*
   '{' statements? '}'
   ->
     ^(METHOD[tok] ID ^(ARGS vars?) returns_? requires* ensures*
@@ -283,10 +299,19 @@ statement:
       |  new_expression ';' -> ^(ASSIGN lvalue new_expression)
       )
 
+  | (lvalue ',') => lvalue (',' lvalue)+ ASSIGN call_statement
+      -> ^(ASSIGN lvalue+ call_statement)
+
   | call_statement
 
   | (label? WHILE) =>
-    label? WHILE expression_wildcard invariant* modifies? decreases? block
+    label? WHILE expression_wildcard
+        (( invariant
+         | {stream_modifies.size()<1}? => modifies
+         | {stream_decreases.size()<1}? => decreases
+         ) ( ';' )?
+        )*
+        block
            -> ^(WHILE label? expression_wildcard invariant* modifies? decreases? block)
 
   | if_statement
@@ -296,6 +321,8 @@ statement:
   | 'assume'^ label? expression ';'!
 
   | 'return'^ ';'!
+
+  | 'print'^ expressions ';'!
   ;
 
 call_statement:
@@ -349,7 +376,6 @@ expressions:
 
 expression:
     equiv_expr
-  | endless_expr
   ;
 
 expression_only:
@@ -357,40 +383,42 @@ expression_only:
   ;
 
 equiv_expr:
-  implies_expr ( '<==>'^ implies_expr )*
+  implies_expr ( ('<==>') => '<==>'^ implies_expr )*
   ;
 
 // right assoc
 implies_expr:
-  or_expr ( '==>'^ implies_expr )?
+  or_expr ( ('==>') => '==>'^ implies_expr )?
   ;
 
 // left assoc
 or_expr:
-  and_expr ( '||'^ and_expr )*
+  and_expr ( ('||') => '||'^ and_expr )*
   ;
 
 and_expr:
-  rel_expr ( '&&'^ rel_expr )*
+  rel_expr ( ('&&') => '&&'^ rel_expr )*
   ;
 
+rel_op: ( '<' | '>'  | '==' | '!=' | '<=' | '>=' | 'in' | '!in' ) ;
 rel_expr:
-  add_expr ( ( '<'^ | '>'^  | '=='^ | '!='^ |
-              '<='^ | '>='^ | 'in'^ | '!in'^ ) add_expr )*
+  add_expr ( (rel_op) => rel_op^ add_expr )*
   ;
 
+add_op: ('+' | '-') ;
 add_expr:
-  mul_expr ( ('+' | '-')^ mul_expr )*
+  mul_expr ( (add_op) => add_op^ mul_expr )*
   ;
 
+mul_op: ('*' | '/' | '%') ;
 mul_expr:
-  prefix_expr ( ('*' | '/' | '%')^ prefix_expr )*
+  prefix_expr ( (mul_op) => mul_op^ prefix_expr )*
   ;
 
 prefix_expr:
-    '-'^ prefix_expr
-  | '!'^ prefix_expr
+    ( '-'^ | '!'^ ) prefix_expr
   | postfix_expr
+  | endless_expr
   ;
 
 endless_expr:
@@ -410,7 +438,6 @@ usual_or_logic_id_or_this:
     usual_or_logic_id
   | {logicMode}? t=THIS -> ^(ID[t])
   ;
-
 
 postfix_expr:
   ( atom_expr -> atom_expr )   // see ANTLR ref. page 175
@@ -456,6 +483,7 @@ atom_expr:
       )
   | TRUE | FALSE | NULL | 'this'
   | INT_LIT
+  | STRING_LIT
   | 'old'^ '('! expression ')'!
   | 'fresh'^ '('! expression ')'!
   | '|'^ expression '|'!
@@ -490,8 +518,10 @@ quantifier_guard:
   ;
 
 new_expression:
-  'new' clss=ID ( '.' meth=ID '(' expressions? ')'
+  'new' ( clss=ID ( '.' meth=ID '(' expressions? ')'
                      -> ^( 'new' $clss ^(CALL $meth? ^(ARGS expressions?) ))
-                |    -> ^( 'new' $clss )
-                )
+                  |    -> ^( 'new' $clss )
+                  )
+        | t=(ID|INT|BOOL) '[' expression ']' -> ^( 'new' ^(ARRAY_ACCESS $t expression) )
+        )
   ;
