@@ -23,6 +23,7 @@ public class ImplicitlyTypedVariableVisitorTest {
         new ImplicitlyTypedVariableVisitor().walk(exp);
 
         assertEquals("(forall i (TYPE int) (> i 0))", exp.toStringTree());
+        assertEquals(DafnyParser.INT, exp.getChild(1).getChild(0).getType());
 
     }
 
@@ -36,6 +37,7 @@ public class ImplicitlyTypedVariableVisitorTest {
         new ImplicitlyTypedVariableVisitor().walk(exp);
 
         assertEquals("(forall i j (TYPE int) (> i j))", exp.toStringTree());
+        assertEquals(DafnyParser.INT, exp.getChild(2).getChild(0).getType());
 
     }
 
@@ -49,6 +51,7 @@ public class ImplicitlyTypedVariableVisitorTest {
         new ImplicitlyTypedVariableVisitor().walk(exp);
 
         assertEquals("(forall i (TYPE (seq int)) (> (ARRAY_ACCESS i 0) 0))", exp.toStringTree());
+        assertEquals(DafnyParser.SEQ, exp.getChild(1).getChild(0).getType());
 
     }
 

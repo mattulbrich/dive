@@ -17,9 +17,9 @@ public class SyntacticSugarVistor {
 
         // [x] a < b < c
 
-        // [ ] var i, j : int
+        // [x] var i, j : int
 
-        // [ ] var i := 0
+        // [x] var i := 0
 
         // [x] forall i :: [i]  ... default to int
         // [ ] or better do inference
@@ -38,6 +38,7 @@ public class SyntacticSugarVistor {
         // t.accept(new LabelIntroducer(), null);
 
         new ChainedRelationsVisitor().walk(t);
+        new QuantifierGuardRemovalVisitor().walk(t);
         new ImplicitlyTypedVariableVisitor().walk(t);
     }
 
