@@ -143,7 +143,7 @@ public class DafnyRuleUtil {
         DafnyTree equalsClause = null;
         DafnyTree implClause = null;
         if(ensuresClause.getChildCount() != 1) {
-            throw new DafnyRuleException("The requires clause has to contain exactly 1 child of either typ EQ or IMPLIES");
+            throw new DafnyRuleException("The ensures clause has to contain exactly 1 child of either typ EQ or IMPLIES");
         }
         if(ensuresClause.getChild(0).getType() == DafnyParser.EQ) {
             equalsClause = ensuresClause.getChild(0);
