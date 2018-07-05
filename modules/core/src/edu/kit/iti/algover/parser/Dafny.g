@@ -220,7 +220,7 @@ function:
   ;
 
 field:
-  ( 'ghost' )? 'var' ID ':' typeRef ';'
+  ( 'ghost' )? 'var' ID ':' typeRef (';')?
     -> ^(FIELD ID typeRef)
   ;
 
