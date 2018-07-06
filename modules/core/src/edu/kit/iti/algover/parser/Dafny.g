@@ -122,6 +122,7 @@ MINUS: '-';
 NOT: '!';
 TIMES: '*';
 DIV: '/';
+MODULO: '%';
 LT: '<';
 LE: '<=';
 GT: '>';

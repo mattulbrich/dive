@@ -301,6 +301,10 @@ public class TreeTermTranslator {
             }
             break;
 
+        case DafnyParser.MODULO:
+            result = buildBinary(BuiltinSymbols.MODULO, tree);
+            break;
+
         case DafnyParser.DIV:
             result = buildBinary(BuiltinSymbols.DIV, tree);
             break;
