@@ -128,7 +128,7 @@ public class BuiltinSymbols extends MapSymbolTable {
             new FunctionSymbolFamily(
                     new FunctionSymbol("$array2_store", Sort.HEAP,
                             Sort.HEAP,
-                            Sort.get("array", FunctionSymbolFamily.VAR1),
+                            Sort.get("array2", FunctionSymbolFamily.VAR1),
                             Sort.INT,
                             Sort.INT,
                             FunctionSymbolFamily.VAR1), 1);

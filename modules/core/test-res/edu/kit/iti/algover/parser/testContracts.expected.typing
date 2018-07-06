@@ -2,6 +2,7 @@
         ARGS
         (requires true[bool])
         (ensures true[bool])
+        (ensures (== (old intfield[int])[int] intfield[int])[bool])
         (decreases 2[int])
         (BLOCK
          (while

@@ -71,6 +71,7 @@ class C
    method testContracts()
      requires true
      ensures true
+     ensures old(intfield) == intfield
      // modifies this
      decreases 2
    {
