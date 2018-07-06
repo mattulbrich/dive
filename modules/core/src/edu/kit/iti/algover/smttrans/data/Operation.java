@@ -90,8 +90,8 @@ public enum Operation {
         MULTICARD.smt = "mcard";
         MULTICARD.poly = true;
         
-      //  FUNC.smt = "func"; //TODO
-        FUNC.special = true;
+      
+        //FUNC.special = false;
         
         
         
@@ -211,6 +211,10 @@ public enum Operation {
 
     }
 
+    
+    public void setSMT(String s) {
+        this.smt = s;
+    }
     public String toSMT() {
         return smt;
     }

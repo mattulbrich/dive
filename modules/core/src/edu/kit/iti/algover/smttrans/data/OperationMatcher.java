@@ -7,6 +7,7 @@ import java.util.List;
 import com.google.common.base.Splitter;
 import com.google.common.collect.Iterables;
 
+import edu.kit.iti.algover.smttrans.translate.SymbolHandler;
 import edu.kit.iti.algover.term.FunctionSymbol;
 import edu.kit.iti.algover.term.FunctionSymbolFamily;
 import edu.kit.iti.algover.term.Sort;
@@ -85,7 +86,13 @@ public class OperationMatcher {
 
         List<String> ops = Arrays.asList(Iterables.toArray(operators, String.class));
 
-        return opmap.getOrDefault(ops.get(0),Operation.FUNC);
+        if (opmap.containsKey(ops.get(0))) {
+            return opmap.get(ops.get(0));
+        } else {
+            SymbolHandler.handleFunc(op);
+            return Operation.FUNC;
+        }
+        //return opmap.getOrDefault(ops.get(0),Operation.FUNC);
         
 
     }
