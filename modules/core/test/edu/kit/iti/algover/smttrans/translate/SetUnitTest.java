@@ -102,35 +102,37 @@ public class SetUnitTest {
     public void verifyZ3() {
  
         System.out.println(sequent.toString());
-//        
-//        MockPVCBuilder pvcBuilder = new MockPVCBuilder();
-//       pvcBuilder.setSequent(sequent);
-//       pvcBuilder.setSymbolTable(st);
-//       
-//        System.out.println(sequent);
-//        Z3Rule rule = new Z3Rule();
-//        PVC pvc = new PVC(pvcBuilder);
-//       
-//        ProofNode node = ProofNode.createRoot(pvc);
-//       
+        
+        MockPVCBuilder pvcBuilder = new MockPVCBuilder();
+        pvcBuilder.setSequent(sequent);
+        pvcBuilder.setSymbolTable(st);
+       
+        //System.out.println(sequent);
+        Z3Rule rule = new Z3Rule();
+        PVC pvc = new PVC(pvcBuilder);
+       
+        //ProofNode node = ProofNode.createRoot(pvc);
+       
 //        try {
 //            rule.considerApplicationImpl(node, edu.kit.iti.algover.rules.Parameters.EMPTY_PARAMETERS);
 //        } catch (RuleException e) {
 //            // TODO Auto-generated catch block
 //            e.printStackTrace();
 //        }
-//        
+        
         ProofNode pn = null;
-      Z3Rule rule = new Z3Rule();
+//      Z3Rule rule = new Z3Rule();
         try {
-             pn = ProofMockUtil.mockProofNode(null, sequent.getAntecedent(), sequent.getSuccedent());
+             pn = ProofMockUtil.mockProofNodePVC(null, sequent.getAntecedent(), sequent.getSuccedent(), pvc);
+             
         } catch (TermBuildException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
         }
         
       try {
-      rule.considerApplicationImpl(pn, edu.kit.iti.algover.rules.Parameters.EMPTY_PARAMETERS);
+     ProofRuleApplication app = rule.makeApplication(pn, edu.kit.iti.algover.rules.Parameters.EMPTY_PARAMETERS);
+     RuleApplicator.applyRule(app, pn);
   } catch (RuleException e) {
       // TODO Auto-generated catch block
       e.printStackTrace();

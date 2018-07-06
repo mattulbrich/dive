@@ -13,14 +13,15 @@ import edu.kit.iti.algover.proof.PVC;
 import edu.kit.iti.algover.proof.PVCCollection;
 import edu.kit.iti.algover.proof.Proof;
 import edu.kit.iti.algover.proof.ProofStatus;
+import edu.kit.iti.algover.rules.RuleException;
 
 public class DafnyExampleTest {
 
     private static final String dir = "modules/core/test-res/edu/kit/iti/algover/smttrans/translate/examples".replace('/',
             File.separatorChar);
 
-    private static final List<String> config = Arrays.asList("BinarySearchConfig.xml", "FibConfig.xml",
-            "FindZeroConfig.xml", "MaxSegSumConfig.xml", "FindConfig.xml");
+    private static final List<String> config = Arrays.asList("BinarySearchConfig.xml"); //,"FibConfig.xml",
+           // "FindZeroConfig.xml", "MaxSegSumConfig.xml", "FindConfig.xml");
 
     @Test
     public void closedProofsTest() throws Exception {

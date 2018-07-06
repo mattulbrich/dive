@@ -1,6 +1,7 @@
 package edu.kit.iti.algover.util;
 
 import edu.kit.iti.algover.data.BuiltinSymbols;
+import edu.kit.iti.algover.proof.PVC;
 import edu.kit.iti.algover.proof.ProofFormula;
 import edu.kit.iti.algover.proof.ProofNode;
 import edu.kit.iti.algover.term.ApplTerm;
@@ -58,5 +59,13 @@ public class ProofMockUtil {
         succedentFormulas.addAll(succedentTerms);
         return new ProofNode(parent, null,
                 new Sequent(antedecentFormulas, succedentFormulas), null);
+    }
+    public static ProofNode mockProofNodePVC(ProofNode parent, List<ProofFormula> antedecentTerms, List<ProofFormula> succedentTerms, PVC pvc) throws TermBuildException {
+        List<ProofFormula> antedecentFormulas = new ArrayList<>(antedecentTerms.size());
+        antedecentFormulas.addAll(antedecentTerms);
+        List<ProofFormula> succedentFormulas = new ArrayList<>(succedentTerms.size());
+        succedentFormulas.addAll(succedentTerms);
+        return new ProofNode(parent, null,
+                new Sequent(antedecentFormulas, succedentFormulas), pvc);
     }
 }

@@ -1,8 +1,13 @@
-s: multiset<int>
+s1: multiset<int>
+s2: multiset<int>
 i : int
 ---
 
-s == $mset_empty<int>
+s1 == $multi_empty<int>
 
 |-
-$not($mset_in<int>(i, s))
+let s2 := $multi_set_add<int>(1,s2) :: $multi_set_in<int>(1,s2),
+$multi_minus<int>(s1,s2) == $multi_intersect<int>(s1,s2),
+$multi_union<int>(s1,s2) == s2
+
+

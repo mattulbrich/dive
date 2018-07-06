@@ -17,6 +17,7 @@ import edu.kit.iti.algover.smttrans.translate.ClassTest;
 import edu.kit.iti.algover.smttrans.translate.DafnyExampleTest;
 import edu.kit.iti.algover.smttrans.translate.FolTest;
 import edu.kit.iti.algover.smttrans.translate.IntegerTest;
+import edu.kit.iti.algover.smttrans.translate.MultisetUnitTest;
 import edu.kit.iti.algover.smttrans.translate.SeqTest;
 import edu.kit.iti.algover.smttrans.translate.SeqUnitTest;
 import edu.kit.iti.algover.smttrans.translate.SetTest;
@@ -71,12 +72,18 @@ import edu.kit.iti.algover.smttrans.translate.SumAndMaxTest;
 //        IntegerTest.class,
 //        FolTest.class,
 //        Arr1Test.class,
-//        Arr2UnitTest.class,
-//SeqUnitTest.class
-    //    DafnyExampleTest.class
-    //    SetUnitTest.class
+ // SeqUnitTest.class,        
+    
+    SetUnitTest.class
+   // Arr2UnitTest.class,
+   // MultisetUnitTest.class,
+     
+     //   DafnyExampleTest.class
+    
+        
+        //    SetUnitTest.class
       //  SeqTest.class,
-    SeqUnitTest.class
+    //SeqUnitTest.class
  //       SMTTest.class
 //        
 //=======
