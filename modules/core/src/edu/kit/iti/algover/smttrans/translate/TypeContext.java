@@ -46,7 +46,7 @@ public class TypeContext {
             Arrays.asList(Operation.AHEAP, Operation.DECR));
 
     private static final Set<String> builtinTypes = new LinkedHashSet<>(
-            Arrays.asList(AV_BOOLNAME, AV_INTNAME, AV_HEAPNAME));
+            Arrays.asList(AV_BOOLNAME, AV_INTNAME)); //, AV_HEAPNAME
     private static BiMap<String, String> nmap = HashBiMap.create();
 
     static {
@@ -349,6 +349,45 @@ public class TypeContext {
             }
         }
         return deps;
+    }
+
+    private static Map<String, String> functions = new HashMap<>();
+    private static String fibName = "fib";
+    private static String fibDef = "; NOTE: temporary, hardcoded \r\n" + 
+            "(declare-fun fib (Heap Int) Int)\r\n" + 
+            "(assert (= (fib ~heap 0) 0))\r\n" + 
+            "(assert (= (fib ~heap 1) 1))\r\n" + 
+            "(assert (forall ((x Int)) (=> (> x 1) (= (fib ~heap x) (+ (fib ~heap (- x 1)) (fib ~heap (- x 2)))))))\r\n" + 
+            "; "+"\r\n";
+    static {
+        
+
+        functions.put(fibName, fibDef);
+
+    }
+
+    public static String addFunctions(String smt) { // TODO Temporary Implementation
+        String nsmt = "";
+        List<String> lines = Arrays.asList(smt.split("\\r?\\n"));
+        int i;
+        for (i = 0; i < lines.size(); i++) {
+            if (lines.get(i).startsWith("(assert")) {
+                break;
+            }
+            nsmt += lines.get(i) + "\r\n";
+
+        }
+        
+        nsmt += fibDef;
+
+        for (; i < lines.size(); i++) {
+
+            String line = lines.get(i);
+
+            nsmt += line + "\r\n";
+        }
+
+        return nsmt;
     }
 
     public static String addCasts(String smt) { // TODO better version

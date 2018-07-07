@@ -140,7 +140,7 @@ public class Sort {
         this.name = Objects.requireNonNull(name);
         this.arguments = Util.requireDeepNonNull(arguments);
 
-        assert !name.contains("<") : "Sort name with '<': " + name;
+       // assert !name.contains("<") : "Sort name with '<': " + name; // TODO
     }
 
     /**

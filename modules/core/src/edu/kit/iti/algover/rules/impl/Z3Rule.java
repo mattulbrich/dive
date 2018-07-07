@@ -173,6 +173,19 @@ public class Z3Rule extends AbstractProofRule {
         }
     }
 
+    
+    public SMTContainer testRule(Sequent sequent, SymbolTable symbolTable) {
+        
+        SMTContainer container = translateToSMT(sequent, symbolTable);
+       // System.out.println(container.toSMT());
+        Z3Access z3access = new Z3Access();
+        String smt = container.toSMT();
+        SolverParameter p = new SolverParameter(smt,3, true);
+        SolverResponse r1 = z3access.accessSolver(p);
+        System.out.println(r1.getResponse().name());
+        return container;
+    }
+    
     private SMTContainer translateToSMT(Sequent sequent, SymbolTable symbolTable) {
 
         List<ProofFormula> antecedent = sequent.getAntecedent();

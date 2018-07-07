@@ -22,6 +22,7 @@ public class ConstDependency extends Dependency {
 
         inst.addAll(AxiomContainer.instantiateSort(fs)); 
 
+
         StringBuilder sb = new StringBuilder();
 
         sb.append("(declare-const ");

@@ -43,10 +43,12 @@ public class SMTContainer {
         succedent.forEach(s -> sb.append(cleanUp(s.toSMT(true)))); // negate
     
         String r = cleanUp(sb.toString());
+        
+        r = TypeContext.addFunctions(r);
         if (r.contains("Object"))  //TODO better version
             return TypeContext.addCasts(r);
         
-        return cleanUp(sb.toString());
+        return r;
     }
 
     public String toPSMT() {
@@ -56,6 +58,7 @@ public class SMTContainer {
         succedent.forEach(s -> sb.append(cleanUp(s.toSMT(true)))); // negate
         
         String r = cleanUp(sb.toString());
+        r = TypeContext.addFunctions(r);
         if (r.contains("Object"))  //TODO better version
             return TypeContext.addCasts(r);
         
