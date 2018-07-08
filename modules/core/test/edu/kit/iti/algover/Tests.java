@@ -5,27 +5,16 @@
  */
 package edu.kit.iti.algover;
 
+
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
 import org.junit.runners.Suite.SuiteClasses;
 
-import edu.kit.iti.algover.smt.SMTTest;
-import edu.kit.iti.algover.smttrans.access.Z3AccessTest;
-import edu.kit.iti.algover.smttrans.translate.Arr1Test;
-import edu.kit.iti.algover.smttrans.translate.Arr2UnitTest;
-import edu.kit.iti.algover.smttrans.translate.ClassTest;
-import edu.kit.iti.algover.smttrans.translate.DafnyExampleTest;
-import edu.kit.iti.algover.smttrans.translate.FolTest;
-import edu.kit.iti.algover.smttrans.translate.IntegerTest;
-import edu.kit.iti.algover.smttrans.translate.MultisetUnitTest;
-import edu.kit.iti.algover.smttrans.translate.SeqTest;
 import edu.kit.iti.algover.smttrans.translate.SeqUnitTest;
-import edu.kit.iti.algover.smttrans.translate.SetTest;
-import edu.kit.iti.algover.smttrans.translate.SetUnitTest;
-import edu.kit.iti.algover.smttrans.translate.SumAndMaxTest;
 
 @RunWith(Suite.class)
 @SuiteClasses({
+
 
 //    ParserTest.class,
 //    ParserErrorTest.class,
@@ -126,6 +115,7 @@ import edu.kit.iti.algover.smttrans.translate.SumAndMaxTest;
 //    QuantifierGuardRemovalVisitorTest.class,
 //        RuleUtilTest.class
 //>>>>>>> master
+
     })
 public class Tests {
 }

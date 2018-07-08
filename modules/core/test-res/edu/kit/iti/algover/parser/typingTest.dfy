@@ -71,6 +71,7 @@ class C
    method testContracts()
      requires true
      ensures true
+     ensures old(intfield) == intfield
      // modifies this
      decreases 2
    {
@@ -116,7 +117,8 @@ class C
       i := 1 + 1;
       i := 1 - 1;
       i := 1 * 1;
-      // i := 1 / 1;
+      i := 1 / 1;
+      i := i % 2;
    }
 
    method arrays() {
@@ -175,4 +177,8 @@ class C
      ret_r := l_i+l_x1+l_x2+l_y+l_v;
    }
 
+   method multiReturn() returns (a:int, b:int)
+   {
+     multiReturn();
+   }
 }

@@ -122,6 +122,7 @@ MINUS: '-';
 NOT: '!';
 TIMES: '*';
 DIV: '/';
+MODULO: '%';
 LT: '<';
 LE: '<=';
 GT: '>';
@@ -220,7 +221,7 @@ function:
   ;
 
 field:
-  ( 'ghost' )? 'var' ID ':' typeRef ';'
+  ( 'ghost' )? 'var' ID ':' typeRef (';')?
     -> ^(FIELD ID typeRef)
   ;
 
@@ -277,7 +278,7 @@ block:
 /* To support var i, j: int read ref manual p. 186:
  When there are some elements with cardinality one and others with
  cardinality greater than one, the elements with cardinality one are
- duplicated as the parser creates the tree. In the following rule, the â€™intâ€™
+ duplicated as the parser creates the tree. In the following rule, the ’int’
  token has cardinality one and is replicated for every ID token found on
  the input stream:
     decl : 'int' ID (',' ID)* -> ^('int' ID)+ ;
@@ -298,6 +299,9 @@ statement:
       (  expression_wildcard ';' -> ^(ASSIGN lvalue expression_wildcard)
       |  new_expression ';' -> ^(ASSIGN lvalue new_expression)
       )
+
+  | (lvalue ',') => lvalue (',' lvalue)+ ASSIGN call_statement
+      -> ^(ASSIGN lvalue+ call_statement)
 
   | call_statement
 

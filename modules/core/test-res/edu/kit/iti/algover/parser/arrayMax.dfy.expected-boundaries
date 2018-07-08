@@ -1,5 +1,5 @@
 
-(COMPILATION_UNIT[method-}] 
+(COMPILATION_UNIT[method-<EOF>]
  (method[method-}] max[max-max] 
   (ARGS[a-int] 
    (VAR[a->] a[a-a] 

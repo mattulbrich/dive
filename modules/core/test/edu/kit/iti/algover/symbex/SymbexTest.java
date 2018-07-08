@@ -457,11 +457,35 @@ public class SymbexTest {
         Symbex symbex = new Symbex();
         List<SymbexPath> results = symbex.symbolicExecution(tree);
 
-        assertEquals(6, results.size());
         int cnt = 0;
         {
             SymbexPath path = results.get(cnt++);
             assertEquals(AssertionType.POST, path.getCommonProofObligationType());
+        }
+        {
+            SymbexPath path = results.get(cnt++);
+            assertEquals(AssertionType.RT_IN_BOUNDS, path.getCommonProofObligationType());
+            ImmutableList<AssertionElement> pos = path.getProofObligations();
+            assertEquals(2, pos.size());
+            assertEquals("(>= y 0)", pos.get(0).getExpression().toStringTree());
+            assertEquals("(< y (Length1 multiDim))", pos.get(1).getExpression().toStringTree());
+            assertEquals(0, path.getPathConditions().size());
+        }
+        {
+            SymbexPath path = results.get(cnt++);
+            assertEquals(AssertionType.RT_IN_BOUNDS, path.getCommonProofObligationType());
+            ImmutableList<AssertionElement> pos = path.getProofObligations();
+            assertEquals(2, pos.size());
+            assertEquals("(>= x 0)", pos.get(0).getExpression().toStringTree());
+            assertEquals("(< x (Length0 multiDim))", pos.get(1).getExpression().toStringTree());
+            assertEquals(0, path.getPathConditions().size());
+        }
+        {
+            SymbexPath path = results.get(cnt++);
+            assertEquals(AssertionType.RT_NONNULL, path.getCommonProofObligationType());
+            AssertionElement po = path.getProofObligations().get(0);
+            assertEquals("(!= multiDim null)", po.getExpression().toStringTree());
+            assertEquals(0, path.getPathConditions().size());
         }
         {
             SymbexPath path = results.get(cnt++);
@@ -546,12 +570,13 @@ public class SymbexTest {
         }
     }
 
+    // revealed a bug
     @Test
     public void testHandleRuntimeAssertionsWhile() throws Exception {
         InputStream stream = getClass().getResourceAsStream("runtimeAssert.dfy");
         DafnyTree parseTree = ParserTest.parseFile(stream);
-        TestUtil.mockProject(parseTree);
-        this.tree = parseTree.getChild(2);
+        Project project = TestUtil.mockProject(parseTree);
+        this.tree = project.getMethod("runtimeInWhile").getRepresentation();
 
         Symbex symbex = new Symbex();
         List<SymbexPath> results = symbex.symbolicExecution(tree);
@@ -572,7 +597,6 @@ public class SymbexTest {
             assertEquals("[(ASSIGN $mod $everything), "
                             + "(ASSIGN $decr 0), "
                             + "(ASSIGN i WILDCARD), "
-                            + "(ASSIGN $heap (CALL $anon (ARGS $heap $mod $aheap_1))), "
                             + "(ASSIGN $decr_1 i)]",
                     path.getAssignmentHistory().map(x->x.toStringTree()).toString());
         }
@@ -587,7 +611,6 @@ public class SymbexTest {
             assertEquals("[(ASSIGN $mod $everything), "
                             + "(ASSIGN $decr 0), "
                             + "(ASSIGN i WILDCARD), "
-                            + "(ASSIGN $heap (CALL $anon (ARGS $heap $mod $aheap_1))), "
                             + "(ASSIGN $decr_1 i)]",
                     path.getAssignmentHistory().map(x->x.toStringTree()).toString());
         }
@@ -750,7 +773,6 @@ public class SymbexTest {
         Symbex symbex = new Symbex();
         List<SymbexPath> results = symbex.symbolicExecution(tree);
 
-        assertEquals(4, results.size());
         int index = 0;
         {
             SymbexPath path = results.get(index++);
@@ -785,16 +807,26 @@ public class SymbexTest {
         {
             SymbexPath path = results.get(index++);
             assertEquals("Post", path.getPathIdentifier());
-            assertEquals(3, path.getPathConditions().size());
-            assertEquals("(LET (VAR this p) c 24 true)",
-                    path.getPathConditions().getLast().getExpression().toStringTree());
+            assertEquals(4, path.getPathConditions().size());
+         //   assertEquals("(LET (VAR a b) $res_multiReturn_1 $res_multiReturn_2 (&& (== a 1) (== b 2)))",
+         //           path.getPathConditions().getLast().getExpression().toStringTree());
             assertEquals("[(== c c)]",
                     path.getProofObligations().map(x -> x.getExpression().toStringTree()).toString());
             assertEquals("[(ASSIGN $mod $everything), (ASSIGN $decr 0), " +
                             "(ASSIGN x $res_CallMe_1), (ASSIGN y $res_CallMe_2), " +
-                            "(ASSIGN $heap (CALL $anon (ARGS $heap (LET (VAR this p) c 24 this) $aheap_1)))]",
+                            "(ASSIGN $heap (CALL $anon (ARGS $heap (LET (VAR this p) c 24 this) $aheap_1))), " +
+                            "(ASSIGN x $res_multiReturn_1), (ASSIGN y $res_multiReturn_2)]",
                     path.getAssignmentHistory().map(DafnyTree::toStringTree).toString());
         }
+        {
+            SymbexPath path = results.get(index++);
+            assertEquals("EstPre[multiReturn]", path.getPathIdentifier());
+            assertEquals(3, path.getPathConditions().size());
+            assertEquals(5, path.getAssignmentHistory().size());
+            assertEquals("[(LET (VAR a b) $res_multiReturn_1 $res_multiReturn_2 (== 42 42))]",
+                    path.getProofObligations().map(x -> x.getExpression().toStringTree()).toString());
+        }
+        assertEquals(index, results.size());
     }
 
     // identified a bug
@@ -854,7 +886,7 @@ public class SymbexTest {
                     path.getPathConditions().map(x -> x.getExpression().toStringTree()).toString());
             assertEquals("[(ASSIGN $mod $everything), (ASSIGN $decr (* 2 n))]",
                     path.getAssignmentHistory().map(DafnyTree::toStringTree).toString());
-            assertEquals("[(LET (VAR r n) $res_recursive_1 (- n 1) (NOETHER_LESS (LET (VAR r n) $res_recursive_1 (- n 1) (* 2 n)) $decr))]",
+            assertEquals("[(LET (VAR r n) $res_recursive_1 (- n 1) (NOETHER_LESS (LISTEX (LET (VAR r n) $res_recursive_1 (- n 1) (* 2 n))) (LISTEX $decr)))]",
                     path.getProofObligations().map(x -> x.getExpression().toStringTree()).toString());
         }
     }
@@ -1081,7 +1113,7 @@ public class SymbexTest {
             // first return statement
             SymbexPath path = paths.get(2);
             assertEquals("[(ASSIGN $mod $everything), (ASSIGN $decr 0), (ASSIGN v WILDCARD), " +
-                            "(ASSIGN $heap (CALL $anon (ARGS $heap $mod $aheap_1))), (ASSIGN $decr_1 v)]",
+                            "(ASSIGN $decr_1 v)]",
                     path.getAssignmentHistory().map(x -> x.toStringTree()).toString());
             assertEquals("[(== 1 1)]",
                     path.getProofObligations().map(x -> x.getExpression().toStringTree()).toString());
@@ -1089,8 +1121,7 @@ public class SymbexTest {
         {
             // first return statement
             SymbexPath path = paths.get(3);
-            assertEquals("[(ASSIGN $mod $everything), (ASSIGN $decr 0), (ASSIGN v WILDCARD), " +
-                            "(ASSIGN $heap (CALL $anon (ARGS $heap $mod $aheap_1)))]",
+            assertEquals("[(ASSIGN $mod $everything), (ASSIGN $decr 0), (ASSIGN v WILDCARD)]",
                     path.getAssignmentHistory().map(x -> x.toStringTree()).toString());
             assertEquals("[(== 1 1)]",
                     path.getProofObligations().map(x -> x.getExpression().toStringTree()).toString());
@@ -1133,6 +1164,17 @@ public class SymbexTest {
             TestUtil.call(symbex, "collectAssignedVars", t, set);
             assertEquals("[(var x (TYPE int))]", Util.map(set, DafnyTree::toStringTree).toString());
         }
+    }
+
+    @Test
+    public void testPrintStatement() throws Exception {
+        Symbex symbex = new Symbex();
+        Project p = TestUtil.mockProject("method m() ensures 2==2 { print \"1\", \"2\"; assert 1==1; }");
+        List<SymbexPath> result = symbex.symbolicExecution(p.getMethod("m").getRepresentation());
+        int cnt = 0;
+        assertEquals(AssertionType.EXPLICIT_ASSERT, result.get(cnt++).getCommonProofObligationType());
+        assertEquals(AssertionType.POST, result.get(cnt++).getCommonProofObligationType());
+        assertEquals(2, cnt);
     }
 
 }

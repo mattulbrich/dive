@@ -5,10 +5,8 @@
  */
 package edu.kit.iti.algover.symbex;
 
-import antlr.collections.AST;
 import edu.kit.iti.algover.ProgramDatabase;
 import edu.kit.iti.algover.dafnystructures.TarjansAlgorithm;
-import edu.kit.iti.algover.parser.DafnyException;
 import edu.kit.iti.algover.parser.DafnyParser;
 import edu.kit.iti.algover.parser.DafnyTree;
 import edu.kit.iti.algover.symbex.AssertionElement.AssertionType;
@@ -116,6 +114,8 @@ public class Symbex {
 
                 case DafnyParser.PRINT:
                     // TODO just ignore it for now ... RT tests for arguments ...
+                    state.setBlockToExecute(remainder);
+                    stack.add(state);
                     break;
 
                 case DafnyParser.RETURN:
@@ -151,7 +151,7 @@ public class Symbex {
     }
 
     /**
-     * Handle a call statement (w/o receiver)
+     * Handle a call statement
      *
      * var $resultN : R;
      * assert pre_m;
@@ -164,7 +164,7 @@ public class Symbex {
      * @returns a DafnyTree which can be used to access
      * the result of the call for later use.
      */
-    private DafnyTree handleMethodCall(Deque<SymbexPath> stack, SymbexPath state,
+    private List<DafnyTree> handleMethodCall(Deque<SymbexPath> stack, SymbexPath state,
                                        DafnyTree refersTo,
                                        DafnyTree receiver, boolean nullCheckReceiver,
                                        DafnyTree method, DafnyTree args) {
@@ -176,11 +176,14 @@ public class Symbex {
 
         // bring up result value
         DafnyTree returns = method.getFirstChildWithType(DafnyParser.RETURNS);
-        DafnyTree result = null;
+        List<DafnyTree> result = new ArrayList<>();
         if(returns != null) {
-            DafnyTree type = returns.getChild(0).getFirstChildWithType(DafnyParser.TYPE).getChild(0);
-            result = ASTUtil.freshVariable("$res_" + methodname, type, state);
-            subs.add(new Pair<>(returns.getChild(0).getChild(0).getText(), result));
+            for (DafnyTree ret : returns.getChildren()) {
+                DafnyTree type = ret.getFirstChildWithType(DafnyParser.TYPE).getChild(0);
+                DafnyTree newVar = ASTUtil.freshVariable("$res_" + methodname, type, state);
+                result.add(newVar);
+                subs.add(new Pair<>(ret.getChild(0).getText(), newVar));
+            }
         }
 
         // Receiver must be mapped to "this"
@@ -285,7 +288,7 @@ public class Symbex {
         DafnyTree arrayType = ASTUtil.create(DafnyParser.ARRAY, "array", type);
 
         handleExpression(stack, current, size);
-        addIndexInRangeCheck(stack, current, size, null);
+        addIndexInRangeCheck(stack, current, size, null, "");
 
         DafnyTree newObj = ASTUtil.freshVariable("$new", arrayType, current);
         current.addPathCondition(ASTUtil.negate(ASTUtil.builtIn(ASTUtil.call("$isCreated", ASTUtil.builtInVar("$heap"), newObj))), stm,
@@ -520,6 +523,13 @@ public class Symbex {
      */
     void handleAssign(Deque<SymbexPath> stack, SymbexPath state,
             DafnyTree stm, DafnyTree remainder) {
+        
+        if(stm.getChildCount() > 2) {
+            // multi-return method invocation like "x,y := meth();" 
+            handleMultiReturnAssign(stack, state, stm, remainder);
+            return;
+        }
+        
         DafnyTree assignee = stm.getChild(0);
         handleExpression(stack, state, assignee);
         addModifiesCheck(stack, state, assignee);
@@ -531,8 +541,9 @@ public class Symbex {
             if(decl.getType() == DafnyParser.METHOD) {
                 DafnyTree receiver = expression.getChildCount() > 2 ? expression.getChild(1) : null;
                 DafnyTree args = expression.getFirstChildWithType(DafnyParser.ARGS);
-                DafnyTree resultVar = handleMethodCall(stack, state, expression, receiver, true, decl, args);
-                state.addAssignment(ASTUtil.assign(assignee, resultVar));
+                List<DafnyTree> resultVars = handleMethodCall(stack, state, expression, receiver, true, decl, args);
+                assert resultVars.size() == 1 : "This is a single result method situation";
+                state.addAssignment(ASTUtil.assign(assignee, resultVars.get(0)));
             } else {
                 handleExpression(stack, state, expression);
                 state.addAssignment(stm);
@@ -548,6 +559,33 @@ public class Symbex {
             handleExpression(stack, state, expression);
             state.addAssignment(stm);
             break;
+        }
+
+        state.setBlockToExecute(remainder);
+        stack.push(state);
+    }
+
+    private void handleMultiReturnAssign(Deque<SymbexPath> stack, SymbexPath state, DafnyTree stm, DafnyTree remainder) {
+        DafnyTree expression = stm.getLastChild();
+        assert expression.getType() == DafnyParser.CALL : "Should be prevented by parser";
+
+        for (int i = 0; i < stm.getChildCount() - 1; i++) {
+            DafnyTree assignee = stm.getChild(i);
+            handleExpression(stack, state, assignee);
+            addModifiesCheck(stack, state, assignee);
+        }
+
+        DafnyTree decl = expression.getChild(expression.getChildCount()-2).getDeclarationReference();
+        assert decl.getType() == DafnyParser.METHOD : "Should be prevented by reference resolution";
+
+
+        DafnyTree receiver = expression.getChildCount() > 2 ? expression.getChild(1) : null;
+        DafnyTree args = expression.getFirstChildWithType(DafnyParser.ARGS);
+        List<DafnyTree> resultVars = handleMethodCall(stack, state, expression, receiver, true, decl, args);
+
+        int no = 0;
+        for (DafnyTree resultVar : resultVars) {
+            state.addAssignment(ASTUtil.assign(stm.getChild(no++), resultVar));
         }
 
         state.setBlockToExecute(remainder);
@@ -661,23 +699,26 @@ public class Symbex {
                 vars.add(HEAP_VAR);
                 break;
 
-                default: throw new Error(tree.toString());
+            default: throw new Error("Unsupported assignment target: " + tree.toString());
             }
             break;
 
         case DafnyParser.CALL:
-            // TODO Add check if method is strictly pure.
-            vars.add(HEAP_VAR);
-            break;
-
-        default:
-            List<DafnyTree> children = tree.getChildren();
-            if (children != null) {
-                for (DafnyTree r : children) {
-                    collectAssignedVars(r, vars);
-                }
+            // TODO ... is this index right?
+            DafnyTree callee = tree.getChild(0);
+            DafnyTree declRef = callee.getDeclarationReference();
+            if (declRef.getType() == DafnyParser.METHOD) {
+                // TODO Add check if method is strictly pure.
+                vars.add(HEAP_VAR);
             }
             break;
+        }
+
+        List<DafnyTree> children = tree.getChildren();
+        if (children != null) {
+            for (DafnyTree r : children) {
+                collectAssignedVars(r, vars);
+            }
         }
     }
 
@@ -816,11 +857,15 @@ public class Symbex {
 
         case DafnyParser.ARRAY_ACCESS:
             child0 = expression.getChild(0);
-            child1 = expression.getChild(1);
-            addNonNullCheck(stack, current, child0);
-            addIndexInRangeCheck(stack, current, child1, child0);
             handleExpression(stack, current, child0);
-            handleExpression(stack, current, child1);
+            addNonNullCheck(stack, current, child0);
+
+            for (int i = 1; i < expression.getChildCount(); i++) {
+                DafnyTree child = expression.getChild(i);
+                String suffix = expression.getChildCount() > 2 ? Integer.toString(i - 1) : "";
+                addIndexInRangeCheck(stack, current, child, child0, suffix);
+                handleExpression(stack, current, child);
+            }
             break;
 
         case DafnyParser.LENGTH:
@@ -841,12 +886,13 @@ public class Symbex {
      * Use "null" for array if only lower bounds check
      */
     private void addIndexInRangeCheck(Deque<SymbexPath> stack, SymbexPath current,
-            DafnyTree idx, @Nullable DafnyTree array) {
+                                      DafnyTree idx, @Nullable DafnyTree array,
+                                      String arrayLengthSuffix) {
         SymbexPath bounds = new SymbexPath(current);
         List<DafnyTree> pos = new ArrayList<>();
         pos.add(ASTUtil.greaterEqual(idx, ASTUtil.intLiteral(0)));
         if (array != null) {
-            pos.add(ASTUtil.less(idx, ASTUtil.length(array)));
+            pos.add(ASTUtil.less(idx, ASTUtil.length(array, arrayLengthSuffix)));
         }
         bounds.setProofObligations(pos, idx, AssertionType.RT_IN_BOUNDS);
         bounds.setBlockToExecute(Symbex.EMPTY_PROGRAM);

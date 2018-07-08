@@ -41,6 +41,7 @@ public class SMTQuickNDirty implements TermVisitor<Void, SExpr, RuntimeException
         ops.put("$or", "or");
         ops.put("$imp", "=>");
         ops.put("$eq<int>", "=");
+        ops.put("$eq<array<int>>", "=");
         ops.put("$lt", "<");
         ops.put("$le", "<=");
         ops.put("$ge", ">=");
@@ -51,6 +52,11 @@ public class SMTQuickNDirty implements TermVisitor<Void, SExpr, RuntimeException
         ops.put("$seq_upd<int>", "sequpd");
         ops.put("$seq_len<int>", "seqlen");
         ops.put("$seq_get<int>", "seqget");
+        ops.put("$array_select<int>", "select");
+        ops.put("$array_store<int>", "store");
+        ops.put("$len<int>", "arrlen");
+        ops.put("$neg", "-");
+        ops.put("null", "0");
     }
 
     @Override

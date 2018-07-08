@@ -301,6 +301,10 @@ public class TreeTermTranslator {
             }
             break;
 
+        case DafnyParser.MODULO:
+            result = buildBinary(BuiltinSymbols.MODULO, tree);
+            break;
+
         case DafnyParser.DIV:
             result = buildBinary(BuiltinSymbols.DIV, tree);
             break;
@@ -514,8 +518,7 @@ public class TreeTermTranslator {
         List<Term> argTerms = new ArrayList<>();
 
         if(fct == null) {
-            id = "$$" + id;
-            fct = symbolTable.getFunctionSymbol(id);
+            fct = symbolTable.getFunctionSymbol("$$" + id);
             argTerms.add(getHeap());
         }
 

@@ -8,6 +8,7 @@ package edu.kit.iti.algover.parser;
 import java.util.List;
 
 import edu.kit.iti.algover.util.ASTUtil;
+import edu.kit.iti.algover.util.Util;
 import org.antlr.runtime.tree.Tree;
 
 import edu.kit.iti.algover.project.Project;
@@ -172,6 +173,11 @@ public class TypeResolution extends DafnyTreeDefaultVisitor<DafnyTree, Void> {
 
     @Override
     public DafnyTree visitDIV(DafnyTree t, Void a) {
+        return operation(t, INT_TYPE, "int", "int");
+    }
+
+    @Override
+    public DafnyTree visitMODULO(DafnyTree t, Void a) {
         return operation(t, INT_TYPE, "int", "int");
     }
 
@@ -354,7 +360,9 @@ public class TypeResolution extends DafnyTreeDefaultVisitor<DafnyTree, Void> {
         List<DafnyTree> formal = decl.getFirstChildWithType(DafnyParser.ARGS).getChildren();
 
         if(formal.size() != actual.size()) {
-            exceptions.add(new DafnyException("xxx", t));
+            exceptions.add(new DafnyException("Wrong number of arguments in call to " +
+                    call.getText() + ". Expected " + formal.size() +
+                    ", but received " + actual.size(), t));
         }
 
         for (int i = 0; i < formal.size(); i++) {
@@ -376,9 +384,12 @@ public class TypeResolution extends DafnyTreeDefaultVisitor<DafnyTree, Void> {
                 result = null;
             } else {
                 if(rets.getChildCount() > 1) {
-                    exceptions.add(new DafnyException("Sorry, no supoprt for multi return yet.", t));
+                    List<DafnyTree> types = Util.map(rets.getChildren(),
+                            x -> x.getFirstChildWithType(DafnyParser.TYPE).getChild(0));
+                    result = ASTUtil.listExpr(types);
+                } else {
+                    result = rets.getChild(0).getFirstChildWithType(DafnyParser.TYPE).getChild(0);
                 }
-                result = rets.getChild(0).getFirstChildWithType(DafnyParser.TYPE).getChild(0);
             }
         } else {
             assert decl.getType() == DafnyParser.FUNCTION;
@@ -413,6 +424,14 @@ public class TypeResolution extends DafnyTreeDefaultVisitor<DafnyTree, Void> {
             t.setExpressionType(ty);
             return ty;
         }
+    }
+
+    @Override
+    public DafnyTree visitOLD(DafnyTree t, Void a) {
+        DafnyTree child = t.getChild(0);
+        DafnyTree result = child.accept(this, null);
+        t.setExpressionType(result);
+        return result;
     }
 
     @Override
@@ -541,8 +560,18 @@ public class TypeResolution extends DafnyTreeDefaultVisitor<DafnyTree, Void> {
     @Override
     public DafnyTree visitASSIGN(DafnyTree t, Void a) {
         DafnyTree result = visitDepth(t);
-        String ty1 = TreeUtil.toTypeString(t.getChild(0).getExpressionType());
-        String ty2 = TreeUtil.toTypeString(t.getChild(1).getExpressionType());
+        String ty1;
+        if (t.getChildCount() == 2) {
+            // single assignment x := term;
+            ty1 = TreeUtil.toTypeString(t.getChild(0).getExpressionType());
+        } else {
+            // multi-return: x,y := M();
+            List<DafnyTree> lhs = t.getChildren().subList(0, t.getChildCount() - 1);
+            List<DafnyTree> types = Util.map(lhs, DafnyTree::getExpressionType);
+            ty1 = TreeUtil.toTypeString(ASTUtil.listExpr(types));
+        }
+
+        String ty2 = TreeUtil.toTypeString(t.getLastChild().getExpressionType());
         if (!ty1.equals(ty2)) {
             exceptions.add(new DafnyException("Assigning a value of type " + ty2 + " to an entitity"
                     + " of type " + ty1, t));

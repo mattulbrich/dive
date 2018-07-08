@@ -85,9 +85,14 @@ public class TestUtil {
         return mockProject(tree);
     }
 
+
     public static Project mockProject(DafnyTree tree) throws IOException, DafnyParserException, DafnyException, RecognitionException {
         ProjectBuilder pb = new ProjectBuilder();
         pb.addDafnyTree("dummyFilenameForTesting.dfy", tree);
+        return mockProject(pb);
+    }
+
+    public static Project mockProject(ProjectBuilder pb) throws DafnyException, DafnyParserException, IOException {
         Project p = pb.build();
 
         List<DafnyException> exceptions = new ArrayList<>();

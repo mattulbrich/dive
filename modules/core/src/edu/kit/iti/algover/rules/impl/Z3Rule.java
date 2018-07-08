@@ -53,12 +53,15 @@ import java.util.Map;
  * Code quality is lower than elsewhere since this is a temporary implementation.
  */
 public class Z3Rule extends AbstractProofRule {
+
      //debug ???
     private static Model model = new Model(new ArrayList<>()); //empty model
     
     public static Model getModel() {
         return model;
     }
+
+
 
     @Override
     public String getName() {

@@ -122,7 +122,7 @@ public class DafnyRuleUtil {
      *
      * @param method the DafnyMethod
      * @return the generated rule
-     * @throws DafnyRuleException if DafnyMethod doesnÂ´t meet requirements for DafnyRule-creation which are:
+     * @throws DafnyRuleException if DafnyMethod doesn´t meet requirements for DafnyRule-creation which are:
      *                              - exactly 1 ensures clause
      *                              - ensures clause is either a implication or a aquivalence
      */
@@ -149,7 +149,7 @@ public class DafnyRuleUtil {
         DafnyTree equalsClause = null;
         DafnyTree implClause = null;
         if(ensuresClause.getChildCount() != 1) {
-            throw new DafnyRuleException("The requires clause has to contain exactly 1 child of either typ EQ or IMPLIES");
+            throw new DafnyRuleException("The ensures clause has to contain exactly 1 child of either typ EQ or IMPLIES");
         }
         if(ensuresClause.getChild(0).getType() == DafnyParser.EQ) {
             equalsClause = ensuresClause.getChild(0);
@@ -237,5 +237,4 @@ class ReplaceProgramVariableVisitor extends ReplacementVisitor<List<String>> {
         }
     }
 }
-
 
