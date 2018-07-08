@@ -33,6 +33,7 @@ import edu.kit.iti.algover.smttrans.access.Z3Access;
 import edu.kit.iti.algover.smttrans.data.SMTContainer;
 import edu.kit.iti.algover.smttrans.translate.SMTTerm;
 import edu.kit.iti.algover.smttrans.translate.SMTVisitor;
+import edu.kit.iti.algover.smttrans.translate.TypeContext;
 import edu.kit.iti.algover.smttrans.translate.expressions.SMTExpression;
 import edu.kit.iti.algover.term.FunctionSymbol;
 import edu.kit.iti.algover.term.Sequent;
@@ -177,17 +178,14 @@ public class Z3Rule extends AbstractProofRule {
     }
 
     
-    public SMTContainer testRule(Sequent sequent, SymbolTable symbolTable) {
+    public String testRule(Sequent sequent, SymbolTable symbolTable) {
         
         SMTContainer container = translateToSMT(sequent, symbolTable);
-       // System.out.println(container.toSMT());
-        Z3Access z3access = new Z3Access();
         String smt = container.toSMT();
-//        SolverParameter p = new SolverParameter(smt,3, true);
-//        SolverResponse r1 = z3access.accessSolver(p);
-//        System.out.println(r1.getResponse().name());
-        System.out.println(smt);
-        return container;
+        TypeContext.reset();
+      
+        
+        return smt;
     }
     
     private SMTContainer translateToSMT(Sequent sequent, SymbolTable symbolTable) {

@@ -7,32 +7,22 @@
 
 package edu.kit.iti.algover.smttrans.translate;
 
-import edu.kit.iti.algover.dafnystructures.DafnyDecl;
 import edu.kit.iti.algover.data.BuiltinSymbols;
-import edu.kit.iti.algover.data.MapSymbolTable;
 import edu.kit.iti.algover.data.SymbolTable;
 import edu.kit.iti.algover.parser.DafnyException;
 import edu.kit.iti.algover.parser.DafnyParserException;
-import edu.kit.iti.algover.project.Project;
-import edu.kit.iti.algover.project.ProjectBuilder;
-import edu.kit.iti.algover.proof.MethodPVCBuilder;
-import edu.kit.iti.algover.proof.MockPVCBuilder;
-import edu.kit.iti.algover.proof.PVC;
-import edu.kit.iti.algover.proof.ProofNode;
-import edu.kit.iti.algover.rules.ProofRule;
-import edu.kit.iti.algover.rules.ProofRuleApplication;
-import edu.kit.iti.algover.rules.RuleApplicator;
-import edu.kit.iti.algover.rules.RuleException;
-import edu.kit.iti.algover.rules.TermSelector;
 import edu.kit.iti.algover.rules.impl.Z3Rule;
+import edu.kit.iti.algover.smttrans.access.Response;
+import edu.kit.iti.algover.smttrans.access.SolverParameter;
+import edu.kit.iti.algover.smttrans.access.SolverResponse;
+import edu.kit.iti.algover.smttrans.access.Z3Access;
 import edu.kit.iti.algover.term.FunctionSymbol;
 import edu.kit.iti.algover.term.Sequent;
 import edu.kit.iti.algover.term.Sort;
-import edu.kit.iti.algover.term.builder.TermBuildException;
 import edu.kit.iti.algover.term.parser.TermParser;
-import edu.kit.iti.algover.util.Pair;
-import edu.kit.iti.algover.util.ProofMockUtil;
 import edu.kit.iti.algover.util.TreeUtil;
+
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -44,11 +34,6 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.List;
-
-import static org.junit.Assert.*;
 
 @RunWith(Parameterized.class)
 public class SetUnitTest {
@@ -74,13 +59,13 @@ public class SetUnitTest {
         BufferedReader r = new BufferedReader(new InputStreamReader(stream));
 
         String line;
-        while((line=r.readLine()) != null) {
+        while ((line = r.readLine()) != null) {
             line = line.trim();
             if (line.startsWith("#") || line.isEmpty()) {
                 continue;
             }
 
-            if(line.equals("---")) {
+            if (line.equals("---")) {
                 break;
             }
 
@@ -91,7 +76,7 @@ public class SetUnitTest {
         }
 
         StringBuilder sb = new StringBuilder();
-        while((line=r.readLine()) != null) {
+        while ((line = r.readLine()) != null) {
             sb.append(line).append("\n");
         }
 
@@ -100,36 +85,41 @@ public class SetUnitTest {
 
     @Test
     public void verifyZ3() {
- 
-        System.out.println(sequent.toString());
-        
+
         Z3Rule rule = new Z3Rule();
-        rule.testRule(sequent, st);
-//        MockPVCBuilder pvcBuilder = new MockPVCBuilder();
-//        pvcBuilder.setSequent(sequent);
-//        pvcBuilder.setSymbolTable(st);
-//        Z3Rule rule = new Z3Rule();
-//        PVC pvc = new PVC(pvcBuilder);
-//        ProofNode pn = null;
-//        try {
-//             pn = ProofMockUtil.mockProofNodePVC(null, sequent.getAntecedent(), sequent.getSuccedent(), pvc);
-//             
-//        } catch (TermBuildException e) {
-//            // TODO Auto-generated catch block
-//            e.printStackTrace();
-//        }
-//        
-//      try {
-//     ProofRuleApplication app = rule.makeApplication(pn, edu.kit.iti.algover.rules.Parameters.EMPTY_PARAMETERS);
-//     RuleApplicator.applyRule(app, pn);
-//  } catch (RuleException e) {
-//      // TODO Auto-generated catch block
-//      e.printStackTrace();
-//  }
-        
+        Z3Access z3Access = new Z3Access();
+        String smt = rule.testRule(sequent, st);
+
+        SolverParameter p = new SolverParameter(smt, 3, true);
+        SolverResponse r1 = z3Access.accessSolver(p);
+        Assert.assertEquals(Response.UNSAT, r1.getResponse());
+
+        // MockPVCBuilder pvcBuilder = new MockPVCBuilder();
+        // pvcBuilder.setSequent(sequent);
+        // pvcBuilder.setSymbolTable(st);
+        // Z3Rule rule = new Z3Rule();
+        // PVC pvc = new PVC(pvcBuilder);
+        // ProofNode pn = null;
+        // try {
+        // pn = ProofMockUtil.mockProofNodePVC(null, sequent.getAntecedent(),
+        // sequent.getSuccedent(), pvc);
+        //
+        // } catch (TermBuildException e) {
+        // // TODO Auto-generated catch block
+        // e.printStackTrace();
+        // }
+        //
+        // try {
+        // ProofRuleApplication app = rule.makeApplication(pn,
+        // edu.kit.iti.algover.rules.Parameters.EMPTY_PARAMETERS);
+        // RuleApplicator.applyRule(app, pn);
+        // } catch (RuleException e) {
+        // // TODO Auto-generated catch block
+        // e.printStackTrace();
+        // }
+
     }
 
-    
     @Test
     public void verifyCVC() {
 

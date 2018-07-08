@@ -12,11 +12,18 @@ import edu.kit.iti.algover.data.MapSymbolTable;
 import edu.kit.iti.algover.data.SymbolTable;
 import edu.kit.iti.algover.parser.DafnyException;
 import edu.kit.iti.algover.parser.DafnyParserException;
+import edu.kit.iti.algover.rules.impl.Z3Rule;
+import edu.kit.iti.algover.smttrans.access.Response;
+import edu.kit.iti.algover.smttrans.access.SolverParameter;
+import edu.kit.iti.algover.smttrans.access.SolverResponse;
+import edu.kit.iti.algover.smttrans.access.Z3Access;
 import edu.kit.iti.algover.term.FunctionSymbol;
 import edu.kit.iti.algover.term.Sequent;
 import edu.kit.iti.algover.term.Sort;
 import edu.kit.iti.algover.term.parser.TermParser;
 import edu.kit.iti.algover.util.TreeUtil;
+
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -83,8 +90,15 @@ public class Arr2UnitTest {
 
     @Test
     public void verifyZ3() {
-        System.out.println(sequent);
-        
+        Z3Rule rule = new Z3Rule();
+        Z3Access z3Access = new Z3Access();
+        String smt = rule.testRule(sequent, st);
+
+        SolverParameter p = new SolverParameter(smt, 3, true);
+        SolverResponse r1 = z3Access.accessSolver(p);
+        Assert.assertEquals(Response.UNSAT, r1.getResponse());
+
+
         
     }
 

@@ -58,6 +58,11 @@ public class TypeContext {
 
     }
 
+    
+public static void reset() {
+    preamble.clear();
+    symbolTable = new MapSymbolTable(new HashSet<>());
+}
     public static boolean isBuiltIn(String s) {
         return builtinTypes.contains(s.toLowerCase());
     }

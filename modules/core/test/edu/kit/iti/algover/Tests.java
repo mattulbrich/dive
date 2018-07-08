@@ -10,7 +10,10 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
 import org.junit.runners.Suite.SuiteClasses;
 
+import edu.kit.iti.algover.smttrans.translate.Arr2UnitTest;
+import edu.kit.iti.algover.smttrans.translate.MultisetUnitTest;
 import edu.kit.iti.algover.smttrans.translate.SeqUnitTest;
+import edu.kit.iti.algover.smttrans.translate.SetUnitTest;
 
 @RunWith(Suite.class)
 @SuiteClasses({
@@ -61,11 +64,11 @@ import edu.kit.iti.algover.smttrans.translate.SeqUnitTest;
 //        IntegerTest.class,
 //        FolTest.class,
 //        Arr1Test.class,
-  SeqUnitTest.class,        
-    
- //   SetUnitTest.class
-   // Arr2UnitTest.class,
-   // MultisetUnitTest.class,
+ // SetUnitTest.class,        
+  SeqUnitTest.class,  
+    SetUnitTest.class,
+    Arr2UnitTest.class,
+    MultisetUnitTest.class,
      
      //   DafnyExampleTest.class
     

@@ -61,27 +61,27 @@ public class OperationMatcher {
         opmap.put("$anon", Operation.ANON);
         opmap.put("$create", Operation.CREATE);
         opmap.put("$isCreated", Operation.ISCREATED);
-                opmap.put("$mod", Operation.MOD);
-                opmap.put("$everything", Operation.EVERYTHING);
-                opmap.put("$empty", Operation.SETEMPTY);
-                opmap.put("$heap", Operation.HEAP);
-              opmap.put("$aheap", Operation.AHEAP);
+        opmap.put("$mod", Operation.MOD);
+        opmap.put("$everything", Operation.EVERYTHING);
+        opmap.put("$empty", Operation.SETEMPTY);
+        opmap.put("$heap", Operation.HEAP);
+        opmap.put("$aheap", Operation.AHEAP);
 
-        opmap.put("$multi_minus",Operation.MULTIMINUS);
-        opmap.put("$multi_union",Operation.MULTIUNION);
-        opmap.put("$multi_intersect",Operation.MULTIINTERSECT );
+        opmap.put("$multi_minus", Operation.MULTIMINUS);
+        opmap.put("$multi_union", Operation.MULTIUNION);
+        opmap.put("$multi_intersect", Operation.MULTIINTERSECT);
         opmap.put("$multi_empty", Operation.MULTIEMPTY);
-        opmap.put("$multi_set_card",Operation.MULTICARD );
-        opmap.put("$multi_set_in",Operation.MULTIIN );
+        opmap.put("$multi_set_card", Operation.MULTICARD);
+        opmap.put("$multi_set_in", Operation.MULTIIN);
         opmap.put("$multi_set_add", Operation.MULTIADD);
-      
+
     }
 
     public static Operation matchOp(String op) {
 
-//        if (op.startsWith("$$"))
-//            return Operation.FUNC;
-        
+        // if (op.startsWith("$$"))
+        // return Operation.FUNC;
+
         Iterable<String> operators = Splitter.on(".").split(op);
 
         List<String> ops = Arrays.asList(Iterables.toArray(operators, String.class));
@@ -92,8 +92,7 @@ public class OperationMatcher {
             SymbolHandler.handleFunc(op);
             return Operation.FUNC;
         }
-        //return opmap.getOrDefault(ops.get(0),Operation.FUNC);
-        
+        // return opmap.getOrDefault(ops.get(0),Operation.FUNC);
 
     }
 }

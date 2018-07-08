@@ -78,13 +78,16 @@ public enum Operation {
         SETIN.instantiations = asList(Axiom.SETEMPTY_INST, Axiom.SET_IN, Axiom.SET_INSERT, Axiom.SET_1, Axiom.SET_2,
                 Axiom.SET_IN);
 
+        
         MULTIUNION.smt = "munion";
         MULTIUNION.poly = true;
-
+        MULTIUNION.instantiations = asList(Axiom.MULTISET_UNION);
         MULTIMINUS.smt = "msetminus";
         MULTIMINUS.poly = true;
+        MULTIMINUS.instantiations = asList(Axiom.MULTISET_MINUS);
         MULTIINTERSECT.smt = "mintersect";
         MULTIINTERSECT.poly = true;
+        MULTIINTERSECT.instantiations = asList(Axiom.MULTISET_INTERSECT);
         MULTIEMPTY.smt = "msetEmpty";
         MULTIEMPTY.poly = true;
         MULTICARD.smt = "mcard";
@@ -127,7 +130,7 @@ public enum Operation {
 
         SEQEMPTY.smt = "seqEmpty";
         SEQEMPTY.poly = true;
-        SEQEMPTY.instantiations = asList(Axiom.SEQEMTY_INST, Axiom.SEQ_LEN, Axiom.SEQ_LEN_5);
+        SEQEMPTY.instantiations = asList(Axiom.SEQ_LEN); //Axiom.SEQ_LEN_5
 
         SETEMPTY.smt = "setEmpty";
         SETEMPTY.poly = true;
@@ -137,9 +140,9 @@ public enum Operation {
         EVERYTHING.instantiations = asList(Axiom.SET_IN, Axiom.SET_INSERT, Axiom.SET_1, Axiom.EVERYTHING); //
         EVERYTHING.special = true;
 
-        SEQCONS.smt = "SEQCONS";
+        SEQCONS.smt = "seqcons";
         SEQCONS.poly = true;
-        SEQCONS.instantiations = asList(Axiom.SEQEMTY_INST); // TODO
+        SEQCONS.instantiations = asList(Axiom.SEQ_CONS, Axiom.SEQ_6, Axiom.SEQ_7);
 
         SEQUPD.smt = "seqstore";
         SEQUPD.poly = true;
