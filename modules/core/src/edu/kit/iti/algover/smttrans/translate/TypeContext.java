@@ -267,7 +267,7 @@ public class TypeContext {
         String aname = fs.getName().substring(1, fs.getName().length());
 
         FunctionSymbol nfs = new FunctionSymbol(Names.makeSMTName(aname, sname), normalizeSort(fs.getResultSort()));
-
+        preamble.add(new FuncDependency(fs));
         return nfs;
 
     }
@@ -378,7 +378,10 @@ public class TypeContext {
 
         }
         
-        nsmt += fibDef;
+        for (String f : functions.keySet()) {
+            if (smt.contains(f))
+                nsmt += functions.get(f); 
+        }
 
         for (; i < lines.size(); i++) {
 

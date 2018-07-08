@@ -72,9 +72,9 @@ import edu.kit.iti.algover.smttrans.translate.SumAndMaxTest;
 //        IntegerTest.class,
 //        FolTest.class,
 //        Arr1Test.class,
- // SeqUnitTest.class,        
+  SeqUnitTest.class,        
     
-    SetUnitTest.class
+ //   SetUnitTest.class
    // Arr2UnitTest.class,
    // MultisetUnitTest.class,
      

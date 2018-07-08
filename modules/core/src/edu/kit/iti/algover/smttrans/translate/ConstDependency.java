@@ -20,7 +20,8 @@ public class ConstDependency extends Dependency {
         LinkedHashSet<String> inst = new LinkedHashSet<>();
         
 
-        inst.addAll(AxiomContainer.instantiateSort(fs)); 
+        inst.addAll(AxiomContainer.instantiateSort(fs));
+        
 
 
         StringBuilder sb = new StringBuilder();

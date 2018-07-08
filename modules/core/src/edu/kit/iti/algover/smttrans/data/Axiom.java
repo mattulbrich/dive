@@ -43,7 +43,7 @@ public enum Axiom {
      */
 
     // sets
-    SET_1, SET_2, SET_3, SET_4, SET_5, SET_6, SET_7, SET_8, SET_CARD_1, SET_CARD_2, SET_CARD_3, SET_CARD_4,
+    SET_1, SET_2, SET_3, SET_4, SET_5, SET_6, SET_7, SET_8, SET_CARD_1, SET_CARD_2, SET_CARD_3, SET_CARD_4,SET_0,
 
     // multisets
     MULTISET_1, MULTISET_2, MULTISET_3, MULTISET_4, MULTISET_5, MULTISET_6, MULTISET_7, MULTISET_8, MULTISET_CARD_1, MULTISET_CARD_2, MULTISET_CARD_3, MULTISET_CARD_4,
@@ -149,6 +149,13 @@ public enum Axiom {
          */
 
         // sets
+        
+        SET_0.smt = "(assert (forall\r\n" + 
+                "(\r\n" + 
+                "    (t Int)\r\n" + 
+                ") \r\n" + 
+                "        (not (inSet<Int> t ~setEmpty<Int>))      \r\n" + 
+                "))";
         SET_1.smt = "(assert (par (T)\r\n" + "(forall\r\n" + "(\r\n" + "    (s1 Set<T>)\r\n" + "    (t T)\r\n" + ")\r\n"
                 + "    (! \r\n" + "        (= (inSet<T> t (setInsert<T> t s1)) true) \r\n"
                 + "        :pattern ((inSet<T> t (setInsert<T> t s1)))\r\n" + "    ) \r\n" + ")))";

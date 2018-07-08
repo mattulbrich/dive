@@ -180,9 +180,10 @@ public class Z3Rule extends AbstractProofRule {
        // System.out.println(container.toSMT());
         Z3Access z3access = new Z3Access();
         String smt = container.toSMT();
-        SolverParameter p = new SolverParameter(smt,3, true);
-        SolverResponse r1 = z3access.accessSolver(p);
-        System.out.println(r1.getResponse().name());
+//        SolverParameter p = new SolverParameter(smt,3, true);
+//        SolverResponse r1 = z3access.accessSolver(p);
+//        System.out.println(r1.getResponse().name());
+        System.out.println(smt);
         return container;
     }
     

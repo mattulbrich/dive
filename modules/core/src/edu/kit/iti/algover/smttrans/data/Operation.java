@@ -131,7 +131,7 @@ public enum Operation {
 
         SETEMPTY.smt = "setEmpty";
         SETEMPTY.poly = true;
-        SETEMPTY.instantiations = asList(Axiom.SET_CARD, Axiom.SET_CARD_1);
+        SETEMPTY.instantiations = asList(Axiom.SET_0,Axiom.SET_CARD, Axiom.SET_CARD_1);
 
         EVERYTHING.smt = "everything";
         EVERYTHING.instantiations = asList(Axiom.SET_IN, Axiom.SET_INSERT, Axiom.SET_1, Axiom.EVERYTHING); //
