@@ -23,7 +23,7 @@ class Node {
   method Init(d: int)
     ensures Valid() && fresh(Repr - {this})
     ensures List == [d]
-    modifies this
+    modifies {this}
   {
     data := d;
     next := null;
@@ -37,7 +37,7 @@ class Node {
     requires this !in succ.Repr
     ensures Valid() && fresh(Repr - {this} - succ.Repr)
     ensures List == [d] + succ.List
-    modifies this
+    modifies {this}
   {
     data := d;
     next := succ;
@@ -57,7 +57,8 @@ class Node {
   method Pop() returns (r: Node)
     requires Valid()
     ensures r == null ==> |List| == 1
-    ensures r != null ==> r.Valid() && r.List == List[1..] && r.Repr <= Repr
+    ensures r != null ==> r.Valid() && r.Repr <= this.Repr //&& r.List == List[1..] && r.Repr <= this.Repr
+    ensures forall i :: 0 <= i <= r.List.Length ==> r.List[i] == this.List[i+1] 
   {
     r := next;
   }

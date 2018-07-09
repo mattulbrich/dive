@@ -362,15 +362,25 @@ public class TypeContext {
             + "(assert (forall ((x Int)) (=> (> x 1) (= (fib ~heap x) (+ (fib ~heap (- x 1)) (fib ~heap (- x 2)))))))\r\n"
             + "; " + "\r\n";
 
-    private static String sumDef = "; NOTE: temporary, hardcoded\r\n" + 
-            "(declare-fun Sum (Heap Seq<Int> Int Int) Int) \r\n" + 
-            "(declare-fun seqget<Int> ((Seq<Int>) Int) Int)\r\n" + 
-            "(assert (forall ((i Int) (j Int) (k Seq<Int>)) (=> (= i j) (= (Sum ~heap k i j) 0))))\r\n" + 
-            "(assert (forall ((i Int) (j Int) (k Seq<Int>)) (=> (distinct i j) (= (Sum ~heap k i j) (+ (Sum ~heap k i (- j 1)) (seqget<Int> k (- j 1)))))))\r\n";
+    private static String sumDef = "; NOTE: temporary, hardcoded\r\n"
+            + "(declare-fun Sum (Heap Seq<Int> Int Int) Int) \r\n"
+            + "(declare-fun seqget<Int> ((Seq<Int>) Int) Int)\r\n"
+            + "(assert (forall ((i Int) (j Int) (k Seq<Int>)) (=> (= i j) (= (Sum ~heap k i j) 0))))\r\n"
+            + "(assert (forall ((i Int) (j Int) (k Seq<Int>)) (=> (distinct i j) (= (Sum ~heap k i j) (+ (Sum ~heap k i (- j 1)) (seqget<Int> k (- j 1)))))))\r\n";
+    private static String sortedDef = "; NOTE: temporary, hardcoded\r\n" + "(declare-sort Heap 0)\r\n"
+            + "(declare-const ~heap Heap)\r\n" + "(declare-sort Arr<Int> 0)\r\n"
+            + "(declare-fun arrlen<Int>  (Arr<Int>) Int)\r\n"
+            + "(declare-fun arrselect<Int> (Heap Arr<Int> Int) Int)\r\n"
+            + "(declare-fun sorted (Heap Arr<Int> Int Int) Bool)\r\n"
+            + "(assert (forall ((a Arr<Int>) (j Int) (k Int) (low Int) (high Int))\r\n" + "(=>\r\n"
+            + "(and (<= 0 low) (<= low high) (<= high (arrlen<Int> a)))\r\n"
+            + "(<= (arrselect<Int> ~heap a j) (arrselect<Int> ~heap a k)))))\r\n";
+
     static {
 
         functions.put("fib", fibDef);
         functions.put("Sum", sumDef);
+        functions.put("sorted", sortedDef);
 
     }
 
@@ -387,8 +397,22 @@ public class TypeContext {
         }
 
         for (String f : functions.keySet()) {
-            if (smt.contains(f))
-                nsmt += functions.get(f);
+            if (smt.contains(f)) {
+
+                List<String> info = Arrays.asList(functions.get(f).split("\\R"));
+
+                for (String l : info) {
+
+                    if (!nsmt.replaceAll("\\R", "").replaceAll(" ", "")
+                            .contains(l.replaceAll("\\R", "").replaceAll(" ", ""))) {
+                        nsmt += l +"\r\n";
+                    }
+                        
+
+                }
+
+                // nsmt += functions.get(f);
+            }
         }
 
         for (; i < lines.size(); i++) {
