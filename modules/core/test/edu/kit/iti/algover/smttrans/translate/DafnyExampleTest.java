@@ -20,8 +20,8 @@ public class DafnyExampleTest {
     private static final String dir = "modules/core/test-res/edu/kit/iti/algover/smttrans/translate/examples".replace('/',
             File.separatorChar);
 
-    private static final List<String> config = Arrays.asList("BinarySearchConfig.xml"); //,"FibConfig.xml",
-           // "FindZeroConfig.xml", "MaxSegSumConfig.xml", "FindConfig.xml");
+    private static final List<String> config = Arrays.asList("BinarySearchConfig.xml","FindConfig.xml","MaxSegSumConfig.xml"); //"FindZeroConfig.xml",,"FibConfig.xml"
+           // , "MaxSegSumConfig.xml", );
 
     @Test
     public void closedProofsTest() throws Exception {

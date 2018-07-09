@@ -45,8 +45,8 @@ public class TypeContext {
     private static final Set<Operation> builtinConsts = new LinkedHashSet<>(
             Arrays.asList(Operation.AHEAP, Operation.DECR));
 
-    private static final Set<String> builtinTypes = new LinkedHashSet<>(
-            Arrays.asList(AV_BOOLNAME, AV_INTNAME)); //, AV_HEAPNAME
+    private static final Set<String> builtinTypes = new LinkedHashSet<>(Arrays.asList(AV_BOOLNAME, AV_INTNAME)); // ,
+                                                                                                                 // AV_HEAPNAME
     private static BiMap<String, String> nmap = HashBiMap.create();
 
     static {
@@ -58,11 +58,11 @@ public class TypeContext {
 
     }
 
-    
-public static void reset() {
-    preamble.clear();
-    symbolTable = new MapSymbolTable(new HashSet<>());
-}
+    public static void reset() {
+        preamble.clear();
+        symbolTable = new MapSymbolTable(new HashSet<>());
+    }
+
     public static boolean isBuiltIn(String s) {
         return builtinTypes.contains(s.toLowerCase());
     }
@@ -357,17 +357,20 @@ public static void reset() {
     }
 
     private static Map<String, String> functions = new HashMap<>();
-    private static String fibName = "fib";
-    private static String fibDef = "; NOTE: temporary, hardcoded \r\n" + 
-            "(declare-fun fib (Heap Int) Int)\r\n" + 
-            "(assert (= (fib ~heap 0) 0))\r\n" + 
-            "(assert (= (fib ~heap 1) 1))\r\n" + 
-            "(assert (forall ((x Int)) (=> (> x 1) (= (fib ~heap x) (+ (fib ~heap (- x 1)) (fib ~heap (- x 2)))))))\r\n" + 
-            "; "+"\r\n";
-    static {
-        
+    private static String fibDef = "; NOTE: temporary, hardcoded \r\n" + "(declare-fun fib (Heap Int) Int)\r\n"
+            + "(assert (= (fib ~heap 0) 0))\r\n" + "(assert (= (fib ~heap 1) 1))\r\n"
+            + "(assert (forall ((x Int)) (=> (> x 1) (= (fib ~heap x) (+ (fib ~heap (- x 1)) (fib ~heap (- x 2)))))))\r\n"
+            + "; " + "\r\n";
 
-        functions.put(fibName, fibDef);
+    private static String sumDef = "; NOTE: temporary, hardcoded\r\n" + 
+            "(declare-fun Sum (Heap Seq<Int> Int Int) Int) \r\n" + 
+            "(declare-fun seqget<Int> ((Seq<Int>) Int) Int)\r\n" + 
+            "(assert (forall ((i Int) (j Int) (k Seq<Int>)) (=> (= i j) (= (Sum ~heap k i j) 0))))\r\n" + 
+            "(assert (forall ((i Int) (j Int) (k Seq<Int>)) (=> (distinct i j) (= (Sum ~heap k i j) (+ (Sum ~heap k i (- j 1)) (seqget<Int> k (- j 1)))))))\r\n";
+    static {
+
+        functions.put("fib", fibDef);
+        functions.put("Sum", sumDef);
 
     }
 
@@ -382,10 +385,10 @@ public static void reset() {
             nsmt += lines.get(i) + "\r\n";
 
         }
-        
+
         for (String f : functions.keySet()) {
             if (smt.contains(f))
-                nsmt += functions.get(f); 
+                nsmt += functions.get(f);
         }
 
         for (; i < lines.size(); i++) {

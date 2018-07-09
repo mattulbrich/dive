@@ -5,4 +5,4 @@ i : int
 s == $empty<int>
 
 |-
-$not($set_in<int>(i, s))
+$not($set_in<int>(i, s)),

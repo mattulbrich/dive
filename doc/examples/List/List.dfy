@@ -9,7 +9,7 @@ class Node {
   var next: Node
 
   function Valid() : bool
-    reads this, Repr
+    //reads this, Repr
   {
     this in Repr &&
     (next == null ==> List == [data]) &&
@@ -27,7 +27,8 @@ class Node {
   {
     data := d;
     next := null;
-    List, Repr := [d], {this};
+    List := [d];
+    Repr := {this};
   }
 
   method InitAsPredecessor(d: int, succ: Node)
@@ -52,7 +53,7 @@ class Node {
   {
     r := new Node.InitAsPredecessor(d, this);
   }
-  
+
   method Pop() returns (r: Node)
     requires Valid()
     ensures r == null ==> |List| == 1

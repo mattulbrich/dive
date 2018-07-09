@@ -65,7 +65,7 @@ public class Z3Access extends SolverAccess {
             return new SolverResponse(Response.ERROR);
         }
 
-        return new SolverResponse(Response.ERROR);
+        return new SolverResponse(Response.TIMEOUT);
 
     }
 

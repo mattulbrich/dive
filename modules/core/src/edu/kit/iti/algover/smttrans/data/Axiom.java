@@ -133,7 +133,7 @@ public enum Axiom {
         ANON.smt = "(declare-fun anon (Heap (Set<Object>) Heap) Heap)";
         // ANON.smt = "(declare-fun (par (T) (anon ((ArrT)) Int)))";
         CREATE.smt = "(declare-fun create  (Heap Object) Heap)";
-        CREATED.smt = "(declare-fun created  (Heap Object) Bool)";
+        CREATED.smt = "(declare-fun isCreated  (Heap Object) Bool)";
         MODH.smt = "(declare-const modh SetObject)";
         EVERYTHING.smt = "(assert (forall ((o Object)) (inSet<Object> o " + Names.getPrefix() + "everything)))";
         ARRSELECT.smt = "(declare-fun (par (T) (arrselect<T> (Heap (Arr<T>) Int) T)))";
@@ -319,7 +319,7 @@ public enum Axiom {
                 + "    (= (fieldselect<C.T> (fieldstore<C.T> h c1 f1 v) c2 f2) (fieldselect<C.T> h c2 f2)))\r\n"
                 + "     :pattern((fieldstore<C.T> h c1 f1 v) (fieldstore<C.T> h c2 f2 v))\r\n" + "))))";
         HEAP_3.smt = "(assert (forall\r\n" + "(\r\n" + "    (h Heap)\r\n" + "    (o Object)\r\n" + "\r\n" + ")\r\n"
-                + "(!\r\n" + "    (= (created (create h o) o ) true) :pattern((create h o))\r\n" + ")))";
+                + "(!\r\n" + "    (= (isCreated (create h o) o ) true) :pattern((create h o))\r\n" + ")))";
         HEAP_4.smt = "(assert (par (C T) (forall\r\n" + "(\r\n" + "    (c C)\r\n" + "    (h1 Heap)\r\n"
                 + "    (h2 Heap)\r\n" + "    (s (Set Object))\r\n" + "    (f (Field<C.T>))\r\n" + ")\r\n" + "(! \r\n"
                 + "    (= (fieldselect<C.T> (anon h1 s h2) c f) (fieldselect<C.T> (ite (select s (c2o c)) h2 h1) c f)) :pattern((anon h1 s h2) (fieldselect<C.T> h1 c f))    \r\n"

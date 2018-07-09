@@ -9,6 +9,7 @@ function fib(n: int): int
 
 
 method ComputeFib(n: int) returns (b: int)
+requires n >= 0
    ensures b == fib(n)
 {
    if n == 0
@@ -29,8 +30,9 @@ method ComputeFib(n: int) returns (b: int)
     decreases n -i
 
    {
+     var c := a;
       a := b;
-      b := a + b;
+      b := c+b;
       i := i + 1;
    }
 }

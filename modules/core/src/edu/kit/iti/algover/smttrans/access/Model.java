@@ -195,7 +195,7 @@ public class Model {
                     value += "-";
                 value += v.get(v.size() - 1).replace(")", "");
                 // vMap.put(v.get(1), v.get(v.size() - 1));
-
+                
                 vMap.put(key, value);
                 continue;
             }

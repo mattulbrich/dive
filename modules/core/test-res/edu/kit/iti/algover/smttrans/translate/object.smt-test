@@ -1,0 +1,6 @@
+o: object
+---
+
+|-
+$isCreated($create($heap,o),o)
+

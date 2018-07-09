@@ -1,4 +1,5 @@
 method Find(a: array<int>, key: int) returns (index: int)
+   requires a != null
    ensures 0 <= index ==> index < a.Length && a[index] == key
    ensures forall k: int :: 0 <= k < a.Length ==> index < 0  ==> a[k] != key
 {

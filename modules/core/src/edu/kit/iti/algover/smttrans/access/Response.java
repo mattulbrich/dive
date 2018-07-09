@@ -2,6 +2,6 @@ package edu.kit.iti.algover.smttrans.access;
 
 public enum Response {
 
-	SAT, UNSAT, UNKNOWN, ERROR;
+	SAT, UNSAT, UNKNOWN, ERROR, TIMEOUT;
 
 }

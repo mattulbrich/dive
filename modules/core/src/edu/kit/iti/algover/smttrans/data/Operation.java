@@ -103,12 +103,12 @@ public enum Operation {
         MULTIIN.smt = "inmset";
         MULTIIN.poly = true;
         ISCREATED.smt = "isCreated";
-        ISCREATED.poly = true;
-        ISCREATED.instantiations = asList();
+        ISCREATED.poly = false;
+        ISCREATED.instantiations = asList(Axiom.CREATED,Axiom.CREATE,Axiom.HEAP_3);
 
         CREATE.smt = "create";
-        CREATE.poly = true;
-        CREATE.instantiations = asList();
+        CREATE.poly = false;
+        CREATE.instantiations = asList(Axiom.CREATED,Axiom.CREATE,Axiom.HEAP_3);
 
         ANON.smt = "anon";
         ANON.instantiations = asList(Axiom.ANON); // Axiom.HEAP_4
