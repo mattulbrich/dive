@@ -56,6 +56,7 @@ public class SSASequenter implements PVCSequenter {
     public Sequent translate(SymbexPath pathThroughProgram, SymbolTable symbolTable,
                              Map<TermSelector, DafnyTree> referenceMap) throws DafnyException {
 
+        //REVIEW maybe use set here?
         List<ProofFormula> antecedent = new ArrayList<>();
 
         ImmutableList<Pair<FunctionSymbol, FunctionSymbol>> endMapping;
