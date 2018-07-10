@@ -153,9 +153,13 @@ public abstract class AbstractProofRule implements ProofRule {
                 if (matchings.size() > 1) {
                     throw new RuleException("Schematic parameter " + en.getValue().toString() + " is ambiguous.");
                 }
-                tsForParameter.put(en.getKey(), matchings.get(0).get(en.getKey()).getTermSelector());
+                try {
+                    tsForParameter.put(en.getKey(), matchings.get(0).get("?" + en.getKey()).getTermSelector());
+                } catch(NullPointerException e) {
+                    tsForParameter.put(en.getKey(), matchings.get(0).get(en.getKey()).getTermSelector());
+                }
                 extractedParameters.putValue(en.getKey(),
-                        matchings.get(0).get(en.getKey()).getTermSelector().selectSubterm(sequent));
+                        tsForParameter.get(en.getKey()).selectSubterm(sequent));
             } else if(en.getValue() instanceof Term) {
                 Optional<TermSelector> ots = RuleUtil.matchSubtermInSequent(((Term)en.getValue())::equals, sequent);
                 if(ots.isPresent()) {
@@ -183,7 +187,7 @@ public abstract class AbstractProofRule implements ProofRule {
      */
     private Sequent getUniqueMatchingTerm(Sequent sequent, TermSelector selector) throws RuleException {
         Term t = selector.selectSubterm(sequent);
-        Term schemaCaptureTerm = new SchemaCaptureTerm("on", t);
+        Term schemaCaptureTerm = new SchemaCaptureTerm("?on", t);
         t = new SchemaOccurTerm(schemaCaptureTerm);
         SequentMatcher sequentMatcher = new SequentMatcher();
         Sequent schemaSeq;
@@ -197,7 +201,9 @@ public abstract class AbstractProofRule implements ProofRule {
             return schemaSeq;
         }
         TermSelector parentSelector = getParentSelector(selector);
+
         if(parentSelector == null) {
+            matchings.forEach(matching -> System.out.println("matching = " + matching));
             throw new RuleException("There is no unique matching term for a Parameter.");
         }
         return getUniqueMatchingTermRec(sequent, parentSelector,

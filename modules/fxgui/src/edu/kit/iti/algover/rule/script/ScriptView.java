@@ -83,6 +83,8 @@ public class ScriptView extends AsyncHighlightingCodeArea {
 
     private Collection<String> styleClassForToken(int type) {
         switch (type) {
+            case ScriptLanguageLexer.SEQUENT_LITERAL:
+                return Collections.singleton("value-literal");
             case ScriptLanguageLexer.TERM_LITERAL:
                 return Collections.singleton("value-literal");
             case ScriptLanguageLexer.SINGLE_LINE_COMMENT:
