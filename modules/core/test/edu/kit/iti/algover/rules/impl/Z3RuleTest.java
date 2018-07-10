@@ -27,6 +27,7 @@ import org.junit.Test;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.util.List;
+import java.util.Map;
 
 import static org.junit.Assert.assertEquals;
 
@@ -56,6 +57,8 @@ public class Z3RuleTest {
         s = parseSequent(input);
         builder.setSequent(s);
         builder.setDeclaration(mock.getMethod("m"));
+        Map<TermSelector, DafnyTree> mockMap = mock.getPVCByName("m/Post").getReferenceMap();
+        builder.setReferenceMap(mockMap);
         PVC pvc = builder.build();
 
         ProofNode pn = ProofMockUtil.mockProofNode(null, s.getAntecedent(), s.getSuccedent(), pvc);
