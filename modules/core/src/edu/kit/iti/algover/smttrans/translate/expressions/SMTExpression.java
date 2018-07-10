@@ -10,6 +10,10 @@ public abstract class SMTExpression {
     protected FunctionSymbol fs;
     protected List<SMTExpression> children = new ArrayList<>();
     protected Signature sign;
+    
+    public List<SMTExpression> getChildren() {
+        return children;
+    }
 
     public abstract String toSMT(boolean negate);
 

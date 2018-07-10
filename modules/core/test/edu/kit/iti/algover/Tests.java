@@ -10,6 +10,7 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
 import org.junit.runners.Suite.SuiteClasses;
 
+import edu.kit.iti.algover.rules.impl.Z3RuleTest;
 import edu.kit.iti.algover.smttrans.translate.Arr2UnitTest;
 import edu.kit.iti.algover.smttrans.translate.DafnyExampleTest;
 import edu.kit.iti.algover.smttrans.translate.MultisetUnitTest;
@@ -72,8 +73,9 @@ import edu.kit.iti.algover.smttrans.translate.SetUnitTest;
 //    SetUnitTest.class,
 //    Arr2UnitTest.class,
 //    MultisetUnitTest.class,
-    ObjectUnitTest.class,
-   DafnyExampleTest.class
+  //  ObjectUnitTest.class,
+  // DafnyExampleTest.class
+   Z3RuleTest.class
      //   DafnyExampleTest.class
     
         

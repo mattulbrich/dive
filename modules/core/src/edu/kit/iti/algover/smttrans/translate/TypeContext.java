@@ -376,11 +376,16 @@ public class TypeContext {
             + "(and (<= 0 low) (<= low high) (<= high (arrlen<Int> a)))\r\n"
             + "(<= (arrselect<Int> ~heap a j) (arrselect<Int> ~heap a k)))))\r\n";
 
+    private static String factDef = ";NOTE temporary, hardcoded\r\n" + "(declare-sort Heap 0)\r\n"
+            + "(declare-const ~heap Heap)\r\n" + "(declare-fun Factorial (Heap Int) Int)\r\n"
+            + "(assert (= (Factorial ~heap 0) 1))\r\n"
+            + "(assert (forall ((i Int))   (=> (>= i 0)  (= (Factorial ~heap i) (* i (Factorial ~heap (- i 1)))))))\r\n";
     static {
 
         functions.put("fib", fibDef);
         functions.put("Sum", sumDef);
         functions.put("sorted", sortedDef);
+        functions.put("Factorial", factDef);
 
     }
 
@@ -405,9 +410,8 @@ public class TypeContext {
 
                     if (!nsmt.replaceAll("\\R", "").replaceAll(" ", "")
                             .contains(l.replaceAll("\\R", "").replaceAll(" ", ""))) {
-                        nsmt += l +"\r\n";
+                        nsmt += l + "\r\n";
                     }
-                        
 
                 }
 
