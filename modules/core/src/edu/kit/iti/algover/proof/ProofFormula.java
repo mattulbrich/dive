@@ -65,4 +65,20 @@ public class ProofFormula {
     public String getLabel() {
         return label;
     }
+
+    @Override
+    public boolean equals(Object obj) {
+        //TODO check
+        if(obj instanceof ProofFormula) {
+            ProofFormula form = (ProofFormula)obj;
+            return form.getTerm().equals(getTerm());
+        }
+        return false;
+    }
+
+    @Override
+    public int hashCode() {
+        //TODO check later
+        return getTerm().hashCode();
+    }
 }
