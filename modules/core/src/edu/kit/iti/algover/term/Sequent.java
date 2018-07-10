@@ -6,12 +6,10 @@
 package edu.kit.iti.algover.term;
 
 import edu.kit.iti.algover.proof.ProofFormula;
+import edu.kit.iti.algover.term.prettyprint.PrettyPrint;
 import edu.kit.iti.algover.util.Util;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 
 /**
  * Class representing a logical sequent
@@ -51,9 +49,20 @@ public final class Sequent {
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
-        sb.append(getAntecedent().toString());
-        sb.append(" ==> ");
-        sb.append(getSuccedent().toString());
+        PrettyPrint pp = new PrettyPrint();
+        String prefix = "";
+        for(ProofFormula pf : antecedent) {
+            sb.append(prefix);
+            prefix = ", ";
+            sb.append(pp.print(pf.getTerm()));
+        }
+        sb.append(" |- ");
+        prefix = "";
+        for(ProofFormula pf : succedent) {
+            sb.append(prefix);
+            prefix = ", ";
+            sb.append(pp.print(pf.getTerm()));
+        }
 
         return sb.toString();
     }
@@ -62,10 +71,12 @@ public final class Sequent {
         ArrayList<ProofFormula> ante = new ArrayList<>();
         ante.addAll(getAntecedent());
         ante.addAll(other.getAntecedent());
+        ante = new ArrayList(new HashSet(ante));
 
         ArrayList<ProofFormula> succ = new ArrayList<>();
         succ.addAll(getSuccedent());
         succ.addAll(other.getSuccedent());
+        succ = new ArrayList(new HashSet(succ));
 
         // TODO duplicates?
         return new Sequent(ante, succ);

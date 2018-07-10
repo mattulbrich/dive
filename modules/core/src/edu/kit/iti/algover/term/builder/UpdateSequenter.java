@@ -5,10 +5,7 @@
  */
 package edu.kit.iti.algover.term.builder;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import edu.kit.iti.algover.SymbexStateToFormula;
 import edu.kit.iti.algover.data.SymbolTable;
@@ -66,7 +63,7 @@ public class UpdateSequenter implements PVCSequenter {
 
         // TreeTermTranslator ttt = new TreeTermTranslator(symbolTable);
         TreeAssignmentTranslator tat = new TreeAssignmentTranslator(symbolTable);
-        List<ProofFormula> ante = new ArrayList<>();
+        Set<ProofFormula> ante = new HashSet<>();
 
         resolveWildcards(pathThroughProgram.getAssignmentHistory(),
                 symbolTable);
