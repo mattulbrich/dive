@@ -117,7 +117,7 @@ public class Z3Rule extends AbstractProofRule {
     
 
     private boolean isValid(ProofNode target) {
-        System.out.println("PVC: " + target.getPVC().getSequent().toString());
+       // System.out.println("PVC: " + target.getPVC().getSequent().toString());
         // SolverAccess.evaluate("");
         SolverAccess z3access = new Z3Access();
         SolverAccess cvcaccess = new CVCAccess();
@@ -127,30 +127,19 @@ public class Z3Rule extends AbstractProofRule {
         SMTContainer sc = translateToSMT(target.getSequent(), pvc.getSymbolTable());
 
         String smt;
-        // System.out.println();
-        // System.out.println();
-        // System.out.println("PSMT: ");
-        // System.out.println();
-         smt = sc.toPSMT();
-         SMTLog.writeFile(smt, pvc.getIdentifier()+".psmt");
-        // System.out.println(smt);
-        // System.out.println();
-        // System.out.println();
 
-//        System.out.println("SMT: ");
-//        System.out.println();
+         smt = sc.toPSMT();
+        // SMTLog.writeFile(smt, pvc.getIdentifier()+".psmt");
+
         smt = sc.toSMT();
-        System.out.println(smt);
-        SMTLog.writeFile(smt, pvc.getIdentifier()+".smt2");
+
+       // SMTLog.writeFile(smt, pvc.getIdentifier()+".smt2");
 //
 //        System.out.println();
 
         SolverParameter p = new SolverParameter(smt,3, true);
         SolverResponse r1 = z3access.accessSolver(p);
 
-        // SolverResponse r2 = cvcaccess.accessSolver(sc.toSMT().replace("Null",
-        // "ArrInt").replace("setcardT","setcardInt").replace("setEmptyT",
-        // "setEmptyInt"));
 
         System.out.println(r1.getResponse().name());
         //System.out.println(r1.getModel().getDeclarations());
@@ -163,7 +152,7 @@ public class Z3Rule extends AbstractProofRule {
         }
           
             //System.out.println(r1.getModel().toString());
-
+        TypeContext.reset();
         return evaluate(r1.getResponse());
     }
 

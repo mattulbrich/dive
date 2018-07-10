@@ -75,8 +75,8 @@ import edu.kit.iti.algover.smttrans.translate.SetUnitTest;
 //    MultisetUnitTest.class,
   //  ObjectUnitTest.class,
   // DafnyExampleTest.class
-   Z3RuleTest.class
-     //   DafnyExampleTest.class
+ //  Z3RuleTest.class
+        DafnyExampleTest.class
     
         
         //    SetUnitTest.class

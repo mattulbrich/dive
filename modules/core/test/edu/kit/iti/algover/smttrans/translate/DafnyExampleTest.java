@@ -20,9 +20,9 @@ public class DafnyExampleTest {
     private static final String dir = "modules/core/test-res/edu/kit/iti/algover/smttrans/translate/examples".replace('/',
             File.separatorChar);
 
-    private static final List<String> config = Arrays.asList("BinarySearchConfig.xml","FindConfig.xml","MaxSegSumConfig.xml"); //"FindZeroConfig.xml",,"FibConfig.xml"
-           // , "MaxSegSumConfig.xml", );
-
+    private static final List<String> config = Arrays.asList("BinarySearchConfig.xml","TuringFactorialConfig.xml","FibConfig.xml","FindConfig.xml"); 
+    // ERRORS:,"Pow2Config.xml" "FindZeroConfig.xml","MaxSegSumConfig.xml,"BubbleSortConfig.xml""InsertionSortConfig.xml","SelectionSortConfig.xml","QuickSortConfig.xml","CubesConfig.xml"
+     
     @Test
     public void closedProofsTest() throws Exception {
 
@@ -41,6 +41,7 @@ public class DafnyExampleTest {
 
                 Assert.assertEquals(proof.getProofStatus(), ProofStatus.CLOSED);
                 Assert.assertNull(proof.getFailException());
+               
 
             }
             pm.saveProject();
