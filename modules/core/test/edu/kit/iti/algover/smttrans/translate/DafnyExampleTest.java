@@ -25,8 +25,8 @@ public class DafnyExampleTest {
 
     private static final List<String> config = Arrays.asList("BinarySearchConfig.xml", "TuringFactorialConfig.xml",
             "FibConfig.xml", "FindConfig.xml", "FindZeroConfig.xml", "MaxSegSumConfig.xml", "CubesConfig.xml",
-            "BubbleSortConfig.xml", "InsertionSortConfig.xml", "SelectionSortConfig.xml");
-    // ERRORS:,"Pow2Config.xml"
+            "BubbleSortConfig.xml", "InsertionSortConfig.xml", "SelectionSortConfig.xml","Pow2Config.xml");
+    // ERRORS:,
     // ,"QuickSortConfig.xml",
 
     
@@ -40,7 +40,7 @@ public class DafnyExampleTest {
             "InsertionSort/loop/Modifies", "InsertionSort/loop/InitInv", "InsertionSort/loop/loop/Modifies",
             "InsertionSort/loop/loop_exit/Dec", "InsertionSort/loop/loop_exit/Modifies", "SelectionSort/InitInv.1",
             "SelectionSort/loop/loop/then/Dec", "SelectionSort/loop/loop_exit/Dec",
-            "SelectionSort/loop/loop_exit/Modifies", "SelectionSort/loop/loop_exit/Modifies.1"));
+            "SelectionSort/loop/loop_exit/Modifies", "SelectionSort/loop/loop_exit/Modifies.1","Theorem/else/else/Dec[Theorem]","Theorem/else/then/Dec[Theorem]"));
 
 
     @Test
@@ -58,7 +58,7 @@ public class DafnyExampleTest {
                 Proof proof = pm.getProofForPVC(pvc.getIdentifier());
                 if (excepted.contains(pvc.getIdentifier()))
                     continue;
-           //     try {
+//               try {
 
                     proof.setScriptText("z3;");
                     proof.interpretScript();

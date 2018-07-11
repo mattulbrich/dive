@@ -15,7 +15,7 @@ class Node {
     (next == null ==> List == [data]) &&
     (next != null ==>
         next in Repr && next.Repr <= Repr &&
-        this !in next.Repr &&
+        !(this in next.Repr) &&
         List == [data] + next.List &&
         next.Valid())
   }
@@ -23,7 +23,7 @@ class Node {
   method Init(d: int)
     ensures Valid() && fresh(Repr - {this})
     ensures List == [d]
-    modifies {this}
+    modifies this
   {
     data := d;
     next := null;
@@ -37,7 +37,7 @@ class Node {
     requires this !in succ.Repr
     ensures Valid() && fresh(Repr - {this} - succ.Repr)
     ensures List == [d] + succ.List
-    modifies {this}
+    modifies this
   {
     data := d;
     next := succ;

@@ -392,12 +392,29 @@ public class TypeContext {
             + "(declare-const ~heap Heap)\r\n" + "(declare-fun Factorial (Heap Int) Int)\r\n"
             + "(assert (= (Factorial ~heap 0) 1))\r\n"
             + "(assert (forall ((i Int))   (=> (>= i 0)  (= (Factorial ~heap i) (* i (Factorial ~heap (- i 1)))))))\r\n";
+
+    private static String squareDef = ";NOTE temporary, hardcoded\r\n"
+            + "(define-fun Square ((h Heap) (x Int)) Int \r\n" + "(* x x))" + "\r\n";
+    private static String evenDef = ";NOTE temporary, hardcoded\r\n" + "(define-fun IsEven ((h Heap) (x Int)) Bool\r\n"
+            + "(=  (mod x 2) 0))" + "\r\n";
+    private static String pow2Def = evenDef + squareDef+";NOTE temporary, hardcoded\r\n" + "(declare-fun pow2 (Heap Int) Int)\r\n"
+            + "(assert (= (pow2 ~heap 0) 1))\r\n" + "(assert (forall ((n Int)) " + "(=> (> n 0)   \r\n"
+            + "(= (pow2 ~heap n) (ite (IsEven ~heap n) (Square ~heap (pow2 ~heap (/ n 2))) (* 2 (pow2 ~heap (- n 1))))))))"
+            + "\r\n";
+    private static String pow2_slowDef = ";NOTE temporary, hardcoded\r\n" + "(declare-fun pow2_slow (Heap Int) Int)\r\n"
+            + "(assert (= (pow2_slow ~heap 0) 1))\r\n" + "(assert (forall ((n Int)) (=> (> n 0)   \r\n"
+            + "(= (pow2_slow ~heap n) (* 2 (pow2_slow ~heap (- n 1)))))))" + "\r\n";
+
     static {
 
         functions.put("fib", fibDef);
         functions.put("Sum", sumDef);
         functions.put("sorted", sortedDef);
         functions.put("Factorial", factDef);
+        functions.put("Square", squareDef);
+        functions.put("IsEven", evenDef);
+        functions.put("pow2", pow2Def);
+        functions.put("pow2_slow", pow2_slowDef);
 
     }
 
@@ -420,7 +437,7 @@ public class TypeContext {
 
                 for (String l : info) {
 
-                    if (!nsmt.replaceAll("\\R", "").replaceAll(" ", "")
+                    if (l.startsWith("(assert") || !nsmt.replaceAll("\\R", "").replaceAll(" ", "")
                             .contains(l.replaceAll("\\R", "").replaceAll(" ", ""))) {
                         nsmt += l + "\r\n";
                     }
@@ -442,7 +459,7 @@ public class TypeContext {
     }
 
     public static String addCasts(String smt) { // TODO better version
-      //  System.out.println("!!!!!!!!!!!!!!!!!!");
+        // System.out.println("!!!!!!!!!!!!!!!!!!");
 
         List<String> sorts = new ArrayList<>();
         List<Pair<String, String>> consts = new ArrayList<>();
