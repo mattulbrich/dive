@@ -37,7 +37,7 @@ public class SymbolHandler {
     private static List<Dependency> handleMod(Operation op) {
         List<Dependency> r = new ArrayList<>();                                                
         ConstDependency d = new ConstDependency(new FunctionSymbol(Names.makeSMTName(op.toSMT()), Sort.get("Set<Object>")));
-      
+        
         r.add(d);
         return r;
     }

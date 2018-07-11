@@ -9,7 +9,7 @@ class Node {
   var next: Node
 
   function Valid() : bool
-    //reads this, Repr
+//    reads this, Repr
   {
     this in Repr &&
     (next == null ==> List == [data]) &&
@@ -57,8 +57,11 @@ class Node {
   method Pop() returns (r: Node)
     requires Valid()
     ensures r == null ==> |List| == 1
-    ensures r != null ==> r.Valid() && r.Repr <= this.Repr //&& r.List == List[1..] && r.Repr <= this.Repr
-    ensures forall i :: 0 <= i <= r.List.Length ==> r.List[i] == this.List[i+1] 
+    //ensures r != null ==> r.Valid() && r.List == List[1..] && r.Repr <= Repr
+    ensures r != null ==> r.Valid()
+    //ensures r.List == List[1..]
+    ensures forall i :: 0 < i <= |r.List| ==> r.List[i-1] == List[i]
+    ensures r.Repr <= this.Repr
   {
     r := next;
   }

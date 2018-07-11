@@ -50,49 +50,49 @@ public class IntegerTest {
 
     }
 
-
-    private static String p1 = "negNumberModel/Post";
-    private static String p2 = "numberModel/Post";
-   // private static Map<String, Set<String>> modelDeclarations = new HashMap<>();
-    private static Map<String, Set<String>> modelDefinitions = new HashMap<>();
-    static {
-     //   modelDeclarations.put(p1,
-      //          new HashSet<String>(asList("~s2", ": SetInt", "~s1", ": SetInt", "setEmptyInt", ": SetInt")));
-        modelDefinitions.put(p1, new HashSet<String>(asList("Def: ~i = 1",
-                "Def: ~j = -1", "Def: ~k = 0")));
-
-       // modelDeclarations.put(p2,
-        //        new HashSet<String>(asList("~s2", ": SetInt", "~s1", ": SetInt", "setEmptyInt", ": SetInt")));
-        modelDefinitions.put(p2, new HashSet<String>(asList("Def: ~k = 4","Def: ~j = 1","Def: ~i = 3")));
-
-    }
-
-    @Test
-    public void modelTest() throws Exception {
-        ProjectManager pm = new ProjectManager(new File(dir), mconfig);
-        Project project = pm.getProject();
-
-        PVCCollection allPVCs = project.getAllPVCs();
-
-        for (PVC pvc : allPVCs.getContents()) {
-            Proof proof = pm.getProofForPVC(pvc.getIdentifier());
-            proof.setScriptText("z3;");
-            try {
-
-                proof.interpretScript();
-            } catch (ScriptCommandNotApplicableException e) {
-                Model m = Z3Rule.getModel();
-              //  Assert.assertTrue(m.getDeclarations().isEmpty());
-              //  Assert.assertTrue(m.getDeclarations().containsAll(modelDefinitions.get(pvc.getIdentifier())));
-                
-                Assert.assertNotEquals(proof.getProofStatus(), ProofStatus.CLOSED);
-
-            }
-
-        }
-        pm.saveProject();
-
-    }
+//
+//    private static String p1 = "negNumberModel/Post";
+//    private static String p2 = "numberModel/Post";
+//   // private static Map<String, Set<String>> modelDeclarations = new HashMap<>();
+//    private static Map<String, Set<String>> modelDefinitions = new HashMap<>();
+//    static {
+//     //   modelDeclarations.put(p1,
+//      //          new HashSet<String>(asList("~s2", ": SetInt", "~s1", ": SetInt", "setEmptyInt", ": SetInt")));
+//        modelDefinitions.put(p1, new HashSet<String>(asList("Def: ~i = 1",
+//                "Def: ~j = -1", "Def: ~k = 0")));
+//
+//       // modelDeclarations.put(p2,
+//        //        new HashSet<String>(asList("~s2", ": SetInt", "~s1", ": SetInt", "setEmptyInt", ": SetInt")));
+//        modelDefinitions.put(p2, new HashSet<String>(asList("Def: ~k = 4","Def: ~j = 1","Def: ~i = 3")));
+//
+//    }
+//
+//    @Test
+//    public void modelTest() throws Exception {
+//        ProjectManager pm = new ProjectManager(new File(dir), mconfig);
+//        Project project = pm.getProject();
+//
+//        PVCCollection allPVCs = project.getAllPVCs();
+//
+//        for (PVC pvc : allPVCs.getContents()) {
+//            Proof proof = pm.getProofForPVC(pvc.getIdentifier());
+//            proof.setScriptText("z3;");
+//            try {
+//
+//                proof.interpretScript();
+//            } catch (ScriptCommandNotApplicableException e) {
+//                Model m = Z3Rule.getModel();
+//              //  Assert.assertTrue(m.getDeclarations().isEmpty());
+//              //  Assert.assertTrue(m.getDeclarations().containsAll(modelDefinitions.get(pvc.getIdentifier())));
+//                
+//                Assert.assertNotEquals(proof.getProofStatus(), ProofStatus.CLOSED);
+//
+//            }
+//
+//        }
+//        pm.saveProject();
+//
+//    }
 
 
 }

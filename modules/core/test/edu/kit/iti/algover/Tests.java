@@ -11,12 +11,17 @@ import org.junit.runners.Suite;
 import org.junit.runners.Suite.SuiteClasses;
 
 import edu.kit.iti.algover.rules.impl.Z3RuleTest;
+import edu.kit.iti.algover.smttrans.translate.Arr1Test;
 import edu.kit.iti.algover.smttrans.translate.Arr2UnitTest;
+import edu.kit.iti.algover.smttrans.translate.ClassTest;
 import edu.kit.iti.algover.smttrans.translate.DafnyExampleTest;
+import edu.kit.iti.algover.smttrans.translate.FolTest;
+import edu.kit.iti.algover.smttrans.translate.IntegerTest;
 import edu.kit.iti.algover.smttrans.translate.MultisetUnitTest;
 import edu.kit.iti.algover.smttrans.translate.ObjectUnitTest;
 import edu.kit.iti.algover.smttrans.translate.SeqUnitTest;
 import edu.kit.iti.algover.smttrans.translate.SetUnitTest;
+import edu.kit.iti.algover.smttrans.translate.SumAndMaxTest;
 
 @RunWith(Suite.class)
 @SuiteClasses({
@@ -77,7 +82,12 @@ import edu.kit.iti.algover.smttrans.translate.SetUnitTest;
   // DafnyExampleTest.class
  //  Z3RuleTest.class
     //ObjectUnitTest.class,
-        DafnyExampleTest.class
+        DafnyExampleTest.class,
+    //    Arr1Test.class,
+        ClassTest.class,
+        FolTest.class,
+        SumAndMaxTest.class,
+        IntegerTest.class
     
         
         //    SetUnitTest.class

@@ -89,12 +89,12 @@ public class TypeContext {
 
     public static List<String> getTypeArguments(String name) {
 
-      //  System.out.println("NAME " + name);
+        // System.out.println("NAME " + name);
 
         Pair<Integer, Integer> range = getArgumentRange(name);
         if (range.fst > range.snd) // no type arguments
             return new ArrayList<>();
-       // System.out.println(name.substring(range.fst, range.snd));
+        // System.out.println(name.substring(range.fst, range.snd));
         List<String> r = new ArrayList<>();
         Arrays.asList(name.substring(range.fst, range.snd).split(",")).forEach(x -> r.add(normalizeName(x)));
         return r;
@@ -167,7 +167,7 @@ public class TypeContext {
             sb.append(".");
         }
         sb.append(">");
-        System.out.println("OUT " + replaceLast(sb.toString(), ".", ""));
+        // System.out.println("OUT " + replaceLast(sb.toString(), ".", ""));
         return replaceLast(sb.toString(), ".", "");
 
     }
@@ -258,16 +258,16 @@ public class TypeContext {
     }
 
     private static Sort normalizeSort(Sort s) {
-        System.out.println("Sort " + s.toString());
+        // System.out.println("Sort " + s.toString());
         String sort = s.toString();
         String name = Arrays.asList(sort.replaceAll(">", "").split("<")).get(0);
         List<String> parts = getTypeArguments(sort);
-        //System.out.println("ONE " + parts);
-        //System.out.println("TWO " + parts2);
-        //String name = parts.get(0);
+        // System.out.println("ONE " + parts);
+        // System.out.println("TWO " + parts2);
+        // String name = parts.get(0);
         name = name.substring(0, 1).toUpperCase() + name.substring(1);
-        //System.out.println(name);
-        //System.out.println(parts);
+        // System.out.println(name);
+        // System.out.println(parts);
         sort = addTypeArguments(name, parts);
 
         return Sort.get(sort);
@@ -276,12 +276,11 @@ public class TypeContext {
     private static FunctionSymbol makeEmptySort(Operation op, FunctionSymbol fs) {
 
         String sname = addTypeArguments(op.toSMT(), getTypeArguments(fs.getName()));
-       // System.out.println("FSNAME " + fs.getName());
-        //System.out.println("TA " + getTypeArguments(fs.getName()));
-      //  System.out.println("SNAME " + sname);
+        // System.out.println("FSNAME " + fs.getName());
+        // System.out.println("TA " + getTypeArguments(fs.getName()));
+        // System.out.println("SNAME " + sname);
         String aname = fs.getName().substring(1, fs.getName().length());
-      //  System.out.println("ANAME " + aname);
-        
+        // System.out.println("ANAME " + aname);
 
         FunctionSymbol nfs = new FunctionSymbol(Names.makeSMTName(aname, sname), normalizeSort(fs.getResultSort()));
         preamble.add(new FuncDependency(fs));
@@ -290,7 +289,7 @@ public class TypeContext {
     }
 
     private static FunctionSymbol handleEmptySort(FunctionSymbol fs) {
-//        System.out.println("EMPTY: " + fs.toString());
+        // System.out.println("EMPTY: " + fs.toString());
         Operation op = getOperation(fs.getName());
         return makeEmptySort(op, fs);
     }
@@ -443,6 +442,7 @@ public class TypeContext {
     }
 
     public static String addCasts(String smt) { // TODO better version
+      //  System.out.println("!!!!!!!!!!!!!!!!!!");
 
         List<String> sorts = new ArrayList<>();
         List<Pair<String, String>> consts = new ArrayList<>();
@@ -453,7 +453,8 @@ public class TypeContext {
 
         for (String l : lines) {
 
-            if (l.trim().startsWith("(assert") && (l.contains("setInsert<Object>") || l.contains("inSet<Object>") || l.contains("create") || l.contains("isCreated"))) {
+            if (l.trim().startsWith("(assert") && (l.contains("setInsert<Object>") || l.contains("inSet<Object>")
+                    || l.contains("create") || l.contains("isCreated"))) {
                 critical.add(l);
             }
             if (l.trim().startsWith("(declare-sort") && (!l.contains("Object") && (!l.contains("Heap")))) {
@@ -499,7 +500,7 @@ public class TypeContext {
         }
 
         if (!critical.isEmpty() && !nsmt.contains("(declare-sort Object 0)"))
-            nsmt += "(declare-sort Object 0) + \r\n";
+            nsmt += "(declare-sort Object 0)" + "\r\n";
 
         if (!critical.isEmpty()) {
 
@@ -545,7 +546,25 @@ public class TypeContext {
             }
         }
 
-        return nsmt;
+        // Temporary, Debug
+        String nnsmt = "";
+        List<String> nlines = Arrays.asList(nsmt.split("\\r?\\n"));
+        for (String l : nlines) {
+
+            if (!l.contains("Object") && l.contains("=") && l.contains("~mod") && l.toLowerCase().contains("set")) {
+                String fun = "(declare-fun set2o (Set<Arr<Int>>) Set<Object>)";
+                if (!nnsmt.contains(fun)) {
+                    nnsmt += fun + "\r\n";
+                }
+                String line = l + ")";
+                nnsmt += line.replace("~mod", "~mod (set2o") + "\r\n";
+            } else {
+
+                nnsmt += l + "\r\n";
+            }
+        }
+
+        return nnsmt;
 
     }
 

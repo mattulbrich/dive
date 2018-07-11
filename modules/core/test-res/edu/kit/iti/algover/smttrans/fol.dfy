@@ -9,7 +9,6 @@ c := a && b;
 method fol2 (a : bool, b: bool, c: bool) returns (d: bool)
 ensures a ==> (b ==> a)
 ensures (a && (a ==> b)) ==> b
-ensures (a == b) == ((a == b) && (b ==> a))
 ensures (a && (b || c)) == ((a && b) || (a && c))
 ensures !(a || b) == (!a && !b)
 {
