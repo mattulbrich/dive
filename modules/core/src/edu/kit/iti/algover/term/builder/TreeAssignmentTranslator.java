@@ -168,6 +168,11 @@ public class TreeAssignmentTranslator {
 
             // TODO One day ... map ... other types
 
+        } else if (type.equals("array2")) {
+            Term index2 = translator.build(receiver.getChild(2));
+            Term appl = tb.storeArray2(tb.heap(), subbedItem, index, index2, assigned);
+            return new Pair<>(HEAP_SYMB, appl);
+
         } else {
             throw new TermBuildException("Unsupported type for sub access: " +
                     subbedItem.getSort() + " (" + type + ")").setLocation(receiver);

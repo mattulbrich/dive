@@ -183,4 +183,23 @@ class C
    {
      multiReturn();
    }
+
+   method setTest(s1 : set<int>, a : array<int>)
+     modifies { this, a }
+   {
+     var s2 := { 1, 2, 3 };
+   }
+
+   method arrays2() {
+     var a : array2<int>;
+     var i : int;
+     var j : int;
+
+     i := a[0, 0];
+     a[i, j] := i;
+
+     i := a.Length0;
+     j := a.Length1;
+   }
+
 }

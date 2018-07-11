@@ -1,0 +1,6 @@
+(method setTest
+        (ARGS (VAR s1 (TYPE (set int)))
+              (VAR a (TYPE (array int))))
+        (modifies ({ this a))
+        (BLOCK (var s2 (TYPE (set int))
+                    ({ 1[int] 2[int] 3[int])[set<int>])))[scc_13]

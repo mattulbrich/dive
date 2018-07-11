@@ -13,8 +13,8 @@ tokens {
   CALL;
   FIELD;
   FIELD_ACCESS;
-  LISTEX; // not supported currently
-  SETEX; // not supported currently
+  LISTEX;
+  SETEX;
   MULTISETEX; // not supported currently
   ARRAY_ACCESS;
   NOETHER_LESS;
@@ -489,8 +489,8 @@ atom_expr:
   | 'fresh'^ '('! expression ')'!
   | '|'^ expression '|'!
   | '('! expression ')'!
-  | '{' ( expression ( ',' expression )* )? '}' -> ^(SETEX expression*)
-  | '[' ( expression ( ',' expression )* )? ']' -> ^(LISTEX expression*)
+  | t='{' ( expression ( ',' expression )* )? '}' -> ^(SETEX[t] expression*)
+  | t='[' ( expression ( ',' expression )* )? ']' -> ^(LISTEX[t] expression*)
   | 'multiset' '{' expression ( ',' expression )* '}' -> ^(MULTISETEX expression+)
   ;
 

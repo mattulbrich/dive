@@ -119,6 +119,7 @@ public class TreeTermTranslatorTest {
 
             { "c == null", "$eq<C>(c, null)" },
             { "c == c2", "$eq<C>(c, c2)" },
+            { "c == d", "$eq<object>(c, d)" },
             { "let c := null :: null == c",
                 "(let c := null :: $eq<null>(null, c))" },
 
@@ -220,6 +221,7 @@ public class TreeTermTranslatorTest {
             { "loopHeap[c.f := true]", "Unexpected argument sort for argument 4 to $store" },
             { "iseq + mod", "No common supertype for seq<int> and set<object>" },
             { "true + true", "'+' is not supported for these arguments" },
+            { "c == 1", "No common supertype for C and int" },
         };
     }
 
@@ -236,6 +238,7 @@ public class TreeTermTranslatorTest {
         map.add(new FunctionSymbol("a2", Sort.get("array2", Sort.INT)));
         map.add(new FunctionSymbol("f", Sort.INT, Sort.INT));
         map.add(new FunctionSymbol("c", Sort.getClassSort("C")));
+        map.add(new FunctionSymbol("d", Sort.getClassSort("D")));
         map.add(new FunctionSymbol("c2", Sort.getClassSort("C")));
         map.add(new FunctionSymbol("args", Sort.INT, Sort.INT, Sort.BOOL, Sort.BOOL));
         map.add(new FunctionSymbol("C$$f", Sort.get("field", Sort.getClassSort("C"), Sort.INT)));

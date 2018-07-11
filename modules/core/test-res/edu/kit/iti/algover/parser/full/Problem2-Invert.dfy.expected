@@ -30,7 +30,7 @@
     (==> 
      (< (< (<= 0 j) k) N) 
      (!= (ARRAY_ACCESS B j) (ARRAY_ACCESS B k))))) 
-  (modifies (SETEX B)) 
+  (modifies ({ B)) 
   (BLOCK 
    (var n 0) 
    (while (< n N) 
