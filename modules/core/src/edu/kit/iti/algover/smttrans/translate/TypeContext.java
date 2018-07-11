@@ -76,7 +76,7 @@ public class TypeContext {
         int j = 0;
 
         for (int k = 0; k < name.length(); k++) {
-            if (name.charAt(k) == '<') {
+            if (name.charAt(k) == '<' && i == 0) {
                 i = k;
             }
             if (name.charAt(k) == '>') {
@@ -89,10 +89,12 @@ public class TypeContext {
 
     public static List<String> getTypeArguments(String name) {
 
+      //  System.out.println("NAME " + name);
+
         Pair<Integer, Integer> range = getArgumentRange(name);
         if (range.fst > range.snd) // no type arguments
             return new ArrayList<>();
-
+       // System.out.println(name.substring(range.fst, range.snd));
         List<String> r = new ArrayList<>();
         Arrays.asList(name.substring(range.fst, range.snd).split(",")).forEach(x -> r.add(normalizeName(x)));
         return r;
@@ -165,6 +167,7 @@ public class TypeContext {
             sb.append(".");
         }
         sb.append(">");
+        System.out.println("OUT " + replaceLast(sb.toString(), ".", ""));
         return replaceLast(sb.toString(), ".", "");
 
     }
@@ -255,13 +258,17 @@ public class TypeContext {
     }
 
     private static Sort normalizeSort(Sort s) {
-        // System.out.println("Sort " + s.toString());
+        System.out.println("Sort " + s.toString());
         String sort = s.toString();
-        List<String> parts = Arrays.asList(sort.replaceAll(">", "").split("<"));
-        String name = parts.get(0);
+        String name = Arrays.asList(sort.replaceAll(">", "").split("<")).get(0);
+        List<String> parts = getTypeArguments(sort);
+        //System.out.println("ONE " + parts);
+        //System.out.println("TWO " + parts2);
+        //String name = parts.get(0);
         name = name.substring(0, 1).toUpperCase() + name.substring(1);
-        // System.out.println(parts);
-        sort = addTypeArguments(name, parts.subList(1, parts.size()));
+        //System.out.println(name);
+        //System.out.println(parts);
+        sort = addTypeArguments(name, parts);
 
         return Sort.get(sort);
     }
@@ -269,7 +276,12 @@ public class TypeContext {
     private static FunctionSymbol makeEmptySort(Operation op, FunctionSymbol fs) {
 
         String sname = addTypeArguments(op.toSMT(), getTypeArguments(fs.getName()));
+       // System.out.println("FSNAME " + fs.getName());
+        //System.out.println("TA " + getTypeArguments(fs.getName()));
+      //  System.out.println("SNAME " + sname);
         String aname = fs.getName().substring(1, fs.getName().length());
+      //  System.out.println("ANAME " + aname);
+        
 
         FunctionSymbol nfs = new FunctionSymbol(Names.makeSMTName(aname, sname), normalizeSort(fs.getResultSort()));
         preamble.add(new FuncDependency(fs));
@@ -278,6 +290,7 @@ public class TypeContext {
     }
 
     private static FunctionSymbol handleEmptySort(FunctionSymbol fs) {
+//        System.out.println("EMPTY: " + fs.toString());
         Operation op = getOperation(fs.getName());
         return makeEmptySort(op, fs);
     }
@@ -440,10 +453,10 @@ public class TypeContext {
 
         for (String l : lines) {
 
-            if (l.trim().startsWith("(assert") && (l.contains("setInsert<Object>") || l.contains("inSet<Object>"))) {
+            if (l.trim().startsWith("(assert") && (l.contains("setInsert<Object>") || l.contains("inSet<Object>") || l.contains("create") || l.contains("isCreated"))) {
                 critical.add(l);
             }
-            if (l.trim().startsWith("(declare-sort") && (!l.contains("Object"))) {
+            if (l.trim().startsWith("(declare-sort") && (!l.contains("Object") && (!l.contains("Heap")))) {
                 sorts.add(l.split(" ")[1]);
             }
         }

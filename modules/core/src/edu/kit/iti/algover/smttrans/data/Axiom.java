@@ -136,7 +136,7 @@ public enum Axiom {
         CREATED.smt = "(declare-fun isCreated  (Heap Object) Bool)";
         MODH.smt = "(declare-const modh SetObject)";
         EVERYTHING.smt = "(assert (forall ((o Object)) (inSet<Object> o " + Names.getPrefix() + "everything)))";
-        ARRSELECT.smt = "(declare-fun (par (T) (arrselect<T> (Heap (Arr<T>) Int) T)))";
+        ARRSELECT.smt = "(declare-fun (par (T) (arrselect<T> (Heap Arr<T> Int) T)))";
         ARRSTORE.smt = "(declare-fun (par (T) (arrstore<T> (Heap (Arr<T>) Int T) Heap)))";
         ARRLEN.smt = "(declare-fun (par (T)(arrlen<T> (Arr<T>) Int)))";
         ARR2SELECT.smt = "(declare-fun (par (T) (arr2select<T> (Heap (Arr2<T>) Int Int) T)))";
@@ -178,9 +178,9 @@ public enum Axiom {
                 + "        (=> (inSet<T> t s1) (inSet<T> t s2))) \r\n"
                 + "        :pattern ((subset s1 s2) (inSet<T> t s1))\r\n" + "    ) \r\n" + ")))";
         SET_8.smt = "(assert (par (T)\r\n" + "(forall\r\n" + "(\r\n" + "    (s Set<T>)\r\n" + ")\r\n" + "    (! \r\n"
-                + "        (=> (= (setcard<T> s) 0)\r\n" + "        (= s setEmpty<T>)) \r\n"
+                + "        (=> (= (setcard<T> s) 0)\r\n" + "        (= s ~setEmpty<T>)) \r\n"
                 + "        :pattern ((setcard<T> s))\r\n" + "    ) \r\n" + ")))";
-        SET_CARD_1.smt = "(assert (par (T) (= (setcard<T> setEmpty<T>) 0)))";
+        SET_CARD_1.smt = "(assert (par (T) (= (setcard<T> ~setEmpty<T>) 0)))";
         SET_CARD_2.smt = "(assert (par (T)\r\n" + "(forall\r\n" + "(\r\n" + "    (s (Set<T>))\r\n" + ")\r\n"
                 + "    (! \r\n" + "        (>=  (setcard<T> s) 0) \r\n" + "        :pattern ((setcard<T> s))\r\n"
                 + "    ) \r\n" + ")))";

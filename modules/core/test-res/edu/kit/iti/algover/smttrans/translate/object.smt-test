@@ -1,6 +1,10 @@
-o: object
+o: X,
+y: Y,
+s: set<Object>,
 ---
-
+$set_add<Object>(o,s)
 |-
-$isCreated($create($heap,o),o)
+$isCreated($create($heap,o),o),
+
+
 
