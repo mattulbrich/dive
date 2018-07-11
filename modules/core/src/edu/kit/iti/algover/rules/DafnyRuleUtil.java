@@ -122,7 +122,7 @@ public class DafnyRuleUtil {
      *
      * @param method the DafnyMethod
      * @return the generated rule
-     * @throws DafnyRuleException if DafnyMethod doesn´t meet requirements for DafnyRule-creation which are:
+     * @throws DafnyRuleException if DafnyMethod doesn't meet requirements for DafnyRule-creation which are:
      *                              - exactly 1 ensures clause
      *                              - ensures clause is either a implication or a aquivalence
      */

@@ -7,6 +7,7 @@
 
 package edu.kit.iti.algover.cli;
 
+import edu.kit.iti.algover.rules.impl.Z3RuleTest;
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
 import org.junit.runners.Suite.SuiteClasses;
@@ -14,6 +15,7 @@ import org.junit.runners.Suite.SuiteClasses;
 @RunWith(Suite.class)
 
 @SuiteClasses({
+        Z3RuleTest.class,
         PlayProofsTest.class,
 })
 
