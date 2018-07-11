@@ -7,6 +7,7 @@ package edu.kit.iti.algover.parser;
 
 import java.util.List;
 
+import edu.kit.iti.algover.term.Sort;
 import edu.kit.iti.algover.util.ASTUtil;
 import edu.kit.iti.algover.util.Util;
 import org.antlr.runtime.tree.Tree;
@@ -302,7 +303,21 @@ public class TypeResolution extends DafnyTreeDefaultVisitor<DafnyTree, Void> {
         if (type.getType() != DafnyParser.ARRAY &&
             type.getType() != DafnyParser.SEQ) {
             exceptions.add(new DafnyException(
-                    "Only arrays and sequences have a length", t));
+                    "Only arrays have a length", t));
+        }
+
+        t.setExpressionType(INT_TYPE);
+        return INT_TYPE;
+    }
+
+    public DafnyTree visitCARD(DafnyTree t, Void a) {
+        DafnyTree arg = t.getChild(0);
+        DafnyTree type = arg.accept(this, null);
+
+        if (type.getType() != DafnyParser.SET &&
+                type.getType() != DafnyParser.SEQ) {
+            exceptions.add(new DafnyException(
+                    "Only sets and sequences have a cardinality", t));
         }
 
         t.setExpressionType(INT_TYPE);
@@ -312,20 +327,22 @@ public class TypeResolution extends DafnyTreeDefaultVisitor<DafnyTree, Void> {
     @Override
     public DafnyTree visitARRAY_ACCESS(DafnyTree t, Void a) {
         DafnyTree receiver = t.getChild(0);
-        DafnyTree index = t.getChild(1);
 
-        DafnyTree recvType = receiver.accept(this, null);
-        DafnyTree indexType = index.accept(this, null);
+        for(int i = 1; i < t.getChildCount(); i++) {
+            DafnyTree index = t.getChild(i);
+            DafnyTree indexType = index.accept(this, null);
 
-        if (indexType.getType() != DafnyParser.INT) {
-            exceptions.add(new DafnyException(
-                    "Array index not of type int, but " + indexType, index));
+            if (indexType.getType() != DafnyParser.INT) {
+                exceptions.add(new DafnyException(
+                        "Array index not of type int, but " + indexType, index));
+            }
         }
 
+        DafnyTree recvType = receiver.accept(this, null);
         if (recvType.getType() != DafnyParser.ARRAY &&
-            recvType.getType() != DafnyParser.SEQ) {
+                recvType.getType() != DafnyParser.SEQ) {
             exceptions.add(new DafnyException(
-                    "Only arrays or sequences can be indexed", t));
+                        "Only arrays or sequences can be indexed", t));
             // set a fake type to avoid internal exceptions when continuing
             DafnyTree ty = ASTUtil.id("<unknownType>");
             t.setExpressionType(ty);
@@ -512,7 +529,32 @@ public class TypeResolution extends DafnyTreeDefaultVisitor<DafnyTree, Void> {
 
     @Override
     public DafnyTree visitSETEX(DafnyTree t, Void a) {
-        throw new UnsupportedOperationException("not yet implemented");
+
+        // TODO Make this more flexible { object, array } is set<object>
+        // TODO Make this work for empty set.
+
+        if(t.getChildCount() == 0) {
+            throw new UnsupportedOperationException("not yet implemented");
+        }
+
+        DafnyTree child = t.getChild(0);
+        DafnyTree result = child.accept(this, null);
+        String resultString = TreeUtil.toTypeString(result);
+        for (int i = 1; i < t.getChildCount(); i++) {
+            child = t.getChild(i);
+            DafnyTree ty = child.accept(this, null);
+            String str = TreeUtil.toTypeString(ty);
+            if(!resultString.equals(str)) {
+                exceptions.add(new DafnyException(
+                        "Set extensions must contain equally typed elements, not " +
+                        resultString + " and " + str, t));
+            }
+        }
+
+        result = ASTUtil.create(DafnyParser.SET, "set", result);
+
+        t.setExpressionType(result);
+        return result;
     }
 
     @Override

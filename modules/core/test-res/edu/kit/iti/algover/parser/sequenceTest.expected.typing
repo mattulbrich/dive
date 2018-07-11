@@ -4,4 +4,5 @@
          (:= s2[seq<int>] s1[seq<int>])
          (:= (ARRAY_ACCESS s2[seq<int>] 0[int])[int] 0[int])
          (:= (ARRAY_ACCESS s1[seq<int>] 1[int])[int]
-             (ARRAY_ACCESS s2[seq<int>] 1[int])[int])))[scc_9]
+             (ARRAY_ACCESS s2[seq<int>] 1[int])[int])
+         (var l (TYPE int) (| s1[seq<int>])[int])))[scc_9]

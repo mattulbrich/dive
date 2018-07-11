@@ -911,7 +911,7 @@ public class SymbexTest {
             assertEquals("[PRE[null]:(!= o null)]",
                     path.getPathConditions().toString());
 
-            assertEquals("[(ASSIGN $mod (SETEX o)), (ASSIGN $decr 0), (:= (FIELD_ACCESS o y) 8)]",
+            assertEquals("[(ASSIGN $mod ({ o)), (ASSIGN $decr 0), (:= (FIELD_ACCESS o y) 8)]",
                     path.getAssignmentHistory().map(x -> x.toStringTree()).toString());
 
             assertEquals("[POST:(> (FIELD_ACCESS o y) 5)]",
@@ -923,7 +923,7 @@ public class SymbexTest {
             assertEquals("[PRE[null]:(!= o null)]",
                     path.getPathConditions().toString());
 
-            assertEquals("[(ASSIGN $mod (SETEX o)), (ASSIGN $decr 0)]",
+            assertEquals("[(ASSIGN $mod ({ o)), (ASSIGN $decr 0)]",
                     path.getAssignmentHistory().map(x -> x.toStringTree()).toString());
 
             assertEquals("[MODIFIES:(IN o $mod)]",
@@ -935,7 +935,7 @@ public class SymbexTest {
             assertEquals("[PRE[null]:(!= o null)]",
                     path.getPathConditions().toString());
 
-            assertEquals("[(ASSIGN $mod (SETEX o)), (ASSIGN $decr 0)]",
+            assertEquals("[(ASSIGN $mod ({ o)), (ASSIGN $decr 0)]",
                     path.getAssignmentHistory().map(x -> x.toStringTree()).toString());
 
             assertEquals("[RT_NONNULL:(!= o null)]",
