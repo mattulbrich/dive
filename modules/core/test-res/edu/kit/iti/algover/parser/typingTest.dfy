@@ -159,6 +159,8 @@ class C
       s2 := s1;
       s2[0] := 0;
       s1[1] := s2[1];
+
+      var l := |s1|;
    }
 
    method quantifiers()

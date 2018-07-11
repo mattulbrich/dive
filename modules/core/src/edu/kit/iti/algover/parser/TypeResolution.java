@@ -302,7 +302,21 @@ public class TypeResolution extends DafnyTreeDefaultVisitor<DafnyTree, Void> {
         if (type.getType() != DafnyParser.ARRAY &&
             type.getType() != DafnyParser.SEQ) {
             exceptions.add(new DafnyException(
-                    "Only arrays and sequences have a length", t));
+                    "Only arrays have a length", t));
+        }
+
+        t.setExpressionType(INT_TYPE);
+        return INT_TYPE;
+    }
+
+    public DafnyTree visitCARD(DafnyTree t, Void a) {
+        DafnyTree arg = t.getChild(0);
+        DafnyTree type = arg.accept(this, null);
+
+        if (type.getType() != DafnyParser.SET &&
+                type.getType() != DafnyParser.SEQ) {
+            exceptions.add(new DafnyException(
+                    "Only sets and sequences have a cardinality", t));
         }
 
         t.setExpressionType(INT_TYPE);
