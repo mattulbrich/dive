@@ -121,8 +121,10 @@ class C
       i := i % 2;
    }
 
+   // this fails!
    method arrays() {
       var a : array<int>;
+      var a2 : array2<int>;
       var i : int;
       var c : C;
 
@@ -131,6 +133,9 @@ class C
 
       a[0] := null;
       c := a[0];
+
+      i := a[0,0];
+      i := a2[0];
    }
 
    method failAssignments()

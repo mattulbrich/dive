@@ -339,8 +339,24 @@ public class TypeResolution extends DafnyTreeDefaultVisitor<DafnyTree, Void> {
         }
 
         DafnyTree recvType = receiver.accept(this, null);
-        if (recvType.getType() != DafnyParser.ARRAY &&
-                recvType.getType() != DafnyParser.SEQ) {
+        String typeName = TreeUtil.toSort(recvType).getName();
+        switch(typeName) {
+        case "array":
+        case "seq":
+            if(t.getChildCount() != 2) {
+                exceptions.add(new DafnyException(
+                        "(one-dimensional) arrays and sequences expect exactly one index argument", t));
+            }
+            break;
+
+        case "array2":
+            if(t.getChildCount() != 3) {
+                exceptions.add(new DafnyException(
+                        "(two-dimensional) arrays expect exactly two index arguments", t));
+            }
+            break;
+            
+        default:
             exceptions.add(new DafnyException(
                         "Only arrays or sequences can be indexed", t));
             // set a fake type to avoid internal exceptions when continuing
