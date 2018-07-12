@@ -27,114 +27,22 @@ import edu.kit.iti.algover.smttrans.translate.SumAndMaxTest;
 @SuiteClasses({
 
 
-//    ParserTest.class,
-//    ParserErrorTest.class,
-//    SymbexTest.class,
-//    ProgramDatabaseTest.class,
-//    TreeTermTranslatorTest.class,
-//    TreeAssignmentTranslatorTest.class,
-//    ReplacementVisitorTest.class,
-//    LetInlineVisitorTest.class,
-//    ParameterContractionVisitorTest.class,
-//    FunctionSymbolFamilyTest.class,
-//    TestImmutableList.class,
-//    TestLabelIntroducer.class,
-//    TreeTermTranslationNoetherTest.class,
-////    DafnyTreeToDeclVisitorTest.class,
-//    ReferenceResolutionVisitorTest.class,
-//    TypeResolutionTest.class,
-//    SortTest.class,
-//    ProjectTest.class,
-//        ProofTest.class,
-//    ScriptParserTest.class,
-//        ProjectManagerTest.class,
-//    ProgramDatabaseTest.class,
-//    UtilTest.class,
-//    DafnyRuleTest.class,
-//    GenericRuleTest.class,
-//    SimplifiedUpdateSequenterTest.class,
-//    UpdateSequenterTest.class,
-//    ParallelUpdateSequenterTest.class,
-//    InlineSequenterTest.class,
-//    PrettyPrintTest.class,
-//    TermReferencesBuilderTest.class,
-//    IntegrationTest1.class,
-//    LetSubstitutionRuleTest.class,
-//    TermMatcherTest.class,
-//    ChainedRelationsVisitorTest.class,
-//    ImplicitlyTypedVariableVisitorTest.class,
-//        RuleUtilTest.class,
-     
-//   Z3AccessTest.class, 
-//        SetTest.class,
-//         SumAndMaxTest.class,
-//         ClassTest.class,
-//        IntegerTest.class,
+
+//        DafnyExampleTest.class,
+//    //    Arr1Test.class,
+//        ClassTest.class,
 //        FolTest.class,
-//        Arr1Test.class,
- // SetUnitTest.class,    
-    
-//  SeqUnitTest.class,  
-//    SetUnitTest.class,
+//        SumAndMaxTest.class,
+//        IntegerTest.class,
+    SetUnitTest.class,
 //    Arr2UnitTest.class,
+//    SeqUnitTest.class,
 //    MultisetUnitTest.class,
-  //  ObjectUnitTest.class,
-  // DafnyExampleTest.class
- //  Z3RuleTest.class
-    //ObjectUnitTest.class,
-        DafnyExampleTest.class,
-    //    Arr1Test.class,
-        ClassTest.class,
-        FolTest.class,
-        SumAndMaxTest.class,
-        IntegerTest.class
+// 
     
-        
-        //    SetUnitTest.class
-      //  SeqTest.class,
-    //SeqUnitTest.class
- //       SMTTest.class
-//        
-//=======
-//    ParserTest.class,
-//    ParserErrorTest.class,
-//    SymbexTest.class,
-//    ProgramDatabaseTest.class,
-//    TreeTermTranslatorTest.class,
-//    TreeAssignmentTranslatorTest.class,
-//    ReplacementVisitorTest.class,
-//    LetInlineVisitorTest.class,
-//    ParameterContractionVisitorTest.class,
-//    FunctionSymbolFamilyTest.class,
-//    TestImmutableList.class,
-//    TestLabelIntroducer.class,
-//    TreeTermTranslationNoetherTest.class,
-////    DafnyTreeToDeclVisitorTest.class,
-//    ReferenceResolutionVisitorTest.class,
-//    TypeResolutionTest.class,
-//    SortTest.class,
-//    ProjectTest.class,
-//        ProofTest.class,
-//    ScriptParserTest.class,
-//        ProjectManagerTest.class,
-//    ProgramDatabaseTest.class,
-//    UtilTest.class,
-//    DafnyRuleTest.class,
-//    GenericRuleTest.class,
-//    SimplifiedUpdateSequenterTest.class,
-//    UpdateSequenterTest.class,
-//    ParallelUpdateSequenterTest.class,
-//    InlineSequenterTest.class,
-//    PrettyPrintTest.class,
-//    TermReferencesBuilderTest.class,
-//    IntegrationTest1.class,
-//    LetSubstitutionRuleTest.class,
-//    TermMatcherTest.class,
-//    ChainedRelationsVisitorTest.class,
-//    ImplicitlyTypedVariableVisitorTest.class,
-//    QuantifierGuardRemovalVisitorTest.class,
-//        RuleUtilTest.class
-//>>>>>>> master
+    //   ObjectUnitTest.class
+   //     Z3RuleTest.class
+    
 
     })
 public class Tests {

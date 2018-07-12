@@ -142,7 +142,7 @@ public enum Operation {
 
         SEQCONS.smt = "seqcons";
         SEQCONS.poly = true;
-        SEQCONS.instantiations = asList(Axiom.SEQ_CONS, Axiom.SEQ_6, Axiom.SEQ_7);
+        SEQCONS.instantiations = asList(Axiom.SEQ_CONS, Axiom.SEQ_LEN_6, Axiom.SEQ_7);
 
         SEQUPD.smt = "seqstore";
         SEQUPD.poly = true;

@@ -49,6 +49,7 @@ public class Z3RuleTest {
 
     @Test
     public void basicTest() throws DafnyParserException, DafnyException, TermBuildException, RuleException, IOException, RecognitionException {
+        System.out.println("RUNNING");
         MockPVCBuilder builder = new MockPVCBuilder();
         builder.setSymbolTable(symbolTable);
         Project mock = TestUtil.mockProject("method m() ensures true {}");

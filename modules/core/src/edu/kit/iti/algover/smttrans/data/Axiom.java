@@ -49,7 +49,7 @@ public enum Axiom {
     MULTISET_1, MULTISET_2, MULTISET_3, MULTISET_4, MULTISET_5, MULTISET_6, MULTISET_7, MULTISET_8, MULTISET_CARD_1, MULTISET_CARD_2, MULTISET_CARD_3, MULTISET_CARD_4,
 
     // sequences
-    SEQ_0, SEQ_1, SEQ_2, SEQ_3, SEQ_4, SEQ_5, SEQ_6, SEQ_LEN_1, SEQ_LEN_2, SEQ_LEN_3, SEQ_LEN_4, SEQ_LEN_5,
+    SEQ_0, SEQ_1, SEQ_2, SEQ_3, SEQ_4, SEQ_5, SEQ_LEN_6, SEQ_LEN_1, SEQ_LEN_2, SEQ_LEN_3, SEQ_LEN_4, SEQ_LEN_5,
 
     // Heap/Arrays
     ARR_1, ARR_2, ARR2_1, HEAP_1, HEAP_2, HEAP_3, HEAP_4, HEAP_5, HEAP_6, SEQ_7;
@@ -178,7 +178,7 @@ public enum Axiom {
                 + "        (=> (inSet<T> t s1) (inSet<T> t s2))) \r\n"
                 + "        :pattern ((subset s1 s2) (inSet<T> t s1))\r\n" + "    ) \r\n" + ")))";
         SET_8.smt = "(assert (par (T)\r\n" + "(forall\r\n" + "(\r\n" + "    (s Set<T>)\r\n" + ")\r\n" + "    (! \r\n"
-                + "        (=> (= (setcard<T> s) 0)\r\n" + "        (= s ~setEmpty<T>)) \r\n"
+                + "        (=> (= (setcard<T> s) 0)\r\n" + "           (= s ~setEmpty<T>)) \r\n"
                 + "        :pattern ((setcard<T> s))\r\n" + "    ) \r\n" + ")))";
         SET_CARD_1.smt = "(assert (par (T) (= (setcard<T> ~setEmpty<T>) 0)))";
         SET_CARD_2.smt = "(assert (par (T)\r\n" + "(forall\r\n" + "(\r\n" + "    (s (Set<T>))\r\n" + ")\r\n"
@@ -251,7 +251,7 @@ public enum Axiom {
                 + "    (i Int)\r\n" + ")\r\n" + "    (!\r\n"
                 + "    (=>  (and (>= i 0) (<= i (- (+ (seqlen<T> s1) (seqlen<T> s2)) 2)  ) )\r\n"
                 + "    (= (seqget<T> (seqconcat<T> s1 s2) i)   (ite (< (seqlen<T> s1) i)  (seqget<T> s1 i) (seqget<T> s2 i) )\r\n"
-                + "      )):pattern ((seqconcat<T> s1 s2) (seqget<T> s1 i))\r\n" + "      )\r\n" + ")))";
+                + "      )):pattern ((seqconcat<T> s1 s2) (seqget<T> s1 i))\r\n" + "      )\r\n" + ")))"; //TODO wrong
         SEQ_3.smt = "(assert (par (T) (forall\r\n" + "(\r\n" + "    (s (Seq<T>))\r\n" + "    (i Int)\r\n"
                 + "    (j Int)\r\n" + "    (k Int)\r\n" + ")\r\n" + "    (! \r\n"
                 + "    (=> (and (<= 0 i k j) (< j (seqlen<T> s)) )\r\n"
@@ -263,13 +263,13 @@ public enum Axiom {
                 + "    (=> (and (>= 0 i) (< i (seqlen<T> s1)))\r\n"
                 + "    (= (seqget<T> s1 i)(seqget<T> s2 i))) :pattern((seqget<T> s1 i) (seqget<T> s2 i))\r\n"
                 + "    )))\r\n" + "    (= s1 s2)\r\n" + "    ) :pattern((seqlen<T> s1) (seqlen<T> s2))\r\n" + "))))";
+        
+        
+        
         SEQ_5.smt = "(assert (par (T) (forall\r\n" + "(\r\n" + "    (s (Seq<T>))\r\n" + ")\r\n" + "    (! \r\n"
                 + "    (=>  (= (seqlen<T> s) 0) \r\n" + "    (= s emtpyseq<T>)\r\n"
                 + "    ):pattern ((seqlen<T> s))\r\n" + "    )\r\n" + ")))";
 
-        SEQ_6.smt = "(assert (par (T) (forall\r\n" + "(\r\n" + "    (t T)\r\n" + "    (s1 (Seq<T>))\r\n" + ")\r\n"
-                + "\r\n" + "(= (seqlen<T> (seqcons<T> t s1))  (+ (seqlen<T> s1) 1))\r\n" + "\r\n" + ")))";
-        
         SEQ_7.smt = "(assert (par (T) (forall\r\n" + 
                 "(\r\n" + 
                 "    (t T)\r\n" + 
@@ -282,6 +282,11 @@ public enum Axiom {
                 " ) \r\n" + 
                 "    (= (seqget<T> (seqcons<T> t s1) i)  (ite (= i 0) t (seqget<T> s1 (+ i 1))))  \r\n" + 
                 "))))";
+        
+        
+        
+
+        
 
         SEQ_LEN_1.smt = "(assert (par (T) (= (seqlen<T> emtpyseq<T>) 0)))";
         SEQ_LEN_2.smt = "(assert (par (T) (forall\r\n" + "(\r\n" + "    (s (Seq<T>))\r\n" + ")\r\n" + "    (! \r\n"
@@ -299,6 +304,8 @@ public enum Axiom {
                 + "    (= (seqlen<T> (seqconcat<T> s1 s2)) (+ (seqlen<T> s1) (seqlen<T> s2))) :pattern((seqconcat<T> s1 s2))\r\n"
                 + "    ) \r\n" + ")))";
 
+        SEQ_LEN_6.smt = "(assert (par (T) (forall\r\n" + "(\r\n" + "    (t T)\r\n" + "    (s1 (Seq<T>))\r\n" + ")\r\n"
+                + "\r\n" + "(= (seqlen<T> (seqcons<T> t s1))  (+ (seqlen<T> s1) 1))\r\n" + "\r\n" + ")))";
         // Heap/Arrays
         ARR_1.smt = "(assert (par (T) (forall\r\n" + "(\r\n" + "    (i Int)\r\n" + "    (h Heap)\r\n"
                 + "    (a (Arr<T>))\r\n" + "    (v T)\r\n" + ")\r\n" + "(!\r\n"
