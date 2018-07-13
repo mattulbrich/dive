@@ -37,7 +37,7 @@ public class InlineSequenterTest extends SequenterTest {
     }
 
     protected String expectedAntecedent(String string) {
-        return "$gt(p, 0), $gt(p, 0)";
+        return "$gt(p, 0)";
     }
 
     @Override
