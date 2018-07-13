@@ -178,13 +178,13 @@ class PrettyPrintVisitor implements TermVisitor<Void, Void, RuntimeException> {
     @Override
     public Void visit(SchemaCaptureTerm schemaVariable, Void arg) {
         if(schemaVariable.getName().startsWith("?")) {
-            printer.append(schemaVariable.getName() + ": (");
+            printer.append("(" + schemaVariable.getName() + ": ");
         } else {
-            printer.append("?" + schemaVariable.getName() + ": (");
+            printer.append("(?" + schemaVariable.getName() + ": ");
         }
 
         schemaVariable.getTerm(0).accept(this, null);
-        printer.append(" )");
+        printer.append(")");
         return null;
     }
 
