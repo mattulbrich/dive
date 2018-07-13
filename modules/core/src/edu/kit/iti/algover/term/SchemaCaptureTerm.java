@@ -18,6 +18,7 @@ public class SchemaCaptureTerm extends SchemaTerm {
 
     public SchemaCaptureTerm(String name, Term innerTerm) {
         super(innerTerm.getSort(), new Term[] { innerTerm });
+        assert name.startsWith("?") : "Names of capture schema variables must begin with a '?'";
         this.name = name;
     }
 

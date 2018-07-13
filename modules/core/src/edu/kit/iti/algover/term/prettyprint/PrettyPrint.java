@@ -110,32 +110,6 @@ public class PrettyPrint {
         return print(term, Integer.MAX_VALUE);
     }
 
-    /**
-     * pretty print a sequent
-     *
-     * @param sequent the sequent to print
-     * @return a string representing the sequent
-     */
-    public String print(Sequent sequent) {
-        //TODO this should return a AnnotatedString
-        StringBuilder sb = new StringBuilder();
-        PrettyPrint pp = new PrettyPrint();
-        String prefix = "";
-        for(ProofFormula pf : sequent.getAntecedent()) {
-            sb.append(prefix);
-            prefix = ", ";
-            sb.append(pp.print(pf.getTerm()));
-        }
-        sb.append(" |- ");
-        prefix = "";
-        for(ProofFormula pf : sequent.getSuccedent()) {
-            sb.append(prefix);
-            prefix = ", ";
-            sb.append(pp.print(pf.getTerm()));
-        }
-
-        return sb.toString();
-    }
 
     /**
      * pretty print a term using the currently set properties on this object.
@@ -143,12 +117,8 @@ public class PrettyPrint {
      * The result is an annotated String in which to every character the
      * innermost containing subterm can be obtained.
      *
-     * @param term
-     *            the term to pretty print
-     *
-     * @param linewidth
-     *            length of a line, a positive number
-     *
+     * @param term      the term to pretty print
+     * @param linewidth length of a line, a positive number
      * @return a freshly created annotated string object
      */
     public AnnotatedString print(Term term, int linewidth) {
@@ -184,6 +154,89 @@ public class PrettyPrint {
             "Cannot render: " + term;
 
         return printer.getAnnotatedString();
+    }
+
+    /**
+     * pretty print a sequent using the currently set properties on this
+     * object.
+     *
+     * The result is a string. It is not an {@link AnnotatedString}, no
+     * character to formula information is stored.
+     *
+     * @param sequent the sequent to print
+     * @return a string representing the sequent
+     */
+    public String print(Sequent sequent) {
+        return print(sequent, Integer.MAX_VALUE);
+    }
+
+    /**
+     * pretty print a sequent using the currently set properties on this
+     * object.
+     *
+     * The result is a string. It is not an {@link AnnotatedString}, no
+     * character to formula information is stored.
+     *
+     * @param sequent   the sequent to print
+     * @param linewidth length of a line, a positive number
+     * @return a string representing the sequent, lines are no longer than
+     * linewidth
+     */
+    public String print(Sequent sequent, int linewidth) {
+        return print(sequent, new PrettyPrintLayouter(linewidth));
+    }
+
+    /**
+     * pretty print a sequent using the currently set properties on this
+     * object.
+     *
+     * The result is a string. It is not an {@link AnnotatedString}, no
+     * character to formula information is stored.
+     *
+     * @param sequent the sequent to print
+     * @param printer the layouter to append the term to
+     * @return a string representing the sequent
+     */
+    private String print(Sequent sequent, PrettyPrintLayouter printer) {
+
+        PrettyPrintVisitor visitor = new PrettyPrintVisitor(this, printer);
+
+        printer.beginBlock(0);
+        printer.indentBlock(0, 3);
+        boolean first = true;
+        for (ProofFormula formula : sequent.getAntecedent()) {
+            if (first) {
+                first = false;
+            } else {
+                printer.append(",").breakBlock(1, 3);
+            }
+            formula.getTerm().accept(visitor, null);
+        }
+
+        if (!sequent.getAntecedent().isEmpty()) {
+            printer.breakBlock(1, 0);
+        }
+
+        printer.append("|-");
+
+        first = true;
+        for (ProofFormula formula : sequent.getSuccedent()) {
+            if (first) {
+                printer.append(" ");
+                first = false;
+            } else {
+                printer.append(",").breakBlock(1, 3);
+            }
+            formula.getTerm().accept(visitor, null);
+        }
+
+        printer.endBlock();
+
+        assert printer.hasEmptyStack() :
+                "Cannot render: " + sequent;
+
+        return printer.getAnnotatedString().toString();
+
     }
 
     /**

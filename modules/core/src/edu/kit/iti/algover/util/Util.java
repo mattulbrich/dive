@@ -13,6 +13,7 @@ import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 import java.util.AbstractList;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -24,6 +25,7 @@ import java.util.Set;
 import java.util.function.Function;
 
 import edu.kit.iti.algover.proof.PVC;
+import nonnull.NonNull;
 
 /**
  * The Class Util is a collection of general purpose static methods.
@@ -133,9 +135,22 @@ public final class Util {
      *
      * @return the concatenated string, separated by commas
      */
-    public static String commatize(Iterable<?> list) {
+    public static String commatize(@NonNull Iterable<?> list) {
         // Checkstyle: IGNORE MultipleStringLiterals
         return join(list, ", ");
+    }
+
+    /**
+     * Join the string representation of a list of objects into one string,
+     * separated by ", ".
+     *
+     * @param array
+     *            some array
+     *
+     * @return the concatenated string, separated by commas
+     */
+    public static String commatize(@NonNull Object[] array) {
+        return commatize(Arrays.asList(array));
     }
 
     /**
