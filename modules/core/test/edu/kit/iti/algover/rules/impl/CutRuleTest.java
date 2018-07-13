@@ -56,7 +56,7 @@ public class CutRuleTest {
         List<ProofNode> newNodes = RuleApplicator.applyRule(pra, pn);
 
         assertEquals(2, newNodes.size());
-        assertEquals(newNodes.get(0).getSequent().toString(), "[$or(b1, b2), b3, b1] ==> [$or($and(b3, b2), $and(b3, b1))]");
-        assertEquals(newNodes.get(1).getSequent().toString(), "[$or(b1, b2), b3] ==> [$or($and(b3, b2), $and(b3, b1)), b1]");
+        assertEquals(newNodes.get(0).getSequent().toString(), "$or(b1, b2), b3, b1 |- $or($and(b3, b2), $and(b3, b1))");
+        assertEquals(newNodes.get(1).getSequent().toString(), "$or(b1, b2), b3 |- $or($and(b3, b2), $and(b3, b1)), b1");
     }
 }

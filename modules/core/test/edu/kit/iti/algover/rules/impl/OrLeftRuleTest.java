@@ -76,8 +76,8 @@ public class OrLeftRuleTest {
         List<ProofNode> newNodes = RuleApplicator.applyRule(pra, pn);
 
         assertTrue(newNodes.size() == 2);
-        assertEquals("[b1, b3] ==> [b1, $or(b2, b1)]", newNodes.get(0).getSequent().toString());
-        assertEquals("[b2, b3] ==> [b1, $or(b2, b1)]", newNodes.get(1).getSequent().toString());
+        assertEquals("b1, b3 |- b3, $or(b2, b1)", newNodes.get(0).getSequent().toString());
+        assertEquals("b2, b3 |- b3, $or(b2, b1)", newNodes.get(1).getSequent().toString());
     }
 
     @Test
