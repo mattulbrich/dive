@@ -307,8 +307,13 @@ public abstract class AbstractProofRule implements ProofRule {
         Parameters extractedParams = extractSchematicParameters(parameters, target.getSequent());
         ProofRuleApplication pra = considerApplicationImpl(target, extractedParams);
         ProofRuleApplicationBuilder builder = new ProofRuleApplicationBuilder(pra);
-        if(pra.getApplicability() == ProofRuleApplication.Applicability.APPLICABLE && pra.getBranchCount() > 0) {
-            builder.setTranscript(getTranscript(pra, parameters));
+        if(pra.getApplicability() == ProofRuleApplication.Applicability.APPLICABLE) {
+            try {
+                builder.setTranscript(getTranscript(pra, parameters));
+            } catch (RuleException ex ) {
+                builder.setTranscript("");
+                System.out.println("Error creating transcript for rule " + getName() + " on sequent " + target.getSequent());
+            }
         }
         return builder.build();
     }
