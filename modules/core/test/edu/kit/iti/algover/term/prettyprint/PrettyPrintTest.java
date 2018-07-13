@@ -115,6 +115,15 @@ public class PrettyPrintTest {
         };
     }
 
+    public String[][] parametersForTestSchemaExpressions() {
+        return new String[][] {
+            { "... (1 + 2) ..." },
+            { "?on" },
+            { "(?on: 1 + 2)" },
+            { "_ ==> ?something" },
+        };
+    }
+
 
     @Before
     public void setupTable() {
@@ -181,6 +190,17 @@ public class PrettyPrintTest {
     @Parameters
     public void testLetExpressions(String input) throws Exception {
         Term parsed = TermParser.parse(st, input);
+        AnnotatedString printed = new PrettyPrint().print(parsed);
+
+        assertEquals(input, printed.toString());
+    }
+
+    @Test
+    @Parameters
+    public void testSchemaExpressions(String input) throws Exception {
+        TermParser tp = new TermParser(st);
+        tp.setSchemaMode(true);
+        Term parsed = tp.parse(input);
         AnnotatedString printed = new PrettyPrint().print(parsed);
 
         assertEquals(input, printed.toString());
