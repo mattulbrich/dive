@@ -162,19 +162,13 @@ class PrettyPrintVisitor implements TermVisitor<Void, Void, RuntimeException> {
 
     @Override
     public Void visit(SchemaOccurTerm schemaTerm, Void arg) {
+        // TODO Drop the parenthesis if not needed.
         printer.append("... (");
         schemaTerm.getTerm(0).accept(this, null);
         printer.append(") ...");
         return null;
     }
 
-    /**
-     * ? is escape character for SchemaCapureTerms, needs to be added for the parser to understand it.
-     * Maybe check for consistency.
-     *
-     * @param schemaVariable
-     * @param arg
-     */
     @Override
     public Void visit(SchemaCaptureTerm schemaVariable, Void arg) {
         if(schemaVariable.getName().startsWith("?")) {
