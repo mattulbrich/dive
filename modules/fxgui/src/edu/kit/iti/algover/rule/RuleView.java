@@ -77,10 +77,17 @@ public class RuleView extends StackPane {
             application = rule.considerApplication(target, selection, selector);
             this.selection = selector;
             setSelectable(application != null && application.getApplicability() == ProofRuleApplication.Applicability.APPLICABLE);
+            renderApplication();
         } catch (RuleException e) {
-            System.err.println("Cannot consider Application: " + e);
+            try {
+                application = rule.considerApplication(target, selection, null);
+                this.selection = selector;
+                setSelectable(application != null && application.getApplicability() == ProofRuleApplication.Applicability.APPLICABLE);
+                renderApplication();
+            } catch (RuleException ex) {
+                System.err.println("Cannot consider Application: " + e);
+            }
         }
-        renderApplication();
     }
 
     private void renderApplication() {
