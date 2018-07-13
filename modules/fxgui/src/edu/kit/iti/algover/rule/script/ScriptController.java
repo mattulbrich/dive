@@ -86,7 +86,7 @@ public class ScriptController implements ScriptViewListener {
             }
         }
 
-        //this.listener.onSwitchViewedNode(checkpoint.selector);
+        this.listener.onSwitchViewedNode(checkpoint.selector);
     }
 
     private ProofNodeCheckpoint getCheckpointForCaretPosition(Position caretPosition) {
