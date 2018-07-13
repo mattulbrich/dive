@@ -17,7 +17,9 @@
 
 package edu.kit.iti.algover.term.prettyprint;
 
+import edu.kit.iti.algover.proof.ProofFormula;
 import edu.kit.iti.algover.term.FunctionSymbol;
+import edu.kit.iti.algover.term.Sequent;
 import edu.kit.iti.algover.term.Term;
 import edu.kit.iti.algover.term.prettyprint.AnnotatedString.Style;
 import edu.kit.iti.algover.util.Util;
@@ -106,6 +108,33 @@ public class PrettyPrint {
      */
     public AnnotatedString print(Term term) {
         return print(term, Integer.MAX_VALUE);
+    }
+
+    /**
+     * pretty print a sequent
+     *
+     * @param sequent the sequent to print
+     * @return a string representing the sequent
+     */
+    public String print(Sequent sequent) {
+        //TODO this should return a AnnotatedString
+        StringBuilder sb = new StringBuilder();
+        PrettyPrint pp = new PrettyPrint();
+        String prefix = "";
+        for(ProofFormula pf : sequent.getAntecedent()) {
+            sb.append(prefix);
+            prefix = ", ";
+            sb.append(pp.print(pf.getTerm()));
+        }
+        sb.append(" |- ");
+        prefix = "";
+        for(ProofFormula pf : sequent.getSuccedent()) {
+            sb.append(prefix);
+            prefix = ", ";
+            sb.append(pp.print(pf.getTerm()));
+        }
+
+        return sb.toString();
     }
 
     /**
