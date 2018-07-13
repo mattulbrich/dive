@@ -457,7 +457,7 @@ public abstract class AbstractProofRule implements ProofRule {
                     String pp = prettyPrint.print((Term) p.getValue()).toString();
                     res += " " + p.getKey() + "='" + pp + "'";
                 } else {
-                    String pp = ((Sequent) p.getValue()).toString();
+                    String pp = prettyPrint.print((Sequent) p.getValue());
                     res += " " + p.getKey() + "='" + pp + "'";
                 }
             } else {

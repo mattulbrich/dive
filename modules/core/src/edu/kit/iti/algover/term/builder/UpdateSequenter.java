@@ -5,7 +5,11 @@
  */
 package edu.kit.iti.algover.term.builder;
 
-import java.util.*;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
 
 import edu.kit.iti.algover.SymbexStateToFormula;
 import edu.kit.iti.algover.data.SymbolTable;
@@ -24,6 +28,7 @@ import edu.kit.iti.algover.term.Sort;
 import edu.kit.iti.algover.term.Term;
 import edu.kit.iti.algover.util.ASTUtil;
 import edu.kit.iti.algover.util.ImmutableList;
+import edu.kit.iti.algover.util.Util;
 
 /**
  * Update sequencer are a family of different sequent translation algorithms
@@ -63,7 +68,7 @@ public class UpdateSequenter implements PVCSequenter {
 
         // TreeTermTranslator ttt = new TreeTermTranslator(symbolTable);
         TreeAssignmentTranslator tat = new TreeAssignmentTranslator(symbolTable);
-        Set<ProofFormula> ante = new HashSet<>();
+        List<ProofFormula> ante = new ArrayList<>();
 
         resolveWildcards(pathThroughProgram.getAssignmentHistory(),
                 symbolTable);
@@ -78,6 +83,7 @@ public class UpdateSequenter implements PVCSequenter {
                 throw new DafnyException(pce.getExpression(), e);
             }
         }
+        Util.removeDuplicates(ante);
 
         assert pathThroughProgram.getProofObligations().size() == 1;
         AssertionElement assertion = pathThroughProgram.getProofObligations().getHead();

@@ -14,11 +14,13 @@ import java.nio.charset.Charset;
 import java.util.AbstractList;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
 import java.util.RandomAccess;
+import java.util.Set;
 import java.util.function.Function;
 
 import edu.kit.iti.algover.proof.PVC;
@@ -427,5 +429,22 @@ public final class Util {
         return sb.toString();
     }
 
-
+    /**
+     * Remove duplicates from a collection. Only the first occurrence is kept.
+     * Requires that the elements of the list implement equals nad hashcode.
+     * Requires that the iterator supports removce.
+     * ...
+     */
+    public static <T> void removeDuplicates(Collection<T> coll) {
+        Set<T> seen = new HashSet<T>();
+        Iterator<T> it = coll.iterator();
+        while(it.hasNext()) {
+            T t = it.next();
+            if(seen.contains(t)) {
+                it.remove();
+            } else {
+                seen.add(t);
+            }
+        }
+    }
 }
