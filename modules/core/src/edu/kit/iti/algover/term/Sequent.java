@@ -52,22 +52,8 @@ public final class Sequent {
 
     @Override
     public String toString() {
-        StringBuilder sb = new StringBuilder();
-        String prefix = "";
-        for(ProofFormula pf : antecedent) {
-            sb.append(prefix);
-            prefix = ", ";
-            sb.append(pf.getTerm().toString());
-        }
-        sb.append(" |- ");
-        prefix = "";
-        for(ProofFormula pf : succedent) {
-            sb.append(prefix);
-            prefix = ", ";
-            sb.append(pf.getTerm().toString());
-        }
-
-        return sb.toString();
+        return (Util.commatize(antecedent) + " |- " +
+                Util.commatize(succedent)).trim();
     }
 
     public Sequent union(Sequent other) {
@@ -81,7 +67,6 @@ public final class Sequent {
         succ.addAll(other.getSuccedent());
         Util.removeDuplicates(succ);
 
-        // TODO duplicates?
         return new Sequent(ante, succ);
     }
 }
