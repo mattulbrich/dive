@@ -24,15 +24,16 @@ import edu.kit.iti.algover.references.ProofTermReference;
 import edu.kit.iti.algover.references.Reference;
 import edu.kit.iti.algover.rule.RuleApplicationController;
 import edu.kit.iti.algover.rule.RuleApplicationListener;
-import edu.kit.iti.algover.rules.ProofRule;
-import edu.kit.iti.algover.rules.ProofRuleApplication;
-import edu.kit.iti.algover.rules.TermSelector;
+import edu.kit.iti.algover.rules.*;
+import edu.kit.iti.algover.rules.impl.LetSubstitutionRule;
+import edu.kit.iti.algover.rules.impl.Z3Rule;
 import edu.kit.iti.algover.sequent.SequentActionListener;
 import edu.kit.iti.algover.sequent.SequentController;
 import edu.kit.iti.algover.sequent.SequentTabViewController;
 import edu.kit.iti.algover.timeline.TimelineLayout;
 import edu.kit.iti.algover.util.CostumBreadCrumbBar;
 import edu.kit.iti.algover.util.FormatException;
+import edu.kit.iti.algover.util.RuleApp;
 import edu.kit.iti.algover.util.StatusBarLoggingHandler;
 import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
@@ -53,6 +54,7 @@ import org.controlsfx.control.StatusBar;
 import java.io.IOException;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.logging.Handler;
@@ -93,9 +95,11 @@ public class MainController implements SequentActionListener, RuleApplicationLis
 
         JFXButton saveButton = new JFXButton("Save", GlyphsDude.createIcon(FontAwesomeIcon.SAVE));
         JFXButton refreshButton = new JFXButton("Refresh", GlyphsDude.createIcon(FontAwesomeIcon.REFRESH));
+        JFXButton simpleStratButton = new JFXButton("Try Close All");
 
         saveButton.setOnAction(this::onClickSave);
         refreshButton.setOnAction(this::onClickRefresh);
+        simpleStratButton.setOnAction(this::trivialStrat);
 
         TreeItem<Object> ti = getBreadCrumbModel();
         breadCrumbBar = new CostumBreadCrumbBar(ti, this::onCrumbSelected);
@@ -103,7 +107,7 @@ public class MainController implements SequentActionListener, RuleApplicationLis
         breadCrumbBar.setSelectedCrumb(ti);
 
 
-        this.toolbar = new ToolBar(saveButton, refreshButton);
+        this.toolbar = new ToolBar(saveButton, refreshButton, simpleStratButton);
 
         this.statusBar = new StatusBar();
         this.statusBar.setOnMouseClicked(this::onStatusBarClicked);
@@ -127,6 +131,46 @@ public class MainController implements SequentActionListener, RuleApplicationLis
         logger.addHandler(statusBarLoggingHandler);
         logger.setUseParentHandlers(false);
         logger.info("Load of project '" + manager.getDirectory().getName() + "' successful.");
+    }
+
+    private void trivialStrat(ActionEvent event) {
+        Map<String, PVC> pvcMap = manager.getPVCByNameMap();
+        for(Map.Entry<String, PVC> e : pvcMap.entrySet()) {
+            String script = "";
+            Proof p = manager.getProofForPVC(e.getKey());
+            if (p.getScript() == "") {
+                for (int i = 0; i < p.getProofRoot().getSequent().getAntecedent().size(); ++i) {
+                    try {
+                        script += RuleApplicator.getScriptForExhaustiveRuleApplication(new LetSubstitutionRule(), p.getProofRoot(), new TermSelector("A." + i));
+                    } catch (FormatException ex) {
+                        //TODO
+                    } catch (RuleException ex) {
+                        //TODO
+                    }
+                }
+                for (int i = 0; i < p.getProofRoot().getSequent().getSuccedent().size(); ++i) {
+                    try {
+                        script += RuleApplicator.getScriptForExhaustiveRuleApplication(new LetSubstitutionRule(), p.getProofRoot(), new TermSelector("S." + i));
+                    } catch (FormatException ex) {
+                        //TODO
+                    } catch (RuleException ex) {
+                        //TODO
+                    }
+                }
+                String letScript = script;
+                script += "close;\n";
+                p.setScriptTextAndInterpret(script);
+                if(p.getFailException() != null) {
+                    script = letScript + "z3;\n";
+                    p.setScriptTextAndInterpret(script);
+                    if(p.getFailException() != null) {
+                        p.setScriptTextAndInterpret(letScript);
+                    }
+                }
+            }
+        }
+        sequentController.getActiveSequentController().tryMovingOnEx(); //SaG: was tryMovingOn()
+        ruleApplicationController.resetConsideration();
     }
 
     private void onCrumbSelected(ObservableValue observableValue, Object oldValue, Object newValue) {
@@ -282,6 +326,7 @@ public class MainController implements SequentActionListener, RuleApplicationLis
         if (proof.getProofStatus() == ProofStatus.NON_EXISTING || proof.getProofStatus() == ProofStatus.CHANGED_SCRIPT)
             proof.interpretScript();
         sequentController.viewSequentForPVC(entity, proof);
+        sequentController.getActiveSequentController().tryMovingOnEx();
         ruleApplicationController.resetConsideration();
         ruleApplicationController.getScriptController().setProof(proof);
         timelineView.moveFrameRight();
@@ -416,7 +461,6 @@ public class MainController implements SequentActionListener, RuleApplicationLis
         sequentController.getActiveSequentController().getActiveProof().setScriptTextAndInterpret(newScript);
         sequentController.getActiveSequentController().tryMovingOnEx();
         ruleApplicationController.resetConsideration();
-
     }
 
     @Override
