@@ -59,10 +59,11 @@ public class ParserTest {
                 { "full/sumandmax.dfy" },
                 { "full/find.dfy" },
                 { "full/twoway.dfy" },
+                { "full/Problem2-Invert.dfy" },
+                { "full/Problem1-SumMax.dfy" },
                 { "unqualifiedCallsInExp.dfy" },
                 { "letexpressions.dfy" },
                 { "typeParameters.dfy" },
-                { "saddleback.dfy" },
                 { "../term/builder/sequenterTest.dfy" },
                 { "../symbex/noetherTest.dfy" },
                 { "vars.dfy" },
@@ -101,6 +102,7 @@ public class ParserTest {
         } else {
             t = parseFile(System.in);
         }
+        // w/o boundaries: remove formatTree parameter
         System.out.println(TestUtil.beautify(t, ParserTest::formatTree));
     }
 

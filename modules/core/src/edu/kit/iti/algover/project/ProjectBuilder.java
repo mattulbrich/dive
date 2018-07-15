@@ -198,16 +198,31 @@ public class ProjectBuilder {
         this.getSettings().validate();
 
         for(String f : this.getLibraryFiles()) {
-            if(!new File(dir, f).exists()) {
-                throw new FileNotFoundException(f);
+            // MU: bugfix to deal with absolute paths
+            File file = getFileFor(f);
+            if(!file.exists()) {
+                throw new FileNotFoundException(file.toString());
             }
         }
 
         for(String f : this.getDafnyFiles()) {
-            if(!new File(dir, f).exists()) {
-                throw new FileNotFoundException(f);
+            File file = getFileFor(f);
+            if(!file.exists()) {
+                throw new FileNotFoundException(file.toString());
             }
         }
+    }
+
+    /**
+     * get a File object for the file name string. If the string is an absolute
+     * file name, return that. Otherwise make it relative the directory.
+     */
+    private File getFileFor(String f) {
+        File result = new File(f);
+        if (result.isAbsolute()) {
+            return result;
+        }
+        return new File(dir, f);
     }
 
     /**
@@ -230,12 +245,12 @@ public class ProjectBuilder {
 
         // parse DafnyFiles: first libs, then sources
         for (String file: this.getLibraryFiles()) {
-            DafnyTree tree = DafnyFileParser.parse(new File(dir, file));
+            DafnyTree tree = DafnyFileParser.parse(getFileFor(file));
             parseFile(true, tree, file);
         }
 
         for (String file: this.getDafnyFiles()) {
-            DafnyTree tree = DafnyFileParser.parse(new File(dir, file));
+            DafnyTree tree = DafnyFileParser.parse(getFileFor(file));
             parseFile(false, tree, file);
         }
 
@@ -246,6 +261,8 @@ public class ProjectBuilder {
         Project project = new Project(this);
         SyntacticSugarVistor.visitProject(project);
         resolveNames(project);
+        TarjansAlgorithm tarjan = new TarjansAlgorithm(project);
+        tarjan.computeSCCs();
 
         //TODO parse rules for project
 

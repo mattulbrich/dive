@@ -1,0 +1,40 @@
+#!/bin/sh
+
+#
+# Run a single .dfy file against the cli of algover.
+#
+# Invocation:
+#   one <file.dfy> [options]
+#
+# The options (after the filename!) are passed thru to algover.
+# -z3 allows you to call z3 on all PVCs.
+#
+
+
+dir=`dirname $0`
+
+# No spaces in file names!
+#cp=`echo "$dir/lib/* $dir/modules/core/bin $dir/modules/cli/bin" | tr ' ' ':'`
+cp="$dir/lib/*:$dir/modules/core/bin:$dir/modules/cli/bin"
+
+tmp=`mktemp -d -t AlgoVer_XXXXX`
+file=`realpath $1`
+shift
+
+if [ "$1" = "-z3" ]
+then
+  opt="<settings>
+      <entry><key>Default Script</key><value>z3;</value></entry>
+    </settings>"
+  shift
+fi  
+
+cat > $tmp/config.xml <<EOT
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<configuration>
+    <dafnyFile>$file</dafnyFile>
+    $opt
+</configuration>
+EOT
+
+java -ea -classpath $cp edu.kit.iti.algover.cli.Main "$@" $tmp

@@ -2,10 +2,11 @@
         ARGS
         (requires true[bool])
         (ensures true[bool])
+        (ensures (== (old intfield[int])[int] intfield[int])[bool])
         (decreases 2[int])
         (BLOCK
          (while
              true[bool]
              (invariant false[bool])
              (decreases 2[int])
-             BLOCK)))
+             BLOCK)))[scc_3]

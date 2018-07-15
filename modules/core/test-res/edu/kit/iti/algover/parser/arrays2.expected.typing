@@ -1,0 +1,10 @@
+
+(method arrays2 ARGS
+        (BLOCK
+         (var a (TYPE (array2 int)))
+         (var i (TYPE int))
+         (var j (TYPE int))
+         (:= i[int] (ARRAY_ACCESS a[array2<int>] 0[int] 0[int])[int])
+         (:= (ARRAY_ACCESS a[array2<int>] i[int] j[int])[int] i[int])
+         (:= i[int] (Length0 a[array2<int>])[int])
+         (:= j[int] (Length1 a[array2<int>])[int])))[scc_14]

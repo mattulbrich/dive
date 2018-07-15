@@ -284,12 +284,30 @@ public class ReferenceResolutionVisitor
      */
     @Override
     public Void visitNEW(DafnyTree t, Mode mode) {
-        t.getChild(0).accept(this, Mode.TYPE);
-        DafnyTree call = t.getFirstChildWithType(DafnyParser.CALL);
+        DafnyTree type;
+        DafnyTree call = null;
+        DafnyTree size = null;
+
+        DafnyTree child = t.getChild(0);
+        switch (child.getType()) {
+        case DafnyParser.ID:
+            call = t.getFirstChildWithType(DafnyParser.CALL);
+            type = child;
+            break;
+        case DafnyParser.ARRAY_ACCESS:
+            type = child.getChild(0);
+            size = child.getChild(1);
+            break;
+        default:
+            throw new Error("Unexpected new construct " + t);
+        }
+
+        type.accept(this, Mode.TYPE);
+
         if (call != null) {
             // TODO This will not work for parametrised classes ...
-            String type = t.getChild(0).getText();
-            DafnyClass clazz = project.getClass(type);
+            String name = child.getText();
+            DafnyClass clazz = project.getClass(name);
             if (clazz == null) {
                 addException(new DafnyException("Unknown class: " + type, t));
                 return null;
@@ -302,6 +320,11 @@ public class ReferenceResolutionVisitor
             }
             call.getChild(0).setDeclarationReference(method.getRepresentation());
         }
+
+        if(size != null) {
+            size.accept(this, Mode.EXPR);
+        }
+
         return null;
     }
 

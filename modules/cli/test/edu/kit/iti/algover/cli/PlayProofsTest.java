@@ -79,6 +79,9 @@ public class PlayProofsTest {
             Assume.assumeNoException("Parsing works fine", ex);
         }
 
+        // File parseOnlyFile = new File(service.getDirectory(), "PARSE_ONLY");
+        // Assume.assumeTrue(!parseOnlyFile.exists());
+
         List<Proof> proofs = service.runVerification();
 
         for (Proof proof : proofs) {

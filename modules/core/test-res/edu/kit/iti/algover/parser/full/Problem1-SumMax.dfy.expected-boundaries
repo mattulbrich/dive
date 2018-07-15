@@ -1,0 +1,45 @@
+(COMPILATION_UNIT[method-<EOF>]
+ (method[method-}] M[M-M] 
+  (ARGS[N->] (VAR[N-int] N[N-N] (TYPE[int-int] int[int-int]))
+             (VAR[a->] a[a-a] (TYPE[array->] (array[array->] int[int-int])))) 
+  (returns[returns-)] (VAR[sum-int] sum[sum-sum] (TYPE[int-int] int[int-int])) (VAR[max-int] max[max-max] (TYPE[int-int] int[int-int]))) 
+  (requires[requires-)] 
+   (&&[0-)] 
+    (&&[0-N] (<=[0-N] 0[0-0] N[N-N]) (==[a-N] (Length[a-Length] a[a-a]) N[N-N])) 
+    (forall[(-)] k[k-k] (==>[0-]] (&&[0-N] (<=[0-k] 0[0-0] k[k-k]) (<[k-N] k[k-k] N[N-N])) (<=[0-]] 0[0-0] (ARRAY_ACCESS[a-]] a[a-a] k[k-k])))))) 
+  (ensures[ensures-max] (<=[sum-max] sum[sum-sum] (*[N-max] N[N-N] max[max-max]))) 
+  (BLOCK[sum-}] 
+   (:=[sum-;] sum[sum-sum] 0[0-0]) 
+   (:=[max-;] max[max-max] 0[0-0]) 
+   (var[var-;] i[i-i] 0[0-0]) 
+   (while[while-}] (<[(-)] i[i-i] N[N-N]) 
+    (invariant[invariant-max] 
+     (&&[i-max] (<=[i-N] i[i-i] N[N-N])
+                (<=[sum-max] sum[sum-sum] (*[i-max] i[i-i] max[max-max])))) 
+    (BLOCK[{-}] 
+     (if[if-}] (<[(-)] max[max-max] (ARRAY_ACCESS[a-]] a[a-a] i[i-i])) 
+      (BLOCK[{-}] 
+       (:=[max-;] max[max-max] (ARRAY_ACCESS[a-]] a[a-a] i[i-i])))) 
+     (:=[sum-;] sum[sum-sum] (+[sum-]] sum[sum-sum] (ARRAY_ACCESS[a-]] a[a-a] i[i-i]))) 
+     (:=[i-;] i[i-i] (+[i-1] i[i-i] 1[1-1])))))) 
+ (method[method-}] Main[Main-Main] ARGS[ARGS-ARGS] 
+  (BLOCK[var-;] 
+   (var[var-;] a[a-a] 
+    (new[new-]] 
+     (ARRAY_ACCESS[int-10] int[int-int] 10[10-10]))) 
+   (:=[a-;] (ARRAY_ACCESS[a-]] a[a-a] 0[0-0]) 9[9-9]) 
+   (:=[a-;] (ARRAY_ACCESS[a-]] a[a-a] 1[1-1]) 5[5-5]) 
+   (:=[a-;] (ARRAY_ACCESS[a-]] a[a-a] 2[2-2]) 0[0-0]) 
+   (:=[a-;] (ARRAY_ACCESS[a-]] a[a-a] 3[3-3]) 2[2-2]) 
+   (:=[a-;] (ARRAY_ACCESS[a-]] a[a-a] 4[4-4]) 7[7-7]) 
+   (:=[a-;] (ARRAY_ACCESS[a-]] a[a-a] 5[5-5]) 3[3-3]) 
+   (:=[a-;] (ARRAY_ACCESS[a-]] a[a-a] 6[6-6]) 2[2-2]) 
+   (:=[a-;] (ARRAY_ACCESS[a-]] a[a-a] 7[7-7]) 1[1-1]) 
+   (:=[a-;] (ARRAY_ACCESS[a-]] a[a-a] 8[8-8]) 10[10-10]) 
+   (:=[a-;] (ARRAY_ACCESS[a-]] a[a-a] 9[9-9]) 6[6-6]) 
+   (var[var-int] s[s-s] (TYPE[int-int] int[int-int])) 
+   (var[var-int] m[m-m] (TYPE[int-int] int[int-int]))
+   (:=[s-;] s[s-s] m[m-m] 
+    (CALL[M-;] M[M-M] (ARGS[10-a] 10[10-10] a[a-a]))) 
+   (print[print-;] "N = "["N = "-"N = "] (Length[a-Length] a[a-a]) "  sum = "["  sum = "-"  sum = "] s[s-s] "  max = "["  max = "-"  max = "] m[m-m] "\n"["\n"-"\n"])
+   (assert[assert-;] (==[m-10] m[m-m] 10[10-10])))))

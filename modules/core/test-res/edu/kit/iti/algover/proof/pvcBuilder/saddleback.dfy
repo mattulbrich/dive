@@ -14,7 +14,6 @@ method Saddleback(b: array2<int>, value: int) returns (x: int, y: int)
  
   requires (forall i0, i1, j:int :: 0 <= i0 && i0 <= i1 && i1 < b.Length0 && 
      0 <= j && j < b.Length1 ==> b[i0,j] <= b[i1,j])
-   
   ensures x == -1 ==> 
      (forall i,j:int :: 0 <= i && i < b.Length0 &&
          0<=j && j < b.Length1 ==>

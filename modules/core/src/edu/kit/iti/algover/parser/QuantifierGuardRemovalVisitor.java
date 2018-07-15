@@ -7,6 +7,19 @@
 
 package edu.kit.iti.algover.parser;
 
+/**
+ * This syntactic sugar resolution replaces guards in quantifiers by
+ * implication or conjunction.
+ *
+ * {@code forall i:int | i > 1 :: i > 0} is replaced by
+ * {@code forall i:int :: i > 1 ==> i > 0}.
+ *
+ * {@code exists i:int | i > 1 :: i > 0} is replaced by
+ * {@code exists i:int :: i > 1 && i > 0}.
+ *
+ * @author mulbrich
+ * @see SyntacticSugarVistor
+ */
 public class QuantifierGuardRemovalVisitor {
 
     public void walk(DafnyTree tree) {
