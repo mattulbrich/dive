@@ -470,7 +470,7 @@ public class TypeContext {
 
         for (String l : lines) {
 
-            if (l.trim().startsWith("(assert") && (l.contains("setInsert<Object>") || l.contains("inSet<Object>")
+            if (l.trim().startsWith("(assert") && (l.contains("setadd<Object>") || l.contains("setin<Object>")
                     || l.contains("create") || l.contains("isCreated"))) {
                 critical.add(l);
             }

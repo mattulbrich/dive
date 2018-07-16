@@ -58,7 +58,7 @@ public class DafnyExampleTest {
                 Proof proof = pm.getProofForPVC(pvc.getIdentifier());
                 if (excepted.contains(pvc.getIdentifier()))
                     continue;
-//               try {
+          //    try {
 
                     proof.setScriptText("z3;");
                     proof.interpretScript();

@@ -132,7 +132,7 @@ public enum Axiom {
         CREATE.smt = "(declare-fun create  (Heap Object) Heap)";
         CREATED.smt = "(declare-fun isCreated  (Heap Object) Bool)";
         MODH.smt = "(declare-const modh SetObject)";
-        EVERYTHING.smt = "(assert (forall ((o Object)) (inSet<Object> o " + Names.getPrefix() + "everything)))";
+        EVERYTHING.smt = "(assert (forall ((o Object)) (setin<Object> o " + Names.getPrefix() + "everything)))";
         ARRSELECT.smt = "(declare-fun (par (T) (arrselect<T> (Heap Arr<T> Int) T)))";
         ARRSTORE.smt = "(declare-fun (par (T) (arrstore<T> (Heap (Arr<T>) Int T) Heap)))";
         ARRLEN.smt = "(declare-fun (par (T)(arrlen<T> (Arr<T>) Int)))";

@@ -53,9 +53,9 @@ public class SymbolHandler {
         List<Dependency> r = new ArrayList<>();
         ConstDependency d = new ConstDependency(new FunctionSymbol(Names.makeSMTName(op.toSMT()), Sort.get("Set<Object>")));
         FuncDependency f = new FuncDependency(new FunctionSymbol("$everything<Object>", Sort.get("Object")));
-      
         r.add(d);
         r.add(f);
+       // r.add(f2);
         return r;
 
     }

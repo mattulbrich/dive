@@ -74,7 +74,7 @@ public enum Operation {
         // TODO Axiom.SET_CARD_4 -> timeout
         SETIN.smt = "setin";
         SETIN.poly = true;
-        SETIN.instantiations = asList(Axiom.SETIN, Axiom.SETADD, Axiom.S2);
+        SETIN.instantiations = asList(Axiom.SETIN, Axiom.SETADD, Axiom.S2); //,Axiom.S3
 
         MULTIUNION.smt = "munion";
         MULTIUNION.poly = true;
