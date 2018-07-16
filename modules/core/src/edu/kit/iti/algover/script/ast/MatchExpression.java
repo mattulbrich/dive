@@ -68,14 +68,9 @@ public class MatchExpression extends Expression<ScriptLanguageParser.MatchPatter
     @Override
     public Type getType(Signature signature) throws NotWelldefinedException {
         Type patternType = pattern.getType(signature);
-        switch (patternType) {
-            case TERM:
-            case STRING:
-                break;
-            default:
-                throw new NotWelldefinedException("Missing parameter", this);
+        if (!(patternType == Type.TERM  || patternType == Type.FORMULA|| patternType == Type.STRING)) {
+            throw new NotWelldefinedException("Missing parameter", this);
         }
-
         return Type.BOOL;
     }
 

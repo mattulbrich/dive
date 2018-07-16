@@ -8,7 +8,6 @@ import edu.kit.iti.algover.script.ast.ProofScript;
 import edu.kit.iti.algover.script.callhandling.BuiltinCommands;
 import edu.kit.iti.algover.script.callhandling.DefaultLookup;
 import edu.kit.iti.algover.script.callhandling.ProofRuleHandler;
-import edu.kit.iti.algover.script.data.GoalNode;
 import edu.kit.iti.algover.script.parser.Visitor;
 
 import java.util.ArrayList;
@@ -115,7 +114,7 @@ public class InterpreterBuilder {
      * @param matcher TermMatcher
      * @return
      */
-    public InterpreterBuilder addMatcher(TermMatcher matcher) {
+    public InterpreterBuilder addMatcher(TermMatcherApi matcher) {
         interpreter.setMatcherApi(matcher);
         return this;
     }

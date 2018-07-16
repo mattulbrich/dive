@@ -6,6 +6,7 @@ import edu.kit.iti.algover.script.exceptions.InterpreterRuntimeException;
 import edu.kit.iti.algover.script.exceptions.ScriptCommandNotApplicableException;
 import edu.kit.iti.algover.script.interpreter.Interpreter;
 import edu.kit.iti.algover.script.interpreter.InterpreterBuilder;
+import edu.kit.iti.algover.script.interpreter.TermMatcherApi;
 import edu.kit.iti.algover.script.parser.DefaultASTVisitor;
 import edu.kit.iti.algover.script.parser.Facade;
 import edu.kit.iti.algover.util.ObservableValue;
@@ -182,6 +183,7 @@ public class Proof {
         Interpreter<ProofNode> i = ib
                 .setProofRules(this.project.getAllProofRules())
                 .startState(getProofRoot())
+                .addMatcher(new TermMatcherApi())
                 .build();
 
         return i;
