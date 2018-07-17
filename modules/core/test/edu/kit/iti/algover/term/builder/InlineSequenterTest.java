@@ -33,11 +33,11 @@ import edu.kit.iti.algover.util.TestUtil;
 public class InlineSequenterTest extends SequenterTest {
 
     protected String expectedSuccedent(String string) {
-        return "[$gt(p, 0)]";
+        return "$gt(p, 0)";
     }
 
     protected String expectedAntecedent(String string) {
-        return "[$gt(p, 0)]";
+        return "$gt(p, 0)";
     }
 
     @Override
@@ -47,7 +47,6 @@ public class InlineSequenterTest extends SequenterTest {
 
     @Test
     public void testReferenceMap() throws Exception {
-
         InputStream is = getClass().getResourceAsStream("referencesTest.dfy");
         DafnyTree top = ParserTest.parseFile(is, null);
         // SyntacticSugarVistor.visit(top);
