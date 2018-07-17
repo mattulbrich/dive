@@ -37,194 +37,175 @@ public class BuiltinSymbols extends MapSymbolTable {
 
     // Checkstyle: OFF JavadocVariableCheck
 
-////<<<<<<< HEAD
-//    public static final FunctionSymbol AND = new FunctionSymbol("$and", Sort.BOOL, Sort.BOOL, Sort.BOOL);
-//
-//    public static final FunctionSymbol OR = new FunctionSymbol("$or", Sort.BOOL, Sort.BOOL, Sort.BOOL);
-//
-//    public static final FunctionSymbol IMP = new FunctionSymbol("$imp", Sort.BOOL, Sort.BOOL, Sort.BOOL);
-//
-//    public static final FunctionSymbol NOT = new FunctionSymbol("$not", Sort.BOOL, Sort.BOOL);
-//
-//    public static final FunctionSymbol GT = new FunctionSymbol("$gt", Sort.BOOL, Sort.INT, Sort.INT);
-//
-//    public static final FunctionSymbol GE = new FunctionSymbol("$ge", Sort.BOOL, Sort.INT, Sort.INT);
-//
-//    public static final FunctionSymbol LT = new FunctionSymbol("$lt", Sort.BOOL, Sort.INT, Sort.INT);
-//
-//    public static final FunctionSymbol LE = new FunctionSymbol("$le", Sort.BOOL, Sort.INT, Sort.INT);
-//
-//    public static final FunctionSymbol PLUS = new FunctionSymbol("$plus", Sort.INT, Sort.INT, Sort.INT);
-//
-//    public static final FunctionSymbol MINUS = new FunctionSymbol("$minus", Sort.INT, Sort.INT, Sort.INT);
-//
-//    public static final FunctionSymbol NEG = new FunctionSymbol("$neg", Sort.INT, Sort.INT);
-//
-//    public static final FunctionSymbol TIMES = new FunctionSymbol("$times", Sort.INT, Sort.INT, Sort.INT);
-//
-//    public static final FunctionSymbol DIV = new FunctionSymbol("$div", Sort.INT, Sort.INT, Sort.INT);
-//
-//    public static final FunctionSymbolFamily ITE = new FunctionSymbolFamily(new FunctionSymbol("$ite",
-//            FunctionSymbolFamily.VAR1, Sort.BOOL, FunctionSymbolFamily.VAR1, FunctionSymbolFamily.VAR1), 1);
-//    public static final FunctionSymbolFamily ARRAY2_SELECT = new FunctionSymbolFamily(
-//            new FunctionSymbol("$array2_select", FunctionSymbolFamily.VAR1, Sort.HEAP,
-//                    Sort.get("array2", FunctionSymbolFamily.VAR1), Sort.INT, Sort.INT),
-//            1);
-//    public static final FunctionSymbolFamily LEN = new FunctionSymbolFamily(
-//            new FunctionSymbol("$len", Sort.INT, Sort.get("array", FunctionSymbolFamily.VAR1)), 1);
-//    public static final FunctionSymbolFamily LEN0 = new FunctionSymbolFamily(
-//            new FunctionSymbol("$len0", Sort.INT, Sort.get("array2", FunctionSymbolFamily.VAR1)), 1);
-//    public static final FunctionSymbolFamily LEN1 = new FunctionSymbolFamily(
-//            new FunctionSymbol("$len1", Sort.INT, Sort.get("array2", FunctionSymbolFamily.VAR1)), 1);
-//    public static final FunctionSymbol NULL = new FunctionSymbol("null", Sort.NULL);
-//
-//    public static final FunctionSymbolFamily STORE = new FunctionSymbolFamily(
-//            new FunctionSymbol("$store", Sort.HEAP, Sort.HEAP, FunctionSymbolFamily.VAR1,
-//                    Sort.get("field", FunctionSymbolFamily.VAR1, FunctionSymbolFamily.VAR2), FunctionSymbolFamily.VAR2),
-//            2);
-//
-//    public static final FunctionSymbolFamily ARRAY_STORE = new FunctionSymbolFamily(new FunctionSymbol("$array_store",
-//            Sort.HEAP, Sort.HEAP, Sort.get("array", FunctionSymbolFamily.VAR1), Sort.INT, FunctionSymbolFamily.VAR1),
-//            1);
-//
-//    public static final FunctionSymbolFamily ARRAY2_STORE = new FunctionSymbolFamily(
-//            new FunctionSymbol("$array2_store", Sort.HEAP, Sort.HEAP, Sort.get("array", FunctionSymbolFamily.VAR1),
-//                    Sort.INT, Sort.INT, FunctionSymbolFamily.VAR1),
-//            1);
-//
-//    public static final FunctionSymbolFamily SELECT = new FunctionSymbolFamily(
-//            new FunctionSymbol("$select", FunctionSymbolFamily.VAR2, Sort.HEAP, FunctionSymbolFamily.VAR1,
-//                    Sort.get("field", FunctionSymbolFamily.VAR1, FunctionSymbolFamily.VAR2)),
-//            2);
-//
-//    public static final FunctionSymbol TRUE = new FunctionSymbol("true", Sort.BOOL);
-//
-//    public static final FunctionSymbol FALSE = new FunctionSymbol("false", Sort.BOOL);
-//
-//    public static final FunctionSymbolFamily EQ = new FunctionSymbolFamily(
-//            new FunctionSymbol("$eq", Sort.BOOL, FunctionSymbolFamily.VAR1, FunctionSymbolFamily.VAR1), 1);
-//
-//    public static final FunctionSymbol HEAP = new FunctionSymbol("$heap", Sort.HEAP);
-////=======
-    public static final FunctionSymbol AND =
-            new FunctionSymbol("$and", Sort.BOOL, Sort.BOOL, Sort.BOOL);
+    //// <<<<<<< HEAD
+    // public static final FunctionSymbol AND = new FunctionSymbol("$and",
+    //// Sort.BOOL, Sort.BOOL, Sort.BOOL);
+    //
+    // public static final FunctionSymbol OR = new FunctionSymbol("$or", Sort.BOOL,
+    //// Sort.BOOL, Sort.BOOL);
+    //
+    // public static final FunctionSymbol IMP = new FunctionSymbol("$imp",
+    //// Sort.BOOL, Sort.BOOL, Sort.BOOL);
+    //
+    // public static final FunctionSymbol NOT = new FunctionSymbol("$not",
+    //// Sort.BOOL, Sort.BOOL);
+    //
+    // public static final FunctionSymbol GT = new FunctionSymbol("$gt", Sort.BOOL,
+    //// Sort.INT, Sort.INT);
+    //
+    // public static final FunctionSymbol GE = new FunctionSymbol("$ge", Sort.BOOL,
+    //// Sort.INT, Sort.INT);
+    //
+    // public static final FunctionSymbol LT = new FunctionSymbol("$lt", Sort.BOOL,
+    //// Sort.INT, Sort.INT);
+    //
+    // public static final FunctionSymbol LE = new FunctionSymbol("$le", Sort.BOOL,
+    //// Sort.INT, Sort.INT);
+    //
+    // public static final FunctionSymbol PLUS = new FunctionSymbol("$plus",
+    //// Sort.INT, Sort.INT, Sort.INT);
+    //
+    // public static final FunctionSymbol MINUS = new FunctionSymbol("$minus",
+    //// Sort.INT, Sort.INT, Sort.INT);
+    //
+    // public static final FunctionSymbol NEG = new FunctionSymbol("$neg", Sort.INT,
+    //// Sort.INT);
+    //
+    // public static final FunctionSymbol TIMES = new FunctionSymbol("$times",
+    //// Sort.INT, Sort.INT, Sort.INT);
+    //
+    // public static final FunctionSymbol DIV = new FunctionSymbol("$div", Sort.INT,
+    //// Sort.INT, Sort.INT);
+    //
+    // public static final FunctionSymbolFamily ITE = new FunctionSymbolFamily(new
+    //// FunctionSymbol("$ite",
+    // FunctionSymbolFamily.VAR1, Sort.BOOL, FunctionSymbolFamily.VAR1,
+    //// FunctionSymbolFamily.VAR1), 1);
+    // public static final FunctionSymbolFamily ARRAY2_SELECT = new
+    //// FunctionSymbolFamily(
+    // new FunctionSymbol("$array2_select", FunctionSymbolFamily.VAR1, Sort.HEAP,
+    // Sort.get("array2", FunctionSymbolFamily.VAR1), Sort.INT, Sort.INT),
+    // 1);
+    // public static final FunctionSymbolFamily LEN = new FunctionSymbolFamily(
+    // new FunctionSymbol("$len", Sort.INT, Sort.get("array",
+    //// FunctionSymbolFamily.VAR1)), 1);
+    // public static final FunctionSymbolFamily LEN0 = new FunctionSymbolFamily(
+    // new FunctionSymbol("$len0", Sort.INT, Sort.get("array2",
+    //// FunctionSymbolFamily.VAR1)), 1);
+    // public static final FunctionSymbolFamily LEN1 = new FunctionSymbolFamily(
+    // new FunctionSymbol("$len1", Sort.INT, Sort.get("array2",
+    //// FunctionSymbolFamily.VAR1)), 1);
+    // public static final FunctionSymbol NULL = new FunctionSymbol("null",
+    //// Sort.NULL);
+    //
+    // public static final FunctionSymbolFamily STORE = new FunctionSymbolFamily(
+    // new FunctionSymbol("$store", Sort.HEAP, Sort.HEAP, FunctionSymbolFamily.VAR1,
+    // Sort.get("field", FunctionSymbolFamily.VAR1, FunctionSymbolFamily.VAR2),
+    //// FunctionSymbolFamily.VAR2),
+    // 2);
+    //
+    // public static final FunctionSymbolFamily ARRAY_STORE = new
+    //// FunctionSymbolFamily(new FunctionSymbol("$array_store",
+    // Sort.HEAP, Sort.HEAP, Sort.get("array", FunctionSymbolFamily.VAR1), Sort.INT,
+    //// FunctionSymbolFamily.VAR1),
+    // 1);
+    //
+    // public static final FunctionSymbolFamily ARRAY2_STORE = new
+    //// FunctionSymbolFamily(
+    // new FunctionSymbol("$array2_store", Sort.HEAP, Sort.HEAP, Sort.get("array",
+    //// FunctionSymbolFamily.VAR1),
+    // Sort.INT, Sort.INT, FunctionSymbolFamily.VAR1),
+    // 1);
+    //
+    // public static final FunctionSymbolFamily SELECT = new FunctionSymbolFamily(
+    // new FunctionSymbol("$select", FunctionSymbolFamily.VAR2, Sort.HEAP,
+    //// FunctionSymbolFamily.VAR1,
+    // Sort.get("field", FunctionSymbolFamily.VAR1, FunctionSymbolFamily.VAR2)),
+    // 2);
+    //
+    // public static final FunctionSymbol TRUE = new FunctionSymbol("true",
+    //// Sort.BOOL);
+    //
+    // public static final FunctionSymbol FALSE = new FunctionSymbol("false",
+    //// Sort.BOOL);
+    //
+    // public static final FunctionSymbolFamily EQ = new FunctionSymbolFamily(
+    // new FunctionSymbol("$eq", Sort.BOOL, FunctionSymbolFamily.VAR1,
+    //// FunctionSymbolFamily.VAR1), 1);
+    //
+    // public static final FunctionSymbol HEAP = new FunctionSymbol("$heap",
+    //// Sort.HEAP);
+    //// =======
+    public static final FunctionSymbol AND = new FunctionSymbol("$and", Sort.BOOL, Sort.BOOL, Sort.BOOL);
 
-    public static final FunctionSymbol OR =
-            new FunctionSymbol("$or", Sort.BOOL, Sort.BOOL, Sort.BOOL);
+    public static final FunctionSymbol OR = new FunctionSymbol("$or", Sort.BOOL, Sort.BOOL, Sort.BOOL);
 
-    public static final FunctionSymbol IMP =
-            new FunctionSymbol("$imp", Sort.BOOL, Sort.BOOL, Sort.BOOL);
+    public static final FunctionSymbol IMP = new FunctionSymbol("$imp", Sort.BOOL, Sort.BOOL, Sort.BOOL);
 
-    public static final FunctionSymbol NOT =
-            new FunctionSymbol("$not", Sort.BOOL, Sort.BOOL);
+    public static final FunctionSymbol NOT = new FunctionSymbol("$not", Sort.BOOL, Sort.BOOL);
 
-    public static final FunctionSymbol GT =
-            new FunctionSymbol("$gt", Sort.BOOL, Sort.INT, Sort.INT);
+    public static final FunctionSymbol GT = new FunctionSymbol("$gt", Sort.BOOL, Sort.INT, Sort.INT);
 
-    public static final FunctionSymbol GE =
-            new FunctionSymbol("$ge", Sort.BOOL, Sort.INT, Sort.INT);
+    public static final FunctionSymbol GE = new FunctionSymbol("$ge", Sort.BOOL, Sort.INT, Sort.INT);
 
-    public static final FunctionSymbol LT =
-            new FunctionSymbol("$lt", Sort.BOOL, Sort.INT, Sort.INT);
+    public static final FunctionSymbol LT = new FunctionSymbol("$lt", Sort.BOOL, Sort.INT, Sort.INT);
 
-    public static final FunctionSymbol LE =
-            new FunctionSymbol("$le", Sort.BOOL, Sort.INT, Sort.INT);
+    public static final FunctionSymbol LE = new FunctionSymbol("$le", Sort.BOOL, Sort.INT, Sort.INT);
 
-    public static final FunctionSymbol PLUS =
-            new FunctionSymbol("$plus", Sort.INT, Sort.INT, Sort.INT);
+    public static final FunctionSymbol PLUS = new FunctionSymbol("$plus", Sort.INT, Sort.INT, Sort.INT);
 
-    public static final FunctionSymbol MINUS =
-            new FunctionSymbol("$minus", Sort.INT, Sort.INT, Sort.INT);
+    public static final FunctionSymbol MINUS = new FunctionSymbol("$minus", Sort.INT, Sort.INT, Sort.INT);
 
-    public static final FunctionSymbol NEG =
-            new FunctionSymbol("$neg", Sort.INT, Sort.INT);
+    public static final FunctionSymbol NEG = new FunctionSymbol("$neg", Sort.INT, Sort.INT);
 
-    public static final FunctionSymbol TIMES =
-            new FunctionSymbol("$times", Sort.INT, Sort.INT, Sort.INT);
+    public static final FunctionSymbol TIMES = new FunctionSymbol("$times", Sort.INT, Sort.INT, Sort.INT);
 
-    public static final FunctionSymbol DIV =
-            new FunctionSymbol("$div", Sort.INT, Sort.INT, Sort.INT);
+    public static final FunctionSymbol DIV = new FunctionSymbol("$div", Sort.INT, Sort.INT, Sort.INT);
 
-    public static final FunctionSymbol MODULO =
-            new FunctionSymbol("$modulo", Sort.INT, Sort.INT, Sort.INT);
+    public static final FunctionSymbol MODULO = new FunctionSymbol("$modulo", Sort.INT, Sort.INT, Sort.INT);
 
+    public static final FunctionSymbolFamily ITE = new FunctionSymbolFamily(new FunctionSymbol("$ite",
+            FunctionSymbolFamily.VAR1, Sort.BOOL, FunctionSymbolFamily.VAR1, FunctionSymbolFamily.VAR1), 1);
+    public static final FunctionSymbolFamily ARRAY2_SELECT = new FunctionSymbolFamily(
+            new FunctionSymbol("$array2_select", FunctionSymbolFamily.VAR1, Sort.HEAP,
+                    Sort.get("array2", FunctionSymbolFamily.VAR1), Sort.INT, Sort.INT),
+            1);
+    public static final FunctionSymbolFamily LEN = new FunctionSymbolFamily(
+            new FunctionSymbol("$len", Sort.INT, Sort.get("array", FunctionSymbolFamily.VAR1)), 1);
+    public static final FunctionSymbolFamily LEN0 = new FunctionSymbolFamily(
+            new FunctionSymbol("$len0", Sort.INT, Sort.get("array2", FunctionSymbolFamily.VAR1)), 1);
+    public static final FunctionSymbolFamily LEN1 = new FunctionSymbolFamily(
+            new FunctionSymbol("$len1", Sort.INT, Sort.get("array2", FunctionSymbolFamily.VAR1)), 1);
+    public static final FunctionSymbol NULL = new FunctionSymbol("null", Sort.NULL);
 
-    public static final FunctionSymbolFamily ITE =
-            new FunctionSymbolFamily(
-                    new FunctionSymbol("$ite",
-                            FunctionSymbolFamily.VAR1,
-                            Sort.BOOL,
-                            FunctionSymbolFamily.VAR1,
-                            FunctionSymbolFamily.VAR1), 1);
-    public static final FunctionSymbolFamily ARRAY2_SELECT =
-            new FunctionSymbolFamily(
-                    new FunctionSymbol("$array2_select", FunctionSymbolFamily.VAR1,
-                            Sort.HEAP, Sort.get("array2", FunctionSymbolFamily.VAR1),
-                            Sort.INT, Sort.INT), 1);
-    public static final FunctionSymbolFamily LEN =
-            new FunctionSymbolFamily(
-                    new FunctionSymbol("$len", Sort.INT,
-                            Sort.get("array", FunctionSymbolFamily.VAR1)), 1);
-    public static final FunctionSymbolFamily LEN0 =
-            new FunctionSymbolFamily(
-                    new FunctionSymbol("$len0", Sort.INT,
-                            Sort.get("array2", FunctionSymbolFamily.VAR1)), 1);
-    public static final FunctionSymbolFamily LEN1 =
-            new FunctionSymbolFamily(
-                    new FunctionSymbol("$len1", Sort.INT,
-                            Sort.get("array2", FunctionSymbolFamily.VAR1)), 1);
-    public static final FunctionSymbol NULL =
-            new FunctionSymbol("null", Sort.NULL);
+    public static final FunctionSymbolFamily STORE = new FunctionSymbolFamily(
+            new FunctionSymbol("$store", Sort.HEAP, Sort.HEAP, FunctionSymbolFamily.VAR1,
+                    Sort.get("field", FunctionSymbolFamily.VAR1, FunctionSymbolFamily.VAR2), FunctionSymbolFamily.VAR2),
+            2);
 
-    public static final FunctionSymbolFamily STORE =
-            new FunctionSymbolFamily(
-                    new FunctionSymbol("$store", Sort.HEAP,
-                            Sort.HEAP,
-                            FunctionSymbolFamily.VAR1,
-                            Sort.get("field",
-                                    FunctionSymbolFamily.VAR1,
-                                    FunctionSymbolFamily.VAR2),
-                            FunctionSymbolFamily.VAR2), 2);
+    public static final FunctionSymbolFamily ARRAY_STORE = new FunctionSymbolFamily(new FunctionSymbol("$array_store",
+            Sort.HEAP, Sort.HEAP, Sort.get("array", FunctionSymbolFamily.VAR1), Sort.INT, FunctionSymbolFamily.VAR1),
+            1);
 
-    public static final FunctionSymbolFamily ARRAY_STORE =
-            new FunctionSymbolFamily(
-                    new FunctionSymbol("$array_store", Sort.HEAP,
-                            Sort.HEAP,
-                            Sort.get("array", FunctionSymbolFamily.VAR1),
-                            Sort.INT,
-                            FunctionSymbolFamily.VAR1), 1);
+    public static final FunctionSymbolFamily ARRAY2_STORE = new FunctionSymbolFamily(
+            new FunctionSymbol("$array2_store", Sort.HEAP, Sort.HEAP, Sort.get("array2", FunctionSymbolFamily.VAR1),
+                    Sort.INT, Sort.INT, FunctionSymbolFamily.VAR1),
+            1);
 
-    public static final FunctionSymbolFamily ARRAY2_STORE =
-            new FunctionSymbolFamily(
-                    new FunctionSymbol("$array2_store", Sort.HEAP,
-                            Sort.HEAP,
-                            Sort.get("array2", FunctionSymbolFamily.VAR1),
-                            Sort.INT,
-                            Sort.INT,
-                            FunctionSymbolFamily.VAR1), 1);
+    public static final FunctionSymbolFamily SELECT = new FunctionSymbolFamily(
+            new FunctionSymbol("$select", FunctionSymbolFamily.VAR2, Sort.HEAP, FunctionSymbolFamily.VAR1,
+                    Sort.get("field", FunctionSymbolFamily.VAR1, FunctionSymbolFamily.VAR2)),
+            2);
 
-    public static final FunctionSymbolFamily SELECT =
-            new FunctionSymbolFamily(
-                    new FunctionSymbol("$select", FunctionSymbolFamily.VAR2,
-                            Sort.HEAP, FunctionSymbolFamily.VAR1,
-                            Sort.get("field",
-                                    FunctionSymbolFamily.VAR1,
-                                    FunctionSymbolFamily.VAR2)), 2);
+    public static final FunctionSymbol TRUE = new FunctionSymbol("true", Sort.BOOL);
 
-    public static final FunctionSymbol TRUE =
-            new FunctionSymbol("true", Sort.BOOL);
+    public static final FunctionSymbol FALSE = new FunctionSymbol("false", Sort.BOOL);
 
-    public static final FunctionSymbol FALSE =
-            new FunctionSymbol("false", Sort.BOOL);
+    public static final FunctionSymbolFamily EQ = new FunctionSymbolFamily(
+            new FunctionSymbol("$eq", Sort.BOOL, FunctionSymbolFamily.VAR1, FunctionSymbolFamily.VAR1), 1);
 
-    public static final FunctionSymbolFamily EQ =
-            new FunctionSymbolFamily(
-                    new FunctionSymbol("$eq", Sort.BOOL,
-                            FunctionSymbolFamily.VAR1, FunctionSymbolFamily.VAR1), 1);
-
-    public static final FunctionSymbol HEAP =
-            new FunctionSymbol("$heap", Sort.HEAP);
-//>>>>>>> master
+    public static final FunctionSymbol HEAP = new FunctionSymbol("$heap", Sort.HEAP);
+    // >>>>>>> master
 
     // Assignable variable for the modifies set
     public static final FunctionSymbol MOD = new FunctionSymbol("$mod", Sort.get("set", Sort.OBJECT));
@@ -243,7 +224,7 @@ public class BuiltinSymbols extends MapSymbolTable {
 
     public static final FunctionSymbolFamily SETMINUS = new FunctionSymbolFamily(
             new FunctionSymbol("$set_minus", SET1, SET1, SET1), 1);
-    
+
     public static final FunctionSymbolFamily EMPTY_SET = new FunctionSymbolFamily(new FunctionSymbol("$empty", SET1),
             1);
 
@@ -267,8 +248,8 @@ public class BuiltinSymbols extends MapSymbolTable {
     public static final FunctionSymbolFamily MULTIINTERSECT = new FunctionSymbolFamily(
             new FunctionSymbol("$multi_intersect", MULTISET, MULTISET, MULTISET), 1);
 
-    public static final FunctionSymbolFamily MULTIEMPTY_SET = new FunctionSymbolFamily(new FunctionSymbol("$multi_empty", MULTISET),
-            1);
+    public static final FunctionSymbolFamily MULTIEMPTY_SET = new FunctionSymbolFamily(
+            new FunctionSymbol("$multi_empty", MULTISET), 1);
 
     public static final FunctionSymbolFamily MULTICARD = new FunctionSymbolFamily(
             new FunctionSymbol("$multi_set_card", Sort.INT, MULTISET), 1);
@@ -278,8 +259,7 @@ public class BuiltinSymbols extends MapSymbolTable {
 
     public static final FunctionSymbolFamily MULTISET_IN = new FunctionSymbolFamily(
             new FunctionSymbol("$multi_set_in", Sort.BOOL, FunctionSymbolFamily.VAR1, MULTISET), 1);
-    
-    
+
     /**
      * sequences
      */
@@ -303,6 +283,8 @@ public class BuiltinSymbols extends MapSymbolTable {
 
     public static final FunctionSymbolFamily SEQ_CONCAT = new FunctionSymbolFamily(
             new FunctionSymbol("$seq_concat", SEQ1, SEQ1, SEQ1), 1);
+    public static final FunctionSymbolFamily SEQ_SUBSELECT = new FunctionSymbolFamily(
+            new FunctionSymbol("$seq_subselect", SEQ1, Sort.INT, Sort.INT), 1);
 
     private static final Sort SET_OBJECTS = Sort.get("set", Sort.OBJECT);
 

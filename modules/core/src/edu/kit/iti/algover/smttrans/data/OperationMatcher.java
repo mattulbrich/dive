@@ -57,6 +57,7 @@ public class OperationMatcher {
         opmap.put("$seq_empty", Operation.SEQEMPTY);
         opmap.put("$seq_cons", Operation.SEQCONS);
         opmap.put("$seq_concat", Operation.SEQCONCAT);
+        opmap.put("$seq_subselect", Operation.SEQSUBSELECT);
 
         opmap.put("$anon", Operation.ANON);
         opmap.put("$create", Operation.CREATE);

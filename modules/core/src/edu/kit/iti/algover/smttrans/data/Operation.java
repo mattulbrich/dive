@@ -1,7 +1,9 @@
 package edu.kit.iti.algover.smttrans.data;
 
 import java.util.ArrayList;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 
 import edu.kit.iti.algover.term.FunctionSymbol;
 
@@ -10,7 +12,7 @@ import static java.util.Arrays.asList;
 
 public enum Operation {
 
-    OR, SETEMPTY, PLUS, MINUS, TIMES, IMP, GT, DIV, LT, EQ, NOT, GE, LE, NEG, ITE, ARR2SELECT, ARRSTORE, ARR2STORE, FIELDSTORE, FIELDSELECT, DECR, SETUNION, SETINTERSECT, SETCARD, SEQCONCAT, ISCREATED, CREATE, ANON, SEQCONS, SEQEMPTY, SEQUPD, SEQGET, SEQLEN, SETIN, SETADD, CONST, ARRLEN, ARR2LEN0, ARR2LEN1, EXISTS, FORALL, LET, ARRSELECT, VAR, HEAP, AND, BV, MOD, AHEAP, EVERYTHING, MULTIUNION, MULTIINTERSECT, MULTIEMPTY, MULTICARD, MULTIADD, MULTIIN, SETMINUS, MULTIMINUS, FUNC;
+    OR, SETEMPTY, PLUS, MINUS, TIMES, IMP, GT, DIV, LT, EQ, NOT, GE, LE, NEG, ITE, ARR2SELECT, ARRSTORE, ARR2STORE, FIELDSTORE, FIELDSELECT, DECR, SETUNION, SETINTERSECT, SETCARD, SEQCONCAT, ISCREATED, CREATE, ANON, SEQCONS, SEQEMPTY, SEQUPD, SEQGET, SEQLEN, SETIN, SETADD, CONST, ARRLEN, ARR2LEN0, ARR2LEN1, EXISTS, FORALL, LET, ARRSELECT, VAR, HEAP, AND, BV, MOD, AHEAP, EVERYTHING, MULTIUNION, MULTIINTERSECT, MULTIEMPTY, MULTICARD, MULTIADD, MULTIIN, SETMINUS, MULTIMINUS, FUNC, SEQSUBSELECT;
 
     private String smt;
     private boolean poly = false;
@@ -50,31 +52,28 @@ public enum Operation {
 
         SETUNION.smt = "setunion";
         SETUNION.poly = true;
-        SETUNION.instantiations = asList(Axiom.SETIN, Axiom.SETADD, Axiom.S2, Axiom.S3, Axiom.SETUNION);
+        SETUNION.instantiations = asList(Axiom.S2, Axiom.S3);
 
         SETADD.smt = "setadd";
         SETADD.poly = true;
-        SETADD.instantiations = asList(Axiom.SETIN, Axiom.SETADD, Axiom.S2, Axiom.S3); // Axiom.SETCARD
+        SETADD.instantiations = asList(Axiom.S2, Axiom.S3); // Axiom.SETCARD
         SETINTERSECT.smt = "setintersect";
         SETINTERSECT.poly = true;
-        SETINTERSECT.instantiations = asList(Axiom.SETIN, Axiom.SETADD, Axiom.S2, Axiom.S3, Axiom.SETINTERSECT,
-                Axiom.S5);
+        SETINTERSECT.instantiations = asList(Axiom.S2, Axiom.S3, Axiom.S5);
 
         SETMINUS.smt = "setminus";
         SETMINUS.poly = true;
-        SETMINUS.instantiations = asList(Axiom.SETMINUS, Axiom.S6);
+        SETMINUS.instantiations = asList(Axiom.S6);
         SETCARD.smt = "setcard";
         SETCARD.poly = true;
-        SETCARD.instantiations = asList(Axiom.SETIN, Axiom.SETADD, // Axiom.S2, Axiom.S3,
-                Axiom.SETCARD, Axiom.SC1, Axiom.SC3); // ,Axiom.SET_CARD_3,Axiom.SET_CARD_4
-        // asList(Axiom.SET_IN,Axiom.SET_1,
-        // Axiom.SET_6,Axiom.SET_INSERT,Axiom.SET_CARD,Axiom.SET_CARD_1,Axiom.SET_CARD_2,Axiom.SETEMPTY_INST);
-        // //,Axiom.SETEMPTY_INST,Axiom.SET_INST,Axiom.SET_CARD, Axiom.SET_5,
-        // Axiom.SETEMPTY_INST, Axiom.SET_CARD_1
-        // TODO Axiom.SET_CARD_4 -> timeout
+        SETCARD.instantiations = asList(Axiom.SC1, Axiom.SC3);
+
         SETIN.smt = "setin";
         SETIN.poly = true;
-        SETIN.instantiations = asList(Axiom.SETIN, Axiom.SETADD, Axiom.S2); //,Axiom.S3
+        SETIN.instantiations = asList(Axiom.S2); // ,Axiom.S3
+        SETEMPTY.smt = "setempty";
+        SETEMPTY.poly = true;
+        SETEMPTY.instantiations = asList(Axiom.S1, Axiom.S2, Axiom.S3,Axiom.SC2);
 
         MULTIUNION.smt = "munion";
         MULTIUNION.poly = true;
@@ -124,35 +123,35 @@ public enum Operation {
 
         SEQEMPTY.smt = "seqempty";
         SEQEMPTY.poly = true;
-        SEQEMPTY.instantiations = asList(Axiom.SEQ_LEN); // Axiom.SEQ_LEN_5
-
-        SETEMPTY.smt = "setempty";
-        SETEMPTY.poly = true;
-        SETEMPTY.instantiations = asList(Axiom.S1, Axiom.S2, Axiom.S3,Axiom.SETCARD, Axiom.SC2);
+        SEQEMPTY.instantiations = asList(Axiom.SQL1, Axiom.SQL2);
 
         EVERYTHING.smt = "everything";
-        EVERYTHING.instantiations = asList(Axiom.SETIN, Axiom.SETADD, Axiom.EVERYTHING); //
+        EVERYTHING.instantiations = asList(Axiom.EVERYTHING); //
         EVERYTHING.special = true;
 
         SEQCONS.smt = "seqcons";
         SEQCONS.poly = true;
-        SEQCONS.instantiations = asList(Axiom.SEQ_CONS, Axiom.SEQ_LEN_6, Axiom.SEQ_7);
+        SEQCONS.instantiations = asList(Axiom.SQ2, Axiom.SQL5);
 
-        SEQUPD.smt = "seqstore";
+        SEQUPD.smt = "sequpd";
         SEQUPD.poly = true;
-        SEQUPD.instantiations = asList(Axiom.SEQEMTY_INST, Axiom.SEQ_STORE, Axiom.SEQ_0);
+        SEQUPD.instantiations = asList(Axiom.SQ1);
 
         SEQGET.smt = "seqget";
         SEQGET.poly = true;
-        SEQGET.instantiations = asList(Axiom.SEQEMTY_INST, Axiom.SEQ_GET, Axiom.SEQ_4);
+        SEQGET.instantiations = asList(Axiom.SQ1);
+
+        SEQSUBSELECT.smt = "seqsubselect";
+        SEQSUBSELECT.poly = true;
+        SEQSUBSELECT.instantiations = asList(Axiom.SQ4, Axiom.SQL3);
 
         SEQLEN.smt = "seqlen";
         SEQLEN.poly = true;
-        SEQLEN.instantiations = asList(Axiom.SEQEMTY_INST, Axiom.SEQ_LEN, Axiom.SEQ_LEN_1);
+        SEQLEN.instantiations = asList(Axiom.SQL2);
 
         SEQCONCAT.smt = "seqconcat";
         SEQCONCAT.poly = true;
-        SEQCONCAT.instantiations = asList(Axiom.SEQEMTY_INST, Axiom.SEQ_CONCAT, Axiom.SEQ_LEN, Axiom.SEQ_LEN_5);
+        SEQCONCAT.instantiations = asList(Axiom.SQ3, Axiom.SQL4);
 
         FIELDSTORE.smt = "fieldstore";
         FIELDSTORE.poly = true;
@@ -229,7 +228,22 @@ public enum Operation {
     }
 
     public List<Axiom> getInstantiations() {
-        return instantiations;
+        Set<Axiom> r = new LinkedHashSet<>();
+        Set<Axiom> d = new LinkedHashSet<>();
+        r.addAll(instantiations);
+        while (true) {
+            for (Axiom a : r) {
+                d.addAll(a.getDependencies());
+            }
+            if (r.containsAll(d)) {
+                return new ArrayList<>(r);
+            } else {
+                r.addAll(d);
+                
+            }
+
+        }
+
     }
 
 }

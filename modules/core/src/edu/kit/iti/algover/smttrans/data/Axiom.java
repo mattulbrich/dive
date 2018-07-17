@@ -1,5 +1,9 @@
 package edu.kit.iti.algover.smttrans.data;
 
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
+
 import edu.kit.iti.algover.smttrans.translate.Names;
 
 public enum Axiom {
@@ -16,7 +20,6 @@ public enum Axiom {
     MULTISET_INST, MULTISETEMTPY_INST,
 
     // sequences
-    SEQ_INST, SEQEMTY_INST,
 
     // Heap/Arrays
     FIELD_INST, HEAP_INST, TYPE_INST, OBJECT_INST, // ARR_1_INST, //ARR_2_INST
@@ -33,8 +36,7 @@ public enum Axiom {
     MULTISET_UNION, MULTISET_INTERSECT, MULTISET_MINUS, MULTISET_CARD, MULTISET_SUBSET, MULTISET_INSERT, MULTISET_SELECT, MULTISET_IN, MULTISET_SINGLE, MULTISET_MAX, MULTISET_MIN,
 
     // sequences
-    SEQ_GET, SEQ_SUBSELECT, SEQ_CONCAT, SEQ_APPEND, SEQ_LEN, SEQ_SINGLE, SEQ_STORE, SEQ_CONS,
-
+    SEQLEN, SEQGET, SEQUPD, SEQCONS, SEQSUBSELECT, SEQCONCAT,
     // Heap/Arrays
     O2C, C2O, FIELDSTORE, FIELDSELECT, ANON, CREATE, CREATED, MODH, ARRSELECT, ARR2SELECT, ARR2STORE, ARR2LEN0, ARR2LEN1, ARRLEN, ARRSTORE, TYPEOF,
 
@@ -49,10 +51,11 @@ public enum Axiom {
     MULTISET_1, MULTISET_2, MULTISET_3, MULTISET_4, MULTISET_5, MULTISET_6, MULTISET_7, MULTISET_8, MULTISET_CARD_1, MULTISET_CARD_2, MULTISET_CARD_3, MULTISET_CARD_4,
 
     // sequences
-    SEQ_0, SEQ_1, SEQ_2, SEQ_3, SEQ_4, SEQ_5, SEQ_LEN_6, SEQ_LEN_1, SEQ_LEN_2, SEQ_LEN_3, SEQ_LEN_4, SEQ_LEN_5,
+
+    SQ1, SQ2, SQ3, SQ4, SQ5, SQ6, SQL1, SQL2, SQL3, SQL4, SQL5,
 
     // Heap/Arrays
-    ARR_1, ARR_2, ARR2_1, HEAP_1, HEAP_2, HEAP_3, HEAP_4, HEAP_5, HEAP_6, SEQ_7;
+    ARR_1, ARR_2, ARR2_1, HEAP_1, HEAP_2, HEAP_3, HEAP_4, HEAP_5, HEAP_6;
 
     static {
 
@@ -63,14 +66,6 @@ public enum Axiom {
         // sets
         // SET_INST.smt = "(define-sort Set (T) (Array T Bool))"; //TODO
         // SETEMPTY_INST.smt = "(declare-const (par (T) (setEmpty<T> (Set<T>))))";
-
-        // multisets
-        MULTISET_INST.smt = "(declare-sort MultiSet 1)";
-        MULTISETEMTPY_INST.smt = "(declare-const (par (T) (msetEmptyT (MultiSetT))))";
-
-        // sequences
-        SEQ_INST.smt = "(declare-sort Seq 1)";
-        SEQEMTY_INST.smt = "(declare-const (par (T) (emtpyseq<T> Seq<T>)))";
 
         // Heap/Arrays
         FIELD_INST.smt = "(declare-sort Field 2)";
@@ -111,15 +106,12 @@ public enum Axiom {
         MULTISET_MIN.smt = "(define-fun min ((x Int) (y Int)) Int\r\n" + "  (ite (<= x y) x y))";
 
         // sequences
-        SEQ_GET.smt = "(declare-fun (par (T)(seqget<T>((Seq<T>) Int) T)))";
-        SEQ_STORE.smt = "(declare-fun (par (T)(seqstore<T>((Seq<T>) Int T) (Seq<T>))))";
-        SEQ_SUBSELECT.smt = "(declare-fun (par (T)(subseqselect<T> ((Seq<T>) Int Int) (Seq<T>))))";
-        SEQ_CONCAT.smt = "(declare-fun (par (T)(seqconcat<T> ((Seq<T>) (Seq<T>)) (Seq<T>))))";
-        SEQ_APPEND.smt = "(declare-fun (par (T)(seqappend<T> ((Seq<T>) T) (Seq<T>))))";
-        SEQ_LEN.smt = "(declare-fun (par (T)(seqlen<T> ((Seq<T>)) Int)))";
-        SEQ_CONS.smt = "(declare-fun (par (T)(seqcons<T> (T (Seq<T>)) (Seq<T>))))";
-        SEQ_SINGLE.smt = "(define-fun (par (T) (seqsingle<T> ((t T))  (Seq<T>)  \r\n"
-                + "(seqappend<T> emtpyseq<T> t)\r\n" + ")))";
+        SEQLEN.smt = "(declare-fun (par (T) (seqlen<T> (Seq<T>) Int)))";
+        SEQGET.smt = "(declare-fun (par (T) (seqget<T> (Seq<T> Int) T)))";
+        SEQUPD.smt = "(declare-fun (par (T) (sequpd<T> (Seq<T> T Int) Seq<T>)))";
+        SEQCONS.smt = "(declare-fun (par (T) (seqcons<T> (Seq<T> T) Seq<T>)))";
+        SEQSUBSELECT.smt = "(declare-fun (par (T) (seqsubselect<T> (Seq<T> Int Int) Seq<T>)))";
+        SEQCONCAT.smt = "(declare-fun (par (T) (seqconcat<T> (Seq<T> Seq<T>) Seq<T>)))";
 
         // Heap/Arrays
         O2C.smt = "(declare-fun (par (C) (o2C (Object) C)))";
@@ -133,6 +125,7 @@ public enum Axiom {
         CREATED.smt = "(declare-fun isCreated  (Heap Object) Bool)";
         MODH.smt = "(declare-const modh SetObject)";
         EVERYTHING.smt = "(assert (forall ((o Object)) (setin<Object> o " + Names.getPrefix() + "everything)))";
+        EVERYTHING.dependencies = new HashSet<>(Arrays.asList(Axiom.SETIN, Axiom.SETADD)); // SETADD ?
         ARRSELECT.smt = "(declare-fun (par (T) (arrselect<T> (Heap Arr<T> Int) T)))";
         ARRSTORE.smt = "(declare-fun (par (T) (arrstore<T> (Heap (Arr<T>) Int T) Heap)))";
         ARRLEN.smt = "(declare-fun (par (T)(arrlen<T> (Arr<T>) Int)))";
@@ -148,36 +141,44 @@ public enum Axiom {
         // sets
         S1.smt = "(assert (par (T) (forall\r\n" + "(\r\n" + "    (t T)\r\n" + ")\r\n" + "(!  \r\n"
                 + "(not (setin<T> t ~setempty<T>)) \r\n" + ":pattern((setin<T> t ~setempty<T>))))))";
-        S2.smt = "(assert (par (T) (forall\r\n" + "(\r\n" + "    (s Set<T>)\r\n" + "    (x T)\r\n"
-                + "    (y T)\r\n" + ")\r\n" + "(! \r\n"
-                + "(= (setin<T> y (setadd<T> x s)) (or (= x y) (setin<T> y s)))\r\n"
+        S1.dependencies = new HashSet<>(Arrays.asList(Axiom.SETIN));
+        S2.smt = "(assert (par (T) (forall\r\n" + "(\r\n" + "    (s Set<T>)\r\n" + "    (x T)\r\n" + "    (y T)\r\n"
+                + ")\r\n" + "(! \r\n" + "(= (setin<T> y (setadd<T> x s)) (or (= x y) (setin<T> y s)))\r\n"
                 + ":pattern((setin<T> y s) (setadd<T> x s))))))";
+        S2.dependencies = new HashSet<>(Arrays.asList(Axiom.SETIN, Axiom.SETADD));
         S3.smt = "(assert (par (T) (forall\r\n" + "(\r\n" + "(s1 Set<T>)\r\n" + "(s2 Set<T>)\r\n" + ")\r\n"
                 + "(=>  \r\n" + "(forall \r\n" + "(\r\n" + "    (t T)\r\n" + ")\r\n"
                 + "(= (setin<T> t s1) (setin<T> t s2))) (= s1 s2)))))";
+        S3.dependencies = new HashSet<>(Arrays.asList(Axiom.SETIN));
         S4.smt = "(assert (par (T) (forall\r\n" + "(\r\n" + "    (s1 Set<T>)\r\n" + "    (s2 Set<T>)\r\n"
                 + "    (x T)\r\n" + ")\r\n" + "(! \r\n"
                 + "(= (setin<T> x (setunion<T> s1 s2)) (or (setin<T> x s1) (setin<T> x s2)))\r\n"
                 + ":pattern((setunion<T> s1 s2) (setin<T> x s1))))))";
+        S4.dependencies = new HashSet<>(Arrays.asList(Axiom.SETIN, Axiom.SETUNION));
         S5.smt = "(assert (par (T) (forall\r\n" + "(\r\n" + "    (s1 Set<T>)\r\n" + "    (s2 Set<T>)\r\n"
                 + "    (x T)\r\n" + ")\r\n" + "(! \r\n"
                 + "(= (setin<T> x (setintersect<T> s1 s2)) (and (setin<T> x s1) (setin<T> x s2)))\r\n"
                 + ":pattern((setintersect<T> s1 s2) (setin<T> x s1))))))";
+        S5.dependencies = new HashSet<>(Arrays.asList(Axiom.SETIN, Axiom.SETINTERSECT));
         S6.smt = "(assert (par (T) (forall\r\n" + "(\r\n" + "    (s1 Set<T>)\r\n" + "    (s2 Set<T>)\r\n"
                 + "    (x T)\r\n" + ")\r\n" + "(!\r\n"
                 + "(= (setin<T> x (setminus<T> s1 s2)) (and (setin<T> x s1) (not (setin<T> x s2))))\r\n"
                 + ":pattern((setminus<T> s1 s2) (setin<T> x s1))))))";
+        S6.dependencies = new HashSet<>(Arrays.asList(Axiom.SETIN, Axiom.SETMINUS));
         S7.smt = "(assert (par (T) (forall\r\n" + "(\r\n" + "(s1 Set<T>)\r\n" + "(s2 Set<T>)\r\n" + ")\r\n"
                 + "(= (setsubset<T> s1 s2) \r\n" + "(forall \r\n" + "(\r\n" + "    (t T)\r\n" + ")\r\n" + "(!\r\n"
                 + "(=> (setin<T> t s1) (setin<T> t s2)) \r\n"
                 + ":pattern((setsubset<T> s1 s2) (setin<T> t s1) (setin<T> t s2))))))))";
+        S7.dependencies = new HashSet<>(Arrays.asList(Axiom.SETIN, Axiom.SETSUBSET));
         SC1.smt = "(assert (par (T) (forall\r\n" + "(\r\n" + "    (s Set<T>)\r\n" + ")\r\n" + "(!\r\n"
                 + "(>= (setcard<T> s) 0) \r\n" + ":pattern((setcard<T> s))))))";
+        SC1.dependencies = new HashSet<>(Arrays.asList(Axiom.SETCARD));
         SC2.smt = "(assert (par (T) (= (setcard<T> ~setempty<T>) 0)))";
-        SC3.smt = "(assert (par (T) (forall\r\n" + "(\r\n" + "    (s Set<T>)\r\n" + "    (t T)\r\n" + ")\r\n"
-                + "(!\r\n"
+        SC2.dependencies = new HashSet<>(Arrays.asList(Axiom.SETCARD));
+        SC3.smt = "(assert (par (T) (forall\r\n" + "(\r\n" + "    (s Set<T>)\r\n" + "    (t T)\r\n" + ")\r\n" + "(!\r\n"
                 + "(= (setcard<T> (setadd<T> t s)) (ite (setin<T> t s) (setcard<T> s) (+ (setcard<T> s) 1)))\r\n"
                 + ":pattern((setadd<T> t s))))))";
+        SC3.dependencies = new HashSet<>(Arrays.asList(Axiom.SETCARD, Axiom.SETADD, Axiom.SETIN));
         // multisets
         MULTISET_1.smt = "(assert (par (T)\r\n" + "(forall\r\n" + "(\r\n" + "    (s1 (MultiSetT))\r\n" + "    (t T)\r\n"
                 + ")\r\n" + "    (! \r\n" + "        (>= (msetselectT s1 t) 0)\r\n"
@@ -225,56 +226,52 @@ public enum Axiom {
                 + "        :pattern ((msetinsertT t s))\r\n" + "    ) \r\n" + ")))";
 
         // sequences
-        SEQ_0.smt = "(assert  (par (T) (forall\r\n" + "(\r\n" + " (s1 (Seq<T>))\r\n" + " (i Int)\r\n" + "    (t T)\r\n"
-                + ")\r\n" + "    (!\r\n"
-                + "    (= (seqget<T> (seqstore<T> s1 i t) i)t) :pattern((seqstore<T> s1 i t))\r\n" + "))))";
-        SEQ_1.smt = "(assert (par (T) (forall\r\n" + "(\r\n" + "    (s (Seq<T>))\r\n" + "    (t T)\r\n"
-                + "    (i Int)\r\n" + ")\r\n" + "    (!\r\n" + "    (=> (and  (>= i 0) (<= i (seqlen<T> s))  )\r\n"
-                + "    (= (seqget<T> (seqappend<T> s t) i) (ite (= i (- (seqlen<T> s) 1) )  t  (seqget<T> s i) )\r\n"
-                + "    )):pattern ((seqappend<T> s t) (seqget<T> s i))\r\n" + "      )\r\n" + ")))";
-        SEQ_2.smt = "(assert (par (T) (forall\r\n" + "(\r\n" + "    (s1 (Seq<T>))\r\n" + "    (s2 (Seq<T>))\r\n"
-                + "    (i Int)\r\n" + ")\r\n" + "    (!\r\n"
-                + "    (=>  (and (>= i 0) (<= i (- (+ (seqlen<T> s1) (seqlen<T> s2)) 2)  ) )\r\n"
-                + "    (= (seqget<T> (seqconcat<T> s1 s2) i)   (ite (< (seqlen<T> s1) i)  (seqget<T> s1 i) (seqget<T> s2 i) )\r\n"
-                + "      )):pattern ((seqconcat<T> s1 s2) (seqget<T> s1 i))\r\n" + "      )\r\n" + ")))"; // TODO wrong
-        SEQ_3.smt = "(assert (par (T) (forall\r\n" + "(\r\n" + "    (s (Seq<T>))\r\n" + "    (i Int)\r\n"
-                + "    (j Int)\r\n" + "    (k Int)\r\n" + ")\r\n" + "    (! \r\n"
-                + "    (=> (and (<= 0 i k j) (< j (seqlen<T> s)) )\r\n"
-                + "    (= (seqget<T> (subseqselect<T> s i j) k)   (seqget<T> s (+ i k)) \r\n"
-                + "      )):pattern ((subseqselect<T> s i j) (seqget<T> s k))\r\n" + "      )\r\n" + ")))";
-        SEQ_4.smt = "(assert (par (T) (forall\r\n" + "(\r\n" + "    (s1 (Seq<T>))\r\n" + "    (s2 (Seq<T>))\r\n"
-                + ")\r\n" + "    (! \r\n" + "    (=>\r\n" + "    (and (= (seqlen<T> s1) (seqlen<T> s2))\r\n"
-                + "    (forall\r\n" + "    ((i Int))\r\n" + "    (!   \r\n"
-                + "    (=> (and (>= 0 i) (< i (seqlen<T> s1)))\r\n"
-                + "    (= (seqget<T> s1 i)(seqget<T> s2 i))) :pattern((seqget<T> s1 i) (seqget<T> s2 i))\r\n"
-                + "    )))\r\n" + "    (= s1 s2)\r\n" + "    ) :pattern((seqlen<T> s1) (seqlen<T> s2))\r\n" + "))))";
+        SQ1.smt = "(assert (par (T) (forall\r\n" + "(\r\n" + "    (i Int)\r\n" + "    (j Int)\r\n"
+                + "    (s Seq<T>)\r\n" + ")\r\n" + "(=>\r\n"
+                + "(and (<= 0 i) (< i (seqlen<T> s)) (<= 0 j) (< j (seqlen<T> s)))\r\n" + "(forall \r\n" + "(\r\n"
+                + " (t T)\r\n" + ")\r\n" + "(= (seqget<T> (sequpd<T> s t i) j) (ite (= i j) t (seqget<T> s j))))))))";
+        SQ1.dependencies = new HashSet<>(Arrays.asList(Axiom.SEQGET, Axiom.SEQLEN, Axiom.SEQUPD));
+        SQ2.smt = "(assert (par (T) (forall\r\n" + "(\r\n" + "    (i Int)\r\n" + "    (s Seq<T>)\r\n" + ")\r\n"
+                + "(=>\r\n" + "(and (<= 0 i) (< i (seqlen<T> s)))\r\n" + "(forall\r\n" + "(\r\n" + "    (t T)\r\n"
+                + ")\r\n" + "(= (seqget<T> (seqcons<T> s t) i) (ite  (= i 0) t (seqget<T> s (- i 1)))))))))";
+        SQ2.dependencies = new HashSet<>(Arrays.asList(Axiom.SEQGET, Axiom.SEQLEN, Axiom.SEQCONS));
+        SQ3.smt = "(assert (par (T) (forall\r\n" + "(\r\n" + "    (i Int)\r\n" + "    (s1 Seq<T>)\r\n"
+                + "    (s2 Seq<T>)\r\n" + ")\r\n" + "(!\r\n" + "(=> \r\n"
+                + "(and (<= 0 i) (< i (- (+ (seqlen<T> s1) (seqlen<T> s2)) 1)) )\r\n"
+                + "(= (seqget<T> (seqconcat<T> s1 s2) i) (ite (< i (seqlen<T> s1)) (seqget<T> s1 i) (seqget<T> s2 (- i (seqlen<T> s1)\r\n"
+                + ")))\r\n" + ")) :pattern((seqconcat<T> s1 s2) (seqget<T> s1 i))))))";
+        SQ3.dependencies = new HashSet<>(Arrays.asList(Axiom.SEQGET, Axiom.SEQLEN, Axiom.SEQCONCAT));
+        SQ4.smt = "(assert (par (T) (forall\r\n" + "(\r\n" + "    (i Int)\r\n" + "    (j Int)\r\n" + "    (k Int)\r\n"
+                + "    (s Seq<T>)\r\n" + ")\r\n" + "(!\r\n"
+                + "(= (seqget<T> (seqsubselect<T> s i j) k) (seqget<T> s (+ i k))) :pattern ((seqsubselect<T> s i j) (seqget<T> s k))))))";
+        SQ4.dependencies = new HashSet<>(Arrays.asList(Axiom.SEQGET, Axiom.SEQLEN, Axiom.SEQSUBSELECT));
+        SQ5.smt = "(assert (par (T) (forall \r\n" + "(\r\n" + "    (i Int)\r\n" + "    (s1 Seq<T>)\r\n"
+                + "    (s2 Seq<T>)\r\n" + ")\r\n" + "(!\r\n" + "(=>   \r\n" + "(and  (<= 0 i) (< i (seqlen<T> s1)))\r\n"
+                + "(=>  \r\n" + "(and (= (seqlen<T> s1) (seqlen<T> s2)) (= (seqget<T> s1 i) (seqget<T> s2 i)))\r\n"
+                + "(= s1 s2))) :pattern((seqget<T> s1 i) (seqget<T> s2 i))))))";
+        SQ5.dependencies = new HashSet<>(Arrays.asList(Axiom.SEQGET, Axiom.SEQLEN));
+        SQ6.smt = "(assert (par (T) (forall\r\n" + "(\r\n" + "    (s Seq<T>)\r\n" + ")\r\n" + "(=>   \r\n"
+                + "(= (seqlen<T> s) 0)\r\n" + "(= s ~emptySeq<T>)))))";
+        SQ6.dependencies = new HashSet<>(Arrays.asList(Axiom.SEQLEN));
+        SQL1.smt = "(assert (par (T) (= (seqlen<T> ~emptySeq<T>) 0)))";
+        SQL1.dependencies = new HashSet<>(Arrays.asList(Axiom.SEQLEN));
+        SQL2.smt = "(assert (par (T) (forall   \r\n" + "(\r\n" + "    (s Seq<T>)\r\n" + ")\r\n"
+                + "(>= (seqlen<T> s) 0))))";
+        SQL2.dependencies = new HashSet<>(Arrays.asList(Axiom.SEQLEN));
+        SQL3.smt = "(assert (par (T) (forall\r\n" + "(\r\n" + "    (i Int)\r\n" + "    (j Int)\r\n"
+                + "    (s Seq<T>)\r\n" + ")\r\n" + "(!\r\n" + "(=>\r\n"
+                + "(and (<= 0 i) (<= i j) (< j (seqlen<T> s)))\r\n"
+                + "(= (seqlen<T> (seqsubselect<T> s i j)) (- j i))\r\n" + ") :pattern((seqsubselect<T> s i j))))))";
+        SQL3.dependencies = new HashSet<>(Arrays.asList(Axiom.SEQLEN,Axiom.SEQSUBSELECT));
+        SQL4.smt = "(assert (par (T) (forall\r\n" + "(\r\n" + "    (s1 Seq<T>)\r\n" + "    (s2 Seq<T>)\r\n" + ")\r\n"
+                + "(!\r\n"
+                + "(= (seqlen<T> (seqconcat<T> s1 s2))  (+ (seqlen<T> s1) (seqlen<T> s2))) :pattern((seqconcat<T> s1 s2))))))";
+        SQL4.dependencies = new HashSet<>(Arrays.asList(Axiom.SEQLEN,Axiom.SEQCONCAT));
+        SQL5.smt = "(assert (par (T) (forall\r\n" + "(\r\n" + "    (s Seq<T>)\r\n" + "    (t T)\r\n" + ")\r\n"
+                + "(!\r\n" + "(= (seqlen<T> (seqcons<T> s t)) (+ (seqlen<T> s) 1)) :pattern((seqcons<T> s t))))))";
+        SQL5.dependencies = new HashSet<>(Arrays.asList(Axiom.SEQLEN,Axiom.SEQCONS));
+        
 
-        SEQ_5.smt = "(assert (par (T) (forall\r\n" + "(\r\n" + "    (s (Seq<T>))\r\n" + ")\r\n" + "    (! \r\n"
-                + "    (=>  (= (seqlen<T> s) 0) \r\n" + "    (= s emtpyseq<T>)\r\n"
-                + "    ):pattern ((seqlen<T> s))\r\n" + "    )\r\n" + ")))";
-
-        SEQ_7.smt = "(assert (par (T) (forall\r\n" + "(\r\n" + "    (t T)\r\n" + "    (s1 (Seq<T>))\r\n" + ")\r\n"
-                + " \r\n" + " (forall \r\n" + " (\r\n" + "    (i Int)\r\n" + " ) \r\n"
-                + "    (= (seqget<T> (seqcons<T> t s1) i)  (ite (= i 0) t (seqget<T> s1 (+ i 1))))  \r\n" + "))))";
-
-        SEQ_LEN_1.smt = "(assert (par (T) (= (seqlen<T> emtpyseq<T>) 0)))";
-        SEQ_LEN_2.smt = "(assert (par (T) (forall\r\n" + "(\r\n" + "    (s (Seq<T>))\r\n" + ")\r\n" + "    (! \r\n"
-                + "    (>= (seqlen<T> s) 0):pattern((seqlen<T> s))\r\n" + "    ) \r\n" + ")))";
-        SEQ_LEN_3.smt = "(assert (par (T) (forall\r\n" + "(\r\n" + "    (s (Seq<T>))\r\n" + "    (t T)\r\n" + ")\r\n"
-                + "    (! \r\n"
-                + "    (= (seqlen<T> (seqappend<T> s t)) (+ (seqlen<T> s) 1)) :pattern((seqappend<T> s t))\r\n"
-                + "    ) \r\n" + ")))";
-        SEQ_LEN_4.smt = "(assert (par (T) (forall\r\n" + "(\r\n" + "    (s (Seq<T>))\r\n" + "    (i Int)\r\n"
-                + "    (j Int)\r\n" + ")\r\n" + "    (!\r\n" + "    (=>  (<= i j)\r\n"
-                + "    (= (seqlen<T> (subseqselect<T> s i j)) (+ (- j i) 1))) :pattern((subseqselect<T> s i j))\r\n"
-                + "    )\r\n" + ")))";
-        SEQ_LEN_5.smt = "(assert (par (T) (forall\r\n" + "(\r\n" + "    (s1 (Seq<T>))\r\n" + "    (s2 (Seq<T>))\r\n"
-                + ")\r\n" + "    (! \r\n"
-                + "    (= (seqlen<T> (seqconcat<T> s1 s2)) (+ (seqlen<T> s1) (seqlen<T> s2))) :pattern((seqconcat<T> s1 s2))\r\n"
-                + "    ) \r\n" + ")))";
-
-        SEQ_LEN_6.smt = "(assert (par (T) (forall\r\n" + "(\r\n" + "    (t T)\r\n" + "    (s1 (Seq<T>))\r\n" + ")\r\n"
-                + "\r\n" + "(= (seqlen<T> (seqcons<T> t s1))  (+ (seqlen<T> s1) 1))\r\n" + "\r\n" + ")))";
         // Heap/Arrays
         ARR_1.smt = "(assert (par (T) (forall\r\n" + "(\r\n" + "    (i Int)\r\n" + "    (h Heap)\r\n"
                 + "    (a (Arr<T>))\r\n" + "    (v T)\r\n" + ")\r\n" + "(!\r\n"
@@ -305,10 +302,16 @@ public enum Axiom {
 
     }
 
+    private Set<Axiom> dependencies = new HashSet<>();
+
     private String smt;
 
     public String getSmt() {
         return smt;
+    }
+
+    public Set<Axiom> getDependencies() {
+        return dependencies;
     }
 
 }

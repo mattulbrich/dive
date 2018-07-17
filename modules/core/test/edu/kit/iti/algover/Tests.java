@@ -28,14 +28,14 @@ import edu.kit.iti.algover.smttrans.translate.SumAndMaxTest;
 
 
 
-        DafnyExampleTest.class,
+       // DafnyExampleTest.class,
    //     Arr1Test.class,
-        ClassTest.class,
-        FolTest.class,
-        SumAndMaxTest.class,
-        IntegerTest.class,
+     //   ClassTest.class,
+     //   FolTest.class,
+    //    SumAndMaxTest.class,
+   //     IntegerTest.class,
     SetUnitTest.class,
-    Arr2UnitTest.class,
+ //   Arr2UnitTest.class,
 //    SeqUnitTest.class,
 //    MultisetUnitTest.class,
 // 
