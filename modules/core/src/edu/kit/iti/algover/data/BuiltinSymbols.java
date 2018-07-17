@@ -286,7 +286,7 @@ public class BuiltinSymbols extends MapSymbolTable {
     public static final FunctionSymbolFamily SEQ_CONCAT = new FunctionSymbolFamily(
             new FunctionSymbol("$seq_concat", SEQ1, SEQ1, SEQ1), 1);
     public static final FunctionSymbolFamily SEQ_SUBSELECT = new FunctionSymbolFamily(
-            new FunctionSymbol("$seq_subselect", SEQ1, Sort.INT, Sort.INT), 1);
+            new FunctionSymbol("$seq_subselect", SEQ1, SEQ1,Sort.INT, Sort.INT), 1);
 
     private static final Sort SET_OBJECTS = Sort.get("set", Sort.OBJECT);
 

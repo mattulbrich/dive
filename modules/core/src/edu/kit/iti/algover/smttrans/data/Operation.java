@@ -146,7 +146,7 @@ public enum Operation {
 
         SEQSUBSELECT.smt = "seqsubselect";
         SEQSUBSELECT.poly = true;
-        SEQSUBSELECT.instantiations = asList(Axiom.SQ4, Axiom.SQL3);
+        SEQSUBSELECT.instantiations = asList(Axiom.SQ4); //, Axiom.SQL3
 
         SEQLEN.smt = "seqlen";
         SEQLEN.poly = true;

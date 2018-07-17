@@ -231,7 +231,7 @@ public enum Axiom {
                 + "(= (seqget<T> (sequpd<T> s t i) j) (ite (= i j) t (seqget<T> s j))))))";
         SQ1.dependencies = new HashSet<>(Arrays.asList(Axiom.SEQGET,  Axiom.SEQUPD));
         SQ2.smt = "(assert (par (T) (forall\r\n" + "(\r\n" + "    (i Int)\r\n" + "    (s Seq<T>)\r\n" + "    (t T)\r\n"
-                + ")\r\n" + "(= (seqget<T> (seqcons<T> s t) i) (ite  (= i 0) t (seqget<T> s (- i 1)))))))";
+                + ")\r\n" + "(= (seqget<T> (seqcons<T> t s) i) (ite  (= i 0) t (seqget<T> s (- i 1)))))))";
         SQ2.dependencies = new HashSet<>(Arrays.asList(Axiom.SEQGET, Axiom.SEQCONS));
         SQ3.smt = "(assert (par (T) (forall\r\n" + "(\r\n" + "    (i Int)\r\n" + "    (s1 Seq<T>)\r\n"
                 + "    (s2 Seq<T>)\r\n" + ")\r\n" + "(!\r\n"
@@ -264,7 +264,7 @@ public enum Axiom {
                 + "(= (seqlen<T> (seqconcat<T> s1 s2))  (+ (seqlen<T> s1) (seqlen<T> s2))) :pattern((seqconcat<T> s1 s2))))))";
         SQL4.dependencies = new HashSet<>(Arrays.asList(Axiom.SEQLEN, Axiom.SEQCONCAT));
         SQL5.smt = "(assert (par (T) (forall\r\n" + "(\r\n" + "    (s Seq<T>)\r\n" + "    (t T)\r\n" + ")\r\n"
-                + "(!\r\n" + "(= (seqlen<T> (seqcons<T> s t)) (+ (seqlen<T> s) 1)) :pattern((seqcons<T> s t))))))";
+                + "(!\r\n" + "(= (seqlen<T> (seqcons<T> t s)) (+ (seqlen<T> s) 1)) :pattern((seqcons<T> t s))))))";
         SQL5.dependencies = new HashSet<>(Arrays.asList(Axiom.SEQLEN, Axiom.SEQCONS));
 
         // Heap/Arrays
