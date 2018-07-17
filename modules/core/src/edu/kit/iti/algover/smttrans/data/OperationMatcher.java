@@ -48,6 +48,7 @@ public class OperationMatcher {
         opmap.put("$union", Operation.SETUNION);
         opmap.put("$intersect", Operation.SETINTERSECT);
         opmap.put("$set_minus", Operation.SETMINUS);
+        opmap.put("$set_subset",Operation.SETSUBSET);
         opmap.put("$set_card", Operation.SETCARD);
         opmap.put("$set_add", Operation.SETADD);
         opmap.put("$set_in", Operation.SETIN);

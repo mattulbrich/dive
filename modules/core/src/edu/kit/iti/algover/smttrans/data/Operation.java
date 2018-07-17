@@ -12,7 +12,7 @@ import static java.util.Arrays.asList;
 
 public enum Operation {
 
-    OR, SETEMPTY, PLUS, MINUS, TIMES, IMP, GT, DIV, LT, EQ, NOT, GE, LE, NEG, ITE, ARR2SELECT, ARRSTORE, ARR2STORE, FIELDSTORE, FIELDSELECT, DECR, SETUNION, SETINTERSECT, SETCARD, SEQCONCAT, ISCREATED, CREATE, ANON, SEQCONS, SEQEMPTY, SEQUPD, SEQGET, SEQLEN, SETIN, SETADD, CONST, ARRLEN, ARR2LEN0, ARR2LEN1, EXISTS, FORALL, LET, ARRSELECT, VAR, HEAP, AND, BV, MOD, AHEAP, EVERYTHING, MULTIUNION, MULTIINTERSECT, MULTIEMPTY, MULTICARD, MULTIADD, MULTIIN, SETMINUS, MULTIMINUS, FUNC, SEQSUBSELECT;
+    OR, SETEMPTY, PLUS, MINUS, TIMES, IMP, GT, DIV, LT, EQ, NOT, GE, LE, NEG, ITE, ARR2SELECT, ARRSTORE, ARR2STORE, FIELDSTORE, FIELDSELECT, DECR, SETUNION, SETINTERSECT, SETCARD, SEQCONCAT, ISCREATED, CREATE, ANON, SEQCONS, SEQEMPTY, SEQUPD, SEQGET, SEQLEN, SETIN, SETADD, CONST, ARRLEN, ARR2LEN0, ARR2LEN1, EXISTS, FORALL, LET, ARRSELECT, VAR, HEAP, AND, BV, MOD, AHEAP, EVERYTHING, MULTIUNION, MULTIINTERSECT, MULTIEMPTY, MULTICARD, MULTIADD, MULTIIN, SETMINUS, MULTIMINUS, FUNC, SEQSUBSELECT, SETSUBSET;
 
     private String smt;
     private boolean poly = false;
@@ -52,7 +52,7 @@ public enum Operation {
 
         SETUNION.smt = "setunion";
         SETUNION.poly = true;
-        SETUNION.instantiations = asList(Axiom.S2, Axiom.S3);
+        SETUNION.instantiations = asList(Axiom.S2, Axiom.S3, Axiom.S4);
 
         SETADD.smt = "setadd";
         SETADD.poly = true;
@@ -60,14 +60,17 @@ public enum Operation {
         SETINTERSECT.smt = "setintersect";
         SETINTERSECT.poly = true;
         SETINTERSECT.instantiations = asList(Axiom.S2, Axiom.S3, Axiom.S5);
-
+        
+        SETSUBSET.smt = "setsubset";
+        SETSUBSET.poly = true;
+        SETSUBSET.instantiations = asList(Axiom.S7);
+        
         SETMINUS.smt = "setminus";
         SETMINUS.poly = true;
         SETMINUS.instantiations = asList(Axiom.S6);
         SETCARD.smt = "setcard";
         SETCARD.poly = true;
         SETCARD.instantiations = asList(Axiom.SC1, Axiom.SC3);
-
         SETIN.smt = "setin";
         SETIN.poly = true;
         SETIN.instantiations = asList(Axiom.S2); // ,Axiom.S3
