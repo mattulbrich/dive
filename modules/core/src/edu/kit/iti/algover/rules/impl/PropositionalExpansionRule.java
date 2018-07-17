@@ -22,6 +22,9 @@ import edu.kit.iti.algover.rules.TermSelector;
 import edu.kit.iti.algover.rules.TermSelector.SequentPolarity;
 import edu.kit.iti.algover.term.Sequent;
 import edu.kit.iti.algover.term.Term;
+import edu.kit.iti.algover.term.match.Matching;
+import edu.kit.iti.algover.term.match.SequentMatcher;
+import edu.kit.iti.algover.util.ImmutableList;
 import edu.kit.iti.algover.util.RuleUtil;
 
 // ALPHA ... Just for demo purposes so far.
@@ -39,12 +42,8 @@ public class PropositionalExpansionRule extends AbstractProofRule {
 
     @Override
     public ProofRuleApplication considerApplicationImpl(ProofNode target, Parameters parameters) throws RuleException {
-        Term on = parameters.getValue(ON_PARAM);
-        List<TermSelector> l = RuleUtil.matchSubtermsInSequent(on::equals, target.getSequent());
-        if(l.size() != 1) {
-            return ProofRuleApplicationBuilder.notApplicable(this);
-        }
-        TermSelector selector = l.get(0);
+        TermSelector selector = tsForParameter.get("on");
+
         if (selector != null) {
             return ProofRuleApplicationBuilder.notApplicable(this);
         }
@@ -93,7 +92,7 @@ public class PropositionalExpansionRule extends AbstractProofRule {
         Term on = parameters.getValue(ON_PARAM);
         List<TermSelector> l = RuleUtil.matchSubtermsInSequent(on::equals, target.getSequent());
         if(l.size() != 1) {
-            throw new RuleException("Machting of on parameter is ambiguous");
+            throw new RuleException("Matching of on parameter is ambiguous");
         }
         TermSelector selector = l.get(0);
         if (selector != null) {

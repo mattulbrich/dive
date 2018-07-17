@@ -33,11 +33,11 @@ import edu.kit.iti.algover.util.TestUtil;
 public class InlineSequenterTest extends SequenterTest {
 
     protected String expectedSuccedent(String string) {
-        return "[$gt(p, 0)]";
+        return "$gt(p, 0)";
     }
 
     protected String expectedAntecedent(String string) {
-        return "[$gt(p, 0), $gt(p, 0)]";
+        return "$gt(p, 0)";
     }
 
     @Override
@@ -80,7 +80,7 @@ public class InlineSequenterTest extends SequenterTest {
         DafnyMethod method = (DafnyMethod) pvc.getDeclaration();
         Sequent sequent = sequenter.translate(path, makeTable(method), map);
 
-        assertEquals("[$le(i_1, n), $lt(i_1, n), $not($eq<int>(i_1, 5))] ==> [$le($plus(i_1, 1), n)]", sequent.toString());
+        assertEquals("$le(i_1, n), $lt(i_1, n), $not($eq<int>(i_1, 5)) |- $le($plus(i_1, 1), n)", sequent.toString());
 
     }
 }

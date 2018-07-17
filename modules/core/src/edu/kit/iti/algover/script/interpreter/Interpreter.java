@@ -48,6 +48,10 @@ public class Interpreter<T> extends DefaultASTVisitor<Object>
      */
     private CommandLookup functionLookup;
 
+    //Do not remove, it is essential TODO Bugfix
+    public void setFunctionLookup(CommandLookup functionLookup) {
+        this.functionLookup = functionLookup;
+    }
 
     public Interpreter(CommandLookup lookup) {
         functionLookup = lookup;
@@ -605,7 +609,7 @@ public class Interpreter<T> extends DefaultASTVisitor<Object>
     }
 
     /**
-     * Cretae a ew state conatining the goals but without selected goal node and push to stack
+     * Create a ew state containing the goals but without selected goal node and push to stack
      *
      * @param goals
      * @return

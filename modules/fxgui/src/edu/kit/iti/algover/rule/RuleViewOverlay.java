@@ -4,11 +4,15 @@ import com.jfoenix.controls.JFXButton;
 import de.jensd.fx.glyphs.GlyphsDude;
 import de.jensd.fx.glyphs.materialicons.MaterialIcon;
 import edu.kit.iti.algover.rules.*;
+import edu.kit.iti.algover.util.RuleParameterDialog;
 import javafx.css.PseudoClass;
+import javafx.event.ActionEvent;
+import javafx.scene.control.Dialog;
 import javafx.scene.control.Label;
 import javafx.scene.layout.AnchorPane;
 
 import java.util.Map;
+import java.util.logging.Logger;
 
 
 public class RuleViewOverlay extends AnchorPane {
@@ -40,9 +44,7 @@ public class RuleViewOverlay extends AnchorPane {
         applyButton = new JFXButton("Apply");
         applyButton.getStyleClass().add("apply");
         applyButton.setDisable(application.getApplicability() != ProofRuleApplication.Applicability.APPLICABLE);
-        applyButton.setOnAction(actionEvent -> {
-            listener.onRuleApplication(this.application);
-        });
+        applyButton.setOnAction(this::onRuleApplication);
 
         applyExButton = new JFXButton("Apply Exh.");
         applyExButton.getStyleClass().add("applyEx");
@@ -83,6 +85,26 @@ public class RuleViewOverlay extends AnchorPane {
         setRightAnchor(refineButton, 0.0);
     }
 
+    private void onRuleApplication(ActionEvent ae) {
+        if (application.getRule().getAllParameters().size() > 1 ||
+                (application.getRule().getAllParameters().size() == 1 &&
+                !application.getRule().getAllParameters().containsKey("on"))) {
+            RuleParameterDialog d = new RuleParameterDialog(this.application.getRule(), listener.getCurrentPVC().getSymbolTable());
+            d.showAndWait();
+            if (d.getParameters() != null) {
+                try {
+                    application = application.getRule().makeApplication(listener.getCurrentProofNode(), d.getParameters());
+                    listener.onRuleApplication(this.application);
+                } catch (RuleException e) {
+                    Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).severe("Application of ProofRule failed with given parameters.");
+                }
+            } else {
+                Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).severe("Invalid parameters.");
+            }
+        } else {
+            listener.onRuleApplication(this.application);
+        }
+    }
 
     private void setPseudoClassStateFromBranches(int branches) {
         switch (branches) {

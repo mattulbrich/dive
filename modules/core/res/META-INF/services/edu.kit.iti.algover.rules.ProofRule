@@ -10,3 +10,10 @@ edu.kit.iti.algover.rules.impl.RemoveAssumptionRule
 edu.kit.iti.algover.rules.impl.CloseRule
 edu.kit.iti.algover.rules.impl.Z3Rule
 edu.kit.iti.algover.rules.impl.SkipRule
+edu.kit.iti.algover.rules.impl.OrLeftRule
+edu.kit.iti.algover.rules.impl.NotLeftRule
+edu.kit.iti.algover.rules.impl.AndLeftRule
+edu.kit.iti.algover.rules.impl.ModusPonensRule
+edu.kit.iti.algover.rules.impl.ModusTollensRule
+edu.kit.iti.algover.rules.impl.OrRightRule
+edu.kit.iti.algover.rules.impl.CutRule

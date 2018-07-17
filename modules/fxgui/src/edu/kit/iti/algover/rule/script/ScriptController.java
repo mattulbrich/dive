@@ -1,10 +1,14 @@
 package edu.kit.iti.algover.rule.script;
 
+import edu.kit.iti.algover.editor.HighlightingRule;
+import edu.kit.iti.algover.editor.LayeredHighlightingRule;
 import edu.kit.iti.algover.proof.Proof;
 import edu.kit.iti.algover.proof.ProofNodeSelector;
 import edu.kit.iti.algover.rule.RuleApplicationListener;
 import edu.kit.iti.algover.script.ast.Position;
 import edu.kit.iti.algover.script.ast.ProofScript;
+import edu.kit.iti.algover.script.exceptions.ScriptCommandNotApplicableException;
+import edu.kit.iti.algover.util.ExceptionDetails;
 import edu.kit.iti.algover.util.RuleApp;
 import javafx.beans.Observable;
 import javafx.concurrent.Task;
@@ -12,14 +16,17 @@ import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyCodeCombination;
 import javafx.scene.input.KeyCombination;
 import javafx.scene.input.KeyEvent;
+import org.antlr.runtime.Token;
 import org.fxmisc.richtext.model.StyleSpans;
 
 import java.time.Duration;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.ExecutorService;
 import java.util.function.Consumer;
+import java.util.logging.Logger;
 
 public class ScriptController implements ScriptViewListener {
     KeyCombination saveShortcut = new KeyCodeCombination(KeyCode.S, KeyCombination.CONTROL_DOWN);
@@ -30,16 +37,20 @@ public class ScriptController implements ScriptViewListener {
     private Proof proof;
     private List<ProofNodeCheckpoint> checkpoints;
 
+    private LayeredHighlightingRulev4 highlightingRules;
+
     public ScriptController(ExecutorService executor, RuleApplicationListener listener) {
         this.view = new ScriptView(executor, this);
         this.view.setOnKeyReleased(this::handleShortcuts);
         this.listener = listener;
+        this.highlightingRules = new LayeredHighlightingRulev4(2);
+        view.setHighlightingRule(this.highlightingRules);
 
         view.caretPositionProperty().addListener(this::onCaretPositionChanged);
     }
 
     private void handleShortcuts(KeyEvent keyEvent) {
-        if(saveShortcut.match(keyEvent)) {
+        if (saveShortcut.match(keyEvent)) {
             listener.onScriptSave();
         }
     }
@@ -59,7 +70,6 @@ public class ScriptController implements ScriptViewListener {
     }
 
 
-
     private void switchViewedNode() {
         Position caretPosition = computePositionFromCharIdx(view.getCaretPosition(), view.getText());
 
@@ -69,7 +79,11 @@ public class ScriptController implements ScriptViewListener {
         // another child...
         // REVIEW This is kind of ugly. In the future this off-by-one fix has to be removed
         if (!checkpoint.selector.optionalGet(proof).isPresent()) {
-            this.listener.onSwitchViewedNode(checkpoint.selector.getParentSelector());
+            if(checkpoint.selector.getParentSelector() != null) {
+                this.listener.onSwitchViewedNode(checkpoint.selector.getParentSelector());
+            } else {
+                this.listener.onSwitchViewedNode(checkpoint.selector);
+            }
         }
 
         this.listener.onSwitchViewedNode(checkpoint.selector);
@@ -106,7 +120,7 @@ public class ScriptController implements ScriptViewListener {
 
     private int computeCharIdxFromPosition(Position position, String text) {
         int charIdx = 0;
-        for(int i = 0; i < position.getLineNumber() - 1; ++i) {
+        for (int i = 0; i < position.getLineNumber() - 1; ++i) {
             charIdx += text.substring(0, text.indexOf('\n')).length() + 1;
             text = text.substring(text.indexOf('\n') + 1);
         }
@@ -120,7 +134,12 @@ public class ScriptController implements ScriptViewListener {
 
     @Override
     public void onAsyncScriptTextChanged(String text) {
+        resetExceptionRendering();
         proof.setScriptTextAndInterpret(text);
+        if(proof.getFailException() != null) {
+            renderException(proof.getFailException());
+            Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).severe(proof.getFailException().getMessage());
+        }
         checkpoints = ProofNodeCheckpointsBuilder.build(proof);
         // TODO switchViewedNode();
     }
@@ -134,5 +153,25 @@ public class ScriptController implements ScriptViewListener {
         ProofNodeCheckpoint checkpoint = getCheckpointForCaretPosition(caretPosition);
         int insertAt = computeCharIdxFromPosition(checkpoint.caretPosition, view.getText());
         view.insertText(insertAt, text);
+    }
+
+    private void renderException(Exception e) {
+        highlightingRules.setLayer(0, new HighlightingRulev4() {
+            ExceptionDetails.ExceptionReportInfo ri = ExceptionDetails.extractReportInfo(e);
+            int line = ri.getLine();
+
+            @Override
+            public Collection<String> handleToken(org.antlr.v4.runtime.Token token, Collection<String> syntaxClasses) {
+                int tokenLine = token.getLine();
+                if (tokenLine == line) {
+                    return Collections.singleton("error");
+                }
+                return syntaxClasses;
+            }
+        });
+    }
+
+    private void resetExceptionRendering() {
+        highlightingRules.setLayer(0, (token, syntaxClasses) -> syntaxClasses);
     }
 }

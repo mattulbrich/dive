@@ -35,16 +35,13 @@ public class ProofRuleHandler implements CommandHandler<ProofNode> {
     private Map<String, ProofRule> ruleMap = new HashMap<>();
 
 
-    private ServiceLoader<ProofRule> loader;
 
     /**
      * Loads all rules via ServiceLoader and initializes the data structures
+     * Default without project rules
      */
     public ProofRuleHandler() {
-
-        // REVIEW: Now, the project is meant to contain these rules and the DafnyRule s. -> Use project,getAllRules()
-        // REVIEW: WHy is the loader retained after completion of the constructor?
-        loader = ServiceLoader.load(ProofRule.class);
+        ServiceLoader<ProofRule> loader = ServiceLoader.load(ProofRule.class);
         loader.iterator().forEachRemaining(proofRule -> {
             rules.add(proofRule);
             ruleMap.put(proofRule.getName(), proofRule);
@@ -58,14 +55,14 @@ public class ProofRuleHandler implements CommandHandler<ProofNode> {
      * @param rules List of additional Proof rule objects
      */
     public ProofRuleHandler(List<ProofRule> rules) {
+        this.rules = rules;
 
-        loader = ServiceLoader.load(ProofRule.class);
+        ServiceLoader<ProofRule> loader = ServiceLoader.load(ProofRule.class);
         loader.iterator().forEachRemaining(proofRule -> {
             rules.add(proofRule);
             ruleMap.put(proofRule.getName(), proofRule);
         });
 
-        this.rules = rules;
         rules.forEach(proofRule -> ruleMap.put(proofRule.getName(), proofRule));
     }
 

@@ -87,6 +87,7 @@ public class TestRuleApplicator {
         map.add(new FunctionSymbol("b1", Sort.BOOL));
         map.add(new FunctionSymbol("b2", Sort.BOOL));
         map.add(new FunctionSymbol("b3", Sort.BOOL));
+        map.add(new FunctionSymbol("b4", Sort.BOOL));
         map.add(new FunctionSymbol("a", Sort.get("array1")));
         map.add(new FunctionSymbol("a2", Sort.get("array2")));
         map.add(new FunctionSymbol("f", Sort.INT, Sort.INT));
@@ -154,7 +155,7 @@ public class TestRuleApplicator {
         assertEquals(1, proofNodes.size());
         assertEquals("[$or(true, false)] ==> [b2]", proofNodes.get(0).getSequent().toString());
 
-        seq = tp.parseSequent("b1 || (b2 || b3), b2 |- b2");
+        seq = tp.parseSequent("b1 || (b2 || b3), b4 |- b2");
 
         letSub = new OrLeftRule();
         pn = ProofMockUtil.mockProofNode(null, seq.getAntecedent(), seq.getSuccedent());
@@ -162,9 +163,9 @@ public class TestRuleApplicator {
         proofNodes = RuleApplicator.applyRuleExhaustive(letSub, pn, new TermSelector("A.0"));
 
         assertEquals(3, proofNodes.size());
-        assertEquals("[b1, b2] ==> [b2]", proofNodes.get(0).getSequent().toString());
-        assertEquals("[b2, b2] ==> [b2]", proofNodes.get(1).getSequent().toString());
-        assertEquals("[b3, b2] ==> [b2]", proofNodes.get(2).getSequent().toString());
+        assertEquals("[b1, b4] ==> [b2]", proofNodes.get(0).getSequent().toString());
+        assertEquals("[b2, b4] ==> [b2]", proofNodes.get(1).getSequent().toString());
+        assertEquals("[b3, b4] ==> [b2]", proofNodes.get(2).getSequent().toString());
 
         seq = tp.parseSequent("b1 && (b2 || b3), b2 |- b2");
 

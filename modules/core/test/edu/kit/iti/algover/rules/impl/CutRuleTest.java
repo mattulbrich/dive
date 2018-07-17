@@ -1,9 +1,10 @@
 package edu.kit.iti.algover.rules.impl;
 
-import antlr.RecognitionException;
 import edu.kit.iti.algover.data.BuiltinSymbols;
 import edu.kit.iti.algover.data.MapSymbolTable;
 import edu.kit.iti.algover.data.SymbolTable;
+import edu.kit.iti.algover.parser.DafnyException;
+import edu.kit.iti.algover.parser.DafnyParserException;
 import edu.kit.iti.algover.parser.DafnyTree;
 import edu.kit.iti.algover.proof.ProofFormula;
 import edu.kit.iti.algover.proof.ProofNode;
@@ -25,13 +26,11 @@ import java.util.Collection;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotEquals;
-import static org.junit.Assert.assertTrue;
 
 /**
- * Created by jklamroth on 1/17/18.
+ * Created by jklamroth on 5/16/18.
  */
-public class NotLeftRuleTest {
+public class CutRuleTest {
     SymbolTable symbTable;
     Sequent testSequent;
 
@@ -42,40 +41,22 @@ public class NotLeftRuleTest {
         map.add(new FunctionSymbol("b2", Sort.BOOL));
         map.add(new FunctionSymbol("b3", Sort.BOOL));
         symbTable = new MapSymbolTable(new BuiltinSymbols(), map);
-
-        TreeTermTranslator ttt = new TreeTermTranslator(symbTable);
-
-        DafnyTree t1 = TreeTermTranslatorTest.parse("b1 || b2");
-        DafnyTree t2 = TreeTermTranslatorTest.parse("b1");
-        DafnyTree t3 = TreeTermTranslatorTest.parse("b2");
-
-        List<ProofFormula> ante = new ArrayList<>();
-        List<ProofFormula> dece = new ArrayList<>();
-        ante.add(new ProofFormula(ttt.build(t1)));
-        dece.add(new ProofFormula(ttt.build(t2)));
-        dece.add(new ProofFormula(ttt.build(t3)));
-
-        testSequent = new Sequent(ante, dece);
-
     }
-
 
     @Test
-    public void basicTest() throws RuleException, TermBuildException {
-        ProofRule notLeftRule = new NotLeftRule();
-        ProofNode pn = ProofMockUtil.mockProofNode(null, testSequent.getAntecedent(), testSequent.getSuccedent());
-
-        TermSelector ts = new TermSelector(TermSelector.SequentPolarity.ANTECEDENT, 0);
+    public void basicApplicationTest() throws DafnyParserException, DafnyException, TermBuildException, RuleException {
+        TermParser tp = new TermParser(symbTable);
+        String sequentString = "b1 || b2, b3 |- b3 && b2 || b3 && b1";
+        Sequent s = tp.parseSequent(sequentString);
+        ProofNode pn = ProofMockUtil.mockProofNode(null, s.getAntecedent(), s.getSuccedent());
+        CutRule rule = new CutRule();
         Parameters params = new Parameters();
-        params.putValue("on", testSequent.getAntecedent().get(0).getTerm());
-
-        notLeftRule.considerApplication(pn, testSequent, ts);
-        ProofRuleApplication pra = notLeftRule.makeApplication(pn, params);
+        params.putValue("with", tp.parse("b1"));
+        ProofRuleApplication pra = rule.makeApplication(pn,  params);
         List<ProofNode> newNodes = RuleApplicator.applyRule(pra, pn);
-        assertTrue(newNodes.size() == 1);
 
-        assertEquals("|- b1, b2, $not($or(b1, b2))", newNodes.get(0).getSequent().toString());
+        assertEquals(2, newNodes.size());
+        assertEquals(newNodes.get(0).getSequent().toString(), "$or(b1, b2), b3, b1 |- $or($and(b3, b2), $and(b3, b1))");
+        assertEquals(newNodes.get(1).getSequent().toString(), "$or(b1, b2), b3 |- $or($and(b3, b2), $and(b3, b1)), b1");
     }
-
-
 }

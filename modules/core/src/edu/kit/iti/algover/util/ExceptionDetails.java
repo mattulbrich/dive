@@ -10,6 +10,8 @@ package edu.kit.iti.algover.util;
 import edu.kit.iti.algover.parser.DafnyException;
 import edu.kit.iti.algover.parser.DafnyParserException;
 import edu.kit.iti.algover.parser.DafnyTree;
+import edu.kit.iti.algover.script.exceptions.NoCallHandlerException;
+import edu.kit.iti.algover.script.exceptions.ScriptCommandNotApplicableException;
 import org.antlr.runtime.RecognitionException;
 import org.antlr.runtime.Token;
 import org.antlr.v4.runtime.misc.ParseCancellationException;
@@ -17,6 +19,7 @@ import org.antlr.v4.runtime.misc.ParseCancellationException;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.InputMismatchException;
 import java.util.List;
 
 /**
@@ -131,6 +134,43 @@ public final class ExceptionDetails {
             return result;
         }
 
+        if (ex instanceof org.antlr.v4.runtime.RecognitionException) {
+            org.antlr.v4.runtime.RecognitionException rex = (org.antlr.v4.runtime.RecognitionException) ex;
+            ExceptionReportInfo result = new ExceptionReportInfo();
+            result.message = rex.getMessage();
+            extractLineAndColumn(rex.getOffendingToken(), result);
+            if(rex.getOffendingToken() != null) {
+                result.length = rex.getOffendingToken().getText().length();
+            }
+            return result;
+        }
+
+        if(ex instanceof ScriptCommandNotApplicableException) {
+            ScriptCommandNotApplicableException snap = (ScriptCommandNotApplicableException) ex;
+            ExceptionReportInfo result = new ExceptionReportInfo();
+            result.message = snap.getMessage();
+            if(snap.callStatement != null) {
+                result.line = snap.callStatement.getStartPosition().getLineNumber();
+                result.column = snap.callStatement.getStartPosition().getCharInLine();
+                result.length = snap.callStatement.getEndPosition().getCharInLine() -
+                        snap.callStatement.getStartPosition().getCharInLine();
+            }
+            return result;
+        }
+
+        if(ex instanceof NoCallHandlerException) {
+            NoCallHandlerException snap = (NoCallHandlerException) ex;
+            ExceptionReportInfo result = new ExceptionReportInfo();
+            result.message = snap.getMessage();
+            if(snap.callStatement != null) {
+                result.line = snap.callStatement.getStartPosition().getLineNumber();
+                result.column = snap.callStatement.getStartPosition().getCharInLine();
+                result.length = snap.callStatement.getEndPosition().getCharInLine() -
+                        snap.callStatement.getStartPosition().getCharInLine();
+            }
+            return result;
+        }
+
         // ... add other classes here!
 
         Throwable cause = ex.getCause();
@@ -142,6 +182,14 @@ public final class ExceptionDetails {
             return result;
         }
 
+    }
+
+    private static void extractLineAndColumn(org.antlr.v4.runtime.Token token, ExceptionReportInfo report) {
+        report.line = token.getLine();
+        report.column = token.getCharPositionInLine();
+        if(report.column == 0) {
+            report.line--;
+        }
     }
 
     public static void printNiceErrorMessage(Exception ex) {

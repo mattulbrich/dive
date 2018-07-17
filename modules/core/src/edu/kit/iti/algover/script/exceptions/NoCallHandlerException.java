@@ -2,12 +2,15 @@ package edu.kit.iti.algover.script.exceptions;
 
 
 import edu.kit.iti.algover.script.ast.CallStatement;
+import jdk.nashorn.internal.codegen.CompilerConstants;
 
 /**
  * @author Alexander Weigl
  * @version 1 (29.05.17)
  */
 public class NoCallHandlerException extends InterpreterRuntimeException {
+    public CallStatement callStatement;
+
     public NoCallHandlerException() {
         super();
     }
@@ -30,5 +33,6 @@ public class NoCallHandlerException extends InterpreterRuntimeException {
 
     public NoCallHandlerException(CallStatement callStatement) {
         super(callStatement.toString());
+        this.callStatement = callStatement;
     }
 }

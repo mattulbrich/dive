@@ -161,6 +161,28 @@ class PrettyPrintVisitor implements TermVisitor<Void, Void, RuntimeException> {
     }
 
     @Override
+    public Void visit(SchemaOccurTerm schemaTerm, Void arg) {
+        // TODO Drop the parenthesis if not needed.
+        printer.append("... (");
+        schemaTerm.getTerm(0).accept(this, null);
+        printer.append(") ...");
+        return null;
+    }
+
+    @Override
+    public Void visit(SchemaCaptureTerm schemaVariable, Void arg) {
+        if(schemaVariable.getName().startsWith("?")) {
+            printer.append("(" + schemaVariable.getName() + ": ");
+        } else {
+            printer.append("(?" + schemaVariable.getName() + ": ");
+        }
+
+        schemaVariable.getTerm(0).accept(this, null);
+        printer.append(")");
+        return null;
+    }
+
+    @Override
     public Void visit(LetTerm updateTerm, Void arg) {
         boolean isInParens = leftPrecedence > 0;
         if (isInParens) {

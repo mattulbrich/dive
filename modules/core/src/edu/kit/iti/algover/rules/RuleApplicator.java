@@ -201,7 +201,7 @@ public class RuleApplicator {
             }
         }
 
-        return script;
+        return script.replace("\n\n", "\n");
     }
 
     private static TermSelector[] getAllChildSelectors(TermSelector ts, Sequent s) throws RuleException {

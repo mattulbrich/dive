@@ -1,6 +1,6 @@
-package edu.kit.iti.algover.editor;
+package edu.kit.iti.algover.rule.script;
 
-import org.antlr.runtime.Token;
+import org.antlr.v4.runtime.Token;
 
 import java.util.Collection;
 
@@ -13,7 +13,7 @@ import java.util.Collection;
  * Created by Philipp on 29.06.2017.
  */
 @FunctionalInterface
-public interface HighlightingRule {
+public interface HighlightingRulev4 {
 
     /**
      * 'Override' the previously computed syntax classes on the given token by
@@ -27,3 +27,4 @@ public interface HighlightingRule {
     Collection<String> handleToken(Token token, Collection<String> syntaxClasses);
 
 }
+

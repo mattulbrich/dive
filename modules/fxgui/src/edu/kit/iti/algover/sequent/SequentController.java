@@ -18,10 +18,12 @@ import edu.kit.iti.algover.term.prettyprint.AnnotatedString;
 import edu.kit.iti.algover.util.Pair;
 import edu.kit.iti.algover.util.SubSelection;
 import edu.kit.iti.algover.util.SubtermSelectorReplacementVisitor;
+import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
+import javafx.scene.control.TabPane;
 import javafx.scene.input.KeyCode;
 import javafx.util.Callback;
 
@@ -36,9 +38,12 @@ public class SequentController extends FxmlController {
 
     private final SequentActionListener listener;
 
-    @FXML private Label goalTypeLabel;
-    @FXML private ListView<TopLevelFormula> antecedentView;
-    @FXML private ListView<TopLevelFormula> succedentView;
+    @FXML
+    private Label goalTypeLabel;
+    @FXML
+    private ListView<TopLevelFormula> antecedentView;
+    @FXML
+    private ListView<TopLevelFormula> succedentView;
 
     // Subselections, see their docs for clarification
     /**
@@ -74,7 +79,7 @@ public class SequentController extends FxmlController {
     /**
      * Builds the controller and GUI for the sequent view, that is the two ListViews of
      * {@Link TopLevelFormula}s.
-     *
+     * <p>
      * This loads the GUI from the .fxml resource file
      * <tt>res/edu/kit/iti/algover/sequent/SequentView.fxml</tt>.
      *
@@ -90,7 +95,8 @@ public class SequentController extends FxmlController {
         this.lastClickedTerm = new SubSelection<>(listener::onClickSequentSubterm);
         // We don't care about the particular mouse-over selected term, that's why we won't do anything on events.
         // Our children however need to communicate somehow and share a common selected item.
-        this.mouseOverTerm = new SubSelection<>(r -> {});
+        this.mouseOverTerm = new SubSelection<>(r -> {
+        });
 
         antecedentView.setCellFactory(makeTermCellFactory(TermSelector.SequentPolarity.ANTECEDENT));
         succedentView.setCellFactory(makeTermCellFactory(TermSelector.SequentPolarity.SUCCEDENT));
@@ -112,7 +118,7 @@ public class SequentController extends FxmlController {
      * of the {@link ProofNode} tree).
      *
      * @param pvcEntity the PVC for which to show the root sequent
-     * @param proof the existing proof or proof stub for the pvc
+     * @param proof     the existing proof or proof stub for the pvc
      */
     public void viewSequentForPVC(PVCEntity pvcEntity, Proof proof) {
         PVC pvc = pvcEntity.getPVC();
@@ -151,14 +157,13 @@ public class SequentController extends FxmlController {
             try {
                 ProofNode nodeBefore = activeNode.get(activeProof);
                 while (nodeBefore.getChildren().size() > 0) {
-                    if (nodeBefore.getChildren().size() == 1) {
-                        ProofNodeSelector newActiveNode = new ProofNodeSelector(activeNode, 0);
-                        ProofNode node = newActiveNode.get(activeProof);
-                        updateSequent(node.getSequent(), null);
-                        activeNode = newActiveNode;
-                        nodeBefore = activeNode.get(activeProof);
-                    }
+                    ProofNodeSelector newActiveNode = new ProofNodeSelector(activeNode, 0);
+                    ProofNode node = newActiveNode.get(activeProof);
+                    updateSequent(node.getSequent(), null);
+                    activeNode = newActiveNode;
+                    nodeBefore = activeNode.get(activeProof);
                 }
+                listener.onSwitchViewedNode(activeNode);
             } catch (RuleException e) {
                 e.printStackTrace(); // should not happen, as long as the activeNode selector is correct
                 return;
@@ -171,7 +176,7 @@ public class SequentController extends FxmlController {
     /**
      * View a preview for a rule application. This highlights the added/removed {@link TopLevelFormula}s
      * and changed {@link Term}s.
-     *
+     * <p>
      * If the application has no {@link BranchInfo}s (because it is a closing rule, for example), then
      * it does not update the view.
      *
@@ -205,7 +210,7 @@ public class SequentController extends FxmlController {
             activeNode = proofNodeSelector;
             BranchInfo branchInfo = null;
             ProofRuleApplication application = proofNode.getPsr();
-           if (application != null && application.getBranchInfo().size() == 1) {
+            if (application != null && application.getBranchInfo().size() == 1) {
                 branchInfo = application.getBranchInfo().get(0);
             }
             updateSequent(proofNode.getSequent(), branchInfo);
@@ -215,14 +220,16 @@ public class SequentController extends FxmlController {
 
     private void updateSequent(Sequent sequent, BranchInfo branchInfo) {
         antecedentView.getItems().setAll(calculateAssertions(sequent.getAntecedent(), TermSelector.SequentPolarity.ANTECEDENT, branchInfo));
-        succedentView.getItems().setAll(calculateAssertions(sequent.getSuccedent(), TermSelector.SequentPolarity.SUCCEDENT, branchInfo));
+        List<TopLevelFormula> after = calculateAssertions(sequent.getSuccedent(), TermSelector.SequentPolarity.SUCCEDENT, branchInfo);
+        succedentView.getItems().setAll(after);
     }
 
     private List<TopLevelFormula> calculateAssertions(List<ProofFormula> proofFormulas, TermSelector.SequentPolarity polarity, BranchInfo branchInfo) {
         ArrayList<TopLevelFormula> formulas = new ArrayList<>(proofFormulas.size());
 
         // Render original, modified and deleted proof formulas
-        formulaLoop: for (int i = 0; i < proofFormulas.size(); i++) {
+        formulaLoop:
+        for (int i = 0; i < proofFormulas.size(); i++) {
             // Short-circuit this loop if there is a ModifiedFormula to be built instead.
             if (branchInfo != null) {
                 Term term = proofFormulas.get(i).getTerm();
@@ -320,6 +327,11 @@ public class SequentController extends FxmlController {
         }
     }
 
+    public void clear() {
+        antecedentView.getItems().clear();
+        succedentView.getItems().clear();
+    }
+
     public ProofNode getActiveNode() {
         try {
             return activeNode.get(activeProof);
@@ -338,6 +350,18 @@ public class SequentController extends FxmlController {
 
     public SubSelection<ProofTermReference> referenceSelection() {
         return selectedReference;
+    }
+
+    public void setActiveNode(ProofNodeSelector pns) {
+        activeNode = pns;
+    }
+
+    public void setActiveProof(Proof p) {
+        activeProof = p;
+    }
+
+    public ProofNodeSelector getActiveNodeSelector() {
+        return activeNode;
     }
 
 }

@@ -1,5 +1,6 @@
 package edu.kit.iti.algover.sequent;
 
+import edu.kit.iti.algover.proof.ProofNodeSelector;
 import edu.kit.iti.algover.references.ProofTermReference;
 import edu.kit.iti.algover.rules.TermSelector;
 
@@ -11,4 +12,6 @@ public interface SequentActionListener {
     void onClickSequentSubterm(TermSelector selector);
 
     void onRequestReferenceHighlighting(ProofTermReference termReference);
+
+    void onSwitchViewedNode(ProofNodeSelector proofNodeSelector);
 }

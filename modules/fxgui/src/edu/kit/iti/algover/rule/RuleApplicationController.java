@@ -1,8 +1,8 @@
 package edu.kit.iti.algover.rule;
 
 import edu.kit.iti.algover.FxmlController;
+import edu.kit.iti.algover.project.ProjectManager;
 import edu.kit.iti.algover.proof.ProofNode;
-import edu.kit.iti.algover.proof.ProofNodeSelector;
 import edu.kit.iti.algover.rule.script.ScriptController;
 import edu.kit.iti.algover.rule.script.ScriptView;
 import edu.kit.iti.algover.rules.*;
@@ -16,16 +16,17 @@ import javafx.scene.control.Label;
 import javafx.scene.control.SplitPane;
 import org.fxmisc.flowless.VirtualizedScrollPane;
 
-import java.util.ServiceLoader;
 import java.util.concurrent.ExecutorService;
-import java.util.function.Consumer;
 import java.util.logging.Logger;
 
 public class RuleApplicationController extends FxmlController {
 
-    @FXML private SplitPane splitPane;
-    @FXML private Label termToConsider;
-    @FXML private RuleGrid ruleGrid;
+    @FXML
+    private SplitPane splitPane;
+    @FXML
+    private Label termToConsider;
+    @FXML
+    private RuleGrid ruleGrid;
 
     private final ScriptView scriptView;
 
@@ -35,7 +36,7 @@ public class RuleApplicationController extends FxmlController {
 
     private final Logger logger;
 
-    public RuleApplicationController(ExecutorService executor, RuleApplicationListener listener) {
+    public RuleApplicationController(ExecutorService executor, RuleApplicationListener listener, ProjectManager manager) {
         super("RuleApplicationView.fxml");
         this.listener = listener;
         this.scriptController = new ScriptController(executor, listener);
@@ -43,8 +44,7 @@ public class RuleApplicationController extends FxmlController {
 
         logger = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
 
-        //TODO: laod rules from project.getallRules to include lemmas
-        for (ProofRule rule : ServiceLoader.load(ProofRule.class)) {
+        for (ProofRule rule : manager.getProject().getAllProofRules()) {
             addProofRule(rule);
         }
 
@@ -64,14 +64,16 @@ public class RuleApplicationController extends FxmlController {
         } catch (RuleException e) {
             e.printStackTrace();
         }
-        ruleGrid.getRules().forEach(ruleView -> {
+        ruleGrid.getAllRules().forEach(ruleView -> {
             ruleView.considerApplication(target, selection, selector);
         });
+        ruleGrid.filterRules();
     }
 
     public void resetConsideration() {
         ruleGrid.getRules().forEach(RuleView::resetConsideration);
         termToConsider.setText("");
+        ruleGrid.filterRules();
     }
 
     public void applyRule(ProofRuleApplication application) {

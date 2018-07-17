@@ -6,12 +6,14 @@
 package edu.kit.iti.algover.term;
 
 import edu.kit.iti.algover.proof.ProofFormula;
+import edu.kit.iti.algover.term.prettyprint.PrettyPrint;
 import edu.kit.iti.algover.util.Util;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+
 
 /**
  * Class representing a logical sequent
@@ -50,24 +52,21 @@ public final class Sequent {
 
     @Override
     public String toString() {
-        StringBuilder sb = new StringBuilder();
-        sb.append(getAntecedent().toString());
-        sb.append(" ==> ");
-        sb.append(getSuccedent().toString());
-
-        return sb.toString();
+        return (Util.commatize(antecedent) + " |- " +
+                Util.commatize(succedent)).trim();
     }
 
     public Sequent union(Sequent other) {
         ArrayList<ProofFormula> ante = new ArrayList<>();
         ante.addAll(getAntecedent());
         ante.addAll(other.getAntecedent());
+        Util.removeDuplicates(ante);
 
         ArrayList<ProofFormula> succ = new ArrayList<>();
         succ.addAll(getSuccedent());
         succ.addAll(other.getSuccedent());
+        Util.removeDuplicates(succ);
 
-        // TODO duplicates?
         return new Sequent(ante, succ);
     }
 }
