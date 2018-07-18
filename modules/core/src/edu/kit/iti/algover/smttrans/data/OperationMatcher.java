@@ -76,6 +76,7 @@ public class OperationMatcher {
         opmap.put("$multi_set_card", Operation.MULTICARD);
         opmap.put("$multi_set_in", Operation.MULTIIN);
         opmap.put("$multi_set_add", Operation.MULTIADD);
+        opmap.put("$multi_set_subset", Operation.MULTISUBSET);
 
     }
 

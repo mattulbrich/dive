@@ -16,8 +16,7 @@ public enum Axiom {
     SETIN, SETADD, SETCARD, SETMINUS, SETUNION, SETINTERSECT, SETSUBSET,
 
     // multisets
-    MULTISET_UNION, MULTISET_INTERSECT, MULTISET_MINUS, MULTISET_CARD, MULTISET_SUBSET, MULTISET_INSERT, MULTISET_SELECT, MULTISET_IN, MULTISET_SINGLE, MULTISET_MAX, MULTISET_MIN,
-
+    MSETADD, MSETUNION, MSETINTERSECT, MSETMINUS, MSETCARD, MSETQUANT, MSETIN, MSETSUBSET, MSETMIN, MSETMAX,
     // sequences
     SEQLEN, SEQGET, SEQUPD, SEQCONS, SEQSUBSELECT, SEQCONCAT,
     // Heap/Arrays
@@ -31,8 +30,7 @@ public enum Axiom {
     S1, S2, S3, S4, S5, S6, S7, SC1, SC2, SC3,
 
     // multisets
-    MULTISET_1, MULTISET_2, MULTISET_3, MULTISET_4, MULTISET_5, MULTISET_6, MULTISET_7, MULTISET_8, MULTISET_CARD_1, MULTISET_CARD_2, MULTISET_CARD_3, MULTISET_CARD_4,
-
+    MS1, MS2, MS3, MS4, MS5, MS6, MS7, MS8, MSC1, MSC2, MSC3,
     // sequences
 
     SQ1, SQ2, SQ3, SQ4, SQ5, SQ6, SQL1, SQL2, SQL3, SQL4, SQL5,
@@ -65,19 +63,16 @@ public enum Axiom {
         SETSUBSET.smt = "(declare-fun (par (T)(setsubset<T> (Set<T> Set<T>) Bool)))";
 
         // multisets
-        MULTISET_UNION.smt = "(declare-fun (par (T) (munion<T> ((MultiSet<T>) (MultiSet<T>)) (MultiSet<T>))))";
-        MULTISET_INTERSECT.smt = "(declare-fun (par (T) (mintersect<T> ((MultiSet<T>) (MultiSet<T>)) (MultiSet<T>))))";
-        MULTISET_MINUS.smt = "(declare-fun (par (T) (msetminus<T> ((MultiSet<T>) (MultiSet<T>)) (MultiSet<T>))))";
-        MULTISET_CARD.smt = "(declare-fun (par (T) (mcard<T> ((MultiSetT)) Int)))";
-        MULTISET_SUBSET.smt = "(declare-fun (par (T) (msubset<T> ((MultiSet<T>) (MultiSet<T>)) Bool)))";
-        MULTISET_INSERT.smt = "(declare-fun (par (T) (msetinsert<T>  (T (MultiSet<T>)) (MultiSet<T>))))";
-        MULTISET_SELECT.smt = "(declare-fun (par (T) (msetselect<T> ((MultiSet<T>) T) Int)))";
-        MULTISET_IN.smt = "(define-fun (par (T) (inmset<T> ((s (MultiSet<T>))  (t T)) Bool\r\n"
-                + "(> (msetselect<T> s t) 0)\r\n" + ")))";
-        MULTISET_SINGLE.smt = "(define-fun (par (T) (setsingle<T> ((t T) (s (MultiSet<T>))) (MultiSet<T>)\r\n"
-                + "(msetinsert<T> t msetEmpty<T>)\r\n" + ")))";
-        MULTISET_MAX.smt = "(define-fun max ((x Int) (y Int)) Int\r\n" + "  (ite (<= x y) y x))";
-        MULTISET_MIN.smt = "(define-fun min ((x Int) (y Int)) Int\r\n" + "  (ite (<= x y) x y))";
+        MSETADD.smt = "(declare-fun (par (T) (msetadd<T> (T MultiSet<T>) MultiSet<T>)))";
+        MSETUNION.smt = "(declare-fun (par (T) (msetunion<T> (MultiSet<T> MultiSet<T>) MultiSet<T>)))";
+        MSETINTERSECT.smt = "(declare-fun (par (T) (msetintersect<T> (MultiSet<T> MultiSet<T>) MultiSet<T>)))";
+        MSETMINUS.smt = "(declare-fun (par (T) (msetminus<T> (MultiSet<T> MultiSet<T>) MultiSet<T>)))";
+        MSETCARD.smt = "(declare-fun (par (T) (msetcard<T> (MultiSet<T>) Int)))";
+        MSETQUANT.smt = "(declare-fun (par (T) (mquant<T> (T MultiSet<T>) Int)))";
+        MSETIN.smt = "(declare-fun (par (T) (msetin<T> (T MultiSet<T>) Bool)))";
+        MSETSUBSET.smt = "(declare-fun (par (T) (msetsubset<T> (MultiSet<T> MultiSet<T>) Bool)))";
+        MSETMIN.smt = "(define-fun min ((x Int) (y Int)) Int\r\n" + "  (ite (<= x y) x y))";
+        MSETMAX.smt = "(define-fun max ((x Int) (y Int)) Int\r\n" + "  (ite (<= x y) y x))";
 
         // sequences
         SEQLEN.smt = "(declare-fun (par (T) (seqlen<T> (Seq<T>) Int)))";
@@ -150,51 +145,53 @@ public enum Axiom {
                 + ":pattern((setadd<T> t s))))))";
         SC3.dependencies = new HashSet<>(Arrays.asList(Axiom.SETCARD, Axiom.SETADD, Axiom.SETIN));
         // multisets
-        MULTISET_1.smt = "(assert (par (T)\r\n" + "(forall\r\n" + "(\r\n" + "    (s1 (MultiSetT))\r\n" + "    (t T)\r\n"
-                + ")\r\n" + "    (! \r\n" + "        (>= (msetselectT s1 t) 0)\r\n"
-                + "         :pattern((msetselectT s1 t))\r\n" + "    ) \r\n" + ")))";
-        MULTISET_2.smt = "(assert (par (T)\r\n" + "(forall\r\n" + "(\r\n" + "    (t T)\r\n" + ")\r\n" + "    (! \r\n"
-                + "        (= (msetselectT msetEmptyT t) 0)\r\n" + "         :pattern((msetselectT msetEmptyT t))\r\n"
-                + "    ) \r\n" + ")))";
-        MULTISET_3.smt = "(assert (par (T)\r\n" + "(forall\r\n" + "(\r\n" + "    (s1 (MultiSetT))\r\n"
-                + "    (s2 (MultiSetT))\r\n" + "    (t T)\r\n" + ")\r\n" + "    (! \r\n"
-                + "        (= (msetselectT (mintersectT s1 s2) t)\r\n"
-                + "        (min (msetselectT s1 t) (msetselectT s2 t))\r\n"
-                + "        ) :pattern((msetselectT s1 t) (msetselectT s2 t))\r\n" + "    ) \r\n" + ")))";
-        MULTISET_4.smt = "(assert (par (T)\r\n" + "(forall\r\n" + "(\r\n" + "    (s1 (MultiSetT))\r\n"
-                + "    (s2 (MultiSetT))\r\n" + "    (t T)\r\n" + ")\r\n" + "    (! \r\n"
-                + "        (= (msetselectT (munionT s1 s2) t)\r\n"
-                + "        (+ (msetselectT s1 t) (msetselectT s2 t))) \r\n"
-                + "        :pattern((msetselectT s1 t) (msetselectT s2 t))\r\n" + "    ) \r\n" + ")))";
-        MULTISET_5.smt = "(assert (par (T)\r\n" + "(forall\r\n" + "(\r\n" + "    (s1 (MultiSetT))\r\n"
-                + "    (s2 (MultiSetT))\r\n" + "    (t T)\r\n" + ")\r\n" + "    (! \r\n"
-                + "        (= (msetselectT (msetminusT s1 s2) t)\r\n"
-                + "            (max (- (msetselectT s1 t)  (msetselectT s2 t))  0)\r\n" + "        )\r\n"
-                + "        :pattern ((msetselectT s1 t) (msetselectT s2 t))\r\n" + "    ) \r\n" + ")))";
-        MULTISET_6.smt = "(assert (par (T)\r\n" + "(forall\r\n" + "(\r\n" + "    (s1 (MultiSetT))\r\n"
-                + "    (s2 (MultiSetT))\r\n" + "    (t T)\r\n" + ")\r\n" + "    (!\r\n"
-                + "        (= (msubsetT s1 s2)\r\n" + "        (<=  (msetselectT s1 t) (msetselectT s2 t))\r\n"
-                + "        ):pattern ((msetselectT s1 t) (msetselectT s2 t))\r\n" + "    )\r\n" + ")))";
-        MULTISET_7.smt = "(assert (par (T)\r\n" + "(forall\r\n" + "(\r\n" + "    (s (MultiSetT))\r\n" + "    (t T)\r\n"
-                + ")\r\n" + "    (!\r\n"
-                + "        (= (msetselectT (msetinsertT t s) t) (+ (msetselectT s t) 1)) :pattern((msetinsertT t s))\r\n"
-                + "    )\r\n" + "     \r\n" + ")))";
-        MULTISET_8.smt = "(assert (par (T)\r\n" + "(forall\r\n" + "(\r\n" + "    (s (MultiSetT))\r\n" + ")\r\n"
-                + "    (! \r\n" + "        (=> (= (mcardT s) 0)\r\n" + "        (= s msetEmptyT)) \r\n"
-                + "        :pattern ((mcardT s))\r\n" + "    ) \r\n" + ")))";
-        MULTISET_CARD_1.smt = "(assert (par (T) (= (mcardT msetEmptyT) 0)))";
-        MULTISET_CARD_2.smt = "(assert (par (T)\r\n" + "(forall\r\n" + "(\r\n" + "    (s (MultiSetT))\r\n" + ")\r\n"
-                + "    (! \r\n" + "        (>=  (mcardT s) 0) \r\n" + "        :pattern ((mcardT s))\r\n" + "    ) \r\n"
-                + ")))";
-        MULTISET_CARD_3.smt = "(assert (par (T)\r\n" + "(forall\r\n" + "(\r\n" + "    (s1 (MultiSetT))\r\n"
-                + "    (s2 (MultiSetT))\r\n" + ")\r\n" + "    (! \r\n" + "        (=> (msubsetT s1 s2)\r\n"
-                + "        (<= (mcardT s1) (mcardT s2))) \r\n" + "        :pattern ((msubsetT s1 s2))\r\n"
-                + "    ) \r\n" + ")))";
-        MULTISET_CARD_4.smt = "(assert (par (T)\r\n" + "(forall\r\n" + "(\r\n" + "    (s (MultiSetT))\r\n"
-                + "    (t T)\r\n" + ")\r\n" + "    (! \r\n"
-                + "        (= (mcardT (msetinsertT t s))  (+ (mcardT s) 1))\r\n"
-                + "        :pattern ((msetinsertT t s))\r\n" + "    ) \r\n" + ")))";
+        MS1.smt = "(assert (par (T) (forall\r\n" + "(\r\n" + "    (s MultiSet<T>)\r\n" + "    (t T)\r\n" + ")\r\n"
+                + "(= (msetin<T> t s) (> (mquant<T> t s) 0)))))";
+        MS1.dependencies = new HashSet<>(Arrays.asList(Axiom.MSETIN, Axiom.MSETQUANT));
+        MS2.smt = "(assert (par (T) (forall \r\n" + "(\r\n" + "    (x T)\r\n" + ")\r\n"
+                + "(= (mquant<T> x ~msetempty<T>) 0))))";
+        MS2.dependencies = new HashSet<>(Arrays.asList(Axiom.MSETQUANT));
+        MS3.smt = "(assert (par (T) (forall\r\n" + "(\r\n" + "    (s MultiSet<T>)\r\n" + "    (x T)\r\n"
+                + "    (y T)\r\n" + ")\r\n" + "(! \r\n"
+                + "(= (mquant<T> y (msetadd<T> x s)) (ite (= x y) (+ (mquant<T> x s) 1) (mquant<T> y s)))\r\n"
+                + ":pattern((mquant<T> y s) (msetadd<T> x s))))))";
+        MS3.dependencies = new HashSet<>(Arrays.asList(Axiom.MSETADD, Axiom.MSETQUANT));
+        MS4.smt = "(assert (par (T) (forall\r\n" + "(\r\n" + "(s1 MultiSet<T>)\r\n" + "(s2 MultiSet<T>)\r\n" + ")\r\n"
+                + "(=>  \r\n" + "(forall \r\n" + "(\r\n" + "    (t T)\r\n" + ")\r\n"
+                + "(= (mquant<T> t s1) (mquant<T> t s2))) (= s1 s2)))))";
+        MS4.dependencies = new HashSet<>(Arrays.asList(Axiom.MSETQUANT));
+        MS5.smt = "(assert (par (T) (forall\r\n" + "(\r\n" + "    (s1 MultiSet<T>)\r\n" + "    (s2 MultiSet<T>)\r\n"
+                + "    (x T)\r\n" + ")\r\n" + "(! \r\n"
+                + "(= (mquant<T> x (msetunion<T> s1 s2)) (+ (mquant<T> x s1) (mquant<T> x s2)))\r\n"
+                + ":pattern((msetunion<T> s1 s2) (mquant<T> x s1))))))";
+        MS5.dependencies = new HashSet<>(Arrays.asList(Axiom.MSETUNION, Axiom.MSETQUANT));
+        MS6.smt = "(assert (par (T) (forall\r\n" + "(\r\n" + "    (s1 MultiSet<T>)\r\n" + "    (s2 MultiSet<T>)\r\n"
+                + "    (x T)\r\n" + ")\r\n" + "(! \r\n"
+                + "(= (mquant<T> x (msetintersect<T> s1 s2)) (min (mquant<T> x s1) (mquant<T> x s2)))\r\n"
+                + ":pattern((msetintersect<T> s1 s2) (mquant<T> x s1))))))";
+        MS6.dependencies = new HashSet<>(Arrays.asList(Axiom.MSETINTERSECT, Axiom.MSETQUANT, Axiom.MSETMIN));
+        MS7.smt = "(assert (par (T) (forall\r\n" + "(\r\n" + "    (s1 MultiSet<T>)\r\n" + "    (s2 MultiSet<T>)\r\n"
+                + "    (x T)\r\n" + ")\r\n" + "(!\r\n"
+                + "(= (mquant<T> x (msetminus<T> s1 s2)) (max (- (mquant<T> x s1) (mquant<T> x s2)) 0 ))\r\n"
+                + ":pattern((msetminus<T> s1 s2) (mquant<T> x s1))))))";
+        MS7.dependencies = new HashSet<>(Arrays.asList(Axiom.MSETMINUS, Axiom.MSETQUANT, Axiom.MSETMAX));
 
+        MS8.smt = "(assert (par (T) (forall\r\n" + "(\r\n" + "(s1 MultiSet<T>)\r\n" + "(s2 MultiSet<T>)\r\n" + ")\r\n"
+                + "(= (msetsubset<T> s1 s2) \r\n" + "(forall \r\n" + "(\r\n" + "    (t T)\r\n" + ")\r\n" + "(!\r\n"
+                + "(<= (mquant<T> t s1) (mquant<T> t s2)) \r\n"
+                + ":pattern((msetsubset<T> s1 s2) (mquant<T> t s1) (mquant<T> t s2))))))))";
+        MS8.dependencies = new HashSet<>(Arrays.asList(Axiom.MSETSUBSET, Axiom.MSETQUANT));
+
+        MSC1.smt = "(assert (par (T) (forall\r\n" + "(\r\n" + "    (s MultiSet<T>)\r\n" + ")\r\n" + "(!\r\n"
+                + "(>= (msetcard<T> s) 0) \r\n" + ":pattern((msetcard<T> s))))))";
+        MSC1.dependencies = new HashSet<>(Arrays.asList(Axiom.MSETCARD));
+
+        MSC2.smt = "(assert (par (T) (= (msetcard<T> ~msetempty<T>) 0)))";
+        MSC2.dependencies = new HashSet<>(Arrays.asList(Axiom.MSETCARD));
+        MSC3.smt = "(assert (par (T) (forall\r\n" + "(\r\n" + "    (s MultiSet<T>)\r\n" + "    (t T)\r\n" + ")\r\n"
+                + "(!\r\n" + "(= (msetcard<T> (msetadd<T> t s)) (+ (msetcard<T> s) 1))\r\n"
+                + ":pattern((msetadd<T> t s))))))";
+        MSC3.dependencies = new HashSet<>(Arrays.asList(Axiom.MSETCARD, Axiom.MSETADD));
         // sequences
         SQ1.smt = "(assert (par (T) (forall\r\n" + "(\r\n" + "    (i Int)\r\n" + "    (j Int)\r\n"
                 + "    (s Seq<T>)\r\n" + "    (t T)\r\n" + ")\r\n"
@@ -319,10 +316,10 @@ public enum Axiom {
                 + "(= (isCreated (arr2store<T> h a i j v) o) (isCreated h o)))))";
         H8.dependencies = new HashSet<>(Arrays.asList(Axiom.ISCREATED, Axiom.ARR2STORE));
 
-        H9.smt = "(assert (par (C T) (forall\r\n" + "(\r\n" + "    (c C)\r\n" + "    (h1 Heap)\r\n" + "    (h2 Heap)\r\n"
-                + "    (s Set<Object>)\r\n" + "    (f Field<C.T>)\r\n" + ")\r\n"
+        H9.smt = "(assert (par (C T) (forall\r\n" + "(\r\n" + "    (c C)\r\n" + "    (h1 Heap)\r\n"
+                + "    (h2 Heap)\r\n" + "    (s Set<Object>)\r\n" + "    (f Field<C.T>)\r\n" + ")\r\n"
                 + "(= (fieldselect<C.T> (anon h1 s h2) c f) (fieldselect<C.T> (ite (setin<Object> s (c2o c)) h2 h1) c f)))))";
-        H9.dependencies = new HashSet<>(Arrays.asList(Axiom.SETIN,Axiom.FIELDSELECT,Axiom.ANON));
+        H9.dependencies = new HashSet<>(Arrays.asList(Axiom.SETIN, Axiom.FIELDSELECT, Axiom.ANON));
     }
 
     private Set<Axiom> dependencies = new HashSet<>();

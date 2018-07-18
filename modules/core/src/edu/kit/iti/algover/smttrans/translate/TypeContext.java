@@ -41,7 +41,7 @@ public class TypeContext {
 
     private static Set<Dependency> preamble = new LinkedHashSet<>();
     private static final Set<Operation> emptySorts = new LinkedHashSet<>(
-            Arrays.asList(Operation.SETEMPTY, Operation.SEQEMPTY));
+            Arrays.asList(Operation.SETEMPTY, Operation.SEQEMPTY, Operation.MULTIEMPTY));
     private static final Set<Operation> builtinConsts = new LinkedHashSet<>(
             Arrays.asList(Operation.AHEAP, Operation.DECR));
 
