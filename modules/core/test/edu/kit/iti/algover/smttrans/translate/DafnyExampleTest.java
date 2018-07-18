@@ -25,11 +25,10 @@ public class DafnyExampleTest {
 
     private static final List<String> config = Arrays.asList("BinarySearchConfig.xml", "TuringFactorialConfig.xml",
             "FibConfig.xml", "FindConfig.xml", "FindZeroConfig.xml", "MaxSegSumConfig.xml", "CubesConfig.xml",
-            "BubbleSortConfig.xml", "InsertionSortConfig.xml", "SelectionSortConfig.xml","Pow2Config.xml");
+            "BubbleSortConfig.xml", "InsertionSortConfig.xml", "SelectionSortConfig.xml", "Pow2Config.xml");
     // ERRORS:,
     // ,"QuickSortConfig.xml",
 
-    
     // known errors/timeouts
     private static final Set<String> excepted = new HashSet<>(Arrays.asList("FindZero/loop/Bounds",
             "FindZero/loop/else/EstPre[Lemma].3", "FindZero/loop/else/Dec", "FindZero/loop/else/Bounds",
@@ -40,8 +39,8 @@ public class DafnyExampleTest {
             "InsertionSort/loop/Modifies", "InsertionSort/loop/InitInv", "InsertionSort/loop/loop/Modifies",
             "InsertionSort/loop/loop_exit/Dec", "InsertionSort/loop/loop_exit/Modifies", "SelectionSort/InitInv.1",
             "SelectionSort/loop/loop/then/Dec", "SelectionSort/loop/loop_exit/Dec",
-            "SelectionSort/loop/loop_exit/Modifies", "SelectionSort/loop/loop_exit/Modifies.1","Theorem/else/else/Dec[Theorem]","Theorem/else/then/Dec[Theorem]"));
-
+            "SelectionSort/loop/loop_exit/Modifies", "SelectionSort/loop/loop_exit/Modifies.1",
+            "Theorem/else/else/Dec[Theorem]", "Theorem/else/then/Dec[Theorem]"));
 
     @Test
     public void closedProofsTest() throws Exception {
@@ -58,22 +57,21 @@ public class DafnyExampleTest {
                 Proof proof = pm.getProofForPVC(pvc.getIdentifier());
                 if (excepted.contains(pvc.getIdentifier()))
                     continue;
-          //    try {
+   //              try {
 
-                    proof.setScriptText("z3;");
-                    proof.interpretScript();
-//                } catch (ScriptCommandNotApplicableException e) {
-//                    System.out.println(pvc.getIdentifier());
-//                    continue;
-//                }
-//                if (!proof.getProofStatus().equals(ProofStatus.CLOSED)) {
-//                    System.out.println(pvc.getIdentifier());
-//                }
-                 if (!excepted.contains(pvc.getIdentifier())) {
-                
-                 Assert.assertEquals(proof.getProofStatus(), ProofStatus.CLOSED);
-                 Assert.assertNull(proof.getFailException());
-                 }
+                proof.setScriptText("z3;");
+                proof.interpretScript();
+//                 } catch (ScriptCommandNotApplicableException e) {
+//                 System.out.println(pvc.getIdentifier());
+//                 continue;
+//                 }
+//                 if (!proof.getProofStatus().equals(ProofStatus.CLOSED)) {
+//                 System.out.println(pvc.getIdentifier());
+//                 }
+
+
+                    Assert.assertEquals(proof.getProofStatus(), ProofStatus.CLOSED);
+                    Assert.assertNull(proof.getFailException());
 
             }
             pm.saveProject();

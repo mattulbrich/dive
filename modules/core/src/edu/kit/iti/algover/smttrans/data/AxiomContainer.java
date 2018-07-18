@@ -78,14 +78,11 @@ public class AxiomContainer {
     }
 
     private static String typeAxiom(String axiom, FunctionSymbol type) {
-        //System.out.println(type.getName());
         Pair<List<String>, String> p = prepare(axiom);
         List<String> tvs = p.fst;
         List<String> types = TypeContext.getTypeArguments(type.getName());
 
         String ax = p.snd;
-        
-        
 
         for (int i = 0; i < tvs.size(); i++) {
             ax = ax.replace(tvs.get(i), types.get(i));
@@ -98,11 +95,16 @@ public class AxiomContainer {
 
         if (!axiom.contains("(par"))
             return false;
-        Pair<List<String>, String> p = prepare(axiom);
-        List<String> tvs = p.fst;
-        if (tvs.size() != TypeContext.normalizeName(sort.getName()).split("\\.").length)
+        String name = TypeContext.normalizeName(sort.getName());
+        if (!axiom.contains(name + "<"))
             return false;
 
+        Pair<List<String>, String> p = prepare(axiom);
+        List<String> tvs = p.fst;
+        if (tvs.size() != TypeContext.normalizeName(sort.getName()).split("\\.").length) {
+
+            return false;
+        }
         return true;
 
     }
@@ -114,17 +116,18 @@ public class AxiomContainer {
         for (Sort s : t.getArgumentSorts()) {
 
             if (!TypeContext.isBuiltIn(s.getName())) {
-                //System.out.println("SORT1 " + s.toString());
-                
-                //String r = addTypeArguments(normalizeSort(fs.getResultSort().getName()), getTypeArguments(fs.toString())); 
-                
+                // System.out.println("SORT1 " + s.toString());
+
+                // String r = addTypeArguments(normalizeSort(fs.getResultSort().getName()),
+                // getTypeArguments(fs.toString()));
+
                 sorts.add("(declare-sort " + TypeContext.normalizeSort(s.getName(), s.toString()) + " 0)");
             }
 
         }
 
         if (!TypeContext.isBuiltIn(t.getResultSort().getName())) {
-            //System.out.println("SORT2 " + t.toString());
+            // System.out.println("SORT2 " + t.toString());
             sorts.add("(declare-sort " + TypeContext.normalizeReturnSort(t) + " 0)");
         }
 
@@ -136,7 +139,7 @@ public class AxiomContainer {
         String r = "";
         for (Sort s : t.getArgumentSorts()) {
             if (isApplicable(a.getSmt(), s)) {
-                r += a.getSmt() + " :: " + TypeContext.normalizeName(s.getName()) + "\r\n";
+                r += a.getSmt() + " :: " + TypeContext.normalizeName(s.toString()) + "\r\n";
             }
         }
         return r;
@@ -148,7 +151,7 @@ public class AxiomContainer {
         for (Sort s : t.getArgumentSorts()) {
 
             if (!TypeContext.isBuiltIn(s.getName())) {
-                sorts.add("(inst-sort :: " + TypeContext.normalizeName(s.getName()) + ")");
+                sorts.add("(inst-sort :: " + TypeContext.normalizeName(s.toString()) + ")");
             }
 
         }

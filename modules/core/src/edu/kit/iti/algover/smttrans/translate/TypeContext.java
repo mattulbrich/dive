@@ -376,7 +376,7 @@ public class TypeContext {
 
     private static String sumDef = "; NOTE: temporary, hardcoded\r\n"
             + "(declare-fun Sum (Heap Seq<Int> Int Int) Int) \r\n"
-            + "(declare-fun seqget<Int> ((Seq<Int>) Int) Int)\r\n"
+            + "(declare-fun seqget<Int> (Seq<Int> Int) Int)\r\n"
             + "(assert (forall ((i Int) (j Int) (k Seq<Int>)) (=> (= i j) (= (Sum ~heap k i j) 0))))\r\n"
             + "(assert (forall ((i Int) (j Int) (k Seq<Int>)) (=> (distinct i j) (= (Sum ~heap k i j) (+ (Sum ~heap k i (- j 1)) (seqget<Int> k (- j 1)))))))\r\n";
     private static String sortedDef = "; NOTE: temporary, hardcoded\r\n" + "(declare-sort Heap 0)\r\n"

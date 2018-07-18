@@ -24,31 +24,47 @@ public enum Operation {
 
         ARR2LEN0.smt = "arr2len0";
         ARR2LEN0.poly = true;
-        ARR2LEN0.instantiations = asList(Axiom.ARR2LEN0, Axiom.ARR2LEN1); // ,Axiom.ARR_2_INST,
+        ARR2LEN0.instantiations = asList(Axiom.A2L0); 
 
         ARR2LEN1.smt = "arr2len1";
         ARR2LEN1.poly = true;
-        ARR2LEN1.instantiations = asList(Axiom.HEAP_INST, Axiom.ARR2LEN1, Axiom.ARR2LEN0); // ,Axiom.ARR_2_INST
+        ARR2LEN1.instantiations = asList(Axiom.A2L1); 
 
         ARRLEN.smt = "arrlen";
         ARRLEN.poly = true;
-        ARRLEN.instantiations = asList(Axiom.HEAP_INST, Axiom.ARRLEN, Axiom.ARR_2); // ,Axiom.ARR_1_INST
+        ARRLEN.instantiations = asList(Axiom.A1L1); 
 
         ARRSELECT.smt = "arrselect";
         ARRSELECT.poly = true;
-        ARRSELECT.instantiations = asList(Axiom.HEAP_INST, Axiom.ARR_1, Axiom.ARRSELECT, Axiom.ARRSTORE); // ,Axiom.ARR_1_INST
+        ARRSELECT.instantiations = asList(Axiom.A11);
 
         ARR2SELECT.smt = "arr2select";
         ARR2SELECT.poly = true;
-        ARR2SELECT.instantiations = asList(Axiom.HEAP_INST, Axiom.ARR2_1, Axiom.ARR2STORE, Axiom.ARR2SELECT);
+        ARR2SELECT.instantiations = asList(Axiom.A21);
 
         ARRSTORE.smt = "arrstore";
         ARRSTORE.poly = true;
-        ARRSTORE.instantiations = asList(Axiom.HEAP_INST, Axiom.ARR_1, Axiom.ARRSTORE);
+        ARRSTORE.instantiations = asList(Axiom.A11);
 
         ARR2STORE.smt = "arr2store";
         ARR2STORE.poly = true;
-        ARR2STORE.instantiations = asList(Axiom.HEAP_INST, Axiom.ARR2_1, Axiom.ARR2SELECT, Axiom.ARR2STORE);
+        ARR2STORE.instantiations = asList(Axiom.A21);
+        
+        FIELDSTORE.smt = "fieldstore";
+        FIELDSTORE.poly = true;
+        FIELDSTORE.instantiations = asList(Axiom.H1);
+
+        FIELDSELECT.smt = "fieldselect";
+        FIELDSELECT.poly = true;
+        FIELDSELECT.instantiations = asList(Axiom.H1);
+        
+        ISCREATED.smt = "isCreated";
+        ISCREATED.poly = false;
+        ISCREATED.instantiations = asList(Axiom.H5);
+
+        CREATE.smt = "create";
+        CREATE.poly = false;
+        CREATE.instantiations = asList(Axiom.H5);
 
         SETUNION.smt = "setunion";
         SETUNION.poly = true;
@@ -98,16 +114,10 @@ public enum Operation {
         MULTIADD.poly = true;
         MULTIIN.smt = "inmset";
         MULTIIN.poly = true;
-        ISCREATED.smt = "isCreated";
-        ISCREATED.poly = false;
-        ISCREATED.instantiations = asList(Axiom.CREATED, Axiom.CREATE, Axiom.HEAP_3);
 
-        CREATE.smt = "create";
-        CREATE.poly = false;
-        CREATE.instantiations = asList(Axiom.CREATED, Axiom.CREATE, Axiom.HEAP_3);
 
         ANON.smt = "anon";
-        ANON.instantiations = asList(Axiom.ANON); // Axiom.HEAP_4
+        ANON.instantiations = asList(Axiom.ANON); // Axiom.H9
         // ANON.special = true;
 
         MOD.smt = "mod";
@@ -156,13 +166,7 @@ public enum Operation {
         SEQCONCAT.poly = true;
         SEQCONCAT.instantiations = asList(Axiom.SQ3, Axiom.SQL4);
 
-        FIELDSTORE.smt = "fieldstore";
-        FIELDSTORE.poly = true;
-        FIELDSTORE.instantiations = asList(Axiom.HEAP_1, Axiom.HEAP_INST, Axiom.FIELDSTORE, Axiom.FIELDSELECT);
 
-        FIELDSELECT.smt = "fieldselect";
-        FIELDSELECT.poly = true;
-        FIELDSELECT.instantiations = asList(Axiom.HEAP_1, Axiom.HEAP_INST, Axiom.FIELDSELECT, Axiom.FIELDSTORE);
 
         /**
          * 
