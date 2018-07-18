@@ -55,9 +55,9 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 @RunWith(Parameterized.class)
-public class Arr2UnitTest {
+public class Arr1UnitTest {
 
-    private static final String dir = "modules/core/test-res/edu/kit/iti/algover/smttrans/translate/arr2".replace('/',
+    private static final String dir = "modules/core/test-res/edu/kit/iti/algover/smttrans/translate/arr1".replace('/',
             File.separatorChar);
 
     @Parameter
@@ -69,7 +69,7 @@ public class Arr2UnitTest {
 
     @Parameters(name = "{0}")
     public static Object[] data() {
-        return new Object[] { "arr2" };
+        return new Object[] { "arr1" };
     }
 
     @Before
