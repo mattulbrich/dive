@@ -1,8 +1,8 @@
-s: set<int>
+s: multiset<int>
 i : int
 ---
 
-s == $empty<int>
+s == $multi_empty<int>
 
 |-
-$not($set_in<int>(i, s)),
+$not($multi_set_in<int>(i, s)),

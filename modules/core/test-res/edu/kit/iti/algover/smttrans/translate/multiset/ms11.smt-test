@@ -1,5 +1,5 @@
-s1: set<int>
+s1: multiset<int>
 ---
 
 |-
-$set_subset<int>($empty<int>,s1)
+$multi_set_subset<int>($multi_empty<int>,s1)

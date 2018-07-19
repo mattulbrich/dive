@@ -1,9 +1,9 @@
-s1: set<int>
-s2: set<int>
+s1: multiset<int>
+s2: multiset<int>
 i : int
 ---
-$set_card<int>(s2) == 2,
-$not($set_in<int>(i, s2))
+$multi_set_card<int>(s2) == 2,
+$not($multi_set_in<int>(i, s2))
 |-
 
-$set_card<int>($set_add<int>(i,s2)) == 3 
+$multi_set_card<int>($multi_set_add<int>(i,s2)) == 3 

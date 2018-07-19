@@ -31,16 +31,16 @@ import edu.kit.iti.algover.smttrans.translate.SumAndMaxTest;
    //     DafnyExampleTest.class,
    //     Arr1Test.class,
     //    ClassTest.class,
-        FolTest.class,
-        SumAndMaxTest.class,
-        IntegerTest.class,
+   //     FolTest.class,
+   //     SumAndMaxTest.class,
+   //     IntegerTest.class,
  //   SetUnitTest.class,
- //   Arr2UnitTest.class,
+  //  Arr2UnitTest.class,
   //  SeqUnitTest.class,
-   // MultisetUnitTest.class,
+ //   MultisetUnitTest.class,
 // 
     
-    //   ObjectUnitTest.class
+       ObjectUnitTest.class
    //     Z3RuleTest.class
     
 

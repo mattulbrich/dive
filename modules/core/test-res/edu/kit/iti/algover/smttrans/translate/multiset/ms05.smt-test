@@ -1,6 +1,6 @@
-s1: set<int>
-s2: set<int>
+s1: multiset<int>
+s2: multiset<int>
 ---
-s2 == $empty<int>
+s2 == $multi_empty<int>
 |-
-$set_minus<int>(s1,s2) == s1
+$multi_minus<int>(s1,s2) == s1

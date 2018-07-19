@@ -1,6 +1,6 @@
-s1: set<int>
-s2: set<int>
+s1: multiset<int>
+s2: multiset<int>
 ---
-s2 == $empty<int>
+s2 == $multi_empty<int>
 |-
-let s1 := $set_add<int>(2,$set_add<int>(1,$empty<int>)) :: let s2 := $set_add<int>(1,$empty<int>) :: $set_subset<int>(s2,s1)
+let s1 := $multi_set_add<int>(2,$multi_set_add<int>(1,$multi_empty<int>)) :: let s2 := $multi_set_add<int>(1,$multi_empty<int>) :: $multi_set_subset<int>(s2,s1)

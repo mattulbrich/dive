@@ -1,6 +1,6 @@
-s1: set<int>
-s2: set<int>
+s1: multiset<int>
+s2: multiset<int>
 ---
 
 |-
-let s1 := $set_add<int>(2,$set_add<int>(1,$empty<int>)) :: $and($and($set_in<int>(1,s1), $set_in<int>(1,s1)),$set_card<int>(s1) == 2) 
+let s1 := $multi_set_add<int>(2,$multi_set_add<int>(1,$multi_empty<int>)) :: $and($and($multi_set_in<int>(1,s1), $multi_set_in<int>(1,s1)),$multi_set_card<int>(s1) == 2) 

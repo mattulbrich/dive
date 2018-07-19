@@ -1,7 +1,7 @@
-s1: set<int>
-s2: set<int>
-s3: set<int>
+s1: multiset<int>
+s2: multiset<int>
+s3: multiset<int>
 ---
 
 |-
-let s1 := $set_add<int>(2,$set_add<int>(1,$empty<int>)) :: let s2 := $set_add<int>(4,$set_add<int>(3,$empty<int>)) :: let s3 := $union<int>(s1,s2) :: $and($set_in<int>(1,s3),$and($set_in<int>(2,s3),$and($set_in<int>(3,s3),$and($not($set_in<int>(5,s3)),$set_in<int>(4,s3))))) 
+let s1 := $multi_set_add<int>(2,$multi_set_add<int>(1,$multi_empty<int>)) :: let s2 := $multi_set_add<int>(4,$multi_set_add<int>(3,$multi_empty<int>)) :: let s3 := $multi_union<int>(s1,s2) :: $and($multi_set_in<int>(1,s3),$and($multi_set_in<int>(2,s3),$and($multi_set_in<int>(3,s3),$and($not($multi_set_in<int>(5,s3)),$multi_set_in<int>(4,s3))))) 
