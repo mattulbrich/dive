@@ -74,7 +74,7 @@ public class ProofNodeCheckpointsBuilder extends DefaultASTVisitor<Void> {
         for (int i = 0; i < lastHandledNode.getChildren().size(); ++i) {
             //TODO only label matching no sequent matching supported as of yet
             if (simpleCaseStatement.getGuard().getText().
-                    substring(1, simpleCaseStatement.getGuard().getText().length() - 1).
+                    substring(6, simpleCaseStatement.getGuard().getText().length() - 1).
                     equals(lastHandledNode.getChildren().get(i).getLabel())) {
                 selectedChildIdx = i;
             }

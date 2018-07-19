@@ -481,7 +481,7 @@ public abstract class AbstractProofRule implements ProofRule {
                 if(bi.getLabel() == null) {
                     throw new RuleException("Branchlabel may not be null for branching rule: " + getName());
                 }
-                res += "\tcase \"" + bi.getLabel() + "\": {\n\t\n\t}\n";
+                res += "\tcase match \"" + bi.getLabel() + "\": {\n\t\n\t}\n";
             }
             res += "}\n";
         }
