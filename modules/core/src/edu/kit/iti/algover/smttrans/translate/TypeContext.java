@@ -38,6 +38,9 @@ public class TypeContext {
     public static final String SMT_BOOLNAME = "Bool";
     public static final String AV_HEAPNAME = "heap";
     public static final String SMT_HEAPNAME = "Heap";
+    public static final String AV_MULTINAME = "multiset";
+    public static final String SMT_MULTINAME = "MultiSet";
+
 
     private static Set<Dependency> preamble = new LinkedHashSet<>();
     private static final Set<Operation> emptySorts = new LinkedHashSet<>(
@@ -47,7 +50,7 @@ public class TypeContext {
 
     private static final Set<String> builtinTypes = new LinkedHashSet<>(Arrays.asList(AV_BOOLNAME, AV_INTNAME)); // ,
                                                                                                                  // AV_HEAPNAME
-    private static BiMap<String, String> nmap = HashBiMap.create();
+    private static Map<String, String> nmap = new HashMap<>();
 
     static {
 
@@ -55,7 +58,7 @@ public class TypeContext {
         nmap.put(AV_ARR2NAME, SMT_ARR2NAME);
         nmap.put(AV_INTNAME, SMT_INTNAME);
         nmap.put(AV_BOOLNAME, SMT_BOOLNAME);
-
+        nmap.put(AV_MULTINAME, SMT_MULTINAME);
     }
 
     public static void reset() {
@@ -133,7 +136,7 @@ public class TypeContext {
         StringBuilder sb = new StringBuilder();
         for (String s : sorts) {
             sb.append("<");
-            sb.append(nmap.getOrDefault(s, s.substring(0, 1).toUpperCase() + s.substring(1)));
+            sb.append(nmap.getOrDefault(s.toLowerCase(), s.substring(0, 1).toUpperCase() + s.substring(1)));
             // sb.append(s.substring(0, 1).toUpperCase());
             // sb.append(s.substring(1));
         }

@@ -82,7 +82,7 @@ public class SMTContainer {
                 } else if (s.startsWith("(inst-const")) {
                     constants.add(s);
                     continue;
-                } else if (s.startsWith("(inst-fun")) { 
+                } else if (s.startsWith("(inst-fun") || s.startsWith("(define-fun")) { 
                     functions.add(s);
                     continue;
 
@@ -121,7 +121,7 @@ public class SMTContainer {
                     constants.add(s);
                     continue;
 
-                } else if (s.startsWith("(declare-fun")) {
+                } else if (s.startsWith("(declare-fun") || s.startsWith("(define-fun")) {
                     functions.add(s);
                     continue;
 

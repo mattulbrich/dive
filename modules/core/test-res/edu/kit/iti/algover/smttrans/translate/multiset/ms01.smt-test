@@ -1,0 +1,11 @@
+s1: multiset<int>
+s2: multiset<int>
+i : int
+---
+
+s1 == $multi_empty<int>
+
+|-
+let s2 := $multi_set_add<int>(1,$multi_empty<int>) :: $multi_set_card<int>(s2) == 1
+
+

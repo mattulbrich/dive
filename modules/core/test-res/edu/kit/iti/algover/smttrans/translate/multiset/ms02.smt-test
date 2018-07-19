@@ -1,0 +1,6 @@
+s1: multiset<int>
+s2: multiset<int>
+---
+
+|-
+let s1 := $multi_set_add<int>(1,$multi_empty<int>) :: let s2 := $multi_set_add<int>(1,$multi_empty<int>) :: $multi_minus<int>(s1,s2) == $multi_empty<int>

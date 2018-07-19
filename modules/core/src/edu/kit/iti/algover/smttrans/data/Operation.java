@@ -114,7 +114,7 @@ public enum Operation {
         MULTIADD.instantiations = asList(Axiom.MS3);
         MULTIIN.smt = "msetin";
         MULTIIN.poly = true;
-        MULTIIN.instantiations = asList(Axiom.MS1, Axiom.MS4);
+        MULTIIN.instantiations = asList(Axiom.MS1);
         MULTISUBSET.smt = "msetsubset";
         MULTISUBSET.poly = true;
         MULTISUBSET.instantiations = asList(Axiom.MS8);

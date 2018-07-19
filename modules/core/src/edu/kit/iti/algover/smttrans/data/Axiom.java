@@ -84,7 +84,7 @@ public enum Axiom {
 
         // Heap/Arrays
 
-        ANON.smt = "(declare-fun anon (Heap (Set<Object>) Heap) Heap)";
+        ANON.smt = "(declare-fun anon (Heap Set<Object> Heap) Heap)";
         EVERYTHING.smt = "(assert (forall ((o Object)) (setin<Object> o " + Names.getPrefix() + "everything)))";
         EVERYTHING.dependencies = new HashSet<>(Arrays.asList(Axiom.SETIN, Axiom.SETADD)); // SETADD ?
         CREATE.smt = "(declare-fun create (Heap Object) Heap)";
@@ -147,15 +147,15 @@ public enum Axiom {
         // multisets
         MS1.smt = "(assert (par (T) (forall\r\n" + "(\r\n" + "    (s MultiSet<T>)\r\n" + "    (t T)\r\n" + ")\r\n"
                 + "(= (msetin<T> t s) (> (mquant<T> t s) 0)))))";
-        MS1.dependencies = new HashSet<>(Arrays.asList(Axiom.MSETIN, Axiom.MSETQUANT));
+        MS1.dependencies = new HashSet<>(Arrays.asList(Axiom.MS4,Axiom.MSETIN, Axiom.MSETQUANT));
         MS2.smt = "(assert (par (T) (forall \r\n" + "(\r\n" + "    (x T)\r\n" + ")\r\n"
                 + "(= (mquant<T> x ~msetempty<T>) 0))))";
-        MS2.dependencies = new HashSet<>(Arrays.asList(Axiom.MSETQUANT));
+        MS2.dependencies = new HashSet<>(Arrays.asList(Axiom.MS4,Axiom.MSETQUANT));
         MS3.smt = "(assert (par (T) (forall\r\n" + "(\r\n" + "    (s MultiSet<T>)\r\n" + "    (x T)\r\n"
                 + "    (y T)\r\n" + ")\r\n" + "(! \r\n"
                 + "(= (mquant<T> y (msetadd<T> x s)) (ite (= x y) (+ (mquant<T> x s) 1) (mquant<T> y s)))\r\n"
                 + ":pattern((mquant<T> y s) (msetadd<T> x s))))))";
-        MS3.dependencies = new HashSet<>(Arrays.asList(Axiom.MSETADD, Axiom.MSETQUANT));
+        MS3.dependencies = new HashSet<>(Arrays.asList(Axiom.MS4,Axiom.MSETADD, Axiom.MSETQUANT));
         MS4.smt = "(assert (par (T) (forall\r\n" + "(\r\n" + "(s1 MultiSet<T>)\r\n" + "(s2 MultiSet<T>)\r\n" + ")\r\n"
                 + "(=>  \r\n" + "(forall \r\n" + "(\r\n" + "    (t T)\r\n" + ")\r\n"
                 + "(= (mquant<T> t s1) (mquant<T> t s2))) (= s1 s2)))))";
@@ -164,23 +164,23 @@ public enum Axiom {
                 + "    (x T)\r\n" + ")\r\n" + "(! \r\n"
                 + "(= (mquant<T> x (msetunion<T> s1 s2)) (+ (mquant<T> x s1) (mquant<T> x s2)))\r\n"
                 + ":pattern((msetunion<T> s1 s2) (mquant<T> x s1))))))";
-        MS5.dependencies = new HashSet<>(Arrays.asList(Axiom.MSETUNION, Axiom.MSETQUANT));
+        MS5.dependencies = new HashSet<>(Arrays.asList(Axiom.MS4,Axiom.MSETUNION, Axiom.MSETQUANT));
         MS6.smt = "(assert (par (T) (forall\r\n" + "(\r\n" + "    (s1 MultiSet<T>)\r\n" + "    (s2 MultiSet<T>)\r\n"
                 + "    (x T)\r\n" + ")\r\n" + "(! \r\n"
                 + "(= (mquant<T> x (msetintersect<T> s1 s2)) (min (mquant<T> x s1) (mquant<T> x s2)))\r\n"
                 + ":pattern((msetintersect<T> s1 s2) (mquant<T> x s1))))))";
-        MS6.dependencies = new HashSet<>(Arrays.asList(Axiom.MSETINTERSECT, Axiom.MSETQUANT, Axiom.MSETMIN));
+        MS6.dependencies = new HashSet<>(Arrays.asList(Axiom.MS4,Axiom.MSETINTERSECT, Axiom.MSETQUANT, Axiom.MSETMIN));
         MS7.smt = "(assert (par (T) (forall\r\n" + "(\r\n" + "    (s1 MultiSet<T>)\r\n" + "    (s2 MultiSet<T>)\r\n"
                 + "    (x T)\r\n" + ")\r\n" + "(!\r\n"
                 + "(= (mquant<T> x (msetminus<T> s1 s2)) (max (- (mquant<T> x s1) (mquant<T> x s2)) 0 ))\r\n"
                 + ":pattern((msetminus<T> s1 s2) (mquant<T> x s1))))))";
-        MS7.dependencies = new HashSet<>(Arrays.asList(Axiom.MSETMINUS, Axiom.MSETQUANT, Axiom.MSETMAX));
+        MS7.dependencies = new HashSet<>(Arrays.asList(Axiom.MSETMAX,Axiom.MS4,Axiom.MSETMINUS, Axiom.MSETQUANT, Axiom.MSETMAX));
 
         MS8.smt = "(assert (par (T) (forall\r\n" + "(\r\n" + "(s1 MultiSet<T>)\r\n" + "(s2 MultiSet<T>)\r\n" + ")\r\n"
                 + "(= (msetsubset<T> s1 s2) \r\n" + "(forall \r\n" + "(\r\n" + "    (t T)\r\n" + ")\r\n" + "(!\r\n"
                 + "(<= (mquant<T> t s1) (mquant<T> t s2)) \r\n"
                 + ":pattern((msetsubset<T> s1 s2) (mquant<T> t s1) (mquant<T> t s2))))))))";
-        MS8.dependencies = new HashSet<>(Arrays.asList(Axiom.MSETSUBSET, Axiom.MSETQUANT));
+        MS8.dependencies = new HashSet<>(Arrays.asList(Axiom.MS4,Axiom.MSETSUBSET, Axiom.MSETQUANT));
 
         MSC1.smt = "(assert (par (T) (forall\r\n" + "(\r\n" + "    (s MultiSet<T>)\r\n" + ")\r\n" + "(!\r\n"
                 + "(>= (msetcard<T> s) 0) \r\n" + ":pattern((msetcard<T> s))))))";

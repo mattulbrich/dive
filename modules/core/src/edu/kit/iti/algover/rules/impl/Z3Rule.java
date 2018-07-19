@@ -55,7 +55,7 @@ import java.util.Map;
  */
 public class Z3Rule extends AbstractProofRule {
 
-     //debug ???
+    
     private static Model model = new Model(new ArrayList<>()); //empty model
     
     public static Model getModel() {
@@ -136,10 +136,11 @@ public class Z3Rule extends AbstractProofRule {
        // SMTLog.writeFile(smt, pvc.getIdentifier()+".smt2");
 //
    //     System.out.println();
-       System.out.println(smt);
+     //  System.out.println(smt);
 
         SolverParameter p = new SolverParameter(smt,3, true);
         SolverResponse r1 = z3access.accessSolver(p);
+     //   SolverResponse r1 = cvcaccess.accessSolver(p);
 
 
         System.out.println(r1.getResponse().name());
@@ -147,7 +148,7 @@ public class Z3Rule extends AbstractProofRule {
             model = r1.getModel();
            // System.out.println(model.getDeclarations());
            // System.out.println(model.getDefinitions());
-           // model.printVars();
+            model.printVars();
         }
           
             //System.out.println(r1.getModel().toString());
