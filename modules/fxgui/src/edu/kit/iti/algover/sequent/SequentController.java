@@ -131,6 +131,10 @@ public class SequentController extends FxmlController {
         }
     }
 
+    public void updateReferenceGraph(ReferenceGraph graph) {
+        referenceGraph = graph;
+    }
+
     //SaG: was used before having exhaustive RuleApp; Remove later if no Bug is found!
     @Deprecated
     public void tryMovingOn() {

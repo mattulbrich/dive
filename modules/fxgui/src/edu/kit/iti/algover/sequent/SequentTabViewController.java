@@ -24,6 +24,7 @@ public class SequentTabViewController {
     private SequentActionListener listener;
     private ProofNodeSelector activeNode;
     private Proof activeProof;
+    private ReferenceGraph referenceGraph;
 
     public SequentTabViewController(SequentActionListener listener) {
         this.listener = listener;
@@ -149,6 +150,9 @@ public class SequentTabViewController {
                 }
             }
         }
+        for(SequentController controller : controllers) {
+            controller.updateReferenceGraph(referenceGraph);
+        }
     }
 
     public TabPane getView() {
@@ -162,6 +166,7 @@ public class SequentTabViewController {
         controllers.removeAll(controllers.subList(0, 0));
         activeNode = controllers.get(0).getActiveNodeSelector();
         activeProof = controllers.get(0).getActiveProof();
+        referenceGraph = controllers.get(0).getReferenceGraph();
     }
 
     public SequentController getActiveSequentController() {
