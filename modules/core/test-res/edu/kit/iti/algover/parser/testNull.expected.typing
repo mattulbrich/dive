@@ -5,4 +5,4 @@
          (if (== null[object] null[object])[bool] BLOCK)
          (if (== c[C] null[C])[bool] BLOCK)
          (if (!= c[C] null[C])[bool] BLOCK)
-         (while (== null[C] c[C])[bool] BLOCK)))
+         (while (== null[C] c[C])[bool] BLOCK)))[scc_5]

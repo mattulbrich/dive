@@ -398,7 +398,7 @@ public class Project {
         // Extract rules from the lemmas.
         try {
             result.addAll(DafnyRuleUtil.generateDafnyRules(this));
-        } catch (DafnyRuleException e) {
+        } catch (DafnyException e) {
             // FIXME FIXME ... exception concept needed here
             e.printStackTrace();
         }

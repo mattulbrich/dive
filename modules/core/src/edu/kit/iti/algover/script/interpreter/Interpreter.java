@@ -375,7 +375,8 @@ public class Interpreter<T> extends DefaultASTVisitor<Object>
         State<T> currentStateToMatch = peekState();
         ProofNode selectedGoal = currentStateToMatch.getSelectedGoalNode();
 
-        //GoalNode<T> selectedGoal = currentStateToMatch.getSelectedGoalNode();
+        assert currentStateToMatch.getGoals().contains(selectedGoal);
+
         VariableAssignment va = evaluateMatchInGoal(matchExpression, selectedGoal);
         if (va != null) {
             enterScope(simpleCaseStatement);
@@ -390,6 +391,8 @@ public class Interpreter<T> extends DefaultASTVisitor<Object>
 
     }
 
+
+
     /**
      * Evaluate a match in a specific goal
      *
@@ -399,9 +402,10 @@ public class Interpreter<T> extends DefaultASTVisitor<Object>
      */
     private VariableAssignment evaluateMatchInGoal(Expression matchExpression, ProofNode goal) {
         enterScope(matchExpression);
+        Evaluator eval = new Evaluator(goal.getAssignments(), goal);
 
         //System.out.println("Goal to match " + goal);
-        MatchEvaluator mEval = new MatchEvaluator(goal, goal.getAssignments(), matcherApi);
+        MatchEvaluator mEval = new MatchEvaluator(goal, goal.getAssignments(), matcherApi, eval);
         mEval.getEntryListeners().addAll(entryListeners);
         mEval.getExitListeners().addAll(exitListeners);
         List<VariableAssignment> matchResult;
@@ -410,7 +414,6 @@ public class Interpreter<T> extends DefaultASTVisitor<Object>
 
         } else {
             matchResult = new ArrayList<>();
-            Evaluator eval = new Evaluator(goal.getAssignments(), goal);
             Value eval1 = eval.eval(matchExpression);
             if (eval1.getType().equals(Type.BOOL) && eval1.equals(Value.TRUE)) {
                 VariableAssignment emptyAssignment = new VariableAssignment(null);

@@ -14,7 +14,7 @@ import org.antlr.runtime.ANTLRInputStream;
 import org.antlr.runtime.CommonTokenStream;
 import org.antlr.runtime.RecognitionException;
 
-import edu.kit.iti.algover.parser.DafnyParser.program_return;
+import edu.kit.iti.algover.parser.DafnyParser.program_only_return;
 
 /**
  * A collection of static methods that can be used to access the DafnyParser.
@@ -122,9 +122,9 @@ public final class DafnyFileParser {
         parser.setLogicMode(allowLogic);
 
         // launch the parser starting at rule r, get return object
-        program_return result;
+        program_only_return result;
         try {
-            result = parser.program();
+            result = parser.program_only();
         } catch (RecognitionException e) {
             String msg = parser.getErrorMessage(e, DafnyParser.tokenNames);
             DafnyParserException lex = new DafnyParserException(msg, e);

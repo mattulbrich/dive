@@ -106,6 +106,7 @@ public abstract class Facade {
      * @param node
      * @return
      */
+    @Deprecated
     public static String prettyPrint(ASTNode node) {
         PrettyPrinter prettyPrinter = new PrettyPrinter();
         node.accept(prettyPrinter);

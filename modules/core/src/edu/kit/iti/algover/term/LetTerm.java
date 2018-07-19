@@ -33,7 +33,7 @@ public class LetTerm extends Term {
         for (Pair<VariableTerm, Term> pair : substs) {
             VariableTerm fst = Objects.requireNonNull(pair.fst);
             Term snd = Objects.requireNonNull(pair.snd);
-            if (!fst.getSort().equals(snd.getSort())) {
+            if (!snd.getSort().isSubtypeOf(fst.getSort())) {
                 throw new TermBuildException("Illegally typed assignment to " + fst);
             }
         }

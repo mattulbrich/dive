@@ -54,5 +54,30 @@ public class ChainedRelationsVisitorTest {
         new ChainedRelationsVisitor().walk(t);
     }
 
+    @Test
+    public void testSemiAscend() throws IOException, DafnyParserException, DafnyException {
+        String s = "method m() ensures 6 >= 3 == 3 {}";
+        DafnyTree t = ParserTest.parseFile(new ByteArrayInputStream(s.getBytes()));
+
+        new ChainedRelationsVisitor().walk(t);
+
+        assertEquals("(COMPILATION_UNIT " +
+                "(method m ARGS (ensures " +
+                "(&& (>= 6 3) (== 3 3))) BLOCK))", t.toStringTree());
+    }
+
+
+    @Test
+    public void testEq() throws IOException, DafnyParserException, DafnyException {
+        String s = "method m() ensures 6 == 3 == 3 {}";
+        DafnyTree t = ParserTest.parseFile(new ByteArrayInputStream(s.getBytes()));
+
+        new ChainedRelationsVisitor().walk(t);
+
+        assertEquals("(COMPILATION_UNIT " +
+                "(method m ARGS (ensures " +
+                "(&& (== 6 3) (== 3 3))) BLOCK))", t.toStringTree());
+    }
+
 
 }

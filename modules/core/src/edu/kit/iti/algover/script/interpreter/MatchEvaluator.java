@@ -44,10 +44,10 @@ public class MatchEvaluator extends DefaultASTVisitor<List<VariableAssignment>> 
      * @param assignmentsInState
      * @param matcher
      */
-    public MatchEvaluator(ProofNode goal, VariableAssignment assignmentsInState, MatcherApi matcher) {
+    public MatchEvaluator(ProofNode goal, VariableAssignment assignmentsInState, MatcherApi matcher, Evaluator eval) {
         this.goal = goal;
         this.assignmentsInState = new VariableAssignment(assignmentsInState); //must be unmodifiable assignments
-
+        this.evaluator = eval;
         this.matcher = matcher;
     }
 
@@ -216,12 +216,12 @@ public class MatchEvaluator extends DefaultASTVisitor<List<VariableAssignment>> 
         // Value pattern = (Value) match.getPattern().accept(this);
 
         List<VariableAssignment> va = null;
-       /* if (pattern.getType() == SimpleType.STRING) {
+        if (pattern.getType() == Type.STRING) {
             va = getMatcher().matchLabel(goal, (String) pattern.getData());
             //TODO extract the results form the matcher in order to retrieve the selection results
-        } else if (TypeFacade.isTerm(pattern.getType())) {
+        } else if (pattern.getType() == Type.TERM || pattern.getType() == Type.FORMULA) {
             va = getMatcher().matchSeq(goal, (String) pattern.getData(), sig);
-        }*/
+        }
         return va != null ? va : Collections.emptyList();
     }
 

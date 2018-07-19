@@ -5,6 +5,14 @@ method CallMe(p : int) returns (r : int )
   r := 2;
 }
 
+method multiReturn() returns (a: int, b:int)
+  requires 42 == 42
+  ensures a == 1 && b == 2
+{
+  a := 1;
+  b := 2;
+}
+
 class Clss {
 
   var field : int;
@@ -28,6 +36,8 @@ method test(c: Clss)
   var y:int := CallMe(23);
 
   c.Meth(24);
+
+  x,y := multiReturn();
 }
 
 method recursive(n: int) returns (r: int)

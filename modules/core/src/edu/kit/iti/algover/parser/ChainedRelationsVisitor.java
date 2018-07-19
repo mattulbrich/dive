@@ -7,18 +7,34 @@
 
 package edu.kit.iti.algover.parser;
 
+import static edu.kit.iti.algover.parser.ChainedRelationsVisitor.Direction.*;
+
+/**
+ * This syntactic sugar resolution routine resolves chained integer comparison.
+ *
+ * {@code a < b < c} becomes {@code a < b && b < c}.
+ *
+ * Equality can also be chained in Dafny.
+ *
+ * Direction must not be inverted within the chain.
+ *
+ * @see SyntacticSugarVistor
+ * @author mulbrich
+ */
 public class ChainedRelationsVisitor {
+
+    enum Direction { ASC, DESC, EQ, leftRelType, NO_COMP };
 
     public void walk(DafnyTree t) throws DafnyException {
 
-        int relType = getRelType(t);
-        if(relType != 0) {
+        Direction relDir = getRelDirection(t);
+        if(relDir != NO_COMP) {
             DafnyTree left = t.getChild(0);
-            int leftRelType = getRelType(left);
-            if(leftRelType == relType) {
+            Direction leftRelDir = getRelDirection(left);
+            if(isCompatible(relDir, leftRelDir)) {
                 walk(act(t));
                 return;
-            } else if(leftRelType != 0) {
+            } else if(leftRelDir != NO_COMP) {
                 throw new DafnyException("Illegally chained relational expressions", t);
             }
         }
@@ -26,6 +42,11 @@ public class ChainedRelationsVisitor {
         for (DafnyTree child : t.getChildren()) {
             walk(child);
         }
+    }
+
+    private static boolean isCompatible(Direction d1, Direction d2) {
+        return d1 != NO_COMP && d2 != NO_COMP &&
+                (d1 == d2 || d1 == EQ || d2 == EQ);
     }
 
     /*
@@ -52,16 +73,18 @@ public class ChainedRelationsVisitor {
         return replacement;
     }
 
-    private static int getRelType(DafnyTree t) {
+    private static Direction getRelDirection(DafnyTree t) {
         switch(t.getType()) {
         case DafnyParser.LT:
         case DafnyParser.LE:
-            return -1;
+            return ASC;
         case DafnyParser.GE:
         case DafnyParser.GT:
-            return 1;
+            return DESC;
+        case DafnyParser.EQ:
+            return EQ;
         default:
-            return 0;
+            return NO_COMP;
         }
     }
 }

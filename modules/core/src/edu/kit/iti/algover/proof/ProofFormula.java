@@ -14,11 +14,6 @@ import edu.kit.iti.algover.term.Term;
 // REVIEW: Please add equals/hashcode methods. Influence of label and id on equality
 public class ProofFormula {
 
-    /**
-     * The ID of this formula. Must be unique in the context of the PVC.
-     */
-    // REVIEW: Why is this needed?
-    // private final int id;
 
     /**
      * The actual term which is captured in this object.
@@ -32,13 +27,11 @@ public class ProofFormula {
 
 
     public ProofFormula(Term formula, String label) {
-        //this.id = id;
         this.formula = formula;
         this.label = label;
     }
 
     public ProofFormula(Term formula) {
-        // this.id = id;
         this.formula = formula;
         this.label = null;
     }

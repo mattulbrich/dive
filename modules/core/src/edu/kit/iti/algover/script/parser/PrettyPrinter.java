@@ -34,6 +34,7 @@ import java.util.Map;
  * @author Alexander Weigl
  * @version 1 (28.04.17)
  */
+@Deprecated
 public class PrettyPrinter extends DefaultASTVisitor<Void> {
 
     private final StringBuilder s = new StringBuilder();
@@ -221,35 +222,41 @@ public class PrettyPrinter extends DefaultASTVisitor<Void> {
         return null;
     }
 
+    @Override
+    public Void visit(SequentLiteral sequentLiteral) {
+        s.append(String.format("`%s`", sequentLiteral.getText()));
+        return super.visit(sequentLiteral);
+    }
+
     /*    @Override
-        public Void visit(TheOnlyStatement theOnly) {
-            s.append("theonly {");
-            theOnly.getBody().accept(this);
-            cl();
-            s.append("}");
-            return null;
-        }
+            public Void visit(TheOnlyStatement theOnly) {
+                s.append("theonly {");
+                theOnly.getBody().accept(this);
+                cl();
+                s.append("}");
+                return null;
+            }
 
-        @Override
-        public Void visit(ForeachStatement foreach) {
-            s.append("foreach {");
-            foreach.getBody().accept(this);
-            cl();
-            s.append("}");
-            return null;
-        }
+            @Override
+            public Void visit(ForeachStatement foreach) {
+                s.append("foreach {");
+                foreach.getBody().accept(this);
+                cl();
+                s.append("}");
+                return null;
+            }
 
-        @Override
-        public Void visit(RepeatStatement repeat) {
-            s.append("repeat");
-            s.append("{");
-            repeat.getBody().accept(this);
-            cl();
-            s.append("}");
-            return null;
+            @Override
+            public Void visit(RepeatStatement repeat) {
+                s.append("repeat");
+                s.append("{");
+                repeat.getBody().accept(this);
+                cl();
+                s.append("}");
+                return null;
 
-        }
-    */
+            }
+        */
     @Override
     public Void visit(Parameters parameters) {
         int nl = getLastNewline();

@@ -8,7 +8,9 @@ package edu.kit.iti.algover;
 import edu.kit.iti.algover.parser.ChainedRelationsVisitorTest;
 import edu.kit.iti.algover.parser.ImplicitlyTypedVariableVisitorTest;
 import edu.kit.iti.algover.parser.ParserErrorTest;
+import edu.kit.iti.algover.parser.QuantifierGuardRemovalVisitorTest;
 import edu.kit.iti.algover.project.ProjectManagerTest;
+import edu.kit.iti.algover.proof.PVCBuilderTest;
 import edu.kit.iti.algover.proof.ProofTest;
 import edu.kit.iti.algover.references.TermReferencesBuilderTest;
 import edu.kit.iti.algover.rules.impl.DafnyRuleTest;
@@ -76,6 +78,7 @@ import edu.kit.iti.algover.util.UtilTest;
     UpdateSequenterTest.class,
     ParallelUpdateSequenterTest.class,
     InlineSequenterTest.class,
+    PVCBuilderTest.class,
     PrettyPrintTest.class,
     TermReferencesBuilderTest.class,
     IntegrationTest1.class,
@@ -83,6 +86,7 @@ import edu.kit.iti.algover.util.UtilTest;
     TermMatcherTest.class,
     ChainedRelationsVisitorTest.class,
     ImplicitlyTypedVariableVisitorTest.class,
+    QuantifierGuardRemovalVisitorTest.class,
         RuleUtilTest.class
     })
 public class Tests {

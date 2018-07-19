@@ -71,6 +71,7 @@ class C
    method testContracts()
      requires true
      ensures true
+     ensures old(intfield) == intfield
      // modifies this
      decreases 2
    {
@@ -116,11 +117,14 @@ class C
       i := 1 + 1;
       i := 1 - 1;
       i := 1 * 1;
-      // i := 1 / 1;
+      i := 1 / 1;
+      i := i % 2;
    }
 
+   // this fails!
    method arrays() {
       var a : array<int>;
+      var a2 : array2<int>;
       var i : int;
       var c : C;
 
@@ -129,6 +133,9 @@ class C
 
       a[0] := null;
       c := a[0];
+
+      i := a[0,0];
+      i := a2[0];
    }
 
    method failAssignments()
@@ -157,6 +164,8 @@ class C
       s2 := s1;
       s2[0] := 0;
       s1[1] := s2[1];
+
+      var l := |s1|;
    }
 
    method quantifiers()
@@ -173,6 +182,29 @@ class C
      var l_v := 44;
 
      ret_r := l_i+l_x1+l_x2+l_y+l_v;
+   }
+
+   method multiReturn() returns (a:int, b:int)
+   {
+     multiReturn();
+   }
+
+   method setTest(s1 : set<int>, a : array<int>)
+     modifies { this, a }
+   {
+     var s2 := { 1, 2, 3 };
+   }
+
+   method arrays2() {
+     var a : array2<int>;
+     var i : int;
+     var j : int;
+
+     i := a[0, 0];
+     a[i, j] := i;
+
+     i := a.Length0;
+     j := a.Length1;
    }
 
 }

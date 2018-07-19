@@ -47,7 +47,9 @@ public class Z3Rule extends AbstractProofRule {
             "(declare-fun seqget (Seqq Int) Int)\n" +
             "(declare-fun sequpd (Seqq Int Int) Seqq)\n" +
             "(declare-fun seqlen (Seqq) Int)\n" +
+            "(declare-fun arrlen (Int) Int)\n" +
             "(assert (forall ((m Seqq)) (>= (seqlen m) 0)))\n" +
+            "(assert (forall ((a Int)) (>= (arrlen a) 0)))\n" +
             "(assert (forall ((m Seqq)(i Int)(v Int)) (= (seqlen (sequpd m i v)) (seqlen m))))\n" +
             "(assert (forall ((m Seqq)(i Int)(v Int)(j Int)) (= (seqget (sequpd m i v) j) (ite (= i j) v (seqget m j)))))\n"
             ;
@@ -113,6 +115,12 @@ public class Z3Rule extends AbstractProofRule {
                 }
                 if (fs.getResultSort().equals(Sort.get("seq", Sort.INT)) && fs.getArity() == 0) {
                     sb.append("(declare-const pv$" + fs.getName() + " Seqq)\n");
+                }
+                if (fs.getResultSort().equals(Sort.get("array", Sort.INT)) && fs.getArity() == 0) {
+                    sb.append("(declare-const pv$" + fs.getName() + " Int)\n");
+                }
+                if (fs.getResultSort().equals(Sort.HEAP) && fs.getArity() == 0) {
+                    sb.append("(declare-const pv$" + fs.getName() + " (Array Int Int Int))\n");
                 }
             }
             for (ProofFormula proofFormula : sequent.getAntecedent()) {
