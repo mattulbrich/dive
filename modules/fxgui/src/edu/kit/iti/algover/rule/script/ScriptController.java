@@ -142,7 +142,7 @@ public class ScriptController implements ScriptViewListener {
         PrettyPrinter pp = new PrettyPrinter();
         ps.accept(pp);
         view.replaceText(pp.toString());
-        System.out.println("pp.toString() = " + pp.toString());
+        //System.out.println("pp.toString() = " + pp.toString());
 
         proof.setScriptTextAndInterpret(pp.toString());
 
