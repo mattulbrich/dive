@@ -7,6 +7,7 @@ package edu.kit.iti.algover;
 
 import edu.kit.iti.algover.parser.DafnyFileParser;
 import edu.kit.iti.algover.parser.DafnyTree;
+import edu.kit.iti.algover.smttrans.data.AxiomLoader;
 import edu.kit.iti.algover.symbex.AssertionElement;
 import edu.kit.iti.algover.symbex.PathConditionElement;
 import edu.kit.iti.algover.symbex.Symbex;
@@ -122,7 +123,7 @@ public class Main {
 
     }
 
-    public static void main(String[] args) throws Exception {
+    public static void main(String[] args) throws Exception {;
         try {
             if (args.length == 0) {
                 test(System.in);

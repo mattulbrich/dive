@@ -1,0 +1,127 @@
+(declare-fun (par (T) (setin<T> (T Set<T>) Bool)))
+(declare-fun (par (T) (setadd<T> (T Set<T>) Set<T>)))
+(declare-fun (par (T) (setcard<T> (Set<T>) Int)))
+(declare-fun (par (T) (setminus<T> (Set<T> Set<T>) Set<T>)))
+(declare-fun (par (T) (setunion<T> (Set<T> Set<T>) Set<T>)))
+(declare-fun (par (T) (setintersect<T> (Set<T> Set<T>) Set<T>)))
+(declare-fun (par (T) (setsubset<T> (Set<T> Set<T>) Bool)))
+(declare-fun (par (T) (setsingle<T> (T) Set<T>)))
+;(S1)
+(assert (par (T)
+(forall
+(
+    (t T)
+)
+(!  
+(not (setin<T> t ~setempty<T>)) 
+:pattern((setin<T> t ~setempty<T>))))))
+
+;(S2)
+(assert (par (T)
+(forall
+(
+    (s Set<T>)
+    (x T)
+    (y T)
+)
+(! 
+(= (setin<T> y (setadd<T> x s)) (or (= x y) (setin<T> y s)))
+:pattern((setin<T> y s) (setadd<T> x s))))))
+
+;(S3)
+(assert (par (T)
+(forall
+(
+(s1 Set<T>)
+(s2 Set<T>)
+)
+(=>  
+(forall 
+(
+    (t T)
+)
+(= (setin<T> t s1) (setin<T> t s2))) (= s1 s2)))))
+
+;(S4)
+(assert (par (T)
+(forall
+(
+    (s1 Set<T>)
+    (s2 Set<T>)
+    (x T)
+)
+(! 
+(= (setin<T> x (setunion<T> s1 s2)) (or (setin<T> x s1) (setin<T> x s2)))
+:pattern((setunion<T> s1 s2) (setin<T> x s1))))))
+
+;(S5)
+(assert (par (T)
+(forall
+(
+    (s1 Set<T>)
+    (s2 Set<T>)
+    (x T)
+)
+(! 
+(= (setin<T> x (setintersect<T> s1 s2)) (and (setin<T> x s1) (setin<T> x s2)))
+:pattern((setintersect<T> s1 s2) (setin<T> x s1))))))
+
+;(S6)
+(assert (par (T)
+(forall
+(
+    (s1 Set<T>)
+    (s2 Set<T>)
+    (x T)
+)
+(!
+(= (setin<T> x (setminus<T> s1 s2)) (and (setin<T> x s1) (not (setin<T> x s2))))
+:pattern((setminus<T> s1 s2) (setin<T> x s1))))))
+
+;(S7)
+(assert (par (T)
+(forall
+(
+(s1 Set<T>)
+(s2 Set<T>)
+)
+(= (setsubset<T> s1 s2) 
+(forall 
+(
+    (t T)
+)
+(!
+(=> (setin<T> t s1) (setin<T> t s2)) 
+:pattern((setsubset<T> s1 s2) (setin<T> t s1) (setin<T> t s2))))))))
+
+;(S8)
+(assert (par (T) (forall
+(
+    (s Set<T>)
+    (t T)
+)
+(= (setsingle<T> t) (setadd<T> t ~setempty<T>)))))
+
+;(SC1)
+(assert (par (T)
+(forall
+(
+    (s Set<T>)
+)
+(!
+(>= (setcard<T> s) 0) 
+:pattern((setcard<T> s))))))
+
+;(SC2)
+(assert (par (T) (= (setcard<T> ~setempty<T>) 0)))
+
+;(SC3)
+(assert (par (T)
+(forall
+(
+    (s Set<T>)
+    (t T)
+)
+(!
+(= (setcard<T> (setadd<T> t s)) (ite (setin<T> t s) (setcard<T> s) (+ (setcard<T> s) 1)))
+:pattern((setadd<T> t s))))))

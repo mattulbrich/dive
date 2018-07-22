@@ -117,7 +117,7 @@ public class Z3Rule extends AbstractProofRule {
     
 
     private boolean isValid(ProofNode target) {
-        System.out.println("PVC: " + target.getPVC().getSequent().toString());
+       // System.out.println("PVC: " + target.getPVC().getSequent().toString());
         // SolverAccess.evaluate("");
         SolverAccess z3access = new Z3Access();
         SolverAccess cvcaccess = new CVCAccess();

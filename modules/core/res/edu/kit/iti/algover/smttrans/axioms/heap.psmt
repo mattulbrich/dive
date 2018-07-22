@@ -1,0 +1,240 @@
+(declare-fun create (Heap Object) Heap)
+(declare-fun isCreated (Heap Object) Bool)
+(declare-fun (par (T) (arrlen<T> (Arr<T>) Int)))
+(declare-fun (par (T) (arr2len0<T> (Arr2<T>) Int)))
+(declare-fun (par (T) (arr2len1<T> (Arr2<T>) Int)))
+(declare-fun (par (C T) (fieldselect<C.T> (Heap C Field<C.T>) T)))
+(declare-fun (par (C T) (fieldstore<C.T> (Heap C Field<C.T> T) Heap)))
+(declare-fun (par (T) (arrselect<T> (Heap Arr<T> Int) T)))
+(declare-fun (par (T) (arrstore<T> (Heap Arr<T> Int T) Heap)))
+(declare-fun (par (T) (arr2select<T> (Heap Arr2<T> Int Int) T)))
+(declare-fun (par (T) (arr2store<T> (Heap Arr2<T> Int Int T) Heap)))
+
+
+;(A11)
+(assert (par (T) (forall
+(
+    (h Heap)
+    (a Arr<T>)
+    (i Int)
+    (j Int)
+    (v T)
+)
+(= (arrselect<T> (arrstore<T> h a i v) a j) (ite (= i j) v (arrselect<T> h a j))))))
+
+;(A12)
+(assert (par (T) (forall
+(
+    (h Heap)
+    (a Arr<T>)
+    (i Int)
+    (o Object)
+)
+(= (arrselect<T> (create h o) a i) (arrselect<T> h a i)))))
+
+;(A13)
+(assert (par (T)
+(forall
+(
+    (h Heap)
+    (a1 Arr<T>)
+    (a2 Arr2<T>)
+    (i Int)
+    (j Int)
+    (k Int)
+    (o Object)
+    (v T)
+)
+(= (arrselect<T> (arr2store<T> h a2 i j v) a1 k) (arrselect<T> h a1 k)))))
+
+;(A14)
+(assert (par (C T)
+(forall
+(
+    (h Heap)
+    (a Arr<T>)
+    (f Field<C.T>)
+    (i Int)
+    (o C)
+    (v T)
+)
+(= (arrselect<T> (fieldstore<C.T> h o f v) a i) (arrselect<T> h a i)))))
+
+;(A1L1)
+(assert (par (T)
+(forall
+(
+    (a Arr<T>)
+)
+(>= (arrlen<T> a) 0))))
+
+;(A21)
+(assert (par (T) (forall 
+(
+    (h Heap)
+    (a Arr2<T>)
+    (i Int)
+    (j Int)
+    (l Int)
+    (k Int)
+    (v T)
+)
+(= (arr2select<T> (arr2store<T> h a i j v) a l k) (ite (and (= i l) (= j k)) v (arr2select<T> h a j l))))))
+
+;(A22)
+(assert (par (T) (forall 
+(
+    (h Heap)
+    (a Arr2<T>)
+    (o Object)
+    (i Int)
+    (j Int)
+)
+(= (arr2select<T> (create h o) a i j)  (arr2select<T> h a i j)))))
+
+;(A23)
+(assert (par (T) (forall 
+(
+    (h Heap)
+    (a1 Arr<T>)
+    (a2 Arr2<T>)
+    (o Object)
+    (i Int)
+    (j Int)
+    (k Int)
+    (v T)
+)
+(= (arr2select<T> (arrstore<T> h a1 k v) a2 i j)  (arr2select<T> h a2 i j)))))
+
+;(A24)
+(assert (par (C T) (forall 
+(
+    (h Heap)
+    (a Arr2<T>)
+    (o C)
+    (f Field<C.T>)
+    (d T)
+    (i Int)
+    (j Int)
+)
+(= (arr2select<T> (fieldstore<C.T> h o f d) a i j)  (arr2select<T> h a i j)))))
+
+;(A2L0)
+(assert (par (T) (forall
+(
+    (a Arr2<T>)
+)
+(>= (arr2len0<T> a) 0))))
+
+;(A2L1)
+(assert (par (T) (forall
+(
+    (a Arr2<T>)
+)
+(>= (arr2len1<T> a) 0))))
+
+;(H1)
+(assert (par (C T) (forall
+(
+    (o1 C)
+    (o2 C)
+    (f1 Field<C.T>)
+    (f2 Field<C.T>)
+    (h Heap)
+    (v T)
+)
+(= (fieldselect<C.T> (fieldstore<C.T> h o1 f1 v) o2 f2) (ite (and (= o1 o2) (= f1 f2)) v (fieldselect<C.T> h o2 f2))))))
+
+;(H2)
+(assert (par (C T) (forall
+(
+    (o C)
+    (a Arr<T>)
+    (f Field<C.T>)
+    (h Heap)
+    (v T)
+    (i Int)
+)
+(= (fieldselect<C.T> (arrstore<T> h a i v) o f) (fieldselect<C.T> h o f)))))
+
+;(H3)
+(assert (par (C T) (forall
+(
+    (o C)
+    (a Arr2<T>)
+    (f Field<C.T>)
+    (h Heap)
+    (v T)
+    (i Int)
+    (j Int)
+)
+(= (fieldselect<C.T> (arr2store<T> h a i j v) o f) (fieldselect<C.T> h o f)))))
+
+;(H4)
+(assert (par (C T) (forall
+(
+    (o1 C)
+    (o2 Object)
+    (a Arr<T>)
+    (f Field<C.T>)
+    (h Heap)
+    (v T)
+    (i Int)
+)
+(= (fieldselect<C.T> (create h o2) o1 f) (fieldselect<C.T> h o1 f)))))
+
+;(H5)
+(assert (forall
+(
+    (o Object)
+    (h Heap)
+)
+(isCreated (create h o) o)))
+
+;(H6)
+(assert (par (C T) (forall
+(
+    (h Heap)
+    (c C)
+    (f Field<C.T>)
+    (v T)
+    (o Object)
+)
+(= (isCreated (fieldstore<C.T> h c f v) o) (isCreated h o)))))
+
+;(H7)
+(assert (par (T) (forall
+(
+    (h Heap)
+    (v T)
+    (o Object)
+    (i Int)
+    (a Arr<T>)
+)
+(= (isCreated (arrstore<T> h a i v) o) (isCreated h o)))))
+
+;(H8)
+(assert (par (T) (forall
+(
+    (h Heap)
+    (v T)
+    (o Object)
+    (i Int)
+    (j Int)
+    (a Arr2<T>)
+)
+(= (isCreated (arr2store<T> h a i j v) o) (isCreated h o)))))
+
+;(H9)
+(assert (par (T) (forall
+(
+    (c C)
+    (h1 Heap)
+    (h2 Heap)
+    (s Set<Object>)
+    (f Field<C.T>)
+)
+(= (fieldselect<C.T> (anon h1 s h2) c f) (fieldselect<C.T> (ite (setin<Object> s (c2o c)) h2 h1) c f)))))
+
+;(O1)
+;(assert (forall ((o Object)) (setin<Object> o ~everything)))

@@ -34,13 +34,13 @@ import edu.kit.iti.algover.smttrans.translate.SumAndMaxTest;
    //     FolTest.class,
    //     SumAndMaxTest.class,
    //     IntegerTest.class,
- //   SetUnitTest.class,
+   // SetUnitTest.class,
   //  Arr2UnitTest.class,
-  //  SeqUnitTest.class,
+    SeqUnitTest.class,
  //   MultisetUnitTest.class,
 // 
     
-       ObjectUnitTest.class
+   //    ObjectUnitTest.class
    //     Z3RuleTest.class
     
 

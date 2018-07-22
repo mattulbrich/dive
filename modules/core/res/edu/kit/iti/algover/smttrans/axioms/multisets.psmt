@@ -1,0 +1,131 @@
+(declare-fun (par (T) (mquant<T> (T MultiSet<T>) Int)))
+(declare-fun (par (T) (msetin<T> (T MultiSet<T>) Bool)))
+(declare-fun (par (T) (msetadd<T> (T MultiSet<T>) MultiSet<T>)))
+(declare-fun (par (T) (msetcard<T> (MultiSet<T>) Int)))
+(declare-fun (par (T) (msetminus<T> (MultiSet<T> MultiSet<T>) MultiSet<T>)))
+(declare-fun (par (T) (msetunion<T> (MultiSet<T> MultiSet<T>) MultiSet<T>)))
+(declare-fun (par (T) (msetintersect<T> (MultiSet<T> MultiSet<T>) MultiSet<T>)))
+(declare-fun (par (T) (msetsubset<T> (MultiSet<T> MultiSet<T>) Bool)))
+(declare-fun (par (T) (msetsingle<T> (T) MultiSet<T>)))
+(define-fun min ((x Int) (y Int)) Int
+  (ite (<= x y) x y))
+
+(define-fun max ((x Int) (y Int)) Int
+  (ite (<= x y) y x))
+
+;(MS1)
+(assert (par (T) (forall
+(
+    (s MultiSet<T>)
+    (t T)
+)
+(= (msetin<T> t s) (> (mquant<T> t s) 0)))))
+
+;(MS2)
+(assert (par (T) (forall 
+(
+    (x T)
+)
+(= (mquant<T> x ~msetempty<T>) 0))))
+
+;(MS3)
+(assert (par (T) (forall
+(
+    (s MultiSet<T>)
+    (x T)
+    (y T)
+)
+(! 
+(= (mquant<T> y (msetadd<T> x s)) (ite (= x y) (+ (mquant<T> x s) 1) (mquant<T> y s)))
+:pattern((mquant<T> y s) (msetadd<T> x s))))))
+
+;(MS4)
+(assert (par (T) (forall
+(
+(s1 MultiSet<T>)
+(s2 MultiSet<T>)
+)
+(=>  
+(forall 
+(
+    (t T)
+)
+(= (mquant<T> t s1) (mquant<T> t s2))) (= s1 s2)))))
+
+;(MS5)
+(assert (par (T) (forall
+(
+    (s1 MultiSet<T>)
+    (s2 MultiSet<T>)
+    (x T)
+)
+(! 
+(= (mquant<T> x (msetunion<T> s1 s2)) (+ (mquant<T> x s1) (mquant<T> x s2)))
+:pattern((msetunion<T> s1 s2) (mquant<T> x s1))))))
+
+;(MS6)
+(assert (par (T) (forall
+(
+    (s1 MultiSet<T>)
+    (s2 MultiSet<T>)
+    (x T)
+)
+(! 
+(= (mquant<T> x (msetintersect<T> s1 s2)) (min (mquant<T> x s1) (mquant<T> x s2)))
+:pattern((msetintersect<T> s1 s2) (mquant<T> x s1))))))
+
+;(MS7)
+(assert (par (T) (forall
+(
+    (s1 MultiSet<T>)
+    (s2 MultiSet<T>)
+    (x T)
+)
+(!
+(= (mquant<T> x (msetminus<T> s1 s2)) (max (- (mquant<T> x s1) (mquant<T> x s2)) 0 ))
+:pattern((msetminus<T> s1 s2) (mquant<T> x s1))))))
+
+;(MS8)
+(assert (par (T) (forall
+(
+(s1 MultiSet<T>)
+(s2 MultiSet<T>)
+)
+(= (msetsubset<T> s1 s2) 
+(forall 
+(
+    (t T)
+)
+(!
+(<= (mquant<T> t s1) (mquant<T> t s2)) 
+:pattern((msetsubset<T> s1 s2) (mquant<T> t s1) (mquant<T> t s2))))))))
+
+;(MS9)
+(assert (par (T) (forall
+(
+    (s MultiSet<T>)
+    (t T)
+)
+(= (msetsingle<T> t) (msetadd<T> t ~msetempty<T>)))))
+
+;(MSC1)
+(assert (par (T) (forall
+(
+    (s MultiSet<T>)
+)
+(!
+(>= (msetcard<T> s) 0) 
+:pattern((msetcard<T> s))))))
+
+;(MSC2)
+(assert (par (T) (= (msetcard<T> ~msetempty<T>) 0)))
+
+;(MSC3)
+(assert (par (T) (forall
+(
+    (s MultiSet<T>)
+    (t T)
+)
+(!
+(= (msetcard<T> (msetadd<T> t s)) (+ (msetcard<T> s) 1))
+:pattern((msetadd<T> t s))))))

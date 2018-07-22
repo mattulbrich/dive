@@ -147,15 +147,15 @@ public enum Axiom {
         // multisets
         MS1.smt = "(assert (par (T) (forall\r\n" + "(\r\n" + "    (s MultiSet<T>)\r\n" + "    (t T)\r\n" + ")\r\n"
                 + "(= (msetin<T> t s) (> (mquant<T> t s) 0)))))";
-        MS1.dependencies = new HashSet<>(Arrays.asList(Axiom.MS4,Axiom.MSETIN, Axiom.MSETQUANT));
+        MS1.dependencies = new HashSet<>(Arrays.asList(Axiom.MS4, Axiom.MSETIN, Axiom.MSETQUANT));
         MS2.smt = "(assert (par (T) (forall \r\n" + "(\r\n" + "    (x T)\r\n" + ")\r\n"
                 + "(= (mquant<T> x ~msetempty<T>) 0))))";
-        MS2.dependencies = new HashSet<>(Arrays.asList(Axiom.MS4,Axiom.MSETQUANT));
+        MS2.dependencies = new HashSet<>(Arrays.asList(Axiom.MS4, Axiom.MSETQUANT));
         MS3.smt = "(assert (par (T) (forall\r\n" + "(\r\n" + "    (s MultiSet<T>)\r\n" + "    (x T)\r\n"
                 + "    (y T)\r\n" + ")\r\n" + "(! \r\n"
                 + "(= (mquant<T> y (msetadd<T> x s)) (ite (= x y) (+ (mquant<T> x s) 1) (mquant<T> y s)))\r\n"
                 + ":pattern((mquant<T> y s) (msetadd<T> x s))))))";
-        MS3.dependencies = new HashSet<>(Arrays.asList(Axiom.MS4,Axiom.MSETADD, Axiom.MSETQUANT));
+        MS3.dependencies = new HashSet<>(Arrays.asList(Axiom.MS4, Axiom.MSETADD, Axiom.MSETQUANT));
         MS4.smt = "(assert (par (T) (forall\r\n" + "(\r\n" + "(s1 MultiSet<T>)\r\n" + "(s2 MultiSet<T>)\r\n" + ")\r\n"
                 + "(=>  \r\n" + "(forall \r\n" + "(\r\n" + "    (t T)\r\n" + ")\r\n"
                 + "(= (mquant<T> t s1) (mquant<T> t s2))) (= s1 s2)))))";
@@ -164,23 +164,24 @@ public enum Axiom {
                 + "    (x T)\r\n" + ")\r\n" + "(! \r\n"
                 + "(= (mquant<T> x (msetunion<T> s1 s2)) (+ (mquant<T> x s1) (mquant<T> x s2)))\r\n"
                 + ":pattern((msetunion<T> s1 s2) (mquant<T> x s1))))))";
-        MS5.dependencies = new HashSet<>(Arrays.asList(Axiom.MS4,Axiom.MSETUNION, Axiom.MSETQUANT));
+        MS5.dependencies = new HashSet<>(Arrays.asList(Axiom.MS4, Axiom.MSETUNION, Axiom.MSETQUANT));
         MS6.smt = "(assert (par (T) (forall\r\n" + "(\r\n" + "    (s1 MultiSet<T>)\r\n" + "    (s2 MultiSet<T>)\r\n"
                 + "    (x T)\r\n" + ")\r\n" + "(! \r\n"
                 + "(= (mquant<T> x (msetintersect<T> s1 s2)) (min (mquant<T> x s1) (mquant<T> x s2)))\r\n"
                 + ":pattern((msetintersect<T> s1 s2) (mquant<T> x s1))))))";
-        MS6.dependencies = new HashSet<>(Arrays.asList(Axiom.MS4,Axiom.MSETINTERSECT, Axiom.MSETQUANT, Axiom.MSETMIN));
+        MS6.dependencies = new HashSet<>(Arrays.asList(Axiom.MS4, Axiom.MSETINTERSECT, Axiom.MSETQUANT, Axiom.MSETMIN));
         MS7.smt = "(assert (par (T) (forall\r\n" + "(\r\n" + "    (s1 MultiSet<T>)\r\n" + "    (s2 MultiSet<T>)\r\n"
                 + "    (x T)\r\n" + ")\r\n" + "(!\r\n"
                 + "(= (mquant<T> x (msetminus<T> s1 s2)) (max (- (mquant<T> x s1) (mquant<T> x s2)) 0 ))\r\n"
                 + ":pattern((msetminus<T> s1 s2) (mquant<T> x s1))))))";
-        MS7.dependencies = new HashSet<>(Arrays.asList(Axiom.MSETMAX,Axiom.MS4,Axiom.MSETMINUS, Axiom.MSETQUANT, Axiom.MSETMAX));
+        MS7.dependencies = new HashSet<>(
+                Arrays.asList(Axiom.MSETMAX, Axiom.MS4, Axiom.MSETMINUS, Axiom.MSETQUANT, Axiom.MSETMAX));
 
         MS8.smt = "(assert (par (T) (forall\r\n" + "(\r\n" + "(s1 MultiSet<T>)\r\n" + "(s2 MultiSet<T>)\r\n" + ")\r\n"
                 + "(= (msetsubset<T> s1 s2) \r\n" + "(forall \r\n" + "(\r\n" + "    (t T)\r\n" + ")\r\n" + "(!\r\n"
                 + "(<= (mquant<T> t s1) (mquant<T> t s2)) \r\n"
                 + ":pattern((msetsubset<T> s1 s2) (mquant<T> t s1) (mquant<T> t s2))))))))";
-        MS8.dependencies = new HashSet<>(Arrays.asList(Axiom.MS4,Axiom.MSETSUBSET, Axiom.MSETQUANT));
+        MS8.dependencies = new HashSet<>(Arrays.asList(Axiom.MS4, Axiom.MSETSUBSET, Axiom.MSETQUANT));
 
         MSC1.smt = "(assert (par (T) (forall\r\n" + "(\r\n" + "    (s MultiSet<T>)\r\n" + ")\r\n" + "(!\r\n"
                 + "(>= (msetcard<T> s) 0) \r\n" + ":pattern((msetcard<T> s))))))";
@@ -194,28 +195,33 @@ public enum Axiom {
         MSC3.dependencies = new HashSet<>(Arrays.asList(Axiom.MSETCARD, Axiom.MSETADD));
         // sequences
         SQ1.smt = "(assert (par (T) (forall\r\n" + "(\r\n" + "    (i Int)\r\n" + "    (j Int)\r\n"
-                + "    (s Seq<T>)\r\n" + "    (t T)\r\n" + ")\r\n"
-                + "(= (seqget<T> (sequpd<T> s t i) j) (ite (= i j) t (seqget<T> s j))))))";
-        SQ1.dependencies = new HashSet<>(Arrays.asList(Axiom.SEQGET, Axiom.SEQUPD));
-        SQ2.smt = "(assert (par (T) (forall\r\n" + "(\r\n" + "    (i Int)\r\n" + "    (s Seq<T>)\r\n" + "    (t T)\r\n"
-                + ")\r\n" + "(= (seqget<T> (seqcons<T> t s) i) (ite  (= i 0) t (seqget<T> s (- i 1)))))))";
-        SQ2.dependencies = new HashSet<>(Arrays.asList(Axiom.SEQGET, Axiom.SEQCONS));
+                + "    (s Seq<T>)\r\n" + ")\r\n" + "(=>\r\n"
+                + "(and (<= 0 i) (< i (seqlen<T> s)) (<= 0 j) (< j (seqlen<T> s)))\r\n" + "(forall \r\n" + "(\r\n"
+                + " (t T)\r\n" + ")\r\n" + "(= (seqget<T> (sequpd<T> s t i) j) (ite (= i j) t (seqget<T> s j))))))))";
+        SQ1.dependencies = new HashSet<>(Arrays.asList(Axiom.SEQGET, Axiom.SEQUPD, Axiom.SEQLEN));
+        SQ2.smt = "(assert (par (T) (forall\r\n" + "(\r\n" + "    (i Int)\r\n" + "    (s Seq<T>)\r\n" + ")\r\n"
+                + "(=>\r\n" + "(and (<= 0 i) (<= i (+ (seqlen<Int> s) 1)))\r\n" + "(forall\r\n" + "(\r\n"
+                + "    (t T)\r\n" + ")\r\n"
+                + "(= (seqget<T> (seqcons<T> t s) i) (ite  (= i (seqlen<T> s)) t (seqget<T> s i))))))))";
+        SQ2.dependencies = new HashSet<>(Arrays.asList(Axiom.SEQGET, Axiom.SEQCONS, Axiom.SEQLEN));
         SQ3.smt = "(assert (par (T) (forall\r\n" + "(\r\n" + "    (i Int)\r\n" + "    (s1 Seq<T>)\r\n"
-                + "    (s2 Seq<T>)\r\n" + ")\r\n" + "(!\r\n"
+                + "    (s2 Seq<T>)\r\n" + ")\r\n" + "(!\r\n" + "(=> \r\n"
+                + "(and (<= 0 i) (< i (- (+ (seqlen<T> s1) (seqlen<T> s2)) 1)) )\r\n"
                 + "(= (seqget<T> (seqconcat<T> s1 s2) i) (ite (< i (seqlen<T> s1)) (seqget<T> s1 i) (seqget<T> s2 (- i (seqlen<T> s1)\r\n"
-                + ")))\r\n" + ") :pattern((seqconcat<T> s1 s2) (seqget<T> s1 i))))))";
+                + ")))\r\n" + ")) :pattern((seqconcat<T> s1 s2) (seqget<T> s1 i))))))";
         SQ3.dependencies = new HashSet<>(Arrays.asList(Axiom.SEQGET, Axiom.SEQLEN, Axiom.SEQCONCAT));
         SQ4.smt = "(assert (par (T) (forall\r\n" + "(\r\n" + "    (i Int)\r\n" + "    (j Int)\r\n" + "    (k Int)\r\n"
-                + "    (s Seq<T>)\r\n" + ")\r\n" + "(!\r\n"
-                + "(= (seqget<T> (seqsubselect<T> s i j) k) (seqget<T> s (+ i k))) :pattern ((seqsubselect<T> s i j) (seqget<T> s k))))))";
-        SQ4.dependencies = new HashSet<>(Arrays.asList(Axiom.SEQGET, Axiom.SEQSUBSELECT));
+                + "    (s Seq<T>)\r\n" + ")\r\n" + "(=> \r\n"
+                + "(and (<= 0 i) (< i j) (>= k i) (<= k j)  (< j (seqlen<T> s)))\r\n"
+                + "(= (seqget<T> (seqsubselect<T> s i j) k) (seqget<T> s (+ i k)))))))";
+        SQ4.dependencies = new HashSet<>(Arrays.asList(Axiom.SEQGET, Axiom.SEQSUBSELECT, Axiom.SEQLEN));
         SQ5.smt = "(assert (par (T) (forall \r\n" + "(\r\n" + "    (i Int)\r\n" + "    (s1 Seq<T>)\r\n"
-                + "    (s2 Seq<T>)\r\n" + ")\r\n" + "(!\r\n" + "(=>  \r\n"
-                + "(and (= (seqlen<T> s1) (seqlen<T> s2)) (= (seqget<T> s1 i) (seqget<T> s2 i)))\r\n"
-                + "(= s1 s2)) :pattern((seqget<T> s1 i) (seqget<T> s2 i))))))";
+                + "    (s2 Seq<T>)\r\n" + ")\r\n" + "(!\r\n" + "(=>   \r\n" + "(and  (<= 0 i) (< i (seqlen<T> s1)))\r\n"
+                + "(=>  \r\n" + "(and (= (seqlen<T> s1) (seqlen<T> s2)) (= (seqget<T> s1 i) (seqget<T> s2 i)))\r\n"
+                + "(= s1 s2))) :pattern((seqget<T> s1 i) (seqget<T> s2 i))))))";
         SQ5.dependencies = new HashSet<>(Arrays.asList(Axiom.SEQGET, Axiom.SEQLEN));
         SQ6.smt = "(assert (par (T) (forall\r\n" + "(\r\n" + "    (s Seq<T>)\r\n" + ")\r\n" + "(=>   \r\n"
-                + "(= (seqlen<T> s) 0)\r\n" + "(= s ~seqempty<T>)))))";
+                + "(= (seqlen<T> s) 0)\r\n" + "(= s ~emptySeq<T>)))))";
         SQ6.dependencies = new HashSet<>(Arrays.asList(Axiom.SEQLEN));
         SQL1.smt = "(assert (par (T) (= (seqlen<T> ~seqempty<T>) 0)))";
         SQL1.dependencies = new HashSet<>(Arrays.asList(Axiom.SEQLEN));
@@ -224,7 +230,7 @@ public enum Axiom {
         SQL2.dependencies = new HashSet<>(Arrays.asList(Axiom.SEQLEN));
         SQL3.smt = "(assert (par (T) (forall\r\n" + "(\r\n" + "    (i Int)\r\n" + "    (j Int)\r\n"
                 + "    (s Seq<T>)\r\n" + ")\r\n" + "(!\r\n" + "(= (seqlen<T> (seqsubselect<T> s i j)) (- j i))\r\n"
-                + ") :pattern((seqsubselect<T> s i j)))))";
+                + " :pattern((seqsubselect<T> s i j))))))";
         SQL3.dependencies = new HashSet<>(Arrays.asList(Axiom.SEQLEN, Axiom.SEQSUBSELECT));
         SQL4.smt = "(assert (par (T) (forall\r\n" + "(\r\n" + "    (s1 Seq<T>)\r\n" + "    (s2 Seq<T>)\r\n" + ")\r\n"
                 + "(!\r\n"

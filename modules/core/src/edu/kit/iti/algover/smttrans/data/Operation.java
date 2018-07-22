@@ -153,11 +153,11 @@ public enum Operation {
 
         SEQGET.smt = "seqget";
         SEQGET.poly = true;
-        SEQGET.instantiations = asList(Axiom.SQ1);
+        SEQGET.instantiations = asList();
 
         SEQSUBSELECT.smt = "seqsubselect";
         SEQSUBSELECT.poly = true;
-        SEQSUBSELECT.instantiations = asList(Axiom.SQ4); // , Axiom.SQL3
+        SEQSUBSELECT.instantiations = asList(Axiom.SQ4, Axiom.SQL3); // , Axiom.SQL3
 
         SEQLEN.smt = "seqlen";
         SEQLEN.poly = true;

@@ -1,0 +1,139 @@
+(declare-fun (par (T) (seqlen<T> (Seq<T>) Int)))
+(declare-fun (par (T) (seqget<T> (Seq<T> Int) T)))
+(declare-fun (par (T) (sequpd<T> (Seq<T> T Int) Seq<T>)))
+(declare-fun (par (T) (seqcons<T> (T Seq<T>) Seq<T>)))
+(declare-fun (par (T) (seqsubselect<T> (Seq<T> Int Int) Seq<T>)))
+(declare-fun (par (T) (seqconcat<T> (Seq<T> Seq<T>) Seq<T>)))
+(declare-fun (par (T) (seqsingle<T> (T) Seq<T>)))
+
+;(SQ1)
+(assert (par (T) (forall
+(
+    (i Int)
+    (j Int)
+    (s Seq<T>)
+)
+(=>
+(and (<= 0 i) (< i (seqlen<T> s)) (<= 0 j) (< j (seqlen<T> s)))
+(forall 
+(
+ (t T)
+)
+(= (seqget<T> (sequpd<T> s t i) j) (ite (= i j) t (seqget<T> s j))))))))
+
+;(SQ2)
+(assert (par (T) (forall
+(
+    (i Int)
+    (s Seq<T>)
+)
+(=>
+(and (<= 0 i) (<= i (+ (seqlen<Int> s) 1)))
+(forall
+(
+    (t T)
+)
+(= (seqget<T> (seqcons<T> t s) i) (ite  (= i (seqlen<T> s)) t (seqget<T> s i))))))))
+
+;(SQ3)
+(assert (par (T) (forall
+(
+    (i Int)
+    (s1 Seq<T>)
+    (s2 Seq<T>)
+)
+(!
+(=> 
+(and (<= 0 i) (< i (- (+ (seqlen<T> s1) (seqlen<T> s2)) 1)) )
+(= (seqget<T> (seqconcat<T> s1 s2) i) (ite (< i (seqlen<T> s1)) (seqget<T> s1 i) (seqget<T> s2 (- i (seqlen<T> s1)
+)))
+)) :pattern((seqconcat<T> s1 s2) (seqget<T> s1 i))))))
+
+;(SQ4)
+(assert (par (T) (forall
+(
+    (i Int)
+    (j Int)
+    (k Int)
+    (s Seq<T>)
+)
+(=> 
+(and (<= 0 i) (< i j) (>= k i) (<= k j)  (< j (seqlen<T> s)))
+(= (seqget<T> (seqsubselect<T> s i j) k) (seqget<T> s (+ i k)))))))
+
+;(SQ5)
+(assert (par (T) (forall 
+(
+    (i Int)
+    (s1 Seq<T>)
+    (s2 Seq<T>)
+)
+(!
+(=>   
+(and  (<= 0 i) (< i (seqlen<T> s1)))
+(=>  
+(and (= (seqlen<T> s1) (seqlen<T> s2)) (= (seqget<T> s1 i) (seqget<T> s2 i)))
+(= s1 s2))) :pattern((seqget<T> s1 i) (seqget<T> s2 i))))))
+
+;(SQ6)
+(assert (par (T) (forall
+(
+    (s Seq<T>)
+)
+(=>   
+(= (seqlen<T> s) 0)
+(= s ~emptySeq<T>)))))
+
+;(SQ7)
+(assert (par (T) (forall
+(
+    (s Seq<T>)
+    (t T)
+)
+(= (seqsingle<T> t) (seqcons<T> t ~emptySeq<T>)))))
+
+;(SQL1)
+(assert (par (T) (= (seqlen<T> ~emptySeq<T>) 0)))
+
+;(SQL2)
+(assert (par (T)
+(forall   
+(
+    (s Seq<T>)
+)
+(>= (seqlen<T> s) 0)
+)))
+
+;(SQL3)
+(assert (par (T)
+(forall
+(
+    (i Int)
+    (j Int)
+    (s Seq<T>)
+)
+(!
+(=>
+(and (<= 0 i) (<= i j) (< j (seqlen<T> s)))
+(= (seqlen<T> (seqsubselect<T> s i j)) (- j i))
+) :pattern((seqsubselect<T> s i j))))))
+
+;(SQL4)
+(assert (par (T)
+(forall
+(
+    (s1 Seq<T>)
+    (s2 Seq<T>)
+)
+(!
+(= (seqlen<T> (seqconcat<T> s1 s2))  (+ (seqlen<T> s1) (seqlen<T> s2))) :pattern((seqconcat<T> s1 s2))))))
+
+;(SQL5)
+(assert (par (T)
+(forall
+(
+    (s Seq<T>)
+    (t T)
+)
+(!
+(= (seqlen<T> (seqcons<T> t s)) (+ (seqlen<T> s) 1)) :pattern((seqcons<T> t s))))))

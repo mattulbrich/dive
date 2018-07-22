@@ -15,7 +15,7 @@ public class AxiomContainer {
     private static final Pattern openPar = Pattern.compile("\\(");
 
     static {
-
+        AxiomLoader.load();
     }
 
     public static String instantiateAxiom(Axiom a, FunctionSymbol t) {
