@@ -202,8 +202,7 @@ public class SequentTabViewController {
             view.getTabs().remove(1, view.getTabs().size());
         }
 
-
-        controllers.get(0).viewSequentForPVC(entity, proof);
+        controllers.get(0).forceViewSequentForPVC(entity, proof);
         activeNode = controllers.get(0).getActiveNodeSelector();
         activeProof = controllers.get(0).getActiveProof();
         referenceGraph = controllers.get(0).getReferenceGraph();

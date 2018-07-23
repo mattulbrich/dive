@@ -131,6 +131,11 @@ public class SequentController extends FxmlController {
         }
     }
 
+    public void forceViewSequentForPVC(PVCEntity entity, Proof proof) {
+        activeProof = null;
+        viewSequentForPVC(entity, proof);
+    }
+
     public void updateReferenceGraph(ReferenceGraph graph) {
         referenceGraph = graph;
     }
