@@ -28,26 +28,28 @@ public class SMTContainer {
             Character c = ax.charAt(i);
             if (c.equals('(')) {
                 balance--;
-            } if (c.equals(')')) {
+            }
+            if (c.equals(')')) {
                 balance++;
             }
         }
-        
-        return ax.substring(0, ax.length()-balance);
+
+        return ax.substring(0, ax.length() - balance);
     }
+
     public String toSMT() {
         StringBuilder sb = new StringBuilder();
 
         sb.append(instantiateDep());
         antecedent.forEach(t -> sb.append(cleanUp(t.toSMT(false))));
         succedent.forEach(s -> sb.append(cleanUp(s.toSMT(true)))); // negate
-    
+
         String r = cleanUp(sb.toString());
-        
+
         r = TypeContext.addFunctions(r);
-        if (r.contains("Object"))  //TODO better version
+        if (r.contains("Object")) // TODO better version
             return TypeContext.addCasts(r);
-        
+
         return r;
     }
 
@@ -56,12 +58,12 @@ public class SMTContainer {
         sb.append(declareDep());
         antecedent.forEach(t -> sb.append(cleanUp(t.toSMT(false))));
         succedent.forEach(s -> sb.append(cleanUp(s.toSMT(true)))); // negate
-        
+
         String r = cleanUp(sb.toString());
         r = TypeContext.addFunctions(r);
-        if (r.contains("Object"))  //TODO better version
+        if (r.contains("Object")) // TODO better version
             return TypeContext.addCasts(r);
-        
+
         return cleanUp(sb.toString());
     }
 
@@ -82,7 +84,7 @@ public class SMTContainer {
                 } else if (s.startsWith("(inst-const")) {
                     constants.add(s);
                     continue;
-                } else if (s.startsWith("(inst-fun") || s.startsWith("(define-fun")) { 
+                } else if (s.startsWith("(inst-fun") || s.startsWith("(define-fun")) {
                     functions.add(s);
                     continue;
 
@@ -114,7 +116,7 @@ public class SMTContainer {
         for (Dependency d : dependencies) {
             LinkedHashSet<String> set = d.instantiate();
             for (String s : set) {
-                if (s.startsWith("(declare-sort")) {
+                if (s.startsWith("(declare-sort") || s.startsWith("(define-sort")) {
                     sorts.add(s);
                     continue;
                 } else if (s.startsWith("(declare-const")) {

@@ -12,6 +12,7 @@ import org.junit.runners.Suite.SuiteClasses;
 
 import edu.kit.iti.algover.rules.impl.Z3RuleTest;
 import edu.kit.iti.algover.smttrans.translate.Arr1Test;
+import edu.kit.iti.algover.smttrans.translate.Arr1UnitTest;
 import edu.kit.iti.algover.smttrans.translate.Arr2UnitTest;
 import edu.kit.iti.algover.smttrans.translate.ClassTest;
 import edu.kit.iti.algover.smttrans.translate.DafnyExampleTest;
@@ -31,14 +32,15 @@ import edu.kit.iti.algover.smttrans.translate.SumAndMaxTest;
    //     DafnyExampleTest.class,
    //     Arr1Test.class,
     //    ClassTest.class,
-   //     FolTest.class,
-   //     SumAndMaxTest.class,
+     //   FolTest.class,
+    //    SumAndMaxTest.class,
    //     IntegerTest.class,
    // SetUnitTest.class,
   //  Arr2UnitTest.class,
-    SeqUnitTest.class,
+  //  SeqUnitTest.class,
  //   MultisetUnitTest.class,
 // 
+    Arr1UnitTest.class
     
    //    ObjectUnitTest.class
    //     Z3RuleTest.class

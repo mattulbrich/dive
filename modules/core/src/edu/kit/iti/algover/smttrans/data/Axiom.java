@@ -33,7 +33,7 @@ public enum Axiom {
     MS1, MS2, MS3, MS4, MS5, MS6, MS7, MS8, MSC1, MSC2, MSC3,
     // sequences
 
-    SQ1, SQ2, SQ3, SQ4, SQ5, SQ6, SQL1, SQL2, SQL3, SQL4, SQL5,
+    SQ1, SQ2, SQ3, SQ4, SQ5, SQ6, SQL1, SQL2, SQL3, SQL4, SQL5, SQL6,
 
     // Heap/Arrays
     A11, A12, A13, A14, A1L1, A21, A22, A23, A24, A2L0, A2L1, H1, H2, H3, H4, H5, H6, H7, H8, H9;
@@ -90,6 +90,7 @@ public enum Axiom {
         CREATE.smt = "(declare-fun create (Heap Object) Heap)";
         ISCREATED.smt = "(declare-fun isCreated (Heap Object) Bool)";
         ARRLEN.smt = "(declare-fun (par (T) (arrlen<T> (Arr<T>) Int)))";
+        ARRLEN.dependencies = new HashSet<>(Arrays.asList(Axiom.A1L1));
         ARR2LEN0.smt = "(declare-fun (par (T) (arr2len0<T> (Arr2<T>) Int)))";
         ARR2LEN1.smt = "(declare-fun (par (T) (arr2len1<T> (Arr2<T>) Int)))";
         FIELDSELECT.smt = "(declare-fun (par (C T) (fieldselect<C.T> (Heap C Field<C.T>) T)))";
@@ -195,20 +196,20 @@ public enum Axiom {
         MSC3.dependencies = new HashSet<>(Arrays.asList(Axiom.MSETCARD, Axiom.MSETADD));
         // sequences
         SQ1.smt = "(assert (par (T) (forall\r\n" + "(\r\n" + "    (i Int)\r\n" + "    (j Int)\r\n"
-                + "    (s Seq<T>)\r\n" + ")\r\n" + "(=>\r\n"
-                + "(and (<= 0 i) (< i (seqlen<T> s)) (<= 0 j) (< j (seqlen<T> s)))\r\n" + "(forall \r\n" + "(\r\n"
-                + " (t T)\r\n" + ")\r\n" + "(= (seqget<T> (sequpd<T> s t i) j) (ite (= i j) t (seqget<T> s j))))))))";
-        SQ1.dependencies = new HashSet<>(Arrays.asList(Axiom.SEQGET, Axiom.SEQUPD, Axiom.SEQLEN));
+                + "    (s Seq<T>)\r\n" + "    (t T)\r\n" + ")\r\n" + "(=>\r\n"
+                + "(and (<= 0 i)  (<= 0 j) (< i (seqlen<T> s)) (< j (seqlen<T> s))) \r\n"
+                + "(= (seqget<T> (sequpd<T> s t i) j) (ite (= i j) t (seqget<T> s j)))))))";
+        SQ1.dependencies = new HashSet<>(Arrays.asList(Axiom.SEQGET, Axiom.SEQUPD, Axiom.SEQLEN, Axiom.SQL6));
         SQ2.smt = "(assert (par (T) (forall\r\n" + "(\r\n" + "    (i Int)\r\n" + "    (s Seq<T>)\r\n" + ")\r\n"
                 + "(=>\r\n" + "(and (<= 0 i) (<= i (+ (seqlen<Int> s) 1)))\r\n" + "(forall\r\n" + "(\r\n"
                 + "    (t T)\r\n" + ")\r\n"
                 + "(= (seqget<T> (seqcons<T> t s) i) (ite  (= i (seqlen<T> s)) t (seqget<T> s i))))))))";
         SQ2.dependencies = new HashSet<>(Arrays.asList(Axiom.SEQGET, Axiom.SEQCONS, Axiom.SEQLEN));
         SQ3.smt = "(assert (par (T) (forall\r\n" + "(\r\n" + "    (i Int)\r\n" + "    (s1 Seq<T>)\r\n"
-                + "    (s2 Seq<T>)\r\n" + ")\r\n" + "(!\r\n" + "(=> \r\n"
-                + "(and (<= 0 i) (< i (- (+ (seqlen<T> s1) (seqlen<T> s2)) 1)) )\r\n"
+                + "    (s2 Seq<T>)\r\n" + ")\r\n"
+                + "(=> (and (<= 0 i) (< i (- (+ (seqlen<T> s1) (seqlen<T> s2) ) 1)))\r\n"
                 + "(= (seqget<T> (seqconcat<T> s1 s2) i) (ite (< i (seqlen<T> s1)) (seqget<T> s1 i) (seqget<T> s2 (- i (seqlen<T> s1)\r\n"
-                + ")))\r\n" + ")) :pattern((seqconcat<T> s1 s2) (seqget<T> s1 i))))))";
+                + "))))))))";
         SQ3.dependencies = new HashSet<>(Arrays.asList(Axiom.SEQGET, Axiom.SEQLEN, Axiom.SEQCONCAT));
         SQ4.smt = "(assert (par (T) (forall\r\n" + "(\r\n" + "    (i Int)\r\n" + "    (j Int)\r\n" + "    (k Int)\r\n"
                 + "    (s Seq<T>)\r\n" + ")\r\n" + "(=> \r\n"
@@ -239,13 +240,16 @@ public enum Axiom {
         SQL5.smt = "(assert (par (T) (forall\r\n" + "(\r\n" + "    (s Seq<T>)\r\n" + "    (t T)\r\n" + ")\r\n"
                 + "(!\r\n" + "(= (seqlen<T> (seqcons<T> t s)) (+ (seqlen<T> s) 1)) :pattern((seqcons<T> t s))))))";
         SQL5.dependencies = new HashSet<>(Arrays.asList(Axiom.SEQLEN, Axiom.SEQCONS));
-
+        SQL6.smt = "(assert (par (T) (forall\r\n" + "(\r\n" + "    (s Seq<T>)\r\n" + "    (i Int)\r\n"
+                + "    (t Int)\r\n" + ")\r\n" + "(=  (seqlen<T> (sequpd<T> s t i)) (seqlen<T> s)))))";
+        SQL6.dependencies = new HashSet<>(Arrays.asList(Axiom.SEQLEN, Axiom.SEQUPD));
         // Heap/Arrays
 
-        A11.smt = "(assert (par (T) (forall\r\n" + "(\r\n" + "    (h Heap)\r\n" + "    (a Arr<T>)\r\n"
-                + "    (i Int)\r\n" + "    (j Int)\r\n" + "    (v T)\r\n" + ")\r\n"
-                + "(= (arrselect<T> (arrstore<T> h a i v) a j) (ite (= i j) v (arrselect<T> h a j))))))";
-        A11.dependencies = new HashSet<>(Arrays.asList(Axiom.ARRSELECT, Axiom.ARRSTORE));
+        A11.smt = "(assert (par (T) (forall\r\n" + "(\r\n" + "    (h Heap)\r\n" + "    (a Arr<Int>)\r\n"
+                + "    (i Int)\r\n" + "    (j Int)\r\n" + "    (v Int)\r\n" + ")\r\n"
+                + "(=> (and (<= 0 i) (<= 0 j) (< i (arrlen<Int> a)) (< j (arrlen<Int> a))) \r\n"
+                + "(= (arrselect<Int> (arrstore<Int> h a i v) a j) (ite (= i j) v (arrselect<Int> h a j)))))))";
+        A11.dependencies = new HashSet<>(Arrays.asList(Axiom.ARRSELECT, Axiom.ARRSTORE, Axiom.ARRLEN));
         A12.smt = "(assert (par (T) (forall\r\n" + "(\r\n" + "    (h Heap)\r\n" + "    (a Arr<T>)\r\n"
                 + "    (i Int)\r\n" + "    (o Object)\r\n" + ")\r\n"
                 + "(= (arrselect<T> (create h o) a i) (arrselect<T> h a i)))))";

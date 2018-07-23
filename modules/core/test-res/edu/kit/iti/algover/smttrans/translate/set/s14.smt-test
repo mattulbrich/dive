@@ -1,0 +1,12 @@
+s1: set<int>
+s2: set<int>
+s3: set<int>
+s4: set<int>
+---
+
+|-
+let s1 := $set_add<int>(1,$empty<int>) :: 
+let s2 := $set_add<int>(1,$empty<int>) :: 
+let s3 := $set_add<set<int>>(s1,$empty<set<int>>) ::
+let s4 := $set_add<set<int>>(s2,$empty<set<int>>) ::
+$set_minus<set<int>>(s3,s4) == $empty<set<int>>

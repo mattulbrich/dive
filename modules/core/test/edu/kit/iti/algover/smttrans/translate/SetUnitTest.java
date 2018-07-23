@@ -134,10 +134,10 @@ public class SetUnitTest {
             ProofNode pn = ProofMockUtil.mockProofNode(null, s.getAntecedent(), s.getSuccedent(), pvc);
             ProofRule pr = new Z3Rule();
             ProofRuleApplication pra = pr.makeApplication(pn, new edu.kit.iti.algover.rules.Parameters());
-            if (!pra.getApplicability().equals(ProofRuleApplication.Applicability.APPLICABLE)) {
-                System.err.println(debug.get(i));
-            }
-            //assertEquals(pra.getApplicability(), ProofRuleApplication.Applicability.APPLICABLE);
+//            if (!pra.getApplicability().equals(ProofRuleApplication.Applicability.APPLICABLE)) {
+//                System.err.println(debug.get(i));
+//            }
+            assertEquals(pra.getApplicability(), ProofRuleApplication.Applicability.APPLICABLE);
         }
     }
 

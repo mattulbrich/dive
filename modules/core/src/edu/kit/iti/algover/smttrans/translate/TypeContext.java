@@ -74,6 +74,9 @@ public class TypeContext {
     public static void setSymbolTable(SymbolTable symbolTable) {
         TypeContext.symbolTable = symbolTable;
     }
+    public static void resetBV() {
+        boundVars.clear();
+    }
     
     public static void addBV(FunctionSymbol fs) {
         boundVars.add(fs);
@@ -333,7 +336,7 @@ public class TypeContext {
             if (!symbolTable.getAllSymbols().contains(nfs)) {
 
                 symbolTable = symbolTable.addFunctionSymbol(nfs);
-                System.out.println(symbolTable.getAllSymbols().toString());
+               // System.out.println(symbolTable.getAllSymbols().toString());
 
             }
         }

@@ -6,21 +6,19 @@ import edu.kit.iti.algover.term.FunctionSymbol;
 
 public class SMTBVExpression extends SMTExpression {
 
-   // private String name;
-   // private Sort type;
+
 
     public SMTBVExpression(FunctionSymbol fs) {
       
-        //FunctionSymbol fs = new FunctionSymbol(name, type);
         super(fs);
         this.sign = new VarSignature(fs);
-        TypeContext.addBV(fs);
+ 
     }
 
     @Override
     public String toSMT(boolean... arg) {
         StringBuilder sb = new StringBuilder();
-        // TODO maybe TypeContext.BV() ?
+        TypeContext.addBV(fs);
         sb.append("(");
         sb.append(sign.show());
         sb.append(")");

@@ -138,7 +138,7 @@ public class Z3Rule extends AbstractProofRule {
    //     System.out.println();
        System.out.println(smt);
 
-        SolverParameter p = new SolverParameter(smt,3, true);
+        SolverParameter p = new SolverParameter(smt,8, true);
         SolverResponse r1 = z3access.accessSolver(p);
      //   SolverResponse r1 = cvcaccess.accessSolver(p);
 
