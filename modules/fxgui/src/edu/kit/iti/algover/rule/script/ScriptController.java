@@ -176,6 +176,7 @@ public class ScriptController implements ScriptViewListener {
             Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).severe(proof.getFailException().getMessage());
         }
         checkpoints = ProofNodeCheckpointsBuilder.build(proof);
+        switchViewedNode();
     }
 
     public ScriptView getView() {

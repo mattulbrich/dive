@@ -139,7 +139,7 @@ public class MainController implements SequentActionListener, RuleApplicationLis
         for(Map.Entry<String, PVC> e : pvcMap.entrySet()) {
             String script = "";
             Proof p = manager.getProofForPVC(e.getKey());
-            if (p.getScript() == "") {
+            if (p.getProofStatus() != ProofStatus.CLOSED) {
                 for (int i = 0; i < p.getProofRoot().getSequent().getAntecedent().size(); ++i) {
                     try {
                         script += RuleApplicator.getScriptForExhaustiveRuleApplication(new LetSubstitutionRule(), p.getProofRoot(), new TermSelector("A." + i));

@@ -50,7 +50,31 @@ public class SequentTabViewController {
             } else {
                 numChildren = 1;
             }
-            if (numChildren == controllers.size()) {
+            if(numChildren == 0) {
+                if (controllers.size() > 0) {
+                    controllers = controllers.subList(0, 1);
+                } else {
+                    controllers.add(new SequentController(listener));
+                }
+                if (view.getTabs().size() > 0) {
+                    view.getTabs().remove(1, view.getTabs().size());
+                } else {
+                    view.getTabs().add(new Tab("default", controllers.get(0).getView()));
+                }
+                ProofNodeSelector ithNode = parentSelector;
+                Optional<ProofNode> opt = ithNode.optionalGet(activeProof);
+                if (opt.isPresent()) {
+                    String name = opt.get().getLabel();
+                    if (name == null) {
+                        name = "default";
+                    }
+                    view.getTabs().get(0).setText(name);
+                    controllers.get(0).setActiveNode(ithNode);
+                    controllers.get(0).setActiveProof(activeProof);
+                    controllers.get(0).viewProofNode(ithNode);
+                }
+            }
+            else if (numChildren == controllers.size()) {
                 for (int i = 0; i < numChildren; ++i) {
                     ProofNodeSelector ithNode = new ProofNodeSelector(parentSelector, i);
                     controllers.get(i).setActiveNode(ithNode);
@@ -120,8 +144,16 @@ public class SequentTabViewController {
                 view.getTabs().get(0).setText("default");
             }
         } else {
-            controllers = controllers.subList(0, 1);
-            view.getTabs().remove(1, view.getTabs().size() - 1);
+            if(controllers.size() > 0) {
+                controllers = controllers.subList(0, 1);
+            } else {
+                controllers.add(new SequentController(listener));
+            }
+            if(view.getTabs().size() > 0) {
+                view.getTabs().remove(1, view.getTabs().size());
+            } else {
+                view.getTabs().add(new Tab("default", controllers.get(0).getView()));
+            }
             ProofNodeSelector ithNode = activeNode;
             Optional<ProofNode> opt = ithNode.optionalGet(activeProof);
             if(opt.isPresent()) {
@@ -159,10 +191,19 @@ public class SequentTabViewController {
     }
 
     public void viewSequentForPVC(PVCEntity entity, Proof proof) {
-        view.getTabs().clear();
-        view.getTabs().add(new Tab("default", controllers.get(0).getView()));
+        if(controllers.size() == 0) {
+            controllers.add(new SequentController(listener));
+        } else {
+            controllers.removeAll(controllers.subList(1, controllers.size()));
+        }
+        if(view.getTabs().size() == 0) {
+            view.getTabs().add(new Tab("default", controllers.get(0).getView()));
+        } else {
+            view.getTabs().remove(1, view.getTabs().size());
+        }
+
+
         controllers.get(0).viewSequentForPVC(entity, proof);
-        controllers.removeAll(controllers.subList(0, 0));
         activeNode = controllers.get(0).getActiveNodeSelector();
         activeProof = controllers.get(0).getActiveProof();
         referenceGraph = controllers.get(0).getReferenceGraph();
