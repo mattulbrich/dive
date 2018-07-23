@@ -1,0 +1,152 @@
+%\documentclass{beamer}
+%\documentclass[c]{beamer}
+ \documentclass[t]{beamer}
+%\documentclass[b]{beamer}
+\listfiles
+
+\mode<presentation>
+{
+% \usetheme[english]{KIT}
+% \usetheme[usefoot]{KIT}
+  \usetheme[deutsch]{KIT}
+
+%%  \usefonttheme{structurebold}
+
+  \setbeamercovered{transparent}
+
+  %\setbeamertemplate{enumerate items}[circle]
+  \setbeamertemplate{enumerate items}[ball]
+}
+
+\usepackage{babel}
+\date{\today}
+%\DateText
+
+%\KITfoot{\parbox[t]{90mm}{\today:\qquad Dies ist eine sehr lange selbstdefinierte Fu\ss{}zeile -- Dies ist eine sehr lange selbstdefinierte Fu\ss{}zeile -- Dies ist eine sehr lange selbstdefinierte Fu\ss{}zeile}}
+
+
+\usepackage[latin1]{inputenc}
+\usepackage[TS1,T1]{fontenc}
+\usepackage{array}
+\usepackage{lipsum}
+
+\usenavigationsymbols
+%\usenavigationsymbols[sfHhdb]
+%\usenavigationsymbols[sfhHb]
+
+\title{Demo: AlgoVer}
+
+\author{Sarah Grebing, Mattias Ulbrich, Jonas Klamroth}
+
+\institute{Institut für Theoretische Informatik}
+
+%\TitleImage[viewport=0 0 830 245.8,clip,height=\titleimageht]{../../bildwand.jpg}
+
+\begin{document}
+
+\begin{frame}
+  \maketitle
+\end{frame}
+
+\begin{frame}[c]{Interaction in Interactive Program Verification}
+Interaction on:
+\begin{itemize}
+	\item different levels of abstraction for interaction
+	\item different representations of the same problem
+\end{itemize}
+\bigskip
+Switch between levels and/or representations is necessary.
+\end{frame}
+
+\begin{frame}[c]{Involved Entities in Interactive Program Verification}
+\begin{itemize}
+\item program code
+\item specification
+\item proof representation/proof obligation
+\item \emph{proof guidance/interaction}
+
+\end{itemize}
+
+\end{frame}
+\begin{frame}[c]{Examples for State-of-the-Art Systems}
+Three different kinds of Interaction Concepts:
+\begin{itemize}
+\item auto-active
+\item point-and-click
+\item text-based
+\end{itemize}
+
+\end{frame}
+
+\begin{frame}[c]{Problems with Interaction in State-of-the-Art Systems}
+\begin{itemize}
+	\item interaction on different representations
+	\item hidden dependencies between representations
+	\item context change cognitively challenging for the user 
+	%   \item interaction on different abstraction-levels 
+	\item missing interaction possibilities on representations
+\end{itemize}
+
+\end{frame}
+
+
+% 
+% Ein Tool, um Interaktionskonzepte umzusetzen und zu erproben, welche
+% einen möglichst nahtlosen Übergang zwischen den Sichten ermöglichen und
+% gleichzeitig alle Sichten integrieren.
+% 
+
+\begin{frame}[c]{Goal of our concept}
+An interactive program verification system that allows implementing and researching different interaction concepts:
+\begin{itemize}
+\item integration of different representations as views
+\item integration of different interaction concepts
+\item seamless transition between views 
+
+\end{itemize}
+
+\end{frame}
+
+
+% Folie 5:
+% "SunBurst Diagramm":
+% Hypothese: Nutzerinteraktion benötigt, je nach Kontext, a) einen
+% fokussierten Blick auf bestimmte Elemente oder b) einen Überblick über
+% einen größeren Zusammenhang.
+% 
+% => Dafür ist ein Kontextwechsel notwendig
+% => dieser erfordert mentale Kapazitäten
+% => Ziel ist es dabei die Last für den Nutzer zu reduzieren
+% mit a) Anzahl der Elemente zu reduzieren und b) den Aufwand einzelner
+% Wechsel zu verringern
+
+\begin{frame}[c]{Hypothesis}
+User interaction needs, depending on the context, 
+\begin{enumerate}[(a)]
+\item a focussed view on specific elements or
+\item an overview of the bigger picture.
+\end{enumerate}
+
+% \begin{block}{Consequence:}
+%  A context change is needed, which demands cognitive load from the user.\\
+%  \bigskip
+%  Goal: Reduce load for user
+% \begin{itemize}
+%  \item reduce number of elements
+%  \item reduce effort for change
+% \end{itemize}
+% \end{block}
+
+\end{frame}
+
+\begin{frame}[c]{Objectives}
+The user is ...
+\begin{enumerate}
+\item ... able to use appropriate view at all times
+\item ... can easily switch views without loosing focus
+\item ... is able to determine the results of costly actions before executing them  
+\end{enumerate}
+
+\end{frame}
+
+\end{document}
