@@ -94,6 +94,7 @@ public class SequentTabViewController {
                     controllers.get(i).setActiveNode(ithNode);
                     controllers.get(i).setActiveProof(activeProof);
                     controllers.get(i).viewProofNode(ithNode);
+                    referenceGraph = controllers.get(i).getReferenceGraph();
                 }
             } else if (numChildren < controllers.size()) {
                 for (int i = 0; i < numChildren; ++i) {
@@ -110,7 +111,7 @@ public class SequentTabViewController {
                         view.getTabs().get(tmp).setText(name);
                     });
                 }
-                view.getTabs().remove(numChildren, controllers.size());
+                view.getTabs().remove(numChildren, view.getTabs().size());
                 while (controllers.size() > numChildren) {
                     controllers.remove(controllers.size() - 1);
                 }
@@ -119,18 +120,16 @@ public class SequentTabViewController {
                 view.getTabs().get(0).setText("default");
             }
         } else {
-            controllers.clear();
-            view.getTabs().clear();
+            controllers = controllers.subList(0, 1);
+            view.getTabs().remove(1, view.getTabs().size() - 1);
             ProofNodeSelector ithNode = activeNode;
-            SequentController controller = new SequentController(listener);
-            controllers.add(controller);
             Optional<ProofNode> opt = ithNode.optionalGet(activeProof);
             if(opt.isPresent()) {
                 String name = opt.get().getLabel();
                 if(name == null) {
                     name = "default";
                 }
-                view.getTabs().add(new Tab(name, controller.getView()));
+                view.getTabs().get(0).setText(name);
                 controllers.get(0).setActiveNode(ithNode);
                 controllers.get(0).setActiveProof(activeProof);
                 controllers.get(0).viewProofNode(ithNode);
@@ -142,7 +141,7 @@ public class SequentTabViewController {
                         if(name == null) {
                             name = "default";
                         }
-                        view.getTabs().add(new Tab(name, controller.getView()));
+                        view.getTabs().get(0).setText(name);
                         controllers.get(0).setActiveNode(ithNode.getParentSelector());
                         controllers.get(0).setActiveProof(activeProof);
                         controllers.get(0).viewProofNode(ithNode.getParentSelector());

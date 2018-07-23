@@ -7,4 +7,6 @@ public interface ScriptViewListener {
     void onScriptSave();
 
     void onAsyncScriptTextChanged(String text);
+
+    void runScript();
 }

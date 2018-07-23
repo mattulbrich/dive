@@ -78,7 +78,7 @@ public class ProofNodeCheckpointsBuilder extends DefaultASTVisitor<Void> {
     @Override
     public Void visit(SimpleCaseStatement simpleCaseStatement) {
         int selectedChildIdx = -1;
-        for (int i = 0; i < lastHandledNodes.get(lastHandledNodes.size() - 1).getChildren().size(); ++i) {
+        for (int i = 0; lastHandledNodes.size() > 0 && i < lastHandledNodes.get(lastHandledNodes.size() - 1).getChildren().size(); ++i) {
             //TODO only label matching no sequent matching supported as of yet
             if (simpleCaseStatement.getGuard().getText().
                     substring(6, simpleCaseStatement.getGuard().getText().length() - 1).
@@ -98,8 +98,10 @@ public class ProofNodeCheckpointsBuilder extends DefaultASTVisitor<Void> {
         // (same for the CaseStatement visit)
         inCase++;
         simpleCaseStatement.getBody().accept(this);
-        lastHandledSelectors.remove(lastHandledSelectors.size() - 1);
-        lastHandledNodes.remove(lastHandledNodes.size() - 1);
+        if(lastHandledNodes.size() > 0) {
+            lastHandledSelectors.remove(lastHandledSelectors.size() - 1);
+            lastHandledNodes.remove(lastHandledNodes.size() - 1);
+        }
         inCase--;
         return null;
     }
