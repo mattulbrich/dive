@@ -14,7 +14,7 @@ public class SMTLetExpression extends SMTExpression {
     }
 
     @Override
-    public String toSMT(boolean negate) {
+    public String toSMT(boolean... arg) {
         StringBuilder sb = new StringBuilder();
 
         sb.append(subs.get(0).toSMT(false));
@@ -31,12 +31,12 @@ public class SMTLetExpression extends SMTExpression {
         sb.append("(assert");
         if (inner instanceof SMTConstExpression) {
             sb.append(" (not ");
-            sb.append(inner.toSMT(negate));
+            sb.append(inner.toSMT(arg));
             sb.append("))");
 
         } else {
 
-            sb.append(inner.toSMT(negate));
+            sb.append(inner.toSMT(arg));
             sb.append(")");
         }
         ;

@@ -10,11 +10,13 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import edu.kit.iti.algover.util.Pair;
+
 public class AxiomLoader {
     private static final String dir = "modules/core/res/edu/kit/iti/algover/smttrans/axioms".replace('/',
             File.separatorChar);
 
-    private static List<String> axioms = new ArrayList<>();
+    private static List<Pair<String, String>> axioms = new ArrayList<>();
 
     public static void load() {
         Stream<String> stream = null;
@@ -22,8 +24,12 @@ public class AxiomLoader {
             List<Path> paths = Files.walk(Paths.get(dir)).filter(Files::isRegularFile).collect(Collectors.toList());
             for (Path p : paths) {
                 stream = Files.lines(p);
-                axioms = matchAxioms(stream.filter(x -> !x.startsWith(";")).filter(x -> !x.trim().isEmpty()).collect(Collectors.toList()));
+                axioms = matchAxioms(stream.filter(x -> !x.startsWith(";")).filter(x -> !x.trim().isEmpty())
+                        .collect(Collectors.toList()));
             }
+
+            defineAxioms();
+
         } catch (IOException e) {
 
         } finally {
@@ -31,6 +37,16 @@ public class AxiomLoader {
 
         }
 
+    }
+
+    private static void defineAxioms() { //TODO dynamic
+        for (Pair<String, String> p : axioms) {
+            try {
+                Axiom.valueOf(p.fst).smt = p.snd;
+            } catch (IllegalArgumentException e) {
+                // TODO: handle exception
+            }
+        }
     }
 
     private static String mergeAxiom(List<String> a) {
@@ -43,8 +59,8 @@ public class AxiomLoader {
 
     }
 
-    private static List<String> matchAxioms(List<String> lines) {
-        List<String> axioms = new ArrayList<>();
+    private static List<Pair<String, String>> matchAxioms(List<String> lines) {
+        List<Pair<String, String>> axioms = new ArrayList<>();
         List<String> current = new ArrayList<>();
         int b = 0;
         for (String l : lines) {
@@ -57,7 +73,7 @@ public class AxiomLoader {
             }
 
             if (b == 0) {
-                axioms.add(mergeAxiom(current));
+                // axioms.add(mergeAxiom(current)); //TODO
                 current.clear();
             }
 

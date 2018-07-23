@@ -18,8 +18,12 @@ public class SMTQuantExpression extends SMTExpression {
     }
 
     @Override
-    public String toSMT(boolean negate) {
+    public String toSMT(boolean... arg) {
         StringBuilder sb = new StringBuilder();
+        boolean negate = false;
+        if (arg.length > 0) {
+            negate = arg[0];
+        }
         if (negate) {
             sb.append("(not ");
         }
@@ -32,7 +36,7 @@ public class SMTQuantExpression extends SMTExpression {
         sb.append("(");
         sb.append(qVar.toSMT(false));
         sb.append(")");
-        sb.append(formula.toSMT(false));
+        sb.append(formula.toSMT(false, true));
         sb.append(")");
         if (negate) {
             sb.append(")");

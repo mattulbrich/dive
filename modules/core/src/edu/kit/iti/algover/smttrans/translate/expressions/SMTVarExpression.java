@@ -16,14 +16,14 @@ public class SMTVarExpression extends SMTExpression {
     }
 
     @Override
-    public String toSMT(boolean negate) {
+    public String toSMT(boolean... arg) {
         StringBuilder sb = new StringBuilder();
         sb.append("(");
         sb.append(Operation.EQ.toSMT());
         sb.append(" ");
         sb.append(sign.show());
         sb.append(" ");
-        sb.append(partner.toSMT(negate));
+        sb.append(partner.toSMT(arg));
         sb.append(") ");
         return sb.toString();
     }

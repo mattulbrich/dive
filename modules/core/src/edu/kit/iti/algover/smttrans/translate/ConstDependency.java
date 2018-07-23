@@ -18,7 +18,10 @@ public class ConstDependency extends Dependency {
     @Override
     public LinkedHashSet<String> instantiate() {
         LinkedHashSet<String> inst = new LinkedHashSet<>();
-        
+//        System.out.println(fs.toString()); // TODO dont declare BV
+//        System.out.println(TypeContext.isBV(fs));
+//        if (TypeContext.isBV(fs))
+//            return inst;
 
         inst.addAll(AxiomContainer.instantiateSort(fs));
         

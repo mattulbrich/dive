@@ -12,8 +12,17 @@ public class SMTApplExpression extends SMTExpression {
     }
 
     @Override
-    public String toSMT(boolean negate) {
+    public String toSMT(boolean... arg) {
         StringBuilder sb = new StringBuilder();
+        boolean negate = false;
+        boolean bound = false;
+        if (arg.length > 0) {
+            negate = arg[0];
+        }
+        if (arg.length > 1) {
+            bound = arg[1];
+        }
+        
         if (negate)
             sb.append("(not");
         sb.append("(");
@@ -21,7 +30,7 @@ public class SMTApplExpression extends SMTExpression {
         sb.append(sign.show() + " ");
         
         for (SMTExpression c : children) {
-            sb.append(c.toSMT(false));
+            sb.append(c.toSMT(false,bound));
         }
         if(negate)
             sb.append(")");

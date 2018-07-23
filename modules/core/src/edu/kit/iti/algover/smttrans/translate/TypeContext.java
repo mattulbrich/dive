@@ -49,7 +49,7 @@ public class TypeContext {
             Arrays.asList(Operation.AHEAP, Operation.DECR));
 
     private static final Set<String> builtinTypes = new LinkedHashSet<>(Arrays.asList(AV_BOOLNAME, AV_INTNAME)); // ,
-                                                                                                                 // AV_HEAPNAME
+    private static Set<FunctionSymbol> boundVars = new LinkedHashSet<>();                                                                                                             // AV_HEAPNAME
     private static Map<String, String> nmap = new HashMap<>();
 
     static {
@@ -63,6 +63,7 @@ public class TypeContext {
 
     public static void reset() {
         preamble.clear();
+        boundVars.clear();
         symbolTable = new MapSymbolTable(new HashSet<>());
     }
 
@@ -72,6 +73,15 @@ public class TypeContext {
 
     public static void setSymbolTable(SymbolTable symbolTable) {
         TypeContext.symbolTable = symbolTable;
+    }
+    
+    public static void addBV(FunctionSymbol fs) {
+        boundVars.add(fs);
+        
+    }
+    
+    public static boolean isBV(FunctionSymbol fs) {
+        return boundVars.contains(fs);
     }
 
     private static Pair<Integer, Integer> getArgumentRange(String name) {
@@ -323,6 +333,7 @@ public class TypeContext {
             if (!symbolTable.getAllSymbols().contains(nfs)) {
 
                 symbolTable = symbolTable.addFunctionSymbol(nfs);
+                System.out.println(symbolTable.getAllSymbols().toString());
 
             }
         }

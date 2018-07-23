@@ -15,7 +15,7 @@ public abstract class SMTExpression {
         return children;
     }
 
-    public abstract String toSMT(boolean negate);
+    public abstract String toSMT(boolean ... params); // first = negate, second = bound
 
     public SMTExpression(FunctionSymbol f, List<SMTExpression> c) {
         this.fs = f;

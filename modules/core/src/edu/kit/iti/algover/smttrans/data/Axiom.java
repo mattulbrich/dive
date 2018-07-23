@@ -328,9 +328,9 @@ public enum Axiom {
         H9.dependencies = new HashSet<>(Arrays.asList(Axiom.SETIN, Axiom.FIELDSELECT, Axiom.ANON));
     }
 
-    private Set<Axiom> dependencies = new HashSet<>();
+    public Set<Axiom> dependencies = new HashSet<>();
 
-    private String smt;
+    public String smt;
 
     public String getSmt() {
         return smt;
