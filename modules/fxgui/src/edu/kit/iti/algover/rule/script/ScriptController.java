@@ -8,6 +8,8 @@ import edu.kit.iti.algover.rule.RuleApplicationListener;
 import edu.kit.iti.algover.script.ast.Position;
 import edu.kit.iti.algover.script.ast.ProofScript;
 import edu.kit.iti.algover.script.exceptions.ScriptCommandNotApplicableException;
+import edu.kit.iti.algover.script.parser.Facade;
+import edu.kit.iti.algover.script.parser.PrettyPrinter;
 import edu.kit.iti.algover.util.ExceptionDetails;
 import edu.kit.iti.algover.util.RuleApp;
 import javafx.beans.Observable;
@@ -19,6 +21,7 @@ import javafx.scene.input.KeyEvent;
 import org.antlr.runtime.Token;
 import org.fxmisc.richtext.model.StyleSpans;
 
+import java.io.StringWriter;
 import java.time.Duration;
 import java.util.Collection;
 import java.util.Collections;
@@ -65,6 +68,7 @@ public class ScriptController implements ScriptViewListener {
     }
 
     private void onCaretPositionChanged(Observable observable) {
+        this.checkpoints = ProofNodeCheckpointsBuilder.build(proof);
         switchViewedNode();
         view.highlightLine();
     }
@@ -134,14 +138,45 @@ public class ScriptController implements ScriptViewListener {
 
     @Override
     public void onAsyncScriptTextChanged(String text) {
+        /*resetExceptionRendering();
+
+        ProofScript ps = Facade.getAST(text);
+        PrettyPrinter pp = new PrettyPrinter();
+        ps.accept(pp);
+
+        view.replaceText(pp.toString());
+        //System.out.println("pp.toString() = " + pp.toString());
+
+        proof.setScriptTextAndInterpret(pp.toString());
+
+        if(proof.getFailException() != null) {
+            renderException(proof.getFailException());
+            Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).severe(proof.getFailException().getMessage());
+        }*/
+        checkpoints = ProofNodeCheckpointsBuilder.build(proof);
+        // TODO switchViewedNode();
+    }
+
+    @Override
+    public void runScript() {
+        String text = view.getText();
         resetExceptionRendering();
-        proof.setScriptTextAndInterpret(text);
+
+        ProofScript ps = Facade.getAST(text);
+        PrettyPrinter pp = new PrettyPrinter();
+        ps.accept(pp);
+
+        view.replaceText(pp.toString());
+        //System.out.println("pp.toString() = " + pp.toString());
+
+        proof.setScriptTextAndInterpret(pp.toString());
+
         if(proof.getFailException() != null) {
             renderException(proof.getFailException());
             Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).severe(proof.getFailException().getMessage());
         }
         checkpoints = ProofNodeCheckpointsBuilder.build(proof);
-        // TODO switchViewedNode();
+        switchViewedNode();
     }
 
     public ScriptView getView() {
@@ -153,6 +188,7 @@ public class ScriptController implements ScriptViewListener {
         ProofNodeCheckpoint checkpoint = getCheckpointForCaretPosition(caretPosition);
         int insertAt = computeCharIdxFromPosition(checkpoint.caretPosition, view.getText());
         view.insertText(insertAt, text);
+        runScript();
     }
 
     private void renderException(Exception e) {

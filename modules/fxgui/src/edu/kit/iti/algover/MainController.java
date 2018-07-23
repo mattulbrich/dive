@@ -80,6 +80,7 @@ public class MainController implements SequentActionListener, RuleApplicationLis
     private final ToolBar toolbar;
     private final StatusBar statusBar;
     private final StatusBarLoggingHandler statusBarLoggingHandler;
+    private final JFXButton simpleStratButton;
     CostumBreadCrumbBar<Object> breadCrumbBar;
 
 
@@ -95,7 +96,7 @@ public class MainController implements SequentActionListener, RuleApplicationLis
 
         JFXButton saveButton = new JFXButton("Save", GlyphsDude.createIcon(FontAwesomeIcon.SAVE));
         JFXButton refreshButton = new JFXButton("Refresh", GlyphsDude.createIcon(FontAwesomeIcon.REFRESH));
-        JFXButton simpleStratButton = new JFXButton("Try Close All");
+        simpleStratButton = new JFXButton("Try Close All");
 
         saveButton.setOnAction(this::onClickSave);
         refreshButton.setOnAction(this::onClickRefresh);
@@ -138,7 +139,7 @@ public class MainController implements SequentActionListener, RuleApplicationLis
         for(Map.Entry<String, PVC> e : pvcMap.entrySet()) {
             String script = "";
             Proof p = manager.getProofForPVC(e.getKey());
-            if (p.getScript() == "") {
+            if (p.getProofStatus() != ProofStatus.CLOSED) {
                 for (int i = 0; i < p.getProofRoot().getSequent().getAntecedent().size(); ++i) {
                     try {
                         script += RuleApplicator.getScriptForExhaustiveRuleApplication(new LetSubstitutionRule(), p.getProofRoot(), new TermSelector("A." + i));
@@ -171,6 +172,7 @@ public class MainController implements SequentActionListener, RuleApplicationLis
         }
         sequentController.getActiveSequentController().tryMovingOnEx(); //SaG: was tryMovingOn()
         ruleApplicationController.resetConsideration();
+        browserController.updateTableLabels();
     }
 
     private void onCrumbSelected(ObservableValue observableValue, Object oldValue, Object newValue) {
@@ -271,6 +273,7 @@ public class MainController implements SequentActionListener, RuleApplicationLis
     private void onClickRefresh(ActionEvent actionEvent) {
         // TODO implement it asynchronously:
         // Jobs should get queued / Buttons disabled while an action runs, but the UI shouldn't freeze!
+        onClickSave(null);
         editorController.resetExceptionLayer();
         Task<Boolean> t = new Task<Boolean>() {
             @Override
@@ -291,6 +294,7 @@ public class MainController implements SequentActionListener, RuleApplicationLis
                 browserController.getView().setDisable(false);
                 sequentController.getView().setDisable(false);
                 ruleApplicationController.getView().setDisable(false);
+                simpleStratButton.setDisable(false);
                 breadCrumbBar.setDisable(false);
                 TreeItem<Object> ti = getBreadCrumbModel();
                 breadCrumbBar.updateModel(ti);
@@ -337,6 +341,7 @@ public class MainController implements SequentActionListener, RuleApplicationLis
             browserController.getView().setDisable(true);
             sequentController.getView().setDisable(true);
             ruleApplicationController.getView().setDisable(true);
+            simpleStratButton.setDisable(true);
             breadCrumbBar.setDisable(true);
             editorController.resetPVCSelection();
         } /*else {
@@ -448,6 +453,7 @@ public class MainController implements SequentActionListener, RuleApplicationLis
         if(sequentController.getActiveSequentController().getActiveProof().getFailException() == null) {
             Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).info("Successfully applied rule " + application.getRule().getName() + ".");
         }
+        browserController.updateTableLabels();
     }
 
     @Override
@@ -461,6 +467,7 @@ public class MainController implements SequentActionListener, RuleApplicationLis
         sequentController.getActiveSequentController().getActiveProof().setScriptTextAndInterpret(newScript);
         sequentController.getActiveSequentController().tryMovingOnEx();
         ruleApplicationController.resetConsideration();
+        browserController.updateTableLabels();
     }
 
     @Override

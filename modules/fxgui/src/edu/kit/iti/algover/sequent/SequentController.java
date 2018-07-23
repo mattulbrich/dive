@@ -131,6 +131,15 @@ public class SequentController extends FxmlController {
         }
     }
 
+    public void forceViewSequentForPVC(PVCEntity entity, Proof proof) {
+        activeProof = null;
+        viewSequentForPVC(entity, proof);
+    }
+
+    public void updateReferenceGraph(ReferenceGraph graph) {
+        referenceGraph = graph;
+    }
+
     //SaG: was used before having exhaustive RuleApp; Remove later if no Bug is found!
     @Deprecated
     public void tryMovingOn() {

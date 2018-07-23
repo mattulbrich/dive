@@ -24,6 +24,7 @@ public class SequentTabViewController {
     private SequentActionListener listener;
     private ProofNodeSelector activeNode;
     private Proof activeProof;
+    private ReferenceGraph referenceGraph;
 
     public SequentTabViewController(SequentActionListener listener) {
         this.listener = listener;
@@ -49,7 +50,31 @@ public class SequentTabViewController {
             } else {
                 numChildren = 1;
             }
-            if (numChildren == controllers.size()) {
+            if(numChildren == 0) {
+                if (controllers.size() > 0) {
+                    controllers = controllers.subList(0, 1);
+                } else {
+                    controllers.add(new SequentController(listener));
+                }
+                if (view.getTabs().size() > 0) {
+                    view.getTabs().remove(1, view.getTabs().size());
+                } else {
+                    view.getTabs().add(new Tab("default", controllers.get(0).getView()));
+                }
+                ProofNodeSelector ithNode = parentSelector;
+                Optional<ProofNode> opt = ithNode.optionalGet(activeProof);
+                if (opt.isPresent()) {
+                    String name = opt.get().getLabel();
+                    if (name == null) {
+                        name = "default";
+                    }
+                    view.getTabs().get(0).setText(name);
+                    controllers.get(0).setActiveNode(ithNode);
+                    controllers.get(0).setActiveProof(activeProof);
+                    controllers.get(0).viewProofNode(ithNode);
+                }
+            }
+            else if (numChildren == controllers.size()) {
                 for (int i = 0; i < numChildren; ++i) {
                     ProofNodeSelector ithNode = new ProofNodeSelector(parentSelector, i);
                     controllers.get(i).setActiveNode(ithNode);
@@ -93,6 +118,7 @@ public class SequentTabViewController {
                     controllers.get(i).setActiveNode(ithNode);
                     controllers.get(i).setActiveProof(activeProof);
                     controllers.get(i).viewProofNode(ithNode);
+                    referenceGraph = controllers.get(i).getReferenceGraph();
                 }
             } else if (numChildren < controllers.size()) {
                 for (int i = 0; i < numChildren; ++i) {
@@ -109,7 +135,7 @@ public class SequentTabViewController {
                         view.getTabs().get(tmp).setText(name);
                     });
                 }
-                view.getTabs().remove(numChildren, controllers.size());
+                view.getTabs().remove(numChildren, view.getTabs().size());
                 while (controllers.size() > numChildren) {
                     controllers.remove(controllers.size() - 1);
                 }
@@ -118,18 +144,24 @@ public class SequentTabViewController {
                 view.getTabs().get(0).setText("default");
             }
         } else {
-            controllers.clear();
-            view.getTabs().clear();
+            if(controllers.size() > 0) {
+                controllers = controllers.subList(0, 1);
+            } else {
+                controllers.add(new SequentController(listener));
+            }
+            if(view.getTabs().size() > 0) {
+                view.getTabs().remove(1, view.getTabs().size());
+            } else {
+                view.getTabs().add(new Tab("default", controllers.get(0).getView()));
+            }
             ProofNodeSelector ithNode = activeNode;
-            SequentController controller = new SequentController(listener);
-            controllers.add(controller);
             Optional<ProofNode> opt = ithNode.optionalGet(activeProof);
             if(opt.isPresent()) {
                 String name = opt.get().getLabel();
                 if(name == null) {
                     name = "default";
                 }
-                view.getTabs().add(new Tab(name, controller.getView()));
+                view.getTabs().get(0).setText(name);
                 controllers.get(0).setActiveNode(ithNode);
                 controllers.get(0).setActiveProof(activeProof);
                 controllers.get(0).viewProofNode(ithNode);
@@ -141,13 +173,16 @@ public class SequentTabViewController {
                         if(name == null) {
                             name = "default";
                         }
-                        view.getTabs().add(new Tab(name, controller.getView()));
+                        view.getTabs().get(0).setText(name);
                         controllers.get(0).setActiveNode(ithNode.getParentSelector());
                         controllers.get(0).setActiveProof(activeProof);
                         controllers.get(0).viewProofNode(ithNode.getParentSelector());
                     });
                 }
             }
+        }
+        for(SequentController controller : controllers) {
+            controller.updateReferenceGraph(referenceGraph);
         }
     }
 
@@ -156,12 +191,21 @@ public class SequentTabViewController {
     }
 
     public void viewSequentForPVC(PVCEntity entity, Proof proof) {
-        view.getTabs().clear();
-        view.getTabs().add(new Tab("default", controllers.get(0).getView()));
-        controllers.get(0).viewSequentForPVC(entity, proof);
-        controllers.removeAll(controllers.subList(0, 0));
+        if(controllers.size() == 0) {
+            controllers.add(new SequentController(listener));
+        } else {
+            controllers.removeAll(controllers.subList(1, controllers.size()));
+        }
+        if(view.getTabs().size() == 0) {
+            view.getTabs().add(new Tab("default", controllers.get(0).getView()));
+        } else {
+            view.getTabs().remove(1, view.getTabs().size());
+        }
+
+        controllers.get(0).forceViewSequentForPVC(entity, proof);
         activeNode = controllers.get(0).getActiveNodeSelector();
         activeProof = controllers.get(0).getActiveProof();
+        referenceGraph = controllers.get(0).getReferenceGraph();
     }
 
     public SequentController getActiveSequentController() {
