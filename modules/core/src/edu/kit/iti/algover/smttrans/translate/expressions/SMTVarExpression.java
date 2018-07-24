@@ -18,14 +18,17 @@ public class SMTVarExpression extends SMTExpression {
     @Override
     public String toSMT(boolean... arg) {
         StringBuilder sb = new StringBuilder();
-        sb.append("(");
-        sb.append(Operation.EQ.toSMT());
-        sb.append(" ");
+       // sb.append("(let ((");
+       // sb.append(Operation.EQ.toSMT());
+       // sb.append(" ");
+       // sb.append("(");
         sb.append(sign.show());
         sb.append(" ");
         sb.append(partner.toSMT(arg));
-        sb.append(") ");
+       // sb.append(") ");
         return sb.toString();
+    
+       // (assert (let ((y (* x x))) (not(=> (> x 2) (> y 4)))))
     }
 
 }

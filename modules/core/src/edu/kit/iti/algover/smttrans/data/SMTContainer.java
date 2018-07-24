@@ -33,8 +33,15 @@ public class SMTContainer {
                 balance++;
             }
         }
-
+        if (balance >= 0) {
         return ax.substring(0, ax.length() - balance);
+        } else {
+            StringBuilder sb = new StringBuilder(ax);
+            for (int i = balance; i <= 0; i++)  {
+                sb.append(")");
+            }
+            return sb.toString();
+        }
     }
 
     public String toSMT() {

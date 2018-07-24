@@ -1,6 +1,0 @@
-a: array<int>
-i : int
----
-$lt(0,i)
-|-
-let $heap := $array_store<int>($heap, a, i, 2) :: $gt($array_select<int>($heap, a, i),1)
