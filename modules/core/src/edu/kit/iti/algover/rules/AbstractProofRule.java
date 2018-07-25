@@ -90,7 +90,6 @@ public abstract class AbstractProofRule implements ProofRule {
 
         for (Map.Entry<String, Object> en : parameters.entrySet()) {
             ParameterDescription<?> t = allParameters.get(en.getKey());
-
             if (t == null) {
                 if(en.getKey().equals("type") && en.getValue() instanceof String) {
                     allParameters.put("type", TYPE_PARAM);
@@ -111,7 +110,7 @@ public abstract class AbstractProofRule implements ProofRule {
         }
 
         if (!required.isEmpty()) {
-            throw new RuleException("Missing required arguments: " + required);
+                throw new RuleException("Missing required arguments: " + required);
         }
     }
 
@@ -167,7 +166,9 @@ public abstract class AbstractProofRule implements ProofRule {
                     extractedParameters.putValue(en.getKey(),
                             ots.get().selectSubterm(sequent));
                 } else {
-                    throw new RuleException("Could not match parameter " + en.getValue());
+                    //throw new RuleException("Could not match parameter " + en.getValue());
+                    extractedParameters.putValue(en.getKey(),
+                            en.getValue());
                 }
             } else {
                 extractedParameters.putValue(en.getKey(),
