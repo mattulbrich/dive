@@ -1,0 +1,61 @@
+1. select method sumAndMax
+	- opens Dafny File
+
+2. select InitInv
+	- code highlighting
+
+3. select Null.2
+	- code Highlighting
+	- array may not be null because we access it (for every array access)
+
+4. edit Null.2
+	- new view
+	- sequent
+	- relation between sequent and dafny
+	
+5. select a.Length >= 1
+	- new view (dafny not important anymore)
+	- only applicalbe rules shown
+	- rule previews
+	- branching info
+
+6. select and close !(a == null)
+	- script written
+		- name of rule and parameters
+		- syntax highlighting
+		- parametermatching
+		- can be replaced with close;
+
+7. go back to browserview
+	- goal closed
+	- updated goal count
+
+8. edit bounds.3
+	- index out of bounds exception verhindern (desween index unter a.Length)
+	- replace with = 0 < a.Length, on = a.Length >= 1
+	- 2 branches in sequent view and in script 
+	- pretty printed script
+	- close replace branch with close
+	- close justification with z3
+
+9. go back to browser view 
+	- goals updated again
+
+10. try close all
+	- tries to close all goal with z3
+	- nearly all goals closed
+
+11. select bounds.1 (edit)
+	- ctrl click to see reference
+
+12. correct dafny and reload
+	- grayed out areas before reload
+	- nearly all scripts still valid
+
+13. select bounds.1 again
+	- clsoe with z4
+		- error highlighted
+	- close with z3
+
+14. go back to browser view
+	- try close all works
