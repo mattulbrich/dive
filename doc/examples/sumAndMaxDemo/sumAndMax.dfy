@@ -5,7 +5,7 @@ method sumAndMax(a: array<int>) returns (sum: int, max: int)
   ensures a.Length * max >= sum
 {
   sum := a[0];
-  max := a[0];
+  max := a[1];
 
   var i: int := 1;
   while (i < a.Length)
