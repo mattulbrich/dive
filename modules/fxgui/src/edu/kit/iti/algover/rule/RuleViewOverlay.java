@@ -4,6 +4,7 @@ import com.jfoenix.controls.JFXButton;
 import de.jensd.fx.glyphs.GlyphsDude;
 import de.jensd.fx.glyphs.materialicons.MaterialIcon;
 import edu.kit.iti.algover.rules.*;
+import edu.kit.iti.algover.term.prettyprint.PrettyPrint;
 import edu.kit.iti.algover.util.RuleParameterDialog;
 import javafx.css.PseudoClass;
 import javafx.event.ActionEvent;
@@ -89,7 +90,14 @@ public class RuleViewOverlay extends AnchorPane {
         if (application.getRule().getAllParameters().size() > 1 ||
                 (application.getRule().getAllParameters().size() == 1 &&
                 !application.getRule().getAllParameters().containsKey("on"))) {
-            RuleParameterDialog d = new RuleParameterDialog(this.application.getRule(), listener.getCurrentPVC().getSymbolTable());
+            String on;
+            try {
+                PrettyPrint pp = new PrettyPrint();
+                on = pp.print(selector.selectSubterm(listener.getCurrentProofNode().getSequent())).toString();
+            } catch (RuleException e) {
+                on = null;
+            }
+            RuleParameterDialog d = new RuleParameterDialog(this.application.getRule(), listener.getCurrentPVC().getSymbolTable(), on);
             d.showAndWait();
             if (d.getParameters() != null) {
                 try {

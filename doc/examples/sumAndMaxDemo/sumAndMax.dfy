@@ -4,8 +4,8 @@ method sumAndMax(a: array<int>) returns (sum: int, max: int)
   ensures forall i: int :: 0 <= i && i < a.Length ==> a[i] <= max
   ensures a.Length * max >= sum
 {
-  sum := a[1];
-  max := a[1];
+  sum := a[0];
+  max := a[0];
 
   var i: int := 1;
   while (i < a.Length)

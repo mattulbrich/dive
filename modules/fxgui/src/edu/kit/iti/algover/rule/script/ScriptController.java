@@ -153,7 +153,7 @@ public class ScriptController implements ScriptViewListener {
             renderException(proof.getFailException());
             Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).severe(proof.getFailException().getMessage());
         }*/
-        checkpoints = ProofNodeCheckpointsBuilder.build(proof);
+        //checkpoints = ProofNodeCheckpointsBuilder.build(proof);
         // TODO switchViewedNode();
     }
 
@@ -175,7 +175,7 @@ public class ScriptController implements ScriptViewListener {
             renderException(proof.getFailException());
             Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).severe(proof.getFailException().getMessage());
         }
-        checkpoints = ProofNodeCheckpointsBuilder.build(proof);
+        //checkpoints = ProofNodeCheckpointsBuilder.build(proof);
         switchViewedNode();
     }
 

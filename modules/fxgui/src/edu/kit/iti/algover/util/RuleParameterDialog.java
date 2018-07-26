@@ -36,6 +36,10 @@ public class RuleParameterDialog extends Dialog {
     ValidationSupport validationSupport = new ValidationSupport();
 
     public RuleParameterDialog(ProofRule rule, SymbolTable symbolTable) {
+        this(rule, symbolTable, null);
+    }
+
+    public RuleParameterDialog(ProofRule rule, SymbolTable symbolTable, String defaultOn) {
         super();
         this.termParser = new TermParser(symbolTable);
 
@@ -60,6 +64,9 @@ public class RuleParameterDialog extends Dialog {
             if(e.getValue().isRequired()) {
                 gridPane.add(new Label(e.getKey()), 0, row);
                 TextField tf = new TextField();
+                if(e.getKey() == "on" && defaultOn != null) {
+                    tf.setText(defaultOn);
+                }
                 tf.setMinWidth(200.0);
                 gridPane.add(tf, 1, row);
                 Platform.runLater(() -> {

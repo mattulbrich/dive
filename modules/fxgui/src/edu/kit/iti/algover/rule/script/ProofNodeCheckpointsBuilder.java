@@ -54,12 +54,12 @@ public class ProofNodeCheckpointsBuilder extends DefaultASTVisitor<Void> {
             ProofNodeSelector selector = new ProofNodeSelector(selectorBefore, 0);
             Position position = call.getEndPosition();
             try {
-                if(inCase == lastHandledNodes.size() - 1) {
-                    lastHandledNodes.set(lastHandledNodes.size() - 1, selectorBefore.getNode(rootProofNode));
-                    lastHandledSelectors.set(lastHandledSelectors.size() - 1, selectorBefore);
-                } else {
+                if(inCase > lastHandledNodes.size() - 1) {
                     lastHandledNodes.add(selectorBefore.getNode(rootProofNode));
                     lastHandledSelectors.add(selectorBefore);
+                } else {
+                    lastHandledNodes.set(inCase, selectorBefore.getNode(rootProofNode));
+                    lastHandledSelectors.set(inCase, selectorBefore);
                 }
             } catch (RuleException ex) {
                 System.out.println("Could not select last handled node.");
@@ -71,23 +71,25 @@ public class ProofNodeCheckpointsBuilder extends DefaultASTVisitor<Void> {
 
     @Override
     public Void visit(CasesStatement cases) {
+        inCase++;
         cases.getCases().forEach(caze -> caze.accept(this));
+        inCase--;
         return null;
     }
 
     @Override
     public Void visit(SimpleCaseStatement simpleCaseStatement) {
         int selectedChildIdx = -1;
-        for (int i = 0; lastHandledNodes.size() > 0 && i < lastHandledNodes.get(lastHandledNodes.size() - 1).getChildren().size(); ++i) {
+        for (int i = 0; lastHandledNodes.size() > 0 && i < lastHandledNodes.get(inCase - 1).getChildren().size(); ++i) {
             //TODO only label matching no sequent matching supported as of yet
             if (simpleCaseStatement.getGuard().getText().
                     substring(6, simpleCaseStatement.getGuard().getText().length() - 1).
-                    equals(lastHandledNodes.get(lastHandledNodes.size() - 1).getChildren().get(i).getLabel())) {
+                    equals(lastHandledNodes.get(inCase - 1).getChildren().get(i).getLabel())) {
                 selectedChildIdx = i;
             }
         }
         if (selectedChildIdx != -1) {
-            ProofNodeSelector selector = new ProofNodeSelector(lastHandledSelectors.get(lastHandledSelectors.size() - 1), selectedChildIdx);
+            ProofNodeSelector selector = new ProofNodeSelector(lastHandledSelectors.get(inCase - 1), selectedChildIdx);
             Position position = simpleCaseStatement.getStartPosition();
             Position guardPosition = simpleCaseStatement.getGuard().getEndPosition();
             Position caretPosition = new Position(position.getLineNumber() + 1, 2);
@@ -96,23 +98,13 @@ public class ProofNodeCheckpointsBuilder extends DefaultASTVisitor<Void> {
         // TODO: Find out how to get a ProofNodeSelector out of a specific case (rudimentary solution above)
         // (so that you can click inside an empty case to see what it's sequent state looks like)
         // (same for the CaseStatement visit)
-        inCase++;
-        simpleCaseStatement.getBody().accept(this);
-        if(lastHandledNodes.size() > 0) {
-            lastHandledSelectors.remove(lastHandledSelectors.size() - 1);
-            lastHandledNodes.remove(lastHandledNodes.size() - 1);
-        }
-        inCase--;
+        simpleCaseStatement.getBody().forEach(statement -> statement.accept(this));
         return null;
     }
 
     @Override
     public Void visit(CaseStatement caseStatement) {
-        inCase++;
         caseStatement.getBody().accept(this);
-        lastHandledSelectors.remove(lastHandledSelectors.size() - 1);
-        lastHandledNodes.remove(lastHandledNodes.size() - 1);
-        inCase--;
         return null;
     }
 
