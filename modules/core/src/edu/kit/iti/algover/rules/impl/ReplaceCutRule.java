@@ -79,8 +79,7 @@ public class ReplaceCutRule extends AbstractProofRule {
         Term justificationTerm = null;
         try {
             justificationTerm = tb.eq(on, with);
-            pra.newBranch().addAdditionsSuccedent(new ProofFormula(new ApplTerm(BuiltinSymbols.IMP, on, with))).
-                    addAdditionsSuccedent(new ProofFormula(new ApplTerm(BuiltinSymbols.IMP, with, on))).
+            pra.newBranch().addAdditionsSuccedent(new ProofFormula(justificationTerm)).
                     setLabel("justification");
         } catch (TermBuildException e) {
             throw new RuleException("error building justification term.", e);

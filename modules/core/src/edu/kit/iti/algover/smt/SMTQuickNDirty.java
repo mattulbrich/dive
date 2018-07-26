@@ -42,6 +42,7 @@ public class SMTQuickNDirty implements TermVisitor<Void, SExpr, RuntimeException
         ops.put("$imp", "=>");
         ops.put("$eq<int>", "=");
         ops.put("$eq<array<int>>", "=");
+        ops.put("$eq<bool>", "=");
         ops.put("$lt", "<");
         ops.put("$le", "<=");
         ops.put("$ge", ">=");
