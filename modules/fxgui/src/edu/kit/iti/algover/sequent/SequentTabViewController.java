@@ -103,6 +103,7 @@ public class SequentTabViewController {
                         }
                         view.getTabs().get(tmp).setText(name);
                     });
+
                 }
                 for (int i = controllers.size(); i < numChildren; ++i) {
                     ProofNodeSelector ithNode = new ProofNodeSelector(parentSelector, i);
@@ -120,6 +121,7 @@ public class SequentTabViewController {
                     controllers.get(i).viewProofNode(ithNode);
                     referenceGraph = controllers.get(i).getReferenceGraph();
                 }
+                view.getSelectionModel().select(activeNode.getPath()[activeNode.getPath().length - 1]);
             } else if (numChildren < controllers.size()) {
                 for (int i = 0; i < numChildren; ++i) {
                     ProofNodeSelector ithNode = new ProofNodeSelector(parentSelector, i);

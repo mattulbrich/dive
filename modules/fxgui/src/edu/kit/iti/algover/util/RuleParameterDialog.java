@@ -10,6 +10,7 @@ import edu.kit.iti.algover.rules.Parameters;
 import edu.kit.iti.algover.rules.ProofRule;
 import edu.kit.iti.algover.term.Term;
 import edu.kit.iti.algover.term.parser.TermParser;
+import javafx.application.Platform;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.*;
@@ -35,6 +36,10 @@ public class RuleParameterDialog extends Dialog {
     ValidationSupport validationSupport = new ValidationSupport();
 
     public RuleParameterDialog(ProofRule rule, SymbolTable symbolTable) {
+        this(rule, symbolTable, null);
+    }
+
+    public RuleParameterDialog(ProofRule rule, SymbolTable symbolTable, String defaultOn) {
         super();
         this.termParser = new TermParser(symbolTable);
 
@@ -54,13 +59,21 @@ public class RuleParameterDialog extends Dialog {
         gridPane.getColumnConstraints().add(col1);
 
         int row = 0;
+        gridPane.setVgap(10);
         for (Map.Entry<String, ParameterDescription<?>> e : rule.getAllParameters().entrySet()) {
-            gridPane.add(new Label(e.getKey()), 0, row);
-            TextField tf = new TextField();
-            tf.setMinWidth(200.0);
-            gridPane.add(tf, 1, row);
-            validationSupport.registerValidator(tf, e.getValue().isRequired(), getValidatorForType(e.getValue().getType()));
-            row++;
+            if(e.getValue().isRequired()) {
+                gridPane.add(new Label(e.getKey()), 0, row);
+                TextField tf = new TextField();
+                if(e.getKey() == "on" && defaultOn != null) {
+                    tf.setText(defaultOn);
+                }
+                tf.setMinWidth(200.0);
+                gridPane.add(tf, 1, row);
+                Platform.runLater(() -> {
+                    validationSupport.registerValidator(tf, e.getValue().isRequired(), getValidatorForType(e.getValue().getType()));
+                });
+                row++;
+            }
         }
         Button okButton = new Button("Apply");
         okButton.setMinWidth(70.0);

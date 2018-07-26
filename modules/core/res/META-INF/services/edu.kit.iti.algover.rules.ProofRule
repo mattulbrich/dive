@@ -17,3 +17,4 @@ edu.kit.iti.algover.rules.impl.ModusPonensRule
 edu.kit.iti.algover.rules.impl.ModusTollensRule
 edu.kit.iti.algover.rules.impl.OrRightRule
 edu.kit.iti.algover.rules.impl.CutRule
+edu.kit.iti.algover.rules.impl.ReplaceCutRule
