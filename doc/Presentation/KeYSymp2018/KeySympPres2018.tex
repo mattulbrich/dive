@@ -34,7 +34,7 @@
 %\usenavigationsymbols[sfHhdb]
 %\usenavigationsymbols[sfhHb]
 
-\title{Demo: AlgoVer}
+\title{Demo of AlgoVer}
 
 \author{Sarah Grebing, Mattias Ulbrich, Jonas Klamroth}
 
@@ -48,77 +48,55 @@
   \maketitle
 \end{frame}
 
-\begin{frame}[c]{Interaction in Interactive Program Verification}
-Interaction on:
-\begin{itemize}
-	\item different levels of abstraction for interaction
-	\item different representations of the same problem
-\end{itemize}
-\bigskip
-Switch between levels and/or representations is necessary.
+\begin{frame}{Motivation}
+	\begin{itemize}
+		%\item Program Verification $\equiv$ Verification of Code
+		\item Proofs conducted on different levels
+			\begin{itemize}
+				\item the code itself (needs insight if not closing)
+				\item the logic level (needs relation back to original program)
+			\end{itemize}
+		\item state of the art user interfaces focus only on one level, supporting features for other levels often insufficient 
+		\item may hinder users from using/understanding it
+	\end{itemize}
 \end{frame}
 
-\begin{frame}[c]{Involved Entities in Interactive Program Verification}
-\begin{itemize}
-\item program code
-\item specification
-\item proof representation/proof obligation
-\item \emph{proof guidance/interaction}
+%\begin{frame}[c]{Objectives}
+%The user is ...
+%\begin{enumerate}
+%\item ... able to use an appropriate view at all times
+%\item ... can easily switch views without loosing focus
+%\item ... is able to understand the relation of views
+%\item ... is able to determine the results of costly actions before applying them
+%\end{enumerate}
+%\end{frame}
 
-\end{itemize}
-
+\begin{frame}{AlgoVer: Seamless Program Verification}
+	\begin{itemize}
+		\item allows to inspect different parts of the proof in individual views		
+		\item supports insight into unfinished proof attempts
+		\item seamless transition between different views
+		\item conduction proofs possible via
+		\begin{itemize}
+			\item direct manipulation
+			\item script based
+			\item annotation based
+		\end{itemize}
+	\end{itemize}
 \end{frame}
 
-\begin{frame}[c]{Problems with Interaction in State-of-the-Art Systems}
-\begin{itemize}
-	\item interaction on different representations
-	\item hidden dependencies between representations
-	\item context change cognitively challenging for the user 
-	%   \item interaction on different abstraction-levels 
-	\item missing interaction possibilities on representations
-\end{itemize}
-
+\begin{frame}{Demo}
+DEMO
 \end{frame}
 
-
-% 
-% Ein Tool, um Interaktionskonzepte umzusetzen und zu erproben, welche
-% einen möglichst nahtlosen Übergang zwischen den Sichten ermöglichen und
-% gleichzeitig alle Sichten integrieren.
-% 
-
-\begin{frame}[c]{Goal of our concept}
-An interactive program verification system that allows implementing and researching different interaction concepts:
-\begin{itemize}
-\item integration of different representations as views
-\item integration of different interaction concepts
-\item seamless transition between views 
-
-\end{itemize}
-
-\end{frame}
-
-
-% Folie 5:
-% "SunBurst Diagramm":
-% Hypothese: Nutzerinteraktion benötigt, je nach Kontext, a) einen
-% fokussierten Blick auf bestimmte Elemente oder b) einen Überblick über
-% einen größeren Zusammenhang.
-% 
-% => Dafür ist ein Kontextwechsel notwendig
-% => dieser erfordert mentale Kapazitäten
-% => Ziel ist es dabei die Last für den Nutzer zu reduzieren
-% mit a) Anzahl der Elemente zu reduzieren und b) den Aufwand einzelner
-% Wechsel zu verringern
-
-\begin{frame}[c]{Objectives}
-The user is ...
-\begin{enumerate}
-\item ... able to use appropriate view at all times
-\item ... can easily switch views without loosing focus
-\item ... is able to determine the results of costly actions before executing them  
-\end{enumerate}
-
+\begin{frame}{Future Work}	
+	\begin{itemize}
+		\item more rules and strategies
+		\item better smt-support
+		\item feedback back to source code
+		\item evaluation on larger examples
+		\item ...
+	\end{itemize}
 \end{frame}
 
 \end{document}
