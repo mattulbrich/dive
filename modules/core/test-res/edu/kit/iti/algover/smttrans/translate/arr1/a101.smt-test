@@ -3,4 +3,7 @@ i : int
 ---
 
 |-
-let $heap := $array_store<int>($heap, a, i, 2) :: $gt($array_select<int>($heap, a, i),1)
+let $heap := $array_store<int>($heap, a, 0, 0) :: 
+let $heap := $array_store<int>($heap, a, 1, 1) :: 
+let $heap := $array_store<int>($heap, a, 2, 2) ::
+$and($array_select<int>($heap, a, 1) == 1,$array_select<int>($heap, a, 2) == 2) 

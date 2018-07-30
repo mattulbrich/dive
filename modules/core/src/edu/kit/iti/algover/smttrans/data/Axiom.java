@@ -246,9 +246,8 @@ public enum Axiom {
         // Heap/Arrays
 
         A11.smt = "(assert (par (T) (forall\r\n" + "(\r\n" + "    (h Heap)\r\n" + "    (a Arr<Int>)\r\n"
-                + "    (i Int)\r\n" + "    (j Int)\r\n" + "    (v Int)\r\n" + ")\r\n"
-                + "(=> (and (<= 0 i) (<= 0 j) (< i (arrlen<Int> a)) (< j (arrlen<Int> a))) \r\n"
-                + "(= (arrselect<Int> (arrstore<Int> h a i v) a j) (ite (= i j) v (arrselect<Int> h a j)))))))";
+                + "    (i Int)\r\n" + "    (j Int)\r\n" + "    (v Int)\r\n" + ") \r\n"
+                + "(= (arrselect<Int> (arrstore<Int> h a i v) a j) (ite (= i j) v (arrselect<Int> h a j))))))";
         A11.dependencies = new HashSet<>(Arrays.asList(Axiom.ARRSELECT, Axiom.ARRSTORE, Axiom.ARRLEN));
         A12.smt = "(assert (par (T) (forall\r\n" + "(\r\n" + "    (h Heap)\r\n" + "    (a Arr<T>)\r\n"
                 + "    (i Int)\r\n" + "    (o Object)\r\n" + ")\r\n"

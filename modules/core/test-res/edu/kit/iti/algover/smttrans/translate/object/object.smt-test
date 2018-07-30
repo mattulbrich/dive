@@ -5,5 +5,3 @@ $set_add<object>(o,s)
 |-
 $isCreated($create($heap,o),o),
 
-
-

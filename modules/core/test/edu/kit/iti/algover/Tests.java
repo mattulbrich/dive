@@ -29,7 +29,7 @@ import edu.kit.iti.algover.smttrans.translate.SumAndMaxTest;
 
 
 
-        DafnyExampleTest.class,
+     //   DafnyExampleTest.class,
    //     Arr1Test.class,
     //    ClassTest.class,
      //   FolTest.class,
@@ -40,7 +40,7 @@ import edu.kit.iti.algover.smttrans.translate.SumAndMaxTest;
   //  SeqUnitTest.class,
  //   MultisetUnitTest.class,
 // 
-//    Arr1UnitTest.class
+    Arr1UnitTest.class
     
    //    ObjectUnitTest.class
    //     Z3RuleTest.class
