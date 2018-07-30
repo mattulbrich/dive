@@ -245,9 +245,9 @@ public enum Axiom {
         SQL6.dependencies = new HashSet<>(Arrays.asList(Axiom.SEQLEN, Axiom.SEQUPD));
         // Heap/Arrays
 
-        A11.smt = "(assert (par (T) (forall\r\n" + "(\r\n" + "    (h Heap)\r\n" + "    (a Arr<Int>)\r\n"
-                + "    (i Int)\r\n" + "    (j Int)\r\n" + "    (v Int)\r\n" + ") \r\n"
-                + "(= (arrselect<Int> (arrstore<Int> h a i v) a j) (ite (= i j) v (arrselect<Int> h a j))))))";
+        A11.smt = "(assert (par (T) (forall (\r\n" + "    (h Heap)\r\n" + "    (a1 Arr<T>)\r\n" + "    (a2 Arr<T>)\r\n"
+                + "    (i Int)\r\n" + "    (j Int)\r\n" + "    (v T)\r\n" + ")\r\n"
+                + "(= (arrselect<T> (arrstore<T> h a1 i v) a2 j) (ite (and (= a1 a2) (= i j)) v (arrselect<T> h a2 j))))))";
         A11.dependencies = new HashSet<>(Arrays.asList(Axiom.ARRSELECT, Axiom.ARRSTORE, Axiom.ARRLEN));
         A12.smt = "(assert (par (T) (forall\r\n" + "(\r\n" + "    (h Heap)\r\n" + "    (a Arr<T>)\r\n"
                 + "    (i Int)\r\n" + "    (o Object)\r\n" + ")\r\n"

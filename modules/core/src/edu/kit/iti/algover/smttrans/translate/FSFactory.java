@@ -5,10 +5,11 @@ import edu.kit.iti.algover.term.Sort;
 
 public class FSFactory {
     
-    private static Sort current;// = Sort.get("ArrInt"); //TODO dynamically
+   // private static Sort current;//
     
     private static FunctionSymbol handleNull() {
-        FunctionSymbol fs = new FunctionSymbol("null"+"<"+current.toString()+">", current);
+       // FunctionSymbol fs = new FunctionSymbol("null"+"<"+current.toString()+">", current);
+        FunctionSymbol fs = new FunctionSymbol("null",Sort.OBJECT);
         TypeContext.addSymbol(fs);
         return fs;
         
@@ -34,15 +35,15 @@ public class FSFactory {
     public static FunctionSymbol makeFS(FunctionSymbol fs) {
 
         
-        if (fs.getName().startsWith("$")) {
-            
-
-            
-            String s = TypeContext.getNullSort(fs.getName());
-            if (s != null)
-                current = Sort.get(s);
-           
-        }
+//        if (fs.getName().startsWith("$")) {
+//            
+//
+//            
+//            String s = TypeContext.getNullSort(fs.getName());
+//            if (s != null)
+//                current = Sort.get(s);
+//           
+//        }
             FunctionSymbol nfs;
         String name = fs.getName();
 

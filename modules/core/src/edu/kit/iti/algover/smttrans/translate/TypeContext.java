@@ -342,17 +342,17 @@ public class TypeContext {
         }
     }
 
-    public static String getNullSort(String s) {
-
-        if (!s.startsWith("$eq"))
-            return null;
-
-        String sign = s.replace("$eq<", "").substring(0, s.length() - 5);
-
-        String result = addTypeArguments(normalizeName(sign.split("<")[0]), getTypeArguments(sign)).replace("<>", "");
-
-        return result;
-    }
+//    public static String getNullSort(String s) {
+//
+//        if (!s.startsWith("$eq"))
+//            return null;
+//
+//        String sign = s.replace("$eq<", "").substring(0, s.length() - 5);
+//
+//        String result = addTypeArguments(normalizeName(sign.split("<")[0]), getTypeArguments(sign)).replace("<>", "");
+//
+//        return result;
+//    }
 
     public static boolean isFunc(String name) {
 
@@ -488,7 +488,7 @@ public class TypeContext {
         for (String l : lines) {
 
             if (l.trim().startsWith("(assert") && (l.contains("setadd<Object>") || l.contains("setin<Object>")
-                    || l.contains("create") || l.contains("isCreated"))) {
+                    || l.contains("create") || l.contains("isCreated")) || l.contains("~null")) {
                 critical.add(l);
             }
             if (l.trim().startsWith("(declare-sort") && (!l.contains("Object") && (!l.contains("Heap")))) {
