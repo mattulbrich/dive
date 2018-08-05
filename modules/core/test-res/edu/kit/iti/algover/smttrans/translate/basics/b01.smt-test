@@ -1,0 +1,7 @@
+j : int
+i : int
+---
+$gt(j,0),
+$gt(i,0)
+|-
+let k := $times(i,j) :: $gt(k,0)

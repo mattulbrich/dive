@@ -41,7 +41,6 @@ public class TypeContext {
     public static final String AV_MULTINAME = "multiset";
     public static final String SMT_MULTINAME = "MultiSet";
 
-
     private static Set<Dependency> preamble = new LinkedHashSet<>();
     private static final Set<Operation> emptySorts = new LinkedHashSet<>(
             Arrays.asList(Operation.SETEMPTY, Operation.SEQEMPTY, Operation.MULTIEMPTY));
@@ -49,7 +48,7 @@ public class TypeContext {
             Arrays.asList(Operation.AHEAP, Operation.DECR));
 
     private static final Set<String> builtinTypes = new LinkedHashSet<>(Arrays.asList(AV_BOOLNAME, AV_INTNAME)); // ,
-    private static Set<FunctionSymbol> boundVars = new LinkedHashSet<>();                                                                                                             // AV_HEAPNAME
+    private static Set<FunctionSymbol> boundVars = new LinkedHashSet<>(); // AV_HEAPNAME
     private static Map<String, String> nmap = new HashMap<>();
 
     static {
@@ -74,15 +73,16 @@ public class TypeContext {
     public static void setSymbolTable(SymbolTable symbolTable) {
         TypeContext.symbolTable = symbolTable;
     }
+
     public static void resetBV() {
         boundVars.clear();
     }
-    
+
     public static void addBV(FunctionSymbol fs) {
         boundVars.add(fs);
-        
+
     }
-    
+
     public static boolean isBV(FunctionSymbol fs) {
         return boundVars.contains(fs);
     }
@@ -336,23 +336,24 @@ public class TypeContext {
             if (!symbolTable.getAllSymbols().contains(nfs)) {
 
                 symbolTable = symbolTable.addFunctionSymbol(nfs);
-               // System.out.println(symbolTable.getAllSymbols().toString());
+                // System.out.println(symbolTable.getAllSymbols().toString());
 
             }
         }
     }
 
-//    public static String getNullSort(String s) {
-//
-//        if (!s.startsWith("$eq"))
-//            return null;
-//
-//        String sign = s.replace("$eq<", "").substring(0, s.length() - 5);
-//
-//        String result = addTypeArguments(normalizeName(sign.split("<")[0]), getTypeArguments(sign)).replace("<>", "");
-//
-//        return result;
-//    }
+    // public static String getNullSort(String s) {
+    //
+    // if (!s.startsWith("$eq"))
+    // return null;
+    //
+    // String sign = s.replace("$eq<", "").substring(0, s.length() - 5);
+    //
+    // String result = addTypeArguments(normalizeName(sign.split("<")[0]),
+    // getTypeArguments(sign)).replace("<>", "");
+    //
+    // return result;
+    // }
 
     public static boolean isFunc(String name) {
 
@@ -392,8 +393,7 @@ public class TypeContext {
             + "; " + "\r\n";
 
     private static String sumDef = "; NOTE: temporary, hardcoded\r\n"
-            + "(declare-fun Sum (Heap Seq<Int> Int Int) Int) \r\n"
-            + "(declare-fun seqget<Int> (Seq<Int> Int) Int)\r\n"
+            + "(declare-fun Sum (Heap Seq<Int> Int Int) Int) \r\n" + "(declare-fun seqget<Int> (Seq<Int> Int) Int)\r\n"
             + "(assert (forall ((i Int) (j Int) (k Seq<Int>)) (=> (= i j) (= (Sum ~heap k i j) 0))))\r\n"
             + "(assert (forall ((i Int) (j Int) (k Seq<Int>)) (=> (distinct i j) (= (Sum ~heap k i j) (+ (Sum ~heap k i (- j 1)) (seqget<Int> k (- j 1)))))))\r\n";
     private static String sortedDef = "; NOTE: temporary, hardcoded\r\n" + "(declare-sort Heap 0)\r\n"
@@ -414,8 +414,9 @@ public class TypeContext {
             + "(define-fun Square ((h Heap) (x Int)) Int \r\n" + "(* x x))" + "\r\n";
     private static String evenDef = ";NOTE temporary, hardcoded\r\n" + "(define-fun IsEven ((h Heap) (x Int)) Bool\r\n"
             + "(=  (mod x 2) 0))" + "\r\n";
-    private static String pow2Def = evenDef + squareDef+";NOTE temporary, hardcoded\r\n" + "(declare-fun pow2 (Heap Int) Int)\r\n"
-            + "(assert (= (pow2 ~heap 0) 1))\r\n" + "(assert (forall ((n Int)) " + "(=> (> n 0)   \r\n"
+    private static String pow2Def = evenDef + squareDef + ";NOTE temporary, hardcoded\r\n"
+            + "(declare-fun pow2 (Heap Int) Int)\r\n" + "(assert (= (pow2 ~heap 0) 1))\r\n"
+            + "(assert (forall ((n Int)) " + "(=> (> n 0)   \r\n"
             + "(= (pow2 ~heap n) (ite (IsEven ~heap n) (Square ~heap (pow2 ~heap (/ n 2))) (* 2 (pow2 ~heap (- n 1))))))))"
             + "\r\n";
     private static String pow2_slowDef = ";NOTE temporary, hardcoded\r\n" + "(declare-fun pow2_slow (Heap Int) Int)\r\n"
@@ -516,7 +517,9 @@ public class TypeContext {
             for (Pair<String, String> p : consts) {
 
                 String cr = casts.get(p.snd).get(0) + " " + p.fst + ")";
-                nc = nc.replace(p.fst, cr);
+
+                // nc = nc.replace(p.fst, cr);
+                nc = replace(nc, p.fst, cr);
 
             }
             creplace.put(c, nc);
@@ -599,6 +602,14 @@ public class TypeContext {
         }
 
         return nnsmt;
+
+    }
+
+    private static String replace(String o, String c, String r) {
+        String nc = o.replaceAll("(?<!" + c + "\\s)" + c, r);
+        // String nc = o.replaceAll("(?!"+c+"\\s)"+c, r);
+        nc = nc.replaceAll("\\(" + r + "\\)" + "\\s" + c, c + " " + c);
+        return nc;
 
     }
 

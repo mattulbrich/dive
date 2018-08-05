@@ -1,0 +1,7 @@
+a: array<int>
+i : int
+---
+$len<int>(a) == 100,
+forall i:int :: $imp($and($le(0,i),$lt(i,$len<int>(a))),$gt($array_select<int>($heap,a,i),0))
+|-
+forall j:int :: $imp($and($le(1,j),$lt(j,$minus($len<int>(a),1))),   $gt($plus($array_select<int>($heap,a,j),$array_select<int>($heap,a,$minus(j,1))),0))

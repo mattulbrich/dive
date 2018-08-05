@@ -265,10 +265,10 @@ public enum Axiom {
         A1L1.smt = "(assert (par (T) (forall\r\n" + "(\r\n" + "    (a Arr<T>)\r\n" + ")\r\n"
                 + "(>= (arrlen<T> a) 0))))";
         A1L1.dependencies = new HashSet<>(Arrays.asList(Axiom.ARRLEN));
-        A21.smt = "(assert (par (T) (forall \r\n" + "(\r\n" + "    (h Heap)\r\n" + "    (a Arr2<T>)\r\n"
-                + "    (i Int)\r\n" + "    (j Int)\r\n" + "    (l Int)\r\n" + "    (k Int)\r\n" + "    (v T)\r\n"
-                + ")\r\n"
-                + "(= (arr2select<T> (arr2store<T> h a i j v) a l k) (ite (and (= i l) (= j k)) v (arr2select<T> h a j l))))))";
+        A21.smt = "(assert (par (T) (forall \r\n" + "(\r\n" + "    (h Heap)\r\n" + "    (a1 Arr2<T>)\r\n"
+                + "    (a2 Arr2<T>)\r\n" + "    (i Int)\r\n" + "    (j Int)\r\n" + "    (l Int)\r\n" + "    (k Int)\r\n"
+                + "    (v T)\r\n" + ")\r\n"
+                + "(= (arr2select<T> (arr2store<T> h a1 i j v) a2 l k) (ite (and (= a1 a2) (= i l) (= j k)) v (arr2select<T> h a2 l k))))))";
         A21.dependencies = new HashSet<>(Arrays.asList(Axiom.ARR2SELECT, ARR2STORE));
         A22.smt = "(assert (par (T) (forall \r\n" + "(\r\n" + "    (h Heap)\r\n" + "    (a Arr2<T>)\r\n"
                 + "    (o Object)\r\n" + "    (i Int)\r\n" + "    (j Int)\r\n" + ")\r\n"

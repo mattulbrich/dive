@@ -14,6 +14,7 @@ import edu.kit.iti.algover.rules.impl.Z3RuleTest;
 import edu.kit.iti.algover.smttrans.translate.Arr1Test;
 import edu.kit.iti.algover.smttrans.translate.Arr1UnitTest;
 import edu.kit.iti.algover.smttrans.translate.Arr2UnitTest;
+import edu.kit.iti.algover.smttrans.translate.BasicsUnitTest;
 import edu.kit.iti.algover.smttrans.translate.ClassTest;
 import edu.kit.iti.algover.smttrans.translate.DafnyExampleTest;
 import edu.kit.iti.algover.smttrans.translate.FolTest;
@@ -36,8 +37,9 @@ import edu.kit.iti.algover.smttrans.translate.SumAndMaxTest;
     //    SumAndMaxTest.class,
    //     IntegerTest.class,
    // SetUnitTest.class,
-  //  Arr2UnitTest.class,
-  //  SeqUnitTest.class,
+ //   Arr2UnitTest.class,
+  //BasicsUnitTest.class
+    //  SeqUnitTest.class,
  //   MultisetUnitTest.class,
 // 
  //   Arr1UnitTest.class

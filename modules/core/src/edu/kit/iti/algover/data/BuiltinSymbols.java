@@ -238,6 +238,8 @@ public class BuiltinSymbols extends MapSymbolTable {
             new FunctionSymbol("$set_in", Sort.BOOL, FunctionSymbolFamily.VAR1, SET1), 1);
     public static final FunctionSymbolFamily SET_SUBSET = new FunctionSymbolFamily(
             new FunctionSymbol("$set_subset", Sort.BOOL, SET1, SET1), 1);
+    public static final FunctionSymbolFamily SET_SINGLE = new FunctionSymbolFamily(
+            new FunctionSymbol("$set_subset", SET1, FunctionSymbolFamily.VAR1), 1);
     /**
      * multisets
      */
