@@ -325,10 +325,16 @@ public enum Axiom {
                 + "(= (isCreated (arr2store<T> h a i j v) o) (isCreated h o)))))";
         H8.dependencies = new HashSet<>(Arrays.asList(Axiom.ISCREATED, Axiom.ARR2STORE));
 
-        H9.smt = "(assert (par (C T) (forall\r\n" + "(\r\n" + "    (c C)\r\n" + "    (h1 Heap)\r\n"
-                + "    (h2 Heap)\r\n" + "    (s Set<Object>)\r\n" + "    (f Field<C.T>)\r\n" + ")\r\n"
-                + "(= (fieldselect<C.T> (anon h1 s h2) c f) (fieldselect<C.T> (ite (setin<Object> s (c2o c)) h2 h1) c f)))))";
-        H9.dependencies = new HashSet<>(Arrays.asList(Axiom.SETIN, Axiom.FIELDSELECT, Axiom.ANON));
+        // H9.smt = "(assert (par (C T) (forall\r\n" + "(\r\n" + " (c C)\r\n" + " (h1
+        // Heap)\r\n"
+        // + " (h2 Heap)\r\n" + " (s Set<Object>)\r\n" + " (f Field<C.T>)\r\n" + ")\r\n"
+        // + "(= (fieldselect<C.T> (anon h1 s h2) c f) (fieldselect<C.T> (ite
+        // (setin<Object> s (c2o c)) h2 h1) c f)))))";
+        H9.smt = "(assert (forall \r\n" + "(\r\n" + "    (h1 Heap)\r\n" + "    (h2 Heap)\r\n" //debug
+                + "    (s Set<Object>)\r\n" + ")\r\n" + "(= h1 (anon h1 s h2))\r\n" + "\r\n" + "))";
+
+        H9.dependencies = new HashSet<>(Arrays.asList(Axiom.ANON)); //Axiom.FIELDSELECT, Axiom.SETIN,
+
     }
 
     public Set<Axiom> dependencies = new HashSet<>();

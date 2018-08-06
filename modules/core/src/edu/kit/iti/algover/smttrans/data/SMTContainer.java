@@ -22,7 +22,7 @@ public class SMTContainer {
 
     }
 
-    private static String cleanUp(String ax) {
+    public static String cleanUp(String ax) {
         int balance = 0;
         for (int i = 0; i < ax.length(); i++) {
             Character c = ax.charAt(i);

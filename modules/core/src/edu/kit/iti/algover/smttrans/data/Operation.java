@@ -120,7 +120,7 @@ public enum Operation {
         MULTISUBSET.instantiations = asList(Axiom.MS8);
 
         ANON.smt = "anon";
-        ANON.instantiations = asList(Axiom.ANON); // Axiom.H9
+        ANON.instantiations = asList(Axiom.ANON, Axiom.H9); // Axiom.H9
 
         MOD.smt = "mod";
         MOD.special = true;

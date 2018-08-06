@@ -13,6 +13,7 @@ public class FuncSignature extends Signature{
     public String show() {
         StringBuilder sb = new StringBuilder();
         String s = TypeContext.opToSMT(fs);
+        
         sb.append(s);
         return sb.toString();
     }

@@ -1,0 +1,6 @@
+x: C
+---
+
+|-
+let $heap := $create($heap,x) :: $isCreated($heap,x)
+

@@ -22,6 +22,7 @@ import edu.kit.iti.algover.data.MapSymbolTable;
 import edu.kit.iti.algover.data.SymbolTable;
 import edu.kit.iti.algover.smttrans.data.Operation;
 import edu.kit.iti.algover.smttrans.data.OperationMatcher;
+import edu.kit.iti.algover.smttrans.data.SMTContainer;
 import edu.kit.iti.algover.term.FunctionSymbol;
 import edu.kit.iti.algover.term.Sort;
 import edu.kit.iti.algover.util.Pair;
@@ -489,7 +490,7 @@ public class TypeContext {
         for (String l : lines) {
 
             if (l.trim().startsWith("(assert") && (l.contains("setadd<Object>") || l.contains("setin<Object>")
-                    || l.contains("create") || l.contains("isCreated")) || l.contains("~null")) {
+                    || l.contains("create") || l.contains("isCreated")) || l.contains("~null")) { // || l.contains("(= ")
                 critical.add(l);
             }
             if (l.trim().startsWith("(declare-sort") && (!l.contains("Object") && (!l.contains("Heap")))) {
@@ -513,15 +514,15 @@ public class TypeContext {
 
         for (String c : critical) {
             String nc = c;
-
-            for (Pair<String, String> p : consts) {
-
-                String cr = casts.get(p.snd).get(0) + " " + p.fst + ")";
-
-                // nc = nc.replace(p.fst, cr);
-                nc = replace(nc, p.fst, cr);
-
-            }
+//
+//            for (Pair<String, String> p : consts) {
+//
+//                String cr = casts.get(p.snd).get(0) + " " + p.fst + ")";
+//
+//                // nc = nc.replace(p.fst, cr);
+//                nc = replace(nc, p.fst, cr);
+//
+//            }
             creplace.put(c, nc);
         }
 
@@ -548,6 +549,8 @@ public class TypeContext {
                 nsmt += "(declare-fun o2C (Object) C)".replace("C", t) + "\r\n";
                 nsmt += "(declare-fun C2o (C) Object)".replace("C", t) + "\r\n";
                 nsmt += "(declare-fun typeC (Object) Bool)".replace("C", t) + "\r\n";
+                
+                
 
                 // axioms
 
@@ -572,6 +575,10 @@ public class TypeContext {
 
         }
 
+        for (Pair<String, String> t : consts) {
+            System.out.println(t.fst + " : " + t.snd);
+            nsmt += "(assert (type" + t.snd + " (" + t.snd+"2o " + t.fst + ")))\r\n";
+        }
         for (; i < lines.size(); i++) {
 
             String line = lines.get(i);
@@ -594,7 +601,7 @@ public class TypeContext {
                     nnsmt += fun + "\r\n";
                 }
                 String line = l + ")";
-                nnsmt += line.replace("~mod", "~mod (set2o") + "\r\n";
+                nnsmt += line.replace("~mod", "~mod (set2o") + "\r\n"; // bracket here
             } else {
 
                 nnsmt += l + "\r\n";
@@ -606,10 +613,14 @@ public class TypeContext {
     }
 
     private static String replace(String o, String c, String r) {
-        String nc = o.replaceAll("(?<!" + c + "\\s)" + c, r);
+        if (!o.contains("let")) {// debug
+            return o.replace(c, r);
+        }
+        String nc = o.replaceAll("(?<!" + c + "\\s)" + c, r); // debug
         // String nc = o.replaceAll("(?!"+c+"\\s)"+c, r);
         nc = nc.replaceAll("\\(" + r + "\\)" + "\\s" + c, c + " " + c);
-        return nc;
+        nc = nc.replaceAll("\\(" + r + "\\)\\)", c + ")");
+        return SMTContainer.cleanUp(nc);
 
     }
 

@@ -22,6 +22,7 @@ public class SMTLetExpression extends SMTExpression {
             sb.append("(");
             sb.append(sub.toSMT(false));
             sb.append(")");
+            
         }
         sb.append(") ");
         if (inner instanceof SMTConstExpression) {

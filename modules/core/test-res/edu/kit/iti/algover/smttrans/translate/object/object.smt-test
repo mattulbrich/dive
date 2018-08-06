@@ -1,7 +1,0 @@
-o1: c,
-s: set<object>,
----
-$set_add<object>(o,s)
-|-
-$isCreated($create($heap,o),o),
-

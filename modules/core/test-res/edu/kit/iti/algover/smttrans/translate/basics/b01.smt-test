@@ -1,7 +1,10 @@
 j : int
 i : int
 ---
-$gt(j,0),
-$gt(i,0)
+$gt(j,1),
+$gt(i,1)
 |-
-let k := $times(i,j) :: $gt(k,0)
+let a := $times(i,j) :: 
+let b := $times(j,i) :: 
+let c := $plus(i,j) ::
+$and(a == b, $ge(b,c)) 

@@ -1,0 +1,4 @@
+k : int
+---
+|-
+$and(exists i:int :: $gt(i,0), exists j:int :: $gt(j,k))

@@ -1,0 +1,5 @@
+o: C,
+p: D
+---
+|-
+let $mod := $set_add<object>(p, $set_add<object>(o, $empty<object>)) :: $set_in<object>(o, $mod)

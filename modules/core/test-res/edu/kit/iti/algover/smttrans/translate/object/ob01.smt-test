@@ -1,0 +1,8 @@
+x: C,
+y: D,
+---
+x == null,
+y == null
+|-
+x == y
+
