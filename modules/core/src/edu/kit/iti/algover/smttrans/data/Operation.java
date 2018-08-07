@@ -200,7 +200,7 @@ public enum Operation {
         EQ.builtin = true;
         NOT.smt = "not";
         NOT.builtin = true;
-        DIV.smt = "/";
+        DIV.smt = "div";
         DIV.builtin = true;
         GE.smt = ">=";
         GE.builtin = true;

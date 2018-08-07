@@ -18,6 +18,11 @@ public class SMTApplExpression extends SMTExpression {
     @Override
     public String toSMT(boolean... arg) {
         StringBuilder sb = new StringBuilder();
+        String[] si = sign.show().split("<");
+        String fu = "";
+        if (si.length > 0)
+            fu = si[0];
+
         boolean negate = false;
         boolean bound = false;
         if (arg.length > 0) {
@@ -47,8 +52,7 @@ public class SMTApplExpression extends SMTExpression {
                 sb.append(") ");
             }
 
-        } else if ((sign.show().split("<")[0].equals(Operation.SETADD.toSMT())
-                || sign.show().split("<")[0].equals(Operation.SETIN.toSMT()))
+        } else if ((fu.equals(Operation.SETADD.toSMT()) || fu.equals(Operation.SETIN.toSMT()))
                 && fs.getArgumentSorts().get(0).equals(Sort.OBJECT)) {
 
             for (SMTExpression c : children) {
@@ -63,20 +67,51 @@ public class SMTApplExpression extends SMTExpression {
                 sb.append(") ");
             }
         } else if (sign.show().equals(Operation.EQ.toSMT())) {
+            boolean casts = false;
 
             for (SMTExpression c : children) {
                 String sort = TypeContext.normalizeReturnSort(c.fs);
-                if (TypeContext.isBuiltIn(sort) || sort.equalsIgnoreCase("object")
-                        || sort.toLowerCase().startsWith("set") || sort.toLowerCase().startsWith("seq")
-                        || sort.toLowerCase().startsWith("arr")) {
-                    sb.append(c.toSMT(false, bound));
-                    continue;
-                }
-                sb.append("(" + sort + "2o ");
+                if (sort.equalsIgnoreCase("object"))
+                    casts = true;
 
-                sb.append(c.toSMT(false, bound));
-                sb.append(") ");
             }
+
+            if (casts) {
+
+                for (SMTExpression c : children) {
+                    String sort = TypeContext.normalizeReturnSort(c.fs);
+                    if (TypeContext.isBuiltIn(sort) || sort.equalsIgnoreCase("object")) {
+                        sb.append(c.toSMT(false, bound));
+                        continue;
+                    }
+                    sb.append("(" + sort + "2o ");
+
+                    sb.append(c.toSMT(false, bound));
+                    sb.append(") ");
+                }
+            } else {
+                for (SMTExpression c : children) {
+                    sb.append(c.toSMT(false, bound));
+                }
+            }
+
+            //
+
+            // for (SMTExpression c : children) {
+            // String sort = TypeContext.normalizeReturnSort(c.fs);
+            // if (TypeContext.isBuiltIn(sort) || sort.equalsIgnoreCase("object")
+            // || sort.toLowerCase().startsWith("set") ||
+            // sort.toLowerCase().startsWith("seq")
+            // || sort.toLowerCase().startsWith("arr") ||
+            // sort.toLowerCase().startsWith("multiset")) {
+            // sb.append(c.toSMT(false, bound));
+            // continue;
+            // }
+            // sb.append("(" + sort + "2o ");
+            //
+            // sb.append(c.toSMT(false, bound));
+            // sb.append(") ");
+            // }
         } else {
             for (SMTExpression c : children) {
                 sb.append(c.toSMT(false, bound));
