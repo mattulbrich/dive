@@ -1,8 +1,9 @@
 o: X,
-X$$y: field<X,int>
+X$$y: field<X,int>,
+$aheap_1: heap
 ---
 |-
 
 let $heap := $store<X,int>($heap, o, X$$y, 8) :: 
-let $heap := $anon($heap)
+let $heap := $anon($heap,$mod,$aheap_1) ::
 $gt($select<X,int>($heap, o, X$$y), 5)

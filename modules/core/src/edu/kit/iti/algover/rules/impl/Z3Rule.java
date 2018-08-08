@@ -23,12 +23,14 @@ import edu.kit.iti.algover.rules.RuleException;
 import edu.kit.iti.algover.rules.TermSelector;
 import edu.kit.iti.algover.smt.SMTQuickNDirty;
 import edu.kit.iti.algover.smttrans.access.CVCAccess;
+import edu.kit.iti.algover.smttrans.access.MathSATAccess;
 import edu.kit.iti.algover.smttrans.access.Model;
 import edu.kit.iti.algover.smttrans.access.Response;
 import edu.kit.iti.algover.smttrans.access.SMTLog;
 import edu.kit.iti.algover.smttrans.access.SolverAccess;
 import edu.kit.iti.algover.smttrans.access.SolverParameter;
 import edu.kit.iti.algover.smttrans.access.SolverResponse;
+import edu.kit.iti.algover.smttrans.access.YicesAccess;
 import edu.kit.iti.algover.smttrans.access.Z3Access;
 import edu.kit.iti.algover.smttrans.data.SMTContainer;
 import edu.kit.iti.algover.smttrans.translate.SMTTerm;
@@ -55,14 +57,11 @@ import java.util.Map;
  */
 public class Z3Rule extends AbstractProofRule {
 
-    
-    private static Model model = new Model(new ArrayList<>()); //empty model
-    
+    private static Model model = new Model(new ArrayList<>()); // empty model
+
     public static Model getModel() {
         return model;
     }
-
-
 
     @Override
     public String getName() {
@@ -72,7 +71,7 @@ public class Z3Rule extends AbstractProofRule {
     @Override
     public ProofRuleApplication considerApplicationImpl(ProofNode target, Parameters parameters) throws RuleException {
         ProofRuleApplicationBuilder builder = new ProofRuleApplicationBuilder(this);
-        //TODO change ?
+        // TODO change ?
         // builder.setApplicability(Applicability.MAYBE_APPLICABLE);
         builder.setApplicability(Applicability.APPLICABLE);
         builder.setClosing();
@@ -99,7 +98,6 @@ public class Z3Rule extends AbstractProofRule {
 
     @Override
     public ProofRuleApplication makeApplicationImpl(ProofNode target, Parameters parameters) throws RuleException {
-       
 
         if (isValid(target)) {
             ProofRuleApplicationBuilder builder = new ProofRuleApplicationBuilder(this);
@@ -113,45 +111,46 @@ public class Z3Rule extends AbstractProofRule {
             return builder.build();
         }
     }
-    
-    
 
     private boolean isValid(ProofNode target) {
         System.out.println("PVC: " + target.getPVC().getSequent().toString());
         // SolverAccess.evaluate("");
         SolverAccess z3access = new Z3Access();
         SolverAccess cvcaccess = new CVCAccess();
+        SolverAccess msaccess = new MathSATAccess();
+        SolverAccess yicesaccess = new YicesAccess();
         PVC pvc = target.getPVC();
-        //System.out.println("ID " + pvc.getIdentifier());
+        // System.out.println("ID " + pvc.getIdentifier());
 
         SMTContainer sc = translateToSMT(target.getSequent(), pvc.getSymbolTable());
 
         String smt;
 
-     //    smt = sc.toPSMT();
+        // smt = sc.toPSMT();
         // SMTLog.writeFile(smt, pvc.getIdentifier()+".psmt");
-      //   System.out.println(smt);
+        // System.out.println(smt);
         smt = sc.toSMT();
 
-       // SMTLog.writeFile(smt, pvc.getIdentifier()+".smt2");
-//
-   //     System.out.println();
-       System.out.println(smt);
+        // SMTLog.writeFile(smt, pvc.getIdentifier()+".smt2");
+        //
+        // System.out.println();
+        System.out.println(smt);
 
-        SolverParameter p = new SolverParameter(smt,8, true);
+        SolverParameter p = new SolverParameter(smt, 8, true);
         SolverResponse r1 = z3access.accessSolver(p);
-     //   SolverResponse r1 = cvcaccess.accessSolver(p);
-
+        // SolverResponse r1 = msaccess.accessSolver(p);
+        // SolverResponse r1 = yicesaccess.accessSolver(p);
+        // SolverResponse r1 = cvcaccess.accessSolver(p);
 
         System.out.println(r1.getResponse().name());
         if (r1.getResponse() == Response.SAT) {
             model = r1.getModel();
-           // System.out.println(model.getDeclarations());
-           // System.out.println(model.getDefinitions());
-         //   model.printVars();
+            // System.out.println(model.getDeclarations());
+            // System.out.println(model.getDefinitions());
+            // model.printVars();
         }
-          
-            //System.out.println(r1.getModel().toString());
+
+        // System.out.println(r1.getModel().toString());
         TypeContext.reset();
         return evaluate(r1.getResponse());
     }
@@ -166,17 +165,15 @@ public class Z3Rule extends AbstractProofRule {
         }
     }
 
-    
     public String testRule(Sequent sequent, SymbolTable symbolTable) {
-        
+
         SMTContainer container = translateToSMT(sequent, symbolTable);
         String smt = container.toSMT();
         TypeContext.reset();
-      
-        
+
         return smt;
     }
-    
+
     private SMTContainer translateToSMT(Sequent sequent, SymbolTable symbolTable) {
 
         List<ProofFormula> antecedent = sequent.getAntecedent();
@@ -184,7 +181,6 @@ public class Z3Rule extends AbstractProofRule {
 
         List<SMTTerm> aTerms = new ArrayList<>();
         List<SMTTerm> sTerms = new ArrayList<>();
-
 
         for (ProofFormula pa : antecedent) {
 

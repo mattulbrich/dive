@@ -343,18 +343,9 @@ public class TypeContext {
         }
     }
 
-    // public static String getNullSort(String s) {
-    //
-    // if (!s.startsWith("$eq"))
-    // return null;
-    //
-    // String sign = s.replace("$eq<", "").substring(0, s.length() - 5);
-    //
-    // String result = addTypeArguments(normalizeName(sign.split("<")[0]),
-    // getTypeArguments(sign)).replace("<>", "");
-    //
-    // return result;
-    // }
+    public static void addToPreamble(Dependency d) {
+        preamble.add(d);
+    }
 
     public static boolean isFunc(String name) {
 
@@ -362,10 +353,6 @@ public class TypeContext {
             if (name.startsWith("$" + op.toSMT()))
                 return false;
         }
-
-        // if (name.startsWith("$aheap") || name.startsWith("$decr")) // special case ,
-        // TODO
-        // return false;
 
         return name.startsWith("$");
     }
@@ -384,6 +371,7 @@ public class TypeContext {
                 deps.add(d);
             }
         }
+        
         return deps;
     }
 
@@ -490,7 +478,8 @@ public class TypeContext {
         for (String l : lines) {
 
             if (l.trim().startsWith("(assert") && (l.contains("setadd<Object>") || l.contains("setin<Object>")
-                    || l.contains("create") || l.contains("isCreated")) || l.contains("~null")) { // || l.contains("(= ")
+                    || l.contains("create") || l.contains("isCreated")) || l.contains("~null")) { // || l.contains("(=
+                                                                                                  // ")
                 critical.add(l);
             }
             if (l.trim().startsWith("(declare-sort") && (!l.contains("Object") && (!l.contains("Heap")))) {
@@ -514,15 +503,15 @@ public class TypeContext {
 
         for (String c : critical) {
             String nc = c;
-//
-//            for (Pair<String, String> p : consts) {
-//
-//                String cr = casts.get(p.snd).get(0) + " " + p.fst + ")";
-//
-//                // nc = nc.replace(p.fst, cr);
-//                nc = replace(nc, p.fst, cr);
-//
-//            }
+            //
+            // for (Pair<String, String> p : consts) {
+            //
+            // String cr = casts.get(p.snd).get(0) + " " + p.fst + ")";
+            //
+            // // nc = nc.replace(p.fst, cr);
+            // nc = replace(nc, p.fst, cr);
+            //
+            // }
             creplace.put(c, nc);
         }
 
@@ -549,8 +538,6 @@ public class TypeContext {
                 nsmt += "(declare-fun o2C (Object) C)".replace("C", t) + "\r\n";
                 nsmt += "(declare-fun C2o (C) Object)".replace("C", t) + "\r\n";
                 nsmt += "(declare-fun typeC (Object) Bool)".replace("C", t) + "\r\n";
-                
-                
 
                 // axioms
 
@@ -576,8 +563,8 @@ public class TypeContext {
         }
 
         for (Pair<String, String> t : consts) {
-            System.out.println(t.fst + " : " + t.snd);
-            nsmt += "(assert (type" + t.snd + " (" + t.snd+"2o " + t.fst + ")))\r\n";
+            // System.out.println(t.fst + " : " + t.snd);
+            nsmt += "(assert (type" + t.snd + " (" + t.snd + "2o " + t.fst + ")))\r\n"; // TODO check if needed
         }
         for (; i < lines.size(); i++) {
 
@@ -589,26 +576,27 @@ public class TypeContext {
                 nsmt += line + "\r\n";
             }
         }
-
+        return nsmt;
         // Temporary, Debug
-        String nnsmt = "";
-        List<String> nlines = Arrays.asList(nsmt.split("\\r?\\n"));
-        for (String l : nlines) {
-
-            if (!l.contains("Object") && l.contains("=") && l.contains("~mod") && l.toLowerCase().contains("set")) {
-                String fun = "(declare-fun set2o (Set<Arr<Int>>) Set<Object>)";
-                if (!nnsmt.contains(fun)) {
-                    nnsmt += fun + "\r\n";
-                }
-                String line = l + ")";
-                nnsmt += line.replace("~mod", "~mod (set2o") + "\r\n"; // bracket here
-            } else {
-
-                nnsmt += l + "\r\n";
-            }
-        }
-
-        return nnsmt;
+        // String nnsmt = "";
+        // List<String> nlines = Arrays.asList(nsmt.split("\\r?\\n"));
+        // for (String l : nlines) {
+        //
+        // if (!l.contains("Object") && l.contains("=") && l.contains("~mod") &&
+        // l.toLowerCase().contains("set")) {
+        // String fun = "(declare-fun set2o (Set<Arr<Int>>) Set<Object>)";
+        // if (!nnsmt.contains(fun)) {
+        // nnsmt += fun + "\r\n";
+        // }
+        // String line = l + ")";
+        // nnsmt += line.replace("~mod", "~mod (set2o") + "\r\n"; // bracket here
+        // } else {
+        //
+        // nnsmt += l + "\r\n";
+        // }
+        // }
+        //
+        // return nnsmt;
 
     }
 

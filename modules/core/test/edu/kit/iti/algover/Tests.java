@@ -34,7 +34,7 @@ import edu.kit.iti.algover.smttrans.translate.SumAndMaxTest;
    //     Arr1Test.class,
     //    ClassTest.class,
      //   FolTest.class,
-        SumAndMaxTest.class,
+    //    SumAndMaxTest.class,
    //     IntegerTest.class,
    // SetUnitTest.class,
  //   Arr2UnitTest.class,
@@ -44,7 +44,7 @@ import edu.kit.iti.algover.smttrans.translate.SumAndMaxTest;
 // 
  //   Arr1UnitTest.class
     
-   //    ObjectUnitTest.class
+       ObjectUnitTest.class
    //     Z3RuleTest.class
     
 

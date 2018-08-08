@@ -1,5 +1,6 @@
 package edu.kit.iti.algover.smttrans.data;
 
+import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
@@ -13,12 +14,12 @@ public class SMTContainer {
     private static final String DIVIDER = "=================================";
     private List<SMTTerm> antecedent;
     private List<SMTTerm> succedent;
-    private Set<Dependency> dependencies;
+    private Set<Dependency> dependencies = new HashSet<>();
 
     public SMTContainer(List<SMTTerm> a, List<SMTTerm> s) {
         this.antecedent = a;
         this.succedent = s;
-        this.dependencies = TypeContext.getDependencies();
+       // this.dependencies = TypeContext.getDependencies();
 
     }
 
@@ -47,11 +48,11 @@ public class SMTContainer {
     public String toSMT() {
         StringBuilder sb = new StringBuilder();
 
-        sb.append(instantiateDep());
+       // sb.append(instantiateDep());
         antecedent.forEach(t -> sb.append(cleanUp(t.toSMT(false))));
         succedent.forEach(s -> sb.append(cleanUp(s.toSMT(true)))); // negate
 
-        String r = cleanUp(sb.toString());
+        String r = cleanUp(instantiateDep() + sb.toString());
 
         r = TypeContext.addFunctions(r);
         if (r.contains("Object")) // TODO better version
@@ -62,7 +63,7 @@ public class SMTContainer {
 
     public String toPSMT() {
         StringBuilder sb = new StringBuilder();
-        sb.append(declareDep());
+        // sb.append(declareDep());
         antecedent.forEach(t -> sb.append(cleanUp(t.toSMT(false))));
         succedent.forEach(s -> sb.append(cleanUp(s.toSMT(true)))); // negate
 
@@ -71,7 +72,7 @@ public class SMTContainer {
         if (r.contains("Object")) // TODO better version
             return TypeContext.addCasts(r);
 
-        return cleanUp(sb.toString());
+        return cleanUp(declareDep() + sb.toString());
     }
 
     private String declareDep() {
@@ -80,7 +81,7 @@ public class SMTContainer {
         LinkedHashSet<String> constants = new LinkedHashSet<>();
         LinkedHashSet<String> functions = new LinkedHashSet<>();
         LinkedHashSet<String> axioms = new LinkedHashSet<>();
-
+        dependencies.addAll(TypeContext.getDependencies());
         for (Dependency d : dependencies) {
             LinkedHashSet<String> set = d.declare();
 
@@ -119,9 +120,12 @@ public class SMTContainer {
         LinkedHashSet<String> constants = new LinkedHashSet<>();
         LinkedHashSet<String> functions = new LinkedHashSet<>();
         LinkedHashSet<String> axioms = new LinkedHashSet<>();
-
+        dependencies.addAll(TypeContext.getDependencies());
         for (Dependency d : dependencies) {
+            System.out.println("===");
+            System.out.println(d.toString());
             LinkedHashSet<String> set = d.instantiate();
+
             for (String s : set) {
                 if (s.startsWith("(declare-sort") || s.startsWith("(define-sort")) {
                     sorts.add(s);

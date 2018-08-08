@@ -1,6 +1,9 @@
 package edu.kit.iti.algover.smttrans.translate.expressions;
 
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import edu.kit.iti.algover.smttrans.data.Operation;
 import edu.kit.iti.algover.smttrans.translate.FuncSignature;
@@ -68,13 +71,18 @@ public class SMTApplExpression extends SMTExpression {
             }
         } else if (sign.show().equals(Operation.EQ.toSMT())) {
             boolean casts = false;
-
+            Set<String> sorts = new HashSet<>();
             for (SMTExpression c : children) {
                 String sort = TypeContext.normalizeReturnSort(c.fs);
+                sorts.add(sort);
                 if (sort.equalsIgnoreCase("object"))
                     casts = true;
+              
+                
 
             }
+            if (sorts.size() > 1)
+                casts = true;
 
             if (casts) {
 

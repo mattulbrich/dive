@@ -2,6 +2,8 @@ package edu.kit.iti.algover.smttrans.translate.expressions;
 
 import java.util.List;
 
+import edu.kit.iti.algover.smttrans.translate.TypeContext;
+
 public class SMTLetExpression extends SMTExpression {
 
     private SMTExpression inner;
@@ -11,6 +13,7 @@ public class SMTLetExpression extends SMTExpression {
         super();
         this.subs = subs;
         this.inner = inner;
+        
     }
 
     @Override
@@ -18,7 +21,7 @@ public class SMTLetExpression extends SMTExpression {
         StringBuilder sb = new StringBuilder();
         sb.append("(let (");
         
-        for (SMTExpression sub : subs) {
+        for (SMTExpression sub : subs) {           
             sb.append("(");
             sb.append(sub.toSMT(false));
             sb.append(")");
