@@ -29,7 +29,7 @@
 \usepackage[TS1,T1]{fontenc}
 \usepackage{array}
 \usepackage{lipsum}
-
+\newcommand{\KeY}{Ke\kern-0.1emY}
 \usenavigationsymbols
 %\usenavigationsymbols[sfHhdb]
 %\usenavigationsymbols[sfhHb]
@@ -48,17 +48,18 @@
   \maketitle
 \end{frame}
 
-\begin{frame}{Motivation}
-	\begin{itemize}
-		%\item Program Verification $\equiv$ Verification of Code
-		\item Proofs conducted on different levels
-			\begin{itemize}
-				\item the code itself (needs insight if not closing)
-				\item the logic level (needs relation back to original program)
-			\end{itemize}
-		\item state of the art user interfaces focus only on one level, supporting features for other levels often insufficient 
-		\item may hinder users from using/understanding it
-	\end{itemize}
+\begin{frame}{Interactive Program Verification}
+% \includegraphics[width=\textwidth]{ipv}
+% 	\begin{itemize}
+% 		%\item Program Verification $\equiv$ Verification of Code
+% 		\item Proofs conducted on different levels
+% 			\begin{itemize}
+% 				\item the code itself (needs insight if not closing)
+% 				\item the logic level (needs relation back to original program)
+% 			\end{itemize}
+% 		\item state of the art user interfaces focus only on one level, supporting features for other levels often insufficient 
+% 		\item may hinder users from using/understanding it
+% 	\end{itemize}
 \end{frame}
 
 %\begin{frame}[c]{Objectives}
@@ -71,30 +72,53 @@
 %\end{enumerate}
 %\end{frame}
 
-\begin{frame}{AlgoVer: Seamless Program Verification}
-	\begin{itemize}
-		\item allows to inspect different parts of the proof in individual views		
-		\item supports insight into unfinished proof attempts
-		\item seamless transition between different views
-		\item conduction proofs possible via
-		\begin{itemize}
-			\item direct manipulation
-			\item script based
-			\item annotation based
-		\end{itemize}
-	\end{itemize}
+\begin{frame}[c]{AlgoVer: Seamless Program Verification}
+\begin{itemize}
+ \item Interactive program verification for Dafny
+ \item Symbolic execution (à la \KeY{})
+ \item Innovative interaction concepts
+ \item Calling z3
+ \item Bridging the gap between code and proof
+\end{itemize}
+
+% 	\begin{itemize}
+% 		\item allows to inspect different parts of the proof in individual views		
+% 		\item supports insight into unfinished proof attempts
+% 		\item seamless transition between different views
+% 		\item conduction proofs possible via
+% 		\begin{itemize}
+% 			\item direct manipulation
+% 			\item script based
+% 			\item annotation based
+% 		\end{itemize}
+% 	\end{itemize}
 \end{frame}
 
 \begin{frame}{Demo}
 DEMO
 \end{frame}
 
-\begin{frame}{Future Work}	
+\begin{frame}{Features And Future Work}
+Features:
 	\begin{itemize}
-		\item more rules and strategies
-		\item better smt-support
-		\item feedback back to source code
-		\item evaluation on larger examples
+		\item Inspection of different parts of the proof in individual views		
+% 		\item supports insight into unfinished proof attempts
+		\item Seamless transition between different views
+		\item Proof construction using
+		\begin{itemize}
+			\item direct manipulation
+			\item script based
+			\item annotation based
+		\end{itemize}
+	\end{itemize}
+
+
+Future Work:
+	\begin{itemize}
+		\item More rules and strategies
+		\item Improved SMT-support
+		\item Feedback/Interaction back to annotations in source code
+		\item Evaluation on larger examples
 		\item ...
 	\end{itemize}
 \end{frame}
