@@ -1,7 +1,9 @@
 package edu.kit.iti.algover.smttrans.translate.expressions;
 
 import edu.kit.iti.algover.smttrans.data.Operation;
+import edu.kit.iti.algover.smttrans.translate.CastDependency;
 import edu.kit.iti.algover.smttrans.translate.ConstSignature;
+import edu.kit.iti.algover.smttrans.translate.Dependency;
 import edu.kit.iti.algover.smttrans.translate.FuncDependency;
 import edu.kit.iti.algover.smttrans.translate.TypeContext;
 import edu.kit.iti.algover.term.FunctionSymbol;
@@ -40,7 +42,7 @@ public class SMTVarExpression extends SMTExpression {
                 sb.append(sign.show());
             } else {
                 sb.append("(" + s1 + cast);
-                FuncDependency f = new FuncDependency(new FunctionSymbol(s1+cast.trim(), Sort.get("Set<Object>")));
+                Dependency f = new CastDependency(new FunctionSymbol(s1+cast.trim(), Sort.get("Set<Object>")));
                 TypeContext.addToPreamble(f);
                 sb.append(sign.show());
                 sb.append(")");
@@ -50,9 +52,9 @@ public class SMTVarExpression extends SMTExpression {
                 sb.append(partner.toSMT(arg));
             } else {
                 sb.append("(" + s2 + cast);
-                FuncDependency f = new FuncDependency(new FunctionSymbol(s2+cast.trim(), Sort.get("Set<Object>")));
+                Dependency f = new CastDependency(new FunctionSymbol(s2+cast.trim(), Sort.get("Set<Object>"),Sort.get(s2)));
                 TypeContext.addToPreamble(f);
-             
+       
                 sb.append(partner.toSMT(arg));
                 sb.append(")");
             }
