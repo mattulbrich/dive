@@ -1,3 +1,7 @@
+.styled-text-area .text {
+    -fx-font-size: 18;
+}
+
 .code-keyword {
     -fx-fill: #0000FF;
 }

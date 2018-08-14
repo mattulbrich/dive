@@ -441,6 +441,11 @@ public class MainController implements SequentActionListener, RuleApplicationLis
 
     @Override
     public void onRuleApplication(ProofRuleApplication application) {
+        //TODO only quick fix for presentation purposes
+        if(application == null) {
+            browserController.updateTableLabels();
+            return;
+        }
         // This can be implemented as an incremental algorithm in the future here!
         // Currently, this will reset the script text completely. That means the
         // script has to be parsed and rebuilt completely.
@@ -497,6 +502,7 @@ public class MainController implements SequentActionListener, RuleApplicationLis
      */
     @Override
     public void onSwitchViewedNode(ProofNodeSelector proofNodeSelector) {
+        editorController.resetReferences();
         sequentController.viewProofNode(proofNodeSelector);
     }
 

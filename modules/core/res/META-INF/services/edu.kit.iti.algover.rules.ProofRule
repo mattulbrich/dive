@@ -1,7 +1,7 @@
 # List here the available Java coded proof rules
 # Rule formulated as lemmas in Dafny are created separately.
 
-edu.kit.iti.algover.rules.impl.FakeSMTSolverRule
+#edu.kit.iti.algover.rules.impl.FakeSMTSolverRule
 edu.kit.iti.algover.rules.impl.TrivialAndRight
 edu.kit.iti.algover.rules.impl.PropositionalExpansionRule
 edu.kit.iti.algover.rules.impl.LetSubstitutionRule

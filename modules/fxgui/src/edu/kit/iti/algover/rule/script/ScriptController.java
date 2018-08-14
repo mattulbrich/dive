@@ -177,6 +177,7 @@ public class ScriptController implements ScriptViewListener {
         }
         //checkpoints = ProofNodeCheckpointsBuilder.build(proof);
         switchViewedNode();
+        listener.onRuleApplication(null);
     }
 
     public ScriptView getView() {
