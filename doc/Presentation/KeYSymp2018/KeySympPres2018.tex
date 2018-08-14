@@ -6,9 +6,9 @@
 
 \mode<presentation>
 {
-% \usetheme[english]{KIT}
+ \usetheme[english]{KIT}
 % \usetheme[usefoot]{KIT}
-  \usetheme[deutsch]{KIT}
+%   \usetheme[deutsch]{KIT}
 
 %%  \usefonttheme{structurebold}
 
@@ -34,18 +34,22 @@
 %\usenavigationsymbols[sfHhdb]
 %\usenavigationsymbols[sfhHb]
 
-\title{Demo of AlgoVer}
+\title{Seamless Interactive Program Verification\\ Demo of AlgoVer}
 
 \author{Sarah Grebing, Mattias Ulbrich, Jonas Klamroth}
+\subtitle{\insertauthor{}}
+\institute{Institut für Theoretische Informatik, KIT}
 
-\institute{Institut für Theoretische Informatik}
+\KITtitleimage[width=\titleimagewd]{../../Bilder/screenshotpres2018.png}
 
-\TitleImage[width=\titleimagewd]{../../Bilder/screenshotpres2018.png}
+
+
+
 
 \begin{document}
 
 \begin{frame}
-  \maketitle
+  \titlepage
 \end{frame}
 
 \begin{frame}{Interactive Program Verification}
@@ -80,9 +84,12 @@
 \begin{frame}[c]{AlgoVer: Seamless Program Verification}
 \begin{itemize}
  \item Interactive program verification for Dafny
+ \begin{itemize}
  \item Symbolic execution (à la \KeY{})
  \item Innovative interaction concepts
  \item Calling z3
+   \end{itemize}
+
  \item Bridging the gap between code and proof
 \end{itemize}
 
@@ -100,7 +107,9 @@
 \end{frame}
 
 \begin{frame}{Demo}
-DEMO
+\begin{center}
+\Huge{Demo} 
+\end{center}
 \end{frame}
 
 \begin{frame}{Features And Future Work}
@@ -116,7 +125,7 @@ Features:
 			\item annotation based
 		\end{itemize}
 	\end{itemize}
-
+\hspace{1em}
 
 Future Work:
 	\begin{itemize}
