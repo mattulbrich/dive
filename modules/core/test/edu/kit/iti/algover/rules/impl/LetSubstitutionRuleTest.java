@@ -74,4 +74,19 @@ public class LetSubstitutionRuleTest {
                 parse("5 == (let x, y := 6, 5 :: x)")
         );
     }
+
+
+    // Substitution must be conflict-free, otherwise the semantics
+    // change illegally.
+    @Test
+    public void testConflictingSubstitution() throws Exception {
+        Term t1 = parse("let y := 42 :: let x := y :: let y := 27 :: x");
+        Term t2 = parse("let x := 42 :: let y := 27 :: x");
+        Term t3 = parse("let y := 42 :: let y_1 := 27 :: y");
+        // t3 must NOT be (let y := 27 :: y) which is equivalent to 27
+        // whereas t1,t2 is equal to 42
+        // substitution may fail with exception if need be.
+        testSubstitution(t1, t2);
+        testSubstitution(t1.getTerm(0), t3.getTerm(0));
+    }
 }
