@@ -38,7 +38,10 @@ public class ProgramDatabase {
     }
 
     private static void collectVariableDeclarations(List<DafnyTree> collection, DafnyTree node) {
-        if(node.getType() == DafnyParser.VAR) {
+        if (node.getType() == DafnyParser.LET) {
+            // lets have VAR declarations inside them which are not variables.
+            // do nothing
+        } else if (node.getType() == DafnyParser.VAR) {
             collection.add(node);
         } else {
             // VARs are never nested.
