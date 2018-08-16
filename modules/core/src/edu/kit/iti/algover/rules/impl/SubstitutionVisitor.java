@@ -1,15 +1,19 @@
 package edu.kit.iti.algover.rules.impl;
 
 import de.uka.ilkd.pp.NoExceptions;
+import edu.kit.iti.algover.rules.RuleException;
 import edu.kit.iti.algover.script.ast.Variable;
 import edu.kit.iti.algover.term.*;
 import edu.kit.iti.algover.term.builder.TermBuildException;
+import edu.kit.iti.algover.util.ImmutableList;
 import edu.kit.iti.algover.util.Pair;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
@@ -21,24 +25,41 @@ import java.util.stream.Collectors;
  *
  * @see edu.kit.iti.algover.term.builder.LetInlineVisitor
  */
-public class SubstitutionVisitor implements TermVisitor<Map<String, Term>, Term, NoExceptions> {
+public class SubstitutionVisitor implements TermVisitor<Map<String, Term>, Term, RuleException> {
+
+    /**
+     * store the bound variables encountered on the way.
+     * Needed to detect conflicts.
+     */
+    private ImmutableList<VariableTerm> boundVars = ImmutableList.nil();
 
     /**
      * Variables get substituted, when they have something to be substituted in the
      * substitution table "substitutions".
      */
     @Override
-    public Term visit(VariableTerm variableTerm, Map<String, Term> substitutions) throws NoExceptions {
+    public Term visit(VariableTerm variableTerm, Map<String, Term> substitutions) throws RuleException {
         String varname = variableTerm.getName();
         Term substitution = substitutions.get(varname);
-        return substitution == null ? variableTerm : substitution;
+        if (substitution == null) {
+            return variableTerm;
+        }
+
+        Set<VariableTerm> freeVars = FreeVarVisitor.findFreeVars(substitution);
+        if(boundVars.exists(freeVars::contains)) {
+            // A substitution is conflicting if it introduces an occurrence into
+            // the scope of a variable binder.
+            throw new RuleException("Substitution induces a conflict: " + varname);
+        }
+
+        return substitution;
     }
 
     /**
      * SchemaVarTerms don't get changed.
      */
     @Override
-    public Term visit(SchemaVarTerm schemaVarTerm, Map<String, Term> substitutions) throws NoExceptions {
+    public Term visit(SchemaVarTerm schemaVarTerm, Map<String, Term> substitutions) {
         return schemaVarTerm;
     }
 
@@ -47,9 +68,12 @@ public class SubstitutionVisitor implements TermVisitor<Map<String, Term>, Term,
      * substituted.
      */
     @Override
-    public Term visit(QuantTerm quantTerm, Map<String, Term> substitutions) throws NoExceptions {
+    public Term visit(QuantTerm quantTerm, Map<String, Term> substitutions) throws RuleException {
         Term inner = quantTerm.getTerm(0);
-        Term innerReplaced = inner.accept(this, removeFromMap(substitutions, quantTerm.getBoundVar().getName()));
+        boundVars = boundVars.append(quantTerm.getBoundVar());
+        Term innerReplaced = inner.accept(this,
+                removeFromMap(substitutions, Collections.singleton(quantTerm.getBoundVar().getName())));
+        boundVars = boundVars.getTail();
         if (innerReplaced == inner) { // We need to try to keep our term identity for the automatic reference generation
             return quantTerm; // return the previous pointer instead of generating a new QuantTerm with the same content (and losing the identity)
         } else {
@@ -68,7 +92,7 @@ public class SubstitutionVisitor implements TermVisitor<Map<String, Term>, Term,
      * Applications simply move on with the substitution recursively.
      */
     @Override
-    public Term visit(ApplTerm applTerm, Map<String, Term> substitutions) throws NoExceptions {
+    public Term visit(ApplTerm applTerm, Map<String, Term> substitutions) throws RuleException {
         boolean anythingNew = false;
         Term[] subterms = new Term[applTerm.getSubterms().size()];
         for (int i = 0; i < applTerm.getSubterms().size(); i++) {
@@ -95,7 +119,7 @@ public class SubstitutionVisitor implements TermVisitor<Map<String, Term>, Term,
      * bound to the variables still get all substitutions.
      */
     @Override
-    public Term visit(LetTerm letTerm, Map<String, Term> substitutions) throws NoExceptions {
+    public Term visit(LetTerm letTerm, Map<String, Term> substitutions) throws RuleException {
         // Substitute everything inside the let's definitions
         boolean substitutionsChanged = false;
         List<Pair<VariableTerm, Term>> substitutedLetSubstitutions = new ArrayList<>(letTerm.getSubstitutions().size());
@@ -109,15 +133,19 @@ public class SubstitutionVisitor implements TermVisitor<Map<String, Term>, Term,
         }
 
         // Substitute the inner of the let
-        String[] letSubstitutions = letTerm.getSubstitutions().stream()
-                .map(Pair::getFst)
-                .map(VariableTerm::getName)
-                .collect(Collectors.toList())
-                .toArray(new String[0]);
+        ImmutableList<VariableTerm> oldBound = boundVars;
+        List<String> letSubstitutions = new ArrayList<>();
+        for (Pair<VariableTerm, Term> subst : letTerm.getSubstitutions()) {
+            letSubstitutions.add(subst.fst.getName());
+            boundVars = boundVars.append(subst.fst);
+        }
+
         // The effect of shadowing variables from outer lets inside the inner ones
         Map<String, Term> trimmedSubstitutions = removeFromMap(substitutions, letSubstitutions);
         Term inner = letTerm.getTerm(0);
         Term innerReplaced = inner.accept(this, trimmedSubstitutions);
+
+        boundVars = oldBound;
 
         if (inner == innerReplaced && !substitutionsChanged) { // preserve identity again, see above
             return letTerm;
@@ -131,7 +159,7 @@ public class SubstitutionVisitor implements TermVisitor<Map<String, Term>, Term,
         }
     }
 
-    private Map<String, Term> removeFromMap(Map<String, Term> map, String... keys) {
+    private Map<String, Term> removeFromMap(Map<String, Term> map, Iterable<String> keys) {
         boolean containsAnyKey = false;
         for (String key : keys) {
             containsAnyKey |= map.containsKey(key);

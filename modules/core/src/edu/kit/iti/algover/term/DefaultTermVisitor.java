@@ -8,7 +8,7 @@ package edu.kit.iti.algover.term;
 public abstract class DefaultTermVisitor<A, R, E extends Exception>
                 implements TermVisitor<A, R, E> {
 
-    protected abstract R defaultVisit(Term term, A arg);
+    protected abstract R defaultVisit(Term term, A arg) throws E;
 
     @Override
     public R visit(ApplTerm term, A arg) throws E {

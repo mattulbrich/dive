@@ -9,6 +9,7 @@ import java.util.AbstractCollection;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
+import java.util.function.Predicate;
 
 import nonnull.NonNull;
 import nonnull.Nullable;
@@ -590,5 +591,27 @@ public class ImmutableList<T> implements Iterable<T> {
         }
         return null;
     }
+
+    /**
+     * Returns true iff there exists an element in this list that satisfies the
+     * specified predicate.
+     *
+     * @param predicate the function used to check acceptance
+     * @param <E>       The type of exceptions that are potentially thrown by
+     *                  function.
+     * @return {@code true} if at least on element in this list satifies {@code
+     * predicate}, {@code false} if no element satisfies the predicate.
+     * @throws E if the function application throws an exception.
+     */
+    public <E extends Exception> boolean
+             exists(@NonNull FunctionWithException<T, Boolean, E> predicate) throws E {
+        for (T el : this) {
+            if(predicate.apply(el)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
 
 }
