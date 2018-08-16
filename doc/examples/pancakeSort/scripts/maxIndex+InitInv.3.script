@@ -1,0 +1,3 @@
+substitute on='|- ... ((?on: let localIndex := bottom :: let k := bottom - 1 :: (forall j:int :: k < j && j <= bottom ==> $seq_get<int>(a, j) <= $seq_get<int>(a, localIndex)))) ...';
+substitute on='|- ... ((?on: let k := bottom - 1 :: (forall j:int :: k < j && j <= bottom ==> $seq_get<int>(a, j) <= $seq_get<int>(a, bottom)))) ...';
+z3;

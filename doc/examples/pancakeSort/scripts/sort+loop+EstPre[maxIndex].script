@@ -1,0 +1,11 @@
+substitute on='... ((?on: let a := a_1 :: let k := k_1 :: 0 <= k && k < |a|)) ... |-';
+substitute on='... ((?on: let k := k_1 :: 0 <= k && k < |a_1|)) ... |-';
+substitute on='... ((?on: let a := a_1 :: let k := k_1 :: (forall j:int :: k <= j && j < |a| - 1 ==> $seq_get<int>(a, j) <= $seq_get<int>(a, j + 1)))) ... |-';
+substitute on='... ((?on: let k := k_1 :: (forall j:int :: k <= j && j < |a_1| - 1 ==> $seq_get<int>(a_1, j) <= $seq_get<int>(a_1, j + 1)))) ... |-';
+substitute on='... ((?on: let a := a_1 :: let k := k_1 :: k < |a| - 1 ==> (forall i:int :: 0 <= i && i <= k ==> $seq_get<int>(a, i) <= $seq_get<int>(a, k + 1)))) ... |-';
+substitute on='... ((?on: let k := k_1 :: k < |a_1| - 1 ==> (forall i:int :: 0 <= i && i <= k ==> $seq_get<int>(a_1, i) <= $seq_get<int>(a_1, k + 1)))) ... |-';
+substitute on='... ((?on: let k := k_1 :: k > 0)) ... |-';
+substitute on='|- ... ((?on: let a := a_1 :: let k := k_1 :: let a, bottom := a, k :: 0 < bottom && bottom < |a|)) ...';
+substitute on='|- ... ((?on: let k := k_1 :: let a, bottom := a_1, k :: 0 < bottom && bottom < |a|)) ...';
+substitute on='|- ... ((?on: let a, bottom := a_1, k_1 :: 0 < bottom && bottom < |a|)) ...';
+z3;

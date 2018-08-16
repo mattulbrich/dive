@@ -1,0 +1,2 @@
+substitute on='|- ... ((?on: let k := bottom - 1 :: k >= -1)) ...';
+z3;

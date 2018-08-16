@@ -1,0 +1,10 @@
+substitute on='... ((?on: let i := i_1 :: 0 <= 2 * i && 2 * i <= bound + 1)) ... |-';
+substitute on='... ((?on: let a := input :: let i := i_1 :: (forall j:int :: 0 <= j && j < i ==> $seq_get<int>(a, bound - j) == $seq_get<int>(input, j) && $seq_get<int>(a, j) == $seq_get<int>(input, bound - j)))) ... |-';
+substitute on='... ((?on: let i := i_1 :: (forall j:int :: 0 <= j && j < i ==> $seq_get<int>(input, bound - j) == $seq_get<int>(input, j) && $seq_get<int>(input, j) == $seq_get<int>(input, bound - j)))) ... |-';
+substitute on='... ((?on: let a := input :: let i := i_1 :: (forall j:int :: i <= j && j <= bound - i ==> $seq_get<int>(a, j) == $seq_get<int>(input, j)))) ... |-';
+substitute on='... ((?on: let i := i_1 :: (forall j:int :: i <= j && j <= bound - i ==> $seq_get<int>(input, j) == $seq_get<int>(input, j)))) ... |-';
+substitute on='... ((?on: let a := input :: (forall j:int :: bound < j && j < |a| ==> $seq_get<int>(a, j) == $seq_get<int>(input, j)))) ... |-';
+substitute on='... ((?on: let i := i_1 :: !(2 * i < bound))) ... |-';
+substitute on='|- ... ((?on: let a := input :: let i := i_1 :: (forall i:int :: bound < i && i < |a| ==> $seq_get<int>(a, i) == $seq_get<int>(input, i)))) ...';
+substitute on='|- ... ((?on: let i := i_1 :: (forall i:int :: bound < i && i < |input| ==> $seq_get<int>(input, i) == $seq_get<int>(input, i)))) ...';
+z3;

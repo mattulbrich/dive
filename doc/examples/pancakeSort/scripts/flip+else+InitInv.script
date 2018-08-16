@@ -1,0 +1,2 @@
+substitute on='|- ... ((?on: let i := 0 :: 0 <= 2 * i && 2 * i <= bound + 1)) ...';
+z3;

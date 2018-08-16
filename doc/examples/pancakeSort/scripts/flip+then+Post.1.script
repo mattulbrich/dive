@@ -1,0 +1,2 @@
+substitute on='|- ... ((?on: let a := input :: (forall i:int :: bound < i && i < |a| ==> $seq_get<int>(a, i) == $seq_get<int>(input, i)))) ...';
+z3;
