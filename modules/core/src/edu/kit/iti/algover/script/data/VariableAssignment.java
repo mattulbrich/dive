@@ -76,7 +76,7 @@ public class VariableAssignment {
             if (parent != null) {
                 return parent.getValue(name);
             } else {
-                throw new VariableNotDefinedException();
+                throw new VariableNotDefinedException(name.getIdentifier());
             }
         }
     }

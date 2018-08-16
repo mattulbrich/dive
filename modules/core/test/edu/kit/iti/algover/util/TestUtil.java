@@ -10,6 +10,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.lang.reflect.Parameter;
 import java.util.ArrayList;
 import java.util.List;
@@ -203,6 +204,31 @@ public class TestUtil {
             throw new RuntimeException(ex);
         }
     }
+
+    public static Object callStatic(Class<?> inClass, String methodName, Object... args) {
+        try {
+            methodName = methodName.intern();
+            Method[] ms = inClass.getDeclaredMethods();
+            for (Method m : ms) {
+                if(m.getName() != methodName || m.getParameterCount() != args.length
+                        || !Modifier.isStatic(m.getModifiers())) {
+                    continue;
+                }
+                for (int i = 0; i < args.length; i++) {
+                    Class<?> param = m.getParameterTypes()[i];
+                    if(args[i] != null && !param.isAssignableFrom(args[i].getClass())) {
+                        continue;
+                    }
+                }
+                m.setAccessible(true);
+                return m.invoke(null, args);
+            }
+            throw new NoSuchMethodException("Not found!");
+        } catch(Exception ex) {
+            throw new RuntimeException(ex);
+        }
+    }
+
 
     public static Matcher<Object> isContainedIn(List<?> list) {
         return new BaseMatcher<Object>() {
