@@ -1,0 +1,10 @@
+s1: set<int>
+s2: set<int>
+---
+
+
+forall i:int :: $set_in<int>(i,s1)
+
+|-
+
+forall s2: set<int> :: forall j: int :: $imp($set_in<int>(j,s2), set_in<int>(j,s1))

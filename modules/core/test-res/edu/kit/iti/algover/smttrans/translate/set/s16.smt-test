@@ -1,0 +1,6 @@
+s1: set<int>
+s2: set<int>
+---
+
+|-
+let s1 := $set_add<int>($neg(2),$set_add<int>(1,$empty<int>)) :: $and($and($set_in<int>(1,s1), $set_in<int>($mult(2,1),s1)),$set_card<int>(s1) == 2) 

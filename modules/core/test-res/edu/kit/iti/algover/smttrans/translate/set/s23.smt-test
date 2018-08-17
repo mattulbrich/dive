@@ -1,0 +1,9 @@
+s1: set<int>
+s2: set<int>
+---
+
+|-
+let s1 := $set_add<int>(1,$set_add<int>(3,s1)) ::
+let s2 := $set_add<int>(1,s1) ::
+
+$and($set_subset<int>(s1,s2),$not($set_subset<int>(s2,s1)))

@@ -1,0 +1,6 @@
+s1: set<int>
+s2: set<int>
+---
+s1 == $empty<int>
+|-
+$set_minus<int>($union<int>(s1,s2),$union<int>(s2,s1)) == $empty<int>
