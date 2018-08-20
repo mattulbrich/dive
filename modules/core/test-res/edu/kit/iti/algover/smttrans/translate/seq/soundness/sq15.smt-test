@@ -1,0 +1,7 @@
+s1: seq<int>
+s2: seq<int>
+---
+|-
+let s1 := $seq_cons<int>(1,$seq_cons<int>(2,$seq_cons<int>(3,$seq_cons<int>(4,$seq_empty<int>)))) :: 
+let s2 := $seq_cons<int>(5,$seq_cons<int>(6,$seq_cons<int>(7,$seq_cons<int>(8,$seq_empty<int>)))) ::
+forall i:int :: $imp($and($le(1,i),$lt(i,$seq_len<int>(s1))),$lt($seq_get<int>(s1,i),$seq_get<int>(s2,$minus(i,1))))

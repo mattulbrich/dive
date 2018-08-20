@@ -1,0 +1,5 @@
+a1: array2<int>,
+a2: array2<int>
+---
+|-
+$len0<int>(a1) == $len0<int>(a2)

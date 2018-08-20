@@ -1,0 +1,5 @@
+s1: multiset<int>
+---
+
+|-
+$not($multi_set_subset<int>($multi_empty<int>,s1))

@@ -1,0 +1,5 @@
+a1: array2<int>,
+a2: array2<int>
+---
+|-
+forall i:int :: $imp($and($le(0,i),$lt(i,$len0<int>(a1))),  $array2_select<int>($heap,a1,i,i) ==  $array2_select<int>($heap,a2,i,i))

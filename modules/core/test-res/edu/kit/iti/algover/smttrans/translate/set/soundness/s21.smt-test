@@ -1,0 +1,10 @@
+s1: set<int>
+s2: set<int>
+s3: set<int>
+---
+
+|-
+let s1 := $set_add<int>(4,$set_add<int>(5,$empty<int>)) :: 
+let s2 := $set_add<int>(1,$set_add<int>(2,$empty<int>)) :: 
+let s3 := $union<int>(s1,s2) ::
+$and($set_in<int>(1,s3),$set_in<int>(3,s3)) 

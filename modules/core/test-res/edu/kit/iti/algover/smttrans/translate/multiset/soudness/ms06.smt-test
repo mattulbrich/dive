@@ -1,0 +1,8 @@
+s1: multiset<int>
+s2: multiset<int>
+i : int
+j: int
+---
+$not($multi_set_in<int>(i, s2))
+|-
+$not($multi_set_in<int>(j, s2))

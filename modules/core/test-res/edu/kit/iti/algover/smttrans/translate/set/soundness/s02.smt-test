@@ -1,0 +1,6 @@
+s1: set<int>
+s2: set<int>
+---
+
+|-
+let s1 := $set_add<int>(2,$set_add<int>(1,$empty<int>)) :: $and($set_in<int>(1,s1), $set_in<int>(3,s1)) 

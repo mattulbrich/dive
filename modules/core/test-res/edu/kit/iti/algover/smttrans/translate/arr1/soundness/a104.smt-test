@@ -1,0 +1,7 @@
+a: array<int>
+i : int
+---
+$len<int>(a) == 2,
+$heap == $array_store<int>($heap,a,0,3)
+|-
+$array_select<int>($heap, a, 0) == 0 

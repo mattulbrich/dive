@@ -1,0 +1,6 @@
+s1: multiset<int>
+s2: multiset<int>
+---
+
+|-
+let s1 := $multi_set_add<int>(2,$multi_set_add<int>(1,$multi_empty<int>)) :: $and($multi_set_in<int>(1,s1), $multi_set_in<int>(3,s1)) 

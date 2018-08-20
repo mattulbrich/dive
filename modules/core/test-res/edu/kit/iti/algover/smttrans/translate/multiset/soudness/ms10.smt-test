@@ -1,0 +1,5 @@
+s1: multiset<int>
+s2: multiset<int>
+---
+|-
+let s1 := $multi_set_add<int>(2,$multi_set_add<int>(1,$multi_empty<int>)) :: let s2 := $multi_set_add<int>(1,$multi_empty<int>) :: $multi_set_subset<int>(s2,s1)

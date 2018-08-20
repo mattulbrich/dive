@@ -1,0 +1,7 @@
+s1: set<int>
+s2: set<int>
+---
+s2 == $empty<int>
+|-
+let s1 := $set_add<int>(1,$empty<int>) ::
+$not($set_minus<int>(s1,s2) == s1)

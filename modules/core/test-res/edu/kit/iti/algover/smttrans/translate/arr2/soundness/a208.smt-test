@@ -1,0 +1,5 @@
+a: array2<int>
+---
+
+|-
+$array2_select<int>($heap, a, 0,0) == 1) 

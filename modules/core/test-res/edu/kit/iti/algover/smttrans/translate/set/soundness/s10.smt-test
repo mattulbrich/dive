@@ -1,0 +1,5 @@
+s1: set<int>
+---
+
+|-
+$not($set_subset<int>($empty<int>,s1))

@@ -1,0 +1,6 @@
+s1: multiset<int>
+s2: multiset<int>
+---
+s2 == $multi_empty<int>
+|-
+$not($multi_minus<int>(s1,s2) == s1)

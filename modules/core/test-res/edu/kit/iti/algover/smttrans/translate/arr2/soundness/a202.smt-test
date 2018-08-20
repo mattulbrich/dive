@@ -1,0 +1,10 @@
+a: array2<int>
+---
+$len0<int>(a) == 2,
+$len1<int>(a) == 2
+|-
+let $heap := $array2_store<int>($heap,a,1,0,3) ::
+let $heap := $array2_store<int>($heap,a,1,1,2) ::
+forall i:int :: $imp($and($le(0,i),$lt(i,$len0<int>(a))), 
+forall j:int :: $imp($and($le(0,j),$lt(j,$len1<int>(a))),
+$array2_select<int>($heap,a,i,j) == $array2_select<int>($heap,a,j,i))) 
