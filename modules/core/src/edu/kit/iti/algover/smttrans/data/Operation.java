@@ -12,7 +12,7 @@ import static java.util.Arrays.asList;
 
 public enum Operation {
 
-    OR, SETEMPTY, PLUS, MINUS, TIMES, IMP, GT, DIV, LT, EQ, NOT, GE, LE, NEG, ITE, ARR2SELECT, ARRSTORE, ARR2STORE, FIELDSTORE, FIELDSELECT, DECR, SETUNION, SETINTERSECT, SETCARD, SEQCONCAT, ISCREATED, CREATE, ANON, SEQCONS, SEQEMPTY, SEQUPD, SEQGET, SEQLEN, SETIN, SETADD, CONST, ARRLEN, ARR2LEN0, ARR2LEN1, EXISTS, FORALL, LET, ARRSELECT, VAR, HEAP, AND, BV, MOD, AHEAP, EVERYTHING, MULTIUNION, MULTIINTERSECT, MULTIEMPTY, MULTICARD, MULTIADD, MULTIIN, SETMINUS, MULTIMINUS, FUNC, SEQSUBSELECT, SETSUBSET, MULTISUBSET;
+    OR, SETEMPTY, PLUS, MINUS, TIMES, IMP, GT, DIV, LT, EQ, NOT, GE, LE, NEG, ITE, ARR2SELECT, ARRSTORE, ARR2STORE, FIELDSTORE, FIELDSELECT, DECR, SETUNION, SETINTERSECT, SEQCONCAT, ISCREATED, CREATE, ANON, SEQCONS, SEQEMPTY, SEQUPD, SEQGET, SEQLEN, SETIN, SETADD, CONST, ARRLEN, ARR2LEN0, ARR2LEN1, EXISTS, FORALL, LET, ARRSELECT, VAR, HEAP, AND, BV, MOD, AHEAP, EVERYTHING, MULTIUNION, MULTIINTERSECT, MULTIEMPTY, MULTIADD, MULTIIN, SETMINUS, MULTIMINUS, FUNC, SEQSUBSELECT, SETSUBSET, MULTISUBSET;
 
     private String smt;
     private boolean poly = false;
@@ -72,7 +72,7 @@ public enum Operation {
 
         SETADD.smt = "setadd";
         SETADD.poly = true;
-        SETADD.instantiations = asList(Axiom.S2, Axiom.S3); // Axiom.SETCARD
+        SETADD.instantiations = asList(Axiom.S2, Axiom.S3);
         SETINTERSECT.smt = "setintersect";
         SETINTERSECT.poly = true;
         SETINTERSECT.instantiations = asList(Axiom.S2, Axiom.S3, Axiom.S5);
@@ -84,15 +84,12 @@ public enum Operation {
         SETMINUS.smt = "setminus";
         SETMINUS.poly = true;
         SETMINUS.instantiations = asList(Axiom.S6);
-        SETCARD.smt = "setcard";
-        SETCARD.poly = true;
-        SETCARD.instantiations = asList(Axiom.SC1, Axiom.SC3);
         SETIN.smt = "setin";
         SETIN.poly = true;
         SETIN.instantiations = asList(Axiom.S2); // ,Axiom.S3
         SETEMPTY.smt = "setempty";
         SETEMPTY.poly = true;
-        SETEMPTY.instantiations = asList(Axiom.S1, Axiom.S2, Axiom.S3, Axiom.SC2);
+        SETEMPTY.instantiations = asList(Axiom.S1, Axiom.S2, Axiom.S3);
 
         MULTIUNION.smt = "msetunion";
         MULTIUNION.poly = true;
@@ -105,10 +102,8 @@ public enum Operation {
         MULTIINTERSECT.instantiations = asList(Axiom.MS6);
         MULTIEMPTY.smt = "msetempty";
         MULTIEMPTY.poly = true;
-        MULTIEMPTY.instantiations = asList(Axiom.MS2, Axiom.MSC2);
-        MULTICARD.smt = "msetcard";
-        MULTICARD.poly = true;
-        MULTICARD.instantiations = asList(Axiom.MSC1, Axiom.MSC3);
+        MULTIEMPTY.instantiations = asList(Axiom.MS2);
+
         MULTIADD.smt = "msetadd";
         MULTIADD.poly = true;
         MULTIADD.instantiations = asList(Axiom.MS3);
