@@ -48,11 +48,9 @@ import java.io.InputStreamReader;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 @RunWith(Parameterized.class)
 public class SetUnitTest {
@@ -61,84 +59,79 @@ public class SetUnitTest {
             File.separatorChar);
 
     @Parameter
-    public String name;
+    public Path path;
 
-    private List<SymbolTable> symbols = new ArrayList<>();
-
-    private List<Sequent> sequents = new ArrayList<>();
-    private List<String> debug = new ArrayList<>();
+    private SymbolTable symbols;
+    private Sequent sequent;
+    private String debug;
 
     @Parameters(name = "{0}")
-    public static Object[] data() {
-        return new Object[] { "set" };
+    public static Object[] data() throws IOException {
+        List<Path> paths = Files.walk(Paths.get(dir)).filter(Files::isRegularFile).collect(Collectors.toList());
+        return paths.toArray();
     }
 
     @Before
     public void readAndParse() throws IOException, DafnyParserException, DafnyException {
 
-        List<Path> paths = Files.walk(Paths.get(dir)).filter(Files::isRegularFile).collect(Collectors.toList());
-        for (Path p : paths) {
-            debug.add(p.toString());
-            InputStream stream = Files.newInputStream(p);
-            SymbolTable st = new BuiltinSymbols();
 
-            // InputStream stream = getClass().getResourceAsStream(name+"/"+name +
-            // ".smt-test");
+        debug = path.toString();
+        InputStream stream = Files.newInputStream(path);
+        SymbolTable st = new BuiltinSymbols();
 
-            BufferedReader r = new BufferedReader(new InputStreamReader(stream));
+        // InputStream stream = getClass().getResourceAsStream(name+"/"+name +
+        // ".smt-test");
 
-            String line;
-            while ((line = r.readLine()) != null) {
-                line = line.trim();
-                if (line.startsWith("#") || line.isEmpty()) {
-                    continue;
-                }
+        BufferedReader r = new BufferedReader(new InputStreamReader(stream));
 
-                if (line.equals("---")) {
-                    break;
-                }
-
-                String[] parts = line.split(" *: *", 2);
-
-                Sort s = TreeUtil.parseSort(parts[1]);
-                st.addFunctionSymbol(new FunctionSymbol(parts[0], s));
+        String line;
+        while ((line = r.readLine()) != null) {
+            line = line.trim();
+            if (line.startsWith("#") || line.isEmpty()) {
+                continue;
             }
 
-            StringBuilder sb = new StringBuilder();
-            while ((line = r.readLine()) != null) {
-                sb.append(line).append("\n");
+            if (line.equals("---")) {
+                break;
             }
 
-            this.sequents.add(TermParser.parseSequent(st, sb.toString()));
-            this.symbols.add(st);
+            String[] parts = line.split(" *: *", 2);
 
+            Sort s = TreeUtil.parseSort(parts[1]);
+            st.addFunctionSymbol(new FunctionSymbol(parts[0], s));
         }
+
+        StringBuilder sb = new StringBuilder();
+        while ((line = r.readLine()) != null) {
+            sb.append(line).append("\n");
+        }
+
+        this.sequent = TermParser.parseSequent(st, sb.toString());
+        this.symbols = st;
+
     }
 
     @Test
     public void verifyZ3() throws DafnyParserException, DafnyException, RecognitionException, IOException,
             TermBuildException, RuleException {
-        for (int i = 0; i < sequents.size(); i++) {
+        SymbolTable st = symbols;
+        Sequent s = sequent;
 
-            SymbolTable st = symbols.get(i);
-            Sequent s = sequents.get(i);
-
-            MockPVCBuilder builder = new MockPVCBuilder();
-            builder.setSymbolTable(st);
-            Project mock = TestUtil.mockProject("method m() ensures true {}"); // not needed
-            builder.setSequent(s);
-            builder.setDeclaration(mock.getMethod("m")); // not needed
-            Map<TermSelector, DafnyTree> mockMap = mock.getPVCByName("m/Post").getReferenceMap(); // not needed
-            builder.setReferenceMap(mockMap); // not needed
-            PVC pvc = builder.build();
-            ProofNode pn = ProofMockUtil.mockProofNode(null, s.getAntecedent(), s.getSuccedent(), pvc);
-            ProofRule pr = new Z3Rule();
-            ProofRuleApplication pra = pr.makeApplication(pn, new edu.kit.iti.algover.rules.Parameters());
+        MockPVCBuilder builder = new MockPVCBuilder();
+        builder.setSymbolTable(st);
+        Project mock = TestUtil.mockProject("method m() ensures true {}"); // not needed
+        builder.setSequent(s);
+        builder.setDeclaration(mock.getMethod("m")); // not needed
+        Map<TermSelector, DafnyTree> mockMap = mock.getPVCByName("m/Post").getReferenceMap(); // not needed
+        builder.setReferenceMap(mockMap); // not needed
+        PVC pvc = builder.build();
+        ProofNode pn = ProofMockUtil.mockProofNode(null, s.getAntecedent(), s.getSuccedent(), pvc);
+        ProofRule pr = new Z3Rule();
+        ProofRuleApplication pra = pr.makeApplication(pn, new edu.kit.iti.algover.rules.Parameters());
 //            if (!pra.getApplicability().equals(ProofRuleApplication.Applicability.APPLICABLE)) {
 //                System.err.println(debug.get(i));
 //            }
-            assertEquals(pra.getApplicability(), ProofRuleApplication.Applicability.APPLICABLE);
-        }
+        assertEquals(pra.getApplicability(), ProofRuleApplication.Applicability.APPLICABLE);
     }
 
     @Test
