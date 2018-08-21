@@ -229,10 +229,6 @@ public class EditorController implements DafnyCodeAreaListener {
                 .forEach(DafnyCodeArea::rerenderHighlighting);
     }
 
-    public void resetReferences() {
-        viewReferences(new HashSet<>());
-    }
-
     public BooleanProperty anyFileChangedProperty() {
         return anyFileChangedProperty;
     }
