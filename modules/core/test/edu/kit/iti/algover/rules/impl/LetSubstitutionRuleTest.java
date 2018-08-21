@@ -4,6 +4,7 @@ import edu.kit.iti.algover.data.BuiltinSymbols;
 import edu.kit.iti.algover.parser.DafnyParserException;
 import edu.kit.iti.algover.proof.ProofNode;
 import edu.kit.iti.algover.rules.ProofRuleApplication;
+import edu.kit.iti.algover.rules.ProofRuleApplication.Applicability;
 import edu.kit.iti.algover.rules.RuleException;
 import edu.kit.iti.algover.rules.TermSelector;
 import edu.kit.iti.algover.term.Term;
@@ -12,7 +13,12 @@ import edu.kit.iti.algover.term.builder.TermBuilder;
 import edu.kit.iti.algover.term.parser.TermParser;
 import edu.kit.iti.algover.term.prettyprint.PrettyPrint;
 import edu.kit.iti.algover.util.ProofMockUtil;
+import edu.kit.iti.algover.util.TestUtil;
+import org.hamcrest.core.StringContains;
+import org.junit.Assert;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 
 import static org.junit.Assert.*;
 
@@ -74,4 +80,60 @@ public class LetSubstitutionRuleTest {
                 parse("5 == (let x, y := 6, 5 :: x)")
         );
     }
+
+
+    // Substitution must be conflict-free, otherwise the semantics
+    // change illegally.
+    @Test
+    public void testConflictingSubstitution() throws Exception {
+        Term t1 = parse("let y := 42 :: let x := y :: let y := 27 :: x>0");
+        Term t2 = parse("let x := 42 :: let y := 27 :: x>0");
+        testSubstitution(t1, t2);
+
+        // applying the middle substitution in t2 must result in a conflict:
+        //     let y := 42 :: let x := y :: let y := 27 :: x
+        // ->  let y := 42 :: let y := 27 :: y
+        // ->  27
+        // whereas t1,t2 is equal to 42
+
+        Term[] letTerm = { t1 };
+        ProofNode proofNode = ProofMockUtil.mockProofNode(null, letTerm, new Term[0]);
+        LetSubstitutionRule letRule = new LetSubstitutionRule();
+        ProofRuleApplication application = letRule.considerApplication(proofNode,
+                proofNode.getSequent(),
+                new TermSelector(TermSelector.SequentPolarity.ANTECEDENT, 0, 1));
+
+        assertEquals(application.getApplicability(), Applicability.NOT_APPLICABLE);
+    }
+
+    @Test
+    public void testApplicationExceptionLet() throws Exception {
+        Term t1 = parse("let y := 42 :: let x := y :: let y := 27 :: x");
+        Term t2 = t1.getTerm(0);
+
+        try {
+            TestUtil.callStatic(LetSubstitutionRule.class, "applyLetSubstitution", t2);
+            fail("Should throw exception!");
+        } catch(RuntimeException ex) {
+            Throwable cause = ex.getCause().getCause();
+            Assert.assertSame(RuleException.class, cause.getClass());
+            Assert.assertEquals("Substitution induces a conflict: x",  cause.getMessage());
+        }
+    }
+
+    @Test
+    public void testApplicationExceptionQuant() throws Exception {
+        Term t1 = parse("let y := 42 :: let x := y :: forall y :: x>0");
+        Term t2 = t1.getTerm(0);
+
+        try {
+            TestUtil.callStatic(LetSubstitutionRule.class, "applyLetSubstitution", t2);
+            fail("Should throw exception!");
+        } catch(RuntimeException ex) {
+            Throwable cause = ex.getCause().getCause();
+            Assert.assertSame(RuleException.class, cause.getClass());
+            Assert.assertEquals("Substitution induces a conflict: x",  cause.getMessage());
+        }
+    }
+
 }

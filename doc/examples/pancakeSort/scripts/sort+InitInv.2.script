@@ -1,0 +1,3 @@
+substitute on='|- ... ((?on: let a := input :: let k := |a| - 1 :: k < |a| - 1 ==> (forall i:int :: 0 <= i && i <= k ==> $seq_get<int>(a, i) <= $seq_get<int>(a, k + 1)))) ...';
+substitute on='|- ... ((?on: let k := |input| - 1 :: k < |input| - 1 ==> (forall i:int :: 0 <= i && i <= k ==> $seq_get<int>(input, i) <= $seq_get<int>(input, k + 1)))) ...';
+z3;

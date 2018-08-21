@@ -119,6 +119,7 @@ public class PrettyPrintTest {
         return new String[][] {
             { "|sq|" }, { "|st|" }, { "st + st" }, { "sq + sq" },
             { "{1, 2, 3}" }, { "[1, 2, 3]"},
+            { "sq[0]" },
         };
     }
 

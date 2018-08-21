@@ -1,0 +1,12 @@
+substitute on='|- ... ((?on: let k := k_1 :: let a := $res_flip_1 :: let k := k - 1 :: 0 <= k && k < |a|)) ...';
+substitute on='|- ... ((?on: let a := $res_flip_1 :: let k := k_1 - 1 :: 0 <= k && k < |a|)) ...';
+substitute on='|- ... ((?on: let k := k_1 - 1 :: 0 <= k && k < |$res_flip_1|)) ...';
+andRight on='|- ... ((?on: 0 <= k_1 - 1 && k_1 - 1 < |$res_flip_1|)) ...';
+cases {
+	case match "case 1": {
+		z3 ;
+	}
+	case match "case 2": {
+		z3 ;
+	}
+}

@@ -110,6 +110,7 @@ public class SSASequenter implements PVCSequenter {
 
                 DafnyTree assignedExpr = dafnyTree.getChild(1);
                 if(assignedExpr.getType() == DafnyParser.WILDCARD) {
+                    // Do not add an assignment for an anonymised value
                     continue;
                 }
 
@@ -145,7 +146,7 @@ class SSAInstantiationVisitor extends ReplacementVisitor<ImmutableList<Pair<Func
     @Override
     public Term visit(ApplTerm applTerm, ImmutableList<Pair<FunctionSymbol, FunctionSymbol>> mapping) throws TermBuildException {
         FunctionSymbol funcSymbol = applTerm.getFunctionSymbol();
-        Pair<FunctionSymbol, FunctionSymbol> replacement = mapping.findFirst(pair -> pair.fst == funcSymbol);
+        Pair<FunctionSymbol, FunctionSymbol> replacement = mapping.findLast(pair -> pair.fst == funcSymbol);
         if(replacement != null) {
             assert replacement.snd.getArity() == 0;
             return new ApplTerm(replacement.snd);

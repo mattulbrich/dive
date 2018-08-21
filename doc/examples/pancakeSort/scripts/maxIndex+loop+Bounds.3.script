@@ -1,0 +1,8 @@
+substitute on='... ((?on: let localIndex := localIndex_1 :: bottom >= localIndex)) ... |-';
+substitute on='... ((?on: let localIndex := localIndex_1 :: let k := k_1 :: localIndex >= k + 1)) ... |-';
+substitute on='... ((?on: let k := k_1 :: localIndex_1 >= k + 1)) ... |-';
+substitute on='... ((?on: let localIndex := localIndex_1 :: let k := k_1 :: (forall j:int :: k < j && j <= bottom ==> $seq_get<int>(a, j) <= $seq_get<int>(a, localIndex)))) ... |-';
+substitute on='... ((?on: let k := k_1 :: (forall j:int :: k < j && j <= bottom ==> $seq_get<int>(a, j) <= $seq_get<int>(a, localIndex_1)))) ... |-';
+substitute on='... ((?on: let k := k_1 :: k >= 0)) ... |-';
+substitute on='|- ... ((?on: let k := k_1 :: k < |a|)) ...';
+z3;

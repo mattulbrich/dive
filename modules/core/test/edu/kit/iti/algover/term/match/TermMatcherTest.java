@@ -166,6 +166,7 @@ public class TermMatcherTest {
         assertNotNull(symbTable);
 
 
+        // REVIEW: Some terms applied here are not boolean terms and must not be used in sequents.
         Sequent schemSeq = InterpreterUtils.createTestSequentHelper(schemSeqAntec, schemSeqSucc, symbTable, true);
         Sequent concSeq = InterpreterUtils.createTestSequentHelper(concrSeqAntec, concrSeqSucc, symbTable, true);
 

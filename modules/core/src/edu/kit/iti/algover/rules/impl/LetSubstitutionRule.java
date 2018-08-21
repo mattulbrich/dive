@@ -57,6 +57,12 @@ public class LetSubstitutionRule extends AbstractProofRule {
         }
         LetTerm targetLet = (LetTerm) targetTerm;
 
+        try {
+            applyLetSubstitution(targetLet);
+        } catch(RuleException ex) {
+            return ProofRuleApplicationBuilder.notApplicable(this);
+        }
+
         ProofRuleApplicationBuilder builder = new ProofRuleApplicationBuilder(this);
         builder.setApplicability(ProofRuleApplication.Applicability.APPLICABLE);
         builder.newBranch()
@@ -87,7 +93,7 @@ public class LetSubstitutionRule extends AbstractProofRule {
         return builder.build();
     }
 
-    private static Term applyLetSubstitution(LetTerm targetLet) {
+    private static Term applyLetSubstitution(LetTerm targetLet) throws RuleException {
         Map<String, Term> substitutionMap =
                 targetLet.getSubstitutions()
                         .stream()

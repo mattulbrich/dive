@@ -1,0 +1,2 @@
+substitute on='|- ... ((?on: let localIndex := bottom :: bottom >= localIndex)) ...';
+z3;

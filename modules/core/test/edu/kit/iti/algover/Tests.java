@@ -17,6 +17,7 @@ import edu.kit.iti.algover.rules.impl.DafnyRuleTest;
 import edu.kit.iti.algover.rules.impl.GenericRuleTest;
 import edu.kit.iti.algover.rules.impl.LetSubstitutionRuleTest;
 import edu.kit.iti.algover.term.builder.ParallelUpdateSequenterTest;
+import edu.kit.iti.algover.term.builder.SSASequenterTest;
 import edu.kit.iti.algover.term.builder.SimplifiedUpdateSequenterTest;
 import edu.kit.iti.algover.term.builder.TreeAssignmentTranslatorTest;
 import edu.kit.iti.algover.util.RuleUtilTest;
@@ -78,6 +79,7 @@ import edu.kit.iti.algover.util.UtilTest;
     UpdateSequenterTest.class,
     ParallelUpdateSequenterTest.class,
     InlineSequenterTest.class,
+    SSASequenterTest.class,
     PVCBuilderTest.class,
     PrettyPrintTest.class,
     TermReferencesBuilderTest.class,

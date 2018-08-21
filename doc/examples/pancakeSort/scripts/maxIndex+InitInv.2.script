@@ -1,0 +1,3 @@
+substitute on='|- ... ((?on: let localIndex := bottom :: let k := bottom - 1 :: localIndex >= k + 1)) ...';
+substitute on='|- ... ((?on: let k := bottom - 1 :: bottom >= k + 1)) ...';
+z3;
