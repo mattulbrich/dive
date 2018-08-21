@@ -10,6 +10,7 @@ import nonnull.NonNull;
 import javax.xml.bind.annotation.XmlType;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -25,10 +26,10 @@ import java.util.Set;
  */
 public class ProjectSettings {
 
-    private static class Property {
-        private final String key;
-        private final String defaultValue;
-        private final StringValidator validator;
+    public static class Property {
+        public final String key;
+        public final String defaultValue;
+        public final StringValidator validator;
 
         public Property(String key, String defaultValue, StringValidator validator) {
             this.key = key;
@@ -110,6 +111,10 @@ public class ProjectSettings {
 
     public boolean getBoolean(String key) {
         return Boolean.valueOf(set.get(key));
+    }
+
+    public static List<Property> getDefinedProperties() {
+        return Util.readOnlyArrayList(DEFINED_PROPERTIES);
     }
 
     public String toString() {
