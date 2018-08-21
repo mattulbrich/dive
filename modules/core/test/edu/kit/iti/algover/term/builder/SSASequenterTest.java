@@ -60,10 +60,10 @@ public class SSASequenterTest extends SequenterTest {
                     "  }}";
 
     private static String SSA_EXPECTED[] = {
-            "[$eq<set<object>>($mod_1, $everything), " +
-                    "$eq<int>($decr_1, 0), $eq<int>(a, 42)] " +
-                    "==> [$eq<int>($plus(a, r), 0)]",
-            "[$eq<set<object>>($mod_1, $everything), " +
+            "$eq<set<object>>($mod_1, $everything), " +
+                    "$eq<int>($decr_1, 0), $eq<int>(a, 42) " +
+                    "|- $eq<int>($plus(a, r), 0)",
+            "$eq<set<object>>($mod_1, $everything), " +
                     "$eq<int>($decr_1, 0), " +
                     "$eq<int>($decr_1_1, a_1), " +
                     "$eq<int>(local_2, r_1), " +
@@ -72,12 +72,12 @@ public class SSASequenterTest extends SequenterTest {
                     "$eq<int>(b_2, local_2), " +
                     "$eq<int>(a, 42), " +
                     "$eq<int>($plus(a_1, r_1), 0), " +
-                    "$gt(a_1, 0)] ==> [$eq<int>($plus(a_2, r_2), 0)]",
-            "[$eq<set<object>>($mod_1, $everything), " +
+                    "$gt(a_1, 0) |- $eq<int>($plus(a_2, r_2), 0)",
+            "$eq<set<object>>($mod_1, $everything), " +
                     "$eq<int>($decr_1, 0), " +
                     "$eq<int>(a, 42), " +
                     "$eq<int>($plus(a_1, r_1), 0), " +
-                    "$not($gt(a_1, 0))] ==> [$gt(r_1, 0)]"
+                    "$not($gt(a_1, 0)) |- $gt(r_1, 0)"
     };
 
     @Test
@@ -114,14 +114,14 @@ public class SSASequenterTest extends SequenterTest {
 
 
     private static String SSA_LINEAR_EXPECTED =
-            "[$eq<set<object>>($mod_1, $everything), $eq<int>($decr_1, 0), " +
+            "$eq<set<object>>($mod_1, $everything), $eq<int>($decr_1, 0), " +
                     "$eq<int>(local_1, 0), " +
                     "$eq<int>(r_1, $plus(local_1, 1)), " +
                     "$eq<int>(local_2, $plus(r_1, 1)), " +
                     "$eq<int>(r_2, $plus(local_2, 1)), " +
                     "$eq<int>(local_3, $plus(r_2, 1)), " +
                     "$eq<int>(r_3, $plus(local_3, 1))" +
-                    "] ==> [$gt(r_3, 0)]";
+                    " |- $gt(r_3, 0)";
 
     // revealed a bug in numbering
     @Test
