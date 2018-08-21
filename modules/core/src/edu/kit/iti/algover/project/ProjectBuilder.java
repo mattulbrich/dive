@@ -269,6 +269,17 @@ public class ProjectBuilder {
         return project;
     }
 
+    public Project buildMock() throws IOException, DafnyException, DafnyParserException {
+        this.files = new ArrayList<>();
+        this.methods = new ArrayList<>();
+        this.functions = new ArrayList<>();
+        this.classes = new ArrayList<>();
+
+        Project project = new Project(this);
+
+        return project;
+    }
+
 
     /*
      * Prepare the DafnyTrees by applying relevant visitors for name resolution

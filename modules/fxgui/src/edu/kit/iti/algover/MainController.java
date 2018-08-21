@@ -84,7 +84,7 @@ public class MainController implements SequentActionListener, RuleApplicationLis
     CostumBreadCrumbBar<Object> breadCrumbBar;
 
 
-    public MainController(ProjectManager manager, ExecutorService executor) {
+    public MainController(ProjectManager manager, ExecutorService executor, String pathToBrokenFile) {
         this.manager = manager;
         this.executor = executor;
         this.browserController = new FlatBrowserController(manager.getProject(), manager.getAllProofs(), this::onClickPVCEdit);
@@ -131,7 +131,21 @@ public class MainController implements SequentActionListener, RuleApplicationLis
         statusBarLoggingHandler = new StatusBarLoggingHandler(statusBar);
         logger.addHandler(statusBarLoggingHandler);
         logger.setUseParentHandlers(false);
-        logger.info("Load of project '" + manager.getDirectory().getName() + "' successful.");
+        if(pathToBrokenFile != null) {
+            editorController.viewFile(pathToBrokenFile);
+            browserController.getView().setDisable(true);
+            sequentController.getView().setDisable(true);
+            ruleApplicationController.getView().setDisable(true);
+            simpleStratButton.setDisable(true);
+            breadCrumbBar.setDisable(true);
+            logger.info("Load of project '" + manager.getDirectory().getName() + "' failed due to errors in dafny files.");
+        } else {
+            logger.info("Load of project '" + manager.getDirectory().getName() + "' successful.");
+        }
+    }
+
+    public MainController(ProjectManager manager, ExecutorService executor) {
+        this(manager,executor,null);
     }
 
     private void trivialStrat(ActionEvent event) {

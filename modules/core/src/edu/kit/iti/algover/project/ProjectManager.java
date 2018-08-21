@@ -106,6 +106,18 @@ public final class ProjectManager {
         this(directory, CONFIG_DEFAULT_NAME);
     }
 
+    private ProjectManager(File directory, String configFilename, Boolean isMock) throws FormatException, DafnyParserException, IOException, DafnyException {
+        this.directory = directory;
+        this.configFilename = configFilename;
+        Project project = buildProjectMock(directory, configFilename);
+        proofs = new HashMap<>();
+        this.project.setValue(project);
+    }
+
+    static public ProjectManager getMock(File directory, String configFilename) throws FormatException, DafnyParserException, IOException, DafnyException {
+        return new ProjectManager(directory, configFilename, true);
+    }
+
     /**
      * Reload the project.
      *
@@ -163,6 +175,22 @@ public final class ProjectManager {
         }
 
         return result;
+    }
+
+    private static Project buildProjectMock(File path, String configFilename)
+            throws DafnyException, DafnyParserException, IOException, FormatException {
+        ProjectBuilder pb = new ProjectBuilder();
+        pb.setDir(path);
+        pb.setConfigFilename(configFilename);
+        try {
+            pb.parseProjectConfigurationFile();
+            pb.validateProjectConfiguration();
+        } catch (JAXBException|SAXException e) {
+            // subsume the XML exceptions under IOException.
+            throw new IOException(e);
+        }
+
+        return pb.buildMock();
     }
 
     /**

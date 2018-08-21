@@ -8,6 +8,7 @@ import edu.kit.iti.algover.project.Project;
 import edu.kit.iti.algover.proof.PVC;
 import edu.kit.iti.algover.references.CodeReference;
 import edu.kit.iti.algover.util.ExceptionDetails;
+import edu.kit.iti.algover.util.FileUtil;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.value.ChangeListener;
@@ -29,14 +30,18 @@ import org.fxmisc.flowless.VirtualizedScrollPane;
 
 import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.logging.Logger;
+import java.util.stream.Stream;
 
 /**
  * Controller for the view that handles all {@link DafnyCodeArea} tabs.
@@ -94,8 +99,10 @@ public class EditorController implements DafnyCodeAreaListener {
         while (change.next()) {
             if (change.wasRemoved()) {
                 for (Tab removedTab : change.getRemoved()) {
-                    DafnyFile f = (DafnyFile) (removedTab.getUserData());
-                    tabsByFile.remove(f.getFilename());
+                    if(removedTab.getUserData() instanceof DafnyFile) {
+                        DafnyFile f = (DafnyFile) (removedTab.getUserData());
+                        tabsByFile.remove(f.getFilename());
+                    }
                 }
             }
         }
@@ -127,6 +134,24 @@ public class EditorController implements DafnyCodeAreaListener {
             } catch (IOException e) {
                 e.printStackTrace();
             }
+        }
+    }
+
+    public void viewFile(String dafnyFile) {
+        try {
+            String contentAsText = fileToString(dafnyFile);
+            Tab tab = new Tab();
+            tab.setText(dafnyFile);
+            tab.setUserData(dafnyFile);
+            DafnyCodeArea codeArea = new DafnyCodeArea(contentAsText, executor, this);
+            codeArea.setHighlightingRule(highlightingLayers);
+            tab.setContent(new VirtualizedScrollPane<>(codeArea));
+            tabsByFile.put(dafnyFile, tab);
+            view.getTabs().add(tab);
+            view.getSelectionModel().select(tab);
+            codeArea.getTextChangedProperty().addListener(this::onTextChanged);
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 
@@ -253,9 +278,16 @@ public class EditorController implements DafnyCodeAreaListener {
     }
 
     private void saveFileForTab(Tab tab) {
+        String absFilepath = null;
+        String filename = null;
         if (tab.getUserData() instanceof DafnyFile) {
-            String filename = ((DafnyFile) tab.getUserData()).getFilename();
-            String absFilepath = baseDir + "/" + filename;
+            filename = ((DafnyFile) tab.getUserData()).getFilename();
+            absFilepath = baseDir + "/" + filename;
+        } else if(tab.getUserData() instanceof String) {
+            absFilepath = (String)tab.getUserData();
+            filename = new File(absFilepath).getName();
+        }
+        if(absFilepath != null) {
             try {
                 FileWriter fw = new FileWriter(absFilepath);
                 BufferedWriter bw = new BufferedWriter(fw);

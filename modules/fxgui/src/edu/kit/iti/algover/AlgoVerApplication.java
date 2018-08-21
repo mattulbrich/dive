@@ -5,6 +5,8 @@
  */
 package edu.kit.iti.algover;
 
+import edu.kit.iti.algover.parser.DafnyParserException;
+import edu.kit.iti.algover.project.Project;
 import edu.kit.iti.algover.project.ProjectManager;
 import javafx.application.Application;
 import javafx.scene.Scene;
@@ -44,11 +46,19 @@ public class AlgoVerApplication extends Application {
             }
 
             // Read all PVCs and update GUI
-            ProjectManager manager = new ProjectManager(projectConfigFile.getParentFile(), projectConfigFile.getName());
+            ProjectManager manager = null;
+            String brokenFile = null;
+            try {
+                manager = new ProjectManager(projectConfigFile.getParentFile(), projectConfigFile.getName());
+            } catch (DafnyParserException e) {
+                manager = ProjectManager.getMock(projectConfigFile.getParentFile(), projectConfigFile.getName());
+                brokenFile = e.getFilename();
+            }
+
             // TODO Maybe don't do this initially (might hurt UX, when there are a lot of proofs)
             manager.getAllProofs().values().forEach(proof -> proof.interpretScript());
 
-            MainController controller = new MainController(manager, SYNTAX_HIGHLIGHTING_EXECUTOR);
+            MainController controller = new MainController(manager, SYNTAX_HIGHLIGHTING_EXECUTOR, brokenFile);
 
             Scene scene = new Scene(controller.getView());
             scene.getStylesheets().add(AlgoVerApplication.class.getResource("style.css").toExternalForm());
