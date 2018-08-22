@@ -27,22 +27,18 @@ public class SMTVarExpression extends SMTExpression {
         String s2 = TypeContext.normalizeReturnSort(partner.fs);
 
         if (!s1.equals(s2)) {
-            
-            
+
             String cast = "2o ";
             if (s1.contains("Set<Object>") || s2.contains("Set<Object>")) {
                 cast = "2Set<Object> ";
-                
+
             }
-          
-            
+
             if (s1.contains("Object")) {
                 sb.append(sign.show());
             } else {
                 sb.append("(" + s1 + cast);
-                Dependency f = new CastDependency(new FunctionSymbol(s1+cast.trim(), Sort.get("Set<Object>")),s1);
-                System.out.println("=========");
-                System.out.println(s1);
+                Dependency f = new CastDependency(new FunctionSymbol(s1 + cast.trim(), Sort.get("Set<Object>")), s1);
                 TypeContext.addToPreamble(f);
                 sb.append(sign.show());
                 sb.append(")");
@@ -52,17 +48,15 @@ public class SMTVarExpression extends SMTExpression {
                 sb.append(partner.toSMT(arg));
             } else {
                 sb.append("(" + s2 + cast);
-                Dependency f = new CastDependency(new FunctionSymbol(s2+cast.trim(), Sort.get("Set<Object>"),Sort.get(s2)),s2);
-                System.out.println("=========");
-                System.out.println(s2);
+                Dependency f = new CastDependency(
+                        new FunctionSymbol(s2 + cast.trim(), Sort.get("Set<Object>"), Sort.get(s2)), s2);
+
                 TypeContext.addToPreamble(f);
-       
+
                 sb.append(partner.toSMT(arg));
                 sb.append(")");
             }
-            
-            
-            
+
             sb.append(" ");
         } else {
 

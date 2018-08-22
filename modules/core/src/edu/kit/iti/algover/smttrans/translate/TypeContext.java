@@ -526,15 +526,16 @@ public class TypeContext {
 
         }
 
-        if (!critical.isEmpty() && !nsmt.contains("(declare-sort Object 0)"))
+        if (!critical.isEmpty() && !nsmt.contains("(declare-sort Object 0)")) {
             nsmt += "(declare-sort Object 0)" + "\r\n";
-
+          
+        }
         if (!critical.isEmpty()) {
 
             for (String t : sorts) {
 
                 // declarations
-
+                
                 nsmt += "(declare-fun o2C (Object) C)".replace("C", t) + "\r\n";
                 nsmt += "(declare-fun C2o (C) Object)".replace("C", t) + "\r\n";
                 nsmt += "(declare-fun typeC (Object) Bool)".replace("C", t) + "\r\n";
@@ -577,26 +578,7 @@ public class TypeContext {
             }
         }
         return nsmt;
-        // Temporary, Debug
-        // String nnsmt = "";
-        // List<String> nlines = Arrays.asList(nsmt.split("\\r?\\n"));
-        // for (String l : nlines) {
-        //
-        // if (!l.contains("Object") && l.contains("=") && l.contains("~mod") &&
-        // l.toLowerCase().contains("set")) {
-        // String fun = "(declare-fun set2o (Set<Arr<Int>>) Set<Object>)";
-        // if (!nnsmt.contains(fun)) {
-        // nnsmt += fun + "\r\n";
-        // }
-        // String line = l + ")";
-        // nnsmt += line.replace("~mod", "~mod (set2o") + "\r\n"; // bracket here
-        // } else {
-        //
-        // nnsmt += l + "\r\n";
-        // }
-        // }
-        //
-        // return nnsmt;
+        
 
     }
 

@@ -73,15 +73,14 @@ public class AxiomContainer {
             } else if (s.fst.get(0).equals(TypeContext.SMT_ARRNAME)) {
                 a = Axiom.H10;
             }
-            ax.add(typeAxiom(a.smt, s.snd));
+            ax.add(typeAxiom(a.smt, s.snd));           
         }
+        
         return ax;
 
     }
 
     public static Set<String> instantiateAxiom(Axiom a, FunctionSymbol t) {
-        // System.out.println("NAME " + a.name());
-        // System.out.println("TYPE " + TypeContext.normalizeReturnSort(t));
 
         addType(a, t);
         if (a.equals(Axiom.ANON))

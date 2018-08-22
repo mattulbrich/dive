@@ -39,12 +39,12 @@ public class CastDependency extends Dependency {
         inst.add(sb.toString());
 
         sb = new StringBuilder();
-
+        inst.add("(declare-fun setin<Object> (Object Set<Object>) Bool)"); // DEBUG ?
         sb.append("(assert (forall\r\n" + "(\r\n" + " (a T)\r\n" + " (s Set<T>)\r\n" + ")\r\n"
                 + "(= (setin<Object> (T2o a) (Set<T>2Set<Object> s)) (setin<T> a s))))");
 
         inst.add(sb.toString().replace("T", sort));
-
+        
         return inst;
     }
 
