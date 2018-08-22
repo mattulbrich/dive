@@ -47,7 +47,7 @@ public class ModusPonensRule extends AbstractProofRule {
             return ProofRuleApplicationBuilder.notApplicable(this);
         }
 
-        ProofRuleApplicationBuilder builder = handleControlParameters(parameters, target.getSequent());
+        ProofRuleApplicationBuilder builder = new ProofRuleApplicationBuilder(this);
 
         builder.newBranch().addReplacement(selector, appl.getTerm(1)).setLabel("mainBranch");
         builder.newBranch().addDeletionsSuccedent(target.getSequent().getSuccedent()).
@@ -73,7 +73,7 @@ public class ModusPonensRule extends AbstractProofRule {
             throw new RuleException("Modus Ponens is only applicable on implications.");
         }
 
-        ProofRuleApplicationBuilder builder = handleControlParameters(parameters, target.getSequent());
+        ProofRuleApplicationBuilder builder = new ProofRuleApplicationBuilder(this);
 
         builder.newBranch().addReplacement(selector, appl.getTerm(1)).setLabel("mainBranch");
         builder.newBranch().addDeletionsSuccedent(target.getSequent().getSuccedent()).

@@ -45,7 +45,7 @@ public class ModusTollensRule extends AbstractProofRule {
             return ProofRuleApplicationBuilder.notApplicable(this);
         }
 
-        ProofRuleApplicationBuilder builder = handleControlParameters(parameters, target.getSequent());
+        ProofRuleApplicationBuilder builder = new ProofRuleApplicationBuilder(this);
 
         Term notTerm;
         try {
@@ -92,7 +92,7 @@ public class ModusTollensRule extends AbstractProofRule {
             throw new RuleException("Failed to build negated term.", e);
         }
 
-        ProofRuleApplicationBuilder builder = handleControlParameters(parameters, target.getSequent());
+        ProofRuleApplicationBuilder builder = new ProofRuleApplicationBuilder(this);
         Term notTerm2;
         try {
             notTerm2 = new ApplTerm(BuiltinSymbols.NOT, appl.getTerm(0));

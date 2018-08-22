@@ -50,7 +50,7 @@ public class OrRightRule extends AbstractProofRule {
             return ProofRuleApplicationBuilder.notApplicable(this);
         }
 
-        ProofRuleApplicationBuilder builder = handleControlParameters(parameters, target.getSequent());
+        ProofRuleApplicationBuilder builder = new ProofRuleApplicationBuilder(this);
 
         builder.newBranch().addReplacement(selector, appl.getTerm(0)).
                 addAdditionsSuccedent(new ProofFormula(appl.getTerm(1)));
@@ -82,7 +82,7 @@ public class OrRightRule extends AbstractProofRule {
             throw new RuleException("orRight may only be applied to or terms.");
         }
 
-        ProofRuleApplicationBuilder builder = handleControlParameters(parameters, target.getSequent());
+        ProofRuleApplicationBuilder builder = new ProofRuleApplicationBuilder(this);
 
         builder.newBranch().addReplacement(selector, appl.getTerm(0)).
                 addAdditionsSuccedent(new ProofFormula(appl.getTerm(1)));

@@ -24,22 +24,6 @@ import java.util.List;
  */
 public class RuleApplicator {
 
-    public static List<ProofNode> applyRule(ProofRuleApplication proofRuleApplication, ProofNode pn)  throws RuleException {
-        if(proofRuleApplication.isExhaustive()) {
-            if(proofRuleApplication.isDeep() && proofRuleApplication.isGlobal()) {
-                //TODO
-            }
-            if(proofRuleApplication.isDeep()) {
-                return applyRuleDeepExhaustive(proofRuleApplication.getRule(), pn, proofRuleApplication.getOn());
-            }
-            if(proofRuleApplication.isGlobal()) {
-                //TODO
-            }
-            return applyRuleExhaustive(proofRuleApplication.getRule(), pn, proofRuleApplication.getOn());
-        }
-        return applyRuleOnce(proofRuleApplication, pn);
-    }
-
     /**
      * Apply a Proof Rule to a proof node
      *
@@ -47,7 +31,21 @@ public class RuleApplicator {
      * @param pn                   the ProofNode to which the rule should be applied
      * @return a list of new proof nodes (children) resulting form the rule application
      */
-    public static List<ProofNode> applyRuleOnce(ProofRuleApplication proofRuleApplication, ProofNode pn) {
+    public static List<ProofNode> applyRule(ProofRuleApplication proofRuleApplication, ProofNode pn) {
+
+        List<ProofNode> newNodes = applySingleApplication(proofRuleApplication, pn);
+        assert(proofRuleApplication.subApplications.size() == newNodes.size());
+        if(proofRuleApplication.subApplications != null) {
+            for (int i = 0; i < newNodes.size(); ++i) {
+                if (proofRuleApplication.subApplications.get(i) != null) {
+                    newNodes.get(i).setChildren(applyRule(proofRuleApplication.subApplications.get(i), newNodes.get(i)));
+                }
+            }
+        }
+        return newNodes;
+    }
+
+    private static List<ProofNode> applySingleApplication(ProofRuleApplication proofRuleApplication, ProofNode pn) {
 
         ImmutableList<BranchInfo> applicationInfos = proofRuleApplication.getBranchInfo();
         if (applicationInfos.equals(BranchInfo.UNCHANGED)) {
@@ -93,6 +91,7 @@ public class RuleApplicator {
      * @return the list of proof nodes resulting from the exhaustive application of the rule
      * @throws RuleException
      */
+    @Deprecated
     public static List<ProofNode> applyRuleExhaustive(ProofRule proofRule, ProofNode pn, TermSelector ts)  throws RuleException {
         ProofRuleApplication proofRuleApplication = new ProofRuleApplicationBuilder(proofRule)
                 .setApplicability(ProofRuleApplication.Applicability.NOT_APPLICABLE)
@@ -131,6 +130,7 @@ public class RuleApplicator {
      * @return the list of proof nodes resulting from the exhaustive application of the rule
      * @throws RuleException
      */
+    @Deprecated
     public static List<ProofNode> applyRuleDeepExhaustive(ProofRule proofRule, ProofNode pn, TermSelector ts)  throws RuleException {
         ProofRuleApplication proofRuleApplication = new ProofRuleApplicationBuilder(proofRule)
                 .setApplicability(ProofRuleApplication.Applicability.NOT_APPLICABLE)
@@ -175,6 +175,7 @@ public class RuleApplicator {
      * @return the script describing all rule applications
      * @throws RuleException
      */
+    @Deprecated
     public static String getScriptForExhaustiveRuleApplication(ProofRule proofRule, ProofNode pn, TermSelector ts)  throws RuleException {
         String script = "";
         ProofRuleApplication proofRuleApplication = new ProofRuleApplicationBuilder(proofRule)

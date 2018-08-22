@@ -50,7 +50,7 @@ public class AndLeftRule extends AbstractProofRule {
             return ProofRuleApplicationBuilder.notApplicable(this);
         }
 
-        ProofRuleApplicationBuilder builder = handleControlParameters(parameters, target.getSequent());
+        ProofRuleApplicationBuilder builder = new ProofRuleApplicationBuilder(this);
 
         builder.newBranch().addReplacement(selector, appl.getTerm(0)).
                 addAdditionAntecedent(new ProofFormula(appl.getTerm(1)));
@@ -86,7 +86,7 @@ public class AndLeftRule extends AbstractProofRule {
             throw new RuleException("andLeft may only be applied to or terms.");
         }
 
-        ProofRuleApplicationBuilder builder = handleControlParameters(parameters, target.getSequent());
+        ProofRuleApplicationBuilder builder = new ProofRuleApplicationBuilder(this);
 
         builder.newBranch().addReplacement(selector, appl.getTerm(0)).
                 addAdditionAntecedent(new ProofFormula(appl.getTerm(1)));

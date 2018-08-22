@@ -11,6 +11,9 @@ import nonnull.DeepNonNull;
 import nonnull.NonNull;
 import nonnull.Nullable;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * This class captures potential applications of proof rules.
  *
@@ -29,13 +32,17 @@ import nonnull.Nullable;
  */
 public final class ProofRuleApplication {
 
-        /**
+    /**
      * The rule to which this application belongs.
      */
-        private final
-        @NonNull
-        ProofRule rule;
-    ;
+    private final @NonNull ProofRule rule;
+
+    /**
+     * Possible "SubApplications"
+     * If not null these ProofRuleApplications are performed on the resulting childNOdes of this ProofRuleApplication.
+     */
+    List<ProofRuleApplication> subApplications = null;
+
     /**
      * The information about the branches into which this rule application
      * splits. Emtpy if closing rule app. Singleton list if the rule app does not
@@ -73,31 +80,6 @@ public final class ProofRuleApplication {
     private final @NonNull String scriptTranscript;
 
     /**
-     * A rule may be applied exhaustively meaning that it is recursively applied to the term resulting from the
-     * previous application as long as possible. This parameter describes whether or not the rule application
-     * is exhaustive or not.
-     */
-    private final boolean exhaustive;
-
-    /**
-     * Similar to exhaustive rule applications a rule might be applied deep exhaustive. In this case the recursive
-     * applications continue even if there is a term where the rule is not applicable (in this case it is applied to
-     * all child-terms).
-     */
-    private final boolean deep;
-
-    /**
-     * A rule might be applied globally meaning it is not only applied to 1 specific term but to all proofformulas
-     * in the sequent. This may be combined with exhaustive or deep exhaustive applications.
-     */
-    private final boolean global;
-
-    /**
-     * This TermSelector points to the term this rule is going to be applied on.
-     */
-    private final TermSelector on;
-
-    /**
      * Instantiates a new proof rule application.
      *
      * The passed parameters object is set to immutable.
@@ -116,14 +98,8 @@ public final class ProofRuleApplication {
      *            such parameters exist.
      * @param refiner
      *            the potential refiner
-     * @param exhaustive
-     *            whether the rule should be applied exhaustive
-     * @param deep
-     *            whether the rule should be applied deep exhaustive
-     * @param deep
-     *            whether the rule should be applied global
-     * @param on
-     *            pointing to the Term this application is applied to
+     * @param subApplications
+     *            possible SubApplications which are performed on the children resulting from this application
      */
     public ProofRuleApplication(
             @NonNull ProofRule rule,
@@ -132,10 +108,7 @@ public final class ProofRuleApplication {
             @NonNull String scriptTranscript,
             @NonNull Parameters openParameters,
             @Nullable Refiner refiner,
-            @NonNull boolean exhaustive,
-            @NonNull boolean deep,
-            @NonNull boolean global,
-            @Nullable TermSelector on) {
+            List<ProofRuleApplication> subApplications) {
         this.rule = rule;
         this.branchInfo = branchInfo;
         this.applicability = applicability;
@@ -143,10 +116,7 @@ public final class ProofRuleApplication {
         this.openParameters = openParameters;
         this.scriptTranscript = scriptTranscript;
         openParameters.setImmutable();
-        this.exhaustive = exhaustive;
-        this.deep = deep;
-        this.global = global;
-        this.on = on;
+        this.subApplications = subApplications;
     }
 
     /**
@@ -218,7 +188,7 @@ public final class ProofRuleApplication {
      */
     private ProofRuleApplication thisWithoutRefiner() {
         return new ProofRuleApplication(rule, branchInfo, applicability,
-                scriptTranscript, openParameters, null, exhaustive, deep, global, on);
+                scriptTranscript, openParameters, null, subApplications);
     }
 
     /**
@@ -258,39 +228,6 @@ public final class ProofRuleApplication {
      */
     public ImmutableList<BranchInfo> getBranchInfo() {
         return branchInfo;
-    }
-
-
-    /**
-     * checks if this application is exhaustive.
-     * @return if its exhaustive
-     */
-    public boolean isExhaustive() {
-        return exhaustive;
-    }
-
-    /**
-     * checks if this application is deep.
-     * @return if its deep
-     */
-    public boolean isDeep() {
-        return deep;
-    }
-
-    /**
-     * checks if this application is global.
-     * @return if its global
-     */
-    public boolean isGlobal() {
-        return global;
-    }
-
-    /**
-     * Gets the termSelector for the on parameter
-     * @return the termselector
-     */
-    public TermSelector getOn() {
-        return on;
     }
 
     /**
