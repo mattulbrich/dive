@@ -77,8 +77,6 @@ public class SMTApplExpression extends SMTExpression {
                 sorts.add(sort);
                 if (sort.equalsIgnoreCase("object"))
                     casts = true;
-              
-                
 
             }
             if (sorts.size() > 1)
@@ -103,23 +101,6 @@ public class SMTApplExpression extends SMTExpression {
                 }
             }
 
-            //
-
-            // for (SMTExpression c : children) {
-            // String sort = TypeContext.normalizeReturnSort(c.fs);
-            // if (TypeContext.isBuiltIn(sort) || sort.equalsIgnoreCase("object")
-            // || sort.toLowerCase().startsWith("set") ||
-            // sort.toLowerCase().startsWith("seq")
-            // || sort.toLowerCase().startsWith("arr") ||
-            // sort.toLowerCase().startsWith("multiset")) {
-            // sb.append(c.toSMT(false, bound));
-            // continue;
-            // }
-            // sb.append("(" + sort + "2o ");
-            //
-            // sb.append(c.toSMT(false, bound));
-            // sb.append(") ");
-            // }
         } else {
             for (SMTExpression c : children) {
                 sb.append(c.toSMT(false, bound));

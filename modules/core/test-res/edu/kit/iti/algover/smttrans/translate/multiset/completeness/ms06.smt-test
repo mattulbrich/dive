@@ -6,4 +6,3 @@ $multi_set_card<int>(s2) == 2,
 $not($multi_set_in<int>(i, s2))
 |-
 
-$multi_set_card<int>($multi_set_add<int>(i,s2)) == 3 

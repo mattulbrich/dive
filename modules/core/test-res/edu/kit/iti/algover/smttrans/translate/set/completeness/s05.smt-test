@@ -2,8 +2,8 @@ s1: set<int>
 s2: set<int>
 i : int
 ---
-$set_card<int>(s2) == 2,
-$not($set_in<int>(i, s2))
+$not($set_in<int>(i, s2)),
+i == 3
 |-
 
-$set_card<int>($set_add<int>(i,s2)) == 3 
+$not($set_in<int>(3,s2)) 

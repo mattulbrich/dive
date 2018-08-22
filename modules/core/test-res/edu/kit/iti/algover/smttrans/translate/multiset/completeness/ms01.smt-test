@@ -6,6 +6,6 @@ i : int
 s1 == $multi_empty<int>
 
 |-
-let s2 := $multi_set_add<int>(1,$multi_empty<int>) :: $multi_set_card<int>(s2) == 1
+let s2 := $multi_set_add<int>(1,$multi_empty<int>) :: $multi_set_in<int>(1,s2)
 
 

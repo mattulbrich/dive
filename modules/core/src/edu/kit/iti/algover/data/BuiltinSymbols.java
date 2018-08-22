@@ -228,7 +228,8 @@ public class BuiltinSymbols extends MapSymbolTable {
     public static final FunctionSymbolFamily EMPTY_SET = new FunctionSymbolFamily(new FunctionSymbol("$empty", SET1),
             1);
 
-
+    public static final FunctionSymbolFamily CARD = new FunctionSymbolFamily(
+            new FunctionSymbol("$set_card", Sort.INT, SET1), 1);
 
     public static final FunctionSymbolFamily SET_ADD = new FunctionSymbolFamily(
             new FunctionSymbol("$set_add", SET1, FunctionSymbolFamily.VAR1, SET1), 1);
@@ -254,6 +255,8 @@ public class BuiltinSymbols extends MapSymbolTable {
     public static final FunctionSymbolFamily MULTIEMPTY_SET = new FunctionSymbolFamily(
             new FunctionSymbol("$multi_empty", MULTISET), 1);
 
+    public static final FunctionSymbolFamily MULTICARD = new FunctionSymbolFamily(
+            new FunctionSymbol("$multi_set_card", Sort.INT, MULTISET), 1);
 
     public static final FunctionSymbolFamily MULTISET_ADD = new FunctionSymbolFamily(
             new FunctionSymbol("$multi_set_add", MULTISET, FunctionSymbolFamily.VAR1, MULTISET), 1);

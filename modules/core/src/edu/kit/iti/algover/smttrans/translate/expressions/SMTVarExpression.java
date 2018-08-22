@@ -34,15 +34,15 @@ public class SMTVarExpression extends SMTExpression {
                 cast = "2Set<Object> ";
                 
             }
-            System.out.println("S1 " + s1);
-            
-            System.out.println("S2 " + s2);
+          
             
             if (s1.contains("Object")) {
                 sb.append(sign.show());
             } else {
                 sb.append("(" + s1 + cast);
-                Dependency f = new CastDependency(new FunctionSymbol(s1+cast.trim(), Sort.get("Set<Object>")));
+                Dependency f = new CastDependency(new FunctionSymbol(s1+cast.trim(), Sort.get("Set<Object>")),s1);
+                System.out.println("=========");
+                System.out.println(s1);
                 TypeContext.addToPreamble(f);
                 sb.append(sign.show());
                 sb.append(")");
@@ -52,7 +52,9 @@ public class SMTVarExpression extends SMTExpression {
                 sb.append(partner.toSMT(arg));
             } else {
                 sb.append("(" + s2 + cast);
-                Dependency f = new CastDependency(new FunctionSymbol(s2+cast.trim(), Sort.get("Set<Object>"),Sort.get(s2)));
+                Dependency f = new CastDependency(new FunctionSymbol(s2+cast.trim(), Sort.get("Set<Object>"),Sort.get(s2)),s2);
+                System.out.println("=========");
+                System.out.println(s2);
                 TypeContext.addToPreamble(f);
        
                 sb.append(partner.toSMT(arg));

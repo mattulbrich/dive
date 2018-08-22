@@ -78,7 +78,7 @@ public class AxiomLoader {
             }
 
         }
-        System.out.println(axioms.toString());
+     //   System.out.println(axioms.toString());
         return axioms;
 
     }

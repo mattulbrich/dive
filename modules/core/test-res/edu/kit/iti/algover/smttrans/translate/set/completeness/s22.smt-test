@@ -1,6 +1,0 @@
-s1: set<int>
-s2: set<int>
----
-|-
-let s1 := $set_add<int>(1,$set_add<int>(2,$empty<int>)) :: 
-let s2 := $set_add<int>(1,$empty<int>) :: $set_subset<int>(s2,s1)

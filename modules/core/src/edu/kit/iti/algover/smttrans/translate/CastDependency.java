@@ -8,10 +8,17 @@ import edu.kit.iti.algover.term.Sort;
 
 public class CastDependency extends Dependency {
 
-    public CastDependency(FunctionSymbol fs) {
+    public CastDependency(FunctionSymbol fs, String sort) {
         super(fs);
-        // TODO Auto-generated constructor stub
+        if (sort.startsWith("Set")) {
+            this.sort = sort.replaceFirst("Set<", "").substring(0, sort.length() - 5);
+        } else {
+            this.sort = sort;
+        }
+
     }
+
+    private String sort = "";
 
     @Override
     public LinkedHashSet<String> instantiate() {
@@ -30,6 +37,14 @@ public class CastDependency extends Dependency {
 
         sb.append(")");
         inst.add(sb.toString());
+
+        sb = new StringBuilder();
+
+        sb.append("(assert (forall\r\n" + "(\r\n" + " (a T)\r\n" + " (s Set<T>)\r\n" + ")\r\n"
+                + "(= (setin<Object> (T2o a) (Set<T>2Set<Object> s)) (setin<T> a s))))");
+
+        inst.add(sb.toString().replace("T", sort));
+
         return inst;
     }
 

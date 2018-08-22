@@ -48,14 +48,14 @@ public class SMTContainer {
     public String toSMT() {
         StringBuilder sb = new StringBuilder();
 
-       // sb.append(instantiateDep());
+      
         antecedent.forEach(t -> sb.append(cleanUp(t.toSMT(false))));
         succedent.forEach(s -> sb.append(cleanUp(s.toSMT(true)))); // negate
 
         String r = cleanUp(instantiateDep() + sb.toString());
 
         r = TypeContext.addFunctions(r);
-        if (r.contains("Object")) // TODO better version
+        if (r.contains("Object"))
             return TypeContext.addCasts(r);
 
         return r;
@@ -69,7 +69,7 @@ public class SMTContainer {
 
         String r = cleanUp(sb.toString());
         r = TypeContext.addFunctions(r);
-        if (r.contains("Object")) // TODO better version
+        if (r.contains("Object"))
             return TypeContext.addCasts(r);
 
         return cleanUp(declareDep() + sb.toString());
@@ -121,9 +121,8 @@ public class SMTContainer {
         LinkedHashSet<String> functions = new LinkedHashSet<>();
         LinkedHashSet<String> axioms = new LinkedHashSet<>();
         dependencies.addAll(TypeContext.getDependencies());
+
         for (Dependency d : dependencies) {
-            System.out.println("===");
-            System.out.println(d.toString());
             LinkedHashSet<String> set = d.instantiate();
 
             for (String s : set) {
@@ -145,6 +144,8 @@ public class SMTContainer {
 
         }
 
+        axioms.addAll(AxiomContainer.crossProduct()); // heap cross product TODO declarations
+        
         StringBuilder sb = new StringBuilder();
         sorts.forEach(s -> sb.append(s + "\r\n"));
         constants.forEach(c -> sb.append(c + "\r\n"));

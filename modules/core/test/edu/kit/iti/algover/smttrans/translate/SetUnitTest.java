@@ -55,7 +55,7 @@ import java.util.stream.Collectors;
 @RunWith(Parameterized.class)
 public class SetUnitTest {
 
-    private static final String dir = "modules/core/test-res/edu/kit/iti/algover/smttrans/translate/set".replace('/',
+    private static final String dir = "modules/core/test-res/edu/kit/iti/algover/smttrans/translate/set/completeness".replace('/',
             File.separatorChar);
 
     @Parameter

@@ -1,16 +1,21 @@
 package edu.kit.iti.algover.smttrans.data;
 
 import java.util.ArrayList;
-
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.StringTokenizer;
 import java.util.regex.Pattern;
+
 import edu.kit.iti.algover.smttrans.translate.TypeContext;
 import edu.kit.iti.algover.term.FunctionSymbol;
 import edu.kit.iti.algover.term.Sort;
 import edu.kit.iti.algover.util.Pair;
 
 public class AxiomContainer {
+    private static Set<Pair<List<String>, FunctionSymbol>> sorts = new LinkedHashSet<>();
 
     private static final Pattern openPar = Pattern.compile("\\(");
 
@@ -18,9 +23,71 @@ public class AxiomContainer {
         AxiomLoader.load();
     }
 
-    public static String instantiateAxiom(Axiom a, FunctionSymbol t) {
+    public static List<String> crossProduct() {
+        List<String> axioms = new ArrayList<>();
+        Set<List<String>> types = new LinkedHashSet<>();
+        for (Pair<List<String>, FunctionSymbol> p : sorts) {
+            types.add(p.fst);
+        }
+        // TODO cross product, multiple arrselects ?
+        for (List<String> t1 : types) {
+            if (t1.get(0).equals(TypeContext.SMT_ARRNAME)) {
+                
+            }
+            
+            for (List<String> t2 : types) {
+                if (t1.equals(t2))
+                    continue;
+            }
+        }
 
-        return typeAxiom(a.getSmt(), t);
+        return axioms;
+    }
+
+    private static void addType(Axiom a, FunctionSymbol t) {
+        if (Axiom.arr1Axioms.contains(a)) {
+            List<String> l = new ArrayList<>();
+            l.add(TypeContext.SMT_ARRNAME);
+            l.addAll(TypeContext.getTypeArguments(t.getName()));
+            sorts.add(new Pair<List<String>, FunctionSymbol>(l, t));
+        }
+        if (Axiom.arr2Axioms.contains(a)) {
+            List<String> l = new ArrayList<>();
+            l.add(TypeContext.SMT_ARR2NAME);
+            l.addAll(TypeContext.getTypeArguments(t.getName()));
+            sorts.add(new Pair<List<String>, FunctionSymbol>(l, t));
+        }
+        if (Axiom.objectAxioms.contains(a)) {
+            sorts.add(new Pair<List<String>, FunctionSymbol>(TypeContext.getTypeArguments(t.getName()), t));
+        }
+
+    }
+
+    private static Set<String> handleAnon() {
+        Set<String> ax = new LinkedHashSet<>(Arrays.asList(Axiom.ANON.smt));
+        for (Pair<List<String>, FunctionSymbol> s : sorts) {
+            Axiom a = Axiom.H9;
+
+            if (s.fst.get(0).equals(TypeContext.SMT_ARR2NAME)) {
+                a = Axiom.H11;
+            } else if (s.fst.get(0).equals(TypeContext.SMT_ARRNAME)) {
+                a = Axiom.H10;
+            }
+            ax.add(typeAxiom(a.smt, s.snd));
+        }
+        return ax;
+
+    }
+
+    public static Set<String> instantiateAxiom(Axiom a, FunctionSymbol t) {
+        // System.out.println("NAME " + a.name());
+        // System.out.println("TYPE " + TypeContext.normalizeReturnSort(t));
+
+        addType(a, t);
+        if (a.equals(Axiom.ANON))
+            return handleAnon();
+
+        return new HashSet<>(Arrays.asList(typeAxiom(a.getSmt(), t)));
 
     }
 
@@ -75,6 +142,19 @@ public class AxiomContainer {
 
         return new Pair<List<String>, String>(r, removeParantheses(ax));
 
+    }
+
+    private static String typeAxiom(String axiom, List<String> types) {
+        Pair<List<String>, String> p = prepare(axiom);
+        List<String> tvs = p.fst;
+
+        String ax = p.snd;
+
+        for (int i = 0; i < tvs.size(); i++) {
+            ax = ax.replace(tvs.get(i), types.get(i));
+        }
+
+        return ax;
     }
 
     private static String typeAxiom(String axiom, FunctionSymbol type) {

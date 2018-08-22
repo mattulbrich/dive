@@ -23,7 +23,7 @@ public class FuncDependency extends Dependency {
         inst.addAll(AxiomContainer.instantiateSort(fs)); 
         for (Axiom a : op.getInstantiations()) {
             
-            inst.add(AxiomContainer.instantiateAxiom(a,fs));
+            inst.addAll(AxiomContainer.instantiateAxiom(a,fs));
         }
         
         return inst;

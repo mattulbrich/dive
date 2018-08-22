@@ -3,4 +3,4 @@ s2: set<int>
 ---
 
 |-
-let s1 := $set_add<int>(2,$set_add<int>(1,$empty<int>)) :: $and($and($set_in<int>(1,s1), $set_in<int>(2,s1)),$set_card<int>(s1) == 2) 
+let s1 := $set_add<int>(2,$set_add<int>(1,$empty<int>)) :: $and($set_in<int>(1,s1), $set_in<int>(2,s1))

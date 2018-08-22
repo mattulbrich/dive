@@ -1,6 +1,9 @@
 s1: set<int>
 s2: set<int>
 ---
-
+s2 == $empty<int>
 |-
-let s1 := $set_add<int>(2,$empty<int>) :: let s2 := $set_add<int>($plus(1,1),$empty<int>) :: $set_minus<int>(s1,s2) == $empty<int>
+let s1 := $set_add<int>(3,$set_add<int>(2,$set_add<int>(1,$empty<int>))) ::
+let s2 == $set_add<int>(1,$empty<int>) ::
+
+$set_minus<int>(s1,s2) == $set_add<int>(1,$set_add<int>(3,$empty<int>))
