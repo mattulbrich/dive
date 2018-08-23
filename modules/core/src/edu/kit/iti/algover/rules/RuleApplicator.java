@@ -34,11 +34,12 @@ public class RuleApplicator {
     public static List<ProofNode> applyRule(ProofRuleApplication proofRuleApplication, ProofNode pn) {
 
         List<ProofNode> newNodes = applySingleApplication(proofRuleApplication, pn);
-        assert(proofRuleApplication.subApplications.size() == newNodes.size());
-        if(proofRuleApplication.subApplications != null) {
+        ImmutableList<ProofRuleApplication> subApps = proofRuleApplication.getSubApplications();
+        assert(subApps.size() == newNodes.size());
+        if(subApps != null) {
             for (int i = 0; i < newNodes.size(); ++i) {
-                if (proofRuleApplication.subApplications.get(i) != null) {
-                    newNodes.get(i).setChildren(applyRule(proofRuleApplication.subApplications.get(i), newNodes.get(i)));
+                if (subApps.get(i) != null) {
+                    newNodes.get(i).setChildren(applyRule(subApps.get(i), newNodes.get(i)));
                 }
             }
         }

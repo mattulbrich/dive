@@ -11,9 +11,6 @@ import nonnull.DeepNonNull;
 import nonnull.NonNull;
 import nonnull.Nullable;
 
-import java.util.ArrayList;
-import java.util.List;
-
 /**
  * This class captures potential applications of proof rules.
  *
@@ -39,18 +36,23 @@ public final class ProofRuleApplication {
 
     /**
      * Possible "SubApplications"
-     * If not null these ProofRuleApplications are performed on the resulting childNOdes of this ProofRuleApplication.
+     * If not null, these ProofRuleApplications are performed on the
+     * resulting childNodes of this ProofRuleApplication.
+     *
+     * May contain null-entries if no rule is to be applied on a child node.
+     *
+     * Invariant: <code>
+     *   subApplications != null ==> subApplications.size() == branchInfo.size()
+     * </code>
      */
-    List<ProofRuleApplication> subApplications = null;
+    private final ImmutableList<ProofRuleApplication> subApplications;
 
     /**
      * The information about the branches into which this rule application
      * splits. Emtpy if closing rule app. Singleton list if the rule app does not
      * split etc.
      */
-    private final
-    @Nullable
-    ImmutableList<BranchInfo> branchInfo;
+    private final @Nullable ImmutableList<BranchInfo> branchInfo;
     /**
      * The applicability of this rule application.
      */
@@ -60,17 +62,13 @@ public final class ProofRuleApplication {
      * instantiation for the application of the rule to be possible. The
      * parameters here are set immutable.
      */
-    private final
-    @NonNull
-    Parameters openParameters;
+    private final @NonNull Parameters openParameters;
 
     /**
      * The code which can be used to refine this proof application. Can be
      * <code>null</code> if no refining routine is known for this application.
      */
-    private final
-    @Nullable
-    Refiner refiner;
+    private final @Nullable Refiner refiner;
 
     /**
      * When a proof rule application is applied, the proof script needs to be
@@ -99,7 +97,8 @@ public final class ProofRuleApplication {
      * @param refiner
      *            the potential refiner
      * @param subApplications
-     *            possible SubApplications which are performed on the children resulting from this application
+     *            possible SubApplications which are performed on the children
+     *            resulting from this application
      */
     public ProofRuleApplication(
             @NonNull ProofRule rule,
@@ -108,7 +107,7 @@ public final class ProofRuleApplication {
             @NonNull String scriptTranscript,
             @NonNull Parameters openParameters,
             @Nullable Refiner refiner,
-            List<ProofRuleApplication> subApplications) {
+            @Nullable ImmutableList<ProofRuleApplication> subApplications) {
         this.rule = rule;
         this.branchInfo = branchInfo;
         this.applicability = applicability;
@@ -117,6 +116,11 @@ public final class ProofRuleApplication {
         this.scriptTranscript = scriptTranscript;
         openParameters.setImmutable();
         this.subApplications = subApplications;
+
+        if(subApplications != null && subApplications.size() != branchInfo.size()) {
+            throw new IllegalArgumentException(
+                    "number of sub applications does not match number of branches");
+        }
     }
 
     /**
@@ -235,9 +239,7 @@ public final class ProofRuleApplication {
      *
      * @return the string for the script transcript
      */
-    public
-    @NonNull
-    String getScriptTranscript() {
+    public @NonNull String getScriptTranscript() {
         return scriptTranscript;
     }
 
@@ -246,10 +248,26 @@ public final class ProofRuleApplication {
      *
      * @return the open parameters
      */
-    public
-    @NonNull
-    Parameters getOpenParameters() {
+    public @NonNull Parameters getOpenParameters() {
         return openParameters;
+    }
+
+    /**
+     * Gets the followup rule applications to apply on branches.
+     *
+     * May return null!
+     *
+     * If not null, these ProofRuleApplications are to be performed on the
+     * resulting childNodes of this ProofRuleApplication.
+     *
+     * May contain null-entries if no rule is to be applied on a child node.
+     *
+     * Invariant: <code>
+     *   \result != null ==> \result.size() == getBranchInfo().size()
+     * </code>
+     */
+    public @Nullable ImmutableList<ProofRuleApplication> getSubApplications() {
+        return subApplications;
     }
 
     /**
@@ -258,8 +276,7 @@ public final class ProofRuleApplication {
      *
      * @return the refiner, <code>null</code> if none set!
      */
-    public @Nullable
-    Refiner getRefiner() {
+    public @Nullable Refiner getRefiner() {
         return refiner;
     }
 

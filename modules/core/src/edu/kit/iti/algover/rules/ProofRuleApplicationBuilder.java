@@ -37,6 +37,7 @@ public class ProofRuleApplicationBuilder {
     private String scriptTranscript;
     private Parameters openParameters = Parameters.EMPTY_PARAMETERS;
     private Refiner refiner;
+
     private List<ProofRuleApplication> subApplications = null;
 
     /**
@@ -63,7 +64,9 @@ public class ProofRuleApplicationBuilder {
         this.scriptTranscript = app.getScriptTranscript();
         this.openParameters = app.getOpenParameters();
         this.refiner = app.getRefiner();
-        this.subApplications = app.subApplications;
+        if(app.getSubApplications() != null) {
+            this.subApplications = new ArrayList<>(app.getSubApplications().asCollection());
+        }
     }
 
     /**
@@ -93,8 +96,24 @@ public class ProofRuleApplicationBuilder {
                 scriptTranscript,
                 openParameters,
                 refiner,
-                subApplications
+                toListIfNotAllNull(subApplications)
                 );
+    }
+
+    /*
+     * Create an immutable list from the argument if not all entries are null.
+     * Return null if list is null, or only contains null entries.
+     */
+    private static <T> ImmutableList<T> toListIfNotAllNull(List<T> list) {
+        if(list == null) {
+            return null;
+        }
+        for (T t : list) {
+            if(t != null) {
+                return null;
+            }
+        }
+        return ImmutableList.from(list);
     }
 
     public ProofRuleApplicationBuilder setApplicability(@NonNull Applicability applicable) {
@@ -138,13 +157,12 @@ public class ProofRuleApplicationBuilder {
         return this;
     }
 
-    public ProofRuleApplicationBuilder setSubApplications(List<ProofRuleApplication> subApplications) {
-        this.subApplications = subApplications;
-        return this;
+    public List<ProofRuleApplication> getSubApplications() {
+        return subApplications;
     }
 
-    public ProofRuleApplicationBuilder addSubApplication(ProofRuleApplication subApplication) {
-        this.subApplications.add(subApplication);
+    public ProofRuleApplicationBuilder setSubApplications(List<ProofRuleApplication> subApplications) {
+        this.subApplications = subApplications;
         return this;
     }
 

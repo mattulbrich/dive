@@ -94,10 +94,8 @@ public class ExhaustiveRule extends AbstractProofRule {
         for (ProofNode node : nodes) {
             subApplications.add(applyRuleExhaustive(proofRuleApplication.getRule(), node, ts));
         }
-        if(subApplications.stream().
-                filter(proofRuleApplication1 -> {return proofRuleApplication1 != null;}).
-                collect(Collectors.toList()).
-                size() == 0) {
+
+        if(subApplications.stream().anyMatch(p -> p != null)) {
             res.setSubApplications(null);
         } else {
             res.setSubApplications(subApplications);
