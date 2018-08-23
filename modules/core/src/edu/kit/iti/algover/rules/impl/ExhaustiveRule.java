@@ -3,6 +3,7 @@ package edu.kit.iti.algover.rules.impl;
 import edu.kit.iti.algover.proof.ProofNode;
 import edu.kit.iti.algover.rules.*;
 import edu.kit.iti.algover.term.Term;
+import edu.kit.iti.algover.util.Util;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -82,6 +83,8 @@ public class ExhaustiveRule extends AbstractProofRule {
         if(ts.isValidForSequent(pn.getSequent())) {
             proofRuleApplication = proofRuleApplication.getRule().considerApplication(pn, pn.getSequent(), ts);
         }
+
+        // REVIEW: Why the assignment? It is thrown away two lines below. Intended?
         List<ProofNode> nodes = new ArrayList<>(Collections.singletonList(pn));
         if (proofRuleApplication.getApplicability().equals(ProofRuleApplication.Applicability.APPLICABLE)) {
             nodes = RuleApplicator.applyRule(proofRuleApplication, pn);
@@ -94,12 +97,7 @@ public class ExhaustiveRule extends AbstractProofRule {
         for (ProofNode node : nodes) {
             subApplications.add(applyRuleExhaustive(proofRuleApplication.getRule(), node, ts));
         }
-
-        if(subApplications.stream().anyMatch(p -> p != null)) {
-            res.setSubApplications(null);
-        } else {
-            res.setSubApplications(subApplications);
-        }
+        res.setSubApplications(subApplications);
 
         return res.build();
     }

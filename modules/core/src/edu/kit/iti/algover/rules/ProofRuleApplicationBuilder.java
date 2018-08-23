@@ -157,6 +157,14 @@ public class ProofRuleApplicationBuilder {
         return this;
     }
 
+    /**
+     * Get a reference to the list of subapplications.
+     *
+     * This may be null!
+     * The resulting list may be changed.
+     *
+     * @return a reference to a mutable list or null.
+     */
     public List<ProofRuleApplication> getSubApplications() {
         return subApplications;
     }
