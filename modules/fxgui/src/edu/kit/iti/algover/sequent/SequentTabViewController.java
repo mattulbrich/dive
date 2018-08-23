@@ -5,8 +5,6 @@ import edu.kit.iti.algover.proof.Proof;
 import edu.kit.iti.algover.proof.ProofNode;
 import edu.kit.iti.algover.proof.ProofNodeSelector;
 import edu.kit.iti.algover.references.ReferenceGraph;
-import edu.kit.iti.algover.rules.BranchInfo;
-import edu.kit.iti.algover.rules.ProofRuleApplication;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
 
@@ -183,8 +181,9 @@ public class SequentTabViewController {
                 }
             }
         }
+
         for(SequentController controller : controllers) {
-            controller.updateReferenceGraph(referenceGraph);
+            controller.setReferenceGraph(referenceGraph);
         }
     }
 
