@@ -48,8 +48,8 @@ public class RuleUtilTest {
     private final Sequent exampleSequent =
             new Sequent(
                     Arrays.asList(
-                            // REVIEW: This is not a Bool term.
-                            parse(0, "x + (let f := 3 :: y + (f + 3))"),
+                            // SaG: changed + to > in 0. formula, due to failing testcase
+                            parse(0, "x > (let f := 3 :: y + (f + 3))"),
                             parse(1, "x > (y - 5)"),
                             parse(2, "y - 5 == x")
                     ),
