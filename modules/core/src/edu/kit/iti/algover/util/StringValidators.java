@@ -8,6 +8,26 @@ public final class StringValidators {
         throw new Error();
     }
 
+    public static class OptionStringValidator implements StringValidator {
+
+        private final Collection<? extends CharSequence> options;
+
+        public OptionStringValidator(Collection<? extends CharSequence> options) {
+            this.options = options;
+        }
+
+        @Override
+        public void validate(String string) throws FormatException {
+            if(!options.contains(string)) {
+                throw new FormatException(VALIDATOR_KIND, "expected one of " + options, string);
+            }
+        }
+
+        public Collection<? extends CharSequence> getOptions() {
+            return options;
+        }
+    }
+
     private static final String VALIDATOR_KIND = "validator";
 
     public static StringValidator minValidator(int min) {
@@ -63,11 +83,7 @@ public final class StringValidators {
     public static final StringValidator ANY_VALIDATOR = string -> {};
 
     public static final StringValidator oneOfValidator(Collection<? extends CharSequence> coll) {
-        return string -> {
-             if(!coll.contains(string)) {
-                 throw new FormatException(VALIDATOR_KIND, "expected one of " + coll, string);
-             }
-        };
+        return new OptionStringValidator(coll);
     }
 
 }

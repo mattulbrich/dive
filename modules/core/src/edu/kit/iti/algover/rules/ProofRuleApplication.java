@@ -11,6 +11,9 @@ import nonnull.DeepNonNull;
 import nonnull.NonNull;
 import nonnull.Nullable;
 
+import java.util.HashSet;
+import java.util.Set;
+
 /**
  * This class captures potential applications of proof rules.
  *
@@ -147,6 +150,12 @@ public final class ProofRuleApplication {
         this.deep = deep;
         this.global = global;
         this.on = on;
+
+        Set<String> labels =
+                new HashSet<String>(branchInfo.map(BranchInfo::getLabel).asCollection());
+        if(labels.size() != branchInfo.size()) {
+            throw new IllegalArgumentException("The labels of the branch infos are not unique.");
+        }
     }
 
     /**

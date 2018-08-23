@@ -144,6 +144,24 @@ public class ProofRuleApplicationBuilder {
 
     /**
      * Create and return a new branch builder.
+     * The resulting branch has the given label.
+     * <p>
+     * The branch is built automatically from the child builder as soon as this
+     * app is built.
+     *
+     * @param label the label to be used for the branch
+     * @return the new branch info builder
+     */
+    public BranchInfoBuilder newBranch(@NonNull String label) {
+        BranchInfoBuilder builder = new BranchInfoBuilder();
+        builder.setLabel(label);
+        branches.add(builder);
+        return builder;
+    }
+
+    /**
+     * Create and return a new branch builder.
+     * The resulting branch is unlabeled.
      * <p>
      * The branch is built automatically from the child builder as soon as this
      * app is built.
@@ -151,10 +169,9 @@ public class ProofRuleApplicationBuilder {
      * @return the new branch info builder
      */
     public BranchInfoBuilder newBranch() {
-        BranchInfoBuilder builder = new BranchInfoBuilder();
-        branches.add(builder);
-        return builder;
+        return newBranch("");
     }
+
 
     /**
      * Sets this builder to "closing".
