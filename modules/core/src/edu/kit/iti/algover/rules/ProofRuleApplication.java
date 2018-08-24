@@ -263,7 +263,7 @@ public final class ProofRuleApplication {
      * May contain null-entries if no rule is to be applied on a child node.
      *
      * Invariant: <code>
-     *   \result != null ==> \result.size() == getBranchInfo().size()
+     *   \result != null ==> \result.size() == getBranchCount()
      * </code>
      */
     public @Nullable ImmutableList<ProofRuleApplication> getSubApplications() {
