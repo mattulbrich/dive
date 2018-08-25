@@ -58,7 +58,12 @@ public class SequentTabViewController {
                 view.getSelectionModel().select(activeNode.getPath()[activeNode.getPath().length - 1]);
                 return;
             }
-            showProofNodes(getAllChildSelectors(parentSelector));
+            List<ProofNodeSelector> children = getAllChildSelectors(parentSelector);
+            if(children.size() == 0) {
+                showProofNodes(Collections.singletonList(parentSelector));
+            } else {
+                showProofNodes(getAllChildSelectors(parentSelector));
+            }
             view.getSelectionModel().select(activeNode.getPath()[activeNode.getPath().length - 1]);
         } else {
             showProofNodes(new ArrayList<>(Collections.singletonList(proofNodeSelector)));
