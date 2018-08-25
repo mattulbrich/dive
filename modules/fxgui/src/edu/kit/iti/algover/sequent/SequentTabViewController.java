@@ -74,9 +74,11 @@ public class SequentTabViewController {
     }
 
     private void showProofNodes(List<ProofNodeSelector> proofNodeSelectors) {
-        for(int i = view.getTabs().size(); i < proofNodeSelectors.size(); ++i) {
-            controllers.add(new SequentController(listener));
-            view.getTabs().add(new Tab("default", controllers.get(i).getView()));
+        for(int i = 0; i < proofNodeSelectors.size(); ++i) {
+            if(i >= view.getTabs().size()) {
+                controllers.add(new SequentController(listener));
+                view.getTabs().add(new Tab("default", controllers.get(i).getView()));
+            }
             updateTab(proofNodeSelectors.get(i), i);
         }
         if(proofNodeSelectors.size() < view.getTabs().size()) {
