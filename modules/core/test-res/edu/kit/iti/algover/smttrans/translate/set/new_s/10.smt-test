@@ -1,0 +1,5 @@
+s1: set<int>
+s2: set<int>
+---
+|-
+s1 == $intersect<int>(s1,s2)

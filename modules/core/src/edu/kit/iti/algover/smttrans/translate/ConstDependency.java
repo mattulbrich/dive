@@ -52,7 +52,7 @@ public class ConstDependency extends Dependency {
         sb.append("(declare-const ");
         sb.append(name);
         sb.append(" :: ");
-        sb.append(TypeContext.normalizeName(fs.getResultSort().getName()));
+        sb.append(TypeContext.normalizeReturnSort(fs));
         sb.append(")");
         inst.add(sb.toString());
         return inst;

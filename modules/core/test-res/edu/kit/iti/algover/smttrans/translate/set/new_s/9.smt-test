@@ -1,0 +1,5 @@
+s1: set<int>
+---
+|-
+let s1 := $set_add<int>(1,$set_add<int>(2,$empty<int>)) ::
+$union<int>(s1,$set_single<int>(2)) == $set_single<int>(2)

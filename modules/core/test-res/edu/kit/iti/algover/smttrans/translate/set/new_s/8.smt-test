@@ -1,0 +1,7 @@
+s1: set<int>
+s2: set<int>
+i: int
+j: int
+---
+|-
+$union<int>($set_single<int>(i),$set_single<int>(j)) == $set_single<int>(5)

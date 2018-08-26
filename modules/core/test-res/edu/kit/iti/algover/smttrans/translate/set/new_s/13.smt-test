@@ -1,0 +1,10 @@
+i : int
+j : int
+z : int
+s1 : set<int>
+s2 : set<int>
+---
+|-
+let s1 := $set_add<int>(i,$set_add<int>(j,$empty<int>)) ::
+let s2 := $set_add<int>(z,$empty<int>) ::
+s2 == $intersect<int>(s1,s2)

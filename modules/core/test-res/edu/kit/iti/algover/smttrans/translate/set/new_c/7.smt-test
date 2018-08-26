@@ -1,0 +1,4 @@
+i :int
+---
+|-
+$not($set_in<int>(i,$empty<int>))

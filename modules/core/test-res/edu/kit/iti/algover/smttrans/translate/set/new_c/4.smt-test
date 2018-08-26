@@ -1,0 +1,4 @@
+s1: set<int>
+---
+|-
+$set_minus<int>($empty<int>,s1) == $empty<int>

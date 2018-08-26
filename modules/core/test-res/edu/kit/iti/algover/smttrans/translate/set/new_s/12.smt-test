@@ -1,0 +1,4 @@
+s1: set<int>
+---
+|-
+s1 == $intersect<int>(s1,$empty<int>)

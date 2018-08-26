@@ -1,0 +1,4 @@
+s1: seq<int>
+---
+|-
+seq_subselect<int>(s1,0,1) == seq_empty<int>

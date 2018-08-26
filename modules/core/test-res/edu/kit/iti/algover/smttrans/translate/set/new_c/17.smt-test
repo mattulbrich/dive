@@ -1,0 +1,4 @@
+s : set<int>
+---
+|-
+$set_subset<int>($empty<int>,s)

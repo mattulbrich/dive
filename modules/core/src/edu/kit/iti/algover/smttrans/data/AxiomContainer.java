@@ -23,21 +23,27 @@ public class AxiomContainer {
         AxiomLoader.load();
     }
 
+    public static String crossType(List<String> t1, List<String> t2) {
+        List<String> types = t2.subList(1,t2.size());
+       // Axiom a1 = Axiom.valueOf(t1.get(0)).getComplement(types);
+       // return typeAxiom(a1.smt, types);
+        return "";
+    }
+
     public static List<String> crossProduct() {
         List<String> axioms = new ArrayList<>();
         Set<List<String>> types = new LinkedHashSet<>();
         for (Pair<List<String>, FunctionSymbol> p : sorts) {
             types.add(p.fst);
         }
+        System.out.println("===");
+        System.out.println(types);
         // TODO cross product, multiple arrselects ?
         for (List<String> t1 : types) {
-            if (t1.get(0).equals(TypeContext.SMT_ARRNAME)) {
-                
-            }
-            
             for (List<String> t2 : types) {
                 if (t1.equals(t2))
                     continue;
+                axioms.add(crossType(t1, t2));
             }
         }
 
@@ -45,21 +51,17 @@ public class AxiomContainer {
     }
 
     private static void addType(Axiom a, FunctionSymbol t) {
-        if (Axiom.arr1Axioms.contains(a)) {
-            List<String> l = new ArrayList<>();
-            l.add(TypeContext.SMT_ARRNAME);
-            l.addAll(TypeContext.getTypeArguments(t.getName()));
-            sorts.add(new Pair<List<String>, FunctionSymbol>(l, t));
-        }
-        if (Axiom.arr2Axioms.contains(a)) {
-            List<String> l = new ArrayList<>();
-            l.add(TypeContext.SMT_ARR2NAME);
-            l.addAll(TypeContext.getTypeArguments(t.getName()));
-            sorts.add(new Pair<List<String>, FunctionSymbol>(l, t));
-        }
-        if (Axiom.objectAxioms.contains(a)) {
-            sorts.add(new Pair<List<String>, FunctionSymbol>(TypeContext.getTypeArguments(t.getName()), t));
-        }
+
+        List<String> l = new ArrayList<>();
+        if (a.equals(Axiom.FIELDSELECT) || a.equals(Axiom.FIELDSTORE))
+            return;
+        if (!a.isMultiTyped() && !a.equals(Axiom.A11) && !a.equals(Axiom.A21))
+            return;
+
+        l.add(a.name());
+        // l.add(TypeContext.SMT_ARRNAME);
+        l.addAll(TypeContext.getTypeArguments(t.getName()));
+        sorts.add(new Pair<List<String>, FunctionSymbol>(l, t));
 
     }
 
@@ -73,9 +75,9 @@ public class AxiomContainer {
             } else if (s.fst.get(0).equals(TypeContext.SMT_ARRNAME)) {
                 a = Axiom.H10;
             }
-            ax.add(typeAxiom(a.smt, s.snd));           
+            ax.add(typeAxiom(a.smt, s.snd));
         }
-        
+
         return ax;
 
     }
@@ -107,8 +109,8 @@ public class AxiomContainer {
 
     }
 
-    private static Pair<List<String>, String> prepare(String axiom) {
-        ;
+    public static Pair<List<String>, String> prepare(String axiom) {
+
         String ax = "";
         String tv = "";
 
@@ -175,12 +177,13 @@ public class AxiomContainer {
         if (!axiom.contains("(par"))
             return false;
         String name = TypeContext.normalizeName(sort.getName());
+        
         if (!axiom.contains(name + "<"))
             return false;
 
         Pair<List<String>, String> p = prepare(axiom);
         List<String> tvs = p.fst;
-        if (tvs.size() != TypeContext.normalizeName(sort.getName()).split("\\.").length) {
+        if (tvs.size() != sort.getArguments().size()) {
 
             return false;
         }
@@ -195,10 +198,6 @@ public class AxiomContainer {
         for (Sort s : t.getArgumentSorts()) {
 
             if (!TypeContext.isBuiltIn(s.getName())) {
-                // System.out.println("SORT1 " + s.toString());
-
-                // String r = addTypeArguments(normalizeSort(fs.getResultSort().getName()),
-                // getTypeArguments(fs.toString()));
 
                 sorts.add("(declare-sort " + TypeContext.normalizeSort(s.getName(), s.toString()) + " 0)");
             }
@@ -214,11 +213,12 @@ public class AxiomContainer {
     }
 
     public static String declareAxiom(Axiom a, FunctionSymbol t) {
-
+        System.out.println(a.name());
         String r = "";
         for (Sort s : t.getArgumentSorts()) {
             if (isApplicable(a.getSmt(), s)) {
-                r += a.getSmt() + " :: " + TypeContext.normalizeName(s.toString()) + "\r\n";
+               
+                r += a.getSmt() + " :: " + TypeContext.normalizeSort(s.getName(), s.toString()) + "\r\n";
             }
         }
         return r;
@@ -230,7 +230,7 @@ public class AxiomContainer {
         for (Sort s : t.getArgumentSorts()) {
 
             if (!TypeContext.isBuiltIn(s.getName())) {
-                sorts.add("(inst-sort :: " + TypeContext.normalizeName(s.toString()) + ")");
+                sorts.add("(inst-sort :: " + TypeContext.normalizeSort(s.getName(), s.toString()) + ")");
             }
 
         }

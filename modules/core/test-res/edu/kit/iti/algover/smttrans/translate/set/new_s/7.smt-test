@@ -1,0 +1,4 @@
+s: set<int>
+---
+|-
+$empty<int> == $union<int>(s,$empty<int>)

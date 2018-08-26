@@ -1,0 +1,4 @@
+s : set<int>
+---
+|-
+$intersect<int>(s,s) == s

@@ -1,0 +1,6 @@
+s1 : set<int>
+s2 : set<int>
+---
+$set_subset<int>(s1,s2)
+|-
+$set_subset<int>(s2,s1)

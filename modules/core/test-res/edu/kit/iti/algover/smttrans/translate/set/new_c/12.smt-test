@@ -1,0 +1,10 @@
+s1 : set<int>
+s2 : set<int>
+i : int
+j : int
+---
+$not(i == j)
+|- 
+let s1 := $set_add<int>(i,$empty<int>) ::
+let s2 := $set_add<int>(j,$empty<int>) ::
+$not($intersect<int>(s1,s2) == $empty<int>)

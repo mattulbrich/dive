@@ -39,6 +39,7 @@ import org.junit.runners.Parameterized.Parameter;
 import org.junit.runners.Parameterized.Parameters;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotEquals;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -53,9 +54,9 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 @RunWith(Parameterized.class)
-public class SetUnitTest {
+public class SetSoundnessTest {
 
-    private static final String dir = "modules/core/test-res/edu/kit/iti/algover/smttrans/translate/set/completeness".replace('/',
+    private static final String dir = "modules/core/test-res/edu/kit/iti/algover/smttrans/translate/set/new_s".replace('/',
             File.separatorChar);
 
     @Parameter
@@ -63,7 +64,6 @@ public class SetUnitTest {
 
     private SymbolTable symbols;
     private Sequent sequent;
-    private String debug;
 
     @Parameters(name = "{0}")
     public static Object[] data() throws IOException {
@@ -75,7 +75,6 @@ public class SetUnitTest {
     public void readAndParse() throws IOException, DafnyParserException, DafnyException {
 
 
-        debug = path.toString();
         InputStream stream = Files.newInputStream(path);
         SymbolTable st = new BuiltinSymbols();
 
@@ -131,12 +130,9 @@ public class SetUnitTest {
 //            if (!pra.getApplicability().equals(ProofRuleApplication.Applicability.APPLICABLE)) {
 //                System.err.println(debug.get(i));
 //            }
-        assertEquals(pra.getApplicability(), ProofRuleApplication.Applicability.APPLICABLE);
+        assertNotEquals(pra.getApplicability(), ProofRuleApplication.Applicability.APPLICABLE);
     }
 
-    @Test
-    public void verifyCVC() {
 
-    }
 
 }

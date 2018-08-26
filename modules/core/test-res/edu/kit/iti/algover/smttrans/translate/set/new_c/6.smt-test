@@ -1,0 +1,6 @@
+i : int
+s: set<int>
+---
+$not($set_in<int>(i,s))
+|-
+$not($set_in<int>(3,s))
