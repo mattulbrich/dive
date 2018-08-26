@@ -322,6 +322,17 @@ public final class Util {
         return result;
     }
 
+    public static String stripQuotes(String text) {
+        StringBuilder sb = new StringBuilder(text);
+        if(text.startsWith("\"") || text.startsWith("'")) {
+            sb.deleteCharAt(0);
+        }
+        if(text.endsWith("\"") || text.endsWith("'")) {
+            sb.deleteCharAt(sb.length() - 1);
+        }
+        return sb.toString();
+    }
+
     /**
      * A wrapper class for the collection framework. It renders an array into an
      * immutable list.

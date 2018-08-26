@@ -1,6 +1,7 @@
 package edu.kit.iti.algover;
 
 import edu.kit.iti.algover.project.ProjectManager;
+import edu.kit.iti.algover.project.XMLProjectManager;
 
 import java.io.File;
 
@@ -12,7 +13,7 @@ public class ProjectManagerMock {
 
     public static ProjectManager fromProjectConfig(File dir, String configFile) {
         try {
-            ProjectManager manager = new ProjectManager(dir, configFile);
+            ProjectManager manager = new XMLProjectManager(dir, configFile);
             return manager;
         } catch (Exception e) {
             // REVIEW: Really only print and return null?

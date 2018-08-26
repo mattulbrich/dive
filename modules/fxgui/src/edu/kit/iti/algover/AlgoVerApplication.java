@@ -5,7 +5,9 @@
  */
 package edu.kit.iti.algover;
 
+import edu.kit.iti.algover.project.DafnyProjectManager;
 import edu.kit.iti.algover.project.ProjectManager;
+import edu.kit.iti.algover.project.XMLProjectManager;
 import javafx.application.Application;
 import javafx.scene.Scene;
 import javafx.stage.DirectoryChooser;
@@ -31,36 +33,31 @@ public class AlgoVerApplication extends Application {
     @Override
     public void start(Stage primaryStage) throws Exception {
 
-        try {
-            DirectoryChooser chooser = new DirectoryChooser();
+        FileChooser chooser = new FileChooser();
 
-            chooser.setTitle("Choose project folder");
-            chooser.setInitialDirectory(new File("doc/examples/"));
-            File projectFolder = chooser.showDialog(primaryStage);
-            File projectConfigFile = new File(projectFolder.getAbsolutePath() + "/config.xml");
-            if (!projectConfigFile.exists()) {
-                System.out.println("Could not find config file in selected folder.");
-                return;
-            }
-
-            // Read all PVCs and update GUI
-            ProjectManager manager = new ProjectManager(projectConfigFile.getParentFile(), projectConfigFile.getName());
-            // TODO Maybe don't do this initially (might hurt UX, when there are a lot of proofs)
-            manager.getAllProofs().values().forEach(proof -> proof.interpretScript());
-
-            MainController controller = new MainController(manager, SYNTAX_HIGHLIGHTING_EXECUTOR);
-
-            Scene scene = new Scene(controller.getView());
-            scene.getStylesheets().add(AlgoVerApplication.class.getResource("style.css").toExternalForm());
-            primaryStage.setScene(scene);
-            primaryStage.setWidth(900);
-            primaryStage.setHeight(700);
-            primaryStage.show();
-
-        } catch (NullPointerException npe) {
-            System.out.println("There was a problem when loading a project. Please restart the program");
-            System.exit(0);
+        chooser.setTitle("Choose project folder");
+        chooser.setInitialDirectory(new File("doc/examples/"));
+        File projectFile = chooser.showOpenDialog(primaryStage);
+        ProjectManager manager;
+        if(projectFile.getName().endsWith(".xml")) {
+            // Read all PVCs and update GUId
+            manager = new XMLProjectManager(projectFile.getParentFile(), projectFile.getName());
+        } else {
+            manager = new DafnyProjectManager(projectFile);
         }
+
+        // TODO Maybe don't do this initially (might hurt UX, when there are a lot of proofs)
+        manager.getAllProofs().values().forEach(proof -> proof.interpretScript());
+
+        MainController controller = new MainController(manager, SYNTAX_HIGHLIGHTING_EXECUTOR);
+
+        Scene scene = new Scene(controller.getView());
+        scene.getStylesheets().add(AlgoVerApplication.class.getResource("style.css").toExternalForm());
+        primaryStage.setScene(scene);
+        primaryStage.setWidth(900);
+        primaryStage.setHeight(700);
+        primaryStage.show();
+
     }
 
 

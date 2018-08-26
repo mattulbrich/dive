@@ -131,7 +131,7 @@ public class MainController implements SequentActionListener, RuleApplicationLis
         statusBarLoggingHandler = new StatusBarLoggingHandler(statusBar);
         logger.addHandler(statusBarLoggingHandler);
         logger.setUseParentHandlers(false);
-        logger.info("Load of project '" + manager.getDirectory().getName() + "' successful.");
+        logger.info("Project '" + manager.getName() + "' successfully loaded.");
     }
 
     private void trivialStrat(ActionEvent event) {

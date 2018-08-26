@@ -6,6 +6,7 @@
 package edu.kit.iti.algover;
 
 import edu.kit.iti.algover.project.ProjectManager;
+import edu.kit.iti.algover.project.XMLProjectManager;
 import org.junit.Ignore;
 import org.junit.Test;
 
@@ -27,7 +28,7 @@ public class IntegrationTest {
         String config = "config.xml";
 
         //project manager should load project -> this parses all DafnyFiles, creates the PVCs, and empty proof objects
-        ProjectManager pm = new ProjectManager(dir, config);
+        ProjectManager pm = new XMLProjectManager(dir, config);
         //get all proofs
         pm.getPVCByNameMap().forEach((s, pvc) -> System.out.println("pvc.getName() = " + pvc.getIdentifier()));
         //apply Z3 on all PVCs and build proofs+script
@@ -47,7 +48,7 @@ public class IntegrationTest {
         String config = "config.xml";
 
         //project manager should load project -> this parses all DafnyFiles, creates the PVCs, and empty proof objects
-        ProjectManager pm = new ProjectManager(new File(dir), config);
+        ProjectManager pm = new XMLProjectManager(new File(dir), config);
         //get all proofs
         pm.getPVCByNameMap().forEach((s, pvc) -> System.out.println("pvc.getName() = " + pvc.getIdentifier()));
         //apply Z3 on all PVCs and build proofs+script

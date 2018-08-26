@@ -84,6 +84,7 @@ FREE: 'free';
 FUNCTION: 'function';
 IF: 'if';
 IN : 'in';
+INCLUDE : 'include';
 INT : 'int';
 INVARIANT: 'invariant';
 LABEL: 'label';
@@ -103,6 +104,7 @@ RETURN : 'return';
 RETURNS : 'returns';
 SEQ : 'seq';
 SET : 'set';
+SETTINGS : 'settings';
 THEN: 'then';
 THIS: 'this';
 TRUE: 'true';
@@ -168,16 +170,29 @@ STRING_LIT :
 
 
 WS : (' '|'\t'|'\n'|'\r')                { $channel = HIDDEN; };
-SINGLELINE_COMMENT: '//' ~('\r' | '\n')* { $channel = HIDDEN; };
+ALGOVER_COMMENT: '//\\\\'                  { $channel = HIDDEN; };
+SINGLELINE_COMMENT:  '//' ( | ( ~'\\' | '\\' ~'\\' ) ~('\r' | '\n')* )
+                                         { $channel = HIDDEN; };
 MULTILINE_COMMENT: '/*' .* '*/'          { $channel = HIDDEN; };
 
 label:
   'label'^ ID ':'!
   ;
 
+include:
+  INCLUDE^ STRING_LIT ('for'! 'free')?
+  ;
+
+settings:
+  SETTINGS^ '{'!
+   ( (ID | STRING_LIT) '='! (ID | STRING_LIT | INT_LIT) )+
+    '}'!
+  ;
+
 program:
-  // "include"
-  (method | function | clazz)+ -> ^(COMPILATION_UNIT clazz* method* function*)
+  (include | settings)*
+  (method | function | clazz)+
+      -> ^(COMPILATION_UNIT include* settings* clazz* method* function*)
   ;
 
 program_only:

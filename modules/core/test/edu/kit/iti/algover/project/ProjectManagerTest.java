@@ -61,11 +61,9 @@ public class ProjectManagerTest {
         this.testTerm = TermParser.parse(symbTable, "1==2 && 2==3");
     }
 
-
-
     @Test
     public void loadExistingProject() throws Exception {
-        ProjectManager pm = new ProjectManager(new File(testDir), config);
+        XMLProjectManager pm = new XMLProjectManager(new File(testDir), config);
         Project project = pm.getProject();
 
         Assert.assertEquals("Number of DafnyFiles", p.getDafnyFiles().size(), project.getDafnyFiles().size());
@@ -158,7 +156,7 @@ public class ProjectManagerTest {
     // generated. The point that happens is marked via "TODO handling of error state for each visit".
     @Test(expected = ScriptCommandNotApplicableException.class)
     public void testInapplicableScriptCommand() throws ScriptCommandNotApplicableException, Exception {
-        ProjectManager pm = new ProjectManager(new File(testDir), config);
+        ProjectManager pm = new XMLProjectManager (new File(testDir), config);
 
         Proof proof = pm.getProofForPVC(testPVCm1Post);
 
@@ -170,7 +168,7 @@ public class ProjectManagerTest {
     // interpretable, even though it doesn't advance the proof state...
     @Test
     public void testEmptyScript() throws Exception {
-        ProjectManager pm = new ProjectManager(new File(testDir), config);
+        ProjectManager pm = new XMLProjectManager(new File(testDir), config);
 
         Proof proof = pm.getProofForPVC(testPVCm1Post);
 
@@ -206,7 +204,7 @@ public class ProjectManagerTest {
 
     @Test
     public void interpretScriptExhaustiveRules() throws Exception {
-        ProjectManager pm = new ProjectManager(new File(testDir), "configsum.xml");
+        ProjectManager pm = new XMLProjectManager(new File(testDir), "configsum.xml");
         Proof proof = pm.getProofForPVC("sumAndMax/loop/else/Inv");
         proof.interpretScript(); //Hier Zeile die exhaustive sein soll einfuegen
 
