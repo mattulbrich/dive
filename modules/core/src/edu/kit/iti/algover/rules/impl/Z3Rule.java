@@ -32,6 +32,7 @@ import edu.kit.iti.algover.smttrans.access.SolverParameter;
 import edu.kit.iti.algover.smttrans.access.SolverResponse;
 import edu.kit.iti.algover.smttrans.access.YicesAccess;
 import edu.kit.iti.algover.smttrans.access.Z3Access;
+import edu.kit.iti.algover.smttrans.data.AxiomContainer;
 import edu.kit.iti.algover.smttrans.data.SMTContainer;
 import edu.kit.iti.algover.smttrans.translate.SMTTerm;
 import edu.kit.iti.algover.smttrans.translate.SMTVisitor;
@@ -113,7 +114,7 @@ public class Z3Rule extends AbstractProofRule {
     }
 
     private boolean isValid(ProofNode target) {
-      //  System.out.println("PVC: " + target.getPVC().getSequent().toString());
+        System.out.println("PVC: " + target.getPVC().getSequent().toString());
         // SolverAccess.evaluate("");
         SolverAccess z3access = new Z3Access();
         SolverAccess cvcaccess = new CVCAccess();
@@ -128,7 +129,9 @@ public class Z3Rule extends AbstractProofRule {
 
         smt = sc.toPSMT();
         // SMTLog.writeFile(smt, pvc.getIdentifier()+".psmt");
+        //TypeContext.reset();
         System.out.println(smt);
+       AxiomContainer.reset();
         smt = sc.toSMT();
 
         // SMTLog.writeFile(smt, pvc.getIdentifier()+".smt2");

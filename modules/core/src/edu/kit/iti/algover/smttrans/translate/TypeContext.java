@@ -20,6 +20,7 @@ import com.google.common.collect.Iterables;
 
 import edu.kit.iti.algover.data.MapSymbolTable;
 import edu.kit.iti.algover.data.SymbolTable;
+import edu.kit.iti.algover.smttrans.data.AxiomContainer;
 import edu.kit.iti.algover.smttrans.data.Operation;
 import edu.kit.iti.algover.smttrans.data.OperationMatcher;
 import edu.kit.iti.algover.smttrans.data.SMTContainer;
@@ -65,6 +66,7 @@ public class TypeContext {
         preamble.clear();
         boundVars.clear();
         symbolTable = new MapSymbolTable(new HashSet<>());
+        AxiomContainer.reset();
     }
 
     public static boolean isBuiltIn(String s) {

@@ -1,6 +1,7 @@
 package edu.kit.iti.algover.smttrans.data;
 
 import java.util.ArrayList;
+
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
@@ -23,10 +24,14 @@ public class AxiomContainer {
         AxiomLoader.load();
     }
 
+    public static void reset() {
+        sorts.clear();
+    }
+
     public static String crossType(List<String> t1, List<String> t2) {
-        List<String> types = t2.subList(1,t2.size());
-       // Axiom a1 = Axiom.valueOf(t1.get(0)).getComplement(types);
-       // return typeAxiom(a1.smt, types);
+        List<String> types = t2.subList(1, t2.size());
+        // Axiom a1 = Axiom.valueOf(t1.get(0)).getComplement(types);
+        // return typeAxiom(a1.smt, types);
         return "";
     }
 
@@ -164,7 +169,9 @@ public class AxiomContainer {
         List<String> types = TypeContext.getTypeArguments(type.getName());
 
         String ax = p.snd;
-
+        if (types.size() != tvs.size()) { //TODO anon error
+            return "";
+        }
         for (int i = 0; i < tvs.size(); i++) {
             ax = ax.replace(tvs.get(i), types.get(i));
         }
@@ -177,7 +184,7 @@ public class AxiomContainer {
         if (!axiom.contains("(par"))
             return false;
         String name = TypeContext.normalizeName(sort.getName());
-        
+
         if (!axiom.contains(name + "<"))
             return false;
 
@@ -217,7 +224,7 @@ public class AxiomContainer {
         String r = "";
         for (Sort s : t.getArgumentSorts()) {
             if (isApplicable(a.getSmt(), s)) {
-               
+
                 r += a.getSmt() + " :: " + TypeContext.normalizeSort(s.getName(), s.toString()) + "\r\n";
             }
         }

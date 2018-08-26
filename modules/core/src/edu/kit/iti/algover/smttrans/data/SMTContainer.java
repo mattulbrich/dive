@@ -70,7 +70,7 @@ public class SMTContainer {
         String r = cleanUp(sb.toString());
         r = TypeContext.addFunctions(r);
         if (r.contains("Object"))
-            return TypeContext.addCasts(r);
+            return declareDep() + TypeContext.addCasts(r);
 
         return cleanUp(declareDep() + sb.toString());
     }
