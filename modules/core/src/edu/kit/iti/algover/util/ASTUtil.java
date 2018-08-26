@@ -7,6 +7,7 @@ package edu.kit.iti.algover.util;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -476,4 +477,45 @@ public final class ASTUtil {
         return result;
     }
 
+    public static DafnyTree setExt(List<DafnyTree> expressions) {
+        DafnyTree result = new DafnyTree(DafnyParser.SETEX);
+        result.addChildren(expressions);
+        return result;
+    }
+
+    public static DafnyTree setUnion(List<DafnyTree> exps) {
+        if(exps.isEmpty()) {
+            return setExt(Collections.emptyList());
+        }
+        DafnyTree result = exps.get(0);
+        for (int i = 1; i < exps.size(); i++) {
+            DafnyTree t = new DafnyTree(DafnyParser.PLUS);
+            t.addChild(result);
+            t.addChild(exps.get(i));
+            result = t;
+        }
+        return result;
+    }
+
+    public static DafnyTree fromSort(Sort sort) {
+        DafnyTree result;
+        switch(sort.getName()) {
+        case "set":
+            result = new DafnyTree(DafnyParser.SET, "set");
+            break;
+        case "multiset":
+            result = new DafnyTree(DafnyParser.MULTISET, "multiset");
+            break;
+        case "seq":
+            result = new DafnyTree(DafnyParser.SEQ, "seq");
+            break;
+        case "array":
+            result = new DafnyTree(DafnyParser.ARRAY, "array");
+            break;
+        default: return id(sort.getName());
+        }
+
+        result.addChild(fromSort(sort.getArgument(0)));
+        return result;
+    }
 }

@@ -308,7 +308,7 @@ public class SymbexTest {
                 SymbexPath pres = ss.get(0);
                 assertEquals(AssertionType.INVARIANT_PRESERVED, pres.getCommonProofObligationType());
                 ImmutableList<DafnyTree> list = pres.getAssignmentHistory();
-                assertEquals("[(ASSIGN $mod modset), "
+                assertEquals("[(ASSIGN $mod modset[set<C>]), "
                                 + "(ASSIGN $decr 0), "
                                 + "(:= unmod[int] 1[int]), (:= mod[int] unmod[int]), "
                                 + "(:= mod[int] (+ mod[int] 2[int])[int]), "
@@ -814,7 +814,7 @@ public class SymbexTest {
                     path.getProofObligations().map(x -> x.getExpression().toStringTree()).toString());
             assertEquals("[(ASSIGN $mod $everything), (ASSIGN $decr 0), " +
                             "(ASSIGN x $res_CallMe_1), (ASSIGN y $res_CallMe_2), " +
-                            "(ASSIGN $heap (CALL $anon (ARGS $heap (LET (VAR this p) c 24 this) $aheap_1))), " +
+                            "(ASSIGN $heap (CALL $anon (ARGS $heap (LET (VAR this p) c 24 (SETEX this)) $aheap_1))), " +
                             "(ASSIGN x $res_multiReturn_1), (ASSIGN y $res_multiReturn_2)]",
                     path.getAssignmentHistory().map(DafnyTree::toStringTree).toString());
         }

@@ -7,8 +7,10 @@ package edu.kit.iti.algover.symbex;
 
 import edu.kit.iti.algover.ProgramDatabase;
 import edu.kit.iti.algover.dafnystructures.TarjansAlgorithm;
+import edu.kit.iti.algover.parser.DafnyException;
 import edu.kit.iti.algover.parser.DafnyParser;
 import edu.kit.iti.algover.parser.DafnyTree;
+import edu.kit.iti.algover.parser.ModifiesListResolver;
 import edu.kit.iti.algover.symbex.AssertionElement.AssertionType;
 import edu.kit.iti.algover.symbex.PathConditionElement.AssumptionType;
 import edu.kit.iti.algover.term.Sort;
@@ -236,7 +238,12 @@ public class Symbex {
             if (mod == null) {
                 mod = ASTUtil.builtInVar("$everything");
             } else {
-                mod = mod.getLastChild();
+                try {
+                    mod = ModifiesListResolver.resolve(mod);
+                } catch (DafnyException ex) {
+                    // TODO do the right thing
+                    throw new Error(ex);
+                }
             }
             mod = ASTUtil.letCascade(subs, mod);
             state.addAssignment(ASTUtil.anonymiseHeap(state, mod));
@@ -803,8 +810,13 @@ public class Symbex {
             result.addAssignment(ASTUtil.assign(ASTUtil.builtInVar("$mod"),
                     ASTUtil.builtInVar("$everything")));
         } else {
-            result.addAssignment(ASTUtil.assign(ASTUtil.builtInVar("$mod"),
-                    modifies.getLastChild()));
+            try {
+                result.addAssignment(ASTUtil.assign(ASTUtil.builtInVar("$mod"),
+                        ModifiesListResolver.resolve(modifies)));
+            } catch (DafnyException e) {
+                // TODO
+                throw new Error(e);
+            }
         }
 
         DafnyTree decreases = method.getFirstChildWithType(DafnyParser.DECREASES);

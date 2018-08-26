@@ -49,7 +49,8 @@ public class SyntacticSugarVistor {
                     // new LabelIntroducer()
                     new ChainedRelationsVisitor(),
                     new QuantifierGuardRemovalVisitor(),
-                    new ImplicitlyTypedVariableVisitor());
+                    new ImplicitlyTypedVariableVisitor()
+                );
 
         visitDeep(t, visitors);
     }

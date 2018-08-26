@@ -193,6 +193,7 @@ class C
      modifies { this, a }
    {
      var s2 := { 1, 2, 3 };
+    // var s3 := { 1 } + { 2 };
    }
 
    method arrays2() {
@@ -206,5 +207,10 @@ class C
      i := a.Length0;
      j := a.Length1;
    }
+
+   // this fails!
+   method illegalModifies(o: object)
+      modifies 1+1, o
+   {}
 
 }

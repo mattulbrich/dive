@@ -7,6 +7,7 @@ package edu.kit.iti.algover;
 
 import edu.kit.iti.algover.parser.ChainedRelationsVisitorTest;
 import edu.kit.iti.algover.parser.ImplicitlyTypedVariableVisitorTest;
+import edu.kit.iti.algover.parser.ModifiesListResolverTest;
 import edu.kit.iti.algover.parser.ParserErrorTest;
 import edu.kit.iti.algover.parser.QuantifierGuardRemovalVisitorTest;
 import edu.kit.iti.algover.project.ProjectManagerTest;
@@ -89,6 +90,7 @@ import edu.kit.iti.algover.util.UtilTest;
     ChainedRelationsVisitorTest.class,
     ImplicitlyTypedVariableVisitorTest.class,
     QuantifierGuardRemovalVisitorTest.class,
+    ModifiesListResolverTest.class,
         RuleUtilTest.class
     })
 public class Tests {
