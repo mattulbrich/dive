@@ -1,0 +1,7 @@
+a: array2<int>
+---
+
+|-
+let $heap := $array2_store<int>($heap, a, 0, 0,0) :: 
+let $heap := $array2_store<int>($heap, a, 0, 0,1) :: 
+$not($array2_select<int>($heap, a, 0,0) == 0) 

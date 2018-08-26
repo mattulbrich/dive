@@ -1,0 +1,5 @@
+s1: seq<int>
+s2: seq<int>
+---
+|-
+$gt($seq_len<int>($seq_concat<int>(s1,s2)),2)

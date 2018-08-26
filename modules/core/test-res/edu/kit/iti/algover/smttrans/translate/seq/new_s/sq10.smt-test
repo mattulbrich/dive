@@ -1,0 +1,8 @@
+s1: seq<int>
+i: int
+j: int
+k: int
+---
+s1 == $seq_cons<int>(i,(j,$seq_cons<int>(k,$seq_empty<int>))),
+|-
+$seq_get<int>(s1,0) == j

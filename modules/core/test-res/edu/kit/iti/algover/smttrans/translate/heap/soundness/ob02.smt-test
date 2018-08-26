@@ -1,0 +1,5 @@
+o: X,
+X$$y: field<X,int>
+---
+|-
+$gt($select<X,int>($heap, o, X$$y), 0)

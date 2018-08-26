@@ -1,0 +1,10 @@
+o: X,
+X$$y: field<X,int>,
+$aheap_1: heap
+---
+|-
+
+let $heap := $store<X,int>($heap, o, X$$y, 4) :: 
+let $mod := $set_add<Object>(o,$empty<Object>) ::
+let $heap := $anon($heap,$mod,$aheap_1) ::
+$gt($select<X,int>($heap, o, X$$y), 0)

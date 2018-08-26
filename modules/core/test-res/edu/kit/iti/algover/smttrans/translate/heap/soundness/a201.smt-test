@@ -1,0 +1,9 @@
+a: array2<int>
+i : int
+j : int
+k: int
+l : int
+---
+$gt($array2_select<int>($heap, a, i, j),0)
+|-
+$gt($array2_select<int>($heap, a, k, l),0)

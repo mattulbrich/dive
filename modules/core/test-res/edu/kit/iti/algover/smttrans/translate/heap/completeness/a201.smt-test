@@ -1,0 +1,7 @@
+a: array2<int>
+i : int
+j : int
+---
+
+|-
+let $heap := $array2_store<int>($heap, a, i, j, 2) :: $gt($array2_select<int>($heap, a, i, j),1)

@@ -1,0 +1,4 @@
+a: array<int>
+---
+|-
+$array_select<int>($heap,a,0) == $array_select<int>($heap,a,1)

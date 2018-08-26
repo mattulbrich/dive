@@ -1,0 +1,8 @@
+a: array2<int>
+b: array2<int>
+i : int
+j : int
+---
+$array2_select<int>($heap, a, i, j) == $array2_select<int>($heap, b, i, j)
+|-
+a == b

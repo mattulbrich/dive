@@ -1,0 +1,9 @@
+s1: seq<int>
+s2: seq<int>
+---
+
+s1 == (1,$seq_empty<int>),
+s2 == (1,$seq_empty<int>)
+
+|-
+$seg_get<int>(s1,0) == $seg_get<int>(s2,0) 

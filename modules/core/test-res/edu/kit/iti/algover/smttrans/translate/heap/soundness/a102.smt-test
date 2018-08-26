@@ -1,0 +1,7 @@
+a: array<int>
+b: array<int>
+---
+$array_select<int>($heap,a,0) == 0,
+$array_select<int>($heap,b,0) == 0
+|-
+a == b

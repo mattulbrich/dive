@@ -1,0 +1,4 @@
+s1: seq<int>
+---
+|-
+$seq_concat<int>(s1,s1) == s1

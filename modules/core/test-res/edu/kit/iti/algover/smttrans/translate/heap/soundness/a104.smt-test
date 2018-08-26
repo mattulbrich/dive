@@ -1,0 +1,5 @@
+a: array<int>
+---
+$array_select<int>($heap,a,1) == 2
+|-
+$lt($array_select<int>($heap,a,1),2)

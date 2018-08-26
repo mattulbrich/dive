@@ -1,0 +1,6 @@
+s1: seq<int>
+---
+
+s1 == $seq_cons<int>(3,$seq_cons<int>(2,$seq_cons<int>(1,$seq_empty<int>)))
+|-
+$seg_get<int>(s1,0) == 1
