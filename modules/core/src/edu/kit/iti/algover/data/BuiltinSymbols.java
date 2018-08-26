@@ -284,6 +284,9 @@ public class BuiltinSymbols extends MapSymbolTable {
     public static final FunctionSymbolFamily SEQ_EMPTY = new FunctionSymbolFamily(
             new FunctionSymbol("$seq_empty", SEQ1), 1);
 
+    public static final FunctionSymbolFamily SEQ_SINGLE = new FunctionSymbolFamily(
+            new FunctionSymbol("$seq_single", SEQ1, FunctionSymbolFamily.VAR1), 1);
+
     public static final FunctionSymbolFamily SEQ_CONS = new FunctionSymbolFamily(
             new FunctionSymbol("$seq_cons", SEQ1, FunctionSymbolFamily.VAR1, SEQ1), 1);
 

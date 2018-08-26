@@ -49,7 +49,7 @@ public class OperationMatcher {
         opmap.put("$intersect", Operation.SETINTERSECT);
         opmap.put("$set_minus", Operation.SETMINUS);
         opmap.put("$set_subset",Operation.SETSUBSET);
-//        opmap.put("$set_card", Operation.SETCARD);
+        opmap.put("$set_single", Operation.SETSINGLE);
         opmap.put("$set_add", Operation.SETADD);
         opmap.put("$set_in", Operation.SETIN);
         opmap.put("$seq_len", Operation.SEQLEN);
@@ -59,7 +59,7 @@ public class OperationMatcher {
         opmap.put("$seq_cons", Operation.SEQCONS);
         opmap.put("$seq_concat", Operation.SEQCONCAT);
         opmap.put("$seq_subselect", Operation.SEQSUBSELECT);
-
+        opmap.put("$seq_single",Operation.SEQSINGLE);
         opmap.put("$anon", Operation.ANON);
         opmap.put("$create", Operation.CREATE);
         opmap.put("$isCreated", Operation.ISCREATED);

@@ -12,7 +12,7 @@ import static java.util.Arrays.asList;
 
 public enum Operation {
 
-    OR, SETEMPTY, PLUS, MINUS, TIMES, IMP, GT, DIV, LT, EQ, NOT, GE, LE, NEG, ITE, ARR2SELECT, ARRSTORE, ARR2STORE, FIELDSTORE, FIELDSELECT, DECR, SETUNION, SETINTERSECT, SEQCONCAT, ISCREATED, CREATE, ANON, SEQCONS, SEQEMPTY, SEQUPD, SEQGET, SEQLEN, SETIN, SETADD, CONST, ARRLEN, ARR2LEN0, ARR2LEN1, EXISTS, FORALL, LET, ARRSELECT, VAR, HEAP, AND, BV, MOD, AHEAP, EVERYTHING, MULTIUNION, MULTIINTERSECT, MULTIEMPTY, MULTIADD, MULTIIN, SETMINUS, MULTIMINUS, FUNC, SEQSUBSELECT, SETSUBSET, MULTISUBSET;
+    OR, SETEMPTY, PLUS, MINUS, TIMES, IMP, GT, DIV, LT, EQ, NOT, GE, LE, NEG, ITE, ARR2SELECT, ARRSTORE, ARR2STORE, FIELDSTORE, FIELDSELECT, DECR, SETUNION, SETINTERSECT, SEQCONCAT, ISCREATED, CREATE, ANON, SEQCONS, SEQEMPTY, SEQUPD, SEQGET, SEQLEN, SETIN, SETADD, CONST, ARRLEN, ARR2LEN0, ARR2LEN1, EXISTS, FORALL, LET, ARRSELECT, VAR, HEAP, AND, BV, MOD, AHEAP, EVERYTHING, MULTIUNION, MULTIINTERSECT, MULTIEMPTY, MULTIADD, MULTIIN, SETMINUS, MULTIMINUS, FUNC, SEQSUBSELECT, SETSUBSET, MULTISUBSET, SETSINGLE, SEQSINGLE;
 
     private String smt;
     private boolean poly = false;
@@ -79,18 +79,20 @@ public enum Operation {
 
         SETSUBSET.smt = "setsubset";
         SETSUBSET.poly = true;
-        SETSUBSET.instantiations = asList(Axiom.S7);
+        SETSUBSET.instantiations = asList(Axiom.S7, Axiom.S3);
 
         SETMINUS.smt = "setminus";
         SETMINUS.poly = true;
-        SETMINUS.instantiations = asList(Axiom.S6);
+        SETMINUS.instantiations = asList(Axiom.S6, Axiom.S3);
         SETIN.smt = "setin";
         SETIN.poly = true;
-        SETIN.instantiations = asList(Axiom.S2); // ,Axiom.S3
+        SETIN.instantiations = asList(Axiom.S2, Axiom.S3);
         SETEMPTY.smt = "setempty";
         SETEMPTY.poly = true;
         SETEMPTY.instantiations = asList(Axiom.S1, Axiom.S2, Axiom.S3);
-
+        SETSINGLE.smt = "setsingle";
+        SETSINGLE.poly = true;
+        SETSINGLE.instantiations = asList(Axiom.S2, Axiom.S3, Axiom.S8);
         MULTIUNION.smt = "msetunion";
         MULTIUNION.poly = true;
         MULTIUNION.instantiations = asList(Axiom.MS5);
@@ -158,6 +160,9 @@ public enum Operation {
         SEQLEN.poly = true;
         SEQLEN.instantiations = asList(Axiom.SQL2);
 
+        SEQSINGLE.smt = "seqsingle";
+        SEQSINGLE.poly = true;
+        SEQSINGLE.instantiations = asList(Axiom.SQ7);
         SEQCONCAT.smt = "seqconcat";
         SEQCONCAT.poly = true;
         SEQCONCAT.instantiations = asList(Axiom.SQ3, Axiom.SQL4);

@@ -13,12 +13,12 @@ public enum Axiom {
      */
 
     // sets
-    SETIN, SETADD, SETMINUS, SETUNION, SETINTERSECT, SETSUBSET,
+    SETIN, SETADD, SETMINUS, SETUNION, SETINTERSECT, SETSUBSET, SETSINGLE,
 
     // multisets
     MSETADD, MSETUNION, MSETINTERSECT, MSETMINUS, MSETQUANT, MSETIN, MSETSUBSET, MSETMIN, MSETMAX,
     // sequences
-    SEQLEN, SEQGET, SEQUPD, SEQCONS, SEQSUBSELECT, SEQCONCAT,
+    SEQLEN, SEQGET, SEQUPD, SEQCONS, SEQSUBSELECT, SEQCONCAT, SEQSINGLE,
     // Heap/Arrays
     ANON, EVERYTHING, CREATE, ISCREATED, ARRLEN, ARR2LEN0, ARR2LEN1, FIELDSELECT, FIELDSTORE, ARRSELECT, ARRSTORE, ARR2SELECT, ARR2STORE,
 
@@ -27,13 +27,13 @@ public enum Axiom {
      */
 
     // sets
-    S1, S2, S3, S4, S5, S6, S7,
+    S1, S2, S3, S4, S5, S6, S7, S8,
 
     // multisets
     MS1, MS2, MS3, MS4, MS5, MS6, MS7, MS8,
     // sequences
 
-    SQ1, SQ2, SQ3, SQ4, SQ5, SQ6, SQL1, SQL2, SQL3, SQL4, SQL5, SQL6,
+    SQ1, SQ2, SQ3, SQ4, SQ5, SQ6, SQ7, SQL1, SQL2, SQL3, SQL4, SQL5, SQL6,
 
     // Heap/Arrays
     A11, A12, A13, A14, A1L1, A21, A22, A23, A24, A2L0, A2L1, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12;
@@ -60,6 +60,7 @@ public enum Axiom {
         SETUNION.smt = "(declare-fun (par (T)(setunion<T> (Set<T> Set<T>) Set<T>)))";
         SETINTERSECT.smt = "(declare-fun (par (T)(setintersect<T> (Set<T> Set<T>) Set<T>)))";
         SETSUBSET.smt = "(declare-fun (par (T)(setsubset<T> (Set<T> Set<T>) Bool)))";
+        SETSINGLE.smt = "(declare-fun (par (T) (setsingle<T> (T) Set<T>)))";
 
         // multisets
         MSETADD.smt = "(declare-fun (par (T) (msetadd<T> (T MultiSet<T>) MultiSet<T>)))";
@@ -79,6 +80,7 @@ public enum Axiom {
         SEQCONS.smt = "(declare-fun (par (T) (seqcons<T> (T Seq<T>) Seq<T>)))";
         SEQSUBSELECT.smt = "(declare-fun (par (T) (seqsubselect<T> (Seq<T> Int Int) Seq<T>)))";
         SEQCONCAT.smt = "(declare-fun (par (T) (seqconcat<T> (Seq<T> Seq<T>) Seq<T>)))";
+        SEQSINGLE.smt = "(declare-fun (par (T) (seqsingle<T> (T) Seq<T>)))";
 
         // Heap/Arrays
 
@@ -134,6 +136,10 @@ public enum Axiom {
                 + "(=> (setin<T> t s1) (setin<T> t s2)) \r\n"
                 + ":pattern((setsubset<T> s1 s2) (setin<T> t s1) (setin<T> t s2))))))))";
         S7.dependencies = new HashSet<>(Arrays.asList(Axiom.SETIN, Axiom.SETSUBSET));
+        S8.smt = "(assert (par (T) (forall\r\n" + "(\r\n" + "    (s Set<T>)\r\n" + "    (t T)\r\n" + ")\r\n"
+                + "(= (setsingle<T> t) (setadd<T> t ~setempty<T>)))))";
+        S8.dependencies = new HashSet<>(Arrays.asList(Axiom.SETIN, Axiom.SETSINGLE));
+
         // multisets
         MS1.smt = "(assert (par (T) (forall\r\n" + "(\r\n" + "    (s MultiSet<T>)\r\n" + "    (t T)\r\n" + ")\r\n"
                 + "(= (msetin<T> t s) (> (mquant<T> t s) 0)))))";
@@ -201,6 +207,9 @@ public enum Axiom {
         SQ6.smt = "(assert (par (T) (forall\r\n" + "(\r\n" + "    (s Seq<T>)\r\n" + ")\r\n" + "(=>   \r\n"
                 + "(= (seqlen<T> s) 0)\r\n" + "(= s ~emptySeq<T>)))))";
         SQ6.dependencies = new HashSet<>(Arrays.asList(Axiom.SEQLEN));
+        SQ7.smt = "(assert (par (T) (forall\r\n" + "(\r\n" + "    (s Seq<T>)\r\n" + "    (t T)\r\n" + ")\r\n"
+                + "(= (seqsingle<T> t) (seqcons<T> t ~emptySeq<T>)))))";
+        SQ7.dependencies = new HashSet<>(Arrays.asList(Axiom.SEQLEN,Axiom.SEQSINGLE));
         SQL1.smt = "(assert (par (T) (= (seqlen<T> ~seqempty<T>) 0)))";
         SQL1.dependencies = new HashSet<>(Arrays.asList(Axiom.SEQLEN));
         SQL2.smt = "(assert (par (T) (forall   \r\n" + "(\r\n" + "    (s Seq<T>)\r\n" + ")\r\n"
