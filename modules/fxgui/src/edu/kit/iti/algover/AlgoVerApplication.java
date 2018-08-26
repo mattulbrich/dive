@@ -39,7 +39,10 @@ public class AlgoVerApplication extends Application {
         chooser.setInitialDirectory(new File("doc/examples/"));
         File projectFile = chooser.showOpenDialog(primaryStage);
         ProjectManager manager;
-        if(projectFile.getName().endsWith(".xml")) {
+        if (projectFile == null) {
+            return;
+        }
+        if (projectFile.getName().endsWith(".xml")) {
             // Read all PVCs and update GUId
             manager = new XMLProjectManager(projectFile.getParentFile(), projectFile.getName());
         } else {

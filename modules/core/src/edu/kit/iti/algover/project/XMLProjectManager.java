@@ -7,19 +7,11 @@ package edu.kit.iti.algover.project;
 
 import edu.kit.iti.algover.parser.DafnyException;
 import edu.kit.iti.algover.parser.DafnyParserException;
-import edu.kit.iti.algover.parser.ReferenceResolutionVisitor;
-import edu.kit.iti.algover.parser.TypeResolution;
-import edu.kit.iti.algover.proof.*;
-import edu.kit.iti.algover.script.ast.ProofScript;
-import edu.kit.iti.algover.script.interpreter.Interpreter;
-import edu.kit.iti.algover.script.interpreter.InterpreterBuilder;
-import edu.kit.iti.algover.script.parser.Facade;
+import edu.kit.iti.algover.proof.PVC;
+import edu.kit.iti.algover.proof.Proof;
 import edu.kit.iti.algover.settings.ProjectSettings;
-import edu.kit.iti.algover.util.FileUtil;
 import edu.kit.iti.algover.util.FormatException;
-import edu.kit.iti.algover.util.ObservableValue;
 import edu.kit.iti.algover.util.Util;
-import nonnull.Nullable;
 import org.xml.sax.SAXException;
 
 import javax.xml.bind.JAXBException;
@@ -30,13 +22,13 @@ import java.io.Writer;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.*;
-import java.util.function.Supplier;
+import java.util.HashMap;
 
 /**
- * REVIEW: This explanation does not really cover the purpose of this class.
+ * A project manager that receives a directory and a config.xml file for
+ * configuration.
  *
- * Class handling project and proof management
+ * Scripts are stored in individual files in a subdirectory "scripts".
  *
  * @author Sarah Grebing
  * @author Mattias Ulbrich, refactored Jan 2018
@@ -54,11 +46,6 @@ public final class XMLProjectManager extends AbstractProjectManager {
      * the directory in which the project resides.
      */
     private final File directory;
-
-    /**
-     * Map containing all filehooks for open files in the GUI
-     */
-    // private Map<String, Supplier<String>> fileHooks = new HashMap<>();
 
     /**
      * Build a new project by parsing the config file and performing symbolic execution
@@ -91,7 +78,7 @@ public final class XMLProjectManager extends AbstractProjectManager {
     public void reload() throws DafnyException, DafnyParserException, IOException, FormatException {
         Project project = buildProject(directory, configFilename);
         generateAllProofObjects(project);
-        this.project.setValue(project);
+        this.setProject(project);
     }
 
     /**
@@ -120,18 +107,19 @@ public final class XMLProjectManager extends AbstractProjectManager {
 
         Project result = pb.build();
 
-        // FIXME This is already performed in build()!!
-        ArrayList<DafnyException> exceptions = new ArrayList<>();
-        ReferenceResolutionVisitor refResolver = new ReferenceResolutionVisitor(result, exceptions);
-        refResolver.visitProject();
-
-        TypeResolution typeRes = new TypeResolution(exceptions);
-        typeRes.visitProject(result);
-
-        if(!exceptions.isEmpty()) {
-            // TODO ->MU: Is it wise to only return the first exception?
-            throw exceptions.get(0);
-        }
+        // This is already performed in build()!!
+        // That's why I removed it.
+//        ArrayList<DafnyException> exceptions = new ArrayList<>();
+//        ReferenceResolutionVisitor refResolver = new ReferenceResolutionVisitor(result, exceptions);
+//        refResolver.visitProject();
+//
+//        TypeResolution typeRes = new TypeResolution(exceptions);
+//        typeRes.visitProject(result);
+//
+//        if(!exceptions.isEmpty()) {
+//            // TODO ->MU: Is it wise to only return the first exception?
+//            throw exceptions.get(0);
+//        }
 
         return result;
     }
@@ -174,75 +162,13 @@ public final class XMLProjectManager extends AbstractProjectManager {
         return new File(proofDir, Util.maskFileName(pvcIdentifier) + ".script");
     }
 
-    /**
-     * Load an alternative version of the project (which is saved as zip file).
-     *
-     * Future ....
-     *
-     * @param zipFile
-     */
-  //  public void loadProjectVersion(File zipFile) {
-  //      throw new Error("Not yet");
-  //  }
 
-
-    /**
-     * save all proof scripts.
-     */
-    @Override
-    public void saveProject() throws IOException {
-        for (Map.Entry<String, Proof> pvcProofEntry : proofs.entrySet()) {
-            String pvcName = pvcProofEntry.getKey();
-            Proof proof = pvcProofEntry.getValue();
-            saveProofScriptForPVC(pvcName, proof);
-        }
-    }
-
-    /**
-     * Save the proof script for a PVC given by its interpreted proof
-     *
-     * @param pvcIdentifier
-     * @param proof
-     * @throws IOException
-     */
     @Override
     public void saveProofScriptForPVC(String pvcIdentifier, Proof proof) throws IOException {
         File scriptFile = getScriptFileForPVC(pvcIdentifier);
         saverHelper(scriptFile.getPath(), proof.getScript());
     }
 
-
-    /**
-     * Save project to a zipfile
-     */
-//    public void saveProjectVersion() throws IOException {
-//        saveProject();
-    //}
-
-
-    /* *
-     * Save content to script file for pvc
-     * @param pvc
-     * @param content
-     * @throws IOException
-     */
- /*   public void saveToScriptFile(String pvc, String content) throws IOException {
-        String scriptFilePath = project.get().getBaseDir().getAbsolutePath() + File.separatorChar + pvc + ".script";
-        saverHelper(scriptFilePath, content);
-
-    }*/
-
-    /* REVIEW I propose: static method
-        Path path = Paths.get(pathToFile);
-        if (!Files.exists(path)) {
-            Files.createFile(path);
-        }
-
-        try(Writer writer = Files.newBufferedWriter(path)) {
-            writer.write(content);
-            writer.flush();
-        }
-     */
     private void saverHelper(String pathToFile, String content) throws IOException {
         Path path = Paths.get(pathToFile);
         Writer writer;

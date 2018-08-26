@@ -12,9 +12,23 @@ import edu.kit.iti.algover.proof.PVCGroup;
 import edu.kit.iti.algover.proof.Proof;
 import edu.kit.iti.algover.util.ObservableValue;
 
+import java.io.IOException;
 import java.util.Collections;
 import java.util.Map;
 
+/**
+ * The base class for the implementations of Project Manager.
+ *
+ * It contains the common data structures and methods.
+ *
+ * See {@link ProjectManager} for Javadoc comments of the methods.
+ *
+ * @author mulbrich
+ *
+ * REVIEW: moved from ObservableValue back to simple value since observability
+ * has not been used yet at all.
+ *
+ */
 public abstract class AbstractProjectManager implements ProjectManager {
 
     /**
@@ -22,8 +36,9 @@ public abstract class AbstractProjectManager implements ProjectManager {
      *
      * The project may change when {@link #reload()} is called.
      */
-    protected final ObservableValue<Project> project =
-            new ObservableValue<>("ProjectManager.project", Project.class);
+    private Project project;
+//    private final ObservableValue<Project> project =
+//            new ObservableValue<>("ProjectManager.project", Project.class);
 
     /**
      * Map from PVC identifiers to corr. proofs.
@@ -32,12 +47,7 @@ public abstract class AbstractProjectManager implements ProjectManager {
      */
     protected Map<String, Proof> proofs;
 
-    /**
-     * Return Proof object for a PVC if it exists, null otherwise
-     *
-     * @param pvcIdentifier
-     * @return
-     */
+
     @Override
     public Proof getProofForPVC(String pvcIdentifier) {
         return getAllProofs().get(pvcIdentifier);
@@ -48,28 +58,38 @@ public abstract class AbstractProjectManager implements ProjectManager {
         return Collections.unmodifiableMap(proofs);
     }
 
-    /**
-     * Get the plain PVCs as Map from pvcName -> PVC object
-     *
-     * @return
-     */
     @Override
     public Map<String, PVC> getPVCByNameMap() {
-        return this.project.getValue().getPVCByNameMap();
+        return getProject().getPVCByNameMap();
     }
 
     @Override
     public Project getProject() {
-        return project.getValue();
+        // return project.getValue();
+        return project;
+    }
+
+    @Override
+    public PVCGroup getAllPVCs() {
+        return getProject().getAllPVCs();
+    }
+
+    @Override
+    public void saveProject() throws IOException {
+        for (Map.Entry<String, Proof> pvcProofEntry : proofs.entrySet()) {
+            String pvcName = pvcProofEntry.getKey();
+            Proof proof = pvcProofEntry.getValue();
+            saveProofScriptForPVC(pvcName, proof);
+        }
     }
 
     /**
-     * Return  all PVCs for the loaded project
+     * Update the project of the observable value.
      *
-     * @return PVCGroup that is the root for all PVCs of the loaded project
+     * @param project the new project to use
      */
-    @Override
-    public PVCGroup getPVCGroup() {
-        return this.getProject().getAllPVCs();
+    protected void setProject(Project project) {
+        // this.project.setValue(project);
+        this.project = project;
     }
 }

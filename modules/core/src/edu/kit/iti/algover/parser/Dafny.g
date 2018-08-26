@@ -170,8 +170,8 @@ STRING_LIT :
 
 
 WS : (' '|'\t'|'\n'|'\r')                { $channel = HIDDEN; };
-ALGOVER_COMMENT: '//\\\\'                  { $channel = HIDDEN; };
-SINGLELINE_COMMENT:  '//' ( | ( ~'\\' | '\\' ~'\\' ) ~('\r' | '\n')* )
+ALGOVER_COMMENT: '//\\\\'                { $channel = HIDDEN; };
+SINGLELINE_COMMENT: '//' ( '\\'? ~('\\'|'\r'|'\n') ~('\r' | '\n')* )?
                                          { $channel = HIDDEN; };
 MULTILINE_COMMENT: '/*' .* '*/'          { $channel = HIDDEN; };
 
@@ -184,9 +184,13 @@ include:
   ;
 
 settings:
-  SETTINGS^ '{'!
-   ( (ID | STRING_LIT) '='! (ID | STRING_LIT | INT_LIT) )+
-    '}'!
+  SETTINGS '{' settings_entry (',' settings_entry)* '}'
+    -> ^(SETTINGS settings_entry*)
+  ;
+
+settings_entry:
+  key=(ID | STRING_LIT) '=' value=(ID | STRING_LIT | INT_LIT)
+          -> ^($key $value)
   ;
 
 program:
@@ -198,7 +202,6 @@ program:
 program_only:
   program EOF -> program
   ;
-
 
 clazz:
   CLASS^ ID '{'!

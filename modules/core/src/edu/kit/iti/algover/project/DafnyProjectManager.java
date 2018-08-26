@@ -12,36 +12,59 @@ import edu.kit.iti.algover.parser.DafnyFileParser;
 import edu.kit.iti.algover.parser.DafnyParser;
 import edu.kit.iti.algover.parser.DafnyParserException;
 import edu.kit.iti.algover.parser.DafnyTree;
-import edu.kit.iti.algover.parser.ReferenceResolutionVisitor;
-import edu.kit.iti.algover.parser.TypeResolution;
 import edu.kit.iti.algover.proof.PVC;
-import edu.kit.iti.algover.proof.PVCGroup;
 import edu.kit.iti.algover.proof.Proof;
 import edu.kit.iti.algover.settings.ProjectSettings;
 import edu.kit.iti.algover.util.FormatException;
 import edu.kit.iti.algover.util.Util;
-import org.xml.sax.SAXException;
+import nonnull.NonNull;
+import nonnull.Nullable;
 
-import javax.xml.bind.JAXBException;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 
+/**
+ * This project manager is a newer variant which does not use configuration
+ * files but uses data which resides in .dfy files.
+ *
+ * It is parametrised by the main .dfy file.
+ * That contains the "include" statements which defines the relevant source
+ * files and contains "settings" paragraphs defining the settings.
+ *
+ * Proof scripts are stored in a xml-file whose name is the basename
+ * concatenated with ".proofs".
+ *
+ * @author mulbrich
+ */
 public class DafnyProjectManager extends AbstractProjectManager {
 
-    private File masterFile;
-    private File scriptFile;
+    /**
+     * The main file containing the includes and settings.
+     */
+    private final @NonNull File masterFile;
 
-    private Map<String, String> scriptDatabase;
+    /**
+     * The file containing the scripts.
+     *
+     * essentially {@code = masterFile + ".proofs"}.
+     */
+    private final @NonNull File scriptFile;
 
-    public DafnyProjectManager(File masterFile) throws FormatException, DafnyParserException, IOException, DafnyException {
+    /**
+     * The database of scripts as loaded from the scriptFile.
+     * This is queried for lookups of scripts.
+     * When reloading, the reference is reset to null.
+     */
+    private @Nullable Map<String, String> scriptDatabase;
+
+    public DafnyProjectManager(@NonNull File masterFile) throws IOException, DafnyParserException {
         this.masterFile = masterFile;
         this.scriptFile = new File(masterFile.toString() + ".proofs");
         reload();
@@ -51,7 +74,7 @@ public class DafnyProjectManager extends AbstractProjectManager {
     public void reload() throws IOException, DafnyParserException {
         Project project = buildProject(masterFile);
         generateAllProofObjects(project);
-        this.project.setValue(project);
+        this.setProject(project);
     }
 
     /**
@@ -88,7 +111,7 @@ public class DafnyProjectManager extends AbstractProjectManager {
 
         DafnyTree masterAST = DafnyFileParser.parse(masterFile);
 
-        pb.getDafnyFiles().add(masterFile.toString());
+        pb.getDafnyFiles().add(masterFile.getName());
 
         for (DafnyTree include :
                 masterAST.getChildrenWithType(DafnyParser.INCLUDE)) {
@@ -102,10 +125,15 @@ public class DafnyProjectManager extends AbstractProjectManager {
         }
 
         Map<String, String> settings = new HashMap<>();
-        for (DafnyTree dafnyTree :
+        for (DafnyTree settingsTree :
                 masterAST.getChildrenWithType(DafnyParser.SETTINGS)) {
-            System.out.println(dafnyTree.toStringTree());
+            for (DafnyTree keyValuePair : settingsTree.getChildren()) {
+                String key = Util.stripQuotes(keyValuePair.getText());
+                String value = Util.stripQuotes(keyValuePair.getChild(0).getText());
+                settings.put(key, value);
+            }
         }
+
         pb.setSettings(settings);
 
         try {
@@ -141,11 +169,11 @@ public class DafnyProjectManager extends AbstractProjectManager {
 
     @Override
     public void saveProject() throws IOException {
+        super.saveProject();
+
         Properties p = new Properties();
-        if(scriptDatabase == null) {
-            reloadScripts();
-        }
         p.putAll(scriptDatabase);
+
         try(FileOutputStream fileOutputStream = new FileOutputStream(scriptFile)) {
             p.storeToXML(fileOutputStream,
                     "Created by Algover at " + new Date(),
@@ -158,6 +186,7 @@ public class DafnyProjectManager extends AbstractProjectManager {
         if(scriptDatabase == null) {
             reloadScripts();
         }
+        System.out.println(proof.getScript());
         scriptDatabase.put(pvcIdentifier, proof.getScript());
     }
 
