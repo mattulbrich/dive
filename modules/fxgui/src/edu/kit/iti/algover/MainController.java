@@ -150,7 +150,11 @@ public class MainController implements SequentActionListener, RuleApplicationLis
     }
 
     private void trivialStrat(ActionEvent event) {
-        ProgressBarDialog pbd = new ProgressBarDialog("Try closing all", "Trying to close all open goals.");
+        ProgressBarDialog pbd = new ProgressBarDialog("Try closing all",
+                "Trying to close all open goals.");
+        pbd.setLabelUpdaterFunction((prog,fail,total) ->
+           "Out of " + total + " obligations, " +
+                   (prog-fail) + " could be closed, " + fail + "remain open.");
         pbd.show();
         Map<String, PVC> pvcMap = manager.getPVCByNameMap();
         pbd.setMaxSteps(pvcMap.size());
@@ -161,6 +165,10 @@ public class MainController implements SequentActionListener, RuleApplicationLis
                 protected Void call() throws Exception {
                     String script = "";
                     Proof p = manager.getProofForPVC(e.getKey());
+                    boolean success = true;
+                    if(pbd.isAborted()) {
+                        return null;
+                    }
                     if (p.getProofStatus() != ProofStatus.CLOSED) {
                         for (int i = 0; i < p.getProofRoot().getSequent().getAntecedent().size(); ++i) {
                             try {
@@ -188,11 +196,11 @@ public class MainController implements SequentActionListener, RuleApplicationLis
                             p.setScriptTextAndInterpret(script);
                             if(p.getFailException() != null) {
                                 p.setScriptTextAndInterpret(letScript);
-                                pbd.incFailed();
+                                success = false;
                             }
                         }
                     }
-                    pbd.nextProgressStep();
+                    pbd.incrementProgress(success);
                     Platform.runLater(() -> {
                         browserController.updateTableLabels();
                     });
