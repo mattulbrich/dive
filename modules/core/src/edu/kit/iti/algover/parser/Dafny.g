@@ -212,11 +212,10 @@ method:
 function:
   'function'
   ID '(' vars? ')' ':' type
-    ( requires )*
-    ( ensures )*
+    ( requires | ensures | decreases )*
   '{' expression '}'
   ->
-    ^(FUNCTION ID ^(ARGS vars?) ^(RETURNS type) requires* ensures*
+    ^(FUNCTION ID ^(ARGS vars?) ^(RETURNS type) requires* ensures* decreases*
         ^(BLOCK expression?))
   ;
 

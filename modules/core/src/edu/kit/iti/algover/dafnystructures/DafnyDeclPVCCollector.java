@@ -89,7 +89,9 @@ public class DafnyDeclPVCCollector {
     public PVCCollection visitFunction(DafnyFunction f) {
         PVCGroup mGroup = new PVCGroup(f);
 
-        // TODO: NOT YET IMPLEMENTED
+     //   FunctionPVCProducer fop = new FunctionPVCProducer(project);
+       // fop.producePVCs(f);
+
 
         return mGroup;
     }

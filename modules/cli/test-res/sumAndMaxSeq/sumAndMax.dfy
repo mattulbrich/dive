@@ -1,8 +1,22 @@
+include "file.dfy"
+//\\ include "file2.dfy"
+include "free.dfy" //\\ for free
+//\\ include "free2.dfy" for free
+
+//\\ settings {
+//\\   // That is the way in which sequents are generated
+//\\   Sequenter = default
+//\\   SMT_Timeout = 200
+//\\   AutoSnapshot = 1800
+//\\   ProofsFile = "otherFilename.proofs"
+//\\ }
+
 method sumAndMax(a: seq<int>) returns (sum: int, max: int)
   requires a.Length >= 1
   ensures forall i: int :: 0 <= i && i < a.Length ==> a[i] <= max
   ensures a.Length * max >= sum
 {
+  print "hallo";
   sum := a[0];
   max := a[0];
 

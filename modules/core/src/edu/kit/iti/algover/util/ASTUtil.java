@@ -110,7 +110,7 @@ public final class ASTUtil {
      * @return a freshly created tree
      */
     public static DafnyTree equals(DafnyTree tree1, DafnyTree tree2) {
-        DafnyTree result = new DafnyTree(DafnyParser.EQ, "=");
+        DafnyTree result = new DafnyTree(DafnyParser.EQ, "==");
         result.addChild(tree1);
         result.addChild(tree2);
         return result;
