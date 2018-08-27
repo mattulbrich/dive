@@ -16,6 +16,7 @@ import edu.kit.iti.algover.proof.PVC;
 import edu.kit.iti.algover.proof.PVCCollection;
 import edu.kit.iti.algover.proof.PVCGroup;
 import edu.kit.iti.algover.proof.SinglePVC;
+import edu.kit.iti.algover.symbex.FunctionObligationMaker;
 import edu.kit.iti.algover.symbex.Symbex;
 import edu.kit.iti.algover.symbex.SymbexPath;
 import edu.kit.iti.algover.term.builder.TermBuildException;
@@ -87,12 +88,30 @@ public class DafnyDeclPVCCollector {
     }
 
     public PVCCollection visitFunction(DafnyFunction f) {
+        Set<String> seenNames = new HashSet<>();
         PVCGroup mGroup = new PVCGroup(f);
 
-     //   FunctionPVCProducer fop = new FunctionPVCProducer(project);
-       // fop.producePVCs(f);
-
-
+        FunctionObligationMaker obligationMaker = new FunctionObligationMaker();
+        List<SymbexPath> paths = obligationMaker.visit(f.getRepresentation());
+        for (SymbexPath path : paths) {
+            List<SymbexPath> subpaths = path.split();
+            for (SymbexPath subpath : subpaths) {
+                giveUniqueIdentifier(subpath, seenNames);
+                MethodPVCBuilder builder = new MethodPVCBuilder(project);
+                builder
+                        .setPathThroughProgram(subpath)
+                        .setDeclaration(f);
+                PVC pvc;
+                try {
+                    pvc = builder.build();
+                    SinglePVC sPVC = new SinglePVC(pvc);
+                    mGroup.addChild(sPVC);
+                } catch (TermBuildException e) {
+                    // FIXME. ... need a concept ofr exception handling here
+                    e.printStackTrace();
+                }
+            }
+        }
         return mGroup;
     }
 

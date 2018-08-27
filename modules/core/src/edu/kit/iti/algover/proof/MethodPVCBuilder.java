@@ -61,7 +61,7 @@ public class MethodPVCBuilder implements PVCBuilder {
     /**
      * DafnyMethod to which this PVC belongs
      */
-    private DafnyMethod declaration;
+    private DafnyDecl declaration;
 
     private SymbolTable symbolTable;
 
@@ -103,7 +103,7 @@ public class MethodPVCBuilder implements PVCBuilder {
         return declaration;
     }
 
-    public MethodPVCBuilder setDeclaration(DafnyMethod decl) {
+    public MethodPVCBuilder setDeclaration(DafnyDecl decl) {
         this.sequent = null;
         this.declaration = decl;
         return this;
@@ -120,7 +120,7 @@ public class MethodPVCBuilder implements PVCBuilder {
 
         Collection<FunctionSymbol> map = new ArrayList<>();
 
-        DafnyMethod method = declaration;
+        DafnyDecl method = declaration;
 
         for (DafnyTree decl : ProgramDatabase.getAllVariableDeclarations(method.getRepresentation())) {
             String name = decl.getChild(0).toString();

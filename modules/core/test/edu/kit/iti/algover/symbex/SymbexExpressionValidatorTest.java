@@ -7,12 +7,15 @@
 
 package edu.kit.iti.algover.symbex;
 
+import edu.kit.iti.algover.dafnystructures.DafnyFunction;
+import edu.kit.iti.algover.dafnystructures.DafnyMethod;
+import edu.kit.iti.algover.dafnystructures.TarjansAlgorithm;
 import edu.kit.iti.algover.parser.DafnyException;
+import edu.kit.iti.algover.parser.DafnyParser;
 import edu.kit.iti.algover.parser.DafnyParserException;
 import edu.kit.iti.algover.parser.DafnyTree;
 import edu.kit.iti.algover.project.Project;
 import edu.kit.iti.algover.util.ASTUtil;
-import edu.kit.iti.algover.util.ImmutableList;
 import edu.kit.iti.algover.util.TestUtil;
 import edu.kit.iti.algover.util.TreeUtil;
 import junitparams.JUnitParamsRunner;
@@ -22,7 +25,6 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Deque;
 import java.util.LinkedList;
@@ -74,6 +76,11 @@ public class SymbexExpressionValidatorTest {
                         new int[]{0, 2, 2, 0},
                         Arrays.asList()
                 },
+                {
+                        "class C { var next:C; method m() ensures next.next == next {} }",
+                        new int[]{0, 2, 2, 0},
+                        Arrays.asList("[][RT_NONNULL:(!= next null)]")
+                },
 
                 // Logical shortcut operators
                 {
@@ -108,11 +115,11 @@ public class SymbexExpressionValidatorTest {
                                 "[][RT_IN_BOUNDS:(!= a 0)]")
                 },
                 {
-                        "method m(a: int) ensures if 1/a==a then 1/a==a+1 else 1/a==2 {}",
+                        "method m(a: int) ensures if 1/a==a then a/2==1 else a/3==1 {}",
                         new int[]{0, 2, 0},
                         Arrays.asList(
-                                "[GUARD_IN_EXPRESSION[null]:(not (== (/ 1 a) a))][RT_IN_BOUNDS:(!= a 0)]",
-                                "[GUARD_IN_EXPRESSION[null]:(== (/ 1 a) a)][RT_IN_BOUNDS:(!= a 0)]",
+                                "[GUARD_IN_EXPRESSION[null]:(not (== (/ 1 a) a))][RT_IN_BOUNDS:(!= 3 0)]",
+                                "[GUARD_IN_EXPRESSION[null]:(== (/ 1 a) a)][RT_IN_BOUNDS:(!= 2 0)]",
                                 "[][RT_IN_BOUNDS:(!= a 0)]")
                 },
                 {
@@ -127,16 +134,29 @@ public class SymbexExpressionValidatorTest {
                                 "function f(x: int) : int requires x >= 0 decreases x\n" +
                                 "{ if x == 0 then 0 else f(x-1)+1 } ",
                         new int[]{0, 2, 0},
-                        Arrays.asList("[][PRE_CONDITION: (>= 22 0)]")
+                        Arrays.asList("[][CALL_PRE[f]:(LET (VAR x) 22 (>= x 0))]")
                 },
                 {
-                        "method m() ensures f(22)==2 {}\n" +
-                                "function f(x: int) : int requires x >= 0 decreases x\n" +
-                                "{ if x == 0 then 0 else f(x-1)+1 }",
-                        new int[]{0, 2, 0},
-                        Arrays.asList("[][PRE_CONDITION: (>= 22 0)]")
+                        // with decreases.
+                        "function base(x: int) : int requires x >= 0 decreases x\n" +
+                                "{ if x == 0 then 0 else base(x-1)+1 } ",
+                        new int[]{0},
+                        Arrays.asList("[GUARD_IN_EXPRESSION[null]:(not (== x 0))][CALL_PRE[base]:(LET (VAR x) (- x 1) (>= x 0))]",
+                                "[GUARD_IN_EXPRESSION[null]:(not (== x 0))]" +
+                                        "[VARIANT_DECREASED[base]:" +
+                                        "(LET (VAR x) (- x 1) (NOETHER_LESS (LISTEX (LET (VAR x) (- x 1) x)) (LISTEX $decr)))]")
                 },
-
+                {
+                    "class C { var next:C;\n" +
+                            "   function f(x:int) : int requires x>0 {x}\n" +
+                            "   method m() ensures f(1) + this.f(2) + next.f(3) > 0 {} }",
+                    new int[]{0, 3, 2},
+                    Arrays.asList(
+                            "[][CALL_PRE[f]:(LET (VAR x) 1 (> x 0))]",
+                            "[][CALL_PRE[f]:(LET (VAR this x) this 2 (> x 0))]",
+                            "[][CALL_PRE[f]:(LET (VAR this x) next 3 (> x 0))]",
+                            "[][RT_NONNULL:(!= next null)]")
+                },
                 };
     }
 
@@ -153,7 +173,15 @@ public class SymbexExpressionValidatorTest {
 
         SymbexExpressionValidator expVal = new SymbexExpressionValidator();
         Deque<SymbexPath> stack = new LinkedList<>();
-        SymbexPath path = new SymbexPath(ASTUtil.builtInVar("FAKE!"));
+        DafnyFunction baseFunction = project.getFunction("base");
+        DafnyTree caller;
+        if (baseFunction != null) {
+            caller = baseFunction.getRepresentation();
+        }  else {
+            caller = ASTUtil.builtInVar("FAKE!");
+            caller.setExpressionType(ASTUtil.create(TarjansAlgorithm.CALLGRAPH_SCC, "something"));
+        }
+        SymbexPath path = new SymbexPath(caller);
         expVal.handleExpression(stack, path, expression);
 
         assertEquals(expected.size(), stack.size());
@@ -162,7 +190,7 @@ public class SymbexExpressionValidatorTest {
             String actual = "" +
                     p.getPathConditions() +
                     p.getProofObligations();
-            assertEquals(expected.get(i++), actual);
+            assertTrue(actual + " not expected", expected.contains(actual));
         }
 
     }

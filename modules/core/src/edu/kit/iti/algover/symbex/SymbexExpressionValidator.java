@@ -7,11 +7,13 @@
 
 package edu.kit.iti.algover.symbex;
 
+import edu.kit.iti.algover.dafnystructures.TarjansAlgorithm;
 import edu.kit.iti.algover.parser.DafnyParser;
 import edu.kit.iti.algover.parser.DafnyTree;
 import edu.kit.iti.algover.symbex.AssertionElement.AssertionType;
 import edu.kit.iti.algover.symbex.PathConditionElement.AssumptionType;
 import edu.kit.iti.algover.util.ASTUtil;
+import edu.kit.iti.algover.util.Pair;
 import nonnull.Nullable;
 
 import java.util.ArrayList;
@@ -104,13 +106,76 @@ public class SymbexExpressionValidator {
             break;
 
         case DafnyParser.CALL:
-            System.out.println(">> " + expression.toStringTree());
-
+            handleFunctionCall(stack, current, expression);
+            break;
 
         default:
             for (int i = 0; i < expression.getChildCount(); i++) {
                 handleExpression(stack, current, expression.getChild(i));
             }
+        }
+    }
+
+    private void handleFunctionCall(Deque<SymbexPath> stack, SymbexPath state, DafnyTree expression) {
+        DafnyTree callee = expression.getChild(0).getDeclarationReference();
+        DafnyTree args = expression.getLastChild();
+        DafnyTree receiver = null;
+        if(expression.getChildCount() == 3) {
+            // there is a receiver
+            receiver = expression.getChild(1);
+            handleExpression(stack, state, receiver);
+            addNonNullCheck(stack, state, receiver);
+        }
+
+        for (int i = 0; i < args.getChildCount(); i++) {
+            handleExpression(stack, state, args.getChild(i));
+        }
+
+        List<Pair<String, DafnyTree>> subs = new ArrayList<>();
+        if (receiver != null) {
+            subs.add(new Pair<>("this", receiver));
+        }
+        subs.addAll(ASTUtil.methodParameterSubs(callee, args));
+
+        // ------------------
+        // preconditions
+        List<DafnyTree> preconds = callee.getChildrenWithType(DafnyParser.REQUIRES);
+        for (DafnyTree precond : preconds) {
+            SymbexPath reqState = new SymbexPath(state);
+            reqState.setBlockToExecute(Symbex.EMPTY_PROGRAM);
+            DafnyTree condition = precond.getLastChild();
+            // wrap that into a substitution
+            condition = ASTUtil.letCascade(subs, condition);
+            reqState.setProofObligation(condition, expression, AssertionType.CALL_PRE);
+            stack.add(reqState);
+        }
+
+        // ------------------
+        // variant if in recursion loop.
+        DafnyTree callerSCC = state.getMethod().getExpressionType();
+        DafnyTree calleeSCC = callee.getExpressionType();
+        assert callerSCC.getType() == TarjansAlgorithm.CALLGRAPH_SCC
+                && calleeSCC.getType() == TarjansAlgorithm.CALLGRAPH_SCC;
+        if(callerSCC.getText().equals(calleeSCC.getText())) {
+            // both in same stron. conn. component ==> potential cycle
+            DafnyTree decr = callee.getFirstChildWithType(DafnyParser.DECREASES);
+            if(decr == null) {
+                decr = ASTUtil.intLiteral(0);
+                // TODO rather throw an exception?
+            } else {
+                decr = decr.getLastChild();
+            }
+
+            decr = ASTUtil.letCascade(subs, decr);
+            DafnyTree condition = ASTUtil.noetherLess(
+                    ASTUtil.create(DafnyParser.LISTEX, decr),
+                    ASTUtil.create(DafnyParser.LISTEX, ASTUtil.id("$decr")));
+            // wrap that into a substitution
+            condition = ASTUtil.letCascade(subs, condition);
+            SymbexPath decrState = new SymbexPath(state);
+            decrState.setBlockToExecute(Symbex.EMPTY_PROGRAM);
+            decrState.setProofObligation(condition, expression, AssertionType.VARIANT_DECREASED);
+            stack.add(decrState);
         }
     }
 

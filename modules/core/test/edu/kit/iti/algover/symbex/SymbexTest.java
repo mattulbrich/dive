@@ -1057,7 +1057,7 @@ public class SymbexTest {
 
             assertEquals(0, state.getProofObligations().size());
             assertEquals("[IMPLICIT_ASSUMPTION[null]:(not (CALL $isCreated (ARGS $heap $new_1))), " +
-                            "IMPLICIT_ASSUMPTION[null]:(= (Length $new_1) 10)]",
+                            "IMPLICIT_ASSUMPTION[null]:(== (Length $new_1) 10)]",
                     state.getPathConditions().toString());
             assertEquals("[(ASSIGN $heap (CALL $create (ARGS $heap $new_1))), (ASSIGN c4 $new_1)]", state.getAssignmentHistory().map(x -> x.toStringTree()).toString());
 
@@ -1079,7 +1079,7 @@ public class SymbexTest {
 
             assertEquals(0, state.getProofObligations().size());
             assertEquals("[IMPLICIT_ASSUMPTION[null]:(not (CALL $isCreated (ARGS $heap $new_1))), " +
-                            "IMPLICIT_ASSUMPTION[null]:(= (Length $new_1) (Length c4))]",
+                            "IMPLICIT_ASSUMPTION[null]:(== (Length $new_1) (Length c4))]",
                     state.getPathConditions().toString());
             assertEquals("[(ASSIGN $heap (CALL $create (ARGS $heap $new_1))), (ASSIGN c5 $new_1)]", state.getAssignmentHistory().map(x -> x.toStringTree()).toString());
 

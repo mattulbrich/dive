@@ -210,13 +210,13 @@ method:
   ;
 
 function:
-  'function'
+  'function' 'method'?
   ID '(' vars? ')' ':' type
     ( requires | ensures | decreases )*
   '{' expression '}'
   ->
     ^(FUNCTION ID ^(ARGS vars?) ^(RETURNS type) requires* ensures* decreases*
-        ^(BLOCK expression?))
+        expression)
   ;
 
 field:

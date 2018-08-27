@@ -17,7 +17,6 @@ import edu.kit.iti.algover.term.Sort;
 import edu.kit.iti.algover.util.ASTUtil;
 import edu.kit.iti.algover.util.ImmutableList;
 import edu.kit.iti.algover.util.Pair;
-import nonnull.Nullable;
 
 import java.util.*;
 
