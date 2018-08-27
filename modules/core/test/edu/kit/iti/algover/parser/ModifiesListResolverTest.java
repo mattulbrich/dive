@@ -8,6 +8,7 @@
 package edu.kit.iti.algover.parser;
 
 import edu.kit.iti.algover.project.Project;
+import edu.kit.iti.algover.util.ASTUtil;
 import edu.kit.iti.algover.util.TestUtil;
 import junitparams.JUnitParamsRunner;
 import junitparams.Parameters;
@@ -64,12 +65,28 @@ public class ModifiesListResolverTest {
 
         DafnyTree modifies = p.getMethod("m").getModifiesClause();
 
-        System.out.println(modifies.toStringTree());
+//        System.out.println(modifies.toStringTree());
         DafnyTree actual = ModifiesListResolver.resolve(modifies);
-        System.out.println(modifies.toStringTree());
+//        System.out.println(modifies.toStringTree());
 
         assertEquals(expected, actual.toStringTree());
+        assertEquals("(set object)", actual.getExpressionType().toStringTree());
 
     }
+
+    @Test
+    public void testEmpty() throws Exception {
+
+        Project p = TestUtil.mockProject("method m() {}");
+
+        DafnyTree modifies = ASTUtil.create(DafnyParser.MODIFIES);
+
+        DafnyTree actual = ModifiesListResolver.resolve(modifies);
+
+        assertEquals("SETEX", actual.toStringTree());
+        assertEquals("(set object)", actual.getExpressionType().toStringTree());
+
+    }
+
 
 }

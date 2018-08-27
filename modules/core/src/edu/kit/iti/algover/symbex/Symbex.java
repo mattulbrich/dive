@@ -233,20 +233,33 @@ public class Symbex {
         }
 
         // Modify heap if not strictly pure
+        // Ensure modified set is in local modifies.
         if(!ProgramDatabase.isStrictlyPure(method)) {
             DafnyTree mod = method.getFirstChildWithType(DafnyParser.MODIFIES);
-            if (mod == null) {
-                mod = ASTUtil.builtInVar("$everything");
-            } else {
-                try {
-                    mod = ModifiesListResolver.resolve(mod);
-                } catch (DafnyException ex) {
-                    // TODO do the right thing
-                    throw new Error(ex);
+
+            try {
+                if (mod == null) {
+                    mod = ASTUtil.create(DafnyParser.MODIFIES);
                 }
+                mod = ModifiesListResolver.resolve(mod);
+                mod = ASTUtil.letCascade(subs, mod);
+            } catch (DafnyException ex) {
+                // We assume that this never occurs in reality
+                // TypeResolver checks the typing and fails way earlier!
+                throw new RuntimeException(ex);
             }
-            mod = ASTUtil.letCascade(subs, mod);
+
+            // "assert mod_of_method <= $mod"
+            SymbexPath modState = new SymbexPath(state);
+            modState.setBlockToExecute(EMPTY_PROGRAM);
+            DafnyTree condition = ASTUtil.create(DafnyParser.LE,
+                    mod.dupTree(), ASTUtil.builtInVar("$mod"));
+            modState.setProofObligation(condition, refersTo, AssertionType.MODIFIES);
+            stack.add(modState);
+
+            // "heap := anon(heap, mod, ...)"
             state.addAssignment(ASTUtil.anonymiseHeap(state, mod));
+
         }
 
         // now assume the postcondition (and some free postconditions)
@@ -807,16 +820,15 @@ public class Symbex {
 
         DafnyTree modifies = method.getFirstChildWithType(DafnyParser.MODIFIES);
         if (modifies == null) {
+            modifies = ASTUtil.create(DafnyParser.MODIFIES);
+        }
+
+        try {
             result.addAssignment(ASTUtil.assign(ASTUtil.builtInVar("$mod"),
-                    ASTUtil.builtInVar("$everything")));
-        } else {
-            try {
-                result.addAssignment(ASTUtil.assign(ASTUtil.builtInVar("$mod"),
-                        ModifiesListResolver.resolve(modifies)));
-            } catch (DafnyException e) {
-                // TODO
-                throw new Error(e);
-            }
+                    ModifiesListResolver.resolve(modifies)));
+        } catch (DafnyException e) {
+            // Thanks to TypeResolver, this should never occur.
+            throw new RuntimeException(e);
         }
 
         DafnyTree decreases = method.getFirstChildWithType(DafnyParser.DECREASES);

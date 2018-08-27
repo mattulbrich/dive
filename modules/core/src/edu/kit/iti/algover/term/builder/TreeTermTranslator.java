@@ -266,7 +266,20 @@ public class TreeTermTranslator {
             break;
 
         case DafnyParser.LE:
-            result = buildBinary(BuiltinSymbols.LE, tree);
+            result = buildBinary(
+                    symmetricBinarySymbol(sort -> {
+                        switch(sort.getName()) {
+                        case "int":
+                            return BuiltinSymbols.LE;
+                        case "set":
+                            return BuiltinSymbols.SUBSET.instantiate(sort.getArgument(0));
+                        case "multiset":
+                            // TODO
+                            throw new Error("IMPLEMENT ME!");
+                        default:
+                            throw new TermBuildException("'+' is not supported for these arguments");
+                        }
+                    }), tree);
             break;
 
         case DafnyParser.LT:
@@ -717,11 +730,21 @@ public class TreeTermTranslator {
     private Term buildExtension(FunctionSymbolFamily emptyFamily,
                                 FunctionSymbolFamily addFamily,
                                 DafnyTree tree) throws TermBuildException {
+        Sort sort;
 
-        assert tree.getChildCount() > 0 :
-                "Currently empty list and set are not supported via extensions";
+        // May have been resolved during type resolution.
+        DafnyTree expType = tree.getExpressionType();
+        if (expType == null) {
+            if(tree.getChildCount() == 0) {
+                throw new TermBuildException("Currently empty list and set " +
+                        "are not supported via extensions");
+            }
+            sort = null;
+        } else {
+            sort = ASTUtil.toSort(expType).getArgument(0);
+        }
 
-        Sort sort = null;
+
         List<Term> arguments = new ArrayList<>();
 
         for (DafnyTree child : tree.getChildren()) {
@@ -731,15 +754,7 @@ public class TreeTermTranslator {
             if (sort == null) {
                 sort = termSort;
             } else {
-                if (!termSort.equals(sort)) {
-                    if (termSort.isClassSort() && sort.isClassSort()) {
-                        sort = Sort.OBJECT;
-                    } else {
-                        throw new TermBuildException(
-                                "List extension with incomparable types: " +
-                                        sort + " and " + termSort);
-                    }
-                }
+                sort = Sort.supremum(sort, termSort);
             }
         }
 

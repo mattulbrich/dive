@@ -96,12 +96,12 @@ public final class ExceptionDetails {
             DafnyException dex = (DafnyException) ex;
             ExceptionReportInfo result = new ExceptionReportInfo();
             DafnyTree tree = dex.getTree();
-            Token token = tree.token;
             result.message = ex.getMessage();
             result.filename = tree.getFilename();
             if(result.filename != null) {
                 result.locationString = "file " + result.filename;
             }
+            Token token = tree.getStartToken();
             if(token != null) {
                 result.line = token.getLine();
                 // Columns in ANTLR 3 start at 0

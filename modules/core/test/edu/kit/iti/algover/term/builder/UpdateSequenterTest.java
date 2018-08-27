@@ -85,7 +85,7 @@ public class UpdateSequenterTest extends SequenterTest {
             { "A.0.0.0.1", "$plus(x, 3)", "(+ x 3)" },
             { "A.0.0.0.1.0", "x", "x" },
             { "A.0.0.0.1.1", "3", "3" },
-            { "A.0.1", "$everything", "$everything" }, // artificial
+            { "A.0.1", "$empty<object>", "SETEX" }, // artificial
 
             { "S.0", null, null },
             { "S.0.0", null, null },
@@ -108,7 +108,7 @@ public class UpdateSequenterTest extends SequenterTest {
             { "S.0.0.0.1.0", "x", "x" },
             { "S.0.0.0.1.1", "3", "3" },
             { "S.0.0.1", "0", "0" },
-            { "S.0.1", "$everything", "$everything" } // artificial
+            { "S.0.1", "$empty<object>", "SETEX" } // artificial
         };
     }
 
@@ -116,7 +116,6 @@ public class UpdateSequenterTest extends SequenterTest {
     public void testReferenceMap(String sel, String term, String expected) throws Exception {
         InputStream is = getClass().getResourceAsStream("referencesTest.dfy");
         DafnyTree top = ParserTest.parseFile(is, null);
-        // SyntacticSugarVistor.visit(top);
         Project p = TestUtil.mockProject(top);
         Symbex symbex = new Symbex();
         DafnyMethod method = p.getMethod("m");

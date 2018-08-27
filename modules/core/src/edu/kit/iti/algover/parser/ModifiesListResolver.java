@@ -13,6 +13,7 @@ import edu.kit.iti.algover.util.TreeUtil;
 import nonnull.NonNull;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 
@@ -28,17 +29,26 @@ import java.util.List;
  */
 public class ModifiesListResolver {
 
+    private static final DafnyTree SET_OBJ = setObject();
+
+    private static DafnyTree setObject() {
+        DafnyTree result = new DafnyTree(DafnyParser.SET, "set");
+        result.addChild(new DafnyTree(DafnyParser.OBJECT, "object"));
+        return result;
+    }
+
     /**
      * Resolves the arguments of a modifies clause.
      *
      * The resulting tree is the translation of the arguments.
      *
-     * @param tree the modifies clause to resolve. Its type must be
-     * {@link DafnyParser#MODIFIES}.
+     * @param tree the modifies clause to resolve. Its type must be {@link
+     *             DafnyParser#MODIFIES}.
      * @return a freshly created tree
      * @throws DafnyException if the typing is not correct.
      */
-    public static @NonNull DafnyTree resolve(@NonNull DafnyTree tree) throws DafnyException {
+    public static @NonNull
+    DafnyTree resolve(@NonNull DafnyTree tree) throws DafnyException {
 
         assert tree.getType() == DafnyParser.MODIFIES;
 
@@ -48,13 +58,14 @@ public class ModifiesListResolver {
         for (DafnyTree child : tree.getChildren()) {
             DafnyTree type = child.getExpressionType();
             Sort sort = TreeUtil.toSort(type);
-            if(isReferenceSort(sort)) {
+            if (isReferenceSort(sort)) {
                 expressions.add(child);
-            } else if(sort.getName().equals("set")) {
+            } else if (sort.getName().equals("set")) {
                 Sort elementSort = sort.getArgument(0);
-                if(isReferenceSort(elementSort)) {
-                    if(!expressions.isEmpty()) {
+                if (isReferenceSort(elementSort)) {
+                    if (!expressions.isEmpty()) {
                         DafnyTree listEx = ASTUtil.setExt(expressions);
+                        listEx.setExpressionType(SET_OBJ.dupTree());
                         sets.add(listEx);
                         expressions.clear();
                     }
@@ -67,16 +78,33 @@ public class ModifiesListResolver {
             }
         }
 
-        if(!expressions.isEmpty()) {
+        if (!expressions.isEmpty()) {
             DafnyTree listEx = ASTUtil.setExt(expressions);
+            listEx.setExpressionType(SET_OBJ.dupTree());
             sets.add(listEx);
             expressions.clear();
         }
 
-        return ASTUtil.setUnion(sets);
+        if (sets.isEmpty()) {
+            DafnyTree listEx = ASTUtil.setExt(expressions);
+            listEx.setExpressionType(SET_OBJ.dupTree());
+            return listEx;
+        }
+
+        DafnyTree result = sets.get(0);
+        for (int i = 1; i < sets.size(); i++) {
+            DafnyTree t = new DafnyTree(DafnyParser.PLUS);
+            t.addChild(result);
+            t.addChild(sets.get(i));
+            t.setExpressionType(SET_OBJ.dupTree());
+            result = t;
+        }
+
+        return result;
     }
 
     private static boolean isReferenceSort(Sort sort) {
         return sort.isSubtypeOf(Sort.OBJECT);
     }
+
 }
