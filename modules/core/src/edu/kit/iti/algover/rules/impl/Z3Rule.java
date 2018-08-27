@@ -20,6 +20,7 @@ import edu.kit.iti.algover.rules.ProofRuleApplication.Applicability;
 import edu.kit.iti.algover.rules.ProofRuleApplicationBuilder;
 import edu.kit.iti.algover.rules.RuleException;
 import edu.kit.iti.algover.rules.TermSelector;
+import edu.kit.iti.algover.smt.SExpr;
 import edu.kit.iti.algover.smt.SMTQuickNDirty;
 import edu.kit.iti.algover.term.FunctionSymbol;
 import edu.kit.iti.algover.term.Sequent;
@@ -124,14 +125,24 @@ public class Z3Rule extends AbstractProofRule {
                 }
             }
             for (ProofFormula proofFormula : sequent.getAntecedent()) {
-                sb.append("(assert ")
-                        .append(proofFormula.getTerm().accept(new SMTQuickNDirty(), null))
-                        .append(")\n");
+                try {
+                    SExpr trans = proofFormula.getTerm().accept(new SMTQuickNDirty(), null);
+                    sb.append("(assert ")
+                            .append(trans)
+                            .append(")\n");
+                } catch(UnsupportedOperationException ex) {
+                    sb.append("; unsupported " + proofFormula + "\n");
+                }
             }
             for (ProofFormula proofFormula : sequent.getSuccedent()) {
-                sb.append("(assert (not ")
-                        .append(proofFormula.getTerm().accept(new SMTQuickNDirty(), null))
-                        .append("))\n");
+                try {
+                    SExpr trans = proofFormula.getTerm().accept(new SMTQuickNDirty(), null);
+                    sb.append("(assert (not ")
+                            .append(trans)
+                            .append("))\n");
+                } catch(UnsupportedOperationException ex) {
+                    sb.append("; unsupported " + proofFormula + "\n");
+                }
             }
 
             sb.append("(check-sat)\n");
