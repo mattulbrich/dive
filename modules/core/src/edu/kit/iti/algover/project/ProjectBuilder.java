@@ -24,6 +24,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -269,15 +270,19 @@ public class ProjectBuilder {
         return project;
     }
 
-    public Project buildMock() throws IOException, DafnyException, DafnyParserException {
-        this.files = new ArrayList<>();
-        this.methods = new ArrayList<>();
-        this.functions = new ArrayList<>();
-        this.classes = new ArrayList<>();
+    public Project buildEmpty() {
+        this.files = Collections.emptyList();
+        this.methods = Collections.emptyList();
+        this.functions = Collections.emptyList();
+        this.classes = Collections.emptyList();
 
-        Project project = new Project(this);
+        try {
+            return new Project(this);
+        } catch (DafnyException e) {
+            // This is unreachable to the structure of the empty project.
+            throw new Error("Unreachable!", e);
+        }
 
-        return project;
     }
 
 

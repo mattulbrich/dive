@@ -68,7 +68,7 @@ public final class ProjectManager {
      *
      * Invariant: There exists a proof for every identifier within the project.
      */
-    private Map<String, Proof> proofs;
+    private Map<String, Proof> proofs = new HashMap<>();
 
     /**
      * Map containing all filehooks for open files in the GUI
@@ -85,10 +85,10 @@ public final class ProjectManager {
      * @throws IOException          if XML is wrongly formatted or files cannot be read
      * @throws FormatException      if the settings in the config file are illegally formatted.
      */
-    public ProjectManager(File directory, String configFilename) throws FormatException, DafnyParserException, IOException, DafnyException {
+    public ProjectManager(File directory, String configFilename) throws IOException, FormatException {
         this.directory = directory;
         this.configFilename = configFilename;
-        reload();
+        this.project.setValue(buildEmptyProject(directory, configFilename));
     }
 
     /**
@@ -104,18 +104,6 @@ public final class ProjectManager {
      */
     public ProjectManager(File directory) throws DafnyParserException, IOException, DafnyException, FormatException {
         this(directory, CONFIG_DEFAULT_NAME);
-    }
-
-    private ProjectManager(File directory, String configFilename, Boolean isMock) throws FormatException, DafnyParserException, IOException, DafnyException {
-        this.directory = directory;
-        this.configFilename = configFilename;
-        Project project = buildProjectMock(directory, configFilename);
-        proofs = new HashMap<>();
-        this.project.setValue(project);
-    }
-
-    static public ProjectManager getMock(File directory, String configFilename) throws FormatException, DafnyParserException, IOException, DafnyException {
-        return new ProjectManager(directory, configFilename, true);
     }
 
     /**
@@ -177,8 +165,9 @@ public final class ProjectManager {
         return result;
     }
 
-    private static Project buildProjectMock(File path, String configFilename)
-            throws DafnyException, DafnyParserException, IOException, FormatException {
+    // TODO with new ProjectManager merge with method before
+    private Project buildEmptyProject(File path, String configFilename)
+            throws IOException, FormatException {
         ProjectBuilder pb = new ProjectBuilder();
         pb.setDir(path);
         pb.setConfigFilename(configFilename);
@@ -190,7 +179,7 @@ public final class ProjectManager {
             throw new IOException(e);
         }
 
-        return pb.buildMock();
+        return pb.buildEmpty();
     }
 
     /**
@@ -199,7 +188,7 @@ public final class ProjectManager {
      * Load and parse the script text if present.
      */
     private void generateAllProofObjects(Project project) throws IOException {
-        proofs = new HashMap<>();
+        proofs.clear();
         for (PVC pvc : project.getPVCByNameMap().values()) {
             Proof p = new Proof(project, pvc);
             String script;
