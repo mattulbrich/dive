@@ -28,6 +28,7 @@ public class IntegrationTest {
 
         //project manager should load project -> this parses all DafnyFiles, creates the PVCs, and empty proof objects
         ProjectManager pm = new ProjectManager(dir, config);
+        pm.reload();
         //get all proofs
         pm.getPVCByNameMap().forEach((s, pvc) -> System.out.println("pvc.getName() = " + pvc.getIdentifier()));
         //apply Z3 on all PVCs and build proofs+script

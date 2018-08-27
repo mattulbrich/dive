@@ -8,6 +8,8 @@ package edu.kit.iti.algover.project;
 import edu.kit.iti.algover.data.BuiltinSymbols;
 import edu.kit.iti.algover.data.MapSymbolTable;
 import edu.kit.iti.algover.data.SymbolTable;
+import edu.kit.iti.algover.parser.DafnyException;
+import edu.kit.iti.algover.parser.DafnyParserException;
 import edu.kit.iti.algover.proof.PVC;
 import edu.kit.iti.algover.proof.PVCCollection;
 import edu.kit.iti.algover.proof.Proof;
@@ -17,14 +19,17 @@ import edu.kit.iti.algover.term.FunctionSymbol;
 import edu.kit.iti.algover.term.Sequent;
 import edu.kit.iti.algover.term.Term;
 import edu.kit.iti.algover.term.parser.TermParser;
+import edu.kit.iti.algover.util.FormatException;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 /**
@@ -66,6 +71,7 @@ public class ProjectManagerTest {
     @Test
     public void loadExistingProject() throws Exception {
         ProjectManager pm = new ProjectManager(new File(testDir), config);
+        pm.reload();
         Project project = pm.getProject();
 
         Assert.assertEquals("Number of DafnyFiles", p.getDafnyFiles().size(), project.getDafnyFiles().size());
@@ -159,6 +165,7 @@ public class ProjectManagerTest {
     @Test(expected = ScriptCommandNotApplicableException.class)
     public void testInapplicableScriptCommand() throws ScriptCommandNotApplicableException, Exception {
         ProjectManager pm = new ProjectManager(new File(testDir), config);
+        pm.reload();
 
         Proof proof = pm.getProofForPVC(testPVCm1Post);
 
@@ -171,6 +178,7 @@ public class ProjectManagerTest {
     @Test
     public void testEmptyScript() throws Exception {
         ProjectManager pm = new ProjectManager(new File(testDir), config);
+        pm.reload();
 
         Proof proof = pm.getProofForPVC(testPVCm1Post);
 
@@ -205,8 +213,27 @@ public class ProjectManagerTest {
     }
 
     @Test
+    public void unknownPVCName() throws Exception {
+        ProjectManager pm = new ProjectManager(new File(testDir), "configsum.xml");
+        pm.reload();
+        Proof proof = pm.getProofForPVC("unknownIdentifier");
+        assertNull(proof);
+    }
+
+    @Test
+    public void accessWithoutReload() throws Exception {
+        ProjectManager pm = new ProjectManager(new File(testDir), "configsum.xml");
+        pm.getProject();
+        pm.getAllProofs();
+        pm.getProofForPVC("irrelevant");
+        pm.getPVCByNameMap();
+        // Success if no exception is thrown !
+    }
+
+    @Test
     public void interpretScriptExhaustiveRules() throws Exception {
         ProjectManager pm = new ProjectManager(new File(testDir), "configsum.xml");
+        pm.reload();
         Proof proof = pm.getProofForPVC("sumAndMax/loop/else/Inv");
         proof.interpretScript(); //Hier Zeile die exhaustive sein soll einfuegen
 

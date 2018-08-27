@@ -191,6 +191,7 @@ public class AlgoVerService {
             throws DafnyParserException, IOException, DafnyException, FormatException {
         if (projectManager == null) {
             this.projectManager = new ProjectManager(directory, configName);
+            this.projectManager.reload();
         }
         return projectManager;
     }

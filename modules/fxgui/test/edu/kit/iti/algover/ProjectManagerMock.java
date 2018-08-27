@@ -13,6 +13,7 @@ public class ProjectManagerMock {
     public static ProjectManager fromProjectConfig(File dir, String configFile) {
         try {
             ProjectManager manager = new ProjectManager(dir, configFile);
+            manager.reload();
             return manager;
         } catch (Exception e) {
             // REVIEW: Really only print and return null?
