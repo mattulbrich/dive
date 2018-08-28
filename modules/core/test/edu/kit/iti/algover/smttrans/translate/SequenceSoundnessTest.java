@@ -54,9 +54,9 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 @RunWith(Parameterized.class)
-public class SetSoundnessTest {
+public class SequenceSoundnessTest {
 
-    private static final String dir = "modules/core/test-res/edu/kit/iti/algover/smttrans/translate/set/new_s".replace('/',
+    private static final String dir = "modules/core/test-res/edu/kit/iti/algover/smttrans/translate/seq/new_s".replace('/',
             File.separatorChar);
 
     @Parameter

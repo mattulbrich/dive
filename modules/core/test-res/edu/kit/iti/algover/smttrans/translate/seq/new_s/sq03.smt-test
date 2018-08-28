@@ -1,4 +1,4 @@
 s1: seq<int>
 ---
 |-
-$lt($seq_subselect<int>(s1,0,2),0)
+$lt($seq_get<int>($seq_subselect<int>(s1,0,2),0),0)

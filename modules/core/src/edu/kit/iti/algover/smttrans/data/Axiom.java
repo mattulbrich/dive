@@ -106,7 +106,7 @@ public enum Axiom {
 
         // sets
         S1.smt = "(assert (par (T) (forall\r\n" + "(\r\n" + "    (t T)\r\n" + ")\r\n" + "(!  \r\n"
-                + "(not (setin<T> t ~setempty<T>)) \r\n" + ":pattern((setin<T> t ~setempty<T>))))))";
+                + "(not (setin<T> t " + Names.getPrefix() +"setempty<T>)) \r\n" + ":pattern((setin<T> t " + Names.getPrefix() +"setempty<T>))))))";
         S1.dependencies = new HashSet<>(Arrays.asList(Axiom.SETIN));
         S2.smt = "(assert (par (T) (forall\r\n" + "(\r\n" + "    (s Set<T>)\r\n" + "    (x T)\r\n" + "    (y T)\r\n"
                 + ")\r\n" + "(! \r\n" + "(= (setin<T> y (setadd<T> x s)) (or (= x y) (setin<T> y s)))\r\n"
@@ -137,7 +137,7 @@ public enum Axiom {
                 + ":pattern((setsubset<T> s1 s2) (setin<T> t s1) (setin<T> t s2))))))))";
         S7.dependencies = new HashSet<>(Arrays.asList(Axiom.SETIN, Axiom.SETSUBSET));
         S8.smt = "(assert (par (T) (forall\r\n" + "(\r\n" + "    (s Set<T>)\r\n" + "    (t T)\r\n" + ")\r\n"
-                + "(= (setsingle<T> t) (setadd<T> t ~setempty<T>)))))";
+                + "(= (setsingle<T> t) (setadd<T> t " + Names.getPrefix() +"setempty<T>)))))";
         S8.dependencies = new HashSet<>(Arrays.asList(Axiom.SETIN, Axiom.SETSINGLE));
 
         // multisets
@@ -205,12 +205,12 @@ public enum Axiom {
                 + "(= s1 s2))) :pattern((seqget<T> s1 i) (seqget<T> s2 i))))))";
         SQ5.dependencies = new HashSet<>(Arrays.asList(Axiom.SEQGET, Axiom.SEQLEN));
         SQ6.smt = "(assert (par (T) (forall\r\n" + "(\r\n" + "    (s Seq<T>)\r\n" + ")\r\n" + "(=>   \r\n"
-                + "(= (seqlen<T> s) 0)\r\n" + "(= s ~emptySeq<T>)))))";
+                + "(= (seqlen<T> s) 0)\r\n" + "(= s " + Names.getPrefix() +"seqempty<T>)))))";
         SQ6.dependencies = new HashSet<>(Arrays.asList(Axiom.SEQLEN));
         SQ7.smt = "(assert (par (T) (forall\r\n" + "(\r\n" + "    (s Seq<T>)\r\n" + "    (t T)\r\n" + ")\r\n"
-                + "(= (seqsingle<T> t) (seqcons<T> t ~emptySeq<T>)))))";
+                + "(= (seqsingle<T> t) (seqcons<T> t " + Names.getPrefix() +"seqemtpy<T>)))))";
         SQ7.dependencies = new HashSet<>(Arrays.asList(Axiom.SEQLEN,Axiom.SEQSINGLE));
-        SQL1.smt = "(assert (par (T) (= (seqlen<T> ~seqempty<T>) 0)))";
+        SQL1.smt = "(assert (par (T) (= (seqlen<T> "  + Names.getPrefix() +"seqempty<T>) 0)))";
         SQL1.dependencies = new HashSet<>(Arrays.asList(Axiom.SEQLEN));
         SQL2.smt = "(assert (par (T) (forall   \r\n" + "(\r\n" + "    (s Seq<T>)\r\n" + ")\r\n"
                 + "(>= (seqlen<T> s) 0)\r\n" + ")))";

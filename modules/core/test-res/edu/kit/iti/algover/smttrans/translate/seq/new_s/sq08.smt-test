@@ -3,4 +3,4 @@ s1: seq<int>
 ---
 
 |-
-$gt($seq_len<int>($seq_update<int>(s1,0,3)), $seq_len<int>(s1))
+$gt($seq_len<int>($seq_upd<int>(s1,0,3)), $seq_len<int>(s1))

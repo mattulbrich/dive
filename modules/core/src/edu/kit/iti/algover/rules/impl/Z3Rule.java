@@ -130,14 +130,14 @@ public class Z3Rule extends AbstractProofRule {
         smt = sc.toPSMT();
         // SMTLog.writeFile(smt, pvc.getIdentifier()+".psmt");
         //TypeContext.reset();
-        System.out.println(smt);
-       AxiomContainer.reset();
+      //  System.out.println(smt);
+     //  AxiomContainer.reset();
         smt = sc.toSMT();
 
         // SMTLog.writeFile(smt, pvc.getIdentifier()+".smt2");
         //
         // System.out.println();
-        //System.out.println(smt);
+     //   System.out.println(smt);
 
         SolverParameter p = new SolverParameter(smt, 8, true);
         SolverResponse r1 = z3access.accessSolver(p);

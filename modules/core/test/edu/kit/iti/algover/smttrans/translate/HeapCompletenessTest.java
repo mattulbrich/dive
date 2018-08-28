@@ -54,9 +54,9 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 @RunWith(Parameterized.class)
-public class SetSoundnessTest {
+public class HeapCompletenessTest {
 
-    private static final String dir = "modules/core/test-res/edu/kit/iti/algover/smttrans/translate/set/new_s".replace('/',
+    private static final String dir = "modules/core/test-res/edu/kit/iti/algover/smttrans/translate/heap/completeness".replace('/',
             File.separatorChar);
 
     @Parameter
@@ -125,7 +125,7 @@ public class SetSoundnessTest {
         ProofNode pn = ProofMockUtil.mockProofNode(null, s.getAntecedent(), s.getSuccedent(), pvc);
         ProofRule pr = new Z3Rule();
         ProofRuleApplication pra = pr.makeApplication(pn, new edu.kit.iti.algover.rules.Parameters());
-        assertNotEquals(pra.getApplicability(), ProofRuleApplication.Applicability.APPLICABLE);
+        assertEquals(pra.getApplicability(), ProofRuleApplication.Applicability.APPLICABLE);
     }
 
 

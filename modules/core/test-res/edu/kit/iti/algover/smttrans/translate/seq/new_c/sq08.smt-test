@@ -6,5 +6,5 @@ j: int
 
 s1 == $seq_cons<int>(i,$seq_cons<int>(j,$seq_empty<int>))
 |-
-let s2 := $seq_update<int>(s1,0,i)::
+let s2 := $seq_upd<int>(s1,0,i)::
 $not(s1 == s2)

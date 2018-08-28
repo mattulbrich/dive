@@ -17,18 +17,23 @@ import edu.kit.iti.algover.smttrans.translate.BasicsUnitTest;
 import edu.kit.iti.algover.smttrans.translate.ClassTest;
 import edu.kit.iti.algover.smttrans.translate.DafnyExampleTest;
 import edu.kit.iti.algover.smttrans.translate.FolTest;
+import edu.kit.iti.algover.smttrans.translate.HeapCompletenessTest;
+import edu.kit.iti.algover.smttrans.translate.HeapSoundnessTest;
 import edu.kit.iti.algover.smttrans.translate.IntegerTest;
 import edu.kit.iti.algover.smttrans.translate.MultisetUnitTest;
 import edu.kit.iti.algover.smttrans.translate.ObjectUnitTest;
 import edu.kit.iti.algover.smttrans.translate.SeqUnitTest;
+import edu.kit.iti.algover.smttrans.translate.SequenceCompletenessTest;
+import edu.kit.iti.algover.smttrans.translate.SequenceSoundnessTest;
 import edu.kit.iti.algover.smttrans.translate.SetCompletenessTest;
 import edu.kit.iti.algover.smttrans.translate.SetSoundnessTest;
 import edu.kit.iti.algover.smttrans.translate.SumAndMaxTest;
 
 @RunWith(Suite.class)
 @SuiteClasses({
-
-        SetSoundnessTest.class
+ //   SequenceCompletenessTest.class,
+    SequenceSoundnessTest.class
+       // SetSoundnessTest.class
         // DafnyExampleTest.class,
         // Arr1Test.class,
         // ClassTest.class,
@@ -45,6 +50,8 @@ import edu.kit.iti.algover.smttrans.translate.SumAndMaxTest;
 
         // ObjectUnitTest.class
         // Z3RuleTest.class
+   // HeapCompletenessTest.class,
+   // HeapSoundnessTest.class
 
 })
 public class Tests {
