@@ -1,6 +1,7 @@
 package edu.kit.iti.algover.proof;
 
 import edu.kit.iti.algover.project.Project;
+import edu.kit.iti.algover.references.ReferenceGraph;
 import edu.kit.iti.algover.script.ast.*;
 import edu.kit.iti.algover.script.exceptions.InterpreterRuntimeException;
 import edu.kit.iti.algover.script.exceptions.ScriptCommandNotApplicableException;
@@ -25,6 +26,11 @@ import java.util.*;
  * @author M. Ulbrich, refactoring Jan 2018
  */
 public class Proof {
+
+    /**
+     * The reference graph for the current proof
+     */
+    private ReferenceGraph graph;
 
     /**
      * Status of proof.
@@ -73,9 +79,11 @@ public class Proof {
     private Exception failException;
 
 
-    public Proof(@NonNull Project project, @NonNull PVC pvc) {
+    public Proof(@NonNull Project project, @NonNull PVC pvc ) {
         this.project = project;
         this.pvc = pvc;
+        this.graph = new ReferenceGraph();
+        //this.graph.addFromReferenceMap(dfyFile, pvc.getReferenceMap());
     }
 
     public @NonNull Project getProject() {
@@ -180,6 +188,7 @@ public class Proof {
                 .setProofRules(this.project.getAllProofRules())
                 .startState(getProofRoot())
                 .addMatcher(new TermMatcherApi())
+                .setProof(this)
                 .build();
 
         return i;

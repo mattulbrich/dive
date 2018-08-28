@@ -1,6 +1,7 @@
 package edu.kit.iti.algover.script.interpreter;
 
 
+import edu.kit.iti.algover.proof.Proof;
 import edu.kit.iti.algover.proof.ProofNode;
 import edu.kit.iti.algover.script.ast.*;
 import edu.kit.iti.algover.script.callhandling.CommandLookup;
@@ -25,6 +26,20 @@ import java.util.stream.Stream;
  */
 public class Interpreter<T> extends DefaultASTVisitor<Object>
         implements ScopeObservable {
+
+    public Proof getCurrentProof() {
+        return currentProof;
+    }
+
+    public void setCurrentProof(Proof currentProof) {
+        this.currentProof = currentProof;
+    }
+
+    /**
+     * The proof for this interpreter
+     */
+    private Proof currentProof;
+
     private static final int MAX_ITERATIONS = 5;
 
     /**

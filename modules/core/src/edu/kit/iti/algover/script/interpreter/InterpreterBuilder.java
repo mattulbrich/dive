@@ -1,6 +1,8 @@
 package edu.kit.iti.algover.script.interpreter;
 
 
+import edu.kit.iti.algover.proof.MethodPVCBuilder;
+import edu.kit.iti.algover.proof.Proof;
 import edu.kit.iti.algover.proof.ProofNode;
 import edu.kit.iti.algover.rules.ProofRule;
 import edu.kit.iti.algover.script.ast.ASTNode;
@@ -134,5 +136,8 @@ public class InterpreterBuilder {
     }
 
 
-
+    public InterpreterBuilder setProof(Proof proof) {
+        interpreter.setCurrentProof(proof);
+        return this;
+    }
 }
