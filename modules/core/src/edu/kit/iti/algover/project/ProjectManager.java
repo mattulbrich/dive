@@ -5,6 +5,8 @@
  */
 package edu.kit.iti.algover.project;
 
+import edu.kit.iti.algover.dafnystructures.DafnyDecl;
+import edu.kit.iti.algover.dafnystructures.DafnyFile;
 import edu.kit.iti.algover.parser.DafnyException;
 import edu.kit.iti.algover.parser.DafnyParserException;
 import edu.kit.iti.algover.parser.ReferenceResolutionVisitor;
@@ -173,7 +175,9 @@ public final class ProjectManager {
     private void generateAllProofObjects(Project project) throws IOException {
         proofs = new HashMap<>();
         for (PVC pvc : project.getPVCByNameMap().values()) {
-            Proof p = new Proof(project, pvc);
+            //Proof p = new Proof(project, pvc);
+            DafnyFile dfyFile = computeDfyFile(pvc);
+            Proof p = new Proof(project, pvc, dfyFile);
             String script;
             try {
                 script = loadScriptForPVC(pvc.getIdentifier());
@@ -184,6 +188,14 @@ public final class ProjectManager {
 
             proofs.put(pvc.getIdentifier(), p);
         }
+    }
+
+    private DafnyFile computeDfyFile(PVC pvc) {
+        DafnyDecl declaration = pvc.getDeclaration();
+        while(declaration.getParentDecl() != null){
+            declaration = declaration.getParentDecl();
+        }
+        return (DafnyFile) declaration;
     }
 
     public String loadScriptForPVC(String pvc) throws IOException {

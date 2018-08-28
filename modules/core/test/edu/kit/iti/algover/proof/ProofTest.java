@@ -50,7 +50,7 @@ public class ProofTest {
         pb.setPathIdentifier("test");
         pb.setReferenceMap(Collections.emptyMap());
         PVC pvc = pb.build();
-        return new Proof(project, pvc);
+        return new Proof(project, pvc, null);
     }
 
     @Test

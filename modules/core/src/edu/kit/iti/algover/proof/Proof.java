@@ -1,5 +1,6 @@
 package edu.kit.iti.algover.proof;
 
+import edu.kit.iti.algover.dafnystructures.DafnyFile;
 import edu.kit.iti.algover.project.Project;
 import edu.kit.iti.algover.references.ReferenceGraph;
 import edu.kit.iti.algover.script.ast.*;
@@ -79,11 +80,11 @@ public class Proof {
     private Exception failException;
 
 
-    public Proof(@NonNull Project project, @NonNull PVC pvc ) {
+    public Proof(@NonNull Project project, @NonNull PVC pvc, @NonNull DafnyFile dfyFile ) {
         this.project = project;
         this.pvc = pvc;
         this.graph = new ReferenceGraph();
-        //this.graph.addFromReferenceMap(dfyFile, pvc.getReferenceMap());
+        this.graph.addFromReferenceMap(dfyFile, pvc.getReferenceMap());
     }
 
     public @NonNull Project getProject() {
