@@ -1,6 +1,6 @@
 package edu.kit.iti.algover.editor;
 
-import edu.kit.iti.algover.references.CodeReference;
+import edu.kit.iti.algover.references.CodeReferenceTarget;
 import edu.kit.iti.algover.util.Span;
 import org.antlr.runtime.Token;
 
@@ -21,17 +21,17 @@ public class ReferenceHighlightingRule extends SpanHighlightingRule {
     private final List<Span> backlightedSpans;
 
     /**
-     * @param codeReferences a set of {@link CodeReference}s to highlight in the {@link DafnyCodeArea}.
+     * @param codeReferenceTargets a set of {@link CodeReferenceTarget}s to highlight in the {@link DafnyCodeArea}.
      *                       Highlighted spans get the "reference-backlighted" class added.
      */
-    public ReferenceHighlightingRule(Set<CodeReference> codeReferences) {
-        this.backlightedSpans = codeReferences.stream()
+    public ReferenceHighlightingRule(Set<CodeReferenceTarget> codeReferenceTargets) {
+        this.backlightedSpans = codeReferenceTargets.stream()
                 .map(this::referenceToSpan)
                 .collect(Collectors.toList());
     }
 
-    private Span referenceToSpan(CodeReference codeReference) {
-        return spanFromStartEnd(codeReference.getStartToken(), codeReference.getEndToken());
+    private Span referenceToSpan(CodeReferenceTarget codeReferenceTarget) {
+        return spanFromStartEnd(codeReferenceTarget.getStartToken(), codeReferenceTarget.getEndToken());
     }
 
     @Override

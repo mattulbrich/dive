@@ -23,7 +23,7 @@ import java.util.function.Function;
 
 /**
  * A Reference-graph. Its nodes are References, it is unidirectional and loopless.
- * (adding loops via {@link #addReference(Reference, Reference)} will throw an
+ * (adding loops via {@link #addReference(ReferenceTarget, ReferenceTarget)} will throw an
  * {@link UnsupportedOperationException}.)
  * <p>
  * Created by Philipp on 27.08.2017.
@@ -31,40 +31,40 @@ import java.util.function.Function;
  */
 public class ReferenceGraph {
 
-    private final MutableGraph<Reference> graph;
+    private final MutableGraph<ReferenceTarget> graph;
 
     public ReferenceGraph() {
         graph = GraphBuilder.directed().allowsSelfLoops(false).build();
     }
 
-    public Graph<Reference> getGraph() {
+    public Graph<ReferenceTarget> getGraph() {
         return graph;
     }
 
-    public void addReference(Reference from, Reference to) {
+    public void addReference(ReferenceTarget from, ReferenceTarget to) {
         graph.putEdge(from, to);
     }
 
-    public Set<Reference> allPredecessors(Reference source) {
-        Set<Reference> precedingTargets = new HashSet<>();
+    public Set<ReferenceTarget> allPredecessors(ReferenceTarget source) {
+        Set<ReferenceTarget> precedingTargets = new HashSet<>();
         accumulateByNeighbouringFunc(precedingTargets, source, graph::predecessors);
         return precedingTargets;
     }
 
-    public Set<Reference> allSuccessors(Reference source) {
-        Set<Reference> successingTargets = new HashSet<>();
+    public Set<ReferenceTarget> allSuccessors(ReferenceTarget source) {
+        Set<ReferenceTarget> successingTargets = new HashSet<>();
         accumulateByNeighbouringFunc(successingTargets, source, graph::successors);
         return successingTargets;
     }
 
     private void accumulateByNeighbouringFunc(
-        Set<Reference> accumSet,
-        Reference target,
-        Function<Reference, Set<Reference>> getNeighbours) {
+        Set<ReferenceTarget> accumSet,
+        ReferenceTarget target,
+        Function<ReferenceTarget, Set<ReferenceTarget>> getNeighbours) {
         if (!graph.nodes().contains(target)) {
             return;
         }
-        for (Reference predecessor : getNeighbours.apply(target)) {
+        for (ReferenceTarget predecessor : getNeighbours.apply(target)) {
             accumSet.add(predecessor);
             // only works when the graph does not have unidirectional cycles.
             // If it doesn't, then at some point getNeighbours is empty and
@@ -78,12 +78,12 @@ public class ReferenceGraph {
             Token start = dafnyTree.getStartToken();
             Token end = dafnyTree.getStopToken();
 
-            CodeReference codeReference = new CodeReference(file, start, end);
+            CodeReferenceTarget codeReferenceTarget = new CodeReferenceTarget(file, start, end);
 
             // Code references always point to the root of the proofs
-            ProofTermReference termReference = new ProofTermReference(new ProofNodeSelector(), termSelector);
+            ProofTermReferenceTarget termReference = new ProofTermReferenceTarget(new ProofNodeSelector(), termSelector);
 
-            addReference(codeReference, termReference);
+            addReference(codeReferenceTarget, termReference);
         });
     }
 
@@ -117,7 +117,7 @@ public class ReferenceGraph {
     @Override
     public String toString() {
         StringBuilder builder = new StringBuilder("ReferenceGraph{\n");
-        for (EndpointPair<Reference> reference : graph.edges()) {
+        for (EndpointPair<ReferenceTarget> reference : graph.edges()) {
             builder.append(reference.nodeU());
             builder.append(" -> ");
             builder.append(reference.nodeV());

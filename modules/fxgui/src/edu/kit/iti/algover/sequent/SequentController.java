@@ -5,7 +5,7 @@ import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon;
 import edu.kit.iti.algover.FxmlController;
 import edu.kit.iti.algover.browser.entities.PVCEntity;
 import edu.kit.iti.algover.proof.*;
-import edu.kit.iti.algover.references.ProofTermReference;
+import edu.kit.iti.algover.references.ProofTermReferenceTarget;
 import edu.kit.iti.algover.references.ReferenceGraph;
 import edu.kit.iti.algover.rules.*;
 import edu.kit.iti.algover.sequent.formulas.AddedOrDeletedFormula;
@@ -18,18 +18,15 @@ import edu.kit.iti.algover.term.prettyprint.AnnotatedString;
 import edu.kit.iti.algover.util.Pair;
 import edu.kit.iti.algover.util.SubSelection;
 import edu.kit.iti.algover.util.SubtermSelectorReplacementVisitor;
-import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
-import javafx.scene.control.TabPane;
 import javafx.scene.input.KeyCode;
 import javafx.util.Callback;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 /**
  * Created by philipp on 12.07.17.
@@ -51,7 +48,7 @@ public class SequentController extends FxmlController {
      * a Reference (as opposed to the actual TermSelector).
      * (Currently set when control-clicking something on the sequent).
      */
-    private final SubSelection<ProofTermReference> selectedReference;
+    private final SubSelection<ProofTermReferenceTarget> selectedReference;
     /**
      * Whichever Term was clicked to reveal dependencies in terms of
      * the actual TermSelector.
@@ -322,14 +319,14 @@ public class SequentController extends FxmlController {
         return listView -> new FormulaCell(polarity, selectedTerm, lastClickedTerm, mouseOverTerm);
     }
 
-    private ProofTermReference attachCurrentActiveProof(TermSelector selector) {
+    private ProofTermReferenceTarget attachCurrentActiveProof(TermSelector selector) {
         if (activeNode != null) {
-            return new ProofTermReference(activeNode, selector);
+            return new ProofTermReferenceTarget(activeNode, selector);
         }
         return null;
     }
 
-    private TermSelector termSelectorFromReference(ProofTermReference reference) {
+    private TermSelector termSelectorFromReference(ProofTermReferenceTarget reference) {
         if (activeProof != null && reference.getProofNodeSelector() == activeNode) {
             return reference.getTermSelector();
         } else {
@@ -358,7 +355,7 @@ public class SequentController extends FxmlController {
         return activeProof;
     }
 
-    public SubSelection<ProofTermReference> referenceSelection() {
+    public SubSelection<ProofTermReferenceTarget> referenceSelection() {
         return selectedReference;
     }
 

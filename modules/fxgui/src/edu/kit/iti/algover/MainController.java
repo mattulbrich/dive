@@ -10,45 +10,32 @@ import edu.kit.iti.algover.browser.entities.PVCGetterVisitor;
 import edu.kit.iti.algover.browser.entities.TreeTableEntity;
 import edu.kit.iti.algover.dafnystructures.DafnyFile;
 import edu.kit.iti.algover.dafnystructures.DafnyMethod;
-import edu.kit.iti.algover.data.BuiltinSymbols;
-import edu.kit.iti.algover.data.SymbolTable;
 import edu.kit.iti.algover.editor.EditorController;
-import edu.kit.iti.algover.parser.DafnyException;
-import edu.kit.iti.algover.parser.DafnyParserException;
-import edu.kit.iti.algover.project.Project;
 import edu.kit.iti.algover.project.ProjectManager;
 import edu.kit.iti.algover.proof.*;
-import edu.kit.iti.algover.references.CodeReference;
+import edu.kit.iti.algover.references.CodeReferenceTarget;
 import edu.kit.iti.algover.references.GetReferenceTypeVisitor;
-import edu.kit.iti.algover.references.ProofTermReference;
-import edu.kit.iti.algover.references.Reference;
+import edu.kit.iti.algover.references.ProofTermReferenceTarget;
+import edu.kit.iti.algover.references.ReferenceTarget;
 import edu.kit.iti.algover.rule.RuleApplicationController;
 import edu.kit.iti.algover.rule.RuleApplicationListener;
 import edu.kit.iti.algover.rules.*;
 import edu.kit.iti.algover.rules.impl.LetSubstitutionRule;
-import edu.kit.iti.algover.rules.impl.Z3Rule;
 import edu.kit.iti.algover.sequent.SequentActionListener;
-import edu.kit.iti.algover.sequent.SequentController;
 import edu.kit.iti.algover.sequent.SequentTabViewController;
 import edu.kit.iti.algover.timeline.TimelineLayout;
 import edu.kit.iti.algover.util.CostumBreadCrumbBar;
 import edu.kit.iti.algover.util.FormatException;
-import edu.kit.iti.algover.util.RuleApp;
 import edu.kit.iti.algover.util.StatusBarLoggingHandler;
 import javafx.application.Platform;
-import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
-import javafx.event.EventType;
-import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.control.*;
 import javafx.scene.input.MouseEvent;
-import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
-import org.controlsfx.control.BreadCrumbBar;
 import org.controlsfx.control.StatusBar;
 
 import java.io.IOException;
@@ -57,8 +44,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
-import java.util.logging.Handler;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
@@ -408,25 +393,25 @@ public class MainController implements SequentActionListener, RuleApplicationLis
     }
 
     @Override
-    public void onRequestReferenceHighlighting(ProofTermReference termRef) {
+    public void onRequestReferenceHighlighting(ProofTermReferenceTarget termRef) {
         if (termRef != null) {
-            Set<Reference> predecessors = sequentController.getActiveSequentController().getReferenceGraph().allPredecessors(termRef);
-            Set<CodeReference> codeReferences = filterCodeReferences(predecessors);
-            editorController.viewReferences(codeReferences);
+            Set<ReferenceTarget> predecessors = sequentController.getActiveSequentController().getReferenceGraph().allPredecessors(termRef);
+            Set<CodeReferenceTarget> codeReferenceTargets = filterCodeReferences(predecessors);
+            editorController.viewReferences(codeReferenceTargets);
         } else {
             editorController.viewReferences(new HashSet<>());
         }
     }
 
-    private static Set<CodeReference> filterCodeReferences(Set<Reference> predecessors) {
-        Set<CodeReference> codeReferences = new HashSet<>();
+    private static Set<CodeReferenceTarget> filterCodeReferences(Set<ReferenceTarget> predecessors) {
+        Set<CodeReferenceTarget> codeReferenceTargets = new HashSet<>();
         predecessors.forEach(reference -> {
-            CodeReference codeReference = reference.accept(new GetReferenceTypeVisitor<>(CodeReference.class));
-            if (codeReference != null) {
-                codeReferences.add(codeReference);
+            CodeReferenceTarget codeReferenceTarget = reference.accept(new GetReferenceTypeVisitor<>(CodeReferenceTarget.class));
+            if (codeReferenceTarget != null) {
+                codeReferenceTargets.add(codeReferenceTarget);
             }
         });
-        return codeReferences;
+        return codeReferenceTargets;
     }
 
     @Override

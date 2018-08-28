@@ -36,8 +36,8 @@ public final class TermReferencesBuilder {
     }
 
     /**
-     * Builds references from {@link ProofTermReference}s in the given {@link #proofNodeBefore}
-     * to other {@link ProofTermReference}s in the given proofNodeAfter whose terms they point to
+     * Builds references from {@link ProofTermReferenceTarget}s in the given {@link #proofNodeBefore}
+     * to other {@link ProofTermReferenceTarget}s in the given proofNodeAfter whose terms they point to
      * are referentially equal (but at different places obviously).
      * <p>
      * Referentially equal Terms suggest that they were re-used in the new ProofNode after rule
@@ -90,8 +90,8 @@ public final class TermReferencesBuilder {
                 collectedAfter.forEach((termSelectorAfter, termAfter) -> {
                     if (termAfter == termBefore) { // referential equality
                         references.addReference(
-                                new ProofTermReference(proofNodeBefore, termSelectorBefore),
-                                new ProofTermReference(proofNodeAfter, termSelectorAfter)
+                                new ProofTermReferenceTarget(proofNodeBefore, termSelectorBefore),
+                                new ProofTermReferenceTarget(proofNodeAfter, termSelectorAfter)
                         );
                     }
                 });
