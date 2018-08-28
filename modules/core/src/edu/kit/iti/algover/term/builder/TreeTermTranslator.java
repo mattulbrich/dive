@@ -919,21 +919,21 @@ public class TreeTermTranslator {
                 "limited support so far, we inline the comparison";
 
         Term result = tb.ff();
-        Term[] vars = new Term[rhs.getChildCount()];
-        Term[] terms = new Term[rhs.getChildCount()];
+        Term[] lower = new Term[rhs.getChildCount()];
+        Term[] upper = new Term[rhs.getChildCount()];
 
         for (int i = 0; i < rhs.getChildCount(); i++) {
-            vars[i] = build(lhs.getChild(i));
-            terms[i] = build(rhs.getChild(i));
+            lower[i] = build(lhs.getChild(i));
+            upper[i] = build(rhs.getChild(i));
 
             Term cond = tb.tt();
             for (int j = 0; j < i; j++) {
-                ApplTerm eq = tb.eq(terms[j], vars[j]);
+                ApplTerm eq = tb.eq(lower[j], upper[j]);
                 cond = tb.and(cond, eq);
             }
 
-            cond = tb.and(cond, tb.lessEqual(tb.zero, terms[i]));
-            cond = tb.and(cond, tb.less(terms[i], vars[i]));
+            cond = tb.and(cond, tb.lessEqual(tb.zero, lower[i]));
+            cond = tb.and(cond, tb.less(lower[i], upper[i]));
             result = tb.or(result, cond);
         }
 
