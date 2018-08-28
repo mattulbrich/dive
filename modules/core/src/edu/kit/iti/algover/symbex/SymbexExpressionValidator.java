@@ -248,8 +248,9 @@ public class SymbexExpressionValidator {
                 // TODO rather throw an exception?
             } else {
                 calleeDecr = calleeDecr.getLastChild();
+                // wrap that into a substitution
+                calleeDecr = ASTUtil.letCascade(subs, calleeDecr);
             }
-            calleeDecr = ASTUtil.letCascade(subs, calleeDecr);
 
             DafnyTree callerDecr = state.getMethod().getFirstChildWithType(DafnyParser.DECREASES);
             if (callerDecr == null) {
@@ -262,8 +263,7 @@ public class SymbexExpressionValidator {
             DafnyTree condition = ASTUtil.noetherLess(
                     ASTUtil.create(DafnyParser.LISTEX, calleeDecr),
                     ASTUtil.create(DafnyParser.LISTEX, callerDecr));
-            // wrap that into a substitution
-            condition = ASTUtil.letCascade(subs, condition);
+
             // and use the wrapper from outside ...
             condition = wrapper.apply(condition);
             SymbexPath decrState = new SymbexPath(state);

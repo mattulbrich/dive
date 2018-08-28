@@ -149,7 +149,7 @@ public class SymbexExpressionValidatorTest {
                         Arrays.asList("[][CALL_PRE[base]:(==> (not (== x 0)) (LET (VAR x) (- x 1) (>= x 0)))]",
                                 "[][VARIANT_DECREASED[base]:" +
                                         "(==> (not (== x 0)) " +
-                                        "(LET (VAR x) (- x 1) (NOETHER_LESS (LISTEX (LET (VAR x) (- x 1) x)) (LISTEX x))))]")
+                                        "(NOETHER_LESS (LISTEX (LET (VAR x) (- x 1) x)) (LISTEX x)))]")
                 },
                 {
                         "class C { var next:C;\n" +
@@ -233,6 +233,7 @@ public class SymbexExpressionValidatorTest {
             caller = baseFunction.getRepresentation();
         }  else {
             caller = ASTUtil.builtInVar("FAKE!");
+            caller.addChild(ASTUtil.builtInVar("FakeBlock"));
             caller.setExpressionType(ASTUtil.create(TarjansAlgorithm.CALLGRAPH_SCC, "something"));
         }
         SymbexPath path = new SymbexPath(caller);

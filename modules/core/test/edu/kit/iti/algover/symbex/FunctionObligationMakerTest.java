@@ -46,8 +46,7 @@ public class FunctionObligationMakerTest {
             assertEquals("[PRE[null]:(>= n 0)]",
                     path.getPathConditions().toString());
             assertEquals("[VARIANT_DECREASED[fib]:(==> (not (== n 0)) (==> (not (== n 1)) " +
-                            "(LET (VAR n) (- n 1) " +
-                            "(NOETHER_LESS (LISTEX (LET (VAR n) (- n 1) n)) (LISTEX n)))))]",
+                            "(NOETHER_LESS (LISTEX (LET (VAR n) (- n 1) n)) (LISTEX n))))]",
                     path.getProofObligations().toString());
             assertEquals(0, path.getAssignmentHistory().size());
         }
@@ -64,8 +63,7 @@ public class FunctionObligationMakerTest {
             assertEquals("[PRE[null]:(>= n 0)]",
                     path.getPathConditions().toString());
             assertEquals("[VARIANT_DECREASED[fib]:(==> (not (== n 0)) (==> (not (== n 1)) " +
-                            "(LET (VAR n) (- n 2) " +
-                            "(NOETHER_LESS (LISTEX (LET (VAR n) (- n 2) n)) (LISTEX n)))))]",
+                            "(NOETHER_LESS (LISTEX (LET (VAR n) (- n 2) n)) (LISTEX n))))]",
                     path.getProofObligations().toString());
             assertEquals(0, path.getAssignmentHistory().size());
         }
