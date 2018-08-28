@@ -35,43 +35,37 @@ public class FunctionObligationMakerTest {
         int i = 0;
         {
             SymbexPath path = paths.get(i++);
-            assertEquals("[PRE[null]:(>= n 0), " +
-                    "GUARD_IN_EXPRESSION[null]:(not (== n 0)), " +
-                    "GUARD_IN_EXPRESSION[null]:(not (== n 1))]",
+            assertEquals("[PRE[null]:(>= n 0)]",
                     path.getPathConditions().toString());
-            assertEquals("[CALL_PRE[fib]:(LET (VAR n) (- n 1) (>= n 0))]",
+            assertEquals("[CALL_PRE[fib]:(==> (not (== n 0)) (==> (not (== n 1)) (LET (VAR n) (- n 1) (>= n 0))))]",
                     path.getProofObligations().toString());
             assertEquals(0, path.getAssignmentHistory().size());
         }
         {
             SymbexPath path = paths.get(i++);
-            assertEquals("[PRE[null]:(>= n 0), " +
-                            "GUARD_IN_EXPRESSION[null]:(not (== n 0)), " +
-                            "GUARD_IN_EXPRESSION[null]:(not (== n 1))]",
+            assertEquals("[PRE[null]:(>= n 0)]",
                     path.getPathConditions().toString());
-            assertEquals("[VARIANT_DECREASED[fib]:(LET (VAR n) (- n 1) " +
-                            "(NOETHER_LESS (LISTEX (LET (VAR n) (- n 1) n)) (LISTEX n)))]",
+            assertEquals("[VARIANT_DECREASED[fib]:(==> (not (== n 0)) (==> (not (== n 1)) " +
+                            "(LET (VAR n) (- n 1) " +
+                            "(NOETHER_LESS (LISTEX (LET (VAR n) (- n 1) n)) (LISTEX n)))))]",
                     path.getProofObligations().toString());
             assertEquals(0, path.getAssignmentHistory().size());
         }
         {
             SymbexPath path = paths.get(i++);
-            assertEquals("[PRE[null]:(>= n 0), " +
-                            "GUARD_IN_EXPRESSION[null]:(not (== n 0)), " +
-                            "GUARD_IN_EXPRESSION[null]:(not (== n 1))]",
+            assertEquals("[PRE[null]:(>= n 0)]",
                     path.getPathConditions().toString());
-            assertEquals("[CALL_PRE[fib]:(LET (VAR n) (- n 2) (>= n 0))]",
+            assertEquals("[CALL_PRE[fib]:(==> (not (== n 0)) (==> (not (== n 1)) (LET (VAR n) (- n 2) (>= n 0))))]",
                     path.getProofObligations().toString());
             assertEquals(0, path.getAssignmentHistory().size());
         }
         {
             SymbexPath path = paths.get(i++);
-            assertEquals("[PRE[null]:(>= n 0), " +
-                            "GUARD_IN_EXPRESSION[null]:(not (== n 0)), " +
-                            "GUARD_IN_EXPRESSION[null]:(not (== n 1))]",
+            assertEquals("[PRE[null]:(>= n 0)]",
                     path.getPathConditions().toString());
-            assertEquals("[VARIANT_DECREASED[fib]:(LET (VAR n) (- n 2) " +
-                            "(NOETHER_LESS (LISTEX (LET (VAR n) (- n 2) n)) (LISTEX n)))]",
+            assertEquals("[VARIANT_DECREASED[fib]:(==> (not (== n 0)) (==> (not (== n 1)) " +
+                            "(LET (VAR n) (- n 2) " +
+                            "(NOETHER_LESS (LISTEX (LET (VAR n) (- n 2) n)) (LISTEX n)))))]",
                     path.getProofObligations().toString());
             assertEquals(0, path.getAssignmentHistory().size());
         }

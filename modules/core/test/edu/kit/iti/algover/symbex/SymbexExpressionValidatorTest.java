@@ -81,6 +81,13 @@ public class SymbexExpressionValidatorTest {
                         new int[]{0, 2, 2, 0},
                         Arrays.asList("[][RT_NONNULL:(!= next null)]")
                 },
+                // from a bug:
+                {
+                        "method m(a: array<int>, x:int) ensures x > 0 ==> a[x] == 0 {}",
+                        new int[]{0, 2, 0},
+                        Arrays.asList("[][RT_NONNULL:(==> (> x 0) (!= a null))]",
+                                "[][RT_IN_BOUNDS:(==> (> x 0) (&& (>= x 0) (< x (Length a))))]")
+                },
 
                 // Logical shortcut operators
                 {

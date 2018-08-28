@@ -302,7 +302,7 @@ public class SymbexExpressionValidator {
         SymbexPath nonNull = new SymbexPath(state);
         DafnyTree check = ASTUtil.notEquals(expression.dupTree(), ASTUtil._null());
         nonNull.setBlockToExecute(Symbex.EMPTY_PROGRAM);
-        expression = wrapper.apply(expression);
+        check = wrapper.apply(check);
         nonNull.setProofObligation(check, expression, AssertionType.RT_NONNULL);
 
         stack.add(nonNull);
