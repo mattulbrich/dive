@@ -3,6 +3,7 @@ package edu.kit.iti.algover.browser;
 import edu.kit.iti.algover.browser.entities.*;
 import edu.kit.iti.algover.dafnystructures.DafnyClass;
 import edu.kit.iti.algover.dafnystructures.DafnyFile;
+import edu.kit.iti.algover.dafnystructures.DafnyFunction;
 import edu.kit.iti.algover.dafnystructures.DafnyMethod;
 import edu.kit.iti.algover.project.Project;
 import edu.kit.iti.algover.proof.*;
@@ -56,7 +57,22 @@ public abstract class BrowserController {
         dafnyClass.getMethods().stream()
                 .map(dafnyMethod -> getEntityFromMethod(dafnyFile, dafnyMethod))
                 .forEach(children::add);
+        dafnyClass.getFunctions().stream()
+                .map(dafnyFunction -> getEntityFromFunction(dafnyFile, dafnyFunction))
+                .forEach(children::add);
         return new ClassEntity(dafnyClass, dafnyFile, children);
+    }
+
+    protected TreeTableEntity getEntityFromFunction(DafnyFile dafnyFile, DafnyFunction dafnyFunction) {
+        List<TreeTableEntity> children = new ArrayList<>();
+        PVCCollection collection = project.getPVCsFor(dafnyFunction);
+        if (collection != null) {
+
+            collection.getChildren().stream()
+                    .map(pvcCollection -> getEntityFromPVC(dafnyFile, pvcCollection))
+                    .forEach(children::add);
+        }
+        return new FunctionEntity(dafnyFunction, dafnyFile, children);
     }
 
     protected TreeTableEntity getEntityFromMethod(DafnyFile dafnyFile, DafnyMethod dafnyMethod) {
