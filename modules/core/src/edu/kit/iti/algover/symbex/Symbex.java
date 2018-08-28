@@ -50,9 +50,6 @@ public class Symbex {
     public static final DafnyTree EMPTY_PROGRAM =
             new DafnyTree(DafnyParser.BLOCK);
 
-    private SymbexExpressionValidator expressionValidator =
-            new SymbexExpressionValidator();
-
     /**
      * Performs symbolic execution on a method.
      *
@@ -309,7 +306,7 @@ public class Symbex {
         DafnyTree size = child.getChild(1);
         DafnyTree arrayType = ASTUtil.create(DafnyParser.ARRAY, "array", type);
 
-        expressionValidator.handleExpression(stack, current, size);
+        SymbexExpressionValidator.handleExpression(stack, current, size);
         addGreater0Check(stack, current, size);
 
         DafnyTree newObj = ASTUtil.freshVariable("$new", arrayType, current);
@@ -427,7 +424,7 @@ public class Symbex {
     void handleIf(Deque<SymbexPath> stack, SymbexPath state,
             DafnyTree stm, DafnyTree remainder) {
         DafnyTree cond = stm.getChild(0);
-        expressionValidator.handleExpression(stack, state, cond);
+        SymbexExpressionValidator.handleExpression(stack, state, cond);
 
         DafnyTree then = stm.getChild(1);
         SymbexPath stateElse = new SymbexPath(state);
@@ -481,7 +478,7 @@ public class Symbex {
         }
 
         // guard well-def
-        expressionValidator.handleExpression(stack, preservePath, guard);
+        SymbexExpressionValidator.handleExpression(stack, preservePath, guard);
 
         preservePath.addPathCondition(guard, stm, AssumptionType.WHILE_TRUE);
         preservePath.setBlockToExecute(stm.getLastChild());
@@ -565,7 +562,7 @@ public class Symbex {
         }
         
         DafnyTree assignee = stm.getChild(0);
-        expressionValidator.handleExpression(stack, state, assignee);
+        SymbexExpressionValidator.handleExpression(stack, state, assignee);
         addModifiesCheck(stack, state, assignee);
 
         DafnyTree expression = stm.getChild(1);
@@ -579,7 +576,7 @@ public class Symbex {
                 assert resultVars.size() == 1 : "This is a single result method situation";
                 state.addAssignment(ASTUtil.assign(assignee, resultVars.get(0)));
             } else {
-                expressionValidator.handleExpression(stack, state, expression);
+                SymbexExpressionValidator.handleExpression(stack, state, expression);
                 state.addAssignment(stm);
             }
             break;
@@ -590,7 +587,7 @@ public class Symbex {
             break;
 
         default:
-            expressionValidator.handleExpression(stack, state, expression);
+            SymbexExpressionValidator.handleExpression(stack, state, expression);
             state.addAssignment(stm);
             break;
         }
@@ -605,7 +602,7 @@ public class Symbex {
 
         for (int i = 0; i < stm.getChildCount() - 1; i++) {
             DafnyTree assignee = stm.getChild(i);
-            expressionValidator.handleExpression(stack, state, assignee);
+            SymbexExpressionValidator.handleExpression(stack, state, assignee);
             addModifiesCheck(stack, state, assignee);
         }
 

@@ -17,9 +17,6 @@ import java.util.List;
 
 public class FunctionObligationMaker {
 
-    SymbexExpressionValidator expressionValidator =
-            new SymbexExpressionValidator();
-
     public List<SymbexPath> visit(DafnyTree function) {
 
         assert function.getType() == DafnyParser.FUNCTION;
@@ -32,7 +29,7 @@ public class FunctionObligationMaker {
             path.addPathCondition(req.getLastChild(), req, AssumptionType.PRE);
         }
 
-        expressionValidator.handleExpression(paths, path, function.getLastChild());
+        SymbexExpressionValidator.handleExpression(paths, path, function.getLastChild());
 
         return paths;
     }
