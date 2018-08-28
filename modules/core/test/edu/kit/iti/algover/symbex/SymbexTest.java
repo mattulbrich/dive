@@ -252,7 +252,7 @@ public class SymbexTest {
                     assertEquals(1, decr.getProofObligations().size());
                     AssertionElement po = decr.getProofObligations().get(0);
                     assertEquals("(decreases (+ p count))", po.getOrigin().toStringTree());
-                    assertEquals("(NOETHER_LESS (LISTEX $decr_1) (LISTEX (+ p count)))", po.getExpression().toStringTree());
+                    assertEquals("(NOETHER_LESS (LISTEX (+ p count)) (LISTEX $decr_1))", po.getExpression().toStringTree());
                 }
             }
         }
@@ -786,7 +786,7 @@ public class SymbexTest {
             assertEquals(1, path.getProofObligations().size());
             AssertionElement proofObl = path.getProofObligations().getHead();
             assertEquals(AssertionType.VARIANT_DECREASED, proofObl.getType());
-            assertEquals("(NOETHER_LESS (LISTEX $decr_1 $decr_2) (LISTEX b a))",
+            assertEquals("(NOETHER_LESS (LISTEX b a) (LISTEX $decr_1 $decr_2))",
                     proofObl.getExpression().toStringTree());
         }
     }

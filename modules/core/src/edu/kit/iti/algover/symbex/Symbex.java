@@ -492,8 +492,8 @@ public class Symbex {
         AssertionElement decrProof;
         if (decreasesClause != null) {
             DafnyTree decrReduced = ASTUtil.noetherLess(
-                    ASTUtil.listExpr(decreaseVars),
-                    ASTUtil.listExpr(decreasesClause.getChildren()));
+                    ASTUtil.listExpr(decreasesClause.getChildren()),
+                    ASTUtil.listExpr(decreaseVars));
             decrProof = new AssertionElement(decrReduced, decreasesClause,
                     AssertionType.VARIANT_DECREASED);
         } else {
@@ -608,7 +608,6 @@ public class Symbex {
 
         DafnyTree decl = expression.getChild(expression.getChildCount()-2).getDeclarationReference();
         assert decl.getType() == DafnyParser.METHOD : "Should be prevented by reference resolution";
-
 
         DafnyTree receiver = expression.getChildCount() > 2 ? expression.getChild(1) : null;
         DafnyTree args = expression.getFirstChildWithType(DafnyParser.ARGS);
