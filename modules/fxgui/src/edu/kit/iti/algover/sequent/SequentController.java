@@ -126,7 +126,8 @@ public class SequentController extends FxmlController {
             activeProof = proof;
             activeNode = new ProofNodeSelector();
             updateSequent(getActiveNode().getSequent(), null);
-            referenceGraph = new ReferenceGraph();
+            //referenceGraph = new ReferenceGraph();
+            referenceGraph = proof.getGraph();
             referenceGraph.addFromReferenceMap(pvcEntity.getLocation(), pvc.getReferenceMap());
         }
     }

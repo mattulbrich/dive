@@ -28,6 +28,10 @@ import java.util.*;
  */
 public class Proof {
 
+    public ReferenceGraph getGraph() {
+        return graph;
+    }
+
     /**
      * The reference graph for the current proof
      */
@@ -84,7 +88,7 @@ public class Proof {
         this.project = project;
         this.pvc = pvc;
         this.graph = new ReferenceGraph();
-        this.graph.addFromReferenceMap(dfyFile, pvc.getReferenceMap());
+        //this.graph.addFromReferenceMap(dfyFile, pvc.getReferenceMap());
     }
 
     public @NonNull Project getProject() {
