@@ -3,6 +3,7 @@ package edu.kit.iti.algover.proof;
 import edu.kit.iti.algover.dafnystructures.DafnyFile;
 import edu.kit.iti.algover.project.Project;
 import edu.kit.iti.algover.references.ReferenceGraph;
+import edu.kit.iti.algover.rules.RuleException;
 import edu.kit.iti.algover.script.ast.*;
 import edu.kit.iti.algover.script.exceptions.InterpreterRuntimeException;
 import edu.kit.iti.algover.script.exceptions.ScriptCommandNotApplicableException;
@@ -265,6 +266,8 @@ class ProofNodeInterpreterManager {
     final Interpreter<ProofNode> interpreter;
     private ProofNode lastSelectedGoalNode;
 
+
+    private ReferenceGraph graph;
     /**
      * The proofNodeInterpreterManager adds an entry and an exit listner to the interpreter to listen what event happen
      * during AST-Node visiting
@@ -275,8 +278,16 @@ class ProofNodeInterpreterManager {
         this.interpreter = interpreter;
         interpreter.getExitListeners().add(new ExitListener());
         interpreter.getEntryListeners().add(new EntryListener());
+        this.graph = interpreter.getCurrentProof().getGraph();
     }
 
+    /**
+     * Access the current ReferenceGraph
+     * @return
+     */
+    public ReferenceGraph getGraph() {
+        return graph;
+    }
 
     private class EntryListener extends DefaultASTVisitor<Void> {
         @Override
@@ -393,11 +404,17 @@ class ProofNodeInterpreterManager {
             if (goals.size() > 0) {
                 for (ProofNode goal : goals) {
                     lastSelectedGoalNode.getChildren().add(goal);
+                    try {
+                        graph.addFromRuleApplication(interpreter.getCurrentProof(), lastSelectedGoalNode, lastSelectedGoalNode.getChildren());
+                    } catch (RuleException e) {
+                        throw new RuntimeException(e);
+                    }
 
                 }
             }
 
             lastSelectedGoalNode.addMutator(node);
+
             return null;
         }
 

@@ -6,14 +6,19 @@ import com.google.common.graph.GraphBuilder;
 import com.google.common.graph.MutableGraph;
 import edu.kit.iti.algover.dafnystructures.DafnyFile;
 import edu.kit.iti.algover.parser.DafnyTree;
+import edu.kit.iti.algover.proof.Proof;
+import edu.kit.iti.algover.proof.ProofNode;
 import edu.kit.iti.algover.proof.ProofNodeSelector;
+import edu.kit.iti.algover.rules.BranchInfo;
+import edu.kit.iti.algover.rules.ProofRuleApplication;
+import edu.kit.iti.algover.rules.RuleException;
 import edu.kit.iti.algover.rules.TermSelector;
+import edu.kit.iti.algover.term.Term;
+import edu.kit.iti.algover.util.ImmutableList;
+import edu.kit.iti.algover.util.Pair;
 import org.antlr.runtime.Token;
 
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.function.Function;
 
 /**
@@ -83,7 +88,25 @@ public class ReferenceGraph {
 
     // TODO
     // implement via TermReferencesBuilder
-    public void addFromRuleApplication() {
+    public void addFromRuleApplication(Proof proof, ProofNode parent, List<ProofNode> newNodes) throws RuleException {
+
+        ProofNodeSelector proofNodeBefore = new ProofNodeSelector(parent);
+        TermReferencesBuilder trb = new TermReferencesBuilder(this, proof, proofNodeBefore);
+        for (ProofNode afterNode: newNodes) {
+            //get ProofRuleApplication from node
+            ProofNodeSelector pns = new ProofNodeSelector(afterNode);
+            ProofRuleApplication pra = afterNode.getPsr();
+
+            ImmutableList<BranchInfo> branchInfos = pra.getBranchInfo();
+            for (BranchInfo bi : branchInfos) {
+                ImmutableList<Pair<TermSelector, Term>> replacements = bi.getReplacements();
+                for (Pair<TermSelector, Term> repl : replacements) {
+                    trb.buildReferences(pns, repl.getFst());
+
+                }
+            }
+
+        }
     }
 
     @Override
