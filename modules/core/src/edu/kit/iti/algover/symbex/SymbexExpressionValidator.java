@@ -158,18 +158,26 @@ public class SymbexExpressionValidator {
                 && calleeSCC.getType() == TarjansAlgorithm.CALLGRAPH_SCC;
         if(callerSCC.getText().equals(calleeSCC.getText())) {
             // both in same stron. conn. component ==> potential cycle
-            DafnyTree decr = callee.getFirstChildWithType(DafnyParser.DECREASES);
-            if(decr == null) {
-                decr = ASTUtil.intLiteral(0);
+            DafnyTree calleeDecr = callee.getFirstChildWithType(DafnyParser.DECREASES);
+            if(calleeDecr == null) {
+                calleeDecr = ASTUtil.intLiteral(0);
                 // TODO rather throw an exception?
             } else {
-                decr = decr.getLastChild();
+                calleeDecr = calleeDecr.getLastChild();
+            }
+            calleeDecr = ASTUtil.letCascade(subs, calleeDecr);
+
+            DafnyTree callerDecr = state.getMethod().getFirstChildWithType(DafnyParser.DECREASES);
+            if (callerDecr == null) {
+                callerDecr = ASTUtil.intLiteral(0);
+                // TODO rather throw an exception?
+            } else {
+                callerDecr = calleeDecr.getLastChild();
             }
 
-            decr = ASTUtil.letCascade(subs, decr);
             DafnyTree condition = ASTUtil.noetherLess(
-                    ASTUtil.create(DafnyParser.LISTEX, decr),
-                    ASTUtil.create(DafnyParser.LISTEX, ASTUtil.id("$decr")));
+                    ASTUtil.create(DafnyParser.LISTEX, calleeDecr),
+                    ASTUtil.create(DafnyParser.LISTEX, callerDecr));
             // wrap that into a substitution
             condition = ASTUtil.letCascade(subs, condition);
             SymbexPath decrState = new SymbexPath(state);
