@@ -27,13 +27,7 @@ import java.util.stream.Stream;
 public class Interpreter<T> extends DefaultASTVisitor<Object>
         implements ScopeObservable {
 
-    public Proof getCurrentProof() {
-        return currentProof;
-    }
 
-    public void setCurrentProof(Proof currentProof) {
-        this.currentProof = currentProof;
-    }
 
     /**
      * The proof for this interpreter
@@ -100,6 +94,13 @@ public class Interpreter<T> extends DefaultASTVisitor<Object>
         return functionLookup;
     }
 
+    public Proof getCurrentProof() {
+        return currentProof;
+    }
+
+    public void setCurrentProof(Proof currentProof) {
+        this.currentProof = currentProof;
+    }
     /**
      * Interpret a proof script
      * @param script the parsed proof script AST

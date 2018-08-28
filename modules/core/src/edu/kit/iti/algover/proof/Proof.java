@@ -89,7 +89,7 @@ public class Proof {
         this.project = project;
         this.pvc = pvc;
         this.graph = new ReferenceGraph();
-        //this.graph.addFromReferenceMap(dfyFile, pvc.getReferenceMap());
+        this.graph.addFromReferenceMap(dfyFile, pvc.getReferenceMap());
     }
 
     public @NonNull Project getProject() {

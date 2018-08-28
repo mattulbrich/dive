@@ -27,6 +27,7 @@ import java.util.function.Function;
  * {@link UnsupportedOperationException}.)
  * <p>
  * Created by Philipp on 27.08.2017.
+ *
  */
 public class ReferenceGraph {
 
@@ -86,8 +87,13 @@ public class ReferenceGraph {
         });
     }
 
-    // TODO
-    // implement via TermReferencesBuilder
+    /**
+     * Add References from rule applications
+     * @param proof the current Proof
+     * @param parent the parent ProofNode on which the rule was applied to
+     * @param newNodes the List of ProofNodes after rule application
+     * @throws RuleException
+     */
     public void addFromRuleApplication(Proof proof, ProofNode parent, List<ProofNode> newNodes) throws RuleException {
 
         ProofNodeSelector proofNodeBefore = new ProofNodeSelector(parent);
@@ -102,7 +108,6 @@ public class ReferenceGraph {
                 ImmutableList<Pair<TermSelector, Term>> replacements = bi.getReplacements();
                 for (Pair<TermSelector, Term> repl : replacements) {
                     trb.buildReferences(pns, repl.getFst());
-
                 }
             }
 
