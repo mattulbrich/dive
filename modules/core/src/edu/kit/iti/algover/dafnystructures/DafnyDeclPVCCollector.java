@@ -1,7 +1,8 @@
 /*
  * This file is part of AlgoVer.
  *
- * Copyright (C) 2015-2017 Karlsruhe Institute of Technology
+ * Copyright (C) 2015-2018 Karlsruhe Institute of Technology
+ *
  */
 package edu.kit.iti.algover.dafnystructures;
 
@@ -65,15 +66,9 @@ public class DafnyDeclPVCCollector {
                     .setPathThroughProgram(subpath)
                     .setDeclaration(m);
 
-                PVC pvc;
-                try {
-                    pvc = builder.build();
-                    SinglePVC sPVC = new SinglePVC(pvc);
-                    mGroup.addChild(sPVC);
-                } catch (TermBuildException e) {
-                    // FIXME. ... need a concept ofr exception handling here
-                    e.printStackTrace();
-                }
+                PVC pvc = builder.build();
+                SinglePVC sPVC = new SinglePVC(pvc);
+                mGroup.addChild(sPVC);
             }
         }
 
@@ -102,14 +97,9 @@ public class DafnyDeclPVCCollector {
                         .setPathThroughProgram(subpath)
                         .setDeclaration(f);
                 PVC pvc;
-                try {
-                    pvc = builder.build();
-                    SinglePVC sPVC = new SinglePVC(pvc);
-                    mGroup.addChild(sPVC);
-                } catch (TermBuildException e) {
-                    // FIXME. ... need a concept ofr exception handling here
-                    e.printStackTrace();
-                }
+                pvc = builder.build();
+                SinglePVC sPVC = new SinglePVC(pvc);
+                mGroup.addChild(sPVC);
             }
         }
         return mGroup;

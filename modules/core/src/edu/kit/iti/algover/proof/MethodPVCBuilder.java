@@ -1,7 +1,8 @@
 /*
  * This file is part of AlgoVer.
  *
- * Copyright (C) 2015-2017 Karlsruhe Institute of Technology
+ * Copyright (C) 2015-2018 Karlsruhe Institute of Technology
+ *
  */
 package edu.kit.iti.algover.proof;
 
@@ -85,7 +86,7 @@ public class MethodPVCBuilder implements PVCBuilder {
         throw new IllegalStateException("Unknown sequenter: " + string);
     }
 
-    public PVC build() throws TermBuildException {
+    public PVC build() {
         return new PVC(this);
     }
 
