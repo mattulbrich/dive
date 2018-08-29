@@ -141,6 +141,9 @@ public class PrettyPrintTest {
         return new String[][] {
             { "o.cfct(0, o) == 0" },
             { "fct(0, o) && true" },
+            { "o.cfct(0, o)@h2" },
+            { "fct(0, o)@h2" },
+            { "o.cfct(0, o)@$heap[o.f := 42]" },
         };
     }
 
