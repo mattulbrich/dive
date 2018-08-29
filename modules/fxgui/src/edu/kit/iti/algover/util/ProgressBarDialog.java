@@ -3,12 +3,10 @@ package edu.kit.iti.algover.util;
 
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
-import javafx.geometry.Pos;
 import javafx.scene.control.Button;
 import javafx.scene.control.Dialog;
 import javafx.scene.control.Label;
 import javafx.scene.control.ProgressBar;
-import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.stage.Window;
 
@@ -19,13 +17,10 @@ public class ProgressBarDialog extends Dialog {
     ProgressBar pb;
     VBox vBox;
     String endMessage;
-    Label endMessageLabel;
-    Button okButton;
     int maxSteps;
     int currentProgress = 0;
-    int failedSteps = 0;
 
-    public ProgressBarDialog(String title, String message) {
+    public ProgressBarDialog(String title, String message, String endMessage) {
         super();
         this.setTitle(title);
         this.endMessage = endMessage;
@@ -40,20 +35,6 @@ public class ProgressBarDialog extends Dialog {
         pb = new ProgressBar();
 
         vBox.getChildren().addAll(l, pb);
-
-        endMessageLabel = new Label(maxSteps - failedSteps + " goals were closed \n" + failedSteps + " still remain open");
-        vBox.getChildren().add(endMessageLabel);
-        okButton = new Button("Ok");
-        okButton.setOnAction(event -> {
-            window.hide();
-        });
-        endMessageLabel.setVisible(false);
-        okButton.setVisible(false);
-        HBox hb = new HBox();
-        hb.setAlignment(Pos.BASELINE_CENTER);
-        hb.getChildren().add(okButton);
-        vBox.getChildren().add(hb);
-
         this.getDialogPane().setContent(vBox);
     }
 
@@ -79,17 +60,17 @@ public class ProgressBarDialog extends Dialog {
             pb.setProgress(p);
         });
 
+        System.out.println(p);
+
         if(p == 1.0) {
-            Platform.runLater(() -> {
-                endMessageLabel.setText(maxSteps - failedSteps + " goals were closed \n" + failedSteps + " still remain open");
-                endMessageLabel.setVisible(true);
-                okButton.setVisible(true);
+            Window window = this.getDialogPane().getScene().getWindow();
+            vBox.getChildren().add(new Label(endMessage));
+            Button button = new Button("Ok");
+            button.setOnAction(event -> {
+                window.hide();
             });
-
+            vBox.getChildren().add(button);
+            getDialogPane().requestLayout();
         }
-    }
-
-    public void incFailed() {
-        failedSteps++;
     }
 }

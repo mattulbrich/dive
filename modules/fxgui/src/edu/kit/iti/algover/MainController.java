@@ -150,11 +150,10 @@ public class MainController implements SequentActionListener, RuleApplicationLis
     }
 
     private void trivialStrat(ActionEvent event) {
-        ProgressBarDialog pbd = new ProgressBarDialog("Try closing all", "Trying to close all open goals.");
+        ProgressBarDialog pbd = new ProgressBarDialog("Try closing all", "Trying to close all open goals.", "hm");
         pbd.show();
         Map<String, PVC> pvcMap = manager.getPVCByNameMap();
         pbd.setMaxSteps(pvcMap.size());
-        int openGoals = 0;
         for(Map.Entry<String, PVC> e : pvcMap.entrySet()) {
             executor.execute(new Task<Void>() {
                 @Override
@@ -184,26 +183,22 @@ public class MainController implements SequentActionListener, RuleApplicationLis
                         script += "close;\n";
                         p.setScriptTextAndInterpret(script);
                         if(p.getFailException() != null) {
-                            script = "z3;\n";
+                            script = letScript + "z3;\n";
                             p.setScriptTextAndInterpret(script);
                             if(p.getFailException() != null) {
                                 p.setScriptTextAndInterpret(letScript);
-                                pbd.incFailed();
                             }
                         }
                     }
                     pbd.nextProgressStep();
-                    Platform.runLater(() -> {
-                        browserController.updateTableLabels();
-                    });
                     return null;
                 }
             });
 
         }
-        sequentController.getActiveSequentController().tryMovingOnEx();
+        sequentController.getActiveSequentController().tryMovingOnEx(); //SaG: was tryMovingOn()
         ruleApplicationController.resetConsideration();
-
+        browserController.updateTableLabels();
     }
 
     private void onCrumbSelected(ObservableValue observableValue, Object oldValue, Object newValue) {
