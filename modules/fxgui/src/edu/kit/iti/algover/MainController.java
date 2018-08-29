@@ -33,7 +33,6 @@ import edu.kit.iti.algover.sequent.SequentTabViewController;
 import edu.kit.iti.algover.timeline.TimelineLayout;
 import edu.kit.iti.algover.util.CostumBreadCrumbBar;
 import edu.kit.iti.algover.util.FormatException;
-import edu.kit.iti.algover.util.ProgressBarDialog;
 import edu.kit.iti.algover.util.RuleApp;
 import edu.kit.iti.algover.util.StatusBarLoggingHandler;
 import javafx.application.Platform;
@@ -150,51 +149,40 @@ public class MainController implements SequentActionListener, RuleApplicationLis
     }
 
     private void trivialStrat(ActionEvent event) {
-        ProgressBarDialog pbd = new ProgressBarDialog("Try closing all", "Trying to close all open goals.", "hm");
-        pbd.show();
         Map<String, PVC> pvcMap = manager.getPVCByNameMap();
-        pbd.setMaxSteps(pvcMap.size());
         for(Map.Entry<String, PVC> e : pvcMap.entrySet()) {
-            executor.execute(new Task<Void>() {
-                @Override
-                protected Void call() throws Exception {
-                    String script = "";
-                    Proof p = manager.getProofForPVC(e.getKey());
-                    if (p.getProofStatus() != ProofStatus.CLOSED) {
-                        for (int i = 0; i < p.getProofRoot().getSequent().getAntecedent().size(); ++i) {
-                            try {
-                                script += RuleApplicator.getScriptForExhaustiveRuleApplication(new LetSubstitutionRule(), p.getProofRoot(), new TermSelector("A." + i));
-                            } catch (FormatException ex) {
-                                //TODO
-                            } catch (RuleException ex) {
-                                //TODO
-                            }
-                        }
-                        for (int i = 0; i < p.getProofRoot().getSequent().getSuccedent().size(); ++i) {
-                            try {
-                                script += RuleApplicator.getScriptForExhaustiveRuleApplication(new LetSubstitutionRule(), p.getProofRoot(), new TermSelector("S." + i));
-                            } catch (FormatException ex) {
-                                //TODO
-                            } catch (RuleException ex) {
-                                //TODO
-                            }
-                        }
-                        String letScript = script;
-                        script += "close;\n";
-                        p.setScriptTextAndInterpret(script);
-                        if(p.getFailException() != null) {
-                            script = letScript + "z3;\n";
-                            p.setScriptTextAndInterpret(script);
-                            if(p.getFailException() != null) {
-                                p.setScriptTextAndInterpret(letScript);
-                            }
-                        }
+            String script = "";
+            Proof p = manager.getProofForPVC(e.getKey());
+            if (p.getProofStatus() != ProofStatus.CLOSED) {
+                for (int i = 0; i < p.getProofRoot().getSequent().getAntecedent().size(); ++i) {
+                    try {
+                        script += RuleApplicator.getScriptForExhaustiveRuleApplication(new LetSubstitutionRule(), p.getProofRoot(), new TermSelector("A." + i));
+                    } catch (FormatException ex) {
+                        //TODO
+                    } catch (RuleException ex) {
+                        //TODO
                     }
-                    pbd.nextProgressStep();
-                    return null;
                 }
-            });
-
+                for (int i = 0; i < p.getProofRoot().getSequent().getSuccedent().size(); ++i) {
+                    try {
+                        script += RuleApplicator.getScriptForExhaustiveRuleApplication(new LetSubstitutionRule(), p.getProofRoot(), new TermSelector("S." + i));
+                    } catch (FormatException ex) {
+                        //TODO
+                    } catch (RuleException ex) {
+                        //TODO
+                    }
+                }
+                String letScript = script;
+                script += "close;\n";
+                p.setScriptTextAndInterpret(script);
+                if(p.getFailException() != null) {
+                    script = letScript + "z3;\n";
+                    p.setScriptTextAndInterpret(script);
+                    if(p.getFailException() != null) {
+                        p.setScriptTextAndInterpret(letScript);
+                    }
+                }
+            }
         }
         sequentController.getActiveSequentController().tryMovingOnEx(); //SaG: was tryMovingOn()
         ruleApplicationController.resetConsideration();
