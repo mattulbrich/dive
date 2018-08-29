@@ -30,6 +30,7 @@ import edu.kit.iti.algover.util.FunctionWithException;
 import edu.kit.iti.algover.util.HistoryMap;
 import edu.kit.iti.algover.util.ImmutableList;
 import edu.kit.iti.algover.util.Pair;
+import edu.kit.iti.algover.util.TreeUtil;
 import nonnull.NonNull;
 import org.antlr.runtime.CommonToken;
 
@@ -523,8 +524,9 @@ public class TreeTermTranslator {
     // TODO This is not really done yet.
     private Term buildCall(DafnyTree tree) throws TermBuildException {
 
-        assert tree.getChildCount() == 2
-                : "Calls with receivers not yet supported!";
+        if(tree.getChildCount() == 3) {
+            return buildCallWithReceiver(tree);
+        }
 
         String id = tree.getChild(0).getText();
         FunctionSymbol fct = symbolTable.getFunctionSymbol(id);
@@ -541,6 +543,36 @@ public class TreeTermTranslator {
         }
 
         DafnyTree args = tree.getFirstChildWithType(DafnyParser.ARGS);
+        expandMultiBlanks(args, fct.getArity());
+        for (DafnyTree arg : args.getChildren()) {
+            argTerms.add(build(arg));
+        }
+
+        return new ApplTerm(fct, argTerms);
+    }
+
+    private Term buildCallWithReceiver(DafnyTree tree) throws TermBuildException {
+        String id = tree.getChild(0).getText();
+        DafnyTree receiver = tree.getChild(1);
+        Term receiverTerm = build(receiver);
+        Sort receiverType = receiverTerm.getSort();
+
+        if(!receiverType.isClassSort()) {
+            throw new TermBuildException("Function application to a non-class sort: " + receiverType);
+        }
+
+        String symbolName = receiverType + "$$" + id;
+        FunctionSymbol fct = symbolTable.getFunctionSymbol(symbolName);
+        if (fct == null) {
+            throw new TermBuildException("No function symbol " + id +
+                    " defined in class " + receiverType +
+                    ". Remember that method calls not allowed in expressions.");
+        }
+
+        List<Term> argTerms = new ArrayList<>();
+        DafnyTree args = tree.getFirstChildWithType(DafnyParser.ARGS);
+        argTerms.add(getHeap());
+        argTerms.add(receiverTerm);
         expandMultiBlanks(args, fct.getArity());
         for (DafnyTree arg : args.getChildren()) {
             argTerms.add(build(arg));
