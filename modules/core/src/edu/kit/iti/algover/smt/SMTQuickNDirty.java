@@ -7,6 +7,7 @@
 // Checkstyle: ALLOFF
 package edu.kit.iti.algover.smt;
 
+import edu.kit.iti.algover.dafnystructures.DafnyFunctionSymbol;
 import edu.kit.iti.algover.term.ApplTerm;
 import edu.kit.iti.algover.term.FunctionSymbol;
 import edu.kit.iti.algover.term.LetTerm;
@@ -98,6 +99,12 @@ public class SMTQuickNDirty implements TermVisitor<Void, SExpr, RuntimeException
             List<SExpr> children = Util.map(applTerm.getSubterms(), x -> x.accept(SMTQuickNDirty.this, null));
             return new SExpr(subs, children);
         }
+
+        if (fs instanceof DafnyFunctionSymbol) {
+            List<SExpr> children = Util.map(applTerm.getSubterms(), x -> x.accept(SMTQuickNDirty.this, null));
+            return new SExpr("func" + fs.getName(), children);
+        }
+
 
         switch(n) {
         case "$seq_len<int>":
