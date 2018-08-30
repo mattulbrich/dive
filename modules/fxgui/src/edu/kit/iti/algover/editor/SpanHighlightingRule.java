@@ -55,14 +55,7 @@ public abstract class SpanHighlightingRule implements HighlightingRule {
     }
 
     protected boolean tokenInSpan(Span span, Token token) {
-        if (between(token.getLine(), span.beginLine, span.endLine)) {
-            return true;
-        } else if (token.getLine() == span.beginLine) {
-            return token.getCharPositionInLine() >= span.beginCharInLine;
-        } else if (token.getLine() == span.endLine) {
-            return (token.getCharPositionInLine() + token.getText().length()) <= span.endCharInLine;
-        }
-        return false;
+        return span.containsPosition(token.getLine(), token.getCharPositionInLine());
     }
 
     private boolean between(int n, int low, int high) {
