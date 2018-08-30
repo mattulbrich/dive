@@ -60,12 +60,11 @@ public class DafnyFunctionPrinterExtension implements PrettyPrintExtension {
 
         DafnyFunctionSymbol fs = (DafnyFunctionSymbol) functionSymbol;
         DafnyFunction f = fs.getOrigin();
-        DafnyDecl parent = f.getParentDecl();
         PrettyPrintLayouter printer = ppv.getPrinter();
 
         printer.beginBlock(4);
         int firstArg = 1;
-        if (parent instanceof DafnyClass) {
+        if (f.isDeclaredInClass()) {
             printer.beginTerm(1);
             term.getTerm(1).accept(ppv, null);
             printer.endTerm();

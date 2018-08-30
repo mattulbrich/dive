@@ -40,10 +40,9 @@ public class DafnyFunctionSymbol extends FunctionSymbol {
     }
 
     private static String computeName(DafnyFunction f) {
-        DafnyDecl parent = f.getParentDecl();
         StringBuilder sb = new StringBuilder();
-        if (parent instanceof DafnyClass) {
-            sb.append(parent.getName());
+        if (f.isDeclaredInClass()) {
+            sb.append(f.getParentDecl().getName());
         }
         sb.append("$$").append(f.getName());
         return sb.toString();
@@ -52,8 +51,8 @@ public class DafnyFunctionSymbol extends FunctionSymbol {
     private static Sort[] computeArgs(DafnyFunction f) {
         Sort[] args;
         List<DafnyTree> parameters = f.getParameters();
-        DafnyDecl parent = f.getParentDecl();
-        if (parent instanceof DafnyClass) {
+        if (f.isDeclaredInClass()) {
+            DafnyDecl parent = f.getParentDecl();
             DafnyClass clss = (DafnyClass) parent;
             args = new Sort[parameters.size() + 2];
             args[0] = Sort.HEAP;
