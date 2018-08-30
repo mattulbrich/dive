@@ -52,6 +52,11 @@ public class FunctionDefinitionExpansionRule extends AbstractProofRule {
     protected ProofRuleApplication considerApplicationImpl(ProofNode target, Parameters parameters) throws RuleException {
         TermSelector selector = tsForParameter.get("on");
 
+        // FIXME: It needs to be ensured that the selected term is not under the
+        // influence of an let-update! Or that influence must be copied for the
+        // justification branch.
+        // Same for quantifiers
+
         Term term = selector.selectSubterm(target.getSequent());
         if (!(term instanceof ApplTerm)) {
             return ProofRuleApplicationBuilder.notApplicable(this);

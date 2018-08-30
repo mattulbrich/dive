@@ -128,7 +128,8 @@ public class Z3Rule extends AbstractProofRule {
                 if (fs instanceof DafnyFunctionSymbol) {
                     DafnyFunctionSymbol dafnyFunctionSymbol = (DafnyFunctionSymbol) fs;
                     if (!dafnyFunctionSymbol.getOrigin().isDeclaredInClass()
-                            && dafnyFunctionSymbol.getArgumentSorts().stream().allMatch(x -> x.equals(Sort.INT))
+                            && dafnyFunctionSymbol.getArgumentSorts().stream().
+                                 allMatch(x -> x.equals(Sort.INT) || x.equals(Sort.HEAP))
                             && dafnyFunctionSymbol.getResultSort().equals(Sort.INT)) {
                         sb.append("(declare-fun func" + fs.getName() + " ((Array Int Int Int)")
                                 .append(Util.duplicate(" Int", fs.getArity() - 1))
@@ -143,7 +144,7 @@ public class Z3Rule extends AbstractProofRule {
                             .append(trans)
                             .append(")\n");
                 } catch(UnsupportedOperationException ex) {
-                    sb.append("; unsupported " + proofFormula + "\n");
+                    sb.append("; unsupported (" + ex + "): " + proofFormula + "\n");
                 }
             }
             for (ProofFormula proofFormula : sequent.getSuccedent()) {
