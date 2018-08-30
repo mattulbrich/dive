@@ -31,9 +31,11 @@ import edu.kit.iti.algover.smttrans.translate.SumAndMaxTest;
 
 @RunWith(Suite.class)
 @SuiteClasses({
- //   SequenceCompletenessTest.class,
-    SequenceSoundnessTest.class
-       // SetSoundnessTest.class
+//    SequenceCompletenessTest.class,
+    SequenceSoundnessTest.class,
+//    SetSoundnessTest.class,
+//    SetCompletenessTest.class,
+    
         // DafnyExampleTest.class,
         // Arr1Test.class,
         // ClassTest.class,
@@ -50,8 +52,8 @@ import edu.kit.iti.algover.smttrans.translate.SumAndMaxTest;
 
         // ObjectUnitTest.class
         // Z3RuleTest.class
-   // HeapCompletenessTest.class,
-   // HeapSoundnessTest.class
+//    HeapCompletenessTest.class,
+//    HeapSoundnessTest.class
 
 })
 public class Tests {

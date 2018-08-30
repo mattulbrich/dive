@@ -1,8 +1,15 @@
 package edu.kit.iti.algover.smttrans.data;
 
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
 import java.util.Set;
+
+import com.google.common.collect.ArrayTable;
+import com.google.common.collect.HashBasedTable;
+import com.google.common.collect.Table;
 
 import edu.kit.iti.algover.smttrans.translate.Names;
 
@@ -37,6 +44,8 @@ public enum Axiom {
 
     // Heap/Arrays
     A11, A12, A13, A14, A1L1, A21, A22, A23, A24, A2L0, A2L1, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12;
+
+    private static Table<Axiom, Axiom, Axiom> complements = HashBasedTable.create();
     static {
 
         /**
@@ -105,8 +114,9 @@ public enum Axiom {
          */
 
         // sets
-        S1.smt = "(assert (par (T) (forall\r\n" + "(\r\n" + "    (t T)\r\n" + ")\r\n" + "(!  \r\n"
-                + "(not (setin<T> t " + Names.getPrefix() +"setempty<T>)) \r\n" + ":pattern((setin<T> t " + Names.getPrefix() +"setempty<T>))))))";
+        S1.smt = "(assert (par (T) (forall\r\n" + "(\r\n" + "    (t T)\r\n" + ")\r\n" + "(!  \r\n" + "(not (setin<T> t "
+                + Names.getPrefix() + "setempty<T>)) \r\n" + ":pattern((setin<T> t " + Names.getPrefix()
+                + "setempty<T>))))))";
         S1.dependencies = new HashSet<>(Arrays.asList(Axiom.SETIN));
         S2.smt = "(assert (par (T) (forall\r\n" + "(\r\n" + "    (s Set<T>)\r\n" + "    (x T)\r\n" + "    (y T)\r\n"
                 + ")\r\n" + "(! \r\n" + "(= (setin<T> y (setadd<T> x s)) (or (= x y) (setin<T> y s)))\r\n"
@@ -137,7 +147,7 @@ public enum Axiom {
                 + ":pattern((setsubset<T> s1 s2) (setin<T> t s1) (setin<T> t s2))))))))";
         S7.dependencies = new HashSet<>(Arrays.asList(Axiom.SETIN, Axiom.SETSUBSET));
         S8.smt = "(assert (par (T) (forall\r\n" + "(\r\n" + "    (s Set<T>)\r\n" + "    (t T)\r\n" + ")\r\n"
-                + "(= (setsingle<T> t) (setadd<T> t " + Names.getPrefix() +"setempty<T>)))))";
+                + "(= (setsingle<T> t) (setadd<T> t " + Names.getPrefix() + "setempty<T>)))))";
         S8.dependencies = new HashSet<>(Arrays.asList(Axiom.SETIN, Axiom.SETSINGLE));
 
         // multisets
@@ -205,12 +215,12 @@ public enum Axiom {
                 + "(= s1 s2))) :pattern((seqget<T> s1 i) (seqget<T> s2 i))))))";
         SQ5.dependencies = new HashSet<>(Arrays.asList(Axiom.SEQGET, Axiom.SEQLEN));
         SQ6.smt = "(assert (par (T) (forall\r\n" + "(\r\n" + "    (s Seq<T>)\r\n" + ")\r\n" + "(=>   \r\n"
-                + "(= (seqlen<T> s) 0)\r\n" + "(= s " + Names.getPrefix() +"seqempty<T>)))))";
+                + "(= (seqlen<T> s) 0)\r\n" + "(= s " + Names.getPrefix() + "seqempty<T>)))))";
         SQ6.dependencies = new HashSet<>(Arrays.asList(Axiom.SEQLEN));
         SQ7.smt = "(assert (par (T) (forall\r\n" + "(\r\n" + "    (s Seq<T>)\r\n" + "    (t T)\r\n" + ")\r\n"
-                + "(= (seqsingle<T> t) (seqcons<T> t " + Names.getPrefix() +"seqemtpy<T>)))))";
-        SQ7.dependencies = new HashSet<>(Arrays.asList(Axiom.SEQLEN,Axiom.SEQSINGLE));
-        SQL1.smt = "(assert (par (T) (= (seqlen<T> "  + Names.getPrefix() +"seqempty<T>) 0)))";
+                + "(= (seqsingle<T> t) (seqcons<T> t " + Names.getPrefix() + "seqemtpy<T>)))))";
+        SQ7.dependencies = new HashSet<>(Arrays.asList(Axiom.SEQLEN, Axiom.SEQSINGLE));
+        SQL1.smt = "(assert (par (T) (= (seqlen<T> " + Names.getPrefix() + "seqempty<T>) 0)))";
         SQL1.dependencies = new HashSet<>(Arrays.asList(Axiom.SEQLEN));
         SQL2.smt = "(assert (par (T) (forall   \r\n" + "(\r\n" + "    (s Seq<T>)\r\n" + ")\r\n"
                 + "(>= (seqlen<T> s) 0)\r\n" + ")))";
@@ -238,19 +248,16 @@ public enum Axiom {
         A12.smt = "(assert (par (T) (forall\r\n" + "(\r\n" + "    (h Heap)\r\n" + "    (a Arr<T>)\r\n"
                 + "    (i Int)\r\n" + "    (o Object)\r\n" + ")\r\n"
                 + "(= (arrselect<T> (create h o) a i) (arrselect<T> h a i)))))";
-        // A12.dependencies = new HashSet<>(Arrays.asList(Axiom.ARRSELECT,
-        // Axiom.CREATE));
-        A13.smt = "(assert (par (T) (forall\r\n" + "(\r\n" + "    (h Heap)\r\n" + "    (a1 Arr<T>)\r\n"
-                + "    (a2 Arr2<T>)\r\n" + "    (i Int)\r\n" + "    (j Int)\r\n" + "    (k Int)\r\n"
-                + "    (o Object)\r\n" + "    (v T)\r\n" + ")\r\n"
-                + "(= (arrselect<T> (arr2store<T> h a2 i j v) a1 k) (arrselect<T> h a1 k)))))";
-        // A13.dependencies = new HashSet<>(Arrays.asList(Axiom.ARRSELECT,
-        // Axiom.ARR2STORE));
+
+        A13.smt = "(assert (par (V T) (forall\r\n" + "(\r\n" + "    (h Heap)\r\n" + "    (a1 Arr<T>)\r\n"
+                + "    (a2 Arr2<V>)\r\n" + "    (i Int)\r\n" + "    (j Int)\r\n" + "    (k Int)\r\n"
+                + "    (o Object)\r\n" + "    (v V)\r\n" + ")\r\n"
+                + "(= (arrselect<T> (arr2store<V> h a2 i j v) a1 k) (arrselect<T> h a1 k)))))";
+
         A14.smt = "(assert (par (C V T) (forall\r\n" + "(\r\n" + "    (h Heap)\r\n" + "    (a Arr<T>)\r\n"
                 + "    (f Field<C.V>)\r\n" + "    (i Int)\r\n" + "    (o C)\r\n" + "    (v V)\r\n" + ")\r\n"
                 + "(= (arrselect<T> (fieldstore<C.V> h o f v) a i) (arrselect<T> h a i)))))";
-        // A14.dependencies = new HashSet<>(Arrays.asList(Axiom.ARRSELECT,
-        // Axiom.FIELDSTORE));
+
         A1L1.smt = "(assert (par (T) (forall\r\n" + "(\r\n" + "    (a Arr<T>)\r\n" + ")\r\n"
                 + "(>= (arrlen<T> a) 0))))";
         A1L1.dependencies = new HashSet<>(Arrays.asList(Axiom.ARRLEN));
@@ -262,18 +269,15 @@ public enum Axiom {
         A22.smt = "(assert (par (T) (forall \r\n" + "(\r\n" + "    (h Heap)\r\n" + "    (a Arr2<T>)\r\n"
                 + "    (o Object)\r\n" + "    (i Int)\r\n" + "    (j Int)\r\n" + ")\r\n"
                 + "(= (arr2select<T> (create h o) a i j)  (arr2select<T> h a i j)))))";
-        // A22.dependencies = new HashSet<>(Arrays.asList(Axiom.ARR2SELECT, CREATE));
-        A23.smt = "(assert (par (T) (forall \r\n" + "(\r\n" + "    (h Heap)\r\n" + "    (a1 Arr<T>)\r\n"
+        A23.smt = "(assert (par (V T) (forall \r\n" + "(\r\n" + "    (h Heap)\r\n" + "    (a1 Arr<V>)\r\n"
                 + "    (a2 Arr2<T>)\r\n" + "    (o Object)\r\n" + "    (i Int)\r\n" + "    (j Int)\r\n"
-                + "    (k Int)\r\n" + "    (v T)\r\n" + ")\r\n"
-                + "(= (arr2select<T> (arrstore<T> h a1 k v) a2 i j)  (arr2select<T> h a2 i j)))))";
-        // A23.dependencies = new HashSet<>(Arrays.asList(Axiom.ARR2SELECT,
-        // Axiom.ARRSTORE));
-        A24.smt = "(assert (par (C T) (forall \r\n" + "(\r\n" + "    (h Heap)\r\n" + "    (a Arr2<T>)\r\n"
-                + "    (o C)\r\n" + "    (f Field<C.T>)\r\n" + "    (d T)\r\n" + "    (i Int)\r\n" + "    (j Int)\r\n"
-                + ")\r\n" + "(= (arr2select<T> (fieldstore<C.T> h o f d) a i j)  (arr2select<T> h a i j)))))";
-        // A24.dependencies = new HashSet<>(Arrays.asList(Axiom.ARR2SELECT,
-        // FIELDSTORE));
+                + "    (k Int)\r\n" + "    (v V)\r\n" + ")\r\n"
+                + "(= (arr2select<T> (arrstore<V> h a1 k v) a2 i j)  (arr2select<T> h a2 i j)))))";
+
+        A24.smt = "(assert (par (C V T) (forall \r\n" + "(\r\n" + "    (h Heap)\r\n" + "    (a Arr2<T>)\r\n"
+                + "    (o C)\r\n" + "    (f Field<C.V>)\r\n" + "    (d V)\r\n" + "    (i Int)\r\n" + "    (j Int)\r\n"
+                + ")\r\n" + "(= (arr2select<T> (fieldstore<C.V> h o f d) a i j)  (arr2select<T> h a i j)))))";
+
         A2L0.smt = "(assert (par (T) (forall\r\n" + "(\r\n" + "    (a Arr2<T>)\r\n" + ")\r\n"
                 + "(>= (arr2len0<T> a) 0))))";
         A2L0.dependencies = new HashSet<>(Arrays.asList(Axiom.ARR2LEN0));
@@ -285,42 +289,34 @@ public enum Axiom {
                 + "(= (fieldselect<C.T> (fieldstore<C.T> h o1 f1 v) o2 f2) (ite (and (= o1 o2) (= f1 f2)) v (fieldselect<C.T> h o2 f2))))))";
         H1.dependencies = new HashSet<>(Arrays.asList(Axiom.FIELDSELECT, Axiom.FIELDSTORE));
 
-        H2.smt = "(assert (par (C T) (forall\r\n" + "(\r\n" + "    (o C)\r\n" + "    (a Arr<T>)\r\n"
-                + "    (f Field<C.T>)\r\n" + "    (h Heap)\r\n" + "    (v T)\r\n" + "    (i Int)\r\n" + ")\r\n"
-                + "(= (fieldselect<C.T> (arrstore<T> h a i v) o f) (fieldselect<C.T> h o f)))))";
-        // H2.dependencies = new HashSet<>(Arrays.asList(Axiom.FIELDSELECT,
-        // Axiom.ARRSTORE));
+        H2.smt = "(assert (par (V C T) (forall\r\n" + "(\r\n" + "    (o C)\r\n" + "    (a Arr<V>)\r\n"
+                + "    (f Field<C.T>)\r\n" + "    (h Heap)\r\n" + "    (v V)\r\n" + "    (i Int)\r\n" + ")\r\n"
+                + "(= (fieldselect<C.T> (arrstore<V> h a i v) o f) (fieldselect<C.T> h o f)))))";
 
-        H3.smt = "(assert (par (C T) (forall\r\n" + "(\r\n" + "    (o C)\r\n" + "    (a Arr2<T>)\r\n"
-                + "    (f Field<C.T>)\r\n" + "    (h Heap)\r\n" + "    (v T)\r\n" + "    (i Int)\r\n"
+        H3.smt = "(assert (par (V C T) (forall\r\n" + "(\r\n" + "    (o C)\r\n" + "    (a Arr2<V>)\r\n"
+                + "    (f Field<C.T>)\r\n" + "    (h Heap)\r\n" + "    (v V)\r\n" + "    (i Int)\r\n"
                 + "    (j Int)\r\n" + ")\r\n"
-                + "(= (fieldselect<C.T> (arr2store<T> h a i j v) o f) (fieldselect<C.T> h o f)))))";
-        // H3.dependencies = new HashSet<>(Arrays.asList(Axiom.FIELDSELECT,
-        // Axiom.ARR2STORE));
+                + "(= (fieldselect<C.T> (arr2store<V> h a i j v) o f) (fieldselect<C.T> h o f)))))";
+
         H4.smt = "(assert (par (C T) (forall\r\n" + "(\r\n" + "    (o1 C)\r\n" + "    (o2 Object)\r\n"
                 + "    (a Arr<T>)\r\n" + "    (f Field<C.T>)\r\n" + "    (h Heap)\r\n" + "    (v T)\r\n"
                 + "    (i Int)\r\n" + ")\r\n"
                 + "(= (fieldselect<C.T> (create h o2) o1 f) (fieldselect<C.T> h o1 f)))))";
-        // H4.dependencies = new HashSet<>(Arrays.asList(Axiom.FIELDSELECT,
-        // Axiom.CREATE));
+
         H5.smt = "(assert (forall\r\n" + "(\r\n" + "    (o Object)\r\n" + "    (h Heap)\r\n" + ")\r\n"
                 + "(isCreated (create h o) o)))";
         H5.dependencies = new HashSet<>(Arrays.asList(Axiom.ISCREATED, Axiom.CREATE));
         H6.smt = "(assert (par (C T) (forall\r\n" + "(\r\n" + "    (h Heap)\r\n" + "    (c C)\r\n"
                 + "    (f Field<C.T>)\r\n" + "    (v T)\r\n" + "    (o Object)\r\n" + ")\r\n"
                 + "(= (isCreated (fieldstore<C.T> h c f v) o) (isCreated h o)))))";
-        // H6.dependencies = new HashSet<>(Arrays.asList(Axiom.ISCREATED,
-        // Axiom.FIELDSTORE));
+
         H7.smt = "(assert (par (T) (forall\r\n" + "(\r\n" + "    (h Heap)\r\n" + "    (v T)\r\n" + "    (o Object)\r\n"
                 + "    (i Int)\r\n" + "    (a Arr<T>)\r\n" + ")\r\n"
                 + "(= (isCreated (arrstore<T> h a i v) o) (isCreated h o)))))";
-        // H7.dependencies = new HashSet<>(Arrays.asList(Axiom.ISCREATED,
-        // Axiom.ARRSTORE));
+
         H8.smt = "(assert (par (T) (forall\r\n" + "(\r\n" + "    (h Heap)\r\n" + "    (v T)\r\n" + "    (o Object)\r\n"
                 + "    (i Int)\r\n" + "    (j Int)\r\n" + "    (a Arr2<T>)\r\n" + ")\r\n"
                 + "(= (isCreated (arr2store<T> h a i j v) o) (isCreated h o)))))";
-        // H8.dependencies = new HashSet<>(Arrays.asList(Axiom.ISCREATED,
-        // Axiom.ARR2STORE));
 
         H9.smt = "(assert (par (C T) (forall\r\n" + "(\r\n" + "    (c C)\r\n" + "    (h1 Heap)\r\n"
                 + "    (h2 Heap)\r\n" + "    (s Set<Object>)\r\n" + "    (f Field<C.T>)\r\n" + ")\r\n"
@@ -339,20 +335,29 @@ public enum Axiom {
                 + "    (s Set<Object>)\r\n" + "    (o Object)\r\n" + ")\r\n"
                 + "(= (isCreated (anon h1 s h2) o) (isCreated (ite (setin<Object> o s) h2 h1) o))))";
         H12.dependencies = new HashSet<>(Arrays.asList(Axiom.ANON, Axiom.ISCREATED, Axiom.SETIN));
+
+        complements.put(A11, H1, A14);
+        complements.put(A11, A21, A13);
+        complements.put(A11, H5, A12);
+        complements.put(H1, A11, H2);
+        complements.put(H1, A21, H3);
+        complements.put(H1, H5, H4);
+        complements.put(A21, A11, A23);
+        complements.put(A21, H1, A24);
+        complements.put(A21, H5, A22);
+
     }
 
     public Set<Axiom> dependencies = new HashSet<>();
     public String smt;
 
-    private boolean multiTyped;
-
     public boolean isMultiTyped() {
         return AxiomContainer.prepare(this.smt).fst.size() > 1;
     }
 
-    public Axiom getComplement(String type) {
+    public Axiom getComplement(List<String> type) {
 
-        return this;
+        return complements.get(this, valueOf(type.get(0)));
     }
 
     public String getSmt() {

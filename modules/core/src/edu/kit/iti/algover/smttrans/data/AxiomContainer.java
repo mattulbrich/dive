@@ -29,10 +29,20 @@ public class AxiomContainer {
     }
 
     public static String crossType(List<String> t1, List<String> t2) {
-        List<String> types = t2.subList(1, t2.size());
-        // Axiom a1 = Axiom.valueOf(t1.get(0)).getComplement(types);
-        // return typeAxiom(a1.smt, types);
-        return "";
+        List<String> types1 = t1.subList(1, t1.size());
+        List<String> types2 = t2.subList(1, t2.size());
+       
+        
+        Axiom a1 = Axiom.valueOf(t1.get(0)).getComplement(t2);
+        System.out.println(types1);
+        System.out.println(types2);
+        System.out.println(a1);
+        
+        List<String> types = new ArrayList<>();
+        types.addAll(types2);
+        types.addAll(types1);
+         return typeAxiom(a1.smt, types);
+        //return "";
     }
 
     public static List<String> crossProduct() {
@@ -220,7 +230,7 @@ public class AxiomContainer {
     }
 
     public static String declareAxiom(Axiom a, FunctionSymbol t) {
-        System.out.println(a.name());
+       // System.out.println(a.name());
         String r = "";
         for (Sort s : t.getArgumentSorts()) {
             if (isApplicable(a.getSmt(), s)) {

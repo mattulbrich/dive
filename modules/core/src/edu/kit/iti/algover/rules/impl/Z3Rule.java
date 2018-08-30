@@ -114,46 +114,30 @@ public class Z3Rule extends AbstractProofRule {
     }
 
     private boolean isValid(ProofNode target) {
-        System.out.println("PVC: " + target.getPVC().getSequent().toString());
-        // SolverAccess.evaluate("");
+
         SolverAccess z3access = new Z3Access();
-        SolverAccess cvcaccess = new CVCAccess();
-        SolverAccess msaccess = new MathSATAccess();
-        SolverAccess yicesaccess = new YicesAccess();
+
         PVC pvc = target.getPVC();
-        // System.out.println("ID " + pvc.getIdentifier());
+
 
         SMTContainer sc = translateToSMT(target.getSequent(), pvc.getSymbolTable());
 
         String smt;
 
-        smt = sc.toPSMT();
-        // SMTLog.writeFile(smt, pvc.getIdentifier()+".psmt");
-        //TypeContext.reset();
-      //  System.out.println(smt);
-     //  AxiomContainer.reset();
+
         smt = sc.toSMT();
 
-        // SMTLog.writeFile(smt, pvc.getIdentifier()+".smt2");
-        //
-        // System.out.println();
-     //   System.out.println(smt);
-
-        SolverParameter p = new SolverParameter(smt, 8, true);
+        System.out.println(smt);
+        SolverParameter p = new SolverParameter(smt, 5, true);
         SolverResponse r1 = z3access.accessSolver(p);
-        // SolverResponse r1 = msaccess.accessSolver(p);
-        // SolverResponse r1 = yicesaccess.accessSolver(p);
-        // SolverResponse r1 = cvcaccess.accessSolver(p);
+
 
         System.out.println(r1.getResponse().name());
         if (r1.getResponse() == Response.SAT) {
             model = r1.getModel();
-            // System.out.println(model.getDeclarations());
-            // System.out.println(model.getDefinitions());
-            // model.printVars();
         }
 
-        // System.out.println(r1.getModel().toString());
+
         TypeContext.reset();
         return evaluate(r1.getResponse());
     }
