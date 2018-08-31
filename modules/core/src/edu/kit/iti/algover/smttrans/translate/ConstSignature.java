@@ -6,7 +6,7 @@ public class ConstSignature extends Signature {
 
     public ConstSignature(FunctionSymbol fs) {
         super(fs);
-        
+
     }
 
     @Override

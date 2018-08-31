@@ -33,10 +33,8 @@ public class Z3Access extends SolverAccess {
             int balance = 0;
             String expr = "";
             while ((line = br.readLine()) != null) {
-                // System.out.println(line);
                 if (line.replaceAll("\\s+", "").toLowerCase().equals("(model"))
                     continue;
-                // System.out.println(line);
                 balance -= line.length() - line.replace("(", "").length();
                 balance += line.length() - line.replace(")", "").length();
                 expr += line;
@@ -46,7 +44,6 @@ public class Z3Access extends SolverAccess {
 
                 }
             }
-            //System.out.println(data);
             if (data.isEmpty())
                 return new SolverResponse(Response.ERROR);
 

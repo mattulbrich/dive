@@ -44,7 +44,7 @@ public class AxiomLoader {
             try {
                 Axiom.valueOf(p.fst).smt = p.snd;
             } catch (IllegalArgumentException e) {
-                // TODO: handle exception
+
             }
         }
     }
@@ -73,12 +73,10 @@ public class AxiomLoader {
             }
 
             if (b == 0) {
-                // axioms.add(mergeAxiom(current)); //TODO
                 current.clear();
             }
 
         }
-     //   System.out.println(axioms.toString());
         return axioms;
 
     }

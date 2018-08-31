@@ -31,10 +31,10 @@ import edu.kit.iti.algover.smttrans.translate.SumAndMaxTest;
 
 @RunWith(Suite.class)
 @SuiteClasses({
-//    SequenceCompletenessTest.class,
+    SequenceCompletenessTest.class,
     SequenceSoundnessTest.class,
-//    SetSoundnessTest.class,
-//    SetCompletenessTest.class,
+    SetSoundnessTest.class,
+    SetCompletenessTest.class,
     
         // DafnyExampleTest.class,
         // Arr1Test.class,

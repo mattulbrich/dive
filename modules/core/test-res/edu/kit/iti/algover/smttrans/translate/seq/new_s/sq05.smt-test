@@ -1,4 +1,0 @@
-s1: seq<int>
----
-|-
-$gt($seq_len<int>(s1),$seq_len<int>($seq_empty<int>))

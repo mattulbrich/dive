@@ -31,18 +31,16 @@ public class AxiomContainer {
     public static String crossType(List<String> t1, List<String> t2) {
         List<String> types1 = t1.subList(1, t1.size());
         List<String> types2 = t2.subList(1, t2.size());
-       
-        
+
         Axiom a1 = Axiom.valueOf(t1.get(0)).getComplement(t2);
         System.out.println(types1);
         System.out.println(types2);
         System.out.println(a1);
-        
+
         List<String> types = new ArrayList<>();
         types.addAll(types2);
         types.addAll(types1);
-         return typeAxiom(a1.smt, types);
-        //return "";
+        return typeAxiom(a1.smt, types);
     }
 
     public static List<String> crossProduct() {
@@ -53,7 +51,6 @@ public class AxiomContainer {
         }
         System.out.println("===");
         System.out.println(types);
-        // TODO cross product, multiple arrselects ?
         for (List<String> t1 : types) {
             for (List<String> t2 : types) {
                 if (t1.equals(t2))
@@ -74,7 +71,6 @@ public class AxiomContainer {
             return;
 
         l.add(a.name());
-        // l.add(TypeContext.SMT_ARRNAME);
         l.addAll(TypeContext.getTypeArguments(t.getName()));
         sorts.add(new Pair<List<String>, FunctionSymbol>(l, t));
 
@@ -179,7 +175,7 @@ public class AxiomContainer {
         List<String> types = TypeContext.getTypeArguments(type.getName());
 
         String ax = p.snd;
-        if (types.size() != tvs.size()) { //TODO anon error
+        if (types.size() != tvs.size()) {
             return "";
         }
         for (int i = 0; i < tvs.size(); i++) {
@@ -222,7 +218,6 @@ public class AxiomContainer {
         }
 
         if (!TypeContext.isBuiltIn(t.getResultSort().getName())) {
-            // System.out.println("SORT2 " + t.toString());
             sorts.add("(declare-sort " + TypeContext.normalizeReturnSort(t) + " 0)");
         }
 
@@ -230,7 +225,6 @@ public class AxiomContainer {
     }
 
     public static String declareAxiom(Axiom a, FunctionSymbol t) {
-       // System.out.println(a.name());
         String r = "";
         for (Sort s : t.getArgumentSorts()) {
             if (isApplicable(a.getSmt(), s)) {

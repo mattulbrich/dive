@@ -1,8 +1,7 @@
 package edu.kit.iti.algover.smttrans.translate.expressions;
 
 import edu.kit.iti.algover.smttrans.data.Operation;
-import edu.kit.iti.algover.smttrans.translate.TypeContext;
-import edu.kit.iti.algover.term.FunctionSymbol;
+
 import edu.kit.iti.algover.term.QuantTerm.Quantifier;
 
 public class SMTQuantExpression extends SMTExpression {

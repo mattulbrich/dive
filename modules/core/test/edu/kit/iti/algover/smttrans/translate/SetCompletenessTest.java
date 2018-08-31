@@ -55,7 +55,7 @@ import java.util.stream.Collectors;
 @RunWith(Parameterized.class)
 public class SetCompletenessTest {
 
-    private static final String dir = "modules/core/test-res/edu/kit/iti/algover/smttrans/translate/set/new_c".replace('/',
+    private static final String dir = "modules/core/test-res/edu/kit/iti/algover/smttrans/translate/set/completeness".replace('/',
             File.separatorChar);
 
     @Parameter
@@ -63,7 +63,6 @@ public class SetCompletenessTest {
 
     private SymbolTable symbols;
     private Sequent sequent;
-    private String debug;
 
     @Parameters(name = "{0}")
     public static Object[] data() throws IOException {
@@ -75,12 +74,9 @@ public class SetCompletenessTest {
     public void readAndParse() throws IOException, DafnyParserException, DafnyException {
 
 
-        debug = path.toString();
         InputStream stream = Files.newInputStream(path);
         SymbolTable st = new BuiltinSymbols();
 
-        // InputStream stream = getClass().getResourceAsStream(name+"/"+name +
-        // ".smt-test");
 
         BufferedReader r = new BufferedReader(new InputStreamReader(stream));
 
@@ -128,9 +124,6 @@ public class SetCompletenessTest {
         ProofNode pn = ProofMockUtil.mockProofNode(null, s.getAntecedent(), s.getSuccedent(), pvc);
         ProofRule pr = new Z3Rule();
         ProofRuleApplication pra = pr.makeApplication(pn, new edu.kit.iti.algover.rules.Parameters());
-//            if (!pra.getApplicability().equals(ProofRuleApplication.Applicability.APPLICABLE)) {
-//                System.err.println(debug.get(i));
-//            }
         assertEquals(pra.getApplicability(), ProofRuleApplication.Applicability.APPLICABLE);
     }
 

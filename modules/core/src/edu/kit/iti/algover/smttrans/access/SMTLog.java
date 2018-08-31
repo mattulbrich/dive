@@ -14,7 +14,7 @@ public class SMTLog {
 
 public static void writeFile(String smt, String name) {
     
-    List<String> lines = Arrays.asList(smt.split("\r\n")); //((?<=\\R)|(?=\\R))
+    List<String> lines = Arrays.asList(smt.split("\r\n")); 
     String seperator = FileSystems.getDefault().getSeparator();
     Path file = Paths.get("." + seperator + name.replace("/", ""));
     

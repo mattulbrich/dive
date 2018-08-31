@@ -1,7 +1,0 @@
-s1: seq<int>
-i: int
-j: int
----
-s1 == $seq_cons<int>(i,$seq_cons<int>(j,$seq_empty<int>))
-|-
-s1 == $seq_cons<int>(j,$seq_cons<int>(i,$seq_empty<int>))

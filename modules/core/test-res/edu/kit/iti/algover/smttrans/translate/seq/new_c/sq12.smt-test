@@ -1,9 +1,0 @@
-s1: seq<int>
-s2: seq<int>
----
-
-s1 == ($seq_cons<int>(1,$seq_empty<int>)),
-s2 == ($seq_cons<int>(1,$seq_empty<int>))
-
-|-
-$seq_get<int>(s1,0) == $seq_get<int>(s2,0) 

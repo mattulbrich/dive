@@ -1,5 +1,4 @@
 s1: seq<int>
-s2: seq<int>
 ---
 |-
-let s1 := $seq_cons<int>(4,$seq_cons<int>(3,$seq_cons<int>(2,$seq_cons<int>(1,$seq_empty<int>)))) :: $lt($seq_len<int>(s1),4)
+$gt($seq_len<int>(s1),5)

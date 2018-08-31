@@ -1,9 +1,8 @@
 s1: seq<int>
-s2: seq<int>
-i : int
+i: int
+j: int
+k: int
 ---
-
-s1 == $seq_cons<int>(1,$seq_empty<int>),
-s2 == $seq_cons<int>(1,$seq_empty<int>)
+s1 == $seq_cons<int>(i,($seq_cons<int>(j,$seq_cons<int>(k,$seq_empty<int>))))
 |-
-$not($seq_get<int>(s1,0) == $seq_get<int>(s2,0))
+$seq_get<int>(s1,0) == j

@@ -18,5 +18,4 @@ public class VarSignature extends Signature {
         return sb.toString();
     }
 
-
 }

@@ -33,7 +33,7 @@ public class Model {
 
     public Model(List<String> contents) {
         this.contents = contents;
-         this.vars = subVars(parseVars(parseModel()));
+        this.vars = subVars(parseVars(parseModel()));
 
     }
 
@@ -80,8 +80,6 @@ public class Model {
 
         List<String> r = new ArrayList<>();
         for (String s : vars) {
-            // for (String sub : vMap.values()) {
-            // s = s.replace(sub, vMap.inverse().get(sub));
 
             for (Map.Entry<String, String> entry : vMap.entrySet()) {
                 s = s.replace(entry.getValue(), entry.getKey());
@@ -107,11 +105,9 @@ public class Model {
             if (!de.isEmpty())
                 def.add(sub(de));
         }
-        // System.out.println("Dec " + decl);
-        // System.out.println("Def " + def);
+
         for (List<String> d1 : def) {
-            // System.out.println("IN " + d1);
-            // System.out.println("OUT " + parseFuncDef(d1));
+
             decl.addAll(parseFuncDef(d1));
         }
 
@@ -123,22 +119,20 @@ public class Model {
 
         List<List<String>> results = new ArrayList<>();
         StringBuilder sb = new StringBuilder();
-        // model.subList(1, model.size()).forEach(sb::append);
+
         for (String m : model.subList(1, model.size())) {
             sb.append(" " + m + " ");
         }
 
         String line = sb.toString().trim().replaceAll(" +", " ");
 
-        // System.out.println("line " + line);
         String[] parts = line.split("\\(ite");
 
         List<String> subparts = Arrays.asList(parts);
-        // System.out.println("Parts " + subparts.toString());
 
         if (subparts.size() == 1) {
 
-            results.add(Arrays.asList(line)); // NO ITE -> TODO
+            results.add(Arrays.asList(line));
             return results;
         }
 
@@ -149,10 +143,10 @@ public class Model {
             List<String> a = Arrays.asList(arg.trim().replace("(", "").replace(")", "").split(" "));
 
             sp.add(new Pair<String, String>(a.get(2), a.get(3)));
-            // p.add(a.get(3));
+
             if (a.size() > 4)
                 dValue = a.get(4);
-            // System.out.println("a " + a.toString());
+
         }
 
         for (Pair<String, String> p : sp) {
@@ -163,18 +157,6 @@ public class Model {
         String d = fname + "(" + "default" + ")" + " = " + dValue;
         results.add(Arrays.asList(d));
 
-        // StringBuilder sb2 = new StringBuilder();
-        // int i = 0;
-        // while (!parts[i].equals(ITE)) {
-        // i++;
-        // }
-        // for (int j = i; j < parts.length; j++) {
-        // sb2.append(" " + parts[j]);
-        // }
-        // String r = sb2.toString();
-        // a.add(r.substring(0, r.length()));
-
-        // System.out.println(a);
         return results;
 
     }
@@ -210,8 +192,6 @@ public class Model {
             definitions.add(v);
         }
 
-        // System.out.println("Declarations " + declaratations.toString());
-        // System.out.println(vMap.toString());
         return new Pair<List<List<String>>, List<List<String>>>(declaratations, definitions);
     }
 
@@ -227,7 +207,6 @@ public class Model {
     }
 
     private List<List<String>> parseModel() {
-        // BiMap<String, String> subs = HashBiMap.create();
 
         List<List<String>> vars = new ArrayList<>();
         for (String d : contents) {
@@ -236,7 +215,6 @@ public class Model {
 
             if (line.startsWith(DECL)) {
                 List<String> parts = Arrays.asList(line.split("(?<![\\(,\\)])\\s+"));
-                // System.out.println(parts.toString());
                 List<String> decl = new ArrayList<>();
                 decl.add("Decl: ");
                 decl.addAll(parts.subList(1, parts.size()));
@@ -246,7 +224,7 @@ public class Model {
 
             if (line.startsWith(DEF)) {
                 List<String> parts = Arrays.asList(line.split("(?<![\\(,\\)])\\s+"));
-                // System.out.println(parts.toString());
+
                 List<String> decl = new ArrayList<>();
                 decl.add("Def: ");
                 decl.addAll(parts.subList(1, parts.size()));
@@ -256,7 +234,6 @@ public class Model {
 
         }
 
-        // System.out.println("Vars " + vars.toString());
         return vars;
     }
 

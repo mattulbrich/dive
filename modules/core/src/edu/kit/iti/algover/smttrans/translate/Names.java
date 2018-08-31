@@ -5,7 +5,6 @@ import com.google.common.collect.HashBiMap;
 
 public class Names {
     // AV <-> SMT
-    // private static BiMap<String, String> names = TypeContext.getDefaults();
     private static BiMap<String, String> names = HashBiMap.create();
 
     private static String PREFIX = "~";
@@ -19,7 +18,6 @@ public class Names {
     }
 
     public static String makeSMTName(String avName) {
-        // System.out.println("avname " + avName);
 
         avName = avName.replace("$", "");
 

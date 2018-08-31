@@ -1,9 +1,9 @@
 s1: seq<int>
-i : int,
-j: int,
-k: int,
-l: int
+s2: seq<int>
+s3: seq<int>
 ---
-
 |-
-let s1 := $seq_cons<int>(i,$seq_cons<int>(j,$seq_cons<int>(k,$seq_cons<int>(l,$seq_empty<int>)))) :: $seq_len<int>(s1) == 4
+let s1 := $seq_cons<int>(1,$seq_cons<int>(2,$seq_cons<int>(3,$seq_empty<int>))) ::
+let s2 := $seq_cons<int>(3,$seq_cons<int>(2,$seq_cons<int>(1,$seq_empty<int>))) ::
+let s3 := $seq_concat<int>(s1,s2) ::
+$not(s3 == $seq_concat<int>(s2,s1))

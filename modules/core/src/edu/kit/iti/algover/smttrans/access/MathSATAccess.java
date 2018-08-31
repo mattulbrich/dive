@@ -14,43 +14,36 @@ import java.util.List;
 
 public class MathSATAccess extends SolverAccess {
 
-
     @Override
     public SolverResponse accessSolver(SolverParameter p) {
-        
-        //Process process;
+
         String smt = p.getSMT();
         try {
-          //  Process process = buildProcess();
-            File f = File.createTempFile("file",".smt2");
+
+            File f = File.createTempFile("file", ".smt2");
             BufferedWriter bw = new BufferedWriter(new FileWriter(f));
             bw.write(smt);
-            //bw.write(d3);
+
             bw.write("(check-sat)");
-          //  bw.write("(get-model)");
+
             bw.close();
             Runtime rt = Runtime.getRuntime();
-         //   System.out.println("F " + f.getAbsolutePath() );
+
             Process process = rt.exec("mathsat -input=smt2 " + f.getAbsolutePath());
-           
-//            OutputStream out = process.getOutputStream();
+
             InputStream in = process.getInputStream();
-            //out.write(debugsmt.getBytes());
-//            out.write(smt.getBytes());
-//            out.write("(check-sat)".getBytes());
-//            out.write("(get-model)".getBytes());
-//            out.close();
+
             List<String> data = new ArrayList<>();
             BufferedReader br = new BufferedReader(new InputStreamReader(in));
             String line;
             while ((line = br.readLine()) != null) {
-                 System.out.println(line);
+                System.out.println(line);
                 data.add(line);
             }
-            
-            if(data.isEmpty())
+
+            if (data.isEmpty())
                 return new SolverResponse(Response.ERROR);
-          //  System.out.println(data);
+
             if (data.get(0).toLowerCase().contains("unsat")) {
                 return new SolverResponse(Response.UNSAT);
             }
@@ -69,20 +62,5 @@ public class MathSATAccess extends SolverAccess {
         return new SolverResponse(Response.ERROR);
 
     }
-
-    /*
-     * Start z3.
-     *
-     * Add parameters here ...
-     */
-    private Process buildProcess() throws IOException {
-        ProcessBuilder pb = new ProcessBuilder("mathsat -input=smt2 <"); //, "-in", "-smt2"
-        return pb.start();
-    }
-
-
-
-
-    
 
 }

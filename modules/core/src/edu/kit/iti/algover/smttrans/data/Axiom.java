@@ -49,16 +49,6 @@ public enum Axiom {
     static {
 
         /**
-         * Sorts
-         */
-
-        // sets
-        // SET_INST.smt = "(define-sort Set (T) (Array T Bool))"; //TODO
-        // SETEMPTY_INST.smt = "(declare-const (par (T) (setEmpty<T> (Set<T>))))";
-
-        // Heap/Arrays
-
-        /**
          * Functions
          */
 

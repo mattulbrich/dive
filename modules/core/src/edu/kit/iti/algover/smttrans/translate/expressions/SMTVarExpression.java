@@ -1,10 +1,8 @@
 package edu.kit.iti.algover.smttrans.translate.expressions;
 
-import edu.kit.iti.algover.smttrans.data.Operation;
 import edu.kit.iti.algover.smttrans.translate.CastDependency;
 import edu.kit.iti.algover.smttrans.translate.ConstSignature;
 import edu.kit.iti.algover.smttrans.translate.Dependency;
-import edu.kit.iti.algover.smttrans.translate.FuncDependency;
 import edu.kit.iti.algover.smttrans.translate.TypeContext;
 import edu.kit.iti.algover.term.FunctionSymbol;
 import edu.kit.iti.algover.term.Sort;

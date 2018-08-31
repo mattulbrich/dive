@@ -1,6 +1,5 @@
 package edu.kit.iti.algover.smttrans.translate.expressions;
 
-import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -40,7 +39,6 @@ public class SMTApplExpression extends SMTExpression {
         sb.append("(");
 
         sb.append(sign.show() + " ");
-        // TODO refactor to casts class
 
         if (sign.show().equals(Operation.CREATE.toSMT()) || sign.show().equals(Operation.ISCREATED.toSMT())) {
             for (SMTExpression c : children) {

@@ -10,20 +10,11 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.stream.Collectors;
-
-import com.google.common.base.CharMatcher;
-import com.google.common.base.Splitter;
-import com.google.common.collect.BiMap;
-import com.google.common.collect.HashBiMap;
-import com.google.common.collect.Iterables;
-
 import edu.kit.iti.algover.data.MapSymbolTable;
 import edu.kit.iti.algover.data.SymbolTable;
 import edu.kit.iti.algover.smttrans.data.AxiomContainer;
 import edu.kit.iti.algover.smttrans.data.Operation;
 import edu.kit.iti.algover.smttrans.data.OperationMatcher;
-import edu.kit.iti.algover.smttrans.data.SMTContainer;
 import edu.kit.iti.algover.term.FunctionSymbol;
 import edu.kit.iti.algover.term.Sort;
 import edu.kit.iti.algover.util.Pair;
@@ -49,8 +40,8 @@ public class TypeContext {
     private static final Set<Operation> builtinConsts = new LinkedHashSet<>(
             Arrays.asList(Operation.AHEAP, Operation.DECR));
 
-    private static final Set<String> builtinTypes = new LinkedHashSet<>(Arrays.asList(AV_BOOLNAME, AV_INTNAME)); // ,
-    private static Set<FunctionSymbol> boundVars = new LinkedHashSet<>(); // AV_HEAPNAME
+    private static final Set<String> builtinTypes = new LinkedHashSet<>(Arrays.asList(AV_BOOLNAME, AV_INTNAME));
+    private static Set<FunctionSymbol> boundVars = new LinkedHashSet<>();
     private static Map<String, String> nmap = new HashMap<>();
 
     static {
@@ -108,12 +99,10 @@ public class TypeContext {
 
     public static List<String> getTypeArguments(String name) {
 
-        // System.out.println("NAME " + name);
-
         Pair<Integer, Integer> range = getArgumentRange(name);
         if (range.fst > range.snd) // no type arguments
             return new ArrayList<>();
-        // System.out.println(name.substring(range.fst, range.snd));
+
         List<String> r = new ArrayList<>();
         Arrays.asList(name.substring(range.fst, range.snd).split(",")).forEach(x -> r.add(normalizeName(x)));
         return r;
@@ -129,8 +118,7 @@ public class TypeContext {
     }
 
     public static String normalizeSort(String name, String sorts) {
-        // String r = addTypeArguments(normalizeSort(fs.getResultSort().getName()),
-        // getTypeArguments(fs.toString()));
+
         String r = addTypeArguments(normalizeName(name), getTypeArguments(sorts));
 
         return r.replace("<>", "");
@@ -138,8 +126,6 @@ public class TypeContext {
 
     public static String normalizeReturnSort(FunctionSymbol fs) {
 
-        // return normalizeName();
-        // System.out.println("N " + fs.toString());
         String sign = fs.toString().split(":")[1].trim();
         String name = sign.split("<")[0].trim();
         return normalizeSort(name, sign);
@@ -153,8 +139,7 @@ public class TypeContext {
         for (String s : sorts) {
             sb.append("<");
             sb.append(nmap.getOrDefault(s.toLowerCase(), s.substring(0, 1).toUpperCase() + s.substring(1)));
-            // sb.append(s.substring(0, 1).toUpperCase());
-            // sb.append(s.substring(1));
+
         }
 
         return cleanUp(sb.toString().replaceFirst("<", ""));
@@ -186,7 +171,6 @@ public class TypeContext {
             sb.append(".");
         }
         sb.append(">");
-        // System.out.println("OUT " + replaceLast(sb.toString(), ".", ""));
         return replaceLast(sb.toString(), ".", "");
 
     }
@@ -277,16 +261,13 @@ public class TypeContext {
     }
 
     private static Sort normalizeSort(Sort s) {
-        // System.out.println("Sort " + s.toString());
+
         String sort = s.toString();
         String name = Arrays.asList(sort.replaceAll(">", "").split("<")).get(0);
         List<String> parts = getTypeArguments(sort);
-        // System.out.println("ONE " + parts);
-        // System.out.println("TWO " + parts2);
-        // String name = parts.get(0);
+
         name = name.substring(0, 1).toUpperCase() + name.substring(1);
-        // System.out.println(name);
-        // System.out.println(parts);
+
         sort = addTypeArguments(name, parts);
 
         return Sort.get(sort);
@@ -295,11 +276,7 @@ public class TypeContext {
     private static FunctionSymbol makeEmptySort(Operation op, FunctionSymbol fs) {
 
         String sname = addTypeArguments(op.toSMT(), getTypeArguments(fs.getName()));
-        // System.out.println("FSNAME " + fs.getName());
-        // System.out.println("TA " + getTypeArguments(fs.getName()));
-        // System.out.println("SNAME " + sname);
         String aname = fs.getName().substring(1, fs.getName().length());
-        // System.out.println("ANAME " + aname);
 
         FunctionSymbol nfs = new FunctionSymbol(Names.makeSMTName(aname, sname), normalizeSort(fs.getResultSort()));
         preamble.add(new FuncDependency(fs));
@@ -308,7 +285,6 @@ public class TypeContext {
     }
 
     private static FunctionSymbol handleEmptySort(FunctionSymbol fs) {
-        // System.out.println("EMPTY: " + fs.toString());
         Operation op = getOperation(fs.getName());
         return makeEmptySort(op, fs);
     }
@@ -339,7 +315,6 @@ public class TypeContext {
             if (!symbolTable.getAllSymbols().contains(nfs)) {
 
                 symbolTable = symbolTable.addFunctionSymbol(nfs);
-                // System.out.println(symbolTable.getAllSymbols().toString());
 
             }
         }
@@ -373,7 +348,7 @@ public class TypeContext {
                 deps.add(d);
             }
         }
-        
+
         return deps;
     }
 
@@ -427,7 +402,7 @@ public class TypeContext {
 
     }
 
-    public static String addFunctions(String smt) { // TODO Temporary Implementation
+    public static String addFunctions(String smt) { // Temporary Implementation
         String nsmt = "";
         List<String> lines = Arrays.asList(smt.split("\\r?\\n"));
         int i;
@@ -453,7 +428,6 @@ public class TypeContext {
 
                 }
 
-                // nsmt += functions.get(f);
             }
         }
 
@@ -467,8 +441,7 @@ public class TypeContext {
         return nsmt;
     }
 
-    public static String addCasts(String smt) { // TODO better version
-        // System.out.println("!!!!!!!!!!!!!!!!!!");
+    public static String addCasts(String smt) {
 
         List<String> sorts = new ArrayList<>();
         List<Pair<String, String>> consts = new ArrayList<>();
@@ -505,15 +478,7 @@ public class TypeContext {
 
         for (String c : critical) {
             String nc = c;
-            //
-            // for (Pair<String, String> p : consts) {
-            //
-            // String cr = casts.get(p.snd).get(0) + " " + p.fst + ")";
-            //
-            // // nc = nc.replace(p.fst, cr);
-            // nc = replace(nc, p.fst, cr);
-            //
-            // }
+
             creplace.put(c, nc);
         }
 
@@ -530,14 +495,14 @@ public class TypeContext {
 
         if (!critical.isEmpty() && !nsmt.contains("(declare-sort Object 0)")) {
             nsmt += "(declare-sort Object 0)" + "\r\n";
-          
+
         }
         if (!critical.isEmpty()) {
 
             for (String t : sorts) {
 
                 // declarations
-                
+
                 nsmt += "(declare-fun o2C (Object) C)".replace("C", t) + "\r\n";
                 nsmt += "(declare-fun C2o (C) Object)".replace("C", t) + "\r\n";
                 nsmt += "(declare-fun typeC (Object) Bool)".replace("C", t) + "\r\n";
@@ -566,8 +531,8 @@ public class TypeContext {
         }
 
         for (Pair<String, String> t : consts) {
-            // System.out.println(t.fst + " : " + t.snd);
-            nsmt += "(assert (type" + t.snd + " (" + t.snd + "2o " + t.fst + ")))\r\n"; // TODO check if needed
+
+            nsmt += "(assert (type" + t.snd + " (" + t.snd + "2o " + t.fst + ")))\r\n";
         }
         for (; i < lines.size(); i++) {
 
@@ -580,20 +545,6 @@ public class TypeContext {
             }
         }
         return nsmt;
-        
 
     }
-
-    private static String replace(String o, String c, String r) {
-        if (!o.contains("let")) {// debug
-            return o.replace(c, r);
-        }
-        String nc = o.replaceAll("(?<!" + c + "\\s)" + c, r); // debug
-        // String nc = o.replaceAll("(?!"+c+"\\s)"+c, r);
-        nc = nc.replaceAll("\\(" + r + "\\)" + "\\s" + c, c + " " + c);
-        nc = nc.replaceAll("\\(" + r + "\\)\\)", c + ")");
-        return SMTContainer.cleanUp(nc);
-
-    }
-
 }

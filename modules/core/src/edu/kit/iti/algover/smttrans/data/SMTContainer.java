@@ -19,7 +19,6 @@ public class SMTContainer {
     public SMTContainer(List<SMTTerm> a, List<SMTTerm> s) {
         this.antecedent = a;
         this.succedent = s;
-       // this.dependencies = TypeContext.getDependencies();
 
     }
 
@@ -63,7 +62,6 @@ public class SMTContainer {
 
     public String toPSMT() {
         StringBuilder sb = new StringBuilder();
-        // sb.append(declareDep());
         antecedent.forEach(t -> sb.append(cleanUp(t.toSMT(false))));
         succedent.forEach(s -> sb.append(cleanUp(s.toSMT(true)))); // negate
 
@@ -144,7 +142,7 @@ public class SMTContainer {
 
         }
 
-        axioms.addAll(AxiomContainer.crossProduct()); // heap cross product TODO declarations
+        axioms.addAll(AxiomContainer.crossProduct());
         
         StringBuilder sb = new StringBuilder();
         sorts.forEach(s -> sb.append(s + "\r\n"));

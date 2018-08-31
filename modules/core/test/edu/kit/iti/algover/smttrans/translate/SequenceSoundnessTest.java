@@ -56,7 +56,7 @@ import java.util.stream.Collectors;
 @RunWith(Parameterized.class)
 public class SequenceSoundnessTest {
 
-    private static final String dir = "modules/core/test-res/edu/kit/iti/algover/smttrans/translate/seq/new_s".replace('/',
+    private static final String dir = "modules/core/test-res/edu/kit/iti/algover/smttrans/translate/seq/soundness".replace('/',
             File.separatorChar);
 
     @Parameter

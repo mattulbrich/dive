@@ -19,15 +19,16 @@ public class FuncDependency extends Dependency {
     @Override
     public LinkedHashSet<String> instantiate() {
         LinkedHashSet<String> inst = new LinkedHashSet<>();
-        
-        inst.addAll(AxiomContainer.instantiateSort(fs)); 
+
+        inst.addAll(AxiomContainer.instantiateSort(fs));
         for (Axiom a : op.getInstantiations()) {
-            
-            inst.addAll(AxiomContainer.instantiateAxiom(a,fs));
+
+            inst.addAll(AxiomContainer.instantiateAxiom(a, fs));
         }
-        
+
         return inst;
     }
+
     @Override
     public String toString() {
         return op.name() + " : " + this.fs.getName();
@@ -58,13 +59,13 @@ public class FuncDependency extends Dependency {
     @Override
     public LinkedHashSet<String> declare() {
         LinkedHashSet<String> inst = new LinkedHashSet<>();
-        
-        inst.addAll(AxiomContainer.declareSort(fs)); 
+
+        inst.addAll(AxiomContainer.declareSort(fs));
         for (Axiom a : op.getInstantiations()) {
-            
-            inst.add(AxiomContainer.declareAxiom(a,fs));
+
+            inst.add(AxiomContainer.declareAxiom(a, fs));
         }
-        
+
         return inst;
     }
 

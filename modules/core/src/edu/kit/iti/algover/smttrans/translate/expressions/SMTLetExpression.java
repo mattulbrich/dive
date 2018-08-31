@@ -2,8 +2,6 @@ package edu.kit.iti.algover.smttrans.translate.expressions;
 
 import java.util.List;
 
-import edu.kit.iti.algover.smttrans.translate.TypeContext;
-
 public class SMTLetExpression extends SMTExpression {
 
     private SMTExpression inner;
@@ -42,33 +40,6 @@ public class SMTLetExpression extends SMTExpression {
         return sb.toString();
     }
     
-    
-//  StringBuilder sb = new StringBuilder();
-//
-//  sb.append(subs.get(0).toSMT(false));
-//  sb.append(")" + "\r\n");
-//
-//  if (subs.size() > 1) {
-//      for (SMTExpression s : subs.subList(1, subs.size())) {
-//
-//          sb.append("(assert " + s.toSMT(false) + ")" + "\r\n");
-//      }
-//
-//  }
-//
-//  sb.append("(assert");
-//  if (inner instanceof SMTConstExpression) {
-//      sb.append(" (not ");
-//      sb.append(inner.toSMT(arg));
-//      sb.append("))");
-//
-//  } else {
-//
-//      sb.append(inner.toSMT(arg));
-//      sb.append(")");
-//  }
-//
-//  return sb.toString();
 
 
 }

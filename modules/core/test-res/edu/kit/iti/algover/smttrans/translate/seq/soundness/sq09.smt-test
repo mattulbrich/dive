@@ -1,6 +1,7 @@
 s1: seq<int>
-s2: seq<int>
+i: int
+j: int
 ---
+s1 == $seq_cons<int>(i,$seq_cons<int>(j,$seq_empty<int>))
 |-
-let s1 := $seq_cons<int>(4,$seq_cons<int>(3,$seq_cons<int>(2,$seq_cons<int>(1,$seq_empty<int>)))) ::
-let s2 := $seq_subselect<int>(s1,0,2) :: $seq_get<int>($seq_upd<int>(s2,7,0),0) == 1
+s1 == $seq_cons<int>(j,$seq_cons<int>(i,$seq_empty<int>))

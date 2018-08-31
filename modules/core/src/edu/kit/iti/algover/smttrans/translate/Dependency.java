@@ -11,9 +11,8 @@ public abstract class Dependency {
         this.fs = fs;
     }
 
-
     public abstract LinkedHashSet<String> instantiate();
-    public abstract LinkedHashSet<String> declare();
 
+    public abstract LinkedHashSet<String> declare();
 
 }

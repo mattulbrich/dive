@@ -1,6 +1,7 @@
 package edu.kit.iti.algover.smttrans.data;
 
 import java.util.Arrays;
+
 import java.util.HashMap;
 import java.util.List;
 
@@ -8,9 +9,6 @@ import com.google.common.base.Splitter;
 import com.google.common.collect.Iterables;
 
 import edu.kit.iti.algover.smttrans.translate.SymbolHandler;
-import edu.kit.iti.algover.term.FunctionSymbol;
-import edu.kit.iti.algover.term.FunctionSymbolFamily;
-import edu.kit.iti.algover.term.Sort;
 
 public class OperationMatcher {
 
@@ -48,7 +46,7 @@ public class OperationMatcher {
         opmap.put("$union", Operation.SETUNION);
         opmap.put("$intersect", Operation.SETINTERSECT);
         opmap.put("$set_minus", Operation.SETMINUS);
-        opmap.put("$set_subset",Operation.SETSUBSET);
+        opmap.put("$set_subset", Operation.SETSUBSET);
         opmap.put("$set_single", Operation.SETSINGLE);
         opmap.put("$set_add", Operation.SETADD);
         opmap.put("$set_in", Operation.SETIN);
@@ -59,7 +57,7 @@ public class OperationMatcher {
         opmap.put("$seq_cons", Operation.SEQCONS);
         opmap.put("$seq_concat", Operation.SEQCONCAT);
         opmap.put("$seq_subselect", Operation.SEQSUBSELECT);
-        opmap.put("$seq_single",Operation.SEQSINGLE);
+        opmap.put("$seq_single", Operation.SEQSINGLE);
         opmap.put("$anon", Operation.ANON);
         opmap.put("$create", Operation.CREATE);
         opmap.put("$isCreated", Operation.ISCREATED);
@@ -73,7 +71,7 @@ public class OperationMatcher {
         opmap.put("$multi_union", Operation.MULTIUNION);
         opmap.put("$multi_intersect", Operation.MULTIINTERSECT);
         opmap.put("$multi_empty", Operation.MULTIEMPTY);
-  //      opmap.put("$multi_set_card", Operation.MULTICARD);
+
         opmap.put("$multi_set_in", Operation.MULTIIN);
         opmap.put("$multi_set_add", Operation.MULTIADD);
         opmap.put("$multi_set_subset", Operation.MULTISUBSET);
@@ -81,9 +79,6 @@ public class OperationMatcher {
     }
 
     public static Operation matchOp(String op) {
-
-        // if (op.startsWith("$$"))
-        // return Operation.FUNC;
 
         Iterable<String> operators = Splitter.on(".").split(op);
 
@@ -95,7 +90,6 @@ public class OperationMatcher {
             SymbolHandler.handleFunc(op);
             return Operation.FUNC;
         }
-        // return opmap.getOrDefault(ops.get(0),Operation.FUNC);
 
     }
 }

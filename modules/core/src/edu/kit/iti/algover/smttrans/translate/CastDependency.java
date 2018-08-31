@@ -2,7 +2,7 @@ package edu.kit.iti.algover.smttrans.translate;
 
 import java.util.LinkedHashSet;
 
-import edu.kit.iti.algover.smttrans.data.AxiomContainer;
+
 import edu.kit.iti.algover.term.FunctionSymbol;
 import edu.kit.iti.algover.term.Sort;
 
@@ -50,7 +50,7 @@ public class CastDependency extends Dependency {
 
     @Override
     public LinkedHashSet<String> declare() {
-        // TODO Auto-generated method stub
+
         return new LinkedHashSet<>();
     }
 

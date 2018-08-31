@@ -1,4 +1,0 @@
-s1: seq<int>
----
-|-
-$gt($seq_len<int>(s1),5)

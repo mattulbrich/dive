@@ -1,5 +1,8 @@
 s1: seq<int>
 s2: seq<int>
 ---
+
+s1 == $seq_cons<int>(1,$seq_empty<int>),
+s2 == $seq_cons<int>(2,$seq_empty<int>)
 |-
-let s1 := $seq_cons<int>(4,$seq_cons<int>(3,$seq_cons<int>(2,$seq_cons<int>(1,$seq_empty<int>)))) :: $gt($seq_len<int>(s1),3)
+$seq_get<int>($seq_concat<int>(s1,s2),1) == 1

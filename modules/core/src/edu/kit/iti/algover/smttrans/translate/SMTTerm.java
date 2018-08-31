@@ -34,7 +34,7 @@ public class SMTTerm {
         
         }
         String result = sb.toString().replaceAll("\\s+(?=[),])", "");
-        return result; //.trim().replaceAll("\\(", " (").trim().replaceAll(" +", " ");
+        return result;
         
         
     }

@@ -5,10 +5,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
-import edu.kit.iti.algover.term.FunctionSymbol;
-
 import static java.util.Arrays.asList;
-//import static edu.kit.iti.algover.smttrans.data.Axiom.*; //TODO later
 
 public enum Operation {
 
@@ -124,10 +121,8 @@ public enum Operation {
 
         AHEAP.smt = "aheap";
         AHEAP.instantiations = asList();
-        // AHEAP.special = true;
 
         HEAP.smt = "heap";
-        // HEAP.instantiations = asList(Axiom.HEAP_INST); // Axiom.HEAP_INST
         HEAP.special = true;
 
         DECR.smt = "decr";
@@ -137,7 +132,7 @@ public enum Operation {
         SEQEMPTY.instantiations = asList(Axiom.SQL1, Axiom.SQL2);
 
         EVERYTHING.smt = "everything";
-        EVERYTHING.instantiations = asList(Axiom.EVERYTHING); //
+        EVERYTHING.instantiations = asList(Axiom.EVERYTHING);
         EVERYTHING.special = true;
 
         SEQCONS.smt = "seqcons";
@@ -154,7 +149,7 @@ public enum Operation {
 
         SEQSUBSELECT.smt = "seqsubselect";
         SEQSUBSELECT.poly = true;
-        SEQSUBSELECT.instantiations = asList(Axiom.SQ4, Axiom.SQL3); // , Axiom.SQL3
+        SEQSUBSELECT.instantiations = asList(Axiom.SQ4, Axiom.SQL3);
 
         SEQLEN.smt = "seqlen";
         SEQLEN.poly = true;
@@ -166,10 +161,6 @@ public enum Operation {
         SEQCONCAT.smt = "seqconcat";
         SEQCONCAT.poly = true;
         SEQCONCAT.instantiations = asList(Axiom.SQ3, Axiom.SQL4);
-
-        /**
-         * 
-         */
 
         FORALL.smt = "forall";
         FORALL.builtin = true;
