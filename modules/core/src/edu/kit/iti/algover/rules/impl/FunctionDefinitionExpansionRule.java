@@ -20,10 +20,14 @@ import edu.kit.iti.algover.rules.ProofRuleApplication;
 import edu.kit.iti.algover.rules.ProofRuleApplication.Applicability;
 import edu.kit.iti.algover.rules.ProofRuleApplicationBuilder;
 import edu.kit.iti.algover.rules.RuleException;
+import edu.kit.iti.algover.rules.SubtermSelector;
 import edu.kit.iti.algover.rules.TermSelector;
 import edu.kit.iti.algover.term.ApplTerm;
 import edu.kit.iti.algover.term.FunctionSymbol;
 import edu.kit.iti.algover.term.LetTerm;
+import edu.kit.iti.algover.term.QuantTerm;
+import edu.kit.iti.algover.term.QuantTerm.Quantifier;
+import edu.kit.iti.algover.term.Sequent;
 import edu.kit.iti.algover.term.Sort;
 import edu.kit.iti.algover.term.Term;
 import edu.kit.iti.algover.term.VariableTerm;
@@ -34,6 +38,7 @@ import edu.kit.iti.algover.util.Pair;
 import edu.kit.iti.algover.util.Util;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -51,11 +56,6 @@ public class FunctionDefinitionExpansionRule extends AbstractProofRule {
     @Override
     protected ProofRuleApplication considerApplicationImpl(ProofNode target, Parameters parameters) throws RuleException {
         TermSelector selector = tsForParameter.get("on");
-
-        // FIXME: It needs to be ensured that the selected term is not under the
-        // influence of an let-update! Or that influence must be copied for the
-        // justification branch.
-        // Same for quantifiers
 
         Term term = selector.selectSubterm(target.getSequent());
         if (!(term instanceof ApplTerm)) {
@@ -78,11 +78,16 @@ public class FunctionDefinitionExpansionRule extends AbstractProofRule {
                     addReplacement(selector, definition).
                     setLabel("continue");
 
-            DafnyTree requires = ASTUtil.and(Util.map(function.getRequiresClauses(), DafnyTree::getLastChild));
-            Term precondition = instantiate(term, function, requires, symbols);
-            builder.newBranch().
-                    addAdditionsSuccedent(new ProofFormula(precondition)).
-                    setLabel("justify");
+
+            List<DafnyTree> requiresClauses = function.getRequiresClauses();
+            if(!requiresClauses.isEmpty()) {
+                DafnyTree requires = ASTUtil.and(Util.map(requiresClauses, DafnyTree::getLastChild));
+                Term precondition = instantiate(term, function, requires, symbols);
+                Term withContext = copyContext(target.getSequent(), selector, precondition);
+                builder.newBranch().
+                        addAdditionsSuccedent(new ProofFormula(withContext)).
+                        setLabel("justify");
+            }
 
             builder.setApplicability(Applicability.APPLICABLE);
 
@@ -90,6 +95,34 @@ public class FunctionDefinitionExpansionRule extends AbstractProofRule {
         } catch(TermBuildException ex) {
             throw new RuleException(ex);
         }
+    }
+
+    private Term copyContext(Sequent seq, TermSelector selector, Term inner) throws RuleException {
+        ProofFormula toplevel = selector.selectTopterm(seq);
+        List<Term> pathList = new ArrayList<>();
+
+        Term t = toplevel.getTerm();
+        for (Integer integer : selector.getPath()) {
+            pathList.add(t);
+            t = t.getTerm(integer);
+        }
+
+        try {
+            Collections.reverse(pathList);
+            Term result = inner;
+            for (Term pathTerm : pathList) {
+                if (pathTerm instanceof QuantTerm) {
+                    result = new QuantTerm(Quantifier.FORALL, ((QuantTerm) pathTerm).getBoundVar(), result);
+                } else if (pathTerm instanceof LetTerm) {
+                    result = new LetTerm(((LetTerm) pathTerm).getSubstitutions(), result);
+                }
+            }
+            return result;
+        } catch (TermBuildException ex) {
+            throw new RuleException(ex);
+        }
+
+
     }
 
     private Term instantiate(Term call, DafnyFunction function, DafnyTree tree, SymbolTable symbols) throws TermBuildException {
