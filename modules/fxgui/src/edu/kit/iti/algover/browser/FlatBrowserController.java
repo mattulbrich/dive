@@ -4,6 +4,7 @@ import edu.kit.iti.algover.browser.entities.OtherEntity;
 import edu.kit.iti.algover.browser.entities.TreeTableEntity;
 import edu.kit.iti.algover.dafnystructures.DafnyClass;
 import edu.kit.iti.algover.dafnystructures.DafnyFile;
+import edu.kit.iti.algover.dafnystructures.DafnyFunction;
 import edu.kit.iti.algover.dafnystructures.DafnyMethod;
 import edu.kit.iti.algover.project.Project;
 import edu.kit.iti.algover.proof.Proof;
@@ -25,7 +26,7 @@ public class FlatBrowserController extends BrowserController {
 
     protected void populateTreeTable() {
         TreeTableEntity rootEntity = new OtherEntity("root",
-                Arrays.asList(createClassesEntity(), createMethodsEntity()));
+                Arrays.asList(createClassesEntity(), createMethodsEntity(), createFunctionsEntity()));
 
         TreeItem<TreeTableEntity> root = createTreeItem(rootEntity);
         getView().setRoot(root);
@@ -42,6 +43,15 @@ public class FlatBrowserController extends BrowserController {
         return new OtherEntity("Methods", children);
     }
 
+    private TreeTableEntity createFunctionsEntity() {
+        List<TreeTableEntity> children = new ArrayList<>();
+        getProject().getFunctions().stream()
+                .map(dafnyFunction -> getEntityFromFunction(findFileWithFunction(dafnyFunction), dafnyFunction))
+                .forEach(children::add);
+
+        return new OtherEntity("Functions", children);
+    }
+
     private TreeTableEntity createClassesEntity() {
         List<TreeTableEntity> children = new ArrayList<>();
         getProject().getClasses().stream()
@@ -54,6 +64,13 @@ public class FlatBrowserController extends BrowserController {
     private DafnyFile findFileWithMethod(DafnyMethod dafnyMethod) {
         return getProject().getDafnyFiles().stream()
                 .filter(dafnyFile -> dafnyFile.getMethods().contains(dafnyMethod))
+                .findFirst()
+                .orElse(null);
+    }
+
+    private DafnyFile findFileWithFunction(DafnyFunction dafnyFunction) {
+        return getProject().getDafnyFiles().stream()
+                .filter(dafnyFile -> dafnyFile.getFunctions().contains(dafnyFunction))
                 .findFirst()
                 .orElse(null);
     }

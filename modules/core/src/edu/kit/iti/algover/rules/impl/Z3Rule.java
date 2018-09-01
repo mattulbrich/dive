@@ -9,6 +9,7 @@
 
 package edu.kit.iti.algover.rules.impl;
 
+import edu.kit.iti.algover.dafnystructures.DafnyFunctionSymbol;
 import edu.kit.iti.algover.data.SymbolTable;
 import edu.kit.iti.algover.proof.PVC;
 import edu.kit.iti.algover.proof.ProofFormula;
@@ -25,6 +26,7 @@ import edu.kit.iti.algover.smt.SMTQuickNDirty;
 import edu.kit.iti.algover.term.FunctionSymbol;
 import edu.kit.iti.algover.term.Sequent;
 import edu.kit.iti.algover.term.Sort;
+import edu.kit.iti.algover.util.Util;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -123,6 +125,17 @@ public class Z3Rule extends AbstractProofRule {
                 if (fs.getResultSort().equals(Sort.HEAP) && fs.getArity() == 0) {
                     sb.append("(declare-const pv$" + fs.getName() + " (Array Int Int Int))\n");
                 }
+                if (fs instanceof DafnyFunctionSymbol) {
+                    DafnyFunctionSymbol dafnyFunctionSymbol = (DafnyFunctionSymbol) fs;
+                    if (!dafnyFunctionSymbol.getOrigin().isDeclaredInClass()
+                            && dafnyFunctionSymbol.getArgumentSorts().stream().
+                                 allMatch(x -> x.equals(Sort.INT) || x.equals(Sort.HEAP))
+                            && dafnyFunctionSymbol.getResultSort().equals(Sort.INT)) {
+                        sb.append("(declare-fun func" + fs.getName() + " ((Array Int Int Int)")
+                                .append(Util.duplicate(" Int", fs.getArity() - 1))
+                                .append(") Int)");
+                    }
+                }
             }
             for (ProofFormula proofFormula : sequent.getAntecedent()) {
                 try {
@@ -131,7 +144,7 @@ public class Z3Rule extends AbstractProofRule {
                             .append(trans)
                             .append(")\n");
                 } catch(UnsupportedOperationException ex) {
-                    sb.append("; unsupported " + proofFormula + "\n");
+                    sb.append("; unsupported (" + ex + "): " + proofFormula + "\n");
                 }
             }
             for (ProofFormula proofFormula : sequent.getSuccedent()) {

@@ -87,4 +87,4 @@
  (FUNCTION inImage 
   (ARGS (VAR i (TYPE int))) 
   (RETURNS bool) 
-  (BLOCK true)))
+  true))
