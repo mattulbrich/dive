@@ -20,7 +20,6 @@ import edu.kit.iti.algover.rules.ProofRuleApplication;
 import edu.kit.iti.algover.rules.ProofRuleApplication.Applicability;
 import edu.kit.iti.algover.rules.ProofRuleApplicationBuilder;
 import edu.kit.iti.algover.rules.RuleException;
-import edu.kit.iti.algover.rules.SubtermSelector;
 import edu.kit.iti.algover.rules.TermSelector;
 import edu.kit.iti.algover.term.ApplTerm;
 import edu.kit.iti.algover.term.FunctionSymbol;
@@ -42,6 +41,18 @@ import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
+/**
+ * This proof rule allows one to expand an application of a function symbol to
+ * its definition.
+ *
+ * <h2>Parameters</h2>
+ *
+ * Currently, only the on-parameter is supported. In the future, (for exhaustive
+ * etc.) applications, parameters like "functions" are planned to restrict the
+ * reach of the formula.
+ *
+ * @author mulbrich
+ */
 public class FunctionDefinitionExpansionRule extends AbstractProofRule {
 
     public FunctionDefinitionExpansionRule() {
@@ -97,14 +108,21 @@ public class FunctionDefinitionExpansionRule extends AbstractProofRule {
         }
     }
 
-    private Term copyContext(Sequent seq, TermSelector selector, Term inner) throws RuleException {
+    /*
+     * Embed the term inner into the variable-binding context that the given
+     * term selector possesses.
+     *
+     * All let-bindings are copied and all quantifiers become universal
+     * quantifications.
+     */
+    private static Term copyContext(Sequent seq, TermSelector selector, Term inner) throws RuleException {
         ProofFormula toplevel = selector.selectTopterm(seq);
         List<Term> pathList = new ArrayList<>();
 
         Term t = toplevel.getTerm();
-        for (Integer integer : selector.getPath()) {
+        for (int elem : selector.getPath()) {
             pathList.add(t);
-            t = t.getTerm(integer);
+            t = t.getTerm(elem);
         }
 
         try {
@@ -121,11 +139,22 @@ public class FunctionDefinitionExpansionRule extends AbstractProofRule {
         } catch (TermBuildException ex) {
             throw new RuleException(ex);
         }
-
-
     }
 
-    private Term instantiate(Term call, DafnyFunction function, DafnyTree tree, SymbolTable symbols) throws TermBuildException {
+    /**
+     * Instantiate the free parameters in a formula by the arguments provided to
+     * a function call.
+     *
+     * @param call     the term capturing the call in logic
+     * @param function the called function
+     * @param tree     the formula which is to be instantiated
+     * @param symbols  table to look up function symbols during translation
+     * @return a freshly created term
+     * @throws TermBuildException if the term cannot be instantiated. The
+     *                            parsing and type resolution facilities should
+     *                            prevent these exceptions.
+     */
+    private static Term instantiate(Term call, DafnyFunction function, DafnyTree tree, SymbolTable symbols) throws TermBuildException {
         List<Term> args = new LinkedList<>(call.getSubterms());
         List<DafnyTree> formalParams = function.getParameters();
 
@@ -133,13 +162,13 @@ public class FunctionDefinitionExpansionRule extends AbstractProofRule {
 
         List<Pair<VariableTerm, Term>> assignments = new ArrayList<>();
         VariableTerm heapVar = new VariableTerm("heap", Sort.HEAP);
-        assignments.add(new Pair(heapVar, args.remove(0)));
+        assignments.add(new Pair<>(heapVar, args.remove(0)));
         ttt.bindVariable(heapVar);
 
         if(function.isDeclaredInClass()) {
             Term receiver = args.remove(0);
             VariableTerm recVar = new VariableTerm("this", receiver.getSort());
-            assignments.add(new Pair(recVar, receiver));
+            assignments.add(new Pair<>(recVar, receiver));
             ttt.bindVariable(recVar);
         }
 
@@ -149,7 +178,7 @@ public class FunctionDefinitionExpansionRule extends AbstractProofRule {
             DafnyTree formalParam = formalParams.get(i);
             String name = formalParam.getFirstChildWithType(DafnyParser.ID).getText();
             VariableTerm var = new VariableTerm(name, arg.getSort());
-            assignments.add(new Pair(var, arg));
+            assignments.add(new Pair<>(var, arg));
             ttt.bindVariable(var);
         }
 
