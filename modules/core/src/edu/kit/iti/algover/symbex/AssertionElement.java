@@ -158,6 +158,11 @@ public class AssertionElement {
         RT_IN_BOUNDS("Bounds"),
 
         /**
+         * Runtime Assertion: Division is not by zero
+         */
+        RT_DIV0("DivNot0"),
+
+        /**
          * Variant / measured by reduced.
          */
         VARIANT_DECREASED("Dec"),

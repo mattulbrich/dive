@@ -186,7 +186,7 @@ public class TestRuleApplicator {
         assertEquals("[b1, b2] ==> [b2]", proofNodes.get(0).getSequent().toString());
         assertEquals("[$and(b2, b3), b2] ==> [b2]", proofNodes.get(1).getSequent().toString());
 
-        seq = tp.parseSequent("i1 + 0 + 1 + 0 |- b2");
+        seq = tp.parseSequent("i1 + 0 + 1 + 0 == 0|- b2");
 
         try {
             letSub = DafnyRuleUtil.generateDafnyRuleFromFile("./modules/core/test-res/edu/kit/iti/algover/dafnyrules/addzero.dfy");
@@ -195,12 +195,12 @@ public class TestRuleApplicator {
             e.printStackTrace();
         }
         pn = ProofMockUtil.mockProofNode(null, seq.getAntecedent(), seq.getSuccedent());
-        pra = letSub.considerApplication(pn, seq, new TermSelector("A.0"));
-        proofNodes = RuleApplicator.applyRuleExhaustive(letSub, pn, new TermSelector("A.0"));
+        pra = letSub.considerApplication(pn, seq, new TermSelector("A.0.0"));
+        proofNodes = RuleApplicator.applyRuleExhaustive(letSub, pn, new TermSelector("A.0.0"));
         assertEquals(1, proofNodes.size());
-        assertEquals("[$plus($plus(i1, 0), 1)] ==> [b2]", proofNodes.get(0).getSequent().toString());
+        assertEquals("[$eq<int>($plus($plus(i1, 0), 1), 0)] ==> [b2]", proofNodes.get(0).getSequent().toString());
 
-        seq = tp.parseSequent("i1 + 0 + 1 + 0 |- b2");
+        seq = tp.parseSequent("i1 + 0 + 1 + 0 == 0 |- b2");
 
         try {
             letSub = DafnyRuleUtil.generateDafnyRuleFromFile("./modules/core/test-res/edu/kit/iti/algover/dafnyrules/addzero2.dfy");
@@ -209,12 +209,12 @@ public class TestRuleApplicator {
             e.printStackTrace();
         }
         pn = ProofMockUtil.mockProofNode(null, seq.getAntecedent(), seq.getSuccedent());
-        pra = letSub.considerApplication(pn, seq, new TermSelector("A.0"));
-        proofNodes = RuleApplicator.applyRuleExhaustive(letSub, pn, new TermSelector("A.0"));
+        pra = letSub.considerApplication(pn, seq, new TermSelector("A.0.0"));
+        proofNodes = RuleApplicator.applyRuleExhaustive(letSub, pn, new TermSelector("A.0.0"));
         assertEquals(4, proofNodes.size());
         assertEquals("[] ==> [$eq<int>(0, 0)]", proofNodes.get(0).getSequent().toString());
         assertEquals("[] ==> [$eq<int>(1, 0)]", proofNodes.get(1).getSequent().toString());
-        assertEquals("[i1] ==> [b2]", proofNodes.get(2).getSequent().toString());
+        assertEquals("[$eq<int>(i1, 0)] ==> [b2]", proofNodes.get(2).getSequent().toString());
         assertEquals("[] ==> [$eq<int>(0, 0)]", proofNodes.get(3).getSequent().toString());
 
     }
@@ -227,7 +227,7 @@ public class TestRuleApplicator {
         ProofRule letSub = null;
         ProofNode pn;
 
-        seq = tp.parseSequent("i1 + 0 + 1 + 0, i3 + 0 |- b2");
+        seq = tp.parseSequent("i1 + 0 + 1 + 0 == 0, i3 + 0 == 0 |- b2");
 
         try {
             letSub = DafnyRuleUtil.generateDafnyRuleFromFile("./modules/core/test-res/edu/kit/iti/algover/dafnyrules/addzero.dfy");
@@ -236,12 +236,12 @@ public class TestRuleApplicator {
             e.printStackTrace();
         }
         pn = ProofMockUtil.mockProofNode(null, seq.getAntecedent(), seq.getSuccedent());
-        List<ProofNode> proofNodes = RuleApplicator.applyRuleDeepExhaustive(letSub, pn, new TermSelector("A.0"));
+        List<ProofNode> proofNodes = RuleApplicator.applyRuleDeepExhaustive(letSub, pn, new TermSelector("A.0.0"));
         proofNodes.forEach(node -> {
             System.out.println("node = " + node);
         });
         assertEquals(1, proofNodes.size());
-        assertEquals("[$plus(i1, 1), $plus(i3, 0)] ==> [b2]", proofNodes.get(0).getSequent().toString());
+        assertEquals("[$eq<int>($plus(i1, 1), 0), $eq<int>($plus(i3, 0), 0)] ==> [b2]", proofNodes.get(0).getSequent().toString());
     }
 
     @Test
@@ -272,7 +272,7 @@ public class TestRuleApplicator {
         assertEquals(1, proofNodes.size());
         assertEquals("[$or(true, false)] ==> [b2]", proofNodes.get(0).getSequent().toString());
 
-        seq = tp.parseSequent("i1 + 0 + 1 + 0 |- b2");
+        seq = tp.parseSequent("i1 + 0 + 1 + 0 == 0 |- b2");
 
         try {
             letSub = DafnyRuleUtil.generateDafnyRuleFromFile("./modules/core/test-res/edu/kit/iti/algover/dafnyrules/addzero.dfy");
@@ -282,14 +282,14 @@ public class TestRuleApplicator {
         }
         pn = ProofMockUtil.mockProofNode(null, seq.getAntecedent(), seq.getSuccedent());
         parameters = new Parameters();
-        parameters.putValue("on", new TermSelector("A.0").selectSubterm(seq));
+        parameters.putValue("on", new TermSelector("A.0.0").selectSubterm(seq));
         parameters.putValue("type", "exhaustive");
         pra = letSub.makeApplication(pn, parameters);
         proofNodes = RuleApplicator.applyRule(pra, pn);
         assertEquals(1, proofNodes.size());
-        assertEquals("[$plus($plus(i1, 0), 1)] ==> [b2]", proofNodes.get(0).getSequent().toString());
+        assertEquals("[$eq<int>($plus($plus(i1, 0), 1), 0)] ==> [b2]", proofNodes.get(0).getSequent().toString());
 
-        seq = tp.parseSequent("i1 + 0 + 1 + 0 |- b2");
+        seq = tp.parseSequent("i1 + 0 + 1 + 0 == 0 |- b2");
 
         try {
             letSub = DafnyRuleUtil.generateDafnyRuleFromFile("./modules/core/test-res/edu/kit/iti/algover/dafnyrules/addzero.dfy");
@@ -299,12 +299,12 @@ public class TestRuleApplicator {
         }
         pn = ProofMockUtil.mockProofNode(null, seq.getAntecedent(), seq.getSuccedent());
         parameters = new Parameters();
-        parameters.putValue("on", new TermSelector("A.0").selectSubterm(seq));
+        parameters.putValue("on", new TermSelector("A.0.0").selectSubterm(seq));
         parameters.putValue("type", "deep");
         pra = letSub.makeApplication(pn, parameters);
         proofNodes = RuleApplicator.applyRule(pra, pn);
         assertEquals(1, proofNodes.size());
-        assertEquals("[$plus(i1, 1)] ==> [b2]", proofNodes.get(0).getSequent().toString());
+        assertEquals("[$eq<int>($plus(i1, 1), 0)] ==> [b2]", proofNodes.get(0).getSequent().toString());
 
     }
 }

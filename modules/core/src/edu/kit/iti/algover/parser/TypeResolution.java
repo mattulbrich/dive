@@ -8,6 +8,7 @@ package edu.kit.iti.algover.parser;
 import java.util.List;
 
 import edu.kit.iti.algover.term.Sort;
+import edu.kit.iti.algover.term.builder.TermBuildException;
 import edu.kit.iti.algover.util.ASTUtil;
 import edu.kit.iti.algover.util.Util;
 import org.antlr.runtime.tree.Tree;
@@ -555,18 +556,20 @@ public class TypeResolution extends DafnyTreeDefaultVisitor<DafnyTree, Void> {
 
         DafnyTree child = t.getChild(0);
         DafnyTree result = child.accept(this, null);
-        String resultString = TreeUtil.toTypeString(result);
+        Sort sort = TreeUtil.toSort(result);
         for (int i = 1; i < t.getChildCount(); i++) {
             child = t.getChild(i);
             DafnyTree ty = child.accept(this, null);
-            String str = TreeUtil.toTypeString(ty);
-            if(!resultString.equals(str)) {
-                exceptions.add(new DafnyException(
-                        "Set extensions must contain equally typed elements, not " +
-                        resultString + " and " + str, t));
+            Sort inner = TreeUtil.toSort(ty);
+
+            try {
+                sort = Sort.supremum(sort, inner);
+            } catch (TermBuildException ex) {
+                exceptions.add(new DafnyException(t, ex));
             }
         }
 
+        result = ASTUtil.fromSort(sort);
         result = ASTUtil.create(DafnyParser.SET, "set", result);
 
         t.setExpressionType(result);
@@ -660,6 +663,20 @@ public class TypeResolution extends DafnyTreeDefaultVisitor<DafnyTree, Void> {
     @Override
     public DafnyTree visitENSURES(DafnyTree t, Void a) {
         return operation(t, null, "bool");
+    }
+
+    @Override
+    public DafnyTree visitMODIFIES(DafnyTree t, Void a) {
+        DafnyTree result = visitDepth(t);
+        for (DafnyTree child : t.getChildren()) {
+            DafnyTree ty = child.getExpressionType();
+            Sort sort = ASTUtil.toSort(ty);
+            if(!sort.isSubtypeOf(Sort.OBJECT) &&
+                    !sort.isSubtypeOf(Sort.get("set", Sort.OBJECT))) {
+                exceptions.add(new DafnyException("Unsupported expression in modifies clause", t));
+            }
+        }
+        return result;
     }
 
     @Override

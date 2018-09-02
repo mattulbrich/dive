@@ -7,6 +7,7 @@ package edu.kit.iti.algover;
 
 import edu.kit.iti.algover.parser.ChainedRelationsVisitorTest;
 import edu.kit.iti.algover.parser.ImplicitlyTypedVariableVisitorTest;
+import edu.kit.iti.algover.parser.ModifiesListResolverTest;
 import edu.kit.iti.algover.parser.ParserErrorTest;
 import edu.kit.iti.algover.parser.QuantifierGuardRemovalVisitorTest;
 import edu.kit.iti.algover.project.ProjectManagerTest;
@@ -16,6 +17,9 @@ import edu.kit.iti.algover.references.TermReferencesBuilderTest;
 import edu.kit.iti.algover.rules.impl.DafnyRuleTest;
 import edu.kit.iti.algover.rules.impl.GenericRuleTest;
 import edu.kit.iti.algover.rules.impl.LetSubstitutionRuleTest;
+import edu.kit.iti.algover.symbex.FunctionObligationMakerTest;
+import edu.kit.iti.algover.symbex.SymbexExpressionValidator;
+import edu.kit.iti.algover.symbex.SymbexExpressionValidatorTest;
 import edu.kit.iti.algover.term.builder.ParallelUpdateSequenterTest;
 import edu.kit.iti.algover.term.builder.SSASequenterTest;
 import edu.kit.iti.algover.term.builder.SimplifiedUpdateSequenterTest;
@@ -53,6 +57,8 @@ import edu.kit.iti.algover.util.UtilTest;
     ParserTest.class,
     ParserErrorTest.class,
     SymbexTest.class,
+    SymbexExpressionValidatorTest.class,
+    FunctionObligationMakerTest.class,
     ProgramDatabaseTest.class,
     TreeTermTranslatorTest.class,
     TreeAssignmentTranslatorTest.class,
@@ -89,6 +95,7 @@ import edu.kit.iti.algover.util.UtilTest;
     ChainedRelationsVisitorTest.class,
     ImplicitlyTypedVariableVisitorTest.class,
     QuantifierGuardRemovalVisitorTest.class,
+    ModifiesListResolverTest.class,
         RuleUtilTest.class
     })
 public class Tests {

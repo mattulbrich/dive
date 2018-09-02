@@ -21,27 +21,24 @@ import static edu.kit.iti.algover.parser.ChainedRelationsVisitor.Direction.*;
  * @see SyntacticSugarVistor
  * @author mulbrich
  */
-public class ChainedRelationsVisitor {
+public class ChainedRelationsVisitor
+        extends DafnyTreeDefaultVisitor<Object, Void> {
 
     enum Direction { ASC, DESC, EQ, leftRelType, NO_COMP };
 
-    public void walk(DafnyTree t) throws DafnyException {
-
+    @Override
+    public Object visitDefault(DafnyTree t, Void arg) {
         Direction relDir = getRelDirection(t);
         if(relDir != NO_COMP) {
             DafnyTree left = t.getChild(0);
             Direction leftRelDir = getRelDirection(left);
             if(isCompatible(relDir, leftRelDir)) {
-                walk(act(t));
-                return;
+                return act(t);
             } else if(leftRelDir != NO_COMP) {
-                throw new DafnyException("Illegally chained relational expressions", t);
+                return new DafnyException("Illegally chained relational expressions", t);
             }
         }
-
-        for (DafnyTree child : t.getChildren()) {
-            walk(child);
-        }
+        return null;
     }
 
     private static boolean isCompatible(Direction d1, Direction d2) {
@@ -82,7 +79,10 @@ public class ChainedRelationsVisitor {
         case DafnyParser.GT:
             return DESC;
         case DafnyParser.EQ:
-            return EQ;
+            Direction recursive = getRelDirection(t.getChild(0));
+            if(recursive == NO_COMP)
+                return EQ;
+            return recursive;
         default:
             return NO_COMP;
         }

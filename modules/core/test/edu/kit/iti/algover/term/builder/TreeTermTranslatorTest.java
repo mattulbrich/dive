@@ -7,6 +7,7 @@ package edu.kit.iti.algover.term.builder;
 
 import edu.kit.iti.algover.data.BuiltinSymbols;
 import edu.kit.iti.algover.data.MapSymbolTable;
+import edu.kit.iti.algover.parser.DafnyException;
 import edu.kit.iti.algover.parser.DafnyFileParser;
 import edu.kit.iti.algover.parser.DafnyLexer;
 import edu.kit.iti.algover.parser.DafnyParser;
@@ -153,6 +154,8 @@ public class TreeTermTranslatorTest {
             // Heap accesses
             { "c.f", "$select<C,int>($heap, c, C$$f)" },
             { "c.f@loopHeap", "$select<C,int>(loopHeap, c, C$$f)" },
+            { "c.fct(1)", "C$$fct($heap, c, 1)"},
+            { "c.fct(1)@loopHeap", "C$$fct(loopHeap, c, 1)"},
 
             // Heap updates
             { "$heap[c.f := 1]", "$store<C,int>($heap, c, C$$f, 1)" },
@@ -226,7 +229,7 @@ public class TreeTermTranslatorTest {
     }
 
     @Before
-    public void setupTable() {
+    public void setupTable() throws DafnyParserException, RecognitionException, IOException, DafnyException {
         Collection<FunctionSymbol> map = new ArrayList<>();
         map.add(new FunctionSymbol("i1", Sort.INT));
         map.add(new FunctionSymbol("i2", Sort.INT));
@@ -241,12 +244,13 @@ public class TreeTermTranslatorTest {
         map.add(new FunctionSymbol("d", Sort.getClassSort("D")));
         map.add(new FunctionSymbol("c2", Sort.getClassSort("C")));
         map.add(new FunctionSymbol("args", Sort.INT, Sort.INT, Sort.BOOL, Sort.BOOL));
-        map.add(new FunctionSymbol("C$$f", Sort.get("field", Sort.getClassSort("C"), Sort.INT)));
         map.add(new FunctionSymbol("loopHeap", Sort.HEAP));
         map.add(new FunctionSymbol("mod", Sort.get("set", Sort.OBJECT)));
         map.add(new FunctionSymbol("iseq", Sort.get("seq", Sort.INT)));
         map.add(new FunctionSymbol("cseq", Sort.get("seq", Sort.getClassSort("C"))));
         map.add(new FunctionSymbol("dseq", Sort.get("seq", Sort.getClassSort("D"))));
+        Project p = TestUtil.mockProject("class C { var f: int; function fct(i:int): int {0} }");
+        map.addAll(p.getAllDeclaredSymbols());
         symbTable = new MapSymbolTable(new BuiltinSymbols(), map);
     }
 

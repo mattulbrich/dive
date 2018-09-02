@@ -40,8 +40,7 @@ public class ProofFormula {
     public ProofFormula(Term formula, Iterable<String> labels) {
         this.formula = formula;
         this.labels = ImmutableList.from(labels);
-        // TODO. Activate this assertion once test cases are fixed.
-        // assert formula.getSort().isSubtypeOf(Sort.BOOL);
+        assert formula.getSort().isSubtypeOf(Sort.BOOL);
     }
 
     public ProofFormula(Term formula, String... labels) {

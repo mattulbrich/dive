@@ -9,6 +9,7 @@ import edu.kit.iti.algover.browser.entities.PVCEntity;
 import edu.kit.iti.algover.browser.entities.PVCGetterVisitor;
 import edu.kit.iti.algover.browser.entities.TreeTableEntity;
 import edu.kit.iti.algover.dafnystructures.DafnyFile;
+import edu.kit.iti.algover.dafnystructures.DafnyFunction;
 import edu.kit.iti.algover.dafnystructures.DafnyMethod;
 import edu.kit.iti.algover.data.BuiltinSymbols;
 import edu.kit.iti.algover.data.SymbolTable;
@@ -250,6 +251,17 @@ public class MainController implements SequentActionListener, RuleApplicationLis
                     methodChild.getChildren().add(lastitem);
                 }
             }
+            for (DafnyFunction fi : f.getFunctions()) {
+                TreeItem<Object> functionChild = new TreeItem(fi.getName());
+                functionChild.setValue(fi);
+                fileChild.getChildren().add(functionChild);
+                PVCCollection collection = manager.getProject().getPVCsFor(fi);
+                for (PVC pvc : collection.getContents()) {
+                    lastitem = new TreeItem(pvc.getIdentifier());
+                    lastitem.setValue(pvc);
+                    functionChild.getChildren().add(lastitem);
+                }
+            }
         }
         return root;
     }
@@ -369,6 +381,9 @@ public class MainController implements SequentActionListener, RuleApplicationLis
         }
         if (value instanceof PVC) {
             return ((PVC) value).getIdentifier();
+        }
+        if (value instanceof DafnyFunction) {
+            return ((DafnyFunction) value).getName();
         }
         return "error";
     }

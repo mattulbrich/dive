@@ -7,6 +7,7 @@
 
 package edu.kit.iti.algover.parser;
 
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -25,7 +26,7 @@ public class ChainedRelationsVisitorTest {
         String s = "method m() ensures 1 < 2 < 3 {}";
         DafnyTree t = ParserTest.parseFile(new ByteArrayInputStream(s.getBytes()));
 
-        new ChainedRelationsVisitor().walk(t);
+        SyntacticSugarVistor.visitDeep(t, new ChainedRelationsVisitor());
 
         assertEquals("(COMPILATION_UNIT " +
                 "(method m ARGS (ensures " +
@@ -37,7 +38,7 @@ public class ChainedRelationsVisitorTest {
         String s = "method m() ensures 3 >= 3 > 2 {}";
         DafnyTree t = ParserTest.parseFile(new ByteArrayInputStream(s.getBytes()));
 
-        new ChainedRelationsVisitor().walk(t);
+        SyntacticSugarVistor.visitDeep(t, new ChainedRelationsVisitor());
 
         assertEquals("(COMPILATION_UNIT " +
                 "(method m ARGS (ensures " +
@@ -51,7 +52,7 @@ public class ChainedRelationsVisitorTest {
 
         thrown.expect(DafnyException.class);
         thrown.expectMessage("Illegally chained relational expression");
-        new ChainedRelationsVisitor().walk(t);
+        SyntacticSugarVistor.visitDeep(t, new ChainedRelationsVisitor());
     }
 
     @Test
@@ -59,11 +60,22 @@ public class ChainedRelationsVisitorTest {
         String s = "method m() ensures 6 >= 3 == 3 {}";
         DafnyTree t = ParserTest.parseFile(new ByteArrayInputStream(s.getBytes()));
 
-        new ChainedRelationsVisitor().walk(t);
+        SyntacticSugarVistor.visitDeep(t, new ChainedRelationsVisitor());
 
         assertEquals("(COMPILATION_UNIT " +
                 "(method m ARGS (ensures " +
                 "(&& (>= 6 3) (== 3 3))) BLOCK))", t.toStringTree());
+    }
+
+    @Test
+    public void testOneDirection() throws IOException, DafnyParserException, DafnyException {
+        String s = "method m() ensures 6 >= 3 == 3 <= 5 {}";
+        DafnyTree t = ParserTest.parseFile(new ByteArrayInputStream(s.getBytes()));
+
+        thrown.expect(DafnyException.class);
+        thrown.expectMessage("Illegally chained relational expression");
+        SyntacticSugarVistor.visitDeep(t, new ChainedRelationsVisitor());
+        System.out.println(t.toStringTree());
     }
 
 
@@ -72,7 +84,7 @@ public class ChainedRelationsVisitorTest {
         String s = "method m() ensures 6 == 3 == 3 {}";
         DafnyTree t = ParserTest.parseFile(new ByteArrayInputStream(s.getBytes()));
 
-        new ChainedRelationsVisitor().walk(t);
+        SyntacticSugarVistor.visitDeep(t, new ChainedRelationsVisitor());
 
         assertEquals("(COMPILATION_UNIT " +
                 "(method m ARGS (ensures " +

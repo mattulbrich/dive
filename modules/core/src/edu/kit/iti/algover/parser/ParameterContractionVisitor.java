@@ -17,14 +17,6 @@ package edu.kit.iti.algover.parser;
  */
 class ParameterContractionVisitor extends DafnyTreeDefaultVisitor<Void, Void> {
 
-    @Override
-    public Void visitDefault(DafnyTree t, Void arg) {
-        for (DafnyTree child : t.getChildren()) {
-            child.accept(this, arg);
-        }
-        return null;
-    }
-
     /**
      * {@inheritDoc}
      *

@@ -194,6 +194,10 @@ public class BuiltinSymbols extends MapSymbolTable {
             new FunctionSymbolFamily(
                     new FunctionSymbol("$set_in", Sort.BOOL, FunctionSymbolFamily.VAR1, SET1), 1);
 
+    public static final FunctionSymbolFamily SUBSET =
+            new FunctionSymbolFamily(
+                    new FunctionSymbol("$subset", Sort.BOOL, SET1, SET1), 1);
+
 
     private static final Sort SEQ1 = Sort.get("seq", FunctionSymbolFamily.VAR1);
 

@@ -11,6 +11,7 @@ method runtimeChecks()
    x := a[y] + a2.Length;
    b := y > 0 || a[y] > 0;
    b := multiDim[x,y] > 0;
+   y := x/y;
  }
  
  method runtimeInIf()

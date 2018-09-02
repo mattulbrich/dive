@@ -6,10 +6,12 @@
  */
 package edu.kit.iti.algover.term.prettyprint;
 
+import edu.kit.iti.algover.dafnystructures.DafnyFunctionSymbol;
 import edu.kit.iti.algover.data.BuiltinSymbols;
 import edu.kit.iti.algover.data.SymbolTable;
 import edu.kit.iti.algover.parser.DafnyException;
 import edu.kit.iti.algover.parser.DafnyParserException;
+import edu.kit.iti.algover.project.Project;
 import edu.kit.iti.algover.proof.ProofFormula;
 import edu.kit.iti.algover.term.ApplTerm;
 import edu.kit.iti.algover.term.FunctionSymbol;
@@ -18,13 +20,16 @@ import edu.kit.iti.algover.term.Sort;
 import edu.kit.iti.algover.term.Term;
 import edu.kit.iti.algover.term.builder.TermBuildException;
 import edu.kit.iti.algover.term.parser.TermParser;
+import edu.kit.iti.algover.util.TestUtil;
 import junitparams.JUnitParamsRunner;
 import junitparams.Parameters;
+import org.antlr.runtime.RecognitionException;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collections;
 
@@ -132,6 +137,16 @@ public class PrettyPrintTest {
         };
     }
 
+    public String[][] parametersForTestDafnyFunctions() {
+        return new String[][] {
+            { "o.cfct(0, o) == 0" },
+            { "fct(0, o) && true" },
+            { "o.cfct(0, o)@h2" },
+            { "fct(0, o)@h2" },
+            { "o.cfct(0, o)@$heap[o.f := 42]" },
+        };
+    }
+
     @Before
     public void setupTable() {
         st = new BuiltinSymbols();
@@ -208,6 +223,23 @@ public class PrettyPrintTest {
     public void testSchemaExpressions(String input) throws Exception {
         TermParser tp = new TermParser(st);
         tp.setSchemaMode(true);
+        Term parsed = tp.parse(input);
+        AnnotatedString printed = new PrettyPrint().print(parsed);
+
+        assertEquals(input, printed.toString());
+    }
+
+    @Test
+    @Parameters
+    public void testDafnyFunctions(String input) throws Exception {
+        Project p = TestUtil.mockProject(
+                "class C { function cfct(a: int, c:C) : int {1}}\n" +
+                   "function fct(a: int, c: C) : bool {true}");
+        st.addFunctionSymbol(new DafnyFunctionSymbol(p.getFunction("fct")));
+        st.addFunctionSymbol(new DafnyFunctionSymbol(
+                p.getClass("C").getFunction("cfct")));
+
+        TermParser tp = new TermParser(st);
         Term parsed = tp.parse(input);
         AnnotatedString printed = new PrettyPrint().print(parsed);
 

@@ -12,6 +12,7 @@ import java.util.List;
 import edu.kit.iti.algover.dafnystructures.DafnyClass;
 import edu.kit.iti.algover.dafnystructures.DafnyField;
 import edu.kit.iti.algover.dafnystructures.DafnyFunction;
+import edu.kit.iti.algover.dafnystructures.DafnyFunctionSymbol;
 import edu.kit.iti.algover.dafnystructures.DafnyMethod;
 import edu.kit.iti.algover.parser.DafnyParser;
 import edu.kit.iti.algover.parser.DafnyTree;
@@ -63,30 +64,7 @@ public class DeclarationSymbolCollector {
     }
 
     private void collectFunction(DafnyClass clss, DafnyFunction f) {
-        Sort result = TreeUtil.toSort(f.getReturnType());
-        Sort[] args;
-        List<DafnyTree> parameters = f.getParameters();
-        String name;
-        if(clss == null) {
-            name = "$$" + f.getName();
-            args = new Sort[parameters.size() + 1];
-            args[0] = Sort.HEAP;
-            for (int i = 1; i < args.length; i++) {
-                args[i] = TreeUtil.toSort(parameters.get(i-1).
-                        getFirstChildWithType(DafnyParser.TYPE).getChild(0));
-            }
-        } else {
-            name = clss.getName() + "$$" + f.getName();
-            args = new Sort[parameters.size() + 2];
-            args[0] = Sort.HEAP;
-            args[1] = Sort.getClassSort(clss.getName());
-            for (int i = 2; i < args.length; i++) {
-                args[i] = TreeUtil.toSort(parameters.get(i-2).
-                        getFirstChildWithType(DafnyParser.TYPE).getChild(0));
-            }
-        }
-
-        collected.add(new FunctionSymbol(name, result, args));
+        collected.add(new DafnyFunctionSymbol(f));
     }
 
     private void collectMethod(DafnyClass clss, DafnyMethod m) {

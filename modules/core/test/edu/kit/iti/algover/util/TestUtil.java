@@ -94,35 +94,13 @@ public class TestUtil {
     }
 
     public static Project mockProject(ProjectBuilder pb) throws DafnyException, DafnyParserException, IOException {
-        Project p = pb.build();
-
-        List<DafnyException> exceptions = new ArrayList<>();
-
-        ReferenceResolutionVisitor refResolver = new ReferenceResolutionVisitor(p, exceptions);
-        refResolver.visitProject();
-
-        if (!exceptions.isEmpty()) {
-            for (DafnyException dafnyException : exceptions) {
-                dafnyException.printStackTrace();
-            }
-            throw exceptions.get(0);
+        try {
+            Project p = pb.build();
+            return p;
+        } catch(DafnyException dex) {
+            ExceptionDetails.printNiceErrorMessage(dex);
+            throw dex;
         }
-
-        TypeResolution typeRes = new TypeResolution(exceptions);
-        typeRes.visitProject(p);
-
-
-        if(!exceptions.isEmpty()) {
-            for (DafnyException dafnyException : exceptions) {
-                dafnyException.printStackTrace();
-            }
-            throw exceptions.get(0);
-        }
-
-        TarjansAlgorithm ta = new TarjansAlgorithm(p);
-        ta.computeSCCs();
-
-        return p;
     }
 
     public static InputStream toStream(String string) {

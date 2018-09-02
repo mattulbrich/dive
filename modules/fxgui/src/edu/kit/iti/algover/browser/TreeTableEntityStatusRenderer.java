@@ -87,6 +87,11 @@ public class TreeTableEntityStatusRenderer implements TreeTableEntityVisitor<Voi
     }
 
     @Override
+    public Void visitFunction(FunctionEntity functionEntity) {
+        return groupingEntity(functionEntity);
+    }
+
+    @Override
     public Void visitPVC(PVCEntity entity) {
         Text statusIcon = GlyphsDude.createIcon(entity.getProofStatus().getIcon());
         statusIcon.setFill(entity.getProofStatus().getFill());

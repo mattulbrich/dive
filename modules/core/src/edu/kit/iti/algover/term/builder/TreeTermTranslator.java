@@ -30,6 +30,7 @@ import edu.kit.iti.algover.util.FunctionWithException;
 import edu.kit.iti.algover.util.HistoryMap;
 import edu.kit.iti.algover.util.ImmutableList;
 import edu.kit.iti.algover.util.Pair;
+import edu.kit.iti.algover.util.TreeUtil;
 import nonnull.NonNull;
 import org.antlr.runtime.CommonToken;
 
@@ -266,7 +267,20 @@ public class TreeTermTranslator {
             break;
 
         case DafnyParser.LE:
-            result = buildBinary(BuiltinSymbols.LE, tree);
+            result = buildBinary(
+                    symmetricBinarySymbol(sort -> {
+                        switch(sort.getName()) {
+                        case "int":
+                            return BuiltinSymbols.LE;
+                        case "set":
+                            return BuiltinSymbols.SUBSET.instantiate(sort.getArgument(0));
+                        case "multiset":
+                            // TODO
+                            throw new Error("IMPLEMENT ME!");
+                        default:
+                            throw new TermBuildException("'+' is not supported for these arguments");
+                        }
+                    }), tree);
             break;
 
         case DafnyParser.LT:
@@ -510,8 +524,9 @@ public class TreeTermTranslator {
     // TODO This is not really done yet.
     private Term buildCall(DafnyTree tree) throws TermBuildException {
 
-        assert tree.getChildCount() == 2
-                : "Calls with receivers not yet supported!";
+        if(tree.getChildCount() == 3) {
+            return buildCallWithReceiver(tree);
+        }
 
         String id = tree.getChild(0).getText();
         FunctionSymbol fct = symbolTable.getFunctionSymbol(id);
@@ -528,6 +543,36 @@ public class TreeTermTranslator {
         }
 
         DafnyTree args = tree.getFirstChildWithType(DafnyParser.ARGS);
+        expandMultiBlanks(args, fct.getArity());
+        for (DafnyTree arg : args.getChildren()) {
+            argTerms.add(build(arg));
+        }
+
+        return new ApplTerm(fct, argTerms);
+    }
+
+    private Term buildCallWithReceiver(DafnyTree tree) throws TermBuildException {
+        String id = tree.getChild(0).getText();
+        DafnyTree receiver = tree.getChild(1);
+        Term receiverTerm = build(receiver);
+        Sort receiverType = receiverTerm.getSort();
+
+        if(!receiverType.isClassSort()) {
+            throw new TermBuildException("Function application to a non-class sort: " + receiverType);
+        }
+
+        String symbolName = receiverType + "$$" + id;
+        FunctionSymbol fct = symbolTable.getFunctionSymbol(symbolName);
+        if (fct == null) {
+            throw new TermBuildException("No function symbol " + id +
+                    " defined in class " + receiverType +
+                    ". Remember that method calls not allowed in expressions.");
+        }
+
+        List<Term> argTerms = new ArrayList<>();
+        DafnyTree args = tree.getFirstChildWithType(DafnyParser.ARGS);
+        argTerms.add(getHeap());
+        argTerms.add(receiverTerm);
         expandMultiBlanks(args, fct.getArity());
         for (DafnyTree arg : args.getChildren()) {
             argTerms.add(build(arg));
@@ -717,11 +762,21 @@ public class TreeTermTranslator {
     private Term buildExtension(FunctionSymbolFamily emptyFamily,
                                 FunctionSymbolFamily addFamily,
                                 DafnyTree tree) throws TermBuildException {
+        Sort sort;
 
-        assert tree.getChildCount() > 0 :
-                "Currently empty list and set are not supported via extensions";
+        // May have been resolved during type resolution.
+        DafnyTree expType = tree.getExpressionType();
+        if (expType == null) {
+            if(tree.getChildCount() == 0) {
+                throw new TermBuildException("Currently empty list and set " +
+                        "are not supported via extensions");
+            }
+            sort = null;
+        } else {
+            sort = ASTUtil.toSort(expType).getArgument(0);
+        }
 
-        Sort sort = null;
+
         List<Term> arguments = new ArrayList<>();
 
         for (DafnyTree child : tree.getChildren()) {
@@ -731,15 +786,7 @@ public class TreeTermTranslator {
             if (sort == null) {
                 sort = termSort;
             } else {
-                if (!termSort.equals(sort)) {
-                    if (termSort.isClassSort() && sort.isClassSort()) {
-                        sort = Sort.OBJECT;
-                    } else {
-                        throw new TermBuildException(
-                                "List extension with incomparable types: " +
-                                        sort + " and " + termSort);
-                    }
-                }
+                sort = Sort.supremum(sort, termSort);
             }
         }
 
@@ -904,21 +951,21 @@ public class TreeTermTranslator {
                 "limited support so far, we inline the comparison";
 
         Term result = tb.ff();
-        Term[] vars = new Term[rhs.getChildCount()];
-        Term[] terms = new Term[rhs.getChildCount()];
+        Term[] lower = new Term[rhs.getChildCount()];
+        Term[] upper = new Term[rhs.getChildCount()];
 
         for (int i = 0; i < rhs.getChildCount(); i++) {
-            vars[i] = build(lhs.getChild(i));
-            terms[i] = build(rhs.getChild(i));
+            lower[i] = build(lhs.getChild(i));
+            upper[i] = build(rhs.getChild(i));
 
             Term cond = tb.tt();
             for (int j = 0; j < i; j++) {
-                ApplTerm eq = tb.eq(terms[j], vars[j]);
+                ApplTerm eq = tb.eq(lower[j], upper[j]);
                 cond = tb.and(cond, eq);
             }
 
-            cond = tb.and(cond, tb.lessEqual(tb.zero, terms[i]));
-            cond = tb.and(cond, tb.less(terms[i], vars[i]));
+            cond = tb.and(cond, tb.lessEqual(tb.zero, lower[i]));
+            cond = tb.and(cond, tb.less(lower[i], upper[i]));
             result = tb.or(result, cond);
         }
 
