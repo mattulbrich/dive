@@ -24,6 +24,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -267,6 +268,21 @@ public class ProjectBuilder {
         //TODO parse rules for project
 
         return project;
+    }
+
+    public Project buildEmpty() {
+        this.files = Collections.emptyList();
+        this.methods = Collections.emptyList();
+        this.functions = Collections.emptyList();
+        this.classes = Collections.emptyList();
+
+        try {
+            return new Project(this);
+        } catch (DafnyException e) {
+            // This is unreachable to the structure of the empty project.
+            throw new Error("Unreachable!", e);
+        }
+
     }
 
 

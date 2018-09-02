@@ -45,7 +45,7 @@ public abstract class AbstractProjectManager implements ProjectManager {
      *
      * Invariant: There exists a proof for every identifier within the project.
      */
-    protected Map<String, Proof> proofs;
+    protected Map<String, Proof> proofs = Collections.emptyMap();
 
 
     @Override

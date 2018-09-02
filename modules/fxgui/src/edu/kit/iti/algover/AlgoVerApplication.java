@@ -50,7 +50,7 @@ public class AlgoVerApplication extends Application {
         }
 
         // TODO Maybe don't do this initially (might hurt UX, when there are a lot of proofs)
-        manager.getAllProofs().values().forEach(proof -> proof.interpretScript());
+        // manager.getAllProofs().values().forEach(proof -> proof.interpretScript());
 
         MainController controller = new MainController(manager, SYNTAX_HIGHLIGHTING_EXECUTOR);
 
@@ -59,6 +59,7 @@ public class AlgoVerApplication extends Application {
         primaryStage.setScene(scene);
         primaryStage.setWidth(900);
         primaryStage.setHeight(700);
+        primaryStage.setTitle("AlgoVer - " + projectFile);
         primaryStage.show();
 
     }

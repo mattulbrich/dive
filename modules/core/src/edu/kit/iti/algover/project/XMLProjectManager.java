@@ -57,10 +57,10 @@ public final class XMLProjectManager extends AbstractProjectManager {
      * @throws IOException          if XML is wrongly formatted or files cannot be read
      * @throws FormatException      if the settings in the config file are illegally formatted.
      */
-    public XMLProjectManager(File directory, String configFilename) throws FormatException, DafnyParserException, IOException, DafnyException {
+    public XMLProjectManager(File directory, String configFilename) throws FormatException, IOException {
         this.directory = directory;
         this.configFilename = configFilename;
-        reload();
+        this.setProject(buildEmptyProject(directory, configFilename));
     }
 
     /**
@@ -122,6 +122,23 @@ public final class XMLProjectManager extends AbstractProjectManager {
 //        }
 
         return result;
+    }
+
+    // TODO with new ProjectManager merge with method before
+    private Project buildEmptyProject(File path, String configFilename)
+            throws IOException, FormatException {
+        ProjectBuilder pb = new ProjectBuilder();
+        pb.setDir(path);
+        pb.setConfigFilename(configFilename);
+        try {
+            pb.parseProjectConfigurationFile();
+            pb.validateProjectConfiguration();
+        } catch (JAXBException|SAXException e) {
+            // subsume the XML exceptions under IOException.
+            throw new IOException(e);
+        }
+
+        return pb.buildEmpty();
     }
 
     /**
