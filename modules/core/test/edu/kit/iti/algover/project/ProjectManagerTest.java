@@ -64,6 +64,7 @@ public class ProjectManagerTest {
     @Test
     public void loadExistingProject() throws Exception {
         XMLProjectManager pm = new XMLProjectManager(new File(testDir), config);
+        pm.reload();
         Project project = pm.getProject();
 
         Assert.assertEquals("Number of DafnyFiles", p.getDafnyFiles().size(), project.getDafnyFiles().size());
@@ -157,6 +158,7 @@ public class ProjectManagerTest {
     @Test(expected = ScriptCommandNotApplicableException.class)
     public void testInapplicableScriptCommand() throws ScriptCommandNotApplicableException, Exception {
         ProjectManager pm = new XMLProjectManager (new File(testDir), config);
+        pm.reload();
 
         Proof proof = pm.getProofForPVC(testPVCm1Post);
 
@@ -169,6 +171,7 @@ public class ProjectManagerTest {
     @Test
     public void testEmptyScript() throws Exception {
         ProjectManager pm = new XMLProjectManager(new File(testDir), config);
+        pm.reload();
 
         Proof proof = pm.getProofForPVC(testPVCm1Post);
 
@@ -205,6 +208,7 @@ public class ProjectManagerTest {
     @Test
     public void interpretScriptExhaustiveRules() throws Exception {
         ProjectManager pm = new XMLProjectManager(new File(testDir), "configsum.xml");
+        pm.reload();
         Proof proof = pm.getProofForPVC("sumAndMax/loop/else/Inv");
         proof.interpretScript(); //Hier Zeile die exhaustive sein soll einfuegen
 
