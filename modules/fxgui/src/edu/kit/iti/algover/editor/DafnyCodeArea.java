@@ -163,6 +163,7 @@ public class DafnyCodeArea extends AsyncHighlightingCodeArea {
             case DafnyLexer.MODIFIES:
             case DafnyLexer.LEMMA:
             case DafnyLexer.SETTINGS:
+            case DafnyParser.OLD:
                 return Collections.singleton("specification-keyword");
             case DafnyLexer.MULTILINE_COMMENT:
             case DafnyLexer.SINGLELINE_COMMENT:

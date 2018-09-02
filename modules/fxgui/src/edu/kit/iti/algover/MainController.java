@@ -314,16 +314,15 @@ public class MainController implements SequentActionListener, RuleApplicationLis
 
         //TODO somehow get proper exceptions and handling them
         t.setOnFailed(event -> {
-            if (t.getException() instanceof Exception) {
-                Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).severe("Error reloading the project: " + t.getException().getMessage());
-                editorController.showException((Exception) t.getException());
-            } else {
-                Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).severe("Error reloading the project. Check your changed files for syntax errors.");
-            }
+            Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).log(Level.SEVERE,
+                    "Error reloading the project: " + t.getException().getMessage(),
+                    t.getException());
+            editorController.showException(t.getException());
+            t.getException().printStackTrace();
         });
 
         t.setOnCancelled(event -> {
-            Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).severe("Error reloading the project.");
+            Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).severe("Reloading the project cancelled.");
         });
 
         executor.execute(t);
