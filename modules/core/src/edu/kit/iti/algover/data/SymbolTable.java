@@ -5,9 +5,13 @@
  */
 package edu.kit.iti.algover.data;
 
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.List;
 
 import edu.kit.iti.algover.term.FunctionSymbol;
+import edu.kit.iti.algover.term.FunctionSymbolFamily;
+import edu.kit.iti.algover.term.Sort;
 
 /**
  * The symbol table is used to resolve function names to {@link FunctionSymbol} objects.
@@ -26,6 +30,29 @@ public interface SymbolTable {
      *         the name exists.
      */
     FunctionSymbol getFunctionSymbol(String name);
+
+
+    /**
+     * Gets the function symbol which corresponds to a name.
+     *
+     * @param name
+     *            the no-<code>null</code> name of function symbol
+     * @return the function symbol, <code>null</code> if no such symbols under
+     *         the name exists.
+     */
+    FunctionSymbol getFunctionSymbol(String name, List<Sort> argumentSorts);
+
+    /**
+     * Gets the function symbol which corresponds to a name.
+     *
+     * @param name
+     *            the no-<code>null</code> name of function symbol
+     * @return the function symbol, <code>null</code> if no such symbols under
+     *         the name exists.
+     */
+    default FunctionSymbol getFunctionSymbol(FunctionSymbolFamily family, Sort... argumentSorts) {
+        return getFunctionSymbol(family.getBaseName(), Arrays.asList(argumentSorts));
+    }
 
     /**
      * Adds a function symbol to the table.

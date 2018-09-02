@@ -14,12 +14,10 @@ import edu.kit.iti.algover.parser.DafnyParser;
 import edu.kit.iti.algover.parser.DafnyParser.expression_only_return;
 import edu.kit.iti.algover.parser.DafnyParserException;
 import edu.kit.iti.algover.parser.DafnyTree;
-import edu.kit.iti.algover.parser.SyntacticSugarVistor;
 import edu.kit.iti.algover.project.Project;
 import edu.kit.iti.algover.term.*;
 import edu.kit.iti.algover.term.parser.TermParser;
 import edu.kit.iti.algover.util.ASTUtil;
-import edu.kit.iti.algover.util.ImmutableList;
 import edu.kit.iti.algover.util.Pair;
 import edu.kit.iti.algover.util.TestUtil;
 import junitparams.JUnitParamsRunner;
@@ -38,7 +36,9 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import static org.junit.Assert.*;
 
@@ -128,9 +128,12 @@ public class TreeTermTranslatorTest {
             { "1 + if b1 then 1 else 0", "$plus(1, $ite<int>(b1, 1, 0))" },
             { "if b1 then 1 else 0 + 1", "$ite<int>(b1, 1, $plus(0, 1))" },
             { "true && forall i:int :: i==i", "$and(true, (forall i:int :: $eq<int>(i, i)))" },
+            { "(if true then 1 else 0) + (if true then 1 else 0)",
+              "$plus($ite<int>(true, 1, 0), $ite<int>(true, 1, 0))" },
 
             // Heap accesses
             {"a[0]", "$array_select<int>($heap, a, 0)"},
+            {"a[0]+a[0]", "$plus($array_select<int>($heap, a, 0), $array_select<int>($heap, a, 0))"},
             {"a2[1,2]", "$array2_select<int>($heap, a2, 1, 2)"},
             {"null", "null"},
 
@@ -152,6 +155,7 @@ public class TreeTermTranslatorTest {
             { "b1 ==> b2 ==> b3", "$imp(b1, $imp(b2, b3))" },
 
             // Heap accesses
+            { "c.f", "$select<C,int>($heap, c, C$$f)" },
             { "c.f", "$select<C,int>($heap, c, C$$f)" },
             { "c.f@loopHeap", "$select<C,int>(loopHeap, c, C$$f)" },
             { "c.fct(1)", "C$$fct($heap, c, 1)"},
@@ -265,6 +269,7 @@ public class TreeTermTranslatorTest {
 
         assertEquals(expected, term.toString());
         assertEquals(0, ttt.countBoundVars());
+        assertUniqueFunctionSymbols(t);
     }
 
     @Test @Parameters
@@ -297,6 +302,37 @@ public class TreeTermTranslatorTest {
 
         assertEquals(expected, term.toString());
         assertEquals(0, ttt.countBoundVars());
+
+        assertUniqueFunctionSymbols(t);
+    }
+
+    /**
+     * create terms from tree twice, ensuring that no symbol is created twice!
+     */
+    private void assertUniqueFunctionSymbols(DafnyTree tree) throws Exception {
+        TreeTermTranslator ttt = new TreeTermTranslator(symbTable);
+        Term term = ttt.build(tree);
+        Term term2 = ttt.build(tree);
+        Map<String, FunctionSymbol> found = new HashMap<>();
+        assertUniqueFunctionSymbols(found, term);
+        assertUniqueFunctionSymbols(found, term2);
+    }
+
+    private void assertUniqueFunctionSymbols(Map<String, FunctionSymbol> found, Term term) {
+        if (term instanceof ApplTerm) {
+            ApplTerm applTerm = (ApplTerm) term;
+            FunctionSymbol fs = applTerm.getFunctionSymbol();
+            String key = fs.getName();
+            FunctionSymbol cached = found.get(key);
+            if(cached != null) {
+                assertSame("Symbols must be unique: " + key, cached, fs);
+            } else {
+                found.put(key, fs);
+            }
+        }
+        for (Term t : term.getSubterms()) {
+            assertUniqueFunctionSymbols(found, t);
+        }
     }
 
     // Moved to TreeAssignmentTranslatorTest

@@ -8,7 +8,6 @@ package edu.kit.iti.algover.theoremprover;
 import edu.kit.iti.algover.ProgramDatabase;
 import edu.kit.iti.algover.data.BuiltinSymbols;
 import edu.kit.iti.algover.data.MapSymbolTable;
-import edu.kit.iti.algover.data.SuffixSymbolTable;
 import edu.kit.iti.algover.data.SymbolTable;
 import edu.kit.iti.algover.parser.DafnyTree;
 import edu.kit.iti.algover.symbex.AssertionElement;
@@ -59,8 +58,9 @@ public class DafnyTrans {
             map.add(new FunctionSymbol(name, sort));
         }
 
-        MapSymbolTable st = new SuffixSymbolTable(new BuiltinSymbols(), map);
-        return st;
+        //MapSymbolTable st = new SuffixSymbolTable(new BuiltinSymbols(), map);
+        //return st;
+        return null;
     }
 
     /**

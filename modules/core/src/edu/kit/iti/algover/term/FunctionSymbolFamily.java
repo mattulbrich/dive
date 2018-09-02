@@ -54,7 +54,7 @@ public class FunctionSymbolFamily {
     /*
      * make <X,Y<Z>> from [X, Y<Z>]
      */
-    private String toString(List<Sort> instantiationSorts) {
+    public static String toString(List<Sort> instantiationSorts) {
         if (instantiationSorts.isEmpty()) {
             return "";
         } else {

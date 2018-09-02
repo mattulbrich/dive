@@ -273,7 +273,8 @@ public class TreeTermTranslator {
                         case "int":
                             return BuiltinSymbols.LE;
                         case "set":
-                            return BuiltinSymbols.SUBSET.instantiate(sort.getArgument(0));
+                            return symbolTable.getFunctionSymbol(
+                                    BuiltinSymbols.SUBSET, sort.getArgument(0));
                         case "multiset":
                             // TODO
                             throw new Error("IMPLEMENT ME!");
@@ -294,10 +295,11 @@ public class TreeTermTranslator {
                 case "int":
                     return BuiltinSymbols.PLUS;
                 case "set":
-                    return BuiltinSymbols.UNION.instantiate(sort.getArgument(0));
+                    return symbolTable.getFunctionSymbol(
+                            BuiltinSymbols.UNION, sort.getArgument(0));
                 case "seq":
-                    return BuiltinSymbols.SEQ_CONCAT.
-                            instantiate(sort.getArgument(0));
+                    return symbolTable.getFunctionSymbol(
+                            BuiltinSymbols.SEQ_CONCAT, sort.getArgument(0));
                 case "multiset":
                     // TODO
                     throw new Error("IMPLEMENT ME!");
@@ -329,7 +331,8 @@ public class TreeTermTranslator {
                 case "int":
                     return BuiltinSymbols.TIMES;
                 case "set":
-                    return BuiltinSymbols.INTERSECT.instantiate(sort.getArgument(0));
+                    return symbolTable.getFunctionSymbol(
+                            BuiltinSymbols.INTERSECT, sort.getArgument(0));
                 case "multiset":
                     // TODO
                     throw new Error("IMPLEMENT ME!");
@@ -343,7 +346,8 @@ public class TreeTermTranslator {
             result = buildBinary((x,y) -> {
                 switch(y.getSort().getName()) {
                 case "set":
-                    return BuiltinSymbols.SET_IN.instantiate(y.getSort().getArgument(0));
+                    return symbolTable.getFunctionSymbol(
+                            BuiltinSymbols.SET_IN, y.getSort().getArgument(0));
                 default:
                     throw new Error("Not yet implemented");
                 }
@@ -355,11 +359,15 @@ public class TreeTermTranslator {
             break;
 
         case DafnyParser.EQ:
-            result = buildBinary(symmetricBinarySymbol(sort -> BuiltinSymbols.EQ.instantiate(sort)), tree);
+            result = buildBinary(symmetricBinarySymbol(
+                    sort -> symbolTable.getFunctionSymbol(
+                                BuiltinSymbols.EQ, sort)), tree);
             break;
 
         case DafnyParser.NEQ:
-            result = buildBinary(symmetricBinarySymbol(sort -> BuiltinSymbols.EQ.instantiate(sort)), tree);
+            result = buildBinary(symmetricBinarySymbol(
+                    sort -> symbolTable.getFunctionSymbol(
+                                BuiltinSymbols.EQ, sort)), tree);
             result = tb.negate(result);
             break;
 
@@ -502,7 +510,8 @@ public class TreeTermTranslator {
         Sort elseSort = elseExp.getSort();
         Sort sort = Sort.supremum(thenSort, elseSort);
 
-        FunctionSymbol ifFct = BuiltinSymbols.ITE.instantiate(Collections.singletonList(sort));
+        FunctionSymbol ifFct =
+                symbolTable.getFunctionSymbol(BuiltinSymbols.ITE, sort);
 
         return new ApplTerm(ifFct, ifCond, thenExp, elseExp);
     }
@@ -514,8 +523,6 @@ public class TreeTermTranslator {
             public FunctionSymbol apply(Term a, Term b) throws TermBuildException {
                 Sort sort = Sort.supremum(a.getSort(), b.getSort());
                 FunctionSymbol functionSymbol = decider.apply(sort);
-                // fixing a bug: It might be that this symbols was not retrieved via the symbol table.
-                functionSymbol = symbolTable.getFunctionSymbol(functionSymbol.getName());
                 return functionSymbol;
             }
         };
@@ -716,12 +723,14 @@ public class TreeTermTranslator {
         Sort sort = inner.getSort();
         switch (sort.getName()) {
         case "set":
-            function = BuiltinSymbols.CARD.instantiate(
+            function = symbolTable.getFunctionSymbol(
+                    BuiltinSymbols.CARD,
                     sort.getArguments().get(0));
             break;
 
         case "seq":
-            function = BuiltinSymbols.SEQ_LEN.instantiate(
+            function = symbolTable.getFunctionSymbol(
+                    BuiltinSymbols.SEQ_LEN,
                     sort.getArguments().get(0));
             break;
 
@@ -790,8 +799,8 @@ public class TreeTermTranslator {
             }
         }
 
-        FunctionSymbol add = addFamily.instantiate(sort);
-        FunctionSymbol empty = emptyFamily.instantiate(sort);
+        FunctionSymbol add = symbolTable.getFunctionSymbol(addFamily, sort);
+        FunctionSymbol empty = symbolTable.getFunctionSymbol(emptyFamily, sort);
 
         ApplTerm result = new ApplTerm(empty);
         for (Term term : arguments) {
@@ -1031,14 +1040,18 @@ public class TreeTermTranslator {
         if(symbol == BuiltinSymbols.SELECT) {
             Term obj = location.getTerm(1);
             Term field = location.getTerm(2);
-            FunctionSymbol store = BuiltinSymbols.STORE.instantiate(obj.getSort(), location.getSort());
+            FunctionSymbol store =
+                symbolTable.getFunctionSymbol(
+                    BuiltinSymbols.STORE, obj.getSort(), location.getSort());
             return new ApplTerm(store, heap, obj, field, value);
 
         } else if(symbol == BuiltinSymbols.ARRAY_SELECT) {
             Term obj = location.getTerm(1);
             Term index = location.getTerm(2);
             // TODO make this right. ...
-            FunctionSymbol store = BuiltinSymbols.ARRAY_STORE.instantiate(obj.getSort().getArguments().get(0));
+            FunctionSymbol store =
+                symbolTable.getFunctionSymbol(
+                    BuiltinSymbols.ARRAY_STORE, obj.getSort().getArguments().get(0));
             return new ApplTerm(store, heap, obj, index, value);
 
         } else if(symbol == BuiltinSymbols.ARRAY2_SELECT) {

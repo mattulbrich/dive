@@ -260,21 +260,23 @@ public class BuiltinSymbols extends MapSymbolTable {
      *
      */
     @Override
-    protected FunctionSymbol resolve(String name) {
+    protected FunctionSymbol resolve(String name, List<Sort> argSorts) {
 
-        int index = name.indexOf("<");
-        if (index >= 0) {
+        if (argSorts.isEmpty()) {
+            int index = name.indexOf("<");
+            if (index >= 0) {
+                argSorts = FunctionSymbolFamily.parseSortParameters(name);
+                name = name.substring(0, index);
+            }
+        }
 
-            String baseName = name.substring(0, index);
-            FunctionSymbolFamily family = symbolFamilies.get(baseName);
-            if (family == null) {
+        if (!argSorts.isEmpty()) {
+            FunctionSymbolFamily family = symbolFamilies.get(name);
+            if(family != null) {
+                return family.instantiate(argSorts);
+            } else {
                 return null;
             }
-
-            assert name.endsWith(">");
-            List<Sort> params = FunctionSymbolFamily.parseSortParameters(name);
-            return family.instantiate(params);
-
         }
 
         //
