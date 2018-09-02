@@ -280,7 +280,10 @@ public class EditorController implements DafnyCodeAreaListener {
     private void saveFileForTab(Tab tab) {
         assert tab.getUserData() instanceof String : "Expecting filename in user data";
         String filename = tab.getUserData().toString();
-        File absFile = new File(baseDir, filename);
+        File absFile = new File(filename);
+        if (!absFile.isAbsolute()) {
+            absFile = new File(baseDir, filename);
+        }
         try(BufferedWriter bw = new BufferedWriter(new FileWriter(absFile))) {
             DafnyCodeArea codeArea = codeAreaFromContent(tab.getContent());
             bw.write(codeArea.getText());

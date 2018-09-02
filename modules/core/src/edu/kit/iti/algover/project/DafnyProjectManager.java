@@ -111,7 +111,7 @@ public class DafnyProjectManager extends AbstractProjectManager {
 
         DafnyTree masterAST = DafnyFileParser.parse(masterFile);
 
-        pb.getDafnyFiles().add(masterFile.getName());
+        pb.getDafnyFiles().add(masterFile.getPath());
 
         for (DafnyTree include :
                 masterAST.getChildrenWithType(DafnyParser.INCLUDE)) {
@@ -170,6 +170,11 @@ public class DafnyProjectManager extends AbstractProjectManager {
     @Override
     public void saveProject() throws IOException {
         super.saveProject();
+
+        if (scriptDatabase == null) {
+            // no scripts have been touched or changed
+            return;
+        }
 
         Properties p = new Properties();
         p.putAll(scriptDatabase);
