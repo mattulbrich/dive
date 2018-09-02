@@ -18,6 +18,7 @@ import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
+import javafx.scene.control.Tooltip;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyCodeCombination;
 import javafx.scene.input.KeyCombination;
@@ -25,6 +26,7 @@ import javafx.scene.input.KeyEvent;
 import org.antlr.runtime.CommonToken;
 import org.antlr.runtime.RecognitionException;
 import org.antlr.runtime.Token;
+import org.controlsfx.dialog.ExceptionDialog;
 import org.fxmisc.flowless.VirtualizedScrollPane;
 
 import java.io.BufferedWriter;
@@ -37,6 +39,8 @@ import java.nio.file.Path;
 import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.logging.Logger;
+
+import static impl.org.controlsfx.i18n.Translations.getTranslation;
 
 /**
  * Controller for the view that handles all {@link DafnyCodeArea} tabs.
@@ -108,30 +112,43 @@ public class EditorController implements DafnyCodeAreaListener {
      * @param dafnyFile the file to be viewed to the user
      */
     public void viewFile(DafnyFile dafnyFile) {
-        Tab existingTab = tabsByFile.get(dafnyFile.getFilename());
+        viewFile(dafnyFile.getFilename());
+    }
+
+    public void viewFile(String fileName) {
+        Tab existingTab = tabsByFile.get(fileName);
         if (existingTab != null) {
             view.getSelectionModel().select(existingTab);
         } else {
             try {
-                String contentAsText = fileToString(dafnyFile.getRepresentation().getFilename());
+                String contentAsText = fileToString(fileName);
                 Tab tab = new Tab();
-                tab.setText(dafnyFile.getFilename());
-                tab.setUserData(dafnyFile);
+                File file = new File(fileName);
+                tab.setText(file.getName());
+                tab.setTooltip(new Tooltip(file.getAbsolutePath()));
+                tab.setUserData(fileName);
                 DafnyCodeArea codeArea = new DafnyCodeArea(contentAsText, executor, this);
                 codeArea.setHighlightingRule(highlightingLayers);
                 tab.setContent(new VirtualizedScrollPane<>(codeArea));
-                tabsByFile.put(dafnyFile.getFilename(), tab);
+                tabsByFile.put(fileName, tab);
                 view.getTabs().add(tab);
                 view.getSelectionModel().select(tab);
                 codeArea.getTextChangedProperty().addListener(this::onTextChanged);
             } catch (IOException e) {
                 e.printStackTrace();
+                ExceptionDialog exdlg = new ExceptionDialog(e);
+                exdlg.showAndWait();
             }
         }
     }
 
     private DafnyCodeArea getFocusedCodeArea() {
-        return codeAreaFromContent(view.getSelectionModel().getSelectedItem().getContent());
+        Tab selectedItem = view.getSelectionModel().getSelectedItem();
+        if (selectedItem != null) {
+            return codeAreaFromContent(selectedItem.getContent());
+        } else {
+            return null;
+        }
     }
 
     /**
@@ -147,11 +164,16 @@ public class EditorController implements DafnyCodeAreaListener {
                 .forEach(DafnyCodeArea::rerenderHighlighting);
     }
 
-    public void showException(Exception exception) {
-        highlightingLayers.setLayer(ERROR_LAYER, new HighlightingRule() {
-            ExceptionDetails.ExceptionReportInfo ri = ExceptionDetails.extractReportInfo(exception);
-            int line = ri.getLine();
+    public void showException(Throwable exception) {
+        ExceptionDetails.ExceptionReportInfo ri = ExceptionDetails.extractReportInfo(exception);
+        int line = ri.getLine();
+        String filename = ri.getFilename();
 
+        if(filename == null) {
+            return;
+        }
+
+        highlightingLayers.setLayer(ERROR_LAYER, new HighlightingRule() {
             @Override
             public Collection<String> handleToken(Token token, Collection<String> syntaxClasses) {
                 int tokenLine = token.getLine();
@@ -161,6 +183,9 @@ public class EditorController implements DafnyCodeAreaListener {
                 return syntaxClasses;
             }
         });
+
+        viewFile(filename);
+        assert getFocusedCodeArea() != null;
         getFocusedCodeArea().rerenderHighlighting();
     }
 
@@ -253,29 +278,24 @@ public class EditorController implements DafnyCodeAreaListener {
     }
 
     private void saveFileForTab(Tab tab) {
-        if (tab.getUserData() instanceof DafnyFile) {
-            String filename = ((DafnyFile) tab.getUserData()).getFilename();
-            String absFilepath = baseDir + "/" + filename;
-            try {
-                FileWriter fw = new FileWriter(absFilepath);
-                BufferedWriter bw = new BufferedWriter(fw);
-                DafnyCodeArea codeArea = codeAreaFromContent(tab.getContent());
-                bw.write(codeArea.getText());
-                bw.flush();
-                bw.close();
-                fw.close();
-                changedFiles.remove(tab.getText());
-                codeArea.updateProofText();
-                if (tab.getText().endsWith("*")) {
-                    tab.setText(tab.getText().substring(0, tab.getText().length() - 1));
-                }
-                if (changedFiles.size() == 0) {
-                    anyFileChangedProperty().setValue(false);
-                }
-                Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).info("Successfully saved file " + filename + ".");
-            } catch (IOException e) {
-                Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).severe("Error saving file" + filename + ".");
+        assert tab.getUserData() instanceof String : "Expecting filename in user data";
+        String filename = tab.getUserData().toString();
+        File absFile = new File(baseDir, filename);
+        try(BufferedWriter bw = new BufferedWriter(new FileWriter(absFile))) {
+            DafnyCodeArea codeArea = codeAreaFromContent(tab.getContent());
+            bw.write(codeArea.getText());
+            bw.flush();
+            changedFiles.remove(tab.getText());
+            codeArea.updateProofText();
+            if (tab.getText().endsWith("*")) {
+                tab.setText(tab.getText().substring(0, tab.getText().length() - 1));
             }
+            if (changedFiles.size() == 0) {
+                anyFileChangedProperty().setValue(false);
+            }
+            Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).info("Successfully saved file " + filename + ".");
+        } catch (IOException e) {
+            Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).severe("Error saving file" + filename + ".");
         }
     }
 

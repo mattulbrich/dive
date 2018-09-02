@@ -32,6 +32,8 @@ import edu.kit.iti.algover.sequent.SequentController;
 import edu.kit.iti.algover.sequent.SequentTabViewController;
 import edu.kit.iti.algover.timeline.TimelineLayout;
 import edu.kit.iti.algover.util.CostumBreadCrumbBar;
+import edu.kit.iti.algover.util.ExceptionDetails;
+import edu.kit.iti.algover.util.ExceptionDetails.ExceptionReportInfo;
 import edu.kit.iti.algover.util.FormatException;
 import edu.kit.iti.algover.util.RuleApp;
 import edu.kit.iti.algover.util.StatusBarLoggingHandler;
@@ -41,6 +43,7 @@ import javafx.beans.value.ObservableValue;
 import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
 import javafx.event.EventType;
+import javafx.geometry.Point2D;
 import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.control.*;
@@ -59,6 +62,7 @@ import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.logging.Handler;
 import java.util.logging.Level;
+import java.util.logging.LogRecord;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
@@ -81,7 +85,7 @@ public class MainController implements SequentActionListener, RuleApplicationLis
     private final StatusBar statusBar;
     private final StatusBarLoggingHandler statusBarLoggingHandler;
     private final JFXButton simpleStratButton;
-    CostumBreadCrumbBar<Object> breadCrumbBar;
+    private final CostumBreadCrumbBar<Object> breadCrumbBar;
 
 
     public MainController(ProjectManager manager, ExecutorService executor) {
@@ -177,7 +181,7 @@ public class MainController implements SequentActionListener, RuleApplicationLis
         browserController.updateTableLabels();
     }
 
-    private void onCrumbSelected(ObservableValue observableValue, Object oldValue, Object newValue) {
+    private void onCrumbSelected(ObservableValue<?> observableValue, Object oldValue, Object newValue) {
         TreeItem<Object> item = (TreeItem<Object>) newValue;
         Platform.runLater(() -> {
             if (item.getValue() instanceof PVC) {
@@ -214,9 +218,17 @@ public class MainController implements SequentActionListener, RuleApplicationLis
     private void onStatusBarClicked(MouseEvent event) {
         ContextMenu contextMenu = statusBar.getContextMenu();
         contextMenu.getItems().clear();
-        statusBarLoggingHandler.getHistory(5).forEach(
-                log -> contextMenu.getItems().add(new MenuItem(log))
-        );
+        for (LogRecord logRecord : statusBarLoggingHandler.getHistory(5)) {
+            MenuItem item = new MenuItem(logRecord.getMessage());
+            item.setOnAction(ev -> {
+                Throwable ex = logRecord.getThrown();
+                if(ex != null) {
+                    editorController.showException(ex);
+                }
+            });
+            contextMenu.getItems().add(item);
+        }
+
         contextMenu.show(statusBar, event.getScreenX(), event.getScreenY());
     }
 
@@ -277,20 +289,14 @@ public class MainController implements SequentActionListener, RuleApplicationLis
         // Jobs should get queued / Buttons disabled while an action runs, but the UI shouldn't freeze!
         onClickSave(null);
         editorController.resetExceptionLayer();
-        Task<Boolean> t = new Task<Boolean>() {
+        Task<Void> t = new Task<Void>() {
             @Override
-            protected Boolean call() throws Exception {
-                try {
-                    manager.reload();
-                } catch (IOException e) {
-                    return false;
-                }
-                return true;
+            protected Void call() throws Exception {
+                manager.reload();
+                return null;
             }
         };
-        executor.execute(t);
         t.setOnSucceeded(event -> {
-            if (t.getValue()) {
                 manager.getAllProofs().values().forEach(p -> p.interpretScript());
                 browserController.onRefresh(manager.getProject(), manager.getAllProofs());
                 browserController.getView().setDisable(false);
@@ -304,22 +310,23 @@ public class MainController implements SequentActionListener, RuleApplicationLis
                 editorController.resetPVCSelection();
                 sequentController.getActiveSequentController().clear();
                 Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).info("Successfully reloading project.");
-            } else {
-                Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).severe("Error reloading the project.");
-            }
         });
+
         //TODO somehow get proper exceptions and handling them
         t.setOnFailed(event -> {
             if (t.getException() instanceof Exception) {
-                editorController.showException((Exception) t.getException());
                 Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).severe("Error reloading the project: " + t.getException().getMessage());
+                editorController.showException((Exception) t.getException());
             } else {
                 Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).severe("Error reloading the project. Check your changed files for syntax errors.");
             }
         });
+
         t.setOnCancelled(event -> {
             Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).severe("Error reloading the project.");
         });
+
+        executor.execute(t);
     }
 
     public void onClickPVCEdit(PVCEntity entity) {

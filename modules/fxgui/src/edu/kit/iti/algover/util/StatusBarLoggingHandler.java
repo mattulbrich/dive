@@ -1,6 +1,5 @@
 package edu.kit.iti.algover.util;
 
-import com.sun.media.jfxmedia.logging.Logger;
 import edu.kit.iti.algover.AlgoVerApplication;
 import javafx.css.PseudoClass;
 import org.controlsfx.control.StatusBar;
@@ -16,7 +15,7 @@ import java.util.logging.LogRecord;
  */
 public class StatusBarLoggingHandler extends Handler {
     private final StatusBar statusBar;
-    private List<String> history;
+    private List<LogRecord> history;
 
     public StatusBarLoggingHandler(StatusBar statusBar) {
         this.statusBar = statusBar;
@@ -29,7 +28,7 @@ public class StatusBarLoggingHandler extends Handler {
     public void publish(LogRecord record) {
         statusBar.setText(record.getMessage());
         setPseudoClassStateFromBranches(record.getLevel());
-        history.add(record.getMessage());
+        history.add(record);
     }
 
     @Override
@@ -40,13 +39,13 @@ public class StatusBarLoggingHandler extends Handler {
     public void close() throws SecurityException {
     }
 
-    public List<String> getHistory() {
+    public List<LogRecord> getHistory() {
         return history;
     }
 
-    public List<String> getHistory(int i) {
-        if (history.size() > i) {
-            return history.subList(history.size() - i - 1, history.size() - 1);
+    public List<LogRecord> getHistory(int numberOfEntries) {
+        if (history.size() > numberOfEntries) {
+            return history.subList(history.size() - numberOfEntries - 1, history.size() - 1);
         }
         return history;
     }
