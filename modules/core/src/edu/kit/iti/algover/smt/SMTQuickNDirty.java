@@ -107,8 +107,9 @@ public class SMTQuickNDirty implements TermVisitor<Void, SExpr, RuntimeException
             return new SExpr("func" + fs.getName(), children);
         }
 
-
         switch(n) {
+        case "$anon":
+            return applTerm.getTerm(2).accept(this, null);
         case "$seq_len<int>":
             return new SExpr("seqlen", applTerm.getTerm(0).accept(this, null));
         case "$seq_upd<int>":
