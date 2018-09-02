@@ -270,16 +270,19 @@ public class ProjectBuilder {
         return project;
     }
 
-    public Project buildEmpty() {
-        this.files = Collections.emptyList();
-        this.methods = Collections.emptyList();
-        this.functions = Collections.emptyList();
-        this.classes = Collections.emptyList();
+    public static Project emptyProject(File baseDir) {
+        ProjectBuilder pb = new ProjectBuilder();
+
+        pb.setDir(baseDir);
+        pb.files = Collections.emptyList();
+        pb.methods = Collections.emptyList();
+        pb.functions = Collections.emptyList();
+        pb.classes = Collections.emptyList();
 
         try {
-            return new Project(this);
+            return new Project(pb);
         } catch (DafnyException e) {
-            // This is unreachable to the structure of the empty project.
+            // This is unreachable due to the structure of the empty project.
             throw new Error("Unreachable!", e);
         }
 

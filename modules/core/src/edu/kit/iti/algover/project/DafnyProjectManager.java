@@ -67,7 +67,7 @@ public class DafnyProjectManager extends AbstractProjectManager {
     public DafnyProjectManager(@NonNull File masterFile) throws IOException, DafnyParserException {
         this.masterFile = masterFile;
         this.scriptFile = new File(masterFile.toString() + ".proofs");
-        reload();
+        setProject(ProjectBuilder.emptyProject(masterFile.getParentFile()));
     }
 
     @Override

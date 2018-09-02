@@ -124,21 +124,9 @@ public final class XMLProjectManager extends AbstractProjectManager {
         return result;
     }
 
-    // TODO with new ProjectManager merge with method before
     private Project buildEmptyProject(File path, String configFilename)
             throws IOException, FormatException {
-        ProjectBuilder pb = new ProjectBuilder();
-        pb.setDir(path);
-        pb.setConfigFilename(configFilename);
-        try {
-            pb.parseProjectConfigurationFile();
-            pb.validateProjectConfiguration();
-        } catch (JAXBException|SAXException e) {
-            // subsume the XML exceptions under IOException.
-            throw new IOException(e);
-        }
-
-        return pb.buildEmpty();
+        return ProjectBuilder.emptyProject(path);
     }
 
     /**
