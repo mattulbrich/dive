@@ -22,7 +22,7 @@ import edu.kit.iti.algover.term.Sort;
  * It is an invariant that all function symbols are filed under their name.
  *
  * The map should not be altered after creation other than by a
- * {@link #resolve(String)} reimplementation.
+ * {@link #resolve(String, List<Sort>)} reimplementation.
  *
  * @author Mattias Ulbrich
  */
@@ -72,18 +72,18 @@ public class MapSymbolTable implements SymbolTable {
         return result;
     }
 
-    /**
-     * Look up a function symbol in the function map.
-     *
-     * If not found, then call {@link #resolve(String)} to create symbols on
-     * demand. If still not found, then defer the lookup to the parent symbol
-     * table.
-     */
     @Override
     public FunctionSymbol getFunctionSymbol(String name) {
         return getFunctionSymbol(name, Collections.emptyList());
     }
 
+    /*
+     * Look up a function symbol in the function map.
+     *
+     * If not found, then call {@link #resolve(String, List<Sort>)} to create
+     * symbols on demand. If still not found, then defer the lookup to the
+     * parent symbol table.
+     */
     @Override
     public FunctionSymbol getFunctionSymbol(String name, List<Sort> argumentSorts) {
         String lookup = name + FunctionSymbolFamily.toString(argumentSorts);
