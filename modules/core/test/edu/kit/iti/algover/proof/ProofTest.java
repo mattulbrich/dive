@@ -21,6 +21,7 @@ import org.antlr.v4.runtime.misc.ParseCancellationException;
 import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import java.util.Collections;
@@ -120,6 +121,14 @@ public class ProofTest {
         if(TestUtil.VERBOSE)
             p.getFailException().printStackTrace();
         throw p.getFailException();
+    }
+
+    @Test
+    public void schemaOnParameter() throws Exception {
+        Proof p = makeProof("let i:=0 ; i >= 0");
+        p.setScriptTextAndInterpret("substitute on='|- _'; ");
+        Assert.assertEquals(ProofStatus.OPEN, p.getProofStatus());
+        Assert.assertNotNull(p.getProofRoot());
     }
 
 }
