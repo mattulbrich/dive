@@ -212,6 +212,14 @@ public class SymbexExpressionValidatorTest {
                         Arrays.asList(
                                 "[][RT_DIV0:(let (VAR x) 1 (ALL x (TYPE int) (!= x 0)))]")
                 },
+                // from a bug
+                {
+                        "method m() ensures forall y, x :: 1/x==1/y {}",
+                        new int[]{0, 2, 0},
+                        Arrays.asList(
+                                "[][RT_DIV0:(ALL y x (TYPE int) (!= y 0))]",
+                                "[][RT_DIV0:(ALL y x (TYPE int) (!= x 0))]")
+                },
                 };
     }
 

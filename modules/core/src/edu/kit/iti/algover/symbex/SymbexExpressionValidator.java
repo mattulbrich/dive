@@ -13,6 +13,7 @@ import edu.kit.iti.algover.parser.DafnyTree;
 import edu.kit.iti.algover.symbex.AssertionElement.AssertionType;
 import edu.kit.iti.algover.util.ASTUtil;
 import edu.kit.iti.algover.util.Pair;
+import edu.kit.iti.algover.util.Util;
 import nonnull.Nullable;
 
 import java.util.ArrayList;
@@ -52,18 +53,18 @@ public class SymbexExpressionValidator {
 
     private static class UniversalWrapper implements Function<DafnyTree, DafnyTree> {
 
-        private final DafnyTree variable;
         private final DafnyTree type;
+        private final List<DafnyTree> variables;
 
-        private UniversalWrapper(DafnyTree variable, DafnyTree type) {
-            this.variable = variable;
-            this.type = type;
+        private UniversalWrapper(DafnyTree prototype) {
+            this.variables = prototype.getChildren().subList(0, prototype.getChildCount() - 2);
+            this.type = prototype.getFirstChildWithType(DafnyParser.TYPE);
         }
 
         @Override
         public DafnyTree apply(DafnyTree dafnyTree) {
             DafnyTree result = new DafnyTree(DafnyParser.ALL);
-            result.addChild(variable.dupTree());
+            result.addChildren(Util.map(variables, DafnyTree::dupTree));
             if (type != null) {
                 result.addChild(type.dupTree());
             }
@@ -176,10 +177,8 @@ public class SymbexExpressionValidator {
 
         case DafnyParser.EX:
         case DafnyParser.ALL:
-            child0 = expression.getChild(0);
-            child1 = expression.getChild(1);
             handleExpression(expression.getLastChild(),
-                    new UniversalWrapper(child0, child1).andThen(wrapper));
+                    new UniversalWrapper(expression).andThen(wrapper));
             break;
 
         case DafnyParser.LET:

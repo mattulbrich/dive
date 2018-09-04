@@ -9,6 +9,8 @@ import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.util.Arrays;
 import java.util.Collection;
+
+import edu.kit.iti.algover.util.ImmutableList;
 import edu.kit.iti.algover.util.Util;
 
 import edu.kit.iti.algover.parser.DafnyTree;
@@ -43,8 +45,10 @@ public class PVCBuilderTest {
             fail("File not found: pvcBuilder/INDEX");
         }
 
-        String[] filenames = Util.streamToString(is).split("\n");
-        return Arrays.asList(filenames);
+        ImmutableList<String> filenames = ImmutableList.from(Util.streamToString(is).split("\n"));
+        filenames = filenames.filter(x -> !x.isEmpty() && !x.trim().startsWith("#"));
+
+        return filenames.asCollection();
     }
 
     @Test
