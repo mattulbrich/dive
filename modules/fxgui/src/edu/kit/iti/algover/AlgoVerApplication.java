@@ -15,6 +15,7 @@ import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 
 import java.io.File;
+import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -33,20 +34,33 @@ public class AlgoVerApplication extends Application {
     @Override
     public void start(Stage primaryStage) throws Exception {
 
-        FileChooser chooser = new FileChooser();
+        File projectFile;
 
-        chooser.setTitle("Choose project folder");
-        chooser.setInitialDirectory(new File("doc/examples/"));
-        File projectFile = chooser.showOpenDialog(primaryStage);
-        ProjectManager manager;
-        if (projectFile == null) {
-            return;
+        Parameters params = getParameters();
+        List<String> fileNames = params.getUnnamed();
+        if(fileNames.isEmpty()) {
+
+            FileChooser chooser = new FileChooser();
+
+            chooser.setTitle("Choose project folder");
+            chooser.setInitialDirectory(new File("doc/examples/"));
+            projectFile = chooser.showOpenDialog(primaryStage);
+            ProjectManager manager;
+            if (projectFile == null) {
+                return;
+            }
+        } else {
+            projectFile = new File(fileNames.get(0)).getAbsoluteFile();
         }
+
+        ProjectManager manager;
         if (projectFile.getName().endsWith(".xml")) {
             // Read all PVCs and update GUId
             manager = new XMLProjectManager(projectFile.getParentFile(), projectFile.getName());
-        } else {
+        } else if(projectFile.getName().endsWith(".dfy")) {
             manager = new DafnyProjectManager(projectFile);
+        } else {
+            throw new IllegalArgumentException("AlgoVer supports only .dfy and .xml files.");
         }
 
         // TODO Maybe don't do this initially (might hurt UX, when there are a lot of proofs)
