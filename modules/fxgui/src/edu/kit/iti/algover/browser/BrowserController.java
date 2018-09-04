@@ -146,20 +146,4 @@ public abstract class BrowserController {
         this.proofsByPVC = proofsByPVC;
         populateTreeTable();
     }
-
-    public void updateTableLabels() {
-        populateTreeTable();
-        expandAll(view.getRoot());
-    }
-
-    private void expandAll(TreeItem item) {
-        item.setExpanded(true);
-        for(int i = 0; i < item.getChildren().size(); ++i) {
-            try {
-                expandAll((TreeItem) item.getChildren().get(i));
-            } catch(ClassCastException e) {
-                System.out.println("Error expanding item.");
-            }
-        }
-    }
 }

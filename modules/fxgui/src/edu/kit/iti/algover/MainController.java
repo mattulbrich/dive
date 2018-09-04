@@ -173,7 +173,6 @@ public class MainController implements SequentActionListener, RuleApplicationLis
         }
         sequentController.getActiveSequentController().tryMovingOnEx(); //SaG: was tryMovingOn()
         ruleApplicationController.resetConsideration();
-        browserController.updateTableLabels();
     }
 
     private void onCrumbSelected(ObservableValue observableValue, Object oldValue, Object newValue) {
@@ -468,7 +467,6 @@ public class MainController implements SequentActionListener, RuleApplicationLis
         if(sequentController.getActiveSequentController().getActiveProof().getFailException() == null) {
             Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).info("Successfully applied rule " + application.getRule().getName() + ".");
         }
-        browserController.updateTableLabels();
     }
 
     @Override
@@ -482,7 +480,6 @@ public class MainController implements SequentActionListener, RuleApplicationLis
         sequentController.getActiveSequentController().getActiveProof().setScriptTextAndInterpret(newScript);
         sequentController.getActiveSequentController().tryMovingOnEx();
         ruleApplicationController.resetConsideration();
-        browserController.updateTableLabels();
     }
 
     @Override
