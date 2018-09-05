@@ -138,38 +138,9 @@ public class MainController implements SequentActionListener, RuleApplicationLis
     private void trivialStrat(ActionEvent event) {
         Map<String, PVC> pvcMap = manager.getPVCByNameMap();
         for(Map.Entry<String, PVC> e : pvcMap.entrySet()) {
-            String script = "";
+            String script = "boogie;";
             Proof p = manager.getProofForPVC(e.getKey());
-            if (p.getProofStatus() != ProofStatus.CLOSED) {
-                for (int i = 0; i < p.getProofRoot().getSequent().getAntecedent().size(); ++i) {
-                    try {
-                        script += RuleApplicator.getScriptForExhaustiveRuleApplication(new LetSubstitutionRule(), p.getProofRoot(), new TermSelector("A." + i));
-                    } catch (FormatException ex) {
-                        //TODO
-                    } catch (RuleException ex) {
-                        //TODO
-                    }
-                }
-                for (int i = 0; i < p.getProofRoot().getSequent().getSuccedent().size(); ++i) {
-                    try {
-                        script += RuleApplicator.getScriptForExhaustiveRuleApplication(new LetSubstitutionRule(), p.getProofRoot(), new TermSelector("S." + i));
-                    } catch (FormatException ex) {
-                        //TODO
-                    } catch (RuleException ex) {
-                        //TODO
-                    }
-                }
-                String letScript = script;
-                script += "close;\n";
-                p.setScriptTextAndInterpret(script);
-                if(p.getFailException() != null) {
-                    script = letScript + "z3;\n";
-                    p.setScriptTextAndInterpret(script);
-                    if(p.getFailException() != null) {
-                        p.setScriptTextAndInterpret(letScript);
-                    }
-                }
-            }
+            p.setScriptTextAndInterpret(script);
         }
         sequentController.getActiveSequentController().tryMovingOnEx(); //SaG: was tryMovingOn()
         ruleApplicationController.resetConsideration();

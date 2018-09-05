@@ -22,7 +22,10 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public class BoogieProcess {
@@ -89,7 +92,6 @@ public class BoogieProcess {
         }
 
         StringBuilder sb = new StringBuilder();
-        sb.append(PRELUDE);
         sb.append("procedure Sequent()\n  ensures false;\n{\n");
         for (String clause : clauses) {
             sb.append("  assume " + clause + ";\n");
@@ -98,17 +100,17 @@ public class BoogieProcess {
 
         System.out.println(sb);
 
-        Process process = buildProcess();
-        try {
-            OutputStream out = process.getOutputStream();
-            InputStream in = process.getInputStream();
+        Path tmpFile = Files.createTempFile("AlgoVer", ".bpl");
+        Files.write(tmpFile, Arrays.asList(PRELUDE, sb));
 
-            out.write(sb.toString().getBytes());
-            out.close();
+        Process process = buildProcess(tmpFile);
+        try {
+            InputStream in = process.getInputStream();
 
             BufferedReader br = new BufferedReader(new InputStreamReader(in));
             String line;
             while ((line = br.readLine()) != null) {
+                System.out.println(" < " + line);
                 if (line.equals("Boogie program verifier finished with 1 verified"))
                     return true;
             }
@@ -120,8 +122,10 @@ public class BoogieProcess {
         }
     }
 
-    private Process buildProcess() throws IOException {
-        ProcessBuilder pb = new ProcessBuilder("boogie");
+    private Process buildProcess(Path tmpFile) throws IOException {
+        ProcessBuilder pb =
+                new ProcessBuilder("/home/mulbrich/.local/bin/boogie",
+                        tmpFile.toString());
         return pb.start();
     }
 
