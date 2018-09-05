@@ -123,8 +123,8 @@ public abstract class AbstractProofRule implements ProofRule {
      * @return Parameters for the application of the rule
      * @throws RuleException
      */
-    protected Parameters extractParameters(ProofNode target, Sequent selection, TermSelector selector) throws RuleException {
-        Parameters params = new Parameters();
+    protected Parameters extractParameters(ProofNode target, Sequent selection, TermSelector selector, Parameters parameters) throws RuleException {
+        Parameters params = new Parameters(parameters);
         if(selector != null) {
             Sequent on = getUniqueMatchingTerm(selection, selector);
             params.putValue("on", on);
@@ -279,7 +279,7 @@ public abstract class AbstractProofRule implements ProofRule {
 
     /**
      * Same as {@link #considerApplication(ProofNode, Sequent, TermSelector)} but for GUI convenience with different
-     * parameters. To extract the actual parameters {@link #extractParameters(ProofNode, Sequent, TermSelector)} is
+     * parameters. To extract the actual parameters {@link #extractParameters(ProofNode, Sequent, TermSelector, Parameters)} is
      * called. For a non standard parameter extraction override it.
      *
      * @param target    the proof node onto whose sequent the rule is to be applied.
@@ -291,7 +291,25 @@ public abstract class AbstractProofRule implements ProofRule {
      * @throws RuleException
      */
     public final ProofRuleApplication considerApplication(ProofNode target, Sequent selection, TermSelector selector) throws RuleException {
-        Parameters params = extractParameters(target, selection, selector);
+        Parameters params = extractParameters(target, selection, selector, Parameters.EMPTY_PARAMETERS);
+        return considerApplication(target, params);
+    }
+
+    /**
+     * Same as {@link #considerApplication(ProofNode, Sequent, TermSelector)} but for GUI convenience with different
+     * parameters. To extract the actual parameters {@link #extractParameters(ProofNode, Sequent, TermSelector, Parameters)} is
+     * called. For a non standard parameter extraction override it.
+     *
+     * @param target    the proof node onto whose sequent the rule is to be applied.
+     * @param selection a subsequent of the target's sequent. These are the
+     *                  UI-selected top formulas.
+     * @param selector  if a subformula has been selected, it is this selector that
+     *                  represents it.
+     * @return
+     * @throws RuleException
+     */
+    public final ProofRuleApplication considerApplication(ProofNode target, Sequent selection, TermSelector selector, Parameters parameters) throws RuleException {
+        Parameters params = extractParameters(target, selection, selector, parameters);
         return considerApplication(target, params);
     }
 
@@ -308,13 +326,8 @@ public abstract class AbstractProofRule implements ProofRule {
         Parameters extractedParams = extractSchematicParameters(parameters, target.getSequent());
         ProofRuleApplication pra = considerApplicationImpl(target, extractedParams);
         ProofRuleApplicationBuilder builder = new ProofRuleApplicationBuilder(pra);
-        if(pra.getApplicability() == ProofRuleApplication.Applicability.APPLICABLE) {
-            try {
-                builder.setTranscript(getTranscript(pra, parameters));
-            } catch (RuleException ex ) {
-                builder.setTranscript("");
-                System.out.println("Error creating transcript for rule " + getName() + " on sequent " + target.getSequent());
-            }
+        if(builder.getParameters() == null) {
+            builder.setParameters(parameters);
         }
         return builder.build();
     }
@@ -343,20 +356,23 @@ public abstract class AbstractProofRule implements ProofRule {
     public final ProofRuleApplication makeApplication(ProofNode target, Parameters parameters) throws RuleException {
         Parameters extractedParams = extractSchematicParameters(parameters, target.getSequent());
         checkParameters(extractedParams);
-        ProofRuleApplication pra = makeApplicationImpl(target, extractedParams);
-        String transcript = getTranscript(pra, parameters);
-        return new ProofRuleApplicationBuilder(pra).setTranscript(transcript).build();
+        ProofRuleApplicationBuilder builder = new ProofRuleApplicationBuilder(makeApplicationImpl(target, extractedParams));
+        if(builder.getParameters() == null) {
+            builder.setParameters(parameters);
+        }
+        return builder.build();
     }
 
     /**
      *
-     * Generates a fitting transcript for the rule and the given parameters.
+     * Generates a fitting transcript for a given ruleApplication.
      *
-     * @param params the parameters for which the transcript should be generated
-     * @return a valid transcript for the given parameters
+     * @param pra the proofRuleApplication
+     * @return a valid transcript for the given proofRuleApplication
      * @throws RuleException
      */
-    private final String getTranscript(ProofRuleApplication pra, Parameters params) throws RuleException {
+    public String getTranscript(ProofRuleApplication pra) throws RuleException {
+        Parameters params = pra.getParameters();
         String res = getName();
         if(allParameters.size() == 0 && pra.getBranchCount() < 2) {
             return res + ";";

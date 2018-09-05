@@ -49,7 +49,8 @@ public class AbstractRuleTest {
         Parameters params = rule.extractParameters(
                 ProofMockUtil.mockProofNode(null, Collections.emptyList(), Collections.emptyList()),
                 sequent,
-                selector
+                selector,
+                Parameters.EMPTY_PARAMETERS
         );
         assertEquals(1, params.entrySet().size());
         assertEquals("[(... (on: $and($lt(i1, i2), $lt(i1, i2))) ...)] ==> []", params.getValue("on").toString());
@@ -131,7 +132,8 @@ public class AbstractRuleTest {
         Parameters params = rule.extractParameters(
                 ProofMockUtil.mockProofNode(null, Collections.emptyList(), Collections.emptyList()),
                 sequent,
-                selector
+                selector,
+                Parameters.EMPTY_PARAMETERS
         );
         assertEquals(1, params.entrySet().size());
         assertEquals("[(... (on: $lt(i1, i2)) ...)] ==> []", params.getValue("on").toString());

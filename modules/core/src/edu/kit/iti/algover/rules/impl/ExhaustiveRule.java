@@ -50,7 +50,11 @@ public class ExhaustiveRule extends AbstractProofRule {
         if(res == null) {
             return ProofRuleApplicationBuilder.notApplicable(this);
         } else {
-            return res;
+            ProofRuleApplicationBuilder top = new ProofRuleApplicationBuilder(this);
+            top.newBranch();
+            top.setApplicability(ProofRuleApplication.Applicability.APPLICABLE)
+                    .setSubApplications(Collections.singletonList(res));
+            return top.build();
         }
     }
 
@@ -72,7 +76,11 @@ public class ExhaustiveRule extends AbstractProofRule {
         if(res == null) {
             throw new RuleException("exhaustive could not be applied.");
         } else {
-            return res;
+            ProofRuleApplicationBuilder top = new ProofRuleApplicationBuilder(this);
+            top.newBranch();
+            top.setApplicability(ProofRuleApplication.Applicability.APPLICABLE)
+                    .setSubApplications(Collections.singletonList(res));
+            return top.build();
         }
     }
 
@@ -84,8 +92,7 @@ public class ExhaustiveRule extends AbstractProofRule {
             proofRuleApplication = proofRuleApplication.getRule().considerApplication(pn, pn.getSequent(), ts);
         }
 
-        // REVIEW: Why the assignment? It is thrown away two lines below. Intended?
-        List<ProofNode> nodes = new ArrayList<>(Collections.singletonList(pn));
+        List<ProofNode> nodes;
         if (proofRuleApplication.getApplicability().equals(ProofRuleApplication.Applicability.APPLICABLE)) {
             nodes = RuleApplicator.applyRule(proofRuleApplication, pn);
         } else {
@@ -98,6 +105,7 @@ public class ExhaustiveRule extends AbstractProofRule {
             subApplications.add(applyRuleExhaustive(proofRuleApplication.getRule(), node, ts));
         }
         res.setSubApplications(subApplications);
+
 
         return res.build();
     }

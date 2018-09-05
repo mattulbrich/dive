@@ -35,6 +35,7 @@ public class ProofRuleApplicationBuilder {
     private final List<BranchInfoBuilder> branches = new ArrayList<>();
     private Applicability applicability = Applicability.APPLICABLE;
     private String scriptTranscript;
+    private Parameters parameters = null;
     private Parameters openParameters = Parameters.EMPTY_PARAMETERS;
     private Refiner refiner;
 
@@ -61,7 +62,7 @@ public class ProofRuleApplicationBuilder {
         this.rule = app.getRule();
         this.branches.addAll(Util.map(app.getBranchInfo(), x -> new BranchInfoBuilder(x)));
         this.applicability = app.getApplicability();
-        this.scriptTranscript = app.getScriptTranscript();
+        this.parameters = app.getParameters();
         this.openParameters = app.getOpenParameters();
         this.refiner = app.getRefiner();
         if(app.getSubApplications() != null) {
@@ -77,8 +78,8 @@ public class ProofRuleApplicationBuilder {
      */
     public static ProofRuleApplication notApplicable(ProofRule rule) {
         return new ProofRuleApplication(rule, BranchInfo.UNCHANGED,
-                Applicability.NOT_APPLICABLE, rule.getName(),
-                Parameters.EMPTY_PARAMETERS, null, null);
+                Applicability.NOT_APPLICABLE, Parameters.EMPTY_PARAMETERS, Parameters.EMPTY_PARAMETERS,
+                null, null);
     }
 
     /**
@@ -93,7 +94,7 @@ public class ProofRuleApplicationBuilder {
                 rule,
                 ImmutableList.from(Util.map(branches, BranchInfoBuilder::build)),
                 applicability,
-                scriptTranscript,
+                parameters,
                 openParameters,
                 refiner,
                 toListIfNotAllNull(subApplications)
@@ -110,19 +111,14 @@ public class ProofRuleApplicationBuilder {
         }
         for (T t : list) {
             if(t != null) {
-                return null;
+                return ImmutableList.from(list);
             }
         }
-        return ImmutableList.from(list);
+        return null;
     }
 
     public ProofRuleApplicationBuilder setApplicability(@NonNull Applicability applicable) {
         this.applicability = applicable;
-        return this;
-    }
-
-    public ProofRuleApplicationBuilder setTranscript(@NonNull String string) {
-        this.scriptTranscript = string;
         return this;
     }
 
@@ -172,6 +168,15 @@ public class ProofRuleApplicationBuilder {
     public ProofRuleApplicationBuilder setSubApplications(List<ProofRuleApplication> subApplications) {
         this.subApplications = subApplications;
         return this;
+    }
+
+    public ProofRuleApplicationBuilder setParameters(Parameters parameters) {
+        this.parameters = parameters;
+        return this;
+    }
+
+    public Parameters getParameters() {
+        return parameters;
     }
 
 }

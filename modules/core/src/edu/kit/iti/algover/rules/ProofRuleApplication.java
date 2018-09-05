@@ -53,10 +53,19 @@ public final class ProofRuleApplication {
      * split etc.
      */
     private final @Nullable ImmutableList<BranchInfo> branchInfo;
+
     /**
      * The applicability of this rule application.
      */
     private final @NonNull Applicability applicability;
+
+    /**
+     * Parameters for this application. All parameters contained in this object require
+     * instantiation for the application of the rule to be possible. The
+     * parameters here are set immutable.
+     */
+    private final @NonNull Parameters parameters;
+
     /**
      * Missing parameters. All parameters contained in this object require
      * instantiation for the application of the rule to be possible. The
@@ -71,13 +80,6 @@ public final class ProofRuleApplication {
     private final @Nullable Refiner refiner;
 
     /**
-     * When a proof rule application is applied, the proof script needs to be
-     * augmented. This is the proof script transcript which describes this
-     * application.
-     */
-    private final @NonNull String scriptTranscript;
-
-    /**
      * Instantiates a new proof rule application.
      *
      * The passed parameters object is set to immutable.
@@ -88,8 +90,6 @@ public final class ProofRuleApplication {
      *            info about the branches to be created
      * @param applicability
      *            the applicability of this object.
-     * @param scriptTranscript
-     *            the script transcript
      * @param openParameters
      *            parameters that are missing for this application to be
      *            executed (use {@link Parameters#EMPTY_PARAMETERS} if no
@@ -104,7 +104,7 @@ public final class ProofRuleApplication {
             @NonNull ProofRule rule,
             @DeepNonNull ImmutableList<BranchInfo> branchInfo,
             @NonNull Applicability applicability,
-            @NonNull String scriptTranscript,
+            @NonNull Parameters parameters,
             @NonNull Parameters openParameters,
             @Nullable Refiner refiner,
             @Nullable ImmutableList<ProofRuleApplication> subApplications) {
@@ -112,8 +112,8 @@ public final class ProofRuleApplication {
         this.branchInfo = branchInfo;
         this.applicability = applicability;
         this.refiner = refiner;
+        this.parameters = parameters;
         this.openParameters = openParameters;
-        this.scriptTranscript = scriptTranscript;
         openParameters.setImmutable();
         this.subApplications = subApplications;
 
@@ -191,8 +191,8 @@ public final class ProofRuleApplication {
      * <code>null</code>.
      */
     private ProofRuleApplication thisWithoutRefiner() {
-        return new ProofRuleApplication(rule, branchInfo, applicability,
-                scriptTranscript, openParameters, null, subApplications);
+        return new ProofRuleApplication(rule, branchInfo, applicability, parameters,
+                openParameters, null, subApplications);
     }
 
     /**
@@ -235,21 +235,21 @@ public final class ProofRuleApplication {
     }
 
     /**
-     * Gets the script transcript of this application.
-     *
-     * @return the string for the script transcript
-     */
-    public @NonNull String getScriptTranscript() {
-        return scriptTranscript;
-    }
-
-    /**
      * Gets the parameters which were declared as remaining open.
      *
      * @return the open parameters
      */
     public @NonNull Parameters getOpenParameters() {
         return openParameters;
+    }
+
+    /**
+     * Gets the parameters which are used for this application.
+     *
+     * @return the parameters
+     */
+    public @NonNull Parameters getParameters() {
+        return parameters;
     }
 
     /**
@@ -278,6 +278,10 @@ public final class ProofRuleApplication {
      */
     public @Nullable Refiner getRefiner() {
         return refiner;
+    }
+
+    public String getScriptTranscript() throws RuleException {
+        return this.getRule().getTranscript(this);
     }
 
     /**
