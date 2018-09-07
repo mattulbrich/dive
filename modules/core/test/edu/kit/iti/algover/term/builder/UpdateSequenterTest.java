@@ -85,7 +85,7 @@ public class UpdateSequenterTest extends SequenterTest {
             { "A.0.0.0.1", "$plus(x, 3)", "(+ x 3)" },
             { "A.0.0.0.1.0", "x", "x" },
             { "A.0.0.0.1.1", "3", "3" },
-            { "A.0.1", "$empty<object>", "SETEX" }, // artificial
+            { "A.0.1", "$empty", "SETEX" }, // artificial
 
             { "S.0", null, null },
             { "S.0.0", null, null },
@@ -108,7 +108,7 @@ public class UpdateSequenterTest extends SequenterTest {
             { "S.0.0.0.1.0", "x", "x" },
             { "S.0.0.0.1.1", "3", "3" },
             { "S.0.0.1", "0", "0" },
-            { "S.0.1", "$empty<object>", "SETEX" } // artificial
+            { "S.0.1", "$empty", "SETEX" } // artificial
         };
     }
 

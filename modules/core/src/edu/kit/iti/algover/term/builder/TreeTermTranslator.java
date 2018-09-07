@@ -30,7 +30,6 @@ import edu.kit.iti.algover.util.FunctionWithException;
 import edu.kit.iti.algover.util.HistoryMap;
 import edu.kit.iti.algover.util.ImmutableList;
 import edu.kit.iti.algover.util.Pair;
-import edu.kit.iti.algover.util.TreeUtil;
 import nonnull.NonNull;
 import org.antlr.runtime.CommonToken;
 
@@ -41,7 +40,6 @@ import java.util.HashMap;
 import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.function.BiFunction;
 
 /**
  * The Class TreeTermTranslator is used to create a {@link Term} object from a
@@ -768,26 +766,13 @@ public class TreeTermTranslator {
     }
 
     // can be reused by set, seq and multiset
-    private Term buildExtension(FunctionSymbolFamily emptyFamily,
+    private Term buildExtension(FunctionSymbol empty,
                                 FunctionSymbolFamily addFamily,
                                 DafnyTree tree) throws TermBuildException {
-        Sort sort;
-
-        // May have been resolved during type resolution.
-        DafnyTree expType = tree.getExpressionType();
-        if (expType == null) {
-            if(tree.getChildCount() == 0) {
-                throw new TermBuildException("Currently empty list and set " +
-                        "are not supported via extensions");
-            }
-            sort = null;
-        } else {
-            sort = ASTUtil.toSort(expType).getArgument(0);
-        }
-
 
         List<Term> arguments = new ArrayList<>();
 
+        Sort sort = null;
         for (DafnyTree child : tree.getChildren()) {
             Term term = build(child);
             arguments.add(term);
@@ -800,7 +785,6 @@ public class TreeTermTranslator {
         }
 
         FunctionSymbol add = symbolTable.getFunctionSymbol(addFamily, sort);
-        FunctionSymbol empty = symbolTable.getFunctionSymbol(emptyFamily, sort);
 
         ApplTerm result = new ApplTerm(empty);
         for (Term term : arguments) {

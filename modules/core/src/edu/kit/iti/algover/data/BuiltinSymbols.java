@@ -178,9 +178,8 @@ public class BuiltinSymbols extends MapSymbolTable {
             new FunctionSymbolFamily(
                     new FunctionSymbol("$intersect", SET1, SET1, SET1), 1);
 
-    public static final FunctionSymbolFamily EMPTY_SET =
-            new FunctionSymbolFamily(
-                    new FunctionSymbol("$empty", SET1), 1);
+    public static final FunctionSymbol EMPTY_SET =
+            new FunctionSymbol("$empty", Sort.get("set", Sort.BOTTOM));
 
     public static final FunctionSymbolFamily CARD =
             new FunctionSymbolFamily(
@@ -215,9 +214,8 @@ public class BuiltinSymbols extends MapSymbolTable {
                     new FunctionSymbol("$seq_upd", SEQ1,
                             SEQ1, Sort.INT, FunctionSymbolFamily.VAR1), 1);
 
-    public static final FunctionSymbolFamily SEQ_EMPTY =
-            new FunctionSymbolFamily(
-                    new FunctionSymbol("$seq_empty", SEQ1), 1);
+    public static final FunctionSymbol SEQ_EMPTY =
+            new FunctionSymbol("$seq_empty", Sort.get("seq", Sort.BOTTOM));
 
     public static final FunctionSymbolFamily SEQ_CONS =
             new FunctionSymbolFamily(

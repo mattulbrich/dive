@@ -65,10 +65,10 @@ public class ExtensionsPrinterExtension implements PrettyPrintExtension {
         PrettyPrintLayouter pp = prettyPrintVisitor.getPrinter();
 
         // The base case symbol decides on the
-        if (isInstanceOf(fs, BuiltinSymbols.EMPTY_SET)) {
+        if (fs.equals(BuiltinSymbols.EMPTY_SET)) {
             open = "{";
             close = "}";
-        } else if (isInstanceOf(fs, BuiltinSymbols.SEQ_EMPTY)) {
+        } else if (fs.equals(BuiltinSymbols.SEQ_EMPTY)) {
             open = "[";
             close = "]";
         } else {
