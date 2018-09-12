@@ -1,0 +1,22 @@
+j : int
+i : int
+---------
+$gt(j,2),
+$gt(i,2)
+|-
+let a := $times(i,j) :: 
+let b := $times(j,i) :: 
+let c := $plus(i,j) ::
+$and(a == b, $ge(c+a,c))
+---------
+unsat
+var _i : int;
+var _j : int;
+
+procedure Sequent()
+  ensures false;
+{
+  assume (_j > 2);
+  assume (_i > 2);
+  assume !((((_i * _j) == (_j * _i)) && (((_i + _j) + (_i * _j)) >= (_i + _j))));
+}

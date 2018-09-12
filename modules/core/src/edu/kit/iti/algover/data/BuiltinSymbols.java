@@ -178,6 +178,10 @@ public class BuiltinSymbols extends MapSymbolTable {
             new FunctionSymbolFamily(
                     new FunctionSymbol("$intersect", SET1, SET1, SET1), 1);
 
+    public static final FunctionSymbolFamily SET_MINUS =
+            new FunctionSymbolFamily(
+                    new FunctionSymbol("$set_minus", SET1, SET1, SET1), 1);
+
     public static final FunctionSymbol EMPTY_SET =
             new FunctionSymbol("$empty", Sort.get("set", Sort.BOTTOM));
 

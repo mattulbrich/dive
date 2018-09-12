@@ -94,6 +94,15 @@ public class SortTest {
         };
     }
 
+    public String[][] parametersForTestParse() {
+        return new String[][] {
+                { "int" },
+                { "set<object>" },
+                { "X<Y<Z,A>,Y<A,Z>>" },
+                { "X<Y<Z<A<B>>>>" },
+        };
+    }
+
     @Test
     // revealed a bug
     public void testConstructor() {
@@ -133,6 +142,14 @@ public class SortTest {
         assertEquals(sup, sup2);
         assertTrue(s1.isSubtypeOf(sup));
         assertTrue(s2.isSubtypeOf(sup));
+    }
+
+    @Test @Parameters
+    public void testParse(String string) {
+        Sort sort = Sort.parseSort(string);
+        String actual = sort.toString();
+
+        assertEquals(string, actual);
     }
 
 }

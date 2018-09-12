@@ -1,0 +1,13 @@
+i :int
+--------
+|-
+$not($set_in<int>(i,$empty))
+--------
+unsat
+var _i : int;
+
+procedure Sequent()
+  ensures false;
+{
+  assume !(!((Set#Empty()[_i])));
+}

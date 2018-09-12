@@ -13,7 +13,7 @@
     <file name="./modules/core/build.xml"/>
     <file name="./modules/fxgui/build.xml"/>
     <file name="./modules/cli/build.xml"/>
-    <!-- <file name="./modules/dafny/build.xml"/> -->
+    <file name="./modules/dafny/build.xml"/>
     <!-- <file name="./modules/key/build.xml"/> -->
     <!-- <file name="./modules/smt/build.xml"/> -->
   </filelist>
@@ -64,10 +64,20 @@
       </concat>
   </target>
    
-  <target name="jar" depends="build" description="creates the jar file">
+  <target name="combineServices" description="Bring together services files into one file">
+    <!-- currently only required for proof rules. Make this general if needed one day. -->
+    <concat destfile="modules/core/bin/META-INF/services/edu.kit.iti.algover.rules.ProofRule">
+      <filelist dir="modules/core/res/META-INF/services" files="edu.kit.iti.algover.rules.ProofRule"/>
+      <filelist dir="modules/dafny/res/META-INF/services" files="edu.kit.iti.algover.rules.ProofRule"/>
+    </concat>
+    <delete file="modules/dafny/bin/META-INF/services/edu.kit.iti.algover.rules.ProofRule"/>
+  </target>
+
+   
+  <target name="jar" depends="build, combineServices" description="creates the jar file">
     <jar jarfile="algover.jar">
       <fileset dir="modules/core/bin/" />
-      <!-- <fileset dir="modules/dafny/bin/" /> -->
+      <fileset dir="modules/dafny/bin/" />
       <!-- <fileset dir="modules/key/bin/" /> -->
       <!-- <fileset dir="modules/smt/bin/" /> -->
       <zipfileset dir="." includes="VERSION" prefix="META-INF"/>
@@ -86,12 +96,12 @@
     </jar>
   </target>
 
-  <target name="fxjar" depends="build" description="creates the jar file for the javafx gui">
+  <target name="fxjar" depends="build, combineServices" description="creates the jar file for the javafx gui">
     <jar jarfile="algoverfx.jar">
       <fileset dir="modules/core/bin/" />
       <!--<fileset dir="modules/gui/bin/" /> -->
       <fileset dir="modules/fxgui/bin/" />
-      <!-- <fileset dir="modules/dafny/bin/" /> -->
+      <fileset dir="modules/dafny/bin/" />
       <!-- <fileset dir="modules/key/bin/" /> -->
       <!-- <fileset dir="modules/smt/bin/" /> -->
       <zipfileset dir="." includes="VERSION" prefix="META-INF"/>

@@ -1,0 +1,19 @@
+i : int
+s: set<int>
+--------
+$not($set_in<int>(i,s))
+|-
+$not($set_in<int>(3,s))
+--------
+sat
+var _i : int;
+var _s : Set int;
+
+procedure Sequent()
+  ensures false;
+{
+  assume !((_s[_i]));
+  assume !(!((_s[3])));
+}
+------
+This was wrongly classified by Simon Schwarz as a valid sequent.

@@ -195,6 +195,25 @@ public class FunctionSymbolFamily {
         return prototype.getName();
     }
 
+    /**
+     * Get the prototype used to instantiate concrete function symbol instances.
+     *
+     * The prototype will contain type variables in its signature.
+     *
+     * @return the symbol used for instantiation.
+     */
+    public @NonNull FunctionSymbol getPrototype() {
+        return prototype;
+    }
+
+    /**
+     * Get the number of type variables that occur in the prototype.
+     * @return a non-negative integer
+     */
+    public int getNumberOfTypeVars() {
+        return numberOfTypeVars;
+    }
+
     @Override
     public String toString() {
         return "FunctionSymbolFamily [" + prototype + ", #vars=" + numberOfTypeVars + "]";

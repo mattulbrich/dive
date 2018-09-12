@@ -1,0 +1,15 @@
+a : int
+b : int
+---------
+a == 5, b > 3 |- a+b > 8
+---------
+unsat
+var _a : int;
+var _b : int;
+procedure Sequent()
+  ensures false;
+{
+  assume (_a == 5);
+  assume (_b > 3);
+  assume !(((_a + _b) > 8));
+}

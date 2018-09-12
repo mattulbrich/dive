@@ -1,0 +1,19 @@
+s1 : set<int>
+s2 : set<int>
+--------
+|-
+let s1 := $set_add<int>(1,s1) ::
+let s3 := $set_add<int>(1,s2) ::
+s1 == $union<int>(s1,s2)
+--------
+sat
+var _s1 : Set int;
+var _s2 : Set int;
+
+procedure Sequent()
+  ensures false;
+{
+  assume !(Set#Equal(Set#UnionOne(_s1, 1), Set#Union(Set#UnionOne(_s1, 1), _s2)));
+}
+--------
+Was categorised wrongly in Simon's work

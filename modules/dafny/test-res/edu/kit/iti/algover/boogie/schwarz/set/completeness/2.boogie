@@ -1,0 +1,21 @@
+s1: set<int>
+s2: set<int>
+s3: set<int>
+s4: set<int>
+--------
+
+|-
+let s1 := $set_add<int>(1,$empty) :: 
+let s2 := $set_add<int>(1,$empty) :: 
+let s3 := $set_add<set<int>>(s1,$empty) ::
+let s4 := $set_add<set<int>>(s2,$empty) ::
+$set_minus<set<int>>(s3,s4) == $empty
+
+--------
+unsat
+
+procedure Sequent()
+  ensures false;
+{
+  assume !(Set#Equal(Set#Difference(Set#UnionOne(Set#Empty(), Set#UnionOne(Set#Empty(), 1)), Set#UnionOne(Set#Empty(), Set#UnionOne(Set#Empty(), 1))), Set#Empty()));
+}

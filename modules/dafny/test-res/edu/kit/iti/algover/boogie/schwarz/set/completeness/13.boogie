@@ -1,0 +1,13 @@
+s1 : set<int>
+--------
+|- 
+$intersect<int>(s1,$empty) == $empty
+--------
+unsat
+var _s1 : Set int;
+
+procedure Sequent()
+  ensures false;
+{
+  assume !(Set#Equal(Set#Intersection(_s1, Set#Empty()), Set#Empty()));
+}

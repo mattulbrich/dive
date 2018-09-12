@@ -1,0 +1,24 @@
+j : int
+i : int
+-------
+$gt(j,1),
+$gt(i,1)
+|-
+let a := $times(i,j) :: 
+let b := $times(j,i) :: 
+let c := $plus(i,j) ::
+$and(a == b, $ge(b,c))
+-------
+sat
+var _i : int;
+var _j : int;
+procedure Sequent()
+  ensures false;
+{
+  assume (_j > 1);
+  assume (_i > 1);
+  assume !((((_i * _j) == (_j * _i)) && ((_j * _i) >= (_i + _j))));
+}
+-------
+This example is correct, yet the translation finds a strange
+spurious counterexample.

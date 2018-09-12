@@ -1,0 +1,16 @@
+s1: set<int>,
+s2: set<int>
+--------
+|-
+let s1 := $set_add<int>(3,$set_add<int>(2,$set_add<int>(1,$empty))) ::
+let s2 := $set_add<int>(2,$empty) ::
+
+$and($and($set_in<int>(1,$set_minus<int>(s1,s2)),$set_in<int>(3,$set_minus<int>(s1,s2))),$not($set_in<int>(2,$set_minus<int>(s1,s2))))
+--------
+unsat
+
+procedure Sequent()
+  ensures false;
+{
+  assume !((((Set#Difference(Set#UnionOne(Set#UnionOne(Set#UnionOne(Set#Empty(), 1), 2), 3), Set#UnionOne(Set#Empty(), 2))[1]) && (Set#Difference(Set#UnionOne(Set#UnionOne(Set#UnionOne(Set#Empty(), 1), 2), 3), Set#UnionOne(Set#Empty(), 2))[3])) && !((Set#Difference(Set#UnionOne(Set#UnionOne(Set#UnionOne(Set#Empty(), 1), 2), 3), Set#UnionOne(Set#Empty(), 2))[2]))));
+}

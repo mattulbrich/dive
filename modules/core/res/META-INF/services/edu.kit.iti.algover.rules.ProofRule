@@ -19,5 +19,3 @@ edu.kit.iti.algover.rules.impl.OrRightRule
 edu.kit.iti.algover.rules.impl.CutRule
 edu.kit.iti.algover.rules.impl.ReplaceCutRule
 edu.kit.iti.algover.rules.impl.FunctionDefinitionExpansionRule
-
-edu.kit.iti.algover.rules.impl.BoogieRule

@@ -1,0 +1,12 @@
+a : bool
+b : bool
+---------
+|- b && b || b ==> b
+---------
+unsat
+var _b : bool;
+procedure Sequent()
+  ensures false;
+{
+  assume !((((_b && _b) || _b) ==> _b));
+}

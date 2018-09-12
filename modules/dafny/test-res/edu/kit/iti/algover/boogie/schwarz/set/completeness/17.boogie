@@ -1,0 +1,13 @@
+s : set<int>
+--------
+|-
+$subset<int>($empty,s)
+--------
+unsat
+var _s : Set int;
+
+procedure Sequent()
+  ensures false;
+{
+  assume !(Set#Subset(Set#Empty(), _s));
+}
