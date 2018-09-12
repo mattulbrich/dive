@@ -28,7 +28,7 @@ public class CloseRule extends AbstractProofRule {
     public ProofRuleApplication considerApplicationImpl(ProofNode target, Parameters parameters) throws RuleException {
         Term on = null;
         if(parameters.entrySet().size() > 0) {
-            on = (Term)parameters.getValue("on");
+            on = parameters.getValue(ON_PARAM).getTerm();
         }
 
         try {

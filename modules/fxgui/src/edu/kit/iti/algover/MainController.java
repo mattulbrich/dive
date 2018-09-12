@@ -130,8 +130,8 @@ public class MainController implements SequentActionListener, RuleApplicationLis
                         ExhaustiveRule exRule = new ExhaustiveRule();
                         Parameters parameters = new Parameters();
                         parameters.putValue("ruleName", "substitute");
-                        ProofRuleApplication pra = exRule.considerApplication(p.getProofRoot(), p.getProofRoot().getSequent(),
-                                new TermSelector("A." + i), parameters);
+                        parameters.putValue("on", new TermParameter(new TermSelector("A." + i), p.getProofRoot().getSequent()));
+                        ProofRuleApplication pra = exRule.considerApplication(p.getProofRoot(), parameters);
 
                         script += pra.getScriptTranscript();
                     } catch (FormatException ex) {
@@ -145,8 +145,8 @@ public class MainController implements SequentActionListener, RuleApplicationLis
                         ExhaustiveRule exRule = new ExhaustiveRule();
                         Parameters parameters = new Parameters();
                         parameters.putValue("ruleName", "substitute");
-                        ProofRuleApplication pra = exRule.considerApplication(p.getProofRoot(), p.getProofRoot().getSequent(),
-                                new TermSelector("S." + i), parameters);
+                        parameters.putValue("on", new TermParameter(new TermSelector("S." + i), p.getProofRoot().getSequent()));
+                        ProofRuleApplication pra = exRule.considerApplication(p.getProofRoot(), parameters);
 
                         script += pra.getScriptTranscript();
                     } catch (FormatException ex) {

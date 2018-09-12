@@ -36,7 +36,7 @@ public class NotLeftRule extends AbstractProofRule {
     public ProofRuleApplication considerApplicationImpl(ProofNode target, Parameters parameters) throws RuleException {
         ProofRuleApplicationBuilder builder = new ProofRuleApplicationBuilder(this);
 
-        TermSelector selector = tsForParameter.get("on");
+        TermSelector selector = parameters.getValue(ON_PARAM).getTermSelector();
 
         if(selector == null || selector.isToplevel()) {
             return ProofRuleApplicationBuilder.notApplicable(this);
@@ -62,7 +62,7 @@ public class NotLeftRule extends AbstractProofRule {
 
     @Override
     public ProofRuleApplication makeApplicationImpl(ProofNode target, Parameters parameters) throws RuleException {
-        Term on = parameters.getValue(ON_PARAM);
+        Term on = parameters.getValue(ON_PARAM).getTerm();
 
         ProofRuleApplicationBuilder builder = new ProofRuleApplicationBuilder(this);
         try {

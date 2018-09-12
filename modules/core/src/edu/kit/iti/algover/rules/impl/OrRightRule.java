@@ -29,7 +29,7 @@ public class OrRightRule extends AbstractProofRule {
 
     @Override
     protected ProofRuleApplication considerApplicationImpl(ProofNode target, Parameters parameters) throws RuleException {
-        TermSelector selector = tsForParameter.get("on");
+        TermSelector selector = parameters.getValue(ON_PARAM).getTermSelector();
 
         if(!selector.isToplevel()) {
             return ProofRuleApplicationBuilder.notApplicable(this);
@@ -61,7 +61,7 @@ public class OrRightRule extends AbstractProofRule {
 
     @Override
     protected ProofRuleApplication makeApplicationImpl(ProofNode target, Parameters parameters) throws RuleException {
-        TermSelector selector = tsForParameter.get("on");
+        TermSelector selector = parameters.getValue(ON_PARAM).getTermSelector();
 
         if(!selector.isToplevel()) {
             throw new RuleException("orRight may only be applied to TopLevel terms.");

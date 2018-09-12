@@ -34,32 +34,10 @@ public abstract class AbstractProofRule implements ProofRule {
     /**
      * The parameter for "on" is very common for rules.
      */
-    public static final ParameterDescription<Term> ON_PARAM =
+    public static final ParameterDescription<TermParameter> ON_PARAM =
             new ParameterDescription<>("on", ParameterType.TERM, true);
 
-    /**
-     * The parameter "type" is used to describe whether or not a rule is applied
-     * exhaustively, deep or globally.
-     */
-    public static final ParameterDescription<String> TYPE_PARAM =
-            new ParameterDescription<>("type", ParameterType.STRING, false);
-
-    /**
-     * Whether or not this rule may be applied exhaustively.
-     */
-    protected boolean mayBeExhaustive = true;
-
-    /**
-     * Whether or not this rule may be applied deep exhaustively.
-     */
-    protected boolean mayBeDeep = true;
-
     private final Map<String, ParameterDescription<?>> allParameters = new HashMap<>();
-
-    /**
-     * Holds a TermSelctor for each parameter of the type Term.
-     */
-    protected Map<String, TermSelector> tsForParameter = new HashMap<>();
 
     /**
      * Instantiate a new object.
@@ -90,15 +68,6 @@ public abstract class AbstractProofRule implements ProofRule {
 
         for (Map.Entry<String, Object> en : parameters.entrySet()) {
             ParameterDescription<?> t = allParameters.get(en.getKey());
-            if (t == null) {
-                if(en.getKey().equals("type") && en.getValue() instanceof String) {
-                    allParameters.put("type", TYPE_PARAM);
-                    t = allParameters.get(en.getKey());
-                } else {
-                    throw new RuleException("Unknown parameter '" + en.getKey() + "'");
-                }
-            }
-
             Object value = en.getValue();
             if (!t.acceptsValue(value)) {
                 throw new RuleException(
@@ -115,159 +84,6 @@ public abstract class AbstractProofRule implements ProofRule {
     }
 
     /**
-     * Extracts parameters from a given termselector and a sequent.
-     *
-     * @param target the ProofNode the rule will be applied to
-     * @param selection the sequent this rule will be applied on
-     * @param selector a TermSelector pointing to the currently selected Term in the GUI
-     * @return Parameters for the application of the rule
-     * @throws RuleException
-     */
-    protected Parameters extractParameters(ProofNode target, Sequent selection, TermSelector selector, Parameters parameters) throws RuleException {
-        Parameters params = new Parameters(parameters);
-        if(selector != null) {
-            Sequent on = getUniqueMatchingTerm(selection, selector);
-            params.putValue("on", on);
-        }
-        return params;
-    }
-
-    /**
-     * Extracts all schematic Parameters and replaces them with concrete Terms. Also fills
-     * {@link AbstractProofRule#tsForParameter} which provides a TermSelector for each Term included in the Parameters.
-     *
-     * @param schematicParams the Parameters including schematic parameters
-     * @param sequent the sequent the rule will be applied to
-     * @throws RuleException Should only happen if there are two identical Terms as TopLevelFormulas
-     */
-    private Parameters extractSchematicParameters(Parameters schematicParams, Sequent sequent) throws RuleException {
-        Parameters extractedParameters = new Parameters();
-        for(Map.Entry<String, Object> en : schematicParams.entrySet()) {
-            if(en.getValue() instanceof Sequent) {
-                SequentMatcher sm = new SequentMatcher();
-                ImmutableList<Matching> matchings = sm.match((Sequent) en.getValue(), sequent);
-                if (matchings.size() == 0) {
-                    throw new RuleException("Could not find schematic parameter " + en.getValue().toString());
-                }
-                if (matchings.size() > 1) {
-                    throw new RuleException("Schematic parameter " + en.getValue().toString() + " is ambiguous.");
-                }
-                try {
-                    tsForParameter.put(en.getKey(), matchings.get(0).get("?" + en.getKey()).getTermSelector());
-                } catch(NullPointerException e) {
-                    tsForParameter.put(en.getKey(), matchings.get(0).get(en.getKey()).getTermSelector());
-                }
-                extractedParameters.putValue(en.getKey(),
-                        tsForParameter.get(en.getKey()).selectSubterm(sequent));
-            } else if(en.getValue() instanceof Term) {
-                Optional<TermSelector> ots = RuleUtil.matchSubtermInSequent(((Term)en.getValue())::equals, sequent);
-                if(ots.isPresent()) {
-                    tsForParameter.put(en.getKey(), ots.get());
-                    extractedParameters.putValue(en.getKey(),
-                            ots.get().selectSubterm(sequent));
-                } else {
-                    //throw new RuleException("Could not match parameter " + en.getValue());
-                    extractedParameters.putValue(en.getKey(),
-                            en.getValue());
-                }
-            } else {
-                extractedParameters.putValue(en.getKey(),
-                        en.getValue());
-            }
-        }
-        return extractedParameters;
-    }
-
-    /**
-     * Extracts a possibly schematic Term which is unique for the given TermSelector.
-     *
-     * @param sequent The sequent the TermSelector is related to.
-     * @param selector The selector
-     * @return a possibly schematic Term
-     * @throws RuleException if no unique matching term is available (only if 2 identical Terms in same polarity)
-     */
-    private Sequent getUniqueMatchingTerm(Sequent sequent, TermSelector selector) throws RuleException {
-        Term t = selector.selectSubterm(sequent);
-        Term schemaCaptureTerm = new SchemaCaptureTerm("?on", t);
-        t = new SchemaOccurTerm(schemaCaptureTerm);
-        SequentMatcher sequentMatcher = new SequentMatcher();
-        Sequent schemaSeq;
-        if(selector.isSuccedent()) {
-            schemaSeq = new Sequent(Collections.emptyList(), Collections.singletonList(new ProofFormula(t)));
-        } else {
-            schemaSeq = new Sequent(Collections.singletonList(new ProofFormula(t)), Collections.emptyList());
-        }
-        ImmutableList<Matching> matchings = sequentMatcher.match(schemaSeq, sequent);
-        if(matchings.size() == 1) {
-            return schemaSeq;
-        }
-        TermSelector parentSelector = getParentSelector(selector);
-
-        if(parentSelector == null) {
-            matchings.forEach(matching -> System.out.println("matching = " + matching));
-            throw new RuleException("There is no unique matching term for a Parameter.");
-        }
-        return getUniqueMatchingTermRec(sequent, parentSelector,
-                selector.getPath().get(selector.getPath().size() - 1), schemaCaptureTerm);
-    }
-
-    /**
-     * Recursive version for {@link AbstractProofRule#getUniqueMatchingTerm(Sequent, TermSelector)}.
-     *
-     * @param sequent
-     * @param selector
-     * @param childIdx
-     * @param childTerm
-     * @return
-     * @throws RuleException
-     */
-    private Sequent getUniqueMatchingTermRec(Sequent sequent, TermSelector selector, int childIdx, Term childTerm) throws RuleException {
-        Term t = selector.selectSubterm(sequent);
-        Term schemaVarTerm = null;
-        try {
-            schemaVarTerm = ReplaceVisitor.replace(t, new SubtermSelector(childIdx), childTerm);
-        } catch (TermBuildException e) {
-            throw new RuleException("Error finding unique matching term.", e);
-        }
-        t = new SchemaOccurTerm(schemaVarTerm);
-        SequentMatcher sequentMatcher = new SequentMatcher();
-        Sequent schemaSeq;
-        if(selector.isSuccedent()) {
-            schemaSeq = new Sequent(Collections.emptyList(), Collections.singletonList(new ProofFormula(t)));
-        } else {
-            schemaSeq = new Sequent(Collections.singletonList(new ProofFormula(t)), Collections.emptyList());
-        }
-        ImmutableList<Matching> matchings = sequentMatcher.match(schemaSeq, sequent);
-        if(matchings.size() == 1) {
-            return schemaSeq;
-        }
-        TermSelector parentSelector = getParentSelector(selector);
-        if(parentSelector == null) {
-            throw new RuleException("There is no unique matching term for a Parameter.");
-        }
-        return getUniqueMatchingTermRec(sequent, parentSelector, selector.getPath().get(selector.getPath().size() - 1), schemaVarTerm);
-    }
-
-    /**
-     * Gets a TermSelector which points to the parent term of the term selected by the given TermSelector
-     *
-     * @param selector the selector
-     * @return the parent selector
-     */
-    private TermSelector getParentSelector(TermSelector selector) {
-        if(selector.getPath().size() <= 0) {
-            return null;
-        }
-        List<Integer> path = selector.getPath();
-        int intPath[] = new int[selector.getPath().size() - 1];
-        for(int i = 0; i < intPath.length; ++i) {
-            intPath[i] = selector.getPath().get(i);
-        }
-
-        return new TermSelector(selector.getPolarity(), selector.getTermNo(), intPath);
-    }
-
-    /**
      * The concrete implementation of {@link #considerApplication(ProofNode, Parameters)} for each rule.
      *
      * @param target the ProofNode this rule is to be applied on
@@ -279,8 +95,7 @@ public abstract class AbstractProofRule implements ProofRule {
 
     /**
      * Same as {@link #considerApplication(ProofNode, Sequent, TermSelector)} but for GUI convenience with different
-     * parameters. To extract the actual parameters {@link #extractParameters(ProofNode, Sequent, TermSelector, Parameters)} is
-     * called. For a non standard parameter extraction override it.
+     * parameters.
      *
      * @param target    the proof node onto whose sequent the rule is to be applied.
      * @param selection a subsequent of the target's sequent. These are the
@@ -291,25 +106,8 @@ public abstract class AbstractProofRule implements ProofRule {
      * @throws RuleException
      */
     public final ProofRuleApplication considerApplication(ProofNode target, Sequent selection, TermSelector selector) throws RuleException {
-        Parameters params = extractParameters(target, selection, selector, Parameters.EMPTY_PARAMETERS);
-        return considerApplication(target, params);
-    }
-
-    /**
-     * Same as {@link #considerApplication(ProofNode, Sequent, TermSelector)} but for GUI convenience with different
-     * parameters. To extract the actual parameters {@link #extractParameters(ProofNode, Sequent, TermSelector, Parameters)} is
-     * called. For a non standard parameter extraction override it.
-     *
-     * @param target    the proof node onto whose sequent the rule is to be applied.
-     * @param selection a subsequent of the target's sequent. These are the
-     *                  UI-selected top formulas.
-     * @param selector  if a subformula has been selected, it is this selector that
-     *                  represents it.
-     * @return
-     * @throws RuleException
-     */
-    public final ProofRuleApplication considerApplication(ProofNode target, Sequent selection, TermSelector selector, Parameters parameters) throws RuleException {
-        Parameters params = extractParameters(target, selection, selector, parameters);
+        Parameters params = new Parameters();
+        params.putValue("on", new TermParameter(selector, selection));
         return considerApplication(target, params);
     }
 
@@ -323,8 +121,7 @@ public abstract class AbstractProofRule implements ProofRule {
      * @throws RuleException
      */
     public final ProofRuleApplication considerApplication(ProofNode target, Parameters parameters) throws RuleException {
-        Parameters extractedParams = extractSchematicParameters(parameters, target.getSequent());
-        ProofRuleApplication pra = considerApplicationImpl(target, extractedParams);
+        ProofRuleApplication pra = considerApplicationImpl(target, parameters);
         ProofRuleApplicationBuilder builder = new ProofRuleApplicationBuilder(pra);
         if(builder.getParameters() == null) {
             builder.setParameters(parameters);
@@ -354,9 +151,8 @@ public abstract class AbstractProofRule implements ProofRule {
      * @throws RuleException
      */
     public final ProofRuleApplication makeApplication(ProofNode target, Parameters parameters) throws RuleException {
-        Parameters extractedParams = extractSchematicParameters(parameters, target.getSequent());
-        checkParameters(extractedParams);
-        ProofRuleApplicationBuilder builder = new ProofRuleApplicationBuilder(makeApplicationImpl(target, extractedParams));
+        checkParameters(parameters);
+        ProofRuleApplicationBuilder builder = new ProofRuleApplicationBuilder(makeApplicationImpl(target, parameters));
         if(builder.getParameters() == null) {
             builder.setParameters(parameters);
         }
@@ -394,13 +190,8 @@ public abstract class AbstractProofRule implements ProofRule {
             }
             if(allParameters.get(p.getKey()).getType().equals(ParameterType.TERM)) {
                 PrettyPrint prettyPrint = new PrettyPrint();
-                if(p.getValue() instanceof Term) {
-                    String pp = prettyPrint.print((Term) p.getValue()).toString();
-                    res += " " + p.getKey() + "='" + pp + "'";
-                } else {
-                    String pp = prettyPrint.print((Sequent) p.getValue());
-                    res += " " + p.getKey() + "='" + pp + "'";
-                }
+                String pp = prettyPrint.print(((TermParameter) p.getValue()).getSchematicTerm()).toString();
+                res += " " + p.getKey() + "='" + pp + "'";
             } else {
                 res += " " + p.getKey() + "=\"" + p.getValue() + "\"";
             }

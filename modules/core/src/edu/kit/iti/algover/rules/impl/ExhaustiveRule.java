@@ -43,7 +43,7 @@ public class ExhaustiveRule extends AbstractProofRule {
 
         ProofRule rule = rules.get(0);
 
-        TermSelector onSelector = tsForParameter.get("on");
+        TermSelector onSelector = parameters.getValue(ON_PARAM).getTermSelector();
 
         ProofRuleApplication res = applyRuleExhaustive(rule, target, onSelector);
 
@@ -69,7 +69,7 @@ public class ExhaustiveRule extends AbstractProofRule {
 
         ProofRule rule = rules.get(0);
 
-        TermSelector onSelector = tsForParameter.get("on");
+        TermSelector onSelector = parameters.getValue(ON_PARAM).getTermSelector();
 
         ProofRuleApplication res = applyRuleExhaustive(rule, target, onSelector);
 

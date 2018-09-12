@@ -31,7 +31,7 @@ public class ModusTollensRule extends AbstractProofRule {
 
     @Override
     protected ProofRuleApplication considerApplicationImpl(ProofNode target, Parameters parameters) throws RuleException {
-        TermSelector selector = tsForParameter.get("on");
+        TermSelector selector = parameters.getValue(ON_PARAM).getTermSelector();
 
         ProofFormula formula = selector.selectTopterm(target.getSequent());
         Term term = formula.getTerm();
@@ -71,7 +71,7 @@ public class ModusTollensRule extends AbstractProofRule {
 
     @Override
     protected ProofRuleApplication makeApplicationImpl(ProofNode target, Parameters parameters) throws RuleException {
-        TermSelector selector = tsForParameter.get("on");
+        TermSelector selector = parameters.getValue(ON_PARAM).getTermSelector();
 
         ProofFormula formula = selector.selectTopterm(target.getSequent());
         Term term = formula.getTerm();

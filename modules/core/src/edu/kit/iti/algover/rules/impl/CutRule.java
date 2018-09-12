@@ -14,7 +14,7 @@ import edu.kit.iti.algover.util.RuleUtil;
  * Created by jklamroth on 5/16/18.
  */
 public class CutRule extends AbstractProofRule {
-    private static final ParameterDescription<Term> WITH_PARAM = new ParameterDescription<>("with", ParameterType.TERM, true);
+    private static final ParameterDescription<TermParameter> WITH_PARAM = new ParameterDescription<>("with", ParameterType.TERM, true);
 
     public CutRule () {
         super(WITH_PARAM);
@@ -27,13 +27,14 @@ public class CutRule extends AbstractProofRule {
 
     @Override
     protected ProofRuleApplication considerApplicationImpl(ProofNode target, Parameters parameters) throws RuleException {
-        Term with = parameters.getValue(WITH_PARAM);
+        TermParameter withParam = parameters.getValue(WITH_PARAM);
 
-        if(with == null) {
+        if(withParam == null) {
             ProofRuleApplicationBuilder pra = new ProofRuleApplicationBuilder(this);
             pra.setApplicability(ProofRuleApplication.Applicability.APPLICABLE);
             return pra.build();
         }
+        Term with = withParam.getTerm();
         if(with.getSort() != Sort.BOOL) {
             throw new RuleException("Cut term has to have type bool but has type " + with.getSort() + ".");
         }
@@ -51,7 +52,7 @@ public class CutRule extends AbstractProofRule {
     }
 
     private ProofRuleApplication apply(ProofNode target, Parameters parameters) throws RuleException {
-        Term with = parameters.getValue(WITH_PARAM);
+        Term with = parameters.getValue(WITH_PARAM).getTerm();
 
         if(with.getSort() != Sort.BOOL) {
             throw new RuleException("Cut term has to have type bool but has type " + with.getSort() + ".");

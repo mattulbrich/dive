@@ -34,7 +34,7 @@ public class OrLeftRule extends AbstractProofRule {
 
     @Override
     public ProofRuleApplication considerApplicationImpl(ProofNode target, Parameters parameters) throws RuleException {
-        TermSelector selector = tsForParameter.get("on");
+        TermSelector selector = parameters.getValue(ON_PARAM).getTermSelector();
 
         if(selector == null || !selector.isToplevel() || selector.isSuccedent()) {
             return ProofRuleApplicationBuilder.notApplicable(this);
@@ -61,7 +61,7 @@ public class OrLeftRule extends AbstractProofRule {
 
     @Override
     public ProofRuleApplication makeApplicationImpl(ProofNode target, Parameters parameters) throws RuleException {
-        Term p = parameters.getValue(ON_PARAM);
+        Term p = parameters.getValue(ON_PARAM).getTerm();
         if(!(p instanceof ApplTerm)) {
             throw new RuleException("orLeft has to be applied to an ApplicationTerm");
         }

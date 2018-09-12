@@ -39,6 +39,7 @@ public class AbstractRuleTest {
         symbolTable.addFunctionSymbol(new FunctionSymbol("i4", Sort.INT));
     }
 
+    //TODO these tests should now be moved to a new Testclass for TermParameters
     @Test
     public void getUniqueMatchingParameterTest()
             throws FormatException, TermBuildException, RuleException, DafnyParserException, DafnyException {
@@ -46,23 +47,16 @@ public class AbstractRuleTest {
         TermSelector selector = new TermSelector("A.0");
         TermParser tp = new TermParser(symbolTable);
         Sequent sequent = tp.parseSequent("i1 < i2 && i1 < i2 |- i1 < i2 && i1 < i2");
-        Parameters params = rule.extractParameters(
-                ProofMockUtil.mockProofNode(null, Collections.emptyList(), Collections.emptyList()),
-                sequent,
-                selector,
-                Parameters.EMPTY_PARAMETERS
-        );
+        Parameters params = new Parameters();
+        params.putValue("on", new TermParameter(selector, sequent));
         assertEquals(1, params.entrySet().size());
-        assertEquals("[(... (on: $and($lt(i1, i2), $lt(i1, i2))) ...)] ==> []", params.getValue("on").toString());
+        assertEquals("(... (?match: $and($lt(i1, i2), $lt(i1, i2))) ...) |-", ((TermParameter)params.getValue("on")).getSchematicTerm().toString());
         ProofRuleApplication app = rule.makeApplication(
                 ProofMockUtil.mockProofNode(null, sequent.getAntecedent(), sequent.getSuccedent()),
                 params
         );
-        System.out.println(app.getScriptTranscript());
-        assertEquals(1, rule.tsForParameter.size());
-        assertEquals(selector, rule.tsForParameter.get("on"));
         assertEquals(1, params.entrySet().size());
-        assertEquals("[(... (on: $and($lt(i1, i2), $lt(i1, i2))) ...)] ==> []", params.getValue("on").toString());
+        assertEquals("(... (?match: $and($lt(i1, i2), $lt(i1, i2))) ...) |-", ((TermParameter)params.getValue("on")).getSchematicTerm().toString());
     }
 
     @Test(expected = RuleException.class)
@@ -79,11 +73,11 @@ public class AbstractRuleTest {
                         new ApplTerm(new FunctionSymbol("i2", Sort.INT)
                         )
                 );
-        t = new SchemaCaptureTerm("with", t);
+        t = new SchemaCaptureTerm("?match", t);
         t = new SchemaOccurTerm(t);
         Sequent schemaSeq = new Sequent(Collections.singletonList(new ProofFormula(t)), Collections.emptyList());
 
-        params.putValue("with", schemaSeq);
+        params.putValue("on", new TermParameter(schemaSeq, sequent));
         rule.considerApplication(
                 ProofMockUtil.mockProofNode(null, sequent.getAntecedent(), sequent.getSuccedent()),
                 params
@@ -106,20 +100,18 @@ public class AbstractRuleTest {
         );
         t = new ApplTerm(BuiltinSymbols.AND,
                 t,
-                new SchemaCaptureTerm("with", t)
+                new SchemaCaptureTerm("?match", t)
         );
         t = new SchemaOccurTerm(t);
         Sequent schemaSeq = new Sequent(Collections.singletonList(new ProofFormula(t)), Collections.emptyList());
 
-        params.putValue("with", schemaSeq);
+        params.putValue("with", new TermParameter(schemaSeq, sequent));
         rule.considerApplication(
                 ProofMockUtil.mockProofNode(null, sequent.getAntecedent(), sequent.getSuccedent()),
                 params
         );
-        assertEquals(1, rule.tsForParameter.size());
-        assertEquals(selector, rule.tsForParameter.get("with"));
         assertEquals(1, params.entrySet().size());
-        assertEquals("$lt(i1, i2)", params.getValue("with").toString());
+        assertEquals("$lt(i1, i2)", ((TermParameter)params.getValue("with")).getTerm().toString());
     }
 
     @Test
@@ -129,21 +121,15 @@ public class AbstractRuleTest {
         TermSelector selector = new TermSelector("A.0.0");
         TermParser tp = new TermParser(symbolTable);
         Sequent sequent = tp.parseSequent("i1 < i2 && i3 < i4 |- i1 < i2");
-        Parameters params = rule.extractParameters(
-                ProofMockUtil.mockProofNode(null, Collections.emptyList(), Collections.emptyList()),
-                sequent,
-                selector,
-                Parameters.EMPTY_PARAMETERS
-        );
+        Parameters params = new Parameters();
+        params.putValue("on", new TermParameter(selector, sequent));
         assertEquals(1, params.entrySet().size());
-        assertEquals("[(... (on: $lt(i1, i2)) ...)] ==> []", params.getValue("on").toString());
+        assertEquals("(... (?match: $lt(i1, i2)) ...) |-", ((TermParameter)params.getValue("on")).getSchematicTerm().toString());
         rule.considerApplication(
                 ProofMockUtil.mockProofNode(null, sequent.getAntecedent(), sequent.getSuccedent()),
                 params
         );
-        assertEquals(1, rule.tsForParameter.size());
-        assertEquals(selector, rule.tsForParameter.get("on"));
         assertEquals(1, params.entrySet().size());
-        assertEquals("$lt(i1, i2)", params.getValue("on").toString());
+        assertEquals("$lt(i1, i2)", ((TermParameter)params.getValue("on")).getTerm().toString());
     }
 }
