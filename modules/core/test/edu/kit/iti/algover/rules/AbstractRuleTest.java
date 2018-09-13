@@ -39,7 +39,6 @@ public class AbstractRuleTest {
         symbolTable.addFunctionSymbol(new FunctionSymbol("i4", Sort.INT));
     }
 
-    //TODO these tests should now be moved to a new Testclass for TermParameters
     @Test
     public void getUniqueMatchingParameterTest()
             throws FormatException, TermBuildException, RuleException, DafnyParserException, DafnyException {
