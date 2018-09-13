@@ -1,0 +1,19 @@
+s1: seq<int>
+i: int
+j: int
+--------
+s1 == [i,j]
+|-
+s1 == [j,i]
+--------
+sat
+var _i : int;
+var _j : int;
+var _s1 : Seq int;
+
+procedure Sequent()
+  ensures false;
+{
+  assume Seq#Equal(_s1, Seq#Build(Seq#Build(Seq#Empty(), _i), _j));
+  assume !(Seq#Equal(_s1, Seq#Build(Seq#Build(Seq#Empty(), _j), _i)));
+}

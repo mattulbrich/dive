@@ -1,0 +1,21 @@
+s1: seq<int>
+i: int
+j: int
+k: int
+--------
+s1 == $seq_cons<int>(i,($seq_cons<int>(j,$seq_cons<int>(k,$seq_empty))))
+|-
+$seq_get<int>(s1,0) == j
+--------
+sat
+var _i : int;
+var _j : int;
+var _k : int;
+var _s1 : Seq int;
+
+procedure Sequent()
+  ensures false;
+{
+  assume Seq#Equal(_s1, Seq#Build(Seq#Build(Seq#Build(Seq#Empty(), _k), _j), _i));
+  assume !((Seq#Index(_s1, 0) == _j));
+}
