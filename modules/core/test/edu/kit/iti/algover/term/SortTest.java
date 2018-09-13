@@ -44,6 +44,7 @@ public class SortTest {
 
     public Object[][] parametersForTestHierarchy() {
         return new Object[][] {
+            // top, bottom, expected
             { Sort.OBJECT, Sort.NULL, true },
             { Sort.OBJECT, Sort.OBJECT, true },
             { Sort.OBJECT, CLASS_SORT, true },
@@ -64,6 +65,16 @@ public class SortTest {
             { Sort.OBJECT, Sort.UNTYPED_SORT, true },
             { CLASS_SORT, Sort.UNTYPED_SORT, true },
             { Sort.UNTYPED_SORT, CLASS_SORT, false },
+
+            { Sort.BOTTOM, Sort.BOTTOM, true},
+            { Sort.BOTTOM, Sort.INT, false},
+            { Sort.INT, Sort.BOTTOM, true},
+            { Sort.BOTTOM, CLASS_SORT, false},
+            { CLASS_SORT, Sort.BOTTOM, true},
+            { Sort.BOTTOM, Sort.NULL, false},
+            { Sort.NULL, Sort.BOTTOM, true},
+            { Sort.BOTTOM, Sort.UNTYPED_SORT, true},
+            { Sort.UNTYPED_SORT, Sort.BOTTOM, false},
         };
     }
 
@@ -77,7 +88,9 @@ public class SortTest {
             { CLASS_SORT, OTHER_CLASS_SORT, Sort.OBJECT },
             { INT_ARRAY, CLASS_SORT, Sort.OBJECT },
             { INT_ARRAY, Sort.NULL, INT_ARRAY },
-            { Sort.INT, Sort.OBJECT, null }
+            { Sort.INT, Sort.OBJECT, null },
+            { Sort.UNTYPED_SORT, Sort.BOTTOM, Sort.BOTTOM},
+            { Sort.UNTYPED_SORT, CLASS_SORT, CLASS_SORT},
         };
     }
 

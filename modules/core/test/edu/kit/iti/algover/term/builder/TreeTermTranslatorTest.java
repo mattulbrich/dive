@@ -169,12 +169,16 @@ public class TreeTermTranslatorTest {
             // Set, Seqs and cardinalities
             { "|mod|", "$set_card<object>(mod)" },
             { "|iseq|", "$seq_len<int>(iseq)" },
-            { "{1,2,3}", "$set_add<int>(3, $set_add<int>(2, $set_add<int>(1, $empty<int>)))" },
-            { "[1,2,3]", "$seq_cons<int>(3, $seq_cons<int>(2, $seq_cons<int>(1, $seq_empty<int>)))" },
+            { "{1,2,3}", "$set_add<int>(3, $set_add<int>(2, $set_add<int>(1, $empty)))" },
+            { "[1,2,3]", "$seq_cons<int>(3, $seq_cons<int>(2, $seq_cons<int>(1, $seq_empty)))" },
             { "iseq + iseq", "$seq_concat<int>(iseq, iseq)" },
             { "mod * mod", "$intersect<object>(mod, mod)" },
             { "mod + mod", "$union<object>(mod, mod)" },
             { "cseq + dseq", "$seq_concat<object>(cseq, dseq)" },
+            { "{}", "$empty" },
+            { "{} == {1}", "$eq<set<int>>($empty, $set_add<int>(1, $empty))" },
+            { "[]", "$seq_empty" },
+            { "[] == [1]", "$eq<seq<int>>($seq_empty, $seq_cons<int>(1, $seq_empty))" },
         };
     }
 

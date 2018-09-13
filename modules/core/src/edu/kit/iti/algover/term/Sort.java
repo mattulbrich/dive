@@ -101,6 +101,13 @@ public class Sort {
     public static final Sort UNTYPED_SORT = get("$UNTYPED");
 
     /**
+     * The uninhabited bottom type of the type hierarchy.
+     *
+     * Used for empty sets and sequences ...
+     */
+    public static final Sort BOTTOM = get("$nothing");
+
+    /**
      * The name of the type (w/o arguments).
      */
     private final String name;
@@ -126,6 +133,7 @@ public class Sort {
         BUILTIN_SORT_NAMES.add("array3");
         BUILTIN_SORT_NAMES.add("field");
         BUILTIN_SORT_NAMES.add("heap");
+        BUILTIN_SORT_NAMES.add("$nothing");
     }
 
     /**
@@ -318,6 +326,10 @@ public class Sort {
         }
 
         if(equals(UNTYPED_SORT)) {
+            return true;
+        }
+
+        if (equals(BOTTOM) && !other.equals(UNTYPED_SORT)) {
             return true;
         }
 
