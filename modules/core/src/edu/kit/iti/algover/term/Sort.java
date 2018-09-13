@@ -442,7 +442,10 @@ public class Sort {
             if ("<>,".indexOf(c) != -1) {
                 break;
             }
-            sb.append(c);
+            if("\t ".indexOf(c) == -1) {
+                // overread spaces and tabs
+                sb.append(c);
+            }
             pos.incrementAndGet();
         }
 

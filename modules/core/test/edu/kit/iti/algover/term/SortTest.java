@@ -100,6 +100,10 @@ public class SortTest {
                 { "set<object>" },
                 { "X<Y<Z,A>,Y<A,Z>>" },
                 { "X<Y<Z<A<B>>>>" },
+                // Was a problem
+                { "field<C, int>" },
+                { "X <  Y ,  Z >" },
+                { "\tbool" },
         };
     }
 
@@ -149,7 +153,8 @@ public class SortTest {
         Sort sort = Sort.parseSort(string);
         String actual = sort.toString();
 
-        assertEquals(string, actual);
-    }
+        String expected = string.replaceAll("\\s+", "");
 
+        assertEquals(expected, actual);
+    }
 }
