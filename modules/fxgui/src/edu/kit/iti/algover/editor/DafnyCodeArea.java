@@ -4,6 +4,7 @@ import de.jensd.fx.glyphs.GlyphsDude;
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon;
 import edu.kit.iti.algover.AlgoVerApplication;
 import edu.kit.iti.algover.parser.DafnyLexer;
+import edu.kit.iti.algover.parser.DafnyParser;
 import edu.kit.iti.algover.util.AsyncHighlightingCodeArea;
 import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
@@ -152,6 +153,7 @@ public class DafnyCodeArea extends AsyncHighlightingCodeArea {
             case DafnyLexer.FUNCTION:
             case DafnyLexer.ASSIGN:
             case DafnyLexer.RETURN:
+            case DafnyLexer.INCLUDE:
                 return Collections.singletonList("code-keyword");
             case DafnyLexer.REQUIRES:
             case DafnyLexer.ENSURES:
@@ -160,9 +162,12 @@ public class DafnyCodeArea extends AsyncHighlightingCodeArea {
             case DafnyLexer.ASSERT:
             case DafnyLexer.MODIFIES:
             case DafnyLexer.LEMMA:
+            case DafnyLexer.SETTINGS:
+            case DafnyParser.OLD:
                 return Collections.singleton("specification-keyword");
             case DafnyLexer.MULTILINE_COMMENT:
             case DafnyLexer.SINGLELINE_COMMENT:
+            case DafnyLexer.ALGOVER_COMMENT:
                 return Collections.singleton("comment");
             case DafnyLexer.INT:
             case DafnyLexer.BOOL:
@@ -173,6 +178,7 @@ public class DafnyCodeArea extends AsyncHighlightingCodeArea {
             case DafnyLexer.INT_LIT:
             case DafnyLexer.TRUE:
             case DafnyLexer.FALSE:
+            case DafnyLexer.STRING_LIT:
                 return Collections.singleton("value-literal");
             default:
                 return Collections.emptyList();

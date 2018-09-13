@@ -44,7 +44,7 @@ import nonnull.Nullable;
  * @author Created by sarah on 8/3/16.
  * @author revised by mattias
  */
-public class Project {
+public final class Project {
 
     /**
      * The base directory under which all files must be located.
