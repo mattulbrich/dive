@@ -1,0 +1,14 @@
+i: int
+j: int
+--------
+|-
+{j} + {j} == {5}
+--------
+sat
+var _j : int;
+
+procedure Sequent()
+  ensures false;
+{
+  assume !(Set#Equal(Set#Union(Set#UnionOne(Set#Empty(), _j), Set#UnionOne(Set#Empty(), _j)), Set#UnionOne(Set#Empty(), 5)));
+}

@@ -1,0 +1,15 @@
+s1: set<int>
+s2: set<int>
+--------
+|-
+$set_minus<int>(s1,s2) == $empty
+--------
+sat
+var _s1 : Set int;
+var _s2 : Set int;
+
+procedure Sequent()
+  ensures false;
+{
+  assume !(Set#Equal(Set#Difference(_s1, _s2), Set#Empty()));
+}

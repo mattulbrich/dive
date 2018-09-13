@@ -1,0 +1,11 @@
+--------
+|-
+let s1 := {1,2} :: s1 + {2} == {2}
+--------
+sat
+
+procedure Sequent()
+  ensures false;
+{
+  assume !(Set#Equal(Set#Union(Set#UnionOne(Set#UnionOne(Set#Empty(), 1), 2), Set#UnionOne(Set#Empty(), 2)), Set#UnionOne(Set#Empty(), 2)));
+}

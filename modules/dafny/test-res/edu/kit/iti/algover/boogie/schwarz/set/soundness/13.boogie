@@ -1,0 +1,21 @@
+i : int
+j : int
+z : int
+s1 : set<int>
+s2 : set<int>
+--------
+|-
+let s1 := $set_add<int>(i,$set_add<int>(j,$empty)) ::
+let s2 := $set_add<int>(z,$empty) ::
+s2 == $intersect<int>(s1,s2)
+--------
+sat
+var _i : int;
+var _j : int;
+var _z : int;
+
+procedure Sequent()
+  ensures false;
+{
+  assume !(Set#Equal(Set#UnionOne(Set#Empty(), _z), Set#Intersection(Set#UnionOne(Set#UnionOne(Set#Empty(), _j), _i), Set#UnionOne(Set#Empty(), _z))));
+}

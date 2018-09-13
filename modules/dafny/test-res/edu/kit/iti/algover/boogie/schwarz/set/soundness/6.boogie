@@ -1,0 +1,15 @@
+s1: set<int>
+s2: set<int>
+--------
+|-
+s1 == $union<int>(s1,s2)
+--------
+sat
+var _s1 : Set int;
+var _s2 : Set int;
+
+procedure Sequent()
+  ensures false;
+{
+  assume !(Set#Equal(_s1, Set#Union(_s1, _s2)));
+}

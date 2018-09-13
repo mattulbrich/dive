@@ -228,6 +228,7 @@ public class TestUtil {
     }
 
     public static List<URL> getResourcesIn(URL resource, String suffix, boolean deep) throws MalformedURLException {
+        assert resource != null : "Null resource received!";
         assert resource.getProtocol().equals("file") :
                 "This is only implemented for file systems.";
         File f = new File(resource.getFile());

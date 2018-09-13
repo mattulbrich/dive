@@ -1,0 +1,18 @@
+s1 : set<int>
+s2 : set<int>
+--------
+$subset<int>(s1,s2)
+|-
+$subset<int>(s2,s1)
+--------
+sat
+
+var _s1 : Set int;
+var _s2 : Set int;
+
+procedure Sequent()
+  ensures false;
+{
+  assume Set#Subset(_s1, _s2);
+  assume !(Set#Subset(_s2, _s1));
+}

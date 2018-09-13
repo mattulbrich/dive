@@ -32,6 +32,12 @@ import java.util.Set;
 
 public class BoogieProcess {
 
+    /**
+     * The command by which z3 is invoked.
+     */
+    public static final String COMMAND =
+            System.getProperty("edu.kit.iti.algover.boogie_binary", "boogie");
+
     private final static String PRELUDE = loadPrelude();
 
     private static String loadPrelude() {
@@ -130,8 +136,7 @@ public class BoogieProcess {
 
     private Process buildProcess(Path tmpFile) throws IOException {
         ProcessBuilder pb =
-                new ProcessBuilder("/home/mulbrich/.local/bin/boogie",
-                        tmpFile.toString());
+                new ProcessBuilder(COMMAND, tmpFile.toString());
         return pb.start();
     }
 

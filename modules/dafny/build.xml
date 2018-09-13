@@ -45,6 +45,10 @@
 	</target>
 
 	<target name="test" depends="compile-test, build">
+		 <exec executable="${boogie.binary}">
+                        <arg value="/version"/>
+                </exec>
+
 		<junit fork="yes" printsummary="yes">
 			<jvmarg value="-javaagent:${dir.lib}/nonnull.jar=edu.kit." />
 			<jvmarg value="-Dedu.kit.iti.algover.boogie_binary=${boogie.binary}"/>

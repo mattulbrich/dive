@@ -1,0 +1,14 @@
+s: set<int>
+--------
+|-
+$empty == $union<int>(s,$empty)
+--------
+sat
+var _s : Set int;
+
+procedure Sequent()
+  ensures false;
+{
+  assume !(Set#Equal(Set#Empty(), Set#Union(_s, Set#Empty())));
+}
+

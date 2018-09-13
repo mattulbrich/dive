@@ -1,0 +1,15 @@
+s: set<int>
+i: int
+--------
+|-
+$set_in<int>(i,s)
+--------
+sat
+var _i : int;
+var _s : Set int;
+
+procedure Sequent()
+  ensures false;
+{
+  assume !((_s[_i]));
+}

@@ -1,0 +1,13 @@
+s1: set<int>
+--------
+|-
+$set_minus<int>(s1,$set_add<int>(1,$empty)) == s1
+--------
+sat
+var _s1 : Set int;
+
+procedure Sequent()
+  ensures false;
+{
+  assume !(Set#Equal(Set#Difference(_s1, Set#UnionOne(Set#Empty(), 1)), _s1));
+}
