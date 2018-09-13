@@ -1,0 +1,12 @@
+--------
+
+|-
+$seq_len<int>($seq_empty) == 0
+--------
+unsat
+
+procedure Sequent()
+  ensures false;
+{
+  assume !((Seq#Length(Seq#Empty()) == 0));
+}

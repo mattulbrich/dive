@@ -13,6 +13,10 @@ import org.junit.runners.Suite.SuiteClasses;
 
 @SuiteClasses({
         BoogieProcessTest.class,
+        SetSoundnessTests.class,
+        SetCompletenessTests.class,
+        SeqSoundnessTest.class,
+        SeqCompletenessTests.class,
 })
 @RunWith(Suite.class)
 public class Tests {

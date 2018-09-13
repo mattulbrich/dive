@@ -53,11 +53,15 @@ public class BoogieProcessTest {
 
     private List<String> expectedTranslation;
 
+    protected static List<Object[]> parametersFor(String resource) throws MalformedURLException {
+        URL res = BoogieProcess.class.getResource(resource);
+        List<URL> list = TestUtil.getResourcesIn(res, "boogie", false);
+        return Util.map(list, l->new Object[] {l, l.getFile().substring(res.getFile().length())});
+    }
+
     @Parameters(name = "{1}")
     public static List<Object[]> parameters() throws MalformedURLException {
-        URL res = BoogieProcess.class.getResource("");
-        List<URL> list = TestUtil.getResourcesIn(res, "boogie", true);
-        return Util.map(list, l->new Object[] {l, l.getFile().substring(res.getFile().length())});
+        return parametersFor("");
     }
 
     @Before
@@ -110,7 +114,13 @@ public class BoogieProcessTest {
         BoogieProcess process = new BoogieProcess();
         process.setSequent(sequent);
         process.setSymbolTable(table);
-        String[] lines = process.produceObligation().toString().split("\n");
+        String obligation = process.produceObligation().toString();
+
+        System.out.println(">>>" + name);
+        System.out.println(obligation);
+        System.out.flush();
+
+        String[] lines = obligation.split("\n");
 
         List<String> actual = Arrays.asList(lines);
 

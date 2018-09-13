@@ -1,0 +1,18 @@
+s1: seq<int>
+s2: seq<int>
+--------
+
+s1 == $seq_cons<int>(4,$seq_cons<int>(3,$seq_cons<int>(2,$seq_cons<int>(1,$seq_empty))))
+|-
+let s2 := $seq_sub<int>(s1,0,3) :: $seq_len<int>(s2) == 3
+
+--------
+unsat
+var _s1 : Seq int;
+
+procedure Sequent()
+  ensures false;
+{
+  assume Seq#Equal(_s1, Seq#Build(Seq#Build(Seq#Build(Seq#Build(Seq#Empty(), 1), 2), 3), 4));
+  assume !((Seq#Length(Seq#Drop(Seq#Take(_s1, 3), 0)) == 3));
+}

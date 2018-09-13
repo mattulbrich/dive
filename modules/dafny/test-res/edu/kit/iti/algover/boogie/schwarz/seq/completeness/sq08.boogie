@@ -1,0 +1,25 @@
+s1: seq<int>
+i: int
+j: int
+--------
+  s1 == [i, j]
+|-
+  let s2 := $seq_upd<int>(s1,0,s1[0]+1) :: s1 != s2
+--------
+unsat
+var _i : int;
+var _j : int;
+var _s1 : Seq int;
+
+procedure Sequent()
+  ensures false;
+{
+  assume Seq#Equal(_s1, Seq#Build(Seq#Build(Seq#Empty(), _i), _j));
+  assume !(!(Seq#Equal(_s1, Seq#Update(_s1, 0, (Seq#Index(_s1, 0) + 1)))));
+}
+--------
+Simon Schwarz' version was not valid.
+s1 == [j,i]
+|-
+let s2 := $seq_upd<int>(s1,0,i)::
+$not(s1 == s2)

@@ -1,0 +1,20 @@
+s1: seq<int>
+s2: seq<int>
+--------
+
+s1 == $seq_cons<int>(1,$seq_empty),
+s2 == $seq_cons<int>(2,$seq_empty)
+|-
+$seq_get<int>($seq_concat<int>(s1,s2),1) == 2
+--------
+unsat
+var _s1 : Seq int;
+var _s2 : Seq int;
+
+procedure Sequent()
+  ensures false;
+{
+  assume Seq#Equal(_s1, Seq#Build(Seq#Empty(), 1));
+  assume Seq#Equal(_s2, Seq#Build(Seq#Empty(), 2));
+  assume !((Seq#Index(Seq#Append(_s1, _s2), 1) == 2));
+}

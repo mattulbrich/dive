@@ -88,7 +88,24 @@ public class BoogieVisitor extends DefaultTermVisitor<Void, String, NoExceptions
         result.put(SET_ADD.getBaseName(), function("Set#UnionOne", true));
         result.put(SET_IN.getBaseName(), setIn());
         result.put(EMPTY_SET.getName(), function("Set#Empty"));
+        // --- Sequents
+        result.put(SEQ_LEN.getBaseName(), function("Seq#Length"));
+        result.put(SEQ_GET.getBaseName(), function("Seq#Index"));
+        result.put(SEQ_EMPTY.getName(), function("Seq#Empty"));
+        result.put(SEQ_UPDATE.getBaseName(), function("Seq#Update"));
+        result.put(SEQ_SUB.getBaseName(), seqSub());
+        result.put(SEQ_CONS.getBaseName(), function("Seq#Build", true));
+        result.put(SEQ_CONCAT.getBaseName(), function("Seq#Append"));
         return result;
+    }
+
+    private static Boogiefier seqSub() {
+        return (t,v) -> {
+            String seq = t.getTerm(0).accept(v, null);
+            String from = t.getTerm(1).accept(v, null);
+            String to = t.getTerm(2).accept(v, null);
+            return "Seq#Drop(Seq#Take(" + seq + ", " + to + "), " + from + ")";
+        };
     }
 
 

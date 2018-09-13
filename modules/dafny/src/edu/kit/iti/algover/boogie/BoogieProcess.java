@@ -102,7 +102,6 @@ public class BoogieProcess {
         }
         sb.append("}");
 
-        System.out.println(sb);
         return sb;
     }
 
