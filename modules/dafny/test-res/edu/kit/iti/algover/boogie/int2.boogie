@@ -1,17 +1,25 @@
+### decls:
 j : int
 i : int
----------
-$gt(j,2),
-$gt(i,2)
-|-
-let a := $times(i,j) :: 
-let b := $times(j,i) :: 
-let c := $plus(i,j) ::
-$and(a == b, $ge(c+a,c))
----------
-unsat
-var _i : int;
-var _j : int;
+
+### sequent:
+  $gt(j,2),
+  $gt(i,2)
+ |-
+  let a := $times(i,j) ::
+  let b := $times(j,i) ::
+  let c := $plus(i,j) ::
+  $and(a == b, $ge(c+a,c))
+
+### result:
+ prove
+
+### translation:
+const _i : int;
+const _j : int;
+
+axiom $Is(_j, TInt);
+axiom $Is(_i, TInt);
 
 procedure Sequent()
   ensures false;

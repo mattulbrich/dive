@@ -1,0 +1,32 @@
+### project:
+class C { var f: int; }
+class D { var g: int; }
+
+### decls:
+c : C
+d : D
+o : object
+### sequent:
+o == c , o == d |- o == null
+### result:
+prove
+### translation:
+const _c : ref;
+const _d : ref;
+const _o : ref;
+const unique TClass_C : Ty;
+const unique TClass_D : Ty;
+
+axiom (forall x:ref :: $Is(x, TClass_C) <==> dtype(x) == TClass_C || x == null);
+axiom (forall x:ref :: $Is(x, TClass_D) <==> dtype(x) == TClass_D || x == null);
+axiom $Is(_o, TClass_object);
+axiom $Is(_c, TClass_C);
+axiom $Is(_d, TClass_D);
+
+procedure Sequent()
+  ensures false;
+{
+  assume (_o == _c);
+  assume (_o == _d);
+  assume !((_o == null));
+}

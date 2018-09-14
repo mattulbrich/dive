@@ -1,9 +1,11 @@
+### decls:
 s1: set<int>
---------
+### sequent:
 |-
 $set_minus<int>(s1,$empty) == s1 
---------
-unsat
+### result:
+prove
+### OLD-translation:
 var _s1 : Set int;
 
 procedure Sequent()

@@ -1,13 +1,15 @@
+### decls:
 j : int
 i : int
-------
+### sequent:
 $gt(j,1),
 $gt(i,2)
 |-
 $gt(j,1),
 $gt(i,2)
-------
-unsat
+### result:
+prove
+### OLD-translation:
 var _i : int;
 var _j : int;
 

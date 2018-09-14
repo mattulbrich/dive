@@ -1,9 +1,11 @@
+### decls:
 a : int
 b : int
----------
+### sequent:
 a == 5, b > 3 |- a+b > 8
----------
-unsat
+### result:
+prove
+### translation:
 var _a : int;
 var _b : int;
 procedure Sequent()

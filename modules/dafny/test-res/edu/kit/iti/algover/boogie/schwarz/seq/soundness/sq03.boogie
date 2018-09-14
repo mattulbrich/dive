@@ -1,10 +1,12 @@
+### decls:
 s1: seq<int>
---------
+### sequent:
 |-
 $lt($seq_get<int>($seq_sub<int>(s1,0,2),0),0)
 
---------
-sat
+### result:
+fail
+### OLD-translation:
 var _s1 : Seq int;
 
 procedure Sequent()

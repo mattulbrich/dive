@@ -1,9 +1,11 @@
+### decls:
 i :int
---------
+### sequent:
 |-
 $not($set_in<int>(i,$empty))
---------
-unsat
+### result:
+prove
+### OLD-translation:
 var _i : int;
 
 procedure Sequent()

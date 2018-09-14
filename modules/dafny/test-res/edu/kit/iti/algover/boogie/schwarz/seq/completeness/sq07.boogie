@@ -1,13 +1,15 @@
+### decls:
 s1: seq<int>
 s2: seq<int>
---------
+### sequent:
 
 $seq_len<int>(s1) > 0
 |-
 $seq_len<int>(s1) == $seq_len<int>($seq_upd<int>(s1,0,5))
 
---------
-unsat
+### result:
+prove
+### OLD-translation:
 var _s1 : Seq int;
 
 procedure Sequent()

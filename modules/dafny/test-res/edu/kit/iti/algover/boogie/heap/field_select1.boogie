@@ -1,0 +1,31 @@
+### project:
+class C { var f : int; }
+
+### decls:
+o : C
+C$$f : field<C, int>
+
+### sequent:
+|- o.f == 0
+
+### result:
+fail
+
+### translation:
+const _$heap : Heap;
+const _C$$f : Field int;
+const _o : ref;
+const unique TClass_C : Ty;
+
+axiom $Is(_$heap, THeap);
+axiom $Is(_o, TClass_C);
+axiom $Is(_C$$f, TField(TInt));
+
+procedure Sequent()
+  ensures false;
+{
+  assume !((read(_$heap, _o, _C$$f) == 0));
+}
+
+### comments:
+subject to change

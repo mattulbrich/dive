@@ -1,8 +1,9 @@
+### decls:
 s1: set<int>
 s2: set<int>
 s3: set<int>
 s4: set<int>
---------
+### sequent:
 
 |-
 let s1 := $set_add<int>(1,$empty) :: 
@@ -11,8 +12,9 @@ let s3 := $set_add<set<int>>(s1,$empty) ::
 let s4 := $set_add<set<int>>(s2,$empty) ::
 $set_minus<set<int>>(s3,s4) == $empty
 
---------
-unsat
+### result:
+prove
+### OLD-translation:
 
 procedure Sequent()
   ensures false;

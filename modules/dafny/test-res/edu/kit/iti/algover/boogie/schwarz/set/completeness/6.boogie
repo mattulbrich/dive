@@ -1,11 +1,13 @@
+### decls:
 i : int
 s: set<int>
---------
+### sequent:
 $not($set_in<int>(i,s))
 |-
 $not($set_in<int>(3,s))
---------
-sat
+### result:
+fail
+### OLD-translation:
 var _i : int;
 var _s : Set int;
 
@@ -15,5 +17,5 @@ procedure Sequent()
   assume !((_s[_i]));
   assume !(!((_s[3])));
 }
-------
+### comments:
 This was wrongly classified by Simon Schwarz as a valid sequent.

@@ -1,11 +1,13 @@
+### decls:
 s1 : set<int>
 s2 : set<int>
---------
+### sequent:
 $subset<int>(s1,s2)
 |-
 $subset<int>(s2,s1)
---------
-sat
+### result:
+fail
+### OLD-translation:
 
 var _s1 : Set int;
 var _s2 : Set int;

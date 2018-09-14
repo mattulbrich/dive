@@ -1,9 +1,11 @@
+### decls:
 s1 : set<int>
---------
+### sequent:
 |- 
 $intersect<int>(s1,$empty) == $empty
---------
-unsat
+### result:
+prove
+### OLD-translation:
 var _s1 : Set int;
 
 procedure Sequent()

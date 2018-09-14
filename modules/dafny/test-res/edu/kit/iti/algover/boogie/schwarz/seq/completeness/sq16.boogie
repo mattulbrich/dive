@@ -1,8 +1,9 @@
+### decls:
 s1: seq<int>
 s2: seq<int>
 s3: seq<int>
 s4: seq<int>
---------
+### sequent:
    s1 == [3, 2, 1],
    s2 == [1, 2, 3],
    s3 == s1 + s2,
@@ -10,8 +11,9 @@ s4: seq<int>
    s3[0] == s4[0] || s3[0] != s4[0]
 |- 
    s3 != s4
---------
-unsat
+### result:
+prove
+### OLD-translation:
 var _s1 : Seq int;
 var _s2 : Seq int;
 var _s3 : Seq int;
@@ -24,4 +26,4 @@ procedure Sequent()
   assume Seq#Equal(_s3, Seq#Append(_s1, _s2));
   assume !(!(Seq#Equal(_s3, Seq#Append(_s2, _s2))));
 }
----------
+### comments:

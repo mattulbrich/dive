@@ -1,9 +1,11 @@
+### decls:
 s: set<int>
---------
+### sequent:
 |-
 $empty == $union<int>(s,$empty)
---------
-sat
+### result:
+fail
+### OLD-translation:
 var _s : Set int;
 
 procedure Sequent()

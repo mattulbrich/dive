@@ -1,10 +1,12 @@
+### decls:
 s1: set<int>
 s2: set<int>
---------
+### sequent:
 |-
 $set_minus<int>(s1,s2) == $empty
---------
-sat
+### result:
+fail
+### OLD-translation:
 var _s1 : Set int;
 var _s2 : Set int;
 

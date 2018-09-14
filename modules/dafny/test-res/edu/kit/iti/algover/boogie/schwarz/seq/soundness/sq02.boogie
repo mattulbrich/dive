@@ -1,10 +1,12 @@
+### decls:
 s1: seq<int>
---------
+### sequent:
 |-
 $seq_sub<int>(s1,0,1) == $seq_empty
 
---------
-sat
+### result:
+fail
+### OLD-translation:
 var _s1 : Seq int;
 
 procedure Sequent()

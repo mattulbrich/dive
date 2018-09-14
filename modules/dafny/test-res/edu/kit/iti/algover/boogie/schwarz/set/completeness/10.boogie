@@ -1,12 +1,14 @@
+### decls:
 s1 : set<int>
 s2 : set<int>
---------
+### sequent:
 |-
 let s1 := $set_add<int>(1,s1) ::
 let s3 := $set_add<int>(1,s2) ::
 s1 == $union<int>(s1,s2)
---------
-sat
+### result:
+fail
+### OLD-translation:
 var _s1 : Set int;
 var _s2 : Set int;
 
@@ -15,5 +17,5 @@ procedure Sequent()
 {
   assume !(Set#Equal(Set#UnionOne(_s1, 1), Set#Union(Set#UnionOne(_s1, 1), _s2)));
 }
---------
+### comments:
 Was categorised wrongly in Simon's work

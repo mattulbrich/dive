@@ -1,18 +1,20 @@
+### decls:
 s1 : set<int>
 s2 : set<int>
---------
+### sequent:
 |-
 let s1 := $set_add<int>(1,$set_add<int>(2,$empty)) ::
 let s2 := $set_add<int>(1,$empty) ::
 $subset<int>(s2,s1)
---------
-unsat
+### result:
+prove
+### OLD-translation:
 
 procedure Sequent()
   ensures false;
 {
   assume !(Set#Subset(Set#UnionOne(Set#Empty(), 1), Set#UnionOne(Set#UnionOne(Set#Empty(), 2), 1)));
 }
---------
+### comments:
 
 Simon Schwarz had "$subset<int>(s1,s2)"

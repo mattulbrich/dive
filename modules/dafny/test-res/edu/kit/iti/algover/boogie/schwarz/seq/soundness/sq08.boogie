@@ -1,11 +1,13 @@
+### decls:
 s1: seq<int>
---------
+### sequent:
 
 |-
 $gt($seq_len<int>($seq_upd<int>(s1,0,3)), $seq_len<int>(s1))
 
---------
-sat
+### result:
+fail
+### OLD-translation:
 var _s1 : Seq int;
 
 procedure Sequent()

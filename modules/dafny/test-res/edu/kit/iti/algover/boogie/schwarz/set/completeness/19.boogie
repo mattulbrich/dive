@@ -1,13 +1,15 @@
+### decls:
 s1 : set<int>
 s2: set<int>
 i: int
---------
+### sequent:
 |-
 let s1 := $set_add<int>(i,$empty) ::
 let s2 := $set_add<int>(i,$empty) ::
 $subset<int>(s1,s2)
---------
-unsat
+### result:
+prove
+### OLD-translation:
 var _i : int;
 
 procedure Sequent()

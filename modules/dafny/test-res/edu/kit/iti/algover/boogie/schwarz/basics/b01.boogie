@@ -1,6 +1,7 @@
+### decls:
 j : int
 i : int
--------
+### sequent:
 $gt(j,1),
 $gt(i,1)
 |-
@@ -8,8 +9,9 @@ let a := $times(i,j) ::
 let b := $times(j,i) :: 
 let c := $plus(i,j) ::
 $and(a == b, $ge(b,c))
--------
-sat
+### result:
+fail
+### OLD-translation:
 var _i : int;
 var _j : int;
 procedure Sequent()
@@ -19,6 +21,6 @@ procedure Sequent()
   assume (_i > 1);
   assume !((((_i * _j) == (_j * _i)) && ((_j * _i) >= (_i + _j))));
 }
--------
+### comments:
 This example is correct, yet the translation finds a strange
 spurious counterexample.

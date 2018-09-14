@@ -1,0 +1,8 @@
+### decls:
+c : C
+d : D
+### sequent:
+c == d |- c == null
+### result:
+prove
+### translation:

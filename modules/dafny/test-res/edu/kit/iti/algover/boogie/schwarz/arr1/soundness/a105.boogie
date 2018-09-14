@@ -1,0 +1,8 @@
+### decls:
+a: array<int>
+### sequent:
+
+|-
+$not($array_select<int>($heap, a, 0) == 0) 
+### result:
+fail

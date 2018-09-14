@@ -1,9 +1,11 @@
+### decls:
 k : int
-------
+### sequent:
 |-
 $and(exists i:int :: $gt(i,0), exists j:int :: $gt(j,k))
-------
-unsat
+### result:
+prove
+### OLD-translation:
 var _k : int;
 
 procedure Sequent()

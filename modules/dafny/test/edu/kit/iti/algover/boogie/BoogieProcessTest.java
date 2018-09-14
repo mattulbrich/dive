@@ -9,17 +9,22 @@ package edu.kit.iti.algover.boogie;
 
 import edu.kit.iti.algover.data.BuiltinSymbols;
 import edu.kit.iti.algover.data.SymbolTable;
+import edu.kit.iti.algover.project.Project;
 import edu.kit.iti.algover.term.FunctionSymbol;
 import edu.kit.iti.algover.term.Sequent;
 import edu.kit.iti.algover.term.Sort;
 import edu.kit.iti.algover.term.parser.TermParser;
+import edu.kit.iti.algover.util.LineProperties;
 import edu.kit.iti.algover.util.TestUtil;
 import edu.kit.iti.algover.util.TreeUtil;
 import edu.kit.iti.algover.util.Util;
+import org.junit.Assume;
 import org.junit.Before;
+import org.junit.FixMethodOrder;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.junit.runners.MethodSorters;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameter;
 import org.junit.runners.Parameterized.Parameters;
@@ -36,6 +41,7 @@ import java.util.function.Function;
 
 import static org.junit.Assert.assertEquals;
 
+@FixMethodOrder(MethodSorters.NAME_ASCENDING)
 @RunWith(Parameterized.class)
 public class BoogieProcessTest {
 
@@ -51,7 +57,9 @@ public class BoogieProcessTest {
 
     private boolean expectedResult;
 
-    private List<String> expectedTranslation;
+    private String expectedTranslation;
+
+    private String project;
 
     protected static List<Object[]> parametersFor(String resource) throws MalformedURLException {
         URL res = BoogieProcess.class.getResource(resource);
@@ -67,13 +75,10 @@ public class BoogieProcessTest {
     @Before
     public void setup() throws Exception {
 
-        BufferedReader br = new BufferedReader(new InputStreamReader(url.openStream()));
-        String line;
+        LineProperties props = new LineProperties();
+        props.read(url.openStream());
 
-        while ((line = br.readLine()) != null) {
-            if (line.startsWith("----")) {
-                break;
-            }
+        for (String line : props.getLines("decls")) {
             String[] parts = line.split(" *(\\*|:|->) *");
             String name = parts[0];
             Sort resultSort = Sort.parseSort(parts[parts.length - 1]);
@@ -85,57 +90,38 @@ public class BoogieProcessTest {
             table.addFunctionSymbol(fs);
         }
 
-        StringBuilder sb = new StringBuilder();
-        while ((line = br.readLine()) != null) {
-            if (line.startsWith("----")) {
-                break;
-            }
-            sb.append(line).append("\n");
-        }
+        this.sequent = TermParser.parseSequent(table, props.get("sequent"));
 
-        this.sequent = TermParser.parseSequent(table, sb.toString());
+        this.expectedResult = props.getOrDefault("result", "fail").equalsIgnoreCase("prove");
 
-        this.expectedResult = br.readLine().trim().equalsIgnoreCase("unsat");
+        this.expectedTranslation = props.get("translation");
 
-        this.expectedTranslation = new ArrayList<>();
-
-        while ((line = br.readLine()) != null) {
-            if (line.startsWith("----")) {
-                // The remainder of the file is comment
-                break;
-            }
-            this.expectedTranslation.add(line);
-        }
+        this.project = props.getOrDefault("project", "method m() {}");
     }
 
     @Test
-    public void testTranslation() throws Exception {
-
-        BoogieProcess process = new BoogieProcess();
-        process.setSequent(sequent);
-        process.setSymbolTable(table);
-        String obligation = process.produceObligation().toString();
-
-        System.out.println(">>>" + name);
-        System.out.println(obligation);
-        System.out.flush();
-
-        String[] lines = obligation.split("\n");
-
-        List<String> actual = Arrays.asList(lines);
-
-        assertEquals(Util.join(expectedTranslation, "\n"),
-                Util.join(actual, "\n"));
-
-    }
-
-    @Test // @Ignore
-    public void testResult() throws Exception {
-        BoogieProcess process = new BoogieProcess();
+    public void testBoogie() throws Exception {
+        Project p = TestUtil.mockProject(project);
+        BoogieProcess process = new BoogieProcess(p);
         process.setSequent(sequent);
         process.setSymbolTable(table);
 
         assertEquals(expectedResult, process.callBoogie());
 
+        if (expectedTranslation == null) {
+            return;
+        }
+
+        String actualTranslation = process.produceObligation().toString().trim();
+
+        if (!expectedTranslation.equals(actualTranslation)) {
+            System.out.println(">>> " + name);
+            System.out.println("### translation:");
+            System.out.println(actualTranslation);
+            System.out.println("# expected ");
+            System.out.println(expectedTranslation);
+        }
+
+        assertEquals(expectedTranslation, actualTranslation);
     }
 }

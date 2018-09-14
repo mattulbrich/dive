@@ -1,13 +1,15 @@
+### decls:
 s1: seq<int>
 i: int
 j: int
 k: int
---------
+### sequent:
 s1 == $seq_cons<int>(i,($seq_cons<int>(j,$seq_cons<int>(k,$seq_empty))))
 |-
 $seq_get<int>(s1,0) == j
---------
-sat
+### result:
+fail
+### OLD-translation:
 var _i : int;
 var _j : int;
 var _k : int;

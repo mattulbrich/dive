@@ -1,0 +1,8 @@
+### decls:
+a: array<int>
+i : int
+### sequent:
+|-
+forall j:int :: $imp($and($le(1,j),$lt(j,$minus($len<int>(a),1))),   $gt($plus($array_select<int>($heap,a,j),$array_select<int>($heap,a,$minus(j,1))),0))
+### result:
+fail

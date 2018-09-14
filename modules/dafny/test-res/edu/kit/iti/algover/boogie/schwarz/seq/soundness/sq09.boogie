@@ -1,12 +1,14 @@
+### decls:
 s1: seq<int>
 i: int
 j: int
---------
+### sequent:
 s1 == [i,j]
 |-
 s1 == [j,i]
---------
-sat
+### result:
+fail
+### OLD-translation:
 var _i : int;
 var _j : int;
 var _s1 : Seq int;

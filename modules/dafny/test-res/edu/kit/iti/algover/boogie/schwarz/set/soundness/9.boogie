@@ -1,8 +1,9 @@
---------
+### sequent:
 |-
 let s1 := {1,2} :: s1 + {2} == {2}
---------
-sat
+### result:
+fail
+### OLD-translation:
 
 procedure Sequent()
   ensures false;

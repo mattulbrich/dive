@@ -1,9 +1,14 @@
+### decls:
 a : bool
 b : bool
----------
+
+### sequent:
 |- b && b || b ==> b
----------
-unsat
+
+### result:
+prove
+
+### translation:
 var _b : bool;
 procedure Sequent()
   ensures false;

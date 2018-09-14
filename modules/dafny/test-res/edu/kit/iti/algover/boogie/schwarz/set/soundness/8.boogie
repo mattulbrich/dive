@@ -1,10 +1,12 @@
+### decls:
 i: int
 j: int
---------
+### sequent:
 |-
 {j} + {j} == {5}
---------
-sat
+### result:
+fail
+### OLD-translation:
 var _j : int;
 
 procedure Sequent()

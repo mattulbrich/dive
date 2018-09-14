@@ -1,0 +1,12 @@
+### decls:
+a: array<int>
+i : int
+### sequent:
+
+|-
+let $heap := $array_store<int>($heap, a, 0, 0) :: 
+let $heap := $array_store<int>($heap, a, 1, 1) :: 
+let $heap := $array_store<int>($heap, a, 2, 2) ::
+$not($array_select<int>($heap, a, 1) == $array_select<int>($heap, a, 2)) 
+### result:
+prove

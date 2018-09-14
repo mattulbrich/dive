@@ -1,9 +1,11 @@
---------
+### decls:
+### sequent:
 
 |-
 $seq_len<int>($seq_empty) == 0
---------
-unsat
+### result:
+prove
+### OLD-translation:
 
 procedure Sequent()
   ensures false;
