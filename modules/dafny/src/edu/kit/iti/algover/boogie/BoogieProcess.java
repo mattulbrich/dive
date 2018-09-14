@@ -8,6 +8,7 @@
 package edu.kit.iti.algover.boogie;
 
 import edu.kit.iti.algover.data.SymbolTable;
+import edu.kit.iti.algover.project.Project;
 import edu.kit.iti.algover.proof.ProofFormula;
 import edu.kit.iti.algover.rules.RuleException;
 import edu.kit.iti.algover.smt.SMTSolver.Result;
@@ -39,6 +40,11 @@ public class BoogieProcess {
             System.getProperty("edu.kit.iti.algover.boogie_binary", "boogie");
 
     private final static String PRELUDE = loadPrelude();
+    private Project project;
+
+    public BoogieProcess(Project project) {
+        this.project = project;
+    }
 
     private static String loadPrelude() {
         try {
@@ -81,7 +87,8 @@ public class BoogieProcess {
         List<String> clauses = new ArrayList<>();
 
         BoogieVisitor v = new BoogieVisitor();
-        Set<String> decls = v.getDeclarations();
+
+        v.addClassDeclarations(project);
 
         for (ProofFormula formula : sequent.getAntecedent()) {
             Term term = formula.getTerm();
@@ -101,7 +108,8 @@ public class BoogieProcess {
         }
 
         StringBuilder sb = new StringBuilder();
-        sb.append(Util.join(decls, "\n")).append("\n\n");
+        sb.append(Util.join(v.getDeclarations(), "\n")).append("\n\n");
+        sb.append(Util.join(v.getAxioms(), "\n")).append("\n\n");
         sb.append("procedure Sequent()\n  ensures false;\n{\n");
         for (String clause : clauses) {
             sb.append("  assume " + clause + ";\n");

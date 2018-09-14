@@ -79,7 +79,7 @@ public class BoogieRule extends AbstractProofRule {
 
         PVC pvc = target.getPVC();
 
-        BoogieProcess process = new BoogieProcess();
+        BoogieProcess process = new BoogieProcess(pvc.getProject());
 
         process.setSymbolTable(pvc.getSymbolTable());
 

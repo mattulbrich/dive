@@ -8,6 +8,8 @@
 package edu.kit.iti.algover.boogie;
 
 import de.uka.ilkd.pp.NoExceptions;
+import edu.kit.iti.algover.dafnystructures.DafnyClass;
+import edu.kit.iti.algover.project.Project;
 import edu.kit.iti.algover.term.ApplTerm;
 import edu.kit.iti.algover.term.DefaultTermVisitor;
 import edu.kit.iti.algover.term.FunctionSymbol;
@@ -20,6 +22,7 @@ import edu.kit.iti.algover.term.Term;
 import edu.kit.iti.algover.term.VariableTerm;
 import edu.kit.iti.algover.util.Util;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -52,6 +55,7 @@ public class BoogieVisitor extends DefaultTermVisitor<Void, String, NoExceptions
      */
     @FunctionalInterface
     private interface Boogiefier {
+
         /**
          * Translate a term into a Boogie string
          * @param term the term to translate, not null
@@ -59,10 +63,10 @@ public class BoogieVisitor extends DefaultTermVisitor<Void, String, NoExceptions
          * @return a non-null String
          */
         String translate(ApplTerm term, BoogieVisitor visitor);
+
     }
-
-
     private static final Map<String, Boogiefier> FUNCTIONS = prepareMap();
+
     private static Map<String, Boogiefier> prepareMap() {
         Map<String, Boogiefier> result = new HashMap<>();
         // --- Integers
@@ -96,9 +100,47 @@ public class BoogieVisitor extends DefaultTermVisitor<Void, String, NoExceptions
         result.put(SEQ_SUB.getBaseName(), seqSub());
         result.put(SEQ_CONS.getBaseName(), function("Seq#Build", true));
         result.put(SEQ_CONCAT.getBaseName(), function("Seq#Append"));
+        // --- Heaps
+        result.put(ARRAY_SELECT.getBaseName(), arraySelect(1));
+        result.put(ARRAY_STORE.getBaseName(), arrayStore(1));
+        result.put(SELECT.getBaseName(), function("read"));
+        result.put(LEN.getBaseName(), function("_System.array.Length"));
+        result.put(NULL.getName(), (t,v)->"null");
         return result;
     }
 
+    private static Boogiefier arrayStore(int dimension) {
+        return (t,v) ->
+                String.format("update(%s, %s, IndexField(%s) : Field %s, %s)",
+                t.getTerm(0).accept(v, null),
+                t.getTerm(1).accept(v, null),
+                t.getTerm(2).accept(v, null),
+                visitSort(t.getTerm(3).getSort()),
+                t.getTerm(3).accept(v, null));
+    }
+
+    // update($Heap, a#0, IndexField(LitInt(0)), $Box($rhs#0));
+    private static Boogiefier format(String format) {
+        return (t,v) -> {
+            String[] args = new String[t.countTerms()];
+            for (int i = 0; i < args.length; i++) {
+                args[i] = t.getTerm(i).accept(v, null);
+            }
+            return String.format(format, args);
+        };
+    }
+
+    private static Boogiefier arraySelect(int dimension) {
+
+        return (t,v) ->
+            String.format("read(%s, %s, IndexField(%s) : Field %s)",
+                    t.getTerm(0).accept(v, null),
+                    t.getTerm(1).accept(v, null),
+                    t.getTerm(2).accept(v, null),
+                    visitSort(t.getSort())
+                    );
+
+    }
     private static Boogiefier seqSub() {
         return (t,v) -> {
             String seq = t.getTerm(0).accept(v, null);
@@ -107,6 +149,7 @@ public class BoogieVisitor extends DefaultTermVisitor<Void, String, NoExceptions
             return "Seq#Drop(Seq#Take(" + seq + ", " + to + "), " + from + ")";
         };
     }
+
 
 
     /*
@@ -193,14 +236,16 @@ public class BoogieVisitor extends DefaultTermVisitor<Void, String, NoExceptions
         };
     }
 
+
     // ------------------ End of static part
-
-
     /**
      * This collection keeps all required declarations which were collected
      * so far.
      */
     private Set<String> declarations = new TreeSet<>();
+
+    private List<String> axioms = new ArrayList<>();
+
 
     /*
      * Check for an entry in the map, otherwise declare the constant.
@@ -224,23 +269,45 @@ public class BoogieVisitor extends DefaultTermVisitor<Void, String, NoExceptions
             return handler.translate(term, this);
         }
 
-        if(fs.getArity() == 0) {
-            declarations.add(String.format("var _%s : %s;", name, visitSort(fs.getResultSort())));
-            return "_" + name;
-        }
-
         assert !(fs instanceof InstantiatedFunctionSymbol) :
                 "This should have been in the table: " + name;
 
-        // here we hope that no clash will occur ...
-        declarations.add(String.format("function fct_%s(%s) : %s;",
-                name,
-                Util.commatize(Util.map(fs.getArgumentSorts(), BoogieVisitor::visitSort)),
-                visitSort(fs.getResultSort())));
+        String fctName = addDeclarations(fs);
 
-        return function("fct_" + name).translate(term, this);
+        if (fs.getArity() == 0) {
+            return fctName;
+        } else {
+            return function(fctName).translate(term, this);
+        }
     }
 
+    private String addDeclarations(FunctionSymbol fs) {
+
+        String name, args, type;
+        if(fs.getArity() == 0) {
+            type = "const";
+            name = "_" + fs.getName();
+            args = "";
+        } else {
+            type = "function";
+            name = "f_" + fs.getName();
+            args = "(" + Util.commatize(Util.map(fs.getArgumentSorts(), BoogieVisitor::visitSort)) + ")";
+        }
+
+        boolean added = declarations.add(
+                String.format("%s %s%s : %s;",
+                        type, name, args,
+                        visitSort(fs.getResultSort())));
+
+        if (added) {
+            assert fs.getArity() == 0 : "Not yet implemented ...";
+            // not already there.
+            axioms.add(String.format("axiom $Is(%s, %s);",
+                    name, typeConstant(fs.getResultSort())));
+        }
+
+        return name;
+    }
     @Override
     protected String defaultVisit(Term term, Void arg) throws NoExceptions {
         throw new IllegalStateException("This should not be reached");
@@ -252,17 +319,19 @@ public class BoogieVisitor extends DefaultTermVisitor<Void, String, NoExceptions
                 "Let-expressions should have been resolved");
     }
 
+
     /*
      * Variables are prefixed with var_
      */
+
     @Override
     public String visit(VariableTerm term, Void arg) throws NoExceptions {
         return "var_" + term.getName();
     }
-
     /*
      * Quantifiers are straight forward.
      */
+
     @Override
     public String visit(QuantTerm term, Void arg) throws NoExceptions {
         String quantifier = term.getQuantifier() == Quantifier.FORALL ?
@@ -271,6 +340,18 @@ public class BoogieVisitor extends DefaultTermVisitor<Void, String, NoExceptions
         return "(" + quantifier + " var_" + term.getBoundVar().getName() + " : " +
         visitSort(term.getBoundVar().getSort()) + " :: " +
         term.getTerm(0).accept(this, null) + ")";
+    }
+
+    public void addClassDeclarations(Project project) {
+
+        for (DafnyClass dafnyClass : project.getClasses()) {
+            String name = dafnyClass.getName();
+            declarations.add(String.format("const unique TClass_%s : Ty;",
+                    name));
+            axioms.add(String.format("axiom (forall x:ref :: $Is(x, TClass_%s) <==> " +
+                            "dtype(x) == TClass_%s || x == null);",
+                    name, name));
+        }
     }
 
     private static String visitSort(Sort sort) {
@@ -282,11 +363,42 @@ public class BoogieVisitor extends DefaultTermVisitor<Void, String, NoExceptions
         case "bool":
         case "int":
             return sort.getName();
+        case "field":
+            return "Field " + visitSort(sort.getArgument(1));
+        case "heap":
+            return "Heap";
+        default:
+            return "ref";
         }
-        return sort.toString();
+    }
+    private static String typeConstant(Sort sort) {
+        switch(sort.getName()) {
+           case "seq" :
+            return "TSeq(" + typeConstant(sort.getArgument(0)) + ")";
+        case "set" :
+            return "TSet(" + typeConstant(sort.getArgument(0)) + ")";
+        case "bool":
+            return "TBool";
+        case "int":
+            return "TInt";
+        case "field":
+            return "TField(" + typeConstant(sort.getArgument(1)) + ")";
+        case "heap":
+            return "THeap";
+        case "array":
+            return "TArray(" + typeConstant(sort.getArgument(0)) + ")";
+        case "object":
+            return "TObject";
+        default:
+            return "TClass_" + sort.getName();
+        }
     }
 
     public Set<String> getDeclarations() {
         return declarations;
+    }
+
+    public List<String> getAxioms() {
+        return axioms;
     }
 }
