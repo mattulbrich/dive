@@ -31,6 +31,14 @@
 		<copy todir="bin">
 			<fileset dir="res" />
 		</copy>
+		<copy file="src/edu/kit/iti/algover/boogie/DafnyPrelude.bpl"
+			  tofile="bin/edu/kit/iti/algover/boogie/DafnyPrelude.bpl">
+			<filterchain>
+				<linecontainsregexp negate="true">
+					<regexp pattern="^//D"/>
+				</linecontainsregexp>
+			</filterchain>
+		</copy>
 	</target>
 
 	<target name="compile" description="Compile all files" depends="init">
