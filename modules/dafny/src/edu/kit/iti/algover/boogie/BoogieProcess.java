@@ -118,9 +118,9 @@ public class BoogieProcess {
         String line;
         while ((line = br.readLine()) != null) {
             System.out.println(" < " + line);
-            if (line.startsWith("Boogie program verifier finished with 1 verified"))
+            if (line.matches("Boogie program verifier finished with \\d+ verified, 0 errors"))
                 return true;
-            if (line.startsWith("Boogie program verifier finished with 0 verified"))
+            if (line.startsWith("Boogie program verifier finished with"))
                 return false;
         }
 

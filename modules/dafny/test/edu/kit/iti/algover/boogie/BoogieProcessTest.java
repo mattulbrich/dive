@@ -58,7 +58,7 @@ public class BoogieProcessTest {
 
     private Sequent sequent;
 
-    private boolean expectedResult;
+    private String expectedResult;
 
     private String expectedTranslation;
 
@@ -97,7 +97,7 @@ public class BoogieProcessTest {
 
         this.sequent = TermParser.parseSequent(table, props.get("sequent"));
 
-        this.expectedResult = props.getOrDefault("result", "fail").equalsIgnoreCase("prove");
+        this.expectedResult = props.getOrDefault("result", "fail");
 
         this.expectedTranslation = props.get("translation");
 
@@ -114,7 +114,9 @@ public class BoogieProcessTest {
         process.setSymbolTable(table);
         process.setAdditionalBoogieText(additionalBoogieCode);
 
-        assertEquals(expectedResult, process.callBoogie());
+        if(!expectedResult.equals("irrelevant")) {
+            assertEquals(expectedResult.equals("prove"), process.callBoogie());
+        }
 
         if (expectedTranslation == null) {
             return;

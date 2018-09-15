@@ -193,10 +193,10 @@ function $Is<T>(T,Ty): bool;           // no heap for now
 //D function $IsAlloc<T>(T,Ty,Heap): bool;
 
 
-// MU added:
+// MU added this which as originally wrong
 axiom (forall<T> f: Field T, t0: Ty :: { $Is(f, TField(t0)) }
   $Is(f, TField(t0)) ==>
-  (forall h: Heap, o: ref :: { read(h, o, f) } $Is(read(h, o, f), t0)));
+  (forall h: Heap, o: ref :: { read(h, o, f) } $IsGoodHeap(h) ==> $Is(read(h, o, f), t0)));
 
 
 // Corresponding entries for boxes...
