@@ -1,3 +1,8 @@
+### project:
+
+class C { var f: int; }
+class D { var g: int; }
+
 ### decls:
 x : seq<C>
 y : seq<D>

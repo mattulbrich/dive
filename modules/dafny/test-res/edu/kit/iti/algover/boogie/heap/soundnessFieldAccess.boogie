@@ -1,0 +1,23 @@
+### decls:
+h : Heap
+d : D
+c : C
+D$$f : field<D, C>
+
+### project:
+class C { }
+class D { var f: C; }
+
+### sequent:
+  |-
+
+### result:
+fail
+
+### additionalBoogie:
+procedure SoundnessTest()
+{
+  assert read(update(_h, d, D$$f, c), d, D$$f) == c;
+  assert $Is(read(update(_h, d, D$$f, c), d, D$$f), TClass_D);
+  assert false;
+}

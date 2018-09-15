@@ -1,3 +1,6 @@
+### project:
+class C { var f: int; }
+class D { var g: int; }
 ### decls:
 c : C
 d : D
@@ -5,4 +8,3 @@ d : D
 c == d |- c == null
 ### result:
 prove
-### translation:

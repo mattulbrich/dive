@@ -31,9 +31,12 @@ import org.junit.runners.Parameterized.Parameters;
 
 import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -60,6 +63,8 @@ public class BoogieProcessTest {
     private String expectedTranslation;
 
     private String project;
+
+    private String additionalBoogieCode;
 
     protected static List<Object[]> parametersFor(String resource) throws MalformedURLException {
         URL res = BoogieProcess.class.getResource(resource);
@@ -97,6 +102,8 @@ public class BoogieProcessTest {
         this.expectedTranslation = props.get("translation");
 
         this.project = props.getOrDefault("project", "method m() {}");
+
+        this.additionalBoogieCode = props.getOrDefault("additionalBoogie", "");
     }
 
     @Test
@@ -105,6 +112,7 @@ public class BoogieProcessTest {
         BoogieProcess process = new BoogieProcess(p);
         process.setSequent(sequent);
         process.setSymbolTable(table);
+        process.setAdditionalBoogieText(additionalBoogieCode);
 
         assertEquals(expectedResult, process.callBoogie());
 

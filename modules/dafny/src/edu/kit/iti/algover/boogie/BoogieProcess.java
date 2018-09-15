@@ -60,22 +60,7 @@ public class BoogieProcess {
 
     private Sequent sequent;
     private SymbolTable symbolTable;
-
-    public void setSequent(Sequent sequent) {
-        this.sequent = sequent;
-    }
-
-    public Sequent getSequent() {
-        return sequent;
-    }
-
-    public void setSymbolTable(SymbolTable symbolTable) {
-        this.symbolTable = symbolTable;
-    }
-
-    public SymbolTable getSymbolTable() {
-        return symbolTable;
-    }
+    private String additionalBoogieText = "";
 
     public CharSequence produceObligation() throws Exception {
 
@@ -122,9 +107,9 @@ public class BoogieProcess {
     public boolean callBoogie() throws Exception {
 
         CharSequence sb = produceObligation();
-        
+
         Path tmpFile = Files.createTempFile("AlgoVer", ".bpl");
-        Files.write(tmpFile, Arrays.asList(PRELUDE, sb));
+        Files.write(tmpFile, Arrays.asList(PRELUDE, sb, additionalBoogieText));
 
         Process process = buildProcess(tmpFile);
         InputStream in = process.getInputStream();
@@ -148,4 +133,27 @@ public class BoogieProcess {
         return pb.start();
     }
 
+    public String getAdditionalBoogieText() {
+        return additionalBoogieText;
+    }
+
+    public void setAdditionalBoogieText(String additionalBoogieText) {
+        this.additionalBoogieText = additionalBoogieText;
+    }
+
+    public void setSequent(Sequent sequent) {
+        this.sequent = sequent;
+    }
+
+    public Sequent getSequent() {
+        return sequent;
+    }
+
+    public void setSymbolTable(SymbolTable symbolTable) {
+        this.symbolTable = symbolTable;
+    }
+
+    public SymbolTable getSymbolTable() {
+        return symbolTable;
+    }
 }

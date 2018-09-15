@@ -126,7 +126,7 @@ public class BoogieVisitor extends DefaultTermVisitor<Void, String, NoExceptions
             for (int i = 0; i < args.length; i++) {
                 args[i] = t.getTerm(i).accept(v, null);
             }
-            return String.format(format, args);
+            return String.format(format, (Object[])args);
         };
     }
 
