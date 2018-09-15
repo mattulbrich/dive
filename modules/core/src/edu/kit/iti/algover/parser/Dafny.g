@@ -195,7 +195,7 @@ settings_entry:
 
 program:
   (include | settings)*
-  (method | function | clazz)+
+  (method | function | clazz)*
       -> ^(COMPILATION_UNIT include* settings* clazz* method* function*)
   ;
 
@@ -205,7 +205,7 @@ program_only:
 
 clazz:
   CLASS^ ID '{'!
-    (method | function | field)+
+    (method | function | field)*
   '}'!
   ;
 

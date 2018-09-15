@@ -42,6 +42,8 @@ public class ParserTest {
                 { "arrayEdit.dfy" },
                 { "elseif.dfy" },
                 { "wildcards.dfy" },
+                { "emptyClass.dfy" },
+                { "emptyProgram.dfy" },
                 { "../symbex/symbex.dfy" },
                 { "arithmetic.dfy" },
                 { "../util/labelTest.dfy" },
