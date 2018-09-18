@@ -21,28 +21,28 @@
 }
 
 .formula-type-inv {
-    -fx-border-color: green;
-    -fx-border-width: 3px;
+    -fx-border-width: 0 0 0 7;
+    -fx-border-color: #a0ffff;
 }
 
 .formula-type-pre {
-    -fx-border-color: orange;
-    -fx-border-width: 3px;
+    -fx-border-color: #a0ffa0;
+    -fx-border-width: 0 0 0 7;
 }
 
 .formula-type-then {
-    -fx-border-color: magenta;
-    -fx-border-width: 3px;
+    -fx-border-color: #a0a0ff;
+    -fx-border-width: 0 0 0 7;
 }
 
 .formula-type-loop {
-    -fx-border-color: yellow;
-    -fx-border-width: 3px;
+    -fx-border-color: #a0a0ff;
+    -fx-border-width: 0 0 0 7;
 }
 
 .formula-type-else {
-    -fx-border-color: cyan;
-    -fx-border-width: 3px;
+    -fx-border-color: #a0a0ff;
+    -fx-border-width: 0 0 0 7;
 }
 
 .formula-view .reference-selected {

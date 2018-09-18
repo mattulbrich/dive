@@ -14,6 +14,7 @@ import edu.kit.iti.algover.util.TextUtil;
 import javafx.geometry.Bounds;
 import javafx.scene.control.Tooltip;
 import javafx.scene.input.MouseEvent;
+import javafx.scene.layout.Border;
 import org.fxmisc.richtext.CharacterHit;
 import org.fxmisc.richtext.CodeArea;
 
@@ -109,6 +110,13 @@ public class BasicFormulaView extends CodeArea {
 
         double charWidth = mChar.getWidth();
 
+        width = width - getPadding().getLeft() - getPadding().getRight() -
+                         getInsets().getLeft() -  getInsets().getRight();
+        Border b = getBorder();
+        if (b != null) {
+            width -= b.getInsets().getLeft() - b.getInsets().getRight();
+        }
+        
         int charsFitting = (int) (width / charWidth);
 
         // Prettyprint the term with the given amount of char width
