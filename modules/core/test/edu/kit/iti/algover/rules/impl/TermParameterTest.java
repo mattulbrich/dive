@@ -4,27 +4,18 @@ import edu.kit.iti.algover.data.BuiltinSymbols;
 import edu.kit.iti.algover.data.SymbolTable;
 import edu.kit.iti.algover.parser.DafnyException;
 import edu.kit.iti.algover.parser.DafnyParserException;
-import edu.kit.iti.algover.proof.ProofFormula;
-import edu.kit.iti.algover.rules.Parameters;
-import edu.kit.iti.algover.rules.ProofRuleApplication;
 import edu.kit.iti.algover.rules.RuleException;
 import edu.kit.iti.algover.rules.TermParameter;
 import edu.kit.iti.algover.rules.TermSelector;
-import edu.kit.iti.algover.term.ApplTerm;
 import edu.kit.iti.algover.term.FunctionSymbol;
-import edu.kit.iti.algover.term.SchemaCaptureTerm;
-import edu.kit.iti.algover.term.SchemaOccurTerm;
 import edu.kit.iti.algover.term.Sequent;
 import edu.kit.iti.algover.term.Sort;
 import edu.kit.iti.algover.term.Term;
 import edu.kit.iti.algover.term.builder.TermBuildException;
 import edu.kit.iti.algover.term.parser.TermParser;
 import edu.kit.iti.algover.util.FormatException;
-import edu.kit.iti.algover.util.ProofMockUtil;
 import org.junit.Before;
 import org.junit.Test;
-
-import java.util.Collections;
 
 import static org.junit.Assert.assertEquals;
 
@@ -54,7 +45,7 @@ public class TermParameterTest {
         TermParser tp = new TermParser(symbolTable);
         Sequent sequent = tp.parseSequent("i1 < i2 && i1 < i2 |- i1 < i2 && i1 < i2");
         TermParameter p = new TermParameter(selector, sequent);
-        assertEquals("(... (?match: $and($lt(i1, i2), $lt(i1, i2))) ...) |-", p.getSchematicTerm().toString());
+        assertEquals("(... (?match: $and($lt(i1, i2), $lt(i1, i2))) ...) |-", p.getSchematicSequent().toString());
         assertEquals("$and($lt(i1, i2), $lt(i1, i2))", p.getTerm().toString());
     }
 
@@ -65,7 +56,7 @@ public class TermParameterTest {
         Sequent sequent = tp.parseSequent("i1 < i2 |- i1 + i2");
         TermParameter parameter = new TermParameter(term, sequent);
         assertEquals(new TermSelector("A.0"), parameter.getTermSelector());
-        assertEquals("(... (?match: $lt(i1, i2)) ...) |-", parameter.getSchematicTerm().toString());
+        assertEquals("(... (?match: $lt(i1, i2)) ...) |-", parameter.getSchematicSequent().toString());
     }
 
     @Test(expected = RuleException.class)
@@ -117,7 +108,7 @@ public class TermParameterTest {
         Sequent sequent = tp.parseSequent("i1 < i2 |- i1 + i2");
         TermParameter parameter = new TermParameter(schematic, sequent);
         assertEquals(new TermSelector("A.0"), parameter.getTermSelector());
-        assertEquals("(... (?match: $lt(i1, i2)) ...) |-", parameter.getSchematicTerm().toString());
+        assertEquals("(... (?match: $lt(i1, i2)) ...) |-", parameter.getSchematicSequent().toString());
     }
 
     @Test
@@ -128,6 +119,6 @@ public class TermParameterTest {
         Sequent sequent = tp.parseSequent("i1 < i2 |- i1 + i2");
         TermParameter parameter = new TermParameter(schematic, sequent);
         assertEquals(new TermSelector("A.0.1"), parameter.getTermSelector());
-        assertEquals("(... (?match: i2) ...) |-", parameter.getSchematicTerm().toString());
+        assertEquals("(... (?match: i2) ...) |-", parameter.getSchematicSequent().toString());
     }
 }

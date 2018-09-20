@@ -153,7 +153,7 @@ public class GenericRuleTest {
         ProofNode pn = ProofMockUtil.mockProofNode(null, s.getAntecedent(), s.getSuccedent());
 
         Parameters params = new Parameters();
-        params.putValue("on", ts.selectSubterm(s));
+        params.putValue("on", new TermParameter(ts.selectSubterm(s), s));
 
         ProofRuleApplication pra = pr.considerApplication(pn, s, ts);
         assertEquals(pra.getApplicability(), ProofRuleApplication.Applicability.APPLICABLE);

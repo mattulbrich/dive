@@ -76,11 +76,11 @@ public class DafnyRuleTest {
 
         TermSelector ts = new TermSelector(TermSelector.SequentPolarity.ANTECEDENT, 0);
         Parameters params = new Parameters();
-        params.putValue("on", testSequent.getAntecedent().get(0).getTerm());
+        params.putValue("on", new TermParameter(testSequent.getAntecedent().get(0).getTerm(), testSequent));
 
         ProofRuleApplication pra = dafnyRule.considerApplication(pn, testSequent, ts);
         assertEquals(pra.getApplicability(), ProofRuleApplication.Applicability.APPLICABLE);
-        assertEquals("addZero on='... ((?on: b + 0)) ... |-';", pra.getScriptTranscript());
+        assertEquals("addZero on='... ((?match: b + 0)) ... |-';", pra.getScriptTranscript());
 
         pra = dafnyRule.makeApplication(pn, params);
         List<ProofNode> newNodes = RuleApplicator.applyRule(pra, pn);
@@ -97,11 +97,11 @@ public class DafnyRuleTest {
 
         TermSelector ts = new TermSelector(TermSelector.SequentPolarity.SUCCEDENT, 0);
         Parameters params = new Parameters();
-        params.putValue("on", testSequent.getSuccedent().get(0).getTerm());
+        params.putValue("on", new TermParameter(testSequent.getSuccedent().get(0).getTerm(), testSequent));
 
         ProofRuleApplication pra = dafnyRule.considerApplication(pn, testSequent, ts);
         assertEquals(pra.getApplicability(), ProofRuleApplication.Applicability.APPLICABLE);
-        assertEquals("commAddition on='|- ... ((?on: c + d)) ...';", pra.getScriptTranscript());
+        assertEquals("commAddition on='|- ... ((?match: c + d)) ...';", pra.getScriptTranscript());
 
         pra = dafnyRule.makeApplication(pn, params);
         List<ProofNode> newNodes = RuleApplicator.applyRule(pra, pn);

@@ -127,7 +127,7 @@ public class DafnyRule extends AbstractProofRule {
                 TermMatcher tm = new TermMatcher();
                 matchings = tm.match(searchTerm, on);
                 if(matchings.size() == 0) {
-                    throw new RuleException();
+                    throw new RuleException("Searchterm "+ searchTerm + " not found.");
                 }
                 rt = matchings.get(0).instantiate(replaceTerm);
             }

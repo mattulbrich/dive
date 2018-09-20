@@ -64,6 +64,9 @@ public class TermParameter {
             term = termSelector.selectSubterm(sequent);
             return term;
         }
+        if(schematicSequent == null) {
+            schematicSequent = getSchematicSequent();
+        }
         SequentMatcher sequentMatcher = new SequentMatcher();
         ImmutableList<Matching> matchings = sequentMatcher.match(schematicSequent, sequent);
         if(matchings.size() == 0) {
@@ -93,7 +96,7 @@ public class TermParameter {
             if(m == null) {
                 throw new RuleException("No ?match variable was found in schematic term " + schematicSequent);
             }
-            m.getTermSelector();
+            termSelector = m.getTermSelector();
             return termSelector;
         }
 
@@ -120,7 +123,14 @@ public class TermParameter {
         throw new RuleException("TermParameter: Could not find TermSelector for " + term + "in sequent " + sequent + ".");
     }
 
-    public Sequent getSchematicTerm() throws RuleException {
+    public Term getSchematicTerm() throws RuleException {
+        if(schematicTerm != null) {
+            return schematicTerm;
+        }
+        throw new RuleException("No schematic term was given for this parameter.");
+    }
+
+    public Sequent getSchematicSequent() throws RuleException {
         if(schematicSequent != null) {
             return schematicSequent;
         }

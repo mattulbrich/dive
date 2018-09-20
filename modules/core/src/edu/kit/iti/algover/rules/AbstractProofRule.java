@@ -5,22 +5,11 @@
  */
 package edu.kit.iti.algover.rules;
 
-import java.beans.ParameterDescriptor;
 import java.util.*;
 
-import edu.kit.iti.algover.proof.ProofFormula;
 import edu.kit.iti.algover.proof.ProofNode;
 import edu.kit.iti.algover.term.*;
-import edu.kit.iti.algover.term.builder.ReplaceVisitor;
-import edu.kit.iti.algover.term.builder.TermBuildException;
-import edu.kit.iti.algover.term.match.Matching;
-import edu.kit.iti.algover.term.match.SequentMatcher;
 import edu.kit.iti.algover.term.prettyprint.PrettyPrint;
-import edu.kit.iti.algover.util.ImmutableList;
-import edu.kit.iti.algover.util.Pair;
-import edu.kit.iti.algover.util.RuleUtil;
-import jdk.nashorn.internal.ir.BreakableNode;
-import org.junit.Rule;
 
 /**
  * This class should serve as base class for all {@link ProofRule} implementations.
@@ -190,7 +179,12 @@ public abstract class AbstractProofRule implements ProofRule {
             }
             if(allParameters.get(p.getKey()).getType().equals(ParameterType.TERM)) {
                 PrettyPrint prettyPrint = new PrettyPrint();
-                String pp = prettyPrint.print(((TermParameter) p.getValue()).getSchematicTerm()).toString();
+                String pp;
+                try {
+                    pp = prettyPrint.print(((TermParameter) p.getValue()).getSchematicTerm()).toString();
+                } catch (RuleException e) {
+                    pp = prettyPrint.print(((TermParameter) p.getValue()).getSchematicSequent()).toString();
+                }
                 res += " " + p.getKey() + "='" + pp + "'";
             } else {
                 res += " " + p.getKey() + "=\"" + p.getValue() + "\"";

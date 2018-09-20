@@ -5,7 +5,6 @@ import edu.kit.iti.algover.data.SymbolTable;
 import edu.kit.iti.algover.parser.DafnyException;
 import edu.kit.iti.algover.parser.DafnyParserException;
 import edu.kit.iti.algover.proof.ProofFormula;
-import edu.kit.iti.algover.proof.ProofNode;
 import edu.kit.iti.algover.rules.impl.CutRule;
 import edu.kit.iti.algover.rules.impl.TrivialAndRight;
 import edu.kit.iti.algover.term.*;
@@ -49,13 +48,13 @@ public class AbstractRuleTest {
         Parameters params = new Parameters();
         params.putValue("on", new TermParameter(selector, sequent));
         assertEquals(1, params.entrySet().size());
-        assertEquals("(... (?match: $and($lt(i1, i2), $lt(i1, i2))) ...) |-", ((TermParameter)params.getValue("on")).getSchematicTerm().toString());
+        assertEquals("(... (?match: $and($lt(i1, i2), $lt(i1, i2))) ...) |-", ((TermParameter)params.getValue("on")).getSchematicSequent().toString());
         ProofRuleApplication app = rule.makeApplication(
                 ProofMockUtil.mockProofNode(null, sequent.getAntecedent(), sequent.getSuccedent()),
                 params
         );
         assertEquals(1, params.entrySet().size());
-        assertEquals("(... (?match: $and($lt(i1, i2), $lt(i1, i2))) ...) |-", ((TermParameter)params.getValue("on")).getSchematicTerm().toString());
+        assertEquals("(... (?match: $and($lt(i1, i2), $lt(i1, i2))) ...) |-", ((TermParameter)params.getValue("on")).getSchematicSequent().toString());
     }
 
     @Test(expected = RuleException.class)
@@ -123,7 +122,7 @@ public class AbstractRuleTest {
         Parameters params = new Parameters();
         params.putValue("on", new TermParameter(selector, sequent));
         assertEquals(1, params.entrySet().size());
-        assertEquals("(... (?match: $lt(i1, i2)) ...) |-", ((TermParameter)params.getValue("on")).getSchematicTerm().toString());
+        assertEquals("(... (?match: $lt(i1, i2)) ...) |-", ((TermParameter)params.getValue("on")).getSchematicSequent().toString());
         rule.considerApplication(
                 ProofMockUtil.mockProofNode(null, sequent.getAntecedent(), sequent.getSuccedent()),
                 params
