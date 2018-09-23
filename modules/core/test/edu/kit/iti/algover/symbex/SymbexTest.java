@@ -1212,7 +1212,20 @@ public class SymbexTest {
         int cnt = 0;
         assertEquals(AssertionType.EXPLICIT_ASSERT, result.get(cnt++).getCommonProofObligationType());
         assertEquals(AssertionType.POST, result.get(cnt++).getCommonProofObligationType());
-        assertEquals(2, cnt);
+        assertEquals(cnt, result.size());
+    }
+
+    @Test
+    public void testThisAssignment() throws Exception {
+        Symbex symbex = new Symbex();
+        Project p = TestUtil.mockProject("class C { var fld:C; method m() ensures true { fld := this; this.fld := this; } }");
+        List<SymbexPath> result = symbex.symbolicExecution(p.getClass("C").getMethod("m").getRepresentation());
+        assertEquals(1, result.size());
+        SymbexPath path = result.get(0);
+        assertEquals(AssertionType.POST, path.getCommonProofObligationType());
+        assertEquals("[(ASSIGN $mod SETEX), (ASSIGN $decr 0), " +
+                "(:= fld this), (:= (FIELD_ACCESS this fld) this)]",
+                path.getAssignmentHistory().map(DafnyTree::toStringTree).toString());
     }
 
 }

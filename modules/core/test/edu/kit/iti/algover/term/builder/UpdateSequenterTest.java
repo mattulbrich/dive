@@ -7,11 +7,16 @@ package edu.kit.iti.algover.term.builder;
 
 import static org.junit.Assert.*;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import edu.kit.iti.algover.data.SymbolTable;
+import edu.kit.iti.algover.parser.DafnyException;
+import edu.kit.iti.algover.parser.DafnyParserException;
+import org.antlr.runtime.RecognitionException;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -148,6 +153,26 @@ public class UpdateSequenterTest extends SequenterTest {
 //            System.out.println(en.getKey() + " / " + x + " : " + en.getValue().toStringTree());
 //        }
 
+    }
+
+    // revealed a bug
+    @Test
+    public void testFieldAssignments() throws Exception {
+        Project p = TestUtil.mockProject("class C { var fld:C; method m() ensures true { fld := this; this.fld := this; } }");
+        Symbex symbex = new Symbex();
+        DafnyMethod method = p.getClass("C").getMethod("m");
+        List<SymbexPath> results = symbex.symbolicExecution(method.getRepresentation());
+        assertEquals(1, results.size());
+        SymbexPath path = results.get(0);
+
+        PVCSequenter sequenter = makeSequenter();
+        SymbolTable table = makeTable(method, p);
+        Sequent sequent = sequenter.translate(path, table, null);
+
+        assertEquals("|- (let $mod := $empty :: " +
+                "(let $decr := 0 :: " +
+                "(let $heap := $store<C,C>($heap, this, C$$fld, this) :: " +
+                "(let $heap := $store<C,C>($heap, this, C$$fld, this) :: true))))", sequent.toString());
     }
 
 }

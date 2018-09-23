@@ -235,6 +235,7 @@ public class TestUtil {
      * @param args       optional arguments of the call
      * @return the result value of the method call.
      */
+    @TestInfrastructure
     public static Object call(Object object, Class<?> inClass, String methodName, Object... args) {
         try {
             methodName = methodName.intern();
@@ -266,6 +267,7 @@ public class TestUtil {
      * @param args       optional arguments
      * @return the result value of the invocation
      */
+    @TestInfrastructure
     public static Object callStatic(Class<?> inClass, String methodName, Object... args) {
         try {
             methodName = methodName.intern();
@@ -303,5 +305,15 @@ public class TestUtil {
                 description.appendText("not contained in " + list);
             }
         };
+    }
+
+    @TestInfrastructure
+    public static Project emptyProject() {
+        try {
+            return mockProject("");
+        } catch (Exception e) {
+            // Really should not happen ...
+            throw new RuntimeException(e);
+        }
     }
 }
