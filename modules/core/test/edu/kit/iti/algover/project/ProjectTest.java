@@ -7,7 +7,8 @@ package edu.kit.iti.algover.project;
 
 import edu.kit.iti.algover.dafnystructures.DafnyClass;
 import edu.kit.iti.algover.dafnystructures.DafnyFile;
-import edu.kit.iti.algover.parser.DafnyException;
+import edu.kit.iti.algover.dafnystructures.DafnyFunction;
+import edu.kit.iti.algover.dafnystructures.DafnyMethod;
 import edu.kit.iti.algover.parser.DafnyParserException;
 import edu.kit.iti.algover.proof.PVC;
 import edu.kit.iti.algover.rules.ProofRule;
@@ -28,6 +29,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.NoSuchElementException;
 import java.util.stream.Collectors;
 
 import static org.junit.Assert.*;
@@ -191,6 +193,31 @@ public class ProjectTest {
                     "liblemma21", "liblemma22", "liblemma23",
                     "srclemma11", "srclemma12", "srclemma13");
             assertEquals(expected, dafnyRules);
+        }
+    }
+
+    // after a bugfix
+    @Test
+    public void testGetPVCCollection() throws Exception {
+        Project p = TestUtil.mockProject(
+                "class C { method m() {} function f(): int {1} } " +
+                        "method n() {} " +
+                        "function g(): int {2}");
+        DafnyMethod m = p.getClass("C").getMethod("m");
+        assertNotNull(p.getPVCsFor(m));
+        DafnyFunction f = p.getClass("C").getFunction("f");
+        assertNotNull(p.getPVCsFor(f));
+        DafnyMethod n = p.getMethod("n");
+        assertNotNull(p.getPVCsFor(n));
+        DafnyFunction g = p.getFunction("g");
+        assertNotNull(p.getPVCsFor(g));
+
+        Project q = TestUtil.mockProject("method q() {}");
+        DafnyMethod unknown = q.getMethod("q");
+        try {
+            p.getPVCsFor(unknown);
+            fail("Should have thrown");
+        } catch(NoSuchElementException ex) {
         }
     }
 }
