@@ -42,11 +42,11 @@ public class Value<T> {
     }
 
     public static Value<Boolean> from(BooleanLiteral b) {
-        return new Value(Type.BOOL, b.isValue());
+        return new Value<>(Type.BOOL, b.isValue());
     }
 
     public static Value<Boolean> from(boolean equals) {
-        return new Value(Type.BOOL, equals);
+        return new Value<>(Type.BOOL, equals);
     }
 
     public static Value<BigInteger> from(BigInteger apply) {

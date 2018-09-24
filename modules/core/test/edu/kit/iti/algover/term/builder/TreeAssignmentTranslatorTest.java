@@ -72,6 +72,7 @@ public class TreeAssignmentTranslatorTest {
 
         ImmutableList<Pair<FunctionSymbol, Term>> result = tat.translateAssignments(assignments);
 
+        @SuppressWarnings("unchecked")
         ImmutableList<Pair<FunctionSymbol, Term>> expected = ImmutableList.from(
                 new Pair<>(x, TermParser.parse(symbTable, "5")),
                 new Pair<>(x, TermParser.parse(symbTable, "i1+x")),
@@ -110,6 +111,7 @@ public class TreeAssignmentTranslatorTest {
         // Code is :
         //   field := field + 1;
         //   d.field := null;
+        @SuppressWarnings("unchecked")
         ImmutableList<Pair<FunctionSymbol, Term>> expected = ImmutableList.from(
                 new Pair<>(heap, TermParser.parse(symbTable, "$store<C, int>($heap, this, C$$field, $select<C,int>($heap, this, C$$field) + 1)")),
                 new Pair<>(heap, TermParser.parse(symbTable, "$store<D, D>($heap, d, D$$field, null)")));
@@ -141,6 +143,7 @@ public class TreeAssignmentTranslatorTest {
 
         ImmutableList<Pair<FunctionSymbol, Term>> result = tat.translateAssignments(assignments);
 
+        @SuppressWarnings("unchecked")
         ImmutableList<Pair<FunctionSymbol, Term>> expected = ImmutableList.from(
                 new Pair<>(sq, TermParser.parse(symbTable, "$seq_upd<int>(sq, 0, 2)")),
                 new Pair<>(heap, TermParser.parse(symbTable, "$store<Seq, seq<int>>($heap, this, Seq$$fsq, $seq_upd<int>($select<Seq, seq<int>>($heap, this, Seq$$fsq), 1, 3))")),

@@ -231,6 +231,7 @@ public class EditorController implements DafnyCodeAreaListener {
         return view;
     }
 
+    @SuppressWarnings("unchecked")
     private DafnyCodeArea codeAreaFromContent(Node content) {
         return ((VirtualizedScrollPane<DafnyCodeArea>) content).getContent();
     }

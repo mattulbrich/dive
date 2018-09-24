@@ -84,7 +84,7 @@ public class ProjectTest {
         assertEquals(true, testSettings.getBoolean(ProjectSettings.SYMBEX_UNROLL_LOOPS));
     }
 
-    @SuppressWarnings("rawtypes")
+    @SuppressWarnings({"rawtypes", "unchecked"})
     @Test
     public void testSettingsInsane() throws Exception {
         ProjectSettings testSettings = p.getSettings();

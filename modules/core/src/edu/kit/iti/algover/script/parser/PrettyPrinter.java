@@ -34,6 +34,10 @@ import java.util.Map;
  * @author Alexander Weigl, Jonas Klamroth
  * @version 2 (19.07.18)
  */
+
+// REVIEW: Add the missing generic parameters! Please!
+
+@SuppressWarnings({"unchecked", "rawtypes"})
 public class PrettyPrinter extends DefaultASTVisitor<Void> {
 
     private final StringBuilder s = new StringBuilder();
@@ -201,7 +205,7 @@ public class PrettyPrinter extends DefaultASTVisitor<Void> {
     public Void visit(Statements statements) {
         if (statements.size() == 0)
             return null;
-        for (Statement s : statements) {
+        for (Statement<?> s : statements) {
             s.accept(this);
             nl();
         }
