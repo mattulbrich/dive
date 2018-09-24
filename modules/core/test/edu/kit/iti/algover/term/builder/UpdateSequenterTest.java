@@ -16,6 +16,7 @@ import java.util.Map;
 import edu.kit.iti.algover.data.SymbolTable;
 import edu.kit.iti.algover.parser.DafnyException;
 import edu.kit.iti.algover.parser.DafnyParserException;
+import edu.kit.iti.algover.symbex.AssertionElement.AssertionType;
 import org.antlr.runtime.RecognitionException;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -174,5 +175,4 @@ public class UpdateSequenterTest extends SequenterTest {
                 "(let $heap := $store<C,C>($heap, this, C$$fld, this) :: " +
                 "(let $heap := $store<C,C>($heap, this, C$$fld, this) :: true))))", sequent.toString());
     }
-
 }

@@ -5,6 +5,7 @@
  */
 package edu.kit.iti.algover.symbex;
 
+import edu.kit.iti.algover.dafnystructures.DafnyMethod;
 import edu.kit.iti.algover.parser.DafnyException;
 import edu.kit.iti.algover.parser.DafnyParser;
 import edu.kit.iti.algover.parser.DafnyParserException;
@@ -14,6 +15,7 @@ import edu.kit.iti.algover.parser.TypeResolutionTest;
 import edu.kit.iti.algover.project.Project;
 import edu.kit.iti.algover.symbex.AssertionElement.AssertionType;
 import edu.kit.iti.algover.symbex.PathConditionElement.AssumptionType;
+import edu.kit.iti.algover.term.builder.UpdateSequenter;
 import edu.kit.iti.algover.util.ASTUtil;
 import edu.kit.iti.algover.util.ImmutableList;
 import edu.kit.iti.algover.util.SymbexUtil;
@@ -1226,6 +1228,28 @@ public class SymbexTest {
         assertEquals("[(ASSIGN $mod SETEX), (ASSIGN $decr 0), " +
                 "(:= fld this), (:= (FIELD_ACCESS this fld) this)]",
                 path.getAssignmentHistory().map(DafnyTree::toStringTree).toString());
+    }
+
+    @Test
+    public void testCrossClass() throws Exception {
+        InputStream stream = getClass().getResourceAsStream("crossClass.dfy");
+        DafnyTree fileTree = ParserTest.parseFile(stream);
+
+        Project project = TestUtil.mockProject(fileTree);
+        Symbex symbex = new Symbex();
+        DafnyMethod method = project.getClass("C").getMethod("setD");
+        List<SymbexPath> result = symbex.symbolicExecution(method.getRepresentation());
+        int cnt = 0;
+        {
+            SymbexPath path = result.get(cnt++);
+            assertEquals(AssertionType.POST, path.getCommonProofObligationType());
+            assertEquals("[(ASSIGN $mod (SETEX this x)), " +
+                            "(ASSIGN $decr 0), " +
+                            "(:= (FIELD_ACCESS this d) x), " +
+                            "(:= d x), " +
+                            "(:= (FIELD_ACCESS x c) this)]",
+                    path.getAssignmentHistory().map(DafnyTree::toStringTree).toString());
+        }
     }
 
 }
