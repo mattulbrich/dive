@@ -1,8 +1,10 @@
 package edu.kit.iti.algover.references;
 
 import edu.kit.iti.algover.dafnystructures.DafnyFile;
+import edu.kit.iti.algover.proof.ProofNode;
 import edu.kit.iti.algover.script.ast.ASTNode;
 import org.antlr.runtime.Token;
+import org.antlr.v4.runtime.ParserRuleContext;
 
 import java.io.File;
 
@@ -18,7 +20,7 @@ import java.io.File;
  * @author S. Grebing
  */
 
-public class ScriptReferenceTarget extends ReferenceTarget{
+public class ScriptReferenceTarget<T extends ParserRuleContext> extends ReferenceTarget{
 
 
     public File getFile() {
@@ -29,13 +31,13 @@ public class ScriptReferenceTarget extends ReferenceTarget{
         return linenumber;
     }
 
-    public ASTNode getNode() {
+    public ASTNode<T> getNode() {
         return node;
     }
 
     private final File file;
     private final int linenumber;
-    private final ASTNode node;
+    private final ASTNode<T> node;
 
     public ScriptReferenceTarget(File file, int linenumber, ASTNode node) {
         this.file = file;
