@@ -7,10 +7,14 @@ package edu.kit.iti.algover.data;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import edu.kit.iti.algover.term.FunctionSymbol;
+import edu.kit.iti.algover.term.FunctionSymbolFamily;
+import edu.kit.iti.algover.term.Sort;
 
 /**
  * This symbol table is based upon a lookup table for symbols by their names.
@@ -18,7 +22,7 @@ import edu.kit.iti.algover.term.FunctionSymbol;
  * It is an invariant that all function symbols are filed under their name.
  *
  * The map should not be altered after creation other than by a
- * {@link #resolve(String)} reimplementation.
+ * {@link #resolve(String, List<Sort>)} reimplementation.
  *
  * @author Mattias Ulbrich
  */
@@ -68,27 +72,32 @@ public class MapSymbolTable implements SymbolTable {
         return result;
     }
 
-    /**
-     * Look up a function symbol in the function map.
-     *
-     * If not found, then call {@link #resolve(String)} to create symbols on
-     * demand. If still not found, then defer the lookup to the parent symbol
-     * table.
-     */
     @Override
     public FunctionSymbol getFunctionSymbol(String name) {
+        return getFunctionSymbol(name, Collections.emptyList());
+    }
 
-        FunctionSymbol result = functionMap.get(name);
+    /*
+     * Look up a function symbol in the function map.
+     *
+     * If not found, then call {@link #resolve(String, List<Sort>)} to create
+     * symbols on demand. If still not found, then defer the lookup to the
+     * parent symbol table.
+     */
+    @Override
+    public FunctionSymbol getFunctionSymbol(String name, List<Sort> argumentSorts) {
+        String lookup = name + FunctionSymbolFamily.toString(argumentSorts);
+        FunctionSymbol result = functionMap.get(lookup);
 
         if(result == null) {
-            result = resolve(name);
+            result = resolve(name, argumentSorts);
             if(result != null) {
-                functionMap.put(name, result);
+                functionMap.put(lookup, result);
             }
         }
 
         if(result == null && parentTable != null) {
-            result = parentTable.getFunctionSymbol(name);
+            result = parentTable.getFunctionSymbol(name, argumentSorts);
         }
 
         return result;
@@ -104,7 +113,7 @@ public class MapSymbolTable implements SymbolTable {
      * @return the function symbol created for the name, <code>null</code> if
      *         this cannot be resolved.
      */
-    protected FunctionSymbol resolve(String name) {
+    protected FunctionSymbol resolve(String name, List<Sort> argSorts) {
         return null;
     }
 
@@ -112,6 +121,9 @@ public class MapSymbolTable implements SymbolTable {
     public SymbolTable addFunctionSymbol(FunctionSymbol symb) {
         String name = symb.getName();
         if(functionMap.containsKey(name)) {
+            throw new RuntimeException("Symbol name already present: " + name);
+        }
+        if(parentTable != null && parentTable.getFunctionSymbol(name) != null) {
             throw new RuntimeException("Symbol name already present: " + name);
         }
         functionMap.put(name, symb);
@@ -131,4 +143,5 @@ public class MapSymbolTable implements SymbolTable {
 
         return result;
     }
+
 }

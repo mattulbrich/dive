@@ -8,3 +8,6 @@ Problem1-SumMax.dfy
 Problem2-Invert.dfy
 pancake.dfy
 rotate.dfy
+
+# from a bug (by Simon)
+BubbleSort.dfy

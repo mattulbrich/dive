@@ -42,6 +42,11 @@ public class TreeTableEntityNameRenderer implements TreeTableEntityVisitor<Node>
         return null;
     }
 
+    @Override
+    public Node visitFunction(FunctionEntity functionEntity) {
+        return blueLabel("function");
+    }
+
     private Node blueLabel(String text) {
         Label label = new Label(text);
         label.setTextFill(Color.BLUE);

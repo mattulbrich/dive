@@ -33,7 +33,7 @@ public class RuleGrid extends JFXMasonryPane {
     public RuleGrid(RuleView... rules) {
         super();
         this.rules = FXCollections.observableArrayList(rules);
-        this.allRules = new ArrayList(Arrays.asList(rules));
+        this.allRules = new ArrayList<>(Arrays.asList(rules));
         this.selectionModel = new RuleSelectionModel();
 
         setCellWidth(RULE_CELL_WIDTH);

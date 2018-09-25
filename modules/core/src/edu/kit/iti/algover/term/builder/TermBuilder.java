@@ -155,14 +155,18 @@ public class TermBuilder {
     }
 
     public Term selectField(Term heap, Term recv, Term field) throws TermBuildException {
-        FunctionSymbol select = BuiltinSymbols.SELECT.instantiate(recv.getSort(),
-                field.getSort().getArguments().get(1));
+        FunctionSymbol select =
+                symbolTable.getFunctionSymbol(BuiltinSymbols.SELECT,
+                        recv.getSort(),
+                        field.getSort().getArguments().get(1));
         return new ApplTerm(select, heap, recv, field);
     }
 
     public Term selectArray(Term heap, Term array, Term index) throws TermBuildException {
         FunctionSymbol select =
-                BuiltinSymbols.ARRAY_SELECT.instantiate(array.getSort().getArguments().get(0));
+                symbolTable.getFunctionSymbol(
+                    BuiltinSymbols.ARRAY_SELECT,
+                        array.getSort().getArguments().get(0));
 
         return new ApplTerm(select, heap, array, index);
 
@@ -170,7 +174,9 @@ public class TermBuilder {
 
     public Term selectArray2(ApplTerm heap, Term array, Term index0, Term index1) throws TermBuildException {
         FunctionSymbol select =
-                BuiltinSymbols.ARRAY2_SELECT.instantiate(array.getSort().getArguments().get(0));
+                symbolTable.getFunctionSymbol(
+                    BuiltinSymbols.ARRAY2_SELECT,
+                        array.getSort().getArguments().get(0));
 
         return new ApplTerm(select, heap, array, index0, index1);
     }
@@ -183,7 +189,9 @@ public class TermBuilder {
         Sort fieldSort = field.getSort();
         Sort classSort = fieldSort.getArguments().get(0);
         Sort valueSort = fieldSort.getArguments().get(1);
-        FunctionSymbol store = BuiltinSymbols.STORE.instantiate(classSort, valueSort);
+        FunctionSymbol store =
+                symbolTable.getFunctionSymbol(BuiltinSymbols.STORE,
+                        classSort, valueSort);
 
         return new ApplTerm(store, heapTerm, object, field, value);
     }
@@ -192,7 +200,10 @@ public class TermBuilder {
         Sort arraySort = object.getSort();
         assert arraySort.getName().equals("array");
         Sort elementSort = arraySort.getArguments().get(0);
-        FunctionSymbol store = BuiltinSymbols.ARRAY_STORE.instantiate(elementSort);
+        FunctionSymbol store =
+                symbolTable.getFunctionSymbol(
+                        BuiltinSymbols.ARRAY_STORE,
+                        elementSort);
 
         return new ApplTerm(store, heap, object, index, value);
     }
@@ -201,7 +212,9 @@ public class TermBuilder {
         Sort arraySort = object.getSort();
         assert arraySort.getName().equals("array2");
         Sort elementSort = arraySort.getArguments().get(0);
-        FunctionSymbol store = BuiltinSymbols.ARRAY2_STORE.instantiate(elementSort);
+        FunctionSymbol store =
+                symbolTable.getFunctionSymbol(BuiltinSymbols.ARRAY2_STORE,
+                        elementSort);
 
         return new ApplTerm(store, heap, object, index, index2, value);
     }
@@ -214,7 +227,8 @@ public class TermBuilder {
         Sort seqSort = seqTerm.getSort();
         assert seqSort.getName().equals("seq");
         Sort elementSort = seqSort.getArguments().get(0);
-        FunctionSymbol seqlen = BuiltinSymbols.SEQ_LEN.instantiate(elementSort);
+        FunctionSymbol seqlen =
+                symbolTable.getFunctionSymbol(BuiltinSymbols.SEQ_LEN, elementSort);
 
         return new ApplTerm(seqlen, seqTerm);
     }
@@ -223,7 +237,8 @@ public class TermBuilder {
         Sort seqSort = seqTerm.getSort();
         assert seqSort.getName().equals("seq");
         Sort elementSort = seqSort.getArguments().get(0);
-        FunctionSymbol seqget = BuiltinSymbols.SEQ_GET.instantiate(elementSort);
+        FunctionSymbol seqget =
+                symbolTable.getFunctionSymbol(BuiltinSymbols.SEQ_GET, elementSort);
 
         return new ApplTerm(seqget, seqTerm, indexTerm);
     }
@@ -232,7 +247,8 @@ public class TermBuilder {
         Sort seqSort = seqTerm.getSort();
         assert seqSort.getName().equals("seq");
         Sort elementSort = seqSort.getArguments().get(0);
-        FunctionSymbol sequpd = BuiltinSymbols.SEQ_UPDATE.instantiate(elementSort);
+        FunctionSymbol sequpd =
+                symbolTable.getFunctionSymbol(BuiltinSymbols.SEQ_UPDATE, elementSort);
 
         return new ApplTerm(sequpd, seqTerm, indexTerm, value);
     }

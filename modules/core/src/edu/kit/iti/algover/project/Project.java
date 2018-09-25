@@ -18,7 +18,6 @@ import edu.kit.iti.algover.parser.DafnyException;
 import edu.kit.iti.algover.proof.PVC;
 import edu.kit.iti.algover.proof.PVCCollection;
 import edu.kit.iti.algover.proof.PVCGroup;
-import edu.kit.iti.algover.rules.DafnyRuleException;
 import edu.kit.iti.algover.rules.DafnyRuleUtil;
 import edu.kit.iti.algover.rules.ProofRule;
 import edu.kit.iti.algover.rules.impl.DafnyRule;
@@ -44,7 +43,7 @@ import nonnull.Nullable;
  * @author Created by sarah on 8/3/16.
  * @author revised by mattias
  */
-public class Project {
+public final class Project {
 
     /**
      * The base directory under which all files must be located.
@@ -331,13 +330,24 @@ public class Project {
      */
     public PVCCollection getPVCsFor(DafnyDecl decl) {
         ensurePVCsExist();
-        for (PVCCollection child : pvcRoot.getChildren()) {
-            if (child.getDafnyDecl() == decl) {
-                return child;
+        PVCCollection result = getPVCsFor(decl, pvcRoot);
+        if(result == null) {
+            throw new NoSuchElementException();
+        }
+        return result;
+    }
+
+    private PVCCollection getPVCsFor(DafnyDecl decl, PVCCollection g) {
+        if (g.getDafnyDecl() == decl) {
+            return g;
+        }
+        for (PVCCollection child : g.getChildren()) {
+            PVCCollection result = getPVCsFor(decl, child);
+            if (result != null) {
+                return result;
             }
         }
-
-        throw new NoSuchElementException();
+        return null;
     }
 
     /**

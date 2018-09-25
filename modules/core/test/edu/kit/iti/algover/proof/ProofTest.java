@@ -9,14 +9,13 @@ package edu.kit.iti.algover.proof;
 
 import edu.kit.iti.algover.data.BuiltinSymbols;
 import edu.kit.iti.algover.project.Project;
-import edu.kit.iti.algover.rules.RuleException;
 import edu.kit.iti.algover.script.exceptions.ScriptCommandNotApplicableException;
 import edu.kit.iti.algover.term.Sequent;
 import edu.kit.iti.algover.term.Term;
 import edu.kit.iti.algover.term.builder.TermBuilder;
 import edu.kit.iti.algover.term.parser.TermParser;
 import edu.kit.iti.algover.util.TestUtil;
-import org.antlr.runtime.RecognitionException;
+import static edu.kit.iti.algover.util.ProofMockUtil.*;
 import org.antlr.v4.runtime.misc.ParseCancellationException;
 import org.junit.AfterClass;
 import org.junit.Assert;

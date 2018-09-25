@@ -59,6 +59,7 @@ public abstract class AbstractProofRule implements ProofRule {
     /**
      * Holds a TermSelctor for each parameter of the type Term.
      */
+    // FIXME This is not threadsafe !!!!
     protected Map<String, TermSelector> tsForParameter = new HashMap<>();
 
     /**

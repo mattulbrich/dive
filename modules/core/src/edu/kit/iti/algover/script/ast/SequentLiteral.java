@@ -25,7 +25,7 @@ public class SequentLiteral extends Literal {
     }
 
     @Override
-    public Expression copy() {
+    public SequentLiteral copy() {
         return new SequentLiteral(text);
     }
 

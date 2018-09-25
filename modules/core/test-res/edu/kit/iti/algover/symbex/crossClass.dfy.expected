@@ -1,0 +1,14 @@
+(COMPILATION_UNIT
+ (class C
+        (FIELD d (TYPE D))
+        (method setD (ARGS (VAR x (TYPE D)))
+                (requires (!= x null))
+                (ensures (== d x))
+                (ensures (== (FIELD_ACCESS x c) this))
+                (modifies this x)
+                (BLOCK
+                 (:= (FIELD_ACCESS this d) x)
+                 (:= d x)
+                 (:= (FIELD_ACCESS x c) this))))
+
+ (class D (FIELD c (TYPE C))))

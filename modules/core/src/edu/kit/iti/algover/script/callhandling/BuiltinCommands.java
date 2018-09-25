@@ -22,6 +22,10 @@ import org.junit.Assert;
  * @version 1 (21.05.17)
  */
 
+
+// REVIEW: Add the missing generic parameters! Please!
+
+@SuppressWarnings({"unchecked", "rawtypes"})
 public abstract class BuiltinCommands {
     public static abstract class BuiltinCommand<T> implements CommandHandler<T> {
 
@@ -64,7 +68,9 @@ public abstract class BuiltinCommands {
          * Created by sarah on 5/17/17.
          */
         @Override
+        @SuppressWarnings("unchecked")
         public void evaluate(Interpreter<String> interpreter, CallStatement call, VariableAssignment params) {
+            // REVIEW: It seems that this cast may very easy fail if the type of "#1" is not a number!
             Value<BigInteger> val = (Value<BigInteger>) params.getValues().getOrDefault(
                     new Variable("#1"),
                     Value.from(2));

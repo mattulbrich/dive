@@ -14,6 +14,10 @@ import java.util.stream.Collectors;
  *
  * @author S.Grebing
  */
+
+// REVIEW: Add the missing generic parameters! Please!
+
+@SuppressWarnings({"unchecked", "rawtypes"})
 public class VariableAssignment {
     private final VariableAssignment parent;
     private Map<Variable, Value> values = new HashMap<>();

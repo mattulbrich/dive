@@ -14,25 +14,80 @@ import java.util.concurrent.atomic.AtomicInteger;
 import edu.kit.iti.algover.util.Util;
 import nonnull.NonNull;
 
+/**
+ * A function symbol family is a template for function symbols instantiated with
+ * concrete sorts.
+ *
+ * The family can be something like {@code single<?1> : ?1 -> set<?1>} that
+ * takes an element of some type {@code ?1} and wraps it into a set of type
+ * {@code set<?1>}.
+ *
+ * <b>Warning:</b> Do not use the methods {@link #instantiate(Sort...)} or {@link #instantiate(List)}
+ * but better go over the {@link edu.kit.iti.algover.data.SymbolTable} via
+ * {@link edu.kit.iti.algover.data.SymbolTable#getFunctionSymbol(FunctionSymbolFamily, Sort...)}.
+ *
+ * @author mulbrich
+ */
 public class FunctionSymbolFamily {
 
+    /**
+     * A constant for the first sort variable used in a symbol family.
+     */
     public static final Sort VAR1 = Sort.get("?1");
+
+    /**
+     * A constant for the 2nd sort variable used in a symbol family.
+     */
     public static final Sort VAR2 = Sort.get("?2");
+
+    /**
+     * A constant for the 3rd sort variable used in a symbol family.
+     */
     public static final Sort VAR3 = Sort.get("?3");
 
+    /**
+     * how many type variables are there for this symbol family.
+     */
     private int numberOfTypeVars;
-    private FunctionSymbol prototype;
 
-    public FunctionSymbolFamily(FunctionSymbol prototype,
-            int numberOfTypeVars) {
+    /**
+     * the template which is used to instantiate the concrete symbols from.
+     */
+    private @NonNull FunctionSymbol prototype;
+
+    /**
+     * Create a fresh symbol family from a prototype
+     *
+     * @param prototype        the function defintion used for instantiation
+     * @param numberOfTypeVars number of type variables occurring in this
+     *                         defnition
+     */
+    public FunctionSymbolFamily(@NonNull FunctionSymbol prototype,
+                                int numberOfTypeVars) {
         this.prototype = prototype;
         this.numberOfTypeVars = numberOfTypeVars;
     }
 
-    public FunctionSymbol instantiate(Sort ... instantiationSorts) {
+    /**
+     * Instantiate this family with concrete sorts.
+     *
+     * @param instantiationSorts the sort to instantiate the template with.
+     * @return a freshly created function symbol.
+     * @throws IllegalArgumentException if the number of instantiated sorts is
+     *                                  not right
+     */
+    public @NonNull FunctionSymbol instantiate(Sort... instantiationSorts) {
         return instantiate(Arrays.asList(instantiationSorts));
     }
 
+    /**
+     * Instantiate this family with concrete sorts.
+     *
+     * @param instantiationSorts the sort to instantiate the template with.
+     * @return a freshly created function symbol.
+     * @throws IllegalArgumentException if the number of instantiated sorts is
+     *                                  not right
+     */
     public FunctionSymbol instantiate(List<Sort> instantiationSorts) {
 
         if(instantiationSorts.size() != numberOfTypeVars) {
@@ -51,10 +106,17 @@ public class FunctionSymbolFamily {
                 instantiationSorts);
     }
 
-    /*
-     * make <X,Y<Z>> from [X, Y<Z>]
+    /**
+     * Turn a list of sorts into a suffix for a function name that would be
+     * appended to identify the instance.
+     *
+     * <p>For example make {@code <X,Y<Z>>} from {@code [X, Y<Z>]}.</p>
+     *
+     * @param instantiationSorts the concrete types to create the string from.
+     * @return a string representation of the suffix induced by the
+     * instantiation sorts
      */
-    private String toString(List<Sort> instantiationSorts) {
+    public static String toString(List<Sort> instantiationSorts) {
         if (instantiationSorts.isEmpty()) {
             return "";
         } else {
@@ -100,6 +162,9 @@ public class FunctionSymbolFamily {
         }
     }
 
+    /**
+     * A function symbol which is induced by instantiation of a symbol family.
+     */
     public class InstantiatedFunctionSymbol extends FunctionSymbol {
 
         private final List<Sort> instantiations;
@@ -122,7 +187,11 @@ public class FunctionSymbolFamily {
 
     }
 
-    public String getBaseName() {
+    /**
+     * Get the basename of the symbol, that is the part before the {@code <...>}.
+     * @return the basename
+     */
+    public @NonNull String getBaseName() {
         return prototype.getName();
     }
 

@@ -16,4 +16,6 @@ public interface TreeTableEntityVisitor<T> {
     T visitPVCGroup(PVCGroupEntity group);
 
     T visitOther(OtherEntity entity);
+
+    T visitFunction(FunctionEntity functionEntity);
 }

@@ -1,6 +1,8 @@
 package edu.kit.iti.algover.browser;
 
 import edu.kit.iti.algover.browser.entities.TreeTableEntity;
+import edu.kit.iti.algover.util.ObservableValue;
+import javafx.beans.value.ChangeListener;
 import javafx.geometry.Pos;
 import javafx.scene.control.TreeTableCell;
 
@@ -11,10 +13,22 @@ public class StatusCell extends TreeTableCell<TreeTableEntity, TreeTableEntity> 
 
     private final PVCClickEditListener engagedListener;
 
+    private final ChangeListener<Number> repaintListener =
+            (x,y,z) -> updateItem(getItem(), false);
+
     public StatusCell(PVCClickEditListener engagedListener) {
         this.engagedListener = engagedListener;
         getStyleClass().add("status-cell");
         setAlignment(Pos.CENTER);
+
+        itemProperty().addListener((obs, old, nu) -> {
+            if(old != null) {
+                old.provenChildrenProperty().removeListener(repaintListener);
+            }
+            if (nu != null) {
+                nu.provenChildrenProperty().addListener(repaintListener);
+            }
+        });
     }
 
     @Override

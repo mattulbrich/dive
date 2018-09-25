@@ -35,4 +35,9 @@ public class PVCGetterVisitor implements TreeTableEntityVisitor<PVC> {
     public PVC visitOther(OtherEntity entity) {
         return null;
     }
+
+    @Override
+    public PVC visitFunction(FunctionEntity functionEntity) {
+        return null;
+    }
 }

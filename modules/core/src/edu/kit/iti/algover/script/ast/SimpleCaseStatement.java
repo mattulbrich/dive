@@ -5,6 +5,10 @@ import edu.kit.iti.algover.script.parser.Visitor;
 /**
  * Created by sarah on 7/17/17.
  */
+
+// REVIEW: Add the missing generic parameters! Please!
+
+@SuppressWarnings({"unchecked", "rawtypes"})
 public class SimpleCaseStatement extends CaseStatement {
     private Expression guard;
     private boolean isClosedStmt = false;

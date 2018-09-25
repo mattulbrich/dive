@@ -12,6 +12,7 @@ import edu.kit.iti.algover.parser.DafnyTree;
 import edu.kit.iti.algover.term.FunctionSymbol;
 import edu.kit.iti.algover.term.Sort;
 import edu.kit.iti.algover.term.Term;
+import edu.kit.iti.algover.term.parser.TermParser;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -53,8 +54,8 @@ public class TreeTermTranslationNoetherTest {
 
         TermBuilder tb = new TermBuilder(symbTable);
         {
-            Term leq = tb.lessEqual(tb.zero, tb.intLiteral(1));
-            Term l = tb.less(tb.intLiteral(1), tb.id("$decr_1"));
+            Term leq = tb.lessEqual(tb.zero, tb.id("$decr_1"));
+            Term l = tb.less(tb.id("$decr_1"), tb.intLiteral(1));
             Term and = tb.and(leq, l);
             assertEquals(and, result);
         }
@@ -87,10 +88,16 @@ public class TreeTermTranslationNoetherTest {
 
         TermBuilder tb = new TermBuilder(symbTable);
         Term expected;
-        {
+        expected = TermParser.parse(symbTable,
+                "0 <= $decr_1 && $decr_1 < 1 ||" +
+                        "$decr_1 == 1 && 0 <= $decr_2 && $decr_2 < 2 ||" +
+                        "$decr_1 == 1 && $decr_2 == 2 && 0 <= $decr_3 && $decr_3 < 3");
+
+        /*{ // This code produced the comparison in wrong order!
             Term rng1, rng2, rng3;
             Term eq1, eq2;
             {
+
                 Term leq = tb.lessEqual(tb.zero, tb.intLiteral(1));
                 Term l = tb.less(tb.intLiteral(1), tb.id("$decr_1"));
                 eq1 = tb.eq(tb.intLiteral(1), tb.id("$decr_1"));
@@ -108,7 +115,7 @@ public class TreeTermTranslationNoetherTest {
                 rng3 = tb.and(tb.and(tb.and(eq1, eq2), leq), l);
             }
             expected = tb.or(tb.or(rng1, rng2), rng3);
-        }
+        }*/
 
         assertEquals(expected.toString(), result.toString());
         assertEquals(expected, result);

@@ -7,11 +7,17 @@ package edu.kit.iti.algover.term.builder;
 
 import static org.junit.Assert.*;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import edu.kit.iti.algover.data.SymbolTable;
+import edu.kit.iti.algover.parser.DafnyException;
+import edu.kit.iti.algover.parser.DafnyParserException;
+import edu.kit.iti.algover.symbex.AssertionElement.AssertionType;
+import org.antlr.runtime.RecognitionException;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -85,7 +91,7 @@ public class UpdateSequenterTest extends SequenterTest {
             { "A.0.0.0.1", "$plus(x, 3)", "(+ x 3)" },
             { "A.0.0.0.1.0", "x", "x" },
             { "A.0.0.0.1.1", "3", "3" },
-            { "A.0.1", "$empty<object>", "SETEX" }, // artificial
+            { "A.0.1", "$empty", "SETEX" }, // artificial
 
             { "S.0", null, null },
             { "S.0.0", null, null },
@@ -108,7 +114,7 @@ public class UpdateSequenterTest extends SequenterTest {
             { "S.0.0.0.1.0", "x", "x" },
             { "S.0.0.0.1.1", "3", "3" },
             { "S.0.0.1", "0", "0" },
-            { "S.0.1", "$empty<object>", "SETEX" } // artificial
+            { "S.0.1", "$empty", "SETEX" } // artificial
         };
     }
 
@@ -150,4 +156,23 @@ public class UpdateSequenterTest extends SequenterTest {
 
     }
 
+    // revealed a bug
+    @Test
+    public void testFieldAssignments() throws Exception {
+        Project p = TestUtil.mockProject("class C { var fld:C; method m() ensures true { fld := this; this.fld := this; } }");
+        Symbex symbex = new Symbex();
+        DafnyMethod method = p.getClass("C").getMethod("m");
+        List<SymbexPath> results = symbex.symbolicExecution(method.getRepresentation());
+        assertEquals(1, results.size());
+        SymbexPath path = results.get(0);
+
+        PVCSequenter sequenter = makeSequenter();
+        SymbolTable table = makeTable(method, p);
+        Sequent sequent = sequenter.translate(path, table, null);
+
+        assertEquals("|- (let $mod := $empty :: " +
+                "(let $decr := 0 :: " +
+                "(let $heap := $store<C,C>($heap, this, C$$fld, this) :: " +
+                "(let $heap := $store<C,C>($heap, this, C$$fld, this) :: true))))", sequent.toString());
+    }
 }

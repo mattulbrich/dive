@@ -86,6 +86,7 @@ public class RuleView extends StackPane {
                 renderApplication();
             } catch (RuleException ex) {
                 System.err.println("Cannot consider Application: " + e);
+                ex.printStackTrace();
             }
         }
     }

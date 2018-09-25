@@ -3,6 +3,7 @@ method sumAndMax(a: seq<int>) returns (sum: int, max: int)
   ensures forall i: int :: 0 <= i && i < a.Length ==> a[i] <= max
   ensures a.Length * max >= sum
 {
+  print "hallo";
   sum := a[0];
   max := a[0];
 

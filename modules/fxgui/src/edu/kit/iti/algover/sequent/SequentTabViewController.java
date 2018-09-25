@@ -94,9 +94,9 @@ public class SequentTabViewController {
             name = opt.get().getLabel();
         }
         view.getTabs().get(idx).setText(name);
-        controllers.get(0).setActiveNode(selector);
-        controllers.get(0).setActiveProof(activeProof);
-        controllers.get(0).viewProofNode(selector);
+        controllers.get(idx).setActiveNode(selector);
+        controllers.get(idx).setActiveProof(activeProof);
+        controllers.get(idx).viewProofNode(selector);
     }
 
     public TabPane getView() {

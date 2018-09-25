@@ -23,6 +23,10 @@ import java.util.*;
  * To use these proof rules, they are loaded using the Java ServiceLoader.
  * @author S. Grebing
  */
+
+// REVIEW: Add the missing generic parameters! Please!
+
+@SuppressWarnings({"unchecked", "rawtypes"})
 public class ProofRuleHandler implements CommandHandler<ProofNode> {
     /**
      * List of all available rule objects

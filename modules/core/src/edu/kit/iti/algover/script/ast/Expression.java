@@ -39,7 +39,7 @@ public abstract class Expression<T extends ParserRuleContext> extends ASTNode<T>
      * @param signature
      * @throws NotWelldefinedException
      */
-    public static final void checkType(Type type, Expression e, Signature signature) throws NotWelldefinedException {
+    public static final void checkType(Type type, Expression<?> e, Signature signature) throws NotWelldefinedException {
         Type got = e.getType(signature);
         if (!type.equals(got)) {
             throw new NotWelldefinedException("Typemismatch in expected " + type + ", got" + got, e);
@@ -64,7 +64,7 @@ public abstract class Expression<T extends ParserRuleContext> extends ASTNode<T>
      * {@inheritDoc}
      */
     @Override
-    public abstract Expression copy();
+    public abstract Expression<T> copy();
 
     /**
      * {@inheritDoc}

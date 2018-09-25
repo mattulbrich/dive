@@ -84,6 +84,7 @@ FREE: 'free';
 FUNCTION: 'function';
 IF: 'if';
 IN : 'in';
+INCLUDE : 'include';
 INT : 'int';
 INVARIANT: 'invariant';
 LABEL: 'label';
@@ -103,6 +104,7 @@ RETURN : 'return';
 RETURNS : 'returns';
 SEQ : 'seq';
 SET : 'set';
+SETTINGS : 'settings';
 THEN: 'then';
 THIS: 'this';
 TRUE: 'true';
@@ -168,26 +170,42 @@ STRING_LIT :
 
 
 WS : (' '|'\t'|'\n'|'\r')                { $channel = HIDDEN; };
-SINGLELINE_COMMENT: '//' ~('\r' | '\n')* { $channel = HIDDEN; };
+ALGOVER_COMMENT: '//\\\\'                { $channel = HIDDEN; };
+SINGLELINE_COMMENT: '//' ( '\\'? ~('\\'|'\r'|'\n') ~('\r' | '\n')* )?
+                                         { $channel = HIDDEN; };
 MULTILINE_COMMENT: '/*' .* '*/'          { $channel = HIDDEN; };
 
 label:
   'label'^ ID ':'!
   ;
 
+include:
+  INCLUDE^ STRING_LIT ('for'! 'free')?
+  ;
+
+settings:
+  SETTINGS '{' settings_entry (',' settings_entry)* '}'
+    -> ^(SETTINGS settings_entry*)
+  ;
+
+settings_entry:
+  key=(ID | STRING_LIT) '=' value=(ID | STRING_LIT | INT_LIT)
+          -> ^($key $value)
+  ;
+
 program:
-  // "include"
-  (method | function | clazz)+ -> ^(COMPILATION_UNIT clazz* method* function*)
+  (include | settings)*
+  (method | function | clazz)*
+      -> ^(COMPILATION_UNIT include* settings* clazz* method* function*)
   ;
 
 program_only:
   program EOF -> program
   ;
 
-
 clazz:
   CLASS^ ID '{'!
-    (method | function | field)+
+    (method | function | field)*
   '}'!
   ;
 
@@ -210,14 +228,13 @@ method:
   ;
 
 function:
-  'function'
+  'function' 'method'?
   ID '(' vars? ')' ':' type
-    ( requires )*
-    ( ensures )*
+    ( requires | ensures | decreases )*
   '{' expression '}'
   ->
-    ^(FUNCTION ID ^(ARGS vars?) ^(RETURNS type) requires* ensures*
-        ^(BLOCK expression?))
+    ^(FUNCTION ID ^(ARGS vars?) ^(RETURNS type) requires* ensures* decreases*
+        expression)
   ;
 
 field:

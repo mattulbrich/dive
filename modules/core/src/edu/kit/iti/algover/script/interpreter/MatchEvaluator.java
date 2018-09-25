@@ -13,6 +13,9 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+// REVIEW: Add the missing generic parameters! Please!
+
+@SuppressWarnings({"unchecked", "rawtypes"})
 public class MatchEvaluator extends DefaultASTVisitor<List<VariableAssignment>> implements ScopeObservable {
 
     /**
@@ -26,7 +29,7 @@ public class MatchEvaluator extends DefaultASTVisitor<List<VariableAssignment>> 
     /**
      * Entry and Exit Listeners for the scope
      */
-    private List<Visitor> entryListeners = new ArrayList<>(),
+    private List<Visitor<?>> entryListeners = new ArrayList<>(),
             exitListeners = new ArrayList<>();
     /**
      * The available matchers
@@ -61,12 +64,12 @@ public class MatchEvaluator extends DefaultASTVisitor<List<VariableAssignment>> 
     }
 
     @Override
-    public List<Visitor> getExitListeners() {
+    public List<Visitor<?>> getExitListeners() {
         return exitListeners;
     }
 
     @Override
-    public List<Visitor> getEntryListeners() {
+    public List<Visitor<?>> getEntryListeners() {
         return entryListeners;
     }
 

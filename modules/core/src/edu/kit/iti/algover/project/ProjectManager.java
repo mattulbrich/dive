@@ -1,362 +1,137 @@
 /*
  * This file is part of AlgoVer.
  *
- * Copyright (C) 2015-2017 Karlsruhe Institute of Technology
+ * Copyright (C) 2015-2018 Karlsruhe Institute of Technology
+ *
  */
+
 package edu.kit.iti.algover.project;
 
 import edu.kit.iti.algover.dafnystructures.DafnyDecl;
 import edu.kit.iti.algover.dafnystructures.DafnyFile;
 import edu.kit.iti.algover.parser.DafnyException;
 import edu.kit.iti.algover.parser.DafnyParserException;
-import edu.kit.iti.algover.parser.ReferenceResolutionVisitor;
-import edu.kit.iti.algover.parser.TypeResolution;
-import edu.kit.iti.algover.proof.*;
-import edu.kit.iti.algover.script.ast.ProofScript;
-import edu.kit.iti.algover.script.interpreter.Interpreter;
-import edu.kit.iti.algover.script.interpreter.InterpreterBuilder;
-import edu.kit.iti.algover.script.parser.Facade;
-import edu.kit.iti.algover.settings.ProjectSettings;
-import edu.kit.iti.algover.util.FileUtil;
+import edu.kit.iti.algover.proof.PVC;
+import edu.kit.iti.algover.proof.PVCGroup;
+import edu.kit.iti.algover.proof.Proof;
 import edu.kit.iti.algover.util.FormatException;
-import edu.kit.iti.algover.util.ObservableValue;
-import edu.kit.iti.algover.util.Util;
+import nonnull.NonNull;
 import nonnull.Nullable;
-import org.xml.sax.SAXException;
 
-import javax.xml.bind.JAXBException;
-import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.Writer;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.*;
-import java.util.function.Supplier;
+import java.util.Map;
 
 /**
- * REVIEW: This explanation does not really cover the purpose of this class.
+ * The data structure to access Algover projects from UIs.
  *
- * Class handling project and proof management
+ * A project manager is linked to a configuration entitiy (Dafny file or
+ * config.xml-file) which defines the settings, relevant files and script
+ * location.
  *
- * @author Sarah Grebing
- * @author Mattias Ulbrich, refactored Jan 2018
+ * After construction, the project manager creates a project.
+ *
+ * Later by calling {@link #reload()}, a fresh project instance can be read from
+ * disk (if files have been modified).
+ *
+ * There are several implementations for this interface.
+ *
+ * @author mulbrich
  */
-public final class ProjectManager {
-
-    private static final String CONFIG_DEFAULT_NAME = ProjectBuilder.CONFIG_DEFAULT_FILENAME;
+public interface ProjectManager {
 
     /**
-     * The project managed in this object.
-     *
-     * The project may change when {@link #reload()} is called.
-     */
-    private final ObservableValue<Project> project =
-            new ObservableValue<>("ProjectManager.project", Project.class);
-
-    /**
-     * the name of the config.xml file within the directory.
-     */
-    private final String configFilename;
-
-    /**
-     * the directory in which the project resides.
-     */
-    private final File directory;
-
-    /**
-     * Map from PVC identifiers to corr. proofs.
-     *
-     * Invariant: There exists a proof for every identifier within the project.
-     */
-    private Map<String, Proof> proofs;
-
-    /**
-     * Map containing all filehooks for open files in the GUI
-     */
-    // private Map<String, Supplier<String>> fileHooks = new HashMap<>();
-
-    /**
-     * Build a new project by parsing the config file and performing symbolic execution
-     *
-     * @param directory      the directory where the problem resides in
-     * @param configFilename the filename of the configuration within this directory
-     * @throws DafnyException       if name/type resolution fails
-     * @throws DafnyParserException if dafny parsing fails
-     * @throws IOException          if XML is wrongly formatted or files cannot be read
-     * @throws FormatException      if the settings in the config file are illegally formatted.
-     */
-    public ProjectManager(File directory, String configFilename) throws FormatException, DafnyParserException, IOException, DafnyException {
-        this.directory = directory;
-        this.configFilename = configFilename;
-        reload();
-    }
-
-    /**
-     * Build a new Project by parsing the config file and performing symbolic execution.
-     *
-     * <p>The configname is taken to be the default, i.e. {@link #CONFIG_DEFAULT_NAME}.
-     *
-     * @param directory      the directory where the problem resides in
-     * @throws DafnyException       if name/type resolution fails
-     * @throws DafnyParserException if dafny parsing fails
-     * @throws IOException          if XML is wrongly formatted or files cannot be read
-     * @throws FormatException      if the settings in the config file are illegally formatted.
-     */
-    public ProjectManager(File directory) throws DafnyParserException, IOException, DafnyException, FormatException {
-        this(directory, CONFIG_DEFAULT_NAME);
-    }
-
-    /**
-     * Reload the project.
-     *
-     * <P>Reparse the source code and the config files and. Regenerate the proof objects throwing away existing
-     * objects.
+     * Reload the data from the underlying file resources.
      *
      * @throws DafnyException       if name/type resolution fails
      * @throws DafnyParserException if dafny parsing fails
-     * @throws IOException          if XML is wrongly formatted or files cannot be read
-     * @throws FormatException      if the settings in the config file are illegally formatted.
+     * @throws IOException          if XML is wrongly formatted or files cannot
+     *                              be read
+     * @throws FormatException      if the settings in the config file are
+     *                              illegally formatted.
      */
-    public void reload() throws DafnyException, DafnyParserException, IOException, FormatException {
-        Project project = buildProject(directory, configFilename);
-        generateAllProofObjects(project);
-        this.project.setValue(project);
-    }
+    void reload() throws DafnyException, DafnyParserException, IOException, FormatException;
 
     /**
-     * Build a new Project by parsing the config file and performing symbolic execution
+     * Retrieve an individual script for a PVC.
      *
-     * @param path           the directory where the problem resides in
-     * @param configFilename the filename of the configuration within this directory
-     * @return a freshly created project read from the directory and configFilename
-     * @throws DafnyException       if name/type resolution fails
-     * @throws DafnyParserException if dafny parsing fails
-     * @throws IOException          if XML is wrongly formatted or files cannot be read
-     * @throws FormatException      if the settings in the config file are illegally formatted.
-     */
-    private static Project buildProject(File path, String configFilename)
-            throws DafnyException, DafnyParserException, IOException, FormatException {
-        ProjectBuilder pb = new ProjectBuilder();
-        pb.setDir(path);
-        pb.setConfigFilename(configFilename);
-        try {
-            pb.parseProjectConfigurationFile();
-            pb.validateProjectConfiguration();
-        } catch (JAXBException|SAXException e) {
-            // subsume the XML exceptions under IOException.
-            throw new IOException(e);
-        }
-
-        Project result = pb.build();
-
-        // FIXME This is already performed in build()!!
-        ArrayList<DafnyException> exceptions = new ArrayList<>();
-        ReferenceResolutionVisitor refResolver = new ReferenceResolutionVisitor(result, exceptions);
-        refResolver.visitProject();
-
-        TypeResolution typeRes = new TypeResolution(exceptions);
-        typeRes.visitProject(result);
-
-        if(!exceptions.isEmpty()) {
-            // TODO ->MU: Is it wise to only return the first exception?
-            throw exceptions.get(0);
-        }
-
-        return result;
-    }
-
-    /**
-     * Generate all proof all available PVCs.
+     * The underlying datastrctures are not necessarily reloaded.
      *
-     * Load and parse the script text if present.
+     * @param pvc the PVC identifier to look up
+     * @return the script stored for this identifier
+     * @throws IOException if loading fails.
      */
-    private void generateAllProofObjects(Project project) throws IOException {
-        proofs = new HashMap<>();
-        for (PVC pvc : project.getPVCByNameMap().values()) {
-            //Proof p = new Proof(project, pvc);
-            DafnyFile dfyFile = computeDfyFile(pvc);
-            Proof p = new Proof(project, pvc, dfyFile);
-            String script;
-            try {
-                script = loadScriptForPVC(pvc.getIdentifier());
-            } catch(FileNotFoundException ex) {
-                script = project.getSettings().getString(ProjectSettings.DEFAULT_SCRIPT);
-            }
-            p.setScriptText(script);
-
-            proofs.put(pvc.getIdentifier(), p);
-        }
-    }
-
-    private DafnyFile computeDfyFile(PVC pvc) {
-        DafnyDecl declaration = pvc.getDeclaration();
-        while(declaration.getParentDecl() != null){
-            declaration = declaration.getParentDecl();
-        }
-        return (DafnyFile) declaration;
-    }
-
-    public String loadScriptForPVC(String pvc) throws IOException {
-        // find file on disc
-        File scriptFile = getScriptFileForPVC(pvc);
-
-        if(!scriptFile.exists()) {
-            throw new FileNotFoundException(scriptFile.getAbsolutePath());
-        }
-
-        return new String(Files.readAllBytes(scriptFile.toPath()));
-    }
-
-    public File getScriptFileForPVC(String pvcIdentifier) {
-        File proofDir = new File(directory, "scripts");
-        return new File(proofDir, Util.maskFileName(pvcIdentifier) + ".script");
-    }
+    String loadScriptForPVC(@NonNull String pvc) throws IOException;
 
     /**
-     * Load an alternative version of the project (which is saved as zip file).
+     * Return a proof object for a PVC if it exists, null otherwise
      *
-     * Future ....
+     * @param pvcIdentifier the identifier of the PVC to find
+     * @return null if there is no proof, yet. The corresponding proof otherwise.
+     */
+    @Nullable Proof getProofForPVC(@NonNull String pvcIdentifier);
+
+    /**
+     * Get a map from PVC identifiers to corresponding proof objects.
      *
-     * @param zipFile
-     */
-    public void loadProjectVersion(File zipFile) {
-        throw new Error("Not yet");
-    }
-
-
-    /**
-     * Return Proof object for a PVC if it exists, null otherwise
+     * The result map is indexed by PVC identifiers.
      *
-     * @param pvcIdentifier
-     * @return
+     * @return an immutable view to the map of proofs.
      */
-    public Proof getProofForPVC(String pvcIdentifier) {
-        return getAllProofs().get(pvcIdentifier);
-    }
-
-    public Map<String, Proof> getAllProofs() {
-        return Collections.unmodifiableMap(proofs);
-    }
+    @NonNull Map<String, Proof> getAllProofs();
 
     /**
-     * Save the whole Project contents
-     */
-    public void saveProject() throws IOException {
-        for (Map.Entry<String, Proof> pvcProofEntry : proofs.entrySet()) {
-            String pvcName = pvcProofEntry.getKey();
-            Proof proof = pvcProofEntry.getValue();
-            saveProofScriptForPVC(pvcName, proof);
-        }
-
-    }
-
-    /**
-     * Save the proof script for a PVC given by its interpreted proof
+     * Save all proof scripts to the underlying data structures.
      *
-     * @param pvcIdentifier
-     * @param proof
-     * @throws IOException
+     * Unlike {@link #saveProofScriptForPVC(String, Proof)}, this method
+     * always dumps proofs into file representation.
      */
-    public void saveProofScriptForPVC(String pvcIdentifier, Proof proof) throws IOException {
-        File scriptFile = getScriptFileForPVC(pvcIdentifier);
-        saverHelper(scriptFile.getPath(), proof.getScript());
-    }
-
+    void saveProject() throws IOException;
 
     /**
-     * Get the plain PVCs as Map from pvcName -> PVC object
+     * Save the proof script for a PVC given by its interpreted proof.
      *
-     * @return
-     */
-    public Map<String, PVC> getPVCByNameMap() {
-        return this.project.getValue().getPVCByNameMap();
-    }
-
-    /**
-     * Save project to a zipfile
-     */
-    public void saveProjectVersion() throws IOException {
-        saveProject();
-    }
-
-    /**
-     * Add a filehook for saving content in case of project saving
+     * May be saved to file or to a memory datastructure.
      *
-     * @param filename to which file the content shoudl be saved
-     * @param content  Supplier funtion from which content can be retrieved
+     * @param pvcIdentifier the name of the PVC
+     * @param proof the proof from which to extract the script.
+     * @throws IOException if saving fails.
      */
- /*   public void addFileHook(String filename, Supplier<String> content) {
-        this.fileHooks.putIfAbsent(filename, content);
-    }*/
+    void saveProofScriptForPVC(@NonNull String pvcIdentifier, @NonNull Proof proof) throws IOException;
 
     /**
-     * Remove file hook
+     * Get a map from PVC identifiers to the actual PVCs.
      *
-     * @param filename
+     * Equivalent to {@code getProject().getPVCByNameMap()}.
+     *
+     * @return an immutable view to the map.
      */
- /*   public void removeFileHook(String filename) {
-        this.fileHooks.remove(filename);
-    }*/
-
-    public Project getProject() {
-        return project.getValue();
-    }
-
-
-    /* *
-     * Save content to script file for pvc
-     * @param pvc
-     * @param content
-     * @throws IOException
-     */
- /*   public void saveToScriptFile(String pvc, String content) throws IOException {
-        String scriptFilePath = project.get().getBaseDir().getAbsolutePath() + File.separatorChar + pvc + ".script";
-        saverHelper(scriptFilePath, content);
-
-    }*/
-
-    /* REVIEW I propose: static method
-        Path path = Paths.get(pathToFile);
-        if (!Files.exists(path)) {
-            Files.createFile(path);
-        }
-
-        try(Writer writer = Files.newBufferedWriter(path)) {
-            writer.write(content);
-            writer.flush();
-        }
-     */
-    private void saverHelper(String pathToFile, String content) throws IOException {
-        Path path = Paths.get(pathToFile);
-        Writer writer;
-        if (Files.exists(path)) {
-            writer = Files.newBufferedWriter(path);
-        } else {
-            Files.createDirectories(path.getParent());
-            Path file = Files.createFile(path);
-            writer = Files.newBufferedWriter(file);
-        }
-        writer.write(content);
-        writer.flush();
-        writer.close();
-    }
+    Map<String, PVC> getPVCByNameMap();
 
     /**
-     * Return  all PVCs for the loaded project
+     * Get the actual project currently stored in the manager.
+     *
+     * This may changed if reload is called!
+     *
+     * @return the relevant project object
+     */
+    @NonNull Project getProject();
+
+    /**
+     * Return  all PVCs for the loaded project.
+     *
+     * This is equivalent to calling {@code getProject().getAllPVCs()}.
      *
      * @return PVCGroup that is the root for all PVCs of the loaded project
      */
-    public PVCGroup getPVCGroup() {
-        return this.getProject().getAllPVCs();
-    }
+    @NonNull PVCGroup getAllPVCs();
 
-    public String getConfigFilename() {
-        return configFilename;
-    }
-
-    public File getDirectory() {
-        return directory;
-    }
+    /**
+     * Get a self-explanatory name of this project manager.
+     *
+     * It is usually derived from the file or directory which stores the
+     * project description.
+     *
+     * @return a cleartext intuitive name for the manager
+     */
+    @NonNull String getName();
 }

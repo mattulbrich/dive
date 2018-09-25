@@ -183,6 +183,7 @@ public class SymbexPath {
      *
      * @return the function
      */
+    // TODO Rename getDeclaration()
     public DafnyTree getMethod() {
         return method;
     }

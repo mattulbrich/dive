@@ -21,6 +21,9 @@ import java.util.Collection;
  *
  */
 
+// REVIEW: Add the missing generic parameters! Please!
+
+@SuppressWarnings({"unchecked", "rawtypes"})
 public class InterpreterBuilder {
 
     private final BuiltinCommands.AssertionCommand builtInAssert = new BuiltinCommands.AssertionCommand();
