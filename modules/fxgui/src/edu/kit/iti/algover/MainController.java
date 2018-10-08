@@ -384,7 +384,12 @@ public class MainController implements SequentActionListener, RuleApplicationLis
     private String getStringForTreeItem(TreeItem<Object> item) {
         Object value = item.getValue();
         if (value instanceof DafnyFile) {
-            return ((DafnyFile) value).getFilename();
+            String filename = ((DafnyFile) value).getFilename();
+            int idx = filename.lastIndexOf("/");
+            if(idx > 0 && idx + 1 < filename.length()) {
+                return filename.substring(idx + 1);
+            }
+            return filename;
         }
         if (value instanceof DafnyMethod) {
             return ((DafnyMethod) value).getName();

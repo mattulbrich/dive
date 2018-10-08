@@ -8,6 +8,8 @@ import edu.kit.iti.algover.rules.ParameterDescription;
 import edu.kit.iti.algover.rules.ParameterType;
 import edu.kit.iti.algover.rules.Parameters;
 import edu.kit.iti.algover.rules.ProofRule;
+import edu.kit.iti.algover.rules.TermParameter;
+import edu.kit.iti.algover.term.Sequent;
 import edu.kit.iti.algover.term.Term;
 import edu.kit.iti.algover.term.parser.TermParser;
 import javafx.application.Platform;
@@ -33,17 +35,19 @@ import java.util.Map;
 public class RuleParameterDialog extends Dialog {
     private Parameters parameters = new Parameters();
     private GridPane gridPane = new GridPane();
+    private final Sequent sequent;
     private TermParser termParser;
     private Parameters expectedParameters;
 
     ValidationSupport validationSupport = new ValidationSupport();
 
-    public RuleParameterDialog(ProofRule rule, SymbolTable symbolTable) {
-        this(rule, symbolTable, null);
+    public RuleParameterDialog(ProofRule rule, SymbolTable symbolTable, Sequent sequent) {
+        this(rule, symbolTable, sequent, null);
     }
 
-    public RuleParameterDialog(ProofRule rule, SymbolTable symbolTable, String defaultOn) {
+    public RuleParameterDialog(ProofRule rule, SymbolTable symbolTable, Sequent sequent, String defaultOn) {
         super();
+        this.sequent = sequent;
         this.termParser = new TermParser(symbolTable);
 
         Window window = this.getDialogPane().getScene().getWindow();
@@ -121,7 +125,7 @@ public class RuleParameterDialog extends Dialog {
             if(tf.getUserData().equals(ParameterType.TERM)) {
                 try {
                     Term t = termParser.parse(text);
-                    parameters.putValue(((Label) (gridPane.getChildren().get(i * 2))).getText(), t);
+                    parameters.putValue(((Label) (gridPane.getChildren().get(i * 2))).getText(), new TermParameter(t, sequent));
                 } catch (DafnyParserException e) {
                     //e.printStackTrace();
                     parameters = null;
