@@ -11,9 +11,6 @@ import nonnull.DeepNonNull;
 import nonnull.NonNull;
 import nonnull.Nullable;
 
-import java.util.HashSet;
-import java.util.Set;
-
 /**
  * This class captures potential applications of proof rules.
  *
@@ -32,73 +29,55 @@ import java.util.Set;
  */
 public final class ProofRuleApplication {
 
-        /**
+    /**
      * The rule to which this application belongs.
      */
-        private final
-        @NonNull
-        ProofRule rule;
-    ;
+    private final @NonNull ProofRule rule;
+
+    /**
+     * Possible "SubApplications"
+     * If not null, these ProofRuleApplications are performed on the
+     * resulting childNodes of this ProofRuleApplication.
+     *
+     * May contain null-entries if no rule is to be applied on a child node.
+     *
+     * Invariant: <code>
+     *   subApplications != null ==> subApplications.size() == branchInfo.size()
+     * </code>
+     */
+    private final ImmutableList<ProofRuleApplication> subApplications;
+
     /**
      * The information about the branches into which this rule application
      * splits. Emtpy if closing rule app. Singleton list if the rule app does not
      * split etc.
      */
-    private final
-    @Nullable
-    ImmutableList<BranchInfo> branchInfo;
+    private final @Nullable ImmutableList<BranchInfo> branchInfo;
+
     /**
      * The applicability of this rule application.
      */
     private final @NonNull Applicability applicability;
+
+    /**
+     * Parameters for this application. All parameters contained in this object require
+     * instantiation for the application of the rule to be possible. The
+     * parameters here are set immutable.
+     */
+    private final @NonNull Parameters parameters;
+
     /**
      * Missing parameters. All parameters contained in this object require
      * instantiation for the application of the rule to be possible. The
      * parameters here are set immutable.
      */
-    private final
-    @NonNull
-    Parameters openParameters;
+    private final @NonNull Parameters openParameters;
 
     /**
      * The code which can be used to refine this proof application. Can be
      * <code>null</code> if no refining routine is known for this application.
      */
-    private final
-    @Nullable
-    Refiner refiner;
-
-    /**
-     * When a proof rule application is applied, the proof script needs to be
-     * augmented. This is the proof script transcript which describes this
-     * application.
-     */
-    private final @NonNull String scriptTranscript;
-
-    /**
-     * A rule may be applied exhaustively meaning that it is recursively applied to the term resulting from the
-     * previous application as long as possible. This parameter describes whether or not the rule application
-     * is exhaustive or not.
-     */
-    private final boolean exhaustive;
-
-    /**
-     * Similar to exhaustive rule applications a rule might be applied deep exhaustive. In this case the recursive
-     * applications continue even if there is a term where the rule is not applicable (in this case it is applied to
-     * all child-terms).
-     */
-    private final boolean deep;
-
-    /**
-     * A rule might be applied globally meaning it is not only applied to 1 specific term but to all proofformulas
-     * in the sequent. This may be combined with exhaustive or deep exhaustive applications.
-     */
-    private final boolean global;
-
-    /**
-     * This TermSelector points to the term this rule is going to be applied on.
-     */
-    private final TermSelector on;
+    private final @Nullable Refiner refiner;
 
     /**
      * Instantiates a new proof rule application.
@@ -111,50 +90,36 @@ public final class ProofRuleApplication {
      *            info about the branches to be created
      * @param applicability
      *            the applicability of this object.
-     * @param scriptTranscript
-     *            the script transcript
      * @param openParameters
      *            parameters that are missing for this application to be
      *            executed (use {@link Parameters#EMPTY_PARAMETERS} if no
      *            such parameters exist.
      * @param refiner
      *            the potential refiner
-     * @param exhaustive
-     *            whether the rule should be applied exhaustive
-     * @param deep
-     *            whether the rule should be applied deep exhaustive
-     * @param deep
-     *            whether the rule should be applied global
-     * @param on
-     *            pointing to the Term this application is applied to
+     * @param subApplications
+     *            possible SubApplications which are performed on the children
+     *            resulting from this application
      */
     public ProofRuleApplication(
             @NonNull ProofRule rule,
             @DeepNonNull ImmutableList<BranchInfo> branchInfo,
             @NonNull Applicability applicability,
-            @NonNull String scriptTranscript,
+            @NonNull Parameters parameters,
             @NonNull Parameters openParameters,
             @Nullable Refiner refiner,
-            @NonNull boolean exhaustive,
-            @NonNull boolean deep,
-            @NonNull boolean global,
-            @Nullable TermSelector on) {
+            @Nullable ImmutableList<ProofRuleApplication> subApplications) {
         this.rule = rule;
         this.branchInfo = branchInfo;
         this.applicability = applicability;
         this.refiner = refiner;
+        this.parameters = parameters;
         this.openParameters = openParameters;
-        this.scriptTranscript = scriptTranscript;
         openParameters.setImmutable();
-        this.exhaustive = exhaustive;
-        this.deep = deep;
-        this.global = global;
-        this.on = on;
+        this.subApplications = subApplications;
 
-        Set<String> labels =
-                new HashSet<String>(branchInfo.map(BranchInfo::getLabel).asCollection());
-        if(labels.size() != branchInfo.size()) {
-            throw new IllegalArgumentException("The labels of the branch infos are not unique.");
+        if(subApplications != null && subApplications.size() != branchInfo.size()) {
+            throw new IllegalArgumentException(
+                    "number of sub applications does not match number of branches");
         }
     }
 
@@ -226,8 +191,8 @@ public final class ProofRuleApplication {
      * <code>null</code>.
      */
     private ProofRuleApplication thisWithoutRefiner() {
-        return new ProofRuleApplication(rule, branchInfo, applicability,
-                scriptTranscript, openParameters, null, exhaustive, deep, global, on);
+        return new ProofRuleApplication(rule, branchInfo, applicability, parameters,
+                openParameters, null, subApplications);
     }
 
     /**
@@ -269,59 +234,40 @@ public final class ProofRuleApplication {
         return branchInfo;
     }
 
-
-    /**
-     * checks if this application is exhaustive.
-     * @return if its exhaustive
-     */
-    public boolean isExhaustive() {
-        return exhaustive;
-    }
-
-    /**
-     * checks if this application is deep.
-     * @return if its deep
-     */
-    public boolean isDeep() {
-        return deep;
-    }
-
-    /**
-     * checks if this application is global.
-     * @return if its global
-     */
-    public boolean isGlobal() {
-        return global;
-    }
-
-    /**
-     * Gets the termSelector for the on parameter
-     * @return the termselector
-     */
-    public TermSelector getOn() {
-        return on;
-    }
-
-    /**
-     * Gets the script transcript of this application.
-     *
-     * @return the string for the script transcript
-     */
-    public
-    @NonNull
-    String getScriptTranscript() {
-        return scriptTranscript;
-    }
-
     /**
      * Gets the parameters which were declared as remaining open.
      *
      * @return the open parameters
      */
-    public
-    @NonNull
-    Parameters getOpenParameters() {
+    public @NonNull Parameters getOpenParameters() {
         return openParameters;
+    }
+
+    /**
+     * Gets the parameters which are used for this application.
+     *
+     * @return the parameters
+     */
+    public @NonNull Parameters getParameters() {
+        return parameters;
+    }
+
+    /**
+     * Gets the followup rule applications to apply on branches.
+     *
+     * May return null!
+     *
+     * If not null, these ProofRuleApplications are to be performed on the
+     * resulting childNodes of this ProofRuleApplication.
+     *
+     * May contain null-entries if no rule is to be applied on a child node.
+     *
+     * Invariant: <code>
+     *   \result != null ==> \result.size() == getBranchCount()
+     * </code>
+     */
+    public @Nullable ImmutableList<ProofRuleApplication> getSubApplications() {
+        return subApplications;
     }
 
     /**
@@ -330,9 +276,12 @@ public final class ProofRuleApplication {
      *
      * @return the refiner, <code>null</code> if none set!
      */
-    public @Nullable
-    Refiner getRefiner() {
+    public @Nullable Refiner getRefiner() {
         return refiner;
+    }
+
+    public String getScriptTranscript() throws RuleException {
+        return this.getRule().getTranscript(this);
     }
 
     /**

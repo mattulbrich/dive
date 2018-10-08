@@ -6,6 +6,7 @@ import edu.kit.iti.algover.proof.ProofNode;
 import edu.kit.iti.algover.rule.script.ScriptController;
 import edu.kit.iti.algover.rule.script.ScriptView;
 import edu.kit.iti.algover.rules.*;
+import edu.kit.iti.algover.rules.impl.ExhaustiveRule;
 import edu.kit.iti.algover.term.Sequent;
 import edu.kit.iti.algover.term.Term;
 import edu.kit.iti.algover.term.prettyprint.PrettyPrint;
@@ -77,7 +78,11 @@ public class RuleApplicationController extends FxmlController {
     }
 
     public void applyRule(ProofRuleApplication application) {
-        scriptController.insertTextForSelectedNode(application.getScriptTranscript() + "\n");
+        try {
+            scriptController.insertTextForSelectedNode(application.getScriptTranscript() + "\n");
+        } catch(RuleException e) {
+            Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).severe("Error applying rule: " + e.getMessage());
+        }
     }
 
     private void onSelectedItemChanged(ObservableValue<? extends RuleView> obs, RuleView before, RuleView selected) {
@@ -104,7 +109,12 @@ public class RuleApplicationController extends FxmlController {
 
     public void applyExRule(ProofRule rule, ProofNode pn, TermSelector ts) {
         try {
-            scriptController.insertTextForSelectedNode(RuleApplicator.getScriptForExhaustiveRuleApplication(rule, pn, ts) + "\n");
+            ExhaustiveRule exRule = new ExhaustiveRule();
+            Parameters parameters = new Parameters();
+            parameters.putValue("ruleName", "substitute");
+            parameters.putValue("on", new TermParameter(ts, pn.getSequent()));
+            ProofRuleApplication pra = exRule.considerApplication(pn, parameters);
+            scriptController.insertTextForSelectedNode(pra.getScriptTranscript());
             logger.info("Applied rule " + rule.getName() + " exhaustively.");
         } catch (RuleException e) {
             //TODO handle exeptions

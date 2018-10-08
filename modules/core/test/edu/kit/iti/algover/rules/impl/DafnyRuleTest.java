@@ -44,8 +44,8 @@ public class DafnyRuleTest {
 
         TreeTermTranslator ttt = new TreeTermTranslator(symbTable);
 
-        DafnyTree t1 = TreeTermTranslatorTest.parse("b + 0 == 0");
-        DafnyTree t2 = TreeTermTranslatorTest.parse("c + d == 0");
+        DafnyTree t1 = TreeTermTranslatorTest.parse("b + 0");
+        DafnyTree t2 = TreeTermTranslatorTest.parse("c + d");
 
 
         List<ProofFormula> ante = new ArrayList<>();
@@ -74,19 +74,19 @@ public class DafnyRuleTest {
         ProofRule dafnyRule = DafnyRuleUtil.generateDafnyRuleFromFile(file);
         ProofNode pn = ProofMockUtil.mockProofNode(null, testSequent.getAntecedent(), testSequent.getSuccedent());
 
-        TermSelector ts = new TermSelector(TermSelector.SequentPolarity.ANTECEDENT, 0, 0);
+        TermSelector ts = new TermSelector(TermSelector.SequentPolarity.ANTECEDENT, 0);
         Parameters params = new Parameters();
-        params.putValue("on", testSequent.getAntecedent().get(0).getTerm().getTerm(0));
+        params.putValue("on", new TermParameter(testSequent.getAntecedent().get(0).getTerm(), testSequent));
 
         ProofRuleApplication pra = dafnyRule.considerApplication(pn, testSequent, ts);
         assertEquals(pra.getApplicability(), ProofRuleApplication.Applicability.APPLICABLE);
-        assertEquals("addZero on='... ((?on: b + 0)) ... |-';", pra.getScriptTranscript());
+        assertEquals("addZero on='... ((?match: b + 0)) ... |-';", pra.getScriptTranscript());
 
         pra = dafnyRule.makeApplication(pn, params);
         List<ProofNode> newNodes = RuleApplicator.applyRule(pra, pn);
 
         assertTrue(newNodes.size() == 1);
-        assertEquals("$eq<int>(b, 0) |- $eq<int>($plus(c, d), 0)", newNodes.get(0).getSequent().toString());
+        assertEquals("b |- $plus(c, d)", newNodes.get(0).getSequent().toString());
     }
 
     @Test
@@ -95,18 +95,18 @@ public class DafnyRuleTest {
         ProofRule dafnyRule = DafnyRuleUtil.generateDafnyRuleFromFile(file);
         ProofNode pn = ProofMockUtil.mockProofNode(null, testSequent.getAntecedent(), testSequent.getSuccedent());
 
-        TermSelector ts = new TermSelector(TermSelector.SequentPolarity.SUCCEDENT, 0, 0);
+        TermSelector ts = new TermSelector(TermSelector.SequentPolarity.SUCCEDENT, 0);
         Parameters params = new Parameters();
-        params.putValue("on", testSequent.getSuccedent().get(0).getTerm().getTerm(0));
+        params.putValue("on", new TermParameter(testSequent.getSuccedent().get(0).getTerm(), testSequent));
 
         ProofRuleApplication pra = dafnyRule.considerApplication(pn, testSequent, ts);
         assertEquals(pra.getApplicability(), ProofRuleApplication.Applicability.APPLICABLE);
-        assertEquals("commAddition on='|- ... ((?on: c + d)) ...';", pra.getScriptTranscript());
+        assertEquals("commAddition on='|- ... ((?match: c + d)) ...';", pra.getScriptTranscript());
 
         pra = dafnyRule.makeApplication(pn, params);
         List<ProofNode> newNodes = RuleApplicator.applyRule(pra, pn);
 
         assertTrue(newNodes.size() == 1);
-        assertEquals("$eq<int>($plus(b, 0), 0) |- $eq<int>($plus(d, c), 0)", newNodes.get(0).getSequent().toString());
+        assertEquals("$plus(b, 0) |- $plus(d, c)", newNodes.get(0).getSequent().toString());
     }
 }

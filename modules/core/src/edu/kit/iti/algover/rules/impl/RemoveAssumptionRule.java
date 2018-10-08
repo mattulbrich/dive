@@ -31,7 +31,7 @@ public class RemoveAssumptionRule extends AbstractProofRule {
 
     @Override
     public ProofRuleApplication considerApplicationImpl(ProofNode target, Parameters parameters) throws RuleException {
-        TermSelector selector = tsForParameter.get("on");
+        TermSelector selector = parameters.getValue(ON_PARAM).getTermSelector();
         ProofRuleApplicationBuilder builder = new ProofRuleApplicationBuilder(this);
 
         if (!selector.isToplevel() || !selector.isAntecedent()) {
@@ -49,7 +49,7 @@ public class RemoveAssumptionRule extends AbstractProofRule {
     public ProofRuleApplication makeApplicationImpl(ProofNode target, Parameters parameters) throws RuleException {
         ProofRuleApplicationBuilder builder = new ProofRuleApplicationBuilder(this);
 
-        Term toDelete = parameters.getValue(ON_PARAM);
+        Term toDelete = parameters.getValue(ON_PARAM).getTerm();
 
         builder.newBranch()
                 .addDeletionsAntecedent(Collections.singletonList(new ProofFormula(toDelete)));

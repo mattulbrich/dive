@@ -22,7 +22,9 @@ import javafx.stage.Window;
 import org.controlsfx.validation.ValidationResult;
 import org.controlsfx.validation.ValidationSupport;
 import org.controlsfx.validation.Validator;
+import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
+import java.lang.reflect.Parameter;
 import java.util.Map;
 
 /**
@@ -32,6 +34,7 @@ public class RuleParameterDialog extends Dialog {
     private Parameters parameters = new Parameters();
     private GridPane gridPane = new GridPane();
     private TermParser termParser;
+    private Parameters expectedParameters;
 
     ValidationSupport validationSupport = new ValidationSupport();
 
@@ -64,6 +67,7 @@ public class RuleParameterDialog extends Dialog {
             if(e.getValue().isRequired()) {
                 gridPane.add(new Label(e.getKey()), 0, row);
                 TextField tf = new TextField();
+                tf.setUserData(e.getValue().getType());
                 if(e.getKey() == "on" && defaultOn != null) {
                     tf.setText(defaultOn);
                 }
@@ -104,6 +108,8 @@ public class RuleParameterDialog extends Dialog {
             return this::termValidator;
         } else if (type == ParameterType.BOOLEAN) {
             return this::booleanValidator;
+        } else if (type == ParameterType.STRING) {
+            return this::stringValidator;
         }
         return null;
     }
@@ -112,26 +118,36 @@ public class RuleParameterDialog extends Dialog {
         for (int i = 0; i < gridPane.getChildren().size() / 2; ++i) {
             TextField tf = (TextField) gridPane.getChildren().get(i * 2 + 1);
             String text = tf.getText();
-            try {
-                Term t = termParser.parse(text);
-                parameters.putValue(((Label) (gridPane.getChildren().get(i * 2))).getText(), t);
-            } catch (DafnyParserException e) {
-                //e.printStackTrace();
-                parameters = null;
-                return;
-            } catch (DafnyException e) {
-                //e.printStackTrace();
-                parameters = null;
-                return;
+            if(tf.getUserData().equals(ParameterType.TERM)) {
+                try {
+                    Term t = termParser.parse(text);
+                    parameters.putValue(((Label) (gridPane.getChildren().get(i * 2))).getText(), t);
+                } catch (DafnyParserException e) {
+                    //e.printStackTrace();
+                    parameters = null;
+                    return;
+                } catch (DafnyException e) {
+                    //e.printStackTrace();
+                    parameters = null;
+                    return;
+                }
+            } else if(tf.getUserData().equals(ParameterType.STRING)) {
+                parameters.putValue(((Label) (gridPane.getChildren().get(i * 2))).getText(), text);
+            } else {
+                throw new NotImplementedException();
             }
 
         }
     }
 
     private ValidationResult booleanValidator(Control c, String newValue) {
-        if (newValue == "true" || newValue == "True") {
-
+        if (newValue == "true" || newValue == "True" || newValue == "false" || newValue == "False") {
+            return new ValidationResult();
         }
+        return ValidationResult.fromError(c, "Boolean values must be true or false.");
+    }
+
+    private ValidationResult stringValidator(Control c, String newValue) {
         return new ValidationResult();
     }
 

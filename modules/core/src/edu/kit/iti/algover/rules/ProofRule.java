@@ -86,4 +86,13 @@ public interface ProofRule {
      */
     public Map<String, ParameterDescription<?>> getAllParameters();
 
+    /**
+     *
+     * Generates a fitting transcript for a given ruleApplication.
+     *
+     * @param pra the proofRuleApplication
+     * @return a valid transcript for the given proofRuleApplication
+     * @throws RuleException
+     */
+    public String getTranscript(ProofRuleApplication pra) throws RuleException;
 }

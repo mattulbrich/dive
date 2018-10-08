@@ -174,6 +174,7 @@ public class ScriptController implements ScriptViewListener {
         if(proof.getFailException() != null) {
             renderException(proof.getFailException());
             Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).severe(proof.getFailException().getMessage());
+            proof.getFailException().printStackTrace();
         }
         //checkpoints = ProofNodeCheckpointsBuilder.build(proof);
         switchViewedNode();

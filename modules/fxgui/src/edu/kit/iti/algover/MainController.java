@@ -26,8 +26,7 @@ import edu.kit.iti.algover.references.Reference;
 import edu.kit.iti.algover.rule.RuleApplicationController;
 import edu.kit.iti.algover.rule.RuleApplicationListener;
 import edu.kit.iti.algover.rules.*;
-import edu.kit.iti.algover.rules.impl.LetSubstitutionRule;
-import edu.kit.iti.algover.rules.impl.Z3Rule;
+import edu.kit.iti.algover.rules.impl.ExhaustiveRule;
 import edu.kit.iti.algover.sequent.SequentActionListener;
 import edu.kit.iti.algover.sequent.SequentController;
 import edu.kit.iti.algover.sequent.SequentTabViewController;
@@ -149,7 +148,13 @@ public class MainController implements SequentActionListener, RuleApplicationLis
             if (p.getProofStatus() != ProofStatus.CLOSED) {
                 for (int i = 0; i < p.getProofRoot().getSequent().getAntecedent().size(); ++i) {
                     try {
-                        script += RuleApplicator.getScriptForExhaustiveRuleApplication(new LetSubstitutionRule(), p.getProofRoot(), new TermSelector("A." + i));
+                        ExhaustiveRule exRule = new ExhaustiveRule();
+                        Parameters parameters = new Parameters();
+                        parameters.putValue("ruleName", "substitute");
+                        parameters.putValue("on", new TermParameter(new TermSelector("A." + i), p.getProofRoot().getSequent()));
+                        ProofRuleApplication pra = exRule.considerApplication(p.getProofRoot(), parameters);
+
+                        script += pra.getScriptTranscript();
                     } catch (FormatException ex) {
                         //TODO
                     } catch (RuleException ex) {
@@ -158,7 +163,13 @@ public class MainController implements SequentActionListener, RuleApplicationLis
                 }
                 for (int i = 0; i < p.getProofRoot().getSequent().getSuccedent().size(); ++i) {
                     try {
-                        script += RuleApplicator.getScriptForExhaustiveRuleApplication(new LetSubstitutionRule(), p.getProofRoot(), new TermSelector("S." + i));
+                        ExhaustiveRule exRule = new ExhaustiveRule();
+                        Parameters parameters = new Parameters();
+                        parameters.putValue("ruleName", "substitute");
+                        parameters.putValue("on", new TermParameter(new TermSelector("S." + i), p.getProofRoot().getSequent()));
+                        ProofRuleApplication pra = exRule.considerApplication(p.getProofRoot(), parameters);
+
+                        script += pra.getScriptTranscript();
                     } catch (FormatException ex) {
                         //TODO
                     } catch (RuleException ex) {

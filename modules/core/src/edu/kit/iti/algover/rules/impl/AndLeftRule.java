@@ -29,7 +29,7 @@ public class AndLeftRule extends AbstractProofRule {
 
     @Override
     protected ProofRuleApplication considerApplicationImpl(ProofNode target, Parameters parameters) throws RuleException {
-        TermSelector selector = tsForParameter.get("on");
+        TermSelector selector = parameters.getValue(ON_PARAM).getTermSelector();
 
         if(!selector.isToplevel()) {
             return ProofRuleApplicationBuilder.notApplicable(this);
@@ -50,7 +50,7 @@ public class AndLeftRule extends AbstractProofRule {
             return ProofRuleApplicationBuilder.notApplicable(this);
         }
 
-        ProofRuleApplicationBuilder builder = handleControlParameters(parameters, target.getSequent());
+        ProofRuleApplicationBuilder builder = new ProofRuleApplicationBuilder(this);
 
         builder.newBranch().addReplacement(selector, appl.getTerm(0)).
                 addAdditionAntecedent(new ProofFormula(appl.getTerm(1)));
@@ -61,7 +61,7 @@ public class AndLeftRule extends AbstractProofRule {
 
     @Override
     protected ProofRuleApplication makeApplicationImpl(ProofNode target, Parameters parameters) throws RuleException {
-        Term on = parameters.getValue(ON_PARAM);
+        Term on = parameters.getValue(ON_PARAM).getTerm();
         List<TermSelector> l = RuleUtil.matchSubtermsInSequent(on::equals, target.getSequent());
         if(l.size() != 1) {
             throw new RuleException("Matching of on parameter is ambiguous.");
@@ -86,7 +86,7 @@ public class AndLeftRule extends AbstractProofRule {
             throw new RuleException("andLeft may only be applied to or terms.");
         }
 
-        ProofRuleApplicationBuilder builder = handleControlParameters(parameters, target.getSequent());
+        ProofRuleApplicationBuilder builder = new ProofRuleApplicationBuilder(this);
 
         builder.newBranch().addReplacement(selector, appl.getTerm(0)).
                 addAdditionAntecedent(new ProofFormula(appl.getTerm(1)));
