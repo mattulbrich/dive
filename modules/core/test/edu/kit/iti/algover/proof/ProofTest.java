@@ -126,7 +126,7 @@ public class ProofTest {
     @Test
     public void schemaOnParameter() throws Exception {
         Proof p = makeProof("let i:=0 ; i >= 0");
-        p.setScriptTextAndInterpret("substitute on='|- _'; ");
+        p.setScriptTextAndInterpret("substitute on='|- (?match: _) '; ");
         Assert.assertEquals(ProofStatus.OPEN, p.getProofStatus());
         Assert.assertNotNull(p.getProofRoot());
     }

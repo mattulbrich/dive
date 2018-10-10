@@ -57,6 +57,10 @@ public abstract class AbstractProofRule implements ProofRule {
 
         for (Map.Entry<String, Object> en : parameters.entrySet()) {
             ParameterDescription<?> t = allParameters.get(en.getKey());
+            if (t == null) {
+                throw new RuleException("Unknown parameter '" + en.getKey() + "'");
+            }
+
             Object value = en.getValue();
             if (!t.acceptsValue(value)) {
                 throw new RuleException(

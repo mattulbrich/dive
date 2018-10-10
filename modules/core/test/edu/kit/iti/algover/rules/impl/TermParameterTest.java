@@ -53,7 +53,7 @@ public class TermParameterTest {
     public void TermToTest() throws FormatException, TermBuildException, RuleException, DafnyParserException, DafnyException {
         TermParser tp = new TermParser(symbolTable);
         Term term = tp.parse("i1 < i2");
-        Sequent sequent = tp.parseSequent("i1 < i2 |- i1 + i2");
+        Sequent sequent = tp.parseSequent("i1 < i2 |- i1 + i2 > 0");
         TermParameter parameter = new TermParameter(term, sequent);
         assertEquals(new TermSelector("A.0"), parameter.getTermSelector());
         assertEquals("(... (?match: $lt(i1, i2)) ...) |-", parameter.getSchematicSequent().toString());
@@ -105,7 +105,7 @@ public class TermParameterTest {
         TermParser tp = new TermParser(symbolTable);
         tp.setSchemaMode(true);
         Term schematic = tp.parse("_ < _");
-        Sequent sequent = tp.parseSequent("i1 < i2 |- i1 + i2");
+        Sequent sequent = tp.parseSequent("i1 < i2 |- i1 + i2 > 0");
         TermParameter parameter = new TermParameter(schematic, sequent);
         assertEquals(new TermSelector("A.0"), parameter.getTermSelector());
         assertEquals("(... (?match: $lt(i1, i2)) ...) |-", parameter.getSchematicSequent().toString());
@@ -116,7 +116,7 @@ public class TermParameterTest {
         TermParser tp = new TermParser(symbolTable);
         tp.setSchemaMode(true);
         Term schematic = tp.parse("_ < (?match: _)");
-        Sequent sequent = tp.parseSequent("i1 < i2 |- i1 + i2");
+        Sequent sequent = tp.parseSequent("i1 < i2 |- i1 + i2 > 0");
         TermParameter parameter = new TermParameter(schematic, sequent);
         assertEquals(new TermSelector("A.0.1"), parameter.getTermSelector());
         assertEquals("(... (?match: i2) ...) |-", parameter.getSchematicSequent().toString());
