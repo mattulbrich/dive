@@ -35,6 +35,8 @@ function TField(Ty)      : Ty;
 function TArray(Ty)      : Ty;
 function TArray2(Ty)      : Ty;
 
+axiom (forall x:ref :: (forall t: Ty :: $Is(x, TArray(t)) <==> dtype(x) == TArray(t) || x == null));
+
 //D function Inv0_TBitvector(Ty) : int;
 //D axiom (forall w: int :: { TBitvector(w) } Inv0_TBitvector(TBitvector(w)) == w);
 function Inv0_TSet(Ty) : Ty;
@@ -53,6 +55,8 @@ axiom (forall t: Ty :: { TSeq(t) } Inv0_TSeq(TSeq(t)) == t);
 //D function Inv1_TIMap(Ty) : Ty;
 //D axiom (forall t, u: Ty :: { TIMap(t,u) } Inv0_TIMap(TIMap(t,u)) == t);
 //D axiom (forall t, u: Ty :: { TIMap(t,u) } Inv1_TIMap(TIMap(t,u)) == u);
+function Inv0_TArray(Ty) : Ty;
+axiom (forall t: Ty :: { TArray(t) } Inv0_TArray(TArray(t)) == t);
 
 // -- Classes and Datatypes --
 

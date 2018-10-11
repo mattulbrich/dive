@@ -1,13 +1,20 @@
 ### decls:
 a : int
 b : int
+
 ### sequent:
 a == 5, b > 3 |- a+b > 8
+
 ### result:
 prove
+
 ### translation:
-var _a : int;
-var _b : int;
+const _a : int;
+const _b : int;
+
+axiom $Is(_a, TInt);
+axiom $Is(_b, TInt);
+
 procedure Sequent()
   ensures false;
 {

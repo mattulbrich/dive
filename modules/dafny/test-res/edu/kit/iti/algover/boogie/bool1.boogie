@@ -9,7 +9,10 @@ b : bool
 prove
 
 ### translation:
-var _b : bool;
+const _b : bool;
+
+axiom $Is(_b, TBool);
+
 procedure Sequent()
   ensures false;
 {

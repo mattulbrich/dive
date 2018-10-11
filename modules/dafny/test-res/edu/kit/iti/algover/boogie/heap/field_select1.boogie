@@ -17,6 +17,7 @@ const _C$$f : Field int;
 const _o : ref;
 const unique TClass_C : Ty;
 
+axiom (forall x:ref :: $Is(x, TClass_C) <==> dtype(x) == TClass_C || x == null);
 axiom $Is(_$heap, THeap);
 axiom $Is(_o, TClass_C);
 axiom $Is(_C$$f, TField(TInt));

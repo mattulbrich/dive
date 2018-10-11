@@ -19,7 +19,7 @@ const unique TClass_D : Ty;
 
 axiom (forall x:ref :: $Is(x, TClass_C) <==> dtype(x) == TClass_C || x == null);
 axiom (forall x:ref :: $Is(x, TClass_D) <==> dtype(x) == TClass_D || x == null);
-axiom $Is(_o, TClass_object);
+axiom $Is(_o, TObject);
 axiom $Is(_c, TClass_C);
 axiom $Is(_d, TClass_D);
 

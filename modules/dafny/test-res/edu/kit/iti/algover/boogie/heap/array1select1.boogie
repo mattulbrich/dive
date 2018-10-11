@@ -5,8 +5,11 @@ a : array<int>
 ### result:
 fail
 ### translation:
-var _$heap : Heap;
-var _a : ref;
+const _$heap : Heap;
+const _a : ref;
+
+axiom $Is(_$heap, THeap);
+axiom $Is(_a, TArray(TInt));
 
 procedure Sequent()
   ensures false;
