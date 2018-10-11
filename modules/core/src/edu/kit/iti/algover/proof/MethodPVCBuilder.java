@@ -134,6 +134,12 @@ public class MethodPVCBuilder implements PVCBuilder {
             map.add(new FunctionSymbol(name, sort));
         }
 
+        if(method.isDeclaredInClass()) {
+            map.add(new FunctionSymbol("this",
+                    Sort.getClassSort(method.getParentDecl().getName())));
+        }
+
+
         // TODO is this suffix stuff still needed?
         // MapSymbolTable st = new SuffixSymbolTable(new BuiltinSymbols(), map);
         MapSymbolTable st = new MapSymbolTable(new BuiltinSymbols(), map);

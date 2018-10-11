@@ -23,11 +23,15 @@ import java.util.List;
  * @author S.Grebing
  * @author A. Weigl
  */
+
+// REVIEW: Add the missing generic parameters! Please!
+
+@SuppressWarnings({"unchecked", "rawtypes"})
 public class Evaluator<T> extends DefaultASTVisitor<Value> implements ScopeObservable {
     private final VariableAssignment state;
     private final ProofNode goal;
     private MatcherApi<T> matcher;
-    private List<Visitor> entryListeners = new ArrayList<>(),
+    private List<Visitor<?>> entryListeners = new ArrayList<>(),
             exitListeners = new ArrayList<>();
 
     public Evaluator(VariableAssignment assignment, ProofNode node) {
@@ -46,7 +50,7 @@ public class Evaluator<T> extends DefaultASTVisitor<Value> implements ScopeObser
     }
 
     @Override
-    public Value<T> visit(BinaryExpression e) {
+    public Value visit(BinaryExpression e) {
         Value v1 = (Value) e.getLeft().accept(this);
         Value v2 = (Value) e.getRight().accept(this);
         Operator op = e.getOperator();
@@ -151,7 +155,7 @@ public class Evaluator<T> extends DefaultASTVisitor<Value> implements ScopeObser
     }
 
     @Override
-    public Value<T> visit(UnaryExpression e) {
+    public Value visit(UnaryExpression e) {
         Operator op = e.getOperator();
         Expression expr = e.getExpression();
         Value<T> exValue = (Value) expr.accept(this);
@@ -175,11 +179,11 @@ public class Evaluator<T> extends DefaultASTVisitor<Value> implements ScopeObser
         this.matcher = matcher;
     }
 
-    public List<Visitor> getEntryListeners() {
+    public List<Visitor<?>> getEntryListeners() {
         return this.entryListeners;
     }
 
-    public List<Visitor> getExitListeners() {
+    public List<Visitor<?>> getExitListeners() {
         return this.exitListeners;
     }
 }

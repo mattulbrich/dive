@@ -38,6 +38,10 @@ import java.io.IOException;
  * @author Alexander Weigl
  * @version 1 (27.04.17)
  */
+
+// REVIEW: Add the missing generic parameters! Please!
+
+@SuppressWarnings({"unchecked", "rawtypes"})
 public abstract class Facade {
     /**
      * Parses the given {@link CharStream} and returns the {@link ParserRuleContext}.

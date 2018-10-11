@@ -27,7 +27,7 @@ public class InterpreterUtils {
         TermBuilder tb = new TermBuilder(symbTable);
         TreeTermTranslator ttt = new TreeTermTranslator(symbTable);
 
-        List<ProofFormula> antecTerms = new ArrayList();
+        List<ProofFormula> antecTerms = new ArrayList<>();
         List<ProofFormula> succTerms = new ArrayList<>();
         for (String s : antec) {
             antecTerms.add(new ProofFormula(ttt.build(TreeTermTranslatorTest.parse(s, schemaEnable))));

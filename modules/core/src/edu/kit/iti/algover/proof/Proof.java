@@ -173,6 +173,9 @@ public class Proof {
 
     }
 
+
+    // REVIEW: Review after repairing generics elsewhere
+    @SuppressWarnings({"unchecked", "rawtypes"})
     private Interpreter<ProofNode> buildIndividualInterpreter() {
 
         InterpreterBuilder ib = new InterpreterBuilder();

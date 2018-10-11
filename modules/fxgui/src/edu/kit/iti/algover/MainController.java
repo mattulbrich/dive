@@ -86,6 +86,7 @@ public class MainController implements SequentActionListener, RuleApplicationLis
     private final StatusBar statusBar;
     private final StatusBarLoggingHandler statusBarLoggingHandler;
     private final JFXButton simpleStratButton;
+    // REVIEW: Would <String> not be more appropriate?
     private final CostumBreadCrumbBar<Object> breadCrumbBar;
 
 
@@ -108,7 +109,7 @@ public class MainController implements SequentActionListener, RuleApplicationLis
         simpleStratButton.setOnAction(this::trivialStrat);
 
         TreeItem<Object> ti = getBreadCrumbModel();
-        breadCrumbBar = new CostumBreadCrumbBar(ti, this::onCrumbSelected);
+        breadCrumbBar = new CostumBreadCrumbBar<>(ti, this::onCrumbSelected);
         breadCrumbBar.setStringFactory(this::getStringForTreeItem);
         breadCrumbBar.setSelectedCrumb(ti);
 
@@ -152,6 +153,7 @@ public class MainController implements SequentActionListener, RuleApplicationLis
         ruleApplicationController.resetConsideration();
     }
 
+    @SuppressWarnings("unchecked")
     private void onCrumbSelected(ObservableValue<?> observableValue, Object oldValue, Object newValue) {
         TreeItem<Object> item = (TreeItem<Object>) newValue;
         Platform.runLater(() -> {
@@ -205,29 +207,29 @@ public class MainController implements SequentActionListener, RuleApplicationLis
 
     public TreeItem<Object> getBreadCrumbModel() {
         TreeItem<Object> lastitem = null;
-        TreeItem<Object> root = new TreeItem("root");
+        TreeItem<Object> root = new TreeItem<>("root");
         for (DafnyFile f : manager.getProject().getDafnyFiles()) {
-            TreeItem<Object> fileChild = new TreeItem(f.getFilename());
+            TreeItem<Object> fileChild = new TreeItem<>(f.getFilename());
             fileChild.setValue(f);
             root.getChildren().add(fileChild);
             for (DafnyMethod m : f.getMethods()) {
-                TreeItem<Object> methodChild = new TreeItem(m.getName());
+                TreeItem<Object> methodChild = new TreeItem<>(m.getName());
                 methodChild.setValue(m);
                 fileChild.getChildren().add(methodChild);
                 PVCCollection collection = manager.getProject().getPVCsFor(m);
                 for (PVC pvc : collection.getContents()) {
-                    lastitem = new TreeItem(pvc.getIdentifier());
+                    lastitem = new TreeItem<>(pvc.getIdentifier());
                     lastitem.setValue(pvc);
                     methodChild.getChildren().add(lastitem);
                 }
             }
             for (DafnyFunction fi : f.getFunctions()) {
-                TreeItem<Object> functionChild = new TreeItem(fi.getName());
+                TreeItem<Object> functionChild = new TreeItem<>(fi.getName());
                 functionChild.setValue(fi);
                 fileChild.getChildren().add(functionChild);
                 PVCCollection collection = manager.getProject().getPVCsFor(fi);
                 for (PVC pvc : collection.getContents()) {
-                    lastitem = new TreeItem(pvc.getIdentifier());
+                    lastitem = new TreeItem<>(pvc.getIdentifier());
                     lastitem.setValue(pvc);
                     functionChild.getChildren().add(lastitem);
                 }

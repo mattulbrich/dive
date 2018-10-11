@@ -31,6 +31,10 @@ import org.antlr.v4.runtime.ParserRuleContext;
  * @author Alexander Weigl
  * @version 1 (28.04.17)
  */
+
+// REVIEW: Add the missing generic parameters! Please!
+
+@SuppressWarnings({"unchecked", "rawtypes"})
 public class BinaryExpression extends Expression<ParserRuleContext> {
     private Expression left, right;
     private Operator operator;

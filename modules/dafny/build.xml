@@ -44,12 +44,19 @@
 	<target name="compile" description="Compile all files" depends="init">
 		<echo>"${libs}"</echo>
 		<javac destdir="bin" classpath="${dir.core.bin}:${libs}" debug="on">
+			<compilerarg value="-Werror"/>
+			<compilerarg value="-Xlint:unchecked"/>
+			<compilerarg value="-Xlint:rawtypes"/>
 			<src path="src" />
 		</javac>
 	</target>
 
 	<target name="compile-test" depends="compile, init, copy-test">
-		<javac srcdir="test" destdir="test-bin" classpath="bin:${dir.core.bin}:${dir.core.testbin}:bin:${libs}" debug="on" />
+		<javac srcdir="test" destdir="test-bin" classpath="bin:${dir.core.bin}:${dir.core.testbin}:bin:${libs}" debug="on">
+			<compilerarg value="-Werror"/>
+			<compilerarg value="-Xlint:unchecked"/>
+			<compilerarg value="-Xlint:rawtypes"/>
+		</javac>
 	</target>
 
 	<target name="test" depends="compile-test, build">

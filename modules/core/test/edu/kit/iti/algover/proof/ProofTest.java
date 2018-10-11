@@ -9,14 +9,13 @@ package edu.kit.iti.algover.proof;
 
 import edu.kit.iti.algover.data.BuiltinSymbols;
 import edu.kit.iti.algover.project.Project;
-import edu.kit.iti.algover.rules.RuleException;
 import edu.kit.iti.algover.script.exceptions.ScriptCommandNotApplicableException;
 import edu.kit.iti.algover.term.Sequent;
 import edu.kit.iti.algover.term.Term;
 import edu.kit.iti.algover.term.builder.TermBuilder;
 import edu.kit.iti.algover.term.parser.TermParser;
 import edu.kit.iti.algover.util.TestUtil;
-import org.antlr.runtime.RecognitionException;
+import static edu.kit.iti.algover.util.ProofMockUtil.*;
 import org.antlr.v4.runtime.misc.ParseCancellationException;
 import org.junit.AfterClass;
 import org.junit.Assert;
@@ -26,32 +25,6 @@ import org.junit.Test;
 import java.util.Collections;
 
 public class ProofTest {
-
-    private static Project project;
-
-    @BeforeClass
-    public static void setup() throws Exception {
-        project = TestUtil.mockProject("method m() ensures true {}");
-    }
-
-    @AfterClass
-    public static void tearDown() {
-        project = null;
-    }
-
-    private Proof makeProof(String termStr) throws Exception {
-        BuiltinSymbols symboltable = new BuiltinSymbols();
-        TermBuilder tb = new TermBuilder(symboltable);
-        MockPVCBuilder pb = new MockPVCBuilder();
-        pb.setDeclaration(project.getMethod("m"));
-        pb.setSymbolTable(symboltable);
-        Term term = TermParser.parse(symboltable, termStr);
-        pb.setSequent(Sequent.singleSuccedent(new ProofFormula(term)));
-        pb.setPathIdentifier("test");
-        pb.setReferenceMap(Collections.emptyMap());
-        PVC pvc = pb.build();
-        return new Proof(project, pvc);
-    }
 
     @Test
     public void getScript() throws Exception {

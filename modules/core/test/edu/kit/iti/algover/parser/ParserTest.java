@@ -68,6 +68,7 @@ public class ParserTest {
                 { "typeParameters.dfy" },
                 { "../term/builder/sequenterTest.dfy" },
                 { "../symbex/noetherTest.dfy" },
+                { "../symbex/crossClass.dfy" },
                 { "vars.dfy" },
                 { "newCommand.dfy" },
                 { "methodCalls.dfy" },

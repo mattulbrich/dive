@@ -13,10 +13,13 @@ import edu.kit.iti.algover.parser.DafnyFileParser;
 import edu.kit.iti.algover.parser.DafnyParser;
 import edu.kit.iti.algover.parser.DafnyTree;
 import edu.kit.iti.algover.project.Project;
+import edu.kit.iti.algover.rules.SubtermSelector;
 import edu.kit.iti.algover.term.FunctionSymbol;
 import edu.kit.iti.algover.term.Sort;
 import edu.kit.iti.algover.term.Term;
+import edu.kit.iti.algover.term.VariableTerm;
 import edu.kit.iti.algover.term.parser.TermParser;
+import edu.kit.iti.algover.util.ASTUtil;
 import edu.kit.iti.algover.util.ImmutableList;
 import edu.kit.iti.algover.util.Pair;
 import edu.kit.iti.algover.util.TestUtil;
@@ -72,6 +75,7 @@ public class TreeAssignmentTranslatorTest {
 
         ImmutableList<Pair<FunctionSymbol, Term>> result = tat.translateAssignments(assignments);
 
+        @SuppressWarnings("unchecked")
         ImmutableList<Pair<FunctionSymbol, Term>> expected = ImmutableList.from(
                 new Pair<>(x, TermParser.parse(symbTable, "5")),
                 new Pair<>(x, TermParser.parse(symbTable, "i1+x")),
@@ -80,6 +84,39 @@ public class TreeAssignmentTranslatorTest {
         assertEquals(expected, result);
     }
 
+    @Test
+    public void testLetCascade() throws Exception {
+
+        DafnyTree tree = DafnyFileParser.parse(getClass().getResourceAsStream("proj1/treeTransTest.dfy"));
+        Project p = TestUtil.mockProject(tree);
+
+        DafnyTree method = p.getMethod("m").getRepresentation();
+        DafnyTree block = method.getFirstChildWithType(DafnyParser.BLOCK);
+
+        DafnyTree post = method.getFirstChildWithType(DafnyParser.ENSURES).getLastChild();
+
+        ImmutableList<DafnyTree> assignments =
+                ImmutableList.<DafnyTree>from(block.getChildren().subList(1, block.getChildCount()));
+
+        FunctionSymbol x = new FunctionSymbol("x", Sort.INT);
+        FunctionSymbol i1 = new FunctionSymbol("i1", Sort.INT);
+        FunctionSymbol i2 = new FunctionSymbol("i2", Sort.INT);
+        symbTable.addFunctionSymbol(x);
+        symbTable.addFunctionSymbol(i1);
+        symbTable.addFunctionSymbol(i2);
+
+        TreeAssignmentTranslator tat = new TreeAssignmentTranslator(symbTable);
+        Term lets = tat.translateToLet(assignments, ASTUtil.intLiteral(42));
+        Term expected = TermParser.parse(symbTable,
+                "let x := 5 :: let x := i1+x :: " +
+                       "let i2 := i1*2 :: 42");
+
+        assertEquals(expected , lets);
+        assertEquals(VariableTerm.class,
+                new SubtermSelector("0.1.1").selectSubterm(lets).getClass());
+    }
+
+    // used to hunt a bug
     @Test
     public void letCascadeHeap() throws Exception {
 
@@ -110,11 +147,17 @@ public class TreeAssignmentTranslatorTest {
         // Code is :
         //   field := field + 1;
         //   d.field := null;
+        @SuppressWarnings("unchecked")
         ImmutableList<Pair<FunctionSymbol, Term>> expected = ImmutableList.from(
                 new Pair<>(heap, TermParser.parse(symbTable, "$store<C, int>($heap, this, C$$field, $select<C,int>($heap, this, C$$field) + 1)")),
                 new Pair<>(heap, TermParser.parse(symbTable, "$store<D, D>($heap, d, D$$field, null)")));
 
         assertEquals(expected, result);
+
+        Term letCascade = tat.translateToLet(assignments, ASTUtil.intLiteral(42));
+        assertEquals(TermParser.parse(symbTable,
+                "let $heap := $store<C,int>($heap, this, C$$field, $select<C,int>($heap, this, C$$field) + 1) :: " +
+                        "let $heap := $store<D,D>($heap, d, D$$field, null) :: 42"), letCascade);
     }
 
     @Test
@@ -141,6 +184,7 @@ public class TreeAssignmentTranslatorTest {
 
         ImmutableList<Pair<FunctionSymbol, Term>> result = tat.translateAssignments(assignments);
 
+        @SuppressWarnings("unchecked")
         ImmutableList<Pair<FunctionSymbol, Term>> expected = ImmutableList.from(
                 new Pair<>(sq, TermParser.parse(symbTable, "$seq_upd<int>(sq, 0, 2)")),
                 new Pair<>(heap, TermParser.parse(symbTable, "$store<Seq, seq<int>>($heap, this, Seq$$fsq, $seq_upd<int>($select<Seq, seq<int>>($heap, this, Seq$$fsq), 1, 3))")),

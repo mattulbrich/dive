@@ -37,10 +37,23 @@ import edu.kit.iti.algover.project.ProjectBuilder;
 import org.hamcrest.BaseMatcher;
 import org.hamcrest.Description;
 import org.hamcrest.Matcher;
+import org.junit.Test;
 
 public class TestUtil {
 
-    public static boolean VERBOSE =
+    /**
+     * Adding {@code -Dalgover.verbose=true} to the call of AlgoVer tests
+     * makes some test cases to produce more output. If your tests propduce lots
+     * of output, you are encouraged to make this output conditional using
+     * <pre>
+     * if(TestUtil.VERBOSE) {
+     *    // output code
+     * }
+     * </pre>
+     * to clutter the standard output less.
+     */
+    @TestInfrastructure
+    public static final boolean VERBOSE =
             Boolean.getBoolean("algover.verbose");
 
     public static String beautify(DafnyTree tree) {
@@ -86,18 +99,40 @@ public class TestUtil {
         }
     }
 
+    /**
+     * Create a project by parsing the string s as the content of a single dafny
+     * file. The filename is set to some bogus dummy filename.
+     *
+     * @param s the string to parse
+     * @return a fresh project with some bogus filename.
+     */
+    @TestInfrastructure
     public static Project mockProject(String s) throws DafnyParserException, DafnyException, RecognitionException, IOException {
         DafnyTree tree = ParserTest.parseFile(new ByteArrayInputStream(s.getBytes()));
         return mockProject(tree);
     }
 
-
+    /**
+     * Create a project by using a tree (COMPILATION_UNIT) of a single dafny
+     * file. The filename is set to some bogus dummy filename.
+     *
+     * @param tree the dafny tree to work on
+     * @return a fresh project with some bogus filename.
+     */
+    @TestInfrastructure
     public static Project mockProject(DafnyTree tree) throws IOException, DafnyParserException, DafnyException, RecognitionException {
         ProjectBuilder pb = new ProjectBuilder();
         pb.addDafnyTree("dummyFilenameForTesting.dfy", tree);
         return mockProject(pb);
     }
 
+    /**
+     * Create a project by using a partially set up project builder
+     *
+     * @param pb the builder to use
+     * @return a fresh project with some bogus filename.
+     */
+    @TestInfrastructure
     public static Project mockProject(ProjectBuilder pb) throws DafnyException, DafnyParserException, IOException {
         try {
             Project p = pb.build();
@@ -146,11 +181,33 @@ public class TestUtil {
         return sb;
     }
 
-
+    /**
+     * Set the field of an object even if it is private.
+     *
+     * Reflection is used. This allows fields to remain private and yet to be
+     * tested.
+     *
+     * @param object the object to change, not null.
+     * @param fieldName the name of the field in the dynamic type of object.
+     * @param value the value to set to the field.
+     */
+    @TestInfrastructure
     public static void setField(Object object, String fieldName, Object value) {
         setField(object, object.getClass(), fieldName, value);
     }
 
+    /**
+     * Set the field of an object even if it is private.
+     *
+     * Reflection is used. This allows fields to remain private and yet to be
+     * tested.
+     *
+     * @param object    the object to change, not null.
+     * @param inClass   the class in which the field resides.
+     * @param fieldName the name of the field in inClass.
+     * @param value     the value to set to the field.
+     */
+    @TestInfrastructure
     public static void setField(Object object, Class<?> inClass, String fieldName, Object value) {
         try {
             Field f = inClass.getDeclaredField(fieldName);
@@ -161,10 +218,29 @@ public class TestUtil {
         }
     }
 
+    /**
+     * Call a method on an object even if it is a private one.
+     *
+     * @param object     the receiver of the call
+     * @param methodName the name of a method in the dynamic type of object
+     * @param args       optional arguments of the call
+     * @return the result value of the method call.
+     */
+    @TestInfrastructure
     public static Object call(Object object, String methodName, Object... args) {
         return call(object, object.getClass(), methodName, args);
     }
 
+    /**
+     * Call a method on an object even if it is a private one.
+     *
+     * @param object     the receiver of the call
+     * @param inClass    the class in which the method is defined
+     * @param methodName the name of a method in inClass
+     * @param args       optional arguments of the call
+     * @return the result value of the method call.
+     */
+    @TestInfrastructure
     public static Object call(Object object, Class<?> inClass, String methodName, Object... args) {
         try {
             methodName = methodName.intern();
@@ -188,6 +264,15 @@ public class TestUtil {
         }
     }
 
+    /**
+     * Call a static method, even if it is private.
+     *
+     * @param inClass    the class in which the method is defined.
+     * @param methodName the name of the method
+     * @param args       optional arguments
+     * @return the result value of the invocation
+     */
+    @TestInfrastructure
     public static Object callStatic(Class<?> inClass, String methodName, Object... args) {
         try {
             methodName = methodName.intern();
@@ -227,6 +312,17 @@ public class TestUtil {
         };
     }
 
+    @TestInfrastructure
+    public static Project emptyProject() {
+        try {
+            return mockProject("");
+        } catch (Exception e) {
+            // Really should not happen ...
+            throw new RuntimeException(e);
+        }
+    }
+
+    @TestInfrastructure
     public static List<URL> getResourcesIn(URL resource, String suffix, boolean deep) throws MalformedURLException {
         assert resource != null : "Null resource received!";
         assert resource.getProtocol().equals("file") :

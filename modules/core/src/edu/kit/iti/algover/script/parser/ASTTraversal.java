@@ -33,6 +33,10 @@ import java.util.Map;
  * @author Alexander Weigl
  * @version 1 (29.04.17)
  */
+
+// REVIEW: Add the missing generic parameters! Please!
+
+@SuppressWarnings({"unchecked", "rawtypes"})
 public interface ASTTraversal<T> extends Visitor<T> {
     @Override
     default T visit(ProofScript proofScript) {
@@ -83,7 +87,7 @@ public interface ASTTraversal<T> extends Visitor<T> {
 
     @Override
     default T visit(Statements statements) {
-        for (Statement statement : statements) {
+        for (Statement<?> statement : statements) {
             statement.accept(this);
         }
         return null;
@@ -111,7 +115,7 @@ public interface ASTTraversal<T> extends Visitor<T> {
 
     @Override
     default T visit(CallStatement call) {
-        for (Expression e : call.getParameters().values()) {
+        for (Expression<?> e : call.getParameters().values()) {
             e.accept(this);
         }
         return null;
@@ -144,6 +148,8 @@ public interface ASTTraversal<T> extends Visitor<T> {
     }
 
     @Override
+    // REVIEW: Repair when others are repaired
+    @SuppressWarnings({"rawtypes"})
     default T visit(Parameters parameters) {
         for (Map.Entry<Variable, Expression> e :
                 parameters.entrySet()) {

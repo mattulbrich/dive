@@ -152,6 +152,15 @@ public abstract class DafnyDecl {
     }
 
     /**
+     * Checks if this entity is declared within a class.
+     *
+     * @return true iff it is the member of a class.
+     */
+    public boolean isDeclaredInClass() {
+        return getParentDecl() instanceof DafnyClass;
+    }
+
+    /**
      * Accept a visitor for declarations.
      *
      * This is part of a visitor pattern.

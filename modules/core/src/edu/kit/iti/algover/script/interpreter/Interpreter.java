@@ -23,6 +23,10 @@ import java.util.stream.Stream;
  *
  * @author S.Grebing
  */
+
+// REVIEW: Add the missing generic parameters! Please!
+
+@SuppressWarnings({"unchecked", "rawtypes"})
 public class Interpreter<T> extends DefaultASTVisitor<Object>
         implements ScopeObservable {
     private static final int MAX_ITERATIONS = 5;
@@ -35,7 +39,7 @@ public class Interpreter<T> extends DefaultASTVisitor<Object>
     /**
      * Listener for entry and exit of ASTNodes
      */
-    private List<Visitor> entryListeners = new ArrayList<>(),
+    private List<Visitor<?>> entryListeners = new ArrayList<>(),
             exitListeners = new ArrayList<>();
 
     /**
@@ -58,13 +62,13 @@ public class Interpreter<T> extends DefaultASTVisitor<Object>
     }
 
     @Override
-    public List<Visitor> getEntryListeners() {
+    public List<Visitor<?>> getEntryListeners() {
         return entryListeners;
     }
 
 
     @Override
-    public List<Visitor> getExitListeners() {
+    public List<Visitor<?>> getExitListeners() {
         return exitListeners;
     }
 

@@ -37,6 +37,10 @@ import static org.junit.Assert.assertTrue;
  * To add test simply add an entry to the respective parameters.
  *
  */
+
+// REVIEW: Resolve this warning suppression!
+
+@SuppressWarnings({"unchecked", "rawtypes"})
 @RunWith(JUnitParamsRunner.class)
 public class GenericRuleTest {
     SymbolTable symbolTable;

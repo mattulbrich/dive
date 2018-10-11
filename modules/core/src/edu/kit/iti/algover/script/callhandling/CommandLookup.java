@@ -9,6 +9,10 @@ import edu.kit.iti.algover.script.interpreter.Interpreter;
  * @author Alexander Weigl
  * @version 1 (20.05.17)
  */
+
+// REVIEW: Add the missing generic parameters! Please!
+
+@SuppressWarnings({"unchecked", "rawtypes"})
 public interface CommandLookup<T> {
     void callCommand(Interpreter<T> i, CallStatement c, VariableAssignment p);
 

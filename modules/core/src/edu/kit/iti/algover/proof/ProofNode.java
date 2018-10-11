@@ -22,6 +22,10 @@ import java.util.*;
  * (is that a good idea, or should we incorporate a field that is true when node is a closed proof node?)
  * *
  */
+
+// REVIEW: Add the missing generic parameters! Please!
+
+@SuppressWarnings({"unchecked", "rawtypes"})
 public class ProofNode {
 
     /**
