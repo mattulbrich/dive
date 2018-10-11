@@ -77,8 +77,11 @@ public class BoogieVisitor extends DefaultTermVisitor<Void, String, NoExceptions
         result.put(GT.getName(), binary(">"));
         result.put(LE.getName(), binary("<="));
         result.put(LT.getName(), binary("<"));
+        result.put(NEG.getName(), (t,v) -> "-(" + t.getTerm(0).accept(v, null) + ")");
         // --- FOL
         result.put(EQ.getBaseName(), equal());
+        result.put(TRUE.getName(), constant("true"));
+        result.put(FALSE.getName(), constant("false"));
         result.put(AND.getName(), binary("&&"));
         result.put(IMP.getName(), binary("==>"));
         result.put(OR.getName(), binary("||"));
@@ -103,9 +106,10 @@ public class BoogieVisitor extends DefaultTermVisitor<Void, String, NoExceptions
         // --- Heaps
         result.put(ARRAY_SELECT.getBaseName(), arraySelect(1));
         result.put(ARRAY_STORE.getBaseName(), arrayStore(1));
+        result.put(STORE.getBaseName(), function("update"));
         result.put(SELECT.getBaseName(), function("read"));
         result.put(LEN.getBaseName(), function("_System.array.Length"));
-        result.put(NULL.getName(), (t,v)->"null");
+        result.put(NULL.getName(), constant("null"));
         return result;
     }
 
@@ -161,6 +165,13 @@ public class BoogieVisitor extends DefaultTermVisitor<Void, String, NoExceptions
      */
     private static final Boogiefier function(String fctName) {
         return function(fctName, false);
+    }
+
+    /*
+     * Returns a constant string regardless of the parameter
+     */
+    private static final Boogiefier constant(String string) {
+        return (t,v) -> string;
     }
 
     /*
@@ -300,7 +311,7 @@ public class BoogieVisitor extends DefaultTermVisitor<Void, String, NoExceptions
                         visitSort(fs.getResultSort())));
 
         if (added) {
-            assert fs.getArity() == 0 : "Not yet implemented ...";
+            assert fs.getArity() == 0 : "Not yet implemented: " + fs;
             // not already there.
             axioms.add(String.format("axiom $Is(%s, %s);",
                     name, typeConstant(fs.getResultSort())));
