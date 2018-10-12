@@ -1,0 +1,21 @@
+### decls:
+a : array<int>
+
+### sequent:
+|- a[1]@$heap[a[0] := 0] == a[1]
+
+### result:
+prove
+
+### translation:
+const _$heap : Heap;
+const _a : ref;
+
+axiom $Is(_$heap, THeap);
+axiom $Is(_a, TArray(TInt));
+
+procedure Sequent()
+  ensures false;
+{
+  assume !((read(update(_$heap, _a, IndexField(0) : Field int, 0), _a, IndexField(1) : Field int) == read(_$heap, _a, IndexField(1) : Field int)));
+}

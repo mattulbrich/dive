@@ -107,6 +107,7 @@ public class BoogieVisitor extends DefaultTermVisitor<Void, String, NoExceptions
         result.put(ARRAY_SELECT.getBaseName(), arraySelect(1));
         result.put(ARRAY_STORE.getBaseName(), arrayStore(1));
         result.put(STORE.getBaseName(), function("update"));
+        result.put(ANON.getName(), function("anon"));
         result.put(SELECT.getBaseName(), function("read"));
         result.put(LEN.getBaseName(), function("_System.array.Length"));
         result.put(NULL.getName(), constant("null"));
@@ -299,6 +300,10 @@ public class BoogieVisitor extends DefaultTermVisitor<Void, String, NoExceptions
             type = "const";
             name = "_" + fs.getName();
             args = "";
+            if(fs.getName().contains("$$") && fs.getResultSort().getName().equals("field")) {
+                // Field constants are special!
+                type = "const unique";
+            }
         } else {
             type = "function";
             name = "f_" + fs.getName();

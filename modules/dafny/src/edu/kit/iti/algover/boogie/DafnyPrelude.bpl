@@ -7,15 +7,15 @@
 
 // Adapted for AlgoVer
 
-const $$Language$Dafny: bool;  // To be recognizable to the ModelViewer as
-axiom $$Language$Dafny;        // coming from a Dafny program.
+//D const $$Language$Dafny: bool;  // To be recognizable to the ModelViewer as
+//D axiom $$Language$Dafny;        // coming from a Dafny program.
 
 // ---------------------------------------------------------------
 // -- Types ------------------------------------------------------
 // ---------------------------------------------------------------
 
 type Ty;
-type Bv0 = int;
+//D type Bv0 = int;
 
 const unique TBool : Ty;
 //D const unique TChar : Ty;
@@ -34,8 +34,6 @@ const unique THeap : Ty;
 function TField(Ty)      : Ty;
 function TArray(Ty)      : Ty;
 function TArray2(Ty)      : Ty;
-
-axiom (forall x:ref :: (forall t: Ty :: $Is(x, TArray(t)) <==> dtype(x) == TArray(t) || x == null));
 
 //D function Inv0_TBitvector(Ty) : int;
 //D axiom (forall w: int :: { TBitvector(w) } Inv0_TBitvector(TBitvector(w)) == w);
@@ -57,6 +55,7 @@ axiom (forall t: Ty :: { TSeq(t) } Inv0_TSeq(TSeq(t)) == t);
 //D axiom (forall t, u: Ty :: { TIMap(t,u) } Inv1_TIMap(TIMap(t,u)) == u);
 function Inv0_TArray(Ty) : Ty;
 axiom (forall t: Ty :: { TArray(t) } Inv0_TArray(TArray(t)) == t);
+axiom (forall x: ref :: (forall t: Ty :: $Is(x, TArray(t)) <==> dtype(x) == TArray(t) || x == null));
 
 // -- Classes and Datatypes --
 
@@ -541,10 +540,25 @@ axiom (forall o: ref :: 0 <= _System.array.Length(o));
 // ---------------------------------------------------------------
 
 type Heap = <alpha>[ref,Field alpha]alpha;
+
+const unique created: Field bool;
+
 function {:inline} read<alpha>(H:Heap, r:ref, f:Field alpha): alpha { H[r, f] }
 function {:inline} update<alpha>(H:Heap, r:ref, f:Field alpha, v:alpha): Heap { H[r,f := v] }
+function anon(heap: Heap, s: Set ref, aheap: Heap) : Heap;
 
 function $IsGoodHeap(Heap): bool;
+function {:inline} $IsCreated(H:Heap, r:ref): bool { H[r, created] }
+
+axiom (forall<alpha> heap, aheap: Heap, s: Set ref, o: ref, f: Field alpha :: { read(anon(heap,s,aheap), o, f) }  
+           read(anon(heap,s,aheap), o, f) ==
+              (if s[o] || !$IsCreated(heap, o)
+               then read(aheap, o, f)
+               else read(heap, o, f)));
+
+axiom (forall heap, aheap: Heap, r: ref, s: Set ref :: { $IsCreated(anon(heap, s, aheap), r) }
+  $IsCreated(heap, r) ==> $IsCreated(anon(heap,s,aheap), r));
+
 //D function $IsHeapAnchor(Heap): bool;
 //D var $Heap: Heap where $IsGoodHeap($Heap) && $IsHeapAnchor($Heap);
 
