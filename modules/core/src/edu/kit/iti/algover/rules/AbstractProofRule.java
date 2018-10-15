@@ -187,7 +187,11 @@ public abstract class AbstractProofRule implements ProofRule {
                 try {
                     pp = prettyPrint.print(((TermParameter) p.getValue()).getSchematicTerm()).toString();
                 } catch (RuleException e) {
-                    pp = prettyPrint.print(((TermParameter) p.getValue()).getSchematicSequent()).toString();
+                    try {
+                        pp = prettyPrint.print(((TermParameter) p.getValue()).getSchematicSequent()).toString();
+                    } catch (RuleException e1) {
+                        pp = prettyPrint.print(((TermParameter) p.getValue()).getTerm()).toString();
+                    }
                 }
                 res += " " + p.getKey() + "='" + pp + "'";
             } else {
