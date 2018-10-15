@@ -30,12 +30,15 @@ import java.util.Optional;
 import java.util.concurrent.ExecutorService;
 import java.util.function.Consumer;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
 public class ScriptController implements ScriptViewListener {
     KeyCombination saveShortcut = new KeyCodeCombination(KeyCode.S, KeyCombination.CONTROL_DOWN);
 
     private final ScriptView view;
     private final RuleApplicationListener listener;
+    private ProofNodeSelector selectedNode = null;
+    Position insertPosition = new Position(0, 0);
 
     private Proof proof;
     private List<ProofNodeCheckpoint> checkpoints;
@@ -68,6 +71,9 @@ public class ScriptController implements ScriptViewListener {
     }
 
     private void onCaretPositionChanged(Observable observable) {
+        Position caretPosition = computePositionFromCharIdx(view.getCaretPosition(), view.getText());
+        ProofNodeCheckpoint checkpoint = getCheckpointForCaretPosition(caretPosition);
+        insertPosition = checkpoint.caretPosition;
         this.checkpoints = ProofNodeCheckpointsBuilder.build(proof);
         switchViewedNode();
         view.highlightLine();
@@ -75,7 +81,7 @@ public class ScriptController implements ScriptViewListener {
 
 
     private void switchViewedNode() {
-        Position caretPosition = computePositionFromCharIdx(view.getCaretPosition(), view.getText());
+        Position caretPosition = insertPosition;
 
         ProofNodeCheckpoint checkpoint = getCheckpointForCaretPosition(caretPosition);
 
@@ -98,7 +104,7 @@ public class ScriptController implements ScriptViewListener {
         // REVIEW Maybe stop iterating after finding checkpoints greater than the current position
         for (int i = 1; i < checkpoints.size(); i++) {
             ProofNodeCheckpoint checkpoint = checkpoints.get(i);
-            if (caretPosition.compareTo(checkpoint.position) > 0) {
+            if (caretPosition.compareTo(checkpoint.position) >= 0) {
                 lastCheckpoint = checkpoint;
             }
         }
@@ -155,10 +161,12 @@ public class ScriptController implements ScriptViewListener {
         }*/
         //checkpoints = ProofNodeCheckpointsBuilder.build(proof);
         // TODO switchViewedNode();
+        onCaretPositionChanged(null);
     }
 
     @Override
     public void runScript() {
+        Position oldInsertPos = insertPosition;
         String text = view.getText();
         resetExceptionRendering();
 
@@ -176,7 +184,8 @@ public class ScriptController implements ScriptViewListener {
             Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).severe(proof.getFailException().getMessage());
             proof.getFailException().printStackTrace();
         }
-        //checkpoints = ProofNodeCheckpointsBuilder.build(proof);
+        checkpoints = ProofNodeCheckpointsBuilder.build(proof);
+        insertPosition = oldInsertPos;
         switchViewedNode();
     }
 
@@ -185,9 +194,7 @@ public class ScriptController implements ScriptViewListener {
     }
 
     public void insertTextForSelectedNode(String text) {
-        Position caretPosition = computePositionFromCharIdx(view.getCaretPosition(), view.getText());
-        ProofNodeCheckpoint checkpoint = getCheckpointForCaretPosition(caretPosition);
-        int insertAt = computeCharIdxFromPosition(checkpoint.caretPosition, view.getText());
+        int insertAt = computeCharIdxFromPosition(insertPosition, view.getText());
         view.insertText(insertAt, text);
         runScript();
     }
@@ -210,5 +217,18 @@ public class ScriptController implements ScriptViewListener {
 
     private void resetExceptionRendering() {
         highlightingRules.setLayer(0, (token, syntaxClasses) -> syntaxClasses);
+    }
+
+    public void setSelectedNode(ProofNodeSelector proofNodeSelector) {
+        if(!proofNodeSelector.equals(selectedNode)) {
+            selectedNode = proofNodeSelector;
+            if (checkpoints != null) {
+                List<ProofNodeCheckpoint> potCheckpoints = checkpoints.stream().filter(ch -> ch.selector.equals(proofNodeSelector)).collect(Collectors.toList());
+                if (potCheckpoints.size() > 0) {
+                    insertPosition = potCheckpoints.get(potCheckpoints.size() - 1).caretPosition;
+                    switchViewedNode();
+                }
+            }
+        }
     }
 }

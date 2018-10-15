@@ -5,6 +5,7 @@ import edu.kit.iti.algover.proof.Proof;
 import edu.kit.iti.algover.proof.ProofNode;
 import edu.kit.iti.algover.proof.ProofNodeSelector;
 import edu.kit.iti.algover.references.ReferenceGraph;
+import javafx.beans.value.ObservableValue;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
 
@@ -31,6 +32,8 @@ public class SequentTabViewController {
         controllers = new ArrayList<>();
         controllers.add(new SequentController(listener));
         view.getTabs().add(new Tab("default", controllers.get(0).getView()));
+        view.getSelectionModel().selectedIndexProperty().addListener(this::onTabSelected);
+
     }
 
     private List<ProofNodeSelector> getAllChildSelectors(ProofNodeSelector selector) {
@@ -89,7 +92,7 @@ public class SequentTabViewController {
     private void updateTab(ProofNodeSelector selector, int idx) {
         Optional<ProofNode> opt = selector.optionalGet(activeProof);
         String name = "default";
-        if(opt.isPresent() && opt.get().getLabel() != null) {
+        if(opt.isPresent() && opt.get().getLabel() != null && !opt.get().getLabel().equals("")) {
             name = opt.get().getLabel();
         }
         view.getTabs().get(idx).setText(name);
@@ -122,5 +125,9 @@ public class SequentTabViewController {
 
     public SequentController getActiveSequentController() {
         return controllers.get(view.getSelectionModel().getSelectedIndex());
+    }
+
+    private void onTabSelected(ObservableValue<? extends Number> observableValue, Number oldValue, Number newValue) {
+        listener.onSwitchViewedNode(controllers.get(newValue.intValue()).getActiveNodeSelector());
     }
 }
