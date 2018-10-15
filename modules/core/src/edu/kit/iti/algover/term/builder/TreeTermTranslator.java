@@ -346,6 +346,7 @@ public class TreeTermTranslator {
             }), tree);
             break;
 
+        case DafnyParser.NOTIN:
         case DafnyParser.IN:
             result = buildBinary((x,y) -> {
                 switch(y.getSort().getName()) {
@@ -356,6 +357,9 @@ public class TreeTermTranslator {
                     throw new Error("Not yet implemented");
                 }
             }, tree);
+            if (tree.getType() == DafnyParser.NOTIN) {
+                result = tb.negate(result);
+            }
             break;
 
         case DafnyParser.NOT:

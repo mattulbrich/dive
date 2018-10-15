@@ -94,6 +94,7 @@ METHOD: 'method';
 MODIFIES: 'modifies';
 MULTISET: 'multiset';
 NEW: 'new';
+NOTIN: '!in';
 NULL: 'null';
 OBJECT : 'object';
 OLD : 'old';

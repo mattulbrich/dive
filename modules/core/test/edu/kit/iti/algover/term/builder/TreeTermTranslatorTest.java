@@ -159,7 +159,9 @@ public class TreeTermTranslatorTest {
             { "c.f", "$select<C,int>($heap, c, C$$f)" },
             { "c.f@loopHeap", "$select<C,int>(loopHeap, c, C$$f)" },
             { "c.fct(1)", "C$$fct($heap, c, 1)"},
-            { "c.fct(1)@loopHeap", "C$$fct(loopHeap, c, 1)"},
+            { "c.fct(1)@loopHeap", "C$$fct(loopHeap, c, 1)" },
+            { "fresh(c)", "$not($created($heap,c))" },
+            { "fresh(c)@loopHeap", "$not($created($loopHeap,c))" },
 
             // Heap updates
             { "$heap[c.f := 1]", "$store<C,int>($heap, c, C$$f, 1)" },
@@ -179,6 +181,8 @@ public class TreeTermTranslatorTest {
             { "{} == {1}", "$eq<set<int>>($empty, $set_add<int>(1, $empty))" },
             { "[]", "$seq_empty" },
             { "[] == [1]", "$eq<seq<int>>($seq_empty, $seq_cons<int>(1, $seq_empty))" },
+            { "null in mod", "$set_in<object>(null, mod)" },
+            { "null !in mod", "$not($set_in<object>(null, mod))" },
         };
     }
 
