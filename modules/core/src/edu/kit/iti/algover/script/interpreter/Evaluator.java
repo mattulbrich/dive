@@ -4,6 +4,7 @@ package edu.kit.iti.algover.script.interpreter;
 import edu.kit.iti.algover.parser.DafnyException;
 import edu.kit.iti.algover.parser.DafnyParserException;
 import edu.kit.iti.algover.proof.ProofNode;
+import edu.kit.iti.algover.rules.TermParameter;
 import edu.kit.iti.algover.script.ast.*;
 import edu.kit.iti.algover.script.data.Value;
 import edu.kit.iti.algover.script.data.VariableAssignment;
@@ -86,12 +87,12 @@ public class Evaluator<T> extends DefaultASTVisitor<Value> implements ScopeObser
      *
      */
     @Override
-    public Value<Term> visit(TermLiteral term){
-        Value<Term> termV = null;
+    public Value<TermParameter> visit(TermLiteral term){
+        Value<TermParameter> termV = null;
         try {
             TermParser tp = new TermParser(goal.getPVC().getSymbolTable());
             tp.setSchemaMode(true);
-            termV = new Value<>(Type.TERM, tp.parse(term.getText()));
+            termV = new Value<>(Type.TERM, new TermParameter(tp.parse(term.getText()), goal.getSequent()));
         } catch (DafnyException | DafnyParserException e) {
             System.out.println("Could not translate term " + term.getText());
             throw new RuntimeException(e);
@@ -107,12 +108,12 @@ public class Evaluator<T> extends DefaultASTVisitor<Value> implements ScopeObser
      * @return a value object wrapping a sequent
      */
     @Override
-    public Value<Sequent> visit(SequentLiteral sequentLiteral){
-        Value<Sequent> seqValue = null;
+    public Value<TermParameter> visit(SequentLiteral sequentLiteral){
+        Value<TermParameter> seqValue = null;
         try {
             TermParser tp = new TermParser(goal.getPVC().getSymbolTable());
             tp.setSchemaMode(true);
-            seqValue = new Value<>(Type.TERM, tp.parseSequent(sequentLiteral.getText()));
+            seqValue = new Value<>(Type.TERM, new TermParameter(tp.parseSequent(sequentLiteral.getText()), goal.getSequent()));
 
         } catch (DafnyException | DafnyParserException e) {
             System.out.println("Could not translate term " + sequentLiteral.getText());

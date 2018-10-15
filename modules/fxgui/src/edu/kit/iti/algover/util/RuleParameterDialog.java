@@ -8,6 +8,8 @@ import edu.kit.iti.algover.rules.ParameterDescription;
 import edu.kit.iti.algover.rules.ParameterType;
 import edu.kit.iti.algover.rules.Parameters;
 import edu.kit.iti.algover.rules.ProofRule;
+import edu.kit.iti.algover.rules.TermParameter;
+import edu.kit.iti.algover.term.Sequent;
 import edu.kit.iti.algover.term.Term;
 import edu.kit.iti.algover.term.parser.TermParser;
 import javafx.application.Platform;
@@ -22,7 +24,9 @@ import javafx.stage.Window;
 import org.controlsfx.validation.ValidationResult;
 import org.controlsfx.validation.ValidationSupport;
 import org.controlsfx.validation.Validator;
+import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
+import java.lang.reflect.Parameter;
 import java.util.Map;
 
 /**
@@ -31,16 +35,19 @@ import java.util.Map;
 public class RuleParameterDialog extends Dialog {
     private Parameters parameters = new Parameters();
     private GridPane gridPane = new GridPane();
+    private final Sequent sequent;
     private TermParser termParser;
+    private Parameters expectedParameters;
 
     ValidationSupport validationSupport = new ValidationSupport();
 
-    public RuleParameterDialog(ProofRule rule, SymbolTable symbolTable) {
-        this(rule, symbolTable, null);
+    public RuleParameterDialog(ProofRule rule, SymbolTable symbolTable, Sequent sequent) {
+        this(rule, symbolTable, sequent, null);
     }
 
-    public RuleParameterDialog(ProofRule rule, SymbolTable symbolTable, String defaultOn) {
+    public RuleParameterDialog(ProofRule rule, SymbolTable symbolTable, Sequent sequent, String defaultOn) {
         super();
+        this.sequent = sequent;
         this.termParser = new TermParser(symbolTable);
 
         Window window = this.getDialogPane().getScene().getWindow();
@@ -64,6 +71,7 @@ public class RuleParameterDialog extends Dialog {
             if(e.getValue().isRequired()) {
                 gridPane.add(new Label(e.getKey()), 0, row);
                 TextField tf = new TextField();
+                tf.setUserData(e.getValue().getType());
                 if(e.getKey() == "on" && defaultOn != null) {
                     tf.setText(defaultOn);
                 }
@@ -104,6 +112,8 @@ public class RuleParameterDialog extends Dialog {
             return this::termValidator;
         } else if (type == ParameterType.BOOLEAN) {
             return this::booleanValidator;
+        } else if (type == ParameterType.STRING) {
+            return this::stringValidator;
         }
         return null;
     }
@@ -112,26 +122,36 @@ public class RuleParameterDialog extends Dialog {
         for (int i = 0; i < gridPane.getChildren().size() / 2; ++i) {
             TextField tf = (TextField) gridPane.getChildren().get(i * 2 + 1);
             String text = tf.getText();
-            try {
-                Term t = termParser.parse(text);
-                parameters.putValue(((Label) (gridPane.getChildren().get(i * 2))).getText(), t);
-            } catch (DafnyParserException e) {
-                //e.printStackTrace();
-                parameters = null;
-                return;
-            } catch (DafnyException e) {
-                //e.printStackTrace();
-                parameters = null;
-                return;
+            if(tf.getUserData().equals(ParameterType.TERM)) {
+                try {
+                    Term t = termParser.parse(text);
+                    parameters.putValue(((Label) (gridPane.getChildren().get(i * 2))).getText(), new TermParameter(t, sequent));
+                } catch (DafnyParserException e) {
+                    //e.printStackTrace();
+                    parameters = null;
+                    return;
+                } catch (DafnyException e) {
+                    //e.printStackTrace();
+                    parameters = null;
+                    return;
+                }
+            } else if(tf.getUserData().equals(ParameterType.STRING)) {
+                parameters.putValue(((Label) (gridPane.getChildren().get(i * 2))).getText(), text);
+            } else {
+                throw new NotImplementedException();
             }
 
         }
     }
 
     private ValidationResult booleanValidator(Control c, String newValue) {
-        if (newValue == "true" || newValue == "True") {
-
+        if (newValue == "true" || newValue == "True" || newValue == "false" || newValue == "False") {
+            return new ValidationResult();
         }
+        return ValidationResult.fromError(c, "Boolean values must be true or false.");
+    }
+
+    private ValidationResult stringValidator(Control c, String newValue) {
         return new ValidationResult();
     }
 

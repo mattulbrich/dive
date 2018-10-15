@@ -51,7 +51,7 @@ public class CutRuleTest {
         ProofNode pn = ProofMockUtil.mockProofNode(null, s.getAntecedent(), s.getSuccedent());
         CutRule rule = new CutRule();
         Parameters params = new Parameters();
-        params.putValue("with", tp.parse("b1"));
+        params.putValue("with", new TermParameter(tp.parse("b1"), s));
         ProofRuleApplication pra = rule.makeApplication(pn,  params);
         List<ProofNode> newNodes = RuleApplicator.applyRule(pra, pn);
 

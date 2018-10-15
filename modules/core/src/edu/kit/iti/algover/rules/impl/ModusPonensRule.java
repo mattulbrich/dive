@@ -32,8 +32,8 @@ public class ModusPonensRule extends AbstractProofRule {
 
     @Override
     protected ProofRuleApplication considerApplicationImpl(ProofNode target, Parameters parameters) throws RuleException {
-        Term on = parameters.getValue(ON_PARAM);
-        TermSelector selector = tsForParameter.get("on");
+        Term on = parameters.getValue(ON_PARAM).getTerm();
+        TermSelector selector = parameters.getValue(ON_PARAM).getTermSelector();
 
         ProofFormula formula = selector.selectTopterm(target.getSequent());
         Term term = formula.getTerm();
@@ -47,7 +47,7 @@ public class ModusPonensRule extends AbstractProofRule {
             return ProofRuleApplicationBuilder.notApplicable(this);
         }
 
-        ProofRuleApplicationBuilder builder = handleControlParameters(parameters, target.getSequent());
+        ProofRuleApplicationBuilder builder = new ProofRuleApplicationBuilder(this);
 
         builder.newBranch().addReplacement(selector, appl.getTerm(1)).setLabel("mainBranch");
         builder.newBranch().addDeletionsSuccedent(target.getSequent().getSuccedent()).
@@ -59,7 +59,7 @@ public class ModusPonensRule extends AbstractProofRule {
 
     @Override
     protected ProofRuleApplication makeApplicationImpl(ProofNode target, Parameters parameters) throws RuleException {
-        TermSelector selector = tsForParameter.get("on");
+        TermSelector selector = parameters.getValue(ON_PARAM).getTermSelector();
 
         ProofFormula formula = selector.selectTopterm(target.getSequent());
         Term term = formula.getTerm();
@@ -73,7 +73,7 @@ public class ModusPonensRule extends AbstractProofRule {
             throw new RuleException("Modus Ponens is only applicable on implications.");
         }
 
-        ProofRuleApplicationBuilder builder = handleControlParameters(parameters, target.getSequent());
+        ProofRuleApplicationBuilder builder = new ProofRuleApplicationBuilder(this);
 
         builder.newBranch().addReplacement(selector, appl.getTerm(1)).setLabel("mainBranch");
         builder.newBranch().addDeletionsSuccedent(target.getSequent().getSuccedent()).
