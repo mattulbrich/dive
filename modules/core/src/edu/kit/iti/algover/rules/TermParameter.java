@@ -90,7 +90,7 @@ public class TermParameter {
                 throw new RuleException("SchematicTerm " + schematicSequent + " does not match anything in sequent " + sequent);
             }
             if (matchings.size() > 1) {
-                throw new RuleException("SchematicTerm" + schematicSequent + " matches more than one term in sequent " + sequent);
+                throw new RuleException("SchematicTerm " + schematicSequent + " matches more than one term in sequent " + sequent);
             }
             MatchingEntry m = matchings.get(0).get("?match");
             if(m == null) {

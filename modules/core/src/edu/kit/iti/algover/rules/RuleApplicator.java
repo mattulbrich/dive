@@ -50,6 +50,7 @@ public class RuleApplicator {
 
         ImmutableList<BranchInfo> applicationInfos = proofRuleApplication.getBranchInfo();
         if (applicationInfos.equals(BranchInfo.UNCHANGED)) {
+            // REVIEW: Is this speacial case really needed? Should that not be automatic with the general case?
             ProofNode unchanged = new ProofNode(pn, proofRuleApplication, pn.getSequent(), pn.getPVC());
             //pn.getChildren().add(unchanged);
             List<ProofNode> retList = new ArrayList<>();
@@ -58,6 +59,7 @@ public class RuleApplicator {
         }
         if (applicationInfos.equals(BranchInfo.CLOSE)) {
             //TODO handle closed case
+            // REVIEW: Is this speacial case really needed?
         }
         Sequent sequent = pn.getSequent();
 
@@ -74,6 +76,7 @@ public class RuleApplicator {
                 children.add(pnNew);
 
             } catch (TermBuildException e) {
+                // REVIEW TODO Better exception handling!
                 e.printStackTrace();
             }
 
