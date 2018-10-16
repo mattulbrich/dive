@@ -116,7 +116,7 @@ public abstract class AbstractProofRule implements ProofRule {
     public final ProofRuleApplication considerApplication(ProofNode target, Parameters parameters) throws RuleException {
         ProofRuleApplication pra = considerApplicationImpl(target, parameters);
         ProofRuleApplicationBuilder builder = new ProofRuleApplicationBuilder(pra);
-        if(builder.getParameters() == null) {
+        if(builder.getParameters().equals(Parameters.EMPTY_PARAMETERS)) {
             builder.setParameters(parameters);
         }
         return builder.build();
@@ -146,7 +146,7 @@ public abstract class AbstractProofRule implements ProofRule {
     public final ProofRuleApplication makeApplication(ProofNode target, Parameters parameters) throws RuleException {
         checkParameters(parameters);
         ProofRuleApplicationBuilder builder = new ProofRuleApplicationBuilder(makeApplicationImpl(target, parameters));
-        if(builder.getParameters() == null) {
+        if(builder.getParameters().equals(Parameters.EMPTY_PARAMETERS)) {
             builder.setParameters(parameters);
         }
         return builder.build();

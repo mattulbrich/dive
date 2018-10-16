@@ -35,7 +35,7 @@ public class ProofRuleApplicationBuilder {
     private final List<BranchInfoBuilder> branches = new ArrayList<>();
     private Applicability applicability = Applicability.APPLICABLE;
     private String scriptTranscript;
-    private Parameters parameters = null;
+    private Parameters parameters = Parameters.EMPTY_PARAMETERS;
     private Parameters openParameters = Parameters.EMPTY_PARAMETERS;
     private Refiner refiner;
 
