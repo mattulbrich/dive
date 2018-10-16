@@ -13,6 +13,7 @@ import edu.kit.iti.algover.parser.DafnyParserException;
 import edu.kit.iti.algover.parser.DafnyTree;
 import edu.kit.iti.algover.proof.ProofFormula;
 import edu.kit.iti.algover.proof.ProofNode;
+import edu.kit.iti.algover.rules.impl.AndLeftRule;
 import edu.kit.iti.algover.rules.impl.ExhaustiveRule;
 import edu.kit.iti.algover.rules.impl.LetSubstitutionRule;
 import edu.kit.iti.algover.rules.impl.OrLeftRule;
@@ -133,5 +134,36 @@ public class TestRuleApplicator {
         List<ProofFormula> testSemi = testSequent.getAntecedent();
 
         System.out.println(RuleApplicator.changeSemisequent(add, del, new ArrayList<>(), testSemi));
+    }
+
+    @Test
+    public void applicatorTest1() throws FormatException, TermBuildException, RuleException, DafnyParserException, DafnyException {
+        TermParser tp = new TermParser(symbTable);
+        tp.setSchemaMode(true);
+        Term schematic = tp.parse("_ < (?match: _)");
+        Sequent sequent = tp.parseSequent("i1 < i2 && i2 < i3 |- i1 < i3");
+
+        AndLeftRule rule = new AndLeftRule();
+        ProofNode pn = ProofMockUtil.mockProofNode(null, sequent);
+        ProofRuleApplication pra = rule.considerApplication(pn, sequent, new TermSelector("A.0"));
+        List<ProofNode> newNodes = RuleApplicator.applyRule(pra, pn);
+        assertEquals(1, newNodes.size());
+        assertEquals("$lt(i1, i2), $lt(i2, i3) |- $lt(i1, i3)", newNodes.get(0).getSequent().toString());
+    }
+
+    @Test
+    public void applicatorTest2() throws FormatException, TermBuildException, RuleException, DafnyParserException, DafnyException {
+        TermParser tp = new TermParser(symbTable);
+        tp.setSchemaMode(true);
+        Term schematic = tp.parse("_ < (?match: _)");
+        Sequent sequent = tp.parseSequent("i1 < i3 |- i1 < i2 && i2 < i3");
+
+        TrivialAndRight rule = new TrivialAndRight();
+        ProofNode pn = ProofMockUtil.mockProofNode(null, sequent);
+        ProofRuleApplication pra = rule.considerApplication(pn, sequent, new TermSelector("S.0"));
+        List<ProofNode> newNodes = RuleApplicator.applyRule(pra, pn);
+        assertEquals(2, newNodes.size());
+        assertEquals("$lt(i1, i3) |- $lt(i1, i2)", newNodes.get(0).getSequent().toString());
+        assertEquals("$lt(i1, i3) |- $lt(i2, i3)", newNodes.get(1).getSequent().toString());
     }
 }

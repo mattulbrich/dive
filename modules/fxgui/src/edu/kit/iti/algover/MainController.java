@@ -54,6 +54,7 @@ import javafx.scene.layout.VBox;
 import org.controlsfx.control.BreadCrumbBar;
 import org.controlsfx.control.StatusBar;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.HashSet;
 import java.util.List;
@@ -384,12 +385,8 @@ public class MainController implements SequentActionListener, RuleApplicationLis
     private String getStringForTreeItem(TreeItem<Object> item) {
         Object value = item.getValue();
         if (value instanceof DafnyFile) {
-            String filename = ((DafnyFile) value).getFilename();
-            int idx = filename.lastIndexOf("/");
-            if(idx > 0 && idx + 1 < filename.length()) {
-                return filename.substring(idx + 1);
-            }
-            return filename;
+            File f = new File(((DafnyFile) value).getFilename());
+            return f.getName();
         }
         if (value instanceof DafnyMethod) {
             return ((DafnyMethod) value).getName();

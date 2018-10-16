@@ -59,4 +59,9 @@ public class ProofMockUtil {
         return new ProofNode(parent, null,
                 new Sequent(antedecentFormulas, succedentFormulas), null);
     }
+
+    public static ProofNode mockProofNode(ProofNode parent, Sequent s) {
+        return new ProofNode(parent, null,
+                s, null);
+    }
 }

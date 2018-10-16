@@ -98,7 +98,7 @@ public final class ProofRuleApplication {
      *            the potential refiner
      * @param subApplications
      *            possible SubApplications which are performed on the children
-     *            resulting from this application
+     *            resulting from this application (see {@link ProofRuleApplication#subApplications})
      */
     public ProofRuleApplication(
             @NonNull ProofRule rule,
@@ -280,6 +280,16 @@ public final class ProofRuleApplication {
         return refiner;
     }
 
+    /**
+     *
+     * Generates a valid transcript for this ruleApplication.
+     *
+     * A transcript is considered valid if interpreted an equivalent ProofRuleApplication
+     * would be created.
+     *
+     * @return a valid transcript for this proofRuleApplication
+     * @throws RuleException
+     */
     public String getScriptTranscript() throws RuleException {
         return this.getRule().getTranscript(this);
     }
