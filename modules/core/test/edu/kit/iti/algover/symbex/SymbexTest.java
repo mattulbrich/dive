@@ -932,6 +932,55 @@ public class SymbexTest {
     }
 
     @Test
+    public void testObjectMethodCall() throws Exception {
+        InputStream stream = getClass().getResourceAsStream("methodCalls.dfy");
+        DafnyTree fileTree = ParserTest.parseFile(stream);
+
+        // performs type analysis etc:
+        Project project = TestUtil.mockProject(fileTree);
+
+        DafnyTree tree = project.getMethod("objectReturn").getRepresentation();
+        Symbex symbex = new Symbex();
+        List<SymbexPath> results = symbex.symbolicExecution(tree);
+        int index = 0;
+        {
+            SymbexPath path = results.get(index++);
+            assertEquals("else/Post", path.getPathIdentifier());
+
+            assertEquals("[(not b), " +
+                            "(LET (VAR o b) $res_objectReturn_1 true (CALL $isCreated (ARGS $heap o))), " +
+                            "(LET (VAR o b) $res_objectReturn_1 true true)]",
+                    path.getPathConditions().map(x -> x.getExpression().toStringTree()).toString());
+
+            assertEquals("[(ASSIGN $mod SETEX), (ASSIGN $decr 0), " +
+                            "(ASSIGN $heap (CALL $anon (ARGS $heap (LET (VAR o b) $res_objectReturn_1 true SETEX) $aheap_1))), " +
+                            "(ASSIGN o $res_objectReturn_1)]",
+                    path.getAssignmentHistory().map(x -> x.toStringTree()).toString());
+        }
+        {
+            SymbexPath path = results.get(index++);
+            assertEquals("then/Post", path.getPathIdentifier());
+        }
+        {
+            SymbexPath path = results.get(index++);
+            assertEquals("then/Modifies", path.getPathIdentifier());
+        }
+        {
+            SymbexPath path = results.get(index++);
+            assertEquals("else/Dec[objectReturn]", path.getPathIdentifier());
+        }
+        {
+            SymbexPath path = results.get(index++);
+            assertEquals("else/Modifies[objectReturn]", path.getPathIdentifier());
+        }
+        {
+            SymbexPath path = results.get(index++);
+            assertEquals("then/Null", path.getPathIdentifier());
+        }
+        assertEquals(index, results.size());
+    }
+
+    @Test
     public void testFieldAssignment() throws Exception {
         InputStream stream = getClass().getResourceAsStream("fieldAssignment.dfy");
         DafnyTree fileTree = ParserTest.parseFile(stream);

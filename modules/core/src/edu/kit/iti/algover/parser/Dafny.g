@@ -81,6 +81,7 @@ ENSURES: 'ensures';
 EX: 'exists';
 FALSE: 'false';
 FREE: 'free';
+FRESH: 'fresh';
 FUNCTION: 'function';
 IF: 'if';
 IN : 'in';

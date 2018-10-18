@@ -259,6 +259,25 @@ public class Symbex {
             // "heap := anon(heap, mod, ...)"
             state.addAssignment(ASTUtil.anonymiseHeap(state, mod));
 
+            // if result is reference type: it is created
+            if(returns != null) {
+                List<DafnyTree> allFresh = new ArrayList<>();
+                for (DafnyTree ret : returns.getChildren()) {
+                    DafnyTree type = ret.getFirstChildWithType(DafnyParser.TYPE).getChild(0);
+                    Sort sort = ASTUtil.toSort(type);
+                    if(sort.isReferenceSort()) {
+                        DafnyTree fresh = ASTUtil.call("$isCreated",
+                                ASTUtil.builtInVar("$heap"), ret.getChild(0));
+                        allFresh.add(fresh);
+                    }
+                }
+                if (!allFresh.isEmpty()) {
+                    DafnyTree cond = ASTUtil.and(allFresh);
+                    cond = ASTUtil.letCascade(subs, cond);
+                    state.addPathCondition(cond, refersTo, AssumptionType.IMPLICIT_ASSUMPTION);
+                }
+            }
+
         }
 
         // now assume the postcondition (and some free postconditions)

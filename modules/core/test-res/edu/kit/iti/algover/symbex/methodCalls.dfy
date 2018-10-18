@@ -52,3 +52,16 @@ method recursive(n: int) returns (r: int)
     r := recursive(n - 1);
   }
 }
+
+method objectReturn(b: bool) returns (o : Clss)
+  ensures true;
+{
+  if(b)
+  {
+    o := new Clss;
+    o.field := 12;
+  } else
+  {
+    o := objectReturn(true);
+  }
+}
