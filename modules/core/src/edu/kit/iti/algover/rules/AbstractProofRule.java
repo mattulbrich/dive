@@ -24,7 +24,7 @@ public abstract class AbstractProofRule implements ProofRule {
      * The parameter for "on" is very common for rules.
      */
     public static final ParameterDescription<TermParameter> ON_PARAM =
-            new ParameterDescription<>("on", ParameterType.TERM, true);
+            new ParameterDescription<>("on", ParameterType.MATCH_TERM, true);
 
     private final Map<String, ParameterDescription<?>> allParameters = new HashMap<>();
 
@@ -61,11 +61,18 @@ public abstract class AbstractProofRule implements ProofRule {
                 throw new RuleException("Unknown parameter '" + en.getKey() + "'");
             }
 
+            if(t.getType() == ParameterType.TERM) {
+                if(((TermParameter)en.getValue()).getOrigianlTermSelector() != null) {
+                    throw new RuleException("Term parameters may not be termSelectors.");
+                }
+            }
+
             Object value = en.getValue();
             if (!t.acceptsValue(value)) {
                 throw new RuleException(
-                        "ParameterDescription " + en.getKey() + " has class " + value.getClass() +
-                                ", but I expected " + t + " (class " + t.getType() + ")");
+                            "ParameterDescription " + en.getKey() + " has class " + value.getClass() +
+                                    ", but I expected " + t + " (class " + t.getType() + ")");
+
             }
 
             required.remove(t);
@@ -181,7 +188,7 @@ public abstract class AbstractProofRule implements ProofRule {
             if(!allParameters.containsKey(p.getKey())) {
                 throw new RuleException("No parameter named " + p.getKey() + " for Rule " + getName());
             }
-            if(allParameters.get(p.getKey()).getType().equals(ParameterType.TERM)) {
+            if(allParameters.get(p.getKey()).getType().equals(ParameterType.MATCH_TERM)) {
                 PrettyPrint prettyPrint = new PrettyPrint();
                 String pp;
                 try {
@@ -192,6 +199,18 @@ public abstract class AbstractProofRule implements ProofRule {
                     } catch (RuleException e1) {
                         pp = prettyPrint.print(((TermParameter) p.getValue()).getTerm()).toString();
                     }
+                }
+                res += " " + p.getKey() + "='" + pp + "'";
+            } else if (allParameters.get(p.getKey()).getType().equals(ParameterType.TERM)) {
+                PrettyPrint prettyPrint = new PrettyPrint();
+                TermParameter parameter = (TermParameter)p.getValue();
+                String pp = "";
+                if(parameter.getOriginalTerm() != null) {
+                    pp = prettyPrint.print(parameter.getOriginalTerm()).toString();
+                } else if (parameter.getOriginalSchematicTerm() != null) {
+                    pp = prettyPrint.print(parameter.getOriginalSchematicTerm()).toString();
+                } else if (parameter.getOriginalSchematicSequent() != null) {
+                    pp = prettyPrint.print(parameter.getOriginalSchematicSequent()).toString();
                 }
                 res += " " + p.getKey() + "='" + pp + "'";
             } else {

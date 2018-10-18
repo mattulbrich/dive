@@ -55,16 +55,22 @@ public class TermParameter {
     //Inviariant: sequent != null && (term != null || schematicSequent != null || termSelector != null)
 
     private Term term;
+    private Term oterm;
     private TermSelector termSelector;
+    private TermSelector oTermSelector;
     private Sequent schematicSequent;
+    private Sequent oSchematicSequent;
     private Sequent sequent;
     private Term schematicTerm;
+    private Term originalSchematicTerm;
 
     public TermParameter(@NonNull Term term, @NonNull Sequent sequent) {
         if(isTermSchematic(term)) {
             this.schematicTerm = term;
+            this.originalSchematicTerm = term;
         } else {
             this.term = term;
+            this.oterm = term;
         }
         this.sequent = sequent;
     }
@@ -72,11 +78,13 @@ public class TermParameter {
     public TermParameter(@NonNull TermSelector termSelector, @NonNull Sequent sequent) {
         this.sequent = sequent;
         this.termSelector = termSelector;
+        this.oTermSelector = termSelector;
     }
 
     public TermParameter(@NonNull Sequent schematicSequent, @NonNull Sequent sequent) {
         this.sequent = sequent;
         this.schematicSequent = schematicSequent;
+        this.oSchematicSequent = schematicSequent;
     }
 
     /**
@@ -103,6 +111,15 @@ public class TermParameter {
 
         term = matchTermInSequentUniquelyT(schematicTerm, sequent);
         return term;
+    }
+
+    /**
+     * returns the Term that was given on initialisation or null
+     *
+     * @return term as on initialisation
+     */
+    public Term getOriginalTerm() {
+        return oterm;
     }
 
     /**
@@ -333,6 +350,18 @@ public class TermParameter {
         return b.booleanValue();
     }
 
+    public TermSelector getOrigianlTermSelector() {
+        return oTermSelector;
+    }
+
+    public Sequent getOriginalSchematicSequent() {
+        return oSchematicSequent;
+    }
+
+    public Term getOriginalSchematicTerm() {
+        return originalSchematicTerm;
+    }
+
     private class ContainsMatchTermVisitor extends DefaultTermVisitor<Object, Boolean, NoExceptions> {
 
         @Override
@@ -429,7 +458,11 @@ public class TermParameter {
         for(int i = 0; i < s.getAntecedent().size(); ++i) {
             ImmutableList<Matching> matches = tm.match(t, s.getAntecedent().get(i).getTerm());
             if(matches.size() == 1 && ts == null) {
-                ts = matches.get(0).get("?match").getValue();
+                try {
+                    ts = matches.get(0).get("?match").getValue();
+                } catch (NullPointerException e) {
+                    throw new RuleException("Schematic Term has to contain ?match variable.");
+                }
             } else if((matches.size() == 1 && ts != null) || matches.size() > 1) {
                 throw new RuleException("Matching of term " + t + " in sequent " + s + "is ambiguous.");
             }
@@ -437,7 +470,11 @@ public class TermParameter {
         for(int i = 0; i < s.getSuccedent().size(); ++i) {
             ImmutableList<Matching> matches = tm.match(t, s.getSuccedent().get(i).getTerm());
             if(matches.size() == 1 && ts == null) {
-                ts = matches.get(0).get("?match").getValue();
+                try {
+                    ts = matches.get(0).get("?match").getValue();
+                } catch (NullPointerException e) {
+                    throw new RuleException("Schematic Term has to contain ?match variable.");
+                }
             } else if((matches.size() == 1 && ts != null) || matches.size() > 1) {
                 throw new RuleException("Matching of term " + t + " in sequent " + s + "is ambiguous.");
             }

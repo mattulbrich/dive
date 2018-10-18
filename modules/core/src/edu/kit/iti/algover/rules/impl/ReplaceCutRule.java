@@ -1,6 +1,5 @@
 package edu.kit.iti.algover.rules.impl;
 
-import edu.kit.iti.algover.data.BuiltinSymbols;
 import edu.kit.iti.algover.proof.ProofFormula;
 import edu.kit.iti.algover.proof.ProofNode;
 import edu.kit.iti.algover.rules.AbstractProofRule;
@@ -12,9 +11,6 @@ import edu.kit.iti.algover.rules.ProofRuleApplicationBuilder;
 import edu.kit.iti.algover.rules.RuleException;
 import edu.kit.iti.algover.rules.TermParameter;
 import edu.kit.iti.algover.rules.TermSelector;
-import edu.kit.iti.algover.term.ApplTerm;
-import edu.kit.iti.algover.term.FunctionSymbol;
-import edu.kit.iti.algover.term.Sort;
 import edu.kit.iti.algover.term.Term;
 import edu.kit.iti.algover.term.builder.TermBuildException;
 import edu.kit.iti.algover.term.builder.TermBuilder;
@@ -43,6 +39,7 @@ public class ReplaceCutRule extends AbstractProofRule {
             pra.setApplicability(ProofRuleApplication.Applicability.APPLICABLE);
             return pra.build();
         }
+
         Term on = onParam.getTerm();
         Term with = withParam.getTerm();
 
@@ -87,8 +84,6 @@ public class ReplaceCutRule extends AbstractProofRule {
         } catch (TermBuildException e) {
             throw new RuleException("error building justification term.", e);
         }
-
-
 
         return pra.build();
     }

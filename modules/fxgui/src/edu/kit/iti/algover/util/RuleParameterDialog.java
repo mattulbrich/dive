@@ -49,6 +49,7 @@ public class RuleParameterDialog extends Dialog<Void> {
         super();
         this.sequent = sequent;
         this.termParser = new TermParser(symbolTable);
+        this.termParser.setSchemaMode(true);
 
         Window window = this.getDialogPane().getScene().getWindow();
         window.setOnCloseRequest(event -> {
@@ -108,7 +109,7 @@ public class RuleParameterDialog extends Dialog<Void> {
     }
 
     private Validator<String> getValidatorForType(ParameterType<?> type) {
-        if (type == ParameterType.TERM) {
+        if (type == ParameterType.TERM  || type == ParameterType.MATCH_TERM) {
             return this::termValidator;
         } else if (type == ParameterType.BOOLEAN) {
             return this::booleanValidator;
@@ -122,7 +123,7 @@ public class RuleParameterDialog extends Dialog<Void> {
         for (int i = 0; i < gridPane.getChildren().size() / 2; ++i) {
             TextField tf = (TextField) gridPane.getChildren().get(i * 2 + 1);
             String text = tf.getText();
-            if(tf.getUserData().equals(ParameterType.TERM)) {
+            if(tf.getUserData().equals(ParameterType.TERM) || tf.getUserData().equals(ParameterType.MATCH_TERM)) {
                 try {
                     Term t = termParser.parse(text);
                     parameters.putValue(((Label) (gridPane.getChildren().get(i * 2))).getText(), new TermParameter(t, sequent));
