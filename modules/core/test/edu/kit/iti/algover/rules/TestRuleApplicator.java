@@ -139,8 +139,6 @@ public class TestRuleApplicator {
     @Test
     public void applicatorTest1() throws FormatException, TermBuildException, RuleException, DafnyParserException, DafnyException {
         TermParser tp = new TermParser(symbTable);
-        tp.setSchemaMode(true);
-        Term schematic = tp.parse("_ < (?match: _)");
         Sequent sequent = tp.parseSequent("i1 < i2 && i2 < i3 |- i1 < i3");
 
         AndLeftRule rule = new AndLeftRule();
@@ -154,8 +152,6 @@ public class TestRuleApplicator {
     @Test
     public void applicatorTest2() throws FormatException, TermBuildException, RuleException, DafnyParserException, DafnyException {
         TermParser tp = new TermParser(symbTable);
-        tp.setSchemaMode(true);
-        Term schematic = tp.parse("_ < (?match: _)");
         Sequent sequent = tp.parseSequent("i1 < i3 |- i1 < i2 && i2 < i3");
 
         TrivialAndRight rule = new TrivialAndRight();
