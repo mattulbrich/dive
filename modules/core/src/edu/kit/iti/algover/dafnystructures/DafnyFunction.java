@@ -94,10 +94,6 @@ public class DafnyFunction extends DafnyDecl {
         return decreasesClause;
     }
 
-    public boolean isDeclaredInClass() {
-        return getParentDecl() instanceof DafnyClass;
-    }
-
     @Override
     public <R, A> R accept(DafnyDeclVisitor<R, A> visitor, A arg) {
         return visitor.visit(this, arg);

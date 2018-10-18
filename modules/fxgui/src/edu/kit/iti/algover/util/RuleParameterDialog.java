@@ -32,7 +32,7 @@ import java.util.Map;
 /**
  * Created by jklamroth on 6/12/18.
  */
-public class RuleParameterDialog extends Dialog {
+public class RuleParameterDialog extends Dialog<Void> {
     private Parameters parameters = new Parameters();
     private GridPane gridPane = new GridPane();
     private final Sequent sequent;

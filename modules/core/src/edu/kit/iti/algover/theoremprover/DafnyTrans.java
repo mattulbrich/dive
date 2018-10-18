@@ -28,6 +28,7 @@ import java.util.*;
  * Created by sarah on 6/7/16.
  */
 @Deprecated
+@SuppressWarnings({"unchecked", "rawtypes"})
 public class DafnyTrans {
 
     private final SymbolTable symbolTable;

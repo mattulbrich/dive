@@ -226,7 +226,8 @@ public class ImmutableList<T> implements Iterable<T> {
      * @param array the non-<code>null</code> array
      * @return the immutable list
      */
-    public static <T> ImmutableList<T> from(@SuppressWarnings("unchecked") T... array) {
+    @SuppressWarnings("unchecked")
+    public static <T> ImmutableList<T> from(T... array) {
         ImmutableList<T> result = ImmutableList.<T>nil();
         for (T t : array) {
             result = result.append(t);

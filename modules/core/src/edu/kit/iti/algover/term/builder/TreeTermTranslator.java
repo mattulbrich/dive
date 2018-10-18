@@ -221,9 +221,15 @@ public class TreeTermTranslator {
 //        }
 //    }
 
-    private Term getHeap() throws TermBuildException {
+    /**
+     * Get the current heap access term.
+     * This may be the constant or (if currently bound) a variable
+     * @return a term representing the heap.
+     * @throws TermBuildException
+     */
+    protected Term getHeap() throws TermBuildException {
         // This is naive since someone might call their variable "heap" manually.
-        // Mitigated sind "$heap" is now protected by $.
+        // Mitigated since "$heap" is now protected by $.
         VariableTerm bound = boundVars.get(HEAP_VAR.getName());
         if(bound != null) {
             return bound;

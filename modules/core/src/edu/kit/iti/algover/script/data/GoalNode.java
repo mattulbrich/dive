@@ -9,6 +9,10 @@ import edu.kit.iti.algover.script.ast.Variable;
  *
  * @author S.Grebing
  */
+
+// REVIEW: Add the missing generic parameters! Please!
+
+@SuppressWarnings({"unchecked", "rawtypes"})
 public class GoalNode<T> {
     private VariableAssignment assignments;
 

@@ -38,6 +38,10 @@ import java.util.List;
  * @author Alexander Weigl
  * @version 1 (27.04.17)
  */
+
+// REVIEW: Add the missing generic parameters! Please!
+
+@SuppressWarnings({"unchecked", "rawtypes"})
 public class TransformAst implements ScriptLanguageVisitor<Object> {
     //private List<ProofScript> scripts = new ArrayList<>(10);
 

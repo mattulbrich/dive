@@ -29,11 +29,11 @@ public interface ScopeObservable {
         callListeners(getExitListeners(), node);
     }
 
-    List<Visitor> getExitListeners();
+    List<Visitor<?>> getExitListeners();
 
-    List<Visitor> getEntryListeners();
+    List<Visitor<?>> getEntryListeners();
 
-    default <T extends ParserRuleContext> void callListeners(List<Visitor> listeners, ASTNode<T> node) {
+    default <T extends ParserRuleContext> void callListeners(List<Visitor<?>> listeners, ASTNode<T> node) {
         if (listeners.size() != 0) {
             listeners.forEach(node::accept);
         }

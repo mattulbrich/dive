@@ -6,6 +6,7 @@ import edu.kit.iti.algover.proof.ProofNodeSelector;
 import edu.kit.iti.algover.rules.RuleException;
 import edu.kit.iti.algover.script.ast.*;
 import edu.kit.iti.algover.script.parser.DefaultASTVisitor;
+import org.antlr.v4.runtime.ParserRuleContext;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -51,6 +52,7 @@ public class ProofNodeCheckpointsBuilder extends DefaultASTVisitor<Void> {
     }
 
     @Override
+    @SuppressWarnings("unchecked") // REVIEW: Repair this as soon as the scripts are correctly generically treated
     public Void visit(Statements statements) {
         statements.forEach(node -> node.accept(this));
         return null;
@@ -87,6 +89,7 @@ public class ProofNodeCheckpointsBuilder extends DefaultASTVisitor<Void> {
     }
 
     @Override
+    @SuppressWarnings("unchecked") // REVIEW: Repair this as soon as the scripts are correctly generically treated
     public Void visit(SimpleCaseStatement simpleCaseStatement) {
         int selectedChildIdx = -1;
         for (int i = 0; lastHandledNodes.size() > 0 && i < lastHandledNodes.get(inCase - 1).getChildren().size(); ++i) {
@@ -117,8 +120,10 @@ public class ProofNodeCheckpointsBuilder extends DefaultASTVisitor<Void> {
         return null;
     }
 
+    // REVIEW: Repair this as soon as the proof script generics have been done
+    @SuppressWarnings({"unchecked", "rawtypes"})
     private ProofNodeSelector findSelectorPointingTo(ProofNodeSelector pathSoFar, ProofNode proofNode, ASTNode node) {
-        if (rlyContains(proofNode.getMutator(), node)) {
+        if (rlyContains((List)proofNode.getMutator(), node)) {
             return pathSoFar;
         } else {
             for (int i = 0; i < proofNode.getChildren().size(); i++) {
@@ -132,8 +137,8 @@ public class ProofNodeCheckpointsBuilder extends DefaultASTVisitor<Void> {
         }
     }
 
-    private boolean rlyContains(List<ASTNode> l, ASTNode n) {
-        for(ASTNode n1 : l) {
+    private <T extends ParserRuleContext> boolean rlyContains(List<ASTNode<T>> l, ASTNode<T> n) {
+        for(ASTNode<T> n1 : l) {
             if(n == n1) return true;
         }
         return false;

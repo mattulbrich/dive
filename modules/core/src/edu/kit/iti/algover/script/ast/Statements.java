@@ -37,6 +37,10 @@ import java.util.stream.Stream;
  * @author Alexander Weigl
  * @version 1 (27.04.17)
  */
+
+// REVIEW: Add the missing generic parameters! Please!
+
+@SuppressWarnings({"unchecked", "rawtypes"})
 public class Statements extends ASTNode<ScriptLanguageParser.StmtListContext>
         implements Visitable, Iterable<Statement> {
     private final List<Statement> statements = new ArrayList<>();

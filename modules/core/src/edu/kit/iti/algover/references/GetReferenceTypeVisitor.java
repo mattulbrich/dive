@@ -12,16 +12,16 @@ public class GetReferenceTypeVisitor<T extends Reference> implements ReferenceVi
 
     @Override
     public T visit(CodeReference codeTarget) {
-        return clazz.isInstance(codeTarget) ? (T) codeTarget : null;
+        return clazz.isInstance(codeTarget) ? clazz.cast(codeTarget) : null;
     }
 
     @Override
     public T visit(ProofTermReference termTarget) {
-        return clazz.isInstance(termTarget) ? (T) termTarget : null;
+        return clazz.isInstance(termTarget) ? clazz.cast(termTarget) : null;
     }
 
     @Override
     public T visit(UserInputReference userInputTarget) {
-        return clazz.isInstance(userInputTarget) ? (T) userInputTarget : null;
+        return clazz.isInstance(userInputTarget) ? clazz.cast(userInputTarget) : null;
     }
 }

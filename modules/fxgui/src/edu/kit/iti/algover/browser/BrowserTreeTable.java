@@ -16,6 +16,7 @@ public class BrowserTreeTable extends TreeTableView<TreeTableEntity> {
     private TreeTableColumn<TreeTableEntity, TreeTableEntity> statusColumn;
     private final PVCClickEditListener editListener;
 
+    @SuppressWarnings("unchecked")
     public BrowserTreeTable(PVCClickEditListener editListener) {
         this.editListener = editListener;
         this.nameColumn = new TreeTableColumn<>("name");

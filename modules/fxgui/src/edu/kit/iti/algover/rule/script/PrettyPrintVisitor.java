@@ -11,6 +11,10 @@ import edu.kit.iti.algover.script.parser.DefaultASTVisitor;
 /**
  * Created by jklamroth on 7/17/18.
  */
+
+// REVIEW: Add the missing generic parameters! Please!
+
+@SuppressWarnings({"unchecked", "rawtypes"})
 public class PrettyPrintVisitor extends DefaultASTVisitor {
     private String TAB_SYMBOL = "\t";
     private boolean useWsAsTab = false;

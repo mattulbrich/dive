@@ -7,12 +7,17 @@ package edu.kit.iti.algover.term.builder;
 
 import static org.junit.Assert.assertEquals;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+import edu.kit.iti.algover.parser.DafnyException;
 import edu.kit.iti.algover.parser.DafnyParser;
+import edu.kit.iti.algover.parser.DafnyParserException;
+import edu.kit.iti.algover.proof.MethodPVCBuilder;
+import org.antlr.runtime.RecognitionException;
 import org.junit.Test;
 
 import edu.kit.iti.algover.ProgramDatabase;
@@ -72,19 +77,16 @@ public abstract class SequenterTest {
     protected abstract String expectedAntecedent(String pathIdentifier);
 
     protected SymbolTable makeTable(DafnyMethod method) {
+        return makeTable(method, TestUtil.emptyProject());
+    }
 
-        Collection<FunctionSymbol> map = new ArrayList<>();
-
-        for (DafnyTree decl : ProgramDatabase.getAllVariableDeclarations(method.getRepresentation())) {
-            String name = decl.getChild(0).toString();
-            Sort sort = TreeUtil.toSort(decl.getFirstChildWithType(DafnyParser.TYPE).getChild(0));
-            map.add(new FunctionSymbol(name, sort));
-        }
-
-        map.add(new FunctionSymbol("$aheap_1", Sort.HEAP));
-
-        MapSymbolTable st = new MapSymbolTable(new BuiltinSymbols(), map);
-        return st;
+    protected SymbolTable makeTable(DafnyMethod method, Project project) {
+        MethodPVCBuilder builder = new MethodPVCBuilder(project);
+        builder.setDeclaration(method);
+        builder.setPathThroughProgram(new SymbexPath(method.getBody()));
+        SymbolTable table = builder.getSymbolTable();
+        table.addFunctionSymbol(new FunctionSymbol("$aheap_1", Sort.HEAP));
+        return table;
     }
 
 }
