@@ -466,7 +466,7 @@ postfix_expr:
                    | ( ',' expression )* ']' -> ^( ARRAY_ACCESS $postfix_expr expression+ )
                    | '..' expression? ']' -> ^( ARRAY_ACCESS $postfix_expr ^('..' expression+))
                    )
-  | '[' '..' expression? ']' -> ^( ARRAY_ACCESS $postfix_expr ^('..' WILDCARD expression?) )
+  | '[' '..' expression? ']' -> ^( ARRAY_ACCESS $postfix_expr ^('..' ARGS expression?) )
   | '.' LENGTH -> ^( LENGTH $postfix_expr )
   | '.' ID '(' expressions? ')' -> ^( CALL ID $postfix_expr ^(ARGS expressions?) )
   | '.' ID -> ^( FIELD_ACCESS $postfix_expr ID )

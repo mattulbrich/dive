@@ -218,4 +218,9 @@ class C
    method functionReference()
    { var r := this.fct(0) + cfield.fct(0) + fct(0); }
 
+   method dotdots(s: seq<int>, a: array<int>)
+     requires s == a[..]
+     ensures s[0..] == s[..1] == s[0..1];
+   { }
+
 }

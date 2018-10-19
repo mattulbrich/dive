@@ -326,8 +326,32 @@ public class TypeResolution extends DafnyTreeDefaultVisitor<DafnyTree, Void> {
     }
 
     @Override
+    public DafnyTree visitDOTDOT(DafnyTree t, Void aVoid) {
+        for(int i = 0; i < t.getChildCount(); i++) {
+            DafnyTree index = t.getChild(i);
+            if(index.getType() == DafnyParser.ARGS) {
+                // ARGS is a placeholder only.
+                continue;
+            }
+            DafnyTree indexType = index.accept(this, null);
+            if(indexType.getType() != DafnyParser.INT) {
+                exceptions.add(new DafnyException(
+                        "In range expressions, integers must be used.", index));
+            }
+        }
+
+        // We do not assign a value to the ".." itself
+        return null;
+    }
+
+    @Override
     public DafnyTree visitARRAY_ACCESS(DafnyTree t, Void a) {
         DafnyTree receiver = t.getChild(0);
+
+        // Special casing a[..]
+        if(t.getChild(1).getType() == DafnyParser.DOTDOT) {
+            return visitARRAY_ACCESS_DOTDOT(t, receiver);
+        }
 
         for(int i = 1; i < t.getChildCount(); i++) {
             DafnyTree index = t.getChild(i);
@@ -367,6 +391,23 @@ public class TypeResolution extends DafnyTreeDefaultVisitor<DafnyTree, Void> {
         }
 
         DafnyTree ty = recvType.getChild(0);
+        t.setExpressionType(ty);
+        return ty;
+    }
+
+    private DafnyTree visitARRAY_ACCESS_DOTDOT(DafnyTree t, DafnyTree receiver) {
+        assert t.getChildCount() == 2 : ".. only in single argument";
+
+        t.getChild(1).accept(this, null);
+        DafnyTree recvType = receiver.accept(this, null);
+        Sort recSort = TreeUtil.toSort(recvType);
+        String typeName = recSort.getName();
+        if (!typeName.equals("array") && !typeName.equals("seq")) {
+            exceptions.add(new DafnyException(
+                    ".. expressions are only allowed for types array and seq", t));
+        }
+        DafnyTree ty = new DafnyTree(DafnyParser.ARRAY, "seq");
+        ty.addChild(recvType.getChild(0).dupTree());
         t.setExpressionType(ty);
         return ty;
     }
@@ -609,7 +650,7 @@ public class TypeResolution extends DafnyTreeDefaultVisitor<DafnyTree, Void> {
             return receiverType;
 
         default:
-            throw new Error("Should not be reachable by grammar");
+            throw new Error("Should not be reachable by grammar: " + parent.getType());
         }
     }
 
