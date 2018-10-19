@@ -447,6 +447,10 @@ public class TreeTermTranslator {
             result = buildBracketAccess(tree);
             break;
 
+        case DafnyParser.DOTDOT:
+            throw new TermBuildException("unexpected range expression " +
+                    "(only allowed in '[...]')");
+
         case DafnyParser.FIELD_ACCESS:
             result = buildFieldAccess(tree);
             break;
@@ -615,6 +619,7 @@ public class TreeTermTranslator {
         String arraySortName = arraySort.getName();
 
         Term indexTerm;
+        DafnyTree indexTree;
 
         switch (arraySortName) {
             case "array":
@@ -622,18 +627,28 @@ public class TreeTermTranslator {
                     throw new TermBuildException("Access to 'array' requires one index argument");
                 }
 
-                indexTerm = build(tree.getChild(1));
-
-                return tb.selectArray(getHeap(), arrayTerm, indexTerm);
+                indexTree = tree.getChild(1);
+                if (indexTree.getType() == DafnyParser.DOTDOT) {
+                    arrayTerm = tb.arrayToSeq(getHeap(), arrayTerm);
+                    return buildSubSequence(arrayTerm, indexTree);
+                } else {
+                    indexTerm = build(tree.getChild(1));
+                    return tb.selectArray(getHeap(), arrayTerm, indexTerm);
+                }
 
             case "seq":
                 if (tree.getChildCount() != 2) {
-                    throw new TermBuildException("Access to 'array' requires one index argument");
+                    throw new TermBuildException("Access to 'array2' requires two index arguments");
                 }
 
-                indexTerm = build(tree.getChild(1));
+                indexTree = tree.getChild(1);
+                if (indexTree.getType() == DafnyParser.DOTDOT) {
+                    return buildSubSequence(arrayTerm, indexTree);
+                } else {
+                    indexTerm = build(indexTree);
+                    return tb.seqGet(arrayTerm, indexTerm);
+                }
 
-                return tb.seqGet(arrayTerm, indexTerm);
 
         case "array2":
                 if (tree.getChildCount() != 3) {
@@ -647,7 +662,7 @@ public class TreeTermTranslator {
                         arrayTerm, index0, index1);
 
         case "heap":
-            DafnyTree indexTree = tree.getChild(1);
+            indexTree = tree.getChild(1);
             if(indexTree.getType() != DafnyParser.CALL) {
                 throw new TermBuildException("Heap updates must be applied to function calls");
             }
@@ -669,6 +684,32 @@ public class TreeTermTranslator {
             default:
                 throw new TermBuildException("Unsupported array sort: " + arraySort);
         }
+    }
+
+    private Term buildSubSequence(Term seqTerm, DafnyTree indexTree) throws TermBuildException {
+        assert indexTree.getType() == DafnyParser.DOTDOT;
+
+        Term from, to;
+
+        DafnyTree firstChild = indexTree.getChild(0);
+        if(firstChild.getType() == DafnyParser.ARGS) {
+            if(indexTree.getChildCount() == 1) {
+                // a[..] --> return a
+                return seqTerm;
+            }
+            from = tb.zero;
+        } else {
+            from = build(firstChild);
+        }
+
+        if(indexTree.getChildCount() > 1) {
+            to = build(indexTree.getChild(1));
+        } else {
+            to = tb.seqLen(seqTerm);
+        }
+
+        return tb.seqSub(seqTerm, from, to);
+
     }
 
     private Term buildFieldAccess(DafnyTree tree) throws TermBuildException {

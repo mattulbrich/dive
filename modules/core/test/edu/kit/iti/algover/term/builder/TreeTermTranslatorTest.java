@@ -136,6 +136,8 @@ public class TreeTermTranslatorTest {
             {"a[0]+a[0]", "$plus($array_select<int>($heap, a, 0), $array_select<int>($heap, a, 0))"},
             {"a2[1,2]", "$array2_select<int>($heap, a2, 1, 2)"},
             {"null", "null"},
+            { "a[..]", "$array2seq<int>($heap, a)" },
+            { "a[1..3]", "$seq_sub<int>($array2seq<int>($heap, a), 1, 3)" },
 
             // From TermParserTest
             { "i1 + i2", "$plus(i1, i2)" },
@@ -188,6 +190,10 @@ public class TreeTermTranslatorTest {
             { "[] == [1]", "$eq<seq<int>>($seq_empty, $seq_cons<int>(1, $seq_empty))" },
             { "null in mod", "$set_in<object>(null, mod)" },
             { "null !in mod", "$not($set_in<object>(null, mod))" },
+            { "iseq[..]", "iseq" },
+            { "iseq[0..2]", "$seq_sub<int>(iseq, 0, 2)" },
+            { "iseq[..2]", "$seq_sub<int>(iseq, 0, 2)" },
+            { "iseq[1..]", "$seq_sub<int>(iseq, 1, $seq_len<int>(iseq))" },
         };
     }
 
