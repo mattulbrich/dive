@@ -301,13 +301,26 @@ public class Sort {
     /**
      * Checks if this sort belongs to a Dafny class.
      *
-     * Checks if the name is a builtin name
+     * Checks if the name is a builtin name.
      *
-     * @return <code>true</code>, iff this objects reprsents the sort for a
+     * @return <code>true</code>, iff this objects represents the sort for a
      *         Dafny class
      */
     public boolean isClassSort() {
         return !BUILTIN_SORT_NAMES.contains(getName());
+    }
+
+    /**
+     * Checks if this sort is a reference sort.
+     *
+     * This is the case for object, classes and arrays.
+     *
+     * Equivalent to calling {@code isSubtypeOf(OBJECT)}.
+     *
+     * @return <code>true</code>, iff this objects represents a ref type.
+     */
+    public boolean isReferenceSort() {
+        return isSubtypeOf(OBJECT);
     }
 
     /**

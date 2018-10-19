@@ -40,6 +40,7 @@ import java.util.HashMap;
 import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * The Class TreeTermTranslator is used to create a {@link Term} object from a
@@ -57,6 +58,12 @@ public class TreeTermTranslator {
      */
     private static final VariableTerm HEAP_VAR =
             new VariableTerm("$heap", Sort.HEAP);
+
+    /**
+     * This constant is used by old and fresh expressions.
+     */
+    private static final VariableTerm OLD_HEAP_VAR =
+            new VariableTerm("$oldheap", Sort.HEAP);
 
     /**
      * The symbol table from which the function symbols etc are to be taken.
@@ -346,6 +353,7 @@ public class TreeTermTranslator {
             }), tree);
             break;
 
+        case DafnyParser.NOTIN:
         case DafnyParser.IN:
             result = buildBinary((x,y) -> {
                 switch(y.getSort().getName()) {
@@ -356,6 +364,9 @@ public class TreeTermTranslator {
                     throw new Error("Not yet implemented");
                 }
             }, tree);
+            if (tree.getType() == DafnyParser.NOTIN) {
+                result = tb.negate(result);
+            }
             break;
 
         case DafnyParser.NOT:
@@ -442,6 +453,10 @@ public class TreeTermTranslator {
 
         case DafnyParser.NOETHER_LESS:
             result = buildNoetherLess(tree);
+            break;
+
+        case DafnyParser.FRESH:
+            result = buildFresh(tree);
             break;
 
         case DafnyParser.AT:
@@ -674,6 +689,21 @@ public class TreeTermTranslator {
         }
 
         return tb.selectField(getHeap(), receiver, new ApplTerm(field));
+    }
+
+    private Term buildFresh(DafnyTree tree) throws TermBuildException {
+        Term receiver = build(tree.getChild(0));
+
+        if(!receiver.getSort().isReferenceSort()) {
+            throw new TermBuildException("fresh can only be applied to objects, " +
+                    "not to " + receiver.getSort());
+        }
+
+        if (!Objects.equals(boundVars.get(OLD_HEAP_VAR.getName()), OLD_HEAP_VAR)) {
+            throw new TermBuildException("fresh-expression not allowed in single-state context");
+        }
+
+        return tb.fresh(OLD_HEAP_VAR, getHeap(), receiver);
     }
 
 
@@ -997,11 +1027,20 @@ public class TreeTermTranslator {
 
     private Term buildOld(DafnyTree tree) throws TermBuildException {
 
+        Term oldHeap;
+        if (Objects.equals(boundVars.get(OLD_HEAP_VAR.getName()), OLD_HEAP_VAR)) {
+            oldHeap = OLD_HEAP_VAR;
+        } else if (symbolTable.getFunctionSymbol(OLD_HEAP_VAR.getName()) != null) {
+            oldHeap = new ApplTerm(symbolTable.getFunctionSymbol(OLD_HEAP_VAR.getName()));
+        } else {
+            throw new TermBuildException("old-expression not allowed in single-state context");
+        }
+
         boundVars.put(HEAP_VAR.getName(), HEAP_VAR);
         Term inner = build(tree.getChild(0));
         boundVars.pop();
 
-        return new LetTerm(HEAP_VAR, HEAP_VAR, inner);
+        return new LetTerm(HEAP_VAR, oldHeap, inner);
     }
 
 

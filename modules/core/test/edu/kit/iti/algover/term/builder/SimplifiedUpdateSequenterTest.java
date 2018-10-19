@@ -123,4 +123,15 @@ public class SimplifiedUpdateSequenterTest extends SequenterTest {
                 "$eq<D>($select<C,D>($heap, this, C$$d), x)))", sequent.toString());
     }
 
+    protected void checkSequentWithOld(SymbolTable table, Sequent sequent) throws Exception {
+
+        assertEquals("|- (let $oldheap := $heap :: " +
+                "(let $heap := $store<C,int>($heap, c, C$$i, $plus($select<C,int>($heap, c, C$$i), 1)) :: " +
+                "$eq<int>($select<C,int>($heap, c, C$$i), " +
+                "$plus((let $heap := $oldheap :: $select<C,int>($heap, c, C$$i)), 1))))", sequent.toString());
+
+        Term inlined = LetInlineVisitor.inline(sequent.getSuccedent().get(0).getTerm());
+        assertEquals(TermParser.parse(table, "c.i@$heap[c.i:=c.i+1] == c.i + 1"), inlined);
+    }
+
 }

@@ -254,4 +254,9 @@ public class TermBuilder {
     }
 
 
+    public Term fresh(Term oldheap, Term newheap, Term object) throws TermBuildException {
+        ApplTerm o = new ApplTerm(BuiltinSymbols.IS_CREATED, oldheap, object);
+        ApplTerm n = new ApplTerm(BuiltinSymbols.IS_CREATED, newheap, object);
+        return and(negate(o), n);
+    }
 }

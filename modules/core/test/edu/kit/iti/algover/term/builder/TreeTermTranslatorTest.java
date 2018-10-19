@@ -154,15 +154,22 @@ public class TreeTermTranslatorTest {
             { "1*2*3", "$times($times(1, 2), 3)" },
             { "b1 ==> b2 ==> b3", "$imp(b1, $imp(b2, b3))" },
 
+            { "let $oldheap := loopHeap :: old(c.f)==c.f",
+              "(let $oldheap := loopHeap :: $eq<int>(" +
+                      "(let $heap := $oldheap :: $select<C,int>($heap, c, C$$f)), $select<C,int>($heap, c, C$$f)))" },
+
             // Heap accesses
             { "c.f", "$select<C,int>($heap, c, C$$f)" },
             { "c.f", "$select<C,int>($heap, c, C$$f)" },
             { "c.f@loopHeap", "$select<C,int>(loopHeap, c, C$$f)" },
             { "c.fct(1)", "C$$fct($heap, c, 1)"},
-            { "c.fct(1)@loopHeap", "C$$fct(loopHeap, c, 1)"},
+            { "c.fct(1)@loopHeap", "C$$fct(loopHeap, c, 1)" },
+            { "let $oldheap := loopHeap :: fresh(c)",
+              "(let $oldheap := loopHeap :: $and($not($isCreated($oldheap, c)), $isCreated($heap, c)))" },
 
             // Heap updates
             { "$heap[c.f := 1]", "$store<C,int>($heap, c, C$$f, 1)" },
+            { "$heap[a[0] := 2]", "$array_store<int>($heap, a, 0, 2)" },
             { "$heap[$anon(mod, loopHeap)]", "$anon($heap, mod, loopHeap)" },
             { "$heap[$create(c)]", "$create($heap, c)" },
 
@@ -179,6 +186,8 @@ public class TreeTermTranslatorTest {
             { "{} == {1}", "$eq<set<int>>($empty, $set_add<int>(1, $empty))" },
             { "[]", "$seq_empty" },
             { "[] == [1]", "$eq<seq<int>>($seq_empty, $seq_cons<int>(1, $seq_empty))" },
+            { "null in mod", "$set_in<object>(null, mod)" },
+            { "null !in mod", "$not($set_in<object>(null, mod))" },
         };
     }
 
@@ -233,6 +242,11 @@ public class TreeTermTranslatorTest {
             { "iseq + mod", "No common supertype for seq<int> and set<object>" },
             { "true + true", "'+' is not supported for these arguments" },
             { "c == 1", "No common supertype for C and int" },
+            { "old(c.f)", "old-expression not allowed in single-state context" },
+            { "fresh(c)", "fresh-expression not allowed in single-state context" },
+            { "fresh(1)", "fresh can only be applied to objects, not to int"},
+            { "|1|", "Unsupported sort for |...|: int" },
+            { "1@$heap", "heap suffixes are only allowed for heap select terms" },
         };
     }
 

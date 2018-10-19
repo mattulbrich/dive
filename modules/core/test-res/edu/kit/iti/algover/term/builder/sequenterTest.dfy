@@ -1,6 +1,6 @@
 method m(p : int, m : set<object>) returns (r:int)
   requires p > 0
-  ensures r > 0
+  ensures old(r > 0)
   modifies m
   decreases p+1
 {
