@@ -869,6 +869,10 @@ public class Symbex {
                     decreases.getLastChild()));
         }
 
+        // $oldheap := $heap ... to remember for old-expressions
+        result.addAssignment(ASTUtil.assign(ASTUtil.builtInVar("$oldheap"),
+                    ASTUtil.builtInVar("$heap")));
+
         return result;
     }
 

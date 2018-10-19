@@ -89,4 +89,24 @@ public abstract class SequenterTest {
         return table;
     }
 
+    @Test
+    public void testOld() throws Exception {
+        Project p = TestUtil.mockProject("class C { var i:int; } " +
+                "method m(c:C) ensures c.i == old(c.i)+1 { c.i := c.i+1; }");
+        Symbex symbex = new Symbex();
+        DafnyMethod method = p.getMethod("m");
+        List<SymbexPath> results = symbex.symbolicExecution(method.getRepresentation());
+        assertEquals(4, results.size());
+        SymbexPath path = results.get(0);
+        assertEquals("Post", path.getPathIdentifier());
+
+        PVCSequenter sequenter = makeSequenter();
+        SymbolTable table = makeTable(method, p);
+        Sequent sequent = sequenter.translate(path, table, null);
+
+        checkSequentWithOld(table, sequent);
+    }
+
+    protected abstract void checkSequentWithOld(SymbolTable table, Sequent sequent) throws Exception;
+
 }

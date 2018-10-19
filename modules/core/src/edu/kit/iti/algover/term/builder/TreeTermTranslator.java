@@ -1027,7 +1027,12 @@ public class TreeTermTranslator {
 
     private Term buildOld(DafnyTree tree) throws TermBuildException {
 
-        if (!Objects.equals(boundVars.get(OLD_HEAP_VAR.getName()), OLD_HEAP_VAR)) {
+        Term oldHeap;
+        if (Objects.equals(boundVars.get(OLD_HEAP_VAR.getName()), OLD_HEAP_VAR)) {
+            oldHeap = OLD_HEAP_VAR;
+        } else if (symbolTable.getFunctionSymbol(OLD_HEAP_VAR.getName()) != null) {
+            oldHeap = new ApplTerm(symbolTable.getFunctionSymbol(OLD_HEAP_VAR.getName()));
+        } else {
             throw new TermBuildException("old-expression not allowed in single-state context");
         }
 
@@ -1035,7 +1040,7 @@ public class TreeTermTranslator {
         Term inner = build(tree.getChild(0));
         boundVars.pop();
 
-        return new LetTerm(HEAP_VAR, OLD_HEAP_VAR, inner);
+        return new LetTerm(HEAP_VAR, oldHeap, inner);
     }
 
 
