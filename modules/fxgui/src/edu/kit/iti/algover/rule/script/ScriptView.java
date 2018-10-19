@@ -32,8 +32,11 @@ import java.util.concurrent.ExecutorService;
  */
 public class ScriptView extends AsyncHighlightingCodeArea {
 
+
     private final ScriptViewListener listener;
     private HighlightingRulev4 highlightingRule;
+
+    private GutterFactory gutter;
 
     public ScriptView(ExecutorService executor, ScriptViewListener listener) {
         super(executor);
@@ -53,6 +56,9 @@ public class ScriptView extends AsyncHighlightingCodeArea {
                 save
         );
         setContextMenu(menu);
+
+        gutter = new GutterFactory(this);
+        this.setParagraphGraphicFactory(gutter);
         setupAsyncSyntaxhighlighting();
 
         textProperty().addListener((observable, oldValue, newValue) -> listener.onAsyncScriptTextChanged(newValue));
