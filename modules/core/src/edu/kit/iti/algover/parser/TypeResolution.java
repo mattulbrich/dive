@@ -7,6 +7,7 @@ package edu.kit.iti.algover.parser;
 
 import java.util.List;
 
+import antlr.collections.AST;
 import edu.kit.iti.algover.term.Sort;
 import edu.kit.iti.algover.term.builder.TermBuildException;
 import edu.kit.iti.algover.util.ASTUtil;
@@ -260,11 +261,15 @@ public class TypeResolution extends DafnyTreeDefaultVisitor<DafnyTree, Void> {
     @Override
     public DafnyTree visitEQ(DafnyTree t, Void a) {
         operation(t, BOOL_TYPE);
-        String ty1 = TreeUtil.toTypeString(t.getChild(0).getExpressionType());
-        String ty2 = TreeUtil.toTypeString(t.getChild(1).getExpressionType());
 
-        if (!ty1.equals(ty2)) {
-            exceptions.add(new DafnyException("Equality can only be applied to equally typed terms", t));
+        Sort sort1 = ASTUtil.toSort(t.getChild(0).getExpressionType());
+        Sort sort2 = ASTUtil.toSort(t.getChild(1).getExpressionType());
+
+        try {
+            // try to compute suppremum. If that succeeds, comparison is possible.
+            Sort.supremum(sort1, sort2);
+        } catch (TermBuildException e) {
+            exceptions.add(new DafnyException("Equality can only be applied to equally typed terms", t, e));
         }
 
         return BOOL_TYPE;
@@ -528,11 +533,6 @@ public class TypeResolution extends DafnyTreeDefaultVisitor<DafnyTree, Void> {
     }
 
     @Override
-    public DafnyTree visitLISTEX(DafnyTree t, Void a) {
-        throw new UnsupportedOperationException("not yet implemented");
-    }
-
-    @Override
     public DafnyTree visitNOETHER_LESS(DafnyTree t, Void a) {
         // TODO eventually generalize this ...
         return operation(t, BOOL_TYPE, "int", "int");
@@ -549,8 +549,9 @@ public class TypeResolution extends DafnyTreeDefaultVisitor<DafnyTree, Void> {
             ty = parent.getChild(0).getExpressionType();
             assert parent.getChild(1) == t : "null must be 2nd child";
             t.setExpressionType(ty);
-            // TODO This should be translation to sort and then check for classtype?
-            if (ty.getType() != DafnyParser.ID) {
+            // This should be translation to sort and then check for classtype? YES. DONE
+            Sort sort = ASTUtil.toSort(ty);
+            if (!sort.isReferenceSort()) {
                 exceptions.add(new DafnyException("assigning null to a non-reference entity", parent));
             }
             return ty;
@@ -586,13 +587,27 @@ public class TypeResolution extends DafnyTreeDefaultVisitor<DafnyTree, Void> {
     }
 
     @Override
-    public DafnyTree visitSETEX(DafnyTree t, Void a) {
+    public DafnyTree visitLISTEX(DafnyTree t, Void a) {
+        return visitExtension(t, DafnyParser.SEQ);
+    }
 
-        // TODO Make this more flexible { object, array } is set<object>
-        // TODO Make this work for empty set.
+    @Override
+    public DafnyTree visitSETEX(DafnyTree t, Void a) {
+        return visitExtension(t, DafnyParser.SET);
+    }
+
+    private DafnyTree visitExtension(DafnyTree t, int kind) {
+
+        // It stores "SET" and "SEQ" rather than "set" and "seq"
+        // This will fail if the entities in the parser are differently named.
+        String kindString = DafnyParser.tokenNames[kind].toLowerCase();
 
         if(t.getChildCount() == 0) {
-            throw new UnsupportedOperationException("not yet implemented");
+            // Emtpy set is of type set<$nothing>.
+            DafnyTree bottom = ASTUtil.fromSort(Sort.BOTTOM);
+            DafnyTree result = ASTUtil.create(kind, kindString, bottom);
+            t.setExpressionType(result);
+            return result;
         }
 
         DafnyTree child = t.getChild(0);
@@ -611,7 +626,7 @@ public class TypeResolution extends DafnyTreeDefaultVisitor<DafnyTree, Void> {
         }
 
         result = ASTUtil.fromSort(sort);
-        result = ASTUtil.create(DafnyParser.SET, "set", result);
+        result = ASTUtil.create(kind, kindString, result);
 
         t.setExpressionType(result);
         return result;
@@ -662,27 +677,37 @@ public class TypeResolution extends DafnyTreeDefaultVisitor<DafnyTree, Void> {
     @Override
     public DafnyTree visitASSIGN(DafnyTree t, Void a) {
         DafnyTree result = visitDepth(t);
-        String ty1;
+        Sort s1;
         if (t.getChildCount() == 2) {
             // single assignment x := term;
-            ty1 = TreeUtil.toTypeString(t.getChild(0).getExpressionType());
+            s1 = ASTUtil.toSort(t.getChild(0).getExpressionType());
         } else {
             // multi-return: x,y := M();
             List<DafnyTree> lhs = t.getChildren().subList(0, t.getChildCount() - 1);
             List<DafnyTree> types = Util.map(lhs, DafnyTree::getExpressionType);
-            ty1 = TreeUtil.toTypeString(ASTUtil.listExpr(types));
+            s1 = ASTUtil.toSort(ASTUtil.listExpr(types));
         }
 
-        String ty2 = TreeUtil.toTypeString(t.getLastChild().getExpressionType());
-        if (!ty1.equals(ty2)) {
-            exceptions.add(new DafnyException("Assigning a value of type " + ty2 + " to an entitity"
-                    + " of type " + ty1, t));
+        Sort s2 = ASTUtil.toSort(t.getLastChild().getExpressionType());
+        if (!s2.isSubtypeOf(s1)) {
+            exceptions.add(new DafnyException("Assigning a value of type " + s2 + " to an entitity"
+                    + " of type " + s1, t));
         }
         return result;
     }
 
     @Override
     public DafnyTree visitBLOCK(DafnyTree t, Void a) {
+        return visitDepth(t);
+    }
+
+    @Override
+    public DafnyTree visitASSUME(DafnyTree t, Void aVoid) {
+        return visitDepth(t);
+    }
+
+    @Override
+    public DafnyTree visitASSERT(DafnyTree t, Void aVoid) {
         return visitDepth(t);
     }
 

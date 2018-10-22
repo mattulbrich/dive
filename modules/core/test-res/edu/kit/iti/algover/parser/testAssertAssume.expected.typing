@@ -1,0 +1,3 @@
+(method testAssertAssume ARGS
+        (BLOCK (assume (== 1[int] 0[int])[bool])
+               (assert (== 1[int] 2[int])[bool])))[scc_19]

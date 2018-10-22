@@ -8,6 +8,12 @@ class C
       var i_var : int;
       var b_var : bool;
       var c_var : C;
+      var o_var : object;
+      var a_var : array<int>;
+      var seqC_var : seq<C>;
+      var seqO_var : seq<object>;
+      var setC_var : set<C>;
+      var setO_var : set<object>;
 
       i_var := 0;
       i_var := i_var + i_var;
@@ -21,6 +27,13 @@ class C
       i_var := intfield;
 
       c_var := null;
+
+      o_var := c_var;
+      o_var := null;
+      o_var := a_var;
+      seqO_var := seqC_var;
+      setO_var := setC_var;
+      // see also testIllegalRefAssignment
    }
 
    method testWildcards()
@@ -223,4 +236,43 @@ class C
      ensures s[0..] == s[..1] == s[0..1];
    { }
 
+   method extensions(l: seq<int>, s: set<int>)
+     requires l == [1,2,3]
+     requires s == {1,2,3}
+     ensures l != []
+     ensures [] == []
+     ensures s != {}
+     ensures {} == {}
+   {
+     var o: object;
+     assert {o, this} == {this, o};
+   }
+
+   method testAssertAssume()
+   {
+     assume 1==0;
+     assert 1==2;
+   }
+
+   method testIllegalRefAssignment(o: object, seqO: seq<object>, setO: set<object>)
+   {
+      var c: C;
+      var a: array<int>;
+      var seqC: seq<C>;
+      var setC: set<C>;
+
+      c := o;
+      c := a;
+      setC := setO;
+      seqC := seqO;
+   }
+
+/*
+   method challengeNull()
+   {
+      var setC: set<C>;
+
+      setC := { null };
+   }
+*/
 }
