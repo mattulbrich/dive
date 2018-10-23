@@ -390,7 +390,7 @@ public class TypeResolution extends DafnyTreeDefaultVisitor<DafnyTree, Void> {
             exceptions.add(new DafnyException(
                         "Only arrays or sequences can be indexed", t));
             // set a fake type to avoid internal exceptions when continuing
-            DafnyTree ty = ASTUtil.id("<unknownType>");
+            DafnyTree ty = ASTUtil.id(Sort.UNTYPED_SORT.getName());
             t.setExpressionType(ty);
             return ty;
         }

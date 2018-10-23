@@ -134,6 +134,7 @@ public class Sort {
         BUILTIN_SORT_NAMES.add("field");
         BUILTIN_SORT_NAMES.add("heap");
         BUILTIN_SORT_NAMES.add("$nothing");
+        BUILTIN_SORT_NAMES.add("$tuple");
     }
 
     /**
@@ -360,6 +361,16 @@ public class Sort {
             case "multiset":
             case "seq":
                 return getArgument(0).isSubtypeOf(other.getArgument(0));
+            case "$tuple":
+                if (arguments.length != other.arguments.length) {
+                    return false;
+                }
+                for (int i = 0; i < arguments.length; i++) {
+                    if(!getArgument(i).isSubtypeOf(other.getArgument(i))) {
+                        return false;
+                    }
+                }
+                return true;
             // case "map": that would be contravariant in the first argument!
             }
         }

@@ -275,4 +275,25 @@ class C
       setC := { null };
    }
 */
+
+   method multiReturnObject() returns (a:object, c:C)
+   {}
+
+   method assignObjectTuples()
+   {
+      var x: object;
+      var c: C;
+      var y: object;
+
+      x,c := multiReturnObject();
+      x,y := multiReturnObject();
+   }
+
+   method assignObjectTuplesFail()
+   {
+      var x: object;
+      var c: C;
+
+      c,x := multiReturnObject();
+   }
 }
