@@ -24,10 +24,16 @@ import edu.kit.iti.algover.term.Term;
 public class ParameterType<T> {
 
     /**
+     * The type to capture match-terms in parameters in scripts
+     */
+    public static final ParameterType<TermParameter> MATCH_TERM =
+            new ParameterType<>("MatchTerm", TermParameter.class);
+
+    /**
      * The type to capture terms in parameters in scripts
      */
-    public static final ParameterType<Term> TERM =
-            new ParameterType<>("Term", Term.class);
+    public static final ParameterType<TermParameter> TERM =
+            new ParameterType<>("Term", TermParameter.class);
 
     /**
      * The type to capture integers in parameters in scripts

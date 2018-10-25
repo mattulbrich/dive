@@ -37,6 +37,15 @@ public class ProofNodeCheckpointsBuilder extends DefaultASTVisitor<Void> {
         checkpoints.add(new ProofNodeCheckpoint(new ProofNodeSelector(), new Position(0, 0), new Position(0, 0)));
     }
 
+    public static List<ProofNodeCheckpoint> build(ProofNode root, ProofScript script) {
+        ProofNodeCheckpointsBuilder builder = new ProofNodeCheckpointsBuilder(root);
+        if (script == null) {
+            return builder.checkpoints;
+        }
+        script.accept(builder);
+        return builder.checkpoints;
+    }
+
     @Override
     public Void visit(ProofScript proofScript) {
         return proofScript.getBody().accept(this);

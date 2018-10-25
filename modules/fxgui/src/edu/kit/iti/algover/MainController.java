@@ -26,8 +26,7 @@ import edu.kit.iti.algover.references.Reference;
 import edu.kit.iti.algover.rule.RuleApplicationController;
 import edu.kit.iti.algover.rule.RuleApplicationListener;
 import edu.kit.iti.algover.rules.*;
-import edu.kit.iti.algover.rules.impl.LetSubstitutionRule;
-import edu.kit.iti.algover.rules.impl.Z3Rule;
+import edu.kit.iti.algover.rules.impl.ExhaustiveRule;
 import edu.kit.iti.algover.sequent.SequentActionListener;
 import edu.kit.iti.algover.sequent.SequentController;
 import edu.kit.iti.algover.sequent.SequentTabViewController;
@@ -55,6 +54,7 @@ import javafx.scene.layout.VBox;
 import org.controlsfx.control.BreadCrumbBar;
 import org.controlsfx.control.StatusBar;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.HashSet;
 import java.util.List;
@@ -150,7 +150,13 @@ public class MainController implements SequentActionListener, RuleApplicationLis
             if (p.getProofStatus() != ProofStatus.CLOSED) {
                 for (int i = 0; i < p.getProofRoot().getSequent().getAntecedent().size(); ++i) {
                     try {
-                        script += RuleApplicator.getScriptForExhaustiveRuleApplication(new LetSubstitutionRule(), p.getProofRoot(), new TermSelector("A." + i));
+                        ExhaustiveRule exRule = new ExhaustiveRule();
+                        Parameters parameters = new Parameters();
+                        parameters.putValue("ruleName", "substitute");
+                        parameters.putValue("on", new TermParameter(new TermSelector("A." + i), p.getProofRoot().getSequent()));
+                        ProofRuleApplication pra = exRule.considerApplication(p.getProofRoot(), parameters);
+
+                        script += pra.getScriptTranscript();
                     } catch (FormatException ex) {
                         //TODO
                     } catch (RuleException ex) {
@@ -159,7 +165,13 @@ public class MainController implements SequentActionListener, RuleApplicationLis
                 }
                 for (int i = 0; i < p.getProofRoot().getSequent().getSuccedent().size(); ++i) {
                     try {
-                        script += RuleApplicator.getScriptForExhaustiveRuleApplication(new LetSubstitutionRule(), p.getProofRoot(), new TermSelector("S." + i));
+                        ExhaustiveRule exRule = new ExhaustiveRule();
+                        Parameters parameters = new Parameters();
+                        parameters.putValue("ruleName", "substitute");
+                        parameters.putValue("on", new TermParameter(new TermSelector("S." + i), p.getProofRoot().getSequent()));
+                        ProofRuleApplication pra = exRule.considerApplication(p.getProofRoot(), parameters);
+
+                        script += pra.getScriptTranscript();
                     } catch (FormatException ex) {
                         //TODO
                     } catch (RuleException ex) {
@@ -375,7 +387,8 @@ public class MainController implements SequentActionListener, RuleApplicationLis
     private String getStringForTreeItem(TreeItem<Object> item) {
         Object value = item.getValue();
         if (value instanceof DafnyFile) {
-            return ((DafnyFile) value).getFilename();
+            File f = new File(((DafnyFile) value).getFilename());
+            return f.getName();
         }
         if (value instanceof DafnyMethod) {
             return ((DafnyMethod) value).getName();
@@ -520,6 +533,7 @@ public class MainController implements SequentActionListener, RuleApplicationLis
     @Override
     public void onSwitchViewedNode(ProofNodeSelector proofNodeSelector) {
         sequentController.viewProofNode(proofNodeSelector);
+        ruleApplicationController.getScriptController().setSelectedNode(proofNodeSelector);
     }
 
     public Parent getView() {
