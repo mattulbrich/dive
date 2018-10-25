@@ -6,6 +6,7 @@
 package edu.kit.iti.algover.parser;
 
 import java.util.List;
+import java.util.Set;
 
 import antlr.collections.AST;
 import edu.kit.iti.algover.term.Sort;
@@ -23,6 +24,9 @@ public class TypeResolution extends DafnyTreeDefaultVisitor<DafnyTree, Void> {
     private static final DafnyTree UNKNOWN_TYPE = new DafnyTree(DafnyParser.ID, "UNKNOWN_TYPE");
     private static final DafnyTree BOOL_TYPE = new DafnyTree(DafnyParser.BOOL, "bool");
     private static final DafnyTree OBJECT_TYPE = new DafnyTree(DafnyParser.ID, "object");;
+    private static final Set<String> INT_SET_SEQ = Util.asSet("int", "seq", "set");
+    private static final Set<String> INT_SET = Util.asSet("int", "set");
+    // private static final Set<String> INT_SET_SEQ = Util.asSet("int", "seq", "set");
 
     private List<DafnyException> exceptions;
 
@@ -164,14 +168,39 @@ public class TypeResolution extends DafnyTreeDefaultVisitor<DafnyTree, Void> {
         return resultType;
     }
 
+    private DafnyTree operationOverloaded(DafnyTree tree, Set<String> admissibleResults) {
+        assert tree.getChildCount() == 2 : "currently only for binary";
+
+        DafnyTree child1 = tree.getChild(0);
+        DafnyTree child2 = tree.getChild(1);
+        Sort sort1 = ASTUtil.toSort(child1.accept(this, null));
+        Sort sort2 = ASTUtil.toSort(child2.accept(this, null));
+        DafnyTree result;
+        try {
+            Sort sup = Sort.supremum(sort1, sort2);
+            result = ASTUtil.fromSort(sup);
+
+            if (!admissibleResults.contains(sup.getName())) {
+                exceptions.add(new DafnyException("Types are not compatible", tree));
+                result = ASTUtil.fromSort(Sort.UNTYPED_SORT);
+            }
+
+            tree.setExpressionType(result);
+        } catch(TermBuildException ex) {
+            exceptions.add(new DafnyException("Types are not compatible", tree, ex));
+            result = ASTUtil.fromSort(Sort.UNTYPED_SORT);
+        }
+        return result;
+    }
+
     @Override
     public DafnyTree visitPLUS(DafnyTree t, Void a) {
-        return operation(t, INT_TYPE, "int", "int");
+        return operationOverloaded(t, INT_SET_SEQ);
     }
 
     @Override
     public DafnyTree visitTIMES(DafnyTree t, Void a) {
-        return operation(t, INT_TYPE, "int", "int");
+        return operationOverloaded(t, INT_SET);
     }
 
     @Override
@@ -186,7 +215,12 @@ public class TypeResolution extends DafnyTreeDefaultVisitor<DafnyTree, Void> {
 
     @Override
     public DafnyTree visitMINUS(DafnyTree t, Void a) {
-        return operation(t, INT_TYPE, "int", "int");
+        if (t.getChildCount() == 1) {
+           // unary
+           return operation(t, INT_TYPE, "int");
+        } else {
+            return operationOverloaded(t, INT_SET);
+        }
     }
 
     @Override

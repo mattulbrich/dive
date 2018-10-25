@@ -518,7 +518,10 @@ public final class ASTUtil {
         case "array":
             result = new DafnyTree(DafnyParser.ARRAY, "array");
             break;
-        default: return id(sort.getName());
+        case "int":
+            return new DafnyTree(DafnyParser.INT, "int");
+        default:
+            return id(sort.getName());
         }
 
         result.addChild(fromSort(sort.getArgument(0)));

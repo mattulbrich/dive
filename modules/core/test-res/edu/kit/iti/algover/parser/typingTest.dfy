@@ -296,4 +296,14 @@ class C
 
       c,x := multiReturnObject();
    }
+
+   method additions()
+   {
+      var sq : seq<int>;
+      var st : set<int>;
+
+      assert sq + sq + [1] == sq;
+      assert 1 + 1  == 2;
+      assert st + st + {1} == st;
+   }
 }
