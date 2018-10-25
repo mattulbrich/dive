@@ -24,9 +24,6 @@ import javafx.stage.Window;
 import org.controlsfx.validation.ValidationResult;
 import org.controlsfx.validation.ValidationSupport;
 import org.controlsfx.validation.Validator;
-import sun.reflect.generics.reflectiveObjects.NotImplementedException;
-
-import java.lang.reflect.Parameter;
 import java.util.Map;
 
 /**
@@ -139,7 +136,7 @@ public class RuleParameterDialog extends Dialog<Void> {
             } else if(tf.getUserData().equals(ParameterType.STRING)) {
                 parameters.putValue(((Label) (gridPane.getChildren().get(i * 2))).getText(), text);
             } else {
-                throw new NotImplementedException();
+                throw new RuntimeException("ParameterType " + tf.getUserData() + " is unkown.");
             }
 
         }
