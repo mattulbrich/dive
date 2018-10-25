@@ -8,6 +8,7 @@ import edu.kit.iti.algover.browser.FlatBrowserController;
 import edu.kit.iti.algover.browser.entities.PVCEntity;
 import edu.kit.iti.algover.browser.entities.PVCGetterVisitor;
 import edu.kit.iti.algover.browser.entities.TreeTableEntity;
+import edu.kit.iti.algover.dafnystructures.DafnyClass;
 import edu.kit.iti.algover.dafnystructures.DafnyFile;
 import edu.kit.iti.algover.dafnystructures.DafnyFunction;
 import edu.kit.iti.algover.dafnystructures.DafnyMethod;
@@ -273,6 +274,30 @@ public class MainController implements SequentActionListener, RuleApplicationLis
                     lastitem = new TreeItem<>(pvc.getIdentifier());
                     lastitem.setValue(pvc);
                     functionChild.getChildren().add(lastitem);
+                }
+            }
+            for(DafnyClass dc : f.getClasses()) {
+                for (DafnyMethod m : dc.getMethods()) {
+                    TreeItem<Object> methodChild = new TreeItem<>(m.getName());
+                    methodChild.setValue(m);
+                    fileChild.getChildren().add(methodChild);
+                    PVCCollection collection = manager.getProject().getPVCsFor(m);
+                    for (PVC pvc : collection.getContents()) {
+                        lastitem = new TreeItem<>(pvc.getIdentifier());
+                        lastitem.setValue(pvc);
+                        methodChild.getChildren().add(lastitem);
+                    }
+                }
+                for (DafnyFunction fi : dc.getFunctions()) {
+                    TreeItem<Object> functionChild = new TreeItem<>(fi.getName());
+                    functionChild.setValue(fi);
+                    fileChild.getChildren().add(functionChild);
+                    PVCCollection collection = manager.getProject().getPVCsFor(fi);
+                    for (PVC pvc : collection.getContents()) {
+                        lastitem = new TreeItem<>(pvc.getIdentifier());
+                        lastitem.setValue(pvc);
+                        functionChild.getChildren().add(lastitem);
+                    }
                 }
             }
         }

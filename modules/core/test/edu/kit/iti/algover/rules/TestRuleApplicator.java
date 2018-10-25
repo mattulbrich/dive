@@ -142,7 +142,7 @@ public class TestRuleApplicator {
         Sequent sequent = tp.parseSequent("i1 < i2 && i2 < i3 |- i1 < i3");
 
         AndLeftRule rule = new AndLeftRule();
-        ProofNode pn = ProofMockUtil.mockProofNode(null, sequent);
+        ProofNode pn = ProofMockUtil.mockProofNode(null, sequent.getAntecedent(), sequent.getSuccedent());
         ProofRuleApplication pra = rule.considerApplication(pn, sequent, new TermSelector("A.0"));
         List<ProofNode> newNodes = RuleApplicator.applyRule(pra, pn);
         assertEquals(1, newNodes.size());
@@ -155,7 +155,7 @@ public class TestRuleApplicator {
         Sequent sequent = tp.parseSequent("i1 < i3 |- i1 < i2 && i2 < i3");
 
         TrivialAndRight rule = new TrivialAndRight();
-        ProofNode pn = ProofMockUtil.mockProofNode(null, sequent);
+        ProofNode pn = ProofMockUtil.mockProofNode(null, sequent.getAntecedent(), sequent.getSuccedent());
         ProofRuleApplication pra = rule.considerApplication(pn, sequent, new TermSelector("S.0"));
         List<ProofNode> newNodes = RuleApplicator.applyRule(pra, pn);
         assertEquals(2, newNodes.size());
