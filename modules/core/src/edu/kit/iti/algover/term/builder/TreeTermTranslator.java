@@ -1142,9 +1142,14 @@ public class TreeTermTranslator {
      * have in the end.
      */
     private void expandMultiBlanks(DafnyTree args, int targetArity) {
+        int childCount = args.getChildCount();
+        if(childCount == 0) {
+            // nothing to be done!
+            return;
+        }
+
         DafnyTree first = args.getChild(0);
         DafnyTree last = args.getLastChild();
-        int childCount = args.getChildCount();
 
         if (first.getType() == DafnyParser.DOUBLE_BLANK) {
             CommonToken token = new CommonToken(first.getToken());
