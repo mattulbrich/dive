@@ -43,7 +43,7 @@ public class TrivialAndRight extends AbstractProofRule {
     @Override
     public ProofRuleApplication considerApplicationImpl(ProofNode target, Parameters parameters)
             throws RuleException {
-        TermSelector selector = tsForParameter.get("on");
+        TermSelector selector = parameters.getValue(ON_PARAM).getTermSelector();
 
         if (selector != null && !selector.isToplevel()) {
             return ProofRuleApplicationBuilder.notApplicable(this);
@@ -72,7 +72,7 @@ public class TrivialAndRight extends AbstractProofRule {
 
     @Override
     public ProofRuleApplication makeApplicationImpl(ProofNode target, Parameters parameters) throws RuleException {
-        Term on = parameters.getValue(ON_PARAM);
+        Term on = parameters.getValue(ON_PARAM).getTerm();
         ProofRuleApplicationBuilder builder = new ProofRuleApplicationBuilder(this);
 
         if(!(on instanceof ApplTerm)) {

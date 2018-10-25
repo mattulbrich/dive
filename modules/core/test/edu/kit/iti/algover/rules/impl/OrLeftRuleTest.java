@@ -66,7 +66,7 @@ public class OrLeftRuleTest {
 
         TermSelector ts = new TermSelector(TermSelector.SequentPolarity.ANTECEDENT, 0);
         Parameters params = new Parameters();
-        params.putValue("on", testSequent.getAntecedent().get(0).getTerm());
+        params.putValue("on", new TermParameter(testSequent.getAntecedent().get(0).getTerm(), testSequent));
 
         ProofRuleApplication pra = orLeftRule.considerApplication(pn, testSequent, ts);
         assertEquals(pra.getApplicability(), ProofRuleApplication.Applicability.APPLICABLE);

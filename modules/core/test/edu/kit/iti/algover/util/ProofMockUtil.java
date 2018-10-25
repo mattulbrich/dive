@@ -162,5 +162,19 @@ public class ProofMockUtil {
         PVC pvc = pb.build();
         return new Proof(project, pvc);
     }
+    
+    /**
+     * Create a mocked proof node from a parent and a sequent.
+     *
+     * @param parent          the parent node
+     * @param s               the sequent
+     * @return a new proof node
+     * @throws TermBuildException if formulas are not boolean
+     */
+    @TestInfrastructure
+    public static ProofNode mockProofNode(ProofNode parent, Sequent s) {
+        return new ProofNode(parent, null,
+                s, null);
+    }
 
 }

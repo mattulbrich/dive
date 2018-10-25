@@ -16,6 +16,7 @@ import edu.kit.iti.algover.project.ProjectManagerTest;
 import edu.kit.iti.algover.proof.PVCBuilderTest;
 import edu.kit.iti.algover.proof.ProofTest;
 import edu.kit.iti.algover.references.TermReferencesBuilderTest;
+import edu.kit.iti.algover.rules.TestRuleApplicator;
 import edu.kit.iti.algover.rules.impl.CutRuleTest;
 import edu.kit.iti.algover.rules.impl.DafnyRuleTest;
 import edu.kit.iti.algover.rules.impl.FunctionDefinitionExpansionRuleTest;
@@ -111,7 +112,8 @@ import edu.kit.iti.algover.util.UtilTest;
     FunctionDefinitionExpansionRuleTest.class,
     ReplacementVisitorTest.class,
     ReplaceVisitorTest.class,
-        RuleUtilTest.class
+        RuleUtilTest.class,
+        TestRuleApplicator.class
     })
 public class Tests {
 }
