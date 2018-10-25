@@ -352,6 +352,7 @@ public class MainController implements SequentActionListener, RuleApplicationLis
                 browserController.getView().setDisable(false);
                 sequentController.getView().setDisable(false);
                 ruleApplicationController.getView().setDisable(false);
+                ruleApplicationController.onReset();
                 simpleStratButton.setDisable(false);
                 breadCrumbBar.setDisable(false);
                 TreeItem<Object> ti = getBreadCrumbModel();

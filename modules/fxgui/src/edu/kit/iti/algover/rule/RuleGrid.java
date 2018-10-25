@@ -43,9 +43,11 @@ public class RuleGrid extends JFXMasonryPane {
     }
 
     public void addRule(RuleView rule) {
-        this.rules.add(rule);
-        this.allRules.add(rule);
-        this.getChildren().add(rule);
+        if(!allRules.contains(rule)) {
+            this.rules.add(rule);
+            this.allRules.add(rule);
+            this.getChildren().add(rule);
+        }
     }
 
     public SelectionModel<RuleView> getSelectionModel() {

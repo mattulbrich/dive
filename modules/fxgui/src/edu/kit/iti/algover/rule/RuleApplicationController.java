@@ -37,6 +37,8 @@ public class RuleApplicationController extends FxmlController {
 
     private final Logger logger;
 
+    private final ProjectManager manager;
+
     public RuleApplicationController(ExecutorService executor, RuleApplicationListener listener, ProjectManager manager) {
         super("RuleApplicationView.fxml");
         this.listener = listener;
@@ -44,6 +46,7 @@ public class RuleApplicationController extends FxmlController {
         this.scriptView = scriptController.getView();
 
         logger = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
+        this.manager = manager;
 
         for (ProofRule rule : manager.getProject().getAllProofRules()) {
             addProofRule(rule);
@@ -119,6 +122,12 @@ public class RuleApplicationController extends FxmlController {
         } catch (RuleException e) {
             //TODO handle exeptions
             logger.severe("Error while trying to apply rule " + rule.getName() + " exhaustive.");
+        }
+    }
+
+    public void onReset() {
+        for (ProofRule rule : manager.getProject().getAllProofRules()) {
+            addProofRule(rule);
         }
     }
 }
