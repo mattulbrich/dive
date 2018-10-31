@@ -98,6 +98,11 @@
         <result>BOOL</result>
     </operator>
     <operator>
+        <function>false</function>
+        <smtFunction>false</smtFunction>
+        <result>BOOL</result>
+    </operator>
+    <operator>
         <function>$eq</function>
         <smtFunction>=</smtFunction>
         <argument>UNIVERSE</argument>

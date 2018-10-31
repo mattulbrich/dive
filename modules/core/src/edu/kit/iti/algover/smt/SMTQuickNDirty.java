@@ -61,6 +61,8 @@ public class SMTQuickNDirty implements TermVisitor<Void, SExpr, RuntimeException
         ops.put("$len<int>", "arrlen");
         ops.put("$neg", "-");
         ops.put("null", "0");
+        ops.put("true", "true");
+        ops.put("false", "false");
     }
 
     @Override
