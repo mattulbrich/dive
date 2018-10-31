@@ -5,7 +5,6 @@
  */
 package edu.kit.iti.algover;
 
-import edu.kit.iti.algover.dafnystructures.DafnyTreeToDeclVisitorTest;
 import edu.kit.iti.algover.dafnystructures.TarjansAlgorithmTest;
 import edu.kit.iti.algover.parser.ChainedRelationsVisitorTest;
 import edu.kit.iti.algover.parser.ImplicitlyTypedVariableVisitorTest;
@@ -17,7 +16,7 @@ import edu.kit.iti.algover.proof.PVCBuilderTest;
 import edu.kit.iti.algover.proof.ProofTest;
 import edu.kit.iti.algover.references.TermReferencesBuilderTest;
 import edu.kit.iti.algover.rules.TestRuleApplicator;
-import edu.kit.iti.algover.rules.impl.CutRuleTest;
+import edu.kit.iti.algover.rules.impl.AddHypothesisRuleTest;
 import edu.kit.iti.algover.rules.impl.DafnyRuleTest;
 import edu.kit.iti.algover.rules.impl.FunctionDefinitionExpansionRuleTest;
 import edu.kit.iti.algover.rules.impl.GenericRuleTest;
@@ -105,7 +104,7 @@ import edu.kit.iti.algover.util.UtilTest;
     ImplicitlyTypedVariableVisitorTest.class,
     QuantifierGuardRemovalVisitorTest.class,
     ModifiesListResolverTest.class,
-    CutRuleTest.class,
+    AddHypothesisRuleTest.class,
     NotLeftRuleTest.class,
     OrLeftRuleTest.class,
     PropositionalExpanderTest.class,

@@ -5,7 +5,7 @@ import edu.kit.iti.algover.data.SymbolTable;
 import edu.kit.iti.algover.parser.DafnyException;
 import edu.kit.iti.algover.parser.DafnyParserException;
 import edu.kit.iti.algover.proof.ProofFormula;
-import edu.kit.iti.algover.rules.impl.CutRule;
+import edu.kit.iti.algover.rules.impl.AddHypothesisRule;
 import edu.kit.iti.algover.rules.impl.TrivialAndRight;
 import edu.kit.iti.algover.term.*;
 import edu.kit.iti.algover.term.builder.TermBuildException;
@@ -85,7 +85,7 @@ public class AbstractRuleTest {
     @Test
     public void getUniqueMatchingParameterTest2()
             throws FormatException, TermBuildException, RuleException, DafnyParserException, DafnyException {
-        CutRule rule = new CutRule();
+        AddHypothesisRule rule = new AddHypothesisRule();
         TermSelector selector = new TermSelector("A.0.0");
         TermParser tp = new TermParser(symbolTable);
         Sequent sequent = tp.parseSequent("i1 < i2 && i1 < i2 |- i1 < i2");

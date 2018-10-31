@@ -226,7 +226,7 @@ public class ScriptController implements ScriptViewListener {
                 List<ProofNodeCheckpoint> potCheckpoints = checkpoints.stream().filter(ch -> ch.selector.equals(proofNodeSelector)).collect(Collectors.toList());
                 if (potCheckpoints.size() > 0) {
                     insertPosition = potCheckpoints.get(potCheckpoints.size() - 1).caretPosition;
-                    switchViewedNode();
+                    //switchViewedNode();
                 }
             }
         }
