@@ -19,6 +19,7 @@ import org.fxmisc.flowless.VirtualizedScrollPane;
 
 import java.util.concurrent.ExecutorService;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
 public class RuleApplicationController extends FxmlController {
 
@@ -82,6 +83,7 @@ public class RuleApplicationController extends FxmlController {
 
     public void applyRule(ProofRuleApplication application) {
         try {
+            resetConsideration();
             scriptController.insertTextForSelectedNode(application.getScriptTranscript() + "\n");
         } catch(RuleException e) {
             Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).severe("Error applying rule: " + e.getMessage());
@@ -117,6 +119,7 @@ public class RuleApplicationController extends FxmlController {
             parameters.putValue("ruleName", rule.getName());
             parameters.putValue("on", new TermParameter(ts, pn.getSequent()));
             ProofRuleApplication pra = exRule.considerApplication(pn, parameters);
+            resetConsideration();
             scriptController.insertTextForSelectedNode(pra.getScriptTranscript());
             logger.info("Applied rule " + rule.getName() + " exhaustively.");
         } catch (RuleException e) {
@@ -126,8 +129,8 @@ public class RuleApplicationController extends FxmlController {
     }
 
     public void onReset() {
-        for (ProofRule rule : manager.getProject().getAllProofRules()) {
-            addProofRule(rule);
-        }
+        ruleGrid.setAllRules(manager.getProject().getAllProofRules().stream()
+                .map(rule -> new RuleView(rule, ruleGrid.getSelectionModel(), listener))
+                .collect(Collectors.toList()));
     }
 }

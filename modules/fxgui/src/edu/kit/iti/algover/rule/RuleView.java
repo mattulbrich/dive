@@ -125,4 +125,8 @@ public class RuleView extends StackPane {
     public ProofRuleApplication getApplication() {
         return application;
     }
+
+    public ProofRule getRule() {
+        return rule;
+    }
 }
