@@ -45,7 +45,7 @@ import java.util.function.Function;
 import static org.junit.Assert.assertEquals;
 
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
-@RunWith(Parameterized.class)
+@RunWith(ParallelParameterized.class)
 public class BoogieProcessTest {
 
     @Parameter

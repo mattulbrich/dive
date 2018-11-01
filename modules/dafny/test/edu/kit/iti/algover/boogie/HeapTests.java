@@ -14,7 +14,7 @@ import org.junit.runners.Parameterized.Parameters;
 import java.net.MalformedURLException;
 import java.util.List;
 
-@RunWith(Parameterized.class)
+@RunWith(ParallelParameterized.class)
 public class HeapTests extends BoogieProcessTest {
 
     @Parameters(name = "{1}")
