@@ -10,7 +10,7 @@ class C { var f : int; }
 
 ### sequent:
    !(o in mod),
-   !fresh(o)
+   $isCreated($heap, o)
 |- o.f@$anon($heap, mod, aheap) == o.f
 
 ### result:
@@ -25,15 +25,16 @@ const unique TClass_C : Ty;
 const unique _C$$f : Field int;
 
 axiom (forall x:ref :: $Is(x, TClass_C) <==> dtype(x) == TClass_C || x == null);
-axiom $Is(_$heap, THeap);
 axiom $Is(_mod, TSet(TObject));
-axiom $Is(_aheap, THeap);
 axiom $Is(_o, TClass_C);
+axiom $Is(_$heap, THeap);
+axiom $Is(_aheap, THeap);
 axiom $Is(_C$$f, TField(TInt));
 
 procedure Sequent()
   ensures false;
 {
-  assume !(s[o]);
+  assume !((_mod[_o]));
+  assume $IsCreated(_$heap, _o);
   assume !((read(anon(_$heap, _mod, _aheap), _o, _C$$f) == read(_$heap, _o, _C$$f)));
 }

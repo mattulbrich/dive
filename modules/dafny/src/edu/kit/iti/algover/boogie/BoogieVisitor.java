@@ -111,6 +111,7 @@ public class BoogieVisitor extends DefaultTermVisitor<Void, String, NoExceptions
         result.put(SELECT.getBaseName(), function("read"));
         result.put(LEN.getBaseName(), function("_System.array.Length"));
         result.put(NULL.getName(), constant("null"));
+        result.put(IS_CREATED.getName(), function("$IsCreated"));
         return result;
     }
 
