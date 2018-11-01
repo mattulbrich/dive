@@ -66,11 +66,11 @@ public class ProjectTest {
         List<DafnyFile> dafnyFiles = p.getDafnyFiles();
         System.out.println(dafnyFiles.stream().map(DafnyFile::getFilename).collect(Collectors.toList()));
         assertEquals(3, dafnyFiles.size());
-        assertEquals("test3.dfy", dafnyFiles.get(0).getName());
+        assertEquals(testDir + "/test3.dfy", dafnyFiles.get(0).getName());
         assertTrue(dafnyFiles.get(0).isInLibrary());
-        assertEquals("test.dfy", dafnyFiles.get(1).getName());
+        assertEquals(testDir + "/test.dfy", dafnyFiles.get(1).getName());
         assertFalse(dafnyFiles.get(1).isInLibrary());
-        assertEquals("test2.dfy", dafnyFiles.get(2).getName());
+        assertEquals(testDir + "/test2.dfy", dafnyFiles.get(2).getName());
         assertFalse(dafnyFiles.get(2).isInLibrary());
     }
 

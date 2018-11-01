@@ -136,6 +136,7 @@ public class Sort {
         BUILTIN_SORT_NAMES.add("field");
         BUILTIN_SORT_NAMES.add("heap");
         BUILTIN_SORT_NAMES.add("$nothing");
+        BUILTIN_SORT_NAMES.add("$tuple");
     }
 
     /**
@@ -303,13 +304,26 @@ public class Sort {
     /**
      * Checks if this sort belongs to a Dafny class.
      *
-     * Checks if the name is a builtin name
+     * Checks if the name is a builtin name.
      *
-     * @return <code>true</code>, iff this objects reprsents the sort for a
+     * @return <code>true</code>, iff this objects represents the sort for a
      *         Dafny class
      */
     public boolean isClassSort() {
         return !BUILTIN_SORT_NAMES.contains(getName());
+    }
+
+    /**
+     * Checks if this sort is a reference sort.
+     *
+     * This is the case for object, classes and arrays.
+     *
+     * Equivalent to calling {@code isSubtypeOf(OBJECT)}.
+     *
+     * @return <code>true</code>, iff this objects represents a ref type.
+     */
+    public boolean isReferenceSort() {
+        return isSubtypeOf(OBJECT);
     }
 
     /**
@@ -349,6 +363,16 @@ public class Sort {
             case "multiset":
             case "seq":
                 return getArgument(0).isSubtypeOf(other.getArgument(0));
+            case "$tuple":
+                if (arguments.length != other.arguments.length) {
+                    return false;
+                }
+                for (int i = 0; i < arguments.length; i++) {
+                    if(!getArgument(i).isSubtypeOf(other.getArgument(i))) {
+                        return false;
+                    }
+                }
+                return true;
             // case "map": that would be contravariant in the first argument!
             }
         }

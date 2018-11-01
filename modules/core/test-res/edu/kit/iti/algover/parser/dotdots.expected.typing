@@ -1,0 +1,8 @@
+(method dotdots (ARGS (VAR s (TYPE (seq int)))
+                      (VAR a (TYPE (array int))))
+        (requires (== s[seq<int>]
+                      (ARRAY_ACCESS a[array<int>] (.. ARGS))[seq<int>])[bool])
+        (ensures (&& (== (ARRAY_ACCESS s[seq<int>] (.. 0[int]))[seq<int>]
+                         (ARRAY_ACCESS s[seq<int>] (.. ARGS 1[int]))[seq<int>])[bool]
+                         (== (ARRAY_ACCESS s[seq<int>] (.. ARGS 1[int]))[seq<int>]
+                             (ARRAY_ACCESS s[seq<int>] (.. 0[int] 1[int]))[seq<int>])[bool])[bool]) BLOCK)[scc_17]

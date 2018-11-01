@@ -5,17 +5,12 @@ import edu.kit.iti.algover.data.MapSymbolTable;
 import edu.kit.iti.algover.data.SymbolTable;
 import edu.kit.iti.algover.parser.DafnyException;
 import edu.kit.iti.algover.parser.DafnyParserException;
-import edu.kit.iti.algover.parser.DafnyTree;
-import edu.kit.iti.algover.proof.ProofFormula;
 import edu.kit.iti.algover.proof.ProofNode;
 import edu.kit.iti.algover.rules.*;
 import edu.kit.iti.algover.term.FunctionSymbol;
 import edu.kit.iti.algover.term.Sequent;
 import edu.kit.iti.algover.term.Sort;
-import edu.kit.iti.algover.term.Term;
 import edu.kit.iti.algover.term.builder.TermBuildException;
-import edu.kit.iti.algover.term.builder.TreeTermTranslator;
-import edu.kit.iti.algover.term.builder.TreeTermTranslatorTest;
 import edu.kit.iti.algover.term.parser.TermParser;
 import edu.kit.iti.algover.util.ProofMockUtil;
 import org.junit.Before;
@@ -30,7 +25,7 @@ import static org.junit.Assert.assertEquals;
 /**
  * Created by jklamroth on 5/16/18.
  */
-public class CutRuleTest {
+public class AddHypothesisRuleTest {
     SymbolTable symbTable;
     Sequent testSequent;
 
@@ -49,9 +44,9 @@ public class CutRuleTest {
         String sequentString = "b1 || b2, b3 |- b3 && b2 || b3 && b1";
         Sequent s = tp.parseSequent(sequentString);
         ProofNode pn = ProofMockUtil.mockProofNode(null, s.getAntecedent(), s.getSuccedent());
-        CutRule rule = new CutRule();
+        AddHypothesisRule rule = new AddHypothesisRule();
         Parameters params = new Parameters();
-        params.putValue("with", tp.parse("b1"));
+        params.putValue("with", new TermParameter(tp.parse("b1"), s));
         ProofRuleApplication pra = rule.makeApplication(pn,  params);
         List<ProofNode> newNodes = RuleApplicator.applyRule(pra, pn);
 

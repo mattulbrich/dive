@@ -333,6 +333,11 @@ public final class Util {
         return sb.toString();
     }
 
+    @SuppressWarnings("unchecked")
+    public static <E> Set<E> asSet(E... es) {
+        return new HashSet<E>(Arrays.asList(es));
+    }
+
     /**
      * A wrapper class for the collection framework. It renders an array into an
      * immutable list.

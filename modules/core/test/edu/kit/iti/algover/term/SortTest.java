@@ -75,6 +75,16 @@ public class SortTest {
             { Sort.NULL, Sort.BOTTOM, true},
             { Sort.BOTTOM, Sort.UNTYPED_SORT, true},
             { Sort.UNTYPED_SORT, Sort.BOTTOM, false},
+
+            { Sort.get("$tuple", CLASS_SORT, Sort.OBJECT),
+              Sort.get("$tuple", CLASS_SORT, CLASS_SORT), true },
+            { Sort.get("$tuple", CLASS_SORT, Sort.OBJECT),
+              Sort.get("$tuple", Sort.OBJECT, CLASS_SORT), false },
+            { Sort.get("$tuple", CLASS_SORT, Sort.OBJECT),
+              Sort.get("$tuple", CLASS_SORT), false },
+            { Sort.get("$tuple"), Sort.get("$tuple"), true },
+            { Sort.get("$tuple", Sort.INT),
+              Sort.get("$tuple", Sort.OBJECT), false },
         };
     }
 

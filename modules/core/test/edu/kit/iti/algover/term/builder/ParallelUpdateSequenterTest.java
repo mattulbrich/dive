@@ -13,6 +13,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import edu.kit.iti.algover.data.SymbolTable;
+import edu.kit.iti.algover.term.Term;
+import edu.kit.iti.algover.term.parser.TermParser;
 import org.junit.Ignore;
 import org.junit.Test;
 
@@ -51,16 +54,27 @@ public class ParallelUpdateSequenterTest extends SequenterTest {
 
     // for the normal upd-sequenter "[$gt(p, 0), (let $mod := m :: (let local := p :: $gt(local, 0)))]";
     protected String expectedAntecedent(String string) {
-        return "[$gt(p, 0), (let $mod, $decr, local := m, $plus(p, 1), p :: $gt(local, 0))]";
+        return "[$gt(p, 0), (let $mod, $decr, $oldheap, local := m, $plus(p, 1), $heap, p :: $gt(local, 0))]";
     }
 
     // for the normal upd-sequenter "[(let $mod := m :: (let local := p :: (let r := local :: $gt(r, 0))))]";
     protected String expectedSuccedent(String string) {
-        return "[(let $mod, $decr, local, r := m, $plus(p, 1), p, p :: $gt(r, 0))]";
+        return "[(let $mod, $decr, $oldheap, local, r, $heap := m, $plus(p, 1), $heap, p, p, $heap :: $gt(r, 0))]";
     }
 
     @Override
     protected PVCSequenter makeSequenter() {
         return new ParallelUpdateSequenter();
+    }
+
+    protected void checkSequentWithOld(SymbolTable table, Sequent sequent) throws Exception {
+
+        assertEquals("|- (let $mod, $decr, $oldheap, $heap := " +
+                "$empty, 0, $heap, $store<C,int>($heap, c, C$$i, $plus($select<C,int>($heap, c, C$$i), 1)) :: " +
+                "$eq<int>($select<C,int>($heap, c, C$$i), " +
+                "$plus((let $heap := $oldheap :: $select<C,int>($heap, c, C$$i)), 1)))", sequent.toString());
+
+        Term inlined = LetInlineVisitor.inline(sequent.getSuccedent().get(0).getTerm());
+        assertEquals(TermParser.parse(table, "c.i@$heap[c.i:=c.i+1] == c.i + 1"), inlined);
     }
 }

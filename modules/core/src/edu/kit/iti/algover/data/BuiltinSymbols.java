@@ -32,11 +32,16 @@ import edu.kit.iti.algover.util.Util;
  */
 public class BuiltinSymbols extends MapSymbolTable {
 
+    public static final Sort ARRAY1 =
+            Sort.get("array", FunctionSymbolFamily.VAR1);
+
+    public static final Sort ARRAY2_1 =
+            Sort.get("array2", FunctionSymbolFamily.VAR1);
+
     public static final FunctionSymbolFamily ARRAY_SELECT =
             new FunctionSymbolFamily(
                     new FunctionSymbol("$array_select", FunctionSymbolFamily.VAR1,
-                            Sort.HEAP, Sort.get("array", FunctionSymbolFamily.VAR1),
-                            Sort.INT), 1);
+                            Sort.HEAP, ARRAY1, Sort.INT), 1);
 
     // Checkstyle: OFF JavadocVariableCheck
 
@@ -93,20 +98,20 @@ public class BuiltinSymbols extends MapSymbolTable {
     public static final FunctionSymbolFamily ARRAY2_SELECT =
             new FunctionSymbolFamily(
                     new FunctionSymbol("$array2_select", FunctionSymbolFamily.VAR1,
-                            Sort.HEAP, Sort.get("array2", FunctionSymbolFamily.VAR1),
+                            Sort.HEAP, ARRAY2_1,
                             Sort.INT, Sort.INT), 1);
     public static final FunctionSymbolFamily LEN =
             new FunctionSymbolFamily(
                     new FunctionSymbol("$len", Sort.INT,
-                            Sort.get("array", FunctionSymbolFamily.VAR1)), 1);
+                            ARRAY1), 1);
     public static final FunctionSymbolFamily LEN0 =
             new FunctionSymbolFamily(
                     new FunctionSymbol("$len0", Sort.INT,
-                            Sort.get("array2", FunctionSymbolFamily.VAR1)), 1);
+                            ARRAY2_1), 1);
     public static final FunctionSymbolFamily LEN1 =
             new FunctionSymbolFamily(
                     new FunctionSymbol("$len1", Sort.INT,
-                            Sort.get("array2", FunctionSymbolFamily.VAR1)), 1);
+                            ARRAY2_1), 1);
     public static final FunctionSymbol NULL =
             new FunctionSymbol("null", Sort.NULL);
 
@@ -124,7 +129,7 @@ public class BuiltinSymbols extends MapSymbolTable {
             new FunctionSymbolFamily(
                     new FunctionSymbol("$array_store", Sort.HEAP,
                             Sort.HEAP,
-                            Sort.get("array", FunctionSymbolFamily.VAR1),
+                            ARRAY1,
                             Sort.INT,
                             FunctionSymbolFamily.VAR1), 1);
 
@@ -132,7 +137,7 @@ public class BuiltinSymbols extends MapSymbolTable {
             new FunctionSymbolFamily(
                     new FunctionSymbol("$array2_store", Sort.HEAP,
                             Sort.HEAP,
-                            Sort.get("array2", FunctionSymbolFamily.VAR1),
+                            ARRAY2_1,
                             Sort.INT,
                             Sort.INT,
                             FunctionSymbolFamily.VAR1), 1);
@@ -233,6 +238,10 @@ public class BuiltinSymbols extends MapSymbolTable {
             new FunctionSymbolFamily(
                     new FunctionSymbol("$seq_sub", SEQ1, SEQ1, Sort.INT, Sort.INT), 1);
 
+    public static final FunctionSymbolFamily ARRAY_TO_SEQ =
+            new FunctionSymbolFamily(
+                    new FunctionSymbol("$array2seq", SEQ1, Sort.HEAP, ARRAY1),1);
+
     private static final Sort SET_OBJECTS = Sort.get("set", Sort.OBJECT);
 
     public static final FunctionSymbol EVERYTHING =
@@ -246,6 +255,7 @@ public class BuiltinSymbols extends MapSymbolTable {
 
     public static final FunctionSymbol IS_CREATED =
             new FunctionSymbol("$isCreated", Sort.BOOL, Sort.HEAP, Sort.OBJECT);
+
 
     // Checkstyle: ON JavadocVariableCheck
     private final Map<String, FunctionSymbolFamily> symbolFamilies =
