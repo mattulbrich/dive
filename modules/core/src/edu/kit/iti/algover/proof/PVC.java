@@ -129,9 +129,9 @@ public class PVC {
         return sequent;
     }
 
-   /* public SymbolTable getBaseSymbolTable() {
+    public SymbolTable getBaseSymbolTable() {
         return baseSymbolTable;
-    }*/
+    }
 
     public String getIdentifier() {
         return identifier;
@@ -154,6 +154,7 @@ public class PVC {
         this.addedSymbols = addedSymbols;
     }
 
+    /** Get all symbols: baseSymbols combined with added symbols. */
     public SymbolTable getAllSymbols() {
         return new MapSymbolTable(baseSymbolTable, addedSymbols.getAllSymbols());
     }
