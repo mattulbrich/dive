@@ -1,23 +1,17 @@
 package edu.kit.iti.algover.rules;
 
 
-import edu.kit.iti.algover.proof.Proof;
 import edu.kit.iti.algover.proof.ProofFormula;
 import edu.kit.iti.algover.proof.ProofNode;
-import edu.kit.iti.algover.rules.ProofRuleApplication.Applicability;
 import edu.kit.iti.algover.term.Sequent;
 import edu.kit.iti.algover.term.Term;
 import edu.kit.iti.algover.term.builder.ReplaceVisitor;
 import edu.kit.iti.algover.term.builder.TermBuildException;
 import edu.kit.iti.algover.util.ImmutableList;
 import edu.kit.iti.algover.util.Pair;
-import edu.kit.iti.algover.util.RuleUtil;
 
 
-import javax.naming.OperationNotSupportedException;
-import javax.xml.soap.Node;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 /**
@@ -50,6 +44,8 @@ public class RuleApplicator {
     private static List<ProofNode> applySingleApplication(ProofRuleApplication proofRuleApplication, ProofNode pn) {
 
         ImmutableList<BranchInfo> applicationInfos = proofRuleApplication.getBranchInfo();
+        proofRuleApplication.getNewFunctionSymbols().forEach(
+                functionSymbol -> pn.getPVC().getAddedSymbols().addFunctionSymbol(functionSymbol));
         if (applicationInfos.equals(BranchInfo.UNCHANGED)) {
             ProofNode unchanged = new ProofNode(pn, proofRuleApplication, pn.getSequent(), pn.getPVC());
             //pn.getChildren().add(unchanged);

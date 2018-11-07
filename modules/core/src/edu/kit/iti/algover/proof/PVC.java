@@ -6,10 +6,13 @@
 package edu.kit.iti.algover.proof;
 
 
+import java.util.ArrayList;
 import java.util.Map;
 
 import edu.kit.iti.algover.dafnystructures.DafnyClass;
 import edu.kit.iti.algover.dafnystructures.DafnyDecl;
+import edu.kit.iti.algover.data.BuiltinSymbols;
+import edu.kit.iti.algover.data.MapSymbolTable;
 import edu.kit.iti.algover.data.SymbolTable;
 import edu.kit.iti.algover.parser.DafnyTree;
 import edu.kit.iti.algover.project.Project;
@@ -60,10 +63,14 @@ public class PVC {
     private final @NonNull Map<TermSelector, DafnyTree> referenceMap;
 
     /**
-     * The symbol table containing all symbols which occur in the
-     * {@link #sequent}.
+     * The symbol table containing all base symbols (in contrast to added symbols while applying rules) which
+     * occur in the {@link #sequent}.
      */
-    private final @NonNull SymbolTable symbolTable;
+    private final @NonNull SymbolTable baseSymbolTable;
+
+    private @NonNull SymbolTable addedSymbols;
+
+
     private final Project project;
     /**
      * The identifier of this PVC.
@@ -83,7 +90,8 @@ public class PVC {
         this.pathThroughProgram = builder.getPathThroughProgram();
         this.declaration = builder.getDeclaration();
         this.sequent = builder.getSequent();
-        this.symbolTable = builder.getSymbolTable();
+        this.baseSymbolTable = builder.getSymbolTable();
+        this.addedSymbols = new MapSymbolTable(new ArrayList<>());
         this.identifier = getDeclarationPrefix()
                 + "/" + builder.getPathIdentifier();
         this.referenceMap = builder.getReferenceMap();
@@ -121,9 +129,9 @@ public class PVC {
         return sequent;
     }
 
-    public SymbolTable getSymbolTable() {
-        return symbolTable;
-    }
+   /* public SymbolTable getBaseSymbolTable() {
+        return baseSymbolTable;
+    }*/
 
     public String getIdentifier() {
         return identifier;
@@ -135,5 +143,18 @@ public class PVC {
 
     public Project getProject() {
         return project;
+    }
+
+    /** The symbol table containing the symbols added by rule applications.*/
+    public SymbolTable getAddedSymbols() {
+        return addedSymbols;
+    }
+
+    public void setAddedSymbols(SymbolTable addedSymbols) {
+        this.addedSymbols = addedSymbols;
+    }
+
+    public SymbolTable getAllSymbols() {
+        return new MapSymbolTable(baseSymbolTable, addedSymbols.getAllSymbols());
     }
 }

@@ -20,7 +20,6 @@ import edu.kit.iti.algover.rules.ProofRuleApplication;
 import edu.kit.iti.algover.rules.ProofRuleApplication.Applicability;
 import edu.kit.iti.algover.rules.ProofRuleApplicationBuilder;
 import edu.kit.iti.algover.rules.RuleException;
-import edu.kit.iti.algover.rules.TermSelector;
 import edu.kit.iti.algover.smt.SExpr;
 import edu.kit.iti.algover.smt.SMTQuickNDirty;
 import edu.kit.iti.algover.term.FunctionSymbol;
@@ -74,7 +73,7 @@ public class Z3Rule extends AbstractProofRule {
     private ProofRuleApplication refine(ProofNode target, ProofRuleApplication app) {
         PVC pvc = target.getPVC();
 
-        if(quickAndDirty(target.getPVC().getIdentifier(), target.getSequent(), pvc.getSymbolTable())) {
+        if(quickAndDirty(target.getPVC().getIdentifier(), target.getSequent(), pvc.getAllSymbols())) {
             ProofRuleApplicationBuilder builder = new ProofRuleApplicationBuilder(app);
             builder.setApplicability(Applicability.APPLICABLE);
             builder.setRefiner(null);
@@ -92,7 +91,7 @@ public class Z3Rule extends AbstractProofRule {
     public ProofRuleApplication makeApplicationImpl(ProofNode target, Parameters parameters) throws RuleException {
         PVC pvc = target.getPVC();
 
-        if(quickAndDirty(target.getPVC().getIdentifier(), target.getSequent(), pvc.getSymbolTable())) {
+        if(quickAndDirty(target.getPVC().getIdentifier(), target.getSequent(), pvc.getAllSymbols())) {
             ProofRuleApplicationBuilder builder = new ProofRuleApplicationBuilder(this);
             builder.setApplicability(Applicability.APPLICABLE);
             builder.setRefiner(null);

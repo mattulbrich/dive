@@ -8,7 +8,6 @@ import edu.kit.iti.algover.term.prettyprint.PrettyPrint;
 import edu.kit.iti.algover.util.RuleParameterDialog;
 import javafx.css.PseudoClass;
 import javafx.event.ActionEvent;
-import javafx.scene.control.Dialog;
 import javafx.scene.control.Label;
 import javafx.scene.layout.AnchorPane;
 
@@ -97,7 +96,7 @@ public class RuleViewOverlay extends AnchorPane {
             } catch (RuleException e) {
                 on = null;
             }
-            RuleParameterDialog d = new RuleParameterDialog(this.application.getRule(), listener.getCurrentPVC().getSymbolTable(),
+            RuleParameterDialog d = new RuleParameterDialog(this.application.getRule(), listener.getCurrentPVC().getAllSymbols(),
                     listener.getCurrentProofNode().getSequent(), on);
             d.showAndWait();
             if (d.getParameters() != null) {

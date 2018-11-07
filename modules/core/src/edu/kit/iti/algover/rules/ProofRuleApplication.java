@@ -6,10 +6,16 @@
 package edu.kit.iti.algover.rules;
 
 import edu.kit.iti.algover.proof.ProofNode;
+import edu.kit.iti.algover.term.FunctionSymbol;
 import edu.kit.iti.algover.util.ImmutableList;
 import nonnull.DeepNonNull;
 import nonnull.NonNull;
 import nonnull.Nullable;
+
+import java.util.List;
+
+import static edu.kit.iti.algover.util.ImmutableList.from;
+import static edu.kit.iti.algover.util.ImmutableList.nil;
 
 /**
  * This class captures potential applications of proof rules.
@@ -79,6 +85,13 @@ public final class ProofRuleApplication {
      */
     private final @Nullable Refiner refiner;
 
+
+    /**
+     * New function symbols introduced by this ruleApplication. These get added to the PVCs FunctionSymbols
+     * if the application gets applied.
+     */
+    private final ImmutableList<FunctionSymbol> newFunctionSymbols;
+
     /**
      * Instantiates a new proof rule application.
      *
@@ -107,7 +120,8 @@ public final class ProofRuleApplication {
             @NonNull Parameters parameters,
             @NonNull Parameters openParameters,
             @Nullable Refiner refiner,
-            @Nullable ImmutableList<ProofRuleApplication> subApplications) {
+            @Nullable ImmutableList<ProofRuleApplication> subApplications,
+            @Nullable ImmutableList<FunctionSymbol> newFunctionsymbols) {
         this.rule = rule;
         this.branchInfo = branchInfo;
         this.applicability = applicability;
@@ -116,6 +130,11 @@ public final class ProofRuleApplication {
         this.openParameters = openParameters;
         openParameters.setImmutable();
         this.subApplications = subApplications;
+        if(newFunctionsymbols != null) {
+            this.newFunctionSymbols = newFunctionsymbols;
+        } else {
+            this.newFunctionSymbols = ImmutableList.nil();
+        }
 
         if(subApplications != null && subApplications.size() != branchInfo.size()) {
             throw new IllegalArgumentException(
@@ -192,7 +211,7 @@ public final class ProofRuleApplication {
      */
     private ProofRuleApplication thisWithoutRefiner() {
         return new ProofRuleApplication(rule, branchInfo, applicability, parameters,
-                openParameters, null, subApplications);
+                openParameters, null, subApplications, newFunctionSymbols);
     }
 
     /**
@@ -292,6 +311,10 @@ public final class ProofRuleApplication {
      */
     public String getScriptTranscript() throws RuleException {
         return this.getRule().getTranscript(this);
+    }
+
+    public ImmutableList<FunctionSymbol> getNewFunctionSymbols() {
+        return newFunctionSymbols;
     }
 
     /**

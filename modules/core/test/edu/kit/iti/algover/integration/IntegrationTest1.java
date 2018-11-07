@@ -85,10 +85,10 @@ public class IntegrationTest1 {
     public void testZ3Verification() throws Exception {
 
         Sequent sequent = pvc.getSequent();
-        pvc.getSymbolTable().getAllSymbols().forEach(System.out::println);
+        pvc.getAllSymbols().getAllSymbols().forEach(System.out::println);
 
-        Z3Solver z3 = new Z3Solver(project, pvc.getSymbolTable());
-        TermBuilder tb = new TermBuilder(pvc.getSymbolTable());
+        Z3Solver z3 = new Z3Solver(project, pvc.getAllSymbols());
+        TermBuilder tb = new TermBuilder(pvc.getAllSymbols());
 
         List<Term> formulae = new ArrayList<>();
         for (ProofFormula formula : sequent.getAntecedent()) {

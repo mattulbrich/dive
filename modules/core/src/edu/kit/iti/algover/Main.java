@@ -73,7 +73,7 @@ public class Main {
             }
 
             SymbexStateToFormula magic = new SymbexStateToFormula(t);
-//            Z3Solver z3 = new Z3Solver(magic.getSymbolTable());
+//            Z3Solver z3 = new Z3Solver(magic.getBaseSymbolTable());
 
             for (SymbexPath single : res.split()) {
                 System.out.println(single.getPathIdentifier());
