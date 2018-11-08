@@ -20,6 +20,7 @@ import edu.kit.iti.algover.rules.impl.AddHypothesisRuleTest;
 import edu.kit.iti.algover.rules.impl.DafnyRuleTest;
 import edu.kit.iti.algover.rules.impl.FunctionDefinitionExpansionRuleTest;
 import edu.kit.iti.algover.rules.impl.GenericRuleTest;
+import edu.kit.iti.algover.rules.impl.IntegerSimplificationTest;
 import edu.kit.iti.algover.rules.impl.LetSubstitutionRuleTest;
 import edu.kit.iti.algover.rules.impl.NotLeftRuleTest;
 import edu.kit.iti.algover.rules.impl.OrLeftRuleTest;
@@ -116,7 +117,8 @@ import edu.kit.iti.algover.util.UtilTest;
     RuleUtilTest.class,
     TestRuleApplicator.class,
     SkolemizationTest.class,
-    QuantifierInstantiation.class
+    QuantifierInstantiation.class,
+    IntegerSimplificationTest.class
     })
 public class Tests {
 }
