@@ -1,22 +1,16 @@
 package edu.kit.iti.algover.rules.impl;
 
-import edu.kit.iti.algover.proof.ProofFormula;
 import edu.kit.iti.algover.proof.ProofNode;
 import edu.kit.iti.algover.rules.*;
-import edu.kit.iti.algover.term.Sequent;
 import edu.kit.iti.algover.term.Term;
-import edu.kit.iti.algover.util.Pair;
 import edu.kit.iti.algover.util.RuleUtil;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 public class CloseRule extends AbstractProofRule {
 
     public CloseRule() {
-        super(new ParameterDescription<>("on", ParameterType.TERM, false));
+        super(new ParameterDescription<>("on", ParameterType.MATCH_TERM, false));
     }
 
     @Override
@@ -28,7 +22,7 @@ public class CloseRule extends AbstractProofRule {
     public ProofRuleApplication considerApplicationImpl(ProofNode target, Parameters parameters) throws RuleException {
         Term on = null;
         if(parameters.entrySet().size() > 0) {
-            on = (Term)parameters.getValue("on");
+            on = parameters.getValue(ON_PARAM).getTerm();
         }
 
         try {
@@ -44,7 +38,7 @@ public class CloseRule extends AbstractProofRule {
     public ProofRuleApplication makeApplicationImpl(ProofNode target, Parameters parameters) throws RuleException {
         Term on = null;
         if(parameters.entrySet().size() > 0) {
-            on = (Term)parameters.getValue("on");
+            on = parameters.getValue(ON_PARAM).getTerm();
         }
         return buildApplication(target, on);
     }

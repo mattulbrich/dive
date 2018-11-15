@@ -73,6 +73,7 @@ public class ParserTest {
                 { "newCommand.dfy" },
                 { "methodCalls.dfy" },
                 { "schwarz1.dfy" },
+                { "dotdot.dfy" },
                 });
     }
 

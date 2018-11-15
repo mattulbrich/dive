@@ -1,5 +1,6 @@
 package edu.kit.iti.algover.proof;
 
+import edu.kit.iti.algover.data.MapSymbolTable;
 import edu.kit.iti.algover.project.Project;
 import edu.kit.iti.algover.script.ast.*;
 import edu.kit.iti.algover.script.exceptions.InterpreterRuntimeException;
@@ -135,6 +136,7 @@ public class Proof {
         assert script != null;
 
         ProofNode newRoot = ProofNode.createRoot(pvc);
+        pvc.setAddedSymbols(new MapSymbolTable(new ArrayList<>()));
 
         try {
             // TODO Exception handling

@@ -5,6 +5,7 @@
  */
 package edu.kit.iti.algover;
 
+import edu.kit.iti.algover.dafnystructures.TarjansAlgorithmTest;
 import edu.kit.iti.algover.parser.ChainedRelationsVisitorTest;
 import edu.kit.iti.algover.parser.ImplicitlyTypedVariableVisitorTest;
 import edu.kit.iti.algover.parser.ModifiesListResolverTest;
@@ -14,13 +15,22 @@ import edu.kit.iti.algover.project.ProjectManagerTest;
 import edu.kit.iti.algover.proof.PVCBuilderTest;
 import edu.kit.iti.algover.proof.ProofTest;
 import edu.kit.iti.algover.references.TermReferencesBuilderTest;
+import edu.kit.iti.algover.rules.TestRuleApplicator;
+import edu.kit.iti.algover.rules.impl.AddHypothesisRuleTest;
 import edu.kit.iti.algover.rules.impl.DafnyRuleTest;
+import edu.kit.iti.algover.rules.impl.FunctionDefinitionExpansionRuleTest;
 import edu.kit.iti.algover.rules.impl.GenericRuleTest;
+import edu.kit.iti.algover.rules.impl.IntegerSimplificationTest;
 import edu.kit.iti.algover.rules.impl.LetSubstitutionRuleTest;
+import edu.kit.iti.algover.rules.impl.NotLeftRuleTest;
+import edu.kit.iti.algover.rules.impl.OrLeftRuleTest;
+import edu.kit.iti.algover.rules.impl.PropositionalExpanderTest;
+import edu.kit.iti.algover.rules.impl.QuantifierInstantiation;
+import edu.kit.iti.algover.rules.impl.SkolemizationTest;
 import edu.kit.iti.algover.symbex.FunctionObligationMakerTest;
-import edu.kit.iti.algover.symbex.SymbexExpressionValidator;
 import edu.kit.iti.algover.symbex.SymbexExpressionValidatorTest;
 import edu.kit.iti.algover.term.builder.ParallelUpdateSequenterTest;
+import edu.kit.iti.algover.term.builder.ReplaceVisitorTest;
 import edu.kit.iti.algover.term.builder.SSASequenterTest;
 import edu.kit.iti.algover.term.builder.SimplifiedUpdateSequenterTest;
 import edu.kit.iti.algover.term.builder.TreeAssignmentTranslatorTest;
@@ -87,6 +97,7 @@ import edu.kit.iti.algover.util.UtilTest;
     InlineSequenterTest.class,
     SSASequenterTest.class,
     PVCBuilderTest.class,
+    TarjansAlgorithmTest.class,
     PrettyPrintTest.class,
     TermReferencesBuilderTest.class,
     IntegrationTest1.class,
@@ -96,7 +107,18 @@ import edu.kit.iti.algover.util.UtilTest;
     ImplicitlyTypedVariableVisitorTest.class,
     QuantifierGuardRemovalVisitorTest.class,
     ModifiesListResolverTest.class,
-        RuleUtilTest.class
+    AddHypothesisRuleTest.class,
+    NotLeftRuleTest.class,
+    OrLeftRuleTest.class,
+    PropositionalExpanderTest.class,
+    FunctionDefinitionExpansionRuleTest.class,
+    ReplacementVisitorTest.class,
+    ReplaceVisitorTest.class,
+    RuleUtilTest.class,
+    TestRuleApplicator.class,
+    SkolemizationTest.class,
+    QuantifierInstantiation.class,
+    IntegerSimplificationTest.class
     })
 public class Tests {
 }

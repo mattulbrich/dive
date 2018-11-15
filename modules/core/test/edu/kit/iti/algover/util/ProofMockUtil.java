@@ -163,4 +163,42 @@ public class ProofMockUtil {
         return new Proof(project, pvc);
     }
 
+    /**
+     * Make a proof for a sequent.
+     *
+     * @param sequent the sequent to use as root
+     * @param symboltable the table to use
+     * @return a fresh mock proof object
+     */
+    @TestInfrastructure
+    public static Proof makeProofWithRoot(SymbolTable symboltable, Sequent sequent) throws DafnyParserException, DafnyException, RecognitionException, IOException {
+        if(project == null) {
+            project = TestUtil.mockProject("method m() ensures true {}");
+        }
+        MockPVCBuilder pb = new MockPVCBuilder();
+        pb.setDeclaration(project.getMethod("m"));
+        pb.setSymbolTable(symboltable);
+        pb.setSequent(sequent);
+        pb.setPathIdentifier("test");
+        pb.setReferenceMap(Collections.emptyMap());
+        PVC pvc = pb.build();
+        Proof p = new Proof(project, pvc);
+        p.setScriptTextAndInterpret("");
+        return p;
+    }
+    
+    /**
+     * Create a mocked proof node from a parent and a sequent.
+     *
+     * @param parent          the parent node
+     * @param s               the sequent
+     * @return a new proof node
+     * @throws TermBuildException if formulas are not boolean
+     */
+    @TestInfrastructure
+    public static ProofNode mockProofNode(ProofNode parent, Sequent s) {
+        return new ProofNode(parent, null,
+                s, null);
+    }
+
 }

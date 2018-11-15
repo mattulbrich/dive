@@ -125,7 +125,8 @@ public class ProofRuleHandler implements CommandHandler<ProofNode> {
                 List<ProofNode> newGoals = new ArrayList<>();
 
                 //add new nodes to state, remove expanded node from state
-                newGoals.addAll(newNodes);
+                //since we added nested applications there maybe also nested ProofNOdes returned
+                newNodes.stream().forEach(proofNode -> newGoals.addAll(getAllNewGoals(proofNode)));
                 //change state depending on whether proof branch is closed or not
                 if (newGoals.size() >= 1) {
                     interpreter.getCurrentState().getGoals().addAll(newGoals);
@@ -147,6 +148,18 @@ public class ProofRuleHandler implements CommandHandler<ProofNode> {
         }
 
 
+    }
+
+    private List<ProofNode> getAllNewGoals(ProofNode pn) {
+        List<ProofNode> res = new ArrayList<>();
+        if(pn.getChildren().size() == 0) {
+            res.add(pn);
+        } else {
+            for(ProofNode p : pn.getChildren()) {
+                res.addAll(getAllNewGoals(p));
+            }
+        }
+        return res;
     }
 
 

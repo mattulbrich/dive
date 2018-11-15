@@ -81,6 +81,7 @@ ENSURES: 'ensures';
 EX: 'exists';
 FALSE: 'false';
 FREE: 'free';
+FRESH: 'fresh';
 FUNCTION: 'function';
 IF: 'if';
 IN : 'in';
@@ -94,6 +95,7 @@ METHOD: 'method';
 MODIFIES: 'modifies';
 MULTISET: 'multiset';
 NEW: 'new';
+NOTIN: '!in';
 NULL: 'null';
 OBJECT : 'object';
 OLD : 'old';
@@ -113,7 +115,8 @@ WHILE: 'while';
 
 DOUBLE_BLANK: '__';
 BLANK: '_';
-ELLIPSIS : '...';
+ELLIPSIS: '...';
+DOTDOT: '..';
 DOUBLECOLON: '::';
 ASSIGN: ':=';
 OR: '||';
@@ -461,7 +464,9 @@ postfix_expr:
   ( atom_expr -> atom_expr )   // see ANTLR ref. page 175
   ( '[' expression ( {logicMode}? ':=' expression ']'     -> ^( HEAP_UPDATE $postfix_expr expression expression )
                    | ( ',' expression )* ']' -> ^( ARRAY_ACCESS $postfix_expr expression+ )
+                   | '..' expression? ']' -> ^( ARRAY_ACCESS $postfix_expr ^('..' expression+))
                    )
+  | '[' '..' expression? ']' -> ^( ARRAY_ACCESS $postfix_expr ^('..' ARGS expression?) )
   | '.' LENGTH -> ^( LENGTH $postfix_expr )
   | '.' ID '(' expressions? ')' -> ^( CALL ID $postfix_expr ^(ARGS expressions?) )
   | '.' ID -> ^( FIELD_ACCESS $postfix_expr ID )

@@ -136,7 +136,7 @@ public class SequentController extends FxmlController {
         viewSequentForPVC(entity, proof);
     }
 
-    public void updateReferenceGraph(ReferenceGraph graph) {
+    public void setReferenceGraph(ReferenceGraph graph) {
         referenceGraph = graph;
     }
 
@@ -173,6 +173,9 @@ public class SequentController extends FxmlController {
                     nodeBefore = activeNode.get(activeProof);
                 }
                 listener.onSwitchViewedNode(activeNode);
+                if(lastClickedTerm.selected().get() != null && lastClickedTerm.selected().get().isValidForSequent(getActiveNode().getSequent())) {
+                    listener.onClickSequentSubterm(lastClickedTerm.selected().get());
+                }
             } catch (RuleException e) {
                 e.printStackTrace(); // should not happen, as long as the activeNode selector is correct
                 return;

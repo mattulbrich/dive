@@ -66,7 +66,7 @@ public class FunctionDefinitionExpansionRule extends AbstractProofRule {
 
     @Override
     protected ProofRuleApplication considerApplicationImpl(ProofNode target, Parameters parameters) throws RuleException {
-        TermSelector selector = tsForParameter.get("on");
+        TermSelector selector = parameters.getValue(ON_PARAM).getTermSelector();
 
         Term term = selector.selectSubterm(target.getSequent());
         if (!(term instanceof ApplTerm)) {
@@ -82,7 +82,7 @@ public class FunctionDefinitionExpansionRule extends AbstractProofRule {
         DafnyFunction function = ((DafnyFunctionSymbol) fs).getOrigin();
 
         ProofRuleApplicationBuilder builder = new ProofRuleApplicationBuilder(this);
-        SymbolTable symbols = target.getPVC().getSymbolTable();
+        SymbolTable symbols = target.getPVC().getAllSymbols();
         try {
             Term definition = instantiate(term, function, function.getExpression(), symbols);
             builder.newBranch().
