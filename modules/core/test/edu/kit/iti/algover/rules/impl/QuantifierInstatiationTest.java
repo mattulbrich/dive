@@ -30,7 +30,7 @@ import static org.junit.Assert.assertEquals;
 /**
  * Created by jklamroth on 11/7/18.
  */
-public class QunatifierInstatiationTest {
+public class QuantifierInstatiationTest {
     SymbolTable symbolTable;
 
     @Before

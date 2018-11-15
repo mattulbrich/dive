@@ -25,7 +25,7 @@ import edu.kit.iti.algover.rules.impl.LetSubstitutionRuleTest;
 import edu.kit.iti.algover.rules.impl.NotLeftRuleTest;
 import edu.kit.iti.algover.rules.impl.OrLeftRuleTest;
 import edu.kit.iti.algover.rules.impl.PropositionalExpanderTest;
-import edu.kit.iti.algover.rules.impl.QuantifierInstantiation;
+import edu.kit.iti.algover.rules.impl.QuantifierInstatiationTest;
 import edu.kit.iti.algover.rules.impl.SkolemizationTest;
 import edu.kit.iti.algover.symbex.FunctionObligationMakerTest;
 import edu.kit.iti.algover.symbex.SymbexExpressionValidatorTest;
@@ -117,7 +117,7 @@ import edu.kit.iti.algover.util.UtilTest;
     RuleUtilTest.class,
     TestRuleApplicator.class,
     SkolemizationTest.class,
-    QuantifierInstantiation.class,
+    QuantifierInstatiationTest.class,
     IntegerSimplificationTest.class
     })
 public class Tests {

@@ -49,7 +49,7 @@ public class SkolemizationTest {
         symbolTable.addFunctionSymbol(new FunctionSymbol("i2", Sort.INT));
         symbolTable.addFunctionSymbol(new FunctionSymbol("i3", Sort.INT));
         symbolTable.addFunctionSymbol(new FunctionSymbol("i4", Sort.INT));
-        symbolTable.addFunctionSymbol(new FunctionSymbol("skvar0", Sort.INT));
+
     }
 
     @Test(expected = RuleException.class)
@@ -84,6 +84,7 @@ public class SkolemizationTest {
 
     @Test
     public void testExistingVar() throws DafnyParserException, DafnyException, TermBuildException, FormatException, RuleException, IOException, org.antlr.runtime.RecognitionException {
+        symbolTable.addFunctionSymbol(new FunctionSymbol("skvar0", Sort.INT));
         TermParser tp = new TermParser(symbolTable);
         String sequentString = "(exists i2:int :: i2 >= 0 && i2 < 5 ==> skvar0 == i2) |-";
         Sequent s = tp.parseSequent(sequentString);
