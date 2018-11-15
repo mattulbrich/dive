@@ -30,7 +30,7 @@ import java.util.stream.Collectors;
  * Created by jklamroth on 11/7/18.
  */
 public class IntegerSimplification extends AbstractProofRule {
-    private final List<Class> applicableRuleTypes = new ArrayList<Class>(Arrays.asList(PlusZeroRule.class,
+    private final List<Class<?>> applicableRuleTypes = new ArrayList<>(Arrays.asList(PlusZeroRule.class,
             TimesOneRule.class, TimesZeroRule.class));
     private List<AbstractProofRule> applicableRules;
 
