@@ -52,7 +52,7 @@ public class SkolemizationTest {
         symbolTable.addFunctionSymbol(new FunctionSymbol("skvar0", Sort.INT));
     }
 
-    @Test
+    @Test(expected = RuleException.class)
     public void testNested() throws DafnyParserException, DafnyException, TermBuildException, FormatException, RuleException, IOException, org.antlr.runtime.RecognitionException {
         TermParser tp = new TermParser(symbolTable);
         String sequentString = "(forall i1:int :: i1 >= 0 && i1 < 5 ==> (exists i2:int :: i2 >= 0 && i2 < 5 ==> i1 == i2)) |-";
@@ -64,8 +64,6 @@ public class SkolemizationTest {
         params.putValue("on", new TermParameter(new TermSelector("A.0"), s));
         ProofRuleApplication pra = rule.makeApplication(pn, params);
         List<ProofNode> newNodes = RuleApplicator.applyRule(pra, pn);
-        assertEquals(1, newNodes.size());
-        assertEquals("(forall i1:int :: $imp($and($ge(i1, 0), $lt(i1, 5)), $imp($and($ge(skvar0(i1), 0), $lt(skvar0(i1), 5)), $eq<int>(i1, skvar0(i1))))) |-", newNodes.get(0).getSequent().toString());
     }
 
     @Test

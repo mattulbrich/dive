@@ -51,11 +51,20 @@ public class SkolemizationRule extends AbstractProofRule {
             ProofRuleApplicationBuilder.notApplicable(this);
         }
 
+        if(!(onParam.getTerm() instanceof QuantTerm)) {
+            ProofRuleApplicationBuilder.notApplicable(this);
+        }
+
+        QuantTerm qTerm = (QuantTerm)onParam.getTerm();
+        if(qTerm.getQuantifier() != QuantTerm.Quantifier.EXISTS) {
+            ProofRuleApplicationBuilder.notApplicable(this);
+        }
+
         Term rt;
         SymbolTable syms = target.getPVC().getAllSymbols();
         SkolemizationVisitor sv = new SkolemizationVisitor(syms);
         try {
-            rt = onParam.getTerm().accept(sv, new Pair<>(new ArrayList<VariableTerm>(), new HashMap<VariableTerm, ApplTerm>()));
+            rt = onParam.getTerm().accept(sv, new HashMap<VariableTerm, ApplTerm>());
         } catch(TermBuildException e) {
             throw new RuleException("Error trying to skolemize term " + onParam.getTerm(), e);
         }
@@ -73,19 +82,28 @@ public class SkolemizationRule extends AbstractProofRule {
     protected ProofRuleApplication makeApplicationImpl(ProofNode target, Parameters parameters) throws RuleException {
         TermParameter onParam = parameters.getValue(ON_PARAM);
         if(onParam == null) {
-            ProofRuleApplicationBuilder.notApplicable(this);
+            throw new RuleException();
         }
 
         TermSelector onTs = onParam.getTermSelector();
         if(!onTs.isToplevel()) {
-            ProofRuleApplicationBuilder.notApplicable(this);
+            throw new RuleException();
+        }
+
+        if(!(onParam.getTerm() instanceof QuantTerm)) {
+            throw new RuleException();
+        }
+
+        QuantTerm qTerm = (QuantTerm)onParam.getTerm();
+        if(qTerm.getQuantifier() != QuantTerm.Quantifier.EXISTS) {
+            throw new RuleException();
         }
 
         Term rt;
         SymbolTable syms = target.getPVC().getAllSymbols();
         SkolemizationVisitor sv = new SkolemizationVisitor(syms);
         try {
-            rt = onParam.getTerm().accept(sv, new Pair<>(new ArrayList<VariableTerm>(), new HashMap<VariableTerm, ApplTerm>()));
+            rt = onParam.getTerm().accept(sv, new HashMap<VariableTerm, ApplTerm>());
         } catch(TermBuildException e) {
             throw new RuleException("Error trying to skolemize term " + onParam.getTerm(), e);
         }
@@ -99,7 +117,7 @@ public class SkolemizationRule extends AbstractProofRule {
         return prab.build();
     }
 
-    private class SkolemizationVisitor extends ReplacementVisitor<Pair<List<VariableTerm>, Map<VariableTerm, ApplTerm>>> {
+    private class SkolemizationVisitor extends ReplacementVisitor<Map<VariableTerm, ApplTerm>> {
         private int varCounter = 0;
         private final SymbolTable symbolTable;
         private List<FunctionSymbol> newFs;
@@ -110,31 +128,24 @@ public class SkolemizationRule extends AbstractProofRule {
         }
 
         @Override
-        public Term visit(QuantTerm quantTerm, Pair<List<VariableTerm>, Map<VariableTerm, ApplTerm>> arg) throws TermBuildException {
-            if(quantTerm.getQuantifier() == QuantTerm.Quantifier.FORALL) {
-                arg.getFst().add(quantTerm.getBoundVar());
-                return super.visit(quantTerm, arg);
-            } else {
-                arg.getSnd().put(quantTerm.getBoundVar(), null);
-                return super.visit(quantTerm, arg).getTerm(0);
-            }
+        public Term visit(QuantTerm quantTerm, Map<VariableTerm, ApplTerm> arg) throws TermBuildException {
+            arg.put(quantTerm.getBoundVar(), null);
+            return super.visit(quantTerm, arg).getTerm(0);
         }
 
         @Override
-        public Term visit(VariableTerm variableTerm, Pair<List<VariableTerm>, Map<VariableTerm, ApplTerm>> arg) throws TermBuildException {
-            if(arg.getSnd().keySet().contains(variableTerm)) {
-                if(arg.getSnd().get(variableTerm) != null) {
-                    return arg.getSnd().get(variableTerm);
+        public Term visit(VariableTerm variableTerm, Map<VariableTerm, ApplTerm> arg) throws TermBuildException {
+            if(arg.keySet().contains(variableTerm)) {
+                if(arg.get(variableTerm) != null) {
+                    return arg.get(variableTerm);
                 } else {
-                    List<Sort> sorts = arg.getFst().stream().map(variableTerm1 -> variableTerm1.getSort()).collect(Collectors.toList());
-                    List<Term> args = arg.getFst().stream().map(variableTerm1 -> (Term)variableTerm1).collect(Collectors.toList());
-                    FunctionSymbol fs = new FunctionSymbol("skvar" + varCounter++, variableTerm.getSort(), sorts);
+                    FunctionSymbol fs = new FunctionSymbol("skvar" + varCounter++, variableTerm.getSort());
                     while(symbolTable.getFunctionSymbol(fs.getName()) != null) {
-                        fs = new FunctionSymbol("skvar" + varCounter++, variableTerm.getSort(), sorts);
+                        fs = new FunctionSymbol("skvar" + varCounter++, variableTerm.getSort());
                     }
                     newFs.add(fs);
-                    ApplTerm at = new ApplTerm(fs, args);
-                    arg.getSnd().put(variableTerm, at);
+                    ApplTerm at = new ApplTerm(fs);
+                    arg.put(variableTerm, at);
                     return at;
                 }
             }
