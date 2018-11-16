@@ -68,8 +68,6 @@ public class PVC {
      */
     private final @NonNull SymbolTable baseSymbolTable;
 
-    private @NonNull SymbolTable addedSymbols;
-
 
     private final Project project;
     /**
@@ -91,7 +89,6 @@ public class PVC {
         this.declaration = builder.getDeclaration();
         this.sequent = builder.getSequent();
         this.baseSymbolTable = builder.getSymbolTable();
-        this.addedSymbols = new MapSymbolTable(new ArrayList<>());
         this.identifier = getDeclarationPrefix()
                 + "/" + builder.getPathIdentifier();
         this.referenceMap = builder.getReferenceMap();
@@ -129,7 +126,7 @@ public class PVC {
         return sequent;
     }
 
-    public SymbolTable getBaseSymbolTable() {
+    public SymbolTable getSymbolTable() {
         return baseSymbolTable;
     }
 
@@ -143,19 +140,5 @@ public class PVC {
 
     public Project getProject() {
         return project;
-    }
-
-    /** The symbol table containing the symbols added by rule applications.*/
-    public SymbolTable getAddedSymbols() {
-        return addedSymbols;
-    }
-
-    public void setAddedSymbols(SymbolTable addedSymbols) {
-        this.addedSymbols = addedSymbols;
-    }
-
-    /** Get all symbols: baseSymbols combined with added symbols. */
-    public SymbolTable getAllSymbols() {
-        return new MapSymbolTable(baseSymbolTable, addedSymbols.getAllSymbols());
     }
 }

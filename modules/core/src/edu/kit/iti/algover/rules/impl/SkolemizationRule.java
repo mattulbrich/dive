@@ -61,7 +61,7 @@ public class SkolemizationRule extends AbstractProofRule {
         }
 
         Term rt;
-        SymbolTable syms = target.getPVC().getAllSymbols();
+        SymbolTable syms = target.getAllSymbols();
         SkolemizationVisitor sv = new SkolemizationVisitor(syms);
         try {
             rt = onParam.getTerm().accept(sv, new HashMap<VariableTerm, ApplTerm>());
@@ -100,7 +100,7 @@ public class SkolemizationRule extends AbstractProofRule {
         }
 
         Term rt;
-        SymbolTable syms = target.getPVC().getAllSymbols();
+        SymbolTable syms = target.getAllSymbols();
         SkolemizationVisitor sv = new SkolemizationVisitor(syms);
         try {
             rt = onParam.getTerm().accept(sv, new HashMap<VariableTerm, ApplTerm>());

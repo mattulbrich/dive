@@ -44,8 +44,6 @@ public class RuleApplicator {
     private static List<ProofNode> applySingleApplication(ProofRuleApplication proofRuleApplication, ProofNode pn) {
 
         ImmutableList<BranchInfo> applicationInfos = proofRuleApplication.getBranchInfo();
-        proofRuleApplication.getNewFunctionSymbols().forEach(
-                functionSymbol -> pn.getPVC().getAddedSymbols().addFunctionSymbol(functionSymbol));
         if (applicationInfos.equals(BranchInfo.UNCHANGED)) {
             ProofNode unchanged = new ProofNode(pn, proofRuleApplication, pn.getSequent(), pn.getPVC());
             //pn.getChildren().add(unchanged);
@@ -67,6 +65,8 @@ public class RuleApplicator {
             try {
                 newSequent = createNewSequent(branchInfo, sequent);
                 ProofNode pnNew = new ProofNode(pn, proofRuleApplication, newSequent, pn.getPVC());
+                proofRuleApplication.getNewFunctionSymbols().forEach(
+                        functionSymbol -> pnNew.getAddedSymbols().addFunctionSymbol(functionSymbol));
                 pnNew.setLabel(branchInfo.getLabel());
                 children.add(pnNew);
 

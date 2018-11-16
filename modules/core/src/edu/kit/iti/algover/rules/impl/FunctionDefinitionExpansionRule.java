@@ -82,7 +82,7 @@ public class FunctionDefinitionExpansionRule extends AbstractProofRule {
         DafnyFunction function = ((DafnyFunctionSymbol) fs).getOrigin();
 
         ProofRuleApplicationBuilder builder = new ProofRuleApplicationBuilder(this);
-        SymbolTable symbols = target.getPVC().getAllSymbols();
+        SymbolTable symbols = target.getAllSymbols();
         try {
             Term definition = instantiate(term, function, function.getExpression(), symbols);
             builder.newBranch().

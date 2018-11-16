@@ -92,7 +92,7 @@ public class Evaluator<T> extends DefaultASTVisitor<Value> implements ScopeObser
     public Value<TermParameter> visit(TermLiteral term){
         Value<TermParameter> termV = null;
         try {
-            TermParser tp = new TermParser(goal.getPVC().getAllSymbols());
+            TermParser tp = new TermParser(goal.getAllSymbols());
             tp.setSchemaMode(true);
             termV = new Value<>(Type.TERM, new TermParameter(tp.parse(term.getText()), goal.getSequent()));
         } catch (DafnyException | DafnyParserException e) {
@@ -113,7 +113,7 @@ public class Evaluator<T> extends DefaultASTVisitor<Value> implements ScopeObser
     public Value<TermParameter> visit(SequentLiteral sequentLiteral){
         Value<TermParameter> seqValue = null;
         try {
-            TermParser tp = new TermParser(goal.getPVC().getAllSymbols());
+            TermParser tp = new TermParser(goal.getAllSymbols());
             tp.setSchemaMode(true);
             seqValue = new Value<>(Type.TERM, new TermParameter(tp.parseSequent(sequentLiteral.getText()), goal.getSequent()));
 
