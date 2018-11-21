@@ -6,10 +6,13 @@
 package edu.kit.iti.algover.proof;
 
 
+import java.util.ArrayList;
 import java.util.Map;
 
 import edu.kit.iti.algover.dafnystructures.DafnyClass;
 import edu.kit.iti.algover.dafnystructures.DafnyDecl;
+import edu.kit.iti.algover.data.BuiltinSymbols;
+import edu.kit.iti.algover.data.MapSymbolTable;
 import edu.kit.iti.algover.data.SymbolTable;
 import edu.kit.iti.algover.parser.DafnyTree;
 import edu.kit.iti.algover.project.Project;
@@ -26,6 +29,9 @@ import nonnull.Nullable;
  * <p>
  * A PVC may correspond to a {@link SymbexPath} for methods or a proof
  * obligation for functions.
+ *
+ * <p>
+ * PVC is an immutable class.
  *
  * @author Created by sarah on 8/22/16.
  * @author refined by mattias 8/27/17.
@@ -60,17 +66,22 @@ public class PVC {
     private final @NonNull Map<TermSelector, DafnyTree> referenceMap;
 
     /**
-     * The symbol table containing all symbols which occur in the
-     * {@link #sequent}.
+     * The symbol table containing all base symbols (in contrast to added symbols while applying rules) which
+     * occur in the {@link #sequent}.
      */
-    private final @NonNull SymbolTable symbolTable;
+    private final @NonNull SymbolTable baseSymbolTable;
+
+    /**
+     * Reference to the project to which this PVC belongs.
+     */
     private final Project project;
+
     /**
      * The identifier of this PVC.
      *
      * In case of method invocations its the identifier of the path.
      */
-    private String identifier;
+    private final String identifier;
 
     /**
      * Instantiates a new PVC. The informations are taken from a builder object.
@@ -83,7 +94,7 @@ public class PVC {
         this.pathThroughProgram = builder.getPathThroughProgram();
         this.declaration = builder.getDeclaration();
         this.sequent = builder.getSequent();
-        this.symbolTable = builder.getSymbolTable();
+        this.baseSymbolTable = builder.getSymbolTable();
         this.identifier = getDeclarationPrefix()
                 + "/" + builder.getPathIdentifier();
         this.referenceMap = builder.getReferenceMap();
@@ -122,7 +133,7 @@ public class PVC {
     }
 
     public SymbolTable getSymbolTable() {
-        return symbolTable;
+        return baseSymbolTable;
     }
 
     public String getIdentifier() {

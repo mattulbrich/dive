@@ -48,7 +48,7 @@ public class ReplaceCutRule extends AbstractProofRule {
         ProofRuleApplicationBuilder pra = new ProofRuleApplicationBuilder(this);
         pra.setApplicability(ProofRuleApplication.Applicability.APPLICABLE);
         pra.newBranch().addReplacement(selector, with).setLabel("replace");
-        TermBuilder tb = new TermBuilder(target.getPVC().getSymbolTable());
+        TermBuilder tb = new TermBuilder(target.getAllSymbols());
         Term justificationTerm = null;
         try {
             justificationTerm = tb.eq(on, with);
@@ -75,7 +75,7 @@ public class ReplaceCutRule extends AbstractProofRule {
         ProofRuleApplicationBuilder pra = new ProofRuleApplicationBuilder(this);
         pra.setApplicability(ProofRuleApplication.Applicability.APPLICABLE);
         pra.newBranch().addReplacement(selector, with).setLabel("replace");
-        TermBuilder tb = new TermBuilder(target.getPVC().getSymbolTable());
+        TermBuilder tb = new TermBuilder(target.getAllSymbols());
         Term justificationTerm = null;
         try {
             justificationTerm = tb.eq(on, with);

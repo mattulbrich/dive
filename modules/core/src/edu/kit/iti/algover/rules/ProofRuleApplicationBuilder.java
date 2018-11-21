@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import edu.kit.iti.algover.proof.Proof;
+import edu.kit.iti.algover.term.FunctionSymbol;
 import nonnull.NonNull;
 import nonnull.Nullable;
 import edu.kit.iti.algover.rules.ProofRuleApplication.Applicability;
@@ -40,6 +41,7 @@ public class ProofRuleApplicationBuilder {
     private Refiner refiner;
 
     private List<ProofRuleApplication> subApplications = null;
+    private List<FunctionSymbol> newFuctionSymbols;
 
     /**
      * Instantiates a new proof rule application builder with a rule.
@@ -68,6 +70,9 @@ public class ProofRuleApplicationBuilder {
         if(app.getSubApplications() != null) {
             this.subApplications = new ArrayList<>(app.getSubApplications().asCollection());
         }
+        if(app.getNewFunctionSymbols() != null) {
+            this.newFuctionSymbols = new ArrayList<>(app.getNewFunctionSymbols().asCollection());
+        }
     }
 
     /**
@@ -79,7 +84,7 @@ public class ProofRuleApplicationBuilder {
     public static ProofRuleApplication notApplicable(ProofRule rule) {
         return new ProofRuleApplication(rule, BranchInfo.UNCHANGED,
                 Applicability.NOT_APPLICABLE, Parameters.EMPTY_PARAMETERS, Parameters.EMPTY_PARAMETERS,
-                null, null);
+                null, null, null);
     }
 
     /**
@@ -97,8 +102,8 @@ public class ProofRuleApplicationBuilder {
                 parameters,
                 openParameters,
                 refiner,
-                toListIfNotAllNull(subApplications)
-                );
+                toListIfNotAllNull(subApplications),
+                newFuctionSymbols == null ? null : ImmutableList.from(newFuctionSymbols));
     }
 
     /*
@@ -125,6 +130,10 @@ public class ProofRuleApplicationBuilder {
     public ProofRuleApplicationBuilder setRefiner(@Nullable Refiner refiner) {
         this.refiner = refiner;
         return this;
+    }
+
+    public void setNewFuctionSymbols(List<FunctionSymbol> list) {
+        this.newFuctionSymbols = list;
     }
 
     /**

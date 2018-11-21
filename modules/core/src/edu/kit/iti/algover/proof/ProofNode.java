@@ -5,6 +5,8 @@
  */
 package edu.kit.iti.algover.proof;
 
+import edu.kit.iti.algover.data.MapSymbolTable;
+import edu.kit.iti.algover.data.SymbolTable;
 import edu.kit.iti.algover.rules.BranchInfo;
 import edu.kit.iti.algover.rules.ProofRuleApplication;
 import edu.kit.iti.algover.script.ast.ASTNode;
@@ -13,6 +15,7 @@ import edu.kit.iti.algover.script.ast.Variable;
 import edu.kit.iti.algover.script.data.Value;
 import edu.kit.iti.algover.script.data.VariableAssignment;
 import edu.kit.iti.algover.term.Sequent;
+import nonnull.NonNull;
 
 import java.util.*;
 
@@ -76,6 +79,8 @@ public class ProofNode {
      */
     private String label = null;
 
+    private final @NonNull SymbolTable addedSymbols;
+
 
     public static ProofNode createRoot(PVC pvc) {
         return new ProofNode(null, null, pvc.getSequent(), pvc);
@@ -89,6 +94,7 @@ public class ProofNode {
         this.closed = false;
         this.mutator = new ArrayList<>();
         this.variableAssignments = new VariableAssignment(parent == null ? null : parent.deepCopyAssignments());
+        this.addedSymbols = new MapSymbolTable(Collections.emptyList());
     }
 
     public Sequent getSequent() {
@@ -105,6 +111,18 @@ public class ProofNode {
 
     public List<ProofNode> getChildren() {
         return children;
+    }
+
+    public SymbolTable getAddedSymbols() {
+        return addedSymbols;
+    }
+
+    public SymbolTable getAllSymbols() {
+        if(parent != null) {
+            return new MapSymbolTable(parent.getAllSymbols(), addedSymbols.getAllSymbols());
+        } else {
+            return new MapSymbolTable(pvc.getSymbolTable(), addedSymbols.getAllSymbols());
+        }
     }
 
     /**
@@ -278,4 +296,5 @@ public class ProofNode {
     public void setLabel(String label) {
         this.label = label;
     }
+
 }

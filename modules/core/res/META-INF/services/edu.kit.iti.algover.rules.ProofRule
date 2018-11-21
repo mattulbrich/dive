@@ -22,3 +22,8 @@ edu.kit.iti.algover.rules.impl.ExhaustiveRule
 edu.kit.iti.algover.rules.impl.FunctionDefinitionExpansionRule
 edu.kit.iti.algover.rules.impl.QuantifierInstantiation
 edu.kit.iti.algover.rules.impl.BranchCutRule
+edu.kit.iti.algover.rules.impl.SkolemizationRule
+edu.kit.iti.algover.rules.impl.IntegerSimplification
+edu.kit.iti.algover.rules.impl.PlusZeroRule
+edu.kit.iti.algover.rules.impl.TimesOneRule
+edu.kit.iti.algover.rules.impl.TimesZeroRule

@@ -1,23 +1,17 @@
 package edu.kit.iti.algover.rules;
 
 
-import edu.kit.iti.algover.proof.Proof;
 import edu.kit.iti.algover.proof.ProofFormula;
 import edu.kit.iti.algover.proof.ProofNode;
-import edu.kit.iti.algover.rules.ProofRuleApplication.Applicability;
 import edu.kit.iti.algover.term.Sequent;
 import edu.kit.iti.algover.term.Term;
 import edu.kit.iti.algover.term.builder.ReplaceVisitor;
 import edu.kit.iti.algover.term.builder.TermBuildException;
 import edu.kit.iti.algover.util.ImmutableList;
 import edu.kit.iti.algover.util.Pair;
-import edu.kit.iti.algover.util.RuleUtil;
 
 
-import javax.naming.OperationNotSupportedException;
-import javax.xml.soap.Node;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 /**
@@ -71,6 +65,8 @@ public class RuleApplicator {
             try {
                 newSequent = createNewSequent(branchInfo, sequent);
                 ProofNode pnNew = new ProofNode(pn, proofRuleApplication, newSequent, pn.getPVC());
+                proofRuleApplication.getNewFunctionSymbols().forEach(
+                        functionSymbol -> pnNew.getAddedSymbols().addFunctionSymbol(functionSymbol));
                 pnNew.setLabel(branchInfo.getLabel());
                 children.add(pnNew);
 
