@@ -79,11 +79,13 @@ public class TypeResolutionTest {
         } else {
             expectedErrorTrees = Util.streamToString(eis).split("\n");
         }
-        if(TestUtil.VERBOSE) {
+
+        if(TestUtil.VERBOSE || expectedErrorTrees.length != exceptions.size()) {
             for (DafnyException exception : exceptions) {
                 exception.printStackTrace();
             }
         }
+
         assertEquals("Number of exceptions", expectedErrorTrees.length, exceptions.size());
         for (int i = 0; i < expectedErrorTrees.length; i++) {
             assertEquals(expectedErrorTrees[i], exceptions.get(i).getTree().toStringTree());

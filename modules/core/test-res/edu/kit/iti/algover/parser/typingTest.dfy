@@ -267,15 +267,6 @@ class C
       seqC := seqO;
    }
 
-/*
-   method challengeNull()
-   {
-      var setC: set<C>;
-
-      setC := { null };
-   }
-*/
-
    method multiReturnObject() returns (a:object, c:C)
    {}
 
@@ -306,4 +297,11 @@ class C
       assert 1 + 1  == 2;
       assert st + st + {1} == st;
    }
+
+   method challengeNull()
+   {
+      var setC: set<C>;
+      setC := { null };
+   }
+
 }

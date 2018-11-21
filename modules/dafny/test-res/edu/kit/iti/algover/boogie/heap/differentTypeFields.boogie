@@ -18,8 +18,8 @@ const _$heap : Heap;
 const _d : ref;
 const unique TClass_C : Ty;
 const unique TClass_D : Ty;
-const unique _D$$f : Field ref;
-const unique _D$$g : Field int;
+const unique _D$$f : Field (ref);
+const unique _D$$g : Field (int);
 
 axiom (forall x:ref :: $Is(x, TClass_C) <==> dtype(x) == TClass_C || x == null);
 axiom (forall x:ref :: $Is(x, TClass_D) <==> dtype(x) == TClass_D || x == null);

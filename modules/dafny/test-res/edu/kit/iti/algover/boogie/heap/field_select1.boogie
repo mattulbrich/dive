@@ -15,7 +15,7 @@ fail
 const _$heap : Heap;
 const _o : ref;
 const unique TClass_C : Ty;
-const unique _C$$f : Field int;
+const unique _C$$f : Field (int);
 
 axiom (forall x:ref :: $Is(x, TClass_C) <==> dtype(x) == TClass_C || x == null);
 axiom $Is(_$heap, THeap);

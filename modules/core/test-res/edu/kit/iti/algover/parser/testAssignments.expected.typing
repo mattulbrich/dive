@@ -18,9 +18,9 @@
          (:= c_var[C] (FIELD_ACCESS this[C] cfield)[C])
          (:= c_var[C] (FIELD_ACCESS (FIELD_ACCESS this[C] cfield)[C] cfield)[C])
          (:= i_var[int] intfield[int])
-         (:= c_var[C] null[C])
+         (:= c_var[C] null[null])
          (:= o_var[object] c_var[C])
-         (:= o_var[object] null[object])
+         (:= o_var[object] null[null])
          (:= o_var[object] a_var[array<int>])
          (:= seqO_var[seq<object>] seqC_var[seq<C>])
          (:= setO_var[set<object>] setC_var[set<C>])))[scc_0]
