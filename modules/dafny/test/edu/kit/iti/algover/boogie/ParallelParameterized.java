@@ -8,6 +8,7 @@
 package edu.kit.iti.algover.boogie;
 
 import org.junit.runners.Parameterized;
+import org.junit.runners.ParentRunner;
 import org.junit.runners.model.RunnerScheduler;
 
 import java.util.concurrent.ExecutorService;
@@ -22,7 +23,6 @@ public class ParallelParameterized extends Parameterized {
             private final ExecutorService fService = Executors.newCachedThreadPool();
 
             public void schedule(Runnable childStatement) {
-                System.err.println("Submitting a job");
                 fService.submit(childStatement);
             }
 

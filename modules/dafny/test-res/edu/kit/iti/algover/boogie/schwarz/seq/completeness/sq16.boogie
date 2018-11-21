@@ -12,7 +12,7 @@ s4: seq<int>
 |- 
    s3 != s4
 ### result:
-prove
+irrelevant
 ### OLD-translation:
 var _s1 : Seq int;
 var _s2 : Seq int;

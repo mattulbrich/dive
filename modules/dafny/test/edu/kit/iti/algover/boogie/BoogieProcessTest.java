@@ -42,7 +42,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.function.Function;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.*;
 
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 @RunWith(ParallelParameterized.class)
@@ -114,8 +114,11 @@ public class BoogieProcessTest {
         process.setSymbolTable(table);
         process.setAdditionalBoogieText(additionalBoogieCode);
 
-        if(!expectedResult.equals("irrelevant")) {
-            assertEquals(expectedResult.equals("prove"), process.callBoogie());
+        switch (expectedResult) {
+        case "prove": assertTrue(process.callBoogie()); break;
+        case "fail": assertFalse(process.callBoogie()); break;
+        case "irrelevant": break;
+        default: fail("Unexpected result (expected 'fail', 'prove' or 'irrelevant'): " + expectedResult);
         }
 
         if (expectedTranslation == null) {

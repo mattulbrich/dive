@@ -96,7 +96,7 @@ public class RuleViewOverlay extends AnchorPane {
             } catch (RuleException e) {
                 on = null;
             }
-            RuleParameterDialog d = new RuleParameterDialog(this.application.getRule(), listener.getCurrentPVC().getAllSymbols(),
+            RuleParameterDialog d = new RuleParameterDialog(this.application.getRule(), listener.getCurrentPVC().getSymbolTable(),
                     listener.getCurrentProofNode().getSequent(), on);
             d.showAndWait();
             if (d.getParameters() != null) {
