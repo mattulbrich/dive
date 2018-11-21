@@ -42,7 +42,7 @@ public class BoogieRule extends AbstractProofRule {
         return builder.build();
     }
 
-    private ProofRuleApplication refine(ProofNode target, ProofRuleApplication app) {
+    private ProofRuleApplication refine(ProofNode target, ProofRuleApplication app) throws RuleException {
         PVC pvc = target.getPVC();
 
         if (isValid(target)) {
@@ -75,7 +75,7 @@ public class BoogieRule extends AbstractProofRule {
         }
     }
 
-    private boolean isValid(ProofNode target) {
+    private boolean isValid(ProofNode target) throws RuleException {
 
         PVC pvc = target.getPVC();
 
@@ -87,9 +87,10 @@ public class BoogieRule extends AbstractProofRule {
 
         try {
             return process.callBoogie();
+        } catch(RuleException rex) {
+            throw rex;
         } catch(Exception ex) {
-            ex.printStackTrace();
-            return false;
+            throw new RuleException("The call to Boogie was not successful", ex);
         }
 
     }

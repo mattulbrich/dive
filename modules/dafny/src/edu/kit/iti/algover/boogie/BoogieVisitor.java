@@ -317,10 +317,23 @@ public class BoogieVisitor extends DefaultTermVisitor<Void, String, NoExceptions
                         visitSort(fs.getResultSort())));
 
         if (added) {
-            assert fs.getArity() == 0 : "Not yet implemented: " + fs;
-            // not already there.
-            axioms.add(String.format("axiom $Is(%s, %s);",
-                    name, typeConstant(fs.getResultSort())));
+            if(fs.getArity() == 0) {
+                axioms.add(String.format("axiom $Is(%s, %s);",
+                        name, typeConstant(fs.getResultSort())));
+            } else {
+                StringBuilder quants = new StringBuilder();
+                List<String> arglist = new ArrayList<>();
+                int i = 0;
+                for (Sort argSort : fs.getArgumentSorts()) {
+                    quants.append("(forall v" + i + ": " + visitSort(argSort) + " :: ");
+                    arglist.add("v" + i);
+                    i++;
+                }
+                axioms.add(String.format("axiom %s $Is(%s(%s), %s) %s;",
+                        quants, name, Util.commatize(arglist),
+                        typeConstant(fs.getResultSort()),
+                        Util.duplicate(")", i)));
+            }
         }
 
         return name;
@@ -374,14 +387,14 @@ public class BoogieVisitor extends DefaultTermVisitor<Void, String, NoExceptions
     private static String visitSort(Sort sort) {
         switch(sort.getName()) {
         case "seq" :
-            return "Seq " + visitSort(sort.getArgument(0));
+            return "Seq (" + visitSort(sort.getArgument(0)) + ")";
         case "set" :
-            return "Set " + visitSort(sort.getArgument(0));
+            return "Set (" + visitSort(sort.getArgument(0)) + ")";
         case "bool":
         case "int":
             return sort.getName();
         case "field":
-            return "Field " + visitSort(sort.getArgument(1));
+            return "Field (" + visitSort(sort.getArgument(1)) + ")";
         case "heap":
             return "Heap";
         default:

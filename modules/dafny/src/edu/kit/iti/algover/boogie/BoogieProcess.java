@@ -109,6 +109,7 @@ public class BoogieProcess {
         CharSequence sb = produceObligation();
 
         Path tmpFile = Files.createTempFile("AlgoVer", ".bpl");
+        tmpFile.toFile().deleteOnExit();
         Files.write(tmpFile, Arrays.asList(PRELUDE, sb, additionalBoogieText));
 
         Process process = buildProcess(tmpFile);
@@ -124,7 +125,7 @@ public class BoogieProcess {
                 return false;
         }
 
-        throw new RuleException("Oh dear, boogie seems to fail");
+        throw new RuleException("Oh dear, boogie seems to fail for " + tmpFile);
     }
 
     private Process buildProcess(Path tmpFile) throws IOException {
