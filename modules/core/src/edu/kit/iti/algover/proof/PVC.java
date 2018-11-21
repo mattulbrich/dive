@@ -30,6 +30,9 @@ import nonnull.Nullable;
  * A PVC may correspond to a {@link SymbexPath} for methods or a proof
  * obligation for functions.
  *
+ * <p>
+ * PVC is an immutable class.
+ *
  * @author Created by sarah on 8/22/16.
  * @author refined by mattias 8/27/17.
  *
@@ -68,14 +71,17 @@ public class PVC {
      */
     private final @NonNull SymbolTable baseSymbolTable;
 
-
+    /**
+     * Reference to the project to which this PVC belongs.
+     */
     private final Project project;
+
     /**
      * The identifier of this PVC.
      *
      * In case of method invocations its the identifier of the path.
      */
-    private String identifier;
+    private final String identifier;
 
     /**
      * Instantiates a new PVC. The informations are taken from a builder object.
