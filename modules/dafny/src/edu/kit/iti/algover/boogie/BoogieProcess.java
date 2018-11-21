@@ -34,10 +34,13 @@ import java.util.Set;
 public class BoogieProcess {
 
     /**
-     * The command by which z3 is invoked.
+     * The command by which Boogie is invoked.
      */
     public static final String COMMAND =
             System.getProperty("edu.kit.iti.algover.boogie_binary", "boogie");
+
+    public static final boolean KEEP_BPL =
+            Boolean.getBoolean("edu.kit.iti.algover.keepBPL");
 
     private final static String PRELUDE = loadPrelude();
     private Project project;
@@ -109,7 +112,11 @@ public class BoogieProcess {
         CharSequence sb = produceObligation();
 
         Path tmpFile = Files.createTempFile("AlgoVer", ".bpl");
-        tmpFile.toFile().deleteOnExit();
+
+        if(!KEEP_BPL) {
+            tmpFile.toFile().deleteOnExit();
+        }
+
         Files.write(tmpFile, Arrays.asList(PRELUDE, sb, additionalBoogieText));
 
         Process process = buildProcess(tmpFile);

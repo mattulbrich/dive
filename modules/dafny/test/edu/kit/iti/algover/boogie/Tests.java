@@ -17,6 +17,7 @@ import org.junit.runners.Suite.SuiteClasses;
         SetCompletenessTests.class,
         SeqSoundnessTest.class,
         SeqCompletenessTests.class,
+        SeqTests.class,
         Array1SoundnessTests.class,
         Array1CompletenessTests.class,
         HeapTests.class,
