@@ -32,6 +32,7 @@ import edu.kit.iti.algover.util.ImmutableList;
 import edu.kit.iti.algover.util.Pair;
 import nonnull.NonNull;
 import org.antlr.runtime.CommonToken;
+import org.antlr.runtime.tree.Tree;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -551,7 +552,6 @@ public class TreeTermTranslator {
         };
     }
 
-    // TODO This is not really done yet.
     private Term buildCall(DafnyTree tree) throws TermBuildException {
 
         if(tree.getChildCount() == 3) {
@@ -565,6 +565,17 @@ public class TreeTermTranslator {
         if(fct == null) {
             fct = symbolTable.getFunctionSymbol("$$" + id);
             argTerms.add(getHeap());
+        }
+
+        if(fct == null) {
+            DafnyTree ref = tree.getChild(0).getDeclarationReference();
+            if(ref != null) {
+                Tree parent = ref.getParent();
+                if(parent.getType() == DafnyParser.CLASS) {
+                    fct = symbolTable.getFunctionSymbol(parent.getChild(0).getText() + "$$" + id);
+                    argTerms.add(tb.cons("this"));
+                }
+            }
         }
 
         if (fct == null) {

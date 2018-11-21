@@ -229,6 +229,7 @@ class C
    function fct(i: int) : int {0}
 
    method functionReference()
+     requires fct(0) == 0
    { var r := this.fct(0) + cfield.fct(0) + fct(0); }
 
    method dotdots(s: seq<int>, a: array<int>)

@@ -10,7 +10,7 @@ class List {
   }
   
   method size() returns (s: int)
-    requires this.Valid()
+    requires Valid()
     ensures s == |seqq|
   {
     assume false;
