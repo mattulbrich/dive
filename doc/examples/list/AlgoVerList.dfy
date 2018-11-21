@@ -10,7 +10,7 @@ class List {
   }
   
   method size() returns (s: int)
-    requires Valid()
+    requires this.Valid()
     ensures s == |seqq|
   {
     assume false;
@@ -18,7 +18,7 @@ class List {
 
   method insertAt(pos: int, value: int)
     requires 0 <= pos <= |seqq|
-    ensures seqq == old(seqq[pos] + [value] + seqq[pos])
+    ensures seqq == old(seqq[..pos] + [value] + seqq[pos..])
     modifies footprint
   {
     assume false;
