@@ -187,7 +187,7 @@ public class TypeResolution extends DafnyTreeDefaultVisitor<DafnyTree, Void> {
 
             tree.setExpressionType(result);
         } catch(TermBuildException ex) {
-            exceptions.add(new DafnyException("Types are not compatible", tree, ex));
+            exceptions.add(new DafnyException(tree, ex));
             result = ASTUtil.fromSort(Sort.UNTYPED_SORT);
         }
         return result;

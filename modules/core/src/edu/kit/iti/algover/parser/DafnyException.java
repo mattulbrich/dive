@@ -39,7 +39,7 @@ public class DafnyException extends Exception {
     }
 
     public DafnyException(DafnyTree tree, Throwable cause) {
-        super(cause);
+        super(cause.getMessage(), cause);
         this.tree = tree;
     }
 
