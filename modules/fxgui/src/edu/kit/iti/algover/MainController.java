@@ -369,6 +369,9 @@ public class MainController implements SequentActionListener, RuleApplicationLis
                     "Error reloading the project: " + t.getException().getMessage(),
                     t.getException());
             editorController.showException(t.getException());
+            browserController.getView().setDisable(true);
+            sequentController.getView().setDisable(true);
+            ruleApplicationController.getView().setDisable(true);
             t.getException().printStackTrace();
         });
 
