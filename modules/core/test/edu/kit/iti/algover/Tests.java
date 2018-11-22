@@ -15,6 +15,7 @@ import edu.kit.iti.algover.project.ProjectManagerTest;
 import edu.kit.iti.algover.proof.PVCBuilderTest;
 import edu.kit.iti.algover.proof.ProofTest;
 import edu.kit.iti.algover.references.TermReferencesBuilderTest;
+import edu.kit.iti.algover.rules.AbstractRuleTest;
 import edu.kit.iti.algover.rules.TestRuleApplicator;
 import edu.kit.iti.algover.rules.impl.AddHypothesisRuleTest;
 import edu.kit.iti.algover.rules.impl.DafnyRuleTest;
@@ -118,7 +119,8 @@ import edu.kit.iti.algover.util.UtilTest;
     TestRuleApplicator.class,
     SkolemizationTest.class,
     QuantifierInstatiationTest.class,
-    IntegerSimplificationTest.class
+    IntegerSimplificationTest.class,
+        AbstractRuleTest.class
     })
 public class Tests {
 }
