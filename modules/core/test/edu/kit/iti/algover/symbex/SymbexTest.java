@@ -478,7 +478,7 @@ public class SymbexTest {
             SymbexPath path = results.get(cnt++);
             assertEquals(AssertionType.RT_IN_BOUNDS, path.getCommonProofObligationType());
             ImmutableList<AssertionElement> pos = path.getProofObligations();
-            assertEquals("[(&& (>= y 0) (< y (Length a)))]",
+            assertEquals("[(&& (<= 0 y) (< y (Length a)))]",
                     pos.map(x->x.getExpression().toStringTree()).toString());
             assertEquals(0, path.getPathConditions().size());
         }
@@ -502,7 +502,7 @@ public class SymbexTest {
             SymbexPath path = results.get(cnt++);
             assertEquals(AssertionType.RT_IN_BOUNDS, path.getCommonProofObligationType());
             ImmutableList<AssertionElement> pos = path.getProofObligations();
-            assertEquals("[(==> (not (> y 0)) (&& (>= y 0) (< y (Length a))))]",
+            assertEquals("[(==> (not (> y 0)) (&& (<= 0 y) (< y (Length a))))]",
                     pos.map(x->x.getExpression().toStringTree()).toString());
             assertEquals(0, path.getPathConditions().size());
         }
@@ -520,7 +520,7 @@ public class SymbexTest {
             assertEquals(AssertionType.RT_IN_BOUNDS, path.getCommonProofObligationType());
             ImmutableList<AssertionElement> pos = path.getProofObligations();
             assertEquals(1, pos.size());
-            assertEquals("(&& (>= x 0) (< x (Length0 multiDim)))",
+            assertEquals("(&& (<= 0 x) (< x (Length0 multiDim)))",
                     pos.get(0).getExpression().toStringTree());
             assertEquals(0, path.getPathConditions().size());
         }
@@ -529,7 +529,7 @@ public class SymbexTest {
             assertEquals(AssertionType.RT_IN_BOUNDS, path.getCommonProofObligationType());
             ImmutableList<AssertionElement> pos = path.getProofObligations();
             assertEquals(1, pos.size());
-            assertEquals("(&& (>= y 0) (< y (Length1 multiDim)))",
+            assertEquals("(&& (<= 0 y) (< y (Length1 multiDim)))",
                     pos.get(0).getExpression().toStringTree());
             assertEquals(0, path.getPathConditions().size());
         }
@@ -579,7 +579,7 @@ public class SymbexTest {
             assertEquals(AssertionType.RT_IN_BOUNDS, path.getCommonProofObligationType());
             ImmutableList<AssertionElement> pos = path.getProofObligations();
             assertEquals(1, pos.size());
-            assertEquals("(==> (> i 0) (&& (>= i 0) (< i (Length a))))",
+            assertEquals("(==> (> i 0) (&& (<= 0 i) (< i (Length a))))",
                     pos.get(0).getExpression().toStringTree());
             assertEquals(0, path.getPathConditions().size());
         }
@@ -627,7 +627,7 @@ public class SymbexTest {
             assertEquals(AssertionType.RT_IN_BOUNDS, path.getCommonProofObligationType());
             ImmutableList<AssertionElement> pos = path.getProofObligations();
             assertEquals(1, pos.size());
-            assertEquals("(==> (> i 0) (&& (>= i 0) (< i (Length a))))",
+            assertEquals("(==> (> i 0) (&& (<= 0 i) (< i (Length a))))",
                     pos.get(0).getExpression().toStringTree());
             assertEquals(1, path.getPathConditions().size());
             assertEquals("(> i 2)", path.getPathConditions().get(0).getExpression().toStringTree());
@@ -720,7 +720,7 @@ public class SymbexTest {
         i++;
         i=2;
         assertEquals(AssertionType.RT_IN_BOUNDS, results.get(i).getCommonProofObligationType());
-        assertEquals("[(&& (>= 0 0) (< 0 (Length a)))]", results.get(i).getProofObligations().map(x -> x.getExpression().toStringTree()).toString());
+        assertEquals("[(&& (<= 0 0) (< 0 (Length a)))]", results.get(i).getProofObligations().map(x -> x.getExpression().toStringTree()).toString());
 
         i++;
         i=13;
@@ -735,7 +735,7 @@ public class SymbexTest {
         i++;
         i=0;
         assertEquals(AssertionType.RT_IN_BOUNDS, results.get(i).getCommonProofObligationType());
-        assertEquals("[(&& (>= 1 0) (< 1 (Length a)))]", results.get(i).getProofObligations().map(x -> x.getExpression().toStringTree()).toString());
+        assertEquals("[(&& (<= 0 1) (< 1 (Length a)))]", results.get(i).getProofObligations().map(x -> x.getExpression().toStringTree()).toString());
 
         i++;
         i=14;

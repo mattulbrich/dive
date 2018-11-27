@@ -307,7 +307,7 @@ public class TestUtil {
 
             @Override
             public void describeTo(Description description) {
-                description.appendText("not contained in " + list);
+                description.appendText("contained in " + list);
             }
         };
     }
