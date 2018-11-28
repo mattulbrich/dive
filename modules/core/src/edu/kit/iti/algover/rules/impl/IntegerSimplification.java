@@ -40,7 +40,7 @@ public class IntegerSimplification extends AbstractProofRule {
 
     @Override
     public String getName() {
-        return "times1";
+        return "integerSimplification";
     }
 
     @Override
@@ -61,7 +61,7 @@ public class IntegerSimplification extends AbstractProofRule {
     protected ProofRuleApplication makeApplicationImpl(ProofNode target, Parameters parameters) throws RuleException {
         ProofRuleApplication pra = considerApplication(target, parameters);
         if(pra.getApplicability() != ProofRuleApplication.Applicability.APPLICABLE) {
-            throw new RuleException("TimesOneRule is not applicable in make");
+            throw new RuleException("IntegerSimplification is not applicable in make");
         }
         return pra;
     }

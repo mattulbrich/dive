@@ -43,21 +43,21 @@ public class SkolemizationRule extends AbstractProofRule {
     protected ProofRuleApplication considerApplicationImpl(ProofNode target, Parameters parameters) throws RuleException {
         TermParameter onParam = parameters.getValue(ON_PARAM);
         if(onParam == null) {
-            ProofRuleApplicationBuilder.notApplicable(this);
+            return ProofRuleApplicationBuilder.notApplicable(this);
         }
 
         TermSelector onTs = onParam.getTermSelector();
         if(!onTs.isToplevel()) {
-            ProofRuleApplicationBuilder.notApplicable(this);
+            return ProofRuleApplicationBuilder.notApplicable(this);
         }
 
         if(!(onParam.getTerm() instanceof QuantTerm)) {
-            ProofRuleApplicationBuilder.notApplicable(this);
+            return ProofRuleApplicationBuilder.notApplicable(this);
         }
 
         QuantTerm qTerm = (QuantTerm)onParam.getTerm();
         if(qTerm.getQuantifier() != QuantTerm.Quantifier.EXISTS) {
-            ProofRuleApplicationBuilder.notApplicable(this);
+            return ProofRuleApplicationBuilder.notApplicable(this);
         }
 
         Term rt;

@@ -18,8 +18,13 @@ class List {
   
   function Valid() : bool
   {
-    true
+    if head == null then |seqq| == 0 else ValidNode(head, 0)
   }    
+
+  function ValidNode(node : Node, idx : int) : bool
+  {
+    if(node == null) then true else node.value == seqq[idx] && ValidNode(node.next, idx + 1)
+  }
 
   method size() returns (s: int)
     requires Valid()
@@ -37,7 +42,7 @@ class List {
   
   method insertAt(pos: int, value: int)
     requires 0 <= pos <= |seqq| && Valid()
-    ensures seqq == old(seqq[..pos] + [value] + seqq[pos..])
+    ensures seqq == old(seqq[..pos] + [value] + seqq[pos..]) && Valid()
     modifies footprint
   {
     var idx := 0;
@@ -96,5 +101,4 @@ class List {
       }
       v := node.value;
   }
-  
 }
