@@ -1,7 +1,9 @@
 package edu.kit.iti.algover.util;
 
 import edu.kit.iti.algover.AlgoVerApplication;
+import edu.kit.iti.algover.util.ExceptionDetails.ExceptionReportInfo;
 import javafx.css.PseudoClass;
+import javafx.scene.control.Tooltip;
 import org.controlsfx.control.StatusBar;
 
 import java.util.ArrayList;
@@ -28,6 +30,13 @@ public class StatusBarLoggingHandler extends Handler {
     public void publish(LogRecord record) {
         statusBar.setText(record.getMessage());
         setPseudoClassStateFromBranches(record.getLevel());
+        Throwable exc = record.getThrown();
+        if(exc != null) {
+            CharSequence msg = ExceptionDetails.getNiceErrorMessage(exc);
+            statusBar.setTooltip(new Tooltip(msg.toString()));
+        } else {
+            statusBar.setTooltip(null);
+        }
         history.add(record);
     }
 

@@ -1,0 +1,17 @@
+### decls:
+s1: set<int>
+s2: set<int>
+### sequent:
+
+|-
+let s1 := $set_add<int>(1,$empty) :: let s2 := $set_add<int>(1,$empty) :: $set_minus<int>(s1,s2) == $empty
+
+### result:
+prove
+### OLD-translation:
+
+procedure Sequent()
+  ensures false;
+{
+  assume !(Set#Equal(Set#Difference(Set#UnionOne(Set#Empty(), 1), Set#UnionOne(Set#Empty(), 1)), Set#Empty()));
+}

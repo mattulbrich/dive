@@ -1,0 +1,20 @@
+### decls:
+a : array<int>
+### sequent:
+|- a[0] == 0
+### result:
+fail
+### translation:
+const _$heap : Heap;
+const _a : ref;
+
+axiom $Is(_$heap, THeap);
+axiom $Is(_a, TArray(TInt));
+
+procedure Sequent()
+  ensures false;
+{
+  assume !((read(_$heap, _a, IndexField(0) : Field int) == 0));
+}
+### comments:
+subject to change

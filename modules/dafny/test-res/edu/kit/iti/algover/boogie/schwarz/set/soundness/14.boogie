@@ -1,0 +1,15 @@
+### decls:
+s : set<int>
+### sequent:
+|-
+$subset<int>(s,$empty)
+### result:
+fail
+### OLD-translation:
+var _s : Set int;
+
+procedure Sequent()
+  ensures false;
+{
+  assume !(Set#Subset(_s, Set#Empty()));
+}

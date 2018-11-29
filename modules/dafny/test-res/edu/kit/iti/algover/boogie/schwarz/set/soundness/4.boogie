@@ -1,0 +1,17 @@
+### decls:
+s: set<int>
+i: int
+### sequent:
+|-
+$set_in<int>(i,s)
+### result:
+fail
+### OLD-translation:
+var _i : int;
+var _s : Set int;
+
+procedure Sequent()
+  ensures false;
+{
+  assume !((_s[_i]));
+}

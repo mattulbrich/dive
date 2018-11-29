@@ -1,0 +1,16 @@
+### decls:
+s: set<int>
+### sequent:
+|-
+$empty == $union<int>(s,$empty)
+### result:
+fail
+### OLD-translation:
+var _s : Set int;
+
+procedure Sequent()
+  ensures false;
+{
+  assume !(Set#Equal(Set#Empty(), Set#Union(_s, Set#Empty())));
+}
+

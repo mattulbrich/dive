@@ -1,0 +1,19 @@
+### decls:
+s1: seq<int>
+s2: seq<int>
+s3: seq<int>
+### sequent:
+|-
+let s1 := $seq_cons<int>(4,$seq_cons<int>(3,$seq_cons<int>(2,$seq_cons<int>(1,$seq_empty)))) ::
+let s2 := $seq_cons<int>(8,$seq_cons<int>(7,$seq_cons<int>(6,$seq_cons<int>(5,$seq_empty)))) ::
+let s3 := $seq_concat<int>(s1,s2) ::
+$and($seq_get<int>(s3,4) == 5 ,$seq_len<int>(s3) == 8)
+### result:
+prove
+### OLD-translation:
+
+procedure Sequent()
+  ensures false;
+{
+  assume !(((Seq#Index(Seq#Append(Seq#Build(Seq#Build(Seq#Build(Seq#Build(Seq#Empty(), 1), 2), 3), 4), Seq#Build(Seq#Build(Seq#Build(Seq#Build(Seq#Empty(), 5), 6), 7), 8)), 4) == 5) && (Seq#Length(Seq#Append(Seq#Build(Seq#Build(Seq#Build(Seq#Build(Seq#Empty(), 1), 2), 3), 4), Seq#Build(Seq#Build(Seq#Build(Seq#Build(Seq#Empty(), 5), 6), 7), 8))) == 8)));
+}

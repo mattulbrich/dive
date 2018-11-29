@@ -15,6 +15,7 @@ import edu.kit.iti.algover.project.ProjectManagerTest;
 import edu.kit.iti.algover.proof.PVCBuilderTest;
 import edu.kit.iti.algover.proof.ProofTest;
 import edu.kit.iti.algover.references.TermReferencesBuilderTest;
+import edu.kit.iti.algover.rules.AbstractRuleTest;
 import edu.kit.iti.algover.rules.TestRuleApplicator;
 import edu.kit.iti.algover.rules.impl.AddHypothesisRuleTest;
 import edu.kit.iti.algover.rules.impl.DafnyRuleTest;
@@ -25,7 +26,7 @@ import edu.kit.iti.algover.rules.impl.LetSubstitutionRuleTest;
 import edu.kit.iti.algover.rules.impl.NotLeftRuleTest;
 import edu.kit.iti.algover.rules.impl.OrLeftRuleTest;
 import edu.kit.iti.algover.rules.impl.PropositionalExpanderTest;
-import edu.kit.iti.algover.rules.impl.QuantifierInstantiation;
+import edu.kit.iti.algover.rules.impl.QuantifierInstatiationTest;
 import edu.kit.iti.algover.rules.impl.SkolemizationTest;
 import edu.kit.iti.algover.symbex.FunctionObligationMakerTest;
 import edu.kit.iti.algover.symbex.SymbexExpressionValidatorTest;
@@ -117,8 +118,9 @@ import edu.kit.iti.algover.util.UtilTest;
     RuleUtilTest.class,
     TestRuleApplicator.class,
     SkolemizationTest.class,
-    QuantifierInstantiation.class,
-    IntegerSimplificationTest.class
+    QuantifierInstatiationTest.class,
+    IntegerSimplificationTest.class,
+        AbstractRuleTest.class
     })
 public class Tests {
 }

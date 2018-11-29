@@ -1,0 +1,8 @@
+### sequent:
+  |-
+
+### result:
+  fail
+
+### comments:
+  That should not close.

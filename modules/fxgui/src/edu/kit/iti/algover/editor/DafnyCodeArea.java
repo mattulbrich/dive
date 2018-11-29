@@ -147,6 +147,7 @@ public class DafnyCodeArea extends AsyncHighlightingCodeArea {
             case DafnyLexer.CLASS:
             case DafnyLexer.VAR:
             case DafnyLexer.IF:
+            case DafnyLexer.THEN:
             case DafnyLexer.ELSE:
             case DafnyLexer.RETURNS:
             case DafnyLexer.WHILE:
@@ -163,7 +164,10 @@ public class DafnyCodeArea extends AsyncHighlightingCodeArea {
             case DafnyLexer.MODIFIES:
             case DafnyLexer.LEMMA:
             case DafnyLexer.SETTINGS:
-            case DafnyParser.OLD:
+            case DafnyLexer.OLD:
+            case DafnyLexer.EX:
+            case DafnyLexer.ALL:
+            case DafnyLexer.LABEL:
                 return Collections.singleton("specification-keyword");
             case DafnyLexer.MULTILINE_COMMENT:
             case DafnyLexer.SINGLELINE_COMMENT:

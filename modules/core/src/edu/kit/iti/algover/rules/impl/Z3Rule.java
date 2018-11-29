@@ -71,9 +71,7 @@ public class Z3Rule extends AbstractProofRule {
     }
 
     private ProofRuleApplication refine(ProofNode target, ProofRuleApplication app) {
-        PVC pvc = target.getPVC();
-
-        if(quickAndDirty(target.getPVC().getIdentifier(), target.getSequent(), pvc.getAllSymbols())) {
+        if(quickAndDirty(target.getPVC().getIdentifier(), target.getSequent(), target.getAllSymbols())) {
             ProofRuleApplicationBuilder builder = new ProofRuleApplicationBuilder(app);
             builder.setApplicability(Applicability.APPLICABLE);
             builder.setRefiner(null);
@@ -89,9 +87,7 @@ public class Z3Rule extends AbstractProofRule {
 
     @Override
     public ProofRuleApplication makeApplicationImpl(ProofNode target, Parameters parameters) throws RuleException {
-        PVC pvc = target.getPVC();
-
-        if(quickAndDirty(target.getPVC().getIdentifier(), target.getSequent(), pvc.getAllSymbols())) {
+        if(quickAndDirty(target.getPVC().getIdentifier(), target.getSequent(), target.getAllSymbols())) {
             ProofRuleApplicationBuilder builder = new ProofRuleApplicationBuilder(this);
             builder.setApplicability(Applicability.APPLICABLE);
             builder.setRefiner(null);

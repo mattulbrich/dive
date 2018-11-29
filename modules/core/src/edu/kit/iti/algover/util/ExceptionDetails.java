@@ -33,8 +33,8 @@ import java.util.List;
  * to obtain this info.
  *
  * <p>An easy to read and informtive error description can be constructed using
- * {@link #getNiceErrorMessage(Exception)}. Use
- * {@link #printNiceErrorMessage(Exception)} to direct it to System.err directly.
+ * {@link #getNiceErrorMessage(Throwable)}. Use
+ * {@link #printNiceErrorMessage(Throwable)} to direct it to System.err directly.
  *
  * @author Mattias Ulbrich
  */
@@ -192,11 +192,11 @@ public final class ExceptionDetails {
         }
     }
 
-    public static void printNiceErrorMessage(Exception ex) {
+    public static void printNiceErrorMessage(Throwable ex) {
         System.err.println(getNiceErrorMessage(ex));
     }
 
-    public static CharSequence getNiceErrorMessage(Exception ex) {
+    public static CharSequence getNiceErrorMessage(Throwable ex) {
         return getNiceErrorMessage(extractReportInfo(ex));
     }
 

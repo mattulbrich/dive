@@ -1,0 +1,19 @@
+### decls:
+s1: set<int>
+s2: set<int>
+i : int
+### sequent:
+|-
+let s1 := $set_add<int>(i,$set_add<int>(1,$empty)) ::
+let s2 := $set_add<int>(1,$empty) ::
+$set_minus<int>(s1,s2) == $empty
+### result:
+fail
+### OLD-translation:
+var _i : int;
+
+procedure Sequent()
+  ensures false;
+{
+  assume !(Set#Equal(Set#Difference(Set#UnionOne(Set#UnionOne(Set#Empty(), 1), _i), Set#UnionOne(Set#Empty(), 1)), Set#Empty()));
+}

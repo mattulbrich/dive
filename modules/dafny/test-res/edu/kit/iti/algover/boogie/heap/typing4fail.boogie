@@ -1,0 +1,12 @@
+### project:
+
+class C { var f: int; }
+
+### decls:
+x : seq<C>
+y : seq<C>
+### sequent:
+   |x| > 0 && |y| > 0
+|- (exists o:object :: o == x[0] && o == y[0]) ==> x[0] == null
+### result:
+fail

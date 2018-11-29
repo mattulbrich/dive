@@ -229,6 +229,7 @@ class C
    function fct(i: int) : int {0}
 
    method functionReference()
+     requires fct(0) == 0
    { var r := this.fct(0) + cfield.fct(0) + fct(0); }
 
    method dotdots(s: seq<int>, a: array<int>)
@@ -267,15 +268,6 @@ class C
       seqC := seqO;
    }
 
-/*
-   method challengeNull()
-   {
-      var setC: set<C>;
-
-      setC := { null };
-   }
-*/
-
    method multiReturnObject() returns (a:object, c:C)
    {}
 
@@ -306,4 +298,11 @@ class C
       assert 1 + 1  == 2;
       assert st + st + {1} == st;
    }
+
+   method challengeNull()
+   {
+      var setC: set<C>;
+      setC := { null };
+   }
+
 }

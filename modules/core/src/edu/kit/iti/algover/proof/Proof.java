@@ -136,7 +136,6 @@ public class Proof {
         assert script != null;
 
         ProofNode newRoot = ProofNode.createRoot(pvc);
-        pvc.setAddedSymbols(new MapSymbolTable(new ArrayList<>()));
 
         try {
             // TODO Exception handling

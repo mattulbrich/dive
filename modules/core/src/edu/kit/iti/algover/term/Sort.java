@@ -5,12 +5,14 @@
  */
 package edu.kit.iti.algover.term;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import edu.kit.iti.algover.term.builder.TermBuildException;
 import edu.kit.iti.algover.util.Util;
@@ -441,5 +443,61 @@ public class Sort {
         }
 
         throw new TermBuildException("No common supertype for " + sort1 + " and " + sort2);
+    }
+
+    /**
+     * Parse a String into a Sort.
+     *
+     * @param sortString a string that could be produced by String{@link
+     *                   #toString()}
+     * @return a fresh Sort object.
+     * @throws IllegalArgumentException if the string cannot be parsed to a
+     *                                  sort
+     */
+    public static Sort parseSort(String sortString) {
+        return parseSort(sortString, new AtomicInteger());
+    }
+
+    private static Sort parseSort(String sortString, AtomicInteger pos) {
+        StringBuilder sb = new StringBuilder();
+        int len = sortString.length();
+        while(pos.get() < len) {
+            char c = sortString.charAt(pos.get());
+            if ("<>,".indexOf(c) != -1) {
+                break;
+            }
+            if("\t ".indexOf(c) == -1) {
+                // overread spaces and tabs
+                sb.append(c);
+            }
+            pos.incrementAndGet();
+        }
+
+        List<Sort> children = null;
+        if(pos.get() < len) {
+            char c = sortString.charAt(pos.get());
+            if(c != '<') {
+                return Sort.get(sb.toString());
+            }
+            pos.incrementAndGet();
+            children = new ArrayList<>();
+            children.add(parseSort(sortString, pos));
+        }
+
+        while(pos.get() < len) {
+            char c = sortString.charAt(pos.get());
+            pos.incrementAndGet();
+            switch(c) {
+            case ',':
+                children.add(parseSort(sortString, pos));
+                break;
+            case '>':
+                return Sort.get(sb.toString(), children);
+            default:
+                throw new IllegalArgumentException();
+            }
+        }
+
+        return Sort.get(sb.toString());
     }
 }

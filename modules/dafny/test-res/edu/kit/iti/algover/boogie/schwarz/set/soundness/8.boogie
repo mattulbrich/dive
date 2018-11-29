@@ -1,0 +1,16 @@
+### decls:
+i: int
+j: int
+### sequent:
+|-
+{j} + {j} == {5}
+### result:
+fail
+### OLD-translation:
+var _j : int;
+
+procedure Sequent()
+  ensures false;
+{
+  assume !(Set#Equal(Set#Union(Set#UnionOne(Set#Empty(), _j), Set#UnionOne(Set#Empty(), _j)), Set#UnionOne(Set#Empty(), 5)));
+}

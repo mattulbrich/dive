@@ -150,8 +150,21 @@ public class SymbexExpressionValidator {
             for (int i = 1; i < expression.getChildCount(); i++) {
                 DafnyTree child = expression.getChild(i);
                 String suffix = expression.getChildCount() > 2 ? Integer.toString(i - 1) : "";
-                addIndexInRangeCheck(child, child0, suffix, wrapper);
-                handleExpression(child, wrapper);
+                if(child.getType() == DafnyParser.DOTDOT) {
+                    // bugfix ...
+                    for (int j = 0; j < child.getChildCount(); j++) {
+                        DafnyTree index = child.getChild(j);
+                        if(index.getType() == DafnyParser.ARGS) {
+                            continue;
+                        }
+                        // TODO perhaps have monotonicity?
+                        addIndexInRangeCheck(index, child0, suffix, wrapper);
+                        handleExpression(index, wrapper);
+                    }
+                } else {
+                    addIndexInRangeCheck(child, child0, suffix, wrapper);
+                    handleExpression(child, wrapper);
+                }
             }
             break;
 
@@ -276,8 +289,7 @@ public class SymbexExpressionValidator {
                                      String arrayLengthSuffix,
                                       Function<DafnyTree, DafnyTree> wrapper) {
         SymbexPath bounds = new SymbexPath(state);
-        /// FIXME! Make this unidirectional!
-        DafnyTree check = ASTUtil.greaterEqual(idx, ASTUtil.intLiteral(0));
+        DafnyTree check = ASTUtil.lessEqual(ASTUtil.intLiteral(0), idx);
         if (array != null) {
             check = ASTUtil.and(check, ASTUtil.less(idx, ASTUtil.length(array, arrayLengthSuffix)));
         }

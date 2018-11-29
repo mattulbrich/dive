@@ -1,0 +1,27 @@
+### decls:
+a: array<int>
+
+### sequent:
+|-
+let $heap := $array_store<int>($heap, a, 0, 1) :: 
+$array_select<int>($heap, a, 0) == 1)
+
+### result:
+prove
+
+### translation:
+const _$heap : Heap;
+const _a : ref;
+
+axiom $Is(_$heap, THeap);
+axiom $Is(_a, TArray(TInt));
+
+procedure Sequent()
+  ensures false;
+{
+  assume !((read(update(_$heap, _a, IndexField(0) : Field int, 1), _a, IndexField(0) : Field int) == 1));
+}
+
+### comments:
+
+Simon tagged this as a failure. But it should actually verify.

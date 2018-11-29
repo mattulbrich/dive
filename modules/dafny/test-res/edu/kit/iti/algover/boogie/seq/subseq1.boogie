@@ -1,0 +1,22 @@
+### decls:
+a : seq<int>
+b : seq<int>
+
+### sequent:
+a.Length > 0, a[0] == 0 |- a[0..1] == [0]
+
+### result:
+prove
+
+### translation:
+const _a : Seq (int);
+
+axiom $Is(_a, TSeq(TInt));
+
+procedure Sequent()
+  ensures false;
+{
+  assume (Seq#Length(_a) > 0);
+  assume (Seq#Index(_a, 0) == 0);
+  assume !(Seq#Equal(Seq#Drop(Seq#Take(_a, 1), 0), Seq#Build(Seq#Empty(), 0)));
+}

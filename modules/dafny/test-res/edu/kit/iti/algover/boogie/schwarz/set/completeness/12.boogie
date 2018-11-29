@@ -1,0 +1,26 @@
+### decls:
+s1 : set<int>
+s2 : set<int>
+i : int
+j : int
+### sequent:
+$not(i == j)
+|- 
+let s1 := $set_add<int>(i,$empty) ::
+let s2 := $set_add<int>(j,$empty) ::
+$intersect<int>(s1,s2) == $empty
+### result:
+prove
+### OLD-translation:
+var _i : int;
+var _j : int;
+
+procedure Sequent()
+  ensures false;
+{
+  assume !((_i == _j));
+  assume !(Set#Equal(Set#Intersection(Set#UnionOne(Set#Empty(), _i), Set#UnionOne(Set#Empty(), _j)), Set#Empty()));
+}
+### comments:
+
+Simon Schwarz had "$not($intersect<int>(s1,s2) == $empty)"

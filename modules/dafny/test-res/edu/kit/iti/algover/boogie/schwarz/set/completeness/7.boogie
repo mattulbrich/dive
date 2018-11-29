@@ -1,0 +1,15 @@
+### decls:
+i :int
+### sequent:
+|-
+$not($set_in<int>(i,$empty))
+### result:
+prove
+### OLD-translation:
+var _i : int;
+
+procedure Sequent()
+  ensures false;
+{
+  assume !(!((Set#Empty()[_i])));
+}

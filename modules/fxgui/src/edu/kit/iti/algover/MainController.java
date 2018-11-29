@@ -146,7 +146,7 @@ public class MainController implements SequentActionListener, RuleApplicationLis
     private void trivialStrat(ActionEvent event) {
         Map<String, PVC> pvcMap = manager.getPVCByNameMap();
         for(Map.Entry<String, PVC> e : pvcMap.entrySet()) {
-            String script = "";
+            String script = "boogie;";
             Proof p = manager.getProofForPVC(e.getKey());
             if (p.getProofStatus() != ProofStatus.CLOSED) {
                 for (int i = 0; i < p.getProofRoot().getSequent().getAntecedent().size(); ++i) {
@@ -369,6 +369,9 @@ public class MainController implements SequentActionListener, RuleApplicationLis
                     "Error reloading the project: " + t.getException().getMessage(),
                     t.getException());
             editorController.showException(t.getException());
+            browserController.getView().setDisable(true);
+            sequentController.getView().setDisable(true);
+            ruleApplicationController.getView().setDisable(true);
             t.getException().printStackTrace();
         });
 

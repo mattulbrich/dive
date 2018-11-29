@@ -1,0 +1,35 @@
+### decls:
+d : D
+D$$f : field<D, C>
+D$$g : field<D, int>
+
+### project:
+class C { }
+class D { var f: C; var g: int; }
+
+### sequent:
+  |- d.f@$heap[d.g := 42] == d.f
+
+### result:
+prove
+
+### translation:
+const _$heap : Heap;
+const _d : ref;
+const unique TClass_C : Ty;
+const unique TClass_D : Ty;
+const unique _D$$f : Field (ref);
+const unique _D$$g : Field (int);
+
+axiom (forall x:ref :: $Is(x, TClass_C) <==> dtype(x) == TClass_C || x == null);
+axiom (forall x:ref :: $Is(x, TClass_D) <==> dtype(x) == TClass_D || x == null);
+axiom $Is(_$heap, THeap);
+axiom $Is(_d, TClass_D);
+axiom $Is(_D$$g, TField(TInt));
+axiom $Is(_D$$f, TField(TClass_C));
+
+procedure Sequent()
+  ensures false;
+{
+  assume !((read(update(_$heap, _d, _D$$g, 42), _d, _D$$f) == read(_$heap, _d, _D$$f)));
+}

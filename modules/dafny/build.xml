@@ -2,14 +2,20 @@
 <project name="AlgoVer-dafny" default="build" basedir=".">
 
 
-	<property name="dir.lib" value="../../lib" />
+	<property name="dir.lib" location="../../lib" />
+	<property name="dir.testres" location="test-res" />
 	<property name="dir.tools" value="../../tools" />
+	<property name="dir.core.bin" value="../core/bin" />
+	<property name="dir.core.testbin" value="../core/test-bin" />
 
-	<property name="libs" value="${dir.lib}/antlr.jar:${dir.lib}/junit4.jar" />
+	<property name="boogie.binary" value="boogie"/>
+
+	<property name="libs"
+			  value="${dir.lib}/antlr.jar:${dir.lib}/junit4.jar:${dir.lib}/hamcrest.jar:${dir.lib}/junitparams.jar:${dir.lib}/jpplib.jar:${dir.lib}/antlr-4.7-complete.jar:${dir.lib}/guava-23.0.jar"/>
 
 	<target name="init" description="initialize all directories">
 		<mkdir dir="bin" />
-		<!-- <mkdir dir="test-bin" /> -->
+		<mkdir dir="test-bin" />
 	</target>
 
 	<target name="copy-test" depends="init">
@@ -25,10 +31,19 @@
 		<copy todir="bin">
 			<fileset dir="res" />
 		</copy>
+		<copy file="src/edu/kit/iti/algover/boogie/DafnyPrelude.bpl"
+			  tofile="bin/edu/kit/iti/algover/boogie/DafnyPrelude.bpl">
+			<filterchain>
+				<linecontainsregexp negate="true">
+					<regexp pattern="^//D"/>
+				</linecontainsregexp>
+			</filterchain>
+		</copy>
 	</target>
 
 	<target name="compile" description="Compile all files" depends="init">
-		<javac destdir="bin" classpath="${libs}" debug="on">
+		<echo>"${libs}"</echo>
+		<javac destdir="bin" classpath="${dir.core.bin}:${libs}" debug="on">
 			<compilerarg value="-Werror"/>
 			<compilerarg value="-Xlint:unchecked"/>
 			<compilerarg value="-Xlint:rawtypes"/>
@@ -37,18 +52,25 @@
 	</target>
 
 	<target name="compile-test" depends="compile, init, copy-test">
-		<javac srcdir="test" destdir="test-bin" classpath="bin:${libs}" debug="on">
+		<javac srcdir="test" destdir="test-bin" classpath="bin:${dir.core.bin}:${dir.core.testbin}:bin:${libs}" debug="on">
 			<compilerarg value="-Werror"/>
 			<compilerarg value="-Xlint:unchecked"/>
 			<compilerarg value="-Xlint:rawtypes"/>
 		</javac>
 	</target>
 
-	<target name="test" depends="compile-test, compile">
+	<target name="test" depends="compile-test, build">
+		 <exec executable="${boogie.binary}">
+                        <arg value="/version"/>
+                </exec>
+
 		<junit fork="yes" printsummary="yes">
+			<jvmarg value="-javaagent:${dir.lib}/nonnull.jar=edu.kit." />
+			<jvmarg value="-Dedu.kit.iti.algover.boogie_binary=${boogie.binary}"/>
 			<formatter type="xml" />
-			<classpath path="bin:${libs}:lib/hamcrest.jar" />
-			<test name="edu.kit.iti.algover.Tests" />
+			<assertions><enable/></assertions>
+			<classpath path="test-bin:bin:${libs}:${dir.lib}/hamcrest.jar:${dir.core.bin}:${dir.core.testbin}" />
+			<test name="edu.kit.iti.algover.boogie.Tests" />
 		</junit>
 	</target>
 
@@ -56,6 +78,16 @@
 		<delete dir="bin" />
 		<delete dir="test-bin" />
 		<delete dir="gen" />
+	</target>
+
+	<target name="checkstyle">
+		<taskdef resource="checkstyletask.properties" classpath="${dir.tools}/checkstyle-5.7-all.jar" />
+		<checkstyle config="${dir.tools}/checkstyle.xml" failOnViolation="false">
+			<property key="basedir" file="../.." />
+			<fileset dir="src" includes="**/*.java" />
+			<formatter type="plain" />
+			<formatter type="xml" toFile="checkstyle-results.xml" />
+		</checkstyle>
 	</target>
 
 </project>

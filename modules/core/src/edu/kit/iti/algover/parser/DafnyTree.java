@@ -159,6 +159,10 @@ public class DafnyTree extends CommonTree {
      */
     public DafnyTree dupTree() {
         DafnyTree result = new DafnyTree(this);
+        result.setExpressionType(this.expressionType);
+        if(this.declarationReference != null) {
+            result.setDeclarationReference(this.declarationReference);
+        }
         result.addChildren(Util.map(getChildren(), DafnyTree::dupTree));
         return result;
     }

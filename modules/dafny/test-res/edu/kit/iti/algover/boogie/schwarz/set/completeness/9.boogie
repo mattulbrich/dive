@@ -1,0 +1,15 @@
+### decls:
+s : set<int>
+### sequent:
+|-
+s == $union<int>(s,s)
+### result:
+prove
+### OLD-translation:
+var _s : Set int;
+
+procedure Sequent()
+  ensures false;
+{
+  assume !(Set#Equal(_s, Set#Union(_s, _s)));
+}

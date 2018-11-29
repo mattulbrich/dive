@@ -21,6 +21,7 @@ import edu.kit.iti.algover.util.TreeUtil;
 public class TypeResolution extends DafnyTreeDefaultVisitor<DafnyTree, Void> {
 
     private static final DafnyTree INT_TYPE = new DafnyTree(DafnyParser.INT, "int");
+    private static final DafnyTree NULL_TYPE = new DafnyTree(DafnyParser.INT, Sort.NULL.getName());
     private static final DafnyTree UNKNOWN_TYPE = new DafnyTree(DafnyParser.ID, "UNKNOWN_TYPE");
     private static final DafnyTree BOOL_TYPE = new DafnyTree(DafnyParser.BOOL, "bool");
     private static final DafnyTree OBJECT_TYPE = new DafnyTree(DafnyParser.ID, "object");;
@@ -125,12 +126,11 @@ public class TypeResolution extends DafnyTreeDefaultVisitor<DafnyTree, Void> {
             DafnyTree ty = tree.getLastChild().accept(this, null);
             DafnyTree explicitType = tree.getFirstChildWithType(DafnyParser.TYPE);
             if (explicitType != null) {
-                String ty1 = TreeUtil.toTypeString(explicitType.getChild(0));
-                String ty2 = TreeUtil.toTypeString(ty);
-                // TODO FIXME CAUTION: Subtyping
-                if(!ty1.equals(ty2)) {
-                    exceptions.add(new DafnyException("Assigning a value of type " + ty2 + " to an entitity"
-                            + " of type " + ty1, tree));
+                Sort tyLHS = TreeUtil.toSort(explicitType.getChild(0));
+                Sort tyRHS = TreeUtil.toSort(ty);
+                if(!tyRHS.isSubtypeOf(tyLHS)) {
+                    exceptions.add(new DafnyException("Assigning a value of type " + tyRHS + " to an entitity"
+                            + " of type " + tyLHS, tree));
                 }
             } else {
                 // if no explicit type, add it as artificial element
@@ -187,7 +187,7 @@ public class TypeResolution extends DafnyTreeDefaultVisitor<DafnyTree, Void> {
 
             tree.setExpressionType(result);
         } catch(TermBuildException ex) {
-            exceptions.add(new DafnyException("Types are not compatible", tree, ex));
+            exceptions.add(new DafnyException(tree, ex));
             result = ASTUtil.fromSort(Sort.UNTYPED_SORT);
         }
         return result;
@@ -574,7 +574,11 @@ public class TypeResolution extends DafnyTreeDefaultVisitor<DafnyTree, Void> {
 
     @Override
     public DafnyTree visitNULL(DafnyTree t, Void a) {
-        DafnyTree parent = (DafnyTree) t.getParent();
+
+        t.setExpressionType(NULL_TYPE);
+        return NULL_TYPE;
+
+        /*DafnyTree parent = (DafnyTree) t.getParent();
         DafnyTree ty;
         DafnyTree otherTree;
 
@@ -617,7 +621,7 @@ public class TypeResolution extends DafnyTreeDefaultVisitor<DafnyTree, Void> {
 
         default:
             throw new Error("unexpected null under type " + parent.getType());
-        }
+        }*/
     }
 
     @Override

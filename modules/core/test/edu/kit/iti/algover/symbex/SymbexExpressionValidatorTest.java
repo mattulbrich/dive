@@ -40,21 +40,21 @@ public class SymbexExpressionValidatorTest {
                 {
                         "method m(a: array<int>) ensures a[0] == 0 {}",
                         new int[]{0, 2, 0},
-                        Arrays.asList("[][RT_IN_BOUNDS:(&& (>= 0 0) (< 0 (Length a)))]",
+                        Arrays.asList("[][RT_IN_BOUNDS:(&& (<= 0 0) (< 0 (Length a)))]",
                                 "[][RT_NONNULL:(!= a null)]")
                 },
                 {
                         "method m(a: array2<int>) ensures a[0,22] == 0 {}",
                         new int[]{0, 2, 0},
                         Arrays.asList(
-                                "[][RT_IN_BOUNDS:(&& (>= 0 0) (< 0 (Length0 a)))]",
-                                "[][RT_IN_BOUNDS:(&& (>= 22 0) (< 22 (Length1 a)))]",
+                                "[][RT_IN_BOUNDS:(&& (<= 0 0) (< 0 (Length0 a)))]",
+                                "[][RT_IN_BOUNDS:(&& (<= 0 22) (< 22 (Length1 a)))]",
                                 "[][RT_NONNULL:(!= a null)]")
                 },
                 {
                         "method m(a: seq<int>) ensures a[0] == 0 {}",
                         new int[]{0, 2, 0},
-                        Arrays.asList("[][RT_IN_BOUNDS:(&& (>= 0 0) (< 0 (Length a)))]")
+                        Arrays.asList("[][RT_IN_BOUNDS:(&& (<= 0 0) (< 0 (Length a)))]")
                 },
                 {
                         "method m(x: int) ensures 1/x == 1 {}",
@@ -86,7 +86,15 @@ public class SymbexExpressionValidatorTest {
                         "method m(a: array<int>, x:int) ensures x > 0 ==> a[x] == 0 {}",
                         new int[]{0, 2, 0},
                         Arrays.asList("[][RT_NONNULL:(==> (> x 0) (!= a null))]",
-                                "[][RT_IN_BOUNDS:(==> (> x 0) (&& (>= x 0) (< x (Length a))))]")
+                                "[][RT_IN_BOUNDS:(==> (> x 0) (&& (<= 0 x) (< x (Length a))))]")
+                },
+                // from a bug:
+                {
+                        "method m(a: array<int>, x:int) ensures a[1..2] == [] {}",
+                        new int[]{0, 2, 0},
+                        Arrays.asList("[][RT_NONNULL:(!= a null)]",
+                                "[][RT_IN_BOUNDS:(&& (<= 0 1) (< 1 (Length a)))]",
+                                "[][RT_IN_BOUNDS:(&& (<= 0 2) (< 2 (Length a)))]")
                 },
 
                 // Logical shortcut operators
@@ -253,7 +261,7 @@ public class SymbexExpressionValidatorTest {
             String actual = "" +
                     p.getPathConditions() +
                     p.getProofObligations();
-            assertTrue(actual + " not expected", expected.contains(actual));
+            assertThat(actual, TestUtil.isContainedIn(expected));
         }
 
     }

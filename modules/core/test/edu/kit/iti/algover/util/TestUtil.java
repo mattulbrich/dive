@@ -6,12 +6,17 @@
 package edu.kit.iti.algover.util;
 
 import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.io.FileFilter;
+import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.Parameter;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Function;
@@ -302,7 +307,7 @@ public class TestUtil {
 
             @Override
             public void describeTo(Description description) {
-                description.appendText("not contained in " + list);
+                description.appendText("contained in " + list);
             }
         };
     }
@@ -315,5 +320,31 @@ public class TestUtil {
             // Really should not happen ...
             throw new RuntimeException(e);
         }
+    }
+
+    @TestInfrastructure
+    public static List<URL> getResourcesIn(URL resource, String suffix, boolean deep) throws MalformedURLException {
+        assert resource != null : "Null resource received!";
+        assert resource.getProtocol().equals("file") :
+                "This is only implemented for file systems.";
+        File f = new File(resource.getFile());
+        return getResourcesIn(f, suffix, deep);
+    }
+
+    private static List<URL> getResourcesIn(File resource, String suffix, boolean deep) throws MalformedURLException {
+        FileFilter filter = x -> x.getName().endsWith("." + suffix);
+
+        List<URL> children = new ArrayList<>();
+        for (File f : resource.listFiles(filter)) {
+            children.add(f.toURI().toURL());
+        }
+
+        if (deep) {
+            for (File d : resource.listFiles(File::isDirectory)) {
+                children.addAll(getResourcesIn(d, suffix, deep));
+            }
+        }
+
+        return children;
     }
 }
