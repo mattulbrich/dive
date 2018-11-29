@@ -25,6 +25,9 @@ import java.util.function.IntFunction;
  */
 public class GutterFactory implements IntFunction<Node> {
 
+    /**
+     * Background Color
+     */
     private final Background defaultBackground =
             new Background(new BackgroundFill(Color.web("#ddd"), null, null));
 
@@ -66,7 +69,7 @@ public class GutterFactory implements IntFunction<Node> {
         model.textProperty().bind(formatted);
 
 
-
+//TODO Action goes here
         hbox.setOnMouseClicked((mevent) -> {
             mevent.consume();
             if (mevent.getButton() == MouseButton.PRIMARY)

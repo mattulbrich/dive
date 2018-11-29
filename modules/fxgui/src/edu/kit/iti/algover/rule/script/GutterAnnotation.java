@@ -11,6 +11,7 @@ import javafx.beans.property.StringProperty;
  * @author A. Weigl (PSDBG)
  */
 public class GutterAnnotation {
+
         private StringProperty text = new SimpleStringProperty();
 
         private SimpleBooleanProperty breakpoint = new SimpleBooleanProperty();
@@ -19,9 +20,6 @@ public class GutterAnnotation {
 
         private BooleanBinding conditional = breakpointCondition.isNotNull().and(breakpointCondition.isNotEmpty());
 
-        private BooleanProperty mainScript = new SimpleBooleanProperty();
-
-        private SimpleBooleanProperty savepoint = new SimpleBooleanProperty();
 
         //for now specifically for skipped saved commands
         private SimpleBooleanProperty alert = new SimpleBooleanProperty();
@@ -81,31 +79,5 @@ public class GutterAnnotation {
         public BooleanBinding conditionalProperty() {
             return conditional;
         }
-
-        public boolean isMainScript() {
-            return mainScript.get();
-        }
-
-        public void setMainScript(boolean mainScript) {
-            this.mainScript.set(mainScript);
-        }
-
-        public BooleanProperty mainScriptProperty() {
-            return mainScript;
-        }
-
-
-        public boolean isSavepoint() {
-            return savepoint.get();
-        }
-
-        public void setSavepoint(boolean savepoint) {
-            this.savepoint.set(savepoint);
-        }
-
-        public SimpleBooleanProperty savepointProperty() {
-            return savepoint;
-        }
-
 
 }

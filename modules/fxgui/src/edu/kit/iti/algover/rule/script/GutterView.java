@@ -12,7 +12,7 @@ public class GutterView extends HBox {
     private final SimpleObjectProperty<GutterAnnotation> annotation = new SimpleObjectProperty<>();
 
 
-    private MaterialDesignIconView iconBreakPoint = new MaterialDesignIconView(MaterialDesignIcon.STOP);
+    private MaterialDesignIconView iconStateHandle = new MaterialDesignIconView(MaterialDesignIcon.CLOSE_CIRCLE_OUTLINE);
 
     private MaterialDesignIconView iconConditionalBreakPoint = new MaterialDesignIconView(MaterialDesignIcon.CHECK);
 
@@ -55,7 +55,7 @@ public class GutterView extends HBox {
         if (getAnnotation().isBreakpoint())
             getChildren().add(getAnnotation().getConditional()
                     ? iconConditionalBreakPoint
-                    : iconBreakPoint);
+                    : iconStateHandle);
         else
             addPlaceholder();
     }
