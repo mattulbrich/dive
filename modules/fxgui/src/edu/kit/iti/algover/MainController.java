@@ -352,6 +352,7 @@ public class MainController implements SequentActionListener, RuleApplicationLis
                 browserController.getView().setDisable(false);
                 sequentController.getView().setDisable(false);
                 ruleApplicationController.getView().setDisable(false);
+                manager.getProject().getDafnyFiles().forEach(df -> editorController.viewFile(df));
                 ruleApplicationController.onReset();
                 simpleStratButton.setDisable(false);
                 breadCrumbBar.setDisable(false);
@@ -365,8 +366,9 @@ public class MainController implements SequentActionListener, RuleApplicationLis
 
         //TODO somehow get proper exceptions and handling them
         t.setOnFailed(event -> {
+            manager.getProject().getDafnyFiles().forEach(df -> editorController.viewFile(df));
             Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).log(Level.SEVERE,
-                    "Error reloading the project: " + t.getException().getMessage(),
+                    t.getException().getMessage(),
                     t.getException());
             editorController.showException(t.getException());
             browserController.getView().setDisable(true);

@@ -7,6 +7,8 @@
 package edu.kit.iti.algover.parser;
 
 
+import java.io.File;
+
 /**
  * The Class DafnyException is thrown by all routines that have a
  * {@link DafnyTree} at hand.
@@ -47,15 +49,14 @@ public class DafnyException extends Exception {
         return tree;
     }
 
-//    @Override
-//    public String getMessage() {
-//        String result = super.getMessage();
-//        if (tree != null) {
-//            // TODO deal with fileName == null;
-//            result += " (" + tree.getFilename() + ":" + tree.getLine()
-//                    + ":" + tree.getCharPositionInLine() + ")";
-//        }
-//        return result;
-//    }
+    @Override
+    public String getMessage() {
+        String result = "";
+        if (tree != null) {
+            result += new File(tree.getFilename()).getName() + ":" + tree.getLine()
+                    + ":" + tree.getCharPositionInLine() + super.getMessage();
+        }
+        return result;
+    }
 
 }
