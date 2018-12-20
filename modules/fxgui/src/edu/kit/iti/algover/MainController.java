@@ -146,7 +146,7 @@ public class MainController implements SequentActionListener, RuleApplicationLis
     private void trivialStrat(ActionEvent event) {
         Map<String, PVC> pvcMap = manager.getPVCByNameMap();
         for(Map.Entry<String, PVC> e : pvcMap.entrySet()) {
-            String script = "boogie;";
+            String script = "";
             Proof p = manager.getProofForPVC(e.getKey());
             if (p.getProofStatus() != ProofStatus.CLOSED) {
                 for (int i = 0; i < p.getProofRoot().getSequent().getAntecedent().size(); ++i) {
@@ -183,7 +183,7 @@ public class MainController implements SequentActionListener, RuleApplicationLis
                 script += "close;\n";
                 p.setScriptTextAndInterpret(script);
                 if(p.getFailException() != null) {
-                    script = letScript + "z3;\n";
+                    script = letScript + "boogie;\n";
                     p.setScriptTextAndInterpret(script);
                     if(p.getFailException() != null) {
                         p.setScriptTextAndInterpret(letScript);

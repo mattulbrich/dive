@@ -73,15 +73,11 @@ public class ExhaustiveRule extends AbstractProofRule {
 
         ProofRuleApplication res = applyRuleExhaustive(rule, target, onSelector);
 
-        if(res == null) {
-            throw new RuleException("exhaustive could not be applied.");
-        } else {
-            ProofRuleApplicationBuilder top = new ProofRuleApplicationBuilder(this);
-            top.newBranch();
-            top.setApplicability(ProofRuleApplication.Applicability.APPLICABLE)
-                    .setSubApplications(Collections.singletonList(res));
-            return top.build();
-        }
+        ProofRuleApplicationBuilder top = new ProofRuleApplicationBuilder(this);
+        top.newBranch();
+        top.setApplicability(ProofRuleApplication.Applicability.APPLICABLE)
+                .setSubApplications(Collections.singletonList(res));
+        return top.build();
     }
 
     private static ProofRuleApplication applyRuleExhaustive(ProofRule proofRule, ProofNode pn, TermSelector ts)  throws RuleException {
