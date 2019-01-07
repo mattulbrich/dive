@@ -1,0 +1,4 @@
+(:= c o)
+(:= c a)
+(:= setC setO)
+(:= seqC seqO)

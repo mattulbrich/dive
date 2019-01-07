@@ -1,0 +1,10 @@
+(method additions ARGS
+	(BLOCK (var sq (TYPE (seq int)))
+	       (var st (TYPE (set int)))
+	       (assert (== (+ (+ sq[seq<int>] sq[seq<int>])[seq<int>]
+			      ([ 1[int])[seq<int>])[seq<int>]
+			      sq[seq<int>])[bool])
+	       (assert (== (+ 1[int] 1[int])[int] 2[int])[bool])
+	       (assert (== (+ (+ st[set<int>] st[set<int>])[set<int>]
+			      ({ 1[int])[set<int>])[set<int>]
+			      st[set<int>])[bool])))[scc_24]

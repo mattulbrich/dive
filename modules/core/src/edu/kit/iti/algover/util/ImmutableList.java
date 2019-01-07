@@ -6,7 +6,9 @@
 package edu.kit.iti.algover.util;
 
 import java.util.AbstractCollection;
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 import java.util.function.Predicate;
@@ -122,6 +124,19 @@ public class ImmutableList<T> implements Iterable<T> {
      */
     public boolean isEmpty() {
         return size() == 0;
+    }
+
+    @SuppressWarnings("unchecked")
+    public ImmutableList<T> sort() {
+        T[] array = (T[])new Object[size()];
+
+        Iterator<T> it = iterator();
+        for (int i = 0; i < array.length; i++) {
+            array[i] = it.next();
+        }
+        Arrays.sort(array);
+
+        return from(array);
     }
 
     /*

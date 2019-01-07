@@ -1,0 +1,18 @@
+### decls:
+s1: seq<int>
+### sequent:
+
+s1 == $seq_cons<int>(4,$seq_cons<int>(3,$seq_cons<int>(2,$seq_cons<int>(1,$seq_empty))))
+|-
+$seq_len<int>(s1) == 4
+### result:
+prove
+### OLD-translation:
+var _s1 : Seq int;
+
+procedure Sequent()
+  ensures false;
+{
+  assume Seq#Equal(_s1, Seq#Build(Seq#Build(Seq#Build(Seq#Build(Seq#Empty(), 1), 2), 3), 4));
+  assume !((Seq#Length(_s1) == 4));
+}

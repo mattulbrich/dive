@@ -73,7 +73,7 @@ public class TermMatcherApi<T> implements MatcherApi<T> {
     @Override
     public List<VariableAssignment> matchSeq(ProofNode currentState, String data, Signature sig) {
         SequentMatcher matcher = new SequentMatcher();
-        SymbolTable symbTable = currentState.getPVC().getSymbolTable();
+        SymbolTable symbTable = currentState.getAllSymbols();
         TermParser tp = new TermParser(symbTable);
         tp.setSchemaMode(true);
         try {

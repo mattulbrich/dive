@@ -1,0 +1,8 @@
+### decls:
+c : array<int>
+d : array<bool>
+### sequent:
+c == d |- c == null
+### result:
+prove
+### translation:

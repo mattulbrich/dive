@@ -158,6 +158,8 @@ public class EditorController implements DafnyCodeAreaListener {
     public void showException(Throwable exception) {
         ExceptionDetails.ExceptionReportInfo ri = ExceptionDetails.extractReportInfo(exception);
         int line = ri.getLine();
+        int col = ri.getColumn() - 1;
+        int endCol = col + ri.getLength();
         String filename = ri.getFilename();
 
         if(filename == null) {
@@ -168,7 +170,8 @@ public class EditorController implements DafnyCodeAreaListener {
             @Override
             public Collection<String> handleToken(Token token, Collection<String> syntaxClasses) {
                 int tokenLine = token.getLine();
-                if (tokenLine == line) {
+                int tokenCol = token.getCharPositionInLine();
+                if (tokenLine == line && col <= tokenCol && tokenCol < endCol) {
                     return Collections.singleton("error");
                 }
                 return syntaxClasses;

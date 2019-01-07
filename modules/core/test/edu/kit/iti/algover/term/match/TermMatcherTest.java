@@ -68,6 +68,12 @@ public class TermMatcherTest {
                       "?x => 4 / 1.0, ?y => 5 / 1.1, ...0 => $plus(4, 5) / 1]]" },
             { "(... (?x:2) ...) + ?x(:int)", "f(3*2) + 2", "[[?x => 2 / 0.0.1, ...0 => 2 / 0.0.1]]" },
             { "(... ?x ...) + ?x(:int)", "f(3*2+(3+5)) + 2", "[[?x => 2 / 0.0.0.1, ...0 => 2 / 0.0.0.1]]" },
+            {"... (forall i1:int :: i1 >= 0 && i1 < 10 ==> i1 < 20) ...",
+                  "... (forall i1:int :: i1 >= 0 && i1 < 10 ==> i1 < 20) ...",
+                  "[[...0 => (forall i1:int :: $imp($and($ge(i1, 0), $lt(i1, 10)), $lt(i1, 20))) / 0]]"},
+            {"... (forall i1:int :: i1 >= 0 && i1 < 10 ==> (exists i2:int :: i2 >= 0 && i2 < 10 ==> i1 == i2)) ...",
+                        "... (forall i1:int :: i1 >= 0 && i1 < 10 ==> (exists i2:int :: i2 >= 0 && i2 < 10 ==> i1 == i2)) ...",
+                        "[[...0 => (forall i1:int :: $imp($and($ge(i1, 0), $lt(i1, 10)), (exists i2:int :: $imp($and($ge(i2, 0), $lt(i2, 10)), $eq<int>(i1, i2))))) / 0]]"}
         //  { "exists ?x :: ?x > ?y", "exists a:int :: a > 25", "" },
         //  { "let ?x := _ :: ... f(?x) ...", "let something := 22+33 :: h(g(something), something)", "" },
         };
@@ -117,6 +123,8 @@ public class TermMatcherTest {
         map.add(new FunctionSymbol("h", Sort.INT, Sort.INT, Sort.INT));
         map.add(new FunctionSymbol("fp", Sort.BOOL, Sort.INT));
         map.add(new FunctionSymbol("gp", Sort.BOOL, Sort.INT));
+        map.add(new FunctionSymbol("i1", Sort.BOOL));
+        map.add(new FunctionSymbol("i2", Sort.BOOL));
 
         symbTable = new MapSymbolTable(new BuiltinSymbols(), map);
     }

@@ -1,0 +1,5 @@
+(method multiReturnObject
+	ARGS
+	(returns (VAR a (TYPE object))
+		 (VAR c (TYPE C)))
+	BLOCK)[scc_21]

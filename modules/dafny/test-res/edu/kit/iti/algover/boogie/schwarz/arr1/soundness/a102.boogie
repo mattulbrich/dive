@@ -1,0 +1,9 @@
+### decls:
+a: array<int>
+i : int
+### sequent:
+
+|-
+$not($array_select<int>($heap, a, 1) == $array_select<int>($heap, a, 2)) 
+### result:
+fail

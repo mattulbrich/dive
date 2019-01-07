@@ -32,6 +32,7 @@ import edu.kit.iti.algover.util.ImmutableList;
 import edu.kit.iti.algover.util.Pair;
 import nonnull.NonNull;
 import org.antlr.runtime.CommonToken;
+import org.antlr.runtime.tree.Tree;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -40,6 +41,7 @@ import java.util.HashMap;
 import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * The Class TreeTermTranslator is used to create a {@link Term} object from a
@@ -57,6 +59,12 @@ public class TreeTermTranslator {
      */
     private static final VariableTerm HEAP_VAR =
             new VariableTerm("$heap", Sort.HEAP);
+
+    /**
+     * This constant is used by old and fresh expressions.
+     */
+    private static final VariableTerm OLD_HEAP_VAR =
+            new VariableTerm("$oldheap", Sort.HEAP);
 
     /**
      * The symbol table from which the function symbols etc are to be taken.
@@ -346,6 +354,7 @@ public class TreeTermTranslator {
             }), tree);
             break;
 
+        case DafnyParser.NOTIN:
         case DafnyParser.IN:
             result = buildBinary((x,y) -> {
                 switch(y.getSort().getName()) {
@@ -356,6 +365,9 @@ public class TreeTermTranslator {
                     throw new Error("Not yet implemented");
                 }
             }, tree);
+            if (tree.getType() == DafnyParser.NOTIN) {
+                result = tb.negate(result);
+            }
             break;
 
         case DafnyParser.NOT:
@@ -436,12 +448,20 @@ public class TreeTermTranslator {
             result = buildBracketAccess(tree);
             break;
 
+        case DafnyParser.DOTDOT:
+            throw new TermBuildException("unexpected range expression " +
+                    "(only allowed in '[...]')");
+
         case DafnyParser.FIELD_ACCESS:
             result = buildFieldAccess(tree);
             break;
 
         case DafnyParser.NOETHER_LESS:
             result = buildNoetherLess(tree);
+            break;
+
+        case DafnyParser.FRESH:
+            result = buildFresh(tree);
             break;
 
         case DafnyParser.AT:
@@ -532,7 +552,6 @@ public class TreeTermTranslator {
         };
     }
 
-    // TODO This is not really done yet.
     private Term buildCall(DafnyTree tree) throws TermBuildException {
 
         if(tree.getChildCount() == 3) {
@@ -546,6 +565,17 @@ public class TreeTermTranslator {
         if(fct == null) {
             fct = symbolTable.getFunctionSymbol("$$" + id);
             argTerms.add(getHeap());
+        }
+
+        if(fct == null) {
+            DafnyTree ref = tree.getChild(0).getDeclarationReference();
+            if(ref != null) {
+                Tree parent = ref.getParent();
+                if(parent.getType() == DafnyParser.CLASS) {
+                    fct = symbolTable.getFunctionSymbol(parent.getChild(0).getText() + "$$" + id);
+                    argTerms.add(tb.cons("this"));
+                }
+            }
         }
 
         if (fct == null) {
@@ -600,6 +630,7 @@ public class TreeTermTranslator {
         String arraySortName = arraySort.getName();
 
         Term indexTerm;
+        DafnyTree indexTree;
 
         switch (arraySortName) {
             case "array":
@@ -607,18 +638,28 @@ public class TreeTermTranslator {
                     throw new TermBuildException("Access to 'array' requires one index argument");
                 }
 
-                indexTerm = build(tree.getChild(1));
-
-                return tb.selectArray(getHeap(), arrayTerm, indexTerm);
+                indexTree = tree.getChild(1);
+                if (indexTree.getType() == DafnyParser.DOTDOT) {
+                    arrayTerm = tb.arrayToSeq(getHeap(), arrayTerm);
+                    return buildSubSequence(arrayTerm, indexTree);
+                } else {
+                    indexTerm = build(tree.getChild(1));
+                    return tb.selectArray(getHeap(), arrayTerm, indexTerm);
+                }
 
             case "seq":
                 if (tree.getChildCount() != 2) {
-                    throw new TermBuildException("Access to 'array' requires one index argument");
+                    throw new TermBuildException("Access to 'array2' requires two index arguments");
                 }
 
-                indexTerm = build(tree.getChild(1));
+                indexTree = tree.getChild(1);
+                if (indexTree.getType() == DafnyParser.DOTDOT) {
+                    return buildSubSequence(arrayTerm, indexTree);
+                } else {
+                    indexTerm = build(indexTree);
+                    return tb.seqGet(arrayTerm, indexTerm);
+                }
 
-                return tb.seqGet(arrayTerm, indexTerm);
 
         case "array2":
                 if (tree.getChildCount() != 3) {
@@ -632,7 +673,7 @@ public class TreeTermTranslator {
                         arrayTerm, index0, index1);
 
         case "heap":
-            DafnyTree indexTree = tree.getChild(1);
+            indexTree = tree.getChild(1);
             if(indexTree.getType() != DafnyParser.CALL) {
                 throw new TermBuildException("Heap updates must be applied to function calls");
             }
@@ -656,6 +697,32 @@ public class TreeTermTranslator {
         }
     }
 
+    private Term buildSubSequence(Term seqTerm, DafnyTree indexTree) throws TermBuildException {
+        assert indexTree.getType() == DafnyParser.DOTDOT;
+
+        Term from, to;
+
+        DafnyTree firstChild = indexTree.getChild(0);
+        if(firstChild.getType() == DafnyParser.ARGS) {
+            if(indexTree.getChildCount() == 1) {
+                // a[..] --> return a
+                return seqTerm;
+            }
+            from = tb.zero;
+        } else {
+            from = build(firstChild);
+        }
+
+        if(indexTree.getChildCount() > 1) {
+            to = build(indexTree.getChild(1));
+        } else {
+            to = tb.seqLen(seqTerm);
+        }
+
+        return tb.seqSub(seqTerm, from, to);
+
+    }
+
     private Term buildFieldAccess(DafnyTree tree) throws TermBuildException {
 
         Term receiver = build(tree.getChild(0));
@@ -674,6 +741,21 @@ public class TreeTermTranslator {
         }
 
         return tb.selectField(getHeap(), receiver, new ApplTerm(field));
+    }
+
+    private Term buildFresh(DafnyTree tree) throws TermBuildException {
+        Term receiver = build(tree.getChild(0));
+
+        if(!receiver.getSort().isReferenceSort()) {
+            throw new TermBuildException("fresh can only be applied to objects, " +
+                    "not to " + receiver.getSort());
+        }
+
+        if (!Objects.equals(boundVars.get(OLD_HEAP_VAR.getName()), OLD_HEAP_VAR)) {
+            throw new TermBuildException("fresh-expression not allowed in single-state context");
+        }
+
+        return tb.fresh(OLD_HEAP_VAR, getHeap(), receiver);
     }
 
 
@@ -997,11 +1079,20 @@ public class TreeTermTranslator {
 
     private Term buildOld(DafnyTree tree) throws TermBuildException {
 
+        Term oldHeap;
+        if (Objects.equals(boundVars.get(OLD_HEAP_VAR.getName()), OLD_HEAP_VAR)) {
+            oldHeap = OLD_HEAP_VAR;
+        } else if (symbolTable.getFunctionSymbol(OLD_HEAP_VAR.getName()) != null) {
+            oldHeap = new ApplTerm(symbolTable.getFunctionSymbol(OLD_HEAP_VAR.getName()));
+        } else {
+            throw new TermBuildException("old-expression not allowed in single-state context");
+        }
+
         boundVars.put(HEAP_VAR.getName(), HEAP_VAR);
         Term inner = build(tree.getChild(0));
         boundVars.pop();
 
-        return new LetTerm(HEAP_VAR, HEAP_VAR, inner);
+        return new LetTerm(HEAP_VAR, oldHeap, inner);
     }
 
 
@@ -1062,9 +1153,14 @@ public class TreeTermTranslator {
      * have in the end.
      */
     private void expandMultiBlanks(DafnyTree args, int targetArity) {
+        int childCount = args.getChildCount();
+        if(childCount == 0) {
+            // nothing to be done!
+            return;
+        }
+
         DafnyTree first = args.getChild(0);
         DafnyTree last = args.getLastChild();
-        int childCount = args.getChildCount();
 
         if (first.getType() == DafnyParser.DOUBLE_BLANK) {
             CommonToken token = new CommonToken(first.getToken());

@@ -219,7 +219,7 @@ public class TermMatcher {
             Quantifier f2 = quantTerm2.getQuantifier();
 
             if(f1 != f2) {
-                throw new Error();
+                throw new MatchException(quantTerm, conc);
             }
 
             // TODO allow matching bound variable, too.

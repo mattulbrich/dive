@@ -253,5 +253,26 @@ public class TermBuilder {
         return new ApplTerm(sequpd, seqTerm, indexTerm, value);
     }
 
+    public Term seqSub(Term seqTerm, Term from, Term to) throws TermBuildException {
+        Sort seqSort = seqTerm.getSort();
+        assert seqSort.getName().equals("seq");
+        Sort elementSort = seqSort.getArguments().get(0);
+        FunctionSymbol seqsub =
+                symbolTable.getFunctionSymbol(BuiltinSymbols.SEQ_SUB, elementSort);
 
+        return new ApplTerm(seqsub, seqTerm, from, to);
+    }
+
+    public Term fresh(Term oldheap, Term newheap, Term object) throws TermBuildException {
+        ApplTerm o = new ApplTerm(BuiltinSymbols.IS_CREATED, oldheap, object);
+        ApplTerm n = new ApplTerm(BuiltinSymbols.IS_CREATED, newheap, object);
+        return and(negate(o), n);
+    }
+
+    public Term arrayToSeq(Term heapTerm, Term arrayTerm) throws TermBuildException {
+        assert arrayTerm.getSort().getName().equals("array");
+        Sort inst = arrayTerm.getSort().getArgument(0);
+        FunctionSymbol f = symbolTable.getFunctionSymbol(BuiltinSymbols.ARRAY_TO_SEQ, inst);
+        return new ApplTerm(f, heapTerm, arrayTerm);
+    }
 }

@@ -1,0 +1,17 @@
+### decls:
+s1: seq<int>
+s2: seq<int>
+### sequent:
+|-
+let s1 := $seq_cons<int>(4,$seq_cons<int>(3,$seq_cons<int>(2,$seq_cons<int>(1,$seq_empty)))) ::
+let s2 := $seq_sub<int>(s1,0,2) :: 
+$seq_get<int>(s2,0) == 4
+### result:
+fail
+### OLD-translation:
+
+procedure Sequent()
+  ensures false;
+{
+  assume !((Seq#Index(Seq#Drop(Seq#Take(Seq#Build(Seq#Build(Seq#Build(Seq#Build(Seq#Empty(), 1), 2), 3), 4), 2), 0), 0) == 4));
+}

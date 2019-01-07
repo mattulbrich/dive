@@ -1,0 +1,27 @@
+(COMPILATION_UNIT[method-<EOF>]
+ (method[method-}]
+  dotdot[dotdot-dotdot]
+  (ARGS[a-int] (VAR[a->] a[a-a] (TYPE[array->] (array[array->] int[int-int])))
+               (VAR[n-int] n[n-n] (TYPE[int-int] int[int-int])))
+  (returns[returns-)] (VAR[m-int] m[m-m] (TYPE[int-int] int[int-int])))
+ (requires[requires-null]
+  (!=[a-null] a[a-a] null[null-null]))
+ (ensures[ensures-)]
+  (==[a-)]
+   (ARRAY_ACCESS[a-]] a[a-a]
+                      (..[ARGS-..] ARGS[ARGS-ARGS])) (old[old-)] (ARRAY_ACCESS[a-]] a[a-a] (..[ARGS-..] ARGS[ARGS-ARGS])))))
+
+ (ensures[ensures-]]
+  (==[a-]] (ARRAY_ACCESS[a-]] a[a-a] (..[0-..] 0[0-0])) [[[-]]))
+ (ensures[ensures-]]
+  (==[a-]] (ARRAY_ACCESS[a-]] a[a-a] (..[4-5] ARGS[ARGS-ARGS] (+[4-5] 4[4-4] 5[5-5]))) [[[-]]))
+ (ensures[ensures-]]
+  (==[a-]] (ARRAY_ACCESS[a-]] a[a-a] (..[n-2]
+                                    (+[n-3] (*[n-2] n[n-n] 2[2-2]) 3[3-3])
+                                    (+[n-2] (*[n-3] n[n-n] 3[3-3]) 2[2-2]))) [[[-]]))
+
+(BLOCK[var-;]
+ (var[var-;] x[x-x] (ARRAY_ACCESS[a-]] a[a-a] (..[ARGS-..] ARGS[ARGS-ARGS])))
+ (:=[x-;] x[x-x] (ARRAY_ACCESS[x-]] x[x-x] (..[0-..] 0[0-0])))
+ (:=[x-;] x[x-x] (ARRAY_ACCESS[x-]] x[x-x] (..[4-5] ARGS[ARGS-ARGS] (+[4-5] 4[4-4] 5[5-5]))))
+ (:=[x-;] x[x-x] (ARRAY_ACCESS[x-]] x[x-x] (..[n-2] (+[n-3] (*[n-2] n[n-n] 2[2-2]) 3[3-3]) (+[n-2] (*[n-3] n[n-n] 3[3-3]) 2[2-2])))))))

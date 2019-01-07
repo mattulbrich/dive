@@ -146,7 +146,7 @@ public class DafnyProjectManager extends AbstractProjectManager {
             Project result = pb.build();
             return result;
         } catch (DafnyException ex) {
-            throw new IOException(ex);
+            throw new IOException(ex.getMessage(), ex);
         }
     }
 

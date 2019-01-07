@@ -9,6 +9,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import edu.kit.iti.algover.term.LetTerm;
+import edu.kit.iti.algover.term.QuantTerm;
 import edu.kit.iti.algover.term.Term;
 import edu.kit.iti.algover.term.VariableTerm;
 import edu.kit.iti.algover.util.HistoryMap;
@@ -84,6 +85,21 @@ public class LetInlineVisitor extends
             return letTerm.getTerm(0);
         } else {
             return inner;
+        }
+    }
+
+    @Override
+    public Term visit(QuantTerm quantTerm, HistoryMap<VariableTerm, Term> lets) throws TermBuildException {
+        VariableTerm var = quantTerm.getBoundVar();
+
+        HistoryMap<VariableTerm, Term> newLets = new HistoryMap<>(lets);
+        newLets.remove(var);
+
+        Term inner = quantTerm.getTerm(0).accept(this, newLets);
+        if(inner == null) {
+            return quantTerm;
+        } else {
+            return new QuantTerm(quantTerm.getQuantifier(), var, inner);
         }
     }
 }

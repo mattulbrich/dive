@@ -67,7 +67,7 @@ public class NotLeftRuleTest {
 
         TermSelector ts = new TermSelector(TermSelector.SequentPolarity.ANTECEDENT, 0);
         Parameters params = new Parameters();
-        params.putValue("on", testSequent.getAntecedent().get(0).getTerm());
+        params.putValue("on", new TermParameter(testSequent.getAntecedent().get(0).getTerm(), testSequent));
 
         notLeftRule.considerApplication(pn, testSequent, ts);
         ProofRuleApplication pra = notLeftRule.makeApplication(pn, params);

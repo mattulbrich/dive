@@ -1,0 +1,12 @@
+This collection is taken from the test cases for Simon Schwarz' SMT translation.
+
+The files are organised as follows:
+
+variable/function declarations
+--------
+Sequent
+--------
+"unsat" or "sat"
+Expected Boogie translation
+--------
+Optional free text as comment

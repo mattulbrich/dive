@@ -1,0 +1,14 @@
+(method
+ extensions
+ (ARGS (VAR l (TYPE (seq int)))
+       (VAR s (TYPE (set int))))
+ (requires (== l[seq<int>] ([ 1[int] 2[int] 3[int])[seq<int>])[bool])
+ (requires (== s[set<int>] ({ 1[int] 2[int] 3[int])[set<int>])[bool])
+ (ensures (!= l[seq<int>] [[seq<$nothing>])[bool])
+ (ensures (== [[seq<$nothing>] [[seq<$nothing>])[bool])
+ (ensures (!= s[set<int>] {[set<$nothing>])[bool])
+ (ensures (== {[set<$nothing>] {[set<$nothing>])[bool])
+ (BLOCK
+  (var o (TYPE object))
+  (assert (== ({ o[object] this[C])[set<object>]
+              ({ this[C] o[object])[set<object>])[bool])))[scc_18]

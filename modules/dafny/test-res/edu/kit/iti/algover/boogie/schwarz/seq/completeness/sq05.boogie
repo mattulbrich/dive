@@ -1,0 +1,14 @@
+### decls:
+### sequent:
+
+|-
+$seq_len<int>($seq_empty) == 0
+### result:
+prove
+### OLD-translation:
+
+procedure Sequent()
+  ensures false;
+{
+  assume !((Seq#Length(Seq#Empty()) == 0));
+}

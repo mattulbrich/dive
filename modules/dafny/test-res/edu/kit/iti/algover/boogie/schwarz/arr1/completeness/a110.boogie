@@ -1,0 +1,9 @@
+### decls:
+a1: array<int>,
+a2: array<int>
+### sequent:
+a1 == a2
+|-
+forall i:int :: $imp($and($le(0,i),$lt(i,$len<int>(a1))),  $array_select<int>($heap,a1,i) ==  $array_select<int>($heap,a2,i))
+### result:
+prove

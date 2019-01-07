@@ -1,0 +1,34 @@
+### decls:
+d : D
+c : C
+D$$f : field<D, C>
+
+### project:
+class C { }
+class D { var f: C; }
+
+### sequent:
+  false  |- d==d && c==c && d.f == d.f
+
+###
+  This is needed to trigger the declaration of the symbols
+  It is valid. Only the procedure below should not be valid
+
+### result:
+fail
+
+### additionalBoogie:
+procedure SoundnessTest()
+{
+  assume _d != null;
+  assert read(update(_$heap, _d, _D$$f, _d), _d, _D$$f) == _d;
+  assert $Is(_D$$f, TField(TClass_C));
+  assert (forall h: Heap, o: ref :: { read(h, o, _D$$f) }
+      $Is(read(h, o, _D$$f), TClass_C));
+  assert $Is(read(update(_$heap, _d, _D$$f, _c), _d, _D$$f), TClass_C);
+  assert $Is(_d, TClass_C);
+  assert false;
+}
+
+### Comment:
+  This was unsound at a time!

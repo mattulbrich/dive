@@ -72,8 +72,8 @@ public class DafnyRule extends AbstractProofRule {
 
     @Override
     public ProofRuleApplication considerApplicationImpl(ProofNode target, Parameters parameters) throws RuleException {
-        Term selected = parameters.getValue(ON_PARAM);
-        TermSelector selector = tsForParameter.get("on");
+        Term selected = parameters.getValue(ON_PARAM).getTerm();
+        TermSelector selector = parameters.getValue(ON_PARAM).getTermSelector();
 
         ProofRuleApplicationBuilder proofRuleApplicationBuilder;
         try {
@@ -114,10 +114,10 @@ public class DafnyRule extends AbstractProofRule {
 
     @Override
     public ProofRuleApplication makeApplicationImpl(ProofNode target, Parameters parameters) throws RuleException {
-        ProofRuleApplicationBuilder proofRuleApplicationBuilder = handleControlParameters(parameters, target.getSequent());
+        ProofRuleApplicationBuilder proofRuleApplicationBuilder = new ProofRuleApplicationBuilder(this);
         try {
-            Term on = parameters.getValue(ON_PARAM);
-            TermSelector selector = tsForParameter.get("on");
+            Term on = parameters.getValue(ON_PARAM).getTerm();
+            TermSelector selector = parameters.getValue(ON_PARAM).getTermSelector();
 
             ImmutableList<Matching> matchings;
             Term rt;
@@ -127,7 +127,7 @@ public class DafnyRule extends AbstractProofRule {
                 TermMatcher tm = new TermMatcher();
                 matchings = tm.match(searchTerm, on);
                 if(matchings.size() == 0) {
-                    throw new RuleException();
+                    throw new RuleException("Searchterm "+ searchTerm + " not found.");
                 }
                 rt = matchings.get(0).instantiate(replaceTerm);
             }

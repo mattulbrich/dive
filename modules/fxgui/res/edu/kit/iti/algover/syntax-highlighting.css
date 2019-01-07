@@ -45,5 +45,9 @@
 }
 
 .error {
-    -rtfx-background-color: red;
+    /*-rtfx-background-color: red;*/
+    /* https://github.com/TomasMikula/RichTextFX/wiki/RichTextFX-CSS-Reference-Guide#the-additional-css-properties-for-textext */
+    -rtfx-underline-color: red;
+    -rtfx-underline-width: 2;
+    -rtfx-underline-cap: round;
 }

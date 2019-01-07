@@ -21,7 +21,7 @@ public class RuleGrid extends JFXMasonryPane {
     public static final double RULE_CELL_HEIGHT = 80;
     public static final double SPACING = 4;
 
-    private final List<RuleView> allRules;
+    private List<RuleView> allRules;
 
     private final ObservableList<RuleView> rules;
     private final SelectionModel<RuleView> selectionModel;
@@ -106,5 +106,9 @@ public class RuleGrid extends JFXMasonryPane {
 
     public List<RuleView> getAllRules() {
         return allRules;
+    }
+
+    public void setAllRules(List<RuleView> ar) {
+        allRules = ar;
     }
 }

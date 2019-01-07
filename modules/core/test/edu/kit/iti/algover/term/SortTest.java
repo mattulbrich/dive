@@ -75,6 +75,16 @@ public class SortTest {
             { Sort.NULL, Sort.BOTTOM, true},
             { Sort.BOTTOM, Sort.UNTYPED_SORT, true},
             { Sort.UNTYPED_SORT, Sort.BOTTOM, false},
+
+            { Sort.get("$tuple", CLASS_SORT, Sort.OBJECT),
+              Sort.get("$tuple", CLASS_SORT, CLASS_SORT), true },
+            { Sort.get("$tuple", CLASS_SORT, Sort.OBJECT),
+              Sort.get("$tuple", Sort.OBJECT, CLASS_SORT), false },
+            { Sort.get("$tuple", CLASS_SORT, Sort.OBJECT),
+              Sort.get("$tuple", CLASS_SORT), false },
+            { Sort.get("$tuple"), Sort.get("$tuple"), true },
+            { Sort.get("$tuple", Sort.INT),
+              Sort.get("$tuple", Sort.OBJECT), false },
         };
     }
 
@@ -91,6 +101,19 @@ public class SortTest {
             { Sort.INT, Sort.OBJECT, null },
             { Sort.UNTYPED_SORT, Sort.BOTTOM, Sort.BOTTOM},
             { Sort.UNTYPED_SORT, CLASS_SORT, CLASS_SORT},
+        };
+    }
+
+    public String[][] parametersForTestParse() {
+        return new String[][] {
+                { "int" },
+                { "set<object>" },
+                { "X<Y<Z,A>,Y<A,Z>>" },
+                { "X<Y<Z<A<B>>>>" },
+                // Was a problem
+                { "field<C, int>" },
+                { "X <  Y ,  Z >" },
+                { "\tbool" },
         };
     }
 
@@ -135,4 +158,13 @@ public class SortTest {
         assertTrue(s2.isSubtypeOf(sup));
     }
 
+    @Test @Parameters
+    public void testParse(String string) {
+        Sort sort = Sort.parseSort(string);
+        String actual = sort.toString();
+
+        String expected = string.replaceAll("\\s+", "");
+
+        assertEquals(expected, actual);
+    }
 }

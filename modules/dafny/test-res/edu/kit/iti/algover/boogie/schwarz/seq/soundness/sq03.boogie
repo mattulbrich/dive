@@ -1,0 +1,16 @@
+### decls:
+s1: seq<int>
+### sequent:
+|-
+$lt($seq_get<int>($seq_sub<int>(s1,0,2),0),0)
+
+### result:
+fail
+### OLD-translation:
+var _s1 : Seq int;
+
+procedure Sequent()
+  ensures false;
+{
+  assume !((Seq#Index(Seq#Drop(Seq#Take(_s1, 2), 0), 0) < 0));
+}

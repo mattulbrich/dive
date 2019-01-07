@@ -1,0 +1,8 @@
+### decls:
+a : seq<int>
+
+### sequent:
+|- a[..] == a
+
+### result:
+prove

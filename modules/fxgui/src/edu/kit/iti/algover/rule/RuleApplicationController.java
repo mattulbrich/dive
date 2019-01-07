@@ -6,6 +6,7 @@ import edu.kit.iti.algover.proof.ProofNode;
 import edu.kit.iti.algover.rule.script.ScriptController;
 import edu.kit.iti.algover.rule.script.ScriptView;
 import edu.kit.iti.algover.rules.*;
+import edu.kit.iti.algover.rules.impl.ExhaustiveRule;
 import edu.kit.iti.algover.term.Sequent;
 import edu.kit.iti.algover.term.Term;
 import edu.kit.iti.algover.term.prettyprint.PrettyPrint;
@@ -18,6 +19,7 @@ import org.fxmisc.flowless.VirtualizedScrollPane;
 
 import java.util.concurrent.ExecutorService;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
 public class RuleApplicationController extends FxmlController {
 
@@ -36,6 +38,8 @@ public class RuleApplicationController extends FxmlController {
 
     private final Logger logger;
 
+    private final ProjectManager manager;
+
     public RuleApplicationController(ExecutorService executor, RuleApplicationListener listener, ProjectManager manager) {
         super("RuleApplicationView.fxml");
         this.listener = listener;
@@ -43,6 +47,7 @@ public class RuleApplicationController extends FxmlController {
         this.scriptView = scriptController.getView();
 
         logger = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
+        this.manager = manager;
 
         for (ProofRule rule : manager.getProject().getAllProofRules()) {
             addProofRule(rule);
@@ -77,7 +82,12 @@ public class RuleApplicationController extends FxmlController {
     }
 
     public void applyRule(ProofRuleApplication application) {
-        scriptController.insertTextForSelectedNode(application.getScriptTranscript() + "\n");
+        try {
+            resetConsideration();
+            scriptController.insertTextForSelectedNode(application.getScriptTranscript() + "\n");
+        } catch(RuleException e) {
+            Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).severe("Error applying rule: " + e.getMessage());
+        }
     }
 
     private void onSelectedItemChanged(ObservableValue<? extends RuleView> obs, RuleView before, RuleView selected) {
@@ -104,11 +114,23 @@ public class RuleApplicationController extends FxmlController {
 
     public void applyExRule(ProofRule rule, ProofNode pn, TermSelector ts) {
         try {
-            scriptController.insertTextForSelectedNode(RuleApplicator.getScriptForExhaustiveRuleApplication(rule, pn, ts) + "\n");
+            ExhaustiveRule exRule = new ExhaustiveRule();
+            Parameters parameters = new Parameters();
+            parameters.putValue("ruleName", rule.getName());
+            parameters.putValue("on", new TermParameter(ts, pn.getSequent()));
+            ProofRuleApplication pra = exRule.considerApplication(pn, parameters);
+            resetConsideration();
+            scriptController.insertTextForSelectedNode(pra.getScriptTranscript());
             logger.info("Applied rule " + rule.getName() + " exhaustively.");
         } catch (RuleException e) {
             //TODO handle exeptions
             logger.severe("Error while trying to apply rule " + rule.getName() + " exhaustive.");
         }
+    }
+
+    public void onReset() {
+        ruleGrid.setAllRules(manager.getProject().getAllProofRules().stream()
+                .map(rule -> new RuleView(rule, ruleGrid.getSelectionModel(), listener))
+                .collect(Collectors.toList()));
     }
 }

@@ -9,6 +9,7 @@ package edu.kit.iti.algover.parser;
 import edu.kit.iti.algover.dafnystructures.DafnyMethod;
 import edu.kit.iti.algover.project.Project;
 import edu.kit.iti.algover.project.ProjectBuilder;
+import edu.kit.iti.algover.util.TestUtil;
 import edu.kit.iti.algover.util.TreeUtil;
 import edu.kit.iti.algover.util.Util;
 import junitparams.JUnitParamsRunner;
@@ -78,6 +79,13 @@ public class TypeResolutionTest {
         } else {
             expectedErrorTrees = Util.streamToString(eis).split("\n");
         }
+
+        if(TestUtil.VERBOSE || expectedErrorTrees.length != exceptions.size()) {
+            for (DafnyException exception : exceptions) {
+                exception.printStackTrace();
+            }
+        }
+
         assertEquals("Number of exceptions", expectedErrorTrees.length, exceptions.size());
         for (int i = 0; i < expectedErrorTrees.length; i++) {
             assertEquals(expectedErrorTrees[i], exceptions.get(i).getTree().toStringTree());

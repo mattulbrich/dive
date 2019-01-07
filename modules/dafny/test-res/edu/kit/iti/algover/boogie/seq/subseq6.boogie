@@ -1,0 +1,9 @@
+### decls:
+a : seq<int>
+b : seq<int>
+
+### sequent:
+|- a[0 .. -1] == []
+
+### result:
+fail

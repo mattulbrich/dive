@@ -1,0 +1,20 @@
+### decls:
+a : bool
+b : bool
+
+### sequent:
+|- b && b || b ==> b
+
+### result:
+prove
+
+### translation:
+const _b : bool;
+
+axiom $Is(_b, TBool);
+
+procedure Sequent()
+  ensures false;
+{
+  assume !((((_b && _b) || _b) ==> _b));
+}

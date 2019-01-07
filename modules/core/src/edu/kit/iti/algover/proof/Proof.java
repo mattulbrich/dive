@@ -1,5 +1,6 @@
 package edu.kit.iti.algover.proof;
 
+import edu.kit.iti.algover.data.MapSymbolTable;
 import edu.kit.iti.algover.dafnystructures.DafnyFile;
 import edu.kit.iti.algover.project.Project;
 import edu.kit.iti.algover.references.ReferenceGraph;

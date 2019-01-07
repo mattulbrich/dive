@@ -81,7 +81,7 @@ public class ParserErrorTest {
     @Test
     public void wrongMultiDimension1() throws Exception {
         thrown.expect(DafnyException.class);
-        thrown.expectMessage("Assigning a value of type int to an entitity of type LISTEX<int,int>");
+        thrown.expectMessage("Assigning a value of type int to an entitity of type $tuple<int,int>");
         parse("method m() returns (a:int) { } " +
                 "method test() { var x,y:int; x,y := m(); }");
     }
@@ -89,7 +89,7 @@ public class ParserErrorTest {
     @Test
     public void wrongMultiDimension2() throws Exception {
         thrown.expect(DafnyException.class);
-        thrown.expectMessage("Assigning a value of type LISTEX<int,int> to an entitity of type int");
+        thrown.expectMessage("Assigning a value of type $tuple<int,int> to an entitity of type int");
         parse("method m() returns (a:int, b:int) { } " +
                 "method test() { var x,y:int; x := m(); }");
     }

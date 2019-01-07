@@ -73,10 +73,11 @@ public class PVCHighlightingRule extends SpanHighlightingRule {
                 .filter(Objects::nonNull)
                 .map(DafnyTree::getStartToken)
                 .reduce(SpanHighlightingRule::minPos)
-                .orElseThrow(() -> new IllegalStateException(
-                        "It shouldn't be possible to not have any requires/ensures/decreases after method."));
+                .orElse(symbexPath.getMethod().getChildren().get(symbexPath.getMethod().getChildCount() - 1).getStartToken());
+                //.orElseThrow(() -> new IllegalStateException(
+                        //"It shouldn't be possible to not have any requires/ensures/decreases after method."));
 
-        Token methodStart = symbexPath.getMethod().getToken();
+        Token methodStart = symbexPath.getMethod().getStartToken();
         methodHeaderSpan = new Span(
                 methodStart.getLine(),
                 firstTokenAfterHeader.getLine(),

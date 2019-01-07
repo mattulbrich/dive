@@ -1,0 +1,16 @@
+### decls:
+s1: seq<int>
+### sequent:
+|-
+$seq_sub<int>(s1,0,1) == $seq_empty
+
+### result:
+fail
+### OLD-translation:
+var _s1 : Seq int;
+
+procedure Sequent()
+  ensures false;
+{
+  assume !(Seq#Equal(Seq#Drop(Seq#Take(_s1, 1), 0), Seq#Empty()));
+}

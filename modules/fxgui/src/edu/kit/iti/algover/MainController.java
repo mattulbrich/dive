@@ -8,6 +8,7 @@ import edu.kit.iti.algover.browser.FlatBrowserController;
 import edu.kit.iti.algover.browser.entities.PVCEntity;
 import edu.kit.iti.algover.browser.entities.PVCGetterVisitor;
 import edu.kit.iti.algover.browser.entities.TreeTableEntity;
+import edu.kit.iti.algover.dafnystructures.DafnyClass;
 import edu.kit.iti.algover.dafnystructures.DafnyFile;
 import edu.kit.iti.algover.dafnystructures.DafnyFunction;
 import edu.kit.iti.algover.dafnystructures.DafnyMethod;
@@ -26,8 +27,7 @@ import edu.kit.iti.algover.references.ReferenceTarget;
 import edu.kit.iti.algover.rule.RuleApplicationController;
 import edu.kit.iti.algover.rule.RuleApplicationListener;
 import edu.kit.iti.algover.rules.*;
-import edu.kit.iti.algover.rules.impl.LetSubstitutionRule;
-import edu.kit.iti.algover.rules.impl.Z3Rule;
+import edu.kit.iti.algover.rules.impl.ExhaustiveRule;
 import edu.kit.iti.algover.sequent.SequentActionListener;
 import edu.kit.iti.algover.sequent.SequentController;
 import edu.kit.iti.algover.sequent.SequentTabViewController;
@@ -55,6 +55,7 @@ import javafx.scene.layout.VBox;
 import org.controlsfx.control.BreadCrumbBar;
 import org.controlsfx.control.StatusBar;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.HashSet;
 import java.util.List;
@@ -150,7 +151,13 @@ public class MainController implements SequentActionListener, RuleApplicationLis
             if (p.getProofStatus() != ProofStatus.CLOSED) {
                 for (int i = 0; i < p.getProofRoot().getSequent().getAntecedent().size(); ++i) {
                     try {
-                        script += RuleApplicator.getScriptForExhaustiveRuleApplication(new LetSubstitutionRule(), p.getProofRoot(), new TermSelector("A." + i));
+                        ExhaustiveRule exRule = new ExhaustiveRule();
+                        Parameters parameters = new Parameters();
+                        parameters.putValue("ruleName", "substitute");
+                        parameters.putValue("on", new TermParameter(new TermSelector("A." + i), p.getProofRoot().getSequent()));
+                        ProofRuleApplication pra = exRule.considerApplication(p.getProofRoot(), parameters);
+
+                        script += pra.getScriptTranscript();
                     } catch (FormatException ex) {
                         //TODO
                     } catch (RuleException ex) {
@@ -159,7 +166,13 @@ public class MainController implements SequentActionListener, RuleApplicationLis
                 }
                 for (int i = 0; i < p.getProofRoot().getSequent().getSuccedent().size(); ++i) {
                     try {
-                        script += RuleApplicator.getScriptForExhaustiveRuleApplication(new LetSubstitutionRule(), p.getProofRoot(), new TermSelector("S." + i));
+                        ExhaustiveRule exRule = new ExhaustiveRule();
+                        Parameters parameters = new Parameters();
+                        parameters.putValue("ruleName", "substitute");
+                        parameters.putValue("on", new TermParameter(new TermSelector("S." + i), p.getProofRoot().getSequent()));
+                        ProofRuleApplication pra = exRule.considerApplication(p.getProofRoot(), parameters);
+
+                        script += pra.getScriptTranscript();
                     } catch (FormatException ex) {
                         //TODO
                     } catch (RuleException ex) {
@@ -170,7 +183,7 @@ public class MainController implements SequentActionListener, RuleApplicationLis
                 script += "close;\n";
                 p.setScriptTextAndInterpret(script);
                 if(p.getFailException() != null) {
-                    script = letScript + "z3;\n";
+                    script = letScript + "boogie;\n";
                     p.setScriptTextAndInterpret(script);
                     if(p.getFailException() != null) {
                         p.setScriptTextAndInterpret(letScript);
@@ -263,6 +276,30 @@ public class MainController implements SequentActionListener, RuleApplicationLis
                     functionChild.getChildren().add(lastitem);
                 }
             }
+            for(DafnyClass dc : f.getClasses()) {
+                for (DafnyMethod m : dc.getMethods()) {
+                    TreeItem<Object> methodChild = new TreeItem<>(m.getName());
+                    methodChild.setValue(m);
+                    fileChild.getChildren().add(methodChild);
+                    PVCCollection collection = manager.getProject().getPVCsFor(m);
+                    for (PVC pvc : collection.getContents()) {
+                        lastitem = new TreeItem<>(pvc.getIdentifier());
+                        lastitem.setValue(pvc);
+                        methodChild.getChildren().add(lastitem);
+                    }
+                }
+                for (DafnyFunction fi : dc.getFunctions()) {
+                    TreeItem<Object> functionChild = new TreeItem<>(fi.getName());
+                    functionChild.setValue(fi);
+                    fileChild.getChildren().add(functionChild);
+                    PVCCollection collection = manager.getProject().getPVCsFor(fi);
+                    for (PVC pvc : collection.getContents()) {
+                        lastitem = new TreeItem<>(pvc.getIdentifier());
+                        lastitem.setValue(pvc);
+                        functionChild.getChildren().add(lastitem);
+                    }
+                }
+            }
         }
         return root;
     }
@@ -315,6 +352,8 @@ public class MainController implements SequentActionListener, RuleApplicationLis
                 browserController.getView().setDisable(false);
                 sequentController.getView().setDisable(false);
                 ruleApplicationController.getView().setDisable(false);
+                manager.getProject().getDafnyFiles().forEach(df -> editorController.viewFile(df));
+                ruleApplicationController.onReset();
                 simpleStratButton.setDisable(false);
                 breadCrumbBar.setDisable(false);
                 TreeItem<Object> ti = getBreadCrumbModel();
@@ -327,10 +366,14 @@ public class MainController implements SequentActionListener, RuleApplicationLis
 
         //TODO somehow get proper exceptions and handling them
         t.setOnFailed(event -> {
+            manager.getProject().getDafnyFiles().forEach(df -> editorController.viewFile(df));
             Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).log(Level.SEVERE,
-                    "Error reloading the project: " + t.getException().getMessage(),
+                    t.getException().getMessage(),
                     t.getException());
             editorController.showException(t.getException());
+            browserController.getView().setDisable(true);
+            sequentController.getView().setDisable(true);
+            ruleApplicationController.getView().setDisable(true);
             t.getException().printStackTrace();
         });
 
@@ -375,7 +418,8 @@ public class MainController implements SequentActionListener, RuleApplicationLis
     private String getStringForTreeItem(TreeItem<Object> item) {
         Object value = item.getValue();
         if (value instanceof DafnyFile) {
-            return ((DafnyFile) value).getFilename();
+            File f = new File(((DafnyFile) value).getFilename());
+            return f.getName();
         }
         if (value instanceof DafnyMethod) {
             return ((DafnyMethod) value).getName();
@@ -472,8 +516,8 @@ public class MainController implements SequentActionListener, RuleApplicationLis
         ruleApplicationController.getRuleGrid().getSelectionModel().clearSelection();
         String newScript = ruleApplicationController.getScriptView().getText();
         sequentController.getActiveSequentController().getActiveProof().setScriptTextAndInterpret(newScript);
-        sequentController.getActiveSequentController().tryMovingOnEx(); //SaG: was tryMovingOn()
         ruleApplicationController.resetConsideration();
+        sequentController.getActiveSequentController().tryMovingOnEx(); //SaG: was tryMovingOn()
         if(sequentController.getActiveSequentController().getActiveProof().getFailException() == null) {
             Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).info("Successfully applied rule " + application.getRule().getName() + ".");
         }
@@ -488,8 +532,9 @@ public class MainController implements SequentActionListener, RuleApplicationLis
         ruleApplicationController.getRuleGrid().getSelectionModel().clearSelection();
         String newScript = ruleApplicationController.getScriptView().getText();
         sequentController.getActiveSequentController().getActiveProof().setScriptTextAndInterpret(newScript);
-        sequentController.getActiveSequentController().tryMovingOnEx();
         ruleApplicationController.resetConsideration();
+        sequentController.getActiveSequentController().tryMovingOnEx();
+
     }
 
     @Override
@@ -520,6 +565,7 @@ public class MainController implements SequentActionListener, RuleApplicationLis
     @Override
     public void onSwitchViewedNode(ProofNodeSelector proofNodeSelector) {
         sequentController.viewProofNode(proofNodeSelector);
+        ruleApplicationController.getScriptController().setSelectedNode(proofNodeSelector);
     }
 
     public Parent getView() {

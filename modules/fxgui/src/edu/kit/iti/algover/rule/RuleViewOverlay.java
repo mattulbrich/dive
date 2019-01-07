@@ -8,7 +8,6 @@ import edu.kit.iti.algover.term.prettyprint.PrettyPrint;
 import edu.kit.iti.algover.util.RuleParameterDialog;
 import javafx.css.PseudoClass;
 import javafx.event.ActionEvent;
-import javafx.scene.control.Dialog;
 import javafx.scene.control.Label;
 import javafx.scene.layout.AnchorPane;
 
@@ -97,7 +96,8 @@ public class RuleViewOverlay extends AnchorPane {
             } catch (RuleException e) {
                 on = null;
             }
-            RuleParameterDialog d = new RuleParameterDialog(this.application.getRule(), listener.getCurrentPVC().getSymbolTable(), on);
+            RuleParameterDialog d = new RuleParameterDialog(this.application.getRule(), listener.getCurrentPVC().getSymbolTable(),
+                    listener.getCurrentProofNode().getSequent(), on);
             d.showAndWait();
             if (d.getParameters() != null) {
                 try {
@@ -105,6 +105,7 @@ public class RuleViewOverlay extends AnchorPane {
                     listener.onRuleApplication(this.application);
                 } catch (RuleException e) {
                     Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).severe("Application of ProofRule failed with given parameters.");
+                    e.printStackTrace();
                 }
             } else {
                 Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).severe("Invalid parameters.");

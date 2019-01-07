@@ -36,6 +36,9 @@ public class TreeTableEntityStatusRenderer implements TreeTableEntityVisitor<Voi
             cell.setGraphic(icon);
             cell.setTooltip(new Tooltip("All PVCs proven"));
         } else {
+            Text icon = GlyphsDude.createIcon(FontAwesomeIcon.EXCLAMATION);
+            icon.setFill(Color.RED);
+            cell.setGraphic(icon);
             cell.setTooltip(new Tooltip(
                     entity.getProvenChildren()
                             + " from " + entity.getNumberChildren()
