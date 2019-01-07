@@ -4,6 +4,7 @@ import de.jensd.fx.glyphs.GlyphsDude;
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon;
 import edu.kit.iti.algover.AlgoVerApplication;
 import edu.kit.iti.algover.parser.DafnyLexer;
+import edu.kit.iti.algover.parser.DafnyParser;
 import edu.kit.iti.algover.util.AsyncHighlightingCodeArea;
 import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
@@ -28,11 +29,11 @@ import java.util.concurrent.ExecutorService;
 
 /**
  * Shows a dafny-syntax-highlighted code editor.
- *
+ * <p>
  * Syntax highlighting is done asynchronously using an {@link ExecutorService}.
- *
+ * <p>
  * Additional highlighting on top is configurable via {@link #setHighlightingRule(HighlightingRule)}.
- *
+ * <p>
  * Created by philipp on 28.06.17.
  */
 public class DafnyCodeArea extends AsyncHighlightingCodeArea {
@@ -44,7 +45,7 @@ public class DafnyCodeArea extends AsyncHighlightingCodeArea {
     private DafnyCodeAreaListener listener;
 
     /**
-     * @param text the initial code inside the code editor
+     * @param text     the initial code inside the code editor
      * @param executor the executor service to be used for asynchronously
      *                 calculating syntax highlighting (that is: running the parser,
      *                 computing style spans)
@@ -65,9 +66,9 @@ public class DafnyCodeArea extends AsyncHighlightingCodeArea {
             @Override
             public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
                 rerenderHighlighting();
-                if(textIsSimilar(currentProofText, newValue)) {
+                if (textIsSimilar(currentProofText, newValue)) {
                     textChangedProperty.setValue(false);
-                } else{
+                } else {
                     textChangedProperty.setValue(true);
                 }
             }
@@ -146,12 +147,14 @@ public class DafnyCodeArea extends AsyncHighlightingCodeArea {
             case DafnyLexer.CLASS:
             case DafnyLexer.VAR:
             case DafnyLexer.IF:
+            case DafnyLexer.THEN:
             case DafnyLexer.ELSE:
             case DafnyLexer.RETURNS:
             case DafnyLexer.WHILE:
             case DafnyLexer.FUNCTION:
             case DafnyLexer.ASSIGN:
             case DafnyLexer.RETURN:
+            case DafnyLexer.INCLUDE:
                 return Collections.singletonList("code-keyword");
             case DafnyLexer.REQUIRES:
             case DafnyLexer.ENSURES:
@@ -160,9 +163,15 @@ public class DafnyCodeArea extends AsyncHighlightingCodeArea {
             case DafnyLexer.ASSERT:
             case DafnyLexer.MODIFIES:
             case DafnyLexer.LEMMA:
+            case DafnyLexer.SETTINGS:
+            case DafnyLexer.OLD:
+            case DafnyLexer.EX:
+            case DafnyLexer.ALL:
+            case DafnyLexer.LABEL:
                 return Collections.singleton("specification-keyword");
             case DafnyLexer.MULTILINE_COMMENT:
             case DafnyLexer.SINGLELINE_COMMENT:
+            case DafnyLexer.ALGOVER_COMMENT:
                 return Collections.singleton("comment");
             case DafnyLexer.INT:
             case DafnyLexer.BOOL:
@@ -173,6 +182,7 @@ public class DafnyCodeArea extends AsyncHighlightingCodeArea {
             case DafnyLexer.INT_LIT:
             case DafnyLexer.TRUE:
             case DafnyLexer.FALSE:
+            case DafnyLexer.STRING_LIT:
                 return Collections.singleton("value-literal");
             default:
                 return Collections.emptyList();

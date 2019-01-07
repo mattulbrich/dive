@@ -7,18 +7,17 @@ package edu.kit.iti.algover.term.builder;
 
 import edu.kit.iti.algover.data.BuiltinSymbols;
 import edu.kit.iti.algover.data.MapSymbolTable;
+import edu.kit.iti.algover.parser.DafnyException;
 import edu.kit.iti.algover.parser.DafnyFileParser;
 import edu.kit.iti.algover.parser.DafnyLexer;
 import edu.kit.iti.algover.parser.DafnyParser;
 import edu.kit.iti.algover.parser.DafnyParser.expression_only_return;
 import edu.kit.iti.algover.parser.DafnyParserException;
 import edu.kit.iti.algover.parser.DafnyTree;
-import edu.kit.iti.algover.parser.SyntacticSugarVistor;
 import edu.kit.iti.algover.project.Project;
 import edu.kit.iti.algover.term.*;
 import edu.kit.iti.algover.term.parser.TermParser;
 import edu.kit.iti.algover.util.ASTUtil;
-import edu.kit.iti.algover.util.ImmutableList;
 import edu.kit.iti.algover.util.Pair;
 import edu.kit.iti.algover.util.TestUtil;
 import junitparams.JUnitParamsRunner;
@@ -37,7 +36,9 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import static org.junit.Assert.*;
 
@@ -127,11 +128,16 @@ public class TreeTermTranslatorTest {
             { "1 + if b1 then 1 else 0", "$plus(1, $ite<int>(b1, 1, 0))" },
             { "if b1 then 1 else 0 + 1", "$ite<int>(b1, 1, $plus(0, 1))" },
             { "true && forall i:int :: i==i", "$and(true, (forall i:int :: $eq<int>(i, i)))" },
+            { "(if true then 1 else 0) + (if true then 1 else 0)",
+              "$plus($ite<int>(true, 1, 0), $ite<int>(true, 1, 0))" },
 
             // Heap accesses
             {"a[0]", "$array_select<int>($heap, a, 0)"},
+            {"a[0]+a[0]", "$plus($array_select<int>($heap, a, 0), $array_select<int>($heap, a, 0))"},
             {"a2[1,2]", "$array2_select<int>($heap, a2, 1, 2)"},
             {"null", "null"},
+            { "a[..]", "$array2seq<int>($heap, a)" },
+            { "a[1..3]", "$seq_sub<int>($array2seq<int>($heap, a), 1, 3)" },
 
             // From TermParserTest
             { "i1 + i2", "$plus(i1, i2)" },
@@ -150,24 +156,44 @@ public class TreeTermTranslatorTest {
             { "1*2*3", "$times($times(1, 2), 3)" },
             { "b1 ==> b2 ==> b3", "$imp(b1, $imp(b2, b3))" },
 
+            { "let $oldheap := loopHeap :: old(c.f)==c.f",
+              "(let $oldheap := loopHeap :: $eq<int>(" +
+                      "(let $heap := $oldheap :: $select<C,int>($heap, c, C$$f)), $select<C,int>($heap, c, C$$f)))" },
+
             // Heap accesses
             { "c.f", "$select<C,int>($heap, c, C$$f)" },
+            { "c.f", "$select<C,int>($heap, c, C$$f)" },
             { "c.f@loopHeap", "$select<C,int>(loopHeap, c, C$$f)" },
+            { "c.fct(1)", "C$$fct($heap, c, 1)"},
+            { "c.fct(1)@loopHeap", "C$$fct(loopHeap, c, 1)" },
+            { "let $oldheap := loopHeap :: fresh(c)",
+              "(let $oldheap := loopHeap :: $and($not($isCreated($oldheap, c)), $isCreated($heap, c)))" },
 
             // Heap updates
             { "$heap[c.f := 1]", "$store<C,int>($heap, c, C$$f, 1)" },
+            { "$heap[a[0] := 2]", "$array_store<int>($heap, a, 0, 2)" },
             { "$heap[$anon(mod, loopHeap)]", "$anon($heap, mod, loopHeap)" },
             { "$heap[$create(c)]", "$create($heap, c)" },
 
             // Set, Seqs and cardinalities
             { "|mod|", "$set_card<object>(mod)" },
             { "|iseq|", "$seq_len<int>(iseq)" },
-            { "{1,2,3}", "$set_add<int>(3, $set_add<int>(2, $set_add<int>(1, $empty<int>)))" },
-            { "[1,2,3]", "$seq_cons<int>(3, $seq_cons<int>(2, $seq_cons<int>(1, $seq_empty<int>)))" },
+            { "{1,2,3}", "$set_add<int>(3, $set_add<int>(2, $set_add<int>(1, $empty)))" },
+            { "[1,2,3]", "$seq_cons<int>(3, $seq_cons<int>(2, $seq_cons<int>(1, $seq_empty)))" },
             { "iseq + iseq", "$seq_concat<int>(iseq, iseq)" },
             { "mod * mod", "$intersect<object>(mod, mod)" },
             { "mod + mod", "$union<object>(mod, mod)" },
             { "cseq + dseq", "$seq_concat<object>(cseq, dseq)" },
+            { "{}", "$empty" },
+            { "{} == {1}", "$eq<set<int>>($empty, $set_add<int>(1, $empty))" },
+            { "[]", "$seq_empty" },
+            { "[] == [1]", "$eq<seq<int>>($seq_empty, $seq_cons<int>(1, $seq_empty))" },
+            { "null in mod", "$set_in<object>(null, mod)" },
+            { "null !in mod", "$not($set_in<object>(null, mod))" },
+            { "iseq[..]", "iseq" },
+            { "iseq[0..2]", "$seq_sub<int>(iseq, 0, 2)" },
+            { "iseq[..2]", "$seq_sub<int>(iseq, 0, 2)" },
+            { "iseq[1..]", "$seq_sub<int>(iseq, 1, $seq_len<int>(iseq))" },
         };
     }
 
@@ -222,11 +248,16 @@ public class TreeTermTranslatorTest {
             { "iseq + mod", "No common supertype for seq<int> and set<object>" },
             { "true + true", "'+' is not supported for these arguments" },
             { "c == 1", "No common supertype for C and int" },
+            { "old(c.f)", "old-expression not allowed in single-state context" },
+            { "fresh(c)", "fresh-expression not allowed in single-state context" },
+            { "fresh(1)", "fresh can only be applied to objects, not to int"},
+            { "|1|", "Unsupported sort for |...|: int" },
+            { "1@$heap", "heap suffixes are only allowed for heap select terms" },
         };
     }
 
     @Before
-    public void setupTable() {
+    public void setupTable() throws DafnyParserException, RecognitionException, IOException, DafnyException {
         Collection<FunctionSymbol> map = new ArrayList<>();
         map.add(new FunctionSymbol("i1", Sort.INT));
         map.add(new FunctionSymbol("i2", Sort.INT));
@@ -241,12 +272,13 @@ public class TreeTermTranslatorTest {
         map.add(new FunctionSymbol("d", Sort.getClassSort("D")));
         map.add(new FunctionSymbol("c2", Sort.getClassSort("C")));
         map.add(new FunctionSymbol("args", Sort.INT, Sort.INT, Sort.BOOL, Sort.BOOL));
-        map.add(new FunctionSymbol("C$$f", Sort.get("field", Sort.getClassSort("C"), Sort.INT)));
         map.add(new FunctionSymbol("loopHeap", Sort.HEAP));
         map.add(new FunctionSymbol("mod", Sort.get("set", Sort.OBJECT)));
         map.add(new FunctionSymbol("iseq", Sort.get("seq", Sort.INT)));
         map.add(new FunctionSymbol("cseq", Sort.get("seq", Sort.getClassSort("C"))));
         map.add(new FunctionSymbol("dseq", Sort.get("seq", Sort.getClassSort("D"))));
+        Project p = TestUtil.mockProject("class C { var f: int; function fct(i:int): int {0} }");
+        map.addAll(p.getAllDeclaredSymbols());
         symbTable = new MapSymbolTable(new BuiltinSymbols(), map);
     }
 
@@ -261,6 +293,7 @@ public class TreeTermTranslatorTest {
 
         assertEquals(expected, term.toString());
         assertEquals(0, ttt.countBoundVars());
+        assertUniqueFunctionSymbols(t);
     }
 
     @Test @Parameters
@@ -293,6 +326,37 @@ public class TreeTermTranslatorTest {
 
         assertEquals(expected, term.toString());
         assertEquals(0, ttt.countBoundVars());
+
+        assertUniqueFunctionSymbols(t);
+    }
+
+    /**
+     * create terms from tree twice, ensuring that no symbol is created twice!
+     */
+    private void assertUniqueFunctionSymbols(DafnyTree tree) throws Exception {
+        TreeTermTranslator ttt = new TreeTermTranslator(symbTable);
+        Term term = ttt.build(tree);
+        Term term2 = ttt.build(tree);
+        Map<String, FunctionSymbol> found = new HashMap<>();
+        assertUniqueFunctionSymbols(found, term);
+        assertUniqueFunctionSymbols(found, term2);
+    }
+
+    private void assertUniqueFunctionSymbols(Map<String, FunctionSymbol> found, Term term) {
+        if (term instanceof ApplTerm) {
+            ApplTerm applTerm = (ApplTerm) term;
+            FunctionSymbol fs = applTerm.getFunctionSymbol();
+            String key = fs.getName();
+            FunctionSymbol cached = found.get(key);
+            if(cached != null) {
+                assertSame("Symbols must be unique: " + key, cached, fs);
+            } else {
+                found.put(key, fs);
+            }
+        }
+        for (Term t : term.getSubterms()) {
+            assertUniqueFunctionSymbols(found, t);
+        }
     }
 
     // Moved to TreeAssignmentTranslatorTest
@@ -473,7 +537,7 @@ public class TreeTermTranslatorTest {
     public String[][] parametersForTestSequentTranslation() {
         return new String[][]{
                 {"b1 ==> b2, b2 ==> b3 |- b1 && b2, b2&&b3",
-                        "[$imp(b1, b2), $imp(b2, b3)] ==> [$and(b1, b2), $and(b2, b3)]"}
+                        "$imp(b1, b2), $imp(b2, b3) |- $and(b1, b2), $and(b2, b3)"}
         };
     }
 

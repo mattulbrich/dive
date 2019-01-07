@@ -36,7 +36,7 @@ public class InlineSequenter extends UpdateSequenter {
             // have an exception concept here!
             e.printStackTrace();
         }
-        return new ProofFormula(term, formula.getLabel());
+        return new ProofFormula(term, formula.getLabels());
     }
 
 }

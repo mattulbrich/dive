@@ -10,6 +10,7 @@ package edu.kit.iti.algover.cli;
 import edu.kit.iti.algover.parser.DafnyException;
 import edu.kit.iti.algover.parser.DafnyParserException;
 import edu.kit.iti.algover.project.ProjectManager;
+import edu.kit.iti.algover.project.XMLProjectManager;
 import edu.kit.iti.algover.proof.PVC;
 import edu.kit.iti.algover.proof.Proof;
 import edu.kit.iti.algover.proof.ProofStatus;
@@ -90,7 +91,7 @@ public class AlgoVerService {
     public @NonNull List<Proof> runVerification()
             throws DafnyParserException, IOException, DafnyException, FormatException {
         ProjectManager pm = getProjectManager();
-        List<PVC> allPVCs = pm.getPVCGroup().getContents();
+        List<PVC> allPVCs = pm.getAllPVCs().getContents();
         List<Proof> allProofs = new ArrayList<>();
         for (PVC pvc : allPVCs) {
             if(pvcFilter.test(pvc)) {
@@ -190,7 +191,7 @@ public class AlgoVerService {
     public ProjectManager getProjectManager()
             throws DafnyParserException, IOException, DafnyException, FormatException {
         if (projectManager == null) {
-            this.projectManager = new ProjectManager(directory, configName);
+            this.projectManager = new XMLProjectManager(directory, configName);
         }
         return projectManager;
     }

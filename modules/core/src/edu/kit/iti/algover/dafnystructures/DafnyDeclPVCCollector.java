@@ -1,7 +1,8 @@
 /*
  * This file is part of AlgoVer.
  *
- * Copyright (C) 2015-2017 Karlsruhe Institute of Technology
+ * Copyright (C) 2015-2018 Karlsruhe Institute of Technology
+ *
  */
 package edu.kit.iti.algover.dafnystructures;
 
@@ -16,6 +17,7 @@ import edu.kit.iti.algover.proof.PVC;
 import edu.kit.iti.algover.proof.PVCCollection;
 import edu.kit.iti.algover.proof.PVCGroup;
 import edu.kit.iti.algover.proof.SinglePVC;
+import edu.kit.iti.algover.symbex.FunctionObligationMaker;
 import edu.kit.iti.algover.symbex.Symbex;
 import edu.kit.iti.algover.symbex.SymbexPath;
 import edu.kit.iti.algover.term.builder.TermBuildException;
@@ -64,15 +66,9 @@ public class DafnyDeclPVCCollector {
                     .setPathThroughProgram(subpath)
                     .setDeclaration(m);
 
-                PVC pvc;
-                try {
-                    pvc = builder.build();
-                    SinglePVC sPVC = new SinglePVC(pvc);
-                    mGroup.addChild(sPVC);
-                } catch (TermBuildException e) {
-                    // FIXME. ... need a concept ofr exception handling here
-                    e.printStackTrace();
-                }
+                PVC pvc = builder.build();
+                SinglePVC sPVC = new SinglePVC(pvc);
+                mGroup.addChild(sPVC);
             }
         }
 
@@ -87,10 +83,25 @@ public class DafnyDeclPVCCollector {
     }
 
     public PVCCollection visitFunction(DafnyFunction f) {
+        Set<String> seenNames = new HashSet<>();
         PVCGroup mGroup = new PVCGroup(f);
 
-        // TODO: NOT YET IMPLEMENTED
-
+        FunctionObligationMaker obligationMaker = new FunctionObligationMaker();
+        List<SymbexPath> paths = obligationMaker.visit(f.getRepresentation());
+        for (SymbexPath path : paths) {
+            List<SymbexPath> subpaths = path.split();
+            for (SymbexPath subpath : subpaths) {
+                giveUniqueIdentifier(subpath, seenNames);
+                MethodPVCBuilder builder = new MethodPVCBuilder(project);
+                builder
+                        .setPathThroughProgram(subpath)
+                        .setDeclaration(f);
+                PVC pvc;
+                pvc = builder.build();
+                SinglePVC sPVC = new SinglePVC(pvc);
+                mGroup.addChild(sPVC);
+            }
+        }
         return mGroup;
     }
 

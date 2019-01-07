@@ -1,0 +1,23 @@
+### decls:
+j : int
+i : int
+### sequent:
+$gt(j,1),
+$gt(i,2)
+|-
+$gt(j,1),
+$gt(i,2)
+### result:
+prove
+### OLD-translation:
+var _i : int;
+var _j : int;
+
+procedure Sequent()
+  ensures false;
+{
+  assume (_j > 1);
+  assume (_i > 2);
+  assume !((_j > 1));
+  assume !((_i > 2));
+}

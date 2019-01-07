@@ -25,7 +25,7 @@ public class ParameterContractionVisitorTest {
         assertEquals("(CALL ($internal Param1 (Param2 Param3 Param4)) (ARGS ($internal2 X) 0))", op.toStringTree());
         assertEquals(DafnyParser.LOGIC_ID, op.getChild(0).getType());
 
-        op.accept(new ParameterContractionVisitor(), null);
+        SyntacticSugarVistor.visitDeep(op, new ParameterContractionVisitor());
 
         assertEquals("(CALL $internal<Param1,Param2<Param3,Param4>> (ARGS $internal2<X> 0))", op.toStringTree());
         assertEquals(DafnyParser.ID, op.getChild(0).getType());

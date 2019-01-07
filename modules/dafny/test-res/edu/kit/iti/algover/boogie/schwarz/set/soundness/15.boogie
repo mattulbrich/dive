@@ -1,0 +1,22 @@
+### decls:
+i : int
+j : int
+z : int
+s1 : set<int>
+s2 : set<int>
+### sequent:
+|-
+let s1 := $set_add<int>(i,$set_add<int>(j,$empty)) ::
+let s2 := $set_add<int>(j,$empty) ::
+$subset<int>(s1,s2)
+### result:
+fail
+### OLD-translation:
+var _i : int;
+var _j : int;
+
+procedure Sequent()
+  ensures false;
+{
+  assume !(Set#Subset(Set#UnionOne(Set#UnionOne(Set#Empty(), _j), _i), Set#UnionOne(Set#Empty(), _j)));
+}

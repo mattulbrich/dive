@@ -5,5 +5,6 @@ package edu.kit.iti.algover.editor;
  */
 public interface EditorListener {
     void saveSelectedDafnyFile();
+
     void saveAllDafnyFiles();
 }

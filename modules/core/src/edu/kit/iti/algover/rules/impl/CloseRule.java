@@ -2,21 +2,15 @@ package edu.kit.iti.algover.rules.impl;
 
 import edu.kit.iti.algover.proof.ProofNode;
 import edu.kit.iti.algover.rules.*;
-import edu.kit.iti.algover.term.Sequent;
 import edu.kit.iti.algover.term.Term;
-import edu.kit.iti.algover.util.Pair;
 import edu.kit.iti.algover.util.RuleUtil;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
+import java.util.stream.Collectors;
 
 public class CloseRule extends AbstractProofRule {
 
     public CloseRule() {
-        super(
-                ON_PARAM
-        );
+        super(new ParameterDescription<>("on", ParameterType.MATCH_TERM, false));
     }
 
     @Override
@@ -26,7 +20,10 @@ public class CloseRule extends AbstractProofRule {
 
     @Override
     public ProofRuleApplication considerApplicationImpl(ProofNode target, Parameters parameters) throws RuleException {
-        Term on = parameters.getValue(ON_PARAM);
+        Term on = null;
+        if(parameters.entrySet().size() > 0) {
+            on = parameters.getValue(ON_PARAM).getTerm();
+        }
 
         try {
             return buildApplication(target, on);
@@ -39,20 +36,35 @@ public class CloseRule extends AbstractProofRule {
 
     @Override
     public ProofRuleApplication makeApplicationImpl(ProofNode target, Parameters parameters) throws RuleException {
-        Term on = parameters.getValue(ON_PARAM);
-
+        Term on = null;
+        if(parameters.entrySet().size() > 0) {
+            on = parameters.getValue(ON_PARAM).getTerm();
+        }
         return buildApplication(target, on);
     }
 
     private ProofRuleApplication buildApplication(ProofNode target, Term on) throws RuleException {
         // make sure that the term specified in 'on' is on both sides of the sequent
-        boolean presentInAntecedent = RuleUtil.matchTopLevelInAntedecent(on::equals, target.getSequent()).isPresent();
-        boolean presentInSuccedent = RuleUtil.matchTopLevelInSuccedent(on::equals, target.getSequent()).isPresent();
+        if(on != null) {
+            boolean presentInAntecedent = RuleUtil.matchTopLevelInAntedecent(on::equals, target.getSequent()).isPresent();
+            boolean presentInSuccedent = RuleUtil.matchTopLevelInSuccedent(on::equals, target.getSequent()).isPresent();
 
-        if (!presentInAntecedent || !presentInSuccedent) {
-            throw new RuleException("'on' parameter of closing rule is not present on both sides of" +
-                    "the sequent. on=" + on + ", present in antecedent=" + presentInAntecedent +
-                    "present in succedent=" + presentInSuccedent);
+            if (!presentInAntecedent || !presentInSuccedent) {
+                throw new RuleException("'on' parameter of closing rule is not present on both sides of" +
+                        "the sequent. on=" + on + ", present in antecedent=" + presentInAntecedent +
+                        "present in succedent=" + presentInSuccedent);
+            }
+        } else {
+            for(Term t1 : target.getSequent().getAntecedent().stream().map(p -> p.getTerm()).collect(Collectors.toList())) {
+                for(Term t2 : target.getSequent().getSuccedent().stream().map(p -> p.getTerm()).collect(Collectors.toList())) {
+                    if (t1.equals(t2)) {
+                        on = t1;
+                    }
+                }
+            }
+            if(on == null) {
+                throw new RuleException("no on parameter found to apply close rule.");
+            }
         }
 
         ProofRuleApplicationBuilder builder = new ProofRuleApplicationBuilder(this);

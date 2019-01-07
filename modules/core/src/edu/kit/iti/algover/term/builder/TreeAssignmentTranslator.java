@@ -148,7 +148,7 @@ public class TreeAssignmentTranslator {
                 ref.getParent().getChild(0).getText(), // classname
                 ref.getChild(0).getText()); // fieldname
 
-        Term appl = tb.storeField(tb.heap(), object, field, assigned);
+        Term appl = tb.storeField(translator.getHeap(), object, field, assigned);
         return new Pair<>(HEAP_SYMB, appl);
     }
 

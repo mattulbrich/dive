@@ -1,0 +1,6 @@
+ (method assignObjectTuples ARGS
+	 (BLOCK (var x (TYPE object))
+		(var c (TYPE C))
+		(var y (TYPE object))
+		(:= x[object] c[C] (CALL multiReturnObject ARGS)[LISTEX<object,C>])
+		(:= x[object] y[object] (CALL multiReturnObject ARGS)[LISTEX<object,C>])))[scc_22]

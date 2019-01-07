@@ -7,6 +7,7 @@ public class AddedOrDeletedFormula extends TopLevelFormula {
     public enum Type {
         ADDED, DELETED;
     }
+
     private final Type type;
 
     public AddedOrDeletedFormula(Type type, Term term) {

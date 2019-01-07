@@ -4,13 +4,12 @@ package edu.kit.iti.algover.script.interpreter;
 import edu.kit.iti.algover.parser.DafnyException;
 import edu.kit.iti.algover.parser.DafnyParserException;
 import edu.kit.iti.algover.proof.ProofNode;
+import edu.kit.iti.algover.rules.TermParameter;
 import edu.kit.iti.algover.script.ast.*;
 import edu.kit.iti.algover.script.data.Value;
 import edu.kit.iti.algover.script.data.VariableAssignment;
 import edu.kit.iti.algover.script.parser.DefaultASTVisitor;
 import edu.kit.iti.algover.script.parser.Visitor;
-import edu.kit.iti.algover.term.Sequent;
-import edu.kit.iti.algover.term.Term;
 import edu.kit.iti.algover.term.parser.TermParser;
 
 import java.math.BigInteger;
@@ -23,11 +22,15 @@ import java.util.List;
  * @author S.Grebing
  * @author A. Weigl
  */
+
+// REVIEW: Add the missing generic parameters! Please!
+
+@SuppressWarnings({"unchecked", "rawtypes"})
 public class Evaluator<T> extends DefaultASTVisitor<Value> implements ScopeObservable {
     private final VariableAssignment state;
     private final ProofNode goal;
     private MatcherApi<T> matcher;
-    private List<Visitor> entryListeners = new ArrayList<>(),
+    private List<Visitor<?>> entryListeners = new ArrayList<>(),
             exitListeners = new ArrayList<>();
 
     public Evaluator(VariableAssignment assignment, ProofNode node) {
@@ -46,7 +49,7 @@ public class Evaluator<T> extends DefaultASTVisitor<Value> implements ScopeObser
     }
 
     @Override
-    public Value<T> visit(BinaryExpression e) {
+    public Value visit(BinaryExpression e) {
         Value v1 = (Value) e.getLeft().accept(this);
         Value v2 = (Value) e.getRight().accept(this);
         Operator op = e.getOperator();
@@ -86,12 +89,12 @@ public class Evaluator<T> extends DefaultASTVisitor<Value> implements ScopeObser
      *
      */
     @Override
-    public Value<Term> visit(TermLiteral term){
-        Value<Term> termV = null;
+    public Value<TermParameter> visit(TermLiteral term){
+        Value<TermParameter> termV = null;
         try {
-            TermParser tp = new TermParser(goal.getPVC().getSymbolTable());
+            TermParser tp = new TermParser(goal.getAllSymbols());
             tp.setSchemaMode(true);
-            termV = new Value<>(Type.TERM, tp.parse(term.getText()));
+            termV = new Value<>(Type.TERM, new TermParameter(tp.parse(term.getText()), goal.getSequent()));
         } catch (DafnyException | DafnyParserException e) {
             System.out.println("Could not translate term " + term.getText());
             throw new RuntimeException(e);
@@ -107,12 +110,12 @@ public class Evaluator<T> extends DefaultASTVisitor<Value> implements ScopeObser
      * @return a value object wrapping a sequent
      */
     @Override
-    public Value<Sequent> visit(SequentLiteral sequentLiteral){
-        Value<Sequent> seqValue = null;
+    public Value<TermParameter> visit(SequentLiteral sequentLiteral){
+        Value<TermParameter> seqValue = null;
         try {
-            TermParser tp = new TermParser(goal.getPVC().getSymbolTable());
+            TermParser tp = new TermParser(goal.getAllSymbols());
             tp.setSchemaMode(true);
-            seqValue = new Value<>(Type.TERM, tp.parseSequent(sequentLiteral.getText()));
+            seqValue = new Value<>(Type.TERM, new TermParameter(tp.parseSequent(sequentLiteral.getText()), goal.getSequent()));
 
         } catch (DafnyException | DafnyParserException e) {
             System.out.println("Could not translate term " + sequentLiteral.getText());
@@ -151,7 +154,7 @@ public class Evaluator<T> extends DefaultASTVisitor<Value> implements ScopeObser
     }
 
     @Override
-    public Value<T> visit(UnaryExpression e) {
+    public Value visit(UnaryExpression e) {
         Operator op = e.getOperator();
         Expression expr = e.getExpression();
         Value<T> exValue = (Value) expr.accept(this);
@@ -175,11 +178,11 @@ public class Evaluator<T> extends DefaultASTVisitor<Value> implements ScopeObser
         this.matcher = matcher;
     }
 
-    public List<Visitor> getEntryListeners() {
+    public List<Visitor<?>> getEntryListeners() {
         return this.entryListeners;
     }
 
-    public List<Visitor> getExitListeners() {
+    public List<Visitor<?>> getExitListeners() {
         return this.exitListeners;
     }
 }

@@ -1,11 +1,12 @@
 package edu.kit.iti.algover.rule;
 
 import edu.kit.iti.algover.FxmlController;
+import edu.kit.iti.algover.project.ProjectManager;
 import edu.kit.iti.algover.proof.ProofNode;
-import edu.kit.iti.algover.proof.ProofNodeSelector;
 import edu.kit.iti.algover.rule.script.ScriptController;
 import edu.kit.iti.algover.rule.script.ScriptView;
 import edu.kit.iti.algover.rules.*;
+import edu.kit.iti.algover.rules.impl.ExhaustiveRule;
 import edu.kit.iti.algover.term.Sequent;
 import edu.kit.iti.algover.term.Term;
 import edu.kit.iti.algover.term.prettyprint.PrettyPrint;
@@ -16,16 +17,18 @@ import javafx.scene.control.Label;
 import javafx.scene.control.SplitPane;
 import org.fxmisc.flowless.VirtualizedScrollPane;
 
-import java.util.ServiceLoader;
 import java.util.concurrent.ExecutorService;
-import java.util.function.Consumer;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
 public class RuleApplicationController extends FxmlController {
 
-    @FXML private SplitPane splitPane;
-    @FXML private Label termToConsider;
-    @FXML private RuleGrid ruleGrid;
+    @FXML
+    private SplitPane splitPane;
+    @FXML
+    private Label termToConsider;
+    @FXML
+    private RuleGrid ruleGrid;
 
     private final ScriptView scriptView;
 
@@ -35,16 +38,18 @@ public class RuleApplicationController extends FxmlController {
 
     private final Logger logger;
 
-    public RuleApplicationController(ExecutorService executor, RuleApplicationListener listener) {
+    private final ProjectManager manager;
+
+    public RuleApplicationController(ExecutorService executor, RuleApplicationListener listener, ProjectManager manager) {
         super("RuleApplicationView.fxml");
         this.listener = listener;
         this.scriptController = new ScriptController(executor, listener);
         this.scriptView = scriptController.getView();
 
         logger = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
+        this.manager = manager;
 
-        //TODO: laod rules from project.getallRules to include lemmas
-        for (ProofRule rule : ServiceLoader.load(ProofRule.class)) {
+        for (ProofRule rule : manager.getProject().getAllProofRules()) {
             addProofRule(rule);
         }
 
@@ -64,18 +69,25 @@ public class RuleApplicationController extends FxmlController {
         } catch (RuleException e) {
             e.printStackTrace();
         }
-        ruleGrid.getRules().forEach(ruleView -> {
+        ruleGrid.getAllRules().forEach(ruleView -> {
             ruleView.considerApplication(target, selection, selector);
         });
+        ruleGrid.filterRules();
     }
 
     public void resetConsideration() {
         ruleGrid.getRules().forEach(RuleView::resetConsideration);
         termToConsider.setText("");
+        ruleGrid.filterRules();
     }
 
     public void applyRule(ProofRuleApplication application) {
-        scriptController.insertTextForSelectedNode(application.getScriptTranscript() + "\n");
+        try {
+            resetConsideration();
+            scriptController.insertTextForSelectedNode(application.getScriptTranscript() + "\n");
+        } catch(RuleException e) {
+            Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).severe("Error applying rule: " + e.getMessage());
+        }
     }
 
     private void onSelectedItemChanged(ObservableValue<? extends RuleView> obs, RuleView before, RuleView selected) {
@@ -102,11 +114,23 @@ public class RuleApplicationController extends FxmlController {
 
     public void applyExRule(ProofRule rule, ProofNode pn, TermSelector ts) {
         try {
-            scriptController.insertTextForSelectedNode(RuleApplicator.getScriptForExhaustiveRuleApplication(rule, pn, ts) + "\n");
+            ExhaustiveRule exRule = new ExhaustiveRule();
+            Parameters parameters = new Parameters();
+            parameters.putValue("ruleName", rule.getName());
+            parameters.putValue("on", new TermParameter(ts, pn.getSequent()));
+            ProofRuleApplication pra = exRule.considerApplication(pn, parameters);
+            resetConsideration();
+            scriptController.insertTextForSelectedNode(pra.getScriptTranscript());
             logger.info("Applied rule " + rule.getName() + " exhaustively.");
         } catch (RuleException e) {
             //TODO handle exeptions
             logger.severe("Error while trying to apply rule " + rule.getName() + " exhaustive.");
         }
+    }
+
+    public void onReset() {
+        ruleGrid.setAllRules(manager.getProject().getAllProofRules().stream()
+                .map(rule -> new RuleView(rule, ruleGrid.getSelectionModel(), listener))
+                .collect(Collectors.toList()));
     }
 }

@@ -20,20 +20,25 @@ import edu.kit.iti.algover.util.ASTUtil;
  * @author mulbrich
  * @see SyntacticSugarVistor
  */
-public class ImplicitlyTypedVariableVisitor {
+public class ImplicitlyTypedVariableVisitor extends DafnyTreeDefaultVisitor<Void, Void> {
+
+    @Override
+    public Void visitEX(DafnyTree t, Void aVoid) {
+        walk(t);
+        return null;
+    }
+
+    @Override
+    public Void visitALL(DafnyTree t, Void aVoid) {
+        walk(t);
+        return null;
+    }
 
     public void walk(DafnyTree tree) {
-
-        switch (tree.getType()) {
-        case DafnyParser.ALL:
-        case DafnyParser.EX:
-            DafnyTree type = tree.getFirstChildWithType(DafnyParser.TYPE);
-            if(type == null) {
-                // TODO in the far future replace this with type inference ... (probably not here)
-                tree.insertChild(tree.getChildCount() - 1, ASTUtil.type(new DafnyTree(DafnyParser.INT, "int")));
-            }
+        DafnyTree type = tree.getFirstChildWithType(DafnyParser.TYPE);
+        if(type == null) {
+            // TODO in the far future replace this with type inference ... (probably not here)
+            tree.insertChild(tree.getChildCount() - 1, ASTUtil.type(new DafnyTree(DafnyParser.INT, "int")));
         }
-
-        tree.getChildren().forEach(this::walk);
     }
 }

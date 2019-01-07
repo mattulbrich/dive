@@ -11,8 +11,6 @@ import edu.kit.iti.algover.term.prettyprint.AnnotatedString;
 import edu.kit.iti.algover.term.prettyprint.PrettyPrint;
 import edu.kit.iti.algover.util.SubSelection;
 import edu.kit.iti.algover.util.TextUtil;
-import javafx.beans.value.ObservableValue;
-import javafx.event.Event;
 import javafx.geometry.Bounds;
 import javafx.scene.input.MouseEvent;
 import org.fxmisc.richtext.CharacterHit;
@@ -48,6 +46,8 @@ public class BasicFormulaView extends CodeArea {
             highlightedElement = null;
             updateStyleClasses();
         });
+
+        widthProperty().addListener(x -> relayout());
     }
 
     protected void handleHover(MouseEvent mouseEvent) {
@@ -73,31 +73,38 @@ public class BasicFormulaView extends CodeArea {
         }
     }
 
-    protected void layoutChildren() {
-        super.layoutChildren();
-        relayout();
+    @Override
+    protected double computePrefHeight(double width) {
+        String prettyPrinted = calculateText(width);
+        double neededHeight = calculateNeededHeight(prettyPrinted);
+        return neededHeight;
     }
 
     protected void relayout() {
-        String prettyPrinted = calculateText();
+        double width = getWidth();
+
+        String prettyPrinted = calculateText(width);
         double neededHeight = calculateNeededHeight(prettyPrinted);
 
         replaceText(0, getLength(), prettyPrinted);
         updateStyleClasses();
 
-        setMinHeight(neededHeight);
-        setPrefHeight(neededHeight);
-        setHeight(neededHeight);
+        if(width != 0.0) {
+            // Set this only if a width has been set.
+            setMinHeight(neededHeight);
+            setPrefHeight(neededHeight);
+            setHeight(neededHeight);
+        }
     }
 
     // Calculates text and updates annotatedString
-    private String calculateText() {
+    private String calculateText(double width) {
         // Find out how many characters the text can be wide:
         Bounds mChar = TextUtil.computeTextBounds("m", getStyleClass(), getStylesheets());
 
         double charWidth = mChar.getWidth();
 
-        int charsFitting = (int) (getWidth() / charWidth);
+        int charsFitting = (int) (width / charWidth);
 
         // Prettyprint the term with the given amount of char width
         PrettyPrint p = new PrettyPrint();

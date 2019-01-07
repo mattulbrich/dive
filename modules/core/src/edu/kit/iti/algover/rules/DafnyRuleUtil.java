@@ -177,17 +177,29 @@ public class DafnyRuleUtil {
             } else {
                 throw new DafnyRuleException("No equals or implies clause found.");
             }
-            st = st.accept(new ReplaceProgramVariableVisitor(), programVars);
-            rt = rt.accept(new ReplaceProgramVariableVisitor(), programVars);
+            Term tmp = st.accept(new ReplaceProgramVariableVisitor(), programVars);
+            if(tmp != null) {
+                st = tmp;
+            }
+            tmp = rt.accept(new ReplaceProgramVariableVisitor(), programVars);
+            if(tmp != null) {
+                rt = tmp;
+            }
             for(DafnyTree dt : requiresClauses) {
                 if(dt.getChildCount() == 1) {
                     Term t = ttt.build(dt.getChild(0));
                     String label = "";
-                    rts.add(new Pair<Term, String>(t.accept(new ReplaceProgramVariableVisitor(), programVars), label));
+                    tmp = t.accept(new ReplaceProgramVariableVisitor(), programVars);
+                    if(tmp != null) {
+                        rts.add(new Pair<Term, String>(tmp, label));
+                    }
                 } else if(dt.getChildCount() == 2) {
                     Term t = ttt.build(dt.getChild(1));
                     String label = dt.getChild(1).getChild(0).toString();
-                    rts.add(new Pair<Term, String>(t.accept(new ReplaceProgramVariableVisitor(), programVars), label));
+                    tmp = t.accept(new ReplaceProgramVariableVisitor(), programVars);
+                    if(tmp != null) {
+                        rts.add(new Pair<Term, String>(tmp, label));
+                    }
                 }
 
             }
@@ -236,6 +248,8 @@ class ReplaceProgramVariableVisitor extends ReplacementVisitor<List<String>> {
             return super.visit(applTerm, programmVariables);
         }
     }
+
+
 }
 
 

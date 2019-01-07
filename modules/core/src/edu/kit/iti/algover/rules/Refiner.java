@@ -7,6 +7,6 @@ package edu.kit.iti.algover.rules;
 
 public interface Refiner {
 
-    ProofRuleApplication refine(ProofRuleApplication original, Parameters additionalParameters);
+    ProofRuleApplication refine(ProofRuleApplication original, Parameters additionalParameters) throws RuleException;
 
 }

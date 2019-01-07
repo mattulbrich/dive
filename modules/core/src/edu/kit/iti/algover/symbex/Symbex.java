@@ -7,15 +7,16 @@ package edu.kit.iti.algover.symbex;
 
 import edu.kit.iti.algover.ProgramDatabase;
 import edu.kit.iti.algover.dafnystructures.TarjansAlgorithm;
+import edu.kit.iti.algover.parser.DafnyException;
 import edu.kit.iti.algover.parser.DafnyParser;
 import edu.kit.iti.algover.parser.DafnyTree;
+import edu.kit.iti.algover.parser.ModifiesListResolver;
 import edu.kit.iti.algover.symbex.AssertionElement.AssertionType;
 import edu.kit.iti.algover.symbex.PathConditionElement.AssumptionType;
 import edu.kit.iti.algover.term.Sort;
 import edu.kit.iti.algover.util.ASTUtil;
 import edu.kit.iti.algover.util.ImmutableList;
 import edu.kit.iti.algover.util.Pair;
-import nonnull.Nullable;
 
 import java.util.*;
 
@@ -46,7 +47,7 @@ public class Symbex {
     /**
      * The Constant EMPTY_PROGRAM points to an empty AST.
      */
-    private static final DafnyTree EMPTY_PROGRAM =
+    public static final DafnyTree EMPTY_PROGRAM =
             new DafnyTree(DafnyParser.BLOCK);
 
     /**
@@ -231,15 +232,52 @@ public class Symbex {
         }
 
         // Modify heap if not strictly pure
+        // Ensure modified set is in local modifies.
         if(!ProgramDatabase.isStrictlyPure(method)) {
             DafnyTree mod = method.getFirstChildWithType(DafnyParser.MODIFIES);
-            if (mod == null) {
-                mod = ASTUtil.builtInVar("$everything");
-            } else {
-                mod = mod.getLastChild();
+
+            try {
+                if (mod == null) {
+                    mod = ASTUtil.create(DafnyParser.MODIFIES);
+                }
+                mod = ModifiesListResolver.resolve(mod);
+                mod = ASTUtil.letCascade(subs, mod);
+            } catch (DafnyException ex) {
+                // We assume that this never occurs in reality
+                // TypeResolver checks the typing and fails way earlier!
+                throw new RuntimeException(ex);
             }
-            mod = ASTUtil.letCascade(subs, mod);
+
+            // "assert mod_of_method <= $mod"
+            SymbexPath modState = new SymbexPath(state);
+            modState.setBlockToExecute(EMPTY_PROGRAM);
+            DafnyTree condition = ASTUtil.create(DafnyParser.LE,
+                    mod.dupTree(), ASTUtil.builtInVar("$mod"));
+            modState.setProofObligation(condition, refersTo, AssertionType.MODIFIES);
+            stack.add(modState);
+
+            // "heap := anon(heap, mod, ...)"
             state.addAssignment(ASTUtil.anonymiseHeap(state, mod));
+
+            // if result is reference type: it is created
+            if(returns != null) {
+                List<DafnyTree> allFresh = new ArrayList<>();
+                for (DafnyTree ret : returns.getChildren()) {
+                    DafnyTree type = ret.getFirstChildWithType(DafnyParser.TYPE).getChild(0);
+                    Sort sort = ASTUtil.toSort(type);
+                    if(sort.isReferenceSort()) {
+                        DafnyTree fresh = ASTUtil.call("$isCreated",
+                                ASTUtil.builtInVar("$heap"), ret.getChild(0));
+                        allFresh.add(fresh);
+                    }
+                }
+                if (!allFresh.isEmpty()) {
+                    DafnyTree cond = ASTUtil.and(allFresh);
+                    cond = ASTUtil.letCascade(subs, cond);
+                    state.addPathCondition(cond, refersTo, AssumptionType.IMPLICIT_ASSUMPTION);
+                }
+            }
+
         }
 
         // now assume the postcondition (and some free postconditions)
@@ -287,8 +325,8 @@ public class Symbex {
         DafnyTree size = child.getChild(1);
         DafnyTree arrayType = ASTUtil.create(DafnyParser.ARRAY, "array", type);
 
-        handleExpression(stack, current, size);
-        addIndexInRangeCheck(stack, current, size, null, "");
+        SymbexExpressionValidator.handleExpression(stack, current, size);
+        addGreater0Check(stack, current, size);
 
         DafnyTree newObj = ASTUtil.freshVariable("$new", arrayType, current);
         current.addPathCondition(ASTUtil.negate(ASTUtil.builtIn(ASTUtil.call("$isCreated", ASTUtil.builtInVar("$heap"), newObj))), stm,
@@ -300,6 +338,18 @@ public class Symbex {
 
         return newObj;
     }
+
+    private void addGreater0Check(Deque<SymbexPath> stack, SymbexPath current,
+                                 DafnyTree size) {
+        SymbexPath bounds = new SymbexPath(current);
+        List<DafnyTree> pos = new ArrayList<>();
+        pos.add(ASTUtil.greaterEqual(size, ASTUtil.intLiteral(0)));
+        bounds.setProofObligations(pos, size, AssertionType.RT_IN_BOUNDS);
+        bounds.setBlockToExecute(Symbex.EMPTY_PROGRAM);
+        stack.push(bounds);
+    }
+
+
     /*
      * new C.Init(p) becomes
      *
@@ -393,7 +443,7 @@ public class Symbex {
     void handleIf(Deque<SymbexPath> stack, SymbexPath state,
             DafnyTree stm, DafnyTree remainder) {
         DafnyTree cond = stm.getChild(0);
-        handleExpression(stack, state, cond);
+        SymbexExpressionValidator.handleExpression(stack, state, cond);
 
         DafnyTree then = stm.getChild(1);
         SymbexPath stateElse = new SymbexPath(state);
@@ -447,7 +497,7 @@ public class Symbex {
         }
 
         // guard well-def
-        handleExpression(stack, preservePath, guard);
+        SymbexExpressionValidator.handleExpression(stack, preservePath, guard);
 
         preservePath.addPathCondition(guard, stm, AssumptionType.WHILE_TRUE);
         preservePath.setBlockToExecute(stm.getLastChild());
@@ -461,8 +511,8 @@ public class Symbex {
         AssertionElement decrProof;
         if (decreasesClause != null) {
             DafnyTree decrReduced = ASTUtil.noetherLess(
-                    ASTUtil.listExpr(decreaseVars),
-                    ASTUtil.listExpr(decreasesClause.getChildren()));
+                    ASTUtil.listExpr(decreasesClause.getChildren()),
+                    ASTUtil.listExpr(decreaseVars));
             decrProof = new AssertionElement(decrReduced, decreasesClause,
                     AssertionType.VARIANT_DECREASED);
         } else {
@@ -531,7 +581,7 @@ public class Symbex {
         }
         
         DafnyTree assignee = stm.getChild(0);
-        handleExpression(stack, state, assignee);
+        SymbexExpressionValidator.handleExpression(stack, state, assignee);
         addModifiesCheck(stack, state, assignee);
 
         DafnyTree expression = stm.getChild(1);
@@ -545,7 +595,7 @@ public class Symbex {
                 assert resultVars.size() == 1 : "This is a single result method situation";
                 state.addAssignment(ASTUtil.assign(assignee, resultVars.get(0)));
             } else {
-                handleExpression(stack, state, expression);
+                SymbexExpressionValidator.handleExpression(stack, state, expression);
                 state.addAssignment(stm);
             }
             break;
@@ -556,7 +606,7 @@ public class Symbex {
             break;
 
         default:
-            handleExpression(stack, state, expression);
+            SymbexExpressionValidator.handleExpression(stack, state, expression);
             state.addAssignment(stm);
             break;
         }
@@ -571,13 +621,12 @@ public class Symbex {
 
         for (int i = 0; i < stm.getChildCount() - 1; i++) {
             DafnyTree assignee = stm.getChild(i);
-            handleExpression(stack, state, assignee);
+            SymbexExpressionValidator.handleExpression(stack, state, assignee);
             addModifiesCheck(stack, state, assignee);
         }
 
         DafnyTree decl = expression.getChild(expression.getChildCount()-2).getDeclarationReference();
         assert decl.getType() == DafnyParser.METHOD : "Should be prevented by reference resolution";
-
 
         DafnyTree receiver = expression.getChildCount() > 2 ? expression.getChild(1) : null;
         DafnyTree args = expression.getFirstChildWithType(DafnyParser.ARGS);
@@ -800,11 +849,15 @@ public class Symbex {
 
         DafnyTree modifies = method.getFirstChildWithType(DafnyParser.MODIFIES);
         if (modifies == null) {
+            modifies = ASTUtil.create(DafnyParser.MODIFIES);
+        }
+
+        try {
             result.addAssignment(ASTUtil.assign(ASTUtil.builtInVar("$mod"),
-                    ASTUtil.builtInVar("$everything")));
-        } else {
-            result.addAssignment(ASTUtil.assign(ASTUtil.builtInVar("$mod"),
-                    modifies.getLastChild()));
+                    ModifiesListResolver.resolve(modifies)));
+        } catch (DafnyException e) {
+            // Thanks to TypeResolver, this should never occur.
+            throw new RuntimeException(e);
         }
 
         DafnyTree decreases = method.getFirstChildWithType(DafnyParser.DECREASES);
@@ -816,103 +869,12 @@ public class Symbex {
                     decreases.getLastChild()));
         }
 
+        // $oldheap := $heap ... to remember for old-expressions
+        result.addAssignment(ASTUtil.assign(ASTUtil.builtInVar("$oldheap"),
+                    ASTUtil.builtInVar("$heap")));
+
         return result;
     }
 
-    /*
-     * Handle expressions:
-     * - Create runtime checks for array accesses
-     *   - non-null
-     *   - index in bounds
-     * - for field / method accesses
-     *   - non-null
-     * - add shortcut evaluations as guards as path conditions
-     */
-    private void handleExpression(Deque<SymbexPath> stack, SymbexPath current,
-            DafnyTree expression) {
 
-        DafnyTree child0;
-        DafnyTree child1;
-        switch (expression.getType()) {
-        case DafnyParser.AND:
-        case DafnyParser.IMPLIES:
-            assert expression.getChildCount() == 2;
-            child0 = expression.getChild(0);
-            child1 = expression.getChild(1);
-            handleExpression(stack, current, child0);
-            SymbexPath guarded = new SymbexPath(current);
-            guarded.addPathCondition(child0, child0, AssumptionType.GUARD_IN_EXPRESSION);
-            handleExpression(stack, guarded, child1);
-            break;
-
-        case DafnyParser.OR:
-            child0 = expression.getChild(0);
-            child1 = expression.getChild(1);
-            handleExpression(stack, current, child0);
-            guarded = new SymbexPath(current);
-            guarded.addPathCondition(ASTUtil.negate(child0),
-                    child0, AssumptionType.GUARD_IN_EXPRESSION);
-            handleExpression(stack, guarded, child1);
-            break;
-
-        case DafnyParser.ARRAY_ACCESS:
-            child0 = expression.getChild(0);
-            handleExpression(stack, current, child0);
-            addNonNullCheck(stack, current, child0);
-
-            for (int i = 1; i < expression.getChildCount(); i++) {
-                DafnyTree child = expression.getChild(i);
-                String suffix = expression.getChildCount() > 2 ? Integer.toString(i - 1) : "";
-                addIndexInRangeCheck(stack, current, child, child0, suffix);
-                handleExpression(stack, current, child);
-            }
-            break;
-
-        case DafnyParser.LENGTH:
-        case DafnyParser.FIELD_ACCESS:
-            child0 = expression.getChild(0);
-            addNonNullCheck(stack, current, child0);
-            handleExpression(stack, current, child0);
-            break;
-
-        default:
-            for (int i = 0; i < expression.getChildCount(); i++) {
-                handleExpression(stack, current, expression.getChild(i));
-            }
-        }
-    }
-
-    /*
-     * Use "null" for array if only lower bounds check
-     */
-    private void addIndexInRangeCheck(Deque<SymbexPath> stack, SymbexPath current,
-                                      DafnyTree idx, @Nullable DafnyTree array,
-                                      String arrayLengthSuffix) {
-        SymbexPath bounds = new SymbexPath(current);
-        List<DafnyTree> pos = new ArrayList<>();
-        pos.add(ASTUtil.greaterEqual(idx, ASTUtil.intLiteral(0)));
-        if (array != null) {
-            pos.add(ASTUtil.less(idx, ASTUtil.length(array, arrayLengthSuffix)));
-        }
-        bounds.setProofObligations(pos, idx, AssertionType.RT_IN_BOUNDS);
-        bounds.setBlockToExecute(Symbex.EMPTY_PROGRAM);
-        stack.push(bounds);
-    }
-
-    private void addNonNullCheck(Deque<SymbexPath> stack, SymbexPath current,
-            DafnyTree expression) {
-        SymbexPath nonNull = new SymbexPath(current);
-        if (expression.getType() == DafnyParser.THIS) {
-            // No check for explicit this references ...
-            return;
-        }
-        if (expression.getExpressionType().getText().equals("seq")) {
-            // No check for seq, olny for array.
-            return;
-        }
-        DafnyTree check = ASTUtil.notEquals(expression, ASTUtil._null());
-        nonNull.setBlockToExecute(Symbex.EMPTY_PROGRAM);
-        nonNull.setProofObligation(check, expression, AssertionType.RT_NONNULL);
-        stack.push(nonNull);
-    }
 }

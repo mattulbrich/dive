@@ -11,6 +11,8 @@ import edu.kit.iti.algover.term.Sequent;
 import nonnull.NonNull;
 import nonnull.Nullable;
 
+import java.util.Map;
+
 /**
  * Interface for Proof steps Proof steps can be single rules, but also
  * application of solvers etc.
@@ -77,4 +79,20 @@ public interface ProofRule {
             @NonNull ProofNode target,
             @NonNull Parameters parameters) throws RuleException;
 
+
+    /**
+     * This map captures the parameters made
+     * known to the class in the constructor.
+     */
+    public Map<String, ParameterDescription<?>> getAllParameters();
+
+    /**
+     *
+     * Generates a fitting transcript for a given ruleApplication.
+     *
+     * @param pra the proofRuleApplication
+     * @return a valid transcript for the given proofRuleApplication
+     * @throws RuleException
+     */
+    public String getTranscript(ProofRuleApplication pra) throws RuleException;
 }

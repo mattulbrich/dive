@@ -6,10 +6,12 @@ import edu.kit.iti.algover.rules.ProofRuleApplication;
 import edu.kit.iti.algover.rules.RuleException;
 import edu.kit.iti.algover.rules.TermSelector;
 import edu.kit.iti.algover.term.Sequent;
+import edu.kit.iti.algover.util.RuleParameterDialog;
 import javafx.beans.value.ObservableValue;
 import javafx.css.PseudoClass;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
+import javafx.scene.control.Dialog;
 import javafx.scene.control.Label;
 import javafx.scene.control.SelectionModel;
 import javafx.scene.input.MouseEvent;
@@ -75,10 +77,18 @@ public class RuleView extends StackPane {
             application = rule.considerApplication(target, selection, selector);
             this.selection = selector;
             setSelectable(application != null && application.getApplicability() == ProofRuleApplication.Applicability.APPLICABLE);
+            renderApplication();
         } catch (RuleException e) {
-            System.err.println("Cannot consider Application: " + e);
+            try {
+                application = rule.considerApplication(target, selection, null);
+                this.selection = selector;
+                setSelectable(application != null && application.getApplicability() == ProofRuleApplication.Applicability.APPLICABLE);
+                renderApplication();
+            } catch (RuleException ex) {
+                System.err.println("Cannot consider Application: " + e);
+                ex.printStackTrace();
+            }
         }
-        renderApplication();
     }
 
     private void renderApplication() {
@@ -110,5 +120,13 @@ public class RuleView extends StackPane {
 
     public boolean isSelectable() {
         return selectable;
+    }
+
+    public ProofRuleApplication getApplication() {
+        return application;
+    }
+
+    public ProofRule getRule() {
+        return rule;
     }
 }

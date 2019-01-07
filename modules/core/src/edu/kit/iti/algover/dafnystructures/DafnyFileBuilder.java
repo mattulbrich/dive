@@ -99,6 +99,10 @@ public class DafnyFileBuilder {
                 classBuilder.parseRepresentation(child);
                 classes.add(classBuilder.build());
                 break;
+            case DafnyParser.INCLUDE:
+            case DafnyParser.SETTINGS:
+                // Ignore the configuration stuff when parsing files.
+                break;
             default:
                 System.err.println(child.toStringTree());
                 throw new Error("unexpected toplevel AST element of type " + child.getType());

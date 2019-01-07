@@ -1,0 +1,2 @@
+(method challengeNull ARGS
+        (BLOCK (var setC (TYPE (set C))) (:= setC[set<C>] ({ null[null])[set<null>])))[scc_25]

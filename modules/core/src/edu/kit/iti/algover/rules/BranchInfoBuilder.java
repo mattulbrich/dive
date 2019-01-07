@@ -72,6 +72,9 @@ public class BranchInfoBuilder {
     public BranchInfo build() {
         Sequent additions = new Sequent(additionsAntecedent, additionsSuccedent);
         Sequent deletions = new Sequent(deletionsAntecedent, deletionsSuccedent);
+        if (label == null) {
+            throw new NullPointerException("Branch label is null");
+        }
 
         return new BranchInfo(label, additions, deletions, ImmutableList.from(replacements));
     }
@@ -112,8 +115,9 @@ public class BranchInfoBuilder {
         return label;
     }
 
-    public void setLabel(String label) {
+    public BranchInfoBuilder setLabel(String label) {
         this.label = label;
+        return  this;
     }
 
 }

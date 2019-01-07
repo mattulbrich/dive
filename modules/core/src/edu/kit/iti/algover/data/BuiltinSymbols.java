@@ -32,11 +32,16 @@ import edu.kit.iti.algover.util.Util;
  */
 public class BuiltinSymbols extends MapSymbolTable {
 
+    public static final Sort ARRAY1 =
+            Sort.get("array", FunctionSymbolFamily.VAR1);
+
+    public static final Sort ARRAY2_1 =
+            Sort.get("array2", FunctionSymbolFamily.VAR1);
+
     public static final FunctionSymbolFamily ARRAY_SELECT =
             new FunctionSymbolFamily(
                     new FunctionSymbol("$array_select", FunctionSymbolFamily.VAR1,
-                            Sort.HEAP, Sort.get("array", FunctionSymbolFamily.VAR1),
-                            Sort.INT), 1);
+                            Sort.HEAP, ARRAY1, Sort.INT), 1);
 
     // Checkstyle: OFF JavadocVariableCheck
 
@@ -93,20 +98,20 @@ public class BuiltinSymbols extends MapSymbolTable {
     public static final FunctionSymbolFamily ARRAY2_SELECT =
             new FunctionSymbolFamily(
                     new FunctionSymbol("$array2_select", FunctionSymbolFamily.VAR1,
-                            Sort.HEAP, Sort.get("array2", FunctionSymbolFamily.VAR1),
+                            Sort.HEAP, ARRAY2_1,
                             Sort.INT, Sort.INT), 1);
     public static final FunctionSymbolFamily LEN =
             new FunctionSymbolFamily(
                     new FunctionSymbol("$len", Sort.INT,
-                            Sort.get("array", FunctionSymbolFamily.VAR1)), 1);
+                            ARRAY1), 1);
     public static final FunctionSymbolFamily LEN0 =
             new FunctionSymbolFamily(
                     new FunctionSymbol("$len0", Sort.INT,
-                            Sort.get("array2", FunctionSymbolFamily.VAR1)), 1);
+                            ARRAY2_1), 1);
     public static final FunctionSymbolFamily LEN1 =
             new FunctionSymbolFamily(
                     new FunctionSymbol("$len1", Sort.INT,
-                            Sort.get("array2", FunctionSymbolFamily.VAR1)), 1);
+                            ARRAY2_1), 1);
     public static final FunctionSymbol NULL =
             new FunctionSymbol("null", Sort.NULL);
 
@@ -124,7 +129,7 @@ public class BuiltinSymbols extends MapSymbolTable {
             new FunctionSymbolFamily(
                     new FunctionSymbol("$array_store", Sort.HEAP,
                             Sort.HEAP,
-                            Sort.get("array", FunctionSymbolFamily.VAR1),
+                            ARRAY1,
                             Sort.INT,
                             FunctionSymbolFamily.VAR1), 1);
 
@@ -132,7 +137,7 @@ public class BuiltinSymbols extends MapSymbolTable {
             new FunctionSymbolFamily(
                     new FunctionSymbol("$array2_store", Sort.HEAP,
                             Sort.HEAP,
-                            Sort.get("array2", FunctionSymbolFamily.VAR1),
+                            ARRAY2_1,
                             Sort.INT,
                             Sort.INT,
                             FunctionSymbolFamily.VAR1), 1);
@@ -178,9 +183,12 @@ public class BuiltinSymbols extends MapSymbolTable {
             new FunctionSymbolFamily(
                     new FunctionSymbol("$intersect", SET1, SET1, SET1), 1);
 
-    public static final FunctionSymbolFamily EMPTY_SET =
+    public static final FunctionSymbolFamily SET_MINUS =
             new FunctionSymbolFamily(
-                    new FunctionSymbol("$empty", SET1), 1);
+                    new FunctionSymbol("$set_minus", SET1, SET1, SET1), 1);
+
+    public static final FunctionSymbol EMPTY_SET =
+            new FunctionSymbol("$empty", Sort.get("set", Sort.BOTTOM));
 
     public static final FunctionSymbolFamily CARD =
             new FunctionSymbolFamily(
@@ -193,6 +201,10 @@ public class BuiltinSymbols extends MapSymbolTable {
     public static final FunctionSymbolFamily SET_IN =
             new FunctionSymbolFamily(
                     new FunctionSymbol("$set_in", Sort.BOOL, FunctionSymbolFamily.VAR1, SET1), 1);
+
+    public static final FunctionSymbolFamily SUBSET =
+            new FunctionSymbolFamily(
+                    new FunctionSymbol("$subset", Sort.BOOL, SET1, SET1), 1);
 
 
     private static final Sort SEQ1 = Sort.get("seq", FunctionSymbolFamily.VAR1);
@@ -211,9 +223,8 @@ public class BuiltinSymbols extends MapSymbolTable {
                     new FunctionSymbol("$seq_upd", SEQ1,
                             SEQ1, Sort.INT, FunctionSymbolFamily.VAR1), 1);
 
-    public static final FunctionSymbolFamily SEQ_EMPTY =
-            new FunctionSymbolFamily(
-                    new FunctionSymbol("$seq_empty", SEQ1), 1);
+    public static final FunctionSymbol SEQ_EMPTY =
+            new FunctionSymbol("$seq_empty", Sort.get("seq", Sort.BOTTOM));
 
     public static final FunctionSymbolFamily SEQ_CONS =
             new FunctionSymbolFamily(
@@ -222,6 +233,14 @@ public class BuiltinSymbols extends MapSymbolTable {
     public static final FunctionSymbolFamily SEQ_CONCAT =
             new FunctionSymbolFamily(
                     new FunctionSymbol("$seq_concat", SEQ1, SEQ1, SEQ1), 1);
+
+    public static final FunctionSymbolFamily SEQ_SUB =
+            new FunctionSymbolFamily(
+                    new FunctionSymbol("$seq_sub", SEQ1, SEQ1, Sort.INT, Sort.INT), 1);
+
+    public static final FunctionSymbolFamily ARRAY_TO_SEQ =
+            new FunctionSymbolFamily(
+                    new FunctionSymbol("$array2seq", SEQ1, Sort.HEAP, ARRAY1),1);
 
     private static final Sort SET_OBJECTS = Sort.get("set", Sort.OBJECT);
 
@@ -236,6 +255,7 @@ public class BuiltinSymbols extends MapSymbolTable {
 
     public static final FunctionSymbol IS_CREATED =
             new FunctionSymbol("$isCreated", Sort.BOOL, Sort.HEAP, Sort.OBJECT);
+
 
     // Checkstyle: ON JavadocVariableCheck
     private final Map<String, FunctionSymbolFamily> symbolFamilies =
@@ -256,21 +276,23 @@ public class BuiltinSymbols extends MapSymbolTable {
      *
      */
     @Override
-    protected FunctionSymbol resolve(String name) {
+    protected FunctionSymbol resolve(String name, List<Sort> argSorts) {
 
-        int index = name.indexOf("<");
-        if (index >= 0) {
+        if (argSorts.isEmpty()) {
+            int index = name.indexOf("<");
+            if (index >= 0) {
+                argSorts = FunctionSymbolFamily.parseSortParameters(name);
+                name = name.substring(0, index);
+            }
+        }
 
-            String baseName = name.substring(0, index);
-            FunctionSymbolFamily family = symbolFamilies.get(baseName);
-            if (family == null) {
+        if (!argSorts.isEmpty()) {
+            FunctionSymbolFamily family = symbolFamilies.get(name);
+            if(family != null) {
+                return family.instantiate(argSorts);
+            } else {
                 return null;
             }
-
-            assert name.endsWith(">");
-            List<Sort> params = FunctionSymbolFamily.parseSortParameters(name);
-            return family.instantiate(params);
-
         }
 
         //

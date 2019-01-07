@@ -31,7 +31,12 @@ public class LetInlineVisitorTest {
             { "let i,j := j,i :: i+j", "j+i" },
             { "let i,j := j,i :: let i,j := j,i :: i+j", "i+j" },
             { "forall x:int :: let y := 3 :: x>y", "forall x:int :: x>3" },
+            { "let x := 3 :: forall x:int :: x>x", "forall x:int :: x>x" },
             { "forall x:int :: x > 0", "forall x:int :: x > 0" },
+            { "let x := 0 :: let x := x + 1 :: let x := x + 1 :: x > 0",
+              "0+1+1 > 0"},
+            { "let x := 0 :: let x := x + 1 :: forall x :: let x := x + 1 :: x > 0",
+              "forall x :: x+1 > 0"},
         };
     }
 

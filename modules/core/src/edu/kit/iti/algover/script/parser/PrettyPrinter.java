@@ -31,16 +31,22 @@ import java.util.Map;
 /**
  * Pretty printer for ASTs.
  *
- * @author Alexander Weigl
- * @version 1 (28.04.17)
+ * @author Alexander Weigl, Jonas Klamroth
+ * @version 2 (19.07.18)
  */
-@Deprecated
+
+// REVIEW: Add the missing generic parameters! Please!
+
+@SuppressWarnings({"unchecked", "rawtypes"})
 public class PrettyPrinter extends DefaultASTVisitor<Void> {
 
     private final StringBuilder s = new StringBuilder();
     private int maxWidth = 80;
     private boolean unicode = true;
     private int indentation = 0;
+    private String TAB_CHAR = "\t";
+    private boolean useWhitespaceAsTab = false;
+    private int tabWidth = 4;
 
     @Override
     public String toString() {
@@ -49,27 +55,7 @@ public class PrettyPrinter extends DefaultASTVisitor<Void> {
 
     @Override
     public Void visit(ProofScript proofScript) {
-        s.append("script");
-        s.append(proofScript.getName());
-        s.append(" (");
-        proofScript.getSignature().accept(this);
-        s.append(") {");
         proofScript.getBody().accept(this);
-        nl();
-        s.append("}");
-        return null;
-    }
-
-    @Override
-    public Void visit(Signature sig) {
-        Iterator<Map.Entry<Variable, Type>> iter = sig.entrySet().iterator();
-        while (iter.hasNext()) {
-            Map.Entry<Variable, Type> next = iter.next();
-            next.getKey().accept(this);
-            s.append(" : ").append(next.getValue());
-            if (iter.hasNext())
-                s.append(", ");
-        }
         return null;
     }
 
@@ -137,12 +123,12 @@ public class PrettyPrinter extends DefaultASTVisitor<Void> {
             c.accept(this);
             nl();
         }
-        if (casesStatement.getDefaultCase() != null) {
+        /*if (casesStatement.getDefaultCase() != null) {
             s.append("default {");
             casesStatement.getDefaultCase().accept(this);
             cl();
             s.append("}");
-        }
+        }*/
         decrementIndent();
         cl();
         s.append("}");
@@ -164,9 +150,17 @@ public class PrettyPrinter extends DefaultASTVisitor<Void> {
     public Void visit(SimpleCaseStatement caseStatement) {
         s.append("case ");
         caseStatement.getGuard().accept(this);
-        s.append(" {");
-        caseStatement.getBody().accept(this);
+        s.append(": {");
+        incrementIndent();
         nl();
+        caseStatement.getBody().accept(this);
+        if(caseStatement.getBody().isEmpty()) {
+            decrementIndent();
+            nl();
+        } else {
+            decrementIndent();
+            cl();
+        }
         s.append("}");
         return super.visit(caseStatement);
     }
@@ -181,13 +175,17 @@ public class PrettyPrinter extends DefaultASTVisitor<Void> {
 
     @Override
     public Void visit(TermLiteral termLiteral) {
-        s.append(String.format("`%s`", termLiteral.getText()));
+        s.append(String.format("'%s'", termLiteral.getText()));
         return super.visit(termLiteral);
     }
 
     @Override
     public Void visit(StringLiteral stringLiteral) {
-        s.append(String.format("\"%s\"", stringLiteral.getText()));
+        if(stringLiteral.getText().startsWith("\"")) {
+            s.append(String.format("%s", stringLiteral.getText()));
+        } else {
+            s.append(String.format("\"%s\"", stringLiteral.getText()));
+        }
         return super.visit(stringLiteral);
     }
 
@@ -207,12 +205,10 @@ public class PrettyPrinter extends DefaultASTVisitor<Void> {
     public Void visit(Statements statements) {
         if (statements.size() == 0)
             return null;
-        incrementIndent();
-        for (Statement s : statements) {
-            nl();
+        for (Statement<?> s : statements) {
             s.accept(this);
+            nl();
         }
-        decrementIndent();
         return super.visit(statements);
     }
 
@@ -224,7 +220,7 @@ public class PrettyPrinter extends DefaultASTVisitor<Void> {
 
     @Override
     public Void visit(SequentLiteral sequentLiteral) {
-        s.append(String.format("`%s`", sequentLiteral.getText()));
+        s.append(String.format("'%s'", sequentLiteral.getText()));
         return super.visit(sequentLiteral);
     }
 
@@ -308,10 +304,26 @@ public class PrettyPrinter extends DefaultASTVisitor<Void> {
         return s.substring(getLastNewline() + 1).replaceAll("\\w", " ");
     }
 
+    public void setUseWhitespaceAsTab(boolean value) {
+        useWhitespaceAsTab = value;
+        if(useWhitespaceAsTab) {
+            TAB_CHAR = "";
+            for (int i = 0; i < tabWidth; ++i) {
+                TAB_CHAR += " ";
+            }
+        } else {
+            TAB_CHAR = "\t";
+        }
+    }
+
+    public void setTabWidth(int width) {
+        tabWidth = width;
+    }
+
     private void nl() {
         s.append('\n');
         for (int i = 0; i < indentation; i++)
-            s.append('\t');
+            s.append(TAB_CHAR);
     }
 
     private void decrementIndent() {

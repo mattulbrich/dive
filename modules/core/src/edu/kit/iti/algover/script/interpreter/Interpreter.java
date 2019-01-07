@@ -23,6 +23,10 @@ import java.util.stream.Stream;
  *
  * @author S.Grebing
  */
+
+// REVIEW: Add the missing generic parameters! Please!
+
+@SuppressWarnings({"unchecked", "rawtypes"})
 public class Interpreter<T> extends DefaultASTVisitor<Object>
         implements ScopeObservable {
     private static final int MAX_ITERATIONS = 5;
@@ -35,7 +39,7 @@ public class Interpreter<T> extends DefaultASTVisitor<Object>
     /**
      * Listener for entry and exit of ASTNodes
      */
-    private List<Visitor> entryListeners = new ArrayList<>(),
+    private List<Visitor<?>> entryListeners = new ArrayList<>(),
             exitListeners = new ArrayList<>();
 
     /**
@@ -48,19 +52,23 @@ public class Interpreter<T> extends DefaultASTVisitor<Object>
      */
     private CommandLookup functionLookup;
 
+    //Do not remove, it is essential TODO Bugfix
+    public void setFunctionLookup(CommandLookup functionLookup) {
+        this.functionLookup = functionLookup;
+    }
 
     public Interpreter(CommandLookup lookup) {
         functionLookup = lookup;
     }
 
     @Override
-    public List<Visitor> getEntryListeners() {
+    public List<Visitor<?>> getEntryListeners() {
         return entryListeners;
     }
 
 
     @Override
-    public List<Visitor> getExitListeners() {
+    public List<Visitor<?>> getExitListeners() {
         return exitListeners;
     }
 
@@ -605,7 +613,7 @@ public class Interpreter<T> extends DefaultASTVisitor<Object>
     }
 
     /**
-     * Cretae a ew state conatining the goals but without selected goal node and push to stack
+     * Create a ew state containing the goals but without selected goal node and push to stack
      *
      * @param goals
      * @return

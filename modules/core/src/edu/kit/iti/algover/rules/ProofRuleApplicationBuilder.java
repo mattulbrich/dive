@@ -8,6 +8,8 @@ package edu.kit.iti.algover.rules;
 import java.util.ArrayList;
 import java.util.List;
 
+import edu.kit.iti.algover.proof.Proof;
+import edu.kit.iti.algover.term.FunctionSymbol;
 import nonnull.NonNull;
 import nonnull.Nullable;
 import edu.kit.iti.algover.rules.ProofRuleApplication.Applicability;
@@ -34,12 +36,12 @@ public class ProofRuleApplicationBuilder {
     private final List<BranchInfoBuilder> branches = new ArrayList<>();
     private Applicability applicability = Applicability.APPLICABLE;
     private String scriptTranscript;
+    private Parameters parameters = Parameters.EMPTY_PARAMETERS;
     private Parameters openParameters = Parameters.EMPTY_PARAMETERS;
     private Refiner refiner;
-    private boolean exhaustive;
-    private boolean deep;
-    private boolean global;
-    private TermSelector on;
+
+    private List<ProofRuleApplication> subApplications = null;
+    private List<FunctionSymbol> newFuctionSymbols;
 
     /**
      * Instantiates a new proof rule application builder with a rule.
@@ -50,10 +52,7 @@ public class ProofRuleApplicationBuilder {
      */
     public ProofRuleApplicationBuilder(@NonNull ProofRule rule) {
         this.rule = rule;
-        this.scriptTranscript = rule.getName();
-        this.exhaustive = false;
-        this.deep = false;
-        this.global = false;
+        this.scriptTranscript = rule.getName() + ";";
     }
 
     /**
@@ -65,13 +64,15 @@ public class ProofRuleApplicationBuilder {
         this.rule = app.getRule();
         this.branches.addAll(Util.map(app.getBranchInfo(), x -> new BranchInfoBuilder(x)));
         this.applicability = app.getApplicability();
-        this.scriptTranscript = app.getScriptTranscript();
+        this.parameters = app.getParameters();
         this.openParameters = app.getOpenParameters();
         this.refiner = app.getRefiner();
-        this.exhaustive = app.isExhaustive();
-        this.deep = app.isDeep();
-        this.global = app.isGlobal();
-        this.on = app.getOn();
+        if(app.getSubApplications() != null) {
+            this.subApplications = new ArrayList<>(app.getSubApplications().asCollection());
+        }
+        if(app.getNewFunctionSymbols() != null) {
+            this.newFuctionSymbols = new ArrayList<>(app.getNewFunctionSymbols().asCollection());
+        }
     }
 
     /**
@@ -82,9 +83,8 @@ public class ProofRuleApplicationBuilder {
      */
     public static ProofRuleApplication notApplicable(ProofRule rule) {
         return new ProofRuleApplication(rule, BranchInfo.UNCHANGED,
-                Applicability.NOT_APPLICABLE, rule.getName(),
-                Parameters.EMPTY_PARAMETERS, null,
-                false, false, false, null);
+                Applicability.NOT_APPLICABLE, Parameters.EMPTY_PARAMETERS, Parameters.EMPTY_PARAMETERS,
+                null, null, null);
     }
 
     /**
@@ -99,22 +99,31 @@ public class ProofRuleApplicationBuilder {
                 rule,
                 ImmutableList.from(Util.map(branches, BranchInfoBuilder::build)),
                 applicability,
-                scriptTranscript,
+                parameters,
                 openParameters,
                 refiner,
-                exhaustive,
-                deep,
-                global,
-                on);
+                toListIfNotAllNull(subApplications),
+                newFuctionSymbols == null ? null : ImmutableList.from(newFuctionSymbols));
+    }
+
+    /*
+     * Create an immutable list from the argument if not all entries are null.
+     * Return null if list is null, or only contains null entries.
+     */
+    private static <T> ImmutableList<T> toListIfNotAllNull(List<T> list) {
+        if(list == null) {
+            return null;
+        }
+        for (T t : list) {
+            if(t != null) {
+                return ImmutableList.from(list);
+            }
+        }
+        return null;
     }
 
     public ProofRuleApplicationBuilder setApplicability(@NonNull Applicability applicable) {
         this.applicability = applicable;
-        return this;
-    }
-
-    public ProofRuleApplicationBuilder setTranscript(@NonNull String string) {
-        this.scriptTranscript = string;
         return this;
     }
 
@@ -123,27 +132,30 @@ public class ProofRuleApplicationBuilder {
         return this;
     }
 
-    public ProofRuleApplicationBuilder setExhaustive(boolean exhaustive) {
-        this.exhaustive = exhaustive;
-        return this;
-    }
-
-    public ProofRuleApplicationBuilder setDeep(boolean deep) {
-        this.deep = deep;
-        return this;
-    }
-
-    public ProofRuleApplicationBuilder setGlobal(boolean global) {
-        this.global = global;
-        return this;
-    }
-
-    public void setOn(TermSelector on) {
-        this.on = on;
+    public void setNewFuctionSymbols(List<FunctionSymbol> list) {
+        this.newFuctionSymbols = list;
     }
 
     /**
      * Create and return a new branch builder.
+     * The resulting branch has the given label.
+     * <p>
+     * The branch is built automatically from the child builder as soon as this
+     * app is built.
+     *
+     * @param label the label to be used for the branch
+     * @return the new branch info builder
+     */
+    public BranchInfoBuilder newBranch(@NonNull String label) {
+        BranchInfoBuilder builder = new BranchInfoBuilder();
+        builder.setLabel(label);
+        branches.add(builder);
+        return builder;
+    }
+
+    /**
+     * Create and return a new branch builder.
+     * The resulting branch is unlabeled.
      * <p>
      * The branch is built automatically from the child builder as soon as this
      * app is built.
@@ -151,10 +163,9 @@ public class ProofRuleApplicationBuilder {
      * @return the new branch info builder
      */
     public BranchInfoBuilder newBranch() {
-        BranchInfoBuilder builder = new BranchInfoBuilder();
-        branches.add(builder);
-        return builder;
+        return newBranch("");
     }
+
 
     /**
      * Sets this builder to "closing".
@@ -166,6 +177,32 @@ public class ProofRuleApplicationBuilder {
     public ProofRuleApplicationBuilder setClosing() {
         branches.clear();
         return this;
+    }
+
+    /**
+     * Get a reference to the list of subapplications.
+     *
+     * This may be null!
+     * The resulting list may be changed.
+     *
+     * @return a reference to a mutable list or null.
+     */
+    public List<ProofRuleApplication> getSubApplications() {
+        return subApplications;
+    }
+
+    public ProofRuleApplicationBuilder setSubApplications(List<ProofRuleApplication> subApplications) {
+        this.subApplications = subApplications;
+        return this;
+    }
+
+    public ProofRuleApplicationBuilder setParameters(Parameters parameters) {
+        this.parameters = parameters;
+        return this;
+    }
+
+    public Parameters getParameters() {
+        return parameters;
     }
 
 }

@@ -7,6 +7,7 @@ package edu.kit.iti.algover.util;
 
 import static org.junit.Assert.*;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -46,5 +47,10 @@ public class UtilTest {
         assertEquals(expected, Util.maskFileName(filename));
     }
 
-
+    @Test
+    public void testRemoveDuplicates() {
+        List<Integer> l = new ArrayList<>(Arrays.asList(1,2,3,2,3,4,1));
+        Util.removeDuplicates(l);
+        assertEquals(Arrays.asList(1,2,3,4), l);
+    }
 }

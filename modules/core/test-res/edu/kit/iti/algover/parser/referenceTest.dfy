@@ -34,6 +34,7 @@ class C {
    }
 
    method m_method(p_param: int)
+     requires f_class(p_param) == p_param
      requires label req_label: p_param > 0 && fl_var < 0
      ensures label ens_label: p_param < 0 && fl_var > 0
      ensures forall va_x: int :: va_x > 0 ==> f_global(va_x) > 0

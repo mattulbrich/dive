@@ -1,0 +1,15 @@
+### decls:
+s1: set<int>
+### sequent:
+|-
+s1 == $intersect<int>(s1,$empty)
+### result:
+fail
+### OLD-translation:
+var _s1 : Set int;
+
+procedure Sequent()
+  ensures false;
+{
+  assume !(Set#Equal(_s1, Set#Intersection(_s1, Set#Empty())));
+}

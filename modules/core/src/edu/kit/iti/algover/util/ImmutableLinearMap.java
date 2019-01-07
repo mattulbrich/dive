@@ -15,7 +15,7 @@ public class ImmutableLinearMap<K, V> {
 
     private static final Object REMOVED_INDICATOR = new Object();
 
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings({"unchecked", "rawtypes"})
     private static final ImmutableLinearMap EMPTY = new ImmutableLinearMap(ImmutableList.nil());
 
     private final ImmutableList<Pair<K, V>> data;
@@ -54,6 +54,7 @@ public class ImmutableLinearMap<K, V> {
         }
     }
 
+    @SuppressWarnings("unchecked")
     private V removedIndicator() {
         return (V)REMOVED_INDICATOR;
     }

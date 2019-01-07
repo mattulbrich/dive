@@ -10,7 +10,6 @@ import java.util.Collection;
 
 import edu.kit.iti.algover.data.BuiltinSymbols;
 import edu.kit.iti.algover.data.MapSymbolTable;
-import edu.kit.iti.algover.data.SuffixSymbolTable;
 import edu.kit.iti.algover.data.SymbolTable;
 import edu.kit.iti.algover.parser.DafnyTree;
 import edu.kit.iti.algover.symbex.AssertionElement;
@@ -49,8 +48,9 @@ public class SymbexStateToFormula {
             map.add(new FunctionSymbol(name, sort));
         }
 
-        MapSymbolTable st = new SuffixSymbolTable(new BuiltinSymbols(), map);
-        return st;
+        //MapSymbolTable st = new SuffixSymbolTable(new BuiltinSymbols(), map);
+        //return st;
+        return null;
     }
 
     // TODO check parameters and stuff FIXME FIXME

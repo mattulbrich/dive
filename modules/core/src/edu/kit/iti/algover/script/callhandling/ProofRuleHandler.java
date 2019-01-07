@@ -23,6 +23,10 @@ import java.util.*;
  * To use these proof rules, they are loaded using the Java ServiceLoader.
  * @author S. Grebing
  */
+
+// REVIEW: Add the missing generic parameters! Please!
+
+@SuppressWarnings({"unchecked", "rawtypes"})
 public class ProofRuleHandler implements CommandHandler<ProofNode> {
     /**
      * List of all available rule objects
@@ -35,16 +39,13 @@ public class ProofRuleHandler implements CommandHandler<ProofNode> {
     private Map<String, ProofRule> ruleMap = new HashMap<>();
 
 
-    private ServiceLoader<ProofRule> loader;
 
     /**
      * Loads all rules via ServiceLoader and initializes the data structures
+     * Default without project rules
      */
     public ProofRuleHandler() {
-
-        // REVIEW: Now, the project is meant to contain these rules and the DafnyRule s. -> Use project,getAllRules()
-        // REVIEW: WHy is the loader retained after completion of the constructor?
-        loader = ServiceLoader.load(ProofRule.class);
+        ServiceLoader<ProofRule> loader = ServiceLoader.load(ProofRule.class);
         loader.iterator().forEachRemaining(proofRule -> {
             rules.add(proofRule);
             ruleMap.put(proofRule.getName(), proofRule);
@@ -58,14 +59,14 @@ public class ProofRuleHandler implements CommandHandler<ProofNode> {
      * @param rules List of additional Proof rule objects
      */
     public ProofRuleHandler(List<ProofRule> rules) {
+        this.rules = rules;
 
-        loader = ServiceLoader.load(ProofRule.class);
+        ServiceLoader<ProofRule> loader = ServiceLoader.load(ProofRule.class);
         loader.iterator().forEachRemaining(proofRule -> {
             rules.add(proofRule);
             ruleMap.put(proofRule.getName(), proofRule);
         });
 
-        this.rules = rules;
         rules.forEach(proofRule -> ruleMap.put(proofRule.getName(), proofRule));
     }
 
@@ -124,7 +125,8 @@ public class ProofRuleHandler implements CommandHandler<ProofNode> {
                 List<ProofNode> newGoals = new ArrayList<>();
 
                 //add new nodes to state, remove expanded node from state
-                newGoals.addAll(newNodes);
+                //since we added nested applications there maybe also nested ProofNOdes returned
+                newNodes.stream().forEach(proofNode -> newGoals.addAll(getAllNewGoals(proofNode)));
                 //change state depending on whether proof branch is closed or not
                 if (newGoals.size() >= 1) {
                     interpreter.getCurrentState().getGoals().addAll(newGoals);
@@ -146,6 +148,18 @@ public class ProofRuleHandler implements CommandHandler<ProofNode> {
         }
 
 
+    }
+
+    private List<ProofNode> getAllNewGoals(ProofNode pn) {
+        List<ProofNode> res = new ArrayList<>();
+        if(pn.getChildren().size() == 0) {
+            res.add(pn);
+        } else {
+            for(ProofNode p : pn.getChildren()) {
+                res.addAll(getAllNewGoals(p));
+            }
+        }
+        return res;
     }
 
 

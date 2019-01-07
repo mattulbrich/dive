@@ -109,6 +109,9 @@ public class ProofNodeSelector {
     }
 
     public ProofNodeSelector getParentSelector() {
+        if(path.length < 1) {
+            return null;
+        }
         int[] newPath = new int[path.length - 1];
         System.arraycopy(path, 0, newPath, 0, newPath.length);
         return new ProofNodeSelector(newPath);

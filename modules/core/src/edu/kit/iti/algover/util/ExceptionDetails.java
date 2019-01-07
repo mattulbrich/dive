@@ -10,6 +10,8 @@ package edu.kit.iti.algover.util;
 import edu.kit.iti.algover.parser.DafnyException;
 import edu.kit.iti.algover.parser.DafnyParserException;
 import edu.kit.iti.algover.parser.DafnyTree;
+import edu.kit.iti.algover.script.exceptions.NoCallHandlerException;
+import edu.kit.iti.algover.script.exceptions.ScriptCommandNotApplicableException;
 import org.antlr.runtime.RecognitionException;
 import org.antlr.runtime.Token;
 import org.antlr.v4.runtime.misc.ParseCancellationException;
@@ -17,6 +19,7 @@ import org.antlr.v4.runtime.misc.ParseCancellationException;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.InputMismatchException;
 import java.util.List;
 
 /**
@@ -30,8 +33,8 @@ import java.util.List;
  * to obtain this info.
  *
  * <p>An easy to read and informtive error description can be constructed using
- * {@link #getNiceErrorMessage(Exception)}. Use
- * {@link #printNiceErrorMessage(Exception)} to direct it to System.err directly.
+ * {@link #getNiceErrorMessage(Throwable)}. Use
+ * {@link #printNiceErrorMessage(Throwable)} to direct it to System.err directly.
  *
  * @author Mattias Ulbrich
  */
@@ -93,12 +96,12 @@ public final class ExceptionDetails {
             DafnyException dex = (DafnyException) ex;
             ExceptionReportInfo result = new ExceptionReportInfo();
             DafnyTree tree = dex.getTree();
-            Token token = tree.token;
             result.message = ex.getMessage();
             result.filename = tree.getFilename();
             if(result.filename != null) {
                 result.locationString = "file " + result.filename;
             }
+            Token token = tree.getStartToken();
             if(token != null) {
                 result.line = token.getLine();
                 // Columns in ANTLR 3 start at 0
@@ -131,6 +134,43 @@ public final class ExceptionDetails {
             return result;
         }
 
+        if (ex instanceof org.antlr.v4.runtime.RecognitionException) {
+            org.antlr.v4.runtime.RecognitionException rex = (org.antlr.v4.runtime.RecognitionException) ex;
+            ExceptionReportInfo result = new ExceptionReportInfo();
+            result.message = rex.getMessage();
+            extractLineAndColumn(rex.getOffendingToken(), result);
+            if(rex.getOffendingToken() != null) {
+                result.length = rex.getOffendingToken().getText().length();
+            }
+            return result;
+        }
+
+        if(ex instanceof ScriptCommandNotApplicableException) {
+            ScriptCommandNotApplicableException snap = (ScriptCommandNotApplicableException) ex;
+            ExceptionReportInfo result = new ExceptionReportInfo();
+            result.message = snap.getMessage();
+            if(snap.callStatement != null) {
+                result.line = snap.callStatement.getStartPosition().getLineNumber();
+                result.column = snap.callStatement.getStartPosition().getCharInLine();
+                result.length = snap.callStatement.getEndPosition().getCharInLine() -
+                        snap.callStatement.getStartPosition().getCharInLine();
+            }
+            return result;
+        }
+
+        if(ex instanceof NoCallHandlerException) {
+            NoCallHandlerException snap = (NoCallHandlerException) ex;
+            ExceptionReportInfo result = new ExceptionReportInfo();
+            result.message = snap.getMessage();
+            if(snap.callStatement != null) {
+                result.line = snap.callStatement.getStartPosition().getLineNumber();
+                result.column = snap.callStatement.getStartPosition().getCharInLine();
+                result.length = snap.callStatement.getEndPosition().getCharInLine() -
+                        snap.callStatement.getStartPosition().getCharInLine();
+            }
+            return result;
+        }
+
         // ... add other classes here!
 
         Throwable cause = ex.getCause();
@@ -144,11 +184,19 @@ public final class ExceptionDetails {
 
     }
 
-    public static void printNiceErrorMessage(Exception ex) {
+    private static void extractLineAndColumn(org.antlr.v4.runtime.Token token, ExceptionReportInfo report) {
+        report.line = token.getLine();
+        report.column = token.getCharPositionInLine();
+        if(report.column == 0) {
+            report.line--;
+        }
+    }
+
+    public static void printNiceErrorMessage(Throwable ex) {
         System.err.println(getNiceErrorMessage(ex));
     }
 
-    public static CharSequence getNiceErrorMessage(Exception ex) {
+    public static CharSequence getNiceErrorMessage(Throwable ex) {
         return getNiceErrorMessage(extractReportInfo(ex));
     }
 

@@ -1,0 +1,15 @@
+### decls:
+s1: set<int>
+### sequent:
+|-
+$set_minus<int>(s1,$empty) == s1 
+### result:
+prove
+### OLD-translation:
+var _s1 : Set int;
+
+procedure Sequent()
+  ensures false;
+{
+  assume !(Set#Equal(Set#Difference(_s1, Set#Empty()), _s1));
+}

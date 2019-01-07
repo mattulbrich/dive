@@ -68,6 +68,12 @@ public class TermMatcherTest {
                       "?x => 4 / 1.0, ?y => 5 / 1.1, ...0 => $plus(4, 5) / 1]]" },
             { "(... (?x:2) ...) + ?x(:int)", "f(3*2) + 2", "[[?x => 2 / 0.0.1, ...0 => 2 / 0.0.1]]" },
             { "(... ?x ...) + ?x(:int)", "f(3*2+(3+5)) + 2", "[[?x => 2 / 0.0.0.1, ...0 => 2 / 0.0.0.1]]" },
+            {"... (forall i1:int :: i1 >= 0 && i1 < 10 ==> i1 < 20) ...",
+                  "... (forall i1:int :: i1 >= 0 && i1 < 10 ==> i1 < 20) ...",
+                  "[[...0 => (forall i1:int :: $imp($and($ge(i1, 0), $lt(i1, 10)), $lt(i1, 20))) / 0]]"},
+            {"... (forall i1:int :: i1 >= 0 && i1 < 10 ==> (exists i2:int :: i2 >= 0 && i2 < 10 ==> i1 == i2)) ...",
+                        "... (forall i1:int :: i1 >= 0 && i1 < 10 ==> (exists i2:int :: i2 >= 0 && i2 < 10 ==> i1 == i2)) ...",
+                        "[[...0 => (forall i1:int :: $imp($and($ge(i1, 0), $lt(i1, 10)), (exists i2:int :: $imp($and($ge(i2, 0), $lt(i2, 10)), $eq<int>(i1, i2))))) / 0]]"}
         //  { "exists ?x :: ?x > ?y", "exists a:int :: a > 25", "" },
         //  { "let ?x := _ :: ... f(?x) ...", "let something := 22+33 :: h(g(something), something)", "" },
         };
@@ -91,15 +97,15 @@ public class TermMatcherTest {
                 {{"...(?x:2<0) && 2<0..."}, {}, {"2<0 && 2<0"}, {"2<0"}, {"[[?x => $lt(2, 0) / A.0.0, ...0 => $and($lt(2, 0), $lt(2, 0)) / A.0]]"}},
 
                 {{"...?x && 2<0..."}, {}, {"2<0 && 2<0"}, {"2<0"}, {"[[?x => $lt(2, 0) / A.0.0, ...0 => $and($lt(2, 0), $lt(2, 0)) / A.0]]"}},
-                {{"?x", "g(?x)"}, {}, {"f(0)", "g(4)", "g(1)"}, {}, {"[]"}},
-                {{"f(1)"}, {"g(f(1))"}, {"f(1)"}, {"g(f(1))", "f(4)"}, {"[[]]"}},
+                {{"?x", "gp(?x)"}, {}, {"fp(0)", "gp(4)", "gp(1)"}, {}, {"[]"}},
+                {{"fp(1)"}, {"gp(f(1))"}, {"fp(1)"}, {"gp(f(1))", "fp(4)"}, {"[[]]"}},
                 {{"... ?x ...(:int) + (... ?y...) == ?z"}, {}, {"2 + 3 == 5"}, {}, {"[[?x => 2 / A.0.0.0, ...0 => 2 / A.0.0.0, ?y => 3 / A.0.0.1, ...1 => 3 / A.0.0.1, ?z => 5 / A.0.1]]"}},
-                {{"f(?x)"}, {"g(f(?x))"}, {"f(1)"}, {"g(f(1))", "f(4)"}, {"[[?x => 1 / A.0.0]]"}},
-                {{"_"}, {"_"}, {"f(1)"}, {"g(1)", "f(1)"}, {"[[_0 => f(1) / A.0, _1 => g(1) / S.0], [_0 => f(1) / A.0, _1 => f(1) / S.1]]"}},
-                {{"... ?x(:int)+_ ..."}, {"f(?x)"}, {"(2+3)+(4+5) == 1"}, {"f(2)", "f(4)"}, {"[[?x => 2 / A.0.0.0.0, _0 => 3 / A.0.0.0.1, ...0 => $plus(2, 3) / A.0.0.0], [?x => 4 / A.0.0.1.0, _0 => 5 / A.0.0.1.1, ...0 => $plus(4, 5) / A.0.0.1]]"}},
+                {{"fp(?x)"}, {"gp(f(?x))"}, {"fp(1)"}, {"gp(f(1))", "fp(4)"}, {"[[?x => 1 / A.0.0]]"}},
+                {{"_"}, {"_"}, {"fp(1)"}, {"gp(1)", "fp(1)"}, {"[[_0 => fp(1) / A.0, _1 => gp(1) / S.0], [_0 => fp(1) / A.0, _1 => fp(1) / S.1]]"}},
+                {{"... ?x(:int)+_ ..."}, {"fp(?x)"}, {"(2+3)+(4+5) == 1"}, {"fp(2)", "fp(4)"}, {"[[?x => 2 / A.0.0.0.0, _0 => 3 / A.0.0.0.1, ...0 => $plus(2, 3) / A.0.0.0], [?x => 4 / A.0.0.1.0, _0 => 5 / A.0.0.1.1, ...0 => $plus(4, 5) / A.0.0.1]]"}},
                 {{"... ?x + 5 ..."}, {"... 4 + ?x ..."}, {"2 + 5 > 1"}, {"4 + 2 > 3 && true"}, {"[[?x => 2 / A.0.0.0, ...0 => $plus(2, 5) / A.0.0, ...1 => $plus(4, 2) / S.0.0.0]]"}},
-                {{"?X(:int)+?Y(:int)"}, {"f(?Y)"}, {"1+2", "2+1", "1+1"}, {"f(2)", "f(1)"}, {"[[?X => 1 / A.0.0, ?Y => 2 / A.0.1], [?X => 2 / A.1.0, ?Y => 1 / A.1.1], [?X => 1 / A.2.0, ?Y => 1 / A.2.1]]"}},
-                {{"2+1"}, {}, {"f(1)==f(1)", "2+1", "2+1"}, {}, {"[[], []]"}},
+                {{"?X(:int)>?Y(:int)"}, {"fp(?Y)"}, {"1>2", "2>1", "1>1"}, {"fp(2)", "fp(1)"}, {"[[?X => 1 / A.0.0, ?Y => 2 / A.0.1], [?X => 2 / A.1.0, ?Y => 1 / A.1.1], [?X => 1 / A.2.0, ?Y => 1 / A.2.1]]"}},
+                {{"2>1"}, {}, {"f(1)==f(1)", "2>1", "2>1"}, {}, {"[[], []]"}},
                 {{"...let x := 5 :: x+5 == 10..."}, {}, {"let x := 5 :: x+5 == 10"}, {}, {"[[...0 => (let x := 5 :: $eq<int>($plus(x, 5), 10)) / A.0]]"}},
 
         };
@@ -115,6 +121,11 @@ public class TermMatcherTest {
         map.add(new FunctionSymbol("f", Sort.INT, Sort.INT));
         map.add(new FunctionSymbol("g", Sort.INT, Sort.INT));
         map.add(new FunctionSymbol("h", Sort.INT, Sort.INT, Sort.INT));
+        map.add(new FunctionSymbol("fp", Sort.BOOL, Sort.INT));
+        map.add(new FunctionSymbol("gp", Sort.BOOL, Sort.INT));
+        map.add(new FunctionSymbol("i1", Sort.BOOL));
+        map.add(new FunctionSymbol("i2", Sort.BOOL));
+
         symbTable = new MapSymbolTable(new BuiltinSymbols(), map);
     }
 
@@ -166,6 +177,7 @@ public class TermMatcherTest {
         assertNotNull(symbTable);
 
 
+        // REVIEW: Some terms applied here are not boolean terms and must not be used in sequents.
         Sequent schemSeq = InterpreterUtils.createTestSequentHelper(schemSeqAntec, schemSeqSucc, symbTable, true);
         Sequent concSeq = InterpreterUtils.createTestSequentHelper(concrSeqAntec, concrSeqSucc, symbTable, true);
 

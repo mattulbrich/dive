@@ -42,7 +42,7 @@ public class OrLeftRuleTest {
         TreeTermTranslator ttt = new TreeTermTranslator(symbTable);
 
         DafnyTree t1 = TreeTermTranslatorTest.parse("b1 || b2");
-        DafnyTree t2 = TreeTermTranslatorTest.parse("b1");
+        DafnyTree t2 = TreeTermTranslatorTest.parse("b3");
         DafnyTree t3 = TreeTermTranslatorTest.parse("b2 || b1");
         DafnyTree t4 = TreeTermTranslatorTest.parse("b3");
 
@@ -66,7 +66,7 @@ public class OrLeftRuleTest {
 
         TermSelector ts = new TermSelector(TermSelector.SequentPolarity.ANTECEDENT, 0);
         Parameters params = new Parameters();
-        params.putValue("on", testSequent.getAntecedent().get(0).getTerm());
+        params.putValue("on", new TermParameter(testSequent.getAntecedent().get(0).getTerm(), testSequent));
 
         ProofRuleApplication pra = orLeftRule.considerApplication(pn, testSequent, ts);
         assertEquals(pra.getApplicability(), ProofRuleApplication.Applicability.APPLICABLE);
@@ -76,8 +76,8 @@ public class OrLeftRuleTest {
         List<ProofNode> newNodes = RuleApplicator.applyRule(pra, pn);
 
         assertTrue(newNodes.size() == 2);
-        assertEquals("[b1, b3] ==> [b1, $or(b2, b1)]", newNodes.get(0).getSequent().toString());
-        assertEquals("[b2, b3] ==> [b1, $or(b2, b1)]", newNodes.get(1).getSequent().toString());
+        assertEquals("b1, b3 |- b3, $or(b2, b1)", newNodes.get(0).getSequent().toString());
+        assertEquals("b2, b3 |- b3, $or(b2, b1)", newNodes.get(1).getSequent().toString());
     }
 
     @Test

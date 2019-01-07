@@ -1,0 +1,24 @@
+### decls:
+a : int
+b : int
+
+### sequent:
+a == 5, b > 3 |- a+b > 8
+
+### result:
+prove
+
+### translation:
+const _a : int;
+const _b : int;
+
+axiom $Is(_a, TInt);
+axiom $Is(_b, TInt);
+
+procedure Sequent()
+  ensures false;
+{
+  assume (_a == 5);
+  assume (_b > 3);
+  assume !(((_a + _b) > 8));
+}

@@ -1,0 +1,15 @@
+### decls:
+k : int
+### sequent:
+|-
+$and(exists i:int :: $gt(i,0), exists j:int :: $gt(j,k))
+### result:
+prove
+### OLD-translation:
+var _k : int;
+
+procedure Sequent()
+  ensures false;
+{
+  assume !(((exists var_i : int :: (var_i > 0)) && (exists var_j : int :: (var_j > _k))));
+}

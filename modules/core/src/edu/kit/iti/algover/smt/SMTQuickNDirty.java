@@ -7,6 +7,7 @@
 // Checkstyle: ALLOFF
 package edu.kit.iti.algover.smt;
 
+import edu.kit.iti.algover.dafnystructures.DafnyFunctionSymbol;
 import edu.kit.iti.algover.term.ApplTerm;
 import edu.kit.iti.algover.term.FunctionSymbol;
 import edu.kit.iti.algover.term.LetTerm;
@@ -42,6 +43,7 @@ public class SMTQuickNDirty implements TermVisitor<Void, SExpr, RuntimeException
         ops.put("$imp", "=>");
         ops.put("$eq<int>", "=");
         ops.put("$eq<array<int>>", "=");
+        ops.put("$eq<bool>", "=");
         ops.put("$lt", "<");
         ops.put("$le", "<=");
         ops.put("$ge", ">=");
@@ -49,6 +51,8 @@ public class SMTQuickNDirty implements TermVisitor<Void, SExpr, RuntimeException
         ops.put("$plus", "+");
         ops.put("$minus", "-");
         ops.put("$times", "*");
+        ops.put("$ite<int>", "ite");
+        ops.put("$ite<bool>", "ite");
         ops.put("$seq_upd<int>", "sequpd");
         ops.put("$seq_len<int>", "seqlen");
         ops.put("$seq_get<int>", "seqget");
@@ -57,6 +61,8 @@ public class SMTQuickNDirty implements TermVisitor<Void, SExpr, RuntimeException
         ops.put("$len<int>", "arrlen");
         ops.put("$neg", "-");
         ops.put("null", "0");
+        ops.put("true", "true");
+        ops.put("false", "false");
     }
 
     @Override
@@ -98,7 +104,14 @@ public class SMTQuickNDirty implements TermVisitor<Void, SExpr, RuntimeException
             return new SExpr(subs, children);
         }
 
+        if (fs instanceof DafnyFunctionSymbol) {
+            List<SExpr> children = Util.map(applTerm.getSubterms(), x -> x.accept(SMTQuickNDirty.this, null));
+            return new SExpr("func" + fs.getName(), children);
+        }
+
         switch(n) {
+        case "$anon":
+            return applTerm.getTerm(2).accept(this, null);
         case "$seq_len<int>":
             return new SExpr("seqlen", applTerm.getTerm(0).accept(this, null));
         case "$seq_upd<int>":

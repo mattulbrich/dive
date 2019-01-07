@@ -1,0 +1,14 @@
+### decls:
+s1: seq<int>
+### sequent:
+|- |s1| > 5
+### result:
+fail
+### OLD-translation:
+var _s1 : Seq int;
+
+procedure Sequent()
+  ensures false;
+{
+  assume !((Seq#Length(_s1) > 5));
+}

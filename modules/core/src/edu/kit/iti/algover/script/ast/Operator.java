@@ -47,7 +47,7 @@ public enum Operator {
      */
     MATCH("match", 1000, Type.BOOL) {
         @Override
-        public Value evaluate(Value... v) {
+        public Value<?> evaluate(Value<?>... v) {
             //return Value.from(v[0].getData().equals(v[1]));
             return null;
         }
@@ -57,56 +57,56 @@ public enum Operator {
      */
     NOT("not", "¬", 10, Type.BOOL, Type.BOOL) {
         @Override
-        public Value evaluate(Value... v) {
+        public Value<?> evaluate(Value<?>... v) {
             return Value.from(!(Boolean) v[0].getData());
         }
     },
     /** */
     NEGATE("-", "-", 10, Type.INT, Type.INT) {
         @Override
-        public Value evaluate(Value... v) {
+        public Value<?> evaluate(Value<?>... v) {
             return evaluate(BigInteger::negate, v);
         }
     },
     /** */
     MULTIPLY("*", "×", 20, Type.INT, Type.INT, Type.INT) {
         @Override
-        public Value evaluate(Value... v) {
+        public Value<?> evaluate(Value<?>... v) {
             return evaluate((BinaryOperator<BigInteger>)BigInteger::multiply, v);
         }
     },
     /** */
     DIVISION("/", "÷", 20, Type.INT, Type.INT, Type.INT) {
         @Override
-        public Value evaluate(Value... v) {
+        public Value<?> evaluate(Value<?>... v) {
             return evaluate((BinaryOperator<BigInteger>)BigInteger::divide, v);
         }
     },
     /** */
     PLUS("+", 30, Type.INT, Type.INT, Type.INT) {
         @Override
-        public Value evaluate(Value... v) {
+        public Value<?> evaluate(Value<?>... v) {
             return Operator.evaluate((BinaryOperator<BigInteger>)BigInteger::add, v);
         }
     },
     /** */
     MINUS("-", 30, Type.INT, Type.INT, Type.INT) {
         @Override
-        public Value evaluate(Value... v) {
+        public Value<?> evaluate(Value<?>... v) {
             return evaluate((BiFunction<BigInteger,BigInteger,BigInteger>)BigInteger::subtract, v);
         }
     },
     /** */
     LE("<", 40, Type.INT, Type.INT, Type.BOOL) {
         @Override
-        public Value evaluate(Value... v) {
+        public Value<?> evaluate(Value<?>... v) {
             return Value.from((((BigInteger) v[0].getData()).compareTo((BigInteger) v[1].getData()) < 0));
         }
     },
     /** */
     GE(">", 40, Type.INT, Type.INT, Type.BOOL) {
         @Override
-        public Value evaluate(Value... v) {
+        public Value<?> evaluate(Value<?>... v) {
 
             return Value.from((((BigInteger) v[0].getData()).compareTo((BigInteger) v[1].getData()) > 0));
         }
@@ -114,7 +114,7 @@ public enum Operator {
     /** */
     LEQ("<=", "≤", 40, Type.INT, Type.INT, Type.BOOL) {
         @Override
-        public Value evaluate(Value... v) {
+        public Value<?> evaluate(Value<?>... v) {
 
             return Value.from((((BigInteger) v[0].getData()).compareTo((BigInteger) v[1].getData()) <= 0));
         }
@@ -122,14 +122,14 @@ public enum Operator {
     /** */
     GEQ(">=", "≥", 40, Type.INT, Type.INT, Type.BOOL) {
         @Override
-        public Value evaluate(Value... v) {
+        public Value<?> evaluate(Value<?>... v) {
             return Value.from((((BigInteger) v[0].getData()).compareTo((BigInteger) v[1].getData()) >= 0));
         }
     },
     /** */
     EQ("=", "≡", 50, Type.INT, Type.INT, Type.BOOL) {
         @Override
-        public Value evaluate(Value... v) {
+        public Value<?> evaluate(Value<?>... v) {
             return Value.from((((BigInteger) v[0].getData()).compareTo((BigInteger) v[1].getData()) == 0));
 
         }
@@ -137,14 +137,14 @@ public enum Operator {
     /** */
     NEQ("<>", "≢", 50, Type.INT, Type.INT, Type.BOOL) {
         @Override
-        public Value evaluate(Value... v) {
+        public Value<?> evaluate(Value<?>... v) {
             return Value.from((((BigInteger) v[0].getData()).compareTo((BigInteger) v[1].getData()) != 0));
         }
     },
     /** */
     AND("&", "∧", 60, Type.BOOL, Type.BOOL, Type.BOOL) {
         @Override
-        public Value evaluate(Value... v) {
+        public Value<?> evaluate(Value<?>... v) {
 
             return Value.from((Boolean) v[0].getData() & (Boolean) v[1].getData());
         }
@@ -152,7 +152,7 @@ public enum Operator {
     /** */
     OR("|", "∨", 70, Type.BOOL, Type.BOOL, Type.BOOL) {
         @Override
-        public Value evaluate(Value... v) {
+        public Value<?> evaluate(Value<?>... v) {
             return Value.from((Boolean) v[0].getData() | (Boolean) v[1].getData());
 
         }
@@ -160,7 +160,7 @@ public enum Operator {
     /** */
     IMPLICATION("==>", "⇒", 80, Type.BOOL, Type.BOOL, Type.BOOL) {
         @Override
-        public Value evaluate(Value... v) {
+        public Value<?> evaluate(Value<?>... v) {
             return Value.from(!(Boolean) v[0].getData() | (Boolean) v[1].getData());
         }
     },
@@ -169,7 +169,7 @@ public enum Operator {
      * */
     EQUIVALENCE("<=>", "⇔", 90, Type.BOOL, Type.BOOL, Type.BOOL) {
         @Override
-        public Value evaluate(Value... v) {
+        public Value<?> evaluate(Value<?>... v) {
             return Value.from((!(Boolean) v[0].getData() | (Boolean) v[1].getData()) & ((Boolean) v[0].getData() | !(Boolean) v[1].getData()));
         }
     };
@@ -193,12 +193,15 @@ public enum Operator {
 
 
     public static Value<BigInteger> evaluate(
-            BiFunction<BigInteger, BigInteger, BigInteger> func, Value<BigInteger>[] v) {
-        return Value.from(func.apply(v[0].getData(), v[1].getData()));
+            BiFunction<BigInteger, BigInteger, BigInteger> func, Value<?>[] v) {
+        BigInteger int1 = (BigInteger) v[0].getData();
+        BigInteger int2 = (BigInteger) v[1].getData();
+        return Value.from(func.apply(int1, int2));
     }
 
-    public static Value<BigInteger> evaluate(UnaryOperator<BigInteger> func, Value<BigInteger>[] v) {
-        return Value.from(func.apply(v[0].getData()));
+    public static Value<BigInteger> evaluate(UnaryOperator<BigInteger> func, Value<?>[] v) {
+        BigInteger int1 = (BigInteger) v[0].getData();
+        return Value.from(func.apply(int1));
     }
 
 
@@ -260,6 +263,6 @@ public enum Operator {
      * @param v
      * @return
      */
-    public abstract Value evaluate(Value... v);
+    public abstract Value<?> evaluate(Value<?>... v);
 
 }

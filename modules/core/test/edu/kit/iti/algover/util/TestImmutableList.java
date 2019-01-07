@@ -169,4 +169,17 @@ public class TestImmutableList {
         assertFalse(s.equals(t));
         assertFalse(t.equals(s));
     }
+
+    @Test
+    public void testSort() {
+        ImmutableList<String> s = ImmutableList.nil();
+        assertEquals(s, s.sort());
+
+        s = ImmutableList.from("1", "2", "3");
+        assertEquals(s, s.sort());
+
+        s = ImmutableList.from(Arrays.asList("D", "C", "B"));
+        ImmutableList<String> t = ImmutableList.from(Arrays.asList("B", "C", "D"));
+        assertEquals(t, s.sort());
+    }
 }

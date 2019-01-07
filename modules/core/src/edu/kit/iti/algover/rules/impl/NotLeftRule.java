@@ -9,6 +9,9 @@ import edu.kit.iti.algover.term.ApplTerm;
 import edu.kit.iti.algover.term.Sequent;
 import edu.kit.iti.algover.term.Term;
 import edu.kit.iti.algover.term.builder.TermBuildException;
+import edu.kit.iti.algover.term.match.Matching;
+import edu.kit.iti.algover.term.match.SequentMatcher;
+import edu.kit.iti.algover.util.ImmutableList;
 import edu.kit.iti.algover.util.RuleUtil;
 
 import java.util.Collections;
@@ -33,17 +36,13 @@ public class NotLeftRule extends AbstractProofRule {
     public ProofRuleApplication considerApplicationImpl(ProofNode target, Parameters parameters) throws RuleException {
         ProofRuleApplicationBuilder builder = new ProofRuleApplicationBuilder(this);
 
-        Term on = parameters.getValue(ON_PARAM);
-        List<TermSelector> l = RuleUtil.matchSubtermsInSequent(on::equals, target.getSequent());
-        if(l.size() != 1) {
+        TermSelector selector = parameters.getValue(ON_PARAM).getTermSelector();
+
+        if(selector == null || selector.isToplevel()) {
             return ProofRuleApplicationBuilder.notApplicable(this);
         }
 
-        if(l.get(0) == null || !l.get(0).isToplevel()) {
-            return ProofRuleApplicationBuilder.notApplicable(this);
-        }
-
-        ProofFormula formula = l.get(0).selectTopterm(target.getSequent());
+        ProofFormula formula = selector.selectTopterm(target.getSequent());
         Term term = formula.getTerm();
         if(!(term instanceof ApplTerm)) {
             return ProofRuleApplicationBuilder.notApplicable(this);
@@ -63,7 +62,7 @@ public class NotLeftRule extends AbstractProofRule {
 
     @Override
     public ProofRuleApplication makeApplicationImpl(ProofNode target, Parameters parameters) throws RuleException {
-        Term on = parameters.getValue(ON_PARAM);
+        Term on = parameters.getValue(ON_PARAM).getTerm();
 
         ProofRuleApplicationBuilder builder = new ProofRuleApplicationBuilder(this);
         try {

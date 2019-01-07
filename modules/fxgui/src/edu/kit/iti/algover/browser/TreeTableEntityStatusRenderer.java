@@ -25,14 +25,6 @@ public class TreeTableEntityStatusRenderer implements TreeTableEntityVisitor<Voi
     public void applyRendering(TreeTableEntity entity, PVCClickEditListener engagedListener) {
         entity.accept(this);
         this.engagedListener = engagedListener;
-        if (entity instanceof PVCEntity) {
-            ((PVCEntity) entity).proofStatusProperty().addListener(new ChangeListener<PVCEntity.ProofStatus>() {
-                @Override
-                public void changed(ObservableValue<? extends PVCEntity.ProofStatus> observable, PVCEntity.ProofStatus oldValue, PVCEntity.ProofStatus newValue) {
-                    updateProofStatusIcon(newValue);
-                }
-            });
-        }
     }
 
     private Void groupingEntity(TreeTableEntity entity) {
@@ -44,6 +36,9 @@ public class TreeTableEntityStatusRenderer implements TreeTableEntityVisitor<Voi
             cell.setGraphic(icon);
             cell.setTooltip(new Tooltip("All PVCs proven"));
         } else {
+            Text icon = GlyphsDude.createIcon(FontAwesomeIcon.EXCLAMATION);
+            icon.setFill(Color.RED);
+            cell.setGraphic(icon);
             cell.setTooltip(new Tooltip(
                     entity.getProvenChildren()
                             + " from " + entity.getNumberChildren()
@@ -84,6 +79,11 @@ public class TreeTableEntityStatusRenderer implements TreeTableEntityVisitor<Voi
     @Override
     public Void visitOther(OtherEntity entity) {
         return groupingEntity(entity);
+    }
+
+    @Override
+    public Void visitFunction(FunctionEntity functionEntity) {
+        return groupingEntity(functionEntity);
     }
 
     @Override

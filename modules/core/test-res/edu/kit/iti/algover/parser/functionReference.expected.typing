@@ -1,0 +1,7 @@
+(method functionReference ARGS
+        (requires (== (CALL fct (ARGS 0[int]))[int] 0[int])[bool])
+        (BLOCK
+         (var r (TYPE int)
+              (+ (+ (CALL fct this[C] (ARGS 0[int]))[int]
+                    (CALL fct cfield[C] (ARGS 0[int]))[int])[int]
+                    (CALL fct (ARGS 0[int]))[int])[int])))[scc_16]

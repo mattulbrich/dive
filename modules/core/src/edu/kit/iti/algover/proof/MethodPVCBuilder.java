@@ -1,7 +1,8 @@
 /*
  * This file is part of AlgoVer.
  *
- * Copyright (C) 2015-2017 Karlsruhe Institute of Technology
+ * Copyright (C) 2015-2018 Karlsruhe Institute of Technology
+ *
  */
 package edu.kit.iti.algover.proof;
 
@@ -17,7 +18,6 @@ import edu.kit.iti.algover.dafnystructures.DafnyDecl;
 import edu.kit.iti.algover.dafnystructures.DafnyMethod;
 import edu.kit.iti.algover.data.BuiltinSymbols;
 import edu.kit.iti.algover.data.MapSymbolTable;
-import edu.kit.iti.algover.data.SuffixSymbolTable;
 import edu.kit.iti.algover.data.SymbolTable;
 import edu.kit.iti.algover.parser.DafnyException;
 import edu.kit.iti.algover.parser.DafnyParser;
@@ -61,7 +61,7 @@ public class MethodPVCBuilder implements PVCBuilder {
     /**
      * DafnyMethod to which this PVC belongs
      */
-    private DafnyMethod declaration;
+    private DafnyDecl declaration;
 
     private SymbolTable symbolTable;
 
@@ -85,7 +85,7 @@ public class MethodPVCBuilder implements PVCBuilder {
         throw new IllegalStateException("Unknown sequenter: " + string);
     }
 
-    public PVC build() throws TermBuildException {
+    public PVC build() {
         return new PVC(this);
     }
 
@@ -103,7 +103,7 @@ public class MethodPVCBuilder implements PVCBuilder {
         return declaration;
     }
 
-    public MethodPVCBuilder setDeclaration(DafnyMethod decl) {
+    public MethodPVCBuilder setDeclaration(DafnyDecl decl) {
         this.sequent = null;
         this.declaration = decl;
         return this;
@@ -120,7 +120,7 @@ public class MethodPVCBuilder implements PVCBuilder {
 
         Collection<FunctionSymbol> map = new ArrayList<>();
 
-        DafnyMethod method = declaration;
+        DafnyDecl method = declaration;
 
         for (DafnyTree decl : ProgramDatabase.getAllVariableDeclarations(method.getRepresentation())) {
             String name = decl.getChild(0).toString();
@@ -133,6 +133,12 @@ public class MethodPVCBuilder implements PVCBuilder {
             Sort sort = TreeUtil.toSort(lvd.getType());
             map.add(new FunctionSymbol(name, sort));
         }
+
+        if(method.isDeclaredInClass()) {
+            map.add(new FunctionSymbol("this",
+                    Sort.getClassSort(method.getParentDecl().getName())));
+        }
+
 
         // TODO is this suffix stuff still needed?
         // MapSymbolTable st = new SuffixSymbolTable(new BuiltinSymbols(), map);
@@ -150,9 +156,8 @@ public class MethodPVCBuilder implements PVCBuilder {
                 this.sequent =
                         sequenter.translate(pathThroughProgram, getSymbolTable(), referenceMap);
             } catch (DafnyException e) {
-                ExceptionDetails.printNiceErrorMessage(e);
-                // FIXME TODO Auto-generated catch block
-                throw new Error(e);
+            	e.getTree().setFilename(declaration.getFilename());
+                throw new RuntimeException(e);
             }
         }
     }

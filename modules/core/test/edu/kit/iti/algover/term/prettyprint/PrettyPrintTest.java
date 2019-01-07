@@ -6,20 +6,32 @@
  */
 package edu.kit.iti.algover.term.prettyprint;
 
+import edu.kit.iti.algover.dafnystructures.DafnyFunctionSymbol;
 import edu.kit.iti.algover.data.BuiltinSymbols;
 import edu.kit.iti.algover.data.SymbolTable;
 import edu.kit.iti.algover.parser.DafnyException;
 import edu.kit.iti.algover.parser.DafnyParserException;
+import edu.kit.iti.algover.project.Project;
+import edu.kit.iti.algover.proof.ProofFormula;
+import edu.kit.iti.algover.term.ApplTerm;
 import edu.kit.iti.algover.term.FunctionSymbol;
+import edu.kit.iti.algover.term.Sequent;
 import edu.kit.iti.algover.term.Sort;
 import edu.kit.iti.algover.term.Term;
+import edu.kit.iti.algover.term.builder.TermBuildException;
 import edu.kit.iti.algover.term.parser.TermParser;
+import edu.kit.iti.algover.util.TestUtil;
 import junitparams.JUnitParamsRunner;
 import junitparams.Parameters;
+import org.antlr.runtime.RecognitionException;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+
+import java.io.IOException;
+import java.util.Arrays;
+import java.util.Collections;
 
 import static org.junit.Assert.assertEquals;
 
@@ -112,15 +124,35 @@ public class PrettyPrintTest {
         return new String[][] {
             { "|sq|" }, { "|st|" }, { "st + st" }, { "sq + sq" },
             { "{1, 2, 3}" }, { "[1, 2, 3]"},
+            { "sq[0]" },
         };
     }
 
+    public String[][] parametersForTestSchemaExpressions() {
+        return new String[][] {
+            { "... (1 + 2) ..." },
+            { "?on" },
+            { "(?on: 1 + 2)" },
+            { "_ ==> ?something" },
+        };
+    }
+
+    public String[][] parametersForTestDafnyFunctions() {
+        return new String[][] {
+            { "o.cfct(0, o) == 0" },
+            { "fct(0, o) && true" },
+            { "o.cfct(0, o)@h2" },
+            { "fct(0, o)@h2" },
+            { "o.cfct(0, o)@$heap[o.f := 42]" },
+        };
+    }
 
     @Before
     public void setupTable() {
         st = new BuiltinSymbols();
         st.addFunctionSymbol(new FunctionSymbol("i1", Sort.INT));
         st.addFunctionSymbol(new FunctionSymbol("b1", Sort.BOOL));
+        st.addFunctionSymbol(new FunctionSymbol("b2", Sort.BOOL));
         st.addFunctionSymbol(new FunctionSymbol("h2", Sort.HEAP));
         st.addFunctionSymbol(new FunctionSymbol("anything", Sort.INT, Sort.INT));
         st.addFunctionSymbol(new FunctionSymbol("a", Sort.get("array", Sort.INT)));
@@ -181,6 +213,34 @@ public class PrettyPrintTest {
     @Parameters
     public void testLetExpressions(String input) throws Exception {
         Term parsed = TermParser.parse(st, input);
+        AnnotatedString printed = new PrettyPrint().print(parsed);
+
+        assertEquals(input, printed.toString());
+    }
+
+    @Test
+    @Parameters
+    public void testSchemaExpressions(String input) throws Exception {
+        TermParser tp = new TermParser(st);
+        tp.setSchemaMode(true);
+        Term parsed = tp.parse(input);
+        AnnotatedString printed = new PrettyPrint().print(parsed);
+
+        assertEquals(input, printed.toString());
+    }
+
+    @Test
+    @Parameters
+    public void testDafnyFunctions(String input) throws Exception {
+        Project p = TestUtil.mockProject(
+                "class C { function cfct(a: int, c:C) : int {1}}\n" +
+                   "function fct(a: int, c: C) : bool {true}");
+        st.addFunctionSymbol(new DafnyFunctionSymbol(p.getFunction("fct")));
+        st.addFunctionSymbol(new DafnyFunctionSymbol(
+                p.getClass("C").getFunction("cfct")));
+
+        TermParser tp = new TermParser(st);
+        Term parsed = tp.parse(input);
         AnnotatedString printed = new PrettyPrint().print(parsed);
 
         assertEquals(input, printed.toString());
@@ -259,5 +319,32 @@ public class PrettyPrintTest {
             String substring = string.substring(termElement.getBegin(), termElement.getEnd());
             assertEquals(subtermString, substring);
         }
+    }
+
+    @Test
+    public void testSequent() throws TermBuildException {
+
+        Term b1 = new ApplTerm(st.getFunctionSymbol("b1"));
+        Term b2 = new ApplTerm(st.getFunctionSymbol("b2"));
+        ProofFormula pf1 = new ProofFormula(b1);
+        ProofFormula pf2 = new ProofFormula(b2);
+
+        Sequent s = new Sequent(Arrays.asList(pf1, pf2), Arrays.asList(pf2, pf1));
+
+        PrettyPrint pp = new PrettyPrint();
+        String annotated = pp.print(s);
+        assertEquals("b1, b2 |- b2, b1", annotated.toString());
+
+        annotated = pp.print(s, 7);
+        assertEquals(
+                "   b1,\n   b2\n|- b2,\n   b1", annotated.toString());
+
+        Sequent noAnte = new Sequent(Collections.emptyList(), Arrays.asList(pf2, pf1));
+        annotated = pp.print(noAnte);
+        assertEquals("|- b2, b1", annotated.toString());
+
+        Sequent noSucc = new Sequent(Arrays.asList(pf2, pf1), Collections.emptyList());
+        annotated = pp.print(noSucc);
+        assertEquals("b2, b1 |-", annotated.toString());
     }
 }

@@ -1,0 +1,20 @@
+### decls:
+s1: seq<int>
+s2: seq<int>
+### sequent:
+
+s1 == [1,2,3,4]
+|-
+let s2 := $seq_sub<int>(s1,0,2) :: $seq_get<int>(s2,0) == 1
+
+### result:
+prove
+### OLD-translation:
+var _s1 : Seq int;
+
+procedure Sequent()
+  ensures false;
+{
+  assume Seq#Equal(_s1, Seq#Build(Seq#Build(Seq#Build(Seq#Build(Seq#Empty(), 1), 2), 3), 4));
+  assume !((Seq#Index(Seq#Drop(Seq#Take(_s1, 2), 0), 0) == 1));
+}

@@ -1,5 +1,6 @@
 package edu.kit.iti.algover.proof;
 
+import edu.kit.iti.algover.data.MapSymbolTable;
 import edu.kit.iti.algover.project.Project;
 import edu.kit.iti.algover.script.ast.*;
 import edu.kit.iti.algover.script.exceptions.InterpreterRuntimeException;
@@ -152,17 +153,14 @@ public class Proof {
             proofStatus.setValue(newRoot.allLeavesClosed() ? ProofStatus.CLOSED : ProofStatus.OPEN);
 
         } catch (ScriptCommandNotApplicableException snap) {
-
             this.proofRoot = newRoot;
             this.failException = snap;
             proofStatus.setValue(ProofStatus.FAILING);
-            throw snap;
         } catch (InterpreterRuntimeException ire) {
             this.proofRoot = newRoot;
             this.failException = ire;
             proofStatus.setValue(ProofStatus.FAILING);
-
-            throw ire;
+;
 
         } catch(Exception ex) {
             // publish the proof root even if the proof has (partially) failed.
@@ -171,12 +169,14 @@ public class Proof {
 
             // TODO proof state handling.
             proofStatus.setValue(ProofStatus.FAILING);
-
         }
 
 
     }
 
+
+    // REVIEW: Review after repairing generics elsewhere
+    @SuppressWarnings({"unchecked", "rawtypes"})
     private Interpreter<ProofNode> buildIndividualInterpreter() {
 
         InterpreterBuilder ib = new InterpreterBuilder();

@@ -57,8 +57,6 @@ public class ReplaceVisitor  {
 
         @Override
         public Term visit(LetTerm letTerm, List<Term> arg) throws TermBuildException {
-            // TODO FIXME ... revisit when LetTerms are different
-            assert arg.size() == 1 : "There must be one argument for quantifiers";
             return new LetTerm(letTerm.getSubstitutions(), arg.get(0));
         }
 

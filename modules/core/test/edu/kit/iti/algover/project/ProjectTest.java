@@ -7,7 +7,8 @@ package edu.kit.iti.algover.project;
 
 import edu.kit.iti.algover.dafnystructures.DafnyClass;
 import edu.kit.iti.algover.dafnystructures.DafnyFile;
-import edu.kit.iti.algover.parser.DafnyException;
+import edu.kit.iti.algover.dafnystructures.DafnyFunction;
+import edu.kit.iti.algover.dafnystructures.DafnyMethod;
 import edu.kit.iti.algover.parser.DafnyParserException;
 import edu.kit.iti.algover.proof.PVC;
 import edu.kit.iti.algover.rules.ProofRule;
@@ -28,6 +29,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.NoSuchElementException;
 import java.util.stream.Collectors;
 
 import static org.junit.Assert.*;
@@ -64,11 +66,11 @@ public class ProjectTest {
         List<DafnyFile> dafnyFiles = p.getDafnyFiles();
         System.out.println(dafnyFiles.stream().map(DafnyFile::getFilename).collect(Collectors.toList()));
         assertEquals(3, dafnyFiles.size());
-        assertEquals("test3.dfy", dafnyFiles.get(0).getName());
+        assertEquals(testDir + "/test3.dfy", dafnyFiles.get(0).getName());
         assertTrue(dafnyFiles.get(0).isInLibrary());
-        assertEquals("test.dfy", dafnyFiles.get(1).getName());
+        assertEquals(testDir + "/test.dfy", dafnyFiles.get(1).getName());
         assertFalse(dafnyFiles.get(1).isInLibrary());
-        assertEquals("test2.dfy", dafnyFiles.get(2).getName());
+        assertEquals(testDir + "/test2.dfy", dafnyFiles.get(2).getName());
         assertFalse(dafnyFiles.get(2).isInLibrary());
     }
 
@@ -82,7 +84,7 @@ public class ProjectTest {
         assertEquals(true, testSettings.getBoolean(ProjectSettings.SYMBEX_UNROLL_LOOPS));
     }
 
-    @SuppressWarnings("rawtypes")
+    @SuppressWarnings({"rawtypes", "unchecked"})
     @Test
     public void testSettingsInsane() throws Exception {
         ProjectSettings testSettings = p.getSettings();
@@ -191,6 +193,31 @@ public class ProjectTest {
                     "liblemma21", "liblemma22", "liblemma23",
                     "srclemma11", "srclemma12", "srclemma13");
             assertEquals(expected, dafnyRules);
+        }
+    }
+
+    // after a bugfix
+    @Test
+    public void testGetPVCCollection() throws Exception {
+        Project p = TestUtil.mockProject(
+                "class C { method m() {} function f(): int {1} } " +
+                        "method n() {} " +
+                        "function g(): int {2}");
+        DafnyMethod m = p.getClass("C").getMethod("m");
+        assertNotNull(p.getPVCsFor(m));
+        DafnyFunction f = p.getClass("C").getFunction("f");
+        assertNotNull(p.getPVCsFor(f));
+        DafnyMethod n = p.getMethod("n");
+        assertNotNull(p.getPVCsFor(n));
+        DafnyFunction g = p.getFunction("g");
+        assertNotNull(p.getPVCsFor(g));
+
+        Project q = TestUtil.mockProject("method q() {}");
+        DafnyMethod unknown = q.getMethod("q");
+        try {
+            p.getPVCsFor(unknown);
+            fail("Should have thrown");
+        } catch(NoSuchElementException ex) {
         }
     }
 }

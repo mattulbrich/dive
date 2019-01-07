@@ -5,6 +5,7 @@
  */
 package edu.kit.iti.algover.term.builder;
 
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -27,6 +28,7 @@ import edu.kit.iti.algover.term.Sort;
 import edu.kit.iti.algover.term.Term;
 import edu.kit.iti.algover.util.ASTUtil;
 import edu.kit.iti.algover.util.ImmutableList;
+import edu.kit.iti.algover.util.Util;
 
 /**
  * Update sequencer are a family of different sequent translation algorithms
@@ -81,6 +83,7 @@ public class UpdateSequenter implements PVCSequenter {
                 throw new DafnyException(pce.getExpression(), e);
             }
         }
+        Util.removeDuplicates(ante);
 
         assert pathThroughProgram.getProofObligations().size() == 1;
         AssertionElement assertion = pathThroughProgram.getProofObligations().getHead();

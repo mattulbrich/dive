@@ -8,7 +8,9 @@ import edu.kit.iti.algover.browser.FlatBrowserController;
 import edu.kit.iti.algover.browser.entities.PVCEntity;
 import edu.kit.iti.algover.browser.entities.PVCGetterVisitor;
 import edu.kit.iti.algover.browser.entities.TreeTableEntity;
+import edu.kit.iti.algover.dafnystructures.DafnyClass;
 import edu.kit.iti.algover.dafnystructures.DafnyFile;
+import edu.kit.iti.algover.dafnystructures.DafnyFunction;
 import edu.kit.iti.algover.dafnystructures.DafnyMethod;
 import edu.kit.iti.algover.data.BuiltinSymbols;
 import edu.kit.iti.algover.data.SymbolTable;
@@ -25,13 +27,14 @@ import edu.kit.iti.algover.references.Reference;
 import edu.kit.iti.algover.rule.RuleApplicationController;
 import edu.kit.iti.algover.rule.RuleApplicationListener;
 import edu.kit.iti.algover.rules.*;
-import edu.kit.iti.algover.rules.impl.LetSubstitutionRule;
-import edu.kit.iti.algover.rules.impl.Z3Rule;
+import edu.kit.iti.algover.rules.impl.ExhaustiveRule;
 import edu.kit.iti.algover.sequent.SequentActionListener;
 import edu.kit.iti.algover.sequent.SequentController;
 import edu.kit.iti.algover.sequent.SequentTabViewController;
 import edu.kit.iti.algover.timeline.TimelineLayout;
 import edu.kit.iti.algover.util.CostumBreadCrumbBar;
+import edu.kit.iti.algover.util.ExceptionDetails;
+import edu.kit.iti.algover.util.ExceptionDetails.ExceptionReportInfo;
 import edu.kit.iti.algover.util.FormatException;
 import edu.kit.iti.algover.util.RuleApp;
 import edu.kit.iti.algover.util.StatusBarLoggingHandler;
@@ -41,6 +44,7 @@ import javafx.beans.value.ObservableValue;
 import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
 import javafx.event.EventType;
+import javafx.geometry.Point2D;
 import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.control.*;
@@ -51,6 +55,7 @@ import javafx.scene.layout.VBox;
 import org.controlsfx.control.BreadCrumbBar;
 import org.controlsfx.control.StatusBar;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.HashSet;
 import java.util.List;
@@ -59,6 +64,7 @@ import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.logging.Handler;
 import java.util.logging.Level;
+import java.util.logging.LogRecord;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
@@ -81,7 +87,8 @@ public class MainController implements SequentActionListener, RuleApplicationLis
     private final StatusBar statusBar;
     private final StatusBarLoggingHandler statusBarLoggingHandler;
     private final JFXButton simpleStratButton;
-    CostumBreadCrumbBar<Object> breadCrumbBar;
+    // REVIEW: Would <String> not be more appropriate?
+    private final CostumBreadCrumbBar<Object> breadCrumbBar;
 
 
     public MainController(ProjectManager manager, ExecutorService executor) {
@@ -103,7 +110,7 @@ public class MainController implements SequentActionListener, RuleApplicationLis
         simpleStratButton.setOnAction(this::trivialStrat);
 
         TreeItem<Object> ti = getBreadCrumbModel();
-        breadCrumbBar = new CostumBreadCrumbBar(ti, this::onCrumbSelected);
+        breadCrumbBar = new CostumBreadCrumbBar<>(ti, this::onCrumbSelected);
         breadCrumbBar.setStringFactory(this::getStringForTreeItem);
         breadCrumbBar.setSelectedCrumb(ti);
 
@@ -131,10 +138,11 @@ public class MainController implements SequentActionListener, RuleApplicationLis
         statusBarLoggingHandler = new StatusBarLoggingHandler(statusBar);
         logger.addHandler(statusBarLoggingHandler);
         logger.setUseParentHandlers(false);
-        logger.info("Load of project '" + manager.getDirectory().getName() + "' successful.");
+        logger.info("Project '" + manager.getName() + "' successfully loaded.");
+
+        onClickRefresh(null);
     }
 
-    //TODO: start in own thread that is stoppable
     private void trivialStrat(ActionEvent event) {
         Map<String, PVC> pvcMap = manager.getPVCByNameMap();
         for(Map.Entry<String, PVC> e : pvcMap.entrySet()) {
@@ -143,7 +151,13 @@ public class MainController implements SequentActionListener, RuleApplicationLis
             if (p.getProofStatus() != ProofStatus.CLOSED) {
                 for (int i = 0; i < p.getProofRoot().getSequent().getAntecedent().size(); ++i) {
                     try {
-                        script += RuleApplicator.getScriptForExhaustiveRuleApplication(new LetSubstitutionRule(), p.getProofRoot(), new TermSelector("A." + i));
+                        ExhaustiveRule exRule = new ExhaustiveRule();
+                        Parameters parameters = new Parameters();
+                        parameters.putValue("ruleName", "substitute");
+                        parameters.putValue("on", new TermParameter(new TermSelector("A." + i), p.getProofRoot().getSequent()));
+                        ProofRuleApplication pra = exRule.considerApplication(p.getProofRoot(), parameters);
+
+                        script += pra.getScriptTranscript();
                     } catch (FormatException ex) {
                         //TODO
                     } catch (RuleException ex) {
@@ -152,7 +166,13 @@ public class MainController implements SequentActionListener, RuleApplicationLis
                 }
                 for (int i = 0; i < p.getProofRoot().getSequent().getSuccedent().size(); ++i) {
                     try {
-                        script += RuleApplicator.getScriptForExhaustiveRuleApplication(new LetSubstitutionRule(), p.getProofRoot(), new TermSelector("S." + i));
+                        ExhaustiveRule exRule = new ExhaustiveRule();
+                        Parameters parameters = new Parameters();
+                        parameters.putValue("ruleName", "substitute");
+                        parameters.putValue("on", new TermParameter(new TermSelector("S." + i), p.getProofRoot().getSequent()));
+                        ProofRuleApplication pra = exRule.considerApplication(p.getProofRoot(), parameters);
+
+                        script += pra.getScriptTranscript();
                     } catch (FormatException ex) {
                         //TODO
                     } catch (RuleException ex) {
@@ -163,7 +183,7 @@ public class MainController implements SequentActionListener, RuleApplicationLis
                 script += "close;\n";
                 p.setScriptTextAndInterpret(script);
                 if(p.getFailException() != null) {
-                    script = letScript + "z3;\n";
+                    script = letScript + "boogie;\n";
                     p.setScriptTextAndInterpret(script);
                     if(p.getFailException() != null) {
                         p.setScriptTextAndInterpret(letScript);
@@ -173,10 +193,10 @@ public class MainController implements SequentActionListener, RuleApplicationLis
         }
         sequentController.getActiveSequentController().tryMovingOnEx(); //SaG: was tryMovingOn()
         ruleApplicationController.resetConsideration();
-        browserController.updateTableLabels();
     }
 
-    private void onCrumbSelected(ObservableValue observableValue, Object oldValue, Object newValue) {
+    @SuppressWarnings("unchecked")
+    private void onCrumbSelected(ObservableValue<?> observableValue, Object oldValue, Object newValue) {
         TreeItem<Object> item = (TreeItem<Object>) newValue;
         Platform.runLater(() -> {
             if (item.getValue() instanceof PVC) {
@@ -213,28 +233,71 @@ public class MainController implements SequentActionListener, RuleApplicationLis
     private void onStatusBarClicked(MouseEvent event) {
         ContextMenu contextMenu = statusBar.getContextMenu();
         contextMenu.getItems().clear();
-        statusBarLoggingHandler.getHistory(5).forEach(
-                log -> contextMenu.getItems().add(new MenuItem(log))
-        );
+        for (LogRecord logRecord : statusBarLoggingHandler.getHistory(5)) {
+            MenuItem item = new MenuItem(logRecord.getMessage());
+            item.setOnAction(ev -> {
+                Throwable ex = logRecord.getThrown();
+                if(ex != null) {
+                    editorController.showException(ex);
+                }
+            });
+            contextMenu.getItems().add(item);
+        }
+
         contextMenu.show(statusBar, event.getScreenX(), event.getScreenY());
     }
 
     public TreeItem<Object> getBreadCrumbModel() {
         TreeItem<Object> lastitem = null;
-        TreeItem<Object> root = new TreeItem("root");
+        TreeItem<Object> root = new TreeItem<>("root");
         for (DafnyFile f : manager.getProject().getDafnyFiles()) {
-            TreeItem<Object> fileChild = new TreeItem(f.getFilename());
+            TreeItem<Object> fileChild = new TreeItem<>(f.getFilename());
             fileChild.setValue(f);
             root.getChildren().add(fileChild);
             for (DafnyMethod m : f.getMethods()) {
-                TreeItem<Object> methodChild = new TreeItem(m.getName());
+                TreeItem<Object> methodChild = new TreeItem<>(m.getName());
                 methodChild.setValue(m);
                 fileChild.getChildren().add(methodChild);
                 PVCCollection collection = manager.getProject().getPVCsFor(m);
                 for (PVC pvc : collection.getContents()) {
-                    lastitem = new TreeItem(pvc.getIdentifier());
+                    lastitem = new TreeItem<>(pvc.getIdentifier());
                     lastitem.setValue(pvc);
                     methodChild.getChildren().add(lastitem);
+                }
+            }
+            for (DafnyFunction fi : f.getFunctions()) {
+                TreeItem<Object> functionChild = new TreeItem<>(fi.getName());
+                functionChild.setValue(fi);
+                fileChild.getChildren().add(functionChild);
+                PVCCollection collection = manager.getProject().getPVCsFor(fi);
+                for (PVC pvc : collection.getContents()) {
+                    lastitem = new TreeItem<>(pvc.getIdentifier());
+                    lastitem.setValue(pvc);
+                    functionChild.getChildren().add(lastitem);
+                }
+            }
+            for(DafnyClass dc : f.getClasses()) {
+                for (DafnyMethod m : dc.getMethods()) {
+                    TreeItem<Object> methodChild = new TreeItem<>(m.getName());
+                    methodChild.setValue(m);
+                    fileChild.getChildren().add(methodChild);
+                    PVCCollection collection = manager.getProject().getPVCsFor(m);
+                    for (PVC pvc : collection.getContents()) {
+                        lastitem = new TreeItem<>(pvc.getIdentifier());
+                        lastitem.setValue(pvc);
+                        methodChild.getChildren().add(lastitem);
+                    }
+                }
+                for (DafnyFunction fi : dc.getFunctions()) {
+                    TreeItem<Object> functionChild = new TreeItem<>(fi.getName());
+                    functionChild.setValue(fi);
+                    fileChild.getChildren().add(functionChild);
+                    PVCCollection collection = manager.getProject().getPVCsFor(fi);
+                    for (PVC pvc : collection.getContents()) {
+                        lastitem = new TreeItem<>(pvc.getIdentifier());
+                        lastitem.setValue(pvc);
+                        functionChild.getChildren().add(lastitem);
+                    }
                 }
             }
         }
@@ -276,25 +339,21 @@ public class MainController implements SequentActionListener, RuleApplicationLis
         // Jobs should get queued / Buttons disabled while an action runs, but the UI shouldn't freeze!
         onClickSave(null);
         editorController.resetExceptionLayer();
-        Task<Boolean> t = new Task<Boolean>() {
+        Task<Void> t = new Task<Void>() {
             @Override
-            protected Boolean call() throws Exception {
-                try {
-                    manager.reload();
-                } catch (IOException e) {
-                    return false;
-                }
-                return true;
+            protected Void call() throws Exception {
+                manager.reload();
+                return null;
             }
         };
-        executor.execute(t);
         t.setOnSucceeded(event -> {
-            if (t.getValue()) {
                 manager.getAllProofs().values().forEach(p -> p.interpretScript());
                 browserController.onRefresh(manager.getProject(), manager.getAllProofs());
                 browserController.getView().setDisable(false);
                 sequentController.getView().setDisable(false);
                 ruleApplicationController.getView().setDisable(false);
+                manager.getProject().getDafnyFiles().forEach(df -> editorController.viewFile(df));
+                ruleApplicationController.onReset();
                 simpleStratButton.setDisable(false);
                 breadCrumbBar.setDisable(false);
                 TreeItem<Object> ti = getBreadCrumbModel();
@@ -303,22 +362,26 @@ public class MainController implements SequentActionListener, RuleApplicationLis
                 editorController.resetPVCSelection();
                 sequentController.getActiveSequentController().clear();
                 Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).info("Successfully reloading project.");
-            } else {
-                Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).severe("Error reloading the project.");
-            }
         });
+
         //TODO somehow get proper exceptions and handling them
         t.setOnFailed(event -> {
-            if (t.getException() instanceof Exception) {
-                editorController.showException((Exception) t.getException());
-                Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).severe("Error reloading the project: " + t.getException().getMessage());
-            } else {
-                Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).severe("Error reloading the project. Check your changed files for syntax errors.");
-            }
+            manager.getProject().getDafnyFiles().forEach(df -> editorController.viewFile(df));
+            Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).log(Level.SEVERE,
+                    t.getException().getMessage(),
+                    t.getException());
+            editorController.showException(t.getException());
+            browserController.getView().setDisable(true);
+            sequentController.getView().setDisable(true);
+            ruleApplicationController.getView().setDisable(true);
+            t.getException().printStackTrace();
         });
+
         t.setOnCancelled(event -> {
-            Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).severe("Error reloading the project.");
+            Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).severe("Reloading the project cancelled.");
         });
+
+        executor.execute(t);
     }
 
     public void onClickPVCEdit(PVCEntity entity) {
@@ -355,13 +418,17 @@ public class MainController implements SequentActionListener, RuleApplicationLis
     private String getStringForTreeItem(TreeItem<Object> item) {
         Object value = item.getValue();
         if (value instanceof DafnyFile) {
-            return ((DafnyFile) value).getFilename();
+            File f = new File(((DafnyFile) value).getFilename());
+            return f.getName();
         }
         if (value instanceof DafnyMethod) {
             return ((DafnyMethod) value).getName();
         }
         if (value instanceof PVC) {
             return ((PVC) value).getIdentifier();
+        }
+        if (value instanceof DafnyFunction) {
+            return ((DafnyFunction) value).getName();
         }
         return "error";
     }
@@ -442,11 +509,6 @@ public class MainController implements SequentActionListener, RuleApplicationLis
 
     @Override
     public void onRuleApplication(ProofRuleApplication application) {
-        //TODO only quick fix for presentation purposes
-        if(application == null) {
-            browserController.updateTableLabels();
-            return;
-        }
         // This can be implemented as an incremental algorithm in the future here!
         // Currently, this will reset the script text completely. That means the
         // script has to be parsed and rebuilt completely.
@@ -454,12 +516,11 @@ public class MainController implements SequentActionListener, RuleApplicationLis
         ruleApplicationController.getRuleGrid().getSelectionModel().clearSelection();
         String newScript = ruleApplicationController.getScriptView().getText();
         sequentController.getActiveSequentController().getActiveProof().setScriptTextAndInterpret(newScript);
-        sequentController.getActiveSequentController().tryMovingOnEx(); //SaG: was tryMovingOn()
         ruleApplicationController.resetConsideration();
+        sequentController.getActiveSequentController().tryMovingOnEx(); //SaG: was tryMovingOn()
         if(sequentController.getActiveSequentController().getActiveProof().getFailException() == null) {
             Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).info("Successfully applied rule " + application.getRule().getName() + ".");
         }
-        browserController.updateTableLabels();
     }
 
     @Override
@@ -471,9 +532,9 @@ public class MainController implements SequentActionListener, RuleApplicationLis
         ruleApplicationController.getRuleGrid().getSelectionModel().clearSelection();
         String newScript = ruleApplicationController.getScriptView().getText();
         sequentController.getActiveSequentController().getActiveProof().setScriptTextAndInterpret(newScript);
-        sequentController.getActiveSequentController().tryMovingOnEx();
         ruleApplicationController.resetConsideration();
-        browserController.updateTableLabels();
+        sequentController.getActiveSequentController().tryMovingOnEx();
+
     }
 
     @Override
@@ -503,8 +564,8 @@ public class MainController implements SequentActionListener, RuleApplicationLis
      */
     @Override
     public void onSwitchViewedNode(ProofNodeSelector proofNodeSelector) {
-        editorController.resetReferences();
         sequentController.viewProofNode(proofNodeSelector);
+        ruleApplicationController.getScriptController().setSelectedNode(proofNodeSelector);
     }
 
     public Parent getView() {

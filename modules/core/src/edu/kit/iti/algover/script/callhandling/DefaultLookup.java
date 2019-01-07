@@ -14,6 +14,10 @@ import java.util.List;
  * @author Alexander Weigl
  * @version 1 (20.05.17)
  */
+
+// REVIEW: Add the missing generic parameters! Please!
+
+@SuppressWarnings({"unchecked", "rawtypes"})
 public class DefaultLookup implements CommandLookup {
 
     private final List<CommandHandler> builders = new ArrayList<>(1024);

@@ -1,5 +1,8 @@
 package edu.kit.iti.algover.rule;
 
+import edu.kit.iti.algover.data.SymbolTable;
+import edu.kit.iti.algover.proof.PVC;
+import edu.kit.iti.algover.proof.ProofNode;
 import edu.kit.iti.algover.proof.ProofNodeSelector;
 import edu.kit.iti.algover.rule.script.ScriptViewListener;
 import edu.kit.iti.algover.rules.ProofRule;
@@ -18,4 +21,8 @@ public interface RuleApplicationListener {
     void onSwitchViewedNode(ProofNodeSelector selector);
 
     void onScriptSave();
+
+    PVC getCurrentPVC();
+
+    ProofNode getCurrentProofNode();
 }

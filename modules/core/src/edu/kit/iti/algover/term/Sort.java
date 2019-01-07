@@ -5,12 +5,14 @@
  */
 package edu.kit.iti.algover.term;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import edu.kit.iti.algover.term.builder.TermBuildException;
 import edu.kit.iti.algover.util.Util;
@@ -101,6 +103,13 @@ public class Sort {
     public static final Sort UNTYPED_SORT = get("$UNTYPED");
 
     /**
+     * The uninhabited bottom type of the type hierarchy.
+     *
+     * Used for empty sets and sequences ...
+     */
+    public static final Sort BOTTOM = get("$nothing");
+
+    /**
      * The name of the type (w/o arguments).
      */
     private final String name;
@@ -126,6 +135,8 @@ public class Sort {
         BUILTIN_SORT_NAMES.add("array3");
         BUILTIN_SORT_NAMES.add("field");
         BUILTIN_SORT_NAMES.add("heap");
+        BUILTIN_SORT_NAMES.add("$nothing");
+        BUILTIN_SORT_NAMES.add("$tuple");
     }
 
     /**
@@ -293,13 +304,26 @@ public class Sort {
     /**
      * Checks if this sort belongs to a Dafny class.
      *
-     * Checks if the name is a builtin name
+     * Checks if the name is a builtin name.
      *
-     * @return <code>true</code>, iff this objects reprsents the sort for a
+     * @return <code>true</code>, iff this objects represents the sort for a
      *         Dafny class
      */
     public boolean isClassSort() {
         return !BUILTIN_SORT_NAMES.contains(getName());
+    }
+
+    /**
+     * Checks if this sort is a reference sort.
+     *
+     * This is the case for object, classes and arrays.
+     *
+     * Equivalent to calling {@code isSubtypeOf(OBJECT)}.
+     *
+     * @return <code>true</code>, iff this objects represents a ref type.
+     */
+    public boolean isReferenceSort() {
+        return isSubtypeOf(OBJECT);
     }
 
     /**
@@ -321,6 +345,10 @@ public class Sort {
             return true;
         }
 
+        if (equals(BOTTOM) && !other.equals(UNTYPED_SORT)) {
+            return true;
+        }
+
         if(isClassSort() || isArray()) {
             return other.equals(OBJECT);
         }
@@ -335,6 +363,16 @@ public class Sort {
             case "multiset":
             case "seq":
                 return getArgument(0).isSubtypeOf(other.getArgument(0));
+            case "$tuple":
+                if (arguments.length != other.arguments.length) {
+                    return false;
+                }
+                for (int i = 0; i < arguments.length; i++) {
+                    if(!getArgument(i).isSubtypeOf(other.getArgument(i))) {
+                        return false;
+                    }
+                }
+                return true;
             // case "map": that would be contravariant in the first argument!
             }
         }
@@ -405,5 +443,61 @@ public class Sort {
         }
 
         throw new TermBuildException("No common supertype for " + sort1 + " and " + sort2);
+    }
+
+    /**
+     * Parse a String into a Sort.
+     *
+     * @param sortString a string that could be produced by String{@link
+     *                   #toString()}
+     * @return a fresh Sort object.
+     * @throws IllegalArgumentException if the string cannot be parsed to a
+     *                                  sort
+     */
+    public static Sort parseSort(String sortString) {
+        return parseSort(sortString, new AtomicInteger());
+    }
+
+    private static Sort parseSort(String sortString, AtomicInteger pos) {
+        StringBuilder sb = new StringBuilder();
+        int len = sortString.length();
+        while(pos.get() < len) {
+            char c = sortString.charAt(pos.get());
+            if ("<>,".indexOf(c) != -1) {
+                break;
+            }
+            if("\t ".indexOf(c) == -1) {
+                // overread spaces and tabs
+                sb.append(c);
+            }
+            pos.incrementAndGet();
+        }
+
+        List<Sort> children = null;
+        if(pos.get() < len) {
+            char c = sortString.charAt(pos.get());
+            if(c != '<') {
+                return Sort.get(sb.toString());
+            }
+            pos.incrementAndGet();
+            children = new ArrayList<>();
+            children.add(parseSort(sortString, pos));
+        }
+
+        while(pos.get() < len) {
+            char c = sortString.charAt(pos.get());
+            pos.incrementAndGet();
+            switch(c) {
+            case ',':
+                children.add(parseSort(sortString, pos));
+                break;
+            case '>':
+                return Sort.get(sb.toString(), children);
+            default:
+                throw new IllegalArgumentException();
+            }
+        }
+
+        return Sort.get(sb.toString());
     }
 }

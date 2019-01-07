@@ -1,8 +1,8 @@
 (method testNull ARGS
         (BLOCK
          (var c (TYPE C))
-         (:= c[C] null[C])
-         (if (== null[object] null[object])[bool] BLOCK)
-         (if (== c[C] null[C])[bool] BLOCK)
-         (if (!= c[C] null[C])[bool] BLOCK)
-         (while (== null[C] c[C])[bool] BLOCK)))[scc_5]
+         (:= c[C] null[null])
+         (if (== null[null] null[null])[bool] BLOCK)
+         (if (== c[C] null[null])[bool] BLOCK)
+         (if (!= c[C] null[null])[bool] BLOCK)
+         (while (== null[null] c[C])[bool] BLOCK)))[scc_5]

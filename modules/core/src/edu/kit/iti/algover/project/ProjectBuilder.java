@@ -24,6 +24,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -244,14 +245,16 @@ public class ProjectBuilder {
         this.classes = new ArrayList<>();
 
         // parse DafnyFiles: first libs, then sources
-        for (String file: this.getLibraryFiles()) {
-            DafnyTree tree = DafnyFileParser.parse(getFileFor(file));
-            parseFile(true, tree, file);
+        for (String filename: this.getLibraryFiles()) {
+            File file = getFileFor(filename);
+            DafnyTree tree = DafnyFileParser.parse(file);
+            parseFile(true, tree, file.toString());
         }
 
-        for (String file: this.getDafnyFiles()) {
-            DafnyTree tree = DafnyFileParser.parse(getFileFor(file));
-            parseFile(false, tree, file);
+        for (String filename: this.getDafnyFiles()) {
+            File file = getFileFor(filename);
+            DafnyTree tree = DafnyFileParser.parse(file);
+            parseFile(false, tree, file.toString());
         }
 
         for (Map.Entry<String, DafnyTree> en : dafnyTrees.entrySet()) {
@@ -267,6 +270,24 @@ public class ProjectBuilder {
         //TODO parse rules for project
 
         return project;
+    }
+
+    public static Project emptyProject(File baseDir) {
+        ProjectBuilder pb = new ProjectBuilder();
+
+        pb.setDir(baseDir);
+        pb.files = Collections.emptyList();
+        pb.methods = Collections.emptyList();
+        pb.functions = Collections.emptyList();
+        pb.classes = Collections.emptyList();
+
+        try {
+            return new Project(pb);
+        } catch (DafnyException e) {
+            // This is unreachable due to the structure of the empty project.
+            throw new Error("Unreachable!", e);
+        }
+
     }
 
 

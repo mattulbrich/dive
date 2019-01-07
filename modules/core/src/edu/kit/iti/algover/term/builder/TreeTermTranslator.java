@@ -32,6 +32,7 @@ import edu.kit.iti.algover.util.ImmutableList;
 import edu.kit.iti.algover.util.Pair;
 import nonnull.NonNull;
 import org.antlr.runtime.CommonToken;
+import org.antlr.runtime.tree.Tree;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -40,7 +41,7 @@ import java.util.HashMap;
 import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.function.BiFunction;
+import java.util.Objects;
 
 /**
  * The Class TreeTermTranslator is used to create a {@link Term} object from a
@@ -58,6 +59,12 @@ public class TreeTermTranslator {
      */
     private static final VariableTerm HEAP_VAR =
             new VariableTerm("$heap", Sort.HEAP);
+
+    /**
+     * This constant is used by old and fresh expressions.
+     */
+    private static final VariableTerm OLD_HEAP_VAR =
+            new VariableTerm("$oldheap", Sort.HEAP);
 
     /**
      * The symbol table from which the function symbols etc are to be taken.
@@ -222,9 +229,15 @@ public class TreeTermTranslator {
 //        }
 //    }
 
-    private Term getHeap() throws TermBuildException {
+    /**
+     * Get the current heap access term.
+     * This may be the constant or (if currently bound) a variable
+     * @return a term representing the heap.
+     * @throws TermBuildException
+     */
+    protected Term getHeap() throws TermBuildException {
         // This is naive since someone might call their variable "heap" manually.
-        // Mitigated sind "$heap" is now protected by $.
+        // Mitigated since "$heap" is now protected by $.
         VariableTerm bound = boundVars.get(HEAP_VAR.getName());
         if(bound != null) {
             return bound;
@@ -266,7 +279,21 @@ public class TreeTermTranslator {
             break;
 
         case DafnyParser.LE:
-            result = buildBinary(BuiltinSymbols.LE, tree);
+            result = buildBinary(
+                    symmetricBinarySymbol(sort -> {
+                        switch(sort.getName()) {
+                        case "int":
+                            return BuiltinSymbols.LE;
+                        case "set":
+                            return symbolTable.getFunctionSymbol(
+                                    BuiltinSymbols.SUBSET, sort.getArgument(0));
+                        case "multiset":
+                            // TODO
+                            throw new Error("IMPLEMENT ME!");
+                        default:
+                            throw new TermBuildException("'+' is not supported for these arguments");
+                        }
+                    }), tree);
             break;
 
         case DafnyParser.LT:
@@ -280,10 +307,11 @@ public class TreeTermTranslator {
                 case "int":
                     return BuiltinSymbols.PLUS;
                 case "set":
-                    return BuiltinSymbols.UNION.instantiate(sort.getArgument(0));
+                    return symbolTable.getFunctionSymbol(
+                            BuiltinSymbols.UNION, sort.getArgument(0));
                 case "seq":
-                    return BuiltinSymbols.SEQ_CONCAT.
-                            instantiate(sort.getArgument(0));
+                    return symbolTable.getFunctionSymbol(
+                            BuiltinSymbols.SEQ_CONCAT, sort.getArgument(0));
                 case "multiset":
                     // TODO
                     throw new Error("IMPLEMENT ME!");
@@ -315,7 +343,8 @@ public class TreeTermTranslator {
                 case "int":
                     return BuiltinSymbols.TIMES;
                 case "set":
-                    return BuiltinSymbols.INTERSECT.instantiate(sort.getArgument(0));
+                    return symbolTable.getFunctionSymbol(
+                            BuiltinSymbols.INTERSECT, sort.getArgument(0));
                 case "multiset":
                     // TODO
                     throw new Error("IMPLEMENT ME!");
@@ -325,15 +354,20 @@ public class TreeTermTranslator {
             }), tree);
             break;
 
+        case DafnyParser.NOTIN:
         case DafnyParser.IN:
             result = buildBinary((x,y) -> {
                 switch(y.getSort().getName()) {
                 case "set":
-                    return BuiltinSymbols.SET_IN.instantiate(y.getSort().getArgument(0));
+                    return symbolTable.getFunctionSymbol(
+                            BuiltinSymbols.SET_IN, y.getSort().getArgument(0));
                 default:
                     throw new Error("Not yet implemented");
                 }
             }, tree);
+            if (tree.getType() == DafnyParser.NOTIN) {
+                result = tb.negate(result);
+            }
             break;
 
         case DafnyParser.NOT:
@@ -341,11 +375,15 @@ public class TreeTermTranslator {
             break;
 
         case DafnyParser.EQ:
-            result = buildBinary(symmetricBinarySymbol(sort -> BuiltinSymbols.EQ.instantiate(sort)), tree);
+            result = buildBinary(symmetricBinarySymbol(
+                    sort -> symbolTable.getFunctionSymbol(
+                                BuiltinSymbols.EQ, sort)), tree);
             break;
 
         case DafnyParser.NEQ:
-            result = buildBinary(symmetricBinarySymbol(sort -> BuiltinSymbols.EQ.instantiate(sort)), tree);
+            result = buildBinary(symmetricBinarySymbol(
+                    sort -> symbolTable.getFunctionSymbol(
+                                BuiltinSymbols.EQ, sort)), tree);
             result = tb.negate(result);
             break;
 
@@ -410,12 +448,20 @@ public class TreeTermTranslator {
             result = buildBracketAccess(tree);
             break;
 
+        case DafnyParser.DOTDOT:
+            throw new TermBuildException("unexpected range expression " +
+                    "(only allowed in '[...]')");
+
         case DafnyParser.FIELD_ACCESS:
             result = buildFieldAccess(tree);
             break;
 
         case DafnyParser.NOETHER_LESS:
             result = buildNoetherLess(tree);
+            break;
+
+        case DafnyParser.FRESH:
+            result = buildFresh(tree);
             break;
 
         case DafnyParser.AT:
@@ -488,7 +534,8 @@ public class TreeTermTranslator {
         Sort elseSort = elseExp.getSort();
         Sort sort = Sort.supremum(thenSort, elseSort);
 
-        FunctionSymbol ifFct = BuiltinSymbols.ITE.instantiate(Collections.singletonList(sort));
+        FunctionSymbol ifFct =
+                symbolTable.getFunctionSymbol(BuiltinSymbols.ITE, sort);
 
         return new ApplTerm(ifFct, ifCond, thenExp, elseExp);
     }
@@ -500,18 +547,16 @@ public class TreeTermTranslator {
             public FunctionSymbol apply(Term a, Term b) throws TermBuildException {
                 Sort sort = Sort.supremum(a.getSort(), b.getSort());
                 FunctionSymbol functionSymbol = decider.apply(sort);
-                // fixing a bug: It might be that this symbols was not retrieved via the symbol table.
-                functionSymbol = symbolTable.getFunctionSymbol(functionSymbol.getName());
                 return functionSymbol;
             }
         };
     }
 
-    // TODO This is not really done yet.
     private Term buildCall(DafnyTree tree) throws TermBuildException {
 
-        assert tree.getChildCount() == 2
-                : "Calls with receivers not yet supported!";
+        if(tree.getChildCount() == 3) {
+            return buildCallWithReceiver(tree);
+        }
 
         String id = tree.getChild(0).getText();
         FunctionSymbol fct = symbolTable.getFunctionSymbol(id);
@@ -520,6 +565,17 @@ public class TreeTermTranslator {
         if(fct == null) {
             fct = symbolTable.getFunctionSymbol("$$" + id);
             argTerms.add(getHeap());
+        }
+
+        if(fct == null) {
+            DafnyTree ref = tree.getChild(0).getDeclarationReference();
+            if(ref != null) {
+                Tree parent = ref.getParent();
+                if(parent.getType() == DafnyParser.CLASS) {
+                    fct = symbolTable.getFunctionSymbol(parent.getChild(0).getText() + "$$" + id);
+                    argTerms.add(tb.cons("this"));
+                }
+            }
         }
 
         if (fct == null) {
@@ -536,6 +592,36 @@ public class TreeTermTranslator {
         return new ApplTerm(fct, argTerms);
     }
 
+    private Term buildCallWithReceiver(DafnyTree tree) throws TermBuildException {
+        String id = tree.getChild(0).getText();
+        DafnyTree receiver = tree.getChild(1);
+        Term receiverTerm = build(receiver);
+        Sort receiverType = receiverTerm.getSort();
+
+        if(!receiverType.isClassSort()) {
+            throw new TermBuildException("Function application to a non-class sort: " + receiverType);
+        }
+
+        String symbolName = receiverType + "$$" + id;
+        FunctionSymbol fct = symbolTable.getFunctionSymbol(symbolName);
+        if (fct == null) {
+            throw new TermBuildException("No function symbol " + id +
+                    " defined in class " + receiverType +
+                    ". Remember that method calls not allowed in expressions.");
+        }
+
+        List<Term> argTerms = new ArrayList<>();
+        DafnyTree args = tree.getFirstChildWithType(DafnyParser.ARGS);
+        argTerms.add(getHeap());
+        argTerms.add(receiverTerm);
+        expandMultiBlanks(args, fct.getArity());
+        for (DafnyTree arg : args.getChildren()) {
+            argTerms.add(build(arg));
+        }
+
+        return new ApplTerm(fct, argTerms);
+    }
+
 
     private Term buildBracketAccess(DafnyTree tree) throws TermBuildException {
 
@@ -544,6 +630,7 @@ public class TreeTermTranslator {
         String arraySortName = arraySort.getName();
 
         Term indexTerm;
+        DafnyTree indexTree;
 
         switch (arraySortName) {
             case "array":
@@ -551,18 +638,28 @@ public class TreeTermTranslator {
                     throw new TermBuildException("Access to 'array' requires one index argument");
                 }
 
-                indexTerm = build(tree.getChild(1));
-
-                return tb.selectArray(getHeap(), arrayTerm, indexTerm);
+                indexTree = tree.getChild(1);
+                if (indexTree.getType() == DafnyParser.DOTDOT) {
+                    arrayTerm = tb.arrayToSeq(getHeap(), arrayTerm);
+                    return buildSubSequence(arrayTerm, indexTree);
+                } else {
+                    indexTerm = build(tree.getChild(1));
+                    return tb.selectArray(getHeap(), arrayTerm, indexTerm);
+                }
 
             case "seq":
                 if (tree.getChildCount() != 2) {
-                    throw new TermBuildException("Access to 'array' requires one index argument");
+                    throw new TermBuildException("Access to 'array2' requires two index arguments");
                 }
 
-                indexTerm = build(tree.getChild(1));
+                indexTree = tree.getChild(1);
+                if (indexTree.getType() == DafnyParser.DOTDOT) {
+                    return buildSubSequence(arrayTerm, indexTree);
+                } else {
+                    indexTerm = build(indexTree);
+                    return tb.seqGet(arrayTerm, indexTerm);
+                }
 
-                return tb.seqGet(arrayTerm, indexTerm);
 
         case "array2":
                 if (tree.getChildCount() != 3) {
@@ -576,7 +673,7 @@ public class TreeTermTranslator {
                         arrayTerm, index0, index1);
 
         case "heap":
-            DafnyTree indexTree = tree.getChild(1);
+            indexTree = tree.getChild(1);
             if(indexTree.getType() != DafnyParser.CALL) {
                 throw new TermBuildException("Heap updates must be applied to function calls");
             }
@@ -600,6 +697,32 @@ public class TreeTermTranslator {
         }
     }
 
+    private Term buildSubSequence(Term seqTerm, DafnyTree indexTree) throws TermBuildException {
+        assert indexTree.getType() == DafnyParser.DOTDOT;
+
+        Term from, to;
+
+        DafnyTree firstChild = indexTree.getChild(0);
+        if(firstChild.getType() == DafnyParser.ARGS) {
+            if(indexTree.getChildCount() == 1) {
+                // a[..] --> return a
+                return seqTerm;
+            }
+            from = tb.zero;
+        } else {
+            from = build(firstChild);
+        }
+
+        if(indexTree.getChildCount() > 1) {
+            to = build(indexTree.getChild(1));
+        } else {
+            to = tb.seqLen(seqTerm);
+        }
+
+        return tb.seqSub(seqTerm, from, to);
+
+    }
+
     private Term buildFieldAccess(DafnyTree tree) throws TermBuildException {
 
         Term receiver = build(tree.getChild(0));
@@ -618,6 +741,21 @@ public class TreeTermTranslator {
         }
 
         return tb.selectField(getHeap(), receiver, new ApplTerm(field));
+    }
+
+    private Term buildFresh(DafnyTree tree) throws TermBuildException {
+        Term receiver = build(tree.getChild(0));
+
+        if(!receiver.getSort().isReferenceSort()) {
+            throw new TermBuildException("fresh can only be applied to objects, " +
+                    "not to " + receiver.getSort());
+        }
+
+        if (!Objects.equals(boundVars.get(OLD_HEAP_VAR.getName()), OLD_HEAP_VAR)) {
+            throw new TermBuildException("fresh-expression not allowed in single-state context");
+        }
+
+        return tb.fresh(OLD_HEAP_VAR, getHeap(), receiver);
     }
 
 
@@ -671,12 +809,14 @@ public class TreeTermTranslator {
         Sort sort = inner.getSort();
         switch (sort.getName()) {
         case "set":
-            function = BuiltinSymbols.CARD.instantiate(
+            function = symbolTable.getFunctionSymbol(
+                    BuiltinSymbols.CARD,
                     sort.getArguments().get(0));
             break;
 
         case "seq":
-            function = BuiltinSymbols.SEQ_LEN.instantiate(
+            function = symbolTable.getFunctionSymbol(
+                    BuiltinSymbols.SEQ_LEN,
                     sort.getArguments().get(0));
             break;
 
@@ -714,16 +854,13 @@ public class TreeTermTranslator {
     }
 
     // can be reused by set, seq and multiset
-    private Term buildExtension(FunctionSymbolFamily emptyFamily,
+    private Term buildExtension(FunctionSymbol empty,
                                 FunctionSymbolFamily addFamily,
                                 DafnyTree tree) throws TermBuildException {
 
-        assert tree.getChildCount() > 0 :
-                "Currently empty list and set are not supported via extensions";
-
-        Sort sort = null;
         List<Term> arguments = new ArrayList<>();
 
+        Sort sort = null;
         for (DafnyTree child : tree.getChildren()) {
             Term term = build(child);
             arguments.add(term);
@@ -731,20 +868,11 @@ public class TreeTermTranslator {
             if (sort == null) {
                 sort = termSort;
             } else {
-                if (!termSort.equals(sort)) {
-                    if (termSort.isClassSort() && sort.isClassSort()) {
-                        sort = Sort.OBJECT;
-                    } else {
-                        throw new TermBuildException(
-                                "List extension with incomparable types: " +
-                                        sort + " and " + termSort);
-                    }
-                }
+                sort = Sort.supremum(sort, termSort);
             }
         }
 
-        FunctionSymbol add = addFamily.instantiate(sort);
-        FunctionSymbol empty = emptyFamily.instantiate(sort);
+        FunctionSymbol add = symbolTable.getFunctionSymbol(addFamily, sort);
 
         ApplTerm result = new ApplTerm(empty);
         for (Term term : arguments) {
@@ -904,21 +1032,21 @@ public class TreeTermTranslator {
                 "limited support so far, we inline the comparison";
 
         Term result = tb.ff();
-        Term[] vars = new Term[rhs.getChildCount()];
-        Term[] terms = new Term[rhs.getChildCount()];
+        Term[] lower = new Term[rhs.getChildCount()];
+        Term[] upper = new Term[rhs.getChildCount()];
 
         for (int i = 0; i < rhs.getChildCount(); i++) {
-            vars[i] = build(lhs.getChild(i));
-            terms[i] = build(rhs.getChild(i));
+            lower[i] = build(lhs.getChild(i));
+            upper[i] = build(rhs.getChild(i));
 
             Term cond = tb.tt();
             for (int j = 0; j < i; j++) {
-                ApplTerm eq = tb.eq(terms[j], vars[j]);
+                ApplTerm eq = tb.eq(lower[j], upper[j]);
                 cond = tb.and(cond, eq);
             }
 
-            cond = tb.and(cond, tb.lessEqual(tb.zero, terms[i]));
-            cond = tb.and(cond, tb.less(terms[i], vars[i]));
+            cond = tb.and(cond, tb.lessEqual(tb.zero, lower[i]));
+            cond = tb.and(cond, tb.less(lower[i], upper[i]));
             result = tb.or(result, cond);
         }
 
@@ -951,11 +1079,20 @@ public class TreeTermTranslator {
 
     private Term buildOld(DafnyTree tree) throws TermBuildException {
 
+        Term oldHeap;
+        if (Objects.equals(boundVars.get(OLD_HEAP_VAR.getName()), OLD_HEAP_VAR)) {
+            oldHeap = OLD_HEAP_VAR;
+        } else if (symbolTable.getFunctionSymbol(OLD_HEAP_VAR.getName()) != null) {
+            oldHeap = new ApplTerm(symbolTable.getFunctionSymbol(OLD_HEAP_VAR.getName()));
+        } else {
+            throw new TermBuildException("old-expression not allowed in single-state context");
+        }
+
         boundVars.put(HEAP_VAR.getName(), HEAP_VAR);
         Term inner = build(tree.getChild(0));
         boundVars.pop();
 
-        return new LetTerm(HEAP_VAR, HEAP_VAR, inner);
+        return new LetTerm(HEAP_VAR, oldHeap, inner);
     }
 
 
@@ -984,14 +1121,18 @@ public class TreeTermTranslator {
         if(symbol == BuiltinSymbols.SELECT) {
             Term obj = location.getTerm(1);
             Term field = location.getTerm(2);
-            FunctionSymbol store = BuiltinSymbols.STORE.instantiate(obj.getSort(), location.getSort());
+            FunctionSymbol store =
+                symbolTable.getFunctionSymbol(
+                    BuiltinSymbols.STORE, obj.getSort(), location.getSort());
             return new ApplTerm(store, heap, obj, field, value);
 
         } else if(symbol == BuiltinSymbols.ARRAY_SELECT) {
             Term obj = location.getTerm(1);
             Term index = location.getTerm(2);
             // TODO make this right. ...
-            FunctionSymbol store = BuiltinSymbols.ARRAY_STORE.instantiate(obj.getSort().getArguments().get(0));
+            FunctionSymbol store =
+                symbolTable.getFunctionSymbol(
+                    BuiltinSymbols.ARRAY_STORE, obj.getSort().getArguments().get(0));
             return new ApplTerm(store, heap, obj, index, value);
 
         } else if(symbol == BuiltinSymbols.ARRAY2_SELECT) {
@@ -1012,9 +1153,14 @@ public class TreeTermTranslator {
      * have in the end.
      */
     private void expandMultiBlanks(DafnyTree args, int targetArity) {
+        int childCount = args.getChildCount();
+        if(childCount == 0) {
+            // nothing to be done!
+            return;
+        }
+
         DafnyTree first = args.getChild(0);
         DafnyTree last = args.getLastChild();
-        int childCount = args.getChildCount();
 
         if (first.getType() == DafnyParser.DOUBLE_BLANK) {
             CommonToken token = new CommonToken(first.getToken());

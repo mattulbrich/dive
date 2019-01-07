@@ -31,10 +31,12 @@ import edu.kit.iti.algover.script.ast.Expression;
  */
 //@Data
 //@AllArgsConstructor
-public class NotWelldefinedException extends Exception {
-    private final Expression expr;
 
-    public NotWelldefinedException(String message, Expression e) {
+public class NotWelldefinedException extends Exception {
+
+    private final Expression<?> expr;
+
+    public NotWelldefinedException(String message, Expression<?> e) {
         super(message);
         this.expr = e;
     }

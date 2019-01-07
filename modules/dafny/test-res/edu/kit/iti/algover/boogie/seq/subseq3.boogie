@@ -1,0 +1,9 @@
+### decls:
+a : seq<int>
+b : seq<int>
+
+### sequent:
+a.Length == 3 |- a[0 .. 3] == a
+
+### result:
+prove

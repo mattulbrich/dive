@@ -7,19 +7,23 @@ package edu.kit.iti.algover.term.builder;
 
 import static org.junit.Assert.assertEquals;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+import edu.kit.iti.algover.parser.DafnyException;
 import edu.kit.iti.algover.parser.DafnyParser;
+import edu.kit.iti.algover.parser.DafnyParserException;
+import edu.kit.iti.algover.proof.MethodPVCBuilder;
+import org.antlr.runtime.RecognitionException;
 import org.junit.Test;
 
 import edu.kit.iti.algover.ProgramDatabase;
 import edu.kit.iti.algover.dafnystructures.DafnyMethod;
 import edu.kit.iti.algover.data.BuiltinSymbols;
 import edu.kit.iti.algover.data.MapSymbolTable;
-import edu.kit.iti.algover.data.SuffixSymbolTable;
 import edu.kit.iti.algover.data.SymbolTable;
 import edu.kit.iti.algover.parser.DafnyTree;
 import edu.kit.iti.algover.parser.ParserTest;
@@ -73,19 +77,36 @@ public abstract class SequenterTest {
     protected abstract String expectedAntecedent(String pathIdentifier);
 
     protected SymbolTable makeTable(DafnyMethod method) {
-
-        Collection<FunctionSymbol> map = new ArrayList<>();
-
-        for (DafnyTree decl : ProgramDatabase.getAllVariableDeclarations(method.getRepresentation())) {
-            String name = decl.getChild(0).toString();
-            Sort sort = TreeUtil.toSort(decl.getFirstChildWithType(DafnyParser.TYPE).getChild(0));
-            map.add(new FunctionSymbol(name, sort));
-        }
-
-        map.add(new FunctionSymbol("$aheap_1", Sort.HEAP));
-
-        MapSymbolTable st = new MapSymbolTable(new BuiltinSymbols(), map);
-        return st;
+        return makeTable(method, TestUtil.emptyProject());
     }
+
+    protected SymbolTable makeTable(DafnyMethod method, Project project) {
+        MethodPVCBuilder builder = new MethodPVCBuilder(project);
+        builder.setDeclaration(method);
+        builder.setPathThroughProgram(new SymbexPath(method.getBody()));
+        SymbolTable table = builder.getSymbolTable();
+        table.addFunctionSymbol(new FunctionSymbol("$aheap_1", Sort.HEAP));
+        return table;
+    }
+
+    @Test
+    public void testOld() throws Exception {
+        Project p = TestUtil.mockProject("class C { var i:int; } " +
+                "method m(c:C) ensures c.i == old(c.i)+1 { c.i := c.i+1; }");
+        Symbex symbex = new Symbex();
+        DafnyMethod method = p.getMethod("m");
+        List<SymbexPath> results = symbex.symbolicExecution(method.getRepresentation());
+        assertEquals(4, results.size());
+        SymbexPath path = results.get(0);
+        assertEquals("Post", path.getPathIdentifier());
+
+        PVCSequenter sequenter = makeSequenter();
+        SymbolTable table = makeTable(method, p);
+        Sequent sequent = sequenter.translate(path, table, null);
+
+        checkSequentWithOld(table, sequent);
+    }
+
+    protected abstract void checkSequentWithOld(SymbolTable table, Sequent sequent) throws Exception;
 
 }

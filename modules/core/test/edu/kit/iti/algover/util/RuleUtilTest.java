@@ -48,7 +48,7 @@ public class RuleUtilTest {
     private final Sequent exampleSequent =
             new Sequent(
                     Arrays.asList(
-                            parse(0, "x + (let f := 3 :: y + (f + 3))"),
+                            parse(0, "x > (let f := 3 :: y + (f + 3))"),
                             parse(1, "x > (y - 5)"),
                             parse(2, "y - 5 == x")
                     ),

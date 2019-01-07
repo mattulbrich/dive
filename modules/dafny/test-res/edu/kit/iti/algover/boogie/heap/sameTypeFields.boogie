@@ -1,0 +1,36 @@
+### decls:
+d : D
+D$$f : field<D, int>
+D$$g : field<D, int>
+
+### project:
+class D { var f: int; var g: int; }
+
+### sequent:
+  |- d.f@$heap[d.g := 42] == d.f
+
+### result:
+prove
+
+### translation:
+const _$heap : Heap;
+const _d : ref;
+const unique TClass_D : Ty;
+const unique _D$$f : Field (int);
+const unique _D$$g : Field (int);
+
+axiom (forall x:ref :: $Is(x, TClass_D) <==> dtype(x) == TClass_D || x == null);
+axiom $Is(_$heap, THeap);
+axiom $Is(_d, TClass_D);
+axiom $Is(_D$$g, TField(TInt));
+axiom $Is(_D$$f, TField(TInt));
+
+procedure Sequent()
+  ensures false;
+{
+  assume !((read(update(_$heap, _d, _D$$g, 42), _d, _D$$f) == read(_$heap, _d, _D$$f)));
+}
+
+### comment:
+
+Revealed that field constants must be unique!

@@ -9,6 +9,7 @@
 
 package edu.kit.iti.algover.rules.impl;
 
+import edu.kit.iti.algover.dafnystructures.DafnyFunctionSymbol;
 import edu.kit.iti.algover.data.SymbolTable;
 import edu.kit.iti.algover.proof.PVC;
 import edu.kit.iti.algover.proof.ProofFormula;
@@ -19,11 +20,12 @@ import edu.kit.iti.algover.rules.ProofRuleApplication;
 import edu.kit.iti.algover.rules.ProofRuleApplication.Applicability;
 import edu.kit.iti.algover.rules.ProofRuleApplicationBuilder;
 import edu.kit.iti.algover.rules.RuleException;
-import edu.kit.iti.algover.rules.TermSelector;
+import edu.kit.iti.algover.smt.SExpr;
 import edu.kit.iti.algover.smt.SMTQuickNDirty;
 import edu.kit.iti.algover.term.FunctionSymbol;
 import edu.kit.iti.algover.term.Sequent;
 import edu.kit.iti.algover.term.Sort;
+import edu.kit.iti.algover.util.Util;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -69,9 +71,7 @@ public class Z3Rule extends AbstractProofRule {
     }
 
     private ProofRuleApplication refine(ProofNode target, ProofRuleApplication app) {
-        PVC pvc = target.getPVC();
-
-        if(quickAndDirty(target.getPVC().getIdentifier(), target.getSequent(), pvc.getSymbolTable())) {
+        if(quickAndDirty(target.getPVC().getIdentifier(), target.getSequent(), target.getAllSymbols())) {
             ProofRuleApplicationBuilder builder = new ProofRuleApplicationBuilder(app);
             builder.setApplicability(Applicability.APPLICABLE);
             builder.setRefiner(null);
@@ -87,9 +87,7 @@ public class Z3Rule extends AbstractProofRule {
 
     @Override
     public ProofRuleApplication makeApplicationImpl(ProofNode target, Parameters parameters) throws RuleException {
-        PVC pvc = target.getPVC();
-
-        if(quickAndDirty(target.getPVC().getIdentifier(), target.getSequent(), pvc.getSymbolTable())) {
+        if(quickAndDirty(target.getPVC().getIdentifier(), target.getSequent(), target.getAllSymbols())) {
             ProofRuleApplicationBuilder builder = new ProofRuleApplicationBuilder(this);
             builder.setApplicability(Applicability.APPLICABLE);
             builder.setRefiner(null);
@@ -122,16 +120,37 @@ public class Z3Rule extends AbstractProofRule {
                 if (fs.getResultSort().equals(Sort.HEAP) && fs.getArity() == 0) {
                     sb.append("(declare-const pv$" + fs.getName() + " (Array Int Int Int))\n");
                 }
+                if (fs instanceof DafnyFunctionSymbol) {
+                    DafnyFunctionSymbol dafnyFunctionSymbol = (DafnyFunctionSymbol) fs;
+                    if (!dafnyFunctionSymbol.getOrigin().isDeclaredInClass()
+                            && dafnyFunctionSymbol.getArgumentSorts().stream().
+                                 allMatch(x -> x.equals(Sort.INT) || x.equals(Sort.HEAP))
+                            && dafnyFunctionSymbol.getResultSort().equals(Sort.INT)) {
+                        sb.append("(declare-fun func" + fs.getName() + " ((Array Int Int Int)")
+                                .append(Util.duplicate(" Int", fs.getArity() - 1))
+                                .append(") Int)");
+                    }
+                }
             }
             for (ProofFormula proofFormula : sequent.getAntecedent()) {
-                sb.append("(assert ")
-                        .append(proofFormula.getTerm().accept(new SMTQuickNDirty(), null))
-                        .append(")\n");
+                try {
+                    SExpr trans = proofFormula.getTerm().accept(new SMTQuickNDirty(), null);
+                    sb.append("(assert ")
+                            .append(trans)
+                            .append(")\n");
+                } catch(UnsupportedOperationException ex) {
+                    sb.append("; unsupported (" + ex + "): " + proofFormula + "\n");
+                }
             }
             for (ProofFormula proofFormula : sequent.getSuccedent()) {
-                sb.append("(assert (not ")
-                        .append(proofFormula.getTerm().accept(new SMTQuickNDirty(), null))
-                        .append("))\n");
+                try {
+                    SExpr trans = proofFormula.getTerm().accept(new SMTQuickNDirty(), null);
+                    sb.append("(assert (not ")
+                            .append(trans)
+                            .append("))\n");
+                } catch(UnsupportedOperationException ex) {
+                    sb.append("; unsupported " + proofFormula + "\n");
+                }
             }
 
             sb.append("(check-sat)\n");

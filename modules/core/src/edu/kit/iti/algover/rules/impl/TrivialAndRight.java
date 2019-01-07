@@ -23,6 +23,9 @@ import edu.kit.iti.algover.term.ApplTerm;
 import edu.kit.iti.algover.term.FunctionSymbol;
 import edu.kit.iti.algover.term.Sequent;
 import edu.kit.iti.algover.term.Term;
+import edu.kit.iti.algover.term.match.Matching;
+import edu.kit.iti.algover.term.match.SequentMatcher;
+import edu.kit.iti.algover.util.ImmutableList;
 import edu.kit.iti.algover.util.Pair;
 import edu.kit.iti.algover.util.RuleUtil;
 
@@ -30,18 +33,6 @@ public class TrivialAndRight extends AbstractProofRule {
 
     public TrivialAndRight() {
         super(ON_PARAM);
-    }
-
-    private static Map<String, Class<?>> makeOptionalParameters() {
-        Map<String, Class<?>> result = new HashMap<>();
-        result.put("deep", Boolean.class);
-        return result;
-    }
-
-    private static Map<String, Class<?>> makeRequiredParameters() {
-        Map<String, Class<?>> result = new HashMap<>();
-        result.put("on", Term.class);
-        return result;
     }
 
     @Override
@@ -52,12 +43,8 @@ public class TrivialAndRight extends AbstractProofRule {
     @Override
     public ProofRuleApplication considerApplicationImpl(ProofNode target, Parameters parameters)
             throws RuleException {
-        Term on = parameters.getValue(ON_PARAM);
-        List<TermSelector> l = RuleUtil.matchSubtermsInSequent(on::equals, target.getSequent());
-        if(l.size() != 1) {
-            throw new RuleException("Machting of on parameter is ambiguous");
-        }
-        TermSelector selector = l.get(0);
+        TermSelector selector = parameters.getValue(ON_PARAM).getTermSelector();
+
         if (selector != null && !selector.isToplevel()) {
             return ProofRuleApplicationBuilder.notApplicable(this);
         }
@@ -85,7 +72,7 @@ public class TrivialAndRight extends AbstractProofRule {
 
     @Override
     public ProofRuleApplication makeApplicationImpl(ProofNode target, Parameters parameters) throws RuleException {
-        Term on = parameters.getValue(ON_PARAM);
+        Term on = parameters.getValue(ON_PARAM).getTerm();
         ProofRuleApplicationBuilder builder = new ProofRuleApplicationBuilder(this);
 
         if(!(on instanceof ApplTerm)) {

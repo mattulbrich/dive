@@ -3,6 +3,12 @@
          (var i_var (TYPE int))
          (var b_var (TYPE bool))
          (var c_var (TYPE C))
+         (var o_var (TYPE object))
+         (var a_var (TYPE (array int)))
+         (var seqC_var (TYPE (seq C)))
+         (var seqO_var (TYPE (seq object)))
+         (var setC_var (TYPE (set C)))
+         (var setO_var (TYPE (set object)))
          (:= i_var[int] 0[int])
          (:= i_var[int] (+ i_var[int] i_var[int])[int])
          (:= i_var[int] (* i_var[int] i_var[int])[int])
@@ -12,4 +18,9 @@
          (:= c_var[C] (FIELD_ACCESS this[C] cfield)[C])
          (:= c_var[C] (FIELD_ACCESS (FIELD_ACCESS this[C] cfield)[C] cfield)[C])
          (:= i_var[int] intfield[int])
-         (:= c_var[C] null[C])))[scc_0]
+         (:= c_var[C] null[null])
+         (:= o_var[object] c_var[C])
+         (:= o_var[object] null[null])
+         (:= o_var[object] a_var[array<int>])
+         (:= seqO_var[seq<object>] seqC_var[seq<C>])
+         (:= setO_var[set<object>] setC_var[set<C>])))[scc_0]

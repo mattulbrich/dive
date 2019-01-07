@@ -13,6 +13,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import edu.kit.iti.algover.data.SymbolTable;
+import edu.kit.iti.algover.proof.ProofFormula;
+import edu.kit.iti.algover.term.Term;
+import edu.kit.iti.algover.term.parser.TermParser;
 import org.junit.Ignore;
 import org.junit.Test;
 
@@ -37,7 +41,7 @@ public class InlineSequenterTest extends SequenterTest {
     }
 
     protected String expectedAntecedent(String string) {
-        return "[$gt(p, 0), $gt(p, 0)]";
+        return "[$gt(p, 0)]";
     }
 
     @Override
@@ -80,7 +84,14 @@ public class InlineSequenterTest extends SequenterTest {
         DafnyMethod method = (DafnyMethod) pvc.getDeclaration();
         Sequent sequent = sequenter.translate(path, makeTable(method), map);
 
-        assertEquals("[$le(i_1, n), $lt(i_1, n), $not($eq<int>(i_1, 5))] ==> [$le($plus(i_1, 1), n)]", sequent.toString());
+        assertEquals("$le(i_1, n), $lt(i_1, n), $not($eq<int>(i_1, 5)) |- $le($plus(i_1, 1), n)", sequent.toString());
 
+    }
+
+    protected void checkSequentWithOld(SymbolTable table, Sequent sequent) throws Exception {
+
+        Term expected = TermParser.parse(table, "c.i@$heap[c.i := c.i+1] == c.i + 1");
+
+        assertEquals(expected, sequent.getSuccedent().get(0).getTerm());
     }
 }

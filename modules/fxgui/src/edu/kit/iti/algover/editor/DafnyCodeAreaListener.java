@@ -5,5 +5,6 @@ package edu.kit.iti.algover.editor;
  */
 public interface DafnyCodeAreaListener {
     void saveSelectedFile();
+
     void saveAllFiles();
 }

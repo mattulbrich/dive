@@ -1,0 +1,17 @@
+### decls:
+s1: seq<int>
+### sequent:
+
+|-
+$gt($seq_len<int>($seq_upd<int>(s1,0,3)), $seq_len<int>(s1))
+
+### result:
+fail
+### OLD-translation:
+var _s1 : Seq int;
+
+procedure Sequent()
+  ensures false;
+{
+  assume !((Seq#Length(Seq#Update(_s1, 0, 3)) > Seq#Length(_s1)));
+}

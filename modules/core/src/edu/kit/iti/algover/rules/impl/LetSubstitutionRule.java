@@ -10,6 +10,9 @@ import edu.kit.iti.algover.rules.*;
 import edu.kit.iti.algover.term.LetTerm;
 import edu.kit.iti.algover.term.Sequent;
 import edu.kit.iti.algover.term.Term;
+import edu.kit.iti.algover.term.match.Matching;
+import edu.kit.iti.algover.term.match.SequentMatcher;
+import edu.kit.iti.algover.util.ImmutableList;
 import edu.kit.iti.algover.util.RuleUtil;
 import javafx.collections.ObservableList;
 
@@ -36,7 +39,6 @@ public class LetSubstitutionRule extends AbstractProofRule {
      */
     public LetSubstitutionRule() {
         super(ON_PARAM);
-        mayBeExhaustive = true;
     }
 
     @Override
@@ -46,11 +48,9 @@ public class LetSubstitutionRule extends AbstractProofRule {
 
     @Override
     public ProofRuleApplication considerApplicationImpl(ProofNode target, Parameters parameters) throws RuleException {
-        Term targetTerm = parameters.getValue(ON_PARAM);
-        List<TermSelector> l = RuleUtil.matchSubtermsInSequent(targetTerm::equals, target.getSequent());
-        if (l.size() != 1) {
-            return ProofRuleApplicationBuilder.notApplicable(this);
-        }
+        Term targetTerm = parameters.getValue(ON_PARAM).getTerm();
+        TermSelector selector = parameters.getValue(ON_PARAM).getTermSelector();
+
         if (!(targetTerm instanceof LetTerm)) {
             return ProofRuleApplicationBuilder.notApplicable(this);
         }
@@ -65,14 +65,14 @@ public class LetSubstitutionRule extends AbstractProofRule {
         ProofRuleApplicationBuilder builder = new ProofRuleApplicationBuilder(this);
         builder.setApplicability(ProofRuleApplication.Applicability.APPLICABLE);
         builder.newBranch()
-                .addReplacement(l.get(0), applyLetSubstitution(targetLet));
+                .addReplacement(selector, applyLetSubstitution(targetLet));
 
         return builder.build();
     }
 
     @Override
     public ProofRuleApplication makeApplicationImpl(ProofNode target, Parameters parameters) throws RuleException {
-        Term on = parameters.getValue(ON_PARAM);
+        Term on = parameters.getValue(ON_PARAM).getTerm();
 
         if (!(on instanceof LetTerm)) {
             throw new RuleException("Given term is not a let term");
@@ -83,7 +83,7 @@ public class LetSubstitutionRule extends AbstractProofRule {
         TermSelector selector = RuleUtil.matchSubtermInSequent(targetLet::equals, target.getSequent())
                 .orElseThrow(() -> new RuleException("Could not find 'on' term"));
 
-        ProofRuleApplicationBuilder builder = handleControlParameters(parameters, target.getSequent());
+        ProofRuleApplicationBuilder builder = new ProofRuleApplicationBuilder(this);
 
         builder.setApplicability(ProofRuleApplication.Applicability.APPLICABLE);
         builder.newBranch().addReplacement(selector, applyLetSubstitution(targetLet));
