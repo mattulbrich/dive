@@ -49,7 +49,7 @@ public class DafnyException extends Exception {
         return tree;
     }
 
-    @Override
+    /*@Override
     public String getMessage() {
         String result = "";
         if (tree != null) {
@@ -57,6 +57,6 @@ public class DafnyException extends Exception {
                     + ":" + tree.getCharPositionInLine() + super.getMessage();
         }
         return result;
-    }
+    }*/
 
 }
