@@ -9,6 +9,8 @@ import edu.kit.iti.algover.script.ScriptLanguageLexer;
 import edu.kit.iti.algover.script.parser.Facade;
 import edu.kit.iti.algover.util.AsyncHighlightingCodeArea;
 import javafx.application.Platform;
+import javafx.beans.property.SimpleObjectProperty;
+import javafx.collections.ObservableList;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.MenuItem;
 import org.antlr.runtime.ANTLRStringStream;
@@ -17,6 +19,7 @@ import org.antlr.v4.runtime.Token;
 import org.fxmisc.richtext.model.StyleSpan;
 import org.fxmisc.richtext.model.StyleSpans;
 import org.fxmisc.richtext.model.StyleSpansBuilder;
+import org.fxmisc.richtext.model.TwoDimensional;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
@@ -35,6 +38,10 @@ public class ScriptView extends AsyncHighlightingCodeArea {
 
     private final ScriptViewListener listener;
     private HighlightingRulev4 highlightingRule;
+
+    public GutterFactory getGutter() {
+        return gutter;
+    }
 
     private GutterFactory gutter;
 
@@ -59,6 +66,7 @@ public class ScriptView extends AsyncHighlightingCodeArea {
 
         gutter = new GutterFactory(this);
         this.setParagraphGraphicFactory(gutter);
+
         setupAsyncSyntaxhighlighting();
 
         textProperty().addListener((observable, oldValue, newValue) -> listener.onAsyncScriptTextChanged(newValue));
@@ -130,7 +138,7 @@ public class ScriptView extends AsyncHighlightingCodeArea {
             InputStream stream = new ByteArrayInputStream(text.getBytes(StandardCharsets.UTF_8));
             lexer = new ScriptLanguageLexer(CharStreams.fromStream(stream, StandardCharsets.UTF_8));
         } catch (Exception e) {
-            System.out.println("couldnt not render new highlighting.");
+            System.out.println("could not render new highlighting.");
         }
 
         if (lexer != null) {
@@ -150,9 +158,13 @@ public class ScriptView extends AsyncHighlightingCodeArea {
                 builder.create();
                 applyHighlighting(builder.create());
             } catch (IllegalStateException e) {
-                //This shouldnt be a problem since it only singlas that there are no spans
+                //This shouldnt be a problem since it only singles that there are no spans
             }
 
         }
+    }
+
+    public ObservableList<GutterAnnotation> getGutterAnnotations() {
+        return gutter.getAnnotations();
     }
 }

@@ -11,24 +11,17 @@ import edu.kit.iti.algover.script.exceptions.ScriptCommandNotApplicableException
 import edu.kit.iti.algover.script.parser.Facade;
 import edu.kit.iti.algover.script.parser.PrettyPrinter;
 import edu.kit.iti.algover.util.ExceptionDetails;
-import edu.kit.iti.algover.util.RuleApp;
 import javafx.beans.Observable;
-import javafx.concurrent.Task;
+import javafx.beans.property.SimpleObjectProperty;
+import javafx.collections.ObservableList;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyCodeCombination;
 import javafx.scene.input.KeyCombination;
 import javafx.scene.input.KeyEvent;
-import org.antlr.runtime.Token;
-import org.fxmisc.richtext.model.StyleSpans;
-
-import java.io.StringWriter;
-import java.time.Duration;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
 import java.util.concurrent.ExecutorService;
-import java.util.function.Consumer;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
@@ -38,8 +31,22 @@ public class ScriptController implements ScriptViewListener {
     private final ScriptView view;
     private final RuleApplicationListener listener;
     private ProofNodeSelector selectedNode = null;
-    Position insertPosition = new Position(0, 0);
+    private Position insertPosition = new Position(0, 0);
 
+
+    public Position getObservableInsertPosition() {
+        return observableInsertPosition.get();
+    }
+
+    public SimpleObjectProperty<Position> observableInsertPositionProperty() {
+        return observableInsertPosition;
+    }
+
+    public void setObservableInsertPosition(Position observableInsertPosition) {
+        this.observableInsertPosition.set(observableInsertPosition);
+    }
+
+    private SimpleObjectProperty<Position> observableInsertPosition = new SimpleObjectProperty<Position>(insertPosition);
     private Proof proof;
     private List<ProofNodeCheckpoint> checkpoints;
 
@@ -51,8 +58,22 @@ public class ScriptController implements ScriptViewListener {
         this.listener = listener;
         this.highlightingRules = new LayeredHighlightingRulev4(2);
         view.setHighlightingRule(this.highlightingRules);
-
         view.caretPositionProperty().addListener(this::onCaretPositionChanged);
+        view.getGutterAnnotations().get(0).setInsertMarker(true);
+        observableInsertPosition.addListener(this::onInsertPositionChanged);
+
+    }
+
+
+    private void onInsertPositionChanged(Observable observable) {
+        ObservableList<GutterAnnotation> annotations = view.getGutterAnnotations();
+        annotations.forEach(gutterAnnotation -> {
+            gutterAnnotation.setInsertMarker(false);
+        });
+        if (observableInsertPositionProperty().get().getLineNumber() == 0)
+            view.getGutter().getLineAnnotation(0).setInsertMarker(true);
+        else
+            view.getGutter().getLineAnnotation(observableInsertPositionProperty().get().getLineNumber()-1).setInsertMarker(true);
     }
 
     private void handleShortcuts(KeyEvent keyEvent) {
@@ -74,6 +95,7 @@ public class ScriptController implements ScriptViewListener {
         Position caretPosition = computePositionFromCharIdx(view.getCaretPosition(), view.getText());
         ProofNodeCheckpoint checkpoint = getCheckpointForCaretPosition(caretPosition);
         insertPosition = checkpoint.caretPosition;
+        observableInsertPosition.set(insertPosition);
         this.checkpoints = ProofNodeCheckpointsBuilder.build(proof);
         switchViewedNode();
         view.highlightLine();
@@ -175,8 +197,6 @@ public class ScriptController implements ScriptViewListener {
         ps.accept(pp);
 
         view.replaceText(pp.toString());
-        //System.out.println("pp.toString() = " + pp.toString());
-
         proof.setScriptTextAndInterpret(pp.toString());
 
         if(proof.getFailException() != null) {
@@ -185,7 +205,9 @@ public class ScriptController implements ScriptViewListener {
             proof.getFailException().printStackTrace();
         }
         checkpoints = ProofNodeCheckpointsBuilder.build(proof);
+
         insertPosition = oldInsertPos;
+        setObservableInsertPosition(insertPosition);
         switchViewedNode();
     }
 
@@ -195,6 +217,7 @@ public class ScriptController implements ScriptViewListener {
 
     public void insertTextForSelectedNode(String text) {
         int insertAt = computeCharIdxFromPosition(insertPosition, view.getText());
+        view.moveTo(insertAt);
         view.insertText(insertAt, text);
         runScript();
     }
@@ -226,6 +249,7 @@ public class ScriptController implements ScriptViewListener {
                 List<ProofNodeCheckpoint> potCheckpoints = checkpoints.stream().filter(ch -> ch.selector.equals(proofNodeSelector)).collect(Collectors.toList());
                 if (potCheckpoints.size() > 0) {
                     insertPosition = potCheckpoints.get(potCheckpoints.size() - 1).caretPosition;
+                    setObservableInsertPosition(insertPosition);
                     //switchViewedNode();
                 }
             }

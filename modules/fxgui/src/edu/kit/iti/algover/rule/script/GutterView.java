@@ -18,6 +18,8 @@ public class GutterView extends HBox {
 
     private MaterialDesignIconView iconSkippedSave = new MaterialDesignIconView(MaterialDesignIcon.ALERT);
 
+    private MaterialDesignIconView iconProofCommandPosition = new MaterialDesignIconView(MaterialDesignIcon.FORMAT_TEXTDIRECTION_L_TO_R);
+
     public Label getLineNumber() {
         return lineNumber;
     }
@@ -31,15 +33,12 @@ public class GutterView extends HBox {
     public GutterView(GutterAnnotation ga) {
         annotation.addListener((o, old, nv) -> {
             if (old != null) {
-                old.breakpointProperty().removeListener(this::update);
-                old.breakpointConditionProperty().removeListener(this::update);
+                old.insertMarkerProperty().removeListener(this::update);
+              //  old.textInsertPosProperty().removeListener(this::update);
                 lineNumber.textProperty().unbind();
             }
-
-            nv.breakpointProperty().addListener(this::update);
-            nv.breakpointProperty().addListener(this::update);
-            nv.conditionalProperty().addListener(this::update);
-
+            nv.insertMarkerProperty().addListener(this::update);
+           // nv.textInsertPosProperty().addListener(this::update);
             lineNumber.textProperty().bind(nv.textProperty());
 
             update(null);
@@ -50,14 +49,11 @@ public class GutterView extends HBox {
     public void update(Observable o) {
         getChildren().setAll(lineNumber);
         addPlaceholder();
-        if (getAnnotation().isAlert()) getChildren().add(iconSkippedSave);
-        else addPlaceholder();
-        if (getAnnotation().isBreakpoint())
-            getChildren().add(getAnnotation().getConditional()
-                    ? iconConditionalBreakPoint
-                    : iconStateHandle);
+        if(getAnnotation().isInsertMarker())
+            getChildren().add(iconProofCommandPosition);
         else
             addPlaceholder();
+
     }
 
     public GutterAnnotation getAnnotation() {

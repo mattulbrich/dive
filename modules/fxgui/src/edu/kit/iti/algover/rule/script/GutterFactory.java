@@ -1,6 +1,9 @@
 package edu.kit.iti.algover.rule.script;
 
+import edu.kit.iti.algover.script.ast.Position;
 import javafx.beans.property.SimpleListProperty;
+import javafx.beans.property.SimpleStringProperty;
+import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
@@ -42,6 +45,7 @@ public class GutterFactory implements IntFunction<Node> {
     private ObservableList<GutterAnnotation> lineAnnotations =
             new SimpleListProperty<>(FXCollections.observableArrayList());
 
+
     public GutterFactory(CodeArea codeArea) {
         nParagraphs = LiveList.sizeOf(codeArea.getParagraphs());
         for (int i = 0; i < 100; i++) {
@@ -57,16 +61,18 @@ public class GutterFactory implements IntFunction<Node> {
             }
         });
 
-    }
 
+    }
 
     @Override
     public Node apply(int idx) {
         if (idx == -1) return new Label("idx is -1!"); //TODO weigl debug
         Val<String> formatted = nParagraphs.map(n -> format(idx + 1, n));
         GutterAnnotation model = getLineAnnotation(idx);
+        model.setLineNumber(idx);
         GutterView hbox = new GutterView(model);
         model.textProperty().bind(formatted);
+
 
 
 //TODO Action goes here
@@ -99,4 +105,7 @@ public class GutterFactory implements IntFunction<Node> {
         return lineAnnotations.get(idx);
     }
 
+    public ObservableList<GutterAnnotation> getAnnotations() {
+        return this.lineAnnotations;
+    }
 }

@@ -1,10 +1,8 @@
 package edu.kit.iti.algover.rule.script;
 
+import edu.kit.iti.algover.script.ast.Position;
 import javafx.beans.binding.BooleanBinding;
-import javafx.beans.property.BooleanProperty;
-import javafx.beans.property.SimpleBooleanProperty;
-import javafx.beans.property.SimpleStringProperty;
-import javafx.beans.property.StringProperty;
+import javafx.beans.property.*;
 
 /**
  * Properties for the annotations for the scriptview gutter
@@ -12,29 +10,33 @@ import javafx.beans.property.StringProperty;
  */
 public class GutterAnnotation {
 
-        private StringProperty text = new SimpleStringProperty();
+    public void setLineNumber(int lineNumber) {
+        this.lineNumber = lineNumber;
+    }
 
-        private SimpleBooleanProperty breakpoint = new SimpleBooleanProperty();
+    private int lineNumber;
 
-        private StringProperty breakpointCondition = new SimpleStringProperty();
+    public int getLineNumber() {
+        return lineNumber;
+    }
 
-        private BooleanBinding conditional = breakpointCondition.isNotNull().and(breakpointCondition.isNotEmpty());
+    private StringProperty text = new SimpleStringProperty();
+
+    private SimpleBooleanProperty insertMarker = new SimpleBooleanProperty(false, "Marker for insertion");
 
 
-        //for now specifically for skipped saved commands
-        private SimpleBooleanProperty alert = new SimpleBooleanProperty();
+    public boolean isInsertMarker() {
+        return insertMarker.get();
+    }
 
-        public boolean isAlert() {
-            return alert.get();
-        }
+    public SimpleBooleanProperty insertMarkerProperty() {
+        return insertMarker;
+    }
 
-        public void setAlert(boolean alert) {
-            this.alert.set(alert);
-        }
+    public void setInsertMarker(boolean insertMarker) {
+        this.insertMarker.set(insertMarker);
+    }
 
-        public SimpleBooleanProperty alertProperty() {
-            return alert;
-        }
 
         public String getText() {
             return text.get();
@@ -48,6 +50,33 @@ public class GutterAnnotation {
             return text;
         }
 
+    // private SimpleBooleanProperty breakpoint = new SimpleBooleanProperty();
+
+    // private StringProperty breakpointCondition = new SimpleStringProperty();
+
+    // private BooleanBinding conditional = breakpointCondition.isNotNull().and(breakpointCondition.isNotEmpty());
+
+
+    //for now specifically for skipped saved commands
+//        private SimpleBooleanProperty alert = new SimpleBooleanProperty();
+
+/*        public boolean isAlert() {
+            return alert.get();
+        }
+
+        public void setAlert(boolean alert) {
+            this.alert.set(alert);
+        }
+
+        public SimpleBooleanProperty alertProperty() {
+            return alert;
+        }
+*/
+
+
+
+
+/*
         public boolean isBreakpoint() {
             return breakpoint.get();
         }
@@ -80,4 +109,5 @@ public class GutterAnnotation {
             return conditional;
         }
 
+*/
 }
