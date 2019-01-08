@@ -25,6 +25,7 @@ import java.util.function.IntFunction;
 /**
  * Factory for the gutter in the script view
  * @author A.Weigl (PSDBG)
+ * @author S. Grebing (adapted)
  */
 public class GutterFactory implements IntFunction<Node> {
 

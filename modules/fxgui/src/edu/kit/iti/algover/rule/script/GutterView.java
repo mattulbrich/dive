@@ -12,13 +12,17 @@ public class GutterView extends HBox {
     private final SimpleObjectProperty<GutterAnnotation> annotation = new SimpleObjectProperty<>();
 
 
-    private MaterialDesignIconView iconStateHandle = new MaterialDesignIconView(MaterialDesignIcon.CLOSE_CIRCLE_OUTLINE);
+    /*private MaterialDesignIconView iconStateHandle = new MaterialDesignIconView(MaterialDesignIcon.CLOSE_CIRCLE_OUTLINE);
 
     private MaterialDesignIconView iconConditionalBreakPoint = new MaterialDesignIconView(MaterialDesignIcon.CHECK);
 
     private MaterialDesignIconView iconSkippedSave = new MaterialDesignIconView(MaterialDesignIcon.ALERT);
-
+*/
     private MaterialDesignIconView iconProofCommandPosition = new MaterialDesignIconView(MaterialDesignIcon.FORMAT_TEXTDIRECTION_L_TO_R);
+
+    private MaterialDesignIconView iconProofNodeSelected = new MaterialDesignIconView(MaterialDesignIcon.ADJUST);
+
+    private MaterialDesignIconView iconProofNodeUnSelected = new MaterialDesignIconView(MaterialDesignIcon.PANORAMA_FISHEYE);
 
     public Label getLineNumber() {
         return lineNumber;
@@ -34,11 +38,13 @@ public class GutterView extends HBox {
         annotation.addListener((o, old, nv) -> {
             if (old != null) {
                 old.insertMarkerProperty().removeListener(this::update);
+                old.proofNodeIsSelectedProperty().removeListener(this::update);
               //  old.textInsertPosProperty().removeListener(this::update);
                 lineNumber.textProperty().unbind();
             }
             nv.insertMarkerProperty().addListener(this::update);
-           // nv.textInsertPosProperty().addListener(this::update);
+            nv.proofNodeIsSelectedProperty().addListener(this::update);
+            // nv.textInsertPosProperty().addListener(this::update);
             lineNumber.textProperty().bind(nv.textProperty());
 
             update(null);
@@ -48,7 +54,15 @@ public class GutterView extends HBox {
 
     public void update(Observable o) {
         getChildren().setAll(lineNumber);
-        addPlaceholder();
+        if(getAnnotation().isProofNodeIsSet()){
+            if(getAnnotation().isProofNodeIsSelected())
+                getChildren().add(iconProofNodeSelected);
+            else
+                getChildren().add(iconProofNodeUnSelected);
+        }
+        else {
+            addPlaceholder();
+        }
         if(getAnnotation().isInsertMarker())
             getChildren().add(iconProofCommandPosition);
         else

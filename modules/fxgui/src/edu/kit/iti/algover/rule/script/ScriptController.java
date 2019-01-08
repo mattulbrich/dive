@@ -60,6 +60,7 @@ public class ScriptController implements ScriptViewListener {
         view.setHighlightingRule(this.highlightingRules);
         view.caretPositionProperty().addListener(this::onCaretPositionChanged);
         view.getGutterAnnotations().get(0).setInsertMarker(true);
+        view.getGutterAnnotations().get(0).setProofNode(new ProofNodeSelector());
         observableInsertPosition.addListener(this::onInsertPositionChanged);
 
     }
@@ -97,8 +98,15 @@ public class ScriptController implements ScriptViewListener {
         insertPosition = checkpoint.caretPosition;
         observableInsertPosition.set(insertPosition);
         this.checkpoints = ProofNodeCheckpointsBuilder.build(proof);
+        createVisualSelectors(this.checkpoints);
+        showSelectedSelector(checkpoint);
         switchViewedNode();
         view.highlightLine();
+    }
+
+    private void showSelectedSelector(ProofNodeCheckpoint checkpoint) {
+        view.getGutterAnnotations().forEach(gutterAnnotation -> gutterAnnotation.setProofNodeIsSelected(false));
+        view.getGutterAnnotations().get(checkpoint.position.getLineNumber()).setProofNodeIsSelected(true);
     }
 
 
@@ -119,6 +127,8 @@ public class ScriptController implements ScriptViewListener {
         }
 
         this.listener.onSwitchViewedNode(checkpoint.selector);
+        showSelectedSelector(checkpoint);
+
     }
 
     private ProofNodeCheckpoint getCheckpointForCaretPosition(Position caretPosition) {
@@ -205,10 +215,25 @@ public class ScriptController implements ScriptViewListener {
             proof.getFailException().printStackTrace();
         }
         checkpoints = ProofNodeCheckpointsBuilder.build(proof);
-
         insertPosition = oldInsertPos;
         setObservableInsertPosition(insertPosition);
+        createVisualSelectors(checkpoints);
+
         switchViewedNode();
+    }
+
+    private void createVisualSelectors(List<ProofNodeCheckpoint> checkpoints) {
+        for (ProofNodeCheckpoint checkpoint : this.checkpoints) {
+            int checkpointline = checkpoint.position.getLineNumber();
+            if(checkpointline < view.getGutterAnnotations().size()) {
+                view.getGutterAnnotations().get(checkpointline).setProofNode(checkpoint.selector);
+                view.getGutterAnnotations().get(checkpointline).setProofNodeIsSelected(false);
+            } else {
+                view.getGutter().getLineAnnotation(checkpointline).setLineNumber(checkpointline);
+                view.getGutterAnnotations().get(checkpointline).setProofNode(checkpoint.selector);
+                view.getGutterAnnotations().get(checkpointline).setProofNodeIsSelected(false);
+            }
+        }
     }
 
     public ScriptView getView() {
@@ -250,6 +275,7 @@ public class ScriptController implements ScriptViewListener {
                 if (potCheckpoints.size() > 0) {
                     insertPosition = potCheckpoints.get(potCheckpoints.size() - 1).caretPosition;
                     setObservableInsertPosition(insertPosition);
+
                     //switchViewedNode();
                 }
             }
