@@ -30,7 +30,7 @@
 	</target>
 
 	<target name="compile" description="Compile all files" depends="init">
-		<javac destdir="bin" classpath="${dir.core.bin}:${libs}" debug="on">
+		<javac destdir="bin" classpath="${dir.core.bin}:${libs}" debug="on" nowarn="false">
 			<compilerarg value="-Werror"/>
 			<compilerarg value="-Xlint:unchecked"/>
 			<compilerarg value="-Xlint:rawtypes"/>

@@ -33,11 +33,7 @@ import edu.kit.iti.algover.script.parser.Visitor;
  * @author Alexander Weigl
  * @version 1 (28.04.17)
  */
-
-// REVIEW: Add the missing generic parameters! Please!
-
-@SuppressWarnings({"unchecked", "rawtypes"})
-public class MatchExpression extends Expression<ScriptLanguageParser.MatchPatternContext> {
+public class MatchExpression extends Expression {
     private Signature signature = new Signature();
     private Expression pattern;
     private boolean isDerivable;

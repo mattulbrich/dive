@@ -16,7 +16,7 @@ public interface ScopeObservable {
      * If new Block is entered, a new state has to be created
      * (copy of current state) and pushed to the stack
      */
-    default <T extends ParserRuleContext> void enterScope(ASTNode<T> node) {
+    default  void enterScope(ASTNode node) {
 
         callListeners(getEntryListeners(), node);
     }
@@ -25,7 +25,7 @@ public interface ScopeObservable {
      * If block is extied the top state on the
      * stack has to be removed
      */
-    default <T extends ParserRuleContext> void exitScope(ASTNode<T> node) {
+    default  void exitScope(ASTNode node) {
         callListeners(getExitListeners(), node);
     }
 
@@ -33,7 +33,7 @@ public interface ScopeObservable {
 
     List<Visitor<?>> getEntryListeners();
 
-    default <T extends ParserRuleContext> void callListeners(List<Visitor<?>> listeners, ASTNode<T> node) {
+    default  void callListeners(List<Visitor<?>> listeners, ASTNode node) {
         if (listeners.size() != 0) {
             listeners.forEach(node::accept);
         }

@@ -41,7 +41,7 @@ import java.util.List;
 
 // REVIEW: Add the missing generic parameters! Please!
 
-@SuppressWarnings({"unchecked", "rawtypes"})
+//@SuppressWarnings({"unchecked", "rawtypes"})
 public class TransformAst implements ScriptLanguageVisitor<Object> {
     //private List<ProofScript> scripts = new ArrayList<>(10);
 
@@ -261,6 +261,12 @@ public class TransformAst implements ScriptLanguageVisitor<Object> {
 
     @Override
     public Object visitLiteralTerm(ScriptLanguageParser.LiteralTermContext ctx) {
+        return new TermLiteral(ctx.getText());
+    }
+
+    //TODO create class
+    @Override
+    public Object visitMatchTermLiteral(ScriptLanguageParser.MatchTermLiteralContext ctx) {
         return new TermLiteral(ctx.getText());
     }
 

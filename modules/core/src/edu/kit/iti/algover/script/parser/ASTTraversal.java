@@ -87,7 +87,7 @@ public interface ASTTraversal<T> extends Visitor<T> {
 
     @Override
     default T visit(Statements statements) {
-        for (Statement<?> statement : statements) {
+        for (Statement statement : statements) {
             statement.accept(this);
         }
         return null;
@@ -115,7 +115,7 @@ public interface ASTTraversal<T> extends Visitor<T> {
 
     @Override
     default T visit(CallStatement call) {
-        for (Expression<?> e : call.getParameters().values()) {
+        for (Expression e : call.getParameters().values()) {
             e.accept(this);
         }
         return null;

@@ -38,7 +38,7 @@ import java.util.function.Function;
  * @author Alexander Weigl
  * @version 1 (29.04.17)
  */
-public class Signature extends ASTNode<ScriptLanguageParser.ArgListContext> implements Map<Variable, Type> {
+public class Signature extends ASTNode implements Map<Variable, Type> {
     private final Map<Variable, Type> sig = new LinkedHashMap<>();
 
     @Override

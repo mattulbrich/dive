@@ -137,8 +137,8 @@ public class ProofNodeCheckpointsBuilder extends DefaultASTVisitor<Void> {
         }
     }
 
-    private <T extends ParserRuleContext> boolean rlyContains(List<ASTNode<T>> l, ASTNode<T> n) {
-        for(ASTNode<T> n1 : l) {
+    private  boolean rlyContains(List<ASTNode> l, ASTNode n) {
+        for(ASTNode n1 : l) {
             if(n == n1) return true;
         }
         return false;
