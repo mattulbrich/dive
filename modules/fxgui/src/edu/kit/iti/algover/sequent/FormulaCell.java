@@ -1,14 +1,11 @@
 package edu.kit.iti.algover.sequent;
 
-import edu.kit.iti.algover.rules.SubtermSelector;
 import edu.kit.iti.algover.rules.TermSelector;
 import edu.kit.iti.algover.sequent.formulas.*;
 import edu.kit.iti.algover.term.prettyprint.AnnotatedString;
 import edu.kit.iti.algover.util.SubSelection;
 import javafx.css.PseudoClass;
 import javafx.scene.control.ListCell;
-
-import java.util.List;
 
 /**
  * Created by Philipp on 22.07.2017.
@@ -56,8 +53,13 @@ public class FormulaCell extends ListCell<TopLevelFormula> {
             }
 
             @Override
-            public BasicFormulaView visitAddedOrDeletedFormula(AddedOrDeletedFormula formula) {
+            public BasicFormulaView visitDeletedFormula(DeletedFormula formula) {
                 return new BasicFormulaView(formula, mouseOverTerm);
+            }
+
+            @Override
+            public BasicFormulaView visitAddedFormula(AddedFormula formula) {
+                return new OriginalFormulaView(formula, polarity, referenceSelection, lastClickedTerm, mouseOverTerm);
             }
 
             @Override
@@ -84,9 +86,17 @@ public class FormulaCell extends ListCell<TopLevelFormula> {
             }
 
             @Override
-            public Void visitAddedOrDeletedFormula(AddedOrDeletedFormula formula) {
-                FormulaCell.this.pseudoClassStateChanged(PC_ADDED, formula.getType() == AddedOrDeletedFormula.Type.ADDED);
-                FormulaCell.this.pseudoClassStateChanged(PC_DELETED, formula.getType() == AddedOrDeletedFormula.Type.DELETED);
+            public Void visitAddedFormula(AddedFormula formula) {
+                FormulaCell.this.pseudoClassStateChanged(PC_ADDED, true);
+                FormulaCell.this.pseudoClassStateChanged(PC_DELETED, false);
+                FormulaCell.this.pseudoClassStateChanged(PC_MODIFIED, false);
+                return null;
+            }
+
+            @Override
+            public Void visitDeletedFormula(DeletedFormula formula) {
+                FormulaCell.this.pseudoClassStateChanged(PC_ADDED, false);
+                FormulaCell.this.pseudoClassStateChanged(PC_DELETED, true);
                 FormulaCell.this.pseudoClassStateChanged(PC_MODIFIED, false);
                 return null;
             }
