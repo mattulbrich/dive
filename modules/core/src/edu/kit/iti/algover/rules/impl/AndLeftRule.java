@@ -20,6 +20,7 @@ import java.util.List;
 public class AndLeftRule extends AbstractProofRule {
     public AndLeftRule() {
         super(ON_PARAM);
+        mayBeExhaustive = true;
     }
 
     @Override

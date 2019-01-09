@@ -4,6 +4,7 @@ import com.jfoenix.controls.JFXButton;
 import de.jensd.fx.glyphs.GlyphsDude;
 import de.jensd.fx.glyphs.materialicons.MaterialIcon;
 import edu.kit.iti.algover.rules.*;
+import edu.kit.iti.algover.rules.impl.ExhaustiveRule;
 import edu.kit.iti.algover.term.prettyprint.PrettyPrint;
 import edu.kit.iti.algover.util.RuleParameterDialog;
 import javafx.css.PseudoClass;
@@ -22,6 +23,7 @@ public class RuleViewOverlay extends AnchorPane {
     private static final PseudoClass PC_NON_SPLITTING = PseudoClass.getPseudoClass("non-splitting");
 
     private ProofRuleApplication application;
+    private ProofRuleApplication exApplication;
     private TermSelector selector;
 
     private final Label branchCount;
@@ -30,8 +32,9 @@ public class RuleViewOverlay extends AnchorPane {
     private final JFXButton applyExButton;
     private final RuleApplicationListener listener;
 
-    public RuleViewOverlay(ProofRuleApplication application, RuleApplicationListener listener, TermSelector selector) {
+    public RuleViewOverlay(ProofRuleApplication application, ProofRuleApplication exApplication, RuleApplicationListener listener, TermSelector selector) {
         this.application = application;
+        this.exApplication = exApplication;
         this.selector = selector;
         this.listener = listener;
 
@@ -48,7 +51,7 @@ public class RuleViewOverlay extends AnchorPane {
 
         applyExButton = new JFXButton("Apply Exh.");
         applyExButton.getStyleClass().add("applyEx");
-        applyExButton.setDisable(application.getApplicability() != ProofRuleApplication.Applicability.APPLICABLE);
+        applyExButton.setDisable(exApplication.getApplicability() != ProofRuleApplication.Applicability.APPLICABLE);
         applyExButton.setOnAction(actionEvent -> {
             listener.onRuleExApplication(this.application.getRule(), selector);
         });

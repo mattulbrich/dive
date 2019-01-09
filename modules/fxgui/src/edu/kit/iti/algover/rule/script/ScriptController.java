@@ -68,6 +68,7 @@ public class ScriptController implements ScriptViewListener {
 
         view.replaceText(proof.getScript());
         view.getUndoManager().forgetHistory();
+        runScript();
     }
 
     private void onCaretPositionChanged(Observable observable) {
@@ -130,6 +131,8 @@ public class ScriptController implements ScriptViewListener {
 
     private int computeCharIdxFromPosition(Position position, String text) {
         int charIdx = 0;
+        if(text == "") return 0;
+        if(!text.contains("\n")) return text.length() - 1;
         for (int i = 0; i < position.getLineNumber() - 1; ++i) {
             charIdx += text.substring(0, text.indexOf('\n')).length() + 1;
             text = text.substring(text.indexOf('\n') + 1);
