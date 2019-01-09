@@ -245,6 +245,8 @@ public class SequentController extends FxmlController {
     private List<TopLevelFormula> calculateAssertions(List<ProofFormula> proofFormulas, TermSelector.SequentPolarity polarity, BranchInfo branchInfo) {
         ArrayList<TopLevelFormula> formulas = new ArrayList<>(proofFormulas.size());
 
+        int deletedFormulas = 0;
+
         // Render original, modified and deleted proof formulas
         formulaLoop:
         for (int i = 0; i < proofFormulas.size(); i++) {
@@ -283,6 +285,7 @@ public class SequentController extends FxmlController {
                 for (ProofFormula deleted : deletions) {
                     if (proofFormulas.get(i).getTerm().equals(deleted.getTerm())) {
                         formulas.add(new DeletedFormula(deleted.getTerm()));
+                        deletedFormulas++;
                         continue formulaLoop;
                     }
                 }
@@ -297,7 +300,7 @@ public class SequentController extends FxmlController {
                     : branchInfo.getAdditions().getSuccedent();
 
             for (ProofFormula addition : additions) {
-                formulas.add(new AddedFormula(formulas.size(), addition.getTerm()));
+                formulas.add(new AddedFormula(formulas.size() - deletedFormulas, addition.getTerm()));
             }
         }
         return formulas;
