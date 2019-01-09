@@ -49,6 +49,7 @@ public class RuleViewOverlay extends AnchorPane {
         applyExButton = new JFXButton("Apply Exh.");
         applyExButton.getStyleClass().add("applyEx");
         applyExButton.setDisable(application.getApplicability() != ProofRuleApplication.Applicability.APPLICABLE);
+        //TODO use the created exhaustive application instead of creating it again
         applyExButton.setOnAction(actionEvent -> {
             listener.onRuleExApplication(this.application.getRule(), selector);
         });

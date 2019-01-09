@@ -194,8 +194,12 @@ public class ScriptController implements ScriptViewListener {
     }
 
     public void insertTextForSelectedNode(String text) {
-        int insertAt = computeCharIdxFromPosition(insertPosition, view.getText());
-        view.insertText(insertAt, text);
+        if(view.getText().equals("")) {
+            view.insertText(0, text);
+        } else {
+            int insertAt = computeCharIdxFromPosition(insertPosition, view.getText());
+            view.insertText(insertAt, text);
+        }
         runScript();
     }
 
