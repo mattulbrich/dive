@@ -11,6 +11,7 @@ import edu.kit.iti.algover.project.Project;
 import edu.kit.iti.algover.util.HistoryMap;
 import edu.kit.iti.algover.util.TreeUtil;
 import nonnull.NonNull;
+import org.antlr.runtime.tree.Tree;
 
 import java.util.HashMap;
 import java.util.List;
@@ -271,6 +272,19 @@ public class ReferenceResolutionVisitor
                 callID.setDeclarationReference(callable);
             }
         }
+
+        // make sure that methods are not used in expressions.
+        DafnyTree declaration = callID.getDeclarationReference();
+        if(declaration != null && declaration.getType() == DafnyParser.METHOD) {
+            Tree parent = t.getParent();
+            if (parent.getType() != DafnyParser.BLOCK
+                    && parent.getType() != DafnyParser.ASSIGN
+                    && parent.getType() != DafnyParser.VAR) {
+                // assign and var have it is the last element ensured by parser.
+                addException(new DafnyException("Method calls must not be used in expressions", t));
+            }
+        }
+
 
         // do not revisit the name.
         for (DafnyTree arg : t.getFirstChildWithType(DafnyParser.ARGS).getChildren()) {
