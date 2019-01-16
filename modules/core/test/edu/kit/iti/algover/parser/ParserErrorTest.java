@@ -176,6 +176,30 @@ public class ParserErrorTest {
         parse("method m() modifies x modifies x {}");
     }
 
+    // used to go through
+    @Test
+    public void methodInExpression() throws Exception {
+        thrown.expect(DafnyException.class);
+        thrown.expectMessage("Method calls must not be used in expressions");
+        parse("method m() returns (r:int) { var x := m() + m(); }");
+    }
+
+    // used to produce a NPE
+    @Test
+    public void assigningAVoidMethodInVar() throws Exception {
+        thrown.expect(DafnyException.class);
+        thrown.expectMessage("Using the result of a method without return value");
+        parse("method m() { var x := m(); }");
+    }
+
+    // used to produce a NPE
+    @Test
+    public void assigningAVoidMethod() throws Exception {
+        thrown.expect(DafnyException.class);
+        thrown.expectMessage("Using the result of a method without return value");
+        parse("method m() { var x: int; x := m(); }");
+    }
+
     private void parse(String program) throws Exception {
         TestUtil.mockProject(program);
     }

@@ -124,6 +124,10 @@ public class TypeResolution extends DafnyTreeDefaultVisitor<DafnyTree, Void> {
         if(tree.getLastChild().getType() != DafnyParser.TYPE) {
             // this is a variable declaration with assignment ...
             DafnyTree ty = tree.getLastChild().accept(this, null);
+            if(ty == null) {
+                exceptions.add(new DafnyException("Using the result of a method without return value", tree));
+                ty = ASTUtil.fromSort(Sort.UNTYPED_SORT);
+            }
             DafnyTree explicitType = tree.getFirstChildWithType(DafnyParser.TYPE);
             if (explicitType != null) {
                 Sort tyLHS = TreeUtil.toSort(explicitType.getChild(0));
@@ -726,7 +730,12 @@ public class TypeResolution extends DafnyTreeDefaultVisitor<DafnyTree, Void> {
             s1 = ASTUtil.toSort(ASTUtil.listExpr(types));
         }
 
-        Sort s2 = ASTUtil.toSort(t.getLastChild().getExpressionType());
+        DafnyTree ty = t.getLastChild().getExpressionType();
+        if(ty == null) {
+            exceptions.add(new DafnyException("Using the result of a method without return value", t));
+            ty = ASTUtil.fromSort(Sort.UNTYPED_SORT);
+        }
+        Sort s2 = ASTUtil.toSort(ty);
         if (!s2.isSubtypeOf(s1)) {
             exceptions.add(new DafnyException("Assigning a value of type " + s2 + " to an entitity"
                     + " of type " + s1, t));
