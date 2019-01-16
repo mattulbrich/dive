@@ -30,6 +30,7 @@ import edu.kit.iti.algover.rules.impl.QuantifierInstatiationTest;
 import edu.kit.iti.algover.rules.impl.SkolemizationTest;
 import edu.kit.iti.algover.symbex.FunctionObligationMakerTest;
 import edu.kit.iti.algover.symbex.SymbexExpressionValidatorTest;
+import edu.kit.iti.algover.term.builder.AlphaNormalisationTest;
 import edu.kit.iti.algover.term.builder.ParallelUpdateSequenterTest;
 import edu.kit.iti.algover.term.builder.ReplaceVisitorTest;
 import edu.kit.iti.algover.term.builder.SSASequenterTest;
@@ -115,12 +116,13 @@ import edu.kit.iti.algover.util.UtilTest;
     FunctionDefinitionExpansionRuleTest.class,
     ReplacementVisitorTest.class,
     ReplaceVisitorTest.class,
+    AlphaNormalisationTest.class,
     RuleUtilTest.class,
     TestRuleApplicator.class,
     SkolemizationTest.class,
     QuantifierInstatiationTest.class,
     IntegerSimplificationTest.class,
-        AbstractRuleTest.class
+        AbstractRuleTest.class,
     })
 public class Tests {
 }

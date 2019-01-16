@@ -8,6 +8,7 @@ package edu.kit.iti.algover.proof;
 import com.google.common.base.Objects;
 import edu.kit.iti.algover.term.Sort;
 import edu.kit.iti.algover.term.Term;
+import edu.kit.iti.algover.term.builder.AlphaNormalisation;
 import edu.kit.iti.algover.util.ImmutableList;
 import nonnull.DeepNonNull;
 import nonnull.NonNull;
@@ -41,6 +42,8 @@ public class ProofFormula {
         this.formula = formula;
         this.labels = ImmutableList.from(labels);
         assert formula.getSort().isSubtypeOf(Sort.BOOL);
+        assert AlphaNormalisation.isNormalised(formula) :
+                "Formula " + formula + " is not normalised and cannot be put into a sequent.";
     }
 
     public ProofFormula(Term formula, String... labels) {
