@@ -117,10 +117,19 @@ public class SimplifiedUpdateSequenterTest extends SequenterTest {
         SymbolTable table = makeTable(method, project);
         Sequent sequent = sequenter.translate(path, table, null);
 
+        // path.getAssignmentHistory().forEach(x -> System.out.println(x.toStringTree()));
+        // (ASSIGN $mod (SETEX this x))
+        // (ASSIGN $decr 0)
+        // (ASSIGN $oldheap $heap)
+        // (:= (FIELD_ACCESS this d) x)
+        // (:= d x)
+        // (:= (FIELD_ACCESS x c) this)
+
         assertEquals("$not($eq<D>(x, null)) |- " +
                 "(let $heap := $store<C,D>($heap, this, C$$d, x) :: " +
+                "(let $heap := $store<C,D>($heap, this, C$$d, x) :: " +
                 "(let $heap := $store<D,C>($heap, x, D$$c, this) :: " +
-                "$eq<D>($select<C,D>($heap, this, C$$d), x)))", sequent.toString());
+                "$eq<D>($select<C,D>($heap, this, C$$d), x))))", sequent.toString());
     }
 
     protected void checkSequentWithOld(SymbolTable table, Sequent sequent) throws Exception {

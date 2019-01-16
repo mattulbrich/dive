@@ -190,9 +190,41 @@ public class TreeAssignmentTranslatorTest {
                 new Pair<>(heap, TermParser.parse(symbTable, "$store<Seq, seq<int>>($heap, this, Seq$$fsq, $seq_upd<int>($select<Seq, seq<int>>($heap, this, Seq$$fsq), 1, 3))")),
                 new Pair<>(heap, TermParser.parse(symbTable, "$store<Seq, seq<int>>($heap, this, Seq$$fsq, $seq_upd<int>($select<Seq, seq<int>>($heap, this, Seq$$fsq), 2, 4))")));
 
-
         assertEquals(expected, result);
+
     }
 
+    @Test
+    public void testSuccessiveAssigns() throws Exception {
+        DafnyTree tree = DafnyFileParser.parse(getClass().getResourceAsStream("proj1/treeTransTest.dfy"));
+        Project p = TestUtil.mockProject(tree);
+        symbTable.addFunctionSymbol(new FunctionSymbol("this", Sort.getClassSort("SuccessiveAssigns")));
+        symbTable.addFunctionSymbol(new FunctionSymbol("SuccessiveAssigns$$x",
+                Sort.get("field", Sort.getClassSort("SuccessiveAssigns"), Sort.INT)));
 
+        DafnyTree method = p.getClass("SuccessiveAssigns").getMethod("m").getRepresentation();
+        DafnyTree block = method.getFirstChildWithType(DafnyParser.BLOCK);
+
+        ImmutableList<DafnyTree> assignments =
+                ImmutableList.<DafnyTree>from(block.getChildren()).
+                        filter(x -> x.getType() == DafnyParser.ASSIGN);
+
+        TreeAssignmentTranslator tat = new TreeAssignmentTranslator(symbTable);
+
+        ImmutableList<Pair<FunctionSymbol, Term>> result = tat.translateAssignments(assignments);
+
+        @SuppressWarnings("unchecked")
+        ImmutableList<Pair<FunctionSymbol, Term>> expected = ImmutableList.from(
+                new Pair<>(heap, TermParser.parse(symbTable, "$store<SuccessiveAssigns,int>($heap, this, SuccessiveAssigns$$x, $plus($select<SuccessiveAssigns,int>($heap, this, SuccessiveAssigns$$x), 1))")),
+                new Pair<>(heap, TermParser.parse(symbTable, "$store<SuccessiveAssigns,int>($heap, this, SuccessiveAssigns$$x, $plus($select<SuccessiveAssigns,int>($heap, this, SuccessiveAssigns$$x), 2))")));
+
+        assertEquals(expected, result);
+
+
+        Term letCascade = tat.translateToLet(assignments, ASTUtil.intLiteral(42));
+        Term expectedCascade = TermParser.parse(symbTable, "(let $heap := $store<SuccessiveAssigns,int>($heap, this, SuccessiveAssigns$$x, $plus($select<SuccessiveAssigns,int>($heap, this, SuccessiveAssigns$$x), 1)) :: " +
+                "(let $heap := $store<SuccessiveAssigns,int>($heap, this, SuccessiveAssigns$$x, $plus($select<SuccessiveAssigns,int>($heap, this, SuccessiveAssigns$$x), 2)) :: 42))");
+        assertEquals(expectedCascade, letCascade);
+
+    }
 }
