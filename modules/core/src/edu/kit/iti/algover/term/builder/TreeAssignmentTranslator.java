@@ -159,7 +159,7 @@ public class TreeAssignmentTranslator {
 
         Term index = translator.build(receiver.getChild(1));
         if (type.equals("array")) {
-            Term appl = tb.storeArray(tb.heap(), subbedItem, index, assigned);
+            Term appl = tb.storeArray(translator.getHeap(), subbedItem, index, assigned);
             return new Pair<>(HEAP_SYMB, appl);
 
         } else if (type.equals("seq")) {
@@ -170,7 +170,7 @@ public class TreeAssignmentTranslator {
 
         } else if (type.equals("array2")) {
             Term index2 = translator.build(receiver.getChild(2));
-            Term appl = tb.storeArray2(tb.heap(), subbedItem, index, index2, assigned);
+            Term appl = tb.storeArray2(translator.getHeap(), subbedItem, index, index2, assigned);
             return new Pair<>(HEAP_SYMB, appl);
 
         } else {
@@ -188,7 +188,7 @@ public class TreeAssignmentTranslator {
                     ref.getParent().getChild(0).getText(), // classname
                     ref.getChild(0).getText()); // fieldname
 
-            Term appl = tb.storeField(tb.heap(), self, field, assigned);
+            Term appl = tb.storeField(translator.getHeap(), self, field, assigned);
             return new Pair<>(HEAP_SYMB, appl);
         }
 
