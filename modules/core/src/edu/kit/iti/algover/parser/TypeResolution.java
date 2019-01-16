@@ -29,7 +29,7 @@ public class TypeResolution extends DafnyTreeDefaultVisitor<DafnyTree, Void> {
     private static final Set<String> INT_SET = Util.asSet("int", "set");
     // private static final Set<String> INT_SET_SEQ = Util.asSet("int", "seq", "set");
 
-    private List<DafnyException> exceptions;
+    private final List<DafnyException> exceptions;
 
     public TypeResolution(List<DafnyException> exceptions) {
         this.exceptions = exceptions;

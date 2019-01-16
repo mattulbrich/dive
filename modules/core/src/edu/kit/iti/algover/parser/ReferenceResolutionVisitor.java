@@ -52,7 +52,7 @@ public class ReferenceResolutionVisitor
     /**
      * The type resolution is needed for resolving fields.
      */
-    private final TypeResolution typeResolution = new TypeResolution(getExceptions());
+    private final TypeResolution typeResolution;
 
     /**
      * Instantiates a new reference resolution visitor.
@@ -66,6 +66,7 @@ public class ReferenceResolutionVisitor
     public ReferenceResolutionVisitor(Project project, List<DafnyException> exceptions) {
         this.project = project;
         this.exceptions = exceptions;
+        this.typeResolution = new TypeResolution(getExceptions());
     }
 
     /**
