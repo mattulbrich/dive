@@ -34,7 +34,7 @@ public class ProofNodeCheckpointsBuilder extends DefaultASTVisitor<Void> {
         lastHandledNodes = new ArrayList<>(Collections.singletonList(rootProofNode));
         lastHandledSelectors = new ArrayList<>(Collections.singletonList(new ProofNodeSelector()));
         checkpoints = new ArrayList<>();
-        checkpoints.add(new ProofNodeCheckpoint(new ProofNodeSelector(), new Position(0, 0), new Position(0, 0)));
+        checkpoints.add(new ProofNodeCheckpoint(new ProofNodeSelector(), new Position(0, 0), new Position(1, 0)));
     }
 
     public static List<ProofNodeCheckpoint> build(ProofNode root, ProofScript script) {

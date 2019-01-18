@@ -11,10 +11,39 @@ import javafx.beans.property.*;
  */
 public class GutterAnnotation {
 
+
+    public int getLineNumber() {
+        return lineNumber.get();
+    }
+
+    public SimpleIntegerProperty lineNumberProperty() {
+        return lineNumber;
+    }
+
+    public void setLineNumber(int lineNumber) {
+        this.lineNumber.set(lineNumber);
+    }
+
+    public int getMaxLineNumber() {
+        return maxLineNumber.get();
+    }
+
+    public SimpleIntegerProperty maxLineNumberProperty() {
+        return maxLineNumber;
+    }
+
+    public void setMaxLineNumber(int maxLineNumber) {
+        this.maxLineNumber.set(maxLineNumber);
+    }
+
     /**
      * Line number associated with this label/annotation
      */
-    private int lineNumber;
+    private SimpleIntegerProperty lineNumber;
+
+    private SimpleIntegerProperty maxLineNumber;
+
+    //private int index;
 
     /**
      *
@@ -27,14 +56,13 @@ public class GutterAnnotation {
     private SimpleBooleanProperty insertMarker = new SimpleBooleanProperty(false, "Marker for insertion");
 
 
-
     /**
      * Associated proof node selector, if existing
      */
 
-    private SimpleObjectProperty<ProofNodeSelector> proofNode = new SimpleObjectProperty<>(null);
+    private SimpleObjectProperty<ProofNodeSelector> proofNode = new SimpleObjectProperty<>(null, "Proofnode property");
 
-    private BooleanProperty proofNodeIsSelected = new SimpleBooleanProperty(false);
+    private BooleanProperty proofNodeIsSelected = new SimpleBooleanProperty(false, "Proofnode is selected property ");
 
     private BooleanBinding proofNodeIsSet = proofNode.isNotNull();
 
@@ -59,12 +87,6 @@ public class GutterAnnotation {
             return text;
         }
 
-    public void setLineNumber(int lineNumber) {
-        this.lineNumber = lineNumber;
-    }
-    public int getLineNumber() {
-        return lineNumber;
-    }
 
     public boolean isInsertMarker() {
         return insertMarker.get();
@@ -102,6 +124,13 @@ public class GutterAnnotation {
         return proofNodeIsSet;
     }
 
+  /*  public int getIndex() {
+        return index;
+    }
+
+    public void setIndex(int index) {
+        this.index = index;
+    }*/
 
 
 }

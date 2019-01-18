@@ -31,7 +31,8 @@ public class ScriptController implements ScriptViewListener {
     private final ScriptView view;
     private final RuleApplicationListener listener;
     private ProofNodeSelector selectedNode = null;
-    private Position insertPosition = new Position(0, 0);
+    //insert position realpos?
+    //private Position insertPosition = new Position(1, 0);
 
 
     public Position getObservableInsertPosition() {
@@ -46,7 +47,7 @@ public class ScriptController implements ScriptViewListener {
         this.observableInsertPosition.set(observableInsertPosition);
     }
 
-    private SimpleObjectProperty<Position> observableInsertPosition = new SimpleObjectProperty<Position>(insertPosition);
+    private SimpleObjectProperty<Position> observableInsertPosition = new SimpleObjectProperty<Position>(new Position(1,0));
     private Proof proof;
     private List<ProofNodeCheckpoint> checkpoints;
 
@@ -59,23 +60,41 @@ public class ScriptController implements ScriptViewListener {
         this.highlightingRules = new LayeredHighlightingRulev4(2);
         view.setHighlightingRule(this.highlightingRules);
         view.caretPositionProperty().addListener(this::onCaretPositionChanged);
-        view.getGutterAnnotations().get(0).setInsertMarker(true);
-        view.getGutterAnnotations().get(0).setProofNode(new ProofNodeSelector());
-        observableInsertPosition.addListener(this::onInsertPositionChanged);
-
-    }
-
-
-    private void onInsertPositionChanged(Observable observable) {
-        ObservableList<GutterAnnotation> annotations = view.getGutterAnnotations();
-        annotations.forEach(gutterAnnotation -> {
-            gutterAnnotation.setInsertMarker(false);
+        
+        observableInsertPosition.set(new Position(1,0));
+        observableInsertPosition.addListener((o, old, nv) -> {
+            onInsertPositionChanged(old, nv);
         });
-        if (observableInsertPositionProperty().get().getLineNumber() == 0)
-            view.getGutter().getLineAnnotation(0).setInsertMarker(true);
-        else
-            view.getGutter().getLineAnnotation(observableInsertPositionProperty().get().getLineNumber()-1).setInsertMarker(true);
+
+        view.getGutterAnnotations().get(0).setInsertMarker(true);
+        view.requestLayout();
+        view.getGutterAnnotations().get(0).setProofNode(new ProofNodeSelector());
+
     }
+
+    private void onInsertPositionChanged(Position old, Position nv) {
+        //maybe simplified
+        if(old != null) {
+            view.getGutterAnnotations().get(old.getLineNumber()-1).setInsertMarker(false);
+            if(view.getGutterAnnotations().size() > nv.getLineNumber()){
+                view.getGutterAnnotations().get(nv.getLineNumber()-1).setInsertMarker(true);
+            } else {
+                GutterAnnotation newlineAnnotation = view.getGutter().getLineAnnotation(nv.getLineNumber() - 1);
+                newlineAnnotation.setInsertMarker(true);
+            }
+        } else {
+            if(view.getGutterAnnotations().size() > nv.getLineNumber()){
+                view.getGutterAnnotations().get(nv.getLineNumber()-1).setInsertMarker(true);
+            } else {
+                GutterAnnotation newlineAnnotation = view.getGutter().getLineAnnotation(nv.getLineNumber() - 1);
+                newlineAnnotation.setInsertMarker(true);
+            }
+        }
+        view.requestLayout();
+    }
+
+
+
 
     private void handleShortcuts(KeyEvent keyEvent) {
         if (saveShortcut.match(keyEvent)) {
@@ -93,25 +112,26 @@ public class ScriptController implements ScriptViewListener {
     }
 
     private void onCaretPositionChanged(Observable observable) {
+       //this positions linenumber starts with 1
         Position caretPosition = computePositionFromCharIdx(view.getCaretPosition(), view.getText());
         ProofNodeCheckpoint checkpoint = getCheckpointForCaretPosition(caretPosition);
-        insertPosition = checkpoint.caretPosition;
-        observableInsertPosition.set(insertPosition);
+        //insertPosition = checkpoint.caretPosition;
+        observableInsertPosition.set(checkpoint.caretPosition);
         this.checkpoints = ProofNodeCheckpointsBuilder.build(proof);
         createVisualSelectors(this.checkpoints);
-        showSelectedSelector(checkpoint);
+        //showSelectedSelector(checkpoint);
         switchViewedNode();
         view.highlightLine();
     }
 
     private void showSelectedSelector(ProofNodeCheckpoint checkpoint) {
         view.getGutterAnnotations().forEach(gutterAnnotation -> gutterAnnotation.setProofNodeIsSelected(false));
-        view.getGutterAnnotations().get(checkpoint.position.getLineNumber()).setProofNodeIsSelected(true);
+        view.getGutter().getLineAnnotation(checkpoint.caretPosition.getLineNumber()).setProofNodeIsSelected(true);
     }
 
 
     private void switchViewedNode() {
-        Position caretPosition = insertPosition;
+        Position caretPosition = getObservableInsertPosition();
 
         ProofNodeCheckpoint checkpoint = getCheckpointForCaretPosition(caretPosition);
 
@@ -125,9 +145,9 @@ public class ScriptController implements ScriptViewListener {
                 this.listener.onSwitchViewedNode(checkpoint.selector);
             }
         }
-
         this.listener.onSwitchViewedNode(checkpoint.selector);
         showSelectedSelector(checkpoint);
+        view.requestLayout();
 
     }
 
@@ -198,7 +218,7 @@ public class ScriptController implements ScriptViewListener {
 
     @Override
     public void runScript() {
-        Position oldInsertPos = insertPosition;
+        Position oldInsertPos = getObservableInsertPosition();
         String text = view.getText();
         resetExceptionRendering();
 
@@ -215,8 +235,8 @@ public class ScriptController implements ScriptViewListener {
             proof.getFailException().printStackTrace();
         }
         checkpoints = ProofNodeCheckpointsBuilder.build(proof);
-        insertPosition = oldInsertPos;
-        setObservableInsertPosition(insertPosition);
+       // insertPosition = oldInsertPos;
+        observableInsertPosition.set(oldInsertPos);
         createVisualSelectors(checkpoints);
 
         switchViewedNode();
@@ -225,15 +245,19 @@ public class ScriptController implements ScriptViewListener {
     private void createVisualSelectors(List<ProofNodeCheckpoint> checkpoints) {
         for (ProofNodeCheckpoint checkpoint : this.checkpoints) {
             int checkpointline = checkpoint.position.getLineNumber();
+
             if(checkpointline < view.getGutterAnnotations().size()) {
                 view.getGutterAnnotations().get(checkpointline).setProofNode(checkpoint.selector);
                 view.getGutterAnnotations().get(checkpointline).setProofNodeIsSelected(false);
             } else {
-                view.getGutter().getLineAnnotation(checkpointline).setLineNumber(checkpointline);
-                view.getGutterAnnotations().get(checkpointline).setProofNode(checkpoint.selector);
-                view.getGutterAnnotations().get(checkpointline).setProofNodeIsSelected(false);
+                GutterFactory gutterFactory = view.getGutter();
+                GutterAnnotation lineAnnotation = gutterFactory.getLineAnnotation(checkpointline);
+                lineAnnotation.setProofNode(checkpoint.selector);
+                lineAnnotation.setProofNodeIsSelected(false);
             }
+
         }
+        view.requestLayout();
     }
 
     public ScriptView getView() {
@@ -241,7 +265,7 @@ public class ScriptController implements ScriptViewListener {
     }
 
     public void insertTextForSelectedNode(String text) {
-        int insertAt = computeCharIdxFromPosition(insertPosition, view.getText());
+        int insertAt = computeCharIdxFromPosition(getObservableInsertPosition(), view.getText());
         view.moveTo(insertAt);
         view.insertText(insertAt, text);
         runScript();
@@ -273,9 +297,8 @@ public class ScriptController implements ScriptViewListener {
             if (checkpoints != null) {
                 List<ProofNodeCheckpoint> potCheckpoints = checkpoints.stream().filter(ch -> ch.selector.equals(proofNodeSelector)).collect(Collectors.toList());
                 if (potCheckpoints.size() > 0) {
-                    insertPosition = potCheckpoints.get(potCheckpoints.size() - 1).caretPosition;
-                    setObservableInsertPosition(insertPosition);
-
+                    Position insertPosition = potCheckpoints.get(potCheckpoints.size() - 1).caretPosition;
+                    observableInsertPosition.set(insertPosition);
                     //switchViewedNode();
                 }
             }

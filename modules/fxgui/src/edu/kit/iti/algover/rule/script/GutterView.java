@@ -11,13 +11,6 @@ import javafx.scene.layout.HBox;
 public class GutterView extends HBox {
     private final SimpleObjectProperty<GutterAnnotation> annotation = new SimpleObjectProperty<>();
 
-
-    /*private MaterialDesignIconView iconStateHandle = new MaterialDesignIconView(MaterialDesignIcon.CLOSE_CIRCLE_OUTLINE);
-
-    private MaterialDesignIconView iconConditionalBreakPoint = new MaterialDesignIconView(MaterialDesignIcon.CHECK);
-
-    private MaterialDesignIconView iconSkippedSave = new MaterialDesignIconView(MaterialDesignIcon.ALERT);
-*/
     private MaterialDesignIconView iconProofCommandPosition = new MaterialDesignIconView(MaterialDesignIcon.FORMAT_TEXTDIRECTION_L_TO_R);
 
     private MaterialDesignIconView iconProofNodeSelected = new MaterialDesignIconView(MaterialDesignIcon.ADJUST);
@@ -35,24 +28,28 @@ public class GutterView extends HBox {
     private Label lineNumber = new Label("not set");
 
     public GutterView(GutterAnnotation ga) {
+
         annotation.addListener((o, old, nv) -> {
+
             if (old != null) {
-                old.insertMarkerProperty().removeListener(this::update);
-                old.proofNodeIsSelectedProperty().removeListener(this::update);
-              //  old.textInsertPosProperty().removeListener(this::update);
+             //   getAnnotation().insertMarkerProperty().removeListener(this::update);
                 lineNumber.textProperty().unbind();
             }
-            nv.insertMarkerProperty().addListener(this::update);
-            nv.proofNodeIsSelectedProperty().addListener(this::update);
-            // nv.textInsertPosProperty().addListener(this::update);
+           // getAnnotation().insertMarkerProperty().addListener(this::update);
             lineNumber.textProperty().bind(nv.textProperty());
 
             update(null);
         });
+        ga.insertMarkerProperty().addListener(this::update);
+        ga.proofNodeIsSelectedProperty().addListener(this::update);
+        ga.proofNodeIsSelectedProperty().addListener(this::update);
         setAnnotation(ga);
+        update(null);
+
     }
 
     public void update(Observable o) {
+
         getChildren().setAll(lineNumber);
         if(getAnnotation().isProofNodeIsSet()){
             if(getAnnotation().isProofNodeIsSelected())
