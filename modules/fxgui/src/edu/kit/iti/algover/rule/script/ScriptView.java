@@ -69,18 +69,7 @@ public class ScriptView extends AsyncHighlightingCodeArea {
                 save
         );
         setContextMenu(menu);
-      /*  IntFunction<Node> numberFactory = LineNumberFactory.get(this);
-        IntFunction<Node> gutterFactory = new GutterFactory(this);
-        IntFunction<Node> arrowFactory = new ArrowFactory(this.currentParagraphProperty());
-        IntFunction<Node> graphicFactory = line -> {
-            HBox hbox = new HBox(
-                    numberFactory.apply(line), gutterFactory.apply(line));
-                    //arrowFactory.apply(line));
-            hbox.setAlignment(Pos.CENTER_LEFT);
-            return hbox;
-        };
-        this.setParagraphGraphicFactory(numberFactory);*/
-
+        //set gutter factory for checkpoints
         gutter = new GutterFactory(this);
         this.setParagraphGraphicFactory(gutter);
         

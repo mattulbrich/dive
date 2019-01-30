@@ -31,21 +31,8 @@ public class ScriptController implements ScriptViewListener {
     private final ScriptView view;
     private final RuleApplicationListener listener;
     private ProofNodeSelector selectedNode = null;
-    //insert position realpos?
-    //private Position insertPosition = new Position(1, 0);
 
 
-    public Position getObservableInsertPosition() {
-        return observableInsertPosition.get();
-    }
-
-    public SimpleObjectProperty<Position> observableInsertPositionProperty() {
-        return observableInsertPosition;
-    }
-
-    public void setObservableInsertPosition(Position observableInsertPosition) {
-        this.observableInsertPosition.set(observableInsertPosition);
-    }
 
     private SimpleObjectProperty<Position> observableInsertPosition = new SimpleObjectProperty<Position>(new Position(1,0));
     private Proof proof;
@@ -257,7 +244,7 @@ public class ScriptController implements ScriptViewListener {
             }
 
         }
-        view.requestLayout();
+//        view.requestLayout();
     }
 
     public ScriptView getView() {
@@ -304,4 +291,17 @@ public class ScriptController implements ScriptViewListener {
             }
         }
     }
+
+    public Position getObservableInsertPosition() {
+        return observableInsertPosition.get();
+    }
+
+    public SimpleObjectProperty<Position> observableInsertPositionProperty() {
+        return observableInsertPosition;
+    }
+
+    public void setObservableInsertPosition(Position observableInsertPosition) {
+        this.observableInsertPosition.set(observableInsertPosition);
+    }
+
 }
