@@ -62,7 +62,6 @@ public class ScriptController implements ScriptViewListener {
     }
 
     private void onInsertPositionChanged(Position old, Position nv) {
-        System.out.println("ScriptController.onInsertPositionChanged");
         if(old != null) {
             view.getGutterAnnotations().get(old.getLineNumber() - 1).setInsertMarker(false);
             view.getGutterAnnotations().forEach(gutterAnnotation -> gutterAnnotation.setProofNodeIsSelected(false));
@@ -113,7 +112,6 @@ public class ScriptController implements ScriptViewListener {
     }
 
     private void showSelectedSelector(ProofNodeCheckpoint checkpoint) {
-        System.out.println("ScriptController.showSelectedSelector");
         view.getGutterAnnotations().forEach(gutterAnnotation -> gutterAnnotation.setProofNodeIsSelected(false));
         view.getGutter().getLineAnnotation(checkpoint.caretPosition.getLineNumber()-1).setProofNodeIsSelected(true);
     }
