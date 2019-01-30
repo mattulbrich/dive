@@ -54,29 +54,30 @@ public class ScriptController implements ScriptViewListener {
         });
 
         view.getGutterAnnotations().get(0).setInsertMarker(true);
-        view.requestLayout();
         view.getGutterAnnotations().get(0).setProofNode(new ProofNodeSelector());
+        view.getGutterAnnotations().get(0).setProofNodeIsSelected(true);
+
+        view.requestLayout();
 
     }
 
     private void onInsertPositionChanged(Position old, Position nv) {
-        //maybe simplified
+        System.out.println("ScriptController.onInsertPositionChanged");
         if(old != null) {
-            view.getGutterAnnotations().get(old.getLineNumber()-1).setInsertMarker(false);
-            if(view.getGutterAnnotations().size() > nv.getLineNumber()){
-                view.getGutterAnnotations().get(nv.getLineNumber()-1).setInsertMarker(true);
-            } else {
-                GutterAnnotation newlineAnnotation = view.getGutter().getLineAnnotation(nv.getLineNumber() - 1);
-                newlineAnnotation.setInsertMarker(true);
-            }
-        } else {
-            if(view.getGutterAnnotations().size() > nv.getLineNumber()){
-                view.getGutterAnnotations().get(nv.getLineNumber()-1).setInsertMarker(true);
-            } else {
-                GutterAnnotation newlineAnnotation = view.getGutter().getLineAnnotation(nv.getLineNumber() - 1);
-                newlineAnnotation.setInsertMarker(true);
-            }
+            view.getGutterAnnotations().get(old.getLineNumber() - 1).setInsertMarker(false);
+            view.getGutterAnnotations().forEach(gutterAnnotation -> gutterAnnotation.setProofNodeIsSelected(false));
+            //view.getGutterAnnotations().get(old.getLineNumber() - 1).setProofNodeIsSelected(false);
+
         }
+            if(view.getGutterAnnotations().size() > nv.getLineNumber()){
+                view.getGutterAnnotations().get(nv.getLineNumber()-1).setInsertMarker(true);
+                view.getGutterAnnotations().get(nv.getLineNumber()-1).setProofNodeIsSelected(true);
+
+            } else {
+                GutterAnnotation newlineAnnotation = view.getGutter().getLineAnnotation(nv.getLineNumber() - 1);
+                newlineAnnotation.setInsertMarker(true);
+                newlineAnnotation.setProofNodeIsSelected(true);
+            }
         view.requestLayout();
     }
 
@@ -112,8 +113,9 @@ public class ScriptController implements ScriptViewListener {
     }
 
     private void showSelectedSelector(ProofNodeCheckpoint checkpoint) {
+        System.out.println("ScriptController.showSelectedSelector");
         view.getGutterAnnotations().forEach(gutterAnnotation -> gutterAnnotation.setProofNodeIsSelected(false));
-        view.getGutter().getLineAnnotation(checkpoint.caretPosition.getLineNumber()).setProofNodeIsSelected(true);
+        view.getGutter().getLineAnnotation(checkpoint.caretPosition.getLineNumber()-1).setProofNodeIsSelected(true);
     }
 
 
