@@ -12,43 +12,12 @@ import javafx.beans.property.*;
 public class GutterAnnotation {
 
 
-    public int getLineNumber() {
-        return lineNumber.get();
-    }
-
-    public SimpleIntegerProperty lineNumberProperty() {
-        return lineNumber;
-    }
-
-    public void setLineNumber(int lineNumber) {
-        this.lineNumber.set(lineNumber);
-    }
-
-    public int getMaxLineNumber() {
-        return maxLineNumber.get();
-    }
-
-    public SimpleIntegerProperty maxLineNumberProperty() {
-        return maxLineNumber;
-    }
-
-    public void setMaxLineNumber(int maxLineNumber) {
-        this.maxLineNumber.set(maxLineNumber);
-    }
-
     /**
-     * Line number associated with this label/annotation
-     */
-    private SimpleIntegerProperty lineNumber;
-
-    private SimpleIntegerProperty maxLineNumber;
-
-    //private int index;
-
-    /**
-     *
+     * Label text (linenumber)
      */
     private StringProperty text = new SimpleStringProperty();
+
+
 
     /**
      * Boolean flag for marker for command insertion position
@@ -123,14 +92,6 @@ public class GutterAnnotation {
     public BooleanBinding proofNodeIsSetProperty() {
         return proofNodeIsSet;
     }
-
-  /*  public int getIndex() {
-        return index;
-    }
-
-    public void setIndex(int index) {
-        this.index = index;
-    }*/
 
 
 }

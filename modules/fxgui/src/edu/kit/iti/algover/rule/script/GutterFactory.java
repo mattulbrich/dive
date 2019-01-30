@@ -104,6 +104,7 @@ public class GutterFactory implements IntFunction<Node> {
             if (mevent.getButton() == MouseButton.PRIMARY)
                 if(hbox.getAnnotation().isProofNodeIsSet()) {
                     hbox.getAnnotation().setProofNodeIsSelected(true);
+                    System.out.print(Integer.parseInt(hbox.getLineNumber().getText()));
                 }
         });
 
