@@ -11,6 +11,7 @@ import edu.kit.iti.algover.script.exceptions.ScriptCommandNotApplicableException
 import edu.kit.iti.algover.script.parser.Facade;
 import edu.kit.iti.algover.script.parser.PrettyPrinter;
 import edu.kit.iti.algover.util.ExceptionDetails;
+import edu.kit.iti.algover.util.RuleApp;
 import javafx.beans.Observable;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.collections.ObservableList;
@@ -18,10 +19,17 @@ import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyCodeCombination;
 import javafx.scene.input.KeyCombination;
 import javafx.scene.input.KeyEvent;
+import org.antlr.runtime.Token;
+import org.fxmisc.richtext.model.StyleSpans;
+
+import java.io.StringWriter;
+import java.time.Duration;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.ExecutorService;
+import java.util.function.Consumer;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
@@ -46,8 +54,9 @@ public class ScriptController implements ScriptViewListener {
         this.listener = listener;
         this.highlightingRules = new LayeredHighlightingRulev4(2);
         view.setHighlightingRule(this.highlightingRules);
+
         view.caretPositionProperty().addListener(this::onCaretPositionChanged);
-        
+
         observableInsertPosition.set(new Position(1,0));
         observableInsertPosition.addListener((o, old, nv) -> {
             onInsertPositionChanged(old, nv);
@@ -96,6 +105,7 @@ public class ScriptController implements ScriptViewListener {
 
         view.replaceText(proof.getScript());
         view.getUndoManager().forgetHistory();
+        runScript();
     }
 
     private void onCaretPositionChanged(Observable observable) {
@@ -169,6 +179,8 @@ public class ScriptController implements ScriptViewListener {
 
     private int computeCharIdxFromPosition(Position position, String text) {
         int charIdx = 0;
+        if(text == "") return 0;
+        if(!text.contains("\n")) return text.length() - 1;
         for (int i = 0; i < position.getLineNumber() - 1; ++i) {
             charIdx += text.substring(0, text.indexOf('\n')).length() + 1;
             text = text.substring(text.indexOf('\n') + 1);
@@ -214,6 +226,8 @@ public class ScriptController implements ScriptViewListener {
         ps.accept(pp);
 
         view.replaceText(pp.toString());
+        //System.out.println("pp.toString() = " + pp.toString());
+
         proof.setScriptTextAndInterpret(pp.toString());
 
         if(proof.getFailException() != null) {
@@ -252,9 +266,12 @@ public class ScriptController implements ScriptViewListener {
     }
 
     public void insertTextForSelectedNode(String text) {
-        int insertAt = computeCharIdxFromPosition(getObservableInsertPosition(), view.getText());
-        view.moveTo(insertAt);
-        view.insertText(insertAt, text);
+        if(view.getText().equals("")) {
+            view.insertText(0, text);
+        } else {
+            int insertAt = computeCharIdxFromPosition(insertPosition, view.getText());
+            view.insertText(insertAt, text);
+        }
         runScript();
     }
 
