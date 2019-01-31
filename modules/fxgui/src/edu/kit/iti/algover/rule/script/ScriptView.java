@@ -77,6 +77,10 @@ public class ScriptView extends AsyncHighlightingCodeArea {
         setupAsyncSyntaxhighlighting();
 
         textProperty().addListener((observable, oldValue, newValue) -> listener.onAsyncScriptTextChanged(newValue));
+        /*this.caretPositionProperty().addListener((observable, oldValue, newValue) -> {
+            System.out.println("oldValue = " + oldValue);
+            System.out.println("newValue = " + newValue);
+        });*/
 
     }
 

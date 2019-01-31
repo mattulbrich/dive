@@ -50,8 +50,10 @@ public class GutterFactory implements IntFunction<Node> {
     private ObservableList<GutterAnnotation> lineAnnotations =
             new SimpleListProperty<>(FXCollections.observableArrayList());
 
-    public GutterFactory(CodeArea codeArea) {
+    private ScriptView codeArea;
 
+    public GutterFactory(ScriptView codeArea) {
+        this.codeArea = codeArea;
         nParagraphs = LiveList.sizeOf(codeArea.getParagraphs());
         for (int i = 0; i < 100; i++) {
 
@@ -101,11 +103,13 @@ public class GutterFactory implements IntFunction<Node> {
         //process clicking on the gutter by setting the selection in the model
         hbox.setOnMouseClicked((mevent) -> {
             mevent.consume();
-            if (mevent.getButton() == MouseButton.PRIMARY)
-                if(hbox.getAnnotation().isProofNodeIsSet()) {
+            if (mevent.getButton() == MouseButton.PRIMARY) {
+                if (hbox.getAnnotation().isProofNodeIsSet()) {
+                    // Integer lnr = Integer.parseInt(hbox.getLineNumber().getText().replaceAll(" ", ""));
+                    //codeArea.displaceCaret(lnr);
                     hbox.getAnnotation().setProofNodeIsSelected(true);
-        //            System.out.print(Integer.parseInt(hbox.getLineNumber().getText().replaceAll(" ", "")));
                 }
+            }
         });
 
         hbox.getLineNumber().setFont(defaultFont);
