@@ -8,6 +8,8 @@
 
 <?import javafx.geometry.Insets?>
 <?import edu.kit.iti.algover.rule.RuleGrid?>
+<?import com.jfoenix.controls.JFXScrollPane?>
+<?import org.fxmisc.flowless.VirtualizedScrollPane?>
 <SplitPane
         xmlns="http://javafx.com/javafx"
         xmlns:fx="http://javafx.com/fxml"
@@ -23,8 +25,10 @@
                 <HBox.margin><Insets topRightBottomLeft="4" /></HBox.margin>
             </Label>
         </HBox>
+        <ScrollPane fitToWidth="true" fitToHeight="true" VBox.vgrow="ALWAYS">
+            <RuleGrid fx:id="ruleGrid"  />
+        </ScrollPane>
 
-        <RuleGrid fx:id="ruleGrid" VBox.vgrow="ALWAYS"/>
 
     </VBox>
     <!--

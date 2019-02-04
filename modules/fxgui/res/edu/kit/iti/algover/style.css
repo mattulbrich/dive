@@ -96,6 +96,9 @@
     -fx-font-family: monospace;
     -fx-background-color: white;
 }
+.code-dirty{
+    -fx-background-color: #b8b5bc;
+}
 
 .log:error .text {
     -fx-fill: #E55;

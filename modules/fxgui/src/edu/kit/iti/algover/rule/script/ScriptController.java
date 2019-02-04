@@ -22,6 +22,7 @@ import javafx.scene.input.KeyEvent;
 import org.antlr.runtime.Token;
 import org.fxmisc.richtext.model.StyleSpans;
 
+import java.awt.*;
 import java.io.StringWriter;
 import java.time.Duration;
 import java.util.Collection;
@@ -213,10 +214,13 @@ public class ScriptController implements ScriptViewListener {
         //checkpoints = ProofNodeCheckpointsBuilder.build(proof);
         // TODO switchViewedNode();
         onCaretPositionChanged(null);
+        //view.setStyle("-fx-background-color: #807e83;");
+
     }
 
     @Override
     public void runScript() {
+        //view.setStyle("-fx-background-color: #ffffff;");
         Position oldInsertPos = getObservableInsertPosition();
         String text = view.getText();
         resetExceptionRendering();
@@ -269,7 +273,7 @@ public class ScriptController implements ScriptViewListener {
         if(view.getText().equals("")) {
             view.insertText(0, text);
         } else {
-            int insertAt = computeCharIdxFromPosition(insertPosition, view.getText());
+            int insertAt = computeCharIdxFromPosition(observableInsertPosition.get(), view.getText());
             view.insertText(insertAt, text);
         }
         runScript();

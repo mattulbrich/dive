@@ -101,6 +101,7 @@ public class RuleGrid extends JFXMasonryPane {
 
         this.getChildren().clear();
         this.getChildren().addAll(rules);
+
         requestLayout();
     }
 

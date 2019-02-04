@@ -2,6 +2,8 @@ package edu.kit.iti.algover.rule.script;
 
 import edu.kit.iti.algover.proof.ProofNodeSelector;
 import edu.kit.iti.algover.script.ast.Position;
+import edu.kit.iti.algover.util.ObservableValue;
+import javafx.beans.Observable;
 import javafx.beans.binding.BooleanBinding;
 import javafx.beans.property.*;
 
@@ -18,6 +20,7 @@ public class GutterAnnotation {
     private StringProperty text = new SimpleStringProperty();
 
 
+    private IntegerProperty lineNumberProperty = new SimpleIntegerProperty(-1);
 
     /**
      * Boolean flag for marker for command insertion position
@@ -34,6 +37,18 @@ public class GutterAnnotation {
     private BooleanProperty proofNodeIsSelected = new SimpleBooleanProperty(false, "Proofnode is selected property ");
 
     private BooleanBinding proofNodeIsSet = proofNode.isNotNull();
+
+    public GutterAnnotation(){
+        text.addListener(this::onLineNumberChanged);
+        /*lineNumberProperty.addListener((observable, oldValue, newValue) -> {
+            System.out.println("oldValue = " + oldValue);
+            System.out.println("newValue = " + newValue);
+        });*/
+    }
+
+    private void onLineNumberChanged(Observable observable) {
+        this.lineNumberProperty.setValue(Integer.parseInt(text.get().replaceAll(" ", "")));
+    }
 
     public SimpleBooleanProperty insertMarkerProperty() {
         return insertMarker;
