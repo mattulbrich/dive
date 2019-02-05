@@ -5,6 +5,7 @@ import edu.kit.iti.algover.editor.LayeredHighlightingRule;
 import edu.kit.iti.algover.proof.Proof;
 import edu.kit.iti.algover.proof.ProofNodeSelector;
 import edu.kit.iti.algover.rule.RuleApplicationListener;
+import edu.kit.iti.algover.rules.RuleException;
 import edu.kit.iti.algover.script.ast.Position;
 import edu.kit.iti.algover.script.ast.ProofScript;
 import edu.kit.iti.algover.script.exceptions.ScriptCommandNotApplicableException;
@@ -269,7 +270,7 @@ public class ScriptController implements ScriptViewListener {
         if(view.getText().equals("")) {
             view.insertText(0, text);
         } else {
-            int insertAt = computeCharIdxFromPosition(insertPosition, view.getText());
+            int insertAt = computeCharIdxFromPosition(observableInsertPosition.get(), view.getText());
             view.insertText(insertAt, text);
         }
         runScript();
