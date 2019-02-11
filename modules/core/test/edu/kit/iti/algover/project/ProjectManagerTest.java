@@ -92,11 +92,13 @@ public class ProjectManagerTest {
         Assert.assertNotNull(proof.getScript());
 //        pm.initializeProofDataStructures(testPVCm1Post);
         // pm.findAndParseScriptFileForPVC(testPVCm1Post);
-
+       // Assert.assertTrue();
         Assert.assertEquals("Proofscript is parsed", ProofStatus.CHANGED_SCRIPT, proof.getProofStatus());
         Assert.assertNull(proof.getFailException());
+        Assert.assertTrue(proof.getDfyFile() != null);
 
         proof.interpretScript();
+
         Assert.assertEquals("Proofscript has run", ProofStatus.OPEN, proof.getProofStatus());
         Assert.assertNull(proof.getFailException());
 

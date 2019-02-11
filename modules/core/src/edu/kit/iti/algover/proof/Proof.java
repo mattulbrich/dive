@@ -85,6 +85,19 @@ public class Proof {
     /*@ invariant failException != null <==> poofStatus.getValue() == FAIL; */
     private Exception failException;
 
+    public DafnyFile getDfyFile() {
+        return dfyFile;
+    }
+
+    public void setDfyFile(DafnyFile dfyFile) {
+        this.dfyFile = dfyFile;
+    }
+
+    /**
+     * DafnyFile for this proof. Needed for ReferenceGraph. Is allowed to be null for downwards compatibility
+     */
+    private @Nullable DafnyFile dfyFile;
+
     public Proof(@NonNull Project project, @NonNull PVC pvc) {
         this.project = project;
         this.pvc = pvc;
@@ -94,6 +107,7 @@ public class Proof {
     public Proof(@NonNull Project project, @NonNull PVC pvc, @NonNull DafnyFile dfyFile ) {
         this.project = project;
         this.pvc = pvc;
+        this.dfyFile = dfyFile;
         this.graph = new ReferenceGraph();
         this.graph.addFromReferenceMap(dfyFile, pvc.getReferenceMap());
     }
@@ -159,15 +173,17 @@ public class Proof {
         try {
             // TODO Exception handling
             this.scriptAST = Facade.getAST(script);
+            //save old root
+            ProofNode oldRoot = getProofRoot();
 
             Interpreter<ProofNode> interpreter = buildIndividualInterpreter();
 
             // Caution: Keep this pure constructor call, it performs the computation!
             new ProofNodeInterpreterManager(interpreter);
             interpreter.newState(newRoot);
-
-            scriptAST.getBody().forEach(interpreter::interpret);
             this.proofRoot = newRoot;
+            scriptAST.getBody().forEach(interpreter::interpret);
+
             this.failException = null;
             proofStatus.setValue(newRoot.allLeavesClosed() ? ProofStatus.CLOSED : ProofStatus.OPEN);
 
@@ -224,6 +240,9 @@ public class Proof {
     public Proof setScriptTextAndInterpret(String scriptText) {
         setScriptText(scriptText);
         interpretScript();
+        if(this.getGraph() != null){
+            graph.toString();
+        }
         return this;
     }
 
@@ -396,19 +415,17 @@ class ProofNodeInterpreterManager {
         }
 
         @Override
-        public Void defaultVisit(ASTNode<?> node) {
+        public Void defaultVisit(ASTNode node) {
             lastSelectedGoalNode.setChildren(new ArrayList<>());
 
             List<ProofNode> goals = interpreter.getCurrentState().getGoals();
 
             if (goals.size() == 1 && goals.get(0).equals(lastSelectedGoalNode)) {
-                // XXX MU: Removed this as this cluttered the output.
-                // System.out.println("There was no change");
                 return null;
             }
             if (goals.isEmpty()) {
                 lastSelectedGoalNode.setClosed(true);
-                System.out.println("Goalist goals.size() = " + goals.size() + "is empty we have reached a full proof");
+               // System.out.println("Goalist goals.size() = " + goals.size() + "is empty we have reached a full proof");
             }
             if (goals.size() > 0) {
                 for (ProofNode goal : goals) {
@@ -443,6 +460,37 @@ class ProofNodeInterpreterManager {
          */
         @Override
         public Void visit(AssignmentStatement assignment) {
+            lastSelectedGoalNode.setChildren(new ArrayList<>());
+
+            List<ProofNode> goals = interpreter.getCurrentState().getGoals();
+
+            if (goals.size() == 1 && goals.get(0).equals(lastSelectedGoalNode)) {
+                return null;
+            }
+            if (goals.isEmpty()) {
+                lastSelectedGoalNode.setClosed(true);
+                // System.out.println("Goalist goals.size() = " + goals.size() + "is empty we have reached a full proof");
+            }
+            if (goals.size() > 0) {
+                for (ProofNode goal : goals) {
+                    lastSelectedGoalNode.getChildren().add(goal);
+                    //TODO implement new method allowing to create "self-references"
+                   /* if(graph != null) {
+                        try {
+                            graph.addReference(interpreter.getCurrentProof(), lastSelectedGoalNode, lastSelectedGoalNode.getChildren());
+                        } catch (RuleException e) {
+                            throw new RuntimeException(e);
+                        }
+                    }*/
+
+                }
+            }
+
+            lastSelectedGoalNode.addMutator(assignment);
+
+            return null;
+
+
          /*   LinkedList<ProofNode> singleChild = new LinkedList<>();
             List<ProofNode> goals = interpreter.getCurrentState().getGoals();
 
@@ -461,7 +509,7 @@ class ProofNodeInterpreterManager {
             lastSelectedGoalNode.setChildren(singleChild);
             //lastSelectedGoalNode.addMutator(assignment);
             return null;*/
-            return defaultVisit(assignment);
+//            return defaultVisit(assignment);
         }
 
         @Override
