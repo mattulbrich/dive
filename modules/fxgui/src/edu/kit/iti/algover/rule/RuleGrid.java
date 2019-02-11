@@ -132,5 +132,10 @@ public class RuleGrid extends JFXMasonryPane {
         }
     }
 
+    public void removeAllComparators(){
+        this.activeComparator.clear();
+        filterRules();
+    }
+
 
 }

@@ -1,5 +1,6 @@
 package edu.kit.iti.algover.rule;
 
+import com.jfoenix.controls.JFXRadioButton;
 import com.jfoenix.controls.JFXToggleButton;
 import edu.kit.iti.algover.FxmlController;
 import edu.kit.iti.algover.project.ProjectManager;
@@ -11,11 +12,14 @@ import edu.kit.iti.algover.rules.impl.ExhaustiveRule;
 import edu.kit.iti.algover.term.Sequent;
 import edu.kit.iti.algover.term.Term;
 import edu.kit.iti.algover.term.prettyprint.PrettyPrint;
+import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.fxml.FXML;
 import javafx.scene.Node;
 import javafx.scene.control.Label;
 import javafx.scene.control.SplitPane;
+import javafx.scene.control.Toggle;
+import javafx.scene.control.ToggleGroup;
 import javafx.scene.layout.HBox;
 import org.fxmisc.flowless.VirtualizedScrollPane;
 
@@ -33,10 +37,10 @@ public class RuleApplicationController extends FxmlController {
     private RuleGrid ruleGrid;
 
     @FXML
-    private JFXToggleButton sortAlpha;
+    private JFXRadioButton sortAlpha;
 
     @FXML
-    private JFXToggleButton sortBranching;
+    private JFXRadioButton sortBranching;
 
 
 
@@ -50,12 +54,34 @@ public class RuleApplicationController extends FxmlController {
 
     private final ProjectManager manager;
 
+    private final ToggleGroup group = new ToggleGroup();
+
+
     public RuleApplicationController(ExecutorService executor, RuleApplicationListener listener, ProjectManager manager) {
         super("RuleApplicationView.fxml");
         this.listener = listener;
         this.scriptController = new ScriptController(executor, listener);
         this.scriptView = scriptController.getView();
-        this.sortAlpha.selectedProperty().addListener((observable, oldValue, newValue) -> {
+
+        this.sortAlpha.setToggleGroup(group);
+        this.sortBranching.setToggleGroup(group);
+        this.group.selectedToggleProperty().addListener(new ChangeListener<Toggle>() {
+            @Override
+            public void changed(ObservableValue<? extends Toggle> observable, Toggle oldValue, Toggle newValue) {
+               String selectedButton = ((JFXRadioButton) newValue).getId();
+
+               if(selectedButton.equals("sortAlpha")){
+                   ruleGrid.removeAllComparators();
+                   ruleGrid.addComparator(RuleGridComparator.compareAlphaOrder);
+               }
+               if(selectedButton.equals("sortBranching")){
+                   ruleGrid.removeAllComparators();
+                   ruleGrid.addComparator(RuleGridComparator.compareBranching);
+               }
+            }
+        });       
+       
+/*        this.sortAlpha.selectedProperty().addListener((observable, oldValue, newValue) -> {
             if(newValue){
                 ruleGrid.addComparator(RuleGridComparator.compareAlphaOrder);
             } else {
@@ -69,7 +95,7 @@ public class RuleApplicationController extends FxmlController {
             } else {
                 ruleGrid.removeComparator(RuleGridComparator.compareBranching);
             }
-        });
+        });*/
 
 
         logger = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
