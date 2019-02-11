@@ -33,7 +33,7 @@ public class TermReferencesBuilderTest {
         Term xEqY = new ApplTerm(BuiltinSymbols.EQ.instantiate(Sort.INT), x, y);
         Term yEqX = new ApplTerm(BuiltinSymbols.EQ.instantiate(Sort.INT), y, x);
 
-        proof = new Proof(null, null, null);
+        proof = new Proof(null, null);
         before = mockProofNode(null, new Term[]{xEqY}, new Term[0]);
         after = mockProofNode(before, new Term[]{yEqX, xEqY}, new Term[0]);
         afterReference = new ProofNodeSelector((byte) 0);

@@ -85,6 +85,11 @@ public class Proof {
     /*@ invariant failException != null <==> poofStatus.getValue() == FAIL; */
     private Exception failException;
 
+    public Proof(@NonNull Project project, @NonNull PVC pvc) {
+        this.project = project;
+        this.pvc = pvc;
+    }
+
 
     public Proof(@NonNull Project project, @NonNull PVC pvc, @NonNull DafnyFile dfyFile ) {
         this.project = project;
@@ -408,10 +413,12 @@ class ProofNodeInterpreterManager {
             if (goals.size() > 0) {
                 for (ProofNode goal : goals) {
                     lastSelectedGoalNode.getChildren().add(goal);
-                    try {
-                        graph.addFromRuleApplication(interpreter.getCurrentProof(), lastSelectedGoalNode, lastSelectedGoalNode.getChildren());
-                    } catch (RuleException e) {
-                        throw new RuntimeException(e);
+                    if(graph != null) {
+                        try {
+                            graph.addFromRuleApplication(interpreter.getCurrentProof(), lastSelectedGoalNode, lastSelectedGoalNode.getChildren());
+                        } catch (RuleException e) {
+                            throw new RuntimeException(e);
+                        }
                     }
 
                 }

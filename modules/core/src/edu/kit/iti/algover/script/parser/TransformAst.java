@@ -264,6 +264,12 @@ public class TransformAst implements ScriptLanguageVisitor<Object> {
         return new TermLiteral(ctx.getText());
     }
 
+    //TODO create class
+    @Override
+    public Object visitMatchTermLiteral(ScriptLanguageParser.MatchTermLiteralContext ctx) {
+        return new TermLiteral(ctx.getText());
+    }
+
     @Override
     public Object visitSequentLiteral(ScriptLanguageParser.SequentLiteralContext ctx) {
         return new SequentLiteral(ctx.getText());
