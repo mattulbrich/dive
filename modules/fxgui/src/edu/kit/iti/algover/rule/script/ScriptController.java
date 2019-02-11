@@ -72,6 +72,7 @@ public class ScriptController implements ScriptViewListener {
     }
 
     private void onInsertPositionChanged(Position old, Position nv) {
+        //TODO why is the first node set and another one
         if(old != null) {
             view.getGutterAnnotations().get(old.getLineNumber() - 1).setInsertMarker(false);
             view.getGutterAnnotations().forEach(gutterAnnotation -> gutterAnnotation.setProofNodeIsSelected(false));
@@ -139,11 +140,16 @@ public class ScriptController implements ScriptViewListener {
         if (!checkpoint.selector.optionalGet(proof).isPresent()) {
             if(checkpoint.selector.getParentSelector() != null) {
                 this.listener.onSwitchViewedNode(checkpoint.selector.getParentSelector());
+
             } else {
                 this.listener.onSwitchViewedNode(checkpoint.selector);
+
             }
+        } else {
+
+            this.listener.onSwitchViewedNode(checkpoint.selector);
+
         }
-        this.listener.onSwitchViewedNode(checkpoint.selector);
         showSelectedSelector(checkpoint);
         view.requestLayout();
 
@@ -213,27 +219,39 @@ public class ScriptController implements ScriptViewListener {
         }*/
         //checkpoints = ProofNodeCheckpointsBuilder.build(proof);
         // TODO switchViewedNode();
-        onCaretPositionChanged(null);
-        //view.setStyle("-fx-background-color: #807e83;");
+        //rausfinden wer die Änderungen vorgenommen hat
+        //gutter leeren
+        //grauen
+        //neuberechnen -> User
+        //onCaretPositionChanged(null);
+
+          view.setStyle("-fx-background-color: #c4c1c9;");
+          view.resetGutter();
+          view.requestLayout();
 
     }
 
     @Override
     public void runScript() {
-        //view.setStyle("-fx-background-color: #ffffff;");
+        view.resetGutter();
+        view.requestLayout();
+
         Position oldInsertPos = getObservableInsertPosition();
         String text = view.getText();
         resetExceptionRendering();
 
-        ProofScript ps = Facade.getAST(text);
+        /*ProofScript ps = Facade.getAST(text);
+
         PrettyPrinter pp = new PrettyPrinter();
         ps.accept(pp);
-
         view.replaceText(pp.toString());
-        //System.out.println("pp.toString() = " + pp.toString());
 
-        proof.setScriptTextAndInterpret(pp.toString());
+        proof.setScriptTextAndInterpret(pp.toString());*/
 
+        proof.setScriptTextAndInterpret(text);
+
+
+        //onCaretPositionChanged(null);
         if(proof.getFailException() != null) {
             renderException(proof.getFailException());
             Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).severe(proof.getFailException().getMessage());
@@ -243,6 +261,7 @@ public class ScriptController implements ScriptViewListener {
        // insertPosition = oldInsertPos;
         observableInsertPosition.set(oldInsertPos);
         createVisualSelectors(checkpoints);
+        view.setStyle("-fx-background-color: #ffffff;");
 
         switchViewedNode();
     }
@@ -270,6 +289,7 @@ public class ScriptController implements ScriptViewListener {
     }
 
     public void insertTextForSelectedNode(String text) {
+
         if(view.getText().equals("")) {
             view.insertText(0, text);
         } else {

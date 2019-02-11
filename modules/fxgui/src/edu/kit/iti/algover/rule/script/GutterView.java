@@ -38,6 +38,7 @@ public class GutterView extends HBox {
 
             update(null);
         });
+        ga.proofNodeIsSetProperty().addListener(this::update);
         ga.insertMarkerProperty().addListener(this::update);
         ga.proofNodeIsSelectedProperty().addListener(this::update);
         ga.proofNodeIsSelectedProperty().addListener((observable, oldValue, newValue) -> {
@@ -86,4 +87,5 @@ public class GutterView extends HBox {
     public SimpleObjectProperty<GutterAnnotation> annotationProperty() {
         return annotation;
     }
+
 }

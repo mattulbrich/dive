@@ -138,4 +138,5 @@ public class GutterFactory implements IntFunction<Node> {
     public ObservableList<GutterAnnotation> getAnnotations() {
         return this.lineAnnotations;
     }
+
 }

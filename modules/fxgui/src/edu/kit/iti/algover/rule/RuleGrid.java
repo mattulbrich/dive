@@ -8,9 +8,7 @@ import javafx.collections.ObservableList;
 import javafx.scene.control.SelectionModel;
 import javafx.scene.control.SingleSelectionModel;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -21,10 +19,14 @@ public class RuleGrid extends JFXMasonryPane {
     public static final double RULE_CELL_HEIGHT = 80;
     public static final double SPACING = 4;
 
+
     private List<RuleView> allRules;
 
     private final ObservableList<RuleView> rules;
     private final SelectionModel<RuleView> selectionModel;
+
+    private List<Comparator> activeComparator = new ArrayList<>();
+
 
     public RuleGrid() {
         this(new RuleView[0]);
@@ -100,6 +102,11 @@ public class RuleGrid extends JFXMasonryPane {
         rules.stream().forEach(ruleView -> ruleView.autosize());
 
         this.getChildren().clear();
+        //sort rules according to active comparators
+        activeComparator.forEach(comparator -> {
+            Collections.sort(rules, comparator);
+        });
+
         this.getChildren().addAll(rules);
 
         requestLayout();
@@ -112,4 +119,18 @@ public class RuleGrid extends JFXMasonryPane {
     public void setAllRules(List<RuleView> ar) {
         allRules = ar;
     }
+
+    public void removeComparator(Comparator comp){
+        activeComparator.remove(comp);
+        filterRules();
+    }
+
+    public void addComparator(Comparator comp){
+        if(!activeComparator.contains(comp)){
+            activeComparator.add(comp);
+            filterRules();
+        }
+    }
+
+
 }
