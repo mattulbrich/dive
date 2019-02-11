@@ -186,7 +186,6 @@ public class ScriptController implements ScriptViewListener {
 
     @Override
     public void onAsyncScriptTextChanged(String text) {
-        System.out.println("ScriptController.onAsyncScriptTextChanged");
         /*resetExceptionRendering();
 
         ProofScript ps = Facade.getAST(text);
@@ -210,7 +209,6 @@ public class ScriptController implements ScriptViewListener {
 
     @Override
     public void runScript() {
-        System.out.println("ScriptController.runScript");
 
         Position oldInsertPos = getObservableInsertPosition();
         String text = view.getText();
