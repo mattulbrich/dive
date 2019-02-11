@@ -142,8 +142,9 @@ public class ScriptController implements ScriptViewListener {
             } else {
                 this.listener.onSwitchViewedNode(checkpoint.selector);
             }
+        } else {
+            this.listener.onSwitchViewedNode(checkpoint.selector);
         }
-        this.listener.onSwitchViewedNode(checkpoint.selector);
         showSelectedSelector(checkpoint);
         view.requestLayout();
 
