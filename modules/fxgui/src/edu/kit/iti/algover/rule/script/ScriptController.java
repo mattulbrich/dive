@@ -1,36 +1,25 @@
 package edu.kit.iti.algover.rule.script;
 
-import edu.kit.iti.algover.editor.HighlightingRule;
-import edu.kit.iti.algover.editor.LayeredHighlightingRule;
 import edu.kit.iti.algover.proof.Proof;
 import edu.kit.iti.algover.proof.ProofNodeSelector;
 import edu.kit.iti.algover.rule.RuleApplicationListener;
-import edu.kit.iti.algover.rules.RuleException;
 import edu.kit.iti.algover.script.ast.Position;
 import edu.kit.iti.algover.script.ast.ProofScript;
-import edu.kit.iti.algover.script.exceptions.ScriptCommandNotApplicableException;
 import edu.kit.iti.algover.script.parser.Facade;
 import edu.kit.iti.algover.script.parser.PrettyPrinter;
 import edu.kit.iti.algover.util.ExceptionDetails;
-import edu.kit.iti.algover.util.RuleApp;
 import javafx.beans.Observable;
 import javafx.beans.property.SimpleObjectProperty;
-import javafx.collections.ObservableList;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyCodeCombination;
 import javafx.scene.input.KeyCombination;
 import javafx.scene.input.KeyEvent;
-import org.antlr.runtime.Token;
-import org.fxmisc.richtext.model.StyleSpans;
 
-import java.io.StringWriter;
-import java.time.Duration;
+import java.awt.*;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
 import java.util.concurrent.ExecutorService;
-import java.util.function.Consumer;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
@@ -197,6 +186,7 @@ public class ScriptController implements ScriptViewListener {
 
     @Override
     public void onAsyncScriptTextChanged(String text) {
+        System.out.println("ScriptController.onAsyncScriptTextChanged");
         /*resetExceptionRendering();
 
         ProofScript ps = Facade.getAST(text);
@@ -214,11 +204,14 @@ public class ScriptController implements ScriptViewListener {
         }*/
         //checkpoints = ProofNodeCheckpointsBuilder.build(proof);
         // TODO switchViewedNode();
+        view.setStyle("-fx-background-color: lightgray;");
         onCaretPositionChanged(null);
     }
 
     @Override
     public void runScript() {
+        System.out.println("ScriptController.runScript");
+
         Position oldInsertPos = getObservableInsertPosition();
         String text = view.getText();
         resetExceptionRendering();
@@ -243,6 +236,7 @@ public class ScriptController implements ScriptViewListener {
         createVisualSelectors(checkpoints);
 
         switchViewedNode();
+        view.setStyle("-fx-background-color: white;");
     }
 
     private void createVisualSelectors(List<ProofNodeCheckpoint> checkpoints) {
