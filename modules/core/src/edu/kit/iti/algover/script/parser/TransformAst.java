@@ -41,7 +41,7 @@ import java.util.List;
 
 // REVIEW: Add the missing generic parameters! Please!
 
-@SuppressWarnings({"unchecked", "rawtypes"})
+//@SuppressWarnings({"unchecked", "rawtypes"})
 public class TransformAst implements ScriptLanguageVisitor<Object> {
     //private List<ProofScript> scripts = new ArrayList<>(10);
 

@@ -113,7 +113,7 @@
         <attribute name="Implementation-Vendor" value="ITI, Karlsruhe Institute of Technology"/>
         <attribute name="Implementation-Title" value="Algo Ver FX" />
         <attribute name="Implementation-Version" value="${VERSION} - ${NOW}"/>
-        <attribute name="Class-Path" value="lib/antlr.jar lib/antlr-4.7-complete.jar lib/controlsfx-8.40.13.jar lib/jpplib.jar lib/nonnull.jar lib/richtextfx-fat-1.0.0-SNAPSHOT.jar lib/fontawesomefx-8.9.jar lib/guava-23.0.jar lib/jfoenix.jar" />
+        <attribute name="Class-Path" value="lib/antlr.jar lib/antlr-4.7-complete.jar lib/controlsfx-8.40.13.jar lib/jpplib.jar lib/nonnull.jar lib/richtextfx-fat-0.9.2.jar lib/fontawesomefx-8.9.jar lib/guava-23.0.jar lib/jfoenix.jar" />
         <attribute name="Main-Class" value="edu.kit.iti.algover.AlgoVerApplication"/>
         <attribute name="SplashScreen-Image" value="to/be/done.png"/>
       </manifest>

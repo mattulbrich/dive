@@ -9,14 +9,24 @@ import edu.kit.iti.algover.script.ScriptLanguageLexer;
 import edu.kit.iti.algover.script.parser.Facade;
 import edu.kit.iti.algover.util.AsyncHighlightingCodeArea;
 import javafx.application.Platform;
+import javafx.beans.property.SimpleListProperty;
+import javafx.beans.property.SimpleObjectProperty;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
+import javafx.geometry.Pos;
+import javafx.scene.Node;
 import javafx.scene.control.ContextMenu;
+import javafx.scene.control.Label;
 import javafx.scene.control.MenuItem;
+import javafx.scene.layout.HBox;
 import org.antlr.runtime.ANTLRStringStream;
 import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.Token;
+import org.fxmisc.richtext.LineNumberFactory;
 import org.fxmisc.richtext.model.StyleSpan;
 import org.fxmisc.richtext.model.StyleSpans;
 import org.fxmisc.richtext.model.StyleSpansBuilder;
+import org.fxmisc.richtext.model.TwoDimensional;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
@@ -26,14 +36,22 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
+import java.util.function.IntFunction;
 
 /**
  * Created by Philipp on 24.07.2017.
  */
 public class ScriptView extends AsyncHighlightingCodeArea {
 
+
     private final ScriptViewListener listener;
     private HighlightingRulev4 highlightingRule;
+
+    public GutterFactory getGutter() {
+        return gutter;
+    }
+
+    private GutterFactory gutter;
 
     public ScriptView(ExecutorService executor, ScriptViewListener listener) {
         super(executor);
@@ -53,9 +71,26 @@ public class ScriptView extends AsyncHighlightingCodeArea {
                 save
         );
         setContextMenu(menu);
+        //set gutter factory for checkpoints
+        gutter = new GutterFactory(this);
+        this.setParagraphGraphicFactory(gutter);
+
+
         setupAsyncSyntaxhighlighting();
 
         textProperty().addListener((observable, oldValue, newValue) -> listener.onAsyncScriptTextChanged(newValue));
+        /*this.caretPositionProperty().addListener((observable, oldValue, newValue) -> {
+            System.out.println("oldValue = " + oldValue);
+            System.out.println("newValue = " + newValue);
+        });*/
+
+    }
+
+
+    public void resetGutter(){
+      //  gutter.getAnnotations().setAll(new SimpleListProperty<>(FXCollections.observableArrayList()));
+        gutter = new GutterFactory(this);
+        this.setParagraphGraphicFactory(gutter);
     }
 
     @Override
@@ -124,7 +159,7 @@ public class ScriptView extends AsyncHighlightingCodeArea {
             InputStream stream = new ByteArrayInputStream(text.getBytes(StandardCharsets.UTF_8));
             lexer = new ScriptLanguageLexer(CharStreams.fromStream(stream, StandardCharsets.UTF_8));
         } catch (Exception e) {
-            System.out.println("couldnt not render new highlighting.");
+            System.out.println("could not render new highlighting.");
         }
 
         if (lexer != null) {
@@ -144,9 +179,15 @@ public class ScriptView extends AsyncHighlightingCodeArea {
                 builder.create();
                 applyHighlighting(builder.create());
             } catch (IllegalStateException e) {
-                //This shouldnt be a problem since it only singlas that there are no spans
+                //This shouldnt be a problem since it only singles that there are no spans
             }
 
         }
     }
+
+    public ObservableList<GutterAnnotation> getGutterAnnotations() {
+        return gutter.getAnnotations();
+    }
+
+
 }

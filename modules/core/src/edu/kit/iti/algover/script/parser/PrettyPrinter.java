@@ -205,7 +205,7 @@ public class PrettyPrinter extends DefaultASTVisitor<Void> {
     public Void visit(Statements statements) {
         if (statements.size() == 0)
             return null;
-        for (Statement<?> s : statements) {
+        for (Statement s : statements) {
             s.accept(this);
             nl();
         }

@@ -31,12 +31,12 @@ import org.antlr.v4.runtime.ParserRuleContext;
  * @author Alexander Weigl
  * @version 1 (27.04.17)
  */
-public abstract class ASTNode<T extends ParserRuleContext>
-        implements Visitable, Copyable<ASTNode<T>> {
+public abstract class ASTNode
+        implements Visitable, Copyable<ASTNode> {
     /**
      * The corresponding parse rule context
      */
-    protected T ruleContext;
+    protected ParserRuleContext ruleContext;
 
     /**
      *
@@ -61,11 +61,11 @@ public abstract class ASTNode<T extends ParserRuleContext>
         return null;
     }
 
-    public T getRuleContext() {
+    public ParserRuleContext getRuleContext() {
         return ruleContext;
     }
 
-    public void setRuleContext(T c) {
+    public void setRuleContext(ParserRuleContext c) {
 
         startPosition = Position.from(c.getStart());
         endPosition = Position.from(c.getStop());
@@ -100,6 +100,6 @@ public abstract class ASTNode<T extends ParserRuleContext>
      * @return a fresh substree of the AST that is equal to this.
      */
     @Override
-    public abstract ASTNode<T> copy();
+    public abstract ASTNode copy();
 
 }

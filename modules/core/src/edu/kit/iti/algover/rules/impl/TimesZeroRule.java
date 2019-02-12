@@ -23,6 +23,7 @@ public class TimesZeroRule extends AbstractProofRule {
 
     public TimesZeroRule() {
         super(ON_PARAM);
+        mayBeExhaustive = true;
     }
 
     @Override

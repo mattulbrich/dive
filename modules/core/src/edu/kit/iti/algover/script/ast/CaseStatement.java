@@ -30,7 +30,7 @@ import edu.kit.iti.algover.script.parser.Visitor;
  * @author Alexander Weigl
  * @version 1 (28.04.17)
  */
-public class CaseStatement extends Statement<ScriptLanguageParser.CasesListContext> {
+public class CaseStatement extends Statement{
     public boolean isClosedStmt;
     protected Statements body;
 

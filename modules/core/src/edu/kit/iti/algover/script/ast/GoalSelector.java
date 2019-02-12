@@ -31,11 +31,8 @@ import org.antlr.v4.runtime.ParserRuleContext;
  * @version 1 (29.04.17)
  */
 
-// REVIEW: Add the missing generic parameters! Please!
-
-@SuppressWarnings({"unchecked", "rawtypes"})
-public abstract class GoalSelector<T extends ParserRuleContext>
-        extends Statement<T> {
+public abstract class GoalSelector
+        extends Statement {
     @NonNull
     private Statements body = new Statements();
 

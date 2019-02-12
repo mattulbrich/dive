@@ -34,12 +34,7 @@ import nonnull.NonNull;
  * @author Alexander Weigl
  * @version 1 (28.04.17)
  */
-
-// REVIEW: Add the missing generic parameters! Please!
-
-@SuppressWarnings({"unchecked", "rawtypes"})
-public class AssignmentStatement
-        extends Statement<ScriptLanguageParser.AssignmentContext> {
+public class AssignmentStatement extends Statement {
     @NonNull
     private Variable lhs;
 

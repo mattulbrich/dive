@@ -324,7 +324,7 @@ class ProofNodeInterpreterManager {
         }
 
         @Override
-        public Void defaultVisit(ASTNode<?> node) {
+        public Void defaultVisit(ASTNode node) {
             lastSelectedGoalNode = interpreter.getSelectedNode();
             return null;
         }

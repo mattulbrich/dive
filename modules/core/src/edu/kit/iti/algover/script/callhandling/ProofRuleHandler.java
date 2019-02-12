@@ -23,10 +23,6 @@ import java.util.*;
  * To use these proof rules, they are loaded using the Java ServiceLoader.
  * @author S. Grebing
  */
-
-// REVIEW: Add the missing generic parameters! Please!
-
-@SuppressWarnings({"unchecked", "rawtypes"})
 public class ProofRuleHandler implements CommandHandler<ProofNode> {
     /**
      * List of all available rule objects
@@ -110,7 +106,7 @@ public class ProofRuleHandler implements CommandHandler<ProofNode> {
             Evaluator<ProofNode> evaluator = new Evaluator<>(params, parent);
 
             call.getParameters().forEach((variable, expression) -> {
-                        Value val = evaluator.eval(expression);
+                        Value<?> val = evaluator.eval(expression);
                         ruleParams.putValue(variable.getIdentifier(), convertValuesToTypedValues(val));
                     }
             );
@@ -164,7 +160,7 @@ public class ProofRuleHandler implements CommandHandler<ProofNode> {
 
 
 
-    private Object convertValuesToTypedValues(Value val) {
+    private Object convertValuesToTypedValues(Value<?> val) {
         switch (val.getType()) {
             case STRING:
             case INT:
