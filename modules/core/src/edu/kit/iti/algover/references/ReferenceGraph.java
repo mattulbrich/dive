@@ -13,11 +13,13 @@ import edu.kit.iti.algover.rules.BranchInfo;
 import edu.kit.iti.algover.rules.ProofRuleApplication;
 import edu.kit.iti.algover.rules.RuleException;
 import edu.kit.iti.algover.rules.TermSelector;
+import edu.kit.iti.algover.script.ast.ASTNode;
 import edu.kit.iti.algover.term.Term;
 import edu.kit.iti.algover.util.ImmutableList;
 import edu.kit.iti.algover.util.Pair;
 import org.antlr.runtime.Token;
 
+import java.io.File;
 import java.util.*;
 import java.util.function.Function;
 
@@ -112,6 +114,10 @@ public class ReferenceGraph {
             }
 
         }
+    }
+
+    public void addFromScriptNode(ASTNode node, File scriptfile, int linenumber){
+        //TODO
     }
 
     @Override

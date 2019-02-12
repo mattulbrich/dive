@@ -182,7 +182,9 @@ public class Proof {
             new ProofNodeInterpreterManager(interpreter);
             interpreter.newState(newRoot);
             this.proofRoot = newRoot;
+
             scriptAST.getBody().forEach(interpreter::interpret);
+            System.out.println("Proof" + interpreter.getCurrentProof().proofToString());
 
             this.failException = null;
             proofStatus.setValue(newRoot.allLeavesClosed() ? ProofStatus.CLOSED : ProofStatus.OPEN);
@@ -430,13 +432,13 @@ class ProofNodeInterpreterManager {
             if (goals.size() > 0) {
                 for (ProofNode goal : goals) {
                     lastSelectedGoalNode.getChildren().add(goal);
-                    if(graph != null) {
+                   /* if(graph != null) {
                         try {
                             graph.addFromRuleApplication(interpreter.getCurrentProof(), lastSelectedGoalNode, lastSelectedGoalNode.getChildren());
                         } catch (RuleException e) {
                             throw new RuntimeException(e);
                         }
-                    }
+                    }*/
 
                 }
             }

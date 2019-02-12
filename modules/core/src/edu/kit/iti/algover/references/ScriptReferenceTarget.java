@@ -31,13 +31,13 @@ public class ScriptReferenceTarget<T extends ParserRuleContext> extends Referenc
         return linenumber;
     }
 
-    public ASTNode<T> getNode() {
+    public ASTNode getNode() {
         return node;
     }
 
     private final File file;
     private final int linenumber;
-    private final ASTNode<T> node;
+    private final ASTNode node;
 
     public ScriptReferenceTarget(File file, int linenumber, ASTNode node) {
         this.file = file;
