@@ -9,6 +9,7 @@ package edu.kit.iti.algover.cli;
 
 import edu.kit.iti.algover.parser.DafnyException;
 import edu.kit.iti.algover.parser.DafnyParserException;
+import edu.kit.iti.algover.project.DafnyProjectManager;
 import edu.kit.iti.algover.project.ProjectManager;
 import edu.kit.iti.algover.project.XMLProjectManager;
 import edu.kit.iti.algover.proof.PVC;
@@ -41,9 +42,10 @@ public class AlgoVerService {
     public static final String DEFAULT_CONFIG_FILENAME = "config.xml";
 
     /**
-     * The directory to analyse
+     * The path of the project to analyse. It can be either a directory
+     * or a .dfy file.
      */
-    private final @NonNull File directory;
+    private final @NonNull File path;
 
     /**
      * The actually used configuration file name, defaults to
@@ -73,10 +75,11 @@ public class AlgoVerService {
     /**
      * Instantiate an AlgoVer run instance.
      *
-     * @param directory the directory containing config and code.
+     * @param path the path to the path or .dfy file
+     *             containing config and code.
      */
-    public AlgoVerService(@NonNull File directory) {
-        this.directory = directory;
+    public AlgoVerService(@NonNull File path) {
+        this.path = path;
     }
 
     /**
@@ -150,8 +153,8 @@ public class AlgoVerService {
 
     // Getters and setters ...
 
-    public File getDirectory() {
-        return directory;
+    public @NonNull File getPath() {
+        return path;
     }
 
     public @NonNull String getConfigName() {
@@ -191,7 +194,12 @@ public class AlgoVerService {
     public ProjectManager getProjectManager()
             throws DafnyParserException, IOException, DafnyException, FormatException {
         if (projectManager == null) {
-            this.projectManager = new XMLProjectManager(directory, configName);
+            if (path.isDirectory()) {
+                this.projectManager = new XMLProjectManager(path, configName);
+            } else {
+                this.projectManager = new DafnyProjectManager(path);
+                this.projectManager.reload();
+            }
         }
         return projectManager;
     }

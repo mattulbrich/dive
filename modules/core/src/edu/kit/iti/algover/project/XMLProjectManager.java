@@ -23,6 +23,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.HashMap;
+import java.util.Map;
 
 /**
  * A project manager that receives a directory and a config.xml file for
@@ -96,9 +97,8 @@ public final class XMLProjectManager extends AbstractProjectManager {
             throws DafnyException, DafnyParserException, IOException, FormatException {
         ProjectBuilder pb = new ProjectBuilder();
         pb.setDir(path);
-        pb.setConfigFilename(configFilename);
         try {
-            pb.parseProjectConfigurationFile();
+            parseProjectConfigurationFile(path, configFilename, pb);
             pb.validateProjectConfiguration();
         } catch (JAXBException|SAXException e) {
             // subsume the XML exceptions under IOException.
@@ -122,6 +122,38 @@ public final class XMLProjectManager extends AbstractProjectManager {
 //        }
 
         return result;
+    }
+
+    /**
+     * This method loads the configuration file, extracts all entities and sets
+     * member variables accordingly.
+     *
+     * Moved from class {@link ProjectBuilder}, since it makes sense only
+     * for XML projects.
+     *
+     * It is public for access of legacy test cases.
+     */
+    public static void parseProjectConfigurationFile(File path, String configFilename, ProjectBuilder pb) throws JAXBException, SAXException {
+
+        File configFile = new File(path, configFilename);
+
+        Configuration config = ConfigXMLLoader.loadConfigFile(configFile);
+
+        if (config.getDafnyFiles() != null) {
+            config.getDafnyFiles().stream().forEach(file -> {
+                pb.addInputFile(file.getPath());
+            });
+        }
+        if (config.getLibFiles() != null) {
+            config.getLibFiles().stream().forEach(file -> {
+                pb.addLibraryFile(file.getPath());
+            });
+        }
+
+        Map<String, String> settings = config.getSettings();
+        if(settings != null) {
+            pb.setSettings(settings);
+        }
     }
 
     private Project buildEmptyProject(File path, String configFilename)

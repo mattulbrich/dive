@@ -45,11 +45,9 @@ public class ProjectManagerTest {
 
         final File f1 = new File(testDir);
 
-        ProjectBuilder pb = new ProjectBuilder();
-        pb.setDir(f1);
-        pb.setConfigFilename(config);
-        pb.parseProjectConfigurationFile();
-        Project p = pb.build();
+        XMLProjectManager pm = new XMLProjectManager(f1, config);
+        pm.reload();
+        Project p = pm.getProject();
         this.p = p;
         makeTestTerm();
 

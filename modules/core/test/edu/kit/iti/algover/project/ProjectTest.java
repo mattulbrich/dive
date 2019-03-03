@@ -44,6 +44,7 @@ import javax.xml.bind.JAXBException;
 
 public class ProjectTest {
     static final String testDir = "modules/core/test-res/edu/kit/iti/algover/project";
+    static final String CONFIG = "config.xml";
     Project p = null;
 
     @Rule
@@ -56,7 +57,7 @@ public class ProjectTest {
 
         ProjectBuilder pb = new ProjectBuilder();
         pb.setDir(f1);
-        pb.parseProjectConfigurationFile();
+        XMLProjectManager.parseProjectConfigurationFile(f1, CONFIG, pb);
         Project p = pb.build();
         this.p = p;
 
@@ -103,7 +104,8 @@ public class ProjectTest {
 
         ProjectBuilder pb = new ProjectBuilder();
         pb.setDir(f1);
-        pb.parseProjectConfigurationFile();
+        // was: pb.parseProjectConfigurationFile();
+        XMLProjectManager.parseProjectConfigurationFile(f1, CONFIG, pb);
         pb.validateProjectConfiguration();
     }
 
@@ -145,7 +147,8 @@ public class ProjectTest {
         final File f = new File(testDir, "lemma_test");
         ProjectBuilder pb = new ProjectBuilder();
         pb.setDir(f);
-        pb.parseProjectConfigurationFile();
+        // pb.parseProjectConfigurationFile();
+        XMLProjectManager.parseProjectConfigurationFile(f, CONFIG, pb);
         Project p = pb.build();
 
         int totalRuleCount;
