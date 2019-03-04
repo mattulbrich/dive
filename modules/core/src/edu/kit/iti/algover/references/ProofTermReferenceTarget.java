@@ -41,6 +41,7 @@ public class ProofTermReferenceTarget extends ReferenceTarget {
         return "ProofTermReference{" +
                 "proofNodeSelector=" + proofNodeSelector +
                 ", termSelector=" + termSelector +
+              //  ", termNo="+ termSelector.getTermNo() +
                 '}';
     }
 

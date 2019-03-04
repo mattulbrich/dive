@@ -55,13 +55,16 @@ public final class TermReferencesBuilder {
             throws RuleException {
         proofNodeAfter.get(proof);
         changedTerm.selectSubterm(proofNodeBefore.get(proof).getSequent());
+        //build top-level Reference
+        ProofTermReferenceTarget from = new ProofTermReferenceTarget(proofNodeBefore, changedTerm);
+        ProofTermReferenceTarget to = new ProofTermReferenceTarget(proofNodeAfter, changedTerm);
+        references.addReference(from, to);
 
         buildReferencesAfterApplication(
                 proofNodeAfter,
                 proofNodeBefore.get(proof).getSequent(),
                 proofNodeAfter.get(proof).getSequent(),
                 changedTerm);
-
         return this;
     }
 
@@ -89,13 +92,20 @@ public final class TermReferencesBuilder {
                 // look for referentially equal objects in the sequent after the rule application:
                 collectedAfter.forEach((termSelectorAfter, termAfter) -> {
                     if (termAfter == termBefore) { // referential equality
+                        ProofTermReferenceTarget from = new ProofTermReferenceTarget(proofNodeBefore, termSelectorBefore);
+                        ProofTermReferenceTarget to = new ProofTermReferenceTarget(proofNodeAfter, termSelectorAfter);
                         references.addReference(
-                                new ProofTermReferenceTarget(proofNodeBefore, termSelectorBefore),
-                                new ProofTermReferenceTarget(proofNodeAfter, termSelectorAfter)
+                                from,
+                                to
                         );
+                    //    System.out.println("Added Ref = " + from.getProofNodeSelector()+ " "+ from.getTermSelector() + " "+termBefore);
+                    //    System.out.println("==>" + to.getProofNodeSelector()+ " "+ to.getTermSelector() + " "+termAfter);
+
                     }
                 });
             });
+
+
         } catch (RuleException e) {
             e.printStackTrace(); //TODO: Handle errors
             // this should _only_ happen, if changedSelector is an invalid selector!

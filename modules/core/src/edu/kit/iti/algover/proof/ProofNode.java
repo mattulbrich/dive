@@ -105,7 +105,7 @@ public class ProofNode {
         return parent;
     }
 
-    public ProofRuleApplication getPsr() {
+    public ProofRuleApplication getProofRuleApplication() {
         return psr;
     }
 
@@ -165,7 +165,7 @@ public class ProofNode {
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
-        sb.append("\n==============================================================\n");
+     //   sb.append("\n==============================================================\n");
         if (this.getParent() == null) {
             sb.append("Root Node:\n");
         } else {
@@ -187,7 +187,7 @@ public class ProofNode {
             if (mutator.size() != 1)
                 sb.append("\nNumber of Mutators: " + mutator.size()+"\n");
         }
-        sb.append("\n==============================================================\n");
+       // sb.append("\n==============================================================\n");
 
         return sb.toString();
     }

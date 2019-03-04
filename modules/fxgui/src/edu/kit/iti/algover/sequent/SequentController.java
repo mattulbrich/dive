@@ -225,7 +225,7 @@ public class SequentController extends FxmlController {
             proofNodeSelector.optionalGet(activeProof).ifPresent(proofNode -> {
                 activeNode = proofNodeSelector;
                 BranchInfo branchInfo = null;
-                ProofRuleApplication application = proofNode.getPsr();
+                ProofRuleApplication application = proofNode.getProofRuleApplication();
                 if (application != null) {
                     branchInfo = application.getBranchInfo().get(
                             proofNodeSelector.getPath()[proofNodeSelector.getPath().length - 1]

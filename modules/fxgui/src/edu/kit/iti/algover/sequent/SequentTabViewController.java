@@ -4,15 +4,13 @@ import edu.kit.iti.algover.browser.entities.PVCEntity;
 import edu.kit.iti.algover.proof.Proof;
 import edu.kit.iti.algover.proof.ProofNode;
 import edu.kit.iti.algover.proof.ProofNodeSelector;
+import edu.kit.iti.algover.references.ProofTermReferenceTarget;
 import edu.kit.iti.algover.references.ReferenceGraph;
 import javafx.beans.value.ObservableValue;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 /**
  * Created by jklamroth on 6/7/18.
@@ -129,5 +127,9 @@ public class SequentTabViewController {
 
     private void onTabSelected(ObservableValue<? extends Number> observableValue, Number oldValue, Number newValue) {
         listener.onSwitchViewedNode(controllers.get(newValue.intValue()).getActiveNodeSelector());
+    }
+
+    public void viewReferences(Set<ProofTermReferenceTarget> proofTermReferenceTargetSet){
+
     }
 }

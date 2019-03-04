@@ -140,6 +140,7 @@ public class ProjectManagerTest {
         });
         Proof proofAfter = pm.getProofForPVC(testPVCm1Post);
 
+
         System.out.println(proofAfter.getScript().toString());
         Assert.assertNotNull(proofAfter.getScript());
         Assert.assertEquals("Proof is not loaded yet", ProofStatus.DIRTY, proof.getProofStatus());

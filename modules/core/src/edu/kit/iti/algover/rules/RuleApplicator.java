@@ -45,6 +45,7 @@ public class RuleApplicator {
 
         ImmutableList<BranchInfo> applicationInfos = proofRuleApplication.getBranchInfo();
         if (applicationInfos.equals(BranchInfo.UNCHANGED)) {
+            //SaG -> MU: why create a new object?
             ProofNode unchanged = new ProofNode(pn, proofRuleApplication, pn.getSequent(), pn.getPVC());
             //pn.getChildren().add(unchanged);
             List<ProofNode> retList = new ArrayList<>();

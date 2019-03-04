@@ -184,8 +184,6 @@ public class Proof {
             this.proofRoot = newRoot;
 
             scriptAST.getBody().forEach(interpreter::interpret);
-            System.out.println("Proof" + interpreter.getCurrentProof().proofToString());
-
             this.failException = null;
             proofStatus.setValue(newRoot.allLeavesClosed() ? ProofStatus.CLOSED : ProofStatus.OPEN);
 
@@ -291,6 +289,7 @@ public class Proof {
  * Class handling the creation of the proof tree when interpreting script.
  * EntryListeners are informed when entering an ASTNode in the Interpreter
  * ExitsListeners are informed at then end of ASTNodes
+ * Book keeping is done in this visitor
  */
 class ProofNodeInterpreterManager {
     final Interpreter<ProofNode> interpreter;
@@ -423,22 +422,49 @@ class ProofNodeInterpreterManager {
             List<ProofNode> goals = interpreter.getCurrentState().getGoals();
 
             if (goals.size() == 1 && goals.get(0).equals(lastSelectedGoalNode)) {
+                if(graph != null) {
+                    try {
+                        graph.addFromRuleApplication(interpreter.getCurrentProof(), lastSelectedGoalNode, lastSelectedGoalNode.getChildren());
+                    } catch (RuleException e) {
+                        throw new RuntimeException(e);
+                    }
+                }
                 return null;
             }
+            //goal list is empty, we have reached a proof
             if (goals.isEmpty()) {
                 lastSelectedGoalNode.setClosed(true);
                // System.out.println("Goalist goals.size() = " + goals.size() + "is empty we have reached a full proof");
             }
+            //we have newly created goals, for each of them, add them to the proofnode structure as children
+            //TODO we now have a nested structure, how to add this structure to the proof tree
             if (goals.size() > 0) {
                 for (ProofNode goal : goals) {
-                    lastSelectedGoalNode.getChildren().add(goal);
-                   /* if(graph != null) {
-                        try {
-                            graph.addFromRuleApplication(interpreter.getCurrentProof(), lastSelectedGoalNode, lastSelectedGoalNode.getChildren());
-                        } catch (RuleException e) {
-                            throw new RuntimeException(e);
+                    //we don't have a nested structure
+                    if(goal.getParent() == lastSelectedGoalNode) {
+                        lastSelectedGoalNode.getChildren().add(goal);
+                        if(graph != null) {
+                            try {
+                                graph.addFromRuleApplication(interpreter.getCurrentProof(), lastSelectedGoalNode, lastSelectedGoalNode.getChildren());
+
+                            } catch (RuleException e) {
+                                throw new RuntimeException(e);
+                            }
                         }
-                    }*/
+                    } else {
+                        //TODO handle nested structure -> maybe this is not wanted
+                        ProofNode temporaryGoal = goal;
+                        while(temporaryGoal.getParent() != lastSelectedGoalNode){
+                            try {
+                                graph.addFromRuleApplication(interpreter.getCurrentProof(), temporaryGoal, temporaryGoal.getParent().getChildren());
+                            } catch (RuleException e) {
+                                e.printStackTrace();
+                            }
+                            temporaryGoal = temporaryGoal.getParent();
+                        }
+                        lastSelectedGoalNode.getChildren().add(temporaryGoal);
+
+                    }
 
                 }
             }

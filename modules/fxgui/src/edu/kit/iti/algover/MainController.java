@@ -20,10 +20,7 @@ import edu.kit.iti.algover.parser.DafnyParserException;
 import edu.kit.iti.algover.project.Project;
 import edu.kit.iti.algover.project.ProjectManager;
 import edu.kit.iti.algover.proof.*;
-import edu.kit.iti.algover.references.CodeReferenceTarget;
-import edu.kit.iti.algover.references.GetReferenceTypeVisitor;
-import edu.kit.iti.algover.references.ProofTermReferenceTarget;
-import edu.kit.iti.algover.references.ReferenceTarget;
+import edu.kit.iti.algover.references.*;
 import edu.kit.iti.algover.rule.RuleApplicationController;
 import edu.kit.iti.algover.rule.RuleApplicationListener;
 import edu.kit.iti.algover.rules.*;
@@ -478,9 +475,17 @@ public class MainController implements SequentActionListener, RuleApplicationLis
     @Override
     public void onRequestReferenceHighlighting(ProofTermReferenceTarget termRef) {
         if (termRef != null) {
-            Set<ReferenceTarget> predecessors = sequentController.getActiveSequentController().getReferenceGraph().allPredecessors(termRef);
+            System.out.println("termRef = " + termRef);
+
+            ReferenceGraph referenceGraph = sequentController.getActiveSequentController().getReferenceGraph();
+
+            Set<ReferenceTarget> predecessors = referenceGraph.allPredecessors(termRef);
             Set<CodeReferenceTarget> codeReferenceTargets = filterCodeReferences(predecessors);
+          //  Set<ProofTermReferenceTarget> proofTermReferenceTargets = filterTermReferences(predecessors);
+          //  referenceGraph.computeHistory(termRef, sequentController.getActiveSequentController().getActiveProof()).forEach(proofTermReferenceTarget -> System.out.println("proofTermReferenceTarget = " + proofTermReferenceTarget));
+          //  System.out.println("filterTermReferences(predecessors) = " + filterTermReferences(predecessors));
             editorController.viewReferences(codeReferenceTargets);
+          //  sequentController.viewReferences(proofTermReferenceTargets);
         } else {
             editorController.viewReferences(new HashSet<>());
         }
@@ -490,6 +495,17 @@ public class MainController implements SequentActionListener, RuleApplicationLis
         Set<CodeReferenceTarget> codeReferenceTargets = new HashSet<>();
         predecessors.forEach(reference -> {
             CodeReferenceTarget codeReferenceTarget = reference.accept(new GetReferenceTypeVisitor<>(CodeReferenceTarget.class));
+            if (codeReferenceTarget != null) {
+                codeReferenceTargets.add(codeReferenceTarget);
+            }
+        });
+        return codeReferenceTargets;
+    }
+
+    private static Set<ProofTermReferenceTarget> filterTermReferences(Set<ReferenceTarget> predecessors){
+        Set<ProofTermReferenceTarget> codeReferenceTargets = new HashSet<>();
+        predecessors.forEach(reference -> {
+            ProofTermReferenceTarget codeReferenceTarget = reference.accept(new GetReferenceTypeVisitor<>(ProofTermReferenceTarget.class));
             if (codeReferenceTarget != null) {
                 codeReferenceTargets.add(codeReferenceTarget);
             }

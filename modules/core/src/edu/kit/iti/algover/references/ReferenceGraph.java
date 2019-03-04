@@ -14,6 +14,7 @@ import edu.kit.iti.algover.rules.ProofRuleApplication;
 import edu.kit.iti.algover.rules.RuleException;
 import edu.kit.iti.algover.rules.TermSelector;
 import edu.kit.iti.algover.script.ast.ASTNode;
+import edu.kit.iti.algover.term.Sequent;
 import edu.kit.iti.algover.term.Term;
 import edu.kit.iti.algover.util.ImmutableList;
 import edu.kit.iti.algover.util.Pair;
@@ -21,7 +22,9 @@ import org.antlr.runtime.Token;
 
 import java.io.File;
 import java.util.*;
+import java.util.concurrent.ArrayBlockingQueue;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 
 /**
  * A Reference-graph. Its nodes are References, it is unidirectional and loopless.
@@ -103,15 +106,23 @@ public class ReferenceGraph {
         for (ProofNode afterNode: newNodes) {
             //get ProofRuleApplication from node
             ProofNodeSelector pns = new ProofNodeSelector(afterNode);
-            ProofRuleApplication pra = afterNode.getPsr();
+            ProofRuleApplication pra = afterNode.getProofRuleApplication();
+            
 
             ImmutableList<BranchInfo> branchInfos = pra.getBranchInfo();
             for (BranchInfo bi : branchInfos) {
+                //handle replacements
                 ImmutableList<Pair<TermSelector, Term>> replacements = bi.getReplacements();
                 for (Pair<TermSelector, Term> repl : replacements) {
                     trb.buildReferences(pns, repl.getFst());
                 }
+                //handle additions
+                //Sequent additions = bi.getAdditions();
+                //handle deletions
+                //Sequent deletions = bi.getDeletions();
             }
+
+
 
         }
     }
@@ -120,6 +131,47 @@ public class ReferenceGraph {
         //TODO
     }
 
+
+ 
+    public Set<ProofTermReferenceTarget> computeHistory(ProofTermReferenceTarget childTarget, Proof proof){
+        HashSet<ProofTermReferenceTarget> parents = new HashSet<>();
+        ProofTermReferenceTarget currentTarget = childTarget;
+        parents.addAll(findDirectParents(childTarget, proof));
+           //is childtarget part of a reference?
+        LinkedList<ProofTermReferenceTarget> toCompute = new LinkedList();
+        toCompute.add(currentTarget);
+        while(toCompute.size() > 0){
+            Set<ProofTermReferenceTarget> directParents = findDirectParents(currentTarget, proof);
+            toCompute.addAll(directParents);
+            parents.addAll(directParents);
+            currentTarget = toCompute.pop();
+        }
+
+        return parents;
+
+    }
+
+    public Set<ProofTermReferenceTarget> findDirectParents(ProofTermReferenceTarget childTarget, Proof proof){
+        HashSet<ProofTermReferenceTarget> parents = new HashSet<>();
+        ProofTermReferenceTarget currentTarget = childTarget;
+        if(!this.getGraph().nodes().contains(childTarget) && currentTarget.getProofNodeSelector().getParentSelector() != null){
+            //currentTarget.getProofNodeSelector().getParentSelector().get(proof).getProofRuleApplication().getBranchInfo()
+            //neue Position berechenen, weil keine Änderung
+            ProofTermReferenceTarget parent = new ProofTermReferenceTarget(currentTarget.getProofNodeSelector().getParentSelector(), currentTarget.getTermSelector());
+            parents.add(parent);
+        } else {
+            Set<ReferenceTarget> predecessors = this.graph.predecessors(childTarget);
+            Set<ProofTermReferenceTarget> proofTermReferenceTargets = new HashSet<>();
+            predecessors.forEach(reference -> {
+                ProofTermReferenceTarget codeReferenceTarget = reference.accept(new GetReferenceTypeVisitor<>(ProofTermReferenceTarget.class));
+                if (codeReferenceTarget != null) {
+                    proofTermReferenceTargets.add(codeReferenceTarget);
+                }
+            });
+            parents.addAll(proofTermReferenceTargets);
+        }
+        return parents;
+    }
     @Override
     public String toString() {
         StringBuilder builder = new StringBuilder("ReferenceGraph{\n");
