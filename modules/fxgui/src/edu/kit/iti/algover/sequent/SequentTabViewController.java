@@ -69,7 +69,7 @@ public class SequentTabViewController {
         }
 
         for(SequentController controller : controllers) {
-            controller.setReferenceGraph(referenceGraph);
+            //controller.setReferenceGraph(referenceGraph);
         }
     }
 
@@ -118,7 +118,7 @@ public class SequentTabViewController {
         controllers.get(0).forceViewSequentForPVC(entity, proof);
         activeNode = controllers.get(0).getActiveNodeSelector();
         activeProof = controllers.get(0).getActiveProof();
-        referenceGraph = controllers.get(0).getReferenceGraph();
+       // referenceGraph = controllers.get(0).getReferenceGraph();
     }
 
     public SequentController getActiveSequentController() {

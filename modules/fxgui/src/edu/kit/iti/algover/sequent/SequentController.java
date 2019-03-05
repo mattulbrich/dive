@@ -70,7 +70,7 @@ public class SequentController extends FxmlController {
     // TODO: Don't save the ReferenceGraph at the sequent controller level in the future
     // it should ideally be placed somewhere in the backend, since the ProofScript's interpreter
     // has to closely work with the reference graph to keep it updated
-    private ReferenceGraph referenceGraph;
+   // private ReferenceGraph referenceGraph;
     private Proof activeProof; // Maybe place it inside the Proof or PVC class instead
     private ProofNodeSelector activeNode;
 
@@ -87,7 +87,7 @@ public class SequentController extends FxmlController {
         super("SequentView.fxml");
         this.listener = listener;
         this.activeProof = null;
-        this.referenceGraph = new ReferenceGraph();
+        //this.referenceGraph = new ReferenceGraph();
         this.selectedReference = new SubSelection<>(listener::onRequestReferenceHighlighting);
         this.selectedTerm = selectedReference.subSelection(this::termSelectorFromReference, this::attachCurrentActiveProof);
         this.lastClickedTerm = new SubSelection<>(listener::onClickSequentSubterm);
@@ -125,7 +125,7 @@ public class SequentController extends FxmlController {
             activeNode = new ProofNodeSelector();
             updateSequent(getActiveNode().getSequent(), null);
             //referenceGraph = new ReferenceGraph();
-            referenceGraph = proof.getGraph();
+            //referenceGraph = proof.getGraph();
             //referenceGraph.addFromReferenceMap(pvcEntity.getLocation(), pvc.getReferenceMap());
         }
     }
@@ -135,9 +135,10 @@ public class SequentController extends FxmlController {
         viewSequentForPVC(entity, proof);
     }
 
-    public void setReferenceGraph(ReferenceGraph graph) {
-        referenceGraph = graph;
-    }
+    //@Deprecated
+   // public void setReferenceGraph(ReferenceGraph graph) {
+   //     referenceGraph = graph;
+   // }
 
     //SaG: was used before having exhaustive RuleApp; Remove later if no Bug is found!
     @Deprecated
@@ -362,9 +363,9 @@ public class SequentController extends FxmlController {
         }
     }
 
-    public ReferenceGraph getReferenceGraph() {
+ /*   public ReferenceGraph getReferenceGraph() {
         return referenceGraph;
-    }
+    }*/
 
     public Proof getActiveProof() {
         return activeProof;
