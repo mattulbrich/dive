@@ -477,7 +477,7 @@ public class MainController implements SequentActionListener, RuleApplicationLis
         if (termRef != null) {
             System.out.println("termRef = " + termRef);
 
-            ReferenceGraph referenceGraph = sequentController.getActiveSequentController().getReferenceGraph();
+            ReferenceGraph referenceGraph = sequentController.getActiveSequentController().getActiveProof().getGraph();
 
             Set<ReferenceTarget> predecessors = referenceGraph.allPredecessors(termRef);
             Set<CodeReferenceTarget> codeReferenceTargets = filterCodeReferences(predecessors);
