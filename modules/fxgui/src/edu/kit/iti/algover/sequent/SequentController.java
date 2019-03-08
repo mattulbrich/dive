@@ -387,4 +387,9 @@ public class SequentController extends FxmlController {
         return activeNode;
     }
 
+    public void updateSequentController(ProofNodeSelector selector, Proof activeProof) {
+        this.setActiveNode(selector);
+        this.setActiveProof(activeProof);
+        this.viewProofNode(selector);
+    }
 }

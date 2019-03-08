@@ -21,16 +21,16 @@
 }
 
 .formula-view .reference-selected {
-    -rtfx-background-color: #62b3cf;
+    -rtfx-background-color: #2bc0cf;
     -fx-fill: whitesmoke;
 }
 
 .list-cell.formula-cell:formula-added {
-    -fx-background-color: #55EE55;
+    -fx-background-color: #74eea0;
 }
 
 .list-cell.formula-cell:formula-deleted {
-    -fx-background-color: #EE5555;
+    -fx-background-color: #ee9486;
 }
 
 .list-cell.formula-cell:formula-modified {

@@ -486,7 +486,7 @@ public class MainController implements SequentActionListener, RuleApplicationLis
             Set<CodeReferenceTarget> codeReferenceTargets = filterCodeReferences(predecessors);
             Set<ProofTermReferenceTarget> proofTermReferenceTargets = referenceGraph.computeHistory(termRef, activeProof);
            // Set<ProofTermReferenceTarget> proofTermReferenceTargetsFiltered = filterTermReferences(proofTermReferenceTargets);
-            proofTermReferenceTargets.forEach(proofTermReferenceTarget -> System.out.println("proofTermReferenceTarget = " + proofTermReferenceTarget));
+            //proofTermReferenceTargets.forEach(proofTermReferenceTarget -> System.out.println("proofTermReferenceTarget = " + proofTermReferenceTarget));
             //  System.out.println("filterTermReferences(predecessors) = " + filterTermReferences(predecessors));
             editorController.viewReferences(codeReferenceTargets);
             sequentController.viewReferences(proofTermReferenceTargets);

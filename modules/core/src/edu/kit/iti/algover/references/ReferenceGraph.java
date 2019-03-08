@@ -116,13 +116,8 @@ public class ReferenceGraph {
                 for (Pair<TermSelector, Term> repl : replacements) {
                     trb.buildReferences(pns, repl.getFst());
                 }
-                //handle additions
-                //Sequent additions = bi.getAdditions();
-                //handle deletions
-                //Sequent deletions = bi.getDeletions();
+
             }
-
-
 
         }
     }
@@ -132,7 +127,13 @@ public class ReferenceGraph {
     }
 
 
- 
+    /**
+     * Compute direct parents of type ProofTermReferenceTarget transitively starting at childTarget and ending in the
+     * root ProofNode
+     * @param childTarget Starting target
+     * @param proof current proof
+     * @return Set of parents of childTarget
+     */
     public Set<ProofTermReferenceTarget> computeHistory(ProofTermReferenceTarget childTarget, Proof proof){
         HashSet<ProofTermReferenceTarget> parents = new HashSet<>();
         ProofTermReferenceTarget currentTarget = childTarget;
@@ -151,12 +152,18 @@ public class ReferenceGraph {
 
     }
 
+    /**
+     * Find the direct parent of childTarget
+     * @param childTarget
+     * @param proof
+     * @return Set of direct parents of childTarget
+     */
     public Set<ProofTermReferenceTarget> findDirectParents(ProofTermReferenceTarget childTarget, Proof proof){
         HashSet<ProofTermReferenceTarget> parents = new HashSet<>();
         ProofTermReferenceTarget currentTarget = childTarget;
         if(!this.getGraph().nodes().contains(childTarget) && currentTarget.getProofNodeSelector().getParentSelector() != null){
             //currentTarget.getProofNodeSelector().getParentSelector().get(proof).getProofRuleApplication().getBranchInfo()
-            //neue Position berechenen, weil keine Änderung
+            //TODO neue Position berechenen, weil keine Änderung
             ProofTermReferenceTarget parent = new ProofTermReferenceTarget(currentTarget.getProofNodeSelector().getParentSelector(), currentTarget.getTermSelector());
             parents.add(parent);
         } else {

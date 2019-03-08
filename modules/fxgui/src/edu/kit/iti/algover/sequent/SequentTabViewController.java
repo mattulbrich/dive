@@ -5,13 +5,12 @@ import edu.kit.iti.algover.proof.Proof;
 import edu.kit.iti.algover.proof.ProofNode;
 import edu.kit.iti.algover.proof.ProofNodeSelector;
 import edu.kit.iti.algover.references.ProofTermReferenceTarget;
-import edu.kit.iti.algover.references.ReferenceGraph;
-import edu.kit.iti.algover.util.SubSelection;
 import javafx.beans.value.ObservableValue;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * Created by jklamroth on 6/7/18.
@@ -23,6 +22,16 @@ public class SequentTabViewController {
     private SequentActionListener listener;
     private ProofNodeSelector activeNode;
     private Proof activeProof;
+
+    public void setReferenceTargetsToHighlight(Set<ProofTermReferenceTarget> referenceTargetsToHighlight) {
+        this.referenceTargetsToHighlight = referenceTargetsToHighlight;
+    }
+
+    public Set<ProofTermReferenceTarget> getReferenceTargetsToHighlight() {
+        return referenceTargetsToHighlight;
+    }
+
+    private Set<ProofTermReferenceTarget> referenceTargetsToHighlight;
   //  private ReferenceGraph referenceGraph;
 
     public SequentTabViewController(SequentActionListener listener) {
@@ -32,6 +41,7 @@ public class SequentTabViewController {
         controllers.add(new SequentController(listener));
         view.getTabs().add(new Tab("default", controllers.get(0).getView()));
         view.getSelectionModel().selectedIndexProperty().addListener(this::onTabSelected);
+        referenceTargetsToHighlight = new HashSet<>();
 
     }
 
@@ -95,9 +105,13 @@ public class SequentTabViewController {
             name = opt.get().getLabel();
         }
         view.getTabs().get(idx).setText(name);
-        controllers.get(idx).setActiveNode(selector);
+        //TODO filter references acc. to selector
+        Set<ProofTermReferenceTarget> collect = getReferenceTargetsToHighlight().stream().filter(proofTermReferenceTarget -> proofTermReferenceTarget.getProofNodeSelector().equals(selector)).collect(Collectors.toSet());
+        collect.forEach(proofTermReferenceTarget -> System.out.println("proofTermReferenceTarget = " + proofTermReferenceTarget));
+        controllers.get(idx).updateSequentController(selector, activeProof);
+       /* controllers.get(idx).setActiveNode(selector);
         controllers.get(idx).setActiveProof(activeProof);
-        controllers.get(idx).viewProofNode(selector);
+        controllers.get(idx).viewProofNode(selector);*/
     }
 
     public TabPane getView() {
@@ -131,10 +145,7 @@ public class SequentTabViewController {
     }
 
     public void viewReferences(Set<ProofTermReferenceTarget> proofTermReferenceTargetSet){
-
-        proofTermReferenceTargetSet.forEach(proofTermReferenceTarget -> {
-            //TODO highlight references
-        });
-
+        this.setReferenceTargetsToHighlight(proofTermReferenceTargetSet);
+//TODO update view
     }
 }
