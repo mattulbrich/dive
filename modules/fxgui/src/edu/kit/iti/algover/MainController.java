@@ -141,6 +141,7 @@ public class MainController implements SequentActionListener, RuleApplicationLis
     }
 
     private void trivialStrat(ActionEvent event) {
+        Logger.getGlobal().info("Started try close all");
         Map<String, PVC> pvcMap = manager.getPVCByNameMap();
         for(Map.Entry<String, PVC> e : pvcMap.entrySet()) {
             String script = "";
@@ -190,6 +191,8 @@ public class MainController implements SequentActionListener, RuleApplicationLis
         }
         sequentController.getActiveSequentController().tryMovingOnEx(); //SaG: was tryMovingOn()
         ruleApplicationController.resetConsideration();
+        Logger.getGlobal().info("Finished try close all");
+
     }
 
     @SuppressWarnings("unchecked")
@@ -365,8 +368,7 @@ public class MainController implements SequentActionListener, RuleApplicationLis
         t.setOnFailed(event -> {
             manager.getProject().getDafnyFiles().forEach(df -> editorController.viewFile(df));
             Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).log(Level.SEVERE,
-                    t.getException().getMessage(),
-                    t.getException());
+                    t.getException().getMessage(), t.getException());
             editorController.showException(t.getException());
             browserController.getView().setDisable(true);
             sequentController.getView().setDisable(true);
@@ -474,20 +476,29 @@ public class MainController implements SequentActionListener, RuleApplicationLis
 
     @Override
     public void onRequestReferenceHighlighting(ProofTermReferenceTarget termRef) {
+        Proof activeProof = sequentController.getActiveSequentController().getActiveProof();
+
         if (termRef != null) {
-            System.out.println("termRef = " + termRef);
-
-            ReferenceGraph referenceGraph = sequentController.getActiveSequentController().getActiveProof().getGraph();
-
+            System.out.println("Selected termReference = " + termRef);
+            ReferenceGraph referenceGraph = activeProof.getGraph();
+            //compute predecessors
             Set<ReferenceTarget> predecessors = referenceGraph.allPredecessors(termRef);
             Set<CodeReferenceTarget> codeReferenceTargets = filterCodeReferences(predecessors);
-          //  Set<ProofTermReferenceTarget> proofTermReferenceTargets = filterTermReferences(predecessors);
-          //  referenceGraph.computeHistory(termRef, sequentController.getActiveSequentController().getActiveProof()).forEach(proofTermReferenceTarget -> System.out.println("proofTermReferenceTarget = " + proofTermReferenceTarget));
-          //  System.out.println("filterTermReferences(predecessors) = " + filterTermReferences(predecessors));
+            Set<ProofTermReferenceTarget> proofTermReferenceTargets = referenceGraph.computeHistory(termRef, activeProof);
+           // Set<ProofTermReferenceTarget> proofTermReferenceTargetsFiltered = filterTermReferences(proofTermReferenceTargets);
+            proofTermReferenceTargets.forEach(proofTermReferenceTarget -> System.out.println("proofTermReferenceTarget = " + proofTermReferenceTarget));
+            //  System.out.println("filterTermReferences(predecessors) = " + filterTermReferences(predecessors));
             editorController.viewReferences(codeReferenceTargets);
-          //  sequentController.viewReferences(proofTermReferenceTargets);
+            sequentController.viewReferences(proofTermReferenceTargets);
+
         } else {
             editorController.viewReferences(new HashSet<>());
+        }
+        try {
+            Logger.getGlobal().info("Searched for references for selection "+termRef.getTermSelector().selectSubterm(termRef.getProofNodeSelector().get(activeProof).getSequent()));
+        } catch (RuleException e) {
+
+            Logger.getGlobal().warning("There was a problem computing the references.");
         }
     }
 

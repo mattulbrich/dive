@@ -8,6 +8,7 @@ import javafx.css.PseudoClass;
 import javafx.scene.control.ListCell;
 
 /**
+ * Cell in ListView containing formulas
  * Created by Philipp on 22.07.2017.
  */
 public class FormulaCell extends ListCell<TopLevelFormula> {

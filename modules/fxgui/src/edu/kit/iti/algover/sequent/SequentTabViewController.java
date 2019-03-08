@@ -6,6 +6,7 @@ import edu.kit.iti.algover.proof.ProofNode;
 import edu.kit.iti.algover.proof.ProofNodeSelector;
 import edu.kit.iti.algover.references.ProofTermReferenceTarget;
 import edu.kit.iti.algover.references.ReferenceGraph;
+import edu.kit.iti.algover.util.SubSelection;
 import javafx.beans.value.ObservableValue;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
@@ -22,7 +23,7 @@ public class SequentTabViewController {
     private SequentActionListener listener;
     private ProofNodeSelector activeNode;
     private Proof activeProof;
-    private ReferenceGraph referenceGraph;
+  //  private ReferenceGraph referenceGraph;
 
     public SequentTabViewController(SequentActionListener listener) {
         this.listener = listener;
@@ -130,6 +131,10 @@ public class SequentTabViewController {
     }
 
     public void viewReferences(Set<ProofTermReferenceTarget> proofTermReferenceTargetSet){
+
+        proofTermReferenceTargetSet.forEach(proofTermReferenceTarget -> {
+            //TODO highlight references
+        });
 
     }
 }

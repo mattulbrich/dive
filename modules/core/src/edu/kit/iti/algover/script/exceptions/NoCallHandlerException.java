@@ -32,7 +32,7 @@ public class NoCallHandlerException extends InterpreterRuntimeException {
     }
 
     public NoCallHandlerException(CallStatement callStatement) {
-        super(callStatement.toString());
+        super("Could not apply command "+ callStatement.getCommand()+ " in line "+callStatement.getStartPosition().getLineNumber());
         this.callStatement = callStatement;
     }
 }

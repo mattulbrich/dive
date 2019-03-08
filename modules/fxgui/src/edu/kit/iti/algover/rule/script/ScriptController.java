@@ -43,7 +43,7 @@ public class ScriptController implements ScriptViewListener {
 
 
 
-    private SimpleObjectProperty<Position> observableInsertPosition = new SimpleObjectProperty<Position>(new Position(1,0));
+    private SimpleObjectProperty<Position> observableInsertPosition = new SimpleObjectProperty<Position>(new Position(1,0), "Observable Insert Position");
     private Proof proof;
     private List<ProofNodeCheckpoint> checkpoints;
 

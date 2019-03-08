@@ -160,15 +160,19 @@ public class ReferenceGraph {
             ProofTermReferenceTarget parent = new ProofTermReferenceTarget(currentTarget.getProofNodeSelector().getParentSelector(), currentTarget.getTermSelector());
             parents.add(parent);
         } else {
-            Set<ReferenceTarget> predecessors = this.graph.predecessors(childTarget);
-            Set<ProofTermReferenceTarget> proofTermReferenceTargets = new HashSet<>();
-            predecessors.forEach(reference -> {
-                ProofTermReferenceTarget codeReferenceTarget = reference.accept(new GetReferenceTypeVisitor<>(ProofTermReferenceTarget.class));
-                if (codeReferenceTarget != null) {
-                    proofTermReferenceTargets.add(codeReferenceTarget);
-                }
-            });
-            parents.addAll(proofTermReferenceTargets);
+            try {
+                Set<ReferenceTarget> predecessors = getGraph().predecessors(childTarget);
+                Set<ProofTermReferenceTarget> proofTermReferenceTargets = new HashSet<>();
+                predecessors.forEach(reference -> {
+                    ProofTermReferenceTarget codeReferenceTarget = reference.accept(new GetReferenceTypeVisitor<>(ProofTermReferenceTarget.class));
+                    if (codeReferenceTarget != null) {
+                        proofTermReferenceTargets.add(codeReferenceTarget);
+                    }
+                });
+                parents.addAll(proofTermReferenceTargets);
+            } catch (IllegalArgumentException illArg){
+                System.out.println("Could not find element :" + childTarget.getTermSelector()+ " of node "+childTarget.getProofNodeSelector()+ " in references.");
+            }
         }
         return parents;
     }
