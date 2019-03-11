@@ -33,13 +33,13 @@ public class ReferenceGraphTest {
  //   public String path;
     @Test
     @Parameters(method="unchangedFormulas")
-    public void testUnchanged(String a, String b){
+    public void testIfFormulaUnchangedInDirectParent(String a, String b){
        Assert.assertEquals(testMethodForProof(a,b), true);
     }
 
     @Test
     @Parameters(method="changedFormulas")
-    public void testChanged(String a, String b){
+    public void testIfFormulaChangedInDirectParent(String a, String b){
         Assert.assertEquals(testMethodForProof(a,b), false);
     }
 
@@ -64,12 +64,12 @@ public class ReferenceGraphTest {
                 {
 
                         new Object[]{"0", "A.0.0"}, //Dieser Fall muss noch behandelt werden -> innerhalb einer Ersetzung: hier stimmen weder position noch Term
-                        /*new Object[]{"0,0", "S.0"},
+                        new Object[]{"0,0", "S.0"},
                         new Object[]{"0,0", "S.0.1"},
                         new Object[]{"0,0", "S.0.0"},
                         new Object[]{"0", "A.0"},
                         new Object[]{"0", "A.0.0.1"},
-                        new Object[]{"0", "A.0.0.0"},*/
+                        new Object[]{"0", "A.0.0.0"},
 
                 };
 
@@ -127,7 +127,7 @@ public class ReferenceGraphTest {
 
     }
     public boolean testMethodForProof(String path, String termSelector){
-         return testDirectParent(path, termSelector, proof);
+         return isFormulaUnchangedInDirectParent(path, termSelector, proof);
     }
 
     private ProofNodeSelector computeProofNodeSelector(String pathChild){
@@ -144,7 +144,7 @@ public class ReferenceGraphTest {
      * @param currentProof
      * @return
      */
-    public boolean testDirectParent(String pathChild, String termSelectorString, Proof currentProof){
+    public boolean isFormulaUnchangedInDirectParent(String pathChild, String termSelectorString, Proof currentProof){
         boolean ret = false;
         ProofNodeSelector pns = computeProofNodeSelector(pathChild);
 
