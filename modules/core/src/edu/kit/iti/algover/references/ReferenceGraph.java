@@ -201,9 +201,28 @@ public class ReferenceGraph {
                 if (termOfCurrenTarget == termOfParentTarget && termOfCurrenTarget != null) {
                     parents.add(parent);
                 } else {
-                    //TODO neue Position berechenen, weil keine Änderung am Term selber aber an anderen Formeln
-                    System.out.println("Did not implement changes in Graph yet");
-                    throw new NotImplementedException();
+                    ProofNode proofNode = childTarget.getProofNodeSelector().get(proof);
+                    TermSelector childSelector = childTarget.getTermSelector();
+                    if(!childSelector.isToplevel()) {
+                        //get all changes and check termselectors
+
+                        ImmutableList<BranchInfo> branchInfos = proofNode.getProofRuleApplication().getBranchInfo();
+                        branchInfos.forEach(branchInfo -> {
+                                    branchInfo.getReplacements().forEach(termSelectorTermPair -> {
+                                        if(childSelector.hasPrefix(termSelectorTermPair.getFst())){
+                                            //TODO richtig umsetzen, bisher nur näherung
+                                          //  Term changedTerm =computeTermValue(currentTarget.getProofNodeSelector().getParentSelector(), termSelectorTermPair.getFst(),proof);
+                                            parents.add(new ProofTermReferenceTarget(currentTarget.getProofNodeSelector().getParentSelector(), termSelectorTermPair.getFst()));
+                                        }
+                                    });
+                                }
+
+                        );
+                    } else {
+                        //TODO neue Position berechenen, weil keine Änderung am Term selber aber an anderen Formeln
+                        System.out.println("Did not implement changes in Graph yet");
+                        throw new NotImplementedException();
+                    }
                 }
             } else {
 
@@ -215,6 +234,8 @@ public class ReferenceGraph {
             }
         } catch (IllegalArgumentException illArg) {
             System.out.println("Could not find element :" + childTarget.getTermSelector() + " of node " + childTarget.getProofNodeSelector() + " in references.");
+        } catch (RuleException e) {
+            e.printStackTrace();
         }
         return parents;
     }

@@ -47,11 +47,13 @@ public class ReferenceGraphTest {
     private Object[][] unchangedFormulas() {
         return new Object[][]
                 {
-                       new Object[]{"0,0", "A.0"},
+                        new Object[]{"0,0", "A.0"},
                         new Object[]{"0,0", "A.0.0"},
                         new Object[]{"0,0", "A.0.0.0"},
                         new Object[]{"0,0", "A.0.0.1"},
                         new Object[]{"0", "S.0"},
+                        new Object[]{"0", "S.0.0"},
+                        new Object[]{"0", "S.0.1"},
 
 
                 };
@@ -60,9 +62,14 @@ public class ReferenceGraphTest {
     private Object[][] changedFormulas(){
         return new Object[][]
                 {
-                        new Object[]{"0,0", "S.0"},
+
+                        new Object[]{"0", "A.0.0"}, //Dieser Fall muss noch behandelt werden -> innerhalb einer Ersetzung: hier stimmen weder position noch Term
+                        /*new Object[]{"0,0", "S.0"},
                         new Object[]{"0,0", "S.0.1"},
                         new Object[]{"0,0", "S.0.0"},
+                        new Object[]{"0", "A.0"},
+                        new Object[]{"0", "A.0.0.1"},
+                        new Object[]{"0", "A.0.0.0"},*/
 
                 };
 
