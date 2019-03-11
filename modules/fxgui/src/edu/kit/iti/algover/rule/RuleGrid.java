@@ -25,7 +25,7 @@ public class RuleGrid extends JFXMasonryPane {
     private final ObservableList<RuleView> rules;
     private final SelectionModel<RuleView> selectionModel;
 
-    private List<Comparator> activeComparator = new ArrayList<>();
+    private List<Comparator<RuleView>> activeComparator = new ArrayList<>();
 
 
     public RuleGrid() {
@@ -120,12 +120,12 @@ public class RuleGrid extends JFXMasonryPane {
         allRules = ar;
     }
 
-    public void removeComparator(Comparator comp){
+    public void removeComparator(Comparator<RuleView> comp){
         activeComparator.remove(comp);
         filterRules();
     }
 
-    public void addComparator(Comparator comp){
+    public void addComparator(Comparator<RuleView> comp){
         if(!activeComparator.contains(comp)){
             activeComparator.add(comp);
             filterRules();

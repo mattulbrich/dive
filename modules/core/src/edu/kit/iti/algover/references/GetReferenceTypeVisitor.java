@@ -1,5 +1,7 @@
 package edu.kit.iti.algover.references;
 
+@SuppressWarnings("unchecked")
+@Deprecated
 public class GetReferenceTypeVisitor<T extends ReferenceTarget> implements ReferenceTargetVisitor<T> {
 
     private final Class<T> clazz;

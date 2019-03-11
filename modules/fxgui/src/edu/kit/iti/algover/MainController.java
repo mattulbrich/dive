@@ -482,8 +482,10 @@ public class MainController implements SequentActionListener, RuleApplicationLis
             System.out.println("Selected termReference = " + termRef);
             ReferenceGraph referenceGraph = activeProof.getGraph();
             //compute predecessors
-            Set<ReferenceTarget> predecessors = referenceGraph.allPredecessors(termRef);
-            Set<CodeReferenceTarget> codeReferenceTargets = filterCodeReferences(predecessors);
+            //Set<ReferenceTarget> predecessors = referenceGraph.allPredecessors(termRef);
+            Set<CodeReferenceTarget> codeReferenceTargets = referenceGraph.allPredecessors(termRef, CodeReferenceTarget.class);
+
+            //Set<CodeReferenceTarget> codeReferenceTargets = filterCodeReferences(predecessors);
             Set<ProofTermReferenceTarget> proofTermReferenceTargets = referenceGraph.computeHistory(termRef, activeProof);
            // Set<ProofTermReferenceTarget> proofTermReferenceTargetsFiltered = filterTermReferences(proofTermReferenceTargets);
             //proofTermReferenceTargets.forEach(proofTermReferenceTarget -> System.out.println("proofTermReferenceTarget = " + proofTermReferenceTarget));
@@ -504,12 +506,14 @@ public class MainController implements SequentActionListener, RuleApplicationLis
 
     private static Set<CodeReferenceTarget> filterCodeReferences(Set<ReferenceTarget> predecessors) {
         Set<CodeReferenceTarget> codeReferenceTargets = new HashSet<>();
-        predecessors.forEach(reference -> {
+
+        /*predecessors.forEach(reference -> {
+
             CodeReferenceTarget codeReferenceTarget = reference.accept(new GetReferenceTypeVisitor<>(CodeReferenceTarget.class));
             if (codeReferenceTarget != null) {
                 codeReferenceTargets.add(codeReferenceTarget);
             }
-        });
+        });*/
         return codeReferenceTargets;
     }
 

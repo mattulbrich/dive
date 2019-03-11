@@ -20,7 +20,7 @@ import java.io.File;
  * @author S. Grebing
  */
 
-public class ScriptReferenceTarget<T extends ParserRuleContext> extends ReferenceTarget{
+public class ScriptReferenceTarget extends ReferenceTarget{
 
 
     public File getFile() {

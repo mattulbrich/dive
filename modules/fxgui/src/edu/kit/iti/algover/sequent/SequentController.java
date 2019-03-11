@@ -82,6 +82,7 @@ public class SequentController extends FxmlController {
      * <tt>res/edu/kit/iti/algover/sequent/SequentView.fxml</tt>.
      *
      * @param listener
+     *
      */
     public SequentController(SequentActionListener listener) {
         super("SequentView.fxml");
@@ -332,7 +333,7 @@ public class SequentController extends FxmlController {
 
 
     private Callback<ListView<TopLevelFormula>, ListCell<TopLevelFormula>> makeTermCellFactory(TermSelector.SequentPolarity polarity) {
-        return listView -> new FormulaCell(polarity, selectedTerm, lastClickedTerm, mouseOverTerm, selectorsToHighlight);
+        return listView -> new FormulaCell(polarity, selectedTerm, lastClickedTerm, mouseOverTerm);
     }
 
     private ProofTermReferenceTarget attachCurrentActiveProof(TermSelector selector) {

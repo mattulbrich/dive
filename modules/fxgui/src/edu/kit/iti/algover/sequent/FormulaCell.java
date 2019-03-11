@@ -7,6 +7,7 @@ import edu.kit.iti.algover.util.SubSelection;
 import javafx.css.PseudoClass;
 import javafx.scene.control.ListCell;
 
+import java.util.HashSet;
 import java.util.Set;
 
 /**
@@ -29,14 +30,13 @@ public class FormulaCell extends ListCell<TopLevelFormula> {
     public FormulaCell(TermSelector.SequentPolarity polarity,
                        SubSelection<TermSelector> referenceSelection,
                        SubSelection<TermSelector> lastClickedTerm,
-                       SubSelection<AnnotatedString.TermElement> mouseOverTerm,
-                       Set<TermSelector> selectorsToHighlight) {
+                       SubSelection<AnnotatedString.TermElement> mouseOverTerm) {
         getStyleClass().add("formula-cell");
         this.polarity = polarity;
         this.referenceSelection = referenceSelection;
         this.lastClickedTerm = lastClickedTerm;
         this.mouseOverTerm = mouseOverTerm;
-        this.selectorsToHighlight = selectorsToHighlight;
+        this.selectorsToHighlight = new HashSet<>();
 
     }
 

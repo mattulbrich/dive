@@ -56,6 +56,17 @@ public class ReferenceGraph {
         return precedingTargets;
     }
 
+    @SuppressWarnings("unchecked")//SaG: ensured by guard
+    public <T extends ReferenceTarget> Set<T> allPredecessors(ReferenceTarget source, Class<T> className) {
+
+        Set<ReferenceTarget> precedingTargets = allPredecessors(source);
+        return precedingTargets.stream()
+                .filter(referenceTarget -> className.isAssignableFrom(referenceTarget.getClass()))
+                .map( it -> (T) it)
+                .collect(Collectors.toSet());
+
+    }
+
     public Set<ReferenceTarget> allSuccessors(ReferenceTarget source) {
         Set<ReferenceTarget> successingTargets = new HashSet<>();
         accumulateByNeighbouringFunc(successingTargets, source, graph::successors);
@@ -139,7 +150,7 @@ public class ReferenceGraph {
         ProofTermReferenceTarget currentTarget = childTarget;
         parents.addAll(findDirectParents(childTarget, proof));
            //is childtarget part of a reference?
-        LinkedList<ProofTermReferenceTarget> toCompute = new LinkedList();
+        LinkedList<ProofTermReferenceTarget> toCompute = new LinkedList<ProofTermReferenceTarget>();
         toCompute.add(currentTarget);
         while(toCompute.size() > 0){
             Set<ProofTermReferenceTarget> directParents = findDirectParents(currentTarget, proof);
