@@ -108,7 +108,8 @@ public class SequentTabViewController {
         //TODO filter references acc. to selector
         Set<ProofTermReferenceTarget> collect = getReferenceTargetsToHighlight().stream().filter(proofTermReferenceTarget -> proofTermReferenceTarget.getProofNodeSelector().equals(selector)).collect(Collectors.toSet());
         collect.forEach(proofTermReferenceTarget -> System.out.println("proofTermReferenceTarget = " + proofTermReferenceTarget));
-        controllers.get(idx).updateSequentController(selector, activeProof);
+        //TODO set selection
+        controllers.get(idx).updateSequentController(selector, activeProof, collect);
        /* controllers.get(idx).setActiveNode(selector);
         controllers.get(idx).setActiveProof(activeProof);
         controllers.get(idx).viewProofNode(selector);*/

@@ -6,7 +6,6 @@ import edu.kit.iti.algover.FxmlController;
 import edu.kit.iti.algover.browser.entities.PVCEntity;
 import edu.kit.iti.algover.proof.*;
 import edu.kit.iti.algover.references.ProofTermReferenceTarget;
-import edu.kit.iti.algover.references.ReferenceGraph;
 import edu.kit.iti.algover.rules.*;
 import edu.kit.iti.algover.sequent.formulas.AddedFormula;
 import edu.kit.iti.algover.sequent.formulas.DeletedFormula;
@@ -28,6 +27,7 @@ import javafx.util.Callback;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 /**
  * Created by philipp on 12.07.17.
@@ -332,7 +332,7 @@ public class SequentController extends FxmlController {
 
 
     private Callback<ListView<TopLevelFormula>, ListCell<TopLevelFormula>> makeTermCellFactory(TermSelector.SequentPolarity polarity) {
-        return listView -> new FormulaCell(polarity, selectedTerm, lastClickedTerm, mouseOverTerm);
+        return listView -> new FormulaCell(polarity, selectedTerm, lastClickedTerm, mouseOverTerm, selectorsToHighlight);
     }
 
     private ProofTermReferenceTarget attachCurrentActiveProof(TermSelector selector) {
@@ -387,7 +387,7 @@ public class SequentController extends FxmlController {
         return activeNode;
     }
 
-    public void updateSequentController(ProofNodeSelector selector, Proof activeProof) {
+    public void updateSequentController(ProofNodeSelector selector, Proof activeProof, Set<ProofTermReferenceTarget> collect) {
         this.setActiveNode(selector);
         this.setActiveProof(activeProof);
         this.viewProofNode(selector);

@@ -7,6 +7,8 @@ import edu.kit.iti.algover.util.SubSelection;
 import javafx.css.PseudoClass;
 import javafx.scene.control.ListCell;
 
+import java.util.Set;
+
 /**
  * Cell in ListView containing formulas
  * Created by Philipp on 22.07.2017.
@@ -21,16 +23,21 @@ public class FormulaCell extends ListCell<TopLevelFormula> {
     private final SubSelection<TermSelector> referenceSelection;
     private final SubSelection<TermSelector> lastClickedTerm;
     private final SubSelection<AnnotatedString.TermElement> mouseOverTerm;
+    private final Set<TermSelector> selectorsToHighlight;
+    //TODO TermSelector auch anzeigen
 
     public FormulaCell(TermSelector.SequentPolarity polarity,
                        SubSelection<TermSelector> referenceSelection,
                        SubSelection<TermSelector> lastClickedTerm,
-                       SubSelection<AnnotatedString.TermElement> mouseOverTerm) {
+                       SubSelection<AnnotatedString.TermElement> mouseOverTerm,
+                       Set<TermSelector> selectorsToHighlight) {
         getStyleClass().add("formula-cell");
         this.polarity = polarity;
         this.referenceSelection = referenceSelection;
         this.lastClickedTerm = lastClickedTerm;
         this.mouseOverTerm = mouseOverTerm;
+        this.selectorsToHighlight = selectorsToHighlight;
+
     }
 
     @Override

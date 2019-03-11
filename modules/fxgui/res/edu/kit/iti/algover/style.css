@@ -22,6 +22,7 @@
 
 .formula-view .reference-selected {
     -rtfx-background-color: #2bc0cf;
+/*    -fx-border-color:  #2bc0cf;*/
     -fx-fill: whitesmoke;
 }
 
