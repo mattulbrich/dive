@@ -3,29 +3,23 @@ package edu.kit.iti.algover.project;
 import edu.kit.iti.algover.parser.DafnyException;
 import edu.kit.iti.algover.parser.DafnyParserException;
 import edu.kit.iti.algover.proof.Proof;
-import edu.kit.iti.algover.proof.ProofFormula;
 import edu.kit.iti.algover.proof.ProofNodeSelector;
 import edu.kit.iti.algover.references.ProofTermReferenceTarget;
 import edu.kit.iti.algover.rules.RuleException;
 import edu.kit.iti.algover.rules.TermSelector;
 import edu.kit.iti.algover.term.Term;
 import edu.kit.iti.algover.util.FormatException;
-import javafx.beans.property.IntegerProperty;
 import junitparams.JUnitParamsRunner;
 import junitparams.Parameters;
-import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
 
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
 import java.util.Set;
 
 @RunWith(JUnitParamsRunner.class)
@@ -38,26 +32,50 @@ public class ReferenceGraphTest {
  //   public String termSelector;
  //   public String path;
     @Test
-    @Parameters(method="parametersTotestProof")
-    public void whenWithAnnotationProvidedParams_thentestForProof(String a, String b, boolean bo){
-       Assert.assertEquals(testForProof(a,b), bo);
+    @Parameters(method="unchangedFormulas")
+    public void testUnchanged(String a, String b){
+       Assert.assertEquals(testMethodForProof(a,b), true);
     }
 
-    private Object[][] parametersTotestProof() {
+    @Test
+    @Parameters(method="changedFormulas")
+    public void testChanged(String a, String b){
+        Assert.assertEquals(testMethodForProof(a,b), false);
+    }
+
+
+    private Object[][] unchangedFormulas() {
         return new Object[][]
                 {
-                        new Object[]{"0,0", "A.0", true},
-                        new Object[]{"0,0", "A.0.0", true},
-                        new Object[]{"0,0", "A.0.0.0", true},
-                        new Object[]{"0,0", "A.0.0.1", true},
-                        new Object[]{"0", "A.0", false},
-                        new Object[]{"0", "A.0.0", false},
-                        new Object[]{"0", "A.0.0.0", true},
-                        new Object[]{"0", "A.0.0.1", true},
+                        new Object[]{"0,0", "A.0"},
+                        new Object[]{"0,0", "A.0.0"},
+                        new Object[]{"0,0", "A.0.0.0"},
+                        new Object[]{"0,0", "A.0.0.1"},
+                        new Object[]{"0", "S.0"},
+
 
                 };
     }
 
+    private Object[][] changedFormulas(){
+        return new Object[][]
+                {
+                        new Object[]{"0,0", "S.0"},
+                        new Object[]{"0,0", "S.0.1"},
+                        new Object[]{"0,0", "S.0.0"},
+
+                };
+
+    }
+
+    /**
+     * Proof:
+     * Root: (let m := x :: $not($lt(m, y))) |- (let m := x :: $gt(m, 1))
+     * Rule: substitute on='... ((?match: let m := x :: !(m < y))) ... |-';
+     * 0: $not($lt(x, y)) |- (let m := x :: $gt(m, 1))
+     * Rule: substitute on='|- ... ((?match: let m := x :: m > 1)) ...';
+     * 0.0: $not($lt(x, y)) |- $gt(x, 1)
+     */
 
     @Before
     public void testProjectLoad(){
@@ -101,27 +119,48 @@ public class ReferenceGraphTest {
         }
 
     }
-    public boolean testForProof(String path, String termSelector){
-         return testDirectlyChangedTerm(path, termSelector, proof);
+    public boolean testMethodForProof(String path, String termSelector){
+         return testDirectParent(path, termSelector, proof);
     }
 
-
-    public boolean testDirectlyChangedTerm(String pathChild, String termSelectorString, Proof currentProof){
-        boolean ret = false;
+    private ProofNodeSelector computeProofNodeSelector(String pathChild){
         String[] pathStringArray = pathChild.split(",");
         int[] path = Arrays.stream(pathStringArray).mapToInt(value -> Integer.parseInt(value)).toArray();
         ProofNodeSelector pns = new ProofNodeSelector(path);
+        return pns;
+    }
+
+    /**
+     * False iff term or formula changed from pathChild to direct parent, true iff term or formula unchanged
+     * @param pathChild
+     * @param termSelectorString
+     * @param currentProof
+     * @return
+     */
+    public boolean testDirectParent(String pathChild, String termSelectorString, Proof currentProof){
+        boolean ret = false;
+        ProofNodeSelector pns = computeProofNodeSelector(pathChild);
+
         try {
             TermSelector termSelector = new TermSelector(termSelectorString);
             Set<ProofTermReferenceTarget> directParents = currentProof.getGraph().findDirectParents(new ProofTermReferenceTarget(pns, termSelector), currentProof);
             Term proofFormula = termSelector.selectSubterm(pns.get(currentProof).getSequent());
-            System.out.println("Test for proof node "+pns+" term "+ proofFormula);
+            System.out.println("Test for proof node "+ pns +" term "+ proofFormula);
 
             for (ProofTermReferenceTarget directParent : directParents) {
                 Term term = directParent.getTermSelector().selectSubterm(directParent.getProofNodeSelector().get(currentProof).getSequent());
-                ret = term == proofFormula;
-                if(!ret){
-                    System.out.println("term = " + term+ " and "+proofFormula+ " are not equal");
+                if(ret = term == proofFormula){
+                    System.out.println("Term value " + term + " has not changed from node "+pns.getParentSelector()+" to "+pns);
+                    if(directParent.getTermSelector() != termSelector){
+                        System.out.println("But position has changed");
+                        ret = false;
+                    } else {
+                        System.out.println("and position has not changed");
+                    }
+
+                } else {
+
+                    System.out.println("term = " + term+ " and "+proofFormula+ " are not identical");
                 }
             }
         } catch (FormatException e) {

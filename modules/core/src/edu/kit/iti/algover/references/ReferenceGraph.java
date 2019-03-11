@@ -14,15 +14,14 @@ import edu.kit.iti.algover.rules.ProofRuleApplication;
 import edu.kit.iti.algover.rules.RuleException;
 import edu.kit.iti.algover.rules.TermSelector;
 import edu.kit.iti.algover.script.ast.ASTNode;
-import edu.kit.iti.algover.term.Sequent;
 import edu.kit.iti.algover.term.Term;
 import edu.kit.iti.algover.util.ImmutableList;
 import edu.kit.iti.algover.util.Pair;
 import org.antlr.runtime.Token;
+import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 import java.io.File;
 import java.util.*;
-import java.util.concurrent.ArrayBlockingQueue;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -56,10 +55,27 @@ public class ReferenceGraph {
         return precedingTargets;
     }
 
+    /**
+     * Computes predecoessors in the reference graph with the type given as className
+     * @param source
+     * @param className
+     * @param <T>
+     * @return
+     */
     @SuppressWarnings("unchecked")//SaG: ensured by guard
-    public <T extends ReferenceTarget> Set<T> allPredecessors(ReferenceTarget source, Class<T> className) {
+    public <T extends ReferenceTarget> Set<T> allPredecessorsWithType(ReferenceTarget source, Class<T> className) {
 
         Set<ReferenceTarget> precedingTargets = allPredecessors(source);
+        return precedingTargets.stream()
+                .filter(referenceTarget -> className.isAssignableFrom(referenceTarget.getClass()))
+                .map( it -> (T) it)
+                .collect(Collectors.toSet());
+
+    }
+
+    public <T extends ReferenceTarget> Set<T> allSuccessorsWithType(ReferenceTarget source, Class<T> className) {
+
+        Set<ReferenceTarget> precedingTargets = allSuccessors(source);
         return precedingTargets.stream()
                 .filter(referenceTarget -> className.isAssignableFrom(referenceTarget.getClass()))
                 .map( it -> (T) it)
@@ -172,25 +188,34 @@ public class ReferenceGraph {
     public Set<ProofTermReferenceTarget> findDirectParents(ProofTermReferenceTarget childTarget, Proof proof){
         HashSet<ProofTermReferenceTarget> parents = new HashSet<>();
         ProofTermReferenceTarget currentTarget = childTarget;
-        if(!this.getGraph().nodes().contains(childTarget) && currentTarget.getProofNodeSelector().getParentSelector() != null){
+        try {
+        if(!this.getGraph().nodes().contains(currentTarget) && currentTarget.getProofNodeSelector().getParentSelector() != null){
             //currentTarget.getProofNodeSelector().getParentSelector().get(proof).getProofRuleApplication().getBranchInfo()
-            //TODO neue Position berechenen, weil keine Änderung
             ProofTermReferenceTarget parent = new ProofTermReferenceTarget(currentTarget.getProofNodeSelector().getParentSelector(), currentTarget.getTermSelector());
-            parents.add(parent);
-        } else {
-            try {
-                Set<ReferenceTarget> predecessors = getGraph().predecessors(childTarget);
-                Set<ProofTermReferenceTarget> proofTermReferenceTargets = new HashSet<>();
-                predecessors.forEach(reference -> {
-                    ProofTermReferenceTarget codeReferenceTarget = reference.accept(new GetReferenceTypeVisitor<>(ProofTermReferenceTarget.class));
-                    if (codeReferenceTarget != null) {
-                        proofTermReferenceTargets.add(codeReferenceTarget);
-                    }
-                });
-                parents.addAll(proofTermReferenceTargets);
-            } catch (IllegalArgumentException illArg){
-                System.out.println("Could not find element :" + childTarget.getTermSelector()+ " of node "+childTarget.getProofNodeSelector()+ " in references.");
+            Term termOfCurrenTarget = currentTarget.getTermSelector().selectSubterm(currentTarget.getProofNodeSelector().get(proof).getSequent());
+            Term termOfParentTarget = parent.getTermSelector().selectSubterm(parent.getProofNodeSelector().get(proof).getSequent());
+            if(termOfCurrenTarget == termOfParentTarget) {
+                parents.add(parent);
+            } else {
+                //TODO neue Position berechenen, weil keine Änderung
+                System.out.println("Did not implement changes in Graph yet");
+                throw new NotImplementedException();
             }
+        } else {
+                if(this.graph.predecessors(currentTarget).isEmpty()){
+                    //TODO: Zwischenknoten und es gibt keinen direkten Vorgänger mit Änderung
+                    System.out.println("Did not implement changes in Graph yet");
+                throw new NotImplementedException();
+                } else {
+                    Set<ProofTermReferenceTarget> proofTermReferenceTargets = allPredecessorsWithType(childTarget, ProofTermReferenceTarget.class);
+                    parents.addAll(proofTermReferenceTargets);
+                }
+
+        }
+        } catch (IllegalArgumentException illArg){
+            System.out.println("Could not find element :" + childTarget.getTermSelector()+ " of node "+childTarget.getProofNodeSelector()+ " in references.");
+        } catch (RuleException e) {
+            e.printStackTrace();
         }
         return parents;
     }

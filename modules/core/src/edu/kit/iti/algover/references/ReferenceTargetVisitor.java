@@ -1,6 +1,7 @@
 package edu.kit.iti.algover.references;
 
 /**
+ * Visitor for ReferenceTargets
  * Created by Philipp on 27.08.2017.
  */
 public interface ReferenceTargetVisitor<R> {

@@ -12,12 +12,7 @@ import edu.kit.iti.algover.dafnystructures.DafnyClass;
 import edu.kit.iti.algover.dafnystructures.DafnyFile;
 import edu.kit.iti.algover.dafnystructures.DafnyFunction;
 import edu.kit.iti.algover.dafnystructures.DafnyMethod;
-import edu.kit.iti.algover.data.BuiltinSymbols;
-import edu.kit.iti.algover.data.SymbolTable;
 import edu.kit.iti.algover.editor.EditorController;
-import edu.kit.iti.algover.parser.DafnyException;
-import edu.kit.iti.algover.parser.DafnyParserException;
-import edu.kit.iti.algover.project.Project;
 import edu.kit.iti.algover.project.ProjectManager;
 import edu.kit.iti.algover.proof.*;
 import edu.kit.iti.algover.references.*;
@@ -26,30 +21,20 @@ import edu.kit.iti.algover.rule.RuleApplicationListener;
 import edu.kit.iti.algover.rules.*;
 import edu.kit.iti.algover.rules.impl.ExhaustiveRule;
 import edu.kit.iti.algover.sequent.SequentActionListener;
-import edu.kit.iti.algover.sequent.SequentController;
 import edu.kit.iti.algover.sequent.SequentTabViewController;
 import edu.kit.iti.algover.timeline.TimelineLayout;
 import edu.kit.iti.algover.util.CostumBreadCrumbBar;
-import edu.kit.iti.algover.util.ExceptionDetails;
-import edu.kit.iti.algover.util.ExceptionDetails.ExceptionReportInfo;
 import edu.kit.iti.algover.util.FormatException;
-import edu.kit.iti.algover.util.RuleApp;
 import edu.kit.iti.algover.util.StatusBarLoggingHandler;
 import javafx.application.Platform;
-import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
-import javafx.event.EventType;
-import javafx.geometry.Point2D;
-import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.control.*;
 import javafx.scene.input.MouseEvent;
-import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
-import org.controlsfx.control.BreadCrumbBar;
 import org.controlsfx.control.StatusBar;
 
 import java.io.File;
@@ -59,7 +44,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
-import java.util.logging.Handler;
 import java.util.logging.Level;
 import java.util.logging.LogRecord;
 import java.util.logging.Logger;
@@ -483,13 +467,11 @@ public class MainController implements SequentActionListener, RuleApplicationLis
             ReferenceGraph referenceGraph = activeProof.getGraph();
             //compute predecessors
             //Set<ReferenceTarget> predecessors = referenceGraph.allPredecessors(termRef);
-            Set<CodeReferenceTarget> codeReferenceTargets = referenceGraph.allPredecessors(termRef, CodeReferenceTarget.class);
-
             //Set<CodeReferenceTarget> codeReferenceTargets = filterCodeReferences(predecessors);
             Set<ProofTermReferenceTarget> proofTermReferenceTargets = referenceGraph.computeHistory(termRef, activeProof);
-           // Set<ProofTermReferenceTarget> proofTermReferenceTargetsFiltered = filterTermReferences(proofTermReferenceTargets);
-            //proofTermReferenceTargets.forEach(proofTermReferenceTarget -> System.out.println("proofTermReferenceTarget = " + proofTermReferenceTarget));
-            //  System.out.println("filterTermReferences(predecessors) = " + filterTermReferences(predecessors));
+
+            Set<CodeReferenceTarget> codeReferenceTargets = referenceGraph.allPredecessorsWithType(termRef, CodeReferenceTarget.class);
+
             editorController.viewReferences(codeReferenceTargets);
             sequentController.viewReferences(proofTermReferenceTargets);
 
@@ -504,16 +486,17 @@ public class MainController implements SequentActionListener, RuleApplicationLis
         }
     }
 
+    /*
     private static Set<CodeReferenceTarget> filterCodeReferences(Set<ReferenceTarget> predecessors) {
         Set<CodeReferenceTarget> codeReferenceTargets = new HashSet<>();
 
-        /*predecessors.forEach(reference -> {
+        predecessors.forEach(reference -> {
 
             CodeReferenceTarget codeReferenceTarget = reference.accept(new GetReferenceTypeVisitor<>(CodeReferenceTarget.class));
             if (codeReferenceTarget != null) {
                 codeReferenceTargets.add(codeReferenceTarget);
             }
-        });*/
+        });
         return codeReferenceTargets;
     }
 
@@ -526,7 +509,7 @@ public class MainController implements SequentActionListener, RuleApplicationLis
             }
         });
         return codeReferenceTargets;
-    }
+    }*/
 
     @Override
     public void onPreviewRuleApplication(ProofRuleApplication application) {
