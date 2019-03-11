@@ -140,10 +140,8 @@ public class ScriptController implements ScriptViewListener {
         if (!checkpoint.selector.optionalGet(proof).isPresent()) {
             if(checkpoint.selector.getParentSelector() != null) {
                 this.listener.onSwitchViewedNode(checkpoint.selector.getParentSelector());
-
             } else {
                 this.listener.onSwitchViewedNode(checkpoint.selector);
-
             }
         } else {
 
@@ -289,7 +287,6 @@ public class ScriptController implements ScriptViewListener {
     }
 
     public void insertTextForSelectedNode(String text) {
-
         if(view.getText().equals("")) {
             view.insertText(0, text);
         } else {
