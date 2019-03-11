@@ -31,7 +31,6 @@ import java.util.stream.Collectors;
  * {@link UnsupportedOperationException}.)
  * <p>
  * Created by Philipp on 27.08.2017.
- *
  */
 public class ReferenceGraph {
 
@@ -57,6 +56,7 @@ public class ReferenceGraph {
 
     /**
      * Computes predecoessors in the reference graph with the type given as className
+     *
      * @param source
      * @param className
      * @param <T>
@@ -68,7 +68,7 @@ public class ReferenceGraph {
         Set<ReferenceTarget> precedingTargets = allPredecessors(source);
         return precedingTargets.stream()
                 .filter(referenceTarget -> className.isAssignableFrom(referenceTarget.getClass()))
-                .map( it -> (T) it)
+                .map(it -> (T) it)
                 .collect(Collectors.toSet());
 
     }
@@ -78,7 +78,7 @@ public class ReferenceGraph {
         Set<ReferenceTarget> precedingTargets = allSuccessors(source);
         return precedingTargets.stream()
                 .filter(referenceTarget -> className.isAssignableFrom(referenceTarget.getClass()))
-                .map( it -> (T) it)
+                .map(it -> (T) it)
                 .collect(Collectors.toSet());
 
     }
@@ -90,9 +90,9 @@ public class ReferenceGraph {
     }
 
     private void accumulateByNeighbouringFunc(
-        Set<ReferenceTarget> accumSet,
-        ReferenceTarget target,
-        Function<ReferenceTarget, Set<ReferenceTarget>> getNeighbours) {
+            Set<ReferenceTarget> accumSet,
+            ReferenceTarget target,
+            Function<ReferenceTarget, Set<ReferenceTarget>> getNeighbours) {
         if (!graph.nodes().contains(target)) {
             return;
         }
@@ -121,8 +121,9 @@ public class ReferenceGraph {
 
     /**
      * Add References from rule applications
-     * @param proof the current Proof
-     * @param parent the parent ProofNode on which the rule was applied to
+     *
+     * @param proof    the current Proof
+     * @param parent   the parent ProofNode on which the rule was applied to
      * @param newNodes the List of ProofNodes after rule application
      * @throws RuleException
      */
@@ -130,11 +131,11 @@ public class ReferenceGraph {
 
         ProofNodeSelector proofNodeBefore = new ProofNodeSelector(parent);
         TermReferencesBuilder trb = new TermReferencesBuilder(this, proof, proofNodeBefore);
-        for (ProofNode afterNode: newNodes) {
+        for (ProofNode afterNode : newNodes) {
             //get ProofRuleApplication from node
             ProofNodeSelector pns = new ProofNodeSelector(afterNode);
             ProofRuleApplication pra = afterNode.getProofRuleApplication();
-            
+
 
             ImmutableList<BranchInfo> branchInfos = pra.getBranchInfo();
             for (BranchInfo bi : branchInfos) {
@@ -149,7 +150,7 @@ public class ReferenceGraph {
         }
     }
 
-    public void addFromScriptNode(ASTNode node, File scriptfile, int linenumber){
+    public void addFromScriptNode(ASTNode node, File scriptfile, int linenumber) {
         //TODO
     }
 
@@ -157,18 +158,19 @@ public class ReferenceGraph {
     /**
      * Compute direct parents of type ProofTermReferenceTarget transitively starting at childTarget and ending in the
      * root ProofNode
+     *
      * @param childTarget Starting target
-     * @param proof current proof
+     * @param proof       current proof
      * @return Set of parents of childTarget
      */
-    public Set<ProofTermReferenceTarget> computeHistory(ProofTermReferenceTarget childTarget, Proof proof){
+    public Set<ProofTermReferenceTarget> computeHistory(ProofTermReferenceTarget childTarget, Proof proof) {
         HashSet<ProofTermReferenceTarget> parents = new HashSet<>();
         ProofTermReferenceTarget currentTarget = childTarget;
         parents.addAll(findDirectParents(childTarget, proof));
-           //is childtarget part of a reference?
+        //is childtarget part of a reference?
         LinkedList<ProofTermReferenceTarget> toCompute = new LinkedList<ProofTermReferenceTarget>();
         toCompute.add(currentTarget);
-        while(toCompute.size() > 0){
+        while (toCompute.size() > 0) {
             Set<ProofTermReferenceTarget> directParents = findDirectParents(currentTarget, proof);
             toCompute.addAll(directParents);
             parents.addAll(directParents);
@@ -181,44 +183,52 @@ public class ReferenceGraph {
 
     /**
      * Find the direct parent of childTarget
+     *
      * @param childTarget
      * @param proof
      * @return Set of direct parents of childTarget
      */
-    public Set<ProofTermReferenceTarget> findDirectParents(ProofTermReferenceTarget childTarget, Proof proof){
+    public Set<ProofTermReferenceTarget> findDirectParents(ProofTermReferenceTarget childTarget, Proof proof) {
         HashSet<ProofTermReferenceTarget> parents = new HashSet<>();
         ProofTermReferenceTarget currentTarget = childTarget;
         try {
-        if(!this.getGraph().nodes().contains(currentTarget) && currentTarget.getProofNodeSelector().getParentSelector() != null){
-            //currentTarget.getProofNodeSelector().getParentSelector().get(proof).getProofRuleApplication().getBranchInfo()
-            ProofTermReferenceTarget parent = new ProofTermReferenceTarget(currentTarget.getProofNodeSelector().getParentSelector(), currentTarget.getTermSelector());
-            Term termOfCurrenTarget = currentTarget.getTermSelector().selectSubterm(currentTarget.getProofNodeSelector().get(proof).getSequent());
-            Term termOfParentTarget = parent.getTermSelector().selectSubterm(parent.getProofNodeSelector().get(proof).getSequent());
-            if(termOfCurrenTarget == termOfParentTarget) {
-                parents.add(parent);
-            } else {
-                //TODO neue Position berechenen, weil keine Änderung
-                System.out.println("Did not implement changes in Graph yet");
-                throw new NotImplementedException();
-            }
-        } else {
-                if(this.graph.predecessors(currentTarget).isEmpty()){
-                    //TODO: Zwischenknoten und es gibt keinen direkten Vorgänger mit Änderung
-                    System.out.println("Did not implement changes in Graph yet");
-                throw new NotImplementedException();
-                } else {
-                    Set<ProofTermReferenceTarget> proofTermReferenceTargets = allPredecessorsWithType(childTarget, ProofTermReferenceTarget.class);
-                    parents.addAll(proofTermReferenceTargets);
-                }
+            if (currentTarget.getProofNodeSelector().getParentSelector() != null && (!this.getGraph().nodes().contains(currentTarget) || this.graph.predecessors(currentTarget).isEmpty())) {
+                //currentTarget.getProofNodeSelector().getParentSelector().get(proof).getProofRuleApplication().getBranchInfo()
+                ProofTermReferenceTarget parent = new ProofTermReferenceTarget(currentTarget.getProofNodeSelector().getParentSelector(), currentTarget.getTermSelector());
+                Term termOfCurrenTarget = computeTermValue(currentTarget.getProofNodeSelector(), currentTarget.getTermSelector(), proof);
+                Term termOfParentTarget = computeTermValue(parent.getProofNodeSelector(), parent.getTermSelector(), proof);
 
-        }
-        } catch (IllegalArgumentException illArg){
-            System.out.println("Could not find element :" + childTarget.getTermSelector()+ " of node "+childTarget.getProofNodeSelector()+ " in references.");
-        } catch (RuleException e) {
-            e.printStackTrace();
+                if (termOfCurrenTarget == termOfParentTarget && termOfCurrenTarget != null) {
+                    parents.add(parent);
+                } else {
+                    //TODO neue Position berechenen, weil keine Änderung am Term selber aber an anderen Formeln
+                    System.out.println("Did not implement changes in Graph yet");
+                    throw new NotImplementedException();
+                }
+            } else {
+
+                //Es gibt Vorgänger
+                Set<ProofTermReferenceTarget> proofTermReferenceTargets = allPredecessorsWithType(childTarget, ProofTermReferenceTarget.class);
+                parents.addAll(proofTermReferenceTargets);
+
+
+            }
+        } catch (IllegalArgumentException illArg) {
+            System.out.println("Could not find element :" + childTarget.getTermSelector() + " of node " + childTarget.getProofNodeSelector() + " in references.");
         }
         return parents;
     }
+
+    private Term computeTermValue(ProofNodeSelector proofNodeSelector, TermSelector termSelector, Proof proof) {
+        Term ret = null;
+        try {
+            ret = termSelector.selectSubterm(proofNodeSelector.get(proof).getSequent());
+        } catch (RuleException e) {
+            e.printStackTrace();
+        }
+        return ret;
+    }
+
     @Override
     public String toString() {
         StringBuilder builder = new StringBuilder("ReferenceGraph{\n");

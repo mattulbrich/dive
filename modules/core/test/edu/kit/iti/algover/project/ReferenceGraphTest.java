@@ -47,7 +47,7 @@ public class ReferenceGraphTest {
     private Object[][] unchangedFormulas() {
         return new Object[][]
                 {
-                        new Object[]{"0,0", "A.0"},
+                       new Object[]{"0,0", "A.0"},
                         new Object[]{"0,0", "A.0.0"},
                         new Object[]{"0,0", "A.0.0.0"},
                         new Object[]{"0,0", "A.0.0.1"},
