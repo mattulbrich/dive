@@ -29,6 +29,8 @@ public class ReferenceGraphTest {
 
     public Proof proof2;
 
+    public Proof proof3;
+
  //   public String termSelector;
  //   public String path;
     @Test
@@ -63,13 +65,13 @@ public class ReferenceGraphTest {
         return new Object[][]
                 {
 
-                        new Object[]{"0", "A.0.0"}, //Dieser Fall muss noch behandelt werden -> innerhalb einer Ersetzung: hier stimmen weder position noch Term
-                        new Object[]{"0,0", "S.0"},
-                        new Object[]{"0,0", "S.0.1"},
-                        new Object[]{"0,0", "S.0.0"},
+                        new Object[]{"0", "A.0.0"}, //Dieser Fall muss noch besser behandelt werden -> innerhalb einer Ersetzung: hier stimmen weder position noch Term
                         new Object[]{"0", "A.0"},
                         new Object[]{"0", "A.0.0.1"},
                         new Object[]{"0", "A.0.0.0"},
+                        new Object[]{"0,0", "S.0"},
+                        new Object[]{"0,0", "S.0.1"},
+                        new Object[]{"0,0", "S.0.0"},
 
                 };
 
@@ -113,6 +115,12 @@ public class ReferenceGraphTest {
             "}\n";
             proof2.setScriptTextAndInterpret(script2);
 
+            //has addlist
+            proof3 = pm.getProofForPVC("ff/Post");
+            proof3.setScriptTextAndInterpret("andLeft on='... ((?match: a >= 0 && a < 100)) ... |-';\n"+
+                  //  "removeAssumption on='... ((?match: a + 1 == a + 1)) ... |-';\n"
+                    "removeAssumption on='... ((?match: a + 1 == a + 1 && a > 0 ==> b >= 0)) ... |-';\n");
+
 
 
         } catch (FormatException e) {
@@ -126,25 +134,55 @@ public class ReferenceGraphTest {
         }
 
     }
+
+    @Test
+    public void testAddDelList() throws FormatException, RuleException {
+
+        Set<ProofTermReferenceTarget> proofTermReferenceTargets = computeDirectParents("0,0", "A.1", proof3);
+        ProofNodeSelector pns = computeProofNodeSelector("0,0");
+        TermSelector termSelector = new TermSelector("A.1");
+        Term proofFormula = termSelector.selectSubterm(pns.get(proof3).getSequent());
+
+        proofTermReferenceTargets.forEach(proofTermReferenceTarget -> {
+            try {
+                boolean comp = compareTerms(proofFormula, proofTermReferenceTarget, proof3);
+                System.out.println("comp = " + comp);
+            } catch (RuleException e) {
+                e.printStackTrace();
+            }
+        });
+    }
+
     public boolean testMethodForProof(String path, String termSelector){
          return isFormulaUnchangedInDirectParent(path, termSelector, proof);
     }
 
-    private ProofNodeSelector computeProofNodeSelector(String pathChild){
-        String[] pathStringArray = pathChild.split(",");
-        int[] path = Arrays.stream(pathStringArray).mapToInt(value -> Integer.parseInt(value)).toArray();
-        ProofNodeSelector pns = new ProofNodeSelector(path);
-        return pns;
+    public boolean testMethodForProof2(String path, String termSelector){
+        return isFormulaUnchangedInDirectParent(path, termSelector, proof2);
     }
 
-    /**
+
+    private Set<ProofTermReferenceTarget> computeDirectParents(String pathChild, String termSelectorString, Proof currentProof) throws FormatException {
+        ProofNodeSelector pns = computeProofNodeSelector(pathChild);
+        TermSelector termSelector = new TermSelector(termSelectorString);
+        Set<ProofTermReferenceTarget> directParents = currentProof.getGraph().findDirectParents(new ProofTermReferenceTarget(pns, termSelector), currentProof);
+        return directParents;
+    }
+
+    private boolean compareTerms(Term termChild, ProofTermReferenceTarget target, Proof currentProof) throws RuleException {
+        Term term = target.getTermSelector().selectSubterm(target.getProofNodeSelector().get(currentProof).getSequent());
+        return termChild == term;
+
+    }
+       /**
      * False iff term or formula changed from pathChild to direct parent, true iff term or formula unchanged
      * @param pathChild
      * @param termSelectorString
      * @param currentProof
      * @return
      */
-    public boolean isFormulaUnchangedInDirectParent(String pathChild, String termSelectorString, Proof currentProof){
+    private boolean isFormulaUnchangedInDirectParent(String pathChild, String termSelectorString, Proof currentProof){
+
         boolean ret = false;
         ProofNodeSelector pns = computeProofNodeSelector(pathChild);
 
@@ -180,68 +218,9 @@ public class ReferenceGraphTest {
     }
 
 
-    public void testNotDirectlyChangedTerm(){
-        int[] path = {0,0};
-        ProofNodeSelector pns = new ProofNodeSelector(path);
-        try {
-            TermSelector termSelector = new TermSelector("A.0");
-            Set<ProofTermReferenceTarget> directParents = proof.getGraph().findDirectParents(new ProofTermReferenceTarget(pns, termSelector), proof);
-            Term proofFormula = termSelector.selectSubterm(pns.get(proof).getSequent());
-            for (ProofTermReferenceTarget directParent : directParents) {
-                Term term = directParent.getTermSelector().selectSubterm(directParent.getProofNodeSelector().get(proof).getSequent());
-                Assert.assertTrue(term == proofFormula);
-            }
-        } catch (FormatException e) {
-            e.printStackTrace();
-        } catch (RuleException e) {
-            e.printStackTrace();
-        }
-    }
 
 
-    public void testDirectlyChangedTermUnBranched(){
-        int[] path = {0,0};
-        ProofNodeSelector pns = new ProofNodeSelector(path);
-        try {
-            TermSelector termSelector = new TermSelector("S.0");
-            Set<ProofTermReferenceTarget> directParents = proof.getGraph().findDirectParents(new ProofTermReferenceTarget(pns, termSelector), proof);
-            Term proofFormula = termSelector.selectSubterm(pns.get(proof).getSequent());
-            for (ProofTermReferenceTarget directParent : directParents) {
-                Term term = directParent.getTermSelector().selectSubterm(directParent.getProofNodeSelector().get(proof).getSequent());
-                Assert.assertFalse(term == proofFormula);
-            }
-        } catch (FormatException e) {
-            e.printStackTrace();
-        } catch (RuleException e) {
-            e.printStackTrace();
-        }
-    }
-
-    public void testDirectlyChangedTermBranched(){
-        int[] path = {0,0,0,0,1,0};
-        ProofNodeSelector pns = new ProofNodeSelector(path);
-        try {
-            TermSelector termSelector = new TermSelector("S.0.1");
-            Set<ProofTermReferenceTarget> directParents = proof2.getGraph().findDirectParents(new ProofTermReferenceTarget(pns, termSelector), proof2);
-            Term proofFormula = termSelector.selectSubterm(pns.get(proof2).getSequent());
-            for (ProofTermReferenceTarget directParent : directParents) {
-                Term term = directParent.getTermSelector().selectSubterm(directParent.getProofNodeSelector().get(proof2).getSequent());
-                System.out.println("term = " + term);
-                System.out.println("proofFormula = " + proofFormula);
-                Assert.assertTrue(term == proofFormula);
-
-            }
-
-        } catch (FormatException e) {
-            e.printStackTrace();
-        } catch (RuleException e) {
-            e.printStackTrace();
-        }
-    }
-
-
-
-    public void testHistory(){
+    private void testHistory(){
         int[] path = {0,0};
         ProofNodeSelector pns = new ProofNodeSelector(path);
         try {
@@ -263,6 +242,14 @@ public class ReferenceGraphTest {
             e.printStackTrace();
         }
     }
+
+    private ProofNodeSelector computeProofNodeSelector(String pathChild){
+        String[] pathStringArray = pathChild.split(",");
+        int[] path = Arrays.stream(pathStringArray).mapToInt(value -> Integer.parseInt(value)).toArray();
+        ProofNodeSelector pns = new ProofNodeSelector(path);
+        return pns;
+    }
+
 
 
 

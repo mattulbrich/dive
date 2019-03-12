@@ -197,8 +197,11 @@ public class ReferenceGraph {
                 ProofTermReferenceTarget parent = new ProofTermReferenceTarget(currentTarget.getProofNodeSelector().getParentSelector(), currentTarget.getTermSelector());
                 Term termOfCurrenTarget = computeTermValue(currentTarget.getProofNodeSelector(), currentTarget.getTermSelector(), proof);
                 Term termOfParentTarget = computeTermValue(parent.getProofNodeSelector(), parent.getTermSelector(), proof);
+                //TODO debug
+                System.out.println("Computing parents for: "+ termOfCurrenTarget+ " in Node "+currentTarget.getProofNodeSelector());
 
                 if (termOfCurrenTarget == termOfParentTarget && termOfCurrenTarget != null) {
+                    System.out.println("Found parent "+termOfParentTarget+" in Node "+parent.getProofNodeSelector()+ " on same position");
                     parents.add(parent);
                 } else {
                     ProofNode proofNode = childTarget.getProofNodeSelector().get(proof);
@@ -227,6 +230,7 @@ public class ReferenceGraph {
             } else {
 
                 //Es gibt Vorgänger
+                System.out.println("Found an edge in graph, which references parent(s)");
                 Set<ProofTermReferenceTarget> proofTermReferenceTargets = allPredecessorsWithType(childTarget, ProofTermReferenceTarget.class);
                 parents.addAll(proofTermReferenceTargets);
 
@@ -237,6 +241,7 @@ public class ReferenceGraph {
         } catch (RuleException e) {
             e.printStackTrace();
         }
+
         return parents;
     }
 
