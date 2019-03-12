@@ -135,9 +135,30 @@ public class ReferenceGraphTest {
 
     }
 
+    /**
+     * Test parents of formulas that have been part of a replacement
+     */
+    @Test
+    public void testReplacements(){
+
+    }
+
+    /**
+     * Test the specialities of let expansions and their influence on computing direct parents
+     */
+    @Test
+    public void testLetParents() {
+
+    }
+
+    /**
+     * Test formulas that have been affected by additions or deletions
+     * @throws FormatException
+     * @throws RuleException
+     */
     @Test
     public void testAddDelList() throws FormatException, RuleException {
-
+//TODO
         Set<ProofTermReferenceTarget> proofTermReferenceTargets = computeDirectParents("0,0", "A.1", proof3);
         ProofNodeSelector pns = computeProofNodeSelector("0,0");
         TermSelector termSelector = new TermSelector("A.1");
