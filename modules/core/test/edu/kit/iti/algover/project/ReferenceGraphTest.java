@@ -3,12 +3,16 @@ package edu.kit.iti.algover.project;
 import edu.kit.iti.algover.parser.DafnyException;
 import edu.kit.iti.algover.parser.DafnyParserException;
 import edu.kit.iti.algover.proof.Proof;
+import edu.kit.iti.algover.proof.ProofFormula;
 import edu.kit.iti.algover.proof.ProofNodeSelector;
 import edu.kit.iti.algover.references.ProofTermReferenceTarget;
 import edu.kit.iti.algover.rules.RuleException;
 import edu.kit.iti.algover.rules.TermSelector;
+import edu.kit.iti.algover.term.Sequent;
 import edu.kit.iti.algover.term.Term;
 import edu.kit.iti.algover.util.FormatException;
+import edu.kit.iti.algover.util.TestInfrastructure;
+import edu.kit.iti.algover.util.TestUtil;
 import junitparams.JUnitParamsRunner;
 import junitparams.Parameters;
 import org.junit.Assert;
@@ -19,8 +23,7 @@ import org.junit.runner.RunWith;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
-import java.util.Arrays;
-import java.util.Set;
+import java.util.*;
 
 @RunWith(JUnitParamsRunner.class)
 public class ReferenceGraphTest {
@@ -97,7 +100,7 @@ public class ReferenceGraphTest {
             pm.reload();
             proof = pm.getProofForPVC("max/else/Post");
             proof.setScriptTextAndInterpret("substitute on='... ((?match: let m := x :: !(m < y))) ... |-';\n" +
-                    "substitute on='|- ... ((?match: let m := x :: m > 1)) ...';\n");
+                    "substitute on='|- ... ((?match: let m := x :: m > 1)) ...';\n"+"skip;\n"+"skip;\n");
 
             proof2 = pm.getProofForPVC("max/else/Post.1");
             String script2 = "substitute on='... ((?match: let m := x :: !(m < y))) ... |-';\n"+
@@ -150,6 +153,26 @@ public class ReferenceGraphTest {
     public void testLetParents() {
 
     }
+
+    @Test
+    public void testSkipRule() throws RuleException, FormatException {
+
+        ProofNodeSelector lastNode = computeProofNodeSelector("0,0,0,0");
+        Sequent lastSeq = lastNode.get(proof).getSequent();
+        List<TermSelector> allSelectors = computeAllSelectors(lastSeq);
+        allSelectors.forEach(termSelector -> {
+            Assert.assertTrue(isFormulaUnchangedInDirectParent("0,0,0,0", termSelector.toString(), proof));
+        });
+        ProofNodeSelector lastNodeBefore = computeProofNodeSelector("0,0,0");
+        Sequent lastSeqBefore = lastNodeBefore.get(proof).getSequent();
+        List<TermSelector> allSelectorsBefore = computeAllSelectors(lastSeqBefore);
+        allSelectorsBefore.forEach(termSelector -> {
+            Assert.assertTrue(isFormulaUnchangedInDirectParent("0,0,0", termSelector.toString(), proof));
+        });
+
+
+    }
+
 
     /**
      * Test formulas that have been affected by additions or deletions
@@ -264,6 +287,7 @@ public class ReferenceGraphTest {
         }
     }
 
+    @TestInfrastructure
     private ProofNodeSelector computeProofNodeSelector(String pathChild){
         String[] pathStringArray = pathChild.split(",");
         int[] path = Arrays.stream(pathStringArray).mapToInt(value -> Integer.parseInt(value)).toArray();
@@ -271,6 +295,34 @@ public class ReferenceGraphTest {
         return pns;
     }
 
+
+    @TestInfrastructure
+    private static List<TermSelector> computeAllSelectors(Sequent lastSeq) throws FormatException {
+        Set<TermSelector> selectors = new HashSet<>();
+        List<ProofFormula> antecedent = lastSeq.getAntecedent();
+        List<ProofFormula> succedent = lastSeq.getSuccedent();
+        for (int i = 0; i < antecedent.size(); i++){
+            ProofFormula form = antecedent.get(i);
+            selectors.add(new TermSelector("A."+i));
+            selectors.addAll(computeSelectorsWithCommonPrefix("A."+i, form.getTerm()));
+        }
+        for (int j = 0; j < succedent.size(); j++){
+            ProofFormula form1 = succedent.get(j);
+            selectors.add(new TermSelector("S."+j));
+            selectors.addAll(computeSelectorsWithCommonPrefix("S."+j, form1.getTerm()));
+        }
+        return new ArrayList<>(selectors);
+    }
+
+    @TestInfrastructure
+    private static Set<TermSelector> computeSelectorsWithCommonPrefix(String prefix, Term t) throws FormatException {
+        Set<TermSelector> selectors = new HashSet<>();
+        for(int i = 0; i<t.getSubterms().size(); i++) {
+            selectors.add(new TermSelector(prefix+"."+i));
+            selectors.addAll(computeSelectorsWithCommonPrefix(prefix+"."+i, t.getTerm(i)));
+        }
+        return selectors;
+    }
 
 
 
