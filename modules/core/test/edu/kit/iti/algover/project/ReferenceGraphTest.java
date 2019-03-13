@@ -34,21 +34,6 @@ public class ReferenceGraphTest {
 
     public Proof proof3;
 
- //   public String termSelector;
- //   public String path;
-    @Test
-    @Parameters(method="unchangedFormulas")
-    public void testIfFormulaUnchangedInDirectParent(String a, String b){
-       Assert.assertEquals(testMethodForProof(a,b), true);
-    }
-
-    @Test
-    @Parameters(method="changedFormulas")
-    public void testIfFormulaChangedInDirectParent(String a, String b){
-        Assert.assertEquals(testMethodForProof(a,b), false);
-    }
-
-
     private Object[][] unchangedFormulas() {
         return new Object[][]
                 {
@@ -138,22 +123,6 @@ public class ReferenceGraphTest {
 
     }
 
-    /**
-     * Test parents of formulas that have been part of a replacement
-     */
-    @Test
-    public void testReplacements(){
-
-    }
-
-    /**
-     * Test the specialities of let expansions and their influence on computing direct parents
-     */
-    @Test
-    public void testLetParents() {
-
-    }
-
     @Test
     public void testSkipRule() throws RuleException, FormatException {
 
@@ -172,6 +141,25 @@ public class ReferenceGraphTest {
 
 
     }
+
+
+
+    /**
+     * Test parents of formulas that have been part of a replacement
+     */
+    @Test
+    public void testReplacements(){
+
+    }
+
+    /**
+     * Test the specialities of let expansions and their influence on computing direct parents
+     */
+    @Test
+    public void testLetParents() {
+
+    }
+
 
 
     /**
@@ -203,6 +191,19 @@ public class ReferenceGraphTest {
 
     public boolean testMethodForProof2(String path, String termSelector){
         return isFormulaUnchangedInDirectParent(path, termSelector, proof2);
+    }
+
+
+    @Test
+    @Parameters(method="unchangedFormulas")
+    public void testIfFormulaUnchangedInDirectParent(String a, String b){
+        Assert.assertEquals(testMethodForProof(a,b), true);
+    }
+
+    @Test
+    @Parameters(method="changedFormulas")
+    public void testIfFormulaChangedInDirectParent(String a, String b){
+        Assert.assertEquals(testMethodForProof(a,b), false);
     }
 
 

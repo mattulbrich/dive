@@ -23,6 +23,7 @@ import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 import java.io.File;
 import java.util.*;
 import java.util.function.Function;
+import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 /**
@@ -182,55 +183,24 @@ public class ReferenceGraph {
     }
 
     /**
-     * Find the direct parent of childTarget
+     * Find the direct parent of childTarget in the reference graph
      *
      * @param childTarget
      * @param proof
      * @return Set of direct parents of childTarget
      */
     public Set<ProofTermReferenceTarget> findDirectParents(ProofTermReferenceTarget childTarget, Proof proof) {
-        HashSet<ProofTermReferenceTarget> parents = new HashSet<>();
+        Set<ProofTermReferenceTarget> parents = new HashSet<>();
         ProofTermReferenceTarget currentTarget = childTarget;
         try {
-            if (currentTarget.getProofNodeSelector().getParentSelector() != null && (!this.getGraph().nodes().contains(currentTarget) || this.graph.predecessors(currentTarget).isEmpty())) {
-                //currentTarget.getProofNodeSelector().getParentSelector().get(proof).getProofRuleApplication().getBranchInfo()
-                ProofTermReferenceTarget parent = new ProofTermReferenceTarget(currentTarget.getProofNodeSelector().getParentSelector(), currentTarget.getTermSelector());
-                Term termOfCurrenTarget = computeTermValue(currentTarget.getProofNodeSelector(), currentTarget.getTermSelector(), proof);
-                Term termOfParentTarget = computeTermValue(parent.getProofNodeSelector(), parent.getTermSelector(), proof);
-                //TODO debug
-                System.out.println("Computing parents for: "+ termOfCurrenTarget+ " in Node "+currentTarget.getProofNodeSelector());
-
-                if (termOfCurrenTarget == termOfParentTarget && termOfCurrenTarget != null) {
-                    System.out.println("Found parent "+termOfParentTarget+" in Node "+parent.getProofNodeSelector()+ " on same position");
-                    parents.add(parent);
-                } else {
-                    ProofNode proofNode = childTarget.getProofNodeSelector().get(proof);
-                    TermSelector childSelector = childTarget.getTermSelector();
-                    if(!childSelector.isToplevel()) {
-                        //get all changes and check termselectors
-
-                        ImmutableList<BranchInfo> branchInfos = proofNode.getProofRuleApplication().getBranchInfo();
-                        branchInfos.forEach(branchInfo -> {
-                                    branchInfo.getReplacements().forEach(termSelectorTermPair -> {
-                                        if(childSelector.hasPrefix(termSelectorTermPair.getFst())){
-                                            //TODO richtig umsetzen, bisher nur näherung
-                                          //  Term changedTerm =computeTermValue(currentTarget.getProofNodeSelector().getParentSelector(), termSelectorTermPair.getFst(),proof);
-                                            parents.add(new ProofTermReferenceTarget(currentTarget.getProofNodeSelector().getParentSelector(), termSelectorTermPair.getFst()));
-                                        }
-                                    });
-                                }
-
-                        );
-                    } else {
-                        //TODO neue Position berechenen, weil keine Änderung am Term selber aber an anderen Formeln
-                        System.out.println("Did not implement changes in Graph yet");
-                        throw new NotImplementedException();
-                    }
-                }
+            //There is no predecessor or edge containing the childTarget -< we have to compute teh direct parent
+            if (currentTarget.getProofNodeSelector().getParentSelector() != null
+                    && (!this.getGraph().nodes().contains(currentTarget) || this.graph.predecessors(currentTarget).isEmpty())) {
+                Logger.getGlobal().info("Did not find predecessor or target in graph. Computing direct parents");
+                parents = computeDirectParents(currentTarget, proof);
             } else {
-
-                //Es gibt Vorgänger
-                System.out.println("Found an edge in graph, which references parent(s)");
+                //We have apredecessor in the graph
+                Logger.getGlobal().info("Found an edge in graph, which references parent(s)");
                 Set<ProofTermReferenceTarget> proofTermReferenceTargets = allPredecessorsWithType(childTarget, ProofTermReferenceTarget.class);
                 parents.addAll(proofTermReferenceTargets);
 
@@ -245,6 +215,67 @@ public class ReferenceGraph {
         return parents;
     }
 
+    /**
+     * The case where no predecessor could be found in graph and no edge containing childTarget.
+     * Method computes the direct parent by first taking the predecessor node and searching at the same position.
+     * If the terms do not coincide, the term was a subterm that was either part of a formula affected by a replacement or
+     * the position changed due to addition or deletion of formulas
+     *
+     * @param childTarget
+     * @param proof
+     * @return
+     * @throws RuleException
+     */
+    private Set<ProofTermReferenceTarget> computeDirectParents(ProofTermReferenceTarget childTarget, Proof proof) throws RuleException {
+        Set<ProofTermReferenceTarget> parents = new HashSet<>();
+        ProofTermReferenceTarget currentTarget = childTarget;
+        ProofTermReferenceTarget parent = new ProofTermReferenceTarget(currentTarget.getProofNodeSelector().getParentSelector(), currentTarget.getTermSelector());
+        Term termOfCurrenTarget = computeTermValue(currentTarget.getProofNodeSelector(), currentTarget.getTermSelector(), proof);
+        Term termOfParentTarget = computeTermValue(parent.getProofNodeSelector(), parent.getTermSelector(), proof);
+        //TODO debug
+        Logger.getGlobal().info("Computing parents for: " + termOfCurrenTarget + " in Node " + currentTarget.getProofNodeSelector());
+
+        if (termOfCurrenTarget == termOfParentTarget && termOfCurrenTarget != null) {
+            Logger.getGlobal().info("Found parent " + termOfParentTarget + " in Node " + parent.getProofNodeSelector() + " on same position");
+            parents.add(parent);
+        } else {
+            ProofNode proofNode = childTarget.getProofNodeSelector().get(proof);
+            TermSelector childSelector = childTarget.getTermSelector();
+            if (!childSelector.isToplevel()) {
+                //get all changes and check termselectors
+
+                ImmutableList<BranchInfo> branchInfos = proofNode.getProofRuleApplication().getBranchInfo();
+                branchInfos.forEach(branchInfo -> {
+                            branchInfo.getReplacements().forEach(termSelectorTermPair -> {
+                                if (childSelector.hasPrefix(termSelectorTermPair.getFst())) {
+                                    //TODO richtig umsetzen, bisher nur näherung
+                                    //  Term changedTerm =computeTermValue(currentTarget.getProofNodeSelector().getParentSelector(), termSelectorTermPair.getFst(),proof);
+                                    parents.add(new ProofTermReferenceTarget(currentTarget.getProofNodeSelector().getParentSelector(), termSelectorTermPair.getFst()));
+                                }
+                            });
+                        }
+
+                );
+            } else {
+                //TODO neue Position berechenen, weil keine Änderung am Term selber aber an anderen Formeln
+                System.out.println("Did not implement changes in Graph yet");
+                throw new NotImplementedException();
+            }
+
+        }
+        return parents;
+    }
+
+    private Term computeTermValue(ProofTermReferenceTarget target, Proof proof){
+        return computeTermValue(target.getProofNodeSelector(), target.getTermSelector(), proof);
+    }
+    /**
+     * Helper to select terms in a sequent acc. to given selectors
+     * @param proofNodeSelector
+     * @param termSelector
+     * @param proof
+     * @return
+     */
     private Term computeTermValue(ProofNodeSelector proofNodeSelector, TermSelector termSelector, Proof proof) {
         Term ret = null;
         try {
