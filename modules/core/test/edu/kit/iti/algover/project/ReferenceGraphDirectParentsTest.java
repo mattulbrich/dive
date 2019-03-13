@@ -12,7 +12,6 @@ import edu.kit.iti.algover.term.Sequent;
 import edu.kit.iti.algover.term.Term;
 import edu.kit.iti.algover.util.FormatException;
 import edu.kit.iti.algover.util.TestInfrastructure;
-import edu.kit.iti.algover.util.TestUtil;
 import junitparams.JUnitParamsRunner;
 import junitparams.Parameters;
 import org.junit.Assert;
@@ -24,15 +23,18 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.util.*;
+import java.util.logging.Logger;
 
 @RunWith(JUnitParamsRunner.class)
-public class ReferenceGraphTest {
+public class ReferenceGraphDirectParentsTest {
 
-    public Proof proof;
+    public Proof proofWithTwoSubstitutionsAndSkips;
 
-    public Proof proof2;
+    public Proof proofBranched;
 
-    public Proof proof3;
+    public Proof proofWithRemoval;
+
+    public Proof proofWithReplacement;
 
     private Object[][] unchangedFormulas() {
         return new Object[][]
@@ -83,11 +85,11 @@ public class ReferenceGraphTest {
 
             pm = new XMLProjectManager(new File(resource.getFile()), "config.xml");
             pm.reload();
-            proof = pm.getProofForPVC("max/else/Post");
-            proof.setScriptTextAndInterpret("substitute on='... ((?match: let m := x :: !(m < y))) ... |-';\n" +
+            proofWithTwoSubstitutionsAndSkips = pm.getProofForPVC("max/else/Post");
+            proofWithTwoSubstitutionsAndSkips.setScriptTextAndInterpret("substitute on='... ((?match: let m := x :: !(m < y))) ... |-';\n" +
                     "substitute on='|- ... ((?match: let m := x :: m > 1)) ...';\n"+"skip;\n"+"skip;\n");
 
-            proof2 = pm.getProofForPVC("max/else/Post.1");
+            proofBranched = pm.getProofForPVC("max/else/Post.1");
             String script2 = "substitute on='... ((?match: let m := x :: !(m < y))) ... |-';\n"+
             "skip;\n"+
             "substitute on='|- ... ((?match: let m := x :: m >= x && m >= y)) ...'; \n"+
@@ -101,15 +103,29 @@ public class ReferenceGraphTest {
             "        skip;\n"+
             "    }\n"+
             "}\n";
-            proof2.setScriptTextAndInterpret(script2);
+            proofBranched.setScriptTextAndInterpret(script2);
 
-            //has addlist
-            proof3 = pm.getProofForPVC("ff/Post");
-            proof3.setScriptTextAndInterpret("andLeft on='... ((?match: a >= 0 && a < 100)) ... |-';\n"+
+            //has addlist+delList
+            proofWithRemoval = pm.getProofForPVC("ff/Post");
+            proofWithRemoval.setScriptTextAndInterpret("andLeft on='... ((?match: a >= 0 && a < 100)) ... |-';\n"+
                   //  "removeAssumption on='... ((?match: a + 1 == a + 1)) ... |-';\n"
                     "removeAssumption on='... ((?match: a + 1 == a + 1 && a > 0 ==> b >= 0)) ... |-';\n");
 
 
+            String script = "substitute on='... ((?match: let m := x :: !(m < y))) ... |-';\n" +
+                    "replace with='x == y' on='... ((?match: !(x < y))) ... |-';\n" +
+                    "cases {\n" +
+                    "\tcase match \"replace\": {\n" +
+                    "\t\n" +
+                    "\t}\n" +
+                    "\tcase match \"justification\": {\n" +
+                    "\t\n" +
+                    "\t}\n" +
+                    "}\n" +
+                    "\n";
+
+            proofWithReplacement = pm.getProofForPVC("max/else/Post.1");
+            proofWithReplacement.setScriptTextAndInterpret(script);
 
         } catch (FormatException e) {
             e.printStackTrace();
@@ -127,16 +143,16 @@ public class ReferenceGraphTest {
     public void testSkipRule() throws RuleException, FormatException {
 
         ProofNodeSelector lastNode = computeProofNodeSelector("0,0,0,0");
-        Sequent lastSeq = lastNode.get(proof).getSequent();
+        Sequent lastSeq = lastNode.get(proofWithTwoSubstitutionsAndSkips).getSequent();
         List<TermSelector> allSelectors = computeAllSelectors(lastSeq);
         allSelectors.forEach(termSelector -> {
-            Assert.assertTrue(isFormulaUnchangedInDirectParent("0,0,0,0", termSelector.toString(), proof));
+            Assert.assertTrue(isFormulaUnchangedInDirectParent("0,0,0,0", termSelector.toString(), proofWithTwoSubstitutionsAndSkips));
         });
         ProofNodeSelector lastNodeBefore = computeProofNodeSelector("0,0,0");
-        Sequent lastSeqBefore = lastNodeBefore.get(proof).getSequent();
+        Sequent lastSeqBefore = lastNodeBefore.get(proofWithTwoSubstitutionsAndSkips).getSequent();
         List<TermSelector> allSelectorsBefore = computeAllSelectors(lastSeqBefore);
         allSelectorsBefore.forEach(termSelector -> {
-            Assert.assertTrue(isFormulaUnchangedInDirectParent("0,0,0", termSelector.toString(), proof));
+            Assert.assertTrue(isFormulaUnchangedInDirectParent("0,0,0", termSelector.toString(), proofWithTwoSubstitutionsAndSkips));
         });
 
 
@@ -148,8 +164,19 @@ public class ReferenceGraphTest {
      * Test parents of formulas that have been part of a replacement
      */
     @Test
-    public void testReplacements(){
+    public void testReplacements() throws RuleException, FormatException {
+        //proofWithReplacement;
+        Assert.assertFalse(isFormulaUnchangedInDirectParent("0,0", "A.0", proofWithReplacement));
+        //SaG: atm the parent whole replaced formula is returned, therefore although term value is still part of whole formula it is consiedered as changed
+        Assert.assertFalse(isFormulaUnchangedInDirectParent("0,0", "A.0.1", proofWithReplacement));
+        Assert.assertFalse(isFormulaUnchangedInDirectParent("0,0", "A.0.0", proofWithReplacement));
+        Set<ProofTermReferenceTarget> parentsReplace = computeDirectParents("0,0", "A.0.1", proofWithReplacement);
+        Assert.assertTrue(parentsReplace.size() == 1);
+        Assert.assertEquals(parentsReplace.iterator().next().getTermSelector().toString(),"A.0");
 
+        Set<ProofTermReferenceTarget> parentsJust = computeDirectParents("0,0", "A.0.0", proofWithReplacement);
+        Assert.assertTrue(parentsJust.size() == 1);
+        Assert.assertEquals(parentsJust.iterator().next().getTermSelector().toString(),"A.0");
     }
 
     /**
@@ -157,7 +184,7 @@ public class ReferenceGraphTest {
      */
     @Test
     public void testLetParents() {
-
+//TODO
     }
 
 
@@ -167,18 +194,18 @@ public class ReferenceGraphTest {
      * @throws FormatException
      * @throws RuleException
      */
-    @Test
+    //@Test
     public void testAddDelList() throws FormatException, RuleException {
-//TODO
-        Set<ProofTermReferenceTarget> proofTermReferenceTargets = computeDirectParents("0,0", "A.1", proof3);
+//TODO is not implemented yet
+        Set<ProofTermReferenceTarget> proofTermReferenceTargets = computeDirectParents("0,0", "A.1", proofWithRemoval);
         ProofNodeSelector pns = computeProofNodeSelector("0,0");
         TermSelector termSelector = new TermSelector("A.1");
-        Term proofFormula = termSelector.selectSubterm(pns.get(proof3).getSequent());
+        Term proofFormula = termSelector.selectSubterm(pns.get(proofWithRemoval).getSequent());
 
         proofTermReferenceTargets.forEach(proofTermReferenceTarget -> {
             try {
-                boolean comp = compareTerms(proofFormula, proofTermReferenceTarget, proof3);
-                System.out.println("comp = " + comp);
+                boolean comp = compareTerms(proofFormula, proofTermReferenceTarget, proofWithRemoval);
+                Logger.getGlobal().info("comp = " + comp);
             } catch (RuleException e) {
                 e.printStackTrace();
             }
@@ -186,11 +213,11 @@ public class ReferenceGraphTest {
     }
 
     public boolean testMethodForProof(String path, String termSelector){
-         return isFormulaUnchangedInDirectParent(path, termSelector, proof);
+         return isFormulaUnchangedInDirectParent(path, termSelector, proofWithTwoSubstitutionsAndSkips);
     }
 
     public boolean testMethodForProof2(String path, String termSelector){
-        return isFormulaUnchangedInDirectParent(path, termSelector, proof2);
+        return isFormulaUnchangedInDirectParent(path, termSelector, proofBranched);
     }
 
 
@@ -235,22 +262,22 @@ public class ReferenceGraphTest {
             TermSelector termSelector = new TermSelector(termSelectorString);
             Set<ProofTermReferenceTarget> directParents = currentProof.getGraph().findDirectParents(new ProofTermReferenceTarget(pns, termSelector), currentProof);
             Term proofFormula = termSelector.selectSubterm(pns.get(currentProof).getSequent());
-            System.out.println("Test for proof node "+ pns +" term "+ proofFormula);
+            Logger.getGlobal().info("Test for proof node " + pns + " term " + proofFormula);
 
             for (ProofTermReferenceTarget directParent : directParents) {
                 Term term = directParent.getTermSelector().selectSubterm(directParent.getProofNodeSelector().get(currentProof).getSequent());
                 if(ret = term == proofFormula){
-                    System.out.println("Term value " + term + " has not changed from node "+pns.getParentSelector()+" to "+pns);
+                    Logger.getGlobal().info("Term value " + term + " has not changed from node "+pns.getParentSelector()+" to "+pns);
                     if(directParent.getTermSelector() != termSelector){
-                        System.out.println("But position has changed");
+                        Logger.getGlobal().info("But position has changed");
                         ret = false;
                     } else {
-                        System.out.println("and position has not changed");
+                        Logger.getGlobal().info("and position has not changed");
                     }
 
                 } else {
 
-                    System.out.println("term = " + term+ " and "+proofFormula+ " are not identical");
+                    Logger.getGlobal().info("term = " + term+ " and "+proofFormula+ " are not identical");
                 }
             }
         } catch (FormatException e) {
@@ -263,30 +290,6 @@ public class ReferenceGraphTest {
     }
 
 
-
-
-    private void testHistory(){
-        int[] path = {0,0};
-        ProofNodeSelector pns = new ProofNodeSelector(path);
-        try {
-            TermSelector termSelector = new TermSelector("A.0.0");
-            Term term1 = termSelector.selectSubterm(pns.get(proof).getSequent());
-            Set<ProofTermReferenceTarget> directParents = proof.getGraph().computeHistory(new ProofTermReferenceTarget(pns, termSelector), proof);
-            System.out.println("pns = " + pns);
-            System.out.println("term1 = " + term1);
-            //System.out.println("proofFormula = " + proofFormula);
-            for (ProofTermReferenceTarget directParent : directParents) {
-                Term term2 = directParent.getTermSelector().selectSubterm(directParent.getProofNodeSelector().get(proof).getSequent());
-                System.out.println("Node = " + directParent.getProofNodeSelector());
-                System.out.println("term2 = " + term2);
-                //Assert.assertFalse(term == proofFormula);
-            }
-        } catch (FormatException e) {
-            e.printStackTrace();
-        } catch (RuleException e) {
-            e.printStackTrace();
-        }
-    }
 
     @TestInfrastructure
     private ProofNodeSelector computeProofNodeSelector(String pathChild){

@@ -88,7 +88,7 @@ public class PlayProofsTest {
             if(proof.getFailException() != null) {
                 proof.getFailException().printStackTrace();
             }
-            assertEquals("Unclosed proof " + proof.getPVCName(), ProofStatus.CLOSED, proof.getProofStatus());
+            assertEquals("Unclosed proofWithTwoSubstitutionsAndSkips " + proof.getPVCName(), ProofStatus.CLOSED, proof.getProofStatus());
         }
     }
 

@@ -226,21 +226,20 @@ public class ReferenceGraph {
      * @return
      * @throws RuleException
      */
-    private Set<ProofTermReferenceTarget> computeDirectParents(ProofTermReferenceTarget childTarget, Proof proof) throws RuleException {
+    private Set<ProofTermReferenceTarget> computeDirectParents(ProofTermReferenceTarget currentTarget, Proof proof) throws RuleException {
         Set<ProofTermReferenceTarget> parents = new HashSet<>();
-        ProofTermReferenceTarget currentTarget = childTarget;
         ProofTermReferenceTarget parent = new ProofTermReferenceTarget(currentTarget.getProofNodeSelector().getParentSelector(), currentTarget.getTermSelector());
         Term termOfCurrenTarget = computeTermValue(currentTarget.getProofNodeSelector(), currentTarget.getTermSelector(), proof);
         Term termOfParentTarget = computeTermValue(parent.getProofNodeSelector(), parent.getTermSelector(), proof);
-        //TODO debug
-        Logger.getGlobal().info("Computing parents for: " + termOfCurrenTarget + " in Node " + currentTarget.getProofNodeSelector());
+
+        Logger.getGlobal().info("Computing parents for term '" + termOfCurrenTarget + "' in Node " + currentTarget.getProofNodeSelector());
 
         if (termOfCurrenTarget == termOfParentTarget && termOfCurrenTarget != null) {
-            Logger.getGlobal().info("Found parent " + termOfParentTarget + " in Node " + parent.getProofNodeSelector() + " on same position");
+            Logger.getGlobal().info("Found parent term '" + termOfParentTarget + "' in Node " + parent.getProofNodeSelector() + " on same position");
             parents.add(parent);
         } else {
-            ProofNode proofNode = childTarget.getProofNodeSelector().get(proof);
-            TermSelector childSelector = childTarget.getTermSelector();
+            ProofNode proofNode = currentTarget.getProofNodeSelector().get(proof);
+            TermSelector childSelector = currentTarget.getTermSelector();
             if (!childSelector.isToplevel()) {
                 //get all changes and check termselectors
 
@@ -280,10 +279,11 @@ public class ReferenceGraph {
         Term ret = null;
         try {
             ret = termSelector.selectSubterm(proofNodeSelector.get(proof).getSequent());
+            return ret;
         } catch (RuleException e) {
-            e.printStackTrace();
+            return null;
         }
-        return ret;
+
     }
 
     @Override

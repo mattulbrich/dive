@@ -33,7 +33,7 @@ import edu.kit.iti.algover.util.TestUtil;
 import edu.kit.iti.algover.util.Util;
 
 /**
- * This is only the first round of integration tests. As soon as proof replaying
+ * This is only the first round of integration tests. As soon as proofWithTwoSubstitutionsAndSkips replaying
  * works this has to be extended.
  *
  * SMT support is currently freshly implemented. Ignore test for now.

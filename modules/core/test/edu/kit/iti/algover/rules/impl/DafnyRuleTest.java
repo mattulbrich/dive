@@ -51,7 +51,7 @@ public class DafnyRuleTest {
 
         List<ProofFormula> ante = new ArrayList<>();
         List<ProofFormula> dece = new ArrayList<>();
-        // REVIEW: This is not a boolean term used as proof formula here.
+        // REVIEW: This is not a boolean term used as proofWithTwoSubstitutionsAndSkips formula here.
         ante.add(new ProofFormula(ttt.build(t1)));
         dece.add(new ProofFormula(ttt.build(t2)));
 
