@@ -298,7 +298,7 @@ public class ReferenceGraphDirectParentsTest {
 
 
     @TestInfrastructure
-    private ProofNodeSelector computeProofNodeSelector(String pathChild){
+    public static ProofNodeSelector computeProofNodeSelector(String pathChild){
         String[] pathStringArray = pathChild.split(",");
         int[] path = Arrays.stream(pathStringArray).mapToInt(value -> Integer.parseInt(value)).toArray();
         ProofNodeSelector pns = new ProofNodeSelector(path);
@@ -307,7 +307,7 @@ public class ReferenceGraphDirectParentsTest {
 
 
     @TestInfrastructure
-    private static List<TermSelector> computeAllSelectors(Sequent lastSeq) throws FormatException {
+    public static List<TermSelector> computeAllSelectors(Sequent lastSeq) throws FormatException {
         Set<TermSelector> selectors = new HashSet<>();
         List<ProofFormula> antecedent = lastSeq.getAntecedent();
         List<ProofFormula> succedent = lastSeq.getSuccedent();
