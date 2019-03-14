@@ -46,12 +46,12 @@ public class ProofMockUtil {
     }
 
     /**
-     * Create a mocked proofWithTwoSubstitutionsAndSkips node from a parent and the sequent data.
+     * Create a mocked proof node from a parent and the sequent data.
      *
      * @param parent          the parent node
      * @param antedecentTerms antecedent formulas
      * @param succedentTerms  succedent formulas
-     * @return a new proofWithTwoSubstitutionsAndSkips node
+     * @return a new proof node
      * @throws TermBuildException if formulas are not boolean
      */
     @TestInfrastructure
@@ -69,12 +69,12 @@ public class ProofMockUtil {
     }
 
     /**
-     * Create a mocked proofWithTwoSubstitutionsAndSkips node from a parent and the sequent data.
+     * Create a mocked proof node from a parent and the sequent data.
      *
      * @param parent          the parent node
      * @param antedecentTerms antecedent formulas
      * @param succedentTerms  succedent formulas
-     * @return a new proofWithTwoSubstitutionsAndSkips node
+     * @return a new proof node
      * @throws TermBuildException if formulas are not boolean
      */
     @TestInfrastructure
@@ -88,12 +88,12 @@ public class ProofMockUtil {
     }
 
     /**
-     * Create a mocked proofWithTwoSubstitutionsAndSkips node from a parent and the sequent data.
+     * Create a mocked proof node from a parent and the sequent data.
      *
      * @param parent          the parent node
      * @param antedecentTerms antecedent formulas
      * @param succedentTerms  succedent formulas
-     * @return a new proofWithTwoSubstitutionsAndSkips node
+     * @return a new proof node
      * @throws TermBuildException if formulas are not boolean
      */
     @TestInfrastructure
@@ -107,10 +107,10 @@ public class ProofMockUtil {
     }
 
     /**
-     * Make a proofWithTwoSubstitutionsAndSkips for a formula that serves as the only succedent formula.
+     * Make a proof for a formula that serves as the only succedent formula.
      *
      * @param termStr the formula to parse
-     * @return a fresh mock proofWithTwoSubstitutionsAndSkips object
+     * @return a fresh mock proof object
      */
     @TestInfrastructure
     public static Proof makeProof(String termStr) throws DafnyParserException, IOException, RecognitionException, DafnyException {
@@ -118,11 +118,11 @@ public class ProofMockUtil {
     }
 
     /**
-     * Make a proofWithTwoSubstitutionsAndSkips for a formula that serves as the only succedent formula.
+     * Make a proof for a formula that serves as the only succedent formula.
      *
      * @param termStr     the formula to parse
      * @param symboltable the table to use
-     * @return a fresh mock proofWithTwoSubstitutionsAndSkips object
+     * @return a fresh mock proof object
      */
     @TestInfrastructure
     public static Proof makeProof(SymbolTable symboltable, String termStr) throws DafnyParserException, DafnyException, IOException, RecognitionException {
@@ -132,10 +132,10 @@ public class ProofMockUtil {
     }
 
     /**
-     * Make a proofWithTwoSubstitutionsAndSkips for a sequent.
+     * Make a proof for a sequent.
      *
      * @param sequent the sequent to use as root
-     * @return a fresh mock proofWithTwoSubstitutionsAndSkips object
+     * @return a fresh mock proof object
      */
     @TestInfrastructure
     public static Proof makeProof(Sequent sequent) throws DafnyParserException, RecognitionException, IOException, DafnyException {
@@ -143,11 +143,11 @@ public class ProofMockUtil {
     }
 
     /**
-     * Make a proofWithTwoSubstitutionsAndSkips for a sequent.
+     * Make a proof for a sequent.
      *
      * @param sequent the sequent to use as root
      * @param symboltable the table to use
-     * @return a fresh mock proofWithTwoSubstitutionsAndSkips object
+     * @return a fresh mock proof object
      */
     @TestInfrastructure
     public static Proof makeProof(SymbolTable symboltable, Sequent sequent) throws DafnyParserException, DafnyException, RecognitionException, IOException {
@@ -170,11 +170,11 @@ public class ProofMockUtil {
     }
 
     /**
-     * Make a proofWithTwoSubstitutionsAndSkips for a sequent.
+     * Make a proof for a sequent.
      *
      * @param sequent the sequent to use as root
      * @param symboltable the table to use
-     * @return a fresh mock proofWithTwoSubstitutionsAndSkips object
+     * @return a fresh mock proof object
      */
     @TestInfrastructure
     public static Proof makeProofWithRoot(SymbolTable symboltable, Sequent sequent) throws DafnyParserException, DafnyException, RecognitionException, IOException {
@@ -200,11 +200,11 @@ public class ProofMockUtil {
     }
     
     /**
-     * Create a mocked proofWithTwoSubstitutionsAndSkips node from a parent and a sequent.
+     * Create a mocked proof node from a parent and a sequent.
      *
      * @param parent          the parent node
      * @param s               the sequent
-     * @return a new proofWithTwoSubstitutionsAndSkips node
+     * @return a new proof node
      * @throws TermBuildException if formulas are not boolean
      */
     @TestInfrastructure

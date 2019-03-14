@@ -106,23 +106,23 @@ public class ProjectManagerTest {
         //get the Proof object for a PVC
         Proof proof2 = pm.getProofForPVC(testPVCxPost);
 
-        //Assert.assertEquals("Proofscript is not loaded yet", ProofStatus.NOT_LOADED, proofBranched.getProofStatus());
+        //Assert.assertEquals("Proofscript is not loaded yet", ProofStatus.NOT_LOADED, proof2.getProofStatus());
 
         //find and parse a script file for PVC
         String script = pm.loadScriptForPVC(testPVCxPost);
         pm.getProofForPVC(testPVCxPost).setScriptText(script);
 
-        //System.out.println("Current State " + proofWithTwoSubstitutionsAndSkips.getInterpreter().getCurrentState().getSelectedGoalNode());
+        //System.out.println("Current State " + proof.getInterpreter().getCurrentState().getSelectedGoalNode());
         //pm.replayAllProofs();
 
         //this should be the way a script should be interpreted
         proof2.interpretScript();
         Assert.assertNull(proof.getFailException());
 
-        //the way to print the proofWithTwoSubstitutionsAndSkips tree
-        //proofBranched.getProofRoot();
+        //the way to print the proof tree
+        //proof2.getProofRoot();
         System.out.println(proof2.proofToString());
-        // proofBranched.invalidate();
+        // proof2.invalidate();
 
         String newScript = "//substitute on='let $mod := $everything :: (let x := 1 :: 1== 2 && 2 == 3 && 4==5)';\n" +
                 "//substitute on='let x := 1 :: 1== 2 && 2 == 3 &&4==5 '; \n" +
@@ -146,7 +146,7 @@ public class ProjectManagerTest {
         Assert.assertEquals("Proof is not loaded yet", ProofStatus.DIRTY, proof.getProofStatus());
 
         pm.saveProject();
-        //Assert.assertEquals(Status.DIRTY, proofWithTwoSubstitutionsAndSkips.getStatus());
+        //Assert.assertEquals(Status.DIRTY, proof.getStatus());
        /* pm.replayAllProofs();
         for (Proof pr : pm.getAllProofs().values()) {
             Assert.assertEquals(ProofStatus.NON_EXISTING, pr.getProofStatus());
@@ -169,7 +169,7 @@ public class ProjectManagerTest {
     }
 
     // This test currently fails with a NullPointerException, but I felt like an empty script should be
-    // interpretable, even though it doesn't advance the proofWithTwoSubstitutionsAndSkips state...
+    // interpretable, even though it doesn't advance the proof state...
     @Test
     public void testEmptyScript() throws Exception {
         ProjectManager pm = new XMLProjectManager(new File(testDir), config);

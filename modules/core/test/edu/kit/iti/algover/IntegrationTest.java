@@ -27,7 +27,7 @@ public class IntegrationTest {
         //config file
         String config = "config.xml";
 
-        //project manager should load project -> this parses all DafnyFiles, creates the PVCs, and empty proofWithTwoSubstitutionsAndSkips objects
+        //project manager should load project -> this parses all DafnyFiles, creates the PVCs, and empty proof objects
         ProjectManager pm = new XMLProjectManager(dir, config);
         //get all proofs
         pm.getPVCByNameMap().forEach((s, pvc) -> System.out.println("pvc.getName() = " + pvc.getIdentifier()));
@@ -47,7 +47,7 @@ public class IntegrationTest {
         //config file
         String config = "config.xml";
 
-        //project manager should load project -> this parses all DafnyFiles, creates the PVCs, and empty proofWithTwoSubstitutionsAndSkips objects
+        //project manager should load project -> this parses all DafnyFiles, creates the PVCs, and empty proof objects
         ProjectManager pm = new XMLProjectManager(new File(dir), config);
         //get all proofs
         pm.getPVCByNameMap().forEach((s, pvc) -> System.out.println("pvc.getName() = " + pvc.getIdentifier()));
