@@ -7,6 +7,7 @@ import com.google.common.graph.MutableGraph;
 import edu.kit.iti.algover.dafnystructures.DafnyFile;
 import edu.kit.iti.algover.parser.DafnyTree;
 import edu.kit.iti.algover.proof.Proof;
+import edu.kit.iti.algover.proof.ProofFormula;
 import edu.kit.iti.algover.proof.ProofNode;
 import edu.kit.iti.algover.proof.ProofNodeSelector;
 import edu.kit.iti.algover.rules.BranchInfo;
@@ -14,6 +15,7 @@ import edu.kit.iti.algover.rules.ProofRuleApplication;
 import edu.kit.iti.algover.rules.RuleException;
 import edu.kit.iti.algover.rules.TermSelector;
 import edu.kit.iti.algover.script.ast.ASTNode;
+import edu.kit.iti.algover.term.Sequent;
 import edu.kit.iti.algover.term.Term;
 import edu.kit.iti.algover.util.ImmutableList;
 import edu.kit.iti.algover.util.Pair;
@@ -221,7 +223,7 @@ public class ReferenceGraph {
      * If the terms do not coincide, the term was a subterm that was either part of a formula affected by a replacement or
      * the position changed due to addition or deletion of formulas
      *
-     * @param childTarget
+     * @param currentTarget
      * @param proof
      * @return
      * @throws RuleException
@@ -232,18 +234,18 @@ public class ReferenceGraph {
         Term termOfCurrenTarget = computeTermValue(currentTarget.getProofNodeSelector(), currentTarget.getTermSelector(), proof);
         Term termOfParentTarget = computeTermValue(parent.getProofNodeSelector(), parent.getTermSelector(), proof);
 
-        Logger.getGlobal().info("Computing parents for term '" + termOfCurrenTarget + "' in Node " + currentTarget.getProofNodeSelector());
+       // Logger.getGlobal().info("Computing parents for term '" + termOfCurrenTarget + "' in Node " + currentTarget.getProofNodeSelector());
 
         if (termOfCurrenTarget == termOfParentTarget && termOfCurrenTarget != null) {
-            Logger.getGlobal().info("Found parent term '" + termOfParentTarget + "' in Node " + parent.getProofNodeSelector() + " on same position");
+       //     Logger.getGlobal().info("Found parent term '" + termOfParentTarget + "' in Node " + parent.getProofNodeSelector() + " on same position");
             parents.add(parent);
         } else {
             ProofNode proofNode = currentTarget.getProofNodeSelector().get(proof);
             TermSelector childSelector = currentTarget.getTermSelector();
+            ImmutableList<BranchInfo> branchInfos = proofNode.getProofRuleApplication().getBranchInfo();
+
             if (!childSelector.isToplevel()) {
                 //get all changes and check termselectors
-
-                ImmutableList<BranchInfo> branchInfos = proofNode.getProofRuleApplication().getBranchInfo();
                 branchInfos.forEach(branchInfo -> {
                             branchInfo.getReplacements().forEach(termSelectorTermPair -> {
                                 if (childSelector.hasPrefix(termSelectorTermPair.getFst())) {
@@ -256,13 +258,96 @@ public class ReferenceGraph {
 
                 );
             } else {
-                //TODO neue Position berechenen, weil keine Änderung am Term selber aber an anderen Formeln
-                System.out.println("Did not implement changes in Graph yet");
-                throw new NotImplementedException();
+                parents.add(handleAddAndDel(proof, parent, childSelector, branchInfos));
             }
 
         }
         return parents;
+    }
+
+    //Currently its a naive implementation
+    private ProofTermReferenceTarget handleAddAndDel(Proof proof, ProofTermReferenceTarget parent, TermSelector childSelector, ImmutableList<BranchInfo> branchInfos) throws RuleException {
+        //TODO additions
+
+        List<Sequent> additions = new ArrayList<>();
+        List<Sequent> deletions = new ArrayList<>();
+
+        branchInfos.forEach(branchInfo -> {
+            additions.add(branchInfo.getAdditions());
+            deletions.add(branchInfo.getDeletions());
+        });
+        Sequent parentSeq = parent.getProofNodeSelector().get(proof).getSequent();
+        int posInParent = childSelector.getTermNo();
+        List<ProofFormula> toCheckAdd = new ArrayList<>();
+        for(Sequent s: additions){
+            if(childSelector.getToplevelSelector().isAntecedent()){
+                s.getAntecedent().forEach(toCheckAdd::add);
+                List<TermSelector> termSelectorsAntec  = computeSelector(toCheckAdd, parentSeq, TermSelector.SequentPolarity.ANTECEDENT);
+                for(TermSelector sel : termSelectorsAntec){
+                    if(sel.getTermNo() < childSelector.getTermNo()){
+                        posInParent--;
+                    }
+                    //this should not happen
+                    if(sel.getTermNo() == childSelector.getTermNo()){
+                        return new ProofTermReferenceTarget(parent.getProofNodeSelector(), childSelector);
+                    }
+                }
+            } else {
+                s.getSuccedent().forEach(toCheckAdd::add);
+                List<TermSelector> termSelectorsAntec  = computeSelector(toCheckAdd, parentSeq, TermSelector.SequentPolarity.SUCCEDENT);
+                for(TermSelector sel : termSelectorsAntec){
+                    if(sel.getTermNo() < childSelector.getTermNo()){
+                        posInParent--;
+                    }
+                    //this should not happen
+                    if(sel.getTermNo() == childSelector.getTermNo()){
+                        return new ProofTermReferenceTarget(parent.getProofNodeSelector(), childSelector);
+                    }
+
+                }
+            }
+        }
+
+
+        List<ProofFormula> toCheckDel = new ArrayList<>();
+        for(Sequent s: deletions){
+            if(childSelector.getToplevelSelector().isAntecedent()){
+                s.getAntecedent().forEach(toCheckDel::add);
+                List<TermSelector> termSelectorsAntec  = computeSelector(toCheckDel, parentSeq, TermSelector.SequentPolarity.ANTECEDENT);
+                for(TermSelector sel : termSelectorsAntec){
+                    if(sel.getTermNo() <= childSelector.getTermNo()){
+                        posInParent++;
+                    }
+                }
+            } else {
+                s.getSuccedent().forEach(toCheckDel::add);
+                List<TermSelector> termSelectorsAntec  = computeSelector(toCheckDel, parentSeq, TermSelector.SequentPolarity.SUCCEDENT);
+                for(TermSelector sel : termSelectorsAntec){
+                    if(sel.getTermNo() <= childSelector.getTermNo()){
+                        posInParent++;
+                    }
+                }
+            }
+        }
+        return new ProofTermReferenceTarget(parent.getProofNodeSelector(), new TermSelector(childSelector.getPolarity(), posInParent));
+    }
+
+    private static List<TermSelector> computeSelector(List<ProofFormula> formulas, Sequent seq, TermSelector.SequentPolarity polarity){
+        List<TermSelector> selectors = new ArrayList<>();
+        List<ProofFormula> toCheck;
+        if(polarity == TermSelector.SequentPolarity.ANTECEDENT){
+            toCheck = seq.getAntecedent();
+        } else {
+            toCheck = seq.getSuccedent();
+        }
+        for(int i = 0; i < toCheck.size(); i++){
+            ProofFormula f = toCheck.get(i);
+            if(formulas.contains(f)){
+                selectors.add(new TermSelector(TermSelector.SequentPolarity.ANTECEDENT, i));
+            }
+        }
+        return selectors;
+
     }
 
     private Term computeTermValue(ProofTermReferenceTarget target, Proof proof){

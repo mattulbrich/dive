@@ -108,7 +108,6 @@ public class ReferenceGraphDirectParentsTest {
             //has addlist+delList
             proofWithRemoval = pm.getProofForPVC("ff/Post");
             proofWithRemoval.setScriptTextAndInterpret("andLeft on='... ((?match: a >= 0 && a < 100)) ... |-';\n"+
-                  //  "removeAssumption on='... ((?match: a + 1 == a + 1)) ... |-';\n"
                     "removeAssumption on='... ((?match: a + 1 == a + 1 && a > 0 ==> b >= 0)) ... |-';\n");
 
 
@@ -194,17 +193,24 @@ public class ReferenceGraphDirectParentsTest {
      * @throws FormatException
      * @throws RuleException
      */
-    //@Test
-    public void testAddDelList() throws FormatException, RuleException {
-//TODO is not implemented yet
-        Set<ProofTermReferenceTarget> proofTermReferenceTargets = computeDirectParents("0,0", "A.1", proofWithRemoval);
+    @Test
+    public void testDelList() throws FormatException, RuleException {
         ProofNodeSelector pns = computeProofNodeSelector("0,0");
         TermSelector termSelector = new TermSelector("A.1");
-        Term proofFormula = termSelector.selectSubterm(pns.get(proofWithRemoval).getSequent());
+        //sequent: $ge(a, 0), $lt(a, 100) |- $and($eq<int>(a, 1), $eq<int>($$f($heap, $$f($heap, a)), 2))
+        //selection: $lt(a, 100)
+        //parent should be: A.2 in
+        //parentSeq:$ge(a, 0), $imp($and($eq<int>($plus(a, 1), $plus(a, 1)), $gt(a, 0)), $ge(b, 0)), $lt(a, 100)
+        // |- $and($eq<int>(a, 1), $eq<int>($$f($heap, $$f($heap, a)), 2))
+        Sequent sequent = pns.get(proofWithRemoval).getSequent();
+        System.out.println("sequent = " + sequent);
 
-        proofTermReferenceTargets.forEach(proofTermReferenceTarget -> {
+        Set<ProofTermReferenceTarget> parents = computeDirectParents("0,0", "A.1", proofWithRemoval);
+        Term proofFormula = termSelector.selectSubterm(sequent);
+
+        parents.forEach(parent -> {
             try {
-                boolean comp = compareTerms(proofFormula, proofTermReferenceTarget, proofWithRemoval);
+                boolean comp = compareTerms(proofFormula, parent, proofWithRemoval);
                 Logger.getGlobal().info("comp = " + comp);
             } catch (RuleException e) {
                 e.printStackTrace();
@@ -212,11 +218,11 @@ public class ReferenceGraphDirectParentsTest {
         });
     }
 
-    public boolean testMethodForProof(String path, String termSelector){
+    public boolean testMethodForWithtwoSubstAndSkips(String path, String termSelector){
          return isFormulaUnchangedInDirectParent(path, termSelector, proofWithTwoSubstitutionsAndSkips);
     }
 
-    public boolean testMethodForProof2(String path, String termSelector){
+    public boolean testMethodForProofBranched(String path, String termSelector){
         return isFormulaUnchangedInDirectParent(path, termSelector, proofBranched);
     }
 
@@ -224,13 +230,13 @@ public class ReferenceGraphDirectParentsTest {
     @Test
     @Parameters(method="unchangedFormulas")
     public void testIfFormulaUnchangedInDirectParent(String a, String b){
-        Assert.assertEquals(testMethodForProof(a,b), true);
+        Assert.assertEquals(testMethodForWithtwoSubstAndSkips(a,b), true);
     }
 
     @Test
     @Parameters(method="changedFormulas")
     public void testIfFormulaChangedInDirectParent(String a, String b){
-        Assert.assertEquals(testMethodForProof(a,b), false);
+        Assert.assertEquals(testMethodForWithtwoSubstAndSkips(a,b), false);
     }
 
 
