@@ -22,8 +22,12 @@ public class SequentTabViewController {
     private SequentActionListener listener;
     private ProofNodeSelector activeNode;
     private Proof activeProof;
+    private Set<ProofTermReferenceTarget> referenceTargetsToHighlight;
+    private ProofTermReferenceTarget lastSelectedRefTarget;
+
 
     public void setReferenceTargetsToHighlight(Set<ProofTermReferenceTarget> referenceTargetsToHighlight) {
+        System.out.println("referenceTargetsToHighlight = " + referenceTargetsToHighlight);
         this.referenceTargetsToHighlight = referenceTargetsToHighlight;
     }
 
@@ -31,7 +35,6 @@ public class SequentTabViewController {
         return referenceTargetsToHighlight;
     }
 
-    private Set<ProofTermReferenceTarget> referenceTargetsToHighlight;
   //  private ReferenceGraph referenceGraph;
 
     public SequentTabViewController(SequentActionListener listener) {
@@ -42,6 +45,7 @@ public class SequentTabViewController {
         view.getTabs().add(new Tab("default", controllers.get(0).getView()));
         view.getSelectionModel().selectedIndexProperty().addListener(this::onTabSelected);
         referenceTargetsToHighlight = new HashSet<>();
+        lastSelectedRefTarget = null;
 
     }
 
@@ -60,8 +64,13 @@ public class SequentTabViewController {
 
 
     public void viewProofNode(ProofNodeSelector proofNodeSelector) {
+
+
         ProofNodeSelector oldParentSelector = activeNode.getParentSelector();
         activeNode = proofNodeSelector;
+
+        Set<ProofTermReferenceTarget> collect = getReferenceTargetsToHighlight().stream().filter(proofTermReferenceTarget -> proofTermReferenceTarget.getProofNodeSelector().equals(activeNode)).collect(Collectors.toSet());
+
         ProofNodeSelector parentSelector = activeNode.getParentSelector();
         if(parentSelector != null) {
             if(parentSelector.equals(oldParentSelector)) {
@@ -79,9 +88,9 @@ public class SequentTabViewController {
             showProofNodes(new ArrayList<>(Collections.singletonList(proofNodeSelector)));
         }
 
-        for(SequentController controller : controllers) {
+       // for(SequentController controller : controllers) {
             //controller.setReferenceGraph(referenceGraph);
-        }
+       // }
     }
 
     private void showProofNodes(List<ProofNodeSelector> proofNodeSelectors) {
@@ -105,10 +114,7 @@ public class SequentTabViewController {
             name = opt.get().getLabel();
         }
         view.getTabs().get(idx).setText(name);
-        //TODO filter references acc. to selector
         Set<ProofTermReferenceTarget> collect = getReferenceTargetsToHighlight().stream().filter(proofTermReferenceTarget -> proofTermReferenceTarget.getProofNodeSelector().equals(selector)).collect(Collectors.toSet());
-        collect.forEach(proofTermReferenceTarget -> System.out.println("proofTermReferenceTarget = " + proofTermReferenceTarget));
-        //TODO set selection
         controllers.get(idx).updateSequentController(selector, activeProof, collect);
        /* controllers.get(idx).setActiveNode(selector);
         controllers.get(idx).setActiveProof(activeProof);
@@ -145,8 +151,13 @@ public class SequentTabViewController {
         listener.onSwitchViewedNode(controllers.get(newValue.intValue()).getActiveNodeSelector());
     }
 
-    public void viewReferences(Set<ProofTermReferenceTarget> proofTermReferenceTargetSet){
+    public void viewReferences(Set<ProofTermReferenceTarget> proofTermReferenceTargetSet, ProofTermReferenceTarget selected){
+        lastSelectedRefTarget = selected;
         this.setReferenceTargetsToHighlight(proofTermReferenceTargetSet);
-//TODO update view
+        referenceTargetsToHighlight.add(selected);
+      /*  for(int i = 0; i< controllers.size(); i++){
+            updateTab(controllers.get(i).getActiveNodeSelector(), i);
+        }*/
     }
+
 }

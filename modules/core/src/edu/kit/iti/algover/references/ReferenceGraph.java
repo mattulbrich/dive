@@ -198,11 +198,11 @@ public class ReferenceGraph {
             //There is no predecessor or edge containing the childTarget -< we have to compute teh direct parent
             if (currentTarget.getProofNodeSelector().getParentSelector() != null
                     && (!this.getGraph().nodes().contains(currentTarget) || this.graph.predecessors(currentTarget).isEmpty())) {
-                Logger.getGlobal().info("Did not find predecessor or target in graph. Computing direct parents");
+              //  Logger.getGlobal().info("Did not find predecessor or target in graph. Computing direct parents");
                 parents = computeDirectParents(currentTarget, proof);
             } else {
                 //We have apredecessor in the graph
-                Logger.getGlobal().info("Found an edge in graph, which references parent(s)");
+            //    Logger.getGlobal().info("Found an edge in graph, which references parent(s)");
                 Set<ProofTermReferenceTarget> proofTermReferenceTargets = allPredecessorsWithType(childTarget, ProofTermReferenceTarget.class);
                 parents.addAll(proofTermReferenceTargets);
 

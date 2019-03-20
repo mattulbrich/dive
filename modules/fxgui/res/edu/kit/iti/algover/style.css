@@ -17,7 +17,7 @@
 }
 
 .formula-view .modified {
-    -rtfx-background-color: #55EE55;
+    -rtfx-background-color: #74eea0;
 }
 
 .formula-view .reference-selected {
@@ -25,6 +25,16 @@
 /*    -fx-border-color:  #2bc0cf;*/
     -fx-fill: whitesmoke;
 }
+
+.formula-view .historyHighlight {
+    -rtfx-background-color: #965dcf;
+    -fx-underline: true;
+    -fx-border-color: #965dcf, transparent, #965dcf;
+    -fx-border-width: 0 0 1 0, 0 0 1 0, 0 0 1 0;
+    -fx-border-insets: 0 0 1 0, 0 0 2 0, 0 0 3 0;
+    -fx-fill: whitesmoke;
+}
+
 
 .list-cell.formula-cell:formula-added {
     -fx-background-color: #74eea0;
@@ -35,7 +45,7 @@
 }
 
 .list-cell.formula-cell:formula-modified {
-    /* -fx-background-color: #f2aaf2; This looks ridiculous haha */
+     /*-fx-background-color: #f2aaf2;*/
 }
 
 .list-cell.formula-cell:formula-referenced {

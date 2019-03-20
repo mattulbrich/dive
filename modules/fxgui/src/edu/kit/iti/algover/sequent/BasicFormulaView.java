@@ -6,6 +6,7 @@
 package edu.kit.iti.algover.sequent;
 
 import edu.kit.iti.algover.rules.SubtermSelector;
+import edu.kit.iti.algover.rules.TermSelector;
 import edu.kit.iti.algover.sequent.formulas.TopLevelFormula;
 import edu.kit.iti.algover.term.prettyprint.AnnotatedString;
 import edu.kit.iti.algover.term.prettyprint.PrettyPrint;
@@ -17,9 +18,12 @@ import org.fxmisc.richtext.CharacterHit;
 import org.fxmisc.richtext.CodeArea;
 
 import java.util.OptionalInt;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * Created by Philipp on 22.07.2017.
+ * Updated by S.Grebing
  */
 public class BasicFormulaView extends CodeArea {
 
@@ -28,8 +32,11 @@ public class BasicFormulaView extends CodeArea {
 
     protected AnnotatedString annotatedString;
     protected AnnotatedString.TermElement highlightedElement;
+    protected Set<AnnotatedString.TermElement> historyHighlights;
 
-    public BasicFormulaView(TopLevelFormula formula, SubSelection<AnnotatedString.TermElement> mouseOverTerm) {
+    public BasicFormulaView(TopLevelFormula formula,
+                            SubSelection<AnnotatedString.TermElement> mouseOverTerm,
+                            Set<TermSelector> selectorsToHighlight) {
         super("");
 
         this.formula = formula;
@@ -46,6 +53,9 @@ public class BasicFormulaView extends CodeArea {
             highlightedElement = null;
             updateStyleClasses();
         });
+        if(selectorsToHighlight != null) {
+            this.historyHighlights = selectorsToHighlight.stream().map(this::apply).collect(Collectors.toSet());
+        }
 
         widthProperty().addListener(x -> relayout());
     }
@@ -65,6 +75,17 @@ public class BasicFormulaView extends CodeArea {
     protected void updateStyleClasses() {
         clearStyle(0, getLength());
         highlightFromElement(highlightedElement, "highlighted");
+    }
+
+    private void highlightHistorySelections(Set<AnnotatedString.TermElement> historyHighlights, String cssClass) {
+         if(historyHighlights != null) {
+            //TODO IOBE debuggen
+            for (AnnotatedString.TermElement highlight : historyHighlights) {
+                if (highlight != null) {
+                    setStyleClass(highlight.getBegin(), highlight.getEnd(), cssClass);
+                }
+            }
+        }
     }
 
     protected void highlightFromElement(AnnotatedString.TermElement termElement, String cssClass) {
@@ -88,6 +109,7 @@ public class BasicFormulaView extends CodeArea {
 
         replaceText(0, getLength(), prettyPrinted);
         updateStyleClasses();
+        highlightHistorySelections(this.historyHighlights, "historyHighlight");
 
         if(width != 0.0) {
             // Set this only if a width has been set.
@@ -125,15 +147,19 @@ public class BasicFormulaView extends CodeArea {
     }
 
     protected AnnotatedString.TermElement getTermElementBySubtermSelector(SubtermSelector selector, AnnotatedString string) {
-        if (selector == null) {
+        if (selector == null || string == null) {
             return null;
         }
         if (selector.getDepth() == 0) {
             return string.getEnvelopingTermElement();
         }
-        return string.getAllTermElements().stream()
+        AnnotatedString.TermElement termElement1 = string.getAllTermElements().stream()
                 .filter(termElement -> termElement.getSubtermSelector().equals(selector))
                 .findFirst().orElse(null);
+        return termElement1;
     }
 
+    private AnnotatedString.TermElement apply(TermSelector termSelector) {
+        return getTermElementBySubtermSelector(termSelector.getSubtermSelector(), annotatedString);
+    }
 }

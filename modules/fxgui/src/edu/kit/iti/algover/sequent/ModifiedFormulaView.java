@@ -3,11 +3,11 @@ package edu.kit.iti.algover.sequent;
 import edu.kit.iti.algover.rules.SubtermSelector;
 import edu.kit.iti.algover.rules.TermSelector;
 import edu.kit.iti.algover.sequent.formulas.ModifiedFormula;
-import edu.kit.iti.algover.sequent.formulas.OriginalFormula;
 import edu.kit.iti.algover.term.prettyprint.AnnotatedString;
 import edu.kit.iti.algover.util.SubSelection;
 
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Stream;
 
 public class ModifiedFormulaView extends OriginalFormulaView {
@@ -19,8 +19,9 @@ public class ModifiedFormulaView extends OriginalFormulaView {
             TermSelector.SequentPolarity polarity,
             SubSelection<TermSelector> referenceSelection,
             SubSelection<TermSelector> lastClickedTerm,
-            SubSelection<AnnotatedString.TermElement> mouseOverTerm) {
-        super(formula, polarity, referenceSelection, lastClickedTerm, mouseOverTerm);
+            SubSelection<AnnotatedString.TermElement> mouseOverTerm,
+            Set<TermSelector> selectorsToHighlight) {
+        super(formula, polarity, referenceSelection, lastClickedTerm, mouseOverTerm, selectorsToHighlight);
         this.modifiedFormula = formula;
     }
 

@@ -473,7 +473,7 @@ public class MainController implements SequentActionListener, RuleApplicationLis
             Set<CodeReferenceTarget> codeReferenceTargets = referenceGraph.allPredecessorsWithType(termRef, CodeReferenceTarget.class);
 
             editorController.viewReferences(codeReferenceTargets);
-            sequentController.viewReferences(proofTermReferenceTargets);
+            sequentController.viewReferences(proofTermReferenceTargets, termRef);
 
         } else {
             editorController.viewReferences(new HashSet<>());

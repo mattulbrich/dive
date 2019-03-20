@@ -19,9 +19,7 @@ import org.junit.runner.RunWith;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
-import java.util.Collection;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.Set;
 
 @RunWith(JUnitParamsRunner.class)
@@ -76,7 +74,7 @@ public class ReferenceGraphHistoryTest {
 
     }
 
-   private Object[][] testCases(){
+   private Object[][] testCasesProofWithRemoval(){
         return new Object[][]
                 {
                         new Object[]{"0,0,0", "A.0", 4, "[ProofTermReference{proofNodeSelector=0.0, termSelector=A.0}, ProofTermReference{proofNodeSelector=<root>, termSelector=A.0}, ProofTermReference{proofNodeSelector=0, termSelector=A.0}, ProofTermReference{proofNodeSelector=<root>, termSelector=A.0.0}]"},
@@ -84,16 +82,18 @@ public class ReferenceGraphHistoryTest {
                         new Object[]{"0,0,0", "S.0", 3, "[ProofTermReference{proofNodeSelector=0.0, termSelector=S.0}, ProofTermReference{proofNodeSelector=<root>, termSelector=S.0}, ProofTermReference{proofNodeSelector=0, termSelector=S.0}]"},
                         new Object[]{"0,0,0", "A.0.1", 3, "[ProofTermReference{proofNodeSelector=0, termSelector=A.0.1}, ProofTermReference{proofNodeSelector=<root>, termSelector=A.0.0.1}, ProofTermReference{proofNodeSelector=0.0, termSelector=A.0.1}]"},
 
+                        new Object[]{"0,0", "A.0", 3, "[ProofTermReference{proofNodeSelector=<root>, termSelector=A.0}, ProofTermReference{proofNodeSelector=0, termSelector=A.0}, ProofTermReference{proofNodeSelector=<root>, termSelector=A.0.0}]"},
+
 
                 };
 
     }
     @Test
-    @Parameters(method="testCases")
+    @Parameters(method="testCasesProofWithRemoval")
     public void testHistoryInProofWithRemoval(String path, String selector, int size, String exp) throws FormatException {
         ProofNodeSelector pns = ReferenceGraphDirectParentsTest.computeProofNodeSelector(path);
         TermSelector childTerm =  new TermSelector(selector);
-        Set<ProofTermReferenceTarget> actual = testHistory(pns, childTerm, proofWithRemoval);
+        Set<ProofTermReferenceTarget> actual = computeHistoryVerbose(pns, childTerm, proofWithRemoval);
         Assert.assertTrue(actual.size() == size);
         Assert.assertEquals(exp, actual.toString());
     }
@@ -108,19 +108,17 @@ public class ReferenceGraphHistoryTest {
         System.out.println("directParents = " + directParents);
     }
 
-    private Set<ProofTermReferenceTarget> testHistory(ProofNodeSelector pns, TermSelector childTerm, Proof proof){
+    private Set<ProofTermReferenceTarget> computeHistoryVerbose(ProofNodeSelector pns, TermSelector childTerm, Proof proof){
         Set<ProofTermReferenceTarget> directParents = Collections.EMPTY_SET;
         try {
             Term term1 = childTerm.selectSubterm(pns.get(proof).getSequent());
-           directParents = proof.getGraph().computeHistory(new ProofTermReferenceTarget(pns, childTerm), proof);
-            System.out.println("pns = " + pns);
-            System.out.println("term1 = " + term1);
+            directParents = proof.getGraph().computeHistory(new ProofTermReferenceTarget(pns, childTerm), proof);
+            System.out.println("\nHistory for term '"+term1+"' in Proof Node = " + pns);
+
             //System.out.println("proofFormula = " + proofFormula);
             for (ProofTermReferenceTarget directParent : directParents) {
                 Term term2 = directParent.getTermSelector().selectSubterm(directParent.getProofNodeSelector().get(proof).getSequent());
-                System.out.println("Node = " + directParent.getProofNodeSelector());
-                System.out.println("term2 = " + term2);
-                //Assert.assertFalse(term == proofFormula);
+                System.out.println("Parent in Node = " + directParent.getProofNodeSelector()+" term2 = " + term2);
             }
         } catch (RuleException e) {
             e.printStackTrace();

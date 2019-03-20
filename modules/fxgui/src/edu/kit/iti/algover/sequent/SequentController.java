@@ -18,6 +18,8 @@ import edu.kit.iti.algover.term.prettyprint.AnnotatedString;
 import edu.kit.iti.algover.util.Pair;
 import edu.kit.iti.algover.util.SubSelection;
 import edu.kit.iti.algover.util.SubtermSelectorReplacementVisitor;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableSet;
 import javafx.fxml.FXML;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListCell;
@@ -25,9 +27,8 @@ import javafx.scene.control.ListView;
 import javafx.scene.input.KeyCode;
 import javafx.util.Callback;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * Created by philipp on 12.07.17.
@@ -74,6 +75,9 @@ public class SequentController extends FxmlController {
     private Proof activeProof; // Maybe place it inside the Proof or PVC class instead
     private ProofNodeSelector activeNode;
 
+    private ObservableSet<TermSelector> historyHighlightsAntec = FXCollections.observableSet();
+    private ObservableSet<TermSelector> historyHighlightsSucc = FXCollections.observableSet();
+
     /**
      * Builds the controller and GUI for the sequent view, that is the two ListViews of
      * {@Link TopLevelFormula}s.
@@ -97,8 +101,8 @@ public class SequentController extends FxmlController {
         this.mouseOverTerm = new SubSelection<>(r -> {
         });
 
-        antecedentView.setCellFactory(makeTermCellFactory(TermSelector.SequentPolarity.ANTECEDENT));
-        succedentView.setCellFactory(makeTermCellFactory(TermSelector.SequentPolarity.SUCCEDENT));
+        antecedentView.setCellFactory(makeTermCellFactory(TermSelector.SequentPolarity.ANTECEDENT, historyHighlightsAntec));
+        succedentView.setCellFactory(makeTermCellFactory(TermSelector.SequentPolarity.SUCCEDENT, historyHighlightsSucc));
 
         antecedentView.setOnKeyPressed(keyEvent -> {
             if (keyEvent.getCode() == KeyCode.ESCAPE) {
@@ -240,7 +244,8 @@ public class SequentController extends FxmlController {
     }
 
     private void updateSequent(Sequent sequent, BranchInfo branchInfo) {
-        antecedentView.getItems().setAll(calculateAssertions(sequent.getAntecedent(), TermSelector.SequentPolarity.ANTECEDENT, branchInfo));
+        List<TopLevelFormula> col = calculateAssertions(sequent.getAntecedent(), TermSelector.SequentPolarity.ANTECEDENT, branchInfo);
+        antecedentView.getItems().setAll(col);
         List<TopLevelFormula> after = calculateAssertions(sequent.getSuccedent(), TermSelector.SequentPolarity.SUCCEDENT, branchInfo);
         succedentView.getItems().setAll(after);
     }
@@ -332,8 +337,8 @@ public class SequentController extends FxmlController {
     }
 
 
-    private Callback<ListView<TopLevelFormula>, ListCell<TopLevelFormula>> makeTermCellFactory(TermSelector.SequentPolarity polarity) {
-        return listView -> new FormulaCell(polarity, selectedTerm, lastClickedTerm, mouseOverTerm);
+    private Callback<ListView<TopLevelFormula>, ListCell<TopLevelFormula>> makeTermCellFactory(TermSelector.SequentPolarity polarity, ObservableSet<TermSelector> historyHighlights) {
+        return listView -> new FormulaCell(polarity, selectedTerm, lastClickedTerm, mouseOverTerm, historyHighlights);
     }
 
     private ProofTermReferenceTarget attachCurrentActiveProof(TermSelector selector) {
@@ -391,6 +396,24 @@ public class SequentController extends FxmlController {
     public void updateSequentController(ProofNodeSelector selector, Proof activeProof, Set<ProofTermReferenceTarget> collect) {
         this.setActiveNode(selector);
         this.setActiveProof(activeProof);
+        Set<TermSelector> collect1 = collect.stream().map(ProofTermReferenceTarget::getTermSelector).collect(Collectors.toSet());
+       // System.out.println("collect1.size = " + collect1.size());
+        this.setHistoryHighlights(FXCollections.observableSet(collect1));
         this.viewProofNode(selector);
+
+
+    }
+
+    /**
+     * Set the information which term to highlight for history highlighting. This method already divides the information acc. to teh sequent polarity
+     */
+    private void setHistoryHighlights(ObservableSet<TermSelector> collect) {
+        this.historyHighlightsAntec.clear();
+        this.historyHighlightsSucc.clear();
+        Set<TermSelector> antec = collect.stream().filter(termSelector -> termSelector.getPolarity() == TermSelector.SequentPolarity.ANTECEDENT).collect(Collectors.toSet());
+        Set<TermSelector> succ = collect.stream().filter(termSelector -> termSelector.getPolarity() == TermSelector.SequentPolarity.SUCCEDENT).collect(Collectors.toSet());
+        this.historyHighlightsAntec.addAll(antec);
+        this.historyHighlightsSucc.addAll(succ);
+        //        this.historyHighlights.addAll(collect);
     }
 }
