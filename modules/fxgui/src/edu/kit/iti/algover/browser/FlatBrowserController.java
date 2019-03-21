@@ -8,6 +8,7 @@ import edu.kit.iti.algover.dafnystructures.DafnyFunction;
 import edu.kit.iti.algover.dafnystructures.DafnyMethod;
 import edu.kit.iti.algover.project.Project;
 import edu.kit.iti.algover.proof.Proof;
+import javafx.scene.control.ContextMenu;
 import javafx.scene.control.TreeItem;
 
 import java.util.ArrayList;

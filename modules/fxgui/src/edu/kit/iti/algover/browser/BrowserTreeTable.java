@@ -3,9 +3,7 @@ package edu.kit.iti.algover.browser;
 
 import edu.kit.iti.algover.browser.entities.TreeTableEntity;
 import javafx.beans.value.ObservableValue;
-import javafx.scene.control.TreeTableCell;
-import javafx.scene.control.TreeTableColumn;
-import javafx.scene.control.TreeTableView;
+import javafx.scene.control.*;
 
 /**
  * Created by Philipp on 15.06.2017.
@@ -15,6 +13,8 @@ public class BrowserTreeTable extends TreeTableView<TreeTableEntity> {
     private TreeTableColumn<TreeTableEntity, TreeTableEntity> nameColumn;
     private TreeTableColumn<TreeTableEntity, TreeTableEntity> statusColumn;
     private final PVCClickEditListener editListener;
+
+    private ContextMenu rootContextMenu;
 
     @SuppressWarnings("unchecked")
     public BrowserTreeTable(PVCClickEditListener editListener) {
@@ -39,8 +39,9 @@ public class BrowserTreeTable extends TreeTableView<TreeTableEntity> {
         nameColumn.setMinWidth(100);
 
         super.getColumns().setAll(nameColumn, statusColumn);
+        this.rootContextMenu = new ContextMenu();
+        this.setContextMenu(this.rootContextMenu);
     }
-
     private TreeTableCell<TreeTableEntity, TreeTableEntity> statusCellRenderer(TreeTableColumn<TreeTableEntity, TreeTableEntity> column) {
         return new StatusCell(editListener);
     }
