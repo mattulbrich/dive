@@ -26,6 +26,8 @@ import edu.kit.iti.algover.rules.*;
 import edu.kit.iti.algover.rules.impl.ExhaustiveRule;
 import edu.kit.iti.algover.sequent.SequentActionListener;
 import edu.kit.iti.algover.sequent.SequentTabViewController;
+import edu.kit.iti.algover.settings.SettingsController;
+import edu.kit.iti.algover.settings.SettingsFactory;
 import edu.kit.iti.algover.timeline.TimelineLayout;
 import edu.kit.iti.algover.util.CostumBreadCrumbBar;
 import edu.kit.iti.algover.util.FormatException;
@@ -34,21 +36,18 @@ import javafx.application.Platform;
 import javafx.beans.value.ObservableValue;
 import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.control.*;
 import javafx.scene.input.MouseEvent;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.Pane;
-import javafx.scene.layout.Priority;
-import javafx.scene.layout.VBox;
+import javafx.scene.layout.*;
 import org.controlsfx.control.StatusBar;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.net.URL;
+import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.logging.Level;
 import java.util.logging.LogRecord;
@@ -145,7 +144,12 @@ public class MainController implements SequentActionListener, RuleApplicationLis
     }
 
     private void openSettingsWindow(ActionEvent actionEvent) {
-        System.out.println("TODO: Settings Window");
+
+        SettingsController ctrl = new SettingsController();
+        ctrl.getItems().setAll(SettingsFactory.getSettingsPanel());
+        ctrl.showAndWait();
+
+
     }
 
     private void createContextMenu() {
