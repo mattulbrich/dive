@@ -109,6 +109,16 @@
     -fx-fill: #2CAE26;
 }
 
+
+/**
+        Settings
+ */
+
+.settings-h1{
+    -fx-font-size: 12pt;
+    -fx-font-weight: bold;
+}
+
 .jfx-tab-pane .headers-region {
     -fx-background-color: transparent;
 }

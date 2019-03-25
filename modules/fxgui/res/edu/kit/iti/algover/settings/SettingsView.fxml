@@ -1,14 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.scene.control.DialogPane?>
-<?import com.jfoenix.controls.JFXTabPane?>
-<?import javafx.scene.layout.StackPane?>
-<?import javafx.scene.control.Tab?>
-<?import javafx.scene.layout.AnchorPane?>
-<?import com.jfoenix.controls.JFXDialog?>
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.control.ListView?>
-<DialogPane fx:id="dialogPane" prefHeight="431.0" prefWidth="661.0" xmlns="http://javafx.com/javafx/ 8.0.131" xmlns:fx="http://javafx.com/fxml/1">
+<DialogPane fx:id="dialogPane" prefHeight="431.0" prefWidth="661.0" xmlns="http://javafx.com/javafx/ 8.0.131" xmlns:fx="http://javafx.com/fxml/1" >
     <content>
         <BorderPane fx:id="contentContainer">
             <left>
@@ -19,24 +14,5 @@
 
         </BorderPane>
 
-      <!--<JFXTabPane fx:id="tabContainer" prefHeight="128.0" prefWidth="308.0" side="LEFT" tabClosingPolicy="UNAVAILABLE" stylesheets="@../style.css" styleClass="jfx-tab-pane">
-         <tabs>
-            <Tab fx:id="generalTab" closable="false" text="General">
-               <content>
-                  <AnchorPane fx:id="generalTabContainer" minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0" />
-               </content>
-            </Tab> -->
-          <!--  <Tab fx:id="settingsTab" closable="false" text="Settings">
-               <content>
-                  <AnchorPane fx:id="settingsContainer" minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0" />
-               </content>
-            </Tab>
-            <Tab fx:id="logoutTab" closable="false" text="Logout">
-               <content>
-                  <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0" />
-               </content>
-            </Tab>
-         </tabs>
-                </JFXTabPane>-->
             </content>
         </DialogPane>

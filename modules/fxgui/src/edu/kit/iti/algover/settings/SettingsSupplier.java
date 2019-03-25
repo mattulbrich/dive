@@ -4,9 +4,20 @@ import javafx.scene.Node;
 
 public interface SettingsSupplier {
 
-    //returns Node
-    public Node getNode();
+    /**
+     * Return the JavaFX Node  that should be displayed
+     * @return
+     */
+    Node getNode();
 
-    //save settings after closing dialog
-    public void save();
+    /**
+     * Save settings after closing dialog
+     */
+    void save();
+
+    /**
+     * The name of the Node
+     * @return name
+     */
+    String getName();
 }

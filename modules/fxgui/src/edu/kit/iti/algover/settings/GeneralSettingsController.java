@@ -1,5 +1,8 @@
 package edu.kit.iti.algover.settings;
 
+import com.jfoenix.controls.JFXComboBox;
+import com.jfoenix.controls.JFXTextField;
+import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
 import javafx.scene.control.Label;
@@ -9,9 +12,18 @@ import java.io.IOException;
 
 public class GeneralSettingsController implements SettingsSupplier {
 
+    @FXML
+    private JFXTextField currentFontSizeEditor;
+
+    @FXML
+    private JFXTextField currentFontSizeSeqView;
+
+
     private Node settingsPanel;
 
-    private static final String settingsFile = "generalSettings.properties";
+    private static final String settingsFile = "GeneralSettings.properties";
+
+    private static final String name = "General";
 
 
 
@@ -23,7 +35,13 @@ public class GeneralSettingsController implements SettingsSupplier {
         } catch (IOException e) {
             settingsPanel = new Label(e.getMessage());
         }
-        settingsPanel.setUserData("General");
+        settingsPanel.setUserData(name);
+        addFontSizes();
+
+
+    }
+
+    private void addFontSizes() {
 
     }
 
@@ -37,5 +55,10 @@ public class GeneralSettingsController implements SettingsSupplier {
         //TODO
         //in den Home ordner
 
+    }
+
+    @Override
+    public String getName() {
+        return name;
     }
 }

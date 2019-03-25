@@ -50,6 +50,7 @@ public class SettingsController {
         loader.setController(this);
 
         dialog = new Dialog<>();
+        dialog.setResizable(true);
 
         try {
             loader.load();
