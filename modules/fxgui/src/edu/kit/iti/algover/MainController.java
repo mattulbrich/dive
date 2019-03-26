@@ -26,6 +26,7 @@ import edu.kit.iti.algover.rules.*;
 import edu.kit.iti.algover.rules.impl.ExhaustiveRule;
 import edu.kit.iti.algover.sequent.SequentActionListener;
 import edu.kit.iti.algover.sequent.SequentTabViewController;
+import edu.kit.iti.algover.settings.ProjectSettingsController;
 import edu.kit.iti.algover.settings.SettingsController;
 import edu.kit.iti.algover.settings.SettingsFactory;
 import edu.kit.iti.algover.timeline.TimelineLayout;
@@ -146,6 +147,7 @@ public class MainController implements SequentActionListener, RuleApplicationLis
     private void openSettingsWindow(ActionEvent actionEvent) {
 
         SettingsController ctrl = new SettingsController();
+        ctrl.setManager(manager);
         ctrl.getItems().setAll(SettingsFactory.getSettingsPanel());
         ctrl.showAndWait();
 

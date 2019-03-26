@@ -1,5 +1,6 @@
 package edu.kit.iti.algover.settings;
 
+import edu.kit.iti.algover.project.ProjectManager;
 import javafx.beans.property.ObjectProperty;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
@@ -17,8 +18,6 @@ import java.io.IOException;
 import java.util.Optional;
 
 public class SettingsController {
-
-
 
     @FXML
     private ListView<Node> tabList;
@@ -45,7 +44,22 @@ public class SettingsController {
         return tabList.itemsProperty();
     }
 
+    public ProjectManager getManager() {
+        return manager;
+    }
+
+    public void setManager(ProjectManager manager) {
+        this.manager = manager;
+    }
+
+    private ProjectManager manager;
+
+
     public SettingsController(){
+        loadSettingsViews();
+    }
+
+    private void loadSettingsViews() {
         FXMLLoader loader = new FXMLLoader(getClass().getResource("SettingsView.fxml"));
         loader.setController(this);
 
@@ -80,8 +94,6 @@ public class SettingsController {
             } catch (IOException e) {
                 e.printStackTrace();
             }
-
-
     }
 
     private void createSettingsDialog() {
@@ -94,9 +106,15 @@ public class SettingsController {
 
 
     public void showAndWait() {
-
+        if(manager != null){
+            SettingsFactory.supplier.forEach(settingsSupplier -> {
+                if(settingsSupplier.getName().equals(ProjectSettingsController.NAME)){
+                    ((ProjectSettingsController) settingsSupplier).setManager(manager);
+                }
+            });
+        }
         createSettingsDialog();
-        Optional<Void> optional = dialog.showAndWait();
+          Optional<Void> optional = dialog.showAndWait();
         if(optional.isPresent()){
             SettingsFactory.fireOnSave();
         }

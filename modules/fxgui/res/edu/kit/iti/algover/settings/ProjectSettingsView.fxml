@@ -1,37 +1,76 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import java.lang.*?>
-<?import java.util.*?>
-<?import javafx.scene.*?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
-<?import com.jfoenix.controls.JFXTextField?>
 <?import javafx.geometry.Insets?>
 <?import com.jfoenix.controls.JFXListView?>
-<AnchorPane xmlns="http://javafx.com/javafx"
+<?import com.jfoenix.controls.JFXButton?>
+
+<?import de.jensd.fx.glyphs.control.GlyphCheckBox?>
+<?import de.jensd.fx.glyphs.fontawesome.*?>
+<?import de.jensd.fx.glyphs.materialdesignicons.MaterialDesignIconView?>
+<?import de.jensd.fx.glyphs.materialicons.MaterialIconView?>
+<?import de.jensd.fx.glyphs.weathericons.WeatherIconView?>
+
+<?import org.controlsfx.glyphfont.Glyph?>
+<ScrollPane xmlns="http://javafx.com/javafx"
             xmlns:fx="http://javafx.com/fxml"
-            prefHeight="400.0" prefWidth="600.0" stylesheets="@../style.css">
+            stylesheets="@../style.css">
+<AnchorPane minHeight="400.0" minWidth="600.0">
     <children>
-        <VBox fx:id="container" AnchorPane.bottomAnchor="5.0" AnchorPane.leftAnchor="5.0" AnchorPane.rightAnchor="5.0" AnchorPane.topAnchor="5.0" >
-            <padding><Insets top="25" right="25" bottom="40" left="25"/></padding>
-            <children>
-                <Label text="Project Settings" styleClass="settings-h1" ></Label>
-                <HBox fx:id="projectname" alignment="CENTER_LEFT" spacing="30">
-                    <Label text="Name of the Project" alignment="CENTER_LEFT"></Label>
+                <VBox fx:id="container" AnchorPane.bottomAnchor="5.0" AnchorPane.leftAnchor="5.0" AnchorPane.rightAnchor="5.0" AnchorPane.topAnchor="5.0" >
+                    <padding><Insets top="25" right="25" bottom="40" left="25"/></padding>
+                    <children>
+                        <Label text="Project Configuration Settings" styleClass="settings-h1" ></Label>
+                        <HBox fx:id="projectNameHBox" alignment="CENTER_LEFT" spacing="30">
+                            <Label text="Base directory of the Project" alignment="CENTER_LEFT"></Label>
 
-                    <TextField fx:id="projectName" editable="true"></TextField>
-                </HBox>
-                <VBox fx:id="dafnyInputFilesBox" alignment="CENTER_LEFT" spacing="10">
-                    <Label text="Dafny files" alignment="CENTER_LEFT" ></Label>
-                    <JFXListView fx:id="dafnyFiles"></JFXListView>
-                </VBox>
-                <VBox fx:id="dafnylibFilesBox" alignment="CENTER_LEFT" spacing="10">
-                    <Label text="Dafny Library files" alignment="CENTER_LEFT" ></Label>
-                    <JFXListView fx:id="libFiles"></JFXListView>
-                </VBox>
+                            <TextField fx:id="projectName" editable="true" HBox.hgrow="ALWAYS"></TextField>
+                        </HBox>
+                        <VBox fx:id="dafnyInputFilesBox" alignment="CENTER_LEFT" spacing="10">
+                            <HBox alignment="TOP_LEFT">
+                                        <Label text="Dafny files" alignment="CENTER_LEFT" ></Label>
+                                        <Region prefWidth="40" HBox.hgrow="ALWAYS"></Region>
+                                        <JFXButton fx:id="addDafnyFilesButton"  alignment="CENTER_RIGHT">
+                                            <graphic>
+                                                <Glyph fontFamily="FontAwesome" icon="PLUS" />
+                                            </graphic>
+                                        </JFXButton>
 
-            </children>
-        </VBox>
+                                        <JFXButton fx:id="delDafnyFilesButton" alignment="CENTER_RIGHT">
+                                            <graphic>
+                                                <Glyph fontFamily="FontAwesome" icon="MINUS" />
+                                            </graphic>
+                                        </JFXButton>
+                            </HBox>
+                            <JFXListView fx:id="dafnyFiles" prefWidth="550.0" prefHeight="100"></JFXListView>
+                        </VBox>
+                        <VBox fx:id="dafnylibFilesBox" alignment="CENTER_LEFT" spacing="10">
+                            <HBox>
+                                <Label text="Dafny Library files" alignment="CENTER_LEFT" ></Label>
+                                <Region prefWidth="40" HBox.hgrow="ALWAYS"></Region>
+                                <JFXButton fx:id="addLibFilesButton" alignment="CENTER_RIGHT">
+                                        <graphic>
+                                            <Glyph fontFamily="FontAwesome" icon="PLUS" />
+                                        </graphic>
+                                    </JFXButton>
+                                    <JFXButton fx:id="delLibFilesButton" alignment="CENTER_RIGHT" >
+                                        <graphic>
+                                            <Glyph fontFamily="FontAwesome" icon="MINUS" />
+                                        </graphic>
+
+                                    </JFXButton>
+
+                            </HBox>
+                            <JFXListView fx:id="libFiles" prefWidth="550.0" prefHeight="100">
+                            </JFXListView>
+                        </VBox>
+                        <Label text="Solver and Translation Settings"></Label>
+                        <VBox fx:id="projectConfigSettings" alignment="CENTER_LEFT" spacing="10">
+                        </VBox>
+                    </children>
+                </VBox>
     </children>
 </AnchorPane>
+</ScrollPane>

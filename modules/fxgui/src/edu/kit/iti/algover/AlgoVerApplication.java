@@ -20,6 +20,7 @@ import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.stage.FileChooser;
@@ -100,7 +101,9 @@ public class AlgoVerApplication extends Application {
                 node.getUserData().equals(ProjectSettingsController.NAME)).collect(Collectors.toList());
         if(!collect.isEmpty()){
             BorderPane configPane = new BorderPane();
-            configPane.setCenter(collect.get(0));
+            configPane.setPrefSize(600.0, 400.0);
+            //configPane.setCenter(collect.get(0));
+            configPane.setCenter(new ScrollPane(collect.get(0)));
             //Buttons
             ButtonBar buttonBar = new ButtonBar();
             JFXButton applyConfig = new JFXButton("Create Configuration");
@@ -113,7 +116,6 @@ public class AlgoVerApplication extends Application {
             ButtonBar.setButtonData(cancelButton, ButtonBar.ButtonData.CANCEL_CLOSE);
 
             buttonBar.getButtons().addAll(applyConfig, cancelButton);
-
             configPane.setBottom(buttonBar);
             Scene configurationScene = new Scene(configPane);
             substage.setScene(configurationScene);

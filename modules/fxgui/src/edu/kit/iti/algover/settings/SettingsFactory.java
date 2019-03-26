@@ -10,7 +10,7 @@ import java.util.ServiceLoader;
 import java.util.stream.Collectors;
 
 public class SettingsFactory {
-    private static List<SettingsSupplier> supplier = new ArrayList<>();
+    protected static List<SettingsSupplier> supplier = new ArrayList<>();
 
     static {
         ServiceLoader<SettingsSupplier> serviceLoader = load(SettingsSupplier.class);
