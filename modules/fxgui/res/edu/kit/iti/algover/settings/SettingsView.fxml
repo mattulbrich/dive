@@ -3,7 +3,7 @@
 <?import javafx.scene.control.DialogPane?>
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.control.ListView?>
-<DialogPane fx:id="dialogPane" prefHeight="431.0" prefWidth="661.0" xmlns="http://javafx.com/javafx/ 8.0.131" xmlns:fx="http://javafx.com/fxml/1" >
+<DialogPane fx:id="dialogPane" prefHeight="600.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/ 8.0.131" xmlns:fx="http://javafx.com/fxml/1" >
     <content>
         <BorderPane fx:id="contentContainer">
             <left>

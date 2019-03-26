@@ -11,6 +11,7 @@ import edu.kit.iti.algover.project.XMLProjectManager;
 import edu.kit.iti.algover.util.Pair;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.collections.ObservableList;
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
@@ -34,9 +35,13 @@ import edu.kit.iti.algover.util.FormatException;
 import edu.kit.iti.algover.util.Pair;
 import edu.kit.iti.algover.util.StringValidators.OptionStringValidator;
 import edu.kit.iti.algover.util.Util;
+import javafx.stage.FileChooser;
 import javafx.util.StringConverter;
 
-
+/**
+ * Controller for the Project Settings View
+ * @author S.Grebing
+ */
 public class ProjectSettingsController implements SettingsSupplier {
 
     public static final String NAME = "Project";
@@ -71,31 +76,8 @@ public class ProjectSettingsController implements SettingsSupplier {
     private JFXButton delLibFilesButton;
 
 
-    public Configuration getConfig() {
-        return config.get();
-    }
-
-    public SimpleObjectProperty<Configuration> configProperty() {
-        return config;
-    }
-
-    public void setConfig(Configuration config) {
-        this.config.set(config);
-    }
-
     private SimpleObjectProperty<Configuration> config = new SimpleObjectProperty<>(new Configuration(), "Configuration");
 
-    public ProjectManager getManager() {
-        return manager.get();
-    }
-
-    public SimpleObjectProperty<ProjectManager> managerProperty() {
-        return manager;
-    }
-
-    public void setManager(ProjectManager manager) {
-        this.manager.set(manager);
-    }
 
     private Map<String, String> currentSettings = null;
 
@@ -115,6 +97,7 @@ public class ProjectSettingsController implements SettingsSupplier {
             settingsPanel = new Label(e.getMessage());
         }
         settingsPanel.setUserData(NAME);
+
         createSettingsFields();
         addAllEventHandler();
         addCellFactories();
@@ -192,15 +175,25 @@ public class ProjectSettingsController implements SettingsSupplier {
         });
 
     }
+
+    /**
+     * Add action handler to buttons
+     */
     private void addAllEventHandler() {
+        delDafnyFilesButton.setOnAction(this::removeDafnyFile);
+        delLibFilesButton.setOnAction(this::removeLibFile);
+        addDafnyFilesButton.setOnAction(this::addDafnyFile);
+        addLibFilesButton.setOnAction(this::addLibFile);
 
     }
 
+
+
     /**
      * Create settings fields, possibly with input
+     * @author M. Ulbrich
      */
     private void createSettingsFields() {
-
         projectConfigSettings.getChildren().clear();
         if (currentSettings == null) {
             currentSettings = Collections.emptyMap();
@@ -262,6 +255,81 @@ public class ProjectSettingsController implements SettingsSupplier {
         return NAME;
     }
 
+    public ProjectManager getManager() {
+        return manager.get();
+    }
+
+    public SimpleObjectProperty<ProjectManager> managerProperty() {
+        return manager;
+    }
+
+    public void setManager(ProjectManager manager) {
+        this.manager.set(manager);
+    }
+
+    public Configuration getConfig() {
+        return config.get();
+    }
+
+    public SimpleObjectProperty<Configuration> configProperty() {
+        return config;
+    }
+
+    public void setConfig(Configuration config) {
+        this.config.set(config);
+    }
+
+    //region: ActionHandler
+
+    private void addLibFile(ActionEvent actionEvent) { addItemToList(libFiles, "Library file"); }
+
+    private void removeDafnyFile(ActionEvent actionEvent) {removeSelectedFile(dafnyFiles, dafnyFiles.getSelectionModel().getSelectedItems());
+    }
+
+    private void removeLibFile(ActionEvent actionEvent) {
+
+    }
+
+    private void addDafnyFile(ActionEvent actionEvent) {
+        addItemToList(dafnyFiles, "Dafny file");
+    }
+
+    private void addItemToList(ListView<File> list, String title){
+        FileChooser chooser = new FileChooser();
+        chooser.setTitle("Select a "+title);
+        File initialDir;
+        File newFile = new File(projectName.getText());
+        if(manager.get() != null){
+            File baseDir = manager.get().getProject().getBaseDir();
+
+            if(baseDir.equals(newFile)) {
+                initialDir = baseDir;
+            } else {
+                initialDir=newFile;
+            }
+        } else {
+            if(!projectName.getText().isEmpty()) {
+                initialDir = newFile;
+            } else {
+                initialDir = new File("doc/examples/");
+            }
+        }
+        chooser.setInitialDirectory(initialDir);
+        chooser.setSelectedExtensionFilter(new FileChooser.ExtensionFilter("Dafny Files", Collections.singletonList("dfy")));
+        List<File> files = chooser.showOpenMultipleDialog(settingsPanel.getScene().getWindow());
+
+        //maybe check whether file already in list
+        if(!files.isEmpty()){
+
+            list.getItems().addAll(files);
+        }
+    }
+
+    private void removeSelectedFile(ListView<File> list, ObservableList<File> selectedItems){
+
+    }
+
+    //region: converter
 
     private static class FileStringConverter extends StringConverter<File> {
         @Override
