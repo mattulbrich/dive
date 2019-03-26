@@ -247,7 +247,14 @@ public class ProjectSettingsController implements SettingsSupplier {
                     }
                 });*/
                 projectConfigSettings.getChildren().add(textField);
-                validators.add(new Pair<>(() -> textField.getText(), property));
+                Pair<Supplier<String>, Property> e = new Pair<>(() -> textField.getText(), property);
+                validators.add(e);
+                Platform.runLater(() -> {
+                    //TODO register validator via
+                 //   validationSupport.registerValidator(textField, true, XXX Validator<T>)
+                    validationSupport.registerValidator(textField, new SettingsValidatorAdapter(e.snd.validator));
+
+                });
             }
         }
 

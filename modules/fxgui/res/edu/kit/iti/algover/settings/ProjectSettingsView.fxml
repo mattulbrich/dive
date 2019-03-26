@@ -32,7 +32,6 @@
                         <HBox alignment="CENTER_LEFT" spacing="30">
                         <Label text="Name of project file" alignment="CENTER_LEFT"></Label>
                             <TextField fx:id="configFileName" editable="true" HBox.hgrow="ALWAYS"></TextField>
-
                         </HBox>
                         <Region prefHeight="20" VBox.vgrow="ALWAYS"></Region>
                         <HBox alignment="CENTER_LEFT" spacing="30">

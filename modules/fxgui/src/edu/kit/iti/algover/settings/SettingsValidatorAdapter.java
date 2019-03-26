@@ -1,5 +1,7 @@
 package edu.kit.iti.algover.settings;
 
+import edu.kit.iti.algover.util.FormatException;
+import edu.kit.iti.algover.util.StringValidator;
 import edu.kit.iti.algover.util.StringValidators;
 import javafx.scene.control.Control;
 import org.controlsfx.validation.ValidationResult;
@@ -10,33 +12,22 @@ import java.io.File;
 /**
  * Class providing field validators for Settings panes.
  */
-public class SettingsValidatorAdapter {
+public class SettingsValidatorAdapter implements Validator<String>{
 
-    public Validator<String> transformValidator(StringValidators.OptionStringValidator validator, Control c, String s) {
-        return null;
+    private StringValidator validator;
+
+    public SettingsValidatorAdapter(StringValidator validator){
+        this.validator = validator;
+
     }
 
-
-
-
-    private ValidationResult fileExistsValidator(Control control, StringValidators.OptionStringValidator validator, String s) {
-        File file = new File(s);
-        if(!file.exists()){
+    @Override
+    public ValidationResult apply(Control control, String s) {
+        try {
+            validator.validate(s);
             return new ValidationResult();
-        } else {
-            return ValidationResult.fromError(control, "File already exists and will be overwritten upon saving.");
+        } catch (FormatException e) {
+            return ValidationResult.fromError(control, e.getMessage());
         }
     }
-
-
-
-    private ValidationResult directoryValidator(Control control, String s) {
-        File directory = new File(s);
-        if(directory.isDirectory() && directory.exists()){
-            return new ValidationResult();
-        } else {
-            return ValidationResult.fromError(control, "Path must exist and be a path.");
-        }
-    }
-
 }
