@@ -12,7 +12,7 @@ import java.io.File;
  */
 public class SettingsValidatorAdapter {
 
-    public Validator<String> getValidatorForType() {
+    public Validator<String> transformValidator(StringValidators.OptionStringValidator validator, Control c, String s) {
         return null;
     }
 

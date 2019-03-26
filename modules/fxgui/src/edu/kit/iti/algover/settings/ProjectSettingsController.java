@@ -74,6 +74,8 @@ public class ProjectSettingsController implements SettingsSupplier {
     @FXML
     private JFXButton delLibFilesButton;
 
+    @FXML
+    private CheckBox saveOption;
 
     private SimpleObjectProperty<Configuration> config = new SimpleObjectProperty<>(new Configuration(), "Configuration");
 
@@ -83,6 +85,8 @@ public class ProjectSettingsController implements SettingsSupplier {
     private List<Pair<Supplier<String>, Property>> validators;
 
     private ValidationSupport validationSupport = new ValidationSupport();
+
+    private boolean saveAsXML = false;
 
     /**
      * The ProjectManager for a loaded project
@@ -208,6 +212,7 @@ public class ProjectSettingsController implements SettingsSupplier {
             currentSettings = Collections.emptyMap();
         }
         validators = new ArrayList<>();
+
         for (Property property : ProjectSettings.getDefinedProperties()) {
             projectConfigSettings.getChildren().add(new Label(property.key));
 
@@ -229,7 +234,7 @@ public class ProjectSettingsController implements SettingsSupplier {
                 if(value != null) {
                     textField.setText(value);
                 }
-                textField.textProperty().addListener((observable, oldValue, newValue) -> {
+               /* textField.textProperty().addListener((observable, oldValue, newValue) -> {
                     try{
                         if(property.validator != null && !newValue.isEmpty()) {
                             property.validator.validate(newValue);
@@ -240,7 +245,7 @@ public class ProjectSettingsController implements SettingsSupplier {
                         textField.setTooltip(new Tooltip(ex.getMessage()));
                         textField.setStyle("-fx-background-color:red;");
                     }
-                });
+                });*/
                 projectConfigSettings.getChildren().add(textField);
                 validators.add(new Pair<>(() -> textField.getText(), property));
             }
@@ -264,7 +269,6 @@ public class ProjectSettingsController implements SettingsSupplier {
         String pathText = projectPath.getText();
 
         Configuration newConfig = new Configuration();
-
         newConfig.setDafnyFiles(dafnyFiles.getItems());
         newConfig.setLibFiles(libFiles.getItems());
 
@@ -278,17 +282,24 @@ public class ProjectSettingsController implements SettingsSupplier {
 
         newConfig.setSettings(newProperties);
         File baseDir = new File(pathText);
-        try {
-            String property = System.getProperty("file.separator");
-            File filename = new File(baseDir + property + "temp_config.xml");
-            if(filename.exists()){
-
+        if(saveAsXML){
+            try {
+                String property = System.getProperty("file.separator");
+                File filename = new File(baseDir + property + configFileName);
+                if(filename.exists()){
+                //TODO
+                }
+                ConfigXMLLoader.saveConfigFile(newConfig, filename);
+            } catch (JAXBException e) {
+                Logger.getGlobal().warning("Could not save configuration file");
+                e.printStackTrace();
             }
-            System.out.println("filename = " + filename);
-            ConfigXMLLoader.saveConfigFile(newConfig, filename);
-        } catch (JAXBException e) {
-            Logger.getGlobal().warning("Could not save configuration file");
-            e.printStackTrace();
+        } else {
+            try {
+                manager.get().saveProject();
+            } catch (IOException e) {
+                Logger.getGlobal().severe("Error saving project settings");
+            }
         }
 
 
@@ -340,6 +351,10 @@ public class ProjectSettingsController implements SettingsSupplier {
         addItemToList(dafnyFiles, "Dafny file");
     }
 
+    @FXML
+    private void setSaveOption(){
+        saveAsXML = saveOption.isSelected();
+    }
     private void addItemToList(ListView<File> list, String title){
         FileChooser chooser = new FileChooser();
         chooser.setTitle("Select a "+title);

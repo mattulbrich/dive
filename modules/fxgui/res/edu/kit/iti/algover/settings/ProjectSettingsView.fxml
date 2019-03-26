@@ -30,10 +30,17 @@
                         </HBox>
                         <Region prefHeight="20" VBox.vgrow="ALWAYS"></Region>
                         <HBox alignment="CENTER_LEFT" spacing="30">
-                        <Label text="" alignment="CENTER_LEFT"></Label>
+                        <Label text="Name of project file" alignment="CENTER_LEFT"></Label>
                             <TextField fx:id="configFileName" editable="true" HBox.hgrow="ALWAYS"></TextField>
 
                         </HBox>
+                        <Region prefHeight="20" VBox.vgrow="ALWAYS"></Region>
+                        <HBox alignment="CENTER_LEFT" spacing="30">
+                            <Label text="Save project settings as separate XML-file" alignment="CENTER_LEFT"></Label>
+                            <CheckBox fx:id="saveOption" onAction="#setSaveOption"></CheckBox>
+
+                        </HBox>
+
                         <Region prefHeight="40" VBox.vgrow="ALWAYS"></Region>
                         <VBox fx:id="dafnyInputFilesBox" alignment="CENTER_LEFT" spacing="10">
                             <HBox alignment="TOP_LEFT">
