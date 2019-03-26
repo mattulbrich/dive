@@ -97,6 +97,11 @@ public class ProjectSettingsController implements SettingsSupplier {
         this.manager.set(manager);
     }
 
+    private Map<String, String> currentSettings = null;
+
+    /**
+     * The ProjectManager for a loaded project
+     */
     private SimpleObjectProperty<ProjectManager> manager = new SimpleObjectProperty<>(null, "Configuration");
 
 
@@ -125,6 +130,9 @@ public class ProjectSettingsController implements SettingsSupplier {
 
     }
 
+    /**
+     * Add contents to the SettingsView
+     */
     private void addProjectContents() {
         Project p = manager.get().getProject();
         File baseDir = p.getBaseDir();
@@ -135,41 +143,39 @@ public class ProjectSettingsController implements SettingsSupplier {
         List<DafnyFile> libs = allDafnyFiles.stream().filter(dafnyFile -> dafnyFile.isInLibrary()).collect(Collectors.toList());
         List<DafnyFile> otherDafnyFiles = allDafnyFiles.stream().filter(dafnyFile -> !dafnyFile.isInLibrary()).collect(Collectors.toList());
 
-        List<File> collectDfyFiles = otherDafnyFiles.stream().map(dafnyFile -> {
-            try {
-                return dafnyFileToFile(dafnyFile);
-            } catch (FileNotFoundException e) {
-                e.printStackTrace();
-                return null;
-            }
-        }).collect(Collectors.toList());
+        this.dafnyFiles.getItems().addAll(otherDafnyFiles.stream().map(dafnyFile -> dafnyFileToFile(dafnyFile)).collect(Collectors.toList()));
 
-        this.dafnyFiles.getItems().addAll(collectDfyFiles);
-
-        List<File> collectLibFiles = libs.stream().map(dafnyFile -> {
-            try {
-                return dafnyFileToFile(dafnyFile);
-            } catch (FileNotFoundException e) {
-                e.printStackTrace();
-                return null;
-            }
-        }).collect(Collectors.toList());
-
-        this.libFiles.getItems().addAll(collectDfyFiles);
+        this.libFiles.getItems().addAll(
+                libs.stream().map(dafnyFile -> dafnyFileToFile(dafnyFile)).collect(Collectors.toList()));
 
         //add settings
         ProjectSettings settings = p.getSettings();
-
+        HashMap<String, String> newSettings = new HashMap<>();
+        for (Property property : ProjectSettings.getDefinedProperties()) {
+            newSettings.put(property.key, settings.getString(property.key));
+        }
+        currentSettings = newSettings;
+        createSettingsFields();
     }
 
-    private static File dafnyFileToFile(DafnyFile df) throws FileNotFoundException {
+    /**
+     * Transform a DafnyFile into a File
+     * @param df
+     * @return
+     * @throws FileNotFoundException
+     */
+    private static File dafnyFileToFile(DafnyFile df){
         File f = new File(df.getFilename());
         if(f.exists()){
             return f;
         } else {
-            throw new FileNotFoundException("Was not able to constrcut file "+ f.getAbsolutePath());
+            return new File("");
         }
     }
+
+    /**
+     * Add cellfactories for lists
+     */
     private void addCellFactories(){
         dafnyFiles.setCellFactory(param ->
                 {
@@ -190,11 +196,14 @@ public class ProjectSettingsController implements SettingsSupplier {
 
     }
 
+    /**
+     * Create settings fields, possibly with input
+     */
     private void createSettingsFields() {
-        System.out.println("getConfig() = " + getConfig());
-        Map<String, String> settings = getConfig().getSettings();
-        if(settings == null) {
-            settings = Collections.emptyMap();
+
+        projectConfigSettings.getChildren().clear();
+        if (currentSettings == null) {
+            currentSettings = Collections.emptyMap();
         }
 
         List<Pair<Supplier<String>, Property>> validators = new ArrayList<>();
@@ -206,7 +215,7 @@ public class ProjectSettingsController implements SettingsSupplier {
                 Collection<? extends CharSequence> options = validator.getOptions();
                 ObservableList<String> olist =
                         new ObservableListWrapper<>(Util.map(options, Object::toString));
-                String value = settings.get(property.key);
+                String value = currentSettings.get(property.key);
                 ChoiceBox<String> choiceBox = new ChoiceBox<>(olist);
                 if(value != null) {
                     choiceBox.setValue(value);
@@ -215,7 +224,7 @@ public class ProjectSettingsController implements SettingsSupplier {
                 validators.add(new Pair<>(() -> choiceBox.getValue(), property));
             } else {
                 TextField textField = new TextField();
-                String value = settings.get(property.key);
+                String value = currentSettings.get(property.key);
                 if(value != null) {
                     textField.setText(value);
                 }
