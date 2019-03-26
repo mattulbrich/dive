@@ -4,21 +4,16 @@ import com.jfoenix.controls.JFXButton;
 import com.jfoenix.controls.JFXListView;
 import com.sun.javafx.collections.ObservableListWrapper;
 import edu.kit.iti.algover.dafnystructures.DafnyFile;
-import edu.kit.iti.algover.project.Configuration;
-import edu.kit.iti.algover.project.Project;
-import edu.kit.iti.algover.project.ProjectManager;
-import edu.kit.iti.algover.project.XMLProjectManager;
-import edu.kit.iti.algover.util.Pair;
+import edu.kit.iti.algover.project.*;
+import edu.kit.iti.algover.util.*;
+import javafx.application.Platform;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.collections.ObservableList;
-import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.TextFieldListCell;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
 
 import java.io.File;
@@ -29,14 +24,15 @@ import java.util.function.Supplier;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
-import edu.kit.iti.algover.settings.ProjectSettings;
 import edu.kit.iti.algover.settings.ProjectSettings.Property;
-import edu.kit.iti.algover.util.FormatException;
-import edu.kit.iti.algover.util.Pair;
 import edu.kit.iti.algover.util.StringValidators.OptionStringValidator;
-import edu.kit.iti.algover.util.Util;
 import javafx.stage.FileChooser;
 import javafx.util.StringConverter;
+import org.controlsfx.validation.ValidationResult;
+import org.controlsfx.validation.ValidationSupport;
+import org.controlsfx.validation.Validator;
+
+import javax.xml.bind.JAXBException;
 
 /**
  * Controller for the Project Settings View
@@ -55,7 +51,10 @@ public class ProjectSettingsController implements SettingsSupplier {
     private VBox projectConfigSettings;
 
     @FXML
-    private TextField projectName;
+    private TextField projectPath;
+
+    @FXML
+    private TextField configFileName;
 
     @FXML
     private JFXListView<File> dafnyFiles;
@@ -81,6 +80,10 @@ public class ProjectSettingsController implements SettingsSupplier {
 
     private Map<String, String> currentSettings = null;
 
+    private List<Pair<Supplier<String>, Property>> validators;
+
+    private ValidationSupport validationSupport = new ValidationSupport();
+
     /**
      * The ProjectManager for a loaded project
      */
@@ -98,10 +101,9 @@ public class ProjectSettingsController implements SettingsSupplier {
         }
         settingsPanel.setUserData(NAME);
 
-        createSettingsFields();
-        addAllEventHandler();
+        addProjectContents();
         addCellFactories();
-        
+        addValidationSupport();
         config.addListener((observable, oldValue, newValue) -> {
             if(newValue != null) {
                 addProjectContents();
@@ -113,32 +115,47 @@ public class ProjectSettingsController implements SettingsSupplier {
 
     }
 
+    private void addValidationSupport() {
+        Platform.runLater(() -> {
+           //  validationSupport.registerValidator(projectPath, true, XXX);
+            //validationSupport.registerValidator(configFileName, true, getValidatorForType(InputType.FILE));
+        });
+    }
+
+
+
     /**
      * Add contents to the SettingsView
      */
     private void addProjectContents() {
-        Project p = manager.get().getProject();
-        File baseDir = p.getBaseDir();
-        this.projectName.setText(baseDir.toString());
+        if(manager.get() != null) {
+            Project p = manager.get().getProject();
+            this.configFileName.setText(manager.get().getName());
 
-        //add Dafnyfiles
-        List<DafnyFile> allDafnyFiles = p.getDafnyFiles();
-        List<DafnyFile> libs = allDafnyFiles.stream().filter(dafnyFile -> dafnyFile.isInLibrary()).collect(Collectors.toList());
-        List<DafnyFile> otherDafnyFiles = allDafnyFiles.stream().filter(dafnyFile -> !dafnyFile.isInLibrary()).collect(Collectors.toList());
+            File baseDir = p.getBaseDir();
+            this.projectPath.setText(baseDir.toString());
 
-        this.dafnyFiles.getItems().addAll(otherDafnyFiles.stream().map(dafnyFile -> dafnyFileToFile(dafnyFile)).collect(Collectors.toList()));
+            //add Dafnyfiles
+            List<DafnyFile> allDafnyFiles = p.getDafnyFiles();
+            List<DafnyFile> libs = allDafnyFiles.stream().filter(dafnyFile -> dafnyFile.isInLibrary()).collect(Collectors.toList());
+            List<DafnyFile> otherDafnyFiles = allDafnyFiles.stream().filter(dafnyFile -> !dafnyFile.isInLibrary()).collect(Collectors.toList());
 
-        this.libFiles.getItems().addAll(
-                libs.stream().map(dafnyFile -> dafnyFileToFile(dafnyFile)).collect(Collectors.toList()));
+            this.dafnyFiles.getItems().addAll(otherDafnyFiles.stream().map(dafnyFile -> dafnyFileToFile(dafnyFile)).collect(Collectors.toList()));
 
-        //add settings
-        ProjectSettings settings = p.getSettings();
-        HashMap<String, String> newSettings = new HashMap<>();
-        for (Property property : ProjectSettings.getDefinedProperties()) {
-            newSettings.put(property.key, settings.getString(property.key));
+            this.libFiles.getItems().addAll(
+                    libs.stream().map(dafnyFile -> dafnyFileToFile(dafnyFile)).collect(Collectors.toList()));
+
+            //add settings
+            ProjectSettings settings = p.getSettings();
+            HashMap<String, String> newSettings = new HashMap<>();
+            for (Property property : ProjectSettings.getDefinedProperties()) {
+                newSettings.put(property.key, settings.getString(property.key));
+            }
+            currentSettings = newSettings;
+            createSettingsFields();
+        } else {
+            createSettingsFields();
         }
-        currentSettings = newSettings;
-        createSettingsFields();
     }
 
     /**
@@ -176,16 +193,7 @@ public class ProjectSettingsController implements SettingsSupplier {
 
     }
 
-    /**
-     * Add action handler to buttons
-     */
-    private void addAllEventHandler() {
-        delDafnyFilesButton.setOnAction(this::removeDafnyFile);
-        delLibFilesButton.setOnAction(this::removeLibFile);
-        addDafnyFilesButton.setOnAction(this::addDafnyFile);
-        addLibFilesButton.setOnAction(this::addLibFile);
 
-    }
 
 
 
@@ -194,12 +202,12 @@ public class ProjectSettingsController implements SettingsSupplier {
      * @author M. Ulbrich
      */
     private void createSettingsFields() {
-        projectConfigSettings.getChildren().clear();
+        if(!projectConfigSettings.getChildren().isEmpty())
+            projectConfigSettings.getChildren().clear();
         if (currentSettings == null) {
             currentSettings = Collections.emptyMap();
         }
-
-        List<Pair<Supplier<String>, Property>> validators = new ArrayList<>();
+        validators = new ArrayList<>();
         for (Property property : ProjectSettings.getDefinedProperties()) {
             projectConfigSettings.getChildren().add(new Label(property.key));
 
@@ -245,9 +253,45 @@ public class ProjectSettingsController implements SettingsSupplier {
         return settingsPanel;
     }
 
+    /**
+     * Save current configuration and request for reloading project
+     * @author M.Ulrbich
+     * @modfied S.Grebing
+     *
+     */
     @Override
     public void save() {
-        //TODO
+        String pathText = projectPath.getText();
+
+        Configuration newConfig = new Configuration();
+
+        newConfig.setDafnyFiles(dafnyFiles.getItems());
+        newConfig.setLibFiles(libFiles.getItems());
+
+        Map<String, String> newProperties = new HashMap<>();
+        for (Pair<Supplier<String>, Property> value : validators) {
+                String v = value.fst.get();
+                if(!v.trim().isEmpty()) {
+                    newProperties.put(value.snd.key, v);
+                }
+        }
+
+        newConfig.setSettings(newProperties);
+        File baseDir = new File(pathText);
+        try {
+            String property = System.getProperty("file.separator");
+            File filename = new File(baseDir + property + "temp_config.xml");
+            if(filename.exists()){
+
+            }
+            System.out.println("filename = " + filename);
+            ConfigXMLLoader.saveConfigFile(newConfig, filename);
+        } catch (JAXBException e) {
+            Logger.getGlobal().warning("Could not save configuration file");
+            e.printStackTrace();
+        }
+
+
     }
 
     @Override
@@ -281,16 +325,18 @@ public class ProjectSettingsController implements SettingsSupplier {
 
     //region: ActionHandler
 
-    private void addLibFile(ActionEvent actionEvent) { addItemToList(libFiles, "Library file"); }
+    @FXML
+    private void addLibFile() { addItemToList(libFiles, "Library file"); }
 
-    private void removeDafnyFile(ActionEvent actionEvent) {removeSelectedFile(dafnyFiles, dafnyFiles.getSelectionModel().getSelectedItems());
+    @FXML
+    private void removeDafnyFile() {removeSelectedFiles(dafnyFiles, dafnyFiles.getSelectionModel().getSelectedItems());
     }
 
-    private void removeLibFile(ActionEvent actionEvent) {
+    @FXML
+    private void removeLibFile() { removeSelectedFiles(libFiles, libFiles.getSelectionModel().getSelectedItems());}
 
-    }
-
-    private void addDafnyFile(ActionEvent actionEvent) {
+    @FXML
+    private void addDafnyFile() {
         addItemToList(dafnyFiles, "Dafny file");
     }
 
@@ -298,7 +344,7 @@ public class ProjectSettingsController implements SettingsSupplier {
         FileChooser chooser = new FileChooser();
         chooser.setTitle("Select a "+title);
         File initialDir;
-        File newFile = new File(projectName.getText());
+        File newFile = new File(projectPath.getText());
         if(manager.get() != null){
             File baseDir = manager.get().getProject().getBaseDir();
 
@@ -308,7 +354,7 @@ public class ProjectSettingsController implements SettingsSupplier {
                 initialDir=newFile;
             }
         } else {
-            if(!projectName.getText().isEmpty()) {
+            if(!projectPath.getText().isEmpty()) {
                 initialDir = newFile;
             } else {
                 initialDir = new File("doc/examples/");
@@ -317,16 +363,16 @@ public class ProjectSettingsController implements SettingsSupplier {
         chooser.setInitialDirectory(initialDir);
         chooser.setSelectedExtensionFilter(new FileChooser.ExtensionFilter("Dafny Files", Collections.singletonList("dfy")));
         List<File> files = chooser.showOpenMultipleDialog(settingsPanel.getScene().getWindow());
-
-        //maybe check whether file already in list
-        if(!files.isEmpty()){
-
-            list.getItems().addAll(files);
-        }
+        assert files != null;
+        files.forEach(file -> {
+            if(!list.getItems().contains(file)){
+                list.getItems().add(file);
+            }
+        });
     }
 
-    private void removeSelectedFile(ListView<File> list, ObservableList<File> selectedItems){
-
+    private void removeSelectedFiles(ListView<File> list, ObservableList<File> selectedItems){
+        list.getItems().removeAll(selectedItems);
     }
 
     //region: converter
@@ -342,6 +388,8 @@ public class ProjectSettingsController implements SettingsSupplier {
             return new File(string);
         }
     }
+
+
 }
 
 

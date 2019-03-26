@@ -17,7 +17,7 @@
 <ScrollPane xmlns="http://javafx.com/javafx"
             xmlns:fx="http://javafx.com/fxml"
             stylesheets="@../style.css">
-<AnchorPane minHeight="400.0" minWidth="600.0">
+<AnchorPane minHeight="600.0" prefWidth="600.0">
     <children>
                 <VBox fx:id="container" AnchorPane.bottomAnchor="5.0" AnchorPane.leftAnchor="5.0" AnchorPane.rightAnchor="5.0" AnchorPane.topAnchor="5.0" >
                     <padding><Insets top="25" right="25" bottom="40" left="25"/></padding>
@@ -25,22 +25,27 @@
                         <Label text="Project Configuration Settings" styleClass="settings-h1" ></Label>
                         <Region prefHeight="40" VBox.vgrow="ALWAYS"></Region>
                         <HBox fx:id="projectNameHBox" alignment="CENTER_LEFT" spacing="30">
-                            <Label text="Base directory of the Project" alignment="CENTER_LEFT"></Label>
+                            <Label text="Base directory of the project" alignment="CENTER_LEFT"></Label>
+                            <TextField fx:id="projectPath" editable="true" HBox.hgrow="ALWAYS"></TextField>
+                        </HBox>
+                        <Region prefHeight="20" VBox.vgrow="ALWAYS"></Region>
+                        <HBox alignment="CENTER_LEFT" spacing="30">
+                        <Label text="" alignment="CENTER_LEFT"></Label>
+                            <TextField fx:id="configFileName" editable="true" HBox.hgrow="ALWAYS"></TextField>
 
-                            <TextField fx:id="projectName" editable="true" HBox.hgrow="ALWAYS"></TextField>
                         </HBox>
                         <Region prefHeight="40" VBox.vgrow="ALWAYS"></Region>
                         <VBox fx:id="dafnyInputFilesBox" alignment="CENTER_LEFT" spacing="10">
                             <HBox alignment="TOP_LEFT">
                                         <Label text="Dafny files" alignment="CENTER_LEFT" ></Label>
                                         <Region prefWidth="40" HBox.hgrow="ALWAYS"></Region>
-                                        <JFXButton fx:id="addDafnyFilesButton"  alignment="CENTER_RIGHT" buttonType="RAISED">
+                                        <JFXButton fx:id="addDafnyFilesButton"  alignment="CENTER_RIGHT" buttonType="RAISED" onAction="#addDafnyFile">
                                             <graphic>
                                                 <Glyph fontFamily="FontAwesome" icon="PLUS" />
                                             </graphic>
                                         </JFXButton>
 
-                                        <JFXButton fx:id="delDafnyFilesButton" alignment="CENTER_RIGHT" buttonType="RAISED">
+                                        <JFXButton fx:id="delDafnyFilesButton" alignment="CENTER_RIGHT" buttonType="RAISED" onAction="#removeDafnyFile">
                                             <graphic>
                                                 <Glyph fontFamily="FontAwesome" icon="MINUS" />
                                             </graphic>
@@ -53,12 +58,12 @@
                             <HBox>
                                 <Label text="Dafny Library files" alignment="CENTER_LEFT" ></Label>
                                 <Region prefWidth="40" HBox.hgrow="ALWAYS"></Region>
-                                <JFXButton fx:id="addLibFilesButton" alignment="CENTER_RIGHT" buttonType="RAISED">
+                                <JFXButton fx:id="addLibFilesButton" alignment="CENTER_RIGHT" buttonType="RAISED" onAction="#addLibFile">
                                         <graphic>
                                             <Glyph fontFamily="FontAwesome" icon="PLUS" />
                                         </graphic>
                                     </JFXButton>
-                                    <JFXButton fx:id="delLibFilesButton" alignment="CENTER_RIGHT" buttonType="RAISED">
+                                    <JFXButton fx:id="delLibFilesButton" alignment="CENTER_RIGHT" buttonType="RAISED" onAction="#removeLibFile">
                                         <graphic>
                                             <Glyph fontFamily="FontAwesome" icon="MINUS" />
                                         </graphic>

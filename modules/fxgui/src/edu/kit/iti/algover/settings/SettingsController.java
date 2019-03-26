@@ -7,7 +7,6 @@ import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
-import javafx.scene.Parent;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.TextFieldListCell;
 import javafx.scene.layout.BorderPane;
@@ -16,7 +15,11 @@ import javafx.util.StringConverter;
 
 import java.io.IOException;
 import java.util.Optional;
+import java.util.logging.Logger;
 
+/**
+ * Controller for the Settings Dialog. Loads SettingsView.fxml. Tabs supplied by ServiceLoader are laoded as well.
+ */
 public class SettingsController {
 
     @FXML
@@ -26,31 +29,11 @@ public class SettingsController {
     private DialogPane dialogPane;
 
     @FXML
-    private Dialog<Void> dialog;
+    private Dialog<ButtonType> dialog;
 
     @FXML
     private BorderPane contentContainer;
 
-
-    public void setItems(ObservableList<Node> value) {
-        tabList.setItems(value);
-    }
-
-    public ObservableList<Node> getItems() {
-        return tabList.getItems();
-    }
-
-    public ObjectProperty<ObservableList<Node>> itemsProperty() {
-        return tabList.itemsProperty();
-    }
-
-    public ProjectManager getManager() {
-        return manager;
-    }
-
-    public void setManager(ProjectManager manager) {
-        this.manager = manager;
-    }
 
     private ProjectManager manager;
 
@@ -65,6 +48,8 @@ public class SettingsController {
 
         dialog = new Dialog<>();
         dialog.setResizable(true);
+        dialog.setWidth(600.0);
+        dialog.setHeight(600.0);
 
         try {
             loader.load();
@@ -97,14 +82,17 @@ public class SettingsController {
     }
 
     private void createSettingsDialog() {
-
+        dialogPane.setPrefSize(600.0, 600.0);
         dialogPane.getButtonTypes().setAll(ButtonType.OK, ButtonType.CANCEL);
         dialog.setDialogPane(dialogPane);
+
 
     }
 
 
-
+    /**
+     * Show Dilaog and wait.
+     */
     public void showAndWait() {
         if(manager != null){
             SettingsFactory.supplier.forEach(settingsSupplier -> {
@@ -114,11 +102,37 @@ public class SettingsController {
             });
         }
         createSettingsDialog();
-          Optional<Void> optional = dialog.showAndWait();
-        if(optional.isPresent()){
+        Optional<ButtonType> optional = dialog.showAndWait();
+
+        if(optional.isPresent() && optional.get() == ButtonType.OK){
+            Logger.getGlobal().info("Saving settings");
             SettingsFactory.fireOnSave();
+            Logger.getGlobal().info("Saved Settings");
+        } else {
+            Logger.getGlobal().info("Settings not saved");
         }
 
+    }
+
+    //region: getter and setter
+    public void setItems(ObservableList<Node> value) {
+        tabList.setItems(value);
+    }
+
+    public ObservableList<Node> getItems() {
+        return tabList.getItems();
+    }
+
+    public ObjectProperty<ObservableList<Node>> itemsProperty() {
+        return tabList.itemsProperty();
+    }
+
+    public ProjectManager getManager() {
+        return manager;
+    }
+
+    public void setManager(ProjectManager manager) {
+        this.manager = manager;
     }
 
 
