@@ -59,7 +59,13 @@ public class SettingsController {
             Window window = dialog.getDialogPane().getScene().getWindow();
             window.setOnCloseRequest(e -> window.hide());
 
-            tabList.getSelectionModel().getSelectedItems().addListener((ListChangeListener) o -> contentContainer.setCenter(tabList.getSelectionModel().getSelectedItem()));
+            tabList.getSelectionModel().getSelectedItems().addListener(new ListChangeListener<Node>() {
+                @Override
+                public void onChanged(Change<? extends Node> c) {
+                    contentContainer.setCenter
+                            (tabList.getSelectionModel().getSelectedItem());
+                }
+            });
             tabList.setCellFactory(param -> {
                 TextFieldListCell<Node> txt = new TextFieldListCell<>();
                 txt.setConverter(new StringConverter<Node>() {
