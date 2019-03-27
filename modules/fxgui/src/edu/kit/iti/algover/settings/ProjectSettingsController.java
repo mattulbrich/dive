@@ -358,6 +358,7 @@ public class ProjectSettingsController implements SettingsSupplier {
     private void setSaveOption(){
         saveAsXML = saveOption.isSelected();
     }
+
     private void addItemToList(ListView<File> list, String title){
         FileChooser chooser = new FileChooser();
         chooser.setTitle("Select a "+title);
@@ -381,12 +382,13 @@ public class ProjectSettingsController implements SettingsSupplier {
         chooser.setInitialDirectory(initialDir);
         chooser.setSelectedExtensionFilter(new FileChooser.ExtensionFilter("Dafny Files", Collections.singletonList("dfy")));
         List<File> files = chooser.showOpenMultipleDialog(settingsPanel.getScene().getWindow());
-        assert files != null;
-        files.forEach(file -> {
-            if(!list.getItems().contains(file)){
-                list.getItems().add(file);
-            }
-        });
+        if(files != null){
+            files.forEach(file -> {
+                if (!list.getItems().contains(file)) {
+                    list.getItems().add(file);
+                }
+            });
+        }
     }
 
     private void removeSelectedFiles(ListView<File> list, ObservableList<File> selectedItems){
