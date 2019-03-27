@@ -7,9 +7,12 @@ package edu.kit.iti.algover;
 
 import com.jfoenix.controls.JFXButton;
 import edu.kit.iti.algover.parser.DafnyParserException;
+import edu.kit.iti.algover.project.Configuration;
 import edu.kit.iti.algover.project.DafnyProjectManager;
 import edu.kit.iti.algover.project.ProjectManager;
 import edu.kit.iti.algover.project.XMLProjectManager;
+import edu.kit.iti.algover.settings.GeneralSettingsController;
+import edu.kit.iti.algover.settings.ISettingsController;
 import edu.kit.iti.algover.settings.ProjectSettingsController;
 import edu.kit.iti.algover.settings.SettingsFactory;
 import edu.kit.iti.algover.util.FormatException;
@@ -28,6 +31,7 @@ import javafx.stage.Stage;
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
@@ -41,6 +45,8 @@ public class AlgoVerApplication extends Application {
     private Stage primaryStage;
 
     private Stage substage;
+
+
 
 
     public static void main(String[] args) {
@@ -83,7 +89,7 @@ public class AlgoVerApplication extends Application {
         createProject.setOnAction(this::createNewProjectHandler);
 
 
-        buttonBox.getChildren().addAll(createProject,openFileChooser);
+        buttonBox.getChildren().addAll(createProject, openFileChooser);
         vbox.getChildren().addAll(welcomeText, buttonBox);
         pane.setCenter(vbox);
 
@@ -97,18 +103,28 @@ public class AlgoVerApplication extends Application {
 
 
     private void createAndShowConfigPane(Stage substage) {
-        List<Node> collect = SettingsFactory.getSettingsPanel().stream().filter(node ->
-                node.getUserData().equals(ProjectSettingsController.NAME)).collect(Collectors.toList());
-        if(!collect.isEmpty()){
+        Configuration config = new Configuration();
+        Optional<ISettingsController> collect = SettingsFactory.getSettingsPanel(config).stream()
+                .filter(node -> node.getName().equals(ProjectSettingsController.NAME))
+                .findAny();
+
+        if(collect.isPresent()){
             BorderPane configPane = new BorderPane();
-            configPane.setPrefSize(600.0, 400.0);
+            //configPane.setPrefSize(400.0, 400.0);
             //configPane.setCenter(collect.get(0));
-            configPane.setCenter(new ScrollPane(collect.get(0)));
+            ScrollPane scrollPane = new ScrollPane();
+            scrollPane.setFitToWidth(true);
+            //scrollPane.setFitToHeight(true);
+            scrollPane.setContent(collect.get().getNode());
+            configPane.setCenter(scrollPane);
             //Buttons
             ButtonBar buttonBar = new ButtonBar();
             JFXButton applyConfig = new JFXButton("Create Configuration");
             applyConfig.setButtonType(JFXButton.ButtonType.RAISED);
             ButtonBar.setButtonData(applyConfig, ButtonBar.ButtonData.APPLY);
+            applyConfig.setOnAction(event -> {
+
+            });
             applyConfig.setOnAction(this::createConfigurationAndLoadProject);
 
             JFXButton cancelButton = new JFXButton("Cancel");
@@ -211,7 +227,7 @@ public class AlgoVerApplication extends Application {
 
 
     private void createConfigurationAndLoadProject(ActionEvent actionEvent) {
-
+        //TODO Controller?
 
     }
 

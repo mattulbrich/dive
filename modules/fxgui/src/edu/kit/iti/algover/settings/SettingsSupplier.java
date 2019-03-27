@@ -1,23 +1,8 @@
 package edu.kit.iti.algover.settings;
 
-import javafx.scene.Node;
+import edu.kit.iti.algover.project.Configuration;
 
-public interface SettingsSupplier {
+import java.util.function.Function;
 
-    /**
-     * Return the JavaFX Node  that should be displayed
-     * @return
-     */
-    Node getNode();
-
-    /**
-     * Save settings after closing dialog
-     */
-    void save();
-
-    /**
-     * The name of the Node
-     * @return name
-     */
-    String getName();
+public interface SettingsSupplier extends Function<Configuration,ISettingsController> {
 }

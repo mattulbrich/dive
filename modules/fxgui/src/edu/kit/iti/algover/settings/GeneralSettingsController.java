@@ -11,7 +11,7 @@ import javafx.scene.layout.AnchorPane;
 
 import java.io.IOException;
 
-public class GeneralSettingsController implements SettingsSupplier {
+public class GeneralSettingsController implements ISettingsController {
 
     @FXML
     private TextField currentFontSizeEditor;

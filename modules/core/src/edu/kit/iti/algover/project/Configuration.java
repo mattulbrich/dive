@@ -14,8 +14,6 @@ import java.util.Map;
  */
 @XmlRootElement
 public class Configuration {
-    // REVIEW. What is this here for?
-    public DafnyDecl dafnyDeclarations;
     /**
      * The dafny files that are treated as library files, i.e. no proof obligation is generqated for the DafnyDecls in the libarary files
      */

@@ -28,9 +28,7 @@ import edu.kit.iti.algover.settings.ProjectSettings.Property;
 import edu.kit.iti.algover.util.StringValidators.OptionStringValidator;
 import javafx.stage.FileChooser;
 import javafx.util.StringConverter;
-import org.controlsfx.validation.ValidationResult;
 import org.controlsfx.validation.ValidationSupport;
-import org.controlsfx.validation.Validator;
 
 import javax.xml.bind.JAXBException;
 
@@ -38,14 +36,14 @@ import javax.xml.bind.JAXBException;
  * Controller for the Project Settings View
  * @author S.Grebing
  */
-public class ProjectSettingsController implements SettingsSupplier {
+public class ProjectSettingsController implements ISettingsController {
 
     public static final String NAME = "Project";
 
     private Node settingsPanel;
 
-    @FXML
-    private VBox container;
+   /* @FXML
+    private VBox container;*/
 
     @FXML
     private VBox projectConfigSettings;
@@ -93,9 +91,8 @@ public class ProjectSettingsController implements SettingsSupplier {
      */
     private SimpleObjectProperty<ProjectManager> manager = new SimpleObjectProperty<>(null, "Configuration");
 
-
-    public ProjectSettingsController() {
-        setConfig(new Configuration());
+    public ProjectSettingsController(Configuration config){
+        setConfig(config);
         FXMLLoader loader = new FXMLLoader(getClass().getResource("ProjectSettingsView.fxml"));
         loader.setController(this);
         try {
@@ -108,7 +105,7 @@ public class ProjectSettingsController implements SettingsSupplier {
         addProjectContents();
         addCellFactories();
         addValidationSupport();
-        config.addListener((observable, oldValue, newValue) -> {
+        this.config.addListener((observable, oldValue, newValue) -> {
             if(newValue != null) {
                 addProjectContents();
             }
@@ -116,7 +113,11 @@ public class ProjectSettingsController implements SettingsSupplier {
         managerProperty().addListener((observable, oldValue, newValue) -> {
             addProjectContents();
         });
+    }
 
+
+    public ProjectSettingsController() {
+        this(new Configuration());
     }
 
     private void addValidationSupport() {
@@ -197,10 +198,6 @@ public class ProjectSettingsController implements SettingsSupplier {
 
     }
 
-
-
-
-
     /**
      * Create settings fields, possibly with input
      * @author M. Ulbrich
@@ -256,14 +253,10 @@ public class ProjectSettingsController implements SettingsSupplier {
 
     }
 
-    @Override
-    public Node getNode() {
-        return settingsPanel;
-    }
 
     /**
      * Save current configuration and request for reloading project
-     * @author M.Ulrbich
+     * @author M.Ulbrich
      * @modfied S.Grebing
      *
      */
@@ -306,6 +299,11 @@ public class ProjectSettingsController implements SettingsSupplier {
         }
 
 
+    }
+
+    @Override
+    public Node getNode() {
+        return settingsPanel;
     }
 
     @Override

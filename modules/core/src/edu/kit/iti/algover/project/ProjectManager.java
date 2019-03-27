@@ -132,4 +132,10 @@ public interface ProjectManager {
      * @return a cleartext intuitive name for the manager
      */
     @NonNull String getName();
+
+    /**
+     * Get the current project contents as Configuration object
+     * @return a configuration object
+     */
+    @NonNull Configuration getConfiguration();
 }

@@ -425,4 +425,9 @@ public final class Project {
         loader.forEach(result::add);
         return result;
     }
+
+    public Configuration getConfiguration() {
+        //TODO
+        return null;
+    }
 }

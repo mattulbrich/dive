@@ -226,6 +226,13 @@ public final class XMLProjectManager extends AbstractProjectManager {
         return directory.getName();
     }
 
+    @Override
+    public Configuration getConfiguration() {
+        Configuration configuration = getProject().getConfiguration();
+        //TODO setter
+        return configuration;
+    }
+
     public String getConfigFilename() {
         return configFilename;
     }

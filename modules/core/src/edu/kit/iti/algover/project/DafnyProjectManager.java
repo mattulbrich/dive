@@ -199,4 +199,9 @@ public class DafnyProjectManager extends AbstractProjectManager {
     public String getName() {
         return masterFile.toString();
     }
+
+    @Override
+    public Configuration getConfiguration() {
+        return getProject().getConfiguration();
+    }
 }

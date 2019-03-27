@@ -9,11 +9,9 @@
 
 
 <?import org.controlsfx.glyphfont.Glyph?>
-<AnchorPane xmlns="http://javafx.com/javafx"
-            xmlns:fx="http://javafx.com/fxml"
-            stylesheets="@../style.css">
-    <children>
-                <VBox fx:id="container" AnchorPane.bottomAnchor="5.0" AnchorPane.leftAnchor="5.0" AnchorPane.rightAnchor="5.0" AnchorPane.topAnchor="5.0" >
+                <VBox fx:id="container"  xmlns="http://javafx.com/javafx"
+                      xmlns:fx="http://javafx.com/fxml"
+                      stylesheets="@../style.css" >
                     <padding><Insets top="25" right="25" bottom="40" left="25"/></padding>
                     <children>
                         <Label text="Project Configuration Settings" styleClass="settings-h1" ></Label>
@@ -81,5 +79,3 @@
                         </VBox>
                     </children>
                 </VBox>
-    </children>
-</AnchorPane>

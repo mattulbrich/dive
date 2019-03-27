@@ -14,6 +14,7 @@ import edu.kit.iti.algover.dafnystructures.DafnyFile;
 import edu.kit.iti.algover.dafnystructures.DafnyFunction;
 import edu.kit.iti.algover.dafnystructures.DafnyMethod;
 import edu.kit.iti.algover.editor.EditorController;
+import edu.kit.iti.algover.project.Configuration;
 import edu.kit.iti.algover.project.ProjectManager;
 import edu.kit.iti.algover.proof.*;
 import edu.kit.iti.algover.references.CodeReference;
@@ -147,8 +148,9 @@ public class MainController implements SequentActionListener, RuleApplicationLis
     private void openSettingsWindow(ActionEvent actionEvent) {
 
         SettingsController ctrl = new SettingsController();
-        ctrl.setManager(manager);
-        ctrl.getItems().setAll(SettingsFactory.getSettingsPanel());
+        Configuration config = manager.getConfiguration();
+
+        ctrl.getItems().setAll(SettingsFactory.getSettingsPanel(config));
         ctrl.showAndWait();
 
 

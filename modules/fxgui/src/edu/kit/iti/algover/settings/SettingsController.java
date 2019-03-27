@@ -13,6 +13,7 @@ import javafx.scene.layout.BorderPane;
 import javafx.stage.Window;
 import javafx.util.StringConverter;
 
+import javax.swing.*;
 import java.io.IOException;
 import java.util.Optional;
 import java.util.logging.Logger;
@@ -23,7 +24,7 @@ import java.util.logging.Logger;
 public class SettingsController {
 
     @FXML
-    private ListView<Node> tabList;
+    private ListView<ISettingsController> tabList;
 
     @FXML
     private DialogPane dialogPane;
@@ -42,6 +43,7 @@ public class SettingsController {
         loadSettingsViews();
     }
 
+
     private void loadSettingsViews() {
         FXMLLoader loader = new FXMLLoader(getClass().getResource("SettingsView.fxml"));
         loader.setController(this);
@@ -59,23 +61,25 @@ public class SettingsController {
             Window window = dialog.getDialogPane().getScene().getWindow();
             window.setOnCloseRequest(e -> window.hide());
 
-            tabList.getSelectionModel().getSelectedItems().addListener(new ListChangeListener<Node>() {
+            tabList.getSelectionModel().getSelectedItems().addListener(new ListChangeListener<ISettingsController>() {
                 @Override
-                public void onChanged(Change<? extends Node> c) {
-                    contentContainer.setCenter
-                            (new ScrollPane(tabList.getSelectionModel().getSelectedItem()));
+                public void onChanged(Change<? extends ISettingsController> c) {
+                    Node node = tabList.getSelectionModel().getSelectedItem().getNode();
+                    ScrollPane sp = new ScrollPane(node);
+                    sp.setFitToWidth(true);
+                    contentContainer.setCenter(sp);
                 }
             });
             tabList.setCellFactory(param -> {
-                TextFieldListCell<Node> txt = new TextFieldListCell<>();
-                txt.setConverter(new StringConverter<Node>() {
+                TextFieldListCell<ISettingsController> txt = new TextFieldListCell<>();
+                txt.setConverter(new StringConverter<ISettingsController>() {
                     @Override
-                    public String toString(Node object) {
-                        return object.getUserData().toString();
+                    public String toString(ISettingsController object) {
+                        return object.getName();
                     }
 
                     @Override
-                    public Node fromString(String string) {
+                    public ISettingsController fromString(String string) {
                         return null;
                     }
                 });
@@ -100,19 +104,21 @@ public class SettingsController {
      * Show Dilaog and wait.
      */
     public void showAndWait() {
-        if(manager != null){
+       // if(manager != null){
+
+            /*
             SettingsFactory.supplier.forEach(settingsSupplier -> {
                 if(settingsSupplier.getName().equals(ProjectSettingsController.NAME)){
                     ((ProjectSettingsController) settingsSupplier).setManager(manager);
                 }
-            });
-        }
+            });*/
+        //}
         createSettingsDialog();
         Optional<ButtonType> optional = dialog.showAndWait();
 
         if(optional.isPresent() && optional.get() == ButtonType.OK){
             Logger.getGlobal().info("Saving settings");
-            SettingsFactory.fireOnSave();
+            getItems().forEach(ISettingsController::save);
             Logger.getGlobal().info("Saved Settings");
         } else {
             Logger.getGlobal().info("Settings not saved");
@@ -121,15 +127,15 @@ public class SettingsController {
     }
 
     //region: getter and setter
-    public void setItems(ObservableList<Node> value) {
+    public void setItems(ObservableList<ISettingsController> value) {
         tabList.setItems(value);
     }
 
-    public ObservableList<Node> getItems() {
+    public ObservableList<ISettingsController> getItems() {
         return tabList.getItems();
     }
 
-    public ObjectProperty<ObservableList<Node>> itemsProperty() {
+    public ObjectProperty<ObservableList<ISettingsController>> itemsProperty() {
         return tabList.itemsProperty();
     }
 

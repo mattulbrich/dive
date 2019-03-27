@@ -1,8 +1,7 @@
 package edu.kit.iti.algover.settings;
 
-import edu.kit.iti.algover.term.builder.SSASequenter;
+import edu.kit.iti.algover.project.Configuration;
 import static java.util.ServiceLoader.load;
-import javafx.scene.Node;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -10,7 +9,7 @@ import java.util.ServiceLoader;
 import java.util.stream.Collectors;
 
 public class SettingsFactory {
-    protected static List<SettingsSupplier> supplier = new ArrayList<>();
+    private static List<SettingsSupplier> supplier = new ArrayList<>();
 
     static {
         ServiceLoader<SettingsSupplier> serviceLoader = load(SettingsSupplier.class);
@@ -29,19 +28,14 @@ public class SettingsFactory {
 
 
     /**
-     * Gather the list of all current settigns panel.
+     * Gather the list of all current settings panel.
      * @return non-null list of Node
      */
-    public static List<Node> getSettingsPanel(){
-        return supplier.stream().map(i -> i.getNode()).collect(Collectors.toList());
+    public static List<ISettingsController> getSettingsPanel(Configuration configuration){
+        return supplier.stream().map(i -> i.apply(configuration)).collect(Collectors.toList());
     }
 
-
-    /**
-     * Send the event, that the setting dialog was closed, to all of the known settings panel.
-     */
-    public static void fireOnSave(){
-        supplier.stream().forEach(i -> i.save());
+    public static List<ISettingsController> getSettingsPanel() {
+        return getSettingsPanel(new Configuration());
     }
-
 }
