@@ -7,17 +7,11 @@
 <?import com.jfoenix.controls.JFXListView?>
 <?import com.jfoenix.controls.JFXButton?>
 
-<?import de.jensd.fx.glyphs.control.GlyphCheckBox?>
-<?import de.jensd.fx.glyphs.fontawesome.*?>
-<?import de.jensd.fx.glyphs.materialdesignicons.MaterialDesignIconView?>
-<?import de.jensd.fx.glyphs.materialicons.MaterialIconView?>
-<?import de.jensd.fx.glyphs.weathericons.WeatherIconView?>
 
 <?import org.controlsfx.glyphfont.Glyph?>
-<ScrollPane xmlns="http://javafx.com/javafx"
+<AnchorPane xmlns="http://javafx.com/javafx"
             xmlns:fx="http://javafx.com/fxml"
             stylesheets="@../style.css">
-<AnchorPane minHeight="600.0" prefWidth="600.0">
     <children>
                 <VBox fx:id="container" AnchorPane.bottomAnchor="5.0" AnchorPane.leftAnchor="5.0" AnchorPane.rightAnchor="5.0" AnchorPane.topAnchor="5.0" >
                     <padding><Insets top="25" right="25" bottom="40" left="25"/></padding>
@@ -89,4 +83,3 @@
                 </VBox>
     </children>
 </AnchorPane>
-</ScrollPane>

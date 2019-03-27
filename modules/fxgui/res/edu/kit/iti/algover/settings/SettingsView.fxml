@@ -3,6 +3,7 @@
 <?import javafx.scene.control.DialogPane?>
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.control.ListView?>
+<?import javafx.scene.layout.VBox?>
 <DialogPane fx:id="dialogPane" prefHeight="600.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/ 8.0.131" xmlns:fx="http://javafx.com/fxml/1" >
     <content>
         <BorderPane fx:id="contentContainer">
@@ -11,6 +12,10 @@
 
                 </ListView>
             </left>
+            <center>
+
+            <!-- settings AnchorPanes are placed here programmatically-->
+            </center>
 
         </BorderPane>
 

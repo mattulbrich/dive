@@ -250,12 +250,7 @@ public class ProjectSettingsController implements SettingsSupplier {
                 Pair<Supplier<String>, Property> e = new Pair<>(() -> textField.getText(), property);
                 Platform.runLater(() -> { validationSupport.registerValidator(textField, new SettingsValidatorAdapter(e.snd.validator));});
                 validators.add(e);
-          /*      Platform.runLater(() -> {
-                    //TODO register validator via
-                 //   validationSupport.registerValidator(textField, true, XXX Validator<T>)
-                    validationSupport.registerValidator(textField, new SettingsValidatorAdapter(e.snd.validator));
 
-                });*/
             }
         }
 

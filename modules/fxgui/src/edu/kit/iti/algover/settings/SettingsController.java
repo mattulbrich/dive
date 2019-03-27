@@ -48,8 +48,8 @@ public class SettingsController {
 
         dialog = new Dialog<>();
         dialog.setResizable(true);
-        dialog.setWidth(600.0);
-        dialog.setHeight(600.0);
+       // dialog.setWidth(600.0);
+       // dialog.setHeight(600.0);
 
         try {
             loader.load();
@@ -63,7 +63,7 @@ public class SettingsController {
                 @Override
                 public void onChanged(Change<? extends Node> c) {
                     contentContainer.setCenter
-                            (tabList.getSelectionModel().getSelectedItem());
+                            (new ScrollPane(tabList.getSelectionModel().getSelectedItem()));
                 }
             });
             tabList.setCellFactory(param -> {
@@ -88,7 +88,7 @@ public class SettingsController {
     }
 
     private void createSettingsDialog() {
-        dialogPane.setPrefSize(600.0, 600.0);
+       // dialogPane.setPrefSize(600.0, 600.0);
         dialogPane.getButtonTypes().setAll(ButtonType.OK, ButtonType.CANCEL);
         dialog.setDialogPane(dialogPane);
 
