@@ -37,8 +37,6 @@ public abstract class AbstractProjectManager implements ProjectManager {
      * The project may change when {@link #reload()} is called.
      */
     private Project project;
-//    private final ObservableValue<Project> project =
-//            new ObservableValue<>("ProjectManager.project", Project.class);
 
     /**
      * Map from PVC identifiers to corr. proofs.

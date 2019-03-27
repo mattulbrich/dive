@@ -9,6 +9,7 @@ package edu.kit.iti.algover.project;
 
 import edu.kit.iti.algover.parser.DafnyLexer;
 import edu.kit.iti.algover.parser.DafnyParserException;
+import edu.kit.iti.algover.util.Util;
 import nonnull.NonNull;
 import org.antlr.runtime.ANTLRInputStream;
 import org.antlr.runtime.ANTLRReaderStream;
@@ -76,7 +77,7 @@ public class DafnyProjectConfigurationChanger {
 
                     case DafnyLexer.MULTILINE_COMMENT:
                     case DafnyLexer.SINGLELINE_COMMENT:
-                        fw.write(token.toString() + "\n");
+                        fw.write(token.getText() + "\n");
                     }
 
                     token = lexer.nextToken();
@@ -85,7 +86,7 @@ public class DafnyProjectConfigurationChanger {
                 writeConfig(fw, config);
 
                 while (token.getType() != DafnyLexer.EOF) {
-                    fw.write(token.toString());
+                    fw.write(token.getText());
                     token = lexer.nextToken();
                 }
             }
@@ -99,7 +100,7 @@ public class DafnyProjectConfigurationChanger {
 
         fw.write(ALGOVER_ESCAPE + " settings {\n");
 
-        boolean first = false;
+        boolean first = true;
         Map<String, String> settings = config.getSettings();
         for (Entry<String, String> entry : settings.entrySet()) {
             if (first) {
@@ -107,16 +108,16 @@ public class DafnyProjectConfigurationChanger {
             } else {
                 fw.write(",\n");
             }
-            fw.write(ALGOVER_ESCAPE + "    \"" + entry.getValue() + "\" = \"" + entry.getKey() + "\"");
+            fw.write(ALGOVER_ESCAPE + "    \"" + entry.getKey() + "\" = \"" + entry.getValue() + "\"");
         }
-        fw.write("\n" + ALGOVER_ESCAPE + "}\n");
+        fw.write("\n" + ALGOVER_ESCAPE + " }\n");
 
         for (File libFile : config.getLibFiles()) {
-            fw.write("include \"" + libFile + "\";\n");
+            fw.write(Util.duplicate(" ", ALGOVER_ESCAPE.length()) + " include \"" + libFile + "\";\n");
         }
 
         for (File dafnyFile : config.getDafnyFiles()) {
-            fw.write(ALGOVER_ESCAPE + "subsume \"" + dafnyFile + "\";\n");
+            fw.write(ALGOVER_ESCAPE + " subsume \"" + dafnyFile + "\";\n");
         }
 
         fw.write("// ---- End of settings ----\n\n");
