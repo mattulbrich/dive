@@ -16,6 +16,7 @@ import edu.kit.iti.algover.term.QuantTerm;
 import edu.kit.iti.algover.term.SchemaCaptureTerm;
 import edu.kit.iti.algover.term.SchemaOccurTerm;
 import edu.kit.iti.algover.term.SchemaTerm;
+import edu.kit.iti.algover.term.SchemaVarTerm;
 import edu.kit.iti.algover.term.Term;
 import edu.kit.iti.algover.term.TermVisitor;
 import edu.kit.iti.algover.term.VariableTerm;
@@ -140,6 +141,15 @@ public class AlphaNormalisation {
 
             return result;
         }
+
+        @Override
+        public ImmutableSet<Term> visitSchemaTerm(SchemaTerm schemaTerm, Void arg) throws NoExceptions {
+            ImmutableSet<Term> result = Immutables.emptySet();
+            for (Term subterm : schemaTerm.getSubterms()) {
+                result = result.addAll(subterm.accept(this, null));
+            }
+            return result;
+        }
     }
 
     private static class NameClashHandler extends ReplacementVisitor<ImmutableMap<VariableTerm, VariableTerm>> {
@@ -207,6 +217,31 @@ public class AlphaNormalisation {
                 return new LetTerm(newSubsts, matrix);
             } else {
                 return null;
+            }
+        }
+
+        @Override
+        public Term visit(SchemaVarTerm schemaVarTerm, ImmutableMap<VariableTerm, VariableTerm> arg) throws TermBuildException {
+            return null;
+        }
+
+        @Override
+        public Term visit(SchemaOccurTerm occurTerm, ImmutableMap<VariableTerm, VariableTerm> arg) throws TermBuildException {
+            Term inner = occurTerm.getTerm(0).accept(this, arg);
+            if (inner == null) {
+                return null;
+            } else {
+                return new SchemaOccurTerm(inner);
+            }
+        }
+
+        @Override
+        public Term visit(SchemaCaptureTerm captureTerm, ImmutableMap<VariableTerm, VariableTerm> arg) throws TermBuildException {
+            Term inner = captureTerm.getTerm(0).accept(this, arg);
+            if (inner == null) {
+                return null;
+            } else {
+                return new SchemaCaptureTerm(captureTerm.getName(), inner);
             }
         }
 
