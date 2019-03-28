@@ -11,7 +11,7 @@ import java.util.IdentityHashMap;
 import java.util.Map;
 import java.util.Objects;
 
-public class ImmutableLinearMap<K, V> {
+public class ImmutableLinearMap<K, V> implements ImmutableMap<K, V> {
 
     private static final Object REMOVED_INDICATOR = new Object();
 
@@ -24,16 +24,19 @@ public class ImmutableLinearMap<K, V> {
         this.data = list;
     }
 
+    @Override
     public ImmutableLinearMap<K, V> put(K key, V value) {
         Objects.nonNull(key);
         return new ImmutableLinearMap<K, V>(data.append(new Pair<>(key, value)));
     }
 
+    @Override
     public boolean containsKey(K key) {
         Pair<K, V> element = data.findLast(p -> p.fst.equals(key));
         return element != null && element.snd != removedIndicator();
     }
 
+    @Override
     public V get(K key) {
         Pair<K, V> element = data.findLast(p -> p.fst.equals(key));
         if(element != null) {
@@ -46,6 +49,7 @@ public class ImmutableLinearMap<K, V> {
         return null;
     }
 
+    @Override
     public ImmutableLinearMap<K, V> removeKey(K key) {
         if(!containsKey(key)) {
             return this;
@@ -70,7 +74,8 @@ public class ImmutableLinearMap<K, V> {
         return ImmutableLinearMap.<K,V>emptyMap().put(key, value);
     }
 
-    public ImmutableLinearMap<K,V> putAll(Map<K,V> map) {
+    @Override
+    public ImmutableLinearMap<K,V> putAll(Map<K, V> map) {
         ImmutableLinearMap<K, V> result = this;
         for (Map.Entry<K, V> entry : map.entrySet()) {
             result = result.put(entry.getKey(), entry.getValue());

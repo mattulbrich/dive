@@ -19,6 +19,10 @@ public class ImmutableLinearSet<T> implements ImmutableSet<T> {
 
     /*@ requires: data has no doubles */
     private ImmutableLinearSet(ImmutableList<T> data) {
+        if (data.size() > 50) {
+            // DEBUGGING ONLY!
+            System.out.println("Immutable set of size " + data.size());
+        }
         this.data = data;
     }
 
@@ -74,10 +78,20 @@ public class ImmutableLinearSet<T> implements ImmutableSet<T> {
     }
 
     @Override
-    public ImmutableSet<T> removeAll(Iterable<T> elements) {
-        List<T> toRemove = Util.toList(elements);
+    public ImmutableSet<T> removeAll(Iterable<? extends T> elements) {
+        List<? extends T> toRemove = Util.toList(elements);
         // possibly inefficient. ...
         return new ImmutableLinearSet<T>(data.filter(x -> !toRemove.contains(x)));
+    }
+
+    @Override
+    public <U, E extends Exception> ImmutableSet<U> map(FunctionWithException<T, U, E> function) throws E {
+        return new ImmutableLinearSet<>(data.map(function));
+    }
+
+    @Override
+    public <E extends Exception> boolean exists(FunctionWithException<T, Boolean, E> predicate) throws E {
+        return data.exists(predicate);
     }
 
     @Override

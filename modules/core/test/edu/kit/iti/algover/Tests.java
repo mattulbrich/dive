@@ -30,6 +30,7 @@ import edu.kit.iti.algover.rules.impl.QuantifierInstatiationTest;
 import edu.kit.iti.algover.rules.impl.SkolemizationTest;
 import edu.kit.iti.algover.symbex.FunctionObligationMakerTest;
 import edu.kit.iti.algover.symbex.SymbexExpressionValidatorTest;
+import edu.kit.iti.algover.term.builder.AlphaNormalisation;
 import edu.kit.iti.algover.term.builder.AlphaNormalisationTest;
 import edu.kit.iti.algover.term.builder.ParallelUpdateSequenterTest;
 import edu.kit.iti.algover.term.builder.ReplaceVisitorTest;
@@ -84,6 +85,7 @@ import edu.kit.iti.algover.util.UtilTest;
 //    DafnyTreeToDeclVisitorTest.class,
     ReferenceResolutionVisitorTest.class,
     TypeResolutionTest.class,
+    AlphaNormalisation.class,
     SortTest.class,
     ProjectTest.class,
         ProofTest.class,

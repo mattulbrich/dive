@@ -34,16 +34,14 @@ public class ProofFormula {
     /**
      * A proof formula may be tagged with labels
      */
-    private final @DeepNonNull
-    ImmutableList<String> labels;
+    private final @DeepNonNull ImmutableList<String> labels;
 
 
     public ProofFormula(Term formula, Iterable<String> labels) {
         this.formula = formula;
         this.labels = ImmutableList.from(labels);
         assert formula.getSort().isSubtypeOf(Sort.BOOL);
-        assert AlphaNormalisation.isNormalised(formula) :
-                "Formula " + formula + " is not normalised and cannot be put into a sequent.";
+        AlphaNormalisation.assertNormalised(formula);
     }
 
     public ProofFormula(Term formula, String... labels) {

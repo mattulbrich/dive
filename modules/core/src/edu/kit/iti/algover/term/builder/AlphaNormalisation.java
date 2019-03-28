@@ -8,22 +8,28 @@
 package edu.kit.iti.algover.term.builder;
 
 import de.uka.ilkd.pp.NoExceptions;
+import edu.kit.iti.algover.script.ast.Variable;
 import edu.kit.iti.algover.term.ApplTerm;
 import edu.kit.iti.algover.term.DefaultTermVisitor;
 import edu.kit.iti.algover.term.LetTerm;
+import edu.kit.iti.algover.term.QuantTerm;
+import edu.kit.iti.algover.term.SchemaCaptureTerm;
+import edu.kit.iti.algover.term.SchemaOccurTerm;
 import edu.kit.iti.algover.term.SchemaTerm;
 import edu.kit.iti.algover.term.Term;
+import edu.kit.iti.algover.term.TermVisitor;
 import edu.kit.iti.algover.term.VariableTerm;
-import edu.kit.iti.algover.util.ImmutableList;
+import edu.kit.iti.algover.util.ImmutableLinearMap;
+import edu.kit.iti.algover.util.ImmutableMap;
 import edu.kit.iti.algover.util.ImmutableSet;
 import edu.kit.iti.algover.util.Immutables;
+import edu.kit.iti.algover.util.Pair;
 import edu.kit.iti.algover.util.Util;
 import nonnull.NonNull;
 
-import java.util.IdentityHashMap;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
+import java.util.Objects;
 
 /**
  * The methods in this class can be used to make sure that a term has no
@@ -53,86 +59,177 @@ import java.util.Map.Entry;
  */
 public class AlphaNormalisation {
 
-    public static @NonNull Term normalise(@NonNull Term term) {
-        throw new Error("Not yet implemented. Implement this when needed");
+    public static @NonNull Term normalise(@NonNull Term term) throws TermBuildException {
+        NameClashHandler nd = new NameClashHandler(false);
+        return term.accept(nd, Immutables.emptyMap());
     }
 
     public static boolean isNormalised(@NonNull Term term) {
-        NameDetector nd = new NameDetector();
-        term.accept(nd, null);
-        for (Entry<LetTerm, ImmutableSet<Term>> en : nd.clashMap.entrySet()) {
-            LetTerm letTerm = en.getKey();
-            ImmutableSet<Term> clashCandidates = en.getValue();
-            List<VariableTerm> boundVars = Util.map(letTerm.getSubstitutions(), p -> p.fst);
-            for (VariableTerm boundVar : boundVars) {
-                if(hasClash(boundVar, clashCandidates)) {
-                    return false;
-                }
-            }
+        NameClashHandler nd = new NameClashHandler(true);
+        try {
+            term.accept(nd, Immutables.emptyMap());
+            return true;
+        } catch (TermBuildException e) {
+            return false;
         }
-        return true;
     }
 
-    private static boolean hasClash(VariableTerm var, ImmutableSet<Term> clashCandidates) {
-        String varStr = var.getName();
-        for (Term candidate : clashCandidates) {
-            String candStr = candidate.toString();
-            if (candStr.equals(varStr) && !candidate.equals(var)) {
-                return true;
+    public static void assertNormalised(@NonNull Term term) {
+        if(AlphaNormalisation.class.desiredAssertionStatus()) {
+            NameClashHandler nd = new NameClashHandler(true);
+            try {
+                term.accept(nd, Immutables.emptyMap());
+            } catch (TermBuildException e) {
+                throw new AssertionError("Term not normalised: " + term, e);
             }
         }
-        return false;
     }
 
+    private static class VariableViolation extends TermBuildException {
+        private final VariableTerm var;
 
-    private static class NameDetector extends
-            DefaultTermVisitor<Void, ImmutableSet<Term>, NoExceptions> {
+        public VariableViolation(VariableTerm var) {
+            super("Violation: " + var);
+            this.var = var;
+        }
 
-        private Map<LetTerm, ImmutableSet<Term>> clashMap = new IdentityHashMap<>();
+        public VariableTerm getVar() {
+            return var;
+        }
+    }
+
+    private static class UnboundNameDetector implements
+            TermVisitor<Void, ImmutableSet<Term>, NoExceptions> {
 
         @Override
-        protected ImmutableSet<Term> defaultVisit(Term term, Void arg) {
-            ImmutableSet<Term> result = Immutables.emptySet();
-            for (Term subterm : term.getSubterms()) {
-                result = result.addAll(subterm.accept(this, arg));
-            }
-            return result;
+        public ImmutableSet<Term> visit(VariableTerm variableTerm, Void arg) throws NoExceptions {
+            return Immutables.setOf(variableTerm);
         }
 
         @Override
-        public ImmutableSet<Term> visit(ApplTerm term, Void arg) {
-            ImmutableSet<Term> result = defaultVisit(term, arg);
-            if(term.countTerms() == 0) {
-                // it is a constant.
-                result = result.add(term);
-            }
-            return result;
+        public ImmutableSet<Term> visit(QuantTerm quantTerm, Void arg) throws NoExceptions {
+            ImmutableSet<Term> matrixNames = quantTerm.getTerm(0).accept(this, null);
+            return matrixNames.remove(quantTerm.getBoundVar());
         }
 
         @Override
-        public ImmutableSet<Term> visit(VariableTerm term, Void arg) {
-            return Immutables.setOf(term);
-        }
-
-        @Override
-        public ImmutableSet<Term> visit(LetTerm term, Void arg) {
-
-            ImmutableSet<Term> result = Immutables.emptySet();
-            int termNo = 0;
-            for (Term subterm : term.getSubterms()) {
-                result = result.addAll(subterm.accept(this, arg));
-                if(termNo == 0) {
-                    result = result.removeAll(Util.map(term.getSubstitutions(), x->x.fst));
-                    clashMap.put(term, result);
+        public ImmutableSet<Term> visit(ApplTerm applTerm, Void arg) throws NoExceptions {
+            if (applTerm.countTerms() == 0) {
+                return Immutables.setOf(applTerm);
+            } else {
+                ImmutableSet<Term> result = Immutables.emptySet();
+                for (Term subterm : applTerm.getSubterms()) {
+                    result = result.addAll(subterm.accept(this, null));
                 }
-                termNo ++;
+                return result;
             }
-            return result;
         }
 
         @Override
-        public ImmutableSet<Term> visitSchemaTerm(SchemaTerm schemaTerm, Void arg) {
-            return defaultVisit(schemaTerm, arg);
+        public ImmutableSet<Term> visit(LetTerm letTerm, Void arg) throws NoExceptions {
+
+            ImmutableSet<Term> result = Immutables.emptySet();
+            for (Pair<VariableTerm, Term> subst : letTerm.getSubstitutions()) {
+                result = result.addAll(subst.snd.accept(this, null));
+            }
+
+            ImmutableSet<Term> matrixResult = letTerm.getTerm(0).accept(this, null);
+            matrixResult = matrixResult.removeAll(Util.map(letTerm.getSubstitutions(), Pair::getFst));
+
+            result = result.addAll(matrixResult);
+
+            return result;
+        }
+    }
+
+    private static class NameClashHandler extends ReplacementVisitor<ImmutableMap<VariableTerm, VariableTerm>> {
+
+        private final boolean detectOnly;
+        private final UnboundNameDetector detector = new UnboundNameDetector();
+
+        private NameClashHandler(boolean detectOnly) {
+            this.detectOnly = detectOnly;
+        }
+
+        @Override
+        public Term visit(VariableTerm term, ImmutableMap<VariableTerm, VariableTerm> replacements) {
+            return replacements.get(term);
+        }
+
+        @Override
+        public Term visit(QuantTerm quantTerm, ImmutableMap<VariableTerm, VariableTerm> replacements) throws TermBuildException {
+            VariableTerm boundVar = quantTerm.getBoundVar();
+            ImmutableSet<Term> unbounds = quantTerm.getTerm(0).accept(detector, null);
+            unbounds = unbounds.remove(boundVar);
+            VariableTerm newBoundVar = mkNewVar(boundVar, unbounds);
+            if (newBoundVar == boundVar) {
+                return super.visit(quantTerm, replacements);
+            } else {
+                // There is a name clash!
+                Term matrix = quantTerm.getTerm(0).accept(this, replacements.put(boundVar, newBoundVar));
+                return new QuantTerm(quantTerm.getQuantifier(), newBoundVar, matrix);
+            }
+        }
+
+        @Override
+        public Term visit(LetTerm letTerm, ImmutableMap<VariableTerm, VariableTerm> arg) throws TermBuildException {
+            ImmutableSet<Term> unbounds = letTerm.getTerm(0).accept(detector, null);
+            unbounds = unbounds.removeAll(Util.map(letTerm.getSubstitutions(), Pair::getFst));
+
+            List<Pair<VariableTerm, Term>> newSubsts = new ArrayList<>();
+            ImmutableMap<VariableTerm, VariableTerm> innerReplacements = arg;
+            boolean changed = false;
+            for (Pair<VariableTerm, Term> subst : letTerm.getSubstitutions()) {
+                VariableTerm newVar = mkNewVar(subst.getFst(), unbounds);
+                if (newVar != subst.fst) {
+                    changed = true;
+                    innerReplacements = innerReplacements.put(subst.fst, newVar);
+                }
+
+                Term newAssignment = subst.snd.accept(this, arg);
+                if (newAssignment == null) {
+                    newAssignment = subst.snd;
+                } else {
+                    changed = true;
+                }
+
+                newSubsts.add(new Pair<>(newVar, newAssignment));
+            }
+
+            Term matrix = letTerm.getTerm(0).accept(this, innerReplacements);
+            if (matrix == null) {
+                matrix = letTerm.getTerm(0);
+            } else {
+                changed = true;
+            }
+
+            if (changed) {
+                return new LetTerm(newSubsts, matrix);
+            } else {
+                return null;
+            }
+        }
+
+        private VariableTerm mkNewVar(VariableTerm var, ImmutableSet<Term> unboundedTerms) throws VariableViolation {
+
+            ImmutableSet<String> names = unboundedTerms.map(Objects::toString);
+            String orgName = var.getName();
+            if (names.contains(orgName)) {
+                if (detectOnly) {
+                    throw new VariableViolation(var);
+                }
+               int index = 1;
+               String name = orgName + "_" + index;
+               while(names.contains(name)) {
+                   index++;
+                   name = orgName + "_" + index;
+               }
+                return new VariableTerm(name, var.getSort());
+            } else {
+                // there is no clash ...
+                return var;
+            }
+
         }
     }
 }

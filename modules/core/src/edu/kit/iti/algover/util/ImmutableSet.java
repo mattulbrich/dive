@@ -19,12 +19,14 @@ public interface ImmutableSet<T> extends Iterable<T> {
 
     ImmutableSet<T> remove(T element);
 
-    ImmutableSet<T> removeAll(Iterable<T> elements);
+    ImmutableSet<T> removeAll(Iterable<? extends T> elements);
+
+    <U, E extends Exception> ImmutableSet<U> map(FunctionWithException<T, U, E> function) throws E;
 
     // <E extends Exception> ImmutableSet<T> filter(FunctionWithException<T, Boolean, E> filter) throws E;
 
     // <E extends Exception> boolean forall(FunctionWithException<T, Boolean, E> predicate) throws E;
 
-    // <E extends Exception> boolean exists(FunctionWithException<T, Boolean, E> predicate) throws E;
+    <E extends Exception> boolean exists(FunctionWithException<T, Boolean, E> predicate) throws E;
 
 }

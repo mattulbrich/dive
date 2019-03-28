@@ -11,6 +11,11 @@ import edu.kit.iti.algover.term.Term;
 import edu.kit.iti.algover.term.VariableTerm;
 
 public class Immutables {
+
+    public static <K,V> ImmutableMap<K,V> emptyMap() {
+        return ImmutableLinearMap.emptyMap();
+    }
+
     public static <T> ImmutableSet<T> emptySet() {
         return ImmutableLinearSet.emptySet();
     }

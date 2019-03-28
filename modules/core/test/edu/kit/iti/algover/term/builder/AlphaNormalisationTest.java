@@ -39,71 +39,22 @@ public class AlphaNormalisationTest {
     private static final TermVisitor<Void, Term, TermBuildException> UNDERSCORE_REMOVER =
             new ReplacementVisitor<Void>() {
                 @Override
-                public Term visit(LetTerm letTerm, Void arg) throws TermBuildException {
-                    List<Pair<VariableTerm, Term>> subs = letTerm.getSubstitutions();
-                    List<Pair<VariableTerm, Term>> newSubs = null;
-                    int cnt = 0;
-                    for (Pair<VariableTerm, Term> sub : subs) {
-                        VariableTerm var = sub.fst;
-                        if (var.getName().startsWith("X")) {
-                            var = new VariableTerm(var.getName().substring(1), var.getSort());
-                        } else {
-                            var = null;
-                        }
-                        Term val = sub.snd.accept(this, null);
-                        if(var != null || val != null || newSubs != null) {
-                            if (var == null) {
-                                var = sub.fst;
-                            }
-                            if (val == null) {
-                                val = sub.snd;
-                            }
-                            if (newSubs == null) {
-                                newSubs = new ArrayList<>(subs);
-                            }
-                            newSubs.set(cnt, new Pair<>(var, val));
-                        }
-                        cnt ++;
-                    }
-
-                    Term inner = letTerm.getTerm(0).accept(this, null);
-                    if (inner != null || newSubs != null) {
-                        if (inner == null ) {
-                            inner = letTerm.getTerm(0);
-                        }
-                        if (newSubs == null) {
-                            newSubs = subs;
-                        }
-                        return new LetTerm(newSubs, inner);
-                    }
-
-                    return null;
+                public Term visit(VariableTerm v, Void arg) throws TermBuildException {
+                    return visitBoundVariable(v, arg);
                 }
 
                 @Override
-                public Term visit(VariableTerm v, Void arg) throws TermBuildException {
+                public VariableTerm visitLetTarget(VariableTerm x, Void arg) throws TermBuildException {
+                    return visitBoundVariable(x, arg);
+                }
+
+                @Override
+                public VariableTerm visitBoundVariable(VariableTerm v, Void arg) throws TermBuildException {
                     if (v.getName().startsWith("X")) {
-                        return new VariableTerm(v.getName().substring(1), v.getSort());
+                        return new VariableTerm(v.getName().replaceAll("X", ""), v.getSort());
                     } else {
                         return null;
                     }
-                }
-
-                @Override
-                public Term visit(QuantTerm q, Void arg) throws TermBuildException {
-                    VariableTerm var = q.getBoundVar();
-                    VariableTerm newvar = (VariableTerm) var.accept(this, null);
-                    Term matrix = q.getTerm(0).accept(this, null);
-                    if (newvar != null || matrix != null) {
-                        if(newvar == null) {
-                            newvar = var;
-                        }
-                        if (matrix == null) {
-                            matrix = q.getTerm(0);
-                        }
-                        return new QuantTerm(q.getQuantifier(), newvar, matrix);
-                    }
-                    return null;
                 }
             };
 
@@ -112,8 +63,17 @@ public class AlphaNormalisationTest {
     public String[][] parametersForTestNormalise() {
         return new String[][] {
                 { "let Xx := 3 :: Xx + x" , "let x_1 := 3 :: x_1 + x" },
-                { "let Xx := 3 :: let Xx := 5 :: Xx + x" , "let x_1 := let x_1 := 3 :: x_1 + x" },
+                { "let Xx := 3 :: let Xx := 5 :: Xx + x" , "let x_1 := 3 :: let x_1 := 5 :: x_1 + x" },
                 { "(let Xx := 3 :: Xx + x) + (let Xx := 3 :: Xx)" , "(let x_1 := 3 :: x_1 + x) + (let x := 3 :: x)" },
+                { "forall Xx :: Xx > x", "forall x_1 :: x_1 > x" },
+                { "forall Xy:int :: forall y:bool :: (y == true && Xy == 5)",
+                  "forall y:int :: forall y_1:bool :: (y_1 == true && y == 5)" },
+                { "let Xx := 3 :: let Xx := Xx+1 :: Xx==x",
+                  "let x_1 := 3 :: let x_1 := x_1+1 :: x_1==x" },
+                { "let Xy := 3 :: let y := true :: y && Xy > 0",
+                  "let y := 3 :: let y_1 := true :: y_1 && y > 0" },
+                { "let XXXx := [1] :: let XXx := true :: let Xx := 1 :: XXXx[Xx] == x && XXx",
+                  "let x_1 := [1] :: let x_2 := true :: let x_3 := 1 :: x_1[x_3] == x && x_2" },
         };
     }
 
@@ -123,6 +83,9 @@ public class AlphaNormalisationTest {
                 { "let Xx := 3 :: Xx + x" , false },
                 { "let x := true :: let x:= 5 :: x > 0" , true },
                 { "let Xx := true :: let x:= 5 :: Xx && x > 0" , false },
+                { "forall Xx :: Xx == x", false },
+                { "(forall Xx :: Xx == 5) && x==1", true },
+                { "let XXXx := [1] :: let XXx := true :: let Xx := 1 :: XXXx[Xx] == x && XXx", false },
                 };
     }
 
@@ -133,15 +96,17 @@ public class AlphaNormalisationTest {
         table.addFunctionSymbol(new FunctionSymbol("f", Sort.INT, Sort.INT));
     }
 
-    @Test @Parameters @Ignore
+    @Test @Parameters
     public void testNormalise(String input, String expected) throws Exception {
         Term term = TermParser.parse(table, input);
         term = term.accept(UNDERSCORE_REMOVER, null);
+
 
         Term result = AlphaNormalisation.normalise(term);
         Term expectedTerm = TermParser.parse(table, expected);
 
         assertEquals("Alpha conversion for " + term.toString(), expectedTerm, result);
+        assertTrue(AlphaNormalisation.isNormalised(result));
     }
 
     @Test @Parameters
