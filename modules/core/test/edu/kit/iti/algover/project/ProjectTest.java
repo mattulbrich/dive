@@ -82,7 +82,7 @@ public class ProjectTest {
         String value = testSettings.getString(ProjectSettings.DAFNY_TIMEOUT);
         assertEquals(24, Integer.parseInt(value));
         assertEquals(24, testSettings.getInt(ProjectSettings.DAFNY_TIMEOUT));
-        assertEquals(true, testSettings.getBoolean(ProjectSettings.SYMBEX_UNROLL_LOOPS));
+       // assertEquals(true, testSettings.getBoolean(ProjectSettings.SYMBEX_UNROLL_LOOPS));
     }
 
     @SuppressWarnings({"rawtypes", "unchecked"})

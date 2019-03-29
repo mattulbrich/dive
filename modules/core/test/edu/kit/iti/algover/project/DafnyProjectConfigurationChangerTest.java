@@ -63,7 +63,7 @@ public class DafnyProjectConfigurationChangerTest {
 
         Map<String, String> map = new HashMap<>();
         map.put(ProjectSettings.DAFNY_TIMEOUT, "100");
-        map.put(ProjectSettings.SYMBEX_UNROLL_LOOPS, "true");
+      //  map.put(ProjectSettings.SYMBEX_UNROLL_LOOPS, "true");
         c.setSettings(map);
 
         DafnyProjectConfigurationChanger.saveConfiguration(c, tmpFile);

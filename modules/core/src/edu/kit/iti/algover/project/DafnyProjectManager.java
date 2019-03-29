@@ -202,6 +202,14 @@ public class DafnyProjectManager extends AbstractProjectManager {
 
     @Override
     public Configuration getConfiguration() {
-        return getProject().getConfiguration();
+        Configuration c =  getProject().getConfiguration();
+        c.setBaseDir(getProject().getBaseDir());
+        c.setMasterFile(this.masterFile);
+        return c;
+    }
+
+    @Override
+    public void updateProject(Configuration config) {
+//TODO
     }
 }

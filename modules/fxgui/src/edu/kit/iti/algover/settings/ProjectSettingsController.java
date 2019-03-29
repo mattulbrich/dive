@@ -1,13 +1,15 @@
 package edu.kit.iti.algover.settings;
 
-import com.jfoenix.controls.JFXButton;
 import com.jfoenix.controls.JFXListView;
+import com.jfoenix.controls.JFXRadioButton;
 import com.sun.javafx.collections.ObservableListWrapper;
 import edu.kit.iti.algover.dafnystructures.DafnyFile;
 import edu.kit.iti.algover.project.*;
 import edu.kit.iti.algover.util.*;
 import javafx.application.Platform;
 import javafx.beans.property.SimpleObjectProperty;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -55,25 +57,42 @@ public class ProjectSettingsController implements ISettingsController {
     private TextField configFileName;
 
     @FXML
+    private TextField masterFileName;
+
+    @FXML
     private JFXListView<File> dafnyFiles;
 
     @FXML
     private JFXListView<File> libFiles;
 
     @FXML
-    private JFXButton addDafnyFilesButton;
+    private Button addDafnyFilesButton;
 
     @FXML
-    private JFXButton delDafnyFilesButton;
+    private Button delDafnyFilesButton;
 
     @FXML
-    private JFXButton addLibFilesButton;
+    private Button addLibFilesButton;
 
     @FXML
-    private JFXButton delLibFilesButton;
+    private Button delLibFilesButton;
 
     @FXML
     private CheckBox saveOption;
+
+    @FXML
+    private Button fileChooserButton;
+
+    @FXML
+    private Button newDafnyFileButton;
+
+    @FXML
+    private JFXRadioButton xmlFormat;
+
+    @FXML
+    private JFXRadioButton dfyFormat;
+
+    private ToggleGroup formatButtonsGroup;
 
     private SimpleObjectProperty<Configuration> config = new SimpleObjectProperty<>(new Configuration(), "Configuration");
 
@@ -102,9 +121,26 @@ public class ProjectSettingsController implements ISettingsController {
         }
         settingsPanel.setUserData(NAME);
 
+        //ToggleGroup
+        formatButtonsGroup = new ToggleGroup();
+        xmlFormat.setToggleGroup(formatButtonsGroup);
+        xmlFormat.setUserData("XML");
+        dfyFormat.setToggleGroup(formatButtonsGroup);
+        dfyFormat.setUserData("DAFNY");
+        formatButtonsGroup.selectedToggleProperty().addListener(new ChangeListener<Toggle>() {
+            @Override
+            public void changed(ObservableValue<? extends Toggle> observable, Toggle oldValue, Toggle newValue) {
+                if (newValue.isSelected()) {
+                    String userData = (String) newValue.getUserData();
+                    saveAsXML = userData.equals("XML");
+                    System.out.println(saveAsXML);
+                }
+            }
+        });
+
         addProjectContents();
         addCellFactories();
-        addValidationSupport();
+
         this.config.addListener((observable, oldValue, newValue) -> {
             if(newValue != null) {
                 addProjectContents();
@@ -120,47 +156,40 @@ public class ProjectSettingsController implements ISettingsController {
         this(new Configuration());
     }
 
-    private void addValidationSupport() {
-        Platform.runLater(() -> {
-           //  validationSupport.registerValidator(projectPath, true, XXX);
-            //validationSupport.registerValidator(configFileName, true, getValidatorForType(InputType.FILE));
-        });
-    }
-
 
 
     /**
-     * Add contents to the SettingsView
+     * Add contents to the SettingsView according to set configuration
      */
     private void addProjectContents() {
-        if(manager.get() != null) {
-            Project p = manager.get().getProject();
-            this.configFileName.setText(manager.get().getName());
+        if(configProperty().get() != null) {
 
-            File baseDir = p.getBaseDir();
+            this.configFileName.setText(getConfig().getConfigFile());
+            File baseDir = getConfig().getBaseDir();
             this.projectPath.setText(baseDir.toString());
 
-            //add Dafnyfiles
-            List<DafnyFile> allDafnyFiles = p.getDafnyFiles();
-            List<DafnyFile> libs = allDafnyFiles.stream().filter(dafnyFile -> dafnyFile.isInLibrary()).collect(Collectors.toList());
-            List<DafnyFile> otherDafnyFiles = allDafnyFiles.stream().filter(dafnyFile -> !dafnyFile.isInLibrary()).collect(Collectors.toList());
+            //if we have an existing project, the base directory should not be editable
+            if(baseDir.exists()){
+                this.projectPath.setEditable(false);
+                this.fileChooserButton.setDisable(true);
+            }
 
-            this.dafnyFiles.getItems().addAll(otherDafnyFiles.stream().map(dafnyFile -> dafnyFileToFile(dafnyFile)).collect(Collectors.toList()));
+            List<File> libs = getConfig().getLibFiles();
+            List<File> dafnyFiles = getConfig().getDafnyFiles();
 
-            this.libFiles.getItems().addAll(
-                    libs.stream().map(dafnyFile -> dafnyFileToFile(dafnyFile)).collect(Collectors.toList()));
+            this.dafnyFiles.getItems().addAll(dafnyFiles);
+            this.libFiles.getItems().addAll(libs);
 
             //add settings
-            ProjectSettings settings = p.getSettings();
+            Map<String, String> settings = getConfig().getSettings();
             HashMap<String, String> newSettings = new HashMap<>();
             for (Property property : ProjectSettings.getDefinedProperties()) {
-                newSettings.put(property.key, settings.getString(property.key));
+                newSettings.put(property.key, settings.get(property.key));
             }
             currentSettings = newSettings;
-            createSettingsFields();
-        } else {
-            createSettingsFields();
+
         }
+        createSettingsFields();
     }
 
     /**
@@ -224,6 +253,7 @@ public class ProjectSettingsController implements ISettingsController {
                     choiceBox.setValue(value);
                 }
                 projectConfigSettings.getChildren().add(choiceBox);
+                choiceBox.setTooltip(new HTMLToolTip(property.helpText));
                 validators.add(new Pair<>(() -> choiceBox.getValue(), property));
             } else {
                 TextField textField = new TextField();
@@ -231,19 +261,8 @@ public class ProjectSettingsController implements ISettingsController {
                 if(value != null) {
                     textField.setText(value);
                 }
-               /* textField.textProperty().addListener((observable, oldValue, newValue) -> {
-                    try{
-                        if(property.validator != null && !newValue.isEmpty()) {
-                            property.validator.validate(newValue);
-                        }
-                        textField.setTooltip(null);
-                        textField.setStyle(null);
-                    } catch(FormatException ex) {
-                        textField.setTooltip(new Tooltip(ex.getMessage()));
-                        textField.setStyle("-fx-background-color:red;");
-                    }
-                });*/
                 projectConfigSettings.getChildren().add(textField);
+                textField.setTooltip(new Tooltip(property.helpText));
                 Pair<Supplier<String>, Property> e = new Pair<>(() -> textField.getText(), property);
                 Platform.runLater(() -> { validationSupport.registerValidator(textField, new SettingsValidatorAdapter(e.snd.validator));});
                 validators.add(e);
@@ -357,7 +376,16 @@ public class ProjectSettingsController implements ISettingsController {
         saveAsXML = saveOption.isSelected();
     }
 
+    @FXML
+    private void createNewDafnyFile(){}
+
+    @FXML
+    private void openFileChooser(){}
+
+    JFXRadioButton rb = new JFXRadioButton();
+
     private void addItemToList(ListView<File> list, String title){
+
         FileChooser chooser = new FileChooser();
         chooser.setTitle("Select a "+title);
         File initialDir;

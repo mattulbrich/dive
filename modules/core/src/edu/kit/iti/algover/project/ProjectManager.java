@@ -138,4 +138,10 @@ public interface ProjectManager {
      * @return a configuration object
      */
     @NonNull Configuration getConfiguration();
+
+    /**
+     * Update project settings acc. to configuration
+     * @param config
+     */
+    void updateProject(@NonNull Configuration config);
 }
