@@ -15,6 +15,7 @@ import edu.kit.iti.algover.settings.SettingsFactory;
 import edu.kit.iti.algover.util.FormatException;
 import javafx.application.Application;
 import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.Scene;
@@ -23,10 +24,16 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
+import javafx.scene.web.WebEngine;
+import javafx.scene.web.WebView;
+import javafx.stage.DirectoryChooser;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.ExecutorService;
@@ -66,28 +73,41 @@ public class AlgoVerApplication extends Application {
         primaryStage.setTitle("AlgoVer");
 
         BorderPane pane = new BorderPane();
-        pane.setPrefSize(400.0,200.0);
+        pane.setPrefSize(200.0,200.0);
         VBox vbox= new VBox();
         vbox.setSpacing(50);
         vbox.setAlignment(Pos.CENTER);
         HBox buttonBox = new HBox();
-        buttonBox.setAlignment(Pos.BASELINE_CENTER);
+        buttonBox.setAlignment(Pos.CENTER);
         buttonBox.setSpacing(50);
-        String text = "Welcome to AlgoVer \n A seamless verification system for Dafny programs.\n";
-        Label welcomeText = new Label(text);
+
+        String text = "<h1>Welcome to AlgoVer</h1> " +
+                "<p>A seamless verification system for Dafny programs created at Karlsruhe Institute of Technology (KIT)." +
+                "</p><br>" ;
+//                "<p> For more information on the Dafny langauage visit " +
+//                "<a href=\"https://www.microsoft.com/en-us/research/project/dafny-a-language-and-program-verifier-for-functional-correctness/\">Microsoft's Dafny-Webpage</a>." +
+//                "For more information on special Dafny support visit TODO";
+        WebView webView = new WebView();
+        WebEngine engine = webView.getEngine();
+        engine.loadContent(text);
+
 
         //Buttons
-        JFXButton openFileChooser = new JFXButton("Open existing project");
-        openFileChooser.setButtonType(JFXButton.ButtonType.RAISED);
+        Button openFileChooser = new Button("Open existing project");
         openFileChooser.setOnAction(this::handleFileChooserAction);
+        openFileChooser.setPrefHeight(buttonBox.getHeight());
 
-        JFXButton createProject = new JFXButton("Create new project");
-        createProject.setButtonType(JFXButton.ButtonType.RAISED);
+        Button createProject = new Button("Create new project");
         createProject.setOnAction(this::createNewProjectHandler);
+        createProject.setPrefHeight(buttonBox.getHeight());
 
+        Button openEmptyProject = new Button("Create empty project");
+        openEmptyProject.setOnAction(handleEmptyProjectCreation(primaryStage));
+        openEmptyProject.setPrefHeight(buttonBox.getHeight());
 
-        buttonBox.getChildren().addAll(createProject, openFileChooser);
-        vbox.getChildren().addAll(welcomeText, buttonBox);
+        buttonBox.setSpacing(30);
+        buttonBox.getChildren().addAll(openEmptyProject, createProject, openFileChooser);
+        vbox.getChildren().addAll(webView, buttonBox);
         pane.setCenter(vbox);
 
         primaryStage.setScene(new Scene(pane));
@@ -96,6 +116,46 @@ public class AlgoVerApplication extends Application {
         primaryStage.show();
 
 
+    }
+
+    private EventHandler<ActionEvent> handleEmptyProjectCreation(Stage primaryStage) {
+        return event -> {
+            DirectoryChooser dirChooser = new DirectoryChooser();
+
+            dirChooser.setInitialDirectory(new File("doc/examples/"));
+            dirChooser.setTitle("Select directory");
+            //first select a directory
+            File file = dirChooser.showDialog(primaryStage);
+
+
+            if(file != null){
+                System.out.println("file = " + file);
+                //then a filename
+                TextInputDialog dialog = new TextInputDialog("program.dfy");
+                dialog.setTitle("Dafny file name");
+                dialog.setHeaderText("Dafny file name");
+                dialog.setContentText("Please enter the name for the empty Dafny file");
+                Optional<String> filename = dialog.showAndWait();
+
+                if (filename.isPresent()){
+                    String s = file.getAbsolutePath() + File.separator + filename.get();
+                    Path dfyMasterFile = null;
+                    try {
+                        dfyMasterFile = Files.createFile(Paths.get(s));
+                        File file1 = dfyMasterFile.toFile();
+                        DafnyProjectManager manager = new DafnyProjectManager(file1);
+                        createAndExecuteMainController(file1, manager);
+                    } catch (IOException e) {
+                            e.printStackTrace();
+                        } catch (DafnyParserException e) {
+                            e.printStackTrace();
+                        }
+                    }
+
+
+            }
+
+        };
     }
 
 
@@ -113,35 +173,17 @@ public class AlgoVerApplication extends Application {
             scrollPane.setFitToWidth(true);
             //scrollPane.setFitToHeight(true);
             scrollPane.setContent(collect.get().getNode());
+
             configPane.setCenter(scrollPane);
             //Buttons
             ButtonBar buttonBar = new ButtonBar();
-            JFXButton applyConfig = new JFXButton("Create Configuration");
-            applyConfig.setButtonType(JFXButton.ButtonType.RAISED);
+            Button applyConfig = new Button("Create Configuration");
             ButtonBar.setButtonData(applyConfig, ButtonBar.ButtonData.APPLY);
             applyConfig.setOnAction(event -> {
-                if(!config.isSaveAsXML()){
-                    try {
-                        DafnyProjectConfigurationChanger.saveConfiguration(config, config.getMasterFile());
-                        createAndExecuteMainController(config.getMasterFile(), new DafnyProjectManager(config.getMasterFile()));
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    } catch (DafnyParserException e) {
-                        e.printStackTrace();
-                    }
-
-                } else {
-                    try {
-                        XMLProjectManager.saveConfiguration(config);
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                    System.out.println("configBaseDir = " + config.getBaseDir());
-                }
+                collect.get().save();
             });
 
-            JFXButton cancelButton = new JFXButton("Cancel");
-            cancelButton.setButtonType(JFXButton.ButtonType.RAISED);
+            Button cancelButton = new Button("Cancel");
             cancelButton.setOnAction(event ->
             {
                 createAndShowWelcomePane(substage);

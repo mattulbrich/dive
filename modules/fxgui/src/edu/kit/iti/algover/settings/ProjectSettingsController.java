@@ -275,38 +275,45 @@ public class ProjectSettingsController implements ISettingsController {
 
 
     /**
-     * Save current configuration and request for reloading project
+     * Save current configuration. TODO request for reloading project
      * @author M.Ulbrich
-     * @modfied S.Grebing
+     * @modified S.Grebing
      *
      */
     @Override
     public void save() {
+
         String pathText = projectPath.getText();
 
-        Configuration newConfig = new Configuration();
-        newConfig.setDafnyFiles(dafnyFiles.getItems());
-        newConfig.setLibFiles(libFiles.getItems());
+        getConfig().setDafnyFiles(this.dafnyFiles.getItems());
+        getConfig().setLibFiles(this.libFiles.getItems());
 
         Map<String, String> newProperties = new HashMap<>();
         for (Pair<Supplier<String>, Property> value : validators) {
                 String v = value.fst.get();
-                if(!v.trim().isEmpty()) {
-                    newProperties.put(value.snd.key, v);
+                if(v != null) {
+                    if (!v.trim().isEmpty()) {
+                        newProperties.put(value.snd.key, v);
+                    }
+                } else {
+                   Logger.getGlobal().severe("Saving unsuccessfull, please select "+ value.getSnd().key+ " and try saving again.");
                 }
         }
 
-        newConfig.setSettings(newProperties);
+        getConfig().setSettings(newProperties);
         File baseDir = new File(pathText);
+        getConfig().setBaseDir(baseDir);
         if(saveAsXML){
             try {
                 String property = System.getProperty("file.separator");
-                File filename = new File(baseDir + property + configFileName);
-                if(filename.exists()){
-                //TODO
-                }
-                ConfigXMLLoader.saveConfigFile(newConfig, filename);
+                File filename = new File(baseDir + property + this.configFileName.getText());
+                getConfig().setConfigFile(this.configFileName.getText());
+                ConfigXMLLoader.saveConfigFile(getConfig(), filename);
+                manager.get().saveProject();
             } catch (JAXBException e) {
+                Logger.getGlobal().warning("Could not save configuration file");
+               e.printStackTrace();
+            } catch (IOException e) {
                 Logger.getGlobal().warning("Could not save configuration file");
                 e.printStackTrace();
             }
@@ -317,6 +324,7 @@ public class ProjectSettingsController implements ISettingsController {
                 Logger.getGlobal().severe("Error saving project settings");
             }
         }
+
 
 
     }

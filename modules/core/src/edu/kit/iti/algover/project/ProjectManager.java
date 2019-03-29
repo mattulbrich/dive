@@ -144,4 +144,10 @@ public interface ProjectManager {
      * @param config
      */
     void updateProject(@NonNull Configuration config);
+
+    /**
+     * Save the current project information
+     * @throws IOException
+     */
+    //void saveProject() throws IOException;
 }
