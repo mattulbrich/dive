@@ -5,6 +5,7 @@
  */
 package edu.kit.iti.algover.project;
 
+import com.sun.xml.internal.ws.policy.privateutil.PolicyUtils;
 import edu.kit.iti.algover.parser.DafnyException;
 import edu.kit.iti.algover.parser.DafnyParserException;
 import edu.kit.iti.algover.proof.PVC;
@@ -15,15 +16,16 @@ import edu.kit.iti.algover.util.Util;
 import org.xml.sax.SAXException;
 
 import javax.xml.bind.JAXBException;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.Writer;
+import java.io.*;
+import java.nio.ByteBuffer;
+import java.nio.channels.SeekableByteChannel;
+import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.logging.Logger;
 
 /**
  * A project manager that receives a directory and a config.xml file for
@@ -106,20 +108,6 @@ public final class XMLProjectManager extends AbstractProjectManager {
         }
 
         Project result = pb.build();
-
-        // This is already performed in build()!!
-        // That's why I removed it.
-//        ArrayList<DafnyException> exceptions = new ArrayList<>();
-//        ReferenceResolutionVisitor refResolver = new ReferenceResolutionVisitor(result, exceptions);
-//        refResolver.visitProject();
-//
-//        TypeResolution typeRes = new TypeResolution(exceptions);
-//        typeRes.visitProject(result);
-//
-//        if(!exceptions.isEmpty()) {
-//            // TODO ->MU: Is it wise to only return the first exception?
-//            throw exceptions.get(0);
-//        }
 
         return result;
     }
@@ -245,5 +233,51 @@ public final class XMLProjectManager extends AbstractProjectManager {
 
     public File getDirectory() {
         return directory;
+    }
+
+    public void saveCurrentConfiguration() throws IOException {
+        saveConfiguration(this.getConfiguration());
+    }
+
+    /**
+     * Write a configuration to the XML file specified in the configuration object
+     * @param config
+     */
+    public static void saveConfiguration(Configuration config) throws IOException {
+        File baseDir = config.getBaseDir();
+        String configFile = config.getConfigFile();
+        try {
+
+            Path configXML = Paths.get(baseDir + File.separator + configFile);
+            if (baseDir.exists() && configFile.endsWith(".xml")) {
+                Path file;
+                if(!configXML.toFile().exists()) {
+                    file = Files.createFile(configXML);
+                } else {
+                    file = configXML;
+                }
+
+                String content = ConfigXMLLoader.toString(config);
+                System.out.println("content = " + content);
+
+
+                BufferedWriter writer = Files.newBufferedWriter(file, Charset.forName("UTF-8"));
+                writer.write(content);
+
+/*                byte[] data = content.getBytes();
+                ByteBuffer bb = ByteBuffer.wrap(data);
+                SeekableByteChannel sbc = Files.newByteChannel(file);
+                sbc.write(bb);*/
+            } else {
+                throw new IOException(baseDir+" does not exist");
+            }
+        } catch (JAXBException e) {
+            e.printStackTrace();
+            throw new IOException(e);
+
+        } catch (IOException e) {
+            Logger.getGlobal().severe("Was not able to create file "+  baseDir+ File.separator + configFile);
+           throw(e);
+        }
     }
 }

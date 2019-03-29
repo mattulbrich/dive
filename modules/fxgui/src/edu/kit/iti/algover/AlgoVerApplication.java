@@ -7,10 +7,7 @@ package edu.kit.iti.algover;
 
 import com.jfoenix.controls.JFXButton;
 import edu.kit.iti.algover.parser.DafnyParserException;
-import edu.kit.iti.algover.project.Configuration;
-import edu.kit.iti.algover.project.DafnyProjectManager;
-import edu.kit.iti.algover.project.ProjectManager;
-import edu.kit.iti.algover.project.XMLProjectManager;
+import edu.kit.iti.algover.project.*;
 import edu.kit.iti.algover.settings.GeneralSettingsController;
 import edu.kit.iti.algover.settings.ISettingsController;
 import edu.kit.iti.algover.settings.ProjectSettingsController;
@@ -123,12 +120,32 @@ public class AlgoVerApplication extends Application {
             applyConfig.setButtonType(JFXButton.ButtonType.RAISED);
             ButtonBar.setButtonData(applyConfig, ButtonBar.ButtonData.APPLY);
             applyConfig.setOnAction(event -> {
+                if(!config.isSaveAsXML()){
+                    try {
+                        DafnyProjectConfigurationChanger.saveConfiguration(config, config.getMasterFile());
+                        createAndExecuteMainController(config.getMasterFile(), new DafnyProjectManager(config.getMasterFile()));
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    } catch (DafnyParserException e) {
+                        e.printStackTrace();
+                    }
 
+                } else {
+                    try {
+                        XMLProjectManager.saveConfiguration(config);
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                    System.out.println("configBaseDir = " + config.getBaseDir());
+                }
             });
-            applyConfig.setOnAction(this::createConfigurationAndLoadProject);
 
             JFXButton cancelButton = new JFXButton("Cancel");
             cancelButton.setButtonType(JFXButton.ButtonType.RAISED);
+            cancelButton.setOnAction(event ->
+            {
+                createAndShowWelcomePane(substage);
+            });
             ButtonBar.setButtonData(cancelButton, ButtonBar.ButtonData.CANCEL_CLOSE);
 
             buttonBar.getButtons().addAll(applyConfig, cancelButton);
@@ -198,17 +215,7 @@ public class AlgoVerApplication extends Application {
                 // TODO Maybe don't do this initially (might hurt UX, when there are a lot of proofs)
                 // manager.getAllProofs().values().forEach(proof -> proof.interpretScript());
 
-                MainController controller = new MainController(manager, SYNTAX_HIGHLIGHTING_EXECUTOR);
-
-                primaryStage.close();
-                Scene scene = new Scene(controller.getView());
-                scene.getStylesheets().add(AlgoVerApplication.class.getResource("style.css").toExternalForm());
-                substage = new Stage();
-                substage.setScene(scene);
-                substage.setWidth(900);
-                substage.setHeight(700);
-                substage.setTitle("AlgoVer - " + projectFile);
-                substage.show();
+                createAndExecuteMainController(projectFile, manager);
             } else {
                 primaryStage.show();
             }
@@ -223,6 +230,20 @@ public class AlgoVerApplication extends Application {
             e.printStackTrace();
         }
 
+    }
+
+    private void createAndExecuteMainController(File projectFile, ProjectManager manager) {
+        MainController controller = new MainController(manager, SYNTAX_HIGHLIGHTING_EXECUTOR);
+
+        primaryStage.close();
+        Scene scene = new Scene(controller.getView());
+        scene.getStylesheets().add(AlgoVerApplication.class.getResource("style.css").toExternalForm());
+        substage = new Stage();
+        substage.setScene(scene);
+        substage.setWidth(900);
+        substage.setHeight(700);
+        substage.setTitle("AlgoVer - " + projectFile);
+        substage.show();
     }
 
 

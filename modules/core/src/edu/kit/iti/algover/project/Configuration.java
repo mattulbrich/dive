@@ -43,6 +43,16 @@ public class Configuration {
 
     private File baseDir = new File("");
 
+    public boolean isSaveAsXML() {
+        return saveAsXML;
+    }
+
+    public void setSaveAsXML(boolean saveAsXML) {
+        this.saveAsXML = saveAsXML;
+    }
+
+    private boolean saveAsXML = false;
+
     @XmlElement(name = "settings")
     public Map<String, String> getSettings() {
         return projectSettings;

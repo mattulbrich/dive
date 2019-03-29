@@ -28,6 +28,7 @@ import java.util.stream.Collectors;
 
 import edu.kit.iti.algover.settings.ProjectSettings.Property;
 import edu.kit.iti.algover.util.StringValidators.OptionStringValidator;
+import javafx.stage.DirectoryChooser;
 import javafx.stage.FileChooser;
 import javafx.util.StringConverter;
 import org.controlsfx.validation.ValidationSupport;
@@ -133,7 +134,7 @@ public class ProjectSettingsController implements ISettingsController {
                 if (newValue.isSelected()) {
                     String userData = (String) newValue.getUserData();
                     saveAsXML = userData.equals("XML");
-                    System.out.println(saveAsXML);
+                    getConfig().setSaveAsXML(saveAsXML);
                 }
             }
         });
@@ -372,15 +373,21 @@ public class ProjectSettingsController implements ISettingsController {
     }
 
     @FXML
-    private void setSaveOption(){
-        saveAsXML = saveOption.isSelected();
-    }
-
-    @FXML
     private void createNewDafnyFile(){}
 
     @FXML
-    private void openFileChooser(){}
+    private void openDirChooser(){
+        DirectoryChooser chooser = new DirectoryChooser();
+
+        if(getConfig().getBaseDir().equals(new File(""))){
+            getConfig().setBaseDir(new File("doc/examples/"));
+        }
+        chooser.setInitialDirectory(getConfig().getBaseDir());
+        File file = chooser.showDialog(this.settingsPanel.getScene().getWindow());
+        getConfig().setBaseDir(file);
+        this.projectPath.setText(file.getAbsolutePath());
+        this.projectPath.setEditable(false);
+    }
 
     JFXRadioButton rb = new JFXRadioButton();
 

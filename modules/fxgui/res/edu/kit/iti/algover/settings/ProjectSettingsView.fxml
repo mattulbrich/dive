@@ -19,7 +19,7 @@
                         <HBox fx:id="projectNameHBox" alignment="CENTER_LEFT" spacing="30">
                             <Label text="Base directory of the project" alignment="CENTER_LEFT"></Label>
                             <TextField fx:id="projectPath" editable="true" HBox.hgrow="ALWAYS"></TextField>
-                            <Button fx:id="fileChooserButton" text="..." onAction="#openFileChooser"></Button>
+                            <Button fx:id="fileChooserButton" text="..." onAction="#openDirChooser"></Button>
                         </HBox>
                         <Region prefHeight="20" VBox.vgrow="ALWAYS"></Region>
                         <Region prefHeight="20" VBox.vgrow="ALWAYS"></Region>
