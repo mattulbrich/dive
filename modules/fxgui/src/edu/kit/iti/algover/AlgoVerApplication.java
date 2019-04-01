@@ -5,10 +5,8 @@
  */
 package edu.kit.iti.algover;
 
-import com.jfoenix.controls.JFXButton;
 import edu.kit.iti.algover.parser.DafnyParserException;
 import edu.kit.iti.algover.project.*;
-import edu.kit.iti.algover.settings.GeneralSettingsController;
 import edu.kit.iti.algover.settings.ISettingsController;
 import edu.kit.iti.algover.settings.ProjectSettingsController;
 import edu.kit.iti.algover.settings.SettingsFactory;
@@ -17,11 +15,9 @@ import javafx.application.Application;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Pos;
-import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.web.WebEngine;
@@ -38,20 +34,17 @@ import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.stream.Collectors;
+import java.util.logging.Logger;
 
 /**
- * Created by Philipp on 15.06.2017.
- * Adapted by S.Grebing in March 2019
+ * @author Philipp (15.06.2017)
+ * @author Extended by S.Grebing (March 2019)
  */
 public class AlgoVerApplication extends Application {
 
     private Stage primaryStage;
 
     private Stage substage;
-
-
-
 
     public static void main(String[] args) {
         launch(args);
@@ -167,27 +160,40 @@ public class AlgoVerApplication extends Application {
 
         if(collect.isPresent()){
             BorderPane configPane = new BorderPane();
-            //configPane.setPrefSize(400.0, 400.0);
-            //configPane.setCenter(collect.get(0));
+            //Outer scrollpane
             ScrollPane scrollPane = new ScrollPane();
             scrollPane.setFitToWidth(true);
-            //scrollPane.setFitToHeight(true);
             scrollPane.setContent(collect.get().getNode());
 
             configPane.setCenter(scrollPane);
+
             //Buttons
             ButtonBar buttonBar = new ButtonBar();
             Button applyConfig = new Button("Create Configuration");
             ButtonBar.setButtonData(applyConfig, ButtonBar.ButtonData.APPLY);
             applyConfig.setOnAction(event -> {
                 collect.get().save();
+                ProjectManager manager = null;
+                try {
+                    if (config.isSaveAsXML()) {
+                        manager = new XMLProjectManager(config.getBaseDir(), config.getConfigFile());
+                    } else {
+                        manager = new DafnyProjectManager(config.getMasterFile());
+                    }
+                    createAndExecuteMainController(config.getBaseDir(), manager);
+                } catch (IOException e){
+                    Logger.getGlobal().severe("Project could not be created");
+                } catch (DafnyParserException e) {
+                    Logger.getGlobal().severe("Project could not be created");
+                    e.printStackTrace();
+                } catch (FormatException e) {
+                    Logger.getGlobal().severe("Project could not be created");
+                    e.printStackTrace();
+                }
             });
 
             Button cancelButton = new Button("Cancel");
-            cancelButton.setOnAction(event ->
-            {
-                createAndShowWelcomePane(substage);
-            });
+            cancelButton.setOnAction(event -> {createAndShowWelcomePane(substage);});
             ButtonBar.setButtonData(cancelButton, ButtonBar.ButtonData.CANCEL_CLOSE);
 
             buttonBar.getButtons().addAll(applyConfig, cancelButton);
@@ -288,10 +294,5 @@ public class AlgoVerApplication extends Application {
         substage.show();
     }
 
-
-    private void createConfigurationAndLoadProject(ActionEvent actionEvent) {
-        //TODO Controller?
-
-    }
 
 }

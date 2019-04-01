@@ -257,14 +257,14 @@ public final class XMLProjectManager extends AbstractProjectManager {
                     file = configXML;
                 }
 
-                String content = ConfigXMLLoader.toString(config);
-                System.out.println("content = " + content);
+                ConfigXMLLoader.saveConfigFile(config, file.toFile());
+             /*   System.out.println("content = " + content);
 
 
                 BufferedWriter writer = Files.newBufferedWriter(file, Charset.forName("UTF-8"));
                 writer.write(content);
 
-/*                byte[] data = content.getBytes();
+               byte[] data = content.getBytes();
                 ByteBuffer bb = ByteBuffer.wrap(data);
                 SeekableByteChannel sbc = Files.newByteChannel(file);
                 sbc.write(bb);*/

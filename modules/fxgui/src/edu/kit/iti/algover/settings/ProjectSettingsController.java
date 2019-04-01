@@ -45,9 +45,6 @@ public class ProjectSettingsController implements ISettingsController {
 
     private Node settingsPanel;
 
-   /* @FXML
-    private VBox container;*/
-
     @FXML
     private VBox projectConfigSettings;
 
@@ -92,6 +89,8 @@ public class ProjectSettingsController implements ISettingsController {
 
     @FXML
     private JFXRadioButton dfyFormat;
+
+
 
     private ToggleGroup formatButtonsGroup;
 
@@ -303,27 +302,28 @@ public class ProjectSettingsController implements ISettingsController {
         getConfig().setSettings(newProperties);
         File baseDir = new File(pathText);
         getConfig().setBaseDir(baseDir);
-        if(saveAsXML){
-            try {
+        try {
+
+            if(saveAsXML){
                 String property = System.getProperty("file.separator");
                 File filename = new File(baseDir + property + this.configFileName.getText());
                 getConfig().setConfigFile(this.configFileName.getText());
                 ConfigXMLLoader.saveConfigFile(getConfig(), filename);
+                if(manager.get()!=null) {
+                    manager.get().saveProject();
+                }
+            } else {
+                //TODO
                 manager.get().saveProject();
-            } catch (JAXBException e) {
-                Logger.getGlobal().warning("Could not save configuration file");
-               e.printStackTrace();
-            } catch (IOException e) {
-                Logger.getGlobal().warning("Could not save configuration file");
-                e.printStackTrace();
             }
-        } else {
-            try {
-                manager.get().saveProject();
-            } catch (IOException e) {
-                Logger.getGlobal().severe("Error saving project settings");
-            }
+        } catch (JAXBException e) {
+            Logger.getGlobal().warning("Could not save configuration file");
+            e.printStackTrace();
+        } catch (IOException e) {
+            Logger.getGlobal().warning("Could project settings to file");
+            e.printStackTrace();
         }
+
 
 
 

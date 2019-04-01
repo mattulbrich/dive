@@ -4,13 +4,9 @@ import edu.kit.iti.algover.dafnystructures.DafnyDecl;
 import edu.kit.iti.algover.settings.ProjectSettings;
 import nonnull.NonNull;
 
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.*;
 import java.io.File;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Class representing the XML-file that contains all information necessary to create a project
@@ -20,11 +16,11 @@ public class Configuration {
     /**
      * The dafny files that are treated as library files, i.e. no proof obligation is generqated for the DafnyDecls in the libarary files
      */
-    private List<File> libFiles = Collections.emptyList();
+    private List<File> libFiles = new ArrayList<>();
     /**
      * The problem files of a system for which proof obligations should be generated
      */
-    private List<File> dafnyFiles = Collections.emptyList();
+    private List<File> dafnyFiles = new ArrayList<>();
     /**
      * Settings of the project
      */
@@ -34,23 +30,18 @@ public class Configuration {
     /**
      * If Dafny ProjectManager is used
      */
+    @XmlTransient
     private File masterFile = new File("");
 
     /**
      * If XML Projectmanager is used
      */
+    @XmlTransient
     private String configFile = "config.xml";
 
     private File baseDir = new File("");
 
-    public boolean isSaveAsXML() {
-        return saveAsXML;
-    }
-
-    public void setSaveAsXML(boolean saveAsXML) {
-        this.saveAsXML = saveAsXML;
-    }
-
+    @XmlTransient
     private boolean saveAsXML = false;
 
     @XmlElement(name = "settings")
@@ -80,7 +71,7 @@ public class Configuration {
         this.dafnyFiles = dafnyFiles;
     }
 
-
+    @XmlTransient
     public File getMasterFile() {
         return masterFile;
     }
@@ -89,6 +80,7 @@ public class Configuration {
         this.masterFile = masterFile;
     }
 
+    @XmlTransient
     public String getConfigFile() {
         return configFile;
     }
@@ -97,12 +89,22 @@ public class Configuration {
         this.configFile = configFile;
     }
 
+    @XmlElement(name = "baseDir")
     public File getBaseDir() {
         return baseDir;
     }
 
     public void setBaseDir(File baseDir) {
         this.baseDir = baseDir;
+    }
+
+    @XmlTransient
+    public boolean isSaveAsXML() {
+        return saveAsXML;
+    }
+
+    public void setSaveAsXML(boolean saveAsXML) {
+        this.saveAsXML = saveAsXML;
     }
 
 }
