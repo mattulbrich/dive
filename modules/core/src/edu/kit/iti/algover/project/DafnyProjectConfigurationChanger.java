@@ -18,8 +18,6 @@ import org.antlr.runtime.CharStream;
 import org.antlr.runtime.Token;
 
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -113,11 +111,11 @@ public class DafnyProjectConfigurationChanger {
         fw.write("\n" + ALGOVER_ESCAPE + " }\n");
 
         for (File libFile : config.getLibFiles()) {
-            fw.write(Util.duplicate(" ", ALGOVER_ESCAPE.length()) + " include \"" + libFile + "\";\n");
+            fw.write(Util.duplicate(" ", ALGOVER_ESCAPE.length()) + " include \"" + libFile + "\"\n");
         }
 
         for (File dafnyFile : config.getDafnyFiles()) {
-            fw.write(ALGOVER_ESCAPE + " subsume \"" + dafnyFile + "\";\n");
+            fw.write(ALGOVER_ESCAPE + " subsume \"" + dafnyFile + "\"\n");
         }
 
         fw.write("// ---- End of settings ----\n\n");

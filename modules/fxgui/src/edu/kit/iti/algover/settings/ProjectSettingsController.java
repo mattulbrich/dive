@@ -345,6 +345,7 @@ public class ProjectSettingsController implements ISettingsController {
                     manager.get().updateProject(getConfig());
                     manager.get().saveProjectConfiguration();
                 } else{
+                    DafnyProjectConfigurationChanger.saveConfiguration(getConfig(), getConfig().getMasterFile());
                     manager.set(new DafnyProjectManager(getConfig().getMasterFile()));
                     manager.get().updateProject(getConfig());
                 }
