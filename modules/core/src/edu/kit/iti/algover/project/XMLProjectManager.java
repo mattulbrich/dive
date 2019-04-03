@@ -219,12 +219,28 @@ public final class XMLProjectManager extends AbstractProjectManager {
         Configuration configuration = getProject().getConfiguration();
         configuration.setBaseDir(getProject().getBaseDir());
         configuration.setConfigFile(this.configFilename);
+        configuration.setSaveAsXML(true);
         return configuration;
     }
 
     @Override
-    public void updateProject(Configuration config) {
-//TODO
+    public void updateProject(Configuration config) throws IOException {
+        if(!config.getBaseDir().equals(getProject().getBaseDir())){
+            throw new IOException("The project base directory has changed");
+        }
+        if(!config.isSaveAsXML()){
+            //TODO implement me
+            throw new IOException("It is not supported yet to change save format");
+        }
+        if(!this.getConfigFilename().equals(config.getConfigFile())){
+            throw new IOException("The configuration filename has changed from "+configFilename+" to "+config.getConfigFile());
+        }
+        getProject().updateProject(config);
+    }
+
+    @Override
+    public void saveProjectConfiguration() throws IOException {
+        saveConfiguration(this.getConfiguration());
     }
 
     public String getConfigFilename() {
@@ -235,9 +251,6 @@ public final class XMLProjectManager extends AbstractProjectManager {
         return directory;
     }
 
-    public void saveCurrentConfiguration() throws IOException {
-        saveConfiguration(this.getConfiguration());
-    }
 
     /**
      * Write a configuration to the XML file specified in the configuration object
@@ -258,16 +271,7 @@ public final class XMLProjectManager extends AbstractProjectManager {
                 }
 
                 ConfigXMLLoader.saveConfigFile(config, file.toFile());
-             /*   System.out.println("content = " + content);
 
-
-                BufferedWriter writer = Files.newBufferedWriter(file, Charset.forName("UTF-8"));
-                writer.write(content);
-
-               byte[] data = content.getBytes();
-                ByteBuffer bb = ByteBuffer.wrap(data);
-                SeekableByteChannel sbc = Files.newByteChannel(file);
-                sbc.write(bb);*/
             } else {
                 throw new IOException(baseDir+" does not exist");
             }

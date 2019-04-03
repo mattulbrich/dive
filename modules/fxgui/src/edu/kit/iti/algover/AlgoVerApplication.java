@@ -177,8 +177,10 @@ public class AlgoVerApplication extends Application {
                 try {
                     if (config.isSaveAsXML()) {
                         manager = new XMLProjectManager(config.getBaseDir(), config.getConfigFile());
+                        manager.updateProject(config);
                     } else {
                         manager = new DafnyProjectManager(config.getMasterFile());
+                        manager.updateProject(config);
                     }
                     createAndExecuteMainController(config.getBaseDir(), manager);
                 } catch (IOException e){
@@ -252,9 +254,12 @@ public class AlgoVerApplication extends Application {
             if(projectFile != null) {
                 if (projectFile.getName().endsWith(".xml")) {
                     // Read all PVCs and update GUId
+
                     manager = new XMLProjectManager(projectFile.getParentFile(), projectFile.getName());
+                    manager.getConfiguration().setSaveAsXML(true);
                 } else if (projectFile.getName().endsWith(".dfy")) {
                     manager = new DafnyProjectManager(projectFile);
+                    manager.getConfiguration().setSaveAsXML(false);
                 } else {
                     throw new IllegalArgumentException("AlgoVer supports only .dfy and .xml files.");
                 }

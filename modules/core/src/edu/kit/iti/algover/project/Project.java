@@ -447,4 +447,8 @@ public final class Project {
 
         return c;
     }
+
+    public void updateProject(Configuration config) {
+        //TODO
+    }
 }

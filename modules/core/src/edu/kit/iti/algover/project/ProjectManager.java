@@ -143,11 +143,11 @@ public interface ProjectManager {
      * Update project settings acc. to configuration
      * @param config
      */
-    void updateProject(@NonNull Configuration config);
+    void updateProject(@NonNull Configuration config) throws IOException;
 
     /**
      * Save the current project information
      * @throws IOException
      */
-    //void saveProject() throws IOException;
+    void saveProjectConfiguration() throws IOException;
 }

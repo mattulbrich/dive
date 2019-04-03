@@ -29,6 +29,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
+import java.util.logging.Logger;
 
 /**
  * This project manager is a newer variant which does not use configuration
@@ -205,11 +206,22 @@ public class DafnyProjectManager extends AbstractProjectManager {
         Configuration c =  getProject().getConfiguration();
         c.setBaseDir(getProject().getBaseDir());
         c.setMasterFile(this.masterFile);
+        c.setSaveAsXML(false);
         return c;
     }
 
     @Override
-    public void updateProject(Configuration config) {
-//TODO
+    public void updateProject(Configuration config) throws IOException{
+        //TODO
+    }
+
+    @Override
+    public void saveProjectConfiguration() throws IOException {
+        try {
+            DafnyProjectConfigurationChanger.saveConfiguration(this.getConfiguration(), this.masterFile);
+        } catch (DafnyParserException e) {
+            Logger.getGlobal().warning("Error while saving configuration as Dafny master file "+this.masterFile);
+            e.printStackTrace();
+        }
     }
 }

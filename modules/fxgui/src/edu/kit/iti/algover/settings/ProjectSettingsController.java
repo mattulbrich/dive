@@ -4,6 +4,7 @@ import com.jfoenix.controls.JFXListView;
 import com.jfoenix.controls.JFXRadioButton;
 import com.sun.javafx.collections.ObservableListWrapper;
 import edu.kit.iti.algover.dafnystructures.DafnyFile;
+import edu.kit.iti.algover.parser.DafnyParserException;
 import edu.kit.iti.algover.project.*;
 import edu.kit.iti.algover.util.*;
 import javafx.application.Platform;
@@ -163,8 +164,13 @@ public class ProjectSettingsController implements ISettingsController {
      */
     private void addProjectContents() {
         if(configProperty().get() != null) {
-
-            this.configFileName.setText(getConfig().getConfigFile());
+            if(configProperty().get().isSaveAsXML()){
+                this.configFileName.setText(getConfig().getConfigFile());
+                formatButtonsGroup.selectToggle(xmlFormat);
+            } else{
+                this.masterFileName.setText(getConfig().getMasterFile().getName());
+                formatButtonsGroup.selectToggle(dfyFormat);
+            }
             File baseDir = getConfig().getBaseDir();
             this.projectPath.setText(baseDir.toString());
 
@@ -187,6 +193,7 @@ public class ProjectSettingsController implements ISettingsController {
                 newSettings.put(property.key, settings.get(property.key));
             }
             currentSettings = newSettings;
+
 
         }
         createSettingsFields();
@@ -251,6 +258,8 @@ public class ProjectSettingsController implements ISettingsController {
                 ChoiceBox<String> choiceBox = new ChoiceBox<>(olist);
                 if(value != null) {
                     choiceBox.setValue(value);
+                } else {
+                    choiceBox.setValue(property.defaultValue);
                 }
                 projectConfigSettings.getChildren().add(choiceBox);
                 choiceBox.setTooltip(new HTMLToolTip(property.helpText));
@@ -260,6 +269,8 @@ public class ProjectSettingsController implements ISettingsController {
                 String value = currentSettings.get(property.key);
                 if(value != null) {
                     textField.setText(value);
+                } else {
+                    textField.setText(property.defaultValue);
                 }
                 projectConfigSettings.getChildren().add(textField);
                 textField.setTooltip(new Tooltip(property.helpText));
@@ -304,17 +315,29 @@ public class ProjectSettingsController implements ISettingsController {
         getConfig().setBaseDir(baseDir);
         try {
 
+            String property = System.getProperty("file.separator");
+
             if(saveAsXML){
-                String property = System.getProperty("file.separator");
                 File filename = new File(baseDir + property + this.configFileName.getText());
                 getConfig().setConfigFile(this.configFileName.getText());
                 ConfigXMLLoader.saveConfigFile(getConfig(), filename);
                 if(manager.get()!=null) {
-                    manager.get().saveProject();
+                    manager.get().updateProject(getConfig());
+                    manager.get().saveProjectConfiguration();
+                } else {
+                    manager.set(new XMLProjectManager(baseDir, this.configFileName.getText()));
+                    manager.get().updateProject(getConfig());
                 }
             } else {
-                //TODO
-                manager.get().saveProject();
+                String masterFile = this.masterFileName.getText();
+                getConfig().setMasterFile(new File(baseDir + property + masterFile));
+                if(manager.get()!=null) {
+                    manager.get().updateProject(getConfig());
+                    manager.get().saveProjectConfiguration();
+                } else{
+                    manager.set(new DafnyProjectManager(getConfig().getMasterFile()));
+                    manager.get().updateProject(getConfig());
+                }
             }
         } catch (JAXBException e) {
             Logger.getGlobal().warning("Could not save configuration file");
@@ -322,9 +345,11 @@ public class ProjectSettingsController implements ISettingsController {
         } catch (IOException e) {
             Logger.getGlobal().warning("Could project settings to file");
             e.printStackTrace();
+        } catch (FormatException e) {
+            e.printStackTrace();
+        } catch (DafnyParserException e) {
+            e.printStackTrace();
         }
-
-
 
 
     }
