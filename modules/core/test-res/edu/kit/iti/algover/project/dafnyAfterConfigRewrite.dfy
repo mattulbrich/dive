@@ -5,7 +5,7 @@
 // ---- Automatically generated settings ----
 //\\ settings {
 //\\    "Dafny Timeout" = "100",
-//\\    "Unroll Loops" = "true"
+//\\    "Default Script" = "boogie;"
 //\\ }
      include "lib1.dfy";
      include "/absolute/lib2.dfy";
