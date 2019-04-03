@@ -212,7 +212,12 @@ public class DafnyProjectManager extends AbstractProjectManager {
 
     @Override
     public void updateProject(Configuration config) throws IOException{
-        //TODO
+        try {
+            DafnyProjectConfigurationChanger.saveConfiguration(config, config.getMasterFile());
+        } catch (DafnyParserException e) {
+            Logger.getGlobal().severe("Error while saving project settings to file: "+config.getMasterFile());
+            e.printStackTrace();
+        }
     }
 
     @Override

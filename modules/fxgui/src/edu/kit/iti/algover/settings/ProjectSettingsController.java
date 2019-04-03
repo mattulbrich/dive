@@ -8,6 +8,7 @@ import edu.kit.iti.algover.parser.DafnyParserException;
 import edu.kit.iti.algover.project.*;
 import edu.kit.iti.algover.util.*;
 import javafx.application.Platform;
+import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
@@ -99,6 +100,7 @@ public class ProjectSettingsController implements ISettingsController {
 
     private SimpleObjectProperty<Configuration> config = new SimpleObjectProperty<>(new Configuration(), "Configuration");
 
+    private SimpleBooleanProperty savingFormat;
 
     private Map<String, String> currentSettings = null;
 
@@ -121,6 +123,7 @@ public class ProjectSettingsController implements ISettingsController {
 
     public ProjectSettingsController(Configuration config){
         setConfig(config);
+
         FXMLLoader loader = new FXMLLoader(getClass().getResource("ProjectSettingsView.fxml"));
         loader.setController(this);
         try {
@@ -136,20 +139,25 @@ public class ProjectSettingsController implements ISettingsController {
         xmlFormat.setUserData("XML");
         dfyFormat.setToggleGroup(formatButtonsGroup);
         dfyFormat.setUserData("DAFNY");
+        savingFormat = new SimpleBooleanProperty(saveAsXML);
+
         formatButtonsGroup.selectedToggleProperty().addListener(new ChangeListener<Toggle>() {
             @Override
             public void changed(ObservableValue<? extends Toggle> observable, Toggle oldValue, Toggle newValue) {
                 if (newValue.isSelected()) {
                     String userData = (String) newValue.getUserData();
                     saveAsXML = userData.equals("XML");
+                    savingFormat.set(saveAsXML);
                     getConfig().setSaveAsXML(saveAsXML);
                 }
             }
         });
+        this.masterFileName.editableProperty().bind(savingFormat.not());
+        this.configFileName.editableProperty().bind(savingFormat);
 
         Platform.runLater(() -> {
             validationSupport.registerValidator(masterFileName, this::dafnyFileExistsValidator);
-            validationSupport.registerValidator(configFileName, this::dafnyFileExistsValidator);
+            validationSupport.registerValidator(configFileName, this::xmlFileExistsValidator);
         });
 
         addProjectContents();
@@ -170,10 +178,12 @@ public class ProjectSettingsController implements ISettingsController {
 
 
     /**
-     * Add contents to the SettingsView according to set configuration
+     * Add contents to the SettingsView according to configuration
+     * and disable fields if neccessary
      */
     private void addProjectContents() {
         if(configProperty().get() != null) {
+
             if(configProperty().get().isSaveAsXML()){
                 this.configFileName.setText(getConfig().getConfigFile());
                 formatButtonsGroup.selectToggle(xmlFormat);
@@ -190,13 +200,20 @@ public class ProjectSettingsController implements ISettingsController {
                 this.fileChooserButton.setDisable(true);
             }
 
-            List<File> libs = getConfig().getLibFiles();
+            ObservableList<File> dfyItems = this.dafnyFiles.getItems();
             List<File> dafnyFiles = getConfig().getDafnyFiles();
+            dafnyFiles.forEach(file -> { dfyItems.add(file); });
 
-            this.dafnyFiles.getItems().addAll(dafnyFiles);
-            this.libFiles.getItems().addAll(libs);
+            this.dafnyFiles.setItems(dfyItems);
 
-            //add settings
+
+            ObservableList<File> libItems = this.libFiles.getItems();
+            List<File> libFiles = getConfig().getLibFiles();
+            libFiles.forEach(file -> { libItems.add(file); });
+            this.libFiles.setItems(libItems);
+
+
+                //add settings
             Map<String, String> settings = getConfig().getSettings();
             HashMap<String, String> newSettings = new HashMap<>();
             for (Property property : ProjectSettings.getDefinedProperties()) {
@@ -210,22 +227,7 @@ public class ProjectSettingsController implements ISettingsController {
     }
 
     /**
-     * Transform a DafnyFile into a File
-     * @param df
-     * @return
-     * @throws FileNotFoundException
-     */
-    private static File dafnyFileToFile(DafnyFile df){
-        File f = new File(df.getFilename());
-        if(f.exists()){
-            return f;
-        } else {
-            return new File("");
-        }
-    }
-
-    /**
-     * Add cellfactories for lists
+     * Add cellfactories for lists, such that we only display the short file name without path
      */
     private void addCellFactories(){
         dafnyFiles.setCellFactory(param ->
@@ -323,12 +325,12 @@ public class ProjectSettingsController implements ISettingsController {
         getConfig().setSettings(newProperties);
         File baseDir = new File(pathText);
         getConfig().setBaseDir(baseDir);
+
+        //propagate configuration and save config
         try {
 
-            String property = System.getProperty("file.separator");
-
             if(saveAsXML){
-                File filename = new File(baseDir + property + this.configFileName.getText());
+                File filename = new File(baseDir + File.separator + this.configFileName.getText());
                 getConfig().setConfigFile(this.configFileName.getText());
                 ConfigXMLLoader.saveConfigFile(getConfig(), filename);
                 if(manager.get()!=null) {
@@ -340,11 +342,12 @@ public class ProjectSettingsController implements ISettingsController {
                 }
             } else {
                 String masterFile = this.masterFileName.getText();
-                getConfig().setMasterFile(new File(baseDir + property + masterFile));
+                getConfig().setMasterFile(new File(baseDir + File.separator + masterFile));
                 if(manager.get()!=null) {
                     manager.get().updateProject(getConfig());
                     manager.get().saveProjectConfiguration();
                 } else{
+                    DafnyProjectConfigurationChanger.saveConfiguration(getConfig(), getConfig().getMasterFile());
                     manager.set(new DafnyProjectManager(getConfig().getMasterFile()));
                     manager.get().updateProject(getConfig());
                 }
@@ -398,7 +401,7 @@ public class ProjectSettingsController implements ISettingsController {
         this.config.set(config);
     }
 
-    //region: ActionHandler
+    //region: FXML ActionHandler
 
     @FXML
     private void addLibFile() { addItemToList(libFiles, "Library file"); }
@@ -445,7 +448,7 @@ public class ProjectSettingsController implements ISettingsController {
             if(baseDir.equals(newFile)) {
                 initialDir = baseDir;
             } else {
-                initialDir=newFile;
+                initialDir = newFile;
             }
         } else {
             if(!projectPath.getText().isEmpty()) {
@@ -472,10 +475,13 @@ public class ProjectSettingsController implements ISettingsController {
 
     //region: converter
 
+    /**
+     * Convert file entry s.t. only short file name is displayed without path information
+     */
     private static class FileStringConverter extends StringConverter<File> {
         @Override
-        public String toString(File object) {
-            return object.getName().toString();
+        public String toString(File file) {
+            return file.getName().toString();
         }
 
         @Override
@@ -504,16 +510,6 @@ public class ProjectSettingsController implements ISettingsController {
                     }
                 }
             }
-        }
-        if(xmlFormat.isSelected()) {
-            if (!file.endsWith("xml")) {
-                return ValidationResult.fromError(c, "An XML file is required");
-            } else {
-                if (projectPath.getText().equals("")) {
-                    return ValidationResult.fromError(c, "Please select a project path first.");
-                }
-            }
-
         }
         return new ValidationResult();
     }
