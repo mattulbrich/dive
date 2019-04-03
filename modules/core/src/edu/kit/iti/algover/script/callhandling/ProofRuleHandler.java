@@ -103,7 +103,7 @@ public class ProofRuleHandler implements CommandHandler<ProofNode> {
             Evaluator<ProofNode> evaluator = new Evaluator<>(params, parent);
 
             call.getParameters().forEach((variable, expression) -> {
-                        Value val = evaluator.eval(expression);
+                        Value<ProofNode> val = evaluator.eval(expression);
                         ruleParams.putValue(variable.getIdentifier(), convertValuesToTypedValues(val));
                     }
             );
@@ -157,7 +157,7 @@ public class ProofRuleHandler implements CommandHandler<ProofNode> {
 
 
 
-    private Object convertValuesToTypedValues(Value<Object> val) {
+    private Object convertValuesToTypedValues(Value<ProofNode> val) {
         switch (val.getType()) {
             case STRING:
             case INT:
