@@ -54,12 +54,16 @@ import java.util.concurrent.ExecutorService;
 import java.util.logging.Level;
 import java.util.logging.LogRecord;
 import java.util.logging.Logger;
+import java.util.prefs.Preferences;
 import java.util.stream.Collectors;
 
 /**
  * Created by philipp on 27.06.17.
  */
 public class MainController implements SequentActionListener, RuleApplicationListener {
+
+    //system preferences
+    public static Preferences systemprefs = Preferences.userNodeForPackage(MainController.class);
 
     private final ProjectManager manager;
     private final ExecutorService executor;
