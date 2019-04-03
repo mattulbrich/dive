@@ -22,16 +22,18 @@ import javafx.scene.layout.VBox;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.*;
 import java.util.function.Supplier;
 import java.util.logging.Logger;
-import java.util.stream.Collectors;
 
 import edu.kit.iti.algover.settings.ProjectSettings.Property;
 import edu.kit.iti.algover.util.StringValidators.OptionStringValidator;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.FileChooser;
 import javafx.util.StringConverter;
+import org.controlsfx.validation.ValidationResult;
 import org.controlsfx.validation.ValidationSupport;
 
 import javax.xml.bind.JAXBException;
@@ -106,10 +108,16 @@ public class ProjectSettingsController implements ISettingsController {
 
     private boolean saveAsXML = false;
 
+
     /**
      * The ProjectManager for a loaded project
      */
     private SimpleObjectProperty<ProjectManager> manager = new SimpleObjectProperty<>(null, "Configuration");
+
+    public ProjectSettingsController() {
+        this(new Configuration());
+    }
+
 
     public ProjectSettingsController(Configuration config){
         setConfig(config);
@@ -139,6 +147,11 @@ public class ProjectSettingsController implements ISettingsController {
             }
         });
 
+        Platform.runLater(() -> {
+            validationSupport.registerValidator(masterFileName, this::dafnyFileExistsValidator);
+            validationSupport.registerValidator(configFileName, this::dafnyFileExistsValidator);
+        });
+
         addProjectContents();
         addCellFactories();
 
@@ -153,9 +166,6 @@ public class ProjectSettingsController implements ISettingsController {
     }
 
 
-    public ProjectSettingsController() {
-        this(new Configuration());
-    }
 
 
 
@@ -422,7 +432,6 @@ public class ProjectSettingsController implements ISettingsController {
         this.projectPath.setEditable(false);
     }
 
-    JFXRadioButton rb = new JFXRadioButton();
 
     private void addItemToList(ListView<File> list, String title){
 
@@ -476,6 +485,52 @@ public class ProjectSettingsController implements ISettingsController {
     }
 
 
+    //TODO maybe move somewhere else; doubling this method is ugly as well -> find better way to avoid unwanted validation symbols
+
+    //region: Validator
+
+
+    private ValidationResult dafnyFileExistsValidator(Control c, String file) {
+        if(dfyFormat.isSelected()) {
+            if (!file.endsWith("dfy")) {
+                return ValidationResult.fromError(c, "Please add a Dafny file with file extension \"dfy\"");
+            } else {
+                if(projectPath.getText().equals("")){
+                    return ValidationResult.fromError(c, "Please select a project path first.");
+                } else {
+                    Path dfyFile = Paths.get(projectPath.getText()+File.separator+file);
+                    if (!dfyFile.toFile().exists()) {
+                        return ValidationResult.fromError(c, "Please select or add an existing Dafny file.");
+                    }
+                }
+            }
+        }
+        if(xmlFormat.isSelected()) {
+            if (!file.endsWith("xml")) {
+                return ValidationResult.fromError(c, "An XML file is required");
+            } else {
+                if (projectPath.getText().equals("")) {
+                    return ValidationResult.fromError(c, "Please select a project path first.");
+                }
+            }
+
+        }
+        return new ValidationResult();
+    }
+
+    private ValidationResult xmlFileExistsValidator(Control c, String file) {
+        if (xmlFormat.isSelected()) {
+            if (!file.endsWith("xml")) {
+                return ValidationResult.fromError(c, "An XML file is required");
+            } else {
+                if (projectPath.getText().equals("")) {
+                    return ValidationResult.fromError(c, "Please select a project path first.");
+                }
+            }
+        }
+        return new ValidationResult();
+    }
 }
+
 
 

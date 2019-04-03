@@ -11,6 +11,7 @@ import javafx.scene.control.TextField;
 import javafx.scene.layout.AnchorPane;
 
 import java.io.IOException;
+import java.util.prefs.BackingStoreException;
 import java.util.prefs.Preferences;
 
 public class GeneralSettingsController implements ISettingsController {
@@ -60,9 +61,13 @@ public class GeneralSettingsController implements ISettingsController {
     @Override
     public void save() {
         preferences.put("FONT_SIZE_EDITOR", currentFontSizeEditor.getText());
-
-      //  preferences.put("FONT_SIZE_SEQ_VIEW", currentFontSizeSeqView.getText());
-      //  preferences.put("FONT_SIZE_SCRIPT_EDITOR", getCurrentFontSizeScriptEditor.getText());
+        try {
+            preferences.flush();
+        } catch (BackingStoreException e) {
+            e.printStackTrace();
+        }
+        //  preferences.put("FONT_SIZE_SEQ_VIEW", currentFontSizeSeqView.getText());
+        //  preferences.put("FONT_SIZE_SCRIPT_EDITOR", getCurrentFontSizeScriptEditor.getText());
         //TODO
         //in den Home ordner
 

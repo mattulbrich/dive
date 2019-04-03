@@ -63,7 +63,7 @@ import java.util.stream.Collectors;
 public class MainController implements SequentActionListener, RuleApplicationListener {
 
     //system preferences
-    public static Preferences systemprefs = Preferences.userNodeForPackage(MainController.class);
+    public static final Preferences systemprefs = Preferences.userNodeForPackage(MainController.class);
 
     private final ProjectManager manager;
     private final ExecutorService executor;
@@ -153,7 +153,6 @@ public class MainController implements SequentActionListener, RuleApplicationLis
 
         SettingsController ctrl = new SettingsController();
         Configuration config = manager.getConfiguration();
-
         ctrl.getItems().setAll(SettingsFactory.getSettingsPanel(config));
         ctrl.showAndWait();
 
