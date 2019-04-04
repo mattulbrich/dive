@@ -61,7 +61,7 @@ public class AlgoVerApplication extends Application {
         //create Welcome Dialog
         Parameters params = getParameters();
         List<String> fileNames = params.getUnnamed();
-        if(fileNames != null){
+        if(fileNames != null && fileNames.size() > 0){
             File absoluteFile = new File(fileNames.get(0)).getAbsoluteFile();
             createAndExecuteMainController(absoluteFile, createProjectManager(absoluteFile));
         } else {
@@ -181,18 +181,19 @@ public class AlgoVerApplication extends Application {
             ButtonBar.setButtonData(applyConfig, ButtonBar.ButtonData.APPLY);
             applyConfig.setOnAction(event -> {
                 //save settings, s.t., they are loadable using the standard loading mechanism
-                //TODO handle empty projectdir
-                collect.get().save();
                 ProjectManager manager = null;
+
                 try {
+                    collect.get().save();
                     if (config.isSaveAsXML()) {
                         manager = new XMLProjectManager(config.getBaseDir(), config.getConfigFile());
                     } else {
                         manager = new DafnyProjectManager(config.getMasterFile());
                     }
                     createAndExecuteMainController(config.getBaseDir(), manager);
-                } catch (IOException e){
-                    Logger.getGlobal().severe("Project could not be created");
+
+                } catch (IOException e) {
+                    Logger.getGlobal().warning("Invalid settings set, please review.");
                 } catch (DafnyParserException e) {
                     Logger.getGlobal().severe("Project could not be created");
                     e.printStackTrace();
@@ -200,6 +201,8 @@ public class AlgoVerApplication extends Application {
                     Logger.getGlobal().severe("Project could not be created");
                     e.printStackTrace();
                 }
+
+
             });
 
             Button cancelButton = new Button("Cancel");

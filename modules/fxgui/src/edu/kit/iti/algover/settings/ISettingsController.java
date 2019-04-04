@@ -1,7 +1,7 @@
 package edu.kit.iti.algover.settings;
 
 import javafx.scene.Node;
-import javafx.scene.layout.BorderPane;
+import java.io.IOException;
 
 public interface ISettingsController {
     /**
@@ -12,13 +12,13 @@ public interface ISettingsController {
 
 
     /**
-     * Save settings after closing dialog
+     * Save settings after closing dialog. If an error occurs an  IOException is thrown
      */
-    public abstract void save();
+    public abstract void save() throws IOException;
 
 
     /**
-     *
+     * Get the graphics node
      */
     public Node getNode();
 }

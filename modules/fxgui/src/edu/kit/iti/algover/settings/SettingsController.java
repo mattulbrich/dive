@@ -101,7 +101,7 @@ public class SettingsController {
 
 
     /**
-     * Show Dilaog and wait.
+     * Show Dialog and wait.
      */
     public void showAndWait() {
        // if(manager != null){
@@ -118,7 +118,13 @@ public class SettingsController {
 
         if(optional.isPresent() && optional.get() == ButtonType.OK){
             Logger.getGlobal().info("Saving settings");
-            getItems().forEach(ISettingsController::save);
+            for (ISettingsController iSettingsController : getItems()) {
+                try {
+                    iSettingsController.save();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
             Logger.getGlobal().info("Saved Settings");
         } else {
             Logger.getGlobal().info("Settings not saved");
