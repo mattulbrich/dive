@@ -59,7 +59,14 @@ public class AlgoVerApplication extends Application {
     public void start(Stage primaryStage) throws Exception {
         this.primaryStage = primaryStage;
         //create Welcome Dialog
-        createAndShowWelcomePane(primaryStage);
+        Parameters params = getParameters();
+        List<String> fileNames = params.getUnnamed();
+        if(fileNames != null){
+            File absoluteFile = new File(fileNames.get(0)).getAbsoluteFile();
+            createAndExecuteMainController(absoluteFile, createProjectManager(absoluteFile));
+        } else {
+            createAndShowWelcomePane(primaryStage);
+        }
     }
 
     private void createAndShowWelcomePane(Stage primaryStage) {
@@ -77,7 +84,7 @@ public class AlgoVerApplication extends Application {
         String text = "<h1>Welcome to AlgoVer</h1> " +
                 "<p>A seamless verification system for Dafny programs created at Karlsruhe Institute of Technology (KIT)." +
                 "</p><br>" ;
-//                "<p> For more information on the Dafny langauage visit " +
+//                "<p> For more information on the Dafny language visit " +
 //                "<a href=\"https://www.microsoft.com/en-us/research/project/dafny-a-language-and-program-verifier-for-functional-correctness/\">Microsoft's Dafny-Webpage</a>." +
 //                "For more information on special Dafny support visit TODO";
         WebView webView = new WebView();
@@ -122,7 +129,6 @@ public class AlgoVerApplication extends Application {
 
 
             if(file != null){
-                System.out.println("file = " + file);
                 //then a filename
                 TextInputDialog dialog = new TextInputDialog("program.dfy");
                 dialog.setTitle("Dafny file name");
@@ -146,6 +152,8 @@ public class AlgoVerApplication extends Application {
                     }
 
 
+            } else {
+                System.out.println("file was null");
             }
 
         };
@@ -172,7 +180,8 @@ public class AlgoVerApplication extends Application {
             Button applyConfig = new Button("Create Configuration");
             ButtonBar.setButtonData(applyConfig, ButtonBar.ButtonData.APPLY);
             applyConfig.setOnAction(event -> {
-                //save settings, s.t., they are laodable using the standard loading mechanism
+                //save settings, s.t., they are loadable using the standard loading mechanism
+                //TODO handle empty projectdir
                 collect.get().save();
                 ProjectManager manager = null;
                 try {
@@ -251,14 +260,7 @@ public class AlgoVerApplication extends Application {
         try {
             projectFile = constructFileChooser();
             if(projectFile != null) {
-                if (projectFile.getName().endsWith(".xml")) {
-                    // Read all PVCs and update GUId
-                    manager = new XMLProjectManager(projectFile.getParentFile(), projectFile.getName());
-                } else if (projectFile.getName().endsWith(".dfy")) {
-                    manager = new DafnyProjectManager(projectFile);
-                } else {
-                    throw new IllegalArgumentException("AlgoVer supports only .dfy and .xml files.");
-                }
+                manager = createProjectManager(projectFile);
 
 
                 // TODO Maybe don't do this initially (might hurt UX, when there are a lot of proofs)
@@ -279,6 +281,19 @@ public class AlgoVerApplication extends Application {
             e.printStackTrace();
         }
 
+    }
+
+    private ProjectManager createProjectManager(File projectFile) throws FormatException, IOException, DafnyParserException {
+        ProjectManager manager;
+        if (projectFile.getName().endsWith(".xml")) {
+            // Read all PVCs and update GUId
+            manager = new XMLProjectManager(projectFile.getParentFile(), projectFile.getName());
+        } else if (projectFile.getName().endsWith(".dfy")) {
+            manager = new DafnyProjectManager(projectFile);
+        } else {
+            throw new IllegalArgumentException("AlgoVer supports only .dfy and .xml files.");
+        }
+        return manager;
     }
 
     private void createAndExecuteMainController(File projectFile, ProjectManager manager) {
