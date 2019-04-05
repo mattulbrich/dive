@@ -2,6 +2,8 @@ package edu.kit.iti.algover;
 
 import com.google.common.base.Charsets;
 import com.google.common.io.CharStreams;
+import de.jensd.fx.glyphs.GlyphsDude;
+import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon;
 import edu.kit.iti.algover.parser.DafnyParserException;
 import edu.kit.iti.algover.project.Configuration;
 import edu.kit.iti.algover.project.DafnyProjectManager;
@@ -32,6 +34,7 @@ import javafx.scene.web.WebView;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
+import org.controlsfx.glyphfont.FontAwesome;
 import sun.misc.IOUtils;
 
 import java.awt.peer.TextComponentPeer;
@@ -105,16 +108,23 @@ public class WelcomePane {
         String text = CharStreams.toString(new InputStreamReader(resourceAsStream, Charsets.UTF_8));
 
         WebEngine engine = webView.getEngine();
+        engine.setUserStyleSheetLocation(getClass().getResource("webView.css").toString());
         engine.loadContent(text);
 
 
-        openFileChooser.setText("Open existing project");
+        openFileChooser.setText("Open project");
+        openFileChooser.setStyle("-fx-font-size: 20");
+        openFileChooser.setGraphic(GlyphsDude.createIcon(FontAwesomeIcon.FOLDER_OPEN));
         openFileChooser.setOnAction(this::handleFileChooserAction);
 
-        createProject.setText("Create new project");
+        createProject.setText("New project");
+        createProject.setStyle("-fx-font-size: 20");
+        createProject.setGraphic(GlyphsDude.createIcon(FontAwesomeIcon.FOLDER));
         createProject.setOnAction(this::createNewProjectHandler);
 
-        openEmptyProject.setText("Create empty project");
+        openEmptyProject.setText("Empty project");
+        openEmptyProject.setStyle("-fx-font-size: 20");
+        openEmptyProject.setGraphic(GlyphsDude.createIcon(FontAwesomeIcon.FILE_CODE_ALT));
         openEmptyProject.setOnAction(handleEmptyProjectCreation(primaryStage));
 
     }

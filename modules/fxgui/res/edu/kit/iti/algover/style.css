@@ -148,6 +148,7 @@
 .welcomePaneHeadingLabel {
     -fx-font-size: 20pt;
     -fx-font-weight: bold;
+    -fx-text-fill: #17807f;
     -fx-font-family: sans-serif ;
 }
 

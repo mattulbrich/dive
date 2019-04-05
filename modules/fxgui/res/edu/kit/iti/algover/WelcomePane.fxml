@@ -1,8 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import java.lang.*?>
-<?import java.util.*?>
-<?import javafx.scene.*?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
@@ -16,7 +13,7 @@
     <top>
         <VBox>
             <padding>
-                <Insets top="20" bottom="20"></Insets>
+                <Insets top="20" bottom="20" right="20" left="20"></Insets>
             </padding>
             <Label styleClass="welcomePaneHeadingLabel" text="Welcome to AlgoVer">
                 <padding>
@@ -42,10 +39,11 @@
             <padding>
                 <Insets top="20" bottom="20" right="20" left="20"></Insets>
             </padding>
-            <Button fx:id="openFileChooser" maxWidth="Infinity">
+            <Button fx:id="openFileChooser" maxWidth="Infinity" >
                 <padding>
                     <Insets top="20" bottom="20" right="20" left="20"></Insets>
                 </padding>
+
 
             </Button>
 
