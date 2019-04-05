@@ -144,3 +144,19 @@
     -fx-padding: 0.5em 0.5em 0.5em 0.5em;
 
 }
+
+.welcomePaneHeadingLabel {
+    -fx-font-size: 20pt;
+    -fx-font-weight: bold;
+    -fx-font-family: sans-serif ;
+}
+
+.welcomePaneHeadingText {
+    -fx-font-size: 11pt;
+    -fx-font-weight: bold;
+    -fx-font-family: sans-serif ;
+}
+
+.welcomPaneHTML {
+
+}

@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.lang.*?>
+<?import java.util.*?>
+<?import javafx.scene.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<?import javafx.scene.web.WebView?>
+<?import javafx.geometry.Insets?>
+<BorderPane xmlns="http://javafx.com/javafx"
+            xmlns:fx="http://javafx.com/fxml"
+            prefHeight="200.0" prefWidth="200.0"
+            fx:id="rootPane" stylesheets="@style.css"
+>
+    <top>
+        <VBox>
+            <padding>
+                <Insets top="20" bottom="20"></Insets>
+            </padding>
+            <Label styleClass="welcomePaneHeadingLabel" text="Welcome to AlgoVer">
+                <padding>
+                    <Insets top="20" bottom="5"></Insets>
+                </padding>
+            </Label>
+            <Label styleClass="welcomePaneHeadingText"
+                   text="A seamless verification system for Dafny programs created at Karlsruhe Institute of Technology (KIT)."></Label>
+        </VBox>
+    </top>
+    <center>
+        <VBox>
+            <padding>
+                <Insets top="20" bottom="20" right="20" left="20"></Insets>
+            </padding>
+            <WebView fx:id="webView"></WebView>
+        </VBox>
+    </center>
+
+    <right>
+        <TilePane orientation="VERTICAL" hgap="10.0" vgap="8.0">
+
+            <padding>
+                <Insets top="20" bottom="20" right="20" left="20"></Insets>
+            </padding>
+            <Button fx:id="openFileChooser" maxWidth="Infinity">
+                <padding>
+                    <Insets top="20" bottom="20" right="20" left="20"></Insets>
+                </padding>
+
+            </Button>
+
+            <Button fx:id="createProject" maxWidth="Infinity">
+                <padding>
+                    <Insets top="20" bottom="20" right="20" left="20"></Insets>
+                </padding>
+
+            </Button>
+            <Button fx:id="openEmptyProject" maxWidth="Infinity">
+                <padding>
+                    <Insets top="20" bottom="20" right="20" left="20"></Insets>
+                </padding>
+
+            </Button>
+
+        </TilePane>
+    </right>
+</BorderPane>
