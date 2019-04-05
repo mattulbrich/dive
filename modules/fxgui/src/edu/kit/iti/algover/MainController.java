@@ -30,6 +30,7 @@ import edu.kit.iti.algover.sequent.SequentTabViewController;
 import edu.kit.iti.algover.settings.ProjectSettingsController;
 import edu.kit.iti.algover.settings.SettingsController;
 import edu.kit.iti.algover.settings.SettingsFactory;
+import edu.kit.iti.algover.settings.SettingsWrapper;
 import edu.kit.iti.algover.timeline.TimelineLayout;
 import edu.kit.iti.algover.util.CostumBreadCrumbBar;
 import edu.kit.iti.algover.util.FormatException;
@@ -150,10 +151,11 @@ public class MainController implements SequentActionListener, RuleApplicationLis
     }
 
     private void openSettingsWindow(ActionEvent actionEvent) {
-
+        SettingsWrapper settings = new SettingsWrapper();
+        settings.setConfig(manager.getConfiguration());
+        settings.setCurrentManager(manager);
         SettingsController ctrl = new SettingsController();
-        Configuration config = manager.getConfiguration();
-        ctrl.getItems().setAll(SettingsFactory.getSettingsPanel(config));
+        ctrl.getItems().setAll(SettingsFactory.getSettingsPanel(settings));
         ctrl.showAndWait();
 
 

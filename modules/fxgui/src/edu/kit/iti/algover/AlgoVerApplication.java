@@ -10,6 +10,7 @@ import edu.kit.iti.algover.project.*;
 import edu.kit.iti.algover.settings.ISettingsController;
 import edu.kit.iti.algover.settings.ProjectSettingsController;
 import edu.kit.iti.algover.settings.SettingsFactory;
+import edu.kit.iti.algover.settings.SettingsWrapper;
 import edu.kit.iti.algover.util.FormatException;
 import javafx.application.Application;
 import javafx.event.ActionEvent;
@@ -162,7 +163,9 @@ public class AlgoVerApplication extends Application {
 
     private void createAndShowConfigPane(Stage substage) {
         Configuration config = new Configuration();
-        Optional<ISettingsController> collect = SettingsFactory.getSettingsPanel(config).stream()
+        SettingsWrapper settings = new SettingsWrapper();
+        settings.setConfig(config);
+        Optional<ISettingsController> collect = SettingsFactory.getSettingsPanel(settings).stream()
                 .filter(node -> node.getName().equals(ProjectSettingsController.NAME))
                 .findAny();
 

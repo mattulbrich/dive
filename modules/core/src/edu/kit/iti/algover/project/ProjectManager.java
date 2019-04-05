@@ -143,7 +143,7 @@ public interface ProjectManager {
      * Update project settings acc. to configuration
      * @param config
      */
-    void updateProject(@NonNull Configuration config) throws IOException;
+    void updateProject(@NonNull Configuration config) throws IOException, DafnyParserException, FormatException, DafnyException;
 
     /**
      * Save the current project information

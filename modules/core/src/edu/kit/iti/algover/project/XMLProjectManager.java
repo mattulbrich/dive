@@ -220,18 +220,9 @@ public final class XMLProjectManager extends AbstractProjectManager {
     }
 
     @Override
-    public void updateProject(Configuration config) throws IOException {
-        if(!config.getBaseDir().equals(getProject().getBaseDir())){
-            throw new IOException("The project base directory has changed");
-        }
-        if(!config.isSaveAsXML()){
-            //TODO implement me
-            throw new IOException("It is not supported yet to change save format");
-        }
-        if(!this.getConfigFilename().equals(config.getConfigFile())){
-            throw new IOException("The configuration filename has changed from "+configFilename+" to "+config.getConfigFile());
-        }
-        getProject().updateProject(config);
+    public void updateProject(Configuration config) throws IOException, DafnyParserException, FormatException, DafnyException {
+        saveConfiguration(config);
+        this.reload();
     }
 
     @Override

@@ -105,7 +105,6 @@ public class DafnyProjectManager extends AbstractProjectManager {
     }
 
     private static Project buildProject(File masterFile) throws IOException, DafnyParserException {
-
         ProjectBuilder pb = new ProjectBuilder();
         File dir = masterFile.getAbsoluteFile().getParentFile();
         pb.setDir(dir);
@@ -214,6 +213,7 @@ public class DafnyProjectManager extends AbstractProjectManager {
     public void updateProject(Configuration config) throws IOException{
         try {
             DafnyProjectConfigurationChanger.saveConfiguration(config, config.getMasterFile());
+            this.reload();
         } catch (DafnyParserException e) {
             Logger.getGlobal().severe("Error while saving project settings to file: "+config.getMasterFile());
             e.printStackTrace();
