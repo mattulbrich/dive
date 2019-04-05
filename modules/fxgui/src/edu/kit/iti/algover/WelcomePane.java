@@ -228,7 +228,10 @@ public class WelcomePane {
 
             //Buttons
             ButtonBar buttonBar = new ButtonBar();
+            buttonBar.setPadding(new Insets(20,20,20,20));
+            buttonBar.setButtonMinWidth(Double.MAX_VALUE);
             Button applyConfig = new Button("Create Configuration");
+            applyConfig.setPadding(new Insets(10,10,10,10));
             ButtonBar.setButtonData(applyConfig, ButtonBar.ButtonData.APPLY);
             applyConfig.setOnAction(event -> {
                 //save settings, s.t., they are loadable using the standard loading mechanism
@@ -257,6 +260,7 @@ public class WelcomePane {
             });
 
             Button cancelButton = new Button("Cancel");
+            cancelButton.setPadding(new Insets(10,10,10,10));
             cancelButton.setOnAction(event -> {substage.setScene(rootPane.getScene());});
 
             ButtonBar.setButtonData(cancelButton, ButtonBar.ButtonData.CANCEL_CLOSE);

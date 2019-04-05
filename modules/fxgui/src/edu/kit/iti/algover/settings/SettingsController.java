@@ -6,6 +6,7 @@ import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
+import javafx.geometry.Insets;
 import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.TextFieldListCell;
@@ -93,6 +94,7 @@ public class SettingsController {
 
     private void createSettingsDialog() {
        // dialogPane.setPrefSize(600.0, 600.0);
+        dialogPane.setPadding(new Insets(20,20,20,20));
         dialogPane.getButtonTypes().setAll(ButtonType.OK, ButtonType.CANCEL);
         dialog.setDialogPane(dialogPane);
 

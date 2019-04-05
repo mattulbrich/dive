@@ -39,7 +39,7 @@
             <padding>
                 <Insets top="20" bottom="20" right="20" left="20"></Insets>
             </padding>
-            <Button fx:id="openFileChooser" maxWidth="Infinity" >
+            <Button fx:id="openFileChooser" maxWidth="Infinity" alignment="CENTER_LEFT">
                 <padding>
                     <Insets top="20" bottom="20" right="20" left="20"></Insets>
                 </padding>
@@ -47,13 +47,13 @@
 
             </Button>
 
-            <Button fx:id="createProject" maxWidth="Infinity">
+            <Button fx:id="createProject" maxWidth="Infinity" alignment="CENTER_LEFT">
                 <padding>
                     <Insets top="20" bottom="20" right="20" left="20"></Insets>
                 </padding>
 
             </Button>
-            <Button fx:id="openEmptyProject" maxWidth="Infinity">
+            <Button fx:id="openEmptyProject" maxWidth="Infinity" alignment="CENTER_LEFT">
                 <padding>
                     <Insets top="20" bottom="20" right="20" left="20"></Insets>
                 </padding>
