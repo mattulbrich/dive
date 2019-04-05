@@ -31,11 +31,11 @@ public class SettingsFactory {
      * Gather the list of all current settings panel.
      * @return non-null list of Node
      */
-    public static List<ISettingsController> getSettingsPanel(Configuration configuration){
-        return supplier.stream().map(i -> i.apply(configuration)).collect(Collectors.toList());
+    public static List<ISettingsController> getSettingsPanel(SettingsWrapper settings){
+        return supplier.stream().map(i -> i.apply(settings)).collect(Collectors.toList());
     }
 
     public static List<ISettingsController> getSettingsPanel() {
-        return getSettingsPanel(new Configuration());
+        return getSettingsPanel(new SettingsWrapper());
     }
 }

@@ -3,6 +3,7 @@ package edu.kit.iti.algover.settings;
 import com.jfoenix.controls.JFXListView;
 import com.jfoenix.controls.JFXRadioButton;
 import com.sun.javafx.collections.ObservableListWrapper;
+import edu.kit.iti.algover.parser.DafnyException;
 import edu.kit.iti.algover.parser.DafnyParserException;
 import edu.kit.iti.algover.project.*;
 import edu.kit.iti.algover.util.*;
@@ -322,7 +323,7 @@ public class ProjectSettingsController implements ISettingsController {
 
 
     /**
-     * Save current configuration. TODO request for reloading project
+     * Save current configuration.
      * @author M.Ulbrich
      * @modified S.Grebing
      *
@@ -370,33 +371,34 @@ public class ProjectSettingsController implements ISettingsController {
                     ConfigXMLLoader.saveConfigFile(getConfig(), filename);
                     if (manager.get() != null) {
                         manager.get().updateProject(getConfig());
-                        manager.get().saveProjectConfiguration();
                     } else {
+                        XMLProjectManager.saveConfiguration(getConfig());
                         manager.set(new XMLProjectManager(baseDir, this.configFileName.getText()));
-                        manager.get().updateProject(getConfig());
                     }
                 } else {
                     String masterFile = this.masterFileName.getText();
                     getConfig().setMasterFile(new File(baseDir + File.separator + masterFile));
                     if (manager.get() != null) {
                         manager.get().updateProject(getConfig());
-                        manager.get().saveProjectConfiguration();
                     } else {
                         DafnyProjectConfigurationChanger.saveConfiguration(getConfig(), getConfig().getMasterFile());
                         manager.set(new DafnyProjectManager(getConfig().getMasterFile()));
-                        manager.get().updateProject(getConfig());
                     }
                 }
+                manager.get().reload();
+                manager.get().getConfiguration();
 
             } catch (JAXBException e) {
                 Logger.getGlobal().warning("Could not save configuration file");
                 e.printStackTrace();
             } catch (IOException e) {
-                Logger.getGlobal().warning("Could project settings to file");
+                Logger.getGlobal().warning("Could not save project settings to file");
                 e.printStackTrace();
             } catch (FormatException e) {
                 e.printStackTrace();
             } catch (DafnyParserException e) {
+                e.printStackTrace();
+            } catch (DafnyException e) {
                 e.printStackTrace();
             }
         }

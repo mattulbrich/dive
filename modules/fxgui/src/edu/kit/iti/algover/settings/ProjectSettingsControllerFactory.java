@@ -4,7 +4,9 @@ import edu.kit.iti.algover.project.Configuration;
 
 public class ProjectSettingsControllerFactory implements SettingsSupplier {
     @Override
-    public ISettingsController apply(Configuration configuration) {
-        return new ProjectSettingsController(configuration);
+    public ISettingsController apply(SettingsWrapper settings) {
+        ProjectSettingsController projectSettingsController = new ProjectSettingsController(settings.getConfig());
+        projectSettingsController.setManager(settings.getCurrentManager());
+        return projectSettingsController;
     }
 }

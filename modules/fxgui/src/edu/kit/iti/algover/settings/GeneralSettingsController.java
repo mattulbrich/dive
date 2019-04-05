@@ -34,7 +34,7 @@ public class GeneralSettingsController implements ISettingsController {
 
 
 
-    public GeneralSettingsController(){
+    public GeneralSettingsController(Preferences systemPrefs){
         FXMLLoader loader = new FXMLLoader(getClass().getResource("GeneralTab.fxml"));
         loader.setController(this);
         try {

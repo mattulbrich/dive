@@ -4,5 +4,5 @@ import edu.kit.iti.algover.project.Configuration;
 
 import java.util.function.Function;
 
-public interface SettingsSupplier extends Function<Configuration,ISettingsController> {
+public interface SettingsSupplier extends Function<SettingsWrapper,ISettingsController> {
 }
