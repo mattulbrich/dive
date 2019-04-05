@@ -93,7 +93,12 @@ public class DafnyProjectConfigurationChanger {
     }
 
     private static void writeConfig(@NonNull FileWriter fw, @NonNull Configuration config) throws IOException {
-
+        File dir;
+        if(config.getBaseDir() != null){
+            dir = config.getBaseDir();
+        } else {
+            dir = config.getMasterFile().getParentFile();
+        }
         fw.write("// ---- Automatically generated settings ----\n");
 
         fw.write(ALGOVER_ESCAPE + " settings {\n");
@@ -109,13 +114,24 @@ public class DafnyProjectConfigurationChanger {
             fw.write(ALGOVER_ESCAPE + "    \"" + entry.getKey() + "\" = \"" + entry.getValue() + "\"");
         }
         fw.write("\n" + ALGOVER_ESCAPE + " }\n");
-
+        String fileString = "";
         for (File libFile : config.getLibFiles()) {
-            fw.write(Util.duplicate(" ", ALGOVER_ESCAPE.length()) + " include \"" + libFile + "\"\n");
+            if(libFile.getParentFile().equals(dir)){
+                fileString = libFile.getName();
+            } else {
+                fileString = libFile.toString();
+            }
+            fw.write(Util.duplicate(" ", ALGOVER_ESCAPE.length()) + " include \"" + fileString + "\"\n");
         }
 
         for (File dafnyFile : config.getDafnyFiles()) {
-            fw.write(ALGOVER_ESCAPE + " subsume \"" + dafnyFile + "\"\n");
+            if(dafnyFile.getParentFile().equals(dir)){
+                fileString = dafnyFile.getName();
+            } else {
+                fileString = dafnyFile.toString();
+            }
+
+            fw.write(ALGOVER_ESCAPE + " subsume \"" + fileString + "\"\n");
         }
 
         fw.write("// ---- End of settings ----\n\n");
