@@ -146,7 +146,14 @@ public class MainController implements SequentActionListener, RuleApplicationLis
     }
 
     private void openAboutWindow(ActionEvent actionEvent) {
-        System.out.println("TODO: About Window");
+        AboutWindow about = null;
+        try {
+            about = new AboutWindow();
+            about.showAndWait();
+
+        } catch (IOException e) {
+            Logger.getGlobal().warning("Error while loading about text");
+        }
 
     }
 

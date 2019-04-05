@@ -180,25 +180,9 @@ public class WelcomePane {
             if(file != null){
                 //then a filename
                 TextInputDialog dialog = new TextInputDialog("program.dfy");
-                dialog.setTitle("Dafny file name");
-                dialog.setHeaderText("Dafny file name");
                 dialog.setContentText("Please enter the name for the empty Dafny file");
-                Optional<String> filename = dialog.showAndWait();
 
-                if (filename.isPresent()){
-                    String s = file.getAbsolutePath() + File.separator + filename.get();
-                    Path dfyMasterFile = null;
-                    try {
-                        dfyMasterFile = Files.createFile(Paths.get(s));
-                        File file1 = dfyMasterFile.toFile();
-                        DafnyProjectManager manager = new DafnyProjectManager(file1);
-                        createAndExecuteMainController(file1, manager);
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    } catch (DafnyParserException e) {
-                        e.printStackTrace();
-                    }
-                }
+                createAndShowEmptyFileDialog(file, dialog);
 
 
             } else {
@@ -206,6 +190,30 @@ public class WelcomePane {
             }
 
         };
+    }
+
+    private void createAndShowEmptyFileDialog(File file, TextInputDialog dialog) {
+
+        dialog.setTitle("Dafny file name");
+        dialog.setHeaderText("Dafny file name");
+        Optional<String> filename = dialog.showAndWait();
+
+        if (filename.isPresent()){
+            String s = file.getAbsolutePath() + File.separator + filename.get();
+            Path dfyMasterFile = null;
+            try {
+                dfyMasterFile = Files.createFile(Paths.get(s));
+                File file1 = dfyMasterFile.toFile();
+                DafnyProjectManager manager = new DafnyProjectManager(file1);
+                createAndExecuteMainController(file1, manager);
+            } catch (IOException e) {
+                TextInputDialog input = new TextInputDialog("");
+                input.setContentText("The file already exists, please choose a new name.");
+                createAndShowEmptyFileDialog(file, input);
+            } catch (DafnyParserException e) {
+                e.printStackTrace();
+            }
+        }
     }
 
 
