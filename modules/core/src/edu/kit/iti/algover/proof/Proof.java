@@ -7,6 +7,7 @@ package edu.kit.iti.algover.proof;
 
 import edu.kit.iti.algover.data.MapSymbolTable;
 import edu.kit.iti.algover.project.Project;
+import edu.kit.iti.algover.rules.RuleException;
 import edu.kit.iti.algover.script.ast.*;
 import edu.kit.iti.algover.script.exceptions.InterpreterRuntimeException;
 import edu.kit.iti.algover.script.exceptions.ScriptCommandNotApplicableException;
@@ -352,6 +353,10 @@ class ProofNodeInterpreterManager {
     private class ExitListener extends DefaultASTVisitor<Void> {
         @Override
         public Void visit(SimpleCaseStatement simpleCaseStatement) {
+            //There should be only one goal for each branch
+            assert interpreter.getCurrentGoals().size() == 1;
+
+            proof.addAstPnReference(simpleCaseStatement, interpreter.getCurrentGoals().get(0));
             return null;
         }
 
@@ -376,23 +381,32 @@ class ProofNodeInterpreterManager {
 
             List<ProofNode> goals = interpreter.getCurrentState().getGoals();
 
-            if (goals.size() == 1 && goals.get(0).equals(lastSelectedGoalNode)) {
-                // XXX MU: Removed this as this cluttered the output.
-                // System.out.println("There was no change");
-                return null;
-            }
+            //goal list is empty, we have reached a proof
             if (goals.isEmpty()) {
                 lastSelectedGoalNode.setClosed(true);
-                System.out.println("Goalist goals.size() = " + goals.size() + "is empty we have reached a full proof");
+                // System.out.println("Goalist goals.size() = " + goals.size() + "is empty we have reached a full proof");
             }
+            //we have newly created goals, for each of them, add them to the proofnode structure as children
+            //TODO we now have a nested structure, how to add this structure to the proof tree
             if (goals.size() > 0) {
                 for (ProofNode goal : goals) {
-                    lastSelectedGoalNode.getChildren().add(goal);
+                    //we don't have a nested structure
+                    if(goal.getParent() == lastSelectedGoalNode) {
+                        lastSelectedGoalNode.getChildren().add(goal);
+                    } else {
+                        //TODO handle nested structure -> maybe this is not wanted
+                        ProofNode temporaryGoal = goal;
+                        while(temporaryGoal.getParent() != lastSelectedGoalNode){
+                            temporaryGoal = temporaryGoal.getParent();
+                        }
+                        lastSelectedGoalNode.getChildren().add(temporaryGoal);
+
+                    }
 
                 }
             }
-
             lastSelectedGoalNode.addMutator(node);
+
             return null;
         }
 

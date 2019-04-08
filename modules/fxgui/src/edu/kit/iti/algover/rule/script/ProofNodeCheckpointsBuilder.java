@@ -96,7 +96,7 @@ public class ProofNodeCheckpointsBuilder extends DefaultASTVisitor<Void> {
     @Override
     @SuppressWarnings("unchecked") // REVIEW: Repair this as soon as the scripts are correctly generically treated
     public Void visit(SimpleCaseStatement simpleCaseStatement) {
-        int selectedChildIdx = -1;
+        checkpoints.add(new Pair<>(simpleCaseStatement.getGuard().getEndPosition(), simpleCaseStatement));
         for (int i = 0; lastHandledNodes.size() > 0 && i < lastHandledNodes.get(inCase - 1).getChildren().size(); ++i) {
             //TODO only label matching no sequent matching supported as of yet
             if (simpleCaseStatement.getGuard().getText().
