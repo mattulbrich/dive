@@ -1,18 +1,16 @@
-/**
- * This file is part of DIVE.
- *
- * Copyright (C) 2015-2019 Karlsruhe Institute of Technology
- */
 package edu.kit.iti.algover.rule.script;
 
 import edu.kit.iti.algover.proof.Proof;
+import edu.kit.iti.algover.proof.ProofNode;
 import edu.kit.iti.algover.proof.ProofNodeSelector;
 import edu.kit.iti.algover.rule.RuleApplicationListener;
+import edu.kit.iti.algover.script.ast.ASTNode;
 import edu.kit.iti.algover.script.ast.Position;
 import edu.kit.iti.algover.script.ast.ProofScript;
 import edu.kit.iti.algover.script.parser.Facade;
 import edu.kit.iti.algover.script.parser.PrettyPrinter;
 import edu.kit.iti.algover.util.ExceptionDetails;
+import edu.kit.iti.algover.util.Pair;
 import javafx.beans.Observable;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.scene.input.KeyCode;
@@ -24,6 +22,7 @@ import java.awt.*;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
@@ -33,13 +32,13 @@ public class ScriptController implements ScriptViewListener {
 
     private final ScriptView view;
     private final RuleApplicationListener listener;
-    private ProofNodeSelector selectedNode = null;
+    private ProofNode selectedNode = null;
 
 
 
     private SimpleObjectProperty<Position> observableInsertPosition = new SimpleObjectProperty<Position>(new Position(1,0));
     private Proof proof;
-    private List<ProofNodeCheckpoint> checkpoints;
+    private List<Pair<Position, ASTNode>> checkpoints;
 
     private LayeredHighlightingRulev4 highlightingRules;
 
@@ -106,11 +105,9 @@ public class ScriptController implements ScriptViewListener {
     private void onCaretPositionChanged(Observable observable) {
        //this positions linenumber starts with 1
         Position caretPosition = computePositionFromCharIdx(view.getCaretPosition(), view.getText());
-        ProofNodeCheckpoint checkpoint = getCheckpointForCaretPosition(caretPosition);
-        //insertPosition = checkpoint.caretPosition;
-        observableInsertPosition.set(checkpoint.caretPosition);
+        setObservableInsertPosition(caretPosition);
         this.checkpoints = ProofNodeCheckpointsBuilder.build(proof);
-        createVisualSelectors(this.checkpoints);
+        //createVisualSelectors(this.checkpoints);
         //showSelectedSelector(checkpoint);
         switchViewedNode();
         view.highlightLine();
@@ -123,38 +120,30 @@ public class ScriptController implements ScriptViewListener {
 
 
     private void switchViewedNode() {
-        Position caretPosition = getObservableInsertPosition();
-
-        ProofNodeCheckpoint checkpoint = getCheckpointForCaretPosition(caretPosition);
-
-        // If the selector points to nowhere, its probably because the rule closed the proof and didn't generate
-        // another child...
-        // REVIEW This is kind of ugly. In the future this off-by-one fix has to be removed
-        if (!checkpoint.selector.optionalGet(proof).isPresent()) {
-            if(checkpoint.selector.getParentSelector() != null) {
-                this.listener.onSwitchViewedNode(checkpoint.selector.getParentSelector());
-            } else {
-                this.listener.onSwitchViewedNode(checkpoint.selector);
-            }
+        //showSelectedSelector(checkpoint);
+        ProofNodeSelector pns = getNodeFromPosition(getObservableInsertPosition());
+        if(pns != null) {
+            this.listener.onSwitchViewedNode(pns);
         } else {
-            this.listener.onSwitchViewedNode(checkpoint.selector);
+            throw new RuntimeException("Cant switch to Node null.");
         }
-        showSelectedSelector(checkpoint);
         view.requestLayout();
-
     }
 
-    private ProofNodeCheckpoint getCheckpointForCaretPosition(Position caretPosition) {
-        ProofNodeCheckpoint lastCheckpoint = checkpoints.get(0); // There should always be at least 1 checkpoint (the one at the start)
-        // REVIEW Maybe stop iterating after finding checkpoints greater than the current position
-        for (int i = 1; i < checkpoints.size(); i++) {
-            ProofNodeCheckpoint checkpoint = checkpoints.get(i);
-            if (caretPosition.compareTo(checkpoint.position) >= 0) {
-                lastCheckpoint = checkpoint;
-            }
+    private ProofNodeSelector getNodeFromPosition(Position pos) {
+        if(checkpoints.size() == 0) {
+            return new ProofNodeSelector();
         }
-
-        return lastCheckpoint;
+        ProofNodeSelector res = new ProofNodeSelector();
+        ProofNode pn = null;
+        List<Pair<Position, ASTNode>> potCh = checkpoints.stream().filter(ch -> pos.compareTo(ch.fst) > 0).collect(Collectors.toList());
+        if(potCh.size() > 0) {
+            pn = proof.getProofNodeForAST(potCh.get(potCh.size() - 1).snd);
+        }
+        if(pn != null) {
+            res = new ProofNodeSelector(pn);
+        }
+        return res;
     }
 
     private Position computePositionFromCharIdx(int charIdx, String text) {
@@ -214,7 +203,6 @@ public class ScriptController implements ScriptViewListener {
 
     @Override
     public void runScript() {
-
         Position oldInsertPos = getObservableInsertPosition();
         String text = view.getText();
         resetExceptionRendering();
@@ -236,13 +224,13 @@ public class ScriptController implements ScriptViewListener {
         checkpoints = ProofNodeCheckpointsBuilder.build(proof);
        // insertPosition = oldInsertPos;
         observableInsertPosition.set(oldInsertPos);
-        createVisualSelectors(checkpoints);
+        //createVisualSelectors(checkpoints);
 
         switchViewedNode();
         view.setStyle("-fx-background-color: white;");
     }
 
-    private void createVisualSelectors(List<ProofNodeCheckpoint> checkpoints) {
+    /*private void createVisualSelectors(List<ProofNodeCheckpoint> checkpoints) {
         for (ProofNodeCheckpoint checkpoint : this.checkpoints) {
             int checkpointline = checkpoint.position.getLineNumber();
 
@@ -258,7 +246,7 @@ public class ScriptController implements ScriptViewListener {
 
         }
 //        view.requestLayout();
-    }
+    }*/
 
     public ScriptView getView() {
         return view;
@@ -294,16 +282,16 @@ public class ScriptController implements ScriptViewListener {
         highlightingRules.setLayer(0, (token, syntaxClasses) -> syntaxClasses);
     }
 
-    public void setSelectedNode(ProofNodeSelector proofNodeSelector) {
-        if(!proofNodeSelector.equals(selectedNode)) {
-            selectedNode = proofNodeSelector;
+    public void setSelectedNode(ProofNodeSelector proofNode) {
+        if(!proofNode.equals(selectedNode)) {
+//            selectedNode = proofNode;
             if (checkpoints != null) {
-                List<ProofNodeCheckpoint> potCheckpoints = checkpoints.stream().filter(ch -> ch.selector.equals(proofNodeSelector)).collect(Collectors.toList());
-                if (potCheckpoints.size() > 0) {
-                    Position insertPosition = potCheckpoints.get(potCheckpoints.size() - 1).caretPosition;
-                    observableInsertPosition.set(insertPosition);
-                    //switchViewedNode();
-                }
+//                List<ProofNodeCheckpoint> potCheckpoints = checkpoints.stream().filter(ch -> ch.selector.equals(proofNodeSelector)).collect(Collectors.toList());
+//                if (potCheckpoints.size() > 0) {
+//                    Position insertPosition = potCheckpoints.get(potCheckpoints.size() - 1).caretPosition;
+//                    observableInsertPosition.set(insertPosition);
+//                    //switchViewedNode();
+//                }
             }
         }
     }

@@ -1,8 +1,3 @@
-/**
- * This file is part of DIVE.
- *
- * Copyright (C) 2015-2019 Karlsruhe Institute of Technology
- */
 package edu.kit.iti.algover.proof;
 
 import edu.kit.iti.algover.data.MapSymbolTable;
@@ -79,6 +74,11 @@ public class Proof {
     /*@ invariant failException != null <==> poofStatus.getValue() == FAIL; */
     private Exception failException;
 
+    /**
+     * This map allows to get the proofNode resulting from executing a script given as an ASTNode.
+     */
+    Map<ASTNode, ProofNode> astToPn = new HashMap<>();
+
 
     public Proof(@NonNull Project project, @NonNull PVC pvc) {
         this.project = project;
@@ -150,9 +150,10 @@ public class Proof {
             Interpreter<ProofNode> interpreter = buildIndividualInterpreter();
 
             // Caution: Keep this pure constructor call, it performs the computation!
-            new ProofNodeInterpreterManager(interpreter);
+            new ProofNodeInterpreterManager(interpreter, this);
             interpreter.newState(newRoot);
 
+            astToPn = new HashMap<>();
             scriptAST.getBody().forEach(interpreter::interpret);
             this.proofRoot = newRoot;
             this.failException = null;
@@ -250,6 +251,14 @@ public class Proof {
     private void saveOldDataStructures() {
         // future ...
     }
+
+    public void addAstPnReference(ASTNode anode, ProofNode pn) {
+        astToPn.put(anode, pn);
+    }
+
+    public ProofNode getProofNodeForAST(ASTNode anode) {
+        return astToPn.get(anode);
+    }
 }
 
 /**
@@ -259,6 +268,7 @@ public class Proof {
  */
 class ProofNodeInterpreterManager {
     final Interpreter<ProofNode> interpreter;
+    final Proof proof;
     private ProofNode lastSelectedGoalNode;
 
     /**
@@ -267,8 +277,9 @@ class ProofNodeInterpreterManager {
      *
      * @param interpreter
      */
-    public ProofNodeInterpreterManager(Interpreter<ProofNode> interpreter) {
+    public ProofNodeInterpreterManager(Interpreter<ProofNode> interpreter, Proof proof) {
         this.interpreter = interpreter;
+        this.proof = proof;
         interpreter.getExitListeners().add(new ExitListener());
         interpreter.getEntryListeners().add(new EntryListener());
     }
@@ -405,6 +416,10 @@ class ProofNodeInterpreterManager {
 
                 }
             }
+
+            proof.addAstPnReference(node, goals.get(0));
+
+
             lastSelectedGoalNode.addMutator(node);
 
             return null;
