@@ -186,6 +186,7 @@ public class ProofMockUtil {
         pb.setSequent(sequent);
         pb.setPathIdentifier("test");
         pb.setReferenceMap(Collections.emptyMap());
+        pb.setProject(project);
         PVC pvc = pb.build();
         Proof p = new Proof(project, pvc);
         p.setScriptTextAndInterpret("");

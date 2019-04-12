@@ -237,15 +237,33 @@ public abstract class AbstractProofRule implements ProofRule {
         }
 
         res += ";";
+        res += getCasesTranscript(pra);
+        return res;
+    }
+
+    private String getCasesTranscript(ProofRuleApplication pra) throws RuleException {
+        if(pra == null) {
+            return "";
+        }
+        String res = "";
         if(pra.getBranchCount() > 1) {
             res += "\ncases {\n";
-            for(BranchInfo bi : pra.getBranchInfo()) {
+            for(int i = 0; i < pra.getBranchCount(); ++i) {
+                BranchInfo bi = pra.getBranchInfo().get(i);
                 if(bi.getLabel() == null) {
                     throw new RuleException("Branchlabel may not be null for branching rule: " + getName());
                 }
-                res += "\tcase match \"" + bi.getLabel() + "\": {\n\t\n\t}\n";
+                res += "\tcase match \"" + bi.getLabel() + "\": {\n\t";
+                if(pra.getSubApplications() != null) {
+                    res += getCasesTranscript(pra.getSubApplications().get(i));
+                }
+                res += "\n\t}\n";
             }
             res += "}\n";
+        } else {
+            if(pra.getSubApplications() != null && pra.getSubApplications().size() > 0) {
+                return getCasesTranscript(pra.getSubApplications().get(0));
+            }
         }
         return res;
     }

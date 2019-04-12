@@ -122,10 +122,11 @@ public class ScriptController implements ScriptViewListener {
     private void switchViewedNode() {
         //showSelectedSelector(checkpoint);
         ProofNodeSelector pns = getNodeFromPosition(getObservableInsertPosition());
+        System.out.println("Switch to node: " + pns);
         if(pns != null) {
             this.listener.onSwitchViewedNode(pns);
         } else {
-            throw new RuntimeException("Cant switch to Node null.");
+            System.out.println("cannot switch to node null");
         }
         view.requestLayout();
     }
@@ -180,6 +181,7 @@ public class ScriptController implements ScriptViewListener {
 
     @Override
     public void onAsyncScriptTextChanged(String text) {
+        System.out.println("ScriptController.onAsyncScriptTextChanged");
         /*resetExceptionRendering();
 
         ProofScript ps = Facade.getAST(text);
@@ -203,6 +205,8 @@ public class ScriptController implements ScriptViewListener {
 
     @Override
     public void runScript() {
+        System.out.println("ScriptController.runScript");
+
         Position oldInsertPos = getObservableInsertPosition();
         String text = view.getText();
         resetExceptionRendering();

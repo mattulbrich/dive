@@ -70,6 +70,8 @@ public class SimpleCaseStatement extends CaseStatement {
         final Object other$guard = other.getGuard();
         if (this$guard == null ? other$guard != null : !this$guard.equals(other$guard)) return false;
         if (this.isClosedStmt() != other.isClosedStmt()) return false;
+        if (!this.getStartPosition().equals(((SimpleCaseStatement) o).getStartPosition())) return false;
+        if (!this.getEndPosition().equals(((SimpleCaseStatement) o).getEndPosition())) return false;
         return true;
     }
 

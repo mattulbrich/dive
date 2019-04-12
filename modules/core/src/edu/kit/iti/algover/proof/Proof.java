@@ -253,6 +253,10 @@ public class Proof {
     }
 
     public void addAstPnReference(ASTNode anode, ProofNode pn) {
+        ProofNode p = astToPn.get(anode);
+        if(p != null) {
+            System.out.println("double");
+        }
         astToPn.put(anode, pn);
     }
 
