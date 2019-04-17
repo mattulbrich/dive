@@ -116,19 +116,19 @@ public class DafnyProjectConfigurationChanger {
         fw.write("\n" + ALGOVER_ESCAPE + " }\n");
         String fileString = "";
         for (File libFile : config.getLibFiles()) {
-            if(libFile.getParentFile().equals(dir)){
+            if(libFile.getParentFile()!= null && libFile.getParentFile().equals(dir)){
                 fileString = libFile.getName();
             } else {
-                fileString = libFile.toString();
+                fileString = libFile.getPath();
             }
             fw.write(Util.duplicate(" ", ALGOVER_ESCAPE.length()) + " include \"" + fileString + "\"\n");
         }
 
         for (File dafnyFile : config.getDafnyFiles()) {
-            if(dafnyFile.getParentFile().equals(dir)){
+            if(dafnyFile.getParentFile() != null && dafnyFile.getParentFile().equals(dir)){
                 fileString = dafnyFile.getName();
             } else {
-                fileString = dafnyFile.toString();
+                fileString = dafnyFile.getPath();
             }
 
             fw.write(ALGOVER_ESCAPE + " subsume \"" + fileString + "\"\n");
