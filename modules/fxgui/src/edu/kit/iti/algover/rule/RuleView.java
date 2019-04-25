@@ -30,7 +30,8 @@ public class RuleView extends StackPane {
     private final ProofRule rule;
 
     private ProofRuleApplication application;
-    private ProofRuleApplication exApplication;
+    //vstte Version
+    //private ProofRuleApplication exApplication;
     private TermSelector selection;
     private RuleViewOverlay applicationOverlay;
     private boolean selectable;
@@ -80,7 +81,8 @@ public class RuleView extends StackPane {
     public void considerApplication(ProofNode target, Sequent selection, TermSelector selector) {
         try {
             application = rule.considerApplication(target, selection, selector);
-            if(rule.mayBeExhaustive()) {
+            //vstte Version
+            /*if(rule.mayBeExhaustive()) {
                 ExhaustiveRule exhaustiveRule = new ExhaustiveRule();
                 Parameters params = new Parameters();
                 params.putValue("on", new TermParameter(selector, selection));
@@ -88,7 +90,7 @@ public class RuleView extends StackPane {
                 exApplication = exhaustiveRule.considerApplication(target, params);
             } else {
                 exApplication = ProofRuleApplicationBuilder.notApplicable(rule);
-            }
+            }*/
             this.selection = selector;
             setSelectable(application != null && application.getApplicability() == ProofRuleApplication.Applicability.APPLICABLE);
             renderApplication();
@@ -107,7 +109,8 @@ public class RuleView extends StackPane {
 
     private void renderApplication() {
         if (application != null) {
-            applicationOverlay = new RuleViewOverlay(application, exApplication, listener, selection);
+            //vstte Version
+            //applicationOverlay = new RuleViewOverlay(application, exApplication, listener, selection);
             getChildren().setAll(applicationOverlay, ruleNameLabel);
         } else {
             resetConsideration();
