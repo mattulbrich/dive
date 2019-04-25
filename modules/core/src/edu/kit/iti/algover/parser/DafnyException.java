@@ -53,6 +53,9 @@ public class DafnyException extends Exception {
     public String getMessage() {
         String result = "";
         if (tree != null) {
+            if (tree.getFilename() == null) {
+                return super.getMessage();
+            }
             result += new File(tree.getFilename()).getName() + ":" + tree.getLine()
                     + ":" + tree.getCharPositionInLine() + super.getMessage();
         }
