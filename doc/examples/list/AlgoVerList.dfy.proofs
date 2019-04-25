@@ -1,0 +1,288 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE properties SYSTEM "http://java.sun.com/dtd/properties.dtd">
+<properties>
+<comment>Created by Algover at Thu Apr 25 10:27:47 CEST 2019</comment>
+<entry key="List.getAt/InitInv">andLeft on='... ((?match: 0 &lt;= pos &amp;&amp; pos &lt; |this.seqq| &amp;&amp; this.Valid())) ... |-';
+expand on='... ((?match: this.Valid())) ... |-';
+boogie ;
+</entry>
+<entry key="List.insertAt/then/Post">andLeft on='... ((?match: 0 &lt;= pos &amp;&amp; pos &lt;= |this.seqq| &amp;&amp; this.Valid())) ... |-';
+expand on='... ((?match: this.Valid())) ... |-';
+substitute on='|- ... ((?match: let $oldheap := $heap :: let $heap := $heap[$create($new_1)] :: let newNode := $new_1 :: let $heap := $heap[$anon(let this, value, next := newNode, value, this.head@$heap :: {this}, $aheap_1)] :: let $heap := $heap[this.head := newNode] :: let $heap := $heap[this.nodeseqq := ([newNode]) + this.nodeseqq@$heap] :: let $heap := $heap[this.seqq := ([value]) + this.seqq@$heap] :: this.seqq@$heap == (let $heap := $oldheap :: $seq_sub&lt;int&gt;(this.seqq@$heap, 0, pos) + ([value]) + $seq_sub&lt;int&gt;(this.seqq@$heap, pos, |this.seqq@$heap|)))) ...';
+substitute on='|- ... ((?match: let $heap := $heap[$create($new_1)] :: let newNode := $new_1 :: let $heap := $heap[$anon(let this, value, next := newNode, value, this.head@$heap :: {this}, $aheap_1)] :: let $heap := $heap[this.head := newNode] :: let $heap := $heap[this.nodeseqq := ([newNode]) + this.nodeseqq@$heap] :: let $heap := $heap[this.seqq := ([value]) + this.seqq@$heap] :: this.seqq@$heap == (let $heap := $heap :: $seq_sub&lt;int&gt;(this.seqq@$heap, 0, pos) + ([value]) + $seq_sub&lt;int&gt;(this.seqq@$heap, pos, |this.seqq@$heap|)))) ...';
+substitute on='|- ... ((?match: let newNode := $new_1 :: _)) ...';
+substitute on='|- ... ((?match: let $heap := $heap[$create($new_1)][$anon(let this, value, next := $new_1, value, this.head@$heap[$create($new_1)] :: _)) ...';
+</entry>
+<entry key="List.insertAt/InitInv">andLeft on='... ((?match: 0 &lt;= pos &amp;&amp; pos &lt;= |this.seqq| &amp;&amp; this.Valid())) ... |-';
+expand on='... ((?match: this.Valid())) ... |-';
+substitute on='... ((?match: let heap, this := $heap, this :: |this.seqq| == |this.nodeseqq| &amp;&amp; (forall i:int :: (i &gt;= 0 &amp;&amp; i &lt; |this.seqq| ==&gt; this.seqq[i] == this.nodeseqq[i].value &amp;&amp; this.nodeseqq[0] == this.head &amp;&amp; this.nodeseqq[(|this.nodeseqq| - 1)].next == null &amp;&amp; (forall j:int :: (j &gt;= 0 &amp;&amp; j &lt; |this.nodeseqq| - 1 ==&gt; this.nodeseqq[j].next == this.nodeseqq[(j + 1)] &amp;&amp; (forall k:int :: (k &gt;= 0 &amp;&amp; k &lt; |this.nodeseqq| - 1 ==&gt; !(this.nodeseqq[k].next == null))))))))) ... |-';
+boogie ;
+</entry>
+<entry key="List.insertAt/loop_exit/Null">boogie;
+</entry>
+<entry key="List.insertAt/InitInv.1">andLeft on='... ((?match: 0 &lt;= pos &amp;&amp; pos &lt;= |this.seqq| &amp;&amp; this.Valid())) ... |-';
+expand on='... ((?match: this.Valid())) ... |-';
+boogie ;
+</entry>
+<entry key="List.size/else/loop/Inv"/>
+<entry key="List.insertAt/else/loop_exit/Bounds">expand on='... ((?match: this.Valid())) ... |-';
+substitute on='|- ... ((?match: let node := node_1 :: let $heap := $heap[$create($new_1)] :: let newNode := $new_1 :: let $heap := $heap[$anon(let this, value, next := newNode, value, node.next@$heap :: {this}, $aheap_1)] :: let $heap := $heap[node.next := newNode] :: 0 &lt;= pos &amp;&amp; pos &lt; |this.nodeseqq@$heap|)) ...';
+substitute on='|- ... ((?match: let $heap := $heap[$create($new_1)] :: let newNode := $new_1 :: let $heap := $heap[$anon(let this, value, next := newNode, value, node_1.next@$heap :: {this}, $aheap_1)] :: let $heap := $heap[node_1.next := newNode] :: 0 &lt;= pos &amp;&amp; pos &lt; |this.nodeseqq@$heap|)) ...';
+</entry>
+<entry key="List.size/loop/Null">boogie;
+</entry>
+<entry key="List.insertAt/loop_exit/Post">boogie;
+</entry>
+<entry key="List.insertAt/loop_exit/Modifies">boogie;
+</entry>
+<entry key="List.insertAt/loop/Inv.1"/>
+<entry key="List.size/then/Post">boogie ;
+</entry>
+<entry key="List.ValidNode/Dec[ValidNode]"/>
+<entry key="List.Valid/Null.3">boogie;
+</entry>
+<entry key="List.ValidNode/Bounds"/>
+<entry key="List.Valid/Null.2">boogie;
+</entry>
+<entry key="List.size/else/InitInv"/>
+<entry key="List.Valid/Null.1">boogie;
+</entry>
+<entry key="List.removeAt/then/then/Bounds">boogie;
+</entry>
+<entry key="List.size/InitInv.2">expand on='... ((?match: this.Valid())) ... |-';
+boogie ;
+</entry>
+<entry key="List.removeAt/else/loop_exit/else/Bounds">boogie;
+</entry>
+<entry key="List.size/InitInv.1">expand on='... ((?match: this.Valid())) ... |-';
+boogie ;
+</entry>
+<entry key="List.insertAt/else/loop_exit/Modifies"/>
+<entry key="List.size/else/loop/Inv.1"/>
+<entry key="List.removeAt/else/loop_exit/else/Bounds.1">boogie;
+</entry>
+<entry key="List.size/InitInv">expand on='... ((?match: this.Valid())) ... |-';
+boogie ;
+</entry>
+<entry key="List.removeAt/else/loop_exit/then/Modifies">boogie;
+</entry>
+<entry key="List.getAt/loop/Inv">andLeft on='... ((?match: 0 &lt;= pos &amp;&amp; pos &lt; |this.seqq| &amp;&amp; this.Valid())) ... |-';
+expand on='... ((?match: this.Valid())) ... |-';
+boogie ;
+</entry>
+<entry key="List.size/else/loop_exit/Post"/>
+<entry key="List.size/else/loop/Null"/>
+<entry key="List.Valid/Null">boogie;
+</entry>
+<entry key="List.size/loop/Inv.2"/>
+<entry key="List.size/loop/Inv.1">boogie;
+</entry>
+<entry key="List.insertAt/loop/Dec">boogie;
+</entry>
+<entry key="List.insertAt/else/InitInv">andLeft on='... ((?match: 0 &lt;= pos &amp;&amp; pos &lt;= |this.seqq| &amp;&amp; this.Valid())) ... |-';
+expand on='... ((?match: this.Valid())) ... |-';
+substitute on='|- ... ((?match: let idx := 0 :: let node := this.head :: node == this.nodeseqq[idx])) ...';
+substitute on='|- ... ((?match: let node := this.head :: node == this.nodeseqq[0])) ...';
+boogie ;
+</entry>
+<entry key="List.insertAt/else/loop_exit/Null">expand on='... ((?match: this.Valid())) ... |-';
+boogie ;
+</entry>
+<entry key="List.getAt/loop/Null">andLeft on='... ((?match: 0 &lt;= pos &amp;&amp; pos &lt; |this.seqq| &amp;&amp; this.Valid())) ... |-';
+expand on='... ((?match: this.Valid())) ... |-';
+substitute on='|- ... ((?match: let node := node_1 :: !(node == null))) ...';
+substitute on='... ((?match: let node := node_1 :: let idx := idx_1 :: node == this.nodeseqq[idx])) ... |-';
+substitute on='... ((?match: let idx := idx_1 :: node_1 == this.nodeseqq[idx])) ... |-';
+substitute on='... ((?match: let heap, this := $heap, this :: |this.seqq| == |this.nodeseqq| &amp;&amp; (forall i:int :: (i &gt;= 0 &amp;&amp; i &lt; |this.seqq| ==&gt; this.seqq[i] == this.nodeseqq[i].value)) &amp;&amp; this.nodeseqq[0] == this.head &amp;&amp; this.nodeseqq[(|this.nodeseqq| - 1)].next == null &amp;&amp; (forall j:int :: (j &gt;= 0 &amp;&amp; j &lt; |this.nodeseqq| - 1 ==&gt; this.nodeseqq[j].next == this.nodeseqq[(j + 1)])) &amp;&amp; (forall k:int :: (k &gt;= 0 &amp;&amp; k &lt; |this.nodeseqq| - 1 ==&gt; !(this.nodeseqq[k].next == null))))) ... |-';
+andLeft on='... ((?match: |this.seqq| == |this.nodeseqq| &amp;&amp; (forall i:int :: (i &gt;= 0 &amp;&amp; i &lt; |this.seqq| ==&gt; this.seqq[i] == this.nodeseqq[i].value)) &amp;&amp; this.nodeseqq[0] == this.head &amp;&amp; this.nodeseqq[(|this.nodeseqq| - 1)].next == null &amp;&amp; (forall j:int :: (j &gt;= 0 &amp;&amp; j &lt; |this.nodeseqq| - 1 ==&gt; this.nodeseqq[j].next == this.nodeseqq[(j + 1)])) &amp;&amp; (forall k:int :: (k &gt;= 0 &amp;&amp; k &lt; |this.nodeseqq| - 1 ==&gt; !(this.nodeseqq[k].next == null))) &amp;&amp; (forall n:int :: (n &gt;= 0 &amp;&amp; n &lt; |this.nodeseqq| ==&gt; !(this.nodeseqq[n] == null))))) ... |-';
+andLeft on='... ((?match: |this.seqq| == |this.nodeseqq| &amp;&amp; (forall i:int :: (i &gt;= 0 &amp;&amp; i &lt; |this.seqq| ==&gt; this.seqq[i] == this.nodeseqq[i].value)) &amp;&amp; this.nodeseqq[0] == this.head &amp;&amp; this.nodeseqq[(|this.nodeseqq| - 1)].next == null &amp;&amp; (forall j:int :: (j &gt;= 0 &amp;&amp; j &lt; |this.nodeseqq| - 1 ==&gt; this.nodeseqq[j].next == this.nodeseqq[(j + 1)])) &amp;&amp; (forall k:int :: (k &gt;= 0 &amp;&amp; k &lt; |this.nodeseqq| - 1 ==&gt; !(this.nodeseqq[k].next == null))))) ... |-';
+andLeft on='... ((?match: |this.seqq| == |this.nodeseqq| &amp;&amp; (forall i:int :: (i &gt;= 0 &amp;&amp; i &lt; |this.seqq| ==&gt; this.seqq[i] == this.nodeseqq[i].value)) &amp;&amp; this.nodeseqq[0] == this.head &amp;&amp; this.nodeseqq[(|this.nodeseqq| - 1)].next == null &amp;&amp; (forall j:int :: (j &gt;= 0 &amp;&amp; j &lt; |this.nodeseqq| - 1 ==&gt; this.nodeseqq[j].next == this.nodeseqq[(j + 1)])))) ... |-';
+andLeft on='... ((?match: |this.seqq| == |this.nodeseqq| &amp;&amp; (forall i:int :: (i &gt;= 0 &amp;&amp; i &lt; |this.seqq| ==&gt; this.seqq[i] == this.nodeseqq[i].value)) &amp;&amp; this.nodeseqq[0] == this.head &amp;&amp; this.nodeseqq[(|this.nodeseqq| - 1)].next == null)) ... |-';
+andLeft on='... ((?match: |this.seqq| == |this.nodeseqq| &amp;&amp; (forall i:int :: (i &gt;= 0 &amp;&amp; i &lt; |this.seqq| ==&gt; this.seqq[i] == this.nodeseqq[i].value)) &amp;&amp; this.nodeseqq[0] == this.head)) ... |-';
+andLeft on='... ((?match: |this.seqq| == |this.nodeseqq| &amp;&amp; (forall i:int :: (i &gt;= 0 &amp;&amp; i &lt; |this.seqq| ==&gt; this.seqq[i] == this.nodeseqq[i].value)))) ... |-';
+forallInstantiation with='idx_1' on='... ((?match: (forall n:int :: n &gt;= 0 &amp;&amp; n &lt; |this.nodeseqq| ==&gt; !(this.nodeseqq[n] == null)))) ... |-';
+boogie ;
+</entry>
+<entry key="List.getAt/InitInv[nodeInv]"/>
+<entry key="List.getAt/InitInv.1">andLeft on='... ((?match: 0 &lt;= pos &amp;&amp; pos &lt; |this.seqq| &amp;&amp; this.Valid())) ... |-';
+expand on='... ((?match: this.Valid())) ... |-';
+substitute on='... ((?match: let heap, this := $heap, this :: |this.seqq| == |this.nodeseqq| &amp;&amp; (forall i:int :: (i &gt;= 0 &amp;&amp; i &lt; |this.seqq| ==&gt; this.seqq[i] == this.nodeseqq[i].value)) &amp;&amp; this.nodeseqq[0] == this.head &amp;&amp; this.nodeseqq[(|this.nodeseqq| - 1)].next == null &amp;&amp; (forall j:int :: (j &gt;= 0 &amp;&amp; j &lt; |this.nodeseqq| - 1 ==&gt; this.nodeseqq[j].next == this.nodeseqq[(j + 1)])) &amp;&amp; (forall k:int :: (k &gt;= 0 &amp;&amp; k &lt; |this.nodeseqq| - 1 ==&gt; !(this.nodeseqq[k].next == null))))) ... |-';
+boogie ;
+</entry>
+<entry key="List.size/loop_exit/Assert"/>
+<entry key="List.removeAt/else/loop/Dec">boogie;
+</entry>
+<entry key="List.size/else/InitInv.1"/>
+<entry key="List.ValidNode/Null"/>
+<entry key="List.insertAt/else/loop_exit/Post"/>
+<entry key="List.insertAt/else/loop/Dec">boogie ;
+</entry>
+<entry key="List.Valid/Bounds.7">boogie;
+</entry>
+<entry key="List.Valid/Bounds.6">boogie;
+</entry>
+<entry key="List.Valid/Bounds.5">boogie;
+</entry>
+<entry key="List.Valid/Bounds.4">boogie;
+</entry>
+<entry key="List.Valid/Bounds.3">boogie;
+</entry>
+<entry key="List.Valid/Bounds.2">boogie;
+</entry>
+<entry key="List.Valid/Bounds.1">boogie;
+</entry>
+<entry key="List.removeAt/then/then/Bounds.1">boogie;
+</entry>
+<entry key="List.Valid/Bounds">boogie;
+</entry>
+<entry key="List.size/loop/Dec">boogie;
+</entry>
+<entry key="List.insertAt/loop_exit/Bounds">boogie;
+</entry>
+<entry key="List.removeAt/else/loop_exit/else/Null">boogie;
+</entry>
+<entry key="List.removeAt/then/else/Null">boogie;
+</entry>
+<entry key="List.removeAt/else/loop_exit/else/Post">boogie;
+</entry>
+<entry key="List.getAt/InitInv[idxInv]"/>
+<entry key="List.getAt/loop/Inv[idxInv]">boogie;
+</entry>
+<entry key="List.insertAt/loop/Inv">andLeft on='... ((?match: 0 &lt;= pos &amp;&amp; pos &lt;= |this.seqq| &amp;&amp; this.Valid())) ... |-';
+expand on='... ((?match: this.Valid())) ... |-';
+substitute on='... ((?match: let heap, this := $heap, this :: |this.seqq| == |this.nodeseqq| &amp;&amp; (forall i:int :: (i &gt;= 0 &amp;&amp; i &lt; |this.seqq| ==&gt; this.seqq[i] == this.nodeseqq[i].value)) &amp;&amp; this.nodeseqq[0] == this.head &amp;&amp; this.nodeseqq[(|this.nodeseqq| - 1)].next == null &amp;&amp; (forall j:int :: (j &gt;= 0 &amp;&amp; j &lt; |this.nodeseqq| - 1 ==&gt; this.nodeseqq[j].next == this.nodeseqq[(j + 1)])) &amp;&amp; (forall k:int :: (k &gt;= 0 &amp;&amp; k &lt; |this.nodeseqq| - 1 ==&gt; !(this.nodeseqq[k].next == null))))) ... |-';
+substitute on='|- ... ((?match: let node := node_1 :: let idx := idx_1 :: let node := node.next :: let idx := idx + 1 :: node == this.nodeseqq[idx])) ...';
+substitute on='|- ... ((?match: let idx := idx_1 :: let node := node_1.next :: let idx := idx + 1 :: node == this.nodeseqq[idx])) ...';
+substitute on='|- ... ((?match: let node := node_1.next :: let idx := idx_1 + 1 :: node == this.nodeseqq[idx])) ...';
+substitute on='|- ... ((?match: let idx := idx_1 + 1 :: node_1.next == this.nodeseqq[idx])) ...';
+substitute on='... ((?match: let node := node_1 :: let idx := idx_1 :: node == this.nodeseqq[idx])) ... |-';
+substitute on='... ((?match: let idx := idx_1 :: node_1 == this.nodeseqq[idx])) ... |-';
+substitute on='... ((?match: let idx := idx_1 :: idx &lt; pos)) ... |-';
+andLeft on='... ((?match: |this.seqq| == |this.nodeseqq| &amp;&amp; (forall i:int :: (i &gt;= 0 &amp;&amp; i &lt; |this.seqq| ==&gt; this.seqq[i] == this.nodeseqq[i].value)) &amp;&amp; this.nodeseqq[0] == this.head &amp;&amp; this.nodeseqq[(|this.nodeseqq| - 1)].next == null &amp;&amp; (forall j:int :: (j &gt;= 0 &amp;&amp; j &lt; |this.nodeseqq| - 1 ==&gt; this.nodeseqq[j].next == this.nodeseqq[(j + 1)])) &amp;&amp; (forall k:int :: (k &gt;= 0 &amp;&amp; k &lt; |this.nodeseqq| - 1 ==&gt; !(this.nodeseqq[k].next == null))))) ... |-';
+andLeft on='... ((?match: |this.seqq| == |this.nodeseqq| &amp;&amp; (forall i:int :: (i &gt;= 0 &amp;&amp; i &lt; |this.seqq| ==&gt; this.seqq[i] == this.nodeseqq[i].value)) &amp;&amp; this.nodeseqq[0] == this.head &amp;&amp; this.nodeseqq[(|this.nodeseqq| - 1)].next == null &amp;&amp; (forall j:int :: (j &gt;= 0 &amp;&amp; j &lt; |this.nodeseqq| - 1 ==&gt; this.nodeseqq[j].next == this.nodeseqq[(j + 1)])))) ... |-';
+andLeft on='... ((?match: |this.seqq| == |this.nodeseqq| &amp;&amp; (forall i:int :: (i &gt;= 0 &amp;&amp; i &lt; |this.seqq| ==&gt; this.seqq[i] == this.nodeseqq[i].value)) &amp;&amp; this.nodeseqq[0] == this.head &amp;&amp; this.nodeseqq[(|this.nodeseqq| - 1)].next == null)) ... |-';
+andLeft on='... ((?match: |this.seqq| == |this.nodeseqq| &amp;&amp; (forall i:int :: (i &gt;= 0 &amp;&amp; i &lt; |this.seqq| ==&gt; this.seqq[i] == this.nodeseqq[i].value)) &amp;&amp; this.nodeseqq[0] == this.head)) ... |-';
+andLeft on='... ((?match: |this.seqq| == |this.nodeseqq| &amp;&amp; (forall i:int :: (i &gt;= 0 &amp;&amp; i &lt; |this.seqq| ==&gt; this.seqq[i] == this.nodeseqq[i].value)))) ... |-';
+forallInstantiation with='idx_1' on='... ((?match: (forall j:int :: j &gt;= 0 &amp;&amp; j &lt; |this.nodeseqq| - 1 ==&gt; this.nodeseqq[j].next == this.nodeseqq[(j + 1)]))) ... |-';
+modusPonens on='... ((?match: idx_1 &gt;= 0 &amp;&amp; idx_1 &lt; |this.nodeseqq| - 1 ==&gt; this.nodeseqq[idx_1].next == this.nodeseqq[(idx_1 + 1)])) ... |-';
+cases {
+	case match "mainBranch": {
+		
+	}
+	case match "assumption": {
+		
+	}
+}
+</entry>
+<entry key="List.insertAt/loop_exit/Bounds.3">boogie;
+</entry>
+<entry key="List.insertAt/loop_exit/Bounds.2">boogie;
+</entry>
+<entry key="List.insertAt/loop_exit/Bounds.1">boogie;
+</entry>
+<entry key="List.removeAt/then/else/Post">boogie;
+</entry>
+<entry key="List.removeAt/then/then/Post">boogie;
+</entry>
+<entry key="List.removeAt/else/loop_exit/then/Null">boogie;
+</entry>
+<entry key="List.insertAt/else/loop/Inv.1">boogie ;
+</entry>
+<entry key="List.getAt/loop/Inv[nodeInv]">substitute on='|- ... ((?match: let node := node_1 :: let idx := idx_1 :: let node := node.next :: let idx := idx + 1 :: node == this.nodeseqq[idx])) ...';
+substitute on='|- ... ((?match: let idx := idx_1 :: let node := node_1.next :: let idx := idx + 1 :: node == this.nodeseqq[idx])) ...';
+substitute on='|- ... ((?match: let node := node_1.next :: let idx := idx_1 + 1 :: node == this.nodeseqq[idx])) ...';
+substitute on='|- ... ((?match: let idx := idx_1 + 1 :: node_1.next == this.nodeseqq[idx])) ...';
+andLeft on='... ((?match: 0 &lt;= pos &amp;&amp; pos &lt; |this.seqq| &amp;&amp; this.Valid())) ... |-';
+andLeft on='... ((?match: 0 &lt;= pos &amp;&amp; pos &lt; |this.seqq|)) ... |-';
+expand on='... ((?match: this.Valid())) ... |-';
+substitute on='... ((?match: let heap, this := $heap, this :: _)) ... |-';
+forallInstantiation with='idx_1' on='... ((?match: (forall j:int :: j &gt;= 0 &amp;&amp; j &lt; |this.nodeseqq| - 1 ==&gt; this.nodeseqq[j].next == this.nodeseqq[(j + 1)]))) ... |-';
+boogie ;
+</entry>
+<entry key="List.removeAt/else/loop_exit/then/Bounds">boogie;
+</entry>
+<entry key="List.getAt/loop/Inv.1">andLeft on='... ((?match: 0 &lt;= pos &amp;&amp; pos &lt; |this.seqq| &amp;&amp; this.Valid())) ... |-';
+expand on='... ((?match: this.Valid())) ... |-';
+substitute on='... ((?match: let heap, this := $heap, this :: |this.seqq| == |this.nodeseqq| &amp;&amp; (forall i:int :: (i &gt;= 0 &amp;&amp; i &lt; |this.seqq| ==&gt; this.seqq[i] == this.nodeseqq[i].value)) &amp;&amp; this.nodeseqq[0] == this.head &amp;&amp; this.nodeseqq[(|this.nodeseqq| - 1)].next == null &amp;&amp; (forall j:int :: (j &gt;= 0 &amp;&amp; j &lt; |this.nodeseqq| - 1 ==&gt; this.nodeseqq[j].next == this.nodeseqq[(j + 1)])) &amp;&amp; (forall k:int :: (k &gt;= 0 &amp;&amp; k &lt; |this.nodeseqq| - 1 ==&gt; !(this.nodeseqq[k].next == null))))) ... |-';
+substitute on='|- ... ((?match: let node := node_1 :: let idx := idx_1 :: let node := node.next :: let idx := idx + 1 :: node == this.nodeseqq[idx])) ...';
+substitute on='|- ... ((?match: let idx := idx_1 :: let node := node_1.next :: let idx := idx + 1 :: node == this.nodeseqq[idx])) ...';
+substitute on='|- ... ((?match: let node := node_1.next :: let idx := idx_1 + 1 :: node == this.nodeseqq[idx])) ...';
+substitute on='|- ... ((?match: let idx := idx_1 + 1 :: node_1.next == this.nodeseqq[idx])) ...';
+forallInstantiation with='idx_1' on='... ((?match: (forall j:int :: j &gt;= 0 &amp;&amp; j &lt; |this.nodeseqq| - 1 ==&gt; this.nodeseqq[j].next == this.nodeseqq[(j + 1)]))) ... |-';
+andLeft on='... ((?match: 0 &lt;= pos &amp;&amp; pos &lt; |this.seqq|)) ... |-';
+substitute on='... ((?match: let idx := idx_1 :: idx &lt; pos)) ... |-';
+substitute on='... ((?match: let node := node_1 :: let idx := idx_1 :: node == this.nodeseqq[idx])) ... |-';
+substitute on='... ((?match: let idx := idx_1 :: node_1 == this.nodeseqq[idx])) ... |-';
+boogie ;
+</entry>
+<entry key="List.size/Assert">exhaustive ruleName="andRight" on='|- ... ((?match: s &gt; 1 &amp;&amp; s &gt; 0 &amp;&amp; s &gt; 2)) ...';
+</entry>
+<entry key="List.insertAt/else/loop/Null">expand on='... ((?match: this.Valid())) ... |-';
+boogie ;
+</entry>
+<entry key="List.removeAt/else/loop_exit/then/Post">boogie;
+</entry>
+<entry key="List.removeAt/else/loop/Null">boogie;
+</entry>
+<entry key="List.insertAt/else/loop_exit/Bounds.3"/>
+<entry key="List.insertAt/else/loop/Inv">expand on='... ((?match: this.Valid())) ... |-';
+boogie ;
+</entry>
+<entry key="List.insertAt/else/loop_exit/Bounds.2"/>
+<entry key="List.insertAt/else/loop_exit/Bounds.1"/>
+<entry key="List.removeAt/then/else/Bounds">boogie;
+</entry>
+<entry key="List.insertAt/then/Modifies[Init]">expand on='... ((?match: this.Valid())) ... |-';
+boogie ;
+</entry>
+<entry key="List.removeAt/else/loop_exit/Null">boogie;
+</entry>
+<entry key="List.removeAt/else/loop_exit/then/Bounds.1">boogie;
+</entry>
+<entry key="List.size/loop/Inv">expand on='... ((?match: this.Valid())) ... |-';
+boogie ;
+</entry>
+<entry key="List.size/else/loop/Dec"/>
+<entry key="List.insertAt/else/InitInv.1">boogie ;
+</entry>
+<entry key="List.getAt/loop_exit/Null">andLeft on='... ((?match: 0 &lt;= pos &amp;&amp; pos &lt; |this.seqq| &amp;&amp; this.Valid())) ... |-';
+expand on='... ((?match: this.Valid())) ... |-';
+substitute on='|- ... ((?match: let node := node_1 :: !(node == null))) ...';
+substitute on='... ((?match: let heap, this := $heap, this :: |this.seqq| == |this.nodeseqq| &amp;&amp; (forall i:int :: (i &gt;= 0 &amp;&amp; i &lt; |this.seqq| ==&gt; this.seqq[i] == this.nodeseqq[i].value)) &amp;&amp; this.nodeseqq[0] == this.head &amp;&amp; this.nodeseqq[(|this.nodeseqq| - 1)].next == null &amp;&amp; (forall j:int :: (j &gt;= 0 &amp;&amp; j &lt; |this.nodeseqq| - 1 ==&gt; this.nodeseqq[j].next == this.nodeseqq[(j + 1)])) &amp;&amp; (forall k:int :: (k &gt;= 0 &amp;&amp; k &lt; |this.nodeseqq| - 1 ==&gt; !(this.nodeseqq[k].next == null))) &amp;&amp; (forall n:int :: (n &gt;= 0 &amp;&amp; n &lt; |this.nodeseqq| - 1 ==&gt; !(this.nodeseqq[n] == null))))) ... |-';
+andLeft on='... ((?match: |this.seqq| == |this.nodeseqq| &amp;&amp; (forall i:int :: (i &gt;= 0 &amp;&amp; i &lt; |this.seqq| ==&gt; this.seqq[i] == this.nodeseqq[i].value)) &amp;&amp; this.nodeseqq[0] == this.head &amp;&amp; this.nodeseqq[(|this.nodeseqq| - 1)].next == null &amp;&amp; (forall j:int :: (j &gt;= 0 &amp;&amp; j &lt; |this.nodeseqq| - 1 ==&gt; this.nodeseqq[j].next == this.nodeseqq[(j + 1)])) &amp;&amp; (forall k:int :: (k &gt;= 0 &amp;&amp; k &lt; |this.nodeseqq| - 1 ==&gt; !(this.nodeseqq[k].next == null))) &amp;&amp; (forall n:int :: (n &gt;= 0 &amp;&amp; n &lt; |this.nodeseqq| ==&gt; !(this.nodeseqq[n] == null))))) ... |-';
+andLeft on='... ((?match: |this.seqq| == |this.nodeseqq| &amp;&amp; (forall i:int :: (i &gt;= 0 &amp;&amp; i &lt; |this.seqq| ==&gt; this.seqq[i] == this.nodeseqq[i].value)) &amp;&amp; this.nodeseqq[0] == this.head &amp;&amp; this.nodeseqq[(|this.nodeseqq| - 1)].next == null &amp;&amp; (forall j:int :: (j &gt;= 0 &amp;&amp; j &lt; |this.nodeseqq| - 1 ==&gt; this.nodeseqq[j].next == this.nodeseqq[(j + 1)])) &amp;&amp; (forall k:int :: (k &gt;= 0 &amp;&amp; k &lt; |this.nodeseqq| - 1 ==&gt; !(this.nodeseqq[k].next == null))))) ... |-';
+andLeft on='... ((?match: |this.seqq| == |this.nodeseqq| &amp;&amp; (forall i:int :: (i &gt;= 0 &amp;&amp; i &lt; |this.seqq| ==&gt; this.seqq[i] == this.nodeseqq[i].value)) &amp;&amp; this.nodeseqq[0] == this.head &amp;&amp; this.nodeseqq[(|this.nodeseqq| - 1)].next == null &amp;&amp; (forall j:int :: (j &gt;= 0 &amp;&amp; j &lt; |this.nodeseqq| - 1 ==&gt; this.nodeseqq[j].next == this.nodeseqq[(j + 1)])))) ... |-';
+andLeft on='... ((?match: |this.seqq| == |this.nodeseqq| &amp;&amp; (forall i:int :: (i &gt;= 0 &amp;&amp; i &lt; |this.seqq| ==&gt; this.seqq[i] == this.nodeseqq[i].value)) &amp;&amp; this.nodeseqq[0] == this.head &amp;&amp; this.nodeseqq[(|this.nodeseqq| - 1)].next == null)) ... |-';
+andLeft on='... ((?match: |this.seqq| == |this.nodeseqq| &amp;&amp; (forall i:int :: (i &gt;= 0 &amp;&amp; i &lt; |this.seqq| ==&gt; this.seqq[i] == this.nodeseqq[i].value)) &amp;&amp; this.nodeseqq[0] == this.head)) ... |-';
+andLeft on='... ((?match: |this.seqq| == |this.nodeseqq| &amp;&amp; (forall i:int :: (i &gt;= 0 &amp;&amp; i &lt; |this.seqq| ==&gt; this.seqq[i] == this.nodeseqq[i].value)))) ... |-';
+forallInstantiation with='idx_1' on='... ((?match: (forall n:int :: n &gt;= 0 &amp;&amp; n &lt; |this.nodeseqq| ==&gt; !(this.nodeseqq[n] == null)))) ... |-';
+boogie ;
+</entry>
+<entry key="List.size/loop_exit/Post">boogie;
+</entry>
+<entry key="List.removeAt/else/loop_exit/else/Modifies">boogie;
+</entry>
+<entry key="List.insertAt/loop_exit/Modifies[Init]">boogie;
+</entry>
+<entry key="List.getAt/loop_exit/Post">andLeft on='... ((?match: 0 &lt;= pos &amp;&amp; pos &lt; |this.seqq| &amp;&amp; this.Valid())) ... |-';
+expand on='... ((?match: this.Valid())) ... |-';
+boogie ;
+</entry>
+<entry key="List.ValidNode/Null.1"/>
+<entry key="List.removeAt/then/Null">boogie;
+</entry>
+<entry key="List.removeAt/else/loop_exit/else/Null.2">boogie;
+</entry>
+<entry key="List.removeAt/else/loop_exit/else/Null.1">boogie;
+</entry>
+<entry key="List.size/Null">boogie ;
+</entry>
+<entry key="List.insertAt/else/loop_exit/Modifies[Init]"/>
+<entry key="List.removeAt/then/else/Bounds.1">boogie;
+</entry>
+<entry key="List.insertAt/loop/Null">boogie;
+</entry>
+<entry key="List.size/else/Null"/>
+<entry key="List.getAt/loop/Dec">boogie;
+</entry>
+</properties>
