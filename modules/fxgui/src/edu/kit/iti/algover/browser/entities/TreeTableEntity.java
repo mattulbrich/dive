@@ -40,10 +40,6 @@ public abstract class TreeTableEntity {
         }
     }
 
-    private void updateProvenChildren(Observable observable) {
-
-    }
-
     public abstract <T> T accept(TreeTableEntityVisitor<T> visitor);
 
     public DafnyFile getLocation() {

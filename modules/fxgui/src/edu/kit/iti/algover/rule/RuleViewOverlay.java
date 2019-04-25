@@ -27,7 +27,8 @@ public class RuleViewOverlay extends AnchorPane {
     private final Label branchCount;
     private final JFXButton applyButton;
     private final JFXButton refineButton;
-    private final JFXButton applyExButton;
+    //vstte Version
+    //private final JFXButton applyExButton;
     private final RuleApplicationListener listener;
 
     public RuleViewOverlay(ProofRuleApplication application, RuleApplicationListener listener, TermSelector selector) {
@@ -46,13 +47,14 @@ public class RuleViewOverlay extends AnchorPane {
         applyButton.setDisable(application.getApplicability() != ProofRuleApplication.Applicability.APPLICABLE);
         applyButton.setOnAction(this::onRuleApplication);
 
-        applyExButton = new JFXButton("Apply Exh.");
+        //removed for vstte Version
+        /*applyExButton = new JFXButton("Apply Exh.");
         applyExButton.getStyleClass().add("applyEx");
         applyExButton.setDisable(application.getApplicability() != ProofRuleApplication.Applicability.APPLICABLE);
         //TODO use the created exhaustive application instead of creating it again
         applyExButton.setOnAction(actionEvent -> {
             listener.onRuleExApplication(this.application.getRule(), selector);
-        });
+        });*/
 
         refineButton = new JFXButton("Refine");
         refineButton.getStyleClass().add("refine");
@@ -72,15 +74,18 @@ public class RuleViewOverlay extends AnchorPane {
             System.out.println(parameterName + ": " + value);
         }
 
-        getChildren().addAll(branchCount, applyButton, refineButton, applyExButton);
+        //vstte Version
+        //getChildren().addAll(branchCount, applyButton, refineButton, applyExButton);
+        getChildren().addAll(branchCount, applyButton, refineButton);
         setTopAnchor(branchCount, 0.0);
         setRightAnchor(branchCount, 0.0);
 
         setBottomAnchor(applyButton, 0.0);
         setLeftAnchor(applyButton, 0.0);
 
-        setTopAnchor(applyExButton, 0.0);
-        setLeftAnchor(applyExButton, 0.0);
+        //vstte Version
+        //setTopAnchor(applyExButton, 0.0);
+        //setLeftAnchor(applyExButton, 0.0);
 
         setBottomAnchor(refineButton, 0.0);
         setRightAnchor(refineButton, 0.0);
