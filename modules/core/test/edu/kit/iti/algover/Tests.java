@@ -11,6 +11,7 @@ import edu.kit.iti.algover.parser.ImplicitlyTypedVariableVisitorTest;
 import edu.kit.iti.algover.parser.ModifiesListResolverTest;
 import edu.kit.iti.algover.parser.ParserErrorTest;
 import edu.kit.iti.algover.parser.QuantifierGuardRemovalVisitorTest;
+import edu.kit.iti.algover.project.DafnyProjectConfigurationChangerTest;
 import edu.kit.iti.algover.project.ProjectManagerTest;
 import edu.kit.iti.algover.proof.PVCBuilderTest;
 import edu.kit.iti.algover.proof.ProofTest;
@@ -88,6 +89,7 @@ import edu.kit.iti.algover.util.UtilTest;
         ProofTest.class,
     ScriptParserTest.class,
         ProjectManagerTest.class,
+    DafnyProjectConfigurationChangerTest.class,
     ProgramDatabaseTest.class,
     UtilTest.class,
     DafnyRuleTest.class,

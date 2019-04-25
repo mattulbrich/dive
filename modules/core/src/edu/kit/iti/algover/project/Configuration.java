@@ -2,32 +2,47 @@ package edu.kit.iti.algover.project;
 
 import edu.kit.iti.algover.dafnystructures.DafnyDecl;
 import edu.kit.iti.algover.settings.ProjectSettings;
+import nonnull.NonNull;
 
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.*;
 import java.io.File;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Class representing the XML-file that contains all information necessary to create a project
  */
 @XmlRootElement
 public class Configuration {
-    // REVIEW. What is this here for?
-    public DafnyDecl dafnyDeclarations;
     /**
      * The dafny files that are treated as library files, i.e. no proof obligation is generqated for the DafnyDecls in the libarary files
      */
-    private List<File> libFiles;
+    private List<File> libFiles = new ArrayList<>();
     /**
      * The problem files of a system for which proof obligations should be generated
      */
-    private List<File> dafnyFiles;
+    private List<File> dafnyFiles = new ArrayList<>();
     /**
      * Settings of the project
      */
-    private Map<String, String> projectSettings;
+    private Map<String, String> projectSettings = new HashMap<>();
+
+
+    /**
+     * If Dafny ProjectManager is used
+     */
+    @XmlTransient
+    private File masterFile = new File("");
+
+    /**
+     * If XML Projectmanager is used
+     */
+    @XmlTransient
+    private String configFile = "config.xml";
+
+    private File baseDir = new File("");
+
+    @XmlTransient
+    private boolean saveAsXML = false;
 
     @XmlElement(name = "settings")
     public Map<String, String> getSettings() {
@@ -56,5 +71,40 @@ public class Configuration {
         this.dafnyFiles = dafnyFiles;
     }
 
+    @XmlTransient
+    public File getMasterFile() {
+        return masterFile;
+    }
+
+    public void setMasterFile(File masterFile) {
+        this.masterFile = masterFile;
+    }
+
+    @XmlTransient
+    public String getConfigFile() {
+        return configFile;
+    }
+
+    public void setConfigFile(String configFile) {
+        this.configFile = configFile;
+    }
+
+    @XmlElement(name = "baseDir")
+    public File getBaseDir() {
+        return baseDir;
+    }
+
+    public void setBaseDir(File baseDir) {
+        this.baseDir = baseDir;
+    }
+
+    @XmlTransient
+    public boolean isSaveAsXML() {
+        return saveAsXML;
+    }
+
+    public void setSaveAsXML(boolean saveAsXML) {
+        this.saveAsXML = saveAsXML;
+    }
 
 }

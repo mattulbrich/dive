@@ -8,6 +8,9 @@ import edu.kit.iti.algover.dafnystructures.DafnyMethod;
 import edu.kit.iti.algover.project.Project;
 import edu.kit.iti.algover.proof.*;
 import javafx.beans.value.ObservableValue;
+import javafx.scene.control.ContextMenu;
+import javafx.scene.control.MenuItem;
+import javafx.scene.control.SeparatorMenuItem;
 import javafx.scene.control.TreeItem;
 
 import java.util.ArrayList;
@@ -33,8 +36,21 @@ public abstract class BrowserController {
 
         view.getSelectionModel().selectedItemProperty()
                 .addListener(this::onTreeItemSelected);
-
+        createContextMenu(view.getContextMenu());
         populateTreeTable();
+    }
+
+    private void createContextMenu(ContextMenu contextMenu) {
+        MenuItem select = new MenuItem("Selected PVC");
+        select.setOnAction(event -> {
+            System.out.println("Selected Menu Item");
+        });
+        contextMenu.getItems().addAll(new SeparatorMenuItem(), select);
+
+    }
+
+    public ContextMenu getBrowserContextMenu(){
+        return view.getContextMenu();
     }
 
     protected abstract void populateTreeTable();

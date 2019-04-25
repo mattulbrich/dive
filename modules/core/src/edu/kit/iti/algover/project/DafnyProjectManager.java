@@ -29,6 +29,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
+import java.util.logging.Logger;
 
 /**
  * This project manager is a newer variant which does not use configuration
@@ -104,7 +105,6 @@ public class DafnyProjectManager extends AbstractProjectManager {
     }
 
     private static Project buildProject(File masterFile) throws IOException, DafnyParserException {
-
         ProjectBuilder pb = new ProjectBuilder();
         File dir = masterFile.getAbsoluteFile().getParentFile();
         pb.setDir(dir);
@@ -198,5 +198,35 @@ public class DafnyProjectManager extends AbstractProjectManager {
     @Override
     public String getName() {
         return masterFile.toString();
+    }
+
+    @Override
+    public Configuration getConfiguration() {
+        Configuration c =  getProject().getConfiguration();
+        c.setBaseDir(getProject().getBaseDir());
+        c.setMasterFile(this.masterFile);
+        c.setSaveAsXML(false);
+        return c;
+    }
+
+    @Override
+    public void updateProject(Configuration config) throws IOException{
+        try {
+            DafnyProjectConfigurationChanger.saveConfiguration(config, config.getMasterFile());
+            this.reload();
+        } catch (DafnyParserException e) {
+            Logger.getGlobal().severe("Error while saving project settings to file: "+config.getMasterFile());
+            e.printStackTrace();
+        }
+    }
+
+    @Override
+    public void saveProjectConfiguration() throws IOException {
+        try {
+            DafnyProjectConfigurationChanger.saveConfiguration(this.getConfiguration(), this.masterFile);
+        } catch (DafnyParserException e) {
+            Logger.getGlobal().warning("Error while saving configuration as Dafny master file "+this.masterFile);
+            e.printStackTrace();
+        }
     }
 }

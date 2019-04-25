@@ -4,6 +4,7 @@
     <xs:element name="configuration">
         <xs:complexType>
             <xs:sequence>
+                <xs:element name="baseDir" maxOccurs="unbounded" minOccurs="0"/>
                 <xs:element name="dafnyFile" maxOccurs="unbounded" minOccurs="0"/>
                 <xs:element name="libFile" maxOccurs="unbounded" minOccurs="0"/>
                 <xs:element name="settings" maxOccurs="1" minOccurs="0">

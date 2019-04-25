@@ -5,80 +5,66 @@
  */
 package edu.kit.iti.algover;
 
-import edu.kit.iti.algover.project.DafnyProjectManager;
-import edu.kit.iti.algover.project.ProjectManager;
-import edu.kit.iti.algover.project.XMLProjectManager;
 import javafx.application.Application;
 import javafx.scene.Scene;
-import javafx.stage.DirectoryChooser;
-import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 
 import java.awt.*;
-import java.io.File;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 /**
- * Created by Philipp on 15.06.2017.
+ * @author Philipp (15.06.2017)
+ * @author Extended by S.Grebing (March 2019)
  */
 public class AlgoVerApplication extends Application {
+
+    private Stage primaryStage;
+
+    private Stage substage;
 
     public static void main(String[] args) {
         launch(args);
     }
 
     // Used for calculating the syntax highlighting asynchronously
-    private static final ExecutorService SYNTAX_HIGHLIGHTING_EXECUTOR = Executors.newSingleThreadExecutor();
+    public static final ExecutorService SYNTAX_HIGHLIGHTING_EXECUTOR = Executors.newSingleThreadExecutor();
+
+
 
     @Override
     public void start(Stage primaryStage) throws Exception {
-
-        File projectFile;
-
+        this.primaryStage = primaryStage;
+        //create Welcome Dialog
         Parameters params = getParameters();
         List<String> fileNames = params.getUnnamed();
-        if(fileNames.isEmpty()) {
-
-            FileChooser chooser = new FileChooser();
-
-            chooser.setTitle("Choose project folder");
-            chooser.setInitialDirectory(new File("doc/examples/"));
-            projectFile = chooser.showOpenDialog(primaryStage);
-            ProjectManager manager;
-            if (projectFile == null) {
-                return;
-            }
+        if(fileNames != null && fileNames.size() > 0){
+           // File absoluteFile = new File(fileNames.get(0)).getAbsoluteFile();
+           // createAndExecuteMainController(absoluteFile, createProjectManager(absoluteFile));
+            startApplication(primaryStage, fileNames);
         } else {
-            projectFile = new File(fileNames.get(0)).getAbsoluteFile();
+            startApplication(primaryStage, Collections.emptyList());
         }
+    }
 
-        ProjectManager manager;
-        if (projectFile.getName().endsWith(".xml")) {
-            // Read all PVCs and update GUId
-            manager = new XMLProjectManager(projectFile.getParentFile(), projectFile.getName());
-        } else if(projectFile.getName().endsWith(".dfy")) {
-            manager = new DafnyProjectManager(projectFile);
-        } else {
-            throw new IllegalArgumentException("AlgoVer supports only .dfy and .xml files.");
-        }
-
-        // TODO Maybe don't do this initially (might hurt UX, when there are a lot of proofs)
-        // manager.getAllProofs().values().forEach(proof -> proof.interpretScript());
-
-        MainController controller = new MainController(manager, SYNTAX_HIGHLIGHTING_EXECUTOR);
-
-        Scene scene = new Scene(controller.getView());
-        scene.getStylesheets().add(AlgoVerApplication.class.getResource("style.css").toExternalForm());
-        primaryStage.setScene(scene);
+    /**
+     * If opendirectly is empty, a welcome pane view is created. Otherwise the application is started directly with
+     * the parameters in the list opendirectly
+     * @param primaryStage
+     * @param opendirectly
+     */
+    private void startApplication(Stage primaryStage, List<String> opendirectly) {
+        primaryStage.setTitle("AlgoVer");
+        WelcomePane p = new WelcomePane(primaryStage, opendirectly);
+        primaryStage.setScene(new Scene(p.getRootPane()));
 
         Dimension screenSize = java.awt.Toolkit.getDefaultToolkit().getScreenSize();
         double width = screenSize.getWidth();
         double height = screenSize.getHeight();
         primaryStage.setWidth(width);
         primaryStage.setHeight(height);
-        primaryStage.setTitle("AlgoVer - " + projectFile);
         primaryStage.show();
 
     }
