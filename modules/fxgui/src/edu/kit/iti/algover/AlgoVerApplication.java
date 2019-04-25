@@ -14,6 +14,7 @@ import javafx.stage.DirectoryChooser;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 
+import java.awt.*;
 import java.io.File;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
@@ -71,8 +72,12 @@ public class AlgoVerApplication extends Application {
         Scene scene = new Scene(controller.getView());
         scene.getStylesheets().add(AlgoVerApplication.class.getResource("style.css").toExternalForm());
         primaryStage.setScene(scene);
-        primaryStage.setWidth(900);
-        primaryStage.setHeight(700);
+
+        Dimension screenSize = java.awt.Toolkit.getDefaultToolkit().getScreenSize();
+        double width = screenSize.getWidth();
+        double height = screenSize.getHeight();
+        primaryStage.setWidth(width);
+        primaryStage.setHeight(height);
         primaryStage.setTitle("AlgoVer - " + projectFile);
         primaryStage.show();
 

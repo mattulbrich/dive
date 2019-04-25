@@ -146,47 +146,15 @@ public class MainController implements SequentActionListener, RuleApplicationLis
     private void trivialStrat(ActionEvent event) {
         Map<String, PVC> pvcMap = manager.getPVCByNameMap();
         for(Map.Entry<String, PVC> e : pvcMap.entrySet()) {
-            String script = "";
             Proof p = manager.getProofForPVC(e.getKey());
             if (p.getProofStatus() != ProofStatus.CLOSED) {
-                for (int i = 0; i < p.getProofRoot().getSequent().getAntecedent().size(); ++i) {
-                    try {
-                        ExhaustiveRule exRule = new ExhaustiveRule();
-                        Parameters parameters = new Parameters();
-                        parameters.putValue("ruleName", "substitute");
-                        parameters.putValue("on", new TermParameter(new TermSelector("A." + i), p.getProofRoot().getSequent()));
-                        ProofRuleApplication pra = exRule.considerApplication(p.getProofRoot(), parameters);
-
-                        script += pra.getScriptTranscript();
-                    } catch (FormatException ex) {
-                        //TODO
-                    } catch (RuleException ex) {
-                        //TODO
-                    }
-                }
-                for (int i = 0; i < p.getProofRoot().getSequent().getSuccedent().size(); ++i) {
-                    try {
-                        ExhaustiveRule exRule = new ExhaustiveRule();
-                        Parameters parameters = new Parameters();
-                        parameters.putValue("ruleName", "substitute");
-                        parameters.putValue("on", new TermParameter(new TermSelector("S." + i), p.getProofRoot().getSequent()));
-                        ProofRuleApplication pra = exRule.considerApplication(p.getProofRoot(), parameters);
-
-                        script += pra.getScriptTranscript();
-                    } catch (FormatException ex) {
-                        //TODO
-                    } catch (RuleException ex) {
-                        //TODO
-                    }
-                }
-                String letScript = script;
-                script += "close;\n";
+                String oldScript = p.getScript();
+                String script = "boogie;\n";
                 p.setScriptTextAndInterpret(script);
                 if(p.getFailException() != null) {
-                    script = letScript + "boogie;\n";
-                    p.setScriptTextAndInterpret(script);
+                    p.setScriptTextAndInterpret(oldScript + "boogie;");
                     if(p.getFailException() != null) {
-                        p.setScriptTextAndInterpret(letScript);
+                        p.setScriptText(oldScript);
                     }
                 }
             }
@@ -347,7 +315,7 @@ public class MainController implements SequentActionListener, RuleApplicationLis
             }
         };
         t.setOnSucceeded(event -> {
-                manager.getAllProofs().values().forEach(p -> p.interpretScript());
+                //manager.getAllProofs().values().forEach(p -> p.interpretScript());
                 browserController.onRefresh(manager.getProject(), manager.getAllProofs());
                 browserController.getView().setDisable(false);
                 sequentController.getView().setDisable(false);

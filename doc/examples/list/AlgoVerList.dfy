@@ -12,89 +12,32 @@ class Node {
 
 class List {
   ghost var seqq: seq<int>;
-  ghost var footprint: set<object>;
+  ghost var nodeseqq: seq<Node>;
 
   var head: Node;
-  
+
   function Valid() : bool
   {
-    if head == null then |seqq| == 0 else ValidNode(head, 0)
-  }    
-
-  function ValidNode(node : Node, idx : int) : bool
-  {
-    if(node == null) then true else node.value == seqq[idx] && ValidNode(node.next, idx + 1)
-  }
-
-  method size() returns (s: int)
-    requires Valid()
-    ensures s == |seqq|
-  {
-    s := 0;
-    var node := head;
-    while(node != null) 
-      decreases |seqq| - s
-    {
-      node := node.next;
-      s := s + 1;
-    }
-  }
+    |seqq| == |nodeseqq| &&
+	(forall i :: i >= 0 && i < |seqq| ==> seqq[i] == nodeseqq[i].value) &&
+	nodeseqq[0] == head &&
+        nodeseqq[(|nodeseqq| - 1)].next == null &&
+	(forall j :: j >= 0 && j < |nodeseqq| - 1 ==> nodeseqq[j].next == nodeseqq[j + 1]) &&
+	(forall k :: k >= 0 && k < |nodeseqq| - 1 ==> nodeseqq[k].next != null) &&
+	(forall n :: n >= 0 && n < |nodeseqq| ==> nodeseqq[n] != null) &&
+	head != null
+  }  
   
-  method insertAt(pos: int, value: int)
-    requires 0 <= pos <= |seqq| && Valid()
-    ensures seqq == old(seqq[..pos] + [value] + seqq[pos..]) && Valid()
-    modifies footprint
+  method getAt(pos: int) returns (v: int)
+    requires 0 <= pos < |seqq| && Valid()
+    ensures v == seqq[pos]
   {
-    var idx := 0;
-    var node := head;
-    while(idx < pos) 
-      decreases |seqq| - idx;
-    {
-      node := node.next;
-      idx := idx + 1;
-    }
-    var newNode := new Node;
-    node.next := new Node.Init(value, node.next);
-    seqq := seqq[..pos] + [value] + seqq[pos..];
-  }
-  
-  method removeAt(pos: int)
-    requires 0 <= pos < |seqq|
-    ensures seqq == old(seqq[..pos] + seqq[pos+1..])
-    modifies footprint
-  {
-    if(pos == 0) {
-      if(head.next == null) {
-        head := null;
-      } else {
-        head := head.next;
-      }
-    } else {
       var idx := 0;
       var node := head;
       while(idx < pos) 
         decreases |seqq| - idx;
-      {
-        node := node.next;
-        idx := idx + 1;
-      }
-      if(node.next == null) {
-        node.next := null;
-      } else {
-        node.next := node.next.next;
-      }
-    }
-    seqq := seqq[..pos] + seqq[pos+1..];
-  }
-  
-  method getAt(pos: int) returns (v: int)
-    requires 0 <= pos < |seqq|
-    ensures v == seqq[pos]
-  {
-    var idx := 0;
-      var node := head;
-      while(idx < pos) 
-        decreases |seqq| - idx;
+	invariant label idxInv: idx >= 0 && idx <= pos;
+	invariant label nodeInv: node == nodeseqq[idx];
       {
         node := node.next;
         idx := idx + 1;
