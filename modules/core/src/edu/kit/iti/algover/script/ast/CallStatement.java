@@ -33,7 +33,7 @@ import nonnull.NonNull;
  * @author Alexander Weigl
  * @version 1 (28.04.17)
  */
-public class CallStatement extends Statement<ScriptLanguageParser.ScriptCommandContext> {
+public class CallStatement extends Statement {
     /**
      * The name of the command.
      */

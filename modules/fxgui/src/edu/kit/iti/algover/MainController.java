@@ -554,7 +554,9 @@ public class MainController implements SequentActionListener, RuleApplicationLis
         sequentController.getActiveSequentController().getActiveProof().setScriptTextAndInterpret(newScript);
         ruleApplicationController.resetConsideration();
         sequentController.getActiveSequentController().tryMovingOnEx();
-
+        if(sequentController.getActiveSequentController().getActiveProof().getFailException() == null) {
+            Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).info("Successfully applied rule " + rule.getName() + ".");
+        }
     }
 
     @Override

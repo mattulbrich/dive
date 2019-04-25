@@ -1,34 +1,25 @@
 package edu.kit.iti.algover.rule.script;
 
-import edu.kit.iti.algover.editor.HighlightingRule;
-import edu.kit.iti.algover.editor.LayeredHighlightingRule;
 import edu.kit.iti.algover.proof.Proof;
 import edu.kit.iti.algover.proof.ProofNodeSelector;
 import edu.kit.iti.algover.rule.RuleApplicationListener;
 import edu.kit.iti.algover.script.ast.Position;
 import edu.kit.iti.algover.script.ast.ProofScript;
-import edu.kit.iti.algover.script.exceptions.ScriptCommandNotApplicableException;
 import edu.kit.iti.algover.script.parser.Facade;
 import edu.kit.iti.algover.script.parser.PrettyPrinter;
 import edu.kit.iti.algover.util.ExceptionDetails;
-import edu.kit.iti.algover.util.RuleApp;
 import javafx.beans.Observable;
-import javafx.concurrent.Task;
+import javafx.beans.property.SimpleObjectProperty;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyCodeCombination;
 import javafx.scene.input.KeyCombination;
 import javafx.scene.input.KeyEvent;
-import org.antlr.runtime.Token;
-import org.fxmisc.richtext.model.StyleSpans;
 
-import java.io.StringWriter;
-import java.time.Duration;
+import java.awt.*;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
 import java.util.concurrent.ExecutorService;
-import java.util.function.Consumer;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
@@ -38,8 +29,10 @@ public class ScriptController implements ScriptViewListener {
     private final ScriptView view;
     private final RuleApplicationListener listener;
     private ProofNodeSelector selectedNode = null;
-    Position insertPosition = new Position(0, 0);
 
+
+
+    private SimpleObjectProperty<Position> observableInsertPosition = new SimpleObjectProperty<Position>(new Position(1,0));
     private Proof proof;
     private List<ProofNodeCheckpoint> checkpoints;
 
@@ -53,7 +46,41 @@ public class ScriptController implements ScriptViewListener {
         view.setHighlightingRule(this.highlightingRules);
 
         view.caretPositionProperty().addListener(this::onCaretPositionChanged);
+
+        observableInsertPosition.set(new Position(1,0));
+        observableInsertPosition.addListener((o, old, nv) -> {
+            onInsertPositionChanged(old, nv);
+        });
+
+        view.getGutterAnnotations().get(0).setInsertMarker(true);
+        view.getGutterAnnotations().get(0).setProofNode(new ProofNodeSelector());
+        view.getGutterAnnotations().get(0).setProofNodeIsSelected(true);
+
+        view.requestLayout();
+
     }
+
+    private void onInsertPositionChanged(Position old, Position nv) {
+        if(old != null) {
+            view.getGutterAnnotations().get(old.getLineNumber() - 1).setInsertMarker(false);
+            view.getGutterAnnotations().forEach(gutterAnnotation -> gutterAnnotation.setProofNodeIsSelected(false));
+            //view.getGutterAnnotations().get(old.getLineNumber() - 1).setProofNodeIsSelected(false);
+
+        }
+            if(view.getGutterAnnotations().size() > nv.getLineNumber()){
+                view.getGutterAnnotations().get(nv.getLineNumber()-1).setInsertMarker(true);
+                view.getGutterAnnotations().get(nv.getLineNumber()-1).setProofNodeIsSelected(true);
+
+            } else {
+                GutterAnnotation newlineAnnotation = view.getGutter().getLineAnnotation(nv.getLineNumber() - 1);
+                newlineAnnotation.setInsertMarker(true);
+                newlineAnnotation.setProofNodeIsSelected(true);
+            }
+        view.requestLayout();
+    }
+
+
+
 
     private void handleShortcuts(KeyEvent keyEvent) {
         if (saveShortcut.match(keyEvent)) {
@@ -68,20 +95,30 @@ public class ScriptController implements ScriptViewListener {
 
         view.replaceText(proof.getScript());
         view.getUndoManager().forgetHistory();
+        runScript();
     }
 
     private void onCaretPositionChanged(Observable observable) {
+       //this positions linenumber starts with 1
         Position caretPosition = computePositionFromCharIdx(view.getCaretPosition(), view.getText());
         ProofNodeCheckpoint checkpoint = getCheckpointForCaretPosition(caretPosition);
-        insertPosition = checkpoint.caretPosition;
+        //insertPosition = checkpoint.caretPosition;
+        observableInsertPosition.set(checkpoint.caretPosition);
         this.checkpoints = ProofNodeCheckpointsBuilder.build(proof);
+        createVisualSelectors(this.checkpoints);
+        //showSelectedSelector(checkpoint);
         switchViewedNode();
         view.highlightLine();
     }
 
+    private void showSelectedSelector(ProofNodeCheckpoint checkpoint) {
+        view.getGutterAnnotations().forEach(gutterAnnotation -> gutterAnnotation.setProofNodeIsSelected(false));
+        view.getGutter().getLineAnnotation(checkpoint.caretPosition.getLineNumber()-1).setProofNodeIsSelected(true);
+    }
+
 
     private void switchViewedNode() {
-        Position caretPosition = insertPosition;
+        Position caretPosition = getObservableInsertPosition();
 
         ProofNodeCheckpoint checkpoint = getCheckpointForCaretPosition(caretPosition);
 
@@ -94,9 +131,12 @@ public class ScriptController implements ScriptViewListener {
             } else {
                 this.listener.onSwitchViewedNode(checkpoint.selector);
             }
+        } else {
+            this.listener.onSwitchViewedNode(checkpoint.selector);
         }
+        showSelectedSelector(checkpoint);
+        view.requestLayout();
 
-        this.listener.onSwitchViewedNode(checkpoint.selector);
     }
 
     private ProofNodeCheckpoint getCheckpointForCaretPosition(Position caretPosition) {
@@ -130,6 +170,8 @@ public class ScriptController implements ScriptViewListener {
 
     private int computeCharIdxFromPosition(Position position, String text) {
         int charIdx = 0;
+        if(text == "") return 0;
+        if(!text.contains("\n")) return text.length() - 1;
         for (int i = 0; i < position.getLineNumber() - 1; ++i) {
             charIdx += text.substring(0, text.indexOf('\n')).length() + 1;
             text = text.substring(text.indexOf('\n') + 1);
@@ -161,12 +203,14 @@ public class ScriptController implements ScriptViewListener {
         }*/
         //checkpoints = ProofNodeCheckpointsBuilder.build(proof);
         // TODO switchViewedNode();
+        view.setStyle("-fx-background-color: lightgray;");
         onCaretPositionChanged(null);
     }
 
     @Override
     public void runScript() {
-        Position oldInsertPos = insertPosition;
+
+        Position oldInsertPos = getObservableInsertPosition();
         String text = view.getText();
         resetExceptionRendering();
 
@@ -185,8 +229,30 @@ public class ScriptController implements ScriptViewListener {
             proof.getFailException().printStackTrace();
         }
         checkpoints = ProofNodeCheckpointsBuilder.build(proof);
-        insertPosition = oldInsertPos;
+       // insertPosition = oldInsertPos;
+        observableInsertPosition.set(oldInsertPos);
+        createVisualSelectors(checkpoints);
+
         switchViewedNode();
+        view.setStyle("-fx-background-color: white;");
+    }
+
+    private void createVisualSelectors(List<ProofNodeCheckpoint> checkpoints) {
+        for (ProofNodeCheckpoint checkpoint : this.checkpoints) {
+            int checkpointline = checkpoint.position.getLineNumber();
+
+            if(checkpointline < view.getGutterAnnotations().size()) {
+                view.getGutterAnnotations().get(checkpointline).setProofNode(checkpoint.selector);
+                view.getGutterAnnotations().get(checkpointline).setProofNodeIsSelected(false);
+            } else {
+                GutterFactory gutterFactory = view.getGutter();
+                GutterAnnotation lineAnnotation = gutterFactory.getLineAnnotation(checkpointline);
+                lineAnnotation.setProofNode(checkpoint.selector);
+                lineAnnotation.setProofNodeIsSelected(false);
+            }
+
+        }
+//        view.requestLayout();
     }
 
     public ScriptView getView() {
@@ -197,7 +263,7 @@ public class ScriptController implements ScriptViewListener {
         if(view.getText().equals("")) {
             view.insertText(0, text);
         } else {
-            int insertAt = computeCharIdxFromPosition(insertPosition, view.getText());
+            int insertAt = computeCharIdxFromPosition(observableInsertPosition.get(), view.getText());
             view.insertText(insertAt, text);
         }
         runScript();
@@ -229,10 +295,24 @@ public class ScriptController implements ScriptViewListener {
             if (checkpoints != null) {
                 List<ProofNodeCheckpoint> potCheckpoints = checkpoints.stream().filter(ch -> ch.selector.equals(proofNodeSelector)).collect(Collectors.toList());
                 if (potCheckpoints.size() > 0) {
-                    insertPosition = potCheckpoints.get(potCheckpoints.size() - 1).caretPosition;
+                    Position insertPosition = potCheckpoints.get(potCheckpoints.size() - 1).caretPosition;
+                    observableInsertPosition.set(insertPosition);
                     //switchViewedNode();
                 }
             }
         }
     }
+
+    public Position getObservableInsertPosition() {
+        return observableInsertPosition.get();
+    }
+
+    public SimpleObjectProperty<Position> observableInsertPositionProperty() {
+        return observableInsertPosition;
+    }
+
+    public void setObservableInsertPosition(Position observableInsertPosition) {
+        this.observableInsertPosition.set(observableInsertPosition);
+    }
+
 }

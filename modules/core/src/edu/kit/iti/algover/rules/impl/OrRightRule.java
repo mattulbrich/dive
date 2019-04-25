@@ -20,6 +20,7 @@ import java.util.List;
 public class OrRightRule extends AbstractProofRule {
     public OrRightRule() {
         super(ON_PARAM);
+        mayBeExhaustive = true;
     }
 
     @Override

@@ -97,6 +97,7 @@
     -fx-background-color: white;
 }
 
+
 .log:error .text {
     -fx-fill: #E55;
 }

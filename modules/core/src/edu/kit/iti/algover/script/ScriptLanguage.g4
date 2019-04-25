@@ -65,6 +65,7 @@ literals :
         ID             #literalID
     |   DIGITS         #literalDigits
     |   TERM_LITERAL   #literalTerm
+    |   MATCH_TERM_LITERAL #matchTermLiteral
     |   SEQUENT_LITERAL  #sequentLiteral
     |   STRING_LITERAL #literalString
     |   TRUE           #literalTrue
@@ -158,6 +159,9 @@ TERM_LITERAL
    : '\'' ~('\'')* '\''
    ;
 
+MATCH_TERM_LITERAL
+   : '\'\'' .*? '\'\''
+   ;
 
 PLUS : '+' ;
 MINUS : '-' ;

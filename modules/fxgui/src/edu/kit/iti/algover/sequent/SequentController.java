@@ -8,7 +8,8 @@ import edu.kit.iti.algover.proof.*;
 import edu.kit.iti.algover.references.ProofTermReference;
 import edu.kit.iti.algover.references.ReferenceGraph;
 import edu.kit.iti.algover.rules.*;
-import edu.kit.iti.algover.sequent.formulas.AddedOrDeletedFormula;
+import edu.kit.iti.algover.sequent.formulas.AddedFormula;
+import edu.kit.iti.algover.sequent.formulas.DeletedFormula;
 import edu.kit.iti.algover.sequent.formulas.ModifiedFormula;
 import edu.kit.iti.algover.sequent.formulas.OriginalFormula;
 import edu.kit.iti.algover.sequent.formulas.TopLevelFormula;
@@ -18,18 +19,15 @@ import edu.kit.iti.algover.term.prettyprint.AnnotatedString;
 import edu.kit.iti.algover.util.Pair;
 import edu.kit.iti.algover.util.SubSelection;
 import edu.kit.iti.algover.util.SubtermSelectorReplacementVisitor;
-import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
-import javafx.scene.control.TabPane;
 import javafx.scene.input.KeyCode;
 import javafx.util.Callback;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 /**
  * Created by philipp on 12.07.17.
@@ -227,8 +225,10 @@ public class SequentController extends FxmlController {
                 activeNode = proofNodeSelector;
                 BranchInfo branchInfo = null;
                 ProofRuleApplication application = proofNode.getPsr();
-                if (application != null && application.getBranchInfo().size() == 1) {
-                    branchInfo = application.getBranchInfo().get(0);
+                if (application != null) {
+                    branchInfo = application.getBranchInfo().get(
+                            proofNodeSelector.getPath()[proofNodeSelector.getPath().length - 1]
+                    );
                 }
                 updateSequent(parentNode.getSequent(), branchInfo);
                 updateGoalTypeLabel();
@@ -284,7 +284,7 @@ public class SequentController extends FxmlController {
 
                 for (ProofFormula deleted : deletions) {
                     if (proofFormulas.get(i).getTerm().equals(deleted.getTerm())) {
-                        formulas.add(new AddedOrDeletedFormula(AddedOrDeletedFormula.Type.DELETED, deleted.getTerm()));
+                        formulas.add(new DeletedFormula(deleted.getTerm()));
                         deletedFormulas++;
                         continue formulaLoop;
                     }
@@ -300,7 +300,7 @@ public class SequentController extends FxmlController {
                     : branchInfo.getAdditions().getSuccedent();
 
             for (ProofFormula addition : additions) {
-                formulas.add(new AddedOrDeletedFormula(AddedOrDeletedFormula.Type.ADDED, addition.getTerm()));
+                formulas.add(new AddedFormula(formulas.size() - deletedFormulas, addition.getTerm()));
             }
         }
         return formulas;

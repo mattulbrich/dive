@@ -33,6 +33,7 @@ public class TrivialAndRight extends AbstractProofRule {
 
     public TrivialAndRight() {
         super(ON_PARAM);
+        mayBeExhaustive = true;
     }
 
     @Override
