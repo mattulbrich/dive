@@ -1,6 +1,7 @@
 package edu.kit.iti.algover.browser.entities;
 
 import edu.kit.iti.algover.dafnystructures.DafnyFile;
+import javafx.beans.Observable;
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleStringProperty;
@@ -31,6 +32,16 @@ public abstract class TreeTableEntity {
                 children.stream()
                         .map(TreeTableEntity::getProvenChildren)
                         .reduce(0, (x, y) -> x + y));
+        for(TreeTableEntity ch : children) {
+            ch.provenChildrenProperty().addListener((obs, old, nu) -> {
+                int diff = old.intValue() - nu.intValue();
+                this.provenChildren.setValue(this.provenChildren.get() - diff);
+            });
+        }
+    }
+
+    private void updateProvenChildren(Observable observable) {
+
     }
 
     public abstract <T> T accept(TreeTableEntityVisitor<T> visitor);
