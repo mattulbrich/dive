@@ -111,6 +111,7 @@ public class RuleView extends StackPane {
         if (application != null) {
             //vstte Version
             //applicationOverlay = new RuleViewOverlay(application, exApplication, listener, selection);
+            applicationOverlay = new RuleViewOverlay(application, listener, selection);
             getChildren().setAll(applicationOverlay, ruleNameLabel);
         } else {
             resetConsideration();
