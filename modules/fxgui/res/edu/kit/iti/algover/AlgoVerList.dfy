@@ -19,13 +19,14 @@ class List {
   function Valid() : bool
   {
     |seqq| == |nodeseqq| &&
-	(forall i :: i >= 0 && i < |seqq| ==> seqq[i] == nodeseqq[i].value) &&
-	nodeseqq[0] == head &&
-        nodeseqq[(|nodeseqq| - 1)].next == null &&
-	(forall j :: j >= 0 && j < |nodeseqq| - 1 ==> nodeseqq[j].next == nodeseqq[j + 1]) &&
-	(forall k :: k >= 0 && k < |nodeseqq| - 1 ==> nodeseqq[k].next != null) &&
-	(forall n :: n >= 0 && n < |nodeseqq| ==> nodeseqq[n] != null) &&
-	head != null
+    |seqq| >= 1 &&
+    head != null &&
+    (forall n :: n >= 0 && n < |nodeseqq| ==> nodeseqq[n] != null) &&
+    (forall i :: i >= 0 && i < |seqq| ==> seqq[i] == nodeseqq[i].value) &&
+    (forall k :: k >= 0 && k < |nodeseqq| - 1 ==> nodeseqq[k].next != null) &&
+    nodeseqq[0] == head &&
+    nodeseqq[(|nodeseqq| - 1)].next == null &&
+    (forall j :: j >= 0 && j < |nodeseqq| - 1 ==> nodeseqq[j].next == nodeseqq[j + 1])
   }  
   
   method getAt(pos: int) returns (v: int)
