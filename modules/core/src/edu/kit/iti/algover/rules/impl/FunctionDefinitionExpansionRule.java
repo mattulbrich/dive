@@ -30,6 +30,7 @@ import edu.kit.iti.algover.term.Sequent;
 import edu.kit.iti.algover.term.Sort;
 import edu.kit.iti.algover.term.Term;
 import edu.kit.iti.algover.term.VariableTerm;
+import edu.kit.iti.algover.term.builder.LetInlineVisitor;
 import edu.kit.iti.algover.term.builder.TermBuildException;
 import edu.kit.iti.algover.term.builder.TreeTermTranslator;
 import edu.kit.iti.algover.util.ASTUtil;
@@ -183,8 +184,10 @@ public class FunctionDefinitionExpansionRule extends AbstractProofRule {
         }
 
         Term translation = ttt.build(tree);
+        translation = new LetTerm(assignments, translation);
+        translation = LetInlineVisitor.inline(translation);
 
-        return new LetTerm(assignments, translation);
+        return translation;
 
     }
 
