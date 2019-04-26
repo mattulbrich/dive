@@ -59,6 +59,12 @@
                 </padding>
 
             </Button>
+            <Button fx:id="loadExample" maxWidth="Infinity" alignment="CENTER_LEFT">
+                <padding>
+                    <Insets top="20" bottom="20" right="20" left="20"></Insets>
+                </padding>
+
+            </Button>
 
         </TilePane>
     </right>
