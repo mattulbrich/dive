@@ -76,8 +76,8 @@
    
   <target name="jar" depends="build, combineServices" description="creates the jar file">
     <jar jarfile="algover.jar">
-      <fileset dir="modules/core/bin/" />
-      <fileset dir="modules/dafny/bin/" />
+      <zipfileset dir="modules/core/bin/" />
+      <zipfileset dir="modules/dafny/bin/" />
       <!-- <fileset dir="modules/key/bin/" /> -->
       <!-- <fileset dir="modules/smt/bin/" /> -->
       <zipfileset dir="." includes="VERSION" prefix="META-INF"/>
@@ -105,6 +105,7 @@
       <!-- <fileset dir="modules/key/bin/" /> -->
       <!-- <fileset dir="modules/smt/bin/" /> -->
       <zipfileset dir="." includes="VERSION" prefix="META-INF"/>
+      <zipgroupfileset dir="lib" includes="*.jar"/>
 
       <manifest>
         <!-- Who is building this jar? -->
