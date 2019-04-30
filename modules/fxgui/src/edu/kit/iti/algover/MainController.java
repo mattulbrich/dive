@@ -14,7 +14,6 @@ import edu.kit.iti.algover.dafnystructures.DafnyFile;
 import edu.kit.iti.algover.dafnystructures.DafnyFunction;
 import edu.kit.iti.algover.dafnystructures.DafnyMethod;
 import edu.kit.iti.algover.editor.EditorController;
-import edu.kit.iti.algover.project.Configuration;
 import edu.kit.iti.algover.project.ProjectManager;
 import edu.kit.iti.algover.proof.*;
 import edu.kit.iti.algover.references.CodeReference;
@@ -24,32 +23,27 @@ import edu.kit.iti.algover.references.Reference;
 import edu.kit.iti.algover.rule.RuleApplicationController;
 import edu.kit.iti.algover.rule.RuleApplicationListener;
 import edu.kit.iti.algover.rules.*;
-import edu.kit.iti.algover.rules.impl.ExhaustiveRule;
 import edu.kit.iti.algover.sequent.SequentActionListener;
 import edu.kit.iti.algover.sequent.SequentTabViewController;
-import edu.kit.iti.algover.settings.ProjectSettingsController;
 import edu.kit.iti.algover.settings.SettingsController;
 import edu.kit.iti.algover.settings.SettingsFactory;
 import edu.kit.iti.algover.settings.SettingsWrapper;
 import edu.kit.iti.algover.timeline.TimelineLayout;
 import edu.kit.iti.algover.util.CostumBreadCrumbBar;
-import edu.kit.iti.algover.util.FormatException;
 import edu.kit.iti.algover.util.StatusBarLoggingHandler;
 import javafx.application.Platform;
 import javafx.beans.value.ObservableValue;
 import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
-import javafx.fxml.FXMLLoader;
-import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.control.*;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.*;
 import org.controlsfx.control.StatusBar;
+import org.controlsfx.dialog.ProgressDialog;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.URL;
 import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.logging.Level;
@@ -180,10 +174,8 @@ public class MainController implements SequentActionListener, RuleApplicationLis
             TreeItem<TreeTableEntity> selectedItem = browserController.getView().getSelectionModel().getSelectedItem();
             TreeTableEntity value = selectedItem.getValue();
             List<String> pvcNames = value.accept(new TreeTableEntityContextMenuStrategyHelper());
-            System.out.println("pvcNames = " + pvcNames);
-            pvcNames.forEach(this::applyTrivialStrategy);
-            sequentController.getActiveSequentController().tryMovingOnEx(); //SaG: was tryMovingOn()
-            ruleApplicationController.resetConsideration();
+            //System.out.println("pvcNames = " + pvcNames);
+            applyTrivialStrategy(pvcNames);
         } catch (NullPointerException npe){
             Logger.getGlobal().info("Please select an item in the browser tree.");
 
@@ -193,26 +185,64 @@ public class MainController implements SequentActionListener, RuleApplicationLis
 
     private void trivialStrat(ActionEvent event) {
         Map<String, PVC> pvcMap = manager.getPVCByNameMap();
-        for(Map.Entry<String, PVC> e : pvcMap.entrySet()) {
-            applyTrivialStrategy(e.getKey());
-        }
-        sequentController.getActiveSequentController().tryMovingOnEx(); //SaG: was tryMovingOn()
-        ruleApplicationController.resetConsideration();
+        applyTrivialStrategy(pvcMap.keySet());
     }
 
-    private void applyTrivialStrategy(String pvcName) {
-        Proof p = manager.getProofForPVC(pvcName);
-        if (p.getProofStatus() != ProofStatus.CLOSED) {
-            String oldScript = p.getScript();
-            String script = "boogie;\n";
-            p.setScriptTextAndInterpret(script);
-            if(p.getFailException() != null) {
-                p.setScriptTextAndInterpret(oldScript + "boogie;");
-                if(p.getFailException() != null) {
-                    p.setScriptText(oldScript);
+    private void applyTrivialStrategy(Collection<String> pvcNames) {
+        Task<Integer> t1 = new Task<Integer>() {
+            @Override
+            protected Integer call() throws Exception {
+                int prog = 0;
+                int failed = 0;
+                for(String pvcName : pvcNames) {
+                    Proof p = manager.getProofForPVC(pvcName);
+                    if (p.getProofStatus() != ProofStatus.CLOSED) {
+                        String oldScript = p.getScript();
+                        String script = "boogie;\n";
+                        p.setScriptTextAndInterpret(script);
+                        if (p.getFailException() != null) {
+                            p.setScriptTextAndInterpret(oldScript + "boogie;");
+                            if (p.getFailException() != null) {
+                                p.setScriptText(oldScript);
+                                failed++;
+                            }
+                        }
+                    }
+                    prog++;
+                    updateProgress(prog, pvcNames.size());
                 }
+
+                Platform.runLater(() -> {
+                    sequentController.getActiveSequentController().tryMovingOnEx(); //SaG: was tryMovingOn()
+                    ruleApplicationController.resetConsideration();
+                });
+                return pvcNames.size() - failed;
             }
-        }
+        };
+        ProgressDialog progressDialog = new ProgressDialog(t1);
+        t1.setOnSucceeded($ -> {
+            Platform.runLater(() -> {
+                Alert a = new Alert(Alert.AlertType.INFORMATION);
+                a.setTitle("Applied strategy");
+                a.setHeaderText("Successfully applied strategy and closed "
+                                        + t1.valueProperty().get() + " of " + pvcNames.size() + " PVCs.");
+                a.showAndWait();
+                Logger.getGlobal().info("Successfully applied strategy and closed "
+                        + t1.valueProperty().get() + " of " + pvcNames.size() + " PVCs.");
+            });
+        });
+        t1.setOnCancelled($ -> {
+            Platform.runLater(() -> {
+                Logger.getGlobal().severe("Strategy was cancelled.");
+            });
+        });
+        progressDialog.setHeaderText("Applying strategy to " + pvcNames.size() + " PVCs. Please wait.");
+        progressDialog.setTitle("Applying strategy");
+        progressDialog.getDialogPane().getButtonTypes().add(ButtonType.CANCEL);
+        progressDialog.setOnCloseRequest(event -> {
+            t1.cancel();
+        });
+        new Thread(t1).start();
     }
 
     @SuppressWarnings("unchecked")

@@ -20,6 +20,8 @@ import edu.kit.iti.algover.rules.ProofRuleApplication.Applicability;
 import edu.kit.iti.algover.rules.ProofRuleApplicationBuilder;
 import edu.kit.iti.algover.rules.RuleException;
 
+import java.nio.channels.ClosedByInterruptException;
+
 /*
  * This is a quick and dirty implementation until the real one is available
  * Code quality is lower than elsewhere since this is a temporary implementation.
@@ -89,6 +91,8 @@ public class BoogieRule extends AbstractProofRule {
             return process.callBoogie();
         } catch(RuleException rex) {
             throw rex;
+        } catch (ClosedByInterruptException e) {
+            return false;
         } catch(Exception ex) {
             throw new RuleException("The call to Boogie was not successful", ex);
         }
