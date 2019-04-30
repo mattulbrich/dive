@@ -6,6 +6,10 @@ import edu.kit.iti.algover.proof.PVC;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Visitor to get the names of the PVCs of a selected TreeItem in the TreeTableView
+ * @author S.Grebing
+ */
 public class TreeTableEntityContextMenuStrategyHelper implements TreeTableEntityVisitor<List<String>> {
     @Override
     public List<String> visitMethod(MethodEntity entity) {
