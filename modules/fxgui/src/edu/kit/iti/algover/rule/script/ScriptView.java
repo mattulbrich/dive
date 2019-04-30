@@ -62,7 +62,7 @@ public class ScriptView extends AsyncHighlightingCodeArea {
         MenuItem run = new MenuItem("Run Proof Script", GlyphsDude.createIcon(FontAwesomeIcon.ARROW_RIGHT));
 
         save.setOnAction(event -> this.listener.onScriptSave());
-        run.setOnAction(event -> this.listener.runScript());
+        run.setOnAction(event -> this.listener.runScript(true));
 
         ContextMenu menu = new ContextMenu(
                 run,

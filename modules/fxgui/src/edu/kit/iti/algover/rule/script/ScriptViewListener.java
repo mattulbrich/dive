@@ -8,5 +8,5 @@ public interface ScriptViewListener {
 
     void onAsyncScriptTextChanged(String text);
 
-    void runScript();
+    void runScript(Boolean resetInsertionMarker);
 }
