@@ -46,6 +46,7 @@ import javafx.scene.control.*;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.*;
 import org.controlsfx.control.StatusBar;
+import org.controlsfx.dialog.ProgressDialog;
 
 import java.io.File;
 import java.io.IOException;
@@ -180,10 +181,8 @@ public class MainController implements SequentActionListener, RuleApplicationLis
             TreeItem<TreeTableEntity> selectedItem = browserController.getView().getSelectionModel().getSelectedItem();
             TreeTableEntity value = selectedItem.getValue();
             List<String> pvcNames = value.accept(new TreeTableEntityContextMenuStrategyHelper());
-            System.out.println("pvcNames = " + pvcNames);
-            pvcNames.forEach(this::applyTrivialStrategy);
-            sequentController.getActiveSequentController().tryMovingOnEx(); //SaG: was tryMovingOn()
-            ruleApplicationController.resetConsideration();
+            //System.out.println("pvcNames = " + pvcNames);
+            applyTrivialStrategy(pvcNames);
         } catch (NullPointerException npe){
             Logger.getGlobal().info("Please select an item in the browser tree.");
 
@@ -193,59 +192,64 @@ public class MainController implements SequentActionListener, RuleApplicationLis
 
     private void trivialStrat(ActionEvent event) {
         Map<String, PVC> pvcMap = manager.getPVCByNameMap();
-        for(Map.Entry<String, PVC> e : pvcMap.entrySet()) {
-            applyTrivialStrategy(e.getKey());
-        }
-        sequentController.getActiveSequentController().tryMovingOnEx(); //SaG: was tryMovingOn()
-        ruleApplicationController.resetConsideration();
+        applyTrivialStrategy(pvcMap.keySet());
     }
 
-    private void applyTrivialStrategy(String pvcName) {
-        String script = "";
-        Proof p = manager.getProofForPVC(pvcName);
-        if (p.getProofStatus() != ProofStatus.CLOSED) {
-            for (int i = 0; i < p.getProofRoot().getSequent().getAntecedent().size(); ++i) {
-                try {
-                    ExhaustiveRule exRule = new ExhaustiveRule();
-                    Parameters parameters = new Parameters();
-                    parameters.putValue("ruleName", "substitute");
-                    parameters.putValue("on", new TermParameter(new TermSelector("A." + i), p.getProofRoot().getSequent()));
-                    ProofRuleApplication pra = exRule.considerApplication(p.getProofRoot(), parameters);
+    private void applyTrivialStrategy(Collection<String> pvcNames) {
+        Task<Integer> t1 = new Task<Integer>() {
+            @Override
+            protected Integer call() throws Exception {
+                int prog = 0;
+                int failed = 0;
+                for(String pvcName : pvcNames) {
+                    Proof p = manager.getProofForPVC(pvcName);
+                    if (p.getProofStatus() != ProofStatus.CLOSED) {
+                        String oldScript = p.getScript();
+                        String script = "boogie;\n";
+                        p.setScriptTextAndInterpret(script);
+                        if (p.getFailException() != null) {
+                            p.setScriptTextAndInterpret(oldScript + "boogie;");
+                            if (p.getFailException() != null) {
+                                p.setScriptText(oldScript);
+                                failed++;
+                            }
+                        }
+                    }
+                    prog++;
+                    updateProgress(prog, pvcNames.size());
+                }
 
-                    script += pra.getScriptTranscript();
-                } catch (FormatException ex) {
-                    //TODO
-                } catch (RuleException ex) {
-                    //TODO
-                }
+                Platform.runLater(() -> {
+                    sequentController.getActiveSequentController().tryMovingOnEx(); //SaG: was tryMovingOn()
+                    ruleApplicationController.resetConsideration();
+                });
+                return pvcNames.size() - failed;
             }
-            for (int i = 0; i < p.getProofRoot().getSequent().getSuccedent().size(); ++i) {
-                try {
-                    ExhaustiveRule exRule = new ExhaustiveRule();
-                    Parameters parameters = new Parameters();
-                    parameters.putValue("ruleName", "substitute");
-                    parameters.putValue("on", new TermParameter(new TermSelector("S." + i), p.getProofRoot().getSequent()));
-                    ProofRuleApplication pra = exRule.considerApplication(p.getProofRoot(), parameters);
-
-                    script += pra.getScriptTranscript();
-                } catch (FormatException ex) {
-                    //TODO
-                } catch (RuleException ex) {
-                    //TODO
-                }
-            }
-            String letScript = script;
-            script += "close;\n";
-            System.out.println("script = " + script);
-            p.setScriptTextAndInterpret(script);
-            if(p.getFailException() != null) {
-                script = letScript + "boogie;\n";
-                p.setScriptTextAndInterpret(script);
-                if(p.getFailException() != null) {
-                    p.setScriptTextAndInterpret(letScript);
-                }
-            }
-        }
+        };
+        ProgressDialog progressDialog = new ProgressDialog(t1);
+        t1.setOnSucceeded($ -> {
+            Platform.runLater(() -> {
+                Alert a = new Alert(Alert.AlertType.INFORMATION);
+                a.setTitle("Applied strategy");
+                a.setHeaderText("Successfully applied strategy and closed "
+                                        + t1.valueProperty().get() + " of " + pvcNames.size() + " PVCs.");
+                a.showAndWait();
+                Logger.getGlobal().info("Successfully applied strategy and closed "
+                        + t1.valueProperty().get() + " of " + pvcNames.size() + " PVCs.");
+            });
+        });
+        t1.setOnCancelled($ -> {
+            Platform.runLater(() -> {
+                Logger.getGlobal().severe("Strategy was cancelled.");
+            });
+        });
+        progressDialog.setHeaderText("Applying strategy to " + pvcNames.size() + " PVCs. Please wait.");
+        progressDialog.setTitle("Applying strategy");
+        progressDialog.getDialogPane().getButtonTypes().add(ButtonType.CANCEL);
+        progressDialog.setOnCloseRequest(event -> {
+            t1.cancel();
+        });
+        new Thread(t1).start();
     }
 
     @SuppressWarnings("unchecked")
@@ -400,7 +404,7 @@ public class MainController implements SequentActionListener, RuleApplicationLis
             }
         };
         t.setOnSucceeded(event -> {
-                manager.getAllProofs().values().forEach(p -> p.interpretScript());
+                //manager.getAllProofs().values().forEach(p -> p.interpretScript());
                 browserController.onRefresh(manager.getProject(), manager.getAllProofs());
                 browserController.getView().setDisable(false);
                 sequentController.getView().setDisable(false);
@@ -587,7 +591,9 @@ public class MainController implements SequentActionListener, RuleApplicationLis
         sequentController.getActiveSequentController().getActiveProof().setScriptTextAndInterpret(newScript);
         ruleApplicationController.resetConsideration();
         sequentController.getActiveSequentController().tryMovingOnEx();
-
+        if(sequentController.getActiveSequentController().getActiveProof().getFailException() == null) {
+            Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).info("Successfully applied rule " + rule.getName() + ".");
+        }
     }
 
     @Override

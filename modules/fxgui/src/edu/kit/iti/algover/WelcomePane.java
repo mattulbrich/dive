@@ -59,8 +59,8 @@ public class WelcomePane {
     @FXML
     private Button openEmptyProject;
 
-    @FXML
-    private Button loadExample;
+/*    @FXML
+    private Button loadExample;*/
 
     @FXML
     private BorderPane rootPane;
@@ -126,10 +126,10 @@ public class WelcomePane {
         openEmptyProject.setGraphic(GlyphsDude.createIcon(FontAwesomeIcon.FILE_CODE_ALT));
         openEmptyProject.setOnAction(handleEmptyProjectCreation(primaryStage));
 
-        loadExample.setText("Load Example");
+/*        loadExample.setText("Load Example");
         loadExample.setStyle("-fx-font-size: 20");
         loadExample.setGraphic(GlyphsDude.createIcon(FontAwesomeIcon.BULLSEYE));
-        loadExample.setOnAction(this::loadExample);
+        loadExample.setOnAction(this::loadExample);*/
 
     }
 
