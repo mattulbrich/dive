@@ -41,13 +41,35 @@ public abstract class BrowserController {
     }
 
     private void createContextMenu(ContextMenu contextMenu) {
-        MenuItem select = new MenuItem("Selected PVC");
-        select.setOnAction(event -> {
-            System.out.println("Selected Menu Item");
+        MenuItem expandSubtree = new MenuItem("Expand Tree");
+        expandSubtree.setOnAction(event -> {
+            if(selectionListener != null){
+                TreeItem<TreeTableEntity> selectedItem = getView().getSelectionModel().getSelectedItem();
+                expandCollapseTree(selectedItem, true);
+            }
         });
-        contextMenu.getItems().addAll(new SeparatorMenuItem(), select);
+
+        MenuItem collapseSubtree = new MenuItem("Collapse Tree");
+        collapseSubtree.setOnAction(event -> {
+            if(selectionListener != null){
+                TreeItem<TreeTableEntity> selectedItem = getView().getSelectionModel().getSelectedItem();
+                expandCollapseTree(selectedItem, false);
+            }
+        });
+
+
+        contextMenu.getItems().addAll(new SeparatorMenuItem(), expandSubtree, collapseSubtree);
 
     }
+
+    private void expandCollapseTree(TreeItem<TreeTableEntity> item, boolean expand){
+    if(item != null && !item.isLeaf()){
+        item.setExpanded(expand);
+        for(TreeItem<TreeTableEntity> child:item.getChildren()){
+            expandCollapseTree(child, expand);
+        }
+    }
+}
 
     public ContextMenu getBrowserContextMenu(){
         return view.getContextMenu();
