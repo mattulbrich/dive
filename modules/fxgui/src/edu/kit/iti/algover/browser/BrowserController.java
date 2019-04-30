@@ -19,7 +19,9 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
- * Created by philipp on 26.06.17.
+ * Controller for the PVC and System Structure Overview
+ * @author Philipp Krüger (on 26.06.17)
+ * @author S. Grebing (added ContextMenu)
  */
 public abstract class BrowserController {
 
@@ -65,7 +67,7 @@ public abstract class BrowserController {
     private void expandCollapseTree(TreeItem<TreeTableEntity> item, boolean expand){
     if(item != null && !item.isLeaf()){
         item.setExpanded(expand);
-        for(TreeItem<TreeTableEntity> child:item.getChildren()){
+        for(TreeItem<TreeTableEntity> child : item.getChildren()){
             expandCollapseTree(child, expand);
         }
     }
