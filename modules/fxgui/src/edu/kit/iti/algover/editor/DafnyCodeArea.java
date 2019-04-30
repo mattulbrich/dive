@@ -60,25 +60,15 @@ public class DafnyCodeArea extends AsyncHighlightingCodeArea {
         this.listener = listener;
         getStylesheets().add(AlgoVerApplication.class.getResource("syntax-highlighting.css").toExternalForm());
         setParagraphGraphicFactory(LineNumberFactory.get(this));
-        Nodes.addInputMap(this, InputMap.consume(
-                EventPattern.keyPressed(KeyCode.PLUS,KeyCombination.CONTROL_DOWN), event -> {
-                    int font_size_editor = MainController.systemprefs.getInt("FONT_SIZE_EDITOR", 12);
-                    font_size_editor++;
-                    updateFontSize(font_size_editor);
-                }));
-
-        Nodes.addInputMap(this, InputMap.consume(
-                EventPattern.keyPressed(KeyCode.MINUS,KeyCombination.CONTROL_DOWN), event -> {
-                    int font_size_editor = MainController.systemprefs.getInt("FONT_SIZE_EDITOR", 12);
-                    font_size_editor--;
-                    updateFontSize(font_size_editor);
-                }));
 
         textChangedProperty = new SimpleBooleanProperty(true);
 
         currentProofText = text;
+        //font size and shortcuts
         int font_size_editor = MainController.systemprefs.getInt("FONT_SIZE_EDITOR", 12);
         setStyle("-fx-font-size: "+font_size_editor+";");
+        registerShortcuts();
+
 
         textProperty().addListener(new ChangeListener<String>() {
             @Override
@@ -95,6 +85,22 @@ public class DafnyCodeArea extends AsyncHighlightingCodeArea {
         getUndoManager().forgetHistory();
 
         initContextMenu();
+    }
+
+    private void registerShortcuts() {
+        Nodes.addInputMap(this, InputMap.consume(
+                EventPattern.keyPressed(KeyCode.PLUS,KeyCombination.CONTROL_DOWN), event -> {
+                    int font_size_editor = MainController.systemprefs.getInt("FONT_SIZE_EDITOR", 12);
+                    font_size_editor++;
+                    updateFontSize(font_size_editor);
+                }));
+
+        Nodes.addInputMap(this, InputMap.consume(
+                EventPattern.keyPressed(KeyCode.MINUS,KeyCombination.CONTROL_DOWN), event -> {
+                    int font_size_editor = MainController.systemprefs.getInt("FONT_SIZE_EDITOR", 12);
+                    font_size_editor--;
+                    updateFontSize(font_size_editor);
+                }));
     }
 
     private void updateFontSize(int font_size_editor) {

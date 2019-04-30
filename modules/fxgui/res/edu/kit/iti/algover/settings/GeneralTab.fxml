@@ -18,15 +18,15 @@
         <VBox fx:id="container" AnchorPane.bottomAnchor="5.0" AnchorPane.leftAnchor="5.0" AnchorPane.rightAnchor="5.0" AnchorPane.topAnchor="5.0" >
             <padding><Insets top="25" right="25" bottom="25" left="25"/></padding>
             <children>
-                <Label text="Editors" styleClass="settings-h1"></Label>
+                <Label text="Dafny Code Editor" styleClass="settings-h1"></Label>
                 <HBox fx:id="fontSizeEditors" alignment="CENTER_LEFT" spacing="30">
                     <Label text="Font size" alignment="CENTER_LEFT"></Label>
 
                     <TextField fx:id="currentFontSizeEditor" editable="true" HBox.hgrow="NEVER"></TextField>
                 </HBox>
-                <Region prefHeight="40" VBox.vgrow="ALWAYS"></Region>
+               <!-- <Region prefHeight="40" VBox.vgrow="ALWAYS"></Region>-->
                 <Separator></Separator>
-                <Label text="SequentView" styleClass="settings-h1"></Label>
+             <!--   <Label text="SequentView" styleClass="settings-h1"></Label>
                 <HBox fx:id="fontSizeSeqView" alignment="CENTER_LEFT" spacing="30">
                     <Label text="Font size" alignment="CENTER_LEFT" ></Label>
 
@@ -34,8 +34,8 @@
                 </HBox>
 
                 <Region prefHeight="40" VBox.vgrow="ALWAYS"></Region>
-                <Separator></Separator>
-                <Label text="ScriptEditor" styleClass="settings-h1"></Label>
+                <Separator></Separator> -->
+                <Label text="Script Editor" styleClass="settings-h1"></Label>
                 <HBox fx:id="fontSizeScriptEditor" alignment="CENTER_LEFT" spacing="30">
                     <Label text="Font size" alignment="CENTER_LEFT" ></Label>
                     <TextField fx:id="currentFontSizeScriptEditor" editable="true" HBox.hgrow="NEVER"></TextField>

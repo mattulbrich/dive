@@ -9,6 +9,7 @@ import javafx.scene.Node;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.AnchorPane;
+import org.controlsfx.control.PlusMinusSlider;
 
 import java.io.IOException;
 import java.util.prefs.BackingStoreException;
@@ -19,11 +20,11 @@ public class GeneralSettingsController implements ISettingsController {
     @FXML
     private TextField currentFontSizeEditor;
 
-    @FXML
-    private TextField currentFontSizeSeqView;
+    //@FXML
+    //private TextField currentFontSizeSeqView;
 
     @FXML
-    private TextField getCurrentFontSizeScriptEditor;
+    private TextField currentFontSizeScriptEditor;
 
 
     private Node settingsPanel;
@@ -50,6 +51,10 @@ public class GeneralSettingsController implements ISettingsController {
     }
 
     private void addFontSizes() {
+        int font_size_editor = preferences.getInt("FONT_SIZE_EDITOR", 12);
+        int font_size_script = preferences.getInt("FONT_SIZE_SCRIPT", 12);
+        currentFontSizeEditor.setText(Integer.toString(font_size_editor));
+        currentFontSizeScriptEditor.setText(Integer.toString(font_size_script));
 
     }
 
@@ -60,14 +65,18 @@ public class GeneralSettingsController implements ISettingsController {
 
     @Override
     public void save() {
-        preferences.put("FONT_SIZE_EDITOR", currentFontSizeEditor.getText());
+
         try {
+            preferences.putInt("FONT_SIZE_EDITOR", Integer.parseInt(currentFontSizeEditor.getText()));
+            preferences.putInt("FONT_SIZE_SCRIPT", Integer.parseInt(currentFontSizeScriptEditor.getText()));
+
             preferences.flush();
+
+            //TODO notify components for repainting
         } catch (BackingStoreException e) {
             e.printStackTrace();
         }
         //  preferences.put("FONT_SIZE_SEQ_VIEW", currentFontSizeSeqView.getText());
-        //  preferences.put("FONT_SIZE_SCRIPT_EDITOR", getCurrentFontSizeScriptEditor.getText());
         //TODO
         //in den Home ordner
 

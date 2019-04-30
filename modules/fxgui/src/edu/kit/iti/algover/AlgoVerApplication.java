@@ -56,13 +56,16 @@ public class AlgoVerApplication extends Application {
      * @param opendirectly
      */
     private void startApplication(Stage primaryStage, List<String> opendirectly) {
-        primaryStage.setTitle("AlgoVer");
+        primaryStage.setTitle("DIVE");
         WelcomePane p = new WelcomePane(primaryStage, opendirectly);
         primaryStage.setScene(new Scene(p.getRootPane()));
 
         Dimension screenSize = java.awt.Toolkit.getDefaultToolkit().getScreenSize();
         double width = screenSize.getWidth();
         double height = screenSize.getHeight();
+        //SaG: I would fix the welcome window
+        width=1000;
+        height=800;
         primaryStage.setWidth(width);
         primaryStage.setHeight(height);
         primaryStage.show();
