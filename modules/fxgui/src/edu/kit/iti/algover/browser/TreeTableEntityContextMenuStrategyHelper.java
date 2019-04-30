@@ -14,7 +14,7 @@ public class TreeTableEntityContextMenuStrategyHelper implements TreeTableEntity
 
     @Override
     public List<String> visitFile(FileEntity entity) {
-        System.out.println("entity.getText() = " + entity.getText());
+        //System.out.println("entity.getText() = " + entity.getText());
         return null;
     }
 
@@ -34,7 +34,7 @@ public class TreeTableEntityContextMenuStrategyHelper implements TreeTableEntity
 
     @Override
     public List<String> visitPVCGroup(PVCGroupEntity group) {
-        System.out.println("entity.getText() = " + group.getText());
+        //System.out.println("entity.getText() = " + group.getText());
 
         return null;
     }
