@@ -359,12 +359,15 @@ public class WelcomePane {
         scene.getStylesheets().add(AlgoVerApplication.class.getResource("style.css").toExternalForm());
         substage = new Stage();
         substage.setScene(scene);
+
+
         Dimension screenSize = java.awt.Toolkit.getDefaultToolkit().getScreenSize();
+
         double width = screenSize.getWidth();
         double height = screenSize.getHeight();
         substage.setWidth(width);
         substage.setHeight(height);
-        substage.setTitle("AlgoVer - " + projectFile);
+        substage.setTitle("DIVE - " + projectFile);
         substage.show();
     }
 
