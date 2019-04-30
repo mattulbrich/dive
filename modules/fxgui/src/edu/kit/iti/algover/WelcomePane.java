@@ -22,6 +22,9 @@ import javafx.geometry.Insets;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
+import javafx.scene.control.Button;
+import javafx.scene.control.ScrollPane;
+import javafx.scene.control.TextArea;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.web.WebEngine;
 import javafx.scene.web.WebView;
@@ -29,10 +32,13 @@ import javafx.stage.DirectoryChooser;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 
+import java.awt.*;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.net.URISyntaxException;
+import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -52,6 +58,9 @@ public class WelcomePane {
 
     @FXML
     private Button openEmptyProject;
+
+    @FXML
+    private Button loadExample;
 
     @FXML
     private BorderPane rootPane;
@@ -117,6 +126,11 @@ public class WelcomePane {
         openEmptyProject.setGraphic(GlyphsDude.createIcon(FontAwesomeIcon.FILE_CODE_ALT));
         openEmptyProject.setOnAction(handleEmptyProjectCreation(primaryStage));
 
+        loadExample.setText("Load Example");
+        loadExample.setStyle("-fx-font-size: 20");
+        loadExample.setGraphic(GlyphsDude.createIcon(FontAwesomeIcon.BULLSEYE));
+        loadExample.setOnAction(this::loadExample);
+
     }
 
     public Parent getRootPane() {
@@ -126,6 +140,44 @@ public class WelcomePane {
     public void createNewProjectHandler(ActionEvent event){
         createAndShowConfigPane(primaryStage);
 
+    }
+
+    public void loadExample(ActionEvent event){
+        File exampleFile = new File("ListExample" + File.separator + "AlgoVerList.dfy");
+        if(!exampleFile.exists()) {
+            try {
+                InputStream is = getClass().getResourceAsStream("AlgoVerList.dfy");
+                if(is == null) {
+                    Logger.getGlobal().severe("Could not find example file.");
+                    return;
+                }
+
+                String content = convertStreamToString(is);
+                exampleFile.getParentFile().mkdirs();
+
+                Files.write(exampleFile.toPath(), content.getBytes());
+                is.close();
+            } catch (IOException e) {
+                Logger.getGlobal().severe("Could not copy example file.");
+            }
+        }
+
+        try {
+            ProjectManager pm = createProjectManager(exampleFile);
+            createAndExecuteMainController(exampleFile, pm);
+        } catch (FormatException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (DafnyParserException e) {
+            e.printStackTrace();
+        }
+
+    }
+
+    String convertStreamToString(java.io.InputStream is) {
+        java.util.Scanner s = new java.util.Scanner(is).useDelimiter("\\A");
+        return s.hasNext() ? s.next() : "";
     }
 
     private void handleFileChooserAction(ActionEvent actionEvent) {
@@ -307,9 +359,15 @@ public class WelcomePane {
         scene.getStylesheets().add(AlgoVerApplication.class.getResource("style.css").toExternalForm());
         substage = new Stage();
         substage.setScene(scene);
-        substage.setWidth(900);
-        substage.setHeight(700);
-        substage.setTitle("AlgoVer - " + projectFile);
+
+
+        Dimension screenSize = java.awt.Toolkit.getDefaultToolkit().getScreenSize();
+
+        double width = screenSize.getWidth();
+        double height = screenSize.getHeight();
+        substage.setWidth(width);
+        substage.setHeight(height);
+        substage.setTitle("DIVE - " + projectFile);
         substage.show();
     }
 

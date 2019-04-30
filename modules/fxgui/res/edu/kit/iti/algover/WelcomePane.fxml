@@ -15,7 +15,7 @@
             <padding>
                 <Insets top="20" bottom="20" right="20" left="20"></Insets>
             </padding>
-            <Label styleClass="welcomePaneHeadingLabel" text="Welcome to AlgoVer">
+            <Label styleClass="welcomePaneHeadingLabel" text="Welcome to DIVE">
                 <padding>
                     <Insets top="20" bottom="5"></Insets>
                 </padding>

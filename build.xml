@@ -1,9 +1,9 @@
 <?xml version="1.0"?>
 <!--!DOCTYPE project PUBLIC "-//ANT//DTD project//EN" "project.dtd"-->
 
-<project name="AlgoVer" default="build" basedir=".">
+<project name="DIVE" default="build" basedir=".">
 
-  <property name="VERSION" value="0.0"/>
+  <property name="VERSION" value="vstte19"/>
   
   <property name="z3.binary" value="z3"/>
   <!-- if z3 is not in your path, call "ant -Dz3.binary=/path/to/z3" -->

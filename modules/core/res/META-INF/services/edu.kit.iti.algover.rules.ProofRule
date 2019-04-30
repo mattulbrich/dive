@@ -1,15 +1,15 @@
 # List here the available Java coded proof rules
 # Rule formulated as lemmas in Dafny are created separately.
 
-edu.kit.iti.algover.rules.impl.FakeSMTSolverRule
+#edu.kit.iti.algover.rules.impl.FakeSMTSolverRule
 edu.kit.iti.algover.rules.impl.TrivialAndRight
 edu.kit.iti.algover.rules.impl.PropositionalExpansionRule
 edu.kit.iti.algover.rules.impl.LetSubstitutionRule
-edu.kit.iti.algover.rules.impl.TestTrueAssumption
+#edu.kit.iti.algover.rules.impl.TestTrueAssumption
 edu.kit.iti.algover.rules.impl.RemoveAssumptionRule
 edu.kit.iti.algover.rules.impl.CloseRule
 edu.kit.iti.algover.rules.impl.Z3Rule
-edu.kit.iti.algover.rules.impl.SkipRule
+#edu.kit.iti.algover.rules.impl.SkipRule
 edu.kit.iti.algover.rules.impl.OrLeftRule
 edu.kit.iti.algover.rules.impl.NotLeftRule
 edu.kit.iti.algover.rules.impl.AndLeftRule
