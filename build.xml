@@ -121,7 +121,7 @@
   </target>
 
   <target name="fatfxjar" depends="build, combineServices" description="creates the jar file for the javafx gui">
-    <jar jarfile="algoverfx.jar">
+    <jar jarfile="DIVE-fat.jar">
       <fileset dir="modules/core/bin/" />
       <!--<fileset dir="modules/gui/bin/" /> -->
       <fileset dir="modules/fxgui/bin/" />
