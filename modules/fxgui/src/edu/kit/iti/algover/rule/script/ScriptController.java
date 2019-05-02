@@ -207,8 +207,13 @@ public class ScriptController implements ScriptViewListener {
         onCaretPositionChanged(null);
     }
 
-    @Override
+
     public void runScript() {
+        runScript(false);
+    }
+
+    @Override
+    public void runScript(Boolean resetInsertionMarker) {
 
         Position oldInsertPos = getObservableInsertPosition();
         String text = view.getText();
@@ -229,8 +234,14 @@ public class ScriptController implements ScriptViewListener {
             proof.getFailException().printStackTrace();
         }
         checkpoints = ProofNodeCheckpointsBuilder.build(proof);
-       // insertPosition = oldInsertPos;
-        observableInsertPosition.set(oldInsertPos);
+        // insertPosition = oldInsertPos;
+        if(!resetInsertionMarker) {
+            observableInsertPosition.set(oldInsertPos);
+        } else {
+            observableInsertPosition.set(computePositionFromCharIdx(
+                    view.caretPositionProperty().getValue(),
+                    view.getText()));
+        }
         createVisualSelectors(checkpoints);
 
         switchViewedNode();
