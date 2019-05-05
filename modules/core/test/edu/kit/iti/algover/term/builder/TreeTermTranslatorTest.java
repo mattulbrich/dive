@@ -25,6 +25,7 @@ import junitparams.Parameters;
 import org.antlr.runtime.ANTLRStringStream;
 import org.antlr.runtime.CommonTokenStream;
 import org.antlr.runtime.RecognitionException;
+import org.hamcrest.core.IsInstanceOf;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Rule;
@@ -357,6 +358,17 @@ public class TreeTermTranslatorTest {
         for (Term t : term.getSubterms()) {
             assertUniqueFunctionSymbols(found, t);
         }
+    }
+
+    @Test
+    public void testVariableHiding() throws Exception {
+        TreeTermTranslator ttt = new TreeTermTranslator(symbTable);
+        DafnyTree t = parse("let $heap := $heap :: c.fct(1)");
+        Term term = ttt.build(t);
+
+        Term heapTerm = term.getTerm(0).getTerm(0);
+        assertEquals(heapTerm.toString(), "$heap");
+        assertTrue(heapTerm instanceof VariableTerm);
     }
 
     // Moved to TreeAssignmentTranslatorTest

@@ -8,6 +8,7 @@ package edu.kit.iti.algover.util;
 import static org.junit.Assert.*;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
@@ -181,5 +182,19 @@ public class TestImmutableList {
         s = ImmutableList.from(Arrays.asList("D", "C", "B"));
         ImmutableList<String> t = ImmutableList.from(Arrays.asList("B", "C", "D"));
         assertEquals(t, s.sort());
+    }
+
+    @Test
+    public void testWithoutDuplicates() {
+        ImmutableList<Integer> s = ImmutableList.from(1,2,3,4,5);
+        assertSame(s, s.withoutDuplicates());
+
+        ImmutableList<Integer> s2 = ImmutableList.from(1,2,3,2,4,2,5);
+        ImmutableList<Integer> s2_ex = ImmutableList.from(1,2,3,4,5);
+        assertEquals(s2_ex, s2.withoutDuplicates());
+
+        ImmutableList<Integer> s3 = ImmutableList.from(Collections.nCopies(100, 42));
+        ImmutableList<Integer> s3_ex = ImmutableList.single(42);
+        assertEquals(s3_ex, s3.withoutDuplicates());
     }
 }
