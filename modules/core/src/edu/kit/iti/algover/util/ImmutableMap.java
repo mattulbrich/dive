@@ -7,6 +7,8 @@
 
 package edu.kit.iti.algover.util;
 
+import edu.kit.iti.algover.term.Term;
+
 import java.util.Map;
 
 public interface ImmutableMap<K, V> {
@@ -19,4 +21,6 @@ public interface ImmutableMap<K, V> {
     ImmutableLinearMap<K, V> removeKey(K key);
 
     ImmutableLinearMap<K, V> putAll(Map<K, V> map);
+
+    V getOrDefault(K key, V defaultVal);
 }

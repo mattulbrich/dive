@@ -85,7 +85,6 @@ import edu.kit.iti.algover.util.UtilTest;
 //    DafnyTreeToDeclVisitorTest.class,
     ReferenceResolutionVisitorTest.class,
     TypeResolutionTest.class,
-    AlphaNormalisation.class,
     SortTest.class,
     ProjectTest.class,
         ProofTest.class,

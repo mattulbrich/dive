@@ -185,6 +185,8 @@ public class AlphaNormalisation {
         public Term visit(LetTerm letTerm, ImmutableMap<VariableTerm, VariableTerm> arg) throws TermBuildException {
             ImmutableSet<Term> unbounds = letTerm.getTerm(0).accept(detector, null);
             unbounds = unbounds.removeAll(Util.map(letTerm.getSubstitutions(), Pair::getFst));
+            unbounds = unbounds.map(v -> v instanceof VariableTerm ?
+                    arg.getOrDefault((VariableTerm)v, (VariableTerm)v) : v);
 
             List<Pair<VariableTerm, Term>> newSubsts = new ArrayList<>();
             ImmutableMap<VariableTerm, VariableTerm> innerReplacements = arg;

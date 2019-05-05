@@ -83,6 +83,16 @@ public class ImmutableLinearMap<K, V> implements ImmutableMap<K, V> {
         return result;
     }
 
+    @Override
+    public V getOrDefault(K key, V defaultVal) {
+        V result = get(key);
+        if (result == null) {
+            return defaultVal;
+        } else {
+            return result;
+        }
+    }
+
     public static <K,V> ImmutableLinearMap<K,V> from(Map<K,V> map) {
         return ImmutableLinearMap.<K,V>emptyMap().putAll(map);
     }

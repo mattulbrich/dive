@@ -74,6 +74,8 @@ public class AlphaNormalisationTest {
                   "let y := 3 :: let y_1 := true :: y_1 && y > 0" },
                 { "let XXXx := [1] :: let XXx := true :: let Xx := 1 :: XXXx[Xx] == x && XXx",
                   "let x_1 := [1] :: let x_2 := true :: let x_3 := 1 :: x_1[x_3] == x && x_2" },
+                { "let XXXx := 1 :: let XXx := [1] :: let Xx := 2 :: XXx[0] == Xx + XXXx",
+                  "let x := 1 :: let x := [1] :: let x_1 := 2 :: x[0] == x_1 + x_1" },
         };
     }
 
