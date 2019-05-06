@@ -364,7 +364,9 @@ public class WelcomePane {
         Dimension screenSize = java.awt.Toolkit.getDefaultToolkit().getScreenSize();
 
         double width = screenSize.getWidth();
+        width=1000;
         double height = screenSize.getHeight();
+        height=1000;
         substage.setWidth(width);
         substage.setHeight(height);
         substage.setTitle("DIVE - " + projectFile);
