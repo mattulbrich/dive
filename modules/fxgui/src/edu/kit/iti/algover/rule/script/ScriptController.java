@@ -2,6 +2,7 @@ package edu.kit.iti.algover.rule.script;
 
 import edu.kit.iti.algover.proof.Proof;
 import edu.kit.iti.algover.proof.ProofNodeSelector;
+import edu.kit.iti.algover.proof.ProofStatus;
 import edu.kit.iti.algover.rule.RuleApplicationListener;
 import edu.kit.iti.algover.script.ast.Position;
 import edu.kit.iti.algover.script.ast.ProofScript;
@@ -10,6 +11,7 @@ import edu.kit.iti.algover.script.parser.PrettyPrinter;
 import edu.kit.iti.algover.util.ExceptionDetails;
 import javafx.beans.Observable;
 import javafx.beans.property.SimpleObjectProperty;
+import javafx.scene.control.Alert;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyCodeCombination;
 import javafx.scene.input.KeyCombination;
@@ -225,6 +227,7 @@ public class ScriptController implements ScriptViewListener {
 
         view.replaceText(pp.toString());
         //System.out.println("pp.toString() = " + pp.toString());
+        ProofStatus oldProofStatus = proof.getProofStatus();
 
         proof.setScriptTextAndInterpret(pp.toString());
 
@@ -246,6 +249,12 @@ public class ScriptController implements ScriptViewListener {
 
         switchViewedNode();
         view.setStyle("-fx-background-color: white;");
+        if(oldProofStatus != ProofStatus.CLOSED && proof.getProofStatus() == ProofStatus.CLOSED) {
+            Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+            alert.setTitle("PVC closed.");
+            alert.setHeaderText("The PVC " + proof.getPVCName() + " has been closed.");
+            alert.showAndWait();
+        }
     }
 
     private void createVisualSelectors(List<ProofNodeCheckpoint> checkpoints) {
