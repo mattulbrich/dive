@@ -15,10 +15,9 @@
                 <key>SMT Timeout</key>
                 <value>10</value>
             </entry>
-            <entry>
-                <key>Unroll Loops</key>
-                <value>false</value>
-            </entry>
-
+        <entry>
+            <key>Sequent Generation Type</key>
+            <value>ass-simp</value>
+        </entry>
     </settings>
 </configuration>

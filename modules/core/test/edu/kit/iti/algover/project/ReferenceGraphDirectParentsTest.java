@@ -4,6 +4,7 @@ import edu.kit.iti.algover.parser.DafnyException;
 import edu.kit.iti.algover.parser.DafnyParserException;
 import edu.kit.iti.algover.proof.Proof;
 import edu.kit.iti.algover.proof.ProofFormula;
+import edu.kit.iti.algover.proof.ProofNode;
 import edu.kit.iti.algover.proof.ProofNodeSelector;
 import edu.kit.iti.algover.references.ProofTermReferenceTarget;
 import edu.kit.iti.algover.rules.RuleException;
@@ -139,10 +140,16 @@ public class ReferenceGraphDirectParentsTest {
     }
 
     @Test
+    public void init(){
+        System.out.println("Iniitialized");
+    }
+
+    @Test
     public void testSkipRule() throws RuleException, FormatException {
 
         ProofNodeSelector lastNode = computeProofNodeSelector("0,0,0,0");
-        Sequent lastSeq = lastNode.get(proofWithTwoSubstitutionsAndSkips).getSequent();
+        ProofNode proofNode = lastNode.get(proofWithTwoSubstitutionsAndSkips);
+        Sequent lastSeq = proofNode.getSequent();
         List<TermSelector> allSelectors = computeAllSelectors(lastSeq);
         allSelectors.forEach(termSelector -> {
             Assert.assertTrue(isFormulaUnchangedInDirectParent("0,0,0,0", termSelector.toString(), proofWithTwoSubstitutionsAndSkips));
