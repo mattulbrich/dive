@@ -156,9 +156,10 @@ public final class XMLProjectManager extends AbstractProjectManager {
     private void generateAllProofObjects(Project project) throws IOException {
         proofs = new HashMap<>();
         for (PVC pvc : project.getPVCByNameMap().values()) {
+            //needed for reference Map contents
             List<DafnyFile> dfyFiles = project.getDafnyFiles().stream().filter(dafnyFile ->
                     dafnyFile.getFilename().equals(pvc.getDeclaration().getFilename())).collect(Collectors.toList());
-            if(dfyFiles.size()>0) {
+            if(dfyFiles.size() > 0) {
                 Proof p = new Proof(project, pvc, dfyFiles.get(0));
                 String script;
                 try {
