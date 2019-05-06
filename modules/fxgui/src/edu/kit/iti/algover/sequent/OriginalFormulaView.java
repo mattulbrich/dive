@@ -12,6 +12,7 @@ import org.fxmisc.richtext.CharacterHit;
 
 import java.util.List;
 import java.util.OptionalInt;
+import java.util.Set;
 
 public class OriginalFormulaView extends BasicFormulaView {
 
@@ -21,18 +22,20 @@ public class OriginalFormulaView extends BasicFormulaView {
     protected final SubSelection<SubtermSelector> referenceSelection;
     protected final SubSelection<SubtermSelector> lastClickedTerm;
 
+    protected Set<TermSelector> selectorsToHighlight;
+
     public OriginalFormulaView(
             OriginalFormula formula,
             TermSelector.SequentPolarity polarity,
             SubSelection<TermSelector> referenceSelection,
             SubSelection<TermSelector> lastClickedTerm,
-            SubSelection<AnnotatedString.TermElement> mouseOverTerm) {
-        super(formula, mouseOverTerm);
+            SubSelection<AnnotatedString.TermElement> mouseOverTerm, Set<TermSelector> selectorsToHighlight) {
+        super(formula, mouseOverTerm, selectorsToHighlight);
         this.originalFormula = formula;
         this.polarity = polarity;
         this.referenceSelection = referenceSelection.subSelection(this::reduceTermSelector, this::liftSubtermSelector);
         this.lastClickedTerm = lastClickedTerm.subSelection(this::reduceTermSelector, this::liftSubtermSelector);
-
+        this.selectorsToHighlight = selectorsToHighlight;
         setOnMousePressed(this::handleClick);
         this.referenceSelection.selected().addListener(this::updateReferenceSelected);
     }

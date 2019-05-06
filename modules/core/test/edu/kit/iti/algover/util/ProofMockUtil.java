@@ -1,5 +1,6 @@
 package edu.kit.iti.algover.util;
 
+import edu.kit.iti.algover.dafnystructures.DafnyFile;
 import edu.kit.iti.algover.data.BuiltinSymbols;
 import edu.kit.iti.algover.data.SymbolTable;
 import edu.kit.iti.algover.parser.DafnyException;
@@ -160,7 +161,12 @@ public class ProofMockUtil {
         pb.setPathIdentifier("test");
         pb.setReferenceMap(Collections.emptyMap());
         PVC pvc = pb.build();
-        return new Proof(project, pvc);
+         List<DafnyFile> dfyFiles = project.getDafnyFiles().stream().filter(dafnyFile -> dafnyFile.getFilename().equals(pvc.getDeclaration().getFilename())).collect(Collectors.toList());
+            if(dfyFiles.size()>0) {
+                return new Proof(project, pvc, dfyFiles.get(0));
+            } else {
+                return new Proof(project, pvc, null);
+            }
     }
 
     /**
@@ -182,7 +188,13 @@ public class ProofMockUtil {
         pb.setPathIdentifier("test");
         pb.setReferenceMap(Collections.emptyMap());
         PVC pvc = pb.build();
-        Proof p = new Proof(project, pvc);
+        List<DafnyFile> dfyFiles = project.getDafnyFiles().stream().filter(dafnyFile -> dafnyFile.getFilename().equals(pvc.getDeclaration().getFilename())).collect(Collectors.toList());
+        Proof p;
+        if(dfyFiles.size()>0) {
+            p =  new Proof(project, pvc, dfyFiles.get(0));
+        } else {
+            p = new Proof(project, pvc, null);
+        }
         p.setScriptTextAndInterpret("");
         return p;
     }

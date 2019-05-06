@@ -14,12 +14,12 @@ import edu.kit.iti.algover.dafnystructures.DafnyFile;
 import edu.kit.iti.algover.dafnystructures.DafnyFunction;
 import edu.kit.iti.algover.dafnystructures.DafnyMethod;
 import edu.kit.iti.algover.editor.EditorController;
+import edu.kit.iti.algover.parser.DafnyException;
+import edu.kit.iti.algover.parser.DafnyParserException;
+import edu.kit.iti.algover.project.Project;
 import edu.kit.iti.algover.project.ProjectManager;
 import edu.kit.iti.algover.proof.*;
-import edu.kit.iti.algover.references.CodeReference;
-import edu.kit.iti.algover.references.GetReferenceTypeVisitor;
-import edu.kit.iti.algover.references.ProofTermReference;
-import edu.kit.iti.algover.references.Reference;
+import edu.kit.iti.algover.references.*;
 import edu.kit.iti.algover.rule.RuleApplicationController;
 import edu.kit.iti.algover.rule.RuleApplicationListener;
 import edu.kit.iti.algover.rules.*;
@@ -526,26 +526,57 @@ public class MainController implements SequentActionListener, RuleApplicationLis
     }
 
     @Override
-    public void onRequestReferenceHighlighting(ProofTermReference termRef) {
+    public void onRequestReferenceHighlighting(ProofTermReferenceTarget termRef) {
+        Proof activeProof = sequentController.getActiveSequentController().getActiveProof();
+
         if (termRef != null) {
-            Set<Reference> predecessors = sequentController.getActiveSequentController().getReferenceGraph().allPredecessors(termRef);
-            Set<CodeReference> codeReferences = filterCodeReferences(predecessors);
-            editorController.viewReferences(codeReferences);
+            System.out.println("Selected termReference = " + termRef);
+            ReferenceGraph referenceGraph = activeProof.getGraph();
+            //compute predecessors
+            //Set<ReferenceTarget> predecessors = referenceGraph.allPredecessors(termRef);
+            //Set<CodeReferenceTarget> codeReferenceTargets = filterCodeReferences(predecessors);
+            Set<ProofTermReferenceTarget> proofTermReferenceTargets = referenceGraph.computeHistory(termRef, activeProof);
+
+            Set<CodeReferenceTarget> codeReferenceTargets = referenceGraph.allPredecessorsWithType(termRef, CodeReferenceTarget.class);
+
+            editorController.viewReferences(codeReferenceTargets);
+            sequentController.viewReferences(proofTermReferenceTargets, termRef);
+
         } else {
             editorController.viewReferences(new HashSet<>());
         }
+        try {
+            Logger.getGlobal().info("Searched for references for selection "+termRef.getTermSelector().selectSubterm(termRef.getProofNodeSelector().get(activeProof).getSequent()));
+        } catch (RuleException e) {
+
+            Logger.getGlobal().warning("There was a problem computing the references.");
+        }
     }
 
-    private static Set<CodeReference> filterCodeReferences(Set<Reference> predecessors) {
-        Set<CodeReference> codeReferences = new HashSet<>();
+    /*
+    private static Set<CodeReferenceTarget> filterCodeReferences(Set<ReferenceTarget> predecessors) {
+        Set<CodeReferenceTarget> codeReferenceTargets = new HashSet<>();
+
         predecessors.forEach(reference -> {
-            CodeReference codeReference = reference.accept(new GetReferenceTypeVisitor<>(CodeReference.class));
-            if (codeReference != null) {
-                codeReferences.add(codeReference);
+
+            CodeReferenceTarget codeReferenceTarget = reference.accept(new GetReferenceTypeVisitor<>(CodeReferenceTarget.class));
+            if (codeReferenceTarget != null) {
+                codeReferenceTargets.add(codeReferenceTarget);
             }
         });
-        return codeReferences;
+        return codeReferenceTargets;
     }
+
+    private static Set<ProofTermReferenceTarget> filterTermReferences(Set<ReferenceTarget> predecessors){
+        Set<ProofTermReferenceTarget> codeReferenceTargets = new HashSet<>();
+        predecessors.forEach(reference -> {
+            ProofTermReferenceTarget codeReferenceTarget = reference.accept(new GetReferenceTypeVisitor<>(ProofTermReferenceTarget.class));
+            if (codeReferenceTarget != null) {
+                codeReferenceTargets.add(codeReferenceTarget);
+            }
+        });
+        return codeReferenceTargets;
+    }*/
 
     @Override
     public void onPreviewRuleApplication(ProofRuleApplication application) {

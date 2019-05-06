@@ -39,12 +39,12 @@ import java.util.List;
 
 // REVIEW: Resolve this warning suppression!
 
-@SuppressWarnings({"unchecked", "rawtypes"})
+//@SuppressWarnings({"unchecked", "rawtypes"})
 public class ScriptParserTest {
 
-    static final String testDir = ("modules/core/test-res/edu/kit/iti/algover/script/scripts").replace('/', File.separatorChar);
-    static final String filename = "x+Post.script";
-    ASTNode parsedScript;
+    private static final String testDir = ("modules/core/test-res/edu/kit/iti/algover/script/scripts").replace('/', File.separatorChar);
+    private static final String filename = "x+Post.script";
+    private ASTNode parsedScript;
 
     @Parameterized.Parameters(name = "{0}")
     public static Iterable<Object[]> data() {

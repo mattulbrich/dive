@@ -105,7 +105,7 @@ public class ProofNode {
         return parent;
     }
 
-    public ProofRuleApplication getPsr() {
+    public ProofRuleApplication getProofRuleApplication() {
         return psr;
     }
 
@@ -165,7 +165,7 @@ public class ProofNode {
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
-
+     //   sb.append("\n==============================================================\n");
         if (this.getParent() == null) {
             sb.append("Root Node:\n");
         } else {
@@ -176,17 +176,18 @@ public class ProofNode {
             //sb.append("Variable Assignments");
             sb.append(variableAssignments.toString());
         } else {
-            sb.append("Empty Assignments");
+            sb.append("Empty Assignments\n");
         }
-        sb.append("Sequent:\n" + this.sequent.toString() + "\n");
+        sb.append("\nSequent:\n" + this.sequent.toString() + "\n");
         sb.append("\nMutator for this Node: ");
         if (!mutator.isEmpty()) {
-            sb.append("\nMutator-Type: " + mutator.get(0).getNodeName());
+            sb.append("\nMutator-Type: " + mutator.get(0).getNodeName()+"\n");
 
-            sb.append("\n" + mutator.get(0).getRuleContext().getText());
+            sb.append("\n" + mutator.get(0).getRuleContext().getText()+"\n");
             if (mutator.size() != 1)
-                sb.append("\nNumber of Mutators: " + mutator.size());
+                sb.append("\nNumber of Mutators: " + mutator.size()+"\n");
         }
+       // sb.append("\n==============================================================\n");
 
         return sb.toString();
     }

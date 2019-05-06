@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<configuration>
+    <dafnyFile>test.dfy</dafnyFile>
+    <settings>
+
+            <entry>
+                <key>KeY Timeout</key>
+                <value>10</value>
+            </entry>
+            <entry>
+                <key>Dafny Timeout</key>
+                <value>5</value>
+            </entry>
+            <entry>
+                <key>SMT Timeout</key>
+                <value>10</value>
+            </entry>
+            <entry>
+                <key>Unroll Loops</key>
+                <value>false</value>
+            </entry>
+
+    </settings>
+</configuration>

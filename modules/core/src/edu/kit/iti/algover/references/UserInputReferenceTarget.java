@@ -11,16 +11,16 @@ package edu.kit.iti.algover.references;
  * <p>
  * Created by Philipp on 27.08.2017.
  */
-public class UserInputReference extends Reference {
+public class UserInputReferenceTarget extends ReferenceTarget {
 
     private final String description;
 
-    public UserInputReference(String description) {
+    public UserInputReferenceTarget(String description) {
         this.description = description;
     }
 
     @Override
-    public <R> R accept(ReferenceVisitor<R> visitor) {
+    public <R> R accept(ReferenceTargetVisitor<R> visitor) {
         return visitor.visit(this);
     }
 

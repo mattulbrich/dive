@@ -5,8 +5,7 @@ import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon;
 import edu.kit.iti.algover.FxmlController;
 import edu.kit.iti.algover.browser.entities.PVCEntity;
 import edu.kit.iti.algover.proof.*;
-import edu.kit.iti.algover.references.ProofTermReference;
-import edu.kit.iti.algover.references.ReferenceGraph;
+import edu.kit.iti.algover.references.ProofTermReferenceTarget;
 import edu.kit.iti.algover.rules.*;
 import edu.kit.iti.algover.sequent.formulas.AddedFormula;
 import edu.kit.iti.algover.sequent.formulas.DeletedFormula;
@@ -19,6 +18,8 @@ import edu.kit.iti.algover.term.prettyprint.AnnotatedString;
 import edu.kit.iti.algover.util.Pair;
 import edu.kit.iti.algover.util.SubSelection;
 import edu.kit.iti.algover.util.SubtermSelectorReplacementVisitor;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableSet;
 import javafx.fxml.FXML;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListCell;
@@ -26,8 +27,8 @@ import javafx.scene.control.ListView;
 import javafx.scene.input.KeyCode;
 import javafx.util.Callback;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * Created by philipp on 12.07.17.
@@ -49,7 +50,7 @@ public class SequentController extends FxmlController {
      * a Reference (as opposed to the actual TermSelector).
      * (Currently set when control-clicking something on the sequent).
      */
-    private final SubSelection<ProofTermReference> selectedReference;
+    private final SubSelection<ProofTermReferenceTarget> selectedReference;
     /**
      * Whichever Term was clicked to reveal dependencies in terms of
      * the actual TermSelector.
@@ -70,9 +71,12 @@ public class SequentController extends FxmlController {
     // TODO: Don't save the ReferenceGraph at the sequent controller level in the future
     // it should ideally be placed somewhere in the backend, since the ProofScript's interpreter
     // has to closely work with the reference graph to keep it updated
-    private ReferenceGraph referenceGraph;
+   // private ReferenceGraph referenceGraph;
     private Proof activeProof; // Maybe place it inside the Proof or PVC class instead
     private ProofNodeSelector activeNode;
+
+    private ObservableSet<TermSelector> historyHighlightsAntec = FXCollections.observableSet();
+    private ObservableSet<TermSelector> historyHighlightsSucc = FXCollections.observableSet();
 
     /**
      * Builds the controller and GUI for the sequent view, that is the two ListViews of
@@ -82,12 +86,13 @@ public class SequentController extends FxmlController {
      * <tt>res/edu/kit/iti/algover/sequent/SequentView.fxml</tt>.
      *
      * @param listener
+     *
      */
     public SequentController(SequentActionListener listener) {
         super("SequentView.fxml");
         this.listener = listener;
         this.activeProof = null;
-        this.referenceGraph = new ReferenceGraph();
+        //this.referenceGraph = new ReferenceGraph();
         this.selectedReference = new SubSelection<>(listener::onRequestReferenceHighlighting);
         this.selectedTerm = selectedReference.subSelection(this::termSelectorFromReference, this::attachCurrentActiveProof);
         this.lastClickedTerm = new SubSelection<>(listener::onClickSequentSubterm);
@@ -96,8 +101,8 @@ public class SequentController extends FxmlController {
         this.mouseOverTerm = new SubSelection<>(r -> {
         });
 
-        antecedentView.setCellFactory(makeTermCellFactory(TermSelector.SequentPolarity.ANTECEDENT));
-        succedentView.setCellFactory(makeTermCellFactory(TermSelector.SequentPolarity.SUCCEDENT));
+        antecedentView.setCellFactory(makeTermCellFactory(TermSelector.SequentPolarity.ANTECEDENT, historyHighlightsAntec));
+        succedentView.setCellFactory(makeTermCellFactory(TermSelector.SequentPolarity.SUCCEDENT, historyHighlightsSucc));
 
         antecedentView.setOnKeyPressed(keyEvent -> {
             if (keyEvent.getCode() == KeyCode.ESCAPE) {
@@ -124,8 +129,9 @@ public class SequentController extends FxmlController {
             activeProof = proof;
             activeNode = new ProofNodeSelector();
             updateSequent(getActiveNode().getSequent(), null);
-            referenceGraph = new ReferenceGraph();
-            referenceGraph.addFromReferenceMap(pvcEntity.getLocation(), pvc.getReferenceMap());
+            //referenceGraph = new ReferenceGraph();
+            //referenceGraph = proof.getGraph();
+            //referenceGraph.addFromReferenceMap(pvcEntity.getLocation(), pvc.getReferenceMap());
         }
     }
 
@@ -134,9 +140,10 @@ public class SequentController extends FxmlController {
         viewSequentForPVC(entity, proof);
     }
 
-    public void setReferenceGraph(ReferenceGraph graph) {
-        referenceGraph = graph;
-    }
+    //@Deprecated
+   // public void setReferenceGraph(ReferenceGraph graph) {
+   //     referenceGraph = graph;
+   // }
 
     //SaG: was used before having exhaustive RuleApp; Remove later if no Bug is found!
     @Deprecated
@@ -224,7 +231,7 @@ public class SequentController extends FxmlController {
             proofNodeSelector.optionalGet(activeProof).ifPresent(proofNode -> {
                 activeNode = proofNodeSelector;
                 BranchInfo branchInfo = null;
-                ProofRuleApplication application = proofNode.getPsr();
+                ProofRuleApplication application = proofNode.getProofRuleApplication();
                 if (application != null) {
                     branchInfo = application.getBranchInfo().get(
                             proofNodeSelector.getPath()[proofNodeSelector.getPath().length - 1]
@@ -237,7 +244,8 @@ public class SequentController extends FxmlController {
     }
 
     private void updateSequent(Sequent sequent, BranchInfo branchInfo) {
-        antecedentView.getItems().setAll(calculateAssertions(sequent.getAntecedent(), TermSelector.SequentPolarity.ANTECEDENT, branchInfo));
+        List<TopLevelFormula> col = calculateAssertions(sequent.getAntecedent(), TermSelector.SequentPolarity.ANTECEDENT, branchInfo);
+        antecedentView.getItems().setAll(col);
         List<TopLevelFormula> after = calculateAssertions(sequent.getSuccedent(), TermSelector.SequentPolarity.SUCCEDENT, branchInfo);
         succedentView.getItems().setAll(after);
     }
@@ -329,18 +337,18 @@ public class SequentController extends FxmlController {
     }
 
 
-    private Callback<ListView<TopLevelFormula>, ListCell<TopLevelFormula>> makeTermCellFactory(TermSelector.SequentPolarity polarity) {
-        return listView -> new FormulaCell(polarity, selectedTerm, lastClickedTerm, mouseOverTerm);
+    private Callback<ListView<TopLevelFormula>, ListCell<TopLevelFormula>> makeTermCellFactory(TermSelector.SequentPolarity polarity, ObservableSet<TermSelector> historyHighlights) {
+        return listView -> new FormulaCell(polarity, selectedTerm, lastClickedTerm, mouseOverTerm, historyHighlights);
     }
 
-    private ProofTermReference attachCurrentActiveProof(TermSelector selector) {
+    private ProofTermReferenceTarget attachCurrentActiveProof(TermSelector selector) {
         if (activeNode != null) {
-            return new ProofTermReference(activeNode, selector);
+            return new ProofTermReferenceTarget(activeNode, selector);
         }
         return null;
     }
 
-    private TermSelector termSelectorFromReference(ProofTermReference reference) {
+    private TermSelector termSelectorFromReference(ProofTermReferenceTarget reference) {
         if (activeProof != null && reference.getProofNodeSelector() == activeNode) {
             return reference.getTermSelector();
         } else {
@@ -361,15 +369,15 @@ public class SequentController extends FxmlController {
         }
     }
 
-    public ReferenceGraph getReferenceGraph() {
+ /*   public ReferenceGraph getReferenceGraph() {
         return referenceGraph;
-    }
+    }*/
 
     public Proof getActiveProof() {
         return activeProof;
     }
 
-    public SubSelection<ProofTermReference> referenceSelection() {
+    public SubSelection<ProofTermReferenceTarget> referenceSelection() {
         return selectedReference;
     }
 
@@ -385,4 +393,27 @@ public class SequentController extends FxmlController {
         return activeNode;
     }
 
+    public void updateSequentController(ProofNodeSelector selector, Proof activeProof, Set<ProofTermReferenceTarget> collect) {
+        this.setActiveNode(selector);
+        this.setActiveProof(activeProof);
+        Set<TermSelector> collect1 = collect.stream().map(ProofTermReferenceTarget::getTermSelector).collect(Collectors.toSet());
+       // System.out.println("collect1.size = " + collect1.size());
+        this.setHistoryHighlights(FXCollections.observableSet(collect1));
+        this.viewProofNode(selector);
+
+
+    }
+
+    /**
+     * Set the information which term to highlight for history highlighting. This method already divides the information acc. to teh sequent polarity
+     */
+    private void setHistoryHighlights(ObservableSet<TermSelector> collect) {
+        this.historyHighlightsAntec.clear();
+        this.historyHighlightsSucc.clear();
+        Set<TermSelector> antec = collect.stream().filter(termSelector -> termSelector.getPolarity() == TermSelector.SequentPolarity.ANTECEDENT).collect(Collectors.toSet());
+        Set<TermSelector> succ = collect.stream().filter(termSelector -> termSelector.getPolarity() == TermSelector.SequentPolarity.SUCCEDENT).collect(Collectors.toSet());
+        this.historyHighlightsAntec.addAll(antec);
+        this.historyHighlightsSucc.addAll(succ);
+        //        this.historyHighlights.addAll(collect);
+    }
 }

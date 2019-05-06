@@ -2,21 +2,14 @@ package edu.kit.iti.algover.editor;
 
 import edu.kit.iti.algover.MainController;
 import edu.kit.iti.algover.dafnystructures.DafnyFile;
-import edu.kit.iti.algover.parser.DafnyException;
-import edu.kit.iti.algover.parser.DafnyParserException;
-import edu.kit.iti.algover.parser.DafnyTree;
-import edu.kit.iti.algover.project.Project;
 import edu.kit.iti.algover.proof.PVC;
-import edu.kit.iti.algover.references.CodeReference;
+import edu.kit.iti.algover.references.CodeReferenceTarget;
 import edu.kit.iti.algover.util.ExceptionDetails;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
-import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.ListChangeListener;
 import javafx.scene.Node;
-import javafx.scene.control.Alert;
-import javafx.scene.control.ButtonType;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
 import javafx.scene.control.Tooltip;
@@ -24,8 +17,6 @@ import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyCodeCombination;
 import javafx.scene.input.KeyCombination;
 import javafx.scene.input.KeyEvent;
-import org.antlr.runtime.CommonToken;
-import org.antlr.runtime.RecognitionException;
 import org.antlr.runtime.Token;
 import org.controlsfx.dialog.ExceptionDialog;
 import org.fxmisc.flowless.VirtualizedScrollPane;
@@ -247,12 +238,12 @@ public class EditorController implements DafnyCodeAreaListener {
     }
 
     /**
-     * Highlights all given {@link CodeReference}s using the {@link ReferenceHighlightingRule}.
+     * Highlights all given {@link CodeReferenceTarget}s using the {@link ReferenceHighlightingRule}.
      *
-     * @param codeReferences code references to highlight
+     * @param codeReferenceTargets code references to highlight
      */
-    public void viewReferences(Set<CodeReference> codeReferences) {
-        highlightingLayers.setLayer(REFERENCE_LAYER, new ReferenceHighlightingRule(codeReferences));
+    public void viewReferences(Set<CodeReferenceTarget> codeReferenceTargets) {
+        highlightingLayers.setLayer(REFERENCE_LAYER, new ReferenceHighlightingRule(codeReferenceTargets));
 
 
         view.getTabs().stream()

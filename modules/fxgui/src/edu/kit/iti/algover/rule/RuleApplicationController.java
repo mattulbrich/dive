@@ -1,5 +1,7 @@
 package edu.kit.iti.algover.rule;
 
+import com.jfoenix.controls.JFXRadioButton;
+import com.jfoenix.controls.JFXToggleButton;
 import edu.kit.iti.algover.FxmlController;
 import edu.kit.iti.algover.project.ProjectManager;
 import edu.kit.iti.algover.proof.ProofNode;
@@ -10,11 +12,15 @@ import edu.kit.iti.algover.rules.impl.ExhaustiveRule;
 import edu.kit.iti.algover.term.Sequent;
 import edu.kit.iti.algover.term.Term;
 import edu.kit.iti.algover.term.prettyprint.PrettyPrint;
+import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.fxml.FXML;
 import javafx.scene.Node;
 import javafx.scene.control.Label;
 import javafx.scene.control.SplitPane;
+import javafx.scene.control.Toggle;
+import javafx.scene.control.ToggleGroup;
+import javafx.scene.layout.HBox;
 import org.fxmisc.flowless.VirtualizedScrollPane;
 
 import java.util.concurrent.ExecutorService;
@@ -30,6 +36,14 @@ public class RuleApplicationController extends FxmlController {
     @FXML
     private RuleGrid ruleGrid;
 
+    @FXML
+    private JFXRadioButton sortAlpha;
+
+    @FXML
+    private JFXRadioButton sortBranching;
+
+
+
     private final ScriptView scriptView;
 
     private final RuleApplicationListener listener;
@@ -40,11 +54,49 @@ public class RuleApplicationController extends FxmlController {
 
     private final ProjectManager manager;
 
+    private final ToggleGroup group = new ToggleGroup();
+
+
     public RuleApplicationController(ExecutorService executor, RuleApplicationListener listener, ProjectManager manager) {
         super("RuleApplicationView.fxml");
         this.listener = listener;
         this.scriptController = new ScriptController(executor, listener);
         this.scriptView = scriptController.getView();
+
+        this.sortAlpha.setToggleGroup(group);
+        this.sortBranching.setToggleGroup(group);
+        this.group.selectedToggleProperty().addListener(new ChangeListener<Toggle>() {
+            @Override
+            public void changed(ObservableValue<? extends Toggle> observable, Toggle oldValue, Toggle newValue) {
+               String selectedButton = ((JFXRadioButton) newValue).getId();
+
+               if(selectedButton.equals("sortAlpha")){
+                   ruleGrid.removeAllComparators();
+                   ruleGrid.addComparator(RuleGridComparator.compareAlphaOrder);
+               }
+               if(selectedButton.equals("sortBranching")){
+                   ruleGrid.removeAllComparators();
+                   ruleGrid.addComparator(RuleGridComparator.compareBranching);
+               }
+            }
+        });       
+       
+/*        this.sortAlpha.selectedProperty().addListener((observable, oldValue, newValue) -> {
+            if(newValue){
+                ruleGrid.addComparator(RuleGridComparator.compareAlphaOrder);
+            } else {
+                ruleGrid.removeComparator(RuleGridComparator.compareAlphaOrder);
+            }
+        });
+
+        this.sortBranching.selectedProperty().addListener((observable, oldValue, newValue) -> {
+            if(newValue){
+                ruleGrid.addComparator(RuleGridComparator.compareBranching);
+            } else {
+                ruleGrid.removeComparator(RuleGridComparator.compareBranching);
+            }
+        });*/
+
 
         logger = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
         this.manager = manager;
@@ -72,7 +124,9 @@ public class RuleApplicationController extends FxmlController {
         ruleGrid.getAllRules().forEach(ruleView -> {
             ruleView.considerApplication(target, selection, selector);
         });
+
         ruleGrid.filterRules();
+
     }
 
     public void resetConsideration() {
@@ -113,7 +167,7 @@ public class RuleApplicationController extends FxmlController {
             parameters.putValue("on", new TermParameter(ts, pn.getSequent()));
             ProofRuleApplication pra = exRule.considerApplication(pn, parameters);
             resetConsideration();
-            scriptController.insertTextForSelectedNode(pra.getScriptTranscript());
+            scriptController.insertTextForSelectedNode(pra.getScriptTranscript()+"\n");
             logger.info("Applied rule " + rule.getName() + " exhaustively.");
         } catch (RuleException e) {
             //TODO handle exeptions
@@ -124,7 +178,7 @@ public class RuleApplicationController extends FxmlController {
     public void applyRule(ProofRuleApplication application) {
         try {
             resetConsideration();
-            scriptController.insertTextForSelectedNode(application.getScriptTranscript()); //SaG: removed newline character
+            scriptController.insertTextForSelectedNode(application.getScriptTranscript()+"\n"); //SaG: removed newline character
         } catch(RuleException e) {
             Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).severe("Error applying rule: " + e.getMessage());
         }

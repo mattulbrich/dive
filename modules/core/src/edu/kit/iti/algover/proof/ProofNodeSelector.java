@@ -35,7 +35,7 @@ public class ProofNodeSelector {
     private static int[] calculatePathFromNode(ProofNode proofNode) {
         Stack<Integer> pathStack = new Stack<>();
         ProofNode node = proofNode;
-        while (proofNode.getParent() != null) {
+        while (node.getParent() != null) {
             int childIndex = node.getParent().getChildren().indexOf(node);
             if (childIndex < 0) {
                 throw new RuntimeException("This should not happen. Invalid ProofNode structure!");

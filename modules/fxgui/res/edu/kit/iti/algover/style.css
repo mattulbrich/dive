@@ -17,25 +17,41 @@
 }
 
 .formula-view .modified {
-    -rtfx-background-color: #55EE55;
+    -rtfx-background-color: #74eea0;
 }
 
 .formula-view .reference-selected {
-    -rtfx-background-color: #62b3cf;
+    -rtfx-background-color: #2bc0cf;
+/*    -fx-border-color:  #2bc0cf;*/
     -fx-fill: whitesmoke;
 }
 
+.formula-view .historyHighlight {
+    -rtfx-background-color: #965dcf;
+    -fx-underline: true;
+    -fx-border-color: #965dcf, transparent, #965dcf;
+    -fx-border-width: 0 0 1 0, 0 0 1 0, 0 0 1 0;
+    -fx-border-insets: 0 0 1 0, 0 0 2 0, 0 0 3 0;
+    -fx-fill: whitesmoke;
+}
+
+
 .list-cell.formula-cell:formula-added {
-    -fx-background-color: #55EE55;
+    -fx-background-color: #74eea0;
 }
 
 .list-cell.formula-cell:formula-deleted {
-    -fx-background-color: #EE5555;
+    -fx-background-color: #ee9486;
 }
 
 .list-cell.formula-cell:formula-modified {
-    /* -fx-background-color: #f2aaf2; This looks ridiculous haha */
+     /*-fx-background-color: #f2aaf2;*/
 }
+
+.list-cell.formula-cell:formula-referenced {
+    -fx-background-color: #f2aaff;
+}
+
 
 .undecorated-button {
     -fx-padding: 0 0 0 0;
@@ -95,6 +111,9 @@
 .code {
     -fx-font-family: monospace;
     -fx-background-color: white;
+}
+.code-dirty{
+    -fx-background-color: #b8b5bc;
 }
 
 
