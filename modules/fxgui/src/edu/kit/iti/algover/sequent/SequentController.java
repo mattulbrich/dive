@@ -1,7 +1,7 @@
 package edu.kit.iti.algover.sequent;
 
-import de.jensd.fx.glyphs.GlyphsDude;
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon;
+import de.jensd.fx.glyphs.fontawesome.utils.FontAwesomeIconFactory;
 import edu.kit.iti.algover.FxmlController;
 import edu.kit.iti.algover.browser.entities.PVCEntity;
 import edu.kit.iti.algover.proof.*;
@@ -312,10 +312,10 @@ public class SequentController extends FxmlController {
             if (node.getChildren().size() == 0) {
                 if (node.isClosed()) {
                     goalTypeLabel.setText("Closed Goal");
-                    goalTypeLabel.setGraphic(GlyphsDude.createIcon(FontAwesomeIcon.CHECK));
+                    goalTypeLabel.setGraphic(FontAwesomeIconFactory.get().createIcon(FontAwesomeIcon.CHECK));
                 } else {
                     goalTypeLabel.setText("Open Goal");
-                    goalTypeLabel.setGraphic(GlyphsDude.createIcon(FontAwesomeIcon.BULLSEYE));
+                    goalTypeLabel.setGraphic(FontAwesomeIconFactory.get().createIcon(FontAwesomeIcon.BULLSEYE));
                 }
             } else {
                 goalTypeLabel.setText("Node");

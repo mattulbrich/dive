@@ -1,7 +1,7 @@
 package edu.kit.iti.algover.browser;
 
-import de.jensd.fx.glyphs.GlyphsDude;
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon;
+import de.jensd.fx.glyphs.fontawesome.utils.FontAwesomeIconFactory;
 import edu.kit.iti.algover.browser.entities.*;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
@@ -31,12 +31,12 @@ public class TreeTableEntityStatusRenderer implements TreeTableEntityVisitor<Voi
         String text = entity.getProvenChildren() + "/" + entity.getNumberChildren();
         cell.setText(text);
         if (entity.getProvenChildren() >= entity.getNumberChildren()) {
-            Text icon = GlyphsDude.createIcon(FontAwesomeIcon.CHECK);
+            Text icon = FontAwesomeIconFactory.get().createIcon(FontAwesomeIcon.CHECK);
             icon.setFill(Color.LIMEGREEN);
             cell.setGraphic(icon);
             cell.setTooltip(new Tooltip("All PVCs proven"));
         } else {
-            Text icon = GlyphsDude.createIcon(FontAwesomeIcon.EXCLAMATION);
+            Text icon = FontAwesomeIconFactory.get().createIcon(FontAwesomeIcon.EXCLAMATION);
             icon.setFill(Color.RED);
             cell.setGraphic(icon);
             cell.setTooltip(new Tooltip(
@@ -48,7 +48,7 @@ public class TreeTableEntityStatusRenderer implements TreeTableEntityVisitor<Voi
     }
 
     public void updateProofStatusIcon(PVCEntity.ProofStatus proofStatus) {
-        Text statusIcon = GlyphsDude.createIcon(proofStatus.getIcon());
+        Text statusIcon = FontAwesomeIconFactory.get().createIcon(proofStatus.getIcon());
         statusIcon.setFill(proofStatus.getFill());
         HBox box = new HBox(statusIcon, gearButton);
         box.setSpacing(10);
@@ -88,10 +88,10 @@ public class TreeTableEntityStatusRenderer implements TreeTableEntityVisitor<Voi
 
     @Override
     public Void visitPVC(PVCEntity entity) {
-        Text statusIcon = GlyphsDude.createIcon(entity.getProofStatus().getIcon());
+        Text statusIcon = FontAwesomeIconFactory.get().createIcon(entity.getProofStatus().getIcon());
         statusIcon.setFill(entity.getProofStatus().getFill());
 
-        Text gearIcon = GlyphsDude.createIcon(FontAwesomeIcon.GEAR);
+        Text gearIcon = FontAwesomeIconFactory.get().createIcon(FontAwesomeIcon.GEAR);
         gearIcon.setFill(Color.DARKGREY);
         gearButton = new Button("Edit", gearIcon);
         gearButton.getStyleClass().add("undecorated-button");

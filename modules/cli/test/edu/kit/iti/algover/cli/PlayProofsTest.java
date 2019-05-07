@@ -33,7 +33,7 @@ import static org.junit.Assert.assertEquals;
 public class PlayProofsTest {
 
     private static final String baseDir =
-            System.getProperty("algover.cli.test-res", "modules/cli/test-res");
+            System.getProperty("algover.cli.test-res", "test-res");
 
     private final AlgoVerService service;
 

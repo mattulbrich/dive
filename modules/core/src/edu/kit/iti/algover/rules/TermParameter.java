@@ -19,7 +19,6 @@ import edu.kit.iti.algover.util.FormatException;
 import edu.kit.iti.algover.util.ImmutableList;
 import edu.kit.iti.algover.util.RuleUtil;
 import nonnull.NonNull;
-import org.junit.Rule;
 
 import java.util.ArrayList;
 import java.util.Collections;

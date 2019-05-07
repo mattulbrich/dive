@@ -3,6 +3,7 @@ package edu.kit.iti.algover;
 
 import com.google.common.base.Charsets;
 import com.google.common.io.CharStreams;
+import javafx.application.Platform;
 import javafx.scene.control.Alert;
 import javafx.scene.web.WebEngine;
 import javafx.scene.web.WebView;
@@ -24,6 +25,12 @@ public class AboutWindow extends Alert {
         WebEngine engine = webView.getEngine();
         engine.setUserStyleSheetLocation(getClass().getResource("webView.css").toString());
         engine.loadContent(text);
+
+        //workaround for KDE systems and GTK based Desktops
+        this.setResizable(true);
+        this.onShownProperty().addListener(e -> {
+            Platform.runLater(() -> this.setResizable(false));
+        });
 
         this.getDialogPane().setContent(webView);
     }

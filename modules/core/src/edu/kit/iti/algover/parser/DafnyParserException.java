@@ -5,7 +5,6 @@
  */
 package edu.kit.iti.algover.parser;
 
-import antlr.RecognitionException;
 
 /**
  * This error class wraps {@link RecognitionException}s from ANTLR which have a

@@ -9,6 +9,7 @@ import edu.kit.iti.algover.project.Project;
 import edu.kit.iti.algover.proof.PVC;
 import edu.kit.iti.algover.references.CodeReference;
 import edu.kit.iti.algover.util.ExceptionDetails;
+import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.value.ChangeListener;
@@ -41,7 +42,6 @@ import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.logging.Logger;
 
-import static impl.org.controlsfx.i18n.Translations.getTranslation;
 
 /**
  * Controller for the view that handles all {@link DafnyCodeArea} tabs.
@@ -138,7 +138,12 @@ public class EditorController implements DafnyCodeAreaListener {
                 codeArea.getTextChangedProperty().addListener(this::onTextChanged);
             } catch (IOException e) {
                 e.printStackTrace();
+
                 ExceptionDialog exdlg = new ExceptionDialog(e);
+                exdlg.setResizable(true);
+                exdlg.onShownProperty().addListener(evt -> {
+                    Platform.runLater(() -> exdlg.setResizable(false));
+                });
                 exdlg.showAndWait();
             }
         }

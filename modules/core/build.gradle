@@ -1,80 +1,99 @@
-
-apply plugin: 'antlr'
-apply plugin: 'java'
-
-ant.importBuild 'antlrbuild.xml'
-
-repositories {
-    mavenCentral()
+plugins{
+    id 'org.openjfx.javafxplugin' version '0.0.7'
 }
 
-sourceCompatibility = '1.8'
-targetCompatibility = '1.8'
-version = '0.0'
+javafx {
+    version = "12"
+    modules = ["javafx.base"]
+}
 
+apply from: 'makeDafnyTreeVisitor.gradle'
 
-repositories {
-    flatDir {
-        dirs '../../lib'
+configurations {
+    antlr3
+    antlr4
+}
+sourceSets{
+    main{
+        java{
+            srcDir 'gen'
+        }
     }
 }
-
 dependencies {
-    compile name: 'antlr'
-    compile name: 'antlr-4.7-complete'
-    compile name: 'junit4'
-    compile name: 'jpplib'
-    compile name: 'guava-23.0'
-    compile name: 'nonnull'
-    compile name: 'hamcrest'
-    compile name: 'junitparams'
-    antlr "org.antlr:antlr4:4.7.1"
+
+
+    compile group: 'javax.xml.bind', name: 'jaxb-api', version: '2.4.0-b180830.0359'
+    compile group: 'com.sun.xml.bind', name: 'jaxb-impl', version: '2.4.0-b180830.0438'
+    compile group: 'com.sun.xml.bind', name: 'jaxb-core', version: '2.3.0.1'
+
+    antlr3 group: 'org.antlr', name: 'antlr', version: '3.5.2'
+    compile group: 'org.antlr', name: 'antlr-runtime', version: '3.5.2'
+    compile group: 'org.antlr', name: 'stringtemplate', version: '3.2'
+
+
+
+    antlr4 "org.antlr:antlr4:4.7.1"
     compile "org.antlr:antlr4-runtime:4.7.1"
 
-}
-
-sourceSets {
-    main {
-        java {
-            srcDirs = ['src']
-        }
-    }
-
-    test {
-        java {
-            srcDirs = ['test']
-        }
-    }
-}
-
-
-task genDir {
-    mkdir "gen"
 
 }
 
+//buildVisitor.outputs.dir ="$projectDir/gen/edu/kit/iti/algover/parser"
+//buildVisitor.inputs.files=file("$projectDir/gen/Dafny.tokens")
 
+task runAntlr3(type:JavaExec) {
+    println "Building Dafny Parser"
 
-compileJava.dependsOn genDir
-compileJava.dependsOn visitor
-compileJava.dependsOn scriptParser
+    inputs.files configurations.antlr3
+    classpath { configurations.antlr3.getAsPath()}
+    outputs.dir "$projectDir/gen"
 
-tasks.withType(JavaCompile) {
-    source='src'
-    destinationDir='bin'
+    workingDir = "antlr"
+    main = "org.antlr.Tool"
 
+    args = [ "-verbose", "-o", "$projectDir/gen", "edu/kit/iti/algover/parser/Dafny.g"]
 
 }
+
+
+
+task runAntlr4(type:JavaExec) {
+    println "Building Script Parser"
+
+    inputs.files configurations.antlr4
+    inputs.file "src/edu/kit/iti/algover/script/ScriptLanguage.g4"
+    outputs.dir "$projectDir/gen"
+    classpath { configurations.antlr4.getAsPath()}
+
+    main = "org.antlr.v4.Tool"
+
+    args = ["-visitor", "-o", "gen", "src/edu/kit/iti/algover/script/ScriptLanguage.g4", "-package", "edu.kit.iti.algover.script" ]
+}
+
+
+clean.doFirst {
+    delete("$projectDir/gen/edu/kit/iti/algover/parser")
+    delete("$projectDir/gen/edu/kit/iti/algover/script")
+    delete("$projectDir/gen/")
+
+}
+
+buildVisitor.shouldRunAfter runAntlr3
+
+compileJava.dependsOn runAntlr3
+compileJava.dependsOn buildVisitor
+compileJava.dependsOn runAntlr4
+
+
 /*
-<target name="compile" description="Compile all files" depends="visitor,init,scriptParser">
-		<echo>"${libs}"</echo>
-		<javac destdir="bin" classpath="${libs}" debug="on">
-			<compilerarg value="-Werror"/>
-			<compilerarg value="-Xlint:unchecked"/>
-			<compilerarg value="-Xlint:rawtypes"/>
-			<src path="src" />
-			<src path="gen" />
-		</javac>
-	</target>
+This would require a directors src/main/antlr/...
+generateGrammarSource {
+        source = file("$projectDir/edu/kit/iti/algover/script/ScriptLanguage.g4")
+        outputDirectory = file("gen")
+        arguments += ["-visitor",
+                      "-long-messages",
+                      "-o", "gen",
+                      "-package", "edu.kit.iti.algover.script"]
 
-* */
+}*/

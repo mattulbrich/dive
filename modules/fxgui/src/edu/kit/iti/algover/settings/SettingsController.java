@@ -14,7 +14,6 @@ import javafx.scene.layout.BorderPane;
 import javafx.stage.Window;
 import javafx.util.StringConverter;
 
-import javax.swing.*;
 import java.io.IOException;
 import java.util.Optional;
 import java.util.logging.Logger;

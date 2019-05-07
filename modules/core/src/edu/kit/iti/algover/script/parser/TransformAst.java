@@ -94,7 +94,7 @@ public class TransformAst implements ScriptLanguageVisitor<Object> {
     /**
      * @param ctx the parse tree
      * @return
-     * @deprecated not needed, handled in {@link #visitArgList(ScriptLanguageParser.ArgListContext)}
+     * Will be deprecated not needed, handled in {@link #visitArgList(ScriptLanguageParser.ArgListContext)}
      */
     @Override
     public Object visitVarDecl(ScriptLanguageParser.VarDeclContext ctx) {

@@ -7,7 +7,6 @@
 
 package edu.kit.iti.algover.project;
 
-import com.sun.javafx.collections.ObservableListWrapper;
 import edu.kit.iti.algover.settings.ProjectSettings;
 import edu.kit.iti.algover.settings.ProjectSettings.Property;
 import edu.kit.iti.algover.util.FormatException;
@@ -15,6 +14,7 @@ import edu.kit.iti.algover.util.Pair;
 import edu.kit.iti.algover.util.StringValidators.OptionStringValidator;
 import edu.kit.iti.algover.util.Util;
 import javafx.application.Platform;
+import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.geometry.Insets;
@@ -104,7 +104,7 @@ public class ConfigurationDialog {
                 OptionStringValidator validator = (OptionStringValidator) property.validator;
                 Collection<? extends CharSequence> options = validator.getOptions();
                 ObservableList<String> olist =
-                        new ObservableListWrapper<>(Util.map(options, Object::toString));
+                        FXCollections.observableList(Util.map(options, x -> x.toString()));
                 String value = settings.get(property.key);
                 ChoiceBox<String> choiceBox = new ChoiceBox<>(olist);
                 if(value != null) {
