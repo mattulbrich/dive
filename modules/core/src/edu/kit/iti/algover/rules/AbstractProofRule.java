@@ -39,6 +39,8 @@ public abstract class AbstractProofRule implements ProofRule {
         }
     }
 
+    protected boolean mayBeExhaustive = false;
+
     /**
      * Check the actual parameters obtained as method parameter against the formal parameters stored
      * in {@link #allParameters},
@@ -242,5 +244,9 @@ public abstract class AbstractProofRule implements ProofRule {
      */
     public Map<String, ParameterDescription<?>> getAllParameters() {
         return allParameters;
+    }
+
+    public boolean mayBeExhaustive() {
+        return mayBeExhaustive;
     }
 }

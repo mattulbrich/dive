@@ -20,6 +20,9 @@ import java.util.*;
  * @author S. Grebing
  */
 
+// REVIEW: Add the missing generic parameters! Please!
+
+@SuppressWarnings({"unchecked", "rawtypes"})
 public class ProofRuleHandler implements CommandHandler<ProofNode> {
     /**
      * List of all available rule objects

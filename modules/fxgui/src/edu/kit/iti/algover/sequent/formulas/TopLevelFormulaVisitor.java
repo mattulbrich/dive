@@ -4,8 +4,10 @@ public interface TopLevelFormulaVisitor<R> {
 
     R visitOriginalFormula(OriginalFormula formula);
 
-    R visitAddedOrDeletedFormula(AddedOrDeletedFormula formula);
+    R visitDeletedFormula(DeletedFormula formula);
 
     R visitModifiedFormula(ModifiedFormula formula);
+
+    R visitAddedFormula(AddedFormula formula);
 
 }

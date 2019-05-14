@@ -32,14 +32,14 @@ import org.antlr.v4.runtime.ParserRuleContext;
  * @author Alexander Weigl
  * @version 1 (28.04.17)
  */
-public abstract class Expression<T extends ParserRuleContext> extends ASTNode<T> {
+public abstract class Expression extends ASTNode {
     /**
      * @param type
      * @param e
      * @param signature
      * @throws NotWelldefinedException
      */
-    public static final void checkType(Type type, Expression<?> e, Signature signature) throws NotWelldefinedException {
+    public static final void checkType(Type type, Expression e, Signature signature) throws NotWelldefinedException {
         Type got = e.getType(signature);
         if (!type.equals(got)) {
             throw new NotWelldefinedException("Typemismatch in expected " + type + ", got" + got, e);
@@ -64,7 +64,7 @@ public abstract class Expression<T extends ParserRuleContext> extends ASTNode<T>
      * {@inheritDoc}
      */
     @Override
-    public abstract Expression<T> copy();
+    public abstract Expression copy();
 
     /**
      * {@inheritDoc}

@@ -32,7 +32,7 @@ import java.util.Optional;
  * @author Alexander Weigl
  * @version 1 (28.04.17)
  */
-public abstract class Literal extends Expression<ParserRuleContext> {
+public abstract class Literal extends Expression {
     protected Token token;
 
     /**

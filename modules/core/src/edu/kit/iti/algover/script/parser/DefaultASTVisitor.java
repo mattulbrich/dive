@@ -30,7 +30,7 @@ import edu.kit.iti.algover.script.ast.*;
  * @version 1 (28.04.17)
  */
 public class DefaultASTVisitor<T> implements Visitor<T> {
-    public T defaultVisit(ASTNode<?> node) {
+    public T defaultVisit(ASTNode node) {
         return null;
     }
 

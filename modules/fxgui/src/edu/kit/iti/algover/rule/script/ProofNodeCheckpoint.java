@@ -12,6 +12,7 @@ public class ProofNodeCheckpoint {
     public ProofNodeCheckpoint(ProofNodeSelector selector, Position position, Position caretPosition) {
         this.selector = selector;
         this.position = position;
+        //caret position is real line number and not indexed line number
         this.caretPosition = caretPosition;
     }
 

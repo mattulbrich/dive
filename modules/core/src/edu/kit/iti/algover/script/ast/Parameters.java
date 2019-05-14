@@ -38,11 +38,7 @@ import java.util.function.Function;
  * @author Alexander Weigl
  * @version 1 (29.04.17)
  */
-
-// REVIEW: Add the missing generic parameters! Please!
-
-@SuppressWarnings({"unchecked", "rawtypes"})
-public class Parameters extends ASTNode<ScriptLanguageParser.ParametersContext> {
+public class Parameters extends ASTNode {
     private final Map<Variable, Expression> parameters = new LinkedHashMap<>();
 
     @Override

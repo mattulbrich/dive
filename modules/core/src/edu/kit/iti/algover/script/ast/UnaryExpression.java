@@ -33,11 +33,7 @@ import org.antlr.v4.runtime.ParserRuleContext;
  * @author Sarah Grebing
  * @version 1 (30.04.17)
  */
-
-// REVIEW: Add the missing generic parameters! Please!
-
-@SuppressWarnings({"unchecked", "rawtypes"})
-public class UnaryExpression extends Expression<ParserRuleContext> {
+public class UnaryExpression extends Expression {
     @NonNull
     private Operator operator;
     @NonNull

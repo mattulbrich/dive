@@ -1,10 +1,14 @@
 package edu.kit.iti.algover.rule;
 
 import edu.kit.iti.algover.proof.ProofNode;
+import edu.kit.iti.algover.rules.Parameters;
 import edu.kit.iti.algover.rules.ProofRule;
 import edu.kit.iti.algover.rules.ProofRuleApplication;
+import edu.kit.iti.algover.rules.ProofRuleApplicationBuilder;
 import edu.kit.iti.algover.rules.RuleException;
+import edu.kit.iti.algover.rules.TermParameter;
 import edu.kit.iti.algover.rules.TermSelector;
+import edu.kit.iti.algover.rules.impl.ExhaustiveRule;
 import edu.kit.iti.algover.term.Sequent;
 import edu.kit.iti.algover.util.RuleParameterDialog;
 import javafx.beans.value.ObservableValue;
@@ -26,6 +30,7 @@ public class RuleView extends StackPane {
     private final ProofRule rule;
 
     private ProofRuleApplication application;
+    private ProofRuleApplication exApplication;
     private TermSelector selection;
     private RuleViewOverlay applicationOverlay;
     private boolean selectable;
@@ -75,6 +80,15 @@ public class RuleView extends StackPane {
     public void considerApplication(ProofNode target, Sequent selection, TermSelector selector) {
         try {
             application = rule.considerApplication(target, selection, selector);
+            if(rule.mayBeExhaustive()) {
+                ExhaustiveRule exhaustiveRule = new ExhaustiveRule();
+                Parameters params = new Parameters();
+                params.putValue("on", new TermParameter(selector, selection));
+                params.putValue("ruleName", rule.getName());
+                exApplication = exhaustiveRule.considerApplication(target, params);
+            } else {
+                exApplication = ProofRuleApplicationBuilder.notApplicable(rule);
+            }
             this.selection = selector;
             setSelectable(application != null && application.getApplicability() == ProofRuleApplication.Applicability.APPLICABLE);
             renderApplication();
@@ -93,7 +107,7 @@ public class RuleView extends StackPane {
 
     private void renderApplication() {
         if (application != null) {
-            applicationOverlay = new RuleViewOverlay(application, listener, selection);
+            applicationOverlay = new RuleViewOverlay(application, exApplication, listener, selection);
             getChildren().setAll(applicationOverlay, ruleNameLabel);
         } else {
             resetConsideration();
