@@ -107,6 +107,7 @@ RETURNS : 'returns';
 SEQ : 'seq';
 SET : 'set';
 SETTINGS : 'settings';
+SUBSUME : 'subsume';
 THEN: 'then';
 THIS: 'this';
 TRUE: 'true';
@@ -183,7 +184,8 @@ label:
   ;
 
 include:
-  INCLUDE^ STRING_LIT ('for'! 'free')?
+    INCLUDE^ STRING_LIT
+  | SUBSUME^ STRING_LIT
   ;
 
 settings:

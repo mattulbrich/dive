@@ -15,15 +15,13 @@ import edu.kit.iti.algover.util.Util;
 import org.xml.sax.SAXException;
 
 import javax.xml.bind.JAXBException;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.Writer;
+import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.logging.Logger;
 
 /**
  * A project manager that receives a directory and a config.xml file for
@@ -106,20 +104,6 @@ public final class XMLProjectManager extends AbstractProjectManager {
         }
 
         Project result = pb.build();
-
-        // This is already performed in build()!!
-        // That's why I removed it.
-//        ArrayList<DafnyException> exceptions = new ArrayList<>();
-//        ReferenceResolutionVisitor refResolver = new ReferenceResolutionVisitor(result, exceptions);
-//        refResolver.visitProject();
-//
-//        TypeResolution typeRes = new TypeResolution(exceptions);
-//        typeRes.visitProject(result);
-//
-//        if(!exceptions.isEmpty()) {
-//            // TODO ->MU: Is it wise to only return the first exception?
-//            throw exceptions.get(0);
-//        }
 
         return result;
     }
@@ -226,11 +210,65 @@ public final class XMLProjectManager extends AbstractProjectManager {
         return directory.getName();
     }
 
+    @Override
+    public Configuration getConfiguration() {
+        Configuration configuration = getProject().getConfiguration();
+        configuration.setBaseDir(getProject().getBaseDir());
+        configuration.setConfigFile(this.configFilename);
+        configuration.setSaveAsXML(true);
+        return configuration;
+    }
+
+    @Override
+    public void updateProject(Configuration config) throws IOException, DafnyParserException, FormatException, DafnyException {
+        saveConfiguration(config);
+        this.reload();
+    }
+
+    @Override
+    public void saveProjectConfiguration() throws IOException {
+        saveConfiguration(this.getConfiguration());
+    }
+
     public String getConfigFilename() {
         return configFilename;
     }
 
     public File getDirectory() {
         return directory;
+    }
+
+
+    /**
+     * Write a configuration to the XML file specified in the configuration object
+     * @param config
+     */
+    public static void saveConfiguration(Configuration config) throws IOException {
+        File baseDir = config.getBaseDir();
+        String configFile = config.getConfigFile();
+        try {
+
+            Path configXML = Paths.get(baseDir + File.separator + configFile);
+            if (baseDir.exists() && configFile.endsWith(".xml")) {
+                Path file;
+                if(!configXML.toFile().exists()) {
+                    file = Files.createFile(configXML);
+                } else {
+                    file = configXML;
+                }
+
+                ConfigXMLLoader.saveConfigFile(config, file.toFile());
+
+            } else {
+                throw new IOException(baseDir+" does not exist");
+            }
+        } catch (JAXBException e) {
+            e.printStackTrace();
+            throw new IOException(e);
+
+        } catch (IOException e) {
+            Logger.getGlobal().severe("Was not able to create file "+  baseDir+ File.separator + configFile);
+           throw(e);
+        }
     }
 }

@@ -5,9 +5,12 @@
  */
 package edu.kit.iti.algover.util;
 
+import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileFilter;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
 import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.InputStream;
@@ -38,6 +41,7 @@ import org.hamcrest.BaseMatcher;
 import org.hamcrest.Description;
 import org.hamcrest.Matcher;
 import org.junit.Test;
+import static org.junit.Assert.*;
 
 public class TestUtil {
 
@@ -346,5 +350,34 @@ public class TestUtil {
         }
 
         return children;
+    }
+
+    public static void assertSameTextFiles(File expected, File actual) throws IOException {
+
+        int line = 1;
+        try(BufferedReader r1 = new BufferedReader(new FileReader(expected));
+            BufferedReader r2 = new BufferedReader(new FileReader(actual))) {
+
+            while(true) {
+                String line1 = r1.readLine();
+                String line2 = r2.readLine();
+
+                if (line1 == null && line2 == null) {
+                    // both at end.
+                    return;
+                }
+
+                if (line1 == null) {
+                    fail("Actual file has more lines then expected (" + line + ").");
+                }
+
+                if (line1 == null) {
+                    fail("Actual file has less lines then expected (" + line + ").");
+                }
+
+                assertEquals("line " + line + " differs", line1, line2);
+                line ++;
+            }
+        }
     }
 }
