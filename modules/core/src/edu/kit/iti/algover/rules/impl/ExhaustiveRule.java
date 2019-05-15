@@ -42,6 +42,9 @@ public class ExhaustiveRule extends AbstractProofRule {
         assert(rules.size() == 1);
 
         ProofRule rule = rules.get(0);
+        if(rule.getAllParameters().size() > 1) {
+            return ProofRuleApplicationBuilder.notApplicable(this);
+        }
 
         TermSelector onSelector = parameters.getValue(ON_PARAM).getTermSelector();
 
@@ -68,6 +71,9 @@ public class ExhaustiveRule extends AbstractProofRule {
         assert(rules.size() == 1);
 
         ProofRule rule = rules.get(0);
+        if(rule.getAllParameters().size() > 1) {
+            throw new RuleException("Only rules with 5 Parameter are exhaustively applicable.");
+        }
 
         TermSelector onSelector = parameters.getValue(ON_PARAM).getTermSelector();
 

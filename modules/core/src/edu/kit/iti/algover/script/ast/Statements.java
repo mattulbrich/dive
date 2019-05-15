@@ -37,11 +37,7 @@ import java.util.stream.Stream;
  * @author Alexander Weigl
  * @version 1 (27.04.17)
  */
-
-// REVIEW: Add the missing generic parameters! Please!
-
-@SuppressWarnings({"unchecked", "rawtypes"})
-public class Statements extends ASTNode<ScriptLanguageParser.StmtListContext>
+public class Statements extends ASTNode
         implements Visitable, Iterable<Statement> {
     private final List<Statement> statements = new ArrayList<>();
 
@@ -59,14 +55,6 @@ public class Statements extends ASTNode<ScriptLanguageParser.StmtListContext>
 
     public boolean contains(Object o) {
         return statements.contains(o);
-    }
-
-    public Object[] toArray() {
-        return statements.toArray();
-    }
-
-    public <T> T[] toArray(T[] a) {
-        return statements.toArray(a);
     }
 
     public boolean add(Statement statement) {

@@ -97,6 +97,7 @@
     -fx-background-color: white;
 }
 
+
 .log:error .text {
     -fx-fill: #E55;
 }
@@ -109,3 +110,55 @@
     -fx-fill: #2CAE26;
 }
 
+
+/**
+        Settings
+ */
+
+.settings-h1{
+    -fx-font-size: 12pt;
+    -fx-font-weight: bold;
+}
+
+.jfx-tab-pane .headers-region {
+    -fx-background-color: transparent;
+}
+.jfx-tab-pane .tab:selected {
+    -fx-background-color: lightgray; /* When this */
+}
+.jfx-tab-pane .tab-header-background {
+    -fx-background-color: transparent;
+}
+.jfx-tab-pane .tab-selected-line {
+    -fx-stroke: transparent;
+    -fx-stroke-width: 1pt;
+}
+
+.jfx-tab-pane .tab *.tab-label {
+    -fx-rotate: 90;
+    -fx-background-color: lightgray;
+    -fx-font-size: 12pt;
+    -fx-text-fill: black;
+}
+
+.tab {
+    -fx-padding: 0.5em 0.5em 0.5em 0.5em;
+
+}
+
+.welcomePaneHeadingLabel {
+    -fx-font-size: 20pt;
+    -fx-font-weight: bold;
+    -fx-text-fill: #17807f;
+    -fx-font-family: sans-serif ;
+}
+
+.welcomePaneHeadingText {
+    -fx-font-size: 11pt;
+    -fx-font-weight: bold;
+    -fx-font-family: sans-serif ;
+}
+
+.welcomPaneHTML {
+
+}

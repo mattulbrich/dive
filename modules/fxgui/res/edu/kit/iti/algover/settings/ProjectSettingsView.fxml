@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<?import javafx.geometry.Insets?>
+<?import com.jfoenix.controls.JFXListView?>
+
+
+<?import org.controlsfx.glyphfont.Glyph?>
+<?import com.jfoenix.controls.JFXRadioButton?>
+<VBox fx:id="container" xmlns="http://javafx.com/javafx"
+      xmlns:fx="http://javafx.com/fxml"
+      stylesheets="@../style.css" >
+                    <padding><Insets top="25" right="25" bottom="40" left="25"/></padding>
+                    <children>
+                        <Label text="Project Configuration Settings" styleClass="settings-h1" ></Label>
+                        <Region prefHeight="40" VBox.vgrow="ALWAYS"></Region>
+                        <HBox fx:id="projectNameHBox" alignment="CENTER_LEFT" spacing="30">
+                            <Label text="Base directory of the project" alignment="CENTER_LEFT"></Label>
+                            <TextField fx:id="projectPath" editable="true" HBox.hgrow="ALWAYS"></TextField>
+                            <Button fx:id="fileChooserButton" text="..." onAction="#openDirChooser"></Button>
+                        </HBox>
+                        <Region prefHeight="20" VBox.vgrow="ALWAYS"></Region>
+                        <Region prefHeight="20" VBox.vgrow="ALWAYS"></Region>
+                        <HBox alignment="CENTER_LEFT" spacing="30">
+                            <VBox alignment="CENTER_LEFT" spacing="20">
+                                <JFXRadioButton fx:id="xmlFormat" text="XML-Format"></JFXRadioButton>
+                                <JFXRadioButton fx:id="dfyFormat" text="Dafny-Format"></JFXRadioButton>
+                            </VBox>
+                            <HBox alignment="CENTER_LEFT" spacing="30"  HBox.hgrow="ALWAYS">
+                            <VBox alignment="CENTER_LEFT" spacing="20" >
+                                <Label text="File name of the config file" alignment="CENTER"></Label>
+                                <Label text="File name of the Dafny master file" alignment="CENTER_LEFT"></Label>
+                            </VBox>
+                            <VBox alignment="CENTER_LEFT" spacing="20" HBox.hgrow="ALWAYS">
+                                <TextField fx:id="configFileName" alignment="CENTER_LEFT" editable="true" HBox.hgrow="ALWAYS"></TextField>
+                                <TextField fx:id="masterFileName" alignment="CENTER_LEFT" editable="true" HBox.hgrow="ALWAYS"></TextField>
+
+                            </VBox>
+                            </HBox>
+                        </HBox>
+
+                        <Region prefHeight="40" VBox.vgrow="ALWAYS"></Region>
+                        <VBox fx:id="dafnyInputFilesBox" alignment="CENTER_LEFT" spacing="10">
+                            <HBox alignment="TOP_LEFT">
+                                        <Label text="Dafny files" alignment="CENTER_LEFT" ></Label>
+                                        <Region prefWidth="40" HBox.hgrow="ALWAYS"></Region>
+                                        <Button fx:id="newDafnyFileButton"  alignment="CENTER_RIGHT" onAction="#createNewDafnyFile" text="New file">
+
+                                        </Button>
+
+                                <Button fx:id="addDafnyFilesButton"  alignment="CENTER_RIGHT" onAction="#addDafnyFile">
+                                            <graphic>
+                                                <Glyph fontFamily="FontAwesome" icon="PLUS" />
+                                            </graphic>
+                                        </Button>
+
+                                        <Button fx:id="delDafnyFilesButton" alignment="CENTER_RIGHT" onAction="#removeDafnyFile">
+                                            <graphic>
+                                                <Glyph fontFamily="FontAwesome" icon="MINUS" />
+                                            </graphic>
+                                        </Button>
+                            </HBox>
+                            <JFXListView fx:id="dafnyFiles" prefWidth="550.0" prefHeight="100"></JFXListView>
+                        </VBox>
+                        <Region prefHeight="40" VBox.vgrow="ALWAYS"></Region>
+                        <VBox fx:id="dafnylibFilesBox" alignment="CENTER_LEFT" spacing="10">
+                            <HBox>
+                                <Label text="Dafny Library files" alignment="CENTER_LEFT" ></Label>
+                                <Region prefWidth="40" HBox.hgrow="ALWAYS"></Region>
+                                <Button fx:id="addLibFilesButton" alignment="CENTER_RIGHT"  onAction="#addLibFile">
+                                        <graphic>
+                                            <Glyph fontFamily="FontAwesome" icon="PLUS" />
+                                        </graphic>
+                                    </Button>
+                                    <Button fx:id="delLibFilesButton" alignment="CENTER_RIGHT"  onAction="#removeLibFile">
+                                        <graphic>
+                                            <Glyph fontFamily="FontAwesome" icon="MINUS" />
+                                        </graphic>
+
+                                    </Button>
+
+                            </HBox>
+                            <JFXListView fx:id="libFiles" prefWidth="550.0" prefHeight="100">
+                            </JFXListView>
+                        </VBox>
+                        <Separator></Separator>
+                        <Region prefHeight="40" VBox.vgrow="ALWAYS"></Region>
+                        <Label text="Solver and Translation Settings" styleClass="settings-h1"></Label>
+                        <VBox fx:id="projectConfigSettings" alignment="CENTER_LEFT" spacing="10">
+                        </VBox>
+                    </children>
+                </VBox>

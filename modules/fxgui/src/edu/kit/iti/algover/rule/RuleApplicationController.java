@@ -81,14 +81,7 @@ public class RuleApplicationController extends FxmlController {
         ruleGrid.filterRules();
     }
 
-    public void applyRule(ProofRuleApplication application) {
-        try {
-            resetConsideration();
-            scriptController.insertTextForSelectedNode(application.getScriptTranscript() + "\n");
-        } catch(RuleException e) {
-            Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).severe("Error applying rule: " + e.getMessage());
-        }
-    }
+
 
     private void onSelectedItemChanged(ObservableValue<? extends RuleView> obs, RuleView before, RuleView selected) {
         if (selected == null) {
@@ -125,6 +118,15 @@ public class RuleApplicationController extends FxmlController {
         } catch (RuleException e) {
             //TODO handle exeptions
             logger.severe("Error while trying to apply rule " + rule.getName() + " exhaustive.");
+        }
+    }
+
+    public void applyRule(ProofRuleApplication application) {
+        try {
+            resetConsideration();
+            scriptController.insertTextForSelectedNode(application.getScriptTranscript()); //SaG: removed newline character
+        } catch(RuleException e) {
+            Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).severe("Error applying rule: " + e.getMessage());
         }
     }
 

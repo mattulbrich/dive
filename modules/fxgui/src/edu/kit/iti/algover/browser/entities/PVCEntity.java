@@ -128,6 +128,11 @@ public class PVCEntity extends TreeTableEntity {
 
     private void changed(ObservableValue<edu.kit.iti.algover.proof.ProofStatus> observableValue, edu.kit.iti.algover.proof.ProofStatus oldValue, edu.kit.iti.algover.proof.ProofStatus newValue) {
         proofStatus.setValue(ProofStatus.from(newValue));
+        if (proofStatus.get() == ProofStatus.PROVEN) {
+            provenChildrenProperty().set(1);
+        } else {
+            provenChildrenProperty().set(0);
+        }
     }
 
 }

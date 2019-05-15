@@ -2,7 +2,6 @@ package edu.kit.iti.algover.script.exceptions;
 
 
 import edu.kit.iti.algover.script.ast.CallStatement;
-import jdk.nashorn.internal.codegen.CompilerConstants;
 
 /**
  * @author Alexander Weigl

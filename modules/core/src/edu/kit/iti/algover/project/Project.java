@@ -7,6 +7,7 @@ package edu.kit.iti.algover.project;
 
 import java.io.File;
 import java.util.*;
+import java.util.stream.Collectors;
 
 import edu.kit.iti.algover.dafnystructures.DafnyClass;
 import edu.kit.iti.algover.dafnystructures.DafnyDecl;
@@ -424,5 +425,30 @@ public final class Project {
         ServiceLoader<ProofRule> loader = ServiceLoader.load(ProofRule.class);
         loader.forEach(result::add);
         return result;
+    }
+
+    /**
+     * Returns all project details necessary for saving and showing in Settings Pane as partial Configuration
+     * @return
+     */
+    public Configuration getConfiguration() {
+        Configuration c = getSettings().getConfiguration();
+        List<File> dfyFiles = getDafnyFiles().stream()
+                .filter(dafnyFile -> !dafnyFile.isInLibrary())
+                .map(dafnyFile -> new File(dafnyFile.getFilename()))
+                .collect(Collectors.toList());
+        c.setDafnyFiles(dfyFiles);
+
+        List<File> libFiles = getDafnyFiles().stream()
+                .filter(dafnyFile -> dafnyFile.isInLibrary())
+                .map(dafnyFile -> new File(dafnyFile.getFilename()))
+                .collect(Collectors.toList());;
+        c.setLibFiles(libFiles);
+
+        return c;
+    }
+
+    public void updateProject(Configuration config) {
+        //TODO
     }
 }

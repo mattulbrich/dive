@@ -31,7 +31,7 @@ import nonnull.NonNull;
  * @author Alexander Weigl
  * @version 1 (27.04.17)
  */
-public class ProofScript extends ASTNode<ScriptLanguageParser.ScriptContext> {
+public class ProofScript extends ASTNode {
     @NonNull
     private String name = "_";
     private Signature signature = new Signature();

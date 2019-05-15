@@ -38,6 +38,7 @@ class List {
       node := node.next;
       s := s + 1;
     }
+    assert s > 0 || s > 1;
   }
   
   method insertAt(pos: int, value: int)

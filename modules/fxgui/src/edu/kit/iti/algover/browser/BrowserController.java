@@ -8,6 +8,9 @@ import edu.kit.iti.algover.dafnystructures.DafnyMethod;
 import edu.kit.iti.algover.project.Project;
 import edu.kit.iti.algover.proof.*;
 import javafx.beans.value.ObservableValue;
+import javafx.scene.control.ContextMenu;
+import javafx.scene.control.MenuItem;
+import javafx.scene.control.SeparatorMenuItem;
 import javafx.scene.control.TreeItem;
 
 import java.util.ArrayList;
@@ -16,7 +19,9 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
- * Created by philipp on 26.06.17.
+ * Controller for the PVC and System Structure Overview
+ * @author Philipp Krüger (on 26.06.17)
+ * @author S. Grebing (added ContextMenu)
  */
 public abstract class BrowserController {
 
@@ -33,8 +38,43 @@ public abstract class BrowserController {
 
         view.getSelectionModel().selectedItemProperty()
                 .addListener(this::onTreeItemSelected);
-
+        createContextMenu(view.getContextMenu());
         populateTreeTable();
+    }
+
+    private void createContextMenu(ContextMenu contextMenu) {
+        MenuItem expandSubtree = new MenuItem("Expand Tree");
+        expandSubtree.setOnAction(event -> {
+            if(selectionListener != null){
+                TreeItem<TreeTableEntity> selectedItem = getView().getSelectionModel().getSelectedItem();
+                expandCollapseTree(selectedItem, true);
+            }
+        });
+
+        MenuItem collapseSubtree = new MenuItem("Collapse Tree");
+        collapseSubtree.setOnAction(event -> {
+            if(selectionListener != null){
+                TreeItem<TreeTableEntity> selectedItem = getView().getSelectionModel().getSelectedItem();
+                expandCollapseTree(selectedItem, false);
+            }
+        });
+
+
+        contextMenu.getItems().addAll(new SeparatorMenuItem(), expandSubtree, collapseSubtree);
+
+    }
+
+    private void expandCollapseTree(TreeItem<TreeTableEntity> item, boolean expand){
+    if(item != null && !item.isLeaf()){
+        item.setExpanded(expand);
+        for(TreeItem<TreeTableEntity> child : item.getChildren()){
+            expandCollapseTree(child, expand);
+        }
+    }
+}
+
+    public ContextMenu getBrowserContextMenu(){
+        return view.getContextMenu();
     }
 
     protected abstract void populateTreeTable();

@@ -100,6 +100,7 @@ public class DafnyFileBuilder {
                 classes.add(classBuilder.build());
                 break;
             case DafnyParser.INCLUDE:
+            case DafnyParser.SUBSUME:
             case DafnyParser.SETTINGS:
                 // Ignore the configuration stuff when parsing files.
                 break;

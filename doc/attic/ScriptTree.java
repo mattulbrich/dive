@@ -109,13 +109,13 @@ public class ScriptTree extends CommonTree {
      * @return a readonly-view to the list of children of this node,
      *         <code>null</code> if array has not been initialised yet.
      */
-    @SuppressWarnings("unchecked")
+    //@SuppressWarnings("unchecked")
     public List<ScriptTree> getChildren() {
         if (children == null) {
             return null;
         } else {
             return Collections
-                    .unmodifiableList((List<ScriptTree>) (List<?>) children);
+                    .unmodifiableList(children);
         }
     }
 
