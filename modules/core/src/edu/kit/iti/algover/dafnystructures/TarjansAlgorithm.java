@@ -171,7 +171,9 @@ public class TarjansAlgorithm {
 
     /*
      * This visitor allows one to find all referenced methods and functions
-     * used within a mehtod/function body.
+     * used within a method/function body.
+     *
+     * TODO Refactor this using the class Callgraph. And use this code in Callgraph.
      */
     private class Visitor extends DafnyTreeDefaultVisitor<Void, Set<DafnyDecl>> {
 
