@@ -78,6 +78,13 @@ public final class Project {
     private final Map<String, DafnyFunction> functions;
 
     /**
+     * Callgraph to retrieve callsites and called methods for any method.
+     *
+     * This reference is initially null and only set once it is needed.
+     */
+    private @Nullable Callgraph callgraph;
+
+    /**
      * Lookup maps to get the {@link FunctionSymbol}s corresponding
      * to the functions and fields of the project.
      * <p>
@@ -178,6 +185,10 @@ public final class Project {
             builtinProofRules = Collections.unmodifiableList(makeBuiltinProofRules());
         }
         return builtinProofRules;
+    }
+
+    public Callgraph getCallgraph() {
+        return callgraph;
     }
 
     /**
@@ -448,7 +459,4 @@ public final class Project {
         return c;
     }
 
-    public void updateProject(Configuration config) {
-        //TODO
-    }
 }
