@@ -7,6 +7,7 @@
 
 package edu.kit.iti.algover.project;
 
+import edu.kit.iti.algover.dafnystructures.DafnyFile;
 import edu.kit.iti.algover.parser.DafnyException;
 import edu.kit.iti.algover.parser.DafnyFileParser;
 import edu.kit.iti.algover.parser.DafnyParser;
@@ -25,11 +26,9 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Properties;
+import java.util.*;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
 /**
  * This project manager is a newer variant which does not use configuration
@@ -91,16 +90,25 @@ public class DafnyProjectManager extends AbstractProjectManager {
         }
 
         for (PVC pvc : project.getPVCByNameMap().values()) {
-            Proof p = new Proof(project, pvc);
-            String script;
-            try {
-                script = loadScriptForPVC(pvc.getIdentifier());
-            } catch(FileNotFoundException ex) {
-                script = project.getSettings().getString(ProjectSettings.DEFAULT_SCRIPT);
-            }
-            p.setScriptText(script);
+            List<DafnyFile> dfyFiles = project.getDafnyFiles().stream().filter(
+                    dafnyFile -> dafnyFile.getFilename().equals(pvc.getDeclaration().getFilename()))
+                    .collect(Collectors.toList());
+            if(dfyFiles.size()>0) {
 
-            proofs.put(pvc.getIdentifier(), p);
+                Proof p = new Proof(project, pvc, dfyFiles.get(0));
+                String script;
+                try {
+                    script = loadScriptForPVC(pvc.getIdentifier());
+                } catch (FileNotFoundException ex) {
+                    script = project.getSettings().getString(ProjectSettings.DEFAULT_SCRIPT);
+                }
+                p.setScriptText(script);
+
+                proofs.put(pvc.getIdentifier(), p);
+            }
+            else {
+                throw new IOException("Could not find Dafny file for pvc: "+pvc.toString());
+            }
         }
     }
 
