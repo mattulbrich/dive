@@ -4,6 +4,7 @@ import edu.kit.iti.algover.editor.HighlightingRule;
 import edu.kit.iti.algover.editor.LayeredHighlightingRule;
 import edu.kit.iti.algover.proof.Proof;
 import edu.kit.iti.algover.proof.ProofNodeSelector;
+import edu.kit.iti.algover.references.ProofTermReferenceTarget;
 import edu.kit.iti.algover.rule.RuleApplicationListener;
 import edu.kit.iti.algover.script.ast.Position;
 import edu.kit.iti.algover.script.ast.ProofScript;
@@ -25,10 +26,8 @@ import org.fxmisc.richtext.model.StyleSpans;
 import java.awt.*;
 import java.io.StringWriter;
 import java.time.Duration;
-import java.util.Collection;
-import java.util.Collections;
+import java.util.*;
 import java.util.List;
-import java.util.Optional;
 import java.util.concurrent.ExecutorService;
 import java.util.function.Consumer;
 import java.util.logging.Logger;
@@ -74,6 +73,7 @@ public class ScriptController implements ScriptViewListener {
     private void onInsertPositionChanged(Position old, Position nv) {
         //TODO why is the first node set and another one
         if(old != null) {
+            view.getGutterAnnotations().get(0).setInsertMarker(false);
             view.getGutterAnnotations().get(old.getLineNumber() - 1).setInsertMarker(false);
             view.getGutterAnnotations().forEach(gutterAnnotation -> gutterAnnotation.setProofNodeIsSelected(false));
             //view.getGutterAnnotations().get(old.getLineNumber() - 1).setProofNodeIsSelected(false);
@@ -229,6 +229,9 @@ public class ScriptController implements ScriptViewListener {
 
     }
 
+    /**
+     * Interpret the proof script that is set in the current ScriptView
+     */
     @Override
     public void runScript() {
         view.resetGutter();
@@ -282,6 +285,10 @@ public class ScriptController implements ScriptViewListener {
 //        view.requestLayout();
     }
 
+    /**
+     * Return the current ScriptView
+     * @return
+     */
     public ScriptView getView() {
         return view;
     }
@@ -316,6 +323,10 @@ public class ScriptController implements ScriptViewListener {
         highlightingRules.setLayer(0, (token, syntaxClasses) -> syntaxClasses);
     }
 
+    /**
+     * Set the selected proof node in the ScriptView
+     * @param proofNodeSelector
+     */
     public void setSelectedNode(ProofNodeSelector proofNodeSelector) {
         if(!proofNodeSelector.equals(selectedNode)) {
             selectedNode = proofNodeSelector;
@@ -330,6 +341,10 @@ public class ScriptController implements ScriptViewListener {
         }
     }
 
+    /**
+     * Return the Position, where the next proof command is added
+     * @return Position
+     */
     public Position getObservableInsertPosition() {
         return observableInsertPosition.get();
     }
@@ -342,4 +357,13 @@ public class ScriptController implements ScriptViewListener {
         this.observableInsertPosition.set(observableInsertPosition);
     }
 
+    /**
+     * Mark all ProofNodes in the script that are referenced in the set of target passed as parameter
+     * @param proofTermReferenceTargets
+     */
+    public void viewReferences(Set<ProofTermReferenceTarget> proofTermReferenceTargets) {
+        proofTermReferenceTargets.forEach(proofTermReferenceTarget -> {
+            System.out.println(proofTermReferenceTarget.getProofNodeSelector().toString());
+        });
+    }
 }

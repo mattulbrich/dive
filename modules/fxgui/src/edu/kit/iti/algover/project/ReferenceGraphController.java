@@ -5,6 +5,8 @@ import edu.kit.iti.algover.proof.Proof;
 import edu.kit.iti.algover.references.CodeReferenceTarget;
 import edu.kit.iti.algover.references.ProofTermReferenceTarget;
 import edu.kit.iti.algover.references.ReferenceGraph;
+import edu.kit.iti.algover.rule.RuleApplicationController;
+import edu.kit.iti.algover.rule.script.ScriptController;
 import edu.kit.iti.algover.rules.RuleException;
 import edu.kit.iti.algover.sequent.SequentTabViewController;
 
@@ -14,17 +16,19 @@ import java.util.logging.Logger;
 
 public class ReferenceGraphController {
 
-    private EditorController editorController;
-    private SequentTabViewController sequentController;
+    private final EditorController editorController;
+    private final SequentTabViewController sequentController;
+    private final RuleApplicationController rulaApplicationController;
 
     /**
      * Controller that encapsulates ReferenceHighlighting
      * @param editorCtrl
      * @param sequentController
      */
-    public ReferenceGraphController(EditorController editorCtrl, SequentTabViewController sequentController){
+    public ReferenceGraphController(EditorController editorCtrl, SequentTabViewController sequentController, RuleApplicationController ruleApplicationController){
         this.editorController = editorCtrl;
         this.sequentController = sequentController;
+        this.rulaApplicationController = ruleApplicationController;
     }
 
     /**
@@ -32,7 +36,8 @@ public class ReferenceGraphController {
      * in the sequentview
      * @param selectedTarget
      */
-    public void highlight(ProofTermReferenceTarget selectedTarget){
+    public void highlightAllReferenceTargets(ProofTermReferenceTarget selectedTarget){
+
         Proof activeProof = sequentController.getActiveSequentController().getActiveProof();
 
         if (selectedTarget != null) {
@@ -43,20 +48,37 @@ public class ReferenceGraphController {
             //Set<CodeReferenceTarget> codeReferenceTargets = filterCodeReferences(predecessors);
             Set<ProofTermReferenceTarget> proofTermReferenceTargets = referenceGraph.computeHistory(selectedTarget, activeProof);
 
-            Set<CodeReferenceTarget> codeReferenceTargets = referenceGraph.allPredecessorsWithType(selectedTarget, CodeReferenceTarget.class);
+            Set<CodeReferenceTarget> codeReferenceTargets = referenceGraph
+                    .allPredecessorsWithType(selectedTarget, CodeReferenceTarget.class);
 
             editorController.viewReferences(codeReferenceTargets);
             sequentController.viewReferences(proofTermReferenceTargets, selectedTarget);
+            ScriptController scriptController = this.rulaApplicationController.getScriptController();
+            scriptController.viewReferences(proofTermReferenceTargets);
 
         } else {
             editorController.viewReferences(new HashSet<>());
         }
         try {
-            Logger.getGlobal().info("Searched for references for selection "+selectedTarget.getTermSelector().selectSubterm(selectedTarget.getProofNodeSelector().get(activeProof).getSequent()));
+            Logger.getGlobal().info("Searched for references for selection "
+                    + selectedTarget.getTermSelector()
+                    .selectSubterm(
+                            selectedTarget.getProofNodeSelector().get(activeProof).getSequent()));
         } catch (RuleException e) {
 
             Logger.getGlobal().warning("There was a problem computing the references.");
         }
+    }
+
+    /**
+     * Compute all ProofTermReferenceTargets to highlight in the scriptView
+     * @param selectedTarget
+     * @param proof
+     * @return
+     */
+    private Set<ProofTermReferenceTarget> computeProofTermRefTargets(ProofTermReferenceTarget selectedTarget, Proof proof){
+        Set<ProofTermReferenceTarget> targetsToHighlight = new HashSet<>();
+        return targetsToHighlight;
     }
 
 

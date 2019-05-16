@@ -17,9 +17,7 @@ import edu.kit.iti.algover.editor.EditorController;
 import edu.kit.iti.algover.project.ProjectManager;
 import edu.kit.iti.algover.project.ReferenceGraphController;
 import edu.kit.iti.algover.proof.*;
-import edu.kit.iti.algover.references.CodeReferenceTarget;
 import edu.kit.iti.algover.references.ProofTermReferenceTarget;
-import edu.kit.iti.algover.references.ReferenceGraph;
 import edu.kit.iti.algover.rule.RuleApplicationController;
 import edu.kit.iti.algover.rule.RuleApplicationListener;
 import edu.kit.iti.algover.rules.*;
@@ -90,7 +88,8 @@ public class MainController implements SequentActionListener, RuleApplicationLis
         this.editorController.anyFileChangedProperty().addListener(this::onDafnyFileChangedInEditor);
         this.sequentController = new SequentTabViewController(this);
         this.ruleApplicationController = new RuleApplicationController(executor, this, manager);
-        this.referenceGraphController = new ReferenceGraphController(this.editorController, this.sequentController);
+        //hand all necessary controller references to ReferenceGraphController to be able to highlight nec. targets
+        this.referenceGraphController = new ReferenceGraphController(this.editorController, this.sequentController, this.ruleApplicationController);
 
         JFXButton saveButton = new JFXButton("Save", GlyphsDude.createIcon(FontAwesomeIcon.SAVE));
         JFXButton refreshButton = new JFXButton("Refresh", GlyphsDude.createIcon(FontAwesomeIcon.REFRESH));
@@ -529,7 +528,7 @@ public class MainController implements SequentActionListener, RuleApplicationLis
 
     @Override
     public void onRequestReferenceHighlighting(ProofTermReferenceTarget termRef) {
-        this.referenceGraphController.highlight(termRef);
+        this.referenceGraphController.highlightAllReferenceTargets(termRef);
 
     }
 
