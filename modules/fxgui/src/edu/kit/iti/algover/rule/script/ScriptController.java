@@ -71,12 +71,9 @@ public class ScriptController implements ScriptViewListener {
     }
 
     private void onInsertPositionChanged(Position old, Position nv) {
-        //TODO why is the first node set and another one
         if(old != null) {
-            view.getGutterAnnotations().get(0).setInsertMarker(false);
             view.getGutterAnnotations().get(old.getLineNumber() - 1).setInsertMarker(false);
             view.getGutterAnnotations().forEach(gutterAnnotation -> gutterAnnotation.setProofNodeIsSelected(false));
-            //view.getGutterAnnotations().get(old.getLineNumber() - 1).setProofNodeIsSelected(false);
 
         }
             if(view.getGutterAnnotations().size() > nv.getLineNumber()){

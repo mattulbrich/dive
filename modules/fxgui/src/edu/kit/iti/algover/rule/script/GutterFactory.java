@@ -58,9 +58,8 @@ public class GutterFactory implements IntFunction<Node> {
         for (int i = 0; i < 100; i++) {
 
             GutterAnnotation e = new GutterAnnotation();
-            if(i==0){
+            if(i==0 && nParagraphs.getValue() == 1){
                 e.setInsertMarker(true);
-
             }
             lineAnnotations.add(e);
         }
