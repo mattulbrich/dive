@@ -2,6 +2,7 @@ package edu.kit.iti.algover.browser;
 
 import edu.kit.iti.algover.browser.entities.TreeTableEntity;
 import edu.kit.iti.algover.util.ObservableValue;
+import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
 import javafx.geometry.Pos;
 import javafx.scene.control.TreeTableCell;
@@ -34,14 +35,16 @@ public class StatusCell extends TreeTableCell<TreeTableEntity, TreeTableEntity> 
     @Override
     protected void updateItem(TreeTableEntity item, boolean empty) {
         super.updateItem(item, empty);
-        setText(null);
-        if (item != null && !empty) {
-            TreeTableEntityStatusRenderer renderer = new TreeTableEntityStatusRenderer(this);
-            renderer.applyRendering(item, engagedListener);
-        } else {
-            setGraphic(null);
-            setTooltip(null);
-        }
+        Platform.runLater(() -> {
+            setText(null);
+            if (item != null && !empty) {
+                TreeTableEntityStatusRenderer renderer = new TreeTableEntityStatusRenderer(this);
+                renderer.applyRendering(item, engagedListener);
+            } else {
+                setGraphic(null);
+                setTooltip(null);
+            }
+        });
     }
 
 }

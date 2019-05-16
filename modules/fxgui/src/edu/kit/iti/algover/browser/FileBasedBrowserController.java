@@ -4,6 +4,7 @@ import edu.kit.iti.algover.browser.entities.OtherEntity;
 import edu.kit.iti.algover.browser.entities.TreeTableEntity;
 import edu.kit.iti.algover.project.Project;
 import edu.kit.iti.algover.proof.Proof;
+import javafx.scene.control.ContextMenu;
 import javafx.scene.control.TreeItem;
 
 import java.util.List;

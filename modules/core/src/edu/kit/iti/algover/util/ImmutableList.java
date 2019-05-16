@@ -9,6 +9,7 @@ import java.util.AbstractCollection;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 import java.util.function.Predicate;
@@ -126,8 +127,16 @@ public class ImmutableList<T> implements Iterable<T> {
         return size() == 0;
     }
 
+    /**
+     * Return a version of this list with the entries sorted in their natural order.
+     * This is the order defined in {@link java.util.Arrays#sort(Object[])}.
+     *
+     * This list must not contain null elements!
+     *
+     * @return a non-null list of same length as this and with the same entries.
+     */
     @SuppressWarnings("unchecked")
-    public ImmutableList<T> sort() {
+    public @NonNull ImmutableList<T> sort() {
         T[] array = (T[])new Object[size()];
 
         Iterator<T> it = iterator();
@@ -137,6 +146,57 @@ public class ImmutableList<T> implements Iterable<T> {
         Arrays.sort(array);
 
         return from(array);
+    }
+
+    /**
+     * Return a sublist of this list in which every element occurs at most once.
+     * The last occurrence of every element is kept.
+     *
+     * In order to be able to reuse as much heap space as possible, the
+     * occurrence is kept if there are several.
+     *
+     * This list must not contain null elements!
+     *
+     * @return a non-null list of at most the length of this and with a subset
+     * of entries but no duplicates.
+     */
+    public ImmutableList<T> withoutDuplicates() {
+        ImmutableList<ImmutableList<T>> stack = ImmutableList.nil();
+        ImmutableList<T> p = this;
+        while(p.size > 0) {
+            stack = stack.append(p);
+            p = p.tail;
+        }
+
+        HashSet<T> alreadySeen = new HashSet<T>();
+        ImmutableList<T> result = ImmutableList.nil();
+
+        while(stack.size > 0) {
+            ImmutableList<T> list = stack.data;
+            T dat = list.data;
+            stack = stack.tail;
+            if(alreadySeen.contains(dat)) {
+                // break the reuse loop ...
+                break;
+            } else {
+                result = list;
+                alreadySeen.add(dat);
+            }
+        }
+
+        while(stack.size > 0) {
+            ImmutableList<T> list = stack.data;
+            T dat = list.data;
+            stack = stack.tail;
+            if(alreadySeen.contains(dat)) {
+                // just do not add it.
+            } else {
+                result = result.append(dat);
+                alreadySeen.add(dat);
+            }
+        }
+
+        return result;
     }
 
     /*

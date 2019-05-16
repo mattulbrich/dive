@@ -8,6 +8,7 @@ package edu.kit.iti.algover.proof;
 import com.google.common.base.Objects;
 import edu.kit.iti.algover.term.Sort;
 import edu.kit.iti.algover.term.Term;
+import edu.kit.iti.algover.term.builder.AlphaNormalisation;
 import edu.kit.iti.algover.util.ImmutableList;
 import nonnull.DeepNonNull;
 import nonnull.NonNull;
@@ -33,14 +34,14 @@ public class ProofFormula {
     /**
      * A proof formula may be tagged with labels
      */
-    private final @DeepNonNull
-    ImmutableList<String> labels;
+    private final @DeepNonNull ImmutableList<String> labels;
 
 
     public ProofFormula(Term formula, Iterable<String> labels) {
         this.formula = formula;
         this.labels = ImmutableList.from(labels);
         assert formula.getSort().isSubtypeOf(Sort.BOOL);
+        AlphaNormalisation.assertNormalised(formula);
     }
 
     public ProofFormula(Term formula, String... labels) {

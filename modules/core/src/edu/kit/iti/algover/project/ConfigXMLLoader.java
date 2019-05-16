@@ -60,22 +60,13 @@ public class ConfigXMLLoader {
      * @param config   object holdingall project settings
      * @param filename file to save to
      */
-    public static void saveConfigFile(Configuration config, File filename) {
-        try {
-
+    public static void saveConfigFile(Configuration config, File filename) throws JAXBException {
             JAXBContext jaxbContext = JAXBContext.newInstance(Configuration.class);
             Marshaller jaxbMarshaller = jaxbContext.createMarshaller();
 
-            // output pretty printed
+            // output pretty printed to file
             jaxbMarshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
-
             jaxbMarshaller.marshal(config, filename);
-            jaxbMarshaller.marshal(config, System.out);
-
-        } catch (JAXBException e) {
-            // REVIEW: This is not a good exception handling concept. Why throw the exception away?
-            e.printStackTrace();
-        }
     }
 
     /**

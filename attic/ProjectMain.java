@@ -50,7 +50,7 @@ public class ProjectMain {
         pb.parseProjectConfigurationFile();  // if the script should be parsed.
 
         // to add extra files / libraries
-        pb.addDafnyFile("extra.dfy");
+        pb.addInputFile("extra.dfy");
         pb.addLibraryFile("lib.dfy");
 
         // to add other preparsed files to the project.

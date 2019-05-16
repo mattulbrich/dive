@@ -20,12 +20,10 @@ import edu.kit.iti.algover.term.Term;
 import edu.kit.iti.algover.util.ImmutableList;
 import edu.kit.iti.algover.util.Pair;
 import org.antlr.runtime.Token;
-import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 import java.io.File;
 import java.util.*;
 import java.util.function.Function;
-import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 /**
@@ -75,7 +73,7 @@ public class ReferenceGraph {
                 .collect(Collectors.toSet());
 
     }
-
+    @SuppressWarnings("unchecked")//SaG: ensured by guard
     public <T extends ReferenceTarget> Set<T> allSuccessorsWithType(ReferenceTarget source, Class<T> className) {
 
         Set<ReferenceTarget> precedingTargets = allSuccessors(source);

@@ -21,10 +21,5 @@
                 <key>SMT Timeout</key>
                 <value>10</value>
             </entry>
-            <entry>
-                <key>Unroll Loops</key>
-                <value>false</value>
-            </entry>
-
     </settings>
 </configuration>

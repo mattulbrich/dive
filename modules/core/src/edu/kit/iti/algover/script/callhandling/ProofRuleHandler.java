@@ -4,17 +4,13 @@ import edu.kit.iti.algover.proof.ProofNode;
 import edu.kit.iti.algover.rules.*;
 import edu.kit.iti.algover.rules.ProofRule;
 import edu.kit.iti.algover.script.ast.CallStatement;
-import edu.kit.iti.algover.script.data.GoalNode;
 import edu.kit.iti.algover.script.data.State;
 import edu.kit.iti.algover.script.data.Value;
 import edu.kit.iti.algover.script.data.VariableAssignment;
 import edu.kit.iti.algover.script.exceptions.ScriptCommandNotApplicableException;
 import edu.kit.iti.algover.script.interpreter.Evaluator;
 import edu.kit.iti.algover.script.interpreter.Interpreter;
-import edu.kit.iti.algover.term.Term;
-import edu.kit.iti.algover.term.builder.TermBuilder;
 
-import java.math.BigInteger;
 import java.util.*;
 
 /**
@@ -23,6 +19,10 @@ import java.util.*;
  * To use these proof rules, they are loaded using the Java ServiceLoader.
  * @author S. Grebing
  */
+
+// REVIEW: Add the missing generic parameters! Please!
+
+@SuppressWarnings({"unchecked", "rawtypes"})
 public class ProofRuleHandler implements CommandHandler<ProofNode> {
     /**
      * List of all available rule objects
@@ -106,7 +106,7 @@ public class ProofRuleHandler implements CommandHandler<ProofNode> {
             Evaluator<ProofNode> evaluator = new Evaluator<>(params, parent);
 
             call.getParameters().forEach((variable, expression) -> {
-                        Value<?> val = evaluator.eval(expression);
+                        Value<ProofNode> val = evaluator.eval(expression);
                         ruleParams.putValue(variable.getIdentifier(), convertValuesToTypedValues(val));
                     }
             );
@@ -122,7 +122,7 @@ public class ProofRuleHandler implements CommandHandler<ProofNode> {
 
                 //add new nodes to state, remove expanded node from state
                 //since we added nested applications there maybe also nested ProofNOdes returned
-                newNodes.stream().forEach(proofNode -> newGoals.addAll(getAllNewGoals(proofNode)));
+                newNodes.forEach(proofNode -> newGoals.addAll(getAllNewGoals(proofNode)));
                 //change state depending on whether proof branch is closed or not
                 if (newGoals.size() >= 1) {
                     interpreter.getCurrentState().getGoals().addAll(newGoals);
@@ -160,7 +160,7 @@ public class ProofRuleHandler implements CommandHandler<ProofNode> {
 
 
 
-    private Object convertValuesToTypedValues(Value<?> val) {
+    private Object convertValuesToTypedValues(Value<ProofNode> val) {
         switch (val.getType()) {
             case STRING:
             case INT:

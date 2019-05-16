@@ -16,6 +16,7 @@ import edu.kit.iti.algover.parser.TypeResolution;
 import edu.kit.iti.algover.proof.PVC;
 import edu.kit.iti.algover.settings.ProjectSettings;
 import edu.kit.iti.algover.util.FormatException;
+import nonnull.NonNull;
 import org.antlr.runtime.RecognitionException;
 import org.xml.sax.SAXException;
 
@@ -66,14 +67,11 @@ public class ProjectBuilder {
     private final Map<String, DafnyTree> dafnyTrees = new HashMap<>();
 
     /**
-     * The project's directory location
+     * The project's base directory directory.
+     *
+     * All file names are resolved wrt to this directory.
      */
     private File dir;
-
-    /**
-     * The name of the file containing the configuration.
-     */
-    private String configFilename = CONFIG_DEFAULT_FILENAME;
 
     /**
      * Setting of project
@@ -105,15 +103,6 @@ public class ProjectBuilder {
      */
     private boolean disableNameResolution;
 
-    public String getConfigFilename() {
-        return configFilename;
-    }
-
-    public ProjectBuilder setConfigFilename(String configFilename) {
-        this.configFilename = configFilename;
-        return this;
-    }
-
     public ProjectSettings getSettings() {
         return settings;
     }
@@ -140,7 +129,13 @@ public class ProjectBuilder {
         return dafnyFiles;
     }
 
-    public void addDafnyFile(String file) {
+    /**
+     * Add a filename to the files to be parsed. The filename is interpreted
+     * relative to the value of {@link #dir}.
+     *
+     * @param file filename of a .dfy file to be read
+     */
+    public void addInputFile(@NonNull String file) {
         dafnyFiles.add(file);
     }
 
@@ -159,32 +154,6 @@ public class ProjectBuilder {
     public ProjectBuilder setDir(File dir) {
         this.dir = dir;
         return this;
-    }
-
-    /**
-     * This method loads the configuration file, extracts all entities and sets member variables accordingly
-     */
-    public void parseProjectConfigurationFile() throws IOException, JAXBException, SAXException {
-
-        File configFile = new File(getDir() + File.separator + getConfigFilename());
-
-        Configuration config = ConfigXMLLoader.loadConfigFile(configFile);
-
-        if (config.getDafnyFiles() != null) {
-            config.getDafnyFiles().stream().forEach(file -> {
-                this.addDafnyFile(file.getPath());
-            });
-        }
-        if (config.getLibFiles() != null) {
-            config.getLibFiles().stream().forEach(file -> {
-                this.addLibraryFile(file.getPath());
-            });
-        }
-
-        Map<String, String> settings = config.getSettings();
-        if(settings != null) {
-            this.setSettings(settings);
-        }
     }
 
     /**

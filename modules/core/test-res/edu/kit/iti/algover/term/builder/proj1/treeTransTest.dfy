@@ -38,3 +38,14 @@ class Seq {
      this.fsq[2] := 4;
    }
 }
+
+class SuccessiveAssigns
+{
+   var x : int;
+
+   method m()
+   {
+      this.x := this.x+1;
+      this.x := this.x+2;
+   }
+}

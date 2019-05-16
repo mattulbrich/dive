@@ -7,7 +7,6 @@
 
 package edu.kit.iti.algover.project;
 
-import edu.kit.iti.algover.dafnystructures.DafnyFile;
 import edu.kit.iti.algover.parser.DafnyException;
 import edu.kit.iti.algover.parser.DafnyFileParser;
 import edu.kit.iti.algover.parser.DafnyParser;
@@ -26,8 +25,11 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.util.*;
-import java.util.stream.Collectors;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Properties;
+import java.util.logging.Logger;
 
 /**
  * This project manager is a newer variant which does not use configuration
@@ -89,35 +91,27 @@ public class DafnyProjectManager extends AbstractProjectManager {
         }
 
         for (PVC pvc : project.getPVCByNameMap().values()) {
-            List<DafnyFile> dfyFiles = project.getDafnyFiles().stream().filter(dafnyFile -> dafnyFile.getFilename().equals(pvc.getDeclaration().getFilename())).collect(Collectors.toList());
-            if(dfyFiles.size()>0) {
-
-                Proof p = new Proof(project, pvc, dfyFiles.get(0));
-                String script;
-                try {
-                    script = loadScriptForPVC(pvc.getIdentifier());
-                } catch (FileNotFoundException ex) {
-                    script = project.getSettings().getString(ProjectSettings.DEFAULT_SCRIPT);
-                }
-                p.setScriptText(script);
-
-                proofs.put(pvc.getIdentifier(), p);
+            Proof p = new Proof(project, pvc);
+            String script;
+            try {
+                script = loadScriptForPVC(pvc.getIdentifier());
+            } catch(FileNotFoundException ex) {
+                script = project.getSettings().getString(ProjectSettings.DEFAULT_SCRIPT);
             }
-            else {
-                throw new IOException("Could not find Dafny file for pvc: "+pvc.toString());
-            }
+            p.setScriptText(script);
+
+            proofs.put(pvc.getIdentifier(), p);
         }
     }
 
     private static Project buildProject(File masterFile) throws IOException, DafnyParserException {
-
         ProjectBuilder pb = new ProjectBuilder();
         File dir = masterFile.getAbsoluteFile().getParentFile();
         pb.setDir(dir);
 
         DafnyTree masterAST = DafnyFileParser.parse(masterFile);
 
-        pb.getDafnyFiles().add(masterFile.getPath());
+        pb.getDafnyFiles().add(masterFile.getName());
 
         for (DafnyTree include :
                 masterAST.getChildrenWithType(DafnyParser.INCLUDE)) {
@@ -204,5 +198,35 @@ public class DafnyProjectManager extends AbstractProjectManager {
     @Override
     public String getName() {
         return masterFile.toString();
+    }
+
+    @Override
+    public Configuration getConfiguration() {
+        Configuration c =  getProject().getConfiguration();
+        c.setBaseDir(getProject().getBaseDir());
+        c.setMasterFile(this.masterFile);
+        c.setSaveAsXML(false);
+        return c;
+    }
+
+    @Override
+    public void updateProject(Configuration config) throws IOException{
+        try {
+            DafnyProjectConfigurationChanger.saveConfiguration(config, config.getMasterFile());
+            this.reload();
+        } catch (DafnyParserException e) {
+            Logger.getGlobal().severe("Error while saving project settings to file: "+config.getMasterFile());
+            e.printStackTrace();
+        }
+    }
+
+    @Override
+    public void saveProjectConfiguration() throws IOException {
+        try {
+            DafnyProjectConfigurationChanger.saveConfiguration(this.getConfiguration(), this.masterFile);
+        } catch (DafnyParserException e) {
+            Logger.getGlobal().warning("Error while saving configuration as Dafny master file "+this.masterFile);
+            e.printStackTrace();
+        }
     }
 }

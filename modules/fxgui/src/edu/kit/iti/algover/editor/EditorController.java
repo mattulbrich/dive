@@ -1,5 +1,6 @@
 package edu.kit.iti.algover.editor;
 
+import edu.kit.iti.algover.MainController;
 import edu.kit.iti.algover.dafnystructures.DafnyFile;
 import edu.kit.iti.algover.proof.PVC;
 import edu.kit.iti.algover.references.CodeReferenceTarget;
@@ -75,6 +76,7 @@ public class EditorController implements DafnyCodeAreaListener {
         this.anyFileChangedProperty = new SimpleBooleanProperty(false);
         view.getTabs().addListener(this::onTabListChanges);
         view.setOnKeyReleased(this::handleShortcuts);
+
     }
 
     private void handleShortcuts(KeyEvent keyEvent) {

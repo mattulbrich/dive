@@ -1,5 +1,6 @@
 package edu.kit.iti.algover.settings;
 
+import edu.kit.iti.algover.project.Configuration;
 import edu.kit.iti.algover.term.builder.PVCSequenter;
 import edu.kit.iti.algover.util.FormatException;
 import edu.kit.iti.algover.util.StringValidator;
@@ -7,7 +8,6 @@ import edu.kit.iti.algover.util.StringValidators;
 import edu.kit.iti.algover.util.Util;
 import nonnull.NonNull;
 
-import javax.xml.bind.annotation.XmlType;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -31,10 +31,14 @@ public class ProjectSettings {
         public final String defaultValue;
         public final StringValidator validator;
 
-        public Property(String key, String defaultValue, StringValidator validator) {
+
+        public final String helpText;
+
+        public Property(String key, String defaultValue, StringValidator validator, String helpText) {
             this.key = key;
             this.defaultValue = defaultValue;
             this.validator = validator;
+            this.helpText = helpText;
         }
     }
 
@@ -45,22 +49,23 @@ public class ProjectSettings {
     public static final String DAFNY_TIMEOUT = "Dafny Timeout";
     public static final String KEY_TIMEOUT = "KeY Timeout";
     public static final String SMT_TIMEOUT = "SMT Timeout";
-    public static final String SYMBEX_UNROLL_LOOPS = "Unroll Loops";
-    public static final String SYMBEX_INLINE_METHODS = "Inline Methods";
+//    public static final String SYMBEX_UNROLL_LOOPS = "Unroll Loops";
+ //   public static final String SYMBEX_INLINE_METHODS = "Inline Methods";
     public static final String SEQUENTER = "Sequent Generation Type";
     public static final String DEFAULT_SCRIPT = "Default Script";
 
     private static final Property DEFINED_PROPERTIES[] = {
-            new Property(DAFNY_TIMEOUT, "5", StringValidators.POSITIVE_VALIDATOR),
-            new Property(KEY_TIMEOUT, "10", StringValidators.POSITIVE_VALIDATOR),
-            new Property(SMT_TIMEOUT, "10", StringValidators.POSITIVE_VALIDATOR),
-            new Property(SYMBEX_UNROLL_LOOPS, "false", StringValidators.BOOLEAN_VALIDATOR),
-            new Property(SYMBEX_INLINE_METHODS, "false", StringValidators.BOOLEAN_VALIDATOR),
+            new Property(DAFNY_TIMEOUT, "5", StringValidators.POSITIVE_VALIDATOR, "Timeout for the Dafny backend solver"),
+            new Property(KEY_TIMEOUT, "10", StringValidators.POSITIVE_VALIDATOR, "Timeout for the KeY backend solver"),
+            new Property(SMT_TIMEOUT, "10", StringValidators.POSITIVE_VALIDATOR, "Time out for the selected SMT solver"),
+           // new Property(SYMBEX_UNROLL_LOOPS, "0", StringValidators.POSITIVE_VALIDATOR),
+           // new Property(SYMBEX_INLINE_METHODS, "false", StringValidators.BOOLEAN_VALIDATOR),
             new Property(SEQUENTER,
                     PVCSequenter.INSTANCES.get(0).getName(),
-                    StringValidators.oneOfValidator(Util.map(PVCSequenter.INSTANCES, PVCSequenter::getName))),
-            new Property(DEFAULT_SCRIPT, "", StringValidators.ANY_VALIDATOR),
+                    StringValidators.oneOfValidator(Util.map(PVCSequenter.INSTANCES, PVCSequenter::getName)), createHelpTextForSequenter(PVCSequenter.INSTANCES)),
+            new Property(DEFAULT_SCRIPT, "", StringValidators.ANY_VALIDATOR, "The commands that should be executed as default script "),
     };
+
 
     /**
      * data structure holding values of the settings
@@ -120,6 +125,33 @@ public class ProjectSettings {
     public String toString() {
         return set.toString();
     }
+
+
+
+    /**
+     * Returns a Configuration object holding only the settings
+     * @return
+     */
+    public Configuration getConfiguration(){
+        Configuration c = new Configuration();
+        c.setSettings(this.set);
+        return c;
+    }
+
+    private static String createHelpTextForSequenter(List<PVCSequenter> instances) {
+        StringBuilder s = new StringBuilder();
+        s.append("The way in which assignments should be transformed during translation.<br> The following options exists:");
+        s.append("<br><br>");
+        s.append("<ul>");
+        for (PVCSequenter instance : instances) {
+            s.append("<li>");
+            s.append(instance.getName()+": "+instance.getDescriptiveName()+"\n");
+            s.append("</li>");
+        }
+        s.append("</ul>");
+        return s.toString();
+    }
+
 }
 
 

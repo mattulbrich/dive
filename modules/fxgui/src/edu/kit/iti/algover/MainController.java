@@ -5,6 +5,7 @@ import de.jensd.fx.glyphs.GlyphsDude;
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon;
 import edu.kit.iti.algover.browser.BrowserController;
 import edu.kit.iti.algover.browser.FlatBrowserController;
+import edu.kit.iti.algover.browser.TreeTableEntityContextMenuStrategyHelper;
 import edu.kit.iti.algover.browser.entities.PVCEntity;
 import edu.kit.iti.algover.browser.entities.PVCGetterVisitor;
 import edu.kit.iti.algover.browser.entities.TreeTableEntity;
@@ -15,16 +16,19 @@ import edu.kit.iti.algover.dafnystructures.DafnyMethod;
 import edu.kit.iti.algover.editor.EditorController;
 import edu.kit.iti.algover.project.ProjectManager;
 import edu.kit.iti.algover.proof.*;
-import edu.kit.iti.algover.references.*;
+import edu.kit.iti.algover.references.CodeReferenceTarget;
+import edu.kit.iti.algover.references.ProofTermReferenceTarget;
+import edu.kit.iti.algover.references.ReferenceGraph;
 import edu.kit.iti.algover.rule.RuleApplicationController;
 import edu.kit.iti.algover.rule.RuleApplicationListener;
 import edu.kit.iti.algover.rules.*;
-import edu.kit.iti.algover.rules.impl.ExhaustiveRule;
 import edu.kit.iti.algover.sequent.SequentActionListener;
 import edu.kit.iti.algover.sequent.SequentTabViewController;
+import edu.kit.iti.algover.settings.SettingsController;
+import edu.kit.iti.algover.settings.SettingsFactory;
+import edu.kit.iti.algover.settings.SettingsWrapper;
 import edu.kit.iti.algover.timeline.TimelineLayout;
 import edu.kit.iti.algover.util.CostumBreadCrumbBar;
-import edu.kit.iti.algover.util.FormatException;
 import edu.kit.iti.algover.util.StatusBarLoggingHandler;
 import javafx.application.Platform;
 import javafx.beans.value.ObservableValue;
@@ -33,26 +37,27 @@ import javafx.event.ActionEvent;
 import javafx.scene.Parent;
 import javafx.scene.control.*;
 import javafx.scene.input.MouseEvent;
-import javafx.scene.layout.Priority;
-import javafx.scene.layout.VBox;
+import javafx.scene.layout.*;
 import org.controlsfx.control.StatusBar;
+import org.controlsfx.dialog.ProgressDialog;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.logging.Level;
 import java.util.logging.LogRecord;
 import java.util.logging.Logger;
+import java.util.prefs.Preferences;
 import java.util.stream.Collectors;
 
 /**
  * Created by philipp on 27.06.17.
  */
 public class MainController implements SequentActionListener, RuleApplicationListener {
+
+    //system preferences
+    public static final Preferences systemprefs = Preferences.userNodeForPackage(MainController.class);
 
     private final ProjectManager manager;
     private final ExecutorService executor;
@@ -68,6 +73,8 @@ public class MainController implements SequentActionListener, RuleApplicationLis
     private final StatusBar statusBar;
     private final StatusBarLoggingHandler statusBarLoggingHandler;
     private final JFXButton simpleStratButton;
+    private final JFXButton settingsButton;
+    private final JFXButton aboutButton;
     // REVIEW: Would <String> not be more appropriate?
     private final CostumBreadCrumbBar<Object> breadCrumbBar;
 
@@ -84,19 +91,26 @@ public class MainController implements SequentActionListener, RuleApplicationLis
 
         JFXButton saveButton = new JFXButton("Save", GlyphsDude.createIcon(FontAwesomeIcon.SAVE));
         JFXButton refreshButton = new JFXButton("Refresh", GlyphsDude.createIcon(FontAwesomeIcon.REFRESH));
-        simpleStratButton = new JFXButton("Try Close All");
+        simpleStratButton = new JFXButton("Try Close All", GlyphsDude.createIcon(FontAwesomeIcon.PLAY_CIRCLE));
+        settingsButton = new JFXButton("Settings", GlyphsDude.createIcon(FontAwesomeIcon.COGS));
+        aboutButton = new JFXButton("About",GlyphsDude.createIcon(FontAwesomeIcon.INFO_CIRCLE));
 
         saveButton.setOnAction(this::onClickSave);
         refreshButton.setOnAction(this::onClickRefresh);
         simpleStratButton.setOnAction(this::trivialStrat);
+        settingsButton.setOnAction(this::openSettingsWindow);
+        aboutButton.setOnAction(this::openAboutWindow);
 
         TreeItem<Object> ti = getBreadCrumbModel();
         breadCrumbBar = new CostumBreadCrumbBar<>(ti, this::onCrumbSelected);
         breadCrumbBar.setStringFactory(this::getStringForTreeItem);
         breadCrumbBar.setSelectedCrumb(ti);
 
+        final Pane spacer = new Pane();
+        HBox.setHgrow(spacer, Priority.ALWAYS);
+        spacer.setMinSize(10, 1);
 
-        this.toolbar = new ToolBar(saveButton, refreshButton, simpleStratButton);
+        this.toolbar = new ToolBar(saveButton, refreshButton, simpleStratButton, settingsButton, spacer, aboutButton);
 
         this.statusBar = new StatusBar();
         this.statusBar.setOnMouseClicked(this::onStatusBarClicked);
@@ -114,7 +128,7 @@ public class MainController implements SequentActionListener, RuleApplicationLis
         VBox.setVgrow(timelineView, Priority.ALWAYS);
 
         browserController.setSelectionListener(this::onSelectBrowserItem);
-
+        createContextMenu();
         Logger logger = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
         statusBarLoggingHandler = new StatusBarLoggingHandler(statusBar);
         logger.addHandler(statusBarLoggingHandler);
@@ -124,59 +138,110 @@ public class MainController implements SequentActionListener, RuleApplicationLis
         onClickRefresh(null);
     }
 
-    private void trivialStrat(ActionEvent event) {
-        Logger.getGlobal().info("Started try close all");
-        Map<String, PVC> pvcMap = manager.getPVCByNameMap();
-        for(Map.Entry<String, PVC> e : pvcMap.entrySet()) {
-            String script = "";
-            Proof p = manager.getProofForPVC(e.getKey());
-            if (p.getProofStatus() != ProofStatus.CLOSED) {
-                for (int i = 0; i < p.getProofRoot().getSequent().getAntecedent().size(); ++i) {
-                    try {
-                        ExhaustiveRule exRule = new ExhaustiveRule();
-                        Parameters parameters = new Parameters();
-                        parameters.putValue("ruleName", "substitute");
-                        parameters.putValue("on", new TermParameter(new TermSelector("A." + i), p.getProofRoot().getSequent()));
-                        ProofRuleApplication pra = exRule.considerApplication(p.getProofRoot(), parameters);
+    private void openAboutWindow(ActionEvent actionEvent) {
+        AboutWindow about = null;
+        try {
+            about = new AboutWindow();
+            about.showAndWait();
 
-                        script += pra.getScriptTranscript();
-                    } catch (FormatException ex) {
-                        //TODO
-                    } catch (RuleException ex) {
-                        //TODO
-                    }
-                }
-                for (int i = 0; i < p.getProofRoot().getSequent().getSuccedent().size(); ++i) {
-                    try {
-                        ExhaustiveRule exRule = new ExhaustiveRule();
-                        Parameters parameters = new Parameters();
-                        parameters.putValue("ruleName", "substitute");
-                        parameters.putValue("on", new TermParameter(new TermSelector("S." + i), p.getProofRoot().getSequent()));
-                        ProofRuleApplication pra = exRule.considerApplication(p.getProofRoot(), parameters);
-
-                        script += pra.getScriptTranscript();
-                    } catch (FormatException ex) {
-                        //TODO
-                    } catch (RuleException ex) {
-                        //TODO
-                    }
-                }
-                String letScript = script;
-                script += "close;\n";
-                p.setScriptTextAndInterpret(script);
-                if(p.getFailException() != null) {
-                    script = letScript + "boogie;\n";
-                    p.setScriptTextAndInterpret(script);
-                    if(p.getFailException() != null) {
-                        p.setScriptTextAndInterpret(letScript);
-                    }
-                }
-            }
+        } catch (IOException e) {
+            Logger.getGlobal().warning("Error while loading about text");
         }
-        sequentController.getActiveSequentController().tryMovingOnEx(); //SaG: was tryMovingOn()
-        ruleApplicationController.resetConsideration();
-        Logger.getGlobal().info("Finished try close all");
 
+    }
+
+    private void openSettingsWindow(ActionEvent actionEvent) {
+        SettingsWrapper settings = new SettingsWrapper();
+        settings.setConfig(manager.getConfiguration());
+        settings.setCurrentManager(manager);
+        SettingsController ctrl = new SettingsController();
+        ctrl.getItems().setAll(SettingsFactory.getSettingsPanel(settings));
+        ctrl.showAndWait();
+
+
+    }
+
+    private void createContextMenu() {
+        ContextMenu browserContextMenu = browserController.getBrowserContextMenu();
+        MenuItem tryCloseAll = new MenuItem("Try to close selected PVC(s)");
+        tryCloseAll.setOnAction(this::trivialStratContextMenuAction);
+        browserContextMenu.getItems().addAll(tryCloseAll);
+    }
+
+    private void trivialStratContextMenuAction(ActionEvent event){
+        try {
+            TreeItem<TreeTableEntity> selectedItem = browserController.getView().getSelectionModel().getSelectedItem();
+            TreeTableEntity value = selectedItem.getValue();
+            List<String> pvcNames = value.accept(new TreeTableEntityContextMenuStrategyHelper());
+            //System.out.println("pvcNames = " + pvcNames);
+            applyTrivialStrategy(pvcNames);
+        } catch (NullPointerException npe){
+            Logger.getGlobal().info("Please select an item in the browser tree.");
+
+        }
+
+    }
+
+    private void trivialStrat(ActionEvent event) {
+        Map<String, PVC> pvcMap = manager.getPVCByNameMap();
+        applyTrivialStrategy(pvcMap.keySet());
+    }
+
+    private void applyTrivialStrategy(Collection<String> pvcNames) {
+        Task<Integer> t1 = new Task<Integer>() {
+            @Override
+            protected Integer call() throws Exception {
+                int prog = 0;
+                int failed = 0;
+                for(String pvcName : pvcNames) {
+                    Proof p = manager.getProofForPVC(pvcName);
+                    if (p.getProofStatus() != ProofStatus.CLOSED) {
+                        String oldScript = p.getScript();
+                        String script = "boogie;\n";
+                        p.setScriptTextAndInterpret(script);
+                        if (p.getFailException() != null) {
+                            p.setScriptTextAndInterpret(oldScript + "boogie;");
+                            if (p.getFailException() != null) {
+                                p.setScriptText(oldScript);
+                                failed++;
+                            }
+                        }
+                    }
+                    prog++;
+                    updateProgress(prog, pvcNames.size());
+                }
+
+                Platform.runLater(() -> {
+                    sequentController.getActiveSequentController().tryMovingOnEx(); //SaG: was tryMovingOn()
+                    ruleApplicationController.resetConsideration();
+                });
+                return pvcNames.size() - failed;
+            }
+        };
+        ProgressDialog progressDialog = new ProgressDialog(t1);
+        t1.setOnSucceeded($ -> {
+            Platform.runLater(() -> {
+                Alert a = new Alert(Alert.AlertType.INFORMATION);
+                a.setTitle("Applied strategy");
+                a.setHeaderText("Successfully applied strategy and closed "
+                                        + t1.valueProperty().get() + " of " + pvcNames.size() + " PVCs.");
+                a.showAndWait();
+                Logger.getGlobal().info("Successfully applied strategy and closed "
+                        + t1.valueProperty().get() + " of " + pvcNames.size() + " PVCs.");
+            });
+        });
+        t1.setOnCancelled($ -> {
+            Platform.runLater(() -> {
+                Logger.getGlobal().severe("Strategy was cancelled.");
+            });
+        });
+        progressDialog.setHeaderText("Applying strategy to " + pvcNames.size() + " PVCs. Please wait.");
+        progressDialog.setTitle("Applying strategy");
+        progressDialog.getDialogPane().getButtonTypes().add(ButtonType.CANCEL);
+        progressDialog.setOnCloseRequest(event -> {
+            t1.cancel();
+        });
+        new Thread(t1).start();
     }
 
     @SuppressWarnings("unchecked")
@@ -331,7 +396,7 @@ public class MainController implements SequentActionListener, RuleApplicationLis
             }
         };
         t.setOnSucceeded(event -> {
-                manager.getAllProofs().values().forEach(p -> p.interpretScript());
+                //manager.getAllProofs().values().forEach(p -> p.interpretScript());
                 browserController.onRefresh(manager.getProject(), manager.getAllProofs());
                 browserController.getView().setDisable(false);
                 sequentController.getView().setDisable(false);
@@ -352,7 +417,8 @@ public class MainController implements SequentActionListener, RuleApplicationLis
         t.setOnFailed(event -> {
             manager.getProject().getDafnyFiles().forEach(df -> editorController.viewFile(df));
             Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).log(Level.SEVERE,
-                    t.getException().getMessage(), t.getException());
+                    t.getException().getMessage(),
+                    t.getException());
             editorController.showException(t.getException());
             browserController.getView().setDisable(true);
             sequentController.getView().setDisable(true);

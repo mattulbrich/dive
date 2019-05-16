@@ -134,4 +134,22 @@ public interface ProjectManager {
      * @return a cleartext intuitive name for the manager
      */
     @NonNull String getName();
+
+    /**
+     * Get the current project contents as Configuration object
+     * @return a configuration object
+     */
+    @NonNull Configuration getConfiguration();
+
+    /**
+     * Update project settings acc. to configuration
+     * @param config
+     */
+    void updateProject(@NonNull Configuration config) throws IOException, DafnyParserException, FormatException, DafnyException;
+
+    /**
+     * Save the current project information
+     * @throws IOException
+     */
+    void saveProjectConfiguration() throws IOException;
 }
