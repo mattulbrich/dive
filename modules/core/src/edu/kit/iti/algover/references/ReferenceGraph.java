@@ -31,7 +31,8 @@ import java.util.stream.Collectors;
  * (adding loops via {@link #addReference(ReferenceTarget, ReferenceTarget)} will throw an
  * {@link UnsupportedOperationException}.)
  * <p>
- * Created by Philipp on 27.08.2017.
+ * @author Created by Philipp on 27.08.2017.
+ * @author S. Grebing (enhanced 2019)
  */
 public class ReferenceGraph {
 
@@ -56,7 +57,7 @@ public class ReferenceGraph {
     }
 
     /**
-     * Computes predecoessors in the reference graph with the type given as className
+     * Computes predecessors in the reference graph with the type given as className
      *
      * @param source
      * @param className
@@ -84,6 +85,11 @@ public class ReferenceGraph {
 
     }
 
+    /**
+     * Computes all successor ReferenceTaregts in the ReferenceGraph for a given ReferenceTarget
+     * @param source
+     * @return
+     */
     public Set<ReferenceTarget> allSuccessors(ReferenceTarget source) {
         Set<ReferenceTarget> successingTargets = new HashSet<>();
         accumulateByNeighbouringFunc(successingTargets, source, graph::successors);
@@ -193,7 +199,7 @@ public class ReferenceGraph {
         Set<ProofTermReferenceTarget> parents = new HashSet<>();
         ProofTermReferenceTarget currentTarget = childTarget;
         try {
-            //There is no predecessor or edge containing the childTarget -< we have to compute teh direct parent
+            //There is no predecessor or edge containing the childTarget -> we have to compute the direct parent
             if (currentTarget.getProofNodeSelector().getParentSelector() != null
                     && (!this.getGraph().nodes().contains(currentTarget) || this.graph.predecessors(currentTarget).isEmpty())) {
               //  Logger.getGlobal().info("Did not find predecessor or target in graph. Computing direct parents");
