@@ -47,6 +47,7 @@ public class FormulaCell extends ListCell<TopLevelFormula> {
         this.lastClickedTerm = lastClickedTerm;
         this.mouseOverTerm = mouseOverTerm;
         selectorsToHighlight.addListener((SetChangeListener<TermSelector>) change -> {
+            System.out.println("change = " + change);
             if (change.wasAdded()) {
                 TermSelector elementAdded = change.getElementAdded();
                 highlightSet.add(elementAdded);

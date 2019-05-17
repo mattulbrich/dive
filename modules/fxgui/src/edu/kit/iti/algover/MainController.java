@@ -87,6 +87,7 @@ public class MainController implements SequentActionListener, RuleApplicationLis
         this.editorController.anyFileChangedProperty().addListener(this::onDafnyFileChangedInEditor);
         this.sequentController = new SequentTabViewController(this);
         this.ruleApplicationController = new RuleApplicationController(executor, this, manager);
+        //The following will be refactored, in the mean time
         //hand all necessary controller references to ReferenceGraphController to be able to highlight nec. targets
         this.referenceGraphController = new ReferenceGraphController(this.editorController, this.sequentController, this.ruleApplicationController);
 

@@ -16,9 +16,12 @@ import java.util.logging.Logger;
 
 public class ReferenceGraphController {
 
+    /**
+     * This will be refactored
+     */
     private final EditorController editorController;
     private final SequentTabViewController sequentController;
-    private final RuleApplicationController rulaApplicationController;
+    private final RuleApplicationController ruleApplicationController;
 
     /**
      * Controller that encapsulates ReferenceHighlighting
@@ -28,7 +31,7 @@ public class ReferenceGraphController {
     public ReferenceGraphController(EditorController editorCtrl, SequentTabViewController sequentController, RuleApplicationController ruleApplicationController){
         this.editorController = editorCtrl;
         this.sequentController = sequentController;
-        this.rulaApplicationController = ruleApplicationController;
+        this.ruleApplicationController = ruleApplicationController;
     }
 
     /**
@@ -50,7 +53,7 @@ public class ReferenceGraphController {
             editorController.viewReferences(codeReferenceTargets);
             sequentController.viewReferences(proofTermReferenceTargets, selectedTarget);
 
-            ScriptController scriptController = this.rulaApplicationController.getScriptController();
+            ScriptController scriptController = this.ruleApplicationController.getScriptController();
             scriptController.viewReferences(proofTermReferenceTargets);
 
         } else {
@@ -76,7 +79,8 @@ public class ReferenceGraphController {
     private Set<ProofTermReferenceTarget> computeProofTermRefTargets(ProofTermReferenceTarget selectedTarget, Proof proof){
         Set<ProofTermReferenceTarget> targetsToHighlight = new HashSet<>();
         Set<ProofTermReferenceTarget> history = proof.getGraph().computeHistory(selectedTarget, proof);
-        return targetsToHighlight;
+
+        return history;
     }
 
 

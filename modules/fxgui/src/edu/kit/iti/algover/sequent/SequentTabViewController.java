@@ -24,12 +24,16 @@ public class SequentTabViewController implements ReferenceHighlightingHandler {
     private SequentActionListener listener;
     private ProofNodeSelector activeNode;
     private Proof activeProof;
+    //The collection of prooftermrefs that should be highlighted
     private Set<ProofTermReferenceTarget> referenceTargetsToHighlight;
     private ProofTermReferenceTarget lastSelectedRefTarget;
 
 
     public void setReferenceTargetsToHighlight(Set<ProofTermReferenceTarget> referenceTargetsToHighlight) {
         System.out.println("referenceTargetsToHighlight = " + referenceTargetsToHighlight);
+        controllers.forEach(sequentController -> {
+            //clear refs
+        });
         this.referenceTargetsToHighlight = referenceTargetsToHighlight;
     }
 
@@ -37,7 +41,6 @@ public class SequentTabViewController implements ReferenceHighlightingHandler {
         return referenceTargetsToHighlight;
     }
 
-  //  private ReferenceGraph referenceGraph;
 
     public SequentTabViewController(SequentActionListener listener) {
         this.listener = listener;
@@ -71,7 +74,11 @@ public class SequentTabViewController implements ReferenceHighlightingHandler {
         ProofNodeSelector oldParentSelector = activeNode.getParentSelector();
         activeNode = proofNodeSelector;
 
-        Set<ProofTermReferenceTarget> collect = getReferenceTargetsToHighlight().stream().filter(proofTermReferenceTarget -> proofTermReferenceTarget.getProofNodeSelector().equals(activeNode)).collect(Collectors.toSet());
+        //filter those targets that have to be highlighted in proof node that should be shown
+        Set<ProofTermReferenceTarget> collect = getReferenceTargetsToHighlight()
+                .stream()
+                .filter(proofTermReferenceTarget -> proofTermReferenceTarget.getProofNodeSelector().equals(activeNode))
+                .collect(Collectors.toSet());
 
         ProofNodeSelector parentSelector = activeNode.getParentSelector();
         if(parentSelector != null) {
@@ -90,9 +97,6 @@ public class SequentTabViewController implements ReferenceHighlightingHandler {
             showProofNodes(new ArrayList<>(Collections.singletonList(proofNodeSelector)));
         }
 
-       // for(SequentController controller : controllers) {
-            //controller.setReferenceGraph(referenceGraph);
-       // }
     }
 
     private void showProofNodes(List<ProofNodeSelector> proofNodeSelectors) {
@@ -116,7 +120,10 @@ public class SequentTabViewController implements ReferenceHighlightingHandler {
             name = opt.get().getLabel();
         }
         view.getTabs().get(idx).setText(name);
-        Set<ProofTermReferenceTarget> collect = getReferenceTargetsToHighlight().stream().filter(proofTermReferenceTarget -> proofTermReferenceTarget.getProofNodeSelector().equals(selector)).collect(Collectors.toSet());
+        Set<ProofTermReferenceTarget> collect = getReferenceTargetsToHighlight()
+                .stream()
+                .filter(proofTermReferenceTarget -> proofTermReferenceTarget.getProofNodeSelector().equals(selector))
+                .collect(Collectors.toSet());
         controllers.get(idx).updateSequentController(selector, activeProof, collect);
        /* controllers.get(idx).setActiveNode(selector);
         controllers.get(idx).setActiveProof(activeProof);

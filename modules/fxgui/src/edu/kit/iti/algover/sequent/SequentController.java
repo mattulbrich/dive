@@ -68,10 +68,7 @@ public class SequentController extends FxmlController {
      */
     private final SubSelection<AnnotatedString.TermElement> mouseOverTerm;
 
-    // TODO: Don't save the ReferenceGraph at the sequent controller level in the future
-    // it should ideally be placed somewhere in the backend, since the ProofScript's interpreter
-    // has to closely work with the reference graph to keep it updated
-   // private ReferenceGraph referenceGraph;
+
     private Proof activeProof; // Maybe place it inside the Proof or PVC class instead
     private ProofNodeSelector activeNode;
 
