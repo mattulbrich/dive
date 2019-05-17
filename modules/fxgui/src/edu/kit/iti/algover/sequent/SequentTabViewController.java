@@ -4,6 +4,8 @@ import edu.kit.iti.algover.browser.entities.PVCEntity;
 import edu.kit.iti.algover.proof.Proof;
 import edu.kit.iti.algover.proof.ProofNode;
 import edu.kit.iti.algover.proof.ProofNodeSelector;
+import edu.kit.iti.algover.referenceHighlighting.ReferenceHighlightingHandler;
+import edu.kit.iti.algover.referenceHighlighting.ReferenceHighlightingObject;
 import edu.kit.iti.algover.references.ProofTermReferenceTarget;
 import javafx.beans.value.ObservableValue;
 import javafx.scene.control.Tab;
@@ -15,7 +17,7 @@ import java.util.stream.Collectors;
 /**
  * Created by jklamroth on 6/7/18.
  */
-public class SequentTabViewController {
+public class SequentTabViewController implements ReferenceHighlightingHandler {
 
     private TabPane view;
     private List<SequentController> controllers;
@@ -160,4 +162,8 @@ public class SequentTabViewController {
         }*/
     }
 
+    @Override
+    public void handleReferenceHighlighting(ReferenceHighlightingObject references) {
+        viewReferences(references.getProofTermReferenceTargetSet(), references.getSelectedTarget());
+    }
 }

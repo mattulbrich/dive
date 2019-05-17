@@ -5,6 +5,8 @@ import com.jfoenix.controls.JFXToggleButton;
 import edu.kit.iti.algover.FxmlController;
 import edu.kit.iti.algover.project.ProjectManager;
 import edu.kit.iti.algover.proof.ProofNode;
+import edu.kit.iti.algover.referenceHighlighting.ReferenceHighlightingHandler;
+import edu.kit.iti.algover.referenceHighlighting.ReferenceHighlightingObject;
 import edu.kit.iti.algover.rule.script.ScriptController;
 import edu.kit.iti.algover.rule.script.ScriptView;
 import edu.kit.iti.algover.rules.*;
@@ -27,7 +29,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
-public class RuleApplicationController extends FxmlController {
+public class RuleApplicationController extends FxmlController implements ReferenceHighlightingHandler {
 
     @FXML
     private SplitPane splitPane;
@@ -170,7 +172,7 @@ public class RuleApplicationController extends FxmlController {
             scriptController.insertTextForSelectedNode(pra.getScriptTranscript()+"\n");
             logger.info("Applied rule " + rule.getName() + " exhaustively.");
         } catch (RuleException e) {
-            //TODO handle exeptions
+            //TODO handle exceptions
             logger.severe("Error while trying to apply rule " + rule.getName() + " exhaustive.");
         }
     }
@@ -188,5 +190,10 @@ public class RuleApplicationController extends FxmlController {
         ruleGrid.setAllRules(manager.getProject().getAllProofRules().stream()
                 .map(rule -> new RuleView(rule, ruleGrid.getSelectionModel(), listener))
                 .collect(Collectors.toList()));
+    }
+
+    @Override
+    public void handleReferenceHighlighting(ReferenceHighlightingObject references) {
+        //TODO
     }
 }

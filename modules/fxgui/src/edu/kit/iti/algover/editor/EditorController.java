@@ -3,6 +3,8 @@ package edu.kit.iti.algover.editor;
 import edu.kit.iti.algover.MainController;
 import edu.kit.iti.algover.dafnystructures.DafnyFile;
 import edu.kit.iti.algover.proof.PVC;
+import edu.kit.iti.algover.referenceHighlighting.ReferenceHighlightingHandler;
+import edu.kit.iti.algover.referenceHighlighting.ReferenceHighlightingObject;
 import edu.kit.iti.algover.references.CodeReferenceTarget;
 import edu.kit.iti.algover.util.ExceptionDetails;
 import javafx.beans.property.BooleanProperty;
@@ -39,7 +41,7 @@ import static impl.org.controlsfx.i18n.Translations.getTranslation;
  * <p>
  * Created by philipp on 26.06.17.
  */
-public class EditorController implements DafnyCodeAreaListener {
+public class EditorController implements DafnyCodeAreaListener, ReferenceHighlightingHandler {
     KeyCombination saveShortcut = new KeyCodeCombination(KeyCode.S, KeyCombination.CONTROL_DOWN);
     KeyCombination saveAllShortcut = new KeyCodeCombination(KeyCode.S, KeyCombination.CONTROL_DOWN, KeyCombination.SHIFT_DOWN);
 
@@ -299,4 +301,8 @@ public class EditorController implements DafnyCodeAreaListener {
         }
     }
 
+    @Override
+    public void handleReferenceHighlighting(ReferenceHighlightingObject references) {
+        viewReferences(references.getCodeReferenceTargetSet());
+    }
 }

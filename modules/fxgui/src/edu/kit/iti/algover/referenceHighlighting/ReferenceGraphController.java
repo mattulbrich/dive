@@ -1,4 +1,4 @@
-package edu.kit.iti.algover.project;
+package edu.kit.iti.algover.referenceHighlighting;
 
 import edu.kit.iti.algover.editor.EditorController;
 import edu.kit.iti.algover.proof.Proof;
@@ -42,17 +42,14 @@ public class ReferenceGraphController {
 
         if (selectedTarget != null) {
             System.out.println("Selected termReference = " + selectedTarget);
-            ReferenceGraph referenceGraph = activeProof.getGraph();
-            //compute predecessors
-            //Set<ReferenceTarget> predecessors = referenceGraph.allPredecessors(termRef);
-            //Set<CodeReferenceTarget> codeReferenceTargets = filterCodeReferences(predecessors);
-            Set<ProofTermReferenceTarget> proofTermReferenceTargets = referenceGraph.computeHistory(selectedTarget, activeProof);
 
-            Set<CodeReferenceTarget> codeReferenceTargets = referenceGraph
-                    .allPredecessorsWithType(selectedTarget, CodeReferenceTarget.class);
+
+            Set<ProofTermReferenceTarget> proofTermReferenceTargets = computeProofTermRefTargets(selectedTarget, activeProof);
+            Set<CodeReferenceTarget> codeReferenceTargets = computeCodeRefTargets(selectedTarget, activeProof);
 
             editorController.viewReferences(codeReferenceTargets);
             sequentController.viewReferences(proofTermReferenceTargets, selectedTarget);
+
             ScriptController scriptController = this.rulaApplicationController.getScriptController();
             scriptController.viewReferences(proofTermReferenceTargets);
 
@@ -78,14 +75,32 @@ public class ReferenceGraphController {
      */
     private Set<ProofTermReferenceTarget> computeProofTermRefTargets(ProofTermReferenceTarget selectedTarget, Proof proof){
         Set<ProofTermReferenceTarget> targetsToHighlight = new HashSet<>();
+        Set<ProofTermReferenceTarget> history = proof.getGraph().computeHistory(selectedTarget, proof);
         return targetsToHighlight;
     }
 
 
+    private Set<CodeReferenceTarget> computeCodeRefTargets(ProofTermReferenceTarget selectedTarget, Proof proof){
+        Set<CodeReferenceTarget> targetsToHighlight = new HashSet<>();
+        ReferenceGraph referenceGraph = proof.getGraph();
+        if(referenceGraph != null) {
+            targetsToHighlight = referenceGraph.allPredecessorsWithType(selectedTarget, CodeReferenceTarget.class);
+        }
+        return targetsToHighlight;
+
+
+
+    }
 
 }
 /*
-*  /*
+
+          //  ReferenceGraph referenceGraph = activeProof.getGraph();
+            //compute predecessors
+            //Set<ReferenceTarget> predecessors = referenceGraph.allPredecessors(termRef);
+            //Set<CodeReferenceTarget> codeReferenceTargets = filterCodeReferences(predecessors);
+            //= referenceGraph.computeHistory(selectedTarget, activeProof);
+
     private static Set<CodeReferenceTarget> filterCodeReferences(Set<ReferenceTarget> predecessors) {
         Set<CodeReferenceTarget> codeReferenceTargets = new HashSet<>();
 

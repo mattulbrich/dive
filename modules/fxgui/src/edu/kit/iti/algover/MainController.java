@@ -15,7 +15,7 @@ import edu.kit.iti.algover.dafnystructures.DafnyFunction;
 import edu.kit.iti.algover.dafnystructures.DafnyMethod;
 import edu.kit.iti.algover.editor.EditorController;
 import edu.kit.iti.algover.project.ProjectManager;
-import edu.kit.iti.algover.project.ReferenceGraphController;
+import edu.kit.iti.algover.referenceHighlighting.ReferenceGraphController;
 import edu.kit.iti.algover.proof.*;
 import edu.kit.iti.algover.references.ProofTermReferenceTarget;
 import edu.kit.iti.algover.rule.RuleApplicationController;
@@ -33,7 +33,6 @@ import javafx.application.Platform;
 import javafx.beans.value.ObservableValue;
 import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
-import javafx.scene.Parent;
 import javafx.scene.control.*;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.*;
@@ -605,7 +604,7 @@ public class MainController implements SequentActionListener, RuleApplicationLis
         ruleApplicationController.getScriptController().setSelectedNode(proofNodeSelector);
     }
 
-    public Parent getView() {
+    public VBox getView() {
         return view;
     }
 }
