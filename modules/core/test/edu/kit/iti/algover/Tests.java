@@ -5,6 +5,7 @@
  */
 package edu.kit.iti.algover;
 
+import edu.kit.iti.algover.dafnystructures.CallgraphTest;
 import edu.kit.iti.algover.dafnystructures.TarjansAlgorithmTest;
 import edu.kit.iti.algover.parser.ChainedRelationsVisitorTest;
 import edu.kit.iti.algover.parser.ImplicitlyTypedVariableVisitorTest;
@@ -88,6 +89,7 @@ import edu.kit.iti.algover.util.UtilTest;
     TypeResolutionTest.class,
     SortTest.class,
     ProjectTest.class,
+    CallgraphTest.class,
         ProofTest.class,
     ScriptParserTest.class,
         ProjectManagerTest.class,

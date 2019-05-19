@@ -9,6 +9,7 @@ import java.io.File;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import edu.kit.iti.algover.dafnystructures.Callgraph;
 import edu.kit.iti.algover.dafnystructures.DafnyClass;
 import edu.kit.iti.algover.dafnystructures.DafnyDecl;
 import edu.kit.iti.algover.dafnystructures.DafnyDeclPVCCollector;
@@ -188,6 +189,9 @@ public final class Project {
     }
 
     public Callgraph getCallgraph() {
+        if (callgraph == null) {
+            callgraph = new Callgraph(this);
+        }
         return callgraph;
     }
 
