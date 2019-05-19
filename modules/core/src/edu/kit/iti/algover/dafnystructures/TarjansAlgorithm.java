@@ -15,6 +15,7 @@ import nonnull.NonNull;
 import org.antlr.runtime.tree.Tree;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.IdentityHashMap;
@@ -163,55 +164,22 @@ public class TarjansAlgorithm {
         return result;
     }
 
+    /**
+     * Find all declarations that are called from within decl.
+     *
+     * @param decl, a method or function declaration
+     * @return all invoked method/function declarations
+     */
     private Set<DafnyDecl> getCalledDecls(DafnyDecl decl) {
+
+        Callgraph graph = project.getCallgraph();
+        Collection<DafnyTree> calls = graph.getCalls(decl);
+
         Set<DafnyDecl> result = new HashSet<>();
-        decl.getRepresentation().accept(new Visitor(), result);
+        for (DafnyTree call : calls) {
+            result.add(graph.getDecl(call));
+        }
         return result;
     }
 
-    /*
-     * This visitor allows one to find all referenced methods and functions
-     * used within a method/function body.
-     *
-     * TODO Refactor this using the class Callgraph. And use this code in Callgraph.
-     */
-    private class Visitor extends DafnyTreeDefaultVisitor<Void, Set<DafnyDecl>> {
-
-        @Override
-        public Void visitDefault(DafnyTree t, Set<DafnyDecl> arg) {
-            for (DafnyTree child : t.getChildren()) {
-                child.accept(this, arg);
-            }
-            return null;
-        }
-
-        @Override
-        public Void visitCALL(DafnyTree t, Set<DafnyDecl> set) {
-
-            DafnyTree declRef = t.getChild(0).getDeclarationReference();
-            if(declRef != null) {
-                int ty = declRef.getType();
-                if (ty == DafnyParser.METHOD || ty == DafnyParser.FUNCTION) {
-                    String name = declRef.getChild(0).getText();
-                    Tree parent = declRef.getParent();
-                    if (parent.getType() == DafnyParser.CLASS) {
-                        DafnyClass clss = project.getClass(parent.getChild(0).getText());
-                        if (ty == DafnyParser.METHOD) {
-                            set.add(clss.getMethod(name));
-                        } else {
-                            set.add(clss.getFunction(name));
-                        }
-                    } else {
-                        if (ty == DafnyParser.METHOD) {
-                            set.add(project.getMethod(name));
-                        } else {
-                            set.add(project.getFunction(name));
-                        }
-                    }
-                }
-            }
-
-            return super.visitCALL(t, set);
-        }
-    }
 }
