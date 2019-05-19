@@ -177,7 +177,10 @@ public class TarjansAlgorithm {
 
         Set<DafnyDecl> result = new HashSet<>();
         for (DafnyTree call : calls) {
-            result.add(graph.getDecl(call));
+            if (call.getChild(0).getDeclarationReference() != null) {
+                // if name cannot be resolved the reference is null, ignore these
+                result.add(graph.getDecl(call));
+            }
         }
         return result;
     }

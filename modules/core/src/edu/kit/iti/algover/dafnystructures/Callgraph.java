@@ -20,6 +20,7 @@ import java.util.IdentityHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.NoSuchElementException;
 
 /**
  * This class implements a simple call graph for Dafny projects on method
@@ -123,12 +124,18 @@ public class Callgraph {
      *
      * @param tree an AST representing a call
      * @return the corresponding dafny declaration within the project
+     * @throws NoSuchElementException if there is no method/function declaration
+     * behind this call tree.
      */
     public DafnyDecl getDecl(DafnyTree tree) {
 
         assert tree.getType() == DafnyParser.CALL;
 
         DafnyTree declRef = tree.getChild(0).getDeclarationReference();
+        if (declRef == null) {
+            throw new NoSuchElementException();
+        }
+
         int ty = declRef.getType();
         assert ty == DafnyParser.METHOD || ty == DafnyParser.FUNCTION;
 
@@ -170,8 +177,13 @@ public class Callgraph {
         @Override
         public Void visitCALL(DafnyTree t, DafnyDecl enclosing) {
             add(callMap, enclosing, t);
-            DafnyDecl decl = getDecl(t);
-            add(callSiteMap, decl, t);
+            try {
+                DafnyDecl decl = getDecl(t);
+                add(callSiteMap, decl, t);
+            } catch (NoSuchElementException ex) {
+                // A call may go to an unknown, unresolved method.
+                // In this case, just ignore that the name cannot be resolved.
+            }
 
             return super.visitCALL(t, enclosing);
         }
