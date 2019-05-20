@@ -42,12 +42,13 @@ public class BrowserTreeTable extends TreeTableView<TreeTableEntity> {
         this.rootContextMenu = new ContextMenu();
         this.setContextMenu(this.rootContextMenu);
     }
+
     private TreeTableCell<TreeTableEntity, TreeTableEntity> statusCellRenderer(TreeTableColumn<TreeTableEntity, TreeTableEntity> column) {
         return new StatusCell(editListener);
     }
 
     private TreeTableCell<TreeTableEntity, TreeTableEntity> nameCellRenderer(TreeTableColumn<TreeTableEntity, TreeTableEntity> column) {
-        return new NameCell();
+        return new NameCell(editListener);
     }
 
     private ObservableValue<TreeTableEntity> nameCellFactory(TreeTableColumn.CellDataFeatures<TreeTableEntity, TreeTableEntity> data) {
