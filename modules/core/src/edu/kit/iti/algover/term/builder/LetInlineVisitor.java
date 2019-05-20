@@ -14,6 +14,8 @@ import edu.kit.iti.algover.term.Term;
 import edu.kit.iti.algover.term.VariableTerm;
 import edu.kit.iti.algover.util.HistoryMap;
 import edu.kit.iti.algover.util.Pair;
+import nonnull.NonNull;
+import nonnull.Nullable;
 
 /**
  * The Class LetInlineVisitor walks over a term and reduces all {@link LetTerm}s
@@ -41,9 +43,26 @@ public class LetInlineVisitor extends
      * @throws TermBuildException
      *             if the term cannot be replaced (should actually not come up)
      */
-    public static Term inline(Term term) throws TermBuildException {
-        Term result = term.accept(new LetInlineVisitor(),
-                new HistoryMap<>(new HashMap<>()));
+    public static Term inline(@NonNull Term term) throws TermBuildException {
+        return inline(null, term);
+    }
+
+    /**
+     * Inline all {@link LetTerm}s in a term.
+     *
+     * @param term
+     *            the non-{@code null} term to walk over
+     * @param termMap
+     *            the (optional) map which is to be updated with new term objects
+     * @return an equivalent term w/o {@link LetTerm}s. It may be identical to
+     *         to {@code term}.
+     * @throws TermBuildException
+     *             if the term cannot be replaced (should actually not come up)
+     */
+    public static Term inline(@Nullable Map<Term,?> termMap, @NonNull Term term) throws TermBuildException {
+        LetInlineVisitor visitor = new LetInlineVisitor();
+        visitor.setTermMap(termMap);
+        Term result = term.accept(visitor, new HistoryMap<>(new HashMap<>()));
 
         if (result == null) {
             result = term;
@@ -99,7 +118,9 @@ public class LetInlineVisitor extends
         if(inner == null) {
             return quantTerm;
         } else {
-            return new QuantTerm(quantTerm.getQuantifier(), var, inner);
+            QuantTerm result = new QuantTerm(quantTerm.getQuantifier(), var, inner);
+            updateMap(quantTerm, result);
+            return result;
         }
     }
 }

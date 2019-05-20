@@ -11,7 +11,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
-import edu.kit.iti.algover.SymbexStateToFormula;
 import edu.kit.iti.algover.data.SymbolTable;
 import edu.kit.iti.algover.parser.DafnyException;
 import edu.kit.iti.algover.parser.DafnyParser;
@@ -43,7 +42,7 @@ import edu.kit.iti.algover.util.Util;
  *     let a:=1 :: let a:=a+1 :: a > 0
  * </pre>
  *
- * The method {@link #postProcess(ProofFormula)} discerns the different members
+ * The method {@link #postProcess(ProofFormula, Map)} discerns the different members
  * of the family. They modify the original let-cascade according to their needs.
  *
  * @author Mattias Ulbrich
@@ -77,7 +76,7 @@ public class UpdateSequenter implements PVCSequenter {
             try {
                 Term term = tat.translateToLet(pce.getAssignmentHistory(), pce.getExpression());
                 ProofFormula formula = new ProofFormula(term);
-                formula = postProcess(formula);
+                formula = postProcess(formula, tat.getReferenceMap());
                 ante.add(formula);
             } catch (TermBuildException e) {
                 throw new DafnyException(pce.getExpression(), e);
@@ -91,7 +90,7 @@ public class UpdateSequenter implements PVCSequenter {
             Term term = tat.translateToLet(pathThroughProgram.getAssignmentHistory(),
                     assertion.getExpression());
             ProofFormula formula = new ProofFormula(term);
-            formula = postProcess(formula);
+            formula = postProcess(formula, tat.getReferenceMap());
             List<ProofFormula> succ = Collections.singletonList(formula);
             Sequent sequent = new Sequent(ante, succ);
             if(refMap != null) {
@@ -144,11 +143,12 @@ public class UpdateSequenter implements PVCSequenter {
      * Originally, the method is the identity.
      *
      * @param formula The formula to rephrase.
+     * @param referenceMap
      * @return A formula equivalent (yet syntactically different) to the
      * argument
      * @throws TermBuildException if the translation fails.
      */
-    protected ProofFormula postProcess(ProofFormula formula) throws TermBuildException {
+    protected ProofFormula postProcess(ProofFormula formula, Map<Term, DafnyTree> referenceMap) throws TermBuildException {
         return formula;
     }
 

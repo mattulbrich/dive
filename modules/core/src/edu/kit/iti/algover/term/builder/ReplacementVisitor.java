@@ -7,6 +7,7 @@ package edu.kit.iti.algover.term.builder;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import edu.kit.iti.algover.term.ApplTerm;
 import edu.kit.iti.algover.term.LetTerm;
@@ -16,6 +17,7 @@ import edu.kit.iti.algover.term.Term;
 import edu.kit.iti.algover.term.TermVisitor;
 import edu.kit.iti.algover.term.VariableTerm;
 import edu.kit.iti.algover.util.Pair;
+import nonnull.Nullable;
 
 /**
  * The class can be extended to implement visitors which replace certain parts
@@ -27,12 +29,28 @@ import edu.kit.iti.algover.util.Pair;
  * Only if at least on of the sub calls returns a non-<code>null</code> value is
  * the resulting term rebuilt.
  *
+ * <h3>Map keeping</h3>
+ *
+ * A map from object identities assigning additional information to terms can
+ * be set in the visitor. Newly generated terms will inherit information from
+ * their predecessors.
+ *
+ * Can be used, e.g., for reference keeping.
+ *
  * @param <A>
  *            the generic type of the argument given to the visitor methods.
  *
  * @author Mattias Ulbrich
  */
 public class ReplacementVisitor<A> implements TermVisitor<A, Term, TermBuildException> {
+
+    /**
+     * A map from terms to some information.
+     *
+     * If not null, the map is enriched with copied information for newly
+     * created terms using {@link #updateMap(Term, Term)}.
+     */
+    private @Nullable Map<Term, ? extends Object> termMap;
 
     /**
      * Visit bound variable within a quantifier.
@@ -116,7 +134,9 @@ public class ReplacementVisitor<A> implements TermVisitor<A, Term, TermBuildExce
             matrix = quantTerm.getTerm(0);
         }
 
-        return new QuantTerm(quantTerm.getQuantifier(), bv, matrix);
+        QuantTerm result = new QuantTerm(quantTerm.getQuantifier(), bv, matrix);
+        updateMap(quantTerm, result);
+        return result;
     }
 
     /**
@@ -143,7 +163,9 @@ public class ReplacementVisitor<A> implements TermVisitor<A, Term, TermBuildExce
             return null;
         }
 
-        return new ApplTerm(applTerm.getFunctionSymbol(), newArgs);
+        ApplTerm result = new ApplTerm(applTerm.getFunctionSymbol(), newArgs);
+        updateMap(applTerm, result);
+        return result;
     }
 
     /**
@@ -191,7 +213,24 @@ public class ReplacementVisitor<A> implements TermVisitor<A, Term, TermBuildExce
             newSubsts = substs;
         }
 
-        return new LetTerm(newSubsts, subTerm);
+        LetTerm result = new LetTerm(newSubsts, subTerm);
+        updateMap(letTerm, result);
+        return result;
+    }
+
+    public void setTermMap(Map<Term, ?> termMap) {
+        this.termMap = termMap;
+    }
+
+    private static <I> void updateMap(Map<Term, I> map, Term oldTerm, Term newTerm) {
+        I info = map.get(oldTerm);
+        map.put(newTerm, info);
+    }
+
+    protected void updateMap(Term oldTerm, Term newTerm) {
+        if (termMap != null && termMap.containsKey(oldTerm)) {
+            updateMap(termMap, oldTerm, newTerm);
+        }
     }
 
 }

@@ -5,6 +5,7 @@
  */
 package edu.kit.iti.algover.term.builder;
 
+import edu.kit.iti.algover.parser.DafnyTree;
 import edu.kit.iti.algover.proof.ProofFormula;
 import edu.kit.iti.algover.term.LetTerm;
 import edu.kit.iti.algover.term.Term;
@@ -12,11 +13,9 @@ import edu.kit.iti.algover.term.VariableTerm;
 import edu.kit.iti.algover.util.Pair;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.TreeMap;
 
 public class ParallelUpdateSequenter extends UpdateSequenter {
 
@@ -31,7 +30,7 @@ public class ParallelUpdateSequenter extends UpdateSequenter {
     }
 
     @Override
-    protected ProofFormula postProcess(ProofFormula formula) throws TermBuildException {
+    protected ProofFormula postProcess(ProofFormula formula, Map<Term, DafnyTree> referenceMap) throws TermBuildException {
         Map<VariableTerm, Term> substitution = new LinkedHashMap<>();
 
         Term term = formula.getTerm();

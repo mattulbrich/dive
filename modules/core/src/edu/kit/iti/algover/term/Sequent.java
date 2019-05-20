@@ -10,6 +10,7 @@ import edu.kit.iti.algover.term.prettyprint.PrettyPrint;
 import edu.kit.iti.algover.util.Util;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -48,6 +49,22 @@ public final class Sequent {
 
     public boolean isEmpty() {
         return antecedent.length + succedent.length == 0;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Sequent sequent = (Sequent) o;
+        return Arrays.equals(antecedent, sequent.antecedent) &&
+                Arrays.equals(succedent, sequent.succedent);
+    }
+
+    @Override
+    public int hashCode() {
+        int result = Arrays.hashCode(antecedent);
+        result = 31 * result + Arrays.hashCode(succedent);
+        return result;
     }
 
     @Override
