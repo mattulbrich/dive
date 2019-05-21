@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE properties SYSTEM "http://java.sun.com/dtd/properties.dtd">
+<properties>
+<comment>Created by Algover at Tue May 21 13:57:20 CEST 2019</comment>
+<entry key="BoundedStack.pop/Post">expand on='... ((?match: this.valid())) ... |-';
+expand on='|- ... ((?match: this.valid()@$heap[this.curSize := this.curSize - 1])) ...';
+boogie ;
+</entry>
+<entry key="BoundedStack.push/Bounds">expand on='... ((?match: this.valid())) ... |-';
+boogie ;
+</entry>
+<entry key="BoundedStack.push/Post">expand on='... ((?match: this.valid())) ... |-';
+integerSimplification on='|- ... ((?match: this.data@($heap[this.curSize := this.curSize@($heap[this.data := $seq_upd&lt;int&gt;(this.data, this.curSize, n)]) + 1])[this.curSize] == n)) ...';
+</entry>
+<entry key="BoundedStack.pop/Bounds">expand on='... ((?match: this.valid())) ... |-';
+boogie ;
+</entry>
+<entry key="BoundedStack.push/Post.1">expand on='... ((?match: this.valid())) ... |-';
+expand on='|- ... ((?match: this.valid()@$heap[this.curSize := this.curSize@($heap[this.data := $seq_upd&lt;int&gt;(this.data, this.curSize, n)]) + 1])) ...';
+boogie ;
+</entry>
+</properties>
