@@ -27,12 +27,16 @@
 }
 
 .formula-view .historyHighlight {
-    -rtfx-background-color: #965dcf;
+    -rtfx-background-color: #965dcf !important;
     -fx-underline: true;
     -fx-border-color: #965dcf, transparent, #965dcf;
     -fx-border-width: 0 0 1 0, 0 0 1 0, 0 0 1 0;
     -fx-border-insets: 0 0 1 0, 0 0 2 0, 0 0 3 0;
     -fx-fill: whitesmoke;
+}
+
+.list-cell.formula-cell:formula-highlight {
+    -fx-background-color: #ee750b;
 }
 
 

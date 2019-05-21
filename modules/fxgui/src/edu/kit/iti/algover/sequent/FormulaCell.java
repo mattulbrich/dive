@@ -47,7 +47,7 @@ public class FormulaCell extends ListCell<TopLevelFormula> {
         this.lastClickedTerm = lastClickedTerm;
         this.mouseOverTerm = mouseOverTerm;
         selectorsToHighlight.addListener((SetChangeListener<TermSelector>) change -> {
-            System.out.println("change = " + change);
+     //       System.out.println("change = " + change);
             if (change.wasAdded()) {
                 TermSelector elementAdded = change.getElementAdded();
                 highlightSet.add(elementAdded);
@@ -78,6 +78,7 @@ public class FormulaCell extends ListCell<TopLevelFormula> {
             public BasicFormulaView visitOriginalFormula(OriginalFormula formula) {
                 Set<TermSelector> filterAccToIndexInSeq = highlightSet.stream().filter(termSelector -> termSelector.getToplevelSelector().getTermNo() == formula.getIndexInSequent()).collect(Collectors.toSet());
                 return new OriginalFormulaView(formula, polarity, referenceSelection, lastClickedTerm, mouseOverTerm, filterAccToIndexInSeq);
+             //   return new OriginalFormulaView(formula, polarity, referenceSelection, lastClickedTerm, mouseOverTerm, new HashSet<>());
             }
 
             @Override

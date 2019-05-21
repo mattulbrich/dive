@@ -394,7 +394,6 @@ public class SequentController extends FxmlController {
         this.setActiveNode(selector);
         this.setActiveProof(activeProof);
         Set<TermSelector> collect1 = collect.stream().map(ProofTermReferenceTarget::getTermSelector).collect(Collectors.toSet());
-       // System.out.println("collect1.size = " + collect1.size());
         this.setHistoryHighlights(FXCollections.observableSet(collect1));
         this.viewProofNode(selector);
 
@@ -402,15 +401,15 @@ public class SequentController extends FxmlController {
     }
 
     /**
-     * Set the information which term to highlight for history highlighting. This method already divides the information acc. to teh sequent polarity
+     * Set the information which term to highlight for history highlighting. This method already divides the information acc. to the sequent polarity
      */
-    private void setHistoryHighlights(ObservableSet<TermSelector> collect) {
+    private void setHistoryHighlights(ObservableSet<TermSelector> termsToHighlight) {
         this.historyHighlightsAntec.clear();
         this.historyHighlightsSucc.clear();
-        Set<TermSelector> antec = collect.stream().filter(termSelector -> termSelector.getPolarity() == TermSelector.SequentPolarity.ANTECEDENT).collect(Collectors.toSet());
-        Set<TermSelector> succ = collect.stream().filter(termSelector -> termSelector.getPolarity() == TermSelector.SequentPolarity.SUCCEDENT).collect(Collectors.toSet());
+        Set<TermSelector> antec = termsToHighlight.stream().filter(termSelector -> termSelector.getPolarity() == TermSelector.SequentPolarity.ANTECEDENT).collect(Collectors.toSet());
+        Set<TermSelector> succ = termsToHighlight.stream().filter(termSelector -> termSelector.getPolarity() == TermSelector.SequentPolarity.SUCCEDENT).collect(Collectors.toSet());
         this.historyHighlightsAntec.addAll(antec);
         this.historyHighlightsSucc.addAll(succ);
-        //        this.historyHighlights.addAll(collect);
+        //        this.historyHighlights.addAll(termsToHighlight);
     }
 }

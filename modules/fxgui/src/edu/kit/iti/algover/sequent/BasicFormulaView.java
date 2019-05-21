@@ -57,9 +57,7 @@ public class BasicFormulaView extends CodeArea {
             highlightedElement = null;
             updateStyleClasses();
         });
-     /*   if(selectorsToHighlight != null) {
-            this.historyHighlights = selectorsToHighlight.stream().map(this::apply).collect(Collectors.toSet());
-        }*/
+
         this.selectorsToHighlight = selectorsToHighlight;
 
         widthProperty().addListener(x -> relayout());
@@ -161,6 +159,12 @@ public class BasicFormulaView extends CodeArea {
                 + getInsets().getBottom() + getInsets().getTop());
     }
 
+    /**
+     * Compute the AnnotatedString.TermElement from a given SubtermSelector and AnnotatedString
+     * @param selector
+     * @param string
+     * @return
+     */
     protected AnnotatedString.TermElement getTermElementBySubtermSelector(SubtermSelector selector, AnnotatedString string) {
         if (selector == null || string == null) {
             return null;
