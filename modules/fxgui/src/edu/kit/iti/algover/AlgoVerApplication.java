@@ -39,13 +39,7 @@ public class AlgoVerApplication extends Application {
         //create Welcome Dialog
         Parameters params = getParameters();
         List<String> fileNames = params.getUnnamed();
-        if(fileNames != null && fileNames.size() > 0){
-           // File absoluteFile = new File(fileNames.get(0)).getAbsoluteFile();
-           // createAndExecuteMainController(absoluteFile, createProjectManager(absoluteFile));
-            startApplication(primaryStage, fileNames);
-        } else {
-            startApplication(primaryStage, Collections.emptyList());
-        }
+        startApplication(primaryStage, fileNames);
     }
 
     /**
