@@ -1,3 +1,5 @@
+//\\ settings { "Sequent Generation Type" = "ssa" }
+
 class BoundedStack {
 	var data : seq<int>;
 	var curSize : int;
@@ -5,25 +7,24 @@ class BoundedStack {
 
 	function valid() : bool
 	{
-		curSize >= 0 && curSize <= |data| &&
-		maxSize >= curSize && maxSize == |data|
+		this.curSize >= 0 && this.curSize <= |this.data| &&
+		this.maxSize >= this.curSize && this.maxSize == |this.data|
 	}
 	
 	method pop() returns (res : int)
-		requires curSize > 0 && valid();
-		ensures curSize == old(curSize - 1) && valid() && res == data[curSize];
+		requires this.curSize > 0 && valid();
+		ensures this.curSize == old(this.curSize - 1) && valid() && res == this.data[this.curSize];
 	{
-		var res : int;
-		res := data[curSize -1];
-		curSize := curSize - 1;	
+		res := this.data[this.curSize -1];
+		this.curSize := this.curSize - 1;	
 	}
 
 	method push(n : int) 
-		requires curSize < maxSize && valid();
-		ensures data[curSize - 1] == n;
-		ensures curSize == old(curSize) + 1 && valid();
+		requires this.curSize < this.maxSize && valid();
+		ensures this.data[this.curSize - 1] == n;
+		ensures this.curSize == old(this.curSize) + 1 && valid();
 	{
-		data[curSize] := n;		
-		curSize := curSize + 1;
+		this.data[this.curSize] := n;		
+		this.curSize := this.curSize + 1;
 	}
 }
