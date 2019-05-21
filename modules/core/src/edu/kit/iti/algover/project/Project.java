@@ -9,6 +9,7 @@ import java.io.File;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import edu.kit.iti.algover.dafnystructures.Callgraph;
 import edu.kit.iti.algover.dafnystructures.DafnyClass;
 import edu.kit.iti.algover.dafnystructures.DafnyDecl;
 import edu.kit.iti.algover.dafnystructures.DafnyDeclPVCCollector;
@@ -76,6 +77,13 @@ public final class Project {
      * Lookup maps to get Dafny toplevel functions of the project-
      */
     private final Map<String, DafnyFunction> functions;
+
+    /**
+     * Callgraph to retrieve callsites and called methods for any method.
+     *
+     * This reference is initially null and only set once it is needed.
+     */
+    private @Nullable Callgraph callgraph;
 
     /**
      * Lookup maps to get the {@link FunctionSymbol}s corresponding
@@ -178,6 +186,13 @@ public final class Project {
             builtinProofRules = Collections.unmodifiableList(makeBuiltinProofRules());
         }
         return builtinProofRules;
+    }
+
+    public Callgraph getCallgraph() {
+        if (callgraph == null) {
+            callgraph = new Callgraph(this);
+        }
+        return callgraph;
     }
 
     /**
@@ -448,7 +463,4 @@ public final class Project {
         return c;
     }
 
-    public void updateProject(Configuration config) {
-        //TODO
-    }
 }
