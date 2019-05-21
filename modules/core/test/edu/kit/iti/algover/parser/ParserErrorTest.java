@@ -204,4 +204,19 @@ public class ParserErrorTest {
         TestUtil.mockProject(program);
     }
 
+
+    @Test
+    public void doubleDecl1() throws Exception {
+        thrown.expect(DafnyException.class);
+        thrown.expectMessage("Variable r already defined in this namespace");
+        parse("method m() returns (r: int) { var r: int; r:=5; }");
+    }
+
+    @Test
+    public void doubleDecl2() throws Exception {
+        thrown.expect(DafnyException.class);
+        thrown.expectMessage("Variable r already defined in this namespace");
+        parse("method m() returns (r: int) { var r: int; var r: int; r:=5; }");
+    }
+
 }
