@@ -14,9 +14,6 @@ package edu.kit.iti.algover.dafnystructures;
  */
 public interface DafnyDeclVisitor<R, A> {
     // Checkstyle: OFF JavadocMethod
-
-    // REVIEW: Why is there this method? Is it ever referenced? Suggest to remove
-    R visitDefault(DafnyDecl d, A arg);
     R visit(DafnyClass cl, A arg);
     R visit(DafnyMethod m, A arg);
     R visit(DafnyFunction f, A arg);

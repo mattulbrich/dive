@@ -1,24 +1,29 @@
-# AlgoVer
-New Interaction Paradigms for Dafny Verification (working title)
-
-----
+# Dafny Interactive Verification Environment (DIVE)
 
 [![Build Status](http://hudson.se.informatik.tu-darmstadt.de/buildStatus/icon?job=AlgoVer)](http://hudson.se.informatik.tu-darmstadt.de/job/AlgoVer/)
+DIVE is a prototypical implementation of a new seamless interaction concept for the deductive program verification of Dafny programs.
 
-To experiment with new ways of interactive program verification, we develop this user interface.
-It is a graphical proof front end for programs written and specified in Dafny.
+The purpose is to experiment with new ways of user interaction in interactive program verification. 
 
-The tool is written in Java.
+DIVE is implemented in Java.
 
-## Requirements
+## Requirements to build the sources
 
-* Java (at least 8) must be installed.
-* ANT must be installed
+* OpenJDK 11 must be installed.
+* Gradle version 5.4.1 or higher
+
+## Requirements to run DIVE
+
+* Java 11 must be installed.
+* OpenJFX 12 must be installed.
+* boogie must be installed. For Ubuntu (version 18.04 or higher) run `sudo apt-get install boogie`. In other cases refer to
+[Boogie Github](https://github.com/boogie-org/boogie)
+
 
 ## Run it
 
-After downloading run `ant jar` in the project  directory to build the tools.
+After downloading run `gradle shadowJar` in the project directory to build the tools.
 Then call `java -jar algover.jar` to run it.
 
-An example can be found ... TODO
+An example is included in DIVE and accessible in the WelcomePane using the button "Load example".
 

@@ -353,7 +353,6 @@ public class WelcomePane {
 
     private void createAndExecuteMainController(File projectFile, ProjectManager manager) {
         MainController controller = new MainController(manager, AlgoVerApplication.SYNTAX_HIGHLIGHTING_EXECUTOR);
-
         primaryStage.close();
         Scene scene = new Scene(controller.getView());
         scene.getStylesheets().add(AlgoVerApplication.class.getResource("style.css").toExternalForm());
@@ -365,6 +364,8 @@ public class WelcomePane {
 
         double width = screenSize.getWidth();
         double height = screenSize.getHeight();
+        width=1000;
+        height=1000;
         substage.setWidth(width);
         substage.setHeight(height);
         substage.setTitle("DIVE - " + projectFile);

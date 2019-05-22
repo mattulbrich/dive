@@ -4,17 +4,16 @@ import com.jfoenix.controls.JFXButton;
 import de.jensd.fx.glyphs.GlyphsDude;
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon;
 import edu.kit.iti.algover.browser.BrowserController;
+import edu.kit.iti.algover.browser.callvisualization.CallVisualizationDialog;
 import edu.kit.iti.algover.browser.FlatBrowserController;
 import edu.kit.iti.algover.browser.TreeTableEntityContextMenuStrategyHelper;
+import edu.kit.iti.algover.browser.entities.DafnyEntityGetterVisitor;
 import edu.kit.iti.algover.browser.entities.PVCEntity;
 import edu.kit.iti.algover.browser.entities.PVCGetterVisitor;
 import edu.kit.iti.algover.browser.entities.TreeTableEntity;
-import edu.kit.iti.algover.dafnystructures.DafnyClass;
-import edu.kit.iti.algover.dafnystructures.DafnyFile;
-import edu.kit.iti.algover.dafnystructures.DafnyFunction;
-import edu.kit.iti.algover.dafnystructures.DafnyMethod;
+import edu.kit.iti.algover.dafnystructures.*;
 import edu.kit.iti.algover.editor.EditorController;
-import edu.kit.iti.algover.project.Configuration;
+import edu.kit.iti.algover.parser.DafnyTree;
 import edu.kit.iti.algover.project.ProjectManager;
 import edu.kit.iti.algover.proof.*;
 import edu.kit.iti.algover.references.CodeReference;
@@ -24,23 +23,18 @@ import edu.kit.iti.algover.references.Reference;
 import edu.kit.iti.algover.rule.RuleApplicationController;
 import edu.kit.iti.algover.rule.RuleApplicationListener;
 import edu.kit.iti.algover.rules.*;
-import edu.kit.iti.algover.rules.impl.ExhaustiveRule;
 import edu.kit.iti.algover.sequent.SequentActionListener;
 import edu.kit.iti.algover.sequent.SequentTabViewController;
-import edu.kit.iti.algover.settings.ProjectSettingsController;
 import edu.kit.iti.algover.settings.SettingsController;
 import edu.kit.iti.algover.settings.SettingsFactory;
 import edu.kit.iti.algover.settings.SettingsWrapper;
 import edu.kit.iti.algover.timeline.TimelineLayout;
 import edu.kit.iti.algover.util.CostumBreadCrumbBar;
-import edu.kit.iti.algover.util.FormatException;
 import edu.kit.iti.algover.util.StatusBarLoggingHandler;
 import javafx.application.Platform;
 import javafx.beans.value.ObservableValue;
 import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
-import javafx.fxml.FXMLLoader;
-import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.control.*;
 import javafx.scene.input.MouseEvent;
@@ -50,7 +44,6 @@ import org.controlsfx.dialog.ProgressDialog;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.URL;
 import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.logging.Level;
@@ -174,6 +167,31 @@ public class MainController implements SequentActionListener, RuleApplicationLis
         MenuItem tryCloseAll = new MenuItem("Try to close selected PVC(s)");
         tryCloseAll.setOnAction(this::trivialStratContextMenuAction);
         browserContextMenu.getItems().addAll(tryCloseAll);
+        MenuItem showCalled = new MenuItem("Show entities called");
+        showCalled.setOnAction(this::showCalledEntities);
+        browserContextMenu.getItems().addAll(showCalled);
+    }
+
+    private void showCalledEntities(ActionEvent actionEvent) {
+        try {
+            TreeItem<TreeTableEntity> selectedItem = browserController.getView().getSelectionModel().getSelectedItem();
+            TreeTableEntity value = selectedItem.getValue();
+            DafnyDecl accept = value.accept(new DafnyEntityGetterVisitor());
+            if(accept != null){
+
+                Collection<DafnyTree> calls = manager.getProject().getCallgraph().getCalls(accept);
+                if(!calls.isEmpty()){
+                    CallVisualizationDialog d = new CallVisualizationDialog(calls, accept);
+                    d.showAndWait();
+                }
+              //  Collection<DafnyTree> callsites = manager.getProject().getCallgraph().getCallsites(accept);
+            } else {
+                 Logger.getGlobal().info("Please select a method or function in the browser tree.");
+            }
+        } catch (NullPointerException npe){
+            Logger.getGlobal().info("Please select an item in the browser tree.");
+
+        }
     }
 
     private void trivialStratContextMenuAction(ActionEvent event){
