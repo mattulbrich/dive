@@ -1,0 +1,31 @@
+
+/*
+ * This file is part of AlgoVer.
+ *
+ * Copyright (C) 2015-2018 Karlsruhe Institute of Technology
+ *
+ */
+
+plugins {
+    id 'application'
+}
+
+dependencies {
+    compile project(":core")
+    testCompile project(':core').sourceSets.test.output
+}
+
+compileTestJava.dependsOn tasks.getByPath(':core:testClasses')
+
+run {
+    dependsOn tasks.getByPath(':core:classes')
+    mainClassName = 'edu.kit.iti.algover.swing.Main'
+    classpath = sourceSets.main.runtimeClasspath
+}
+
+license {
+    header file("COMBINED_HEADER")
+    ext.year = Calendar.getInstance().get(Calendar.YEAR)
+    include "$projectDir/src/**/*.java"
+    exclude "$projectDir/gen/**/*.java"
+}
