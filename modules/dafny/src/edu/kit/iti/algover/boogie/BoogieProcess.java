@@ -38,6 +38,9 @@ public class BoogieProcess {
             Boolean.getBoolean("edu.kit.iti.algover.keepBPL");
 
     private final static String PRELUDE = loadPrelude();
+
+    private static final String DAFNYPRELUDE_RESOURCE = "DafnyPrelude.bpl";
+
     private Project project;
 
     public BoogieProcess(Project project) {
@@ -46,9 +49,9 @@ public class BoogieProcess {
 
     private static String loadPrelude() {
         try {
-            InputStream is = BoogieProcess.class.getResourceAsStream("/edu/kit/iti/algover/boogie/DafnyPrelude.bpl");
+            InputStream is = BoogieProcess.class.getResourceAsStream(DAFNYPRELUDE_RESOURCE);
             if(is == null) {
-                throw new FileNotFoundException("edu/kit/iti/algover/boogie/DafnyPrelude.bpl");
+                throw new FileNotFoundException(DAFNYPRELUDE_RESOURCE);
             }
             return Util.streamToString(is);
         } catch (IOException e) {
