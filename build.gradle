@@ -1,3 +1,6 @@
+plugins {
+    id "com.github.hierynomus.license" version "0.15.0" apply false
+}
 
 allprojects {
     apply plugin: 'idea'
@@ -7,6 +10,8 @@ subprojects {
     apply plugin: 'java'
     apply plugin: 'java-library'
     apply plugin: 'base'
+    apply plugin: 'checkstyle'
+    apply plugin: "com.github.hierynomus.license"
 
     sourceCompatibility = '1.11'
     targetCompatibility = '1.11'
@@ -15,7 +20,7 @@ subprojects {
     archivesBaseName = 'DIVE-Application'
 
     repositories {
-        flatDir { dirs "lib", "$rootDir/lib"}
+        flatDir { dirs "lib", "$rootDir/lib" }
         mavenCentral()
         jcenter()
     }
@@ -54,6 +59,8 @@ subprojects {
         testCompile group: 'org.hamcrest', name: 'hamcrest', version: '2.1'
         testCompile group: 'pl.pragmatists', name: 'JUnitParams', version: '1.1.1'
 
+        checkstyle group: 'com.puppycrawl.tools', name: 'checkstyle', version: '5.7'
+
     }
 
     tasks.withType(JavaCompile) {
@@ -62,15 +69,28 @@ subprojects {
         options.debug = true
     }
 
-   /* jar {
-        manifest {
-            attributes 'Main-Class': 'edu.kit.iti.algover.DIVEApplication'
-        }
-        from {
-            configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) }
-        }
-    }*/
+    tasks.withType(Checkstyle) {
+        config = project.resources.text.fromFile("$rootDir/tools/checkstyle.xml")
+        ignoreFailures=true
 
+        doLast {
+            reports.all { report ->
+                def outputFile = report.destination
+                if (outputFile.exists() && outputFile.text.contains("<error ")) {
+                    throw new GradleException("There were checkstyle warnings! For more info check $outputFile")
+                }
+            }
+        }
 
+        reports {
+            xml.enabled true
+        }
+    }
+
+    license {
+        ext.year = Calendar.getInstance().get(Calendar.YEAR)
+        header file("$rootDir/HEADER")
+        //strictCheck true
+    }
 }
 
