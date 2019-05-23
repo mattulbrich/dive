@@ -1,4 +1,4 @@
-plugins{
+plugins {
     id 'org.openjfx.javafxplugin' version '0.0.7'
 }
 
@@ -13,15 +13,16 @@ configurations {
     antlr3
     antlr4
 }
-sourceSets{
-    main{
-        java{
+
+sourceSets {
+    main {
+        java {
             srcDir 'gen'
         }
     }
 }
-dependencies {
 
+dependencies {
 
     compile group: 'javax.xml.bind', name: 'jaxb-api', version: '2.4.0-b180830.0359'
     compile group: 'com.sun.xml.bind', name: 'jaxb-impl', version: '2.4.0-b180830.0438'
@@ -35,8 +36,6 @@ dependencies {
 
     antlr4 "org.antlr:antlr4:4.7.1"
     compile "org.antlr:antlr4-runtime:4.7.1"
-
-
 }
 
 //buildVisitor.outputs.dir ="$projectDir/gen/edu/kit/iti/algover/parser"
@@ -53,7 +52,6 @@ task runAntlr3(type:JavaExec) {
     main = "org.antlr.Tool"
 
     args = [ "-verbose", "-o", "$projectDir/gen", "edu/kit/iti/algover/parser/Dafny.g"]
-
 }
 
 
@@ -76,7 +74,6 @@ clean.doFirst {
     delete("$projectDir/gen/edu/kit/iti/algover/parser")
     delete("$projectDir/gen/edu/kit/iti/algover/script")
     delete("$projectDir/gen/")
-
 }
 
 buildVisitor.shouldRunAfter runAntlr3
@@ -86,10 +83,6 @@ compileJava.dependsOn buildVisitor
 compileJava.dependsOn runAntlr4
 
 
-test{
-    exclude 'edu/kit/iti/algover/dafnystructures/DafnyTreeToDeclVisitorTest.class'
-
-}
 /*
 This would require a directors src/main/antlr/...
 generateGrammarSource {

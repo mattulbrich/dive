@@ -15,6 +15,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+import org.junit.Ignore;
 import org.junit.Test;
 
 import edu.kit.iti.algover.parser.DafnyTree;
@@ -25,6 +26,7 @@ import edu.kit.iti.algover.project.ProjectBuilder;
 
 // deactivated for now ... not clear how this works
 
+@Ignore
 public class DafnyTreeToDeclVisitorTest {
 
     @Test
