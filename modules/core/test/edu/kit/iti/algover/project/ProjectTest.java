@@ -43,7 +43,7 @@ import javax.xml.bind.JAXBException;
  * */
 
 public class ProjectTest {
-    static final String testDir = "modules/core/test-res/edu/kit/iti/algover/project";
+    static final String testDir = "test-res/edu/kit/iti/algover/project";
     static final String CONFIG = "config.xml";
     Project p = null;
 

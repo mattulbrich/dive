@@ -32,7 +32,7 @@ import static org.junit.Assert.assertTrue;
  */
 public class ProjectManagerTest {
 
-    private static final String testDir = "modules/core/test-res/edu/kit/iti/algover/script".replace('/', File.separatorChar);
+    private static final String testDir = "test-res/edu/kit/iti/algover/script".replace('/', File.separatorChar);
     private static final String config = "config2.xml";
 
     Project p = null;
