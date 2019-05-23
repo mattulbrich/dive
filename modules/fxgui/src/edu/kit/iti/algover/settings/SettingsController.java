@@ -1,5 +1,6 @@
 package edu.kit.iti.algover.settings;
 
+import edu.kit.iti.algover.MainController;
 import edu.kit.iti.algover.project.ProjectManager;
 import javafx.beans.property.ObjectProperty;
 import javafx.collections.ListChangeListener;
@@ -14,7 +15,6 @@ import javafx.scene.layout.BorderPane;
 import javafx.stage.Window;
 import javafx.util.StringConverter;
 
-import javax.swing.*;
 import java.io.IOException;
 import java.util.Optional;
 import java.util.logging.Logger;
@@ -39,8 +39,10 @@ public class SettingsController {
 
     private ProjectManager manager;
 
+    private MainController mainController;
 
-    public SettingsController(){
+    public SettingsController(MainController mainController){
+        this.mainController = mainController;
         loadSettingsViews();
     }
 
@@ -106,15 +108,6 @@ public class SettingsController {
      * Show Dialog and wait.
      */
     public void showAndWait() {
-       // if(manager != null){
-
-            /*
-            SettingsFactory.supplier.forEach(settingsSupplier -> {
-                if(settingsSupplier.getName().equals(ProjectSettingsController.NAME)){
-                    ((ProjectSettingsController) settingsSupplier).setManager(manager);
-                }
-            });*/
-        //}
         createSettingsDialog();
         Optional<ButtonType> optional = dialog.showAndWait();
 
@@ -128,6 +121,8 @@ public class SettingsController {
                 }
             }
             Logger.getGlobal().info("Saved Settings");
+            mainController.reloadWholeGUIcontents();
+
         } else {
             Logger.getGlobal().info("Settings not saved");
         }

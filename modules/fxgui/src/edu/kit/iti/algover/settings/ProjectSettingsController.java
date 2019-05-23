@@ -160,11 +160,11 @@ public class ProjectSettingsController implements ISettingsController {
         this.masterFileName.editableProperty().bind(savingFormatAsXML.not());
         this.configFileName.editableProperty().bind(savingFormatAsXML);
 
-        Platform.runLater(() -> {
+     /*   Platform.runLater(() -> {
             validationSupport.registerValidator(masterFileName, this::dafnyFileExistsValidator);
     //        validationSupport.errorDecorationEnabledProperty().bind(enableValidationProperty().and(savingFormatAsXML.not()));
             validationSupport.registerValidator(configFileName, this::xmlFileExistsValidator);
-        });
+        });*/
 
         addProjectContents();
         addCellFactories();
@@ -391,15 +391,24 @@ public class ProjectSettingsController implements ISettingsController {
             } catch (JAXBException e) {
                 Logger.getGlobal().warning("Could not save configuration file");
                 e.printStackTrace();
+
+                Alert a = new Alert(Alert.AlertType.ERROR);
+                a.getDialogPane().setContent(new TextArea(e.getMessage()));
+                a.showAndWait();
             } catch (IOException e) {
                 Logger.getGlobal().warning("Could not save project settings to file");
                 e.printStackTrace();
-            } catch (FormatException e) {
+
+                Alert a = new Alert(Alert.AlertType.ERROR);
+                a.getDialogPane().setContent(new TextArea(e.getMessage()));
+                a.showAndWait();
+            } catch (FormatException | DafnyParserException | DafnyException e){
                 e.printStackTrace();
-            } catch (DafnyParserException e) {
-                e.printStackTrace();
-            } catch (DafnyException e) {
-                e.printStackTrace();
+                Logger.getGlobal().warning("Could not save project settings to file due to Format or parser error");
+
+                Alert a = new Alert(Alert.AlertType.ERROR);
+                a.getDialogPane().setContent(new TextArea(e.getMessage()));
+                a.showAndWait();
             }
         }
 

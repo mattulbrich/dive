@@ -1,22 +1,16 @@
 package edu.kit.iti.algover.editor;
 
-import edu.kit.iti.algover.MainController;
 import edu.kit.iti.algover.dafnystructures.DafnyFile;
-import edu.kit.iti.algover.parser.DafnyException;
-import edu.kit.iti.algover.parser.DafnyParserException;
-import edu.kit.iti.algover.parser.DafnyTree;
-import edu.kit.iti.algover.project.Project;
 import edu.kit.iti.algover.proof.PVC;
 import edu.kit.iti.algover.references.CodeReference;
 import edu.kit.iti.algover.util.ExceptionDetails;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
-import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.ListChangeListener;
+import javafx.event.Event;
+import javafx.event.EventHandler;
 import javafx.scene.Node;
-import javafx.scene.control.Alert;
-import javafx.scene.control.ButtonType;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
 import javafx.scene.control.Tooltip;
@@ -24,8 +18,6 @@ import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyCodeCombination;
 import javafx.scene.input.KeyCombination;
 import javafx.scene.input.KeyEvent;
-import org.antlr.runtime.CommonToken;
-import org.antlr.runtime.RecognitionException;
 import org.antlr.runtime.Token;
 import org.controlsfx.dialog.ExceptionDialog;
 import org.fxmisc.flowless.VirtualizedScrollPane;
@@ -40,8 +32,6 @@ import java.nio.file.Path;
 import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.logging.Logger;
-
-import static impl.org.controlsfx.i18n.Translations.getTranslation;
 
 /**
  * Controller for the view that handles all {@link DafnyCodeArea} tabs.
@@ -100,8 +90,8 @@ public class EditorController implements DafnyCodeAreaListener {
         while (change.next()) {
             if (change.wasRemoved()) {
                 for (Tab removedTab : change.getRemoved()) {
-                    DafnyFile f = (DafnyFile) (removedTab.getUserData());
-                    tabsByFile.remove(f.getFilename());
+                    String f = (String) (removedTab.getUserData());
+                    tabsByFile.remove(f);
                 }
             }
         }
@@ -308,4 +298,18 @@ public class EditorController implements DafnyCodeAreaListener {
         }
     }
 
+    /**
+     * Reload all open tabs
+     */
+    public void reloadAllOpenFiles() {
+        Set<String> filenames = new HashSet<>(tabsByFile.keySet());
+        Collection<Tab> tabs = new ArrayList<>(tabsByFile.values());
+
+        for (Tab tab : tabs) {
+            tab.setClosable(true);
+            getView().getTabs().remove(tab);
+        }
+
+        filenames.forEach(s -> {viewFile(s);});
+    }
 }

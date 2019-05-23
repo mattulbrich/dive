@@ -162,7 +162,8 @@ public class MainController implements SequentActionListener, RuleApplicationLis
         SettingsWrapper settings = new SettingsWrapper();
         settings.setConfig(manager.getConfiguration());
         settings.setCurrentManager(manager);
-        SettingsController ctrl = new SettingsController();
+        //later lookup
+        SettingsController ctrl = new SettingsController(this);
         ctrl.getItems().setAll(SettingsFactory.getSettingsPanel(settings));
         ctrl.showAndWait();
 
@@ -418,7 +419,7 @@ public class MainController implements SequentActionListener, RuleApplicationLis
                 breadCrumbBar.setSelectedCrumb(ti);
                 editorController.resetPVCSelection();
                 sequentController.getActiveSequentController().clear();
-                Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).info("Successfully reloading project.");
+                Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).info("Successfully reloaded project.");
         });
 
         //TODO somehow get proper exceptions and handling them
@@ -455,6 +456,14 @@ public class MainController implements SequentActionListener, RuleApplicationLis
         ruleApplicationController.resetConsideration();
         ruleApplicationController.getScriptController().setProof(proof);
         timelineView.moveFrameRight();
+    }
+
+    /**
+     * Refresh all GUI contents including teh tabs in the DafnyCode Tab Pane
+     */
+    public void reloadWholeGUIcontents(){
+        editorController.reloadAllOpenFiles();
+        this.onClickRefresh(null);
     }
 
     public void onDafnyFileChangedInEditor(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) {
