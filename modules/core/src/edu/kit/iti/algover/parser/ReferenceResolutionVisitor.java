@@ -466,7 +466,17 @@ public class ReferenceResolutionVisitor
      */
     @Override
     public Void visitVAR(DafnyTree t, Mode a) {
-        identifierMap.put(t.getChild(0).getText(), t);
+        String id = t.getChild(0).getText();
+        // Avoiding double declaration
+        if (identifierMap.containsKey(id)) {
+            DafnyTree existing = identifierMap.get(id);
+            if(existing.getType() != DafnyParser.FIELD) {
+                addException(new DafnyException("Variable " + id +
+                        " already defined in this scope", t));
+            }
+        }
+
+        identifierMap.put(id, t);
         // bugfix #44
         DafnyTree ty = t.getFirstChildWithType(DafnyParser.TYPE);
         if(ty != null) {

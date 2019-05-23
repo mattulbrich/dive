@@ -73,7 +73,7 @@ public class SSASequenterTest extends SequenterTest {
                     "$eq<int>(a, 42) " +
                     "|- $eq<int>($plus(la_1, r_1), 0)",
             "$eq<set<object>>($mod_1, $empty), " +
-                    "$eq<int>($decr_1, 0), " +
+                    "$eq<int>($decr_2, 0), " +
                     "$eq<heap>($oldheap_1, $heap), " +
                     "$eq<int>(la_1, a), " +
                     "$eq<int>(lb_1, b), " +

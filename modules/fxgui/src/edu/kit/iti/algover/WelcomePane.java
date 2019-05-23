@@ -24,11 +24,13 @@ import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
+import javafx.geometry.Bounds;
 import javafx.geometry.Insets;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.control.Button;
+import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TextArea;
 import javafx.scene.layout.BorderPane;
@@ -43,18 +45,20 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.net.URISyntaxException;
-import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Arrays;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
 import java.util.logging.Logger;
+import java.util.prefs.BackingStoreException;
+import java.util.prefs.Preferences;
 
 public class WelcomePane {
     @FXML
-    WebView webView;
+    private WebView webView;
 
     @FXML
     private Button openFileChooser;
@@ -66,6 +70,9 @@ public class WelcomePane {
     private Button openEmptyProject;
 
     @FXML
+    private Button openRecent;
+
+    @FXML
     private Button loadExample;
 
     @FXML
@@ -75,20 +82,14 @@ public class WelcomePane {
 
     private Stage substage;
 
-
-
     public WelcomePane(Stage primaryStage, List<String> opendirectly){
         this.primaryStage = primaryStage;
 
-        if(!opendirectly.isEmpty()){
+        if(opendirectly != null && !opendirectly.isEmpty()){
             File absoluteFile = new File(opendirectly.get(0)).getAbsoluteFile();
             try {
                 createAndExecuteMainController(absoluteFile, createProjectManager(absoluteFile));
-            } catch (FormatException e) {
-                e.printStackTrace();
-            } catch (IOException e) {
-                e.printStackTrace();
-            } catch (DafnyParserException e) {
+            } catch (Exception e) {
                 e.printStackTrace();
             }
         } else {
@@ -100,11 +101,7 @@ public class WelcomePane {
             } catch (IOException e) {
                 e.printStackTrace();
             }
-
-
         }
-
-
     }
 
     private void createWelcomeView() throws IOException {
@@ -116,11 +113,15 @@ public class WelcomePane {
         engine.setUserStyleSheetLocation(getClass().getResource("webView.css").toString());
         engine.loadContent(text);
 
-
         openFileChooser.setText("Open project");
         openFileChooser.setStyle("-fx-font-size: 20");
         openFileChooser.setGraphic(FontAwesomeIconFactory.get().createIcon(FontAwesomeIcon.FOLDER_OPEN));
         openFileChooser.setOnAction(this::handleFileChooserAction);
+
+        openRecent.setText("Open recent");
+        openRecent.setStyle("-fx-font-size: 20");
+        openRecent.setGraphic(GlyphsDude.createIcon(FontAwesomeIcon.RECYCLE));
+        openRecent.setOnAction(this::handleOpenRecentAction);
 
         createProject.setText("New project");
         createProject.setStyle("-fx-font-size: 20");
@@ -143,12 +144,62 @@ public class WelcomePane {
         return rootPane;
     }
 
-    public void createNewProjectHandler(ActionEvent event){
+    private void createNewProjectHandler(ActionEvent event){
         createAndShowConfigPane(primaryStage);
-
     }
 
-    public void loadExample(ActionEvent event){
+    private List<String> getRecentFiles() {
+        Preferences prefs = Preferences.userNodeForPackage(WelcomePane.class);
+        String[] recent = prefs.get("recentFiles", "").split("\n");
+        return Arrays.asList(recent);
+    }
+
+    private void addRecentFile(String file) {
+        LinkedList<String> recent = new LinkedList<>(getRecentFiles());
+        if (recent.contains(file)) {
+            recent.remove(file);
+        }
+        while(recent.size() >= 8) {
+            recent.removeLast();
+        }
+        recent.addFirst(file);
+
+        Preferences prefs = Preferences.userNodeForPackage(WelcomePane.class);
+        String val = Util.join(recent, "\n");
+        prefs.put("recentFiles", val);
+        try {
+            prefs.flush();
+        } catch (BackingStoreException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void handleOpenRecentAction(ActionEvent event) {
+        // Create ContextMenu
+        ContextMenu contextMenu = new ContextMenu();
+
+        List<String> recentFiles = getRecentFiles();
+        for (String recentFile : recentFiles) {
+            File file = new File(recentFile);
+            CustomMenuItem item = new CustomMenuItem(new Label(file.getName()));
+            Tooltip.install(item.getContent(), new Tooltip(recentFile));
+            item.setOnAction(ev -> {
+                try {
+                    ProjectManager pm = createProjectManager(file);
+                    createAndExecuteMainController(file, pm);
+                } catch (Exception e) {
+                    // This will probably crash the app
+                    e.printStackTrace();
+                }
+            });
+            contextMenu.getItems().add(item);
+        }
+
+        Bounds b = openRecent.localToScreen(openRecent.getBoundsInLocal());
+        contextMenu.show(openRecent, b.getMinX(), b.getMaxY());
+    }
+
+    private void loadExample(ActionEvent event){
         File exampleFile = new File("ListExample" + File.separator + "AlgoVerList.dfy");
         if(!exampleFile.exists()) {
             try {
@@ -171,11 +222,8 @@ public class WelcomePane {
         try {
             ProjectManager pm = createProjectManager(exampleFile);
             createAndExecuteMainController(exampleFile, pm);
-        } catch (FormatException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (DafnyParserException e) {
+        } catch (Exception e) {
+            // This will probably crash the app
             e.printStackTrace();
         }
 
@@ -201,8 +249,7 @@ public class WelcomePane {
                 primaryStage.show();
             }
 
-
-
+            // REVIEW: This exception treatment does not seem right.
         } catch (FormatException e) {
             e.printStackTrace();
         } catch (IOException e) {
@@ -367,16 +414,16 @@ public class WelcomePane {
 
     }
 
-
     private void createAndExecuteMainController(File projectFile, ProjectManager manager) {
         MainController controller = new MainController(manager, AlgoVerApplication.SYNTAX_HIGHLIGHTING_EXECUTOR);
+
+        addRecentFile(projectFile.getAbsolutePath());
 
         primaryStage.close();
         Scene scene = new Scene(controller.getView());
         scene.getStylesheets().add(AlgoVerApplication.class.getResource("style.css").toExternalForm());
         substage = new Stage();
         substage.setScene(scene);
-
 
         Dimension screenSize = java.awt.Toolkit.getDefaultToolkit().getScreenSize();
 

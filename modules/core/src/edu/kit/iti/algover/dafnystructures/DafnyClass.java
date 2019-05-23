@@ -43,7 +43,7 @@ public class DafnyClass extends DafnyDecl {
         this.functions = toMap(dcb.getFunctions());
         this.fields = toMap(dcb.getFields());
 
-        checkNameConflict(methods, functions);
+        checkNameConflict(dcb.getMethods(), dcb.getFunctions());
 
         setParentFor(methods.values());
         setParentFor(functions.values());
