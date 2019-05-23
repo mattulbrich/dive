@@ -86,6 +86,10 @@ compileJava.dependsOn buildVisitor
 compileJava.dependsOn runAntlr4
 
 
+test{
+    exclude 'edu/kit/iti/algover/dafnystructures/DafnyTreeToDeclVisitorTest.class'
+
+}
 /*
 This would require a directors src/main/antlr/...
 generateGrammarSource {

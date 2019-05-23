@@ -10,9 +10,9 @@ dependencies {
 
 compileTestJava.dependsOn tasks.getByPath(':core:testClasses')
 
-task runCli ( type: JavaExec) {
+run {
  dependsOn tasks.getByPath(':core:classes')
- main = 'edu.kit.iti.algover.cli.Main'
+ mainClassName = 'edu.kit.iti.algover.cli.Main'
  classpath = sourceSets.main.runtimeClasspath
  doFirst {
    println "Running Command line interface with arguments "+ args
