@@ -38,8 +38,10 @@ public class BasicFormulaView extends CodeArea {
         this.mouseOverTerm = mouseOverTerm;
 
         getStyleClass().add("formula-view");
-        for (String label : formula.getProofFormula().getLabels()) {
-            getStyleClass().add("formula-type-" + label);
+        if(!Boolean.getBoolean("sarah")) {
+            for (String label : formula.getProofFormula().getLabels()) {
+                getStyleClass().add("formula-type-" + label);
+            }
         }
         Tooltip.install(this, new Tooltip(formula.getProofFormula().getLabels().toString()));
         setFocusTraversable(false);

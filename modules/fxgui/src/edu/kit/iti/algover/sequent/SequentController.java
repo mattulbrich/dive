@@ -301,7 +301,8 @@ public class SequentController extends FxmlController {
                     : branchInfo.getAdditions().getSuccedent();
 
             for (ProofFormula addition : additions) {
-                formulas.add(new AddedFormula(formulas.size() - deletedFormulas, addition.getTerm()));
+                formulas.add(new AddedFormula(formulas.size() - deletedFormulas,
+                        new ProofFormula(addition.getTerm(), "added")));
             }
         }
         return formulas;

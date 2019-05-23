@@ -9,6 +9,9 @@
 .formula-view {
     -fx-font-family: monospace;
     -fx-background-color: transparent;
+    -fx-padding: 5 5 0 5;
+    -fx-border-width: 0 0 0 7;
+    -fx-border-color: white;
 }
 
 .formula-view .highlighted {
@@ -21,33 +24,32 @@
 }
 
 .formula-type-inv {
-    -fx-border-width: 0 0 0 7;
     -fx-border-color: #a0ffff;
 }
 
 .formula-type-pre {
     -fx-border-color: #a0ffa0;
-    -fx-border-width: 0 0 0 7;
 }
 
 .formula-type-then {
     -fx-border-color: #a0a0ff;
-    -fx-border-width: 0 0 0 7;
 }
 
 .formula-type-loop {
     -fx-border-color: #a0a0ff;
-    -fx-border-width: 0 0 0 7;
 }
 
 .formula-type-else {
     -fx-border-color: #a0a0ff;
-    -fx-border-width: 0 0 0 7;
 }
 
 .formula-view .reference-selected {
     -rtfx-background-color: #62b3cf;
     -fx-fill: whitesmoke;
+}
+
+.formula-cell {
+    -fx-padding: 0em;
 }
 
 .list-cell.formula-cell:formula-added {
