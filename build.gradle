@@ -90,6 +90,9 @@ subprojects {
     license {
         ext.year = Calendar.getInstance().get(Calendar.YEAR)
         header file("$rootDir/HEADER")
+        include "$projectDir/src/**/*.java"
+        exclude "$projectDir/gen/**/*.java"
+
         //strictCheck true
     }
 }
