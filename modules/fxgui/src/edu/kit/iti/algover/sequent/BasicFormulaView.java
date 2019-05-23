@@ -12,6 +12,7 @@ import edu.kit.iti.algover.term.prettyprint.PrettyPrint;
 import edu.kit.iti.algover.util.SubSelection;
 import edu.kit.iti.algover.util.TextUtil;
 import javafx.geometry.Bounds;
+import javafx.scene.control.Tooltip;
 import javafx.scene.input.MouseEvent;
 import org.fxmisc.richtext.CharacterHit;
 import org.fxmisc.richtext.CodeArea;
@@ -36,6 +37,10 @@ public class BasicFormulaView extends CodeArea {
         this.mouseOverTerm = mouseOverTerm;
 
         getStyleClass().add("formula-view");
+        for (String label : formula.getProofFormula().getLabels()) {
+            getStyleClass().add("formula-type-" + label);
+        }
+        Tooltip.install(this, new Tooltip(formula.getProofFormula().getLabels().toString()));
         setFocusTraversable(false);
         setEditable(false);
 

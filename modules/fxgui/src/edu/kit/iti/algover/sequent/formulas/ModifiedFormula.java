@@ -1,5 +1,6 @@
 package edu.kit.iti.algover.sequent.formulas;
 
+import edu.kit.iti.algover.proof.ProofFormula;
 import edu.kit.iti.algover.rules.SubtermSelector;
 import edu.kit.iti.algover.term.Term;
 
@@ -9,8 +10,8 @@ public class ModifiedFormula extends OriginalFormula {
 
     private final Collection<SubtermSelector> modifiedParts;
 
-    public ModifiedFormula(Collection<SubtermSelector> modifiedParts, Term term, int indexInSequent) {
-        super(indexInSequent, term);
+    public ModifiedFormula(Collection<SubtermSelector> modifiedParts, ProofFormula formula, int indexInSequent) {
+        super(indexInSequent, formula);
         this.modifiedParts = modifiedParts;
     }
 

@@ -1,18 +1,21 @@
 package edu.kit.iti.algover.sequent.formulas;
 
+import edu.kit.iti.algover.proof.ProofFormula;
 import edu.kit.iti.algover.term.Term;
 
 public abstract class TopLevelFormula {
 
-    private final Term term;
+    private final ProofFormula formula;
 
-    protected TopLevelFormula(Term term) {
-        this.term = term;
+    protected TopLevelFormula(ProofFormula formula) {
+        this.formula = formula;
     }
 
     public Term getTerm() {
-        return term;
+        return formula.getTerm();
     }
+
+    public ProofFormula getProofFormula() { return formula; }
 
     public abstract <R> R accept(TopLevelFormulaVisitor<R> visitor);
 

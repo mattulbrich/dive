@@ -20,6 +20,31 @@
     -rtfx-background-color: #55EE55;
 }
 
+.formula-type-inv {
+    -fx-border-color: green;
+    -fx-border-width: 3px;
+}
+
+.formula-type-pre {
+    -fx-border-color: orange;
+    -fx-border-width: 3px;
+}
+
+.formula-type-then {
+    -fx-border-color: magenta;
+    -fx-border-width: 3px;
+}
+
+.formula-type-loop {
+    -fx-border-color: yellow;
+    -fx-border-width: 3px;
+}
+
+.formula-type-else {
+    -fx-border-color: cyan;
+    -fx-border-width: 3px;
+}
+
 .formula-view .reference-selected {
     -rtfx-background-color: #62b3cf;
     -fx-fill: whitesmoke;

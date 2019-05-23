@@ -274,7 +274,8 @@ public class SequentController extends FxmlController {
                 }
 
                 if (!modifiedParts.isEmpty()) {
-                    formulas.add(new ModifiedFormula(modifiedParts, term, i));
+                    ProofFormula pf = new ProofFormula(term, proofFormulas.get(i).getLabels());
+                    formulas.add(new ModifiedFormula(modifiedParts, pf, i));
                     continue formulaLoop;
                 }
 
@@ -290,7 +291,7 @@ public class SequentController extends FxmlController {
                     }
                 }
             }
-            formulas.add(new OriginalFormula(i, proofFormulas.get(i).getTerm()));
+            formulas.add(new OriginalFormula(i, proofFormulas.get(i)));
         }
 
         // render additions on the sequent

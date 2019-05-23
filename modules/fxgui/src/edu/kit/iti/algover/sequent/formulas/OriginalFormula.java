@@ -1,12 +1,13 @@
 package edu.kit.iti.algover.sequent.formulas;
 
+import edu.kit.iti.algover.proof.ProofFormula;
 import edu.kit.iti.algover.term.Term;
 
 public class OriginalFormula extends TopLevelFormula {
 
     protected final int indexInSequent;
 
-    public OriginalFormula(int indexInSequent, Term term) {
+    public OriginalFormula(int indexInSequent, ProofFormula term) {
         super(term);
         this.indexInSequent = indexInSequent;
     }

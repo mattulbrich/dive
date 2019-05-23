@@ -76,7 +76,7 @@ public class ProofFormula {
         if (labels.isEmpty()) {
             return formula.toString();
         } else {
-            return "[" + labels + "]: " + formula.toString();
+            return labels + ": " + formula.toString();
         }
     }
 

@@ -50,7 +50,7 @@ public class ParallelUpdateSequenter extends UpdateSequenter {
             resultTerm = new LetTerm(newAssignments, term);
         }
 
-        return new ProofFormula(resultTerm);
+        return new ProofFormula(resultTerm, formula.getLabels());
     }
 
     private void updateSubstitution(Map<VariableTerm, Term> substitution, List<Pair<VariableTerm, Term>> assignments) throws TermBuildException {

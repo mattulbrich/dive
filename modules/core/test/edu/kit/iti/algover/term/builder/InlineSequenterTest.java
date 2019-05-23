@@ -105,7 +105,8 @@ public class InlineSequenterTest extends SequenterTest {
         DafnyMethod method = (DafnyMethod) pvc.getDeclaration();
         Sequent sequent = sequenter.translate(path, makeTable(method), map);
 
-        assertEquals("$le(i_1, n), $lt(i_1, n), $not($eq<int>(i_1, 5)) |- $le($plus(i_1, 1), n)", sequent.toString());
+        assertEquals("[inv]: $le(i_1, n), [loop]: $lt(i_1, n), [else]: $not($eq<int>(i_1, 5))" +
+                " |- [Inv]: $le($plus(i_1, 1), n)", sequent.toString());
 
     }
 

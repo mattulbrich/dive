@@ -75,7 +75,7 @@ public class UpdateSequenter implements PVCSequenter {
         for (PathConditionElement pce : pathThroughProgram.getPathConditions()) {
             try {
                 Term term = tat.translateToLet(pce.getAssignmentHistory(), pce.getExpression());
-                ProofFormula formula = new ProofFormula(term);
+                ProofFormula formula = new ProofFormula(term, pce.getType().identifier);
                 formula = postProcess(formula, tat.getReferenceMap());
                 ante.add(formula);
             } catch (TermBuildException e) {
@@ -89,7 +89,7 @@ public class UpdateSequenter implements PVCSequenter {
         try {
             Term term = tat.translateToLet(pathThroughProgram.getAssignmentHistory(),
                     assertion.getExpression());
-            ProofFormula formula = new ProofFormula(term);
+            ProofFormula formula = new ProofFormula(term, assertion.getType().identifier);
             formula = postProcess(formula, tat.getReferenceMap());
             List<ProofFormula> succ = Collections.singletonList(formula);
             Sequent sequent = new Sequent(ante, succ);
