@@ -8,6 +8,7 @@ import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.ListChangeListener;
+import javafx.collections.ObservableList;
 import javafx.event.Event;
 import javafx.event.EventHandler;
 import javafx.scene.Node;
@@ -299,15 +300,33 @@ public class EditorController implements DafnyCodeAreaListener {
     }
 
     /**
-     * Reload all open tabs
+     * Reload all open tabs by keeping the order of previous opened tabs
      */
     public void reloadAllOpenFiles() {
-        Set<String> filenames = new HashSet<>(tabsByFile.keySet());
+        ObservableList<Tab> tabsInView = getView().getTabs();
+        Set<String> filenamesSet = new HashSet<>(tabsByFile.keySet());
+        ArrayList<String> filenames = new ArrayList<>();
+        Iterator<Tab> iteratorTabsInView = tabsInView.iterator();
+        Tab tabInView;
+        String name;
+        while(iteratorTabsInView.hasNext()){
+            tabInView = iteratorTabsInView.next();
+            name = (String) tabInView.getUserData();
+            if(filenamesSet.contains(name)){
+                filenames.add(name);
+                filenamesSet.remove(name);
+            } else {
+                throw new RuntimeException("Something went terribly wrong");
+            }
+
+        }
+        assert filenamesSet.isEmpty();
         Collection<Tab> tabs = new ArrayList<>(tabsByFile.values());
 
+        Iterator<Tab> iterator = tabs.iterator();
         for (Tab tab : tabs) {
             tab.setClosable(true);
-            getView().getTabs().remove(tab);
+            tabsInView.remove(tab);
         }
 
         filenames.forEach(s -> {viewFile(s);});
