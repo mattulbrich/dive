@@ -208,15 +208,29 @@ public class ParserErrorTest {
     @Test
     public void doubleDecl1() throws Exception {
         thrown.expect(DafnyException.class);
-        thrown.expectMessage("Variable r already defined in this namespace");
+        thrown.expectMessage("Variable r already defined in this scope");
         parse("method m() returns (r: int) { var r: int; r:=5; }");
     }
 
     @Test
     public void doubleDecl2() throws Exception {
         thrown.expect(DafnyException.class);
-        thrown.expectMessage("Variable r already defined in this namespace");
+        thrown.expectMessage("Variable r already defined in this scope");
         parse("method m() returns (r: int) { var r: int; var r: int; r:=5; }");
+    }
+
+    @Test
+    public void doubleDecl3() throws Exception {
+        thrown.expect(DafnyException.class);
+        thrown.expectMessage("This scope already contains a declaration named m");
+        parse("method m() { } method m() { }");
+    }
+
+    @Test
+    public void doubleDecl4() throws Exception {
+        thrown.expect(DafnyException.class);
+        thrown.expectMessage("This scope already contains a declaration named m");
+        parse("class C { method m() { } function m() : int { 0 } }");
     }
 
 }

@@ -470,8 +470,11 @@ public class ReferenceResolutionVisitor
         String id = t.getChild(0).getText();
         // Avoiding double declaration
         if (identifierMap.containsKey(id)) {
-            addException(new DafnyException(
-                    "Variable " + id + " already defined in this namespace", t));
+            DafnyTree existing = identifierMap.get(id);
+            if(existing.getType() != DafnyParser.FIELD) {
+                addException(new DafnyException("Variable " + id +
+                        " already defined in this scope", t));
+            }
         }
 
         identifierMap.put(id, t);
