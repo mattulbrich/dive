@@ -174,6 +174,16 @@ public class PrettyPrintTest {
         assertEquals(input, printed.toString());
     }
 
+    @Test
+    public void testSubscript() throws DafnyParserException, DafnyException {
+
+        st.addFunctionSymbol(new FunctionSymbol("idx_91", Sort.INT));
+        Term parsed = TermParser.parse(st, "idx_91");
+        AnnotatedString printed = new PrettyPrint().print(parsed);
+
+        assertEquals("idx\u2089\u2081", printed.toString());
+    }
+
     @Test @Parameters
     public void testLogic(String input) throws DafnyParserException, DafnyException {
 
