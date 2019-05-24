@@ -9,6 +9,7 @@ import java.lang.reflect.Modifier;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
 public class Property<T> {
@@ -18,7 +19,7 @@ public class Property<T> {
     private final Object listLock = new Object();
 
     private T value;
-    private List<Consumer<T>> observers;
+    private List<BiConsumer<? super T, ? super T>> observers;
     private boolean isActive = false;
 
     public Property(String name, Class<T> type, T value) {
@@ -61,11 +62,18 @@ public class Property<T> {
     }
 
     public void setValue(T value) {
-        boolean changed = value != this.value && !Objects.equals(value, this.value);
+        T oldValue = this.value;
+        boolean changed = value != oldValue && !Objects.equals(value, oldValue);
         this.value = value;
         if(changed) {
-            notifyObservers();
+            notifyObservers(oldValue);
         }
+    }
+
+    public void fire(T value) {
+        T oldValue = this.value;
+        this.value = value;
+        notifyObservers(oldValue);
     }
 
     public void setValueOnEventQueue(T value) {
@@ -77,10 +85,14 @@ public class Property<T> {
     }
 
     public void addObserver(Runnable observer) {
-        addObserver(x -> observer.run());
+        addObserver((_old, _new) -> observer.run());
     }
 
-    public void addObserver(Consumer<T> observer) {
+    public void addObserver(Consumer<? super T> observer) {
+        addObserver((_old, _new) -> observer.accept(_new));
+    }
+
+    public void addObserver(BiConsumer<? super T, ? super T> observer) {
         synchronized (listLock) {
             if(observers == null) {
                 observers = new LinkedList<>();
@@ -97,12 +109,12 @@ public class Property<T> {
         }
     }
 
-    public void notifyObservers() {
+    protected void notifyObservers(T oldValue) {
         if(observers != null && !isActive) {
             try {
                 isActive = true;
-                for (Consumer<T> observer : observers) {
-                    observer.accept(this.value);
+                for (BiConsumer<? super T, ? super T> observer : observers) {
+                    observer.accept(oldValue, this.value);
                 }
             } finally {
                 isActive = false;

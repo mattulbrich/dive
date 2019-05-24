@@ -12,6 +12,8 @@ plugins {
 
 dependencies {
     compile project(":core")
+    compile project(":cli")
+    compile 'com.fifesoft:rsyntaxtextarea:3.0.3'
     testCompile project(':core').sourceSets.test.output
 }
 

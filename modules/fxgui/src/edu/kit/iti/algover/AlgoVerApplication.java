@@ -64,14 +64,4 @@ public class AlgoVerApplication extends Application {
         SYNTAX_HIGHLIGHTING_EXECUTOR.shutdown();
     }
 
-
-
-
-
-
-    //region ActionHandler
-
-
-
-
 }

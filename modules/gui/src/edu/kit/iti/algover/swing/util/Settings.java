@@ -67,7 +67,7 @@ public class Settings {
         super();
         try {
             contents = new Properties();
-            InputStream stream = getClass().getResourceAsStream("Settings_default.properties");
+            InputStream stream = getClass().getResourceAsStream("../Settings_default.properties");
             contents.load(stream);
             stream.close();
             contents.putAll(System.getProperties());

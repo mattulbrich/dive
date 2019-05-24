@@ -59,9 +59,9 @@ public class RecentProblemsMenu extends JMenu implements MenuListener {
         @Override
         public void actionPerformed(ActionEvent e) {
             try {
-                URL url = new URL(location);
-                Main.openProverFromURL(url);
-            } catch(IOException ex) {
+                File file = new File(location);
+                Main.openDiveCenter(file);
+            } catch(Exception ex) {
                 ExceptionDialog.showExceptionDialog(
                         RecentProblemsMenu.this.getParentFrame(), ex);
             }

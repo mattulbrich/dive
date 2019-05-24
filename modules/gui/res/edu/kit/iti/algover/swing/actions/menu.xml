@@ -1,0 +1,144 @@
+<!--
+  ~ This file is part of AlgoVer.
+  ~
+  ~ Copyright (C) 2015-2018 Karlsruhe Institute of Technology
+  ~
+  -->
+<barmanager>
+
+    <!-- If no package name given, assume the following prefix -->
+	<package>edu.kit.iti.algover.swing.actions</package>
+
+	<!-- THE MAIN WINDOW -->
+	<center>
+		
+		<toolbar onlyIcons="true">
+            file.open
+			<!--	proof.auto proof.pruneLast SEPARATOR
+				prover.openInEditor SEPARATOR 
+				file.loadProb file.loadProof file.saveProof SEPARATOR
+				proof.stepInstr proof.stepSource smt.active smt.patient 
+				proof.conjecture proof.snapshots-->
+		</toolbar>
+
+		<menubar>
+			center.fileMenu
+            <!--prover.editorMenu prover.proofMenu prover.settingsMenu prover.experimentalMenu
+            -->
+		</menubar>
+
+		<fileMenu text="File" mnemonic="F">
+			file.sampleBrowser file.open file.reload file.recentProb
+			SEPARATOR general.close general.exit
+		</fileMenu>
+		
+		<editorMenu text="Editor" mnemonic="E">
+			prover.openInEditor editor.new editor.open	
+		</editorMenu>
+
+		<proofMenu text="Proof" mnemonic="P">
+			proof.prune proof.pruneLast proof.auto proof.autoSubtree proof.reintroduceHiddenTerm proof.axiom proof.conjecture proof.decProc
+			proof.snapshots	SEPARATOR proof.stepInstr proof.stepSource
+		</proofMenu>
+		
+		<settingsMenu text="Settings" mnemonic="S">
+			settings.verbosity settings.showNumbers settings.showProgramTrace prover.settingsMenu.prettyPrintingMenu smt.activation
+			smt.keepwindowopen settings.autoDnD settings.stepContinueWithoutProgram
+		    <prettyPrintingMenu text="Pretty printing" mnemonic="P">
+		    	SUBMENU settings.pp.typed settings.pp.fix settings.pp.mod
+		    </prettyPrintingMenu>
+        </settingsMenu>
+        
+        <experimentalMenu text="Experimental" mnemonic="X">
+           experimental.exportSMT experimental.exportEnv file.reloadAndReprove
+           experimental.saveDock
+        </experimentalMenu>
+        
+	</center>-->
+	
+	<!-- THE STARTUP WINDOW -->
+	<startup>
+		<menubar>
+			startup.fileMenu	
+		</menubar>
+
+		<fileMenu text="File" mnemonic="F">
+			file.sampleBrowser SEPARATOR
+			file.open
+			file.reload
+			file.recentProb
+			file.new
+			SEPARATOR general.exit	
+		</fileMenu>
+	</startup>
+
+
+	<!--
+	  ===== ACTIONS ======
+	-->
+
+	<file>
+		<sampleBrowser>TODO io/SampleBrowserAction
+			<tooltip>Show a collection of Dafny samples provided with the tool</tooltip>
+			<mnemonic>B</mnemonic>
+			<text>Samples ...</text>
+		</sampleBrowser>
+		<open>ACTION io/OpenAction
+			<tooltip>Open a Dafny project in a new window</tooltip>
+			<accelerator>control O</accelerator>
+			<mnemonic>O</mnemonic>
+			<text>Open ...</text>
+			<icon>img/page_white_text.png</icon>
+		</open>
+		<loadURLProb>TODO io/LoadProblemURLAction
+			<tooltip>open a proof obligation from a URL in a new window</tooltip>
+			<mnemonic>U</mnemonic>
+			<text>Load problem from URL ...</text>
+			<icon>img/page_white_world.png</icon></loadURLProb>
+		<reload>TODO io/ReloadProblemAction
+			<tooltip>reload the last problem file into a new window</tooltip>
+			<mnemonic>R</mnemonic>
+			<accelerator>control R</accelerator>
+			<text>Reload problem</text>
+			<icon>img/page_white_green_text.png</icon>
+		</reload>
+		<recentProb>COMPONENT RecentProblemsMenu</recentProb>
+		<loadProof>TODO io/LoadProofAction
+			<tooltip>load a proof to the currently active problem</tooltip>
+			<text>Load proof ...</text>
+			<mnemonic>P</mnemonic>
+			<icon>img/page.png</icon>
+		</loadProof>
+		<saveProof>TODO io/SaveProofAction
+			<tooltip>save a proof to the currently active problem</tooltip>
+			<text>Save proof ...</text>
+			<accelerator>control S</accelerator>
+			<mnemonic>S</mnemonic>
+			<icon>img/page_save.png</icon>
+		</saveProof>
+		<new>TODO io/NewFileAction
+			<tooltip>Create a new, empty Dafny project</tooltip>
+			<text>New ...</text>
+			<accelerator>control N</accelerator>
+			<mnemonic>S</mnemonic>
+			<icon>img/page_save.png</icon>
+		</new>
+	</file>
+
+	<general>
+		<close>TODO CloseAction
+			<mnemonic>C</mnemonic>
+			<tooltip>Closes the current window</tooltip>
+			<accelerator>control W</accelerator>
+			<text>Close</text>
+			<icon>img/bullet_orange.png</icon>
+		</close>
+		<exit>ACTION ExitAction
+            <mnemonic>X</mnemonic>
+            <tooltip>Closes all open windows of the program and exits</tooltip>
+            <accelerator>control Q</accelerator>
+            <text>Exit</text>
+        </exit>
+	</general>
+
+</barmanager>

@@ -114,7 +114,7 @@ public class MainController {
 
         barManager = new BarManager(null, resource);
         barManager.putProperty(BarAction.CENTER, diveCenter);
-        barManager.putProperty(BarAction.PARENT_FRAME, this);
+        barManager.putProperty(BarAction.PARENT_FRAME, theFrame);
 
         {
             this.pvcTreeController = new PVCTreeController(diveCenter);
@@ -136,8 +136,8 @@ public class MainController {
             cp.add(centerPane, BorderLayout.CENTER);
         }
         {
-            theFrame.setJMenuBar(barManager.makeMenubar("prover.menubar"));
-            cp.add(barManager.makeToolbar("prover.toolbar"), BorderLayout.NORTH);
+            theFrame.setJMenuBar(barManager.makeMenubar("center.menubar"));
+            cp.add(barManager.makeToolbar("center.toolbar"), BorderLayout.NORTH);
         }
         {
             statusLine = new JLabel("");
@@ -146,7 +146,7 @@ public class MainController {
         // ExitAction is actually also a WindowListener. ...
         // we call the bar manager so that no unnecessary copy
         // is created if it already exists.
-        theFrame.addWindowListener((WindowListener) barManager.makeAction("general.close"));
+//TODO        theFrame.addWindowListener((WindowListener) barManager.makeAction("general.close"));
         theFrame.setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
         theFrame.setSize(1000, 700);
     }
@@ -159,5 +159,9 @@ public class MainController {
 
     public BarManager getBarManager() {
         return barManager;
+    }
+
+    public JFrame getFrame() {
+        return theFrame;
     }
 }

@@ -21,6 +21,7 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Properties;
 import java.util.prefs.BackingStoreException;
@@ -29,10 +30,12 @@ import java.util.prefs.Preferences;
 import javax.swing.JOptionPane;
 import javax.swing.SwingUtilities;
 
+import edu.kit.iti.algover.parser.DafnyParserException;
 import edu.kit.iti.algover.swing.actions.RecentProblemsMenu;
 import edu.kit.iti.algover.swing.util.InputHistory;
 import edu.kit.iti.algover.swing.util.Log;
 import edu.kit.iti.algover.swing.util.Settings;
+import edu.kit.iti.algover.util.FormatException;
 import edu.kit.iti.algover.util.Util;
 import nonnull.NonNull;
 import nonnull.Nullable;
@@ -114,7 +117,7 @@ public class Main {
                         // -last
                         String mostRecentProblem = RecentProblemsMenu.getMostRecentProblem();
                         if(mostRecentProblem != null) {
-                            openProverFromURL(new URL(mostRecentProblem));
+                            openDiveCenter(new File(mostRecentProblem));
                         }
 
                     } else if(fileArguments.isEmpty()) {
@@ -128,7 +131,7 @@ public class Main {
 
                         // at least one file/url arg
                         File file = new File(fileArguments.get(0));
-                        openProver(file);
+                        openDiveCenter(file);
                     }
                 } catch (Throwable ex) {
                     Log.log(Log.ERROR, "Exception during startup: " + ex.getMessage());
@@ -149,7 +152,7 @@ public class Main {
         } catch (IOException ex) {
             ex.printStackTrace();
         }
-        System.out.println("This is ivil - " + version);
+        System.out.println("This is DIVE - " + version);
     }
 
     private static CommandLine makeCommandLine() {
@@ -160,98 +163,6 @@ public class Main {
         cl.addOption(CMDLINE_SAMPLES, null, "Open the sample browser");
         cl.addOption(CMDLINE_LAST, null, "Reload the most recent problem");
         return cl;
-    }
-
-    /**
-     * Open a new {@link DiveCenter} for an environment loaded from a file.
-     * <p>
-     * Throws an {@link EnvironmentException} if the file does not specify
-     * problem term. The {@link EnvironmentCreationService} is chosen by the
-     * file extension of the resource specified by the url.
-     *
-     * @param file
-     *            the file to read the environment and problem term from.
-     *
-     * @return a freshly created proof center
-     * @see #openProverFromURL(URL)
-     */
-    public static @Nullable DiveCenter openProver(File file) {
-
-        return openProverFromURL(file.toURI().toURL());
-
-    }
-
-    /**
-     * Open a new {@link DiveCenter} for an environment loaded from a URL.
-     *
-     * <p>
-     * The {@link EnvironmentCreationService} is chosen by the file extension of
-     * the resource specified by the url.
-     *
-     * <p>
-     * If the resource does not define a problem term, the fragment part of the
-     * url is inspected. If it refers to a program <code>PP</code> in the parsed
-     * environment, the term <code>[0; P]</code> is used as problem term. If
-     * there is no program fragment, or the fragment does not refer to a program
-     * in the environment, an exception is raised.
-     *
-     * @param url
-     *            the URL to read the environment from.
-     *
-     * @return a freshly created proof center, <code>null</code> if the user
-     *         aborted the creation
-     */
-    public static @Nullable DiveCenter openProverFromURL(URL url)
-            throws FileNotFoundException, ParseException,
-            ASTVisitException, TermException, IOException,
-            StrategyException, EnvironmentException {
-
-        ProofObligationManager proofObMan =
-                EnvironmentCreationService.createEnvironmentByExtension(url);
-
-        Environment env = proofObMan.getEnvironment();
-
-        if (!proofObMan.hasProofObligations()) {
-            throw new EnvironmentException(
-                    "This environment does not contain a problem description");
-        }
-
-        String fragment = url.getRef();
-        ProofObligation po = null;
-
-        if (fragment == null || fragment.length() == 0) {
-            // no #fragment specified
-            if(proofObMan.hasDefaultProofObligation()) {
-
-                po = proofObMan.getDefaultProofObligation();
-
-            } else {
-
-                // there are many, no default: ask the user
-                String[] availablePOs = proofObMan.getAvailableProofObligationNames();
-                String name = (String) JOptionPane.showInputDialog(null,
-                        "Please choose the proof obligation to verify.",
-                        "Choose obligation", JOptionPane.QUESTION_MESSAGE, null,
-                        availablePOs, null);
-                if(name == null) {
-                    // abort button pressed
-                    return null;
-                }
-                po = proofObMan.getProofObligation(name);
-                assert po != null : "No null elements in problemSeqs";
-            }
-
-        } else {
-            // there IS a fragment.
-            po = proofObMan.getProofObligation(fragment);
-
-            if (po == null) {
-                throw new EnvironmentException("Unknown proof obligation '" +
-                        fragment + "' in URL " + url);
-            }
-        }
-
-        return openProver(po, proofObMan, url);
     }
 
     /**
@@ -293,28 +204,22 @@ public class Main {
         }
     }
 
-    private static void showDiveCenter(DiveCenter proofCenter) {
-        if (startupWindow != null) {
-            startupWindow.dispose();
-            startupWindow = null;
-        }
+    public static void closeDiveCenter(DiveCenter diveCenter) {
+        assert PROOF_CENTERS.contains(diveCenter);
 
-        MainWindow main = proofCenter.getMainController();
-        main.setVisible(true);
-        PROOF_CENTERS.add(proofCenter);
-    }
+        diveCenter.terminated.fire(true);
 
-    public static void closeDiveCenter(DiveCenter proofCenter) {
-        assert PROOF_CENTERS.contains(proofCenter);
-
-        MainWindow main = proofCenter.getMainController();
-        proofCenter.fireNotification(DiveCenter.TERMINATION);
-        main.dispose();
-        PROOF_CENTERS.remove(proofCenter);
+        PROOF_CENTERS.remove(diveCenter);
 
         if (PROOF_CENTERS.isEmpty()) {
             exit(0);
         }
+    }
+
+    public static void openDiveCenter(File file) throws DafnyParserException, FormatException, IOException {
+        DiveCenter center = new DiveCenter(file);
+        center.activate();
+        PROOF_CENTERS.add(center);
     }
 
     public static void exit(int exitValue) {
@@ -333,10 +238,12 @@ public class Main {
      */
     public static boolean windowsHaveChanges() {
         for (DiveCenter pc : PROOF_CENTERS) {
-            if (pc.getProof().hasUnsafedChanges()) {
+            if (pc.hasUnsafedChanges()) {
                 return true;
             }
         }
         return false;
     }
+
+
 }

@@ -10,6 +10,7 @@ public class ListProperty<T> extends Property<List<T>> {
 
     private final Class<T> elementType;
 
+    @SuppressWarnings("rawtypes")
     public ListProperty(String name, Class<T> elementType) {
         super(name, (Class)List.class, new ArrayList<T>());
         this.elementType = elementType;
@@ -21,11 +22,6 @@ public class ListProperty<T> extends Property<List<T>> {
     }
 
     public void setValue(Collection<? extends T> value) {
-        setValue(null, value);
-    }
-
-
-    public void setValue(Object origin, Collection<? extends T> value) {
         List<T> list = super.getValue();
 
         if(!(value instanceof List)) {
@@ -38,7 +34,7 @@ public class ListProperty<T> extends Property<List<T>> {
         list.addAll(value);
 
         if(changed) {
-            notifyObservers();
+            notifyObservers(list);
         }
     }
 
@@ -54,20 +50,20 @@ public class ListProperty<T> extends Property<List<T>> {
         list.set(index, value);
 
         if(!old.equals(value)) {
-            notifyObservers();
+            notifyObservers(list);
         }
     }
 
     public void addElement(T value) {
         List<T> list = super.getValue();
         list.add(value);
-        notifyObservers();
+        notifyObservers(list);
     }
 
     public void removeElement(int index) {
         List<T> list = super.getValue();
         list.remove(index);
-        notifyObservers();
+        notifyObservers(list);
     }
 
     @Override
