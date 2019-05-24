@@ -22,13 +22,14 @@ public class ExceptionDialog extends Alert {
         content = new VBox();
 
         TextArea area = new TextArea();
-        area.setEditable(false);
         StringWriter sw = new StringWriter();
         PrintWriter pw = new PrintWriter(sw);
-
+        
         e.printStackTrace(pw);
-        String s = pw.toString();
+        String s = sw.toString();
+        System.out.println("s = " + s);
         area.setText(s);
+        area.setEditable(false);
 
         content.getChildren().addAll(new Label("Stacktrace"), area);
         this.getDialogPane().setContent(content);
