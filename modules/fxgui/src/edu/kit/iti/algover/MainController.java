@@ -33,6 +33,7 @@ import edu.kit.iti.algover.settings.SettingsFactory;
 import edu.kit.iti.algover.settings.SettingsWrapper;
 import edu.kit.iti.algover.timeline.TimelineLayout;
 import edu.kit.iti.algover.util.CostumBreadCrumbBar;
+import edu.kit.iti.algover.util.ExceptionDialog;
 import edu.kit.iti.algover.util.FormatException;
 import edu.kit.iti.algover.util.StatusBarLoggingHandler;
 import javafx.application.Platform;
@@ -433,6 +434,8 @@ public class MainController implements SequentActionListener, RuleApplicationLis
             sequentController.getView().setDisable(true);
             ruleApplicationController.getView().setDisable(true);
             t.getException().printStackTrace();
+            ExceptionDialog ed = new ExceptionDialog(t.getException());
+            ed.showAndWait();
         });
 
         t.setOnCancelled(event -> {

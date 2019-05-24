@@ -304,6 +304,7 @@ public class EditorController implements DafnyCodeAreaListener {
      */
     public void reloadAllOpenFiles() {
         ObservableList<Tab> tabsInView = getView().getTabs();
+        String selectedFile = (String) getView().getSelectionModel().getSelectedItem().getUserData();
         Set<String> filenamesSet = new HashSet<>(tabsByFile.keySet());
         ArrayList<String> filenames = new ArrayList<>();
         Iterator<Tab> iteratorTabsInView = tabsInView.iterator();
@@ -330,5 +331,7 @@ public class EditorController implements DafnyCodeAreaListener {
         }
 
         filenames.forEach(s -> {viewFile(s);});
+        // select recent selected tab
+        getView().getSelectionModel().select(tabsByFile.get(selectedFile));
     }
 }
