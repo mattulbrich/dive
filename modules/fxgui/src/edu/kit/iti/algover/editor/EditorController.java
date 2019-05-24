@@ -303,8 +303,10 @@ public class EditorController implements DafnyCodeAreaListener {
      * Reload all open tabs by keeping the order of previous opened tabs
      */
     public void reloadAllOpenFiles() {
+        
         ObservableList<Tab> tabsInView = getView().getTabs();
         String selectedFile = (String) getView().getSelectionModel().getSelectedItem().getUserData();
+
         Set<String> filenamesSet = new HashSet<>(tabsByFile.keySet());
         ArrayList<String> filenames = new ArrayList<>();
         Iterator<Tab> iteratorTabsInView = tabsInView.iterator();
@@ -317,7 +319,7 @@ public class EditorController implements DafnyCodeAreaListener {
                 filenames.add(name);
                 filenamesSet.remove(name);
             } else {
-                throw new RuntimeException("Something went terribly wrong");
+                throw new RuntimeException("Was not able to reconstruct interface, please restart DIVE");
             }
 
         }
@@ -329,8 +331,8 @@ public class EditorController implements DafnyCodeAreaListener {
             tab.setClosable(true);
             tabsInView.remove(tab);
         }
+        filenames.forEach(s -> viewFile(s));
 
-        filenames.forEach(s -> {viewFile(s);});
         // select recent selected tab
         getView().getSelectionModel().select(tabsByFile.get(selectedFile));
     }
