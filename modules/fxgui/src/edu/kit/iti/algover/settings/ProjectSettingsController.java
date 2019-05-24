@@ -385,30 +385,32 @@ public class ProjectSettingsController implements ISettingsController {
                         manager.set(new DafnyProjectManager(getConfig().getMasterFile()));
                     }
                 }
-                manager.get().reload();
-                manager.get().getConfiguration();
+                manager.get().reload(); //maybe removed?
+                manager.get().getConfiguration();  //maybe removed?
 
             } catch (JAXBException e) {
-                Logger.getGlobal().warning("Could not save configuration file");
+                String msg = "Could not save configuration file";
+                Logger.getGlobal().warning(msg);
                 e.printStackTrace();
-
-                Alert a = new Alert(Alert.AlertType.ERROR);
-                a.getDialogPane().setContent(new TextArea(e.getMessage()));
-                a.showAndWait();
+                ExceptionDialog ed = new ExceptionDialog(e);
+                ed.setHeaderText(msg);
+                ed.showAndWait();
             } catch (IOException e) {
-                Logger.getGlobal().warning("Could not save project settings to file");
+                String msg = "Could not save project settings to file";
+                Logger.getGlobal().warning(msg);
                 e.printStackTrace();
+                ExceptionDialog ed = new ExceptionDialog(e);
+                ed.setHeaderText(msg);
+                ed.showAndWait();
 
-                Alert a = new Alert(Alert.AlertType.ERROR);
-                a.getDialogPane().setContent(new TextArea(e.getMessage()));
-                a.showAndWait();
             } catch (FormatException | DafnyParserException | DafnyException e){
                 e.printStackTrace();
-                Logger.getGlobal().warning("Could not save project settings to file due to Format or parser error");
+                String msg = "Could not save project settings to file due to Format or parser error";
+                Logger.getGlobal().warning(msg);
+                ExceptionDialog ed = new ExceptionDialog(e);
+                ed.setHeaderText(msg);
+                ed.showAndWait();
 
-                Alert a = new Alert(Alert.AlertType.ERROR);
-                a.getDialogPane().setContent(new TextArea(e.getMessage()));
-                a.showAndWait();
             }
         }
 

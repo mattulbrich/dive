@@ -187,7 +187,7 @@ public class DafnyProjectManager extends AbstractProjectManager {
 
         try(FileOutputStream fileOutputStream = new FileOutputStream(scriptFile)) {
             p.storeToXML(fileOutputStream,
-                    "Created by Algover at " + new Date(),
+                    "Created by DIVE at " + new Date(),
                     "UTF8");
         }
     }
@@ -218,7 +218,7 @@ public class DafnyProjectManager extends AbstractProjectManager {
     @Override
     public void updateProject(Configuration config) throws IOException{
         try {
-            DafnyProjectConfigurationChanger.saveConfiguration(config, config.getMasterFile());
+            DafnyProjectConfigurationChanger.saveConfiguration(config, this.masterFile);
             this.reload();
         } catch (DafnyParserException e) {
             Logger.getGlobal().severe("Error while saving project settings to file: "+config.getMasterFile());

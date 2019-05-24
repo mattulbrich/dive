@@ -61,6 +61,8 @@ public class EditorController implements DafnyCodeAreaListener {
     private List<String> changedFiles;
     private String baseDir;
 
+    private String recentSelectedTab;
+
     /**
      * Initializes the controller without any code editor tabs.
      *
@@ -299,19 +301,14 @@ public class EditorController implements DafnyCodeAreaListener {
         }
     }
 
-    /**
-     * Reload all open tabs by keeping the order of previous opened tabs
-     */
-    public void reloadAllOpenFiles() {
-        
-        ObservableList<Tab> tabsInView = getView().getTabs();
-        String selectedFile = (String) getView().getSelectionModel().getSelectedItem().getUserData();
+    private List<String> saveOrderOfOpenTabsByFilename(ObservableList<Tab> tabsInView){
 
         Set<String> filenamesSet = new HashSet<>(tabsByFile.keySet());
         ArrayList<String> filenames = new ArrayList<>();
         Iterator<Tab> iteratorTabsInView = tabsInView.iterator();
         Tab tabInView;
         String name;
+        //copy the order of the current open tabs from the view and add the filenames into the temporary list being able to restore the order
         while(iteratorTabsInView.hasNext()){
             tabInView = iteratorTabsInView.next();
             name = (String) tabInView.getUserData();
@@ -324,16 +321,81 @@ public class EditorController implements DafnyCodeAreaListener {
 
         }
         assert filenamesSet.isEmpty();
-        Collection<Tab> tabs = new ArrayList<>(tabsByFile.values());
+        return filenames;
+    }
 
-        Iterator<Tab> iterator = tabs.iterator();
-        for (Tab tab : tabs) {
-            tab.setClosable(true);
+    /**
+     * Reload all open tabs by keeping the order of previous opened tabs
+     */
+    public void reloadAllOpenFiles() {
+        saveRecentSelectedTab();
+        ObservableList<Tab> tabsInView = getView().getTabs();
+        List<String> filenames = saveOrderOfOpenTabsByFilename(tabsInView);
+
+        Collection<Tab> tabs = new ArrayList<>(tabsByFile.values());
+        //close all tabs and remove them from the view
+        removeTabsInView(tabsInView, tabs);
+        //iterate through the list of files and open files again
+        filenames.forEach(s -> viewFile(s));
+        selectRecentTab();
+    }
+
+    private void removeTabsInView(ObservableList<Tab> tabsInView, Collection<Tab> tabstoClose) {
+        for (Tab tab : tabstoClose) {
             tabsInView.remove(tab);
         }
-        filenames.forEach(s -> viewFile(s));
+    }
 
-        // select recent selected tab
-        getView().getSelectionModel().select(tabsByFile.get(selectedFile));
+    /**
+     * If a tab was selected, save this selction to a member variable
+     */
+    public void saveRecentSelectedTab(){
+        Tab userData = getView().getSelectionModel().getSelectedItem();
+        if(userData != null) {
+            this.recentSelectedTab = (String) userData.getUserData();
+        }
+
+    }
+
+    /**
+     * Select the tab that is stored by calling saveRecentSelectedTab
+     */
+    public void selectRecentTab(){
+        getView().getSelectionModel().select(tabsByFile.get(recentSelectedTab));
+    }
+
+    /**
+     * Refresh the current tab view by first saving the order of the last opened tabs, then opening only those tabs that
+     * are passed in the list of dafnyfiles trying to restore the order
+     * @param dafnyFiles
+     */
+    public void refreshTabView(List<DafnyFile> dafnyFiles) {
+        saveRecentSelectedTab();
+        List<String> passedDfyFiles = new ArrayList<String>();
+        dafnyFiles.forEach(file -> passedDfyFiles.add(file.getName()));
+        ObservableList<Tab> tabsOpenInView = getView().getTabs();
+
+        List<String> lastOpenedFiles = saveOrderOfOpenTabsByFilename(tabsOpenInView);
+
+        Collection<Tab> values = new HashSet<>(tabsByFile.values());
+        removeTabsInView(tabsOpenInView, values);
+
+        Iterator<String> iterator = lastOpenedFiles.iterator();
+        while(iterator.hasNext()){
+            String next = iterator.next();
+            if(passedDfyFiles.contains(next)){
+                viewFile(next);
+                passedDfyFiles.remove(next);
+            }
+        }
+        if(!passedDfyFiles.isEmpty()){
+            passedDfyFiles.forEach(file -> viewFile(file));
+        }
+
+        if(tabsByFile.containsKey(this.recentSelectedTab)){
+            selectRecentTab();
+        }
+
+
     }
 }

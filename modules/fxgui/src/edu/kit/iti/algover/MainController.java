@@ -405,13 +405,15 @@ public class MainController implements SequentActionListener, RuleApplicationLis
                 return null;
             }
         };
+
         t.setOnSucceeded(event -> {
-                //manager.getAllProofs().values().forEach(p -> p.interpretScript());
-                browserController.onRefresh(manager.getProject(), manager.getAllProofs());
+            //manager.getAllProofs().values().forEach(p -> p.interpretScript());
+                browserController.onRefresh(this.manager.getProject(), this.manager.getAllProofs());
                 browserController.getView().setDisable(false);
                 sequentController.getView().setDisable(false);
                 ruleApplicationController.getView().setDisable(false);
-                manager.getProject().getDafnyFiles().forEach(df -> editorController.viewFile(df));
+              //  editorController.refreshOpenFiles(manager.getProject().getDafnyFiles());
+                this.manager.getProject().getDafnyFiles().forEach(df -> editorController.viewFile(df));
                 ruleApplicationController.onReset();
                 simpleStratButton.setDisable(false);
                 breadCrumbBar.setDisable(false);
@@ -462,11 +464,28 @@ public class MainController implements SequentActionListener, RuleApplicationLis
     }
 
     /**
-     * Refresh all GUI contents including teh tabs in the DafnyCode Tab Pane
+     * Refresh all GUI contents including the tabs in the DafnyCode Tab Pane
      */
     public void reloadWholeGUIcontents(){
-        editorController.reloadAllOpenFiles();
-        this.onClickRefresh(null);
+
+        //SaG: this is not nice as it is duplicated code
+        onClickSave(null);
+        editorController.resetExceptionLayer();
+        browserController.onRefresh(this.manager.getProject(), this.manager.getAllProofs());
+        browserController.getView().setDisable(false);
+        sequentController.getView().setDisable(false);
+        ruleApplicationController.getView().setDisable(false);
+        editorController.refreshTabView(manager.getProject().getDafnyFiles());
+       // this.manager.getProject().getDafnyFiles().forEach(df -> editorController.viewFile(df));
+        ruleApplicationController.onReset();
+        simpleStratButton.setDisable(false);
+        breadCrumbBar.setDisable(false);
+        TreeItem<Object> ti = getBreadCrumbModel();
+        breadCrumbBar.updateModel(ti);
+        breadCrumbBar.setSelectedCrumb(ti);
+        editorController.resetPVCSelection();
+        sequentController.getActiveSequentController().clear();
+        Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).info("Successfully reloaded project.");
     }
 
     public void onDafnyFileChangedInEditor(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) {
