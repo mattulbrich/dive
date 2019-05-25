@@ -111,22 +111,27 @@ public class DafnyProjectManager extends AbstractProjectManager {
 
         DafnyTree masterAST = DafnyFileParser.parse(masterFile);
 
-        pb.getDafnyFiles().add(masterFile.toString()); //SaG:Bugfix as otherwise the masterfile may be added twice and would cause errors in case the projectconfig ist changed during project creation
+        pb.getDafnyFiles().add(masterFile.getPath());
+        // SaG:Bugfix as otherwise the masterfile may be added twice and would cause errors in case the projectconfig ist changed during project creation
 
-        //ensure that the master file is only included once
         for (DafnyTree include :
-                masterAST.getChildrenWithType(DafnyParser.SUBSUME)) { //SaG: Bug fix from include to subsume
+                masterAST.getChildrenWithType(DafnyParser.INCLUDE)) {
             DafnyTree fileNameAST = include.getFirstChildWithType(DafnyParser.STRING_LIT);
             String fileName = Util.stripQuotes(fileNameAST.token.getText());
-            File file = new File(dir, fileName);
-            if (include.getFirstChildWithType(DafnyParser.FREE) != null) {
-                if(!pb.getLibraryFiles().contains(file.toString())) {
-                    pb.getLibraryFiles().add(file.toString());
-                }
-            } else {
-                if(!pb.getDafnyFiles().contains(file.toString())) {
-                    pb.getDafnyFiles().add(file.toString());
-                }
+            String file = new File(dir, fileName).toString();
+            if (!pb.getLibraryFiles().contains(file)) {
+                pb.getLibraryFiles().add(file);
+            }
+        }
+
+        for (DafnyTree subsume :
+                masterAST.getChildrenWithType(DafnyParser.SUBSUME)) {
+            // SaG: Bug fix from include to subsume
+            DafnyTree fileNameAST = subsume.getFirstChildWithType(DafnyParser.STRING_LIT);
+            String fileName = Util.stripQuotes(fileNameAST.token.getText());
+            String file = new File(dir, fileName).toString();
+            if(!pb.getDafnyFiles().contains(file)) {
+                pb.getDafnyFiles().add(file);
             }
         }
 
