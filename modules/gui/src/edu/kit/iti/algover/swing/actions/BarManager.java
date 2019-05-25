@@ -654,6 +654,11 @@ public class BarManager {
                     menuItem.setIcon(GUIUtil.makeIcon(systemResource));
                 }
 
+                val = properties.getProperty(property + ".text");
+                if (val != null) {
+                    menuItem.setText(val);
+                }
+
                 result = menuItem;
 
             } else {
