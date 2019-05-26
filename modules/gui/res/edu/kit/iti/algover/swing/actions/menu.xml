@@ -126,7 +126,7 @@
 	</file>
 
 	<general>
-		<close>TODO CloseAction
+		<close>ACTION CloseAction
 			<mnemonic>C</mnemonic>
 			<tooltip>Closes the current window</tooltip>
 			<accelerator>control W</accelerator>

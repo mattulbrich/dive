@@ -13,6 +13,7 @@ import java.beans.PropertyChangeSupport;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
+import java.text.Normalizer.Form;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
@@ -23,7 +24,11 @@ import edu.kit.iti.algover.parser.DafnyException;
 import edu.kit.iti.algover.parser.DafnyParserException;
 import edu.kit.iti.algover.project.Project;
 import edu.kit.iti.algover.project.ProjectManager;
+import edu.kit.iti.algover.proof.PVC;
+import edu.kit.iti.algover.proof.ProofNode;
 import edu.kit.iti.algover.swing.actions.BarManager;
+import edu.kit.iti.algover.swing.util.ExceptionDialog;
+import edu.kit.iti.algover.swing.util.Log;
 import edu.kit.iti.algover.swing.util.Property;
 import edu.kit.iti.algover.term.prettyprint.PrettyPrint;
 import edu.kit.iti.algover.util.FormatException;
@@ -60,6 +65,12 @@ public class DiveCenter {
 
     public final Property<Boolean> terminated =
             new Property<>("terminated", Boolean.class, false);
+
+    public final Property<PVC> activePVC =
+            new Property<>("pvc", PVC.class, null);
+
+    public Property<ProofNode> proofNode =
+            new Property<>("proofNode", ProofNode.class, null);
 
     /**
      * Property key to indicate that a proof node has been selected.
@@ -151,21 +162,29 @@ public class DiveCenter {
     }
 
     public void activate() {
-        try {
-            viewPort.setValue(Viewport.PVC_VIEW);
-            projectManager.reload();
-
-            // TODO EXC!
-        } catch (DafnyException e) {
-            e.printStackTrace();
-        } catch (DafnyParserException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (FormatException e) {
-            e.printStackTrace();
-        }
+        viewPort.setValue(Viewport.PVC_VIEW);
+        reloadProject();
         getMainWindow().setVisible(true);
+    }
+
+    private void reloadProject() {
+        try {
+            projectManager.reload();
+            project.setValueOnEventQueue(projectManager.getProject());
+
+        } catch (Exception e) {
+            Log.log(Log.DEBUG, "Error while reloading");
+            Log.stacktrace(e);
+
+            project.setValue(null);
+
+            if (e instanceof IOException) {
+                ExceptionDialog.showExceptionDialog(getMainWindow(),
+                        "An exception occurred while reading the project. " +
+                                "You can continue, but your data may be corrupted.",
+                        e);
+            }
+        }
     }
 
     /**
@@ -186,6 +205,13 @@ public class DiveCenter {
         return mainController;
     }
 
+    public void moveViewport(int inc) {
+        Viewport cur = viewPort.getValue();
+        Viewport[] values = Viewport.values();
+        int pos = Math.min(Math.max(cur.ordinal() + inc, 0), values.length - 1);
+        viewPort.setValue(values[pos]);
+    }
+
     /**
      * Gets the bar manager of the main window.
      *
@@ -201,6 +227,10 @@ public class DiveCenter {
 
     public boolean hasUnsafedChanges() {
         return true;
+    }
+
+    public ProjectManager getProjectManager() {
+        return projectManager;
     }
 
 //    /**

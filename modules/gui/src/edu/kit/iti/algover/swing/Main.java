@@ -76,7 +76,7 @@ public class Main {
 
     private static final InputHistory INPUT_HISTORY = new InputHistory("termInput", 20);
 
-    private static final String ASSERTION_PROPERTY = "dive.assertions";
+    private static final String ASSERTION_PROPERTY = "dive.enableAssertions";
 
     /*
      * - setup the settings from default resource, file and command line.
@@ -171,15 +171,15 @@ public class Main {
      * if more then 10 entries are in the recent list, the oldest one will
      * perish
      *
-     * @param url
+     * @param file
      *            location of the problem file
      */
-    private static void addToRecentProblems(@NonNull URL url) {
+    private static void addToRecentProblems(@NonNull File file) {
         Preferences prefs = Preferences.userNodeForPackage(Main.class);
         String recent[] = prefs.get("recent problems", "").split("\n");
         List<String> newRecent = new ArrayList<String>(recent.length+1);
 
-        String toAdd = url.toString();
+        String toAdd = file.toString();
         newRecent.add(toAdd);
 
         // add old recent files w/o the parameter
@@ -219,6 +219,7 @@ public class Main {
     public static void openDiveCenter(File file) throws DafnyParserException, FormatException, IOException {
         DiveCenter center = new DiveCenter(file);
         center.activate();
+        addToRecentProblems(file);
         PROOF_CENTERS.add(center);
     }
 

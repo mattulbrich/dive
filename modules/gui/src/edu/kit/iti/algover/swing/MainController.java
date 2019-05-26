@@ -7,14 +7,23 @@
 package edu.kit.iti.algover.swing;
 
 import java.awt.*;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.awt.event.WindowListener;
 import java.io.IOException;
 import java.net.URL;
+import java.util.EnumMap;
+import java.util.Map;
 
 import javax.swing.*;
 import javax.swing.border.EtchedBorder;
 import edu.kit.iti.algover.swing.actions.BarAction;
 import edu.kit.iti.algover.swing.actions.BarManager;
+import edu.kit.iti.algover.swing.browser.PVCBrowserController;
+import edu.kit.iti.algover.swing.script.ScriptCodeController;
+import edu.kit.iti.algover.swing.sequent.SequentController;
+import edu.kit.iti.algover.swing.util.Log;
+import edu.kit.iti.algover.util.Util;
 
 
 /**
@@ -52,25 +61,29 @@ public class MainController {
 
     private JFrame theFrame;
 
-    // private SequentController sequentController;
+    private SequentController sequentController;
 
-    private PVCTreeController pvcTreeController;
+    private PVCBrowserController pvcTreeController;
 
     private DafnyCodeController dafnyCodeController;
 
-    // private ScriptCodeController scriptCodeController;
+    private ScriptCodeController scriptCodeController;
+
+    private Map<Viewport, Integer> separatorPositions =
+            new EnumMap<>(Viewport.class);
 
     private BarManager barManager;
 
     private final int number;
     private static int counter = 0;
-    private JPanel centerPane;
+    private JSplitPane centerPane;
     private JLabel statusLine;
+    private JLabel toLeftControl;
+    private JLabel toRightControl;
 
     /**
      * Instantiates a new main window.
      *
-     * @param proofCenter the underlying proof center
      * @param resourceName the resource name to be used as title
      * @throws IOException if the barmanager fails to find needed resources
      */
@@ -79,26 +92,51 @@ public class MainController {
         this.resourceName = resourceName;
         this.number = ++counter;
 
+        separatorPositions.put(Viewport.PVC_VIEW, 200);
+        separatorPositions.put(Viewport.CODE_VIEW, 500);
+        separatorPositions.put(Viewport.PROOF_VIEW, 500);
+
         diveCenter.viewPort.addObserver(this::updateViewport);
     }
 
-    private void updateViewport(Viewport newViewport) {
-        JSplitPane sp = new JSplitPane();
+    private void updateViewport(Viewport oldViewPort, Viewport newViewport) {
+        Log.log(Log.VERBOSE, "Switching to viewport " + newViewport);
+        if (oldViewPort != null && centerPane != null) {
+            separatorPositions.put(oldViewPort, centerPane.getDividerLocation());
+            theFrame.getContentPane().remove(centerPane);
+        }
+
+        centerPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT);
+        theFrame.getContentPane().add(centerPane, BorderLayout.CENTER);
+
         switch (newViewport) {
         case PVC_VIEW:
-            sp.setLeftComponent(pvcTreeController.getComponent());
-            sp.setRightComponent(dafnyCodeController.getComponent());
-            sp.setDividerLocation(.2d);
+            centerPane.setLeftComponent(pvcTreeController.getComponent());
+            centerPane.setRightComponent(dafnyCodeController.getComponent());
+            toLeftControl.setEnabled(false);
+            toRightControl.setEnabled(true);
             break;
         case CODE_VIEW:
+            centerPane.setLeftComponent(dafnyCodeController.getComponent());
+            centerPane.setRightComponent(sequentController.getComponent());
+            toLeftControl.setEnabled(true);
+            toRightControl.setEnabled(true);
             break;
         case PROOF_VIEW:
+            centerPane.setLeftComponent(sequentController.getComponent());
+            centerPane.setRightComponent(scriptCodeController.getComponent());
+            toLeftControl.setEnabled(true);
+            toRightControl.setEnabled(false);
             break;
         default:
             throw new Error();
         }
 
-        theFrame.getContentPane().add(sp, BorderLayout.CENTER);
+        Integer newPos = separatorPositions.get(newViewport);
+        centerPane.setDividerLocation(newPos);
+
+        theFrame.revalidate();
+
     }
 
     void makeGUI() throws IOException {
@@ -117,22 +155,42 @@ public class MainController {
         barManager.putProperty(BarAction.PARENT_FRAME, theFrame);
 
         {
-            this.pvcTreeController = new PVCTreeController(diveCenter);
+            this.pvcTreeController = new PVCBrowserController(diveCenter);
             this.dafnyCodeController = new DafnyCodeController(diveCenter);
+            this.sequentController = new SequentController(diveCenter);
+            this.scriptCodeController = new ScriptCodeController(diveCenter);
         }
 
         Container cp = theFrame.getContentPane();
         cp.setLayout(new BorderLayout());
         {
-            JLabel toLeft = new JLabel("<<");
-            cp.add(toLeft, BorderLayout.WEST);
+            toLeftControl = new JLabel(" < ");
+            toLeftControl.addMouseListener(new MouseAdapter() {
+                @Override
+                public void mouseClicked(MouseEvent e) {
+                    if (SwingUtilities.isLeftMouseButton(e) && e.getClickCount() == 1) {
+                        diveCenter.moveViewport(-1);
+                    }
+                }
+            });
+            toLeftControl.setFont(toLeftControl.getFont().deriveFont(20f));
+            cp.add(toLeftControl, BorderLayout.WEST);
         }
         {
-            JLabel toRight = new JLabel(">>");
-            cp.add(toRight, BorderLayout.EAST);
+            toRightControl = new JLabel(" > ");
+            toRightControl.addMouseListener(new MouseAdapter() {
+                @Override
+                public void mouseClicked(MouseEvent e) {
+                    if (SwingUtilities.isLeftMouseButton(e) && e.getClickCount() == 1) {
+                        diveCenter.moveViewport(+1);
+                    }
+                }
+            });
+            toRightControl.setFont(toRightControl.getFont().deriveFont(20f));
+            cp.add(toRightControl, BorderLayout.EAST);
         }
         {
-            centerPane = new JPanel();
+            centerPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT);
             cp.add(centerPane, BorderLayout.CENTER);
         }
         {
@@ -140,18 +198,16 @@ public class MainController {
             cp.add(barManager.makeToolbar("center.toolbar"), BorderLayout.NORTH);
         }
         {
-            statusLine = new JLabel("");
+            statusLine = new JLabel("this is difficult");
             statusLine.setBorder(BorderFactory.createEtchedBorder(EtchedBorder.LOWERED));
+            cp.add(statusLine, BorderLayout.SOUTH);
         }
         // ExitAction is actually also a WindowListener. ...
-        // we call the bar manager so that no unnecessary copy
-        // is created if it already exists.
-//TODO        theFrame.addWindowListener((WindowListener) barManager.makeAction("general.close"));
+        // we call the bar manager so that no unnecessary copy is created
+        theFrame.addWindowListener((WindowListener) barManager.makeAction("general.close"));
         theFrame.setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
         theFrame.setSize(1000, 700);
     }
-
-
 
     public void dispose() {
         theFrame.dispose();

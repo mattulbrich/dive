@@ -17,7 +17,7 @@ public class SimpleLog implements Log.LogImplementation {
      * We cannot use Settings here because that leads to a loop -
      * Settings uses Log and always prints a message.
      */
-    private int minLevel = Integer.getInteger("pseudo.log", Log.ERROR);
+    private int minLevel = Integer.getInteger("dive.log", Log.ERROR);
     
     public SimpleLog() {
     }
@@ -51,7 +51,7 @@ public class SimpleLog implements Log.LogImplementation {
     @Override
     public void doStackTrace(int level, Throwable e) {
         if(level >= minLevel) {
-            String prefix = getClassAndMethod(3);
+            String prefix = getClassAndMethod(4);
             System.err.println("> EXCEPTION in " + prefix + ":");
             e.printStackTrace(System.err);
         }
