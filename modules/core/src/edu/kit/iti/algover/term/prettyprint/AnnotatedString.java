@@ -54,34 +54,26 @@ public class AnnotatedString implements Backend<NoExceptions> {
          * for annotated types ("as type").
          */
         TYPE,
+
         /**
-         * for object variables.
+         * for variables.
          */
         VARIABLE,
+
         /**
-         * for update modalities.
-         */
-        UPDATE,
-        /**
-         * fhe program modalities.
-         */
-        PROGRAM,
-        /**
-         * for individual statements.
-         */
-        STATEMENT,
-        /**
-         * for highlighting keywords of the programming language.
+         * for highlighting keywords of the language.
          */
         KEYWORD,
+
         /**
          * The node is an inner node and this should be reflected in the terms.
          */
         CLOSED,
+
         /**
-         * Program variables have diferent colors again.
+         * User-defined entities (functions) obtain a colour of their own.
          */
-        ASSIGNABLE
+        USER_ENTITY
     }
 
     /**

@@ -73,6 +73,9 @@ public abstract class PVCCollection {
     /**
      * Returns the PVC iff the object itself is a SinglePVC else null
      *
+     * REVIEW: Why abstract method here if it can only be called on
+     * single pvcs?
+     *
      * @return
      */
     public abstract PVC getPVC();
