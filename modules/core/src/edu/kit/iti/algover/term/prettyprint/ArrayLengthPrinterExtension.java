@@ -17,6 +17,8 @@ import edu.kit.iti.algover.term.FunctionSymbolFamily.InstantiatedFunctionSymbol;
  * This currently covers the length of one- and two-dimensional arrays
  * and that of sequences as well as the cardinality of sets.
  *
+ * TODO add "Keyword" as Style. Needs refactoring, however.
+ *
  * @author Mattias Ulbrich
  */
 public class ArrayLengthPrinterExtension implements PrettyPrintExtension {

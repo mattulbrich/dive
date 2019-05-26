@@ -193,7 +193,9 @@ class PrettyPrintVisitor implements TermVisitor<Void, Void, RuntimeException> {
         int indent = inner instanceof LetTerm ? 0 : 2;
 
         printer.beginBlock(indent);
+        printer.setStyle(Style.KEYWORD);
         printer.append("let ");
+        printer.resetPreviousStyle();
 
         List<Pair<VariableTerm, Term>> assignments = updateTerm.getSubstitutions();
         visit(assignments);
@@ -220,7 +222,9 @@ class PrettyPrintVisitor implements TermVisitor<Void, Void, RuntimeException> {
         printer.beginBlock(0);
 
         List<VariableTerm> receivers = Util.map(assignments, Pair::getFst);
+        printer.setStyle(Style.VARIABLE);
         printer.append(Util.commatize(receivers));
+        printer.resetPreviousStyle();
 
         printer.append(" :=").breakBlock(1, 0);
 
