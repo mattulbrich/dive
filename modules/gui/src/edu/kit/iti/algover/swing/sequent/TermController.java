@@ -11,24 +11,30 @@ import edu.kit.iti.algover.proof.ProofFormula;
 import edu.kit.iti.algover.rules.SubtermSelector;
 import edu.kit.iti.algover.rules.TermSelector;
 import edu.kit.iti.algover.swing.DiveCenter;
+import edu.kit.iti.algover.swing.util.Log;
 import edu.kit.iti.algover.swing.util.NotScrollingCaret;
 import edu.kit.iti.algover.swing.util.Settings;
 import edu.kit.iti.algover.term.prettyprint.AnnotatedString;
 import edu.kit.iti.algover.term.prettyprint.AnnotatedString.Style;
+import edu.kit.iti.algover.term.prettyprint.AnnotatedString.TermElement;
 import edu.kit.iti.algover.term.prettyprint.PrettyPrint;
 
 import javax.swing.*;
 import javax.swing.border.Border;
 import javax.swing.text.AttributeSet;
+import javax.swing.text.BadLocationException;
+import javax.swing.text.DefaultHighlighter;
 import javax.swing.text.MutableAttributeSet;
 import javax.swing.text.SimpleAttributeSet;
 import javax.swing.text.StyleConstants;
 import java.awt.*;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.util.Set;
 
-public class TermController {
+public class TermController extends MouseAdapter {
 
     private static Settings S = Settings.getInstance();
 
@@ -119,10 +125,13 @@ public class TermController {
 
     private final JTextPane component;
     private final PrettyPrint prettyPrinter;
+    private final Object mouseHighlight;
     private DiveCenter diveCenter;
     private ProofFormula proofFormula;
     private TermSelector termSelector;
     private int lineWidth;
+    private AnnotatedString annotatedString;
+    private SubtermSelector mouseSelection;
 
     public TermController(DiveCenter diveCenter, ProofFormula proofFormula, TermSelector termSelector) {
         this.diveCenter = diveCenter;
@@ -135,12 +144,26 @@ public class TermController {
         component.setFocusable(false);
         component.setBorder(BORDER);
         component.setCaret(new NotScrollingCaret());
+        component.addMouseListener(this);
+        component.addMouseMotionListener(this);
+        DefaultHighlighter highlight = new DefaultHighlighter();
+        component.setHighlighter(highlight);
         component.addComponentListener(new ComponentAdapter() {
             @Override
             public void componentResized(ComponentEvent e) {
                 reprint();
             }
         });
+
+        try {
+            this.mouseHighlight = component.getHighlighter().addHighlight(0, 0,
+                    new DefaultHighlighter.DefaultHighlightPainter(HIGHLIGHT_COLOR));
+        } catch (BadLocationException ex) {
+            // Must always work!
+            Log.log(Log.WARNING, "Unexpected bad location error");
+            Log.stacktrace(Log.WARNING, ex);
+            throw new Error(ex);
+        }
 
         this.prettyPrinter = new PrettyPrint();
         reprint();
@@ -149,7 +172,7 @@ public class TermController {
     private void reprint() {
         int newLineWidth = computeLineWidth();
         if(newLineWidth != lineWidth) {
-            AnnotatedString annotatedString = prettyPrinter.print(proofFormula.getTerm(), newLineWidth);
+            this.annotatedString = prettyPrinter.print(proofFormula.getTerm(), newLineWidth);
             component.setText("");
             annotatedString.appendToDocument(component.getDocument(), attributeFactory);
             lineWidth = newLineWidth;
@@ -180,6 +203,82 @@ public class TermController {
 
         return maxChars;
     }
+
+    // -----------
+    // MOUSE
+    // -----------
+
+    /*
+     * Mouse exited the component: remove highlighting
+     */
+    @Override
+    public void mouseExited(MouseEvent e) {
+        try {
+            component.getHighlighter().changeHighlight(mouseHighlight, 0, 0);
+            mouseSelection = null;
+        } catch (BadLocationException ex) {
+            Log.log(Log.WARNING, "Unexpected bad location error");
+            Log.stacktrace(Log.WARNING, ex);
+        }
+    }
+
+    /*
+     * Mouse moved: move the highlighting
+     */
+    @Override
+    public void mouseMoved(MouseEvent e) {
+        Point p = e.getPoint();
+        Log.enter(p);
+        int index = viewToModel(p);
+        try {
+            if (index >= 0 && index < annotatedString.length()) {
+                TermElement element = annotatedString.getTermElementAt(index);
+                int begin = element.getBegin();
+                int end = element.getEnd();
+                component.getHighlighter().changeHighlight(mouseHighlight, begin, end);
+
+                mouseSelection = annotatedString.getTermElementAt(index).getSubtermSelector();
+
+                if (null != mouseSelection) {
+                    Log.log(Log.VERBOSE, mouseSelection);
+                }
+            } else {
+                component.getHighlighter().changeHighlight(mouseHighlight, 0, 0);
+                mouseSelection = null;
+            }
+        } catch (BadLocationException ex) {
+            ex.printStackTrace();
+        }
+    }
+
+    // stolen from KeY
+    public int viewToModel(Point p) {
+        String seqText = component.getText();
+
+        // bugfix for empty strings
+        if (seqText.length() == 0) {
+            return 0;
+        }
+
+        int cursorPosition = component.viewToModel(p);
+
+        cursorPosition -= (cursorPosition > 0 ? 1 : 0);
+
+        cursorPosition = (cursorPosition >= seqText.length() ? seqText.length() - 1
+                : cursorPosition);
+        cursorPosition = (cursorPosition >= 0 ? cursorPosition : 0);
+
+        int previousCharacterWidth = component.getFontMetrics(component.getFont()).charWidth(
+                seqText.charAt(cursorPosition));
+
+        int characterIndex = component.viewToModel(new Point((int) p.getX()
+                - (previousCharacterWidth / 2), (int) p.getY()));
+
+        characterIndex = Math.max(0, characterIndex);
+
+        return characterIndex;
+    }
+
 }
 
 
