@@ -14,7 +14,6 @@ import edu.kit.iti.algover.dafnystructures.DafnyFile;
 import edu.kit.iti.algover.dafnystructures.DafnyFunction;
 import edu.kit.iti.algover.dafnystructures.DafnyMethod;
 import edu.kit.iti.algover.editor.EditorController;
-import edu.kit.iti.algover.project.Configuration;
 import edu.kit.iti.algover.project.ProjectManager;
 import edu.kit.iti.algover.proof.*;
 import edu.kit.iti.algover.references.CodeReference;
@@ -24,24 +23,19 @@ import edu.kit.iti.algover.references.Reference;
 import edu.kit.iti.algover.rule.RuleApplicationController;
 import edu.kit.iti.algover.rule.RuleApplicationListener;
 import edu.kit.iti.algover.rules.*;
-import edu.kit.iti.algover.rules.impl.ExhaustiveRule;
 import edu.kit.iti.algover.sequent.SequentActionListener;
 import edu.kit.iti.algover.sequent.SequentTabViewController;
-import edu.kit.iti.algover.settings.ProjectSettingsController;
 import edu.kit.iti.algover.settings.SettingsController;
 import edu.kit.iti.algover.settings.SettingsFactory;
 import edu.kit.iti.algover.settings.SettingsWrapper;
 import edu.kit.iti.algover.timeline.TimelineLayout;
 import edu.kit.iti.algover.util.CostumBreadCrumbBar;
 import edu.kit.iti.algover.util.ExceptionDialog;
-import edu.kit.iti.algover.util.FormatException;
 import edu.kit.iti.algover.util.StatusBarLoggingHandler;
 import javafx.application.Platform;
 import javafx.beans.value.ObservableValue;
 import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
-import javafx.fxml.FXMLLoader;
-import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.control.*;
 import javafx.scene.input.MouseEvent;
@@ -51,7 +45,6 @@ import org.controlsfx.dialog.ProgressDialog;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.URL;
 import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.logging.Level;
@@ -104,7 +97,7 @@ public class MainController implements SequentActionListener, RuleApplicationLis
         settingsButton = new JFXButton("Settings", GlyphsDude.createIcon(FontAwesomeIcon.COGS));
         aboutButton = new JFXButton("About",GlyphsDude.createIcon(FontAwesomeIcon.INFO_CIRCLE));
 
-        saveButton.setOnAction(this::onClickSave);
+        saveButton.setOnAction(this::onClickSaveVisibleContent);
         refreshButton.setOnAction(this::onClickRefresh);
         simpleStratButton.setOnAction(this::trivialStrat);
         settingsButton.setOnAction(this::openSettingsWindow);
@@ -381,7 +374,7 @@ public class MainController implements SequentActionListener, RuleApplicationLis
         statusBar.setProgress(progress);
     }
 
-    private void onClickSave(ActionEvent actionEvent) {
+    private void onClickSaveVisibleContent(ActionEvent actionEvent) {
         // TODO: Save the project
         try {
             editorController.saveAllFiles();
@@ -396,8 +389,13 @@ public class MainController implements SequentActionListener, RuleApplicationLis
     private void onClickRefresh(ActionEvent actionEvent) {
         // TODO implement it asynchronously:
         // Jobs should get queued / Buttons disabled while an action runs, but the UI shouldn't freeze!
-        onClickSave(null);
+        onClickSaveVisibleContent(null);
         editorController.resetExceptionLayer();
+        refreshHelper();
+
+    }
+
+    private void refreshHelper(){
         Task<Void> t = new Task<Void>() {
             @Override
             protected Void call() throws Exception {
@@ -408,21 +406,21 @@ public class MainController implements SequentActionListener, RuleApplicationLis
 
         t.setOnSucceeded(event -> {
             //manager.getAllProofs().values().forEach(p -> p.interpretScript());
-                browserController.onRefresh(this.manager.getProject(), this.manager.getAllProofs());
-                browserController.getView().setDisable(false);
-                sequentController.getView().setDisable(false);
-                ruleApplicationController.getView().setDisable(false);
-              //  editorController.refreshOpenFiles(manager.getProject().getDafnyFiles());
-                this.manager.getProject().getDafnyFiles().forEach(df -> editorController.viewFile(df));
-                ruleApplicationController.onReset();
-                simpleStratButton.setDisable(false);
-                breadCrumbBar.setDisable(false);
-                TreeItem<Object> ti = getBreadCrumbModel();
-                breadCrumbBar.updateModel(ti);
-                breadCrumbBar.setSelectedCrumb(ti);
-                editorController.resetPVCSelection();
-                sequentController.getActiveSequentController().clear();
-                Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).info("Successfully reloaded project.");
+            browserController.onRefresh(this.manager.getProject(), this.manager.getAllProofs());
+            browserController.getView().setDisable(false);
+            sequentController.getView().setDisable(false);
+            ruleApplicationController.getView().setDisable(false);
+            //  editorController.refreshOpenFiles(manager.getProject().getDafnyFiles());
+            this.manager.getProject().getDafnyFiles().forEach(df -> editorController.viewFile(df));
+            ruleApplicationController.onReset();
+            simpleStratButton.setDisable(false);
+            breadCrumbBar.setDisable(false);
+            TreeItem<Object> ti = getBreadCrumbModel();
+            breadCrumbBar.updateModel(ti);
+            breadCrumbBar.setSelectedCrumb(ti);
+            editorController.resetPVCSelection();
+            sequentController.getActiveSequentController().clear();
+            Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).info("Successfully reloaded project.");
         });
 
         //TODO somehow get proper exceptions and handling them
@@ -446,7 +444,6 @@ public class MainController implements SequentActionListener, RuleApplicationLis
 
         executor.execute(t);
     }
-
     public void onClickPVCEdit(PVCEntity entity) {
         PVC pvc = entity.getPVC();
         breadCrumbBar.setSelectedCrumb(getTreeItemForPVC(pvc));
@@ -467,25 +464,9 @@ public class MainController implements SequentActionListener, RuleApplicationLis
      * Refresh all GUI contents including the tabs in the DafnyCode Tab Pane
      */
     public void reloadWholeGUIcontents(){
-
         //SaG: this is not nice as it is duplicated code
-        onClickSave(null);
-        editorController.resetExceptionLayer();
-        browserController.onRefresh(this.manager.getProject(), this.manager.getAllProofs());
-        browserController.getView().setDisable(false);
-        sequentController.getView().setDisable(false);
-        ruleApplicationController.getView().setDisable(false);
         editorController.refreshTabView(manager.getProject().getDafnyFiles());
-       // this.manager.getProject().getDafnyFiles().forEach(df -> editorController.viewFile(df));
-        ruleApplicationController.onReset();
-        simpleStratButton.setDisable(false);
-        breadCrumbBar.setDisable(false);
-        TreeItem<Object> ti = getBreadCrumbModel();
-        breadCrumbBar.updateModel(ti);
-        breadCrumbBar.setSelectedCrumb(ti);
-        editorController.resetPVCSelection();
-        sequentController.getActiveSequentController().clear();
-        Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).info("Successfully reloaded project.");
+        refreshHelper();
     }
 
     public void onDafnyFileChangedInEditor(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) {
