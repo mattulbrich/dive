@@ -62,6 +62,17 @@ tokens {
   public void setSchemaMode(boolean b) { this.schemaMode = b; }
 }
 
+
+// @lexer::members {
+//  public enum LineMode { OFF, ON, IN_COMMENT }
+//  private LineMode lineMode = LineMode.OFF;
+//  public void setLineMode(LineMode lm) {
+//    lineMode = lm;
+//  }
+//}
+
+
+
 // exit upon first error
 @rulecatch {
   catch (RecognitionException e) {
@@ -178,6 +189,14 @@ ALGOVER_COMMENT: '//\\\\'                { $channel = HIDDEN; };
 SINGLELINE_COMMENT: '//' ( '\\'? ~('\\'|'\r'|'\n') ~('\r' | '\n')* )?
                                          { $channel = HIDDEN; };
 MULTILINE_COMMENT: '/*' .* '*/'          { $channel = HIDDEN; };
+
+//MULTILINE_COMMENT_BEGIN: // { lineMode == LineMode.ON }? =>
+//  '/*' .* '\n' { $channel = HIDDEN; lineMode = LineMode.IN_COMMENT; };
+//
+//MULTILINE_COMMENT_END: // { lineMode == LineMode.IN_COMMENT }? =>
+//  '|' .* '*/'  { $channel = HIDDEN; lineMode = LineMode.ON; };
+//
+//UNKNOWN_CHARACTER: {lineMode != LineMode.OFF }? .;
 
 label:
   'label'^ ID ':'!

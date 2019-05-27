@@ -8,13 +8,19 @@
 package edu.kit.iti.algover.swing;
 
 import edu.kit.iti.algover.project.Project;
+import edu.kit.iti.algover.swing.code.DafnyTokenMaker;
 import edu.kit.iti.algover.swing.util.ExceptionDialog;
 import edu.kit.iti.algover.util.Util;
+import org.fife.ui.rsyntaxtextarea.AbstractTokenMakerFactory;
 import org.fife.ui.rsyntaxtextarea.RSyntaxTextArea;
+import org.fife.ui.rsyntaxtextarea.TokenMakerFactory;
 import org.fife.ui.rtextarea.RTextScrollPane;
 
 import javax.swing.*;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
 import java.awt.*;
+import java.beans.PropertyChangeEvent;
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
@@ -23,6 +29,28 @@ public class DafnyCodeController {
     private DiveCenter diveCenter;
 
     private JTabbedPane tabs;
+    private DocumentListener docListener = new DocumentListener() {
+        @Override
+        public void insertUpdate(DocumentEvent e) {
+            codeChanged();
+        }
+
+        @Override
+        public void removeUpdate(DocumentEvent e) {
+            codeChanged();
+        }
+
+        @Override
+        public void changedUpdate(DocumentEvent e) {
+            codeChanged();
+        }
+    };
+
+
+    static {
+        AbstractTokenMakerFactory atmf = (AbstractTokenMakerFactory) TokenMakerFactory.getDefaultInstance();
+        atmf.putMapping("text/dafny", DafnyTokenMaker.class.getName());
+    }
 
     public DafnyCodeController(DiveCenter diveCenter) {
         this.diveCenter = diveCenter;
@@ -32,6 +60,11 @@ public class DafnyCodeController {
     }
 
     private void updateProject(Project project) {
+
+        if (project == null) {
+            // Never mind. I will stick to the existing panes.
+            return;
+        }
 
         List<File> files = project.getConfiguration().getDafnyFiles();
 
@@ -55,15 +88,21 @@ public class DafnyCodeController {
                 RSyntaxTextArea rsta = new RSyntaxTextArea();
                 RTextScrollPane scroll = new RTextScrollPane(rsta);
                 rsta.setText(Util.readFileAsString(file));
+                rsta.setSyntaxEditingStyle("text/dafny");
+                rsta.getDocument().addDocumentListener(docListener);
                 tabs.addTab(file.getName(), scroll);
             } catch (IOException e) {
                 ExceptionDialog.showExceptionDialog(diveCenter.getMainWindow(),
                         "Cannot open file " + file, e);
             }
-
         }
 
+    }
 
+    private void codeChanged() {
+        System.out.println("DafnyCodeController.codeChanged");
+        diveCenter.properties().project.setValue(null);
+        diveCenter.properties().activePVC.setValue(null);
     }
 
     public Component getComponent() {

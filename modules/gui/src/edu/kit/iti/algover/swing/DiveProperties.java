@@ -28,14 +28,24 @@ public class DiveProperties {
     public final Property<Viewport> viewPort =
             new Property<>("viewPort", Viewport.class, null);
 
+    /**
+     * The currently loaded project.
+     * This is set to null if the code in a program text editor has changed.
+     */
     public final Property<Project> project =
             new Property<>("project", Project.class, null);
+
+    /**
+     * The currently active PVC.
+     * Null in the beginning after loading a project.
+     * This is set to null if the code in a program text editor has changed.
+     */
+    public final Property<PVC> activePVC =
+            new Property<>("pvc", PVC.class, null);
 
     public final Property<Boolean> terminated =
             new Property<>("terminated", Boolean.class, false);
 
-    public final Property<PVC> activePVC =
-            new Property<>("pvc", PVC.class, null);
 
     public Property<ProofNode> proofNode =
             new Property<>("proofNode", ProofNode.class, null);

@@ -26,6 +26,7 @@ import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.MutableTreeNode;
 import javax.swing.tree.TreeNode;
+import javax.swing.tree.TreePath;
 import java.awt.*;
 import java.util.List;
 
@@ -136,6 +137,24 @@ public class PVCBrowserController {
                 }
 
             }
+
+        }
+
+        public TreeNode findPVC(PVC pvc) {
+            if (pvcCollection.isPVCLeaf() && pvcCollection.getPVC() == pvc) {
+                return this;
+            }
+            if(children != null) {
+                for (javax.swing.tree.TreeNode child : children) {
+                    TreeNode pvcChild = (TreeNode) child;
+                    TreeNode res = pvcChild.findPVC(pvc);
+                    if (res != null) {
+                        return res;
+                    }
+                }
+            }
+
+            return null;
         }
     }
 
@@ -147,6 +166,7 @@ public class PVCBrowserController {
 
         tree.addTreeSelectionListener(this::selectionChanged);
         diveCenter.properties().project.addObserver(this::updateProject);
+        diveCenter.properties().activePVC.addObserver(this::updatePVC);
     }
 
     private void selectionChanged(TreeSelectionEvent ev) {
@@ -158,13 +178,22 @@ public class PVCBrowserController {
     }
 
     private void updateProject(Project project) {
-
         if (project == null) {
             tree.setEnabled(false);
         } else {
             TreeNode root = makeTree(project.getAllPVCs());
             root.updateTreeNode();
             tree.setModel(new DefaultTreeModel(root));
+        }
+    }
+
+    private void updatePVC(PVC pvc) {
+        if (pvc != null) {
+            TreeNode root = (TreeNode) tree.getModel().getRoot();
+            TreeNode pvcNode = root.findPVC(pvc);
+            if (pvcNode != null) {
+                tree.setSelectionPath(new TreePath(pvcNode.getPath()));
+            }
         }
     }
 

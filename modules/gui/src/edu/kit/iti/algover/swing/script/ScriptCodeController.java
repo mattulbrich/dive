@@ -29,19 +29,25 @@ public class ScriptCodeController {
 
     private void setPVC(PVC pvc) {
 
-        String id = pvc.getIdentifier();
+        if (pvc == null) {
+            component.setEnabled(false);
+        } else {
+            component.setEnabled(true);
 
-        Proof proof = diveCenter.getProjectManager().getProofForPVC(id);
+            String id = pvc.getIdentifier();
 
-        ProofNode root = proof.getProofRoot();
-        if(root == null) {
-            root = ProofNode.createRoot(pvc);
+            Proof proof = diveCenter.getProjectManager().getProofForPVC(id);
+
+            ProofNode root = proof.getProofRoot();
+            if (root == null) {
+                root = ProofNode.createRoot(pvc);
+            }
+
+            component.setText(proof.getScript());
+            component.setCaretPosition(0);
+
+            diveCenter.properties().proofNode.setValue(root);
         }
-
-        component.setText(proof.getScript());
-        component.setCaretPosition(0);
-
-        diveCenter.properties().proofNode.setValue(root);
     }
 
 
