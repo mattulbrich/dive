@@ -191,4 +191,12 @@
 		</proof>
 	</viewport>
 
+	<proof>
+		<replay>ACTION proof/ReplayAction
+			<text>Replay</text>
+			<tooltip>Run the active proof script on the active proof condition.</tooltip>
+			<icon>proof/play.png</icon>
+		</replay>
+	</proof>
+
 </barmanager>

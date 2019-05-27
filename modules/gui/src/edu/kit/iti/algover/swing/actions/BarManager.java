@@ -696,6 +696,7 @@ public class BarManager {
      *             property is not set or not an action property.
      */
     public Action makeAction(String property) throws IOException {
+        prepareProperties();
         String value = getPropertyOrFail(property);
         String args[] = value.split(" ", 3);
 

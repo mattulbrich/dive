@@ -14,9 +14,17 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.text.Normalizer.Form;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 import javax.swing.*;
 
@@ -64,6 +72,8 @@ public class DiveCenter {
      * This may be null if not parsable or after invalidation.
      */
     private final ProjectManager projectManager;
+
+    private ExecutorService executerService = Executors.newCachedThreadPool();
 
     /**
      * Instantiates a new DIVE center.
@@ -152,6 +162,10 @@ public class DiveCenter {
 
     public ProjectManager getProjectManager() {
         return projectManager;
+    }
+
+    public ExecutorService getExecutor() {
+        return executerService;
     }
 
 //    /**

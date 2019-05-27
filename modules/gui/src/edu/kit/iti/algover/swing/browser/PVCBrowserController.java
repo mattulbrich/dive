@@ -167,6 +167,15 @@ public class PVCBrowserController {
         tree.addTreeSelectionListener(this::selectionChanged);
         diveCenter.properties().project.addObserver(this::updateProject);
         diveCenter.properties().activePVC.addObserver(this::updatePVC);
+        diveCenter.properties().onGoingProof.addObserver(this::proofChanged);
+    }
+
+    private void proofChanged() {
+        Object node = tree.getModel().getRoot();
+        if (node instanceof TreeNode) {
+            TreeNode root = (TreeNode) node;
+            root.updateTreeNode();
+        }
     }
 
     private void selectionChanged(TreeSelectionEvent ev) {

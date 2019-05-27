@@ -8,6 +8,7 @@
 package edu.kit.iti.algover.swing.code;
 
 import edu.kit.iti.algover.parser.DafnyLexer;
+import edu.kit.iti.algover.swing.util.Log;
 import org.antlr.runtime.ANTLRStringStream;
 import org.antlr.runtime.CharStream;
 import org.fife.ui.rsyntaxtextarea.AbstractTokenMaker;
@@ -21,29 +22,54 @@ import javax.swing.text.Segment;
 public class DafnyTokenMaker extends TokenMakerBase {
 
     @Override
-    public Token getTokenList(Segment text, int initialTokenType, int startOffset) {
+    public Token getTokenList(Segment segment, int initialTokenType, int startOffset) {
         resetTokenList();
-        DafnyLexer lexer = new DafnyLexer(new ANTLRStringStream(text.toString() + "\n"));
-        try {
-            org.antlr.runtime.Token t = lexer.nextToken();
-            while(t.getType() != DafnyLexer.EOF) {
-                System.out.println("t = " + t);
-                int pos = t.getCharPositionInLine();
-                String txt = t.getText();
-                addToken(txt.toCharArray(), 0, txt.length() - 1, mapType(t.getType()), startOffset + pos);
-                t = lexer.nextToken();
+
+        String text = segment.toString();
+
+        if(initialTokenType != 0) {
+            // ongoing comment
+            int end = text.indexOf("*/");
+            if(end == -1) {
+                addToken(text, Token.COMMENT_MULTILINE, startOffset);
+                return firstToken;
             }
-            addNullToken();
-        } catch (Exception e) {
-            int remainderStart = currentToken.textOffset + currentToken.textCount;
-            addToken(text, remainderStart, text.count, Token.ERROR_IDENTIFIER, startOffset+remainderStart);
-            e.printStackTrace();
+
+            addToken(text.substring(0, end+2), Token.COMMENT_MULTILINE, startOffset);
+            text = text.substring(end + 2);
+            startOffset += end + 2;
         }
 
-       //addToken(text, text.offset, text.count, Token.COMMENT_DOCUMENTATION, startOffset);
-       // addNullToken();
+        DafnyLexer lexer = new DafnyLexer(new ANTLRStringStream(text));
+        boolean openComment = false;
+        try {
+            org.antlr.runtime.Token t = lexer.nextToken();
+            while(t.getType() != EOF) {
+                int pos = t.getCharPositionInLine();
+                String txt = t.getText();
+                addToken(txt, mapType(t.getType()), startOffset + pos);
+                openComment = t.getType() == MULTILINE_COMMENT_BEGIN;
+                t = lexer.nextToken();
+            }
+        } catch (Exception e) {
+            if (currentToken == null) {
+                addToken(text, Token.ERROR_CHAR, startOffset);
+            } else {
+                int remainderStart = currentToken.getEndOffset() - startOffset;
+                addToken(text.substring(remainderStart), Token.ERROR_CHAR, startOffset + remainderStart);
+            }
+            Log.stacktrace(Log.VERBOSE, e);
+        }
+
+        if(!openComment) {
+            addNullToken();
+        }
 
         return firstToken;
+    }
+
+    private void addToken(String txt, int type, int offset) {
+        addToken(txt.toCharArray(), 0, txt.length() - 1, type, offset);
     }
 
     private int mapType(int type) {
@@ -77,6 +103,7 @@ public class DafnyTokenMaker extends TokenMakerBase {
             return Token.RESERVED_WORD_2;
 
         case DafnyLexer.MULTILINE_COMMENT:
+        case MULTILINE_COMMENT_BEGIN:
         case DafnyLexer.SINGLELINE_COMMENT:
         case DafnyLexer.ALGOVER_COMMENT:
             return Token.COMMENT_MULTILINE;

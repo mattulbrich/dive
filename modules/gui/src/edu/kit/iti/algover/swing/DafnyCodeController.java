@@ -10,6 +10,7 @@ package edu.kit.iti.algover.swing;
 import edu.kit.iti.algover.project.Project;
 import edu.kit.iti.algover.swing.code.DafnyTokenMaker;
 import edu.kit.iti.algover.swing.util.ExceptionDialog;
+import edu.kit.iti.algover.swing.util.UnifyingDocumentListener;
 import edu.kit.iti.algover.util.Util;
 import org.fife.ui.rsyntaxtextarea.AbstractTokenMakerFactory;
 import org.fife.ui.rsyntaxtextarea.RSyntaxTextArea;
@@ -29,23 +30,6 @@ public class DafnyCodeController {
     private DiveCenter diveCenter;
 
     private JTabbedPane tabs;
-    private DocumentListener docListener = new DocumentListener() {
-        @Override
-        public void insertUpdate(DocumentEvent e) {
-            codeChanged();
-        }
-
-        @Override
-        public void removeUpdate(DocumentEvent e) {
-            codeChanged();
-        }
-
-        @Override
-        public void changedUpdate(DocumentEvent e) {
-            codeChanged();
-        }
-    };
-
 
     static {
         AbstractTokenMakerFactory atmf = (AbstractTokenMakerFactory) TokenMakerFactory.getDefaultInstance();
@@ -89,7 +73,7 @@ public class DafnyCodeController {
                 RTextScrollPane scroll = new RTextScrollPane(rsta);
                 rsta.setText(Util.readFileAsString(file));
                 rsta.setSyntaxEditingStyle("text/dafny");
-                rsta.getDocument().addDocumentListener(docListener);
+                rsta.getDocument().addDocumentListener(new UnifyingDocumentListener(this::codeChanged));
                 tabs.addTab(file.getName(), scroll);
             } catch (IOException e) {
                 ExceptionDialog.showExceptionDialog(diveCenter.getMainWindow(),
@@ -99,7 +83,7 @@ public class DafnyCodeController {
 
     }
 
-    private void codeChanged() {
+    private void codeChanged(DocumentEvent e) {
         System.out.println("DafnyCodeController.codeChanged");
         diveCenter.properties().project.setValue(null);
         diveCenter.properties().activePVC.setValue(null);

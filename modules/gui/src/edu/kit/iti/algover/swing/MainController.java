@@ -19,12 +19,12 @@ import javax.swing.*;
 import javax.swing.border.EtchedBorder;
 import edu.kit.iti.algover.swing.actions.BarAction;
 import edu.kit.iti.algover.swing.actions.BarManager;
+import edu.kit.iti.algover.swing.actions.proof.ReplayAction;
 import edu.kit.iti.algover.swing.browser.PVCBrowserController;
 import edu.kit.iti.algover.swing.script.ScriptCodeController;
 import edu.kit.iti.algover.swing.sequent.Breadcrumbs;
 import edu.kit.iti.algover.swing.sequent.SequentController;
 import edu.kit.iti.algover.swing.util.Log;
-import edu.kit.iti.algover.util.Util;
 
 
 /**
@@ -231,5 +231,9 @@ public class MainController {
 
     public JFrame getFrame() {
         return theFrame;
+    }
+
+    public ScriptCodeController getScriptCodeController() {
+        return scriptCodeController;
     }
 }
