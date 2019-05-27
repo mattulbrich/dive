@@ -36,13 +36,18 @@ public class SettingsController {
     @FXML
     private BorderPane contentContainer;
 
+    private double height;
+
+    private double width;
 
     private ProjectManager manager;
 
     private MainController mainController;
 
-    public SettingsController(MainController mainController){
+    public SettingsController(MainController mainController, double height, double width){
         this.mainController = mainController;
+        this.height = height;
+        this.width = width;
         loadSettingsViews();
     }
 
@@ -53,8 +58,8 @@ public class SettingsController {
 
         dialog = new Dialog<>();
         dialog.setResizable(true);
-       // dialog.setWidth(600.0);
-       // dialog.setHeight(600.0);
+        //dialog.setWidth(width/2);
+        //dialog.setHeight(height);
 
         try {
             loader.load();
@@ -88,7 +93,6 @@ public class SettingsController {
                 });
                 return txt;
             });
-
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -98,7 +102,11 @@ public class SettingsController {
        // dialogPane.setPrefSize(600.0, 600.0);
         dialogPane.setPadding(new Insets(20,20,20,20));
         dialogPane.getButtonTypes().setAll(ButtonType.OK, ButtonType.CANCEL);
+
+        dialogPane.setPrefHeight(height*0.8);
+        dialogPane.setMinWidth(width*0.5);
         dialog.setDialogPane(dialogPane);
+
 
 
     }
@@ -109,6 +117,7 @@ public class SettingsController {
      */
     public void showAndWait() {
         createSettingsDialog();
+        tabList.getSelectionModel().selectFirst();
         Optional<ButtonType> optional = dialog.showAndWait();
 
         if(optional.isPresent() && optional.get() == ButtonType.OK){

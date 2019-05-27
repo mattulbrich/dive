@@ -156,8 +156,10 @@ public class MainController implements SequentActionListener, RuleApplicationLis
         SettingsWrapper settings = new SettingsWrapper();
         settings.setConfig(manager.getConfiguration());
         settings.setCurrentManager(manager);
+        double height = this.getView().getScene().getWindow().getHeight();
+        double width = this.getView().getScene().getWindow().getWidth();
         //later lookup
-        SettingsController ctrl = new SettingsController(this);
+        SettingsController ctrl = new SettingsController(this, height, width);
         ctrl.getItems().setAll(SettingsFactory.getSettingsPanel(settings));
         ctrl.showAndWait();
 
@@ -464,7 +466,6 @@ public class MainController implements SequentActionListener, RuleApplicationLis
      * Refresh all GUI contents including the tabs in the DafnyCode Tab Pane
      */
     public void reloadWholeGUIcontents(){
-        //SaG: this is not nice as it is duplicated code
         editorController.refreshTabView(manager.getProject().getDafnyFiles());
         refreshHelper();
     }
