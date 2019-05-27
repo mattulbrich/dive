@@ -24,7 +24,7 @@ public class ScriptCodeController {
     public ScriptCodeController(DiveCenter diveCenter) {
         this.diveCenter = diveCenter;
 
-        diveCenter.activePVC.addObserver(this::setPVC);
+        diveCenter.properties().activePVC.addObserver(this::setPVC);
     }
 
     private void setPVC(PVC pvc) {
@@ -41,7 +41,7 @@ public class ScriptCodeController {
         component.setText(proof.getScript());
         component.setCaretPosition(0);
 
-        diveCenter.proofNode.setValue(root);
+        diveCenter.properties().proofNode.setValue(root);
     }
 
 

@@ -30,7 +30,7 @@ public class CloseAction extends BarAction
     public void initialised() {
         DiveCenter center = getDiveCenter();
         if(center != null)
-            center.onGoingProof.addObserver(ongoing -> setEnabled(!ongoing));
+            center.properties().onGoingProof.addObserver(ongoing -> setEnabled(!ongoing));
     }
     
     public void actionPerformed(ActionEvent e) {

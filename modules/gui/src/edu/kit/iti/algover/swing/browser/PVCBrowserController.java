@@ -146,14 +146,14 @@ public class PVCBrowserController {
         theComponent = new JScrollPane(tree);
 
         tree.addTreeSelectionListener(this::selectionChanged);
-        diveCenter.project.addObserver(this::updateProject);
+        diveCenter.properties().project.addObserver(this::updateProject);
     }
 
     private void selectionChanged(TreeSelectionEvent ev) {
         TreeNode leaf = (TreeNode) ev.getPath().getLastPathComponent();
         PVCCollection pvcCollection = leaf.pvcCollection;
         if (pvcCollection instanceof SinglePVC) {
-            diveCenter.activePVC.setValue(pvcCollection.getPVC());
+            diveCenter.properties().activePVC.setValue(pvcCollection.getPVC());
         }
     }
 

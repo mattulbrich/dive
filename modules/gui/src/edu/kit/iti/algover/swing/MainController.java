@@ -98,7 +98,7 @@ public class MainController {
         separatorPositions.put(Viewport.CODE_VIEW, 500);
         separatorPositions.put(Viewport.PROOF_VIEW, 500);
 
-        diveCenter.viewPort.addObserver(this::updateViewport);
+        diveCenter.properties().viewPort.addObserver(this::updateViewport);
     }
 
     private void updateViewport(Viewport oldViewPort, Viewport newViewport) {

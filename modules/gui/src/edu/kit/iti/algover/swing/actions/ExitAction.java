@@ -29,7 +29,7 @@ public class ExitAction extends BarAction implements InitialisingAction {
     public void initialised() {
         DiveCenter center = getDiveCenter();
         if(center != null) {
-            center.onGoingProof.addObserver(ongoing -> setEnabled(!ongoing));
+            center.properties().onGoingProof.addObserver(ongoing -> setEnabled(!ongoing));
         }
     }
 

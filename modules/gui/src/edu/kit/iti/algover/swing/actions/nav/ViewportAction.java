@@ -18,7 +18,7 @@ public class ViewportAction {
     public static class Left extends BarAction implements InitialisingAction {
         @Override
         public void initialised() {
-            getDiveCenter().viewPort.addObserver(vp -> setEnabled(vp != Viewport.PVC_VIEW));
+            getDiveCenter().properties().viewPort.addObserver(vp -> setEnabled(vp != Viewport.PVC_VIEW));
         }
 
         @Override
@@ -30,7 +30,7 @@ public class ViewportAction {
     public static class Right extends BarAction implements InitialisingAction {
         @Override
         public void initialised() {
-            getDiveCenter().viewPort.addObserver(vp -> setEnabled(vp != Viewport.PROOF_VIEW));
+            getDiveCenter().properties().viewPort.addObserver(vp -> setEnabled(vp != Viewport.PROOF_VIEW));
         }
 
         @Override
@@ -42,21 +42,21 @@ public class ViewportAction {
     public static class PVC extends BarAction {
         @Override
         public void actionPerformed(ActionEvent actionEvent) {
-            getDiveCenter().viewPort.setValue(Viewport.PVC_VIEW);
+            getDiveCenter().properties().viewPort.setValue(Viewport.PVC_VIEW);
         }
     }
 
     public static class Code extends BarAction {
         @Override
         public void actionPerformed(ActionEvent actionEvent) {
-            getDiveCenter().viewPort.setValue(Viewport.CODE_VIEW);
+            getDiveCenter().properties().viewPort.setValue(Viewport.CODE_VIEW);
         }
     }
 
     public static class Proof extends BarAction {
         @Override
         public void actionPerformed(ActionEvent actionEvent) {
-            getDiveCenter().viewPort.setValue(Viewport.PROOF_VIEW);
+            getDiveCenter().properties().viewPort.setValue(Viewport.PROOF_VIEW);
         }
     }
 }

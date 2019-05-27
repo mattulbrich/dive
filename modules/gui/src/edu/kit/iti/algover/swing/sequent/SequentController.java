@@ -39,7 +39,7 @@ public class SequentController {
         seqComponent.setBorder(BorderFactory.createEmptyBorder(10,10,10,10));
         componnent.add(seqComponent);
 
-        diveCenter.proofNode.addObserver(this::setProofNode);
+        diveCenter.properties().proofNode.addObserver(this::setProofNode);
         setProofNode(null);
     }
 

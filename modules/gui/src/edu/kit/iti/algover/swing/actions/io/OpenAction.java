@@ -38,7 +38,7 @@ public class OpenAction extends BarAction implements InitialisingAction {
     public void initialised() {
         DiveCenter proofCenter = getDiveCenter();
         if(proofCenter != null) {
-            proofCenter.onGoingProof.addObserver(ongoing -> setEnabled(!ongoing));
+            proofCenter.properties().onGoingProof.addObserver(ongoing -> setEnabled(!ongoing));
         }
     }
 

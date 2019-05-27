@@ -60,7 +60,7 @@ public class Breadcrumbs extends JPanel {
 
     public Breadcrumbs(DiveCenter center) {
         this.center = center;
-        center.activePVC.addObserver(this::setPVC);
+        center.properties().activePVC.addObserver(this::setPVC);
 
         {
             this.classLabel = new JLabel("<html><i>None chosen</i>");
@@ -106,7 +106,7 @@ public class Breadcrumbs extends JPanel {
         if(label == classLabel) {
             classMenu(popup);
         } else if (label == methLabel) {
-            PVC current = center.activePVC.getValue();
+            PVC current = center.properties().activePVC.getValue();
             if (current == null) {
                 return;
             }
@@ -115,7 +115,7 @@ public class Breadcrumbs extends JPanel {
                 methodMenu((DafnyClass)p, popup);
             }
         }  else if (label == pvcLabel) {
-            PVC current = center.activePVC.getValue();
+            PVC current = center.properties().activePVC.getValue();
             if (current == null) {
                 return;
             }
@@ -127,7 +127,7 @@ public class Breadcrumbs extends JPanel {
     }
 
     private void classMenu(JComponent menu) {
-        Project project = center.project.getValue();
+        Project project = center.properties().project.getValue();
 
         JMenu item = new JMenu("<html><i>No class</i>");
         menu.add(item);
@@ -152,7 +152,7 @@ public class Breadcrumbs extends JPanel {
             decls.addAll(clss.getFunctions());
             decls.addAll(clss.getMethods());
         } else {
-            Project project = center.project.getValue();
+            Project project = center.properties().project.getValue();
             decls.addAll(project.getFunctions());
             decls.addAll(project.getMethods());
         }
@@ -168,14 +168,14 @@ public class Breadcrumbs extends JPanel {
     }
 
     private void pvcMenu(DafnyDecl decl, JComponent menu) {
-        Project project = center.project.getValue();
+        Project project = center.properties().project.getValue();
         PVCCollection pvcs = project.getPVCsFor(decl);
 
         for (PVCCollection node : pvcs.getChildren()) {
             PVC pvc = node.getPVC();
             String id = pvc.getIdentifier();
             JMenuItem item = new JMenuItem(id.substring(id.indexOf('/') + 1));
-            item.addActionListener(e -> center.activePVC.setValue(pvc));
+            item.addActionListener(e -> center.properties().activePVC.setValue(pvc));
             menu.add(item);
         }
     }

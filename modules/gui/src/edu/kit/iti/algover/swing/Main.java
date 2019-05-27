@@ -210,7 +210,7 @@ public class Main {
     public static void closeDiveCenter(DiveCenter diveCenter) {
         assert PROOF_CENTERS.contains(diveCenter);
 
-        diveCenter.terminated.fire(true);
+        diveCenter.properties().terminated.fire(true);
 
         PROOF_CENTERS.remove(diveCenter);
 

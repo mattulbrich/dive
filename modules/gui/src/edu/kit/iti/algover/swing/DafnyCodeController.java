@@ -28,7 +28,7 @@ public class DafnyCodeController {
         this.diveCenter = diveCenter;
         this.tabs = new JTabbedPane();
 
-        diveCenter.project.addObserver(this::updateProject);
+        diveCenter.properties().project.addObserver(this::updateProject);
     }
 
     private void updateProject(Project project) {
