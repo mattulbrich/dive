@@ -111,7 +111,9 @@ public class DafnyProjectManager extends AbstractProjectManager {
 
         DafnyTree masterAST = DafnyFileParser.parse(masterFile);
 
-        pb.getDafnyFiles().add(masterFile.getPath());
+       // pb.getDafnyFiles().add(masterFile.getPath());
+        File mFile = new File(dir, masterFile.getName());
+        pb.getDafnyFiles().add(mFile.toString());
         // SaG:Bugfix as otherwise the masterfile may be added twice and would cause errors in case the projectconfig ist changed during project creation
 
         for (DafnyTree include :
