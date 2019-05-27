@@ -32,9 +32,11 @@ public class ScriptCodeController {
         String id = pvc.getIdentifier();
 
         Proof proof = diveCenter.getProjectManager().getProofForPVC(id);
-        proof.interpretScript();
 
         ProofNode root = proof.getProofRoot();
+        if(root == null) {
+            root = ProofNode.createRoot(pvc);
+        }
 
         component.setText(proof.getScript());
         component.setCaretPosition(0);

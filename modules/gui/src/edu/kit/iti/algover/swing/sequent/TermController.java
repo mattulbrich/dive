@@ -8,6 +8,7 @@
 package edu.kit.iti.algover.swing.sequent;
 
 import edu.kit.iti.algover.proof.ProofFormula;
+import edu.kit.iti.algover.rules.SubtermSelector;
 import edu.kit.iti.algover.rules.TermSelector;
 import edu.kit.iti.algover.swing.DiveCenter;
 import edu.kit.iti.algover.swing.util.NotScrollingCaret;
@@ -23,6 +24,8 @@ import javax.swing.text.MutableAttributeSet;
 import javax.swing.text.SimpleAttributeSet;
 import javax.swing.text.StyleConstants;
 import java.awt.*;
+import java.awt.event.ComponentAdapter;
+import java.awt.event.ComponentEvent;
 import java.util.Set;
 
 public class TermController {
@@ -115,9 +118,11 @@ public class TermController {
 
 
     private final JTextPane component;
+    private final PrettyPrint prettyPrinter;
     private DiveCenter diveCenter;
     private ProofFormula proofFormula;
     private TermSelector termSelector;
+    private int lineWidth;
 
     public TermController(DiveCenter diveCenter, ProofFormula proofFormula, TermSelector termSelector) {
         this.diveCenter = diveCenter;
@@ -130,14 +135,50 @@ public class TermController {
         component.setFocusable(false);
         component.setBorder(BORDER);
         component.setCaret(new NotScrollingCaret());
+        component.addComponentListener(new ComponentAdapter() {
+            @Override
+            public void componentResized(ComponentEvent e) {
+                reprint();
+            }
+        });
 
-        PrettyPrint pp = new PrettyPrint();
-        AnnotatedString annotatedString = pp.print(proofFormula.getTerm());
-        annotatedString.appendToDocument(component.getDocument(), attributeFactory);
+        this.prettyPrinter = new PrettyPrint();
+        reprint();
+    }
+
+    private void reprint() {
+        int newLineWidth = computeLineWidth();
+        if(newLineWidth != lineWidth) {
+            AnnotatedString annotatedString = prettyPrinter.print(proofFormula.getTerm(), newLineWidth);
+            component.setText("");
+            annotatedString.appendToDocument(component.getDocument(), attributeFactory);
+            lineWidth = newLineWidth;
+        }
     }
 
     public Component getComponent() {
         return component;
+    }
+
+
+    /**
+     * Computes the line width.
+     *
+     * Uses the dimensions and fontmetrics. Needs a proportional font.
+     * (taken from KeY!)
+     *
+     * @return the number of characters in one line
+     */
+    private int computeLineWidth() {
+        // assumes we have a uniform font width
+        int maxChars = component.getSize().width /
+                component.getFontMetrics(component.getFont()).charWidth('W');
+
+        if (maxChars > 1) {
+            maxChars -= 1;
+        }
+
+        return maxChars;
     }
 }
 

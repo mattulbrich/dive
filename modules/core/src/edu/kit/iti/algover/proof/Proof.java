@@ -157,6 +157,7 @@ public class Proof {
             this.failException = null;
             proofStatus.setValue(newRoot.allLeavesClosed() ? ProofStatus.CLOSED : ProofStatus.OPEN);
 
+            // REVIEW: Why 3 different catch-clauses?
         } catch (ScriptCommandNotApplicableException snap) {
             this.proofRoot = newRoot;
             this.failException = snap;
@@ -165,8 +166,6 @@ public class Proof {
             this.proofRoot = newRoot;
             this.failException = ire;
             proofStatus.setValue(ProofStatus.FAILING);
-;
-
         } catch(Exception ex) {
             // publish the proof root even if the proof has (partially) failed.
             this.proofRoot = newRoot;

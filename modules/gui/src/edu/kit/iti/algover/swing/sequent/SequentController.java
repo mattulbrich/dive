@@ -55,8 +55,6 @@ public class SequentController {
             return;
         }
 
-
-
         Sequent sequent = proofNode.getSequent();
 
         int i = 0;
@@ -68,6 +66,15 @@ public class SequentController {
         }
 
         seqComponent.add(SEPARATOR);
+
+        i = 0;
+        for (ProofFormula pf : sequent.getSuccedent()) {
+            TermSelector termSelector = new TermSelector(SequentPolarity.SUCCEDENT, i);
+            TermController ctrl = new TermController(diveCenter, pf, termSelector);
+            seqComponent.add(ctrl.getComponent());
+            i++;
+        }
+
         seqComponent.revalidate();
         seqComponent.repaint();
 

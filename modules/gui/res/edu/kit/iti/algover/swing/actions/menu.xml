@@ -14,6 +14,12 @@
 		
 		<toolbar onlyIcons="true">
             file.open
+			SEPARATOR
+			viewport.left
+			viewport.pvc
+			viewport.code
+			viewport.proof
+			viewport.right
 			<!--	proof.auto proof.pruneLast SEPARATOR
 				prover.openInEditor SEPARATOR 
 				file.loadProb file.loadProof file.saveProof SEPARATOR
@@ -23,9 +29,11 @@
 
 		<menubar>
 			center.fileMenu
+			center.navMenu
             <!--prover.editorMenu prover.proofMenu prover.settingsMenu prover.experimentalMenu
             -->
 		</menubar>
+
 
 		<fileMenu text="File" mnemonic="F">
 			file.sampleBrowser file.open file.reload file.recentProb
@@ -35,6 +43,14 @@
 		<editorMenu text="Editor" mnemonic="E">
 			prover.openInEditor editor.new editor.open	
 		</editorMenu>
+
+		<navMenu text="Navigate">
+			viewport.left
+			viewport.pvc
+			viewport.code
+			viewport.proof
+			viewport.right
+		</navMenu>
 
 		<proofMenu text="Proof" mnemonic="P">
 			proof.prune proof.pruneLast proof.auto proof.autoSubtree proof.reintroduceHiddenTerm proof.axiom proof.conjecture proof.decProc
@@ -140,5 +156,38 @@
             <text>Exit</text>
         </exit>
 	</general>
+
+	<viewport>
+		<left>ACTION nav/ViewportAction$Left
+			<text>Move left</text>
+			<tooltip>Move one viewport to the left</tooltip>
+			<accelerator>alt LEFT</accelerator>
+			<icon>nav/arrow_left.png</icon>
+		</left>
+		<right>ACTION nav/ViewportAction$Right
+			<text>Move right</text>
+			<tooltip>Move one viewport to the right</tooltip>
+			<accelerator>alt RIGHT</accelerator>
+			<icon>nav/arrow_right.png</icon>
+		</right>
+		<pvc>ACTION nav/ViewportAction$PVC
+			<text>Viewport 1</text>
+			<tooltip>Move to viewport 1: Obligation browser and code</tooltip>
+			<accelerator>alt 1</accelerator>
+			<icon>nav/one.png</icon>
+		</pvc>
+		<code>ACTION nav/ViewportAction$Code
+			<text>Viewport 2</text>
+			<tooltip>Move to viewport 2: Code and sequent</tooltip>
+			<accelerator>alt 2</accelerator>
+			<icon>nav/two.png</icon>
+		</code>
+		<proof>ACTION nav/ViewportAction$Proof
+			<text>Viewport 3</text>
+			<tooltip>Move to viewport 3: Sequent and proof</tooltip>
+			<accelerator>alt 3</accelerator>
+			<icon>nav/three.png</icon>
+		</proof>
+	</viewport>
 
 </barmanager>
