@@ -32,8 +32,6 @@ dependencies {
     compile group: 'org.antlr', name: 'antlr-runtime', version: '3.5.2'
     compile group: 'org.antlr', name: 'stringtemplate', version: '3.2'
 
-
-
     antlr4 "org.antlr:antlr4:4.7.1"
     compile "org.antlr:antlr4-runtime:4.7.1"
 }
@@ -44,9 +42,9 @@ dependencies {
 task runAntlr3(type:JavaExec) {
     println "Building Dafny Parser"
 
-    inputs.files configurations.antlr3
+    inputs.files "antlr/edu/kit/iti/algover/parser/Dafny.g"
     classpath { configurations.antlr3.getAsPath()}
-    outputs.dir "$projectDir/gen"
+    outputs.dir "$projectDir/gen/edu/kit/iti/algover/parser"
 
     workingDir = "antlr"
     main = "org.antlr.Tool"
