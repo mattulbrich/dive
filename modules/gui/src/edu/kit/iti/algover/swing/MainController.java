@@ -21,6 +21,7 @@ import edu.kit.iti.algover.swing.actions.BarAction;
 import edu.kit.iti.algover.swing.actions.BarManager;
 import edu.kit.iti.algover.swing.browser.PVCBrowserController;
 import edu.kit.iti.algover.swing.script.ScriptCodeController;
+import edu.kit.iti.algover.swing.sequent.Breadcrumbs;
 import edu.kit.iti.algover.swing.sequent.SequentController;
 import edu.kit.iti.algover.swing.util.Log;
 import edu.kit.iti.algover.util.Util;
@@ -80,6 +81,7 @@ public class MainController {
     private JLabel statusLine;
     private JLabel toLeftControl;
     private JLabel toRightControl;
+    private JPanel mainPane;
 
     /**
      * Instantiates a new main window.
@@ -103,11 +105,11 @@ public class MainController {
         Log.log(Log.VERBOSE, "Switching to viewport " + newViewport);
         if (oldViewPort != null && centerPane != null) {
             separatorPositions.put(oldViewPort, centerPane.getDividerLocation());
-            theFrame.getContentPane().remove(centerPane);
+            mainPane.remove(centerPane);
         }
 
         centerPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT);
-        theFrame.getContentPane().add(centerPane, BorderLayout.CENTER);
+        mainPane.add(centerPane, BorderLayout.CENTER);
 
         switch (newViewport) {
         case PVC_VIEW:
@@ -164,7 +166,7 @@ public class MainController {
         Container cp = theFrame.getContentPane();
         cp.setLayout(new BorderLayout());
         {
-            toLeftControl = new JLabel(" < ");
+            toLeftControl = new JLabel(" \u25c0 ");
             toLeftControl.addMouseListener(new MouseAdapter() {
                 @Override
                 public void mouseClicked(MouseEvent e) {
@@ -177,7 +179,7 @@ public class MainController {
             cp.add(toLeftControl, BorderLayout.WEST);
         }
         {
-            toRightControl = new JLabel(" > ");
+            toRightControl = new JLabel(" \u25b6 ");
             toRightControl.addMouseListener(new MouseAdapter() {
                 @Override
                 public void mouseClicked(MouseEvent e) {
@@ -190,8 +192,18 @@ public class MainController {
             cp.add(toRightControl, BorderLayout.EAST);
         }
         {
-            centerPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT);
-            cp.add(centerPane, BorderLayout.CENTER);
+            mainPane = new JPanel(new BorderLayout());
+            {
+                JPanel info = new JPanel(new BorderLayout());
+                info.add(new Breadcrumbs(diveCenter), BorderLayout.WEST);
+                info.add(new JLabel("open goal"), BorderLayout.EAST);
+                mainPane.add(info, BorderLayout.NORTH);
+            }
+            {
+                centerPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT);
+                mainPane.add(centerPane, BorderLayout.CENTER);
+            }
+            cp.add(mainPane, BorderLayout.CENTER);
         }
         {
             theFrame.setJMenuBar(barManager.makeMenubar("center.menubar"));

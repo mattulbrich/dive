@@ -18,8 +18,6 @@ import edu.kit.iti.algover.term.Sequent;
 import javax.swing.*;
 import java.awt.*;
 
-import static java.io.File.separator;
-
 public class SequentController {
 
     private final static SequentSeparator SEPARATOR = new SequentSeparator();
@@ -34,7 +32,7 @@ public class SequentController {
         this.diveCenter = diveCenter;
 
         componnent = new JPanel(new BorderLayout());
-        componnent.add(new Breadcrumbs(diveCenter), BorderLayout.NORTH);
+        // componnent.add(new Breadcrumbs(diveCenter), BorderLayout.NORTH);
 
         seqComponent = new JPanel(new SequentLayoutManager());
         seqComponent.setBackground(Settings.getInstance().getColor(BACKGROUND, Color.WHITE));

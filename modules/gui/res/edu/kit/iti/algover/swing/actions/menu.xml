@@ -46,10 +46,11 @@
 
 		<navMenu text="Navigate">
 			viewport.left
+			viewport.right
+			SEPARATOR
 			viewport.pvc
 			viewport.code
 			viewport.proof
-			viewport.right
 		</navMenu>
 
 		<proofMenu text="Proof" mnemonic="P">

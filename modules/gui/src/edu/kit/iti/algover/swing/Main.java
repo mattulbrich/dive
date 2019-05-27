@@ -87,6 +87,9 @@ public class Main {
         ClassLoader.getSystemClassLoader().setDefaultAssertionStatus(settings.getBoolean(ASSERTION_PROPERTY, true));
         // needed for the dummy-url "none:built-in", "buffer"
         // Util.registerURLHandlers();
+
+        String antialiasing = settings.getProperty("dive.antialias", "gasp");
+        System.setProperty("awt.useSystemAAFontSettings", antialiasing);
     }
 
     public static void main(final String[] args) {
