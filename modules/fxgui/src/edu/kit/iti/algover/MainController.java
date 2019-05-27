@@ -412,8 +412,7 @@ public class MainController implements SequentActionListener, RuleApplicationLis
             browserController.getView().setDisable(false);
             sequentController.getView().setDisable(false);
             ruleApplicationController.getView().setDisable(false);
-            //  editorController.refreshOpenFiles(manager.getProject().getDafnyFiles());
-            this.manager.getProject().getDafnyFiles().forEach(df -> editorController.viewFile(df));
+            manager.getProject().getDafnyFiles().forEach(df -> editorController.viewFile(df));
             ruleApplicationController.onReset();
             simpleStratButton.setDisable(false);
             breadCrumbBar.setDisable(false);
