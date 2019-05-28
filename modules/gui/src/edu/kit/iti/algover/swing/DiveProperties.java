@@ -45,9 +45,10 @@ public class DiveProperties {
 
     /**
      * This is set to true if the code in a program text editor has changed.
+     * Set to true/false by first reload.
      */
-    public final Property<Boolean> sourcesModified =
-            new Property<>("sourcesModified", Boolean.class, false);
+    public final Property<Boolean> noProjectMode =
+            new Property<>("noProjectMode", Boolean.class, null);
 
     /**
      * This is set to true if the code in a program text editor has changed.

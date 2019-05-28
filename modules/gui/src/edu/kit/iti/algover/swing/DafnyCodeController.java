@@ -11,23 +11,37 @@ import edu.kit.iti.algover.project.Project;
 import edu.kit.iti.algover.swing.code.DafnyTokenMaker;
 import edu.kit.iti.algover.swing.util.ExceptionDialog;
 import edu.kit.iti.algover.swing.util.GUIUtil;
+import edu.kit.iti.algover.swing.util.Log;
+import edu.kit.iti.algover.swing.util.Settings;
 import edu.kit.iti.algover.swing.util.UnifyingDocumentListener;
+import edu.kit.iti.algover.util.ExceptionDetails;
+import edu.kit.iti.algover.util.ExceptionDetails.ExceptionReportInfo;
 import edu.kit.iti.algover.util.Util;
 import org.fife.ui.rsyntaxtextarea.AbstractTokenMakerFactory;
 import org.fife.ui.rsyntaxtextarea.RSyntaxTextArea;
+import org.fife.ui.rsyntaxtextarea.SquiggleUnderlineHighlightPainter;
 import org.fife.ui.rsyntaxtextarea.TokenMakerFactory;
 import org.fife.ui.rtextarea.RTextScrollPane;
 
 import javax.swing.*;
 import javax.swing.event.DocumentEvent;
-import javax.swing.event.DocumentListener;
+import javax.swing.text.BadLocationException;
+import javax.swing.text.Highlighter.HighlightPainter;
 import java.awt.*;
-import java.beans.PropertyChangeEvent;
 import java.io.File;
 import java.io.IOException;
+import java.lang.System.Logger.Level;
 import java.util.List;
+import java.util.Objects;
 
 public class DafnyCodeController {
+    private static final Color SQUIGGLY_LINES_COLOR =
+            Settings.getInstance().getColor("dive.codearea.squigglylinescolor", Color.red);
+
+    private static final HighlightPainter SQUIGGLY_LINES =
+            new SquiggleUnderlineHighlightPainter(SQUIGGLY_LINES_COLOR);
+    public static final String FILENAME = "filename";
+
     private DiveCenter diveCenter;
 
     private JTabbedPane tabs;
@@ -55,8 +69,8 @@ public class DafnyCodeController {
 
         // close tabs
         for (int i = 0; i < tabs.getTabCount(); i++) {
-            JComponent tab = (JComponent) tabs.getTabComponentAt(i);
-            String filename = (String) tab.getClientProperty("filename");
+            JComponent tab = (JComponent) tabs.getComponentAt(i);
+            String filename = (String) tab.getClientProperty(FILENAME);
             File file = new File(filename);
             if(files.contains(file)) {
                 files.remove(file);
@@ -70,12 +84,7 @@ public class DafnyCodeController {
         // open tabs
         for (File file : files) {
             try {
-                RSyntaxTextArea rsta = new RSyntaxTextArea();
-                RTextScrollPane scroll = new RTextScrollPane(rsta);
-                rsta.setText(Util.readFileAsString(file));
-                rsta.setSyntaxEditingStyle("text/dafny");
-                rsta.getDocument().addDocumentListener(new UnifyingDocumentListener(this::codeChanged));
-                tabs.addTab(file.getName(), scroll);
+                addTab(file);
             } catch (IOException e) {
                 ExceptionDialog.showExceptionDialog(diveCenter.getMainWindow(),
                         "Cannot open file " + file, e);
@@ -84,9 +93,21 @@ public class DafnyCodeController {
 
     }
 
+    private void addTab(File file) throws IOException {
+        RSyntaxTextArea rsta = new RSyntaxTextArea();
+        RTextScrollPane scroll = new RTextScrollPane(rsta);
+        rsta.setText(Util.readFileAsString(file));
+        rsta.setSyntaxEditingStyle("text/dafny");
+        rsta.getDocument().addDocumentListener(new UnifyingDocumentListener(this::codeChanged));
+        scroll.putClientProperty(FILENAME, file.toString());
+        tabs.addTab(file.getName(), scroll);
+    }
+
     private void codeChanged(DocumentEvent e) {
-        diveCenter.properties().sourcesModified.setValue(true);
+        diveCenter.properties().noProjectMode.setValue(true);
         diveCenter.properties().unsavedChanges.setValue(true);
+        setException(null);
+        diveCenter.getMainController().setStatus("Sources have been modified. Disabling prover.");
     }
 
     public Component getComponent() {
@@ -95,10 +116,60 @@ public class DafnyCodeController {
 
     public void saveSources() throws IOException {
         for (int i = 0; i < tabs.getTabCount(); i++) {
-            JComponent tab = (JComponent) tabs.getTabComponentAt(i);
-            String filename = (String) tab.getClientProperty("filename");
+            JComponent tab = (JComponent) tabs.getComponentAt(i);
+            String filename = (String) tab.getClientProperty(FILENAME);
             RSyntaxTextArea textArea = GUIUtil.findComponent(tab, RSyntaxTextArea.class);
             Util.saveStringAsFile(textArea.getText(), new File(filename));
         }
+    }
+
+    public void setException(Exception exc) {
+        for (int i = 0; i < tabs.getTabCount(); i++) {
+            RSyntaxTextArea textArea = GUIUtil.findComponent(tabs.getComponentAt(i), RSyntaxTextArea.class);
+            Object hilight = textArea.getClientProperty("exception-highlight");
+            if (hilight != null) {
+                textArea.getHighlighter().removeHighlight(hilight);
+            }
+        }
+
+        if (exc == null) {
+            return;
+        }
+
+        ExceptionReportInfo report = ExceptionDetails.extractReportInfo(exc);
+        int index = getIndexByFilename(report.getFilename());
+        if (index < 0) {
+            Log.log(Log.DEBUG,
+               "File with error not found in tabs: " +
+                       report.getFilename());
+            try {
+                addTab(new File(report.getFilename()));
+            } catch (IOException e) {
+                ExceptionDialog.showExceptionDialog(diveCenter.getMainWindow(), e);
+            }
+            index = tabs.getTabCount() - 1;
+        }
+
+        tabs.setSelectedIndex(index);
+        Component container = tabs.getComponentAt(index);
+        RSyntaxTextArea textArea = GUIUtil.findComponent(container, RSyntaxTextArea.class);
+        try {
+            int pos = GUIUtil.linecolToPos(textArea.getText(), report.getLine(), report.getColumn());
+            Object hilight = textArea.getHighlighter().addHighlight(pos, pos+report.getLength(), SQUIGGLY_LINES);
+            textArea.putClientProperty("exception-highlight", hilight);
+        } catch (BadLocationException e) {
+            Log.stacktrace(Log.DEBUG, e);
+        }
+    }
+
+    private int getIndexByFilename(String filename) {
+       for (int i = 0; i < tabs.getTabCount(); i++) {
+           JComponent tab = (JComponent) tabs.getComponentAt(i);
+           String property = (String) tab.getClientProperty(FILENAME);
+           if(Objects.equals(filename, property)) {
+               return i;
+           }
+       }
+       return -1;
     }
 }

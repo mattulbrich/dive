@@ -25,6 +25,7 @@ import edu.kit.iti.algover.swing.script.ScriptCodeController;
 import edu.kit.iti.algover.swing.sequent.Breadcrumbs;
 import edu.kit.iti.algover.swing.sequent.SequentController;
 import edu.kit.iti.algover.swing.util.Log;
+import edu.kit.iti.algover.util.ExceptionDetails;
 
 
 /**
@@ -252,5 +253,18 @@ public class MainController {
 
     public DafnyCodeController getDafnyCodeController() {
         return dafnyCodeController;
+    }
+
+    public void setStatus(String string) {
+        statusLine.setText(string);
+        statusLine.setToolTipText("");
+        statusLine.setForeground(Color.black);
+    }
+
+    public void setStatus(Exception e) {
+        CharSequence niceMsg = ExceptionDetails.getNiceErrorMessage(e);
+        statusLine.setToolTipText("<html><pre>" + niceMsg + "</pre>");
+        statusLine.setForeground(Color.red);
+        statusLine.setText(e.getMessage());
     }
 }

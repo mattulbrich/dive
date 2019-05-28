@@ -21,7 +21,7 @@ public abstract class BarAction extends AbstractAction {
 
     public static final String CENTER = "barmanager.center";
     public static final String PARENT_FRAME = "barmanager.parentframe";
-    public static final String EDITOR_FRAME = "barmanager.editorframe";
+    public static final String EXTRA = "barmanager.extra";
 
     public BarAction() {
         super();

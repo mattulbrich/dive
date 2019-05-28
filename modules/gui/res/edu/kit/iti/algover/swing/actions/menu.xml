@@ -133,13 +133,14 @@
 			<mnemonic>S</mnemonic>
 			<icon>io/disk.png</icon>
 		</save>
-        <saveAndReload>ACTION io/SaveAndReloadAction
+        <saveAndReload>ACTION io/SaveAction
             <tooltip>save the source files, and reload the project into prover</tooltip>
             <text>Save sources and reload project</text>
             <accelerator>control shift S</accelerator>
-            <mnemonic>S</mnemonic>
-            <icon>io/disk.png</icon>
-        </saveAndReload>
+			<mnemonic>S</mnemonic>
+			<extra>saveAndReload</extra>
+			<icon>io/disk.png</icon>
+		</saveAndReload>
 		<new>TODO io/NewFileAction
 			<tooltip>Create a new, empty Dafny project</tooltip>
 			<text>New ...</text>

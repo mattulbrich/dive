@@ -12,7 +12,6 @@ import edu.kit.iti.algover.dafnystructures.DafnyDecl;
 import edu.kit.iti.algover.project.Project;
 import edu.kit.iti.algover.proof.PVC;
 import edu.kit.iti.algover.proof.PVCCollection;
-import edu.kit.iti.algover.proof.SinglePVC;
 import edu.kit.iti.algover.swing.DiveCenter;
 import edu.kit.iti.algover.swing.util.Underline;
 
@@ -60,22 +59,22 @@ public class Breadcrumbs extends JPanel {
 
     public Breadcrumbs(DiveCenter center) {
         this.center = center;
-        center.properties().activePVC.addObserver(this::setPVC);
-
+        center.properties().activePVC.addObserver(this::updatePVC);
+        center.properties().noProjectMode.addObserver(this::updatePVC);
         {
-            this.classLabel = new JLabel("<html><i>None chosen</i>");
+            this.classLabel = new JLabel();
             classLabel.setFont(LABEL_FONT);
             classLabel.addMouseListener(new BlueListener(classLabel));
             add(classLabel);
         }
-        add(new JLabel(" > "));
+        add(new JLabel(">"));
         {
             this.methLabel = new JLabel();
             methLabel.setFont(LABEL_FONT);
             methLabel.addMouseListener(new BlueListener(methLabel));
             add(methLabel);
         }
-        add(new JLabel(" > "));
+        add(new JLabel(">"));
         {
             this.pvcLabel = new JLabel();
             pvcLabel.setFont(LABEL_FONT);
@@ -84,7 +83,23 @@ public class Breadcrumbs extends JPanel {
         }
     }
 
-    private void setPVC(PVC pvc) {
+    private void updatePVC() {
+
+        Boolean noProjMode = center.properties().noProjectMode.getValue();
+        PVC pvc = center.properties().activePVC.getValue();
+        if (noProjMode || pvc == null) {
+            if (noProjMode) {
+                classLabel.setText("No project");
+            } else {
+                classLabel.setText("No proof obligation chosen");
+            }
+            classLabel.setEnabled(false);
+            methLabel.setText("");
+            pvcLabel.setText("");
+            return;
+        }
+
+        classLabel.setEnabled(true);
         String id = pvc.getIdentifier();
         int slash = id.indexOf('/');
         String classMeth = id.substring(0, slash);
@@ -93,7 +108,7 @@ public class Breadcrumbs extends JPanel {
             String clss = classMeth.substring(0, dot);
             classLabel.setText(clss);
         } else {
-            classLabel.setText("<html><i>no class</i>");
+            classLabel.setText("<html><i>No class</i>");
         }
         String meth = classMeth.substring(dot + 1);
         methLabel.setText(meth);
@@ -103,7 +118,7 @@ public class Breadcrumbs extends JPanel {
 
     private void showDropDownList(JLabel label) {
 
-        if(center.properties().sourcesModified.getValue()) {
+        if(center.properties().noProjectMode.getValue()) {
             // no selection if in edit mode.
             return;
         }

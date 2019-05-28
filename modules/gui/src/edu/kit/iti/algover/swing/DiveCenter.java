@@ -98,23 +98,27 @@ public class DiveCenter {
         getMainWindow().setVisible(true);
     }
 
-    private void reloadProject() {
+    public void reloadProject() {
+        DafnyCodeController codeCtrl = mainController.getDafnyCodeController();
         try {
             projectManager.reload();
-            properties().project.setValueOnEventQueue(projectManager.getProject());
-
+            properties().project.setValue(projectManager.getProject());
+            properties().noProjectMode.setValue(false);
+            codeCtrl.setException(null);
+            properties().noProjectMode.setValue(false);
+            mainController.setStatus("Project successfully loaded.");
+        } catch(DafnyException| DafnyParserException| FormatException e) {
+            Log.stacktrace(Log.DEBUG, e);
+            codeCtrl.setException(e);
+            properties().noProjectMode.setValue(true);
+            mainController.setStatus(e);
         } catch (Exception e) {
             Log.log(Log.DEBUG, "Error while reloading");
             Log.stacktrace(e);
-
-            properties().project.setValue(null);
-
-            if (e instanceof IOException) {
-                ExceptionDialog.showExceptionDialog(getMainWindow(),
-                        "An exception occurred while reading the project. " +
-                                "You can continue, but your data may be corrupted.",
-                        e);
-            }
+            ExceptionDialog.showExceptionDialog(getMainWindow(),
+                    "An exception occurred while reading the project. " +
+                            "You can continue, but your data may be corrupted.",
+                    e);
         }
     }
 

@@ -819,6 +819,11 @@ public class BarManager {
             action.putValue(Action.ACCELERATOR_KEY, keyStroke);
         }
 
+        val = properties.getProperty(prefix + ".extra");
+        if(val != null) {
+            action.putValue(BarAction.EXTRA, val);
+        }
+
         if (action instanceof InitialisingAction) {
             InitialisingAction initAction = (InitialisingAction) action;
             initAction.initialised();

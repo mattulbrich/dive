@@ -168,7 +168,7 @@ public class TermController extends MouseAdapter {
         this.prettyPrinter = new PrettyPrint();
         reprint();
 
-        diveCenter.properties().sourcesModified.addObserver(this::sourcesModified);
+        diveCenter.properties().noProjectMode.addObserver(this::sourcesModified);
     }
 
     private void sourcesModified(boolean modified) {

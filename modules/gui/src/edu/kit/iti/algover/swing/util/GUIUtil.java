@@ -162,4 +162,24 @@ public class GUIUtil {
             return null;
         }
     }
+
+    /**
+     * Get the position of a character in a text component based on 1-based
+     * line and column indices.
+     *
+     * @param text the text into which to refer
+     * @param line a line, 1 is the first line. Must be within the text
+     * @param column a column, 1 is the first column.
+     * @return the linear position of line/column within text.
+     */
+    public static int linecolToPos(String text, int line, int column) {
+        String[] lines = text.split("\n");
+        // TODO Windows?
+        int result = 0;
+        for (int i = 0; i < line - 1 && i < lines.length; i++) {
+            result += lines[i].length() + 1;
+            // one extra for "\n"
+        }
+        return result + column - 1;
+    }
 }

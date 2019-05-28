@@ -17,15 +17,12 @@ import edu.kit.iti.algover.proof.PVCGroup;
 import edu.kit.iti.algover.proof.Proof;
 import edu.kit.iti.algover.proof.ProofStatus;
 import edu.kit.iti.algover.proof.SinglePVC;
-import edu.kit.iti.algover.script.ast.ProofScript;
 import edu.kit.iti.algover.swing.DiveCenter;
 
 import javax.swing.*;
 import javax.swing.event.TreeSelectionEvent;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
-import javax.swing.tree.MutableTreeNode;
-import javax.swing.tree.TreeNode;
 import javax.swing.tree.TreePath;
 import java.awt.*;
 import java.util.List;
@@ -168,7 +165,7 @@ public class PVCBrowserController {
         diveCenter.properties().project.addObserver(this::updateProject);
         diveCenter.properties().activePVC.addObserver(this::updatePVC);
         diveCenter.properties().onGoingProof.addObserver(this::proofChanged);
-        diveCenter.properties().sourcesModified.addObserver(
+        diveCenter.properties().noProjectMode.addObserver(
                 b -> tree.setEnabled(!b));
     }
 
