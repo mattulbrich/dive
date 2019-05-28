@@ -87,10 +87,11 @@ public class ScriptCodeController {
 
         if (pvc == null) {
             textArea.setEnabled(false);
+            textArea.setEditable(false);
             label.setText("No proof selected");
         } else {
             textArea.setEnabled(true);
-
+            textArea.setEditable(true);
             String id = pvc.getIdentifier();
 
             Proof proof = diveCenter.getProjectManager().getProofForPVC(id);

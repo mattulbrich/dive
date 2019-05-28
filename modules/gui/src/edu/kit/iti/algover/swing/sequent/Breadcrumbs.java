@@ -102,6 +102,12 @@ public class Breadcrumbs extends JPanel {
     }
 
     private void showDropDownList(JLabel label) {
+
+        if(center.properties().sourcesModified.getValue()) {
+            // no selection if in edit mode.
+            return;
+        }
+
         JPopupMenu popup = new JPopupMenu();
         if(label == classLabel) {
             classMenu(popup);

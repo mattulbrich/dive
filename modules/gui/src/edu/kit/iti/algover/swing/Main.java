@@ -242,7 +242,7 @@ public class Main {
      */
     public static boolean windowsHaveChanges() {
         for (DiveCenter pc : PROOF_CENTERS) {
-            if (pc.hasUnsafedChanges()) {
+            if (pc.properties().unsavedChanges.getValue() == Boolean.TRUE) {
                 return true;
             }
         }

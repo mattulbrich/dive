@@ -82,6 +82,7 @@ public class MainController {
     private JLabel toLeftControl;
     private JLabel toRightControl;
     private JPanel mainPane;
+    private String title;
 
     /**
      * Instantiates a new main window.
@@ -99,6 +100,16 @@ public class MainController {
         separatorPositions.put(Viewport.PROOF_VIEW, 500);
 
         diveCenter.properties().viewPort.addObserver(this::updateViewport);
+        diveCenter.properties().terminated.addObserver(this::dispose);
+        diveCenter.properties().unsavedChanges.addObserver(this::updateTitle);
+    }
+
+    private void updateTitle(boolean unsavedChanges) {
+        if(unsavedChanges) {
+            theFrame.setTitle(title + " *");
+        } else {
+            theFrame.setTitle(title);
+        }
     }
 
     private void updateViewport(Viewport oldViewPort, Viewport newViewport) {
@@ -144,7 +155,8 @@ public class MainController {
     void makeGUI() throws IOException {
 
         assert theFrame == null;
-        theFrame = new JFrame("DIVE - " + resourceName);
+        this.title = "DIVE - " + resourceName;
+        theFrame = new JFrame(title);
 
         // setup the bar manager
         URL resource = getClass().getResource("actions/menu.xml");
@@ -222,6 +234,7 @@ public class MainController {
     }
 
     public void dispose() {
+        theFrame.setVisible(false);
         theFrame.dispose();
     }
 
@@ -235,5 +248,9 @@ public class MainController {
 
     public ScriptCodeController getScriptCodeController() {
         return scriptCodeController;
+    }
+
+    public DafnyCodeController getDafnyCodeController() {
+        return dafnyCodeController;
     }
 }

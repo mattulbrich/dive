@@ -10,6 +10,7 @@ package edu.kit.iti.algover.swing;
 import edu.kit.iti.algover.project.Project;
 import edu.kit.iti.algover.swing.code.DafnyTokenMaker;
 import edu.kit.iti.algover.swing.util.ExceptionDialog;
+import edu.kit.iti.algover.swing.util.GUIUtil;
 import edu.kit.iti.algover.swing.util.UnifyingDocumentListener;
 import edu.kit.iti.algover.util.Util;
 import org.fife.ui.rsyntaxtextarea.AbstractTokenMakerFactory;
@@ -84,12 +85,20 @@ public class DafnyCodeController {
     }
 
     private void codeChanged(DocumentEvent e) {
-        System.out.println("DafnyCodeController.codeChanged");
-        diveCenter.properties().project.setValue(null);
-        diveCenter.properties().activePVC.setValue(null);
+        diveCenter.properties().sourcesModified.setValue(true);
+        diveCenter.properties().unsavedChanges.setValue(true);
     }
 
     public Component getComponent() {
         return tabs;
+    }
+
+    public void saveSources() throws IOException {
+        for (int i = 0; i < tabs.getTabCount(); i++) {
+            JComponent tab = (JComponent) tabs.getTabComponentAt(i);
+            String filename = (String) tab.getClientProperty("filename");
+            RSyntaxTextArea textArea = GUIUtil.findComponent(tab, RSyntaxTextArea.class);
+            Util.saveStringAsFile(textArea.getText(), new File(filename));
+        }
     }
 }

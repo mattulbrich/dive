@@ -30,7 +30,7 @@ public class DiveProperties {
 
     /**
      * The currently loaded project.
-     * This is set to null if the code in a program text editor has changed.
+     * Initially null, but never set to null afterwards.
      */
     public final Property<Project> project =
             new Property<>("project", Project.class, null);
@@ -42,6 +42,28 @@ public class DiveProperties {
      */
     public final Property<PVC> activePVC =
             new Property<>("pvc", PVC.class, null);
+
+    /**
+     * This is set to true if the code in a program text editor has changed.
+     */
+    public final Property<Boolean> sourcesModified =
+            new Property<>("sourcesModified", Boolean.class, false);
+
+    /**
+     * This is set to true if the code in a program text editor has changed.
+     * It is reset to false once the source files have been saved.
+     */
+    public final Property<Boolean> unsavedChanges =
+            new Property<>("unsavedChanges", Boolean.class, false);
+
+    /**
+     * A flag which indicates if a code area has experienced a manual change.
+     * All components are out of sync and should be deactivated.
+     * To be reset to false when successfully reloading a project.
+     */
+    //public final Property<Boolean> editMode =
+    //        new Property<>("editMode", Boolean.class, false);
+
 
     public final Property<Boolean> terminated =
             new Property<>("terminated", Boolean.class, false);

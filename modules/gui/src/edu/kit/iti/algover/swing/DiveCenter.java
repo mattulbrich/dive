@@ -156,10 +156,6 @@ public class DiveCenter {
         return getMainController().getBarManager();
     }
 
-    public boolean hasUnsafedChanges() {
-        return true;
-    }
-
     public ProjectManager getProjectManager() {
         return projectManager;
     }

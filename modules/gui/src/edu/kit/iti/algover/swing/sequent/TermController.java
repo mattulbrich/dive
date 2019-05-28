@@ -167,6 +167,17 @@ public class TermController extends MouseAdapter {
 
         this.prettyPrinter = new PrettyPrint();
         reprint();
+
+        diveCenter.properties().sourcesModified.addObserver(this::sourcesModified);
+    }
+
+    private void sourcesModified(boolean modified) {
+        if (modified) {
+            component.setEnabled(false);
+            mouseExited(null);
+        } else {
+            component.setEnabled(true);
+        }
     }
 
     private void reprint() {
@@ -227,6 +238,10 @@ public class TermController extends MouseAdapter {
      */
     @Override
     public void mouseMoved(MouseEvent e) {
+        if(!component.isEnabled()) {
+            return;
+        }
+
         Point p = e.getPoint();
         Log.enter(p);
         int index = viewToModel(p);

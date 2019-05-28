@@ -168,6 +168,8 @@ public class PVCBrowserController {
         diveCenter.properties().project.addObserver(this::updateProject);
         diveCenter.properties().activePVC.addObserver(this::updatePVC);
         diveCenter.properties().onGoingProof.addObserver(this::proofChanged);
+        diveCenter.properties().sourcesModified.addObserver(
+                b -> tree.setEnabled(!b));
     }
 
     private void proofChanged() {
@@ -187,13 +189,10 @@ public class PVCBrowserController {
     }
 
     private void updateProject(Project project) {
-        if (project == null) {
-            tree.setEnabled(false);
-        } else {
-            TreeNode root = makeTree(project.getAllPVCs());
-            root.updateTreeNode();
-            tree.setModel(new DefaultTreeModel(root));
-        }
+        assert project != null;
+        TreeNode root = makeTree(project.getAllPVCs());
+        root.updateTreeNode();
+        tree.setModel(new DefaultTreeModel(root));
     }
 
     private void updatePVC(PVC pvc) {

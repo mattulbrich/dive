@@ -8,12 +8,15 @@ package edu.kit.iti.algover.util;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URL;
 import java.net.URLConnection;
 import java.nio.ByteBuffer;
+import java.nio.CharBuffer;
 import java.nio.charset.Charset;
 import java.util.AbstractList;
 import java.util.ArrayList;
@@ -492,6 +495,21 @@ public final class Util {
             int count = f.read(buffer);
             assert count == length;
             return new String(buffer);
+        }
+    }
+
+    /**
+     * Save a string to a file.
+     *
+     * Default character encoding is used.
+     *
+     * @param string String to save
+     * @param file file to write to
+     * @throws IOException if file cannot be written or no access.
+     */
+    public static void saveStringAsFile(@NonNull String string, @NonNull File file) throws IOException {
+        try (FileWriter fw = new FileWriter(file)) {
+            fw.write(string);
         }
     }
 

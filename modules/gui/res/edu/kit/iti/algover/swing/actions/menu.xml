@@ -14,6 +14,8 @@
 		
 		<toolbar onlyIcons="true">
             file.open
+            file.save
+            file.saveAndReload
 			SEPARATOR
 			viewport.left
 			viewport.pvc
@@ -37,6 +39,9 @@
 
 		<fileMenu text="File" mnemonic="F">
 			file.sampleBrowser file.open file.reload file.recentProb
+            SEPARATOR
+            file.save
+            file.saveAndReload
 			SEPARATOR general.close general.exit
 		</fileMenu>
 		
@@ -105,34 +110,36 @@
 			<accelerator>control O</accelerator>
 			<mnemonic>O</mnemonic>
 			<text>Open ...</text>
-			<icon>img/page_white_text.png</icon>
+			<icon>io/page_white_text.png</icon>
 		</open>
-		<loadURLProb>TODO io/LoadProblemURLAction
-			<tooltip>open a proof obligation from a URL in a new window</tooltip>
-			<mnemonic>U</mnemonic>
-			<text>Load problem from URL ...</text>
-			<icon>img/page_white_world.png</icon></loadURLProb>
 		<reload>TODO io/ReloadProblemAction
 			<tooltip>reload the last problem file into a new window</tooltip>
 			<mnemonic>R</mnemonic>
 			<accelerator>control R</accelerator>
 			<text>Reload problem</text>
-			<icon>img/page_white_green_text.png</icon>
+			<icon>io/page_white_green_text.png</icon>
 		</reload>
 		<recentProb>COMPONENT RecentProblemsMenu</recentProb>
 		<loadProof>TODO io/LoadProofAction
 			<tooltip>load a proof to the currently active problem</tooltip>
 			<text>Load proof ...</text>
 			<mnemonic>P</mnemonic>
-			<icon>img/page.png</icon>
+			<icon>io/page.png</icon>
 		</loadProof>
-		<saveProof>TODO io/SaveProofAction
-			<tooltip>save a proof to the currently active problem</tooltip>
-			<text>Save proof ...</text>
+		<save>ACTION io/SaveAction
+			<tooltip>save the source files of the current project</tooltip>
+			<text>Save sources</text>
 			<accelerator>control S</accelerator>
 			<mnemonic>S</mnemonic>
-			<icon>img/page_save.png</icon>
-		</saveProof>
+			<icon>io/disk.png</icon>
+		</save>
+        <saveAndReload>ACTION io/SaveAndReloadAction
+            <tooltip>save the source files, and reload the project into prover</tooltip>
+            <text>Save sources and reload project</text>
+            <accelerator>control shift S</accelerator>
+            <mnemonic>S</mnemonic>
+            <icon>io/disk.png</icon>
+        </saveAndReload>
 		<new>TODO io/NewFileAction
 			<tooltip>Create a new, empty Dafny project</tooltip>
 			<text>New ...</text>
@@ -148,7 +155,6 @@
 			<tooltip>Closes the current window</tooltip>
 			<accelerator>control W</accelerator>
 			<text>Close</text>
-			<icon>img/bullet_orange.png</icon>
 		</close>
 		<exit>ACTION ExitAction
             <mnemonic>X</mnemonic>

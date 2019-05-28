@@ -6,19 +6,17 @@
  */
 package edu.kit.iti.algover.swing.util;
 
-import java.awt.Color;
-import java.awt.Component;
-import java.awt.Graphics;
+import java.awt.*;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URL;
 
-import javax.swing.Icon;
-import javax.swing.ImageIcon;
+import javax.swing.*;
 
 import nonnull.NonNull;
 import nonnull.Nullable;
+import org.fife.ui.rsyntaxtextarea.RSyntaxTextArea;
 
 public class GUIUtil {
 
@@ -148,4 +146,20 @@ public class GUIUtil {
     }
 
 
+    public static <T> T findComponent(Component c, Class<T> clss) {
+        if (clss.isInstance(c)) {
+            return clss.cast(c);
+        } else {
+            if (c instanceof Container) {
+                Container container = (Container) c;
+                for (int i = 0; i < container.getComponentCount(); i++) {
+                    T res = findComponent(container.getComponent(i), clss);
+                    if (res != null) {
+                        return res;
+                    }
+                }
+            }
+            return null;
+        }
+    }
 }
