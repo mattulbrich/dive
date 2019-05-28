@@ -3,6 +3,12 @@
 }
 
 .formula-view .selected {
+    -rtfx-background-color: #0f1c0f;
+    -fx-fill: whitesmoke;
+}
+
+.formula-view .selectedRef {
+    -rtfx-background-color: #62b00f;
     -fx-fill: whitesmoke;
 }
 
@@ -20,9 +26,8 @@
     -rtfx-background-color: #55EE55;
 }
 
-.formula-view .reference-selected {
-    -rtfx-background-color: #62b3cf;
-    -fx-fill: whitesmoke;
+.test {
+    -rtfx-background-color: #55EE55;
 }
 
 .formula-view .formula-added {
@@ -30,6 +35,10 @@
 }
 
 .formula-view .formula-deleted {
+    -rtfx-background-color: #EE5555;
+}
+
+.formula-view .test {
     -rtfx-background-color: #EE5555;
 }
 

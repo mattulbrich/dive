@@ -12,10 +12,7 @@ import edu.kit.iti.algover.sequent.formulas.ViewFormula;
 import edu.kit.iti.algover.term.Sequent;
 import edu.kit.iti.algover.term.Term;
 import edu.kit.iti.algover.term.prettyprint.AnnotatedString;
-import edu.kit.iti.algover.util.Pair;
-import edu.kit.iti.algover.util.Quadruple;
-import edu.kit.iti.algover.util.SubSelection;
-import edu.kit.iti.algover.util.SubtermSelectorReplacementVisitor;
+import edu.kit.iti.algover.util.*;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.fxml.FXML;
 import javafx.scene.control.Label;
@@ -48,24 +45,12 @@ public class SequentController extends FxmlController {
      * a Reference (as opposed to the actual TermSelector).
      * (Currently set when control-clicking something on the sequent).
      */
-    private final SubSelection<ProofTermReference> selectedReference;
+    private final SimpleObjectProperty<TermSelector> selectedReference;
     /**
      * Whichever Term was clicked to reveal dependencies in terms of
      * the actual TermSelector.
      */
     private final SimpleObjectProperty<TermSelector> selectedTerm;
-    /**
-     * The selection for the Term that Rules may be applied to.
-     * (Currently set when left-clicking something on the sequent).
-     * Shows up on the top of the RuleApplication view.
-     */
-    private final SimpleObjectProperty<TermSelector> lastClickedTerm;
-
-    /**
-     * The selection for the Term that the mouse is currently hovering over.
-     * This is used to highlight the Term that would be affected when clicked.
-     */
-    private final SimpleObjectProperty<AnnotatedString.TermElement> mouseOverTerm;
 
     // TODO: Don't save the ReferenceGraph at the sequent controller level in the future
     // it should ideally be placed somewhere in the backend, since the ProofScript's interpreter
@@ -88,75 +73,64 @@ public class SequentController extends FxmlController {
         this.listener = listener;
         this.activeProof = null;
         this.referenceGraph = new ReferenceGraph();
-        this.selectedReference = new SubSelection<>(listener::onRequestReferenceHighlighting);
-        this.lastClickedTerm = new SimpleObjectProperty<>(null);
+        this.selectedReference = new SimpleObjectProperty<>(null);
         this.selectedTerm = new SimpleObjectProperty<>(null);
         this.selectedTerm.addListener((observable, oldValue, newValue) -> listener.onClickSequentSubterm(newValue));
-        // We don't care about the particular mouse-over selected term, that's why we won't do anything on events.
-        // Our children however need to communicate somehow and share a common selected item.
-        mouseOverTerm = new SimpleObjectProperty<>(null);
 
         antecedentView.setCellFactory(makeTermCellFactory());
         succedentView.setCellFactory(makeTermCellFactory());
 
         antecedentView.setOnKeyPressed(keyEvent -> {
             if (keyEvent.getCode() == KeyCode.ESCAPE) {
-                antecedentView.getSelectionModel().select(null);
+                selectedTerm.set(null);
+                selectedReference.set(null);
             }
         });
         succedentView.setOnKeyPressed(keyEvent -> {
             if (keyEvent.getCode() == KeyCode.ESCAPE) {
-                succedentView.getSelectionModel().select(null);
+                selectedTerm.set(null);
+                selectedReference.set(null);
             }
         });
     }
 
-    /**
-     * Adds a style class for a certain Term.
-     * @param ts A termselector pointing to the term to be styled.
-     * @param styleClass The style class to be applied (has to be found int style.css
-     * @param prio A priority of the Style (determines which style will be applied when styles clash)
-     * @param id An id to remove the style later on.
-     */
-    public void addStyleForTerm(TermSelector ts, String styleClass, int prio, String id) {
-        List<BasicFormulaView> formulaViews = null;
-        if(ts.getPolarity() == TermSelector.SequentPolarity.ANTECEDENT) {
-            formulaViews = antecedentView.getChildrenUnmodifiable().stream().map(x -> (BasicFormulaView)x).collect(Collectors.toList());
-        } else {
-            formulaViews = antecedentView.getChildrenUnmodifiable().stream().map(x -> (BasicFormulaView)x).collect(Collectors.toList());
-        }
-        formulaViews.get(ts.getTermNo()).addStyleForTerm(ts, styleClass, prio, id);
-    }
-
-    /**
-     * Removes a Style from a FormulaView
-     * @param ts a TermSelector that points at least to the formula the style should be removed from
-     * @param id the id of the style to remove (see {@link #addStyleForTerm(TermSelector, String, int, String)})
-     */
-    public void removeStyle(TermSelector ts, String id) {
-        List<BasicFormulaView> formulaViews = null;
-        if(ts.getPolarity() == TermSelector.SequentPolarity.ANTECEDENT) {
-            formulaViews = antecedentView.getChildrenUnmodifiable().stream().map(x -> (BasicFormulaView)x).collect(Collectors.toList());
-        } else {
-            formulaViews = antecedentView.getChildrenUnmodifiable().stream().map(x -> (BasicFormulaView)x).collect(Collectors.toList());
-        }
-        formulaViews.get(ts.getTermNo()).removeStyle(id);
-    }
-
-    /**
-     * Applies a styleClass to a given Term (styles added like this will be overwritten with the next style to avoid this use add style instead)
-     * @param ts A Termselector pointing to the term to be styled
-     * @param styleClass the styleclass to be applied
-     */
-    public void setStyleForTerm(TermSelector ts, String styleClass) {
-        List<BasicFormulaView> formulaViews = null;
-        if(ts.getPolarity() == TermSelector.SequentPolarity.ANTECEDENT) {
-            formulaViews = antecedentView.getChildrenUnmodifiable().stream().map(x -> (BasicFormulaView)x).collect(Collectors.toList());
-        } else {
-            formulaViews = antecedentView.getChildrenUnmodifiable().stream().map(x -> (BasicFormulaView)x).collect(Collectors.toList());
-        }
-        formulaViews.get(ts.getTermNo()).setStyleForTerm(ts, styleClass);
-    }
+//    /**
+//     * Adds a style class for a certain Term.
+//     * @param ts A termselector pointing to the term to be styled.
+//     * @param styleClass The style class to be applied (has to be found int style.css
+//     * @param prio A priority of the Style (determines which style will be applied when styles clash)
+//     * @param id An id to remove the style later on.
+//     */
+//    public void addStyleForTerm(TermSelector ts, String styleClass, int prio, String id) {
+//        List<ViewFormula> items = null;
+//        if(ts.getPolarity() == TermSelector.SequentPolarity.ANTECEDENT) {
+//            items = antecedentView.getItems();
+//        } else {
+//            items = succedentView.getItems();
+//        }
+//        items = items.stream().filter(x -> x.getIndexInSequent() == ts.getTermNo()).collect(Collectors.toList());
+//        for(ViewFormula f : items) {
+//            f.addStyleForTerm(ts, styleClass, prio, id);
+//        }
+//    }
+//
+//    /**
+//     * Removes a style from the currently applied styles
+//     * @param ts A Termselector point at least to the toplevelterm from which the style should be removed
+//     * @param id The id associated with the style to be removed (see {@link #addStyleForTerm(TermSelector, String, int, String)})
+//     */
+//    public void removeStyle(TermSelector ts, String id) {
+//        List<ViewFormula> items = null;
+//        if(ts.getPolarity() == TermSelector.SequentPolarity.ANTECEDENT) {
+//            items = antecedentView.getItems();
+//        } else {
+//            items = succedentView.getItems();
+//        }
+//        items = items.stream().filter(x -> x.getIndexInSequent() == ts.getTermNo()).collect(Collectors.toList());
+//        for(ViewFormula f : items) {
+//            f.removeStyle(id);
+//        }
+//    }
 
     /**
      * Fills the ListViews with the formulas in the very first sequent (from the root
@@ -218,9 +192,6 @@ public class SequentController extends FxmlController {
                     nodeBefore = activeNode.get(activeProof);
                 }
                 listener.onSwitchViewedNode(activeNode);
-                if(lastClickedTerm.get() != null && lastClickedTerm.get().isValidForSequent(getActiveNode().getSequent())) {
-                    listener.onClickSequentSubterm(lastClickedTerm.get());
-                }
             } catch (RuleException e) {
                 e.printStackTrace(); // should not happen, as long as the activeNode selector is correct
                 return;
@@ -377,7 +348,7 @@ public class SequentController extends FxmlController {
 
 
     private Callback<ListView<ViewFormula>, ListCell<ViewFormula>> makeTermCellFactory() {
-        return listView -> new FormulaCell(selectedTerm);
+        return listView -> new FormulaCell(selectedTerm, selectedReference);
     }
 
     private ProofTermReference attachCurrentActiveProof(TermSelector selector) {
@@ -416,8 +387,8 @@ public class SequentController extends FxmlController {
         return activeProof;
     }
 
-    public SubSelection<ProofTermReference> referenceSelection() {
-        return selectedReference;
+    public TermSelector referenceSelection() {
+        return selectedReference.get();
     }
 
     public void setActiveNode(ProofNodeSelector pns) {

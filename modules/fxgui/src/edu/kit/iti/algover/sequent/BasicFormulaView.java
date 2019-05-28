@@ -5,18 +5,23 @@
  */
 package edu.kit.iti.algover.sequent;
 
+import edu.kit.iti.algover.references.ProofTermReference;
 import edu.kit.iti.algover.rules.SubtermSelector;
 import edu.kit.iti.algover.rules.TermSelector;
 import edu.kit.iti.algover.sequent.formulas.ViewFormula;
+import edu.kit.iti.algover.term.Term;
 import edu.kit.iti.algover.term.prettyprint.AnnotatedString;
 import edu.kit.iti.algover.term.prettyprint.PrettyPrint;
 import edu.kit.iti.algover.util.*;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.geometry.Bounds;
+import javafx.scene.input.KeyCode;
 import javafx.scene.input.MouseEvent;
 import org.fxmisc.richtext.CharacterHit;
 import org.fxmisc.richtext.CodeArea;
 
+import java.awt.*;
+import java.awt.event.KeyEvent;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -38,24 +43,41 @@ public class BasicFormulaView extends CodeArea {
     protected AnnotatedString annotatedString;
     private AnnotatedString.TermElement highlightedElement;
     private List<Quadruple<TermSelector, String, Integer, String>> styles;
+    private boolean ctrlPressed = false;
+    private final SimpleObjectProperty<TermSelector> selectedTerm;
+    private final SimpleObjectProperty<TermSelector> selectedReference;
 
-    public BasicFormulaView(ViewFormula formula, SimpleObjectProperty<TermSelector> selectedTerm) {
+    public BasicFormulaView(ViewFormula formula, SimpleObjectProperty<TermSelector> selectedTerm, SimpleObjectProperty<TermSelector> selectedReference) {
         super("");
 
         this.formula = formula;
         this.styles = new ArrayList<>();
+        this.selectedTerm = selectedTerm;
+        this.selectedReference = selectedReference;
 
         getStyleClass().add("formula-view");
         setFocusTraversable(false);
         setEditable(false);
 
+        //This might be a problem with increasing size of Proofs
         selectedTerm.addListener(this::updateSelected);
+        selectedReference.addListener(this::updateSelectedRef);
 
         applyBaseStyle();
 
         relayout();
 
-        setOnMouseClicked(event -> selectedTerm.set(getMouseOverSelector()));
+        //This is kind of ugly but i dont kown how to avoid it
+
+        setOnKeyPressed(e -> {if(e.getCode() == KeyCode.CONTROL) { ctrlPressed = true; } });
+        setOnKeyReleased(e -> {if(e.getCode() == KeyCode.CONTROL) { ctrlPressed = false; } });
+        setOnMouseClicked(event -> {
+            if(highlightedElement != null) {
+                if(event.isControlDown()) {
+                    selectedReference.set(getMouseOverSelector());
+                } else {selectedTerm.set(getMouseOverSelector());}
+            }
+        });
         setOnMouseMoved(this::handleHover);
         setOnMouseExited(event -> {
             removeStyle("highlight");
@@ -65,16 +87,31 @@ public class BasicFormulaView extends CodeArea {
         widthProperty().addListener(x -> relayout());
     }
 
+    @Override
+    protected void finalize() throws Throwable {
+        super.finalize();
+        selectedTerm.removeListener(this::updateSelected);
+        selectedReference.removeListener(this::updateSelectedRef);
+    }
+
     private TermSelector getMouseOverSelector() {
         return new TermSelector(formula.getTermSelector(), highlightedElement.getSubtermSelector());
     }
 
-    private void updateSelected(javafx.beans.value.ObservableValue<? extends TermSelector> observableValue, TermSelector termSelector, TermSelector termSelector1) {
-        if(termSelector != null && termSelector.equals(formula.getTermSelector())) {
-            addStyleForTerm(formula.getTermSelector(), "selected", StylePrios.SELECTED, "selected");
-        } else {
-            removeStyle("selected");
+    private void updateSelected(javafx.beans.value.ObservableValue<? extends TermSelector> observableValue, TermSelector oldV, TermSelector newV) {
+        removeStyle("selected");
+        if(newV != null && newV.getPolarity() == formula.getPolarity() && newV.getTermNo() == formula.getIndexInSequent()) {
+            addStyleForTerm(newV, "selected", StylePrios.SELECTED, "selected");
         }
+        updateStyleClasses();
+    }
+
+    private void updateSelectedRef(javafx.beans.value.ObservableValue<? extends TermSelector> observableValue, TermSelector oldV, TermSelector newV) {
+        removeStyle("selectedRef");
+        if(newV != null && newV.getPolarity() == formula.getPolarity() && newV.getTermNo() == formula.getIndexInSequent()) {
+            addStyleForTerm(newV, "selectedRef", StylePrios.SELECTED + 1, "selectedRef");
+        }
+        updateStyleClasses();
     }
 
     private String styleForType() {
@@ -121,6 +158,10 @@ public class BasicFormulaView extends CodeArea {
         for(Quadruple<TermSelector, String, Integer, String> t : styles) {
             setStyleForTerm(t.fst, t.snd);
         }
+//        System.out.println("Current styleclasses:");
+//        for(Quadruple<TermSelector, String, Integer, String> t : styles) {
+//            System.out.println(t.snd);
+//        }
     }
 
     /**
