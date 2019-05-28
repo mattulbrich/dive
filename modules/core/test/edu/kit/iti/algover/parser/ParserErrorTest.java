@@ -231,4 +231,12 @@ public class ParserErrorTest {
         parse("class C { method m() { } function m() : int { 0 } }");
     }
 
+    // was an assertion error.
+    @Test
+    public void unknownClass() throws Exception {
+        thrown.expect(DafnyException.class);
+        thrown.expectMessage("Unknown identifier: node");
+        parse("class C { method m() { node.next := node.next.next; } }");
+    }
+
 }
