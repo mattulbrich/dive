@@ -8,17 +8,15 @@ import edu.kit.iti.algover.proof.*;
 import edu.kit.iti.algover.references.ProofTermReference;
 import edu.kit.iti.algover.references.ReferenceGraph;
 import edu.kit.iti.algover.rules.*;
-import edu.kit.iti.algover.sequent.formulas.AddedFormula;
-import edu.kit.iti.algover.sequent.formulas.DeletedFormula;
-import edu.kit.iti.algover.sequent.formulas.ModifiedFormula;
-import edu.kit.iti.algover.sequent.formulas.OriginalFormula;
-import edu.kit.iti.algover.sequent.formulas.TopLevelFormula;
+import edu.kit.iti.algover.sequent.formulas.ViewFormula;
 import edu.kit.iti.algover.term.Sequent;
 import edu.kit.iti.algover.term.Term;
 import edu.kit.iti.algover.term.prettyprint.AnnotatedString;
 import edu.kit.iti.algover.util.Pair;
+import edu.kit.iti.algover.util.Quadruple;
 import edu.kit.iti.algover.util.SubSelection;
 import edu.kit.iti.algover.util.SubtermSelectorReplacementVisitor;
+import javafx.beans.property.SimpleObjectProperty;
 import javafx.fxml.FXML;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListCell;
@@ -28,6 +26,7 @@ import javafx.util.Callback;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Created by philipp on 12.07.17.
@@ -39,9 +38,9 @@ public class SequentController extends FxmlController {
     @FXML
     private Label goalTypeLabel;
     @FXML
-    private ListView<TopLevelFormula> antecedentView;
+    private ListView<ViewFormula> antecedentView;
     @FXML
-    private ListView<TopLevelFormula> succedentView;
+    private ListView<ViewFormula> succedentView;
 
     // Subselections, see their docs for clarification
     /**
@@ -54,18 +53,19 @@ public class SequentController extends FxmlController {
      * Whichever Term was clicked to reveal dependencies in terms of
      * the actual TermSelector.
      */
-    private final SubSelection<TermSelector> selectedTerm;
+    private final SimpleObjectProperty<TermSelector> selectedTerm;
     /**
      * The selection for the Term that Rules may be applied to.
      * (Currently set when left-clicking something on the sequent).
      * Shows up on the top of the RuleApplication view.
      */
-    private final SubSelection<TermSelector> lastClickedTerm;
+    private final SimpleObjectProperty<TermSelector> lastClickedTerm;
+
     /**
      * The selection for the Term that the mouse is currently hovering over.
      * This is used to highlight the Term that would be affected when clicked.
      */
-    private final SubSelection<AnnotatedString.TermElement> mouseOverTerm;
+    private final SimpleObjectProperty<AnnotatedString.TermElement> mouseOverTerm;
 
     // TODO: Don't save the ReferenceGraph at the sequent controller level in the future
     // it should ideally be placed somewhere in the backend, since the ProofScript's interpreter
@@ -89,15 +89,15 @@ public class SequentController extends FxmlController {
         this.activeProof = null;
         this.referenceGraph = new ReferenceGraph();
         this.selectedReference = new SubSelection<>(listener::onRequestReferenceHighlighting);
-        this.selectedTerm = selectedReference.subSelection(this::termSelectorFromReference, this::attachCurrentActiveProof);
-        this.lastClickedTerm = new SubSelection<>(listener::onClickSequentSubterm);
+        this.lastClickedTerm = new SimpleObjectProperty<>(null);
+        this.selectedTerm = new SimpleObjectProperty<>(null);
+        this.selectedTerm.addListener((observable, oldValue, newValue) -> listener.onClickSequentSubterm(newValue));
         // We don't care about the particular mouse-over selected term, that's why we won't do anything on events.
         // Our children however need to communicate somehow and share a common selected item.
-        this.mouseOverTerm = new SubSelection<>(r -> {
-        });
+        mouseOverTerm = new SimpleObjectProperty<>(null);
 
-        antecedentView.setCellFactory(makeTermCellFactory(TermSelector.SequentPolarity.ANTECEDENT));
-        succedentView.setCellFactory(makeTermCellFactory(TermSelector.SequentPolarity.SUCCEDENT));
+        antecedentView.setCellFactory(makeTermCellFactory());
+        succedentView.setCellFactory(makeTermCellFactory());
 
         antecedentView.setOnKeyPressed(keyEvent -> {
             if (keyEvent.getCode() == KeyCode.ESCAPE) {
@@ -109,6 +109,53 @@ public class SequentController extends FxmlController {
                 succedentView.getSelectionModel().select(null);
             }
         });
+    }
+
+    /**
+     * Adds a style class for a certain Term.
+     * @param ts A termselector pointing to the term to be styled.
+     * @param styleClass The style class to be applied (has to be found int style.css
+     * @param prio A priority of the Style (determines which style will be applied when styles clash)
+     * @param id An id to remove the style later on.
+     */
+    public void addStyleForTerm(TermSelector ts, String styleClass, int prio, String id) {
+        List<BasicFormulaView> formulaViews = null;
+        if(ts.getPolarity() == TermSelector.SequentPolarity.ANTECEDENT) {
+            formulaViews = antecedentView.getChildrenUnmodifiable().stream().map(x -> (BasicFormulaView)x).collect(Collectors.toList());
+        } else {
+            formulaViews = antecedentView.getChildrenUnmodifiable().stream().map(x -> (BasicFormulaView)x).collect(Collectors.toList());
+        }
+        formulaViews.get(ts.getTermNo()).addStyleForTerm(ts, styleClass, prio, id);
+    }
+
+    /**
+     * Removes a Style from a FormulaView
+     * @param ts a TermSelector that points at least to the formula the style should be removed from
+     * @param id the id of the style to remove (see {@link #addStyleForTerm(TermSelector, String, int, String)})
+     */
+    public void removeStyle(TermSelector ts, String id) {
+        List<BasicFormulaView> formulaViews = null;
+        if(ts.getPolarity() == TermSelector.SequentPolarity.ANTECEDENT) {
+            formulaViews = antecedentView.getChildrenUnmodifiable().stream().map(x -> (BasicFormulaView)x).collect(Collectors.toList());
+        } else {
+            formulaViews = antecedentView.getChildrenUnmodifiable().stream().map(x -> (BasicFormulaView)x).collect(Collectors.toList());
+        }
+        formulaViews.get(ts.getTermNo()).removeStyle(id);
+    }
+
+    /**
+     * Applies a styleClass to a given Term (styles added like this will be overwritten with the next style to avoid this use add style instead)
+     * @param ts A Termselector pointing to the term to be styled
+     * @param styleClass the styleclass to be applied
+     */
+    public void setStyleForTerm(TermSelector ts, String styleClass) {
+        List<BasicFormulaView> formulaViews = null;
+        if(ts.getPolarity() == TermSelector.SequentPolarity.ANTECEDENT) {
+            formulaViews = antecedentView.getChildrenUnmodifiable().stream().map(x -> (BasicFormulaView)x).collect(Collectors.toList());
+        } else {
+            formulaViews = antecedentView.getChildrenUnmodifiable().stream().map(x -> (BasicFormulaView)x).collect(Collectors.toList());
+        }
+        formulaViews.get(ts.getTermNo()).setStyleForTerm(ts, styleClass);
     }
 
     /**
@@ -171,8 +218,8 @@ public class SequentController extends FxmlController {
                     nodeBefore = activeNode.get(activeProof);
                 }
                 listener.onSwitchViewedNode(activeNode);
-                if(lastClickedTerm.selected().get() != null && lastClickedTerm.selected().get().isValidForSequent(getActiveNode().getSequent())) {
-                    listener.onClickSequentSubterm(lastClickedTerm.selected().get());
+                if(lastClickedTerm.get() != null && lastClickedTerm.get().isValidForSequent(getActiveNode().getSequent())) {
+                    listener.onClickSequentSubterm(lastClickedTerm.get());
                 }
             } catch (RuleException e) {
                 e.printStackTrace(); // should not happen, as long as the activeNode selector is correct
@@ -184,7 +231,7 @@ public class SequentController extends FxmlController {
 
 
     /**
-     * View a preview for a rule application. This highlights the added/removed {@link TopLevelFormula}s
+     * View a preview for a rule application. This highlights the added/removed {@link ViewFormula}s
      * and changed {@link Term}s.
      * <p>
      * If the application has no {@link BranchInfo}s (because it is a closing rule, for example), then
@@ -238,12 +285,12 @@ public class SequentController extends FxmlController {
 
     private void updateSequent(Sequent sequent, BranchInfo branchInfo) {
         antecedentView.getItems().setAll(calculateAssertions(sequent.getAntecedent(), TermSelector.SequentPolarity.ANTECEDENT, branchInfo));
-        List<TopLevelFormula> after = calculateAssertions(sequent.getSuccedent(), TermSelector.SequentPolarity.SUCCEDENT, branchInfo);
+        List<ViewFormula> after = calculateAssertions(sequent.getSuccedent(), TermSelector.SequentPolarity.SUCCEDENT, branchInfo);
         succedentView.getItems().setAll(after);
     }
 
-    private List<TopLevelFormula> calculateAssertions(List<ProofFormula> proofFormulas, TermSelector.SequentPolarity polarity, BranchInfo branchInfo) {
-        ArrayList<TopLevelFormula> formulas = new ArrayList<>(proofFormulas.size());
+    private List<ViewFormula> calculateAssertions(List<ProofFormula> proofFormulas, TermSelector.SequentPolarity polarity, BranchInfo branchInfo) {
+        ArrayList<ViewFormula> formulas = new ArrayList<>(proofFormulas.size());
 
         int deletedFormulas = 0;
 
@@ -253,7 +300,7 @@ public class SequentController extends FxmlController {
             // Short-circuit this loop if there is a ModifiedFormula to be built instead.
             if (branchInfo != null) {
                 Term term = proofFormulas.get(i).getTerm();
-                List<SubtermSelector> modifiedParts = new ArrayList<>();
+                List<TermSelector> modifiedParts = new ArrayList<>();
 
                 for (Pair<TermSelector, Term> replacementPair : branchInfo.getReplacements()) {
                     // If there were replacements for the current term
@@ -265,7 +312,7 @@ public class SequentController extends FxmlController {
                         SubtermSelectorReplacementVisitor replacmentVisitor = new SubtermSelectorReplacementVisitor(replacementPair.getSnd());
                         try {
                             term = term.accept(replacmentVisitor, replacementPair.getFst().getSubtermSelector());
-                            modifiedParts.add(replacementPair.getFst().getSubtermSelector());
+                            modifiedParts.add(replacementPair.getFst());
                         } catch (RuleException e) {
                             // In this case the SubtermSelector did not fit the Term!
                             throw new RuntimeException(e);
@@ -274,7 +321,7 @@ public class SequentController extends FxmlController {
                 }
 
                 if (!modifiedParts.isEmpty()) {
-                    formulas.add(new ModifiedFormula(modifiedParts, term, i));
+                    formulas.add(new ViewFormula(i, term, ViewFormula.Type.CHANGED, polarity, modifiedParts));
                     continue formulaLoop;
                 }
 
@@ -284,13 +331,13 @@ public class SequentController extends FxmlController {
 
                 for (ProofFormula deleted : deletions) {
                     if (proofFormulas.get(i).getTerm().equals(deleted.getTerm())) {
-                        formulas.add(new DeletedFormula(deleted.getTerm()));
+                        formulas.add(new ViewFormula(-1, deleted.getTerm(), ViewFormula.Type.DELETED, polarity));
                         deletedFormulas++;
                         continue formulaLoop;
                     }
                 }
             }
-            formulas.add(new OriginalFormula(i, proofFormulas.get(i).getTerm()));
+            formulas.add(new ViewFormula(i, proofFormulas.get(i).getTerm(), ViewFormula.Type.ORIGINAL, polarity));
         }
 
         // render additions on the sequent
@@ -300,7 +347,7 @@ public class SequentController extends FxmlController {
                     : branchInfo.getAdditions().getSuccedent();
 
             for (ProofFormula addition : additions) {
-                formulas.add(new AddedFormula(formulas.size() - deletedFormulas, addition.getTerm()));
+                formulas.add(new ViewFormula(formulas.size() - deletedFormulas, addition.getTerm(), ViewFormula.Type.ADDED, polarity));
             }
         }
         return formulas;
@@ -329,8 +376,8 @@ public class SequentController extends FxmlController {
     }
 
 
-    private Callback<ListView<TopLevelFormula>, ListCell<TopLevelFormula>> makeTermCellFactory(TermSelector.SequentPolarity polarity) {
-        return listView -> new FormulaCell(polarity, selectedTerm, lastClickedTerm, mouseOverTerm);
+    private Callback<ListView<ViewFormula>, ListCell<ViewFormula>> makeTermCellFactory() {
+        return listView -> new FormulaCell(selectedTerm);
     }
 
     private ProofTermReference attachCurrentActiveProof(TermSelector selector) {

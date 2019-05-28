@@ -6,70 +6,167 @@
 package edu.kit.iti.algover.sequent;
 
 import edu.kit.iti.algover.rules.SubtermSelector;
-import edu.kit.iti.algover.sequent.formulas.TopLevelFormula;
+import edu.kit.iti.algover.rules.TermSelector;
+import edu.kit.iti.algover.sequent.formulas.ViewFormula;
 import edu.kit.iti.algover.term.prettyprint.AnnotatedString;
 import edu.kit.iti.algover.term.prettyprint.PrettyPrint;
-import edu.kit.iti.algover.util.SubSelection;
-import edu.kit.iti.algover.util.TextUtil;
+import edu.kit.iti.algover.util.*;
+import javafx.beans.property.SimpleObjectProperty;
 import javafx.geometry.Bounds;
 import javafx.scene.input.MouseEvent;
 import org.fxmisc.richtext.CharacterHit;
 import org.fxmisc.richtext.CodeArea;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 import java.util.OptionalInt;
+import java.util.stream.Collectors;
 
 /**
  * Created by Philipp on 22.07.2017.
  */
 public class BasicFormulaView extends CodeArea {
 
-    protected final TopLevelFormula formula;
-    protected final SubSelection<AnnotatedString.TermElement> mouseOverTerm;
+    public class StylePrios {
+        public static final int MOUSEOVER = 30;
+        public static final int FORMULATYPE = 10;
+        public static final int SELECTED = 20;
+    }
 
+    protected final ViewFormula formula;
     protected AnnotatedString annotatedString;
-    protected AnnotatedString.TermElement highlightedElement;
+    private AnnotatedString.TermElement highlightedElement;
+    private List<Quadruple<TermSelector, String, Integer, String>> styles;
 
-    public BasicFormulaView(TopLevelFormula formula, SubSelection<AnnotatedString.TermElement> mouseOverTerm) {
+    public BasicFormulaView(ViewFormula formula, SimpleObjectProperty<TermSelector> selectedTerm) {
         super("");
 
         this.formula = formula;
-        this.mouseOverTerm = mouseOverTerm;
+        this.styles = new ArrayList<>();
 
         getStyleClass().add("formula-view");
         setFocusTraversable(false);
         setEditable(false);
 
+        selectedTerm.addListener(this::updateSelected);
+
+        applyBaseStyle();
+
         relayout();
 
+        setOnMouseClicked(event -> selectedTerm.set(getMouseOverSelector()));
         setOnMouseMoved(this::handleHover);
         setOnMouseExited(event -> {
-            highlightedElement = null;
+            removeStyle("highlight");
             updateStyleClasses();
         });
 
         widthProperty().addListener(x -> relayout());
     }
 
+    private TermSelector getMouseOverSelector() {
+        return new TermSelector(formula.getTermSelector(), highlightedElement.getSubtermSelector());
+    }
+
+    private void updateSelected(javafx.beans.value.ObservableValue<? extends TermSelector> observableValue, TermSelector termSelector, TermSelector termSelector1) {
+        if(termSelector != null && termSelector.equals(formula.getTermSelector())) {
+            addStyleForTerm(formula.getTermSelector(), "selected", StylePrios.SELECTED, "selected");
+        } else {
+            removeStyle("selected");
+        }
+    }
+
+    private String styleForType() {
+        switch (formula.getType()) {
+            case ADDED:
+                return "formula-added";
+            case DELETED:
+                return "formula-deleted";
+            default:
+                return null;
+        }
+    }
+
+    private void applyBaseStyle() {
+        String typeStyle = styleForType();
+        if(typeStyle != null) {
+            addStyleForTerm(formula.getTermSelector(), typeStyle, StylePrios.FORMULATYPE, "formula-type");
+        }
+        for(TermSelector ts : formula.getChangedTerms()) {
+            addStyleForTerm(ts, "formula-modified", StylePrios.FORMULATYPE, "modified-parts");
+        }
+        updateStyleClasses();
+    }
+
     protected void handleHover(MouseEvent mouseEvent) {
         CharacterHit hit = hit(mouseEvent.getX(), mouseEvent.getY());
         OptionalInt charIdx = hit.getCharacterIndex();
         if (charIdx.isPresent()) {
+            removeStyle("highlight");
             highlightedElement = annotatedString.getTermElementAt(charIdx.getAsInt());
+            addStyleForTerm(new TermSelector(formula.getPolarity(), formula.getIndexInSequent(), highlightedElement.getSubtermSelector()), "highlighted", StylePrios.MOUSEOVER, "highlight");
         } else {
             highlightedElement = null;
         }
-        mouseOverTerm.select(highlightedElement);
         updateStyleClasses();
     }
 
+    /**
+     * Applies all currently set Styleclasses
+     */
     protected void updateStyleClasses() {
         clearStyle(0, getLength());
-        highlightFromElement(highlightedElement, "highlighted");
+        styles.sort((o1, o2) -> o1.trd > o2.trd ? 1 : o1.trd == o2.trd ? 0 : -1);
+        for(Quadruple<TermSelector, String, Integer, String> t : styles) {
+            setStyleForTerm(t.fst, t.snd);
+        }
     }
 
-    protected void highlightFromElement(AnnotatedString.TermElement termElement, String cssClass) {
-        if (termElement != null) {
-            setStyleClass(termElement.getBegin(), termElement.getEnd(), cssClass);
+    /**
+     * Adds a style class for a certain Term.
+     * @param ts A termselector pointing to the term to be styled.
+     * @param styleClass The style class to be applied (has to be found int style.css
+     * @param prio A priority of the Style (determines which style will be applied when styles clash)
+     * @param id An id to remove the style later on.
+     */
+    public void addStyleForTerm(TermSelector ts, String styleClass, int prio, String id) {
+        styles.add(new Quadruple<>(ts, styleClass, prio, id));
+    }
+
+    /**
+     * Removes a style from the currently applied styles
+     * @param id The id associated with the style to be removed (see {@link #addStyleForTerm(TermSelector, String, int, String)})
+     */
+    public void removeStyle(String id) {
+        styles = styles.stream().filter(x -> !x.fth.equals(id)).collect(Collectors.toList());
+    }
+
+    /**
+     * Applies a styleClass to a given Term (styles added like this will be overwritten with the next style to avoid this use add style instead)
+     * @param ts A Termselector pointing to the term to be styled
+     * @param styleClass the styleclass to be applied
+     */
+    public void setStyleForTerm(TermSelector ts, String styleClass) {
+        if(annotatedString != null) {
+            if(ts.getSubtermSelector().getDepth() == 0) {
+                setStyleClass(0, getText().length(), styleClass);
+                return;
+            }
+            List<AnnotatedString.TermElement> elements = annotatedString.getAllTermElements();
+            elements = elements.stream().filter(
+                    x -> x.getSubtermSelector().equals(ts.getSubtermSelector())
+                            && ts.getPolarity() == formula.getPolarity())
+                    .collect(Collectors.toList());
+            if (elements.size() == 0) {
+                return;
+                //throw new IllegalArgumentException("Termselector not present in this view.");
+            } else if (elements.size() > 1) {
+                return;
+                //throw new RuntimeException("this should not happen: Several Annotated Strings with same ts.");
+            }
+            AnnotatedString.TermElement element = elements.get(0);
+            setStyleClass(element.getBegin(), element.getEnd(), styleClass);
         }
     }
 

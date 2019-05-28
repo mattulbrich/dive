@@ -2,7 +2,7 @@
     -fx-font-family: monospace;
 }
 
-.list-view:focused .list-cell:selected .formula-view .text {
+.formula-view .selected {
     -fx-fill: whitesmoke;
 }
 
@@ -16,7 +16,7 @@
     -fx-fill: whitesmoke;
 }
 
-.formula-view .modified {
+.formula-view .formula-modified {
     -rtfx-background-color: #55EE55;
 }
 
@@ -25,12 +25,12 @@
     -fx-fill: whitesmoke;
 }
 
-.list-cell.formula-cell:formula-added {
-    -fx-background-color: #55EE55;
+.formula-view .formula-added {
+    -rtfx-background-color: #55EE55;
 }
 
-.list-cell.formula-cell:formula-deleted {
-    -fx-background-color: #EE5555;
+.formula-view .formula-deleted {
+    -rtfx-background-color: #EE5555;
 }
 
 .list-cell.formula-cell:formula-modified {
