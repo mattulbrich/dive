@@ -425,6 +425,7 @@ class ProofNodeInterpreterManager {
                 if(graph != null) {
                     try {
                         graph.addFromRuleApplication(interpreter.getCurrentProof(), lastSelectedGoalNode, lastSelectedGoalNode.getChildren());
+                        graph.addFromScriptNode(node,  lastSelectedGoalNode, interpreter.getCurrentProof());
                     } catch (RuleException e) {
                         throw new RuntimeException(e);
                     }
@@ -446,7 +447,7 @@ class ProofNodeInterpreterManager {
                         if(graph != null) {
                             try {
                                 graph.addFromRuleApplication(interpreter.getCurrentProof(), lastSelectedGoalNode, lastSelectedGoalNode.getChildren());
-
+                                graph.addFromScriptNode(node,  lastSelectedGoalNode, interpreter.getCurrentProof());
                             } catch (RuleException e) {
                                 throw new RuntimeException(e);
                             }
@@ -457,6 +458,7 @@ class ProofNodeInterpreterManager {
                         while(temporaryGoal.getParent() != lastSelectedGoalNode){
                             try {
                                 graph.addFromRuleApplication(interpreter.getCurrentProof(), temporaryGoal, temporaryGoal.getParent().getChildren());
+                                graph.addFromScriptNode(node, lastSelectedGoalNode, interpreter.getCurrentProof());
                             } catch (RuleException e) {
                                 e.printStackTrace();
                             }

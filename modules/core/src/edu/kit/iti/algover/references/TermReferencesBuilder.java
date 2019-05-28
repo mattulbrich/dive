@@ -69,7 +69,7 @@ public final class TermReferencesBuilder {
     }
 
     private void buildReferencesAfterApplication(
-            ProofNodeSelector proofNodeAfter, Sequent before, Sequent after, TermSelector changedSelector) {
+            ProofNodeSelector proofNodeAfter, Sequent before, Sequent after, TermSelector changedSelector) throws RuleException {
         try {
             TermCollector collectTermsBefore = new TermCollector();
             TermCollector collectTermsAfter = new TermCollector();
@@ -107,8 +107,9 @@ public final class TermReferencesBuilder {
 
 
         } catch (RuleException e) {
-            e.printStackTrace(); //TODO: Handle errors
+            e.printStackTrace();
             // this should _only_ happen, if changedSelector is an invalid selector!
+            throw e;
         }
     }
 

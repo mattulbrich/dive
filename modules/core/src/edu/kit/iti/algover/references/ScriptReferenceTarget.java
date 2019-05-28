@@ -12,10 +12,10 @@ import java.io.File;
  * ReferenceTarget for scriptnodes as values.
  * <p>
  * One possible use case is a rule application.
- * Not only Terms reference each other between dofferent proofnodes
+ * Not only Terms reference each other between different proofnodes
  * but a rule application is the reason for the
- * term refernces between terms of different proof nodes. Therefore a reference to the
- * correspinding script line shoudl be created as well
+ * term references between terms of different proof nodes. Therefore a reference to the
+ * corresponding script line should be created as well
  * <p>
  * @author S. Grebing
  */
@@ -52,7 +52,7 @@ public class ScriptReferenceTarget extends ReferenceTarget{
 
     @Override
     public String toString() {
-        return "ScriptReference{" +
+        return "ScriptReferenceTarget{" +
                 "file=" + file +
                 ", linenumber=" + linenumber +
                 '}';

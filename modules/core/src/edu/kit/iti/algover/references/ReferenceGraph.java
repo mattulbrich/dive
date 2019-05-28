@@ -157,8 +157,21 @@ public class ReferenceGraph {
         }
     }
 
-    public void addFromScriptNode(ASTNode node, File scriptfile, int linenumber) {
-        //TODO
+    /**
+     * Add all references from a scriptASTNode to ProofTermReferenceTargets
+     * @param node Script ASTNode which transcribes a rule application
+     * @param pNode The proof node to which the proof rule was applied
+     */
+    public void addFromScriptNode(ASTNode node, ProofNode pNode, Proof proof) {
+        ScriptReferenceTarget sct;
+        File file = new File(node.getOrigin());
+        if (file.exists()) {
+            sct = new ScriptReferenceTarget(file, node.getStartPosition().getLineNumber(), node);
+        } else {
+            sct = new ScriptReferenceTarget(null, node.getStartPosition().getLineNumber(), node);
+        }
+        ScriptReferenceBuilder srb = new ScriptReferenceBuilder(this, sct, pNode, proof);
+
     }
 
 
@@ -254,7 +267,7 @@ public class ReferenceGraph {
                             branchInfo.getReplacements().forEach(termSelectorTermPair -> {
                                 if (childSelector.hasPrefix(termSelectorTermPair.getFst())) {
                                     //TODO richtig umsetzen, bisher nur näherung
-                                    //  Term changedTerm =computeTermValue(currentTarget.getProofNodeSelector().getParentSelector(), termSelectorTermPair.getFst(),proof);
+                                    //Term changedTerm =computeTermValue(currentTarget.getProofNodeSelector().getParentSelector(), termSelectorTermPair.getFst(),proof);
                                     parents.add(new ProofTermReferenceTarget(currentTarget.getProofNodeSelector().getParentSelector(), termSelectorTermPair.getFst()));
                                 }
                             });
