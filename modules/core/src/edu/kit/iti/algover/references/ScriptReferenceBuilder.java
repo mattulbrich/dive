@@ -4,7 +4,18 @@ package edu.kit.iti.algover.references;
 import edu.kit.iti.algover.proof.Proof;
 import edu.kit.iti.algover.proof.ProofNode;
 import edu.kit.iti.algover.proof.ProofNodeSelector;
+import edu.kit.iti.algover.rules.BranchInfo;
+import edu.kit.iti.algover.rules.ProofRuleApplication;
+import edu.kit.iti.algover.rules.RuleException;
 import edu.kit.iti.algover.rules.TermSelector;
+import edu.kit.iti.algover.term.Sequent;
+import edu.kit.iti.algover.term.Term;
+import edu.kit.iti.algover.util.ImmutableList;
+import edu.kit.iti.algover.util.Pair;
+
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 
 /**
@@ -31,20 +42,41 @@ public class ScriptReferenceBuilder {
     }
 
 
+    public void buildReferences(List<ProofNode> children) throws RuleException {
+        for (ProofNode afterNode : children) {
+            //get ProofRuleApplication from node
+            ProofNodeSelector pns = new ProofNodeSelector(afterNode);
+            ProofRuleApplication pra = afterNode.getProofRuleApplication();
 
 
-    private void buildReferences(ProofNodeSelector proofNodeAfter, TermSelector changedTerm){
+            ImmutableList<BranchInfo> branchInfos = pra.getBranchInfo();
+            for (BranchInfo bi : branchInfos) {
+                //handle replacements
+                ImmutableList<Pair<TermSelector, Term>> replacements = bi.getReplacements();
+                for (Pair<TermSelector, Term> repl : replacements) {
+                    this.buildReferencesForTerm(pns, repl.getFst());
+                }
+
+                //TODO bi.getAdditions();
+
+            }
+
+        }
+
+    }
+
+    private void buildReferencesForTerm(ProofNodeSelector proofNodeAfter, TermSelector changedTerm) throws RuleException {
         ProofTermReferenceTarget pt = new ProofTermReferenceTarget(proofNodeAfter, changedTerm);
         graph.addReference(pt, sct);
+        Sequent sequent = proofNodeAfter.get(proof).getSequent();
+        TermCollector collector = new TermCollector();
+        collector.collectInSequent(sequent, changedTerm);
+        Map<TermSelector, Term> collectedTerms = collector.getCollectedTerms();
+        Set<TermSelector> termSelectors = collectedTerms.keySet();
 
-
-
-        //additions and replacements -> dann referenz für jedes Element erzeugen und mit ScriptreferenceTarget verknüpfen
-    //    ProofRuleApplication proofRuleApplication = pNode.getProofRuleApplication();
-    //    List<ProofNode> children = pNode.getChildren();
-    //    ProofNodeSelector parentSel = new ProofNodeSelector(pNode);
-
-
-
+        for (TermSelector ts : termSelectors) {
+            ProofTermReferenceTarget target = new ProofTermReferenceTarget(proofNodeAfter, ts);
+            graph.addReference(target, sct);
+        }
     }
 }

@@ -162,15 +162,17 @@ public class ReferenceGraph {
      * @param node Script ASTNode which transcribes a rule application
      * @param pNode The proof node to which the proof rule was applied
      */
-    public void addFromScriptNode(ASTNode node, ProofNode pNode, Proof proof) {
-        ScriptReferenceTarget sct;
-        File file = new File(node.getOrigin());
+    public void addFromScriptNode(ASTNode node, ProofNode pNode, Proof proof) throws RuleException {
+        ScriptReferenceTarget sct = new ScriptReferenceTarget(node.getStartPosition().getLineNumber(), node);
+      /*  File file = new File(node.getOrigin());
         if (file.exists()) {
             sct = new ScriptReferenceTarget(file, node.getStartPosition().getLineNumber(), node);
         } else {
             sct = new ScriptReferenceTarget(null, node.getStartPosition().getLineNumber(), node);
-        }
+        }*/
         ScriptReferenceBuilder srb = new ScriptReferenceBuilder(this, sct, pNode, proof);
+        srb.buildReferences(pNode.getChildren());
+        this.getGraph();
 
     }
 

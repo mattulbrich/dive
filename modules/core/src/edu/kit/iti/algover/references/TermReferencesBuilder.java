@@ -98,9 +98,6 @@ public final class TermReferencesBuilder {
                                 from,
                                 to
                         );
-                    //    System.out.println("Added Ref = " + from.getProofNodeSelector()+ " "+ from.getTermSelector() + " "+termBefore);
-                    //    System.out.println("==>" + to.getProofNodeSelector()+ " "+ to.getTermSelector() + " "+termAfter);
-
                     }
                 });
             });

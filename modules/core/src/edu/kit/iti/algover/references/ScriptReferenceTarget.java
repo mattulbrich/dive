@@ -35,7 +35,7 @@ public class ScriptReferenceTarget extends ReferenceTarget{
         return node;
     }
 
-    private final File file;
+    private File file;
     private final int linenumber;
     private final ASTNode node;
 
@@ -44,6 +44,12 @@ public class ScriptReferenceTarget extends ReferenceTarget{
         this.linenumber = linenumber;
         this.node = node;
     }
+    public ScriptReferenceTarget( int linenumber, ASTNode node) {
+
+        this.linenumber = linenumber;
+        this.node = node;
+    }
+
 
     @Override
     public <R> R accept(ReferenceTargetVisitor<R> visitor) {
@@ -72,7 +78,10 @@ public class ScriptReferenceTarget extends ReferenceTarget{
 
     @Override
     public int hashCode() {
-        int result = file.getName().hashCode();
+        int result = 1;
+        if(file != null) {
+            result = file.getName().hashCode();
+        }
         result = 31 * result + node.hashCode();
         return result;
     }
