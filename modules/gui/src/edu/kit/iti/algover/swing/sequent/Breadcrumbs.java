@@ -13,9 +13,12 @@ import edu.kit.iti.algover.project.Project;
 import edu.kit.iti.algover.proof.PVC;
 import edu.kit.iti.algover.proof.PVCCollection;
 import edu.kit.iti.algover.swing.DiveCenter;
+import edu.kit.iti.algover.swing.actions.BarAction;
+import edu.kit.iti.algover.swing.actions.BarManager.Initialisable;
 import edu.kit.iti.algover.swing.util.Underline;
 
 import javax.swing.*;
+import javax.swing.border.EtchedBorder;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
@@ -24,10 +27,10 @@ import java.util.List;
 
 import static java.awt.Color.BLUE;
 
-public class Breadcrumbs extends JPanel {
+public class Breadcrumbs extends JPanel implements Initialisable {
 
     private static final Font LABEL_FONT = new Font("sans-serif", Font.PLAIN, 12);
-    private final DiveCenter center;
+    private DiveCenter center;
     private final JLabel classLabel;
     private final JLabel methLabel;
     private final JLabel pvcLabel;
@@ -57,10 +60,8 @@ public class Breadcrumbs extends JPanel {
         }
     }
 
-    public Breadcrumbs(DiveCenter center) {
-        this.center = center;
-        center.properties().activePVC.addObserver(this::updatePVC);
-        center.properties().noProjectMode.addObserver(this::updatePVC);
+    public Breadcrumbs() {
+        setLayout(new FlowLayout(FlowLayout.LEFT));
         {
             this.classLabel = new JLabel();
             classLabel.setFont(LABEL_FONT);
@@ -81,6 +82,16 @@ public class Breadcrumbs extends JPanel {
             pvcLabel.addMouseListener(new BlueListener(pvcLabel));
             add(pvcLabel);
         }
+
+        // setPreferredSize(new Dimension(300,0));
+        setBorder(BorderFactory.createEtchedBorder(EtchedBorder.LOWERED));
+        setMaximumSize(new Dimension(500,30));
+    }
+
+    public void initialised() {
+        this.center = (DiveCenter) getClientProperty(BarAction.CENTER);
+        center.properties().activePVC.addObserver(this::updatePVC);
+        center.properties().noProjectMode.addObserver(this::updatePVC);
     }
 
     private void updatePVC() {

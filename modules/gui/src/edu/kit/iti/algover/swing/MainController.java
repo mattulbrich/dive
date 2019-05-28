@@ -82,7 +82,7 @@ public class MainController {
     private JLabel statusLine;
     private JLabel toLeftControl;
     private JLabel toRightControl;
-    private JPanel mainPane;
+    private Container mainPane;
     private String title;
 
     /**
@@ -205,18 +205,10 @@ public class MainController {
             cp.add(toRightControl, BorderLayout.EAST);
         }
         {
-            mainPane = new JPanel(new BorderLayout());
-            {
-                JPanel info = new JPanel(new BorderLayout());
-                info.add(new Breadcrumbs(diveCenter), BorderLayout.WEST);
-                info.add(new JLabel("open goal"), BorderLayout.EAST);
-                mainPane.add(info, BorderLayout.NORTH);
-            }
-            {
-                centerPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT);
-                mainPane.add(centerPane, BorderLayout.CENTER);
-            }
-            cp.add(mainPane, BorderLayout.CENTER);
+            // there used to be another panel here.
+            mainPane = cp;
+            centerPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT);
+            mainPane.add(centerPane, BorderLayout.CENTER);
         }
         {
             theFrame.setJMenuBar(barManager.makeMenubar("center.menubar"));

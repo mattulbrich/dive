@@ -9,13 +9,12 @@ package edu.kit.iti.algover.swing.actions;
 import java.awt.event.ActionEvent;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
-import java.beans.PropertyChangeEvent;
 
 import javax.swing.JOptionPane;
 
 import edu.kit.iti.algover.swing.DiveCenter;
 import edu.kit.iti.algover.swing.Main;
-import edu.kit.iti.algover.swing.actions.BarManager.InitialisingAction;
+import edu.kit.iti.algover.swing.actions.BarManager.Initialisable;
 
 /**
  * This GUI action is for closing a window.
@@ -25,7 +24,7 @@ import edu.kit.iti.algover.swing.actions.BarManager.InitialisingAction;
  */
 @SuppressWarnings("serial") 
 public class CloseAction extends BarAction 
-    implements InitialisingAction, WindowListener {
+    implements Initialisable, WindowListener {
 
     public void initialised() {
         DiveCenter center = getDiveCenter();

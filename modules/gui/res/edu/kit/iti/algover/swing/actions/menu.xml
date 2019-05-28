@@ -22,6 +22,8 @@
 			viewport.code
 			viewport.proof
 			viewport.right
+			SEPARATOR
+			general.breadcrumbs
 			<!--	proof.auto proof.pruneLast SEPARATOR
 				prover.openInEditor SEPARATOR 
 				file.loadProb file.loadProof file.saveProof SEPARATOR
@@ -163,6 +165,8 @@
             <accelerator>control Q</accelerator>
             <text>Exit</text>
         </exit>
+		<breadcrumbs>COMPONENT edu.kit.iti.algover.swing.sequent.Breadcrumbs
+		</breadcrumbs>
 	</general>
 
 	<viewport>

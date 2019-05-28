@@ -8,19 +8,14 @@ package edu.kit.iti.algover.swing.actions;
 
 import edu.kit.iti.algover.swing.DiveCenter;
 import edu.kit.iti.algover.swing.Main;
-import edu.kit.iti.algover.swing.actions.BarManager.InitialisingAction;
+import edu.kit.iti.algover.swing.actions.BarManager.Initialisable;
 
 import java.awt.event.ActionEvent;
-import java.awt.event.InputEvent;
-import java.awt.event.KeyEvent;
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
 
 import javax.swing.JOptionPane;
-import javax.swing.KeyStroke;
 
 @SuppressWarnings("serial")
-public class ExitAction extends BarAction implements InitialisingAction {
+public class ExitAction extends BarAction implements Initialisable {
 
     public ExitAction() {
         putValue(ACTION_COMMAND_KEY, "exit");

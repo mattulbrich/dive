@@ -16,7 +16,7 @@ import javax.swing.filechooser.FileNameExtensionFilter;
 import edu.kit.iti.algover.swing.DiveCenter;
 import edu.kit.iti.algover.swing.Main;
 import edu.kit.iti.algover.swing.actions.BarAction;
-import edu.kit.iti.algover.swing.actions.BarManager.InitialisingAction;
+import edu.kit.iti.algover.swing.actions.BarManager.Initialisable;
 import edu.kit.iti.algover.swing.util.ExceptionDialog;
 import edu.kit.iti.algover.swing.util.Log;
 
@@ -26,7 +26,7 @@ import edu.kit.iti.algover.swing.util.Log;
  * It is embedded into the menu.
  */
 @SuppressWarnings("serial")
-public class OpenAction extends BarAction implements InitialisingAction {
+public class OpenAction extends BarAction implements Initialisable {
 
     private static final FileFilter DFY_FILTER =
             new FileNameExtensionFilter("Dafny files", "dfy");

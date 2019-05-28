@@ -8,13 +8,12 @@
 package edu.kit.iti.algover.swing.actions.proof;
 
 import edu.kit.iti.algover.swing.actions.BarAction;
-import edu.kit.iti.algover.swing.actions.BarManager.InitialisingAction;
+import edu.kit.iti.algover.swing.actions.BarManager.Initialisable;
 
 import javax.swing.*;
 import java.awt.event.ActionEvent;
-import java.util.concurrent.ExecutorService;
 
-public class ReplayAction extends BarAction implements InitialisingAction  {
+public class ReplayAction extends BarAction implements Initialisable {
 
     public ReplayAction() {
         // initially not enaled.

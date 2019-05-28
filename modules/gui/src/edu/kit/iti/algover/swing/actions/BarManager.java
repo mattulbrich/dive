@@ -10,7 +10,6 @@ import java.awt.Dimension;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.io.IOException;
-import java.io.InputStream;
 import java.lang.reflect.Constructor;
 import java.net.URL;
 import java.util.HashMap;
@@ -51,7 +50,7 @@ import nonnull.Nullable;
  * <p>
  * When an action is created, the created object is furnished with the default
  * properties first. If it also implements the interface
- * {@link InitialisingAction}, the initialised method is invoked, to give the
+ * {@link Initialisable}, the initialised method is invoked, to give the
  * the action the opportunity to set itself up using the provided properties.
  *
  * <h2>The configuration</h2>
@@ -196,13 +195,13 @@ public class BarManager {
      * properties have been set in the action, so that the information can be
      * used to set the action up.
      */
-    public static interface InitialisingAction extends Action {
+    public static interface Initialisable {
 
         /**
          * Implementing classes can provide code which sets up the action.
          * This method is invoked after all relevant properties have been set.
          */
-        public void initialised();
+        void initialised();
     }
 
     /**
@@ -719,7 +718,7 @@ public class BarManager {
      * <p>
      * If parameter is <code>null</code>: The object is created, has the
      * properties set and is initialised (if it implements
-     * {@link InitialisingAction}.)
+     * {@link Initialisable}.)
      *
      * <p>
      * If parameter is not <code>null</code>: The object is created and the
@@ -781,7 +780,7 @@ public class BarManager {
 
     /**
      * initialise an action. That is: Set all default action properties and, if
-     * the action is an instance of {@link InitialisingAction}, call initialised
+     * the action is an instance of {@link Initialisable}, call initialised
      * on it.
      * @param prefix
      */
@@ -824,8 +823,8 @@ public class BarManager {
             action.putValue(BarAction.EXTRA, val);
         }
 
-        if (action instanceof InitialisingAction) {
-            InitialisingAction initAction = (InitialisingAction) action;
+        if (action instanceof Initialisable) {
+            Initialisable initAction = (Initialisable) action;
             initAction.initialised();
         }
     }
@@ -873,7 +872,10 @@ public class BarManager {
             // configuration items of this object (XY=COMPONENT hello,
             // XY.color=green), set property color to green or so
 
-            // TODO invoke something on the component to finish the init.
+            if (comp instanceof Initialisable) {
+                Initialisable init = (Initialisable) comp;
+                init.initialised();
+            }
 
             return comp;
         } catch (Exception e) {

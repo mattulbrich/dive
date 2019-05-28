@@ -8,14 +8,14 @@
 package edu.kit.iti.algover.swing.actions.io;
 
 import edu.kit.iti.algover.swing.actions.BarAction;
-import edu.kit.iti.algover.swing.actions.BarManager.InitialisingAction;
+import edu.kit.iti.algover.swing.actions.BarManager.Initialisable;
 import edu.kit.iti.algover.swing.util.ExceptionDialog;
 
 import java.awt.event.ActionEvent;
 import java.io.IOException;
 import java.util.Objects;
 
-public class SaveAction extends BarAction implements InitialisingAction {
+public class SaveAction extends BarAction implements Initialisable {
 
     @Override
     public void initialised() {

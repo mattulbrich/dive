@@ -14,7 +14,7 @@
 //import edu.kit.iti.algover.swing.DiveProperties;
 //import edu.kit.iti.algover.swing.MainController;
 //import edu.kit.iti.algover.swing.actions.BarAction;
-//import edu.kit.iti.algover.swing.actions.BarManager.InitialisingAction;
+//import edu.kit.iti.algover.swing.actions.BarManager.Initialisable;
 //import edu.kit.iti.algover.swing.util.ExceptionDialog;
 //import edu.kit.iti.algover.swing.util.Log;
 //import edu.kit.iti.algover.util.FormatException;
@@ -23,7 +23,7 @@
 //import java.io.IOException;
 //import java.util.Objects;
 //
-//public class SaveAndReloadAction extends BarAction implements InitialisingAction {
+//public class SaveAndReloadAction extends BarAction implements Initialisable {
 //
 //    @Override
 //    public void initialised() {
