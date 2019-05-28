@@ -6,3 +6,4 @@ edu.kit.iti.algover.term.prettyprint.HeapStorePrinterExtension
 edu.kit.iti.algover.term.prettyprint.SequencePrinterExtension
 edu.kit.iti.algover.term.prettyprint.ExtensionsPrinterExtension
 edu.kit.iti.algover.term.prettyprint.DafnyFunctionPrinterExtension
+edu.kit.iti.algover.term.prettyprint.SubscriptPrinterExtension

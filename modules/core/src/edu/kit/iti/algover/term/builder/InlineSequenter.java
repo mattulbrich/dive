@@ -5,8 +5,11 @@
  */
 package edu.kit.iti.algover.term.builder;
 
+import edu.kit.iti.algover.parser.DafnyTree;
 import edu.kit.iti.algover.proof.ProofFormula;
 import edu.kit.iti.algover.term.Term;
+
+import java.util.Map;
 
 /**
  * This sequenter takes is a specialisation of an update sequenter.
@@ -28,10 +31,10 @@ public class InlineSequenter extends UpdateSequenter {
     }
 
     @Override
-    protected ProofFormula postProcess(ProofFormula formula) {
+    protected ProofFormula postProcess(ProofFormula formula, Map<Term, DafnyTree> referenceMap) {
         Term term = formula.getTerm();
         try {
-            term = LetInlineVisitor.inline(term);
+            term = LetInlineVisitor.inline(referenceMap, term);
         } catch (TermBuildException e) {
             // have an exception concept here!
             e.printStackTrace();

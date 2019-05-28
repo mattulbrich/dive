@@ -20,7 +20,6 @@ method m(p : int, m : set<object>) returns (r:int)
 import edu.kit.iti.algover.dafnystructures.DafnyMethod;
 import edu.kit.iti.algover.data.BuiltinSymbols;
 import edu.kit.iti.algover.data.SymbolTable;
-import edu.kit.iti.algover.parser.DafnyParserException;
 import edu.kit.iti.algover.parser.DafnyTree;
 import edu.kit.iti.algover.parser.ParserTest;
 import edu.kit.iti.algover.project.Project;
@@ -38,6 +37,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import java.io.InputStream;
+import java.util.Collections;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
@@ -92,7 +92,7 @@ public class SimplifiedUpdateSequenterTest extends SequenterTest {
         ProofFormula profForm = new ProofFormula(t);
 
         SimplifiedUpdateSequenter sus = new SimplifiedUpdateSequenter();
-        ProofFormula actual = sus.postProcess(profForm);
+        ProofFormula actual = sus.postProcess(profForm, Collections.emptyMap());
         Term expected = TermParser.parse(st, expectedStr);
 
         assertEquals(expected, actual.getTerm());
