@@ -14,6 +14,8 @@ import edu.kit.iti.algover.term.Term;
 import edu.kit.iti.algover.term.prettyprint.AnnotatedString;
 import edu.kit.iti.algover.util.*;
 import javafx.beans.property.SimpleObjectProperty;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListCell;
@@ -58,6 +60,7 @@ public class SequentController extends FxmlController {
     private ReferenceGraph referenceGraph;
     private Proof activeProof; // Maybe place it inside the Proof or PVC class instead
     private ProofNodeSelector activeNode;
+    private ObservableList<Quadruple<TermSelector, String, Integer, String>> styles;
 
     /**
      * Builds the controller and GUI for the sequent view, that is the two ListViews of
@@ -75,6 +78,7 @@ public class SequentController extends FxmlController {
         this.referenceGraph = new ReferenceGraph();
         this.selectedReference = new SimpleObjectProperty<>(null);
         this.selectedTerm = new SimpleObjectProperty<>(null);
+        this.styles = FXCollections.observableArrayList();
         this.selectedTerm.addListener((observable, oldValue, newValue) -> listener.onClickSequentSubterm(newValue));
 
         antecedentView.setCellFactory(makeTermCellFactory());
@@ -94,43 +98,24 @@ public class SequentController extends FxmlController {
         });
     }
 
-//    /**
-//     * Adds a style class for a certain Term.
-//     * @param ts A termselector pointing to the term to be styled.
-//     * @param styleClass The style class to be applied (has to be found int style.css
-//     * @param prio A priority of the Style (determines which style will be applied when styles clash)
-//     * @param id An id to remove the style later on.
-//     */
-//    public void addStyleForTerm(TermSelector ts, String styleClass, int prio, String id) {
-//        List<ViewFormula> items = null;
-//        if(ts.getPolarity() == TermSelector.SequentPolarity.ANTECEDENT) {
-//            items = antecedentView.getItems();
-//        } else {
-//            items = succedentView.getItems();
-//        }
-//        items = items.stream().filter(x -> x.getIndexInSequent() == ts.getTermNo()).collect(Collectors.toList());
-//        for(ViewFormula f : items) {
-//            f.addStyleForTerm(ts, styleClass, prio, id);
-//        }
-//    }
-//
-//    /**
-//     * Removes a style from the currently applied styles
-//     * @param ts A Termselector point at least to the toplevelterm from which the style should be removed
-//     * @param id The id associated with the style to be removed (see {@link #addStyleForTerm(TermSelector, String, int, String)})
-//     */
-//    public void removeStyle(TermSelector ts, String id) {
-//        List<ViewFormula> items = null;
-//        if(ts.getPolarity() == TermSelector.SequentPolarity.ANTECEDENT) {
-//            items = antecedentView.getItems();
-//        } else {
-//            items = succedentView.getItems();
-//        }
-//        items = items.stream().filter(x -> x.getIndexInSequent() == ts.getTermNo()).collect(Collectors.toList());
-//        for(ViewFormula f : items) {
-//            f.removeStyle(id);
-//        }
-//    }
+    /**
+     * Adds a style class for a certain Term.
+     * @param ts A termselector pointing to the term to be styled.
+     * @param styleClass The style class to be applied (has to be found int style.css
+     * @param prio A priority of the Style (determines which style will be applied when styles clash)
+     * @param id An id to remove the style later on.
+     */
+    public void addStyleForTerm(TermSelector ts, String styleClass, int prio, String id) {
+        styles.add(new Quadruple<>(ts, styleClass, prio, id));
+    }
+
+    /**
+     * Removes a style from the currently applied styles
+     * @param id The id associated with the style to be removed (see {@link #addStyleForTerm(TermSelector, String, int, String)})
+     */
+    public void removeStyle(String id) {
+        styles.removeIf(x -> x.fth == id);
+    }
 
     /**
      * Fills the ListViews with the formulas in the very first sequent (from the root
@@ -348,7 +333,7 @@ public class SequentController extends FxmlController {
 
 
     private Callback<ListView<ViewFormula>, ListCell<ViewFormula>> makeTermCellFactory() {
-        return listView -> new FormulaCell(selectedTerm, selectedReference);
+        return listView -> new FormulaCell(selectedTerm, selectedReference, styles);
     }
 
     private ProofTermReference attachCurrentActiveProof(TermSelector selector) {

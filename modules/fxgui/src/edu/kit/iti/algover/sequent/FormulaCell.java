@@ -4,8 +4,10 @@ import edu.kit.iti.algover.references.ProofTermReference;
 import edu.kit.iti.algover.rules.TermSelector;
 import edu.kit.iti.algover.sequent.formulas.*;
 import edu.kit.iti.algover.term.prettyprint.AnnotatedString;
+import edu.kit.iti.algover.util.Quadruple;
 import edu.kit.iti.algover.util.SubSelection;
 import javafx.beans.property.SimpleObjectProperty;
+import javafx.collections.ObservableList;
 import javafx.css.PseudoClass;
 import javafx.scene.control.ListCell;
 
@@ -15,9 +17,13 @@ import javafx.scene.control.ListCell;
 public class FormulaCell extends ListCell<ViewFormula> {
     SimpleObjectProperty<TermSelector> selectedTerm;
     SimpleObjectProperty<TermSelector> selectedReference;
+    ObservableList<Quadruple<TermSelector, String, Integer, String>> allStyles;
 
-    public FormulaCell(SimpleObjectProperty<TermSelector> selectedTerm, SimpleObjectProperty<TermSelector> selectedReference) {
+    public FormulaCell(SimpleObjectProperty<TermSelector> selectedTerm,
+                       SimpleObjectProperty<TermSelector> selectedReference,
+                       ObservableList<Quadruple<TermSelector, String, Integer, String>> allStyles) {
         this.selectedTerm = selectedTerm;
+        this.allStyles = allStyles;
         this.selectedReference = selectedReference;
         getStyleClass().add("formula-cell");
     }
@@ -26,7 +32,7 @@ public class FormulaCell extends ListCell<ViewFormula> {
     protected void updateItem(ViewFormula formula, boolean empty) {
         super.updateItem(formula, empty);
         if (!empty && formula != null) {
-            BasicFormulaView formulaView = new BasicFormulaView(formula, selectedTerm, selectedReference);
+            BasicFormulaView formulaView = new BasicFormulaView(formula, selectedTerm, selectedReference, allStyles);
             setGraphic(formulaView);
         } else {
             setGraphic(null);
