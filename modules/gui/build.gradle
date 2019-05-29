@@ -13,6 +13,7 @@ plugins {
 dependencies {
     compile project(":core")
     compile project(":cli")
+    runtime project(":dafny")
     compile 'com.fifesoft:rsyntaxtextarea:3.0.3'
     testCompile project(':core').sourceSets.test.output
 }

@@ -62,6 +62,9 @@
 			viewport.pvc
 			viewport.code
 			viewport.proof
+			SEPARATOR
+			proof.nextPVC
+			proof.previousPVC
 		</navMenu>
 
 		<proofMenu text="Proof" mnemonic="P">
@@ -229,6 +232,20 @@
 		</reset>
 		<history>TODO History
 		</history>
+		<nextPVC>ACTION nav/ChangePVCAction
+			<text>Next obligation</text>
+			<tooltip>Go to the next proog obligation</tooltip>
+			<icon>nav/down.png</icon>
+			<accelerator>alt DOWN</accelerator>
+			<extra>next</extra>
+		</nextPVC>
+		<previousPVC>ACTION nav/ChangePVCAction
+			<text>Previous obligation</text>
+			<tooltip>Go to the previous proof obligation</tooltip>
+			<icon>nav/down.png</icon>
+			<extra>previous</extra>
+			<accelerator>alt UP</accelerator>
+		</previousPVC>
 	</proof>
 
 </barmanager>
