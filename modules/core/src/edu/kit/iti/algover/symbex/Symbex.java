@@ -593,7 +593,9 @@ public class Symbex {
                 DafnyTree args = expression.getFirstChildWithType(DafnyParser.ARGS);
                 List<DafnyTree> resultVars = handleMethodCall(stack, state, expression, receiver, true, decl, args);
                 assert resultVars.size() == 1 : "This is a single result method situation";
-                state.addAssignment(ASTUtil.assign(assignee, resultVars.get(0)));
+                DafnyTree assignment = ASTUtil.assign(assignee, resultVars.get(0));
+                assignment.copyTokensFrom(stm);
+                state.addAssignment(assignment);
             } else {
                 SymbexExpressionValidator.handleExpression(stack, state, expression);
                 state.addAssignment(stm);
@@ -602,7 +604,9 @@ public class Symbex {
 
         case DafnyParser.NEW:
             DafnyTree newVar = handleNewCommand(stack, state, expression, stm);
-            state.addAssignment(ASTUtil.assign(assignee, newVar));
+            DafnyTree assignment = ASTUtil.assign(assignee, newVar);
+            assignment.copyTokensFrom(stm);
+            state.addAssignment(assignment);
             break;
 
         default:
