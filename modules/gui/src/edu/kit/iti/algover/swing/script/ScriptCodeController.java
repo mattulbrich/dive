@@ -11,17 +11,31 @@ import edu.kit.iti.algover.proof.PVC;
 import edu.kit.iti.algover.proof.Proof;
 import edu.kit.iti.algover.proof.ProofNode;
 import edu.kit.iti.algover.proof.ProofStatus;
+import edu.kit.iti.algover.rules.RuleException;
+import edu.kit.iti.algover.script.ast.ASTNode;
+import edu.kit.iti.algover.script.ast.Position;
 import edu.kit.iti.algover.swing.DiveCenter;
+import edu.kit.iti.algover.swing.util.GUIUtil;
 import edu.kit.iti.algover.swing.util.Log;
 import edu.kit.iti.algover.swing.util.Settings;
 import edu.kit.iti.algover.swing.util.UnifyingDocumentListener;
+import edu.kit.iti.algover.util.ExceptionDetails;
+import edu.kit.iti.algover.util.ExceptionDetails.ExceptionReportInfo;
+import edu.kit.iti.algover.util.Pair;
 import org.fife.ui.rsyntaxtextarea.RSyntaxTextArea;
+import org.fife.ui.rsyntaxtextarea.SquiggleUnderlineHighlightPainter;
 import org.fife.ui.rtextarea.RTextScrollPane;
 
 import javax.swing.*;
+import javax.swing.event.CaretEvent;
 import javax.swing.event.DocumentEvent;
+import javax.swing.text.BadLocationException;
+import javax.swing.text.Highlighter;
+import javax.swing.text.Highlighter.HighlightPainter;
 import java.awt.*;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 public class ScriptCodeController {
 
@@ -36,14 +50,25 @@ public class ScriptCodeController {
     private static final Color DIRTY_BACKGROUND =
             S.getColor("dive.scriptlabel.dirtybackground", Color.lightGray);
 
+    private static final HighlightPainter SQUIGGLY_HIGHLIGHT =
+            new SquiggleUnderlineHighlightPainter(Color.red);
+
+    private static final HighlightPainter SPOT_HIGHLIGHT =
+            new SpotHighlightPainter(Color.orange);
+
+    private static final HighlightPainter OPEN_SPOT_HIGHLIGHT =
+            new SpotHighlightPainter(Color.red);
+
     private final DiveCenter diveCenter;
     private final JLabel label;
 
     private JPanel component;
-    private RSyntaxTextArea textArea = new RSyntaxTextArea();
+    private RSyntaxTextArea textArea;
     private boolean documentChangeListenerActive = true;
+    private List<ProofNodeCheckpoint> checkPoints;
+    private Proof proof;
 
-    public ScriptCodeController(DiveCenter diveCenter) {
+    public ScriptCodeController(DiveCenter diveCenter) throws IOException {
         this.diveCenter = diveCenter;
         diveCenter.properties().activePVC.addObserver(this::setPVC);
 
@@ -68,10 +93,37 @@ public class ScriptCodeController {
         {
             this.textArea = new RSyntaxTextArea();
             UnifyingDocumentListener listener = new UnifyingDocumentListener(this::docChanged);
-            this.textArea.getDocument().addDocumentListener(listener);
+            textArea.getDocument().addDocumentListener(listener);
+            String keyStrokeAndKey = "control ENTER";
+            KeyStroke keyStroke = KeyStroke.getKeyStroke(keyStrokeAndKey);
+            textArea.getInputMap().put(keyStroke, keyStrokeAndKey);
+            textArea.getActionMap().put(keyStrokeAndKey,
+                    diveCenter.getMainController().getBarManager().makeAction("proof.replay"));
+            textArea.addCaretListener(this::caretUpdated);
             component.add(new RTextScrollPane(textArea));
         }
         setPVC(null);
+    }
+
+    private void caretUpdated(CaretEvent ev) {
+
+        if (checkPoints == null || proof == null) {
+            return;
+        }
+
+        int pos = ev.getDot();
+        for (ProofNodeCheckpoint checkPoint : checkPoints) {
+            int checkPos = GUIUtil.linecolToPos(textArea.getText(), checkPoint.position.getLineNumber(), checkPoint.position.getCharInLine() + 1);
+            if (pos > checkPos) {
+                try {
+                    ProofNode node = checkPoint.selector.get(proof);
+                    diveCenter.properties().proofNode.setValue(node);
+                } catch (RuleException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+        
     }
 
     private void docChanged(DocumentEvent ev) {
@@ -83,10 +135,12 @@ public class ScriptCodeController {
         String id = pvc.getIdentifier();
         Proof proof = diveCenter.getProjectManager().getProofForPVC(id);
         proof.setScriptText(textArea.getText());
+        textArea.getHighlighter().removeAllHighlights();
         // This is similar to a proof that has finished: Change in the
         // proof status
         diveCenter.properties().onGoingProof.fire(false);
         setLabelText(proof.getProofStatus());
+        diveCenter.getMainController().setStatus("Script modified.");
     }
 
     private void setPVC(PVC pvc) {
@@ -95,12 +149,13 @@ public class ScriptCodeController {
             textArea.setEnabled(false);
             textArea.setEditable(false);
             label.setText("No proof selected");
+            this.proof = null;
         } else {
             textArea.setEnabled(true);
             textArea.setEditable(true);
             String id = pvc.getIdentifier();
 
-            Proof proof = diveCenter.getProjectManager().getProofForPVC(id);
+            this.proof = diveCenter.getProjectManager().getProofForPVC(id);
 
             ProofNode root = proof.getProofRoot();
             if (root == null) {
@@ -111,10 +166,49 @@ public class ScriptCodeController {
             textArea.setText(proof.getScript());
             documentChangeListenerActive = true;
             textArea.setCaretPosition(0);
-
-            setLabelText(proof.getProofStatus());
+            setProofState(proof);
 
             diveCenter.properties().proofNode.setValue(root);
+        }
+    }
+
+    private void setProofState(Proof proof) {
+        setLabelText(proof.getProofStatus());
+
+        Highlighter highlighter = textArea.getHighlighter();
+        highlighter.removeAllHighlights();
+        String text = textArea.getText();
+        Exception exc = proof.getFailException();
+        if (exc != null) {
+            diveCenter.getMainController().setStatus(exc);
+            ExceptionReportInfo report = ExceptionDetails.extractReportInfo(exc);
+            int pos = GUIUtil.linecolToPos(text, report.getLine(), report.getColumn());
+
+            try {
+                highlighter.addHighlight(pos, pos + report.getLength(), SQUIGGLY_HIGHLIGHT);
+            } catch (BadLocationException e) {
+                e.printStackTrace();
+            }
+        } else {
+            checkPoints = ProofNodeCheckpointsBuilder.build(proof);
+            addHandles();
+        }
+    }
+
+    private void addHandles() {
+        Highlighter highlighter = textArea.getHighlighter();
+        String text = textArea.getText();
+        for (ProofNodeCheckpoint checkPoint : checkPoints) {
+            Position pos = checkPoint.position;
+            int caretPos = GUIUtil.linecolToPos(text, pos.getLineNumber(), pos.getCharInLine() + 1);
+            if (caretPos > 0 && caretPos < text.length() - 1) {
+                caretPos ++;
+            }
+            try {
+                highlighter.addHighlight(caretPos, caretPos + 1, SPOT_HIGHLIGHT);
+            } catch (BadLocationException e) {
+                e.printStackTrace();
+            }
         }
     }
 
@@ -123,7 +217,7 @@ public class ScriptCodeController {
         String id = pvc.getIdentifier();
         Proof proof = diveCenter.getProjectManager().getProofForPVC(id);
         proof.setScriptTextAndInterpret(textArea.getText());
-        setLabelText(proof.getProofStatus());
+        setProofState(proof);
     }
 
     private void setLabelText(ProofStatus proofStatus) {

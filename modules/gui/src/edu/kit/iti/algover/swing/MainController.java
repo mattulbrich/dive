@@ -257,6 +257,12 @@ public class MainController {
         CharSequence niceMsg = ExceptionDetails.getNiceErrorMessage(e);
         statusLine.setToolTipText("<html><pre>" + niceMsg + "</pre>");
         statusLine.setForeground(Color.red);
-        statusLine.setText(e.getMessage());
+        String msg = e.getMessage();
+        if(msg == null) {
+            msg = "'Something went wrong somewhere.'";
+            Log.log(Log.DEBUG, "There is an exception without message. That should be fixed.");
+            Log.stacktrace(Log.DEBUG, e);
+        }
+        statusLine.setText(msg);
     }
 }
