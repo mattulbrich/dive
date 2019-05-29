@@ -35,6 +35,7 @@ public class ScriptReferenceTarget extends ReferenceTarget{
         return node;
     }
 
+    //SaG: Atm. we are not storing the filename, maybe remove
     private File file;
     private final int linenumber;
     private final ASTNode node;
@@ -70,8 +71,9 @@ public class ScriptReferenceTarget extends ReferenceTarget{
         if (!(o instanceof ScriptReferenceTarget)) return false;
 
         ScriptReferenceTarget that = (ScriptReferenceTarget) o;
-
-        if (!file.getName().equals(that.getFile().getName())) return false;
+        if(file != null) {
+            if (!file.getName().equals(that.getFile().getName())) return false;
+        }
         if (linenumber != that.getLinenumber()) return false;
         return node.equals(that.getNode());
     }

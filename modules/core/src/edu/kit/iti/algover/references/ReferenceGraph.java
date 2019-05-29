@@ -179,7 +179,7 @@ public class ReferenceGraph {
 
     /**
      * Compute direct parents of type ProofTermReferenceTarget transitively starting at childTarget and ending in the
-     * root ProofNode
+     * root ProofNode. This method also returns all unchanged parents
      *
      * @param childTarget Starting target
      * @param proof       current proof
@@ -204,7 +204,8 @@ public class ReferenceGraph {
     }
 
     /**
-     * Find the direct parent of childTarget in the reference graph
+     * Find the direct parent of childTarget in the reference graph, i.e, the term at the same position in the parent node or
+     * the parent term if it has changed
      *
      * @param childTarget
      * @param proof
@@ -217,15 +218,11 @@ public class ReferenceGraph {
             //There is no predecessor or edge containing the childTarget -> we have to compute the direct parent
             if (currentTarget.getProofNodeSelector().getParentSelector() != null
                     && (!this.getGraph().nodes().contains(currentTarget) || this.graph.predecessors(currentTarget).isEmpty())) {
-              //  Logger.getGlobal().info("Did not find predecessor or target in graph. Computing direct parents");
                 parents = computeDirectParents(currentTarget, proof);
             } else {
-                //We have apredecessor in the graph
-            //    Logger.getGlobal().info("Found an edge in graph, which references parent(s)");
+                //We have a predecessor in the graph
                 Set<ProofTermReferenceTarget> proofTermReferenceTargets = allPredecessorsWithType(childTarget, ProofTermReferenceTarget.class);
                 parents.addAll(proofTermReferenceTargets);
-
-
             }
         } catch (IllegalArgumentException illArg) {
             System.out.println("Could not find element :" + childTarget.getTermSelector() + " of node " + childTarget.getProofNodeSelector() + " in references.");
@@ -284,10 +281,41 @@ public class ReferenceGraph {
         return parents;
     }
 
+    /**
+     * Return the ProofTermReferenceTarget in which a change to the target was made by a rule application. If no change
+     * occurred to the target, the root of the proof is returned
+     * @param proof
+     * @param target
+     * @return
+     */
+    public ProofTermReferenceTarget computeFirstParentWithChange(Proof proof, ProofTermReferenceTarget target){
+        Set<ProofTermReferenceTarget> history = computeHistory(target, proof);
+        ArrayList<ProofTermReferenceTarget> historyList = new ArrayList<>();
+        historyList.addAll(history);
+        historyList.sort(new Comparator<ProofTermReferenceTarget>() {
+            @Override
+            public int compare(ProofTermReferenceTarget o1, ProofTermReferenceTarget o2) {
+                if(o1.getProofNodeSelector().getParentSelector() != null) {
+                    if (o1.getProofNodeSelector().getParentSelector().equals(o2.getProofNodeSelector())) {
+                        return -1;
+                    } else {
+                        return 1;
+                    }
+                } else {
+                    return 1
+                }
+            }
+        });
+        historyList.forEach(proofTermReferenceTarget -> {
+            System.out.println("proofTermReferenceTarget = " + proofTermReferenceTarget);
+        });
+        return target;
+
+    }
+
+    //TODO refactor and possible additions
     //Currently its a naive implementation
     private ProofTermReferenceTarget handleAddAndDel(Proof proof, ProofTermReferenceTarget parent, TermSelector childSelector, ImmutableList<BranchInfo> branchInfos) throws RuleException {
-        //TODO additions
-
         List<Sequent> additions = new ArrayList<>();
         List<Sequent> deletions = new ArrayList<>();
 

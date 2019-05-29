@@ -5,7 +5,11 @@ import edu.kit.iti.algover.parser.DafnyParserException;
 import edu.kit.iti.algover.proof.Proof;
 import edu.kit.iti.algover.proof.ProofFormula;
 import edu.kit.iti.algover.proof.ProofNodeSelector;
+import edu.kit.iti.algover.referenceHighlighting.ReferenceGraphController;
 import edu.kit.iti.algover.references.ProofTermReferenceTarget;
+import edu.kit.iti.algover.references.ReferenceGraph;
+import edu.kit.iti.algover.references.ScriptReferenceTarget;
+import edu.kit.iti.algover.references.TermCollector;
 import edu.kit.iti.algover.rules.RuleException;
 import edu.kit.iti.algover.rules.TermSelector;
 import edu.kit.iti.algover.term.Sequent;
@@ -89,20 +93,38 @@ public class ReferenceGraphDirectParentsTest {
             proofWithTwoSubstitutionsAndSkips.setScriptTextAndInterpret("substitute on='... ((?match: let m := x :: !(m < y))) ... |-';\n" +
                     "substitute on='|- ... ((?match: let m := x :: m > 1)) ...';\n"+"skip;\n"+"skip;\n");
 
-            proofBranched = pm.getProofForPVC("max/else/Post.1");
-            String script2 = "substitute on='... ((?match: let m := x :: !(m < y))) ... |-';\n"+
-            "skip;\n"+
-            "substitute on='|- ... ((?match: let m := x :: m >= x && m >= y)) ...'; \n"+
-            "skip;\n"+
-            "andRight on='|- ... ((?match: x >= x && x >= y)) ...';\n"+
-            "cases {\n"+
-            "    case match \"case 1\": {\n"+
-            "        skip;\n"+
-            "    }\n"+
-            "    case match \"case 2\": {\n"+
-            "        skip;\n"+
-            "    }\n"+
-            "}\n";
+            proofBranched = pm.getProofForPVC("max/then/Post.1");
+            String script2 = "substitute on='... ((?match: let m := x :: m < y)) ... |-';\n" +
+                    "skip;\n" +
+                    "substitute on='|- ... ((?match: let m := y :: m >= x && m >= y)) ...';\n" +
+                    "skip;\n" +
+                    "andRight on='|- ... ((?match: y >= x && y >= y)) ...';\n" +
+                    "cases {\n" +
+                    "\tcase match \"case 1\": {\n" +
+                    "\t\n" +
+                    "skip;\n" +
+                    "\t}\n" +
+                    "\tcase match \"case 2\": {\n" +
+                    "\t\n" +
+                    "skip;\n" +
+                    "\t}\n" +
+                    "}";
+
+/*
+            String script2 = "substitute on='... ((?match: let m := x :: !(m < y))) ... |-';\n" +
+                    "skip;\n" +
+                    "substitute on='|- ... ((?match: let m := x :: m >= x && m >= y)) ...'; \n" +
+                    "skip;\n" +
+                    "andRight on='|- ... ((?match: x >= x && x >= y)) ...';\n" +
+                    "cases {\n" +
+                    "    case match \"case 1\": {\n" +
+                    "        skip;\n" +
+                    "    }\n" +
+                    "    case match \"case 2\": {\n" +
+                    "        skip;\n" +
+                    "    }\n" +
+                    "}\n";
+*/
             proofBranched.setScriptTextAndInterpret(script2);
 
             //has addlist+delList
@@ -138,6 +160,11 @@ public class ReferenceGraphDirectParentsTest {
 
     }
 
+    /**
+     * This test tests whether all terms and subterms in a sequent are unchanged after teh application of the skip rule
+     * @throws RuleException
+     * @throws FormatException
+     */
     @Test
     public void testSkipRule() throws RuleException, FormatException {
 
@@ -157,6 +184,25 @@ public class ReferenceGraphDirectParentsTest {
 
     }
 
+    @Test
+    public void testScriptReferences() throws RuleException, FormatException {
+        ProofNodeSelector replaceNode = computeProofNodeSelector("0,0,0,0,0");
+        Sequent replace = replaceNode.get(proofBranched).getSequent();
+        ProofNodeSelector justNode = computeProofNodeSelector("0,0,0,0,1,0");
+        Sequent just = justNode.get(proofBranched).getSequent();
+        TermSelector ltFormula = new TermSelector("A.0");
+        TermSelector x = new TermSelector("A.0.0");
+        TermSelector y = new TermSelector("A.0.1");
+
+        ProofTermReferenceTarget childTarget = new ProofTermReferenceTarget(justNode, x);
+        Set<ProofTermReferenceTarget> directParents = proofBranched.getGraph().computeHistory(childTarget, proofBranched);
+        directParents.forEach(proofTermReferenceTarget -> System.out.println("proofTermReferenceTarget = " + proofTermReferenceTarget));
+        proofBranched.getGraph().computeFirstParentWithChange(proofBranched, childTarget);
+
+        // Set<ScriptReferenceTarget> scriptReferenceTargetSet = proofBranched.getGraph().allSuccessorsWithType(childTarget, ScriptReferenceTarget.class);
+       // scriptReferenceTargetSet.forEach(scriptReferenceTarget -> System.out.println("scriptReferenceTarget = " + scriptReferenceTarget));
+
+    }
 
 
     /**
@@ -166,7 +212,7 @@ public class ReferenceGraphDirectParentsTest {
     public void testReplacements() throws RuleException, FormatException {
         //proofWithReplacement;
         Assert.assertFalse(isFormulaUnchangedInDirectParent("0,0", "A.0", proofWithReplacement));
-        //SaG: atm the parent whole replaced formula is returned, therefore although term value is still part of whole formula it is consiedered as changed
+        //SaG: atm the parent whole replaced formula is returned, therefore although term value is still part of whole formula it is considered as changed
         Assert.assertFalse(isFormulaUnchangedInDirectParent("0,0", "A.0.1", proofWithReplacement));
         Assert.assertFalse(isFormulaUnchangedInDirectParent("0,0", "A.0.0", proofWithReplacement));
         Set<ProofTermReferenceTarget> parentsReplace = computeDirectParents("0,0", "A.0.1", proofWithReplacement);

@@ -5,6 +5,7 @@ import edu.kit.iti.algover.editor.LayeredHighlightingRule;
 import edu.kit.iti.algover.proof.Proof;
 import edu.kit.iti.algover.proof.ProofNodeSelector;
 import edu.kit.iti.algover.references.ProofTermReferenceTarget;
+import edu.kit.iti.algover.references.ScriptReferenceTarget;
 import edu.kit.iti.algover.rule.RuleApplicationListener;
 import edu.kit.iti.algover.script.ast.Position;
 import edu.kit.iti.algover.script.ast.ProofScript;
@@ -358,9 +359,16 @@ public class ScriptController implements ScriptViewListener {
      * Mark all ProofNodes in the script that are referenced in the set of target passed as parameter
      * @param proofTermReferenceTargets
      */
-    public void viewReferences(Set<ProofTermReferenceTarget> proofTermReferenceTargets) {
+  /*  public void viewReferences(Set<ProofTermReferenceTarget> proofTermReferenceTargets) {
         proofTermReferenceTargets.forEach(proofTermReferenceTarget -> {
             System.out.println(proofTermReferenceTarget.getProofNodeSelector().toString());
         });
+    }*/
+
+    public void viewReferences(Set<ScriptReferenceTarget> scriptReferenceTargetSet) {
+        scriptReferenceTargetSet.stream().forEach(s -> {
+            System.out.println("s = " + s);
+        });
+
     }
 }
