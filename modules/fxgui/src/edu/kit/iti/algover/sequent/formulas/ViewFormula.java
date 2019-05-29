@@ -7,18 +7,31 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * This class is the model for a Formula in the sequent view.
+ * This class is the model for a Formula in the {@link edu.kit.iti.algover.sequent.SequentController}.
  *
  */
 public class ViewFormula {
 
+    /**
+     * The index of this formula in the sequent.
+     */
     protected final int indexInSequent;
+    /**
+     * The ToplevelTerm of this formula.
+     */
     private final Term term;
+    /**
+     * The type of this ViewFormla (see {@link Type}).
+     */
     private final Type type;
+    /**
+     * The polarity in the sequent of this formula.
+     */
     private final TermSelector.SequentPolarity polarity;
 
     /**
-     * The type of the formula which may be either newly added, removed, party changed or unchanged.
+     * The type of the formula which may be either newly added, removed, partly changed or unchanged.
+     * This is used to style the formual accordingly
      */
     public enum Type {
         ADDED,
@@ -67,6 +80,10 @@ public class ViewFormula {
         return polarity;
     }
 
+    /**
+     * Creates a TopLevel-TermSelctor pointing to this formula.
+     * @return the created termSelector
+     */
     public TermSelector getTermSelector() {
         return new TermSelector(polarity, indexInSequent);
     }

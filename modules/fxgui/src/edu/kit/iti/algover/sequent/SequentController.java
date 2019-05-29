@@ -29,6 +29,21 @@ import java.util.stream.Collectors;
 
 /**
  * Created by philipp on 12.07.17.
+ * update by JonasKlamroth on 28.5.19
+ *
+ * This Class is the Controller for the sequent view.
+ * For each part of the sequent a ListView is used to display the different formulas. Each Formula
+ * is modeled by a {@link ViewFormula}. The corresponding views are {@link FormulaCell}s which are basically just
+ * wrapper for {@link BasicFormulaView}.
+ *
+ * Styling the different formulas can be done on two levels:
+ *  - via this sequent controller a style can be applied to a TermSelector
+ *  - via the a BasicFormulaView directly
+ * The advantage of styling in the formulaView is possibly improved performance and thus is used for
+ * applications of mouseover-Style and similar. On the other Hand due to the lacking possibility of getting all
+ * children of a list view (to the best of my knowledge) we provide a second possibility to apply styles directly
+ * in this controller. These styles are stored in one List and thus may lead to worse performance when using to many
+ * at the same time? (I think this shouldnt become a problem for reasonably large sequents.
  */
 public class SequentController extends FxmlController {
 
@@ -41,16 +56,14 @@ public class SequentController extends FxmlController {
     @FXML
     private ListView<ViewFormula> succedentView;
 
-    // Subselections, see their docs for clarification
     /**
-     * Whichever Term was clicked to reveal dependencies in terms of
-     * a Reference (as opposed to the actual TermSelector).
+     * Whichever Term was clicked to reveal dependencies.
      * (Currently set when control-clicking something on the sequent).
      */
     private final SimpleObjectProperty<TermSelector> selectedReference;
+
     /**
-     * Whichever Term was clicked to reveal dependencies in terms of
-     * the actual TermSelector.
+     * Whichever Term was clicked to apply rules to.
      */
     private final SimpleObjectProperty<TermSelector> selectedTerm;
 
@@ -135,6 +148,12 @@ public class SequentController extends FxmlController {
         }
     }
 
+    /**
+     * Forces a update of the sequent even when the pvc is the same as before (shouldnt be used in normal cases)
+     *
+     * @param entity the PVC to be shown
+     * @param proof the proof containing this pvc
+     */
     public void forceViewSequentForPVC(PVCEntity entity, Proof proof) {
         activeProof = null;
         viewSequentForPVC(entity, proof);
@@ -165,6 +184,9 @@ public class SequentController extends FxmlController {
         }
     }
 
+    /**
+     * updates the current sequent to display the last changes to it (should be called after rule applications)
+     */
     public void tryMovingOnEx() {
         if (activeNode != null) {
             try {
@@ -218,6 +240,10 @@ public class SequentController extends FxmlController {
         }
     }
 
+    /**
+     * Displayes a given proofNode
+     * @param proofNodeSelector pointing to the proofNode to be displayed
+     */
     public void viewProofNode(ProofNodeSelector proofNodeSelector) {
         ProofNodeSelector selector = proofNodeSelector.getParentSelector();
         if(selector == null) {

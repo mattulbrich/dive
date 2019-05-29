@@ -13,6 +13,10 @@ import javafx.scene.control.ListCell;
 
 /**
  * Created by Philipp on 22.07.2017.
+ * updated by JonasKlamroth on 28.5.19
+ *
+ * This Class is basically a wrapper to provide {@link BasicFormulaView}s as cells to the ListViews in the
+ * {@link SequentController}
  */
 public class FormulaCell extends ListCell<ViewFormula> {
     SimpleObjectProperty<TermSelector> selectedTerm;

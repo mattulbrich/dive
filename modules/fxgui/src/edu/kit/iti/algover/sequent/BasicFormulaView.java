@@ -27,22 +27,53 @@ import java.util.stream.Collectors;
 
 /**
  * Created by Philipp on 22.07.2017.
+ * updated by JonasKlamroth on 28.5.19
+ *
+ * This Class implements the basic styling of a Cell of the ListViews for the sequent in the {@link SequentController}.
  */
 public class BasicFormulaView extends CodeArea {
 
+    /**
+     * Different presets for Priorities of Styles. Styles with lower priority get overwritten by styles
+     * with higher prio.
+     */
     public class StylePrios {
         public static final int MOUSEOVER = 30;
         public static final int FORMULATYPE = 10;
         public static final int SELECTED = 20;
     }
 
+    /**
+     * The model for this view. The formula which is displayed.
+     */
     protected final ViewFormula formula;
+    /**
+     * A annotated String containing the formula for this view with annotated TermSelector information.
+     */
     protected AnnotatedString annotatedString;
+    /**
+     * The element which is currently highlighted by the mouse (mouseover).
+     */
     private AnnotatedString.TermElement highlightedElement;
+    /**
+     * the last term that was clicked on.
+     */
     private final SimpleObjectProperty<TermSelector> selectedTerm;
+    /**
+     * the last term that was ctr-clicked on.
+     */
     private final SimpleObjectProperty<TermSelector> selectedReference;
+    /**
+     * List of all styles of the SequentController
+     */
     ObservableList<Quadruple<TermSelector, String, Integer, String>> allStyles;
+    /**
+     * Locally applied Styles.
+     */
     private List<Quadruple<TermSelector, String, Integer, String>> localStyles;
+    /**
+     * The Styles from {@link #allStyles} which affect this view.
+     */
     private List<Quadruple<TermSelector, String, Integer, String>> relevantGlobalStyles;
 
     public BasicFormulaView(ViewFormula formula, SimpleObjectProperty<TermSelector> selectedTerm,

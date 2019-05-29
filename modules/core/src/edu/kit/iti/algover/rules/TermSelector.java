@@ -115,6 +115,8 @@ public final class TermSelector implements Comparable<TermSelector> {
      *            the side of the sequent
      * @param termNo
      *            the toplevel term number
+     * @param subS
+     *            a subtermselctor for this termselctor (see {@link SubtermSelector})
      */
     public TermSelector(SequentPolarity inAntecedent, int termNo, SubtermSelector subS) {
 
