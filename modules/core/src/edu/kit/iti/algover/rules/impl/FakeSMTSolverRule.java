@@ -10,6 +10,7 @@ import edu.kit.iti.algover.rules.*;
 import edu.kit.iti.algover.rules.ProofRuleApplication.Applicability;
 import edu.kit.iti.algover.term.Sequent;
 
+import java.math.BigInteger;
 import java.util.Collections;
 
 public class FakeSMTSolverRule extends AbstractProofRule {
@@ -17,8 +18,11 @@ public class FakeSMTSolverRule extends AbstractProofRule {
     private static final ParameterDescription<Boolean> CLOSE_PARAM =
             new ParameterDescription<>( "close", ParameterType.BOOLEAN,false);
 
+    private static final ParameterDescription<BigInteger> SLEEP_PARAM =
+            new ParameterDescription<>( "sleep", ParameterType.INTEGER,false);
+
     public FakeSMTSolverRule() {
-        super(CLOSE_PARAM);
+        super(CLOSE_PARAM, SLEEP_PARAM);
     }
 
     @Override
@@ -64,6 +68,15 @@ public class FakeSMTSolverRule extends AbstractProofRule {
 
         if (!decision) {
             return ProofRuleApplicationBuilder.notApplicable(this);
+        }
+
+        if(parameters.hasValue(SLEEP_PARAM)) {
+            int time = parameters.getValue(SLEEP_PARAM).intValue();
+            try {
+                Thread.sleep(time);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
         }
 
         ProofRuleApplicationBuilder builder = new ProofRuleApplicationBuilder(this);
