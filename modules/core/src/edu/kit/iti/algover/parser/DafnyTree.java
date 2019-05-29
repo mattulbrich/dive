@@ -412,6 +412,18 @@ public class DafnyTree extends CommonTree {
     }
 
     /**
+     * Copy the start and stop token association from a different DafnyTree.
+     * It does not necessarily mean that these tokens occur within the tokens
+     * of this tree.
+     *
+     * @param tree the Dafny tree to copy from
+     */
+    public void copyTokensFrom(@NonNull DafnyTree tree) {
+        this.startToken = tree.getStartToken();
+        this.stopToken = tree.getStopToken();
+    }
+
+    /**
      * The Adaptor is used by the {@link DafnyParser} to create DafnyTree
      * instances.
      */
