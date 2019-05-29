@@ -19,6 +19,7 @@ import edu.kit.iti.algover.settings.ProjectSettingsController;
 import edu.kit.iti.algover.settings.SettingsFactory;
 import edu.kit.iti.algover.settings.SettingsWrapper;
 import edu.kit.iti.algover.util.FormatException;
+import edu.kit.iti.algover.util.Util;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
@@ -121,7 +122,7 @@ public class WelcomePane {
 
         openRecent.setText("Open recent");
         openRecent.setStyle("-fx-font-size: 20");
-        openRecent.setGraphic(GlyphsDude.createIcon(FontAwesomeIcon.RECYCLE));
+        openRecent.setGraphic(FontAwesomeIconFactory.get().createIcon(FontAwesomeIcon.RECYCLE));
         openRecent.setOnAction(this::handleOpenRecentAction);
 
         createProject.setText("New project");
