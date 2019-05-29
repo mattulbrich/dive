@@ -175,6 +175,7 @@ public class PVCBrowserController {
             TreeNode root = (TreeNode) node;
             root.updateTreeNode();
         }
+        tree.repaint();
     }
 
     private void selectionChanged(TreeSelectionEvent ev) {

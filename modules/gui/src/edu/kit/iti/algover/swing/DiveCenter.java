@@ -73,7 +73,7 @@ public class DiveCenter {
      */
     private final ProjectManager projectManager;
 
-    private ExecutorService executerService = Executors.newCachedThreadPool();
+    private ExecutorService executerService = Executors.newSingleThreadExecutor();
 
     /**
      * Instantiates a new DIVE center.

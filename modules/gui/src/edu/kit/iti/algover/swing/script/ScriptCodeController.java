@@ -41,6 +41,7 @@ public class ScriptCodeController {
 
     private JPanel component;
     private RSyntaxTextArea textArea = new RSyntaxTextArea();
+    private boolean documentChangeListenerActive = true;
 
     public ScriptCodeController(DiveCenter diveCenter) {
         this.diveCenter = diveCenter;
@@ -51,6 +52,7 @@ public class ScriptCodeController {
             JPanel topPanel = new JPanel(new BorderLayout());
             {
                 this.label = new JLabel();
+                this.label.setOpaque(true);
                 label.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
                 topPanel.add(label, BorderLayout.CENTER);
             }
@@ -73,6 +75,10 @@ public class ScriptCodeController {
     }
 
     private void docChanged(DocumentEvent ev) {
+        if (!documentChangeListenerActive) {
+            return;
+        }
+
         PVC pvc = diveCenter.properties().activePVC.getValue();
         String id = pvc.getIdentifier();
         Proof proof = diveCenter.getProjectManager().getProofForPVC(id);
@@ -101,7 +107,9 @@ public class ScriptCodeController {
                 root = ProofNode.createRoot(pvc);
             }
 
+            documentChangeListenerActive = false;
             textArea.setText(proof.getScript());
+            documentChangeListenerActive = true;
             textArea.setCaretPosition(0);
 
             setLabelText(proof.getProofStatus());
