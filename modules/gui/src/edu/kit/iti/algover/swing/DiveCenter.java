@@ -6,42 +6,22 @@
  */
 package edu.kit.iti.algover.swing;
 
-import java.awt.*;
-import java.beans.PropertyChangeListener;
-import java.beans.PropertyChangeListenerProxy;
-import java.beans.PropertyChangeSupport;
 import java.io.File;
 import java.io.IOException;
-import java.net.URL;
-import java.text.Normalizer.Form;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Iterator;
-import java.util.List;
-import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
 
 import javax.swing.*;
 
 import edu.kit.iti.algover.parser.DafnyException;
 import edu.kit.iti.algover.parser.DafnyParserException;
-import edu.kit.iti.algover.project.Project;
 import edu.kit.iti.algover.project.ProjectManager;
-import edu.kit.iti.algover.proof.PVC;
-import edu.kit.iti.algover.proof.ProofNode;
 import edu.kit.iti.algover.swing.actions.BarManager;
+import edu.kit.iti.algover.swing.code.DafnyCodeController;
 import edu.kit.iti.algover.swing.util.ExceptionDialog;
 import edu.kit.iti.algover.swing.util.Log;
-import edu.kit.iti.algover.swing.util.Property;
-import edu.kit.iti.algover.term.prettyprint.PrettyPrint;
 import edu.kit.iti.algover.util.FormatException;
 import nonnull.NonNull;
-import nonnull.Nullable;
 
 /**
  * The Class DiveCenter is the center point of one proof and its visualiation

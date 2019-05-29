@@ -10,7 +10,7 @@
 //import edu.kit.iti.algover.parser.DafnyException;
 //import edu.kit.iti.algover.parser.DafnyParserException;
 //import edu.kit.iti.algover.project.ProjectManager;
-//import edu.kit.iti.algover.swing.DafnyCodeController;
+//import edu.kit.iti.algover.swing.code.DafnyCodeController;
 //import edu.kit.iti.algover.swing.DiveProperties;
 //import edu.kit.iti.algover.swing.MainController;
 //import edu.kit.iti.algover.swing.actions.BarAction;
