@@ -5,22 +5,22 @@
  */
 package edu.kit.iti.algover.sequent;
 
-import edu.kit.iti.algover.rules.SubtermSelector;
 import edu.kit.iti.algover.rules.TermSelector;
 import edu.kit.iti.algover.sequent.formulas.ViewFormula;
 import edu.kit.iti.algover.term.prettyprint.AnnotatedString;
 import edu.kit.iti.algover.term.prettyprint.PrettyPrint;
-import edu.kit.iti.algover.util.*;
+import edu.kit.iti.algover.util.Quadruple;
+import edu.kit.iti.algover.util.TextUtil;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import javafx.geometry.Bounds;
-import javafx.scene.input.KeyCode;
 import javafx.scene.input.MouseEvent;
 import org.fxmisc.richtext.CharacterHit;
 import org.fxmisc.richtext.CodeArea;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.OptionalInt;
 import java.util.stream.Collectors;
@@ -46,11 +46,11 @@ public class BasicFormulaView extends CodeArea {
     /**
      * The model for this view. The formula which is displayed.
      */
-    protected final ViewFormula formula;
+    private final ViewFormula formula;
     /**
      * A annotated String containing the formula for this view with annotated TermSelector information.
      */
-    protected AnnotatedString annotatedString;
+    private AnnotatedString annotatedString;
     /**
      * The element which is currently highlighted by the mouse (mouseover).
      */
@@ -64,17 +64,13 @@ public class BasicFormulaView extends CodeArea {
      */
     private final SimpleObjectProperty<TermSelector> selectedReference;
     /**
-     * List of all styles of the SequentController
-     */
-    ObservableList<Quadruple<TermSelector, String, Integer, String>> allStyles;
-    /**
      * Locally applied Styles.
      */
     private List<Quadruple<TermSelector, String, Integer, String>> localStyles;
     /**
-     * The Styles from {@link #allStyles} which affect this view.
+     * The Styles from allStyles which affect this view.
      */
-    private List<Quadruple<TermSelector, String, Integer, String>> relevantGlobalStyles;
+    private List<Quadruple<TermSelector, String, Integer, String>> relevantGlobalStyles = new ArrayList<>();
 
     public BasicFormulaView(ViewFormula formula, SimpleObjectProperty<TermSelector> selectedTerm,
                             SimpleObjectProperty<TermSelector> selectedReference,
@@ -85,15 +81,11 @@ public class BasicFormulaView extends CodeArea {
         this.localStyles = new ArrayList<>();
         this.selectedTerm = selectedTerm;
         this.selectedReference = selectedReference;
-        this.allStyles = allStyles;
-        allStyles.addListener(new ListChangeListener<Quadruple<TermSelector, String, Integer, String>>() {
-            @Override
-            public void onChanged(Change<? extends Quadruple<TermSelector, String, Integer, String>> c) {
-                relevantGlobalStyles = allStyles.stream().filter(x ->
-                        x.fst.getPolarity() == formula.getPolarity() &&
-                                x.fst.getTermNo() == formula.getIndexInSequent()).collect(Collectors.toList());
-                updateStyleClasses();
-            }
+        allStyles.addListener((ListChangeListener<Quadruple<TermSelector, String, Integer, String>>) c -> {
+            relevantGlobalStyles = allStyles.stream().filter(x ->
+                    x.fst.getPolarity() == formula.getPolarity() &&
+                            x.fst.getTermNo() == formula.getIndexInSequent()).collect(Collectors.toList());
+            updateStyleClasses();
         });
 
         relevantGlobalStyles = allStyles.stream().filter(x ->
@@ -176,7 +168,7 @@ public class BasicFormulaView extends CodeArea {
         updateStyleClasses();
     }
 
-    protected void handleHover(MouseEvent mouseEvent) {
+    private void handleHover(MouseEvent mouseEvent) {
         CharacterHit hit = hit(mouseEvent.getX(), mouseEvent.getY());
         OptionalInt charIdx = hit.getCharacterIndex();
         if (charIdx.isPresent()) {
@@ -192,12 +184,13 @@ public class BasicFormulaView extends CodeArea {
     /**
      * Applies all currently set Styleclasses
      */
-    protected void updateStyleClasses() {
-        List<Quadruple<TermSelector, String, Integer, String>>  relavantStyles = relevantGlobalStyles;
-        relavantStyles.addAll(localStyles);
+    private void updateStyleClasses() {
+        List<Quadruple<TermSelector, String, Integer, String>>  relevantStyles = new ArrayList<>();
+        relevantStyles.addAll(relevantGlobalStyles);
+        relevantStyles.addAll(localStyles);
         clearStyle(0, getLength());
-        relavantStyles.sort((o1, o2) -> o1.trd > o2.trd ? 1 : o1.trd == o2.trd ? 0 : -1);
-        for(Quadruple<TermSelector, String, Integer, String> t : relavantStyles) {
+        relevantStyles.sort(Comparator.comparingInt(o -> o.trd));
+        for(Quadruple<TermSelector, String, Integer, String> t : relevantStyles) {
             setStyleForTerm(t.fst, t.snd);
         }
     }
@@ -209,16 +202,16 @@ public class BasicFormulaView extends CodeArea {
      * @param prio A priority of the Style (determines which style will be applied when localStyles clash)
      * @param id An id to remove the style later on.
      */
-    public void addStyleForTerm(TermSelector ts, String styleClass, int prio, String id) {
-        allStyles.add(new Quadruple<>(ts, styleClass, prio, id));
+    private void addStyleForTerm(TermSelector ts, String styleClass, int prio, String id) {
+        localStyles.add(new Quadruple<>(ts, styleClass, prio, id));
     }
 
     /**
      * Removes a style from the currently applied localStyles
      * @param id The id associated with the style to be removed (see {@link #addStyleForTerm(TermSelector, String, int, String)})
      */
-    public void removeStyle(String id) {
-        allStyles.removeIf(x -> x.fth.equals(id));
+    private void removeStyle(String id) {
+        localStyles.removeIf(x -> x.fth.equals(id));
     }
 
     /**
@@ -226,37 +219,27 @@ public class BasicFormulaView extends CodeArea {
      * @param ts A Termselector pointing to the term to be styled
      * @param styleClass the styleclass to be applied
      */
-    public void setStyleForTerm(TermSelector ts, String styleClass) {
+    private void setStyleForTerm(TermSelector ts, String styleClass) {
         if(annotatedString != null) {
             if(ts.getSubtermSelector().getDepth() == 0) {
                 setStyleClass(0, getText().length(), styleClass);
                 return;
             }
-            List<AnnotatedString.TermElement> elements = annotatedString.getAllTermElements();
-            elements = elements.stream().filter(
-                    x -> x.getSubtermSelector().equals(ts.getSubtermSelector())
-                            && ts.getPolarity() == formula.getPolarity())
-                    .collect(Collectors.toList());
-            if (elements.size() == 0) {
-                return;
-                //throw new IllegalArgumentException("Termselector not present in this view.");
-            } else if (elements.size() > 1) {
-                return;
-                //throw new RuntimeException("this should not happen: Several Annotated Strings with same ts.");
+
+            AnnotatedString.TermElement element = getTermElementByTermSelector(ts, annotatedString);
+            if(element != null) {
+                setStyleClass(element.getBegin(), element.getEnd(), styleClass);
             }
-            AnnotatedString.TermElement element = elements.get(0);
-            setStyleClass(element.getBegin(), element.getEnd(), styleClass);
         }
     }
 
     @Override
     protected double computePrefHeight(double width) {
         String prettyPrinted = calculateText(width);
-        double neededHeight = calculateNeededHeight(prettyPrinted);
-        return neededHeight;
+        return calculateNeededHeight(prettyPrinted);
     }
 
-    protected void relayout() {
+    private void relayout() {
         double width = getWidth();
 
         String prettyPrinted = calculateText(width);
@@ -300,16 +283,23 @@ public class BasicFormulaView extends CodeArea {
                 + getInsets().getBottom() + getInsets().getTop());
     }
 
-    protected AnnotatedString.TermElement getTermElementBySubtermSelector(SubtermSelector selector, AnnotatedString string) {
-        if (selector == null) {
+    private AnnotatedString.TermElement getTermElementByTermSelector(TermSelector ts, AnnotatedString string) {
+        if(ts == null || string == null) {
             return null;
         }
-        if (selector.getDepth() == 0) {
-            return string.getEnvelopingTermElement();
+        List<AnnotatedString.TermElement> elements = annotatedString.getAllTermElements();
+        elements = elements.stream().filter(
+                x -> x.getSubtermSelector().equals(ts.getSubtermSelector())
+                        && ts.getPolarity() == formula.getPolarity())
+                .collect(Collectors.toList());
+        if (elements.size() == 0) {
+            return null;
+            //throw new IllegalArgumentException("Termselector not present in this view.");
+        } else if (elements.size() > 1) {
+            return null;
+            //throw new RuntimeException("this should not happen: Several Annotated Strings with same ts.");
         }
-        return string.getAllTermElements().stream()
-                .filter(termElement -> termElement.getSubtermSelector().equals(selector))
-                .findFirst().orElse(null);
+        return elements.get(0);
     }
 
 }
