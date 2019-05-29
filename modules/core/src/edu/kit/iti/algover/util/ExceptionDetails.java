@@ -149,7 +149,7 @@ public final class ExceptionDetails {
             result.message = snap.getMessage();
             if(snap.callStatement != null) {
                 result.line = snap.callStatement.getStartPosition().getLineNumber();
-                result.column = snap.callStatement.getStartPosition().getCharInLine();
+                result.column = snap.callStatement.getStartPosition().getCharInLine() + 1;
                 result.length = snap.callStatement.getEndPosition().getCharInLine() -
                         snap.callStatement.getStartPosition().getCharInLine();
             }
@@ -162,7 +162,7 @@ public final class ExceptionDetails {
             result.message = snap.getMessage();
             if(snap.callStatement != null) {
                 result.line = snap.callStatement.getStartPosition().getLineNumber();
-                result.column = snap.callStatement.getStartPosition().getCharInLine();
+                result.column = snap.callStatement.getStartPosition().getCharInLine() + 1;
                 result.length = snap.callStatement.getEndPosition().getCharInLine() -
                         snap.callStatement.getStartPosition().getCharInLine();
             }
