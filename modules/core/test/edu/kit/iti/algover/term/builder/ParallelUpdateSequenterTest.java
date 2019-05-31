@@ -69,7 +69,7 @@ public class ParallelUpdateSequenterTest extends SequenterTest {
 
     protected void checkSequentWithOld(SymbolTable table, Sequent sequent) throws Exception {
 
-        assertEquals("|- (let $mod, $decr, $oldheap, $heap := " +
+        assertEquals("|- [Assertion]: (let $mod, $decr, $oldheap, $heap := " +
                 "$empty, 0, $heap, $store<C,int>($heap, c, C$$i, $plus($select<C,int>($heap, c, C$$i), 1)) :: " +
                 "$eq<int>($select<C,int>($heap, c, C$$i), " +
                 "$plus((let $heap := $oldheap :: $select<C,int>($heap, c, C$$i)), 1)))", sequent.toString());

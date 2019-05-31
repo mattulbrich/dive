@@ -75,9 +75,9 @@ public class InlineSequenterTest extends SequenterTest {
         SymbolTable symbolTable = makeTable(method);
         Sequent sequent = sequenter.translate(path, symbolTable, map);
 
-        Sequent expectedSeq = TermParser.parseSequent(symbolTable, "x+3 > 0 |- a[x+3+2] > 0");
-        assertEquals(expectedSeq, sequent);
-
+        String expectedSeq = "[Assumption]: $gt($plus(x, 3), 0) " +
+                "|- [Assertion]: $gt($array_select<int>($heap, a, $plus($plus(x, 3), 2)), 0)";
+        assertEquals(expectedSeq, sequent.toString());
 
         System.out.println(map);
         assertEquals("(> i 0)", map.get(new TermSelector(SequentPolarity.ANTECEDENT, 0)).toStringTree());
@@ -105,7 +105,10 @@ public class InlineSequenterTest extends SequenterTest {
         DafnyMethod method = (DafnyMethod) pvc.getDeclaration();
         Sequent sequent = sequenter.translate(path, makeTable(method), map);
 
-        assertEquals("$le(i_1, n), $lt(i_1, n), $not($eq<int>(i_1, 5)) |- $le($plus(i_1, 1), n)", sequent.toString());
+        assertEquals("[Assumption]: $le(i_1, n), " +
+                "[PathCond]: $lt(i_1, n), " +
+                "[PathCond]: $not($eq<int>(i_1, 5)) " +
+                "|- [Assertion]: $le($plus(i_1, 1), n)", sequent.toString());
 
     }
 
