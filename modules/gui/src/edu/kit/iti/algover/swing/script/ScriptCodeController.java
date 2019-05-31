@@ -36,6 +36,7 @@ import java.awt.*;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 public class ScriptCodeController {
 
@@ -106,24 +107,32 @@ public class ScriptCodeController {
     }
 
     private void caretUpdated(CaretEvent ev) {
-
+        System.out.println("ev = [" + ev + "]");
         if (checkPoints == null || proof == null) {
             return;
         }
 
+        // find the last check point that has been passed.
         int pos = ev.getDot();
+        ProofNodeCheckpoint last = null;
         for (ProofNodeCheckpoint checkPoint : checkPoints) {
             int checkPos = GUIUtil.linecolToPos(textArea.getText(), checkPoint.position.getLineNumber(), checkPoint.position.getCharInLine() + 1);
             if (pos > checkPos) {
-                try {
-                    ProofNode node = checkPoint.selector.get(proof);
-                    diveCenter.properties().proofNode.setValue(node);
-                } catch (RuleException e) {
-                    e.printStackTrace();
-                }
+                last = checkPoint;
             }
         }
-        
+
+
+        try {
+            if (last != null) {
+                ProofNode node = last.selector.get(proof);
+                diveCenter.properties().proofNode.setValue(node);
+            }
+        } catch (RuleException e) {
+            Log.log(Log.DEBUG, "Unexpectedly, a proofnode selector cannot be applied");
+            Log.stacktrace(Log.DEBUG, e);
+        }
+
     }
 
     private void docChanged(DocumentEvent ev) {
