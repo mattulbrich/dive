@@ -130,8 +130,8 @@ public class SimplifiedUpdateSequenterTest extends SequenterTest {
         // (:= d x)
         // (:= (FIELD_ACCESS x c) this)
 
-        assertEquals("$not($eq<D>(x, null)) |- " +
-                "(let $heap := $store<C,D>($heap, this, C$$d, x) :: " +
+        assertEquals("[PreCond]: $not($eq<D>(x, null)) |- " +
+                "[Assertion]: (let $heap := $store<C,D>($heap, this, C$$d, x) :: " +
                 "(let $heap := $store<C,D>($heap, this, C$$d, x) :: " +
                 "(let $heap := $store<D,C>($heap, x, D$$c, this) :: " +
                 "$eq<D>($select<C,D>($heap, this, C$$d), x))))", sequent.toString());
@@ -139,7 +139,7 @@ public class SimplifiedUpdateSequenterTest extends SequenterTest {
 
     protected void checkSequentWithOld(SymbolTable table, Sequent sequent) throws Exception {
 
-        assertEquals("|- (let $oldheap := $heap :: " +
+        assertEquals("|- [Assertion]: (let $oldheap := $heap :: " +
                 "(let $heap := $store<C,int>($heap, c, C$$i, $plus($select<C,int>($heap, c, C$$i), 1)) :: " +
                 "$eq<int>($select<C,int>($heap, c, C$$i), " +
                 "$plus((let $heap := $oldheap :: $select<C,int>($heap, c, C$$i)), 1))))", sequent.toString());
