@@ -18,6 +18,7 @@ import edu.kit.iti.algover.term.prettyprint.AnnotatedString;
 import edu.kit.iti.algover.term.prettyprint.AnnotatedString.Style;
 import edu.kit.iti.algover.term.prettyprint.AnnotatedString.TermElement;
 import edu.kit.iti.algover.term.prettyprint.PrettyPrint;
+import edu.kit.iti.algover.util.Util;
 
 import javax.swing.*;
 import javax.swing.border.Border;
@@ -76,9 +77,12 @@ public class TermController extends MouseAdapter {
             S.getColor("dive.termcomponent.findforeground", Color.LIGHT_GRAY);
 
     // empty border
-    private static final Border BORDER = BorderFactory.createCompoundBorder(
-            BorderFactory.createLineBorder(BORDER_COLOR), BorderFactory
-                    .createEmptyBorder(5, 5, 5, 5));
+    private static final Border BORDER =
+            BorderFactory.createCompoundBorder(
+                BorderFactory.createCompoundBorder(
+                    BorderFactory.createLineBorder(BORDER_COLOR),
+                    new TagBorder()),
+                BorderFactory.createEmptyBorder(5, 5, 5, 5));
 
 
     /*
@@ -154,6 +158,8 @@ public class TermController extends MouseAdapter {
                 reprint();
             }
         });
+        component.putClientProperty(TagBorder.TAG_KEY,
+                Util.commatize(proofFormula.getLabels()));
 
         try {
             this.mouseHighlight = component.getHighlighter().addHighlight(0, 0,

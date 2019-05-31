@@ -167,13 +167,18 @@ public class DafnyCodeController {
         }
 
         ExceptionReportInfo report = ExceptionDetails.extractReportInfo(exc);
-        int index = getIndexByFilename(report.getFilename());
+        String filename = report.getFilename();
+        if (filename == null) {
+            return;
+        }
+
+        int index = getIndexByFilename(filename);
         if (index < 0) {
             Log.log(Log.DEBUG,
                "File with error not found in tabs: " +
-                       report.getFilename());
+                       filename);
             try {
-                addTab(new File(report.getFilename()));
+                addTab(new File(filename));
             } catch (IOException e) {
                 ExceptionDialog.showExceptionDialog(diveCenter.getMainWindow(), e);
             }

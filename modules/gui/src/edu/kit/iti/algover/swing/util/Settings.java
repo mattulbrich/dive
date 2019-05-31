@@ -337,7 +337,7 @@ public class Settings {
     public @NonNull Color getColor(@NonNull String key) throws SettingsException {
         Color color = getCached(key, Color.class);
         if(color == null) {
-            String prop = getProperty(key);
+            String prop = getExpandedProperty(key);
             color= ColorResolver.getInstance().resolve(prop);
             if(color == null) {
                 throw new SettingsException(prop + " does not describe a valid color in key " + key);
