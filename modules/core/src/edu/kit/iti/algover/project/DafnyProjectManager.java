@@ -135,6 +135,12 @@ public class DafnyProjectManager extends AbstractProjectManager {
 
         pb.setSettings(settings);
 
+        try {
+            pb.validateProjectConfiguration();
+        } catch (FormatException e) {
+            throw new IOException(e);
+        }
+
         Project result = pb.build();
         return result;
     }
