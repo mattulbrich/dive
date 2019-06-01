@@ -95,10 +95,6 @@ public class TermController extends MouseAdapter {
 
 
                     MutableAttributeSet retval = new SimpleAttributeSet();
-                    if(FONT != null) {
-                        StyleConstants.setFontFamily(retval, FONT.getFamily());
-                        StyleConstants.setFontSize(retval, FONT.getSize());
-                    }
 
                     for (Style style : styles) {
                         switch(style) {
@@ -147,6 +143,7 @@ public class TermController extends MouseAdapter {
         component.setEditable(false);
         component.setFocusable(false);
         component.setBorder(BORDER);
+        component.setFont(FONT);
         component.setCaret(new NotScrollingCaret());
         component.addMouseListener(this);
         component.addMouseMotionListener(this);
@@ -188,6 +185,7 @@ public class TermController extends MouseAdapter {
 
     private void reprint() {
         int newLineWidth = computeLineWidth();
+        System.out.println("newLineWidth = " + newLineWidth);
         if(newLineWidth != lineWidth) {
             this.annotatedString = prettyPrinter.print(proofFormula.getTerm(), newLineWidth);
             component.setText("");
@@ -211,8 +209,11 @@ public class TermController extends MouseAdapter {
      */
     private int computeLineWidth() {
         // assumes we have a uniform font width
+        System.out.println("component.getSize().width = " + component.getSize().width);
+        System.out.println("component.getFont() = " + component.getFont());
+        System.out.println("component.getFontMetrics(component.getFont()).charWidth('i') = " + component.getFontMetrics(component.getFont()).charWidth('i'));
         int maxChars = component.getSize().width /
-                component.getFontMetrics(component.getFont()).charWidth('W');
+                component.getFontMetrics(component.getFont()).charWidth('i');
 
         if (maxChars > 1) {
             maxChars -= 1;
