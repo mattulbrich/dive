@@ -5,13 +5,20 @@
  *
  */
 
-package edu.kit.iti.algover.swing.sequent;
+package edu.kit.iti.algover.swing.util;
 
+import javax.swing.*;
 import java.awt.*;
 
-class SequentLayoutManager implements LayoutManager {
+public class IndentationLayout implements LayoutManager {
 
     private static int GAP = 3;
+
+    private final int indentation;
+
+    public IndentationLayout(int indentation) {
+        this.indentation = indentation;
+    }
 
     public void addLayoutComponent(String name, Component comp) { }
     public void removeLayoutComponent(Component comp) { }
@@ -20,17 +27,15 @@ class SequentLayoutManager implements LayoutManager {
 
         int width = parent.getWidth();
         Insets insets = parent.getInsets();
-        int leftMargin = SequentSeparator.SEP_LENGTH/2 + insets.left;
 
         int h = insets.top;
         for(int i = 0; i < parent.getComponentCount(); i++) {
-            Component comp = parent.getComponent(i);
+            JComponent comp = (JComponent) parent.getComponent(i);
             Dimension prefd = comp.getPreferredSize();
-            if(comp instanceof SequentSeparator) {
-                comp.setLocation(insets.left, h);
-            } else {
-                comp.setBounds(leftMargin, h, width-leftMargin - insets.right, prefd.height);
-            }
+            boolean indented = Boolean.TRUE.equals(comp.getClientProperty("indented"));
+            int leftOffset = insets.left + (indented ? indentation : 0);
+            comp.setBounds(leftOffset, h,
+                    width - leftOffset - insets.right, prefd.height);
             h += prefd.height + GAP;
         }
     }
@@ -44,7 +49,7 @@ class SequentLayoutManager implements LayoutManager {
             h += prefd.height + GAP;
         }
         Insets insets = parent.getInsets();
-        Dimension result = new Dimension(w + SequentSeparator.SEP_LENGTH / 2 + insets.left + insets.right,
+        Dimension result = new Dimension(w + indentation + insets.left + insets.right,
                 h-GAP + insets.top + insets.bottom);
         return result;
     }
@@ -58,7 +63,7 @@ class SequentLayoutManager implements LayoutManager {
             h += prefd.height + GAP;
         }
         Insets insets = parent.getInsets();
-        Dimension result = new Dimension(w + SequentSeparator.SEP_LENGTH / 2 + insets.left + insets.right,
+        Dimension result = new Dimension(w + indentation + insets.left + insets.right,
                 h-GAP + insets.top + insets.bottom);
         return result;
     }
