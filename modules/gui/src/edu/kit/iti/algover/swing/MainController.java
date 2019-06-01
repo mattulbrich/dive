@@ -215,6 +215,7 @@ public class MainController {
         }
         {
             statusLine = new JLabel("this is difficult");
+            statusLine.setFont(UIManager.getFont("TextArea.font"));
             statusLine.setBorder(BorderFactory.createEtchedBorder(EtchedBorder.LOWERED));
             cp.add(statusLine, BorderLayout.SOUTH);
         }
