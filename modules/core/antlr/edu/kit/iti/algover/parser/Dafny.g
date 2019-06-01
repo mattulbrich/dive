@@ -148,6 +148,9 @@ CARD: '|';
 LENGTH: 'Length' ('0' .. '9')*;
 ARRAY : 'array' (('1' .. '9') ('0' .. '9')*)?;
 
+// Is resolved by a syntactic sugar visitor: ResolveUnicodeVisitor!
+UNICODE_INDEXED_ID : ID ('\u2080' .. '\u2089')+;
+
 ID : ('a' .. 'z' | 'A' .. 'Z' | '_' )
      ('a' .. 'z' | 'A' .. 'Z' | '0' .. '9' | '_')*;
 
@@ -526,6 +529,7 @@ schema_entity:
 usual_or_logic_id:
     ID
   | {logicMode}? logic_id_param
+  | {logicMode}? UNICODE_INDEXED_ID
   ;
 
 // Currently, only logic ids can have type parameters, will change later ...
