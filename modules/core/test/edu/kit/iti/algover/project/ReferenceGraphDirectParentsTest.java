@@ -5,11 +5,9 @@ import edu.kit.iti.algover.parser.DafnyParserException;
 import edu.kit.iti.algover.proof.Proof;
 import edu.kit.iti.algover.proof.ProofFormula;
 import edu.kit.iti.algover.proof.ProofNodeSelector;
-import edu.kit.iti.algover.referenceHighlighting.ReferenceGraphController;
 import edu.kit.iti.algover.references.ProofTermReferenceTarget;
 import edu.kit.iti.algover.references.ReferenceGraph;
 import edu.kit.iti.algover.references.ScriptReferenceTarget;
-import edu.kit.iti.algover.references.TermCollector;
 import edu.kit.iti.algover.rules.RuleException;
 import edu.kit.iti.algover.rules.TermSelector;
 import edu.kit.iti.algover.term.Sequent;
@@ -193,11 +191,20 @@ public class ReferenceGraphDirectParentsTest {
         TermSelector ltFormula = new TermSelector("A.0");
         TermSelector x = new TermSelector("A.0.0");
         TermSelector y = new TermSelector("A.0.1");
+        TermSelector sx = new TermSelector("S.0.1");
+        TermSelector sy = new TermSelector("S.0.0");
+        TermSelector geFormula = new TermSelector("S.0");
 
-        ProofTermReferenceTarget childTarget = new ProofTermReferenceTarget(justNode, x);
-        Set<ProofTermReferenceTarget> directParents = proofBranched.getGraph().computeHistory(childTarget, proofBranched);
-        directParents.forEach(proofTermReferenceTarget -> System.out.println("proofTermReferenceTarget = " + proofTermReferenceTarget));
-        proofBranched.getGraph().computeFirstParentWithChange(proofBranched, childTarget);
+        System.out.println("just = " + just);
+
+        ProofTermReferenceTarget childTarget = new ProofTermReferenceTarget(justNode, sy);
+        ReferenceGraph graph = proofBranched.getGraph();
+        ProofTermReferenceTarget proofTermReferenceTarget = graph.computeFirstParentWithChangedTerm(proofBranched, childTarget);
+        //TODO compute child of parent with changed term instead
+        System.out.println("proofTermReferenceTarget1 = " + proofTermReferenceTarget);
+        Set<ScriptReferenceTarget> scriptReferenceTargetSet = graph.allPredecessorsWithType(proofTermReferenceTarget, ScriptReferenceTarget.class);
+        scriptReferenceTargetSet.forEach(scriptReferenceTarget -> System.out.println("scriptReferenceTarget = " + scriptReferenceTarget));
+
 
         // Set<ScriptReferenceTarget> scriptReferenceTargetSet = proofBranched.getGraph().allSuccessorsWithType(childTarget, ScriptReferenceTarget.class);
        // scriptReferenceTargetSet.forEach(scriptReferenceTarget -> System.out.println("scriptReferenceTarget = " + scriptReferenceTarget));

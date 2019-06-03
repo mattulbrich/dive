@@ -192,6 +192,7 @@ public class ReferenceGraph {
         //is childtarget part of a reference?
         LinkedList<ProofTermReferenceTarget> toCompute = new LinkedList<ProofTermReferenceTarget>();
         toCompute.add(currentTarget);
+        toCompute.addAll(parents);
         while (toCompute.size() > 0) {
             Set<ProofTermReferenceTarget> directParents = findDirectParents(currentTarget, proof);
             toCompute.addAll(directParents);
@@ -255,7 +256,7 @@ public class ReferenceGraph {
         if (termOfCurrenTarget == termOfParentTarget && termOfCurrenTarget != null) {
        //     Logger.getGlobal().info("Found parent term '" + termOfParentTarget + "' in Node " + parent.getProofNodeSelector() + " on same position");
             parents.add(parent);
-        } else {
+        } else {//termvalues are different
             ProofNode proofNode = currentTarget.getProofNodeSelector().get(proof);
             TermSelector childSelector = currentTarget.getTermSelector();
             ImmutableList<BranchInfo> branchInfos = proofNode.getProofRuleApplication().getBranchInfo();
@@ -273,6 +274,8 @@ public class ReferenceGraph {
                         }
 
                 );
+                parents.add(handleAddAndDel(proof, parent, childSelector, branchInfos));
+
             } else {
                 parents.add(handleAddAndDel(proof, parent, childSelector, branchInfos));
             }
@@ -288,29 +291,29 @@ public class ReferenceGraph {
      * @param target
      * @return
      */
-    public ProofTermReferenceTarget computeFirstParentWithChange(Proof proof, ProofTermReferenceTarget target){
+    public ProofTermReferenceTarget computeFirstParentWithChangedTerm(Proof proof, ProofTermReferenceTarget target){
         Set<ProofTermReferenceTarget> history = computeHistory(target, proof);
         ArrayList<ProofTermReferenceTarget> historyList = new ArrayList<>();
         historyList.addAll(history);
         historyList.sort(new Comparator<ProofTermReferenceTarget>() {
             @Override
             public int compare(ProofTermReferenceTarget o1, ProofTermReferenceTarget o2) {
-                if(o1.getProofNodeSelector().getParentSelector() != null) {
-                    if (o1.getProofNodeSelector().getParentSelector().equals(o2.getProofNodeSelector())) {
-                        return -1;
-                    } else {
-                        return 1;
-                    }
+
+                if(o1.getProofNodeSelector().getPath().length > o2.getProofNodeSelector().getPath().length){
+                    return -1;
                 } else {
-                    return 1
+                    return 1;
                 }
             }
         });
-        historyList.forEach(proofTermReferenceTarget -> {
-            System.out.println("proofTermReferenceTarget = " + proofTermReferenceTarget);
-        });
-        return target;
-
+        history.forEach(proofTermReferenceTarget -> System.out.println("proofTermReferenceTarget = " + proofTermReferenceTarget));
+        TermSelector lastSelector = historyList.get(0).getTermSelector();
+        for(ProofTermReferenceTarget p : historyList){
+            if(!p.getTermSelector().equals(lastSelector)){
+                return p;
+            }
+        }
+        return historyList.get(historyList.size()-1);
     }
 
     //TODO refactor and possible additions

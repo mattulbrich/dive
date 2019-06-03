@@ -2,6 +2,7 @@ package edu.kit.iti.algover.references;
 
 
 import edu.kit.iti.algover.proof.Proof;
+import edu.kit.iti.algover.proof.ProofFormula;
 import edu.kit.iti.algover.proof.ProofNode;
 import edu.kit.iti.algover.proof.ProofNodeSelector;
 import edu.kit.iti.algover.rules.BranchInfo;
@@ -13,9 +14,7 @@ import edu.kit.iti.algover.term.Term;
 import edu.kit.iti.algover.util.ImmutableList;
 import edu.kit.iti.algover.util.Pair;
 
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 
 /**
@@ -57,7 +56,27 @@ public class ScriptReferenceBuilder {
                     this.buildReferencesForTerm(pns, repl.getFst());
                 }
 
-                //TODO bi.getAdditions();
+                Sequent additions = bi.getAdditions();
+                //todo add references for each term and subterm  in additions
+                List<ProofFormula> antecedent = additions.getAntecedent();
+                List<ProofFormula> antecedentInNode= afterNode.getSequent().getAntecedent();
+                for (ProofFormula toplevel: antecedent) {
+                    //TermSelektoren für jeden Toplevel Term in Sequent finden
+                    TermSelector sel = findSelector(toplevel, antecedentInNode, TermSelector.SequentPolarity.ANTECEDENT);
+                    //Referenz für jeden Subterm hinzufügen
+                    if(sel != null)
+                        buildReferencesForTerm(pns, sel);
+                }
+                List<ProofFormula> succedent = additions.getSuccedent();
+                //Sequent deletions = bi.getDeletions();
+                List<ProofFormula> succedentInNode= afterNode.getSequent().getSuccedent();
+                for (ProofFormula toplevel: succedent) {
+                    //TermSelektoren für jeden Toplevel Term in Sequent finden
+                    TermSelector sel = findSelector(toplevel, succedentInNode, TermSelector.SequentPolarity.SUCCEDENT);
+                    //Referenz für jeden Subterm hinzufügen
+                    if(sel != null)
+                        buildReferencesForTerm(pns, sel);
+                }
 
             }
 
@@ -65,6 +84,38 @@ public class ScriptReferenceBuilder {
 
     }
 
+    /**
+     * Searches for the prooformula in the cedent and returns its termselector. If the prooformula
+     * does not exist, this method throws an exception.
+     *
+     * @param formula
+     * @param cedent
+     * @return Termselector of formula in cedent
+     */
+    private TermSelector findSelector(ProofFormula formula, List<ProofFormula> cedent, TermSelector.SequentPolarity polarity) throws NoSuchElementException{
+        int index = 0;
+        boolean found = false;
+        Iterator<ProofFormula> iterator = cedent.iterator();
+        ProofFormula currentFormula;
+
+        //find first occurrence
+        while(iterator.hasNext()){
+            currentFormula = iterator.next();
+            if(currentFormula.equals(formula)){
+                found = true;
+               break;
+            }
+            index++;
+        }
+
+        if(found){
+            return  new TermSelector(polarity, index);
+        } else {
+            return null;
+            //throw  new NoSuchElementException("The formula could not be found in the cedent while searching for references");
+        }
+
+    }
     private void buildReferencesForTerm(ProofNodeSelector proofNodeAfter, TermSelector changedTerm) throws RuleException {
         ProofTermReferenceTarget pt = new ProofTermReferenceTarget(proofNodeAfter, changedTerm);
         graph.addReference(pt, sct);
