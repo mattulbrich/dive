@@ -2,7 +2,13 @@
     -fx-font-family: monospace;
 }
 
-.list-view:focused .list-cell:selected .formula-view .text {
+.formula-view .selected {
+    -rtfx-background-color: #0f1c0f;
+    -fx-fill: whitesmoke;
+}
+
+.formula-view .selectedRef {
+    -rtfx-background-color: #62b00f;
     -fx-fill: whitesmoke;
 }
 
@@ -16,46 +22,29 @@
     -fx-fill: whitesmoke;
 }
 
-.formula-view .modified {
-    -rtfx-background-color: #74eea0;
+.formula-view .formula-modified {
+    -rtfx-background-color: #55EE55;
 }
 
-.formula-view .reference-selected {
-    -rtfx-background-color: #2bc0cf;
-/*    -fx-border-color:  #2bc0cf;*/
-    -fx-fill: whitesmoke;
+.test {
+    -rtfx-background-color: #55EE55;
 }
 
-.formula-view .historyHighlight {
-    -rtfx-background-color: #965dcf !important;
-    -fx-underline: true;
-    -fx-border-color: #965dcf, transparent, #965dcf;
-    -fx-border-width: 0 0 1 0, 0 0 1 0, 0 0 1 0;
-    -fx-border-insets: 0 0 1 0, 0 0 2 0, 0 0 3 0;
-    -fx-fill: whitesmoke;
+.formula-view .formula-added {
+    -rtfx-background-color: #55EE55;
 }
 
-.list-cell.formula-cell:formula-highlight {
-    -fx-background-color: #ee750b;
+.formula-view .formula-deleted {
+    -rtfx-background-color: #EE5555;
 }
 
-
-.list-cell.formula-cell:formula-added {
-    -fx-background-color: #74eea0;
-}
-
-.list-cell.formula-cell:formula-deleted {
-    -fx-background-color: #ee9486;
+.formula-view .test {
+    -rtfx-background-color: #EE5555;
 }
 
 .list-cell.formula-cell:formula-modified {
-     /*-fx-background-color: #f2aaf2;*/
+    /* -fx-background-color: #f2aaf2; This looks ridiculous haha */
 }
-
-.list-cell.formula-cell:formula-referenced {
-    -fx-background-color: #f2aaff;
-}
-
 
 .undecorated-button {
     -fx-padding: 0 0 0 0;
@@ -115,9 +104,6 @@
 .code {
     -fx-font-family: monospace;
     -fx-background-color: white;
-}
-.code-dirty{
-    -fx-background-color: #b8b5bc;
 }
 
 
