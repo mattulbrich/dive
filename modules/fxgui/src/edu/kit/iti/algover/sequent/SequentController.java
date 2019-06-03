@@ -62,9 +62,6 @@ public class SequentController extends FxmlController {
      */
     private final SimpleObjectProperty<TermSelector> selectedReference;
 
-    //TODO remove?
-    private SubSelection<ProofTermReferenceTarget> selectedReference2;
-
     /**
      * Whichever Term was clicked to apply rules to.
      */
@@ -91,6 +88,12 @@ public class SequentController extends FxmlController {
         this.listener = listener;
         this.activeProof = null;
         this.selectedReference = new SimpleObjectProperty<>(null);
+        this.selectedReference.addListener((observable, oldValue, newValue) -> {
+            if(newValue != null){
+              listener.onRequestReferenceHighlighting(new ProofTermReferenceTarget(activeNode, newValue));
+            }
+        });
+
         this.selectedTerm = new SimpleObjectProperty<>(null);
         this.styles = FXCollections.observableArrayList();
         this.selectedTerm.addListener((observable, oldValue, newValue) -> listener.onClickSequentSubterm(newValue));
@@ -394,9 +397,6 @@ public class SequentController extends FxmlController {
         return activeProof;
     }
 
-    public SubSelection<ProofTermReferenceTarget> referenceSelection() {
-        return selectedReference2;
-    }
 
     public void setActiveNode(ProofNodeSelector pns) {
         activeNode = pns;
