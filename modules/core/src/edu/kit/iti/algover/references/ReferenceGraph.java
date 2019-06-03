@@ -306,7 +306,6 @@ public class ReferenceGraph {
                 }
             }
         });
-        history.forEach(proofTermReferenceTarget -> System.out.println("proofTermReferenceTarget = " + proofTermReferenceTarget));
         TermSelector lastSelector = historyList.get(0).getTermSelector();
         for(ProofTermReferenceTarget p : historyList){
             if(!p.getTermSelector().equals(lastSelector)){
@@ -314,6 +313,38 @@ public class ReferenceGraph {
             }
         }
         return historyList.get(historyList.size()-1);
+    }
+
+    public ProofTermReferenceTarget computeTargetBeforeChange(Proof proof, ProofTermReferenceTarget target){
+        Set<ProofTermReferenceTarget> history = computeHistory(target, proof);
+        ArrayList<ProofTermReferenceTarget> historyList = new ArrayList<>();
+        historyList.addAll(history);
+        historyList.sort(new Comparator<ProofTermReferenceTarget>() {
+            @Override
+            public int compare(ProofTermReferenceTarget o1, ProofTermReferenceTarget o2) {
+
+                if(o1.getProofNodeSelector().getPath().length > o2.getProofNodeSelector().getPath().length){
+                    return -1;
+                } else {
+                    return 1;
+                }
+            }
+        });
+        TermSelector lastSelector = historyList.get(0).getTermSelector();
+        ProofTermReferenceTarget current;
+        ProofTermReferenceTarget before = historyList.get(0);
+
+        Iterator<ProofTermReferenceTarget> iterator = historyList.iterator();
+        while(iterator.hasNext()){
+            current = iterator.next();
+            if(!current.getTermSelector().equals(lastSelector)){
+                return before;
+            }
+            before = current;
+
+        }
+        return historyList.get(historyList.size()-1);
+
     }
 
     //TODO refactor and possible additions

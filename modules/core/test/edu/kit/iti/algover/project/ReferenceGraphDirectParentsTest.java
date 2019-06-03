@@ -199,10 +199,10 @@ public class ReferenceGraphDirectParentsTest {
 
         ProofTermReferenceTarget childTarget = new ProofTermReferenceTarget(justNode, sy);
         ReferenceGraph graph = proofBranched.getGraph();
-        ProofTermReferenceTarget proofTermReferenceTarget = graph.computeFirstParentWithChangedTerm(proofBranched, childTarget);
+        ProofTermReferenceTarget proofTermReferenceTarget = graph.computeTargetBeforeChange(proofBranched, childTarget);
         //TODO compute child of parent with changed term instead
         System.out.println("proofTermReferenceTarget1 = " + proofTermReferenceTarget);
-        Set<ScriptReferenceTarget> scriptReferenceTargetSet = graph.allPredecessorsWithType(proofTermReferenceTarget, ScriptReferenceTarget.class);
+        Set<ScriptReferenceTarget> scriptReferenceTargetSet = graph.allSuccessorsWithType(proofTermReferenceTarget, ScriptReferenceTarget.class);
         scriptReferenceTargetSet.forEach(scriptReferenceTarget -> System.out.println("scriptReferenceTarget = " + scriptReferenceTarget));
 
 
