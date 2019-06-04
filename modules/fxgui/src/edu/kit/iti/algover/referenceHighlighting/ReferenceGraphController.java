@@ -1,5 +1,6 @@
 package edu.kit.iti.algover.referenceHighlighting;
 
+import edu.kit.iti.algover.Lookup;
 import edu.kit.iti.algover.editor.EditorController;
 import edu.kit.iti.algover.proof.Proof;
 import edu.kit.iti.algover.references.CodeReferenceTarget;
@@ -11,6 +12,7 @@ import edu.kit.iti.algover.rule.script.ScriptController;
 import edu.kit.iti.algover.rules.RuleException;
 import edu.kit.iti.algover.sequent.SequentTabViewController;
 
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -19,22 +21,12 @@ import java.util.stream.Collectors;
 
 public class ReferenceGraphController {
 
-    /**
-     * This will be refactored
-     */
-    private final EditorController editorController;
-    private final SequentTabViewController sequentController;
-    private final RuleApplicationController ruleApplicationController;
 
-    /**
-     * Controller that encapsulates ReferenceHighlighting
-     * @param editorCtrl
-     * @param sequentController
-     */
-    public ReferenceGraphController(EditorController editorCtrl, SequentTabViewController sequentController, RuleApplicationController ruleApplicationController){
-        this.editorController = editorCtrl;
-        this.sequentController = sequentController;
-        this.ruleApplicationController = ruleApplicationController;
+    private final Lookup lookup;
+
+
+    public ReferenceGraphController(Lookup lookup){
+         this.lookup = lookup;
     }
 
     /**
@@ -43,25 +35,42 @@ public class ReferenceGraphController {
      * @param selectedTarget
      */
     public void highlightAllReferenceTargets(ProofTermReferenceTarget selectedTarget){
+        Collection<SequentTabViewController> sequentTabViewControllers = lookup.lookupAll(SequentTabViewController.class);
+        if(sequentTabViewControllers.size() < 1){
+            //TODO
+            throw new RuntimeException("Something went wrong with References");
+        }
+        SequentTabViewController sequentController = sequentTabViewControllers.iterator().next();
 
         Proof activeProof = sequentController.getActiveSequentController().getActiveProof();
 
         if (selectedTarget != null) {
-            System.out.println("Selected termReference = " + selectedTarget);
+           // System.out.println("Selected termReference = " + selectedTarget);
 
 
             Set<ProofTermReferenceTarget> proofTermReferenceTargets = computeProofTermRefTargets(selectedTarget, activeProof);
             Set<CodeReferenceTarget> codeReferenceTargets = computeCodeRefTargets(selectedTarget, activeProof);
             Set<ScriptReferenceTarget> scriptReferenceTargetSet = computeScriptRefTargets(selectedTarget, activeProof);
-            editorController.viewReferences(codeReferenceTargets);
-            sequentController.viewReferences(proofTermReferenceTargets, selectedTarget);
 
-            ScriptController scriptController = this.ruleApplicationController.getScriptController();
+            ReferenceHighlightingObject referenceObj = new ReferenceHighlightingObject();
+            referenceObj.setCodeReferenceTargetSet(codeReferenceTargets);
+            referenceObj.setProofTermReferenceTargetSet(proofTermReferenceTargets);
+            referenceObj.setSelectedTarget(selectedTarget);
+
+            for (ReferenceHighlightingHandler referenceHighlightingHandler : lookup.lookupAll(ReferenceHighlightingHandler.class)) {
+                referenceHighlightingHandler.handleReferenceHighlighting(referenceObj);
+            }
+           // editorController.viewReferences(codeReferenceTargets);
+           // sequentController.viewReferences(proofTermReferenceTargets, selectedTarget);
+            //Collection<RuleApplicationController> ruleApplicationControllers = lookup.lookupAll(RuleApplicationController.class);
+            //RuleApplicationController ruleApplicationController = ruleApplicationControllers.iterator().next();
+            //ScriptController scriptController = ruleApplicationController.getScriptController();
             //scriptController.viewReferences(proofTermReferenceTargets);
-            scriptController.viewReferences(scriptReferenceTargetSet);
+            //scriptController.viewReferences(scriptReferenceTargetSet);
 
         } else {
-            editorController.viewReferences(new HashSet<>());
+
+            //editorController.viewReferences(new HashSet<>());
         }
         try {
             Logger.getGlobal().info("Searched for references for selection "
@@ -122,6 +131,14 @@ public class ReferenceGraphController {
 
     }
 
+    public void removeReferenceHighlighting() {
+        for (ReferenceHighlightingHandler referenceHighlightingHandler : lookup.lookupAll(ReferenceHighlightingHandler.class)) {
+            referenceHighlightingHandler.removeReferenceHighlighting();
+        }
+        //sequentController.removeReferenceHighlighting();
+        //editorController.removeReferenceHighlighting();
+
+    }
 }
 /*
 

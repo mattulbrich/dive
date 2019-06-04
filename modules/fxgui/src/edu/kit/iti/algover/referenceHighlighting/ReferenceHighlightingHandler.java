@@ -12,4 +12,8 @@ public interface ReferenceHighlightingHandler {
      */
     void handleReferenceHighlighting(ReferenceHighlightingObject references);
 
+    /**
+     * Removes the current highlighting of ReferenceTargets
+     */
+    void removeReferenceHighlighting();
 }

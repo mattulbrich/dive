@@ -22,6 +22,11 @@
     -fx-fill: whitesmoke;
 }
 
+.formula-view .referenceTarget {
+    -rtfx-background-color: #5727cf;
+    -fx-fill: whitesmoke;
+}
+
 .formula-view .formula-modified {
     -rtfx-background-color: #55EE55;
 }

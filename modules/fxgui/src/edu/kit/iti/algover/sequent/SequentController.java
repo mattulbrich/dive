@@ -15,6 +15,7 @@ import javafx.beans.property.SimpleObjectProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.collections.ObservableSet;
+import javafx.collections.SetChangeListener;
 import javafx.fxml.FXML;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListCell;
@@ -71,6 +72,7 @@ public class SequentController extends FxmlController {
     private ProofNodeSelector activeNode;
     private ObservableList<Quadruple<TermSelector, String, Integer, String>> styles;
 
+
     private ObservableSet<TermSelector> historyHighlightsAntec = FXCollections.observableSet();
     private ObservableSet<TermSelector> historyHighlightsSucc = FXCollections.observableSet();
 
@@ -101,16 +103,34 @@ public class SequentController extends FxmlController {
         antecedentView.setCellFactory(makeTermCellFactory());
         succedentView.setCellFactory(makeTermCellFactory());
 
+
         antecedentView.setOnKeyPressed(keyEvent -> {
             if (keyEvent.getCode() == KeyCode.ESCAPE) {
                 selectedTerm.set(null);
                 selectedReference.set(null);
+                listener.onRemoveReferenceHighlighting();
             }
         });
         succedentView.setOnKeyPressed(keyEvent -> {
             if (keyEvent.getCode() == KeyCode.ESCAPE) {
                 selectedTerm.set(null);
                 selectedReference.set(null);
+                listener.onRemoveReferenceHighlighting();
+            }
+        });
+
+        this.historyHighlightsAntec.addListener((SetChangeListener<TermSelector>) change -> {
+            if(change.wasAdded()){
+                addStyleForTerm(change.getElementAdded(), "referenceTarget", 25, "Target");
+            } else {
+                removeStyle("Target");
+            }
+        });
+        this.historyHighlightsSucc.addListener((SetChangeListener<TermSelector>) change -> {
+            if(change.wasAdded()){
+                addStyleForTerm(change.getElementAdded(), "referenceTarget", 25, "Target");
+            } else {
+                removeStyle("Target");
             }
         });
     }
@@ -413,8 +433,8 @@ public class SequentController extends FxmlController {
     public void updateSequentController(ProofNodeSelector selector, Proof activeProof, Set<ProofTermReferenceTarget> collect) {
         this.setActiveNode(selector);
         this.setActiveProof(activeProof);
-        Set<TermSelector> collect1 = collect.stream().map(ProofTermReferenceTarget::getTermSelector).collect(Collectors.toSet());
-        this.setHistoryHighlights(FXCollections.observableSet(collect1));
+        Set<TermSelector> filteredTargets = collect.stream().map(ProofTermReferenceTarget::getTermSelector).collect(Collectors.toSet());
+        this.setHistoryHighlights(FXCollections.observableSet(filteredTargets));
         this.viewProofNode(selector);
 
 
@@ -424,12 +444,12 @@ public class SequentController extends FxmlController {
      * Set the information which term to highlight for history highlighting. This method already divides the information acc. to the sequent polarity
      */
     private void setHistoryHighlights(ObservableSet<TermSelector> termsToHighlight) {
-        this.historyHighlightsAntec.clear();
-        this.historyHighlightsSucc.clear();
         Set<TermSelector> antec = termsToHighlight.stream().filter(termSelector -> termSelector.getPolarity() == TermSelector.SequentPolarity.ANTECEDENT).collect(Collectors.toSet());
         Set<TermSelector> succ = termsToHighlight.stream().filter(termSelector -> termSelector.getPolarity() == TermSelector.SequentPolarity.SUCCEDENT).collect(Collectors.toSet());
         this.historyHighlightsAntec.addAll(antec);
         this.historyHighlightsSucc.addAll(succ);
-        //        this.historyHighlights.addAll(termsToHighlight);
+
     }
+
+
 }

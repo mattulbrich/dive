@@ -1,5 +1,6 @@
 package edu.kit.iti.algover.sequent;
 
+import edu.kit.iti.algover.Lookup;
 import edu.kit.iti.algover.browser.entities.PVCEntity;
 import edu.kit.iti.algover.proof.Proof;
 import edu.kit.iti.algover.proof.ProofNode;
@@ -29,20 +30,20 @@ public class SequentTabViewController implements ReferenceHighlightingHandler {
     private ProofTermReferenceTarget lastSelectedRefTarget;
 
 
-    public void setReferenceTargetsToHighlight(Set<ProofTermReferenceTarget> referenceTargetsToHighlight) {
-        System.out.println("referenceTargetsToHighlight = " + referenceTargetsToHighlight);
+  /*  public void setReferenceTargetsToHighlight(Set<ProofTermReferenceTarget> referenceTargetsToHighlight) {
+        //System.out.println("referenceTargetsToHighlight = " + referenceTargetsToHighlight);
         controllers.forEach(sequentController -> {
-            //clear refs
+            sequentController.removeStyle("Target");
         });
         this.referenceTargetsToHighlight = referenceTargetsToHighlight;
-    }
+    }*/
 
     public Set<ProofTermReferenceTarget> getReferenceTargetsToHighlight() {
         return referenceTargetsToHighlight;
     }
 
 
-    public SequentTabViewController(SequentActionListener listener) {
+    public SequentTabViewController(SequentActionListener listener, Lookup lookup) {
         this.listener = listener;
         view = new TabPane();
         controllers = new ArrayList<>();
@@ -51,6 +52,8 @@ public class SequentTabViewController implements ReferenceHighlightingHandler {
         view.getSelectionModel().selectedIndexProperty().addListener(this::onTabSelected);
         referenceTargetsToHighlight = new HashSet<>();
         lastSelectedRefTarget = null;
+        lookup.register(this, ReferenceHighlightingHandler.class);
+        lookup.register(this, SequentTabViewController.class);
 
     }
 
@@ -73,13 +76,6 @@ public class SequentTabViewController implements ReferenceHighlightingHandler {
 
         ProofNodeSelector oldParentSelector = activeNode.getParentSelector();
         activeNode = proofNodeSelector;
-
-        //filter those targets that have to be highlighted in proof node that should be shown
-        Set<ProofTermReferenceTarget> collect = getReferenceTargetsToHighlight()
-                .stream()
-                .filter(proofTermReferenceTarget -> proofTermReferenceTarget.getProofNodeSelector().equals(activeNode))
-                .collect(Collectors.toSet());
-
         ProofNodeSelector parentSelector = activeNode.getParentSelector();
         if(parentSelector != null) {
             if(parentSelector.equals(oldParentSelector)) {
@@ -161,9 +157,16 @@ public class SequentTabViewController implements ReferenceHighlightingHandler {
     }
 
     public void viewReferences(Set<ProofTermReferenceTarget> proofTermReferenceTargetSet, ProofTermReferenceTarget selected){
+        controllers.forEach(sequentController -> {
+            sequentController.removeStyle("Target");
+        });
+
         lastSelectedRefTarget = selected;
-        this.setReferenceTargetsToHighlight(proofTermReferenceTargetSet);
-        referenceTargetsToHighlight.add(selected);
+        this.referenceTargetsToHighlight = proofTermReferenceTargetSet;
+        referenceTargetsToHighlight.add(lastSelectedRefTarget);
+
+
+//        this.setReferenceTargetsToHighlight(proofTermReferenceTargetSet);
       /*  for(int i = 0; i< controllers.size(); i++){
             updateTab(controllers.get(i).getActiveNodeSelector(), i);
         }*/
@@ -172,5 +175,14 @@ public class SequentTabViewController implements ReferenceHighlightingHandler {
     @Override
     public void handleReferenceHighlighting(ReferenceHighlightingObject references) {
         viewReferences(references.getProofTermReferenceTargetSet(), references.getSelectedTarget());
+    }
+
+    @Override
+    public void removeReferenceHighlighting() {
+        referenceTargetsToHighlight.clear();
+        controllers.forEach(sequentController -> {
+            sequentController.removeStyle("Target");
+        });
+//        setReferenceTargetsToHighlight(referenceTargetsToHighlight);
     }
 }

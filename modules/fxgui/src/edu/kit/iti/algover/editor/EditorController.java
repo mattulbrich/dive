@@ -1,5 +1,6 @@
 package edu.kit.iti.algover.editor;
 
+import edu.kit.iti.algover.Lookup;
 import edu.kit.iti.algover.MainController;
 import edu.kit.iti.algover.dafnystructures.DafnyFile;
 import edu.kit.iti.algover.proof.PVC;
@@ -68,7 +69,7 @@ public class EditorController implements DafnyCodeAreaListener, ReferenceHighlig
      *
      * @param executor used by the code area components to asynchronously execute syntax highlighting calculations
      */
-    public EditorController(ExecutorService executor, String baseDir) {
+    public EditorController(ExecutorService executor, String baseDir, Lookup lookup) {
         this.executor = executor;
         this.baseDir = baseDir;
         this.view = new TabPane();
@@ -78,7 +79,8 @@ public class EditorController implements DafnyCodeAreaListener, ReferenceHighlig
         this.anyFileChangedProperty = new SimpleBooleanProperty(false);
         view.getTabs().addListener(this::onTabListChanges);
         view.setOnKeyReleased(this::handleShortcuts);
-
+        lookup.register(this, ReferenceHighlightingHandler.class);
+        lookup.register(this, EditorController.class);
     }
 
     private void handleShortcuts(KeyEvent keyEvent) {
@@ -246,8 +248,6 @@ public class EditorController implements DafnyCodeAreaListener, ReferenceHighlig
      */
     public void viewReferences(Set<CodeReferenceTarget> codeReferenceTargets) {
         highlightingLayers.setLayer(REFERENCE_LAYER, new ReferenceHighlightingRule(codeReferenceTargets));
-
-
         view.getTabs().stream()
                 .map(tab -> codeAreaFromContent(tab.getContent()))
                 .forEach(DafnyCodeArea::rerenderHighlighting);
@@ -304,5 +304,10 @@ public class EditorController implements DafnyCodeAreaListener, ReferenceHighlig
     @Override
     public void handleReferenceHighlighting(ReferenceHighlightingObject references) {
         viewReferences(references.getCodeReferenceTargetSet());
+    }
+
+    @Override
+    public void removeReferenceHighlighting() {
+        //TODO
     }
 }

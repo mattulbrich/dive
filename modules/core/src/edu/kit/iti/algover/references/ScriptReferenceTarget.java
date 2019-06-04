@@ -1,6 +1,7 @@
 package edu.kit.iti.algover.references;
 
 import edu.kit.iti.algover.dafnystructures.DafnyFile;
+import edu.kit.iti.algover.proof.PVC;
 import edu.kit.iti.algover.proof.ProofNode;
 import edu.kit.iti.algover.script.ast.ASTNode;
 import org.antlr.runtime.Token;
@@ -23,7 +24,7 @@ import java.io.File;
 public class ScriptReferenceTarget extends ReferenceTarget{
 
 
-    public File getFile() {
+    public PVC getFile() {
         return file;
     }
 
@@ -36,11 +37,11 @@ public class ScriptReferenceTarget extends ReferenceTarget{
     }
 
     //SaG: Atm. we are not storing the filename, maybe remove
-    private File file;
+    private PVC file;
     private final int linenumber;
     private final ASTNode node;
 
-    public ScriptReferenceTarget(File file, int linenumber, ASTNode node) {
+    public ScriptReferenceTarget(PVC file, int linenumber, ASTNode node) {
         this.file = file;
         this.linenumber = linenumber;
         this.node = node;
@@ -72,7 +73,7 @@ public class ScriptReferenceTarget extends ReferenceTarget{
 
         ScriptReferenceTarget that = (ScriptReferenceTarget) o;
         if(file != null) {
-            if (!file.getName().equals(that.getFile().getName())) return false;
+            if (!file.getIdentifier().equals(that.getFile().getIdentifier())) return false;
         }
         if (linenumber != that.getLinenumber()) return false;
         return node.equals(that.getNode());
@@ -82,7 +83,7 @@ public class ScriptReferenceTarget extends ReferenceTarget{
     public int hashCode() {
         int result = 1;
         if(file != null) {
-            result = file.getName().hashCode();
+            result = file.getIdentifier().hashCode();
         }
         result = 31 * result + node.hashCode();
         return result;

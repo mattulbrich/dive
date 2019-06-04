@@ -4,6 +4,8 @@ import edu.kit.iti.algover.editor.HighlightingRule;
 import edu.kit.iti.algover.editor.LayeredHighlightingRule;
 import edu.kit.iti.algover.proof.Proof;
 import edu.kit.iti.algover.proof.ProofNodeSelector;
+import edu.kit.iti.algover.referenceHighlighting.ReferenceHighlightingHandler;
+import edu.kit.iti.algover.referenceHighlighting.ReferenceHighlightingObject;
 import edu.kit.iti.algover.references.ProofTermReferenceTarget;
 import edu.kit.iti.algover.references.ScriptReferenceTarget;
 import edu.kit.iti.algover.rule.RuleApplicationListener;
@@ -34,7 +36,7 @@ import java.util.function.Consumer;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
-public class ScriptController implements ScriptViewListener {
+public class ScriptController implements ScriptViewListener, ReferenceHighlightingHandler {
     KeyCombination saveShortcut = new KeyCodeCombination(KeyCode.S, KeyCombination.CONTROL_DOWN);
 
     private final ScriptView view;
@@ -369,6 +371,16 @@ public class ScriptController implements ScriptViewListener {
         scriptReferenceTargetSet.stream().forEach(s -> {
             System.out.println("s = " + s);
         });
+
+    }
+
+    @Override
+    public void handleReferenceHighlighting(ReferenceHighlightingObject references) {
+        //TODO
+    }
+
+    @Override
+    public void removeReferenceHighlighting() {
 
     }
 }

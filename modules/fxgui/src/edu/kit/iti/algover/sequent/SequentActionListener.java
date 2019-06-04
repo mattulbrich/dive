@@ -14,6 +14,8 @@ public interface SequentActionListener {
 
     void onRequestReferenceHighlighting(ProofTermReferenceTarget termReference);
 
+    void onRemoveReferenceHighlighting();
+
     void onSwitchViewedNode(ProofNodeSelector proofNodeSelector);
 
 }

@@ -3,6 +3,7 @@ package edu.kit.iti.algover.rule;
 import com.jfoenix.controls.JFXRadioButton;
 import com.jfoenix.controls.JFXToggleButton;
 import edu.kit.iti.algover.FxmlController;
+import edu.kit.iti.algover.Lookup;
 import edu.kit.iti.algover.project.ProjectManager;
 import edu.kit.iti.algover.proof.ProofNode;
 import edu.kit.iti.algover.referenceHighlighting.ReferenceHighlightingHandler;
@@ -59,11 +60,13 @@ public class RuleApplicationController extends FxmlController implements Referen
     private final ToggleGroup group = new ToggleGroup();
 
 
-    public RuleApplicationController(ExecutorService executor, RuleApplicationListener listener, ProjectManager manager) {
+    public RuleApplicationController(ExecutorService executor, RuleApplicationListener listener, ProjectManager manager, Lookup lookup) {
         super("RuleApplicationView.fxml");
         this.listener = listener;
         this.scriptController = new ScriptController(executor, listener);
         this.scriptView = scriptController.getView();
+        lookup.register(this, RuleApplicationController.class);
+        lookup.register(this, ReferenceHighlightingHandler.class);
 
         this.sortAlpha.setToggleGroup(group);
         this.sortBranching.setToggleGroup(group);
@@ -194,6 +197,11 @@ public class RuleApplicationController extends FxmlController implements Referen
 
     @Override
     public void handleReferenceHighlighting(ReferenceHighlightingObject references) {
-        //TODO
+        //do nothing at the moment
+    }
+
+    @Override
+    public void removeReferenceHighlighting() {
+        //Do nothing at the moment
     }
 }

@@ -57,6 +57,8 @@ public class MainController implements SequentActionListener, RuleApplicationLis
     //system preferences
     public static final Preferences systemprefs = Preferences.userNodeForPackage(MainController.class);
 
+    private Lookup lookup = new Lookup();
+
     private final ProjectManager manager;
     private final ExecutorService executor;
     private final TimelineLayout timelineView;
@@ -83,13 +85,13 @@ public class MainController implements SequentActionListener, RuleApplicationLis
         this.executor = executor;
         this.browserController = new FlatBrowserController(manager.getProject(), manager.getAllProofs(), this::onClickPVCEdit);
         //this.browserController = new FileBasedBrowserController(manager.getProject(), manager.getAllProofs(), this::onClickPVCEdit);
-        this.editorController = new EditorController(executor, manager.getProject().getBaseDir().getAbsolutePath());
+        this.editorController = new EditorController(executor, manager.getProject().getBaseDir().getAbsolutePath(), this.lookup);
         this.editorController.anyFileChangedProperty().addListener(this::onDafnyFileChangedInEditor);
-        this.sequentController = new SequentTabViewController(this);
-        this.ruleApplicationController = new RuleApplicationController(executor, this, manager);
+        this.sequentController = new SequentTabViewController(this, this.lookup);
+        this.ruleApplicationController = new RuleApplicationController(executor, this, manager, this.lookup);
         //The following will be refactored, in the mean time
         //hand all necessary controller references to ReferenceGraphController to be able to highlight nec. targets
-        this.referenceGraphController = new ReferenceGraphController(this.editorController, this.sequentController, this.ruleApplicationController);
+        this.referenceGraphController = new ReferenceGraphController(this.lookup);
 
         JFXButton saveButton = new JFXButton("Save", GlyphsDude.createIcon(FontAwesomeIcon.SAVE));
         JFXButton refreshButton = new JFXButton("Refresh", GlyphsDude.createIcon(FontAwesomeIcon.REFRESH));
@@ -530,6 +532,11 @@ public class MainController implements SequentActionListener, RuleApplicationLis
     public void onRequestReferenceHighlighting(ProofTermReferenceTarget termRef) {
         this.referenceGraphController.highlightAllReferenceTargets(termRef);
 
+    }
+
+    @Override
+    public void onRemoveReferenceHighlighting() {
+        this.referenceGraphController.removeReferenceHighlighting();
     }
 
     @Override
