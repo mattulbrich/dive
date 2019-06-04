@@ -1,7 +1,13 @@
+/**
+ * This file is part of DIVE.
+ *
+ * Copyright (C) 2015-2019 Karlsruhe Institute of Technology
+ */
 package edu.kit.iti.algover.rules;
 
 import de.uka.ilkd.pp.NoExceptions;
 import edu.kit.iti.algover.proof.ProofFormula;
+import edu.kit.iti.algover.rules.TermSelector.SequentPolarity;
 import edu.kit.iti.algover.term.DefaultTermVisitor;
 import edu.kit.iti.algover.term.SchemaCaptureTerm;
 import edu.kit.iti.algover.term.SchemaOccurTerm;
@@ -19,40 +25,51 @@ import edu.kit.iti.algover.util.FormatException;
 import edu.kit.iti.algover.util.ImmutableList;
 import edu.kit.iti.algover.util.RuleUtil;
 import nonnull.NonNull;
-import org.junit.Rule;
+import nonnull.Nullable;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 /**
- * Created by jklamroth on 9/5/18.
- *
  * This class is used to create a Parameter type for terms in rule applications.
- * The purpose is to wrap different representations of the same parameter. To be able
- * to translate between different representations this parameters have to be based on a
- * concrete sequent.
+ * The purpose is to wrap different representations of the same term reference
+ * within a sequent. To be able to translate between different representations
+ * this parameters have to be based on a concrete sequent.
+ * <p>
  * A TermParameter may contain 4 different representations:
- * - TermSelector
- * - concrete Term
- * - schematic Sequent
- * - schematic Term
- * By now conversions between the first 3 are fully supported (if possible). Schematic Terms are only accessible
- * if given on instantiation (this may be extended if needed). Not all conversions are theoretically possible
- * since a concrete Term may occur several times in one sequent and thus not be convertible to a TermSelector.
+ * <ul>
+ * <li> a {@link TermSelector}
+ * <li> a concrete {@link Term}
+ * <li> a schematic {@link Sequent}
+ * <li> a schematic {@link Term}
+ * </ul>
+ * By now conversions between the first 3 are fully supported (if possible).
+ * Schematic terms are only accessible if given on instantiation (this may be
+ * extended if needed). Not all conversions are theoretically possible since a
+ * concrete Term may occur several times in one sequent and thus not be
+ * convertible to a TermSelector. {@link RuleException}s are thrown if
+ * conversions fails.
  *
- * If the requested representation is not yet calculated the least calculation intensive conversion
- * should be used (may this needs some improvements here).
- * Meaning:
+ * If the requested representation is not yet calculated, the least calculation
+ * intensive conversion should be used (maybe this needs some improvements
+ * here), meaning:
+ * <pre>
  * Term: termSelector > schematicSequent > schematicTerm
  * termSelector: term > schematicSequent > schematicTerm
  * schematicSequent: schematicTerm > termSelector > term
+ * </pre>
  *
+ * @author Jonas Klamroth, 9/5/18.
+ * @see ParameterType
  */
 public class TermParameter {
-    //Inviariant: sequent != null && (term != null || schematicSequent != null || termSelector != null)
+    // Invariant: sequent != null &&
+    //   (term != null || schematicSequent != null || termSelector != null)
+    //   && exactly-one-is-not-null(oterm, oSchematicSequent, oSchematicTerm)
+
+    private Sequent sequent;
 
     private Term term;
     private Term oterm;
@@ -60,27 +77,50 @@ public class TermParameter {
     private TermSelector oTermSelector;
     private Sequent schematicSequent;
     private Sequent oSchematicSequent;
-    private Sequent sequent;
     private Term schematicTerm;
-    private Term originalSchematicTerm;
+    private Term oSchematicTerm;
 
+    /**
+     * Create a term parameter from a <em>schematic</em> or <em>concrete</em>
+     * term and a concrete sequent.
+     *
+     * @param term    a schematic or concrete term describing the parameter
+     * @param sequent the concrete sequent within which the schematic term is to
+     *                be located
+     */
     public TermParameter(@NonNull Term term, @NonNull Sequent sequent) {
-        if(isTermSchematic(term)) {
+        this.sequent = sequent;
+        if (isTermSchematic(term)) {
             this.schematicTerm = term;
-            this.originalSchematicTerm = term;
+            this.oSchematicTerm = term;
         } else {
             this.term = term;
             this.oterm = term;
         }
-        this.sequent = sequent;
     }
 
+    /**
+     * Create a term parameter from a <em>schematic</em> or <em>concrete</em>
+     * term and a concrete sequent.
+     *
+     * @param termSelector a term selector describing the parameter
+     * @param sequent      the concrete sequent within which the term selector
+     *                     applies
+     */
     public TermParameter(@NonNull TermSelector termSelector, @NonNull Sequent sequent) {
         this.sequent = sequent;
         this.termSelector = termSelector;
         this.oTermSelector = termSelector;
     }
 
+    /**
+     * Create a term parameter from a <em>schematic</em> (partial) sequent and a
+     * concrete sequent.
+     *
+     * @param schematicSequent a partial sequent describing the parameter
+     * @param sequent          the concrete sequent within which the term
+     *                         selector applies
+     */
     public TermParameter(@NonNull Sequent schematicSequent, @NonNull Sequent sequent) {
         this.sequent = sequent;
         this.schematicSequent = schematicSequent;
@@ -88,73 +128,77 @@ public class TermParameter {
     }
 
     /**
-     * Returns a concrete Term (no schematic elements) representing this TermParameter.
-     * If not already present this term is translated from one of the present representations.
+     * Returns a concrete {@link Term} (no schematic elements) representing this
+     * TermParameter. If not already present, this term is translated from one
+     * of the present representations.
      *
-     * @return the concrete Term
-     * @throws RuleException
+     * @return the concrete {@link Term} representing this parameter
+     * @throws RuleException if matching is not feasible or not unique
      */
-    public Term getTerm() throws RuleException {
+    public @NonNull Term getTerm() throws RuleException {
         if(term != null) {
             return term;
         }
-        if(termSelector != null) {
-            term = termSelector.selectSubterm(sequent);
+
+        if(oTermSelector != null) {
+            term = oTermSelector.selectSubterm(sequent);
             return term;
         }
 
-        if(schematicSequent != null) {
-            MatchingEntry m = getUniqueMatchingInSequent(schematicSequent, sequent);
+        if(oSchematicSequent != null) {
+            MatchingEntry m = getUniqueMatchingInSequent(oSchematicSequent, sequent);
             term = m.getValue();
             return term;
         }
 
-        term = matchTermInSequentUniquelyT(schematicTerm, sequent);
+        assert oSchematicTerm != null;
+        if(containsMatchTerm(oSchematicTerm)) {
+            termSelector = matchTermInSequentUniquely(oSchematicTerm, sequent);
+        } else {
+            SchemaCaptureTerm matchTerm = new SchemaCaptureTerm("?match", oSchematicTerm);
+            termSelector = matchTermInSequentUniquely(matchTerm, sequent);
+        }
+        term = termSelector.selectSubterm(sequent);
         return term;
     }
 
-    /**
-     * returns the Term that was given on initialisation or null
-     *
-     * @return term as on initialisation
-     */
-    public Term getOriginalTerm() {
-        return oterm;
-    }
+
 
     /**
      * Returns a TermSelector representing this TermParameter.
-     * If not already present this termSelector is translated from one of the present representations.
+     * If not already present, this termSelector is translated from one of the present representations.
      *
-     * @return the termSelector
-     * @throws RuleException
+     * @return the termSelector representing this parameter
+     * @throws RuleException if matching is not feasible or not unique
      */
-    public TermSelector getTermSelector() throws RuleException {
+    public @NonNull TermSelector getTermSelector() throws RuleException {
         if(termSelector != null) {
             return termSelector;
         }
 
-        if(term != null) {
-            List<TermSelector> tss = RuleUtil.matchSubtermsInSequent(term::equals, sequent);
-            if (tss.size() == 1) {
-                termSelector = tss.get(0);
-                return termSelector;
+        if(oterm != null) {
+            List<TermSelector> tss = RuleUtil.matchSubtermsInSequent(oterm::equals, sequent);
+            if (tss.size() != 1) {
+                throw new RuleException("Term " + oterm + " is not unique.");
             }
+            termSelector = tss.get(0);
+            return termSelector;
         }
 
-        if(schematicSequent != null) {
-            MatchingEntry m = getUniqueMatchingInSequent(schematicSequent, sequent);
+        if(oSchematicSequent != null) {
+            MatchingEntry m = getUniqueMatchingInSequent(oSchematicSequent, sequent);
             termSelector = m.getTermSelector();
             return termSelector;
         }
 
-        if(schematicTerm != null) {
-            if(containsMatchTerm(schematicTerm)) {
-                termSelector = matchTermInSequentUniquely(schematicTerm, sequent);
+        if(oSchematicTerm != null) {
+            if(containsMatchTerm(oSchematicTerm)) {
+                termSelector = matchTermInSequentUniquely(oSchematicTerm, sequent);
             } else {
-                SchemaCaptureTerm matchTerm = new SchemaCaptureTerm("?match", schematicTerm);
+                SchemaCaptureTerm matchTerm = new SchemaCaptureTerm("?match", oSchematicTerm);
                 termSelector = matchTermInSequentUniquely(matchTerm, sequent);
             }
+
             if(termSelector != null) {
                 return termSelector;
             } else {
@@ -162,24 +206,10 @@ public class TermParameter {
             }
         }
 
-        throw new RuleException("TermParameter with all components are null.");
+        // That is an internal error that should not occur.
+        throw new RuleException("TermParameter with all components null.");
     }
 
-    private MatchingEntry getUniqueMatchingInSequent(Sequent t, Sequent s) throws RuleException {
-        SequentMatcher sequentMatcher = new SequentMatcher();
-        ImmutableList<Matching> matchings = sequentMatcher.match(schematicSequent, sequent);
-        if (matchings.size() == 0) {
-            throw new RuleException("SchematicTerm " + schematicSequent + " does not match anything in sequent " + sequent);
-        }
-        if (matchings.size() > 1) {
-            throw new RuleException("SchematicTerm" + schematicSequent + " matches more than one term in sequent " + sequent);
-        }
-        MatchingEntry m = matchings.get(0).get("?match");
-        if(m == null) {
-            throw new RuleException("No ?match variable was found in schematic term " + schematicSequent);
-        }
-        return m;
-    }
 
     /**
      * Returns a schematic Term representing this TermParameter.
@@ -198,9 +228,9 @@ public class TermParameter {
 
     /**
      * Returns a schematicSequent representing this TermParameter.
-     * If not already present this sequent is translated from one of the present representations.
+     * If not already present, this sequent is obtained from the original representation.
      *
-     * @return the schematic sequent
+     * @return the schematic sequent representation of this term parameter
      * @throws RuleException
      */
     public Sequent getSchematicSequent() throws RuleException {
@@ -237,6 +267,86 @@ public class TermParameter {
 
         schematicSequent = getUniqueMatchingTerm(sequent, term);
         return schematicSequent;
+    }
+
+    /**
+     * Returns the term that was given to the constructor, {@code null} if no
+     * concrete term has been provided to the constructor.
+     *
+     * @return term as on initialisation, or {@code null}
+     */
+    public @Nullable Term getOriginalTerm() {
+        return oterm;
+    }
+
+    /**
+     * Returns the term selector that was given to the constructor, {@code null}
+     * if no concrete term has been provided to the constructor.
+     *
+     * @return term selector as on initialisation, or {@code null}
+     */
+    public @Nullable TermSelector getOriginalTermSelector() {
+        return oTermSelector;
+    }
+
+    /**
+     * Returns the schematic sequent that was given to the constructor, {@code null}
+     * if no concrete term has been provided to the constructor.
+     *
+     * @return schematic sequent as on initialisation, or {@code null}
+     */
+    public @Nullable Sequent getOriginalSchematicSequent() {
+        return oSchematicSequent;
+    }
+
+    /**
+     * Returns the schematic term that was given to the constructor, {@code null}
+     * if no schematic term has been provided to the constructor.
+     *
+     * @return schematic term on initialisation, or {@code null}
+     */
+    public @Nullable Term getOriginalSchematicTerm() {
+        return oSchematicTerm;
+    }
+
+
+    private static MatchingEntry getUniqueMatchingInSequent(Sequent schemaSeq, Sequent concreteSeq) throws RuleException {
+
+        if (!containsMatchTerm(schemaSeq)) {
+            int antesize = schemaSeq.getAntecedent().size();
+            int postsize = schemaSeq.getSuccedent().size();
+            int countFormulas = antesize + postsize;
+            if (countFormulas != 1) {
+                throw new RuleException("Schematic sequent must either contain '?match' or must contain a single formula");
+            }
+            ProofFormula single =
+                    antesize == 1 ? schemaSeq.getAntecedent().get(0) :
+                    schemaSeq.getSuccedent().get(0);
+            SchemaCaptureTerm matchTerm = new SchemaCaptureTerm("?match", single.getTerm());
+            ProofFormula matchFormula = new ProofFormula(matchTerm);
+            if (antesize == 1) {
+                schemaSeq = new Sequent(Collections.singleton(matchFormula), Collections.emptyList());
+            } else {
+                schemaSeq = new Sequent(Collections.emptyList(), Collections.singleton(matchFormula));
+            }
+        }
+
+        SequentMatcher sequentMatcher = new SequentMatcher();
+        ImmutableList<Matching> matchings = sequentMatcher.match(schemaSeq, concreteSeq);
+        if (matchings.size() == 0) {
+            throw new RuleException("Schematic sequent " + schemaSeq +
+                    " does not match.");
+        }
+        if (matchings.size() > 1) {
+            throw new RuleException("Schematic sequent " + schemaSeq +
+                    " matches more than once.");
+        }
+
+        MatchingEntry m = matchings.get(0).get("?match");
+        if(m == null) {
+            throw new RuleException("No ?match variable was found in schematic term " + schemaSeq);
+        }
+        return m;
     }
 
     private Sequent getUniqueMatchingTerm(Sequent sequent, Term term)  throws RuleException {
@@ -340,29 +450,22 @@ public class TermParameter {
         return new TermSelector(selector.getPolarity(), selector.getTermNo(), intPath);
     }
 
-    private boolean isTermSchematic(Term t) {
+    private static boolean isTermSchematic(Term t) {
         Boolean b = t.accept(new IsSchematicVisitor(), null);
         return b.booleanValue();
     }
 
-    private boolean containsMatchTerm(Term t) {
+    private static boolean containsMatchTerm(Term t) {
         Boolean b = t.accept(new ContainsMatchTermVisitor(), null);
         return b.booleanValue();
     }
 
-    public TermSelector getOrigianlTermSelector() {
-        return oTermSelector;
+    private static boolean containsMatchTerm(Sequent s) {
+        return s.getAntecedent().stream().anyMatch(pf -> containsMatchTerm(pf.getTerm())) ||
+               s.getSuccedent().stream().anyMatch(pf -> containsMatchTerm(pf.getTerm()));
     }
 
-    public Sequent getOriginalSchematicSequent() {
-        return oSchematicSequent;
-    }
-
-    public Term getOriginalSchematicTerm() {
-        return originalSchematicTerm;
-    }
-
-    private class ContainsMatchTermVisitor extends DefaultTermVisitor<Object, Boolean, NoExceptions> {
+    private static class ContainsMatchTermVisitor extends DefaultTermVisitor<Object, Boolean, NoExceptions> {
 
         @Override
         protected Boolean defaultVisit(Term term, Object arg) throws NoExceptions {
@@ -379,7 +482,7 @@ public class TermParameter {
             if(schemaCaptureTerm.getName().equals("?match")) {
                 return true;
             }
-            for (Term t : term.getSubterms()) {
+            for (Term t : schemaCaptureTerm.getSubterms()) {
                 if( t.accept(this, arg)) {
                     return true;
                 }
@@ -387,9 +490,13 @@ public class TermParameter {
             return Boolean.FALSE;
         }
 
+        @Override
+        public Boolean visitSchemaTerm(SchemaTerm schemaTerm, Object arg) throws NoExceptions {
+            return defaultVisit(schemaTerm, arg);
+        }
     }
 
-    private class IsSchematicVisitor extends DefaultTermVisitor<Object, Boolean, NoExceptions> {
+    private static class IsSchematicVisitor extends DefaultTermVisitor<Object, Boolean, NoExceptions> {
 
         @Override
         protected Boolean defaultVisit(Term term, Object arg) {
@@ -422,61 +529,23 @@ public class TermParameter {
         }
     }
 
-    private TermSelector matchTermInSequentUniquely(Term t, Sequent s) throws RuleException{
+    private TermSelector matchTermInSequentUniquely(Term schemaTerm, Sequent s) throws RuleException {
         TermMatcher tm = new TermMatcher();
         TermSelector ts = null;
         for(int i = 0; i < s.getAntecedent().size(); ++i) {
-            ImmutableList<Matching> matches = tm.match(t, s.getAntecedent().get(i).getTerm());
+            ImmutableList<Matching> matches = tm.match(schemaTerm, s.getAntecedent().get(i).getTerm());
             if(matches.size() == 1 && ts == null) {
-                try {
-                    ts = new TermSelector(new TermSelector("A." + i), matches.get(0).get("?match").getSelector());
-                }  catch (FormatException e) {
-                    e.printStackTrace();
-                }
+                ts = new TermSelector(SequentPolarity.ANTECEDENT, i, matches.get(0).get("?match").getSelector());
             } else if((matches.size() == 1 && ts != null) || matches.size() > 1) {
-                throw new RuleException("Matching of term " + t + " in sequent " + s + "is ambiguous.");
+                throw new RuleException("Matching of term " + schemaTerm + " is ambiguous.");
             }
         }
         for(int i = 0; i < s.getSuccedent().size(); ++i) {
-            ImmutableList<Matching> matches = tm.match(t, s.getSuccedent().get(i).getTerm());
+            ImmutableList<Matching> matches = tm.match(schemaTerm, s.getSuccedent().get(i).getTerm());
             if(matches.size() == 1 && ts == null) {
-                try {
-                    ts = new TermSelector(new TermSelector("S." + i), matches.get(0).get("?match").getSelector());
-                }  catch (FormatException e) {
-                    e.printStackTrace();
-                }
+                ts = new TermSelector(SequentPolarity.SUCCEDENT, i, matches.get(0).get("?match").getSelector());
             } else if((matches.size() == 1 && ts != null) || matches.size() > 1) {
-                throw new RuleException("Matching of term " + t + " in sequent " + s + "is ambiguous.");
-            }
-        }
-        return ts;
-    }
-
-    private Term matchTermInSequentUniquelyT(Term t, Sequent s) throws RuleException{
-        TermMatcher tm = new TermMatcher();
-        Term ts = null;
-        for(int i = 0; i < s.getAntecedent().size(); ++i) {
-            ImmutableList<Matching> matches = tm.match(t, s.getAntecedent().get(i).getTerm());
-            if(matches.size() == 1 && ts == null) {
-                try {
-                    ts = matches.get(0).get("?match").getValue();
-                } catch (NullPointerException e) {
-                    throw new RuleException("Schematic Term has to contain ?match variable.");
-                }
-            } else if((matches.size() == 1 && ts != null) || matches.size() > 1) {
-                throw new RuleException("Matching of term " + t + " in sequent " + s + "is ambiguous.");
-            }
-        }
-        for(int i = 0; i < s.getSuccedent().size(); ++i) {
-            ImmutableList<Matching> matches = tm.match(t, s.getSuccedent().get(i).getTerm());
-            if(matches.size() == 1 && ts == null) {
-                try {
-                    ts = matches.get(0).get("?match").getValue();
-                } catch (NullPointerException e) {
-                    throw new RuleException("Schematic Term has to contain ?match variable.");
-                }
-            } else if((matches.size() == 1 && ts != null) || matches.size() > 1) {
-                throw new RuleException("Matching of term " + t + " in sequent " + s + "is ambiguous.");
+                throw new RuleException("Matching of term " + schemaTerm + " is ambiguous.");
             }
         }
         return ts;

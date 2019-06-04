@@ -64,7 +64,7 @@ public abstract class AbstractProofRule implements ProofRule {
             }
 
             if(t.getType() == ParameterType.TERM) {
-                if(((TermParameter)en.getValue()).getOrigianlTermSelector() != null) {
+                if(((TermParameter)en.getValue()).getOriginalTermSelector() != null) {
                     throw new RuleException("Term parameters may not be termSelectors.");
                 }
             }
