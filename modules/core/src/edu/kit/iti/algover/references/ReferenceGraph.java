@@ -15,8 +15,10 @@ import edu.kit.iti.algover.rules.ProofRuleApplication;
 import edu.kit.iti.algover.rules.RuleException;
 import edu.kit.iti.algover.rules.TermSelector;
 import edu.kit.iti.algover.script.ast.ASTNode;
+import edu.kit.iti.algover.term.LetTerm;
 import edu.kit.iti.algover.term.Sequent;
 import edu.kit.iti.algover.term.Term;
+import edu.kit.iti.algover.util.FormatException;
 import edu.kit.iti.algover.util.ImmutableList;
 import edu.kit.iti.algover.util.Pair;
 import org.antlr.runtime.Token;
@@ -24,6 +26,7 @@ import org.antlr.runtime.Token;
 import java.io.File;
 import java.util.*;
 import java.util.function.Function;
+import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 /**
@@ -255,10 +258,7 @@ public class ReferenceGraph {
         Term termOfCurrenTarget = computeTermValue(currentTarget.getProofNodeSelector(), currentTarget.getTermSelector(), proof);
         Term termOfParentTarget = computeTermValue(parent.getProofNodeSelector(), parent.getTermSelector(), proof);
 
-       // Logger.getGlobal().info("Computing parents for term '" + termOfCurrenTarget + "' in Node " + currentTarget.getProofNodeSelector());
-
         if (termOfCurrenTarget == termOfParentTarget && termOfCurrenTarget != null) {
-       //     Logger.getGlobal().info("Found parent term '" + termOfParentTarget + "' in Node " + parent.getProofNodeSelector() + " on same position");
             parents.add(parent);
         } else {//termvalues are different
             ProofNode proofNode = currentTarget.getProofNodeSelector().get(proof);
@@ -270,9 +270,18 @@ public class ReferenceGraph {
                 branchInfos.forEach(branchInfo -> {
                             branchInfo.getReplacements().forEach(termSelectorTermPair -> {
                                 if (childSelector.hasPrefix(termSelectorTermPair.getFst())) {
-                                    //TODO richtig umsetzen, bisher nur näherung
-                                    //Term changedTerm =computeTermValue(currentTarget.getProofNodeSelector().getParentSelector(), termSelectorTermPair.getFst(),proof);
-                                    parents.add(new ProofTermReferenceTarget(currentTarget.getProofNodeSelector().getParentSelector(), termSelectorTermPair.getFst()));
+                                    //TODO richtig umsetzen, bisher Überapprox.
+                                    Term changedTerm = computeTermValue(currentTarget.getProofNodeSelector().getParentSelector(), termSelectorTermPair.getFst(), proof);
+                                    if(changedTerm instanceof LetTerm){
+                                       TermSelector parentSel = termSelectorTermPair.getFst();
+                                        TermSelector.SequentPolarity polarity = parentSel.getPolarity();
+                                        for(int i = 0; i < changedTerm.getSubterms().size(); i++){
+                                                parents.add(new ProofTermReferenceTarget(currentTarget.getProofNodeSelector().getParentSelector(), new TermSelector(parentSel, i)));
+
+                                        }
+                                    } else {
+                                        parents.add(new ProofTermReferenceTarget(currentTarget.getProofNodeSelector().getParentSelector(), termSelectorTermPair.getFst()));
+                                    }
                                 }
                             });
                         }
@@ -333,7 +342,9 @@ public class ReferenceGraph {
 
     //TODO refactor and possible additions
     //Currently its a naive implementation
-    private ProofTermReferenceTarget handleAddAndDel(Proof proof, ProofTermReferenceTarget parent, TermSelector childSelector, ImmutableList<BranchInfo> branchInfos) throws RuleException {
+    private ProofTermReferenceTarget handleAddAndDel(Proof proof, ProofTermReferenceTarget parent,
+                                                     TermSelector childSelector,
+                                                     ImmutableList<BranchInfo> branchInfos) throws RuleException {
         List<Sequent> additions = new ArrayList<>();
         List<Sequent> deletions = new ArrayList<>();
 

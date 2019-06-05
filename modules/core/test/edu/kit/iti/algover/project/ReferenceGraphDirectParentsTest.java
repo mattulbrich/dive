@@ -107,22 +107,6 @@ public class ReferenceGraphDirectParentsTest {
                     "skip;\n" +
                     "\t}\n" +
                     "}";
-
-/*
-            String script2 = "substitute on='... ((?match: let m := x :: !(m < y))) ... |-';\n" +
-                    "skip;\n" +
-                    "substitute on='|- ... ((?match: let m := x :: m >= x && m >= y)) ...'; \n" +
-                    "skip;\n" +
-                    "andRight on='|- ... ((?match: x >= x && x >= y)) ...';\n" +
-                    "cases {\n" +
-                    "    case match \"case 1\": {\n" +
-                    "        skip;\n" +
-                    "    }\n" +
-                    "    case match \"case 2\": {\n" +
-                    "        skip;\n" +
-                    "    }\n" +
-                    "}\n";
-*/
             proofBranched.setScriptTextAndInterpret(script2);
 
             //has addlist+delList
@@ -195,12 +179,12 @@ public class ReferenceGraphDirectParentsTest {
         TermSelector sy = new TermSelector("S.0.0");
         TermSelector geFormula = new TermSelector("S.0");
 
-        System.out.println("just = " + just);
 
         ProofTermReferenceTarget childTarget = new ProofTermReferenceTarget(justNode, sy);
         ReferenceGraph graph = proofBranched.getGraph();
         ProofTermReferenceTarget proofTermReferenceTarget = graph.computeTargetBeforeChange(proofBranched, childTarget);
-        //TODO compute child of parent with changed term instead
+
+
         System.out.println("proofTermReferenceTarget1 = " + proofTermReferenceTarget);
         Set<ScriptReferenceTarget> scriptReferenceTargetSet = graph.allSuccessorsWithType(proofTermReferenceTarget, ScriptReferenceTarget.class);
         scriptReferenceTargetSet.forEach(scriptReferenceTarget -> System.out.println("scriptReferenceTarget = " + scriptReferenceTarget));
@@ -235,8 +219,17 @@ public class ReferenceGraphDirectParentsTest {
      * Test the specialities of let expansions and their influence on computing direct parents
      */
     @Test
-    public void testLetParents() {
-//TODO
+    public void testLetParents() throws FormatException, RuleException{
+        Assert.assertFalse(isFormulaUnchangedInDirectParent("0", "A.0.0", proofWithTwoSubstitutionsAndSkips));
+        Set<ProofTermReferenceTarget> parents = computeDirectParents("0", "A.0.0", proofWithTwoSubstitutionsAndSkips);
+        System.out.println("parents = " + parents);
+        ProofTermReferenceTarget proofTermReferenceTarget = parents.iterator().next();
+
+        TermSelector termSelector = proofTermReferenceTarget.getTermSelector();
+        Sequent sequent = proofTermReferenceTarget.getProofNodeSelector().get(proofWithTwoSubstitutionsAndSkips).getSequent();
+        Term term = termSelector.selectSubterm(sequent);
+        System.out.println("term = " + term);
+
     }
 
 
