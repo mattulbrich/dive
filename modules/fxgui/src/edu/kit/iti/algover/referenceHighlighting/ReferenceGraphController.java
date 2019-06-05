@@ -103,7 +103,6 @@ public class ReferenceGraphController {
     private Set<ProofTermReferenceTarget> computeProofTermRefTargets(ProofTermReferenceTarget selectedTarget, Proof proof){
         Set<ProofTermReferenceTarget> targetsToHighlight = new HashSet<>();
         Set<ProofTermReferenceTarget> history = proof.getGraph().computeHistory(selectedTarget, proof);
-
         return history;
     }
 
@@ -113,6 +112,13 @@ public class ReferenceGraphController {
         ReferenceGraph referenceGraph = proof.getGraph();
         if(referenceGraph != null) {
             targetsToHighlight = referenceGraph.allPredecessorsWithType(selectedTarget, CodeReferenceTarget.class);
+            //we haven't found a direct reference yet and we are not in the root node
+            if(targetsToHighlight.isEmpty() && selectedTarget.getProofNodeSelector().getParentSelector() != null){
+               List<ProofTermReferenceTarget> descedents = referenceGraph.computeHistorySorted(selectedTarget, proof);
+                ProofTermReferenceTarget root = descedents.get(0);
+                targetsToHighlight = referenceGraph.allPredecessorsWithType(root, CodeReferenceTarget.class);
+
+            }
         }
         return targetsToHighlight;
 

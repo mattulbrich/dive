@@ -164,13 +164,6 @@ public class ReferenceGraph {
      */
     public void addFromScriptNode(ASTNode node, ProofNode pNode, Proof proof) throws RuleException {
         ScriptReferenceTarget sct = new ScriptReferenceTarget(pNode.getPVC(), node.getStartPosition().getLineNumber(), node);
-      /*  File file = new File(node.getOrigin());
-        if (file.exists()) {
-            sct = new ScriptReferenceTarget(file, node.getStartPosition().getLineNumber(), node);
-        } else {
-            sct = new ScriptReferenceTarget(null, node.getStartPosition().getLineNumber(), node);
-
-        }*/
         ScriptReferenceBuilder srb = new ScriptReferenceBuilder(this, sct, pNode, proof);
         srb.buildReferences(pNode.getChildren());
         this.getGraph();
@@ -180,7 +173,7 @@ public class ReferenceGraph {
 
     /**
      * Compute direct parents of type ProofTermReferenceTarget transitively starting at childTarget and ending in the
-     * root ProofNode. This method also returns all unchanged parents
+     * root ProofNode. This method also returns all unchanged parents.
      *
      * @param childTarget Starting target
      * @param proof       current proof
@@ -202,7 +195,17 @@ public class ReferenceGraph {
         }
 
         return parents;
+    }
 
+    /**
+     * Comput the History of a proof Term reference target and return a sorted list of decendents starting with the root
+     * @param childTarget
+     * @param proof
+     * @return
+     */
+    public List<ProofTermReferenceTarget> computeHistorySorted(ProofTermReferenceTarget childTarget, Proof proof){
+        Set<ProofTermReferenceTarget> proofTermReferenceTargets = computeHistory(childTarget, proof);
+        return proofTermReferenceTargets.stream().sorted(new ProofTermReferenceTargetComparator()).collect(Collectors.toList());
     }
 
     /**
@@ -296,17 +299,7 @@ public class ReferenceGraph {
         Set<ProofTermReferenceTarget> history = computeHistory(target, proof);
         ArrayList<ProofTermReferenceTarget> historyList = new ArrayList<>();
         historyList.addAll(history);
-        historyList.sort(new Comparator<ProofTermReferenceTarget>() {
-            @Override
-            public int compare(ProofTermReferenceTarget o1, ProofTermReferenceTarget o2) {
-
-                if(o1.getProofNodeSelector().getPath().length > o2.getProofNodeSelector().getPath().length){
-                    return -1;
-                } else {
-                    return 1;
-                }
-            }
-        });
+        historyList.sort(new ProofTermReferenceTargetComparator());
         TermSelector lastSelector = historyList.get(0).getTermSelector();
         for(ProofTermReferenceTarget p : historyList){
             if(!p.getTermSelector().equals(lastSelector)){
@@ -320,17 +313,7 @@ public class ReferenceGraph {
         Set<ProofTermReferenceTarget> history = computeHistory(target, proof);
         ArrayList<ProofTermReferenceTarget> historyList = new ArrayList<>();
         historyList.addAll(history);
-        historyList.sort(new Comparator<ProofTermReferenceTarget>() {
-            @Override
-            public int compare(ProofTermReferenceTarget o1, ProofTermReferenceTarget o2) {
-
-                if(o1.getProofNodeSelector().getPath().length > o2.getProofNodeSelector().getPath().length){
-                    return -1;
-                } else {
-                    return 1;
-                }
-            }
-        });
+        historyList.sort(new ProofTermReferenceTargetComparator());
         TermSelector lastSelector = historyList.get(0).getTermSelector();
         ProofTermReferenceTarget current;
         ProofTermReferenceTarget before = historyList.get(0);
@@ -463,5 +446,17 @@ public class ReferenceGraph {
             builder.append('\n');
         }
         return builder.toString();
+    }
+
+    private static class ProofTermReferenceTargetComparator implements Comparator<ProofTermReferenceTarget> {
+        @Override
+        public int compare(ProofTermReferenceTarget o1, ProofTermReferenceTarget o2) {
+
+            if(o1.getProofNodeSelector().getPath().length > o2.getProofNodeSelector().getPath().length){
+                return -1;
+            } else {
+                return 1;
+            }
+        }
     }
 }
