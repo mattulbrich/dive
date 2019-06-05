@@ -11,20 +11,25 @@ import edu.kit.iti.algover.parser.DafnyLexer;
 import edu.kit.iti.algover.parser.DafnyParserException;
 import edu.kit.iti.algover.util.Util;
 import nonnull.NonNull;
-import org.antlr.runtime.ANTLRInputStream;
 import org.antlr.runtime.ANTLRReaderStream;
-import org.antlr.runtime.ANTLRStringStream;
-import org.antlr.runtime.CharStream;
 import org.antlr.runtime.Token;
 
 import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 
 public class DafnyProjectConfigurationChanger {
+
+    private static final String END_OF_SETTINGS = "// ---- End of settings ----";
+    private static final String BEGIN_OF_SETTINGS = "// ---- Automatically generated settings ----";
+
+    private static String ALGOVER_ESCAPE = "//\\\\";
+
 
     /**
      * Modify the dafny file named filename in such a fashion that the contained
@@ -43,7 +48,6 @@ public class DafnyProjectConfigurationChanger {
      * @param file the name of the file to write.
      * @throws ...
      */
-    private static String ALGOVER_ESCAPE = "//\\\\";
 
     public static void saveConfiguration(@NonNull Configuration config, @NonNull File file) throws IOException, DafnyParserException {
 
@@ -75,7 +79,10 @@ public class DafnyProjectConfigurationChanger {
 
                     case DafnyLexer.MULTILINE_COMMENT:
                     case DafnyLexer.SINGLELINE_COMMENT:
-                        fw.write(token.getText() + "\n");
+                        String text = token.getText();
+                        if(!text.equals(BEGIN_OF_SETTINGS) && !text.equals(END_OF_SETTINGS)) {
+                            fw.write(text + "\n");
+                        }
                     }
 
                     token = lexer.nextToken();
@@ -99,7 +106,7 @@ public class DafnyProjectConfigurationChanger {
         } else {
             dir = config.getMasterFile().getParentFile();
         }
-        fw.write("// ---- Automatically generated settings ----\n");
+        fw.write(BEGIN_OF_SETTINGS + "\n");
 
         fw.write(ALGOVER_ESCAPE + " settings {\n");
 
@@ -134,6 +141,6 @@ public class DafnyProjectConfigurationChanger {
             fw.write(ALGOVER_ESCAPE + " subsume \"" + fileString + "\"\n");
         }
 
-        fw.write("// ---- End of settings ----\n\n");
+        fw.write(END_OF_SETTINGS + "\n\n");
     }
 }

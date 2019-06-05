@@ -119,16 +119,29 @@ public class DafnyProjectManager extends AbstractProjectManager {
 
         DafnyTree masterAST = DafnyFileParser.parse(masterFile);
 
-        pb.getDafnyFiles().add(masterFile.getName());
+       // pb.getDafnyFiles().add(masterFile.getPath());
+        File mFile = new File(dir, masterFile.getName());
+        pb.getDafnyFiles().add(mFile.toString());
+        // SaG:Bugfix as otherwise the masterfile may be added twice and would cause errors in case the projectconfig ist changed during project creation
 
         for (DafnyTree include :
                 masterAST.getChildrenWithType(DafnyParser.INCLUDE)) {
             DafnyTree fileNameAST = include.getFirstChildWithType(DafnyParser.STRING_LIT);
             String fileName = Util.stripQuotes(fileNameAST.token.getText());
-            if (include.getFirstChildWithType(DafnyParser.FREE) != null) {
-                pb.getLibraryFiles().add(new File(dir, fileName).toString());
-            } else {
-                pb.getDafnyFiles().add(new File(dir, fileName).toString());
+            String file = new File(dir, fileName).toString();
+            if (!pb.getLibraryFiles().contains(file)) {
+                pb.getLibraryFiles().add(file);
+            }
+        }
+
+        for (DafnyTree subsume :
+                masterAST.getChildrenWithType(DafnyParser.SUBSUME)) {
+            // SaG: Bug fix from include to subsume
+            DafnyTree fileNameAST = subsume.getFirstChildWithType(DafnyParser.STRING_LIT);
+            String fileName = Util.stripQuotes(fileNameAST.token.getText());
+            String file = new File(dir, fileName).toString();
+            if(!pb.getDafnyFiles().contains(file)) {
+                pb.getDafnyFiles().add(file);
             }
         }
 
@@ -189,7 +202,7 @@ public class DafnyProjectManager extends AbstractProjectManager {
 
         try(FileOutputStream fileOutputStream = new FileOutputStream(scriptFile)) {
             p.storeToXML(fileOutputStream,
-                    "Created by Algover at " + new Date(),
+                    "Created by DIVE at " + new Date(),
                     "UTF8");
         }
     }
@@ -220,7 +233,7 @@ public class DafnyProjectManager extends AbstractProjectManager {
     @Override
     public void updateProject(Configuration config) throws IOException{
         try {
-            DafnyProjectConfigurationChanger.saveConfiguration(config, config.getMasterFile());
+            DafnyProjectConfigurationChanger.saveConfiguration(config, this.masterFile);
             this.reload();
         } catch (DafnyParserException e) {
             Logger.getGlobal().severe("Error while saving project settings to file: "+config.getMasterFile());

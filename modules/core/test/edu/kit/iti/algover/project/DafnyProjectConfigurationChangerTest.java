@@ -33,10 +33,6 @@ public class DafnyProjectConfigurationChangerTest {
 
     private File tmpFile;
 
-    public DafnyProjectConfigurationChangerTest() throws IOException {
-
-    }
-
     @Before
     public void setup() throws Exception {
         this.tmpFile = File.createTempFile("Algover", ".dfy");
@@ -44,7 +40,7 @@ public class DafnyProjectConfigurationChangerTest {
 
     @After
     public void tearDown() throws Exception {
-        // this.tmpFile.delete();
+        this.tmpFile.delete();
     }
 
     @Test
@@ -79,6 +75,10 @@ public class DafnyProjectConfigurationChangerTest {
         assertEquals( "Test cases must be in file system", "file", expectedURL.getProtocol());
         File expectedFile = new File(expectedURL.toURI());
 
+        TestUtil.assertSameTextFiles(expectedFile, tmpFile);
+
+        // Check idempotence
+        DafnyProjectConfigurationChanger.saveConfiguration(c, tmpFile);
         TestUtil.assertSameTextFiles(expectedFile, tmpFile);
     }
 

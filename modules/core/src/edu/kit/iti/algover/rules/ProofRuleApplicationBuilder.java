@@ -97,7 +97,7 @@ public class ProofRuleApplicationBuilder {
     public ProofRuleApplication build() {
         return new ProofRuleApplication(
                 rule,
-                ImmutableList.from(Util.map(branches, BranchInfoBuilder::build)),
+                ImmutableList.from(Util.map(branches, x -> x.build())),
                 applicability,
                 parameters,
                 openParameters,

@@ -14,7 +14,6 @@ import edu.kit.iti.algover.term.match.Matching;
 import edu.kit.iti.algover.term.match.SequentMatcher;
 import edu.kit.iti.algover.util.ImmutableList;
 import edu.kit.iti.algover.util.RuleUtil;
-import javafx.collections.ObservableList;
 
 import java.util.Collections;
 import java.util.HashMap;

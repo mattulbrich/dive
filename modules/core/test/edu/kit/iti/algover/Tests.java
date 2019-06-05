@@ -12,6 +12,8 @@ import edu.kit.iti.algover.parser.ModifiesListResolverTest;
 import edu.kit.iti.algover.parser.ParserErrorTest;
 import edu.kit.iti.algover.parser.QuantifierGuardRemovalVisitorTest;
 import edu.kit.iti.algover.project.DafnyProjectConfigurationChangerTest;
+import edu.kit.iti.algover.project.DafnyProjectManager;
+import edu.kit.iti.algover.project.DafnyProjectManagerTest;
 import edu.kit.iti.algover.project.ProjectManagerTest;
 import edu.kit.iti.algover.proof.PVCBuilderTest;
 import edu.kit.iti.algover.proof.ProofTest;
@@ -126,6 +128,7 @@ import edu.kit.iti.algover.util.UtilTest;
     QuantifierInstatiationTest.class,
     IntegerSimplificationTest.class,
         AbstractRuleTest.class,
+    DafnyProjectManagerTest.class,
     })
 public class Tests {
 }

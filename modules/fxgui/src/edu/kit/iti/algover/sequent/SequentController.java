@@ -223,6 +223,9 @@ public class SequentController extends FxmlController {
             }
             updateGoalTypeLabel();
         }
+        TermSelector ts = selectedTerm.get();
+        selectedTerm.setValue(null);
+        selectedTerm.setValue(ts);
     }
 
 
