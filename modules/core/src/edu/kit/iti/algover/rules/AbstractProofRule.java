@@ -39,6 +39,18 @@ public abstract class AbstractProofRule implements ProofRule {
         }
     }
 
+    /**
+     * {@inheritDoc}
+     * <p>
+     *     By default, the category of a class is Unknown
+     *
+     * @return "Unknown"
+     */
+    @Override
+    public String getCategory() {
+        return "Unknown";
+    }
+
     protected boolean mayBeExhaustive = false;
 
     /**
