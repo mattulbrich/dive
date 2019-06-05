@@ -12,6 +12,7 @@ import java.awt.*;
 
 public class IndentationLayout implements LayoutManager {
 
+    public static final String INDENTED_PROPERTY = "indented";
     private static int GAP = 3;
 
     private final int indentation;
@@ -32,7 +33,7 @@ public class IndentationLayout implements LayoutManager {
         for(int i = 0; i < parent.getComponentCount(); i++) {
             JComponent comp = (JComponent) parent.getComponent(i);
             Dimension prefd = comp.getPreferredSize();
-            boolean indented = Boolean.TRUE.equals(comp.getClientProperty("indented"));
+            boolean indented = Boolean.TRUE.equals(comp.getClientProperty(INDENTED_PROPERTY));
             int leftOffset = insets.left + (indented ? indentation : 0);
             comp.setBounds(leftOffset, h,
                     width - leftOffset - insets.right, prefd.height);

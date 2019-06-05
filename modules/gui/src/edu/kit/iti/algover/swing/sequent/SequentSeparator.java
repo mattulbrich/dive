@@ -7,9 +7,10 @@
 
 package edu.kit.iti.algover.swing.sequent;
 
+import javax.swing.*;
 import java.awt.*;
 
-class SequentSeparator extends Component {
+class SequentSeparator extends JComponent {
 
     private static final long serialVersionUID = -3610640407936158831L;
 
@@ -21,7 +22,8 @@ class SequentSeparator extends Component {
         setPreferredSize(getSize());
     }
 
-    public void paint(Graphics g) {
+    @Override
+    public void paintComponent(Graphics g) {
         g.fillRect(0, 0, SEP_WIDTH, SEP_LENGTH);
         g.fillRect(0, (SEP_LENGTH - SEP_WIDTH) / 2, SEP_LENGTH, SEP_WIDTH);
     }

@@ -27,3 +27,4 @@ edu.kit.iti.algover.rules.impl.IntegerSimplification
 edu.kit.iti.algover.rules.impl.PlusZeroRule
 edu.kit.iti.algover.rules.impl.TimesOneRule
 edu.kit.iti.algover.rules.impl.TimesZeroRule
+#edu.kit.iti.algover.rules.impl.ForallRightRule

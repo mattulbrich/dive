@@ -10,6 +10,7 @@ package edu.kit.iti.algover.swing;
 import edu.kit.iti.algover.project.Project;
 import edu.kit.iti.algover.proof.PVC;
 import edu.kit.iti.algover.proof.ProofNode;
+import edu.kit.iti.algover.rules.TermSelector;
 import edu.kit.iti.algover.swing.util.Property;
 
 public class DiveProperties {
@@ -58,20 +59,27 @@ public class DiveProperties {
             new Property<>("unsavedChanges", Boolean.class, false);
 
     /**
-     * A flag which indicates if a code area has experienced a manual change.
-     * All components are out of sync and should be deactivated.
-     * To be reset to false when successfully reloading a project.
+     * A signal to indicate that this dive center has been shut down.
+     * Goes from false to true at most once.
      */
-    //public final Property<Boolean> editMode =
-    //        new Property<>("editMode", Boolean.class, false);
-
 
     public final Property<Boolean> terminated =
             new Property<>("terminated", Boolean.class, false);
 
 
+    /**
+     * The currently selected proof node within a pvc.
+     */
     public Property<ProofNode> proofNode =
             new Property<>("proofNode", ProofNode.class, null);
+
+    /**
+     * The currently selected term (via selector) within a the current
+     * proofnode.
+     * Reset to null if proofnode is changed.
+     */
+    public Property<TermSelector> termSelector =
+            new Property<>("termSelector", TermSelector.class, null);
 
     /**
      * Property key to indicate that a proof node has been selected.

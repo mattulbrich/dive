@@ -18,13 +18,18 @@ import edu.kit.iti.algover.proof.Proof;
 import edu.kit.iti.algover.proof.ProofStatus;
 import edu.kit.iti.algover.proof.SinglePVC;
 import edu.kit.iti.algover.swing.DiveCenter;
+import edu.kit.iti.algover.swing.Viewport;
 
 import javax.swing.*;
 import javax.swing.event.TreeSelectionEvent;
+import javax.swing.text.View;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreePath;
 import java.awt.*;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.util.List;
 
 public class PVCBrowserController {
@@ -32,6 +37,26 @@ public class PVCBrowserController {
     private final DiveCenter diveCenter;
     private final JScrollPane theComponent;
     private final JTree tree;
+
+    private final MouseListener doubleClickListener = new MouseAdapter() {
+        @Override
+        public void mouseClicked(MouseEvent e) {
+            Object sel = tree.getLastSelectedPathComponent();
+            if(sel instanceof TreeNode && ((TreeNode)sel).getChildCount() > 0) {
+                return;
+            }
+
+            if (SwingUtilities.isLeftMouseButton(e) && e.getClickCount() == 2) {
+                Viewport viewport;
+                if ((e.getModifiersEx() & MouseEvent.SHIFT_DOWN_MASK) != 0) {
+                    viewport = Viewport.PROOF_VIEW;
+                } else {
+                    viewport = Viewport.CODE_VIEW;
+                }
+                diveCenter.properties().viewPort.setValue(viewport);
+            }
+        }
+    };
 
     public class TreeNode extends DefaultMutableTreeNode {
 
@@ -162,6 +187,7 @@ public class PVCBrowserController {
         theComponent = new JScrollPane(tree);
 
         tree.addTreeSelectionListener(this::selectionChanged);
+        tree.addMouseListener(doubleClickListener);
         diveCenter.properties().project.addObserver(this::updateProject);
         diveCenter.properties().activePVC.addObserver(this::updatePVC);
         diveCenter.properties().onGoingProof.addObserver(this::proofChanged);

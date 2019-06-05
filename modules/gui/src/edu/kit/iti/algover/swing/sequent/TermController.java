@@ -149,6 +149,7 @@ public class TermController extends MouseAdapter {
         component.addMouseMotionListener(this);
         DefaultHighlighter highlight = new DefaultHighlighter();
         component.setHighlighter(highlight);
+        component.putClientProperty("indented", true);
         component.addComponentListener(new ComponentAdapter() {
             @Override
             public void componentResized(ComponentEvent e) {

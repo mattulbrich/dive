@@ -21,6 +21,7 @@ import edu.kit.iti.algover.swing.actions.BarAction;
 import edu.kit.iti.algover.swing.actions.BarManager;
 import edu.kit.iti.algover.swing.browser.PVCBrowserController;
 import edu.kit.iti.algover.swing.code.DafnyCodeController;
+import edu.kit.iti.algover.swing.rules.RuleBayController;
 import edu.kit.iti.algover.swing.script.ScriptCodeController;
 import edu.kit.iti.algover.swing.sequent.SequentController;
 import edu.kit.iti.algover.swing.util.Log;
@@ -65,10 +66,9 @@ public class MainController {
     private SequentController sequentController;
 
     private PVCBrowserController pvcTreeController;
-
     private DafnyCodeController dafnyCodeController;
-
     private ScriptCodeController scriptCodeController;
+    private RuleBayController ruleBayController;
 
     private Map<Viewport, Integer> separatorPositions =
             new EnumMap<>(Viewport.class);
@@ -83,6 +83,8 @@ public class MainController {
     private JLabel toRightControl;
     private Container mainPane;
     private String title;
+
+    private JSplitPane scriptAndRuleComponent;
 
     /**
      * Instantiates a new main window.
@@ -137,7 +139,7 @@ public class MainController {
             break;
         case PROOF_VIEW:
             centerPane.setLeftComponent(sequentController.getComponent());
-            centerPane.setRightComponent(scriptCodeController.getComponent());
+            centerPane.setRightComponent(scriptAndRuleComponent);
             toLeftControl.setEnabled(true);
             toRightControl.setEnabled(false);
             break;
@@ -173,6 +175,7 @@ public class MainController {
             this.dafnyCodeController = new DafnyCodeController(diveCenter);
             this.sequentController = new SequentController(diveCenter);
             this.scriptCodeController = new ScriptCodeController(diveCenter);
+            this.ruleBayController = new RuleBayController(diveCenter);
         }
 
         Container cp = theFrame.getContentPane();
@@ -202,6 +205,11 @@ public class MainController {
             });
             toRightControl.setFont(toRightControl.getFont().deriveFont(20f));
             cp.add(toRightControl, BorderLayout.EAST);
+        }
+        {
+            scriptAndRuleComponent = new JSplitPane(JSplitPane.VERTICAL_SPLIT);
+            scriptAndRuleComponent.setTopComponent(scriptCodeController.getComponent());
+            scriptAndRuleComponent.setBottomComponent(ruleBayController.getComponent());
         }
         {
             // there used to be another panel here.
@@ -259,7 +267,7 @@ public class MainController {
         statusLine.setForeground(Color.red);
         String msg = e.getMessage();
         if(msg == null) {
-            msg = "'Something went wrong somewhere.'";
+            msg = e.getClass().getSimpleName() + " with no message. 'Something went wrong somewhere.'";
             Log.log(Log.DEBUG, "There is an exception without message. That should be fixed.");
             Log.stacktrace(Log.DEBUG, e);
         }

@@ -12,6 +12,7 @@ import edu.kit.iti.algover.proof.ProofNode;
 import edu.kit.iti.algover.rules.TermSelector;
 import edu.kit.iti.algover.rules.TermSelector.SequentPolarity;
 import edu.kit.iti.algover.swing.DiveCenter;
+import edu.kit.iti.algover.swing.util.IndentationLayout;
 import edu.kit.iti.algover.swing.util.Settings;
 import edu.kit.iti.algover.term.Sequent;
 
@@ -34,7 +35,7 @@ public class SequentController {
         componnent = new JPanel(new BorderLayout());
         // componnent.add(new Breadcrumbs(diveCenter), BorderLayout.NORTH);
 
-        seqComponent = new JPanel(new SequentLayoutManager());
+        seqComponent = new JPanel(new IndentationLayout(SEPARATOR.SEP_LENGTH / 2));
         seqComponent.setBackground(Settings.getInstance().getColor(BACKGROUND, Color.WHITE));
         seqComponent.setBorder(BorderFactory.createEmptyBorder(10,10,10,10));
         componnent.add(seqComponent);

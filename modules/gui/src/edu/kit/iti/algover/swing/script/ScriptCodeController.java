@@ -107,7 +107,6 @@ public class ScriptCodeController {
     }
 
     private void caretUpdated(CaretEvent ev) {
-        System.out.println("ev = [" + ev + "]");
         if (checkPoints == null || proof == null) {
             return;
         }
