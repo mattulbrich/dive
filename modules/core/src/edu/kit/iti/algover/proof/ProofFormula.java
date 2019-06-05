@@ -5,7 +5,6 @@
  */
 package edu.kit.iti.algover.proof;
 
-import com.google.common.base.Objects;
 import edu.kit.iti.algover.term.Sort;
 import edu.kit.iti.algover.term.Term;
 import edu.kit.iti.algover.term.builder.AlphaNormalisation;
@@ -15,6 +14,7 @@ import nonnull.NonNull;
 
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Objects;
 
 /**
  * This class represents a single formula in the sequent
@@ -82,7 +82,7 @@ public class ProofFormula {
 
     @Override
     public int hashCode() {
-        return Objects.hashCode(labels, formula);
+        return Objects.hash(labels, formula);
     }
 
     @Override

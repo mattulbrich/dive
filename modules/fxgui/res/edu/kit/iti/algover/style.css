@@ -7,7 +7,13 @@
     -fx-font-family: monospace;
 }
 
-.list-view:focused .list-cell:selected .formula-view .text {
+.formula-view .selected {
+    -rtfx-background-color: #0f1c0f;
+    -fx-fill: whitesmoke;
+}
+
+.formula-view .selectedRef {
+    -rtfx-background-color: #62b00f;
     -fx-fill: whitesmoke;
 }
 
@@ -21,21 +27,24 @@
     -fx-fill: whitesmoke;
 }
 
-.formula-view .modified {
+.formula-view .formula-modified {
     -rtfx-background-color: #55EE55;
 }
 
-.formula-view .reference-selected {
-    -rtfx-background-color: #62b3cf;
-    -fx-fill: whitesmoke;
+.test {
+    -rtfx-background-color: #55EE55;
 }
 
-.list-cell.formula-cell:formula-added {
-    -fx-background-color: #55EE55;
+.formula-view .formula-added {
+    -rtfx-background-color: #55EE55;
 }
 
-.list-cell.formula-cell:formula-deleted {
-    -fx-background-color: #EE5555;
+.formula-view .formula-deleted {
+    -rtfx-background-color: #EE5555;
+}
+
+.formula-view .test {
+    -rtfx-background-color: #EE5555;
 }
 
 .list-cell.formula-cell:formula-modified {

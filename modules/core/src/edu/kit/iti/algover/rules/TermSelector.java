@@ -108,6 +108,27 @@ public final class TermSelector implements Comparable<TermSelector> {
     }
 
     /**
+     * Instantiates a new toplevel term selector.
+     *
+     * @param inAntecedent
+     *            the side of the sequent
+     * @param termNo
+     *            the toplevel term number
+     * @param subS
+     *            a subtermselctor for this termselctor (see {@link SubtermSelector})
+     */
+    public TermSelector(SequentPolarity inAntecedent, int termNo, SubtermSelector subS) {
+
+        // Checkstyle: IGNORE MultipleStringLiterals
+        assert termNo >= 0 && termNo <= Short.MAX_VALUE :
+                "TermSelectors need non-negative short values, but got " + termNo;
+
+        this.polarity = inAntecedent;
+        this.termNumber = (short) termNo;
+        this.subtermSelector = subS;
+    }
+
+    /**
      * Instantiates a new term selector from path informations.
      *
      * @param inAntecedent
