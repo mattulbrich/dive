@@ -63,7 +63,7 @@ public class RuleApplicationController extends FxmlController implements Referen
     public RuleApplicationController(ExecutorService executor, RuleApplicationListener listener, ProjectManager manager, Lookup lookup) {
         super("RuleApplicationView.fxml");
         this.listener = listener;
-        this.scriptController = new ScriptController(executor, listener);
+        this.scriptController = new ScriptController(executor, listener, lookup);
         this.scriptView = scriptController.getView();
         lookup.register(this, RuleApplicationController.class);
         lookup.register(this, ReferenceHighlightingHandler.class);

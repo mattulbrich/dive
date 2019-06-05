@@ -1,5 +1,6 @@
 package edu.kit.iti.algover.rule.script;
 
+import edu.kit.iti.algover.Lookup;
 import edu.kit.iti.algover.editor.HighlightingRule;
 import edu.kit.iti.algover.editor.LayeredHighlightingRule;
 import edu.kit.iti.algover.proof.Proof;
@@ -51,11 +52,14 @@ public class ScriptController implements ScriptViewListener, ReferenceHighlighti
 
     private LayeredHighlightingRulev4 highlightingRules;
 
-    public ScriptController(ExecutorService executor, RuleApplicationListener listener) {
+    public ScriptController(ExecutorService executor, RuleApplicationListener listener, Lookup lookup) {
         this.view = new ScriptView(executor, this);
         this.view.setOnKeyReleased(this::handleShortcuts);
         this.listener = listener;
         this.highlightingRules = new LayeredHighlightingRulev4(2);
+
+        lookup.register(this, ReferenceHighlightingHandler.class);
+
         view.setHighlightingRule(this.highlightingRules);
 
         view.caretPositionProperty().addListener(this::onCaretPositionChanged);
@@ -377,6 +381,9 @@ public class ScriptController implements ScriptViewListener, ReferenceHighlighti
     @Override
     public void handleReferenceHighlighting(ReferenceHighlightingObject references) {
         //TODO
+        Set<ScriptReferenceTarget> scriptReferenceTargetSet = references.getScriptReferenceTargetSet();
+        viewReferences(scriptReferenceTargetSet);
+        scriptReferenceTargetSet.forEach(scriptReferenceTarget -> System.out.println("scriptReferenceTarget = " + scriptReferenceTarget));
     }
 
     @Override

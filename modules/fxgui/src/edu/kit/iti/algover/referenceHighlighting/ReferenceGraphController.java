@@ -11,6 +11,7 @@ import edu.kit.iti.algover.rule.RuleApplicationController;
 import edu.kit.iti.algover.rule.script.ScriptController;
 import edu.kit.iti.algover.rules.RuleException;
 import edu.kit.iti.algover.sequent.SequentTabViewController;
+import org.controlsfx.dialog.ExceptionDialog;
 
 import java.util.Collection;
 import java.util.HashSet;
@@ -19,6 +20,11 @@ import java.util.Set;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
+/**
+ * Controls computing the referenceTargets and creating the
+ * ReferenceObjects for the classes implementing
+ * the HighlightingReferencesHandler
+ */
 public class ReferenceGraphController {
 
 
@@ -36,41 +42,45 @@ public class ReferenceGraphController {
      */
     public void highlightAllReferenceTargets(ProofTermReferenceTarget selectedTarget){
         Collection<SequentTabViewController> sequentTabViewControllers = lookup.lookupAll(SequentTabViewController.class);
+
+        //this should not be possible
         if(sequentTabViewControllers.size() < 1){
-            //TODO
-            throw new RuntimeException("Something went wrong with References");
+            ExceptionDialog ed = new ExceptionDialog(new RuntimeException("Ambiguous SequentControllers, please reexecute the proof script."));
+            ed.showAndWait();
         }
+
         SequentTabViewController sequentController = sequentTabViewControllers.iterator().next();
 
         Proof activeProof = sequentController.getActiveSequentController().getActiveProof();
 
         if (selectedTarget != null) {
-           // System.out.println("Selected termReference = " + selectedTarget);
-
 
             Set<ProofTermReferenceTarget> proofTermReferenceTargets = computeProofTermRefTargets(selectedTarget, activeProof);
             Set<CodeReferenceTarget> codeReferenceTargets = computeCodeRefTargets(selectedTarget, activeProof);
             Set<ScriptReferenceTarget> scriptReferenceTargetSet = computeScriptRefTargets(selectedTarget, activeProof);
 
+            //build the ReferenceObject
             ReferenceHighlightingObject referenceObj = new ReferenceHighlightingObject();
             referenceObj.setCodeReferenceTargetSet(codeReferenceTargets);
             referenceObj.setProofTermReferenceTargetSet(proofTermReferenceTargets);
             referenceObj.setSelectedTarget(selectedTarget);
+            referenceObj.setScriptReferenceTargetSet(scriptReferenceTargetSet);
 
+            //call all handlers
             for (ReferenceHighlightingHandler referenceHighlightingHandler : lookup.lookupAll(ReferenceHighlightingHandler.class)) {
                 referenceHighlightingHandler.handleReferenceHighlighting(referenceObj);
             }
-           // editorController.viewReferences(codeReferenceTargets);
-           // sequentController.viewReferences(proofTermReferenceTargets, selectedTarget);
+            // editorController.viewReferences(codeReferenceTargets);
+            // sequentController.viewReferences(proofTermReferenceTargets, selectedTarget);
             //Collection<RuleApplicationController> ruleApplicationControllers = lookup.lookupAll(RuleApplicationController.class);
             //RuleApplicationController ruleApplicationController = ruleApplicationControllers.iterator().next();
             //ScriptController scriptController = ruleApplicationController.getScriptController();
             //scriptController.viewReferences(proofTermReferenceTargets);
             //scriptController.viewReferences(scriptReferenceTargetSet);
 
-        } else {
+       } else {
 
-            //editorController.viewReferences(new HashSet<>());
+           Logger.getGlobal().warning("Could not compute references.");
         }
         try {
             Logger.getGlobal().info("Searched for references for selection "
@@ -78,7 +88,8 @@ public class ReferenceGraphController {
                     .selectSubterm(
                             selectedTarget.getProofNodeSelector().get(activeProof).getSequent()));
         } catch (RuleException e) {
-
+            ExceptionDialog ed = new ExceptionDialog(e);
+            ed.showAndWait();
             Logger.getGlobal().warning("There was a problem computing the references.");
         }
     }
@@ -135,39 +146,5 @@ public class ReferenceGraphController {
         for (ReferenceHighlightingHandler referenceHighlightingHandler : lookup.lookupAll(ReferenceHighlightingHandler.class)) {
             referenceHighlightingHandler.removeReferenceHighlighting();
         }
-        //sequentController.removeReferenceHighlighting();
-        //editorController.removeReferenceHighlighting();
-
     }
 }
-/*
-
-          //  ReferenceGraph referenceGraph = activeProof.getGraph();
-            //compute predecessors
-            //Set<ReferenceTarget> predecessors = referenceGraph.allPredecessors(termRef);
-            //Set<CodeReferenceTarget> codeReferenceTargets = filterCodeReferences(predecessors);
-            //= referenceGraph.computeHistory(selectedTarget, activeProof);
-
-    private static Set<CodeReferenceTarget> filterCodeReferences(Set<ReferenceTarget> predecessors) {
-        Set<CodeReferenceTarget> codeReferenceTargets = new HashSet<>();
-
-        predecessors.forEach(reference -> {
-
-            CodeReferenceTarget codeReferenceTarget = reference.accept(new GetReferenceTypeVisitor<>(CodeReferenceTarget.class));
-            if (codeReferenceTarget != null) {
-                codeReferenceTargets.add(codeReferenceTarget);
-            }
-        });
-        return codeReferenceTargets;
-    }
-
-    private static Set<ProofTermReferenceTarget> filterTermReferences(Set<ReferenceTarget> predecessors){
-        Set<ProofTermReferenceTarget> codeReferenceTargets = new HashSet<>();
-        predecessors.forEach(reference -> {
-            ProofTermReferenceTarget codeReferenceTarget = reference.accept(new GetReferenceTypeVisitor<>(ProofTermReferenceTarget.class));
-            if (codeReferenceTarget != null) {
-                codeReferenceTargets.add(codeReferenceTarget);
-            }
-        });
-        return codeReferenceTargets;
-    }*/

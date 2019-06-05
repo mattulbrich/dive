@@ -413,6 +413,8 @@ public class WelcomePane {
 
         double width = screenSize.getWidth();
         double height = screenSize.getHeight();
+        width=1000;
+        height = 1000;
         substage.setWidth(width);
         substage.setHeight(height);
         substage.setTitle("DIVE - " + projectFile);

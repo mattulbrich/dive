@@ -2,6 +2,7 @@ package edu.kit.iti.algover.referenceHighlighting;
 
 import edu.kit.iti.algover.references.CodeReferenceTarget;
 import edu.kit.iti.algover.references.ProofTermReferenceTarget;
+import edu.kit.iti.algover.references.ScriptReferenceTarget;
 import edu.kit.iti.algover.references.UserInputReferenceTarget;
 
 import java.util.Set;
@@ -21,8 +22,18 @@ public class ReferenceHighlightingObject {
 
     private Set<UserInputReferenceTarget> userInputReferenceTargetSet;
 
+    private Set<ScriptReferenceTarget> scriptReferenceTargetSet;
+
     //private Set<DescriptionReferenceTarget> descriptionReferenceTargetSet;
 
+
+    public Set<ScriptReferenceTarget> getScriptReferenceTargetSet() {
+        return scriptReferenceTargetSet;
+    }
+
+    public void setScriptReferenceTargetSet(Set<ScriptReferenceTarget> scriptReferenceTargetSet) {
+        this.scriptReferenceTargetSet = scriptReferenceTargetSet;
+    }
 
     public Set<UserInputReferenceTarget> getUserInputReferenceTargetSet() {
         return userInputReferenceTargetSet;

@@ -163,12 +163,13 @@ public class ReferenceGraph {
      * @param pNode The proof node to which the proof rule was applied
      */
     public void addFromScriptNode(ASTNode node, ProofNode pNode, Proof proof) throws RuleException {
-        ScriptReferenceTarget sct = new ScriptReferenceTarget(node.getStartPosition().getLineNumber(), node);
+        ScriptReferenceTarget sct = new ScriptReferenceTarget(pNode.getPVC(), node.getStartPosition().getLineNumber(), node);
       /*  File file = new File(node.getOrigin());
         if (file.exists()) {
             sct = new ScriptReferenceTarget(file, node.getStartPosition().getLineNumber(), node);
         } else {
             sct = new ScriptReferenceTarget(null, node.getStartPosition().getLineNumber(), node);
+
         }*/
         ScriptReferenceBuilder srb = new ScriptReferenceBuilder(this, sct, pNode, proof);
         srb.buildReferences(pNode.getChildren());

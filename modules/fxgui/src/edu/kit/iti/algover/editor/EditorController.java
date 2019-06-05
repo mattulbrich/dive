@@ -63,6 +63,7 @@ public class EditorController implements DafnyCodeAreaListener, ReferenceHighlig
     private BooleanProperty anyFileChangedProperty;
     private List<String> changedFiles;
     private String baseDir;
+    private Set<CodeReferenceTarget> codeReferenceTargets = new HashSet<>();
 
     /**
      * Initializes the controller without any code editor tabs.
@@ -247,6 +248,7 @@ public class EditorController implements DafnyCodeAreaListener, ReferenceHighlig
      * @param codeReferenceTargets code references to highlight
      */
     public void viewReferences(Set<CodeReferenceTarget> codeReferenceTargets) {
+        this.codeReferenceTargets = codeReferenceTargets;
         highlightingLayers.setLayer(REFERENCE_LAYER, new ReferenceHighlightingRule(codeReferenceTargets));
         view.getTabs().stream()
                 .map(tab -> codeAreaFromContent(tab.getContent()))
@@ -308,6 +310,10 @@ public class EditorController implements DafnyCodeAreaListener, ReferenceHighlig
 
     @Override
     public void removeReferenceHighlighting() {
-        //TODO
+
+        highlightingLayers.setLayer(REFERENCE_LAYER, new ReferenceHighlightingRule(new HashSet<>()));
+        view.getTabs().stream()
+                .map(tab -> codeAreaFromContent(tab.getContent()))
+                .forEach(DafnyCodeArea::rerenderHighlighting);
     }
 }
