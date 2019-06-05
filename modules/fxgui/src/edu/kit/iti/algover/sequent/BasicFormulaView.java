@@ -106,8 +106,14 @@ public class BasicFormulaView extends CodeArea {
         setOnMouseClicked(event -> {
             if(highlightedElement != null) {
                 if(event.isControlDown()) {
-                    selectedReference.set(getMouseOverSelector());
-                } else {selectedTerm.set(getMouseOverSelector());}
+                        selectedReference.set(null);
+                        selectedReference.set(getMouseOverSelector());
+                } else {
+                    if(formula.getType() != ViewFormula.Type.DELETED) {
+                        selectedTerm.set(null);
+                        selectedTerm.set(getMouseOverSelector());
+                    }
+                }
             }
         });
         setOnMouseMoved(this::handleHover);
@@ -117,6 +123,8 @@ public class BasicFormulaView extends CodeArea {
         });
 
         widthProperty().addListener(x -> relayout());
+        updateSelected(selectedTerm, null, selectedTerm.get());
+        updateSelectedRef(selectedReference, null, selectedReference.get());
     }
 
     @Override
