@@ -41,6 +41,7 @@ public class GutterView extends HBox {
         ga.proofNodeIsSetProperty().addListener(this::update);
         ga.insertMarkerProperty().addListener(this::update);
         ga.proofNodeIsSelectedProperty().addListener(this::update);
+        ga.proofNodeIsReferencedProperty().addListener(this::update);
         ga.proofNodeIsSelectedProperty().addListener((observable, oldValue, newValue) -> {
          //   System.out.println("selection changed");
             this.update(observable);

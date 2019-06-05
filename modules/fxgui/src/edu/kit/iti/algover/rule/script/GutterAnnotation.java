@@ -38,6 +38,20 @@ public class GutterAnnotation {
 
     private BooleanBinding proofNodeIsSet = proofNode.isNotNull();
 
+    public boolean isProofNodeIsReferenced() {
+        return proofNodeIsReferenced.get();
+    }
+
+    public BooleanProperty proofNodeIsReferencedProperty() {
+        return proofNodeIsReferenced;
+    }
+
+    public void setProofNodeIsReferenced(boolean proofNodeIsReferenced) {
+        this.proofNodeIsReferenced.set(proofNodeIsReferenced);
+    }
+
+    private BooleanProperty proofNodeIsReferenced = new SimpleBooleanProperty(false, "Proof node is referenced");
+
     public GutterAnnotation(){
         text.addListener(this::onLineNumberChanged);
         /*lineNumberProperty.addListener((observable, oldValue, newValue) -> {

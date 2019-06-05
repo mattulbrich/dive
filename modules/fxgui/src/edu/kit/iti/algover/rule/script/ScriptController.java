@@ -45,7 +45,9 @@ public class ScriptController implements ScriptViewListener, ReferenceHighlighti
     private ProofNodeSelector selectedNode = null;
 
 
-
+    /**
+     * The insert poistion where the next command is inserted
+     */
     private SimpleObjectProperty<Position> observableInsertPosition = new SimpleObjectProperty<Position>(new Position(1,0), "Observable Insert Position");
     private Proof proof;
     private List<ProofNodeCheckpoint> checkpoints;
@@ -72,6 +74,7 @@ public class ScriptController implements ScriptViewListener, ReferenceHighlighti
         view.getGutterAnnotations().get(0).setInsertMarker(true);
         view.getGutterAnnotations().get(0).setProofNode(new ProofNodeSelector());
         view.getGutterAnnotations().get(0).setProofNodeIsSelected(true);
+        view.getGutterAnnotations().get(0).setProofNodeIsReferenced(true);
 
         view.requestLayout();
 
@@ -363,17 +366,11 @@ public class ScriptController implements ScriptViewListener, ReferenceHighlighti
 
     /**
      * Mark all ProofNodes in the script that are referenced in the set of target passed as parameter
-     * @param proofTermReferenceTargets
+     * @param scriptReferenceTargetSet
      */
-  /*  public void viewReferences(Set<ProofTermReferenceTarget> proofTermReferenceTargets) {
-        proofTermReferenceTargets.forEach(proofTermReferenceTarget -> {
-            System.out.println(proofTermReferenceTarget.getProofNodeSelector().toString());
-        });
-    }*/
-
     public void viewReferences(Set<ScriptReferenceTarget> scriptReferenceTargetSet) {
         scriptReferenceTargetSet.stream().forEach(s -> {
-            System.out.println("s = " + s);
+
         });
 
     }
@@ -383,7 +380,6 @@ public class ScriptController implements ScriptViewListener, ReferenceHighlighti
         //TODO
         Set<ScriptReferenceTarget> scriptReferenceTargetSet = references.getScriptReferenceTargetSet();
         viewReferences(scriptReferenceTargetSet);
-        scriptReferenceTargetSet.forEach(scriptReferenceTarget -> System.out.println("scriptReferenceTarget = " + scriptReferenceTarget));
     }
 
     @Override
