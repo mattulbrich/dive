@@ -1,25 +1,50 @@
-# Dafny Interactive Verification Envireonment (DIVE)
-A new interaction concept for the interactive verification of Dafny programs.
+# Dafny Interactive Verification Environment (DIVE)
+
+A new interaction concept for the interactive verification of
+[Dafny](https://github.com/microsoft/dafny) programs.
+
+![DIVE logo][divelogo]
+
+*The logo design is artistically inspired by the Dafny logo.*
 
 ----
 
-[![Build Status](http://hudson.se.informatik.tu-darmstadt.de/buildStatus/icon?job=AlgoVer)](http://hudson.se.informatik.tu-darmstadt.de/job/AlgoVer/)
+[![Build Status](http://hudson.se.informatik.tu-darmstadt.de/buildStatus/icon?job=DIVE-master)](http://hudson.se.informatik.tu-darmstadt.de/job/DIVE-master)
 
-To experiment with new ways of interactive program verification, we develop this user interface.
-It is a graphical proof front end for programs written and specified in Dafny.
+DIVE is developed at the [Karlsruhe Institute of Technology](https://formal.kit.edu/).
 
-The tool is written in Java.
+We develop this interactive program verification environment to
+promote and experiment with new ways of interaction in program
+verification.  It is a graphical proof front end for programs written
+and specified in Dafny and supports different types of user guidance
+for proofs:
+
+1. *Autoactive* annotations within the source code can be used to
+   guide the automated prover. (That's how Dafny itself works)
+2. Textual *proof scripts* can be written to discharge proof
+   obligations in a programmatic fashion.
+3. Interactive *point-and-click* directives can be used to apply a
+   sequence proof steps to an open proof goal (direct interaction).
+
+DIVE is open source (GPL) and written in Java.
 
 ## Requirements
 
-* Java (oracle JDK, at least 8) must be installed.
-* ANT must be installed
-* Z3 must be installed
-* boogie must be installed
+* Java (OpenJDK or Oracle JDK, at least version 11) must be installed.
+* Boogie must be installed and in path (and then, Z3 is also available)
+
 ## Run it
 
-After downloading run `ant jar` in the project  directory to build the tools.
-Then call `java -jar algover.jar` to run it.
+After cloning the repository, invoke `./gradlew run` (on Linux/iOS) or
+`gradle.bat run` (on Windows).
 
 An example can be found in the folder ListExample.
 
+## Boogie
+
+will be called as `boogie`. Hence it must be in the path.
+
+If not, you can set the path to your boogie executable using an
+environment variable.
+
+[divelogo]: doc/logo.png

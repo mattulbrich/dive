@@ -1,3 +1,4 @@
+edu.kit.iti.algover.term.prettyprint.NotPrinterExtension
 edu.kit.iti.algover.term.prettyprint.FixOperatorPrinterExtension
 edu.kit.iti.algover.term.prettyprint.IfThenElsePrinterExtension
 edu.kit.iti.algover.term.prettyprint.ArrayLengthPrinterExtension

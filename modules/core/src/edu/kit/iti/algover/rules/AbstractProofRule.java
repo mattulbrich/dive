@@ -39,6 +39,18 @@ public abstract class AbstractProofRule implements ProofRule {
         }
     }
 
+    /**
+     * {@inheritDoc}
+     * <p>
+     *     By default, the category of a class is Unknown
+     *
+     * @return "Unknown"
+     */
+    @Override
+    public String getCategory() {
+        return "Unknown";
+    }
+
     protected boolean mayBeExhaustive = false;
 
     /**
@@ -64,7 +76,7 @@ public abstract class AbstractProofRule implements ProofRule {
             }
 
             if(t.getType() == ParameterType.TERM) {
-                if(((TermParameter)en.getValue()).getOrigianlTermSelector() != null) {
+                if(((TermParameter)en.getValue()).getOriginalTermSelector() != null) {
                     throw new RuleException("Term parameters may not be termSelectors.");
                 }
             }

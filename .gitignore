@@ -1,6 +1,7 @@
 /tmp
 /modules/*/build
 /modules/*/gen
+/modules/*/out
 /.gradle
 /gradle
 /VERSION

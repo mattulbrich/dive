@@ -71,6 +71,7 @@ public class BoogieVisitor extends DefaultTermVisitor<Void, String, NoExceptions
         result.put(PLUS.getName(), binary("+"));
         result.put(MINUS.getName(), binary("-"));
         result.put(TIMES.getName(), binary("*"));
+        result.put(DIV.getName(), binary(" div "));
         result.put(GE.getName(), binary(">="));
         result.put(GT.getName(), binary(">"));
         result.put(LE.getName(), binary("<="));

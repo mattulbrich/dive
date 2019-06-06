@@ -52,7 +52,14 @@ task runAntlr3(type:JavaExec) {
     args = [ "-verbose", "-o", "$projectDir/gen", "edu/kit/iti/algover/parser/Dafny.g"]
 }
 
-
+test {
+   jvmArgs = [ "-Dde.matul.nonnull.debug=true", "-javaagent:../../lib/nonnull-all.jar=edu" ]
+   testLogging  {
+       exceptionFormat "full"
+       showStackTraces = true
+       // showStandardStreams = true
+   }
+}
 
 task runAntlr4(type:JavaExec) {
     println "Building Script Parser"

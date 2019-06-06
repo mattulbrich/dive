@@ -95,16 +95,9 @@ public class ProofRuleApplicationBuilder {
      * @return a freshly created proof rule application
      */
     public ProofRuleApplication build() {
-        ImmutableList<BranchInfo> from = null;
-        try {
-            from = ImmutableList.from(Util.map(branches, BranchInfoBuilder::build));
-        } catch (Exception ex){
-            ex.printStackTrace();
-            return null;
-        }
         return new ProofRuleApplication(
                 rule,
-                from,
+                ImmutableList.from(Util.map(branches, x -> x.build())),
                 applicability,
                 parameters,
                 openParameters,
