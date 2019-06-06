@@ -38,7 +38,7 @@ public class GutterAnnotation {
 
     private BooleanBinding proofNodeIsSet = proofNode.isNotNull();
 
-    public boolean isProofNodeIsReferenced() {
+    public boolean proofNodeIsReferenced() {
         return proofNodeIsReferenced.get();
     }
 

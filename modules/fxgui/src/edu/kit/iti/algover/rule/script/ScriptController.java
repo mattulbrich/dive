@@ -37,6 +37,9 @@ import java.util.function.Consumer;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
+/**
+ * Controller for the ScriptArea. Contains methods to control the ScriptView.
+ */
 public class ScriptController implements ScriptViewListener, ReferenceHighlightingHandler {
     KeyCombination saveShortcut = new KeyCodeCombination(KeyCode.S, KeyCombination.CONTROL_DOWN);
 
@@ -46,7 +49,7 @@ public class ScriptController implements ScriptViewListener, ReferenceHighlighti
 
 
     /**
-     * The insert poistion where the next command is inserted
+     * The insert position where the next command is inserted
      */
     private SimpleObjectProperty<Position> observableInsertPosition = new SimpleObjectProperty<Position>(new Position(1,0), "Observable Insert Position");
     private Proof proof;
@@ -274,6 +277,10 @@ public class ScriptController implements ScriptViewListener, ReferenceHighlighti
         switchViewedNode();
     }
 
+    /**
+     * Create the annotatiosn for the ScriptGutterView according to the checkpointslist
+     * @param checkpoints
+     */
     private void createVisualSelectors(List<ProofNodeCheckpoint> checkpoints) {
         for (ProofNodeCheckpoint checkpoint : this.checkpoints) {
             int checkpointline = checkpoint.position.getLineNumber();
@@ -370,7 +377,8 @@ public class ScriptController implements ScriptViewListener, ReferenceHighlighti
      */
     public void viewReferences(Set<ScriptReferenceTarget> scriptReferenceTargetSet) {
         scriptReferenceTargetSet.stream().forEach(s -> {
-
+            int linenumber = s.getLinenumber();
+            view.getGutterAnnotations().get(linenumber-1).setProofNodeIsReferenced(true);
         });
 
     }
@@ -384,6 +392,6 @@ public class ScriptController implements ScriptViewListener, ReferenceHighlighti
 
     @Override
     public void removeReferenceHighlighting() {
-
+        view.getGutterAnnotations().forEach(gutterAnnotation -> {gutterAnnotation.setProofNodeIsReferenced(false);});
     }
 }
