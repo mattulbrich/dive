@@ -22,8 +22,9 @@ DIVE is implemented in Java.
 
 ## Run it
 
-After downloading run `gradle shadowJar` in the project directory to build the tools.
-Then call `java -jar algover.jar` to run it.
+After downloading run `./gradlew shadowJar` in the project directory to build the tools.
+Then call `java -jar DIVE.jar` to run it.
+Alternatively run `./gradlew run` to run DIVE.
 
 An example is included in DIVE and accessible in the WelcomePane using the button "Load example".
 
