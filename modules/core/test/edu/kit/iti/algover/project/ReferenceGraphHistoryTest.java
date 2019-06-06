@@ -9,6 +9,7 @@ import edu.kit.iti.algover.rules.RuleException;
 import edu.kit.iti.algover.rules.TermSelector;
 import edu.kit.iti.algover.term.Term;
 import edu.kit.iti.algover.util.FormatException;
+import edu.kit.iti.algover.util.ProofUtils;
 import junitparams.JUnitParamsRunner;
 import junitparams.Parameters;
 import org.junit.Assert;
@@ -90,7 +91,7 @@ public class ReferenceGraphHistoryTest {
     @Test
     @Parameters(method="testCasesProofWithRemoval")
     public void testHistoryInProofWithRemoval(String path, String selector, int size, String exp) throws FormatException {
-        ProofNodeSelector pns = ReferenceGraphDirectParentsTest.computeProofNodeSelector(path);
+        ProofNodeSelector pns = ProofUtils.computeProofNodeSelector(path);
         TermSelector childTerm =  new TermSelector(selector);
         Set<ProofTermReferenceTarget> actual = computeHistoryVerbose(pns, childTerm, proofWithRemoval);
         Assert.assertTrue(actual.size() == size);
@@ -101,7 +102,7 @@ public class ReferenceGraphHistoryTest {
 
     @Test
     public void testHistory() throws FormatException {
-        ProofNodeSelector pns = ReferenceGraphDirectParentsTest.computeProofNodeSelector("0,0,0");
+        ProofNodeSelector pns = ProofUtils.computeProofNodeSelector("0,0,0");
         TermSelector childTerm =  new TermSelector("A.0");
         Set<ProofTermReferenceTarget> directParents = proofWithRemoval.getGraph().computeHistory(new ProofTermReferenceTarget(pns, childTerm), proofWithRemoval);
         System.out.println("directParents = " + directParents);

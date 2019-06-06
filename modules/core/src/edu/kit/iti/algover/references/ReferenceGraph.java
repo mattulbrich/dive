@@ -146,7 +146,7 @@ public class ReferenceGraph {
             ProofNodeSelector pns = new ProofNodeSelector(afterNode);
             ProofRuleApplication pra = afterNode.getProofRuleApplication();
 
-
+            //TODO letexpansion abfangen und Sonderbehandlung
             ImmutableList<BranchInfo> branchInfos = pra.getBranchInfo();
             for (BranchInfo bi : branchInfos) {
                 //handle replacements
@@ -274,10 +274,8 @@ public class ReferenceGraph {
                                     Term changedTerm = computeTermValue(currentTarget.getProofNodeSelector().getParentSelector(), termSelectorTermPair.getFst(), proof);
                                     if(changedTerm instanceof LetTerm){
                                        TermSelector parentSel = termSelectorTermPair.getFst();
-                                        TermSelector.SequentPolarity polarity = parentSel.getPolarity();
                                         for(int i = 0; i < changedTerm.getSubterms().size(); i++){
                                                 parents.add(new ProofTermReferenceTarget(currentTarget.getProofNodeSelector().getParentSelector(), new TermSelector(parentSel, i)));
-
                                         }
                                     } else {
                                         parents.add(new ProofTermReferenceTarget(currentTarget.getProofNodeSelector().getParentSelector(), termSelectorTermPair.getFst()));

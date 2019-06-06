@@ -13,6 +13,8 @@ import edu.kit.iti.algover.rules.TermSelector;
 import edu.kit.iti.algover.term.Sequent;
 import edu.kit.iti.algover.term.Term;
 import edu.kit.iti.algover.util.FormatException;
+import edu.kit.iti.algover.util.HistoryProofUtils;
+import edu.kit.iti.algover.util.ProofUtils;
 import edu.kit.iti.algover.util.TestInfrastructure;
 import junitparams.JUnitParamsRunner;
 import junitparams.Parameters;
@@ -28,7 +30,7 @@ import java.util.*;
 import java.util.logging.Logger;
 
 @RunWith(JUnitParamsRunner.class)
-public class ReferenceGraphDirectParentsTest {
+public class ReferenceGraphDirectParentsInProofsTest {
 
     public Proof proofWithTwoSubstitutionsAndSkips;
 
@@ -143,22 +145,22 @@ public class ReferenceGraphDirectParentsTest {
     }
 
     /**
-     * This test tests whether all terms and subterms in a sequent are unchanged after teh application of the skip rule
+     * This test tests whether all terms and subterms in a sequent are unchanged after the application of the skip rule
      * @throws RuleException
      * @throws FormatException
      */
     @Test
     public void testSkipRule() throws RuleException, FormatException {
 
-        ProofNodeSelector lastNode = computeProofNodeSelector("0,0,0,0");
+        ProofNodeSelector lastNode = ProofUtils.computeProofNodeSelector("0,0,0,0");
         Sequent lastSeq = lastNode.get(proofWithTwoSubstitutionsAndSkips).getSequent();
-        List<TermSelector> allSelectors = computeAllSelectors(lastSeq);
+        List<TermSelector> allSelectors = ProofUtils.computeAllSelectors(lastSeq);
         allSelectors.forEach(termSelector -> {
             Assert.assertTrue(isFormulaUnchangedInDirectParent("0,0,0,0", termSelector.toString(), proofWithTwoSubstitutionsAndSkips));
         });
-        ProofNodeSelector lastNodeBefore = computeProofNodeSelector("0,0,0");
+        ProofNodeSelector lastNodeBefore = ProofUtils.computeProofNodeSelector("0,0,0");
         Sequent lastSeqBefore = lastNodeBefore.get(proofWithTwoSubstitutionsAndSkips).getSequent();
-        List<TermSelector> allSelectorsBefore = computeAllSelectors(lastSeqBefore);
+        List<TermSelector> allSelectorsBefore = ProofUtils.computeAllSelectors(lastSeqBefore);
         allSelectorsBefore.forEach(termSelector -> {
             Assert.assertTrue(isFormulaUnchangedInDirectParent("0,0,0", termSelector.toString(), proofWithTwoSubstitutionsAndSkips));
         });
@@ -168,9 +170,9 @@ public class ReferenceGraphDirectParentsTest {
 
     @Test
     public void testScriptReferences() throws RuleException, FormatException {
-        ProofNodeSelector replaceNode = computeProofNodeSelector("0,0,0,0,0");
+        ProofNodeSelector replaceNode = ProofUtils.computeProofNodeSelector("0,0,0,0,0");
         Sequent replace = replaceNode.get(proofBranched).getSequent();
-        ProofNodeSelector justNode = computeProofNodeSelector("0,0,0,0,1,0");
+        ProofNodeSelector justNode = ProofUtils.computeProofNodeSelector("0,0,0,0,1,0");
         Sequent just = justNode.get(proofBranched).getSequent();
         TermSelector ltFormula = new TermSelector("A.0");
         TermSelector x = new TermSelector("A.0.0");
@@ -215,23 +217,6 @@ public class ReferenceGraphDirectParentsTest {
         Assert.assertEquals(parentsJust.iterator().next().getTermSelector().toString(),"A.0");
     }
 
-    /**
-     * Test the specialities of let expansions and their influence on computing direct parents
-     */
-    @Test
-    public void testLetParents() throws FormatException, RuleException{
-        Assert.assertFalse(isFormulaUnchangedInDirectParent("0", "A.0.0", proofWithTwoSubstitutionsAndSkips));
-        Set<ProofTermReferenceTarget> parents = computeDirectParents("0", "A.0.0", proofWithTwoSubstitutionsAndSkips);
-        System.out.println("parents = " + parents);
-        ProofTermReferenceTarget proofTermReferenceTarget = parents.iterator().next();
-
-        TermSelector termSelector = proofTermReferenceTarget.getTermSelector();
-        Sequent sequent = proofTermReferenceTarget.getProofNodeSelector().get(proofWithTwoSubstitutionsAndSkips).getSequent();
-        Term term = termSelector.selectSubterm(sequent);
-        System.out.println("term = " + term);
-
-    }
-
 
 
     /**
@@ -241,7 +226,7 @@ public class ReferenceGraphDirectParentsTest {
      */
     @Test
     public void testDelList() throws FormatException, RuleException {
-        ProofNodeSelector pns = computeProofNodeSelector("0,0");
+        ProofNodeSelector pns = ProofUtils.computeProofNodeSelector("0,0");
         TermSelector termSelector = new TermSelector("A.1");
         //sequent: $ge(a, 0), $lt(a, 100) |- $and($eq<int>(a, 1), $eq<int>($$f($heap, $$f($heap, a)), 2))
         //selection: $lt(a, 100)
@@ -256,7 +241,7 @@ public class ReferenceGraphDirectParentsTest {
 
         parents.forEach(parent -> {
             try {
-                boolean comp = compareTerms(proofFormula, parent, proofWithRemoval);
+                boolean comp = HistoryProofUtils.compareTerms(proofFormula, parent, proofWithRemoval);
                 Logger.getGlobal().info("comp = " + comp);
             } catch (RuleException e) {
                 e.printStackTrace();
@@ -287,17 +272,13 @@ public class ReferenceGraphDirectParentsTest {
 
 
     private Set<ProofTermReferenceTarget> computeDirectParents(String pathChild, String termSelectorString, Proof currentProof) throws FormatException {
-        ProofNodeSelector pns = computeProofNodeSelector(pathChild);
+        ProofNodeSelector pns = ProofUtils.computeProofNodeSelector(pathChild);
         TermSelector termSelector = new TermSelector(termSelectorString);
         Set<ProofTermReferenceTarget> directParents = currentProof.getGraph().findDirectParents(new ProofTermReferenceTarget(pns, termSelector), currentProof);
         return directParents;
     }
 
-    private boolean compareTerms(Term termChild, ProofTermReferenceTarget target, Proof currentProof) throws RuleException {
-        Term term = target.getTermSelector().selectSubterm(target.getProofNodeSelector().get(currentProof).getSequent());
-        return termChild == term;
 
-    }
        /**
      * False iff term or formula changed from pathChild to direct parent, true iff term or formula unchanged
      * @param pathChild
@@ -308,7 +289,7 @@ public class ReferenceGraphDirectParentsTest {
     private boolean isFormulaUnchangedInDirectParent(String pathChild, String termSelectorString, Proof currentProof){
 
         boolean ret = false;
-        ProofNodeSelector pns = computeProofNodeSelector(pathChild);
+        ProofNodeSelector pns = ProofUtils.computeProofNodeSelector(pathChild);
 
         try {
             TermSelector termSelector = new TermSelector(termSelectorString);
@@ -343,42 +324,6 @@ public class ReferenceGraphDirectParentsTest {
 
 
 
-    @TestInfrastructure
-    public static ProofNodeSelector computeProofNodeSelector(String pathChild){
-        String[] pathStringArray = pathChild.split(",");
-        int[] path = Arrays.stream(pathStringArray).mapToInt(value -> Integer.parseInt(value)).toArray();
-        ProofNodeSelector pns = new ProofNodeSelector(path);
-        return pns;
-    }
-
-
-    @TestInfrastructure
-    public static List<TermSelector> computeAllSelectors(Sequent lastSeq) throws FormatException {
-        Set<TermSelector> selectors = new HashSet<>();
-        List<ProofFormula> antecedent = lastSeq.getAntecedent();
-        List<ProofFormula> succedent = lastSeq.getSuccedent();
-        for (int i = 0; i < antecedent.size(); i++){
-            ProofFormula form = antecedent.get(i);
-            selectors.add(new TermSelector("A."+i));
-            selectors.addAll(computeSelectorsWithCommonPrefix("A."+i, form.getTerm()));
-        }
-        for (int j = 0; j < succedent.size(); j++){
-            ProofFormula form1 = succedent.get(j);
-            selectors.add(new TermSelector("S."+j));
-            selectors.addAll(computeSelectorsWithCommonPrefix("S."+j, form1.getTerm()));
-        }
-        return new ArrayList<>(selectors);
-    }
-
-    @TestInfrastructure
-    private static Set<TermSelector> computeSelectorsWithCommonPrefix(String prefix, Term t) throws FormatException {
-        Set<TermSelector> selectors = new HashSet<>();
-        for(int i = 0; i<t.getSubterms().size(); i++) {
-            selectors.add(new TermSelector(prefix+"."+i));
-            selectors.addAll(computeSelectorsWithCommonPrefix(prefix+"."+i, t.getTerm(i)));
-        }
-        return selectors;
-    }
 
 
 
