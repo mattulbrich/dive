@@ -52,8 +52,8 @@ public class AlgoVerApplication extends Application {
         primaryStage.setTitle("AlgoVer");
         WelcomePane p = new WelcomePane(primaryStage, opendirectly);
         primaryStage.setScene(new Scene(p.getRootPane()));
-        primaryStage.setWidth(900);
-        primaryStage.setHeight(700);
+        primaryStage.setWidth(1000);
+        primaryStage.setHeight(900);
         primaryStage.show();
 
     }

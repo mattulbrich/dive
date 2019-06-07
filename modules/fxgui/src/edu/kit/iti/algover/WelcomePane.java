@@ -41,6 +41,7 @@ import javafx.stage.DirectoryChooser;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 
+import javax.swing.text.html.ImageView;
 import java.awt.*;
 import java.io.File;
 import java.io.IOException;
@@ -78,6 +79,7 @@ public class WelcomePane {
 
     @FXML
     private BorderPane rootPane;
+
 
     private Stage primaryStage;
 
@@ -138,6 +140,8 @@ public class WelcomePane {
         loadExample.setStyle("-fx-font-size: 20");
         loadExample.setGraphic(FontAwesomeIconFactory.get().createIcon(FontAwesomeIcon.BULLSEYE));
         loadExample.setOnAction(this::loadExample);
+
+
 
     }
 
