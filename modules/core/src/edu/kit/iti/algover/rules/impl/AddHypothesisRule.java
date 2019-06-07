@@ -19,7 +19,8 @@ import edu.kit.iti.algover.util.RuleUtil;
  * Created by jklamroth on 5/16/18.
  */
 public class AddHypothesisRule extends AbstractProofRule {
-    private static final ParameterDescription<TermParameter> WITH_PARAM = new ParameterDescription<>("with", ParameterType.TERM, true);
+    public static final ParameterDescription<TermParameter> WITH_PARAM =
+            new ParameterDescription<>("with", ParameterType.TERM, true);
 
     public AddHypothesisRule() {
         super(WITH_PARAM);

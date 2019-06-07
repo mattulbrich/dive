@@ -82,7 +82,7 @@ public class DafnyRuleTest {
 
         TermSelector ts = new TermSelector(TermSelector.SequentPolarity.ANTECEDENT, 0, 0);
         Parameters params = new Parameters();
-        params.putValue("on", new TermParameter(new TermSelector("A.0.0"), testSequent));
+        params.putValue(AbstractProofRule.ON_PARAM, new TermParameter(new TermSelector("A.0.0"), testSequent));
 
         ProofRuleApplication pra = dafnyRule.considerApplication(pn, testSequent, ts);
         assertEquals(pra.getApplicability(), ProofRuleApplication.Applicability.APPLICABLE);
@@ -103,7 +103,7 @@ public class DafnyRuleTest {
 
         TermSelector ts = new TermSelector(TermSelector.SequentPolarity.SUCCEDENT, 0, 0);
         Parameters params = new Parameters();
-        params.putValue("on", new TermParameter(new TermSelector("S.0.0"), testSequent));
+        params.putValue(AbstractProofRule.ON_PARAM, new TermParameter(new TermSelector("S.0.0"), testSequent));
 
         ProofRuleApplication pra = dafnyRule.considerApplication(pn, testSequent, ts);
         assertEquals(pra.getApplicability(), ProofRuleApplication.Applicability.APPLICABLE);

@@ -15,10 +15,10 @@ import java.util.Collections;
 
 public class FakeSMTSolverRule extends AbstractProofRule {
 
-    private static final ParameterDescription<Boolean> CLOSE_PARAM =
+    public static final ParameterDescription<Boolean> CLOSE_PARAM =
             new ParameterDescription<>( "close", ParameterType.BOOLEAN,false);
 
-    private static final ParameterDescription<BigInteger> SLEEP_PARAM =
+    public static final ParameterDescription<BigInteger> SLEEP_PARAM =
             new ParameterDescription<>( "sleep", ParameterType.INTEGER,false);
 
     public FakeSMTSolverRule() {

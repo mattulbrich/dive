@@ -7,14 +7,10 @@ package edu.kit.iti.algover.rules.impl;
 
 import edu.kit.iti.algover.proof.ProofNode;
 import edu.kit.iti.algover.rules.*;
-import edu.kit.iti.algover.term.Term;
-import edu.kit.iti.algover.util.Util;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import java.util.stream.Collector;
 import java.util.stream.Collectors;
 
 
@@ -22,10 +18,11 @@ import java.util.stream.Collectors;
  * Created by jonasklamroth on 22.08.18.
  */
 public class ExhaustiveRule extends AbstractProofRule {
-    static ParameterDescription<String> ruleName = new ParameterDescription<>("ruleName", ParameterType.STRING, true);
+    public static final ParameterDescription<String> RULE_NAME_PARAM =
+            new ParameterDescription<>("RULE_NAME_PARAM", ParameterType.STRING, true);
 
     public ExhaustiveRule() {
-        super(ruleName, ON_PARAM);
+        super(RULE_NAME_PARAM, ON_PARAM);
     }
 
     @Override
@@ -35,7 +32,7 @@ public class ExhaustiveRule extends AbstractProofRule {
 
     @Override
     protected ProofRuleApplication considerApplicationImpl(ProofNode target, Parameters parameters) throws RuleException {
-        String rn = parameters.getValue(ruleName);
+        String rn = parameters.getValue(RULE_NAME_PARAM);
 
         if(rn == null) {
             return new ProofRuleApplicationBuilder(this).build();
@@ -68,7 +65,7 @@ public class ExhaustiveRule extends AbstractProofRule {
 
     @Override
     protected ProofRuleApplication makeApplicationImpl(ProofNode target, Parameters parameters) throws RuleException {
-        String rn = parameters.getValue(ruleName);
+        String rn = parameters.getValue(RULE_NAME_PARAM);
 
         List<ProofRule> rules = target.getPVC().getProject().getAllProofRules().stream().
                 filter(proofRule -> { return proofRule.getName().equals(rn); }).

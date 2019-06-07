@@ -10,6 +10,7 @@ import edu.kit.iti.algover.data.SymbolTable;
 import edu.kit.iti.algover.parser.DafnyException;
 import edu.kit.iti.algover.parser.DafnyParserException;
 import edu.kit.iti.algover.proof.ProofNode;
+import edu.kit.iti.algover.rules.AbstractProofRule;
 import edu.kit.iti.algover.rules.Parameters;
 import edu.kit.iti.algover.rules.ProofRuleApplication;
 import edu.kit.iti.algover.rules.RuleApplicator;
@@ -59,8 +60,8 @@ public class QuantifierInstatiationTest {
         ProofNode pn = ProofMockUtil.mockProofNode(null, s);
         QuantifierInstantiation rule = new QuantifierInstantiation();
         Parameters params = new Parameters();
-        params.putValue("on", new TermParameter(new TermSelector("A.0"), s));
-        params.putValue("with", new TermParameter(new ApplTerm(new FunctionSymbol("0", Sort.INT)), null));
+        params.putValue(AbstractProofRule.ON_PARAM, new TermParameter(new TermSelector("A.0"), s));
+        params.putValue(QuantifierInstantiation.WITH_PARAM, new TermParameter(new ApplTerm(new FunctionSymbol("0", Sort.INT)), null));
         ProofRuleApplication pra = rule.makeApplication(pn, params);
         List<ProofNode> newNodes = RuleApplicator.applyRule(pra, pn);
         assertEquals(1, newNodes.size());
@@ -75,8 +76,8 @@ public class QuantifierInstatiationTest {
         ProofNode pn = ProofMockUtil.mockProofNode(null, s);
         QuantifierInstantiation rule = new QuantifierInstantiation();
         Parameters params = new Parameters();
-        params.putValue("on", new TermParameter(new TermSelector("A.0"), s));
-        params.putValue("with", new TermParameter(new ApplTerm(new FunctionSymbol("0", Sort.INT)), null));
+        params.putValue(AbstractProofRule.ON_PARAM, new TermParameter(new TermSelector("A.0"), s));
+        params.putValue(QuantifierInstantiation.WITH_PARAM, new TermParameter(new ApplTerm(new FunctionSymbol("0", Sort.INT)), null));
         ProofRuleApplication pra = rule.makeApplication(pn, params);
         List<ProofNode> newNodes = RuleApplicator.applyRule(pra, pn);
         assertEquals(1, newNodes.size());
@@ -91,8 +92,8 @@ public class QuantifierInstatiationTest {
         ProofNode pn = ProofMockUtil.mockProofNode(null, s);
         QuantifierInstantiation rule = new QuantifierInstantiation();
         Parameters params = new Parameters();
-        params.putValue("on", new TermParameter(new TermSelector("A.0"), s));
-        params.putValue("with", new TermParameter(new ApplTerm(new FunctionSymbol("0", Sort.INT)), null));
+        params.putValue(AbstractProofRule.ON_PARAM, new TermParameter(new TermSelector("A.0"), s));
+        params.putValue(QuantifierInstantiation.WITH_PARAM, new TermParameter(new ApplTerm(new FunctionSymbol("0", Sort.INT)), null));
         ProofRuleApplication pra = rule.makeApplication(pn, params);
         List<ProofNode> newNodes = RuleApplicator.applyRule(pra, pn);
         assertEquals(1, newNodes.size());
@@ -107,9 +108,9 @@ public class QuantifierInstatiationTest {
         ProofNode pn = ProofMockUtil.mockProofNode(null, s);
         QuantifierInstantiation rule = new QuantifierInstantiation();
         Parameters params = new Parameters();
-        params.putValue("on", new TermParameter(new TermSelector("A.0"), s));
+        params.putValue(AbstractProofRule.ON_PARAM, new TermParameter(new TermSelector("A.0"), s));
         Term rt = tp.parse("i1 + i1 % i3 - i4");
-        params.putValue("with", new TermParameter(rt, null));
+        params.putValue(QuantifierInstantiation.WITH_PARAM, new TermParameter(rt, null));
         ProofRuleApplication pra = rule.makeApplication(pn, params);
         List<ProofNode> newNodes = RuleApplicator.applyRule(pra, pn);
         assertEquals(1, newNodes.size());
@@ -124,9 +125,9 @@ public class QuantifierInstatiationTest {
         ProofNode pn = ProofMockUtil.mockProofNode(null, s);
         QuantifierInstantiation rule = new QuantifierInstantiation();
         Parameters params = new Parameters();
-        params.putValue("on", new TermParameter(new TermSelector("A.0"), s));
+        params.putValue(AbstractProofRule.ON_PARAM, new TermParameter(new TermSelector("A.0"), s));
         Term rt = tp.parse("i1 + i2 % i3 - i4");
-        params.putValue("with", new TermParameter(rt, null));
+        params.putValue(QuantifierInstantiation.WITH_PARAM, new TermParameter(rt, null));
         ProofRuleApplication pra = rule.makeApplication(pn, params);
     }
 }

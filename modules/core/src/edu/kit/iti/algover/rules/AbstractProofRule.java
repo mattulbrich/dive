@@ -6,10 +6,12 @@
 package edu.kit.iti.algover.rules;
 
 import java.util.*;
+import java.util.Map.Entry;
 
 import edu.kit.iti.algover.proof.ProofNode;
 import edu.kit.iti.algover.term.*;
 import edu.kit.iti.algover.term.prettyprint.PrettyPrint;
+import edu.kit.iti.algover.util.Util;
 
 /**
  * This class should serve as base class for all {@link ProofRule} implementations.
@@ -69,8 +71,9 @@ public abstract class AbstractProofRule implements ProofRule {
             }
         }
 
-        for (Map.Entry<String, Object> en : parameters.entrySet()) {
-            ParameterDescription<?> t = allParameters.get(en.getKey());
+        for (Entry<ParameterDescription<?>, Object> en : parameters.entrySet()) {
+            ParameterDescription<?> t = en.getKey();
+
             if (t == null) {
                 throw new RuleException("Unknown parameter '" + en.getKey() + "'");
             }
@@ -93,7 +96,8 @@ public abstract class AbstractProofRule implements ProofRule {
         }
 
         if (!required.isEmpty()) {
-                throw new RuleException("Missing required arguments: " + required);
+                throw new RuleException("Missing required argument(s): " +
+                        Util.commatize(Util.map(required, x->x.getName())));
         }
     }
 
@@ -121,7 +125,7 @@ public abstract class AbstractProofRule implements ProofRule {
      */
     public final ProofRuleApplication considerApplication(ProofNode target, Sequent selection, TermSelector selector) throws RuleException {
         Parameters params = new Parameters();
-        params.putValue("on", new TermParameter(selector, selection));
+        params.putValue(ON_PARAM, new TermParameter(selector, selection));
         return considerApplication(target, params);
     }
 
@@ -182,78 +186,46 @@ public abstract class AbstractProofRule implements ProofRule {
      * @throws RuleException
      */
     public String getTranscript(ProofRuleApplication pra) throws RuleException {
+        PrettyPrint prettyPrint = new PrettyPrint();
         Parameters params = pra.getParameters();
-        String res = getName();
-        if(allParameters.size() == 0 && pra.getBranchCount() < 2) {
-            return res + ";";
+
+        StringBuilder sb = new StringBuilder();
+
+        List<String> args = new ArrayList<>();
+        for(Entry<ParameterDescription<?>, Object> p : params.entrySet()) {
+            String val = entryToString(p.getKey(), p.getValue(), prettyPrint);
+            args.add(p.getKey().getName() + "=" + val);
         }
 
-        Map<String, ParameterDescription<?>> required = new HashMap<>();
-        for (String name : allParameters.keySet()) {
-            if(allParameters.get(name).isRequired()) {
-                required.put(name, allParameters.get(name));
-            }
+        sb.append(pra.getRule().getName());
+        if(!args.isEmpty()) {
+            sb.append(" ");
+            sb.append(Util.join(args, " "));
         }
-        if(params.entrySet().size() < required.size()) {
-            throw new RuleException(getName() + " needs at least " + required.size() +
-                    " parameters but got only " + params.entrySet().size());
-        }
-        for(Map.Entry<String, Object> p : params.entrySet()) {
-            if(!allParameters.containsKey(p.getKey())) {
-                throw new RuleException("No parameter named " + p.getKey() + " for Rule " + getName());
-            }
-            if(allParameters.get(p.getKey()).getType().equals(ParameterType.MATCH_TERM)) {
-                PrettyPrint prettyPrint = new PrettyPrint();
-                String pp;
-                try {
-                    pp = prettyPrint.print(((TermParameter) p.getValue()).getSchematicTerm()).toString();
-                } catch (RuleException e) {
-                    try {
-                        pp = prettyPrint.print(((TermParameter) p.getValue()).getSchematicSequent()).toString();
-                    } catch (RuleException e1) {
-                        pp = prettyPrint.print(((TermParameter) p.getValue()).getTerm()).toString();
-                    }
-                }
-                res += " " + p.getKey() + "='" + pp + "'";
-            } else if (allParameters.get(p.getKey()).getType().equals(ParameterType.TERM)) {
-                PrettyPrint prettyPrint = new PrettyPrint();
-                TermParameter parameter = (TermParameter)p.getValue();
-                String pp = "";
-                if(parameter.getOriginalTerm() != null) {
-                    pp = prettyPrint.print(parameter.getOriginalTerm()).toString();
-                } else if (parameter.getOriginalSchematicTerm() != null) {
-                    pp = prettyPrint.print(parameter.getOriginalSchematicTerm()).toString();
-                } else if (parameter.getOriginalSchematicSequent() != null) {
-                    pp = prettyPrint.print(parameter.getOriginalSchematicSequent()).toString();
-                }
-                res += " " + p.getKey() + "='" + pp + "'";
-            } else {
-                res += " " + p.getKey() + "=\"" + p.getValue() + "\"";
-            }
-            required.remove(p.getKey());
-        }
-        if (!required.isEmpty()) {
-            throw new RuleException("Missing required arguments: " + required);
-        }
+        sb.append(";");
 
-        res += ";";
         if(pra.getBranchCount() > 1) {
-            res += "\ncases {\n";
+            sb.append("\ncases {\n");
             for(BranchInfo bi : pra.getBranchInfo()) {
-                if(bi.getLabel() == null) {
-                    throw new RuleException("Branchlabel may not be null for branching rule: " + getName());
-                }
-                res += "\tcase match \"" + bi.getLabel() + "\": {\n\t\n\t}\n";
+                sb.append("\tcase match \"" + bi.getLabel() + "\": \n\n");
             }
-            res += "}\n";
+            sb.append("}\n");
         }
-        return res;
+        return sb.toString();
+    }
+
+    private <T> String entryToString(ParameterDescription<T> key,
+                                 Object value,
+                                 PrettyPrint prettyPrint) {
+        T tvalue = key.castValue(value);
+        return key.getType().prettyPrint(prettyPrint, tvalue);
     }
 
     /**
      * This map captures the parameters made
      * known to the class in the constructor.
      */
+    @Override
     public Map<String, ParameterDescription<?>> getAllParameters() {
         return allParameters;
     }

@@ -555,10 +555,10 @@ public class TermParameter {
     public String toString() {
         StringBuilder sb = new StringBuilder();
         sb.append("TermParameter[");
-        sb.append("term = " + term);
-        sb.append(", schematicTerm = " + schematicTerm);
-        sb.append(", schematicSequent = " + schematicSequent);
-        sb.append(", TermSelector = " + termSelector);
+        sb.append("term = " + oterm);
+        sb.append(", schematicTerm = " + oSchematicTerm);
+        sb.append(", schematicSequent = " + oSchematicSequent);
+        sb.append(", termSelector = " + oTermSelector);
         sb.append("]");
         return sb.toString();
     }

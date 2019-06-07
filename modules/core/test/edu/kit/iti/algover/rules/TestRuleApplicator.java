@@ -108,7 +108,7 @@ public class TestRuleApplicator {
 
         TermSelector ts = new TermSelector(TermSelector.SequentPolarity.SUCCEDENT, 1);
         Parameters params = new Parameters();
-        params.putValue("on", term3);
+        params.putValue(AbstractProofRule.ON_PARAM, new TermParameter(term3, testSequent));
 
         //System.out.println(pr.makeApplication(pn, params));
         //RuleApplicator.applyRule(prApp, new ProofNode(null, null, null, testSequent, null));

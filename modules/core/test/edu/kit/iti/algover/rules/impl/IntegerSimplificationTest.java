@@ -12,6 +12,7 @@ import edu.kit.iti.algover.parser.DafnyParserException;
 import edu.kit.iti.algover.project.Project;
 import edu.kit.iti.algover.proof.Proof;
 import edu.kit.iti.algover.proof.ProofNode;
+import edu.kit.iti.algover.rules.AbstractProofRule;
 import edu.kit.iti.algover.rules.Parameters;
 import edu.kit.iti.algover.rules.ProofRuleApplication;
 import edu.kit.iti.algover.rules.RuleApplicator;
@@ -65,7 +66,7 @@ public class IntegerSimplificationTest {
         ProofNode pn = p.getProofRoot();
         IntegerSimplification rule = new IntegerSimplification();
         Parameters params = new Parameters();
-        params.putValue("on", new TermParameter(new TermSelector("A.0.0"), s));
+        params.putValue(AbstractProofRule.ON_PARAM, new TermParameter(new TermSelector("A.0.0"), s));
         ProofRuleApplication pra = rule.makeApplication(pn, params);
         List<ProofNode> newNodes = RuleApplicator.applyRule(pra, pn);
         assertEquals(1, newNodes.size());
@@ -89,7 +90,7 @@ public class IntegerSimplificationTest {
         ProofNode pn = p.getProofRoot();
         IntegerSimplification rule = new IntegerSimplification();
         Parameters params = new Parameters();
-        params.putValue("on", new TermParameter(new TermSelector("A.0.0"), s));
+        params.putValue(AbstractProofRule.ON_PARAM, new TermParameter(new TermSelector("A.0.0"), s));
         ProofRuleApplication pra = rule.makeApplication(pn, params);
         List<ProofNode> newNodes = RuleApplicator.applyRule(pra, pn);
         assertEquals(1, newNodes.size());
@@ -113,7 +114,7 @@ public class IntegerSimplificationTest {
         ProofNode pn = p.getProofRoot();
         IntegerSimplification rule = new IntegerSimplification();
         Parameters params = new Parameters();
-        params.putValue("on", new TermParameter(new TermSelector("A.0.0"), s));
+        params.putValue(AbstractProofRule.ON_PARAM, new TermParameter(new TermSelector("A.0.0"), s));
         ProofRuleApplication pra = rule.makeApplication(pn, params);
         List<ProofNode> newNodes = RuleApplicator.applyRule(pra, pn);
         assertEquals(1, newNodes.size());
@@ -137,7 +138,7 @@ public class IntegerSimplificationTest {
         ProofNode pn = p.getProofRoot();
         IntegerSimplification rule = new IntegerSimplification();
         Parameters params = new Parameters();
-        params.putValue("on", new TermParameter(new TermSelector("A.0.0"), s));
+        params.putValue(AbstractProofRule.ON_PARAM, new TermParameter(new TermSelector("A.0.0"), s));
         ProofRuleApplication pra = rule.makeApplication(pn, params);
         List<ProofNode> newNodes = RuleApplicator.applyRule(pra, pn);
         assertEquals(1, newNodes.size());

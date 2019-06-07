@@ -29,7 +29,7 @@ import edu.kit.iti.algover.term.builder.TermBuildException;
  * Created by jklamroth on 10/25/18.
  */
 public class QuantifierInstantiation extends AbstractProofRule {
-    private static final ParameterDescription<TermParameter> WITH_PARAM = new ParameterDescription<>("with", ParameterType.TERM, true);
+    public static final ParameterDescription<TermParameter> WITH_PARAM = new ParameterDescription<>("with", ParameterType.TERM, true);
 
     public QuantifierInstantiation() {
         super(ON_PARAM, WITH_PARAM);

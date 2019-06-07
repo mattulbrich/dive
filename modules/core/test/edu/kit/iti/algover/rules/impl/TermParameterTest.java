@@ -188,10 +188,10 @@ public class TermParameterTest {
         Term schematic = tp.parse("_ < (?match: _)");
         Sequent sequent = tp.parseSequent("i1 < i2 |- i1 + i2 > 0");
         TermParameter parameter = new TermParameter(schematic, sequent);
-        assertEquals("TermParameter[term = null, schematicTerm = $lt(_, (?match: _)), schematicSequent = null, TermSelector = null]",
+        assertEquals("TermParameter[term = null, schematicTerm = $lt(_, (?match: _)), schematicSequent = null, termSelector = null]",
                 parameter.toString());
         parameter.getTermSelector();
-        assertEquals("TermParameter[term = null, schematicTerm = $lt(_, (?match: _)), schematicSequent = null, TermSelector = A.0.1]",
+        assertEquals("TermParameter[term = null, schematicTerm = $lt(_, (?match: _)), schematicSequent = null, termSelector = null]",
                 parameter.toString());
     }
 }

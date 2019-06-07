@@ -19,6 +19,7 @@ import javafx.scene.control.Label;
 import javafx.scene.layout.AnchorPane;
 
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.logging.Logger;
 
 
@@ -75,8 +76,8 @@ public class RuleViewOverlay extends AnchorPane {
             applyButton.setDisable(this.application.getApplicability() != ProofRuleApplication.Applicability.APPLICABLE);
         });
 
-        for (Map.Entry<String, Object> entry : application.getOpenParameters().entrySet()) {
-            String parameterName = entry.getKey();
+        for (Entry<ParameterDescription<?>, Object> entry : application.getOpenParameters().entrySet()) {
+            String parameterName = entry.getKey().getName();
             Object value = entry.getValue();
             System.out.println(parameterName + ": " + value);
         }
@@ -98,7 +99,7 @@ public class RuleViewOverlay extends AnchorPane {
     private void onRuleApplication(ActionEvent ae) {
         if (application.getRule().getAllParameters().size() > 1 ||
                 (application.getRule().getAllParameters().size() == 1 &&
-                !application.getRule().getAllParameters().containsKey("on"))) {
+                !application.getRule().getAllParameters().containsKey(AbstractProofRule.ON_PARAM))) {
             String on;
             try {
                 PrettyPrint pp = new PrettyPrint();

@@ -114,8 +114,8 @@ public class RuleApplicationController extends FxmlController {
         try {
             ExhaustiveRule exRule = new ExhaustiveRule();
             Parameters parameters = new Parameters();
-            parameters.putValue("ruleName", rule.getName());
-            parameters.putValue("on", new TermParameter(ts, pn.getSequent()));
+            parameters.putValue(ExhaustiveRule.RULE_NAME_PARAM, rule.getName());
+            parameters.putValue(AbstractProofRule.ON_PARAM, new TermParameter(ts, pn.getSequent()));
             ProofRuleApplication pra = exRule.considerApplication(pn, parameters);
             resetConsideration();
             scriptController.insertTextForSelectedNode(pra.getScriptTranscript());

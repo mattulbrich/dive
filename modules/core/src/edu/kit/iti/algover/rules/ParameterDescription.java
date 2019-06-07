@@ -50,7 +50,6 @@ public class ParameterDescription<T> {
      * @param required is the parameter required or optional?
      */
     public ParameterDescription(@NonNull String name, @NonNull ParameterType<T> type, boolean required) {
-        super();
         this.name = name;
         this.type = type;
         this.required = required;

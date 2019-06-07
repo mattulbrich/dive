@@ -94,7 +94,7 @@ public class IntegerSimplification extends AbstractProofRule {
         TermParameter onParam = parameters.getValue(ON_PARAM);
         for(int i = 0; i < onParam.getTerm().getSubterms().size(); ++i) {
             Parameters params = new Parameters();
-            params.putValue("on", new TermParameter(new TermSelector(onParam.getTermSelector(), i), target.getSequent()));
+            params.putValue(ON_PARAM, new TermParameter(new TermSelector(onParam.getTermSelector(), i), target.getSequent()));
             ProofRuleApplication p = singleStep1(target, params);
             if(p != null) {
                 return p;
@@ -116,7 +116,7 @@ public class IntegerSimplification extends AbstractProofRule {
                 target = target.getChildren().get(0);
             }
             Parameters params = new Parameters();
-            params.putValue("on", new TermParameter(new TermSelector(parameters.getValue(ON_PARAM).getTermSelector()), target.getSequent()));
+            params.putValue(ON_PARAM, new TermParameter(new TermSelector(parameters.getValue(ON_PARAM).getTermSelector()), target.getSequent()));
             pra = singleStep1(target, params);
             if(pra != null) {
                 res = addToSubApps(res, pra);
