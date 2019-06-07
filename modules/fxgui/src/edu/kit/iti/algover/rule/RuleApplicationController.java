@@ -20,6 +20,7 @@ import edu.kit.iti.algover.rules.impl.ExhaustiveRule;
 import edu.kit.iti.algover.term.Sequent;
 import edu.kit.iti.algover.term.Term;
 import edu.kit.iti.algover.term.prettyprint.PrettyPrint;
+import edu.kit.iti.algover.util.ExceptionDialog;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.fxml.FXML;
@@ -31,6 +32,7 @@ import javafx.scene.control.ToggleGroup;
 import javafx.scene.layout.HBox;
 import org.fxmisc.flowless.VirtualizedScrollPane;
 
+import java.util.Collection;
 import java.util.concurrent.ExecutorService;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
@@ -114,9 +116,10 @@ public class RuleApplicationController extends FxmlController implements Referen
         for (ProofRule rule : manager.getProject().getAllProofRules()) {
             addProofRule(rule);
         }
-
         ruleGrid.getSelectionModel().selectedItemProperty().addListener(this::onSelectedItemChanged);
-        splitPane.getItems().add(new VirtualizedScrollPane<>(scriptView));
+        VirtualizedScrollPane<ScriptView> proofScriptPane = new VirtualizedScrollPane<>(scriptView);
+        splitPane.getItems().add(0, proofScriptPane);
+
     }
 
     public void addProofRule(ProofRule rule) {
@@ -180,8 +183,11 @@ public class RuleApplicationController extends FxmlController implements Referen
             scriptController.insertTextForSelectedNode(pra.getScriptTranscript()+"\n");
             logger.info("Applied rule " + rule.getName() + " exhaustively.");
         } catch (RuleException e) {
-            //TODO handle exceptions
+            e.getMessage().concat("Error while trying to apply rule " + rule.getName() + " exhaustive.");
+            ExceptionDialog ed = new ExceptionDialog(e);
+
             logger.severe("Error while trying to apply rule " + rule.getName() + " exhaustive.");
+            ed.showAndWait();
         }
     }
 

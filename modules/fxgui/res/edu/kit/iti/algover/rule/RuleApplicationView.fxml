@@ -17,18 +17,23 @@
         xmlns="http://javafx.com/javafx"
         xmlns:fx="http://javafx.com/fxml"
         orientation="VERTICAL"
-        dividerPositions="0.7"
+        dividerPositions="0.5"
         fx:id="splitPane">
     <VBox spacing="4">
         <padding><Insets topRightBottomLeft="10" /></padding>
 
+        <!--
+           Here the RuleApplicationController is going to insert a new VirtualizedScrollPane(new ScriptView(...)),
+           but it can't be done in FXML because of constructor args...
+           -->
         <HBox spacing="10">
-            <Label text="Rules" styleClass="display-1" minWidth="-Infinity" minHeight="-Infinity" />
+            <Label text="Rules to apply to selected " styleClass="display-1" minWidth="-Infinity" minHeight="-Infinity" />
             <Label fx:id="termToConsider" styleClass="code" alignment="CENTER">
                 <HBox.margin><Insets topRightBottomLeft="4" /></HBox.margin>
             </Label>
         </HBox>
-        <HBox fx:id="toggleBar" >
+        <padding><Insets top="10" bottom="10"></Insets></padding>
+        <HBox fx:id="toggleBar" spacing="20">
             <JFXRadioButton fx:id="sortAlpha" visible="true" text="Alphabetical"/>
             <JFXRadioButton fx:id="sortBranching" visible="true" text="Number of Branches"/>
 
@@ -40,8 +45,5 @@
 
 
     </VBox>
-    <!--
-    Here the RuleApplicationController is going to insert a new VirtualizedScrollPane(new ScriptView(...)),
-    but it can't be done in FXML because of constructor args...
-    -->
+
 </SplitPane>
