@@ -195,7 +195,12 @@ public class MainController implements SequentActionListener, RuleApplicationLis
 
                 Collection<DafnyTree> calls = manager.getProject().getCallgraph().getCalls(accept);
                 if(!calls.isEmpty()){
+
                     CallVisualizationDialog d = new CallVisualizationDialog(calls, accept);
+                    d.setResizable(true);
+                    d.onShownProperty().addListener(e -> {
+                        Platform.runLater(() -> d.setResizable(false));
+                    });
                     d.showAndWait();
                 }
               //  Collection<DafnyTree> callsites = manager.getProject().getCallgraph().getCallsites(accept);
