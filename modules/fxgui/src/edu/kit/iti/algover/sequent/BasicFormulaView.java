@@ -102,7 +102,7 @@ public class BasicFormulaView extends CodeArea {
 
         setOnMouseClicked(event -> {
             if(highlightedElement != null) {
-                if(event.isControlDown() && formula.getType() != ViewFormula.Type.DELETED) {
+                if(event.isControlDown()) {
                         selectedReference.set(null);
                         selectedReference.set(getMouseOverSelector());
                 } else {
@@ -164,7 +164,7 @@ public class BasicFormulaView extends CodeArea {
 
     private void applyBaseStyle() {
         String typeStyle = styleForType();
-        if(typeStyle != null && !typeStyle.equals("formula-deleted")) {
+        if(typeStyle != null) {
             addStyleForTerm(formula.getTermSelector(), typeStyle, StylePrios.FORMULATYPE, "formula-type");
         }
         for(TermSelector ts : formula.getChangedTerms()) {
@@ -179,9 +179,7 @@ public class BasicFormulaView extends CodeArea {
         if (charIdx.isPresent()) {
             removeStyle("highlight");
             highlightedElement = annotatedString.getTermElementAt(charIdx.getAsInt());
-            if(formula.getIndexInSequent() != -1) {
                 addStyleForTerm(new TermSelector(formula.getPolarity(), formula.getIndexInSequent(), highlightedElement.getSubtermSelector()), "highlighted", StylePrios.MOUSEOVER, "highlight");
-            }
         } else {
             highlightedElement = null;
         }
