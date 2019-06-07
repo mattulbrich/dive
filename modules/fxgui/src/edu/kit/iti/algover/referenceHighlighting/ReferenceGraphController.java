@@ -135,10 +135,18 @@ public class ReferenceGraphController {
             targetsToHighlight = referenceGraph.allSuccessorsWithType(selectedTarget, ScriptReferenceTarget.class);
             //Second: if not contained, find the direct parent of the selected target and ask for script ReferenceTargets
             if(targetsToHighlight.isEmpty()){
+                ProofTermReferenceTarget proofTermReferenceTarget = null;
+                try {
+                    proofTermReferenceTarget = referenceGraph.computeTargetBeforeChange(proof, selectedTarget);
+                    //  Set<ProofTermReferenceTarget> directParents = referenceGraph.findDirectParents(selectedTarget, proof);
+                    //Third, repeat until root is reached or parents are found
+                    targetsToHighlight = referenceGraph.allSuccessorsWithType(proofTermReferenceTarget, ScriptReferenceTarget.class);
 
-                Set<ProofTermReferenceTarget> directParents = referenceGraph.findDirectParents(selectedTarget, proof);
-                //Third, repeat until root is reached or parents are found
-
+                } catch (RuleException e) {
+                    e.getMessage().concat("Error while handling ReferenceTargets");
+                    ExceptionDialog ed = new ExceptionDialog(e);
+                    ed.showAndWait();
+                }
 
             }
         }

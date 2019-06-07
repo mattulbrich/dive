@@ -316,7 +316,7 @@ public class ReferenceGraph {
         return historyList.get(historyList.size()-1);
     }
 
-    public ProofTermReferenceTarget computeTargetBeforeChange(Proof proof, ProofTermReferenceTarget target){
+    public ProofTermReferenceTarget computeTargetBeforeChange(Proof proof, ProofTermReferenceTarget target) throws RuleException {
         Set<ProofTermReferenceTarget> history = computeHistory(target, proof);
         ArrayList<ProofTermReferenceTarget> historyList = new ArrayList<>();
         historyList.addAll(history);
@@ -328,7 +328,9 @@ public class ReferenceGraph {
         Iterator<ProofTermReferenceTarget> iterator = historyList.iterator();
         while(iterator.hasNext()){
             current = iterator.next();
-            if(!current.getTermSelector().equals(lastSelector)){
+            Term termCurrent = current.getTermSelector().selectSubterm(current.getProofNodeSelector().get(proof).getSequent());
+            Term beforeTerm = before.getTermSelector().selectSubterm(before.getProofNodeSelector().get(proof).getSequent());
+            if(!current.getTermSelector().equals(lastSelector) || !termCurrent.equals(beforeTerm)){
                 return before;
             }
             before = current;
