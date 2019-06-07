@@ -1,14 +1,12 @@
-/bin
-/out
 /tmp
-/modules/*/bin
-/modules/*/test-bin
+/modules/*/build
 /modules/*/gen
-/out
+/modules/*/out
+/.gradle
+/gradle
 /VERSION
 *~
 *.Tests*
-# *.jar # we have some checked in jar files
 *.class
 *.idea
 *.iml

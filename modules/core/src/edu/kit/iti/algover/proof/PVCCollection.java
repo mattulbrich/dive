@@ -1,7 +1,7 @@
-/*
- * This file is part of AlgoVer.
+/**
+ * This file is part of DIVE.
  *
- * Copyright (C) 2015-2017 Karlsruhe Institute of Technology
+ * Copyright (C) 2015-2019 Karlsruhe Institute of Technology
  */
 package edu.kit.iti.algover.proof;
 
@@ -72,6 +72,9 @@ public abstract class PVCCollection {
 
     /**
      * Returns the PVC iff the object itself is a SinglePVC else null
+     *
+     * REVIEW: Why abstract method here if it can only be called on
+     * single pvcs?
      *
      * @return
      */

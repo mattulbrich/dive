@@ -1,10 +1,8 @@
-/*
- * This file is part of AlgoVer.
+/**
+ * This file is part of DIVE.
  *
- * Copyright (C) 2015-2018 Karlsruhe Institute of Technology
- *
+ * Copyright (C) 2015-2019 Karlsruhe Institute of Technology
  */
-
 package edu.kit.iti.algover.boogie;
 
 import de.uka.ilkd.pp.NoExceptions;
@@ -73,6 +71,7 @@ public class BoogieVisitor extends DefaultTermVisitor<Void, String, NoExceptions
         result.put(PLUS.getName(), binary("+"));
         result.put(MINUS.getName(), binary("-"));
         result.put(TIMES.getName(), binary("*"));
+        result.put(DIV.getName(), binary(" div "));
         result.put(GE.getName(), binary(">="));
         result.put(GT.getName(), binary(">"));
         result.put(LE.getName(), binary("<="));

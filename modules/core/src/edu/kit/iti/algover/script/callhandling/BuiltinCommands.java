@@ -1,20 +1,20 @@
+/**
+ * This file is part of DIVE.
+ *
+ * Copyright (C) 2015-2019 Karlsruhe Institute of Technology
+ */
 package edu.kit.iti.algover.script.callhandling;
 
 import java.math.BigInteger;
-import java.util.HashMap;
 import java.util.Map;
 
 import edu.kit.iti.algover.proof.ProofNode;
-import edu.kit.iti.algover.rules.RuleException;
 import edu.kit.iti.algover.script.ast.CallStatement;
 import edu.kit.iti.algover.script.ast.Variable;
-import edu.kit.iti.algover.script.data.GoalNode;
 import edu.kit.iti.algover.script.data.State;
 import edu.kit.iti.algover.script.data.Value;
 import edu.kit.iti.algover.script.data.VariableAssignment;
 import edu.kit.iti.algover.script.interpreter.Interpreter;
-import edu.kit.iti.algover.term.Term;
-import org.junit.Assert;
 
 
 /**

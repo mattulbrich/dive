@@ -1,3 +1,8 @@
+/**
+ * This file is part of DIVE.
+ *
+ * Copyright (C) 2015-2019 Karlsruhe Institute of Technology
+ */
 package edu.kit.iti.algover.term.builder;
 
 import edu.kit.iti.algover.parser.DafnyTree;
@@ -49,7 +54,7 @@ public class SimplifiedUpdateSequenter extends UpdateSequenter {
     protected ProofFormula postProcess(ProofFormula formula, Map<Term, DafnyTree> referenceMap) throws TermBuildException {
 
         Term simplified = formula.getTerm().accept(new LetRemover(), null);
-        return new ProofFormula(simplified);
+        return new ProofFormula(simplified, formula.getLabels());
     }
 
     private static class LetRemover extends DefaultTermVisitor<Void, Term, TermBuildException> {

@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="AlgoVer"  basedir=".">
+    <property name="dir.lib" location="../../lib" />
+    <property name="dir.tools" value="../../tools" />
+
+    <property name="z3.binary" value="z3"/>
+
+    <property name="libs"
+              value="${dir.lib}/antlr.jar:${dir.lib}/junit4.jar:${dir.lib}/hamcrest.jar:${dir.lib}/junitparams.jar:${dir.lib}/jpplib.jar:${dir.lib}/antlr-4.7-complete.jar:${dir.lib}/guava-23.0.jar"/>
+    <target name="antlr" description="Dafny parser" depends="genDir">
+        <echo message="Building Dafny Parser"/>
+        <java jar="${dir.lib}/antlr.jar" fork="true" dir="src" failonerror="true">
+            <arg value="-verbose" />
+            <arg value="-o" />
+            <arg value="../gen" />
+            <arg value="edu/kit/iti/algover/parser/Dafny.g" />
+        </java>
+    </target>
+    <target name="visitor" depends="antlr">
+        <echo message="Building Dafny Visitors"/>
+        <javac srcdir="${dir.tools}" destdir="${dir.tools}" includes="MakeDafnyTreeVisitor.java" debug="on" />
+        <mkdir dir="gen/edu/kit/iti/algover/parser" />
+        <java classname="MakeDafnyTreeVisitor" classpath="${dir.tools}" failonerror="true" fork="true">
+            <arg value="gen/edu/kit/iti/algover/parser" />
+            <arg value="gen/Dafny.tokens" />
+            <arg value="edu.kit.iti.algover.parser" />
+            <arg value="Dafny" />
+        </java>
+    </target>
+    <target name="scriptParser" depends="genDir">
+        <java jar="${dir.lib}/antlr-4.7-complete.jar" fork="true" dir="src" failonerror="true">
+            <arg value="-visitor"/>
+            <arg value="-o" />
+            <arg value="../gen" />
+            <arg value="edu/kit/iti/algover/script/ScriptLanguage.g4"/>
+            <arg value="-package"/>
+            <arg value="edu.kit.iti.algover.script"/>
+        </java>
+    </target>
+
+</project>

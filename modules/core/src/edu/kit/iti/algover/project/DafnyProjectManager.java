@@ -1,10 +1,8 @@
-/*
- * This file is part of AlgoVer.
+/**
+ * This file is part of DIVE.
  *
- * Copyright (C) 2015-2018 Karlsruhe Institute of Technology
- *
+ * Copyright (C) 2015-2019 Karlsruhe Institute of Technology
  */
-
 package edu.kit.iti.algover.project;
 
 import edu.kit.iti.algover.dafnystructures.DafnyFile;
@@ -71,7 +69,7 @@ public class DafnyProjectManager extends AbstractProjectManager {
     }
 
     @Override
-    public void reload() throws IOException, DafnyParserException {
+    public void reload() throws IOException, DafnyParserException, DafnyException {
         Project project = buildProject(masterFile);
         generateAllProofObjects(project);
         this.setProject(project);
@@ -112,7 +110,8 @@ public class DafnyProjectManager extends AbstractProjectManager {
         }
     }
 
-    private static Project buildProject(File masterFile) throws IOException, DafnyParserException {
+    private static Project buildProject(File masterFile)
+            throws IOException, DafnyParserException, DafnyException {
         ProjectBuilder pb = new ProjectBuilder();
         File dir = masterFile.getAbsoluteFile().getParentFile();
         pb.setDir(dir);
@@ -158,11 +157,13 @@ public class DafnyProjectManager extends AbstractProjectManager {
         pb.setSettings(settings);
 
         try {
-            Project result = pb.build();
-            return result;
-        } catch (DafnyException ex) {
-            throw new IOException(ex.getMessage(), ex);
+            pb.validateProjectConfiguration();
+        } catch (FormatException e) {
+            throw new IOException(e);
         }
+
+        Project result = pb.build();
+        return result;
     }
 
     private void reloadScripts() throws IOException {
@@ -231,11 +232,11 @@ public class DafnyProjectManager extends AbstractProjectManager {
     }
 
     @Override
-    public void updateProject(Configuration config) throws IOException{
+    public void updateProject(Configuration config) throws IOException {
         try {
             DafnyProjectConfigurationChanger.saveConfiguration(config, this.masterFile);
             this.reload();
-        } catch (DafnyParserException e) {
+        } catch (DafnyParserException | DafnyException e) {
             Logger.getGlobal().severe("Error while saving project settings to file: "+config.getMasterFile());
             e.printStackTrace();
         }

@@ -1,3 +1,8 @@
+/**
+ * This file is part of DIVE.
+ *
+ * Copyright (C) 2015-2019 Karlsruhe Institute of Technology
+ */
 package edu.kit.iti.algover.rules.impl;
 
 import edu.kit.iti.algover.data.BuiltinSymbols;
@@ -63,14 +68,14 @@ public class DafnyRuleTest {
     public void initializationTest() throws DafnyRuleException{
         String dir = System.getProperty("user.dir");
         //System.out.println("current dir = " + dir);
-        String file = "./modules/core/test-res/edu/kit/iti/algover/dafnyrules/addzero.dfy";
+        String file = "test-res/edu/kit/iti/algover/dafnyrules/addzero.dfy";
         DafnyRule r = DafnyRuleUtil.generateDafnyRuleFromFile(file);
         Assert.assertEquals("addZero", r.getName());
     }
 
     @Test
     public void basicApplicationAddZeroTest() throws RuleException, DafnyRuleException, TermBuildException, FormatException {
-        String file = "./modules/core/test-res/edu/kit/iti/algover/dafnyrules/addzero.dfy";
+        String file = "test-res/edu/kit/iti/algover/dafnyrules/addzero.dfy";
 
         ProofRule dafnyRule = DafnyRuleUtil.generateDafnyRuleFromFile(file);
         ProofNode pn = ProofMockUtil.mockProofNode(null, testSequent.getAntecedent(), testSequent.getSuccedent());
@@ -92,7 +97,7 @@ public class DafnyRuleTest {
 
     @Test
     public void basicApplicationCommAddTest() throws RuleException, DafnyRuleException, TermBuildException, FormatException  {
-        String file = "./modules/core/test-res/edu/kit/iti/algover/dafnyrules/commutativeAddition.dfy";
+        String file = "test-res/edu/kit/iti/algover/dafnyrules/commutativeAddition.dfy";
         ProofRule dafnyRule = DafnyRuleUtil.generateDafnyRuleFromFile(file);
         ProofNode pn = ProofMockUtil.mockProofNode(null, testSequent.getAntecedent(), testSequent.getSuccedent());
 

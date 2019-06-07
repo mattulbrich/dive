@@ -1,10 +1,8 @@
-/*
- * This file is part of AlgoVer.
+/**
+ * This file is part of DIVE.
  *
- * Copyright (C) 2015-2018 Karlsruhe Institute of Technology
- *
+ * Copyright (C) 2015-2019 Karlsruhe Institute of Technology
  */
-
 package edu.kit.iti.algover.parser;
 
 import edu.kit.iti.algover.util.TestUtil;
@@ -231,6 +229,14 @@ public class ParserErrorTest {
         thrown.expect(DafnyException.class);
         thrown.expectMessage("This scope already contains a declaration named m");
         parse("class C { method m() { } function m() : int { 0 } }");
+    }
+
+    // was an assertion error.
+    @Test
+    public void unknownClass() throws Exception {
+        thrown.expect(DafnyException.class);
+        thrown.expectMessage("Unknown identifier: node");
+        parse("class C { method m() { node.next := node.next.next; } }");
     }
 
 }

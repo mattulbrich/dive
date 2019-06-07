@@ -1,10 +1,8 @@
-/*
- * This file is part of AlgoVer.
+/**
+ * This file is part of DIVE.
  *
- * Copyright (C) 2015-2018 Karlsruhe Institute of Technology
- *
+ * Copyright (C) 2015-2019 Karlsruhe Institute of Technology
  */
-
 package edu.kit.iti.algover.term.prettyprint;
 
 import edu.kit.iti.algover.dafnystructures.DafnyClass;
@@ -15,6 +13,7 @@ import edu.kit.iti.algover.data.BuiltinSymbols;
 import edu.kit.iti.algover.term.ApplTerm;
 import edu.kit.iti.algover.term.FunctionSymbol;
 import edu.kit.iti.algover.term.Term;
+import edu.kit.iti.algover.term.prettyprint.AnnotatedString.Style;
 
 import java.util.List;
 
@@ -73,7 +72,11 @@ public class DafnyFunctionPrinterExtension implements PrettyPrintExtension {
         }
 
         List<Term> subterms = term.getSubterms();
-        printer.append(f.getName() + "(");
+        printer.setStyle(Style.USER_ENTITY);
+        printer.append(f.getName());
+        printer.resetPreviousStyle();
+
+        printer.append("(");
 
         for (int i = firstArg; i < subterms.size(); i++) {
             if(i != firstArg) {

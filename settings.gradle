@@ -1,0 +1,15 @@
+rootProject.name = 'DIVE'
+rootProject.buildFileName = 'build.gradle'
+
+include 'cli'
+project(":cli").projectDir=file("modules/cli")
+
+include 'core'
+project(":core").projectDir=file("modules/core")
+include 'dafny'
+project(":dafny").projectDir=file("modules/dafny")
+
+include 'fxgui'
+project(":fxgui").projectDir=file("modules/fxgui")
+
+

@@ -1,10 +1,8 @@
-/*
- * This file is part of AlgoVer.
+/**
+ * This file is part of DIVE.
  *
- * Copyright (C) 2015-2018 Karlsruhe Institute of Technology
- *
+ * Copyright (C) 2015-2019 Karlsruhe Institute of Technology
  */
-
 package edu.kit.iti.algover.util;
 
 import edu.kit.iti.algover.parser.DafnyException;
@@ -151,7 +149,7 @@ public final class ExceptionDetails {
             result.message = snap.getMessage();
             if(snap.callStatement != null) {
                 result.line = snap.callStatement.getStartPosition().getLineNumber();
-                result.column = snap.callStatement.getStartPosition().getCharInLine();
+                result.column = snap.callStatement.getStartPosition().getCharInLine() + 1;
                 result.length = snap.callStatement.getEndPosition().getCharInLine() -
                         snap.callStatement.getStartPosition().getCharInLine();
             }
@@ -164,7 +162,7 @@ public final class ExceptionDetails {
             result.message = snap.getMessage();
             if(snap.callStatement != null) {
                 result.line = snap.callStatement.getStartPosition().getLineNumber();
-                result.column = snap.callStatement.getStartPosition().getCharInLine();
+                result.column = snap.callStatement.getStartPosition().getCharInLine() + 1;
                 result.length = snap.callStatement.getEndPosition().getCharInLine() -
                         snap.callStatement.getStartPosition().getCharInLine();
             }

@@ -1,8 +1,12 @@
+/**
+ * This file is part of DIVE.
+ *
+ * Copyright (C) 2015-2019 Karlsruhe Institute of Technology
+ */
 package edu.kit.iti.algover.settings;
 
 import com.jfoenix.controls.JFXListView;
 import com.jfoenix.controls.JFXRadioButton;
-import com.sun.javafx.collections.ObservableListWrapper;
 import edu.kit.iti.algover.parser.DafnyException;
 import edu.kit.iti.algover.parser.DafnyParserException;
 import edu.kit.iti.algover.project.*;
@@ -12,6 +16,7 @@ import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
+import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -131,11 +136,15 @@ public class ProjectSettingsController implements ISettingsController {
 
         FXMLLoader loader = new FXMLLoader(getClass().getResource("ProjectSettingsView.fxml"));
         loader.setController(this);
+
         try {
             settingsPanel = loader.load();
         } catch (IOException e) {
+            e.printStackTrace();
             settingsPanel = new Label(e.getMessage());
         }
+        assert settingsPanel != null;
+        assert dafnyFiles != null;
         settingsPanel.setUserData(NAME);
 
         //ToggleGroup
@@ -288,8 +297,7 @@ public class ProjectSettingsController implements ISettingsController {
             if(property.validator instanceof OptionStringValidator) {
                 OptionStringValidator validator = (OptionStringValidator) property.validator;
                 Collection<? extends CharSequence> options = validator.getOptions();
-                ObservableList<String> olist =
-                        new ObservableListWrapper<>(Util.map(options, Object::toString));
+                ObservableList<String> olist = FXCollections.observableList(Util.map(options, x -> x.toString()));
                 String value = currentSettings.get(property.key);
                 ChoiceBox<String> choiceBox = new ChoiceBox<>(olist);
                 if(value != null) {

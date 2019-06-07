@@ -9,6 +9,7 @@ package edu.kit.iti.algover.project;
 import edu.kit.iti.algover.data.BuiltinSymbols;
 import edu.kit.iti.algover.data.MapSymbolTable;
 import edu.kit.iti.algover.data.SymbolTable;
+import edu.kit.iti.algover.parser.DafnyException;
 import edu.kit.iti.algover.parser.DafnyParserException;
 import edu.kit.iti.algover.proof.PVC;
 import edu.kit.iti.algover.proof.PVCCollection;
@@ -40,7 +41,7 @@ import static org.junit.Assert.assertTrue;
 public class DafnyProjectManagerTest {
 
     @Test
-    public void testDafnyProjectConfig() throws IOException, DafnyParserException {
+    public void testDafnyProjectConfig() throws IOException, DafnyParserException, DafnyException {
 
         URL res = getClass().getResource("dafnyProject.dfy");
         assertEquals("test resources must be in file system", "file", res.getProtocol());

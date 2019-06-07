@@ -1,3 +1,8 @@
+/**
+ * This file is part of DIVE.
+ *
+ * Copyright (C) 2015-2019 Karlsruhe Institute of Technology
+ */
 package edu.kit.iti.algover.editor;
 
 import edu.kit.iti.algover.Lookup;
@@ -8,6 +13,7 @@ import edu.kit.iti.algover.referenceHighlighting.ReferenceHighlightingHandler;
 import edu.kit.iti.algover.referenceHighlighting.ReferenceHighlightingObject;
 import edu.kit.iti.algover.references.CodeReferenceTarget;
 import edu.kit.iti.algover.util.ExceptionDetails;
+import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.value.ObservableValue;
@@ -137,7 +143,12 @@ public class EditorController implements DafnyCodeAreaListener, ReferenceHighlig
                 codeArea.getTextChangedProperty().addListener(this::onTextChanged);
             } catch (IOException e) {
                 e.printStackTrace();
+
                 ExceptionDialog exdlg = new ExceptionDialog(e);
+                exdlg.setResizable(true);
+                exdlg.onShownProperty().addListener(evt -> {
+                    Platform.runLater(() -> exdlg.setResizable(false));
+                });
                 exdlg.showAndWait();
             }
         }

@@ -1,7 +1,7 @@
-/*
- * This file is part of AlgoVer.
+/**
+ * This file is part of DIVE.
  *
- * Copyright (C) 2015-2017 Karlsruhe Institute of Technology
+ * Copyright (C) 2015-2019 Karlsruhe Institute of Technology
  */
 package edu.kit.iti.algover.rules;
 
@@ -34,6 +34,15 @@ public interface ProofRule {
     public @NonNull String getName();
 
     /**
+     * Gets the category to which this proof rule belongs.
+     * <p>
+     * The number of supported categories may grow over time
+     *
+     * @return a string describing the category of this rule. Must not change.
+     */
+    public @NonNull String getCategory();
+
+    /**
      * Create a {@link ProofRuleApplication} from a user interaction context.
      * <p>
      * The resulting application may be {@link ProofRuleApplication#refine()
@@ -51,7 +60,7 @@ public interface ProofRule {
      * @throws RuleException if something is unexpected during creation. If a rule is not
      *                       applicable, no exception should be raised.
      */
-    public ProofRuleApplication considerApplication(
+    public @NonNull ProofRuleApplication considerApplication(
             @NonNull ProofNode target,
             @NonNull Sequent selection,
             @Nullable TermSelector selector) throws RuleException;
@@ -75,7 +84,7 @@ public interface ProofRule {
      *             Missing/wrong/illtyped parameters should also throw an
      *             exception.
      */
-    public ProofRuleApplication makeApplication(
+    public @NonNull ProofRuleApplication makeApplication(
             @NonNull ProofNode target,
             @NonNull Parameters parameters) throws RuleException;
 

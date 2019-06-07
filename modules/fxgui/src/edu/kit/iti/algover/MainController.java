@@ -1,8 +1,13 @@
+/**
+ * This file is part of DIVE.
+ *
+ * Copyright (C) 2015-2019 Karlsruhe Institute of Technology
+ */
 package edu.kit.iti.algover;
 
 import com.jfoenix.controls.JFXButton;
-import de.jensd.fx.glyphs.GlyphsDude;
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon;
+import de.jensd.fx.glyphs.fontawesome.utils.FontAwesomeIconFactory;
 import edu.kit.iti.algover.browser.BrowserController;
 import edu.kit.iti.algover.browser.FlatBrowserController;
 import edu.kit.iti.algover.browser.TreeTableEntityContextMenuStrategyHelper;
@@ -95,11 +100,11 @@ public class MainController implements SequentActionListener, RuleApplicationLis
         //hand all necessary controller references to ReferenceGraphController to be able to highlight nec. targets
         this.referenceGraphController = new ReferenceGraphController(this.lookup);
 
-        JFXButton saveButton = new JFXButton("Save", GlyphsDude.createIcon(FontAwesomeIcon.SAVE));
-        JFXButton refreshButton = new JFXButton("Refresh", GlyphsDude.createIcon(FontAwesomeIcon.REFRESH));
-        simpleStratButton = new JFXButton("Try Close All", GlyphsDude.createIcon(FontAwesomeIcon.PLAY_CIRCLE));
-        settingsButton = new JFXButton("Settings", GlyphsDude.createIcon(FontAwesomeIcon.COGS));
-        aboutButton = new JFXButton("About",GlyphsDude.createIcon(FontAwesomeIcon.INFO_CIRCLE));
+        JFXButton saveButton = new JFXButton("Save", FontAwesomeIconFactory.get().createIcon(FontAwesomeIcon.SAVE));
+        JFXButton refreshButton = new JFXButton("Refresh", FontAwesomeIconFactory.get().createIcon(FontAwesomeIcon.REFRESH));
+        simpleStratButton = new JFXButton("Try Close All", FontAwesomeIconFactory.get().createIcon(FontAwesomeIcon.PLAY_CIRCLE));
+        settingsButton = new JFXButton("Settings", FontAwesomeIconFactory.get().createIcon(FontAwesomeIcon.COGS));
+        aboutButton = new JFXButton("About", FontAwesomeIconFactory.get().createIcon(FontAwesomeIcon.INFO_CIRCLE));
 
         saveButton.setOnAction(this::onClickSaveVisibleContent);
         refreshButton.setOnAction(this::onClickRefresh);
@@ -229,12 +234,25 @@ public class MainController implements SequentActionListener, RuleApplicationLis
             }
         };
         ProgressDialog progressDialog = new ProgressDialog(t1);
+        //workaround for KDE systems and GTK based Desktops
+        progressDialog.setResizable(true);
+        progressDialog.onShownProperty().addListener(e -> {
+            Platform.runLater(() -> progressDialog.setResizable(false));
+        });
+
+
         t1.setOnSucceeded($ -> {
             Platform.runLater(() -> {
+
                 Alert a = new Alert(Alert.AlertType.INFORMATION);
                 a.setTitle("Applied strategy");
                 a.setHeaderText("Successfully applied strategy and closed "
                                         + t1.valueProperty().get() + " of " + pvcNames.size() + " PVCs.");
+                //workaround for KDE systems and GTK based Desktops
+                a.setResizable(true);
+                a.onShownProperty().addListener(e -> {
+                    Platform.runLater(() -> a.setResizable(false));
+                });
                 a.showAndWait();
                 Logger.getGlobal().info("Successfully applied strategy and closed "
                         + t1.valueProperty().get() + " of " + pvcNames.size() + " PVCs.");

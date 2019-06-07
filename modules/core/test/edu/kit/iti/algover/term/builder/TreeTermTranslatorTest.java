@@ -1,7 +1,7 @@
-/*
- * This file is part of AlgoVer.
+/**
+ * This file is part of DIVE.
  *
- * Copyright (C) 2015-2018 Karlsruhe Institute of Technology
+ * Copyright (C) 2015-2019 Karlsruhe Institute of Technology
  */
 package edu.kit.iti.algover.term.builder;
 
@@ -14,6 +14,7 @@ import edu.kit.iti.algover.parser.DafnyParser;
 import edu.kit.iti.algover.parser.DafnyParser.expression_only_return;
 import edu.kit.iti.algover.parser.DafnyParserException;
 import edu.kit.iti.algover.parser.DafnyTree;
+import edu.kit.iti.algover.parser.SyntacticSugarVistor;
 import edu.kit.iti.algover.project.Project;
 import edu.kit.iti.algover.term.*;
 import edu.kit.iti.algover.term.parser.TermParser;
@@ -369,6 +370,43 @@ public class TreeTermTranslatorTest {
         Term heapTerm = term.getTerm(0).getTerm(0);
         assertEquals(heapTerm.toString(), "$heap");
         assertTrue(heapTerm instanceof VariableTerm);
+    }
+
+    @Test
+    public void testSubscripts() throws Exception {
+        symbTable.addFunctionSymbol(new FunctionSymbol("idx_095", Sort.INT));
+        symbTable.addFunctionSymbol(new FunctionSymbol("idx_1", Sort.INT));
+        symbTable.addFunctionSymbol(new FunctionSymbol("idx_1_2", Sort.INT));
+
+        TreeTermTranslator ttt = new TreeTermTranslator(symbTable);
+
+        {
+            DafnyTree s =  parse("idx\u2081", true);
+            SyntacticSugarVistor.visit(s);
+            Term sterm = ttt.build(s);
+            DafnyTree t = parse("idx_1", true);
+            Term term = ttt.build(t);
+            assertEquals(term, sterm);
+        }
+        {
+            DafnyTree s =  parse("idx\u2080\u2089\u2085", true);
+            SyntacticSugarVistor.visit(s);
+            Term sterm = ttt.build(s);
+            DafnyTree t = parse("idx_095", true);
+            Term term = ttt.build(t);
+            assertEquals(term, sterm);
+        }
+        {
+            DafnyTree s =  parse("idx_1\u2082", true);
+            SyntacticSugarVistor.visit(s);
+            Term sterm = ttt.build(s);
+            DafnyTree t = parse("idx_1_2", true);
+            Term term = ttt.build(t);
+            assertEquals(term, sterm);
+        }
+
+
+
     }
 
     // Moved to TreeAssignmentTranslatorTest

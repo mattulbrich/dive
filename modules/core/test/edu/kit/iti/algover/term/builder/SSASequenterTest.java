@@ -1,14 +1,13 @@
-/*
- * This file is part of AlgoVer.
+/**
+ * This file is part of DIVE.
  *
- * Copyright (C) 2015-2018 Karlsruhe Institute of Technology
- *
+ * Copyright (C) 2015-2019 Karlsruhe Institute of Technology
  */
-
 package edu.kit.iti.algover.term.builder;
 
 import edu.kit.iti.algover.dafnystructures.DafnyMethod;
 import edu.kit.iti.algover.data.SymbolTable;
+import edu.kit.iti.algover.parser.DafnyException;
 import edu.kit.iti.algover.parser.DafnyParserException;
 import edu.kit.iti.algover.parser.DafnyTree;
 import edu.kit.iti.algover.parser.ParserTest;
@@ -20,6 +19,7 @@ import edu.kit.iti.algover.term.Term;
 import edu.kit.iti.algover.term.parser.TermParser;
 import edu.kit.iti.algover.util.TestUtil;
 import edu.kit.iti.algover.util.Util;
+import org.antlr.runtime.RecognitionException;
 import org.junit.Test;
 
 import java.io.ByteArrayInputStream;
@@ -66,38 +66,38 @@ public class SSASequenterTest extends SequenterTest {
                     "  }}";
 
     private static String SSA_EXPECTED[] = {
-            "$eq<set<object>>($mod_1, $empty), " +
-                    "$eq<int>($decr_1, 0), " +
-                    "$eq<heap>($oldheap_1, $heap), " +
-                    "$eq<int>(la_1, a), " +
-                    "$eq<int>(lb_1, b), " +
-                    "$eq<int>(r_1, 0), " +
-                    "$eq<int>(a, 42) " +
-                    "|- $eq<int>($plus(la_1, r_1), 0)",
-            "$eq<set<object>>($mod_1, $empty), " +
-                    "$eq<int>($decr_2, 0), " +
-                    "$eq<heap>($oldheap_1, $heap), " +
-                    "$eq<int>(la_1, a), " +
-                    "$eq<int>(lb_1, b), " +
-                    "$eq<int>(r_1, 0), " +
-                    "$eq<int>($decr_1_1, la_2), " +
-                    "$eq<int>(local_1, r_2), " +
-                    "$eq<int>(r_3, $plus(r_2, 1)), " +
-                    "$eq<int>(la_3, $minus(la_2, 1)), " +
-                    "$eq<int>(lb_3, local_1), " +
-                    "$eq<int>(a, 42), " +
-                    "$eq<int>($plus(la_2, r_2), 0), " +
-                    "$gt(la_2, 0) " +
-                    "|- $eq<int>($plus(la_3, r_3), 0)",
-            "$eq<set<object>>($mod_1, $empty), " +
-                    "$eq<int>($decr_1, 0), " +
-                    "$eq<heap>($oldheap_1, $heap), " +
-                    "$eq<int>(la_1, a), " +
-                    "$eq<int>(lb_1, b), " +
-                    "$eq<int>(r_1, 0), " +
-                    "$eq<int>(a, 42), " +
-                    "$eq<int>($plus(la_2, r_2), 0), " +
-                    "$not($gt(la_2, 0)) |- $gt(r_2, 0)"
+            "[Path]: $eq<set<object>>($mod_1, $empty), " +
+                    "[Path]: $eq<int>($decr_1, 0), " +
+                    "[Path]: $eq<heap>($oldheap_1, $heap), " +
+                    "[Path]: $eq<int>(la_1, a), " +
+                    "[Path]: $eq<int>(lb_1, b), " +
+                    "[Path]: $eq<int>(r_1, 0), " +
+                    "[PreCond]: $eq<int>(a, 42) " +
+                    "|- [Assertion]: $eq<int>($plus(la_1, r_1), 0)",
+            "[Path]: $eq<set<object>>($mod_1, $empty), " +
+                    "[Path]: $eq<int>($decr_2, 0), " +
+                    "[Path]: $eq<heap>($oldheap_1, $heap), " +
+                    "[Path]: $eq<int>(la_1, a), " +
+                    "[Path]: $eq<int>(lb_1, b), " +
+                    "[Path]: $eq<int>(r_1, 0), " +
+                    "[Path]: $eq<int>($decr_1_1, la_2), " +
+                    "[Path]: $eq<int>(local_1, r_2), " +
+                    "[Path]: $eq<int>(r_3, $plus(r_2, 1)), " +
+                    "[Path]: $eq<int>(la_3, $minus(la_2, 1)), " +
+                    "[Path]: $eq<int>(lb_3, local_1), " +
+                    "[PreCond]: $eq<int>(a, 42), " +
+                    "[Assumption]: $eq<int>($plus(la_2, r_2), 0), " +
+                    "[PathCond]: $gt(la_2, 0) " +
+                    "|- [Assertion]: $eq<int>($plus(la_3, r_3), 0)",
+            "[Path]: $eq<set<object>>($mod_1, $empty), " +
+                    "[Path]: $eq<int>($decr_1, 0), " +
+                    "[Path]: $eq<heap>($oldheap_1, $heap), " +
+                    "[Path]: $eq<int>(la_1, a), " +
+                    "[Path]: $eq<int>(lb_1, b), " +
+                    "[Path]: $eq<int>(r_1, 0), " +
+                    "[PreCond]: $eq<int>(a, 42), " +
+                    "[Assumption]: $eq<int>($plus(la_2, r_2), 0), " +
+                    "[PathCond]: $not($gt(la_2, 0)) |- [Assertion]: $gt(r_2, 0)"
     };
 
     @Test
@@ -134,22 +134,24 @@ public class SSASequenterTest extends SequenterTest {
 
 
     private static final String SSA_LINEAR_EXPECTED =
-            "$eq<set<object>>($mod_1, $empty), $eq<int>($decr_1, 0), " +
-                    "$eq<heap>($oldheap_1, $heap), " +
-                    "$eq<int>(local_1, 0), " +
-                    "$eq<int>(r_1, $plus(local_1, 1)), " +
-                    "$eq<int>(local_2, $plus(r_1, 1)), " +
-                    "$eq<int>(r_2, $plus(local_2, 1)), " +
-                    "$eq<int>(local_3, $plus(r_2, 1)), " +
-                    "$eq<int>(r_3, $plus(local_3, 1))" +
-                    " |- $gt(r_3, 0)";
+            "[Path]: $eq<set<object>>($mod_1, $empty), " +
+                    "[Path]: $eq<int>($decr_1, 0), " +
+                    "[Path]: $eq<heap>($oldheap_1, $heap), " +
+                    "[Path]: $eq<int>(local_1, 0), " +
+                    "[Path]: $eq<int>(r_1, $plus(local_1, 1)), " +
+                    "[Path]: $eq<int>(local_2, $plus(r_1, 1)), " +
+                    "[Path]: $eq<int>(r_2, $plus(local_2, 1)), " +
+                    "[Path]: $eq<int>(local_3, $plus(r_2, 1)), " +
+                    "[Path]: $eq<int>(r_3, $plus(local_3, 1))" +
+                    " |- [Assertion]: $gt(r_3, 0)";
 
     private static final String HEAP_EXPECTED =
-            "$eq<set<object>>($mod_1, $empty), $eq<int>($decr_1, 0), " +
-                    "$eq<heap>($oldheap_1, $heap), " +
-                    "$eq<heap>($heap_1, $array_store<int>($heap, a, 0, 1)), " +
-                    "$eq<heap>($heap_2, $store<C,int>($heap_1, c, C$$f, 2)) " +
-                    "|- (let $heap := $oldheap_1 :: " +
+            "[Path]: $eq<set<object>>($mod_1, $empty), " +
+                    "[Path]: $eq<int>($decr_1, 0), " +
+                    "[Path]: $eq<heap>($oldheap_1, $heap), " +
+                    "[Path]: $eq<heap>($heap_1, $array_store<int>($heap, a, 0, 1)), " +
+                    "[Path]: $eq<heap>($heap_2, $store<C,int>($heap_1, c, C$$f, 2)) " +
+                    "|- [Assertion]: (let $heap := $oldheap_1 :: " +
                     "$eq<int>($select<C,int>($heap, c, C$$f), $array_select<int>($heap, a, 0)))";
 
 
@@ -172,6 +174,29 @@ public class SSASequenterTest extends SequenterTest {
         assertEquals(SSA_LINEAR_EXPECTED, sequent.toString());
     }
 
+    @Test
+    public void testDoubleAssume() throws Exception {
+        ByteArrayInputStream is = new ByteArrayInputStream(
+                "method m() requires 1==1 ensures true { assume 1==1; }".getBytes());
+        DafnyTree top = ParserTest.parseFile(is, null);
+
+        Project p = TestUtil.mockProject(top);
+
+        Symbex symbex = new Symbex();
+        DafnyMethod method = p.getMethod("m");
+        List<SymbexPath> results = symbex.symbolicExecution(method.getRepresentation());
+        assertEquals(1, results.size());
+
+        SymbexPath path = results.get(0).split().get(0);
+        PVCSequenter sequenter = makeSequenter();
+        Sequent sequent = sequenter.translate(path, makeTable(method), null);
+        assertEquals("[Path]: $eq<set<object>>($mod_1, $empty), " +
+                "[Path]: $eq<int>($decr_1, 0), " +
+                "[Path]: $eq<heap>($oldheap_1, $heap), " +
+                "[PreCond, Assumption]: $eq<int>(1, 1) " +
+                "|- [Assertion]: true", sequent.toString());
+    }
+
     // Heaps have not been implemented at one point.
     @Test
     public void testHeapAssignments() throws Exception {
@@ -190,11 +215,11 @@ public class SSASequenterTest extends SequenterTest {
     }
 
     protected void checkSequentWithOld(SymbolTable table, Sequent sequent) throws Exception {
-        assertEquals("$eq<set<object>>($mod_1, $empty), " +
-                "$eq<int>($decr_1, 0), " +
-                "$eq<heap>($oldheap_1, $heap), " +
-                "$eq<heap>($heap_1, $store<C,int>($heap, c, C$$i, $plus($select<C,int>($heap, c, C$$i), 1)))" +
-                " |- $eq<int>($select<C,int>($heap_1, c, C$$i), " +
+        assertEquals("[Path]: $eq<set<object>>($mod_1, $empty), " +
+                "[Path]: $eq<int>($decr_1, 0), " +
+                "[Path]: $eq<heap>($oldheap_1, $heap), " +
+                "[Path]: $eq<heap>($heap_1, $store<C,int>($heap, c, C$$i, $plus($select<C,int>($heap, c, C$$i), 1)))" +
+                " |- [Assertion]: $eq<int>($select<C,int>($heap_1, c, C$$i), " +
                 "$plus((let $heap := $oldheap_1 :: $select<C,int>($heap, c, C$$i)), 1))", sequent.toString());
     }
 

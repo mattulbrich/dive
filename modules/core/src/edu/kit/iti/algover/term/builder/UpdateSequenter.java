@@ -1,7 +1,7 @@
-/*
- * This file is part of AlgoVer.
+/**
+ * This file is part of DIVE.
  *
- * Copyright (C) 2015-2017 Karlsruhe Institute of Technology
+ * Copyright (C) 2015-2019 Karlsruhe Institute of Technology
  */
 package edu.kit.iti.algover.term.builder;
 
@@ -27,6 +27,7 @@ import edu.kit.iti.algover.term.Sort;
 import edu.kit.iti.algover.term.Term;
 import edu.kit.iti.algover.util.ASTUtil;
 import edu.kit.iti.algover.util.ImmutableList;
+import edu.kit.iti.algover.util.SymbexUtil;
 import edu.kit.iti.algover.util.Util;
 
 /**
@@ -75,21 +76,21 @@ public class UpdateSequenter implements PVCSequenter {
         for (PathConditionElement pce : pathThroughProgram.getPathConditions()) {
             try {
                 Term term = tat.translateToLet(pce.getAssignmentHistory(), pce.getExpression());
-                ProofFormula formula = new ProofFormula(term);
+                ProofFormula formula = new ProofFormula(term, SequenterUtil.getLabel(pce));
                 formula = postProcess(formula, tat.getReferenceMap());
                 ante.add(formula);
             } catch (TermBuildException e) {
                 throw new DafnyException(pce.getExpression(), e);
             }
         }
-        Util.removeDuplicates(ante);
+        ante = SequenterUtil.coalesceDuplicates(ante);
 
         assert pathThroughProgram.getProofObligations().size() == 1;
         AssertionElement assertion = pathThroughProgram.getProofObligations().getHead();
         try {
             Term term = tat.translateToLet(pathThroughProgram.getAssignmentHistory(),
                     assertion.getExpression());
-            ProofFormula formula = new ProofFormula(term);
+            ProofFormula formula = new ProofFormula(term, SequenterUtil.ASSERTION_LABEL);
             formula = postProcess(formula, tat.getReferenceMap());
             List<ProofFormula> succ = Collections.singletonList(formula);
             Sequent sequent = new Sequent(ante, succ);
@@ -103,6 +104,7 @@ public class UpdateSequenter implements PVCSequenter {
         }
 
     }
+
 
     /*
      * replace assignments to the wildcard operator * by fresh constants.

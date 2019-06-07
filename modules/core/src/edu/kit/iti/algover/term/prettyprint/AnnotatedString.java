@@ -1,7 +1,7 @@
-/*
- * This file is part of AlgoVer.
+/**
+ * This file is part of DIVE.
  *
- * Copyright (C) 2015-2017 Karlsruhe Institute of Technology
+ * Copyright (C) 2015-2019 Karlsruhe Institute of Technology
  */
 package edu.kit.iti.algover.term.prettyprint;
 
@@ -54,34 +54,26 @@ public class AnnotatedString implements Backend<NoExceptions> {
          * for annotated types ("as type").
          */
         TYPE,
+
         /**
-         * for object variables.
+         * for variables.
          */
         VARIABLE,
+
         /**
-         * for update modalities.
-         */
-        UPDATE,
-        /**
-         * fhe program modalities.
-         */
-        PROGRAM,
-        /**
-         * for individual statements.
-         */
-        STATEMENT,
-        /**
-         * for highlighting keywords of the programming language.
+         * for highlighting keywords of the language.
          */
         KEYWORD,
+
         /**
          * The node is an inner node and this should be reflected in the terms.
          */
         CLOSED,
+
         /**
-         * Program variables have diferent colors again.
+         * User-defined entities (functions) obtain a colour of their own.
          */
-        ASSIGNABLE
+        USER_ENTITY
     }
 
     /**

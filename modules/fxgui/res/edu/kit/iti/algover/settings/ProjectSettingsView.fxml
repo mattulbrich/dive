@@ -6,9 +6,10 @@
 <?import javafx.geometry.Insets?>
 <?import com.jfoenix.controls.JFXListView?>
 
-
-<?import org.controlsfx.glyphfont.Glyph?>
 <?import com.jfoenix.controls.JFXRadioButton?>
+<?import de.jensd.fx.glyphs.materialicons.MaterialIconView?>
+<?import de.jensd.fx.glyphs.materialdesignicons.MaterialDesignIconView?>
+<?import de.jensd.fx.glyphs.fontawesome.FontAwesomeIconView?>
 <VBox fx:id="container" xmlns="http://javafx.com/javafx"
       xmlns:fx="http://javafx.com/fxml"
       stylesheets="@../style.css" >
@@ -52,13 +53,14 @@
 
                                 <Button fx:id="addDafnyFilesButton"  alignment="CENTER_RIGHT" onAction="#addDafnyFile">
                                             <graphic>
-                                                <Glyph fontFamily="FontAwesome" icon="PLUS" />
+                                            <FontAwesomeIconView glyphName="PLUS"></FontAwesomeIconView>
+
                                             </graphic>
                                         </Button>
 
                                         <Button fx:id="delDafnyFilesButton" alignment="CENTER_RIGHT" onAction="#removeDafnyFile">
                                             <graphic>
-                                                <Glyph fontFamily="FontAwesome" icon="MINUS" />
+                                                <FontAwesomeIconView glyphName="MINUS"></FontAwesomeIconView>
                                             </graphic>
                                         </Button>
                             </HBox>
@@ -71,12 +73,12 @@
                                 <Region prefWidth="40" HBox.hgrow="ALWAYS"></Region>
                                 <Button fx:id="addLibFilesButton" alignment="CENTER_RIGHT"  onAction="#addLibFile">
                                         <graphic>
-                                            <Glyph fontFamily="FontAwesome" icon="PLUS" />
+                                          <FontAwesomeIconView glyphName="PLUS"></FontAwesomeIconView>
                                         </graphic>
                                     </Button>
                                     <Button fx:id="delLibFilesButton" alignment="CENTER_RIGHT"  onAction="#removeLibFile">
                                         <graphic>
-                                            <Glyph fontFamily="FontAwesome" icon="MINUS" />
+                                           <FontAwesomeIconView glyphName="MINUS"></FontAwesomeIconView>
                                         </graphic>
 
                                     </Button>

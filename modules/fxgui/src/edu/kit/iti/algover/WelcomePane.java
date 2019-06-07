@@ -1,9 +1,14 @@
+/**
+ * This file is part of DIVE.
+ *
+ * Copyright (C) 2015-2019 Karlsruhe Institute of Technology
+ */
 package edu.kit.iti.algover;
 
 import com.google.common.base.Charsets;
 import com.google.common.io.CharStreams;
-import de.jensd.fx.glyphs.GlyphsDude;
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon;
+import de.jensd.fx.glyphs.fontawesome.utils.FontAwesomeIconFactory;
 import edu.kit.iti.algover.parser.DafnyParserException;
 import edu.kit.iti.algover.project.Configuration;
 import edu.kit.iti.algover.project.DafnyProjectManager;
@@ -15,6 +20,7 @@ import edu.kit.iti.algover.settings.SettingsFactory;
 import edu.kit.iti.algover.settings.SettingsWrapper;
 import edu.kit.iti.algover.util.FormatException;
 import edu.kit.iti.algover.util.Util;
+import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
@@ -110,27 +116,27 @@ public class WelcomePane {
 
         openFileChooser.setText("Open project");
         openFileChooser.setStyle("-fx-font-size: 20");
-        openFileChooser.setGraphic(GlyphsDude.createIcon(FontAwesomeIcon.FOLDER_OPEN));
+        openFileChooser.setGraphic(FontAwesomeIconFactory.get().createIcon(FontAwesomeIcon.FOLDER_OPEN));
         openFileChooser.setOnAction(this::handleFileChooserAction);
 
         openRecent.setText("Open recent");
         openRecent.setStyle("-fx-font-size: 20");
-        openRecent.setGraphic(GlyphsDude.createIcon(FontAwesomeIcon.RECYCLE));
+        openRecent.setGraphic(FontAwesomeIconFactory.get().createIcon(FontAwesomeIcon.RECYCLE));
         openRecent.setOnAction(this::handleOpenRecentAction);
 
         createProject.setText("New project");
         createProject.setStyle("-fx-font-size: 20");
-        createProject.setGraphic(GlyphsDude.createIcon(FontAwesomeIcon.FOLDER));
+        createProject.setGraphic(FontAwesomeIconFactory.get().createIcon(FontAwesomeIcon.FOLDER));
         createProject.setOnAction(this::createNewProjectHandler);
 
         openEmptyProject.setText("Empty project");
         openEmptyProject.setStyle("-fx-font-size: 20");
-        openEmptyProject.setGraphic(GlyphsDude.createIcon(FontAwesomeIcon.FILE_CODE_ALT));
+        openEmptyProject.setGraphic(FontAwesomeIconFactory.get().createIcon(FontAwesomeIcon.FILE_CODE_ALT));
         openEmptyProject.setOnAction(handleEmptyProjectCreation(primaryStage));
 
         loadExample.setText("Load Example");
         loadExample.setStyle("-fx-font-size: 20");
-        loadExample.setGraphic(GlyphsDude.createIcon(FontAwesomeIcon.BULLSEYE));
+        loadExample.setGraphic(FontAwesomeIconFactory.get().createIcon(FontAwesomeIcon.BULLSEYE));
         loadExample.setOnAction(this::loadExample);
 
     }
@@ -260,8 +266,8 @@ public class WelcomePane {
     private EventHandler<ActionEvent> handleEmptyProjectCreation(Stage primaryStage) {
         return event -> {
             DirectoryChooser dirChooser = new DirectoryChooser();
-
-            dirChooser.setInitialDirectory(new File("doc/examples/"));
+            //TODO: find a central place for such paths
+            dirChooser.setInitialDirectory(new File("../../doc/examples/"));
             dirChooser.setTitle("Select directory");
             //first select a directory
             File file = dirChooser.showDialog(primaryStage);
@@ -269,8 +275,13 @@ public class WelcomePane {
 
             if(file != null){
                 //then a filename
+                //workaround for KDE systems and GTK based Desktops
                 TextInputDialog dialog = new TextInputDialog("program.dfy");
                 dialog.setContentText("Please enter the name for the empty Dafny file");
+                dialog.setResizable(true);
+                dialog.onShownProperty().addListener(e -> {
+                    Platform.runLater(() -> dialog.setResizable(false));
+                });
 
                 createAndShowEmptyFileDialog(file, dialog);
 
@@ -286,6 +297,12 @@ public class WelcomePane {
 
         dialog.setTitle("Dafny file name");
         dialog.setHeaderText("Dafny file name");
+        //workaround for KDE systems and GTK based Desktops
+        dialog.setResizable(true);
+        dialog.onShownProperty().addListener(e -> {
+            Platform.runLater(() -> dialog.setResizable(false));
+        });
+
         Optional<String> filename = dialog.showAndWait();
 
         if (filename.isPresent()){
@@ -384,7 +401,7 @@ public class WelcomePane {
             FileChooser chooser = new FileChooser();
 
             chooser.setTitle("Choose project folder");
-            chooser.setInitialDirectory(new File("doc/examples/"));
+            chooser.setInitialDirectory(new File("../../doc/examples/"));
             projectFile = chooser.showOpenDialog(primaryStage);
             ProjectManager manager;
             if (projectFile == null) {

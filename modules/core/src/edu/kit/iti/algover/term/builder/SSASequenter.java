@@ -1,13 +1,10 @@
-/*
- * This file is part of AlgoVer.
+/**
+ * This file is part of DIVE.
  *
- * Copyright (C) 2015-2018 Karlsruhe Institute of Technology
- *
+ * Copyright (C) 2015-2019 Karlsruhe Institute of Technology
  */
-
 package edu.kit.iti.algover.term.builder;
 
-import edu.kit.iti.algover.data.BuiltinSymbols;
 import edu.kit.iti.algover.data.SymbolTable;
 import edu.kit.iti.algover.parser.DafnyException;
 import edu.kit.iti.algover.parser.DafnyParser;
@@ -19,16 +16,12 @@ import edu.kit.iti.algover.symbex.PathConditionElement;
 import edu.kit.iti.algover.symbex.SymbexPath;
 import edu.kit.iti.algover.term.ApplTerm;
 import edu.kit.iti.algover.term.FunctionSymbol;
-import edu.kit.iti.algover.term.FunctionSymbolFamily;
-import edu.kit.iti.algover.term.FunctionSymbolFamily.InstantiatedFunctionSymbol;
-import edu.kit.iti.algover.term.LetTerm;
 import edu.kit.iti.algover.term.Sequent;
 import edu.kit.iti.algover.term.Sort;
 import edu.kit.iti.algover.term.Term;
-import edu.kit.iti.algover.util.ASTUtil;
 import edu.kit.iti.algover.util.ImmutableList;
 import edu.kit.iti.algover.util.Pair;
-import edu.kit.iti.algover.util.TreeUtil;
+import edu.kit.iti.algover.util.SymbexUtil;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -37,12 +30,14 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * The Single Static Assignment Sequenter is an alternative to the other sequenters based on the {@link
- * UpdateSequenter}.
+ * The Single Static Assignment Sequenter is an alternative to the other
+ * sequenters based on the {@link UpdateSequenter}.
  *
- * <p> Where those have one formula per path condition or proof obligation with a local assignment history (possibly
- * inlined, simplified or aggregated), this sequenter collects the assignments as equalities on the sequent. Thus,
- * the same variable x may occur under different names x, x_1, x_2, etc.
+ * <p> Where those have one formula per path condition or proof obligation with
+ * a local assignment history (possibly
+ * inlined, simplified or aggregated), this sequenter collects the assignments
+ * as equalities on the sequent. Thus, the same variable x may occur under
+ * different names x, x_1, x_2, etc.
  *
  * @author Mattias Ulbrich
  */
@@ -82,12 +77,16 @@ public class SSASequenter implements PVCSequenter {
                 assert isPrefix(element.getAssignmentHistory(), pathThroughProgram.getAssignmentHistory());
                 ImmutableList<Pair<FunctionSymbol, FunctionSymbol>> mapping =
                         endMapping.takeFirst(element.getAssignmentHistory().size());
-                antecedent.add(createProofFormula(mapping, ttt, element.getExpression()));
+                antecedent.add(createProofFormula(mapping, ttt, element.getExpression(),
+                        SequenterUtil.getLabel(element)));
             }
+
+            antecedent = SequenterUtil.coalesceDuplicates(antecedent);
 
             assert pathThroughProgram.getProofObligations().size() == 1;
             AssertionElement assertion = pathThroughProgram.getProofObligations().getLast();
-            ProofFormula succedent = createProofFormula(endMapping, ttt, assertion.getExpression());
+            ProofFormula succedent = createProofFormula(endMapping, ttt,
+                    assertion.getExpression(), "Assertion");
             return new Sequent(antecedent, Collections.singletonList(succedent));
 
         }  catch(TermBuildException tbe) {
@@ -104,13 +103,13 @@ public class SSASequenter implements PVCSequenter {
 
     private ProofFormula createProofFormula(ImmutableList<Pair<FunctionSymbol, FunctionSymbol>> mapping,
                                             TreeTermTranslator ttt,
-                                            DafnyTree expression) throws DafnyException {
+                                            DafnyTree expression, String label) throws DafnyException {
         try {
             Term condition = ttt.build(expression);
             Term replacedCondition = condition.accept(SSA_INSTANTIATION_VISITOR, mapping);
             if(replacedCondition == null)
                 replacedCondition = condition;
-            return new ProofFormula(replacedCondition);
+            return new ProofFormula(replacedCondition, label);
         } catch (TermBuildException ex) {
             throw new DafnyException(expression, ex);
         }
@@ -154,7 +153,8 @@ public class SSASequenter implements PVCSequenter {
                 replaced = rhs;
             }
 
-            antecedent.add(new ProofFormula(tb.eq(new ApplTerm(fsymbNew), replaced)));
+            antecedent.add(new ProofFormula(tb.eq(new ApplTerm(fsymbNew), replaced),
+                    SequenterUtil.PATH_LABEL));
         }
 
         return mapping;
