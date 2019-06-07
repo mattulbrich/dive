@@ -1,10 +1,11 @@
-/*
- * This file is part of AlgoVer.
+/**
+ * This file is part of DIVE.
  *
- * Copyright (C) 2015-2017 Karlsruhe Institute of Technology
+ * Copyright (C) 2015-2019 Karlsruhe Institute of Technology
  */
 package edu.kit.iti.algover.project;
 
+import edu.kit.iti.algover.dafnystructures.DafnyFile;
 import edu.kit.iti.algover.parser.DafnyException;
 import edu.kit.iti.algover.parser.DafnyParserException;
 import edu.kit.iti.algover.proof.PVC;
@@ -20,8 +21,10 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
 /**
  * A project manager that receives a directory and a config.xml file for
@@ -153,16 +156,23 @@ public final class XMLProjectManager extends AbstractProjectManager {
     private void generateAllProofObjects(Project project) throws IOException {
         proofs = new HashMap<>();
         for (PVC pvc : project.getPVCByNameMap().values()) {
-            Proof p = new Proof(project, pvc);
-            String script;
-            try {
-                script = loadScriptForPVC(pvc.getIdentifier());
-            } catch(FileNotFoundException ex) {
-                script = project.getSettings().getString(ProjectSettings.DEFAULT_SCRIPT);
-            }
-            p.setScriptText(script);
+            List<DafnyFile> dfyFiles = project.getDafnyFiles().stream()
+                    .filter(dafnyFile -> dafnyFile.getFilename().equals(pvc.getDeclaration().getFilename()))
+                    .collect(Collectors.toList());
+            if(dfyFiles.size()>0) {
+                Proof p = new Proof(project, pvc, dfyFiles.get(0));
+                String script;
+                try {
+                    script = loadScriptForPVC(pvc.getIdentifier());
+                } catch (FileNotFoundException ex) {
+                    script = project.getSettings().getString(ProjectSettings.DEFAULT_SCRIPT);
+                }
+                p.setScriptText(script);
 
-            proofs.put(pvc.getIdentifier(), p);
+                proofs.put(pvc.getIdentifier(), p);
+            } else {
+                throw new IOException("Could not find Dafny file for pvc: "+pvc.toString());
+            }
         }
     }
 

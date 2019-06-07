@@ -1,7 +1,12 @@
+/**
+ * This file is part of DIVE.
+ *
+ * Copyright (C) 2015-2019 Karlsruhe Institute of Technology
+ */
 package edu.kit.iti.algover.rule.script;
 
-import de.jensd.fx.glyphs.GlyphsDude;
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon;
+import de.jensd.fx.glyphs.fontawesome.utils.FontAwesomeIconFactory;
 import edu.kit.iti.algover.AlgoVerApplication;
 import edu.kit.iti.algover.editor.HighlightingRule;
 import edu.kit.iti.algover.parser.DafnyLexer;
@@ -9,7 +14,9 @@ import edu.kit.iti.algover.script.ScriptLanguageLexer;
 import edu.kit.iti.algover.script.parser.Facade;
 import edu.kit.iti.algover.util.AsyncHighlightingCodeArea;
 import javafx.application.Platform;
+import javafx.beans.property.SimpleListProperty;
 import javafx.beans.property.SimpleObjectProperty;
+import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
@@ -58,8 +65,8 @@ public class ScriptView extends AsyncHighlightingCodeArea {
 
         getStylesheets().add(AlgoVerApplication.class.getResource("syntax-highlighting.css").toExternalForm());
 
-        MenuItem save = new MenuItem("Save Proof Script", GlyphsDude.createIcon(FontAwesomeIcon.SAVE));
-        MenuItem run = new MenuItem("Run Proof Script", GlyphsDude.createIcon(FontAwesomeIcon.ARROW_RIGHT));
+        MenuItem save = new MenuItem("Save Proof Script", FontAwesomeIconFactory.get().createIcon(FontAwesomeIcon.SAVE));
+        MenuItem run = new MenuItem("Run Proof Script", FontAwesomeIconFactory.get().createIcon(FontAwesomeIcon.ARROW_RIGHT));
 
         save.setOnAction(event -> this.listener.onScriptSave());
         run.setOnAction(event -> this.listener.runScript());
@@ -72,7 +79,7 @@ public class ScriptView extends AsyncHighlightingCodeArea {
         //set gutter factory for checkpoints
         gutter = new GutterFactory(this);
         this.setParagraphGraphicFactory(gutter);
-        
+
 
         setupAsyncSyntaxhighlighting();
 
@@ -85,6 +92,11 @@ public class ScriptView extends AsyncHighlightingCodeArea {
     }
 
 
+    public void resetGutter(){
+      //  gutter.getAnnotations().setAll(new SimpleListProperty<>(FXCollections.observableArrayList()));
+        gutter = new GutterFactory(this);
+        this.setParagraphGraphicFactory(gutter);
+    }
 
     @Override
     protected StyleSpans<Collection<String>> computeHighlighting(String text) throws Exception {

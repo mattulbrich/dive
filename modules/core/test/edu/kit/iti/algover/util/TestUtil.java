@@ -1,7 +1,7 @@
-/*
- * This file is part of AlgoVer.
+/**
+ * This file is part of DIVE.
  *
- * Copyright (C) 2015-2017 Karlsruhe Institute of Technology
+ * Copyright (C) 2015-2019 Karlsruhe Institute of Technology
  */
 package edu.kit.iti.algover.util;
 
@@ -11,6 +11,7 @@ import java.io.File;
 import java.io.FileFilter;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.InputStream;
@@ -372,12 +373,30 @@ public class TestUtil {
                 }
 
                 if (line1 == null) {
-                    fail("Actual file has less lines then expected (" + line + ").");
+                    fail("Actual file has fewer lines then expected (" + line + ").");
                 }
 
                 assertEquals("line " + line + " differs", line1, line2);
                 line ++;
             }
         }
+    }
+
+    /**
+     * Store the parameter string into a temporary file. The filename gets the
+     * appoointed file name extension.
+     *
+     * The file must be deleted manually.
+     *
+     * @param string content
+     * @param extension file name extension
+     * @return name of the temporary file
+     */
+    public static File stringToTempFile(String string, String extension) throws IOException {
+        File temp = File.createTempFile("dive", extension);
+        try (FileWriter fw = new FileWriter(temp)) {
+            fw.write(string);
+        }
+        return temp;
     }
 }

@@ -1,7 +1,7 @@
-/*
- * This file is part of AlgoVer.
+/**
+ * This file is part of DIVE.
  *
- * Copyright (C) 2015-2017 Karlsruhe Institute of Technology
+ * Copyright (C) 2015-2019 Karlsruhe Institute of Technology
  */
 package edu.kit.iti.algover.dafnystructures;
 
@@ -68,22 +68,34 @@ public abstract class DafnyDecl {
     /**
      * Check two maps of declarations for a name conflict.
      *
-     * @param list1 one collections of declarations, indexed by name, not
-     *              <code>null</code>
-     * @param list2 another collections of declarations, indexed by name, not
-     *              <code>null</code>
-     * @throws DafnyException if two declarations by the same exist
+     * A conflict occurs if there are two declarations that have the same name
+     * in the given collection..
+     *
+     * @param declarations  a collections of declarations, indexed by name, not
+     *                      <code>null</code>
+     * @param declarations2 another collections of declarations, indexed by
+     *                      name, not
+     *                      <code>null</code>
+     * @throws DafnyException if there is a name conflict between the
+     *                        declarations in the two lists
      */
-    protected static void checkNameConflict(Map<String, ? extends DafnyDecl> list1,
-                                            Map<String, ? extends DafnyDecl> list2) throws DafnyException {
-        Set<String> knownNames = new HashSet<>(list1.keySet());
-        knownNames.retainAll(list2.keySet());
+    protected static void checkNameConflict(Collection<? extends DafnyDecl> declarations,
+                                            Collection<? extends DafnyDecl> declarations2) throws DafnyException {
+        Set<String> seenNames = new HashSet<>();
 
-        if (!knownNames.isEmpty()) {
-            String name = knownNames.iterator().next();
-            DafnyDecl instance = list2.get(knownNames);
-            throw new DafnyException("Function/method " + name + " has been declared twice.",
-                    instance.getRepresentation());
+        for (DafnyDecl decl : declarations) {
+            if (seenNames.contains(decl.getName())) {
+                throw new DafnyException("This scope already contains a declaration named " + decl.getName(),
+                        decl.getRepresentation());
+            }
+            seenNames.add(decl.getName());
+        }
+        for (DafnyDecl decl : declarations2) {
+            if (seenNames.contains(decl.getName())) {
+                throw new DafnyException("This scope already contains a declaration named " + decl.getName(),
+                        decl.getRepresentation());
+            }
+            seenNames.add(decl.getName());
         }
     }
 
@@ -100,11 +112,6 @@ public abstract class DafnyDecl {
     public static <D extends DafnyDecl> Map<String, D> toMap(List<D> list) throws DafnyException {
         Map<String, D> result = new LinkedHashMap<String, D>();
         for (D decl : list) {
-            if (result.containsKey(decl.getName())) {
-                // TODO bring up a sensible error message
-                throw new DafnyException("Declaration " + decl.getName() + " doubled.",
-                        decl.getRepresentation());
-            }
             result.put(decl.getName(), decl);
         }
         return result;

@@ -1,11 +1,10 @@
-/*
- * This file is part of AlgoVer.
+/**
+ * This file is part of DIVE.
  *
- * Copyright (C) 2015-2017 Karlsruhe Institute of Technology
+ * Copyright (C) 2015-2019 Karlsruhe Institute of Technology
  */
 package edu.kit.iti.algover.parser;
 
-import antlr.RecognitionException;
 
 /**
  * This error class wraps {@link RecognitionException}s from ANTLR which have a

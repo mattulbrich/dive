@@ -1,3 +1,8 @@
+/**
+ * This file is part of DIVE.
+ *
+ * Copyright (C) 2015-2019 Karlsruhe Institute of Technology
+ */
 package edu.kit.iti.algover.references;
 
 import edu.kit.iti.algover.proof.Proof;
@@ -11,7 +16,7 @@ import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
-public class ReferencePrettyPrinter implements ReferenceVisitor<String> {
+public class ReferencePrettyPrinter implements ReferenceTargetVisitor<String> {
 
     private final Proof proof;
     private final int charWidth;
@@ -23,7 +28,7 @@ public class ReferencePrettyPrinter implements ReferenceVisitor<String> {
     }
 
     @Override
-    public String visit(CodeReference codeTarget) {
+    public String visit(CodeReferenceTarget codeTarget) {
         try {
             String codeString = fileToString(codeTarget.getFile().getRepresentation().getFilename());
             String[] lines = codeString.split("\n");
@@ -57,7 +62,7 @@ public class ReferencePrettyPrinter implements ReferenceVisitor<String> {
     }
 
     @Override
-    public String visit(ProofTermReference termTarget) {
+    public String visit(ProofTermReferenceTarget termTarget) {
         try {
             ProofNode node = termTarget.getProofNodeSelector().get(proof);
             Term term = termTarget.getTermSelector().selectSubterm(node.getSequent());
@@ -68,8 +73,13 @@ public class ReferencePrettyPrinter implements ReferenceVisitor<String> {
     }
 
     @Override
-    public String visit(UserInputReference userInputTarget) {
+    public String visit(UserInputReferenceTarget userInputTarget) {
         return userInputTarget.toString();
+    }
+
+    @Override
+    public String visit(ScriptReferenceTarget scriptTarget) {
+        return scriptTarget.toString();
     }
 
 

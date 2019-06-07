@@ -1,7 +1,7 @@
-/*
- * This file is part of AlgoVer.
+/**
+ * This file is part of DIVE.
  *
- * Copyright (C) 2015-2017 Karlsruhe Institute of Technology
+ * Copyright (C) 2015-2019 Karlsruhe Institute of Technology
  */
 package edu.kit.iti.algover.project;
 
@@ -43,7 +43,7 @@ import javax.xml.bind.JAXBException;
  * */
 
 public class ProjectTest {
-    static final String testDir = "modules/core/test-res/edu/kit/iti/algover/project";
+    static final String testDir = "test-res/edu/kit/iti/algover/project";
     static final String CONFIG = "config.xml";
     Project p = null;
 

@@ -1,7 +1,7 @@
-/*
- * This file is part of AlgoVer.
+/**
+ * This file is part of DIVE.
  *
- * Copyright (C) 2015-2017 Karlsruhe Institute of Technology
+ * Copyright (C) 2015-2019 Karlsruhe Institute of Technology
  */
 package edu.kit.iti.algover.util;
 
@@ -10,8 +10,20 @@ import edu.kit.iti.algover.symbex.AssertionElement;
 import edu.kit.iti.algover.symbex.PathConditionElement;
 import edu.kit.iti.algover.symbex.SymbexPath;
 
+// TODO Move to tests?
 public class SymbexUtil {
 
+    private SymbexUtil() {
+        throw new Error();
+    }
+
+    /**
+     * Turn a symb. execution path into a readable string.
+     * Mainly for debugging purposes.
+     *
+     * @param res the path to display
+     * @return a multi-line string description
+     */
     public static String toString(SymbexPath res) {
         StringBuilder sb = new StringBuilder();
         sb.append("------------\n");

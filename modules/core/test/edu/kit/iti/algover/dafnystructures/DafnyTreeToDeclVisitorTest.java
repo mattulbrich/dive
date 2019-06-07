@@ -1,7 +1,7 @@
-/*
- * This file is part of AlgoVer.
+/**
+ * This file is part of DIVE.
  *
- * Copyright (C) 2015-2017 Karlsruhe Institute of Technology
+ * Copyright (C) 2015-2019 Karlsruhe Institute of Technology
  */
 package edu.kit.iti.algover.dafnystructures;
 
@@ -15,6 +15,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+import org.junit.Ignore;
 import org.junit.Test;
 
 import edu.kit.iti.algover.parser.DafnyTree;
@@ -25,6 +26,7 @@ import edu.kit.iti.algover.project.ProjectBuilder;
 
 // deactivated for now ... not clear how this works
 
+@Ignore
 public class DafnyTreeToDeclVisitorTest {
 
     @Test

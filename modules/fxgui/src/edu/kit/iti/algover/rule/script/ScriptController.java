@@ -1,29 +1,51 @@
+/**
+ * This file is part of DIVE.
+ *
+ * Copyright (C) 2015-2019 Karlsruhe Institute of Technology
+ */
 package edu.kit.iti.algover.rule.script;
 
+import edu.kit.iti.algover.Lookup;
+import edu.kit.iti.algover.editor.HighlightingRule;
+import edu.kit.iti.algover.editor.LayeredHighlightingRule;
 import edu.kit.iti.algover.proof.Proof;
 import edu.kit.iti.algover.proof.ProofNodeSelector;
+import edu.kit.iti.algover.referenceHighlighting.ReferenceHighlightingHandler;
+import edu.kit.iti.algover.referenceHighlighting.ReferenceHighlightingObject;
+import edu.kit.iti.algover.references.ProofTermReferenceTarget;
+import edu.kit.iti.algover.references.ScriptReferenceTarget;
 import edu.kit.iti.algover.rule.RuleApplicationListener;
 import edu.kit.iti.algover.script.ast.Position;
 import edu.kit.iti.algover.script.ast.ProofScript;
+import edu.kit.iti.algover.script.exceptions.ScriptCommandNotApplicableException;
 import edu.kit.iti.algover.script.parser.Facade;
 import edu.kit.iti.algover.script.parser.PrettyPrinter;
 import edu.kit.iti.algover.util.ExceptionDetails;
+import edu.kit.iti.algover.util.RuleApp;
 import javafx.beans.Observable;
 import javafx.beans.property.SimpleObjectProperty;
+import javafx.collections.ObservableList;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyCodeCombination;
 import javafx.scene.input.KeyCombination;
 import javafx.scene.input.KeyEvent;
+import org.antlr.runtime.Token;
+import org.fxmisc.richtext.model.StyleSpans;
 
 import java.awt.*;
-import java.util.Collection;
-import java.util.Collections;
+import java.io.StringWriter;
+import java.time.Duration;
+import java.util.*;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
+import java.util.function.Consumer;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
-public class ScriptController implements ScriptViewListener {
+/**
+ * Controller for the ScriptArea. Contains methods to control the ScriptView.
+ */
+public class ScriptController implements ScriptViewListener, ReferenceHighlightingHandler {
     KeyCombination saveShortcut = new KeyCodeCombination(KeyCode.S, KeyCombination.CONTROL_DOWN);
 
     private final ScriptView view;
@@ -31,18 +53,23 @@ public class ScriptController implements ScriptViewListener {
     private ProofNodeSelector selectedNode = null;
 
 
-
-    private SimpleObjectProperty<Position> observableInsertPosition = new SimpleObjectProperty<Position>(new Position(1,0));
+    /**
+     * The insert position where the next command is inserted
+     */
+    private SimpleObjectProperty<Position> observableInsertPosition = new SimpleObjectProperty<Position>(new Position(1,0), "Observable Insert Position");
     private Proof proof;
     private List<ProofNodeCheckpoint> checkpoints;
 
     private LayeredHighlightingRulev4 highlightingRules;
 
-    public ScriptController(ExecutorService executor, RuleApplicationListener listener) {
+    public ScriptController(ExecutorService executor, RuleApplicationListener listener, Lookup lookup) {
         this.view = new ScriptView(executor, this);
         this.view.setOnKeyReleased(this::handleShortcuts);
         this.listener = listener;
         this.highlightingRules = new LayeredHighlightingRulev4(2);
+
+        lookup.register(this, ReferenceHighlightingHandler.class);
+
         view.setHighlightingRule(this.highlightingRules);
 
         view.caretPositionProperty().addListener(this::onCaretPositionChanged);
@@ -55,6 +82,7 @@ public class ScriptController implements ScriptViewListener {
         view.getGutterAnnotations().get(0).setInsertMarker(true);
         view.getGutterAnnotations().get(0).setProofNode(new ProofNodeSelector());
         view.getGutterAnnotations().get(0).setProofNodeIsSelected(true);
+        view.getGutterAnnotations().get(0).setProofNodeIsReferenced(true);
 
         view.requestLayout();
 
@@ -64,7 +92,6 @@ public class ScriptController implements ScriptViewListener {
         if(old != null) {
             view.getGutterAnnotations().get(old.getLineNumber() - 1).setInsertMarker(false);
             view.getGutterAnnotations().forEach(gutterAnnotation -> gutterAnnotation.setProofNodeIsSelected(false));
-            //view.getGutterAnnotations().get(old.getLineNumber() - 1).setProofNodeIsSelected(false);
 
         }
             if(view.getGutterAnnotations().size() > nv.getLineNumber()){
@@ -132,7 +159,9 @@ public class ScriptController implements ScriptViewListener {
                 this.listener.onSwitchViewedNode(checkpoint.selector);
             }
         } else {
+
             this.listener.onSwitchViewedNode(checkpoint.selector);
+
         }
         showSelectedSelector(checkpoint);
         view.requestLayout();
@@ -203,26 +232,42 @@ public class ScriptController implements ScriptViewListener {
         }*/
         //checkpoints = ProofNodeCheckpointsBuilder.build(proof);
         // TODO switchViewedNode();
-        view.setStyle("-fx-background-color: lightgray;");
-        onCaretPositionChanged(null);
+        //rausfinden wer die Änderungen vorgenommen hat
+        //gutter leeren
+        //grauen
+        //neuberechnen -> User
+        //onCaretPositionChanged(null);
+
+          view.setStyle("-fx-background-color: #c4c1c9;");
+          view.resetGutter();
+          view.requestLayout();
+
     }
 
+    /**
+     * Interpret the proof script that is set in the current ScriptView
+     */
     @Override
     public void runScript() {
+        view.resetGutter();
+        view.requestLayout();
 
         Position oldInsertPos = getObservableInsertPosition();
         String text = view.getText();
         resetExceptionRendering();
 
-        ProofScript ps = Facade.getAST(text);
+        /*ProofScript ps = Facade.getAST(text);
+
         PrettyPrinter pp = new PrettyPrinter();
         ps.accept(pp);
-
         view.replaceText(pp.toString());
-        //System.out.println("pp.toString() = " + pp.toString());
 
-        proof.setScriptTextAndInterpret(pp.toString());
+        proof.setScriptTextAndInterpret(pp.toString());*/
 
+        proof.setScriptTextAndInterpret(text);
+
+
+        //onCaretPositionChanged(null);
         if(proof.getFailException() != null) {
             renderException(proof.getFailException());
             Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).severe(proof.getFailException().getMessage());
@@ -232,11 +277,15 @@ public class ScriptController implements ScriptViewListener {
        // insertPosition = oldInsertPos;
         observableInsertPosition.set(oldInsertPos);
         createVisualSelectors(checkpoints);
+        view.setStyle("-fx-background-color: #ffffff;");
 
         switchViewedNode();
-        view.setStyle("-fx-background-color: white;");
     }
 
+    /**
+     * Create the annotatiosn for the ScriptGutterView according to the checkpointslist
+     * @param checkpoints
+     */
     private void createVisualSelectors(List<ProofNodeCheckpoint> checkpoints) {
         for (ProofNodeCheckpoint checkpoint : this.checkpoints) {
             int checkpointline = checkpoint.position.getLineNumber();
@@ -255,6 +304,10 @@ public class ScriptController implements ScriptViewListener {
 //        view.requestLayout();
     }
 
+    /**
+     * Return the current ScriptView
+     * @return
+     */
     public ScriptView getView() {
         return view;
     }
@@ -289,6 +342,10 @@ public class ScriptController implements ScriptViewListener {
         highlightingRules.setLayer(0, (token, syntaxClasses) -> syntaxClasses);
     }
 
+    /**
+     * Set the selected proof node in the ScriptView
+     * @param proofNodeSelector
+     */
     public void setSelectedNode(ProofNodeSelector proofNodeSelector) {
         if(!proofNodeSelector.equals(selectedNode)) {
             selectedNode = proofNodeSelector;
@@ -303,6 +360,10 @@ public class ScriptController implements ScriptViewListener {
         }
     }
 
+    /**
+     * Return the Position, where the next proof command is added
+     * @return Position
+     */
     public Position getObservableInsertPosition() {
         return observableInsertPosition.get();
     }
@@ -315,4 +376,27 @@ public class ScriptController implements ScriptViewListener {
         this.observableInsertPosition.set(observableInsertPosition);
     }
 
+    /**
+     * Mark all ProofNodes in the script that are referenced in the set of target passed as parameter
+     * @param scriptReferenceTargetSet
+     */
+    public void viewReferences(Set<ScriptReferenceTarget> scriptReferenceTargetSet) {
+        scriptReferenceTargetSet.stream().forEach(s -> {
+            int linenumber = s.getLinenumber();
+            view.getGutterAnnotations().get(linenumber-1).setProofNodeIsReferenced(true);
+        });
+
+    }
+
+    @Override
+    public void handleReferenceHighlighting(ReferenceHighlightingObject references) {
+        removeReferenceHighlighting();
+        Set<ScriptReferenceTarget> scriptReferenceTargetSet = references.getScriptReferenceTargetSet();
+        viewReferences(scriptReferenceTargetSet);
+    }
+
+    @Override
+    public void removeReferenceHighlighting() {
+        view.getGutterAnnotations().forEach(gutterAnnotation -> {gutterAnnotation.setProofNodeIsReferenced(false);});
+    }
 }

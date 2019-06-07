@@ -1,7 +1,14 @@
+/**
+ * This file is part of DIVE.
+ *
+ * Copyright (C) 2015-2019 Karlsruhe Institute of Technology
+ */
 package edu.kit.iti.algover.rule.script;
 
 import edu.kit.iti.algover.proof.ProofNodeSelector;
 import edu.kit.iti.algover.script.ast.Position;
+import edu.kit.iti.algover.util.ObservableValue;
+import javafx.beans.Observable;
 import javafx.beans.binding.BooleanBinding;
 import javafx.beans.property.*;
 
@@ -18,6 +25,7 @@ public class GutterAnnotation {
     private StringProperty text = new SimpleStringProperty();
 
 
+    private IntegerProperty lineNumberProperty = new SimpleIntegerProperty(-1);
 
     /**
      * Boolean flag for marker for command insertion position
@@ -29,11 +37,34 @@ public class GutterAnnotation {
      * Associated proof node selector, if existing
      */
 
-    private SimpleObjectProperty<ProofNodeSelector> proofNode = new SimpleObjectProperty<>(null, "Proofnode property");
+    private SimpleObjectProperty<ProofNodeSelector> proofNode = new SimpleObjectProperty<>(null, "Proof node property");
 
-    private BooleanProperty proofNodeIsSelected = new SimpleBooleanProperty(false, "Proofnode is selected property ");
+    /**
+     * User selcted proof node
+     */
+    private BooleanProperty proofNodeIsSelected = new SimpleBooleanProperty(false, "Proof node is selected property ");
 
     private BooleanBinding proofNodeIsSet = proofNode.isNotNull();
+
+    /**
+     * ASTNode was referenced by ReferenceHighlighting
+     */
+    private BooleanProperty proofNodeIsReferenced = new SimpleBooleanProperty(false, "Proof node is referenced");
+
+    /**
+     * Cretae a new model for the GutterView of a line in the script
+     */
+    public GutterAnnotation(){
+        text.addListener(this::onLineNumberChanged);
+        /*lineNumberProperty.addListener((observable, oldValue, newValue) -> {
+            System.out.println("oldValue = " + oldValue);
+            System.out.println("newValue = " + newValue);
+        });*/
+    }
+
+    private void onLineNumberChanged(Observable observable) {
+        this.lineNumberProperty.setValue(Integer.parseInt(text.get().replaceAll(" ", "")));
+    }
 
     public SimpleBooleanProperty insertMarkerProperty() {
         return insertMarker;
@@ -91,6 +122,17 @@ public class GutterAnnotation {
 
     public BooleanBinding proofNodeIsSetProperty() {
         return proofNodeIsSet;
+    }
+    public boolean proofNodeIsReferenced() {
+        return proofNodeIsReferenced.get();
+    }
+
+    public BooleanProperty proofNodeIsReferencedProperty() {
+        return proofNodeIsReferenced;
+    }
+
+    public void setProofNodeIsReferenced(boolean proofNodeIsReferenced) {
+        this.proofNodeIsReferenced.set(proofNodeIsReferenced);
     }
 
 

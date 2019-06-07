@@ -1,3 +1,8 @@
+/**
+ * This file is part of DIVE.
+ *
+ * Copyright (C) 2015-2019 Karlsruhe Institute of Technology
+ */
 package edu.kit.iti.algover.term.prettyprint;
 
 import edu.kit.iti.algover.data.BuiltinSymbols;
@@ -11,6 +16,8 @@ import edu.kit.iti.algover.term.FunctionSymbolFamily.InstantiatedFunctionSymbol;
  *
  * This currently covers the length of one- and two-dimensional arrays
  * and that of sequences as well as the cardinality of sets.
+ *
+ * TODO add "Keyword" as Style. Needs refactoring, however.
  *
  * @author Mattias Ulbrich
  */

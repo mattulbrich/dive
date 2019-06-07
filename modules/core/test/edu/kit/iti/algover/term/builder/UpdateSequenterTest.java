@@ -1,7 +1,7 @@
-/*
- * This file is part of AlgoVer.
+/**
+ * This file is part of DIVE.
  *
- * Copyright (C) 2015-2017 Karlsruhe Institute of Technology
+ * Copyright (C) 2015-2019 Karlsruhe Institute of Technology
  */
 package edu.kit.iti.algover.term.builder;
 
@@ -174,7 +174,7 @@ public class UpdateSequenterTest extends SequenterTest {
         SymbolTable table = makeTable(method, p);
         Sequent sequent = sequenter.translate(path, table, null);
 
-        assertEquals("|- (let $mod := $empty :: " +
+        assertEquals("|- [Assertion]: (let $mod := $empty :: " +
                 "(let $decr := 0 :: " +
                 "(let $oldheap := $heap :: " +
                 "(let $heap := $store<C,C>($heap, this, C$$fld, this) :: " +
@@ -183,7 +183,7 @@ public class UpdateSequenterTest extends SequenterTest {
 
     protected void checkSequentWithOld(SymbolTable table, Sequent sequent) throws Exception {
 
-        assertEquals("|- (let $mod := $empty :: (let $decr := 0 :: " +
+        assertEquals("|- [Assertion]: (let $mod := $empty :: (let $decr := 0 :: " +
                 "(let $oldheap := $heap :: (let $heap := $store<C,int>($heap, c, C$$i, $plus($select<C,int>($heap, c, C$$i), 1)) :: " +
                 "$eq<int>($select<C,int>($heap, c, C$$i), " +
                 "$plus((let $heap := $oldheap :: $select<C,int>($heap, c, C$$i)), 1))))))", sequent.toString());

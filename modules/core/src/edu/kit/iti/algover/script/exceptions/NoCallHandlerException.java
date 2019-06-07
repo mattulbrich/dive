@@ -1,3 +1,8 @@
+/**
+ * This file is part of DIVE.
+ *
+ * Copyright (C) 2015-2019 Karlsruhe Institute of Technology
+ */
 package edu.kit.iti.algover.script.exceptions;
 
 
@@ -31,7 +36,7 @@ public class NoCallHandlerException extends InterpreterRuntimeException {
     }
 
     public NoCallHandlerException(CallStatement callStatement) {
-        super(callStatement.toString());
+        super("Could not apply command "+ callStatement.getCommand()+ " in line "+callStatement.getStartPosition().getLineNumber());
         this.callStatement = callStatement;
     }
 }

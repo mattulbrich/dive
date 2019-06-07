@@ -1,7 +1,7 @@
-/*
- * This file is part of AlgoVer.
+/**
+ * This file is part of DIVE.
  *
- * Copyright (C) 2015-2017 Karlsruhe Institute of Technology
+ * Copyright (C) 2015-2019 Karlsruhe Institute of Technology
  */
 package edu.kit.iti.algover.term.builder;
 
@@ -50,7 +50,7 @@ public class ParallelUpdateSequenter extends UpdateSequenter {
             resultTerm = new LetTerm(newAssignments, term);
         }
 
-        return new ProofFormula(resultTerm);
+        return new ProofFormula(resultTerm, formula.getLabels());
     }
 
     private void updateSubstitution(Map<VariableTerm, Term> substitution, List<Pair<VariableTerm, Term>> assignments) throws TermBuildException {

@@ -1,10 +1,8 @@
-/*
- * This file is part of AlgoVer.
+/**
+ * This file is part of DIVE.
  *
- * Copyright (C) 2015-2018 Karlsruhe Institute of Technology
- *
+ * Copyright (C) 2015-2019 Karlsruhe Institute of Technology
  */
-
 package edu.kit.iti.algover.proof;
 
 import edu.kit.iti.algover.data.BuiltinSymbols;
@@ -26,6 +24,32 @@ import org.junit.Test;
 import java.util.Collections;
 
 public class ProofTest {
+
+    private static Project project;
+
+    @BeforeClass
+    public static void setup() throws Exception {
+        project = TestUtil.mockProject("method m() ensures true {}");
+    }
+
+    @AfterClass
+    public static void tearDown() {
+        project = null;
+    }
+
+    private Proof makeProof(String termStr) throws Exception {
+        BuiltinSymbols symboltable = new BuiltinSymbols();
+        TermBuilder tb = new TermBuilder(symboltable);
+        MockPVCBuilder pb = new MockPVCBuilder();
+        pb.setDeclaration(project.getMethod("m"));
+        pb.setSymbolTable(symboltable);
+        Term term = TermParser.parse(symboltable, termStr);
+        pb.setSequent(Sequent.singleSuccedent(new ProofFormula(term)));
+        pb.setPathIdentifier("test");
+        pb.setReferenceMap(Collections.emptyMap());
+        PVC pvc = pb.build();
+        return new Proof(project, pvc);
+    }
 
     @Test
     public void getScript() throws Exception {

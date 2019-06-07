@@ -1,3 +1,8 @@
+/**
+ * This file is part of DIVE.
+ *
+ * Copyright (C) 2015-2019 Karlsruhe Institute of Technology
+ */
 package edu.kit.iti.algover.references;
 
 import edu.kit.iti.algover.proof.Proof;
@@ -36,8 +41,8 @@ public final class TermReferencesBuilder {
     }
 
     /**
-     * Builds references from {@link ProofTermReference}s in the given {@link #proofNodeBefore}
-     * to other {@link ProofTermReference}s in the given proofNodeAfter whose terms they point to
+     * Builds references from {@link ProofTermReferenceTarget}s in the given {@link #proofNodeBefore}
+     * to other {@link ProofTermReferenceTarget}s in the given proofNodeAfter whose terms they point to
      * are referentially equal (but at different places obviously).
      * <p>
      * Referentially equal Terms suggest that they were re-used in the new ProofNode after rule
@@ -55,18 +60,21 @@ public final class TermReferencesBuilder {
             throws RuleException {
         proofNodeAfter.get(proof);
         changedTerm.selectSubterm(proofNodeBefore.get(proof).getSequent());
+        //build top-level Reference
+        ProofTermReferenceTarget from = new ProofTermReferenceTarget(proofNodeBefore, changedTerm);
+        ProofTermReferenceTarget to = new ProofTermReferenceTarget(proofNodeAfter, changedTerm);
+        references.addReference(from, to);
 
         buildReferencesAfterApplication(
                 proofNodeAfter,
                 proofNodeBefore.get(proof).getSequent(),
                 proofNodeAfter.get(proof).getSequent(),
                 changedTerm);
-
         return this;
     }
 
     private void buildReferencesAfterApplication(
-            ProofNodeSelector proofNodeAfter, Sequent before, Sequent after, TermSelector changedSelector) {
+            ProofNodeSelector proofNodeAfter, Sequent before, Sequent after, TermSelector changedSelector) throws RuleException {
         try {
             TermCollector collectTermsBefore = new TermCollector();
             TermCollector collectTermsAfter = new TermCollector();
@@ -89,16 +97,21 @@ public final class TermReferencesBuilder {
                 // look for referentially equal objects in the sequent after the rule application:
                 collectedAfter.forEach((termSelectorAfter, termAfter) -> {
                     if (termAfter == termBefore) { // referential equality
+                        ProofTermReferenceTarget from = new ProofTermReferenceTarget(proofNodeBefore, termSelectorBefore);
+                        ProofTermReferenceTarget to = new ProofTermReferenceTarget(proofNodeAfter, termSelectorAfter);
                         references.addReference(
-                                new ProofTermReference(proofNodeBefore, termSelectorBefore),
-                                new ProofTermReference(proofNodeAfter, termSelectorAfter)
+                                from,
+                                to
                         );
                     }
                 });
             });
+
+
         } catch (RuleException e) {
-            e.printStackTrace(); //TODO: Handle errors
+            e.printStackTrace();
             // this should _only_ happen, if changedSelector is an invalid selector!
+            throw e;
         }
     }
 

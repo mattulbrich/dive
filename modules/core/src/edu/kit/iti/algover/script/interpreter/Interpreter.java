@@ -1,6 +1,12 @@
+/**
+ * This file is part of DIVE.
+ *
+ * Copyright (C) 2015-2019 Karlsruhe Institute of Technology
+ */
 package edu.kit.iti.algover.script.interpreter;
 
 
+import edu.kit.iti.algover.proof.Proof;
 import edu.kit.iti.algover.proof.ProofNode;
 import edu.kit.iti.algover.script.ast.*;
 import edu.kit.iti.algover.script.callhandling.CommandLookup;
@@ -29,6 +35,14 @@ import java.util.stream.Stream;
 @SuppressWarnings({"unchecked", "rawtypes"})
 public class Interpreter<T> extends DefaultASTVisitor<Object>
         implements ScopeObservable {
+
+
+
+    /**
+     * The proof for this interpreter
+     */
+    private Proof currentProof;
+
     private static final int MAX_ITERATIONS = 5;
 
     /**
@@ -89,6 +103,13 @@ public class Interpreter<T> extends DefaultASTVisitor<Object>
         return functionLookup;
     }
 
+    public Proof getCurrentProof() {
+        return currentProof;
+    }
+
+    public void setCurrentProof(Proof currentProof) {
+        this.currentProof = currentProof;
+    }
     /**
      * Interpret a proof script
      * @param script the parsed proof script AST

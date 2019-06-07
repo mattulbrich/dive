@@ -1,7 +1,7 @@
-/*
- * This file is part of AlgoVer.
+/**
+ * This file is part of DIVE.
  *
- * Copyright (C) 2015-2017 Karlsruhe Institute of Technology
+ * Copyright (C) 2015-2019 Karlsruhe Institute of Technology
  */
 package edu.kit.iti.algover.project;
 
@@ -32,7 +32,7 @@ import static org.junit.Assert.assertTrue;
  */
 public class ProjectManagerTest {
 
-    private static final String testDir = "modules/core/test-res/edu/kit/iti/algover/script".replace('/', File.separatorChar);
+    private static final String testDir = "test-res/edu/kit/iti/algover/script".replace('/', File.separatorChar);
     private static final String config = "config2.xml";
 
     Project p = null;
@@ -90,16 +90,17 @@ public class ProjectManagerTest {
         Assert.assertNotNull(proof.getScript());
 //        pm.initializeProofDataStructures(testPVCm1Post);
         // pm.findAndParseScriptFileForPVC(testPVCm1Post);
-
+       // Assert.assertTrue();
         Assert.assertEquals("Proofscript is parsed", ProofStatus.CHANGED_SCRIPT, proof.getProofStatus());
         Assert.assertNull(proof.getFailException());
+        Assert.assertTrue(proof.getDfyFile() != null);
 
         proof.interpretScript();
+
         Assert.assertEquals("Proofscript has run", ProofStatus.OPEN, proof.getProofStatus());
         Assert.assertNull(proof.getFailException());
 
         System.out.println("Proof root for PVC " + testPVCxPost + " \n" + pm.getProofForPVC(testPVCxPost).getProofRoot().getSequent());
-
         //get the Proof object for a PVC
         Proof proof2 = pm.getProofForPVC(testPVCxPost);
 
@@ -124,18 +125,19 @@ public class ProjectManagerTest {
         String newScript = "//substitute on='let $mod := $everything :: (let x := 1 :: 1== 2 && 2 == 3 && 4==5)';\n" +
                 "//substitute on='let x := 1 :: 1== 2 && 2 == 3 &&4==5 '; \n" +
                 "x:int := 0; \n" +
-                "andRight on='1== 2 && 2 == 3 &&4==5';\n";
+                "andRight on='1== 2 && 2 == 3 && 4==5';\n";
         //set a new script text and parse it
         proof2.setScriptText(newScript);
         System.out.println(proof2.getScript());
         //interpret new Script
         proof2.interpretScript();
         Assert.assertNull(proof.getFailException());
-
+        System.out.println(proof2.getDfyFile().getFilename() + proof2.getGraph().toString());
         pm.getAllProofs().forEach((s1, proof1) -> {
             proof1.invalidate();
         });
         Proof proofAfter = pm.getProofForPVC(testPVCm1Post);
+
 
         System.out.println(proofAfter.getScript().toString());
         Assert.assertNotNull(proofAfter.getScript());

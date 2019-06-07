@@ -1,9 +1,8 @@
-/*
- * This file is part of AlgoVer.
+/**
+ * This file is part of DIVE.
  *
- * Copyright (C) 2015-2017 Karlsruhe Institute of Technology
+ * Copyright (C) 2015-2019 Karlsruhe Institute of Technology
  */
-
 package edu.kit.iti.algover.smt;
 
 import java.io.IOException;
@@ -13,8 +12,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
-import org.antlr.stringtemplate.StringTemplate;
-import org.antlr.stringtemplate.language.AngleBracketTemplateLexer;
+ import org.antlr.stringtemplate.StringTemplate;
 
 import edu.kit.iti.algover.dafnystructures.DafnyClass;
 import edu.kit.iti.algover.dafnystructures.DafnyDecl;
@@ -25,6 +23,7 @@ import edu.kit.iti.algover.smt.SExpr.Type;
 import edu.kit.iti.algover.term.FunctionSymbol;
 import edu.kit.iti.algover.term.Term;
 import edu.kit.iti.algover.util.Util;
+import org.antlr.stringtemplate.language.AngleBracketTemplateLexer;
 
 public abstract class SMTSolver {
 

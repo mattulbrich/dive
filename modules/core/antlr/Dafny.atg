@@ -1,0 +1,1758 @@
+
+// This is a stripped version of the original parser
+// at https://raw.githubusercontent.com/Microsoft/dafny/master/Source/Dafny/Dafny.atg
+
+/*--------------------------------------------------------------------------*/
+CHARACTERS
+  letter = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz".
+  digit = "0123456789".
+  posDigit = "123456789".
+  hexdigit = "0123456789ABCDEFabcdef".
+  special = "'_?".
+  glyph = "`~!@#$%^&*()-_=+[{]}|;:',<.>/?\\".
+  cr        = '\r'.
+  lf        = '\n'.
+  tab       = '\t'.
+  space = ' '.
+  nondigit = letter + special.
+  idchar = nondigit + digit.
+  nonidchar = ANY - idchar.
+  /* exclude the characters in 'array' and '\'' */
+  nondigitMinusATick = nondigit - 'a' - '\''.
+  idcharMinusA = idchar - 'a'.
+  idcharMinusR = idchar - 'r'.
+  idcharMinusY = idchar - 'y'.
+  idcharMinusPosDigit = idchar - posDigit.
+  idcharMinusTick = idchar - '\''.
+  /* string literals */
+  charChar = ANY - '\'' - '\\' - cr - lf.
+  stringChar = ANY - '"' - '\\' - cr - lf.
+  verbatimStringChar = ANY - '"'.
+
+/*------------------------------------------------------------------------*/
+TOKENS
+  ident =  nondigitMinusATick {idchar}        /* if char 0 is not an 'a' or '\'', then anything else is fine */
+        |  'a' [ idcharMinusR {idchar} ]      /* if char 0 is an 'a', then either there is no char 1 or char 1 is not an 'r' */
+        |  'a' 'r' [ idcharMinusR {idchar} ]  /* etc. */
+        |  'a' 'r' 'r' [ idcharMinusA {idchar} ]
+        |  'a' 'r' 'r' 'a' [ idcharMinusY {idchar} ]
+        |  'a' 'r' 'r' 'a' 'y' idcharMinusPosDigit {idchar}
+        |  'a' 'r' 'r' 'a' 'y' posDigit {idchar} nondigit {idchar}
+        |  "'" [ idchar ]                        /* if char 0 is a '\'' and length is 1 or 2, then it is an identifier */
+        |  "'" idchar idcharMinusTick            /* if char 0 is '\'' and length is 3, then it is an identifier provided char 2 is not '\'' */
+        |  "'" idchar idchar idchar { idchar }   /* if char 0 is '\'' and length exceeds 3, then it is an identifier */
+        .
+  digits = digit {['_'] digit}.
+  hexdigits = "0x" hexdigit {['_'] hexdigit}.
+  decimaldigits = digit {['_'] digit} '.' digit {['_'] digit}.
+  arrayToken = "array" [posDigit {digit}].
+  bool = "bool".
+  char = "char".
+  int = "int".
+  nat = "nat".
+  real = "real".
+  object = "object".
+  string = "string".
+  set = "set".
+  iset = "iset".
+  multiset = "multiset".
+  seq = "seq".
+  map = "map".
+  imap = "imap".
+  charToken =
+      "'"
+      ( charChar
+        | "\\\'" | "\\\"" | "\\\\" | "\\0" | "\\n" | "\\r" | "\\t"
+        | "\\u" hexdigit hexdigit hexdigit hexdigit
+      )
+      "'".
+  stringToken =
+      '"'
+      { stringChar
+        | "\\\'" | "\\\"" | "\\\\" | "\\0" | "\\n" | "\\r" | "\\t"
+        | "\\u" hexdigit hexdigit hexdigit hexdigit
+      }
+      '"'
+    | '@' '"' { verbatimStringChar | "\"\"" } '"'.
+  colon = ':'.
+  comma = ','.
+  verticalbar = '|'.
+  doublecolon = "::".
+  boredSmiley = ":|".
+  bullet = '\u2022'.
+  dot = '.'.
+  semi = ';'.
+  darrow = "=>".
+  arrow = "->".
+  assume = "assume".
+  calc = "calc".
+  case = "case".
+  then = "then".
+  else = "else".
+  decreases = "decreases".
+  invariant = "invariant".
+  function = "function".
+  predicate = "predicate".
+  inductive = "inductive".
+  lemma = "lemma".
+  copredicate = "copredicate".
+  modifies = "modifies".
+  reads = "reads".
+  requires = "requires".
+  lbrace = '{'.
+  rbrace = '}'.
+  lbracket = '['.
+  rbracket = ']'.
+  openparen = '('.
+  closeparen = ')'.
+  openAngleBracket = '<'.
+  closeAngleBracket = '>'.
+  eq = "==".
+  neq = "!=".
+  neqAlt = '\u2260'.
+  star = '*'.
+  notIn = "!in" CONTEXT (nonidchar).
+  ellipsis = "...".
+COMMENTS FROM "/*" TO "*/" NESTED
+COMMENTS FROM "//" TO lf
+IGNORE cr + lf + tab
+/*------------------------------------------------------------------------*/
+PRODUCTIONS
+Dafny
+= (. .)
+  { "include" stringToken               (. .)
+  }
+  { TopDecl<defaultModule, membersDefaultClass, /* isTopLevel */ true, /* isAbstract */ false> }
+  (. .)
+  EOF
+  .
+
+DeclModifier<ref DeclModifierData dmod>
+= ( "abstract"                             (. .)
+  | "ghost"                                (. .)
+  | "static"                               (. .)
+  | "protected"                            (. .)
+  | "extern"                               (. .)
+    [ stringToken                          (. .)
+    ]
+  )
+  .
+
+TopDecl<. ModuleDefinition module, List<MemberDecl/*!*/> membersDefaultClass, bool isTopLevel, bool isAbstract .>
+= (. .)
+  { DeclModifier<ref dmod> }
+  ( SubModuleDecl<dmod, module, out submodule> (. .)
+  | ClassDecl<dmod, module, out c>             (. .)
+  | DatatypeDecl<dmod, module, out dt>         (. .)
+  | NewtypeDecl<dmod, module, out td>          (. .)
+  | OtherTypeDecl<dmod, module, out td>        (. .)
+  | IteratorDecl<dmod, module, out iter>       (. .)
+  | TraitDecl<dmod, module, out trait>         (. .)
+  | ClassMemberDecl<dmod, membersDefaultClass, false, !DafnyOptions.O.AllowGlobals, 
+                    !isTopLevel && DafnyOptions.O.IronDafny && isAbstract>
+  ) .
+
+SubModuleDecl<DeclModifierData dmod, ModuleDefinition parent, out ModuleDecl submodule>
+= (. .)
+  ( "module"
+    { Attribute<ref attrs> }
+    NoUSIdent<out id>
+    (. .)
+
+      [ "exclusively" "refines" QualifiedModuleName<out idRefined> (. .)  
+      | "refines" QualifiedModuleName<out idRefined> (. .) ] 
+            (. .)  
+       "{"                                             (. .)
+            { TopDecl<module, namedModuleDefaultClassMembers, /* isTopLevel */ false, isAbstract>}
+       "}"                                 (. .)
+  |
+    "import" ["opened" (. .)]
+    NoUSIdent<out id>
+    (. .)
+    [ "=" QualifiedModuleName<out idPath>
+      (. .)
+    | "as" QualifiedModuleName<out idPath> [IF(IsDefaultImport()) "default" QualifiedModuleName<out idAssignment> ]
+      (. .)
+    | ":" QualifiedModuleName<out idPath>
+      (. .)
+    | "." QualifiedModuleName<out idPath>
+      (. .)
+    ]
+    [ SYNC ";"
+        // This semi-colon used to be required, but it seems silly to have it.
+        // To stage the transition toward not having it at all, let's make it optional for now.  Then,
+        // in the next big version of Dafny, don't allow the semi-colon at all.
+        (. .)
+    ]
+    (. .)
+	| (. .)
+	  ["default"  (. .) ]
+		"export"
+		NoUSIdent<out exportId>
+		["extends" 
+     NoUSIdent<out id>(. .) 
+     {"," NoUSIdent<out id>  (. .) }
+    ] 
+		"{"
+		   NoUSIdent<out id>   (. .)
+			 ['+' (. .)]
+			 (. .)
+       { ","
+         NoUSIdent<out id> (. .)
+			   ['+' (. .)]
+			   (. .)
+       }
+		"}"
+		(. .)
+  )
+.
+
+/* This production is used to parse module names, where it is known that it is a module name that is expected. */
+QualifiedModuleName<.out List<IToken> ids.>
+= (. .)
+  Ident<out id>                               (. .)
+  { "." Ident<out id>                         (. .)
+  }
+  .
+
+
+ClassDecl<DeclModifierData dmodClass, ModuleDefinition/*!*/ module, out ClassDecl/*!*/ c>
+= (. .)
+  SYNC
+  "class"
+  { Attribute<ref attrs> }
+  NoUSIdent<out id>
+  (. .)
+  [ GenericParameters<typeArgs> ]
+  ["extends" 
+  Type<out trait>		(. .) 
+  {"," Type<out trait>  (. .) }
+  ]         
+  "{"                                            (. .)
+  { (. .)
+    { DeclModifier<ref dmod> }
+    ClassMemberDecl<dmod, members, true, false, false>
+  }
+  "}"
+  (. .)
+  .
+
+TraitDecl<DeclModifierData dmodIn, ModuleDefinition/*!*/ module, out TraitDecl/*!*/ trait>
+  = (. .)
+	SYNC
+	"trait"
+	{ Attribute<ref attrs> }
+	NoUSIdent<out id>
+	[ GenericParameters<typeArgs> ]
+  	"{"                                            (. .)
+      {                                            (. .)
+        { DeclModifier<ref dmod> }
+        ClassMemberDecl<dmod, members, true, false, false>
+      }
+    "}"
+	(. .)
+	.
+
+ClassMemberDecl<. DeclModifierData dmod, List<MemberDecl> mm, bool allowConstructors, bool moduleLevelDecl, bool isWithinAbstractModule.>
+= (. .)
+  ( (. .)
+    FieldDecl<dmod, mm>
+  | IF(IsFunctionDecl())
+    (. .)
+    FunctionDecl<dmod, isWithinAbstractModule, out f>                   (. .)
+  | (. .)
+    MethodDecl<dmod, allowConstructors, isWithinAbstractModule, out m>  (. .)
+  )
+  .
+DatatypeDecl<DeclModifierData dmod, ModuleDefinition/*!*/ module, out DatatypeDecl/*!*/ dt>
+= (. .)
+  SYNC
+  ( "datatype"
+  | "codatatype"     (. .)
+  )
+  { Attribute<ref attrs> }
+  NoUSIdent<out id>
+  [ GenericParameters<typeArgs> ]
+  "="                                      (. .)
+  DatatypeMemberDecl<ctors>
+  { "|" DatatypeMemberDecl<ctors> }
+  [ SYNC ";"
+      // This semi-colon used to be required, but it seems silly to have it.
+      // To stage the transition toward not having it at all, let's make it optional for now.  Then,
+      // in the next big version of Dafny, don't allow the semi-colon at all.
+      (. .)
+  ]
+  (. .)
+  .
+DatatypeMemberDecl<.List<DatatypeCtor/*!*/>/*!*/ ctors.>
+= (. .)
+  { Attribute<ref attrs> }
+  NoUSIdent<out id>
+  [ FormalsOptionalIds<formals> ]
+  (. .)
+  .
+FieldDecl<.DeclModifierData dmod, List<MemberDecl/*!*/>/*!*/ mm.>
+= (. .)
+  SYNC
+  "var"
+  { Attribute<ref attrs> }
+  FIdentType<out id, out ty>                        (. .)
+  { "," FIdentType<out id, out ty>                  (. .)
+  }
+  OldSemi
+  .
+NewtypeDecl<DeclModifierData dmod, ModuleDefinition module, out TopLevelDecl td>
+= (. .)
+  "newtype"
+  { Attribute<ref attrs> }
+  NoUSIdent<out id>
+  "="
+  ( IF(IsIdentColonOrBar())
+    NoUSIdent<out bvId>
+    [ ":" Type<out baseType> ]       (. .)
+    "|"
+    Expression<out wh, false, true>  (. .)
+  | Type<out baseType>               (. .)
+  )
+  .
+OtherTypeDecl<DeclModifierData dmod, ModuleDefinition module, out TopLevelDecl td>
+= (. .)
+  "type"
+  { Attribute<ref attrs> }
+  NoUSIdent<out id>
+  ( "(" "==" ")"               (. .)
+    [ GenericParameters<typeArgs> ]
+  |
+    [ GenericParameters<typeArgs> ]
+    [ "="
+      Type<out ty>             (. .)
+    ]
+  )                            (. .)
+  [ SYNC ";"
+      // This semi-colon used to be required, but it seems silly to have it.
+      // To stage the transition toward not having it at all, let's make it optional for now.  Then,
+      // in the next big version of Dafny, don't allow the semi-colon at all.
+      (. .)
+  ]
+  .
+GIdentType<bool allowGhostKeyword, out IToken/*!*/ id, out Type/*!*/ ty, out bool isGhost>
+/* isGhost always returns as false if allowGhostKeyword is false */
+= (. .)
+  [ "ghost"                    (. .)
+  ]
+  IdentType<out id, out ty, true>
+  .
+FIdentType<out IToken/*!*/ id, out Type/*!*/ ty>
+= (. .)
+  ( WildIdent<out id, false>
+  | digits         (. .)
+  )
+  ":"
+  Type<out ty>
+  .
+IdentType<out IToken/*!*/ id, out Type/*!*/ ty, bool allowWildcardId>
+= (. .)
+  WildIdent<out id, allowWildcardId>
+  ":"
+  Type<out ty>
+  .
+LocalIdentTypeOptional<out LocalVariable var, bool isGhost>
+= (. .)
+  WildIdent<out id, true>
+  [ ":" Type<out ty>             (. .)
+  ]
+  (. .)
+  .
+IdentTypeOptional<out BoundVar var>
+= (. .)
+  WildIdent<out id, true>
+  [ ":" Type<out ty>             (. .)
+  ]
+  (. .)
+  .
+TypeIdentOptional<out IToken/*!*/ id, out string/*!*/ identName, out Type/*!*/ ty, out bool isGhost>
+= (. .)
+  [ "ghost"                            (. .)
+  ]
+  ( TypeAndToken<out id, out ty>
+    [ ":"
+      (. .)
+      Type<out ty>
+    ]
+  | digits         (. .)
+    ":"
+    Type<out ty>
+  )
+  (. .)
+  .
+/*------------------------------------------------------------------------*/
+IteratorDecl<DeclModifierData dmod, ModuleDefinition module, out IteratorDecl/*!*/ iter>
+= (. .)
+  SYNC
+  "iterator"
+  { Attribute<ref attrs> }
+  NoUSIdent<out id>
+  (
+    [ GenericParameters<typeArgs> ]
+    Formals<true, true, ins>
+    [ ( "yields"
+      | "returns"           (. .)
+      )
+      Formals<false, true, outs>
+    ]
+  | "..."                                       (. .)
+  )
+  { IteratorSpec<reads, mod, decreases, req, ens, yieldReq, yieldEns, ref readsAttrs, ref modAttrs, ref decrAttrs> }
+  [ BlockStmt<out body, out bodyStart, out bodyEnd>
+  ]
+  (. .)
+  .
+/*------------------------------------------------------------------------*/
+GenericParameters<.List<TypeParameter/*!*/>/*!*/ typeArgs.>
+= (. .)
+  "<"
+  NoUSIdent<out id>          (. .)
+  [ "(" "==" ")"             (. .)
+    ]                        (. .)
+  { "," NoUSIdent<out id>    (. .)
+    [ "(" "==" ")"           (. .)
+    ]                        (. .)
+  }
+  ">"
+  .
+/*------------------------------------------------------------------------*/
+MethodDecl<DeclModifierData dmod, bool allowConstructor, bool isWithinAbstractModule, out Method/*!*/ m>
+= (. .)
+  SYNC
+  ( "method"                        (. .)
+  | "lemma"                         (. .)
+  | "colemma"                       (. .)
+  | "comethod"                      (. .)
+  | "inductive" "lemma"             (. .)
+  | "constructor"                   (. .)
+  )                                 (. .)
+  { Attribute<ref attrs> }
+  [ NoUSIdent<out id>               (. .)
+  ]
+  (. .)
+  (
+    [ GenericParameters<typeArgs> ]
+    Formals<true, !dmod.IsGhost, ins>
+    [ "returns"                                 (. .)
+      Formals<false, !dmod.IsGhost, outs>
+    ]
+  | "..."                                       (. .)
+  )
+  { MethodSpec<req, mod, ens, dec, ref decAttrs, ref modAttrs> }
+  [ BlockStmt<out body, out bodyStart, out bodyEnd>
+  ]
+  (. .)
+  .
+MethodSpec<.List<MaybeFreeExpression/*!*/>/*!*/ req, List<FrameExpression/*!*/>/*!*/ mod, List<MaybeFreeExpression/*!*/>/*!*/ ens,
+           List<Expression/*!*/>/*!*/ decreases, ref Attributes decAttrs, ref Attributes modAttrs.>
+= (. .)
+  SYNC
+  ( "modifies" { IF(IsAttribute()) Attribute<ref modAttrs> }
+               FrameExpression<out fe, false, false>         (. .)
+               { "," FrameExpression<out fe, false, false>   (. .)
+               }
+               OldSemi
+  | [ "free"                                                 (. .)
+    ]
+    ( "requires" Expression<out e, false, false> OldSemi     (. .)
+    | "ensures"
+      { IF(IsAttribute()) Attribute<ref ensAttrs> }
+      Expression<out e, false, false> OldSemi                (. .)
+    )
+  | "decreases" { IF(IsAttribute()) Attribute<ref decAttrs> } DecreasesList<decreases, true, false> OldSemi
+  )
+  .
+IteratorSpec<.List<FrameExpression/*!*/>/*!*/ reads, List<FrameExpression/*!*/>/*!*/ mod, List<Expression/*!*/> decreases,
+              List<MaybeFreeExpression/*!*/>/*!*/ req, List<MaybeFreeExpression/*!*/>/*!*/ ens,
+              List<MaybeFreeExpression/*!*/>/*!*/ yieldReq, List<MaybeFreeExpression/*!*/>/*!*/ yieldEns,
+              ref Attributes readsAttrs, ref Attributes modAttrs, ref Attributes decrAttrs.>
+= (. .)
+  SYNC
+  ( "reads"    { IF(IsAttribute()) Attribute<ref readsAttrs> }
+               FrameExpression<out fe, false, false>       (. .)
+               { "," FrameExpression<out fe, false, false> (. .)
+               }
+               OldSemi
+  | "modifies" { IF(IsAttribute()) Attribute<ref modAttrs> }
+               FrameExpression<out fe, false, false>       (. .)
+               { "," FrameExpression<out fe, false, false> (. .)
+               }
+               OldSemi
+  | [ "free"                                                 (. .)
+    ]
+    [ "yield"                                                (. .)
+    ]
+    ( "requires" Expression<out e, false, false> OldSemi     (. .)
+    | "ensures" { IF(IsAttribute()) Attribute<ref ensAttrs> }
+      Expression<out e, false, false> OldSemi                (. .)
+    )
+  | "decreases" { IF(IsAttribute()) Attribute<ref decrAttrs> } DecreasesList<decreases, false, false> OldSemi
+  )
+  .
+Formals<.bool incoming, bool allowGhostKeyword, List<Formal> formals.>
+= (. .)
+  "("
+  [
+    GIdentType<allowGhostKeyword, out id, out ty, out isGhost>         (. .)
+    { "," GIdentType<allowGhostKeyword, out id, out ty, out isGhost>   (. .)
+    }
+  ]
+  ")"
+  .
+FormalsOptionalIds<.List<Formal/*!*/>/*!*/ formals.>
+= (. .)
+  "("
+  [
+    TypeIdentOptional<out id, out name, out ty, out isGhost>        (. .)
+    { "," TypeIdentOptional<out id, out name, out ty, out isGhost>  (. .)
+    }
+  ]
+  ")"
+  .
+/*------------------------------------------------------------------------*/
+Type<out Type ty>
+= (. .)
+  TypeAndToken<out tok, out ty>
+  .
+
+TypeAndToken<out IToken tok, out Type ty>
+= (. .)
+  ( "bool"                          (. .)
+  | "char"                          (. .)
+  | "nat"                           (. .)
+  | "int"                           (. .)
+  | "real"                          (. .)
+  | "object"                        (. .)
+  | "set"                           (. .)
+    [ GenericInstantiation<gt> ]    (. .)
+  | "iset"                          (. .)
+    [ GenericInstantiation<gt> ]    (. .)
+  | "multiset"                      (. .)
+    [ GenericInstantiation<gt> ]    (. .)
+  | "seq"                           (. .)
+    [ GenericInstantiation<gt> ]    (. .)
+  | "string"                        (. .)
+  | "map"                           (. .)
+    [ GenericInstantiation<gt> ]    (. .)
+  | "imap"                          (. .)
+    [ GenericInstantiation<gt> ]    (. .)
+  | arrayToken                      (. .)
+    [ (. .)
+      GenericInstantiation<gt>
+    ]
+                                    (. .)
+  | "("                             (. .)
+    [ Type<out ty>                  (. .)
+      { "," Type<out ty>            (. .)
+      }
+    ]
+    ")"                             (. .)
+  | (. .)
+    NameSegmentForTypeName<out e> (. .)
+    { "." ident                      (. .)
+      [ (. .)
+        GenericInstantiation<typeArgs>
+      ]
+      (. .)
+    }
+    (. .)
+  )
+  [ (. .)
+    "->"                  (. .)
+    Type<out t2>
+    (. .)
+  ]
+
+  .
+GenericInstantiation<.List<Type/*!*/>/*!*/ gt.>
+= (. .)
+  "<"
+    Type<out ty>                     (. .)
+    { "," Type<out ty>               (. .)
+    }
+  ">"
+  .
+/*------------------------------------------------------------------------*/
+FunctionDecl<DeclModifierData dmod, bool isWithinAbstractModule, out Function/*!*/ f>
+= (. .)
+  /* ----- function ----- */
+  ( "function"
+    [ "method"                 (. .)
+    ]
+    (. .)
+    { Attribute<ref attrs> }
+    NoUSIdent<out id>
+    (
+      [ GenericParameters<typeArgs> ]
+      Formals<true, isFunctionMethod, formals>
+      ":"
+      Type<out returnType>
+    | "..."                    (. .)
+    )
+
+  /* ----- predicate ----- */
+  | "predicate"                (. .)
+    [ "method"                 (. .)
+    ]
+    (. .)
+    { Attribute<ref attrs> }
+    NoUSIdent<out id>
+    (
+      [ GenericParameters<typeArgs> ]                  (. .)
+      [ Formals<true, isFunctionMethod, formals>       (. .)
+      ]                                                (. .)
+      [ ":"                    (. .)
+      ]
+    | "..."                    (. .)
+    )
+
+  /* ----- inductive predicate ----- */
+  | "inductive" "predicate"    (. .)
+    (. .)
+    { Attribute<ref attrs> }
+    NoUSIdent<out id>
+    (
+      [ GenericParameters<typeArgs> ]
+      Formals<true, isFunctionMethod, formals>
+      [ ":"                    (. .)
+      ]
+    | "..."                    (. .)
+    )
+
+  /* ----- copredicate ----- */
+  | "copredicate"              (. .)
+    (. .)
+    { Attribute<ref attrs> }
+    NoUSIdent<out id>
+    (
+      [ GenericParameters<typeArgs> ]
+      Formals<true, isFunctionMethod, formals>
+      [ ":"                    (. .)
+      ]
+    | "..."                    (. .)
+    )
+  )
+
+  (. .)
+  { FunctionSpec<reqs, reads, ens, decreases> }
+  [ FunctionBody<out body, out bodyStart, out bodyEnd>
+  ]
+  (. .)
+  .
+FunctionSpec<.List<Expression/*!*/>/*!*/ reqs, List<FrameExpression/*!*/>/*!*/ reads, List<Expression/*!*/>/*!*/ ens, List<Expression/*!*/> decreases.>
+= (. .)
+  SYNC
+  ( "requires" Expression<out e, false, false> OldSemi  (. .)
+  | "reads"
+    PossiblyWildFrameExpression<out fe, false>          (. .)
+    { "," PossiblyWildFrameExpression<out fe, false>    (. .)
+    }
+    OldSemi
+  | "ensures" Expression<out e, false, false> OldSemi       (. .)
+  | "decreases"                               (. .)
+    DecreasesList<decreases, false, false> OldSemi
+  )
+  .
+
+PossiblyWildExpression<out Expression e, bool allowLambda>
+= (. .)
+  /* A decreases clause on a loop asks that no termination check be performed.
+   * Use of this feature is sound only with respect to partial correctness.
+   */
+  ( "*"                        (. .)
+  | Expression<out e, false, allowLambda>
+  )
+  .
+PossiblyWildFrameExpression<out FrameExpression fe, bool allowSemi>
+= (. .)
+  /* A reads clause can list a wildcard, which allows the enclosing function to
+   * read anything.  In many cases, and in particular in all cases where
+   * the function is defined recursively, this makes it next to impossible to make
+   * any use of the function.  Nevertheless, as an experimental feature, the
+   * language allows it (and it is sound).
+   */
+  ( "*"                        (. .)
+  | FrameExpression<out fe, allowSemi, false>
+  )
+  .
+FrameExpression<out FrameExpression fe, bool allowSemi, bool allowLambda>
+= (. .)
+  ( Expression<out e, allowSemi, allowLambda>   (. .)
+    [ "`" Ident<out id>        (. .)
+    ]                          (. .)
+  |
+    "`" Ident<out id>          (. .)
+                               (. .)
+  )
+  .
+FunctionBody<out Expression/*!*/ e, out IToken bodyStart, out IToken bodyEnd>
+= (. .)
+  "{"                         (. .)
+  Expression<out e, true, true>
+  "}"                         (. .)
+  .
+/*------------------------------------------------------------------------*/
+BlockStmt<out BlockStmt/*!*/ block, out IToken bodyStart, out IToken bodyEnd>
+= (. .)
+  "{"                                  (. .)
+  { Stmt<body>
+  }
+  "}"                                  (. .)
+  .
+Stmt<.List<Statement/*!*/>/*!*/ ss.>
+= (. .)
+  OneStmt<out s>                                (. .)
+  .
+OneStmt<out Statement/*!*/ s>
+= (. .)
+  SYNC
+  ( BlockStmt<out bs, out bodyStart, out bodyEnd>  (. .)
+  | AssertStmt<out s>
+  | AssumeStmt<out s>
+  | PrintStmt<out s>
+  | UpdateStmt<out s>
+  | VarDeclStatement<out s>
+  | IfStmt<out s>
+  | WhileStmt<out s>
+  | MatchStmt<out s>
+  | ForallStmt<out s>
+  | CalcStmt<out s>
+  | ModifyStmt<out s>
+  | "label"                            (. .)
+    NoUSIdent<out id> ":"
+    OneStmt<out s>                     (. .)
+  | "break"                            (. .)
+    ( NoUSIdent<out id>                    (. .)
+    | { "break"                        (. .)
+      }
+    )
+    SYNC
+    ";"                                (. .)
+  | ReturnStmt<out s>
+  | SkeletonStmt<out s>
+  )
+  .
+
+SkeletonStmt<out Statement s>
+= (. .)
+  "..."                                (. .)
+  ["where"                             (. .)
+     Ident<out tok>                    (. .)
+     {"," Ident<out tok>               (. .)
+     }
+     ":="
+     Expression<out e, false, true>          (. .)
+     {"," Expression<out e, false, true>     (. .)
+     }
+                                       (. .)
+  ]
+  ";"
+  (. .)
+  .
+ReturnStmt<out Statement/*!*/ s>
+= (. .)
+  ( "return"                         (. .)
+  | "yield"                          (. .)
+  )
+  [ Rhs<out r>                       (. .)
+    { "," Rhs<out r>                 (. .)
+    }
+  ]
+  ";"                                (. .)
+  .
+UpdateStmt<out Statement/*!*/ s>
+= (. .)
+  Lhs<out e>                       (. .)
+  ( { Attribute<ref attrs> }
+    ";"                            (. .)
+  |                                (. .)
+    { "," Lhs<out e>               (. .)
+    }
+    ( ":="                         (. .)
+      Rhs<out r>                   (. .)
+      { "," Rhs<out r>             (. .)
+      }
+    | ":|"                         (. .)
+      [ IF(la.kind == _assume)     /* an Expression can also begin with an "assume", so this says to resolve it to pick up any "assume" here */
+        "assume"                   (. .)
+      ]
+      Expression<out suchThat, false, true>
+    )
+    ";"                            (. .)
+  | ":"                            (. .)
+  )
+  (. .)
+  .
+Rhs<out AssignmentRhs r>
+= (. .)
+  ( "new"                              (. .)
+    TypeAndToken<out x, out ty>
+    [ "["                              (. .)
+      Expressions<ee>
+      "]"                              (. .)
+    |                                  (. .)
+      "("
+        [ Expressions<args> ]
+      ")"
+    ]
+    (. .)
+  | "*"                                (. .)
+  | Expression<out e, false, true>     (. .)
+  )
+  { Attribute<ref attrs> }             (. .)
+  .
+VarDeclStatement<.out Statement/*!*/ s.>
+= (. .)
+  [ "ghost"                                 (. .)
+  ]
+  "var"                                     (. .)
+  ( { Attribute<ref attrs> }
+    LocalIdentTypeOptional<out d, isGhost>    (. .)
+    { ","
+      { Attribute<ref attrs> }
+      LocalIdentTypeOptional<out d, isGhost>  (. .)
+    }
+    [ ":="                           (. .)
+      Rhs<out r>                     (. .)
+      { "," Rhs<out r>               (. .)
+      }
+    | { Attribute<ref attrs> }
+      ":|"                           (. .)
+      [ IF(la.kind == _assume)       /* an Expression can also begin with an "assume", so this says to resolve it to pick up any "assume" here */
+        "assume"                     (. .)
+      ]
+      Expression<out suchThat, false, true>
+    ]
+    SYNC ";"                         (. .)
+    (. .)
+  | "("                             (. .)
+      [ CasePattern<out pat>            (. .)
+        { "," CasePattern<out pat>      (. .)
+        }
+      ]
+    ")"                             (. .)
+    ( ":="
+    | { Attribute<ref attrs> }
+      ":|"                          (. .)
+    )
+    Expression<out e, false, true>        (. .)
+    
+    ";"
+    (. .)
+  )
+  .
+IfStmt<out Statement/*!*/ ifStmt>
+= (. .)
+  "if"                       (. .)
+  (
+    IF(IsAlternative())
+    AlternativeBlock<true, out alternatives, out endTok>
+    (. .)
+  |
+    ( IF(IsExistentialGuard())
+      ExistentialGuard<out guard, true>  (. .)
+    | Guard<out guard>
+    | "..."                              (. .)
+    )
+    BlockStmt<out thn, out bodyStart, out bodyEnd>    (. .)
+    [ "else"
+      ( IfStmt<out s>                                 (. .)
+      | BlockStmt<out bs, out bodyStart, out bodyEnd> (. .)
+      )
+    ]
+    (. .)
+  )
+  .
+AlternativeBlock<.bool allowExistentialGuards, out List<GuardedAlternative> alternatives, out IToken endTok.>
+= (. .)
+  "{"
+  { "case"                             (. .)
+    ( IF(allowExistentialGuards && IsExistentialGuard())
+      ExistentialGuard<out e, false >  (. .)  // NB: don't allow lambda here
+    | Expression<out e, true, false> // NB: don't allow lambda here
+    )
+    "=>"
+    (. .)
+    { Stmt<body> }
+    (. .)
+  }
+  "}"                           (. .)
+  .
+WhileStmt<out Statement stmt>
+= (. .)
+  "while"                    (. .)
+  (
+    IF(IsLoopSpec() || IsAlternative())
+    { LoopSpec<invariants, decreases, ref mod, ref decAttrs, ref modAttrs> }
+    AlternativeBlock<false, out alternatives, out endTok>
+    (. .)
+  |
+    ( Guard<out guard>           (. .)
+    | "..."                      (. .)
+    )
+    { LoopSpec<invariants, decreases, ref mod, ref decAttrs, ref modAttrs> }
+    ( IF(la.kind == _lbrace)      /* if there's an open brace, claim it as the beginning of the loop body (as opposed to a BlockStmt following the loop) */
+      BlockStmt<out body, out bodyStart, out bodyEnd>  (. .)
+    | IF(la.kind == _ellipsis)    /* if there's an ellipsis, claim it as standing for the loop body (as opposed to a "...;" statement following the loop) */
+      "..."                      (. .)
+    | /* go body-less */
+    )
+    (. .)
+  )
+  .
+LoopSpec<.List<MaybeFreeExpression> invariants, List<Expression> decreases, ref List<FrameExpression> mod, ref Attributes decAttrs, ref Attributes modAttrs.>
+= (. .)
+  ( SYNC
+    [ "free"                                      (. .)
+    ]
+    "invariant"
+    { IF(IsAttribute()) Attribute<ref attrs> }
+    Expression<out e, false, true>                (. .)
+    OldSemi
+  | SYNC "decreases"
+    { IF(IsAttribute()) Attribute<ref decAttrs> }
+    DecreasesList<decreases, true, true>
+    OldSemi
+  | SYNC "modifies"                               (. .)
+    { IF(IsAttribute()) Attribute<ref modAttrs> }
+    FrameExpression<out fe, false, true>          (. .)
+    { "," FrameExpression<out fe, false, true>    (. .)
+    }
+    OldSemi
+  )
+  .
+DecreasesList<.List<Expression> decreases, bool allowWildcard, bool allowLambda.>
+= (. .)
+  PossiblyWildExpression<out e, allowLambda> (. .)
+  { "," PossiblyWildExpression<out e, allowLambda>
+                                             (. .)
+  }
+  .
+Guard<out Expression e>   /* null represents demonic-choice */
+= (. .)
+  ( "*"                             (. .)
+  | IF(IsParenStar())  "(" "*" ")"  (. .)
+  | Expression<out ee, true, true>        (. .)
+  )
+  .
+ExistentialGuard<out Expression e, bool allowLambda>
+= (. .)
+  IdentTypeOptional<out bv>                    (. .)
+  { ","
+    IdentTypeOptional<out bv>                  (. .)
+  }
+  { Attribute<ref attrs> }
+  ":|"
+  Expression<out body, true, allowLambda>
+  (. .)
+  .
+MatchStmt<out Statement/*!*/ s>
+= (. .)
+  "match"                     (. .)
+  Expression<out e, true, true>
+  ( IF(la.kind == _lbrace)  /* always favor brace-enclosed match body to a case-less match */
+    "{" (. .)
+        { CaseStatement<out c> (. .) }
+    "}"
+  |     { IF(la.kind == _case)  /* let each "case" bind to the closest preceding "match" */
+          CaseStatement<out c> (. .)
+        }
+  )
+  (. .)
+  .
+CaseStatement<out MatchCaseStmt/*!*/ c>
+= (. .)
+  "case"                      (. .)
+  ( Ident<out id>             (. .)
+    [ "("
+       [ CasePattern<out pat>        (. .)
+         { "," CasePattern<out pat>  (. .)
+         }
+       ]
+    ")" ]
+  | "("
+      CasePattern<out pat>        (. .)
+      { "," CasePattern<out pat>  (. .)
+      }
+    ")"
+  )
+  "=>"
+    SYNC  /* this SYNC and the one inside the loop below are used to avoid problems with the IsNotEndOfCase test. The SYNC will
+           * skip until the next symbol that can legally occur here, which is either the beginning of a Stmt or whatever is allowed
+           * to follow the CaseStatement.
+           */
+    { IF(IsNotEndOfCase()) /* This is a little sketchy. It would be nicer to be able to write IF(la is start-symbol of Stmt), but Coco doesn't allow that */
+      Stmt<body>
+      SYNC  /* see comment about SYNC above */
+    }
+  (. .)
+  .
+/*------------------------------------------------------------------------*/
+AssertStmt<out Statement/*!*/ s>
+= (. .)
+  "assert"                                     (. .)
+  { IF(IsAttribute()) Attribute<ref attrs> }
+  ( Expression<out e, false, true>
+  | "..."                                      (. .)
+  )
+  ";"
+  (. .)
+  .
+AssumeStmt<out Statement/*!*/ s>
+= (. .)
+  "assume"                                     (. .)
+  { IF(IsAttribute()) Attribute<ref attrs> }
+  ( Expression<out e, false, true>
+  | "..."                                      (. .)
+  )
+  ";"
+  (. .)
+  .
+PrintStmt<out Statement s>
+= (. .)
+  "print"                                      (. .)
+  Expression<out e, false, true>               (. .)
+  { "," Expression<out e, false, true>         (. .)
+  }
+  ";"                                          (. .)
+  .
+
+ForallStmt<out Statement/*!*/ s>
+= (. .)
+  ( "forall"                                  (. .)
+  | "parallel"                                (. .)
+  )
+
+  ( IF(la.kind == _openparen)  /* disambiguation needed, because of the possibility of a body-less forall statement */
+    "(" [ QuantifierDomain<out bvars, out attrs, out range> ] ")"
+  |     [ IF(la.kind == _ident)  /* disambiguation needed, because of the possibility of a body-less forall statement */
+          QuantifierDomain<out bvars, out attrs, out range>
+        ]
+  )
+  (. .)
+
+  {                                         (. .)
+    [ "free"                                (. .)
+    ]
+    "ensures" Expression<out e, false, true>  (. .)
+    OldSemi                                   (. .)
+  }
+  [ IF(la.kind == _lbrace)  /* if the input continues like a block statement, take it to be the body of the forall statement; a body-less forall statement must continue in some other way */
+    BlockStmt<out block, out bodyStart, out bodyEnd>
+  ]
+  (. .)
+  .
+
+ModifyStmt<out Statement s>
+= (. .)
+  "modify"           (. .)
+  { IF(IsAttribute()) Attribute<ref attrs> }
+  /* Note, there is an ambiguity here, because a curly brace may look like a FrameExpression and
+   * may also look like a BlockStmt.  We're happy to parse the former, because if the user intended
+   * the latter, then an explicit FrameExpression of {} could be given.
+   */
+  ( FrameExpression<out fe, false, true>       (. .)
+    { "," FrameExpression<out fe, false, true> (. .)
+    }
+  | "..."                               (. .)
+  )
+  ( BlockStmt<out body, out bodyStart, out endTok>
+  | SYNC ";"         (. .)
+  )
+  (. .)
+  .
+
+CalcStmt<out Statement s>
+= (. .)
+  "calc"                                                  (. .)
+  { IF(IsAttribute()) Attribute<ref attrs> }
+  [ CalcOp<out opTok, out calcOp>                         (. .)
+  ]
+  "{"
+  { Expression<out e, false, true>                        (. .)
+    ";"
+    [ CalcOp<out opTok, out op>                           (. .)
+    ]                                                     (. .)
+
+    /* now for the hint, which we build up as a possibly empty sequence of statements placed into one BlockStmt */
+    (. .)
+    { IF(la.kind == _lbrace || la.kind == _calc)  /* Grab as a hint if possible, not a next line in the calculation whose expression begins with an open brace
+                                                   * or StmtExpr containing a calc.  A user has to rewrite such a line to be enclosed in parentheses.
+                                                   */
+      ( BlockStmt<out subBlock, out t0, out t1>   (. .)
+      | CalcStmt<out subCalc>                     (. .)
+      )
+    }
+    (. .)
+  }
+  "}"
+  (. .)
+  .
+CalcOp<out IToken x, out CalcStmt.CalcOp/*!*/ op>
+= (. .)
+  ( "=="           (. .)
+    [ "#" "[" Expression<out k, true, true> "]" ]
+  | "<"            (. .)
+  | ">"            (. .)
+  | "<="           (. .)
+  | ">="           (. .)
+  | "!="           (. .)
+  | '\u2260'       (. .)
+  | '\u2264'       (. .)
+  | '\u2265'       (. .)
+  | EquivOp        (. .)
+  | ImpliesOp      (. .)
+  | ExpliesOp      (. .)
+  )
+  (. .)
+  .
+
+/*------------------------------------------------------------------------*/
+/* Note. In order to avoid LL(1) warnings for expressions that "parse as far as possible", it is
+ * necessary to use Coco/R's IF construct.  That means there are two ways to check for some of
+ * these operators, both in Is...() methods (defined above) and as grammar non-terminals (defined
+ * here).  These pairs of definitions must be changed together.
+ */
+EquivOp = "<==>" | '\u21d4'.
+ImpliesOp = "==>" | '\u21d2'.
+ExpliesOp = "<==" | '\u21d0'.
+AndOp = "&&" | '\u2227'.
+OrOp = "||" | '\u2228'.
+
+NegOp = "!" | '\u00ac'.
+Forall = "forall" | '\u2200'.
+Exists = "exists" | '\u2203'.
+QSep = "::" | '\u2022'.
+
+/* The "allowSemi" argument says whether or not the expression
+ * to be parsed is allowed to have the form S;E where S is a call to a lemma.
+ * "allowSemi" should be passed in as "false" whenever the expression to
+ * be parsed sits in a context that itself is terminated by a semi-colon.
+ *
+ * The "allowLambda" says whether or not the expression to be parsed is
+ * allowed to be a lambda expression.  More precisely, an identifier or
+ * parenthesized-enclosed comma-delimited list of identifiers is allowed to
+ * continue as a lambda expression (that is, continue with a "reads", "requires",
+ * or "=>") only if "allowLambda" is true.  This affects function/method/iterator
+ * specifications, if/while statements with guarded alternatives, and expressions
+ * in the specification of a lambda expression itself.
+ */
+Expression<out Expression e, bool allowSemi, bool allowLambda>
+= (. .)
+  EquivExpression<out e, allowSemi, allowLambda>
+  [ IF(SemiFollowsCall(allowSemi, e))
+    /* here we parse the ";E" that is part of a "LemmaCall;E" expression (other "S;E" expressions are parsed elsewhere) */
+    ";"                       (. .)
+    Expression<out e0, allowSemi, allowLambda>
+    (. .)
+  ]
+  .
+/*------------------------------------------------------------------------*/
+EquivExpression<out Expression e0, bool allowSemi, bool allowLambda>
+= (. .)
+  ImpliesExpliesExpression<out e0, allowSemi, allowLambda>
+  { IF(IsEquivOp())  /* read an EquivExpression as far as possible */
+    EquivOp                                                   (. .)
+    ImpliesExpliesExpression<out e1, allowSemi, allowLambda>  (. .)
+  }
+  .
+/*------------------------------------------------------------------------*/
+ImpliesExpliesExpression<out Expression e0, bool allowSemi, bool allowLambda>
+= (. .)
+  LogicalExpression<out e0, allowSemi, allowLambda>
+  [ IF(IsImpliesOp() || IsExpliesOp())  /* read an ImpliesExpliesExpression as far as possible */
+    /* Note, the asymmetry in the parsing of implies and explies expressions stems from the fact that
+     * implies is right associative whereas reverse implication is left associative
+     */
+    ( ImpliesOp                                               (. .)
+      ImpliesExpression<out e1, allowSemi, allowLambda>       (. .)
+    | ExpliesOp                                               (. .)
+      LogicalExpression<out e1, allowSemi, allowLambda>       (. .)
+      { IF(IsExpliesOp())  /* read a reverse implication as far as possible */
+        ExpliesOp                                             (. .)
+        LogicalExpression<out e1, allowSemi, allowLambda>     (. .)
+      }
+    )
+  ]
+  .
+ImpliesExpression<out Expression e0, bool allowSemi, bool allowLambda>
+= (. .)
+  LogicalExpression<out e0, allowSemi, allowLambda>
+  [ IF(IsImpliesOp())  /* read an ImpliesExpression as far as possible */
+    ImpliesOp                                               (. .)
+    ImpliesExpression<out e1, allowSemi, allowLambda>       (. .)
+  ]
+  .
+/*------------------------------------------------------------------------*/
+LogicalExpression<out Expression e0, bool allowSemi, bool allowLambda>
+= (. .)
+  RelationalExpression<out e0, allowSemi, allowLambda>
+  [ IF(IsAndOp() || IsOrOp())  /* read a LogicalExpression as far as possible */
+    ( AndOp                                                   (. .)
+      RelationalExpression<out e1, allowSemi, allowLambda>    (. .)
+      { IF(IsAndOp())  /* read a conjunction as far as possible */
+        AndOp                                                 (. .)
+        RelationalExpression<out e1, allowSemi, allowLambda>  (. .)
+      }
+    | OrOp                                                    (. .)
+      RelationalExpression<out e1, allowSemi, allowLambda>    (. .)
+      { IF(IsOrOp())  /* read a disjunction as far as possible */
+        OrOp                                                  (. .)
+        RelationalExpression<out e1, allowSemi, allowLambda>  (. .)
+      }
+    )
+  ]
+  .
+/*------------------------------------------------------------------------*/
+RelationalExpression<out Expression e, bool allowSemi, bool allowLambda>
+= (. .)
+  Term<out e0, allowSemi, allowLambda>
+                                   (. .)
+  [ IF(IsRelOp())  /* read a RelationalExpression as far as possible */
+    RelOp<out x, out op, out k>    (. .)
+    Term<out e1, allowSemi, allowLambda>
+                                   (. .)
+    { IF(IsRelOp())  /* read a RelationalExpression as far as possible */
+                                   (. .)
+      RelOp<out x, out op, out k>  (. .)
+      Term<out e1, allowSemi, allowLambda>
+                                   (. .)
+    }
+  ]
+  (. .)
+  .
+RelOp<out IToken/*!*/ x, out BinaryExpr.Opcode op, out Expression k>
+= (. .)
+  ( "=="           (. .)
+    [ "#" "[" Expression<out k, true, true> "]" ]
+  | "<"            (. .)
+  | ">"            (. .)
+  | "<="           (. .)
+  | ">="           (. .)
+  | "!="           (. .)
+    [ "#" "[" Expression<out k, true, true> "]" ]
+  | "in"           (. .)
+  | notIn          (. .)
+  | /* The next operator is "!!", but we have to scan it as two "!", since the scanner is gready
+       so if "!!" is a valid token, we won't be able to scan it as two "!" when needed: */
+    "!"            (. .)
+    [ IF(la.val == "!")
+      "!"          (. .)
+    ]              (. .)
+  | '\u2260'       (. .)
+  | '\u2264'       (. .)
+  | '\u2265'       (. .)
+  )
+  .
+/*------------------------------------------------------------------------*/
+Term<out Expression e0, bool allowSemi, bool allowLambda>
+= (. .)
+  Factor<out e0, allowSemi, allowLambda>
+  { IF(IsAddOp())  /* read a Term as far as possible */
+    AddOp<out x, out op>
+    Factor<out e1, allowSemi, allowLambda> (. .)
+  }
+  .
+AddOp<out IToken x, out BinaryExpr.Opcode op>
+= (. .)
+  ( "+"            (. .)
+  | "-"            (. .)
+  )
+  .
+/*------------------------------------------------------------------------*/
+Factor<out Expression e0, bool allowSemi, bool allowLambda>
+= (. .)
+  UnaryExpression<out e0, allowSemi, allowLambda>
+  { IF(IsMulOp())  /* read a Factor as far as possible */
+    MulOp<out x, out op>
+    UnaryExpression<out e1, allowSemi, allowLambda> (. .)
+  }
+  .
+MulOp<out IToken x, out BinaryExpr.Opcode op>
+= (. .)
+  ( "*"            (. .)
+  | "/"            (. .)
+  | "%"            (. .)
+  )
+  .
+/*------------------------------------------------------------------------*/
+UnaryExpression<out Expression e, bool allowSemi, bool allowLambda>
+= (. .)
+  ( "-"                                             (. .)
+    UnaryExpression<out e, allowSemi, allowLambda>  (. .)
+  | NegOp                                           (. .)
+    UnaryExpression<out e, allowSemi, allowLambda>  (. .)
+
+  | IF(IsMapDisplay())  /* this alternative must be checked before going into EndlessExpression, where there is another "map" */
+    "map"                                           (. .)
+    MapDisplayExpr<x, true, out e>
+    { IF(IsSuffix()) Suffix<ref e> }
+  | IF(IsIMapDisplay())  /* this alternative must be checked before going into EndlessExpression, where there is another "imap" */
+    "imap"                                          (. .)
+    MapDisplayExpr<x, false, out e>
+    { IF(IsSuffix()) Suffix<ref e> }
+  | IF(IsISetDisplay())  /* this alternative must be checked before going into EndlessExpression, where there is another "iset" */
+    "iset"                                          (. .)
+    ISetDisplayExpr<x, false, out e>
+    { IF(IsSuffix()) Suffix<ref e> }
+  | IF(IsLambda(allowLambda))
+    LambdaExpression<out e, allowSemi>  /* this is an endless expression */
+  | EndlessExpression<out e, allowSemi, allowLambda>
+  | NameSegment<out e>
+    { IF(IsSuffix()) Suffix<ref e> }
+  | DisplayExpr<out e>
+    { IF(IsSuffix()) Suffix<ref e> }
+  | MultiSetExpr<out e>
+    { IF(IsSuffix()) Suffix<ref e> }
+  | ConstAtomExpression<out e, allowSemi, allowLambda>
+    { IF(IsSuffix()) Suffix<ref e> }
+  )
+  .
+Lhs<out Expression e>
+= (. .)
+  ( NameSegment<out e>
+    { Suffix<ref e> }
+  | ConstAtomExpression<out e, false, false>
+    Suffix<ref e>
+    { Suffix<ref e> }
+  )
+  .
+
+/* A ConstAtomExpression is never an l-value, and does not start with an identifier. */
+ConstAtomExpression<out Expression e, bool allowSemi, bool allowLambda>
+= (. .)
+  ( "false"                                    (. .)
+  | "true"                                     (. .)
+  | "null"                                     (. .)
+  | Nat<out n>                                 (. .)
+  | Dec<out d>                                 (. .)
+  | charToken                                  (. .)
+  | stringToken                                (. .)
+  | "this"                                     (. .)
+  | "fresh"                                    (. .)
+    "(" Expression<out e, true, true> ")"            (. .)
+  | "old"                                      (. .)
+    "(" Expression<out e, true, true> ")"            (. .)
+  | "|"                                        (. .)
+      Expression<out e, true, true>                  (. .)
+    "|"
+  | ( "int"                                    (. .)
+    | "real"                                   (. .)
+    )
+    "(" Expression<out e, true, true> ")"      (. .)
+  | ParensExpression<out e, allowSemi, allowLambda>
+  )
+  .
+
+LambdaArrow<out bool oneShot>
+= (. .)
+  ( "=>" (. .)
+  | "->" (. .)
+  )
+  .
+
+LambdaExpression<out Expression e, bool allowSemi>
+= (. .)
+  ( WildIdent<out id, true>                  (. .)
+  | "("                                      (. .)
+      [
+        IdentTypeOptional<out bv>            (. .)
+        { "," IdentTypeOptional<out bv>      (. .)
+        }
+      ]
+    ")"
+  )
+  { "reads" PossiblyWildFrameExpression<out fe, true> (. .)
+  | "requires" Expression<out ee, true, false>        (. .)
+  }
+  LambdaArrow<out oneShot>
+  Expression<out body, allowSemi, true>
+  (. .)
+  .
+ParensExpression<out Expression e, bool allowSemi, bool allowLambda>
+= (. .)
+  "("                                        (. .)
+  [ Expressions<args> ]
+  ")"
+  (. .)
+  .
+ISetDisplayExpr<IToken/*!*/ setToken, bool finite, out Expression e>
+= (. .)
+  "{"
+      [ Expressions<elements> ]                (. .)
+  "}"
+  .
+DisplayExpr<out Expression e>
+= (. .)
+  ( "{"                                        (. .)
+      [ Expressions<elements> ]                (. .)
+    "}"
+  | "["                                        (. .)
+      [ Expressions<elements> ]                (. .)
+    "]"
+  )
+  .
+MultiSetExpr<out Expression e>
+= (. .)
+  "multiset"                                   (. .)
+  ( "{"                                        (. .)
+      [ Expressions<elements> ]                (. .)
+    "}"
+  | "("                                        (. .)
+      Expression<out e, true, true>            (. .)
+    ")"
+  )
+  .
+MapDisplayExpr<IToken/*!*/ mapToken, bool finite, out Expression e>
+= (. .)
+  "["
+    [ MapLiteralExpressions<out elements> ]  (. .)
+  "]"
+  .
+MapLiteralExpressions<.out List<ExpressionPair> elements.>
+= (. .)
+  Expression<out d, true, true> ":=" Expression<out r, true, true>       (. .)
+  { "," Expression<out d, true, true> ":=" Expression<out r, true, true> (. .)
+  }
+  .
+MapComprehensionExpr<IToken mapToken, bool finite, out Expression e, bool allowSemi, bool allowLambda>
+= (. .)
+  IdentTypeOptional<out bv>                    (. .)
+  { Attribute<ref attrs> }
+  [ "|" Expression<out range, true, true> ]
+  QSep
+  Expression<out body, allowSemi, allowLambda>
+  (. .)
+  .
+EndlessExpression<out Expression e, bool allowSemi, bool allowLambda>
+= (. .)
+  ( "if"                            (. .)
+    ( IF(IsExistentialGuard())
+      ExistentialGuard<out e, true>  (. .)
+    | Expression<out e, true, true>
+    )
+    "then" Expression<out e0, true, true>
+    "else" Expression<out e1, allowSemi, allowLambda>    (. .)
+  | MatchExpression<out e, allowSemi, allowLambda>
+  | QuantifierGuts<out e, allowSemi, allowLambda>
+  | "set"                           (. .)
+    SetComprehensionExpr<x, true, out e, allowSemi, allowLambda>
+  | "iset"                           (. .)
+    SetComprehensionExpr<x, false, out e, allowSemi, allowLambda>
+  | StmtInExpr<out s>
+    Expression<out e, allowSemi, allowLambda>            (. .)
+  | LetExpr<out e, allowSemi, allowLambda>
+  | "map"                           (. .)
+    MapComprehensionExpr<x, true, out e, allowSemi, allowLambda>
+  | "imap"                           (. .)
+    MapComprehensionExpr<x, false, out e, allowSemi, allowLambda>
+  | NamedExpr<out e, allowSemi, allowLambda>
+  )
+  .
+
+StmtInExpr<out Statement s>
+= (. .)
+  ( AssertStmt<out s>
+  | AssumeStmt<out s>
+  | CalcStmt<out s>
+  )
+  .
+
+LetExpr<out Expression e, bool allowSemi, bool allowLambda>
+= (. .)
+    [ "ghost"                       (. .)
+    ]
+    "var"                           (. .)
+    CasePattern<out pat>            (. .)
+    { "," CasePattern<out pat>      (. .)
+    }
+    ( ":="
+    | { Attribute<ref attrs> }
+      ":|"                          (. .)
+    )
+    Expression<out e, false, true>        (. .)
+    { "," Expression<out e, false, true>  (. .)
+    }
+    ";"
+    Expression<out e, allowSemi, allowLambda>    (. .)
+  .
+
+NamedExpr<out Expression e, bool allowSemi, bool allowLambda>
+= (. .)
+    "label"                          (. .)
+    NoUSIdent<out d>
+    ":"
+    Expression<out e, allowSemi, allowLambda>     (. .)
+  .
+
+MatchExpression<out Expression e, bool allowSemi, bool allowLambda>
+= (. .)
+  "match"                     (. .)
+  Expression<out e, allowSemi, allowLambda>
+  ( IF(la.kind == _lbrace)  /* always favor brace-enclosed match body to a case-less match */
+    "{" (. .)
+        { CaseExpression<out c, true, true> (. .) }
+    "}"
+  |     { IF(la.kind == _case)  /* let each "case" bind to the closest preceding "match" */
+          CaseExpression<out c, allowSemi, allowLambda> (. .)
+        }
+  )
+  (. .)
+  .
+CaseExpression<out MatchCaseExpr c, bool allowSemi, bool allowLambda>
+= (. .)
+  "case"                      (. .)
+  ( Ident<out id>             (. .)
+    [ "("
+       [ CasePattern<out pat>        (. .)
+         { "," CasePattern<out pat>  (. .)
+         }
+       ]
+    ")" ]
+  | "("
+      CasePattern<out pat>        (. .)
+      { "," CasePattern<out pat>  (. .)
+      }
+    ")"
+  )
+  "=>"
+  Expression<out body, allowSemi, allowLambda>    (. .)
+  .
+CasePattern<out CasePattern pat>
+= (. .)
+  ( IF(IsIdentParen())
+    Ident<out id>
+    "("                                (. .)
+      [ CasePattern<out pat>           (. .)
+        { "," CasePattern<out pat>     (. .)
+        }
+      ]
+    ")"                                (. .)
+  | "("                                (. .)
+      [ CasePattern<out pat>           (. .)
+        { "," CasePattern<out pat>     (. .)
+        }
+      ]
+    ")"                                (. .)
+  | IdentTypeOptional<out bv>          (. .)
+  )
+  (. .)
+  .
+/*------------------------------------------------------------------------*/
+NameSegment<out Expression e>
+= (. .)
+  Ident<out id>
+  ( IF(IsGenericInstantiation())
+    (. .)
+    GenericInstantiation<typeArgs>
+  | HashCall<id, out openParen, out typeArgs, out args>
+  | /* empty */
+  )
+  /* Note, since HashCall updates id.val, we make sure not to use id.val until after the possibility of calling HashCall. */
+  (. .)
+  .
+/* NameSegmentForTypeName is like the production NameSegment, except that it does not allow HashCall */
+NameSegmentForTypeName<out Expression e>
+= (. .)
+  Ident<out id>
+  [ (. .)
+    GenericInstantiation<typeArgs>
+  ]
+  (. .)
+  .
+/* The HashCall production extends a given identifier with a hash sign followed by
+ * a list of argument expressions.  That is, if what was just parsed was an identifier id,
+ * then the HashCall production will continue parsing into id#[arg](args).
+ * One could imagine parsing just the id# as an expression, but Dafny doesn't do that
+ * since the first argument to a prefix predicate/method is textually set apart; instead
+ * if a programmer wants to curry the arguments, one has to resort to using a lambda
+ * expression, just like for other function applications.
+ * Note: This grammar production mutates the id.val field to append the hash sign.
+ */
+HashCall<.IToken id, out IToken openParen, out List<Type> typeArgs, out List<Expression> args.>
+= (. .)
+  "#"                                      (. .)
+  [                                        (. .)
+    GenericInstantiation<typeArgs>
+  ]
+  "[" Expression<out k, true, true> "]"    (. .)
+  "("                                      (. .)
+    [ Expressions<args> ]
+  ")"
+  .
+Suffix<ref Expression e>
+= (. .)
+  ( "."
+    ( "("                                             (. .)
+        MemberBindingUpdate<out id, out v>            (. .)
+        { "," MemberBindingUpdate<out id, out v>      (. .)
+        }
+      ")"
+      (. .)
+    | DotSuffix<out id, out x>                 (. .)
+
+
+      ( IF(IsGenericInstantiation())
+        (. .)
+        GenericInstantiation<typeArgs>
+      | HashCall<id, out openParen, out typeArgs, out args>
+      | /* empty */
+      )
+      (. .)
+    )
+  | "["                                        (. .)
+      ( Expression<out ee, true, true>         (. .)
+        ( ".."                                 (. .)
+          [ Expression<out ee, true, true>     (. .)
+          ]
+        | ":="
+          Expression<out ee, true, true>       (. .)
+        | ":"                                  (. .)
+          [ Expression<out ee, true, true>     (. .)
+            { IF(IsNonFinalColon())
+              ":"
+              Expression<out ee, true, true>   (. .)
+            }
+            [ ":"                              (. .)
+            ]
+          ]
+        | { "," Expression<out ee, true, true> (. .)
+          }
+        )
+      | ".."                                   (. .)
+        [ Expression<out ee, true, true>       (. .)
+        ]
+      )
+      (. .)
+    "]"
+  | "("                                    (. .)
+    [ Expressions<args> ]
+    ")"                                    (. .)
+  )
+  .
+
+/*------------------------------------------------------------------------*/
+QuantifierGuts<out Expression q, bool allowSemi, bool allowLambda>
+= (. .)
+  ( Forall                                     (. .)
+  | Exists                                     (. .)
+  )
+  QuantifierDomain<out bvars, out attrs, out range>
+  QSep
+  Expression<out body, allowSemi, allowLambda>
+  (. .)
+  .
+
+QuantifierDomain<.out List<BoundVar> bvars, out Attributes attrs, out Expression range.>
+= (. .)
+  IdentTypeOptional<out bv>                    (. .)
+  { ","
+    IdentTypeOptional<out bv>                  (. .)
+  }
+  { IF(IsAttribute()) Attribute<ref attrs> }
+  [ IF(la.kind == _verticalbar)   /* Coco complains about this ambiguity, thinking that a "|" can follow a body-less forall statement; I don't see how that's possible, but this IF is good and suppresses the reported ambiguity */
+    "|"
+    Expression<out range, true, true>
+  ]
+  .
+
+SetComprehensionExpr<IToken setToken, bool finite, out Expression q, bool allowSemi, bool allowLambda>
+= (. .)
+  IdentTypeOptional<out bv>                    (. .)
+  { ","
+    IdentTypeOptional<out bv>                  (. .)
+  }
+  { Attribute<ref attrs> }
+  "|" Expression<out range, allowSemi, allowLambda>
+  [ IF(IsQSep())  /* let any given body bind to the closest enclosing set comprehension */
+    QSep
+    Expression<out body, allowSemi, allowLambda>
+  ]
+  (. .)
+  .
+Expressions<.List<Expression> args.>
+= (. .)
+  Expression<out e, true, true>                      (. .)
+  { "," Expression<out e, true, true>                (. .)
+  }
+  .
+/*------------------------------------------------------------------------*/
+Attribute<ref Attributes attrs>
+= (. .)
+  "{"                         (. .)
+  ":"                         (. .)
+  NoUSIdent<out x>
+  [ Expressions<args> ]
+  "}"                         (. .)
+  (. .)
+  .
+/*------------------------------------------------------------------------*/
+Ident<out IToken/*!*/ x>
+= (. .)
+  ident            (. .)
+  .
+// Identifier or sequence of digits
+// Parse one of the following, which are supposed to follow a ".":
+//        ident
+//        digits
+//        digits . digits
+// In the first two cases, x returns as the token for the ident/digits and y returns as null.
+// In the third case, x and y return as the tokens for the first and second digits.
+// This parser production solves a problem where the scanner might parse a real number instead
+// of stopping at the decimal point.
+DotSuffix<out IToken x, out IToken y>
+= (. .)
+  ( ident          (. .)
+  | digits         (. .)
+  | decimaldigits  (. .)
+  | "requires"    (. .)
+  | "reads"       (. .)
+  )
+  .
+MemberBindingUpdate<out IToken id, out Expression e>
+= (. .)
+  ( ident          (. .)
+  | digits         (. .)
+  )
+  ":="
+  Expression<out e, true, true>
+  .
+
+// Identifier, disallowing leading underscores
+NoUSIdent<out IToken/*!*/ x>
+= (. .)
+  ident            (. .)
+  .
+
+// Identifier, disallowing leading underscores, except possibly the "wildcard" identifier "_"
+WildIdent<out IToken x, bool allowWildcardId>
+= (. .)
+  ident            (. .)
+  .
+
+OldSemi
+= /* In the future, it may be that semi-colons will be neither needed nor allowed in certain places where,
+   * in the past, they were required.  As a period of transition between the two, such semi-colons are optional.
+   */
+  [ SYNC ";" ].
+
+Nat<out BigInteger n>
+= (. .)
+  ( digits
+    (. .)
+  | hexdigits
+    (. .)
+  )
+  .
+Dec<out Basetypes.BigDec d>
+= (. .)
+  (decimaldigits
+    (. .)
+  )
+  .
+END Dafny.

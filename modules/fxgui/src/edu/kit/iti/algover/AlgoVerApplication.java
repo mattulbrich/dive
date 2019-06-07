@@ -1,7 +1,7 @@
-/*
- * This file is part of AlgoVer.
+/**
+ * This file is part of DIVE.
  *
- * Copyright (C) 2015-2017 Karlsruhe Institute of Technology
+ * Copyright (C) 2015-2019 Karlsruhe Institute of Technology
  */
 package edu.kit.iti.algover;
 
@@ -39,13 +39,7 @@ public class AlgoVerApplication extends Application {
         //create Welcome Dialog
         Parameters params = getParameters();
         List<String> fileNames = params.getUnnamed();
-        if(fileNames != null && fileNames.size() > 0){
-           // File absoluteFile = new File(fileNames.get(0)).getAbsoluteFile();
-           // createAndExecuteMainController(absoluteFile, createProjectManager(absoluteFile));
-            startApplication(primaryStage, fileNames);
-        } else {
-            startApplication(primaryStage, Collections.emptyList());
-        }
+        startApplication(primaryStage, fileNames);
     }
 
     /**
@@ -58,8 +52,8 @@ public class AlgoVerApplication extends Application {
         primaryStage.setTitle("AlgoVer");
         WelcomePane p = new WelcomePane(primaryStage, opendirectly);
         primaryStage.setScene(new Scene(p.getRootPane()));
-        primaryStage.setWidth(900);
-        primaryStage.setHeight(700);
+        primaryStage.setWidth(1000);
+        primaryStage.setHeight(900);
         primaryStage.show();
 
     }

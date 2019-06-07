@@ -1,22 +1,27 @@
+/**
+ * This file is part of DIVE.
+ *
+ * Copyright (C) 2015-2019 Karlsruhe Institute of Technology
+ */
 package edu.kit.iti.algover.editor;
 
+import edu.kit.iti.algover.Lookup;
 import edu.kit.iti.algover.MainController;
 import edu.kit.iti.algover.dafnystructures.DafnyFile;
-import edu.kit.iti.algover.parser.DafnyException;
-import edu.kit.iti.algover.parser.DafnyParserException;
-import edu.kit.iti.algover.parser.DafnyTree;
-import edu.kit.iti.algover.project.Project;
 import edu.kit.iti.algover.proof.PVC;
-import edu.kit.iti.algover.references.CodeReference;
+import edu.kit.iti.algover.referenceHighlighting.ReferenceHighlightingHandler;
+import edu.kit.iti.algover.referenceHighlighting.ReferenceHighlightingObject;
+import edu.kit.iti.algover.references.CodeReferenceTarget;
 import edu.kit.iti.algover.util.ExceptionDetails;
+import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
-import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.ListChangeListener;
+import javafx.collections.ObservableList;
+import javafx.event.Event;
+import javafx.event.EventHandler;
 import javafx.scene.Node;
-import javafx.scene.control.Alert;
-import javafx.scene.control.ButtonType;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
 import javafx.scene.control.Tooltip;
@@ -24,8 +29,6 @@ import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyCodeCombination;
 import javafx.scene.input.KeyCombination;
 import javafx.scene.input.KeyEvent;
-import org.antlr.runtime.CommonToken;
-import org.antlr.runtime.RecognitionException;
 import org.antlr.runtime.Token;
 import org.controlsfx.dialog.ExceptionDialog;
 import org.fxmisc.flowless.VirtualizedScrollPane;
@@ -41,14 +44,12 @@ import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.logging.Logger;
 
-import static impl.org.controlsfx.i18n.Translations.getTranslation;
-
 /**
  * Controller for the view that handles all {@link DafnyCodeArea} tabs.
  * <p>
  * Created by philipp on 26.06.17.
  */
-public class EditorController implements DafnyCodeAreaListener {
+public class EditorController implements DafnyCodeAreaListener, ReferenceHighlightingHandler {
     KeyCombination saveShortcut = new KeyCodeCombination(KeyCode.S, KeyCombination.CONTROL_DOWN);
     KeyCombination saveAllShortcut = new KeyCodeCombination(KeyCode.S, KeyCombination.CONTROL_DOWN, KeyCombination.SHIFT_DOWN);
 
@@ -69,13 +70,16 @@ public class EditorController implements DafnyCodeAreaListener {
     private BooleanProperty anyFileChangedProperty;
     private List<String> changedFiles;
     private String baseDir;
+    private Set<CodeReferenceTarget> codeReferenceTargets = new HashSet<>();
+
+    private String recentSelectedTab;
 
     /**
      * Initializes the controller without any code editor tabs.
      *
      * @param executor used by the code area components to asynchronously execute syntax highlighting calculations
      */
-    public EditorController(ExecutorService executor, String baseDir) {
+    public EditorController(ExecutorService executor, String baseDir, Lookup lookup) {
         this.executor = executor;
         this.baseDir = baseDir;
         this.view = new TabPane();
@@ -85,7 +89,8 @@ public class EditorController implements DafnyCodeAreaListener {
         this.anyFileChangedProperty = new SimpleBooleanProperty(false);
         view.getTabs().addListener(this::onTabListChanges);
         view.setOnKeyReleased(this::handleShortcuts);
-
+        lookup.register(this, ReferenceHighlightingHandler.class);
+        lookup.register(this, EditorController.class);
     }
 
     private void handleShortcuts(KeyEvent keyEvent) {
@@ -100,8 +105,8 @@ public class EditorController implements DafnyCodeAreaListener {
         while (change.next()) {
             if (change.wasRemoved()) {
                 for (Tab removedTab : change.getRemoved()) {
-                    DafnyFile f = (DafnyFile) (removedTab.getUserData());
-                    tabsByFile.remove(f.getFilename());
+                    String f = (String) (removedTab.getUserData());
+                    tabsByFile.remove(f);
                 }
             }
         }
@@ -138,7 +143,12 @@ public class EditorController implements DafnyCodeAreaListener {
                 codeArea.getTextChangedProperty().addListener(this::onTextChanged);
             } catch (IOException e) {
                 e.printStackTrace();
+
                 ExceptionDialog exdlg = new ExceptionDialog(e);
+                exdlg.setResizable(true);
+                exdlg.onShownProperty().addListener(evt -> {
+                    Platform.runLater(() -> exdlg.setResizable(false));
+                });
                 exdlg.showAndWait();
             }
         }
@@ -247,14 +257,13 @@ public class EditorController implements DafnyCodeAreaListener {
     }
 
     /**
-     * Highlights all given {@link CodeReference}s using the {@link ReferenceHighlightingRule}.
+     * Highlights all given {@link CodeReferenceTarget}s using the {@link ReferenceHighlightingRule}.
      *
-     * @param codeReferences code references to highlight
+     * @param codeReferenceTargets code references to highlight
      */
-    public void viewReferences(Set<CodeReference> codeReferences) {
-        highlightingLayers.setLayer(REFERENCE_LAYER, new ReferenceHighlightingRule(codeReferences));
-
-
+    public void viewReferences(Set<CodeReferenceTarget> codeReferenceTargets) {
+        this.codeReferenceTargets = codeReferenceTargets;
+        highlightingLayers.setLayer(REFERENCE_LAYER, new ReferenceHighlightingRule(codeReferenceTargets));
         view.getTabs().stream()
                 .map(tab -> codeAreaFromContent(tab.getContent()))
                 .forEach(DafnyCodeArea::rerenderHighlighting);
@@ -308,4 +317,114 @@ public class EditorController implements DafnyCodeAreaListener {
         }
     }
 
+    @Override
+    public void handleReferenceHighlighting(ReferenceHighlightingObject references) {
+        viewReferences(references.getCodeReferenceTargetSet());
+    }
+
+    @Override
+    public void removeReferenceHighlighting() {
+
+        highlightingLayers.setLayer(REFERENCE_LAYER, new ReferenceHighlightingRule(new HashSet<>()));
+        view.getTabs().stream()
+                .map(tab -> codeAreaFromContent(tab.getContent()))
+                .forEach(DafnyCodeArea::rerenderHighlighting);
+    }
+    private List<String> saveOrderOfOpenTabsByFilename(ObservableList<Tab> tabsInView){
+
+        Set<String> filenamesSet = new HashSet<>(tabsByFile.keySet());
+        ArrayList<String> filenames = new ArrayList<>();
+        Iterator<Tab> iteratorTabsInView = tabsInView.iterator();
+        Tab tabInView;
+        String name;
+        //copy the order of the current open tabs from the view and add the filenames into the temporary list being able to restore the order
+        while(iteratorTabsInView.hasNext()){
+            tabInView = iteratorTabsInView.next();
+            name = (String) tabInView.getUserData();
+            if(filenamesSet.contains(name)){
+                filenames.add(name);
+                filenamesSet.remove(name);
+            } else {
+                throw new RuntimeException("Was not able to reconstruct interface, please restart DIVE");
+            }
+
+        }
+        assert filenamesSet.isEmpty();
+        return filenames;
+    }
+
+    /**
+     * Reload all open tabs by keeping the order of previous opened tabs
+     */
+    public void reloadAllOpenFiles() {
+        saveRecentSelectedTab();
+        ObservableList<Tab> tabsInView = getView().getTabs();
+        List<String> filenames = saveOrderOfOpenTabsByFilename(tabsInView);
+
+        Collection<Tab> tabs = new ArrayList<>(tabsByFile.values());
+        //close all tabs and remove them from the view
+        removeTabsInView(tabsInView, tabs);
+        //iterate through the list of files and open files again
+        filenames.forEach(s -> viewFile(s));
+        selectRecentTab();
+    }
+
+    private void removeTabsInView(ObservableList<Tab> tabsInView, Collection<Tab> tabstoClose) {
+        for (Tab tab : tabstoClose) {
+            tabsInView.remove(tab);
+        }
+    }
+
+    /**
+     * If a tab was selected, save this selction to a member variable
+     */
+    public void saveRecentSelectedTab(){
+        Tab userData = getView().getSelectionModel().getSelectedItem();
+        if(userData != null) {
+            this.recentSelectedTab = (String) userData.getUserData();
+        }
+
+    }
+
+    /**
+     * Select the tab that is stored by calling saveRecentSelectedTab
+     */
+    public void selectRecentTab(){
+        getView().getSelectionModel().select(tabsByFile.get(recentSelectedTab));
+    }
+
+    /**
+     * Refresh the current tab view by first saving the order of the last opened tabs, then opening only those tabs that
+     * are passed in the list of dafnyfiles trying to restore the order
+     * @param dafnyFiles
+     */
+    public void refreshTabView(List<DafnyFile> dafnyFiles) {
+        saveRecentSelectedTab();
+        List<String> passedDfyFiles = new ArrayList<String>();
+        dafnyFiles.forEach(file -> passedDfyFiles.add(file.getName()));
+        ObservableList<Tab> tabsOpenInView = getView().getTabs();
+
+        List<String> lastOpenedFiles = saveOrderOfOpenTabsByFilename(tabsOpenInView);
+
+        Collection<Tab> values = new HashSet<>(tabsByFile.values());
+        removeTabsInView(tabsOpenInView, values);
+
+        Iterator<String> iterator = lastOpenedFiles.iterator();
+        while(iterator.hasNext()){
+            String next = iterator.next();
+            if(passedDfyFiles.contains(next)){
+                viewFile(next);
+                passedDfyFiles.remove(next);
+            }
+        }
+        if(!passedDfyFiles.isEmpty()){
+            passedDfyFiles.forEach(file -> viewFile(file));
+        }
+
+        if(tabsByFile.containsKey(this.recentSelectedTab)){
+            selectRecentTab();
+        }
+
+
+    }
 }

@@ -1,7 +1,7 @@
-/*
- * This file is part of AlgoVer.
+/**
+ * This file is part of DIVE.
  *
- * Copyright (C) 2015-2017 Karlsruhe Institute of Technology
+ * Copyright (C) 2015-2019 Karlsruhe Institute of Technology
  */
 package edu.kit.iti.algover.parser;
 
@@ -559,11 +559,11 @@ public class TypeResolution extends DafnyTreeDefaultVisitor<DafnyTree, Void> {
         DafnyTree fieldDecl = field.getDeclarationReference();
 
         receiver.accept(this, null);
-        assert fieldDecl != null:
-            "ReferenceResolutionVisitor must be run before the type resolution";
-
-        assert fieldDecl.getType() != DafnyParser.VAR:
-            "Field decl must be a var decl";
+        if(fieldDecl == null || fieldDecl.getType() == DafnyParser.VAR) {
+            // There has already been some error. Continue with anything
+            t.setExpressionType(NULL_TYPE);
+            return NULL_TYPE;
+        }
 
         DafnyTree result = fieldDecl.getFirstChildWithType(DafnyParser.TYPE).getChild(0);
         t.setExpressionType(result);

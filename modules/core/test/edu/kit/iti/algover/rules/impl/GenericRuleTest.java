@@ -1,3 +1,8 @@
+/**
+ * This file is part of DIVE.
+ *
+ * Copyright (C) 2015-2019 Karlsruhe Institute of Technology
+ */
 package edu.kit.iti.algover.rules.impl;
 
 import edu.kit.iti.algover.data.BuiltinSymbols;
@@ -57,8 +62,8 @@ public class GenericRuleTest {
      * @return parameters for the applicable-Test
      */
     public Object [][] parametersForGenericRuleTestApplicable() throws DafnyRuleException {
-        ProofRule pr = DafnyRuleUtil.generateDafnyRuleFromFile("./modules/core/test-res/edu/kit/iti/algover/dafnyrules/addzero2.dfy");
-        ProofRule pr1 = DafnyRuleUtil.generateDafnyRuleFromFile("./modules/core/test-res/edu/kit/iti/algover/dafnyrules/WeakenAssumption.dfy");
+        ProofRule pr = DafnyRuleUtil.generateDafnyRuleFromFile("test-res/edu/kit/iti/algover/dafnyrules/addzero2.dfy");
+        ProofRule pr1 = DafnyRuleUtil.generateDafnyRuleFromFile("test-res/edu/kit/iti/algover/dafnyrules/WeakenAssumption.dfy");
         return new Object[][] {
                 {new OrLeftRule(), "b1 || b2 |- b1", new TermSelector(TermSelector.SequentPolarity.ANTECEDENT, 0),
                         new ArrayList<>(Arrays.asList("b1 |- b1", "b2 |- b1")), null},
@@ -83,8 +88,8 @@ public class GenericRuleTest {
     }
 
     public Object [][] parametersForGenericRuleTestNotApplicable() throws DafnyRuleException {
-        ProofRule pr = DafnyRuleUtil.generateDafnyRuleFromFile("./modules/core/test-res/edu/kit/iti/algover/dafnyrules/addzero2.dfy");
-        ProofRule pr1 = DafnyRuleUtil.generateDafnyRuleFromFile("./modules/core/test-res/edu/kit/iti/algover/dafnyrules/WeakenAssumption.dfy");
+        ProofRule pr = DafnyRuleUtil.generateDafnyRuleFromFile("test-res/edu/kit/iti/algover/dafnyrules/addzero2.dfy");
+        ProofRule pr1 = DafnyRuleUtil.generateDafnyRuleFromFile("test-res/edu/kit/iti/algover/dafnyrules/WeakenAssumption.dfy");
         return new Object[][] {
                 {new OrLeftRule(), "b1 || b2 |- b1", new TermSelector(TermSelector.SequentPolarity.SUCCEDENT, 0),
                         null},
@@ -96,8 +101,8 @@ public class GenericRuleTest {
     }
 
     public Object [][] parametersForGenericRuleTestMakeException()  throws DafnyRuleException {
-        ProofRule pr = DafnyRuleUtil.generateDafnyRuleFromFile("./modules/core/test-res/edu/kit/iti/algover/dafnyrules/addzero2.dfy");
-        ProofRule pr1 = DafnyRuleUtil.generateDafnyRuleFromFile("./modules/core/test-res/edu/kit/iti/algover/dafnyrules/WeakenAssumption.dfy");
+        ProofRule pr = DafnyRuleUtil.generateDafnyRuleFromFile("test-res/edu/kit/iti/algover/dafnyrules/addzero2.dfy");
+        ProofRule pr1 = DafnyRuleUtil.generateDafnyRuleFromFile("test-res/edu/kit/iti/algover/dafnyrules/WeakenAssumption.dfy");
         return new Object[][] {
                 {new OrLeftRule(), "b1 || b2 |- b1", new TermSelector(TermSelector.SequentPolarity.SUCCEDENT, 0),
                         null},

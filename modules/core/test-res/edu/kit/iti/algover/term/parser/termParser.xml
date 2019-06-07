@@ -1,4 +1,11 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!--
+
+    This file is part of DIVE.
+
+    Copyright (C) 2015-2019 Karlsruhe Institute of Technology
+
+-->
 <!DOCTYPE properties SYSTEM "http://java.sun.com/dtd/properties.dtd">
 <properties>
 <comment>For the termparser. Keys are name of test, values separated by ###

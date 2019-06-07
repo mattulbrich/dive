@@ -1,3 +1,8 @@
+/**
+ * This file is part of DIVE.
+ *
+ * Copyright (C) 2015-2019 Karlsruhe Institute of Technology
+ */
 package edu.kit.iti.algover.term.match;
 
 import edu.kit.iti.algover.proof.ProofFormula;
@@ -9,7 +14,7 @@ public class SequentMatcher {
     private TermMatcher tm = new TermMatcher();
 
     /**
-     * Matches a schematic seuqent against a concrete sequent
+     * Matches a schematic sequent against a concrete sequent
      *
      * @param schema
      * @param seq

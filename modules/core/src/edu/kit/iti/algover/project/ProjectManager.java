@@ -1,12 +1,12 @@
-/*
- * This file is part of AlgoVer.
+/**
+ * This file is part of DIVE.
  *
- * Copyright (C) 2015-2018 Karlsruhe Institute of Technology
- *
+ * Copyright (C) 2015-2019 Karlsruhe Institute of Technology
  */
-
 package edu.kit.iti.algover.project;
 
+import edu.kit.iti.algover.dafnystructures.DafnyDecl;
+import edu.kit.iti.algover.dafnystructures.DafnyFile;
 import edu.kit.iti.algover.parser.DafnyException;
 import edu.kit.iti.algover.parser.DafnyParserException;
 import edu.kit.iti.algover.proof.PVC;

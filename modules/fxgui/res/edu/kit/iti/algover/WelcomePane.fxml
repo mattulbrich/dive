@@ -5,24 +5,42 @@
 
 <?import javafx.scene.web.WebView?>
 <?import javafx.geometry.Insets?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.image.Image?>
 <BorderPane xmlns="http://javafx.com/javafx"
             xmlns:fx="http://javafx.com/fxml"
             prefHeight="200.0" prefWidth="200.0"
             fx:id="rootPane" stylesheets="@style.css"
 >
     <top>
+        <HBox>
+
         <VBox>
             <padding>
                 <Insets top="20" bottom="20" right="20" left="20"></Insets>
             </padding>
-            <Label styleClass="welcomePaneHeadingLabel" text="Welcome to DIVE">
+            <Label styleClass="welcomePaneHeadingLabel" text="Welcome to DIVE" alignment="TOP_LEFT">
                 <padding>
                     <Insets top="20" bottom="5"></Insets>
                 </padding>
             </Label>
             <Label styleClass="welcomePaneHeadingText"
-                   text="A seamless verification system for Dafny programs created at Karlsruhe Institute of Technology (KIT)."></Label>
+                   text="A seamless verification system for Dafny programs created at Karlsruhe Institute of Technology (KIT)."
+            wrapText="true"></Label>
         </VBox>
+            <Region prefHeight="200.0" prefWidth="200.0" HBox.hgrow="ALWAYS" />
+            <HBox alignment="TOP_RIGHT">
+                <padding>
+                    <Insets top="20" bottom="20" right="20" left="20"></Insets>
+                </padding>
+                <ImageView fx:id="imageView" fitHeight="100.0" fitWidth="100.0">
+                    <image>
+                        <Image url="@logo.png"/>
+                    </image>
+                </ImageView>
+            </HBox>
+        </HBox>
+
     </top>
     <center>
         <VBox>
@@ -43,29 +61,27 @@
                 <padding>
                     <Insets top="20" bottom="20" right="20" left="20"></Insets>
                 </padding>
-
-
             </Button>
-
+            <Button fx:id="openRecent" maxWidth="Infinity" alignment="CENTER_LEFT">
+                <padding>
+                    <Insets top="20" bottom="20" right="20" left="20"></Insets>
+                </padding>
+            </Button>
             <Button fx:id="createProject" maxWidth="Infinity" alignment="CENTER_LEFT">
                 <padding>
                     <Insets top="20" bottom="20" right="20" left="20"></Insets>
                 </padding>
-
             </Button>
             <Button fx:id="openEmptyProject" maxWidth="Infinity" alignment="CENTER_LEFT">
                 <padding>
                     <Insets top="20" bottom="20" right="20" left="20"></Insets>
                 </padding>
-
             </Button>
             <Button fx:id="loadExample" maxWidth="Infinity" alignment="CENTER_LEFT">
                 <padding>
                     <Insets top="20" bottom="20" right="20" left="20"></Insets>
                 </padding>
-
             </Button>
-
         </TilePane>
     </right>
 </BorderPane>

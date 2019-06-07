@@ -1,7 +1,7 @@
-/*
- * This file is part of AlgoVer.
+/**
+ * This file is part of DIVE.
  *
- * Copyright (C) 2015-2018 Karlsruhe Institute of Technology
+ * Copyright (C) 2015-2019 Karlsruhe Institute of Technology
  */
 package edu.kit.iti.algover.rules.impl;
 
@@ -14,7 +14,6 @@ import edu.kit.iti.algover.term.match.Matching;
 import edu.kit.iti.algover.term.match.SequentMatcher;
 import edu.kit.iti.algover.util.ImmutableList;
 import edu.kit.iti.algover.util.RuleUtil;
-import javafx.collections.ObservableList;
 
 import java.util.Collections;
 import java.util.HashMap;

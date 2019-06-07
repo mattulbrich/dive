@@ -1,8 +1,13 @@
+/**
+ * This file is part of DIVE.
+ *
+ * Copyright (C) 2015-2019 Karlsruhe Institute of Technology
+ */
 package edu.kit.iti.algover.references;
 
-import java.util.HashMap;
-
-public class GetReferenceTypeVisitor<T extends Reference> implements ReferenceVisitor<T> {
+@SuppressWarnings("unchecked")
+@Deprecated
+public class GetReferenceTypeVisitor<T extends ReferenceTarget> implements ReferenceTargetVisitor<T> {
 
     private final Class<T> clazz;
 
@@ -11,17 +16,22 @@ public class GetReferenceTypeVisitor<T extends Reference> implements ReferenceVi
     }
 
     @Override
-    public T visit(CodeReference codeTarget) {
-        return clazz.isInstance(codeTarget) ? clazz.cast(codeTarget) : null;
+    public T visit(CodeReferenceTarget codeTarget) {
+        return clazz.isInstance(codeTarget) ? (T) codeTarget : null;
     }
 
     @Override
-    public T visit(ProofTermReference termTarget) {
-        return clazz.isInstance(termTarget) ? clazz.cast(termTarget) : null;
+    public T visit(ProofTermReferenceTarget termTarget) {
+        return clazz.isInstance(termTarget) ? (T) termTarget : null;
     }
 
     @Override
-    public T visit(UserInputReference userInputTarget) {
-        return clazz.isInstance(userInputTarget) ? clazz.cast(userInputTarget) : null;
+    public T visit(UserInputReferenceTarget userInputTarget) {
+        return clazz.isInstance(userInputTarget) ? (T) userInputTarget : null;
+    }
+
+    @Override
+    public T visit(ScriptReferenceTarget scriptTarget) {
+        return clazz.isInstance(scriptTarget)? (T) scriptTarget: null ;
     }
 }

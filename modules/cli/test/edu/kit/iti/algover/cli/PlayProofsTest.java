@@ -1,10 +1,8 @@
-/*
- * This file is part of AlgoVer.
+/**
+ * This file is part of DIVE.
  *
- * Copyright (C) 2015-2018 Karlsruhe Institute of Technology
- *
+ * Copyright (C) 2015-2019 Karlsruhe Institute of Technology
  */
-
 package edu.kit.iti.algover.cli;
 
 import edu.kit.iti.algover.parser.DafnyException;
@@ -33,7 +31,7 @@ import static org.junit.Assert.assertEquals;
 public class PlayProofsTest {
 
     private static final String baseDir =
-            System.getProperty("algover.cli.test-res", "modules/cli/test-res");
+            System.getProperty("algover.cli.test-res", "test-res");
 
     private final AlgoVerService service;
 

@@ -1,17 +1,14 @@
-/*
- * This file is part of AlgoVer.
+/**
+ * This file is part of DIVE.
  *
- * Copyright (C) 2015-2018 Karlsruhe Institute of Technology
- *
+ * Copyright (C) 2015-2019 Karlsruhe Institute of Technology
  */
-
 package edu.kit.iti.algover.boogie;
 
 import edu.kit.iti.algover.data.SymbolTable;
 import edu.kit.iti.algover.project.Project;
 import edu.kit.iti.algover.proof.ProofFormula;
 import edu.kit.iti.algover.rules.RuleException;
-import edu.kit.iti.algover.smt.SMTSolver.Result;
 import edu.kit.iti.algover.term.Sequent;
 import edu.kit.iti.algover.term.Term;
 import edu.kit.iti.algover.term.builder.LetInlineVisitor;
@@ -23,13 +20,11 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Set;
 
 public class BoogieProcess {
 
@@ -43,6 +38,9 @@ public class BoogieProcess {
             Boolean.getBoolean("edu.kit.iti.algover.keepBPL");
 
     private final static String PRELUDE = loadPrelude();
+
+    private static final String DAFNYPRELUDE_RESOURCE = "DafnyPrelude.bpl";
+
     private Project project;
 
     public BoogieProcess(Project project) {
@@ -51,9 +49,9 @@ public class BoogieProcess {
 
     private static String loadPrelude() {
         try {
-            InputStream is = BoogieProcess.class.getResourceAsStream("DafnyPrelude.bpl");
+            InputStream is = BoogieProcess.class.getResourceAsStream(DAFNYPRELUDE_RESOURCE);
             if(is == null) {
-                throw new FileNotFoundException("DafnyPrelude.bpl");
+                throw new FileNotFoundException(DAFNYPRELUDE_RESOURCE);
             }
             return Util.streamToString(is);
         } catch (IOException e) {
@@ -138,6 +136,8 @@ public class BoogieProcess {
     private Process buildProcess(Path tmpFile) throws IOException {
         ProcessBuilder pb =
                 new ProcessBuilder(COMMAND, tmpFile.toString());
+        System.out.println(COMMAND);
+
         return pb.start();
     }
 

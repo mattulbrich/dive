@@ -1,0 +1,59 @@
+import java.nio.file.Files
+import java.nio.file.Path
+import java.nio.file.Paths
+import java.util.stream.Stream
+
+task buildVisitor {
+    doFirst{
+        println "Building Dafny Visitor"
+    }
+
+    doLast {
+        def directory = "$projectDir/gen/edu/kit/iti/algover/parser"
+        def tokenFile = "$projectDir/gen/Dafny.tokens"
+        def packageName = "edu.kit.iti.algover.parser"
+        def prefix = "Dafny"
+
+        Stream<String> tokens = parseTokens(Paths.get(tokenFile))
+
+        def visitor = Files.newBufferedWriter(Paths.get(directory, prefix + "TreeVisitor.java"))
+        visitor.write("package $packageName;\n\npublic interface ${prefix}TreeVisitor<R,A> {")
+
+        def defVis = Files.newBufferedWriter(Paths.get(directory, prefix + "TreeDefaultVisitor.java"))
+        defVis.write("package $packageName;\n\npublic class ${prefix}TreeDefaultVisitor<R,A> implements ${prefix}TreeVisitor<R,A> {\n")
+
+        def dispatch = Files.newBufferedWriter(Paths.get(directory, prefix + "Dispatch.java"))
+        dispatch.write("package $packageName;\n\nclass ${prefix}Dispatch {\n"
+                + " static <R, A> R dispatch(${prefix}TreeVisitor<R,A> v, ${prefix}Tree t, A a) {\n"
+                + "  switch(t.getType()) {\n")
+
+        tokens.each{t ->
+            visitor.write("public R visit${t}(${prefix}Tree tree, A arg);\n")
+            defVis.write("@Override public R visit${t}(${prefix}Tree t, A a) { "
+                    + "return visitDefault(t, a); }\n")
+            dispatch.write("  case ${prefix}Parser.${t}:\n    return v.visit${t}(t, a);\n")
+        }
+
+        // NIL
+        visitor.write("  public R visitNIL(${prefix}Tree tree, A arg);\n")
+        defVis.write("  @Override public R visitNIL(${prefix}Tree t, A a) { "
+                + "return visitDefault(t, a); }\n")
+        dispatch.write("  case 0: /* which is the NIL case*/\n    return v.visitNIL(t, a);\n")
+
+        visitor.write("}\n")
+        visitor.close()
+
+        defVis.write("  public R visitDefault(${prefix}Tree t, A arg) { return null; }\n}")
+        defVis.close()
+
+        dispatch.write("  default: throw new Error(\"uncovered case: \" + t.getType());\n  }\n }\n}")
+        dispatch.close()
+
+    }
+}
+
+def parseTokens(Path path) {
+    return Files.lines(path)
+            .filter{l -> !l.startsWith("'") && !l.contains("__")}
+            .map{l -> l.substring(0, l.indexOf('='))}
+}

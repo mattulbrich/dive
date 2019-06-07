@@ -1,3 +1,8 @@
+/**
+ * This file is part of DIVE.
+ *
+ * Copyright (C) 2015-2019 Karlsruhe Institute of Technology
+ */
 package edu.kit.iti.algover.rule.script;
 
 import javafx.beans.Observable;
@@ -58,9 +63,8 @@ public class GutterFactory implements IntFunction<Node> {
         for (int i = 0; i < 100; i++) {
 
             GutterAnnotation e = new GutterAnnotation();
-            if(i==0){
+            if(i==0 && nParagraphs.getValue() == 1){
                 e.setInsertMarker(true);
-
             }
             lineAnnotations.add(e);
         }
@@ -138,4 +142,5 @@ public class GutterFactory implements IntFunction<Node> {
     public ObservableList<GutterAnnotation> getAnnotations() {
         return this.lineAnnotations;
     }
+
 }
