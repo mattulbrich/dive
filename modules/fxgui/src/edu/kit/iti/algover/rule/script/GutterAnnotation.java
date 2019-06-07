@@ -32,26 +32,23 @@ public class GutterAnnotation {
      * Associated proof node selector, if existing
      */
 
-    private SimpleObjectProperty<ProofNodeSelector> proofNode = new SimpleObjectProperty<>(null, "Proofnode property");
+    private SimpleObjectProperty<ProofNodeSelector> proofNode = new SimpleObjectProperty<>(null, "Proof node property");
 
-    private BooleanProperty proofNodeIsSelected = new SimpleBooleanProperty(false, "Proofnode is selected property ");
+    /**
+     * User selcted proof node
+     */
+    private BooleanProperty proofNodeIsSelected = new SimpleBooleanProperty(false, "Proof node is selected property ");
 
     private BooleanBinding proofNodeIsSet = proofNode.isNotNull();
 
-    public boolean proofNodeIsReferenced() {
-        return proofNodeIsReferenced.get();
-    }
-
-    public BooleanProperty proofNodeIsReferencedProperty() {
-        return proofNodeIsReferenced;
-    }
-
-    public void setProofNodeIsReferenced(boolean proofNodeIsReferenced) {
-        this.proofNodeIsReferenced.set(proofNodeIsReferenced);
-    }
-
+    /**
+     * ASTNode was referenced by ReferenceHighlighting
+     */
     private BooleanProperty proofNodeIsReferenced = new SimpleBooleanProperty(false, "Proof node is referenced");
 
+    /**
+     * Cretae a new model for the GutterView of a line in the script
+     */
     public GutterAnnotation(){
         text.addListener(this::onLineNumberChanged);
         /*lineNumberProperty.addListener((observable, oldValue, newValue) -> {
@@ -120,6 +117,17 @@ public class GutterAnnotation {
 
     public BooleanBinding proofNodeIsSetProperty() {
         return proofNodeIsSet;
+    }
+    public boolean proofNodeIsReferenced() {
+        return proofNodeIsReferenced.get();
+    }
+
+    public BooleanProperty proofNodeIsReferencedProperty() {
+        return proofNodeIsReferenced;
+    }
+
+    public void setProofNodeIsReferenced(boolean proofNodeIsReferenced) {
+        this.proofNodeIsReferenced.set(proofNodeIsReferenced);
     }
 
 

@@ -4,10 +4,18 @@ import de.jensd.fx.glyphs.materialdesignicons.MaterialDesignIcon;
 import de.jensd.fx.glyphs.materialdesignicons.MaterialDesignIconView;
 import javafx.beans.Observable;
 import javafx.beans.property.SimpleObjectProperty;
+import javafx.beans.value.ObservableValue;
+import javafx.scene.Node;
 import javafx.scene.control.Label;
 import javafx.scene.layout.HBox;
+import javafx.scene.paint.Color;
 
+import java.util.Arrays;
 
+/**
+ * GutterView in the Script
+ * @author A.Weigl, S.Grebing
+ */
 public class GutterView extends HBox {
     private final SimpleObjectProperty<GutterAnnotation> annotation = new SimpleObjectProperty<>();
 
@@ -27,8 +35,20 @@ public class GutterView extends HBox {
 
     private Label lineNumber = new Label("not set");
 
-    public GutterView(GutterAnnotation ga) {
+    private Node[] gutter = new Node[3];
 
+    public GutterView(GutterAnnotation ga) {
+        gutter[0] = lineNumber;
+        if(ga.isProofNodeIsSet()) {
+            gutter[1] = iconProofNodeUnSelected;
+        } else {
+            gutter[1] = placeholder();
+        }
+        if(ga.isInsertMarker()){
+            gutter[2] = iconProofCommandPosition;
+        } else {
+            gutter[2] = placeholder();
+        }
         annotation.addListener((o, old, nv) -> {
 
             if (old != null) {
@@ -38,37 +58,75 @@ public class GutterView extends HBox {
 
             update(null);
         });
-        ga.proofNodeIsSetProperty().addListener(this::update);
-        ga.insertMarkerProperty().addListener(this::update);
-        ga.proofNodeIsSelectedProperty().addListener(this::update);
-        ga.proofNodeIsReferencedProperty().addListener(this::update);
+        ga.proofNodeIsSetProperty().addListener(this::updateProofNode);
+        ga.insertMarkerProperty().addListener(this::updateMarker);
+        ga.proofNodeIsSelectedProperty().addListener(this::updateProofNodeSelection);
+        ga.proofNodeIsReferencedProperty().addListener(this::updateReferences);
         ga.proofNodeIsSelectedProperty().addListener((observable, oldValue, newValue) -> {
-         //   System.out.println("selection changed");
-            this.update(observable);
+            updateProofNodeSelection(observable);
         });
         setAnnotation(ga);
+
         update(null);
-
     }
 
-    public void update(Observable o) {
+    private void updateMarker(Observable o) {
+        if(getAnnotation().isInsertMarker()){
+            gutter[2] = iconProofCommandPosition;
+        } else {
+            gutter[2] = placeholder();
+        }
+        update(o);
+    }
 
-        getChildren().setAll(lineNumber);
+    private void updateProofNodeSelection(Observable observable) {
+        if(getAnnotation().isProofNodeIsSet()) {
+            if (getAnnotation().isProofNodeIsSelected()) {
+                gutter[1] = iconProofNodeSelected;
+            } else {
+                gutter[1] = iconProofNodeUnSelected;
+            }
+        } else {
+            gutter[1] = placeholder();
+        }
+        update(observable);
+    }
+
+    private void updateProofNode(Observable o) {
         if(getAnnotation().isProofNodeIsSet()){
-            if(getAnnotation().isProofNodeIsSelected())
-                getChildren().add(iconProofNodeSelected);
-            else
-                getChildren().add(iconProofNodeUnSelected);
-        }
-        else {
-            addPlaceholder();
-        }
-        if(getAnnotation().isInsertMarker())
-            getChildren().add(iconProofCommandPosition);
-        else
-            addPlaceholder();
+            gutter[1] = iconProofNodeUnSelected;
 
+        } else {
+            gutter[1] = placeholder();
+        }
+        update(o);
     }
+
+    private void updateReferences(Observable observable) {
+        if(getAnnotation().isProofNodeIsSet()) {
+            MaterialDesignIconView node = (MaterialDesignIconView) gutter[1];
+            if (getAnnotation().proofNodeIsReferenced()) {
+                node.setFill(Color.ORANGE);
+                gutter[1] = node;
+            } else {
+                node.setFill(Color.BLACK);
+            }
+        } else {
+            gutter[1] = placeholder();
+        }
+        update(observable);
+    }
+
+    /**
+     * Update the GutterView with the components stored in the Gutter Array
+     * @param o
+     */
+    public void update(Observable o){
+        getChildren().setAll(gutter[0]);
+        getChildren().add(gutter[1]);
+        getChildren().add(gutter[2]);
+    }
+
 
     public GutterAnnotation getAnnotation() {
         return annotation.get();
@@ -78,13 +136,12 @@ public class GutterView extends HBox {
         this.annotation.set(annotation);
     }
 
-    private void addPlaceholder() {
+    private Label placeholder(){
         Label lbl = new Label();
         lbl.setMinWidth(12);
         lbl.setMinHeight(12);
-        getChildren().add(lbl);
+        return lbl;
     }
-
     public SimpleObjectProperty<GutterAnnotation> annotationProperty() {
         return annotation;
     }
