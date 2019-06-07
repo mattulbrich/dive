@@ -385,7 +385,7 @@ public class ScriptController implements ScriptViewListener, ReferenceHighlighti
 
     @Override
     public void handleReferenceHighlighting(ReferenceHighlightingObject references) {
-        //TODO
+        removeReferenceHighlighting();
         Set<ScriptReferenceTarget> scriptReferenceTargetSet = references.getScriptReferenceTargetSet();
         viewReferences(scriptReferenceTargetSet);
     }
