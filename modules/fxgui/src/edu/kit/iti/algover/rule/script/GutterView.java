@@ -14,6 +14,7 @@ import javafx.scene.Node;
 import javafx.scene.control.Label;
 import javafx.scene.layout.HBox;
 import javafx.scene.paint.Color;
+import javafx.scene.paint.Paint;
 
 import java.util.Arrays;
 
@@ -45,7 +46,10 @@ public class GutterView extends HBox {
     public GutterView(GutterAnnotation ga) {
         gutter[0] = lineNumber;
         if(ga.isProofNodeIsSet()) {
-            gutter[1] = iconProofNodeUnSelected;
+            if(ga.isProofNodeIsSelected())
+                gutter[1] = iconProofNodeSelected;
+            else
+                gutter[1] =iconProofNodeUnSelected;
         } else {
             gutter[1] = placeholder();
         }
@@ -81,19 +85,23 @@ public class GutterView extends HBox {
         } else {
             gutter[2] = placeholder();
         }
+        updateProofNodeSelection(o);
         update(o);
     }
 
     private void updateProofNodeSelection(Observable observable) {
         if(getAnnotation().isProofNodeIsSet()) {
+            Paint fill = ((MaterialDesignIconView) gutter[1]).getFill();
             if (getAnnotation().isProofNodeIsSelected()) {
                 gutter[1] = iconProofNodeSelected;
             } else {
                 gutter[1] = iconProofNodeUnSelected;
             }
+
         } else {
             gutter[1] = placeholder();
         }
+        updateReferences(observable);
         update(observable);
     }
 
@@ -104,6 +112,7 @@ public class GutterView extends HBox {
         } else {
             gutter[1] = placeholder();
         }
+        updateProofNodeSelection(o);
         update(o);
     }
 
