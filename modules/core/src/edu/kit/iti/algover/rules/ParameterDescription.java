@@ -19,6 +19,7 @@ import nonnull.NonNull;
  *
  * @param <T> The type of the values used in the parameter. Taken from the
  *            {@link ParameterType} provided as constructor argument.
+ *
  * @author Mattias Ulbrich
  * @see ParameterType
  * @see Parameters

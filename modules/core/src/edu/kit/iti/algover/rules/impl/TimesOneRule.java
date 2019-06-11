@@ -28,7 +28,11 @@ public class TimesOneRule extends AbstractProofRule {
 
     public TimesOneRule() {
         super(ON_PARAM);
-        mayBeExhaustive = true;
+    }
+
+    @Override
+    public boolean mayBeExhaustive() {
+        return true;
     }
 
     @Override

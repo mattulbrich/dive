@@ -99,7 +99,7 @@ public class RuleViewOverlay extends AnchorPane {
     private void onRuleApplication(ActionEvent ae) {
         if (application.getRule().getAllParameters().size() > 1 ||
                 (application.getRule().getAllParameters().size() == 1 &&
-                !application.getRule().getAllParameters().containsKey(AbstractProofRule.ON_PARAM))) {
+                !application.getRule().getAllParameters().values().contains(AbstractProofRule.ON_PARAM))) {
             String on;
             try {
                 PrettyPrint pp = new PrettyPrint();

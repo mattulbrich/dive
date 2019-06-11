@@ -28,7 +28,10 @@ public abstract class AbstractProofRule implements ProofRule {
     public static final ParameterDescription<TermParameter> ON_PARAM =
             new ParameterDescription<>("on", ParameterType.MATCH_TERM, true);
 
-    private final Map<String, ParameterDescription<?>> allParameters = new HashMap<>();
+    /**
+     * The map internally storing all parameters.
+     */
+    private final Map<String, ParameterDescription<?>> allParameters;
 
     /**
      * Instantiate a new object.
@@ -36,6 +39,7 @@ public abstract class AbstractProofRule implements ProofRule {
      * @param parameters a list of all parameters that this proof rule accepts.
      */
     public AbstractProofRule(ParameterDescription<?>... parameters) {
+        allParameters = new LinkedHashMap<>();
         for (ParameterDescription<?> p : parameters) {
             allParameters.put(p.getName(), p);
         }
@@ -52,8 +56,6 @@ public abstract class AbstractProofRule implements ProofRule {
     public String getCategory() {
         return "Unknown";
     }
-
-    protected boolean mayBeExhaustive = false;
 
     /**
      * Check the actual parameters obtained as method parameter against the formal parameters stored
@@ -80,6 +82,7 @@ public abstract class AbstractProofRule implements ProofRule {
 
             if(t.getType() == ParameterType.TERM) {
                 if(((TermParameter)en.getValue()).getOriginalTermSelector() != null) {
+                    // REVIEW: Why is this?
                     throw new RuleException("Term parameters may not be termSelectors.");
                 }
             }
@@ -87,8 +90,8 @@ public abstract class AbstractProofRule implements ProofRule {
             Object value = en.getValue();
             if (!t.acceptsValue(value)) {
                 throw new RuleException(
-                            "ParameterDescription " + en.getKey() + " has class " + value.getClass() +
-                                    ", but I expected " + t + " (class " + t.getType() + ")");
+                        "\"" + value + "\" is not a valid value for parameter " +
+                                en.getKey() + " (expected a " + t.getType() + ")");
 
             }
 
@@ -97,7 +100,7 @@ public abstract class AbstractProofRule implements ProofRule {
 
         if (!required.isEmpty()) {
                 throw new RuleException("Missing required argument(s): " +
-                        Util.commatize(Util.map(required, x->x.getName())));
+                        Util.commatize(required));
         }
     }
 
@@ -231,6 +234,6 @@ public abstract class AbstractProofRule implements ProofRule {
     }
 
     public boolean mayBeExhaustive() {
-        return mayBeExhaustive;
+        return false;
     }
 }

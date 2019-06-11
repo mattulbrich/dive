@@ -30,7 +30,11 @@ public class OrLeftRule extends AbstractProofRule {
 
     public OrLeftRule() {
         super(ON_PARAM);
-        mayBeExhaustive = true;
+    }
+
+    @Override
+    public boolean mayBeExhaustive() {
+        return true;
     }
 
     @Override
