@@ -16,6 +16,7 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.VBox;
 import javafx.util.Callback;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
@@ -65,7 +66,8 @@ public class SimpleListVisualizationPane extends DialogPane {
                                         vbox.getChildren().remove(vbox.getChildren().size() - 1);
                                     } else {
                                         labelHeader.setGraphic(new MaterialDesignIconView(MaterialDesignIcon.ARROW_UP_DROP_CIRCLE));
-                                        vbox.getChildren().add(item.getDetailPane());
+                                        String accept = item.getCorrespondingDecl().accept(new DafnyDeclStringVisitor(), null);
+                                        vbox.getChildren().add(new Label(accept));
                                     }
                                 }
                             });
@@ -108,6 +110,7 @@ public class SimpleListVisualizationPane extends DialogPane {
                 for (DafnyTree parameter : params) {
                     switch (parameter.getText()) {
                         case "VAR":
+
                         case "ARGS":
                     }
                 }
@@ -127,11 +130,42 @@ public class SimpleListVisualizationPane extends DialogPane {
                 for (DafnyTree parameter : params) {
                     switch (parameter.getText()) {
                         case "VAR":
+                           /* methodDeclaration.append("Parameter ");
+                            ArrayList<String> strings = new ArrayList<>();
+                            if(parameter.getChildren() != null) {
+                                parameter.getChildren().forEach(dafnyTree -> {
+                                    strings.addAll(dafnyTree.accept(new DafnyTreeCallEntityVisitor(), null));
+                                });
+                            }
+                            strings.forEach(s -> {
+                                methodDeclaration.append(s);
+                                methodDeclaration.append(" ");
+                            });*/
                         case "ARGS":
+                            methodDeclaration.append("Argument ");
+                            ArrayList<String> stringA = new ArrayList<>();
+
+                            parameter.getChildren().forEach(dafnyTree -> {
+                                stringA.addAll(dafnyTree.accept(new DafnyTreeCallEntityVisitor(), null));
+                            });
+                            stringA.forEach(s -> {
+                                methodDeclaration.append(s);
+                                methodDeclaration.append(" ");
+                            });
+
                     }
                 }
             }
             methodDeclaration.append(")");
+            if(f.getDecreasesClause() != null){
+                methodDeclaration.append("\nDecreases ");
+                List<DafnyTree> children = f.getDecreasesClause().getChildren();
+                for (DafnyTree child: children) {
+                    List<String> accept = child.accept(new DafnyTreeCallEntityVisitor(), null);
+                    methodDeclaration.append(accept);
+                    methodDeclaration.append(" ");
+                }
+            }
 
             return methodDeclaration.toString();
         }
@@ -149,4 +183,27 @@ public class SimpleListVisualizationPane extends DialogPane {
 
     }
 
+    private class DafnyTreeCallEntityVisitor extends DafnyTreeDefaultVisitor<List<String>, Void> {
+
+
+        @Override
+        public List<String> visitDefault(DafnyTree t, Void a) {
+            List<String> list = new ArrayList<>();
+            list.add(t.getText());
+            if(t.getChildren() != null) {
+                t.getChildren().forEach(dafnyTree -> {
+                    list.addAll(dafnyTree.accept(this, a));
+                });
+            }
+            return list;
+
+        }
+
+        @Override
+        public List<String> visitTYPE(DafnyTree t, Void aVoid) {
+            List<DafnyTree> children = t.getChildren();
+            assert children.size()==1;
+            return t.getChild(0).accept(this, aVoid);
+        }
+    }
 }
