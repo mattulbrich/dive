@@ -2,6 +2,14 @@ package edu.kit.iti.algover;
 
 import java.util.*;
 
+/**
+ * Lookup object as also implemented in the KeY system to be able to register
+ * handlers (classes implementing specific interfacers) for different services in the GUI.
+ * Controllers can register here if they offer services that are announced by interfaces
+ * One example is the
+ * {@link edu.kit.iti.algover.referenceHighlighting.ReferenceHighlightingHandler} to
+ * highlight references in the different GUI elements
+ */
 public class Lookup {
 
     /**
@@ -28,7 +36,7 @@ public class Lookup {
     }
 
     /**
-     * Register
+     * Register an object implementing a service
      *
      * @param obj
      * @param service
@@ -40,6 +48,12 @@ public class Lookup {
         list.add(0, obj);
     }
 
+    /**
+     * Deregister an object if the service should not be available anymore
+     * @param obj
+     * @param service
+     * @param <T>
+     */
     public <T> void deregister(T obj, Class<T> service) {
         boolean b = getList(service).remove(obj);
     }

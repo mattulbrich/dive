@@ -12,6 +12,7 @@ import edu.kit.iti.algover.browser.BrowserController;
 import edu.kit.iti.algover.browser.callvisualization.CallVisualizationDialog;
 import edu.kit.iti.algover.browser.FlatBrowserController;
 import edu.kit.iti.algover.browser.TreeTableEntityContextMenuStrategyHelper;
+import edu.kit.iti.algover.browser.callvisualization.CallVisualizationModel;
 import edu.kit.iti.algover.browser.entities.DafnyEntityGetterVisitor;
 import edu.kit.iti.algover.browser.entities.PVCEntity;
 import edu.kit.iti.algover.browser.entities.PVCGetterVisitor;
@@ -181,10 +182,12 @@ public class MainController implements SequentActionListener, RuleApplicationLis
         MenuItem tryCloseAll = new MenuItem("Try to close selected PVC(s)");
         tryCloseAll.setOnAction(this::trivialStratContextMenuAction);
         browserContextMenu.getItems().addAll(tryCloseAll);
-        MenuItem showCalled = new MenuItem("Show entities called");
+        MenuItem showCalled = new MenuItem("Show called and calling entities");
         showCalled.setOnAction(this::showCalledEntities);
         browserContextMenu.getItems().addAll(showCalled);
+
     }
+
 
     private void showCalledEntities(ActionEvent actionEvent) {
         try {
@@ -194,9 +197,11 @@ public class MainController implements SequentActionListener, RuleApplicationLis
             if(accept != null){
 
                 Collection<DafnyTree> calls = manager.getProject().getCallgraph().getCalls(accept);
-                if(!calls.isEmpty()){
+                Collection<DafnyTree> callsites = manager.getProject().getCallgraph().getCallsites(accept);
 
-                    CallVisualizationDialog d = new CallVisualizationDialog(calls, accept);
+                if(!calls.isEmpty()){
+                    CallVisualizationModel model = new CallVisualizationModel(manager.getProject().getCallgraph(), accept, calls, callsites);
+                    CallVisualizationDialog d = new CallVisualizationDialog(model, lookup);
                     d.setResizable(true);
                     d.onShownProperty().addListener(e -> {
                         Platform.runLater(() -> d.setResizable(false));

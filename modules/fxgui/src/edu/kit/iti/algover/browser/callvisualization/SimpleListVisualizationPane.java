@@ -4,6 +4,7 @@ import de.jensd.fx.glyphs.materialdesignicons.MaterialDesignIcon;
 import de.jensd.fx.glyphs.materialdesignicons.MaterialDesignIconView;
 import edu.kit.iti.algover.dafnystructures.*;
 import edu.kit.iti.algover.parser.DafnyTree;
+import edu.kit.iti.algover.parser.DafnyTreeDefaultVisitor;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.EventHandler;
@@ -18,6 +19,9 @@ import javafx.util.Callback;
 import java.util.Collection;
 import java.util.List;
 
+/**
+ * Pane that is deplayed if calls/callsites are requested
+ */
 public class SimpleListVisualizationPane extends DialogPane {
     private ObservableList<CallEntity> calls = FXCollections.observableArrayList();
 
@@ -25,10 +29,16 @@ public class SimpleListVisualizationPane extends DialogPane {
 
     private CallVisualizationModel model;
 
-    public SimpleListVisualizationPane(Collection<DafnyTree> callList, DafnyDecl selectedDecl) {
-        callList.forEach(dafnyTree -> calls.add(new CallEntity(dafnyTree)));
-        setHeaderText(computeHeaderText(selectedDecl));
 
+    public SimpleListVisualizationPane(CallVisualizationModel model) {
+        this.model = model;
+
+        Collection<DafnyTree> callList = model.getCalls();
+        DafnyDecl selectedDecl = model.getSelectedDeclaration();
+        callList.forEach(dafnyTree -> calls.add(new CallEntity(dafnyTree, model.getDecl(dafnyTree))));
+
+//        callList.forEach(dafnyTree -> calls.add(new CallEntity(dafnyTree, model.getDecl(dafnyTree))));
+        setHeaderText(computeHeaderText(selectedDecl));
         listview.setCellFactory(new Callback<ListView<CallEntity>, ListCell<CallEntity>>() {
 
 
@@ -44,19 +54,18 @@ public class SimpleListVisualizationPane extends DialogPane {
                         if (item != null && getIndex() > -1) {
                             final Label labelHeader = new Label(item.getHeaderText());
                            // labelHeader.setGraphic(createArrowPath(20, false));
-                            labelHeader.setGraphic(new MaterialDesignIconView(MaterialDesignIcon.ARROW_DOWN_BOLD));
+                            labelHeader.setGraphic(new MaterialDesignIconView(MaterialDesignIcon.ARROW_DOWN_DROP_CIRCLE));
 
                             labelHeader.setOnMouseClicked(new EventHandler<MouseEvent>() {
                                 @Override
                                 public void handle(MouseEvent me) {
                                     item.setHidden(item.isHidden() ? false : true);
                                     if (item.isHidden()) {
-                                        labelHeader.setGraphic(new MaterialDesignIconView(MaterialDesignIcon.ARROW_DOWN_BOLD));
+                                        labelHeader.setGraphic(new MaterialDesignIconView(MaterialDesignIcon.ARROW_DOWN_DROP_CIRCLE));
                                         vbox.getChildren().remove(vbox.getChildren().size() - 1);
                                     } else {
-                                        labelHeader.setGraphic(new MaterialDesignIconView(MaterialDesignIcon.ARROW_UP_BOLD));
-                                        // vbox.getChildren().add(new Label(item.getHeaderText()));
-                                        vbox.getChildren().add(item.getTreeVisualization());
+                                        labelHeader.setGraphic(new MaterialDesignIconView(MaterialDesignIcon.ARROW_UP_DROP_CIRCLE));
+                                        vbox.getChildren().add(item.getDetailPane());
                                     }
                                 }
                             });
@@ -72,6 +81,7 @@ public class SimpleListVisualizationPane extends DialogPane {
 
         });
         this.setContent(listview);
+        this.setMinWidth(600);
 
     }
 
@@ -103,7 +113,6 @@ public class SimpleListVisualizationPane extends DialogPane {
                 }
             }
             methodDeclaration.append(")");
-
             return methodDeclaration.toString();
         }
 
@@ -136,6 +145,8 @@ public class SimpleListVisualizationPane extends DialogPane {
         public String visit(DafnyFile file, Void arg) {
             return "File " + file.getName();
         }
+
+
     }
 
 }
