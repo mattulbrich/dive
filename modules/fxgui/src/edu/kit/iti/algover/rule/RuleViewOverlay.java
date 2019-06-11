@@ -76,10 +76,8 @@ public class RuleViewOverlay extends AnchorPane {
             applyButton.setDisable(this.application.getApplicability() != ProofRuleApplication.Applicability.APPLICABLE);
         });
 
-        for (Entry<ParameterDescription<?>, Object> entry : application.getOpenParameters().entrySet()) {
-            String parameterName = entry.getKey().getName();
-            Object value = entry.getValue();
-            System.out.println(parameterName + ": " + value);
+        for (ParameterDescription<?> pd : application.getOpenParameters()) {
+            System.out.println(pd.getName());
         }
 
         getChildren().addAll(branchCount, applyButton, refineButton, applyExButton);

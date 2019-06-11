@@ -12,6 +12,8 @@ import nonnull.DeepNonNull;
 import nonnull.NonNull;
 import nonnull.Nullable;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 import static edu.kit.iti.algover.util.ImmutableList.from;
@@ -73,18 +75,10 @@ public final class ProofRuleApplication {
     private final @NonNull Parameters parameters;
 
     /**
-     * Missing parameters. All parameters contained in this object require
-     * instantiation for the application of the rule to be possible. The
-     * parameters here are set immutable.
-     */
-    private final @NonNull Parameters openParameters;
-
-    /**
      * The code which can be used to refine this proof application. Can be
      * <code>null</code> if no refining routine is known for this application.
      */
     private final @Nullable Refiner refiner;
-
 
     /**
      * New function symbols introduced by this ruleApplication. These get added to the PVCs FunctionSymbols
@@ -103,10 +97,6 @@ public final class ProofRuleApplication {
      *            info about the branches to be created
      * @param applicability
      *            the applicability of this object.
-     * @param openParameters
-     *            parameters that are missing for this application to be
-     *            executed (use {@link Parameters#EMPTY_PARAMETERS} if no
-     *            such parameters exist.
      * @param refiner
      *            the potential refiner
      * @param subApplications
@@ -118,7 +108,6 @@ public final class ProofRuleApplication {
             @DeepNonNull ImmutableList<BranchInfo> branchInfo,
             @NonNull Applicability applicability,
             @NonNull Parameters parameters,
-            @NonNull Parameters openParameters,
             @Nullable Refiner refiner,
             @Nullable ImmutableList<ProofRuleApplication> subApplications,
             @Nullable ImmutableList<FunctionSymbol> newFunctionsymbols) {
@@ -127,10 +116,9 @@ public final class ProofRuleApplication {
         this.applicability = applicability;
         this.refiner = refiner;
         this.parameters = parameters;
-        this.openParameters = openParameters;
-        openParameters.setImmutable();
+        parameters.setImmutable();
         this.subApplications = subApplications;
-        if(newFunctionsymbols != null) {
+        if (newFunctionsymbols != null) {
             this.newFunctionSymbols = newFunctionsymbols;
         } else {
             this.newFunctionSymbols = ImmutableList.nil();
@@ -211,7 +199,7 @@ public final class ProofRuleApplication {
      */
     private ProofRuleApplication thisWithoutRefiner() {
         return new ProofRuleApplication(rule, branchInfo, applicability, parameters,
-                openParameters, null, subApplications, newFunctionSymbols);
+                null, subApplications, newFunctionSymbols);
     }
 
     /**
@@ -256,10 +244,21 @@ public final class ProofRuleApplication {
     /**
      * Gets the parameters which were declared as remaining open.
      *
-     * @return the open parameters
+     * This means: Return those parameters which are parameters of the rule
+     * but not set in the parameters object returned by {@link #getParameters()}.
+     *
+     * Optional and mandatory parameters are both collected.
+     *
+     * @return a freshly created collection of parameters that are not specified
      */
-    public @NonNull Parameters getOpenParameters() {
-        return openParameters;
+    public @NonNull Collection<ParameterDescription<?>> getOpenParameters() {
+        List<ParameterDescription<?>> result = new ArrayList<>();
+        for (ParameterDescription<?> pd : getRule().getAllParameters().values()) {
+            if (!parameters.hasValue(pd)) {
+                result.add(pd);
+            }
+        }
+        return result;
     }
 
     /**
