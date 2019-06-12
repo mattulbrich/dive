@@ -55,6 +55,11 @@
 .list-cell.formula-cell:formula-modified {
     /* -fx-background-color: #f2aaf2; This looks ridiculous haha */
 }
+.list-cell .formula-cell:empty {
+    visibility:hidden;
+    -fx-border-width: 0px;
+    -fx-opacity: 0;
+}
 
 .undecorated-button {
     -fx-padding: 0 0 0 0;
@@ -181,3 +186,4 @@
 .welcomPaneHTML {
 
 }
+

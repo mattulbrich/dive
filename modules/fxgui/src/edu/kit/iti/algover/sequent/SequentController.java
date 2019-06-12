@@ -26,8 +26,10 @@ import javafx.scene.control.Label;
 import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
 import javafx.scene.input.KeyCode;
+import javafx.scene.layout.VBox;
 import javafx.util.Callback;
 
+import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -138,6 +140,8 @@ public class SequentController extends FxmlController {
                 removeStyle("Target");
             }
         });
+        goalTypeLabel.setStyle("-fx-text-fill: RED");
+
     }
 
     /**
@@ -368,9 +372,11 @@ public class SequentController extends FxmlController {
                 if (node.isClosed()) {
                     goalTypeLabel.setText("Closed Goal");
                     goalTypeLabel.setGraphic(FontAwesomeIconFactory.get().createIcon(FontAwesomeIcon.CHECK));
+                    goalTypeLabel.setStyle("-fx-text-fill: GREEN");
                 } else {
                     goalTypeLabel.setText("Open Goal");
                     goalTypeLabel.setGraphic(FontAwesomeIconFactory.get().createIcon(FontAwesomeIcon.BULLSEYE));
+                    goalTypeLabel.setStyle("-fx-text-fill: RED");
                 }
             } else {
                 goalTypeLabel.setText("Node");
