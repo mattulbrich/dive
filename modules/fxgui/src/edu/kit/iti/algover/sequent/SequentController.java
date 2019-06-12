@@ -38,9 +38,10 @@ import java.util.stream.Collectors;
 /**
  * Created by philipp on 12.07.17.
  * update by JonasKlamroth on 28.5.19
+ * update by S.Grebing on 12.06.19
  *
  * This Class is the Controller for the sequent view.
- * For each part of the sequent a ListView is used to display the different formulas. Each Formula
+ * For each part of the sequent a VBox is used to display the different formulas. Each Formula
  * is modeled by a {@link ViewFormula}. The corresponding views are {@link FormulaCell}s which are basically just
  * wrapper for {@link BasicFormulaView}.
  *
@@ -61,10 +62,8 @@ public class SequentController extends FxmlController {
     private Label goalTypeLabel;
     @FXML
     private VBox antecedentBox;
-   // private ListView<ViewFormula> antecedentView;
     @FXML
     private VBox succedentBox;
-//    private ListView<ViewFormula> succedentView;
 
     /**
      * Whichever Term was clicked to reveal dependencies.
@@ -81,8 +80,6 @@ public class SequentController extends FxmlController {
     private ProofNodeSelector activeNode;
     private ObservableList<Quadruple<TermSelector, String, Integer, String>> styles;
 
-    private ObservableList<FormulaCell> antecList = FXCollections.observableArrayList();
-    private ObservableList<FormulaCell> succList = FXCollections.observableArrayList();
 
     private ObservableSet<TermSelector> historyHighlightsAntec = FXCollections.observableSet();
     private ObservableSet<TermSelector> historyHighlightsSucc = FXCollections.observableSet();
@@ -110,15 +107,6 @@ public class SequentController extends FxmlController {
         this.selectedTerm = new SimpleObjectProperty<>(null);
         this.styles = FXCollections.observableArrayList();
         this.selectedTerm.addListener((observable, oldValue, newValue) -> listener.onClickSequentSubterm(newValue));
-
-
-        //antecedentView.setCellFactory(makeTermCellFactory());
-        //succedentView.setCellFactory(makeTermCellFactory());
-      /*  antecList.addListener(c -> {
-                });
-        succList.addListener(c -> {
-
-        });*/
 
         antecedentBox.setOnKeyPressed(keyEvent -> {
             if (keyEvent.getCode() == KeyCode.ESCAPE) {
@@ -433,9 +421,6 @@ public class SequentController extends FxmlController {
         }
     }
 
- /*   public ReferenceGraph getReferenceGraph() {
-        return referenceGraph;
-    }*/
 
     public Proof getActiveProof() {
         return activeProof;
