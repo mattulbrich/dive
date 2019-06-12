@@ -7,10 +7,14 @@ package edu.kit.iti.algover.sequent;
 
 import edu.kit.iti.algover.rules.TermSelector;
 import edu.kit.iti.algover.sequent.formulas.*;
+import edu.kit.iti.algover.util.ImmutableList;
 import edu.kit.iti.algover.util.Quadruple;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
+import javafx.scene.control.ContextMenu;
+import javafx.scene.control.Label;
+import javafx.scene.control.Tooltip;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 
@@ -24,14 +28,16 @@ import java.util.stream.Collectors;
  * updated by S.Grebing on 12.06.19
  *
  * This Class is basically a wrapper to provide {@link BasicFormulaView}s as BorderPanes for the VBoxes in the
- * {@link SequentController}
+ * {@link SequentController} containing meta information about the formulas
  */
 public class FormulaCell extends BorderPane {
     SimpleObjectProperty<TermSelector> selectedTerm;
     SimpleObjectProperty<TermSelector> selectedReference;
     ObservableList<Quadruple<TermSelector, String, Integer, String>> allStyles;
-    String label = "Test";
+    ImmutableList<String> label = ImmutableList.nil();
     private Set<TermSelector> highlightSet = new HashSet<>();
+
+    private Tooltip tooltip = new Tooltip();
 
 
     public FormulaCell(SimpleObjectProperty<TermSelector> selectedTerm,
@@ -58,7 +64,14 @@ public class FormulaCell extends BorderPane {
                             termSelector.getToplevelSelector().getTermNo() == formula.getIndexInSequent())
                     .collect(Collectors.toSet());
             BasicFormulaView formulaView = new BasicFormulaView(formula, selectedTerm, selectedReference, allStyles, filterAccToIndexInSeq);
+            this.label = formula.getLabels();
+            StringBuilder t = new StringBuilder();
+            this.label.forEach(s -> {
+               t.append(s+"\n");
+            });
+            tooltip.setText(t.toString());
             setCenter(formulaView);
+            Tooltip.install(this, tooltip);
         } else {
             getChildren().clear();
         }
