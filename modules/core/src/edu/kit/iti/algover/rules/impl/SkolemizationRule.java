@@ -17,18 +17,15 @@ import edu.kit.iti.algover.rules.TermSelector;
 import edu.kit.iti.algover.term.ApplTerm;
 import edu.kit.iti.algover.term.FunctionSymbol;
 import edu.kit.iti.algover.term.QuantTerm;
-import edu.kit.iti.algover.term.Sort;
 import edu.kit.iti.algover.term.Term;
 import edu.kit.iti.algover.term.VariableTerm;
 import edu.kit.iti.algover.term.builder.ReplacementVisitor;
 import edu.kit.iti.algover.term.builder.TermBuildException;
-import edu.kit.iti.algover.util.Pair;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 /**
  * Created by jklamroth on 10/31/18.
@@ -45,7 +42,7 @@ public class SkolemizationRule extends AbstractProofRule {
     }
 
     @Override
-    protected ProofRuleApplication considerApplicationImpl(ProofNode target, Parameters parameters) throws RuleException {
+    public ProofRuleApplication considerApplicationImpl(ProofNode target, Parameters parameters) throws RuleException {
         TermParameter onParam = parameters.getValue(ON_PARAM);
         if(onParam == null) {
             return ProofRuleApplicationBuilder.notApplicable(this);
@@ -84,7 +81,7 @@ public class SkolemizationRule extends AbstractProofRule {
     }
 
     @Override
-    protected ProofRuleApplication makeApplicationImpl(ProofNode target, Parameters parameters) throws RuleException {
+    protected ProofRuleApplication makeApplicationImpl_OLD(ProofNode target, Parameters parameters) throws RuleException {
         TermParameter onParam = parameters.getValue(ON_PARAM);
         if(onParam == null) {
             throw new RuleException();

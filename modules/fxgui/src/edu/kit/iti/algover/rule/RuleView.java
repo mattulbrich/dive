@@ -91,7 +91,8 @@ public class RuleView extends StackPane {
                 Parameters params = new Parameters();
                 params.putValue(AbstractProofRule.ON_PARAM, new TermParameter(selector, selection));
                 params.putValue(ExhaustiveRule.RULE_NAME_PARAM, rule.getName());
-                exApplication = exhaustiveRule.considerApplication(target, params);
+                exApplication = exhaustiveRule.makeApplication(target, params)
+                        .getOrElse(ProofRuleApplicationBuilder.notApplicable(rule));
             } else {
                 exApplication = ProofRuleApplicationBuilder.notApplicable(rule);
             }

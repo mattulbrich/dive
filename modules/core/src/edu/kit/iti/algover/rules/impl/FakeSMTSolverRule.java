@@ -11,7 +11,6 @@ import edu.kit.iti.algover.rules.ProofRuleApplication.Applicability;
 import edu.kit.iti.algover.term.Sequent;
 
 import java.math.BigInteger;
-import java.util.Collections;
 
 public class FakeSMTSolverRule extends AbstractProofRule {
 
@@ -57,7 +56,7 @@ public class FakeSMTSolverRule extends AbstractProofRule {
     }
 
     @Override
-    public ProofRuleApplication makeApplicationImpl(ProofNode target, Parameters parameters) throws RuleException {
+    public ProofRuleApplication makeApplicationImpl_OLD(ProofNode target, Parameters parameters) throws RuleException {
         boolean decision;
         if(parameters.hasValue(CLOSE_PARAM)) {
             decision = parameters.getValue(CLOSE_PARAM);

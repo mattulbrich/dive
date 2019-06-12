@@ -110,7 +110,7 @@ public class RuleViewOverlay extends AnchorPane {
             d.showAndWait();
             if (d.getParameters() != null) {
                 try {
-                    application = application.getRule().makeApplication(listener.getCurrentProofNode(), d.getParameters());
+                    application = application.getRule().makeApplication(listener.getCurrentProofNode(), d.getParameters()).getOrThrow();
                     listener.onRuleApplication(this.application);
                 } catch (RuleException e) {
                     Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).severe("Application of ProofRule failed with given parameters.");

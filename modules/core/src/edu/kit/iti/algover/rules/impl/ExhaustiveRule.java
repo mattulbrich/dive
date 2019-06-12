@@ -31,7 +31,7 @@ public class ExhaustiveRule extends AbstractProofRule {
     }
 
     @Override
-    protected ProofRuleApplication considerApplicationImpl(ProofNode target, Parameters parameters) throws RuleException {
+    public ProofRuleApplication considerApplicationImpl(ProofNode target, Parameters parameters) throws RuleException {
         String rn = parameters.getValue(RULE_NAME_PARAM);
 
         if(rn == null) {
@@ -64,7 +64,7 @@ public class ExhaustiveRule extends AbstractProofRule {
     }
 
     @Override
-    protected ProofRuleApplication makeApplicationImpl(ProofNode target, Parameters parameters) throws RuleException {
+    protected ProofRuleApplication makeApplicationImpl_OLD(ProofNode target, Parameters parameters) throws RuleException {
         String rn = parameters.getValue(RULE_NAME_PARAM);
 
         List<ProofRule> rules = target.getPVC().getProject().getAllProofRules().stream().

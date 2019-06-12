@@ -11,16 +11,7 @@ import edu.kit.iti.algover.proof.ProofNode;
 import edu.kit.iti.algover.rules.*;
 import edu.kit.iti.algover.term.ApplTerm;
 import edu.kit.iti.algover.term.FunctionSymbol;
-import edu.kit.iti.algover.term.Sequent;
 import edu.kit.iti.algover.term.Term;
-import edu.kit.iti.algover.term.match.Matching;
-import edu.kit.iti.algover.term.match.SequentMatcher;
-import edu.kit.iti.algover.term.match.TermMatcher;
-import edu.kit.iti.algover.util.ImmutableList;
-import edu.kit.iti.algover.util.RuleUtil;
-
-import java.util.List;
-import java.util.Optional;
 
 /**
  * Created by jklamroth on 5/22/18.
@@ -36,7 +27,7 @@ public class ModusPonensRule extends AbstractProofRule {
     }
 
     @Override
-    protected ProofRuleApplication considerApplicationImpl(ProofNode target, Parameters parameters) throws RuleException {
+    public ProofRuleApplication considerApplicationImpl(ProofNode target, Parameters parameters) throws RuleException {
         Term on = parameters.getValue(ON_PARAM).getTerm();
         TermSelector selector = parameters.getValue(ON_PARAM).getTermSelector();
 
@@ -63,7 +54,7 @@ public class ModusPonensRule extends AbstractProofRule {
     }
 
     @Override
-    protected ProofRuleApplication makeApplicationImpl(ProofNode target, Parameters parameters) throws RuleException {
+    protected ProofRuleApplication makeApplicationImpl_OLD(ProofNode target, Parameters parameters) throws RuleException {
         TermSelector selector = parameters.getValue(ON_PARAM).getTermSelector();
 
         ProofFormula formula = selector.selectTopterm(target.getSequent());

@@ -13,8 +13,6 @@ import edu.kit.iti.algover.rules.ProofRuleApplication;
 import edu.kit.iti.algover.rules.ProofRuleApplication.Applicability;
 import edu.kit.iti.algover.rules.ProofRuleApplicationBuilder;
 import edu.kit.iti.algover.rules.RuleException;
-import edu.kit.iti.algover.rules.TermSelector;
-import edu.kit.iti.algover.term.Sequent;
 
 public class SkipRule extends AbstractProofRule {
     @Override
@@ -32,7 +30,7 @@ public class SkipRule extends AbstractProofRule {
     }
 
     @Override
-    public ProofRuleApplication makeApplicationImpl(ProofNode target, Parameters parameters) throws RuleException {
+    public ProofRuleApplication makeApplicationImpl_OLD(ProofNode target, Parameters parameters) throws RuleException {
         ProofRuleApplicationBuilder b = new ProofRuleApplicationBuilder(this);
         b.setApplicability(Applicability.APPLICABLE);
         BranchInfoBuilder br = b.newBranch();

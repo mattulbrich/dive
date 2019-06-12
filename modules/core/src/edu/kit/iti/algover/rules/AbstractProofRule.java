@@ -9,8 +9,9 @@ import java.util.*;
 import java.util.Map.Entry;
 
 import edu.kit.iti.algover.proof.ProofNode;
-import edu.kit.iti.algover.term.*;
+import edu.kit.iti.algover.term.Sequent;
 import edu.kit.iti.algover.term.prettyprint.PrettyPrint;
+import edu.kit.iti.algover.util.ExcusableValue;
 import edu.kit.iti.algover.util.Util;
 
 /**
@@ -48,7 +49,7 @@ public abstract class AbstractProofRule implements ProofRule {
     /**
      * {@inheritDoc}
      * <p>
-     *     By default, the category of a class is Unknown
+     *     By default, the category of a rule is "Unknown"
      *
      * @return "Unknown"
      */
@@ -58,14 +59,16 @@ public abstract class AbstractProofRule implements ProofRule {
     }
 
     /**
-     * Check the actual parameters obtained as method parameter against the formal parameters stored
-     * in {@link #allParameters},
+     * Check the actual parameters obtained as method parameter against the
+     * formal parameters stored in {@link #allParameters},
      *
      * @param parameters the map of parameters against values.
-     * @throws RuleException if a required parameter has been omitted or an unknown parameter has
-     *                       been used
+     * @return {@code null} if the parameters are ok with the rule's
+     * requirements. A non-{@code null} string indicates an error message if the
+     * the parameters are against the rule's requirements. Can be used for an
+     * exception message or a rgret message.
      */
-    private final void checkParameters(Parameters parameters) throws RuleException {
+    private void checkParameters(Parameters parameters) throws RuleException {
         Set<ParameterDescription<?>> required = new HashSet<>();
         for (ParameterDescription<?> p : allParameters.values()) {
             if(p.isRequired()) {
@@ -105,50 +108,27 @@ public abstract class AbstractProofRule implements ProofRule {
     }
 
     /**
-     * The concrete implementation of {@link #considerApplication(ProofNode, Parameters)} for each rule.
+     * The concrete implementation of considerApplication(ProofNode, Parameters) for each rule.
      *
      * @param target the ProofNode this rule is to be applied on
      * @param parameters the parameters for the rule application
      * @return the resulting ProofRuleApplication
      * @throws RuleException
-     */
-    protected abstract ProofRuleApplication considerApplicationImpl(ProofNode target, Parameters parameters) throws RuleException;
-
-    /**
-     * Same as {@link #considerApplication(ProofNode, Sequent, TermSelector)} but for GUI convenience with different
-     * parameters.
      *
-     * @param target    the proof node onto whose sequent the rule is to be applied.
-     * @param selection a subsequent of the target's sequent. These are the
-     *                  UI-selected top formulas.
-     * @param selector  if a subformula has been selected, it is this selector that
-     *                  represents it.
-     * @return
-     * @throws RuleException
+     * @deprecated A relict of old days
      */
+    @Deprecated
+    public ProofRuleApplication considerApplicationImpl(ProofNode target, Parameters parameters) throws RuleException {
+        throw new Error("Will be removed");
+    }
+
+    @Deprecated
     public final ProofRuleApplication considerApplication(ProofNode target, Sequent selection, TermSelector selector) throws RuleException {
         Parameters params = new Parameters();
         params.putValue(ON_PARAM, new TermParameter(selector, selection));
-        return considerApplication(target, params);
+        return makeApplicationImpl_OLD(target, params);
     }
 
-    /**
-     * considers the application of this rule. Returns a ProofRuleApplication which might be either applicable or
-     * not applicable for the given parameters.
-     *
-     * @param target the ProofNode for which to consider the application of the rule
-     * @param parameters the parameters for the rule application
-     * @return the resulting application
-     * @throws RuleException
-     */
-    public final ProofRuleApplication considerApplication(ProofNode target, Parameters parameters) throws RuleException {
-        ProofRuleApplication pra = considerApplicationImpl(target, parameters);
-        ProofRuleApplicationBuilder builder = new ProofRuleApplicationBuilder(pra);
-        if(builder.getParameters().equals(Parameters.EMPTY_PARAMETERS)) {
-            builder.setParameters(parameters);
-        }
-        return builder.build();
-    }
 
     /**
      * The concrete implementation of {@link #makeApplication(ProofNode, Parameters)} for each rule.
@@ -158,7 +138,21 @@ public abstract class AbstractProofRule implements ProofRule {
      * @return the resulting ProofRuleApplication
      * @throws RuleException
      */
-    protected abstract ProofRuleApplication makeApplicationImpl(ProofNode target, Parameters parameters) throws RuleException;
+    // protected abstract ExcusableValue<ProofRuleApplication> makeApplicationImpl(ProofNode target, Parameters parameters) throws RuleException;
+    protected ExcusableValue<ProofRuleApplication, RuleException> makeApplicationImpl(ProofNode target, Parameters parameters) throws RuleException {
+        // This method will be abstract in the future.
+        // For now it calls to the old methods before the refactoring.
+        System.err.println("This is legacy code that must be adapted!");
+        return ExcusableValue.value(makeApplicationImpl_OLD(target, parameters));
+    };
+
+    /**
+     * @deprecated This is a relict of old days
+     */
+    @Deprecated
+    protected ProofRuleApplication makeApplicationImpl_OLD(ProofNode target, Parameters parameters) throws RuleException {
+        throw new Error("Will be removed");
+    }
 
     /**
      * Creates a ProofRuleApplication encoding all changes made by the rule when applied with given parameters to a
@@ -171,14 +165,24 @@ public abstract class AbstractProofRule implements ProofRule {
      * @return the ProofRuleApplication
      * @throws RuleException
      */
-    public final ProofRuleApplication makeApplication(ProofNode target, Parameters parameters) throws RuleException {
-        checkParameters(parameters);
-        ProofRuleApplicationBuilder builder = new ProofRuleApplicationBuilder(makeApplicationImpl(target, parameters));
-        if(builder.getParameters().equals(Parameters.EMPTY_PARAMETERS)) {
-            builder.setParameters(parameters);
+    public final ExcusableValue<ProofRuleApplication, RuleException> makeApplication(ProofNode target, Parameters parameters) throws RuleException {
+        try {
+            checkParameters(parameters);
+        } catch(RuleException ex) {
+            return ExcusableValue.excuse(ex);
         }
-        return builder.build();
+
+        ExcusableValue<ProofRuleApplication, RuleException> result = makeApplicationImpl(target, parameters);
+
+        result = result.map(pra ->
+            pra.getParameters().isEmpty() ?
+                new ProofRuleApplicationBuilder(pra)
+                        .setParameters(parameters).build() :
+                    pra);
+
+        return result;
     }
+
 
     /**
      *
@@ -217,6 +221,10 @@ public abstract class AbstractProofRule implements ProofRule {
         return sb.toString();
     }
 
+    protected static ExcusableValue<ProofRuleApplication, RuleException> regret(String msg) {
+        return ExcusableValue.excuse(new RuleException(msg));
+    }
+
     private <T> String entryToString(ParameterDescription<T> key,
                                  Object value,
                                  PrettyPrint prettyPrint) {
@@ -230,7 +238,7 @@ public abstract class AbstractProofRule implements ProofRule {
      */
     @Override
     public Map<String, ParameterDescription<?>> getAllParameters() {
-        return allParameters;
+        return Collections.unmodifiableMap(allParameters);
     }
 
     public boolean mayBeExhaustive() {

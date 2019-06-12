@@ -6,9 +6,7 @@
 package edu.kit.iti.algover.rules.impl;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import edu.kit.iti.algover.proof.ProofFormula;
 import edu.kit.iti.algover.proof.ProofNode;
@@ -22,9 +20,6 @@ import edu.kit.iti.algover.rules.TermSelector;
 import edu.kit.iti.algover.rules.TermSelector.SequentPolarity;
 import edu.kit.iti.algover.term.Sequent;
 import edu.kit.iti.algover.term.Term;
-import edu.kit.iti.algover.term.match.Matching;
-import edu.kit.iti.algover.term.match.SequentMatcher;
-import edu.kit.iti.algover.util.ImmutableList;
 import edu.kit.iti.algover.util.RuleUtil;
 
 // ALPHA ... Just for demo purposes so far.
@@ -87,7 +82,7 @@ public class PropositionalExpansionRule extends AbstractProofRule {
     }
 
     @Override
-    public ProofRuleApplication makeApplicationImpl(ProofNode target, Parameters parameters) throws RuleException {
+    public ProofRuleApplication makeApplicationImpl_OLD(ProofNode target, Parameters parameters) throws RuleException {
         //TODO just copy and pasted from considerApplicationImpl maybe correct or improve
         Term on = parameters.getValue(ON_PARAM).getTerm();
         List<TermSelector> l = RuleUtil.matchSubtermsInSequent(on::equals, target.getSequent());

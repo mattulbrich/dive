@@ -10,10 +10,7 @@ import edu.kit.iti.algover.proof.ProofFormula;
 import edu.kit.iti.algover.proof.ProofNode;
 import edu.kit.iti.algover.rules.*;
 import edu.kit.iti.algover.term.ApplTerm;
-import edu.kit.iti.algover.term.Sequent;
 import edu.kit.iti.algover.term.builder.TermBuildException;
-
-import java.util.HashMap;
 
 public class TestTrueAssumption extends AbstractProofRule {
 
@@ -44,7 +41,7 @@ public class TestTrueAssumption extends AbstractProofRule {
     }
 
     @Override
-    public ProofRuleApplication makeApplicationImpl(ProofNode target, Parameters parameters) throws RuleException {
+    public ProofRuleApplication makeApplicationImpl_OLD(ProofNode target, Parameters parameters) throws RuleException {
         return buildApplication();
     }
 

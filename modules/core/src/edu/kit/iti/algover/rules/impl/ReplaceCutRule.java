@@ -35,7 +35,7 @@ public class ReplaceCutRule extends AbstractProofRule {
     }
 
     @Override
-    protected ProofRuleApplication considerApplicationImpl(ProofNode target, Parameters parameters) throws RuleException {
+    public ProofRuleApplication considerApplicationImpl(ProofNode target, Parameters parameters) throws RuleException {
         TermParameter withParam = parameters.getValue(WITH_PARAM);
         TermParameter onParam = parameters.getValue(ON_PARAM);
 
@@ -67,7 +67,7 @@ public class ReplaceCutRule extends AbstractProofRule {
     }
 
     @Override
-    protected ProofRuleApplication makeApplicationImpl(ProofNode target, Parameters parameters) throws RuleException {
+    protected ProofRuleApplication makeApplicationImpl_OLD(ProofNode target, Parameters parameters) throws RuleException {
         Term with = parameters.getValue(WITH_PARAM).getTerm();
         Term on = parameters.getValue(ON_PARAM).getTerm();
 

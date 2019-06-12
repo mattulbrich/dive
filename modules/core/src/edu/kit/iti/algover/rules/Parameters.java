@@ -161,4 +161,24 @@ public class Parameters {
         return valueMap.entrySet();
     }
 
+    /**
+     * Checks if this object is empty, i.e. if there are any parameters set
+     * in it or none at all.
+     *
+     * @return true iff there are no parameters set
+     */
+    public boolean isEmpty() {
+        return valueMap.isEmpty();
+    }
+
+    /**
+     * Checks if this object contains at least the parameters (not necessarily)
+     * the values also set in the argument.
+     *
+     * @param parameters to compare with
+     * @return true iff my keys are a superset of the argument's keys
+     */
+    public boolean containsKeys(@NonNull  Parameters parameters) {
+        return valueMap.keySet().containsAll(parameters.valueMap.keySet());
+    }
 }

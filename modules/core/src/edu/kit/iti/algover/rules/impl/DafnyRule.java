@@ -5,30 +5,20 @@
  */
 package edu.kit.iti.algover.rules.impl;
 
-import edu.kit.iti.algover.ProgramDatabase;
 import edu.kit.iti.algover.dafnystructures.*;
-import edu.kit.iti.algover.data.BuiltinSymbols;
-import edu.kit.iti.algover.data.MapSymbolTable;
-import edu.kit.iti.algover.data.SymbolTable;
-import edu.kit.iti.algover.parser.*;
 import edu.kit.iti.algover.proof.ProofFormula;
 import edu.kit.iti.algover.proof.ProofNode;
 import edu.kit.iti.algover.rules.*;
-import edu.kit.iti.algover.term.builder.ReplacementVisitor;
 import edu.kit.iti.algover.term.match.Matching;
-import edu.kit.iti.algover.term.match.SequentMatcher;
 import edu.kit.iti.algover.term.match.TermMatcher;
 import edu.kit.iti.algover.term.*;
 import edu.kit.iti.algover.term.builder.TermBuildException;
-import edu.kit.iti.algover.term.builder.TreeTermTranslator;
 import edu.kit.iti.algover.util.ImmutableList;
 import edu.kit.iti.algover.util.Pair;
 import edu.kit.iti.algover.util.RuleUtil;
 import nonnull.NonNull;
 
 
-import java.io.File;
-import java.io.IOException;
 import java.util.*;
 
 /**
@@ -118,7 +108,7 @@ public class DafnyRule extends AbstractProofRule {
     }
 
     @Override
-    public ProofRuleApplication makeApplicationImpl(ProofNode target, Parameters parameters) throws RuleException {
+    public ProofRuleApplication makeApplicationImpl_OLD(ProofNode target, Parameters parameters) throws RuleException {
         ProofRuleApplicationBuilder proofRuleApplicationBuilder = new ProofRuleApplicationBuilder(this);
         try {
             Term on = parameters.getValue(ON_PARAM).getTerm();

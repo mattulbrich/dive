@@ -5,10 +5,6 @@
  */
 package edu.kit.iti.algover.rules.impl;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 import edu.kit.iti.algover.data.BuiltinSymbols;
 import edu.kit.iti.algover.proof.ProofFormula;
 import edu.kit.iti.algover.proof.ProofNode;
@@ -21,12 +17,7 @@ import edu.kit.iti.algover.rules.RuleException;
 import edu.kit.iti.algover.rules.TermSelector;
 import edu.kit.iti.algover.term.ApplTerm;
 import edu.kit.iti.algover.term.FunctionSymbol;
-import edu.kit.iti.algover.term.Sequent;
 import edu.kit.iti.algover.term.Term;
-import edu.kit.iti.algover.term.match.Matching;
-import edu.kit.iti.algover.term.match.SequentMatcher;
-import edu.kit.iti.algover.util.ImmutableList;
-import edu.kit.iti.algover.util.Pair;
 import edu.kit.iti.algover.util.RuleUtil;
 
 public class TrivialAndRight extends AbstractProofRule {
@@ -76,7 +67,7 @@ public class TrivialAndRight extends AbstractProofRule {
     }
 
     @Override
-    public ProofRuleApplication makeApplicationImpl(ProofNode target, Parameters parameters) throws RuleException {
+    public ProofRuleApplication makeApplicationImpl_OLD(ProofNode target, Parameters parameters) throws RuleException {
         Term on = parameters.getValue(ON_PARAM).getTerm();
         ProofRuleApplicationBuilder builder = new ProofRuleApplicationBuilder(this);
 

@@ -15,13 +15,11 @@ import edu.kit.iti.algover.rules.ProofRuleApplication;
 import edu.kit.iti.algover.rules.ProofRuleApplicationBuilder;
 import edu.kit.iti.algover.rules.RuleException;
 import edu.kit.iti.algover.rules.TermParameter;
-import edu.kit.iti.algover.rules.TermSelector;
 import edu.kit.iti.algover.term.ApplTerm;
 import edu.kit.iti.algover.term.DefaultTermVisitor;
 import edu.kit.iti.algover.term.QuantTerm;
 import edu.kit.iti.algover.term.Term;
 import edu.kit.iti.algover.term.VariableTerm;
-import edu.kit.iti.algover.term.builder.ReplaceVisitor;
 import edu.kit.iti.algover.term.builder.ReplacementVisitor;
 import edu.kit.iti.algover.term.builder.TermBuildException;
 
@@ -41,7 +39,7 @@ public class QuantifierInstantiation extends AbstractProofRule {
     }
 
     @Override
-    protected ProofRuleApplication considerApplicationImpl(ProofNode target, Parameters parameters) throws RuleException {
+    public ProofRuleApplication considerApplicationImpl(ProofNode target, Parameters parameters) throws RuleException {
         TermParameter onParam = parameters.getValue(ON_PARAM);
         TermParameter withParam = parameters.getValue(WITH_PARAM);
         QuantTerm aTerm;
@@ -96,7 +94,7 @@ public class QuantifierInstantiation extends AbstractProofRule {
     }
 
     @Override
-    protected ProofRuleApplication makeApplicationImpl(ProofNode target, Parameters parameters) throws RuleException {
+    protected ProofRuleApplication makeApplicationImpl_OLD(ProofNode target, Parameters parameters) throws RuleException {
         ProofRuleApplication pra = considerApplicationImpl(target, parameters);
         if(pra.getApplicability() != ProofRuleApplication.Applicability.APPLICABLE) {
             throw new RuleException("Rule " + getName() + " is not applicable on sequent " + target.getSequent());

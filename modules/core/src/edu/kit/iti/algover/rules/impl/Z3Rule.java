@@ -9,7 +9,6 @@ package edu.kit.iti.algover.rules.impl;
 
 import edu.kit.iti.algover.dafnystructures.DafnyFunctionSymbol;
 import edu.kit.iti.algover.data.SymbolTable;
-import edu.kit.iti.algover.proof.PVC;
 import edu.kit.iti.algover.proof.ProofFormula;
 import edu.kit.iti.algover.proof.ProofNode;
 import edu.kit.iti.algover.rules.AbstractProofRule;
@@ -84,7 +83,7 @@ public class Z3Rule extends AbstractProofRule {
     }
 
     @Override
-    public ProofRuleApplication makeApplicationImpl(ProofNode target, Parameters parameters) throws RuleException {
+    public ProofRuleApplication makeApplicationImpl_OLD(ProofNode target, Parameters parameters) throws RuleException {
         if(quickAndDirty(target.getPVC().getIdentifier(), target.getSequent(), target.getAllSymbols())) {
             ProofRuleApplicationBuilder builder = new ProofRuleApplicationBuilder(this);
             builder.setApplicability(Applicability.APPLICABLE);

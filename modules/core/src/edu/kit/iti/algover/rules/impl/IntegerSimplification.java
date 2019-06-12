@@ -5,30 +5,20 @@
  */
 package edu.kit.iti.algover.rules.impl;
 
-import edu.kit.iti.algover.data.BuiltinSymbols;
 import edu.kit.iti.algover.proof.ProofNode;
-import edu.kit.iti.algover.proof.ProofNodeSelector;
 import edu.kit.iti.algover.rules.AbstractProofRule;
 import edu.kit.iti.algover.rules.Parameters;
-import edu.kit.iti.algover.rules.ProofRule;
 import edu.kit.iti.algover.rules.ProofRuleApplication;
 import edu.kit.iti.algover.rules.ProofRuleApplicationBuilder;
 import edu.kit.iti.algover.rules.RuleApplicator;
 import edu.kit.iti.algover.rules.RuleException;
-import edu.kit.iti.algover.rules.SubtermSelector;
 import edu.kit.iti.algover.rules.TermParameter;
 import edu.kit.iti.algover.rules.TermSelector;
-import edu.kit.iti.algover.term.ApplTerm;
-import edu.kit.iti.algover.term.FunctionSymbol;
-import edu.kit.iti.algover.term.Sort;
-import edu.kit.iti.algover.term.Term;
-import edu.kit.iti.algover.term.builder.TermBuildException;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 /**
@@ -49,7 +39,7 @@ public class IntegerSimplification extends AbstractProofRule {
     }
 
     @Override
-    protected ProofRuleApplication considerApplicationImpl(ProofNode target, Parameters parameters) throws RuleException {
+    public ProofRuleApplication considerApplicationImpl(ProofNode target, Parameters parameters) throws RuleException {
         applicableRules = target.getPVC().getProject().getAllProofRules().stream().
                 filter(proofRule -> applicableRuleTypes.contains(proofRule.getClass())).
                 map(proofRule -> (AbstractProofRule)proofRule).
@@ -63,8 +53,8 @@ public class IntegerSimplification extends AbstractProofRule {
     }
 
     @Override
-    protected ProofRuleApplication makeApplicationImpl(ProofNode target, Parameters parameters) throws RuleException {
-        ProofRuleApplication pra = considerApplication(target, parameters);
+    protected ProofRuleApplication makeApplicationImpl_OLD(ProofNode target, Parameters parameters) throws RuleException {
+        ProofRuleApplication pra = considerApplicationImpl(target, parameters);
         if(pra.getApplicability() != ProofRuleApplication.Applicability.APPLICABLE) {
             throw new RuleException("IntegerSimplification is not applicable in make");
         }
@@ -86,7 +76,7 @@ public class IntegerSimplification extends AbstractProofRule {
 
     ProofRuleApplication singleStep1(ProofNode target, Parameters parameters) throws RuleException {
         for(AbstractProofRule r : applicableRules) {
-            ProofRuleApplication pra = r.considerApplication(target, parameters);
+            ProofRuleApplication pra = r.considerApplicationImpl(target, parameters);
             if(pra.getApplicability() == ProofRuleApplication.Applicability.APPLICABLE) {
                 return pra;
             }

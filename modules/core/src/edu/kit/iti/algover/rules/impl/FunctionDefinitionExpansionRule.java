@@ -63,7 +63,7 @@ public class FunctionDefinitionExpansionRule extends AbstractProofRule {
     }
 
     @Override
-    protected ProofRuleApplication considerApplicationImpl(ProofNode target, Parameters parameters) throws RuleException {
+    public ProofRuleApplication considerApplicationImpl(ProofNode target, Parameters parameters) throws RuleException {
         TermSelector selector = parameters.getValue(ON_PARAM).getTermSelector();
 
         Term term = selector.selectSubterm(target.getSequent());
@@ -187,7 +187,7 @@ public class FunctionDefinitionExpansionRule extends AbstractProofRule {
     }
 
     @Override
-    protected ProofRuleApplication makeApplicationImpl(ProofNode target, Parameters parameters) throws RuleException {
+    protected ProofRuleApplication makeApplicationImpl_OLD(ProofNode target, Parameters parameters) throws RuleException {
         return considerApplicationImpl(target, parameters);
     }
 }

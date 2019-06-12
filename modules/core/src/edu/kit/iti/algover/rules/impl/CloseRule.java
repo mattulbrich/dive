@@ -40,7 +40,7 @@ public class CloseRule extends AbstractProofRule {
     }
 
     @Override
-    public ProofRuleApplication makeApplicationImpl(ProofNode target, Parameters parameters) throws RuleException {
+    public ProofRuleApplication makeApplicationImpl_OLD(ProofNode target, Parameters parameters) throws RuleException {
         Term on = null;
         if(parameters.entrySet().size() > 0) {
             on = parameters.getValue(ON_PARAM).getTerm();

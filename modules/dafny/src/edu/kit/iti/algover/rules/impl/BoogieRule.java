@@ -60,7 +60,7 @@ public class BoogieRule extends AbstractProofRule {
     }
 
     @Override
-    public ProofRuleApplication makeApplicationImpl(ProofNode target, Parameters parameters) throws RuleException {
+    public ProofRuleApplication makeApplicationImpl_OLD(ProofNode target, Parameters parameters) throws RuleException {
 
         if (isValid(target)) {
             ProofRuleApplicationBuilder builder = new ProofRuleApplicationBuilder(this);

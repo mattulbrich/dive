@@ -49,7 +49,7 @@ public class AbstractProofRuleTest {
         }
 
         @Override
-        protected ProofRuleApplication makeApplicationImpl(ProofNode target, Parameters parameters) throws RuleException {
+        protected ProofRuleApplication makeApplicationImpl_OLD(ProofNode target, Parameters parameters) throws RuleException {
             throw new Error();
         }
 

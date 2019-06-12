@@ -17,6 +17,7 @@ import edu.kit.iti.algover.script.data.VariableAssignment;
 import edu.kit.iti.algover.script.exceptions.ScriptCommandNotApplicableException;
 import edu.kit.iti.algover.script.interpreter.Evaluator;
 import edu.kit.iti.algover.script.interpreter.Interpreter;
+import edu.kit.iti.algover.util.ExcusableValue;
 
 import java.util.*;
 import java.util.Map.Entry;
@@ -124,8 +125,12 @@ public class ProofRuleHandler implements CommandHandler<ProofNode> {
             }
 
             //apply the rule
-            ProofRuleApplication proofRuleApplication = pr.makeApplication(parent, ruleParams);
+            ExcusableValue<ProofRuleApplication, RuleException> regPRA = pr.makeApplication(parent, ruleParams);
 
+            regPRA.throwIfExcused();
+
+            ProofRuleApplication proofRuleApplication = regPRA.get();
+            proofRuleApplication = proofRuleApplication.refine();
             if (proofRuleApplication.getApplicability() == ProofRuleApplication.Applicability.APPLICABLE) {
 
                 List<ProofNode> newNodes = RuleApplicator.applyRule(proofRuleApplication, parent);
@@ -144,9 +149,7 @@ public class ProofRuleHandler implements CommandHandler<ProofNode> {
                     interpreter.getCurrentState().setSelectedGoalNode(null);
                     parent.setClosed(true);
                     parent.addMutator(call);
-
                 }
-
             } else {
                 throw new ScriptCommandNotApplicableException(pr, call);
             }
