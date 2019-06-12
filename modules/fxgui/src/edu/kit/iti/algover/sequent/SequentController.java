@@ -16,6 +16,7 @@ import edu.kit.iti.algover.sequent.formulas.ViewFormula;
 import edu.kit.iti.algover.term.Sequent;
 import edu.kit.iti.algover.term.Term;
 import edu.kit.iti.algover.util.*;
+import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -28,6 +29,7 @@ import javafx.scene.control.ListView;
 import javafx.scene.input.KeyCode;
 import javafx.scene.layout.VBox;
 import javafx.util.Callback;
+import org.controlsfx.control.ToggleSwitch;
 
 import java.awt.*;
 import java.util.ArrayList;
@@ -59,6 +61,9 @@ public class SequentController extends FxmlController {
     private final SequentActionListener listener;
 
     @FXML
+    private ToggleSwitch formulaLabels;
+
+    @FXML
     private Label goalTypeLabel;
     @FXML
     private VBox antecedentBox;
@@ -83,6 +88,8 @@ public class SequentController extends FxmlController {
 
     private ObservableSet<TermSelector> historyHighlightsAntec = FXCollections.observableSet();
     private ObservableSet<TermSelector> historyHighlightsSucc = FXCollections.observableSet();
+
+    private SimpleBooleanProperty showFormulaLabels = new SimpleBooleanProperty(false);
 
     /**
      * Builds the controller and GUI for the sequent view, that is the two ListViews of
@@ -138,6 +145,8 @@ public class SequentController extends FxmlController {
             }
         });
         goalTypeLabel.setStyle("-fx-text-fill: RED");
+        formulaLabels.selectedProperty().addListener((observable, oldValue, newValue) -> this.showFormulaLabels.set(newValue));
+
 
     }
 
@@ -359,7 +368,7 @@ public class SequentController extends FxmlController {
                 formulas.add(new ViewFormula(formulas.size() - deletedFormulas, addition.getTerm(), ViewFormula.Type.ADDED, polarity, addition.getLabels()));
             }
         }
-        return formulas.stream().map(formula -> new FormulaCell(selectedTerm, selectedReference, styles, formula)).collect(Collectors.toList());
+        return formulas.stream().map(formula -> new FormulaCell(selectedTerm, selectedReference, styles, formula, showFormulaLabels)).collect(Collectors.toList());
 
     }
 

@@ -9,10 +9,10 @@ import edu.kit.iti.algover.rules.TermSelector;
 import edu.kit.iti.algover.sequent.formulas.*;
 import edu.kit.iti.algover.util.ImmutableList;
 import edu.kit.iti.algover.util.Quadruple;
+import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
-import javafx.scene.control.ContextMenu;
 import javafx.scene.control.Label;
 import javafx.scene.control.Tooltip;
 import javafx.scene.layout.*;
@@ -39,20 +39,27 @@ public class FormulaCell extends BorderPane {
 
     private Tooltip tooltip = new Tooltip();
 
+    private SimpleBooleanProperty showLabels;
+
 
     public FormulaCell(SimpleObjectProperty<TermSelector> selectedTerm,
                        SimpleObjectProperty<TermSelector> selectedReference,
                        ObservableList<Quadruple<TermSelector, String, Integer, String>> allStyles,
-                       ViewFormula formula) {
+                       ViewFormula formula,
+                       SimpleBooleanProperty showLabels) {
 
         this.selectedTerm = selectedTerm;
         this.allStyles = allStyles;
         this.selectedReference = selectedReference;
+        this.showLabels = showLabels;
         this.setPadding(new Insets(10,10,10,10));
         getStyleClass().add("formula-cell");
         this.setBorder(new Border(new BorderStroke(Color.BLACK,
             BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderWidths.DEFAULT)));
         updateItem(formula);
+        showLabels.addListener((observable, oldValue, newValue) -> {
+            showLabels(newValue);
+        });
     }
 
     protected void updateItem(ViewFormula formula) {
@@ -65,19 +72,37 @@ public class FormulaCell extends BorderPane {
                     .collect(Collectors.toSet());
             BasicFormulaView formulaView = new BasicFormulaView(formula, selectedTerm, selectedReference, allStyles, filterAccToIndexInSeq);
             this.label = formula.getLabels();
-            StringBuilder t = new StringBuilder();
-            this.label.forEach(s -> {
-               t.append(s+"\n");
-            });
-            tooltip.setText(t.toString());
             setCenter(formulaView);
-            Tooltip.install(this, tooltip);
+            createTooltip();
+
         } else {
             getChildren().clear();
         }
     }
 
+    private void createTooltip() {
+        StringBuilder labelString = new StringBuilder();
+        this.label.forEach(s -> {
+            labelString.append(s + "\n");
+        });
+        tooltip.setText(labelString.toString());
+        Tooltip.install(this, tooltip);
+    }
+
+
      public void setSelectorsToHighlight(Set<TermSelector> selectorsToHighlight) {
         this.highlightSet = selectorsToHighlight;
+    }
+
+    public void showLabels(boolean show){
+        if(show){
+            StringBuilder labelString = new StringBuilder();
+            this.label.forEach(s -> {
+                labelString.append(s + "\n");
+            });
+            this.setBottom(new Label(labelString.toString()));
+        } else {
+            this.setBottom(null);
+        }
     }
 }

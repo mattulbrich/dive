@@ -5,10 +5,13 @@
 
 <?import javafx.scene.text.Font?>
 <?import javafx.geometry.Insets?>
-<VBox
-        xmlns="http://javafx.com/javafx"
-        xmlns:fx="http://javafx.com/fxml"
-        >
+<?import org.controlsfx.control.ToggleSwitch?>
+<VBox xmlns="http://javafx.com/javafx"
+      xmlns:fx="http://javafx.com/fxml">
+
+    <HBox alignment="TOP_RIGHT">
+        <ToggleSwitch fx:id="formulaLabels" text="Labels"></ToggleSwitch>
+    </HBox>
     <padding><Insets top="10" bottom="10" left="10"/></padding>
     <Label fx:id="goalTypeLabel" text="Open Goal" >
         <font><Font name="sans serif" size="20" /></font>
