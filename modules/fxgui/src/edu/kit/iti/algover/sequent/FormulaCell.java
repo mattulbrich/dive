@@ -23,11 +23,12 @@ import java.util.stream.Collectors;
 /**
  * Created by Philipp on 22.07.2017.
  * updated by JonasKlamroth on 28.5.19
+ * updated by S.Grebing on 12.06.19
  *
- * This Class is basically a wrapper to provide {@link BasicFormulaView}s as cells to the ListViews in the
+ * This Class is basically a wrapper to provide {@link BasicFormulaView}s as BorderPanes for the VBoxes in the
  * {@link SequentController}
  */
-public class FormulaCell extends ListCell<ViewFormula> {
+public class FormulaCell extends BorderPane {
     SimpleObjectProperty<TermSelector> selectedTerm;
     SimpleObjectProperty<TermSelector> selectedReference;
     ObservableList<Quadruple<TermSelector, String, Integer, String>> allStyles;
@@ -37,22 +38,21 @@ public class FormulaCell extends ListCell<ViewFormula> {
 
     public FormulaCell(SimpleObjectProperty<TermSelector> selectedTerm,
                        SimpleObjectProperty<TermSelector> selectedReference,
-                       ObservableList<Quadruple<TermSelector, String, Integer, String>> allStyles
-                       ) {
+                       ObservableList<Quadruple<TermSelector, String, Integer, String>> allStyles,
+                       ViewFormula formula) {
+
         this.selectedTerm = selectedTerm;
         this.allStyles = allStyles;
         this.selectedReference = selectedReference;
         this.setPadding(new Insets(10,10,10,10));
-        //pane.getChildren().add(new Label(label));
-        //this.getChildren().add(pane);
         getStyleClass().add("formula-cell");
-
+        this.setBorder(new Border(new BorderStroke(Color.BLACK,
+            BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderWidths.DEFAULT)));
+        updateItem(formula);
     }
 
-    @Override
-    protected void updateItem(ViewFormula formula, boolean empty) {
-        super.updateItem(formula, empty);
-        if (!empty && formula != null) {
+    protected void updateItem(ViewFormula formula) {
+       if (formula != null) {
             //selectors to highlight
             Set<TermSelector> filterAccToIndexInSeq = highlightSet
                     .stream()
@@ -60,10 +60,9 @@ public class FormulaCell extends ListCell<ViewFormula> {
                             termSelector.getToplevelSelector().getTermNo() == formula.getIndexInSequent())
                     .collect(Collectors.toSet());
             BasicFormulaView formulaView = new BasicFormulaView(formula, selectedTerm, selectedReference, allStyles, filterAccToIndexInSeq);
-            setGraphic(formulaView);
+            setCenter(formulaView);
         } else {
-            setGraphic(null);
-            setVisible(false);
+            getChildren().clear();
         }
     }
 

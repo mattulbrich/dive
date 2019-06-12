@@ -322,26 +322,31 @@ public class ReferenceGraph {
     }
 
     public ProofTermReferenceTarget computeTargetBeforeChange(Proof proof, ProofTermReferenceTarget target) throws RuleException {
+        if(target.getProofNodeSelector().getParentSelector() != null) {
         Set<ProofTermReferenceTarget> history = computeHistory(target, proof);
         ArrayList<ProofTermReferenceTarget> historyList = new ArrayList<>();
         historyList.addAll(history);
-        historyList.sort(new ProofTermReferenceTargetComparator());
-        TermSelector lastSelector = historyList.get(0).getTermSelector();
-        ProofTermReferenceTarget current;
-        ProofTermReferenceTarget before = historyList.get(0);
 
-        Iterator<ProofTermReferenceTarget> iterator = historyList.iterator();
-        while(iterator.hasNext()){
-            current = iterator.next();
-            Term termCurrent = current.getTermSelector().selectSubterm(current.getProofNodeSelector().get(proof).getSequent());
-            Term beforeTerm = before.getTermSelector().selectSubterm(before.getProofNodeSelector().get(proof).getSequent());
-            if(!current.getTermSelector().equals(lastSelector) || !termCurrent.equals(beforeTerm)){
-                return before;
+            historyList.sort(new ProofTermReferenceTargetComparator());
+            TermSelector lastSelector = historyList.get(0).getTermSelector();
+            ProofTermReferenceTarget current;
+            ProofTermReferenceTarget before = historyList.get(0);
+
+            Iterator<ProofTermReferenceTarget> iterator = historyList.iterator();
+            while (iterator.hasNext()) {
+                current = iterator.next();
+                Term termCurrent = current.getTermSelector().selectSubterm(current.getProofNodeSelector().get(proof).getSequent());
+                Term beforeTerm = before.getTermSelector().selectSubterm(before.getProofNodeSelector().get(proof).getSequent());
+                if (!current.getTermSelector().equals(lastSelector) || !termCurrent.equals(beforeTerm)) {
+                    return before;
+                }
+                before = current;
+
             }
-            before = current;
-
+            return historyList.get(historyList.size() - 1);
+        } else {
+            return target;
         }
-        return historyList.get(historyList.size()-1);
 
     }
 

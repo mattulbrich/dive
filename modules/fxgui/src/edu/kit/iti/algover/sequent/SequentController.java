@@ -60,9 +60,11 @@ public class SequentController extends FxmlController {
     @FXML
     private Label goalTypeLabel;
     @FXML
-    private ListView<ViewFormula> antecedentView;
+    private VBox antecedentBox;
+   // private ListView<ViewFormula> antecedentView;
     @FXML
-    private ListView<ViewFormula> succedentView;
+    private VBox succedentBox;
+//    private ListView<ViewFormula> succedentView;
 
     /**
      * Whichever Term was clicked to reveal dependencies.
@@ -79,6 +81,8 @@ public class SequentController extends FxmlController {
     private ProofNodeSelector activeNode;
     private ObservableList<Quadruple<TermSelector, String, Integer, String>> styles;
 
+    private ObservableList<FormulaCell> antecList = FXCollections.observableArrayList();
+    private ObservableList<FormulaCell> succList = FXCollections.observableArrayList();
 
     private ObservableSet<TermSelector> historyHighlightsAntec = FXCollections.observableSet();
     private ObservableSet<TermSelector> historyHighlightsSucc = FXCollections.observableSet();
@@ -107,18 +111,23 @@ public class SequentController extends FxmlController {
         this.styles = FXCollections.observableArrayList();
         this.selectedTerm.addListener((observable, oldValue, newValue) -> listener.onClickSequentSubterm(newValue));
 
-        antecedentView.setCellFactory(makeTermCellFactory());
-        succedentView.setCellFactory(makeTermCellFactory());
 
+        //antecedentView.setCellFactory(makeTermCellFactory());
+        //succedentView.setCellFactory(makeTermCellFactory());
+      /*  antecList.addListener(c -> {
+                });
+        succList.addListener(c -> {
 
-        antecedentView.setOnKeyPressed(keyEvent -> {
+        });*/
+
+        antecedentBox.setOnKeyPressed(keyEvent -> {
             if (keyEvent.getCode() == KeyCode.ESCAPE) {
                 selectedTerm.set(null);
                 selectedReference.set(null);
                 listener.onRemoveReferenceHighlighting();
             }
         });
-        succedentView.setOnKeyPressed(keyEvent -> {
+        succedentBox.setOnKeyPressed(keyEvent -> {
             if (keyEvent.getCode() == KeyCode.ESCAPE) {
                 selectedTerm.set(null);
                 selectedReference.set(null);
@@ -296,12 +305,12 @@ public class SequentController extends FxmlController {
     }
 
     private void updateSequent(Sequent sequent, BranchInfo branchInfo) {
-        antecedentView.getItems().setAll(calculateAssertions(sequent.getAntecedent(), TermSelector.SequentPolarity.ANTECEDENT, branchInfo));
-        List<ViewFormula> after = calculateAssertions(sequent.getSuccedent(), TermSelector.SequentPolarity.SUCCEDENT, branchInfo);
-        succedentView.getItems().setAll(after);
+        antecedentBox.getChildren().setAll(calculateAssertions(sequent.getAntecedent(), TermSelector.SequentPolarity.ANTECEDENT, branchInfo));
+        List<FormulaCell> after = calculateAssertions(sequent.getSuccedent(), TermSelector.SequentPolarity.SUCCEDENT, branchInfo);
+        succedentBox.getChildren().setAll(after);
     }
 
-    private List<ViewFormula> calculateAssertions(List<ProofFormula> proofFormulas, TermSelector.SequentPolarity polarity, BranchInfo branchInfo) {
+    private List<FormulaCell> calculateAssertions(List<ProofFormula> proofFormulas, TermSelector.SequentPolarity polarity, BranchInfo branchInfo) {
         ArrayList<ViewFormula> formulas = new ArrayList<>(proofFormulas.size());
 
         int deletedFormulas = 0;
@@ -362,7 +371,8 @@ public class SequentController extends FxmlController {
                 formulas.add(new ViewFormula(formulas.size() - deletedFormulas, addition.getTerm(), ViewFormula.Type.ADDED, polarity));
             }
         }
-        return formulas;
+        return formulas.stream().map(formula -> new FormulaCell(selectedTerm, selectedReference, styles, formula)).collect(Collectors.toList());
+
     }
 
     private void updateGoalTypeLabel() {
@@ -390,10 +400,10 @@ public class SequentController extends FxmlController {
     }
 
 
-    private Callback<ListView<ViewFormula>, ListCell<ViewFormula>> makeTermCellFactory() {
+  /*  private Callback<ListView<ViewFormula>, ListCell<ViewFormula>> makeTermCellFactory() {
         //add highlights to style
         return listView -> new FormulaCell(selectedTerm, selectedReference, styles);
-    }
+    }*/
 
     private ProofTermReferenceTarget attachCurrentActiveProof(TermSelector selector) {
         if (activeNode != null) {
@@ -411,8 +421,8 @@ public class SequentController extends FxmlController {
     }
 
     public void clear() {
-        antecedentView.getItems().clear();
-        succedentView.getItems().clear();
+        antecedentBox.getChildren().clear();
+        succedentBox.getChildren().clear();
     }
 
     public ProofNode getActiveNode() {

@@ -17,13 +17,13 @@
     <VBox fx:id="antecedentBox" spacing="10">
         <padding><Insets top="10" bottom="10" left="10"/></padding>
 
-        <ListView fx:id="antecedentView"/>
+<!--        <ListView fx:id="antecedentView"/>-->
     </VBox>
        <Label fx:id="turnstile" text="⊢" >
             <font><Font name="sans serif" size="50" /></font>
         </Label>
     <VBox fx:id="succedentBox" spacing="20">
         <padding><Insets top="10" bottom="10" left="10"/></padding>
-        <ListView fx:id="succedentView" />
+   <!--     <ListView fx:id="succedentView" />-->
     </VBox>
 </VBox>
