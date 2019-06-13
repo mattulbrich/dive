@@ -38,7 +38,7 @@ public class ScriptController implements ScriptViewListener {
 
     private SimpleObjectProperty<Position> observableInsertPosition = new SimpleObjectProperty<Position>(new Position(1,0));
     private Proof proof;
-    private List<Pair<Position, ASTNode>> checkpoints;
+    private List<ProofNodeCheckpoint> checkpoints;
 
     private LayeredHighlightingRulev4 highlightingRules;
 
@@ -71,15 +71,15 @@ public class ScriptController implements ScriptViewListener {
             //view.getGutterAnnotations().get(old.getLineNumber() - 1).setProofNodeIsSelected(false);
 
         }
-            if(view.getGutterAnnotations().size() > nv.getLineNumber()){
-                view.getGutterAnnotations().get(nv.getLineNumber()-1).setInsertMarker(true);
-                view.getGutterAnnotations().get(nv.getLineNumber()-1).setProofNodeIsSelected(true);
+        if(view.getGutterAnnotations().size() > nv.getLineNumber()){
+            view.getGutterAnnotations().get(nv.getLineNumber()-1).setInsertMarker(true);
+            view.getGutterAnnotations().get(nv.getLineNumber()-1).setProofNodeIsSelected(true);
 
-            } else {
-                GutterAnnotation newlineAnnotation = view.getGutter().getLineAnnotation(nv.getLineNumber() - 1);
-                newlineAnnotation.setInsertMarker(true);
-                newlineAnnotation.setProofNodeIsSelected(true);
-            }
+        } else {
+            GutterAnnotation newlineAnnotation = view.getGutter().getLineAnnotation(nv.getLineNumber() - 1);
+            newlineAnnotation.setInsertMarker(true);
+            newlineAnnotation.setProofNodeIsSelected(true);
+        }
         view.requestLayout();
     }
 
@@ -105,24 +105,37 @@ public class ScriptController implements ScriptViewListener {
     private void onCaretPositionChanged(Observable observable) {
        //this positions linenumber starts with 1
         Position caretPosition = computePositionFromCharIdx(view.getCaretPosition(), view.getText());
-        setObservableInsertPosition(caretPosition);
         this.checkpoints = ProofNodeCheckpointsBuilder.build(proof);
-        //createVisualSelectors(this.checkpoints);
-        //showSelectedSelector(checkpoint);
+        createVisualSelectors(this.checkpoints);
+        ProofNodeCheckpoint checkpoint = getCheckpointForPosition(caretPosition);
+        if(checkpoint != null) {
+            showSelectedSelector(checkpoint);
+        }
+        updateInsertPosition();
         switchViewedNode();
         view.highlightLine();
     }
 
+    private void updateInsertPosition() {
+        Position caretPosition = computePositionFromCharIdx(view.getCaretPosition(), view.getText());
+        ProofNodeCheckpoint insertCheckpoint = getCheckpointForPosition(caretPosition);
+        if(insertCheckpoint != null) {
+            setObservableInsertPosition(new Position(insertCheckpoint.position.getLineNumber() + 1, 0));
+        } else if(checkpoints.size() > 0) {
+            setObservableInsertPosition(new Position(checkpoints.get(checkpoints.size() - 1).position.getLineNumber() + 1, 0));
+        }
+    }
+
     private void showSelectedSelector(ProofNodeCheckpoint checkpoint) {
         view.getGutterAnnotations().forEach(gutterAnnotation -> gutterAnnotation.setProofNodeIsSelected(false));
-        view.getGutter().getLineAnnotation(checkpoint.caretPosition.getLineNumber()-1).setProofNodeIsSelected(true);
+        view.getGutter().getLineAnnotation(checkpoint.position.getLineNumber()-1).setProofNodeIsSelected(true);
     }
 
 
     private void switchViewedNode() {
         //showSelectedSelector(checkpoint);
-        ProofNodeSelector pns = getNodeFromPosition(getObservableInsertPosition());
-        System.out.println("Switch to node: " + pns);
+        Position caretPosition = computePositionFromCharIdx(view.getCaretPosition(), view.getText());
+        ProofNodeSelector pns = getNodeFromPosition(caretPosition);
         if(pns != null) {
             this.listener.onSwitchViewedNode(pns);
         } else {
@@ -137,14 +150,32 @@ public class ScriptController implements ScriptViewListener {
         }
         ProofNodeSelector res = new ProofNodeSelector();
         ProofNode pn = null;
-        List<Pair<Position, ASTNode>> potCh = checkpoints.stream().filter(ch -> pos.compareTo(ch.fst) > 0).collect(Collectors.toList());
-        if(potCh.size() > 0) {
-            pn = proof.getProofNodeForAST(potCh.get(potCh.size() - 1).snd);
+        ProofNodeCheckpoint ch = getCheckpointForPosition(pos);
+        if(ch != null) {
+            pn = proof.getProofNodeForAST(ch.node);
         }
         if(pn != null) {
             res = new ProofNodeSelector(pn);
         }
         return res;
+    }
+
+    private ProofNodeCheckpoint getNextCheckpointForPosition(Position pos) {
+
+        List<ProofNodeCheckpoint> potCh = checkpoints.stream().filter(ch -> pos.compareTo(ch.position) < 0).collect(Collectors.toList());
+        if (potCh.size() > 0) {
+            return potCh.get(0);
+        }
+        return null;
+    }
+
+    private ProofNodeCheckpoint getCheckpointForPosition(Position pos) {
+
+        List<ProofNodeCheckpoint> potCh = checkpoints.stream().filter(ch -> pos.compareTo(ch.position) > 0).collect(Collectors.toList());
+        if(potCh.size() > 0) {
+            return potCh.get(potCh.size() - 1);
+        }
+        return null;
     }
 
     private Position computePositionFromCharIdx(int charIdx, String text) {
@@ -181,7 +212,6 @@ public class ScriptController implements ScriptViewListener {
 
     @Override
     public void onAsyncScriptTextChanged(String text) {
-        System.out.println("ScriptController.onAsyncScriptTextChanged");
         /*resetExceptionRendering();
 
         ProofScript ps = Facade.getAST(text);
@@ -205,7 +235,6 @@ public class ScriptController implements ScriptViewListener {
 
     @Override
     public void runScript() {
-        System.out.println("ScriptController.runScript");
 
         Position oldInsertPos = getObservableInsertPosition();
         String text = view.getText();
@@ -228,29 +257,34 @@ public class ScriptController implements ScriptViewListener {
         checkpoints = ProofNodeCheckpointsBuilder.build(proof);
        // insertPosition = oldInsertPos;
         observableInsertPosition.set(oldInsertPos);
-        //createVisualSelectors(checkpoints);
+        createVisualSelectors(checkpoints);
 
         switchViewedNode();
         view.setStyle("-fx-background-color: white;");
     }
 
-    /*private void createVisualSelectors(List<ProofNodeCheckpoint> checkpoints) {
+    private void createVisualSelectors(List<ProofNodeCheckpoint> checkpoints) {
         for (ProofNodeCheckpoint checkpoint : this.checkpoints) {
             int checkpointline = checkpoint.position.getLineNumber();
 
+            ProofNode pn = proof.getProofNodeForAST(checkpoint.node);
+            if(pn == null) {
+                continue;
+            }
+            ProofNodeSelector pns = new ProofNodeSelector(pn);
             if(checkpointline < view.getGutterAnnotations().size()) {
-                view.getGutterAnnotations().get(checkpointline).setProofNode(checkpoint.selector);
+                view.getGutterAnnotations().get(checkpointline).setProofNode(pns);
                 view.getGutterAnnotations().get(checkpointline).setProofNodeIsSelected(false);
             } else {
                 GutterFactory gutterFactory = view.getGutter();
                 GutterAnnotation lineAnnotation = gutterFactory.getLineAnnotation(checkpointline);
-                lineAnnotation.setProofNode(checkpoint.selector);
+                lineAnnotation.setProofNode(pns);
                 lineAnnotation.setProofNodeIsSelected(false);
             }
 
         }
 //        view.requestLayout();
-    }*/
+    }
 
     public ScriptView getView() {
         return view;
@@ -260,6 +294,7 @@ public class ScriptController implements ScriptViewListener {
         if(view.getText().equals("")) {
             view.insertText(0, text);
         } else {
+            updateInsertPosition();
             int insertAt = computeCharIdxFromPosition(observableInsertPosition.get(), view.getText());
             view.insertText(insertAt, text);
         }
