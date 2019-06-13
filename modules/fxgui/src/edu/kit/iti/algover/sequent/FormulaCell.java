@@ -13,6 +13,7 @@ import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
+import javafx.geometry.Pos;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.Label;
 import javafx.scene.control.MenuItem;
@@ -20,7 +21,9 @@ import javafx.scene.control.Tooltip;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -48,12 +51,12 @@ public class FormulaCell extends BorderPane {
                        SimpleObjectProperty<TermSelector> selectedReference,
                        ObservableList<Quadruple<TermSelector, String, Integer, String>> allStyles,
                        ViewFormula formula,
-                       SimpleBooleanProperty showLabels) {
+                       SimpleBooleanProperty showLabelsInView) {
 
         this.selectedTerm = selectedTerm;
         this.allStyles = allStyles;
         this.selectedReference = selectedReference;
-        this.showLabels = showLabels;
+        this.showLabels = showLabelsInView;
 
         this.setPadding(new Insets(10,10,10,10));
         getStyleClass().add("formula-cell");
@@ -62,8 +65,8 @@ public class FormulaCell extends BorderPane {
             BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderWidths.DEFAULT)));
 
         updateItem(formula);
-
-        showLabels.addListener((observable, oldValue, newValue) -> {
+        showLabels(showLabelsInView.get());
+        showLabelsInView.addListener((observable, oldValue, newValue) -> {
             showLabels(newValue);
         });
 
@@ -107,11 +110,56 @@ public class FormulaCell extends BorderPane {
             this.label.forEach(s -> {
                 labelString.append(s + "\n");
             });
-            Label value = new Label(labelString.toString());
+            HBox hbox = new HBox();
+            List<Label> values = buildAndStyleLabel();
+            hbox.getChildren().addAll(values);
+            hbox.setAlignment(Pos.BOTTOM_RIGHT);
             //value.setContextMenu(new ContextMenu(new MenuItem("test")));
-            this.setBottom(value);
+            this.setBottom(hbox);
         } else {
             this.setBottom(null);
         }
+    }
+
+    //TODO externalize
+    private List<Label> buildAndStyleLabel() {
+        List<Label> labelViews = new ArrayList<Label>();
+        for(String l : this.label){
+            Label view;
+            switch (l){
+                case "PreCond":
+                    view = new Label("Pre");
+                    view.setStyle("-fx-text-fill: #62aaff");
+                    labelViews.add(view);
+                    break;
+                case "Assertion":
+                    view = new Label("Assertion");
+                    view.setStyle("-fx-text-fill: #803480");
+                    labelViews.add(view);
+                    break;
+                case "PostCond":
+                    view = new Label("Pre");
+                    view.setStyle("-fx-text-fill: #ffec46");
+                    labelViews.add(view);
+                    break;
+                case "Assumption":
+                    view = new Label(l);
+                    view.setStyle("-fx-text-fill: #ff8ca1");
+                    labelViews.add(view);
+                    break;
+                case "PathCond":
+                    view = new Label("Pathcondition");
+                    view.setStyle("-fx-text-fill: #256280");
+                    labelViews.add(view);
+                    break;
+
+                default:
+                    view = new Label(l);
+                    view.setStyle("-fx-text-fill: GRAY");
+                    labelViews.add(view);
+
+            }
+        }
+        return labelViews;
     }
 }

@@ -21,7 +21,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 /**
- * Controller for the tabbed view continaining tabs with sequent views controlled by {@link SequentController}
+ * Controller for the tabbed view containing tabs with sequent views controlled by {@link SequentController}
  * Created by jklamroth on 6/7/18.
  */
 public class SequentTabViewController implements ReferenceHighlightingHandler {
