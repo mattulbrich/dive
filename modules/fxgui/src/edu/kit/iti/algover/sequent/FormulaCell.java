@@ -13,7 +13,9 @@ import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
+import javafx.scene.control.ContextMenu;
 import javafx.scene.control.Label;
+import javafx.scene.control.MenuItem;
 import javafx.scene.control.Tooltip;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
@@ -52,14 +54,19 @@ public class FormulaCell extends BorderPane {
         this.allStyles = allStyles;
         this.selectedReference = selectedReference;
         this.showLabels = showLabels;
+
         this.setPadding(new Insets(10,10,10,10));
         getStyleClass().add("formula-cell");
+
         this.setBorder(new Border(new BorderStroke(Color.BLACK,
             BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderWidths.DEFAULT)));
+
         updateItem(formula);
+
         showLabels.addListener((observable, oldValue, newValue) -> {
             showLabels(newValue);
         });
+
     }
 
     protected void updateItem(ViewFormula formula) {
@@ -95,12 +102,14 @@ public class FormulaCell extends BorderPane {
     }
 
     public void showLabels(boolean show){
-        if(show){
+        if(show && !label.isEmpty()){
             StringBuilder labelString = new StringBuilder();
             this.label.forEach(s -> {
                 labelString.append(s + "\n");
             });
-            this.setBottom(new Label(labelString.toString()));
+            Label value = new Label(labelString.toString());
+            //value.setContextMenu(new ContextMenu(new MenuItem("test")));
+            this.setBottom(value);
         } else {
             this.setBottom(null);
         }

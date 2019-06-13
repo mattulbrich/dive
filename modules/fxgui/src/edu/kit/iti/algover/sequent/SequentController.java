@@ -27,6 +27,7 @@ import javafx.scene.control.Label;
 import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
 import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.VBox;
 import javafx.util.Callback;
 import org.controlsfx.control.ToggleSwitch;
@@ -115,7 +116,11 @@ public class SequentController extends FxmlController {
         this.styles = FXCollections.observableArrayList();
         this.selectedTerm.addListener((observable, oldValue, newValue) -> listener.onClickSequentSubterm(newValue));
 
-        antecedentBox.setOnKeyPressed(keyEvent -> {
+        antecedentBox.getChildren().forEach(node -> {
+            node.setOnKeyPressed(this::handleOnKeyPressed);
+        });
+        succedentBox.getChildren().forEach(node -> node.setOnKeyPressed(this::handleOnKeyPressed));
+        /*antecedentBox.setOnKeyPressed(keyEvent -> {
             if (keyEvent.getCode() == KeyCode.ESCAPE) {
                 selectedTerm.set(null);
                 selectedReference.set(null);
@@ -128,8 +133,7 @@ public class SequentController extends FxmlController {
                 selectedReference.set(null);
                 listener.onRemoveReferenceHighlighting();
             }
-        });
-
+        });*/
         this.historyHighlightsAntec.addListener((SetChangeListener<TermSelector>) change -> {
             if(change.wasAdded()){
                 addStyleForTerm(change.getElementAdded(), "referenceTarget", 25, "Target");
@@ -147,9 +151,17 @@ public class SequentController extends FxmlController {
         goalTypeLabel.setStyle("-fx-text-fill: RED");
         formulaLabels.selectedProperty().addListener((observable, oldValue, newValue) -> this.showFormulaLabels.set(newValue));
 
+    }
+    @FXML
+    public void handleOnKeyPressed(KeyEvent event){
+
+            if (event.getCode() == KeyCode.ESCAPE) {
+                selectedTerm.set(null);
+                selectedReference.set(null);
+                listener.onRemoveReferenceHighlighting();
+            }
 
     }
-
     /**
      * Adds a style class for a certain Term.
      * @param ts A termselector pointing to the term to be styled.

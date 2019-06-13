@@ -7,7 +7,8 @@
 <?import javafx.geometry.Insets?>
 <?import org.controlsfx.control.ToggleSwitch?>
 <VBox xmlns="http://javafx.com/javafx"
-      xmlns:fx="http://javafx.com/fxml">
+      xmlns:fx="http://javafx.com/fxml"
+      onKeyPressed="#handleOnKeyPressed">
 
     <HBox alignment="TOP_RIGHT">
         <ToggleSwitch fx:id="formulaLabels" text="Labels"></ToggleSwitch>
@@ -17,7 +18,7 @@
         <font><Font name="sans serif" size="20" /></font>
 
     </Label>
-    <VBox fx:id="antecedentBox" spacing="10">
+    <VBox fx:id="antecedentBox" spacing="10" onKeyPressed="#handleOnKeyPressed">
         <padding><Insets top="10" bottom="10" left="10"/></padding>
 
 <!--        <ListView fx:id="antecedentView"/>-->
@@ -25,7 +26,7 @@
        <Label fx:id="turnstile" text="⊢" >
             <font><Font name="sans serif" size="50" /></font>
         </Label>
-    <VBox fx:id="succedentBox" spacing="20">
+    <VBox fx:id="succedentBox" spacing="20" onKeyPressed="#handleOnKeyPressed">
         <padding><Insets top="10" bottom="10" left="10"/></padding>
    <!--     <ListView fx:id="succedentView" />-->
     </VBox>
