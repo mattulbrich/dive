@@ -31,6 +31,7 @@ import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.VBox;
 import javafx.util.Callback;
 import org.controlsfx.control.ToggleSwitch;
+import org.fxmisc.flowless.VirtualizedScrollPane;
 
 import java.awt.*;
 import java.util.ArrayList;
@@ -58,7 +59,6 @@ import java.util.stream.Collectors;
  * at the same time? (I think this shouldnt become a problem for reasonably large sequents.
  */
 public class SequentController extends FxmlController {
-
     private final SequentActionListener listener;
 
     @FXML
@@ -116,7 +116,9 @@ public class SequentController extends FxmlController {
         this.styles = FXCollections.observableArrayList();
         this.selectedTerm.addListener((observable, oldValue, newValue) -> listener.onClickSequentSubterm(newValue));
 
-        antecedentBox.getChildren().forEach(node -> {
+        antecedentBox.setOnKeyPressed(this::handleOnKeyPressed);
+        succedentBox.setOnKeyPressed(this::handleOnKeyPressed);
+/*        antecedentBox.getChildren().forEach(node -> {
             node.setOnKeyPressed(this::handleOnKeyPressed);
         });
         succedentBox.getChildren().forEach(node -> node.setOnKeyPressed(this::handleOnKeyPressed));
@@ -148,9 +150,8 @@ public class SequentController extends FxmlController {
                 removeStyle("Target");
             }
         });
-        goalTypeLabel.setStyle("-fx-text-fill: RED");
+        goalTypeLabel.setStyle("-fx-text-fill: GRAY");
         formulaLabels.selectedProperty().addListener((observable, oldValue, newValue) -> this.showFormulaLabels.set(newValue));
-
     }
     @FXML
     public void handleOnKeyPressed(KeyEvent event){

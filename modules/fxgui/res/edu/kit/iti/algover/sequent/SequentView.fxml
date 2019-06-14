@@ -6,10 +6,13 @@
 <?import javafx.scene.text.Font?>
 <?import javafx.geometry.Insets?>
 <?import org.controlsfx.control.ToggleSwitch?>
-<VBox xmlns="http://javafx.com/javafx"
+<ScrollPane xmlns="http://javafx.com/javafx"
       xmlns:fx="http://javafx.com/fxml"
-      onKeyPressed="#handleOnKeyPressed">
-
+      onKeyPressed="#handleOnKeyPressed"
+            fitToWidth="true"
+            fitToHeight="true"
+>
+    <VBox>
     <HBox alignment="TOP_RIGHT">
         <ToggleSwitch fx:id="formulaLabels" text="Labels"></ToggleSwitch>
     </HBox>
@@ -30,4 +33,5 @@
         <padding><Insets top="10" bottom="10" left="10"/></padding>
    <!--     <ListView fx:id="succedentView" />-->
     </VBox>
-</VBox>
+    </VBox>
+</ScrollPane>

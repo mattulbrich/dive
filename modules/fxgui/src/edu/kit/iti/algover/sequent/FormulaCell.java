@@ -14,12 +14,11 @@ import javafx.beans.property.SimpleObjectProperty;
 import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
-import javafx.scene.control.ContextMenu;
-import javafx.scene.control.Label;
-import javafx.scene.control.MenuItem;
-import javafx.scene.control.Tooltip;
+import javafx.scene.control.*;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
+import javafx.scene.shape.Rectangle;
+import org.fxmisc.flowless.VirtualizedScrollPane;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -52,7 +51,6 @@ public class FormulaCell extends BorderPane {
                        ObservableList<Quadruple<TermSelector, String, Integer, String>> allStyles,
                        ViewFormula formula,
                        SimpleBooleanProperty showLabelsInView) {
-
         this.selectedTerm = selectedTerm;
         this.allStyles = allStyles;
         this.selectedReference = selectedReference;
@@ -82,7 +80,9 @@ public class FormulaCell extends BorderPane {
                     .collect(Collectors.toSet());
             BasicFormulaView formulaView = new BasicFormulaView(formula, selectedTerm, selectedReference, allStyles, filterAccToIndexInSeq);
             this.label = formula.getLabels();
-            setCenter(formulaView);
+           VirtualizedScrollPane<BasicFormulaView> sp = new VirtualizedScrollPane<>(formulaView);
+
+            setCenter(sp);
             createTooltip();
 
         } else {
@@ -116,6 +116,9 @@ public class FormulaCell extends BorderPane {
             hbox.setAlignment(Pos.BOTTOM_RIGHT);
             //value.setContextMenu(new ContextMenu(new MenuItem("test")));
             this.setBottom(hbox);
+            //Rectangle rectangle = new Rectangle(20, 20);
+            //rectangle.setFill(Color.BLUE);
+            //this.setRight(rectangle);
         } else {
             this.setBottom(null);
         }
@@ -130,6 +133,7 @@ public class FormulaCell extends BorderPane {
                 case "PreCond":
                     view = new Label("Pre");
                     view.setStyle("-fx-text-fill: #62aaff");
+                    //this.setStyle("-fx-background-color:  #62aaff");
                     labelViews.add(view);
                     break;
                 case "Assertion":
