@@ -51,7 +51,7 @@ public interface ProofRule {
      *
      * @param target    the proof node onto whose sequent the rule is to be applied.
      * @param selection a subsequent of the target's sequent. These are the
-     *                  UI-selected top formulas.
+     *                  UI-selected top formulas. <b>Currently, this value is not used.</b>
      * @param selector  if a subformula has been selected, it is this selector that
      *                  represents it.
      * @return the proof rule application that matches the selected target with

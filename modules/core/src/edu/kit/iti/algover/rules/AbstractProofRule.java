@@ -65,7 +65,7 @@ public abstract class AbstractProofRule implements ProofRule {
      * @throws RuleException if a required parameter has been omitted or an unknown parameter has
      *                       been used
      */
-    private final void checkParameters(Parameters parameters) throws RuleException {
+    private void checkParameters(Parameters parameters) throws RuleException {
         Set<ParameterDescription<?>> required = new HashSet<>();
         for (ParameterDescription<?> p : allParameters.values()) {
             if(p.isRequired()) {
@@ -111,7 +111,10 @@ public abstract class AbstractProofRule implements ProofRule {
      * @param parameters the parameters for the rule application
      * @return the resulting ProofRuleApplication
      * @throws RuleException
+     *
+     * @deprecated Relict of old days
      */
+    @Deprecated
     protected abstract ProofRuleApplication considerApplicationImpl(ProofNode target, Parameters parameters) throws RuleException;
 
     /**
@@ -129,25 +132,12 @@ public abstract class AbstractProofRule implements ProofRule {
     public final ProofRuleApplication considerApplication(ProofNode target, Sequent selection, TermSelector selector) throws RuleException {
         Parameters params = new Parameters();
         params.putValue(ON_PARAM, new TermParameter(selector, selection));
-        return considerApplication(target, params);
-    }
-
-    /**
-     * considers the application of this rule. Returns a ProofRuleApplication which might be either applicable or
-     * not applicable for the given parameters.
-     *
-     * @param target the ProofNode for which to consider the application of the rule
-     * @param parameters the parameters for the rule application
-     * @return the resulting application
-     * @throws RuleException
-     */
-    public final ProofRuleApplication considerApplication(ProofNode target, Parameters parameters) throws RuleException {
-        ProofRuleApplication pra = considerApplicationImpl(target, parameters);
-        ProofRuleApplicationBuilder builder = new ProofRuleApplicationBuilder(pra);
-        if(builder.getParameters().equals(Parameters.EMPTY_PARAMETERS)) {
-            builder.setParameters(parameters);
+        try {
+            ProofRuleApplication result = makeApplication(target, params);
+            return result;
+        } catch (NotApplicableException e) {
+            throw e;
         }
-        return builder.build();
     }
 
     /**
@@ -173,11 +163,13 @@ public abstract class AbstractProofRule implements ProofRule {
      */
     public final ProofRuleApplication makeApplication(ProofNode target, Parameters parameters) throws RuleException {
         checkParameters(parameters);
-        ProofRuleApplicationBuilder builder = new ProofRuleApplicationBuilder(makeApplicationImpl(target, parameters));
-        if(builder.getParameters().equals(Parameters.EMPTY_PARAMETERS)) {
+        ProofRuleApplication app = makeApplicationImpl(target, parameters);
+        if (app.getParameters().isEmpty()) {
+            ProofRuleApplicationBuilder builder = new ProofRuleApplicationBuilder(app);
             builder.setParameters(parameters);
+            app = builder.build();
         }
-        return builder.build();
+        return app;
     }
 
     /**
