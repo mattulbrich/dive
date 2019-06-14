@@ -60,7 +60,7 @@ public class Z3Rule extends AbstractProofRule {
     }
 
     @Override
-    public ProofRuleApplication considerApplicationImpl(ProofNode target, Parameters parameters) throws RuleException {
+    public ProofRuleApplication makeApplicationImpl(ProofNode target, Parameters parameters) throws RuleException {
         ProofRuleApplicationBuilder builder = new ProofRuleApplicationBuilder(this);
         builder.setApplicability(Applicability.MAYBE_APPLICABLE);
         builder.setClosing();
@@ -76,22 +76,6 @@ public class Z3Rule extends AbstractProofRule {
             return builder.build();
         } else {
             ProofRuleApplicationBuilder builder = new ProofRuleApplicationBuilder(app);
-            builder.setApplicability(Applicability.NOT_APPLICABLE);
-            builder.setRefiner(null);
-            return builder.build();
-        }
-
-    }
-
-    @Override
-    public ProofRuleApplication makeApplicationImpl(ProofNode target, Parameters parameters) throws RuleException {
-        if(quickAndDirty(target.getPVC().getIdentifier(), target.getSequent(), target.getAllSymbols())) {
-            ProofRuleApplicationBuilder builder = new ProofRuleApplicationBuilder(this);
-            builder.setApplicability(Applicability.APPLICABLE);
-            builder.setRefiner(null);
-            return builder.build();
-        } else {
-            ProofRuleApplicationBuilder builder = new ProofRuleApplicationBuilder(this);
             builder.setApplicability(Applicability.NOT_APPLICABLE);
             builder.setRefiner(null);
             return builder.build();

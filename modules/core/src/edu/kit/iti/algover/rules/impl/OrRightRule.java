@@ -38,35 +38,8 @@ public class OrRightRule extends AbstractProofRule {
     }
 
     @Override
-    protected ProofRuleApplication considerApplicationImpl(ProofNode target, Parameters parameters) throws RuleException {
-        TermSelector selector = parameters.getValue(ON_PARAM).getTermSelector();
-
-        if(!selector.isToplevel()) {
-            return ProofRuleApplicationBuilder.notApplicable(this);
-        }
-        if(!selector.isSuccedent()) {
-            return ProofRuleApplicationBuilder.notApplicable(this);
-        }
-
-        ProofFormula formula = selector.selectTopterm(target.getSequent());
-        Term term = formula.getTerm();
-        if (!(term instanceof ApplTerm)) {
-            return ProofRuleApplicationBuilder.notApplicable(this);
-        }
-        ApplTerm appl = (ApplTerm) term;
-        FunctionSymbol fs = appl.getFunctionSymbol();
-
-        if (fs != BuiltinSymbols.OR) {
-            return ProofRuleApplicationBuilder.notApplicable(this);
-        }
-
-        ProofRuleApplicationBuilder builder = new ProofRuleApplicationBuilder(this);
-
-        builder.newBranch().addReplacement(selector, appl.getTerm(0)).
-                addAdditionsSuccedent(new ProofFormula(appl.getTerm(1)));
-        builder.setApplicability(ProofRuleApplication.Applicability.APPLICABLE);
-
-        return builder.build();
+    public String getCategory() {
+        return ProofRuleCategories.PROPOSITIONAL;
     }
 
     @Override
@@ -74,22 +47,22 @@ public class OrRightRule extends AbstractProofRule {
         TermSelector selector = parameters.getValue(ON_PARAM).getTermSelector();
 
         if(!selector.isToplevel()) {
-            throw new RuleException("orRight may only be applied to TopLevel terms.");
+            throw new NotApplicableException("orRight may only be applied to toplevel formulas.");
         }
         if(!selector.isSuccedent()) {
-            throw new RuleException("orRight may only be applied on the succedent.");
+            throw new NotApplicableException("orRight may only be applied on the succedent.");
         }
 
         ProofFormula formula = selector.selectTopterm(target.getSequent());
         Term term = formula.getTerm();
         if (!(term instanceof ApplTerm)) {
-            throw new RuleException("orRight may only be applied to or terms.");
+            throw new NotApplicableException("orRight may only be applied to '||' terms.");
         }
         ApplTerm appl = (ApplTerm) term;
         FunctionSymbol fs = appl.getFunctionSymbol();
 
         if (fs != BuiltinSymbols.OR) {
-            throw new RuleException("orRight may only be applied to or terms.");
+            throw new NotApplicableException("orRight may only be applied to '||' terms.");
         }
 
         ProofRuleApplicationBuilder builder = new ProofRuleApplicationBuilder(this);

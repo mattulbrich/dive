@@ -35,43 +35,8 @@ public class ModusTollensRule extends AbstractProofRule {
     }
 
     @Override
-    protected ProofRuleApplication considerApplicationImpl(ProofNode target, Parameters parameters) throws RuleException {
-        TermSelector selector = parameters.getValue(ON_PARAM).getTermSelector();
-
-        ProofFormula formula = selector.selectTopterm(target.getSequent());
-        Term term = formula.getTerm();
-        if (!(term instanceof ApplTerm)) {
-            return ProofRuleApplicationBuilder.notApplicable(this);
-        }
-        ApplTerm appl = (ApplTerm) term;
-        FunctionSymbol fs = appl.getFunctionSymbol();
-
-        if (fs != BuiltinSymbols.IMP) {
-            return ProofRuleApplicationBuilder.notApplicable(this);
-        }
-
-        ProofRuleApplicationBuilder builder = new ProofRuleApplicationBuilder(this);
-
-        Term notTerm;
-        try {
-            notTerm = new ApplTerm(BuiltinSymbols.NOT, appl.getTerm(1));
-        } catch (TermBuildException e) {
-            throw new RuleException("Failed to build negated term.", e);
-        }
-
-        Term notTerm2;
-        try {
-            notTerm2 = new ApplTerm(BuiltinSymbols.NOT, appl.getTerm(0));
-        } catch (TermBuildException e) {
-            throw new RuleException("Failed to build negated term.", e);
-        }
-
-        builder.newBranch().addReplacement(selector, notTerm2).setLabel("mainBranch");
-        builder.newBranch().addDeletionsSuccedent(target.getSequent().getSuccedent()).
-                addAdditionsSuccedent(new ProofFormula(notTerm)).setLabel("assumption");
-        builder.setApplicability(ProofRuleApplication.Applicability.APPLICABLE);
-
-        return builder.build();
+    public String getCategory() {
+        return ProofRuleCategories.PROPOSITIONAL;
     }
 
     @Override
@@ -81,13 +46,13 @@ public class ModusTollensRule extends AbstractProofRule {
         ProofFormula formula = selector.selectTopterm(target.getSequent());
         Term term = formula.getTerm();
         if (!(term instanceof ApplTerm)) {
-            throw new RuleException("Modus Tollens is only applicable on implications.");
+            throw new NotApplicableException("Modus Tollens is only applicable on implications.");
         }
         ApplTerm appl = (ApplTerm) term;
         FunctionSymbol fs = appl.getFunctionSymbol();
 
         if (fs != BuiltinSymbols.IMP) {
-            throw new RuleException("Modus Tollens is only applicable on implications.");
+            throw new NotApplicableException("Modus Tollens is only applicable on implications.");
         }
 
         Term notTerm;

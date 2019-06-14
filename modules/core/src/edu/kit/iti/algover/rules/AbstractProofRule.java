@@ -9,6 +9,7 @@ import java.util.*;
 import java.util.Map.Entry;
 
 import edu.kit.iti.algover.proof.ProofNode;
+import edu.kit.iti.algover.rules.impl.ProofRuleCategories;
 import edu.kit.iti.algover.term.*;
 import edu.kit.iti.algover.term.prettyprint.PrettyPrint;
 import edu.kit.iti.algover.util.Util;
@@ -54,7 +55,7 @@ public abstract class AbstractProofRule implements ProofRule {
      */
     @Override
     public String getCategory() {
-        return "Unknown";
+        return ProofRuleCategories.UNKNOWN;
     }
 
     /**
@@ -115,7 +116,7 @@ public abstract class AbstractProofRule implements ProofRule {
      * @deprecated Relict of old days
      */
     @Deprecated
-    protected abstract ProofRuleApplication considerApplicationImpl(ProofNode target, Parameters parameters) throws RuleException;
+    // protected abstract ProofRuleApplication considerApplicationImpl(ProofNode target, Parameters parameters) throws RuleException;
 
     /**
      * Same as {@link #considerApplication(ProofNode, Sequent, TermSelector)} but for GUI convenience with different

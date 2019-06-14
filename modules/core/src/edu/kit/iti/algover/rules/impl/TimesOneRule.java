@@ -1,88 +1,88 @@
-/**
- * This file is part of DIVE.
- *
- * Copyright (C) 2015-2019 Karlsruhe Institute of Technology
- */
-package edu.kit.iti.algover.rules.impl;
-
-import edu.kit.iti.algover.data.BuiltinSymbols;
-import edu.kit.iti.algover.proof.ProofNode;
-import edu.kit.iti.algover.rules.AbstractProofRule;
-import edu.kit.iti.algover.rules.Parameters;
-import edu.kit.iti.algover.rules.ProofRuleApplication;
-import edu.kit.iti.algover.rules.ProofRuleApplicationBuilder;
-import edu.kit.iti.algover.rules.RuleException;
-import edu.kit.iti.algover.rules.SubtermSelector;
-import edu.kit.iti.algover.rules.TermParameter;
-import edu.kit.iti.algover.rules.TermSelector;
-import edu.kit.iti.algover.term.ApplTerm;
-import edu.kit.iti.algover.term.FunctionSymbol;
-import edu.kit.iti.algover.term.Sort;
-import edu.kit.iti.algover.term.Term;
-import edu.kit.iti.algover.term.builder.TermBuildException;
-
-/**
- * Created by jklamroth on 11/7/18.
- */
-public class TimesOneRule extends AbstractProofRule {
-
-    public TimesOneRule() {
-        super(ON_PARAM);
-    }
-
-    @Override
-    public boolean mayBeExhaustive() {
-        return true;
-    }
-
-    @Override
-    public String getName() {
-        return "times1";
-    }
-
-    @Override
-    protected ProofRuleApplication considerApplicationImpl(ProofNode target, Parameters parameters) throws RuleException {
-        TermParameter onParam = parameters.getValue(ON_PARAM);
-        if(onParam == null) {
-            return ProofRuleApplicationBuilder.notApplicable(this);
-        }
-        Term onTerm = onParam.getTerm();
-        if(!(onTerm instanceof ApplTerm)) {
-            return ProofRuleApplicationBuilder.notApplicable(this);
-        }
-
-        ApplTerm applTerm = (ApplTerm)onTerm;
-        if(applTerm.getFunctionSymbol() != BuiltinSymbols.TIMES && applTerm.getFunctionSymbol() != BuiltinSymbols.DIV) {
-            return ProofRuleApplicationBuilder.notApplicable(this);
-        }
-
-        Term rt = null;
-        try {
-            if (applTerm.getTerm(0).equals(new ApplTerm(new FunctionSymbol("1", Sort.INT)))) {
-                rt = applTerm.getTerm(1);
-            }
-            if (applTerm.getTerm(1).equals(new ApplTerm(new FunctionSymbol("1", Sort.INT)))) {
-                rt = applTerm.getTerm(0);
-            }
-        } catch (TermBuildException e) {
-            throw new RuleException("This should not happen. Error building constants in PlusZeroRule.");
-        }
-        if(rt == null) {
-            return ProofRuleApplicationBuilder.notApplicable(this);
-        }
-
-
-        ProofRuleApplicationBuilder prab = new ProofRuleApplicationBuilder(this);
-        prab.newBranch().addReplacement(onParam.getTermSelector(), rt);
-        return prab.build();
-    }
-
-    @Override
-    protected ProofRuleApplication makeApplicationImpl(ProofNode target, Parameters parameters) throws RuleException {
-        ProofRuleApplication pra = considerApplication(target, parameters);
-        if(pra.getApplicability() != ProofRuleApplication.Applicability.APPLICABLE) {
-            throw new RuleException("TimesOneRule is not applicable in make");
-        }
-        return pra;
-    }
-}
+///**
+// * This file is part of DIVE.
+// *
+// * Copyright (C) 2015-2019 Karlsruhe Institute of Technology
+// */
+//package edu.kit.iti.algover.rules.impl;
+//
+//import edu.kit.iti.algover.data.BuiltinSymbols;
+//import edu.kit.iti.algover.proof.ProofNode;
+//import edu.kit.iti.algover.rules.AbstractProofRule;
+//import edu.kit.iti.algover.rules.Parameters;
+//import edu.kit.iti.algover.rules.ProofRuleApplication;
+//import edu.kit.iti.algover.rules.ProofRuleApplicationBuilder;
+//import edu.kit.iti.algover.rules.RuleException;
+//import edu.kit.iti.algover.rules.SubtermSelector;
+//import edu.kit.iti.algover.rules.TermParameter;
+//import edu.kit.iti.algover.rules.TermSelector;
+//import edu.kit.iti.algover.term.ApplTerm;
+//import edu.kit.iti.algover.term.FunctionSymbol;
+//import edu.kit.iti.algover.term.Sort;
+//import edu.kit.iti.algover.term.Term;
+//import edu.kit.iti.algover.term.builder.TermBuildException;
+//
+///**
+// * Created by jklamroth on 11/7/18.
+// */
+//public class TimesOneRule extends AbstractProofRule {
+//
+//    public TimesOneRule() {
+//        super(ON_PARAM);
+//    }
+//
+//    @Override
+//    public boolean mayBeExhaustive() {
+//        return true;
+//    }
+//
+//    @Override
+//    public String getName() {
+//        return "times1";
+//    }
+//
+//    @Override
+//    protected ProofRuleApplication considerApplicationImpl(ProofNode target, Parameters parameters) throws RuleException {
+//        TermParameter onParam = parameters.getValue(ON_PARAM);
+//        if(onParam == null) {
+//            return ProofRuleApplicationBuilder.notApplicable(this);
+//        }
+//        Term onTerm = onParam.getTerm();
+//        if(!(onTerm instanceof ApplTerm)) {
+//            return ProofRuleApplicationBuilder.notApplicable(this);
+//        }
+//
+//        ApplTerm applTerm = (ApplTerm)onTerm;
+//        if(applTerm.getFunctionSymbol() != BuiltinSymbols.TIMES && applTerm.getFunctionSymbol() != BuiltinSymbols.DIV) {
+//            return ProofRuleApplicationBuilder.notApplicable(this);
+//        }
+//
+//        Term rt = null;
+//        try {
+//            if (applTerm.getTerm(0).equals(new ApplTerm(new FunctionSymbol("1", Sort.INT)))) {
+//                rt = applTerm.getTerm(1);
+//            }
+//            if (applTerm.getTerm(1).equals(new ApplTerm(new FunctionSymbol("1", Sort.INT)))) {
+//                rt = applTerm.getTerm(0);
+//            }
+//        } catch (TermBuildException e) {
+//            throw new RuleException("This should not happen. Error building constants in PlusZeroRule.");
+//        }
+//        if(rt == null) {
+//            return ProofRuleApplicationBuilder.notApplicable(this);
+//        }
+//
+//
+//        ProofRuleApplicationBuilder prab = new ProofRuleApplicationBuilder(this);
+//        prab.newBranch().addReplacement(onParam.getTermSelector(), rt);
+//        return prab.build();
+//    }
+//
+//    @Override
+//    protected ProofRuleApplication makeApplicationImpl(ProofNode target, Parameters parameters) throws RuleException {
+//        ProofRuleApplication pra = considerApplication(target, parameters);
+//        if(pra.getApplicability() != ProofRuleApplication.Applicability.APPLICABLE) {
+//            throw new RuleException("TimesOneRule is not applicable in make");
+//        }
+//        return pra;
+//    }
+//}

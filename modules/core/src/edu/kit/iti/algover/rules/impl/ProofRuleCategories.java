@@ -8,13 +8,15 @@
 package edu.kit.iti.algover.rules.impl;
 
 // TODO DOC
-final class ProofRuleCategories {
+public final class ProofRuleCategories {
+
+    public static final String UNKNOWN = "Unknown";
+
+    // TODO DOC
+    public static final String PROPOSITIONAL = "Propositional";
 
     private ProofRuleCategories() {
         throw new Error("not to be instantiated");
     }
-
-    // TODO DOC
-    public static final String PROPOSITIONAL = "Propositional";
 }
 

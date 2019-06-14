@@ -29,7 +29,8 @@ import edu.kit.iti.algover.term.builder.TermBuildException;
  * Created by jklamroth on 10/25/18.
  */
 public class QuantifierInstantiation extends AbstractProofRule {
-    public static final ParameterDescription<TermParameter> WITH_PARAM = new ParameterDescription<>("with", ParameterType.TERM, true);
+    public static final ParameterDescription<TermParameter> WITH_PARAM =
+            new ParameterDescription<>("with", ParameterType.TERM, true);
 
     public QuantifierInstantiation() {
         super(ON_PARAM, WITH_PARAM);
@@ -41,13 +42,15 @@ public class QuantifierInstantiation extends AbstractProofRule {
     }
 
     @Override
-    protected ProofRuleApplication considerApplicationImpl(ProofNode target, Parameters parameters) throws RuleException {
+    protected ProofRuleApplication makeApplicationImpl(ProofNode target, Parameters parameters) throws RuleException {
+
         TermParameter onParam = parameters.getValue(ON_PARAM);
         TermParameter withParam = parameters.getValue(WITH_PARAM);
         QuantTerm aTerm;
         Term onTerm;
 
         if(onParam == null) {
+            // REVIEW: 
             ProofRuleApplicationBuilder pra = new ProofRuleApplicationBuilder(this);
             pra.setApplicability(ProofRuleApplication.Applicability.APPLICABLE);
             return pra.build();
@@ -93,10 +96,7 @@ public class QuantifierInstantiation extends AbstractProofRule {
         prab.newBranch().addReplacement(onParam.getTermSelector(), rt);
 
         return prab.build();
-    }
 
-    @Override
-    protected ProofRuleApplication makeApplicationImpl(ProofNode target, Parameters parameters) throws RuleException {
         ProofRuleApplication pra = considerApplicationImpl(target, parameters);
         if(pra.getApplicability() != ProofRuleApplication.Applicability.APPLICABLE) {
             throw new RuleException("Rule " + getName() + " is not applicable on sequent " + target.getSequent());
