@@ -13,6 +13,7 @@ import edu.kit.iti.algover.data.BuiltinSymbols;
 import edu.kit.iti.algover.proof.ProofFormula;
 import edu.kit.iti.algover.proof.ProofNode;
 import edu.kit.iti.algover.rules.AbstractProofRule;
+import edu.kit.iti.algover.rules.NotApplicableException;
 import edu.kit.iti.algover.rules.Parameters;
 import edu.kit.iti.algover.rules.ProofRuleApplication;
 import edu.kit.iti.algover.rules.ProofRuleApplication.Applicability;
@@ -31,6 +32,8 @@ import edu.kit.iti.algover.util.RuleUtil;
 
 public class TrivialAndRight extends AbstractProofRule {
 
+    public static final String RULE_NAME = "andRight";
+
     public TrivialAndRight() {
         super(ON_PARAM);
     }
@@ -42,59 +45,39 @@ public class TrivialAndRight extends AbstractProofRule {
 
     @Override
     public String getName() {
-        return "andRight";
+        return RULE_NAME;
     }
 
     @Override
-    public ProofRuleApplication considerApplicationImpl(ProofNode target, Parameters parameters)
-            throws RuleException {
-        TermSelector selector = parameters.getValue(ON_PARAM).getTermSelector();
-
-        if (selector != null && (!selector.isToplevel() || !selector.isSuccedent())) {
-            return ProofRuleApplicationBuilder.notApplicable(this);
-        }
-
-        ProofFormula formula = selector.selectTopterm(target.getSequent());
-        Term term = formula.getTerm();
-        if (!(term instanceof ApplTerm)) {
-            return ProofRuleApplicationBuilder.notApplicable(this);
-        }
-        ApplTerm appl = (ApplTerm) term;
-        FunctionSymbol fs = appl.getFunctionSymbol();
-
-        if (fs != BuiltinSymbols.AND) {
-            return ProofRuleApplicationBuilder.notApplicable(this);
-        }
-
-        ProofRuleApplicationBuilder builder = new ProofRuleApplicationBuilder(this);
-
-        builder.newBranch().addReplacement(selector, appl.getTerm(0)).setLabel("case 1");
-        builder.newBranch().addReplacement(selector, appl.getTerm(1)).setLabel("case 2");
-        builder.setApplicability(Applicability.APPLICABLE);
-
-        return builder.build();
+    public String getCategory() {
+        return ProofRuleCategories.PROPOSITIONAL;
     }
 
     @Override
     public ProofRuleApplication makeApplicationImpl(ProofNode target, Parameters parameters) throws RuleException {
         Term on = parameters.getValue(ON_PARAM).getTerm();
+        TermSelector selector = parameters.getValue(ON_PARAM).getTermSelector();
+
         ProofRuleApplicationBuilder builder = new ProofRuleApplicationBuilder(this);
 
-        TermSelector selector = parameters.getValue(ON_PARAM).getTermSelector();
-        if (selector != null && (!selector.isToplevel() || !selector.isSuccedent())) {
-            throw new RuleException();
+        if (!selector.isToplevel()) {
+            throw new NotApplicableException(RULE_NAME + " can only be applied to toplevel formulas");
         }
 
+        if (!selector.isSuccedent()) {
+            throw new NotApplicableException(RULE_NAME + " can only be applied in sequent succedent");
+        }
+
+
         if(!(on instanceof ApplTerm)) {
-            throw new RuleException();
+            throw new NotApplicableException(RULE_NAME + " can only be applied to applications of '&&'");
         }
 
         if(((ApplTerm)on).getFunctionSymbol() != BuiltinSymbols.AND) {
-            throw new RuleException();
+            throw new NotApplicableException(RULE_NAME + " can only be applied to applications of '&&'");
         }
 
-        int no = RuleUtil.matchTopLevelInSuccedent(on::equals, target.getSequent())
-                .orElseThrow(() -> new RuleException("'on' not found"));
+        int no = selector.getTermNo();
 
         builder.newBranch()
                 .addDeletionsSuccedent(target.getSequent().getSuccedent().get(no))

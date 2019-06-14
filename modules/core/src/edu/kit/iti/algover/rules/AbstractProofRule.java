@@ -131,12 +131,12 @@ public abstract class AbstractProofRule implements ProofRule {
      */
     public final ProofRuleApplication considerApplication(ProofNode target, Sequent selection, TermSelector selector) throws RuleException {
         Parameters params = new Parameters();
-        params.putValue(ON_PARAM, new TermParameter(selector, selection));
+        params.putValue(ON_PARAM, new TermParameter(selector, target.getSequent()));
         try {
             ProofRuleApplication result = makeApplication(target, params);
             return result;
         } catch (NotApplicableException e) {
-            throw e;
+            return ProofRuleApplicationBuilder.notApplicable(this);
         }
     }
 
