@@ -34,6 +34,7 @@ import java.util.*;
 /**
  * Created by jklamroth on 1/25/18.
  */
+// REVIEW. I believe this rule is more central. Some documentation would help.
 public class DafnyRule extends AbstractProofRule {
     /**
      * The dafny declaration which gave rise to this rule.
@@ -55,6 +56,7 @@ public class DafnyRule extends AbstractProofRule {
         this(method, name, st, rt, requiresTerms, RulePolarity.BOTH);
     }
 
+    // REVIEW Some documentation (what is rt?)
     public DafnyRule(DafnyMethod method, String name, @NonNull Term st, @NonNull Term rt, List<Pair<Term, String>> requiresTerms, RulePolarity polarity) {
         super(ON_PARAM);
 
@@ -75,47 +77,6 @@ public class DafnyRule extends AbstractProofRule {
         return method;
     }
 
-    @Override
-    public ProofRuleApplication considerApplicationImpl(ProofNode target, Parameters parameters) throws RuleException {
-        Term selected = parameters.getValue(ON_PARAM).getTerm();
-        TermSelector selector = parameters.getValue(ON_PARAM).getTermSelector();
-
-        ProofRuleApplicationBuilder proofRuleApplicationBuilder;
-        try {
-            Term rt;
-            ImmutableList<Matching> matchings;
-            if(!this.polarity.conforms(RuleUtil.getTruePolarity(selector, target.getSequent()))) {
-                return ProofRuleApplicationBuilder.notApplicable(this);
-            } else {
-                TermMatcher tm = new TermMatcher();
-                matchings = tm.match(searchTerm, selected);
-                if(matchings.size() == 0) {
-                    return ProofRuleApplicationBuilder.notApplicable(this);
-                }
-                rt = matchings.get(0).instantiate(replaceTerm);
-            }
-            List<Pair<Term, String>> rts = new ArrayList<>();
-            for(Pair<Term, String> lt : requiresTerms) {
-                rts.add(new Pair<Term, String>(matchings.get(0).instantiate(lt.getFst()), lt.getSnd()));
-            }
-            proofRuleApplicationBuilder = new ProofRuleApplicationBuilder(this);
-            proofRuleApplicationBuilder.setApplicability(ProofRuleApplication.Applicability.APPLICABLE);
-            proofRuleApplicationBuilder.newBranch().addReplacement(selector, rt).setLabel("case 0");
-            for(Pair<Term, String> lt : rts) {
-                if(!RuleUtil.matchSubtermInSequent(lt.getFst()::equals, target.getSequent()).isPresent()) {
-                    BranchInfoBuilder bib = proofRuleApplicationBuilder.newBranch();
-                    bib.addDeletionsAntecedent(target.getSequent().getAntecedent());
-                    bib.addDeletionsSuccedent(target.getSequent().getSuccedent());
-                    bib.addAdditionsSuccedent(new ProofFormula(lt.getFst()));
-                    bib.setLabel(lt.getSnd());
-                }
-            }
-        } catch (TermBuildException e) {
-            throw new RuleException();
-        }
-
-        return proofRuleApplicationBuilder.build();
-    }
 
     @Override
     public ProofRuleApplication makeApplicationImpl(ProofNode target, Parameters parameters) throws RuleException {
@@ -127,12 +88,12 @@ public class DafnyRule extends AbstractProofRule {
             ImmutableList<Matching> matchings;
             Term rt;
             if(!this.polarity.conforms(RuleUtil.getTruePolarity(selector, target.getSequent()))) {
-                throw new RuleException("Rule cant be applied to this term due to not conforming polarity.");
+                throw new NotApplicableException("Rule cant be applied to this term due to not conforming polarity.");
             } else {
                 TermMatcher tm = new TermMatcher();
                 matchings = tm.match(searchTerm, on);
                 if(matchings.size() == 0) {
-                    throw new RuleException("Searchterm "+ searchTerm + " not found.");
+                    throw new NotApplicableException("Searchterm "+ searchTerm + " not found.");
                 }
                 rt = matchings.get(0).instantiate(replaceTerm);
             }
@@ -155,7 +116,7 @@ public class DafnyRule extends AbstractProofRule {
                 }
             }
         } catch (TermBuildException e) {
-            throw new RuleException();
+            throw new RuleException(e);
         }
 
         return proofRuleApplicationBuilder.build();

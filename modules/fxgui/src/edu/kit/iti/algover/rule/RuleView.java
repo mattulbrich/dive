@@ -91,7 +91,9 @@ public class RuleView extends StackPane {
                 Parameters params = new Parameters();
                 params.putValue(AbstractProofRule.ON_PARAM, new TermParameter(selector, selection));
                 params.putValue(ExhaustiveRule.RULE_NAME_PARAM, rule.getName());
-                exApplication = exhaustiveRule.considerApplication(target, params);
+                // MU: I have changed this from considerapplication to makeApplication
+                // This piece of code looks like suboptimal special casing. (see RuleApplicationController)
+                exApplication = exhaustiveRule.makeApplication(target, params);
             } else {
                 exApplication = ProofRuleApplicationBuilder.notApplicable(rule);
             }

@@ -31,7 +31,12 @@ public class FakeSMTSolverRule extends AbstractProofRule {
     }
 
     @Override
-    public ProofRuleApplication considerApplicationImpl(ProofNode target, Parameters parameters)
+    public String getCategory() {
+        return ProofRuleCategories.DEBUG;
+    }
+
+    @Override
+    public ProofRuleApplication makeApplicationImpl(ProofNode target, Parameters parameters)
             throws RuleException {
 
         ProofRuleApplicationBuilder builder = new ProofRuleApplicationBuilder(this);
@@ -43,31 +48,12 @@ public class FakeSMTSolverRule extends AbstractProofRule {
 
     private ProofRuleApplication refine(ProofRuleApplication app, Sequent sequent) {
 
-        boolean decision = sequent.toString().hashCode() % 2 == 0;
-
-        if (!decision) {
-            return ProofRuleApplicationBuilder.notApplicable(this);
-        } else {
-            ProofRuleApplicationBuilder builder = new ProofRuleApplicationBuilder(app);
-            builder.setRefiner(null)
-                    .setApplicability(Applicability.APPLICABLE)
-                    .setClosing();
-            return builder.build();
-        }
-    }
-
-    @Override
-    public ProofRuleApplication makeApplicationImpl(ProofNode target, Parameters parameters) throws RuleException {
         boolean decision;
-        if(parameters.hasValue(CLOSE_PARAM)) {
+        Parameters parameters = app.getParameters();
+        if (parameters.hasValue(CLOSE_PARAM)) {
             decision = parameters.getValue(CLOSE_PARAM);
         } else {
-            decision
-                    = target.getSequent().toString().hashCode() % 2 == 0;
-        }
-
-        if (!decision) {
-            return ProofRuleApplicationBuilder.notApplicable(this);
+            decision = sequent.toString().hashCode() % 2 == 0;
         }
 
         if(parameters.hasValue(SLEEP_PARAM)) {
@@ -79,12 +65,15 @@ public class FakeSMTSolverRule extends AbstractProofRule {
             }
         }
 
-        ProofRuleApplicationBuilder builder = new ProofRuleApplicationBuilder(this);
-        builder.setRefiner(null)
-                .setApplicability(Applicability.APPLICABLE)
-                .setClosing();
-
-        return builder.build();
+        if (!decision) {
+            return ProofRuleApplicationBuilder.notApplicable(this);
+        } else {
+            ProofRuleApplicationBuilder builder = new ProofRuleApplicationBuilder(app);
+            builder.setRefiner(null)
+                    .setApplicability(Applicability.APPLICABLE)
+                    .setClosing();
+            return builder.build();
+        }
     }
 
 }

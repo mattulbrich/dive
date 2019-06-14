@@ -116,7 +116,9 @@ public class RuleApplicationController extends FxmlController {
             Parameters parameters = new Parameters();
             parameters.putValue(ExhaustiveRule.RULE_NAME_PARAM, rule.getName());
             parameters.putValue(AbstractProofRule.ON_PARAM, new TermParameter(ts, pn.getSequent()));
-            ProofRuleApplication pra = exRule.considerApplication(pn, parameters);
+            // MU: I have changed this from considerapplication to makeApplication
+            // This piece of code looks like suboptimal special casing. (see RuleView)
+            ProofRuleApplication pra = exRule.makeApplication(pn, parameters);
             resetConsideration();
             scriptController.insertTextForSelectedNode(pra.getScriptTranscript());
             logger.info("Applied rule " + rule.getName() + " exhaustively.");

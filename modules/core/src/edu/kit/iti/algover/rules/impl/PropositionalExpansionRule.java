@@ -9,10 +9,13 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Spliterator;
 
 import edu.kit.iti.algover.proof.ProofFormula;
 import edu.kit.iti.algover.proof.ProofNode;
 import edu.kit.iti.algover.rules.AbstractProofRule;
+import edu.kit.iti.algover.rules.ParameterDescription;
+import edu.kit.iti.algover.rules.ParameterType;
 import edu.kit.iti.algover.rules.Parameters;
 import edu.kit.iti.algover.rules.ProofRuleApplication;
 import edu.kit.iti.algover.rules.ProofRuleApplication.Applicability;
@@ -31,75 +34,27 @@ import edu.kit.iti.algover.util.RuleUtil;
 
 public class PropositionalExpansionRule extends AbstractProofRule {
 
+    private static final ParameterDescription<Boolean> SPLT_PARAM =
+            new ParameterDescription<>("split", ParameterType.BOOLEAN, false);
+
     public PropositionalExpansionRule() {
-        super(ON_PARAM);
+        super(SPLT_PARAM);
+    }
+
+    @Override
+    public String getCategory() {
+        return ProofRuleCategories.PROPOSITIONAL;
     }
 
     @Override
     public String getName() {
-        return "prop-expand";
-    }
-
-    @Override
-    public ProofRuleApplication considerApplicationImpl(ProofNode target, Parameters parameters) throws RuleException {
-        TermSelector selector = parameters.getValue(ON_PARAM).getTermSelector();
-
-        if (selector != null) {
-            return ProofRuleApplicationBuilder.notApplicable(this);
-        }
-
-        boolean allowSplit = true;
-
-        PropositionalExpander pex = new PropositionalExpander();
-        List<ProofFormula> deletionsAnte = new ArrayList<ProofFormula>();
-        List<ProofFormula> deletionsSucc = new ArrayList<ProofFormula>();
-
-        for (ProofFormula formula : target.getSequent().getAntecedent()) {
-            if (pex.expand(formula, SequentPolarity.ANTECEDENT, allowSplit)) {
-                deletionsAnte.add(formula);
-            }
-        }
-
-        for (ProofFormula formula : target.getSequent().getSuccedent()) {
-            if (pex.expand(formula, SequentPolarity.SUCCEDENT, allowSplit)) {
-                deletionsSucc.add(formula);
-            }
-        }
-
-        List<Sequent> sequents = pex.getSequents();
-
-        if (deletionsAnte.isEmpty() && deletionsSucc.isEmpty()) {
-            // nothing to be done
-            return ProofRuleApplicationBuilder.notApplicable(this);
-        }
-
-        ProofRuleApplicationBuilder builder = new ProofRuleApplicationBuilder(this);
-
-        for (Sequent sequent : sequents) {
-            builder.newBranch().addAdditions(sequent)
-                    .addDeletionsAntecedent(deletionsAnte)
-                    .addDeletionsSuccedent(deletionsSucc);
-        }
-
-        builder.setApplicability(Applicability.APPLICABLE);
-
-        return builder.build();
+        return "prop";
     }
 
     @Override
     public ProofRuleApplication makeApplicationImpl(ProofNode target, Parameters parameters) throws RuleException {
-        //TODO just copy and pasted from considerApplicationImpl maybe correct or improve
-        Term on = parameters.getValue(ON_PARAM).getTerm();
-        List<TermSelector> l = RuleUtil.matchSubtermsInSequent(on::equals, target.getSequent());
-        if(l.size() != 1) {
-            throw new RuleException("Matching of on parameter is ambiguous");
-        }
-        TermSelector selector = l.get(0);
-        if (selector != null) {
-            return ProofRuleApplicationBuilder.notApplicable(this);
-        }
-
-        boolean allowSplit = true;
+        // TODO: Make this a parameter
+        boolean allowSplit = parameters.getValueOrDefault(SPLT_PARAM, false);
 
         PropositionalExpander pex = new PropositionalExpander();
         List<ProofFormula> deletionsAnte = new ArrayList<ProofFormula>();

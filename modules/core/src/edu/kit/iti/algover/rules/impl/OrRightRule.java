@@ -12,12 +12,6 @@ import edu.kit.iti.algover.rules.*;
 import edu.kit.iti.algover.term.ApplTerm;
 import edu.kit.iti.algover.term.FunctionSymbol;
 import edu.kit.iti.algover.term.Term;
-import edu.kit.iti.algover.term.match.Matching;
-import edu.kit.iti.algover.term.match.SequentMatcher;
-import edu.kit.iti.algover.util.ImmutableList;
-import edu.kit.iti.algover.util.RuleUtil;
-
-import java.util.List;
 
 /**
  * Created by jklamroth on 5/22/18.
@@ -47,22 +41,22 @@ public class OrRightRule extends AbstractProofRule {
         TermSelector selector = parameters.getValue(ON_PARAM).getTermSelector();
 
         if(!selector.isToplevel()) {
-            throw new NotApplicableException("orRight may only be applied to toplevel formulas.");
+            throw NotApplicableException.onlyToplevel(this);
         }
         if(!selector.isSuccedent()) {
-            throw new NotApplicableException("orRight may only be applied on the succedent.");
+            throw NotApplicableException.onlySuccedent(this);
         }
 
         ProofFormula formula = selector.selectTopterm(target.getSequent());
         Term term = formula.getTerm();
         if (!(term instanceof ApplTerm)) {
-            throw new NotApplicableException("orRight may only be applied to '||' terms.");
+            throw NotApplicableException.onlyOperator(this, "||");
         }
         ApplTerm appl = (ApplTerm) term;
         FunctionSymbol fs = appl.getFunctionSymbol();
 
         if (fs != BuiltinSymbols.OR) {
-            throw new NotApplicableException("orRight may only be applied to '||' terms.");
+            throw NotApplicableException.onlyOperator(this, "||");
         }
 
         ProofRuleApplicationBuilder builder = new ProofRuleApplicationBuilder(this);

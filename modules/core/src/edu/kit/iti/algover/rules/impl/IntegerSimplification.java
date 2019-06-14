@@ -9,9 +9,11 @@ import edu.kit.iti.algover.data.BuiltinSymbols;
 import edu.kit.iti.algover.proof.ProofNode;
 import edu.kit.iti.algover.proof.ProofNodeSelector;
 import edu.kit.iti.algover.rules.AbstractProofRule;
+import edu.kit.iti.algover.rules.NotApplicableException;
 import edu.kit.iti.algover.rules.Parameters;
 import edu.kit.iti.algover.rules.ProofRule;
 import edu.kit.iti.algover.rules.ProofRuleApplication;
+import edu.kit.iti.algover.rules.ProofRuleApplication.Applicability;
 import edu.kit.iti.algover.rules.ProofRuleApplicationBuilder;
 import edu.kit.iti.algover.rules.RuleApplicator;
 import edu.kit.iti.algover.rules.RuleException;
@@ -34,9 +36,20 @@ import java.util.stream.Collectors;
 /**
  * Created by jklamroth on 11/7/18.
  */
+
+// TODO @Jonas. This class cannot work with multi-threading since the object
+    // is stateful. Field applicableRules may change (from a different thread)
+    // while search is still in progress.
+
+    //REVIEW It is not a good idea to list rules here explicitly.
+    // Would a concept of rulesets make sense?
+
+    // NEEDS MORE DISCUSSION
+
 public class IntegerSimplification extends AbstractProofRule {
-    private final List<Class<?>> applicableRuleTypes = new ArrayList<>(Arrays.asList(PlusZeroRule.class,
-            TimesOneRule.class, TimesZeroRule.class));
+    private final List<Class<?>> applicableRuleTypes = new ArrayList<>(
+            Arrays.asList(/*PlusZeroRule.class,
+            TimesOneRule.class, TimesZeroRule.class*/));
     private List<AbstractProofRule> applicableRules;
 
     public IntegerSimplification() {
@@ -49,7 +62,7 @@ public class IntegerSimplification extends AbstractProofRule {
     }
 
     @Override
-    protected ProofRuleApplication considerApplicationImpl(ProofNode target, Parameters parameters) throws RuleException {
+    protected ProofRuleApplication makeApplicationImpl(ProofNode target, Parameters parameters) throws RuleException {
         applicableRules = target.getPVC().getProject().getAllProofRules().stream().
                 filter(proofRule -> applicableRuleTypes.contains(proofRule.getClass())).
                 map(proofRule -> (AbstractProofRule)proofRule).
@@ -58,17 +71,9 @@ public class IntegerSimplification extends AbstractProofRule {
         ProofRuleApplicationBuilder proofRuleApplicationBuilder = new ProofRuleApplicationBuilder(this);
         proofRuleApplicationBuilder.newBranch();
         proofRuleApplicationBuilder.setSubApplications(Collections.singletonList(transitiveApplication(target, parameters)));
+        proofRuleApplicationBuilder.setApplicability(Applicability.APPLICABLE);
 
         return proofRuleApplicationBuilder.build();
-    }
-
-    @Override
-    protected ProofRuleApplication makeApplicationImpl(ProofNode target, Parameters parameters) throws RuleException {
-        ProofRuleApplication pra = considerApplication(target, parameters);
-        if(pra.getApplicability() != ProofRuleApplication.Applicability.APPLICABLE) {
-            throw new RuleException("IntegerSimplification is not applicable in make");
-        }
-        return pra;
     }
 
     ProofRuleApplication addToSubApps(ProofRuleApplication root, ProofRuleApplication sub) {
@@ -86,9 +91,14 @@ public class IntegerSimplification extends AbstractProofRule {
 
     ProofRuleApplication singleStep1(ProofNode target, Parameters parameters) throws RuleException {
         for(AbstractProofRule r : applicableRules) {
-            ProofRuleApplication pra = r.considerApplication(target, parameters);
-            if(pra.getApplicability() == ProofRuleApplication.Applicability.APPLICABLE) {
-                return pra;
+            ProofRuleApplication pra = null;
+            try {
+                pra = r.makeApplication(target, parameters);
+                if(pra.getApplicability() == ProofRuleApplication.Applicability.APPLICABLE) {
+                    return pra;
+                }
+            } catch (NotApplicableException e) {
+                // That can safely be ignored. The rule is just not applicable
             }
         }
         TermParameter onParam = parameters.getValue(ON_PARAM);

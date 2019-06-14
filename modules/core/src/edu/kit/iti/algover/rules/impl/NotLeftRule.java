@@ -38,45 +38,52 @@ public class NotLeftRule extends AbstractProofRule {
     }
 
     @Override
-    public ProofRuleApplication considerApplicationImpl(ProofNode target, Parameters parameters) throws RuleException {
-        ProofRuleApplicationBuilder builder = new ProofRuleApplicationBuilder(this);
-
-        TermSelector selector = parameters.getValue(ON_PARAM).getTermSelector();
-
-        if(selector == null || selector.isToplevel()) {
-            return ProofRuleApplicationBuilder.notApplicable(this);
-        }
-
-        ProofFormula formula = selector.selectTopterm(target.getSequent());
-        Term term = formula.getTerm();
-        if(!(term instanceof ApplTerm)) {
-            return ProofRuleApplicationBuilder.notApplicable(this);
-        }
-
-        builder.setApplicability(ProofRuleApplication.Applicability.APPLICABLE);
-
-        try {
-            builder.newBranch().addDeletionsAntecedent(Collections.singletonList(new ProofFormula(term)))
-                    .addAdditionsSuccedent(new ProofFormula(new ApplTerm(BuiltinSymbols.NOT, term)));
-        } catch(TermBuildException e){
-            return ProofRuleApplicationBuilder.notApplicable(this);
-        }
-
-        return builder.build();
+    public String getCategory() {
+        return ProofRuleCategories.PROPOSITIONAL;
     }
 
     @Override
     public ProofRuleApplication makeApplicationImpl(ProofNode target, Parameters parameters) throws RuleException {
-        Term on = parameters.getValue(ON_PARAM).getTerm();
-
         ProofRuleApplicationBuilder builder = new ProofRuleApplicationBuilder(this);
-        try {
-            builder.newBranch().addDeletionsAntecedent(Collections.singletonList(new ProofFormula(on)))
-                    .addAdditionsSuccedent(new ProofFormula(new ApplTerm(BuiltinSymbols.NOT, on)));
-        } catch (TermBuildException e) {
-            throw new RuleException();
+
+        TermParameter onParam = parameters.getValue(ON_PARAM);
+        TermSelector selector = onParam.getTermSelector();
+
+        if(!selector.isToplevel()) {
+            throw NotApplicableException.onlyToplevel(this);
         }
+
+        // TODO @Jonas: I added this check. I think it was missing. Right?
+        if (!selector.isAntecedent()) {
+            throw NotApplicableException.onlyAntecedent(this);
+        }
+
+        Term term = onParam.getTerm();
+        if (!(term instanceof ApplTerm)) {
+            throw NotApplicableException.onlyOperator(this, "!");
+        }
+
+        // TODO @Jonas: I added this check. I think it was missing. Right?
+        ApplTerm at = (ApplTerm)term;
+        if(at.getFunctionSymbol() != BuiltinSymbols.NOT) {
+            throw NotApplicableException.onlyOperator(this, "!");
+        }
+
+        builder.setApplicability(ProofRuleApplication.Applicability.APPLICABLE);
+
+        /*try {
+            // TODO @Jonas: This seems to not remove a negation but to add one
+            // Is this intended?
+            builder.newBranch().addDeletionsAntecedent(new ProofFormula(term))
+                    .addAdditionsSuccedent(new ProofFormula(new ApplTerm(BuiltinSymbols.NOT, term)));
+
+        } catch(TermBuildException e) {
+            throw new RuleException(e);
+        }*/
+        builder.newBranch().addDeletionsAntecedent(new ProofFormula(term))
+                .addAdditionsSuccedent(new ProofFormula(term.getTerm(0)));
 
         return builder.build();
     }
+
 }

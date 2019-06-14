@@ -13,13 +13,6 @@ import edu.kit.iti.algover.term.ApplTerm;
 import edu.kit.iti.algover.term.FunctionSymbol;
 import edu.kit.iti.algover.term.Term;
 import edu.kit.iti.algover.term.builder.TermBuildException;
-import edu.kit.iti.algover.term.match.Matching;
-import edu.kit.iti.algover.term.match.SequentMatcher;
-import edu.kit.iti.algover.util.ImmutableList;
-import edu.kit.iti.algover.util.RuleUtil;
-
-import java.util.List;
-import java.util.Optional;
 
 /**
  * Created by jklamroth on 5/22/18.
@@ -42,20 +35,28 @@ public class ModusTollensRule extends AbstractProofRule {
     @Override
     protected ProofRuleApplication makeApplicationImpl(ProofNode target, Parameters parameters) throws RuleException {
         TermSelector selector = parameters.getValue(ON_PARAM).getTermSelector();
+        Term term = parameters.getValue(ON_PARAM).getTerm();
 
-        ProofFormula formula = selector.selectTopterm(target.getSequent());
-        Term term = formula.getTerm();
         if (!(term instanceof ApplTerm)) {
-            throw new NotApplicableException("Modus Tollens is only applicable on implications.");
+            throw NotApplicableException.onlyOperator(this, "==>");
         }
+
+        // TODO: @Jonas: I believe this is needed. Right?
+        if (!selector.isToplevel()) {
+            throw NotApplicableException.onlyToplevel(this);
+        }
+
+        // TODO: @Jonas: Can this rule be applied in antecedent and succedent?
+
         ApplTerm appl = (ApplTerm) term;
         FunctionSymbol fs = appl.getFunctionSymbol();
 
         if (fs != BuiltinSymbols.IMP) {
-            throw new NotApplicableException("Modus Tollens is only applicable on implications.");
+            throw NotApplicableException.onlyOperator(this, "!");
         }
 
         Term notTerm;
+
         try {
             notTerm = new ApplTerm(BuiltinSymbols.NOT, appl.getTerm(1));
         } catch (TermBuildException e) {

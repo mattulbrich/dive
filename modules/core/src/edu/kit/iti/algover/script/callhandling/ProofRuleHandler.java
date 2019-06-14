@@ -126,6 +126,9 @@ public class ProofRuleHandler implements CommandHandler<ProofNode> {
             //apply the rule
             ProofRuleApplication proofRuleApplication = pr.makeApplication(parent, ruleParams);
 
+            // Resolve all "Maybe-applicables and similar"
+            proofRuleApplication = proofRuleApplication.refine();
+
             if (proofRuleApplication.getApplicability() == ProofRuleApplication.Applicability.APPLICABLE) {
 
                 List<ProofNode> newNodes = RuleApplicator.applyRule(proofRuleApplication, parent);

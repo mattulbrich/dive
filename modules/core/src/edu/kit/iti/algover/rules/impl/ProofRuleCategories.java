@@ -14,6 +14,8 @@ public final class ProofRuleCategories {
 
     // TODO DOC
     public static final String PROPOSITIONAL = "Propositional";
+    public static final String SIMPLIFICATIONS = "Simplifications";
+    public static final String DEBUG = "Debug";
 
     private ProofRuleCategories() {
         throw new Error("not to be instantiated");

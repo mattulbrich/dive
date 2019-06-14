@@ -8,10 +8,12 @@ package edu.kit.iti.algover.rules.impl;
 import de.uka.ilkd.pp.NoExceptions;
 import edu.kit.iti.algover.proof.ProofNode;
 import edu.kit.iti.algover.rules.AbstractProofRule;
+import edu.kit.iti.algover.rules.NotApplicableException;
 import edu.kit.iti.algover.rules.ParameterDescription;
 import edu.kit.iti.algover.rules.ParameterType;
 import edu.kit.iti.algover.rules.Parameters;
 import edu.kit.iti.algover.rules.ProofRuleApplication;
+import edu.kit.iti.algover.rules.ProofRuleApplication.Applicability;
 import edu.kit.iti.algover.rules.ProofRuleApplicationBuilder;
 import edu.kit.iti.algover.rules.RuleException;
 import edu.kit.iti.algover.rules.TermParameter;
@@ -19,6 +21,8 @@ import edu.kit.iti.algover.rules.TermSelector;
 import edu.kit.iti.algover.term.ApplTerm;
 import edu.kit.iti.algover.term.DefaultTermVisitor;
 import edu.kit.iti.algover.term.QuantTerm;
+import edu.kit.iti.algover.term.QuantTerm.Quantifier;
+import edu.kit.iti.algover.term.Sort;
 import edu.kit.iti.algover.term.Term;
 import edu.kit.iti.algover.term.VariableTerm;
 import edu.kit.iti.algover.term.builder.ReplaceVisitor;
@@ -28,6 +32,8 @@ import edu.kit.iti.algover.term.builder.TermBuildException;
 /**
  * Created by jklamroth on 10/25/18.
  */
+// REVIEW @Jonas: The name suggests that this for all instantiations, yet
+// the name is for forall-left only.
 public class QuantifierInstantiation extends AbstractProofRule {
     public static final ParameterDescription<TermParameter> WITH_PARAM =
             new ParameterDescription<>("with", ParameterType.TERM, true);
@@ -38,6 +44,7 @@ public class QuantifierInstantiation extends AbstractProofRule {
 
     @Override
     public String getName() {
+        //  REVIEW @Jonas: I suggest "inst" only
         return "forallInstantiation";
     }
 
@@ -46,37 +53,41 @@ public class QuantifierInstantiation extends AbstractProofRule {
 
         TermParameter onParam = parameters.getValue(ON_PARAM);
         TermParameter withParam = parameters.getValue(WITH_PARAM);
-        QuantTerm aTerm;
-        Term onTerm;
 
-        if(onParam == null) {
-            // REVIEW: 
-            ProofRuleApplicationBuilder pra = new ProofRuleApplicationBuilder(this);
-            pra.setApplicability(ProofRuleApplication.Applicability.APPLICABLE);
-            return pra.build();
-        } else {
-            onTerm = onParam.getTerm();
-            if(!(onTerm instanceof QuantTerm)) {
-                return ProofRuleApplicationBuilder.notApplicable(this);
-            }
-
-            aTerm = (QuantTerm)onTerm;
-            if(aTerm.getQuantifier() != QuantTerm.Quantifier.FORALL) {
-                return ProofRuleApplicationBuilder.notApplicable(this);
-            }
+        Term onTerm = onParam.getTerm();
+        if (!(onTerm instanceof QuantTerm)) {
+            throw new NotApplicableException(getName() + " can only be applied to quantified formulas");
         }
+
+        TermSelector onSel = onParam.getTermSelector();
+        if (!onSel.isToplevel()) {
+            throw NotApplicableException.onlyToplevel(this);
+        }
+
+        // Only antecedental forall and succedental exists can be instantiated
+        Quantifier q = onSel.isAntecedent() ? Quantifier.FORALL : Quantifier.EXISTS;
+
+        QuantTerm aTerm = (QuantTerm)onTerm;
+        if(aTerm.getQuantifier() != q) {
+            throw new NotApplicableException("Only forall quantifiers in antecedent or exists quantifiers in succedent can be instantiated");
+        }
+
+        ProofRuleApplicationBuilder pra = new ProofRuleApplicationBuilder(this);
 
         if(withParam == null) {
-            ProofRuleApplicationBuilder pra = new ProofRuleApplicationBuilder(this);
-            pra.setApplicability(ProofRuleApplication.Applicability.APPLICABLE);
+            pra.setApplicability(Applicability.INSTANTIATION_REQUIRED);
             return pra.build();
         }
 
+        // REVIEW: Does it make sense to forbid bounded versions of the bound
+        // variable.
+        if (withParam.getTerm().accept(new ContainsVarVisitor(), aTerm.getBoundVar())) {
+            // TODO @Jonas, please report the right error message here.
+            throw new NotApplicableException("XXX The instantiation contains variables");
+        }
 
-        assert(onTerm != null);
-        assert(aTerm != null);
-        if(withParam.getTerm().accept(new ContainsVarVisitor(), aTerm.getBoundVar())) {
-            return ProofRuleApplicationBuilder.notApplicable(this);
+        if (!withParam.getTerm().getSort().isSubtypeOf(aTerm.getBoundVar().getSort())) {
+            throw new NotApplicableException("The instantiated type is not compatible with the quantifer");
         }
 
         ReplaceBoundVisitor rv = new ReplaceBoundVisitor(withParam.getTerm(), aTerm.getBoundVar());
@@ -96,15 +107,9 @@ public class QuantifierInstantiation extends AbstractProofRule {
         prab.newBranch().addReplacement(onParam.getTermSelector(), rt);
 
         return prab.build();
-
-        ProofRuleApplication pra = considerApplicationImpl(target, parameters);
-        if(pra.getApplicability() != ProofRuleApplication.Applicability.APPLICABLE) {
-            throw new RuleException("Rule " + getName() + " is not applicable on sequent " + target.getSequent());
-        }
-        return pra;
     }
 
-    class ReplaceBoundVisitor extends ReplacementVisitor<Void> {
+    private static class ReplaceBoundVisitor extends ReplacementVisitor<Void> {
         private final Term replaceTerm;
         private final VariableTerm boundVariable;
 
@@ -122,7 +127,7 @@ public class QuantifierInstantiation extends AbstractProofRule {
         }
     }
 
-    class ContainsVarVisitor extends DefaultTermVisitor<VariableTerm, Boolean, NoExceptions> {
+    private static class ContainsVarVisitor extends DefaultTermVisitor<VariableTerm, Boolean, NoExceptions> {
         @Override
         protected Boolean defaultVisit(Term term, VariableTerm arg) throws NoExceptions {
             if(term.equals(arg)) {

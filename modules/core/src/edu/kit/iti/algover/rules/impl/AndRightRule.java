@@ -30,11 +30,11 @@ import edu.kit.iti.algover.util.ImmutableList;
 import edu.kit.iti.algover.util.Pair;
 import edu.kit.iti.algover.util.RuleUtil;
 
-public class TrivialAndRight extends AbstractProofRule {
+public class AndRightRule extends AbstractProofRule {
 
     public static final String RULE_NAME = "andRight";
 
-    public TrivialAndRight() {
+    public AndRightRule() {
         super(ON_PARAM);
     }
 
@@ -61,20 +61,19 @@ public class TrivialAndRight extends AbstractProofRule {
         ProofRuleApplicationBuilder builder = new ProofRuleApplicationBuilder(this);
 
         if (!selector.isToplevel()) {
-            throw new NotApplicableException(RULE_NAME + " can only be applied to toplevel formulas");
+            throw NotApplicableException.onlyToplevel(this);
         }
 
         if (!selector.isSuccedent()) {
-            throw new NotApplicableException(RULE_NAME + " can only be applied in sequent succedent");
+            throw NotApplicableException.onlySuccedent(this);
         }
 
-
         if(!(on instanceof ApplTerm)) {
-            throw new NotApplicableException(RULE_NAME + " can only be applied to applications of '&&'");
+            throw NotApplicableException.onlyOperator(this, "&&");
         }
 
         if(((ApplTerm)on).getFunctionSymbol() != BuiltinSymbols.AND) {
-            throw new NotApplicableException(RULE_NAME + " can only be applied to applications of '&&'");
+            throw NotApplicableException.onlyOperator(this, "&&");
         }
 
         int no = selector.getTermNo();

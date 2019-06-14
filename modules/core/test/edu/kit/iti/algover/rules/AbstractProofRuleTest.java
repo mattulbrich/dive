@@ -44,11 +44,6 @@ public class AbstractProofRuleTest {
         }
 
         @Override
-        protected ProofRuleApplication considerApplicationImpl(ProofNode target, Parameters parameters) throws RuleException {
-            throw new Error();
-        }
-
-        @Override
         protected ProofRuleApplication makeApplicationImpl(ProofNode target, Parameters parameters) throws RuleException {
             throw new Error();
         }

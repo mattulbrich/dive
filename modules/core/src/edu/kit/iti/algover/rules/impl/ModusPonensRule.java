@@ -25,6 +25,10 @@ import java.util.Optional;
 /**
  * Created by jklamroth on 5/22/18.
  */
+
+//REVIEW . @Jonas. Is this really modus ponens?! Is it rather some kind of impLeft
+
+
 public class ModusPonensRule extends AbstractProofRule {
     public ModusPonensRule() {
         super(ON_PARAM);
@@ -36,30 +40,8 @@ public class ModusPonensRule extends AbstractProofRule {
     }
 
     @Override
-    protected ProofRuleApplication considerApplicationImpl(ProofNode target, Parameters parameters) throws RuleException {
-        Term on = parameters.getValue(ON_PARAM).getTerm();
-        TermSelector selector = parameters.getValue(ON_PARAM).getTermSelector();
-
-        ProofFormula formula = selector.selectTopterm(target.getSequent());
-        Term term = formula.getTerm();
-        if (!(term instanceof ApplTerm)) {
-            return ProofRuleApplicationBuilder.notApplicable(this);
-        }
-        ApplTerm appl = (ApplTerm) term;
-        FunctionSymbol fs = appl.getFunctionSymbol();
-
-        if (fs != BuiltinSymbols.IMP) {
-            return ProofRuleApplicationBuilder.notApplicable(this);
-        }
-
-        ProofRuleApplicationBuilder builder = new ProofRuleApplicationBuilder(this);
-
-        builder.newBranch().addReplacement(selector, appl.getTerm(1)).setLabel("mainBranch");
-        builder.newBranch().addDeletionsSuccedent(target.getSequent().getSuccedent()).
-                addAdditionsSuccedent(new ProofFormula(appl.getTerm(0))).setLabel("assumption");
-        builder.setApplicability(ProofRuleApplication.Applicability.APPLICABLE);
-
-        return builder.build();
+    public String getCategory() {
+        return ProofRuleCategories.PROPOSITIONAL;
     }
 
     @Override
@@ -69,14 +51,17 @@ public class ModusPonensRule extends AbstractProofRule {
         ProofFormula formula = selector.selectTopterm(target.getSequent());
         Term term = formula.getTerm();
         if (!(term instanceof ApplTerm)) {
-            throw new RuleException("Modus Ponens is only applicable on implications.");
+            throw new NotApplicableException("Modus Ponens is only applicable on implications.");
         }
         ApplTerm appl = (ApplTerm) term;
         FunctionSymbol fs = appl.getFunctionSymbol();
 
         if (fs != BuiltinSymbols.IMP) {
-            throw new RuleException("Modus Ponens is only applicable on implications.");
+            throw new NotApplicableException("Modus Ponens is only applicable on implications.");
         }
+
+        // TODO @Jonas. Should there not be a check for antecedent (or succedent?!)
+        // TODO @Jonas. Should there not be a check for toplevel?
 
         ProofRuleApplicationBuilder builder = new ProofRuleApplicationBuilder(this);
 

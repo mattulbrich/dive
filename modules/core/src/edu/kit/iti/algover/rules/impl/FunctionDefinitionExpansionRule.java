@@ -13,6 +13,7 @@ import edu.kit.iti.algover.parser.DafnyTree;
 import edu.kit.iti.algover.proof.ProofFormula;
 import edu.kit.iti.algover.proof.ProofNode;
 import edu.kit.iti.algover.rules.AbstractProofRule;
+import edu.kit.iti.algover.rules.NotApplicableException;
 import edu.kit.iti.algover.rules.Parameters;
 import edu.kit.iti.algover.rules.ProofRuleApplication;
 import edu.kit.iti.algover.rules.ProofRuleApplication.Applicability;
@@ -63,18 +64,18 @@ public class FunctionDefinitionExpansionRule extends AbstractProofRule {
     }
 
     @Override
-    protected ProofRuleApplication considerApplicationImpl(ProofNode target, Parameters parameters) throws RuleException {
+    protected ProofRuleApplication makeApplicationImpl(ProofNode target, Parameters parameters) throws RuleException {
         TermSelector selector = parameters.getValue(ON_PARAM).getTermSelector();
 
         Term term = selector.selectSubterm(target.getSequent());
         if (!(term instanceof ApplTerm)) {
-            return ProofRuleApplicationBuilder.notApplicable(this);
+            throw NotApplicableException.onlyOperator(this, "Dafny function");
         }
         ApplTerm appl = (ApplTerm) term;
         FunctionSymbol fs = appl.getFunctionSymbol();
 
         if (!(fs instanceof DafnyFunctionSymbol)) {
-            return ProofRuleApplicationBuilder.notApplicable(this);
+            throw NotApplicableException.onlyOperator(this, "Dafny function");
         }
 
         DafnyFunction function = ((DafnyFunctionSymbol) fs).getOrigin();
@@ -186,8 +187,4 @@ public class FunctionDefinitionExpansionRule extends AbstractProofRule {
 
     }
 
-    @Override
-    protected ProofRuleApplication makeApplicationImpl(ProofNode target, Parameters parameters) throws RuleException {
-        return considerApplicationImpl(target, parameters);
-    }
 }

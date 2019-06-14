@@ -30,6 +30,12 @@ public abstract class AbstractProofRule implements ProofRule {
             new ParameterDescription<>("on", ParameterType.MATCH_TERM, true);
 
     /**
+     * The parameter for "on" is very common -- here in an optional version
+     */
+    public static final ParameterDescription<TermParameter> ON_PARAM_OPTIONAL =
+            new ParameterDescription<>("on", ParameterType.MATCH_TERM, false);
+
+    /**
      * The map internally storing all parameters.
      */
     private final Map<String, ParameterDescription<?>> allParameters;
@@ -101,7 +107,7 @@ public abstract class AbstractProofRule implements ProofRule {
 
         if (!required.isEmpty()) {
                 throw new RuleException("Missing required argument(s): " +
-                        Util.commatize(required));
+                        Util.commatize(Util.map(required, p -> p.getName())));
         }
     }
 

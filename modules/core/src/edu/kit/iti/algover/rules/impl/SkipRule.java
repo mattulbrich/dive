@@ -23,12 +23,8 @@ public class SkipRule extends AbstractProofRule {
     }
 
     @Override
-    public ProofRuleApplication considerApplicationImpl(ProofNode target, Parameters parameters) throws RuleException {
-        ProofRuleApplicationBuilder b = new ProofRuleApplicationBuilder(this);
-        b.setApplicability(Applicability.APPLICABLE);
-        BranchInfoBuilder br = b.newBranch();
-        br.setLabel("continue");
-        return b.build();
+    public String getCategory() {
+        return ProofRuleCategories.DEBUG;
     }
 
     @Override

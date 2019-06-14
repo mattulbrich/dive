@@ -103,6 +103,29 @@ public class Parameters {
     }
 
     /**
+     * Gets a value from the mapping or a default value if the key is absent.
+     *
+     * The key to look up is taken from the name in the parameter description
+     * via {@link ParameterDescription#getName()}.
+     *
+     * If that key is not in this map, the second parameter is returned
+     *
+     * @param param the parameter description to look up.
+     * @param defaultValue the value returned if param is not set
+     * @return the value stored for that variable, <code>defaultValue</code>
+     * if no such value
+     * @throws ClassCastException if the value is not assign-compatible with the
+     *                            type in the parameter description.
+     */
+    public <T> T getValueOrDefault(ParameterDescription<T> param, T defaultValue) {
+        if (hasValue(param)) {
+            return getValue(param);
+        } else {
+            return defaultValue;
+        }
+    }
+
+    /**
      * Put a value into the mapping for a variable.
      *
      * @param key   the variable name
