@@ -48,7 +48,6 @@ public class RuleGrid extends JFXMasonryPane {
         setCellHeight(RULE_CELL_HEIGHT);
         setVSpacing(SPACING);
         setHSpacing(SPACING);
-       // this.setPadding(new Insets(10,10,10,10));
         //SaG: Do not remove, causes null values in super-object  if not called.
         layoutChildren();
     }
