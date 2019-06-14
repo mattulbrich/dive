@@ -56,10 +56,10 @@ public class FormulaCell extends BorderPane {
         this.selectedReference = selectedReference;
         this.showLabels = showLabelsInView;
 
-        this.setPadding(new Insets(10,10,10,10));
+        this.setPadding(new Insets(5,20,5,10));
         getStyleClass().add("formula-cell");
 
-        this.setBorder(new Border(new BorderStroke(Color.BLACK,
+        this.setBorder(new Border(new BorderStroke(Color.LIGHTGRAY,
             BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderWidths.DEFAULT)));
 
         updateItem(formula);

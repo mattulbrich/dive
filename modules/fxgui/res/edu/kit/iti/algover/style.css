@@ -8,12 +8,13 @@
 }
 
 .formula-view .selected {
-    -rtfx-background-color: #0f1c0f;
+    -rtfx-background-color: #b5b5b5;
     -fx-fill: whitesmoke;
 }
 
 .formula-view .selectedRef {
-    -rtfx-background-color: #62b00f;
+    -rtfx-background-color: #886acf;
+    -fx-border-style: solid;
     -fx-fill: whitesmoke;
 }
 
@@ -28,7 +29,7 @@
 }
 
 .formula-view .referenceTarget {
-    -rtfx-background-color: #5727cf;
+    -rtfx-background-color: #886acf;
     -fx-fill: whitesmoke;
 }
 

@@ -400,6 +400,7 @@ public class SequentController extends FxmlController {
                 }
             } else {
                 goalTypeLabel.setText("Node");
+                goalTypeLabel.setStyle("-fx-text-fill: GRAY");
                 goalTypeLabel.setGraphic(null);
             }
         } catch (RuleException e) {

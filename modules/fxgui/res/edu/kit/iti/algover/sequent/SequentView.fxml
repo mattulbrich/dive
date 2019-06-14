@@ -12,6 +12,7 @@
             fitToWidth="true"
             fitToHeight="true"
 >
+    <padding><Insets  right="10"></Insets></padding>
     <VBox>
     <HBox alignment="TOP_RIGHT">
         <ToggleSwitch fx:id="formulaLabels" text="Labels"></ToggleSwitch>

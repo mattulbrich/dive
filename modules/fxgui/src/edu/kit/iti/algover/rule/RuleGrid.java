@@ -10,6 +10,7 @@ import edu.kit.iti.algover.rules.ProofRuleApplication;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.geometry.Insets;
 import javafx.scene.Node;
 import javafx.scene.control.SelectionModel;
 import javafx.scene.control.SingleSelectionModel;
@@ -47,6 +48,7 @@ public class RuleGrid extends JFXMasonryPane {
         setCellHeight(RULE_CELL_HEIGHT);
         setVSpacing(SPACING);
         setHSpacing(SPACING);
+       // this.setPadding(new Insets(10,10,10,10));
         //SaG: Do not remove, causes null values in super-object  if not called.
         layoutChildren();
     }
