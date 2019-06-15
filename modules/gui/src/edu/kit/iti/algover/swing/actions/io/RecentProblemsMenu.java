@@ -4,7 +4,7 @@
  * Copyright (C) 2015-2018 Karlsruhe Institute of Technology
  *
  */
-package edu.kit.iti.algover.swing.actions;
+package edu.kit.iti.algover.swing.actions.io;
 
 import java.awt.event.ActionEvent;
 import java.beans.PropertyChangeEvent;
@@ -22,6 +22,7 @@ import javax.swing.event.MenuEvent;
 import javax.swing.event.MenuListener;
 
 import edu.kit.iti.algover.swing.Main;
+import edu.kit.iti.algover.swing.actions.BarAction;
 import edu.kit.iti.algover.swing.util.ExceptionDialog;
 import edu.kit.iti.algover.swing.util.Log;
 import nonnull.Nullable;

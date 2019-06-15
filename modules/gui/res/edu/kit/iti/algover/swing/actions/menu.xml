@@ -128,14 +128,14 @@
 			<text>Open ...</text>
 			<icon>io/page_white_text.png</icon>
 		</open>
-		<reload>TODO io/ReloadProblemAction
-			<tooltip>reload the last problem file into a new window</tooltip>
+		<reload>ACTION io/MostRecentProblemAction
+			<tooltip>reload the most recent project file into a new window</tooltip>
 			<mnemonic>R</mnemonic>
 			<accelerator>control R</accelerator>
 			<text>Reload problem</text>
 			<icon>io/page_white_green_text.png</icon>
 		</reload>
-		<recentProb>COMPONENT RecentProblemsMenu</recentProb>
+		<recentProb>COMPONENT edu.kit.iti.algover.swing.actions.io.RecentProblemsMenu</recentProb>
 		<loadProof>TODO io/LoadProofAction
 			<tooltip>load a proof to the currently active problem</tooltip>
 			<text>Load proof ...</text>

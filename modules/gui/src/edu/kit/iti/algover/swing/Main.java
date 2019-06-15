@@ -31,7 +31,7 @@ import javax.swing.JOptionPane;
 import javax.swing.SwingUtilities;
 
 import edu.kit.iti.algover.parser.DafnyParserException;
-import edu.kit.iti.algover.swing.actions.RecentProblemsMenu;
+import edu.kit.iti.algover.swing.actions.io.RecentProblemsMenu;
 import edu.kit.iti.algover.swing.util.InputHistory;
 import edu.kit.iti.algover.swing.util.Log;
 import edu.kit.iti.algover.swing.util.Settings;
