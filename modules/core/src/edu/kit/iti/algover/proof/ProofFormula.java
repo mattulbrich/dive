@@ -1,11 +1,10 @@
-/*
- * This file is part of AlgoVer.
+/**
+ * This file is part of DIVE.
  *
- * Copyright (C) 2015-2017 Karlsruhe Institute of Technology
+ * Copyright (C) 2015-2019 Karlsruhe Institute of Technology
  */
 package edu.kit.iti.algover.proof;
 
-import com.google.common.base.Objects;
 import edu.kit.iti.algover.term.Sort;
 import edu.kit.iti.algover.term.Term;
 import edu.kit.iti.algover.term.builder.AlphaNormalisation;
@@ -15,6 +14,7 @@ import nonnull.NonNull;
 
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Objects;
 
 /**
  * This class represents a single formula in the sequent
@@ -76,13 +76,13 @@ public class ProofFormula {
         if (labels.isEmpty()) {
             return formula.toString();
         } else {
-            return "[" + labels + "]: " + formula.toString();
+            return labels + ": " + formula.toString();
         }
     }
 
     @Override
     public int hashCode() {
-        return Objects.hashCode(labels, formula);
+        return Objects.hash(labels, formula);
     }
 
     @Override

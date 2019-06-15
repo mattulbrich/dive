@@ -1,7 +1,7 @@
-/*
- * This file is part of AlgoVer.
+/**
+ * This file is part of DIVE.
  *
- * Copyright (C) 2015-2016 Karlsruhe Institute of Technology
+ * Copyright (C) 2015-2019 Karlsruhe Institute of Technology
  */
 package edu.kit.iti.algover.data;
 
@@ -15,6 +15,9 @@ import java.util.Map;
 import edu.kit.iti.algover.term.FunctionSymbol;
 import edu.kit.iti.algover.term.FunctionSymbolFamily;
 import edu.kit.iti.algover.term.Sort;
+import nonnull.DeepNonNull;
+import nonnull.NonNull;
+import nonnull.Nullable;
 
 /**
  * This symbol table is based upon a lookup table for symbols by their names.
@@ -85,7 +88,7 @@ public class MapSymbolTable implements SymbolTable {
      * parent symbol table.
      */
     @Override
-    public FunctionSymbol getFunctionSymbol(String name, List<Sort> argumentSorts) {
+    public @Nullable FunctionSymbol getFunctionSymbol(@NonNull String name, @DeepNonNull List<Sort> argumentSorts) {
         String lookup = name + FunctionSymbolFamily.toString(argumentSorts);
         FunctionSymbol result = functionMap.get(lookup);
 

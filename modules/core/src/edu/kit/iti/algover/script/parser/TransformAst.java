@@ -1,3 +1,8 @@
+/**
+ * This file is part of DIVE.
+ *
+ * Copyright (C) 2015-2019 Karlsruhe Institute of Technology
+ */
 package edu.kit.iti.algover.script.parser;
 
 /*-
@@ -94,7 +99,7 @@ public class TransformAst implements ScriptLanguageVisitor<Object> {
     /**
      * @param ctx the parse tree
      * @return
-     * @deprecated not needed, handled in {@link #visitArgList(ScriptLanguageParser.ArgListContext)}
+     * Will be deprecated not needed, handled in {@link #visitArgList(ScriptLanguageParser.ArgListContext)}
      */
     @Override
     public Object visitVarDecl(ScriptLanguageParser.VarDeclContext ctx) {

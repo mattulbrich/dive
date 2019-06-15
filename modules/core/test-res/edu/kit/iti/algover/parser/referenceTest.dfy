@@ -28,6 +28,8 @@ function f_global(p_param: int) : int
 class C {
 
    var fl_var : int;
+   var l_conflict : int;
+   var p_conflict : int;
 
    function f_class(p_param: int) : int {
       p_param * fl_var
@@ -77,6 +79,19 @@ class C {
      ensures ret_r == p_param[0] + 1
    {
      ret_r := p_param[0] + 1;
+   }
+
+   method conflictVarField()
+   {
+     var l_conflict : int;
+     // This is allowed!
+     l_conflict := 2;
+   }
+
+   method conflictParamField(p_conflict: int)
+   {
+     // This is allowed!
+     p_conflict := 2;
    }
 
 }

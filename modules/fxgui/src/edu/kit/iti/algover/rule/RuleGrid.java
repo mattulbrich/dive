@@ -1,17 +1,22 @@
+/**
+ * This file is part of DIVE.
+ *
+ * Copyright (C) 2015-2019 Karlsruhe Institute of Technology
+ */
 package edu.kit.iti.algover.rule;
 
 import com.jfoenix.controls.JFXMasonryPane;
-import edu.kit.iti.algover.rules.ProofRule;
 import edu.kit.iti.algover.rules.ProofRuleApplication;
+import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.scene.Node;
 import javafx.scene.control.SelectionModel;
 import javafx.scene.control.SingleSelectionModel;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
@@ -40,6 +45,8 @@ public class RuleGrid extends JFXMasonryPane {
         setCellHeight(RULE_CELL_HEIGHT);
         setVSpacing(SPACING);
         setHSpacing(SPACING);
+        //SaG: Do not remove, causes null values in super-object  if not called.
+        layoutChildren();
     }
 
     public void addRule(RuleView rule) {
@@ -79,6 +86,7 @@ public class RuleGrid extends JFXMasonryPane {
     }
 
     public void filterRules(Predicate<RuleView> filterFunction) {
+
         rules.clear();
         rules.addAll(allRules.stream().filter(
                 ruleView -> filterFunction.test(ruleView)
@@ -99,9 +107,20 @@ public class RuleGrid extends JFXMasonryPane {
         rules.stream().forEach(ruleView -> ruleView.requestLayout());
         rules.stream().forEach(ruleView -> ruleView.autosize());
 
-        this.getChildren().clear();
-        this.getChildren().addAll(rules);
-        requestLayout();
+        Platform.runLater(() -> {
+
+            ObservableList<Node> children = this.getChildren();
+            int size = children.size();
+            if(size > 0 ){
+                children.clear();
+            }
+
+            children.addAll(rules);
+            requestLayout();
+
+        });
+
+
     }
 
     public List<RuleView> getAllRules() {

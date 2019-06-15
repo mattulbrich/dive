@@ -1,7 +1,7 @@
-/*
- * This file is part of AlgoVer.
+/**
+ * This file is part of DIVE.
  *
- * Copyright (C) 2015-2017 Karlsruhe Institute of Technology
+ * Copyright (C) 2015-2019 Karlsruhe Institute of Technology
  */
 package edu.kit.iti.algover.script;
 
@@ -42,7 +42,7 @@ import java.util.List;
 @SuppressWarnings({"unchecked", "rawtypes"})
 public class ScriptParserTest {
 
-    static final String testDir = ("modules/core/test-res/edu/kit/iti/algover/script/scripts").replace('/', File.separatorChar);
+    static final String testDir = ("test-res/edu/kit/iti/algover/script/scripts").replace('/', File.separatorChar);
     static final String filename = "x+Post.script";
     ASTNode parsedScript;
 

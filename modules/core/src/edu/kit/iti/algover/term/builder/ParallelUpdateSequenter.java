@@ -1,10 +1,11 @@
-/*
- * This file is part of AlgoVer.
+/**
+ * This file is part of DIVE.
  *
- * Copyright (C) 2015-2017 Karlsruhe Institute of Technology
+ * Copyright (C) 2015-2019 Karlsruhe Institute of Technology
  */
 package edu.kit.iti.algover.term.builder;
 
+import edu.kit.iti.algover.parser.DafnyTree;
 import edu.kit.iti.algover.proof.ProofFormula;
 import edu.kit.iti.algover.term.LetTerm;
 import edu.kit.iti.algover.term.Term;
@@ -12,11 +13,9 @@ import edu.kit.iti.algover.term.VariableTerm;
 import edu.kit.iti.algover.util.Pair;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.TreeMap;
 
 public class ParallelUpdateSequenter extends UpdateSequenter {
 
@@ -31,7 +30,7 @@ public class ParallelUpdateSequenter extends UpdateSequenter {
     }
 
     @Override
-    protected ProofFormula postProcess(ProofFormula formula) throws TermBuildException {
+    protected ProofFormula postProcess(ProofFormula formula, Map<Term, DafnyTree> referenceMap) throws TermBuildException {
         Map<VariableTerm, Term> substitution = new LinkedHashMap<>();
 
         Term term = formula.getTerm();
@@ -51,7 +50,7 @@ public class ParallelUpdateSequenter extends UpdateSequenter {
             resultTerm = new LetTerm(newAssignments, term);
         }
 
-        return new ProofFormula(resultTerm);
+        return new ProofFormula(resultTerm, formula.getLabels());
     }
 
     private void updateSubstitution(Map<VariableTerm, Term> substitution, List<Pair<VariableTerm, Term>> assignments) throws TermBuildException {

@@ -1,7 +1,7 @@
-/*
- * This file is part of AlgoVer.
+/**
+ * This file is part of DIVE.
  *
- * Copyright (C) 2015-2017 Karlsruhe Institute of Technology
+ * Copyright (C) 2015-2019 Karlsruhe Institute of Technology
  */
 package edu.kit.iti.algover.dafnystructures;
 
@@ -47,7 +47,7 @@ public class DafnyFile extends DafnyDecl {
         this.classes = toMap(b.getClasses());
         this.functions = toMap(b.getFunctions());
 
-        checkNameConflict(methods, functions);
+        checkNameConflict(b.getMethods(), b.getFunctions());
 
         setParentFor(methods.values());
         setParentFor(functions.values());

@@ -1,7 +1,7 @@
-/*
- * This file is part of AlgoVer.
+/**
+ * This file is part of DIVE.
  *
- * Copyright (C) 2015-2017 Karlsruhe Institute of Technology
+ * Copyright (C) 2015-2019 Karlsruhe Institute of Technology
  */
 package edu.kit.iti.algover.parser;
 
@@ -409,6 +409,18 @@ public class DafnyTree extends CommonTree {
      */
     public void removeAllChildren() {
         children = null;
+    }
+
+    /**
+     * Copy the start and stop token association from a different DafnyTree.
+     * It does not necessarily mean that these tokens occur within the tokens
+     * of this tree.
+     *
+     * @param tree the Dafny tree to copy from
+     */
+    public void copyTokensFrom(@NonNull DafnyTree tree) {
+        this.startToken = tree.getStartToken();
+        this.stopToken = tree.getStopToken();
     }
 
     /**

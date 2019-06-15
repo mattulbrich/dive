@@ -1,7 +1,7 @@
-/*
- * This file is part of AlgoVer.
+/**
+ * This file is part of DIVE.
  *
- * Copyright (C) 2015-2017 Karlsruhe Institute of Technology
+ * Copyright (C) 2015-2019 Karlsruhe Institute of Technology
  */
 package edu.kit.iti.algover.data;
 
@@ -65,7 +65,7 @@ public interface SymbolTable {
      * the name exists.
      */
     default @Nullable FunctionSymbol getFunctionSymbol(
-            @NonNull FunctionSymbolFamily family, Sort... argumentSorts) {
+            @NonNull FunctionSymbolFamily family, @DeepNonNull Sort... argumentSorts) {
         return getFunctionSymbol(family.getBaseName(), Arrays.asList(argumentSorts));
     }
 

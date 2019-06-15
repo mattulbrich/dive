@@ -1,7 +1,7 @@
-/*
- * This file is part of AlgoVer.
+/**
+ * This file is part of DIVE.
  *
- * Copyright (C) 2015-2017 Karlsruhe Institute of Technology
+ * Copyright (C) 2015-2019 Karlsruhe Institute of Technology
  */
 package edu.kit.iti.algover.term.prettyprint;
 
@@ -10,6 +10,7 @@ import edu.kit.iti.algover.term.ApplTerm;
 import edu.kit.iti.algover.term.FunctionSymbol;
 import edu.kit.iti.algover.term.FunctionSymbolFamily;
 import edu.kit.iti.algover.term.FunctionSymbolFamily.InstantiatedFunctionSymbol;
+import edu.kit.iti.algover.term.prettyprint.AnnotatedString.Style;
 
 public class IfThenElsePrinterExtension implements PrettyPrintExtension {
 
@@ -37,7 +38,9 @@ public class IfThenElsePrinterExtension implements PrettyPrintExtension {
     public void print(ApplTerm application, PrettyPrintVisitor visitor) {
         PrettyPrintLayouter printer = visitor.getPrinter();
         printer.beginBlock(0);
+        printer.setStyle(Style.KEYWORD);
         printer.append("if ");
+        printer.resetPreviousStyle();
 
         printer.beginTerm(0);
         visitor.setLeftPrecedence(0);
@@ -45,7 +48,9 @@ public class IfThenElsePrinterExtension implements PrettyPrintExtension {
         printer.endTerm();
 
         printer.breakBlock(1, 0);
+        printer.setStyle(Style.KEYWORD);
         printer.append("then ");
+        printer.resetPreviousStyle();
 
         printer.beginTerm(1);
         visitor.setLeftPrecedence(0);
@@ -53,7 +58,9 @@ public class IfThenElsePrinterExtension implements PrettyPrintExtension {
         printer.endTerm();
 
         printer.breakBlock(1, 0);
+        printer.setStyle(Style.KEYWORD);
         printer.append("else ");
+        printer.resetPreviousStyle();
 
         printer.beginTerm(2);
         visitor.setLeftPrecedence(0);

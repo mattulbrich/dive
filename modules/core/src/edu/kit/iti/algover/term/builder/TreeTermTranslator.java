@@ -1,7 +1,7 @@
-/*
- * This file is part of AlgoVer.
+/**
+ * This file is part of DIVE.
  *
- * Copyright (C) 2015-2018 Karlsruhe Institute of Technology
+ * Copyright (C) 2015-2019 Karlsruhe Institute of Technology
  */
 package edu.kit.iti.algover.term.builder;
 
@@ -860,7 +860,7 @@ public class TreeTermTranslator {
 
         List<Term> arguments = new ArrayList<>();
 
-        Sort sort = null;
+        Sort sort = Sort.BOTTOM;
         for (DafnyTree child : tree.getChildren()) {
             Term term = build(child);
             arguments.add(term);
@@ -869,6 +869,7 @@ public class TreeTermTranslator {
                 sort = termSort;
             } else {
                 sort = Sort.supremum(sort, termSort);
+                assert sort != null : "No supremum for " + sort + " and " + termSort;
             }
         }
 

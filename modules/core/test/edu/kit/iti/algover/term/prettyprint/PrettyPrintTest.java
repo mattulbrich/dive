@@ -1,8 +1,7 @@
-/*
- * This file is part of AlgoVer.
+/**
+ * This file is part of DIVE.
  *
- * Copyright (C) 2015-2018 Karlsruhe Institute of Technology
- *
+ * Copyright (C) 2015-2019 Karlsruhe Institute of Technology
  */
 package edu.kit.iti.algover.term.prettyprint;
 
@@ -53,6 +52,10 @@ public class PrettyPrintTest {
             { "1 * 2 + 3" },
             { "(1 + 2) * 3" },
             { "1 * (2 + 3)" },
+            { "100 / (2 + 3)" },
+            { "100 / 2 + 3" },
+            { "100 / 2 * 3" },
+            { "100 * 2 / 3" },
             { "1 < 2" },
             { "1 <= 2" },
             { "1 > 0" },
@@ -70,11 +73,12 @@ public class PrettyPrintTest {
             { "true && false" },
             { "b1 ==> b1 && b1" },
             { "b1 && b1 ==> b1" },
-                {"b1 ==> b1 ==> b1"},
+            { "b1 ==> b1 ==> b1" },
             { "(b1 ==> b1) && b1" },
             { "b1 && (b1 || b1)" },
             { "! !b1" },
             { "!(b1 && b1)" },
+            { "1 != 2" },
         };
     }
 
@@ -172,6 +176,16 @@ public class PrettyPrintTest {
         AnnotatedString printed = new PrettyPrint().print(parsed);
 
         assertEquals(input, printed.toString());
+    }
+
+    @Test
+    public void testSubscript() throws DafnyParserException, DafnyException {
+
+        st.addFunctionSymbol(new FunctionSymbol("idx_91", Sort.INT));
+        Term parsed = TermParser.parse(st, "idx_91");
+        AnnotatedString printed = new PrettyPrint().print(parsed);
+
+        assertEquals("idx\u2089\u2081", printed.toString());
     }
 
     @Test @Parameters

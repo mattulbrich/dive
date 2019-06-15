@@ -1,9 +1,8 @@
-/*
- * This file is part of AlgoVer.
+/**
+ * This file is part of DIVE.
  *
- * Copyright (C) 2015-2017 Karlsruhe Institute of Technology
+ * Copyright (C) 2015-2019 Karlsruhe Institute of Technology
  */
-
 package edu.kit.iti.algover.data;
 
 import java.lang.reflect.Field;
@@ -18,6 +17,9 @@ import edu.kit.iti.algover.term.FunctionSymbol;
 import edu.kit.iti.algover.term.FunctionSymbolFamily;
 import edu.kit.iti.algover.term.Sort;
 import edu.kit.iti.algover.util.Util;
+import nonnull.DeepNonNull;
+import nonnull.NonNull;
+import nonnull.Nullable;
 
 /**
  * This class collects the builtin function symbols of the logic.
@@ -276,7 +278,7 @@ public class BuiltinSymbols extends MapSymbolTable {
      *
      */
     @Override
-    protected FunctionSymbol resolve(String name, List<Sort> argSorts) {
+    protected @Nullable FunctionSymbol resolve(@NonNull String name, @DeepNonNull List<Sort> argSorts) {
 
         if (argSorts.isEmpty()) {
             int index = name.indexOf("<");

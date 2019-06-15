@@ -1,7 +1,12 @@
+/**
+ * This file is part of DIVE.
+ *
+ * Copyright (C) 2015-2019 Karlsruhe Institute of Technology
+ */
 package edu.kit.iti.algover.editor;
 
-import de.jensd.fx.glyphs.GlyphsDude;
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon;
+import de.jensd.fx.glyphs.fontawesome.utils.FontAwesomeIconFactory;
 import edu.kit.iti.algover.AlgoVerApplication;
 import edu.kit.iti.algover.MainController;
 import edu.kit.iti.algover.parser.DafnyLexer;
@@ -104,8 +109,8 @@ public class DafnyCodeArea extends AsyncHighlightingCodeArea {
     }
 
     private void initContextMenu() {
-        MenuItem save = new MenuItem("Save dafny file", GlyphsDude.createIcon(FontAwesomeIcon.SAVE));
-        MenuItem saveAll = new MenuItem("Save all dafny files", GlyphsDude.createIcon(FontAwesomeIcon.SAVE));
+        MenuItem save = new MenuItem("Save dafny file", FontAwesomeIconFactory.get().createIcon(FontAwesomeIcon.SAVE));
+        MenuItem saveAll = new MenuItem("Save all dafny files", FontAwesomeIconFactory.get().createIcon(FontAwesomeIcon.SAVE));
 
         save.setOnAction(event -> listener.saveSelectedFile());
         saveAll.setOnAction(event -> listener.saveAllFiles());

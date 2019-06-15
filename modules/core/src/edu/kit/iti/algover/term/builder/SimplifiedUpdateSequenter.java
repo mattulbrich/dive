@@ -1,15 +1,21 @@
+/**
+ * This file is part of DIVE.
+ *
+ * Copyright (C) 2015-2019 Karlsruhe Institute of Technology
+ */
 package edu.kit.iti.algover.term.builder;
 
+import edu.kit.iti.algover.parser.DafnyTree;
 import edu.kit.iti.algover.proof.ProofFormula;
 import edu.kit.iti.algover.term.DefaultTermVisitor;
 import edu.kit.iti.algover.term.LetTerm;
-import edu.kit.iti.algover.term.SchemaVarTerm;
 import edu.kit.iti.algover.term.Term;
 import edu.kit.iti.algover.term.VariableTerm;
 import edu.kit.iti.algover.util.Pair;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 /**
  * This sequenter is a specialisation of an update sequenter.
@@ -45,10 +51,10 @@ public class SimplifiedUpdateSequenter extends UpdateSequenter {
     }
 
     @Override
-    protected ProofFormula postProcess(ProofFormula formula) throws TermBuildException {
+    protected ProofFormula postProcess(ProofFormula formula, Map<Term, DafnyTree> referenceMap) throws TermBuildException {
 
         Term simplified = formula.getTerm().accept(new LetRemover(), null);
-        return new ProofFormula(simplified);
+        return new ProofFormula(simplified, formula.getLabels());
     }
 
     private static class LetRemover extends DefaultTermVisitor<Void, Term, TermBuildException> {

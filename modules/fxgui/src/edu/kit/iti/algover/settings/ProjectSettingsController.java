@@ -1,8 +1,12 @@
+/**
+ * This file is part of DIVE.
+ *
+ * Copyright (C) 2015-2019 Karlsruhe Institute of Technology
+ */
 package edu.kit.iti.algover.settings;
 
 import com.jfoenix.controls.JFXListView;
 import com.jfoenix.controls.JFXRadioButton;
-import com.sun.javafx.collections.ObservableListWrapper;
 import edu.kit.iti.algover.parser.DafnyException;
 import edu.kit.iti.algover.parser.DafnyParserException;
 import edu.kit.iti.algover.project.*;
@@ -12,6 +16,7 @@ import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
+import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -131,11 +136,15 @@ public class ProjectSettingsController implements ISettingsController {
 
         FXMLLoader loader = new FXMLLoader(getClass().getResource("ProjectSettingsView.fxml"));
         loader.setController(this);
+
         try {
             settingsPanel = loader.load();
         } catch (IOException e) {
+            e.printStackTrace();
             settingsPanel = new Label(e.getMessage());
         }
+        assert settingsPanel != null;
+        assert dafnyFiles != null;
         settingsPanel.setUserData(NAME);
 
         //ToggleGroup
@@ -160,11 +169,11 @@ public class ProjectSettingsController implements ISettingsController {
         this.masterFileName.editableProperty().bind(savingFormatAsXML.not());
         this.configFileName.editableProperty().bind(savingFormatAsXML);
 
-        Platform.runLater(() -> {
+     /*   Platform.runLater(() -> {
             validationSupport.registerValidator(masterFileName, this::dafnyFileExistsValidator);
     //        validationSupport.errorDecorationEnabledProperty().bind(enableValidationProperty().and(savingFormatAsXML.not()));
             validationSupport.registerValidator(configFileName, this::xmlFileExistsValidator);
-        });
+        });*/
 
         addProjectContents();
         addCellFactories();
@@ -288,8 +297,7 @@ public class ProjectSettingsController implements ISettingsController {
             if(property.validator instanceof OptionStringValidator) {
                 OptionStringValidator validator = (OptionStringValidator) property.validator;
                 Collection<? extends CharSequence> options = validator.getOptions();
-                ObservableList<String> olist =
-                        new ObservableListWrapper<>(Util.map(options, Object::toString));
+                ObservableList<String> olist = FXCollections.observableList(Util.map(options, x -> x.toString()));
                 String value = currentSettings.get(property.key);
                 ChoiceBox<String> choiceBox = new ChoiceBox<>(olist);
                 if(value != null) {
@@ -385,21 +393,32 @@ public class ProjectSettingsController implements ISettingsController {
                         manager.set(new DafnyProjectManager(getConfig().getMasterFile()));
                     }
                 }
-                manager.get().reload();
-                manager.get().getConfiguration();
+                manager.get().reload(); //maybe removed?
+                manager.get().getConfiguration();  //maybe removed?
 
             } catch (JAXBException e) {
-                Logger.getGlobal().warning("Could not save configuration file");
+                String msg = "Could not save configuration file";
+                Logger.getGlobal().warning(msg);
                 e.printStackTrace();
+                ExceptionDialog ed = new ExceptionDialog(e);
+                ed.setHeaderText(msg);
+                ed.showAndWait();
             } catch (IOException e) {
-                Logger.getGlobal().warning("Could not save project settings to file");
+                String msg = "Could not save project settings to file";
+                Logger.getGlobal().warning(msg);
                 e.printStackTrace();
-            } catch (FormatException e) {
+                ExceptionDialog ed = new ExceptionDialog(e);
+                ed.setHeaderText(msg);
+                ed.showAndWait();
+
+            } catch (FormatException | DafnyParserException | DafnyException e){
                 e.printStackTrace();
-            } catch (DafnyParserException e) {
-                e.printStackTrace();
-            } catch (DafnyException e) {
-                e.printStackTrace();
+                String msg = "Could not save project settings to file due to Format or parser error";
+                Logger.getGlobal().warning(msg);
+                ExceptionDialog ed = new ExceptionDialog(e);
+                ed.setHeaderText(msg);
+                ed.showAndWait();
+
             }
         }
 

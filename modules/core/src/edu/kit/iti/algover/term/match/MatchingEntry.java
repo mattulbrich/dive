@@ -1,12 +1,13 @@
-/*
- * This file is part of AlgoVer.
+/**
+ * This file is part of DIVE.
  *
- * Copyright (C) 2015-2018 Karlsruhe Institute of Technology
+ * Copyright (C) 2015-2019 Karlsruhe Institute of Technology
  */
 package edu.kit.iti.algover.term.match;
 
 import edu.kit.iti.algover.rules.SubtermSelector;
 import edu.kit.iti.algover.rules.TermSelector;
+import edu.kit.iti.algover.rules.TermSelector.SequentPolarity;
 import edu.kit.iti.algover.term.Term;
 import nonnull.Nullable;
 
@@ -26,8 +27,9 @@ public class MatchingEntry {
     private final Term value;
     private final SubtermSelector selector;
     private int termNo;
-    private @Nullable
-    TermSelector.SequentPolarity polarity;
+
+    @Nullable
+    private SequentPolarity polarity;
 
 
     public MatchingEntry(String key, Term value, SubtermSelector selector) {

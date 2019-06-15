@@ -1,7 +1,12 @@
+/**
+ * This file is part of DIVE.
+ *
+ * Copyright (C) 2015-2019 Karlsruhe Institute of Technology
+ */
 package edu.kit.iti.algover.rule.script;
 
-import de.jensd.fx.glyphs.GlyphsDude;
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon;
+import de.jensd.fx.glyphs.fontawesome.utils.FontAwesomeIconFactory;
 import edu.kit.iti.algover.AlgoVerApplication;
 import edu.kit.iti.algover.editor.HighlightingRule;
 import edu.kit.iti.algover.parser.DafnyLexer;
@@ -58,8 +63,8 @@ public class ScriptView extends AsyncHighlightingCodeArea {
 
         getStylesheets().add(AlgoVerApplication.class.getResource("syntax-highlighting.css").toExternalForm());
 
-        MenuItem save = new MenuItem("Save Proof Script", GlyphsDude.createIcon(FontAwesomeIcon.SAVE));
-        MenuItem run = new MenuItem("Run Proof Script", GlyphsDude.createIcon(FontAwesomeIcon.ARROW_RIGHT));
+        MenuItem save = new MenuItem("Save Proof Script", FontAwesomeIconFactory.get().createIcon(FontAwesomeIcon.SAVE));
+        MenuItem run = new MenuItem("Run Proof Script", FontAwesomeIconFactory.get().createIcon(FontAwesomeIcon.ARROW_RIGHT));
 
         save.setOnAction(event -> this.listener.onScriptSave());
         run.setOnAction(event -> this.listener.runScript());

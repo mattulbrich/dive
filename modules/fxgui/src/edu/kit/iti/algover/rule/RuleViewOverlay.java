@@ -1,7 +1,13 @@
+/**
+ * This file is part of DIVE.
+ *
+ * Copyright (C) 2015-2019 Karlsruhe Institute of Technology
+ */
 package edu.kit.iti.algover.rule;
 
 import com.jfoenix.controls.JFXButton;
-import de.jensd.fx.glyphs.GlyphsDude;
+import de.jensd.fx.glyphs.fontawesome.utils.FontAwesomeIconFactory;
+import de.jensd.fx.glyphs.materialdesignicons.MaterialDesignIcon;
 import de.jensd.fx.glyphs.materialicons.MaterialIcon;
 import edu.kit.iti.algover.rules.*;
 import edu.kit.iti.algover.rules.impl.ExhaustiveRule;
@@ -40,7 +46,7 @@ public class RuleViewOverlay extends AnchorPane {
 
         int count = application.getBranchCount();
 
-        branchCount = new Label(count + "", GlyphsDude.createIcon(MaterialIcon.CALL_SPLIT, "20px"));
+        branchCount = new Label(count + "", FontAwesomeIconFactory.get().createIcon(MaterialDesignIcon.CALL_SPLIT, "20px"));
         branchCount.getStyleClass().add("branch-count");
         setPseudoClassStateFromBranches(count);
 

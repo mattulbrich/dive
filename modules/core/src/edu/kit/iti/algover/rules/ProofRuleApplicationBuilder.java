@@ -1,7 +1,7 @@
-/*
- * This file is part of AlgoVer.
+/**
+ * This file is part of DIVE.
  *
- * Copyright (C) 2015-2017 Karlsruhe Institute of Technology
+ * Copyright (C) 2015-2019 Karlsruhe Institute of Technology
  */
 package edu.kit.iti.algover.rules;
 
@@ -97,7 +97,7 @@ public class ProofRuleApplicationBuilder {
     public ProofRuleApplication build() {
         return new ProofRuleApplication(
                 rule,
-                ImmutableList.from(Util.map(branches, BranchInfoBuilder::build)),
+                ImmutableList.from(Util.map(branches, x -> x.build())),
                 applicability,
                 parameters,
                 openParameters,

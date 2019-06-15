@@ -1,7 +1,7 @@
-/*
- * This file is part of AlgoVer.
+/**
+ * This file is part of DIVE.
  *
- * Copyright (C) 2015-2016 Karlsruhe Institute of Technology
+ * Copyright (C) 2015-2019 Karlsruhe Institute of Technology
  */
 package edu.kit.iti.algover.term;
 
@@ -9,6 +9,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import edu.kit.iti.algover.util.Util;
+import nonnull.NonNull;
 
 public class FunctionSymbol {
 
@@ -48,7 +49,7 @@ public class FunctionSymbol {
     }
 
     @Override
-    public boolean equals(Object o) {
+    public boolean equals(@NonNull Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
 

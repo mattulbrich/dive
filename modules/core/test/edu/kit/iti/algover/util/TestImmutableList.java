@@ -1,7 +1,7 @@
-/*
- * This file is part of AlgoVer.
+/**
+ * This file is part of DIVE.
  *
- * Copyright (C) 2015-2016 Karlsruhe Institute of Technology
+ * Copyright (C) 2015-2019 Karlsruhe Institute of Technology
  */
 package edu.kit.iti.algover.util;
 
@@ -11,6 +11,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
+import java.util.NoSuchElementException;
 
 import org.junit.Test;
 
@@ -196,5 +197,12 @@ public class TestImmutableList {
         ImmutableList<Integer> s3 = ImmutableList.from(Collections.nCopies(100, 42));
         ImmutableList<Integer> s3_ex = ImmutableList.single(42);
         assertEquals(s3_ex, s3.withoutDuplicates());
+    }
+
+    @Test(expected = NoSuchElementException.class)
+    public void voidTestIteratorEmpty() {
+        Iterator<String> it = ImmutableList.<String>nil().iterator();
+        assertFalse(it.hasNext());
+        it.next();
     }
 }

@@ -1,9 +1,14 @@
+/**
+ * This file is part of DIVE.
+ *
+ * Copyright (C) 2015-2019 Karlsruhe Institute of Technology
+ */
 package edu.kit.iti.algover;
 
 import com.google.common.base.Charsets;
 import com.google.common.io.CharStreams;
-import de.jensd.fx.glyphs.GlyphsDude;
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon;
+import de.jensd.fx.glyphs.fontawesome.utils.FontAwesomeIconFactory;
 import edu.kit.iti.algover.parser.DafnyParserException;
 import edu.kit.iti.algover.project.Configuration;
 import edu.kit.iti.algover.project.DafnyProjectManager;
@@ -14,15 +19,19 @@ import edu.kit.iti.algover.settings.ProjectSettingsController;
 import edu.kit.iti.algover.settings.SettingsFactory;
 import edu.kit.iti.algover.settings.SettingsWrapper;
 import edu.kit.iti.algover.util.FormatException;
+import edu.kit.iti.algover.util.Util;
+import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
+import javafx.geometry.Bounds;
 import javafx.geometry.Insets;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.control.Button;
+import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TextArea;
 import javafx.scene.layout.BorderPane;
@@ -37,18 +46,20 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.net.URISyntaxException;
-import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Arrays;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
 import java.util.logging.Logger;
+import java.util.prefs.BackingStoreException;
+import java.util.prefs.Preferences;
 
 public class WelcomePane {
     @FXML
-    WebView webView;
+    private WebView webView;
 
     @FXML
     private Button openFileChooser;
@@ -60,6 +71,9 @@ public class WelcomePane {
     private Button openEmptyProject;
 
     @FXML
+    private Button openRecent;
+
+    @FXML
     private Button loadExample;
 
     @FXML
@@ -69,20 +83,14 @@ public class WelcomePane {
 
     private Stage substage;
 
-
-
     public WelcomePane(Stage primaryStage, List<String> opendirectly){
         this.primaryStage = primaryStage;
 
-        if(!opendirectly.isEmpty()){
+        if(opendirectly != null && !opendirectly.isEmpty()){
             File absoluteFile = new File(opendirectly.get(0)).getAbsoluteFile();
             try {
                 createAndExecuteMainController(absoluteFile, createProjectManager(absoluteFile));
-            } catch (FormatException e) {
-                e.printStackTrace();
-            } catch (IOException e) {
-                e.printStackTrace();
-            } catch (DafnyParserException e) {
+            } catch (Exception e) {
                 e.printStackTrace();
             }
         } else {
@@ -94,11 +102,7 @@ public class WelcomePane {
             } catch (IOException e) {
                 e.printStackTrace();
             }
-
-
         }
-
-
     }
 
     private void createWelcomeView() throws IOException {
@@ -110,25 +114,29 @@ public class WelcomePane {
         engine.setUserStyleSheetLocation(getClass().getResource("webView.css").toString());
         engine.loadContent(text);
 
-
         openFileChooser.setText("Open project");
         openFileChooser.setStyle("-fx-font-size: 20");
-        openFileChooser.setGraphic(GlyphsDude.createIcon(FontAwesomeIcon.FOLDER_OPEN));
+        openFileChooser.setGraphic(FontAwesomeIconFactory.get().createIcon(FontAwesomeIcon.FOLDER_OPEN));
         openFileChooser.setOnAction(this::handleFileChooserAction);
+
+        openRecent.setText("Open recent");
+        openRecent.setStyle("-fx-font-size: 20");
+        openRecent.setGraphic(FontAwesomeIconFactory.get().createIcon(FontAwesomeIcon.RECYCLE));
+        openRecent.setOnAction(this::handleOpenRecentAction);
 
         createProject.setText("New project");
         createProject.setStyle("-fx-font-size: 20");
-        createProject.setGraphic(GlyphsDude.createIcon(FontAwesomeIcon.FOLDER));
+        createProject.setGraphic(FontAwesomeIconFactory.get().createIcon(FontAwesomeIcon.FOLDER));
         createProject.setOnAction(this::createNewProjectHandler);
 
         openEmptyProject.setText("Empty project");
         openEmptyProject.setStyle("-fx-font-size: 20");
-        openEmptyProject.setGraphic(GlyphsDude.createIcon(FontAwesomeIcon.FILE_CODE_ALT));
+        openEmptyProject.setGraphic(FontAwesomeIconFactory.get().createIcon(FontAwesomeIcon.FILE_CODE_ALT));
         openEmptyProject.setOnAction(handleEmptyProjectCreation(primaryStage));
 
         loadExample.setText("Load Example");
         loadExample.setStyle("-fx-font-size: 20");
-        loadExample.setGraphic(GlyphsDude.createIcon(FontAwesomeIcon.BULLSEYE));
+        loadExample.setGraphic(FontAwesomeIconFactory.get().createIcon(FontAwesomeIcon.BULLSEYE));
         loadExample.setOnAction(this::loadExample);
 
     }
@@ -137,12 +145,62 @@ public class WelcomePane {
         return rootPane;
     }
 
-    public void createNewProjectHandler(ActionEvent event){
+    private void createNewProjectHandler(ActionEvent event){
         createAndShowConfigPane(primaryStage);
-
     }
 
-    public void loadExample(ActionEvent event){
+    private List<String> getRecentFiles() {
+        Preferences prefs = Preferences.userNodeForPackage(WelcomePane.class);
+        String[] recent = prefs.get("recentFiles", "").split("\n");
+        return Arrays.asList(recent);
+    }
+
+    private void addRecentFile(String file) {
+        LinkedList<String> recent = new LinkedList<>(getRecentFiles());
+        if (recent.contains(file)) {
+            recent.remove(file);
+        }
+        while(recent.size() >= 8) {
+            recent.removeLast();
+        }
+        recent.addFirst(file);
+
+        Preferences prefs = Preferences.userNodeForPackage(WelcomePane.class);
+        String val = Util.join(recent, "\n");
+        prefs.put("recentFiles", val);
+        try {
+            prefs.flush();
+        } catch (BackingStoreException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void handleOpenRecentAction(ActionEvent event) {
+        // Create ContextMenu
+        ContextMenu contextMenu = new ContextMenu();
+
+        List<String> recentFiles = getRecentFiles();
+        for (String recentFile : recentFiles) {
+            File file = new File(recentFile);
+            CustomMenuItem item = new CustomMenuItem(new Label(file.getName()));
+            Tooltip.install(item.getContent(), new Tooltip(recentFile));
+            item.setOnAction(ev -> {
+                try {
+                    ProjectManager pm = createProjectManager(file);
+                    createAndExecuteMainController(file, pm);
+                } catch (Exception e) {
+                    // This will probably crash the app
+                    e.printStackTrace();
+                }
+            });
+            contextMenu.getItems().add(item);
+        }
+
+        Bounds b = openRecent.localToScreen(openRecent.getBoundsInLocal());
+        contextMenu.show(openRecent, b.getMinX(), b.getMaxY());
+    }
+
+    private void loadExample(ActionEvent event){
         File exampleFile = new File("ListExample" + File.separator + "AlgoVerList.dfy");
         if(!exampleFile.exists()) {
             try {
@@ -165,11 +223,8 @@ public class WelcomePane {
         try {
             ProjectManager pm = createProjectManager(exampleFile);
             createAndExecuteMainController(exampleFile, pm);
-        } catch (FormatException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (DafnyParserException e) {
+        } catch (Exception e) {
+            // This will probably crash the app
             e.printStackTrace();
         }
 
@@ -195,8 +250,7 @@ public class WelcomePane {
                 primaryStage.show();
             }
 
-
-
+            // REVIEW: This exception treatment does not seem right.
         } catch (FormatException e) {
             e.printStackTrace();
         } catch (IOException e) {
@@ -212,8 +266,8 @@ public class WelcomePane {
     private EventHandler<ActionEvent> handleEmptyProjectCreation(Stage primaryStage) {
         return event -> {
             DirectoryChooser dirChooser = new DirectoryChooser();
-
-            dirChooser.setInitialDirectory(new File("doc/examples/"));
+            //TODO: find a central place for such paths
+            dirChooser.setInitialDirectory(new File("../../doc/examples/"));
             dirChooser.setTitle("Select directory");
             //first select a directory
             File file = dirChooser.showDialog(primaryStage);
@@ -221,8 +275,13 @@ public class WelcomePane {
 
             if(file != null){
                 //then a filename
+                //workaround for KDE systems and GTK based Desktops
                 TextInputDialog dialog = new TextInputDialog("program.dfy");
                 dialog.setContentText("Please enter the name for the empty Dafny file");
+                dialog.setResizable(true);
+                dialog.onShownProperty().addListener(e -> {
+                    Platform.runLater(() -> dialog.setResizable(false));
+                });
 
                 createAndShowEmptyFileDialog(file, dialog);
 
@@ -238,6 +297,12 @@ public class WelcomePane {
 
         dialog.setTitle("Dafny file name");
         dialog.setHeaderText("Dafny file name");
+        //workaround for KDE systems and GTK based Desktops
+        dialog.setResizable(true);
+        dialog.onShownProperty().addListener(e -> {
+            Platform.runLater(() -> dialog.setResizable(false));
+        });
+
         Optional<String> filename = dialog.showAndWait();
 
         if (filename.isPresent()){
@@ -336,7 +401,7 @@ public class WelcomePane {
             FileChooser chooser = new FileChooser();
 
             chooser.setTitle("Choose project folder");
-            chooser.setInitialDirectory(new File("doc/examples/"));
+            chooser.setInitialDirectory(new File("../../doc/examples/"));
             projectFile = chooser.showOpenDialog(primaryStage);
             ProjectManager manager;
             if (projectFile == null) {
@@ -350,16 +415,16 @@ public class WelcomePane {
 
     }
 
-
     private void createAndExecuteMainController(File projectFile, ProjectManager manager) {
         MainController controller = new MainController(manager, AlgoVerApplication.SYNTAX_HIGHLIGHTING_EXECUTOR);
+
+        addRecentFile(projectFile.getAbsolutePath());
 
         primaryStage.close();
         Scene scene = new Scene(controller.getView());
         scene.getStylesheets().add(AlgoVerApplication.class.getResource("style.css").toExternalForm());
         substage = new Stage();
         substage.setScene(scene);
-
 
         Dimension screenSize = java.awt.Toolkit.getDefaultToolkit().getScreenSize();
 

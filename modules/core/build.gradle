@@ -1,0 +1,102 @@
+plugins {
+    id 'org.openjfx.javafxplugin' version '0.0.7'
+}
+
+javafx {
+    version = "12"
+    modules = ["javafx.base"]
+}
+
+apply from: 'makeDafnyTreeVisitor.gradle'
+
+configurations {
+    antlr3
+    antlr4
+}
+
+sourceSets {
+    main {
+        java {
+            srcDir 'gen'
+        }
+    }
+}
+
+dependencies {
+
+    compile group: 'javax.xml.bind', name: 'jaxb-api', version: '2.4.0-b180830.0359'
+    compile group: 'com.sun.xml.bind', name: 'jaxb-impl', version: '2.4.0-b180830.0438'
+    compile group: 'com.sun.xml.bind', name: 'jaxb-core', version: '2.3.0.1'
+
+    antlr3 group: 'org.antlr', name: 'antlr', version: '3.5.2'
+    compile group: 'org.antlr', name: 'antlr-runtime', version: '3.5.2'
+    compile group: 'org.antlr', name: 'stringtemplate', version: '3.2'
+
+    antlr4 "org.antlr:antlr4:4.7.1"
+    compile "org.antlr:antlr4-runtime:4.7.1"
+}
+
+//buildVisitor.outputs.dir ="$projectDir/gen/edu/kit/iti/algover/parser"
+//buildVisitor.inputs.files=file("$projectDir/gen/Dafny.tokens")
+
+task runAntlr3(type:JavaExec) {
+    println "Building Dafny Parser"
+
+    inputs.files "antlr/edu/kit/iti/algover/parser/Dafny.g"
+    classpath { configurations.antlr3.getAsPath()}
+    outputs.dir "$projectDir/gen/edu/kit/iti/algover/parser"
+
+    workingDir = "antlr"
+    main = "org.antlr.Tool"
+
+    args = [ "-verbose", "-o", "$projectDir/gen", "edu/kit/iti/algover/parser/Dafny.g"]
+}
+
+test {
+    // The following may be added to theses: "-Dde.matul.nonnull.debug=true",
+    jvmArgs = [  "-javaagent:../../lib/nonnull-all.jar=edu" ]
+    testLogging  {
+       exceptionFormat "full"
+       showStackTraces = true
+       // showStandardStreams = true
+   }
+}
+
+task runAntlr4(type:JavaExec) {
+    println "Building Script Parser"
+
+    inputs.files configurations.antlr4
+    inputs.file "src/edu/kit/iti/algover/script/ScriptLanguage.g4"
+    outputs.dir "$projectDir/gen"
+    classpath { configurations.antlr4.getAsPath()}
+
+    main = "org.antlr.v4.Tool"
+
+    args = ["-visitor", "-o", "gen", "src/edu/kit/iti/algover/script/ScriptLanguage.g4", "-package", "edu.kit.iti.algover.script" ]
+}
+
+
+clean.doFirst {
+    delete("$projectDir/gen/edu/kit/iti/algover/parser")
+    delete("$projectDir/gen/edu/kit/iti/algover/script")
+    delete("$projectDir/gen/")
+}
+
+buildVisitor.shouldRunAfter runAntlr3
+
+compileJava.dependsOn runAntlr3
+compileJava.dependsOn buildVisitor
+compileJava.dependsOn runAntlr4
+
+
+/*
+This would require a directors src/main/antlr/...
+generateGrammarSource {
+        source = file("$projectDir/edu/kit/iti/algover/script/ScriptLanguage.g4")
+        outputDirectory = file("gen")
+        arguments += ["-visitor",
+                      "-long-messages",
+                      "-o", "gen",
+                      "-package", "edu.kit.iti.algover.script"]
+
+}*/

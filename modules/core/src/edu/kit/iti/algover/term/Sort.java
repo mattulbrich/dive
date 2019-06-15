@@ -1,7 +1,7 @@
-/*
- * This file is part of AlgoVer.
+/**
+ * This file is part of DIVE.
  *
- * Copyright (C) 2015-2018 Karlsruhe Institute of Technology
+ * Copyright (C) 2015-2019 Karlsruhe Institute of Technology
  */
 package edu.kit.iti.algover.term;
 
@@ -16,7 +16,9 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import edu.kit.iti.algover.term.builder.TermBuildException;
 import edu.kit.iti.algover.util.Util;
+import nonnull.DeepNonNull;
 import nonnull.NonNull;
+import nonnull.Nullable;
 
 /**
  * The Class Sort models a sort-type in the logic.
@@ -42,6 +44,8 @@ import nonnull.NonNull;
  *
  * @author mulbrich
  */
+
+@NonNull
 public class Sort {
 
     // Checkstyle: OFF DeclarationOrderCheck
@@ -147,7 +151,7 @@ public class Sort {
      * @param arguments
      *            the deep-non-<code>null</code> arguments
      */
-    private Sort(String name, Sort... arguments) {
+    private Sort(@NonNull String name, @DeepNonNull Sort... arguments) {
         this.name = Objects.requireNonNull(name);
         this.arguments = Util.requireDeepNonNull(arguments);
 
@@ -163,7 +167,7 @@ public class Sort {
      *            the name of the sort to look up.
      * @return the sort can be a fresh object or taken from a cache.
      */
-    public static Sort get(String name) {
+    public static Sort get(@NonNull String name) {
         // could use Cache object if needed
         return new Sort(name, NO_ARGUMENTS);
     }
@@ -178,7 +182,7 @@ public class Sort {
      *
      * @return the sort can be a fresh object or taken from a cache.
      */
-    public static Sort get(String name, Sort... arguments) {
+    public static @NonNull Sort get(@NonNull String name, @DeepNonNull Sort... arguments) {
         // could use Cache object if needed
         return new Sort(name, arguments);
     }
@@ -193,7 +197,7 @@ public class Sort {
      *
      * @return the sort can be a fresh object or taken from a cache.
      */
-    public static Sort get(String name, Collection<Sort> arguments) {
+    public static @NonNull Sort get(@NonNull String name, @DeepNonNull Collection<Sort> arguments) {
         return Sort.get(name, (Sort[]) arguments.toArray(new Sort[arguments.size()]));
     }
 
@@ -207,7 +211,7 @@ public class Sort {
      *            the name of the sort to look up.
      * @return the sort can be a fresh object or taken from a cache.
      */
-    public static Sort getClassSort(String name) {
+    public static @NonNull Sort getClassSort(@NonNull String name) {
         assert !BUILTIN_SORT_NAMES.contains(name);
         return get(name, NO_ARGUMENTS);
     }
@@ -217,12 +221,12 @@ public class Sort {
      *
      * @return the non-<code>null</code> name of the sort
      */
-    public String getName() {
+    public @NonNull String getName() {
         return name;
     }
 
     @Override
-    public String toString() {
+    public @NonNull String toString() {
         if (arguments.length > 0) {
             return getName() + "<" + Util.join(arguments, ",") + ">";
         } else {
@@ -235,7 +239,7 @@ public class Sort {
      *
      * It lazily creates new arrays and returns null if nothing has changed.
      */
-    private Sort instantiate0(List<Sort> instantiationSorts) {
+    private @Nullable Sort instantiate0(List<Sort> instantiationSorts) {
         if (getName().startsWith("?")) {
             int index = Integer.parseInt(name.substring(1));
             return instantiationSorts.get(index - 1);
@@ -272,7 +276,7 @@ public class Sort {
      *             range of the instantiation sorts.
      * @return the instantiated sort, not <code>null</code>
      */
-    public Sort instantiate(List<Sort> instantiationSorts) {
+    public @NonNull Sort instantiate(@DeepNonNull List<Sort> instantiationSorts) {
         Sort result = instantiate0(instantiationSorts);
         if (result != null) {
             return result;
@@ -286,7 +290,7 @@ public class Sort {
      *
      * @return an unmodifiable list of types.
      */
-    public List<Sort> getArguments() {
+    public @DeepNonNull List<Sort> getArguments() {
         return Util.readOnlyArrayList(arguments);
     }
 
@@ -297,7 +301,7 @@ public class Sort {
      * @throws IndexOutOfBoundsException if the index does not refer to a valid
      *                                   argument index
      */
-    public Sort getArgument(int index) {
+    public @NonNull Sort getArgument(int index) {
         return arguments[index];
     }
 
@@ -335,7 +339,7 @@ public class Sort {
      * @return true, if this object represents a sort which is subtype of the
      *         argument.
      */
-    public boolean isSubtypeOf(Sort other) {
+    public boolean isSubtypeOf(@NonNull Sort other) {
 
         if (equals(other)) {
             return true;
@@ -392,7 +396,7 @@ public class Sort {
     }
 
     @Override
-    public boolean equals(Object o) {
+    public boolean equals(@Nullable Object o) {
         if (this == o) {
             return true;
         }
@@ -454,11 +458,11 @@ public class Sort {
      * @throws IllegalArgumentException if the string cannot be parsed to a
      *                                  sort
      */
-    public static Sort parseSort(String sortString) {
+    public static @NonNull Sort parseSort(@NonNull String sortString) {
         return parseSort(sortString, new AtomicInteger());
     }
 
-    private static Sort parseSort(String sortString, AtomicInteger pos) {
+    private static @NonNull Sort parseSort(@NonNull String sortString, @NonNull AtomicInteger pos) {
         StringBuilder sb = new StringBuilder();
         int len = sortString.length();
         while(pos.get() < len) {

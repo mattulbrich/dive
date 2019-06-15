@@ -1,10 +1,8 @@
-/*
- * This file is part of AlgoVer.
+/**
+ * This file is part of DIVE.
  *
- * Copyright (C) 2015-2018 Karlsruhe Institute of Technology
- *
+ * Copyright (C) 2015-2019 Karlsruhe Institute of Technology
  */
-
 package edu.kit.iti.algover.term.builder;
 
 import edu.kit.iti.algover.data.BuiltinSymbols;
@@ -16,6 +14,7 @@ import edu.kit.iti.algover.term.LetTerm;
 import edu.kit.iti.algover.term.Term;
 import edu.kit.iti.algover.term.VariableTerm;
 import edu.kit.iti.algover.util.ImmutableList;
+import edu.kit.iti.algover.util.Immutables;
 import edu.kit.iti.algover.util.Pair;
 import nonnull.NonNull;
 
@@ -109,8 +108,12 @@ public class TreeAssignmentTranslator {
         return new LetTerm(var, expr, inner);
     }
 
-    public ImmutableList<Term> translateToSSA(ImmutableList<DafnyTree> assignments, DafnyTree expression) throws TermBuildException {
-    throw new Error();
+    public ImmutableList<Pair<FunctionSymbol, Term>> translateToLinear(ImmutableList<DafnyTree> assignments) throws TermBuildException {
+        ImmutableList<Pair<FunctionSymbol, Term>> result = ImmutableList.nil();
+        for (DafnyTree ass : assignments.reverse()) {
+            result = result.append(translateAssignment(ass));
+        }
+        return result;
     }
 
     private Pair<FunctionSymbol, Term> translateAssignment(DafnyTree tree) throws TermBuildException {
