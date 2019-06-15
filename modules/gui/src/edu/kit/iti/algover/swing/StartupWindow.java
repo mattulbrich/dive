@@ -42,6 +42,7 @@ public class StartupWindow extends JFrame {
             barManager.putProperty(BarAction.PARENT_FRAME, this);
             setJMenuBar(barManager.makeMenubar("startup.menubar"));
         }
+        setIconImage(MainController.WINDOW_ICON);
         getContentPane().add(new JLabel(makeImage()), BorderLayout.CENTER);
         setDefaultCloseOperation(EXIT_ON_CLOSE);
         pack();

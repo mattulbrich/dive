@@ -24,6 +24,7 @@ import edu.kit.iti.algover.swing.code.DafnyCodeController;
 import edu.kit.iti.algover.swing.rules.RuleBayController;
 import edu.kit.iti.algover.swing.script.ScriptCodeController;
 import edu.kit.iti.algover.swing.sequent.SequentController;
+import edu.kit.iti.algover.swing.util.GUIUtil;
 import edu.kit.iti.algover.swing.util.Log;
 import edu.kit.iti.algover.util.ExceptionDetails;
 
@@ -52,6 +53,8 @@ public class MainController {
         // DockingManager.setDockingExecutor(new SameFrameDockingExecutor());
     }
 
+    public static Image WINDOW_ICON = loadLogoIcon();
+
     /**
      * indicator for property changes on mainwindow that
      * window is initialised now.
@@ -59,23 +62,24 @@ public class MainController {
     // public static final String INITIALISED = "pseudo.initialised";
 
     private final DiveCenter diveCenter;
-    private final String resourceName;
 
+    private final String resourceName;
     private JFrame theFrame;
 
     private SequentController sequentController;
 
     private PVCBrowserController pvcTreeController;
+
     private DafnyCodeController dafnyCodeController;
     private ScriptCodeController scriptCodeController;
     private RuleBayController ruleBayController;
-
     private Map<Viewport, Integer> separatorPositions =
             new EnumMap<>(Viewport.class);
 
     private BarManager barManager;
 
     private final int number;
+
     private static int counter = 0;
     private JSplitPane centerPane;
     private JLabel statusLine;
@@ -83,7 +87,6 @@ public class MainController {
     private JLabel toRightControl;
     private Container mainPane;
     private String title;
-
     private JSplitPane scriptAndRuleComponent;
 
     /**
@@ -232,6 +235,7 @@ public class MainController {
         theFrame.addWindowListener((WindowListener) barManager.makeAction("general.close"));
         theFrame.setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
         theFrame.setSize(1000, 700);
+        theFrame.setIconImage(WINDOW_ICON);
     }
 
     public void dispose() {
@@ -272,5 +276,9 @@ public class MainController {
             Log.stacktrace(Log.DEBUG, e);
         }
         statusLine.setText(msg);
+    }
+
+    private static Image loadLogoIcon() {
+        return ((ImageIcon)GUIUtil.makeIcon(MainController.class.getResource("img/icon.png"))).getImage();
     }
 }
