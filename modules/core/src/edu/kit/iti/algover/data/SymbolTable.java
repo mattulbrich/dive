@@ -65,7 +65,7 @@ public interface SymbolTable {
      * the name exists.
      */
     default @Nullable FunctionSymbol getFunctionSymbol(
-            @NonNull FunctionSymbolFamily family, Sort... argumentSorts) {
+            @NonNull FunctionSymbolFamily family, @DeepNonNull Sort... argumentSorts) {
         return getFunctionSymbol(family.getBaseName(), Arrays.asList(argumentSorts));
     }
 

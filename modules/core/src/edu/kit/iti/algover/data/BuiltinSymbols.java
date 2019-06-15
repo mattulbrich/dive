@@ -17,6 +17,9 @@ import edu.kit.iti.algover.term.FunctionSymbol;
 import edu.kit.iti.algover.term.FunctionSymbolFamily;
 import edu.kit.iti.algover.term.Sort;
 import edu.kit.iti.algover.util.Util;
+import nonnull.DeepNonNull;
+import nonnull.NonNull;
+import nonnull.Nullable;
 
 /**
  * This class collects the builtin function symbols of the logic.
@@ -275,7 +278,7 @@ public class BuiltinSymbols extends MapSymbolTable {
      *
      */
     @Override
-    protected FunctionSymbol resolve(String name, List<Sort> argSorts) {
+    protected @Nullable FunctionSymbol resolve(@NonNull String name, @DeepNonNull List<Sort> argSorts) {
 
         if (argSorts.isEmpty()) {
             int index = name.indexOf("<");
