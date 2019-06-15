@@ -166,6 +166,7 @@ public class MainController implements SequentActionListener, RuleApplicationLis
         settings.setConfig(manager.getConfiguration());
         settings.setCurrentManager(manager);
         settings.setSystemPrefs(systemprefs);
+        settings.setLookup(this.lookup);
         double height = this.getView().getScene().getWindow().getHeight();
         double width = this.getView().getScene().getWindow().getWidth();
         //later lookup
