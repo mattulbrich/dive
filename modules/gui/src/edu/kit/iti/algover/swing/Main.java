@@ -221,6 +221,9 @@ public class Main {
 
     public static void openDiveCenter(File file) throws DafnyParserException, FormatException, IOException {
         DiveCenter center = new DiveCenter(file);
+        if (startupWindow != null) {
+            startupWindow.dispose();
+        }
         center.activate();
         addToRecentProblems(file);
         PROOF_CENTERS.add(center);
