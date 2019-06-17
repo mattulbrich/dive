@@ -141,6 +141,7 @@ public class Proof {
         assert script != null;
 
         ProofNode newRoot = ProofNode.createRoot(pvc);
+        newRoot.setBeginPos(new Position(1, 1));
 
         try {
             // TODO Exception handling
