@@ -189,7 +189,7 @@ public class DafnyCodeController {
         Component container = tabs.getComponentAt(index);
         RSyntaxTextArea textArea = GUIUtil.findComponent(container, RSyntaxTextArea.class);
         try {
-            int pos = GUIUtil.linecolToPos(textArea.getText(), report.getLine(), report.getColumn());
+            int pos = GUIUtil.linecolToPos(textArea, report.getLine(), report.getColumn());
             Object hilight = textArea.getHighlighter().addHighlight(pos, pos+report.getLength(), SQUIGGLY_LINES);
             textArea.putClientProperty("exception-highlight", hilight);
         } catch (BadLocationException e) {

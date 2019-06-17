@@ -96,20 +96,24 @@ public class PVCHighlighting {
 
     private static Object addHighlight(RSyntaxTextArea textArea, Token fromToken, Token stopToken, HighlightPainter painter) throws BadLocationException {
         int fromLine = fromToken.getLine();
-        int fromCol = fromToken.getCharPositionInLine() + 1;
-        int fromPos = GUIUtil.linecolToPos(textArea.getText(), fromLine, fromCol);
-        int toLine = stopToken.getLine();
-        int toCol = stopToken.getCharPositionInLine() + 1;
-        String text = stopToken.getText();
-        int toPos = GUIUtil.linecolToPos(textArea.getText(), toLine, toCol)
-                + (text == null ? 0 : text.length());
-
-        System.out.println("fromPos = " + fromPos);
-        System.out.println("toPos = " + toPos);
-        System.out.println("textArea = " + textArea.getText().length());
-        if (fromPos < 0 || toPos < 0) {
+        int fromCol = fromToken.getCharPositionInLine();
+        if (fromCol < 0) {
             return null;
         }
+        // Token char in line is 0-based
+        int fromPos = GUIUtil.linecolToPos(textArea, fromLine, fromCol + 1);
+        int toLine = stopToken.getLine();
+        int toCol = stopToken.getCharPositionInLine();
+        if (toCol < 0) {
+            return null;
+        }
+        String text = stopToken.getText();
+        int toPos = GUIUtil.linecolToPos(textArea, toLine, toCol + 1)
+                + (text == null ? 0 : text.length());
+
+        Log.log(Log.VERBOSE, "fromPos = " + fromPos);
+        Log.log(Log.VERBOSE, "toPos = " + toPos);
+        Log.log(Log.VERBOSE, "textArea = " + textArea.getText().length());
         return textArea.getHighlighter().addHighlight(fromPos, toPos, painter);
     }
 

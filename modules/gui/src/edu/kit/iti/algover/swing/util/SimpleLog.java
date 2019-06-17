@@ -17,7 +17,7 @@ public class SimpleLog implements Log.LogImplementation {
      * We cannot use Settings here because that leads to a loop -
      * Settings uses Log and always prints a message.
      */
-    private int minLevel = Integer.getInteger("dive.log", Log.ERROR);
+    private int minLevel = Integer.getInteger("dive.log", Log.DEBUG);
     
     public SimpleLog() {
     }

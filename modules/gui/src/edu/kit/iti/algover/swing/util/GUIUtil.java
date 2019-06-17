@@ -13,10 +13,10 @@ import java.io.OutputStream;
 import java.net.URL;
 
 import javax.swing.*;
+import javax.swing.text.BadLocationException;
 
 import nonnull.NonNull;
 import nonnull.Nullable;
-import org.fife.ui.rsyntaxtextarea.RSyntaxTextArea;
 
 public class GUIUtil {
 
@@ -172,14 +172,13 @@ public class GUIUtil {
      * @param column a column, 1 is the first column.
      * @return the linear position of line/column within text.
      */
-    public static int linecolToPos(String text, int line, int column) {
-        String[] lines = text.split("\n");
-        // TODO Windows?
-        int result = 0;
-        for (int i = 0; i < line - 1 && i < lines.length; i++) {
-            result += lines[i].length() + 1;
-            // one extra for "\n"
+    public static int linecolToPos(JTextArea text, int line, int column) {
+        try {
+            return text.getLineStartOffset(line - 1) + column - 1;
+        } catch (BadLocationException e) {
+            Log.log(Log.WARNING, "Flaw in text area index computation");
+            Log.stacktrace(Log.WARNING, e);
+            return 0;
         }
-        return result + column - 1;
     }
 }

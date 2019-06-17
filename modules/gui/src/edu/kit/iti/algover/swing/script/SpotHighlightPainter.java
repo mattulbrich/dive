@@ -16,9 +16,11 @@ import java.awt.*;
 public class SpotHighlightPainter implements HighlightPainter {
 
     private Color color;
+    private String string;
 
-    public SpotHighlightPainter(Color color) {
+    public SpotHighlightPainter(Color color, String string) {
         this.color = color;
+        this.string = string;
     }
 
     @Override
@@ -26,8 +28,11 @@ public class SpotHighlightPainter implements HighlightPainter {
         TextUI mapper = c.getUI();
         try {
             Rectangle r = mapper.modelToView(c, p0);
+            Font font = c.getFont().deriveFont(Font.BOLD);
+            g.setFont(font);
             g.setColor(color);
-            g.fillOval(r.x, r.y + 3, 10, 10);
+            g.drawString(string, r.x, r.y + g.getFontMetrics(font).getAscent());
+            // g.fillOval(r.x, r.y + 3, 10, 10);
         } catch (BadLocationException e) {
             e.printStackTrace();
         }

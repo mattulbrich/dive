@@ -213,6 +213,7 @@ public class MainController {
             scriptAndRuleComponent = new JSplitPane(JSplitPane.VERTICAL_SPLIT);
             scriptAndRuleComponent.setTopComponent(scriptCodeController.getComponent());
             scriptAndRuleComponent.setBottomComponent(ruleBayController.getComponent());
+            scriptAndRuleComponent.setDividerLocation(300);
         }
         {
             // there used to be another panel here.
