@@ -121,8 +121,9 @@ public class ScriptController implements ScriptViewListener {
         ProofNodeCheckpoint insertCheckpoint = getCheckpointForPosition(caretPosition);
         if(insertCheckpoint != null) {
             setObservableInsertPosition(new Position(insertCheckpoint.position.getLineNumber() + 1, 0));
-        } else if(checkpoints.size() > 0) {
-            setObservableInsertPosition(new Position(checkpoints.get(checkpoints.size() - 1).position.getLineNumber() + 1, 0));
+        } else {
+            //no checkpoint found so the script should be empty
+            setObservableInsertPosition((new Position (0, 0)));
         }
     }
 
