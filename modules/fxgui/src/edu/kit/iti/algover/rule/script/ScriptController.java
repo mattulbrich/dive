@@ -105,7 +105,6 @@ public class ScriptController implements ScriptViewListener {
     private void onCaretPositionChanged(Observable observable) {
        //this positions linenumber starts with 1
         Position caretPosition = computePositionFromCharIdx(view.getCaretPosition(), view.getText());
-        this.checkpoints = ProofNodeCheckpointsBuilder.build(proof);
         createVisualSelectors(this.checkpoints);
         ProofNodeCheckpoint checkpoint = getCheckpointForPosition(caretPosition);
         if(checkpoint != null) {
@@ -231,7 +230,7 @@ public class ScriptController implements ScriptViewListener {
         //checkpoints = ProofNodeCheckpointsBuilder.build(proof);
         // TODO switchViewedNode();
         view.setStyle("-fx-background-color: lightgray;");
-        onCaretPositionChanged(null);
+        //updateInsertPosition();
     }
 
     @Override
