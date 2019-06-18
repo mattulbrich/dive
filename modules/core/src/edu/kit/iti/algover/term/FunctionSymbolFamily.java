@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import edu.kit.iti.algover.util.Util;
+import nonnull.DeepNonNull;
 import nonnull.NonNull;
 
 /**
@@ -88,7 +89,7 @@ public class FunctionSymbolFamily {
      * @throws IllegalArgumentException if the number of instantiated sorts is
      *                                  not right
      */
-    public FunctionSymbol instantiate(List<Sort> instantiationSorts) {
+    public @NonNull FunctionSymbol instantiate(@DeepNonNull List<Sort> instantiationSorts) {
 
         if(instantiationSorts.size() != numberOfTypeVars) {
             throw new IllegalArgumentException(instantiationSorts + " vs. " + numberOfTypeVars);
