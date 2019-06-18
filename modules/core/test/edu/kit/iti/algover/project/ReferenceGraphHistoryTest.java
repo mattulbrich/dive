@@ -109,7 +109,7 @@ public class ReferenceGraphHistoryTest {
     }
 
     private Set<ProofTermReferenceTarget> computeHistoryVerbose(ProofNodeSelector pns, TermSelector childTerm, Proof proof){
-        Set<ProofTermReferenceTarget> directParents = Collections.EMPTY_SET;
+        Set<ProofTermReferenceTarget> directParents = Collections.emptySet();
         try {
             Term term1 = childTerm.selectSubterm(pns.get(proof).getSequent());
             directParents = proof.getGraph().computeHistory(new ProofTermReferenceTarget(pns, childTerm), proof);
