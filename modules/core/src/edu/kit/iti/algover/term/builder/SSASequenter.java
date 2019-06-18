@@ -10,6 +10,7 @@ import edu.kit.iti.algover.parser.DafnyException;
 import edu.kit.iti.algover.parser.DafnyParser;
 import edu.kit.iti.algover.parser.DafnyTree;
 import edu.kit.iti.algover.proof.ProofFormula;
+import edu.kit.iti.algover.references.ReferenceTools;
 import edu.kit.iti.algover.rules.TermSelector;
 import edu.kit.iti.algover.symbex.AssertionElement;
 import edu.kit.iti.algover.symbex.PathConditionElement;
@@ -86,7 +87,13 @@ public class SSASequenter implements PVCSequenter {
             AssertionElement assertion = pathThroughProgram.getProofObligations().getLast();
             ProofFormula succedent = createProofFormula(endMapping, ttt,
                     assertion.getExpression(), "Assertion", visitor);
-            return new Sequent(antecedent, Collections.singletonList(succedent));
+//            return new Sequent(antecedent, Collections.singletonList(succedent));
+            Sequent sequent = new Sequent(antecedent, Collections.singletonList(succedent));
+
+            if(referenceMap != null) {
+                ReferenceTools.addSequentReferences(sequent, ttt.getReferenceMap(), referenceMap);
+            }
+            return sequent;
 
         }  catch(TermBuildException tbe) {
             throw new DafnyException(tbe.getLocation(), tbe);
@@ -142,7 +149,8 @@ public class SSASequenter implements PVCSequenter {
             symbolTable.addFunctionSymbol(fsymbNew);
             mapping = mapping.append(new Pair<>(fsymb, fsymbNew));
 
-            DafnyTree assignedTree = treeIt.next().getChild(1);
+            DafnyTree assignmentTree = treeIt.next();
+            DafnyTree assignedTree = assignmentTree.getChild(1);
             if (assignedTree.getType() == DafnyParser.WILDCARD) {
                 // Do not make an assignment for an anonymised value
                 continue;
@@ -152,9 +160,15 @@ public class SSASequenter implements PVCSequenter {
             Term replaced = rhs.accept(visitor, oldMapping);
             if (replaced == null) {
                 replaced = rhs;
+
             }
 
-            antecedent.add(new ProofFormula(tb.eq(new ApplTerm(fsymbNew), replaced),
+            ApplTerm assignmentGoal = new ApplTerm(fsymbNew);
+            tat.getReferenceMap().put(assignmentGoal, assignmentTree.getChild(0));
+
+            ApplTerm ssa_eq = tb.eq(assignmentGoal, replaced);
+            tat.getReferenceMap().put(ssa_eq, assignmentTree);
+            antecedent.add(new ProofFormula(ssa_eq,
                     SequenterUtil.PATH_LABEL));
         }
 
