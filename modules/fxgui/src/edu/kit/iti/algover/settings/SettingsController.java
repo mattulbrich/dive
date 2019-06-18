@@ -68,7 +68,7 @@ public class SettingsController {
 
         try {
             loader.load();
-
+            this.width = computeMinWidth();
             createSettingsDialog();
             //close request
             Window window = dialog.getDialogPane().getScene().getWindow();
@@ -77,10 +77,13 @@ public class SettingsController {
             tabList.getSelectionModel().getSelectedItems().addListener(new ListChangeListener<ISettingsController>() {
                 @Override
                 public void onChanged(Change<? extends ISettingsController> c) {
-                    Node node = tabList.getSelectionModel().getSelectedItem().getNode();
-                    ScrollPane sp = new ScrollPane(node);
-                    sp.setFitToWidth(true);
-                    contentContainer.setCenter(sp);
+                    if(tabList.getSelectionModel().getSelectedItem() != null) {
+                        Node node = tabList.getSelectionModel().getSelectedItem().getNode();
+                        ScrollPane sp = new ScrollPane(node);
+                        sp.setMinWidth(node.getBoundsInLocal().getWidth());
+                        sp.setFitToWidth(true);
+                        contentContainer.setCenter(sp);
+                    }
                 }
             });
             tabList.setCellFactory(param -> {
@@ -103,14 +106,27 @@ public class SettingsController {
             }
     }
 
+    private double computeMinWidth() {
+        double current = this.width;
+        for (ISettingsController ctrl: tabList.getItems()) {
+            double width = ctrl.getNode().getBoundsInLocal().getWidth();
+            if(width > current){
+                current = width;
+            }
+        }
+        System.out.println("current = " + current);
+        return current;
+
+    }
+
     private void createSettingsDialog() {
        // dialogPane.setPrefSize(600.0, 600.0);
         dialogPane.setPadding(new Insets(20,20,20,20));
         dialogPane.getButtonTypes().setAll(ButtonType.OK, ButtonType.CANCEL);
-
         dialogPane.setPrefHeight(height*0.8);
-        dialogPane.setMinWidth(width*0.5);
+        dialogPane.setMinWidth(computeMinWidth()+200);
         dialog.setDialogPane(dialogPane);
+        tabList.getSelectionModel().selectFirst();
 
 
 
@@ -122,7 +138,9 @@ public class SettingsController {
      */
     public void showAndWait() {
         createSettingsDialog();
+
         tabList.getSelectionModel().selectFirst();
+
         Optional<ButtonType> optional = dialog.showAndWait();
 
         if(optional.isPresent() && optional.get() == ButtonType.OK){
