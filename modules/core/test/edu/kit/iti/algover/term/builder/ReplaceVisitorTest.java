@@ -36,7 +36,9 @@ public class ReplaceVisitorTest {
             { "22 > 11", "", "true", "true" },
             { "c2 == c", "1", "null", "c2 == null" },
             { "c2 == null", "1", "c", "c2 == c" },
+            { "let i := 5 :: i + 1 > 0", "1", "4", "let i := 4 :: i + 1 > 0" }
         };
+
     }
 
     public String[][] parametersForTestFail() {
@@ -78,6 +80,7 @@ public class ReplaceVisitorTest {
         map.add(new FunctionSymbol("f", Sort.INT, Sort.INT, Sort.INT, Sort.INT, Sort.INT ,Sort.INT));
         map.add(new FunctionSymbol("c", Sort.getClassSort("C")));
         map.add(new FunctionSymbol("c2", Sort.getClassSort("C")));
+        map.add(new FunctionSymbol("i", Sort.INT));
         symbTable = new MapSymbolTable(new BuiltinSymbols(), map);
     }
 }

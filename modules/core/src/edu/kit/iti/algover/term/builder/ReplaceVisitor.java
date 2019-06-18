@@ -16,6 +16,7 @@ import edu.kit.iti.algover.term.SchemaVarTerm;
 import edu.kit.iti.algover.term.Term;
 import edu.kit.iti.algover.term.TermVisitor;
 import edu.kit.iti.algover.term.VariableTerm;
+import edu.kit.iti.algover.util.Pair;
 import nonnull.NonNull;
 
 /**
@@ -56,7 +57,13 @@ public class ReplaceVisitor  {
 
         @Override
         public Term visit(LetTerm letTerm, List<Term> arg) throws TermBuildException {
-            return new LetTerm(letTerm.getSubstitutions(), arg.get(0));
+            List<Pair<VariableTerm, Term>> subs = new ArrayList<>();
+            List<Pair<VariableTerm, Term>> oldSubs = letTerm.getSubstitutions();
+            assert oldSubs.size() == arg.size() - 1;
+            for(int i = 1; i < arg.size(); ++i) {
+                subs.add(new Pair<>(oldSubs.get(i - 1).fst, arg.get(i)));
+            }
+            return new LetTerm(subs, arg.get(0));
         }
 
     }
