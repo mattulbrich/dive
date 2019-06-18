@@ -259,7 +259,8 @@ public class ScriptController implements ScriptViewListener {
         observableInsertPosition.set(oldInsertPos);
         createVisualSelectors(checkpoints);
 
-        switchViewedNode();
+        //JK: This should not be necessary since the changed text triggers onTextChanged and onCaretPositionChanged
+        //switchViewedNode();
         view.setStyle("-fx-background-color: white;");
     }
 
@@ -298,6 +299,7 @@ public class ScriptController implements ScriptViewListener {
             int insertAt = computeCharIdxFromPosition(observableInsertPosition.get(), view.getText());
             view.insertText(insertAt, text);
         }
+        //JK: Maybe this could be optimized if the prettyprinting is done here to avoid duplicated methods calls
         runScript();
     }
 
