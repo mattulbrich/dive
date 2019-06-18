@@ -67,6 +67,17 @@ public class TreeAssignmentTranslator {
         this.tb = new TermBuilder(symbols);
     }
 
+    /**
+     * Create a fresh translator, taking table from a given term translator.
+     *
+     * @param translator the translator for terms to be used.
+     */
+    public TreeAssignmentTranslator(@NonNull TreeTermTranslator translator) {
+        this.symbols = translator.getSymbolTable();
+        this.translator = translator;
+        this.tb = new TermBuilder(this.symbols);
+    }
+
     public ImmutableList<Pair<FunctionSymbol, Term>>
                 translateAssignments(ImmutableList<DafnyTree> assignments) throws TermBuildException {
         return assignments.map(this::translateAssignment);

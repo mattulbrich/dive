@@ -1222,4 +1222,8 @@ public class TreeTermTranslator {
         }
         boundVars.pop();
     }
+
+    public SymbolTable getSymbolTable() {
+        return symbolTable;
+    }
 }
