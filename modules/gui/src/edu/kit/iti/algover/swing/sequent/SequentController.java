@@ -51,6 +51,8 @@ public class SequentController {
 
         if (proofNode == null) {
             seqComponent.add(new JLabel("No sequent to display."));
+            seqComponent.revalidate();
+            seqComponent.repaint();
             return;
         }
 

@@ -12,6 +12,7 @@ import edu.kit.iti.algover.proof.Proof;
 import edu.kit.iti.algover.proof.ProofNode;
 import edu.kit.iti.algover.proof.ProofStatus;
 import edu.kit.iti.algover.swing.DiveCenter;
+import edu.kit.iti.algover.swing.script.ProofNodeCheckpoint.Type;
 import edu.kit.iti.algover.swing.util.GUIUtil;
 import edu.kit.iti.algover.swing.util.Log;
 import edu.kit.iti.algover.swing.util.Settings;
@@ -49,13 +50,13 @@ public class ScriptCodeController {
             new SquiggleUnderlineHighlightPainter(Color.red);
 
     private static final HighlightPainter SPOT_HIGHLIGHT =
-            new SpotHighlightPainter(Color.orange, "[");
+            new SpotHighlightPainter(Color.orange, "\u25b6");
 
     private static final HighlightPainter OPEN_SPOT_HIGHLIGHT =
             new SpotHighlightPainter(Color.red, "X");
 
     private static final HighlightPainter BRANCH_HIGHLIGHT =
-            new SpotHighlightPainter(Color.cyan, "]");
+            new SpotHighlightPainter(Color.cyan, "\u25c0");
 
     private final DiveCenter diveCenter;
     private final JLabel label;
@@ -112,7 +113,7 @@ public class ScriptCodeController {
         int pos = ev.getDot();
         ProofNodeCheckpoint last = null;
         for (ProofNodeCheckpoint checkPoint : checkPoints) {
-            int checkPos = GUIUtil.linecolToPos(textArea, checkPoint.getLine(), checkPoint.getColumn() + 1);
+            int checkPos = GUIUtil.linecolToPos(textArea, checkPoint.getLine(), checkPoint.getColumn() - 1);
             if (pos > checkPos) {
                 last = checkPoint;
             }
@@ -120,8 +121,13 @@ public class ScriptCodeController {
 
 
         if (last != null) {
-            ProofNode node = last.getProofNode();
-            diveCenter.properties().proofNode.setValue(node);
+            if(last.getType() == Type.BRANCH) {
+                // we are in a situation where there are more than one proof node
+                diveCenter.properties().proofNode.setValue(null);
+            } else {
+                ProofNode node = last.getProofNode();
+                diveCenter.properties().proofNode.setValue(node);
+            }
         }
 
     }
@@ -207,6 +213,8 @@ public class ScriptCodeController {
                     color = OPEN_SPOT_HIGHLIGHT;
                     break;
                 case CALL:
+                    // give the symbol chance to not be on a character.
+                    caretPos = Math.max(0, caretPos - 1);
                     color = SPOT_HIGHLIGHT;
                     break;
                 case BRANCH:
