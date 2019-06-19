@@ -372,7 +372,7 @@ public class ProjectSettingsController implements ISettingsController {
 
             //propagate configuration and save config
             try {
-
+                //TODO problem as manager needs to be resetted
                 if (saveAsXML) {
                     File filename = new File(baseDir + File.separator + this.configFileName.getText());
                     getConfig().setConfigFile(this.configFileName.getText());
