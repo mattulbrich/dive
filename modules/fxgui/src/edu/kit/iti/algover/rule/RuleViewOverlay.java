@@ -13,6 +13,7 @@ import edu.kit.iti.algover.rules.*;
 import edu.kit.iti.algover.rules.impl.ExhaustiveRule;
 import edu.kit.iti.algover.term.prettyprint.PrettyPrint;
 import edu.kit.iti.algover.util.RuleParameterDialog;
+import javafx.application.Platform;
 import javafx.css.PseudoClass;
 import javafx.event.ActionEvent;
 import javafx.scene.control.Label;
@@ -106,8 +107,14 @@ public class RuleViewOverlay extends AnchorPane {
             } catch (RuleException e) {
                 on = null;
             }
+
             RuleParameterDialog d = new RuleParameterDialog(this.application.getRule(), listener.getCurrentPVC().getSymbolTable(),
                     listener.getCurrentProofNode().getSequent(), on);
+            d.setResizable(true);
+            d.onShownProperty().addListener(e -> {
+                Platform.runLater(() -> d.setResizable(false));
+            });
+
             d.showAndWait();
             if (d.getParameters() != null) {
                 try {
