@@ -19,6 +19,7 @@ import edu.kit.iti.algover.dafnystructures.DafnyFile;
 import edu.kit.iti.algover.dafnystructures.DafnyFunction;
 import edu.kit.iti.algover.dafnystructures.DafnyMethod;
 import edu.kit.iti.algover.editor.EditorController;
+import edu.kit.iti.algover.project.Configuration;
 import edu.kit.iti.algover.project.ProjectManager;
 import edu.kit.iti.algover.referenceHighlighting.ReferenceGraphController;
 import edu.kit.iti.algover.proof.*;
@@ -146,7 +147,10 @@ public class MainController implements SequentActionListener, RuleApplicationLis
         logger.setUseParentHandlers(false);
         logger.info("Project '" + manager.getName() + "' successfully loaded.");
 
+
         onClickRefresh(null);
+
+
     }
 
     private void openAboutWindow(ActionEvent actionEvent) {

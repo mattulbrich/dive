@@ -7,6 +7,7 @@ package edu.kit.iti.algover.settings;
 
 import edu.kit.iti.algover.MainController;
 import edu.kit.iti.algover.project.ProjectManager;
+import edu.kit.iti.algover.util.ExceptionDialog;
 import javafx.beans.property.ObjectProperty;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
@@ -99,11 +100,15 @@ public class SettingsController {
                         return null;
                     }
                 });
+                txt.setStyle("-fx-font-weight: bold");
+
                 return txt;
             });
             } catch (IOException e) {
                 e.printStackTrace();
             }
+
+
     }
 
     private double computeMinWidth() {
