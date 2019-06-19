@@ -23,7 +23,6 @@ public class ReplayAction extends BarAction implements Initialisable {
 
     @Override
     public void actionPerformed(ActionEvent e) {
-        System.out.println("ReplayAction.actionPerformed");
         ProgressMonitor pm = new ProgressMonitor(getParentFrame(), "Replaying proof", "Note", 0, 1);
         getDiveCenter().getExecutor().submit(() -> replay(pm));
     }

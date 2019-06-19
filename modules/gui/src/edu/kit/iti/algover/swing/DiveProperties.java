@@ -11,6 +11,7 @@ import edu.kit.iti.algover.project.Project;
 import edu.kit.iti.algover.proof.PVC;
 import edu.kit.iti.algover.proof.ProofNode;
 import edu.kit.iti.algover.rules.TermSelector;
+import edu.kit.iti.algover.swing.script.ProofNodeCheckpoint;
 import edu.kit.iti.algover.swing.util.Property;
 
 public class DiveProperties {
@@ -68,10 +69,15 @@ public class DiveProperties {
 
 
     /**
-     * The currently selected proof node within a pvc.
+     * The current selection proof node within a pvc.
+     *
+     * This contains information on the position within the script and allows
+     * actions and components to display special purpose information.
+     *
+     * May be null if no PVC or no valid proof node available.
      */
-    public Property<ProofNode> proofNode =
-            new Property<>("proofNode", ProofNode.class, null);
+    public Property<ProofNodeCheckpoint> proofNodeCheckpoint =
+            new Property<>("proofNode", ProofNodeCheckpoint.class, null);
 
     /**
      * The currently selected term (via selector) within a the current

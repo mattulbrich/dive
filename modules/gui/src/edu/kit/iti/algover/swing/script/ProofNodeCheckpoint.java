@@ -28,7 +28,7 @@ import java.util.List;
  */
 public class ProofNodeCheckpoint {
 
-    enum Type {
+    public enum Type {
         /**
          * This checkpoint indicates the beginning of a call statement
          */

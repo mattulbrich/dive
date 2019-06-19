@@ -26,9 +26,11 @@ import org.fife.ui.rtextarea.RTextScrollPane;
 import javax.swing.*;
 import javax.swing.event.CaretEvent;
 import javax.swing.event.DocumentEvent;
+import javax.swing.text.AttributeSet;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.Highlighter;
 import javax.swing.text.Highlighter.HighlightPainter;
+import javax.swing.text.SimpleAttributeSet;
 import java.awt.*;
 import java.io.IOException;
 import java.util.List;
@@ -99,6 +101,9 @@ public class ScriptCodeController {
             textArea.getActionMap().put(keyStrokeAndKey,
                     diveCenter.getMainController().getBarManager().makeAction("proof.replay"));
             textArea.addCaretListener(this::caretUpdated);
+            JPopupMenu popup = textArea.getPopupMenu();
+            popup.insert(new JPopupMenu.Separator(), 0);
+            popup.insert(diveCenter.getBarManager().makeAction("proof.insertBranches"), 0);
             component.add(new RTextScrollPane(textArea));
         }
         setPVC(null);
@@ -119,15 +124,8 @@ public class ScriptCodeController {
             }
         }
 
-
         if (last != null) {
-            if(last.getType() == Type.BRANCH) {
-                // we are in a situation where there are more than one proof node
-                diveCenter.properties().proofNode.setValue(null);
-            } else {
-                ProofNode node = last.getProofNode();
-                diveCenter.properties().proofNode.setValue(node);
-            }
+            diveCenter.properties().proofNodeCheckpoint.setValue(last);
         }
 
     }
@@ -174,7 +172,8 @@ public class ScriptCodeController {
             textArea.setCaretPosition(0);
             setProofState(proof);
 
-            diveCenter.properties().proofNode.setValue(root);
+            diveCenter.properties().proofNodeCheckpoint.setValue(
+                    new ProofNodeCheckpoint(root, 1, 1, Type.OPEN));
         }
     }
 
@@ -270,5 +269,15 @@ public class ScriptCodeController {
 
     public Component getComponent() {
         return component;
+    }
+
+    public void insertAt(int line, int column, String str) {
+        try {
+            int pos = GUIUtil.linecolToPos(textArea, line, column);
+            textArea.getDocument().insertString(pos, str, new SimpleAttributeSet());
+        } catch (BadLocationException e) {
+            Log.log(Log.DEBUG, "Error in index computation");
+            Log.stacktrace(Log.DEBUG, e);
+        }
     }
 }

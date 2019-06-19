@@ -24,6 +24,8 @@
 			viewport.right
 			SEPARATOR
 			general.breadcrumbs
+			proof.previousPVC
+			proof.nextPVC
 			SEPARATOR
 			proof.replay
 			proof.replayAll
@@ -72,6 +74,9 @@
 			proof.replayAll
 			proof.reset
 			proof.history
+			SEPARATOR
+			proof.insertBranches
+			proof.autoIndent
 		</proofMenu>
 
 		<proofMenuHidden>
@@ -235,17 +240,27 @@
 		<nextPVC>ACTION nav/ChangePVCAction
 			<text>Next obligation</text>
 			<tooltip>Go to the next proog obligation</tooltip>
-			<icon>nav/down.png</icon>
+			<icon>nav/arrow_down.png</icon>
 			<accelerator>alt DOWN</accelerator>
 			<extra>next</extra>
 		</nextPVC>
 		<previousPVC>ACTION nav/ChangePVCAction
 			<text>Previous obligation</text>
 			<tooltip>Go to the previous proof obligation</tooltip>
-			<icon>nav/down.png</icon>
+			<icon>nav/arrow_up.png</icon>
 			<extra>previous</extra>
 			<accelerator>alt UP</accelerator>
 		</previousPVC>
+		<insertBranches>ACTION proof/InsertBranchesAction
+			<text>Insert cases</text>
+			<tooltip>Insert a cases statement with the open branches</tooltip>
+			<icon>proof/insertBranches.png</icon>
+		</insertBranches>
+		<autoIndent>TODO proof/AutoIndentAction
+			<text>Auto-indent</text>
+			<tooltip>Automatic re-indentation of the script</tooltip>
+			<icon>proof/text_indent.png</icon>
+		</autoIndent>
 	</proof>
 
 </barmanager>

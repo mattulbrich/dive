@@ -12,6 +12,9 @@ import edu.kit.iti.algover.proof.ProofNode;
 import edu.kit.iti.algover.rules.TermSelector;
 import edu.kit.iti.algover.rules.TermSelector.SequentPolarity;
 import edu.kit.iti.algover.swing.DiveCenter;
+import edu.kit.iti.algover.swing.script.ProofNodeCheckpoint;
+import edu.kit.iti.algover.swing.script.ProofNodeCheckpoint.Type;
+import edu.kit.iti.algover.swing.util.GUIUtil;
 import edu.kit.iti.algover.swing.util.IndentationLayout;
 import edu.kit.iti.algover.swing.util.Settings;
 import edu.kit.iti.algover.term.Sequent;
@@ -23,10 +26,11 @@ public class SequentController {
 
     private final static SequentSeparator SEPARATOR = new SequentSeparator();
     public static final String BACKGROUND = "dive.sequentview.background";
+    private static final Icon BULLET =
+            GUIUtil.makeIcon(SequentController.class.getResource("img/bullet_black.png"));
 
     private final JPanel componnent;
     private final JPanel seqComponent;
-    private ProofNode proofNode;
     private DiveCenter diveCenter;
 
     public SequentController(DiveCenter diveCenter) {
@@ -40,24 +44,35 @@ public class SequentController {
         seqComponent.setBorder(BorderFactory.createEmptyBorder(10,10,10,10));
         componnent.add(seqComponent);
 
-        diveCenter.properties().proofNode.addObserver(this::setProofNode);
+        diveCenter.properties().proofNodeCheckpoint.addObserver(this::setProofNode);
         setProofNode(null);
     }
 
-    private void setProofNode(ProofNode proofNode) {
+    private void setProofNode(ProofNodeCheckpoint checkpoint) {
 
         seqComponent.removeAll();
-        this.proofNode = proofNode;
 
-        if (proofNode == null) {
+        if (checkpoint == null) {
             seqComponent.add(new JLabel("No sequent to display."));
             seqComponent.revalidate();
             seqComponent.repaint();
             return;
         }
 
-        Sequent sequent = proofNode.getSequent();
+        if(checkpoint.getType() == Type.BRANCH) {
+            // Show a button to add the cases.
+            seqComponent.add(new JLabel("More than one open branch at this point:"));
+            for (ProofNode child : checkpoint.getProofNode().getChildren()) {
+                seqComponent.add(new JLabel(child.getLabel(), BULLET, JLabel.LEFT));
+            }
+            seqComponent.add(new JButton(diveCenter.getBarManager().getAction("proof.insertBranches")));
+            seqComponent.revalidate();
+            seqComponent.repaint();
+            return;
+        }
 
+        ProofNode proofNode = checkpoint.getProofNode();
+        Sequent sequent = proofNode.getSequent();
         int i = 0;
         for (ProofFormula pf : sequent.getAntecedent()) {
             TermSelector termSelector = new TermSelector(SequentPolarity.ANTECEDENT, i);
