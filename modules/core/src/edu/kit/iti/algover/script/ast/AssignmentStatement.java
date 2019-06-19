@@ -108,7 +108,7 @@ public class AssignmentStatement extends Statement {
         this.type = type;
     }
 
-    public boolean equals(Object o) {
+    /*public boolean equals(Object o) {
         if (o == this) return true;
         if (!(o instanceof AssignmentStatement)) return false;
         final AssignmentStatement other = (AssignmentStatement) o;
@@ -124,7 +124,7 @@ public class AssignmentStatement extends Statement {
         if (this$type == null ? other$type != null : !this$type.equals(other$type)) return false;
         return true;
     }
-
+*/
     public int hashCode() {
         final int PRIME = 59;
         int result = 1;

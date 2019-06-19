@@ -82,7 +82,7 @@ public class CasesStatement extends Statement {
         this.defaultCase = defaultCase;
     }
 
-    public boolean equals(Object o) {
+ /*   public boolean equals(Object o) {
         if (o == this) return true;
         if (!(o instanceof CasesStatement)) return false;
         final CasesStatement other = (CasesStatement) o;
@@ -95,7 +95,7 @@ public class CasesStatement extends Statement {
         if (this$defaultCase == null ? other$defaultCase != null : !this$defaultCase.equals(other$defaultCase))
             return false;
         return true;
-    }
+    }*/
 
     public int hashCode() {
         final int PRIME = 59;

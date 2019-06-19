@@ -80,7 +80,7 @@ public class CaseStatement extends Statement{
         this.body = body;
     }
 
-    public boolean equals(Object o) {
+    /*public boolean equals(Object o) {
         if (o == this) return true;
         if (!(o instanceof CaseStatement)) return false;
         final CaseStatement other = (CaseStatement) o;
@@ -90,7 +90,7 @@ public class CaseStatement extends Statement{
         final Object other$body = other.getBody();
         if (this$body == null ? other$body != null : !this$body.equals(other$body)) return false;
         return true;
-    }
+    }*/
 
     public int hashCode() {
         final int PRIME = 59;

@@ -58,7 +58,7 @@ public abstract class GoalSelector
         this.body = body;
     }
 
-    public boolean equals(Object o) {
+/*    public boolean equals(Object o) {
         if (o == this) return true;
         if (!(o instanceof GoalSelector)) return false;
         final GoalSelector other = (GoalSelector) o;
@@ -67,7 +67,7 @@ public abstract class GoalSelector
         final Object other$body = other.getBody();
         if (this$body == null ? other$body != null : !this$body.equals(other$body)) return false;
         return true;
-    }
+    }*/
 
     public int hashCode() {
         final int PRIME = 59;

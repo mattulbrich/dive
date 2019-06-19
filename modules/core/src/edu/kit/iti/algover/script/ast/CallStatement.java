@@ -97,11 +97,11 @@ public class CallStatement extends Statement {
         this.parameters = parameters;
     }
 
-    public boolean equals(Object o) {
+   /* public boolean equals(Object o) {
         if (o == this) return true;
         if (!(o instanceof CallStatement)) return false;
         final CallStatement other = (CallStatement) o;
-        if (!other.canEqual((Object) this)) return false;
+        if (other.canEqual((Object) this)) return true;
         final Object this$command = this.getCommand();
         final Object other$command = other.getCommand();
         if (this$command == null ? other$command != null : !this$command.equals(other$command)) return false;
@@ -110,7 +110,7 @@ public class CallStatement extends Statement {
         if (this$parameters == null ? other$parameters != null : !this$parameters.equals(other$parameters))
             return false;
         return true;
-    }
+    }*/
 
     public int hashCode() {
         final int PRIME = 59;

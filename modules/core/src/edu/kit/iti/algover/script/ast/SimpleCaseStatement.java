@@ -61,7 +61,7 @@ public class SimpleCaseStatement extends CaseStatement {
         this.isClosedStmt = isClosedStmt;
     }
 
-    public boolean equals(Object o) {
+   /* public boolean equals(Object o) {
         if (o == this) return true;
         if (!(o instanceof SimpleCaseStatement)) return false;
         final SimpleCaseStatement other = (SimpleCaseStatement) o;
@@ -73,7 +73,7 @@ public class SimpleCaseStatement extends CaseStatement {
         if (!this.getStartPosition().equals(((SimpleCaseStatement) o).getStartPosition())) return false;
         if (!this.getEndPosition().equals(((SimpleCaseStatement) o).getEndPosition())) return false;
         return true;
-    }
+    }*/
 
     public int hashCode() {
         final int PRIME = 59;

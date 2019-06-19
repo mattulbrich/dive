@@ -44,14 +44,14 @@ public class IsClosableCase extends CaseStatement {
         this.isClosedStmt = isClosedStmt;
     }
 
-    public boolean equals(Object o) {
+   /* public boolean equals(Object o) {
         if (o == this) return true;
         if (!(o instanceof IsClosableCase)) return false;
         final IsClosableCase other = (IsClosableCase) o;
         if (!other.canEqual((Object) this)) return false;
         if (this.isClosedStmt() != other.isClosedStmt()) return false;
         return true;
-    }
+    }*/
 
     public int hashCode() {
         final int PRIME = 59;

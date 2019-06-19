@@ -107,4 +107,15 @@ public abstract class ASTNode
     @Override
     public abstract ASTNode copy();
 
+    @Override
+    public boolean equals(Object obj) {
+        if(obj == this) return true;
+
+        if(obj instanceof ASTNode){
+            return ((ASTNode) obj).startPosition.equals(this.startPosition) &&
+                    ((ASTNode) obj).endPosition.equals(this.endPosition);
+        }
+        return false;
+
+    }
 }
