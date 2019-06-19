@@ -21,6 +21,7 @@ import edu.kit.iti.algover.term.Sequent;
 import edu.kit.iti.algover.term.Term;
 import edu.kit.iti.algover.term.prettyprint.PrettyPrint;
 import edu.kit.iti.algover.util.ExceptionDialog;
+import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.fxml.FXML;
@@ -185,7 +186,12 @@ public class RuleApplicationController extends FxmlController implements Referen
             logger.info("Applied rule " + rule.getName() + " exhaustively.");
         } catch (RuleException e) {
             e.getMessage().concat("Error while trying to apply rule " + rule.getName() + " exhaustive.");
+
             ExceptionDialog ed = new ExceptionDialog(e);
+            ed.setResizable(true);
+            ed.onShownProperty().addListener(ev -> {
+                Platform.runLater(() -> ed.setResizable(false));
+            });
 
             logger.severe("Error while trying to apply rule " + rule.getName() + " exhaustive.");
             ed.showAndWait();

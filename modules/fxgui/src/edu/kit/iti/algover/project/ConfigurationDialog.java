@@ -181,6 +181,10 @@ public class ConfigurationDialog {
 
             return result;
         });
+        dialog.setResizable(true);
+        dialog.onShownProperty().addListener(e -> {
+            Platform.runLater(() -> dialog.setResizable(false));
+        });
 
         Optional<Configuration> result = dialog.showAndWait();
         return result;
