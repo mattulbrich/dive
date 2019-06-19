@@ -36,7 +36,8 @@ public class ReplaceVisitorTest {
             { "22 > 11", "", "true", "true" },
             { "c2 == c", "1", "null", "c2 == null" },
             { "c2 == null", "1", "c", "c2 == c" },
-            { "let i := 5 :: i + 1 > 0", "1", "4", "let i := 4 :: i + 1 > 0" }
+            { "let i := 5 :: i + 1 > 0", "1", "4", "let i := 4 :: i + 1 > 0" },
+            { "let i := 5 :: i + 1 > 0", "0.1", "1", "let i := 5 :: i + 1 > 1"},
         };
 
     }
