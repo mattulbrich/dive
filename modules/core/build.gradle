@@ -53,8 +53,9 @@ task runAntlr3(type:JavaExec) {
 }
 
 test {
-   jvmArgs = [ "-Dde.matul.nonnull.debug=true", "-javaagent:../../lib/nonnull-all.jar=edu" ]
-   testLogging  {
+    // The following may be added to theses: "-Dde.matul.nonnull.debug=true",
+    jvmArgs = [  "-javaagent:../../lib/nonnull-all.jar=edu" ]
+    testLogging  {
        exceptionFormat "full"
        showStackTraces = true
        // showStandardStreams = true

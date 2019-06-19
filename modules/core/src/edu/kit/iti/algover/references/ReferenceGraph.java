@@ -323,10 +323,9 @@ public class ReferenceGraph {
 
     public ProofTermReferenceTarget computeTargetBeforeChange(Proof proof, ProofTermReferenceTarget target) throws RuleException {
         if(target.getProofNodeSelector().getParentSelector() != null) {
-        Set<ProofTermReferenceTarget> history = computeHistory(target, proof);
-        ArrayList<ProofTermReferenceTarget> historyList = new ArrayList<>();
-        historyList.addAll(history);
-
+            Set<ProofTermReferenceTarget> history = computeHistory(target, proof);
+            ArrayList<ProofTermReferenceTarget> historyList = new ArrayList<>();
+            historyList.addAll(history);
             historyList.sort(new ProofTermReferenceTargetComparator());
             TermSelector lastSelector = historyList.get(0).getTermSelector();
             ProofTermReferenceTarget current;
