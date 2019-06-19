@@ -42,7 +42,15 @@ public class ProofNodeCheckpoint {
         /**
          * This indicates a proof node that does not have a rule application yet.
          */
-        OPEN };
+        OPEN,
+
+        /**
+         * This indicates that this proof branch is closed.
+         */
+        CLOSED,
+    }
+
+    ;
 
     /**
      * The proof node to which this checkpoint refers
@@ -126,10 +134,13 @@ public class ProofNodeCheckpoint {
 
         if (mutator != null) {
             checkpoints.add(new ProofNodeCheckpoint(node, pos.getLineNumber(), pos.getCharInLine() + 1, Type.CALL));
+            ASTNode ast = node.getMutator().get(0);
+            Position end = ast.getEndPosition();
             if (children.size() > 1) {
-                ASTNode ast = node.getMutator().get(0);
-                Position end = ast.getEndPosition();
-                checkpoints.add(new ProofNodeCheckpoint(node, end.getLineNumber(), end.getCharInLine()+2, Type.BRANCH));
+                checkpoints.add(new ProofNodeCheckpoint(node, end.getLineNumber(), end.getCharInLine() + 2, Type.BRANCH));
+            }
+            if (node.isClosed()) {
+                checkpoints.add(new ProofNodeCheckpoint(node, end.getLineNumber(), end.getCharInLine() + 2, Type.CLOSED));
             }
         } else {
             if (pos != null) {

@@ -25,6 +25,7 @@ import javax.swing.border.Border;
 import javax.swing.text.AttributeSet;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.DefaultHighlighter;
+import javax.swing.text.DefaultHighlighter.DefaultHighlightPainter;
 import javax.swing.text.MutableAttributeSet;
 import javax.swing.text.SimpleAttributeSet;
 import javax.swing.text.StyleConstants;
@@ -47,6 +48,9 @@ public class TermController extends MouseAdapter {
     // the highlight color should be bright
     private static final Color HIGHLIGHT_COLOR =
             S.getColor("dive.termcomponent.highlightcolor", Color.ORANGE);
+
+    private static final Color SELECTION_COLOR =
+            S.getColor("dive.termcomponent.selectioncolor", Color.YELLOW);
 
     // border color needs to match background of sequent view
     private static final Color BORDER_COLOR =
@@ -126,6 +130,7 @@ public class TermController extends MouseAdapter {
     private final JTextPane component;
     private final PrettyPrint prettyPrinter;
     private final Object mouseHighlight;
+    private final Object selectionHighlight;
     private DiveCenter diveCenter;
     private ProofFormula proofFormula;
     private TermSelector termSelector;
@@ -161,7 +166,9 @@ public class TermController extends MouseAdapter {
 
         try {
             this.mouseHighlight = component.getHighlighter().addHighlight(0, 0,
-                    new DefaultHighlighter.DefaultHighlightPainter(HIGHLIGHT_COLOR));
+                    new DefaultHighlightPainter(HIGHLIGHT_COLOR));
+            this.selectionHighlight = component.getHighlighter().addHighlight(0, 0,
+                    new DefaultHighlightPainter(SELECTION_COLOR));
         } catch (BadLocationException ex) {
             // Must always work!
             Log.log(Log.WARNING, "Unexpected bad location error");
@@ -173,6 +180,31 @@ public class TermController extends MouseAdapter {
         reprint();
 
         diveCenter.properties().noProjectMode.addObserver(this::sourcesModified);
+        diveCenter.properties().termSelector.addObserver(this::updateTermSelector);
+    }
+
+    private void updateTermSelector(TermSelector ts) {
+
+        try {
+            if (ts == null || !ts.getToplevelSelector().equals(this.termSelector)) {
+                component.getHighlighter().changeHighlight(selectionHighlight, 0, 0);
+            } else {
+                for (TermElement element : annotatedString.getAllTermElements()) {
+                    if (element.getSubtermSelector().equals(ts.getSubtermSelector())) {
+                        int begin = element.getBegin();
+                        int end = element.getEnd();
+                        component.getHighlighter().changeHighlight(selectionHighlight, begin, end);
+                        break;
+                    }
+                }
+            }
+        } catch (BadLocationException ex) {
+            // Must always work!
+            Log.log(Log.WARNING, "Unexpected bad location error");
+            Log.stacktrace(Log.WARNING, ex);
+            throw new Error(ex);
+        }
+
     }
 
     private void sourcesModified(boolean modified) {
@@ -210,9 +242,6 @@ public class TermController extends MouseAdapter {
      */
     private int computeLineWidth() {
         // assumes we have a uniform font width
-        System.out.println("component.getSize().width = " + component.getSize().width);
-        System.out.println("component.getFont() = " + component.getFont());
-        System.out.println("component.getFontMetrics(component.getFont()).charWidth('i') = " + component.getFontMetrics(component.getFont()).charWidth('i'));
         int maxChars = component.getSize().width /
                 component.getFontMetrics(component.getFont()).charWidth('i');
 
@@ -272,6 +301,22 @@ public class TermController extends MouseAdapter {
         } catch (BadLocationException ex) {
             ex.printStackTrace();
         }
+    }
+
+    @Override
+    public void mouseClicked(MouseEvent e) {
+        if (e.getClickCount() > 1 || !SwingUtilities.isLeftMouseButton(e)) {
+            return;
+        }
+
+        Point p = e.getPoint();
+        Log.enter(p);
+        int index = viewToModel(p);
+        if (index >= 0 && index < annotatedString.length()) {
+            TermElement element = annotatedString.getTermElementAt(index);
+            diveCenter.properties().termSelector.setValue(new TermSelector(termSelector, element.getSubtermSelector()));
+        }
+
     }
 
     // stolen from KeY

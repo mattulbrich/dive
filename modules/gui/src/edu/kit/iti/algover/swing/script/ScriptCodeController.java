@@ -12,6 +12,7 @@ import edu.kit.iti.algover.proof.Proof;
 import edu.kit.iti.algover.proof.ProofNode;
 import edu.kit.iti.algover.proof.ProofStatus;
 import edu.kit.iti.algover.swing.DiveCenter;
+import edu.kit.iti.algover.swing.code.DafnyTokenMaker;
 import edu.kit.iti.algover.swing.script.ProofNodeCheckpoint.Type;
 import edu.kit.iti.algover.swing.util.GUIUtil;
 import edu.kit.iti.algover.swing.util.Log;
@@ -19,8 +20,10 @@ import edu.kit.iti.algover.swing.util.Settings;
 import edu.kit.iti.algover.swing.util.UnifyingDocumentListener;
 import edu.kit.iti.algover.util.ExceptionDetails;
 import edu.kit.iti.algover.util.ExceptionDetails.ExceptionReportInfo;
+import org.fife.ui.rsyntaxtextarea.AbstractTokenMakerFactory;
 import org.fife.ui.rsyntaxtextarea.RSyntaxTextArea;
 import org.fife.ui.rsyntaxtextarea.SquiggleUnderlineHighlightPainter;
+import org.fife.ui.rsyntaxtextarea.TokenMakerFactory;
 import org.fife.ui.rtextarea.RTextScrollPane;
 
 import javax.swing.*;
@@ -59,6 +62,14 @@ public class ScriptCodeController {
 
     private static final HighlightPainter BRANCH_HIGHLIGHT =
             new SpotHighlightPainter(Color.cyan, "\u25c0");
+
+    private static final HighlightPainter CLOSED_HIGHLIGHT =
+            new SpotHighlightPainter(Color.green.darker(), "\u25cf");
+
+    static {
+        AbstractTokenMakerFactory atmf = (AbstractTokenMakerFactory) TokenMakerFactory.getDefaultInstance();
+        atmf.putMapping("text/dafny-script", ScriptTokenMaker.class.getName());
+    }
 
     private final DiveCenter diveCenter;
     private final JLabel label;
@@ -101,6 +112,7 @@ public class ScriptCodeController {
             textArea.getActionMap().put(keyStrokeAndKey,
                     diveCenter.getMainController().getBarManager().makeAction("proof.replay"));
             textArea.addCaretListener(this::caretUpdated);
+            textArea.setSyntaxEditingStyle("text/dafny-script");
             JPopupMenu popup = textArea.getPopupMenu();
             popup.insert(new JPopupMenu.Separator(), 0);
             popup.insert(diveCenter.getBarManager().makeAction("proof.insertBranches"), 0);
@@ -135,6 +147,9 @@ public class ScriptCodeController {
         }
 
         PVC pvc = diveCenter.properties().activePVC.getValue();
+        if (pvc == null) {
+            return;
+        }
         String id = pvc.getIdentifier();
         Proof proof = diveCenter.getProjectManager().getProofForPVC(id);
         proof.setScriptText(textArea.getText());
@@ -218,6 +233,9 @@ public class ScriptCodeController {
                     break;
                 case BRANCH:
                     color = BRANCH_HIGHLIGHT;
+                    break;
+                case CLOSED:
+                    color = CLOSED_HIGHLIGHT;
                     break;
                 default:
                     throw new Error("unreachable");
