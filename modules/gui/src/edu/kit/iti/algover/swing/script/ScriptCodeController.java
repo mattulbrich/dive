@@ -115,7 +115,7 @@ public class ScriptCodeController {
         }
 
         // find the last check point that has been passed.
-        int pos = ev.getDot();
+        int pos = textArea.getCaret().getDot();
         ProofNodeCheckpoint last = null;
         for (ProofNodeCheckpoint checkPoint : checkPoints) {
             int checkPos = GUIUtil.linecolToPos(textArea, checkPoint.getLine(), checkPoint.getColumn() - 1);
@@ -127,7 +127,6 @@ public class ScriptCodeController {
         if (last != null) {
             diveCenter.properties().proofNodeCheckpoint.setValue(last);
         }
-
     }
 
     private void docChanged(DocumentEvent ev) {
@@ -140,6 +139,7 @@ public class ScriptCodeController {
         Proof proof = diveCenter.getProjectManager().getProofForPVC(id);
         proof.setScriptText(textArea.getText());
         textArea.getHighlighter().removeAllHighlights();
+        checkPoints = null;
         // This is similar to a proof that has finished: Change in the
         // proof status
         diveCenter.properties().onGoingProof.fire(false);
@@ -235,6 +235,7 @@ public class ScriptCodeController {
         Proof proof = diveCenter.getProjectManager().getProofForPVC(id);
         proof.setScriptTextAndInterpret(textArea.getText());
         setProofState(proof);
+        caretUpdated(null);
     }
 
     private void setLabelText(ProofStatus proofStatus) {
