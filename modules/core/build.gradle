@@ -71,8 +71,9 @@ task runAntlr4(type:JavaExec) {
     classpath { configurations.antlr4.getAsPath()}
 
     main = "org.antlr.v4.Tool"
+    workingDir = "src"
 
-    args = ["-visitor", "-o", "gen", "src/edu/kit/iti/algover/script/ScriptLanguage.g4", "-package", "edu.kit.iti.algover.script" ]
+    args = ["-visitor", "-o", "$projectDir/gen", "edu/kit/iti/algover/script/ScriptLanguage.g4", "-package", "edu.kit.iti.algover.script" ]
 }
 
 
