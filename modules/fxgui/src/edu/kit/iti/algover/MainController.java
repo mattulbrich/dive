@@ -97,8 +97,7 @@ public class MainController implements SequentActionListener, RuleApplicationLis
         this.editorController.anyFileChangedProperty().addListener(this::onDafnyFileChangedInEditor);
         this.sequentController = new SequentTabViewController(this, this.lookup);
         this.ruleApplicationController = new RuleApplicationController(executor, this, manager, this.lookup);
-        //The following will be refactored, in the mean time
-        //hand all necessary controller references to ReferenceGraphController to be able to highlight nec. targets
+
         this.referenceGraphController = new ReferenceGraphController(this.lookup);
 
         JFXButton saveButton = new JFXButton("Save", FontAwesomeIconFactory.get().createIcon(FontAwesomeIcon.SAVE));
@@ -449,6 +448,7 @@ public class MainController implements SequentActionListener, RuleApplicationLis
             breadCrumbBar.setSelectedCrumb(ti);
             editorController.resetPVCSelection();
             sequentController.getActiveSequentController().clear();
+            showStartTimeLineConfiguration();
             Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).info("Successfully reloaded project.");
         });
 
@@ -473,6 +473,14 @@ public class MainController implements SequentActionListener, RuleApplicationLis
 
         executor.execute(t);
     }
+
+    private void showStartTimeLineConfiguration() {
+        boolean moveLeftPosible = true;
+        while(moveLeftPosible){
+            moveLeftPosible = timelineView.moveFrameLeft();
+        }
+    }
+
     public void onClickPVCEdit(PVCEntity entity) {
         PVC pvc = entity.getPVC();
         breadCrumbBar.setSelectedCrumb(getTreeItemForPVC(pvc));
