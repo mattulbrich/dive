@@ -411,6 +411,7 @@ public class Interpreter<T> extends DefaultASTVisitor<Object>
      */
     private VariableAssignment evaluateMatchInGoal(Expression matchExpression, ProofNode goal) {
         enterScope(matchExpression);
+
         Evaluator eval = new Evaluator(goal.getAssignments(), goal);
 
         //System.out.println("Goal to match " + goal);
@@ -427,6 +428,8 @@ public class Interpreter<T> extends DefaultASTVisitor<Object>
             if (eval1.getType().equals(Type.BOOL) && eval1.equals(Value.TRUE)) {
                 VariableAssignment emptyAssignment = new VariableAssignment(null);
                 matchResult.add(emptyAssignment);
+            } else {
+                throw new RuntimeException("This type " + eval1.getType() + " can not be transformed into a truth value in expression "+ matchExpression.getStartPosition());
             }
 
         }
