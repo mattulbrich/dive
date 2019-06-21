@@ -47,6 +47,7 @@ import java.util.stream.Collectors;
  */
 public class ScriptController implements ScriptViewListener, ReferenceHighlightingHandler {
     KeyCombination saveShortcut = new KeyCodeCombination(KeyCode.S, KeyCombination.CONTROL_DOWN);
+    KeyCombination reloadAndExecuteShortcut = new KeyCodeCombination(KeyCode.E, KeyCombination.CONTROL_DOWN);
 
     private final ScriptView view;
     private final RuleApplicationListener listener;
@@ -112,6 +113,10 @@ public class ScriptController implements ScriptViewListener, ReferenceHighlighti
     private void handleShortcuts(KeyEvent keyEvent) {
         if (saveShortcut.match(keyEvent)) {
             listener.onScriptSave();
+        }
+        if(reloadAndExecuteShortcut.match(keyEvent)){
+            listener.onScriptSave();
+            runScript();
         }
     }
 

@@ -10,6 +10,7 @@ import edu.kit.iti.algover.rules.ProofRuleApplication;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.geometry.Insets;
 import javafx.scene.Node;
 import javafx.scene.control.SelectionModel;
 import javafx.scene.control.SingleSelectionModel;

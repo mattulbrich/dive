@@ -58,6 +58,8 @@ public class RuleView extends StackPane {
         setOnMouseClicked(this::onClick);
 
         selectionModel.selectedItemProperty().addListener(this::onSelectedItemChanged);
+        setPrefHeight(RuleGrid.RULE_CELL_HEIGHT);
+        setPrefWidth(RuleGrid.RULE_CELL_WIDTH);
     }
 
     private void onSelectedItemChanged(ObservableValue<? extends RuleView> observableValue, RuleView selectedBefore, RuleView selectedNow) {

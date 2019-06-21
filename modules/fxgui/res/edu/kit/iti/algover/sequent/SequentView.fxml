@@ -1,27 +1,38 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import java.lang.*?>
-<?import java.util.*?>
-<?import javafx.scene.*?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
 <?import javafx.scene.text.Font?>
 <?import javafx.geometry.Insets?>
-<SplitPane
-        xmlns="http://javafx.com/javafx"
-        xmlns:fx="http://javafx.com/fxml"
-        orientation="VERTICAL"
-        dividerPositions="0.7">
-    <padding><Insets top="10" bottom="10"/></padding>
-    <VBox spacing="10">
-        <Label fx:id="goalTypeLabel" text="Open Goal" />
-        <ListView fx:id="antecedentView" VBox.vgrow="ALWAYS" />
+<?import org.controlsfx.control.ToggleSwitch?>
+<ScrollPane xmlns="http://javafx.com/javafx"
+      xmlns:fx="http://javafx.com/fxml"
+      onKeyPressed="#handleOnKeyPressed"
+            fitToWidth="true"
+            fitToHeight="true"
+>
+    <padding><Insets  right="10"></Insets></padding>
+    <VBox>
+    <HBox alignment="TOP_RIGHT">
+        <ToggleSwitch fx:id="formulaLabels" text="Labels"></ToggleSwitch>
+    </HBox>
+    <padding><Insets top="10" bottom="10" left="10"/></padding>
+    <Label fx:id="goalTypeLabel" text="Open Goal" >
+        <font><Font name="sans serif" size="20" /></font>
+
+    </Label>
+    <VBox fx:id="antecedentBox" spacing="10" onKeyPressed="#handleOnKeyPressed">
+        <padding><Insets top="10" bottom="10" left="10"/></padding>
+
+<!--        <ListView fx:id="antecedentView"/>-->
     </VBox>
-    <VBox spacing="10">
-        <Label fx:id="turnstile" text="⊢">
-            <font><Font name="sans serif" size="20" /></font>
+       <Label fx:id="turnstile" text="⊢" >
+            <font><Font name="sans serif" size="50" /></font>
         </Label>
-        <ListView fx:id="succedentView" VBox.vgrow="ALWAYS" />
+    <VBox fx:id="succedentBox" spacing="20" onKeyPressed="#handleOnKeyPressed">
+        <padding><Insets top="10" bottom="10" left="10"/></padding>
+   <!--     <ListView fx:id="succedentView" />-->
     </VBox>
-</SplitPane>
+    </VBox>
+</ScrollPane>

@@ -44,6 +44,7 @@ public class RuleApplicationController extends FxmlController implements Referen
     private SplitPane splitPane;
     @FXML
     private Label termToConsider;
+
     @FXML
     private RuleGrid ruleGrid;
 
