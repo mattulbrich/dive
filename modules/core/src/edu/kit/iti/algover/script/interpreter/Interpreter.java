@@ -430,14 +430,23 @@ public class Interpreter<T> extends DefaultASTVisitor<Object>
         } else {
             matchResult = new ArrayList<>();
             Value eval1 = eval.eval(matchExpression);
-            if (eval1.getType().equals(Type.BOOL) && eval1.equals(Value.TRUE)) {
-                VariableAssignment emptyAssignment = new VariableAssignment(null);
-                matchResult.add(emptyAssignment);
+            if (eval1.getType().equals(Type.BOOL)) {
+                if(eval1.equals(Value.TRUE)) {
+                    VariableAssignment emptyAssignment = new VariableAssignment(null);
+                    matchResult.add(emptyAssignment);
+                }
             } else {
-                InterpreterRuntimeException interpreterRuntimeException = new InterpreterRuntimeException(  "The type " + eval1.getType() + " can not be transformed into a truth value");
-                interpreterRuntimeException.setLocation(matchExpression);
-                throw interpreterRuntimeException;
-
+                if(eval1.getType().equals(Type.STRING)){
+                    MatchExpression matchExpression1 = new MatchExpression();
+                   // matchExpression1.setRuleContext(matchExpression.getRuleContext());
+                    matchExpression1.setPattern(matchExpression);
+                    matchExpression1.setDerivable(false);
+                    matchResult = mEval.eval(matchExpression1);
+                } else {
+                    InterpreterRuntimeException interpreterRuntimeException = new InterpreterRuntimeException("The type " + eval1.getType() + " can not be transformed into a truth value");
+                    interpreterRuntimeException.setLocation(matchExpression);
+                    throw interpreterRuntimeException;
+                }
             }
 
         }

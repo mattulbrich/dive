@@ -80,6 +80,7 @@ public class TransformAst implements ScriptLanguageVisitor<Object> {
     @Override
     public ProofScript visitStart(ScriptLanguageParser.StartContext ctx) {
         ProofScript s = (ProofScript) ctx.script().accept(this);
+        s.setRuleContext(ctx);
         //ctx.script().forEach(s ->
         //        scripts.add((ProofScript) s.accept(this)));
         script = s;
