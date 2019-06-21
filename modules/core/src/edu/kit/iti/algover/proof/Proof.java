@@ -165,7 +165,7 @@ public class Proof {
             this.proofRoot = newRoot;
             this.failException = ire;
             proofStatus.setValue(ProofStatus.FAILING);
-;
+
 
         } catch(Exception ex) {
             // publish the proof root even if the proof has (partially) failed.
