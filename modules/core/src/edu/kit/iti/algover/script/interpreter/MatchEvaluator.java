@@ -7,9 +7,9 @@ package edu.kit.iti.algover.script.interpreter;
 
 import edu.kit.iti.algover.proof.ProofNode;
 import edu.kit.iti.algover.script.ast.*;
-import edu.kit.iti.algover.script.data.GoalNode;
 import edu.kit.iti.algover.script.data.Value;
 import edu.kit.iti.algover.script.data.VariableAssignment;
+import edu.kit.iti.algover.script.exceptions.InterpreterRuntimeException;
 import edu.kit.iti.algover.script.exceptions.NotImplementedException;
 import edu.kit.iti.algover.script.parser.DefaultASTVisitor;
 import edu.kit.iti.algover.script.parser.Visitor;
@@ -158,7 +158,9 @@ public class MatchEvaluator extends DefaultASTVisitor<List<VariableAssignment>> 
             }
             return transformedValue;
         } else {
-            throw new RuntimeException("This type " + v.getType() + " can not be transformed into a truth value");
+            InterpreterRuntimeException interpreterRuntimeException = new InterpreterRuntimeException("The type " + v.getType() + " can not be transformed into a truth value");
+            throw interpreterRuntimeException;
+
         }
 
     }
@@ -233,6 +235,7 @@ public class MatchEvaluator extends DefaultASTVisitor<List<VariableAssignment>> 
         return va != null ? va : Collections.emptyList();
     }
 
+
     @Override
     public List<VariableAssignment> visit(Variable variable) {
         //get variable value
@@ -248,15 +251,11 @@ public class MatchEvaluator extends DefaultASTVisitor<List<VariableAssignment>> 
             return null;
 
         } else {
-            throw new RuntimeException("Variable " + variable + " was not initialized");
+            InterpreterRuntimeException interpreterRuntimeException = new InterpreterRuntimeException("Variable " + variable + " was not initialized");
+            throw interpreterRuntimeException;
         }
 
     }
-
-
-    // public List<VariableAssignment> getMatchedVariables() {
-    //     return null;
-    // }
 
     @Override
     public List<VariableAssignment> visit(UnaryExpression e) {

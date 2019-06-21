@@ -7,7 +7,6 @@ package edu.kit.iti.algover.settings;
 
 import com.jfoenix.controls.JFXListView;
 import com.jfoenix.controls.JFXRadioButton;
-import edu.kit.iti.algover.Lookup;
 import edu.kit.iti.algover.parser.DafnyException;
 import edu.kit.iti.algover.parser.DafnyParserException;
 import edu.kit.iti.algover.project.*;

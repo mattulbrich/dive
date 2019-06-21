@@ -90,6 +90,7 @@ public class TransformAst implements ScriptLanguageVisitor<Object> {
     @Override
     public Signature visitArgList(ScriptLanguageParser.ArgListContext ctx) {
         Signature signature = new Signature();
+        signature.setRuleContext(ctx);
         for (ScriptLanguageParser.VarDeclContext decl : ctx.varDecl()) {
             signature.put(new Variable(decl.name), Type.findType(decl.type.getText()));
         }
@@ -114,6 +115,7 @@ public class TransformAst implements ScriptLanguageVisitor<Object> {
     @Override
     public Statements visitStmtList(ScriptLanguageParser.StmtListContext ctx) {
         Statements statements = new Statements();
+        statements.setRuleContext(ctx);
         for (ScriptLanguageParser.StatementContext stmt : ctx.statement()) {
             statements.add((Statement) stmt.accept(this));
         }
@@ -148,6 +150,7 @@ public class TransformAst implements ScriptLanguageVisitor<Object> {
     private BinaryExpression createBinaryExpression(ParserRuleContext ctx,
                                                     List<ScriptLanguageParser.ExpressionContext> expression, Operator op) {
         BinaryExpression be = new BinaryExpression();
+        be.setRuleContext(ctx);
         be.setLeft((Expression) expression.get(0).accept(this));
         be.setRight((Expression) expression.get(1).accept(this));
         be.setOperator(op);
@@ -256,43 +259,60 @@ public class TransformAst implements ScriptLanguageVisitor<Object> {
 
     @Override
     public Object visitLiteralID(ScriptLanguageParser.LiteralIDContext ctx) {
-        return new Variable(ctx.ID().getSymbol());
+        Variable variable = new Variable(ctx.ID().getSymbol());
+        variable.setRuleContext(ctx);
+        return variable;
     }
 
     @Override
     public Object visitLiteralDigits(ScriptLanguageParser.LiteralDigitsContext ctx) {
-        return new IntegerLiteral(ctx.DIGITS().getSymbol());
+        IntegerLiteral integerLiteral = new IntegerLiteral(ctx.DIGITS().getSymbol());
+        integerLiteral.setRuleContext(ctx);
+        return integerLiteral;
     }
 
     @Override
     public Object visitLiteralTerm(ScriptLanguageParser.LiteralTermContext ctx) {
-        return new TermLiteral(ctx.getText());
+        TermLiteral termLiteral = new TermLiteral(ctx.getText());
+        termLiteral.setRuleContext(ctx);
+
+        return termLiteral;
     }
 
     //TODO create class
     @Override
     public Object visitMatchTermLiteral(ScriptLanguageParser.MatchTermLiteralContext ctx) {
-        return new TermLiteral(ctx.getText());
+        TermLiteral termLiteral = new TermLiteral(ctx.getText());
+        termLiteral.setRuleContext(ctx);
+        return termLiteral;
     }
 
     @Override
     public Object visitSequentLiteral(ScriptLanguageParser.SequentLiteralContext ctx) {
-        return new SequentLiteral(ctx.getText());
+        SequentLiteral sequentLiteral = new SequentLiteral(ctx.getText());
+        sequentLiteral.setRuleContext(ctx);
+        return sequentLiteral;
     }
 
     @Override
     public Object visitLiteralString(ScriptLanguageParser.LiteralStringContext ctx) {
-        return new StringLiteral(ctx.getText());
+        StringLiteral stringLiteral = new StringLiteral(ctx.getText());
+        stringLiteral.setRuleContext(ctx);
+        return stringLiteral;
     }
 
     @Override
     public Object visitLiteralTrue(ScriptLanguageParser.LiteralTrueContext ctx) {
-        return new BooleanLiteral(true, ctx.TRUE().getSymbol());
+        BooleanLiteral booleanLiteral = new BooleanLiteral(true, ctx.TRUE().getSymbol());
+        booleanLiteral.setRuleContext(ctx);
+        return booleanLiteral;
     }
 
     @Override
     public Object visitLiteralFalse(ScriptLanguageParser.LiteralFalseContext ctx) {
-        return new BooleanLiteral(false, ctx.FALSE().getSymbol());
+        BooleanLiteral booleanLiteral = new BooleanLiteral(false, ctx.FALSE().getSymbol());
+        booleanLiteral.setRuleContext(ctx);
+        return booleanLiteral;
     }
 
     @Override
@@ -411,6 +431,7 @@ public class TransformAst implements ScriptLanguageVisitor<Object> {
     @Override
     public Object visitParameters(ScriptLanguageParser.ParametersContext ctx) {
         Parameters params = new Parameters();
+        params.setRuleContext(ctx);
         int i = 1;
         for (ScriptLanguageParser.ParameterContext pc : ctx.parameter()) {
             Expression expr = (Expression) pc.expr.accept(this);

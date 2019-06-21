@@ -8,6 +8,8 @@ package edu.kit.iti.algover.util;
 import edu.kit.iti.algover.parser.DafnyException;
 import edu.kit.iti.algover.parser.DafnyParserException;
 import edu.kit.iti.algover.parser.DafnyTree;
+import edu.kit.iti.algover.script.ast.ASTNode;
+import edu.kit.iti.algover.script.exceptions.InterpreterRuntimeException;
 import edu.kit.iti.algover.script.exceptions.NoCallHandlerException;
 import edu.kit.iti.algover.script.exceptions.ScriptCommandNotApplicableException;
 import org.antlr.runtime.RecognitionException;
@@ -169,6 +171,19 @@ public final class ExceptionDetails {
             return result;
         }
 
+        if(ex instanceof InterpreterRuntimeException){
+            InterpreterRuntimeException ire = (InterpreterRuntimeException) ex;
+            ExceptionReportInfo result = new ExceptionReportInfo();
+            result.message = ire.getMessage();
+            if(ire.getLocation() != null){
+                ASTNode location = ire.getLocation();
+                result.line = location.getStartPosition().getLineNumber();
+                result.column = location.getStartPosition().getCharInLine() + 1;
+                result.length = location.getEndPosition().getCharInLine() -
+                        location.getStartPosition().getCharInLine();
+            }
+            return result;
+        }
         // ... add other classes here!
 
         Throwable cause = ex.getCause();
