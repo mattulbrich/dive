@@ -431,6 +431,7 @@ public class TransformAst implements ScriptLanguageVisitor<Object> {
     @Override
     public Object visitParameters(ScriptLanguageParser.ParametersContext ctx) {
         Parameters params = new Parameters();
+        params.setRuleContext(ctx);
         int i = 1;
         for (ScriptLanguageParser.ParameterContext pc : ctx.parameter()) {
             Expression expr = (Expression) pc.expr.accept(this);
