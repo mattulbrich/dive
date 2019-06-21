@@ -13,6 +13,7 @@ import edu.kit.iti.algover.rules.TermParameter;
 import edu.kit.iti.algover.script.ast.*;
 import edu.kit.iti.algover.script.data.Value;
 import edu.kit.iti.algover.script.data.VariableAssignment;
+import edu.kit.iti.algover.script.exceptions.InterpreterRuntimeException;
 import edu.kit.iti.algover.script.parser.DefaultASTVisitor;
 import edu.kit.iti.algover.script.parser.Visitor;
 import edu.kit.iti.algover.term.parser.TermParser;
@@ -101,8 +102,9 @@ public class Evaluator<T> extends DefaultASTVisitor<Value> implements ScopeObser
             tp.setSchemaMode(true);
             termV = new Value<>(Type.TERM, new TermParameter(tp.parse(term.getText()), goal.getSequent()));
         } catch (DafnyException | DafnyParserException e) {
-            System.out.println("Could not translate term " + term.getText());
-            throw new RuntimeException(e);
+            InterpreterRuntimeException interpreterRuntimeException = new InterpreterRuntimeException(e);
+            interpreterRuntimeException.setLocation(term);
+            throw interpreterRuntimeException;
         }
         // return Value.from(term);
 
@@ -124,7 +126,9 @@ public class Evaluator<T> extends DefaultASTVisitor<Value> implements ScopeObser
 
         } catch (DafnyException | DafnyParserException e) {
             System.out.println("Could not translate term " + sequentLiteral.getText());
-           throw new RuntimeException(e);
+            InterpreterRuntimeException interpreterRuntimeException = new InterpreterRuntimeException(e);
+            interpreterRuntimeException.setLocation(sequentLiteral);
+            throw interpreterRuntimeException;
         }
         return seqValue;
 
@@ -142,7 +146,7 @@ public class Evaluator<T> extends DefaultASTVisitor<Value> implements ScopeObser
         if (v != null) {
             return v;
         } else {
-            throw new RuntimeException("Variable " + variable + " was not initialized");
+            throw new InterpreterRuntimeException("Variable " + variable + " was not initialized");
         }
 
     }
