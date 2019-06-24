@@ -102,7 +102,7 @@ public class Evaluator<T> extends DefaultASTVisitor<Value> implements ScopeObser
             tp.setSchemaMode(true);
             termV = new Value<>(Type.TERM, new TermParameter(tp.parse(term.getText()), goal.getSequent()));
         } catch (DafnyException | DafnyParserException e) {
-            InterpreterRuntimeException interpreterRuntimeException = new InterpreterRuntimeException(e);
+            InterpreterRuntimeException interpreterRuntimeException = new InterpreterRuntimeException(e.getMessage(), e);
             interpreterRuntimeException.setLocation(term);
             throw interpreterRuntimeException;
         }
@@ -126,7 +126,7 @@ public class Evaluator<T> extends DefaultASTVisitor<Value> implements ScopeObser
 
         } catch (DafnyException | DafnyParserException e) {
             System.out.println("Could not translate term " + sequentLiteral.getText());
-            InterpreterRuntimeException interpreterRuntimeException = new InterpreterRuntimeException(e);
+            InterpreterRuntimeException interpreterRuntimeException = new InterpreterRuntimeException(e.getMessage(), e);
             interpreterRuntimeException.setLocation(sequentLiteral);
             throw interpreterRuntimeException;
         }

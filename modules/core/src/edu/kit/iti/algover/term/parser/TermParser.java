@@ -235,7 +235,7 @@ public class TermParser {
     }
 
     private DafnyParserException generateDafnyParserException(DafnyTree antecForm, Exception e) {
-        DafnyParserException lex = new DafnyParserException(e);
+        DafnyParserException lex = new DafnyParserException(e.getMessage(), e);
         lex.setLine(antecForm.getLine());
         lex.setColumn(antecForm.getCharPositionInLine());
         lex.setLength(antecForm.getText().length());

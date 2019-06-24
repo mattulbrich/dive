@@ -75,18 +75,19 @@ public abstract class AbstractProofRule implements ProofRule {
                 throw new RuleException("Unknown parameter '" + en.getKey() + "'");
             }
 
-            if(t.getType() == ParameterType.TERM) {
-                if(((TermParameter)en.getValue()).getOriginalTermSelector() != null) {
-                    throw new RuleException("Term parameters may not be termSelectors.");
-                }
-            }
 
             Object value = en.getValue();
             if (!t.acceptsValue(value)) {
                 throw new RuleException(
-                        "ParameterDescription " + en.getKey() + " has class " + value.getClass() +
-                                ", but I expected " + t + " (class " + t.getType() + ")");
+                        "Parameter '" + en.getKey() + "' has class " + value.getClass() +
+                                ", but I expected class " + t.getType() + ".");
 
+            }
+
+            if(t.getType() == ParameterType.TERM) {
+                if(((TermParameter)en.getValue()).getOriginalTermSelector() != null) {
+                    throw new RuleException("Term parameters may not be termSelectors.");
+                }
             }
 
             required.remove(t);

@@ -58,7 +58,7 @@ public class ReplaceCutRule extends AbstractProofRule {
         try {
             justificationTerm = tb.eq(on, with);
         } catch (TermBuildException e) {
-            throw new RuleException("error building justification term.", e);
+            throw new RuleException("Error building justification term: " + e.getMessage(), e);
         }
 
         pra.newBranch().addAdditionsSuccedent(new ProofFormula(justificationTerm)).setLabel("justification");
@@ -87,7 +87,7 @@ public class ReplaceCutRule extends AbstractProofRule {
             pra.newBranch().addAdditionsSuccedent(new ProofFormula(justificationTerm)).
                     setLabel("justification");
         } catch (TermBuildException e) {
-            throw new RuleException("error building justification term.", e);
+            throw new RuleException("Error building justification term: " + e.getMessage(), e);
         }
 
         return pra.build();
