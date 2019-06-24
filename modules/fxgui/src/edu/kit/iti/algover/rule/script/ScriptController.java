@@ -244,7 +244,7 @@ public class ScriptController implements ScriptViewListener {
             view.setHighlightedException(failException);
             renderException(failException);
             Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).severe(failException.getMessage());
-            failException.printStackTrace();
+            //failException.printStackTrace();
         } else {
             Logger.getGlobal().info("Successfully ran script.");
         }
