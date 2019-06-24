@@ -20,7 +20,7 @@ public class ScriptCommandNotApplicableException extends RuntimeException {
     public final CallStatement callStatement;
 
     public ScriptCommandNotApplicableException(Exception e) {
-        super(e);
+        super(e.getMessage(), e);
         rule = null;
         callStatement = null;
     }
@@ -33,7 +33,7 @@ public class ScriptCommandNotApplicableException extends RuntimeException {
 
 
     public ScriptCommandNotApplicableException(Exception e, ProofRule r, CallStatement call) {
-        super(e);
+        super(e.getMessage(), e);
         System.out.println("Rule " + r.getName() + " in line " + call.getStartPosition().getLineNumber() + " was not applicable");
         e.printStackTrace();
         rule = r;
@@ -41,7 +41,7 @@ public class ScriptCommandNotApplicableException extends RuntimeException {
     }
 
     public ScriptCommandNotApplicableException(Exception e, ProofRule c, Map<String, String> params) {
-        super(e);
+        super(e.getMessage(), e);
         StringBuffer sb = new StringBuffer();
         sb.append("Rule " + c.getName() + " with parameters ");
         for (String s : params.keySet()) {

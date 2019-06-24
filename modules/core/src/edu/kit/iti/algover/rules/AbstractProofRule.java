@@ -84,8 +84,8 @@ public abstract class AbstractProofRule implements ProofRule {
             Object value = en.getValue();
             if (!t.acceptsValue(value)) {
                 throw new RuleException(
-                            "ParameterDescription " + en.getKey() + " has class " + value.getClass() +
-                                    ", but I expected " + t + " (class " + t.getType() + ")");
+                        "ParameterDescription " + en.getKey() + " has class " + value.getClass() +
+                                ", but I expected " + t + " (class " + t.getType() + ")");
 
             }
 
@@ -93,7 +93,12 @@ public abstract class AbstractProofRule implements ProofRule {
         }
 
         if (!required.isEmpty()) {
-                throw new RuleException("Missing required arguments: " + required);
+            String errorMessage = "Missing required argument(s): ";
+            for(ParameterDescription<?> pd : required) {
+                errorMessage += pd.getName() + "(" + pd.getType() + "), ";
+            }
+            errorMessage = errorMessage.substring(0, errorMessage.length() - 2);
+            throw new RuleException(errorMessage);
         }
     }
 
@@ -232,10 +237,15 @@ public abstract class AbstractProofRule implements ProofRule {
             }
             required.remove(p.getKey());
         }
-        if (!required.isEmpty()) {
-            throw new RuleException("Missing required arguments: " + required);
+        if (!required.isEmpty())
+        {
+            String errorMessage = "Missing required argument(s): ";
+            for (ParameterDescription<?> pd : required.values()) {
+                errorMessage += pd.getName() + " (" + pd.getType() + "), ";
+            }
+            errorMessage = errorMessage.substring(0, errorMessage.length() - 2);
+            throw new RuleException(errorMessage);
         }
-
         res += ";";
         if(pra.getBranchCount() > 1) {
             res += "\ncases {\n";

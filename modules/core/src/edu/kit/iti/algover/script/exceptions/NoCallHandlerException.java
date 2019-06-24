@@ -36,7 +36,7 @@ public class NoCallHandlerException extends InterpreterRuntimeException {
     }
 
     public NoCallHandlerException(CallStatement callStatement) {
-        super(callStatement.toString());
+        super("Unkonwn rule name: " + callStatement.getCommand());
         this.callStatement = callStatement;
     }
 }
