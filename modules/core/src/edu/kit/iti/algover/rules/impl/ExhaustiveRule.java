@@ -50,8 +50,7 @@ public class ExhaustiveRule extends AbstractProofRule {
 
         ProofRule rule = rules.get(0);
         if (rule.getAllParameters().size() > 1) {
-            // REVIEW: @Jonas? Is this a Notapplicalbeexce?
-            throw new RuleException("Only rules with 5 Parameter are exhaustively applicable.");
+            throw new NotApplicableException("Only rules with 1 Parameter are exhaustively applicable.");
         }
 
         TermSelector onSelector = parameters.getValue(ON_PARAM).getTermSelector();

@@ -7,16 +7,8 @@ package edu.kit.iti.algover.rules.impl;
 
 import edu.kit.iti.algover.proof.ProofFormula;
 import edu.kit.iti.algover.proof.ProofNode;
-import edu.kit.iti.algover.rules.AbstractProofRule;
-import edu.kit.iti.algover.rules.ParameterDescription;
-import edu.kit.iti.algover.rules.ParameterType;
-import edu.kit.iti.algover.rules.Parameters;
-import edu.kit.iti.algover.rules.ProofRuleApplication;
+import edu.kit.iti.algover.rules.*;
 import edu.kit.iti.algover.rules.ProofRuleApplication.Applicability;
-import edu.kit.iti.algover.rules.ProofRuleApplicationBuilder;
-import edu.kit.iti.algover.rules.RuleException;
-import edu.kit.iti.algover.rules.TermParameter;
-import edu.kit.iti.algover.rules.TermSelector;
 import edu.kit.iti.algover.term.Term;
 import edu.kit.iti.algover.term.builder.TermBuildException;
 import edu.kit.iti.algover.term.builder.TermBuilder;
@@ -61,7 +53,10 @@ public class ReplaceCutRule extends AbstractProofRule {
 
         TermSelector selector = parameters.getValue(ON_PARAM).getTermSelector();
 
-        // TODO @Jonas. Should there not be a check that terms have a comparable type?
+        if(on.getSort().equals(with.getSort())) {
+            throw new NotApplicableException("Found type " + with.getSort().toString() + " as replacement but original term has type "
+             + on.getSort().toString() + " (has to be the same type).");
+        }
 
         ProofRuleApplicationBuilder pra = new ProofRuleApplicationBuilder(this);
         pra.newBranch().addReplacement(selector, with).setLabel("replace");

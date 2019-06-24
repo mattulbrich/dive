@@ -118,7 +118,7 @@ public class AbstractRuleTest {
         assertEquals("$lt(i1, i2)", ((TermParameter)params.getValue(AddHypothesisRule.WITH_PARAM)).getTerm().toString());
     }
 
-    @Test
+    @Test(expected = NotApplicableException.class)
     public void getUniqueMatchingParameterTest3()
             throws FormatException, TermBuildException, RuleException, DafnyParserException, DafnyException {
         AndRightRule rule = new AndRightRule();
@@ -129,9 +129,6 @@ public class AbstractRuleTest {
         params.putValue(AbstractProofRule.ON_PARAM, new TermParameter(selector, sequent));
         assertEquals(1, params.entrySet().size());
         assertEquals("(... (?match: $lt(i1, i2)) ...) |-", ((TermParameter)params.getValue(AbstractProofRule.ON_PARAM)).getSchematicSequent().toString());
-        // REVIEW: @Jonas. Should that really work? I doubt it.
         rule.makeApplication(ProofMockUtil.mockProofNode(null, sequent), params);
-        assertEquals(1, params.entrySet().size());
-        assertEquals("$lt(i1, i2)", ((TermParameter)params.getValue(AbstractProofRule.ON_PARAM)).getTerm().toString());
     }
 }

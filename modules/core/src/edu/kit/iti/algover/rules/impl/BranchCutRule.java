@@ -56,11 +56,10 @@ public class BranchCutRule extends AbstractProofRule {
 
         ProofRuleApplicationBuilder pra = new ProofRuleApplicationBuilder(this);
         pra.setApplicability(ProofRuleApplication.Applicability.APPLICABLE);
-        pra.newBranch().addAdditionAntecedent(new ProofFormula(with)).setLabel("add");
+        pra.newBranch().addAdditionAntecedent(new ProofFormula(with)).setLabel("positive");
 
         try {
-            // REVIEW @Jonas. "negatedAdd" is not really a nice name.
-            pra.newBranch().addAdditionAntecedent(new ProofFormula(new ApplTerm(BuiltinSymbols.NOT, with))).setLabel("negatedAdd");
+            pra.newBranch().addAdditionAntecedent(new ProofFormula(new ApplTerm(BuiltinSymbols.NOT, with))).setLabel("negative");
         } catch(TermBuildException e) {
             throw new RuleException("Could not create negated Term of " + with);
         }

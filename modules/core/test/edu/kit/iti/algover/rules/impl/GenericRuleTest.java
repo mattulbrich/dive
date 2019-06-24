@@ -17,6 +17,7 @@ import edu.kit.iti.algover.term.Sequent;
 import edu.kit.iti.algover.term.Sort;
 import edu.kit.iti.algover.term.builder.TermBuildException;
 import edu.kit.iti.algover.term.parser.TermParser;
+import edu.kit.iti.algover.util.FormatException;
 import edu.kit.iti.algover.util.Pair;
 import edu.kit.iti.algover.util.ProofMockUtil;
 import junitparams.JUnitParamsRunner;
@@ -77,6 +78,8 @@ public class GenericRuleTest {
                         new ArrayList<>(Arrays.asList("b1 |- $not(b1)")), null},
                 {new ModusPonensRule(), "b1, b1 ==> b1 || b2 |- ", new TermSelector(TermSelector.SequentPolarity.ANTECEDENT, 1),
                         new ArrayList<>(Arrays.asList("b1, $or(b1, b2) |-", "b1, $imp(b1, $or(b1, b2)) |- b1")), null},
+                {new ModusPonensRule(), "b1, b1 ==> b1 || b2 |- b3", new TermSelector(TermSelector.SequentPolarity.ANTECEDENT, 1),
+                        new ArrayList<>(Arrays.asList("b1, $or(b1, b2) |- b3", "b1, $imp(b1, $or(b1, b2)) |- b1")), null},
                 {new AndLeftRule(), "b1 && b2 |- ", new TermSelector(TermSelector.SequentPolarity.ANTECEDENT, 0),
                         new ArrayList<>(Arrays.asList("b1, b2 |-")), null},
                 {new OrRightRule(), "b1 |- b1 || b2)", new TermSelector(TermSelector.SequentPolarity.SUCCEDENT, 0),
@@ -87,7 +90,7 @@ public class GenericRuleTest {
         };
     }
 
-    public Object [][] parametersForGenericRuleTestNotApplicable() throws DafnyRuleException {
+    public Object [][] parametersForGenericRuleTestNotApplicable() throws DafnyRuleException, FormatException {
         ProofRule pr = DafnyRuleUtil.generateDafnyRuleFromFile("test-res/edu/kit/iti/algover/dafnyrules/addzero2.dfy");
         ProofRule pr1 = DafnyRuleUtil.generateDafnyRuleFromFile("test-res/edu/kit/iti/algover/dafnyrules/WeakenAssumption.dfy");
         return new Object[][] {
@@ -96,6 +99,8 @@ public class GenericRuleTest {
                 {pr, "i1 == 0, i2 == 0  |- i1 == 0", new TermSelector(TermSelector.SequentPolarity.ANTECEDENT, 0), null},
                 {pr1, "b1 |- b2", new TermSelector(TermSelector.SequentPolarity.ANTECEDENT, 0), null},
                 {pr1, "b2 |- b1 && b2", new TermSelector(TermSelector.SequentPolarity.SUCCEDENT, 0), null},
+                {new NotLeftRule(), "b1 || b2 |- b2", new TermSelector("A.0.0"), null},
+                {new NotLeftRule(), "b1 || b2 |- b2", new TermSelector("S.0"), null}
 
         };
     }

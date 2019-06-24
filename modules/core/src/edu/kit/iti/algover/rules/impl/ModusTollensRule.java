@@ -41,12 +41,9 @@ public class ModusTollensRule extends AbstractProofRule {
             throw NotApplicableException.onlyOperator(this, "==>");
         }
 
-        // TODO: @Jonas: I believe this is needed. Right?
         if (!selector.isToplevel()) {
             throw NotApplicableException.onlyToplevel(this);
         }
-
-        // TODO: @Jonas: Can this rule be applied in antecedent and succedent?
 
         ApplTerm appl = (ApplTerm) term;
         FunctionSymbol fs = appl.getFunctionSymbol();
@@ -72,8 +69,12 @@ public class ModusTollensRule extends AbstractProofRule {
         }
 
         builder.newBranch().addReplacement(selector, notTerm2).setLabel("mainBranch");
-        builder.newBranch().addDeletionsSuccedent(target.getSequent().getSuccedent()).
-                addAdditionsSuccedent(new ProofFormula(notTerm)).setLabel("assumption");
+        BranchInfoBuilder b = builder.newBranch();
+        for(ProofFormula pf : target.getSequent().getSuccedent()) {
+            b.addDeletionsSuccedent(pf);
+        }
+        b.addAdditionsSuccedent(new ProofFormula(notTerm)).setLabel("assumption");
+        builder.setApplicability(ProofRuleApplication.Applicability.APPLICABLE);
 
         return builder.build();
     }

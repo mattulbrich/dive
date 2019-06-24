@@ -26,7 +26,6 @@ import java.util.Optional;
  * Created by jklamroth on 5/22/18.
  */
 
-//REVIEW . @Jonas. Is this really modus ponens?! Is it rather some kind of impLeft
 
 
 public class ModusPonensRule extends AbstractProofRule {
@@ -36,7 +35,7 @@ public class ModusPonensRule extends AbstractProofRule {
 
     @Override
     public String getName() {
-        return "modusPonens";
+        return "impLeft";
     }
 
     @Override
@@ -51,23 +50,29 @@ public class ModusPonensRule extends AbstractProofRule {
         ProofFormula formula = selector.selectTopterm(target.getSequent());
         Term term = formula.getTerm();
         if (!(term instanceof ApplTerm)) {
-            throw new NotApplicableException("Modus Ponens is only applicable on implications.");
+            throw NotApplicableException.onlyOperator(this, "==>");
         }
         ApplTerm appl = (ApplTerm) term;
         FunctionSymbol fs = appl.getFunctionSymbol();
 
         if (fs != BuiltinSymbols.IMP) {
-            throw new NotApplicableException("Modus Ponens is only applicable on implications.");
+            throw NotApplicableException.onlyOperator(this, "==>");
+        }
+
+        if(!selector.isToplevel()) {
+            throw NotApplicableException.onlyToplevel(this);
         }
 
         // TODO @Jonas. Should there not be a check for antecedent (or succedent?!)
-        // TODO @Jonas. Should there not be a check for toplevel?
 
         ProofRuleApplicationBuilder builder = new ProofRuleApplicationBuilder(this);
 
         builder.newBranch().addReplacement(selector, appl.getTerm(1)).setLabel("mainBranch");
-        builder.newBranch().addDeletionsSuccedent(target.getSequent().getSuccedent()).
-                addAdditionsSuccedent(new ProofFormula(appl.getTerm(0))).setLabel("assumption");
+        BranchInfoBuilder b = builder.newBranch();
+        for(ProofFormula pf : target.getSequent().getSuccedent()) {
+            b.addDeletionsSuccedent(pf);
+        }
+        b.addAdditionsSuccedent(new ProofFormula(appl.getTerm(0))).setLabel("assumption");
         builder.setApplicability(ProofRuleApplication.Applicability.APPLICABLE);
 
         return builder.build();

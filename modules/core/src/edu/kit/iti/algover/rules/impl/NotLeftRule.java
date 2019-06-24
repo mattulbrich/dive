@@ -53,7 +53,6 @@ public class NotLeftRule extends AbstractProofRule {
             throw NotApplicableException.onlyToplevel(this);
         }
 
-        // TODO @Jonas: I added this check. I think it was missing. Right?
         if (!selector.isAntecedent()) {
             throw NotApplicableException.onlyAntecedent(this);
         }
@@ -63,7 +62,6 @@ public class NotLeftRule extends AbstractProofRule {
             throw NotApplicableException.onlyOperator(this, "!");
         }
 
-        // TODO @Jonas: I added this check. I think it was missing. Right?
         ApplTerm at = (ApplTerm)term;
         if(at.getFunctionSymbol() != BuiltinSymbols.NOT) {
             throw NotApplicableException.onlyOperator(this, "!");
@@ -71,15 +69,6 @@ public class NotLeftRule extends AbstractProofRule {
 
         builder.setApplicability(ProofRuleApplication.Applicability.APPLICABLE);
 
-        /*try {
-            // TODO @Jonas: This seems to not remove a negation but to add one
-            // Is this intended?
-            builder.newBranch().addDeletionsAntecedent(new ProofFormula(term))
-                    .addAdditionsSuccedent(new ProofFormula(new ApplTerm(BuiltinSymbols.NOT, term)));
-
-        } catch(TermBuildException e) {
-            throw new RuleException(e);
-        }*/
         builder.newBranch().addDeletionsAntecedent(new ProofFormula(term))
                 .addAdditionsSuccedent(new ProofFormula(term.getTerm(0)));
 

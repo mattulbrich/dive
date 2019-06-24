@@ -32,8 +32,6 @@ import edu.kit.iti.algover.term.builder.TermBuildException;
 /**
  * Created by jklamroth on 10/25/18.
  */
-// REVIEW @Jonas: The name suggests that this for all instantiations, yet
-// the name is for forall-left only.
 public class QuantifierInstantiation extends AbstractProofRule {
     public static final ParameterDescription<TermParameter> WITH_PARAM =
             new ParameterDescription<>("with", ParameterType.TERM, true);
@@ -44,8 +42,7 @@ public class QuantifierInstantiation extends AbstractProofRule {
 
     @Override
     public String getName() {
-        //  REVIEW @Jonas: I suggest "inst" only
-        return "forallInstantiation";
+        return "inst";
     }
 
     @Override
@@ -82,12 +79,12 @@ public class QuantifierInstantiation extends AbstractProofRule {
         // REVIEW: Does it make sense to forbid bounded versions of the bound
         // variable.
         if (withParam.getTerm().accept(new ContainsVarVisitor(), aTerm.getBoundVar())) {
-            // TODO @Jonas, please report the right error message here.
-            throw new NotApplicableException("XXX The instantiation contains variables");
+            throw new NotApplicableException("A quantifier cannot be instantiated with a term" +
+                    " that contains the bound variable of the quantifier.");
         }
 
         if (!withParam.getTerm().getSort().isSubtypeOf(aTerm.getBoundVar().getSort())) {
-            throw new NotApplicableException("The instantiated type is not compatible with the quantifer");
+            throw new NotApplicableException("The instantiated type is not compatible with the quantifier");
         }
 
         ReplaceBoundVisitor rv = new ReplaceBoundVisitor(withParam.getTerm(), aTerm.getBoundVar());
