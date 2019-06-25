@@ -291,14 +291,14 @@ public class MainController implements SequentActionListener, RuleApplicationLis
                 }
             }
             if (item.getValue() instanceof DafnyFile) {
-                editorController.viewFile((DafnyFile) item.getValue());
+                editorController.viewFile(manager.getProject().getBaseDir(), (DafnyFile) item.getValue());
                 timelineView.moveFrameLeft();
                 timelineView.moveFrameLeft();
                 editorController.resetPVCSelection();
             }
             if (item.getValue() instanceof DafnyMethod) {
                 if (item.getParent().getValue() instanceof DafnyFile) {
-                    editorController.viewFile((DafnyFile) item.getParent().getValue());
+                    editorController.viewFile(manager.getProject().getBaseDir(), (DafnyFile) item.getParent().getValue());
                     timelineView.moveFrameLeft();
                     timelineView.moveFrameLeft();
                     editorController.resetPVCSelection();
@@ -438,7 +438,8 @@ public class MainController implements SequentActionListener, RuleApplicationLis
             browserController.getView().setDisable(false);
             sequentController.getView().setDisable(false);
             ruleApplicationController.getView().setDisable(false);
-            manager.getProject().getDafnyFiles().forEach(df -> editorController.viewFile(df));
+            manager.getProject().getDafnyFiles().forEach(df ->
+                    editorController.viewFile(manager.getProject().getBaseDir(), df));
             ruleApplicationController.onReset();
             simpleStratButton.setDisable(false);
             breadCrumbBar.setDisable(false);
@@ -452,7 +453,8 @@ public class MainController implements SequentActionListener, RuleApplicationLis
 
         //TODO somehow get proper exceptions and handling them
         t.setOnFailed(event -> {
-            manager.getProject().getDafnyFiles().forEach(df -> editorController.viewFile(df));
+            manager.getProject().getDafnyFiles().forEach(df ->
+                    editorController.viewFile(manager.getProject().getBaseDir(),df));
             Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).log(Level.SEVERE,
                     t.getException().getMessage(),
                     t.getException());
@@ -474,7 +476,7 @@ public class MainController implements SequentActionListener, RuleApplicationLis
     public void onClickPVCEdit(PVCEntity entity) {
         PVC pvc = entity.getPVC();
         breadCrumbBar.setSelectedCrumb(getTreeItemForPVC(pvc));
-        editorController.viewFile(entity.getLocation());
+        editorController.viewFile(manager.getProject().getBaseDir(), entity.getLocation());
         editorController.viewPVCSelection(pvc);
         Proof proof = manager.getProofForPVC(entity.getPVC().getIdentifier());
         // MU: currently proofs are not automatically interpreted and/or uptodate. Make sure they are.
@@ -531,7 +533,7 @@ public class MainController implements SequentActionListener, RuleApplicationLis
     public void onSelectBrowserItem(TreeTableEntity treeTableEntity) {
         DafnyFile file = treeTableEntity.getLocation();
         if (file != null) {
-            editorController.viewFile(file);
+            editorController.viewFile(manager.getProject().getBaseDir(), file);
             PVC pvc = treeTableEntity.accept(new PVCGetterVisitor());
             if (pvc != null) {
                 editorController.viewPVCSelection(pvc);

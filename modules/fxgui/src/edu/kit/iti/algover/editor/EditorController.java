@@ -112,11 +112,15 @@ public class EditorController implements DafnyCodeAreaListener {
     /**
      * If the Editor tab was already open, focus and show it, if not,
      * open a new tab that shows the given file.
-     *
+     *  @param baseDir the directory to which a path may be relative
      * @param dafnyFile the file to be viewed to the user
      */
-    public void viewFile(DafnyFile dafnyFile) {
-        viewFile(dafnyFile.getFilename());
+    public void viewFile(File baseDir, DafnyFile dafnyFile) {
+        File file = new File(dafnyFile.getFilename());
+        if (!file.isAbsolute() && !file.toString().startsWith("$dive/")) {
+            file = new File(baseDir, dafnyFile.getFilename());
+        }
+        viewFile(file.toString());
     }
 
     public void viewFile(String fileName) {

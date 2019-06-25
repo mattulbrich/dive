@@ -242,7 +242,7 @@ public class ProjectBuilder {
         for (String filename: this.getDafnyFiles()) {
             File file = getFileFor(filename);
             DafnyTree tree = DafnyFileParser.parse(file);
-            parseFile(false, tree, file.toString());
+            parseFile(false, tree, filename);
         }
 
         // That's used in testing ...
