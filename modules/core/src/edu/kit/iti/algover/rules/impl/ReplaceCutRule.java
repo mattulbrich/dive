@@ -67,12 +67,13 @@ public class ReplaceCutRule extends FocusProofRule {
             Term justificationTerm = tb.eq(on, with);
             pra.newBranch().addAdditionsSuccedent(new ProofFormula(justificationTerm)).setLabel("justification");
         } catch (TermBuildException e) {
-            throw new RuleException("error building justification term.", e);
+            throw new RuleException("Error building justification term: " + e.getMessage(), e);
         }
 
         // TODO: auto parameter!
 
         pra.setApplicability(ProofRuleApplication.Applicability.APPLICABLE);
+        pra.newBranch().addReplacement(selector, with).setLabel("replace");
 
         return pra.build();
     }

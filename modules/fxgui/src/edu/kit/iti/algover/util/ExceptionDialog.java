@@ -1,5 +1,6 @@
 package edu.kit.iti.algover.util;
 
+import javafx.application.Platform;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextArea;
@@ -34,6 +35,10 @@ public class ExceptionDialog extends Alert {
 
         content.getChildren().addAll(new Label("Stacktrace"), area);
         this.getDialogPane().setContent(content);
+        this.setResizable(true);
+        this.onShownProperty().addListener(eObservable -> {
+            Platform.runLater(() -> this.setResizable(false));
+        });
 
     }
 

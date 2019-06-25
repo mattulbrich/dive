@@ -118,9 +118,6 @@ public class ProjectSettingsController implements ISettingsController {
     private ChangeListener<ProjectManager> projectManagerListener;
 
 
-
-
-
     /**
      * The ProjectManager for a loaded project
      */
@@ -181,6 +178,7 @@ public class ProjectSettingsController implements ISettingsController {
         this.config.addListener((observable, oldValue, newValue) -> {
             if(newValue != null) {
                 addProjectContents();
+
             }
         });
 
@@ -189,6 +187,11 @@ public class ProjectSettingsController implements ISettingsController {
             public void changed(ObservableValue<? extends ProjectManager> observable, ProjectManager oldValue, ProjectManager newValue) {
                 if(newValue != null){
                     addProjectContents();
+                    if(savingFormatAsXML.get()){
+                        dfyFormat.setDisable(true);
+                    } else {
+                        xmlFormat.setDisable(true);
+                    }
                 }
             }
         };
@@ -516,7 +519,7 @@ public class ProjectSettingsController implements ISettingsController {
         DirectoryChooser chooser = new DirectoryChooser();
 
         if(getConfig().getBaseDir().equals(new File(""))){
-            getConfig().setBaseDir(new File("doc/examples/"));
+            getConfig().setBaseDir(new File("../../doc/examples/"));
         }
         chooser.setInitialDirectory(getConfig().getBaseDir());
         File file = chooser.showDialog(this.settingsPanel.getScene().getWindow());
@@ -562,6 +565,7 @@ public class ProjectSettingsController implements ISettingsController {
     private void removeSelectedFiles(ListView<File> list, ObservableList<File> selectedItems){
         list.getItems().removeAll(selectedItems);
     }
+
 
     //region: converter
 

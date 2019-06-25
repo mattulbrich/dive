@@ -9,7 +9,6 @@ package edu.kit.iti.algover.script.interpreter;
 import edu.kit.iti.algover.proof.ProofNode;
 import edu.kit.iti.algover.script.ast.*;
 import edu.kit.iti.algover.script.callhandling.CommandLookup;
-//import edu.kit.iti.algover.script.data.GoalNode;
 import edu.kit.iti.algover.script.data.State;
 import edu.kit.iti.algover.script.data.Value;
 import edu.kit.iti.algover.script.data.VariableAssignment;
@@ -102,7 +101,9 @@ public class Interpreter<T> extends DefaultASTVisitor<Object>
      */
     public void interpret(ProofScript script) throws ScriptCommandNotApplicableException, InterpreterRuntimeException {
         if (stateStack.empty()) {
-            throw new InterpreterRuntimeException("No state on stack. call newState before interpret");
+            InterpreterRuntimeException interpreterRuntimeException = new InterpreterRuntimeException("Internal Error: No state on stack. Call newState before interpreting");
+            interpreterRuntimeException.setLocation(script);
+            throw interpreterRuntimeException;
         }
         script.accept(this);
     }
@@ -115,7 +116,9 @@ public class Interpreter<T> extends DefaultASTVisitor<Object>
      */
     public void interpret(ASTNode node) throws ScriptCommandNotApplicableException, InterpreterRuntimeException {
         if (stateStack.empty()) {
-            throw new InterpreterRuntimeException("no state on stack. call newState before interpret");
+            InterpreterRuntimeException interpreterRuntimeException = new InterpreterRuntimeException("Internal Error: No state on stack. Call newState before interpreting");
+            interpreterRuntimeException.setLocation(node);
+            throw interpreterRuntimeException;
         }
         node.accept(this);
     }
@@ -167,7 +170,9 @@ public class Interpreter<T> extends DefaultASTVisitor<Object>
         if (expr != null) {
             Type type = newNode.getVariableType(var);
             if (type == null) {
-                throw new RuntimeException("Type of Variable " + var + " is not declared yet");
+                InterpreterRuntimeException interpreterRuntimeException = new InterpreterRuntimeException("Type of Variable " + var + " is not declared yet");
+                interpreterRuntimeException.setLocation(assignmentStatement);
+                throw interpreterRuntimeException;
             } else {
                 Value v = evaluate(expr);
                 newNode.setVariableValue(var, v);
@@ -411,6 +416,7 @@ public class Interpreter<T> extends DefaultASTVisitor<Object>
      */
     private VariableAssignment evaluateMatchInGoal(Expression matchExpression, ProofNode goal) {
         enterScope(matchExpression);
+
         Evaluator eval = new Evaluator(goal.getAssignments(), goal);
 
         //System.out.println("Goal to match " + goal);
@@ -424,9 +430,23 @@ public class Interpreter<T> extends DefaultASTVisitor<Object>
         } else {
             matchResult = new ArrayList<>();
             Value eval1 = eval.eval(matchExpression);
-            if (eval1.getType().equals(Type.BOOL) && eval1.equals(Value.TRUE)) {
-                VariableAssignment emptyAssignment = new VariableAssignment(null);
-                matchResult.add(emptyAssignment);
+            if (eval1.getType().equals(Type.BOOL)) {
+                if(eval1.equals(Value.TRUE)) {
+                    VariableAssignment emptyAssignment = new VariableAssignment(null);
+                    matchResult.add(emptyAssignment);
+                }
+            } else {
+                if(eval1.getType().equals(Type.STRING)){
+                    MatchExpression matchExpression1 = new MatchExpression();
+                   // matchExpression1.setRuleContext(matchExpression.getRuleContext());
+                    matchExpression1.setPattern(matchExpression);
+                    matchExpression1.setDerivable(false);
+                    matchResult = mEval.eval(matchExpression1);
+                } else {
+                    InterpreterRuntimeException interpreterRuntimeException = new InterpreterRuntimeException("The type " + eval1.getType() + " can not be transformed into a truth value");
+                    interpreterRuntimeException.setLocation(matchExpression);
+                    throw interpreterRuntimeException;
+                }
             }
 
         }
