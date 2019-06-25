@@ -7,6 +7,7 @@ package edu.kit.iti.algover.browser;
 
 import edu.kit.iti.algover.browser.entities.*;
 import edu.kit.iti.algover.dafnystructures.DafnyClass;
+import edu.kit.iti.algover.dafnystructures.DafnyDecl;
 import edu.kit.iti.algover.dafnystructures.DafnyFile;
 import edu.kit.iti.algover.dafnystructures.DafnyFunction;
 import edu.kit.iti.algover.dafnystructures.DafnyMethod;
@@ -21,6 +22,7 @@ import javafx.scene.control.TreeItem;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 /**
@@ -29,6 +31,9 @@ import java.util.stream.Collectors;
  * @author S. Grebing (added ContextMenu)
  */
 public abstract class BrowserController {
+
+    public static final Predicate<DafnyDecl> NOT_IN_LIB_FILTER =
+            dafnyDecl -> !dafnyDecl.isInLibrary();
 
     private Project project;
     private final BrowserTreeTable view;

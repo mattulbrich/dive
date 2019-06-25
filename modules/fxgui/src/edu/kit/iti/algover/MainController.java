@@ -324,6 +324,9 @@ public class MainController implements SequentActionListener, RuleApplicationLis
         TreeItem<Object> lastitem = null;
         TreeItem<Object> root = new TreeItem<>("root");
         for (DafnyFile f : manager.getProject().getDafnyFiles()) {
+            if (f.isInLibrary()) {
+                continue;
+            }
             TreeItem<Object> fileChild = new TreeItem<>(f.getFilename());
             fileChild.setValue(f);
             root.getChildren().add(fileChild);

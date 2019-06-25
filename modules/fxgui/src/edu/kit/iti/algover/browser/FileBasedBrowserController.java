@@ -9,7 +9,6 @@ import edu.kit.iti.algover.browser.entities.OtherEntity;
 import edu.kit.iti.algover.browser.entities.TreeTableEntity;
 import edu.kit.iti.algover.project.Project;
 import edu.kit.iti.algover.proof.Proof;
-import javafx.scene.control.ContextMenu;
 import javafx.scene.control.TreeItem;
 
 import java.util.List;
@@ -34,6 +33,7 @@ public class FileBasedBrowserController extends BrowserController {
 
     public List<TreeTableEntity> getDafnyFileEntities() {
         return getProject().getDafnyFiles().stream()
+                .filter(NOT_IN_LIB_FILTER)
                 .map(this::getEntityFromFile)
                 .collect(Collectors.toList());
     }

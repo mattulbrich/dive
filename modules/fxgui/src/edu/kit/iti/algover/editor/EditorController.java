@@ -6,9 +6,11 @@
 package edu.kit.iti.algover.editor;
 
 import edu.kit.iti.algover.dafnystructures.DafnyFile;
+import edu.kit.iti.algover.project.ProjectBuilder;
 import edu.kit.iti.algover.proof.PVC;
 import edu.kit.iti.algover.references.CodeReference;
 import edu.kit.iti.algover.util.ExceptionDetails;
+import edu.kit.iti.algover.util.Util;
 import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
@@ -33,6 +35,7 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.net.URL;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -246,8 +249,13 @@ public class EditorController implements DafnyCodeAreaListener {
     }
 
     private static String fileToString(String filename) throws IOException {
-        Path path = FileSystems.getDefault().getPath(filename);
-        return new String(Files.readAllBytes(path));
+        if(filename.startsWith("$dive/")) {
+            URL url = ProjectBuilder.class.getResource("lib/" + filename.substring(6));
+            return Util.streamToString(url.openStream());
+        } else {
+            Path path = FileSystems.getDefault().getPath(filename);
+            return new String(Files.readAllBytes(path));
+        }
     }
 
     /**
