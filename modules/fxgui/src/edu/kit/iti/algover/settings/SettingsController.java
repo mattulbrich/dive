@@ -119,7 +119,6 @@ public class SettingsController {
                 current = width;
             }
         }
-        System.out.println("current = " + current);
         return current;
 
     }
@@ -129,7 +128,7 @@ public class SettingsController {
         dialogPane.setPadding(new Insets(20,20,20,20));
         dialogPane.getButtonTypes().setAll(ButtonType.OK, ButtonType.CANCEL);
         dialogPane.setPrefHeight(height*0.8);
-        dialogPane.setMinWidth(computeMinWidth()+200);
+        dialogPane.setMinWidth(computeMinWidth());
         dialog.setDialogPane(dialogPane);
         tabList.getSelectionModel().selectFirst();
 
