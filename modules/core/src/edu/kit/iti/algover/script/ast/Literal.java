@@ -29,6 +29,7 @@ package edu.kit.iti.algover.script.ast;
 
 
 import org.antlr.v4.runtime.ParserRuleContext;
+import org.antlr.v4.runtime.RuleContext;
 import org.antlr.v4.runtime.Token;
 
 import java.util.Optional;
@@ -39,6 +40,8 @@ import java.util.Optional;
  */
 public abstract class Literal extends Expression {
     protected Token token;
+
+
 
     /**
      * {@inheritDoc}

@@ -19,19 +19,13 @@ mainClassName = 'edu.kit.iti.algover.DIVEApplication'
 dependencies {
     compile project(":core")
     compile project(":dafny")
+    compile 'de.jensd:fontawesomefx-commons:11.0'
+    compile 'de.jensd:fontawesomefx-controls:9.1.2'
+    compile 'de.jensd:fontawesomefx-fontawesome:4.7.0-9.1.2'
+    compile 'de.jensd:fontawesomefx-materialdesignfont:2.0.26-9.1.2'
+    compile 'de.jensd:fontawesomefx-materialicons:2.2.0-9.1.2'
 
     compile group: 'org.controlsfx', name: 'controlsfx', version: '11.0.0'
-    compile name: 'fontawesomefx-commons-8.15'
-    compile name: 'fontawesomefx-controls-8.15'
-    compile name: 'fontawesomefx-emojione-2.2.7-2'
-    compile name: 'fontawesomefx-fontawesome-4.7.0-5'
-    compile name: 'fontawesomefx-icons525-3.0.0-4'
-    compile name: 'fontawesomefx-materialdesignfont-1.7.22-4'
-    compile name: 'fontawesomefx-materialicons-2.2.0-5'
-    compile name: 'fontawesomefx-materialstackicons-2.1-5'
-    compile name: 'fontawesomefx-octicons-4.3.0-5'
-    compile name: 'fontawesomefx-weathericons-2.0.10-5'
-
 
 
     compile group: 'com.miglayout', name: 'miglayout-swing', version: '5.2'

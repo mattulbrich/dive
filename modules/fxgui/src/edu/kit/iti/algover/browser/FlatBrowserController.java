@@ -8,6 +8,7 @@ package edu.kit.iti.algover.browser;
 import edu.kit.iti.algover.browser.entities.OtherEntity;
 import edu.kit.iti.algover.browser.entities.TreeTableEntity;
 import edu.kit.iti.algover.dafnystructures.DafnyClass;
+import edu.kit.iti.algover.dafnystructures.DafnyDecl;
 import edu.kit.iti.algover.dafnystructures.DafnyFile;
 import edu.kit.iti.algover.dafnystructures.DafnyFunction;
 import edu.kit.iti.algover.dafnystructures.DafnyMethod;
@@ -20,6 +21,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Predicate;
 
 /**
  * Created by philipp on 26.06.17.

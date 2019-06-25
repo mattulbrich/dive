@@ -247,7 +247,7 @@ public class ProjectBuilder {
 
         // That's used in testing ...
         for (Map.Entry<String, DafnyTree> en : dafnyTrees.entrySet()) {
-            parseFile(true, en.getValue(), en.getKey());
+            parseFile(false, en.getValue(), en.getKey());
         }
 
         Project project = new Project(this);
