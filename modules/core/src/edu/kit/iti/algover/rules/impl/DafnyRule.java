@@ -35,7 +35,7 @@ import java.util.*;
  * Created by jklamroth on 1/25/18.
  */
 // REVIEW. I believe this rule is more central. Some documentation would help.
-public class DafnyRule extends AbstractProofRule {
+public class DafnyRule extends FocusProofRule {
     /**
      * The dafny declaration which gave rise to this rule.
      */
@@ -58,8 +58,6 @@ public class DafnyRule extends AbstractProofRule {
 
     // REVIEW Some documentation (what is rt?)
     public DafnyRule(DafnyMethod method, String name, @NonNull Term st, @NonNull Term rt, List<Pair<Term, String>> requiresTerms, RulePolarity polarity) {
-        super(ON_PARAM);
-
         this.name = name;
         searchTerm = st;
         replaceTerm = rt;

@@ -14,11 +14,7 @@ import edu.kit.iti.algover.util.Util;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-public class CloseRule extends AbstractProofRule {
-
-    public CloseRule() {
-        super(ON_PARAM_OPTIONAL);
-    }
+public class CloseRule extends DefaultFocusProofRule {
 
     @Override
     public String getName() {
@@ -31,29 +27,32 @@ public class CloseRule extends AbstractProofRule {
     }
 
     @Override
+    protected TermParameter getDefaultOnParameter(ProofNode target) throws NotApplicableException {
+
+        Set<Term> terms = target.getSequent().getAntecedent().stream().map(p -> p.getTerm()).collect(Collectors.toSet());
+        terms.retainAll(Util.map(target.getSequent().getSuccedent(), p -> p.getTerm()));
+
+        if (terms.isEmpty()) {
+            // Did not find a term present on both sides
+            throw new NotApplicableException("No term is present in both antecedent and succedent");
+        }
+
+        return new TermParameter(terms.iterator().next(), target.getSequent());
+    }
+
+    @Override
     public ProofRuleApplication makeApplicationImpl(ProofNode target, Parameters parameters) throws RuleException {
 
-        TermParameter onParam = parameters.getValue(ON_PARAM_OPTIONAL);
-        if(onParam != null) {
-            Term on = onParam.getTerm();
-            boolean presentInAntecedent = RuleUtil.matchTopLevelInAntedecent(on::equals, target.getSequent()).isPresent();
-            boolean presentInSuccedent = RuleUtil.matchTopLevelInSuccedent(on::equals, target.getSequent()).isPresent();
+        TermParameter onParam = parameters.getValue(ON_PARAM);
+        Term on = onParam.getTerm();
+        boolean presentInAntecedent = RuleUtil.matchTopLevelInAntedecent(on::equals, target.getSequent()).isPresent();
+        boolean presentInSuccedent = RuleUtil.matchTopLevelInSuccedent(on::equals, target.getSequent()).isPresent();
 
-            if (!presentInAntecedent || !presentInSuccedent) {
-                throw new NotApplicableException("'on' parameter of close rule is not present on both sides of" +
-                        " the sequent");
-            }
-
-        } else {
-
-            Set<Term> terms = target.getSequent().getAntecedent().stream().map(p -> p.getTerm()).collect(Collectors.toSet());
-            terms.retainAll(Util.map(target.getSequent().getSuccedent(), p -> p.getTerm()));
-
-            if (terms.isEmpty()) {
-                // Did not find a term present on both sides
-                throw new NotApplicableException("No term is present in both antecedent and succedent");
-            }
+        if (!presentInAntecedent || !presentInSuccedent) {
+            throw new NotApplicableException("'on' parameter of close rule is not present on both sides of" +
+                    " the sequent");
         }
+
 
         ProofRuleApplicationBuilder builder = new ProofRuleApplicationBuilder(this);
 

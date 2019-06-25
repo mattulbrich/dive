@@ -80,7 +80,7 @@ public class NotLeftRuleTest {
         List<ProofNode> newNodes = RuleApplicator.applyRule(pra, pn);
         assertEquals(1, newNodes.size());
 
-        assertEquals("$not($and(b1, $not(b2))) |- b3, ", newNodes.get(0).getSequent().toString());
+        assertEquals("$not($and(b1, $not(b2))) |- b3", newNodes.get(0).getSequent().toString());
     }
 
 

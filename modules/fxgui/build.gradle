@@ -53,7 +53,8 @@ run {
 application {
     applicationDefaultJvmArgs =  [ "--add-modules=javafx.controls,javafx.fxml,javafx.graphics,javafx.base",
                                    "--add-exports=javafx.graphics/com.sun.javafx.css=ALL-UNNAMED",
-                                   "--add-opens=javafx.graphics/javafx.scene=ALL-UNNAMED"
+                                   "--add-opens=javafx.graphics/javafx.scene=ALL-UNNAMED",
+                                   "-ea"
                                    //, "-Djdk.gtk.verbose=true", "-Djdk.gtk.version=3"
 
     ]

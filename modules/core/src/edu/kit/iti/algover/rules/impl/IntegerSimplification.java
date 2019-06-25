@@ -8,7 +8,6 @@ package edu.kit.iti.algover.rules.impl;
 import edu.kit.iti.algover.data.BuiltinSymbols;
 import edu.kit.iti.algover.proof.ProofNode;
 import edu.kit.iti.algover.proof.ProofNodeSelector;
-import edu.kit.iti.algover.rules.AbstractProofRule;
 import edu.kit.iti.algover.rules.NotApplicableException;
 import edu.kit.iti.algover.rules.Parameters;
 import edu.kit.iti.algover.rules.ProofRule;
@@ -45,11 +44,13 @@ import java.util.stream.Collectors;
     // Would a concept of rulesets make sense?
 
     // NEEDS MORE DISCUSSION
-
+/*
 public class IntegerSimplification extends AbstractProofRule {
     private final List<Class<?>> applicableRuleTypes = new ArrayList<>(
-            Arrays.asList(/*PlusZeroRule.class,
-            TimesOneRule.class, TimesZeroRule.class*/));
+            Arrays.asList(
+            // PlusZeroRule.class,
+            // TimesOneRule.class, TimesZeroRule.class
+            ));
     private List<AbstractProofRule> applicableRules;
 
     public IntegerSimplification() {
@@ -135,3 +136,4 @@ public class IntegerSimplification extends AbstractProofRule {
         return res;
     }
 }
+*/

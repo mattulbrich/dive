@@ -36,8 +36,7 @@ public class AbstractProofRuleTest {
             new ParameterDescription<>("optionalMatchTerm", ParameterType.MATCH_TERM, false);
     public static final TestRule RULE = new TestRule();
 
-    private static class TestRule extends AbstractProofRule {
-
+    private static class TestRule extends NoFocusProofRule {
 
         TestRule() {
             super(OPT_INT_PARAM, OPT_BOOL_PARAM, OPT_STRING_PARAM, OPT_TERM_PARAM, OPT_M_TERM_PARAM);

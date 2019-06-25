@@ -6,31 +6,20 @@
 package edu.kit.iti.algover.rules.impl;
 
 import edu.kit.iti.algover.data.BuiltinSymbols;
+import edu.kit.iti.algover.parser.DafnyException;
+import edu.kit.iti.algover.parser.DafnyParserException;
 import edu.kit.iti.algover.proof.ProofFormula;
 import edu.kit.iti.algover.proof.ProofNode;
 import edu.kit.iti.algover.rules.*;
-import edu.kit.iti.algover.script.callhandling.BuiltinCommands;
 import edu.kit.iti.algover.term.ApplTerm;
-import edu.kit.iti.algover.term.Sequent;
 import edu.kit.iti.algover.term.Term;
-import edu.kit.iti.algover.term.builder.TermBuildException;
-import edu.kit.iti.algover.term.match.Matching;
-import edu.kit.iti.algover.term.match.SequentMatcher;
-import edu.kit.iti.algover.util.ImmutableList;
+import edu.kit.iti.algover.term.parser.TermParser;
 import edu.kit.iti.algover.util.RuleUtil;
-
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
 
 /**
  * Created by jklamroth on 1/11/18.
  */
-public class NotLeftRule extends AbstractProofRule {
-
-    public NotLeftRule() {
-        super(ON_PARAM);
-    }
+public class NotLeftRule extends DefaultFocusProofRule {
 
     @Override
     public String getName() {
@@ -40,6 +29,11 @@ public class NotLeftRule extends AbstractProofRule {
     @Override
     public String getCategory() {
         return ProofRuleCategories.PROPOSITIONAL;
+    }
+
+    @Override
+    protected TermParameter getDefaultOnParameter(ProofNode target) throws RuleException {
+        return RuleUtil.schemaSequentParameter(target, "!_ |-");
     }
 
     @Override

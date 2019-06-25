@@ -8,7 +8,7 @@ package edu.kit.iti.algover.rules.impl;
 import edu.kit.iti.algover.data.BuiltinSymbols;
 import edu.kit.iti.algover.proof.ProofFormula;
 import edu.kit.iti.algover.proof.ProofNode;
-import edu.kit.iti.algover.rules.AbstractProofRule;
+import edu.kit.iti.algover.rules.NoFocusProofRule;
 import edu.kit.iti.algover.rules.NotApplicableException;
 import edu.kit.iti.algover.rules.ParameterDescription;
 import edu.kit.iti.algover.rules.ParameterType;
@@ -26,7 +26,7 @@ import edu.kit.iti.algover.term.builder.TermBuildException;
 /**
  * Created by jklamroth on 10/31/18.
  */
-public class BranchCutRule extends AbstractProofRule {
+public class BranchCutRule extends NoFocusProofRule {
     private static final ParameterDescription<TermParameter> WITH_PARAM =
             new ParameterDescription<>("with", ParameterType.TERM, true);
 

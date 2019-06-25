@@ -7,7 +7,7 @@ package edu.kit.iti.algover.rules.impl;
 
 import edu.kit.iti.algover.data.SymbolTable;
 import edu.kit.iti.algover.proof.ProofNode;
-import edu.kit.iti.algover.rules.AbstractProofRule;
+import edu.kit.iti.algover.rules.FocusProofRule;
 import edu.kit.iti.algover.rules.NotApplicableException;
 import edu.kit.iti.algover.rules.Parameters;
 import edu.kit.iti.algover.rules.ProofRuleApplication;
@@ -35,11 +35,8 @@ import java.util.stream.Collectors;
 /**
  * Created by jklamroth on 10/31/18.
  */
-public class SkolemizationRule extends AbstractProofRule {
-
-    public SkolemizationRule() {
-        super(ON_PARAM);
-    }
+// TODO: Make this a DefaultFocus rule like "inst". Factor out their default on
+public class SkolemizationRule extends FocusProofRule {
 
     @Override
     public String getName() {

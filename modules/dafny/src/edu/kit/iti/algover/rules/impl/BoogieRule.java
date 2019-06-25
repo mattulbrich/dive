@@ -11,7 +11,7 @@ import edu.kit.iti.algover.boogie.BoogieProcess;
 
 import edu.kit.iti.algover.proof.PVC;
 import edu.kit.iti.algover.proof.ProofNode;
-import edu.kit.iti.algover.rules.AbstractProofRule;
+import edu.kit.iti.algover.rules.NoFocusProofRule;
 import edu.kit.iti.algover.rules.Parameters;
 import edu.kit.iti.algover.rules.ProofRuleApplication;
 import edu.kit.iti.algover.rules.ProofRuleApplication.Applicability;
@@ -24,7 +24,7 @@ import java.nio.channels.ClosedByInterruptException;
  * This is a quick and dirty implementation until the real one is available
  * Code quality is lower than elsewhere since this is a temporary implementation.
  */
-public class BoogieRule extends AbstractProofRule {
+public class BoogieRule extends NoFocusProofRule {
 
     @Override
     public String getName() {

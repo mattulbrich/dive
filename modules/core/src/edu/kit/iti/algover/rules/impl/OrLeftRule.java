@@ -6,6 +6,8 @@
 package edu.kit.iti.algover.rules.impl;
 
 import edu.kit.iti.algover.data.BuiltinSymbols;
+import edu.kit.iti.algover.parser.DafnyException;
+import edu.kit.iti.algover.parser.DafnyParserException;
 import edu.kit.iti.algover.proof.ProofFormula;
 import edu.kit.iti.algover.proof.ProofNode;
 import edu.kit.iti.algover.rules.*;
@@ -15,6 +17,7 @@ import edu.kit.iti.algover.term.Sequent;
 import edu.kit.iti.algover.term.Term;
 import edu.kit.iti.algover.term.match.Matching;
 import edu.kit.iti.algover.term.match.SequentMatcher;
+import edu.kit.iti.algover.term.parser.TermParser;
 import edu.kit.iti.algover.util.ImmutableList;
 import edu.kit.iti.algover.util.Pair;
 import edu.kit.iti.algover.util.RuleUtil;
@@ -27,11 +30,7 @@ import java.util.Optional;
 /**
  * Created by jklamroth on 1/17/18.
  */
-public class OrLeftRule extends AbstractProofRule {
-
-    public OrLeftRule() {
-        super(ON_PARAM);
-    }
+public class OrLeftRule extends DefaultFocusProofRule {
 
     @Override
     public boolean mayBeExhaustive() {
@@ -41,6 +40,11 @@ public class OrLeftRule extends AbstractProofRule {
     @Override
     public String getName() {
         return "orLeft";
+    }
+
+    @Override
+    protected TermParameter getDefaultOnParameter(ProofNode target) throws RuleException {
+        return RuleUtil.schemaSequentParameter(target, "_ || _ |-");
     }
 
     @Override
@@ -67,16 +71,12 @@ public class OrLeftRule extends AbstractProofRule {
             throw NotApplicableException.onlyOperator(this, "||");
         }
 
-        int no = selector.getTermNo();
-
         builder.newBranch()
-                .addDeletionsAntecedent(target.getSequent().getAntecedent().get(no))
-                .addAdditionAntecedent(new ProofFormula(on.getTerm(0)))
+                .addReplacement(selector, on.getTerm(0))
                 .setLabel("case 1");
 
         builder.newBranch()
-                .addDeletionsAntecedent(target.getSequent().getAntecedent().get(no))
-                .addAdditionAntecedent(new ProofFormula(on.getTerm(1)))
+                .addReplacement(selector, on.getTerm(1))
                 .setLabel("case 2");
 
         builder.setApplicability(Applicability.APPLICABLE);

@@ -6,6 +6,8 @@
 package edu.kit.iti.algover.rules.impl;
 
 import edu.kit.iti.algover.data.BuiltinSymbols;
+import edu.kit.iti.algover.parser.DafnyException;
+import edu.kit.iti.algover.parser.DafnyParserException;
 import edu.kit.iti.algover.proof.ProofFormula;
 import edu.kit.iti.algover.proof.ProofNode;
 import edu.kit.iti.algover.rules.*;
@@ -16,6 +18,7 @@ import edu.kit.iti.algover.term.Term;
 import edu.kit.iti.algover.term.match.Matching;
 import edu.kit.iti.algover.term.match.SequentMatcher;
 import edu.kit.iti.algover.term.match.TermMatcher;
+import edu.kit.iti.algover.term.parser.TermParser;
 import edu.kit.iti.algover.util.ImmutableList;
 import edu.kit.iti.algover.util.RuleUtil;
 
@@ -26,13 +29,7 @@ import java.util.Optional;
  * Created by jklamroth on 5/22/18.
  */
 
-
-
-public class ModusPonensRule extends AbstractProofRule {
-    public ModusPonensRule() {
-        super(ON_PARAM);
-    }
-
+public class ImpLeftRule extends DefaultFocusProofRule {
     @Override
     public String getName() {
         return "impLeft";
@@ -41,6 +38,11 @@ public class ModusPonensRule extends AbstractProofRule {
     @Override
     public String getCategory() {
         return ProofRuleCategories.PROPOSITIONAL;
+    }
+
+    @Override
+    protected TermParameter getDefaultOnParameter(ProofNode target) throws RuleException {
+        return RuleUtil.schemaSequentParameter(target, "_ ==> _ |-");
     }
 
     @Override

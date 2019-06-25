@@ -10,6 +10,7 @@ import de.jensd.fx.glyphs.fontawesome.utils.FontAwesomeIconFactory;
 import de.jensd.fx.glyphs.materialdesignicons.MaterialDesignIcon;
 import de.jensd.fx.glyphs.materialicons.MaterialIcon;
 import edu.kit.iti.algover.rules.*;
+import edu.kit.iti.algover.rules.ProofRuleApplication.Applicability;
 import edu.kit.iti.algover.rules.impl.ExhaustiveRule;
 import edu.kit.iti.algover.term.prettyprint.PrettyPrint;
 import edu.kit.iti.algover.util.RuleParameterDialog;
@@ -53,12 +54,14 @@ public class RuleViewOverlay extends AnchorPane {
 
         applyButton = new JFXButton("Apply");
         applyButton.getStyleClass().add("apply");
-        applyButton.setDisable(application.getApplicability() != ProofRuleApplication.Applicability.APPLICABLE);
+        applyButton.setDisable(application.getApplicability() != Applicability.APPLICABLE
+                && application.getApplicability() != Applicability.INSTANTIATION_REQUIRED);
         applyButton.setOnAction(this::onRuleApplication);
 
         applyExButton = new JFXButton("Apply Exh.");
         applyExButton.getStyleClass().add("applyEx");
-        applyExButton.setDisable(exApplication.getApplicability() != ProofRuleApplication.Applicability.APPLICABLE);
+        applyExButton.setDisable(exApplication.getApplicability() != Applicability.APPLICABLE
+                && application.getApplicability() != Applicability.INSTANTIATION_REQUIRED);
         //TODO use the created exhaustive application instead of creating it again
         applyExButton.setOnAction(actionEvent -> {
             listener.onRuleExApplication(this.application.getRule(), selector);
@@ -97,7 +100,7 @@ public class RuleViewOverlay extends AnchorPane {
     private void onRuleApplication(ActionEvent ae) {
         if (application.getRule().getAllParameters().size() > 1 ||
                 (application.getRule().getAllParameters().size() == 1 &&
-                !application.getRule().getAllParameters().values().contains(AbstractProofRule.ON_PARAM))) {
+                !application.getRule().getAllParameters().values().contains(FocusProofRule.ON_PARAM))) {
             String on;
             try {
                 PrettyPrint pp = new PrettyPrint();

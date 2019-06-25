@@ -13,7 +13,7 @@ import java.util.Spliterator;
 
 import edu.kit.iti.algover.proof.ProofFormula;
 import edu.kit.iti.algover.proof.ProofNode;
-import edu.kit.iti.algover.rules.AbstractProofRule;
+import edu.kit.iti.algover.rules.NoFocusProofRule;
 import edu.kit.iti.algover.rules.ParameterDescription;
 import edu.kit.iti.algover.rules.ParameterType;
 import edu.kit.iti.algover.rules.Parameters;
@@ -32,7 +32,7 @@ import edu.kit.iti.algover.util.RuleUtil;
 
 // ALPHA ... Just for demo purposes so far.
 
-public class PropositionalExpansionRule extends AbstractProofRule {
+public class PropositionalExpansionRule extends NoFocusProofRule {
 
     private static final ParameterDescription<Boolean> SPLT_PARAM =
             new ParameterDescription<>("split", ParameterType.BOOLEAN, false);

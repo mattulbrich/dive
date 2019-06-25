@@ -15,11 +15,7 @@ import edu.kit.iti.algover.term.builder.TermBuildException;
 
 import java.util.HashMap;
 
-public class TestTrueAssumption extends AbstractProofRule {
-
-    public TestTrueAssumption() {
-        super();
-    }
+public class TestTrueAssumption extends NoFocusProofRule {
 
     @Override
     public String getName() {

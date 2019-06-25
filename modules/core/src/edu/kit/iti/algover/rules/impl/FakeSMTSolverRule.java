@@ -13,7 +13,7 @@ import edu.kit.iti.algover.term.Sequent;
 import java.math.BigInteger;
 import java.util.Collections;
 
-public class FakeSMTSolverRule extends AbstractProofRule {
+public class FakeSMTSolverRule extends NoFocusProofRule {
 
     public static final ParameterDescription<Boolean> CLOSE_PARAM =
             new ParameterDescription<>( "close", ParameterType.BOOLEAN,false);

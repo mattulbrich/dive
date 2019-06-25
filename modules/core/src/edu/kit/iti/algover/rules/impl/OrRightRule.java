@@ -6,19 +6,23 @@
 package edu.kit.iti.algover.rules.impl;
 
 import edu.kit.iti.algover.data.BuiltinSymbols;
+import edu.kit.iti.algover.parser.DafnyException;
+import edu.kit.iti.algover.parser.DafnyParserException;
 import edu.kit.iti.algover.proof.ProofFormula;
 import edu.kit.iti.algover.proof.ProofNode;
 import edu.kit.iti.algover.rules.*;
 import edu.kit.iti.algover.term.ApplTerm;
 import edu.kit.iti.algover.term.FunctionSymbol;
 import edu.kit.iti.algover.term.Term;
+import edu.kit.iti.algover.term.parser.TermParser;
+import edu.kit.iti.algover.util.RuleUtil;
 
 /**
  * Created by jklamroth on 5/22/18.
  */
-public class OrRightRule extends AbstractProofRule {
+public class OrRightRule extends DefaultFocusProofRule {
     public OrRightRule() {
-        super(ON_PARAM);
+        super();
     }
 
     @Override
@@ -34,6 +38,11 @@ public class OrRightRule extends AbstractProofRule {
     @Override
     public String getCategory() {
         return ProofRuleCategories.PROPOSITIONAL;
+    }
+
+    @Override
+    protected TermParameter getDefaultOnParameter(ProofNode target) throws RuleException {
+        return RuleUtil.schemaSequentParameter(target, "|- _ || _");
     }
 
     @Override

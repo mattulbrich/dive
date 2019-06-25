@@ -115,7 +115,7 @@ public class RuleApplicationController extends FxmlController {
             ExhaustiveRule exRule = new ExhaustiveRule();
             Parameters parameters = new Parameters();
             parameters.putValue(ExhaustiveRule.RULE_NAME_PARAM, rule.getName());
-            parameters.putValue(AbstractProofRule.ON_PARAM, new TermParameter(ts, pn.getSequent()));
+            parameters.putValue(FocusProofRule.ON_PARAM, new TermParameter(ts, pn.getSequent()));
             // MU: I have changed this from considerapplication to makeApplication
             // This piece of code looks like suboptimal special casing. (see RuleView)
             ProofRuleApplication pra = exRule.makeApplication(pn, parameters);

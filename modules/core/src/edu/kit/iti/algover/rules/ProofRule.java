@@ -25,6 +25,15 @@ import java.util.Map;
 public interface ProofRule {
 
     /**
+     * The most important parameter that indicates onto which term
+     * a rule is to be applied.
+     *
+     * It is a non-required parameter, altphou some rules require it.
+     */
+    ParameterDescription<TermParameter> ON_PARAM =
+            new ParameterDescription<>("on", ParameterType.MATCH_TERM, false);
+
+    /**
      * Gets the name of this proof rule.
      * <p>
      * This name is also the command under which it is accessible in scripts.

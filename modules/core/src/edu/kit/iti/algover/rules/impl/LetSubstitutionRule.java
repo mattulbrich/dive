@@ -28,17 +28,7 @@ import java.util.stream.Collectors;
  *
  * @author philipp
  */
-public class LetSubstitutionRule extends AbstractProofRule {
-
-    /**
-     * Builds a new SubstitutionRule.
-     * <p>
-     * This rule only requires the "on" parameter, the term that it should be applied on.
-     * That term <strong>must</strong> be a let term.
-     */
-    public LetSubstitutionRule() {
-        super(ON_PARAM);
-    }
+public class LetSubstitutionRule extends FocusProofRule {
 
     @Override
     public boolean mayBeExhaustive() {

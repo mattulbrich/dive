@@ -12,7 +12,7 @@ edu.kit.iti.algover.rules.impl.SkipRule
 edu.kit.iti.algover.rules.impl.OrLeftRule
 edu.kit.iti.algover.rules.impl.NotLeftRule
 edu.kit.iti.algover.rules.impl.AndLeftRule
-edu.kit.iti.algover.rules.impl.ModusPonensRule
+edu.kit.iti.algover.rules.impl.ImpLeftRule
 edu.kit.iti.algover.rules.impl.ModusTollensRule
 edu.kit.iti.algover.rules.impl.OrRightRule
 edu.kit.iti.algover.rules.impl.AddHypothesisRule
@@ -22,5 +22,6 @@ edu.kit.iti.algover.rules.impl.FunctionDefinitionExpansionRule
 edu.kit.iti.algover.rules.impl.QuantifierInstantiation
 edu.kit.iti.algover.rules.impl.BranchCutRule
 edu.kit.iti.algover.rules.impl.SkolemizationRule
-edu.kit.iti.algover.rules.impl.IntegerSimplification
+# Currently deactivated
+# edu.kit.iti.algover.rules.impl.IntegerSimplification
 edu.kit.iti.algover.rules.impl.AssumeRule

@@ -557,7 +557,7 @@ public class TermParameter {
         sb.append("TermParameter[");
         sb.append("originally a " +
                 (oterm != null ? "term" : oSchematicTerm != null ? "schematic term" : "schematic sequent"));
-        sb.append("term = " + term);
+        sb.append(", term = " + term);
         sb.append(", schematicTerm = " + schematicTerm);
         sb.append(", schematicSequent = " + schematicSequent);
         sb.append(", termSelector = " + termSelector);

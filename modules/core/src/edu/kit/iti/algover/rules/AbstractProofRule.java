@@ -19,21 +19,12 @@ import edu.kit.iti.algover.util.Util;
  *
  * Its main feature is the possibility to check actual arguments against the formal parameters.
  *
+ * Do not extend this class, but rather one of the subclasses.
+ *
  * @author Mattias Ulbrich
+ * @see FocusProofRule
  */
-public abstract class AbstractProofRule implements ProofRule {
-
-    /**
-     * The parameter for "on" is very common for rules.
-     */
-    public static final ParameterDescription<TermParameter> ON_PARAM =
-            new ParameterDescription<>("on", ParameterType.MATCH_TERM, true);
-
-    /**
-     * The parameter for "on" is very common -- here in an optional version
-     */
-    public static final ParameterDescription<TermParameter> ON_PARAM_OPTIONAL =
-            new ParameterDescription<>("on", ParameterType.MATCH_TERM, false);
+abstract class AbstractProofRule implements ProofRule {
 
     /**
      * The map internally storing all parameters.
@@ -53,6 +44,19 @@ public abstract class AbstractProofRule implements ProofRule {
     }
 
     /**
+     * Instantiate a new object.
+     *
+     * This is a convenience constructor (to avoid array reconstruction).
+     *
+     * @param parameter a single parameter that this rule accepts
+     * @param parameters a list of all parameters that this proof rule accepts.
+     */
+    public AbstractProofRule(ParameterDescription<?> parameter, ParameterDescription<?>... parameters) {
+        this(parameters);
+        allParameters.put(parameter.getName(), parameter);
+    }
+
+    /**
      * {@inheritDoc}
      * <p>
      *     By default, the category of a class is Unknown
@@ -65,33 +69,26 @@ public abstract class AbstractProofRule implements ProofRule {
     }
 
     /**
-     * Check the actual parameters obtained as method parameter against the formal parameters stored
-     * in {@link #allParameters},
+     * Check the actual parameters obtained as method parameter against the
+     * formal parameters stored in {@link #allParameters}.
+     *
+     * It is checked that all parameter names belong to registered parameters,
+     * and that any parameter value set adheres to its typing.
+     *
+     * It is not checked if all required parameters are set. This is to be done
+     * in the individual rules.
      *
      * @param parameters the map of parameters against values.
-     * @throws RuleException if a required parameter has been omitted or an unknown parameter has
-     *                       been used
+     *
+     * @throws RuleException if a required parameter has been omitted or an
+     *                       unknown parameter has been used
      */
-    private void checkParameters(Parameters parameters) throws RuleException {
-        Set<ParameterDescription<?>> required = new HashSet<>();
-        for (ParameterDescription<?> p : allParameters.values()) {
-            if(p.isRequired()) {
-                required.add(p);
-            }
-        }
-
+    private void checkParameterTypes(Parameters parameters) throws RuleException {
         for (Entry<ParameterDescription<?>, Object> en : parameters.entrySet()) {
             ParameterDescription<?> t = en.getKey();
 
             if (t == null) {
                 throw new RuleException("Unknown parameter '" + en.getKey() + "'");
-            }
-
-            if(t.getType() == ParameterType.TERM) {
-                if(((TermParameter)en.getValue()).getOriginalTermSelector() != null) {
-                    // REVIEW: Why is this?
-                    throw new RuleException("Term parameters may not be termSelectors.");
-                }
             }
 
             Object value = en.getValue();
@@ -101,52 +98,24 @@ public abstract class AbstractProofRule implements ProofRule {
                                 en.getKey() + " (expected a " + t.getType() + ")");
 
             }
-
-            required.remove(t);
         }
 
-        if (!required.isEmpty()) {
-                throw new RuleException("Missing required argument(s): " +
-                        Util.commatize(Util.map(required, p -> p.getName())));
-        }
     }
 
     /**
-     * The concrete implementation of {@link #considerApplication(ProofNode, Parameters)} for each rule.
+     * Same as {@link #considerApplication(ProofNode, Sequent, TermSelector)}
+     * but for GUI convenience with different parameters.
      *
-     * @param target the ProofNode this rule is to be applied on
-     * @param parameters the parameters for the rule application
-     * @return the resulting ProofRuleApplication
-     * @throws RuleException
-     *
-     * @deprecated Relict of old days
-     */
-    @Deprecated
-    // protected abstract ProofRuleApplication considerApplicationImpl(ProofNode target, Parameters parameters) throws RuleException;
-
-    /**
-     * Same as {@link #considerApplication(ProofNode, Sequent, TermSelector)} but for GUI convenience with different
-     * parameters.
-     *
-     * @param target    the proof node onto whose sequent the rule is to be applied.
+     * @param target    the proof node onto whose sequent the rule is to be
+     *                  applied.
      * @param selection a subsequent of the target's sequent. These are the
      *                  UI-selected top formulas.
-     * @param selector  if a subformula has been selected, it is this selector that
-     *                  represents it.
+     * @param selector  if a subformula has been selected, it is this selector
+     *                  that represents it.
      * @return
      * @throws RuleException
      */
-    public final ProofRuleApplication considerApplication(ProofNode target, Sequent selection, TermSelector selector) throws RuleException {
-        Parameters params = new Parameters();
-        params.putValue(ON_PARAM, new TermParameter(selector, target.getSequent()));
-        try {
-            ProofRuleApplication result = makeApplication(target, params);
-            return result;
-        } catch (NotApplicableException e) {
-            return ProofRuleApplicationBuilder.notApplicable(this);
-        }
-    }
-
+    public abstract ProofRuleApplication considerApplication(ProofNode target, Sequent selection, TermSelector selector) throws RuleException;
     /**
      * The concrete implementation of {@link #makeApplication(ProofNode, Parameters)} for each rule.
      *
@@ -168,8 +137,8 @@ public abstract class AbstractProofRule implements ProofRule {
      * @return the ProofRuleApplication
      * @throws RuleException
      */
-    public final ProofRuleApplication makeApplication(ProofNode target, Parameters parameters) throws RuleException {
-        checkParameters(parameters);
+    public ProofRuleApplication makeApplication(ProofNode target, Parameters parameters) throws RuleException {
+        checkParameterTypes(parameters);
         ProofRuleApplication app = makeApplicationImpl(target, parameters);
         if (app.getParameters().isEmpty()) {
             ProofRuleApplicationBuilder builder = new ProofRuleApplicationBuilder(app);

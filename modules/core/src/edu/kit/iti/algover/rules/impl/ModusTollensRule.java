@@ -16,8 +16,10 @@ import edu.kit.iti.algover.term.builder.TermBuildException;
 
 /**
  * Created by jklamroth on 5/22/18.
+ *
+ * TODO Document
  */
-public class ModusTollensRule extends AbstractProofRule {
+public class ModusTollensRule extends FocusProofRule {
     public ModusTollensRule() {
         super(ON_PARAM);
     }

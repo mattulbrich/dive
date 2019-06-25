@@ -76,10 +76,10 @@ public class GenericRuleTest {
                         new ArrayList<>(Arrays.asList("b1 |- b2")), null},
                 {pr1, "b1 |- !(b1 && b2)", new TermSelector(TermSelector.SequentPolarity.SUCCEDENT, 0, 0),
                         new ArrayList<>(Arrays.asList("b1 |- $not(b1)")), null},
-                {new ModusPonensRule(), "b1, b1 ==> b1 || b2 |- ", new TermSelector(TermSelector.SequentPolarity.ANTECEDENT, 1),
-                        new ArrayList<>(Arrays.asList("b1, $or(b1, b2) |-", "b1, $imp(b1, $or(b1, b2)) |- b1")), null},
-                {new ModusPonensRule(), "b1, b1 ==> b1 || b2 |- b3", new TermSelector(TermSelector.SequentPolarity.ANTECEDENT, 1),
-                        new ArrayList<>(Arrays.asList("b1, $or(b1, b2) |- b3", "b1, $imp(b1, $or(b1, b2)) |- b1")), null},
+                {new ImpLeftRule(), "b1, b1 ==> b1 || b2 |- ", new TermSelector(TermSelector.SequentPolarity.ANTECEDENT, 1),
+                 new ArrayList<>(Arrays.asList("b1, $or(b1, b2) |-", "b1, $imp(b1, $or(b1, b2)) |- b1")), null},
+                {new ImpLeftRule(), "b1, b1 ==> b1 || b2 |- b3", new TermSelector(TermSelector.SequentPolarity.ANTECEDENT, 1),
+                 new ArrayList<>(Arrays.asList("b1, $or(b1, b2) |- b3", "b1, $imp(b1, $or(b1, b2)) |- b1")), null},
                 {new AndLeftRule(), "b1 && b2 |- ", new TermSelector(TermSelector.SequentPolarity.ANTECEDENT, 0),
                         new ArrayList<>(Arrays.asList("b1, b2 |-")), null},
                 {new OrRightRule(), "b1 |- b1 || b2)", new TermSelector(TermSelector.SequentPolarity.SUCCEDENT, 0),
@@ -167,7 +167,7 @@ public class GenericRuleTest {
         ProofNode pn = ProofMockUtil.mockProofNode(null, s.getAntecedent(), s.getSuccedent());
 
         Parameters params = new Parameters();
-        params.putValue(AbstractProofRule.ON_PARAM, new TermParameter(ts.selectSubterm(s), s));
+        params.putValue(ProofRule.ON_PARAM, new TermParameter(ts.selectSubterm(s), s));
 
         ProofRuleApplication pra = pr.considerApplication(pn, s, ts);
         assertEquals(pra.getApplicability(), ProofRuleApplication.Applicability.APPLICABLE);
@@ -240,7 +240,7 @@ public class GenericRuleTest {
         ProofNode pn = ProofMockUtil.mockProofNode(null, s.getAntecedent(), s.getSuccedent());
 
         Parameters params = new Parameters();
-        params.putValue(AbstractProofRule.ON_PARAM, new TermParameter(ts.selectSubterm(s), s));
+        params.putValue(ProofRule.ON_PARAM, new TermParameter(ts.selectSubterm(s), s));
 
         ProofRuleApplication pra = pr.makeApplication(pn, params);
         List<ProofNode> newNodes = RuleApplicator.applyRule(pra, pn);

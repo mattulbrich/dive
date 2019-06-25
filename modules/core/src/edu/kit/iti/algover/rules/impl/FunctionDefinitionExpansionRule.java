@@ -12,7 +12,7 @@ import edu.kit.iti.algover.parser.DafnyParser;
 import edu.kit.iti.algover.parser.DafnyTree;
 import edu.kit.iti.algover.proof.ProofFormula;
 import edu.kit.iti.algover.proof.ProofNode;
-import edu.kit.iti.algover.rules.AbstractProofRule;
+import edu.kit.iti.algover.rules.FocusProofRule;
 import edu.kit.iti.algover.rules.NotApplicableException;
 import edu.kit.iti.algover.rules.Parameters;
 import edu.kit.iti.algover.rules.ProofRuleApplication;
@@ -52,11 +52,7 @@ import java.util.List;
  *
  * @author mulbrich
  */
-public class FunctionDefinitionExpansionRule extends AbstractProofRule {
-
-    public FunctionDefinitionExpansionRule() {
-        super(ON_PARAM);
-    }
+public class FunctionDefinitionExpansionRule extends FocusProofRule {
 
     @Override
     public String getName() {

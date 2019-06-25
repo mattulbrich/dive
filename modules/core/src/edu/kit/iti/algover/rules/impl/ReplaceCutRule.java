@@ -16,7 +16,7 @@ import edu.kit.iti.algover.term.builder.TermBuilder;
 /**
  * Created by jklamroth on 7/25/18.
  */
-public class ReplaceCutRule extends AbstractProofRule {
+public class ReplaceCutRule extends FocusProofRule {
 
     private static final ParameterDescription<TermParameter> WITH_PARAM =
             new ParameterDescription<>("with", ParameterType.TERM, true);
@@ -25,7 +25,7 @@ public class ReplaceCutRule extends AbstractProofRule {
             new ParameterDescription<>("auto", ParameterType.BOOLEAN, false);
 
     public ReplaceCutRule() {
-        super(ON_PARAM, WITH_PARAM, AUTO_PARAM);
+        super(WITH_PARAM, AUTO_PARAM);
     }
 
     public String getName() {

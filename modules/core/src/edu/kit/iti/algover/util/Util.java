@@ -536,4 +536,22 @@ public final class Util {
             }
         }
     }
+
+
+    /**
+     * Remove duplicates from a collection. Only the first occurrence is kept.
+     * Requires that the elements of the list implement equals nad hashcode.
+     * Requires that the iterator supports removce.
+     * ...
+     */
+    public static <T> boolean hasDuplicates(Collection<T> coll) {
+        Set<T> seen = new HashSet<T>();
+        for (T t : coll) {
+            if (seen.containsAll(coll))
+                return true;
+            seen.add(t);
+        }
+        return false;
+    }
+
 }

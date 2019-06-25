@@ -17,12 +17,12 @@ import java.util.stream.Collectors;
 /**
  * Created by jonasklamroth on 22.08.18.
  */
-public class ExhaustiveRule extends AbstractProofRule {
+public class ExhaustiveRule extends FocusProofRule {
     public static final ParameterDescription<String> RULE_NAME_PARAM =
             new ParameterDescription<>("RULE_NAME_PARAM", ParameterType.STRING, true);
 
     public ExhaustiveRule() {
-        super(RULE_NAME_PARAM, ON_PARAM);
+        super(RULE_NAME_PARAM);
     }
 
     @Override
