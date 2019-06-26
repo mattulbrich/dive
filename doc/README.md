@@ -2,7 +2,7 @@
 
 This folder contains a lose collection of documentation artifacts describing DIVE.
 
-The Dafny Interactive Verification Environment was called *AlgoVer* earler. Some documentation may still refer to this working title.
+The Dafny Interactive Verification Environment was called *AlgoVer* earlier. Some documentation may still refer to this working title.
 
 ## Presentations about DIVE (former AlgoVer):
 Workshop presentations included are:
@@ -13,4 +13,11 @@ Workshop presentations included are:
 ## Papers about DIVE:
 
 * the pre-proceedings version of the [VSTTE 2019 paper](Paper/vstte2019-pre.pdf)
+
+## Concepts
+
+During the development we gathered some ideas of features that we want to include into DIVE at some point (some of them are already implemented). The discussions of these features are included in the ideas-folder (in german). The following concepts are documented there:
+* [exhaustive Rules](ideas/exhaustiveRuleApplications.md)
+* [schema Variables](ideas/schemavars.md)
+* [tags](ideas/tags.md)
 

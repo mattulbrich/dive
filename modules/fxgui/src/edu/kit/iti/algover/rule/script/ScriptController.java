@@ -29,6 +29,8 @@ import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyCodeCombination;
 import javafx.scene.input.KeyCombination;
 import javafx.scene.input.KeyEvent;
+import org.antlr.v4.runtime.RecognitionException;
+import org.antlr.v4.runtime.misc.ParseCancellationException;
 import org.antlr.runtime.Token;
 import org.fxmisc.richtext.model.StyleSpans;
 
@@ -93,6 +95,7 @@ public class ScriptController implements ScriptViewListener, ReferenceHighlighti
         if(old != null) {
             view.getGutterAnnotations().get(old.getLineNumber() - 1).setInsertMarker(false);
             view.getGutterAnnotations().forEach(gutterAnnotation -> gutterAnnotation.setProofNodeIsSelected(false));
+            //view.getGutterAnnotations().get(old.getLineNumber() - 1).setProofNodeIsSelected(false);
 
         }
             if(view.getGutterAnnotations().size() > nv.getLineNumber()){
@@ -164,9 +167,7 @@ public class ScriptController implements ScriptViewListener, ReferenceHighlighti
                 this.listener.onSwitchViewedNode(checkpoint.selector);
             }
         } else {
-
             this.listener.onSwitchViewedNode(checkpoint.selector);
-
         }
         showSelectedSelector(checkpoint);
         view.requestLayout();
@@ -220,9 +221,9 @@ public class ScriptController implements ScriptViewListener, ReferenceHighlighti
 
     @Override
     public void onAsyncScriptTextChanged(String text) {
-        /*resetExceptionRendering();
+        resetExceptionRendering();
 
-        ProofScript ps = Facade.getAST(text);
+        /*ProofScript ps = Facade.getAST(text);
         PrettyPrinter pp = new PrettyPrinter();
         ps.accept(pp);
 
@@ -261,6 +262,14 @@ public class ScriptController implements ScriptViewListener, ReferenceHighlighti
         String text = view.getText();
         resetExceptionRendering();
 
+        Exception failException = null;
+        try {
+            ProofScript ps = Facade.getAST(text);
+            PrettyPrinter pp = new PrettyPrinter();
+            ps.accept(pp);
+
+            view.replaceText(pp.toString());
+            //System.out.println("pp.toString() = " + pp.toString());
         /*ProofScript ps = Facade.getAST(text);
 
         PrettyPrinter pp = new PrettyPrinter();
@@ -268,23 +277,32 @@ public class ScriptController implements ScriptViewListener, ReferenceHighlighti
         view.replaceText(pp.toString());
 
         proof.setScriptTextAndInterpret(pp.toString());*/
+            proof.setScriptTextAndInterpret(text);
+        } catch (ParseCancellationException pce) {
+            failException = pce;
+        } catch (RecognitionException re) {
+            failException = re;
+        }
+        if(failException == null) {
+            failException = proof.getFailException();
+        }
 
-        proof.setScriptTextAndInterpret(text);
 
-
-        //onCaretPositionChanged(null);
-        if(proof.getFailException() != null) {
-            renderException(proof.getFailException());
-            Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).severe(proof.getFailException().getMessage());
-            proof.getFailException().printStackTrace();
+        if(failException != null) {
+            view.setHighlightedException(failException);
+            renderException(failException);
+            Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).severe(failException.getMessage());
+            //failException.printStackTrace();
+        } else {
+            Logger.getGlobal().info("Successfully ran script.");
         }
         checkpoints = ProofNodeCheckpointsBuilder.build(proof);
        // insertPosition = oldInsertPos;
         observableInsertPosition.set(oldInsertPos);
         createVisualSelectors(checkpoints);
-        view.setStyle("-fx-background-color: #ffffff;");
 
         switchViewedNode();
+        view.setStyle("-fx-background-color: white;");
     }
 
     /**
@@ -341,6 +359,7 @@ public class ScriptController implements ScriptViewListener, ReferenceHighlighti
                 return syntaxClasses;
             }
         });
+        view.updateHighlighting();
     }
 
     private void resetExceptionRendering() {

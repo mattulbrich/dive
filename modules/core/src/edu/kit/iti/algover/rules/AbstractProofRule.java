@@ -75,25 +75,31 @@ public abstract class AbstractProofRule implements ProofRule {
                 throw new RuleException("Unknown parameter '" + en.getKey() + "'");
             }
 
+
+            Object value = en.getValue();
+            if (!t.acceptsValue(value)) {
+                throw new RuleException(
+                        "Parameter '" + en.getKey() + "' has class " + value.getClass() +
+                                ", but I expected class " + t.getType() + ".");
+
+            }
+
             if(t.getType() == ParameterType.TERM) {
                 if(((TermParameter)en.getValue()).getOriginalTermSelector() != null) {
                     throw new RuleException("Term parameters may not be termSelectors.");
                 }
             }
 
-            Object value = en.getValue();
-            if (!t.acceptsValue(value)) {
-                throw new RuleException(
-                            "ParameterDescription " + en.getKey() + " has class " + value.getClass() +
-                                    ", but I expected " + t + " (class " + t.getType() + ")");
-
-            }
-
             required.remove(t);
         }
 
         if (!required.isEmpty()) {
-                throw new RuleException("Missing required arguments: " + required);
+            String errorMessage = "Missing required argument(s): ";
+            for(ParameterDescription<?> pd : required) {
+                errorMessage += pd.getName() + "(" + pd.getType() + "), ";
+            }
+            errorMessage = errorMessage.substring(0, errorMessage.length() - 2);
+            throw new RuleException(errorMessage);
         }
     }
 
@@ -232,10 +238,15 @@ public abstract class AbstractProofRule implements ProofRule {
             }
             required.remove(p.getKey());
         }
-        if (!required.isEmpty()) {
-            throw new RuleException("Missing required arguments: " + required);
+        if (!required.isEmpty())
+        {
+            String errorMessage = "Missing required argument(s): ";
+            for (ParameterDescription<?> pd : required.values()) {
+                errorMessage += pd.getName() + " (" + pd.getType() + "), ";
+            }
+            errorMessage = errorMessage.substring(0, errorMessage.length() - 2);
+            throw new RuleException(errorMessage);
         }
-
         res += ";";
         if(pra.getBranchCount() > 1) {
             res += "\ncases {\n";
