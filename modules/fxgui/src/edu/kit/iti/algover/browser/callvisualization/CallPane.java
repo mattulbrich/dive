@@ -8,7 +8,7 @@ import javafx.scene.layout.VBox;
 
 public class CallPane extends VBox {
 
-    private final CallEntity entity;
+    private final AbstractCallEntity entity;
 
     private final String category;
 
@@ -19,9 +19,9 @@ public class CallPane extends VBox {
     private ListView<Label> postcondition;
 
 
-    public CallPane(CallEntity entity){
+    public CallPane(AbstractCallEntity entity){
         this.entity = entity;
-        if(entity.getCall()){
+        if(entity.isCall()){
             category = "Calls";
         } else {
             category = "Called by";

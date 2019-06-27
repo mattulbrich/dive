@@ -4,6 +4,8 @@ import edu.kit.iti.algover.dafnystructures.DafnyDecl;
 import edu.kit.iti.algover.dafnystructures.DafnyFunction;
 import edu.kit.iti.algover.parser.DafnyTree;
 import javafx.scene.Node;
+import javafx.scene.control.Label;
+import javafx.scene.layout.VBox;
 
 import java.util.List;
 
@@ -62,22 +64,23 @@ public class DafnyFunctionEntity extends AbstractCallEntity {
         this.fPost = f.getEnsuresClauses();
         this.callTree = t;
         this.fArguments = callTree.getChildren().get(1).getChildren();
+        this.headerText = "Function "+f.getName();
 
     }
 
     @Override
     public DafnyDecl getEntity() {
-        return this.getEntity();
+        return this.function;
     }
 
     @Override
     public boolean isCall() {
-        return this.isCall();
+        return this.call;
     }
 
     @Override
     public boolean isHidden() {
-        return this.isHidden();
+        return this.isHidden;
     }
 
     @Override
@@ -87,28 +90,33 @@ public class DafnyFunctionEntity extends AbstractCallEntity {
 
     @Override
     public String getHeaderText() {
-        return this.getHeaderText();
+        return this.headerText;
     }
 
     @Override
     public int getUsageLine() {
-        return this.getUsageLine();
+        return callTree.getLine();
     }
 
     @Override
     public Node getNode() {
-        return this.getNode();
+        VBox vbox= new VBox();
+        Label name = new Label(headerText);
+        vbox.getChildren().add(name);
+        return vbox;
+
+
     }
 
     @Override
     public String getString() {
-        return this.getString();
+        return this.headerText;
     }
 
 
 
     @Override
     public String getEntityName() {
-        return this.getEntityName();
+        return this.getEntity().getName();
     }
 }

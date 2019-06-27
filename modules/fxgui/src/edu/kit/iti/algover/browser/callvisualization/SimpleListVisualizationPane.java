@@ -24,9 +24,9 @@ import java.util.List;
  * Pane that is displayed if calls/callsites are requested
  */
 public class SimpleListVisualizationPane extends DialogPane {
-    private ObservableList<CallEntity> calls = FXCollections.observableArrayList();
+    private ObservableList<AbstractCallEntity> calls = FXCollections.observableArrayList();
 
-    private ListView<CallEntity> listview = new ListView<CallEntity>(calls);
+    private ListView<AbstractCallEntity> listview = new ListView<AbstractCallEntity>(calls);
 
     private CallVisualizationModel model;
 
@@ -39,14 +39,14 @@ public class SimpleListVisualizationPane extends DialogPane {
         callList.forEach(dafnyTree -> calls.add(model.getDecl(dafnyTree).accept(new DafnyCallEntityVisitor(), dafnyTree)));
 
         setHeaderText(computeHeaderText(selectedDecl));
-        listview.setCellFactory(new Callback<ListView<CallEntity>, ListCell<CallEntity>>() {
+        listview.setCellFactory(new Callback<ListView<AbstractCallEntity>, ListCell<AbstractCallEntity>>() {
 
 
             @Override
-            public ListCell<CallEntity> call(ListView<CallEntity> treelist) {
-                ListCell<CallEntity> cell = new ListCell<CallEntity>() {
+            public ListCell<AbstractCallEntity> call(ListView<AbstractCallEntity> treelist) {
+                ListCell<AbstractCallEntity> cell = new ListCell<AbstractCallEntity>() {
 
-                    protected void updateItem(final CallEntity item, boolean empty) {
+                    protected void updateItem(final AbstractCallEntity item, boolean empty) {
                         super.updateItem(item, empty);
                         final VBox vbox = new VBox();
                         setGraphic(vbox);
