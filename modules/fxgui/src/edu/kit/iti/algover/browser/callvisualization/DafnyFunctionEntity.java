@@ -1,17 +1,20 @@
 package edu.kit.iti.algover.browser.callvisualization;
 
+import edu.kit.iti.algover.dafnystructures.DafnyDecl;
 import edu.kit.iti.algover.dafnystructures.DafnyFunction;
 import edu.kit.iti.algover.parser.DafnyTree;
+import javafx.scene.Node;
 
 import java.util.List;
 
-public class DafnyFunctionEntity extends CallEntity {
+public class DafnyFunctionEntity extends AbstractCallEntity {
 
     /**
      * Type of the Callentity
      */
     private Type type;
 
+    @Override
     public Type getType() {
         return type;
     }
@@ -30,7 +33,6 @@ public class DafnyFunctionEntity extends CallEntity {
     private boolean isHidden = true;
 
     private String headerText = "";
-
 
 
     /**
@@ -61,5 +63,52 @@ public class DafnyFunctionEntity extends CallEntity {
         this.callTree = t;
         this.fArguments = callTree.getChildren().get(1).getChildren();
 
+    }
+
+    @Override
+    public DafnyDecl getEntity() {
+        return this.getEntity();
+    }
+
+    @Override
+    public boolean isCall() {
+        return this.isCall();
+    }
+
+    @Override
+    public boolean isHidden() {
+        return this.isHidden();
+    }
+
+    @Override
+    public void setHidden(boolean hidden) {
+        this.isHidden = hidden;
+    }
+
+    @Override
+    public String getHeaderText() {
+        return this.getHeaderText();
+    }
+
+    @Override
+    public int getUsageLine() {
+        return this.getUsageLine();
+    }
+
+    @Override
+    public Node getNode() {
+        return this.getNode();
+    }
+
+    @Override
+    public String getString() {
+        return this.getString();
+    }
+
+
+
+    @Override
+    public String getEntityName() {
+        return this.getEntityName();
     }
 }
