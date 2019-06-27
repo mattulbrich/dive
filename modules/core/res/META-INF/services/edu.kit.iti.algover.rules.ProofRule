@@ -25,3 +25,4 @@ edu.kit.iti.algover.rules.impl.SkolemizationRule
 # Currently deactivated
 # edu.kit.iti.algover.rules.impl.IntegerSimplification
 edu.kit.iti.algover.rules.impl.AssumeRule
+edu.kit.iti.algover.rules.impl.Z3SimpRule
