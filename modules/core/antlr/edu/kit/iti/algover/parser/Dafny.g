@@ -64,18 +64,11 @@ tokens {
 
 
 @lexer::members {
-//  public enum LineMode { OFF, ON, IN_COMMENT }
-//  private LineMode lineMode = LineMode.OFF;
-//  public void setLineMode(LineMode lm) {
-//    lineMode = lm;
   @Override
   public void reportError(RecognitionException e) {
     throw new RuntimeException(e);
   }
 }
-
-
-
 
 // exit upon first error
 @rulecatch {
