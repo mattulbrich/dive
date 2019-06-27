@@ -15,6 +15,7 @@ import edu.kit.iti.algover.term.ApplTerm;
 import edu.kit.iti.algover.term.FunctionSymbol;
 import edu.kit.iti.algover.term.Sequent;
 import edu.kit.iti.algover.term.Term;
+import edu.kit.iti.algover.term.builder.TermBuildException;
 import edu.kit.iti.algover.term.match.Matching;
 import edu.kit.iti.algover.term.match.SequentMatcher;
 import edu.kit.iti.algover.term.match.TermMatcher;
@@ -65,16 +66,21 @@ public class ImpLeftRule extends DefaultFocusProofRule {
             throw NotApplicableException.onlyToplevel(this);
         }
 
-        // TODO @Jonas. Should there not be a check for antecedent (or succedent?!)
+        if(!selector.isAntecedent()) {
+            throw NotApplicableException.onlyAntecedent(this);
+        }
 
         ProofRuleApplicationBuilder builder = new ProofRuleApplicationBuilder(this);
 
         builder.newBranch().addReplacement(selector, appl.getTerm(1)).setLabel("mainBranch");
-        BranchInfoBuilder b = builder.newBranch();
-        for(ProofFormula pf : target.getSequent().getSuccedent()) {
-            b.addDeletionsSuccedent(pf);
+        Term pf = null;
+        try {
+            pf = new ApplTerm(BuiltinSymbols.NOT, appl.getTerm(0));
+        } catch (TermBuildException tbe) {
+            throw new RuleException("Error creating negated term in impLeft-Rule.");
         }
-        b.addAdditionsSuccedent(new ProofFormula(appl.getTerm(0))).setLabel("assumption");
+        builder.newBranch().addReplacement(selector, pf);
+
         builder.setApplicability(ProofRuleApplication.Applicability.APPLICABLE);
 
         return builder.build();

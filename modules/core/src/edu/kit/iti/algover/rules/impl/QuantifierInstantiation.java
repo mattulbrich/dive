@@ -31,6 +31,8 @@ import edu.kit.iti.algover.term.VariableTerm;
 import edu.kit.iti.algover.term.builder.ReplacementVisitor;
 import edu.kit.iti.algover.term.builder.TermBuildException;
 
+import java.util.Set;
+
 /**
  * Created by jklamroth on 10/25/18.
  */
@@ -87,9 +89,8 @@ public class QuantifierInstantiation extends NoFocusProofRule {
             return pra.build();
         }
 
-        // REVIEW: Does it make sense to forbid bounded versions of the bound
-        // variable?
-        if (withParam.getTerm().accept(new ContainsVarVisitor(), aTerm.getBoundVar())) {
+        Set<VariableTerm> freeVars = FreeVarVisitor.findFreeVars(withParam.getTerm());
+        if (freeVars.contains(aTerm.getBoundVar())) {
             throw new NotApplicableException("A quantifier cannot be instantiated with a term" +
                     " that contains the bound variable of the quantifier.");
         }

@@ -10,8 +10,11 @@ import edu.kit.iti.algover.proof.ProofNode;
 import edu.kit.iti.algover.rules.*;
 import edu.kit.iti.algover.rules.ProofRuleApplication.Applicability;
 import edu.kit.iti.algover.term.Term;
+import edu.kit.iti.algover.term.VariableTerm;
 import edu.kit.iti.algover.term.builder.TermBuildException;
 import edu.kit.iti.algover.term.builder.TermBuilder;
+
+import java.util.Set;
 
 /**
  * Created by jklamroth on 7/25/18.
@@ -62,8 +65,11 @@ public class ReplaceCutRule extends FocusProofRule {
         pra.newBranch().addReplacement(selector, with).setLabel("replace");
         TermBuilder tb = new TermBuilder(target.getAllSymbols());
         try {
-            // TODO @Jonas. This fails if on has free variables in it.
-            // Poroblably universal closure is required here.
+            // Probably universal closure is required here.
+            Set<VariableTerm> freeVars = FreeVarVisitor.findFreeVars(on);
+            if(!freeVars.isEmpty()) {
+                throw new NotApplicableException("The replacement-Term may not contain free variables.");
+            }
             Term justificationTerm = tb.eq(on, with);
             pra.newBranch().addAdditionsSuccedent(new ProofFormula(justificationTerm)).setLabel("justification");
         } catch (TermBuildException e) {
