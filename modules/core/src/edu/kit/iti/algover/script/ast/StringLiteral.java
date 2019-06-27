@@ -30,6 +30,7 @@ package edu.kit.iti.algover.script.ast;
 
 import edu.kit.iti.algover.script.exceptions.NotWelldefinedException;
 import edu.kit.iti.algover.script.parser.Visitor;
+import org.antlr.v4.runtime.ParserRuleContext;
 
 /**
  * @author Alexander Weigl
@@ -37,6 +38,8 @@ import edu.kit.iti.algover.script.parser.Visitor;
  */
 public class StringLiteral extends Literal {
     private final String text;
+
+    protected ParserRuleContext ruleContext;
 
     public StringLiteral(String text) {
         if (text.charAt(0) == '\'')
@@ -103,6 +106,16 @@ public class StringLiteral extends Literal {
     }
 
     public String toString() {
-        return "edu.kit.iti.algover.script.ast.StringLiteral(text=" + this.getText() + ")";
+        return "StringLiteral(text=" + this.getText() + ")";
+    }
+
+    @Override
+    public ParserRuleContext getRuleContext() {
+        return this.ruleContext;
+    }
+
+    @Override
+    public void setRuleContext(ParserRuleContext c) {
+        this.ruleContext = c;
     }
 }

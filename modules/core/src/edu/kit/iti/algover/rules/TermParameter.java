@@ -21,7 +21,7 @@ import edu.kit.iti.algover.term.match.Matching;
 import edu.kit.iti.algover.term.match.MatchingEntry;
 import edu.kit.iti.algover.term.match.SequentMatcher;
 import edu.kit.iti.algover.term.match.TermMatcher;
-import edu.kit.iti.algover.util.FormatException;
+import edu.kit.iti.algover.util.Debug;
 import edu.kit.iti.algover.util.ImmutableList;
 import edu.kit.iti.algover.util.RuleUtil;
 import nonnull.NonNull;
@@ -334,6 +334,8 @@ public class TermParameter {
         SequentMatcher sequentMatcher = new SequentMatcher();
         ImmutableList<Matching> matchings = sequentMatcher.match(schemaSeq, concreteSeq);
         if (matchings.size() == 0) {
+            // Debug.dumpSeq(schemaSeq);
+            // Debug.dumpSeq(concreteSeq);
             throw new RuleException("Schematic sequent " + schemaSeq +
                     " does not match.");
         }
@@ -491,6 +493,11 @@ public class TermParameter {
         }
 
         @Override
+        public Boolean visit(SchemaVarTerm term, Object arg) throws NoExceptions {
+            return term.getName().equals("?match");
+        }
+
+        @Override
         public Boolean visitSchemaTerm(SchemaTerm schemaTerm, Object arg) throws NoExceptions {
             return defaultVisit(schemaTerm, arg);
         }
@@ -529,9 +536,12 @@ public class TermParameter {
         }
     }
 
-    private TermSelector matchTermInSequentUniquely(Term schemaTerm, Sequent s) throws RuleException {
+    private @NonNull TermSelector matchTermInSequentUniquely(Term schemaTerm, Sequent s) throws RuleException {
         TermMatcher tm = new TermMatcher();
+
+        // ts holds the result found so far.
         TermSelector ts = null;
+
         for(int i = 0; i < s.getAntecedent().size(); ++i) {
             ImmutableList<Matching> matches = tm.match(schemaTerm, s.getAntecedent().get(i).getTerm());
             if(matches.size() == 1 && ts == null) {
@@ -548,6 +558,12 @@ public class TermParameter {
                 throw new RuleException("Matching of term " + schemaTerm + " is ambiguous.");
             }
         }
+
+        // TODO make NotApplicableexception once that is on master
+        if (ts == null) {
+            throw new RuleException("Term " + schemaTerm + " cannot be matched on sequent.");
+        }
+
         return ts;
     }
 
