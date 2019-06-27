@@ -21,7 +21,7 @@ import edu.kit.iti.algover.term.match.Matching;
 import edu.kit.iti.algover.term.match.MatchingEntry;
 import edu.kit.iti.algover.term.match.SequentMatcher;
 import edu.kit.iti.algover.term.match.TermMatcher;
-import edu.kit.iti.algover.util.FormatException;
+import edu.kit.iti.algover.util.Debug;
 import edu.kit.iti.algover.util.ImmutableList;
 import edu.kit.iti.algover.util.RuleUtil;
 import nonnull.NonNull;
@@ -334,6 +334,8 @@ public class TermParameter {
         SequentMatcher sequentMatcher = new SequentMatcher();
         ImmutableList<Matching> matchings = sequentMatcher.match(schemaSeq, concreteSeq);
         if (matchings.size() == 0) {
+            // Debug.dumpSeq(schemaSeq);
+            // Debug.dumpSeq(concreteSeq);
             throw new RuleException("Schematic sequent " + schemaSeq +
                     " does not match.");
         }
