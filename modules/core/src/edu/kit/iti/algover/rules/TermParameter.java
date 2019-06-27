@@ -539,6 +539,9 @@ public class TermParameter {
     private @NonNull TermSelector matchTermInSequentUniquely(Term schemaTerm, Sequent s) throws RuleException {
         TermMatcher tm = new TermMatcher();
 
+        // Wrap term into occurrence to search it everywhere.
+        schemaTerm = new SchemaOccurTerm(schemaTerm);
+
         // ts holds the result found so far.
         TermSelector ts = null;
 
