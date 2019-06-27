@@ -7,14 +7,11 @@ package edu.kit.iti.algover.rule.script;
 
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon;
 import de.jensd.fx.glyphs.fontawesome.utils.FontAwesomeIconFactory;
+import de.jensd.fx.glyphs.materialdesignicons.MaterialDesignIcon;
 import edu.kit.iti.algover.AlgoVerApplication;
 import edu.kit.iti.algover.editor.HighlightingRule;
 import edu.kit.iti.algover.script.ScriptLanguageLexer;
 import edu.kit.iti.algover.util.AsyncHighlightingCodeArea;
-import javafx.application.Platform;
-import javafx.beans.property.SimpleListProperty;
-import javafx.beans.property.SimpleObjectProperty;
-import javafx.collections.FXCollections;
 import edu.kit.iti.algover.util.ExceptionDetails;
 import javafx.collections.ObservableList;
 import javafx.scene.control.ContextMenu;
@@ -26,7 +23,6 @@ import org.antlr.v4.runtime.Token;
 import org.fxmisc.richtext.CharacterHit;
 import org.fxmisc.richtext.model.StyleSpans;
 import org.fxmisc.richtext.model.StyleSpansBuilder;
-import edu.kit.iti.algover.script.ast.Position;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
@@ -63,13 +59,17 @@ public class ScriptView extends AsyncHighlightingCodeArea {
 
         MenuItem save = new MenuItem("Save Proof Script", FontAwesomeIconFactory.get().createIcon(FontAwesomeIcon.SAVE));
         MenuItem run = new MenuItem("Run Proof Script", FontAwesomeIconFactory.get().createIcon(FontAwesomeIcon.ARROW_RIGHT));
+        MenuItem createCases = new MenuItem("Insert cases", FontAwesomeIconFactory.get().createIcon(MaterialDesignIcon.CALL_SPLIT));
 
         save.setOnAction(event -> this.listener.onScriptSave());
         run.setOnAction(event -> this.listener.runScript());
+        createCases.setOnAction(event -> listener.onInsertCases());
+
 
         ContextMenu menu = new ContextMenu(
                 run,
-                save
+                save,
+                createCases
         );
         setContextMenu(menu);
         //set gutter factory for checkpoints

@@ -15,12 +15,14 @@ import edu.kit.iti.algover.referenceHighlighting.ReferenceHighlightingObject;
 import edu.kit.iti.algover.references.ProofTermReferenceTarget;
 import edu.kit.iti.algover.references.ScriptReferenceTarget;
 import edu.kit.iti.algover.rule.RuleApplicationListener;
+import edu.kit.iti.algover.rules.RuleException;
 import edu.kit.iti.algover.script.ast.Position;
 import edu.kit.iti.algover.script.ast.ProofScript;
 import edu.kit.iti.algover.script.exceptions.ScriptCommandNotApplicableException;
 import edu.kit.iti.algover.script.parser.Facade;
 import edu.kit.iti.algover.script.parser.PrettyPrinter;
 import edu.kit.iti.algover.util.ExceptionDetails;
+import edu.kit.iti.algover.util.ExceptionDialog;
 import edu.kit.iti.algover.util.RuleApp;
 import javafx.beans.Observable;
 import javafx.beans.property.SimpleObjectProperty;
@@ -54,6 +56,7 @@ public class ScriptController implements ScriptViewListener, ReferenceHighlighti
     private final ScriptView view;
     private final RuleApplicationListener listener;
     private ProofNodeSelector selectedNode = null;
+    private Lookup lookup;
 
 
     /**
@@ -70,6 +73,7 @@ public class ScriptController implements ScriptViewListener, ReferenceHighlighti
         this.view.setOnKeyReleased(this::handleShortcuts);
         this.listener = listener;
         this.highlightingRules = new LayeredHighlightingRulev4(2);
+        this.lookup = lookup;
 
         lookup.register(this, ReferenceHighlightingHandler.class);
 
@@ -305,8 +309,15 @@ public class ScriptController implements ScriptViewListener, ReferenceHighlighti
         view.setStyle("-fx-background-color: white;");
     }
 
+    @Override
+    public String onInsertCases() {
+        System.out.println("TODO insert cases");
+        return "TODO";
+
+    }
+
     /**
-     * Create the annotatiosn for the ScriptGutterView according to the checkpointslist
+     * Create the annotations for the ScriptGutterView according to the checkpointslist
      * @param checkpoints
      */
     private void createVisualSelectors(List<ProofNodeCheckpoint> checkpoints) {
