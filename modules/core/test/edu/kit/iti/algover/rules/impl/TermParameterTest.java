@@ -102,10 +102,20 @@ public class TermParameterTest {
     }
 
     @Test(expected = RuleException.class)
-    public void SchematicTermToSequentTest() throws FormatException, TermBuildException, RuleException, DafnyParserException, DafnyException {
+    public void ambigiousTest() throws FormatException, TermBuildException, RuleException, DafnyParserException, DafnyException {
         TermParser tp = new TermParser(symbolTable);
         tp.setSchemaMode(true);
         Term schematic = tp.parse("_ < _");
+        Sequent sequent = tp.parseSequent("i1 < i2 |- i1 < i2");
+        TermParameter parameter = new TermParameter(schematic, sequent);
+        parameter.getTermSelector();
+    }
+
+    @Test(expected = RuleException.class)
+    public void notFoundTest() throws FormatException, TermBuildException, RuleException, DafnyParserException, DafnyException {
+        TermParser tp = new TermParser(symbolTable);
+        tp.setSchemaMode(true);
+        Term schematic = tp.parse("_ > _");
         Sequent sequent = tp.parseSequent("i1 < i2 |- i1 < i2");
         TermParameter parameter = new TermParameter(schematic, sequent);
         parameter.getTermSelector();
