@@ -80,9 +80,9 @@ public class FormulaCell extends BorderPane {
                     .collect(Collectors.toSet());
             BasicFormulaView formulaView = new BasicFormulaView(formula, selectedTerm, selectedReference, allStyles, filterAccToIndexInSeq);
             this.label = formula.getLabels();
-           VirtualizedScrollPane<BasicFormulaView> sp = new VirtualizedScrollPane<>(formulaView);
-
-            setCenter(sp);
+            //VirtualizedScrollPane<BasicFormulaView> sp = new VirtualizedScrollPane<>(formulaView);
+            //setCenter(sp);
+            setCenter(formulaView);
             createTooltip();
 
         } else {
