@@ -20,22 +20,22 @@ public class DafnyMethodEntity extends AbstractCallEntity {
     private DafnyTree callTree;
 
     private boolean isHidden;
+
+    private HighlightingHandler listener;
     /**
      * Fields of a Method
      */
+    private List<DafnyTree> mPre;
+
+    private List<DafnyTree> mPost;
+
+    private List<DafnyTree> mArguments;
+
+    private List<DafnyTree> mParams;
 
 
-    public List<DafnyTree> mPre;
-
-    public List<DafnyTree> mPost;
-
-    public List<DafnyTree> mArguments;
-
-    public List<DafnyTree> mParams;
-
-
-    public DafnyMethodEntity(DafnyMethod m, DafnyTree arg) {
-
+    public DafnyMethodEntity(DafnyMethod m, DafnyTree arg, HighlightingHandler listener) {
+        this.listener = listener;
         this.type = Type.METHOD;
         this.method = m;
         if(arg.getText().equals("CALL")){
@@ -76,9 +76,31 @@ public class DafnyMethodEntity extends AbstractCallEntity {
     @Override
     public Node getNode() {
         VBox vbox= new VBox();
-        Label name = new Label(getHeaderText());
+        Label name = new Label(getHeaderText()+ " (line "+getUsageLine()+")");
+        name.setOnMouseClicked(event -> {
+            listener.onRequestHighlight(callTree.getFilename(), method.getRepresentation().getToken(), callTree.getStopToken());
+        });
         vbox.getChildren().add(name);
+        vbox.getChildren().addAll(createArguments());
+        if(mPre != null && mPre.size() > 0){
+            vbox.getChildren().addAll(createPre());
+        }
+
         return vbox;
+    }
+
+    private Node createArguments() {
+        Label name = new Label("Arguments: ");
+        name.setOnMouseClicked(event -> {
+            mArguments.size();
+            mParams.size();
+        });
+        mArguments.size();
+        return name;
+    }
+
+    private Node[] createPre() {
+        return null;
     }
 
     @Override

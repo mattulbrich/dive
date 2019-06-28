@@ -30,15 +30,21 @@ public class SimpleListVisualizationPane extends DialogPane {
 
     private CallVisualizationModel model;
 
+    private HighlightingHandler listener;
 
-    public SimpleListVisualizationPane(CallVisualizationModel model) {
+
+    public SimpleListVisualizationPane(CallVisualizationModel model, HighlightingHandler listener) {
         this.model = model;
+        this.listener = listener;
 
         Collection<DafnyTree> callList = model.getCalls();
         DafnyDecl selectedDecl = model.getSelectedDeclaration();
-        callList.forEach(dafnyTree -> calls.add(model.getDecl(dafnyTree).accept(new DafnyCallEntityVisitor(), dafnyTree)));
+        callList.forEach(dafnyTree -> {
+            AbstractCallEntity accept = model.getDecl(dafnyTree).accept(new DafnyCallEntityVisitor(listener), dafnyTree);
+            calls.add(accept);
+        });
 
-        setHeaderText(computeHeaderText(selectedDecl));
+        //setHeaderText(computeHeaderText(selectedDecl));
         listview.setCellFactory(new Callback<ListView<AbstractCallEntity>, ListCell<AbstractCallEntity>>() {
 
 
@@ -65,9 +71,7 @@ public class SimpleListVisualizationPane extends DialogPane {
                                         vbox.getChildren().remove(vbox.getChildren().size() - 1);
                                     } else {
                                         labelHeader.setGraphic(new MaterialDesignIconView(MaterialDesignIcon.ARROW_UP_DROP_CIRCLE));
-                                       // String accept = item.getCorrespondingDecl().accept(new DafnyDeclStringVisitor(), null);
-                                        CallPane callPane = new CallPane(item);
-                                        vbox.getChildren().add(callPane);
+                                        vbox.getChildren().add(item.getNode());
 
                                     }
                                 }
@@ -88,8 +92,4 @@ public class SimpleListVisualizationPane extends DialogPane {
 
     }
 
-    private String computeHeaderText(DafnyDecl selected) {
-        String accept = selected.accept(new DafnyDeclStringVisitor(), null);
-        return accept;
-    }
 }

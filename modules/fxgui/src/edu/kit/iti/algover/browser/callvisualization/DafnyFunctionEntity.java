@@ -36,6 +36,7 @@ public class DafnyFunctionEntity extends AbstractCallEntity {
 
     private String headerText = "";
 
+    private HighlightingHandler listener;
 
     /**
      * Fields of a Function
@@ -43,16 +44,17 @@ public class DafnyFunctionEntity extends AbstractCallEntity {
 
     public DafnyFunction function;
 
-    public List<DafnyTree> fPre;
+    private List<DafnyTree> fPre;
 
-    public List<DafnyTree> fPost;
+    private List<DafnyTree> fPost;
 
-    public List<DafnyTree> fArguments;
+    private List<DafnyTree> fArguments;
 
-    public List<DafnyTree> fParams;
+    private List<DafnyTree> fParams;
 
-    public DafnyFunctionEntity(DafnyFunction f, DafnyTree t){
+    public DafnyFunctionEntity(DafnyFunction f, DafnyTree t, HighlightingHandler listener){
 
+        this.listener = listener;
 
         this.type = Type.FUNCTION;
         this.function = f;
@@ -101,11 +103,26 @@ public class DafnyFunctionEntity extends AbstractCallEntity {
     @Override
     public Node getNode() {
         VBox vbox= new VBox();
-        Label name = new Label(headerText);
+        Label name = new Label(headerText + " (line" + getUsageLine()+")");
+        name.setOnMouseClicked(event -> {
+            listener.onRequestHighlight(callTree.getFilename(), callTree.getStartToken(), callTree.getStopToken());
+        });
         vbox.getChildren().add(name);
+        vbox.getChildren().add(createArguments());
+
         return vbox;
 
 
+    }
+
+    private Node createArguments() {
+        Label name = new Label("Arguments: ");
+        name.setOnMouseClicked(event -> {
+            fArguments.size();
+            fParams.size();
+        });
+        fArguments.size();
+        return name;
     }
 
     @Override

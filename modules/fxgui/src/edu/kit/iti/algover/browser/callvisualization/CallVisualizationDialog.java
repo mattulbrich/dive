@@ -2,8 +2,9 @@ package edu.kit.iti.algover.browser.callvisualization;
 
 import edu.kit.iti.algover.Lookup;
 import javafx.scene.control.*;
+import org.antlr.runtime.Token;
 
-public class CallVisualizationDialog extends Alert {
+public class CallVisualizationDialog extends Alert implements HighlightingHandler{
 
 
     private DialogPane pane;
@@ -13,12 +14,14 @@ public class CallVisualizationDialog extends Alert {
     public CallVisualizationDialog(CallVisualizationModel model, Lookup lookup){
         super(AlertType.INFORMATION);
 
-        pane = new SimpleListVisualizationPane(model);
+        pane = new SimpleListVisualizationPane(model, this);
         this.setDialogPane(pane);
         this.getButtonTypes().add(ButtonType.CLOSE);
     }
 
 
-
-
+    @Override
+    public void onRequestHighlight(String filename, Token startToken, Token stopToken) {
+        System.out.println("t = " + startToken);
+    }
 }

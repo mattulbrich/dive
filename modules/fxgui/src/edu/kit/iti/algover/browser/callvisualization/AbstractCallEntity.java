@@ -4,6 +4,7 @@ import edu.kit.iti.algover.dafnystructures.DafnyDecl;
 import javafx.scene.Node;
 
 public abstract class AbstractCallEntity {
+
     public enum Type {
         METHOD, FUNCTION, FIELD, CLASS
     }
