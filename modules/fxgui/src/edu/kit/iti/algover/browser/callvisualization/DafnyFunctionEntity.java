@@ -4,17 +4,15 @@ import edu.kit.iti.algover.dafnystructures.DafnyDecl;
 import edu.kit.iti.algover.dafnystructures.DafnyFunction;
 import edu.kit.iti.algover.parser.DafnyParser;
 import edu.kit.iti.algover.parser.DafnyTree;
+import edu.kit.iti.algover.parser.DafnyTreeDefaultVisitor;
 import javafx.beans.property.SimpleStringProperty;
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
 import javafx.scene.Node;
 import javafx.scene.control.Label;
-import javafx.scene.control.Separator;
-import javafx.scene.control.TableColumn;
-import javafx.scene.control.TableView;
-import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
+import net.miginfocom.layout.AC;
+import net.miginfocom.layout.LC;
+import org.tbee.javafx.scene.layout.MigPane;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -43,7 +41,7 @@ public class DafnyFunctionEntity extends AbstractCallEntity {
         return call;
     }
 
-    private boolean isHidden = true;
+    private boolean isHidden = false;
 
     private String headerText = "";
 
@@ -58,6 +56,8 @@ public class DafnyFunctionEntity extends AbstractCallEntity {
     private List<DafnyTree> fPre;
 
     private List<DafnyTree> fPost;
+
+    private DafnyTree fDecreasesClause;
 
     private List<DafnyTree> fArguments;
 
@@ -77,6 +77,7 @@ public class DafnyFunctionEntity extends AbstractCallEntity {
         this.fPre = f.getRequiresClauses();
         this.fParams = f.getParameters();
         this.fPost = f.getEnsuresClauses();
+        this.fDecreasesClause = f.getDecreasesClause();
         this.callTree = t;
         this.fArguments = callTree.getChildren().get(1).getChildren();
         this.headerText = "Function "+f.getName();
@@ -141,50 +142,70 @@ public class DafnyFunctionEntity extends AbstractCallEntity {
         });
         vbox.getChildren().add(name);
         vbox.getChildren().add(createArgumentView());
+        if(fPre.size() > 0) {
+            vbox.getChildren().add(createPreconditionView());
+        }
+        if(fPost.size() > 0){
 
+        }
+
+        if(fDecreasesClause != null){
+            vbox.getChildren().add(createDecreasesView());
+        }
         return vbox;
 
 
     }
 
+    private Node createDecreasesView() {
+        VBox vbox = new VBox();
+        Label header = new Label("Decreases Clause: " + fDecreasesClause.accept(new DafnySpecTreeStringVisitor(), null));
+        header.setOnMouseClicked(event -> listener.onRequestHighlight(fDecreasesClause.getFilename(), fDecreasesClause.getStartToken(), fDecreasesClause.getStopToken()));
+        vbox.getChildren().add(header);
+        return vbox;
+    }
+
+    private Node createPreconditionView() {
+        VBox vbox = new VBox();
+        Label header = new Label("Preconditions:");
+        fPre.forEach(dafnyTree -> {
+            System.out.println("dafnyTree = " + dafnyTree);
+        });
+
+        vbox.getChildren().add(header);
+        return vbox;
+    }
+
 
     private Node createArgumentView() {
-        Label name = new Label("Arguments: [Parameter name, Parameter type, Parameter value]");
-        VBox vbox = new VBox(name);
+        MigPane mp = new MigPane(new LC().wrapAfter(3).gridGapX("10px"), new AC().grow(1,3).size("pref",1,2));
+        mp.add(new Label("Parameter Name"));
+        mp.add(new Label("Type"));
+        mp.add(new Label("Argument on call"));
         paramArgsList.forEach(paramValueObject -> {
-            HBox hbox = new HBox();
             Label pname = new Label(paramValueObject.getName());
+            pname.setOnMouseClicked(event -> {
+                DafnyTree nameTree = paramValueObject.getNameTree();
+                listener.onRequestHighlight(nameTree.getFilename(), nameTree.getStartToken(), nameTree.getStopToken());
+            });
             Label ptype = new Label(paramValueObject.getType());
+            ptype.setOnMouseClicked(event -> {
+                DafnyTree typeTree = paramValueObject.getTypeTree();
+                listener.onRequestHighlight(typeTree.getFilename(), typeTree.getStartToken(), typeTree.getStopToken());
+            });
+
             Label pValue = new Label(paramValueObject.getValue());
-            hbox.getChildren().addAll(pname, ptype,pValue);
-            vbox.getChildren().add(hbox);
+            pValue.setOnMouseClicked(event -> {
+                DafnyTree valueTree = paramValueObject.getValueTree();
+                listener.onRequestHighlight(valueTree.getFilename(), valueTree.getStartToken(), valueTree.getStopToken());
+            });
+
+            mp.add(pname);
+            mp.add(ptype);
+            mp.add(pValue);
         });
+        return mp;
 
-        /*TableView<ParamValueObject> argumentTable = new TableView<ParamValueObject>();
-        argumentTable.setEditable(false);
-
-        TableColumn<ParamValueObject,String> paramName = new TableColumn<ParamValueObject,String>("Parameter name");
-        TableColumn<ParamValueObject,String> paramType = new TableColumn<ParamValueObject,String>("Parameter type");
-        TableColumn<ParamValueObject,String> argValue = new TableColumn<ParamValueObject,String>("Call value");
-        argumentTable.getColumns().add(paramName);
-        argumentTable.getColumns().add(paramType);
-        argumentTable.getColumns().add(argValue);
-
-        paramName.setCellValueFactory(new PropertyValueFactory<ParamValueObject,String>("name"));
-        paramType.setCellValueFactory(new PropertyValueFactory<ParamValueObject,String>("type"));
-        argValue.setCellValueFactory(new PropertyValueFactory<ParamValueObject,String>("value"));
-        ObservableList<ParamValueObject> list = FXCollections.observableArrayList(this.paramArgsList);
-
-        argumentTable.setItems(list);
-
-
-        name.setOnMouseClicked(event -> {
-            fArguments.size();
-            fParams.size();
-        });
-        fArguments.size();*/
-
-        return vbox;
     }
 
     @Override
@@ -199,10 +220,13 @@ public class DafnyFunctionEntity extends AbstractCallEntity {
         return this.getEntity().getName();
     }
 
+    /**
+     * Helper Object encapsulating Argument and parameter relations
+     */
     public class ParamValueObject{
-        DafnyTree typeO;
-        DafnyTree nameO;
-        DafnyTree valueO;
+        private DafnyTree typeO;
+        private DafnyTree nameO;
+        private DafnyTree valueO;
 
         private final SimpleStringProperty type;
         private final SimpleStringProperty name;
@@ -214,9 +238,21 @@ public class DafnyFunctionEntity extends AbstractCallEntity {
             this.valueO = value;
             this.type = new SimpleStringProperty(typeO.getText());
             this.name =  new SimpleStringProperty(nameO.getText());
-            //todo abstieg im Baum
-            this.value = new SimpleStringProperty(valueO.getText());
+            String accept = valueO.accept(new DafnyTreeStringVisitor(), null);
+            this.value = new SimpleStringProperty(accept);
 
+        }
+
+        public DafnyTree getTypeTree() {
+            return typeO;
+        }
+
+        public DafnyTree getNameTree() {
+            return nameO;
+        }
+
+        public DafnyTree getValueTree() {
+            return valueO;
         }
 
         public String getType() {
@@ -229,6 +265,80 @@ public class DafnyFunctionEntity extends AbstractCallEntity {
 
         public String getValue() {
             return value.get();
+        }
+
+
+        public class DafnyTreeStringVisitor extends DafnyTreeDefaultVisitor<String, Void>{
+
+            @Override
+            public String visitDefault(DafnyTree t, Void arg) {
+                StringBuilder text = new StringBuilder();
+                java.lang.String text1 = t.getText();
+                String currentNode = text1;
+                if(t.getChildren().size() == 2){
+                    String accept = t.getChild(0).accept(this, arg);
+                    text.append(accept);
+                    text.append(currentNode);
+                    text.append(t.getChild(1).accept(this, arg));
+                } else {
+                    text.append(currentNode);
+                    t.getChildren().forEach(dafnyTree -> text.append(dafnyTree.accept(this, arg)));
+                }
+                return text.toString();
+
+            }
+        }
+    }
+
+
+    public class DafnySpecTreeStringVisitor extends DafnyTreeDefaultVisitor<String, Void>{
+
+        @Override
+        public String visitDefault(DafnyTree t, Void arg) {
+            StringBuilder text = new StringBuilder();
+            java.lang.String text1 = t.getText();
+            String currentNode = text1;
+            if(t.getChildren().size() == 2){
+                String accept = t.getChild(0).accept(this, arg);
+                text.append(accept);
+                text.append(currentNode);
+                text.append(t.getChild(1).accept(this, arg));
+            } else {
+                text.append(currentNode);
+                t.getChildren().forEach(dafnyTree -> text.append(dafnyTree.accept(this, arg)));
+            }
+            return text.toString();
+
+        }
+
+        @Override
+        public String visitDECREASES(DafnyTree t, Void aVoid) {
+            StringBuilder sb = new StringBuilder();
+            t.getChildren().forEach(dafnyTree -> sb.append(dafnyTree.accept(this, aVoid)));
+            return sb.toString();
+        }
+
+        @Override
+        public String visitARGS(DafnyTree t, Void aVoid) {
+            StringBuilder sb = new StringBuilder();
+            sb.append("(");
+            Iterator<DafnyTree> iterator = t.getChildren().iterator();
+            while (iterator.hasNext()){
+                DafnyTree next = iterator.next();
+                sb.append(next.accept(this, aVoid));
+                if(iterator.hasNext()){
+                    sb.append(", ");
+                }
+            }
+            sb.append(")");
+            return sb.toString();
+        }
+
+        @Override
+        public String visitCALL(DafnyTree t, Void aVoid) {
+            StringBuilder sb = new StringBuilder();
+            t.getChildren().forEach(dafnyTree -> sb.append(dafnyTree.accept(this, aVoid)));
+            return sb.toString();
         }
     }
 }

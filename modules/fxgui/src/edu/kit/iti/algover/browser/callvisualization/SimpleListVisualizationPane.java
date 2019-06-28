@@ -1,24 +1,20 @@
 package edu.kit.iti.algover.browser.callvisualization;
 
-import de.jensd.fx.glyphs.materialdesignicons.MaterialDesignIcon;
-import de.jensd.fx.glyphs.materialdesignicons.MaterialDesignIconView;
+
 import edu.kit.iti.algover.dafnystructures.*;
 import edu.kit.iti.algover.parser.DafnyTree;
-import edu.kit.iti.algover.parser.DafnyTreeDefaultVisitor;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import javafx.event.EventHandler;
 import javafx.scene.control.DialogPane;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
-import javafx.scene.input.MouseEvent;
-import javafx.scene.layout.VBox;
+import javafx.scene.layout.*;
+import javafx.scene.paint.Color;
+import javafx.scene.text.Font;
 import javafx.util.Callback;
 
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
 
 /**
  * Pane that is displayed if calls/callsites are requested
@@ -58,11 +54,12 @@ public class SimpleListVisualizationPane extends DialogPane {
                         setGraphic(vbox);
 
                         if (item != null && getIndex() > -1) {
-                            final Label labelHeader = new Label(item.getHeaderText());
+                            final Label labelHeader = new Label(item.isCall()? "Call "+ item.getHeaderText(): "Callsite "+item.getHeaderText());
+                            labelHeader.setStyle("-fx-font-weight: bold;");
                            // labelHeader.setGraphic(createArrowPath(20, false));
-                            labelHeader.setGraphic(new MaterialDesignIconView(MaterialDesignIcon.ARROW_DOWN_DROP_CIRCLE));
+                            //labelHeader.setGraphic(new MaterialDesignIconView(MaterialDesignIcon.ARROW_DOWN_DROP_CIRCLE));
 
-                            labelHeader.setOnMouseClicked(new EventHandler<MouseEvent>() {
+                          /*  labelHeader.setOnMouseClicked(new EventHandler<MouseEvent>() {
                                 @Override
                                 public void handle(MouseEvent me) {
                                     item.setHidden(item.isHidden() ? false : true);
@@ -75,9 +72,11 @@ public class SimpleListVisualizationPane extends DialogPane {
 
                                     }
                                 }
-                            });
+                            });*/
 
                             vbox.getChildren().add(labelHeader);
+                            vbox.getChildren().add(item.getNode());
+                            vbox.setBorder(new Border(new BorderStroke(Color.GRAY, BorderStrokeStyle.SOLID, null, new BorderWidths(1))));
                         }
                     }
 

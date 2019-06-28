@@ -35,6 +35,8 @@ dependencies {
 
 
     compile group: 'com.miglayout', name: 'miglayout-swing', version: '5.2'
+    compile group: 'com.miglayout', name: 'miglayout-javafx', version: '5.2'
+
     /*compile name: 'richtextfx-fat-0.9.2'*/
 
     compile group: 'org.fxmisc.richtext', name: 'richtextfx', version: '0.10.0'

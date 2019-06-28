@@ -22,6 +22,6 @@ public class CallVisualizationDialog extends Alert implements HighlightingHandle
 
     @Override
     public void onRequestHighlight(String filename, Token startToken, Token stopToken) {
-        System.out.println("t = " + startToken);
+        System.out.println("File: "+filename+"\n"+"line "+startToken.getLine()+":"+startToken.getCharPositionInLine());
     }
 }

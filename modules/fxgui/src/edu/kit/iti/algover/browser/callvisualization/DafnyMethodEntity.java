@@ -19,7 +19,7 @@ public class DafnyMethodEntity extends AbstractCallEntity {
 
     private DafnyTree callTree;
 
-    private boolean isHidden;
+    private boolean isHidden = false;
 
     private HighlightingHandler listener;
     /**
