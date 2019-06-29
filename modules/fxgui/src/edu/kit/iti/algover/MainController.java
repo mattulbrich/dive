@@ -19,7 +19,6 @@ import edu.kit.iti.algover.dafnystructures.DafnyFile;
 import edu.kit.iti.algover.dafnystructures.DafnyFunction;
 import edu.kit.iti.algover.dafnystructures.DafnyMethod;
 import edu.kit.iti.algover.editor.EditorController;
-import edu.kit.iti.algover.project.Configuration;
 import edu.kit.iti.algover.project.ProjectManager;
 import edu.kit.iti.algover.proof.*;
 import edu.kit.iti.algover.references.CodeReference;
@@ -43,9 +42,11 @@ import javafx.beans.value.ObservableValue;
 import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
 import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.*;
+import javafx.stage.Stage;
 import org.controlsfx.control.StatusBar;
 import org.controlsfx.dialog.ProgressDialog;
 
@@ -83,6 +84,7 @@ public class MainController implements SequentActionListener, RuleApplicationLis
     private final JFXButton simpleStratButton;
     private final JFXButton settingsButton;
     private final JFXButton aboutButton;
+    private final JFXButton backButton;
     // REVIEW: Would <String> not be more appropriate?
     private final CostumBreadCrumbBar<Object> breadCrumbBar;
 
@@ -102,12 +104,14 @@ public class MainController implements SequentActionListener, RuleApplicationLis
         simpleStratButton = new JFXButton("Try Close All", FontAwesomeIconFactory.get().createIcon(FontAwesomeIcon.PLAY_CIRCLE));
         settingsButton = new JFXButton("Settings", FontAwesomeIconFactory.get().createIcon(FontAwesomeIcon.COGS));
         aboutButton = new JFXButton("About", FontAwesomeIconFactory.get().createIcon(FontAwesomeIcon.INFO_CIRCLE));
+        backButton = new JFXButton("Back", FontAwesomeIconFactory.get().createIcon(FontAwesomeIcon.ARROW_LEFT));
 
         saveButton.setOnAction(this::onClickSaveVisibleContent);
         refreshButton.setOnAction(this::onClickRefresh);
         simpleStratButton.setOnAction(this::trivialStrat);
         settingsButton.setOnAction(this::openSettingsWindow);
         aboutButton.setOnAction(this::openAboutWindow);
+        backButton.setOnAction(this::backToWelcome);
 
         TreeItem<Object> ti = getBreadCrumbModel();
         breadCrumbBar = new CostumBreadCrumbBar<>(ti, this::onCrumbSelected);
@@ -118,7 +122,7 @@ public class MainController implements SequentActionListener, RuleApplicationLis
         HBox.setHgrow(spacer, Priority.ALWAYS);
         spacer.setMinSize(10, 1);
 
-        this.toolbar = new ToolBar(saveButton, refreshButton, simpleStratButton, settingsButton, spacer, aboutButton);
+        this.toolbar = new ToolBar(saveButton, refreshButton, simpleStratButton, settingsButton, spacer, backButton, aboutButton);
 
         this.statusBar = new StatusBar();
         this.statusBar.setOnMouseClicked(this::onStatusBarClicked);
@@ -143,10 +147,20 @@ public class MainController implements SequentActionListener, RuleApplicationLis
         logger.setUseParentHandlers(false);
         logger.info("Project '" + manager.getName() + "' successfully loaded.");
 
-
         onClickRefresh(null);
+    }
 
+    private void backToWelcome(ActionEvent event) {
+        ((Stage) getView().getScene().getWindow()).close();
 
+        // TODO Taken from AlgoverApplication ... possibly extract into static method there
+        Stage stage = new Stage();
+        stage.setTitle("DIVE");
+        WelcomePane p = new WelcomePane(stage, Collections.emptyList());
+        stage.setScene(new Scene(p.getRootPane()));
+        stage.setWidth(900);
+        stage.setHeight(700);
+        stage.show();
     }
 
     private void openAboutWindow(ActionEvent actionEvent) {
@@ -154,7 +168,6 @@ public class MainController implements SequentActionListener, RuleApplicationLis
         try {
             about = new AboutWindow();
             about.showAndWait();
-
         } catch (IOException e) {
             Logger.getGlobal().warning("Error while loading about text");
         }
@@ -172,8 +185,6 @@ public class MainController implements SequentActionListener, RuleApplicationLis
         SettingsController ctrl = new SettingsController(this, height, width);
         ctrl.getItems().setAll(SettingsFactory.getSettingsPanel(settings));
         ctrl.showAndWait();
-
-
     }
 
     private void createContextMenu() {
