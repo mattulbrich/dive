@@ -168,11 +168,14 @@ public class DafnyFunctionEntity extends AbstractCallEntity {
     private Node createPreconditionView() {
         VBox vbox = new VBox();
         Label header = new Label("Preconditions:");
+        vbox.getChildren().add(header);
         fPre.forEach(dafnyTree -> {
-            System.out.println("dafnyTree = " + dafnyTree);
+            Label l = new Label(dafnyTree.accept(new DafnySpecTreeStringVisitor(), null));
+            l.setOnMouseClicked(event -> listener.onRequestHighlight(dafnyTree.getFilename(), dafnyTree.getStartToken(), dafnyTree.getStopToken()));
+            vbox.getChildren().add(l);
         });
 
-        vbox.getChildren().add(header);
+
         return vbox;
     }
 
@@ -339,6 +342,20 @@ public class DafnyFunctionEntity extends AbstractCallEntity {
             StringBuilder sb = new StringBuilder();
             t.getChildren().forEach(dafnyTree -> sb.append(dafnyTree.accept(this, aVoid)));
             return sb.toString();
+        }
+
+        @Override
+        public String visitREQUIRES(DafnyTree t, Void aVoid) {
+            StringBuilder sb = new StringBuilder();
+            sb.append("ensures (");
+            Iterator<DafnyTree> iterator = t.getChildren().iterator();
+            while (iterator.hasNext()){
+                DafnyTree next = iterator.next();
+                sb.append(next.accept(this, aVoid));
+            }
+            sb.append(")");
+            return sb.toString();
+
         }
     }
 }
