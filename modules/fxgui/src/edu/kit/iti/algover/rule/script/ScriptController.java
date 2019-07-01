@@ -295,7 +295,11 @@ public class ScriptController implements ScriptViewListener, ReferenceHighlighti
         if(failException != null) {
             view.setHighlightedException(failException);
             renderException(failException);
-            Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).severe(failException.getMessage());
+            String message = failException.getMessage();
+            if (message == null || message.isEmpty()) {
+                message = failException.getClass() + " without message.";
+            }
+            Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).severe(message);
             //failException.printStackTrace();
         } else {
             Logger.getGlobal().info("Successfully ran script.");

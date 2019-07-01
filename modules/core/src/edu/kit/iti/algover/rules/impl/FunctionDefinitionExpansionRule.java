@@ -28,6 +28,7 @@ import edu.kit.iti.algover.term.Sequent;
 import edu.kit.iti.algover.term.Sort;
 import edu.kit.iti.algover.term.Term;
 import edu.kit.iti.algover.term.VariableTerm;
+import edu.kit.iti.algover.term.builder.AlphaNormalisation;
 import edu.kit.iti.algover.term.builder.TermBuildException;
 import edu.kit.iti.algover.term.builder.TreeTermTranslator;
 import edu.kit.iti.algover.util.ASTUtil;
@@ -83,8 +84,9 @@ public class FunctionDefinitionExpansionRule extends AbstractProofRule {
         SymbolTable symbols = target.getAllSymbols();
         try {
             Term definition = instantiate(term, function, function.getExpression(), symbols);
+            Term alphaNormalisedDef = AlphaNormalisation.normalise(definition);
             builder.newBranch().
-                    addReplacement(selector, definition).
+                    addReplacement(selector, alphaNormalisedDef).
                     setLabel("continue");
 
 
@@ -93,8 +95,9 @@ public class FunctionDefinitionExpansionRule extends AbstractProofRule {
                 DafnyTree requires = ASTUtil.and(Util.map(requiresClauses, DafnyTree::getLastChild));
                 Term precondition = instantiate(term, function, requires, symbols);
                 Term withContext = copyContext(target.getSequent(), selector, precondition);
+                Term alphaNormalised = AlphaNormalisation.normalise(withContext);
                 builder.newBranch().
-                        addAdditionsSuccedent(new ProofFormula(withContext)).
+                        addAdditionsSuccedent(new ProofFormula(alphaNormalised)).
                         setLabel("justify");
             }
 
