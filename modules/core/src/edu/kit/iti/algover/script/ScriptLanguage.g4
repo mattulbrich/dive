@@ -106,7 +106,7 @@ casesList
 
 
 parameters: parameter+;
-parameter :  ((pname=ID '=')? expr=expression);
+parameter :  ((pname=ID '=') expr=expression);
 
 scriptCommand
     :   cmd=ID parameters? SEMICOLON
