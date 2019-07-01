@@ -29,13 +29,14 @@ import java.util.stream.Collectors;
 
 public class ScriptController implements ScriptViewListener {
     KeyCombination saveShortcut = new KeyCodeCombination(KeyCode.S, KeyCombination.CONTROL_DOWN);
+    KeyCombination runShortcut = new KeyCodeCombination(KeyCode.R, KeyCombination.CONTROL_DOWN);
 
     private final ScriptView view;
     private final RuleApplicationListener listener;
     private ProofNode selectedNode = null;
 
 
-
+    //Is 1-Indexed!!
     private SimpleObjectProperty<Position> observableInsertPosition = new SimpleObjectProperty<Position>(new Position(1,0));
     private Proof proof;
     private List<ProofNodeCheckpoint> checkpoints;
@@ -90,6 +91,9 @@ public class ScriptController implements ScriptViewListener {
         if (saveShortcut.match(keyEvent)) {
             listener.onScriptSave();
         }
+        if (runShortcut.match(keyEvent)) {
+            runScript();
+        }
     }
 
     public void setProof(Proof proof) {
@@ -134,8 +138,8 @@ public class ScriptController implements ScriptViewListener {
 
     private void switchViewedNode() {
         //showSelectedSelector(checkpoint);
-        Position caretPosition = computePositionFromCharIdx(view.getCaretPosition(), view.getText());
-        ProofNodeSelector pns = getNodeFromPosition(caretPosition);
+        //Position caretPosition = computePositionFromCharIdx(view.getCaretPosition(), view.getText());
+        ProofNodeSelector pns = getNodeFromPosition(getObservableInsertPosition());
         if(pns != null) {
             this.listener.onSwitchViewedNode(pns);
         } else {
@@ -260,7 +264,7 @@ public class ScriptController implements ScriptViewListener {
         createVisualSelectors(checkpoints);
 
         //JK: This should not be necessary since the changed text triggers onTextChanged and onCaretPositionChanged
-        //switchViewedNode();
+        switchViewedNode();
         view.setStyle("-fx-background-color: white;");
     }
 
@@ -295,7 +299,7 @@ public class ScriptController implements ScriptViewListener {
         if(view.getText().equals("")) {
             view.insertText(0, text);
         } else {
-            updateInsertPosition();
+            //updateInsertPosition();
             int insertAt = computeCharIdxFromPosition(observableInsertPosition.get(), view.getText());
             view.insertText(insertAt, text);
         }

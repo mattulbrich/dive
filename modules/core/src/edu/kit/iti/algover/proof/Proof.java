@@ -419,9 +419,9 @@ class ProofNodeInterpreterManager {
                     }
 
                 }
+                proof.addAstPnReference(node, goals.get(0));
             }
 
-            proof.addAstPnReference(node, goals.get(0));
 
 
             lastSelectedGoalNode.addMutator(node);

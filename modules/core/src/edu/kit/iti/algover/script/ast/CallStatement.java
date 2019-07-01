@@ -97,20 +97,16 @@ public class CallStatement extends Statement {
         this.parameters = parameters;
     }
 
-   /* public boolean equals(Object o) {
-        if (o == this) return true;
-        if (!(o instanceof CallStatement)) return false;
-        final CallStatement other = (CallStatement) o;
-        if (other.canEqual((Object) this)) return true;
-        final Object this$command = this.getCommand();
-        final Object other$command = other.getCommand();
-        if (this$command == null ? other$command != null : !this$command.equals(other$command)) return false;
-        final Object this$parameters = this.getParameters();
-        final Object other$parameters = other.getParameters();
-        if (this$parameters == null ? other$parameters != null : !this$parameters.equals(other$parameters))
+    public boolean equals(Object o) {
+        if(!(o instanceof CallStatement)) {
             return false;
+        }
+        if(!this.getCommand().equals(((CallStatement) o).command) || !this.startPosition.equals(((CallStatement) o).startPosition)
+            || !this.endPosition.equals(((CallStatement) o).endPosition)) {
+            return false;
+        }
         return true;
-    }*/
+    }
 
     public int hashCode() {
         final int PRIME = 59;
@@ -119,6 +115,10 @@ public class CallStatement extends Statement {
         result = result * PRIME + ($command == null ? 43 : $command.hashCode());
         final Object $parameters = this.getParameters();
         result = result * PRIME + ($parameters == null ? 43 : $parameters.hashCode());
+        result = result * PRIME + this.startPosition.getLineNumber();
+        result = result * PRIME + this.startPosition.getCharInLine();
+        result = result * PRIME + this.endPosition.getLineNumber();
+        result = result * PRIME + this.endPosition.getCharInLine();
         return result;
     }
 
