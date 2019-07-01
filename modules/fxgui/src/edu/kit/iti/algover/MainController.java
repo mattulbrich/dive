@@ -152,7 +152,11 @@ public class MainController implements SequentActionListener, RuleApplicationLis
 
     private void backToWelcome(ActionEvent event) {
         Alert closing = new Alert(Alert.AlertType.CONFIRMATION);
-        closing.setContentText("You are about to close the current project and switch back to the project chooser. All unsaved progress will get lost.");
+        Label content = new Label("You are about to close the current project and switch back to the project chooser.");
+        Label content2 = new Label("All unsaved progress will get lost.");
+        VBox vBox = new VBox(content, content2);
+        closing.getDialogPane().setContent(vBox);
+        closing.getDialogPane().setHeaderText("Switching back to Project Chooser");
         closing.setResizable(true);
         closing.onShownProperty().addListener(e -> {
             Platform.runLater(() -> closing.setResizable(false));
