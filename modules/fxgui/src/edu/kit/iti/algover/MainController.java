@@ -165,14 +165,9 @@ public class MainController implements SequentActionListener, RuleApplicationLis
         if(buttonType.get().getButtonData().equals(ButtonBar.ButtonData.OK_DONE)) {
             ((Stage) getView().getScene().getWindow()).close();
 
-            // TODO Taken from AlgoverApplication ... possibly extract into static method there
             Stage stage = new Stage();
             stage.setTitle("DIVE");
-            WelcomePane p = new WelcomePane(stage, Collections.emptyList());
-            stage.setScene(new Scene(p.getRootPane()));
-            stage.setWidth(900);
-            stage.setHeight(700);
-            stage.show();
+            AlgoVerApplication.startApplication(stage, Collections.emptyList());
         }
     }
 
