@@ -5,10 +5,9 @@ import edu.kit.iti.algover.dafnystructures.*;
 import edu.kit.iti.algover.parser.DafnyTree;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import javafx.scene.control.DialogPane;
-import javafx.scene.control.Label;
-import javafx.scene.control.ListCell;
-import javafx.scene.control.ListView;
+import javafx.geometry.Insets;
+import javafx.geometry.Orientation;
+import javafx.scene.control.*;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
@@ -22,7 +21,9 @@ import java.util.Collection;
 public class SimpleListVisualizationPane extends DialogPane {
     private ObservableList<AbstractCallEntity> calls = FXCollections.observableArrayList();
 
-    private ListView<AbstractCallEntity> listview = new ListView<AbstractCallEntity>(calls);
+    private ObservableList<AbstractCallEntity> callsites = FXCollections.observableArrayList();
+
+   // private ListView<AbstractCallEntity> listview = new ListView<AbstractCallEntity>(calls);
 
     private CallVisualizationModel model;
 
@@ -34,16 +35,43 @@ public class SimpleListVisualizationPane extends DialogPane {
         this.listener = listener;
 
         Collection<DafnyTree> callList = model.getCalls();
-        DafnyDecl selectedDecl = model.getSelectedDeclaration();
         callList.forEach(dafnyTree -> {
             AbstractCallEntity accept = model.getDecl(dafnyTree).accept(new DafnyCallEntityVisitor(listener), dafnyTree);
             calls.add(accept);
         });
 
-        //setHeaderText(computeHeaderText(selectedDecl));
-        listview.setCellFactory(new Callback<ListView<AbstractCallEntity>, ListCell<AbstractCallEntity>>() {
+        Collection<DafnyTree> callSiteList = model.getCallSites();
+        callSiteList.forEach(dafnyTree -> {
+            AbstractCallEntity accept = model.getDecl(dafnyTree).accept(new DafnyCallEntityVisitor(listener), dafnyTree);
+            callsites.add(accept);
+        });
 
 
+        VBox listV = new VBox();
+        listV.setPadding(new Insets(40,10,40,10));
+        if(!calls.isEmpty()){
+            Label callCat = new Label("Calls to");
+            callCat.setStyle("-fx-font-weight: bold;");
+            listV.getChildren().add(callCat);
+        }
+        calls.forEach(abstractCallEntity -> {
+            listV.getChildren().add(abstractCallEntity.getNode());
+            listV.getChildren().add(new Separator(Orientation.HORIZONTAL));
+        });
+
+
+        if(!callsites.isEmpty()){
+            Label callCat = new Label("Callsites");
+            callCat.setStyle("-fx-font-weight: bold;");
+            listV.getChildren().add(callCat);
+
+        }
+
+        callsites.forEach(abstractCallEntity -> {
+            listV.getChildren().add(abstractCallEntity.getNode());
+            listV.getChildren().add(new Separator(Orientation.HORIZONTAL));
+        });
+     /*   listview.setCellFactory(new Callback<ListView<AbstractCallEntity>, ListCell<AbstractCallEntity>>() {
             @Override
             public ListCell<AbstractCallEntity> call(ListView<AbstractCallEntity> treelist) {
                 ListCell<AbstractCallEntity> cell = new ListCell<AbstractCallEntity>() {
@@ -74,9 +102,9 @@ public class SimpleListVisualizationPane extends DialogPane {
                                 }
                             });*/
 
-                            vbox.getChildren().add(labelHeader);
+                        /*    vbox.getChildren().add(labelHeader);
                             vbox.getChildren().add(item.getNode());
-                            vbox.setBorder(new Border(new BorderStroke(Color.GRAY, BorderStrokeStyle.SOLID, null, new BorderWidths(1))));
+                           // vbox.setBorder(new Border(new BorderStroke(Color.GRAY, BorderStrokeStyle.SOLID, null, new BorderWidths(1))));
                         }
                     }
 
@@ -86,7 +114,8 @@ public class SimpleListVisualizationPane extends DialogPane {
             }
 
         });
-        this.setContent(listview);
+        this.setContent(listview);*/
+        this.setContent(listV);
         this.setMinWidth(600);
 
     }

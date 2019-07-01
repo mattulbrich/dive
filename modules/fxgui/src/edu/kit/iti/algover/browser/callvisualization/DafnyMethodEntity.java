@@ -33,6 +33,9 @@ public class DafnyMethodEntity extends AbstractCallEntity {
 
     private List<DafnyTree> mParams;
 
+    private DafnyTree mDecreasesClause;
+
+    private List<ParamValueObject> paramArgsList;
 
     public DafnyMethodEntity(DafnyMethod m, DafnyTree arg, HighlightingHandler listener) {
         this.listener = listener;
@@ -46,6 +49,9 @@ public class DafnyMethodEntity extends AbstractCallEntity {
         this.mPost = m.getEnsuresClauses();
         this.callTree = arg;
         this.mArguments = callTree.getChildren().get(1).getChildren();
+        this.mDecreasesClause = m.getDecreasesClause();
+
+        paramArgsList = extractParams(mArguments, mParams);
     }
 
     @Override
@@ -76,31 +82,28 @@ public class DafnyMethodEntity extends AbstractCallEntity {
     @Override
     public Node getNode() {
         VBox vbox= new VBox();
-        Label name = new Label(getHeaderText()+ " (line "+getUsageLine()+")");
+        Label name = new Label(getHeaderText() + " (line" + getUsageLine()+")");
         name.setOnMouseClicked(event -> {
-            listener.onRequestHighlight(callTree.getFilename(), method.getRepresentation().getToken(), callTree.getStopToken());
+            listener.onRequestHighlight(callTree.getFilename(), callTree.getStartToken(), callTree.getStopToken());
         });
         vbox.getChildren().add(name);
-        vbox.getChildren().addAll(createArguments());
-        if(mPre != null && mPre.size() > 0){
-            vbox.getChildren().addAll(createPre());
+        vbox.getChildren().add(createArgumentView(paramArgsList, listener));
+        if(mPre.size() > 0) {
+            vbox.getChildren().add(createPreconditionView(mPre, listener));
+        }
+        if(mPost.size() > 0){
+            vbox.getChildren().add(createPostconditionView(mPost, listener));
         }
 
+        if(mDecreasesClause != null){
+            vbox.getChildren().add(createDecreasesView(mDecreasesClause, listener));
+        }
         return vbox;
-    }
 
-    private Node createArguments() {
-        Label name = new Label("Arguments: ");
-        name.setOnMouseClicked(event -> {
-            mArguments.size();
-            mParams.size();
-        });
-        mArguments.size();
-        return name;
-    }
 
-    private Node[] createPre() {
-        return null;
+
+
+
     }
 
     @Override
