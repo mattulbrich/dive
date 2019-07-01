@@ -104,7 +104,7 @@ public class MainController implements SequentActionListener, RuleApplicationLis
         simpleStratButton = new JFXButton("Try Close All", FontAwesomeIconFactory.get().createIcon(FontAwesomeIcon.PLAY_CIRCLE));
         settingsButton = new JFXButton("Settings", FontAwesomeIconFactory.get().createIcon(FontAwesomeIcon.COGS));
         aboutButton = new JFXButton("About", FontAwesomeIconFactory.get().createIcon(FontAwesomeIcon.INFO_CIRCLE));
-        backButton = new JFXButton("Back", FontAwesomeIconFactory.get().createIcon(FontAwesomeIcon.ARROW_LEFT));
+        backButton = new JFXButton("Project Chooser", FontAwesomeIconFactory.get().createIcon(FontAwesomeIcon.ARROW_LEFT));
 
         saveButton.setOnAction(this::onClickSaveVisibleContent);
         refreshButton.setOnAction(this::onClickRefresh);
@@ -151,16 +151,25 @@ public class MainController implements SequentActionListener, RuleApplicationLis
     }
 
     private void backToWelcome(ActionEvent event) {
-        ((Stage) getView().getScene().getWindow()).close();
+        Alert closing = new Alert(Alert.AlertType.CONFIRMATION);
+        closing.setContentText("You are about to close the current project and switch back to the project chooser. All unsaved progress will get lost.");
+        closing.setResizable(true);
+        closing.onShownProperty().addListener(e -> {
+            Platform.runLater(() -> closing.setResizable(false));
+        });
+        Optional<ButtonType> buttonType = closing.showAndWait();
+        if(buttonType.get().getButtonData().equals(ButtonBar.ButtonData.OK_DONE)) {
+            ((Stage) getView().getScene().getWindow()).close();
 
-        // TODO Taken from AlgoverApplication ... possibly extract into static method there
-        Stage stage = new Stage();
-        stage.setTitle("DIVE");
-        WelcomePane p = new WelcomePane(stage, Collections.emptyList());
-        stage.setScene(new Scene(p.getRootPane()));
-        stage.setWidth(900);
-        stage.setHeight(700);
-        stage.show();
+            // TODO Taken from AlgoverApplication ... possibly extract into static method there
+            Stage stage = new Stage();
+            stage.setTitle("DIVE");
+            WelcomePane p = new WelcomePane(stage, Collections.emptyList());
+            stage.setScene(new Scene(p.getRootPane()));
+            stage.setWidth(900);
+            stage.setHeight(700);
+            stage.show();
+        }
     }
 
     private void openAboutWindow(ActionEvent actionEvent) {
