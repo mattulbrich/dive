@@ -408,16 +408,7 @@ class ProofNodeInterpreterManager {
                     //we don't have a nested structure
                     if(goal.getParent() == lastSelectedGoalNode) {
                         lastSelectedGoalNode.getChildren().add(goal);
-                    } else {
-                        //TODO handle nested structure -> maybe this is not wanted
-                        ProofNode temporaryGoal = goal;
-                        while(temporaryGoal.getParent() != lastSelectedGoalNode){
-                            temporaryGoal = temporaryGoal.getParent();
-                        }
-                        lastSelectedGoalNode.getChildren().add(temporaryGoal);
-
                     }
-
                 }
                 proof.addAstPnReference(node, goals.get(0));
             }
