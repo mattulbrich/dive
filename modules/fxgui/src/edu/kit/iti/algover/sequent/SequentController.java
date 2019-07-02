@@ -8,6 +8,8 @@ package edu.kit.iti.algover.sequent;
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon;
 import de.jensd.fx.glyphs.fontawesome.utils.FontAwesomeIconFactory;
 import edu.kit.iti.algover.FxmlController;
+import edu.kit.iti.algover.Lookup;
+import edu.kit.iti.algover.MainController;
 import edu.kit.iti.algover.browser.entities.PVCEntity;
 import edu.kit.iti.algover.proof.*;
 import edu.kit.iti.algover.references.ProofTermReferenceTarget;
@@ -15,8 +17,11 @@ import edu.kit.iti.algover.rules.*;
 import edu.kit.iti.algover.sequent.formulas.ViewFormula;
 import edu.kit.iti.algover.term.Sequent;
 import edu.kit.iti.algover.term.Term;
-import edu.kit.iti.algover.util.*;
+import edu.kit.iti.algover.util.Pair;
+import edu.kit.iti.algover.util.Quadruple;
+import edu.kit.iti.algover.util.SubtermSelectorReplacementVisitor;
 import javafx.beans.property.SimpleBooleanProperty;
+import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -24,23 +29,20 @@ import javafx.collections.ObservableSet;
 import javafx.collections.SetChangeListener;
 import javafx.fxml.FXML;
 import javafx.scene.control.Label;
-import javafx.scene.control.ListCell;
-import javafx.scene.control.ListView;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
-import javafx.scene.layout.Background;
-import javafx.scene.layout.BackgroundFill;
 import javafx.scene.layout.VBox;
-import javafx.scene.paint.Color;
-import javafx.scene.paint.Paint;
-import javafx.util.Callback;
 import org.controlsfx.control.ToggleSwitch;
-import org.fxmisc.flowless.VirtualizedScrollPane;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Set;
+import java.util.prefs.NodeChangeEvent;
+import java.util.prefs.NodeChangeListener;
+import java.util.prefs.PreferenceChangeEvent;
+import java.util.prefs.PreferenceChangeListener;
 import java.util.stream.Collectors;
 
 /**
@@ -99,6 +101,10 @@ public class SequentController extends FxmlController {
 
     private SimpleBooleanProperty showFormulaLabels = new SimpleBooleanProperty(false);
 
+    private SimpleIntegerProperty fontsizeProperty = new SimpleIntegerProperty(12);
+
+    private Lookup lookup;
+
     /**
      * Builds the controller and GUI for the sequent view, that is the two ListViews of
      * {@Link TopLevelFormula}s.
@@ -108,7 +114,7 @@ public class SequentController extends FxmlController {
      *
      * @param listener
      */
-    public SequentController(SequentActionListener listener) {
+    public SequentController(SequentActionListener listener, Lookup lookup) {
         super("SequentView.fxml");
         this.listener = listener;
         this.activeProof = null;
@@ -125,6 +131,18 @@ public class SequentController extends FxmlController {
 
         antecedentBox.setOnKeyPressed(this::handleOnKeyPressed);
         succedentBox.setOnKeyPressed(this::handleOnKeyPressed);
+
+        int font_size_seq_view = MainController.systemprefs.getInt("FONT_SIZE_SEQ_VIEW", 12);
+        this.fontsizeProperty.setValue(font_size_seq_view);
+
+        MainController.systemprefs.addPreferenceChangeListener(new PreferenceChangeListener() {
+            @Override
+            public void preferenceChange(PreferenceChangeEvent preferenceChangeEvent) {
+                int font_size_seq_view1 = preferenceChangeEvent.getNode().getInt("FONT_SIZE_SEQ_VIEW", 12);
+                fontsizeProperty.set(font_size_seq_view1);
+            }
+        });
+
 /*        antecedentBox.getChildren().forEach(node -> {
             node.setOnKeyPressed(this::handleOnKeyPressed);
         });
@@ -388,7 +406,7 @@ public class SequentController extends FxmlController {
                 formulas.add(new ViewFormula(formulas.size() - deletedFormulas, addition.getTerm(), ViewFormula.Type.ADDED, polarity, addition.getLabels()));
             }
         }
-        return formulas.stream().map(formula -> new FormulaCell(selectedTerm, selectedReference, styles, formula, showFormulaLabels)).collect(Collectors.toList());
+        return formulas.stream().map(formula -> new FormulaCell(selectedTerm, selectedReference, styles, formula, showFormulaLabels, this.fontsizeProperty)).collect(Collectors.toList());
 
     }
 

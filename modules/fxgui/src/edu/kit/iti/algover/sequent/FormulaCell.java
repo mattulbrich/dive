@@ -10,6 +10,7 @@ import edu.kit.iti.algover.sequent.formulas.*;
 import edu.kit.iti.algover.util.ImmutableList;
 import edu.kit.iti.algover.util.Quadruple;
 import javafx.beans.property.SimpleBooleanProperty;
+import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
@@ -45,16 +46,19 @@ public class FormulaCell extends BorderPane {
 
     private SimpleBooleanProperty showLabels;
 
+    private SimpleIntegerProperty fontsize;
+
 
     public FormulaCell(SimpleObjectProperty<TermSelector> selectedTerm,
                        SimpleObjectProperty<TermSelector> selectedReference,
                        ObservableList<Quadruple<TermSelector, String, Integer, String>> allStyles,
                        ViewFormula formula,
-                       SimpleBooleanProperty showLabelsInView) {
+                       SimpleBooleanProperty showLabelsInView, SimpleIntegerProperty fontsize) {
         this.selectedTerm = selectedTerm;
         this.allStyles = allStyles;
         this.selectedReference = selectedReference;
         this.showLabels = showLabelsInView;
+        this.fontsize = fontsize;
 
         this.setPadding(new Insets(5,10,5,10));
         getStyleClass().add("formula-cell");
@@ -79,7 +83,7 @@ public class FormulaCell extends BorderPane {
                     .filter(termSelector ->
                             termSelector.getToplevelSelector().getTermNo() == formula.getIndexInSequent())
                     .collect(Collectors.toSet());
-            BasicFormulaView formulaView = new BasicFormulaView(formula, selectedTerm, selectedReference, allStyles, filterAccToIndexInSeq);
+            BasicFormulaView formulaView = new BasicFormulaView(formula, selectedTerm, selectedReference, allStyles, filterAccToIndexInSeq, fontsize);
             this.label = formula.getLabels();
             //VirtualizedScrollPane<BasicFormulaView> sp = new VirtualizedScrollPane<>(formulaView);
             //setCenter(sp);
