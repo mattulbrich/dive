@@ -19,7 +19,6 @@ public class SimpleListVisualizationPane extends DialogPane {
 
     private ObservableList<AbstractCallEntity> callsites = FXCollections.observableArrayList();
 
-   // private ListView<AbstractCallEntity> listview = new ListView<AbstractCallEntity>(calls);
 
     private CallVisualizationModel model;
 

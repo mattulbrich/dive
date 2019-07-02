@@ -19,7 +19,8 @@ public class DafnyCallEntityVisitor implements DafnyDeclVisitor<AbstractCallEnti
 
     @Override
     public AbstractCallEntity visit(DafnyMethod m, DafnyTree arg) {
-        return new DafnyMethodEntity(m, arg, listener);
+
+        return new DafnyMethodEntity(m, arg, listener, call);
     }
 
     @Override

@@ -30,7 +30,8 @@ public class ReferencePrettyPrinter implements ReferenceTargetVisitor<String> {
     @Override
     public String visit(CodeReferenceTarget codeTarget) {
         try {
-            String codeString = fileToString(codeTarget.getFile().getRepresentation().getFilename());
+           // String codeString = fileToString(codeTarget.getFile().getRepresentation().getFilename());
+            String codeString = fileToString(codeTarget.getFile());
             String[] lines = codeString.split("\n");
             int startLine = codeTarget.getStartToken().getLine();
             int startChar = codeTarget.getStartToken().getCharPositionInLine();

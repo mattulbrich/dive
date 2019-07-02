@@ -37,13 +37,11 @@ public class DafnyMethodEntity extends AbstractCallEntity {
 
     private List<ParamValueObject> paramArgsList;
 
-    public DafnyMethodEntity(DafnyMethod m, DafnyTree arg, HighlightingHandler listener) {
+    public DafnyMethodEntity(DafnyMethod m, DafnyTree arg, HighlightingHandler listener, boolean isCall) {
         this.listener = listener;
         this.type = Type.METHOD;
         this.method = m;
-        if(arg.getText().equals("CALL")){
-            isCall = true;
-        }
+        this.isCall = isCall;
         this.mPre = m.getRequiresClauses();
         this.mParams = m.getParams();
         this.mPost = m.getEnsuresClauses();
@@ -71,7 +69,11 @@ public class DafnyMethodEntity extends AbstractCallEntity {
 
     @Override
     public String getHeaderText() {
-        return "Method "+method.getName();
+        if(!isCall()){
+            return "Method "+method.getName()+" in "+callTree.getChild(0).getText();
+        } else {
+            return "Method " + method.getName();
+        }
     }
 
     @Override
