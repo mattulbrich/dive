@@ -2,10 +2,10 @@ plugins {
     id 'org.openjfx.javafxplugin' version '0.0.7'
 }
 
-javafx {
+/*javafx {
     version = "12"
     modules = ["javafx.base"]
-}
+}*/
 
 apply from: 'makeDafnyTreeVisitor.gradle'
 
@@ -28,12 +28,21 @@ dependencies {
     compile group: 'com.sun.xml.bind', name: 'jaxb-impl', version: '2.4.0-b180830.0438'
     compile group: 'com.sun.xml.bind', name: 'jaxb-core', version: '2.3.0.1'
 
+    compile group: 'com.io7m.jpplib', name: 'com.io7m.jpplib', version: '0.8.0'
+    compile group: 'com.io7m.jpplib', name: 'com.io7m.jpplib.core', version: '0.8.0'
+    compile group: 'com.io7m.jpplib', name: 'com.io7m.jpplib.demo', version: '0.8.0'
+    // jpplib uses slf4j. Unless the following is specified, a nasty error message
+    // will occur.
+    compile group: 'org.slf4j', name: 'slf4j-nop', version: '1.7.21'
+
     antlr3 group: 'org.antlr', name: 'antlr', version: '3.5.2'
     compile group: 'org.antlr', name: 'antlr-runtime', version: '3.5.2'
     compile group: 'org.antlr', name: 'stringtemplate', version: '3.2'
 
     antlr4 "org.antlr:antlr4:4.7.1"
     compile "org.antlr:antlr4-runtime:4.7.1"
+
+
 }
 
 //buildVisitor.outputs.dir ="$projectDir/gen/edu/kit/iti/algover/parser"
@@ -53,8 +62,9 @@ task runAntlr3(type:JavaExec) {
 }
 
 test {
-   jvmArgs = [ "-Dde.matul.nonnull.debug=true", "-javaagent:../../lib/nonnull-all.jar=edu" ]
-   testLogging  {
+    // The following may be added to theses: "-Dde.matul.nonnull.debug=true",
+    jvmArgs = [  "-javaagent:../../lib/nonnull-all.jar=edu" ]
+    testLogging  {
        exceptionFormat "full"
        showStackTraces = true
        // showStandardStreams = true
@@ -70,8 +80,9 @@ task runAntlr4(type:JavaExec) {
     classpath { configurations.antlr4.getAsPath()}
 
     main = "org.antlr.v4.Tool"
+    workingDir = "src"
 
-    args = ["-visitor", "-o", "gen", "src/edu/kit/iti/algover/script/ScriptLanguage.g4", "-package", "edu.kit.iti.algover.script" ]
+    args = ["-visitor", "-o", "$projectDir/gen", "edu/kit/iti/algover/script/ScriptLanguage.g4", "-package", "edu.kit.iti.algover.script" ]
 }
 
 

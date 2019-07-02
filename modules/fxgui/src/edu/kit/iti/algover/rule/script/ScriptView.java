@@ -9,39 +9,32 @@ import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon;
 import de.jensd.fx.glyphs.fontawesome.utils.FontAwesomeIconFactory;
 import edu.kit.iti.algover.AlgoVerApplication;
 import edu.kit.iti.algover.editor.HighlightingRule;
-import edu.kit.iti.algover.parser.DafnyLexer;
 import edu.kit.iti.algover.script.ScriptLanguageLexer;
-import edu.kit.iti.algover.script.parser.Facade;
 import edu.kit.iti.algover.util.AsyncHighlightingCodeArea;
 import javafx.application.Platform;
 import javafx.beans.property.SimpleListProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.collections.FXCollections;
+import edu.kit.iti.algover.util.ExceptionDetails;
 import javafx.collections.ObservableList;
-import javafx.geometry.Pos;
-import javafx.scene.Node;
 import javafx.scene.control.ContextMenu;
-import javafx.scene.control.Label;
 import javafx.scene.control.MenuItem;
-import javafx.scene.layout.HBox;
-import org.antlr.runtime.ANTLRStringStream;
+import javafx.scene.control.Tooltip;
+import javafx.scene.input.MouseEvent;
 import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.Token;
-import org.fxmisc.richtext.LineNumberFactory;
-import org.fxmisc.richtext.model.StyleSpan;
+import org.fxmisc.richtext.CharacterHit;
 import org.fxmisc.richtext.model.StyleSpans;
 import org.fxmisc.richtext.model.StyleSpansBuilder;
-import org.fxmisc.richtext.model.TwoDimensional;
+import edu.kit.iti.algover.script.ast.Position;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.List;
+import java.util.OptionalInt;
 import java.util.concurrent.ExecutorService;
-import java.util.function.IntFunction;
 
 /**
  * Created by Philipp on 24.07.2017.
@@ -51,6 +44,9 @@ public class ScriptView extends AsyncHighlightingCodeArea {
 
     private final ScriptViewListener listener;
     private HighlightingRulev4 highlightingRule;
+    private Exception highlightedException = null;
+    private ExceptionDetails.ExceptionReportInfo highlightedExceptionInfo = null;
+    private final Tooltip tooltip = new Tooltip("");
 
     public GutterFactory getGutter() {
         return gutter;
@@ -84,6 +80,7 @@ public class ScriptView extends AsyncHighlightingCodeArea {
         setupAsyncSyntaxhighlighting();
 
         textProperty().addListener((observable, oldValue, newValue) -> listener.onAsyncScriptTextChanged(newValue));
+        setOnMouseMoved(this::handleHover);
         /*this.caretPositionProperty().addListener((observable, oldValue, newValue) -> {
             System.out.println("oldValue = " + oldValue);
             System.out.println("newValue = " + newValue);
@@ -140,6 +137,14 @@ public class ScriptView extends AsyncHighlightingCodeArea {
         }
     }
 
+    public void updateHighlighting() {
+        try {
+            applyHighlighting(computeHighlighting(getText()));
+        } catch (Exception e) {
+            System.out.println("Error updating highlight.");
+        }
+    }
+
     /**
      * Set another highlighting rule. This rule will compute additional highlighting and has
      * the lexers computed highlighting classes information available.
@@ -190,6 +195,41 @@ public class ScriptView extends AsyncHighlightingCodeArea {
         }
     }
 
+
+    private void handleHover(MouseEvent mouseEvent) {
+        CharacterHit hit = hit(mouseEvent.getX(), mouseEvent.getY());
+        OptionalInt charIdx = hit.getCharacterIndex();
+        if(charIdx.isPresent() && highlightedException != null) {
+            edu.kit.iti.algover.script.ast.Position moPos = computePositionFromCharIdx(charIdx.getAsInt(), getText());
+            if(moPos.getLineNumber() == highlightedExceptionInfo.getLine()) {
+                tooltip.setText(highlightedException.getMessage());
+                Tooltip.install(this, tooltip);
+            }
+        } else {
+            Tooltip.uninstall(this, tooltip);
+        }
+    }
+
+    private edu.kit.iti.algover.script.ast.Position computePositionFromCharIdx(int charIdx, String text) {
+        int line = 1;
+        int charInLine = 0;
+        for (int i = 0; i < charIdx; i++) {
+            char c = text.charAt(i);
+
+            if (c == '\n') {
+                line++;
+                charInLine = 0;
+            } else {
+                charInLine++;
+            }
+        }
+        return new edu.kit.iti.algover.script.ast.Position(line, charInLine);
+    }
+
+    public void setHighlightedException(Exception e) {
+        this.highlightedException = e;
+        highlightedExceptionInfo = ExceptionDetails.extractReportInfo(highlightedException);
+    }
     public ObservableList<GutterAnnotation> getGutterAnnotations() {
         return gutter.getAnnotations();
     }

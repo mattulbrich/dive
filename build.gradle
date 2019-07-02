@@ -52,7 +52,6 @@ subprojects {
     dependencies {
         compile group: 'com.google.guava', name: 'guava', version: '27.1-jre'
 
-        compile name: 'jpplib'
         compile name: 'nonnull-runtime'
 
         testCompile 'junit:junit:4.12'
