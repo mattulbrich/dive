@@ -5,9 +5,11 @@ import edu.kit.iti.algover.parser.DafnyTree;
 
 public class DafnyCallEntityVisitor implements DafnyDeclVisitor<AbstractCallEntity, DafnyTree> {
     private HighlightingHandler listener;
+    private boolean call;
 
-    public DafnyCallEntityVisitor(HighlightingHandler listener) {
+    public DafnyCallEntityVisitor(HighlightingHandler listener, boolean call) {
         this.listener = listener;
+        this.call = call;
     }
 
     @Override
@@ -22,7 +24,7 @@ public class DafnyCallEntityVisitor implements DafnyDeclVisitor<AbstractCallEnti
 
     @Override
     public AbstractCallEntity visit(DafnyFunction f, DafnyTree arg) {
-        return new DafnyFunctionEntity(f, arg, listener);
+        return new DafnyFunctionEntity(f, arg, listener, call);
     }
 
     @Override

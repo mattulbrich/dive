@@ -69,15 +69,13 @@ public class DafnyFunctionEntity extends AbstractCallEntity {
 
     private List<ParamValueObject> paramArgsList;
 
-    public DafnyFunctionEntity(DafnyFunction f, DafnyTree t, HighlightingHandler listener){
+    public DafnyFunctionEntity(DafnyFunction f, DafnyTree t, HighlightingHandler listener, boolean call){
 
         this.listener = listener;
 
         this.type = Type.FUNCTION;
         this.function = f;
-        if(t.getText().equals("CALL")){
-            call = true;
-        }
+        this.call = call;
         this.fPre = f.getRequiresClauses();
         this.fParams = f.getParameters();
         this.fPost = f.getEnsuresClauses();
@@ -85,6 +83,9 @@ public class DafnyFunctionEntity extends AbstractCallEntity {
         this.callTree = t;
         this.fArguments = callTree.getChildren().get(1).getChildren();
         this.headerText = "Function "+f.getName();
+        if(!isCall()){
+            this.headerText= "Function "+f.getName()+" in "+t.getText();
+        }
 
 
         paramArgsList = extractParams(fArguments, fParams);
@@ -126,7 +127,12 @@ public class DafnyFunctionEntity extends AbstractCallEntity {
     @Override
     public Node getNode() {
         VBox vbox= new VBox();
-        Label name = new Label(headerText + " (line" + getUsageLine()+")");
+        Label name;
+        if(isCall()) {
+            name = new Label(headerText + " (line" + getUsageLine() + ")");
+        } else {
+            name = new Label ("Of "+getEntity().getName()+ " in line" + getUsageLine());
+        }
         name.setOnMouseClicked(event -> {
             listener.onRequestHighlight(callTree.getFilename(), callTree.getStartToken(), callTree.getStopToken());
         });
@@ -139,7 +145,7 @@ public class DafnyFunctionEntity extends AbstractCallEntity {
             vbox.getChildren().add(createPostconditionView(fPost, listener));
         }
 
-        if(fDecreasesClause != null){
+        if(fDecreasesClause != null && isCall()){
             vbox.getChildren().add(createDecreasesView(fDecreasesClause, listener));
         }
         return vbox;

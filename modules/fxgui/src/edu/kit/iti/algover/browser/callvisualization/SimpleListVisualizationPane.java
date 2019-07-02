@@ -1,7 +1,6 @@
 package edu.kit.iti.algover.browser.callvisualization;
 
 
-import edu.kit.iti.algover.dafnystructures.*;
 import edu.kit.iti.algover.parser.DafnyTree;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -9,9 +8,6 @@ import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
 import javafx.scene.control.*;
 import javafx.scene.layout.*;
-import javafx.scene.paint.Color;
-import javafx.scene.text.Font;
-import javafx.util.Callback;
 
 import java.util.Collection;
 
@@ -36,13 +32,13 @@ public class SimpleListVisualizationPane extends DialogPane {
 
         Collection<DafnyTree> callList = model.getCalls();
         callList.forEach(dafnyTree -> {
-            AbstractCallEntity accept = model.getDecl(dafnyTree).accept(new DafnyCallEntityVisitor(listener), dafnyTree);
+            AbstractCallEntity accept = model.getDecl(dafnyTree).accept(new DafnyCallEntityVisitor(listener, true), dafnyTree);
             calls.add(accept);
         });
 
         Collection<DafnyTree> callSiteList = model.getCallSites();
         callSiteList.forEach(dafnyTree -> {
-            AbstractCallEntity accept = model.getDecl(dafnyTree).accept(new DafnyCallEntityVisitor(listener), dafnyTree);
+            AbstractCallEntity accept = model.getDecl(dafnyTree).accept(new DafnyCallEntityVisitor(listener, false), dafnyTree);
             callsites.add(accept);
         });
 
@@ -50,7 +46,7 @@ public class SimpleListVisualizationPane extends DialogPane {
         VBox listV = new VBox();
         listV.setPadding(new Insets(40,10,40,10));
         if(!calls.isEmpty()){
-            Label callCat = new Label("Calls to");
+            Label callCat = new Label("Calls:");
             callCat.setStyle("-fx-font-weight: bold;");
             listV.getChildren().add(callCat);
         }
@@ -58,10 +54,11 @@ public class SimpleListVisualizationPane extends DialogPane {
             listV.getChildren().add(abstractCallEntity.getNode());
             listV.getChildren().add(new Separator(Orientation.HORIZONTAL));
         });
+        listV.getChildren().add(new Separator(Orientation.HORIZONTAL));
 
 
         if(!callsites.isEmpty()){
-            Label callCat = new Label("Callsites");
+            Label callCat = new Label("Callsites:");
             callCat.setStyle("-fx-font-weight: bold;");
             listV.getChildren().add(callCat);
 
