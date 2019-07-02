@@ -183,6 +183,7 @@ public class DafnyCodeArea extends AsyncHighlightingCodeArea {
             case DafnyLexer.ASSIGN:
             case DafnyLexer.RETURN:
             case DafnyLexer.INCLUDE:
+            case DafnyLexer.SUBSUME:
                 return Collections.singletonList("code-keyword");
             case DafnyLexer.REQUIRES:
             case DafnyLexer.ENSURES:

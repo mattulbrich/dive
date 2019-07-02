@@ -129,12 +129,15 @@ public class EditorController implements DafnyCodeAreaListener {
             view.getSelectionModel().select(existingTab);
         } else {
             try {
-                String contentAsText = fileToString(fileName);
                 Tab tab = new Tab();
                 File file = new File(fileName);
                 tab.setText(file.getName());
                 tab.setTooltip(new Tooltip(file.getAbsolutePath()));
                 tab.setUserData(fileName);
+                if(!file.isAbsolute()) {
+                    file = new File(baseDir, fileName);
+                }
+                String contentAsText = fileToString(file.getPath());
                 DafnyCodeArea codeArea = new DafnyCodeArea(contentAsText, executor, this);
                 codeArea.setHighlightingRule(highlightingLayers);
                 tab.setContent(new VirtualizedScrollPane<>(codeArea));

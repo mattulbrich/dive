@@ -54,7 +54,8 @@ public class DafnyProjectConfigurationChangerTest {
 
 
         Configuration c = new Configuration();
-        c.setDafnyFiles(Arrays.asList(new File("file1.dfy"),
+        c.setDafnyFiles(Arrays.asList(new File("theActualFile.dfy"),
+                new File("file1.dfy"),
                 new File("/absolute/file2.dfy"),
                 new File("with spaces.dfy")));
 
@@ -86,7 +87,8 @@ public class DafnyProjectConfigurationChangerTest {
         System.err.println("Temp file: " + tmpFile);
 
         Configuration c = new Configuration();
-        c.setDafnyFiles(Arrays.asList(new File("file1.dfy"),
+        c.setDafnyFiles(Arrays.asList(new File("theActualFile.dfy"),
+                new File("file1.dfy"),
                 new File("/absolute/file2.dfy"),
                 new File("with spaces.dfy")));
 

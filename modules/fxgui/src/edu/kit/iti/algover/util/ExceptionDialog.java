@@ -28,7 +28,7 @@ public class ExceptionDialog extends Alert {
         
         e.printStackTrace(pw);
         String s = sw.toString();
-        System.out.println("s = " + s);
+        // System.out.println("s = " + s);
         area.setText(s);
         area.setEditable(false);
 
