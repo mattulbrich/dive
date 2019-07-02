@@ -15,6 +15,7 @@ import javafx.beans.property.SimpleObjectProperty;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import javafx.geometry.Bounds;
+import javafx.geometry.Insets;
 import javafx.scene.input.MouseEvent;
 import org.fxmisc.richtext.CharacterHit;
 import org.fxmisc.richtext.CodeArea;
@@ -92,6 +93,8 @@ public class BasicFormulaView extends CodeArea {
         setFocusTraversable(false);
         setEditable(false);
 
+        setPadding(new Insets(1,0,1,0));
+
         //This might be a problem with increasing size of Proofs
         selectedTerm.addListener(this::updateSelected);
         selectedReference.addListener(this::updateSelectedRef);
@@ -118,7 +121,6 @@ public class BasicFormulaView extends CodeArea {
             removeStyle("highlight");
             updateStyleClasses();
         });
-
         widthProperty().addListener(x -> relayout());
         updateSelected(selectedTerm, null, selectedTerm.get());
         updateSelectedRef(selectedReference, null, selectedReference.get());
@@ -246,7 +248,6 @@ public class BasicFormulaView extends CodeArea {
 
     private void relayout() {
         double width = getWidth();
-
         String prettyPrinted = calculateText(width);
         double neededHeight = calculateNeededHeight(prettyPrinted);
 

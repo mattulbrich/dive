@@ -12,6 +12,10 @@
     -fx-fill: whitesmoke;
 }
 
+.formula-view {
+    -fx-font-size: 12pt;
+}
+
 .formula-view .selectedRef {
     -rtfx-background-color: #886acf;
     -fx-border-style: solid;

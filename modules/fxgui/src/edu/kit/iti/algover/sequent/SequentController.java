@@ -26,14 +26,18 @@ import javafx.fxml.FXML;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
+import javafx.scene.control.ScrollPane;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
+import javafx.scene.layout.Background;
+import javafx.scene.layout.BackgroundFill;
 import javafx.scene.layout.VBox;
+import javafx.scene.paint.Color;
+import javafx.scene.paint.Paint;
 import javafx.util.Callback;
 import org.controlsfx.control.ToggleSwitch;
 import org.fxmisc.flowless.VirtualizedScrollPane;
 
-import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -60,6 +64,9 @@ import java.util.stream.Collectors;
  */
 public class SequentController extends FxmlController {
     private final SequentActionListener listener;
+
+    @FXML
+    private ScrollPane pane;
 
     @FXML
     private ToggleSwitch formulaLabels;
@@ -393,6 +400,11 @@ public class SequentController extends FxmlController {
                     goalTypeLabel.setText("Closed Goal");
                     goalTypeLabel.setGraphic(FontAwesomeIconFactory.get().createIcon(FontAwesomeIcon.CHECK));
                     goalTypeLabel.setStyle("-fx-text-fill: GREEN");
+                  //  Background b = new Background(new BackgroundFill(Color.rgb(22, 143, 43,0.5), null, null));
+                  //  antecedentBox.setBackground(b);
+                  //  succedentBox.setBackground(b);
+
+
                 } else {
                     goalTypeLabel.setText("Open Goal");
                     goalTypeLabel.setGraphic(FontAwesomeIconFactory.get().createIcon(FontAwesomeIcon.BULLSEYE));

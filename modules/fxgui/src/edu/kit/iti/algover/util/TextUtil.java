@@ -22,8 +22,9 @@ public class TextUtil {
         textNode.getStyleClass().setAll(styleClasses);
         new Scene(new Group(textNode)).getStylesheets().setAll(stylesheets);
 
-        textNode.applyCss();
 
+       // textNode.setStyle("-fx-font-size: 12pt");
+        textNode.applyCss();
         return textNode.getLayoutBounds();
     }
 
