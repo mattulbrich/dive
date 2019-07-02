@@ -177,7 +177,7 @@ STRING_LIT :
 
 
 WS : (' '|'\t'|'\n'|'\r')                { $channel = HIDDEN; };
-ALGOVER_COMMENT: '//\\\\'                { $channel = HIDDEN; };
+ALGOVER_COMMENT: '//>'                { $channel = HIDDEN; };
 SINGLELINE_COMMENT: '//' ( '\\'? ~('\\'|'\r'|'\n') ~('\r' | '\n')* )?
                                          { $channel = HIDDEN; };
 MULTILINE_COMMENT: '/*' .* '*/'          { $channel = HIDDEN; };

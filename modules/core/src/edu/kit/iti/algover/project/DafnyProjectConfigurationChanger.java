@@ -26,7 +26,7 @@ public class DafnyProjectConfigurationChanger {
     private static final String END_OF_SETTINGS = "// ---- End of settings ----";
     private static final String BEGIN_OF_SETTINGS = "// ---- Automatically generated settings ----";
 
-    private static String ALGOVER_ESCAPE = "//\\\\";
+    private static String ALGOVER_ESCAPE = "//>";
 
 
     /**
