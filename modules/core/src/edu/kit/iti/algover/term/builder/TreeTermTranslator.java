@@ -903,7 +903,11 @@ public class TreeTermTranslator {
         if (decl != null && decl.getType() == DafnyParser.FIELD) {
             // if there is a field by that name ...
             Term field = tb.makeFieldConst(decl.getParent().getChild(0).getText(), name);
-            Term self = tb.self();
+            // bugfix for #109 / #144
+            Term self = boundVars.get("this");
+            if (self == null) {
+                self = tb.self();
+            }
             return tb.selectField(getHeap(), self, field);
         }
 

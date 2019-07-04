@@ -205,6 +205,11 @@ public class Interpreter<T> extends DefaultASTVisitor<Object>
 
         //List<GoalNode<T>> allGoalsBeforeCases = beforeCases.getGoals();
         List<ProofNode> allGoalsBeforeCases = beforeCases.getGoals();
+        if(allGoalsBeforeCases.size() <= 1) {
+            InterpreterRuntimeException ire = new InterpreterRuntimeException("A cases may only be used at states with at least 2 children.");
+            ire.setLocation(casesStatement);
+            throw ire;
+        }
 
         //global List after all Case Statements
         List<ProofNode> goalsAfterCases = new ArrayList<>();
