@@ -90,9 +90,9 @@ public class QuantifierInstantiation extends NoFocusProofRule {
         }
 
         Set<VariableTerm> freeVars = FreeVarVisitor.findFreeVars(withParam.getTerm());
-        if (freeVars.contains(aTerm.getBoundVar())) {
+        if (!freeVars.isEmpty()) {
             throw new NotApplicableException("A quantifier cannot be instantiated with a term" +
-                    " that contains the bound variable of the quantifier.");
+                    " that contains a free variable.");
         }
 
         if (!withParam.getTerm().getSort().isSubtypeOf(aTerm.getBoundVar().getSort())) {

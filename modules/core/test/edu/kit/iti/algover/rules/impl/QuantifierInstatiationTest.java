@@ -120,14 +120,15 @@ public class QuantifierInstatiationTest {
     @Test(expected = RuleException.class)
     public void testReplaceWithContainedVar() throws DafnyParserException, DafnyException, TermBuildException, FormatException, RuleException {
         TermParser tp = new TermParser(symbolTable);
-        String sequentString = "(forall i2:int :: i2 >= 0 && i3 < 1 ==> i1 == 0) |-";
+        String sequentString = "(forall i2:int :: i2 >= 0 && i3 < 1 ==> i1 == 0), exists y :: y==42 |-";
         Sequent s = tp.parseSequent(sequentString);
         ProofNode pn = ProofMockUtil.mockProofNode(null, s);
         QuantifierInstantiation rule = new QuantifierInstantiation();
         Parameters params = new Parameters();
         params.putValue(ProofRule.ON_PARAM, new TermParameter(new TermSelector("A.0"), s));
-        Term rt = tp.parse("i1 + i2 % i3 - i4");
-        params.putValue(QuantifierInstantiation.WITH_PARAM, new TermParameter(rt, null));
+        tp.setSchemaMode(true);
+        Term rt = tp.parse("... (?match:_) == 42 ...");
+        params.putValue(QuantifierInstantiation.WITH_PARAM, new TermParameter(rt, s));
         ProofRuleApplication pra = rule.makeApplication(pn, params);
     }
 }
