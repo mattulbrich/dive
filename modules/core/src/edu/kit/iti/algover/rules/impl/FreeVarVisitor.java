@@ -6,7 +6,11 @@
 package edu.kit.iti.algover.rules.impl;
 
 import de.uka.ilkd.pp.NoExceptions;
-import edu.kit.iti.algover.term.*;
+import edu.kit.iti.algover.term.DefaultTermVisitor;
+import edu.kit.iti.algover.term.LetTerm;
+import edu.kit.iti.algover.term.QuantTerm;
+import edu.kit.iti.algover.term.Term;
+import edu.kit.iti.algover.term.VariableTerm;
 import edu.kit.iti.algover.util.ImmutableList;
 import edu.kit.iti.algover.util.Pair;
 import edu.kit.iti.algover.util.Util;
@@ -68,16 +72,6 @@ public class FreeVarVisitor extends DefaultTermVisitor<Void, Void, NoExceptions>
     public Void visit(VariableTerm term, Void arg) throws NoExceptions {
         if (!boundVars.contains(term)) {
             freeVars.add(term);
-        }
-        return null;
-    }
-
-    @Override
-    public Void visit(ApplTerm term, Void arg) throws NoExceptions {
-        if(term.getSubterms().size() == 0) {
-            freeVars.add(new VariableTerm(term.toString(), term.getSort()));
-        } else {
-            this.defaultVisit(term, arg);
         }
         return null;
     }
