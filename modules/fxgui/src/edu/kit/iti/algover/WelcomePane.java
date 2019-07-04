@@ -81,8 +81,6 @@ public class WelcomePane {
 
     private Stage primaryStage;
 
-    private Stage substage;
-
     public WelcomePane(Stage primaryStage, List<String> opendirectly){
         this.primaryStage = primaryStage;
 
@@ -423,7 +421,8 @@ public class WelcomePane {
         primaryStage.close();
         Scene scene = new Scene(controller.getView());
         scene.getStylesheets().add(AlgoVerApplication.class.getResource("style.css").toExternalForm());
-        substage = new Stage();
+
+        Stage substage = new Stage();
         substage.setScene(scene);
 
         Dimension screenSize = java.awt.Toolkit.getDefaultToolkit().getScreenSize();

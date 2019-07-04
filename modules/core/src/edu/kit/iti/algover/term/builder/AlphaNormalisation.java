@@ -60,7 +60,12 @@ public class AlphaNormalisation {
 
     public static @NonNull Term normalise(@NonNull Term term) throws TermBuildException {
         NameClashHandler nd = new NameClashHandler(false);
-        return term.accept(nd, Immutables.emptyMap());
+        Term result = term.accept(nd, Immutables.emptyMap());
+        if (result == null) {
+            // null means unchanged --> return original formula
+            return term;
+        }
+        return result;
     }
 
     public static boolean isNormalised(@NonNull Term term) {

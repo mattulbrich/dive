@@ -19,6 +19,7 @@ import nonnull.NonNull;
  *
  * @param <T> The type of the values used in the parameter. Taken from the
  *            {@link ParameterType} provided as constructor argument.
+ *
  * @author Mattias Ulbrich
  * @see ParameterType
  * @see Parameters
@@ -50,7 +51,6 @@ public class ParameterDescription<T> {
      * @param required is the parameter required or optional?
      */
     public ParameterDescription(@NonNull String name, @NonNull ParameterType<T> type, boolean required) {
-        super();
         this.name = name;
         this.type = type;
         this.required = required;

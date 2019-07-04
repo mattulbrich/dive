@@ -28,17 +28,11 @@ import java.util.stream.Collectors;
  *
  * @author philipp
  */
-public class LetSubstitutionRule extends AbstractProofRule {
+public class LetSubstitutionRule extends FocusProofRule {
 
-    /**
-     * Builds a new SubstitutionRule.
-     * <p>
-     * This rule only requires the "on" parameter, the term that it should be applied on.
-     * That term <strong>must</strong> be a let term.
-     */
-    public LetSubstitutionRule() {
-        super(ON_PARAM);
-        mayBeExhaustive = true;
+    @Override
+    public boolean mayBeExhaustive() {
+        return true;
     }
 
     @Override
@@ -47,47 +41,27 @@ public class LetSubstitutionRule extends AbstractProofRule {
     }
 
     @Override
-    public ProofRuleApplication considerApplicationImpl(ProofNode target, Parameters parameters) throws RuleException {
-        Term targetTerm = parameters.getValue(ON_PARAM).getTerm();
-        TermSelector selector = parameters.getValue(ON_PARAM).getTermSelector();
-
-        if (!(targetTerm instanceof LetTerm)) {
-            return ProofRuleApplicationBuilder.notApplicable(this);
-        }
-        LetTerm targetLet = (LetTerm) targetTerm;
-
-        try {
-            applyLetSubstitution(targetLet);
-        } catch(RuleException ex) {
-            return ProofRuleApplicationBuilder.notApplicable(this);
-        }
-
-        ProofRuleApplicationBuilder builder = new ProofRuleApplicationBuilder(this);
-        builder.setApplicability(ProofRuleApplication.Applicability.APPLICABLE);
-        builder.newBranch()
-                .addReplacement(selector, applyLetSubstitution(targetLet));
-
-        return builder.build();
+    public String getCategory() {
+        return ProofRuleCategories.SIMPLIFICATIONS;
     }
 
     @Override
     public ProofRuleApplication makeApplicationImpl(ProofNode target, Parameters parameters) throws RuleException {
-        Term on = parameters.getValue(ON_PARAM).getTerm();
+        TermParameter onParam = parameters.getValue(ON_PARAM);
+        Term on = onParam.getTerm();
 
         if (!(on instanceof LetTerm)) {
-            throw new RuleException("Given term is not a let term");
+            throw NotApplicableException.onlyOperator(this, "let");
         }
 
         LetTerm targetLet = (LetTerm) on;
 
-        TermSelector selector = RuleUtil.matchSubtermInSequent(targetLet::equals, target.getSequent())
-                .orElseThrow(() -> new RuleException("Could not find 'on' term"));
+        TermSelector selector = onParam.getTermSelector();
 
         ProofRuleApplicationBuilder builder = new ProofRuleApplicationBuilder(this);
 
         builder.setApplicability(ProofRuleApplication.Applicability.APPLICABLE);
         builder.newBranch().addReplacement(selector, applyLetSubstitution(targetLet));
-        builder.setApplicability(ProofRuleApplication.Applicability.APPLICABLE);
 
         return builder.build();
     }

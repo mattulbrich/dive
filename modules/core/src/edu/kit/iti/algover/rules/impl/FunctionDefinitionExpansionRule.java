@@ -12,7 +12,8 @@ import edu.kit.iti.algover.parser.DafnyParser;
 import edu.kit.iti.algover.parser.DafnyTree;
 import edu.kit.iti.algover.proof.ProofFormula;
 import edu.kit.iti.algover.proof.ProofNode;
-import edu.kit.iti.algover.rules.AbstractProofRule;
+import edu.kit.iti.algover.rules.FocusProofRule;
+import edu.kit.iti.algover.rules.NotApplicableException;
 import edu.kit.iti.algover.rules.Parameters;
 import edu.kit.iti.algover.rules.ProofRuleApplication;
 import edu.kit.iti.algover.rules.ProofRuleApplication.Applicability;
@@ -28,6 +29,7 @@ import edu.kit.iti.algover.term.Sequent;
 import edu.kit.iti.algover.term.Sort;
 import edu.kit.iti.algover.term.Term;
 import edu.kit.iti.algover.term.VariableTerm;
+import edu.kit.iti.algover.term.builder.AlphaNormalisation;
 import edu.kit.iti.algover.term.builder.TermBuildException;
 import edu.kit.iti.algover.term.builder.TreeTermTranslator;
 import edu.kit.iti.algover.util.ASTUtil;
@@ -51,11 +53,7 @@ import java.util.List;
  *
  * @author mulbrich
  */
-public class FunctionDefinitionExpansionRule extends AbstractProofRule {
-
-    public FunctionDefinitionExpansionRule() {
-        super(ON_PARAM);
-    }
+public class FunctionDefinitionExpansionRule extends FocusProofRule {
 
     @Override
     public String getName() {
@@ -63,18 +61,18 @@ public class FunctionDefinitionExpansionRule extends AbstractProofRule {
     }
 
     @Override
-    protected ProofRuleApplication considerApplicationImpl(ProofNode target, Parameters parameters) throws RuleException {
+    protected ProofRuleApplication makeApplicationImpl(ProofNode target, Parameters parameters) throws RuleException {
         TermSelector selector = parameters.getValue(ON_PARAM).getTermSelector();
 
         Term term = selector.selectSubterm(target.getSequent());
         if (!(term instanceof ApplTerm)) {
-            return ProofRuleApplicationBuilder.notApplicable(this);
+            throw NotApplicableException.onlyOperator(this, "Dafny function");
         }
         ApplTerm appl = (ApplTerm) term;
         FunctionSymbol fs = appl.getFunctionSymbol();
 
         if (!(fs instanceof DafnyFunctionSymbol)) {
-            return ProofRuleApplicationBuilder.notApplicable(this);
+            throw NotApplicableException.onlyOperator(this, "Dafny function");
         }
 
         DafnyFunction function = ((DafnyFunctionSymbol) fs).getOrigin();
@@ -83,8 +81,9 @@ public class FunctionDefinitionExpansionRule extends AbstractProofRule {
         SymbolTable symbols = target.getAllSymbols();
         try {
             Term definition = instantiate(term, function, function.getExpression(), symbols);
+            Term alphaNormalisedDef = AlphaNormalisation.normalise(definition);
             builder.newBranch().
-                    addReplacement(selector, definition).
+                    addReplacement(selector, alphaNormalisedDef).
                     setLabel("continue");
 
 
@@ -93,8 +92,9 @@ public class FunctionDefinitionExpansionRule extends AbstractProofRule {
                 DafnyTree requires = ASTUtil.and(Util.map(requiresClauses, DafnyTree::getLastChild));
                 Term precondition = instantiate(term, function, requires, symbols);
                 Term withContext = copyContext(target.getSequent(), selector, precondition);
+                Term alphaNormalised = AlphaNormalisation.normalise(withContext);
                 builder.newBranch().
-                        addAdditionsSuccedent(new ProofFormula(withContext)).
+                        addAdditionsSuccedent(new ProofFormula(alphaNormalised)).
                         setLabel("justify");
             }
 
@@ -186,8 +186,4 @@ public class FunctionDefinitionExpansionRule extends AbstractProofRule {
 
     }
 
-    @Override
-    protected ProofRuleApplication makeApplicationImpl(ProofNode target, Parameters parameters) throws RuleException {
-        return considerApplicationImpl(target, parameters);
-    }
 }

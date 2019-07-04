@@ -31,6 +31,9 @@ dependencies {
     compile group: 'com.io7m.jpplib', name: 'com.io7m.jpplib', version: '0.8.0'
     compile group: 'com.io7m.jpplib', name: 'com.io7m.jpplib.core', version: '0.8.0'
     compile group: 'com.io7m.jpplib', name: 'com.io7m.jpplib.demo', version: '0.8.0'
+    // jpplib uses slf4j. Unless the following is specified, a nasty error message
+    // will occur.
+    compile group: 'org.slf4j', name: 'slf4j-nop', version: '1.7.21'
 
     antlr3 group: 'org.antlr', name: 'antlr', version: '3.5.2'
     compile group: 'org.antlr', name: 'antlr-runtime', version: '3.5.2'

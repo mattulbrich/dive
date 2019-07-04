@@ -6,15 +6,20 @@
 package edu.kit.iti.algover.util;
 
 import edu.kit.iti.algover.data.BuiltinSymbols;
+import edu.kit.iti.algover.parser.DafnyException;
+import edu.kit.iti.algover.parser.DafnyParserException;
 import edu.kit.iti.algover.proof.ProofFormula;
+import edu.kit.iti.algover.proof.ProofNode;
 import edu.kit.iti.algover.rules.RuleException;
 import edu.kit.iti.algover.rules.SubtermSelector;
+import edu.kit.iti.algover.rules.TermParameter;
 import edu.kit.iti.algover.rules.TermSelector;
 import edu.kit.iti.algover.term.ApplTerm;
 import edu.kit.iti.algover.term.Sequent;
 import edu.kit.iti.algover.term.Term;
 import edu.kit.iti.algover.term.builder.TreeTermTranslator;
 import edu.kit.iti.algover.term.match.TermMatcher;
+import edu.kit.iti.algover.term.parser.TermParser;
 
 import java.util.*;
 import java.util.function.Predicate;
@@ -270,7 +275,15 @@ public class RuleUtil {
         return getNumNegations(ts, s, idx + 1);
     }
 
-    private String[] test(String ... s ) {
-        return null;
+    public static TermParameter schemaSequentParameter(ProofNode target, String parameter) throws RuleException {
+        TermParser tp = new TermParser(target.getAllSymbols());
+        tp.setSchemaMode(true);
+        try {
+            Sequent seq = tp.parseSequent(parameter);
+            return new TermParameter(seq, target.getSequent());
+        } catch (Exception e) {
+            throw new RuleException(e);
+        }
     }
+
 }

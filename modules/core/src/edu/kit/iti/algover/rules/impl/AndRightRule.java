@@ -6,31 +6,24 @@
 package edu.kit.iti.algover.rules.impl;
 
 import edu.kit.iti.algover.data.BuiltinSymbols;
-import edu.kit.iti.algover.parser.DafnyException;
-import edu.kit.iti.algover.parser.DafnyParserException;
 import edu.kit.iti.algover.proof.ProofFormula;
 import edu.kit.iti.algover.proof.ProofNode;
-import edu.kit.iti.algover.rules.*;
+import edu.kit.iti.algover.rules.DefaultFocusProofRule;
+import edu.kit.iti.algover.rules.NotApplicableException;
+import edu.kit.iti.algover.rules.Parameters;
+import edu.kit.iti.algover.rules.ProofRuleApplication;
 import edu.kit.iti.algover.rules.ProofRuleApplication.Applicability;
+import edu.kit.iti.algover.rules.ProofRuleApplicationBuilder;
+import edu.kit.iti.algover.rules.RuleException;
+import edu.kit.iti.algover.rules.TermParameter;
+import edu.kit.iti.algover.rules.TermSelector;
 import edu.kit.iti.algover.term.ApplTerm;
-import edu.kit.iti.algover.term.Sequent;
 import edu.kit.iti.algover.term.Term;
-import edu.kit.iti.algover.term.match.Matching;
-import edu.kit.iti.algover.term.match.SequentMatcher;
-import edu.kit.iti.algover.term.parser.TermParser;
-import edu.kit.iti.algover.util.ImmutableList;
-import edu.kit.iti.algover.util.Pair;
 import edu.kit.iti.algover.util.RuleUtil;
 
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Optional;
+public class AndRightRule extends DefaultFocusProofRule {
 
-/**
- * Created by jklamroth on 1/17/18.
- */
-public class OrLeftRule extends DefaultFocusProofRule {
+    public static final String RULE_NAME = "andRight";
 
     @Override
     public boolean mayBeExhaustive() {
@@ -39,17 +32,21 @@ public class OrLeftRule extends DefaultFocusProofRule {
 
     @Override
     public String getName() {
-        return "orLeft";
+        return RULE_NAME;
+    }
+
+    @Override
+    public String getCategory() {
+        return ProofRuleCategories.PROPOSITIONAL;
     }
 
     @Override
     protected TermParameter getDefaultOnParameter(ProofNode target) throws RuleException {
-        return RuleUtil.schemaSequentParameter(target, "_ || _ |-");
+        return RuleUtil.schemaSequentParameter(target, "|- _ && _");
     }
 
     @Override
     public ProofRuleApplication makeApplicationImpl(ProofNode target, Parameters parameters) throws RuleException {
-
         Term on = parameters.getValue(ON_PARAM).getTerm();
         TermSelector selector = parameters.getValue(ON_PARAM).getTermSelector();
 
@@ -59,24 +56,28 @@ public class OrLeftRule extends DefaultFocusProofRule {
             throw NotApplicableException.onlyToplevel(this);
         }
 
-        if (!selector.isAntecedent()) {
-            throw NotApplicableException.onlyAntecedent(this);
+        if (!selector.isSuccedent()) {
+            throw NotApplicableException.onlySuccedent(this);
         }
 
         if(!(on instanceof ApplTerm)) {
-            throw NotApplicableException.onlyOperator(this, "||");
+            throw NotApplicableException.onlyOperator(this, "&&");
         }
 
-        if(((ApplTerm)on).getFunctionSymbol() != BuiltinSymbols.OR) {
-            throw NotApplicableException.onlyOperator(this, "||");
+        if(((ApplTerm)on).getFunctionSymbol() != BuiltinSymbols.AND) {
+            throw NotApplicableException.onlyOperator(this, "&&");
         }
+
+        int no = selector.getTermNo();
 
         builder.newBranch()
-                .addReplacement(selector, on.getTerm(0))
+                .addDeletionsSuccedent(target.getSequent().getSuccedent().get(no))
+                .addAdditionsSuccedent(new ProofFormula(on.getTerm(0)))
                 .setLabel("case 1");
 
         builder.newBranch()
-                .addReplacement(selector, on.getTerm(1))
+                .addDeletionsSuccedent(target.getSequent().getSuccedent().get(no))
+                .addAdditionsSuccedent(new ProofFormula(on.getTerm(1)))
                 .setLabel("case 2");
 
         builder.setApplicability(Applicability.APPLICABLE);

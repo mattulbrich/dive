@@ -51,8 +51,7 @@ public class BranchInfo {
     /**
      * The replacements.
      */
-    private final @DeepNonNull
-    ImmutableList<Pair<TermSelector, Term>> replacements;
+    private final @DeepNonNull ImmutableList<Pair<TermSelector, Term>> replacements;
 
     private final String label;
 
