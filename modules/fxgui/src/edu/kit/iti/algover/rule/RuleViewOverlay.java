@@ -98,7 +98,13 @@ public class RuleViewOverlay extends AnchorPane {
     }
 
     private void onRuleApplication(ActionEvent ae) {
-        if (application.getRule().getAllParameters().size() > 1 ||
+        int requiredParams = 0;
+        for(ParameterDescription<?> p : application.getRule().getAllParameters().values()) {
+            if(p.isRequired() && !p.getDefaultValue().isPresent()) {
+                requiredParams++;
+            }
+        }
+        if (requiredParams > 0 ||
                 (application.getRule().getAllParameters().size() == 1 &&
                 !application.getRule().getAllParameters().values().contains(FocusProofRule.ON_PARAM))) {
             String on;

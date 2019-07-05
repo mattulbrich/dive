@@ -99,6 +99,9 @@ public class Parameters {
                 "This should have been checked way earlier! (see AbstractProofRule#checkParameters)";
             return param.castValue(value);
         }
+        if (param.getDefaultValue().isPresent()) {
+            return param.getDefaultValue().get();
+        }
         return null;
     }
 
@@ -117,6 +120,7 @@ public class Parameters {
      * @throws ClassCastException if the value is not assign-compatible with the
      *                            type in the parameter description.
      */
+    @Deprecated //added default values
     public <T> T getValueOrDefault(ParameterDescription<T> param, T defaultValue) {
         if (hasValue(param)) {
             return getValue(param);
