@@ -120,7 +120,7 @@ public class GutterView extends HBox {
         if(getAnnotation().isProofNodeIsSet()) {
             MaterialDesignIconView node = (MaterialDesignIconView) gutter[1];
             if (getAnnotation().proofNodeIsReferenced()) {
-                node.setFill(Color.ORANGE);
+                node.setFill(Color.PURPLE);
                 gutter[1] = node;
             } else {
                 node.setFill(Color.BLACK);
