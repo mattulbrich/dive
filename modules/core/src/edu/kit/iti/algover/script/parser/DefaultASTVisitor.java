@@ -75,6 +75,11 @@ public class DefaultASTVisitor<T> implements Visitor<T> {
     }
 
     @Override
+    public T visit(SelectorLiteral selector) {
+        return defaultVisit(selector);
+    }
+
+    @Override
     public T visit(Variable variable) {
         return defaultVisit(variable);
     }

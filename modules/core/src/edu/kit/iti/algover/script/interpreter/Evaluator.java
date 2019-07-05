@@ -10,6 +10,7 @@ import edu.kit.iti.algover.parser.DafnyException;
 import edu.kit.iti.algover.parser.DafnyParserException;
 import edu.kit.iti.algover.proof.ProofNode;
 import edu.kit.iti.algover.rules.TermParameter;
+import edu.kit.iti.algover.rules.TermSelector;
 import edu.kit.iti.algover.script.ast.*;
 import edu.kit.iti.algover.script.data.Value;
 import edu.kit.iti.algover.script.data.VariableAssignment;
@@ -17,6 +18,7 @@ import edu.kit.iti.algover.script.exceptions.InterpreterRuntimeException;
 import edu.kit.iti.algover.script.parser.DefaultASTVisitor;
 import edu.kit.iti.algover.script.parser.Visitor;
 import edu.kit.iti.algover.term.parser.TermParser;
+import edu.kit.iti.algover.util.FormatException;
 
 import java.math.BigInteger;
 import java.util.ArrayList;
@@ -137,6 +139,17 @@ public class Evaluator<T> extends DefaultASTVisitor<Value> implements ScopeObser
     @Override
     public Value<String> visit(StringLiteral string) {
         return Value.from(string);
+    }
+
+    @Override
+    public Value<TermParameter> visit(SelectorLiteral selector) {
+        try {
+            return new Value<>(Type.SELECTOR, new TermParameter(new TermSelector(selector.getText()), goal.getSequent()));
+        } catch (FormatException e) {
+            InterpreterRuntimeException interpreterRuntimeException = new InterpreterRuntimeException(e.getMessage(), e);
+            interpreterRuntimeException.setLocation(selector);
+            throw interpreterRuntimeException;
+        }
     }
 
     @Override
