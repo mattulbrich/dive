@@ -357,6 +357,10 @@ public class Interpreter<T> extends DefaultASTVisitor<Object>
      */
     @Override
     public Object visit(CallStatement call) {
+        if(peekState().getGoals().size() > 1) {
+            throw new InterpreterRuntimeException("Cannot apply rules in a state with more than one branch. " +
+                    "Add a cases-statement to resolve this.", call);
+        }
         enterScope(call);
         //neuer VarScope
         //enter new variable scope
