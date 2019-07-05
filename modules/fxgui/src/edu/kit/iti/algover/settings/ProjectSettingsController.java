@@ -480,11 +480,17 @@ public class ProjectSettingsController implements ISettingsController {
 
     @FXML
     private void createNewDafnyFile(){
+
         TextInputDialog tid = new TextInputDialog();
         tid.setTitle("Name for Dafny file");
         tid.setContentText("Please enter a new filename");
         ValidationSupport dialogValid = new ValidationSupport();
         dialogValid.registerValidator(tid.getEditor(), this::dafnyFileExistsValidator);
+        tid.setResizable(true);
+        tid.onShownProperty().addListener(e -> {
+            Platform.runLater(() -> tid.setResizable(false));
+        });
+
         Optional<String> filename = tid.showAndWait();
 
         ValidationResult validationResult = dialogValid.getValidationResult();
@@ -518,13 +524,15 @@ public class ProjectSettingsController implements ISettingsController {
         DirectoryChooser chooser = new DirectoryChooser();
 
         if(getConfig().getBaseDir().equals(new File(""))){
-            getConfig().setBaseDir(new File("../../doc/examples/"));
+            getConfig().setBaseDir(new File("."));
         }
         chooser.setInitialDirectory(getConfig().getBaseDir());
         File file = chooser.showDialog(this.settingsPanel.getScene().getWindow());
-        getConfig().setBaseDir(file);
-        this.projectPath.setText(file.getAbsolutePath());
-        this.projectPath.setEditable(false);
+        if(file != null) {
+            getConfig().setBaseDir(file);
+            this.projectPath.setText(file.getAbsolutePath());
+            this.projectPath.setEditable(false);
+        }
     }
 
 
@@ -546,7 +554,7 @@ public class ProjectSettingsController implements ISettingsController {
             if(!projectPath.getText().isEmpty()) {
                 initialDir = newFile;
             } else {
-                initialDir = new File("doc/examples/");
+                initialDir = new File(".");
             }
         }
         chooser.setInitialDirectory(initialDir);
