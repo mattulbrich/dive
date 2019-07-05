@@ -221,6 +221,11 @@ public class Interpreter<T> extends DefaultASTVisitor<Object>
 
         //List<GoalNode<T>> allGoalsBeforeCases = beforeCases.getGoals();
         List<ProofNode> allGoalsBeforeCases = beforeCases.getGoals();
+        if(allGoalsBeforeCases.size() <= 1) {
+            InterpreterRuntimeException ire = new InterpreterRuntimeException("A cases may only be used at states with at least 2 children.");
+            ire.setLocation(casesStatement);
+            throw ire;
+        }
 
         //global List after all Case Statements
         List<ProofNode> goalsAfterCases = new ArrayList<>();
@@ -368,6 +373,10 @@ public class Interpreter<T> extends DefaultASTVisitor<Object>
      */
     @Override
     public Object visit(CallStatement call) {
+        if(peekState().getGoals().size() > 1) {
+            throw new InterpreterRuntimeException("Cannot apply rules in a state with more than one branch. " +
+                    "Add a cases-statement to resolve this.", call);
+        }
         enterScope(call);
         //neuer VarScope
         //enter new variable scope

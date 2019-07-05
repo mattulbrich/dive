@@ -48,8 +48,8 @@ public class AlgoVerApplication extends Application {
      * @param primaryStage
      * @param opendirectly
      */
-    private void startApplication(Stage primaryStage, List<String> opendirectly) {
-        primaryStage.setTitle("AlgoVer");
+    public static void startApplication(Stage primaryStage, List<String> opendirectly) {
+        primaryStage.setTitle("DIVE");
         WelcomePane p = new WelcomePane(primaryStage, opendirectly);
         primaryStage.setScene(new Scene(p.getRootPane()));
         primaryStage.setWidth(1000);

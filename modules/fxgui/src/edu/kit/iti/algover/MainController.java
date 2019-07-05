@@ -19,7 +19,6 @@ import edu.kit.iti.algover.dafnystructures.DafnyFile;
 import edu.kit.iti.algover.dafnystructures.DafnyFunction;
 import edu.kit.iti.algover.dafnystructures.DafnyMethod;
 import edu.kit.iti.algover.editor.EditorController;
-import edu.kit.iti.algover.project.Configuration;
 import edu.kit.iti.algover.project.ProjectManager;
 import edu.kit.iti.algover.referenceHighlighting.ReferenceGraphController;
 import edu.kit.iti.algover.proof.*;
@@ -41,9 +40,11 @@ import javafx.beans.value.ObservableValue;
 import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
 import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.*;
+import javafx.stage.Stage;
 import org.controlsfx.control.StatusBar;
 import org.controlsfx.dialog.ProgressDialog;
 
@@ -84,6 +85,7 @@ public class MainController implements SequentActionListener, RuleApplicationLis
     private final JFXButton simpleStratButton;
     private final JFXButton settingsButton;
     private final JFXButton aboutButton;
+    private final JFXButton backButton;
     // REVIEW: Would <String> not be more appropriate?
     private final CostumBreadCrumbBar<Object> breadCrumbBar;
 
@@ -105,12 +107,14 @@ public class MainController implements SequentActionListener, RuleApplicationLis
         simpleStratButton = new JFXButton("Try Close All", FontAwesomeIconFactory.get().createIcon(FontAwesomeIcon.PLAY_CIRCLE));
         settingsButton = new JFXButton("Settings", FontAwesomeIconFactory.get().createIcon(FontAwesomeIcon.COGS));
         aboutButton = new JFXButton("About", FontAwesomeIconFactory.get().createIcon(FontAwesomeIcon.INFO_CIRCLE));
+        backButton = new JFXButton("Project Chooser", FontAwesomeIconFactory.get().createIcon(FontAwesomeIcon.ARROW_LEFT));
 
         saveButton.setOnAction(this::onClickSaveVisibleContent);
         refreshButton.setOnAction(this::onClickRefresh);
         simpleStratButton.setOnAction(this::trivialStrat);
         settingsButton.setOnAction(this::openSettingsWindow);
         aboutButton.setOnAction(this::openAboutWindow);
+        backButton.setOnAction(this::backToWelcome);
 
         TreeItem<Object> ti = getBreadCrumbModel();
         breadCrumbBar = new CostumBreadCrumbBar<>(ti, this::onCrumbSelected);
@@ -121,7 +125,7 @@ public class MainController implements SequentActionListener, RuleApplicationLis
         HBox.setHgrow(spacer, Priority.ALWAYS);
         spacer.setMinSize(10, 1);
 
-        this.toolbar = new ToolBar(saveButton, refreshButton, simpleStratButton, settingsButton, spacer, aboutButton);
+        this.toolbar = new ToolBar(saveButton, refreshButton, simpleStratButton, settingsButton, spacer, backButton, aboutButton);
 
         this.statusBar = new StatusBar();
         this.statusBar.setOnMouseClicked(this::onStatusBarClicked);
@@ -146,10 +150,28 @@ public class MainController implements SequentActionListener, RuleApplicationLis
         logger.setUseParentHandlers(false);
         logger.info("Project '" + manager.getName() + "' successfully loaded.");
 
-
         onClickRefresh(null);
+    }
 
+    private void backToWelcome(ActionEvent event) {
+        Alert closing = new Alert(Alert.AlertType.CONFIRMATION);
+        Label content = new Label("You are about to close the current project and switch back to the project chooser.");
+        Label content2 = new Label("All unsaved progress will get lost.");
+        VBox vBox = new VBox(content, content2);
+        closing.getDialogPane().setContent(vBox);
+        closing.getDialogPane().setHeaderText("Switching back to Project Chooser");
+        closing.setResizable(true);
+        closing.onShownProperty().addListener(e -> {
+            Platform.runLater(() -> closing.setResizable(false));
+        });
+        Optional<ButtonType> buttonType = closing.showAndWait();
+        if(buttonType.get().getButtonData().equals(ButtonBar.ButtonData.OK_DONE)) {
+            ((Stage) getView().getScene().getWindow()).close();
 
+            Stage stage = new Stage();
+            stage.setTitle("DIVE");
+            AlgoVerApplication.startApplication(stage, Collections.emptyList());
+        }
     }
 
     private void openAboutWindow(ActionEvent actionEvent) {
@@ -157,7 +179,6 @@ public class MainController implements SequentActionListener, RuleApplicationLis
         try {
             about = new AboutWindow();
             about.showAndWait();
-
         } catch (IOException e) {
             Logger.getGlobal().warning("Error while loading about text");
         }
@@ -176,8 +197,6 @@ public class MainController implements SequentActionListener, RuleApplicationLis
         SettingsController ctrl = new SettingsController(this, height, width);
         ctrl.getItems().setAll(SettingsFactory.getSettingsPanel(settings));
         ctrl.showAndWait();
-
-
     }
 
     private void createContextMenu() {
@@ -295,14 +314,14 @@ public class MainController implements SequentActionListener, RuleApplicationLis
                 }
             }
             if (item.getValue() instanceof DafnyFile) {
-                editorController.viewFile((DafnyFile) item.getValue());
+                editorController.viewFile(manager.getProject().getBaseDir(), (DafnyFile) item.getValue());
                 timelineView.moveFrameLeft();
                 timelineView.moveFrameLeft();
                 editorController.resetPVCSelection();
             }
             if (item.getValue() instanceof DafnyMethod) {
                 if (item.getParent().getValue() instanceof DafnyFile) {
-                    editorController.viewFile((DafnyFile) item.getParent().getValue());
+                    editorController.viewFile(manager.getProject().getBaseDir(), (DafnyFile) item.getParent().getValue());
                     timelineView.moveFrameLeft();
                     timelineView.moveFrameLeft();
                     editorController.resetPVCSelection();
@@ -332,6 +351,9 @@ public class MainController implements SequentActionListener, RuleApplicationLis
         TreeItem<Object> lastitem = null;
         TreeItem<Object> root = new TreeItem<>("root");
         for (DafnyFile f : manager.getProject().getDafnyFiles()) {
+            if (f.isInLibrary()) {
+                continue;
+            }
             TreeItem<Object> fileChild = new TreeItem<>(f.getFilename());
             fileChild.setValue(f);
             root.getChildren().add(fileChild);
@@ -439,7 +461,8 @@ public class MainController implements SequentActionListener, RuleApplicationLis
             browserController.getView().setDisable(false);
             sequentController.getView().setDisable(false);
             ruleApplicationController.getView().setDisable(false);
-            manager.getProject().getDafnyFiles().forEach(df -> editorController.viewFile(df));
+            manager.getProject().getDafnyFiles().forEach(df ->
+                    editorController.viewFile(manager.getProject().getBaseDir(), df));
             ruleApplicationController.onReset();
             simpleStratButton.setDisable(false);
             breadCrumbBar.setDisable(false);
@@ -454,7 +477,8 @@ public class MainController implements SequentActionListener, RuleApplicationLis
 
         //TODO somehow get proper exceptions and handling them
         t.setOnFailed(event -> {
-            manager.getProject().getDafnyFiles().forEach(df -> editorController.viewFile(df));
+            manager.getProject().getDafnyFiles().forEach(df ->
+                    editorController.viewFile(manager.getProject().getBaseDir(),df));
             Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).log(Level.SEVERE,
                     t.getException().getMessage(),
                     t.getException());
@@ -484,7 +508,7 @@ public class MainController implements SequentActionListener, RuleApplicationLis
     public void onClickPVCEdit(PVCEntity entity) {
         PVC pvc = entity.getPVC();
         breadCrumbBar.setSelectedCrumb(getTreeItemForPVC(pvc));
-        editorController.viewFile(entity.getLocation());
+        editorController.viewFile(manager.getProject().getBaseDir(), entity.getLocation());
         editorController.viewPVCSelection(pvc);
         Proof proof = manager.getProofForPVC(entity.getPVC().getIdentifier());
         // MU: currently proofs are not automatically interpreted and/or uptodate. Make sure they are.
@@ -541,7 +565,7 @@ public class MainController implements SequentActionListener, RuleApplicationLis
     public void onSelectBrowserItem(TreeTableEntity treeTableEntity) {
         DafnyFile file = treeTableEntity.getLocation();
         if (file != null) {
-            editorController.viewFile(file);
+            editorController.viewFile(manager.getProject().getBaseDir(), file);
             PVC pvc = treeTableEntity.accept(new PVCGetterVisitor());
             if (pvc != null) {
                 editorController.viewPVCSelection(pvc);

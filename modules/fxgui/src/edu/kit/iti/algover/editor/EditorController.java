@@ -8,11 +8,13 @@ package edu.kit.iti.algover.editor;
 import edu.kit.iti.algover.Lookup;
 import edu.kit.iti.algover.MainController;
 import edu.kit.iti.algover.dafnystructures.DafnyFile;
+import edu.kit.iti.algover.project.ProjectBuilder;
 import edu.kit.iti.algover.proof.PVC;
 import edu.kit.iti.algover.referenceHighlighting.ReferenceHighlightingHandler;
 import edu.kit.iti.algover.referenceHighlighting.ReferenceHighlightingObject;
 import edu.kit.iti.algover.references.CodeReferenceTarget;
 import edu.kit.iti.algover.util.ExceptionDetails;
+import edu.kit.iti.algover.util.Util;
 import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
@@ -37,6 +39,7 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.net.URL;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -115,11 +118,15 @@ public class EditorController implements DafnyCodeAreaListener, ReferenceHighlig
     /**
      * If the Editor tab was already open, focus and show it, if not,
      * open a new tab that shows the given file.
-     *
+     *  @param baseDir the directory to which a path may be relative
      * @param dafnyFile the file to be viewed to the user
      */
-    public void viewFile(DafnyFile dafnyFile) {
-        viewFile(dafnyFile.getFilename());
+    public void viewFile(File baseDir, DafnyFile dafnyFile) {
+        File file = new File(dafnyFile.getFilename());
+        if (!file.isAbsolute() && !file.toString().startsWith("$dive/")) {
+            file = new File(baseDir, dafnyFile.getFilename());
+        }
+        viewFile(file.toString());
     }
 
     public void viewFile(String fileName) {
@@ -128,12 +135,15 @@ public class EditorController implements DafnyCodeAreaListener, ReferenceHighlig
             view.getSelectionModel().select(existingTab);
         } else {
             try {
-                String contentAsText = fileToString(fileName);
                 Tab tab = new Tab();
                 File file = new File(fileName);
                 tab.setText(file.getName());
                 tab.setTooltip(new Tooltip(file.getAbsolutePath()));
                 tab.setUserData(fileName);
+                if(!file.isAbsolute()) {
+                    file = new File(baseDir, fileName);
+                }
+                String contentAsText = fileToString(file.getPath());
                 DafnyCodeArea codeArea = new DafnyCodeArea(contentAsText, executor, this);
                 codeArea.setHighlightingRule(highlightingLayers);
                 tab.setContent(new VirtualizedScrollPane<>(codeArea));
@@ -252,8 +262,13 @@ public class EditorController implements DafnyCodeAreaListener, ReferenceHighlig
     }
 
     private static String fileToString(String filename) throws IOException {
-        Path path = FileSystems.getDefault().getPath(filename);
-        return new String(Files.readAllBytes(path));
+        if(filename.startsWith("$dive/")) {
+            URL url = ProjectBuilder.class.getResource("lib/" + filename.substring(6));
+            return Util.streamToString(url.openStream());
+        } else {
+            Path path = FileSystems.getDefault().getPath(filename);
+            return new String(Files.readAllBytes(path));
+        }
     }
 
     /**

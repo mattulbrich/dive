@@ -200,7 +200,7 @@ public final class ExceptionDetails {
     private static void extractLineAndColumn(org.antlr.v4.runtime.Token token, ExceptionReportInfo report) {
         report.line = token.getLine();
         report.column = token.getCharPositionInLine();
-        if(report.column == 0) {
+        if(token.getType() == -1) {
             report.line--;
         }
     }

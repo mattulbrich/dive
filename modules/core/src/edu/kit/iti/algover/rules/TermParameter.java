@@ -574,10 +574,12 @@ public class TermParameter {
     public String toString() {
         StringBuilder sb = new StringBuilder();
         sb.append("TermParameter[");
-        sb.append("term = " + term);
+        sb.append("originally a " +
+                (oterm != null ? "term" : oSchematicTerm != null ? "schematic term" : "schematic sequent"));
+        sb.append(", term = " + term);
         sb.append(", schematicTerm = " + schematicTerm);
         sb.append(", schematicSequent = " + schematicSequent);
-        sb.append(", TermSelector = " + termSelector);
+        sb.append(", termSelector = " + termSelector);
         sb.append("]");
         return sb.toString();
     }

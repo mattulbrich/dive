@@ -452,6 +452,11 @@ public final class ASTUtil {
 
     public static DafnyTree letCascade(List<Pair<String, DafnyTree>> subs, DafnyTree expression) {
 
+        // bugfix: No substitutions ==> no let expressions.
+        if (subs.isEmpty()) {
+            return expression;
+        }
+
         DafnyTree result = new DafnyTree(DafnyParser.LET);
         DafnyTree vars = new DafnyTree(DafnyParser.VAR);
         result.addChild(vars);

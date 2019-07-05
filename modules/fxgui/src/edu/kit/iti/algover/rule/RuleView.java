@@ -6,15 +6,18 @@
 package edu.kit.iti.algover.rule;
 
 import edu.kit.iti.algover.proof.ProofNode;
+import edu.kit.iti.algover.rules.FocusProofRule;
 import edu.kit.iti.algover.rules.Parameters;
 import edu.kit.iti.algover.rules.ProofRule;
 import edu.kit.iti.algover.rules.ProofRuleApplication;
+import edu.kit.iti.algover.rules.ProofRuleApplication.Applicability;
 import edu.kit.iti.algover.rules.ProofRuleApplicationBuilder;
 import edu.kit.iti.algover.rules.RuleException;
 import edu.kit.iti.algover.rules.TermParameter;
 import edu.kit.iti.algover.rules.TermSelector;
 import edu.kit.iti.algover.rules.impl.ExhaustiveRule;
 import edu.kit.iti.algover.term.Sequent;
+import edu.kit.iti.algover.util.ExceptionDialog;
 import javafx.beans.value.ObservableValue;
 import javafx.css.PseudoClass;
 import javafx.geometry.Insets;
@@ -88,26 +91,32 @@ public class RuleView extends StackPane {
             if(rule.mayBeExhaustive()) {
                 ExhaustiveRule exhaustiveRule = new ExhaustiveRule();
                 Parameters params = new Parameters();
-                params.putValue("on", new TermParameter(selector, selection));
-                params.putValue("ruleName", rule.getName());
-                exApplication = exhaustiveRule.considerApplication(target, params);
+                params.putValue(FocusProofRule.ON_PARAM, new TermParameter(selector, selection));
+                params.putValue(ExhaustiveRule.RULE_NAME_PARAM, rule.getName());
+                // MU: I have changed this from considerapplication to makeApplication
+                // This piece of code looks like suboptimal special casing. (see RuleApplicationController)
+                exApplication = exhaustiveRule.makeApplication(target, params);
             } else {
                 exApplication = ProofRuleApplicationBuilder.notApplicable(rule);
             }
             this.selection = selector;
-            setSelectable(application != null && application.getApplicability() == ProofRuleApplication.Applicability.APPLICABLE);
+            setSelectable(application != null &&
+                    (application.getApplicability() == Applicability.APPLICABLE
+                    || application.getApplicability() == Applicability.INSTANTIATION_REQUIRED));
             renderApplication();
-        } catch (RuleException e) {
-            try {
-                application = rule.considerApplication(target, selection, null);
-                this.selection = selector;
-                setSelectable(application != null && application.getApplicability() == ProofRuleApplication.Applicability.APPLICABLE);
-                renderApplication();
-            } catch (RuleException ex) {
-                System.err.println("Cannot consider Application: " + e);
-                ex.printStackTrace();
-            }
+//        }
+            // No-focus Proof rules should ignore a selector
+//        catch (RuleException e) {
+//            try {
+//                application = rule.considerApplication(target, selection, null);
+//                this.selection = selector;
+//                setSelectable(application != null && application.getApplicability() == ProofRuleApplication.Applicability.APPLICABLE);
+//                renderApplication();
+        } catch (RuleException ex) {
+            ExceptionDialog ed = new ExceptionDialog(ex);
+            ed.showAndWait();
         }
+//        }
     }
 
     private void renderApplication() {

@@ -118,18 +118,14 @@ public class DafnyProjectManager extends AbstractProjectManager {
 
         DafnyTree masterAST = DafnyFileParser.parse(masterFile);
 
-       // pb.getDafnyFiles().add(masterFile.getPath());
-        File mFile = new File(dir, masterFile.getName());
-        pb.getDafnyFiles().add(mFile.toString());
-        // SaG:Bugfix as otherwise the masterfile may be added twice and would cause errors in case the projectconfig ist changed during project creation
+        pb.addInputFile(masterFile.getName());
 
         for (DafnyTree include :
                 masterAST.getChildrenWithType(DafnyParser.INCLUDE)) {
             DafnyTree fileNameAST = include.getFirstChildWithType(DafnyParser.STRING_LIT);
             String fileName = Util.stripQuotes(fileNameAST.token.getText());
-            String file = new File(dir, fileName).toString();
-            if (!pb.getLibraryFiles().contains(file)) {
-                pb.getLibraryFiles().add(file);
+            if (!pb.getLibraryFiles().contains(fileName)) {
+                pb.addLibraryFile(fileName);
             }
         }
 
@@ -138,9 +134,8 @@ public class DafnyProjectManager extends AbstractProjectManager {
             // SaG: Bug fix from include to subsume
             DafnyTree fileNameAST = subsume.getFirstChildWithType(DafnyParser.STRING_LIT);
             String fileName = Util.stripQuotes(fileNameAST.token.getText());
-            String file = new File(dir, fileName).toString();
-            if(!pb.getDafnyFiles().contains(file)) {
-                pb.getDafnyFiles().add(file);
+            if(!pb.getDafnyFiles().contains(fileName)) {
+                pb.addInputFile(fileName);
             }
         }
 

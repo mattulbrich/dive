@@ -9,6 +9,8 @@ import edu.kit.iti.algover.proof.ProofNode;
 import edu.kit.iti.algover.rules.*;
 import edu.kit.iti.algover.rules.ProofRule;
 import edu.kit.iti.algover.script.ast.CallStatement;
+import edu.kit.iti.algover.script.ast.Expression;
+import edu.kit.iti.algover.script.ast.Variable;
 import edu.kit.iti.algover.script.data.State;
 import edu.kit.iti.algover.script.data.Value;
 import edu.kit.iti.algover.script.data.VariableAssignment;
@@ -17,6 +19,7 @@ import edu.kit.iti.algover.script.interpreter.Evaluator;
 import edu.kit.iti.algover.script.interpreter.Interpreter;
 
 import java.util.*;
+import java.util.Map.Entry;
 
 /**
  * Handler implementation for ProofRules that are implemented in Java ans implement the interface ProofRule
@@ -110,14 +113,21 @@ public class ProofRuleHandler implements CommandHandler<ProofNode> {
             Parameters ruleParams = new Parameters();
             Evaluator<ProofNode> evaluator = new Evaluator<>(params, parent);
 
-            call.getParameters().forEach((variable, expression) -> {
-                        Value<ProofNode> val = evaluator.eval(expression);
-                        ruleParams.putValue(variable.getIdentifier(), convertValuesToTypedValues(val));
-                    }
-            );
+            for (Entry<Variable, Expression> en : call.getParameters().entrySet()) {
+                Value<?> val = evaluator.eval(en.getValue());
+                ParameterDescription<?> pd = pr.getAllParameters().get(en.getKey().getIdentifier());
+                if (pd == null) {
+                    // TODO Is it not possible to give an error message here?
+                    throw new ScriptCommandNotApplicableException(pr, call);
+                }
+                ruleParams.checkAndPutValue(pd, convertValuesToTypedValues(val));
+            }
 
             //apply the rule
             ProofRuleApplication proofRuleApplication = pr.makeApplication(parent, ruleParams);
+
+            // Resolve all "Maybe-applicables and similar"
+            proofRuleApplication = proofRuleApplication.refine();
 
             if (proofRuleApplication.getApplicability() == ProofRuleApplication.Applicability.APPLICABLE) {
 
@@ -165,7 +175,7 @@ public class ProofRuleHandler implements CommandHandler<ProofNode> {
 
 
 
-    private Object convertValuesToTypedValues(Value<ProofNode> val) {
+    private Object convertValuesToTypedValues(Value<?> val) {
         switch (val.getType()) {
             case STRING:
             case INT:

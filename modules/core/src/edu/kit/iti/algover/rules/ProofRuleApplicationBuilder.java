@@ -35,9 +35,7 @@ public class ProofRuleApplicationBuilder {
     private final ProofRule rule;
     private final List<BranchInfoBuilder> branches = new ArrayList<>();
     private Applicability applicability = Applicability.APPLICABLE;
-    private String scriptTranscript;
     private Parameters parameters = Parameters.EMPTY_PARAMETERS;
-    private Parameters openParameters = Parameters.EMPTY_PARAMETERS;
     private Refiner refiner;
 
     private List<ProofRuleApplication> subApplications = null;
@@ -52,7 +50,6 @@ public class ProofRuleApplicationBuilder {
      */
     public ProofRuleApplicationBuilder(@NonNull ProofRule rule) {
         this.rule = rule;
-        this.scriptTranscript = rule.getName() + ";";
     }
 
     /**
@@ -65,7 +62,6 @@ public class ProofRuleApplicationBuilder {
         this.branches.addAll(Util.map(app.getBranchInfo(), x -> new BranchInfoBuilder(x)));
         this.applicability = app.getApplicability();
         this.parameters = app.getParameters();
-        this.openParameters = app.getOpenParameters();
         this.refiner = app.getRefiner();
         if(app.getSubApplications() != null) {
             this.subApplications = new ArrayList<>(app.getSubApplications().asCollection());
@@ -83,7 +79,7 @@ public class ProofRuleApplicationBuilder {
      */
     public static ProofRuleApplication notApplicable(ProofRule rule) {
         return new ProofRuleApplication(rule, BranchInfo.UNCHANGED,
-                Applicability.NOT_APPLICABLE, Parameters.EMPTY_PARAMETERS, Parameters.EMPTY_PARAMETERS,
+                Applicability.NOT_APPLICABLE, Parameters.EMPTY_PARAMETERS,
                 null, null, null);
     }
 
@@ -100,7 +96,6 @@ public class ProofRuleApplicationBuilder {
                 ImmutableList.from(Util.map(branches, x -> x.build())),
                 applicability,
                 parameters,
-                openParameters,
                 refiner,
                 toListIfNotAllNull(subApplications),
                 newFuctionSymbols == null ? null : ImmutableList.from(newFuctionSymbols));

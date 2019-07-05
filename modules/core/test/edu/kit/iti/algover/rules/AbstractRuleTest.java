@@ -11,7 +11,8 @@ import edu.kit.iti.algover.parser.DafnyException;
 import edu.kit.iti.algover.parser.DafnyParserException;
 import edu.kit.iti.algover.proof.ProofFormula;
 import edu.kit.iti.algover.rules.impl.AddHypothesisRule;
-import edu.kit.iti.algover.rules.impl.TrivialAndRight;
+import edu.kit.iti.algover.rules.impl.QuantifierInstantiation;
+import edu.kit.iti.algover.rules.impl.AndRightRule;
 import edu.kit.iti.algover.term.*;
 import edu.kit.iti.algover.term.builder.TermBuildException;
 import edu.kit.iti.algover.term.parser.TermParser;
@@ -46,26 +47,26 @@ public class AbstractRuleTest {
     @Test
     public void getUniqueMatchingParameterTest()
             throws FormatException, TermBuildException, RuleException, DafnyParserException, DafnyException {
-        TrivialAndRight rule = new TrivialAndRight();
+        AndRightRule rule = new AndRightRule();
         TermSelector selector = new TermSelector("S.0");
         TermParser tp = new TermParser(symbolTable);
         Sequent sequent = tp.parseSequent("i1 < i2 && i1 < i2 |- i1 < i2 && i1 < i2");
         Parameters params = new Parameters();
-        params.putValue("on", new TermParameter(selector, sequent));
+        params.putValue(AbstractProofRule.ON_PARAM, new TermParameter(selector, sequent));
         assertEquals(1, params.entrySet().size());
-        assertEquals("|- (... (?match: $and($lt(i1, i2), $lt(i1, i2))) ...)", ((TermParameter)params.getValue("on")).getSchematicSequent().toString());
+        assertEquals("|- (... (?match: $and($lt(i1, i2), $lt(i1, i2))) ...)", ((TermParameter)params.getValue(AbstractProofRule.ON_PARAM)).getSchematicSequent().toString());
         ProofRuleApplication app = rule.makeApplication(
                 ProofMockUtil.mockProofNode(null, sequent.getAntecedent(), sequent.getSuccedent()),
                 params
         );
         assertEquals(1, params.entrySet().size());
-        assertEquals("|- (... (?match: $and($lt(i1, i2), $lt(i1, i2))) ...)", ((TermParameter)params.getValue("on")).getSchematicSequent().toString());
+        assertEquals("|- (... (?match: $and($lt(i1, i2), $lt(i1, i2))) ...)", ((TermParameter)params.getValue(AbstractProofRule.ON_PARAM)).getSchematicSequent().toString());
     }
 
     @Test(expected = RuleException.class)
     public void getUniqueMatchingParameterTest1()
             throws FormatException, TermBuildException, RuleException, DafnyParserException, DafnyException {
-        TrivialAndRight rule = new TrivialAndRight();
+        AndRightRule rule = new AndRightRule();
         TermSelector selector = new TermSelector("A.0.0");
         TermParser tp = new TermParser(symbolTable);
         Sequent sequent = tp.parseSequent("i1 < i2 && i1 < i2 |- i1 < i2");
@@ -80,8 +81,8 @@ public class AbstractRuleTest {
         t = new SchemaOccurTerm(t);
         Sequent schemaSeq = new Sequent(Collections.singletonList(new ProofFormula(t)), Collections.emptyList());
 
-        params.putValue("on", new TermParameter(schemaSeq, sequent));
-        rule.considerApplication(
+        params.putValue(AbstractProofRule.ON_PARAM, new TermParameter(schemaSeq, sequent));
+        rule.makeApplication(
                 ProofMockUtil.mockProofNode(null, sequent.getAntecedent(), sequent.getSuccedent()),
                 params
         );
@@ -108,31 +109,26 @@ public class AbstractRuleTest {
         t = new SchemaOccurTerm(t);
         Sequent schemaSeq = new Sequent(Collections.singletonList(new ProofFormula(t)), Collections.emptyList());
 
-        params.putValue("with", new TermParameter(schemaSeq, sequent));
-        rule.considerApplication(
+        params.putValue(AddHypothesisRule.WITH_PARAM, new TermParameter(schemaSeq, sequent));
+        rule.makeApplication(
                 ProofMockUtil.mockProofNode(null, sequent.getAntecedent(), sequent.getSuccedent()),
                 params
         );
         assertEquals(1, params.entrySet().size());
-        assertEquals("$lt(i1, i2)", ((TermParameter)params.getValue("with")).getTerm().toString());
+        assertEquals("$lt(i1, i2)", ((TermParameter)params.getValue(AddHypothesisRule.WITH_PARAM)).getTerm().toString());
     }
 
-    @Test
+    @Test(expected = NotApplicableException.class)
     public void getUniqueMatchingParameterTest3()
             throws FormatException, TermBuildException, RuleException, DafnyParserException, DafnyException {
-        TrivialAndRight rule = new TrivialAndRight();
+        AndRightRule rule = new AndRightRule();
         TermSelector selector = new TermSelector("A.0.0");
         TermParser tp = new TermParser(symbolTable);
         Sequent sequent = tp.parseSequent("i1 < i2 && i3 < i4 |- i1 < i2");
         Parameters params = new Parameters();
-        params.putValue("on", new TermParameter(selector, sequent));
+        params.putValue(AbstractProofRule.ON_PARAM, new TermParameter(selector, sequent));
         assertEquals(1, params.entrySet().size());
-        assertEquals("(... (?match: $lt(i1, i2)) ...) |-", ((TermParameter)params.getValue("on")).getSchematicSequent().toString());
-        rule.considerApplication(
-                ProofMockUtil.mockProofNode(null, sequent.getAntecedent(), sequent.getSuccedent()),
-                params
-        );
-        assertEquals(1, params.entrySet().size());
-        assertEquals("$lt(i1, i2)", ((TermParameter)params.getValue("on")).getTerm().toString());
+        assertEquals("(... (?match: $lt(i1, i2)) ...) |-", ((TermParameter)params.getValue(AbstractProofRule.ON_PARAM)).getSchematicSequent().toString());
+        rule.makeApplication(ProofMockUtil.mockProofNode(null, sequent), params);
     }
 }

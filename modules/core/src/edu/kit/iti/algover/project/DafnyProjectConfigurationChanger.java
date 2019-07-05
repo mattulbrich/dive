@@ -26,7 +26,7 @@ public class DafnyProjectConfigurationChanger {
     private static final String END_OF_SETTINGS = "// ---- End of settings ----";
     private static final String BEGIN_OF_SETTINGS = "// ---- Automatically generated settings ----";
 
-    private static String ALGOVER_ESCAPE = "//\\\\";
+    private static String ALGOVER_ESCAPE = "//>";
 
 
     /**
@@ -98,12 +98,6 @@ public class DafnyProjectConfigurationChanger {
     }
 
     private static void writeConfig(@NonNull FileWriter fw, @NonNull Configuration config) throws IOException {
-        File dir;
-        if(config.getBaseDir() != null){
-            dir = config.getBaseDir();
-        } else {
-            dir = config.getMasterFile().getParentFile();
-        }
         fw.write(BEGIN_OF_SETTINGS + "\n");
 
         fw.write(ALGOVER_ESCAPE + " settings {\n");
@@ -119,24 +113,20 @@ public class DafnyProjectConfigurationChanger {
             fw.write(ALGOVER_ESCAPE + "    \"" + entry.getKey() + "\" = \"" + entry.getValue() + "\"");
         }
         fw.write("\n" + ALGOVER_ESCAPE + " }\n");
-        String fileString = "";
         for (File libFile : config.getLibFiles()) {
-            if(libFile.getParentFile()!= null && libFile.getParentFile().equals(dir)){
-                fileString = libFile.getName();
-            } else {
-                fileString = libFile.getPath();
-            }
+            String fileString = libFile.getPath();
             fw.write(Util.duplicate(" ", ALGOVER_ESCAPE.length()) + " include \"" + fileString + "\"\n");
         }
 
+        first = true;
         for (File dafnyFile : config.getDafnyFiles()) {
-            if(dafnyFile.getParentFile() != null && dafnyFile.getParentFile().equals(dir)){
-                fileString = dafnyFile.getName();
+            if (first) {
+                // The first file is always the input file itself.
+                first = false;
             } else {
-                fileString = dafnyFile.getPath();
+                String fileString = dafnyFile.getPath();
+                fw.write(ALGOVER_ESCAPE + " subsume \"" + fileString + "\"\n");
             }
-
-            fw.write(ALGOVER_ESCAPE + " subsume \"" + fileString + "\"\n");
         }
 
         fw.write(END_OF_SETTINGS + "\n\n");

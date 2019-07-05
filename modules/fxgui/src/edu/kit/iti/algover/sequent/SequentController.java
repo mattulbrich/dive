@@ -387,7 +387,7 @@ public class SequentController extends FxmlController {
 
                 for (ProofFormula deleted : deletions) {
                     if (proofFormulas.get(i).getTerm().equals(deleted.getTerm())) {
-                        formulas.add(new ViewFormula(-1, deleted.getTerm(), ViewFormula.Type.DELETED, polarity, deleted.getLabels()));
+                        formulas.add(new ViewFormula(Short.MAX_VALUE, deleted.getTerm(), ViewFormula.Type.DELETED, polarity, deleted.getLabels()));
                         deletedFormulas++;
                         continue formulaLoop;
                     }

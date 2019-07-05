@@ -11,7 +11,7 @@ import edu.kit.iti.algover.boogie.BoogieProcess;
 
 import edu.kit.iti.algover.proof.PVC;
 import edu.kit.iti.algover.proof.ProofNode;
-import edu.kit.iti.algover.rules.AbstractProofRule;
+import edu.kit.iti.algover.rules.NoFocusProofRule;
 import edu.kit.iti.algover.rules.Parameters;
 import edu.kit.iti.algover.rules.ProofRuleApplication;
 import edu.kit.iti.algover.rules.ProofRuleApplication.Applicability;
@@ -24,7 +24,7 @@ import java.nio.channels.ClosedByInterruptException;
  * This is a quick and dirty implementation until the real one is available
  * Code quality is lower than elsewhere since this is a temporary implementation.
  */
-public class BoogieRule extends AbstractProofRule {
+public class BoogieRule extends NoFocusProofRule {
 
     @Override
     public String getName() {
@@ -32,19 +32,15 @@ public class BoogieRule extends AbstractProofRule {
     }
 
     @Override
-    public ProofRuleApplication considerApplicationImpl(ProofNode target, Parameters parameters) throws RuleException {
+    public ProofRuleApplication makeApplicationImpl(ProofNode target, Parameters parameters) throws RuleException {
         ProofRuleApplicationBuilder builder = new ProofRuleApplicationBuilder(this);
-        // TODO change ?
-        // builder.setApplicability(Applicability.MAYBE_APPLICABLE);
-        builder.setApplicability(Applicability.APPLICABLE);
+        builder.setApplicability(Applicability.MAYBE_APPLICABLE);
         builder.setClosing();
         builder.setRefiner((app, param) -> refine(target, app));
         return builder.build();
     }
 
     private ProofRuleApplication refine(ProofNode target, ProofRuleApplication app) throws RuleException {
-        PVC pvc = target.getPVC();
-
         if (isValid(target)) {
             ProofRuleApplicationBuilder builder = new ProofRuleApplicationBuilder(app);
             builder.setApplicability(Applicability.APPLICABLE);
@@ -57,22 +53,6 @@ public class BoogieRule extends AbstractProofRule {
             return builder.build();
         }
 
-    }
-
-    @Override
-    public ProofRuleApplication makeApplicationImpl(ProofNode target, Parameters parameters) throws RuleException {
-
-        if (isValid(target)) {
-            ProofRuleApplicationBuilder builder = new ProofRuleApplicationBuilder(this);
-            builder.setApplicability(Applicability.APPLICABLE);
-            builder.setRefiner(null);
-            return builder.build();
-        } else {
-            ProofRuleApplicationBuilder builder = new ProofRuleApplicationBuilder(this);
-            builder.setApplicability(Applicability.NOT_APPLICABLE);
-            builder.setRefiner(null);
-            return builder.build();
-        }
     }
 
     private boolean isValid(ProofNode target) throws RuleException {

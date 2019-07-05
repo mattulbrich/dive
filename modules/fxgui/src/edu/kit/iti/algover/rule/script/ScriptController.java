@@ -51,6 +51,7 @@ import java.util.stream.Collectors;
  */
 public class ScriptController implements ScriptViewListener, ReferenceHighlightingHandler {
     KeyCombination saveShortcut = new KeyCodeCombination(KeyCode.S, KeyCombination.CONTROL_DOWN);
+    KeyCombination runShortcut = new KeyCodeCombination(KeyCode.R, KeyCombination.CONTROL_DOWN);
     KeyCombination reloadAndExecuteShortcut = new KeyCodeCombination(KeyCode.E, KeyCombination.CONTROL_DOWN);
 
     private final ScriptView view;
@@ -123,6 +124,9 @@ public class ScriptController implements ScriptViewListener, ReferenceHighlighti
         }
         if(reloadAndExecuteShortcut.match(keyEvent)){
             listener.onScriptSave();
+            runScript();
+        }
+        if (runShortcut.match(keyEvent)) {
             runScript();
         }
     }
@@ -293,8 +297,9 @@ public class ScriptController implements ScriptViewListener, ReferenceHighlighti
 
 
         if(failException != null) {
+            ExceptionDetails.ExceptionReportInfo eri = ExceptionDetails.extractReportInfo(failException);
             view.setHighlightedException(failException);
-            renderException(failException);
+            renderException(eri);
             String message = failException.getMessage();
             if (message == null || message.isEmpty()) {
                 message = failException.getClass() + " without message.";
@@ -360,9 +365,9 @@ public class ScriptController implements ScriptViewListener, ReferenceHighlighti
         runScript();
     }
 
-    private void renderException(Exception e) {
+    private void renderException(ExceptionDetails.ExceptionReportInfo e) {
         highlightingRules.setLayer(0, new HighlightingRulev4() {
-            ExceptionDetails.ExceptionReportInfo ri = ExceptionDetails.extractReportInfo(e);
+            ExceptionDetails.ExceptionReportInfo ri = e;
             int line = ri.getLine();
 
             @Override

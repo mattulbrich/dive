@@ -11,6 +11,7 @@ import edu.kit.iti.algover.parser.DafnyException;
 import edu.kit.iti.algover.parser.DafnyParserException;
 import edu.kit.iti.algover.proof.ProofNode;
 import edu.kit.iti.algover.rules.Parameters;
+import edu.kit.iti.algover.rules.ProofRule;
 import edu.kit.iti.algover.rules.ProofRuleApplication;
 import edu.kit.iti.algover.rules.RuleApplicator;
 import edu.kit.iti.algover.rules.RuleException;
@@ -59,8 +60,8 @@ public class QuantifierInstatiationTest {
         ProofNode pn = ProofMockUtil.mockProofNode(null, s);
         QuantifierInstantiation rule = new QuantifierInstantiation();
         Parameters params = new Parameters();
-        params.putValue("on", new TermParameter(new TermSelector("A.0"), s));
-        params.putValue("with", new TermParameter(new ApplTerm(new FunctionSymbol("0", Sort.INT)), null));
+        params.putValue(ProofRule.ON_PARAM, new TermParameter(new TermSelector("A.0"), s));
+        params.putValue(QuantifierInstantiation.WITH_PARAM, new TermParameter(new ApplTerm(new FunctionSymbol("0", Sort.INT)), null));
         ProofRuleApplication pra = rule.makeApplication(pn, params);
         List<ProofNode> newNodes = RuleApplicator.applyRule(pra, pn);
         assertEquals(1, newNodes.size());
@@ -75,8 +76,8 @@ public class QuantifierInstatiationTest {
         ProofNode pn = ProofMockUtil.mockProofNode(null, s);
         QuantifierInstantiation rule = new QuantifierInstantiation();
         Parameters params = new Parameters();
-        params.putValue("on", new TermParameter(new TermSelector("A.0"), s));
-        params.putValue("with", new TermParameter(new ApplTerm(new FunctionSymbol("0", Sort.INT)), null));
+        params.putValue(ProofRule.ON_PARAM, new TermParameter(new TermSelector("A.0"), s));
+        params.putValue(QuantifierInstantiation.WITH_PARAM, new TermParameter(new ApplTerm(new FunctionSymbol("0", Sort.INT)), null));
         ProofRuleApplication pra = rule.makeApplication(pn, params);
         List<ProofNode> newNodes = RuleApplicator.applyRule(pra, pn);
         assertEquals(1, newNodes.size());
@@ -91,8 +92,8 @@ public class QuantifierInstatiationTest {
         ProofNode pn = ProofMockUtil.mockProofNode(null, s);
         QuantifierInstantiation rule = new QuantifierInstantiation();
         Parameters params = new Parameters();
-        params.putValue("on", new TermParameter(new TermSelector("A.0"), s));
-        params.putValue("with", new TermParameter(new ApplTerm(new FunctionSymbol("0", Sort.INT)), null));
+        params.putValue(ProofRule.ON_PARAM, new TermParameter(new TermSelector("A.0"), s));
+        params.putValue(QuantifierInstantiation.WITH_PARAM, new TermParameter(new ApplTerm(new FunctionSymbol("0", Sort.INT)), null));
         ProofRuleApplication pra = rule.makeApplication(pn, params);
         List<ProofNode> newNodes = RuleApplicator.applyRule(pra, pn);
         assertEquals(1, newNodes.size());
@@ -107,9 +108,9 @@ public class QuantifierInstatiationTest {
         ProofNode pn = ProofMockUtil.mockProofNode(null, s);
         QuantifierInstantiation rule = new QuantifierInstantiation();
         Parameters params = new Parameters();
-        params.putValue("on", new TermParameter(new TermSelector("A.0"), s));
+        params.putValue(ProofRule.ON_PARAM, new TermParameter(new TermSelector("A.0"), s));
         Term rt = tp.parse("i1 + i1 % i3 - i4");
-        params.putValue("with", new TermParameter(rt, null));
+        params.putValue(QuantifierInstantiation.WITH_PARAM, new TermParameter(rt, null));
         ProofRuleApplication pra = rule.makeApplication(pn, params);
         List<ProofNode> newNodes = RuleApplicator.applyRule(pra, pn);
         assertEquals(1, newNodes.size());
@@ -119,14 +120,15 @@ public class QuantifierInstatiationTest {
     @Test(expected = RuleException.class)
     public void testReplaceWithContainedVar() throws DafnyParserException, DafnyException, TermBuildException, FormatException, RuleException {
         TermParser tp = new TermParser(symbolTable);
-        String sequentString = "(forall i2:int :: i2 >= 0 && i3 < 1 ==> i1 == 0) |-";
+        String sequentString = "(forall i2:int :: i2 >= 0 && i3 < 1 ==> i1 == 0), exists y :: y==42 |-";
         Sequent s = tp.parseSequent(sequentString);
         ProofNode pn = ProofMockUtil.mockProofNode(null, s);
         QuantifierInstantiation rule = new QuantifierInstantiation();
         Parameters params = new Parameters();
-        params.putValue("on", new TermParameter(new TermSelector("A.0"), s));
-        Term rt = tp.parse("i1 + i2 % i3 - i4");
-        params.putValue("with", new TermParameter(rt, null));
+        params.putValue(ProofRule.ON_PARAM, new TermParameter(new TermSelector("A.0"), s));
+        tp.setSchemaMode(true);
+        Term rt = tp.parse("... (?match:_) == 42 ...");
+        params.putValue(QuantifierInstantiation.WITH_PARAM, new TermParameter(rt, s));
         ProofRuleApplication pra = rule.makeApplication(pn, params);
     }
 }

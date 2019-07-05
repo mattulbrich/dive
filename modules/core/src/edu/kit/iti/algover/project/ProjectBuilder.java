@@ -24,6 +24,7 @@ import javax.xml.bind.JAXBException;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -118,7 +119,7 @@ public class ProjectBuilder {
     }
 
     public List<String> getLibraryFiles() {
-        return libraryFiles;
+        return Collections.unmodifiableList(libraryFiles);
     }
 
     public void addLibraryFile(String file) {
@@ -126,7 +127,7 @@ public class ProjectBuilder {
     }
 
     public List<String> getDafnyFiles() {
-        return dafnyFiles;
+        return Collections.unmodifiableList(dafnyFiles);
     }
 
     /**
@@ -168,10 +169,17 @@ public class ProjectBuilder {
         this.getSettings().validate();
 
         for(String f : this.getLibraryFiles()) {
-            // MU: bugfix to deal with absolute paths
-            File file = getFileFor(f);
-            if(!file.exists()) {
-                throw new FileNotFoundException(file.toString());
+            if(f.startsWith("$dive/")) {
+                URL url = getClass().getResource("lib/" + f.substring(6));
+                if (url == null) {
+                    throw new FileNotFoundException("Internal library not found: " + f);
+                }
+            } else {
+                // MU: bugfix to deal with absolute paths
+                File file = getFileFor(f);
+                if (!file.exists()) {
+                    throw new FileNotFoundException(file.toString());
+                }
             }
         }
 
@@ -185,7 +193,7 @@ public class ProjectBuilder {
 
     /**
      * get a File object for the file name string. If the string is an absolute
-     * file name, return that. Otherwise make it relative the directory.
+     * file name, return that. Otherwise make it relative to the directory.
      */
     private File getFileFor(String f) {
         File result = new File(f);
@@ -215,17 +223,29 @@ public class ProjectBuilder {
 
         // parse DafnyFiles: first libs, then sources
         for (String filename: this.getLibraryFiles()) {
-            File file = getFileFor(filename);
-            DafnyTree tree = DafnyFileParser.parse(file);
-            parseFile(true, tree, file.toString());
+            // TODO ... and Windows users?
+            DafnyTree tree;
+            if(filename.startsWith("$dive/")) {
+                URL url = getClass().getResource("lib/" + filename.substring(6));
+                if (url == null) {
+                    throw new FileNotFoundException("Internal library not found: " + filename);
+                }
+                tree = DafnyFileParser.parse(url.openStream());
+                tree.setFilename(filename);
+            } else {
+                File file = getFileFor(filename);
+                tree = DafnyFileParser.parse(file);
+            }
+            parseFile(true, tree, filename);
         }
 
         for (String filename: this.getDafnyFiles()) {
             File file = getFileFor(filename);
             DafnyTree tree = DafnyFileParser.parse(file);
-            parseFile(false, tree, file.toString());
+            parseFile(false, tree, filename);
         }
 
+        // That's used in testing ...
         for (Map.Entry<String, DafnyTree> en : dafnyTrees.entrySet()) {
             parseFile(false, en.getValue(), en.getKey());
         }
@@ -235,8 +255,6 @@ public class ProjectBuilder {
         resolveNames(project);
         TarjansAlgorithm tarjan = new TarjansAlgorithm(project);
         tarjan.computeSCCs();
-
-        //TODO parse rules for project
 
         return project;
     }

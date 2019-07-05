@@ -46,7 +46,7 @@ public class FlatBrowserController extends BrowserController {
     private TreeTableEntity createMethodsEntity() {
         List<TreeTableEntity> children = new ArrayList<>();
         getProject().getMethods().stream()
-                .filter(Predicate.not(DafnyDecl::isInLibrary))
+                .filter(NOT_IN_LIB_FILTER)
                 .map(dafnyMethod -> getEntityFromMethod(findFileWithMethod(dafnyMethod), dafnyMethod))
                 .forEach(children::add);
 
@@ -56,7 +56,7 @@ public class FlatBrowserController extends BrowserController {
     private TreeTableEntity createFunctionsEntity() {
         List<TreeTableEntity> children = new ArrayList<>();
         getProject().getFunctions().stream()
-                .filter(Predicate.not(DafnyDecl::isInLibrary))
+                .filter(NOT_IN_LIB_FILTER)
                 .map(dafnyFunction -> getEntityFromFunction(findFileWithFunction(dafnyFunction), dafnyFunction))
                 .forEach(children::add);
 
@@ -66,7 +66,7 @@ public class FlatBrowserController extends BrowserController {
     private TreeTableEntity createClassesEntity() {
         List<TreeTableEntity> children = new ArrayList<>();
         getProject().getClasses().stream()
-                .filter(Predicate.not(DafnyDecl::isInLibrary))
+                .filter(NOT_IN_LIB_FILTER)
                 .map(dafnyClass -> getEntityFromClass(findFileWithClass(dafnyClass), dafnyClass))
                 .forEach(children::add);
 
@@ -75,6 +75,7 @@ public class FlatBrowserController extends BrowserController {
 
     private DafnyFile findFileWithMethod(DafnyMethod dafnyMethod) {
         return getProject().getDafnyFiles().stream()
+                .filter(NOT_IN_LIB_FILTER)
                 .filter(dafnyFile -> dafnyFile.getMethods().contains(dafnyMethod))
                 .findFirst()
                 .orElse(null);
@@ -82,6 +83,7 @@ public class FlatBrowserController extends BrowserController {
 
     private DafnyFile findFileWithFunction(DafnyFunction dafnyFunction) {
         return getProject().getDafnyFiles().stream()
+                .filter(NOT_IN_LIB_FILTER)
                 .filter(dafnyFile -> dafnyFile.getFunctions().contains(dafnyFunction))
                 .findFirst()
                 .orElse(null);
@@ -89,6 +91,7 @@ public class FlatBrowserController extends BrowserController {
 
     private DafnyFile findFileWithClass(DafnyClass dafnyClass) {
         return getProject().getDafnyFiles().stream()
+                .filter(NOT_IN_LIB_FILTER)
                 .filter(dafnyFile -> dafnyFile.getClasses().contains(dafnyClass))
                 .findFirst()
                 .orElse(null);
