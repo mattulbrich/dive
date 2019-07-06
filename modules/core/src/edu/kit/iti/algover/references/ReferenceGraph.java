@@ -269,6 +269,9 @@ public class ReferenceGraph {
             ProofNode proofNode = currentTarget.getProofNodeSelector().get(proof);
             TermSelector childSelector = currentTarget.getTermSelector();
             ImmutableList<BranchInfo> branchInfos = proofNode.getProofRuleApplication().getBranchInfo();
+            //filter branchinfos
+
+
 
             if (!childSelector.isToplevel()) {
                 //get all changes and check termselectors

@@ -289,7 +289,7 @@ public class WelcomePane {
 
 
             } else {
-                System.out.println("file was null");
+                System.out.println("The was no file created");
             }
 
         };
