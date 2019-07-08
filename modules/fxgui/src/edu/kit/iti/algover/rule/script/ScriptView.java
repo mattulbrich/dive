@@ -123,6 +123,8 @@ public class ScriptView extends AsyncHighlightingCodeArea {
                 return Collections.singleton("comment");
             case ScriptLanguageLexer.STRING_LITERAL:
                 return Collections.singleton("value-literal");
+            case ScriptLanguageLexer.SELECTOR_LITERAL:
+                return Collections.singleton("value-literal");
             default:
                 return Collections.emptyList();
         }
