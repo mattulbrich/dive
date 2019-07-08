@@ -120,7 +120,7 @@ public class ProofRuleHandler implements CommandHandler<ProofNode> {
                     // TODO Is it not possible to give an error message here?
                     throw new ScriptCommandNotApplicableException(pr, call);
                 }
-                ruleParams.checkAndPutValue(pd, convertValuesToTypedValues(val));
+                ruleParams.checkAndPutValue(pd, convertValueToTypedValue(val));
             }
 
             //apply the rule
@@ -175,12 +175,13 @@ public class ProofRuleHandler implements CommandHandler<ProofNode> {
 
 
 
-    private Object convertValuesToTypedValues(Value<?> val) {
+    private Object convertValueToTypedValue(Value<?> val) {
         switch (val.getType()) {
             case STRING:
             case INT:
             case BOOL:
             case TERM:
+            case SELECTOR:
                 return val.getData();
 
             default:

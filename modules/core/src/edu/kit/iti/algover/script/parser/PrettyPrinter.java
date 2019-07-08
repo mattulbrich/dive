@@ -224,6 +224,12 @@ public class PrettyPrinter extends DefaultASTVisitor<Void> {
     }
 
     @Override
+    public Void visit(SelectorLiteral selector) {
+        s.append(selector.getText());
+        return super.visit(selector);
+    }
+
+    @Override
     public Void visit(SequentLiteral sequentLiteral) {
         s.append(String.format("'%s'", sequentLiteral.getText()));
         return super.visit(sequentLiteral);
