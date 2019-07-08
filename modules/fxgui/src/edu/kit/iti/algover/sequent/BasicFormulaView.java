@@ -106,7 +106,7 @@ public class BasicFormulaView extends CodeArea {
         setEditable(false);
 
         setPadding(new Insets(1,0,1,0));
-        setStyle("-fx-font-size: "+fontsizeProperty.get()+";");
+        setStyle("-fx-font-size: "+fontsizeProperty.get()+"pt;");
 
         //This might be a problem with increasing size of Proofs
         selectedTerm.addListener(this::updateSelected);

@@ -28,7 +28,7 @@ public class TextUtil {
         textNode.getStyleClass().setAll(styleClasses);
         new Scene(new Group(textNode)).getStylesheets().setAll(stylesheets);
         if (fontsize > 0) {
-            textNode.setStyle("-fx-font-size:"+fontsize+";");
+            textNode.setStyle("-fx-font-size:"+fontsize+"pt;");
         }
         textNode.applyCss();
         return textNode.getLayoutBounds();

@@ -84,7 +84,7 @@ public class DafnyCodeArea extends AsyncHighlightingCodeArea {
 
         currentProofText = text;
         int fontSizeEditor = MainController.systemprefs.getInt("FONT_SIZE_EDITOR", 12);
-        setStyle("-fx-font-size: "+fontSizeEditor+";");
+        setStyle("-fx-font-size: "+fontSizeEditor+"pt;");
 
         textProperty().addListener(new ChangeListener<String>() {
             @Override
@@ -104,7 +104,7 @@ public class DafnyCodeArea extends AsyncHighlightingCodeArea {
     }
 
     private void updateFontSize(int font_size_editor) {
-        setStyle("-fx-font-size: "+font_size_editor+";");
+        setStyle("-fx-font-size: "+font_size_editor+"pt;");
         MainController.systemprefs.putInt("FONT_SIZE_EDITOR", font_size_editor);
 
     }
