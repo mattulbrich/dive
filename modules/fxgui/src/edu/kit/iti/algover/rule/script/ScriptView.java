@@ -13,6 +13,7 @@ import edu.kit.iti.algover.editor.HighlightingRule;
 import edu.kit.iti.algover.script.ScriptLanguageLexer;
 import edu.kit.iti.algover.util.AsyncHighlightingCodeArea;
 import edu.kit.iti.algover.util.ExceptionDetails;
+import javafx.beans.property.SimpleIntegerProperty;
 import javafx.collections.ObservableList;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.MenuItem;
@@ -44,6 +45,20 @@ public class ScriptView extends AsyncHighlightingCodeArea {
     private ExceptionDetails.ExceptionReportInfo highlightedExceptionInfo = null;
     private final Tooltip tooltip = new Tooltip("");
 
+    public int getFontsize() {
+        return fontsize.get();
+    }
+
+    public SimpleIntegerProperty fontsizeProperty() {
+        return fontsize;
+    }
+
+    public void setFontsize(int fontsize) {
+        this.fontsize.set(fontsize);
+    }
+
+    private SimpleIntegerProperty fontsize = new SimpleIntegerProperty(12);
+
     public GutterFactory getGutter() {
         return gutter;
     }
@@ -54,6 +69,8 @@ public class ScriptView extends AsyncHighlightingCodeArea {
         super(executor);
         this.listener = listener;
         this.highlightingRule = (token, syntaxClasses) -> syntaxClasses;
+
+        setStyle("-fx-font-size: "+fontsizeProperty().get()+"pt;");
 
         getStylesheets().add(AlgoVerApplication.class.getResource("syntax-highlighting.css").toExternalForm());
 
@@ -73,7 +90,7 @@ public class ScriptView extends AsyncHighlightingCodeArea {
         );
         setContextMenu(menu);
         //set gutter factory for checkpoints
-        gutter = new GutterFactory(this);
+        gutter = new GutterFactory(this, fontsizeProperty());
         this.setParagraphGraphicFactory(gutter);
         
 
@@ -81,6 +98,13 @@ public class ScriptView extends AsyncHighlightingCodeArea {
 
         textProperty().addListener((observable, oldValue, newValue) -> listener.onAsyncScriptTextChanged(newValue));
         setOnMouseMoved(this::handleHover);
+
+        fontsizeProperty().addListener((observable, oldValue, newValue) -> {
+            setStyle("-fx-font-size: "+fontsizeProperty().get()+"pt;");
+            System.out.println("fontsizeProperty() = " + fontsizeProperty());
+            requestLayout();
+
+        });
         /*this.caretPositionProperty().addListener((observable, oldValue, newValue) -> {
             System.out.println("oldValue = " + oldValue);
             System.out.println("newValue = " + newValue);
@@ -91,7 +115,7 @@ public class ScriptView extends AsyncHighlightingCodeArea {
 
     public void resetGutter(){
       //  gutter.getAnnotations().setAll(new SimpleListProperty<>(FXCollections.observableArrayList()));
-        gutter = new GutterFactory(this);
+        gutter = new GutterFactory(this, fontsizeProperty());
         this.setParagraphGraphicFactory(gutter);
     }
 

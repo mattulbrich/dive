@@ -27,6 +27,20 @@ public class GutterAnnotation {
 
     private IntegerProperty lineNumberProperty = new SimpleIntegerProperty(-1);
 
+    public int getFontsize() {
+        return fontsize.get();
+    }
+
+    public SimpleIntegerProperty fontsizeProperty() {
+        return fontsize;
+    }
+
+    public void setFontsize(int fontsize) {
+        this.fontsize.set(fontsize);
+    }
+
+    private SimpleIntegerProperty fontsize = new SimpleIntegerProperty(12);
+
     /**
      * Boolean flag for marker for command insertion position
      */

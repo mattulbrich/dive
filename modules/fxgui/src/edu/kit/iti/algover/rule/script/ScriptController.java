@@ -6,6 +6,7 @@
 package edu.kit.iti.algover.rule.script;
 
 import edu.kit.iti.algover.Lookup;
+import edu.kit.iti.algover.MainController;
 import edu.kit.iti.algover.editor.HighlightingRule;
 import edu.kit.iti.algover.editor.LayeredHighlightingRule;
 import edu.kit.iti.algover.proof.Proof;
@@ -25,6 +26,7 @@ import edu.kit.iti.algover.util.ExceptionDetails;
 import edu.kit.iti.algover.util.ExceptionDialog;
 import edu.kit.iti.algover.util.RuleApp;
 import javafx.beans.Observable;
+import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.collections.ObservableList;
 import javafx.scene.input.KeyCode;
@@ -44,6 +46,8 @@ import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.function.Consumer;
 import java.util.logging.Logger;
+import java.util.prefs.PreferenceChangeEvent;
+import java.util.prefs.PreferenceChangeListener;
 import java.util.stream.Collectors;
 
 /**
@@ -58,6 +62,8 @@ public class ScriptController implements ScriptViewListener, ReferenceHighlighti
     private final RuleApplicationListener listener;
     private ProofNodeSelector selectedNode = null;
     private Lookup lookup;
+
+    private SimpleIntegerProperty fontSizeProperty = new SimpleIntegerProperty(12);
 
 
     /**
@@ -77,6 +83,19 @@ public class ScriptController implements ScriptViewListener, ReferenceHighlighti
         this.lookup = lookup;
 
         lookup.register(this, ReferenceHighlightingHandler.class);
+
+        this.fontSizeProperty.setValue(MainController.systemprefs.getInt("FONT_SIZE_SCRIPT_EDITOR", 12));
+
+        MainController.systemprefs.addPreferenceChangeListener(new PreferenceChangeListener() {
+            @Override
+            public void preferenceChange(PreferenceChangeEvent preferenceChangeEvent) {
+                int font_size_seq_view1 = preferenceChangeEvent.getNode().getInt("FONT_SIZE_SCRIPT_EDITOR", 12);
+                fontSizeProperty.set(font_size_seq_view1);
+            }
+        });
+
+        view.fontsizeProperty().bind(fontSizeProperty);
+
 
         view.setHighlightingRule(this.highlightingRules);
 
@@ -252,7 +271,7 @@ public class ScriptController implements ScriptViewListener, ReferenceHighlighti
         //neuberechnen -> User
         //onCaretPositionChanged(null);
 
-          view.setStyle("-fx-background-color: #c4c1c9;");
+          view.setStyle("-fx-background-color: #c4c1c9;"+fontSizeProperty.get()+"pt;");
           view.resetGutter();
           view.requestLayout();
 
@@ -315,7 +334,7 @@ public class ScriptController implements ScriptViewListener, ReferenceHighlighti
         createVisualSelectors(checkpoints);
 
         switchViewedNode();
-        view.setStyle("-fx-background-color: white;");
+        view.setStyle("-fx-background-color: white; -fx-font-size: "+fontSizeProperty.get()+"pt;");
     }
 
     @Override
