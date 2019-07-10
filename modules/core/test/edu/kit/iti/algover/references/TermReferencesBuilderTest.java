@@ -55,9 +55,10 @@ public class TermReferencesBuilderTest {
     public void builderCreatesEdges() {
         System.out.println("computed graph:");
         System.out.println(graph);
+        //added the outer parent to the references
         Assert.assertEquals(
                 "The graph should have 5 reference edges",
-                5, graph.getGraph().edges().size());
+                6, graph.getGraph().edges().size());
     }
 
     @Test

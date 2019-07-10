@@ -56,7 +56,7 @@ public class ReplaceCutRule extends FocusProofRule {
 
         TermSelector selector = parameters.getValue(ON_PARAM).getTermSelector();
 
-        if(on.getSort().equals(with.getSort())) {
+        if(!on.getSort().equals(with.getSort())) {
             throw new NotApplicableException("Found type " + with.getSort().toString() + " as replacement but original term has type "
              + on.getSort().toString() + " (has to be the same type).");
         }

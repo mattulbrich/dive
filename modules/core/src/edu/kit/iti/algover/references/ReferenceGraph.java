@@ -271,6 +271,16 @@ public class ReferenceGraph {
             ImmutableList<BranchInfo> branchInfos = proofNode.getProofRuleApplication().getBranchInfo();
             //filter branchinfos
 
+            BranchInfo deltaToCurrentTarget;
+            if(branchInfos.size() > 1){
+                //filter the branchinfo for the child acc. to label
+                Collection<BranchInfo> filteredBranchInfos = branchInfos.filter(
+                        branchInfo -> branchInfo.getLabel().equals(proofNode.getLabel())).asCollection();
+                assert filteredBranchInfos.size() == 1;
+                deltaToCurrentTarget = filteredBranchInfos.iterator().next();
+            } else {
+                deltaToCurrentTarget = branchInfos.get(0);
+            }
 
 
             if (!childSelector.isToplevel()) {
@@ -293,14 +303,87 @@ public class ReferenceGraph {
                         }
 
                 );
-                parents.add(handleAddAndDel(proof, parent, childSelector, branchInfos));
+
+
+                ProofTermReferenceTarget parentsInOffset = findParentsInOffset(proof, parent, currentTarget, childSelector, deltaToCurrentTarget);
+                if(parentsInOffset != null) {
+                    parents.add(parentsInOffset);
+                }
+            //    parents.add(handleAddAndDel(proof, parent, childSelector, branchInfos));
 
             } else {
-                parents.add(handleAddAndDel(proof, parent, childSelector, branchInfos));
+                ProofTermReferenceTarget parentsInOffset = findParentsInOffset(proof, parent, currentTarget, childSelector, deltaToCurrentTarget);
+                if(parentsInOffset != null) {
+                    parents.add(parentsInOffset);
+                }
+              //  parents.add(handleAddAndDel(proof, parent, childSelector, branchInfos));
             }
 
         }
         return parents;
+    }
+
+    private ProofTermReferenceTarget findParentsInOffset(Proof proof, ProofTermReferenceTarget parent,
+                                                         ProofTermReferenceTarget child,
+                                      TermSelector childSelector,
+                                      BranchInfo branchInfo) throws RuleException {
+
+        Sequent additions = branchInfo.getAdditions();
+        Sequent deletions = branchInfo.getDeletions();
+
+        //check whether formula might have just moved position
+        Sequent parentSeq = parent.getProofNodeSelector().get(proof).getSequent();
+
+        List<TermSelector> deletedSelectors;
+        if(childSelector.getPolarity() == TermSelector.SequentPolarity.ANTECEDENT){
+           deletedSelectors = computeSelector(deletions.getAntecedent(), parentSeq, childSelector.getPolarity());
+
+        } else {
+            deletedSelectors = computeSelector(deletions.getSuccedent(), parentSeq, childSelector.getPolarity());
+        }
+        List<TermSelector> greaterOrEqualTotarget = new ArrayList<>();
+        deletedSelectors.forEach(termSelector -> {
+            if(termSelector.getToplevelSelector().getTermNo() <= childSelector.getToplevelSelector().getTermNo()){
+                greaterOrEqualTotarget.add(termSelector);
+            }
+        });
+
+        TermSelector childWithOffset = new TermSelector(childSelector.getPolarity(),
+                childSelector.getTermNo()+greaterOrEqualTotarget.size(),
+                childSelector.getSubtermSelector());
+
+        if(childWithOffset.isValidForSequent(parentSeq)) {
+            Term term = childWithOffset.selectSubterm(parentSeq);
+
+            if (term == childSelector.selectSubterm(child.getProofNodeSelector().get(proof).getSequent())) {
+                return new ProofTermReferenceTarget(parent.getProofNodeSelector(), childWithOffset);
+            }
+        }
+
+        //we checked whether formula may have just moved because of a deletion
+        //as we still did not find the formula, we have to see, whether it was added by a rule app
+        List<TermSelector> addedSelectors;
+        if(childSelector.getPolarity() == TermSelector.SequentPolarity.ANTECEDENT){
+            addedSelectors = computeSelector(additions.getAntecedent(), parentSeq, childSelector.getPolarity());
+
+        } else {
+            addedSelectors = computeSelector(additions.getSuccedent(), parentSeq, childSelector.getPolarity());
+        }
+        List<TermSelector> samePrefix = new ArrayList<>();
+        addedSelectors.forEach(termSelector -> {
+            if(childSelector.hasPrefix(termSelector)){
+                samePrefix.add(termSelector);
+            }
+        });
+        samePrefix.forEach(termSelector -> {
+            try {
+                System.out.println(termSelector.selectSubterm(child.getProofNodeSelector().get(proof).getSequent()));
+            } catch (RuleException e) {
+                e.printStackTrace();
+            }
+        });
+        //if not found in add or delete we search the parent for the formula as last resort
+        return null;
     }
 
     /**
@@ -430,7 +513,15 @@ public class ReferenceGraph {
         }
         for(int i = 0; i < toCheck.size(); i++){
             ProofFormula f = toCheck.get(i);
-            if(formulas.contains(f)){
+            boolean containsF = false;
+            Iterator<ProofFormula> iterator = formulas.iterator();
+
+            while(!containsF && iterator.hasNext()){
+                ProofFormula next = iterator.next();
+                containsF = (next.getTerm() == f.getTerm());
+            }
+
+            if(containsF){
                 selectors.add(new TermSelector(TermSelector.SequentPolarity.ANTECEDENT, i));
             }
         }
