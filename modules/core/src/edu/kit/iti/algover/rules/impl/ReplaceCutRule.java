@@ -24,6 +24,7 @@ public class ReplaceCutRule extends FocusProofRule {
     private static final ParameterDescription<TermParameter> WITH_PARAM =
             new ParameterDescription<>("with", ParameterType.TERM, true);
 
+
     private static final ParameterDescription<Boolean> AUTO_PARAM =
             new ParameterDescription<>("auto", ParameterType.BOOLEAN, false);
 
@@ -56,7 +57,7 @@ public class ReplaceCutRule extends FocusProofRule {
 
         TermSelector selector = parameters.getValue(ON_PARAM).getTermSelector();
 
-        if(on.getSort().equals(with.getSort())) {
+        if(!on.getSort().equals(with.getSort())) {
             throw new NotApplicableException("Found type " + with.getSort().toString() + " as replacement but original term has type "
              + on.getSort().toString() + " (has to be the same type).");
         }
