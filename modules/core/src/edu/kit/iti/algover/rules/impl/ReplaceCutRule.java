@@ -79,9 +79,9 @@ public class ReplaceCutRule extends FocusProofRule {
 
         // TODO: auto parameter!
 
-        pra.setApplicability(ProofRuleApplication.Applicability.APPLICABLE);
+       /* pra.setApplicability(ProofRuleApplication.Applicability.APPLICABLE);
         pra.newBranch().addReplacement(selector, with).setLabel("replace");
-
+*/
         return pra.build();
     }
 
