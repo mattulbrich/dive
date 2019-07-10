@@ -50,10 +50,11 @@ import java.util.List;
  */
 public class FunctionDefinitionExpansionRule extends FocusProofRule {
 
-    static ParameterDescription<Boolean> INLINE_PARAM = new ParameterDescription<>("inlineLet", ParameterType.BOOLEAN, false, true);
+    static ParameterDescription<Boolean> INLINE_PARAM =
+            new ParameterDescription<>("inlineLet", ParameterType.BOOLEAN, false, true);
 
     public FunctionDefinitionExpansionRule () {
-        super(ON_PARAM, INLINE_PARAM);
+        super(ON_PARAM_REQ, INLINE_PARAM);
     }
     @Override
     public String getName() {
@@ -62,7 +63,7 @@ public class FunctionDefinitionExpansionRule extends FocusProofRule {
 
     @Override
     protected ProofRuleApplication makeApplicationImpl(ProofNode target, Parameters parameters) throws RuleException {
-        TermSelector selector = parameters.getValue(ON_PARAM).getTermSelector();
+        TermSelector selector = parameters.getValue(ON_PARAM_REQ).getTermSelector();
         Boolean inline = parameters.getValue(INLINE_PARAM);
 
         Term term = selector.selectSubterm(target.getSequent());

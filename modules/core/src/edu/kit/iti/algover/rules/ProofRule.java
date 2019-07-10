@@ -25,15 +25,6 @@ import java.util.Map;
 public interface ProofRule {
 
     /**
-     * The most important parameter that indicates onto which term
-     * a rule is to be applied.
-     *
-     * It is a non-required parameter, altphou some rules require it.
-     */
-    ParameterDescription<TermParameter> ON_PARAM =
-            new ParameterDescription<>("on", ParameterType.MATCH_TERM, false);
-
-    /**
      * Gets the name of this proof rule.
      * <p>
      * This name is also the command under which it is accessible in scripts.
@@ -105,14 +96,13 @@ public interface ProofRule {
     public Map<String, ParameterDescription<?>> getAllParameters();
 
     /**
-     *
      * Generates a fitting transcript for a given ruleApplication.
      *
      * @param pra the proofRuleApplication
      * @return a valid transcript for the given proofRuleApplication
      * @throws RuleException
      */
-    public String getTranscript(ProofRuleApplication pra) throws RuleException;
+    public String getTranscript(@NonNull ProofRuleApplication pra) throws RuleException;
 
     /**
      *
@@ -121,4 +111,17 @@ public interface ProofRule {
      * @return is this rule exhaustively applicable
      */
     public boolean mayBeExhaustive();
+
+    /**
+     * Get the parameter named "on" registered for this proof rule. null if no
+     * such parameter is registered.
+     *
+     * @return the parameter called on, or null if none registered
+     */
+    @SuppressWarnings( "unchecked" )
+    public default @Nullable ParameterDescription<TermParameter> getOnParameter() {
+        ParameterDescription<?> onParam = getAllParameters().get("on");
+        assert onParam == null || onParam.getType() == ParameterType.MATCH_TERM;
+        return (ParameterDescription<TermParameter>) onParam;
+    }
 }

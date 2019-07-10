@@ -7,6 +7,7 @@ package edu.kit.iti.algover.rule;
 
 import edu.kit.iti.algover.proof.ProofNode;
 import edu.kit.iti.algover.rules.FocusProofRule;
+import edu.kit.iti.algover.rules.ParameterDescription;
 import edu.kit.iti.algover.rules.Parameters;
 import edu.kit.iti.algover.rules.ProofRule;
 import edu.kit.iti.algover.rules.ProofRuleApplication;
@@ -89,7 +90,7 @@ public class RuleView extends StackPane {
             if(rule.mayBeExhaustive()) {
                 ExhaustiveRule exhaustiveRule = new ExhaustiveRule();
                 Parameters params = new Parameters();
-                params.putValue(FocusProofRule.ON_PARAM, new TermParameter(selector, selection));
+                params.putValue(ExhaustiveRule.ON_PARAM_REQ, new TermParameter(selector, selection));
                 params.putValue(ExhaustiveRule.RULE_NAME_PARAM, rule.getName());
                 // MU: I have changed this from considerapplication to makeApplication
                 // This piece of code looks like suboptimal special casing. (see RuleApplicationController)

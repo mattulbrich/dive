@@ -149,8 +149,11 @@ abstract class AbstractProofRule implements ProofRule {
     }
 
     /**
+     * {@inheritDoc}
      *
-     * Generates a fitting transcript for a given ruleApplication.
+     * <p>
+     *     Subclasses may choose to override this.
+     * </p>
      *
      * @param pra the proofRuleApplication
      * @return a valid transcript for the given proofRuleApplication

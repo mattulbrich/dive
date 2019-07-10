@@ -21,7 +21,7 @@ import edu.kit.iti.algover.term.builder.TermBuildException;
  */
 public class ModusTollensRule extends FocusProofRule {
     public ModusTollensRule() {
-        super(ON_PARAM);
+        super(ON_PARAM_REQ);
     }
 
     @Override
@@ -36,8 +36,8 @@ public class ModusTollensRule extends FocusProofRule {
 
     @Override
     protected ProofRuleApplication makeApplicationImpl(ProofNode target, Parameters parameters) throws RuleException {
-        TermSelector selector = parameters.getValue(ON_PARAM).getTermSelector();
-        Term term = parameters.getValue(ON_PARAM).getTerm();
+        TermSelector selector = parameters.getValue(ON_PARAM_REQ).getTermSelector();
+        Term term = parameters.getValue(ON_PARAM_REQ).getTerm();
 
         if (!(term instanceof ApplTerm)) {
             throw NotApplicableException.onlyOperator(this, "==>");

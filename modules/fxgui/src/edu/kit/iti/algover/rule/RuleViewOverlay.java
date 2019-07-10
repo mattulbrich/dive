@@ -106,7 +106,7 @@ public class RuleViewOverlay extends AnchorPane {
         }
         if (requiredParams > 0 ||
                 (application.getRule().getAllParameters().size() == 1 &&
-                !application.getRule().getAllParameters().values().contains(FocusProofRule.ON_PARAM))) {
+                !application.getRule().getAllParameters().values().contains(FocusProofRule.ON_PARAM_REQ))) {
             String on;
             try {
                 PrettyPrint pp = new PrettyPrint();
