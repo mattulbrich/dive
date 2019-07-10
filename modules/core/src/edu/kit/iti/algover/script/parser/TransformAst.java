@@ -29,6 +29,7 @@ package edu.kit.iti.algover.script.parser;
 
 
 import edu.kit.iti.algover.script.ScriptLanguageParser;
+import edu.kit.iti.algover.script.ScriptLanguageParser.SelectorLiteralContext;
 import edu.kit.iti.algover.script.ScriptLanguageVisitor;
 import edu.kit.iti.algover.script.ast.*;
 import org.antlr.v4.runtime.ParserRuleContext;
@@ -300,6 +301,13 @@ public class TransformAst implements ScriptLanguageVisitor<Object> {
         StringLiteral stringLiteral = new StringLiteral(ctx.getText());
         stringLiteral.setRuleContext(ctx);
         return stringLiteral;
+    }
+
+    @Override
+    public Object visitSelectorLiteral(SelectorLiteralContext ctx) {
+        SelectorLiteral selectorLiteral = new SelectorLiteral(ctx.getText());
+        selectorLiteral.setRuleContext(ctx);
+        return selectorLiteral;
     }
 
     @Override
