@@ -74,6 +74,7 @@ public class ParserTest {
                 { "methodCalls.dfy" },
                 { "schwarz1.dfy" },
                 { "dotdot.dfy" },
+                { "functionWithReads.dfy" },
                 });
     }
 
