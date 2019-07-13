@@ -9,7 +9,8 @@
 
 .formula-view .selected {
     -rtfx-background-color: #b5b5b5;
-    -fx-fill: whitesmoke;
+
+    -fx-fill: black;
 }
 
 .formula-view {
