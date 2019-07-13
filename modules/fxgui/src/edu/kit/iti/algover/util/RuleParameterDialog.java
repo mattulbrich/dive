@@ -109,6 +109,9 @@ public class RuleParameterDialog extends Dialog<Void> {
         getDialogPane().setContent(vBox);
 
         this.setTitle("Parameters for RuleApplication");
+        this.setResizable(true);
+        //workaround GTK based desktops
+        this.onShownProperty().addListener( e-> Platform.runLater(() -> this.setResizable(true)));
     }
 
     private Validator<String> getValidatorForType(ParameterType<?> type) {

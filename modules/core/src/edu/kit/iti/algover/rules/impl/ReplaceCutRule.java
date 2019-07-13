@@ -24,6 +24,7 @@ public class ReplaceCutRule extends FocusProofRule {
     private static final ParameterDescription<TermParameter> WITH_PARAM =
             new ParameterDescription<>("with", ParameterType.TERM, true);
 
+
     private static final ParameterDescription<Boolean> AUTO_PARAM =
             new ParameterDescription<>("auto", ParameterType.BOOLEAN, false);
 
@@ -78,9 +79,9 @@ public class ReplaceCutRule extends FocusProofRule {
 
         // TODO: auto parameter!
 
-        pra.setApplicability(ProofRuleApplication.Applicability.APPLICABLE);
+       /* pra.setApplicability(ProofRuleApplication.Applicability.APPLICABLE);
         pra.newBranch().addReplacement(selector, with).setLabel("replace");
-
+*/
         return pra.build();
     }
 
