@@ -27,6 +27,8 @@ import java.util.Arrays;
 public class GutterView extends HBox {
     private final SimpleObjectProperty<GutterAnnotation> annotation = new SimpleObjectProperty<>();
 
+    private MaterialDesignIconView iconProofRef = new MaterialDesignIconView(MaterialDesignIcon.CIRCLE);
+
     private MaterialDesignIconView iconProofCommandPosition = new MaterialDesignIconView(MaterialDesignIcon.FORMAT_TEXTDIRECTION_L_TO_R);
 
     private MaterialDesignIconView iconProofNodeSelected = new MaterialDesignIconView(MaterialDesignIcon.ADJUST);
@@ -168,10 +170,19 @@ public class GutterView extends HBox {
         if(getAnnotation().isProofNodeIsSet()) {
             MaterialDesignIconView node = (MaterialDesignIconView) gutter[1];
             if (getAnnotation().proofNodeIsReferenced()) {
-                node.setFill(Color.PURPLE);
-                gutter[1] = node;
+                iconProofRef.setFill(Color.PURPLE);
+
+//                node.setFill(Color.PURPLE);
+                gutter[1] = iconProofRef;
             } else {
-                node.setFill(Color.BLACK);
+                if(getAnnotation().isProofNodeIsSelected()){
+                    iconProofNodeSelected.setFill(Color.BLACK);
+                    gutter[1] = iconProofNodeSelected;
+                } else {
+                    iconProofNodeUnSelected.setFill(Color.BLACK);
+                    gutter[1] = iconProofNodeUnSelected;
+
+                }
             }
         } else {
             gutter[1] = placeholder();
