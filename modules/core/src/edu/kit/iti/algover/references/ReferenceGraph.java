@@ -377,7 +377,8 @@ public class ReferenceGraph {
         });
         samePrefix.forEach(termSelector -> {
             try {
-                System.out.println(termSelector.selectSubterm(child.getProofNodeSelector().get(proof).getSequent()));
+                Term x = termSelector.selectSubterm(child.getProofNodeSelector().get(proof).getSequent());
+                System.out.println(x);
             } catch (RuleException e) {
                 e.printStackTrace();
             }

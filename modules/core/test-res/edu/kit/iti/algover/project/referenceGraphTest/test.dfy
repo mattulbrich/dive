@@ -22,6 +22,13 @@ requires a + 1 == a +1 && a>0 ==> b >= 0
 ensures a == 1 && f(f(a)) == 2
 {}
 
+method simpleConjunction(a: bool, b:bool)
+requires a && b
+ensures a
+{
+
+}
+
 
 
 

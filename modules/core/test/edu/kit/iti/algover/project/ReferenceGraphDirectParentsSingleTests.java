@@ -7,6 +7,7 @@ import edu.kit.iti.algover.proof.ProofNode;
 import edu.kit.iti.algover.proof.ProofNodeSelector;
 import edu.kit.iti.algover.references.ProofTermReferenceTarget;
 import edu.kit.iti.algover.references.ReferenceGraph;
+import edu.kit.iti.algover.references.ScriptReferenceTarget;
 import edu.kit.iti.algover.rules.RuleException;
 import edu.kit.iti.algover.rules.TermSelector;
 import edu.kit.iti.algover.term.Sequent;
@@ -147,5 +148,23 @@ public class ReferenceGraphDirectParentsSingleTests {
 
     }
 
+    /**
+     * This test test that an added Term via addHypothesis only has a scriptreference as parent
+     * @throws FormatException
+     */
+    @Test
+    public void testAddedTermWithScriptReference() throws FormatException {
+        Proof proofConj = pm.getProofForPVC("simpleConjunction/Post");
+        proofConj.setScriptTextAndInterpret("addHypothesis  with='a == b';");
+        ProofNodeSelector lastNode = ProofUtils.computeProofNodeSelector("0");
+        ProofTermReferenceTarget b = new ProofTermReferenceTarget(lastNode, new TermSelector("A.1"));
+        Set<ProofTermReferenceTarget> directParents = proofConj.getGraph().findDirectParents(b, proofConj);
+        Assert.assertTrue(directParents.isEmpty());
+        Set<ScriptReferenceTarget> scriptReferenceTargetSet = proofConj.getGraph().allSuccessorsWithType(b, ScriptReferenceTarget.class);
+        Assert.assertFalse(scriptReferenceTargetSet.isEmpty());
+        Assert.assertTrue(scriptReferenceTargetSet.size() == 1);
+        ScriptReferenceTarget next = scriptReferenceTargetSet.iterator().next();
+        Assert.assertEquals(next.getLinenumber(), 1);
+    }
 
 }
