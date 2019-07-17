@@ -69,7 +69,7 @@ public class AndLeftRule extends DefaultFocusProofRule {
         ProofRuleApplicationBuilder builder = new ProofRuleApplicationBuilder(this);
 
         builder.newBranch().addReplacement(selector, appl.getTerm(0)).
-                addAdditionAntecedent(new ProofFormula(appl.getTerm(1)));
+                addAdditionAntecedent(new ProofFormula(appl.getTerm(1), formula.getLabels()));
 
         builder.setApplicability(ProofRuleApplication.Applicability.APPLICABLE);
 

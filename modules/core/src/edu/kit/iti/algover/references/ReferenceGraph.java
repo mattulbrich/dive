@@ -39,6 +39,23 @@ import java.util.stream.Collectors;
  * (adding loops via {@link #addReference(ReferenceTarget, ReferenceTarget)} will throw an
  * {@link UnsupportedOperationException}.)
  * <p>
+ * The following information is saved in the graph after rule application:
+ * <ul>
+ * <li>replacements from by a rule application: replacement term is child of replaced term</li>
+ * <li>replacements from by a rule application: if replacement term is already present on sequent this relation is also
+ * added as reference to the graph. It enables to search for further parents
+ * </li>
+ * </ul>
+ *
+ * That especially means that the following information need to be computed in case
+ * the user request history information:
+ * <ul>
+ *     <li>if selected term is subterm of a replacement term</li>
+ *     <li>if selected term is part of an addition</li>
+ *     <li>if selected term was not part of rule app, here the postion of a term might have changed due to additions or
+ *     deletions</li>
+ * </ul>
+ *
  * @author Created by Philipp on 27.08.2017.
  * @author S. Grebing (enhanced 2019)
  */
@@ -285,6 +302,7 @@ public class ReferenceGraph {
 
             if (!childSelector.isToplevel()) {
                 //get all changes and check termselectors
+                // TODO also find out whether replacement term has parents
                 branchInfos.forEach(branchInfo -> {
                             branchInfo.getReplacements().forEach(termSelectorTermPair -> {
                                 if (childSelector.hasPrefix(termSelectorTermPair.getFst())) {
@@ -296,7 +314,18 @@ public class ReferenceGraph {
                                                 parents.add(new ProofTermReferenceTarget(currentTarget.getProofNodeSelector().getParentSelector(), new TermSelector(parentSel, i)));
                                         }
                                     } else {
-                                        parents.add(new ProofTermReferenceTarget(currentTarget.getProofNodeSelector().getParentSelector(), termSelectorTermPair.getFst()));
+
+//                                        findDirectParents()
+                                        ProofNodeSelector parentSelector = currentTarget.getProofNodeSelector().getParentSelector();
+                                        try {
+                                            if(childSelector.isValidForSequent(parentSelector.get(proof).getSequent())){
+                                                System.out.println("Position" +computeTermValue(parentSelector, childSelector, proof));
+                                            }
+
+                                        } catch (RuleException e) {
+                                            e.printStackTrace();
+                                        }
+                                        parents.add(new ProofTermReferenceTarget(parentSelector, termSelectorTermPair.getFst()));
                                     }
                                 }
                             });
@@ -309,14 +338,12 @@ public class ReferenceGraph {
                 if(parentsInOffset != null) {
                     parents.add(parentsInOffset);
                 }
-            //    parents.add(handleAddAndDel(proof, parent, childSelector, branchInfos));
 
             } else {
                 ProofTermReferenceTarget parentsInOffset = findParentsInOffset(proof, parent, currentTarget, childSelector, deltaToCurrentTarget);
                 if(parentsInOffset != null) {
                     parents.add(parentsInOffset);
                 }
-              //  parents.add(handleAddAndDel(proof, parent, childSelector, branchInfos));
             }
 
         }
@@ -438,7 +465,7 @@ public class ReferenceGraph {
 
     //TODO refactor and possible additions
     //Currently its a naive implementation
-    private ProofTermReferenceTarget handleAddAndDel(Proof proof, ProofTermReferenceTarget parent,
+/*    private ProofTermReferenceTarget handleAddAndDel(Proof proof, ProofTermReferenceTarget parent,
                                                      TermSelector childSelector,
                                                      ImmutableList<BranchInfo> branchInfos) throws RuleException {
         List<Sequent> additions = new ArrayList<>();
@@ -502,7 +529,7 @@ public class ReferenceGraph {
             }
         }
         return new ProofTermReferenceTarget(parent.getProofNodeSelector(), new TermSelector(childSelector.getPolarity(), posInParent));
-    }
+    }*/
 
     private static List<TermSelector> computeSelector(List<ProofFormula> formulas, Sequent seq, TermSelector.SequentPolarity polarity){
         List<TermSelector> selectors = new ArrayList<>();
@@ -540,7 +567,7 @@ public class ReferenceGraph {
      * @param proof
      * @return
      */
-    private Term computeTermValue(ProofNodeSelector proofNodeSelector, TermSelector termSelector, Proof proof) {
+    private static Term computeTermValue(ProofNodeSelector proofNodeSelector, TermSelector termSelector, Proof proof) {
         Term ret = null;
         try {
             ret = termSelector.selectSubterm(proofNodeSelector.get(proof).getSequent());

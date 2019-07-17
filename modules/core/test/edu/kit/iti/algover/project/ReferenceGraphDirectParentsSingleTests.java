@@ -149,7 +149,8 @@ public class ReferenceGraphDirectParentsSingleTests {
     }
 
     /**
-     * This test test that an added Term via addHypothesis only has a scriptreference as parent
+     * This test test that an added Term via addHypothesis only has a scriptreference as parent and no direct parents
+     * of type ProofReferenceTarget
      * @throws FormatException
      */
     @Test
@@ -165,6 +166,29 @@ public class ReferenceGraphDirectParentsSingleTests {
         Assert.assertTrue(scriptReferenceTargetSet.size() == 1);
         ScriptReferenceTarget next = scriptReferenceTargetSet.iterator().next();
         Assert.assertEquals(next.getLinenumber(), 1);
+    }
+
+    @Test
+    public void testReplacedTerm() throws FormatException {
+        /*Proof proofConj = pm.getProofForPVC("simpleSplit/Post");
+        proofConj.setScriptTextAndInterpret("orRight on= '|- _ || _';");
+        ProofNodeSelector lastNode = ProofUtils.computeProofNodeSelector("0");
+        ProofTermReferenceTarget b = new ProofTermReferenceTarget(lastNode, new TermSelector("S.0.1"));
+        Set<ProofTermReferenceTarget> directParents = proofConj.getGraph().findDirectParents(b, proofConj);
+        directParents.forEach(proofTermReferenceTarget -> {
+            System.out.println("proofTermReferenceTarget.getProofNodeSelector() = " + proofTermReferenceTarget.getProofNodeSelector());
+            System.out.println(ReferenceGraph.computeTermValue(proofTermReferenceTarget.getProofNodeSelector(), proofTermReferenceTarget.getTermSelector(), proofConj));
+        });*/
+
+
+        Proof proof = pm.getProofForPVC("simpleSplit/Post.1");
+        proof.setScriptTextAndInterpret("andRight on= '|- _ && _';");
+        ProofNodeSelector lastNodeP = ProofUtils.computeProofNodeSelector("0");
+        ProofTermReferenceTarget select = new ProofTermReferenceTarget(lastNodeP, new TermSelector("S.0"));
+        Set<ProofTermReferenceTarget> directParentsP = proof.getGraph().findDirectParents(select, proof);
+        //TODO
+
+
     }
 
 }

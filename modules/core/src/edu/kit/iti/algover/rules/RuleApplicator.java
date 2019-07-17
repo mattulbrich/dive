@@ -151,7 +151,7 @@ public class RuleApplicator {
                 try {
                     ProofFormula nthForm = oldSemiSeq.get(ts.getTermNo());
                     Term replace = ReplaceVisitor.replace(nthForm.getTerm(), ts.getSubtermSelector(), newTerm);
-                    newSemiSeq.set(ts.getTermNo(), new ProofFormula(replace));
+                    newSemiSeq.set(ts.getTermNo(), new ProofFormula(replace, nthForm.getLabels()));
                 } catch (TermBuildException e) {
                     e.printStackTrace();
                 }
