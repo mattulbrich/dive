@@ -54,3 +54,7 @@ application {
     ]
 }
 
+// Merging Service Files
+shadowJar {
+    mergeServiceFiles()
+}
