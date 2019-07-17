@@ -94,7 +94,7 @@ public class BasicFormulaView extends CodeArea {
 
         fontsizeProperty.bind(fontsize);
         fontsize.addListener((observable, oldValue, newValue) -> {
-            this.fontsizeProperty.setValue(newValue);
+            this.fontsizeProperty.set(newValue.intValue());
             relayout();
         });
 
