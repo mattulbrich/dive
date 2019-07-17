@@ -33,6 +33,7 @@ import org.fxmisc.wellbehaved.event.Nodes;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.concurrent.ExecutorService;
+import java.util.prefs.Preferences;
 
 /**
  * Shows a dafny-syntax-highlighted code editor.
@@ -82,8 +83,8 @@ public class DafnyCodeArea extends AsyncHighlightingCodeArea {
         textChangedProperty = new SimpleBooleanProperty(true);
 
         currentProofText = text;
-        int font_size_editor = MainController.systemprefs.getInt("FONT_SIZE_EDITOR", 12);
-        setStyle("-fx-font-size: "+font_size_editor+";");
+        int fontSizeEditor = MainController.systemprefs.getInt("FONT_SIZE_EDITOR", 12);
+        setStyle("-fx-font-size: "+fontSizeEditor+"pt;");
 
         textProperty().addListener(new ChangeListener<String>() {
             @Override
@@ -103,7 +104,7 @@ public class DafnyCodeArea extends AsyncHighlightingCodeArea {
     }
 
     private void updateFontSize(int font_size_editor) {
-        setStyle("-fx-font-size: "+font_size_editor+";");
+        setStyle("-fx-font-size: "+font_size_editor+"pt;");
         MainController.systemprefs.putInt("FONT_SIZE_EDITOR", font_size_editor);
 
     }

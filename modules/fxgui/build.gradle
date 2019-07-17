@@ -7,7 +7,7 @@ plugins{
 javafx {
     //can be upgraded to 12
     version = "11"
-    modules = ["javafx.controls", "javafx.fxml", "javafx.web", "javafx.base"]
+    modules = ["javafx.controls", "javafx.fxml", "javafx.web","javafx.base"]
 }
 
 mainClassName = 'edu.kit.iti.algover.DIVEApplication'
@@ -43,6 +43,12 @@ run {
 
 }
 
+runShadow{
+
+        environment 'PATH', "${environment.PATH}"
+
+
+}
 
 application {
     applicationDefaultJvmArgs =  [ "--add-modules=javafx.controls,javafx.fxml,javafx.graphics,javafx.base",
@@ -54,7 +60,9 @@ application {
     ]
 }
 
+
 // Merging Service Files
 shadowJar {
     mergeServiceFiles()
 }
+

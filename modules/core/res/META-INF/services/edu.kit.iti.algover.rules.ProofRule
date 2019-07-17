@@ -22,6 +22,7 @@ edu.kit.iti.algover.rules.impl.FunctionDefinitionExpansionRule
 edu.kit.iti.algover.rules.impl.QuantifierInstantiation
 edu.kit.iti.algover.rules.impl.BranchCutRule
 edu.kit.iti.algover.rules.impl.SkolemizationRule
+edu.kit.iti.algover.rules.impl.RemoveAssumptionRule
 # Currently deactivated
 # edu.kit.iti.algover.rules.impl.IntegerSimplification
 edu.kit.iti.algover.rules.impl.AssumeRule

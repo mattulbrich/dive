@@ -39,6 +39,7 @@ public class FlatBrowserController extends BrowserController {
         TreeItem<TreeTableEntity> root = createTreeItem(rootEntity);
         getView().setRoot(root);
         getView().setShowRoot(false);
+        root.getChildren().forEach(treeTableEntityTreeItem -> super.expandCollapseTree(treeTableEntityTreeItem, true));
 
     }
 

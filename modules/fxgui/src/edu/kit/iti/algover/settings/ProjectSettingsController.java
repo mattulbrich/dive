@@ -375,7 +375,6 @@ public class ProjectSettingsController implements ISettingsController {
 
             //propagate configuration and save config
             try {
-
                 if (saveAsXML) {
                     File filename = new File(baseDir + File.separator + this.configFileName.getText());
                     getConfig().setConfigFile(this.configFileName.getText());

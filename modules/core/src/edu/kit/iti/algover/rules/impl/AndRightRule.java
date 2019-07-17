@@ -19,6 +19,7 @@ import edu.kit.iti.algover.rules.TermParameter;
 import edu.kit.iti.algover.rules.TermSelector;
 import edu.kit.iti.algover.term.ApplTerm;
 import edu.kit.iti.algover.term.Term;
+import edu.kit.iti.algover.util.ImmutableList;
 import edu.kit.iti.algover.util.RuleUtil;
 
 public class AndRightRule extends DefaultFocusProofRule {
@@ -49,6 +50,7 @@ public class AndRightRule extends DefaultFocusProofRule {
     public ProofRuleApplication makeApplicationImpl(ProofNode target, Parameters parameters) throws RuleException {
         Term on = parameters.getValue(ON_PARAM).getTerm();
         TermSelector selector = parameters.getValue(ON_PARAM).getTermSelector();
+        ImmutableList<String> labels = selector.selectTopterm(target.getSequent()).getLabels();
 
         ProofRuleApplicationBuilder builder = new ProofRuleApplicationBuilder(this);
 
@@ -71,14 +73,23 @@ public class AndRightRule extends DefaultFocusProofRule {
         int no = selector.getTermNo();
 
         builder.newBranch()
-                .addDeletionsSuccedent(target.getSequent().getSuccedent().get(no))
-                .addAdditionsSuccedent(new ProofFormula(on.getTerm(0)))
+                .addReplacement(selector, on.getTerm(0))
                 .setLabel("case 1");
 
+
         builder.newBranch()
-                .addDeletionsSuccedent(target.getSequent().getSuccedent().get(no))
-                .addAdditionsSuccedent(new ProofFormula(on.getTerm(1)))
+                .addReplacement(selector, on.getTerm(1))
                 .setLabel("case 2");
+
+      /*  builder.newBranch()
+                .addDeletionsSuccedent(target.getSequent().getSuccedent().get(no))
+                .addAdditionsSuccedent(new ProofFormula(on.getTerm(0), labels))
+                .setLabel("case 1");
+
+             builder.newBranch()
+                .addDeletionsSuccedent(target.getSequent().getSuccedent().get(no))
+                .addAdditionsSuccedent(new ProofFormula(on.getTerm(1), labels))
+                .setLabel("case 2");*/
 
         builder.setApplicability(Applicability.APPLICABLE);
 

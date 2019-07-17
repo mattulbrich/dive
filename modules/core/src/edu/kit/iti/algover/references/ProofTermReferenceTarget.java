@@ -18,18 +18,18 @@ import edu.kit.iti.algover.rules.TermSelector;
  * <p>
  * Created by Philipp on 27.08.2017.
  */
-public class ProofTermReference extends Reference {
+public class ProofTermReferenceTarget extends ReferenceTarget {
 
     private final ProofNodeSelector proofNodeSelector;
     private final TermSelector termSelector;
 
-    public ProofTermReference(ProofNodeSelector proofNodeSelector, TermSelector termSelector) {
+    public ProofTermReferenceTarget(ProofNodeSelector proofNodeSelector, TermSelector termSelector) {
         this.proofNodeSelector = proofNodeSelector;
         this.termSelector = termSelector;
     }
 
     @Override
-    public <R> R accept(ReferenceVisitor<R> visitor) {
+    public <R> R accept(ReferenceTargetVisitor<R> visitor) {
         return visitor.visit(this);
     }
 
@@ -46,15 +46,16 @@ public class ProofTermReference extends Reference {
         return "ProofTermReference{" +
                 "proofNodeSelector=" + proofNodeSelector +
                 ", termSelector=" + termSelector +
+              //  ", termNo="+ termSelector.getTermNo() +
                 '}';
     }
 
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (!(o instanceof ProofTermReference)) return false;
+        if (!(o instanceof ProofTermReferenceTarget)) return false;
 
-        ProofTermReference that = (ProofTermReference) o;
+        ProofTermReferenceTarget that = (ProofTermReferenceTarget) o;
 
         if (!proofNodeSelector.equals(that.proofNodeSelector)) return false;
         return termSelector.equals(that.termSelector);

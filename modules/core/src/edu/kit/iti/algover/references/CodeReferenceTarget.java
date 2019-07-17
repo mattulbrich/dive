@@ -16,20 +16,20 @@ import org.antlr.runtime.Token;
  * <p>
  * Created by Philipp on 27.08.2017.
  */
-public class CodeReference extends Reference {
+public class CodeReferenceTarget extends ReferenceTarget {
 
     private final DafnyFile file;
     private final Token startToken;
     private final Token endToken;
 
-    public CodeReference(DafnyFile file, Token startToken, Token endToken) {
+    public CodeReferenceTarget(DafnyFile file, Token startToken, Token endToken) {
         this.file = file;
         this.startToken = startToken;
         this.endToken = endToken;
     }
 
     @Override
-    public <R> R accept(ReferenceVisitor<R> visitor) {
+    public <R> R accept(ReferenceTargetVisitor<R> visitor) {
         return visitor.visit(this);
     }
 
@@ -57,9 +57,9 @@ public class CodeReference extends Reference {
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (!(o instanceof CodeReference)) return false;
+        if (!(o instanceof CodeReferenceTarget)) return false;
 
-        CodeReference that = (CodeReference) o;
+        CodeReferenceTarget that = (CodeReferenceTarget) o;
 
         if (!file.getFilename().equals(that.file.getFilename())) return false;
         if (startToken.getLine() != that.startToken.getLine()) return false;

@@ -74,7 +74,7 @@ public abstract class BrowserController {
 
     }
 
-    private void expandCollapseTree(TreeItem<TreeTableEntity> item, boolean expand){
+    public void expandCollapseTree(TreeItem<TreeTableEntity> item, boolean expand){
     if(item != null && !item.isLeaf()){
         item.setExpanded(expand);
         for(TreeItem<TreeTableEntity> child : item.getChildren()){

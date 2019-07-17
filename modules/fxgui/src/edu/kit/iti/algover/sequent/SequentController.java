@@ -8,36 +8,50 @@ package edu.kit.iti.algover.sequent;
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon;
 import de.jensd.fx.glyphs.fontawesome.utils.FontAwesomeIconFactory;
 import edu.kit.iti.algover.FxmlController;
+import edu.kit.iti.algover.Lookup;
+import edu.kit.iti.algover.MainController;
 import edu.kit.iti.algover.browser.entities.PVCEntity;
 import edu.kit.iti.algover.proof.*;
-import edu.kit.iti.algover.references.ProofTermReference;
-import edu.kit.iti.algover.references.ReferenceGraph;
+import edu.kit.iti.algover.references.ProofTermReferenceTarget;
 import edu.kit.iti.algover.rules.*;
 import edu.kit.iti.algover.sequent.formulas.ViewFormula;
 import edu.kit.iti.algover.term.Sequent;
 import edu.kit.iti.algover.term.Term;
-import edu.kit.iti.algover.term.prettyprint.AnnotatedString;
-import edu.kit.iti.algover.util.*;
+import edu.kit.iti.algover.util.Pair;
+import edu.kit.iti.algover.util.Quadruple;
+import edu.kit.iti.algover.util.SubtermSelectorReplacementVisitor;
+import javafx.beans.property.SimpleBooleanProperty;
+import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.collections.ObservableSet;
+import javafx.collections.SetChangeListener;
 import javafx.fxml.FXML;
 import javafx.scene.control.Label;
-import javafx.scene.control.ListCell;
-import javafx.scene.control.ListView;
+import javafx.scene.control.ScrollPane;
 import javafx.scene.input.KeyCode;
-import javafx.util.Callback;
+import javafx.scene.input.KeyEvent;
+import javafx.scene.layout.VBox;
+import org.controlsfx.control.ToggleSwitch;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
+import java.util.Set;
+import java.util.prefs.NodeChangeEvent;
+import java.util.prefs.NodeChangeListener;
+import java.util.prefs.PreferenceChangeEvent;
+import java.util.prefs.PreferenceChangeListener;
 import java.util.stream.Collectors;
 
 /**
  * Created by philipp on 12.07.17.
  * update by JonasKlamroth on 28.5.19
+ * update by S.Grebing on 12.06.19
  *
  * This Class is the Controller for the sequent view.
- * For each part of the sequent a ListView is used to display the different formulas. Each Formula
+ * For each part of the sequent a VBox is used to display the different formulas. Each Formula
  * is modeled by a {@link ViewFormula}. The corresponding views are {@link FormulaCell}s which are basically just
  * wrapper for {@link BasicFormulaView}.
  *
@@ -51,15 +65,20 @@ import java.util.stream.Collectors;
  * at the same time? (I think this shouldnt become a problem for reasonably large sequents.
  */
 public class SequentController extends FxmlController {
-
     private final SequentActionListener listener;
+
+    @FXML
+    private ScrollPane pane;
+
+    @FXML
+    private ToggleSwitch formulaLabels;
 
     @FXML
     private Label goalTypeLabel;
     @FXML
-    private ListView<ViewFormula> antecedentView;
+    private VBox antecedentBox;
     @FXML
-    private ListView<ViewFormula> succedentView;
+    private VBox succedentBox;
 
     /**
      * Whichever Term was clicked to reveal dependencies.
@@ -72,13 +91,19 @@ public class SequentController extends FxmlController {
      */
     private final SimpleObjectProperty<TermSelector> selectedTerm;
 
-    // TODO: Don't save the ReferenceGraph at the sequent controller level in the future
-    // it should ideally be placed somewhere in the backend, since the ProofScript's interpreter
-    // has to closely work with the reference graph to keep it updated
-    private ReferenceGraph referenceGraph;
     private Proof activeProof; // Maybe place it inside the Proof or PVC class instead
     private ProofNodeSelector activeNode;
     private ObservableList<Quadruple<TermSelector, String, Integer, String>> styles;
+
+
+    private ObservableSet<TermSelector> historyHighlightsAntec = FXCollections.observableSet();
+    private ObservableSet<TermSelector> historyHighlightsSucc = FXCollections.observableSet();
+
+    private SimpleBooleanProperty showFormulaLabels = new SimpleBooleanProperty(false);
+
+    private SimpleIntegerProperty fontsizeProperty = new SimpleIntegerProperty(12);
+
+    private Lookup lookup;
 
     /**
      * Builds the controller and GUI for the sequent view, that is the two ListViews of
@@ -89,33 +114,80 @@ public class SequentController extends FxmlController {
      *
      * @param listener
      */
-    public SequentController(SequentActionListener listener) {
+    public SequentController(SequentActionListener listener, Lookup lookup) {
         super("SequentView.fxml");
         this.listener = listener;
         this.activeProof = null;
-        this.referenceGraph = new ReferenceGraph();
         this.selectedReference = new SimpleObjectProperty<>(null);
+        this.selectedReference.addListener((observable, oldValue, newValue) -> {
+            if(newValue != null){
+              listener.onRequestReferenceHighlighting(new ProofTermReferenceTarget(activeNode, newValue));
+            }
+        });
+
         this.selectedTerm = new SimpleObjectProperty<>(null);
         this.styles = FXCollections.observableArrayList();
         this.selectedTerm.addListener((observable, oldValue, newValue) -> listener.onClickSequentSubterm(newValue));
 
-        antecedentView.setCellFactory(makeTermCellFactory());
-        succedentView.setCellFactory(makeTermCellFactory());
+        antecedentBox.setOnKeyPressed(this::handleOnKeyPressed);
+        succedentBox.setOnKeyPressed(this::handleOnKeyPressed);
 
-        antecedentView.setOnKeyPressed(keyEvent -> {
+        int font_size_seq_view = MainController.systemprefs.getInt("FONT_SIZE_SEQ_VIEW", 12);
+        this.fontsizeProperty.setValue(font_size_seq_view);
+
+        MainController.systemprefs.addPreferenceChangeListener(new PreferenceChangeListener() {
+            @Override
+            public void preferenceChange(PreferenceChangeEvent preferenceChangeEvent) {
+                int font_size_seq_view1 = preferenceChangeEvent.getNode().getInt("FONT_SIZE_SEQ_VIEW", 12);
+                fontsizeProperty.set(font_size_seq_view1);
+            }
+        });
+
+/*        antecedentBox.getChildren().forEach(node -> {
+            node.setOnKeyPressed(this::handleOnKeyPressed);
+        });
+        succedentBox.getChildren().forEach(node -> node.setOnKeyPressed(this::handleOnKeyPressed));
+        /*antecedentBox.setOnKeyPressed(keyEvent -> {
             if (keyEvent.getCode() == KeyCode.ESCAPE) {
                 selectedTerm.set(null);
                 selectedReference.set(null);
+                listener.onRemoveReferenceHighlighting();
             }
         });
-        succedentView.setOnKeyPressed(keyEvent -> {
+        succedentBox.setOnKeyPressed(keyEvent -> {
             if (keyEvent.getCode() == KeyCode.ESCAPE) {
                 selectedTerm.set(null);
                 selectedReference.set(null);
+                listener.onRemoveReferenceHighlighting();
+            }
+        });*/
+        this.historyHighlightsAntec.addListener((SetChangeListener<TermSelector>) change -> {
+            if(change.wasAdded()){
+                addStyleForTerm(change.getElementAdded(), "referenceTarget", 25, "Target");
+            } else {
+                removeStyle("Target");
             }
         });
+        this.historyHighlightsSucc.addListener((SetChangeListener<TermSelector>) change -> {
+            if(change.wasAdded()){
+                addStyleForTerm(change.getElementAdded(), "referenceTarget", 25, "Target");
+            } else {
+                removeStyle("Target");
+            }
+        });
+        goalTypeLabel.setStyle("-fx-text-fill: GRAY");
+        formulaLabels.selectedProperty().addListener((observable, oldValue, newValue) -> this.showFormulaLabels.set(newValue));
     }
+    @FXML
+    public void handleOnKeyPressed(KeyEvent event){
 
+            if (event.getCode() == KeyCode.ESCAPE) {
+                selectedTerm.set(null);
+                selectedReference.set(null);
+                listener.onRemoveReferenceHighlighting();
+            }
+
+    }
     /**
      * Adds a style class for a certain Term.
      * @param ts A termselector pointing to the term to be styled.
@@ -148,8 +220,6 @@ public class SequentController extends FxmlController {
             activeProof = proof;
             activeNode = new ProofNodeSelector();
             updateSequent(getActiveNode().getSequent(), null);
-            referenceGraph = new ReferenceGraph();
-            referenceGraph.addFromReferenceMap(pvcEntity.getLocation(), pvc.getReferenceMap());
         }
     }
 
@@ -162,10 +232,6 @@ public class SequentController extends FxmlController {
     public void forceViewSequentForPVC(PVCEntity entity, Proof proof) {
         activeProof = null;
         viewSequentForPVC(entity, proof);
-    }
-
-    public void setReferenceGraph(ReferenceGraph graph) {
-        referenceGraph = graph;
     }
 
     //SaG: was used before having exhaustive RuleApp; Remove later if no Bug is found!
@@ -261,7 +327,7 @@ public class SequentController extends FxmlController {
             proofNodeSelector.optionalGet(activeProof).ifPresent(proofNode -> {
                 activeNode = proofNodeSelector;
                 BranchInfo branchInfo = null;
-                ProofRuleApplication application = proofNode.getPsr();
+                ProofRuleApplication application = proofNode.getProofRuleApplication();
                 if (application != null) {
                     branchInfo = application.getBranchInfo().get(
                             proofNodeSelector.getPath()[proofNodeSelector.getPath().length - 1]
@@ -274,12 +340,12 @@ public class SequentController extends FxmlController {
     }
 
     private void updateSequent(Sequent sequent, BranchInfo branchInfo) {
-        antecedentView.getItems().setAll(calculateAssertions(sequent.getAntecedent(), TermSelector.SequentPolarity.ANTECEDENT, branchInfo));
-        List<ViewFormula> after = calculateAssertions(sequent.getSuccedent(), TermSelector.SequentPolarity.SUCCEDENT, branchInfo);
-        succedentView.getItems().setAll(after);
+        antecedentBox.getChildren().setAll(calculateAssertions(sequent.getAntecedent(), TermSelector.SequentPolarity.ANTECEDENT, branchInfo));
+        List<FormulaCell> after = calculateAssertions(sequent.getSuccedent(), TermSelector.SequentPolarity.SUCCEDENT, branchInfo);
+        succedentBox.getChildren().setAll(after);
     }
 
-    private List<ViewFormula> calculateAssertions(List<ProofFormula> proofFormulas, TermSelector.SequentPolarity polarity, BranchInfo branchInfo) {
+    private List<FormulaCell> calculateAssertions(List<ProofFormula> proofFormulas, TermSelector.SequentPolarity polarity, BranchInfo branchInfo) {
         ArrayList<ViewFormula> formulas = new ArrayList<>(proofFormulas.size());
 
         int deletedFormulas = 0;
@@ -311,7 +377,7 @@ public class SequentController extends FxmlController {
                 }
 
                 if (!modifiedParts.isEmpty()) {
-                    formulas.add(new ViewFormula(i, term, ViewFormula.Type.CHANGED, polarity, modifiedParts));
+                    formulas.add(new ViewFormula(i, term, ViewFormula.Type.CHANGED, polarity, modifiedParts, proofFormulas.get(i).getLabels()));
                     continue formulaLoop;
                 }
 
@@ -321,13 +387,13 @@ public class SequentController extends FxmlController {
 
                 for (ProofFormula deleted : deletions) {
                     if (proofFormulas.get(i).getTerm().equals(deleted.getTerm())) {
-                        formulas.add(new ViewFormula(Short.MAX_VALUE, deleted.getTerm(), ViewFormula.Type.DELETED, polarity));
+                        formulas.add(new ViewFormula(Short.MAX_VALUE, deleted.getTerm(), ViewFormula.Type.DELETED, polarity, deleted.getLabels()));
                         deletedFormulas++;
                         continue formulaLoop;
                     }
                 }
             }
-            formulas.add(new ViewFormula(i, proofFormulas.get(i).getTerm(), ViewFormula.Type.ORIGINAL, polarity));
+            formulas.add(new ViewFormula(i, proofFormulas.get(i).getTerm(), ViewFormula.Type.ORIGINAL, polarity, proofFormulas.get(i).getLabels()));
         }
 
         // render additions on the sequent
@@ -337,10 +403,11 @@ public class SequentController extends FxmlController {
                     : branchInfo.getAdditions().getSuccedent();
 
             for (ProofFormula addition : additions) {
-                formulas.add(new ViewFormula(formulas.size() - deletedFormulas, addition.getTerm(), ViewFormula.Type.ADDED, polarity));
+                formulas.add(new ViewFormula(formulas.size() - deletedFormulas, addition.getTerm(), ViewFormula.Type.ADDED, polarity, addition.getLabels()));
             }
         }
-        return formulas;
+        return formulas.stream().map(formula -> new FormulaCell(selectedTerm, selectedReference, styles, formula, showFormulaLabels, this.fontsizeProperty)).collect(Collectors.toList());
+
     }
 
     private void updateGoalTypeLabel() {
@@ -350,12 +417,20 @@ public class SequentController extends FxmlController {
                 if (node.isClosed()) {
                     goalTypeLabel.setText("Closed Goal");
                     goalTypeLabel.setGraphic(FontAwesomeIconFactory.get().createIcon(FontAwesomeIcon.CHECK));
+                    goalTypeLabel.setStyle("-fx-text-fill: GREEN");
+                  //  Background b = new Background(new BackgroundFill(Color.rgb(22, 143, 43,0.5), null, null));
+                  //  antecedentBox.setBackground(b);
+                  //  succedentBox.setBackground(b);
+
+
                 } else {
                     goalTypeLabel.setText("Open Goal");
                     goalTypeLabel.setGraphic(FontAwesomeIconFactory.get().createIcon(FontAwesomeIcon.BULLSEYE));
+                    goalTypeLabel.setStyle("-fx-text-fill: RED");
                 }
             } else {
                 goalTypeLabel.setText("Node");
+                goalTypeLabel.setStyle("-fx-text-fill: GRAY");
                 goalTypeLabel.setGraphic(null);
             }
         } catch (RuleException e) {
@@ -366,18 +441,19 @@ public class SequentController extends FxmlController {
     }
 
 
-    private Callback<ListView<ViewFormula>, ListCell<ViewFormula>> makeTermCellFactory() {
+  /*  private Callback<ListView<ViewFormula>, ListCell<ViewFormula>> makeTermCellFactory() {
+        //add highlights to style
         return listView -> new FormulaCell(selectedTerm, selectedReference, styles);
-    }
+    }*/
 
-    private ProofTermReference attachCurrentActiveProof(TermSelector selector) {
+    private ProofTermReferenceTarget attachCurrentActiveProof(TermSelector selector) {
         if (activeNode != null) {
-            return new ProofTermReference(activeNode, selector);
+            return new ProofTermReferenceTarget(activeNode, selector);
         }
         return null;
     }
 
-    private TermSelector termSelectorFromReference(ProofTermReference reference) {
+    private TermSelector termSelectorFromReference(ProofTermReferenceTarget reference) {
         if (activeProof != null && reference.getProofNodeSelector() == activeNode) {
             return reference.getTermSelector();
         } else {
@@ -386,8 +462,8 @@ public class SequentController extends FxmlController {
     }
 
     public void clear() {
-        antecedentView.getItems().clear();
-        succedentView.getItems().clear();
+        antecedentBox.getChildren().clear();
+        succedentBox.getChildren().clear();
     }
 
     public ProofNode getActiveNode() {
@@ -398,17 +474,11 @@ public class SequentController extends FxmlController {
         }
     }
 
-    public ReferenceGraph getReferenceGraph() {
-        return referenceGraph;
-    }
 
     public Proof getActiveProof() {
         return activeProof;
     }
 
-    public TermSelector referenceSelection() {
-        return selectedReference.get();
-    }
 
     public void setActiveNode(ProofNodeSelector pns) {
         activeNode = pns;
@@ -421,5 +491,27 @@ public class SequentController extends FxmlController {
     public ProofNodeSelector getActiveNodeSelector() {
         return activeNode;
     }
+
+    public void updateSequentController(ProofNodeSelector selector, Proof activeProof, Set<ProofTermReferenceTarget> collect) {
+        this.setActiveNode(selector);
+        this.setActiveProof(activeProof);
+        Set<TermSelector> filteredTargets = collect.stream().map(ProofTermReferenceTarget::getTermSelector).collect(Collectors.toSet());
+        this.setHistoryHighlights(FXCollections.observableSet(filteredTargets));
+        this.viewProofNode(selector);
+
+
+    }
+
+    /**
+     * Set the information which term to highlight for history highlighting. This method already divides the information acc. to the sequent polarity
+     */
+    private void setHistoryHighlights(ObservableSet<TermSelector> termsToHighlight) {
+        Set<TermSelector> antec = termsToHighlight.stream().filter(termSelector -> termSelector.getPolarity() == TermSelector.SequentPolarity.ANTECEDENT).collect(Collectors.toSet());
+        Set<TermSelector> succ = termsToHighlight.stream().filter(termSelector -> termSelector.getPolarity() == TermSelector.SequentPolarity.SUCCEDENT).collect(Collectors.toSet());
+        this.historyHighlightsAntec.addAll(antec);
+        this.historyHighlightsSucc.addAll(succ);
+
+    }
+
 
 }
