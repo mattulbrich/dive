@@ -60,6 +60,9 @@ application {
     ]
 }
 
-    shadowJar {
-        mergeServiceFiles()
-    }
+
+// Merging Service Files
+shadowJar {
+    mergeServiceFiles()
+}
+
