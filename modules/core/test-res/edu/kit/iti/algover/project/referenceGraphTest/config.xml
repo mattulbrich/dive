@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <configuration>
     <dafnyFile>test.dfy</dafnyFile>
-    <libFile>/home/sarah/Documents/KIT_Mitarbeiter/DissTool/workspace/DIVE/modules/core/res/edu/kit/iti/algover/project/lib/int.dfy</libFile>
+    <libFile>$dive/int.dfy</libFile>
     <settings>
 
             <entry>
