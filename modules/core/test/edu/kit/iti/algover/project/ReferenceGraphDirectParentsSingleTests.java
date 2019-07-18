@@ -1,5 +1,6 @@
 package edu.kit.iti.algover.project;
 
+import com.sun.source.tree.AssertTree;
 import edu.kit.iti.algover.parser.DafnyException;
 import edu.kit.iti.algover.parser.DafnyParserException;
 import edu.kit.iti.algover.proof.Proof;
@@ -169,16 +170,18 @@ public class ReferenceGraphDirectParentsSingleTests {
     }
 
     @Test
-    public void testReplacedTerm() throws FormatException {
-        /*Proof proofConj = pm.getProofForPVC("simpleSplit/Post");
-        proofConj.setScriptTextAndInterpret("orRight on= '|- _ || _';");
+    public void testReplacedTerm() throws FormatException, RuleException {
+        Proof proofDisj = pm.getProofForPVC("simpleSplit/Post");
+        proofDisj.setScriptTextAndInterpret("orRight on= '|- _ || _';");
         ProofNodeSelector lastNode = ProofUtils.computeProofNodeSelector("0");
-        ProofTermReferenceTarget b = new ProofTermReferenceTarget(lastNode, new TermSelector("S.0.1"));
-        Set<ProofTermReferenceTarget> directParents = proofConj.getGraph().findDirectParents(b, proofConj);
-        directParents.forEach(proofTermReferenceTarget -> {
-            System.out.println("proofTermReferenceTarget.getProofNodeSelector() = " + proofTermReferenceTarget.getProofNodeSelector());
-            System.out.println(ReferenceGraph.computeTermValue(proofTermReferenceTarget.getProofNodeSelector(), proofTermReferenceTarget.getTermSelector(), proofConj));
-        });*/
+        ProofTermReferenceTarget right = new ProofTermReferenceTarget(lastNode, new TermSelector("S.0.1"));
+        Set<ProofTermReferenceTarget> directParents = proofDisj.getGraph().findDirectParents(right, proofDisj);
+        Assert.assertTrue(directParents.size()==1);
+        ProofTermReferenceTarget directParentTarget = directParents.iterator().next();
+        Assert.assertTrue(directParentTarget.getTermSelector().equals(new TermSelector("S.0.0.1")));
+        Assert.assertTrue(HistoryProofUtils.compareTerms(right, directParentTarget, proofDisj));
+
+        //proofDisj.setScriptTextAndInterpret("orRight on= '|- _ || _';\n plus_0 on='|- ... ((?match: a + 0)) ...';");
 
 
         Proof proof = pm.getProofForPVC("simpleSplit/Post.1");
@@ -186,8 +189,8 @@ public class ReferenceGraphDirectParentsSingleTests {
         ProofNodeSelector lastNodeP = ProofUtils.computeProofNodeSelector("0");
         ProofTermReferenceTarget select = new ProofTermReferenceTarget(lastNodeP, new TermSelector("S.0"));
         Set<ProofTermReferenceTarget> directParentsP = proof.getGraph().findDirectParents(select, proof);
-        //TODO
-
+        Assert.assertTrue(directParentsP.size() == 2);
+        //TODO, here we want distinction between reoccurrence and context/explanation
 
     }
 

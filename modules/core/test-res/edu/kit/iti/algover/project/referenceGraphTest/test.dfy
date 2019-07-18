@@ -29,13 +29,13 @@ ensures a
 
 }
 
+
+
 method simpleSplit(a: int, b:int)
 requires a>0 && b>b
-ensures a ==1 || b == 2
+ensures a+0 ==a || b == 2
 ensures a <=0 && b<=0
 {
 
 }
-
-
 
