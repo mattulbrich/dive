@@ -140,7 +140,7 @@ public class EditorController implements DafnyCodeAreaListener, ReferenceHighlig
                 tab.setText(file.getName());
                 tab.setTooltip(new Tooltip(file.getAbsolutePath()));
                 tab.setUserData(fileName);
-                if(!file.isAbsolute()) {
+                if(!file.isAbsolute() && !file.toString().startsWith("$dive/")) {
                     file = new File(baseDir, fileName);
                 }
                 String contentAsText = fileToString(file.getPath());
