@@ -1,20 +1,25 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <configuration>
+    <baseDir>/home/sarah/Documents/KIT_Mitarbeiter/DissTool/workspace/DIVE/modules/core/test-res/edu/kit/iti/algover/project/referenceGraphTest</baseDir>
     <dafnyFile>test.dfy</dafnyFile>
+    <libFile>$dive/prop.dfy</libFile>
     <libFile>$dive/int.dfy</libFile>
     <settings>
-
-            <entry>
-                <key>KeY Timeout</key>
-                <value>10</value>
-            </entry>
-            <entry>
-                <key>Dafny Timeout</key>
-                <value>5</value>
-            </entry>
-            <entry>
-                <key>SMT Timeout</key>
-                <value>10</value>
-            </entry>
+        <entry>
+            <key>KeY Timeout</key>
+            <value>10</value>
+        </entry>
+        <entry>
+            <key>Dafny Timeout</key>
+            <value>5</value>
+        </entry>
+        <entry>
+            <key>SMT Timeout</key>
+            <value>10</value>
+        </entry>
+        <entry>
+            <key>Sequent Generation Type</key>
+            <value>ass-simp</value>
+        </entry>
     </settings>
 </configuration>

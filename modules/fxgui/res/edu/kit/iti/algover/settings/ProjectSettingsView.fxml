@@ -4,9 +4,11 @@
 <?import javafx.scene.layout.*?>
 
 <?import javafx.geometry.Insets?>
-<?import com.jfoenix.controls.JFXListView?>
 
-<?import com.jfoenix.controls.JFXRadioButton?>
+<?import com.jfoenix.controls.JFXListView?>
+<?import org.controlsfx.control.CheckListView?>
+
+        <?import com.jfoenix.controls.JFXRadioButton?>
 <?import de.jensd.fx.glyphs.materialicons.MaterialIconView?>
 <?import de.jensd.fx.glyphs.materialdesignicons.MaterialDesignIconView?>
 <?import de.jensd.fx.glyphs.fontawesome.FontAwesomeIconView?>
@@ -69,7 +71,7 @@
                         <Region prefHeight="40" VBox.vgrow="ALWAYS"></Region>
                         <VBox fx:id="dafnylibFilesBox" alignment="CENTER_LEFT" spacing="10">
                             <HBox>
-                                <Label text="Dafny Library files" alignment="CENTER_LEFT" ></Label>
+                                <Label text="Project Library files" alignment="CENTER_LEFT" ></Label>
                                 <Region prefWidth="40" HBox.hgrow="ALWAYS"></Region>
                                 <Button fx:id="addLibFilesButton" alignment="CENTER_RIGHT"  onAction="#addLibFile">
                                         <graphic>
@@ -87,6 +89,16 @@
                             <JFXListView fx:id="libFiles" prefWidth="550.0" prefHeight="100">
                             </JFXListView>
                         </VBox>
+                        <Region prefHeight="40" VBox.vgrow="ALWAYS"></Region>
+                        <VBox fx:id="internalLibFilesBox" alignment="CENTER_LEFT" spacing="10">
+                            <HBox>
+                                <Label text="Project Library files" alignment="CENTER_LEFT" ></Label>
+                                <Region prefWidth="40" HBox.hgrow="ALWAYS"></Region>
+                            </HBox>
+                            <CheckListView fx:id="internalLibFiles" prefWidth="550.0" prefHeight="100">
+                            </CheckListView>
+                        </VBox>
+
                         <Separator></Separator>
                         <Region prefHeight="40" VBox.vgrow="ALWAYS"></Region>
                         <Label text="Solver and Translation Settings" styleClass="settings-h1"></Label>
