@@ -127,12 +127,14 @@ public class DafnyFunctionEntity extends AbstractCallEntity {
     @Override
     public Node getNode() {
         VBox vbox= new VBox();
+        vbox.setBackground(WHITE_BACKGROUND);
         Label name;
         if(isCall()) {
             name = new Label(headerText + " (line" + getUsageLine() + ")");
         } else {
             name = new Label ("Of "+getEntity().getName()+ " in line" + getUsageLine());
         }
+        name.setStyle("-fx-font-weight: bold");
         name.setOnMouseClicked(event -> {
             listener.onRequestHighlight(callTree.getFilename(), callTree.getStartToken(), callTree.getStopToken());
         });

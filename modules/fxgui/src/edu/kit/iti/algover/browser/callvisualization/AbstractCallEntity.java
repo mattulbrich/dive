@@ -25,6 +25,7 @@ public abstract class AbstractCallEntity {
         METHOD, FUNCTION, FIELD, CLASS
     }
 
+    public Background WHITE_BACKGROUND = new Background(new BackgroundFill(Color.WHITE, null, null));
 
     public abstract boolean isCall();
 

@@ -51,9 +51,13 @@ public class SimpleListVisualizationPane extends DialogPane {
         }
         calls.forEach(abstractCallEntity -> {
             listV.getChildren().add(abstractCallEntity.getNode());
-            listV.getChildren().add(new Separator(Orientation.HORIZONTAL));
+            Separator e = new Separator(Orientation.HORIZONTAL);
+            e.setPadding(new Insets(10,0,10,0));
+            listV.getChildren().add(e);
         });
-        listV.getChildren().add(new Separator(Orientation.HORIZONTAL));
+        Separator e = new Separator(Orientation.HORIZONTAL);
+        e.setPadding(new Insets(10,0,10,0));
+        listV.getChildren().add(e);
 
 
         if(!callsites.isEmpty()){
