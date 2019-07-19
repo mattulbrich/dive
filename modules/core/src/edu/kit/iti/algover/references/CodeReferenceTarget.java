@@ -18,12 +18,20 @@ import org.antlr.runtime.Token;
  */
 public class CodeReferenceTarget extends ReferenceTarget {
 
-    private final DafnyFile file;
+    //private final DafnyFile file;
     private final Token startToken;
     private final Token endToken;
+    private final String filename;
 
     public CodeReferenceTarget(DafnyFile file, Token startToken, Token endToken) {
-        this.file = file;
+        //this.file = file;
+        this.filename = file.getFilename();
+        this.startToken = startToken;
+        this.endToken = endToken;
+    }
+
+    public CodeReferenceTarget(String filename, Token startToken, Token endToken) {
+        this.filename = filename;
         this.startToken = startToken;
         this.endToken = endToken;
     }
@@ -33,8 +41,12 @@ public class CodeReferenceTarget extends ReferenceTarget {
         return visitor.visit(this);
     }
 
-    public DafnyFile getFile() {
+  /*  public DafnyFile getFile() {
         return file;
+    }*/
+
+    public String getFile(){
+        return filename;
     }
 
     public Token getStartToken() {
@@ -48,7 +60,7 @@ public class CodeReferenceTarget extends ReferenceTarget {
     @Override
     public String toString() {
         return "CodeReference{" +
-                "file=" + file +
+                "file=" + filename +
                 ", startToken=" + startToken +
                 ", endToken=" + endToken +
                 '}';
@@ -61,7 +73,8 @@ public class CodeReferenceTarget extends ReferenceTarget {
 
         CodeReferenceTarget that = (CodeReferenceTarget) o;
 
-        if (!file.getFilename().equals(that.file.getFilename())) return false;
+        //if (!file.getFilename().equals(that.file.getFilename())) return false;
+        if (!filename.equals(that.filename)) return false;
         if (startToken.getLine() != that.startToken.getLine()) return false;
         if (startToken.getCharPositionInLine() != that.startToken.getCharPositionInLine()) return false;
         if (endToken.getLine() != that.endToken.getLine()) return false;
@@ -70,7 +83,7 @@ public class CodeReferenceTarget extends ReferenceTarget {
 
     @Override
     public int hashCode() {
-        int result = file.getFilename().hashCode();
+        int result = filename.hashCode();
         result = 31 * result + startToken.hashCode();
         result = 31 * result + endToken.hashCode();
         return result;

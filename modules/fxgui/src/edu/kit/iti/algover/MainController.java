@@ -9,16 +9,17 @@ import com.jfoenix.controls.JFXButton;
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon;
 import de.jensd.fx.glyphs.fontawesome.utils.FontAwesomeIconFactory;
 import edu.kit.iti.algover.browser.BrowserController;
+import edu.kit.iti.algover.browser.callvisualization.CallVisualizationDialog;
 import edu.kit.iti.algover.browser.FlatBrowserController;
 import edu.kit.iti.algover.browser.TreeTableEntityContextMenuStrategyHelper;
+import edu.kit.iti.algover.browser.callvisualization.CallVisualizationModel;
+import edu.kit.iti.algover.browser.entities.DafnyEntityGetterVisitor;
 import edu.kit.iti.algover.browser.entities.PVCEntity;
 import edu.kit.iti.algover.browser.entities.PVCGetterVisitor;
 import edu.kit.iti.algover.browser.entities.TreeTableEntity;
-import edu.kit.iti.algover.dafnystructures.DafnyClass;
-import edu.kit.iti.algover.dafnystructures.DafnyFile;
-import edu.kit.iti.algover.dafnystructures.DafnyFunction;
-import edu.kit.iti.algover.dafnystructures.DafnyMethod;
+import edu.kit.iti.algover.dafnystructures.*;
 import edu.kit.iti.algover.editor.EditorController;
+import edu.kit.iti.algover.parser.DafnyTree;
 import edu.kit.iti.algover.project.ProjectManager;
 import edu.kit.iti.algover.referenceHighlighting.ReferenceGraphController;
 import edu.kit.iti.algover.proof.*;
@@ -204,6 +205,43 @@ public class MainController implements SequentActionListener, RuleApplicationLis
         MenuItem tryCloseAll = new MenuItem("Try to close selected PVC(s)");
         tryCloseAll.setOnAction(this::trivialStratContextMenuAction);
         browserContextMenu.getItems().addAll(tryCloseAll);
+        MenuItem showCalled = new MenuItem("Show called and calling entities");
+        showCalled.setOnAction(this::showCalledEntities);
+        browserContextMenu.getItems().addAll(showCalled);
+
+    }
+
+
+    private void showCalledEntities(ActionEvent actionEvent) {
+        try {
+            TreeItem<TreeTableEntity> selectedItem = browserController.getView().getSelectionModel().getSelectedItem();
+            TreeTableEntity value = selectedItem.getValue();
+            DafnyDecl accept = value.accept(new DafnyEntityGetterVisitor());
+            if(accept != null){
+
+                Collection<DafnyTree> calls = manager.getProject().getCallgraph().getCalls(accept);
+                Collection<DafnyTree> callsites = manager.getProject().getCallgraph().getCallsites(accept);
+
+                if(!calls.isEmpty() || !callsites.isEmpty()){
+                    CallVisualizationModel model = new CallVisualizationModel(manager.getProject().getCallgraph(), accept, calls, callsites);
+                    CallVisualizationDialog d = new CallVisualizationDialog(model, lookup);
+                    d.setResizable(true);
+                    d.onShownProperty().addListener(e -> {
+                        Platform.runLater(() -> d.setResizable(false));
+                    });
+                    Optional<ButtonType> buttonType = d.showAndWait();
+                    if(buttonType.get() == ButtonType.CLOSE){
+                        editorController.removeReferenceHighlighting();
+                    }
+                }
+
+            } else {
+                 Logger.getGlobal().info("Please select a method or function in the browser tree.");
+            }
+        } catch (NullPointerException npe){
+            Logger.getGlobal().info("Please select an item in the browser tree.");
+
+        }
     }
 
     private void trivialStratContextMenuAction(ActionEvent event){

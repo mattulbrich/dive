@@ -67,6 +67,11 @@
     -fx-opacity: 0;
 }
 
+.call-table-header-default {
+    -fx-control-inner-background: #807e83;
+
+}
+
 .undecorated-button {
     -fx-padding: 0 0 0 0;
     -fx-border: none;
