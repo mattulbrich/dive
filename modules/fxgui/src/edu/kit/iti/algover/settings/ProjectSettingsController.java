@@ -61,6 +61,15 @@ public class ProjectSettingsController implements ISettingsController {
     private Node settingsPanel;
 
     @FXML
+    private VBox dafnyInputFilesBox;
+
+    @FXML
+    private VBox dafnylibFilesBox;
+
+    @FXML
+    private VBox internalLibFilesBox;
+
+    @FXML
     private VBox projectConfigSettings;
 
     @FXML
@@ -185,6 +194,7 @@ public class ProjectSettingsController implements ISettingsController {
 
         addProjectContents();
         addCellFactories();
+        setTooltips();
 
         this.config.addListener((observable, oldValue, newValue) -> {
             if(newValue != null) {
@@ -213,8 +223,14 @@ public class ProjectSettingsController implements ISettingsController {
 
     }
 
-
-
+    private void setTooltips() {
+        projectPath.setTooltip(new Tooltip("Choose the base directory where all project specific files are located"));
+        xmlFormat.setTooltip(new Tooltip("Select if you wish to save your project in an external XML-file in your base directory"));
+        dfyFormat.setTooltip(new Tooltip("Select if you wish to save your project settings as header in the master Dafny file"));
+        internalLibFiles.setTooltip(new Tooltip("Select available internal library files containing definitions of rules (e.g., integer simplification rules in int.dfy"));
+        dafnyFiles.setTooltip(new Tooltip("Add all Dafny files that are subject for verification. For all entities in the added files DIVE generates verification conditions."));
+        libFiles.setTooltip(new Tooltip("Add all project specific lemma or library files. the file extension must be .dfy. For library files no verification conditions are generated"));
+    }
 
 
     /**

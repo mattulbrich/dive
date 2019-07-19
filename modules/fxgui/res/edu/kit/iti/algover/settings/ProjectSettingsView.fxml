@@ -8,9 +8,7 @@
 <?import com.jfoenix.controls.JFXListView?>
 <?import org.controlsfx.control.CheckListView?>
 
-        <?import com.jfoenix.controls.JFXRadioButton?>
-<?import de.jensd.fx.glyphs.materialicons.MaterialIconView?>
-<?import de.jensd.fx.glyphs.materialdesignicons.MaterialDesignIconView?>
+<?import com.jfoenix.controls.JFXRadioButton?>
 <?import de.jensd.fx.glyphs.fontawesome.FontAwesomeIconView?>
 <VBox fx:id="container" xmlns="http://javafx.com/javafx"
       xmlns:fx="http://javafx.com/fxml"
@@ -20,7 +18,7 @@
                         <Label text="Project Configuration Settings" styleClass="settings-h1" ></Label>
                         <Region prefHeight="40" VBox.vgrow="ALWAYS"></Region>
                         <HBox fx:id="projectNameHBox" alignment="CENTER_LEFT" spacing="30">
-                            <Label text="Base directory of the project" alignment="CENTER_LEFT"></Label>
+                            <Label text="Base directory of the project" alignment="CENTER_LEFT" ></Label>
                             <TextField fx:id="projectPath" editable="true" HBox.hgrow="ALWAYS"></TextField>
                             <Button fx:id="fileChooserButton" text="..." onAction="#openDirChooser"></Button>
                         </HBox>
@@ -28,8 +26,8 @@
                         <Region prefHeight="20" VBox.vgrow="ALWAYS"></Region>
                         <HBox alignment="CENTER_LEFT" spacing="30">
                             <VBox alignment="CENTER_LEFT" spacing="20">
-                                <JFXRadioButton fx:id="xmlFormat" text="XML-Format"></JFXRadioButton>
-                                <JFXRadioButton fx:id="dfyFormat" text="Dafny-Format"></JFXRadioButton>
+                                <JFXRadioButton fx:id="xmlFormat" text="XML-Format" ></JFXRadioButton>
+                                <JFXRadioButton fx:id="dfyFormat" text="Dafny-Format" ></JFXRadioButton>
                             </VBox>
                             <HBox alignment="CENTER_LEFT" spacing="30"  HBox.hgrow="ALWAYS">
                             <VBox alignment="CENTER_LEFT" spacing="20" >
@@ -71,7 +69,7 @@
                         <Region prefHeight="40" VBox.vgrow="ALWAYS"></Region>
                         <VBox fx:id="dafnylibFilesBox" alignment="CENTER_LEFT" spacing="10">
                             <HBox>
-                                <Label text="Project Library files" alignment="CENTER_LEFT" ></Label>
+                                <Label text="Project Library files/Lemma Files" alignment="CENTER_LEFT" ></Label>
                                 <Region prefWidth="40" HBox.hgrow="ALWAYS"></Region>
                                 <Button fx:id="addLibFilesButton" alignment="CENTER_RIGHT"  onAction="#addLibFile">
                                         <graphic>
@@ -92,7 +90,7 @@
                         <Region prefHeight="40" VBox.vgrow="ALWAYS"></Region>
                         <VBox fx:id="internalLibFilesBox" alignment="CENTER_LEFT" spacing="10">
                             <HBox>
-                                <Label text="Project Library files" alignment="CENTER_LEFT" ></Label>
+                                <Label text="Internal Library files" alignment="CENTER_LEFT" ></Label>
                                 <Region prefWidth="40" HBox.hgrow="ALWAYS"></Region>
                             </HBox>
                             <CheckListView fx:id="internalLibFiles" prefWidth="550.0" prefHeight="100">
