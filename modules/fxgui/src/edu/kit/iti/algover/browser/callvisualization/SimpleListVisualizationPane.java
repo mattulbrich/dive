@@ -44,16 +44,18 @@ public class SimpleListVisualizationPane extends DialogPane {
 
         VBox listV = new VBox();
         listV.setPadding(new Insets(40,10,40,10));
+        listV.setSpacing(15);
+
         if(!calls.isEmpty()){
             Label callCat = new Label("Calls:");
-            callCat.setStyle("-fx-font-weight: bold;");
+            callCat.setStyle("-fx-font-weight: bold; -fx-font-size: 14pt");
             listV.getChildren().add(callCat);
         }
         calls.forEach(abstractCallEntity -> {
             listV.getChildren().add(abstractCallEntity.getNode());
-            Separator e = new Separator(Orientation.HORIZONTAL);
-            e.setPadding(new Insets(10,0,10,0));
-            listV.getChildren().add(e);
+            //Separator e = new Separator(Orientation.HORIZONTAL);
+            //e.setPadding(new Insets(10,0,10,0));
+            //listV.getChildren().add(e);
         });
         Separator e = new Separator(Orientation.HORIZONTAL);
         e.setPadding(new Insets(10,0,10,0));
@@ -62,14 +64,14 @@ public class SimpleListVisualizationPane extends DialogPane {
 
         if(!callsites.isEmpty()){
             Label callCat = new Label("Callsites:");
-            callCat.setStyle("-fx-font-weight: bold;");
+            callCat.setStyle("-fx-font-weight: bold; -fx-font-size: 14pt;");
             listV.getChildren().add(callCat);
 
         }
 
         callsites.forEach(abstractCallEntity -> {
             listV.getChildren().add(abstractCallEntity.getNode());
-            listV.getChildren().add(new Separator(Orientation.HORIZONTAL));
+            //listV.getChildren().add(new Separator(Orientation.HORIZONTAL));
         });
      /*   listview.setCellFactory(new Callback<ListView<AbstractCallEntity>, ListCell<AbstractCallEntity>>() {
             @Override
@@ -115,8 +117,15 @@ public class SimpleListVisualizationPane extends DialogPane {
 
         });
         this.setContent(listview);*/
-        this.setContent(listV);
-        this.setMinWidth(600);
+
+
+        //listV.setMaxWidth(width);
+        //ScrollPane sc = new ScrollPane(listV);
+        BorderPane ac = new BorderPane();
+        ac.setCenter(listV);
+        ScrollPane sc = new ScrollPane(ac);
+        this.setContent(sc);
+        this.setMinWidth(400);
 
     }
 

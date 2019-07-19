@@ -128,6 +128,8 @@ public class DafnyFunctionEntity extends AbstractCallEntity {
     public Node getNode() {
         VBox vbox= new VBox();
         vbox.setBackground(WHITE_BACKGROUND);
+        vbox.setSpacing(10);
+
         Label name;
         if(isCall()) {
             name = new Label(headerText + " (line" + getUsageLine() + ")");
@@ -139,7 +141,9 @@ public class DafnyFunctionEntity extends AbstractCallEntity {
             listener.onRequestHighlight(callTree.getFilename(), callTree.getStartToken(), callTree.getStopToken());
         });
         vbox.getChildren().add(name);
-        vbox.getChildren().add(createArgumentView(paramArgsList, listener));
+        if(!paramArgsList.isEmpty()) {
+            vbox.getChildren().add(createArgumentView(paramArgsList, listener));
+        }
         if(fPre.size() > 0) {
             vbox.getChildren().add(createPreconditionView(fPre, listener));
         }

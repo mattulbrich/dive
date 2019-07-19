@@ -51,9 +51,11 @@ public abstract class AbstractCallEntity {
 
     public Node createDecreasesView(DafnyTree decreasesClause, HighlightingHandler listener) {
         VBox vbox = new VBox();
-        Label header = new Label("Decreases Clause: \n" + decreasesClause.accept(new DafnyFunctionEntity.DafnySpecTreeStringVisitor(), null));
-        header.setOnMouseClicked(event -> listener.onRequestHighlight(decreasesClause.getFilename(), decreasesClause.getStartToken(), decreasesClause.getStopToken()));
-        vbox.getChildren().add(header);
+        Label header = new Label("Decreases Clause:");
+        Label decrs = new Label(decreasesClause.accept(new DafnyFunctionEntity.DafnySpecTreeStringVisitor(), null));
+        header.setStyle("-fx-font-weight: bold");
+        decrs.setOnMouseClicked(event -> listener.onRequestHighlight(decreasesClause.getFilename(), decreasesClause.getStartToken(), decreasesClause.getStopToken()));
+        vbox.getChildren().addAll(header, decrs);
         return vbox;
     }
 
@@ -70,6 +72,7 @@ public abstract class AbstractCallEntity {
     private Node createContractView(List<DafnyTree> conditions, HighlightingHandler listener, String title){
         VBox vbox = new VBox();
         Label header = new Label(title);
+        header.setStyle("-fx-font-weight: bold");
         vbox.getChildren().add(header);
         conditions.forEach(dafnyTree -> {
             Label l = new Label(dafnyTree.accept(new DafnyFunctionEntity.DafnySpecTreeStringVisitor(), null));
@@ -83,7 +86,7 @@ public abstract class AbstractCallEntity {
 
     public Node createArgumentView(List<DafnyFunctionEntity.ParamValueObject> paramArgsList, HighlightingHandler listener) {
 
-        MigPane mp = new MigPane(new LC().wrapAfter(6).gridGapX("10px"), new AC().grow(1,4).size("pref",1,2,3,5));
+        MigPane mp = new MigPane(new LC().wrapAfter(5).gridGapX("10px"), new AC().grow(1).size("pref",0,2,3,4));
         mp.setBorder(new Border(new BorderStroke(Color.GRAY, BorderStrokeStyle.SOLID, null, new BorderWidths(1))));
         mp.add(new Label("Parameter Name"));
         Separator node = new Separator(Orientation.VERTICAL);
@@ -91,7 +94,7 @@ public abstract class AbstractCallEntity {
         mp.add(new Label("Type"));
         mp.add(new Separator(Orientation.VERTICAL));
         mp.add(new Label("Argument on call"));
-        mp.add(new Separator(Orientation.VERTICAL));
+//        mp.add(new Separator(Orientation.VERTICAL));
         paramArgsList.forEach(paramValueObject -> {
             Label pname = new Label(paramValueObject.getName());
             pname.setOnMouseClicked(event -> {
@@ -123,17 +126,17 @@ public abstract class AbstractCallEntity {
                 listener.onRequestHighlight(valueTree.getFilename(), valueTree.getStartToken(), valueTree.getStopToken());
             });
 
-            Separator s2 = new Separator(Orientation.VERTICAL);
+  /*          Separator s2 = new Separator(Orientation.VERTICAL);
             s2.setMinHeight(pValue.getMinHeight());
             s2.setMaxHeight(pValue.getMaxHeight());
             s2.setPrefHeight(pValue.getPrefHeight());
-
+*/
             mp.add(pname);
             mp.add(s);
             mp.add(ptype);
             mp.add(s1);
             mp.add(pValue);
-            mp.add(s2);
+//            mp.add(s2);
         });
         return mp;
 

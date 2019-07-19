@@ -84,12 +84,16 @@ public class DafnyMethodEntity extends AbstractCallEntity {
     @Override
     public Node getNode() {
         VBox vbox= new VBox();
+        vbox.setBackground(WHITE_BACKGROUND);
+        vbox.setSpacing(10);
         Label name = new Label(getHeaderText() + " (line" + getUsageLine()+")");
         name.setOnMouseClicked(event -> {
             listener.onRequestHighlight(callTree.getFilename(), callTree.getStartToken(), callTree.getStopToken());
         });
         vbox.getChildren().add(name);
-        vbox.getChildren().add(createArgumentView(paramArgsList, listener));
+        if(!paramArgsList.isEmpty()) {
+            vbox.getChildren().add(createArgumentView(paramArgsList, listener));
+        }
         if(mPre.size() > 0) {
             vbox.getChildren().add(createPreconditionView(mPre, listener));
         }
@@ -101,10 +105,6 @@ public class DafnyMethodEntity extends AbstractCallEntity {
             vbox.getChildren().add(createDecreasesView(mDecreasesClause, listener));
         }
         return vbox;
-
-
-
-
 
     }
 

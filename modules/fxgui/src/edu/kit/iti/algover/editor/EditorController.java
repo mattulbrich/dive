@@ -94,6 +94,7 @@ public class EditorController implements DafnyCodeAreaListener, ReferenceHighlig
         view.setOnKeyReleased(this::handleShortcuts);
         lookup.register(this, ReferenceHighlightingHandler.class);
         lookup.register(this, EditorController.class);
+
     }
 
     private void handleShortcuts(KeyEvent keyEvent) {
