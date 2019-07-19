@@ -7,6 +7,8 @@ package edu.kit.iti.algover.rules;
 
 import nonnull.NonNull;
 
+import java.util.Optional;
+
 /**
  * Objects of this class contain descriptions of formal parameters to {@link
  * ProofRule}s.
@@ -19,6 +21,7 @@ import nonnull.NonNull;
  *
  * @param <T> The type of the values used in the parameter. Taken from the
  *            {@link ParameterType} provided as constructor argument.
+ *
  * @author Mattias Ulbrich
  * @see ParameterType
  * @see Parameters
@@ -43,6 +46,11 @@ public class ParameterDescription<T> {
     private final boolean required;
 
     /**
+     * This is the value this parameter will take if its not explicitly given.
+     */
+    private final Optional<T> defaultValue;
+
+    /**
      * Instantiate a new immutable parameter description.
      *
      * @param name key for the parameter
@@ -50,10 +58,23 @@ public class ParameterDescription<T> {
      * @param required is the parameter required or optional?
      */
     public ParameterDescription(@NonNull String name, @NonNull ParameterType<T> type, boolean required) {
-        super();
         this.name = name;
         this.type = type;
         this.required = required;
+        this.defaultValue = Optional.empty();
+    }
+    /**
+     * Instantiate a new immutable parameter description.
+     *
+     * @param name key for the parameter
+     * @param type type of the parameter
+     * @param required is the parameter required or optional?
+     */
+    public ParameterDescription(@NonNull String name, @NonNull ParameterType<T> type, boolean required, T defaultValue) {
+        this.name = name;
+        this.type = type;
+        this.required = required;
+        this.defaultValue = Optional.of(defaultValue);
     }
 
     /**
@@ -91,4 +112,7 @@ public class ParameterDescription<T> {
         return type;
     }
 
+    public Optional<T> getDefaultValue() {
+        return defaultValue;
+    }
 }

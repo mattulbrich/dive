@@ -3,11 +3,11 @@
 
 include "somefile"
 
-//\\ include "also/as/comment.dfy"
-//\\ settings {
-//\\   "Unknown Option" = 22
-//\\ }
-//\\ subsume "/absolute/file.dfy"
+//> include "also/as/comment.dfy"
+//> settings {
+//>   "Unknown Option" = 22
+//> }
+//> subsume "/absolute/file.dfy"
 
 
 /*

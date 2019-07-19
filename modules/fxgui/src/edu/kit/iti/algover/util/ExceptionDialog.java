@@ -9,6 +9,7 @@ import javafx.scene.layout.VBox;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 
+// TODO PLEASE document such classes, PLEASE.
 public class ExceptionDialog extends Alert {
 
     private Throwable exception;
@@ -28,7 +29,7 @@ public class ExceptionDialog extends Alert {
         
         e.printStackTrace(pw);
         String s = sw.toString();
-        System.out.println("s = " + s);
+        // System.out.println("s = " + s);
         area.setText(s);
         area.setEditable(false);
 

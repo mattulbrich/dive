@@ -21,6 +21,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 /**
+ * Controller for the tabbed view containing tabs with sequent views controlled by {@link SequentController}
  * Created by jklamroth on 6/7/18.
  */
 public class SequentTabViewController implements ReferenceHighlightingHandler {
@@ -33,6 +34,8 @@ public class SequentTabViewController implements ReferenceHighlightingHandler {
     //The collection of prooftermrefs that should be highlighted
     private Set<ProofTermReferenceTarget> referenceTargetsToHighlight;
     private ProofTermReferenceTarget lastSelectedRefTarget;
+
+    private Lookup lookup;
 
 
   /*  public void setReferenceTargetsToHighlight(Set<ProofTermReferenceTarget> referenceTargetsToHighlight) {
@@ -50,9 +53,10 @@ public class SequentTabViewController implements ReferenceHighlightingHandler {
 
     public SequentTabViewController(SequentActionListener listener, Lookup lookup) {
         this.listener = listener;
+        this.lookup = lookup;
         view = new TabPane();
         controllers = new ArrayList<>();
-        controllers.add(new SequentController(listener));
+        controllers.add(new SequentController(listener, lookup));
         view.getTabs().add(new Tab("default", controllers.get(0).getView()));
         view.getSelectionModel().selectedIndexProperty().addListener(this::onTabSelected);
         referenceTargetsToHighlight = new HashSet<>();
@@ -103,7 +107,7 @@ public class SequentTabViewController implements ReferenceHighlightingHandler {
     private void showProofNodes(List<ProofNodeSelector> proofNodeSelectors) {
         for(int i = 0; i < proofNodeSelectors.size(); ++i) {
             if(i >= view.getTabs().size()) {
-                controllers.add(new SequentController(listener));
+                controllers.add(new SequentController(listener, lookup));
                 view.getTabs().add(new Tab("default", controllers.get(i).getView()));
             }
             updateTab(proofNodeSelectors.get(i), i);
@@ -137,7 +141,7 @@ public class SequentTabViewController implements ReferenceHighlightingHandler {
 
     public void viewSequentForPVC(PVCEntity entity, Proof proof) {
         if(controllers.size() == 0) {
-            controllers.add(new SequentController(listener));
+            controllers.add(new SequentController(listener, lookup));
         } else {
             controllers.removeAll(controllers.subList(1, controllers.size()));
         }

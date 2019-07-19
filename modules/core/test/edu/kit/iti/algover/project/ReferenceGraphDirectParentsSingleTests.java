@@ -1,5 +1,6 @@
 package edu.kit.iti.algover.project;
 
+import com.sun.source.tree.AssertTree;
 import edu.kit.iti.algover.parser.DafnyException;
 import edu.kit.iti.algover.parser.DafnyParserException;
 import edu.kit.iti.algover.proof.Proof;
@@ -7,6 +8,7 @@ import edu.kit.iti.algover.proof.ProofNode;
 import edu.kit.iti.algover.proof.ProofNodeSelector;
 import edu.kit.iti.algover.references.ProofTermReferenceTarget;
 import edu.kit.iti.algover.references.ReferenceGraph;
+import edu.kit.iti.algover.references.ScriptReferenceTarget;
 import edu.kit.iti.algover.rules.RuleException;
 import edu.kit.iti.algover.rules.TermSelector;
 import edu.kit.iti.algover.term.Sequent;
@@ -147,5 +149,49 @@ public class ReferenceGraphDirectParentsSingleTests {
 
     }
 
+    /**
+     * This test test that an added Term via addHypothesis only has a scriptreference as parent and no direct parents
+     * of type ProofReferenceTarget
+     * @throws FormatException
+     */
+    @Test
+    public void testAddedTermWithScriptReference() throws FormatException {
+        Proof proofConj = pm.getProofForPVC("simpleConjunction/Post");
+        proofConj.setScriptTextAndInterpret("addHypothesis  with='a == b';");
+        ProofNodeSelector lastNode = ProofUtils.computeProofNodeSelector("0");
+        ProofTermReferenceTarget b = new ProofTermReferenceTarget(lastNode, new TermSelector("A.1"));
+        Set<ProofTermReferenceTarget> directParents = proofConj.getGraph().findDirectParents(b, proofConj);
+        Assert.assertTrue(directParents.isEmpty());
+        Set<ScriptReferenceTarget> scriptReferenceTargetSet = proofConj.getGraph().allSuccessorsWithType(b, ScriptReferenceTarget.class);
+        Assert.assertFalse(scriptReferenceTargetSet.isEmpty());
+        Assert.assertTrue(scriptReferenceTargetSet.size() == 1);
+        ScriptReferenceTarget next = scriptReferenceTargetSet.iterator().next();
+        Assert.assertEquals(next.getLinenumber(), 1);
+    }
+
+    @Test
+    public void testReplacedTerm() throws FormatException, RuleException {
+        Proof proofDisj = pm.getProofForPVC("simpleSplit/Post");
+        proofDisj.setScriptTextAndInterpret("orRight on= '|- _ || _';");
+        ProofNodeSelector lastNode = ProofUtils.computeProofNodeSelector("0");
+        ProofTermReferenceTarget right = new ProofTermReferenceTarget(lastNode, new TermSelector("S.0.1"));
+        Set<ProofTermReferenceTarget> directParents = proofDisj.getGraph().findDirectParents(right, proofDisj);
+        Assert.assertTrue(directParents.size()==1);
+        ProofTermReferenceTarget directParentTarget = directParents.iterator().next();
+        Assert.assertTrue(directParentTarget.getTermSelector().equals(new TermSelector("S.0.0.1")));
+        Assert.assertTrue(HistoryProofUtils.compareTerms(right, directParentTarget, proofDisj));
+
+        //proofDisj.setScriptTextAndInterpret("orRight on= '|- _ || _';\n plus_0 on='|- ... ((?match: a + 0)) ...';");
+
+
+        Proof proof = pm.getProofForPVC("simpleSplit/Post.1");
+        proof.setScriptTextAndInterpret("andRight on= '|- _ && _';");
+        ProofNodeSelector lastNodeP = ProofUtils.computeProofNodeSelector("0");
+        ProofTermReferenceTarget select = new ProofTermReferenceTarget(lastNodeP, new TermSelector("S.0"));
+        Set<ProofTermReferenceTarget> directParentsP = proof.getGraph().findDirectParents(select, proof);
+        Assert.assertTrue(directParentsP.size() == 2);
+        //TODO, here we want distinction between reoccurrence and context/explanation
+
+    }
 
 }

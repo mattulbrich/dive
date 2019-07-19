@@ -14,4 +14,6 @@ public interface ScriptViewListener {
     void onAsyncScriptTextChanged(String text);
 
     void runScript();
+
+    String onInsertCases();
 }

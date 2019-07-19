@@ -5,6 +5,7 @@
  */
 package edu.kit.iti.algover.settings;
 
+import edu.kit.iti.algover.Lookup;
 import edu.kit.iti.algover.MainController;
 import edu.kit.iti.algover.project.Configuration;
 import edu.kit.iti.algover.project.ProjectManager;
@@ -14,7 +15,7 @@ import java.util.prefs.Preferences;
 /**
  * Wrapper Object containing all necessary information for displaying different settings.
  * If new Settings have to be added, this class needs to be extended.
- * TODO: Rafctoring such that new settings can register their objects here
+ * TODO: Rafactoring use lookup
  */
 public class SettingsWrapper {
 
@@ -24,11 +25,15 @@ public class SettingsWrapper {
 
     private Preferences systemPrefs;
 
+    private Lookup lookup;
+
+
 
     public SettingsWrapper() {
         currentManager = null;
         config = new Configuration();
         systemPrefs = MainController.systemprefs;
+        lookup = null;
 
     }
 
@@ -54,5 +59,13 @@ public class SettingsWrapper {
 
     public void setSystemPrefs(Preferences systemPrefs) {
         this.systemPrefs = systemPrefs;
+    }
+
+    public Lookup getLookup() {
+        return lookup;
+    }
+
+    public void setLookup(Lookup lookup) {
+        this.lookup = lookup;
     }
 }

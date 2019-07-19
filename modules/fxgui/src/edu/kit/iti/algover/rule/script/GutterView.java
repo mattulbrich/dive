@@ -7,7 +7,9 @@ package edu.kit.iti.algover.rule.script;
 
 import de.jensd.fx.glyphs.materialdesignicons.MaterialDesignIcon;
 import de.jensd.fx.glyphs.materialdesignicons.MaterialDesignIconView;
+import javafx.application.Platform;
 import javafx.beans.Observable;
+import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.value.ObservableValue;
 import javafx.scene.Node;
@@ -24,6 +26,8 @@ import java.util.Arrays;
  */
 public class GutterView extends HBox {
     private final SimpleObjectProperty<GutterAnnotation> annotation = new SimpleObjectProperty<>();
+
+    private MaterialDesignIconView iconProofRef = new MaterialDesignIconView(MaterialDesignIcon.CIRCLE);
 
     private MaterialDesignIconView iconProofCommandPosition = new MaterialDesignIconView(MaterialDesignIcon.FORMAT_TEXTDIRECTION_L_TO_R);
 
@@ -43,8 +47,26 @@ public class GutterView extends HBox {
 
     private Node[] gutter = new Node[3];
 
+
+    public int getFontSizeProperty() {
+        return fontSizeProperty.get();
+    }
+
+    public SimpleIntegerProperty fontSizeProperty() {
+        return fontSizeProperty;
+    }
+
+    public void setFontSizeProperty(int fontSizeProperty) {
+        this.fontSizeProperty.set(fontSizeProperty);
+    }
+
+    //font size in pt
+    private SimpleIntegerProperty fontSizeProperty = new SimpleIntegerProperty(12);
+
     public GutterView(GutterAnnotation ga) {
+        fontSizeProperty.bind(ga.fontsizeProperty());
         gutter[0] = lineNumber;
+        lineNumber.setStyle("-fx-font-size: "+fontSizeProperty.get()+"pt;");
         if(ga.isProofNodeIsSet()) {
             if(ga.isProofNodeIsSelected())
                 gutter[1] = iconProofNodeSelected;
@@ -75,8 +97,36 @@ public class GutterView extends HBox {
             updateProofNodeSelection(observable);
         });
         setAnnotation(ga);
+        fontSizeProperty.addListener((observable, oldValue, newValue) -> {
+            System.out.println(fontSizeProperty.get());
+            double inPX = newValue.intValue() / 0.75;
+           updateFontsize(newValue.intValue(), inPX);
+           update(null);
 
+        });
         update(null);
+    }
+
+    private void updateFontsize(int pt, double px){
+        Label ln = (Label) gutter[0];
+        ln.setStyle("-fx-font-size: "+pt+"pt;");
+        if(gutter[1] instanceof MaterialDesignIconView){
+            MaterialDesignIconView materialDesignIconView = (MaterialDesignIconView) gutter[1];
+            materialDesignIconView.setGlyphSize(px);
+        } else {
+            Label g1 = (Label) gutter[1];
+            g1.setStyle("-fx-font-size: "+pt+"pt;");
+        }
+        if(gutter[2] instanceof MaterialDesignIconView){
+
+            MaterialDesignIconView materialDesignIconView = (MaterialDesignIconView) gutter[2];
+            materialDesignIconView.setGlyphSize(px);
+        } else {
+            Label g2 = (Label) gutter[2];
+            g2.setStyle("-fx-font-size: "+pt+"pt;");
+        }
+
+
     }
 
     private void updateMarker(Observable o) {
@@ -120,10 +170,19 @@ public class GutterView extends HBox {
         if(getAnnotation().isProofNodeIsSet()) {
             MaterialDesignIconView node = (MaterialDesignIconView) gutter[1];
             if (getAnnotation().proofNodeIsReferenced()) {
-                node.setFill(Color.ORANGE);
-                gutter[1] = node;
+                iconProofRef.setFill(Color.PURPLE);
+
+//                node.setFill(Color.PURPLE);
+                gutter[1] = iconProofRef;
             } else {
-                node.setFill(Color.BLACK);
+                if(getAnnotation().isProofNodeIsSelected()){
+                    iconProofNodeSelected.setFill(Color.BLACK);
+                    gutter[1] = iconProofNodeSelected;
+                } else {
+                    iconProofNodeUnSelected.setFill(Color.BLACK);
+                    gutter[1] = iconProofNodeUnSelected;
+
+                }
             }
         } else {
             gutter[1] = placeholder();
@@ -136,9 +195,11 @@ public class GutterView extends HBox {
      * @param o
      */
     public void update(Observable o){
-        getChildren().setAll(gutter[0]);
+        Platform.runLater(()-> {
+                getChildren().setAll(gutter[0]);
         getChildren().add(gutter[1]);
         getChildren().add(gutter[2]);
+        });
     }
 
 
@@ -152,8 +213,8 @@ public class GutterView extends HBox {
 
     private Label placeholder(){
         Label lbl = new Label();
-        lbl.setMinWidth(12);
-        lbl.setMinHeight(12);
+        lbl.setMinWidth(fontSizeProperty.get()/0.75);
+        lbl.setMinHeight(fontSizeProperty.get());
         return lbl;
     }
     public SimpleObjectProperty<GutterAnnotation> annotationProperty() {

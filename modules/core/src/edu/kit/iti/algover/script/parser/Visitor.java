@@ -49,6 +49,8 @@ public interface Visitor<T> {
 
     T visit(StringLiteral string);
 
+    T visit(SelectorLiteral selector);
+
     T visit(Variable variable);
 
     T visit(BooleanLiteral bool);

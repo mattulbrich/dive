@@ -269,7 +269,7 @@ public class WelcomePane {
         return event -> {
             DirectoryChooser dirChooser = new DirectoryChooser();
             //TODO: find a central place for such paths
-            dirChooser.setInitialDirectory(new File("../../doc/examples/"));
+            dirChooser.setInitialDirectory(new File("."));
             dirChooser.setTitle("Select directory");
             //first select a directory
             File file = dirChooser.showDialog(primaryStage);
@@ -289,7 +289,7 @@ public class WelcomePane {
 
 
             } else {
-                System.out.println("file was null");
+                System.out.println("The was no file created");
             }
 
         };
@@ -403,7 +403,7 @@ public class WelcomePane {
             FileChooser chooser = new FileChooser();
 
             chooser.setTitle("Choose project folder");
-            chooser.setInitialDirectory(new File("../../doc/examples/"));
+            chooser.setInitialDirectory(new File("."));
             projectFile = chooser.showOpenDialog(primaryStage);
             ProjectManager manager;
             if (projectFile == null) {

@@ -37,10 +37,12 @@ import java.util.Arrays;
  *
  * @author Sarah Grebing
  */
+// REVIEW: Is this appropriate for dive???
 public enum Type {
     STRING("string"), TERM("term"), ANY("any"),
     INT("int"), BOOL("bool"), INT_ARRAY("int[]"), OBJECT("object"),
-    HEAP("heap"), FIELD("field"), LOCSET("locset"), NULL("null"), FORMULA("formula"), SEQ("Seq");
+    HEAP("heap"), FIELD("field"), LOCSET("locset"), NULL("null"),
+    FORMULA("formula"), SEQ("Seq"), SELECTOR("sel");
 
     private final String symbol;
 

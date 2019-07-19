@@ -33,7 +33,6 @@ DIVE is open source (GPL) and written in Java.
 ## Requirements
 
 * Java (OpenJDK or Oracle JDK, at least version 11) must be installed.
-*  OpenJFX 12 must be installed.
 * Boogie must be installed and in path (and then, Z3 is also available)
 For Ubuntu (version 18.04 or higher) run `sudo apt-get install boogie`. In other cases refer to
 [Boogie Github](https://github.com/boogie-org/boogie)

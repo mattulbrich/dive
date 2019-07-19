@@ -21,6 +21,7 @@ import edu.kit.iti.algover.term.Sequent;
 import edu.kit.iti.algover.term.Term;
 import edu.kit.iti.algover.term.prettyprint.PrettyPrint;
 import edu.kit.iti.algover.util.ExceptionDialog;
+import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.fxml.FXML;
@@ -43,6 +44,7 @@ public class RuleApplicationController extends FxmlController implements Referen
     private SplitPane splitPane;
     @FXML
     private Label termToConsider;
+
     @FXML
     private RuleGrid ruleGrid;
 
@@ -176,15 +178,22 @@ public class RuleApplicationController extends FxmlController implements Referen
         try {
             ExhaustiveRule exRule = new ExhaustiveRule();
             Parameters parameters = new Parameters();
-            parameters.putValue("ruleName", rule.getName());
-            parameters.putValue("on", new TermParameter(ts, pn.getSequent()));
-            ProofRuleApplication pra = exRule.considerApplication(pn, parameters);
+            parameters.putValue(ExhaustiveRule.RULE_NAME_PARAM, rule.getName());
+            parameters.putValue(FocusProofRule.ON_PARAM, new TermParameter(ts, pn.getSequent()));
+            // MU: I have changed this from considerapplication to makeApplication
+            // This piece of code looks like suboptimal special casing. (see RuleView)
+            ProofRuleApplication pra = exRule.makeApplication(pn, parameters);
             resetConsideration();
             scriptController.insertTextForSelectedNode(pra.getScriptTranscript()+"\n");
             logger.info("Applied rule " + rule.getName() + " exhaustively.");
         } catch (RuleException e) {
             e.getMessage().concat("Error while trying to apply rule " + rule.getName() + " exhaustive.");
+
             ExceptionDialog ed = new ExceptionDialog(e);
+            ed.setResizable(true);
+            ed.onShownProperty().addListener(ev -> {
+                Platform.runLater(() -> ed.setResizable(false));
+            });
 
             logger.severe("Error while trying to apply rule " + rule.getName() + " exhaustive.");
             ed.showAndWait();

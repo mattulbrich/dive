@@ -105,7 +105,8 @@ public class TermMatcherTest {
                 {{"... ?x(:int)+_ ..."}, {"fp(?x)"}, {"(2+3)+(4+5) == 1"}, {"fp(2)", "fp(4)"}, {"[[?x => 2 / A.0.0.0.0, _0 => 3 / A.0.0.0.1, ...0 => $plus(2, 3) / A.0.0.0], [?x => 4 / A.0.0.1.0, _0 => 5 / A.0.0.1.1, ...0 => $plus(4, 5) / A.0.0.1]]"}},
                 {{"... ?x + 5 ..."}, {"... 4 + ?x ..."}, {"2 + 5 > 1"}, {"4 + 2 > 3 && true"}, {"[[?x => 2 / A.0.0.0, ...0 => $plus(2, 5) / A.0.0, ...1 => $plus(4, 2) / S.0.0.0]]"}},
                 {{"?X(:int)>?Y(:int)"}, {"fp(?Y)"}, {"1>2", "2>1", "1>1"}, {"fp(2)", "fp(1)"}, {"[[?X => 1 / A.0.0, ?Y => 2 / A.0.1], [?X => 2 / A.1.0, ?Y => 1 / A.1.1], [?X => 1 / A.2.0, ?Y => 1 / A.2.1]]"}},
-                {{"2>1"}, {}, {"f(1)==f(1)", "2>1", "2>1"}, {}, {"[[], []]"}},
+                {{"2>1"}, {}, {"f(1)==f(1)", "2>1"}, {}, {"[[]]"}},
+                {{"... 2>1 ..."}, {}, {"f(1)==f(1)", "2>1 && 2>1"}, {}, {"[[...0 => $gt(2, 1) / A.1.0], [...0 => $gt(2, 1) / A.1.1]]"}},
                 {{"...let x := 5 :: x+5 == 10..."}, {}, {"let x := 5 :: x+5 == 10"}, {}, {"[[...0 => (let x := 5 :: $eq<int>($plus(x, 5), 10)) / A.0]]"}},
 
         };
@@ -167,7 +168,7 @@ public class TermMatcherTest {
 
     @Test
     @Parameters
-    public void SequentMatch(String[] schemSeqAntec, String[] schemSeqSucc, String[] concrSeqAntec, String[] concrSeqSucc, String[] exp) throws Exception {
+    public void sequentMatch(String[] schemSeqAntec, String[] schemSeqSucc, String[] concrSeqAntec, String[] concrSeqSucc, String[] exp) throws Exception {
         ImmutableList<Matching> matchings = matchSeqHelper(schemSeqAntec, schemSeqSucc, concrSeqAntec, concrSeqSucc);
         assertEquals(exp[0], matchings.toString());
     }

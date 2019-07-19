@@ -15,10 +15,12 @@ import java.util.AbstractList;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.RandomAccess;
 import java.util.Set;
@@ -339,6 +341,62 @@ public final class Util {
     }
 
     /**
+     * Create a (mutable fresh hash) map from a a collection of values.
+     *
+     * Each value is added to the map. The key that is used is computed by the
+     * function f.
+     *
+     * If f is not injective on the collection coll, then an {@link IllegalStateException}
+     * is thrown.
+     * @param coll the collection to turn into a map.
+     * @param f the function to compute the keys.
+     * @param <K> the types of the keys (range of f)
+     * @param <V> the tapyes of data (and domain of f)
+     * @param <Ex> the exception type that f may throw
+     * @return a map that contains all tuples {@code x |-> f(x)}
+     * @throws Ex exception thrown by the function
+     */
+    public @NonNull static <K, V, Ex extends Exception>
+    Map<K, V> toMap(@NonNull Collection<V> coll, @NonNull FunctionWithException<V, K, Ex> f) throws Ex {
+        Map<K, V> result = new HashMap<>();
+        for (V element : coll) {
+            K key = f.apply(element);
+            if (result.containsKey(key)) {
+                throw new IllegalStateException("Twice the same entry");
+            }
+            result.put(key, element);
+        }
+
+        return result;
+    }
+
+    /**
+     * Escape characters using backslashes.
+     *
+     * These are the usual rules for escaping text characters. This does not
+     * work for tabs, newlines, etc. only for ", \ and '.
+     *
+     * @param string character sequence to escape
+     * @return the escaped version of the sequence.
+     */
+    public static @NonNull String escapeString(@NonNull String string) {
+        return string
+                .replace("\\", "\\\\")
+                .replace("\"", "\\\"")
+                .replace("\"", "\\\"");
+    }
+
+    /**
+     * Add quotes around a string
+     * @param string any string
+     * @return "string"
+     * @see #stripQuotes(String)
+     */
+    public static String quote(String string) {
+        return "\"" + string + "\"";
+    }
+
+    /**
      * A wrapper class for the collection framework. It renders an array into an
      * immutable list.
      *
@@ -478,4 +536,22 @@ public final class Util {
             }
         }
     }
+
+
+    /**
+     * Remove duplicates from a collection. Only the first occurrence is kept.
+     * Requires that the elements of the list implement equals nad hashcode.
+     * Requires that the iterator supports removce.
+     * ...
+     */
+    public static <T> boolean hasDuplicates(Collection<T> coll) {
+        Set<T> seen = new HashSet<T>();
+        for (T t : coll) {
+            if (seen.containsAll(coll))
+                return true;
+            seen.add(t);
+        }
+        return false;
+    }
+
 }

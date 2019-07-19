@@ -7,27 +7,29 @@ package edu.kit.iti.algover.rules.impl;
 
 import edu.kit.iti.algover.proof.ProofFormula;
 import edu.kit.iti.algover.proof.ProofNode;
-import edu.kit.iti.algover.rules.AbstractProofRule;
-import edu.kit.iti.algover.rules.ParameterDescription;
-import edu.kit.iti.algover.rules.ParameterType;
-import edu.kit.iti.algover.rules.Parameters;
-import edu.kit.iti.algover.rules.ProofRuleApplication;
-import edu.kit.iti.algover.rules.ProofRuleApplicationBuilder;
-import edu.kit.iti.algover.rules.RuleException;
-import edu.kit.iti.algover.rules.TermParameter;
-import edu.kit.iti.algover.rules.TermSelector;
+import edu.kit.iti.algover.rules.*;
+import edu.kit.iti.algover.rules.ProofRuleApplication.Applicability;
 import edu.kit.iti.algover.term.Term;
+import edu.kit.iti.algover.term.VariableTerm;
 import edu.kit.iti.algover.term.builder.TermBuildException;
 import edu.kit.iti.algover.term.builder.TermBuilder;
+
+import java.util.Set;
 
 /**
  * Created by jklamroth on 7/25/18.
  */
-public class ReplaceCutRule extends AbstractProofRule {
-    private static final ParameterDescription<TermParameter> WITH_PARAM = new ParameterDescription<>("with", ParameterType.TERM, true);
-    private static final ParameterDescription<Boolean> AUTO_PARAM = new ParameterDescription<>("auto", ParameterType.BOOLEAN, false);
+public class ReplaceCutRule extends FocusProofRule {
+
+    private static final ParameterDescription<TermParameter> WITH_PARAM =
+            new ParameterDescription<>("with", ParameterType.TERM, true);
+
+
+    private static final ParameterDescription<Boolean> AUTO_PARAM =
+            new ParameterDescription<>("auto", ParameterType.BOOLEAN, false);
+
     public ReplaceCutRule() {
-        super(ON_PARAM, WITH_PARAM, AUTO_PARAM);
+        super(WITH_PARAM, AUTO_PARAM);
     }
 
     public String getName() {
@@ -35,61 +37,52 @@ public class ReplaceCutRule extends AbstractProofRule {
     }
 
     @Override
-    protected ProofRuleApplication considerApplicationImpl(ProofNode target, Parameters parameters) throws RuleException {
-        TermParameter withParam = parameters.getValue(WITH_PARAM);
-        TermParameter onParam = parameters.getValue(ON_PARAM);
+    public String getCategory() {
+        return ProofRuleCategories.SIMPLIFICATIONS;
+    }
 
-        if(withParam == null || onParam == null) {
+    @Override
+    protected ProofRuleApplication makeApplicationImpl(ProofNode target, Parameters parameters) throws RuleException {
+        TermParameter withParam = parameters.getValue(WITH_PARAM);
+
+        if(withParam == null) {
             ProofRuleApplicationBuilder pra = new ProofRuleApplicationBuilder(this);
-            pra.setApplicability(ProofRuleApplication.Applicability.APPLICABLE);
+            pra.setApplicability(Applicability.INSTANTIATION_REQUIRED);
             return pra.build();
         }
 
+        TermParameter onParam = parameters.getValue(ON_PARAM);
         Term on = onParam.getTerm();
         Term with = withParam.getTerm();
 
         TermSelector selector = parameters.getValue(ON_PARAM).getTermSelector();
 
+        if(!on.getSort().equals(with.getSort())) {
+            throw new NotApplicableException("Found type " + with.getSort().toString() + " as replacement but original term has type "
+             + on.getSort().toString() + " (has to be the same type).");
+        }
+
         ProofRuleApplicationBuilder pra = new ProofRuleApplicationBuilder(this);
-        pra.setApplicability(ProofRuleApplication.Applicability.APPLICABLE);
         pra.newBranch().addReplacement(selector, with).setLabel("replace");
         TermBuilder tb = new TermBuilder(target.getAllSymbols());
-        Term justificationTerm = null;
         try {
-            justificationTerm = tb.eq(on, with);
+            // Probably universal closure is required here.
+            Set<VariableTerm> freeVars = FreeVarVisitor.findFreeVars(on);
+            if(!freeVars.isEmpty()) {
+                throw new NotApplicableException("The replacement-Term may not contain free variables.");
+            }
+            Term justificationTerm = tb.eq(on, with);
+            pra.newBranch().addAdditionsSuccedent(new ProofFormula(justificationTerm)).setLabel("justification");
         } catch (TermBuildException e) {
             throw new RuleException("Error building justification term: " + e.getMessage(), e);
         }
 
-        pra.newBranch().addAdditionsSuccedent(new ProofFormula(justificationTerm)).setLabel("justification");
+        // TODO: auto parameter!
 
-        return pra.build();
-    }
-
-    @Override
-    protected ProofRuleApplication makeApplicationImpl(ProofNode target, Parameters parameters) throws RuleException {
-        Term with = parameters.getValue(WITH_PARAM).getTerm();
-        Term on = parameters.getValue(ON_PARAM).getTerm();
-
-        if(with == null || on == null) {
-            throw new RuleException("With or on null");
-        }
-
-        TermSelector selector = parameters.getValue(ON_PARAM).getTermSelector();
-
-        ProofRuleApplicationBuilder pra = new ProofRuleApplicationBuilder(this);
-        pra.setApplicability(ProofRuleApplication.Applicability.APPLICABLE);
+       /* pra.setApplicability(ProofRuleApplication.Applicability.APPLICABLE);
         pra.newBranch().addReplacement(selector, with).setLabel("replace");
-        TermBuilder tb = new TermBuilder(target.getAllSymbols());
-        Term justificationTerm = null;
-        try {
-            justificationTerm = tb.eq(on, with);
-            pra.newBranch().addAdditionsSuccedent(new ProofFormula(justificationTerm)).
-                    setLabel("justification");
-        } catch (TermBuildException e) {
-            throw new RuleException("Error building justification term: " + e.getMessage(), e);
-        }
-
+*/
         return pra.build();
     }
+
 }

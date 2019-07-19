@@ -6,6 +6,7 @@
 package edu.kit.iti.algover.rule.script;
 
 import edu.kit.iti.algover.Lookup;
+import edu.kit.iti.algover.MainController;
 import edu.kit.iti.algover.editor.HighlightingRule;
 import edu.kit.iti.algover.editor.LayeredHighlightingRule;
 import edu.kit.iti.algover.proof.Proof;
@@ -15,24 +16,27 @@ import edu.kit.iti.algover.referenceHighlighting.ReferenceHighlightingObject;
 import edu.kit.iti.algover.references.ProofTermReferenceTarget;
 import edu.kit.iti.algover.references.ScriptReferenceTarget;
 import edu.kit.iti.algover.rule.RuleApplicationListener;
+import edu.kit.iti.algover.rules.RuleException;
 import edu.kit.iti.algover.script.ast.Position;
 import edu.kit.iti.algover.script.ast.ProofScript;
 import edu.kit.iti.algover.script.exceptions.ScriptCommandNotApplicableException;
 import edu.kit.iti.algover.script.parser.Facade;
 import edu.kit.iti.algover.script.parser.PrettyPrinter;
 import edu.kit.iti.algover.util.ExceptionDetails;
+import edu.kit.iti.algover.util.ExceptionDialog;
 import edu.kit.iti.algover.util.RuleApp;
 import javafx.beans.Observable;
+import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.collections.ObservableList;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyCodeCombination;
 import javafx.scene.input.KeyCombination;
 import javafx.scene.input.KeyEvent;
-import org.antlr.runtime.Token;
-import org.fxmisc.richtext.model.StyleSpans;
 import org.antlr.v4.runtime.RecognitionException;
 import org.antlr.v4.runtime.misc.ParseCancellationException;
+import org.antlr.runtime.Token;
+import org.fxmisc.richtext.model.StyleSpans;
 
 import java.awt.*;
 import java.io.StringWriter;
@@ -42,6 +46,8 @@ import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.function.Consumer;
 import java.util.logging.Logger;
+import java.util.prefs.PreferenceChangeEvent;
+import java.util.prefs.PreferenceChangeListener;
 import java.util.stream.Collectors;
 
 /**
@@ -50,10 +56,14 @@ import java.util.stream.Collectors;
 public class ScriptController implements ScriptViewListener, ReferenceHighlightingHandler {
     KeyCombination saveShortcut = new KeyCodeCombination(KeyCode.S, KeyCombination.CONTROL_DOWN);
     KeyCombination runShortcut = new KeyCodeCombination(KeyCode.R, KeyCombination.CONTROL_DOWN);
+    KeyCombination reloadAndExecuteShortcut = new KeyCodeCombination(KeyCode.E, KeyCombination.CONTROL_DOWN);
 
     private final ScriptView view;
     private final RuleApplicationListener listener;
     private ProofNodeSelector selectedNode = null;
+    private Lookup lookup;
+
+    private SimpleIntegerProperty fontSizeProperty = new SimpleIntegerProperty(12);
 
 
     /**
@@ -70,8 +80,22 @@ public class ScriptController implements ScriptViewListener, ReferenceHighlighti
         this.view.setOnKeyReleased(this::handleShortcuts);
         this.listener = listener;
         this.highlightingRules = new LayeredHighlightingRulev4(2);
+        this.lookup = lookup;
 
         lookup.register(this, ReferenceHighlightingHandler.class);
+
+        this.fontSizeProperty.setValue(MainController.systemprefs.getInt("FONT_SIZE_SCRIPT_EDITOR", 12));
+
+        MainController.systemprefs.addPreferenceChangeListener(new PreferenceChangeListener() {
+            @Override
+            public void preferenceChange(PreferenceChangeEvent preferenceChangeEvent) {
+                int font_size_seq_view1 = preferenceChangeEvent.getNode().getInt("FONT_SIZE_SCRIPT_EDITOR", 12);
+                fontSizeProperty.set(font_size_seq_view1);
+            }
+        });
+
+        view.fontsizeProperty().bind(fontSizeProperty);
+
 
         view.setHighlightingRule(this.highlightingRules);
 
@@ -116,6 +140,10 @@ public class ScriptController implements ScriptViewListener, ReferenceHighlighti
     private void handleShortcuts(KeyEvent keyEvent) {
         if (saveShortcut.match(keyEvent)) {
             listener.onScriptSave();
+        }
+        if(reloadAndExecuteShortcut.match(keyEvent)){
+            listener.onScriptSave();
+            runScript();
         }
         if (runShortcut.match(keyEvent)) {
             runScript();
@@ -243,7 +271,7 @@ public class ScriptController implements ScriptViewListener, ReferenceHighlighti
         //neuberechnen -> User
         //onCaretPositionChanged(null);
 
-          view.setStyle("-fx-background-color: #c4c1c9;");
+          view.setStyle("-fx-background-color: #c4c1c9;"+fontSizeProperty.get()+"pt;");
           view.resetGutter();
           view.requestLayout();
 
@@ -269,8 +297,14 @@ public class ScriptController implements ScriptViewListener, ReferenceHighlighti
 
             view.replaceText(pp.toString());
             //System.out.println("pp.toString() = " + pp.toString());
+        /*ProofScript ps = Facade.getAST(text);
 
-            proof.setScriptTextAndInterpret(pp.toString());
+        PrettyPrinter pp = new PrettyPrinter();
+        ps.accept(pp);
+        view.replaceText(pp.toString());
+
+        proof.setScriptTextAndInterpret(pp.toString());*/
+            proof.setScriptTextAndInterpret(text);
         } catch (ParseCancellationException pce) {
             failException = pce;
         } catch (RecognitionException re) {
@@ -279,6 +313,7 @@ public class ScriptController implements ScriptViewListener, ReferenceHighlighti
         if(failException == null) {
             failException = proof.getFailException();
         }
+
 
         if(failException != null) {
             ExceptionDetails.ExceptionReportInfo eri = ExceptionDetails.extractReportInfo(failException);
@@ -299,11 +334,18 @@ public class ScriptController implements ScriptViewListener, ReferenceHighlighti
         createVisualSelectors(checkpoints);
 
         switchViewedNode();
-        view.setStyle("-fx-background-color: white;");
+        view.setStyle("-fx-background-color: white; -fx-font-size: "+fontSizeProperty.get()+"pt;");
+    }
+
+    @Override
+    public String onInsertCases() {
+        System.out.println("TODO insert cases");
+        return "TODO";
+
     }
 
     /**
-     * Create the annotatiosn for the ScriptGutterView according to the checkpointslist
+     * Create the annotations for the ScriptGutterView according to the checkpointslist
      * @param checkpoints
      */
     private void createVisualSelectors(List<ProofNodeCheckpoint> checkpoints) {

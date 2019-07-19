@@ -23,6 +23,7 @@ import java.net.URL;
 import java.util.Collections;
 import java.util.Set;
 
+//TODO check
 @RunWith(JUnitParamsRunner.class)
 public class ReferenceGraphHistoryTest {
 
@@ -83,6 +84,7 @@ public class ReferenceGraphHistoryTest {
                         new Object[]{"0,0,0", "S.0", 3, "[ProofTermReference{proofNodeSelector=0.0, termSelector=S.0}, ProofTermReference{proofNodeSelector=<root>, termSelector=S.0}, ProofTermReference{proofNodeSelector=0, termSelector=S.0}]"},
                         new Object[]{"0,0,0", "A.0.1", 3, "[ProofTermReference{proofNodeSelector=0, termSelector=A.0.1}, ProofTermReference{proofNodeSelector=<root>, termSelector=A.0.0.1}, ProofTermReference{proofNodeSelector=0.0, termSelector=A.0.1}]"},
                         new Object[]{"0,0", "A.0", 3, "[ProofTermReference{proofNodeSelector=<root>, termSelector=A.0}, ProofTermReference{proofNodeSelector=0, termSelector=A.0}, ProofTermReference{proofNodeSelector=<root>, termSelector=A.0.0}]"},
+                        new Object[]{"0,0,0", "A.1.0", 3, "[ProofTermReference{proofNodeSelector=0, termSelector=A.2.0}, ProofTermReference{proofNodeSelector=0.0, termSelector=A.1.0}, ProofTermReference{proofNodeSelector=<root>, termSelector=A.0.1.0}]"},
 
 
                 };
@@ -109,7 +111,7 @@ public class ReferenceGraphHistoryTest {
     }
 
     private Set<ProofTermReferenceTarget> computeHistoryVerbose(ProofNodeSelector pns, TermSelector childTerm, Proof proof){
-        Set<ProofTermReferenceTarget> directParents = Collections.EMPTY_SET;
+        Set<ProofTermReferenceTarget> directParents = Collections.emptySet();
         try {
             Term term1 = childTerm.selectSubterm(pns.get(proof).getSequent());
             directParents = proof.getGraph().computeHistory(new ProofTermReferenceTarget(pns, childTerm), proof);

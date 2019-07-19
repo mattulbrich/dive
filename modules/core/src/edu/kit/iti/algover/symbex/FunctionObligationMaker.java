@@ -13,6 +13,14 @@ import java.util.Deque;
 import java.util.LinkedList;
 import java.util.List;
 
+/**
+ * This short class produces the proof obligations for a function symbol.
+ *
+ * It delegates the task to {@link SymbexExpressionValidator} for the
+ * wellfoundedness and wellformedness questions.
+ *
+ * It applies a visitor for checking reads clauses.
+ */
 public class FunctionObligationMaker {
 
     public List<SymbexPath> visit(DafnyTree function) {

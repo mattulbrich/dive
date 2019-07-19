@@ -11,10 +11,12 @@ import edu.kit.iti.algover.term.prettyprint.AnnotatedString;
 import edu.kit.iti.algover.term.prettyprint.PrettyPrint;
 import edu.kit.iti.algover.util.Quadruple;
 import edu.kit.iti.algover.util.TextUtil;
+import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import javafx.geometry.Bounds;
+import javafx.geometry.Insets;
 import javafx.scene.input.MouseEvent;
 import org.fxmisc.richtext.CharacterHit;
 import org.fxmisc.richtext.CodeArea;
@@ -69,9 +71,13 @@ public class BasicFormulaView extends CodeArea {
      */
     private List<Quadruple<TermSelector, String, Integer, String>> relevantGlobalStyles = new ArrayList<>();
 
+    private SimpleIntegerProperty fontsizeProperty = new SimpleIntegerProperty(12);
+
     public BasicFormulaView(ViewFormula formula, SimpleObjectProperty<TermSelector> selectedTerm,
                             SimpleObjectProperty<TermSelector> selectedReference,
-                            ObservableList<Quadruple<TermSelector, String, Integer, String>> allStyles, Set<TermSelector> filterAccToIndexInSeq) {
+                            ObservableList<Quadruple<TermSelector,
+                                    String, Integer, String>> allStyles,
+                            Set<TermSelector> filterAccToIndexInSeq, SimpleIntegerProperty fontsize) {
         super("");
 
         this.formula = formula;
@@ -85,12 +91,22 @@ public class BasicFormulaView extends CodeArea {
             updateStyleClasses();
         });
 
+
+        fontsizeProperty.bind(fontsize);
+        fontsize.addListener((observable, oldValue, newValue) -> {
+            this.fontsizeProperty.set(newValue.intValue());
+            relayout();
+        });
+
         relevantGlobalStyles = allStyles.stream().filter(x ->
                 x.fst.getPolarity() == formula.getPolarity() &&
                         x.fst.getTermNo() == formula.getIndexInSequent()).collect(Collectors.toList());
         getStyleClass().add("formula-view");
         setFocusTraversable(false);
         setEditable(false);
+
+        setPadding(new Insets(1,0,1,0));
+        setStyle("-fx-font-size: "+fontsizeProperty.get()+"pt;");
 
         //This might be a problem with increasing size of Proofs
         selectedTerm.addListener(this::updateSelected);
@@ -118,7 +134,6 @@ public class BasicFormulaView extends CodeArea {
             removeStyle("highlight");
             updateStyleClasses();
         });
-
         widthProperty().addListener(x -> relayout());
         updateSelected(selectedTerm, null, selectedTerm.get());
         updateSelectedRef(selectedReference, null, selectedReference.get());
@@ -246,7 +261,6 @@ public class BasicFormulaView extends CodeArea {
 
     private void relayout() {
         double width = getWidth();
-
         String prettyPrinted = calculateText(width);
         double neededHeight = calculateNeededHeight(prettyPrinted);
 
@@ -264,7 +278,7 @@ public class BasicFormulaView extends CodeArea {
     // Calculates text and updates annotatedString
     private String calculateText(double width) {
         // Find out how many characters the text can be wide:
-        Bounds mChar = TextUtil.computeTextBounds("m", getStyleClass(), getStylesheets());
+        Bounds mChar = TextUtil.computeTextBounds("m", getStyleClass(), getStylesheets(), fontsizeProperty.get());
 
         double charWidth = mChar.getWidth();
 
@@ -279,7 +293,7 @@ public class BasicFormulaView extends CodeArea {
 
     private double calculateNeededHeight(String text) {
         // This is a hack, but it seems to be impossible without it...
-        Bounds bounds = TextUtil.computeTextBounds(text, getStyleClass(), getStylesheets());
+        Bounds bounds = TextUtil.computeTextBounds(text, getStyleClass(), getStylesheets(), fontsizeProperty.get());
 
         final double safetyPadding = 1.1; // 10%, this is such a hack ... :(
 

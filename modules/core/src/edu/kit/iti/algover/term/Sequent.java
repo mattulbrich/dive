@@ -18,6 +18,8 @@ import java.util.List;
 
 /**
  * Class representing a logical sequent
+ *
+ * TODO Documentation
  */
 public final class Sequent {
 
@@ -29,6 +31,8 @@ public final class Sequent {
     public Sequent(Collection<ProofFormula> ante, Collection<ProofFormula> succ) {
         this.antecedent = Util.toArray(ante, ProofFormula.class);
         this.succedent = Util.toArray(succ, ProofFormula.class);
+        assert !Util.hasDuplicates(Util.readOnlyArrayList(this.antecedent));
+        assert !Util.hasDuplicates(Util.readOnlyArrayList(this.succedent));
     }
 
     public List<ProofFormula> getAntecedent() {

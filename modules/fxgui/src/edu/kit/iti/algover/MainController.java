@@ -100,8 +100,7 @@ public class MainController implements SequentActionListener, RuleApplicationLis
         this.editorController.anyFileChangedProperty().addListener(this::onDafnyFileChangedInEditor);
         this.sequentController = new SequentTabViewController(this, this.lookup);
         this.ruleApplicationController = new RuleApplicationController(executor, this, manager, this.lookup);
-        //The following will be refactored, in the mean time
-        //hand all necessary controller references to ReferenceGraphController to be able to highlight nec. targets
+
         this.referenceGraphController = new ReferenceGraphController(this.lookup);
 
         JFXButton saveButton = new JFXButton("Save", FontAwesomeIconFactory.get().createIcon(FontAwesomeIcon.SAVE));
@@ -192,6 +191,7 @@ public class MainController implements SequentActionListener, RuleApplicationLis
         settings.setConfig(manager.getConfiguration());
         settings.setCurrentManager(manager);
         settings.setSystemPrefs(systemprefs);
+        settings.setLookup(this.lookup);
         double height = this.getView().getScene().getWindow().getHeight();
         double width = this.getView().getScene().getWindow().getWidth();
         //later lookup
@@ -349,14 +349,14 @@ public class MainController implements SequentActionListener, RuleApplicationLis
                 }
             }
             if (item.getValue() instanceof DafnyFile) {
-                editorController.viewFile((DafnyFile) item.getValue());
+                editorController.viewFile(manager.getProject().getBaseDir(), (DafnyFile) item.getValue());
                 timelineView.moveFrameLeft();
                 timelineView.moveFrameLeft();
                 editorController.resetPVCSelection();
             }
             if (item.getValue() instanceof DafnyMethod) {
                 if (item.getParent().getValue() instanceof DafnyFile) {
-                    editorController.viewFile((DafnyFile) item.getParent().getValue());
+                    editorController.viewFile(manager.getProject().getBaseDir(), (DafnyFile) item.getParent().getValue());
                     timelineView.moveFrameLeft();
                     timelineView.moveFrameLeft();
                     editorController.resetPVCSelection();
@@ -386,6 +386,9 @@ public class MainController implements SequentActionListener, RuleApplicationLis
         TreeItem<Object> lastitem = null;
         TreeItem<Object> root = new TreeItem<>("root");
         for (DafnyFile f : manager.getProject().getDafnyFiles()) {
+            if (f.isInLibrary()) {
+                continue;
+            }
             TreeItem<Object> fileChild = new TreeItem<>(f.getFilename());
             fileChild.setValue(f);
             root.getChildren().add(fileChild);
@@ -493,7 +496,8 @@ public class MainController implements SequentActionListener, RuleApplicationLis
             browserController.getView().setDisable(false);
             sequentController.getView().setDisable(false);
             ruleApplicationController.getView().setDisable(false);
-            manager.getProject().getDafnyFiles().forEach(df -> editorController.viewFile(df));
+            manager.getProject().getDafnyFiles().forEach(df ->
+                    editorController.viewFile(manager.getProject().getBaseDir(), df));
             ruleApplicationController.onReset();
             simpleStratButton.setDisable(false);
             breadCrumbBar.setDisable(false);
@@ -502,12 +506,14 @@ public class MainController implements SequentActionListener, RuleApplicationLis
             breadCrumbBar.setSelectedCrumb(ti);
             editorController.resetPVCSelection();
             sequentController.getActiveSequentController().clear();
+            showStartTimeLineConfiguration();
             Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).info("Successfully reloaded project.");
         });
 
         //TODO somehow get proper exceptions and handling them
         t.setOnFailed(event -> {
-            manager.getProject().getDafnyFiles().forEach(df -> editorController.viewFile(df));
+            manager.getProject().getDafnyFiles().forEach(df ->
+                    editorController.viewFile(manager.getProject().getBaseDir(),df));
             Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).log(Level.SEVERE,
                     t.getException().getMessage(),
                     t.getException());
@@ -526,10 +532,18 @@ public class MainController implements SequentActionListener, RuleApplicationLis
 
         executor.execute(t);
     }
+
+    private void showStartTimeLineConfiguration() {
+        boolean moveLeftPosible = true;
+        while(moveLeftPosible){
+            moveLeftPosible = timelineView.moveFrameLeft();
+        }
+    }
+
     public void onClickPVCEdit(PVCEntity entity) {
         PVC pvc = entity.getPVC();
         breadCrumbBar.setSelectedCrumb(getTreeItemForPVC(pvc));
-        editorController.viewFile(entity.getLocation());
+        editorController.viewFile(manager.getProject().getBaseDir(), entity.getLocation());
         editorController.viewPVCSelection(pvc);
         Proof proof = manager.getProofForPVC(entity.getPVC().getIdentifier());
         // MU: currently proofs are not automatically interpreted and/or uptodate. Make sure they are.
@@ -586,7 +600,7 @@ public class MainController implements SequentActionListener, RuleApplicationLis
     public void onSelectBrowserItem(TreeTableEntity treeTableEntity) {
         DafnyFile file = treeTableEntity.getLocation();
         if (file != null) {
-            editorController.viewFile(file);
+            editorController.viewFile(manager.getProject().getBaseDir(), file);
             PVC pvc = treeTableEntity.accept(new PVCGetterVisitor());
             if (pvc != null) {
                 editorController.viewPVCSelection(pvc);

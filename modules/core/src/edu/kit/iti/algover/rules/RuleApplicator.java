@@ -14,6 +14,7 @@ import edu.kit.iti.algover.term.builder.ReplaceVisitor;
 import edu.kit.iti.algover.term.builder.TermBuildException;
 import edu.kit.iti.algover.util.ImmutableList;
 import edu.kit.iti.algover.util.Pair;
+import edu.kit.iti.algover.util.Util;
 
 
 import java.util.ArrayList;
@@ -118,6 +119,8 @@ public class RuleApplicator {
         List<ProofFormula> succ = changeSemisequent(additions.getSuccedent(), deletions.getSuccedent(), succReplacements, oldSeq
                 .getSuccedent());
 
+        Util.removeDuplicates(antec);
+        Util.removeDuplicates(succ);
 
         Sequent newSeq = new Sequent(antec, succ);
         return newSeq;
@@ -148,7 +151,7 @@ public class RuleApplicator {
                 try {
                     ProofFormula nthForm = oldSemiSeq.get(ts.getTermNo());
                     Term replace = ReplaceVisitor.replace(nthForm.getTerm(), ts.getSubtermSelector(), newTerm);
-                    newSemiSeq.set(ts.getTermNo(), new ProofFormula(replace));
+                    newSemiSeq.set(ts.getTermNo(), new ProofFormula(replace, nthForm.getLabels()));
                 } catch (TermBuildException e) {
                     e.printStackTrace();
                 }

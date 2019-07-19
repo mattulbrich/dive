@@ -5,6 +5,7 @@
  */
 package edu.kit.iti.algover.settings;
 
+import com.google.common.base.Charsets;
 import com.jfoenix.controls.JFXListView;
 import com.jfoenix.controls.JFXRadioButton;
 import edu.kit.iti.algover.parser.DafnyException;
@@ -26,19 +27,24 @@ import javafx.scene.control.cell.TextFieldListCell;
 import javafx.scene.layout.VBox;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URL;
+import java.nio.file.*;
 import java.util.*;
 import java.util.function.Supplier;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import edu.kit.iti.algover.settings.ProjectSettings.Property;
 import edu.kit.iti.algover.util.StringValidators.OptionStringValidator;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.FileChooser;
 import javafx.util.StringConverter;
+import org.controlsfx.control.CheckListView;
 import org.controlsfx.validation.ValidationResult;
 import org.controlsfx.validation.ValidationSupport;
 
@@ -53,6 +59,15 @@ public class ProjectSettingsController implements ISettingsController {
     public static final String NAME = "Project";
 
     private Node settingsPanel;
+
+    @FXML
+    private VBox dafnyInputFilesBox;
+
+    @FXML
+    private VBox dafnylibFilesBox;
+
+    @FXML
+    private VBox internalLibFilesBox;
 
     @FXML
     private VBox projectConfigSettings;
@@ -71,6 +86,9 @@ public class ProjectSettingsController implements ISettingsController {
 
     @FXML
     private JFXListView<File> libFiles;
+
+    @FXML
+    private CheckListView<File> internalLibFiles;
 
     @FXML
     private Button addDafnyFilesButton;
@@ -98,6 +116,8 @@ public class ProjectSettingsController implements ISettingsController {
 
     @FXML
     private JFXRadioButton dfyFormat;
+
+
 
 
 
@@ -174,6 +194,7 @@ public class ProjectSettingsController implements ISettingsController {
 
         addProjectContents();
         addCellFactories();
+        setTooltips();
 
         this.config.addListener((observable, oldValue, newValue) -> {
             if(newValue != null) {
@@ -202,8 +223,14 @@ public class ProjectSettingsController implements ISettingsController {
 
     }
 
-
-
+    private void setTooltips() {
+        projectPath.setTooltip(new Tooltip("Choose the base directory where all project specific files are located"));
+        xmlFormat.setTooltip(new Tooltip("Select if you wish to save your project in an external XML-file in your base directory"));
+        dfyFormat.setTooltip(new Tooltip("Select if you wish to save your project settings as header in the master Dafny file"));
+        internalLibFiles.setTooltip(new Tooltip("Select available internal library files containing definitions of rules (e.g., integer simplification rules in int.dfy"));
+        dafnyFiles.setTooltip(new Tooltip("Add all Dafny files that are subject for verification. For all entities in the added files DIVE generates verification conditions."));
+        libFiles.setTooltip(new Tooltip("Add all project specific lemma or library files. the file extension must be .dfy. For library files no verification conditions are generated"));
+    }
 
 
     /**
@@ -240,7 +267,21 @@ public class ProjectSettingsController implements ISettingsController {
                 }
             });
 
-            List<File> libFiles = getConfig().getLibFiles();
+            List<File> allAvailableInternalLibraryFiles = collectInternalLibFiles(getConfig());
+            allAvailableInternalLibraryFiles.forEach(file -> {
+                if(!this.internalLibFiles.getItems().contains(file)) {
+                    this.internalLibFiles.getItems().add(file);
+                }
+            });
+            List<File> internalLibFilesFromConfig = getConfig().getLibFiles().stream().filter(file -> file.getPath().startsWith("$dive/")).collect(Collectors.toList());
+            internalLibFilesFromConfig.forEach(file -> {
+                boolean contains = this.internalLibFiles.getItems().contains(file);
+                if(contains){
+                        this.internalLibFiles.getCheckModel().check(this.internalLibFiles.getCheckModel().getItemIndex(file));
+                }
+            });
+
+            List<File> libFiles = getConfig().getLibFiles().stream().filter(file -> !file.getPath().startsWith("$dive/")).collect(Collectors.toList());
             libFiles.forEach(file -> {
                 if(!this.libFiles.getItems().contains(file)){
                     this.libFiles.getItems().add(file);
@@ -259,6 +300,36 @@ public class ProjectSettingsController implements ISettingsController {
         }
         createSettingsFields();
        // managerProperty().addListener(projectManagerListener);
+
+    }
+
+    /**
+     * Collect the internal library files
+     * @param configuration
+     * @return
+     */
+    private List<File> collectInternalLibFiles(Configuration configuration) {
+        List<File> list = new ArrayList<>();
+
+        final URI uri = URI.create(configuration.getClass().getResource("lib/").toExternalForm());
+
+        try (final FileSystem zipfs = FileSystems.newFileSystem(uri, Collections.emptyMap());) {
+
+            String packageName = configuration.getClass().getPackageName();
+            String pathName = packageName.replaceAll("\\.", File.separator);
+            List<Path> collect = Files.walk(zipfs.getPath(pathName + File.separator + "lib" + File.separator)).collect(Collectors.toList());
+            List<File> fileStream = collect.stream().map(path -> {
+                return new File(path.getFileName().toString());
+            }).collect(Collectors.toList());
+            list = fileStream.stream().filter(file -> file.getName().endsWith(".dfy")).map(file -> new File("$dive"+File.separator+file.getName())).collect(Collectors.toList());
+            // list = filtered.stream().map(path -> new File(path.getFileName().toString())).collect(Collectors.toList());
+
+            //.map(path -> new File(path.toString()))
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        return list;
 
     }
 
@@ -357,6 +428,8 @@ public class ProjectSettingsController implements ISettingsController {
             getConfig().setDafnyFiles(this.dafnyFiles.getItems());
             getConfig().setLibFiles(this.libFiles.getItems());
 
+            getConfig().getLibFiles().addAll(this.internalLibFiles.getCheckModel().getCheckedItems());
+
             Map<String, String> newProperties = new HashMap<>();
             for (Pair<Supplier<String>, Property> value : validators) {
                 String v = value.fst.get();
@@ -365,7 +438,7 @@ public class ProjectSettingsController implements ISettingsController {
                         newProperties.put(value.snd.key, v);
                     }
                 } else {
-                    Logger.getGlobal().severe("Saving unsuccessfull, please select " + value.getSnd().key + " and try saving again.");
+                    Logger.getGlobal().severe("Saving unsuccessful, please select " + value.getSnd().key + " and try saving again.");
                 }
             }
 
@@ -375,7 +448,6 @@ public class ProjectSettingsController implements ISettingsController {
 
             //propagate configuration and save config
             try {
-
                 if (saveAsXML) {
                     File filename = new File(baseDir + File.separator + this.configFileName.getText());
                     getConfig().setConfigFile(this.configFileName.getText());
@@ -467,12 +539,14 @@ public class ProjectSettingsController implements ISettingsController {
     @FXML
     private void addLibFile() { addItemToList(libFiles, "Library file"); }
 
+
     @FXML
     private void removeDafnyFile() {removeSelectedFiles(dafnyFiles, dafnyFiles.getSelectionModel().getSelectedItems());
     }
 
     @FXML
     private void removeLibFile() { removeSelectedFiles(libFiles, libFiles.getSelectionModel().getSelectedItems());}
+
 
     @FXML
     private void addDafnyFile() {
@@ -481,11 +555,17 @@ public class ProjectSettingsController implements ISettingsController {
 
     @FXML
     private void createNewDafnyFile(){
+
         TextInputDialog tid = new TextInputDialog();
         tid.setTitle("Name for Dafny file");
         tid.setContentText("Please enter a new filename");
         ValidationSupport dialogValid = new ValidationSupport();
         dialogValid.registerValidator(tid.getEditor(), this::dafnyFileExistsValidator);
+        tid.setResizable(true);
+        tid.onShownProperty().addListener(e -> {
+            Platform.runLater(() -> tid.setResizable(false));
+        });
+
         Optional<String> filename = tid.showAndWait();
 
         ValidationResult validationResult = dialogValid.getValidationResult();
@@ -519,13 +599,15 @@ public class ProjectSettingsController implements ISettingsController {
         DirectoryChooser chooser = new DirectoryChooser();
 
         if(getConfig().getBaseDir().equals(new File(""))){
-            getConfig().setBaseDir(new File("../../doc/examples/"));
+            getConfig().setBaseDir(new File("."));
         }
         chooser.setInitialDirectory(getConfig().getBaseDir());
         File file = chooser.showDialog(this.settingsPanel.getScene().getWindow());
-        getConfig().setBaseDir(file);
-        this.projectPath.setText(file.getAbsolutePath());
-        this.projectPath.setEditable(false);
+        if(file != null) {
+            getConfig().setBaseDir(file);
+            this.projectPath.setText(file.getAbsolutePath());
+            this.projectPath.setEditable(false);
+        }
     }
 
 
@@ -547,7 +629,7 @@ public class ProjectSettingsController implements ISettingsController {
             if(!projectPath.getText().isEmpty()) {
                 initialDir = newFile;
             } else {
-                initialDir = new File("doc/examples/");
+                initialDir = new File(".");
             }
         }
         chooser.setInitialDirectory(initialDir);
