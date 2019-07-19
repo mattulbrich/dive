@@ -229,9 +229,12 @@ public class MainController implements SequentActionListener, RuleApplicationLis
                     d.onShownProperty().addListener(e -> {
                         Platform.runLater(() -> d.setResizable(false));
                     });
-                    d.showAndWait();
+                    Optional<ButtonType> buttonType = d.showAndWait();
+                    if(buttonType.get() == ButtonType.CLOSE){
+                        editorController.removeReferenceHighlighting();
+                    }
                 }
-              //  Collection<DafnyTree> callsites = manager.getProject().getCallgraph().getCallsites(accept);
+
             } else {
                  Logger.getGlobal().info("Please select a method or function in the browser tree.");
             }

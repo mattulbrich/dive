@@ -46,9 +46,6 @@ public class SequentTabViewController implements ReferenceHighlightingHandler {
         this.referenceTargetsToHighlight = referenceTargetsToHighlight;
     }*/
 
-    public Set<ProofTermReferenceTarget> getReferenceTargetsToHighlight() {
-        return referenceTargetsToHighlight;
-    }
 
 
     public SequentTabViewController(SequentActionListener listener, Lookup lookup) {
@@ -194,4 +191,9 @@ public class SequentTabViewController implements ReferenceHighlightingHandler {
         });
 //        setReferenceTargetsToHighlight(referenceTargetsToHighlight);
     }
+
+    public Set<ProofTermReferenceTarget> getReferenceTargetsToHighlight() {
+        return referenceTargetsToHighlight;
+    }
+
 }

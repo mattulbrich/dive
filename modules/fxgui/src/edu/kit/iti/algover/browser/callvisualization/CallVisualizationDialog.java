@@ -37,6 +37,7 @@ public class CallVisualizationDialog extends Alert implements HighlightingHandle
         referenceHighlightingObject.setCodeReferenceTargetSet(codeRefTarget);
         assert editorControllers.size() == 1;
         EditorController ctrl = editorControllers.iterator().next();
+        ctrl.removeReferenceHighlighting();
         ctrl.handleReferenceHighlighting(referenceHighlightingObject);
     }
 }
