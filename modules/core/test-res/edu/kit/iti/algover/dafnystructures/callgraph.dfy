@@ -19,8 +19,4 @@ method m1()
    }
 }
 
-method m2()
-{
-m1();
-}
 class C {}
