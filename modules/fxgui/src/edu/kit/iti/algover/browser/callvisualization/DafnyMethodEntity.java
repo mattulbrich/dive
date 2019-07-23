@@ -74,9 +74,9 @@ public class DafnyMethodEntity extends AbstractCallEntity {
     @Override
     public String getHeaderText() {
         if(!isCall()){
-            return "Method "+method.getName()+" in "+callTree.getChild(0).getText();
+            return "Method "+ method.getName() + getOuterEntity(callTree);
         } else {
-            return "Method " + method.getName() + getOuterEntity(callTree);
+            return "Method " + method.getName();
         }
     }
 
@@ -92,7 +92,7 @@ public class DafnyMethodEntity extends AbstractCallEntity {
         VBox vbox= new VBox();
         vbox.setBackground(WHITE_BACKGROUND);
         vbox.setSpacing(10);
-        AnimatedLabel name = new AnimatedLabel(getHeaderText() + " (line" + getUsageLine()+")", callTree, listener);
+        AnimatedLabel name = new AnimatedLabel(getHeaderText() + " (line " + getUsageLine()+")", callTree, listener);
 
 /*        name.setOnMouseClicked(event -> {
             listener.onRequestHighlight(callTree.getFilename(), callTree.getStartToken(), callTree.getStopToken());

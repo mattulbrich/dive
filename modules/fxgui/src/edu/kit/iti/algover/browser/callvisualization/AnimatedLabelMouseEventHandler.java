@@ -20,6 +20,8 @@ public class AnimatedLabelMouseEventHandler implements EventHandler<MouseEvent> 
 
     private HighlightingHandler listener = null;
 
+    private DafnyTree ent;
+
 
 
     public AnimatedLabelMouseEventHandler(Label l, String filename, Token start, Token end, HighlightingHandler listener) {
@@ -32,6 +34,7 @@ public class AnimatedLabelMouseEventHandler implements EventHandler<MouseEvent> 
 
     public AnimatedLabelMouseEventHandler(Label l, DafnyTree entity, HighlightingHandler listener) {
         this.l = l;
+        this.ent = entity;
         this.filename = entity.getFilename();
         this.start = entity.getStartToken();
         this.end = entity.getStopToken();

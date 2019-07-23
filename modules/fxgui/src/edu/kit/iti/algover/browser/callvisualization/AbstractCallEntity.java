@@ -13,6 +13,7 @@ import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import net.miginfocom.layout.AC;
 import net.miginfocom.layout.LC;
+import org.antlr.runtime.Token;
 import org.antlr.runtime.tree.Tree;
 import org.tbee.javafx.scene.layout.MigPane;
 
@@ -318,27 +319,40 @@ public abstract class AbstractCallEntity {
 
     String getOuterEntity(DafnyTree callTree) {
         StringBuilder sb = new StringBuilder();
+        Token start = callTree.getStartToken();
+        Token end = callTree.getStopToken();
+        DafnyTree unit = null;
 
         Tree parent =  callTree.getParent();
         while(parent.getParent() != null ){
-            if(parent.getType() == DafnyParser.METHOD || parent.getType() == DafnyParser.FUNCTION)
-                break;
-            else
+            if(parent.getType() == DafnyParser.METHOD || parent.getType() == DafnyParser.FUNCTION) {
+                unit = (DafnyTree) parent;
+                Token startToken = unit.getStartToken();
+                Token stopToken = unit.getStopToken();
+                if (start.getLine() > startToken.getLine()
+                        && end.getLine() < stopToken.getLine()
+                        && !start.equals(startToken))
+                    break;
+                else
+                    parent = parent.getParent();
+            } else {
                 parent = parent.getParent();
+            }
         }
-        DafnyTree unit = (DafnyTree) parent;
-        switch(unit.getType()){
-            case DafnyParser.METHOD:
-                sb.append(" in Method ");
-                sb.append(unit.getChild(0).getText());
-                break;
-            case DafnyParser.FUNCTION:
-                sb.append(" in Function ");
-                sb.append(unit.getChild(0).getText());
-                break;
-            default:
-        }
+        if(unit != null) {
+            switch (unit.getType()) {
+                case DafnyParser.METHOD:
+                    sb.append(" is called in Method ");
+                    sb.append(unit.getChild(0).getText());
+                    break;
+                case DafnyParser.FUNCTION:
+                    sb.append(" is called in Function ");
+                    sb.append(unit.getChild(0).getText());
+                    break;
+                default:
+            }
 
+        }
         return sb.toString();
     }
 
