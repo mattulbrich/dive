@@ -2,26 +2,16 @@ package edu.kit.iti.algover.browser.callvisualization;
 
 import edu.kit.iti.algover.dafnystructures.DafnyDecl;
 import edu.kit.iti.algover.dafnystructures.DafnyFunction;
-import edu.kit.iti.algover.parser.DafnyParser;
 import edu.kit.iti.algover.parser.DafnyTree;
-import edu.kit.iti.algover.parser.DafnyTreeDefaultVisitor;
-import javafx.beans.property.SimpleStringProperty;
-import javafx.geometry.Insets;
-import javafx.geometry.Orientation;
 import javafx.scene.Node;
-import javafx.scene.control.Label;
-import javafx.scene.control.Separator;
 import javafx.scene.layout.*;
-import javafx.scene.paint.Color;
-import javafx.scene.shape.Line;
-import net.miginfocom.layout.AC;
-import net.miginfocom.layout.LC;
-import org.tbee.javafx.scene.layout.MigPane;
 
-import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 
+/**
+ * Representation of a DafnyFunction in the call tree for the GUI
+ * The method getNode() returns the View of this component
+ */
 public class DafnyFunctionEntity extends AbstractCallEntity {
 
     /**
@@ -69,7 +59,7 @@ public class DafnyFunctionEntity extends AbstractCallEntity {
 
     private List<ParamValueObject> paramArgsList;
 
-    public DafnyFunctionEntity(DafnyFunction f, DafnyTree t, HighlightingHandler listener, boolean call){
+    public DafnyFunctionEntity(DafnyFunction f, DafnyTree t, HighlightingHandler listener, boolean call) {
 
         this.listener = listener;
 
@@ -82,16 +72,15 @@ public class DafnyFunctionEntity extends AbstractCallEntity {
         this.fDecreasesClause = f.getDecreasesClause();
         this.callTree = t;
         this.fArguments = callTree.getChildren().get(1).getChildren();
-        this.headerText = "Function "+f.getName();
-        if(!isCall()){
-            this.headerText= "Function "+f.getName()+" in "+t.getText();
+        this.headerText = "Function " + f.getName();
+        if (!isCall()) {
+            this.headerText = "Function " + f.getName() + " in " + t.getText();
         }
 
 
         paramArgsList = extractParams(fArguments, fParams);
 
     }
-
 
 
     @Override
@@ -126,32 +115,31 @@ public class DafnyFunctionEntity extends AbstractCallEntity {
 
     @Override
     public Node getNode() {
-        VBox vbox= new VBox();
+        VBox vbox = new VBox();
         vbox.setBackground(WHITE_BACKGROUND);
         vbox.setSpacing(10);
 
-        Label name;
-        if(isCall()) {
-            name = new Label(headerText + " (line" + getUsageLine() + ")");
+        AnimatedLabel name;
+        if (isCall()) {
+            name = new AnimatedLabel(headerText + " (line" + getUsageLine() + ")");
         } else {
-            name = new Label ("Of "+getEntity().getName()+ " in line" + getUsageLine());
+            name = new AnimatedLabel("Of " + getEntity().getName() + " in line" + getUsageLine());
         }
-        name.setStyle("-fx-font-weight: bold");
         name.setOnMouseClicked(event -> {
             listener.onRequestHighlight(callTree.getFilename(), callTree.getStartToken(), callTree.getStopToken());
         });
         vbox.getChildren().add(name);
-        if(!paramArgsList.isEmpty()) {
+        if (!paramArgsList.isEmpty()) {
             vbox.getChildren().add(createArgumentView(paramArgsList, listener));
         }
-        if(fPre.size() > 0) {
+        if (fPre.size() > 0) {
             vbox.getChildren().add(createPreconditionView(fPre, listener));
         }
-        if(fPost.size() > 0){
+        if (fPost.size() > 0) {
             vbox.getChildren().add(createPostconditionView(fPost, listener));
         }
 
-        if(fDecreasesClause != null && isCall()){
+        if (fDecreasesClause != null && isCall()) {
             vbox.getChildren().add(createDecreasesView(fDecreasesClause, listener));
         }
         return vbox;
@@ -166,12 +154,10 @@ public class DafnyFunctionEntity extends AbstractCallEntity {
     }
 
 
-
     @Override
     public String getEntityName() {
         return this.getEntity().getName();
     }
-
 
 
 }

@@ -9,6 +9,10 @@ import javafx.scene.layout.VBox;
 
 import java.util.List;
 
+/**
+ * Representation of a DafnyMethod in the call tree for the GUI
+ * The method getNode() returns the View of this component
+ */
 public class DafnyMethodEntity extends AbstractCallEntity {
 
     private Type type;
@@ -86,7 +90,7 @@ public class DafnyMethodEntity extends AbstractCallEntity {
         VBox vbox= new VBox();
         vbox.setBackground(WHITE_BACKGROUND);
         vbox.setSpacing(10);
-        Label name = new Label(getHeaderText() + " (line" + getUsageLine()+")");
+        AnimatedLabel name = new AnimatedLabel(getHeaderText() + " (line" + getUsageLine()+")");
         name.setOnMouseClicked(event -> {
             listener.onRequestHighlight(callTree.getFilename(), callTree.getStartToken(), callTree.getStopToken());
         });

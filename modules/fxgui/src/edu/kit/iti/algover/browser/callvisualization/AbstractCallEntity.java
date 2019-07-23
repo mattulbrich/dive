@@ -25,7 +25,10 @@ public abstract class AbstractCallEntity {
         METHOD, FUNCTION, FIELD, CLASS
     }
 
-    public Background WHITE_BACKGROUND = new Background(new BackgroundFill(Color.WHITE, null, null));
+    public static Background WHITE_BACKGROUND = new Background(new BackgroundFill(Color.WHITE, null, null));
+    public static Background SELECTED_LABEL = new Background(new BackgroundFill(Color.LIGHTCYAN, null, null));
+
+
 
     public abstract boolean isCall();
 
@@ -49,33 +52,34 @@ public abstract class AbstractCallEntity {
 
     public abstract DafnyDecl getEntity();
 
-    public Node createDecreasesView(DafnyTree decreasesClause, HighlightingHandler listener) {
+     Node createDecreasesView(DafnyTree decreasesClause, HighlightingHandler listener) {
         VBox vbox = new VBox();
         Label header = new Label("Decreases Clause:");
-        Label decrs = new Label(decreasesClause.accept(new DafnyFunctionEntity.DafnySpecTreeStringVisitor(), null));
+        AnimatedLabel decrs = new AnimatedLabel(decreasesClause.accept(new DafnyFunctionEntity.DafnySpecTreeStringVisitor(), null));
         header.setStyle("-fx-font-weight: bold");
         decrs.setOnMouseClicked(event -> listener.onRequestHighlight(decreasesClause.getFilename(), decreasesClause.getStartToken(), decreasesClause.getStopToken()));
         vbox.getChildren().addAll(header, decrs);
         return vbox;
     }
 
-    public Node createPreconditionView(List<DafnyTree> preconditions, HighlightingHandler listener) {
+     Node createPreconditionView(List<DafnyTree> preconditions, HighlightingHandler listener) {
         return createContractView(preconditions, listener, "Preconditions:");
 
     }
 
-    public Node createPostconditionView(List<DafnyTree> postconditions, HighlightingHandler listener) {
+     Node createPostconditionView(List<DafnyTree> postconditions, HighlightingHandler listener) {
         return createContractView(postconditions, listener, "Postconditions:");
 
     }
 
     private Node createContractView(List<DafnyTree> conditions, HighlightingHandler listener, String title){
         VBox vbox = new VBox();
-        Label header = new Label(title);
+        AnimatedLabel header = new AnimatedLabel(title);
         header.setStyle("-fx-font-weight: bold");
         vbox.getChildren().add(header);
         conditions.forEach(dafnyTree -> {
-            Label l = new Label(dafnyTree.accept(new DafnyFunctionEntity.DafnySpecTreeStringVisitor(), null));
+
+            AnimatedLabel l = new AnimatedLabel(dafnyTree.accept(new DafnyFunctionEntity.DafnySpecTreeStringVisitor(), null));
             l.setOnMouseClicked(event -> listener.onRequestHighlight(dafnyTree.getFilename(), dafnyTree.getStartToken(), dafnyTree.getStopToken()));
             vbox.getChildren().add(l);
         });
@@ -84,7 +88,7 @@ public abstract class AbstractCallEntity {
         return vbox;
     }
 
-    public Node createArgumentView(List<DafnyFunctionEntity.ParamValueObject> paramArgsList, HighlightingHandler listener) {
+    Node createArgumentView(List<DafnyFunctionEntity.ParamValueObject> paramArgsList, HighlightingHandler listener) {
 
         MigPane mp = new MigPane(new LC().wrapAfter(5).gridGapX("10px"), new AC().grow(1).size("pref",0,2,3,4));
         mp.setBorder(new Border(new BorderStroke(Color.GRAY, BorderStrokeStyle.SOLID, null, new BorderWidths(1))));
@@ -94,9 +98,8 @@ public abstract class AbstractCallEntity {
         mp.add(new Label("Type"));
         mp.add(new Separator(Orientation.VERTICAL));
         mp.add(new Label("Argument on call"));
-//        mp.add(new Separator(Orientation.VERTICAL));
         paramArgsList.forEach(paramValueObject -> {
-            Label pname = new Label(paramValueObject.getName());
+            AnimatedLabel pname = new AnimatedLabel(paramValueObject.getName());
             pname.setOnMouseClicked(event -> {
                 DafnyTree nameTree = paramValueObject.getNameTree();
                 listener.onRequestHighlight(nameTree.getFilename(), nameTree.getStartToken(), nameTree.getStopToken());
@@ -106,10 +109,7 @@ public abstract class AbstractCallEntity {
             s.setMaxHeight(pname.getMaxHeight());
             s.setPrefHeight(pname.getPrefHeight());
 
-            Label ptype = new Label(paramValueObject.getType());
-            /*ptype.setBorder(new Border(new BorderStroke(Color.RED, Color.RED, Color.RED, Color.RED,
-                    BorderStrokeStyle.SOLID, BorderStrokeStyle.SOLID, BorderStrokeStyle.NONE, BorderStrokeStyle.SOLID,
-                    CornerRadii.EMPTY, new BorderWidths(5), Insets.EMPTY)));*/
+            AnimatedLabel ptype = new AnimatedLabel(paramValueObject.getType());
             ptype.setOnMouseClicked(event -> {
                 DafnyTree typeTree = paramValueObject.getTypeTree();
                 listener.onRequestHighlight(typeTree.getFilename(), typeTree.getStartToken(), typeTree.getStopToken());
@@ -120,17 +120,12 @@ public abstract class AbstractCallEntity {
             s1.setMaxHeight(ptype.getMaxHeight());
             s1.setPrefHeight(ptype.getPrefHeight());
 
-            Label pValue = new Label(paramValueObject.getValue());
+            AnimatedLabel pValue = new AnimatedLabel(paramValueObject.getValue());
             pValue.setOnMouseClicked(event -> {
                 DafnyTree valueTree = paramValueObject.getValueTree();
                 listener.onRequestHighlight(valueTree.getFilename(), valueTree.getStartToken(), valueTree.getStopToken());
             });
 
-  /*          Separator s2 = new Separator(Orientation.VERTICAL);
-            s2.setMinHeight(pValue.getMinHeight());
-            s2.setMaxHeight(pValue.getMaxHeight());
-            s2.setPrefHeight(pValue.getPrefHeight());
-*/
             mp.add(pname);
             mp.add(s);
             mp.add(ptype);
@@ -142,7 +137,9 @@ public abstract class AbstractCallEntity {
 
     }
 
-    public List<ParamValueObject> extractParams(List<DafnyTree> fArguments, List<DafnyTree> fParams) {
+
+
+     List<ParamValueObject> extractParams(List<DafnyTree> fArguments, List<DafnyTree> fParams) {
         //Name, type, value
         List<ParamValueObject> list = new ArrayList<>();
         Iterator<DafnyTree> argsIterator = fArguments.iterator();
@@ -157,12 +154,16 @@ public abstract class AbstractCallEntity {
         return list;
 
     }
+
+    /**
+     * Visitor to extract the String representation of different artifacts
+     */
     public class DafnySpecTreeStringVisitor extends DafnyTreeDefaultVisitor<String, Void> {
 
         @Override
         public String visitDefault(DafnyTree t, Void arg) {
             StringBuilder text = new StringBuilder();
-            java.lang.String text1 = t.getText();
+            String text1 = t.getText();
             String currentNode = text1;
             if(t.getChildren().size() == 2){
                 String accept = t.getChild(0).accept(this, arg);
