@@ -121,13 +121,13 @@ public class DafnyFunctionEntity extends AbstractCallEntity {
 
         AnimatedLabel name;
         if (isCall()) {
-            name = new AnimatedLabel(headerText + " (line" + getUsageLine() + ")");
+            name = new AnimatedLabel(headerText + " (line" + getUsageLine() + ")", callTree, listener);
         } else {
-            name = new AnimatedLabel("Of " + getEntity().getName() + " in line" + getUsageLine());
+            name = new AnimatedLabel("Of " + getEntity().getName() + " in line" + getUsageLine(), callTree, listener);
         }
-        name.setOnMouseClicked(event -> {
+/*        name.setOnMouseClicked(event -> {
             listener.onRequestHighlight(callTree.getFilename(), callTree.getStartToken(), callTree.getStopToken());
-        });
+        });*/
         vbox.getChildren().add(name);
         if (!paramArgsList.isEmpty()) {
             vbox.getChildren().add(createArgumentView(paramArgsList, listener));

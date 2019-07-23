@@ -55,9 +55,9 @@ public abstract class AbstractCallEntity {
      Node createDecreasesView(DafnyTree decreasesClause, HighlightingHandler listener) {
         VBox vbox = new VBox();
         Label header = new Label("Decreases Clause:");
-        AnimatedLabel decrs = new AnimatedLabel(decreasesClause.accept(new DafnyFunctionEntity.DafnySpecTreeStringVisitor(), null));
+        AnimatedLabel decrs = new AnimatedLabel(decreasesClause.accept(new DafnyFunctionEntity.DafnySpecTreeStringVisitor(), null), decreasesClause, listener);
         header.setStyle("-fx-font-weight: bold");
-        decrs.setOnMouseClicked(event -> listener.onRequestHighlight(decreasesClause.getFilename(), decreasesClause.getStartToken(), decreasesClause.getStopToken()));
+ //       decrs.setOnMouseClicked(event -> listener.onRequestHighlight(decreasesClause.getFilename(), decreasesClause.getStartToken(), decreasesClause.getStopToken()));
         vbox.getChildren().addAll(header, decrs);
         return vbox;
     }
@@ -79,8 +79,8 @@ public abstract class AbstractCallEntity {
         vbox.getChildren().add(header);
         conditions.forEach(dafnyTree -> {
 
-            AnimatedLabel l = new AnimatedLabel(dafnyTree.accept(new DafnyFunctionEntity.DafnySpecTreeStringVisitor(), null));
-            l.setOnMouseClicked(event -> listener.onRequestHighlight(dafnyTree.getFilename(), dafnyTree.getStartToken(), dafnyTree.getStopToken()));
+            AnimatedLabel l = new AnimatedLabel(dafnyTree.accept(new DafnyFunctionEntity.DafnySpecTreeStringVisitor(), null), dafnyTree, listener);
+           // l.setOnMouseClicked(event -> listener.onRequestHighlight(dafnyTree.getFilename(), dafnyTree.getStartToken(), dafnyTree.getStopToken()));
             vbox.getChildren().add(l);
         });
 
@@ -99,32 +99,39 @@ public abstract class AbstractCallEntity {
         mp.add(new Separator(Orientation.VERTICAL));
         mp.add(new Label("Argument on call"));
         paramArgsList.forEach(paramValueObject -> {
-            AnimatedLabel pname = new AnimatedLabel(paramValueObject.getName());
-            pname.setOnMouseClicked(event -> {
-                DafnyTree nameTree = paramValueObject.getNameTree();
+            DafnyTree nameTree = paramValueObject.getNameTree();
+            AnimatedLabel pname = new AnimatedLabel(paramValueObject.getName(), nameTree, listener);
+/*            pname.setOnMouseClicked(event -> {
+
                 listener.onRequestHighlight(nameTree.getFilename(), nameTree.getStartToken(), nameTree.getStopToken());
-            });
+            });*/
             Separator s = new Separator(Orientation.VERTICAL);
             s.setMinHeight(pname.getMinHeight());
             s.setMaxHeight(pname.getMaxHeight());
             s.setPrefHeight(pname.getPrefHeight());
 
-            AnimatedLabel ptype = new AnimatedLabel(paramValueObject.getType());
-            ptype.setOnMouseClicked(event -> {
+            DafnyTree typeTree = paramValueObject.getTypeTree();
+            AnimatedLabel ptype = new AnimatedLabel(paramValueObject.getType(), typeTree, listener);
+
+
+/*            ptype.setOnMouseClicked(event -> {
                 DafnyTree typeTree = paramValueObject.getTypeTree();
                 listener.onRequestHighlight(typeTree.getFilename(), typeTree.getStartToken(), typeTree.getStopToken());
-            });
+            });*/
 
             Separator s1 = new Separator(Orientation.VERTICAL);
             s1.setMinHeight(ptype.getMinHeight());
             s1.setMaxHeight(ptype.getMaxHeight());
             s1.setPrefHeight(ptype.getPrefHeight());
 
-            AnimatedLabel pValue = new AnimatedLabel(paramValueObject.getValue());
+            DafnyTree valueTree = paramValueObject.getValueTree();
+            AnimatedLabel pValue = new AnimatedLabel(paramValueObject.getValue(), valueTree, listener);
+/*
             pValue.setOnMouseClicked(event -> {
                 DafnyTree valueTree = paramValueObject.getValueTree();
                 listener.onRequestHighlight(valueTree.getFilename(), valueTree.getStartToken(), valueTree.getStopToken());
             });
+*/
 
             mp.add(pname);
             mp.add(s);

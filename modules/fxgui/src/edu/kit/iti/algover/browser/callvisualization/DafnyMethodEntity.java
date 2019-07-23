@@ -90,10 +90,11 @@ public class DafnyMethodEntity extends AbstractCallEntity {
         VBox vbox= new VBox();
         vbox.setBackground(WHITE_BACKGROUND);
         vbox.setSpacing(10);
-        AnimatedLabel name = new AnimatedLabel(getHeaderText() + " (line" + getUsageLine()+")");
-        name.setOnMouseClicked(event -> {
+        AnimatedLabel name = new AnimatedLabel(getHeaderText() + " (line" + getUsageLine()+")", callTree, listener);
+
+/*        name.setOnMouseClicked(event -> {
             listener.onRequestHighlight(callTree.getFilename(), callTree.getStartToken(), callTree.getStopToken());
-        });
+        });*/
         vbox.getChildren().add(name);
         if(!paramArgsList.isEmpty()) {
             vbox.getChildren().add(createArgumentView(paramArgsList, listener));
