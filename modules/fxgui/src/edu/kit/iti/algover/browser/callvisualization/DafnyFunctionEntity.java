@@ -2,9 +2,11 @@ package edu.kit.iti.algover.browser.callvisualization;
 
 import edu.kit.iti.algover.dafnystructures.DafnyDecl;
 import edu.kit.iti.algover.dafnystructures.DafnyFunction;
+import edu.kit.iti.algover.parser.DafnyParser;
 import edu.kit.iti.algover.parser.DafnyTree;
 import javafx.scene.Node;
 import javafx.scene.layout.*;
+import org.antlr.runtime.tree.Tree;
 
 import java.util.List;
 
@@ -123,7 +125,7 @@ public class DafnyFunctionEntity extends AbstractCallEntity {
         if (isCall()) {
             name = new AnimatedLabel(headerText + " (line" + getUsageLine() + ")", callTree, listener);
         } else {
-            name = new AnimatedLabel("Of " + getEntity().getName() + " in line" + getUsageLine(), callTree, listener);
+            name = new AnimatedLabel(getEntity().getName() + getOuterEntity(callTree)+ " in line" + getUsageLine(), callTree, listener );
         }
 /*        name.setOnMouseClicked(event -> {
             listener.onRequestHighlight(callTree.getFilename(), callTree.getStartToken(), callTree.getStopToken());
@@ -158,6 +160,7 @@ public class DafnyFunctionEntity extends AbstractCallEntity {
     public String getEntityName() {
         return this.getEntity().getName();
     }
+
 
 
 }

@@ -13,6 +13,7 @@ import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import net.miginfocom.layout.AC;
 import net.miginfocom.layout.LC;
+import org.antlr.runtime.tree.Tree;
 import org.tbee.javafx.scene.layout.MigPane;
 
 import java.util.ArrayList;
@@ -313,6 +314,32 @@ public abstract class AbstractCallEntity {
 
             }
         }
+    }
+
+    String getOuterEntity(DafnyTree callTree) {
+        StringBuilder sb = new StringBuilder();
+
+        Tree parent =  callTree.getParent();
+        while(parent.getParent() != null ){
+            if(parent.getType() == DafnyParser.METHOD || parent.getType() == DafnyParser.FUNCTION)
+                break;
+            else
+                parent = parent.getParent();
+        }
+        DafnyTree unit = (DafnyTree) parent;
+        switch(unit.getType()){
+            case DafnyParser.METHOD:
+                sb.append(" in Method ");
+                sb.append(unit.getChild(0).getText());
+                break;
+            case DafnyParser.FUNCTION:
+                sb.append(" in Function ");
+                sb.append(unit.getChild(0).getText());
+                break;
+            default:
+        }
+
+        return sb.toString();
     }
 
 

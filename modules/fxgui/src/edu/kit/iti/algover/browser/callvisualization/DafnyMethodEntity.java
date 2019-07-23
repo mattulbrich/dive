@@ -76,9 +76,11 @@ public class DafnyMethodEntity extends AbstractCallEntity {
         if(!isCall()){
             return "Method "+method.getName()+" in "+callTree.getChild(0).getText();
         } else {
-            return "Method " + method.getName();
+            return "Method " + method.getName() + getOuterEntity(callTree);
         }
     }
+
+
 
     @Override
     public int getUsageLine() {
