@@ -5,6 +5,7 @@ import edu.kit.iti.algover.dafnystructures.DafnyFunction;
 import edu.kit.iti.algover.parser.DafnyParser;
 import edu.kit.iti.algover.parser.DafnyTree;
 import javafx.scene.Node;
+import javafx.scene.control.Label;
 import javafx.scene.layout.*;
 import org.antlr.runtime.tree.Tree;
 
@@ -127,12 +128,11 @@ public class DafnyFunctionEntity extends AbstractCallEntity {
         } else {
             name = new AnimatedLabel(getEntity().getName() + getOuterEntity(callTree)+ " in line" + getUsageLine(), callTree, listener );
         }
-/*        name.setOnMouseClicked(event -> {
-            listener.onRequestHighlight(callTree.getFilename(), callTree.getStartToken(), callTree.getStopToken());
-        });*/
         vbox.getChildren().add(name);
         if (!paramArgsList.isEmpty()) {
             vbox.getChildren().add(createArgumentView(paramArgsList, listener));
+        } else {
+            vbox.getChildren().add(new Label("This function has no parameters"));
         }
         if (fPre.size() > 0) {
             vbox.getChildren().add(createPreconditionView(fPre, listener));

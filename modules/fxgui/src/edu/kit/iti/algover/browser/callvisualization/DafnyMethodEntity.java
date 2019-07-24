@@ -93,13 +93,11 @@ public class DafnyMethodEntity extends AbstractCallEntity {
         vbox.setBackground(WHITE_BACKGROUND);
         vbox.setSpacing(10);
         AnimatedLabel name = new AnimatedLabel(getHeaderText() + " (line " + getUsageLine()+")", callTree, listener);
-
-/*        name.setOnMouseClicked(event -> {
-            listener.onRequestHighlight(callTree.getFilename(), callTree.getStartToken(), callTree.getStopToken());
-        });*/
         vbox.getChildren().add(name);
         if(!paramArgsList.isEmpty()) {
             vbox.getChildren().add(createArgumentView(paramArgsList, listener));
+        } else {
+            vbox.getChildren().add(new Label("This method has no parameters"));
         }
         if(mPre.size() > 0) {
             vbox.getChildren().add(createPreconditionView(mPre, listener));

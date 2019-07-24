@@ -53,9 +53,7 @@ public class SimpleListVisualizationPane extends DialogPane {
         }
         calls.forEach(abstractCallEntity -> {
             listV.getChildren().add(abstractCallEntity.getNode());
-            //Separator e = new Separator(Orientation.HORIZONTAL);
-            //e.setPadding(new Insets(10,0,10,0));
-            //listV.getChildren().add(e);
+
         });
         Separator e = new Separator(Orientation.HORIZONTAL);
         e.setPadding(new Insets(10,0,10,0));
@@ -66,12 +64,10 @@ public class SimpleListVisualizationPane extends DialogPane {
             Label callCat = new Label("Callsites:");
             callCat.setStyle("-fx-font-weight: bold; -fx-font-size: 14pt;");
             listV.getChildren().add(callCat);
-
         }
 
         callsites.forEach(abstractCallEntity -> {
             listV.getChildren().add(abstractCallEntity.getNode());
-            //listV.getChildren().add(new Separator(Orientation.HORIZONTAL));
         });
      /*   listview.setCellFactory(new Callback<ListView<AbstractCallEntity>, ListCell<AbstractCallEntity>>() {
             @Override

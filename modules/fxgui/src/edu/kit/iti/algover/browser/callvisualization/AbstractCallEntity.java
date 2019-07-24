@@ -5,6 +5,7 @@ import edu.kit.iti.algover.parser.DafnyParser;
 import edu.kit.iti.algover.parser.DafnyTree;
 import edu.kit.iti.algover.parser.DafnyTreeDefaultVisitor;
 import javafx.beans.property.SimpleStringProperty;
+import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
 import javafx.scene.Node;
 import javafx.scene.control.Label;
@@ -57,9 +58,10 @@ public abstract class AbstractCallEntity {
      Node createDecreasesView(DafnyTree decreasesClause, HighlightingHandler listener) {
         VBox vbox = new VBox();
         Label header = new Label("Decreases Clause:");
+         header.setStyle("-fx-font-weight: bold");
+
         AnimatedLabel decrs = new AnimatedLabel(decreasesClause.accept(new DafnyFunctionEntity.DafnySpecTreeStringVisitor(), null), decreasesClause, listener);
-        header.setStyle("-fx-font-weight: bold");
- //       decrs.setOnMouseClicked(event -> listener.onRequestHighlight(decreasesClause.getFilename(), decreasesClause.getStartToken(), decreasesClause.getStopToken()));
+        decrs.setPadding(new Insets(0,0,0,20));
         vbox.getChildren().addAll(header, decrs);
         return vbox;
     }
@@ -80,9 +82,8 @@ public abstract class AbstractCallEntity {
         header.setStyle("-fx-font-weight: bold");
         vbox.getChildren().add(header);
         conditions.forEach(dafnyTree -> {
-
             AnimatedLabel l = new AnimatedLabel(dafnyTree.accept(new DafnyFunctionEntity.DafnySpecTreeStringVisitor(), null), dafnyTree, listener);
-           // l.setOnMouseClicked(event -> listener.onRequestHighlight(dafnyTree.getFilename(), dafnyTree.getStartToken(), dafnyTree.getStopToken()));
+            l.setPadding(new Insets(0,0,0,20));
             vbox.getChildren().add(l);
         });
 
@@ -90,6 +91,12 @@ public abstract class AbstractCallEntity {
         return vbox;
     }
 
+    /***
+     * Creates the view containing the Parameter information
+     * @param paramArgsList
+     * @param listener
+     * @return
+     */
     Node createArgumentView(List<DafnyFunctionEntity.ParamValueObject> paramArgsList, HighlightingHandler listener) {
 
         MigPane mp = new MigPane(new LC().wrapAfter(5).gridGapX("10px"), new AC().grow(1).size("pref",0,2,3,4));
@@ -103,10 +110,7 @@ public abstract class AbstractCallEntity {
         paramArgsList.forEach(paramValueObject -> {
             DafnyTree nameTree = paramValueObject.getNameTree();
             AnimatedLabel pname = new AnimatedLabel(paramValueObject.getName(), nameTree, listener);
-/*            pname.setOnMouseClicked(event -> {
 
-                listener.onRequestHighlight(nameTree.getFilename(), nameTree.getStartToken(), nameTree.getStopToken());
-            });*/
             Separator s = new Separator(Orientation.VERTICAL);
             s.setMinHeight(pname.getMinHeight());
             s.setMaxHeight(pname.getMaxHeight());
@@ -115,12 +119,6 @@ public abstract class AbstractCallEntity {
             DafnyTree typeTree = paramValueObject.getTypeTree();
             AnimatedLabel ptype = new AnimatedLabel(paramValueObject.getType(), typeTree, listener);
 
-
-/*            ptype.setOnMouseClicked(event -> {
-                DafnyTree typeTree = paramValueObject.getTypeTree();
-                listener.onRequestHighlight(typeTree.getFilename(), typeTree.getStartToken(), typeTree.getStopToken());
-            });*/
-
             Separator s1 = new Separator(Orientation.VERTICAL);
             s1.setMinHeight(ptype.getMinHeight());
             s1.setMaxHeight(ptype.getMaxHeight());
@@ -128,26 +126,23 @@ public abstract class AbstractCallEntity {
 
             DafnyTree valueTree = paramValueObject.getValueTree();
             AnimatedLabel pValue = new AnimatedLabel(paramValueObject.getValue(), valueTree, listener);
-/*
-            pValue.setOnMouseClicked(event -> {
-                DafnyTree valueTree = paramValueObject.getValueTree();
-                listener.onRequestHighlight(valueTree.getFilename(), valueTree.getStartToken(), valueTree.getStopToken());
-            });
-*/
-
             mp.add(pname);
             mp.add(s);
             mp.add(ptype);
             mp.add(s1);
             mp.add(pValue);
-//            mp.add(s2);
         });
         return mp;
 
     }
 
 
-
+    /**
+     * Extract a list of objects that contain parameters and their values upon call
+     * @param fArguments The DafnyTrees representing the arguments on call
+     * @param fParams The DafnyTrees representing the parameter declaration
+     * @return List of ParamValueObjects containing the relations between parameter declaration and the values upon call
+     */
      List<ParamValueObject> extractParams(List<DafnyTree> fArguments, List<DafnyTree> fParams) {
         //Name, type, value
         List<ParamValueObject> list = new ArrayList<>();
@@ -165,7 +160,7 @@ public abstract class AbstractCallEntity {
     }
 
     /**
-     * Visitor to extract the String representation of different artifacts
+     * Visitor to extract the String representation of different Dafny entities
      */
     public class DafnySpecTreeStringVisitor extends DafnyTreeDefaultVisitor<String, Void> {
 
@@ -317,6 +312,11 @@ public abstract class AbstractCallEntity {
         }
     }
 
+    /**
+     * Find the outer entity of a DafnyTree if a callsite needs to be displayed
+     * @param callTree Method or Function that was called in a context
+     * @return the String representation of the outer context
+     */
     String getOuterEntity(DafnyTree callTree) {
         StringBuilder sb = new StringBuilder();
         Token start = callTree.getStartToken();
