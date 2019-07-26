@@ -6,6 +6,7 @@ import edu.kit.iti.algover.parser.DafnyParser;
 import edu.kit.iti.algover.parser.DafnyTree;
 import javafx.scene.Node;
 import javafx.scene.control.Label;
+import javafx.scene.control.TitledPane;
 import javafx.scene.layout.*;
 import org.antlr.runtime.tree.Tree;
 
@@ -123,11 +124,18 @@ public class DafnyFunctionEntity extends AbstractCallEntity {
         vbox.setSpacing(10);
 
         AnimatedLabel name;
+        String nameText = "";
+
         if (isCall()) {
-            name = new AnimatedLabel(headerText + " (line" + getUsageLine() + ")", callTree, listener);
+            nameText = headerText + " (line" + getUsageLine() + ")";
+
         } else {
-            name = new AnimatedLabel(getEntity().getName() + getOuterEntity(callTree)+ " in line" + getUsageLine(), callTree, listener );
+            nameText = getEntity().getName() + getOuterEntity(callTree) + " in line" + getUsageLine();
         }
+        name = new AnimatedLabel(nameText, callTree, listener );
+
+        TitledPane tp = new TitledPane();
+
         vbox.getChildren().add(name);
         if (!paramArgsList.isEmpty()) {
             vbox.getChildren().add(createArgumentView(paramArgsList, listener));
@@ -144,7 +152,13 @@ public class DafnyFunctionEntity extends AbstractCallEntity {
         if (fDecreasesClause != null && isCall()) {
             vbox.getChildren().add(createDecreasesView(fDecreasesClause, listener));
         }
-        return vbox;
+        tp.setText(nameText);
+        tp.setContent(vbox);
+        tp.setCollapsible(true);
+        tp.setExpanded(false);
+        return tp;
+        //Accordion -> TitledPane->
+        //return vbox;
 
 
     }

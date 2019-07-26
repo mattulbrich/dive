@@ -5,6 +5,7 @@ import edu.kit.iti.algover.dafnystructures.DafnyMethod;
 import edu.kit.iti.algover.parser.DafnyTree;
 import javafx.scene.Node;
 import javafx.scene.control.Label;
+import javafx.scene.control.TitledPane;
 import javafx.scene.layout.VBox;
 
 import java.util.List;
@@ -89,10 +90,12 @@ public class DafnyMethodEntity extends AbstractCallEntity {
 
     @Override
     public Node getNode() {
+        TitledPane tp = new TitledPane();
         VBox vbox= new VBox();
         vbox.setBackground(WHITE_BACKGROUND);
         vbox.setSpacing(10);
-        AnimatedLabel name = new AnimatedLabel(getHeaderText() + " (line " + getUsageLine()+")", callTree, listener);
+        String nameText = getHeaderText() + " (line " + getUsageLine() + ")";
+        AnimatedLabel name = new AnimatedLabel(nameText, callTree, listener);
         vbox.getChildren().add(name);
         if(!paramArgsList.isEmpty()) {
             vbox.getChildren().add(createArgumentView(paramArgsList, listener));
@@ -109,7 +112,13 @@ public class DafnyMethodEntity extends AbstractCallEntity {
         if(mDecreasesClause != null){
             vbox.getChildren().add(createDecreasesView(mDecreasesClause, listener));
         }
-        return vbox;
+
+        tp.setText(nameText);
+        tp.setContent(vbox);
+        tp.setCollapsible(true);
+        tp.setExpanded(false);
+        return tp;
+    //    return vbox;
 
     }
 

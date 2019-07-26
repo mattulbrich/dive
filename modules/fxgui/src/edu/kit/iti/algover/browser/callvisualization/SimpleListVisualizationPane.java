@@ -29,6 +29,8 @@ public class SimpleListVisualizationPane extends DialogPane {
         this.model = model;
         this.listener = listener;
 
+
+
         Collection<DafnyTree> callList = model.getCalls();
         callList.forEach(dafnyTree -> {
             AbstractCallEntity accept = model.getDecl(dafnyTree).accept(new DafnyCallEntityVisitor(listener, true), dafnyTree);
