@@ -4,12 +4,15 @@ import edu.kit.iti.algover.dafnystructures.DafnyDecl;
 import edu.kit.iti.algover.dafnystructures.DafnyFunction;
 import edu.kit.iti.algover.parser.DafnyParser;
 import edu.kit.iti.algover.parser.DafnyTree;
+import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.control.Label;
 import javafx.scene.control.TitledPane;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.*;
 import org.antlr.runtime.tree.Tree;
 
+import javax.swing.*;
 import java.util.List;
 
 /**
@@ -127,16 +130,24 @@ public class DafnyFunctionEntity extends AbstractCallEntity {
         String nameText = "";
 
         if (isCall()) {
-            nameText = headerText + " (line" + getUsageLine() + ")";
+            nameText = headerText;
 
         } else {
-            nameText = getEntity().getName() + getOuterEntity(callTree) + " in line" + getUsageLine();
+            nameText = getOuterEntity(callTree);
         }
         name = new AnimatedLabel(nameText, callTree, listener );
-
+        name.setAlignment(Pos.BOTTOM_LEFT);
+        AnimatedLabel lineNumber = new AnimatedLabel("(line "+getUsageLine()+")", callTree, listener);
+        lineNumber.setAlignment(Pos.CENTER_RIGHT);
+        HBox nameBox = new HBox();
+        nameBox.getChildren().add(name);
+        Region spacer = new Region();
+        HBox.setHgrow(spacer, Priority.ALWAYS);
+        nameBox.getChildren().add(spacer);
+        nameBox.getChildren().add(lineNumber);
         TitledPane tp = new TitledPane();
 
-        vbox.getChildren().add(name);
+        vbox.getChildren().add(nameBox);
         if (!paramArgsList.isEmpty()) {
             vbox.getChildren().add(createArgumentView(paramArgsList, listener));
         } else {
@@ -152,10 +163,14 @@ public class DafnyFunctionEntity extends AbstractCallEntity {
         if (fDecreasesClause != null && isCall()) {
             vbox.getChildren().add(createDecreasesView(fDecreasesClause, listener));
         }
-        tp.setText(nameText);
+        tp.setText(nameText+" @line "+getUsageLine());
         tp.setContent(vbox);
         tp.setCollapsible(true);
         tp.setExpanded(false);
+        AnimatedLabelMouseEventHandler eventHandler = new AnimatedLabelMouseEventHandler(name, callTree, listener);
+        tp.addEventHandler(MouseEvent.MOUSE_ENTERED, eventHandler);
+        tp.addEventHandler(MouseEvent.MOUSE_EXITED, eventHandler);
+
         return tp;
         //Accordion -> TitledPane->
         //return vbox;

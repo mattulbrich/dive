@@ -3,9 +3,14 @@ package edu.kit.iti.algover.browser.callvisualization;
 import edu.kit.iti.algover.dafnystructures.DafnyDecl;
 import edu.kit.iti.algover.dafnystructures.DafnyMethod;
 import edu.kit.iti.algover.parser.DafnyTree;
+import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.control.Label;
 import javafx.scene.control.TitledPane;
+import javafx.scene.input.MouseEvent;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.Priority;
+import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
 
 import java.util.List;
@@ -75,7 +80,7 @@ public class DafnyMethodEntity extends AbstractCallEntity {
     @Override
     public String getHeaderText() {
         if(!isCall()){
-            return "Method "+ method.getName() + getOuterEntity(callTree);
+            return getOuterEntity(callTree);
         } else {
             return "Method " + method.getName();
         }
@@ -94,9 +99,21 @@ public class DafnyMethodEntity extends AbstractCallEntity {
         VBox vbox= new VBox();
         vbox.setBackground(WHITE_BACKGROUND);
         vbox.setSpacing(10);
-        String nameText = getHeaderText() + " (line " + getUsageLine() + ")";
-        AnimatedLabel name = new AnimatedLabel(nameText, callTree, listener);
-        vbox.getChildren().add(name);
+
+        AnimatedLabel name = new AnimatedLabel(getHeaderText(), callTree, listener);
+        name.setAlignment(Pos.BOTTOM_LEFT);
+        AnimatedLabel lineNumber = new AnimatedLabel("(line "+getUsageLine()+")", callTree, listener);
+        lineNumber.setAlignment(Pos.CENTER_RIGHT);
+
+        HBox nameBox = new HBox();
+        nameBox.getChildren().add(name);
+        Region spacer = new Region();
+        HBox.setHgrow(spacer, Priority.ALWAYS);
+        nameBox.getChildren().add(spacer);
+        nameBox.getChildren().add(lineNumber);
+
+
+        vbox.getChildren().add(nameBox);
         if(!paramArgsList.isEmpty()) {
             vbox.getChildren().add(createArgumentView(paramArgsList, listener));
         } else {
@@ -113,10 +130,14 @@ public class DafnyMethodEntity extends AbstractCallEntity {
             vbox.getChildren().add(createDecreasesView(mDecreasesClause, listener));
         }
 
-        tp.setText(nameText);
+        tp.setText(getHeaderText()+" @line "+getUsageLine());
         tp.setContent(vbox);
         tp.setCollapsible(true);
         tp.setExpanded(false);
+        AnimatedLabelMouseEventHandler eventHandler = new AnimatedLabelMouseEventHandler(name, callTree, listener);
+        tp.addEventHandler(MouseEvent.MOUSE_ENTERED, eventHandler);
+        tp.addEventHandler(MouseEvent.MOUSE_EXITED, eventHandler);
+
         return tp;
     //    return vbox;
 

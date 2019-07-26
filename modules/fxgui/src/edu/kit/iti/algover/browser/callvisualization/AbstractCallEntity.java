@@ -101,12 +101,12 @@ public abstract class AbstractCallEntity {
 
         MigPane mp = new MigPane(new LC().wrapAfter(5).gridGapX("10px"), new AC().grow(1).size("pref",0,2,3,4));
         mp.setBorder(new Border(new BorderStroke(Color.GRAY, BorderStrokeStyle.SOLID, null, new BorderWidths(1))));
-        mp.add(new Label("Parameter Name"));
+        mp.add(new Label("Parameter"));
         Separator node = new Separator(Orientation.VERTICAL);
         mp.add(node);
         mp.add(new Label("Type"));
         mp.add(new Separator(Orientation.VERTICAL));
-        mp.add(new Label("Argument on call"));
+        mp.add(new Label("Argument"));
         paramArgsList.forEach(paramValueObject -> {
             DafnyTree nameTree = paramValueObject.getNameTree();
             AnimatedLabel pname = new AnimatedLabel(paramValueObject.getName(), nameTree, listener);
@@ -342,11 +342,11 @@ public abstract class AbstractCallEntity {
         if(unit != null) {
             switch (unit.getType()) {
                 case DafnyParser.METHOD:
-                    sb.append(" is called in Method ");
+                    sb.append("In Method ");
                     sb.append(unit.getChild(0).getText());
                     break;
                 case DafnyParser.FUNCTION:
-                    sb.append(" is called in Function ");
+                    sb.append("In Function ");
                     sb.append(unit.getChild(0).getText());
                     break;
                 default:

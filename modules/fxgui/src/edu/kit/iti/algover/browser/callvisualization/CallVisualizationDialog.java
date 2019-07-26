@@ -23,6 +23,7 @@ public class CallVisualizationDialog extends Alert implements HighlightingHandle
         this.lookup = lookup;
         pane = new SimpleListVisualizationPane(model, this);
         this.setDialogPane(pane);
+        pane.setHeaderText("Calls and Callsites of "+model.getSelectedDeclaration().getName());
         this.getButtonTypes().add(ButtonType.CLOSE);
     }
 

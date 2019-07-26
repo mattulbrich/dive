@@ -6,6 +6,7 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
+import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.layout.*;
 
@@ -29,8 +30,6 @@ public class SimpleListVisualizationPane extends DialogPane {
         this.model = model;
         this.listener = listener;
 
-
-
         Collection<DafnyTree> callList = model.getCalls();
         callList.forEach(dafnyTree -> {
             AbstractCallEntity accept = model.getDecl(dafnyTree).accept(new DafnyCallEntityVisitor(listener, true), dafnyTree);
@@ -46,7 +45,7 @@ public class SimpleListVisualizationPane extends DialogPane {
 
         VBox listV = new VBox();
         listV.setPadding(new Insets(40,10,40,10));
-        listV.setSpacing(15);
+        listV.setSpacing(20);
 
         if(!calls.isEmpty()){
             Label callCat = new Label("Calls:");
@@ -54,7 +53,9 @@ public class SimpleListVisualizationPane extends DialogPane {
             listV.getChildren().add(callCat);
         }
         calls.forEach(abstractCallEntity -> {
-            listV.getChildren().add(abstractCallEntity.getNode());
+            Node node = abstractCallEntity.getNode();
+            VBox.setVgrow(node, Priority.ALWAYS);
+            listV.getChildren().add(node);
 
         });
         Separator e = new Separator(Orientation.HORIZONTAL);
@@ -69,7 +70,9 @@ public class SimpleListVisualizationPane extends DialogPane {
         }
 
         callsites.forEach(abstractCallEntity -> {
-            listV.getChildren().add(abstractCallEntity.getNode());
+            Node node = abstractCallEntity.getNode();
+            VBox.setVgrow(node, Priority.ALWAYS);
+            listV.getChildren().add(node);
         });
      /*   listview.setCellFactory(new Callback<ListView<AbstractCallEntity>, ListCell<AbstractCallEntity>>() {
             @Override
