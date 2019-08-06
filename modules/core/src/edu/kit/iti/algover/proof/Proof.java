@@ -1,7 +1,14 @@
+/**
+ * This file is part of DIVE.
+ *
+ * Copyright (C) 2015-2019 Karlsruhe Institute of Technology
+ */
 package edu.kit.iti.algover.proof;
 
 import edu.kit.iti.algover.data.MapSymbolTable;
+import edu.kit.iti.algover.dafnystructures.DafnyFile;
 import edu.kit.iti.algover.project.Project;
+import edu.kit.iti.algover.references.ReferenceGraph;
 import edu.kit.iti.algover.rules.RuleException;
 import edu.kit.iti.algover.script.ast.*;
 import edu.kit.iti.algover.script.exceptions.InterpreterRuntimeException;
@@ -27,6 +34,15 @@ import java.util.*;
  * @author M. Ulbrich, refactoring Jan 2018
  */
 public class Proof {
+
+    public ReferenceGraph getGraph() {
+        return graph;
+    }
+
+    /**
+     * The reference graph for the current proof
+     */
+    private ReferenceGraph graph;
 
     /**
      * Status of proof.
@@ -74,6 +90,18 @@ public class Proof {
     /*@ invariant failException != null <==> poofStatus.getValue() == FAIL; */
     private Exception failException;
 
+    public DafnyFile getDfyFile() {
+        return dfyFile;
+    }
+
+    public void setDfyFile(DafnyFile dfyFile) {
+        this.dfyFile = dfyFile;
+    }
+      /**
+     * DafnyFile for this proof. Needed for ReferenceGraph. Is allowed to be null for downwards compatibility
+     */
+    private @Nullable DafnyFile dfyFile;
+
     /**
      * This map allows to get the proofNode resulting from executing a script given as an ASTNode.
      */
@@ -83,6 +111,15 @@ public class Proof {
     public Proof(@NonNull Project project, @NonNull PVC pvc) {
         this.project = project;
         this.pvc = pvc;
+    }
+
+
+    public Proof(@NonNull Project project, @NonNull PVC pvc, @NonNull DafnyFile dfyFile ) {
+        this.project = project;
+        this.pvc = pvc;
+        this.dfyFile = dfyFile;
+        this.graph = new ReferenceGraph();
+        this.graph.addFromReferenceMap(dfyFile, pvc.getReferenceMap());
     }
 
     public @NonNull Project getProject() {
@@ -146,12 +183,15 @@ public class Proof {
         try {
             // TODO Exception handling
             this.scriptAST = Facade.getAST(script);
+            //save old root
+            ProofNode oldRoot = getProofRoot();
 
             Interpreter<ProofNode> interpreter = buildIndividualInterpreter();
 
             // Caution: Keep this pure constructor call, it performs the computation!
             new ProofNodeInterpreterManager(interpreter, this);
             interpreter.newState(newRoot);
+            this.proofRoot = newRoot;
 
             astToPn = new HashMap<>();
             scriptAST.getBody().forEach(interpreter::interpret);
@@ -191,6 +231,7 @@ public class Proof {
                 .setProofRules(this.project.getAllProofRules())
                 .startState(getProofRoot())
                 .addMatcher(new TermMatcherApi())
+                .setProof(this)
                 .build();
 
         return i;
@@ -211,6 +252,9 @@ public class Proof {
     public Proof setScriptTextAndInterpret(String scriptText) {
         setScriptText(scriptText);
         interpretScript();
+        if(this.getGraph() != null){
+            graph.toString();
+        }
         return this;
     }
 
@@ -275,6 +319,8 @@ class ProofNodeInterpreterManager {
     final Proof proof;
     private ProofNode lastSelectedGoalNode;
 
+
+    private ReferenceGraph graph;
     /**
      * The proofNodeInterpreterManager adds an entry and an exit listner to the interpreter to listen what event happen
      * during AST-Node visiting
@@ -286,8 +332,16 @@ class ProofNodeInterpreterManager {
         this.proof = proof;
         interpreter.getExitListeners().add(new ExitListener());
         interpreter.getEntryListeners().add(new EntryListener());
+        this.graph = interpreter.getCurrentProof().getGraph();
     }
 
+    /**
+     * Access the current ReferenceGraph
+     * @return
+     */
+    public ReferenceGraph getGraph() {
+        return graph;
+    }
 
     private class EntryListener extends DefaultASTVisitor<Void> {
         @Override
