@@ -4,6 +4,7 @@ import edu.kit.iti.algover.proof.Proof;
 import edu.kit.iti.algover.proof.ProofNode;
 import edu.kit.iti.algover.proof.ProofNodeSelector;
 import edu.kit.iti.algover.rule.RuleApplicationListener;
+import edu.kit.iti.algover.rules.RuleException;
 import edu.kit.iti.algover.script.ast.ASTNode;
 import edu.kit.iti.algover.script.ast.Position;
 import edu.kit.iti.algover.script.ast.ProofScript;
@@ -12,17 +13,21 @@ import edu.kit.iti.algover.script.parser.PrettyPrinter;
 import edu.kit.iti.algover.util.ExceptionDetails;
 import edu.kit.iti.algover.util.Pair;
 import javafx.beans.Observable;
+import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleObjectProperty;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
+import javafx.collections.FXCollections;
+import javafx.collections.ListChangeListener;
+import javafx.collections.ObservableList;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyCodeCombination;
 import javafx.scene.input.KeyCombination;
 import javafx.scene.input.KeyEvent;
 
 import java.awt.*;
-import java.util.Collection;
-import java.util.Collections;
+import java.util.*;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
@@ -38,10 +43,15 @@ public class ScriptController implements ScriptViewListener {
 
     //Is 1-Indexed!!
     private SimpleObjectProperty<Position> observableInsertPosition = new SimpleObjectProperty<Position>(new Position(1,0));
-    private Proof proof;
-    private List<ProofNodeCheckpoint> checkpoints;
 
+
+    private Proof proof;
+    private ObservableList<ProofNodeCheckpoint> checkpoints = FXCollections.observableArrayList();
+
+    int sizeOfCheckpoints = 0;
     private LayeredHighlightingRulev4 highlightingRules;
+
+    private PositionChangedListener positionListener;
 
     public ScriptController(ExecutorService executor, RuleApplicationListener listener) {
         this.view = new ScriptView(executor, this);
@@ -52,10 +62,11 @@ public class ScriptController implements ScriptViewListener {
 
         view.caretPositionProperty().addListener(this::onCaretPositionChanged);
 
+        //observable insertposition starts with 1
         observableInsertPosition.set(new Position(1,0));
-        observableInsertPosition.addListener((o, old, nv) -> {
-            onInsertPositionChanged(old, nv);
-        });
+        positionListener = new PositionChangedListener(this);
+        observableInsertPosition.addListener(this.positionListener);
+
 
         view.getGutterAnnotations().get(0).setInsertMarker(true);
         view.getGutterAnnotations().get(0).setProofNode(new ProofNodeSelector());
@@ -65,8 +76,14 @@ public class ScriptController implements ScriptViewListener {
 
     }
 
+    /**
+     * sets the markers in the gutter. CAUTION: in contrast to visualization these markers start with index 0
+     * @param old
+     * @param nv
+     */
     private void onInsertPositionChanged(Position old, Position nv) {
         if(old != null) {
+
             view.getGutterAnnotations().get(old.getLineNumber() - 1).setInsertMarker(false);
             view.getGutterAnnotations().forEach(gutterAnnotation -> gutterAnnotation.setProofNodeIsSelected(false));
             //view.getGutterAnnotations().get(old.getLineNumber() - 1).setProofNodeIsSelected(false);
@@ -99,7 +116,7 @@ public class ScriptController implements ScriptViewListener {
     public void setProof(Proof proof) {
         this.proof = proof;
 
-        this.checkpoints = ProofNodeCheckpointsBuilder.build(proof);
+        this.checkpoints.setAll(ProofNodeCheckpointsBuilder.build(proof));
 
         view.replaceText(proof.getScript());
         view.getUndoManager().forgetHistory();
@@ -114,21 +131,60 @@ public class ScriptController implements ScriptViewListener {
         if(checkpoint != null) {
             showSelectedSelector(checkpoint);
         }
-        updateInsertPosition();
+        //updateInsertPosition();
+        updateInsertPosition(observableInsertPosition.get());
         switchViewedNode();
         view.highlightLine();
     }
 
-    private void updateInsertPosition() {
+    /*private void updateInsertPosition() {
         Position caretPosition = computePositionFromCharIdx(view.getCaretPosition(), view.getText());
         ProofNodeCheckpoint insertCheckpoint = getCheckpointForPosition(caretPosition);
         if(insertCheckpoint != null) {
             setObservableInsertPosition(new Position(insertCheckpoint.position.getLineNumber() + 1, 0));
         } else {
             //no checkpoint found so the script should be empty
-            setObservableInsertPosition((new Position (0, 0)));
+            setObservableInsertPosition((new Position (1, 0)));
         }
+    }*/
+
+    private void updateInsertPosition(Position oldInsertPos) {
+
+        Position caretPosition = computePositionFromCharIdx(view.getCaretPosition(), view.getText());
+        ProofNodeCheckpoint insertCheckpoint = getCheckpointForPosition(caretPosition);
+        ProofNodeCheckpoint oldInsertCheckpoint = getCheckpointForPosition(oldInsertPos);
+
+        int oldSize = this.sizeOfCheckpoints;
+        int newSize = checkpoints.size();
+
+        //no new checkpoints added -> we only moved cursor
+        if(insertCheckpoint != null) {
+            //no new checkpoints added -> we only moved cursor => set observableinsertPos to caretlinenumer+1
+            if(oldSize == newSize) {
+                //the position was probably changed by setting cursor somewhere else
+                setObservableInsertPosition(new Position(insertCheckpoint.position.getLineNumber() + 1, 0));
+
+            } else {
+                //we have new checkpoints and need to find the position where to add the next command
+                int difference = newSize - oldSize;
+                assert difference >= 0;
+                if(oldInsertCheckpoint != null)
+                    setObservableInsertPosition(new Position( oldInsertPos.getLineNumber() + 1, 0));
+                else
+                    setObservableInsertPosition(new Position( insertCheckpoint.position.getLineNumber() + 1, 0));
+            }
+        } else {
+            //no checkpoint found so the script should be empty
+            setObservableInsertPosition((new Position (1, 0)));
+        }
+
+        this.sizeOfCheckpoints = checkpoints.size();
+
+
     }
+
+
+
 
     private void showSelectedSelector(ProofNodeCheckpoint checkpoint) {
         view.getGutterAnnotations().forEach(gutterAnnotation -> gutterAnnotation.setProofNodeIsSelected(false));
@@ -241,9 +297,10 @@ public class ScriptController implements ScriptViewListener {
     public void runScript() {
 
         Position oldInsertPos = getObservableInsertPosition();
+        this.sizeOfCheckpoints = checkpoints.size();
         String text = view.getText();
         resetExceptionRendering();
-
+        observableInsertPosition.removeListener(positionListener);
         ProofScript ps = Facade.getAST(text);
         PrettyPrinter pp = new PrettyPrinter();
         ps.accept(pp);
@@ -258,16 +315,27 @@ public class ScriptController implements ScriptViewListener {
             Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).severe(proof.getFailException().getMessage());
             proof.getFailException().printStackTrace();
         }
-        checkpoints = ProofNodeCheckpointsBuilder.build(proof);
+        checkpoints.setAll(ProofNodeCheckpointsBuilder.build(proof));
        // insertPosition = oldInsertPos;
-        observableInsertPosition.set(oldInsertPos);
+        //observableInsertPosition.set(oldInsertPos);
+
         createVisualSelectors(checkpoints);
+        observableInsertPosition.addListener(positionListener);
+
+        //new insert position has to be computed and updated
+        //updateInsertPosition();
+        updateInsertPosition(oldInsertPos);
 
         //JK: This should not be necessary since the changed text triggers onTextChanged and onCaretPositionChanged
+        //SaG: this is necessary such taht the right tab is shown in the view
         switchViewedNode();
         view.setStyle("-fx-background-color: white;");
     }
 
+    /**
+     * This method draws the circles in the gutter where a proof node can be selected
+     * @param checkpoints
+     */
     private void createVisualSelectors(List<ProofNodeCheckpoint> checkpoints) {
         for (ProofNodeCheckpoint checkpoint : this.checkpoints) {
             int checkpointline = checkpoint.position.getLineNumber();
@@ -327,6 +395,7 @@ public class ScriptController implements ScriptViewListener {
         highlightingRules.setLayer(0, (token, syntaxClasses) -> syntaxClasses);
     }
 
+    //TODO this method is needed if a user selects a proofnode using the tabs
     public void setSelectedNode(ProofNodeSelector proofNode) {
         if(!proofNode.equals(selectedNode)) {
 //            selectedNode = proofNode;
@@ -351,6 +420,24 @@ public class ScriptController implements ScriptViewListener {
 
     public void setObservableInsertPosition(Position observableInsertPosition) {
         this.observableInsertPosition.set(observableInsertPosition);
+    }
+
+    /**
+     * Listener to act upon a change of the insertion position
+     */
+    private class PositionChangedListener implements ChangeListener<Position> {
+
+        ScriptController sc ;
+        public PositionChangedListener(ScriptController sc ){
+            this.sc =sc;
+        }
+
+
+        @Override
+        public void changed(ObservableValue<? extends Position> observable, Position oldValue, Position newValue) {
+                this.sc.onInsertPositionChanged(oldValue, newValue);
+
+        }
     }
 
 }
