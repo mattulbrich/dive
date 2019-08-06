@@ -346,30 +346,55 @@ public class ScriptController implements ScriptViewListener, ReferenceHighlighti
 
     @Override
     public void runScript() {
+        view.resetGutter();
+        view.requestLayout();
 
         Position oldInsertPos = getObservableInsertPosition();
         this.sizeOfCheckpoints = checkpoints.size();
         String text = view.getText();
         resetExceptionRendering();
         observableInsertPosition.removeListener(positionListener);
-        ProofScript ps = Facade.getAST(text);
-        PrettyPrinter pp = new PrettyPrinter();
-        ps.accept(pp);
 
-        view.replaceText(pp.toString());
-        //System.out.println("pp.toString() = " + pp.toString());
+        Exception failException = null;
 
-        proof.setScriptTextAndInterpret(pp.toString());
 
-        if(proof.getFailException() != null) {
-            renderException(proof.getFailException());
-            Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).severe(proof.getFailException().getMessage());
-            proof.getFailException().printStackTrace();
+        try {
+            //interpret the script
+            ProofScript ps = Facade.getAST(text);
+
+            PrettyPrinter pp = new PrettyPrinter();
+            ps.accept(pp);
+
+            view.replaceText(pp.toString());
+            //System.out.println("pp.toString() = " + pp.toString());
+
+            proof.setScriptTextAndInterpret(pp.toString());
+        } catch (ParseCancellationException pce) {
+            failException = pce;
+        } catch (RecognitionException re) {
+            failException = re;
+         }
+        if(failException == null) {
+            failException = proof.getFailException();
         }
+
         checkpoints.setAll(ProofNodeCheckpointsBuilder.build(proof));
        // insertPosition = oldInsertPos;
         //observableInsertPosition.set(oldInsertPos);
 
+        if(failException != null) {
+            ExceptionDetails.ExceptionReportInfo eri = ExceptionDetails.extractReportInfo(failException);
+            view.setHighlightedException(failException);
+            renderException(eri);
+            String message = failException.getMessage();
+            if (message == null || message.isEmpty()) {
+                message = failException.getClass() + " without message.";
+            }
+            Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).severe(message);
+            //failException.printStackTrace();
+        } else {
+            Logger.getGlobal().info("Successfully ran script.");
+        }
         createVisualSelectors(checkpoints);
         observableInsertPosition.addListener(positionListener);
 
@@ -380,12 +405,14 @@ public class ScriptController implements ScriptViewListener, ReferenceHighlighti
         //JK: This should not be necessary since the changed text triggers onTextChanged and onCaretPositionChanged
         //SaG: this is necessary such taht the right tab is shown in the view
         switchViewedNode();
-        view.setStyle("-fx-background-color: white;");
+        view.setStyle("-fx-background-color: white; -fx-font-size: "+fontSizeProperty.get()+"pt;");
     }
 
     @Override
     public String onInsertCases() {
-        return null;
+        System.out.println("TODO insert cases");
+        return "TODO";
+
     }
 
     /**
