@@ -6,10 +6,10 @@
 package edu.kit.iti.algover.script.interpreter;
 
 
+import edu.kit.iti.algover.proof.Proof;
 import edu.kit.iti.algover.proof.ProofNode;
 import edu.kit.iti.algover.script.ast.*;
 import edu.kit.iti.algover.script.callhandling.CommandLookup;
-//import edu.kit.iti.algover.script.data.GoalNode;
 import edu.kit.iti.algover.script.data.State;
 import edu.kit.iti.algover.script.data.Value;
 import edu.kit.iti.algover.script.data.VariableAssignment;
@@ -34,6 +34,14 @@ import java.util.stream.Stream;
 @SuppressWarnings({"unchecked", "rawtypes"})
 public class Interpreter<T> extends DefaultASTVisitor<Object>
         implements ScopeObservable {
+
+
+
+    /**
+     * The proof for this interpreter
+     */
+    private Proof currentProof;
+
     private static final int MAX_ITERATIONS = 5;
 
     /**
@@ -94,6 +102,13 @@ public class Interpreter<T> extends DefaultASTVisitor<Object>
         return functionLookup;
     }
 
+    public Proof getCurrentProof() {
+        return currentProof;
+    }
+
+    public void setCurrentProof(Proof currentProof) {
+        this.currentProof = currentProof;
+    }
     /**
      * Interpret a proof script
      * @param script the parsed proof script AST
@@ -102,7 +117,9 @@ public class Interpreter<T> extends DefaultASTVisitor<Object>
      */
     public void interpret(ProofScript script) throws ScriptCommandNotApplicableException, InterpreterRuntimeException {
         if (stateStack.empty()) {
-            throw new InterpreterRuntimeException("No state on stack. call newState before interpret");
+            InterpreterRuntimeException interpreterRuntimeException = new InterpreterRuntimeException("Internal Error: No state on stack. Call newState before interpreting");
+            interpreterRuntimeException.setLocation(script);
+            throw interpreterRuntimeException;
         }
         script.accept(this);
     }
@@ -115,7 +132,9 @@ public class Interpreter<T> extends DefaultASTVisitor<Object>
      */
     public void interpret(ASTNode node) throws ScriptCommandNotApplicableException, InterpreterRuntimeException {
         if (stateStack.empty()) {
-            throw new InterpreterRuntimeException("no state on stack. call newState before interpret");
+            InterpreterRuntimeException interpreterRuntimeException = new InterpreterRuntimeException("Internal Error: No state on stack. Call newState before interpreting");
+            interpreterRuntimeException.setLocation(node);
+            throw interpreterRuntimeException;
         }
         node.accept(this);
     }
@@ -167,7 +186,9 @@ public class Interpreter<T> extends DefaultASTVisitor<Object>
         if (expr != null) {
             Type type = newNode.getVariableType(var);
             if (type == null) {
-                throw new RuntimeException("Type of Variable " + var + " is not declared yet");
+                InterpreterRuntimeException interpreterRuntimeException = new InterpreterRuntimeException("Type of Variable " + var + " is not declared yet");
+                interpreterRuntimeException.setLocation(assignmentStatement);
+                throw interpreterRuntimeException;
             } else {
                 Value v = evaluate(expr);
                 newNode.setVariableValue(var, v);
@@ -200,6 +221,11 @@ public class Interpreter<T> extends DefaultASTVisitor<Object>
 
         //List<GoalNode<T>> allGoalsBeforeCases = beforeCases.getGoals();
         List<ProofNode> allGoalsBeforeCases = beforeCases.getGoals();
+        if(allGoalsBeforeCases.size() <= 1) {
+            InterpreterRuntimeException ire = new InterpreterRuntimeException("A cases may only be used at states with at least 2 children.");
+            ire.setLocation(casesStatement);
+            throw ire;
+        }
 
         //global List after all Case Statements
         List<ProofNode> goalsAfterCases = new ArrayList<>();
@@ -347,6 +373,10 @@ public class Interpreter<T> extends DefaultASTVisitor<Object>
      */
     @Override
     public Object visit(CallStatement call) {
+        if(peekState().getGoals().size() > 1) {
+            throw new InterpreterRuntimeException("Cannot apply rules in a state with more than one branch. " +
+                    "Add a cases-statement to resolve this.", call);
+        }
         enterScope(call);
         //neuer VarScope
         //enter new variable scope
@@ -411,6 +441,7 @@ public class Interpreter<T> extends DefaultASTVisitor<Object>
      */
     private VariableAssignment evaluateMatchInGoal(Expression matchExpression, ProofNode goal) {
         enterScope(matchExpression);
+
         Evaluator eval = new Evaluator(goal.getAssignments(), goal);
 
         //System.out.println("Goal to match " + goal);
@@ -424,9 +455,23 @@ public class Interpreter<T> extends DefaultASTVisitor<Object>
         } else {
             matchResult = new ArrayList<>();
             Value eval1 = eval.eval(matchExpression);
-            if (eval1.getType().equals(Type.BOOL) && eval1.equals(Value.TRUE)) {
-                VariableAssignment emptyAssignment = new VariableAssignment(null);
-                matchResult.add(emptyAssignment);
+            if (eval1.getType().equals(Type.BOOL)) {
+                if(eval1.equals(Value.TRUE)) {
+                    VariableAssignment emptyAssignment = new VariableAssignment(null);
+                    matchResult.add(emptyAssignment);
+                }
+            } else {
+                if(eval1.getType().equals(Type.STRING)){
+                    MatchExpression matchExpression1 = new MatchExpression();
+                   // matchExpression1.setRuleContext(matchExpression.getRuleContext());
+                    matchExpression1.setPattern(matchExpression);
+                    matchExpression1.setDerivable(false);
+                    matchResult = mEval.eval(matchExpression1);
+                } else {
+                    InterpreterRuntimeException interpreterRuntimeException = new InterpreterRuntimeException("The type " + eval1.getType() + " can not be transformed into a truth value");
+                    interpreterRuntimeException.setLocation(matchExpression);
+                    throw interpreterRuntimeException;
+                }
             }
 
         }

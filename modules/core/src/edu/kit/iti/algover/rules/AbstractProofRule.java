@@ -6,27 +6,30 @@
 package edu.kit.iti.algover.rules;
 
 import java.util.*;
+import java.util.Map.Entry;
 
 import edu.kit.iti.algover.proof.ProofNode;
+import edu.kit.iti.algover.rules.impl.ProofRuleCategories;
 import edu.kit.iti.algover.term.*;
 import edu.kit.iti.algover.term.prettyprint.PrettyPrint;
+import edu.kit.iti.algover.util.Util;
 
 /**
  * This class should serve as base class for all {@link ProofRule} implementations.
  *
  * Its main feature is the possibility to check actual arguments against the formal parameters.
  *
+ * Do not extend this class, but rather one of the subclasses.
+ *
  * @author Mattias Ulbrich
+ * @see FocusProofRule
  */
-public abstract class AbstractProofRule implements ProofRule {
+abstract class AbstractProofRule implements ProofRule {
 
     /**
-     * The parameter for "on" is very common for rules.
+     * The map internally storing all parameters.
      */
-    public static final ParameterDescription<TermParameter> ON_PARAM =
-            new ParameterDescription<>("on", ParameterType.MATCH_TERM, true);
-
-    private final Map<String, ParameterDescription<?>> allParameters = new HashMap<>();
+    private final Map<String, ParameterDescription<?>> allParameters;
 
     /**
      * Instantiate a new object.
@@ -34,9 +37,23 @@ public abstract class AbstractProofRule implements ProofRule {
      * @param parameters a list of all parameters that this proof rule accepts.
      */
     public AbstractProofRule(ParameterDescription<?>... parameters) {
+        allParameters = new LinkedHashMap<>();
         for (ParameterDescription<?> p : parameters) {
             allParameters.put(p.getName(), p);
         }
+    }
+
+    /**
+     * Instantiate a new object.
+     *
+     * This is a convenience constructor (to avoid array reconstruction).
+     *
+     * @param parameter a single parameter that this rule accepts
+     * @param parameters a list of all parameters that this proof rule accepts.
+     */
+    public AbstractProofRule(ParameterDescription<?> parameter, ParameterDescription<?>... parameters) {
+        this(parameters);
+        allParameters.put(parameter.getName(), parameter);
     }
 
     /**
@@ -48,101 +65,57 @@ public abstract class AbstractProofRule implements ProofRule {
      */
     @Override
     public String getCategory() {
-        return "Unknown";
+        return ProofRuleCategories.UNKNOWN;
     }
 
-    protected boolean mayBeExhaustive = false;
-
     /**
-     * Check the actual parameters obtained as method parameter against the formal parameters stored
-     * in {@link #allParameters},
+     * Check the actual parameters obtained as method parameter against the
+     * formal parameters stored in {@link #allParameters}.
+     *
+     * It is checked that all parameter names belong to registered parameters,
+     * and that any parameter value set adheres to its typing.
+     *
+     * It is not checked if all required parameters are set. This is to be done
+     * in the individual rules.
      *
      * @param parameters the map of parameters against values.
-     * @throws RuleException if a required parameter has been omitted or an unknown parameter has
-     *                       been used
+     *
+     * @throws RuleException if a required parameter has been omitted or an
+     *                       unknown parameter has been used
      */
-    private final void checkParameters(Parameters parameters) throws RuleException {
-        Set<ParameterDescription<?>> required = new HashSet<>();
-        for (ParameterDescription<?> p : allParameters.values()) {
-            if(p.isRequired()) {
-                required.add(p);
-            }
-        }
+    private void checkParameterTypes(Parameters parameters) throws RuleException {
+        for (Entry<ParameterDescription<?>, Object> en : parameters.entrySet()) {
+            ParameterDescription<?> t = en.getKey();
 
-        for (Map.Entry<String, Object> en : parameters.entrySet()) {
-            ParameterDescription<?> t = allParameters.get(en.getKey());
             if (t == null) {
                 throw new RuleException("Unknown parameter '" + en.getKey() + "'");
-            }
-
-            if(t.getType() == ParameterType.TERM) {
-                if(((TermParameter)en.getValue()).getOriginalTermSelector() != null) {
-                    throw new RuleException("Term parameters may not be termSelectors.");
-                }
             }
 
             Object value = en.getValue();
             if (!t.acceptsValue(value)) {
                 throw new RuleException(
-                            "ParameterDescription " + en.getKey() + " has class " + value.getClass() +
-                                    ", but I expected " + t + " (class " + t.getType() + ")");
+                        "\"" + value + "\" is not a valid value for parameter " +
+                                en.getKey() + " (expected a " + t.getType() + ")");
 
             }
-
-            required.remove(t);
         }
 
-        if (!required.isEmpty()) {
-                throw new RuleException("Missing required arguments: " + required);
-        }
     }
 
     /**
-     * The concrete implementation of {@link #considerApplication(ProofNode, Parameters)} for each rule.
+     * Same as {@link #considerApplication(ProofNode, Sequent, TermSelector)}
+     * but for GUI convenience with different parameters.
      *
-     * @param target the ProofNode this rule is to be applied on
-     * @param parameters the parameters for the rule application
-     * @return the resulting ProofRuleApplication
-     * @throws RuleException
-     */
-    protected abstract ProofRuleApplication considerApplicationImpl(ProofNode target, Parameters parameters) throws RuleException;
-
-    /**
-     * Same as {@link #considerApplication(ProofNode, Sequent, TermSelector)} but for GUI convenience with different
-     * parameters.
-     *
-     * @param target    the proof node onto whose sequent the rule is to be applied.
+     * @param target    the proof node onto whose sequent the rule is to be
+     *                  applied.
      * @param selection a subsequent of the target's sequent. These are the
      *                  UI-selected top formulas.
-     * @param selector  if a subformula has been selected, it is this selector that
-     *                  represents it.
+     * @param selector  if a subformula has been selected, it is this selector
+     *                  that represents it.
      * @return
      * @throws RuleException
      */
-    public final ProofRuleApplication considerApplication(ProofNode target, Sequent selection, TermSelector selector) throws RuleException {
-        Parameters params = new Parameters();
-        params.putValue("on", new TermParameter(selector, selection));
-        return considerApplication(target, params);
-    }
-
-    /**
-     * considers the application of this rule. Returns a ProofRuleApplication which might be either applicable or
-     * not applicable for the given parameters.
-     *
-     * @param target the ProofNode for which to consider the application of the rule
-     * @param parameters the parameters for the rule application
-     * @return the resulting application
-     * @throws RuleException
-     */
-    public final ProofRuleApplication considerApplication(ProofNode target, Parameters parameters) throws RuleException {
-        ProofRuleApplication pra = considerApplicationImpl(target, parameters);
-        ProofRuleApplicationBuilder builder = new ProofRuleApplicationBuilder(pra);
-        if(builder.getParameters().equals(Parameters.EMPTY_PARAMETERS)) {
-            builder.setParameters(parameters);
-        }
-        return builder.build();
-    }
-
+    public abstract ProofRuleApplication considerApplication(ProofNode target, Sequent selection, TermSelector selector) throws RuleException;
     /**
      * The concrete implementation of {@link #makeApplication(ProofNode, Parameters)} for each rule.
      *
@@ -164,13 +137,15 @@ public abstract class AbstractProofRule implements ProofRule {
      * @return the ProofRuleApplication
      * @throws RuleException
      */
-    public final ProofRuleApplication makeApplication(ProofNode target, Parameters parameters) throws RuleException {
-        checkParameters(parameters);
-        ProofRuleApplicationBuilder builder = new ProofRuleApplicationBuilder(makeApplicationImpl(target, parameters));
-        if(builder.getParameters().equals(Parameters.EMPTY_PARAMETERS)) {
+    public ProofRuleApplication makeApplication(ProofNode target, Parameters parameters) throws RuleException {
+        checkParameterTypes(parameters);
+        ProofRuleApplication app = makeApplicationImpl(target, parameters);
+        if (app.getParameters().isEmpty()) {
+            ProofRuleApplicationBuilder builder = new ProofRuleApplicationBuilder(app);
             builder.setParameters(parameters);
+            app = builder.build();
         }
-        return builder.build();
+        return app;
     }
 
     /**
@@ -182,101 +157,51 @@ public abstract class AbstractProofRule implements ProofRule {
      * @throws RuleException
      */
     public String getTranscript(ProofRuleApplication pra) throws RuleException {
+        PrettyPrint prettyPrint = new PrettyPrint();
         Parameters params = pra.getParameters();
-        String res = getName();
-        if(allParameters.size() == 0 && pra.getBranchCount() < 2) {
-            return res + ";";
+
+        StringBuilder sb = new StringBuilder();
+
+        List<String> args = new ArrayList<>();
+        for(Entry<ParameterDescription<?>, Object> p : params.entrySet()) {
+            String val = entryToString(p.getKey(), p.getValue(), prettyPrint);
+            args.add(p.getKey().getName() + "=" + val);
         }
 
-        Map<String, ParameterDescription<?>> required = new HashMap<>();
-        for (String name : allParameters.keySet()) {
-            if(allParameters.get(name).isRequired()) {
-                required.put(name, allParameters.get(name));
-            }
+        sb.append(pra.getRule().getName());
+        if(!args.isEmpty()) {
+            sb.append(" ");
+            sb.append(Util.join(args, " "));
         }
-        if(params.entrySet().size() < required.size()) {
-            throw new RuleException(getName() + " needs at least " + required.size() +
-                    " parameters but got only " + params.entrySet().size());
-        }
-        for(Map.Entry<String, Object> p : params.entrySet()) {
-            if(!allParameters.containsKey(p.getKey())) {
-                throw new RuleException("No parameter named " + p.getKey() + " for Rule " + getName());
-            }
-            if(allParameters.get(p.getKey()).getType().equals(ParameterType.MATCH_TERM)) {
-                PrettyPrint prettyPrint = new PrettyPrint();
-                String pp;
-                try {
-                    pp = prettyPrint.print(((TermParameter) p.getValue()).getSchematicTerm()).toString();
-                } catch (RuleException e) {
-                    try {
-                        pp = prettyPrint.print(((TermParameter) p.getValue()).getSchematicSequent()).toString();
-                    } catch (RuleException e1) {
-                        pp = prettyPrint.print(((TermParameter) p.getValue()).getTerm()).toString();
-                    }
-                }
-                res += " " + p.getKey() + "='" + pp + "'";
-            } else if (allParameters.get(p.getKey()).getType().equals(ParameterType.TERM)) {
-                PrettyPrint prettyPrint = new PrettyPrint();
-                TermParameter parameter = (TermParameter)p.getValue();
-                String pp = "";
-                if(parameter.getOriginalTerm() != null) {
-                    pp = prettyPrint.print(parameter.getOriginalTerm()).toString();
-                } else if (parameter.getOriginalSchematicTerm() != null) {
-                    pp = prettyPrint.print(parameter.getOriginalSchematicTerm()).toString();
-                } else if (parameter.getOriginalSchematicSequent() != null) {
-                    pp = prettyPrint.print(parameter.getOriginalSchematicSequent()).toString();
-                }
-                res += " " + p.getKey() + "='" + pp + "'";
-            } else {
-                res += " " + p.getKey() + "=\"" + p.getValue() + "\"";
-            }
-            required.remove(p.getKey());
-        }
-        if (!required.isEmpty()) {
-            throw new RuleException("Missing required arguments: " + required);
-        }
+        sb.append(";");
 
-        res += ";";
-        res += getCasesTranscript(pra);
-        return res;
+        if(pra.getBranchCount() > 1) {
+            sb.append("\ncases {\n");
+            for(BranchInfo bi : pra.getBranchInfo()) {
+                sb.append("\tcase match \"" + bi.getLabel() + "\": \n\n");
+            }
+            sb.append("}\n");
+        }
+        return sb.toString();
     }
 
-    private String getCasesTranscript(ProofRuleApplication pra) throws RuleException {
-        if(pra == null) {
-            return "";
-        }
-        String res = "";
-        if(pra.getBranchCount() > 1) {
-            res += "\ncases {\n";
-            for(int i = 0; i < pra.getBranchCount(); ++i) {
-                BranchInfo bi = pra.getBranchInfo().get(i);
-                if(bi.getLabel() == null) {
-                    throw new RuleException("Branchlabel may not be null for branching rule: " + getName());
-                }
-                res += "\tcase match \"" + bi.getLabel() + "\": {\n\t";
-                if(pra.getSubApplications() != null) {
-                    res += getCasesTranscript(pra.getSubApplications().get(i));
-                }
-                res += "\n\t}\n";
-            }
-            res += "}\n";
-        } else {
-            if(pra.getSubApplications() != null && pra.getSubApplications().size() > 0) {
-                return getCasesTranscript(pra.getSubApplications().get(0));
-            }
-        }
-        return res;
+    private <T> String entryToString(ParameterDescription<T> key,
+                                 Object value,
+                                 PrettyPrint prettyPrint) {
+        T tvalue = key.castValue(value);
+        return key.getType().prettyPrint(prettyPrint, tvalue);
     }
 
     /**
      * This map captures the parameters made
      * known to the class in the constructor.
      */
+    @Override
     public Map<String, ParameterDescription<?>> getAllParameters() {
         return allParameters;
     }
 
     public boolean mayBeExhaustive() {
-        return mayBeExhaustive;
+        return false;
     }
 }

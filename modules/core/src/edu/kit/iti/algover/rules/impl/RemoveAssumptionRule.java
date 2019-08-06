@@ -8,17 +8,12 @@ package edu.kit.iti.algover.rules.impl;
 import edu.kit.iti.algover.proof.ProofFormula;
 import edu.kit.iti.algover.proof.ProofNode;
 import edu.kit.iti.algover.rules.*;
-import edu.kit.iti.algover.term.Sequent;
 import edu.kit.iti.algover.term.Term;
-import edu.kit.iti.algover.term.match.Matching;
-import edu.kit.iti.algover.term.match.SequentMatcher;
-import edu.kit.iti.algover.util.ImmutableList;
-import edu.kit.iti.algover.util.RuleUtil;
 
 import java.util.Collections;
-import java.util.List;
 
-public class RemoveAssumptionRule extends AbstractProofRule {
+public class RemoveAssumptionRule extends FocusProofRule {
+
 
     public RemoveAssumptionRule() {
         super(ON_PARAM);
@@ -29,7 +24,6 @@ public class RemoveAssumptionRule extends AbstractProofRule {
         return "removeAssumption";
     }
 
-    @Override
     public ProofRuleApplication considerApplicationImpl(ProofNode target, Parameters parameters) throws RuleException {
         TermSelector selector = parameters.getValue(ON_PARAM).getTermSelector();
         ProofRuleApplicationBuilder builder = new ProofRuleApplicationBuilder(this);
@@ -47,13 +41,25 @@ public class RemoveAssumptionRule extends AbstractProofRule {
 
     @Override
     public ProofRuleApplication makeApplicationImpl(ProofNode target, Parameters parameters) throws RuleException {
-        ProofRuleApplicationBuilder builder = new ProofRuleApplicationBuilder(this);
 
-        Term toDelete = parameters.getValue(ON_PARAM).getTerm();
+        TermParameter onParam = parameters.getValue(ON_PARAM);
+        Term on = onParam.getTerm();
+        TermSelector selector = parameters.getValue(ON_PARAM).getTermSelector();
 
-        builder.newBranch()
-                .addDeletionsAntecedent(Collections.singletonList(new ProofFormula(toDelete)));
+        if(!selector.isToplevel()){
+            throw NotApplicableException.onlyToplevel(this);
+        }
+        if(!selector.isAntecedent()){
+            throw NotApplicableException.onlyAntecedent(this);
+        }
 
-        return builder.build();
+        ProofRuleApplicationBuilder pra = new ProofRuleApplicationBuilder(this);
+        pra.newBranch().addDeletionsAntecedent(Collections.singletonList(new ProofFormula(on)));
+
+
+        pra.setApplicability(ProofRuleApplication.Applicability.APPLICABLE);
+
+        return pra.build();
+
     }
 }

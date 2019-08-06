@@ -106,6 +106,12 @@ public class DafnyDeclPVCCollector {
 
     // no collection per file!
     public void visitFile(DafnyFile file, PVCGroup collection) {
+
+        if(file.isInLibrary()) {
+            // Only input resources create PVCs
+            return;
+        }
+
         for (DafnyFunction f : file.getFunctions()) {
             collection.addChild(visitFunction(f));
         }

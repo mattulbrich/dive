@@ -28,7 +28,10 @@ class C_Class {
 
    var fl_var : C_Class;
 
-   function f_class(p_param: C_Class) : C_Class {
+   function f_class(p_param: C_Class) : C_Class
+      requires fl_var != null
+      reads p_param, fl_var
+   {
       p_param.fl_var
    }
 

@@ -37,6 +37,7 @@ import java.util.Map;
 public class RuleParameterDialog extends Dialog<Void> {
     private Parameters parameters = new Parameters();
     private GridPane gridPane = new GridPane();
+    private ProofRule rule;
     private final Sequent sequent;
     private TermParser termParser;
     private Parameters expectedParameters;
@@ -48,7 +49,7 @@ public class RuleParameterDialog extends Dialog<Void> {
     }
 
     public RuleParameterDialog(ProofRule rule, SymbolTable symbolTable, Sequent sequent, String defaultOn) {
-        super();
+        this.rule = rule;
         this.sequent = sequent;
         this.termParser = new TermParser(symbolTable);
         this.termParser.setSchemaMode(true);
@@ -108,6 +109,9 @@ public class RuleParameterDialog extends Dialog<Void> {
         getDialogPane().setContent(vBox);
 
         this.setTitle("Parameters for RuleApplication");
+        this.setResizable(true);
+        //workaround GTK based desktops
+        this.onShownProperty().addListener( e-> Platform.runLater(() -> this.setResizable(true)));
     }
 
     private Validator<String> getValidatorForType(ParameterType<?> type) {
@@ -121,14 +125,18 @@ public class RuleParameterDialog extends Dialog<Void> {
         return null;
     }
 
+    // REVIEW MU: These catches are likely to become trouble.
     private void setParametersFromTextFields() {
         for (int i = 0; i < gridPane.getChildren().size() / 2; ++i) {
             TextField tf = (TextField) gridPane.getChildren().get(i * 2 + 1);
             String text = tf.getText();
+            String label = ((Label) (gridPane.getChildren().get(i * 2))).getText();
+            ParameterDescription<?> pd = rule.getAllParameters().get(label);
             if(tf.getUserData().equals(ParameterType.TERM) || tf.getUserData().equals(ParameterType.MATCH_TERM)) {
                 try {
                     Term t = termParser.parse(text);
-                    parameters.putValue(((Label) (gridPane.getChildren().get(i * 2))).getText(), new TermParameter(t, sequent));
+                    parameters.checkAndPutValue(pd, new TermParameter(t, sequent));
+                    //parameters.putValue(((Label) (gridPane.getChildren().get(i * 2))).getText(), new TermParameter(t, sequent));
                 } catch (DafnyParserException e) {
                     //e.printStackTrace();
                     parameters = null;
@@ -139,7 +147,8 @@ public class RuleParameterDialog extends Dialog<Void> {
                     return;
                 }
             } else if(tf.getUserData().equals(ParameterType.STRING)) {
-                parameters.putValue(((Label) (gridPane.getChildren().get(i * 2))).getText(), text);
+                parameters.checkAndPutValue(pd, text);
+                //parameters.putValue(((Label) (gridPane.getChildren().get(i * 2))).getText(), text);
             } else {
                 throw new RuntimeException("ParameterType " + tf.getUserData() + " is unkown.");
             }

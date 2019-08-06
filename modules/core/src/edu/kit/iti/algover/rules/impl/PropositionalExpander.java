@@ -6,6 +6,7 @@
 package edu.kit.iti.algover.rules.impl;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import edu.kit.iti.algover.data.BuiltinSymbols;
@@ -20,19 +21,18 @@ import edu.kit.iti.algover.util.Util;
 
 public class PropositionalExpander {
 
-    private List<Sequent> sequents;
+    private List<Sequent> sequents = Collections.singletonList(Sequent.EMPTY);
 
     public boolean expand(ProofFormula formula, SequentPolarity polarity, boolean allowSplit) {
         ImmutableList<WorkSequent> expansion = expand(formula.getTerm(), polarity, allowSplit);
 
         List<Sequent> newSequents = new ArrayList<Sequent>();
         if (expansion.size() == 1) {
-            WorkSequent elem = expansion.getHead();
+            WorkSequent elem = expansion.getLast();
             if (elem.antecedent.size() + elem.succedent.size() == 1) {
                 return false;
             }
         }
-
 
         for (WorkSequent termSequent : expansion) {
             List<ProofFormula> ante = Util.map(termSequent.antecedent, x -> new ProofFormula(x));

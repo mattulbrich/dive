@@ -1,5 +1,6 @@
 package edu.kit.iti.algover.util;
 
+import javafx.application.Platform;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextArea;
@@ -8,6 +9,7 @@ import javafx.scene.layout.VBox;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 
+// TODO PLEASE document such classes, PLEASE.
 public class ExceptionDialog extends Alert {
 
     private Throwable exception;
@@ -27,12 +29,16 @@ public class ExceptionDialog extends Alert {
         
         e.printStackTrace(pw);
         String s = sw.toString();
-        System.out.println("s = " + s);
+        // System.out.println("s = " + s);
         area.setText(s);
         area.setEditable(false);
 
         content.getChildren().addAll(new Label("Stacktrace"), area);
         this.getDialogPane().setContent(content);
+        this.setResizable(true);
+        this.onShownProperty().addListener(eObservable -> {
+            Platform.runLater(() -> this.setResizable(false));
+        });
 
     }
 

@@ -860,7 +860,7 @@ public class TreeTermTranslator {
 
         List<Term> arguments = new ArrayList<>();
 
-        Sort sort = null;
+        Sort sort = Sort.BOTTOM;
         for (DafnyTree child : tree.getChildren()) {
             Term term = build(child);
             arguments.add(term);
@@ -869,6 +869,7 @@ public class TreeTermTranslator {
                 sort = termSort;
             } else {
                 sort = Sort.supremum(sort, termSort);
+                assert sort != null : "No supremum for " + sort + " and " + termSort;
             }
         }
 
@@ -902,7 +903,11 @@ public class TreeTermTranslator {
         if (decl != null && decl.getType() == DafnyParser.FIELD) {
             // if there is a field by that name ...
             Term field = tb.makeFieldConst(decl.getParent().getChild(0).getText(), name);
-            Term self = tb.self();
+            // bugfix for #109 / #144
+            Term self = boundVars.get("this");
+            if (self == null) {
+                self = tb.self();
+            }
             return tb.selectField(getHeap(), self, field);
         }
 
@@ -1220,5 +1225,9 @@ public class TreeTermTranslator {
             throw new IllegalStateException("This is not the last bound variable");
         }
         boundVars.pop();
+    }
+
+    public SymbolTable getSymbolTable() {
+        return symbolTable;
     }
 }

@@ -67,11 +67,11 @@ public class ProjectTest {
         List<DafnyFile> dafnyFiles = p.getDafnyFiles();
         System.out.println(dafnyFiles.stream().map(DafnyFile::getFilename).collect(Collectors.toList()));
         assertEquals(3, dafnyFiles.size());
-        assertEquals(testDir + "/test3.dfy", dafnyFiles.get(0).getName());
+        assertEquals("test3.dfy", dafnyFiles.get(0).getName());
         assertTrue(dafnyFiles.get(0).isInLibrary());
-        assertEquals(testDir + "/test.dfy", dafnyFiles.get(1).getName());
+        assertEquals("test.dfy", dafnyFiles.get(1).getName());
         assertFalse(dafnyFiles.get(1).isInLibrary());
-        assertEquals(testDir + "/test2.dfy", dafnyFiles.get(2).getName());
+        assertEquals("test2.dfy", dafnyFiles.get(2).getName());
         assertFalse(dafnyFiles.get(2).isInLibrary());
     }
 
@@ -170,17 +170,7 @@ public class ProjectTest {
             assertEquals(expected, dafnyRules);
         }
         {
-            Collection<ProofRule> filtered = p.getProofRules(p.getPVCByName("liblemma21/Post"));
-            // 9 rules have been filtered;
-            assertEquals(totalRuleCount - 9, filtered.size());
-            List<String> dafnyRules = filtered.stream()
-                    .filter(x -> x instanceof DafnyRule)
-                    .map(ProofRule::getName)
-                    .collect(Collectors.toList());
-
-            List<String> expected = Arrays.asList(
-                    "liblemma11", "liblemma12", "liblemma13");
-            assertEquals(expected, dafnyRules);
+            assertNull(p.getPVCByName("liblemma21/Post"));
         }
         {
             Collection<ProofRule> filtered = p.getProofRules(p.getPVCByName("srclemma21/Post"));
@@ -195,6 +185,22 @@ public class ProjectTest {
                     "liblemma11", "liblemma12", "liblemma13",
                     "liblemma21", "liblemma22", "liblemma23",
                     "srclemma11", "srclemma12", "srclemma13");
+            assertEquals(expected, dafnyRules);
+        }
+        {
+            Collection<ProofRule> filtered = p.getProofRules(p.getPVCByName("srclemma23/Post"));
+            // 1 rules have been filtered;
+            assertEquals(totalRuleCount - 1, filtered.size());
+            List<String> dafnyRules = filtered.stream()
+                    .filter(x -> x instanceof DafnyRule)
+                    .map(ProofRule::getName)
+                    .collect(Collectors.toList());
+
+            List<String> expected = Arrays.asList(
+                    "liblemma11", "liblemma12", "liblemma13",
+                    "liblemma21", "liblemma22", "liblemma23",
+                    "srclemma11", "srclemma12", "srclemma13",
+                    "srclemma21", "srclemma22");
             assertEquals(expected, dafnyRules);
         }
     }

@@ -8,12 +8,18 @@
 }
 
 .formula-view .selected {
-    -rtfx-background-color: #0f1c0f;
-    -fx-fill: whitesmoke;
+    -rtfx-background-color: #b5b5b5;
+
+    -fx-fill: black;
+}
+
+.formula-view {
+    -fx-font-size: 12pt;
 }
 
 .formula-view .selectedRef {
-    -rtfx-background-color: #62b00f;
+    -rtfx-background-color: #886acf;
+    -fx-border-style: solid;
     -fx-fill: whitesmoke;
 }
 
@@ -24,6 +30,11 @@
 
 .formula-view .highlighted {
     -rtfx-background-color: #62b3cf;
+    -fx-fill: whitesmoke;
+}
+
+.formula-view .referenceTarget {
+    -rtfx-background-color: #886acf;
     -fx-fill: whitesmoke;
 }
 
@@ -49,6 +60,16 @@
 
 .list-cell.formula-cell:formula-modified {
     /* -fx-background-color: #f2aaf2; This looks ridiculous haha */
+}
+.list-cell .formula-cell:empty {
+    visibility:hidden;
+    -fx-border-width: 0px;
+    -fx-opacity: 0;
+}
+
+.call-table-header-default {
+    -fx-control-inner-background: #807e83;
+
 }
 
 .undecorated-button {
@@ -176,3 +197,4 @@
 .welcomPaneHTML {
 
 }
+

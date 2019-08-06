@@ -67,6 +67,7 @@ literals :
     |   TERM_LITERAL   #literalTerm
     |   MATCH_TERM_LITERAL #matchTermLiteral
     |   SEQUENT_LITERAL  #sequentLiteral
+    |   SELECTOR_LITERAL #selectorLiteral
     |   STRING_LITERAL #literalString
     |   TRUE           #literalTrue
     |   FALSE          #literalFalse
@@ -106,7 +107,7 @@ casesList
 
 
 parameters: parameter+;
-parameter :  ((pname=ID '=')? expr=expression);
+parameter :  ((pname=ID '=') expr=expression);
 
 scriptCommand
     :   cmd=ID parameters? SEMICOLON
@@ -145,6 +146,9 @@ SEMICOLON : ';' ;
 COLON : ':' ;
 SEQUENTSYMBOL : '|-';
 
+SELECTOR_LITERAL
+  : ( 'S' | 'A' ) ( '.' DIGITS )+
+  ;
 
 STRING_LITERAL
   : '"' ( '\'' | ~('"')*) '"'

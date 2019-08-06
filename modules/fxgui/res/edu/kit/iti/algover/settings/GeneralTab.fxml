@@ -25,6 +25,7 @@
 
                     <Spinner fx:id="currentFontSizeEditor" editable="true" HBox.hgrow="NEVER"></Spinner>
                 </HBox>
+
 <!--                <Region prefHeight="40" VBox.vgrow="ALWAYS"></Region>-->
                 <Separator></Separator>
                 <Label text="SequentView" styleClass="settings-h1"></Label>

@@ -51,7 +51,7 @@ public class AddHypothesisRuleTest {
         ProofNode pn = ProofMockUtil.mockProofNode(null, s.getAntecedent(), s.getSuccedent());
         AddHypothesisRule rule = new AddHypothesisRule();
         Parameters params = new Parameters();
-        params.putValue("with", new TermParameter(tp.parse("b1"), s));
+        params.putValue(AddHypothesisRule.WITH_PARAM, new TermParameter(tp.parse("b1"), s));
         ProofRuleApplication pra = rule.makeApplication(pn,  params);
         List<ProofNode> newNodes = RuleApplicator.applyRule(pra, pn);
 

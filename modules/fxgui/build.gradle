@@ -7,7 +7,7 @@ plugins{
 javafx {
     //can be upgraded to 12
     version = "11"
-    modules = ["javafx.controls", "javafx.fxml", "javafx.web", "javafx.base"]
+    modules = ["javafx.controls", "javafx.fxml", "javafx.web","javafx.base"]
 }
 
 mainClassName = 'edu.kit.iti.algover.DIVEApplication'
@@ -19,22 +19,18 @@ mainClassName = 'edu.kit.iti.algover.DIVEApplication'
 dependencies {
     compile project(":core")
     compile project(":dafny")
+    compile 'de.jensd:fontawesomefx-commons:11.0'
+    compile 'de.jensd:fontawesomefx-controls:9.1.2'
+    compile 'de.jensd:fontawesomefx-fontawesome:4.7.0-9.1.2'
+    compile 'de.jensd:fontawesomefx-materialdesignfont:2.0.26-9.1.2'
+    compile 'de.jensd:fontawesomefx-materialicons:2.2.0-9.1.2'
 
     compile group: 'org.controlsfx', name: 'controlsfx', version: '11.0.0'
-    compile name: 'fontawesomefx-commons-8.15'
-    compile name: 'fontawesomefx-controls-8.15'
-    compile name: 'fontawesomefx-emojione-2.2.7-2'
-    compile name: 'fontawesomefx-fontawesome-4.7.0-5'
-    compile name: 'fontawesomefx-icons525-3.0.0-4'
-    compile name: 'fontawesomefx-materialdesignfont-1.7.22-4'
-    compile name: 'fontawesomefx-materialicons-2.2.0-5'
-    compile name: 'fontawesomefx-materialstackicons-2.1-5'
-    compile name: 'fontawesomefx-octicons-4.3.0-5'
-    compile name: 'fontawesomefx-weathericons-2.0.10-5'
-
 
 
     compile group: 'com.miglayout', name: 'miglayout-swing', version: '5.2'
+    compile group: 'com.miglayout', name: 'miglayout-javafx', version: '5.2'
+
     /*compile name: 'richtextfx-fat-0.9.2'*/
 
     compile group: 'org.fxmisc.richtext', name: 'richtextfx', version: '0.10.0'
@@ -49,13 +45,26 @@ run {
 
 }
 
+runShadow{
+
+        environment 'PATH', "${environment.PATH}"
+
+
+}
 
 application {
     applicationDefaultJvmArgs =  [ "--add-modules=javafx.controls,javafx.fxml,javafx.graphics,javafx.base",
                                    "--add-exports=javafx.graphics/com.sun.javafx.css=ALL-UNNAMED",
-                                   "--add-opens=javafx.graphics/javafx.scene=ALL-UNNAMED"
+                                   "--add-opens=javafx.graphics/javafx.scene=ALL-UNNAMED",
+                                   "-ea"
                                    //, "-Djdk.gtk.verbose=true", "-Djdk.gtk.version=3"
 
     ]
+}
+
+
+// Merging Service Files
+shadowJar {
+    mergeServiceFiles()
 }
 

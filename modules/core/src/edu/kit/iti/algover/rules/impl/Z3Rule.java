@@ -12,7 +12,7 @@ import edu.kit.iti.algover.data.SymbolTable;
 import edu.kit.iti.algover.proof.PVC;
 import edu.kit.iti.algover.proof.ProofFormula;
 import edu.kit.iti.algover.proof.ProofNode;
-import edu.kit.iti.algover.rules.AbstractProofRule;
+import edu.kit.iti.algover.rules.NoFocusProofRule;
 import edu.kit.iti.algover.rules.Parameters;
 import edu.kit.iti.algover.rules.ProofRuleApplication;
 import edu.kit.iti.algover.rules.ProofRuleApplication.Applicability;
@@ -37,7 +37,7 @@ import java.io.OutputStream;
  * This is a quick and dirty implementation until the real one is available
  * Code quality is lower than elsewhere since this is a temporary implementation.
  */
-public class Z3Rule extends AbstractProofRule {
+public class Z3Rule extends NoFocusProofRule {
 
     private static String SMT_TMP_DIR = System.getProperty("algover.smttmp");
 
@@ -60,7 +60,7 @@ public class Z3Rule extends AbstractProofRule {
     }
 
     @Override
-    public ProofRuleApplication considerApplicationImpl(ProofNode target, Parameters parameters) throws RuleException {
+    public ProofRuleApplication makeApplicationImpl(ProofNode target, Parameters parameters) throws RuleException {
         ProofRuleApplicationBuilder builder = new ProofRuleApplicationBuilder(this);
         builder.setApplicability(Applicability.MAYBE_APPLICABLE);
         builder.setClosing();
@@ -76,22 +76,6 @@ public class Z3Rule extends AbstractProofRule {
             return builder.build();
         } else {
             ProofRuleApplicationBuilder builder = new ProofRuleApplicationBuilder(app);
-            builder.setApplicability(Applicability.NOT_APPLICABLE);
-            builder.setRefiner(null);
-            return builder.build();
-        }
-
-    }
-
-    @Override
-    public ProofRuleApplication makeApplicationImpl(ProofNode target, Parameters parameters) throws RuleException {
-        if(quickAndDirty(target.getPVC().getIdentifier(), target.getSequent(), target.getAllSymbols())) {
-            ProofRuleApplicationBuilder builder = new ProofRuleApplicationBuilder(this);
-            builder.setApplicability(Applicability.APPLICABLE);
-            builder.setRefiner(null);
-            return builder.build();
-        } else {
-            ProofRuleApplicationBuilder builder = new ProofRuleApplicationBuilder(this);
             builder.setApplicability(Applicability.NOT_APPLICABLE);
             builder.setRefiner(null);
             return builder.build();

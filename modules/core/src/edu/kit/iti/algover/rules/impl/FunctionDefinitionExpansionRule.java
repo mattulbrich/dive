@@ -12,13 +12,8 @@ import edu.kit.iti.algover.parser.DafnyParser;
 import edu.kit.iti.algover.parser.DafnyTree;
 import edu.kit.iti.algover.proof.ProofFormula;
 import edu.kit.iti.algover.proof.ProofNode;
-import edu.kit.iti.algover.rules.AbstractProofRule;
-import edu.kit.iti.algover.rules.Parameters;
-import edu.kit.iti.algover.rules.ProofRuleApplication;
+import edu.kit.iti.algover.rules.*;
 import edu.kit.iti.algover.rules.ProofRuleApplication.Applicability;
-import edu.kit.iti.algover.rules.ProofRuleApplicationBuilder;
-import edu.kit.iti.algover.rules.RuleException;
-import edu.kit.iti.algover.rules.TermSelector;
 import edu.kit.iti.algover.term.ApplTerm;
 import edu.kit.iti.algover.term.FunctionSymbol;
 import edu.kit.iti.algover.term.LetTerm;
@@ -28,6 +23,8 @@ import edu.kit.iti.algover.term.Sequent;
 import edu.kit.iti.algover.term.Sort;
 import edu.kit.iti.algover.term.Term;
 import edu.kit.iti.algover.term.VariableTerm;
+import edu.kit.iti.algover.term.builder.AlphaNormalisation;
+import edu.kit.iti.algover.term.builder.LetInlineVisitor;
 import edu.kit.iti.algover.term.builder.TermBuildException;
 import edu.kit.iti.algover.term.builder.TreeTermTranslator;
 import edu.kit.iti.algover.util.ASTUtil;
@@ -51,30 +48,32 @@ import java.util.List;
  *
  * @author mulbrich
  */
-public class FunctionDefinitionExpansionRule extends AbstractProofRule {
+public class FunctionDefinitionExpansionRule extends FocusProofRule {
 
-    public FunctionDefinitionExpansionRule() {
-        super(ON_PARAM);
+    static ParameterDescription<Boolean> INLINE_PARAM = new ParameterDescription<>("inlineLet", ParameterType.BOOLEAN, false, true);
+
+    public FunctionDefinitionExpansionRule () {
+        super(ON_PARAM, INLINE_PARAM);
     }
-
     @Override
     public String getName() {
         return "expand";
     }
 
     @Override
-    protected ProofRuleApplication considerApplicationImpl(ProofNode target, Parameters parameters) throws RuleException {
+    protected ProofRuleApplication makeApplicationImpl(ProofNode target, Parameters parameters) throws RuleException {
         TermSelector selector = parameters.getValue(ON_PARAM).getTermSelector();
+        Boolean inline = parameters.getValue(INLINE_PARAM);
 
         Term term = selector.selectSubterm(target.getSequent());
         if (!(term instanceof ApplTerm)) {
-            return ProofRuleApplicationBuilder.notApplicable(this);
+            throw NotApplicableException.onlyOperator(this, "Dafny function");
         }
         ApplTerm appl = (ApplTerm) term;
         FunctionSymbol fs = appl.getFunctionSymbol();
 
         if (!(fs instanceof DafnyFunctionSymbol)) {
-            return ProofRuleApplicationBuilder.notApplicable(this);
+            throw NotApplicableException.onlyOperator(this, "Dafny function");
         }
 
         DafnyFunction function = ((DafnyFunctionSymbol) fs).getOrigin();
@@ -82,19 +81,21 @@ public class FunctionDefinitionExpansionRule extends AbstractProofRule {
         ProofRuleApplicationBuilder builder = new ProofRuleApplicationBuilder(this);
         SymbolTable symbols = target.getAllSymbols();
         try {
-            Term definition = instantiate(term, function, function.getExpression(), symbols);
+            Term definition = instantiate(term, function, function.getExpression(), symbols, inline);
+            Term alphaNormalisedDef = AlphaNormalisation.normalise(definition);
             builder.newBranch().
-                    addReplacement(selector, definition).
+                    addReplacement(selector, alphaNormalisedDef).
                     setLabel("continue");
 
 
             List<DafnyTree> requiresClauses = function.getRequiresClauses();
             if(!requiresClauses.isEmpty()) {
                 DafnyTree requires = ASTUtil.and(Util.map(requiresClauses, DafnyTree::getLastChild));
-                Term precondition = instantiate(term, function, requires, symbols);
+                Term precondition = instantiate(term, function, requires, symbols, inline);
                 Term withContext = copyContext(target.getSequent(), selector, precondition);
+                Term alphaNormalised = AlphaNormalisation.normalise(withContext);
                 builder.newBranch().
-                        addAdditionsSuccedent(new ProofFormula(withContext)).
+                        addAdditionsSuccedent(new ProofFormula(alphaNormalised)).
                         setLabel("justify");
             }
 
@@ -152,7 +153,7 @@ public class FunctionDefinitionExpansionRule extends AbstractProofRule {
      *                            parsing and type resolution facilities should
      *                            prevent these exceptions.
      */
-    private static Term instantiate(Term call, DafnyFunction function, DafnyTree tree, SymbolTable symbols) throws TermBuildException {
+    private static Term instantiate(Term call, DafnyFunction function, DafnyTree tree, SymbolTable symbols, Boolean inline) throws TermBuildException {
         List<Term> args = new LinkedList<>(call.getSubterms());
         List<DafnyTree> formalParams = function.getParameters();
 
@@ -181,13 +182,13 @@ public class FunctionDefinitionExpansionRule extends AbstractProofRule {
         }
 
         Term translation = ttt.build(tree);
+        translation = new LetTerm(assignments, translation);
+        if(inline) {
+            translation = LetInlineVisitor.inline(translation);
+        }
 
-        return new LetTerm(assignments, translation);
+        return translation;
 
     }
 
-    @Override
-    protected ProofRuleApplication makeApplicationImpl(ProofNode target, Parameters parameters) throws RuleException {
-        return considerApplicationImpl(target, parameters);
-    }
 }

@@ -47,7 +47,7 @@ public class ImmutableList<T> implements Iterable<T> {
     /**
      * The payload data of this node.
      */
-    private @Nullable final T data;
+    private final @Nullable T data;
 
     /**
      * The length of the list. (redundant)
@@ -57,7 +57,10 @@ public class ImmutableList<T> implements Iterable<T> {
     /**
      * The tail of the linked list
      */
-    private @Nullable final ImmutableList<T> tail;
+    private final @Nullable ImmutableList<T> tail;
+
+    //@ invariant size >= 0;
+    //@ invariant tail == 0
 
     /*
      * Used to create the #NIL object.
@@ -137,7 +140,7 @@ public class ImmutableList<T> implements Iterable<T> {
      */
     @SuppressWarnings("unchecked")
     public @NonNull ImmutableList<T> sort() {
-        T[] array = (T[])new Object[size()];
+        @NonNull T[] array = (T[])new Object[size()];
 
         Iterator<T> it = iterator();
         for (int i = 0; i < array.length; i++) {
@@ -220,6 +223,9 @@ public class ImmutableList<T> implements Iterable<T> {
 
         @Override
         public T next() {
+            if (!hasNext()) {
+                throw new NoSuchElementException();
+            }
             T result = ptr.data;
             ptr = ptr.tail;
             return result;

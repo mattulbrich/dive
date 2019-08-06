@@ -14,10 +14,7 @@ import edu.kit.iti.algover.parser.DafnyTree;
 import edu.kit.iti.algover.proof.ProofFormula;
 import edu.kit.iti.algover.proof.ProofNode;
 import edu.kit.iti.algover.rules.impl.AndLeftRule;
-import edu.kit.iti.algover.rules.impl.ExhaustiveRule;
-import edu.kit.iti.algover.rules.impl.LetSubstitutionRule;
-import edu.kit.iti.algover.rules.impl.OrLeftRule;
-import edu.kit.iti.algover.rules.impl.TrivialAndRight;
+import edu.kit.iti.algover.rules.impl.AndRightRule;
 import edu.kit.iti.algover.term.FunctionSymbol;
 import edu.kit.iti.algover.term.Sequent;
 import edu.kit.iti.algover.term.Sort;
@@ -103,12 +100,12 @@ public class TestRuleApplicator {
     public void test() throws RuleException {
         System.out.println(testSequent);
 
-        ProofRule pr = new TrivialAndRight();
+        ProofRule pr = new AndRightRule();
         ProofNode pn = new ProofNode(null, null, testSequent, null);
 
         TermSelector ts = new TermSelector(TermSelector.SequentPolarity.SUCCEDENT, 1);
         Parameters params = new Parameters();
-        params.putValue("on", term3);
+        params.putValue(AbstractProofRule.ON_PARAM, new TermParameter(term3, testSequent));
 
         //System.out.println(pr.makeApplication(pn, params));
         //RuleApplicator.applyRule(prApp, new ProofNode(null, null, null, testSequent, null));
@@ -154,7 +151,7 @@ public class TestRuleApplicator {
         TermParser tp = new TermParser(symbTable);
         Sequent sequent = tp.parseSequent("i1 < i3 |- i1 < i2 && i2 < i3");
 
-        TrivialAndRight rule = new TrivialAndRight();
+        AndRightRule rule = new AndRightRule();
         ProofNode pn = ProofMockUtil.mockProofNode(null, sequent.getAntecedent(), sequent.getSuccedent());
         ProofRuleApplication pra = rule.considerApplication(pn, sequent, new TermSelector("S.0"));
         List<ProofNode> newNodes = RuleApplicator.applyRule(pra, pn);

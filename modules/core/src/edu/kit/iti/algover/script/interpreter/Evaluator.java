@@ -10,12 +10,15 @@ import edu.kit.iti.algover.parser.DafnyException;
 import edu.kit.iti.algover.parser.DafnyParserException;
 import edu.kit.iti.algover.proof.ProofNode;
 import edu.kit.iti.algover.rules.TermParameter;
+import edu.kit.iti.algover.rules.TermSelector;
 import edu.kit.iti.algover.script.ast.*;
 import edu.kit.iti.algover.script.data.Value;
 import edu.kit.iti.algover.script.data.VariableAssignment;
+import edu.kit.iti.algover.script.exceptions.InterpreterRuntimeException;
 import edu.kit.iti.algover.script.parser.DefaultASTVisitor;
 import edu.kit.iti.algover.script.parser.Visitor;
 import edu.kit.iti.algover.term.parser.TermParser;
+import edu.kit.iti.algover.util.FormatException;
 
 import java.math.BigInteger;
 import java.util.ArrayList;
@@ -101,8 +104,9 @@ public class Evaluator<T> extends DefaultASTVisitor<Value> implements ScopeObser
             tp.setSchemaMode(true);
             termV = new Value<>(Type.TERM, new TermParameter(tp.parse(term.getText()), goal.getSequent()));
         } catch (DafnyException | DafnyParserException e) {
-            System.out.println("Could not translate term " + term.getText());
-            throw new RuntimeException(e);
+            InterpreterRuntimeException interpreterRuntimeException = new InterpreterRuntimeException(e.getMessage(), e);
+            interpreterRuntimeException.setLocation(term);
+            throw interpreterRuntimeException;
         }
         // return Value.from(term);
 
@@ -124,7 +128,9 @@ public class Evaluator<T> extends DefaultASTVisitor<Value> implements ScopeObser
 
         } catch (DafnyException | DafnyParserException e) {
             System.out.println("Could not translate term " + sequentLiteral.getText());
-           throw new RuntimeException(e);
+            InterpreterRuntimeException interpreterRuntimeException = new InterpreterRuntimeException(e.getMessage(), e);
+            interpreterRuntimeException.setLocation(sequentLiteral);
+            throw interpreterRuntimeException;
         }
         return seqValue;
 
@@ -136,13 +142,24 @@ public class Evaluator<T> extends DefaultASTVisitor<Value> implements ScopeObser
     }
 
     @Override
+    public Value<TermParameter> visit(SelectorLiteral selector) {
+        try {
+            return new Value<>(Type.SELECTOR, new TermParameter(new TermSelector(selector.getText()), goal.getSequent()));
+        } catch (FormatException e) {
+            InterpreterRuntimeException interpreterRuntimeException = new InterpreterRuntimeException(e.getMessage(), e);
+            interpreterRuntimeException.setLocation(selector);
+            throw interpreterRuntimeException;
+        }
+    }
+
+    @Override
     public Value<T> visit(Variable variable){
         //get variable value
         Value<T> v = state.getValue(variable);
         if (v != null) {
             return v;
         } else {
-            throw new RuntimeException("Variable " + variable + " was not initialized");
+            throw new InterpreterRuntimeException("Variable " + variable + " was not initialized");
         }
 
     }
