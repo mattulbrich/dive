@@ -82,6 +82,7 @@ public class ScriptController implements ScriptViewListener, ReferenceHighlighti
     private LayeredHighlightingRulev4 highlightingRules;
 
     private PositionChangedListener positionListener;
+    private CaretPositionChangedListener caretPositionListener;
 
     public ScriptController(ExecutorService executor, RuleApplicationListener listener, Lookup lookup) {
         this.view = new ScriptView(executor, this);
@@ -106,12 +107,14 @@ public class ScriptController implements ScriptViewListener, ReferenceHighlighti
 
 
         view.setHighlightingRule(this.highlightingRules);
+        caretPositionListener = new CaretPositionChangedListener(this);
 
-        view.caretPositionProperty().addListener(this::onCaretPositionChanged);
-
+        //  view.caretPositionProperty().addListener(this::onCaretPositionChanged);
+        view.caretPositionProperty().addListener(caretPositionListener);
         //observable insertposition starts with 1
         observableInsertPosition.set(new Position(1,0));
         positionListener = new PositionChangedListener(this);
+
         observableInsertPosition.addListener(this.positionListener);
 
 
@@ -341,20 +344,22 @@ public class ScriptController implements ScriptViewListener, ReferenceHighlighti
         //checkpoints = ProofNodeCheckpointsBuilder.build(proof);
         // TODO switchViewedNode();
         view.setStyle("-fx-background-color: lightgray;");
+        view.resetGutter();
+        //view.requestLayout();
         //updateInsertPosition();
     }
 
     @Override
     public void runScript() {
         view.resetGutter();
-        view.requestLayout();
+        //view.requestLayout();
 
         Position oldInsertPos = getObservableInsertPosition();
         this.sizeOfCheckpoints = checkpoints.size();
         String text = view.getText();
         resetExceptionRendering();
         observableInsertPosition.removeListener(positionListener);
-
+        view.caretPositionProperty().removeListener(caretPositionListener);
         Exception failException = null;
 
 
@@ -397,15 +402,16 @@ public class ScriptController implements ScriptViewListener, ReferenceHighlighti
         }
         createVisualSelectors(checkpoints);
         observableInsertPosition.addListener(positionListener);
-
+        view.caretPositionProperty().addListener(caretPositionListener);
         //new insert position has to be computed and updated
         //updateInsertPosition();
         updateInsertPosition(oldInsertPos);
 
         //JK: This should not be necessary since the changed text triggers onTextChanged and onCaretPositionChanged
-        //SaG: this is necessary such taht the right tab is shown in the view
-        switchViewedNode();
+        //SaG: this is necessary such that the right tab is shown in the view
         view.setStyle("-fx-background-color: white; -fx-font-size: "+fontSizeProperty.get()+"pt;");
+        switchViewedNode();
+
     }
 
     @Override
@@ -451,6 +457,7 @@ public class ScriptController implements ScriptViewListener, ReferenceHighlighti
     }
 
     public void insertTextForSelectedNode(String text) {
+        view.caretPositionProperty().removeListener(caretPositionListener);
         if(view.getText().equals("")) {
             view.insertText(0, text);
         } else {
@@ -458,6 +465,7 @@ public class ScriptController implements ScriptViewListener, ReferenceHighlighti
             int insertAt = computeCharIdxFromPosition(observableInsertPosition.get(), view.getText());
             view.insertText(insertAt, text);
         }
+        view.caretPositionProperty().addListener(caretPositionListener);
         //JK: Maybe this could be optimized if the prettyprinting is done here to avoid duplicated methods calls
         runScript();
     }
@@ -555,5 +563,25 @@ public class ScriptController implements ScriptViewListener, ReferenceHighlighti
 
         }
     }
+
+
+    /**
+     * Listener to act upon a change of the insertion position
+     */
+    private class CaretPositionChangedListener implements ChangeListener<Integer> {
+
+        ScriptController sc ;
+        public CaretPositionChangedListener(ScriptController sc ){
+            this.sc =sc;
+        }
+
+
+        @Override
+        public void changed(ObservableValue<? extends Integer> observable, Integer oldValue, Integer newValue) {
+            this.sc.onCaretPositionChanged(observable);
+
+        }
+    }
+
 
 }
