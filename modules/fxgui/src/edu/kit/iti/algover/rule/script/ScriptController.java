@@ -122,6 +122,7 @@ public class ScriptController implements ScriptViewListener, ReferenceHighlighti
         view.getGutterAnnotations().get(0).setInsertMarker(true);
         view.getGutterAnnotations().get(0).setProofNode(new ProofNodeSelector());
         view.getGutterAnnotations().get(0).setProofNodeIsSelected(true);
+        view.getGutterAnnotations().get(0).setProofNodeIsReferenced(true);
 
         view.requestLayout();
 
@@ -344,12 +345,21 @@ public class ScriptController implements ScriptViewListener, ReferenceHighlighti
         }*/
         //checkpoints = ProofNodeCheckpointsBuilder.build(proof);
         // TODO switchViewedNode();
-        view.setStyle("-fx-background-color: lightgray;");
-        view.resetGutter();
-        //view.requestLayout();
-        //updateInsertPosition();
+        //rausfinden wer die Änderungen vorgenommen hat
+        //gutter leeren
+        //grauen
+        //neuberechnen -> User
+        //onCaretPositionChanged(null);
+
+          view.setStyle("-fx-background-color: #c4c1c9;"+fontSizeProperty.get()+"pt;");
+          view.resetGutter();
+          view.requestLayout();
+
     }
 
+    /**
+     * Interpret the proof script that is set in the current ScriptView
+     */
     @Override
     public void runScript() {
         view.resetGutter();

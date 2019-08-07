@@ -207,7 +207,7 @@ public class Proof {
             this.proofRoot = newRoot;
             this.failException = ire;
             proofStatus.setValue(ProofStatus.FAILING);
-;
+
 
         } catch(Exception ex) {
             // publish the proof root even if the proof has (partially) failed.
@@ -313,6 +313,7 @@ public class Proof {
  * Class handling the creation of the proof tree when interpreting script.
  * EntryListeners are informed when entering an ASTNode in the Interpreter
  * ExitsListeners are informed at then end of ASTNodes
+ * Book keeping is done in this visitor
  */
 class ProofNodeInterpreterManager {
     final Interpreter<ProofNode> interpreter;
