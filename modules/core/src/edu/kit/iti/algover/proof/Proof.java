@@ -454,6 +454,18 @@ class ProofNodeInterpreterManager {
 
             List<ProofNode> goals = interpreter.getCurrentState().getGoals();
 
+            if (goals.size() == 1 && goals.get(0).equals(lastSelectedGoalNode)) {
+                if(graph != null) {
+                    try {
+                        graph.addFromRuleApplication(interpreter.getCurrentProof(), lastSelectedGoalNode, lastSelectedGoalNode.getChildren());
+                        graph.addFromScriptNode(node,  lastSelectedGoalNode, interpreter.getCurrentProof());
+                        proof.addAstPnReference(node, goals.get(0));
+                    } catch (RuleException e) {
+                        throw new RuntimeException(e);
+                    }
+                }
+                return null;
+            }
             //goal list is empty, we have reached a proof
             if (goals.isEmpty()) {
                 lastSelectedGoalNode.setClosed(true);
@@ -466,6 +478,28 @@ class ProofNodeInterpreterManager {
                     //we don't have a nested structure
                     if(goal.getParent() == lastSelectedGoalNode) {
                         lastSelectedGoalNode.getChildren().add(goal);
+                        if(graph != null) {
+                            try {
+                                graph.addFromRuleApplication(interpreter.getCurrentProof(), lastSelectedGoalNode, lastSelectedGoalNode.getChildren());
+                                graph.addFromScriptNode(node,  lastSelectedGoalNode, interpreter.getCurrentProof());
+                            } catch (RuleException e) {
+                                throw new RuntimeException(e);
+                            }
+                        }
+                    } else {
+                        //TODO handle nested structure -> maybe this is not wanted
+                        ProofNode temporaryGoal = goal;
+                        while(temporaryGoal.getParent() != lastSelectedGoalNode){
+                            try {
+                                graph.addFromRuleApplication(interpreter.getCurrentProof(), temporaryGoal, temporaryGoal.getParent().getChildren());
+                                graph.addFromScriptNode(node, lastSelectedGoalNode, interpreter.getCurrentProof());
+                            } catch (RuleException e) {
+                                e.printStackTrace();
+                            }
+                            temporaryGoal = temporaryGoal.getParent();
+                        }
+                        lastSelectedGoalNode.getChildren().add(temporaryGoal);
+
                     }
                 }
                 proof.addAstPnReference(node, goals.get(0));
@@ -492,6 +526,42 @@ class ProofNodeInterpreterManager {
          */
         @Override
         public Void visit(AssignmentStatement assignment) {
+            lastSelectedGoalNode.setChildren(new ArrayList<>());
+
+            List<ProofNode> goals = interpreter.getCurrentState().getGoals();
+
+            if (goals.size() == 1 && goals.get(0).equals(lastSelectedGoalNode)) {
+                proof.addAstPnReference(assignment, goals.get(0));
+                return null;
+            }
+            if (goals.isEmpty()) {
+                lastSelectedGoalNode.setClosed(true);
+                proof.addAstPnReference(assignment, lastSelectedGoalNode);
+                // System.out.println("Goalist goals.size() = " + goals.size() + "is empty we have reached a full proof");
+            }
+            if (goals.size() > 0) {
+                assert goals.size() == 1;
+                for (ProofNode goal : goals) {
+                    lastSelectedGoalNode.getChildren().add(goal);
+                    //TODO implement new method allowing to create "self-references"
+                   /* if(graph != null) {
+                        try {
+                            graph.addReference(interpreter.getCurrentProof(), lastSelectedGoalNode, lastSelectedGoalNode.getChildren());
+                        } catch (RuleException e) {
+                            throw new RuntimeException(e);
+                        }
+                    }*/
+
+                }
+                proof.addAstPnReference(assignment, goals.get(0));
+
+            }
+
+            lastSelectedGoalNode.addMutator(assignment);
+
+            return null;
+
+
          /*   LinkedList<ProofNode> singleChild = new LinkedList<>();
             List<ProofNode> goals = interpreter.getCurrentState().getGoals();
 
@@ -510,7 +580,7 @@ class ProofNodeInterpreterManager {
             lastSelectedGoalNode.setChildren(singleChild);
             //lastSelectedGoalNode.addMutator(assignment);
             return null;*/
-            return defaultVisit(assignment);
+//            return defaultVisit(assignment);
         }
 
         @Override
