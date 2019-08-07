@@ -78,7 +78,7 @@ public class ScriptController implements ScriptViewListener, ReferenceHighlighti
     private Proof proof;
     private ObservableList<ProofNodeCheckpoint> checkpoints = FXCollections.observableArrayList();
 
-    int sizeOfCheckpoints = 0;
+    private int sizeOfCheckpoints = 0;
     private LayeredHighlightingRulev4 highlightingRules;
 
     private PositionChangedListener positionListener;
@@ -111,6 +111,7 @@ public class ScriptController implements ScriptViewListener, ReferenceHighlighti
 
         //  view.caretPositionProperty().addListener(this::onCaretPositionChanged);
         view.caretPositionProperty().addListener(caretPositionListener);
+
         //observable insertposition starts with 1
         observableInsertPosition.set(new Position(1,0));
         positionListener = new PositionChangedListener(this);
@@ -406,10 +407,10 @@ public class ScriptController implements ScriptViewListener, ReferenceHighlighti
         //new insert position has to be computed and updated
         //updateInsertPosition();
         updateInsertPosition(oldInsertPos);
+        view.setStyle("-fx-background-color: white; -fx-font-size: "+fontSizeProperty.get()+"pt;");
 
         //JK: This should not be necessary since the changed text triggers onTextChanged and onCaretPositionChanged
         //SaG: this is necessary such that the right tab is shown in the view
-        view.setStyle("-fx-background-color: white; -fx-font-size: "+fontSizeProperty.get()+"pt;");
         switchViewedNode();
 
     }
@@ -426,6 +427,11 @@ public class ScriptController implements ScriptViewListener, ReferenceHighlighti
      * @param checkpoints
      */
     private void createVisualSelectors(List<ProofNodeCheckpoint> checkpoints) {
+        if (checkpoints != null) {
+            view.getGutterAnnotations().get(0).setProofNode(new ProofNodeSelector(proof.getProofRoot()));
+            view.getGutterAnnotations().get(0).setProofNodeIsSelected(false);
+        }
+
         for (ProofNodeCheckpoint checkpoint : this.checkpoints) {
             int checkpointline = checkpoint.position.getLineNumber();
 
