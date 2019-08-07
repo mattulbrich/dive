@@ -423,9 +423,13 @@ class ProofNodeInterpreterManager {
         @Override
         public Void visit(SimpleCaseStatement simpleCaseStatement) {
             //There should be only one goal for each branch
-            assert interpreter.getCurrentGoals().size() == 1;
-
-            proof.addAstPnReference(simpleCaseStatement, interpreter.getCurrentGoals().get(0));
+            //SaG: this assertion cannot hold in case we applied two branching rules after each other!
+            //assert interpreter.getCurrentGoals().size() == 1;
+            if(interpreter.getCurrentGoals().size() > 1){
+                proof.addAstPnReference(simpleCaseStatement, interpreter.getCurrentGoals().get(0).getParent());
+            } else {
+                proof.addAstPnReference(simpleCaseStatement, interpreter.getCurrentGoals().get(0));
+            }
             return null;
         }
 
