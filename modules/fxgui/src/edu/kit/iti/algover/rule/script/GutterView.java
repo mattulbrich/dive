@@ -63,10 +63,22 @@ public class GutterView extends HBox {
     //font size in pt
     private SimpleIntegerProperty fontSizeProperty = new SimpleIntegerProperty(12);
 
+    /**
+     * Create a new Annotation in the Gutter (i.e., a new line containing a line number and possibly
+     * symbols to indicate proof nodes and selections
+     * @param ga The Model for the respective line
+     */
     public GutterView(GutterAnnotation ga) {
+        //bind the fontsize property to the general settings fontsize
         fontSizeProperty.bind(ga.fontsizeProperty());
+
+        //The first element of the gutter is the line number
         gutter[0] = lineNumber;
+        //set the style for the line number
         lineNumber.setStyle("-fx-font-size: "+fontSizeProperty.get()+"pt;");
+
+        //check whether the model already contains information for displaying symbols
+        //is there a proof node to select
         if(ga.isProofNodeIsSet()) {
             if(ga.isProofNodeIsSelected())
                 gutter[1] = iconProofNodeSelected;
@@ -75,13 +87,15 @@ public class GutterView extends HBox {
         } else {
             gutter[1] = placeholder();
         }
+        //is this line the next position where a command is added
         if(ga.isInsertMarker()){
             gutter[2] = iconProofCommandPosition;
         } else {
             gutter[2] = placeholder();
         }
-        annotation.addListener((o, old, nv) -> {
 
+        //add listeners to the different properties
+        annotation.addListener((o, old, nv) -> {
             if (old != null) {
                 lineNumber.textProperty().unbind();
             }
@@ -89,19 +103,21 @@ public class GutterView extends HBox {
 
             update(null);
         });
+
+
         ga.proofNodeIsSetProperty().addListener(this::updateProofNode);
         ga.insertMarkerProperty().addListener(this::updateMarker);
         ga.proofNodeIsSelectedProperty().addListener(this::updateProofNodeSelection);
         ga.proofNodeIsReferencedProperty().addListener(this::updateReferences);
-        ga.proofNodeIsSelectedProperty().addListener((observable, oldValue, newValue) -> {
+     /*   ga.proofNodeIsSelectedProperty().addListener((observable, oldValue, newValue) -> {
             updateProofNodeSelection(observable);
-        });
+        });*/
         setAnnotation(ga);
         fontSizeProperty.addListener((observable, oldValue, newValue) -> {
             System.out.println(fontSizeProperty.get());
             double inPX = newValue.intValue() / 0.75;
            updateFontsize(newValue.intValue(), inPX);
-           update(null);
+
 
         });
         update(null);
@@ -125,20 +141,29 @@ public class GutterView extends HBox {
             Label g2 = (Label) gutter[2];
             g2.setStyle("-fx-font-size: "+pt+"pt;");
         }
-
+        update(null);
 
     }
 
+    /**
+     * Update the position of the marker
+     * @param o
+     */
     private void updateMarker(Observable o) {
         if(getAnnotation().isInsertMarker()){
             gutter[2] = iconProofCommandPosition;
         } else {
             gutter[2] = placeholder();
         }
+        //if the marker has changed also the proof node selection mus have changed
         updateProofNodeSelection(o);
-        update(o);
+        //update(o);
     }
 
+    /**
+     * Update the marker whether a proof node is selected
+     * @param observable
+     */
     private void updateProofNodeSelection(Observable observable) {
         if(getAnnotation().isProofNodeIsSet()) {
             Paint fill = ((MaterialDesignIconView) gutter[1]).getFill();
@@ -151,10 +176,16 @@ public class GutterView extends HBox {
         } else {
             gutter[1] = placeholder();
         }
+
+        //if a proof node is selected also the refereneces shoudl be chenckede, as the color of the marker must be adjusted if a referenced node is selected
         updateReferences(observable);
-        update(observable);
+        //update(observable);
     }
 
+    /**
+     * Update if a profo node is set
+     * @param o
+     */
     private void updateProofNode(Observable o) {
         if(getAnnotation().isProofNodeIsSet()){
             gutter[1] = iconProofNodeUnSelected;
@@ -162,8 +193,9 @@ public class GutterView extends HBox {
         } else {
             gutter[1] = placeholder();
         }
+        //check whether the slection has to be updated
         updateProofNodeSelection(o);
-        update(o);
+        //update(o);
     }
 
     private void updateReferences(Observable observable) {
@@ -191,7 +223,7 @@ public class GutterView extends HBox {
     }
 
     /**
-     * Update the GutterView with the components stored in the Gutter Array
+     * Update the GutterView with the components stored in the Gutter Array, i.e. refresh the view
      * @param o
      */
     public void update(Observable o){
