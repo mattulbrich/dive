@@ -507,10 +507,9 @@ public class ScriptController implements ScriptViewListener, ReferenceHighlighti
         highlightingRules.setLayer(0, (token, syntaxClasses) -> syntaxClasses);
     }
 
-    //TODO this method is needed if a user selects a proofnode using the tabs
-    public void setSelectedNode(ProofNodeSelector proofNode) {
+   /* public void setSelectedNode(ProofNodeSelector proofNode) {
         if(!proofNode.equals(selectedNode)) {
-//            selectedNode = proofNode;
+            //selectedNode = proofNode;
             if (checkpoints != null) {
 //                List<ProofNodeCheckpoint> potCheckpoints = checkpoints.stream().filter(ch -> ch.selector.equals(proofNodeSelector)).collect(Collectors.toList());
 //                if (potCheckpoints.size() > 0) {
@@ -520,7 +519,7 @@ public class ScriptController implements ScriptViewListener, ReferenceHighlighti
 //                }
             }
         }
-    }
+    }*/
 
     /**
      * Return the Position, where the next proof command is added

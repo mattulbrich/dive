@@ -723,7 +723,7 @@ public class MainController implements SequentActionListener, RuleApplicationLis
     @Override
     public void onSwitchViewedNode(ProofNodeSelector proofNodeSelector) {
         sequentController.viewProofNode(proofNodeSelector);
-        ruleApplicationController.getScriptController().setSelectedNode(proofNodeSelector);
+        //ruleApplicationController.getScriptController().setSelectedNode(proofNodeSelector);
     }
 
     public VBox getView() {
