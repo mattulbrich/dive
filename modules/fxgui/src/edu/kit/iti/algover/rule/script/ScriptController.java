@@ -357,7 +357,7 @@ public class ScriptController implements ScriptViewListener, ReferenceHighlighti
         //neuberechnen -> User
         //onCaretPositionChanged(null);
 
-          view.setStyle("-fx-background-color: #c4c1c9;"+fontSizeProperty.get()+"pt;");
+          view.setStyle("-fx-background-color: lightgray; -fx-font-size: "+fontSizeProperty.get()+"pt;");
           view.resetGutter();
           view.requestLayout();
 
@@ -433,6 +433,14 @@ public class ScriptController implements ScriptViewListener, ReferenceHighlighti
 
     @Override
     public String onInsertCases() {
+        try {
+            //andRight on='|- _ && _';
+            if(getNodeFromPosition(checkpoints.get(checkpoints.size()-1).position).get(proof).getParent().getChildren().size()>1){
+                System.out.println("We are at branching");
+            }
+        } catch (RuleException e) {
+            e.printStackTrace();
+        }
         System.out.println("TODO insert cases");
         return "TODO";
 
@@ -528,10 +536,8 @@ public class ScriptController implements ScriptViewListener, ReferenceHighlighti
                        setObservableInsertPosition(new Position(positionMap.get(proofNode).getLineNumber()+1, 0));
                        this.selectedNode = proofNode;
                    }
-//                }
                 }
            }
-
         }
     }
 
