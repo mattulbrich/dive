@@ -177,7 +177,7 @@ public class GutterView extends HBox {
             gutter[1] = placeholder();
         }
 
-        //if a proof node is selected also the refereneces shoudl be chenckede, as the color of the marker must be adjusted if a referenced node is selected
+        //if a proof node is selected also the references should be checked, as the color of the marker must be adjusted if a referenced node is selected
         updateReferences(observable);
         //update(observable);
     }
