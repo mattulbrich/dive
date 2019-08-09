@@ -76,17 +76,17 @@ public class ScriptView extends AsyncHighlightingCodeArea {
 
         MenuItem save = new MenuItem("Save Proof Script", FontAwesomeIconFactory.get().createIcon(FontAwesomeIcon.SAVE));
         MenuItem run = new MenuItem("Run Proof Script", FontAwesomeIconFactory.get().createIcon(FontAwesomeIcon.ARROW_RIGHT));
-        MenuItem createCases = new MenuItem("Insert cases", FontAwesomeIconFactory.get().createIcon(MaterialDesignIcon.CALL_SPLIT));
+        //MenuItem createCases = new MenuItem("Insert cases", FontAwesomeIconFactory.get().createIcon(MaterialDesignIcon.CALL_SPLIT));
 
         save.setOnAction(event -> this.listener.onScriptSave());
         run.setOnAction(event -> this.listener.runScript());
-        createCases.setOnAction(event -> listener.onInsertCases());
+        //createCases.setOnAction(event -> listener.onInsertCases());
 
 
         ContextMenu menu = new ContextMenu(
                 run,
-                save,
-                createCases
+                save
+               // createCases
         );
         setContextMenu(menu);
         //set gutter factory for checkpoints

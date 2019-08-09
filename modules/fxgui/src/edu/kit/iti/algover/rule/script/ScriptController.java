@@ -5,6 +5,8 @@
  */
 package edu.kit.iti.algover.rule.script;
 
+import de.jensd.fx.glyphs.fontawesome.utils.FontAwesomeIconFactory;
+import de.jensd.fx.glyphs.materialdesignicons.MaterialDesignIcon;
 import edu.kit.iti.algover.Lookup;
 import edu.kit.iti.algover.MainController;
 import edu.kit.iti.algover.editor.HighlightingRule;
@@ -35,6 +37,7 @@ import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
+import javafx.scene.control.MenuItem;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyCodeCombination;
 import javafx.scene.input.KeyCombination;
@@ -84,12 +87,16 @@ public class ScriptController implements ScriptViewListener, ReferenceHighlighti
     private PositionChangedListener positionListener;
     private CaretPositionChangedListener caretPositionListener;
 
+    private MenuItem insertCasesItem;
+
     public ScriptController(ExecutorService executor, RuleApplicationListener listener, Lookup lookup) {
         this.view = new ScriptView(executor, this);
         this.view.setOnKeyReleased(this::handleShortcuts);
         this.listener = listener;
         this.highlightingRules = new LayeredHighlightingRulev4(2);
         this.lookup = lookup;
+
+        this.insertCasesItem  = new MenuItem("Insert Cases", FontAwesomeIconFactory.get().createIcon(MaterialDesignIcon.CALL_SPLIT));
 
         lookup.register(this, ReferenceHighlightingHandler.class);
 
@@ -124,6 +131,9 @@ public class ScriptController implements ScriptViewListener, ReferenceHighlighti
         view.getGutterAnnotations().get(0).setProofNodeIsSelected(true);
         view.getGutterAnnotations().get(0).setProofNodeIsReferenced(true);
         view.requestLayout();
+        view.getContextMenu().getItems().add(insertCasesItem);
+        insertCasesItem.setOnAction(e -> onInsertCases());
+        insertCasesItem.setDisable(true);
 
     }
 
@@ -431,7 +441,7 @@ public class ScriptController implements ScriptViewListener, ReferenceHighlighti
 
     }
 
-    @Override
+
     public String onInsertCases() {
         try {
             //andRight on='|- _ && _';

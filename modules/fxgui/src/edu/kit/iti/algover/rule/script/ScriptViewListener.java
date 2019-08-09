@@ -15,5 +15,5 @@ public interface ScriptViewListener {
 
     void runScript();
 
-    String onInsertCases();
+    //String onInsertCases();
 }
