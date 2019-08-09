@@ -66,7 +66,7 @@ public class ScriptController implements ScriptViewListener, ReferenceHighlighti
 
     private final ScriptView view;
     private final RuleApplicationListener listener;
-    private ProofNode selectedNode = null;
+    private ProofNodeSelector selectedNode = new ProofNodeSelector();
     private Lookup lookup;
 
     private SimpleIntegerProperty fontSizeProperty = new SimpleIntegerProperty(12);
@@ -123,7 +123,6 @@ public class ScriptController implements ScriptViewListener, ReferenceHighlighti
         view.getGutterAnnotations().get(0).setProofNode(new ProofNodeSelector());
         view.getGutterAnnotations().get(0).setProofNodeIsSelected(true);
         view.getGutterAnnotations().get(0).setProofNodeIsReferenced(true);
-
         view.requestLayout();
 
     }
@@ -254,6 +253,7 @@ public class ScriptController implements ScriptViewListener, ReferenceHighlighti
         ProofNodeSelector pns = getNodeFromPosition(getObservableInsertPosition());
         if(pns != null) {
             this.listener.onSwitchViewedNode(pns);
+            selectedNode = pns;
         } else {
             System.out.println("cannot switch to node null");
         }
@@ -286,8 +286,14 @@ public class ScriptController implements ScriptViewListener, ReferenceHighlighti
     }
 
     private ProofNodeCheckpoint getCheckpointForPosition(Position pos) {
+        List<ProofNodeCheckpoint> pCh = new ArrayList<>();
+        for(ProofNodeCheckpoint ch: checkpoints){
+            if(pos.compareTo(ch.position) > 0){
+                pCh.add(ch);
+            }
+        }
+        List<ProofNodeCheckpoint> potCh = checkpoints.stream().filter(ch -> pos.compareTo(ch.position) >= 0).collect(Collectors.toList());
 
-        List<ProofNodeCheckpoint> potCh = checkpoints.stream().filter(ch -> pos.compareTo(ch.position) > 0).collect(Collectors.toList());
         if(potCh.size() > 0) {
             return potCh.get(potCh.size() - 1);
         }
@@ -507,19 +513,27 @@ public class ScriptController implements ScriptViewListener, ReferenceHighlighti
         highlightingRules.setLayer(0, (token, syntaxClasses) -> syntaxClasses);
     }
 
-   /* public void setSelectedNode(ProofNodeSelector proofNode) {
-        if(!proofNode.equals(selectedNode)) {
-            //selectedNode = proofNode;
-            if (checkpoints != null) {
-//                List<ProofNodeCheckpoint> potCheckpoints = checkpoints.stream().filter(ch -> ch.selector.equals(proofNodeSelector)).collect(Collectors.toList());
-//                if (potCheckpoints.size() > 0) {
-//                    Position insertPosition = potCheckpoints.get(potCheckpoints.size() - 1).caretPosition;
-//                    observableInsertPosition.set(insertPosition);
-//                    //switchViewedNode();
+    /**
+     * Set selected node such that observable insertposition changes. This method is needed if the tab selection changes
+     * @param proofNode
+     */
+    public void setSelectedNode(ProofNodeSelector proofNode) {
+        if(this.selectedNode != null && proofNode != null){
+           if(!proofNode.equals(selectedNode)){
+                if(checkpoints != null){
+                   Map<ProofNodeSelector, Position> positionMap = new HashMap<>();
+                   checkpoints.forEach(proofNodeCheckpoint
+                           -> positionMap.put(getNodeFromPosition(proofNodeCheckpoint.position), proofNodeCheckpoint.position));
+                   if(positionMap.get(proofNode)!= null){
+                       setObservableInsertPosition(new Position(positionMap.get(proofNode).getLineNumber()+1, 0));
+                       this.selectedNode = proofNode;
+                   }
 //                }
-            }
+                }
+           }
+
         }
-    }*/
+    }
 
     /**
      * Return the Position, where the next proof command is added
