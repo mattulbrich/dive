@@ -296,12 +296,13 @@ public class ScriptController implements ScriptViewListener, ReferenceHighlighti
     }
 
     private ProofNodeCheckpoint getCheckpointForPosition(Position pos) {
-        List<ProofNodeCheckpoint> pCh = new ArrayList<>();
+        //SaG: this was for debugging
+        /*List<ProofNodeCheckpoint> pCh = new ArrayList<>();
         for(ProofNodeCheckpoint ch: checkpoints){
             if(pos.compareTo(ch.position) > 0){
                 pCh.add(ch);
             }
-        }
+        }*/
         List<ProofNodeCheckpoint> potCh = checkpoints.stream().filter(ch -> pos.compareTo(ch.position) >= 0).collect(Collectors.toList());
 
         if(potCh.size() > 0) {
