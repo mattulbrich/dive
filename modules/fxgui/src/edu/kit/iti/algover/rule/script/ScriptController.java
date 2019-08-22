@@ -540,13 +540,29 @@ public class ScriptController implements ScriptViewListener, ReferenceHighlighti
         if(this.selectedNode != null && proofNode != null){
            if(!proofNode.equals(selectedNode)){
                 if(checkpoints != null){
-                   Map<ProofNodeSelector, Position> positionMap = new HashMap<>();
+                    Iterator<ProofNodeCheckpoint> iterator = checkpoints.iterator();
+                    ProofNodeSelector currentNode;
+                    ProofNodeCheckpoint foundCheckpoint = null;
+                    while(iterator.hasNext()){
+                        ProofNodeCheckpoint currentCheckpoint = iterator.next();
+                        currentNode = getNodeFromPosition(currentCheckpoint.position);
+                        if(currentNode.equals(proofNode)){
+                            foundCheckpoint = currentCheckpoint;
+                            break;
+                        }
+                    }
+
+                    if(foundCheckpoint != null){
+                        setObservableInsertPosition(new Position(foundCheckpoint.position.getLineNumber()+1, 0));
+                        this.selectedNode = proofNode;
+                    }
+                  /*  Map<ProofNodeSelector, Position> positionMap = new HashMap<>();
                    checkpoints.forEach(proofNodeCheckpoint
                            -> positionMap.put(getNodeFromPosition(proofNodeCheckpoint.position), proofNodeCheckpoint.position));
                    if(positionMap.get(proofNode)!= null){
                        setObservableInsertPosition(new Position(positionMap.get(proofNode).getLineNumber()+1, 0));
                        this.selectedNode = proofNode;
-                   }
+                   }*/
                 }
            }
         }
