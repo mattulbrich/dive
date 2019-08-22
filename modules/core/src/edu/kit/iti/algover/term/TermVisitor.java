@@ -5,8 +5,6 @@
  */
 package edu.kit.iti.algover.term;
 
-import edu.kit.iti.algover.term.match.MatchException;
-
 public interface TermVisitor<A, R, E extends Exception> {
 
     R visit(VariableTerm variableTerm, A arg) throws E;
@@ -29,9 +27,12 @@ public interface TermVisitor<A, R, E extends Exception> {
         return visitSchemaTerm(schemaCaptureTerm, arg);
     }
 
+    default R visit(ReferenceTerm referenceTerm, A arg) throws E {
+        return visitSchemaTerm(referenceTerm, arg);
+    }
+
     default R visitSchemaTerm(SchemaTerm schemaTerm, A arg) throws E {
         throw new Error("The visitor of type " + getClass() +
                 " must not be applied to schematic terms.");
     }
-
 }

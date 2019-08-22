@@ -11,22 +11,54 @@ import java.util.List;
 
 import edu.kit.iti.algover.term.builder.TermBuildException;
 import edu.kit.iti.algover.util.Util;
+import nonnull.DeepNonNull;
+import nonnull.NonNull;
 
+/**
+ * A function application term.
+ *
+ * @author Mattias Ulbrich
+ */
 public class ApplTerm extends Term {
 
-    private final FunctionSymbol function;
+    /**
+     * The applied function symbol.
+     */
+    private final @NonNull FunctionSymbol function;
 
-    public ApplTerm(FunctionSymbol function, List<Term> arguments) throws TermBuildException {
-        super(function.getResultSort(),
-                Util.toArray(arguments, Term.class));
+    /**
+     * Create a new function application term. The arguments must match the
+     * function symbol in number and sorts.
+     *
+     * @param function  the symbol to apply
+     * @param arguments non-null arguments to be used
+     * @throws TermBuildException if the arguments cannot go with the symbol
+     */
+    public ApplTerm(@NonNull FunctionSymbol function, @DeepNonNull List<Term> arguments) throws TermBuildException {
+        super(function.getResultSort(), Util.toArray(arguments, Term.class));
         this.function = function;
         check();
     }
 
+    /**
+     * Create a new function application term. The arguments must match the
+     * function symbol in number and sorts.
+     *
+     * @param function  the symbol to apply
+     * @param arguments non-null arguments to be used
+     * @throws TermBuildException if the arguments cannot go with the symbol
+     */
     public ApplTerm(FunctionSymbol function, Term... arguments) throws TermBuildException {
         this(function, Arrays.asList(arguments));
     }
 
+    /**
+     * Create a new constant function application term. The arguments must match
+     * the function symbol in number and sorts.
+     *
+     * @param constant the symbol to apply
+     * @throws TermBuildException if the symbol is not a constant
+     */
     public ApplTerm(FunctionSymbol constant) throws TermBuildException {
         this(constant, Collections.emptyList());
     }

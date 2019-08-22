@@ -13,6 +13,8 @@ import edu.kit.iti.algover.proof.ProofNode;
 import edu.kit.iti.algover.rules.*;
 import edu.kit.iti.algover.term.ApplTerm;
 import edu.kit.iti.algover.term.FunctionSymbol;
+import edu.kit.iti.algover.term.ReferenceTerm;
+import edu.kit.iti.algover.term.Sequent;
 import edu.kit.iti.algover.term.Term;
 import edu.kit.iti.algover.term.parser.TermParser;
 import edu.kit.iti.algover.util.RuleUtil;
@@ -68,8 +70,10 @@ public class AndLeftRule extends DefaultFocusProofRule {
 
         ProofRuleApplicationBuilder builder = new ProofRuleApplicationBuilder(this);
 
-        builder.newBranch().addReplacement(selector, appl.getTerm(0)).
-                addAdditionAntecedent(new ProofFormula(appl.getTerm(1), formula.getLabels()));
+        builder.newBranch().
+                addDeletions(Sequent.singleAntecedent(formula)).
+                addAdditionAntecedent(new ProofFormula(new ReferenceTerm(selector.selectSubterm(0)), formula.getLabels())).
+                addAdditionAntecedent(new ProofFormula(new ReferenceTerm(selector.selectSubterm(1)), formula.getLabels()));
 
         builder.setApplicability(ProofRuleApplication.Applicability.APPLICABLE);
 

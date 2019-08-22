@@ -49,6 +49,23 @@ import nonnull.Nullable;
 public final class TermSelector implements Comparable<TermSelector> {
 
     /**
+     * Indicator to denote left and right hand side of the sequent.
+     */
+    public enum SequentPolarity {
+        ANTECEDENT, SUCCEDENT;
+
+        /**
+         * Gets the opposite polarity.
+         *
+         * @return an non-<code>null</code> object of this class different from
+         * <code>this</code>
+         */
+        public SequentPolarity getOpposite() {
+            return this == ANTECEDENT ? SUCCEDENT : ANTECEDENT;
+        }
+    }
+
+    /**
      * We store the side of the sequent as a constant value.
      */
     private final @NonNull SequentPolarity polarity;
@@ -139,20 +156,10 @@ public final class TermSelector implements Comparable<TermSelector> {
      *            the path to the subterm in the given term
      */
     public TermSelector(SequentPolarity inAntecedent, int termNo, int... path) {
-
-        assert termNo >= 0 && termNo <= Short.MAX_VALUE :
-            "TermSelectors need non-negative short values, but got " + termNo;
-
-        this.polarity = inAntecedent;
-        this.termNumber = (short) termNo;
-
-        // null check is needed, because "new TermSelector(true, 0, null);" is a
-        // valid java expression
-        if(path != null && path.length > 0) {
-            this.subtermSelector = new SubtermSelector(path);
-        } else {
-            this.subtermSelector = EMPTY_SUBTERMSELECTOR;
-        }
+        this(inAntecedent, termNo,
+                path == null || path.length == 0 ?
+                        EMPTY_SUBTERMSELECTOR :
+                        new SubtermSelector(path));
     }
 
     /**
@@ -538,21 +545,4 @@ public final class TermSelector implements Comparable<TermSelector> {
         return subtermSelector;
     }
 
-
-    /**
-     * Indicator to denote left and right hand side of the sequent.
-     */
-    public enum SequentPolarity {
-        ANTECEDENT, SUCCEDENT;
-
-        /**
-         * Gets the opposite polarity.
-         *
-         * @return an non-<code>null</code> object of this class different from
-         * <code>this</code>
-         */
-        public SequentPolarity getOpposite() {
-            return this == ANTECEDENT ? SUCCEDENT : ANTECEDENT;
-        }
-    }
 }

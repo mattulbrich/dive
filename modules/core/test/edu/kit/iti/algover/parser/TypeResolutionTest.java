@@ -5,6 +5,7 @@
  */
 package edu.kit.iti.algover.parser;
 
+import edu.kit.iti.algover.dafnystructures.DafnyFunction;
 import edu.kit.iti.algover.dafnystructures.DafnyMethod;
 import edu.kit.iti.algover.project.Project;
 import edu.kit.iti.algover.project.ProjectBuilder;
@@ -57,6 +58,9 @@ public class TypeResolutionTest {
         List<Object[]> result = new ArrayList<>();
         for (DafnyMethod method : project.getClass("C").getMethods()) {
             result.add(new Object[] { method.getName(), project });
+        }
+        for (DafnyFunction function : project.getClass("C").getFunctions()) {
+            result.add(new Object[] { function.getName(), project });
         }
         // result = Collections.singletonList(new Object[] { "quantifiers", project});
         return result;

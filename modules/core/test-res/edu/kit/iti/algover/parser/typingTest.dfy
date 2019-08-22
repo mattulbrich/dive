@@ -305,4 +305,11 @@ class C
       setC := { null };
    }
 
+   function f() : int
+     requires intfield > 0
+     reads this, cfield
+   {
+     intfield - 1
+   }
+
 }
