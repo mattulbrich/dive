@@ -335,6 +335,9 @@ public class SequentController extends FxmlController {
                 }
                 updateSequent(parentNode.getSequent(), branchInfo);
                 updateGoalTypeLabel();
+                if(this.selectedTerm.get() == null || !this.selectedTerm.get().isValidForSequent(parentNode.getSequent())) {
+                    this.selectedTerm.set(null);
+                }
             });
         });
     }
