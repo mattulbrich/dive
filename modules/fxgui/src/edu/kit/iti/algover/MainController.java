@@ -271,6 +271,7 @@ public class MainController implements SequentActionListener, RuleApplicationLis
                 int failed = 0;
                 for(String pvcName : pvcNames) {
                     Proof p = manager.getProofForPVC(pvcName);
+                    p.interpretScript();
                     if (p.getProofStatus() != ProofStatus.CLOSED) {
                         String oldScript = p.getScript();
                         String script = "boogie;\n";
