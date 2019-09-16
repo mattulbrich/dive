@@ -179,9 +179,6 @@ public class DafnyCodeArea extends AsyncHighlightingCodeArea {
     private boolean textIsSimilar(String s1, String s2) {
         s1 = s1.replaceAll("\\s*", " ");
         s2 = s2.replaceAll("\\s*", " ");
-        if(!s1.equals(s2)) {
-            System.out.println("not equal");
-        }
         return s1.equals(s2);
     }
 
