@@ -77,7 +77,7 @@ class List {
     requires Valid()
     ensures seqq == old(seqq[..pos] + seqq[pos+1..])
     ensures Valid()
-    modifies footprint
+    modifies head, nodeseqq[pos - 1]
   {
     if(pos == 0) {      
         head := head.next;
@@ -94,8 +94,13 @@ class List {
       }
       node.next := node.next.next;
     }
-    nodeseqq := nodeseqq[..pos] + nodeseqq[pos + 1..];
-    seqq := seqq[..pos] + seqq[pos + 1 ..];
+    if(pos == |seqq| - 1) {
+      nodeseqq := nodeseqq[..pos];
+      seqq := seqq[..pos];
+    } else {
+      nodeseqq := nodeseqq[..pos] + nodeseqq[pos + 1..];
+      seqq := seqq[..pos] + seqq[pos + 1 ..];
+    }
   }
   
   method getAt(pos: int) returns (v: int)
@@ -107,7 +112,7 @@ class List {
       var node := head;
       while(idx < pos) 
 	invariant node == nodeseqq[idx];
-	invariant idx <= pos;
+	invariant idx <= pos && idx >= 0;
         decreases |seqq| - idx;
       {
         node := node.next;
