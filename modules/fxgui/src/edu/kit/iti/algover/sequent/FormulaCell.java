@@ -126,6 +126,9 @@ public class FormulaCell extends BorderPane {
             //this.setRight(rectangle);
         } else {
             this.setBottom(null);
+            // set a non-null side object to force repaint on resize.
+            Rectangle rectangle = new Rectangle(0,0);
+            this.setRight(rectangle);
         }
     }
 
@@ -147,7 +150,7 @@ public class FormulaCell extends BorderPane {
                     labelViews.add(view);
                     break;
                 case "PostCond":
-                    view = new Label("Pre");
+                    view = new Label("Post");
                     view.setStyle("-fx-text-fill: #ffec46");
                     labelViews.add(view);
                     break;
