@@ -90,6 +90,11 @@ public class MainController implements SequentActionListener, RuleApplicationLis
     // REVIEW: Would <String> not be more appropriate?
     private final CostumBreadCrumbBar<Object> breadCrumbBar;
 
+    /**
+        Flag whether The displayed terms are just a prevew to avoid rule application consideration
+        on terms not represented in backend.
+     */
+    private boolean isRuleApplicationPreview;
 
     public MainController(ProjectManager manager, ExecutorService executor) {
         this.manager = manager;
@@ -102,6 +107,10 @@ public class MainController implements SequentActionListener, RuleApplicationLis
         this.ruleApplicationController = new RuleApplicationController(executor, this, manager, this.lookup);
 
         this.referenceGraphController = new ReferenceGraphController(this.lookup);
+
+        // flag whether this is in preview mode to avoid attempts on rule application on terms that are only
+        // on the view but not represented in the backend
+        this.isRuleApplicationPreview = false;
 
         JFXButton saveButton = new JFXButton("Save", FontAwesomeIconFactory.get().createIcon(FontAwesomeIcon.SAVE));
         JFXButton refreshButton = new JFXButton("Refresh", FontAwesomeIconFactory.get().createIcon(FontAwesomeIcon.REFRESH));
@@ -636,7 +645,7 @@ public class MainController implements SequentActionListener, RuleApplicationLis
         if (selector != null) {
             timelineView.moveFrameRight();
             ProofNode node = sequentController.getActiveSequentController().getActiveNode();
-            if (node != null) {
+            if (node != null && !this.isRuleApplicationPreview) {
                 ruleApplicationController.considerApplication(node, node.getSequent(), selector);
             }
         }
@@ -655,43 +664,49 @@ public class MainController implements SequentActionListener, RuleApplicationLis
 
     @Override
     public void onPreviewRuleApplication(ProofRuleApplication application) {
+        this.isRuleApplicationPreview = true;
         sequentController.getActiveSequentController().viewProofApplicationPreview(application);
     }
 
     @Override
     public void onResetRuleApplicationPreview() {
+        this.isRuleApplicationPreview = false;
         sequentController.getActiveSequentController().resetProofApplicationPreview();
     }
 
     @Override
     public void onRuleApplication(ProofRuleApplication application) {
-        // This can be implemented as an incremental algorithm in the future here!
-        // Currently, this will reset the script text completely. That means the
-        // script has to be parsed and rebuilt completely.
-        ruleApplicationController.applyRule(application);
-        ruleApplicationController.getRuleGrid().getSelectionModel().clearSelection();
-        String newScript = ruleApplicationController.getScriptView().getText();
-        sequentController.getActiveSequentController().getActiveProof().setScriptTextAndInterpret(newScript);
-        ruleApplicationController.resetConsideration();
-        sequentController.getActiveSequentController().tryMovingOnEx(); //SaG: was tryMovingOn()
-        if(sequentController.getActiveSequentController().getActiveProof().getFailException() == null) {
-            Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).info("Successfully applied rule " + application.getRule().getName() + ".");
+        if (!this.isRuleApplicationPreview) {
+            // This can be implemented as an incremental algorithm in the future here!
+            // Currently, this will reset the script text completely. That means the
+            // script has to be parsed and rebuilt completely.
+            ruleApplicationController.applyRule(application);
+            ruleApplicationController.getRuleGrid().getSelectionModel().clearSelection();
+            String newScript = ruleApplicationController.getScriptView().getText();
+            sequentController.getActiveSequentController().getActiveProof().setScriptTextAndInterpret(newScript);
+            ruleApplicationController.resetConsideration();
+            sequentController.getActiveSequentController().tryMovingOnEx(); //SaG: was tryMovingOn()
+            if (sequentController.getActiveSequentController().getActiveProof().getFailException() == null) {
+                Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).info("Successfully applied rule " + application.getRule().getName() + ".");
+            }
         }
     }
 
     @Override
     public void onRuleExApplication(ProofRule rule, TermSelector ts) {
-        // This can be implemented as an incremental algorithm in the future here!
-        // Currently, this will reset the script text completely. That means the
-        // script has to be parsed and rebuilt completely.
-        ruleApplicationController.applyExRule(rule, sequentController.getActiveSequentController().getActiveNode(), ts);
-        ruleApplicationController.getRuleGrid().getSelectionModel().clearSelection();
-        String newScript = ruleApplicationController.getScriptView().getText();
-        sequentController.getActiveSequentController().getActiveProof().setScriptTextAndInterpret(newScript);
-        ruleApplicationController.resetConsideration();
-        sequentController.getActiveSequentController().tryMovingOnEx();
-        if(sequentController.getActiveSequentController().getActiveProof().getFailException() == null) {
-            Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).info("Successfully applied rule " + rule.getName() + ".");
+        if (!this.isRuleApplicationPreview) {
+            // This can be implemented as an incremental algorithm in the future here!
+            // Currently, this will reset the script text completely. That means the
+            // script has to be parsed and rebuilt completely.
+            ruleApplicationController.applyExRule(rule, sequentController.getActiveSequentController().getActiveNode(), ts);
+            ruleApplicationController.getRuleGrid().getSelectionModel().clearSelection();
+            String newScript = ruleApplicationController.getScriptView().getText();
+            sequentController.getActiveSequentController().getActiveProof().setScriptTextAndInterpret(newScript);
+            ruleApplicationController.resetConsideration();
+            sequentController.getActiveSequentController().tryMovingOnEx();
+            if (sequentController.getActiveSequentController().getActiveProof().getFailException() == null) {
+                Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).info("Successfully applied rule " + rule.getName() + ".");
+            }
         }
     }
 
