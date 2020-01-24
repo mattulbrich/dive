@@ -59,7 +59,7 @@ public class BasicFormulaView extends CodeArea {
      */
     private final SimpleObjectProperty<TermSelector> selectedTerm;
     /**
-     * the last term that was ctr-clicked on.
+     * the last term that was ctrl-clicked on.
      */
     private final SimpleObjectProperty<TermSelector> selectedReference;
     /**

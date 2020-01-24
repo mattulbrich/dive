@@ -44,7 +44,7 @@ public class TimelineLayout extends HiddenSidesPane {
         this.goLeft = new GoLeftArrow(this);
         this.goRight = new GoRightArrow(this);
         this.splitPane = new SplitPane();
-        splitPane.setPadding(new Insets(0, HOVER_AREA, 0, HOVER_AREA));
+        this.splitPane.setPadding(new Insets(0, HOVER_AREA, 0, HOVER_AREA));
 
         setContent(splitPane);
         setAnimationDelay(Duration.ZERO);
@@ -52,17 +52,23 @@ public class TimelineLayout extends HiddenSidesPane {
         setTriggerDistance(HOVER_AREA);
 
         setOnKeyReleased(event -> {
-            if (event.isControlDown()) {
+            if (event.isAltDown()) {
                 if (event.getCode() == KeyCode.RIGHT) {
                     moveFrameRight();
                     event.consume();
                 } else if (event.getCode() == KeyCode.LEFT) {
                     moveFrameLeft();
                     event.consume();
+                } else if (event.getCode() == KeyCode.DIGIT1) {
+                    goToView(0);
+                } else if (event.getCode() == KeyCode.DIGIT2) {
+                    goToView(1);
+                } else if (event.getCode() == KeyCode.DIGIT3) {
+                    goToView(2);
                 }
             }
-        });
 
+        });
         updateFrame();
     }
 
@@ -84,11 +90,58 @@ public class TimelineLayout extends HiddenSidesPane {
         } else {
             setRight(goRight);
         }
+        requestFocus();
     }
 
     public void addAndMoveRight(Node view) {
         nodes.add(view);
         moveFrameRight();
+    }
+
+    private boolean goToView(int viewIndex) {
+        /*if (this.framePosition < viewIndex) {
+            do {
+                moveFrameRight();
+            } while (this.framePosition < viewIndex);
+            return true;
+        }
+
+        if (this.framePosition > viewIndex) {
+            do {
+                moveFrameLeft();
+            } while (this.framePosition > viewIndex);
+            return true;
+        }*/
+
+        int delta = viewIndex - framePosition;
+
+        Node neighbourNode = null;
+        // don't move
+        if (delta == 0) {
+            return false;
+        } if (delta > 0) { // move right
+            neighbourNode = nodes.get(framePosition);
+        } else { // move left
+            neighbourNode = nodes.get(framePosition + 1);
+        }
+
+        System.out.println("div pos " + splitPane.getDividerPositions().length);
+        double divider = splitPane.getDividerPositions()[0];
+        double neighbourNodeWidth = neighbourNode.getBoundsInParent().getWidth();
+
+        framePosition += delta;
+
+        updateFrame();
+
+        if (Math.abs(delta) % 2 == 0) {
+            setDividerPosition(divider);
+        } else if (Math.abs(delta) % 2 == 1) {
+            setDividerPosition(1 - divider);
+        }
+        splitPane.setTranslateX(delta * neighbourNodeWidth);
+        animate(splitPane.translateXProperty(), 0);
+
+        return true;
     }
 
     public boolean moveFrameRight() {
@@ -103,6 +156,8 @@ public class TimelineLayout extends HiddenSidesPane {
 
         framePosition++;
         updateFrame();
+
+        System.out.println("new Frame pos " + framePosition);
 
         setDividerPosition(1 - divider);
 
@@ -125,6 +180,9 @@ public class TimelineLayout extends HiddenSidesPane {
         framePosition--;
         updateFrame();
 
+
+        System.out.println("new Frame pos " + framePosition);
+
         setDividerPosition(1 - divider);
 
         splitPane.setTranslateX(-rightNodeWidth);
@@ -138,5 +196,4 @@ public class TimelineLayout extends HiddenSidesPane {
         KeyFrame keyframe = new KeyFrame(Duration.millis(200), xkeyvalue);
         new Timeline(keyframe).play();
     }
-
 }
