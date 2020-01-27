@@ -7,6 +7,8 @@ package edu.kit.iti.algover.boogie;
 
 import de.uka.ilkd.pp.NoExceptions;
 import edu.kit.iti.algover.dafnystructures.DafnyClass;
+import edu.kit.iti.algover.dafnystructures.DafnyFunction;
+import edu.kit.iti.algover.dafnystructures.DafnyFunctionSymbol;
 import edu.kit.iti.algover.project.Project;
 import edu.kit.iti.algover.term.ApplTerm;
 import edu.kit.iti.algover.term.DefaultTermVisitor;
@@ -315,6 +317,7 @@ public class BoogieVisitor extends DefaultTermVisitor<Void, String, NoExceptions
                         type, name, args,
                         visitSort(fs.getResultSort())));
 
+        // is indeed a new symbol
         if (added) {
             if(fs.getArity() == 0) {
                 axioms.add(String.format("axiom $Is(%s, %s);",
@@ -427,6 +430,7 @@ public class BoogieVisitor extends DefaultTermVisitor<Void, String, NoExceptions
         return declarations;
     }
 
+    // may even be added to outside!
     public List<String> getAxioms() {
         return axioms;
     }

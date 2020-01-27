@@ -123,7 +123,7 @@ public class BoogieProcessTest {
             return;
         }
 
-        String actualTranslation = process.produceObligation().toString().trim();
+        String actualTranslation = process.getObligation().toString().trim();
 
         if (!expectedTranslation.equals(actualTranslation)) {
             System.out.println(">>> " + name);

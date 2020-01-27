@@ -14,6 +14,7 @@ import edu.kit.iti.algover.term.Term;
 import edu.kit.iti.algover.term.builder.LetInlineVisitor;
 import edu.kit.iti.algover.term.builder.TermBuilder;
 import edu.kit.iti.algover.util.Util;
+import nonnull.Nullable;
 
 import java.io.BufferedReader;
 import java.io.FileNotFoundException;
@@ -22,8 +23,10 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.security.MessageDigest;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Base64;
 import java.util.List;
 
 public class BoogieProcess {
@@ -62,8 +65,10 @@ public class BoogieProcess {
     private Sequent sequent;
     private SymbolTable symbolTable;
     private String additionalBoogieText = "";
+    private @Nullable CharSequence obligation;
 
-    public CharSequence produceObligation() throws Exception {
+
+    private CharSequence produceObligation() throws Exception {
 
         assert symbolTable != null;
         assert sequent != null;
@@ -73,13 +78,15 @@ public class BoogieProcess {
         List<String> clauses = new ArrayList<>();
 
         BoogieVisitor v = new BoogieVisitor();
+        BoogieFunctionDefinitionVisitor fdv = new BoogieFunctionDefinitionVisitor();
 
         v.addClassDeclarations(project);
 
         for (ProofFormula formula : sequent.getAntecedent()) {
             Term term = formula.getTerm();
             term = LetInlineVisitor.inline(term);
-           // term = NothingResolution.resolveNothing(term);
+            term = fdv.collectAndMask(term);
+            // term = NothingResolution.resolveNothing(term);
             String translation = term.accept(v, null);
             clauses.add(translation);
         }
@@ -87,11 +94,15 @@ public class BoogieProcess {
         for (ProofFormula formula : sequent.getSuccedent()) {
             Term term = formula.getTerm();
             term = LetInlineVisitor.inline(term);
-           // term = NothingResolution.resolveNothing(term);
+            term = fdv.collectAndMask(term);
+            // term = NothingResolution.resolveNothing(term);
             term = tb.negate(term);
             String translation = term.accept(v, null);
             clauses.add(translation);
         }
+
+        fdv.findFunctionDefinitions(symbolTable);
+        fdv.getFunctionDefinitions(v);
 
         StringBuilder sb = new StringBuilder();
         sb.append(Util.join(v.getDeclarations(), "\n")).append("\n\n");
@@ -105,9 +116,27 @@ public class BoogieProcess {
         return sb;
     }
 
+    public CharSequence getObligation() throws Exception {
+
+        if (obligation != null) {
+            return obligation;
+        }
+
+        CharSequence sb = this.produceObligation();
+
+        this.obligation = sb;
+        return sb;
+    }
+
+    public String getHash() throws Exception {
+        MessageDigest digest = MessageDigest.getInstance("SHA-256");
+        byte[] hash = digest.digest(getObligation().toString().getBytes());
+        return Base64.getEncoder().encodeToString(hash);
+    }
+
     public boolean callBoogie() throws Exception {
 
-        CharSequence sb = produceObligation();
+        CharSequence sb = getObligation();
 
         Path tmpFile = Files.createTempFile("AlgoVer", ".bpl");
 
@@ -147,10 +176,12 @@ public class BoogieProcess {
 
     public void setAdditionalBoogieText(String additionalBoogieText) {
         this.additionalBoogieText = additionalBoogieText;
+        this.obligation = null;
     }
 
     public void setSequent(Sequent sequent) {
         this.sequent = sequent;
+        this.obligation = null;
     }
 
     public Sequent getSequent() {
@@ -159,6 +190,7 @@ public class BoogieProcess {
 
     public void setSymbolTable(SymbolTable symbolTable) {
         this.symbolTable = symbolTable;
+        this.obligation = null;
     }
 
     public SymbolTable getSymbolTable() {
