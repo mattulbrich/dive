@@ -7,28 +7,27 @@ package edu.kit.iti.algover.boogie;
 
 import edu.kit.iti.algover.data.SymbolTable;
 import edu.kit.iti.algover.project.Project;
-import edu.kit.iti.algover.proof.ProofFormula;
 import edu.kit.iti.algover.rules.RuleException;
 import edu.kit.iti.algover.term.Sequent;
-import edu.kit.iti.algover.term.Term;
-import edu.kit.iti.algover.term.builder.LetInlineVisitor;
-import edu.kit.iti.algover.term.builder.TermBuilder;
-import edu.kit.iti.algover.util.Util;
-import nonnull.Nullable;
+import edu.kit.iti.algover.term.builder.TermBuildException;
+import nonnull.NonNull;
 
 import java.io.BufferedReader;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.security.MessageDigest;
-import java.util.ArrayList;
+import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
-import java.util.Base64;
-import java.util.List;
 
+/**
+ * This class controls the communication to a boogie process.
+ *
+ * For every query a new process is launched.
+ *
+ * @author Mattias Ulbrich
+ */
 public class BoogieProcess {
 
     /**
@@ -37,121 +36,73 @@ public class BoogieProcess {
     public static final String COMMAND =
             System.getProperty("edu.kit.iti.algover.boogie_binary", "boogie");
 
+    /**
+     * If true, all produced temporary .bpl files are kept.
+     */
     public static final boolean KEEP_BPL =
             Boolean.getBoolean("edu.kit.iti.algover.keepBPL");
 
-    private final static String PRELUDE = loadPrelude();
+    /**
+     * If true, all produced temporary .bpl files are kept.
+     */
+    public static final boolean VERBOSE_BOOGIE =
+            Boolean.getBoolean("edu.kit.iti.algover.verboseBPL");
 
-    private static final String DAFNYPRELUDE_RESOURCE = "DafnyPrelude.bpl";
+    /**
+     * The class responsible for the translation
+     */
+    private final BoogieTranslation translation;
 
-    private Project project;
 
-    public BoogieProcess(Project project) {
-        this.project = project;
+    /**
+     * Instantiate a new boogie connection for a project
+     *
+     * @param project the project for which to translate a sequent.
+     * @param table the table containing all symbols occurring on the sequent
+     * @param sequent the logical encoding of the problem to solve
+     */
+    public BoogieProcess(@NonNull Project project, SymbolTable table, Sequent sequent) {
+        this.translation = new BoogieTranslation(project);
+        this.translation.setSequent(sequent);
+        this.translation.setSymbolTable(table);
     }
 
-    private static String loadPrelude() {
-        try {
-            InputStream is = BoogieProcess.class.getResourceAsStream(DAFNYPRELUDE_RESOURCE);
-            if(is == null) {
-                throw new FileNotFoundException(DAFNYPRELUDE_RESOURCE);
-            }
-            return Util.streamToString(is);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    private Sequent sequent;
-    private SymbolTable symbolTable;
+    /**
+     * Some applications may require additional text that is sent to Boogie.
+     * Especially for testing.
+     */
     private String additionalBoogieText = "";
-    private @Nullable CharSequence obligation;
 
-    private CharSequence produceObligation() throws Exception {
+    /**
+     *
+     * @return
+     * @throws Exception
+     */
+    public boolean callBoogie() throws TermBuildException, IOException, RuleException {
 
-        assert symbolTable != null;
-        assert sequent != null;
+        CharSequence sb = translation.getObligation();
 
-        TermBuilder tb = new TermBuilder(symbolTable);
+        // The boogie code is stored in a temporary file
+        Path tmpFile = Files.createTempFile("dive-", ".bpl");
 
-        List<String> clauses = new ArrayList<>();
-
-        BoogieVisitor v = new BoogieVisitor();
-        BoogieFunctionDefinitionVisitor fdv = new BoogieFunctionDefinitionVisitor();
-
-        v.addClassDeclarations(project);
-
-        for (ProofFormula formula : sequent.getAntecedent()) {
-            Term term = formula.getTerm();
-            term = LetInlineVisitor.inline(term);
-            term = fdv.collectAndMask(term);
-            // term = NothingResolution.resolveNothing(term);
-            String translation = term.accept(v, null);
-            clauses.add(translation);
-        }
-
-        for (ProofFormula formula : sequent.getSuccedent()) {
-            Term term = formula.getTerm();
-            term = LetInlineVisitor.inline(term);
-            term = fdv.collectAndMask(term);
-            // term = NothingResolution.resolveNothing(term);
-            term = tb.negate(term);
-            String translation = term.accept(v, null);
-            clauses.add(translation);
-        }
-
-        fdv.findFunctionDefinitions(symbolTable);
-        fdv.getFunctionDefinitions(v);
-
-        StringBuilder sb = new StringBuilder();
-        sb.append(Util.join(v.getDeclarations(), "\n")).append("\n\n");
-        sb.append(Util.join(v.getAxioms(), "\n")).append("\n\n");
-        sb.append("procedure Sequent()\n  ensures false;\n{\n");
-        for (String clause : clauses) {
-            sb.append("  assume " + clause + ";\n");
-        }
-        sb.append("}");
-
-        return sb;
-    }
-
-    public CharSequence getObligation() throws Exception {
-
-        if (obligation != null) {
-            return obligation;
-        }
-
-        CharSequence sb = this.produceObligation();
-
-        this.obligation = sb;
-        return sb;
-    }
-
-    public String getHash() throws Exception {
-        MessageDigest digest = MessageDigest.getInstance("SHA-256");
-        byte[] hash = digest.digest(getObligation().toString().getBytes());
-        return Base64.getEncoder().encodeToString(hash);
-    }
-
-    public boolean callBoogie() throws Exception {
-
-        CharSequence sb = getObligation();
-
-        Path tmpFile = Files.createTempFile("AlgoVer", ".bpl");
-
+        // which is deleted unless required
         if(!KEEP_BPL) {
             tmpFile.toFile().deleteOnExit();
         }
 
-        Files.write(tmpFile, Arrays.asList(PRELUDE, sb, additionalBoogieText));
+        // write prelude, obligation and add. code
+        Files.write(tmpFile, Arrays.asList(BoogieTranslation.PRELUDE, sb, additionalBoogieText));
 
         Process process = buildProcess(tmpFile);
         InputStream in = process.getInputStream();
 
+        // read lines from process and look for error indications
         BufferedReader br = new BufferedReader(new InputStreamReader(in));
         String line;
         while ((line = br.readLine()) != null) {
-            System.out.println(" < " + line);
+            if(VERBOSE_BOOGIE){
+                System.out.println(" Boogie > " + line);
+            }
             if (line.matches("Boogie program verifier finished with \\d+ verified, 0 errors"))
                 return true;
             if (line.startsWith("Boogie program verifier finished with"))
@@ -162,37 +113,45 @@ public class BoogieProcess {
     }
 
     private Process buildProcess(Path tmpFile) throws IOException {
-        ProcessBuilder pb =
-                new ProcessBuilder(COMMAND, tmpFile.toString());
-        System.out.println(COMMAND);
+        ProcessBuilder pb = new ProcessBuilder(COMMAND, tmpFile.toString());
+        if(VERBOSE_BOOGIE){
+            System.out.println(" Boogie called via '" + COMMAND + "'");
+        }
 
         return pb.start();
     }
 
-    public String getAdditionalBoogieText() {
-        return additionalBoogieText;
-    }
+    /**
+     * Set extra text in Boogie.
+     *
+     * Some applications may require additional text that is sent to Boogie.
+     * Especially for testing.
+     * @param additionalBoogieText non-null text to append to the BPL output.
+     */
 
-    public void setAdditionalBoogieText(String additionalBoogieText) {
+    public void setAdditionalBoogieText(@NonNull String additionalBoogieText) {
         this.additionalBoogieText = additionalBoogieText;
-        this.obligation = null;
     }
 
-    public void setSequent(Sequent sequent) {
-        this.sequent = sequent;
-        this.obligation = null;
+    /**
+     * Retrieve the proof obligation of this object.
+     *
+     * @return the boogie proof obligation handled by this object
+     * @throws NoSuchAlgorithmException never actually (I hope)
+     * @throws TermBuildException if obligation creation is broken
+     */
+    public CharSequence getObligation() throws TermBuildException {
+        return translation.getObligation();
     }
 
-    public Sequent getSequent() {
-        return sequent;
-    }
-
-    public void setSymbolTable(SymbolTable symbolTable) {
-        this.symbolTable = symbolTable;
-        this.obligation = null;
-    }
-
-    public SymbolTable getSymbolTable() {
-        return symbolTable;
+    /**
+     * Retrieve a hash code for the proof obligation
+     *
+     * @return the hash code of the proof obligation handled by this object
+     * @throws NoSuchAlgorithmException never actually (I hope)
+     * @throws TermBuildException if obligation creation is broken
+     */
+    public String getHash() throws NoSuchAlgorithmException, TermBuildException {
+        return translation.getHash();
     }
 }

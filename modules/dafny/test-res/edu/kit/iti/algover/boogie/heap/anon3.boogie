@@ -2,7 +2,6 @@
 aheap : heap
 mod : set<object>
 o : C
-C$$f : field<C, int>
 
 ### project:
 

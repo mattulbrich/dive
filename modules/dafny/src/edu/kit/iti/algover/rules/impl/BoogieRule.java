@@ -21,9 +21,7 @@ import edu.kit.iti.algover.rules.RuleException;
 import java.nio.channels.ClosedByInterruptException;
 import java.util.Collections;
 import java.util.HashSet;
-import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.ConcurrentSkipListSet;
 
 /*
  * This is a quick and dirty implementation until the real one is available
@@ -67,9 +65,7 @@ public class BoogieRule extends NoFocusProofRule {
 
         PVC pvc = target.getPVC();
 
-        BoogieProcess process = new BoogieProcess(pvc.getProject());
-        process.setSymbolTable(pvc.getSymbolTable());
-        process.setSequent(target.getSequent());
+        BoogieProcess process = new BoogieProcess(pvc.getProject(), pvc.getSymbolTable(), target.getSequent());
 
         try {
             String hash = process.getHash();

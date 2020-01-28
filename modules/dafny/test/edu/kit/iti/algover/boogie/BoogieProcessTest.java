@@ -112,9 +112,7 @@ public class BoogieProcessTest {
 
     @Test
     public void testBoogie() throws Exception {
-        BoogieProcess process = new BoogieProcess(project);
-        process.setSequent(sequent);
-        process.setSymbolTable(table);
+        BoogieProcess process = new BoogieProcess(project, table, sequent);
         process.setAdditionalBoogieText(additionalBoogieCode);
 
         switch (expectedResult) {

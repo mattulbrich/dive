@@ -1,7 +1,5 @@
 ### decls:
 d : D
-D$$f : field<D, int>
-D$$g : field<D, int>
 
 ### project:
 class D { var f: int; var g: int; }
