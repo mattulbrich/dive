@@ -27,6 +27,7 @@ import edu.kit.iti.algover.term.builder.TreeTermTranslator;
 
 import java.util.ArrayList;
 import java.util.IdentityHashMap;
+import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -39,8 +40,8 @@ import java.util.Queue;
  */
 public class BoogieFunctionDefinitionVisitor extends ReplacementVisitor<Void> {
 
-    private Map<DafnyFunctionSymbol, FunctionSymbol> introducedLimitFunctions = new IdentityHashMap<>();
-    private Map<DafnyFunctionSymbol, Term> axioms = new IdentityHashMap<>();
+    private Map<DafnyFunctionSymbol, FunctionSymbol> introducedLimitFunctions = new LinkedHashMap<>();
+    private Map<DafnyFunctionSymbol, Term> axioms = new LinkedHashMap<>();
     private Queue<DafnyFunctionSymbol> todo = new LinkedList<>();
     private DafnyFunctionSymbol currentSymbol;
 
@@ -59,7 +60,7 @@ public class BoogieFunctionDefinitionVisitor extends ReplacementVisitor<Void> {
                     getSCC(dfs).equals(getSCC(currentSymbol))) {
                 FunctionSymbol replacement = introducedLimitFunctions.get(dfs);
                 if (replacement == null) {
-                    replacement = new FunctionSymbol(dfs.getName() + "$$limited", dfs.getResultSort(), dfs.getArgumentSorts());
+                    replacement = new FunctionSymbol(dfs.getName() + "$limited", dfs.getResultSort(), dfs.getArgumentSorts());
                     introducedLimitFunctions.put(dfs, replacement);
                 }
                 List<Term> subterms = visited != null ? visited.getSubterms() : term.getSubterms();
@@ -75,7 +76,7 @@ public class BoogieFunctionDefinitionVisitor extends ReplacementVisitor<Void> {
     }
 
     private static String getSCC(DafnyFunctionSymbol dfs) {
-        DafnyTree declRef = dfs.getOrigin().getRepresentation().getDeclarationReference();
+        DafnyTree declRef = dfs.getOrigin().getRepresentation().getExpressionType();
         assert declRef.getType() == TarjansAlgorithm.CALLGRAPH_SCC;
         return declRef.toString();
     }
@@ -92,7 +93,7 @@ public class BoogieFunctionDefinitionVisitor extends ReplacementVisitor<Void> {
 
     public void getFunctionDefinitions(BoogieVisitor visitor) {
         for (Term axiom : axioms.values()) {
-            visitor.getAxioms().add(axiom.accept(visitor, null));
+            visitor.getAxioms().add("axiom "  + axiom.accept(visitor, null) + ";");
         }
     }
 
@@ -109,7 +110,7 @@ public class BoogieFunctionDefinitionVisitor extends ReplacementVisitor<Void> {
         boundVars.add(heapVar);
 
         if(function.isDeclaredInClass()) {
-            VariableTerm recVar = new VariableTerm("this", dfs.getArgumentSorts().get(0));
+            VariableTerm recVar = new VariableTerm("this", dfs.getArgumentSorts().get(1));
             boundVars.add(recVar);
         }
 
@@ -125,8 +126,9 @@ public class BoogieFunctionDefinitionVisitor extends ReplacementVisitor<Void> {
 
         Term translation = ttt.build(expression);
 
-        translation = tb.eq(app, translation);
+        translation = this.collectAndMask(translation);
 
+        translation = tb.eq(app, translation);
 
         for (VariableTerm var : boundVars) {
             translation = new QuantTerm(Quantifier.FORALL, var, translation);

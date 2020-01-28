@@ -67,7 +67,6 @@ public class BoogieProcess {
     private String additionalBoogieText = "";
     private @Nullable CharSequence obligation;
 
-
     private CharSequence produceObligation() throws Exception {
 
         assert symbolTable != null;

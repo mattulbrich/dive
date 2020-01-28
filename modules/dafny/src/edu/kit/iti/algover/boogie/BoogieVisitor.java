@@ -87,6 +87,7 @@ public class BoogieVisitor extends DefaultTermVisitor<Void, String, NoExceptions
         result.put(IMP.getName(), binary("==>"));
         result.put(OR.getName(), binary("||"));
         result.put(NOT.getName(), (t,v) -> "!("+t.getTerm(0).accept(v,null)+")");
+        result.put(ITE.getBaseName(), format("(if %s then %s else %s)"));
         // --- Sets
         result.put(SUBSET.getBaseName(), function("Set#Subset"));
         result.put(UNION.getBaseName(), function("Set#Union"));

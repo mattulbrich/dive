@@ -52,7 +52,7 @@ public class BoogieProcessTest {
     @Parameter(1)
     public String name;
 
-    private SymbolTable table = new BuiltinSymbols();
+    private SymbolTable table;
 
     private Sequent sequent;
 
@@ -60,18 +60,19 @@ public class BoogieProcessTest {
 
     private String expectedTranslation;
 
-    private String project;
+    private Project project;
 
     private String additionalBoogieCode;
 
-    protected static List<Object[]> parametersFor(String resource) throws MalformedURLException {
-        URL res = BoogieProcess.class.getResource(resource);
-        List<URL> list = TestUtil.getResourcesIn(res, "boogie", false);
-        return Util.map(list, l->new Object[] {l, l.getFile().substring(res.getFile().length())});
+    protected static List<Object[]> parametersFor(String resource) throws Exception {
+        String packagePath = BoogieProcessTest.class.getPackageName().replace('.', '/');
+        String path = packagePath + '/' + resource;
+        List<URL> list = TestUtil.getResourcesIn(path, "boogie", false);
+        return Util.map(list, l->new Object[] { l, l.getFile().substring(l.getFile().lastIndexOf('/')+1) });
     }
 
     @Parameters(name = "{1}")
-    public static List<Object[]> parameters() throws MalformedURLException {
+    public static List<Object[]> parameters() throws Exception {
         return parametersFor("");
     }
 
@@ -80,6 +81,13 @@ public class BoogieProcessTest {
 
         LineProperties props = new LineProperties();
         props.read(url.openStream());
+
+        this.project = TestUtil.mockProject(
+                props.getOrDefault("project",
+                        "method m() {}"));
+
+        table = new BuiltinSymbols();
+        project.getAllDeclaredSymbols().forEach(table::addFunctionSymbol);
 
         for (String line : props.getLines("decls")) {
             String[] parts = line.split(" *(\\*|:|->) *");
@@ -99,22 +107,19 @@ public class BoogieProcessTest {
 
         this.expectedTranslation = props.get("translation");
 
-        this.project = props.getOrDefault("project", "method m() {}");
-
         this.additionalBoogieCode = props.getOrDefault("additionalBoogie", "");
     }
 
     @Test
     public void testBoogie() throws Exception {
-        Project p = TestUtil.mockProject(project);
-        BoogieProcess process = new BoogieProcess(p);
+        BoogieProcess process = new BoogieProcess(project);
         process.setSequent(sequent);
         process.setSymbolTable(table);
         process.setAdditionalBoogieText(additionalBoogieCode);
 
         switch (expectedResult) {
-        case "prove": assertTrue(process.callBoogie()); break;
-        case "fail": assertFalse(process.callBoogie()); break;
+        case "prove": assertTrue("Proof expected, but failed", process.callBoogie()); break;
+        case "fail": assertFalse("Failure expected, but proved", process.callBoogie()); break;
         case "irrelevant": break;
         default: fail("Unexpected result (expected 'fail', 'prove' or 'irrelevant'): " + expectedResult);
         }

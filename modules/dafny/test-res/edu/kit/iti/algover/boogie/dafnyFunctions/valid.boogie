@@ -1,0 +1,63 @@
+### project:
+
+class A {
+
+  var b : B?;
+
+  function Valid() : bool
+    reads this, b
+  {
+    b != null && b.Valid()
+  }
+
+}
+
+class B {
+
+  var f : int;
+
+  function Valid() : bool
+    reads this
+  {
+    f > 0
+  }
+}
+
+### decls:
+
+a: A
+
+### sequent:
+
+a.Valid() |- a.Valid()@$heap[a.b.f := 24]
+
+### result:
+prove
+
+### translation
+const _$heap : Heap;
+const _a : ref;
+const unique TClass_A : Ty;
+const unique TClass_B : Ty;
+const unique _A$$b : Field (ref);
+const unique _B$$f : Field (int);
+function f_A$$Valid(Heap, ref) : bool;
+function f_B$$Valid(Heap, ref) : bool;
+
+axiom (forall x:ref :: $Is(x, TClass_A) <==> dtype(x) == TClass_A || x == null);
+axiom (forall x:ref :: $Is(x, TClass_B) <==> dtype(x) == TClass_B || x == null);
+axiom (forall v0: Heap :: (forall v1: ref ::  $Is(f_A$$Valid(v0, v1), TBool) ));
+axiom $Is(_$heap, THeap);
+axiom $Is(_a, TClass_A);
+axiom $Is(_A$$b, TField(TClass_B));
+axiom $Is(_B$$f, TField(TInt));
+axiom (forall v0: Heap :: (forall v1: ref ::  $Is(f_B$$Valid(v0, v1), TBool) ));
+axiom (forall var_this : ref :: (forall var_heap : Heap :: (f_A$$Valid(var_heap, var_this) == (!((read(_$heap, var_this, _A$$b) == null)) && f_B$$Valid(_$heap, read(_$heap, var_this, _A$$b))))));
+axiom (forall var_this : ref :: (forall var_heap : Heap :: (f_B$$Valid(var_heap, var_this) == (read(_$heap, var_this, _B$$f) > 0))));
+
+procedure Sequent()
+  ensures false;
+{
+  assume f_A$$Valid(_$heap, _a);
+  assume !(f_A$$Valid(update(_$heap, read(_$heap, _a, _A$$b), _B$$f, 24), _a));
+}
