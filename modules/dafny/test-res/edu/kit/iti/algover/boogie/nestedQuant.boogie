@@ -1,0 +1,14 @@
+
+### sequent:
+|- forall i :: forall j :: j*0 == i*0, forall i :: exists j :: i==j
+
+### result:
+prove
+
+### translation:
+procedure Sequent()
+  ensures false;
+{
+  assume !((forall var_i:int, var_j:int :: ((var_j * 0) == (var_i * 0))));
+  assume !((forall var_i:int :: (exists var_j:int :: (var_i == var_j))));
+}

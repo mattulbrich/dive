@@ -366,13 +366,27 @@ public class BoogieVisitor extends DefaultTermVisitor<Void, String, NoExceptions
      */
 
     @Override
-    public String visit(QuantTerm term, Void arg) throws NoExceptions {
-        String quantifier = term.getQuantifier() == Quantifier.FORALL ?
+    public String visit(QuantTerm quantTerm, Void arg) throws NoExceptions {
+        String quantifier = quantTerm.getQuantifier() == Quantifier.FORALL ?
                 "forall" : "exists";
 
-        return "(" + quantifier + " var_" + term.getBoundVar().getName() + " : " +
-        visitSort(term.getBoundVar().getSort()) + " :: " +
-        term.getTerm(0).accept(this, null) + ")";
+        StringBuilder sb = new StringBuilder("(" + quantifier);
+        Term term = quantTerm;
+        while(term instanceof QuantTerm) {
+            QuantTerm innerQuant = (QuantTerm) term;
+            if(innerQuant.getQuantifier() != quantTerm.getQuantifier()) {
+                break;
+            }
+            if(term != quantTerm) {
+                sb.append(",");
+            }
+            sb.append(" var_" + innerQuant.getBoundVar().getName() + ":" +
+                    visitSort(innerQuant.getBoundVar().getSort()));
+            term = term.getTerm(0);
+        }
+
+        sb.append(" :: ").append(term.accept(this, null)).append(")");
+        return sb.toString();
     }
 
     public void addClassDeclarations(Project project) {
