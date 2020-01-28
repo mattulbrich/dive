@@ -24,14 +24,20 @@ import edu.kit.iti.algover.term.builder.ReplacementVisitor;
 import edu.kit.iti.algover.term.builder.TermBuildException;
 import edu.kit.iti.algover.term.builder.TermBuilder;
 import edu.kit.iti.algover.term.builder.TreeTermTranslator;
+import edu.kit.iti.algover.util.ImmutableLinearSet;
+import edu.kit.iti.algover.util.Util;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.IdentityHashMap;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Queue;
+import java.util.Set;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 /**
  * Requires that {@link edu.kit.iti.algover.dafnystructures.TarjansAlgorithm} has
@@ -41,8 +47,8 @@ import java.util.Queue;
 public class BoogieFunctionDefinitionVisitor extends ReplacementVisitor<Void> {
 
     private Map<DafnyFunctionSymbol, FunctionSymbol> introducedLimitFunctions = new LinkedHashMap<>();
-    private Map<DafnyFunctionSymbol, Term> axioms = new LinkedHashMap<>();
     private Queue<DafnyFunctionSymbol> todo = new LinkedList<>();
+    private Set<DafnyFunctionSymbol> done = new HashSet<>();
     private DafnyFunctionSymbol currentSymbol;
 
     public BoogieFunctionDefinitionVisitor() {
@@ -56,7 +62,7 @@ public class BoogieFunctionDefinitionVisitor extends ReplacementVisitor<Void> {
         FunctionSymbol fs = term.getFunctionSymbol();
         if (fs instanceof DafnyFunctionSymbol) {
             DafnyFunctionSymbol dfs = (DafnyFunctionSymbol) fs;
-            if(currentSymbol != null && axioms.containsKey(dfs) &&
+            if(currentSymbol != null && done.contains(dfs) &&
                     getSCC(dfs).equals(getSCC(currentSymbol))) {
                 FunctionSymbol replacement = introducedLimitFunctions.get(dfs);
                 if (replacement == null) {
@@ -67,7 +73,7 @@ public class BoogieFunctionDefinitionVisitor extends ReplacementVisitor<Void> {
                 return new ApplTerm(replacement, subterms);
             }
 
-            if(!axioms.containsKey(dfs) && !todo.contains(dfs)) {
+            if(!done.contains(dfs) && !todo.contains(dfs)) {
                 todo.add(dfs);
             }
         }
@@ -82,21 +88,34 @@ public class BoogieFunctionDefinitionVisitor extends ReplacementVisitor<Void> {
     }
 
 
-    public void findFunctionDefinitions(SymbolTable symbols) throws TermBuildException {
+    public void findFunctionDefinitions(SymbolTable symbols, BoogieVisitor visitor) throws TermBuildException {
+        Function<Term, Term> oldTrigFunc = visitor.getTriggerFunction();
         while(!todo.isEmpty()) {
             currentSymbol = todo.remove();
+            done.add(currentSymbol);
             DafnyFunction function = currentSymbol.getOrigin();
             Term axiom = makeAxiom(currentSymbol, symbols);
-            axioms.put(currentSymbol, axiom);
+            Term equality = stripQuantifiers(axiom);
+            visitor.setTriggerFunction(t ->
+                    t == equality ? t.getTerm(0) :
+                            oldTrigFunc != null ? oldTrigFunc.apply(t) : null);
+
+            visitor.getAxioms().add("axiom " + axiom.accept(visitor, null) + ";");
         }
+        visitor.setTriggerFunction(oldTrigFunc);
     }
 
-    public void getFunctionDefinitions(BoogieVisitor visitor) {
-        for (Term axiom : axioms.values()) {
-            visitor.getAxioms().add("axiom "  + axiom.accept(visitor, null) + ";");
+    private Term stripQuantifiers(Term term) {
+        while (term instanceof QuantTerm) {
+            term = term.getTerm(0);
         }
+        return term;
     }
 
+    /*
+     * The result is of the form
+     *    f(var0, var1, var2) = ...
+     */
     private Term makeAxiom(DafnyFunctionSymbol dfs, SymbolTable symbols) throws TermBuildException {
 
         DafnyFunction function = dfs.getOrigin();

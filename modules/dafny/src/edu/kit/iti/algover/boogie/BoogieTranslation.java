@@ -97,8 +97,7 @@ public class BoogieTranslation {
             clauses.add(translation);
         }
 
-        fdv.findFunctionDefinitions(symbolTable);
-        fdv.getFunctionDefinitions(v);
+        fdv.findFunctionDefinitions(symbolTable, v);
 
         StringBuilder sb = new StringBuilder();
         sb.append(Util.join(v.getDeclarations(), "\n")).append("\n\n");

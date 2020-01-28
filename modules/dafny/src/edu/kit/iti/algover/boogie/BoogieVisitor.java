@@ -21,6 +21,7 @@ import edu.kit.iti.algover.term.Sort;
 import edu.kit.iti.algover.term.Term;
 import edu.kit.iti.algover.term.VariableTerm;
 import edu.kit.iti.algover.util.Util;
+import nonnull.NonNull;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -29,6 +30,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
+import java.util.function.Function;
 
 import static edu.kit.iti.algover.data.BuiltinSymbols.*;
 
@@ -48,6 +50,8 @@ import static edu.kit.iti.algover.data.BuiltinSymbols.*;
  * @author mulbrich
  */
 public class BoogieVisitor extends DefaultTermVisitor<Void, String, NoExceptions> {
+
+    private static final Function<Term, Term> EMPTY_TRIGGER = t -> null;
 
     /**
      * The functional interface for the routines which translate individual
@@ -261,6 +265,7 @@ public class BoogieVisitor extends DefaultTermVisitor<Void, String, NoExceptions
 
     private List<String> axioms = new ArrayList<>();
 
+    private @NonNull Function<Term, Term> triggerFunction = EMPTY_TRIGGER;
 
     /*
      * Check for an entry in the map, otherwise declare the constant.
@@ -372,12 +377,12 @@ public class BoogieVisitor extends DefaultTermVisitor<Void, String, NoExceptions
 
         StringBuilder sb = new StringBuilder("(" + quantifier);
         Term term = quantTerm;
-        while(term instanceof QuantTerm) {
+        while (term instanceof QuantTerm) {
             QuantTerm innerQuant = (QuantTerm) term;
-            if(innerQuant.getQuantifier() != quantTerm.getQuantifier()) {
+            if (innerQuant.getQuantifier() != quantTerm.getQuantifier()) {
                 break;
             }
-            if(term != quantTerm) {
+            if (term != quantTerm) {
                 sb.append(",");
             }
             sb.append(" var_" + innerQuant.getBoundVar().getName() + ":" +
@@ -385,7 +390,13 @@ public class BoogieVisitor extends DefaultTermVisitor<Void, String, NoExceptions
             term = term.getTerm(0);
         }
 
-        sb.append(" :: ").append(term.accept(this, null)).append(")");
+        sb.append(" :: ");
+        Term trigger = triggerFunction.apply(term);
+        if (trigger != null) {
+            sb.append("{").append(trigger.accept(this, null)).append("} ");
+        }
+
+        sb.append(term.accept(this, null)).append(")");
         return sb.toString();
     }
 
@@ -448,5 +459,17 @@ public class BoogieVisitor extends DefaultTermVisitor<Void, String, NoExceptions
     // may even be added to outside!
     public List<String> getAxioms() {
         return axioms;
+    }
+
+    public Function<Term, Term> getTriggerFunction() {
+        return triggerFunction;
+    }
+
+    public void setTriggerFunction(Function<Term, Term> triggerFunction) {
+        if(triggerFunction == null) {
+            this.triggerFunction = EMPTY_TRIGGER;
+        } else {
+            this.triggerFunction = triggerFunction;
+        }
     }
 }

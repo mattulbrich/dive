@@ -52,8 +52,8 @@ axiom $Is(_a, TClass_A);
 axiom $Is(_A$$b, TField(TClass_B));
 axiom $Is(_B$$f, TField(TInt));
 axiom (forall v0: Heap :: (forall v1: ref ::  $Is(f_B$$Valid(v0, v1), TBool) ));
-axiom (forall var_this : ref :: (forall var_heap : Heap :: (f_A$$Valid(var_heap, var_this) == (!((read(_$heap, var_this, _A$$b) == null)) && f_B$$Valid(_$heap, read(_$heap, var_this, _A$$b))))));
-axiom (forall var_this : ref :: (forall var_heap : Heap :: (f_B$$Valid(var_heap, var_this) == (read(_$heap, var_this, _B$$f) > 0))));
+axiom (forall var_this:ref, var_heap:Heap :: {f_A$$Valid(var_heap, var_this)} (f_A$$Valid(var_heap, var_this) == (!((read(_$heap, var_this, _A$$b) == null)) && f_B$$Valid(_$heap, read(_$heap, var_this, _A$$b)))));
+axiom (forall var_this:ref, var_heap:Heap :: {f_B$$Valid(var_heap, var_this)} (f_B$$Valid(var_heap, var_this) == (read(_$heap, var_this, _B$$f) > 0)));
 
 procedure Sequent()
   ensures false;
