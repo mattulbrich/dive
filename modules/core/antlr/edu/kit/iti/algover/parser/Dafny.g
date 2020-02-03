@@ -84,6 +84,7 @@ FALSE: 'false';
 FREE: 'free';
 FRESH: 'fresh';
 FUNCTION: 'function';
+GHOST: 'ghost';
 IF: 'if';
 IN : 'in';
 INCLUDE : 'include';
@@ -127,6 +128,7 @@ ASSIGN: ':=';
 OR: '||';
 AND: '&&';
 IMPLIES: '==>';
+EQUIV: '<==>';
 PLUS: '+';
 MINUS: '-';
 NOT: '!';
@@ -474,9 +476,14 @@ usual_or_logic_id_or_this:
   | {logicMode}? t=THIS -> ^(ID[t])
   ;
 
+// It seems there would otherwise be a parser bug for cases like a[x:=y][z:=t]
+postfix_expr_assignments:
+  ':='! expression ( ','! expression ':='! expression )*
+  ;
+
 postfix_expr:
   ( atom_expr -> atom_expr )   // see ANTLR ref. page 175
-  ( '[' expression ( ':=' expression ( ',' expression ':=' expression )? ']'     -> ^( UPDATE $postfix_expr expression+ )
+  ( '[' expression (  postfix_expr_assignments ']'     -> ^( UPDATE $postfix_expr expression postfix_expr_assignments )
                    | ( ',' expression )* ']' -> ^( ARRAY_ACCESS $postfix_expr expression+ )
                    | '..' expression? ']' -> ^( ARRAY_ACCESS $postfix_expr ^('..' expression+))
                    )

@@ -133,7 +133,7 @@ public class TreeTermTranslatorTest {
             { "(if true then 1 else 0) + (if true then 1 else 0)",
               "$plus($ite<int>(true, 1, 0), $ite<int>(true, 1, 0))" },
 
-            // Heap accesses
+            // Heap/array accesses
             {"a[0]", "$array_select<int>($heap, a, 0)"},
             {"a[0]+a[0]", "$plus($array_select<int>($heap, a, 0), $array_select<int>($heap, a, 0))"},
             {"a2[1,2]", "$array2_select<int>($heap, a2, 1, 2)"},
@@ -173,7 +173,8 @@ public class TreeTermTranslatorTest {
 
             // Heap updates
             { "$heap[c.f := 1]", "$store<C,int>($heap, c, C$$f, 1)" },
-            { "$heap[c.f := 1, c.f := 2]", "$store<C,int>($store<C,int>($heap, c, C$$f, 1), c, C$$f, 2)" },
+            { "$heap[c.f := 1, c.f := 2]", "$store<C,int>($store<C,int>($heap, c, C$$f, 1), c, C$$f, 2)" },*/
+            { "$heap[c.f := 1][c.f := 2]", "$store<C,int>($store<C,int>($heap, c, C$$f, 1), c, C$$f, 2)" },
             { "$heap[a[0] := 2]", "$array_store<int>($heap, a, 0, 2)" },
             { "$heap[$anon(mod, loopHeap)]", "$anon($heap, mod, loopHeap)" },
             { "$heap[$create(c)]", "$create($heap, c)" },
