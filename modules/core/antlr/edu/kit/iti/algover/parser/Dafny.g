@@ -15,11 +15,12 @@ tokens {
   FIELD_ACCESS;
   LISTEX;
   SETEX;
+  MAPEX;
   MULTISETEX; // not supported currently
   ARRAY_ACCESS;
   NOETHER_LESS;
   WILDCARD;
-  HEAP_UPDATE;
+  UPDATE;
   TYPED_SCHEMA;
 }
 
@@ -91,6 +92,7 @@ INVARIANT: 'invariant';
 LABEL: 'label';
 LEMMA: 'lemma';
 LET: 'let';
+MAP: 'map';
 METHOD: 'method';
 MODIFIES: 'modifies';
 MULTISET: 'multiset';
@@ -109,6 +111,7 @@ SEQ : 'seq';
 SET : 'set';
 SETTINGS : 'settings';
 SUBSUME : 'subsume';
+STRING : 'string' ;
 THEN: 'then';
 THIS: 'this';
 TRUE: 'true';
@@ -262,9 +265,10 @@ var:
 
 // one day this will be "id_param"
 type:
-    INT | BOOL | OBJECT
+    INT | BOOL | STRING | OBJECT
   | SET^ '<'! type '>'!
   | ARRAY^ '<'! type '>'!
+  | MAP^ '<'! type ','! type '>'!
   | SEQ^ '<'! type '>'!
   | ID^ ( '<'! type ( ','! type )* '>'! )?
   ;
@@ -472,7 +476,7 @@ usual_or_logic_id_or_this:
 
 postfix_expr:
   ( atom_expr -> atom_expr )   // see ANTLR ref. page 175
-  ( '[' expression ( {logicMode}? ':=' expression ']'     -> ^( HEAP_UPDATE $postfix_expr expression expression )
+  ( '[' expression ( ':=' expression ( ',' expression ':=' expression )? ']'     -> ^( UPDATE $postfix_expr expression+ )
                    | ( ',' expression )* ']' -> ^( ARRAY_ACCESS $postfix_expr expression+ )
                    | '..' expression? ']' -> ^( ARRAY_ACCESS $postfix_expr ^('..' expression+))
                    )
@@ -523,6 +527,7 @@ atom_expr:
   | '('! expression ')'!
   | t='{' ( expression ( ',' expression )* )? '}' -> ^(SETEX[t] expression*)
   | t='[' ( expression ( ',' expression )* )? ']' -> ^(LISTEX[t] expression*)
+  | t=MAP '[' ( expression ':=' expression ( ',' expression ':=' expression )* )? ']' -> ^(MAPEX[t] expression*)
   | 'multiset' '{' expression ( ',' expression )* '}' -> ^(MULTISETEX expression+)
   ;
 
@@ -556,6 +561,6 @@ new_expression:
                      -> ^( 'new' $clss ^(CALL $meth? ^(ARGS expressions?) ))
                   |    -> ^( 'new' $clss )
                   )
-        | t=(ID|INT|BOOL) '[' expression ']' -> ^( 'new' ^(ARRAY_ACCESS $t expression) )
+        | t=(ID|INT|BOOL|STRING) '[' expression ']' -> ^( 'new' ^(ARRAY_ACCESS $t expression) )
         )
   ;

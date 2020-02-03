@@ -68,6 +68,12 @@ public class Sort {
     public static final Sort BOOL = get("bool");
 
     /**
+     * The Constant STRING captures the built in string type
+     * (a primitive type, not a reference class)
+     */
+    public static final Sort STRING = get("string");
+
+    /**
      * The Constant FORMULA captures the boolean type. It may be that this will
      * be renamed to boolean eventually.
      *
@@ -135,6 +141,7 @@ public class Sort {
         BUILTIN_SORT_NAMES.add("set");
         BUILTIN_SORT_NAMES.add("seq");
         BUILTIN_SORT_NAMES.add("array");
+        BUILTIN_SORT_NAMES.add("map");
         BUILTIN_SORT_NAMES.add("array2");
         BUILTIN_SORT_NAMES.add("array3");
         BUILTIN_SORT_NAMES.add("field");
@@ -367,6 +374,9 @@ public class Sort {
             case "multiset":
             case "seq":
                 return getArgument(0).isSubtypeOf(other.getArgument(0));
+            case "map":
+                return getArgument(0).isSubtypeOf(other.getArgument(0)) &&
+                       getArgument(1).isSubtypeOf(other.getArgument(1)) ;
             case "$tuple":
                 if (arguments.length != other.arguments.length) {
                     return false;

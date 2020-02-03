@@ -393,6 +393,7 @@ public class TreeTermTranslator {
         case DafnyParser.FALSE:
         case DafnyParser.THIS:
         case DafnyParser.INT_LIT:
+        case DafnyParser.STRING_LIT:
             result = buildIdentifier(tree);
             break;
 
@@ -406,6 +407,10 @@ public class TreeTermTranslator {
 
         case DafnyParser.LISTEX:
             result = buildListExtension(tree);
+            break;
+
+        case DafnyParser.MAPEX:
+            result = buildMapExtension(tree);
             break;
 
         case DafnyParser.ALL:
@@ -468,8 +473,8 @@ public class TreeTermTranslator {
             result = buildExplicitHeapAccess(tree);
             break;
 
-        case DafnyParser.HEAP_UPDATE:
-            result = buildHeapUpdate(tree);
+        case DafnyParser.UPDATE:
+            result = buildUpdate(tree);
             break;
 
         case DafnyParser.CALL:
@@ -820,6 +825,13 @@ public class TreeTermTranslator {
                     sort.getArguments().get(0));
             break;
 
+        case "map":
+            function = symbolTable.getFunctionSymbol(
+                    BuiltinSymbols.MAP_CARD,
+                    sort.getArguments().get(0),
+                    sort.getArguments().get(1));
+            break;
+
         default:
             throw new TermBuildException("Unsupported sort for |...|: " + sort);
         }
@@ -889,6 +901,16 @@ public class TreeTermTranslator {
 
     private Term buildSetExtension(DafnyTree tree) throws TermBuildException {
         return buildExtension(BuiltinSymbols.EMPTY_SET, BuiltinSymbols.SET_ADD, tree);
+    }
+
+    private Term buildMapExtension(DafnyTree tree) throws TermBuildException {
+        int index = 0;
+        Term term = new ApplTerm(BuiltinSymbols.MAP_EMPTY);
+        while (index < tree.getChildCount()) {
+            term = buildMapUpdate(term, tree, index);
+            index += 2;
+        }
+        return term;
     }
 
     private Term buildIdentifier(DafnyTree tree) throws TermBuildException {
@@ -1100,18 +1122,40 @@ public class TreeTermTranslator {
         return new LetTerm(HEAP_VAR, oldHeap, inner);
     }
 
+    private Term buildUpdate(DafnyTree tree) throws TermBuildException {
 
-    private Term buildHeapUpdate(DafnyTree tree) throws TermBuildException {
+        assert tree.getChildCount() >= 3 && tree.getChildCount() % 2 == 1 :
+                "I need 1 receiver, and pairs of location and values";
 
-        assert tree.getChildCount() == 3 : "I need heap, location, value";
-
-        Term heap = build(tree.getChild(0));
-        if(!heap.getSort().equals(Sort.HEAP)) {
-            throw new TermBuildException("Heap updates must be applied to heaps");
+        Term term = build(tree.getChild(0));
+        int index = 1;
+        while (index < tree.getChildCount()) {
+            if (term.getSort().equals(Sort.HEAP)) {
+                term = buildHeapUpdate(term, tree, index);
+            } else if (term.getSort().getName().equals("map")) {
+                term = buildMapUpdate(term, tree, index);
+            } else {
+                throw new TermBuildException("Update terms must either update heaps or maps, not " + term.getSort());
+            }
+            index += 2;
         }
 
+        return term;
+    }
+
+    private Term buildMapUpdate(Term receiver, DafnyTree tree, int startIndex) throws TermBuildException {
+        Term location = build(tree.getChild(startIndex));
+        Term value = build(tree.getChild(startIndex + 1));
+        FunctionSymbol updateFunction =
+                symbolTable.getFunctionSymbol(
+                    BuiltinSymbols.MAP_UPDATE,
+                        location.getSort(), value.getSort());
+        return new ApplTerm(updateFunction, receiver, location, value);
+    }
+
+    private Term buildHeapUpdate(Term heap, DafnyTree tree, int startIndex) throws TermBuildException {
         FunctionSymbolFamily symbol;
-        Term location = build(tree.getChild(1));
+        Term location = build(tree.getChild(startIndex));
         try {
             ApplTerm appl = (ApplTerm) location;
             FunctionSymbol fs = appl.getFunctionSymbol();
@@ -1121,7 +1165,7 @@ public class TreeTermTranslator {
             throw new TermBuildException("Heap updates must modify a heap location", ex);
         }
 
-        Term value = build(tree.getChild(2));
+        Term value = build(tree.getChild(startIndex + 1));
 
         if(symbol == BuiltinSymbols.SELECT) {
             Term obj = location.getTerm(1);

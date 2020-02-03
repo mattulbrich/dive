@@ -173,11 +173,12 @@ public class TreeTermTranslatorTest {
 
             // Heap updates
             { "$heap[c.f := 1]", "$store<C,int>($heap, c, C$$f, 1)" },
+            { "$heap[c.f := 1, c.f := 2]", "$store<C,int>($store<C,int>($heap, c, C$$f, 1), c, C$$f, 2)" },
             { "$heap[a[0] := 2]", "$array_store<int>($heap, a, 0, 2)" },
             { "$heap[$anon(mod, loopHeap)]", "$anon($heap, mod, loopHeap)" },
             { "$heap[$create(c)]", "$create($heap, c)" },
 
-            // Set, Seqs and cardinalities
+            // Set, Seqs and cardinalities, maps
             { "|mod|", "$set_card<object>(mod)" },
             { "|iseq|", "$seq_len<int>(iseq)" },
             { "{1,2,3}", "$set_add<int>(3, $set_add<int>(2, $set_add<int>(1, $empty)))" },
@@ -196,6 +197,14 @@ public class TreeTermTranslatorTest {
             { "iseq[0..2]", "$seq_sub<int>(iseq, 0, 2)" },
             { "iseq[..2]", "$seq_sub<int>(iseq, 0, 2)" },
             { "iseq[1..]", "$seq_sub<int>(iseq, 1, $seq_len<int>(iseq))" },
+            { "ibmap[1:=true]", "$map_update<int,bool>(ibmap, 1, true)" },
+            { "ibmap[1:=true, 2:=false]", "$map_update<int,bool>($map_update<int,bool>(ibmap, 1, true), 2, false)" },
+            { "map[]", "$map_empty" },
+            { "map[1:=2, 2:=3]", "$map_update<int,int>($map_update<int,int>($map_empty, 1, 2), 2, 3)" },
+            { "|map[]|", "$map_card<$nothing,$nothing>($map_empty)" },
+
+            // Strings
+            { "\"Hello World\"", "\"Hello World\"" },
         };
     }
 
@@ -244,7 +253,7 @@ public class TreeTermTranslatorTest {
             { "c.g", "Field g not found in class C" },
             { "1.f", "field access only possible for class sorts" },
             { "1@loopHeap", "heap suffixes are only allowed for heap select terms" },
-            { "b1[c.f:=1]", "Heap updates must be applied to heaps" },
+            { "b1[c.f:=1]", "Update terms must either update heaps or maps, not bool" },
             { "loopHeap[c := c]", "Heap updates must modify a heap location" },
             { "loopHeap[c.f := true]", "Unexpected argument sort for argument 4 to $store" },
             { "iseq + mod", "No common supertype for seq<int> and set<object>" },
@@ -277,6 +286,7 @@ public class TreeTermTranslatorTest {
         map.add(new FunctionSymbol("loopHeap", Sort.HEAP));
         map.add(new FunctionSymbol("mod", Sort.get("set", Sort.OBJECT)));
         map.add(new FunctionSymbol("iseq", Sort.get("seq", Sort.INT)));
+        map.add(new FunctionSymbol("ibmap", Sort.get("map", Sort.INT, Sort.BOOL)));
         map.add(new FunctionSymbol("cseq", Sort.get("seq", Sort.getClassSort("C"))));
         map.add(new FunctionSymbol("dseq", Sort.get("seq", Sort.getClassSort("D"))));
         Project p = TestUtil.mockProject("class C { var f: int; function fct(i:int): int {0} }");

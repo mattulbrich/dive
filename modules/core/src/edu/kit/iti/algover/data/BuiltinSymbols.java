@@ -244,6 +244,19 @@ public class BuiltinSymbols extends MapSymbolTable {
             new FunctionSymbolFamily(
                     new FunctionSymbol("$array2seq", SEQ1, Sort.HEAP, ARRAY1),1);
 
+    private static final Sort MAP12 = Sort.get("map", FunctionSymbolFamily.VAR1, FunctionSymbolFamily.VAR2);
+
+    public static final FunctionSymbol MAP_EMPTY =
+            new FunctionSymbol("$map_empty", Sort.get("map", Sort.BOTTOM, Sort.BOTTOM));
+
+    public static final FunctionSymbolFamily MAP_UPDATE =
+            new FunctionSymbolFamily(
+                    new FunctionSymbol("$map_update", MAP12, MAP12, FunctionSymbolFamily.VAR1, FunctionSymbolFamily.VAR2),2);
+
+    public static final FunctionSymbolFamily MAP_CARD =
+            new FunctionSymbolFamily(
+                    new FunctionSymbol("$map_card", Sort.INT, MAP12), 2);
+
     private static final Sort SET_OBJECTS = Sort.get("set", Sort.OBJECT);
 
     public static final FunctionSymbol EVERYTHING =
@@ -301,6 +314,14 @@ public class BuiltinSymbols extends MapSymbolTable {
         // non-negative integer literal
         if (name.matches("[0-9]+")) {
             FunctionSymbol lit = new FunctionSymbol(name, Sort.INT);
+            return lit;
+        }
+
+        //
+        // String literals
+        if (name.startsWith("\"")) {
+            assert name.endsWith("\"");
+            FunctionSymbol lit = new FunctionSymbol(name, Sort.STRING);
             return lit;
         }
 
