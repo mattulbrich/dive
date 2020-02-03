@@ -250,6 +250,11 @@ public class TypeResolution extends DafnyTreeDefaultVisitor<DafnyTree, Void> {
     }
 
     @Override
+    public DafnyTree visitEQUIV(DafnyTree t, Void a) {
+        return operation(t, BOOL_TYPE, "bool", "bool");
+    }
+
+    @Override
     public DafnyTree visitNOT(DafnyTree t, Void a) {
         return operation(t, BOOL_TYPE, "bool");
     }
@@ -272,6 +277,7 @@ public class TypeResolution extends DafnyTreeDefaultVisitor<DafnyTree, Void> {
         if (!matrixTy.equals(BOOL_TYPE)) {
             exceptions.add(new DafnyException("Matrix of a quantifier must be Boolean", t));
         }
+        t.setExpressionType(BOOL_TYPE);
         return BOOL_TYPE;
     }
 
@@ -281,6 +287,7 @@ public class TypeResolution extends DafnyTreeDefaultVisitor<DafnyTree, Void> {
         if (!matrixTy.equals(BOOL_TYPE)) {
             exceptions.add(new DafnyException("Matrix of a quantifier must be Boolean", t));
         }
+        t.setExpressionType(BOOL_TYPE);
         return BOOL_TYPE;
     }
 

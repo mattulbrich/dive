@@ -184,6 +184,7 @@ class C
    method quantifiers()
      ensures forall i : int :: i == i
      ensures exists x : int :: x == 0
+     ensures (forall i : int :: i == i) <==> (exists i : int :: i == 0)
      ensures let x,y := 1,true :: y && x > 0
    {}
 
