@@ -305,4 +305,32 @@ class C
       setC := { null };
    }
 
+   method testMaps()
+   {
+      var m: map<int, bool>;
+      m := map[];
+      m := map[5:=true];
+      m := m[3:=false];
+
+      var om: map<object, object>;
+      om := map[null := null];
+      om := om[this := null];
+      om := om[null := this];
+
+      var d: D;
+      var widenedMap := map[d := this][this := d];
+      var widenedMap2 := map[d := this, this := d];
+   }
+
+   method mapExFail1()
+   {
+      var m := map[1 := 2][true := 3];
+   }
+
+   method mapExFail2()
+   {
+      var m := map[1 := 2, true := 3];
+   }
 }
+
+class D {}

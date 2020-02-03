@@ -456,6 +456,33 @@ public class TypeResolution extends DafnyTreeDefaultVisitor<DafnyTree, Void> {
     }
 
     @Override
+    public DafnyTree visitUPDATE(DafnyTree t, Void aVoid) {
+        DafnyTree updated = t.getChild(0);
+        DafnyTree mapType = updated.accept(this, null);
+        Sort mapSort = TreeUtil.toSort(mapType);
+        if(!mapSort.getName().equals("map")) {
+            exceptions.add(new DafnyException(
+                    "Only expressions of type map can be updated", t));
+        }
+
+        for(int i = 1; i < t.getChildCount(); i+=2) {
+            DafnyTree recTy = t.getChild(i).accept(this, null);
+            DafnyTree valTy = t.getChild(i + 1).accept(this, null);
+            Sort innerMapSort = Sort.get("map",
+                    TreeUtil.toSort(recTy), TreeUtil.toSort(valTy));
+            try {
+                mapSort = Sort.supremum(mapSort, innerMapSort);
+            } catch (TermBuildException e) {
+                exceptions.add(new DafnyException(t, e));
+            }
+        }
+
+        DafnyTree result = ASTUtil.fromSort(mapSort);
+        t.setExpressionType(result);
+        return result;
+    }
+
+    @Override
     public DafnyTree visitCALL(DafnyTree t, Void a) {
         DafnyTree call = t.getChild(0);
         DafnyTree decl = call.getDeclarationReference();
@@ -670,6 +697,48 @@ public class TypeResolution extends DafnyTreeDefaultVisitor<DafnyTree, Void> {
         result = ASTUtil.fromSort(sort);
         result = ASTUtil.create(kind, kindString, result);
 
+        t.setExpressionType(result);
+        return result;
+    }
+
+    @Override
+    public DafnyTree visitMAPEX(DafnyTree t, Void aVoid) {
+        if(t.getChildCount() == 0) {
+            // Emtpy set is of type set<$nothing>.
+            DafnyTree bottom = ASTUtil.fromSort(Sort.BOTTOM);
+            DafnyTree result = ASTUtil.create(DafnyParser.MAP, "map", bottom, bottom);
+            t.setExpressionType(result);
+            return result;
+        }
+
+        assert t.getChildCount() % 2 == 0;
+
+        DafnyTree rec = t.getChild(0);
+        DafnyTree value = t.getChild(1);
+        DafnyTree recType = rec.accept(this, null);
+        DafnyTree valType = value.accept(this, null);
+        Sort recSort = ASTUtil.toSort(recType);
+        Sort valSort = ASTUtil.toSort(valType);
+        for (int i = 2; i < t.getChildCount(); i += 2) {
+            rec = t.getChild(i);
+            value = t.getChild(i+1);
+            recType = rec.accept(this, null);
+            valType = value.accept(this, null);
+            Sort innerRecSort = ASTUtil.toSort(recType);
+            Sort innerValSort = ASTUtil.toSort(valType);
+
+            try {
+                recSort = Sort.supremum(recSort, innerRecSort);
+                valSort = Sort.supremum(valSort, innerValSort);
+            } catch (TermBuildException ex) {
+                exceptions.add(new DafnyException(t, ex));
+            }
+        }
+
+        recType = ASTUtil.fromSort(recSort);
+        valType = ASTUtil.fromSort(valSort);
+
+        DafnyTree result = ASTUtil.create(DafnyParser.MAP, "map", recType, valType);
         t.setExpressionType(result);
         return result;
     }

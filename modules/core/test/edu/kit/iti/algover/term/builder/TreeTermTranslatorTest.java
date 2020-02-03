@@ -173,7 +173,7 @@ public class TreeTermTranslatorTest {
 
             // Heap updates
             { "$heap[c.f := 1]", "$store<C,int>($heap, c, C$$f, 1)" },
-            { "$heap[c.f := 1, c.f := 2]", "$store<C,int>($store<C,int>($heap, c, C$$f, 1), c, C$$f, 2)" },*/
+            { "$heap[c.f := 1, c.f := 2]", "$store<C,int>($store<C,int>($heap, c, C$$f, 1), c, C$$f, 2)" },
             { "$heap[c.f := 1][c.f := 2]", "$store<C,int>($store<C,int>($heap, c, C$$f, 1), c, C$$f, 2)" },
             { "$heap[a[0] := 2]", "$array_store<int>($heap, a, 0, 2)" },
             { "$heap[$anon(mod, loopHeap)]", "$anon($heap, mod, loopHeap)" },

@@ -638,44 +638,44 @@ public class TreeTermTranslator {
         DafnyTree indexTree;
 
         switch (arraySortName) {
-            case "array":
-                if (tree.getChildCount() != 2) {
-                    throw new TermBuildException("Access to 'array' requires one index argument");
-                }
+        case "array":
+            if (tree.getChildCount() != 2) {
+                throw new TermBuildException("Access to 'array' requires one index argument");
+            }
 
-                indexTree = tree.getChild(1);
-                if (indexTree.getType() == DafnyParser.DOTDOT) {
-                    arrayTerm = tb.arrayToSeq(getHeap(), arrayTerm);
-                    return buildSubSequence(arrayTerm, indexTree);
-                } else {
-                    indexTerm = build(tree.getChild(1));
-                    return tb.selectArray(getHeap(), arrayTerm, indexTerm);
-                }
+            indexTree = tree.getChild(1);
+            if (indexTree.getType() == DafnyParser.DOTDOT) {
+                arrayTerm = tb.arrayToSeq(getHeap(), arrayTerm);
+                return buildSubSequence(arrayTerm, indexTree);
+            } else {
+                indexTerm = build(tree.getChild(1));
+                return tb.selectArray(getHeap(), arrayTerm, indexTerm);
+            }
 
-            case "seq":
-                if (tree.getChildCount() != 2) {
-                    throw new TermBuildException("Access to 'array2' requires two index arguments");
-                }
+        case "seq":
+            if (tree.getChildCount() != 2) {
+                throw new TermBuildException("Access to 'array2' requires two index arguments");
+            }
 
-                indexTree = tree.getChild(1);
-                if (indexTree.getType() == DafnyParser.DOTDOT) {
-                    return buildSubSequence(arrayTerm, indexTree);
-                } else {
-                    indexTerm = build(indexTree);
-                    return tb.seqGet(arrayTerm, indexTerm);
-                }
+            indexTree = tree.getChild(1);
+            if (indexTree.getType() == DafnyParser.DOTDOT) {
+                return buildSubSequence(arrayTerm, indexTree);
+            } else {
+                indexTerm = build(indexTree);
+                return tb.seqGet(arrayTerm, indexTerm);
+            }
 
 
         case "array2":
-                if (tree.getChildCount() != 3) {
-                    throw new TermBuildException("Access to 'array2' requires two index arguments");
-                }
+            if (tree.getChildCount() != 3) {
+                throw new TermBuildException("Access to 'array2' requires two index arguments");
+            }
 
-                Term index0 = build(tree.getChild(1));
-                Term index1 = build(tree.getChild(2));
+            Term index0 = build(tree.getChild(1));
+            Term index1 = build(tree.getChild(2));
 
-                return tb.selectArray2(new ApplTerm(BuiltinSymbols.HEAP),
-                        arrayTerm, index0, index1);
+            return tb.selectArray2(new ApplTerm(BuiltinSymbols.HEAP),
+                    arrayTerm, index0, index1);
 
         case "heap":
             indexTree = tree.getChild(1);

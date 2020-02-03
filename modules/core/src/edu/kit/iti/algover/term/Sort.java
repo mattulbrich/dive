@@ -452,7 +452,12 @@ public class Sort {
             case "seq":
                 Sort innersup = supremum(sort1.getArgument(0), sort2.getArgument(0));
                 return get(sort1.name, innersup);
-            // case "map": that would be contravariant in the first argument!
+            // OLD COMMENT: case "map": that would be contravariant in the first argument!
+            // ACTUALLY: I do not think so ... as ADT that seems to be covariant ...
+            case "map":
+                Sort sup1 = supremum(sort1.getArgument(0), sort2.getArgument(0));
+                Sort sup2 = supremum(sort1.getArgument(1), sort2.getArgument(1));
+                return get(sort1.name, sup1, sup2);
             }
         }
 

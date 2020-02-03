@@ -14,6 +14,7 @@ import edu.kit.iti.algover.term.builder.TermBuildException;
  * Utility Class for teh translation of DafnyTrees to Strings taht represent infix repersentations
  * Created by sarah on 9/1/16.
  */
+@Deprecated
 public final class TreeUtil {
 
 

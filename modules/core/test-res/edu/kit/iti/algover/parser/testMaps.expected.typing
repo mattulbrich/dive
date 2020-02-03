@@ -1,0 +1,13 @@
+(method testMaps ARGS (BLOCK
+   (var m (TYPE (map int bool)))
+   (:= m[map<int,bool>] map[map<$nothing,$nothing>])
+   (:= m[map<int,bool>] (map 5[int] true[bool])[map<int,bool>])
+   (:= m[map<int,bool>] (UPDATE m[map<int,bool>] 3[int] false[bool])[map<int,bool>])
+   (var om (TYPE (map object object)))
+   (:= om[map<object,object>] (map null[null] null[null])[map<null,null>])
+   (:= om[map<object,object>] (UPDATE om[map<object,object>] this[C] null[null])[map<object,object>])
+   (:= om[map<object,object>] (UPDATE om[map<object,object>] null[null] this[C])[map<object,object>])
+   (var d (TYPE D))
+   (var widenedMap (TYPE (map object object))
+        (UPDATE (map d[D] this[C])[map<D,C>] this[C] d[D])[map<object,object>])
+   (var widenedMap2 (TYPE (map object object)) (map d[D] this[C] this[C] d[D])[map<object,object>])))[scc_26]

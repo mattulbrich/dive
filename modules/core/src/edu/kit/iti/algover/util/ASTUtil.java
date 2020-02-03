@@ -10,10 +10,10 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Set;
 
-import edu.kit.iti.algover.parser.DafnyLexer;
 import edu.kit.iti.algover.term.builder.TermBuilder;
 import org.antlr.runtime.tree.Tree;
 
@@ -32,6 +32,23 @@ import nonnull.NonNull;
  * @author Mattias Ulbrich
  */
 public final class ASTUtil {
+
+    /**
+     * A mapping from sort name to token number.
+     */
+    private static final Map<String, Integer> SORT_TO_TYPE;
+    static {
+        SORT_TO_TYPE = Map.of(
+                "set", DafnyParser.SET,
+                "multiset", DafnyParser.MULTISET,
+                "seq", DafnyParser.SEQ,
+                "array", DafnyParser.ARRAY,
+                "map", DafnyParser.MAP,
+                "string", DafnyParser.STRING,
+                "int", DafnyParser.INT,
+                "bool", DafnyParser.BOOL
+        );
+    }
 
     private ASTUtil() {
         throw new Error();
@@ -446,6 +463,19 @@ public final class ASTUtil {
         }
     }
 
+    public static DafnyTree fromSort(Sort sort) {
+        Integer kind = SORT_TO_TYPE.get(sort.getName());
+        if(kind == null) {
+            kind = DafnyParser.ID;
+        }
+
+        DafnyTree result = new DafnyTree(kind, sort.getName());
+        for (Sort argument : sort.getArguments()) {
+            result.addChild(fromSort(argument));
+        }
+        return result;
+    }
+
     public static DafnyTree type(DafnyTree type) {
         return create(DafnyParser.TYPE, type);
     }
@@ -508,28 +538,4 @@ public final class ASTUtil {
         return result;
     }
 
-    public static DafnyTree fromSort(Sort sort) {
-        DafnyTree result;
-        switch(sort.getName()) {
-        case "set":
-            result = new DafnyTree(DafnyParser.SET, "set");
-            break;
-        case "multiset":
-            result = new DafnyTree(DafnyParser.MULTISET, "multiset");
-            break;
-        case "seq":
-            result = new DafnyTree(DafnyParser.SEQ, "seq");
-            break;
-        case "array":
-            result = new DafnyTree(DafnyParser.ARRAY, "array");
-            break;
-        case "int":
-            return new DafnyTree(DafnyParser.INT, "int");
-        default:
-            return id(sort.getName());
-        }
-
-        result.addChild(fromSort(sort.getArgument(0)));
-        return result;
-    }
 }
