@@ -39,14 +39,14 @@ public class BoogieProcess {
     /**
      * If true, all produced temporary .bpl files are kept.
      */
-    public static final boolean KEEP_BPL = true;
-            //Boolean.getBoolean("edu.kit.iti.algover.keepBPL");
+    public static final boolean KEEP_BPL =
+            Boolean.getBoolean("edu.kit.iti.algover.keepBPL");
 
     /**
      * If true, all produced temporary .bpl files are kept.
      */
-    public static final boolean VERBOSE_BOOGIE = true;
-            // Boolean.getBoolean("edu.kit.iti.algover.verboseBPL");
+    public static final boolean VERBOSE_BOOGIE =
+            Boolean.getBoolean("edu.kit.iti.algover.verboseBPL");
 
     /**
      * The class responsible for the translation
