@@ -94,7 +94,9 @@ public class DafnyCodeController {
             return;
         }
 
-        List<File> files = project.getConfiguration().getDafnyFiles();
+        List<File> files = Util.map(
+                project.getConfiguration().getDafnyFiles(),
+                f -> new File(project.getBaseDir(), f.getName()));
 
         // close tabs
         for (int i = 0; i < tabs.getTabCount(); i++) {

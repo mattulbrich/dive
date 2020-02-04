@@ -6,6 +6,7 @@
 package edu.kit.iti.algover.script.interpreter;
 
 
+import edu.kit.iti.algover.proof.Proof;
 import edu.kit.iti.algover.proof.ProofNode;
 import edu.kit.iti.algover.script.ast.*;
 import edu.kit.iti.algover.script.callhandling.CommandLookup;
@@ -33,6 +34,14 @@ import java.util.stream.Stream;
 @SuppressWarnings({"unchecked", "rawtypes"})
 public class Interpreter<T> extends DefaultASTVisitor<Object>
         implements ScopeObservable {
+
+
+
+    /**
+     * The proof for this interpreter
+     */
+    private Proof currentProof;
+
     private static final int MAX_ITERATIONS = 5;
 
     /**
@@ -93,6 +102,13 @@ public class Interpreter<T> extends DefaultASTVisitor<Object>
         return functionLookup;
     }
 
+    public Proof getCurrentProof() {
+        return currentProof;
+    }
+
+    public void setCurrentProof(Proof currentProof) {
+        this.currentProof = currentProof;
+    }
     /**
      * Interpret a proof script
      * @param script the parsed proof script AST
@@ -205,6 +221,11 @@ public class Interpreter<T> extends DefaultASTVisitor<Object>
 
         //List<GoalNode<T>> allGoalsBeforeCases = beforeCases.getGoals();
         List<ProofNode> allGoalsBeforeCases = beforeCases.getGoals();
+        if(allGoalsBeforeCases.size() <= 1) {
+            InterpreterRuntimeException ire = new InterpreterRuntimeException("A cases may only be used at states with at least 2 children.");
+            ire.setLocation(casesStatement);
+            throw ire;
+        }
 
         //global List after all Case Statements
         List<ProofNode> goalsAfterCases = new ArrayList<>();
@@ -352,6 +373,10 @@ public class Interpreter<T> extends DefaultASTVisitor<Object>
      */
     @Override
     public Object visit(CallStatement call) {
+        if(peekState().getGoals().size() > 1) {
+            throw new InterpreterRuntimeException("Cannot apply rules in a state with more than one branch. " +
+                    "Add a cases-statement to resolve this.", call);
+        }
         enterScope(call);
         //neuer VarScope
         //enter new variable scope

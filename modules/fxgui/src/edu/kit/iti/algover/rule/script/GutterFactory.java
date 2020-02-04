@@ -6,6 +6,7 @@
 package edu.kit.iti.algover.rule.script;
 
 import javafx.beans.Observable;
+import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleListProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
@@ -57,15 +58,17 @@ public class GutterFactory implements IntFunction<Node> {
 
     private ScriptView codeArea;
 
-    public GutterFactory(ScriptView codeArea) {
+    private SimpleIntegerProperty fontsize = new SimpleIntegerProperty(12);
+
+    public GutterFactory(ScriptView codeArea, SimpleIntegerProperty fontsize) {
         this.codeArea = codeArea;
+        this.fontsize.bind(fontsize);
         nParagraphs = LiveList.sizeOf(codeArea.getParagraphs());
         for (int i = 0; i < 100; i++) {
 
             GutterAnnotation e = new GutterAnnotation();
-            if(i==0){
+            if(i==0 && nParagraphs.getValue() == 1){
                 e.setInsertMarker(true);
-
             }
             lineAnnotations.add(e);
         }
@@ -77,6 +80,10 @@ public class GutterFactory implements IntFunction<Node> {
             if (diff > 0) {
                 lineAnnotations.remove(n, lineAnnotations.size());
             }
+        });
+
+        this.fontsize.addListener((observable, oldValue, newValue) -> {
+            System.out.println("fontsize = " + fontsize);
         });
         /*lineAnnotations.addListener(new ListChangeListener<GutterAnnotation>() {
             @Override
@@ -103,6 +110,7 @@ public class GutterFactory implements IntFunction<Node> {
         if (idx == -1) return new Label("idx is -1!"); //TODO weigl debug
         Val<String> formatted = nParagraphs.map(n -> format(idx + 1, n));
         GutterAnnotation model = getLineAnnotation(idx);
+        model.fontsizeProperty().bind(this.fontsize);
         GutterView hbox = new GutterView(model);
         model.textProperty().bind(formatted);
         //process clicking on the gutter by setting the selection in the model
@@ -122,7 +130,7 @@ public class GutterFactory implements IntFunction<Node> {
         hbox.getLineNumber().setTextFill(defaultTextFill);
         hbox.setPadding(defaultInsets);
         hbox.getStyleClass().add("lineno");
-        hbox.setStyle("-fx-cursor: hand");
+        hbox.setStyle("-fx-cursor: hand;"+"-fx-font-size: "+this.fontsize.get()+"pt;");
         return hbox;
     }
 
@@ -143,4 +151,5 @@ public class GutterFactory implements IntFunction<Node> {
     public ObservableList<GutterAnnotation> getAnnotations() {
         return this.lineAnnotations;
     }
+
 }

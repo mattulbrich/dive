@@ -10,6 +10,7 @@ import edu.kit.iti.algover.parser.DafnyException;
 import edu.kit.iti.algover.parser.DafnyParser;
 import edu.kit.iti.algover.parser.DafnyTree;
 import edu.kit.iti.algover.proof.ProofFormula;
+import edu.kit.iti.algover.references.ReferenceTools;
 import edu.kit.iti.algover.rules.TermSelector;
 import edu.kit.iti.algover.symbex.AssertionElement;
 import edu.kit.iti.algover.symbex.PathConditionElement;
@@ -21,7 +22,6 @@ import edu.kit.iti.algover.term.Sort;
 import edu.kit.iti.algover.term.Term;
 import edu.kit.iti.algover.util.ImmutableList;
 import edu.kit.iti.algover.util.Pair;
-import edu.kit.iti.algover.util.SymbexUtil;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -43,8 +43,6 @@ import java.util.Map;
  */
 public class SSASequenter implements PVCSequenter {
 
-    private static final SSAInstantiationVisitor SSA_INSTANTIATION_VISITOR = new SSAInstantiationVisitor();
-
     @Override
     public String getName() {
         return "ssa";
@@ -60,25 +58,27 @@ public class SSASequenter implements PVCSequenter {
                              Map<TermSelector, DafnyTree> referenceMap) throws DafnyException {
 
         try {
+            TreeTermTranslator ttt = new TreeTermTranslator(symbolTable);
+            SSAInstantiationVisitor visitor = new SSAInstantiationVisitor(ttt.getReferenceMap());
+
             // JK: REVIEW maybe use set here?
             // MU: No. That would probably not have the right order.
             // Elements are guaranteed to be unique.
             List<ProofFormula> antecedent = new ArrayList<>();
 
             ImmutableList<Pair<FunctionSymbol, FunctionSymbol>> endMapping;
-            endMapping = createMapping(pathThroughProgram.getAssignmentHistory(), symbolTable, antecedent);
+            endMapping = createMapping(pathThroughProgram.getAssignmentHistory(), symbolTable, antecedent, ttt, visitor);
 
             // from a bug.
             assert endMapping.size() == pathThroughProgram.getAssignmentHistory().size();
 
-            TreeTermTranslator ttt = new TreeTermTranslator(symbolTable);
 
             for (PathConditionElement element : pathThroughProgram.getPathConditions()) {
                 assert isPrefix(element.getAssignmentHistory(), pathThroughProgram.getAssignmentHistory());
                 ImmutableList<Pair<FunctionSymbol, FunctionSymbol>> mapping =
                         endMapping.takeFirst(element.getAssignmentHistory().size());
                 antecedent.add(createProofFormula(mapping, ttt, element.getExpression(),
-                        SequenterUtil.getLabel(element)));
+                        SequenterUtil.getLabel(element), visitor));
             }
 
             antecedent = SequenterUtil.coalesceDuplicates(antecedent);
@@ -86,8 +86,14 @@ public class SSASequenter implements PVCSequenter {
             assert pathThroughProgram.getProofObligations().size() == 1;
             AssertionElement assertion = pathThroughProgram.getProofObligations().getLast();
             ProofFormula succedent = createProofFormula(endMapping, ttt,
-                    assertion.getExpression(), "Assertion");
-            return new Sequent(antecedent, Collections.singletonList(succedent));
+                    assertion.getExpression(), "Assertion", visitor);
+//            return new Sequent(antecedent, Collections.singletonList(succedent));
+            Sequent sequent = new Sequent(antecedent, Collections.singletonList(succedent));
+
+            if(referenceMap != null) {
+                ReferenceTools.addSequentReferences(sequent, ttt.getReferenceMap(), referenceMap);
+            }
+            return sequent;
 
         }  catch(TermBuildException tbe) {
             throw new DafnyException(tbe.getLocation(), tbe);
@@ -103,10 +109,11 @@ public class SSASequenter implements PVCSequenter {
 
     private ProofFormula createProofFormula(ImmutableList<Pair<FunctionSymbol, FunctionSymbol>> mapping,
                                             TreeTermTranslator ttt,
-                                            DafnyTree expression, String label) throws DafnyException {
+                                            DafnyTree expression, String label,
+                                            SSAInstantiationVisitor visitor) throws DafnyException {
         try {
             Term condition = ttt.build(expression);
-            Term replacedCondition = condition.accept(SSA_INSTANTIATION_VISITOR, mapping);
+            Term replacedCondition = condition.accept(visitor, mapping);
             if(replacedCondition == null)
                 replacedCondition = condition;
             return new ProofFormula(replacedCondition, label);
@@ -118,11 +125,12 @@ public class SSASequenter implements PVCSequenter {
     private ImmutableList<Pair<FunctionSymbol,FunctionSymbol>>
                 createMapping(ImmutableList<DafnyTree> assignmentHistory,
                               SymbolTable symbolTable,
-                              List<ProofFormula> antecedent)
+                              List<ProofFormula> antecedent,
+                              TreeTermTranslator ttt,
+                              SSAInstantiationVisitor visitor)
             throws TermBuildException {
 
-        TreeAssignmentTranslator tat = new TreeAssignmentTranslator(symbolTable);
-        TreeTermTranslator ttt = new TreeTermTranslator(symbolTable);
+        TreeAssignmentTranslator tat = new TreeAssignmentTranslator(ttt);
 
         ImmutableList<Pair<FunctionSymbol, Term>> assignments =
                 tat.translateToLinear(assignmentHistory).reverse();
@@ -141,19 +149,26 @@ public class SSASequenter implements PVCSequenter {
             symbolTable.addFunctionSymbol(fsymbNew);
             mapping = mapping.append(new Pair<>(fsymb, fsymbNew));
 
-            DafnyTree assignedTree = treeIt.next().getChild(1);
+            DafnyTree assignmentTree = treeIt.next();
+            DafnyTree assignedTree = assignmentTree.getChild(1);
             if (assignedTree.getType() == DafnyParser.WILDCARD) {
                 // Do not make an assignment for an anonymised value
                 continue;
             }
             
             Term rhs = assignment.getSnd();
-            Term replaced = rhs.accept(SSA_INSTANTIATION_VISITOR, oldMapping);
+            Term replaced = rhs.accept(visitor, oldMapping);
             if (replaced == null) {
                 replaced = rhs;
+
             }
 
-            antecedent.add(new ProofFormula(tb.eq(new ApplTerm(fsymbNew), replaced),
+            ApplTerm assignmentGoal = new ApplTerm(fsymbNew);
+            tat.getReferenceMap().put(assignmentGoal, assignmentTree.getChild(0));
+
+            ApplTerm ssa_eq = tb.eq(assignmentGoal, replaced);
+            tat.getReferenceMap().put(ssa_eq, assignmentTree);
+            antecedent.add(new ProofFormula(ssa_eq,
                     SequenterUtil.PATH_LABEL));
         }
 
@@ -178,15 +193,28 @@ public class SSASequenter implements PVCSequenter {
 
 class SSAInstantiationVisitor extends ReplacementVisitor<ImmutableList<Pair<FunctionSymbol, FunctionSymbol>>> {
 
+    private Map<Term, DafnyTree> refMap;
+
+    public SSAInstantiationVisitor(Map<Term, DafnyTree> refMap) {
+        this.refMap = refMap;
+    }
+
     @Override
     public Term visit(ApplTerm applTerm, ImmutableList<Pair<FunctionSymbol, FunctionSymbol>> mapping) throws TermBuildException {
         FunctionSymbol funcSymbol = applTerm.getFunctionSymbol();
         Pair<FunctionSymbol, FunctionSymbol> replacement = mapping.findLast(pair -> pair.fst == funcSymbol);
+        Term result;
         if(replacement != null) {
             assert replacement.snd.getArity() == 0;
-            return new ApplTerm(replacement.snd);
+            result = new ApplTerm(replacement.snd);
         } else {
-            return super.visit(applTerm, mapping);
+            result = super.visit(applTerm, mapping);
         }
+
+        if (result != null && refMap.containsKey(applTerm)) {
+            refMap.put(result, refMap.get(applTerm));
+        }
+
+        return result;
     }
 }

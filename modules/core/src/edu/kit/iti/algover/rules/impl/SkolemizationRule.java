@@ -7,7 +7,8 @@ package edu.kit.iti.algover.rules.impl;
 
 import edu.kit.iti.algover.data.SymbolTable;
 import edu.kit.iti.algover.proof.ProofNode;
-import edu.kit.iti.algover.rules.AbstractProofRule;
+import edu.kit.iti.algover.rules.FocusProofRule;
+import edu.kit.iti.algover.rules.NotApplicableException;
 import edu.kit.iti.algover.rules.Parameters;
 import edu.kit.iti.algover.rules.ProofRuleApplication;
 import edu.kit.iti.algover.rules.ProofRuleApplicationBuilder;
@@ -17,6 +18,7 @@ import edu.kit.iti.algover.rules.TermSelector;
 import edu.kit.iti.algover.term.ApplTerm;
 import edu.kit.iti.algover.term.FunctionSymbol;
 import edu.kit.iti.algover.term.QuantTerm;
+import edu.kit.iti.algover.term.QuantTerm.Quantifier;
 import edu.kit.iti.algover.term.Sort;
 import edu.kit.iti.algover.term.Term;
 import edu.kit.iti.algover.term.VariableTerm;
@@ -33,11 +35,8 @@ import java.util.stream.Collectors;
 /**
  * Created by jklamroth on 10/31/18.
  */
-public class SkolemizationRule extends AbstractProofRule {
-
-    public SkolemizationRule() {
-        super(ON_PARAM);
-    }
+// TODO: Make this a DefaultFocus rule like "inst". Factor out their default on
+public class SkolemizationRule extends FocusProofRule {
 
     @Override
     public String getName() {
@@ -45,63 +44,22 @@ public class SkolemizationRule extends AbstractProofRule {
     }
 
     @Override
-    protected ProofRuleApplication considerApplicationImpl(ProofNode target, Parameters parameters) throws RuleException {
-        TermParameter onParam = parameters.getValue(ON_PARAM);
-        if(onParam == null) {
-            return ProofRuleApplicationBuilder.notApplicable(this);
-        }
-
-        TermSelector onTs = onParam.getTermSelector();
-        if(!onTs.isToplevel()) {
-            return ProofRuleApplicationBuilder.notApplicable(this);
-        }
-
-        if(!(onParam.getTerm() instanceof QuantTerm)) {
-            return ProofRuleApplicationBuilder.notApplicable(this);
-        }
-
-        QuantTerm qTerm = (QuantTerm)onParam.getTerm();
-        if(qTerm.getQuantifier() != QuantTerm.Quantifier.EXISTS) {
-            return ProofRuleApplicationBuilder.notApplicable(this);
-        }
-
-        Term rt;
-        SymbolTable syms = target.getAllSymbols();
-        SkolemizationVisitor sv = new SkolemizationVisitor(syms);
-        try {
-            rt = onParam.getTerm().accept(sv, new HashMap<VariableTerm, ApplTerm>());
-        } catch(TermBuildException e) {
-            throw new RuleException("Error trying to skolemize term " + onParam.getTerm(), e);
-        }
-
-        ProofRuleApplicationBuilder prab = new ProofRuleApplicationBuilder(this);
-        prab.setApplicability(ProofRuleApplication.Applicability.APPLICABLE);
-        prab.setNewFuctionSymbols(sv.getNewFunctionSymbols());
-        if(rt != null) {
-            prab.newBranch().addReplacement(onTs, rt);
-        }
-        return prab.build();
-    }
-
-    @Override
     protected ProofRuleApplication makeApplicationImpl(ProofNode target, Parameters parameters) throws RuleException {
         TermParameter onParam = parameters.getValue(ON_PARAM);
-        if(onParam == null) {
-            throw new RuleException();
-        }
-
         TermSelector onTs = onParam.getTermSelector();
+
         if(!onTs.isToplevel()) {
-            throw new RuleException();
+            throw NotApplicableException.onlyToplevel(this);
         }
 
         if(!(onParam.getTerm() instanceof QuantTerm)) {
-            throw new RuleException();
+            throw new NotApplicableException(getName() + " can only be applied to quantified formulas");
         }
 
+        Quantifier expected = onTs.isAntecedent() ? Quantifier.EXISTS : Quantifier.FORALL;
         QuantTerm qTerm = (QuantTerm)onParam.getTerm();
-        if(qTerm.getQuantifier() != QuantTerm.Quantifier.EXISTS) {
-            throw new RuleException();
+        if (qTerm.getQuantifier() != expected) {
+            throw new NotApplicableException("Only exists quantifiers in antecedent or forall quantifiers in succedent can be skolemized");
         }
 
         Term rt;
@@ -119,6 +77,7 @@ public class SkolemizationRule extends AbstractProofRule {
         if(rt != null) {
             prab.newBranch().addReplacement(onTs, rt);
         }
+
         return prab.build();
     }
 

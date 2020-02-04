@@ -7,7 +7,7 @@ plugins{
 javafx {
     //can be upgraded to 12
     version = "11"
-    modules = ["javafx.controls", "javafx.fxml", "javafx.web", "javafx.base"]
+    modules = ["javafx.controls", "javafx.fxml", "javafx.web","javafx.base"]
 }
 
 mainClassName = 'edu.kit.iti.algover.DIVEApplication'
@@ -29,6 +29,8 @@ dependencies {
 
 
     compile group: 'com.miglayout', name: 'miglayout-swing', version: '5.2'
+    compile group: 'com.miglayout', name: 'miglayout-javafx', version: '5.2'
+
     /*compile name: 'richtextfx-fat-0.9.2'*/
 
     compile group: 'org.fxmisc.richtext', name: 'richtextfx', version: '0.10.0'
@@ -43,6 +45,12 @@ run {
 
 }
 
+runShadow{
+
+        environment 'PATH', "${environment.PATH}"
+
+
+}
 
 application {
     applicationDefaultJvmArgs =  [ "--add-modules=javafx.controls,javafx.fxml,javafx.graphics,javafx.base",
@@ -52,5 +60,11 @@ application {
                                    //, "-Djdk.gtk.verbose=true", "-Djdk.gtk.version=3"
 
     ]
+}
+
+
+// Merging Service Files
+shadowJar {
+    mergeServiceFiles()
 }
 

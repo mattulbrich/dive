@@ -15,32 +15,22 @@ import edu.kit.iti.algover.term.builder.TermBuildException;
 
 import java.util.HashMap;
 
-public class TestTrueAssumption extends AbstractProofRule {
-
-    public TestTrueAssumption() {
-        super();
-    }
+public class TestTrueAssumption extends NoFocusProofRule {
 
     @Override
     public String getName() {
         return "testTrueAssumption";
     }
 
-    private ProofRuleApplication buildApplication() {
+    private ProofRuleApplication buildApplication() throws RuleException {
         ProofRuleApplicationBuilder builder = new ProofRuleApplicationBuilder(this);
         builder.setApplicability(ProofRuleApplication.Applicability.APPLICABLE);
         try {
             builder.newBranch().addAdditionAntecedent(new ProofFormula(new ApplTerm(BuiltinSymbols.TRUE)));
         } catch (TermBuildException e) {
-            e.printStackTrace();
-            builder.setApplicability(ProofRuleApplication.Applicability.NOT_APPLICABLE);
+            throw new RuleException(e);
         }
         return builder.build();
-    }
-
-    @Override
-    public ProofRuleApplication considerApplicationImpl(ProofNode target, Parameters parameters) throws RuleException {
-        return buildApplication();
     }
 
     @Override

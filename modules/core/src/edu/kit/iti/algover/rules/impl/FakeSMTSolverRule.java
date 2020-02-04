@@ -13,12 +13,12 @@ import edu.kit.iti.algover.term.Sequent;
 import java.math.BigInteger;
 import java.util.Collections;
 
-public class FakeSMTSolverRule extends AbstractProofRule {
+public class FakeSMTSolverRule extends NoFocusProofRule {
 
-    private static final ParameterDescription<Boolean> CLOSE_PARAM =
+    public static final ParameterDescription<Boolean> CLOSE_PARAM =
             new ParameterDescription<>( "close", ParameterType.BOOLEAN,false);
 
-    private static final ParameterDescription<BigInteger> SLEEP_PARAM =
+    public static final ParameterDescription<BigInteger> SLEEP_PARAM =
             new ParameterDescription<>( "sleep", ParameterType.INTEGER,false);
 
     public FakeSMTSolverRule() {
@@ -31,7 +31,12 @@ public class FakeSMTSolverRule extends AbstractProofRule {
     }
 
     @Override
-    public ProofRuleApplication considerApplicationImpl(ProofNode target, Parameters parameters)
+    public String getCategory() {
+        return ProofRuleCategories.DEBUG;
+    }
+
+    @Override
+    public ProofRuleApplication makeApplicationImpl(ProofNode target, Parameters parameters)
             throws RuleException {
 
         ProofRuleApplicationBuilder builder = new ProofRuleApplicationBuilder(this);
@@ -43,31 +48,12 @@ public class FakeSMTSolverRule extends AbstractProofRule {
 
     private ProofRuleApplication refine(ProofRuleApplication app, Sequent sequent) {
 
-        boolean decision = sequent.toString().hashCode() % 2 == 0;
-
-        if (!decision) {
-            return ProofRuleApplicationBuilder.notApplicable(this);
-        } else {
-            ProofRuleApplicationBuilder builder = new ProofRuleApplicationBuilder(app);
-            builder.setRefiner(null)
-                    .setApplicability(Applicability.APPLICABLE)
-                    .setClosing();
-            return builder.build();
-        }
-    }
-
-    @Override
-    public ProofRuleApplication makeApplicationImpl(ProofNode target, Parameters parameters) throws RuleException {
         boolean decision;
-        if(parameters.hasValue(CLOSE_PARAM)) {
+        Parameters parameters = app.getParameters();
+        if (parameters.hasValue(CLOSE_PARAM)) {
             decision = parameters.getValue(CLOSE_PARAM);
         } else {
-            decision
-                    = target.getSequent().toString().hashCode() % 2 == 0;
-        }
-
-        if (!decision) {
-            return ProofRuleApplicationBuilder.notApplicable(this);
+            decision = sequent.toString().hashCode() % 2 == 0;
         }
 
         if(parameters.hasValue(SLEEP_PARAM)) {
@@ -79,12 +65,15 @@ public class FakeSMTSolverRule extends AbstractProofRule {
             }
         }
 
-        ProofRuleApplicationBuilder builder = new ProofRuleApplicationBuilder(this);
-        builder.setRefiner(null)
-                .setApplicability(Applicability.APPLICABLE)
-                .setClosing();
-
-        return builder.build();
+        if (!decision) {
+            return ProofRuleApplicationBuilder.notApplicable(this);
+        } else {
+            ProofRuleApplicationBuilder builder = new ProofRuleApplicationBuilder(app);
+            builder.setRefiner(null)
+                    .setApplicability(Applicability.APPLICABLE)
+                    .setClosing();
+            return builder.build();
+        }
     }
 
 }

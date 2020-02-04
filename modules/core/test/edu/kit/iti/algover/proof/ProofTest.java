@@ -25,6 +25,32 @@ import java.util.Collections;
 
 public class ProofTest {
 
+    private static Project project;
+
+    @BeforeClass
+    public static void setup() throws Exception {
+        project = TestUtil.mockProject("method m() ensures true {}");
+    }
+
+    @AfterClass
+    public static void tearDown() {
+        project = null;
+    }
+
+    private Proof makeProof(String termStr) throws Exception {
+        BuiltinSymbols symboltable = new BuiltinSymbols();
+        TermBuilder tb = new TermBuilder(symboltable);
+        MockPVCBuilder pb = new MockPVCBuilder();
+        pb.setDeclaration(project.getMethod("m"));
+        pb.setSymbolTable(symboltable);
+        Term term = TermParser.parse(symboltable, termStr);
+        pb.setSequent(Sequent.singleSuccedent(new ProofFormula(term)));
+        pb.setPathIdentifier("test");
+        pb.setReferenceMap(Collections.emptyMap());
+        PVC pvc = pb.build();
+        return new Proof(project, pvc);
+    }
+
     @Test
     public void getScript() throws Exception {
         Proof p = makeProof("true");

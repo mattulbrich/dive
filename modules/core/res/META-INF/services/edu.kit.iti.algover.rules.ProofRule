@@ -2,19 +2,17 @@
 # Rule formulated as lemmas in Dafny are created separately.
 
 edu.kit.iti.algover.rules.impl.FakeSMTSolverRule
-edu.kit.iti.algover.rules.impl.TrivialAndRight
+edu.kit.iti.algover.rules.impl.AndRightRule
 edu.kit.iti.algover.rules.impl.PropositionalExpansionRule
 edu.kit.iti.algover.rules.impl.LetSubstitutionRule
 edu.kit.iti.algover.rules.impl.TestTrueAssumption
-edu.kit.iti.algover.rules.impl.RemoveAssumptionRule
 edu.kit.iti.algover.rules.impl.CloseRule
 edu.kit.iti.algover.rules.impl.Z3Rule
 edu.kit.iti.algover.rules.impl.SkipRule
-edu.kit.iti.algover.rules.impl.FailRule
 edu.kit.iti.algover.rules.impl.OrLeftRule
 edu.kit.iti.algover.rules.impl.NotLeftRule
 edu.kit.iti.algover.rules.impl.AndLeftRule
-edu.kit.iti.algover.rules.impl.ModusPonensRule
+edu.kit.iti.algover.rules.impl.ImpLeftRule
 edu.kit.iti.algover.rules.impl.ModusTollensRule
 edu.kit.iti.algover.rules.impl.OrRightRule
 edu.kit.iti.algover.rules.impl.AddHypothesisRule
@@ -24,8 +22,7 @@ edu.kit.iti.algover.rules.impl.FunctionDefinitionExpansionRule
 edu.kit.iti.algover.rules.impl.QuantifierInstantiation
 edu.kit.iti.algover.rules.impl.BranchCutRule
 edu.kit.iti.algover.rules.impl.SkolemizationRule
-edu.kit.iti.algover.rules.impl.IntegerSimplification
-edu.kit.iti.algover.rules.impl.PlusZeroRule
-edu.kit.iti.algover.rules.impl.TimesOneRule
-edu.kit.iti.algover.rules.impl.TimesZeroRule
-#edu.kit.iti.algover.rules.impl.ForallRightRule
+edu.kit.iti.algover.rules.impl.RemoveAssumptionRule
+# Currently deactivated
+# edu.kit.iti.algover.rules.impl.IntegerSimplification
+edu.kit.iti.algover.rules.impl.AssumeRule

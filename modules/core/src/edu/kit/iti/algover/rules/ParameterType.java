@@ -8,6 +8,8 @@ package edu.kit.iti.algover.rules;
 import java.math.BigInteger;
 
 import edu.kit.iti.algover.term.Term;
+import edu.kit.iti.algover.term.prettyprint.PrettyPrint;
+import edu.kit.iti.algover.util.Util;
 
 /**
  * This is an explicit enumeration type. Since type parameters are used, it is
@@ -20,38 +22,65 @@ import edu.kit.iti.algover.term.Term;
  * support switch-case-statements.
  *
  * @param <T> the Java type which is associated with the script type
+ *
+ * @author Mattias Ulbrich
  */
-public class ParameterType<T> {
+public abstract class ParameterType<T> {
 
     /**
      * The type to capture match-terms in parameters in scripts
      */
     public static final ParameterType<TermParameter> MATCH_TERM =
-            new ParameterType<>("MatchTerm", TermParameter.class);
+            new ParameterType<>("MatchTerm", TermParameter.class) {
+                @Override
+                public String prettyPrint(PrettyPrint prettyPrint, TermParameter value) {
+                    return prettyPrintTerm(prettyPrint, value);
+                }
+            };
 
     /**
      * The type to capture terms in parameters in scripts
      */
     public static final ParameterType<TermParameter> TERM =
-            new ParameterType<>("Term", TermParameter.class);
+            new ParameterType<>("Term", TermParameter.class) {
+                @Override
+                public String prettyPrint(PrettyPrint prettyPrint, TermParameter value) {
+                    return prettyPrintTerm(prettyPrint, value);
+                }
+            };
 
     /**
      * The type to capture integers in parameters in scripts
      */
     public static final ParameterType<BigInteger> INTEGER =
-            new ParameterType<>("Integer", BigInteger.class);
+            new ParameterType<>("Integer", BigInteger.class) {
+                @Override
+                public String prettyPrint(PrettyPrint prettyPrint, BigInteger value) {
+                    return value.toString();
+                }
+            };
 
     /**
      * The type to capture booleans in parameters in scripts
      */
     public static final ParameterType<Boolean> BOOLEAN =
-            new ParameterType<>("Boolean", Boolean.class);
+            new ParameterType<>("Boolean", Boolean.class) {
+                @Override
+                public String prettyPrint(PrettyPrint prettyPrint, Boolean value) {
+                    return value.toString();
+                }
+            };
 
     /**
      * The type to capture strings in parameters in scripts
      */
     public static final ParameterType<String> STRING =
-            new ParameterType<>("String", String.class);
+            new ParameterType<>("String", String.class) {
+                @Override
+                public String prettyPrint(PrettyPrint prettyPrint, String value) {
+                    return Util.quote(Util.escapeString(value));
+                }
+            };
 
     /**
      * The readable name of the parameter type.
@@ -85,5 +114,27 @@ public class ParameterType<T> {
     @Override
     public String toString() {
         return getName();
+    }
+
+    public abstract String prettyPrint(PrettyPrint prettyPrint, T value);
+
+    private static String prettyPrintTerm(PrettyPrint prettyPrint, TermParameter parameter) {
+        String pp;
+        // TODO This case distinction is ugly.
+        // TODO Make this into term parameter and optimise
+        if (parameter.getOriginalTerm() != null) {
+            pp = prettyPrint.print(parameter.getOriginalTerm()).toString();
+        } else if (parameter.getOriginalSchematicTerm() != null) {
+            pp = prettyPrint.print(parameter.getOriginalSchematicTerm()).toString();
+        } else {
+            try {
+                pp = prettyPrint.print(parameter.getSchematicSequent()).toString();
+            } catch (RuleException e) {
+                // FIXME
+                e.printStackTrace();
+                pp = "UNKNOWN";
+            }
+        }
+        return "'" + pp + "'";
     }
 }

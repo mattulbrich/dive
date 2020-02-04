@@ -46,7 +46,7 @@ public class InsertBranchesAction extends BarAction implements Initialisable {
     }
 
     private String makeCases(ProofNodeCheckpoint cp) {
-        ProofRuleApplication pra = cp.getProofNode().getPsr();
+        ProofRuleApplication pra = cp.getProofNode().getProofRuleApplication();
 
         StringBuilder sb = new StringBuilder("\ncases {\n");
         for (ProofNode child : cp.getProofNode().getChildren()) {

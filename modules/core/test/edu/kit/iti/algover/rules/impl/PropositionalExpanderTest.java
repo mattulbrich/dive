@@ -5,11 +5,18 @@
  */
 package edu.kit.iti.algover.rules.impl;
 
+import static junit.framework.TestCase.assertTrue;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 
+import edu.kit.iti.algover.parser.DafnyException;
+import edu.kit.iti.algover.parser.DafnyParserException;
+import edu.kit.iti.algover.proof.ProofFormula;
+import edu.kit.iti.algover.term.Sequent;
 import junitparams.JUnitParamsRunner;
 import junitparams.Parameters;
 
@@ -83,5 +90,51 @@ public class PropositionalExpanderTest {
         ImmutableList<?> result = pex.expand(formula, polarity, allowSplit);
 
         assertEquals(expected, result.toString());
+    }
+
+    @Test
+    public void testSequentExpansion() throws Exception {
+        PropositionalExpander pex = new PropositionalExpander();
+        Term and = TermParser.parse(symbTable, "a && b");
+        Term or = TermParser.parse(symbTable, "c || d");
+        boolean r;
+        r = pex.expand(new ProofFormula(and), SequentPolarity.ANTECEDENT, true);
+        assertTrue(r);
+        r = pex.expand(new ProofFormula(or), SequentPolarity.ANTECEDENT, true);
+        assertTrue(r);
+        r = pex.expand(new ProofFormula(and), SequentPolarity.SUCCEDENT, true);
+        assertTrue(r);
+        r = pex.expand(new ProofFormula(or), SequentPolarity.SUCCEDENT, true);
+        assertTrue(r);
+
+        List<Sequent> sequents = pex.getSequents();
+        int i = 0;
+        assertEquals("a, b, c |- a, c, d", sequents.get(i++).toString());
+        assertEquals("a, b, d |- a, c, d", sequents.get(i++).toString());
+        assertEquals("a, b, c |- b, c, d", sequents.get(i++).toString());
+        assertEquals("a, b, d |- b, c, d", sequents.get(i++).toString());
+        assertEquals(i, sequents.size());
+    }
+
+    // revealed a bug
+    @Test
+    public void testSequentExpansionNoSplit() throws Exception {
+        PropositionalExpander pex = new PropositionalExpander();
+        Term and = TermParser.parse(symbTable, "a && b");
+        Term or = TermParser.parse(symbTable, "c || d");
+        boolean r;
+        r = pex.expand(new ProofFormula(and), SequentPolarity.ANTECEDENT, false);
+        assertTrue(r);
+        r = pex.expand(new ProofFormula(or), SequentPolarity.ANTECEDENT, false);
+        assertFalse(r);
+        r = pex.expand(new ProofFormula(and), SequentPolarity.SUCCEDENT, false);
+        assertFalse(r);
+        r = pex.expand(new ProofFormula(or), SequentPolarity.SUCCEDENT, false);
+        assertTrue(r);
+
+        List<Sequent> sequents = pex.getSequents();
+        int i = 0;
+        assertEquals("a, b |- c, d", sequents.get(i++).toString());
+        assertEquals(i, sequents.size());
     }
 }

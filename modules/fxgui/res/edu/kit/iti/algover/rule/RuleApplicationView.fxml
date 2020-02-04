@@ -1,34 +1,47 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import java.lang.*?>
-<?import java.util.*?>
-<?import javafx.scene.*?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
 <?import javafx.geometry.Insets?>
 <?import edu.kit.iti.algover.rule.RuleGrid?>
+<?import com.jfoenix.controls.JFXRadioButton?>
 <SplitPane
         xmlns="http://javafx.com/javafx"
         xmlns:fx="http://javafx.com/fxml"
         orientation="VERTICAL"
-        dividerPositions="0.7"
+        dividerPositions="0.5"
         fx:id="splitPane">
     <VBox spacing="4">
         <padding><Insets topRightBottomLeft="10" /></padding>
 
-        <HBox spacing="10">
+        <!--
+           Here the RuleApplicationController is going to insert a new VirtualizedScrollPane(new ScriptView(...)),
+           but it can't be done in FXML because of constructor args...
+           -->
+        <VBox spacing="10">
+            <padding><Insets top="10" bottom="10" right="10" left="10"></Insets></padding>
             <Label text="Rules" styleClass="display-1" minWidth="-Infinity" minHeight="-Infinity" />
-            <Label fx:id="termToConsider" styleClass="code" alignment="CENTER">
-                <HBox.margin><Insets topRightBottomLeft="4" /></HBox.margin>
+            <Label fx:id="termToConsider" styleClass="code" alignment="CENTER" style="-fx-border-color:gray; -fx-border-style: solid;">
+                <padding><Insets topRightBottomLeft="4" /></padding>
             </Label>
-        </HBox>
+        </VBox>
+        <padding><Insets top="10" bottom="10" right="10" left="10"></Insets></padding>
+        <HBox fx:id="toggleBar" spacing="20">
+            <padding><Insets top="10" bottom="10" right="10" left="10"></Insets></padding>
 
-        <RuleGrid fx:id="ruleGrid" VBox.vgrow="ALWAYS"/>
+            <JFXRadioButton fx:id="sortAlpha" visible="true" text="Alphabetical"/>
+            <JFXRadioButton fx:id="sortBranching" visible="true" text="Number of Branches"/>
+
+        </HBox>
+        <BorderPane>
+            <center>
+                <ScrollPane fitToWidth="true">
+                    <RuleGrid fx:id="ruleGrid"/>
+                </ScrollPane>
+            </center>
+        </BorderPane>
 
     </VBox>
-    <!--
-    Here the RuleApplicationController is going to insert a new VirtualizedScrollPane(new ScriptView(...)),
-    but it can't be done in FXML because of constructor args...
-    -->
+
 </SplitPane>

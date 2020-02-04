@@ -41,6 +41,11 @@ public class InterpreterRuntimeException extends RuntimeException {
         super(message, cause);
     }
 
+    public InterpreterRuntimeException(String message, ASTNode location) {
+        super(message);
+        this.location = location;
+    }
+
     public InterpreterRuntimeException(Throwable cause) {
         super(cause);
     }

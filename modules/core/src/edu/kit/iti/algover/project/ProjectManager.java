@@ -5,6 +5,8 @@
  */
 package edu.kit.iti.algover.project;
 
+import edu.kit.iti.algover.dafnystructures.DafnyDecl;
+import edu.kit.iti.algover.dafnystructures.DafnyFile;
 import edu.kit.iti.algover.parser.DafnyException;
 import edu.kit.iti.algover.parser.DafnyParserException;
 import edu.kit.iti.algover.proof.PVC;

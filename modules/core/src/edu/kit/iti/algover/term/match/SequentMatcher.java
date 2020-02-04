@@ -14,7 +14,7 @@ public class SequentMatcher {
     private TermMatcher tm = new TermMatcher();
 
     /**
-     * Matches a schematic seuqent against a concrete sequent
+     * Matches a schematic sequent against a concrete sequent
      *
      * @param schema
      * @param seq

@@ -1,0 +1,9 @@
+(COMPILATION_UNIT[class-<EOF>]
+ (class[class-}] C[C-C]
+                 (FIELD[var-;] x[x-x] (TYPE[int-int] int[int-int]))
+                 (FUNCTION[function-}]
+                  f[f-f] ARGS[ARGS-ARGS]
+                  (RETURNS[int-int] int[int-int])
+                  (requires[requires-true] true[true-true])
+                  (reads[reads-this] this[this-this])
+                  (+[this-1] (FIELD_ACCESS[this-x] this[this-this] x[x-x]) 1[1-1]))))

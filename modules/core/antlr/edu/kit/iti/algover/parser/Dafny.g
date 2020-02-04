@@ -109,6 +109,7 @@ OBJECT : 'object';
 OLD : 'old';
 // PREDICATE : 'predicate';
 PRINT : 'print';
+READS : 'reads';
 REQUIRES: 'requires';
 RETURN : 'return';
 RETURNS : 'returns';
@@ -185,8 +186,8 @@ STRING_LIT :
 
 
 WS : (' '|'\t'|'\n'|'\r')                { $channel = HIDDEN; };
-ALGOVER_COMMENT: '//\\\\'                { $channel = HIDDEN; };
-SINGLELINE_COMMENT: '//' ( '\\'? ~('\\'|'\r'|'\n') ~('\r' | '\n')* )?
+ALGOVER_COMMENT: '//>'                { $channel = HIDDEN; };
+SINGLELINE_COMMENT: '//' ( ~('>'|'\r'|'\n') ~('\r' | '\n')* )?
                                          { $channel = HIDDEN; };
 MULTILINE_COMMENT: '/*' .* '*/'          { $channel = HIDDEN; };
 
@@ -250,10 +251,10 @@ method:
 function:
   'function' 'method'?
   ID '(' vars? ')' ':' type
-    ( requires | ensures | decreases )*
+    ( requires | ensures | decreases | reads )*
   '{' expression '}'
   ->
-    ^(FUNCTION ID ^(ARGS vars?) ^(RETURNS type) requires* ensures* decreases*
+    ^(FUNCTION ID ^(ARGS vars?) ^(RETURNS type) requires* ensures* decreases* reads*
         expression)
   ;
 
@@ -306,6 +307,10 @@ invariant:
 
 modifies:
   MODIFIES^ expressions
+  ;
+
+reads:
+  READS^ expressions
   ;
 
 block:
