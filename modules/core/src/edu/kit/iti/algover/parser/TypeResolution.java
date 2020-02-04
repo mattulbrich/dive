@@ -325,6 +325,13 @@ public class TypeResolution extends DafnyTreeDefaultVisitor<DafnyTree, Void> {
         return visitEQ(t, a);
     }
 
+    @Override
+    public DafnyTree visitIN(DafnyTree t, Void aVoid) {
+        // TODO Make this real ... for seq, set, maps, ...
+        visitDepth(t);
+        t.setExpressionType(BOOL_TYPE);
+        return BOOL_TYPE;
+    }
 
     @Override
     public DafnyTree visitLE(DafnyTree t, Void a) {
@@ -366,7 +373,8 @@ public class TypeResolution extends DafnyTreeDefaultVisitor<DafnyTree, Void> {
         DafnyTree type = arg.accept(this, null);
 
         if (type.getType() != DafnyParser.SET &&
-                type.getType() != DafnyParser.SEQ) {
+                type.getType() != DafnyParser.SEQ &&
+                type.getType() != DafnyParser.MAP) {
             exceptions.add(new DafnyException(
                     "Only sets and sequences have a cardinality", t));
         }
@@ -403,6 +411,12 @@ public class TypeResolution extends DafnyTreeDefaultVisitor<DafnyTree, Void> {
             return visitARRAY_ACCESS_DOTDOT(t, receiver);
         }
 
+        DafnyTree recvType = receiver.accept(this, null);
+        // Special casing map access
+        if (recvType.getType() == DafnyParser.MAP) {
+            return visitMAP_ACCESS(t);
+        }
+
         for(int i = 1; i < t.getChildCount(); i++) {
             DafnyTree index = t.getChild(i);
             DafnyTree indexType = index.accept(this, null);
@@ -413,8 +427,7 @@ public class TypeResolution extends DafnyTreeDefaultVisitor<DafnyTree, Void> {
             }
         }
 
-        DafnyTree recvType = receiver.accept(this, null);
-        String typeName = TreeUtil.toSort(recvType).getName();
+        String typeName = ASTUtil.toSort(recvType).getName();
         switch(typeName) {
         case "array":
         case "seq":
@@ -443,6 +456,28 @@ public class TypeResolution extends DafnyTreeDefaultVisitor<DafnyTree, Void> {
         DafnyTree ty = recvType.getChild(0);
         t.setExpressionType(ty);
         return ty;
+    }
+
+    private DafnyTree visitMAP_ACCESS(DafnyTree t) {
+
+        if(t.getChildCount() != 2) {
+            exceptions.add(new DafnyException(
+                        "A map access requires only one argument", t));
+        }
+
+        // receiver is already visited.
+        Sort recSort = ASTUtil.toSort(t.getChild(0).accept(this, null));
+        Sort argSort = ASTUtil.toSort(t.getChild(1).accept(this, null));
+
+        if (!argSort.isSubtypeOf(recSort.getArgument(0))) {
+            exceptions.add(new DafnyException(
+                    "Map expected " + recSort.getArgument(0) + ", but received "
+                    + argSort + " in access term", t));
+        }
+
+        DafnyTree result = ASTUtil.fromSort(recSort.getArgument(1));
+        t.setExpressionType(result);
+        return result;
     }
 
     private DafnyTree visitARRAY_ACCESS_DOTDOT(DafnyTree t, DafnyTree receiver) {

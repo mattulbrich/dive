@@ -286,11 +286,19 @@ public class SymbexExpressionValidator {
     private void addIndexInRangeCheck(DafnyTree idx, @Nullable DafnyTree array,
                                      String arrayLengthSuffix,
                                       Function<DafnyTree, DafnyTree> wrapper) {
-        SymbexPath bounds = new SymbexPath(state);
-        DafnyTree check = ASTUtil.lessEqual(ASTUtil.intLiteral(0), idx);
-        if (array != null) {
-            check = ASTUtil.and(check, ASTUtil.less(idx, ASTUtil.length(array, arrayLengthSuffix)));
+        DafnyTree check;
+        if (array.getExpressionType().getType() == DafnyParser.MAP) {
+            if (array == null) {
+                return;
+            }
+            check = ASTUtil.in(idx, array);
+        } else {
+            check = ASTUtil.lessEqual(ASTUtil.intLiteral(0), idx);
+            if (array != null) {
+                check = ASTUtil.and(check, ASTUtil.less(idx, ASTUtil.length(array, arrayLengthSuffix)));
+            }
         }
+        SymbexPath bounds = new SymbexPath(state);
         check = wrapper.apply(check);
         bounds.setProofObligation(check, idx, AssertionType.RT_IN_BOUNDS);
         bounds.setBlockToExecute(Symbex.EMPTY_PROGRAM);
@@ -303,8 +311,9 @@ public class SymbexExpressionValidator {
             return;
         }
 
-        if (expression.getExpressionType().getText().equals("seq")) {
-            // No check for seq, olny for array.
+        String typeName = expression.getExpressionType().getText();
+        if (typeName.equals("seq") || typeName.equals("map")) {
+            // No check for seq or maps, only for array.
             return;
         }
 

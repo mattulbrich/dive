@@ -257,6 +257,15 @@ public class BuiltinSymbols extends MapSymbolTable {
             new FunctionSymbolFamily(
                     new FunctionSymbol("$map_card", Sort.INT, MAP12), 2);
 
+    public static final FunctionSymbolFamily MAP_IN =
+            new FunctionSymbolFamily(
+                    new FunctionSymbol("$map_in", Sort.BOOL, FunctionSymbolFamily.VAR1, MAP12), 2);
+
+    public static final FunctionSymbolFamily MAP_GET =
+            new FunctionSymbolFamily(
+                    new FunctionSymbol("$map_get", FunctionSymbolFamily.VAR2, MAP12,
+                            FunctionSymbolFamily.VAR1), 2);
+
     private static final Sort SET_OBJECTS = Sort.get("set", Sort.OBJECT);
 
     public static final FunctionSymbol EVERYTHING =

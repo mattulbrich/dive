@@ -10,6 +10,8 @@ import edu.kit.iti.algover.data.SymbolTable;
 import edu.kit.iti.algover.term.*;
 import edu.kit.iti.algover.term.QuantTerm.Quantifier;
 
+import java.util.List;
+
 public class TermBuilder {
 
     public final Term zero;
@@ -274,5 +276,18 @@ public class TermBuilder {
         Sort inst = arrayTerm.getSort().getArgument(0);
         FunctionSymbol f = symbolTable.getFunctionSymbol(BuiltinSymbols.ARRAY_TO_SEQ, inst);
         return new ApplTerm(f, heapTerm, arrayTerm);
+    }
+
+    public Term anyTerm() {
+        return SchemaVarTerm.newUnnamedInstance();
+    }
+
+    public Term mapGet(Term map, Term index) throws TermBuildException {
+        assert map.getSort().getName().equals("map");
+        List<Sort> argSorts = map.getSort().getArguments();
+        FunctionSymbol mapget =
+                symbolTable.getFunctionSymbol(BuiltinSymbols.MAP_GET, argSorts.get(0), argSorts.get(1));
+
+        return new ApplTerm(mapget, map, index);
     }
 }

@@ -156,6 +156,7 @@ public class MethodPVCBuilder implements PVCBuilder {
                         sequenter.translate(pathThroughProgram, getSymbolTable(), referenceMap);
             } catch (DafnyException e) {
             	e.getTree().setFilename(declaration.getFilename());
+            	// FIXME FIXME
                 throw new RuntimeException(e);
             }
         }

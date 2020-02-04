@@ -134,7 +134,7 @@ class C
       i := i % 2;
    }
 
-   // this fails!
+   // this fails! Non failing version further below
    method arrays() {
       var a : array<int>;
       var a2 : array2<int>;
@@ -211,10 +211,14 @@ class C
    }
 
    method arrays2() {
+     var a1: array<int>;
      var a : array2<int>;
      var i : int;
      var j : int;
 
+     i := a1[0];
+     a1[1] := 2;
+     
      i := a[0, 0];
      a[i, j] := i;
 
@@ -312,11 +316,13 @@ class C
       m := map[];
       m := map[5:=true];
       m := m[3:=false];
+      var i := m[42];
 
       var om: map<object, object>;
       om := map[null := null];
       om := om[this := null];
       om := om[null := this];
+      var x := om[null];
 
       var d: D;
       var widenedMap := map[d := this][this := d];
@@ -332,6 +338,7 @@ class C
    {
       var m := map[1 := 2, true := 3];
    }
+   
 }
 
 class D {}

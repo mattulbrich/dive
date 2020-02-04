@@ -198,6 +198,7 @@ public class TreeTermTranslatorTest {
             { "iseq[0..2]", "$seq_sub<int>(iseq, 0, 2)" },
             { "iseq[..2]", "$seq_sub<int>(iseq, 0, 2)" },
             { "iseq[1..]", "$seq_sub<int>(iseq, 1, $seq_len<int>(iseq))" },
+            { "ibmap[1]", "$map_get<int,bool>(ibmap, 1)" },
             { "ibmap[1:=true]", "$map_update<int,bool>(ibmap, 1, true)" },
             { "ibmap[1:=true, 2:=false]", "$map_update<int,bool>($map_update<int,bool>(ibmap, 1, true), 2, false)" },
             { "map[]", "$map_empty" },

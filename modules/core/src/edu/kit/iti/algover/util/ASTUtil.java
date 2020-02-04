@@ -538,4 +538,7 @@ public final class ASTUtil {
         return result;
     }
 
+    public static DafnyTree in(DafnyTree element, DafnyTree container) {
+        return create(DafnyParser.IN, element, container);
+    }
 }

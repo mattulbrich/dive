@@ -361,6 +361,9 @@ public class TreeTermTranslator {
                 case "set":
                     return symbolTable.getFunctionSymbol(
                             BuiltinSymbols.SET_IN, y.getSort().getArgument(0));
+                case "map":
+                    return symbolTable.getFunctionSymbol(
+                            BuiltinSymbols.MAP_IN, y.getSort().getArgument(0), y.getSort().getArgument(1));
                 default:
                     throw new Error("Not yet implemented");
                 }
@@ -372,6 +375,12 @@ public class TreeTermTranslator {
 
         case DafnyParser.NOT:
             result = buildUnary(BuiltinSymbols.NOT, tree);
+            break;
+
+        case DafnyParser.EQUIV:
+            result = buildBinary(
+                    (x,y) -> symbolTable.getFunctionSymbol(BuiltinSymbols.EQ, Sort.BOOL),
+                    tree);
             break;
 
         case DafnyParser.EQ:
@@ -654,7 +663,7 @@ public class TreeTermTranslator {
 
         case "seq":
             if (tree.getChildCount() != 2) {
-                throw new TermBuildException("Access to 'array2' requires two index arguments");
+                throw new TermBuildException("Access to 'seq' requires one index argument");
             }
 
             indexTree = tree.getChild(1);
@@ -665,6 +674,14 @@ public class TreeTermTranslator {
                 return tb.seqGet(arrayTerm, indexTerm);
             }
 
+        case "map":
+            if (tree.getChildCount() != 2) {
+                throw new TermBuildException("Access to 'map' requires one index argument");
+            }
+
+            indexTree = tree.getChild(1);
+            indexTerm = build(indexTree);
+            return tb.mapGet(arrayTerm, indexTerm);
 
         case "array2":
             if (tree.getChildCount() != 3) {
@@ -697,8 +714,8 @@ public class TreeTermTranslator {
 
             return new ApplTerm(fs, arguments);
 
-            default:
-                throw new TermBuildException("Unsupported array sort: " + arraySort);
+        default:
+            throw new TermBuildException("Unsupported array sort: " + arraySort);
         }
     }
 
