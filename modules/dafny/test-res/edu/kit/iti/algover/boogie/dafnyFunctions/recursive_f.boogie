@@ -39,6 +39,7 @@ axiom (forall v0: Heap :: (forall v1: int ::  $Is(f_$$f$limited(v0, v1), TInt) )
 axiom (forall v0: Heap :: (forall v1: int ::  $Is(f_$$h(v0, v1), TInt) ));
 axiom (forall var_x:int, var_heap:Heap :: {f_$$g(var_heap, var_x)} (f_$$g(var_heap, var_x) == (f_$$f$limited(_$heap, var_x) + f_$$h(_$heap, var_x))));
 axiom (forall var_x:int, var_heap:Heap :: {f_$$h(var_heap, var_x)} (f_$$h(var_heap, var_x) == 0));
+axiom (forall var_v1:int, var_v0:Heap :: {f_$$f(var_v0, var_v1)} (f_$$f(var_v0, var_v1) == f_$$f$limited(var_v0, var_v1)));
 
 procedure Sequent()
   ensures false;
