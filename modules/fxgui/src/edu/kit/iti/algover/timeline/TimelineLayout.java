@@ -98,53 +98,8 @@ public class TimelineLayout extends HiddenSidesPane {
         moveFrameRight();
     }
 
-    private boolean goToView(int viewIndex) {
-        /*if (this.framePosition < viewIndex) {
-            do {
-                moveFrameRight();
-            } while (this.framePosition < viewIndex);
-            return true;
-        }
-
-        if (this.framePosition > viewIndex) {
-            do {
-                moveFrameLeft();
-            } while (this.framePosition > viewIndex);
-            return true;
-        }*/
-
-        int delta = viewIndex - framePosition;
-
-        Node neighbourNode = null;
-        // don't move
-        if (delta == 0) {
-            return false;
-        } if (delta > 0) { // move right
-            neighbourNode = nodes.get(framePosition);
-        } else { // move left
-            neighbourNode = nodes.get(framePosition + 1);
-        }
-
-        System.out.println("div pos " + splitPane.getDividerPositions().length);
-        double divider = splitPane.getDividerPositions()[0];
-        double neighbourNodeWidth = neighbourNode.getBoundsInParent().getWidth();
-
-        framePosition += delta;
-
-        updateFrame();
-
-        if (Math.abs(delta) % 2 == 0) {
-            setDividerPosition(divider);
-        } else if (Math.abs(delta) % 2 == 1) {
-            setDividerPosition(1 - divider);
-        }
-        splitPane.setTranslateX(delta * neighbourNodeWidth);
-        animate(splitPane.translateXProperty(), 0);
-
-        return true;
-    }
-
     public boolean moveFrameRight() {
+
         if (framePosition >= nodes.size() - 2) {
             return false;
         }
@@ -191,9 +146,37 @@ public class TimelineLayout extends HiddenSidesPane {
         return true;
     }
 
+    /**
+     * Move to specified View. Now implement as several calls to
+     * move in the right direction.
+     * @param viewIndex Index of target view
+     * @return True if view changed.
+     */
+    private boolean goToView(int viewIndex) {
+        int delta = viewIndex - framePosition;
+
+        if (delta == 0) {
+            return false;
+        }
+
+        if (delta > 0) { // move right
+            while (delta > 0) {
+                moveFrameRight();
+                delta = viewIndex - framePosition;
+            }
+        } else {
+            while (delta < 0) {
+                moveFrameLeft();
+                delta = viewIndex - framePosition;
+            }
+        }
+        return true;
+    }
+
     private <T> void animate(WritableValue<T> value, T target) {
         KeyValue xkeyvalue = new KeyValue(value, target);
         KeyFrame keyframe = new KeyFrame(Duration.millis(200), xkeyvalue);
-        new Timeline(keyframe).play();
+        Timeline tl = new Timeline(keyframe);
+        tl.play();
     }
 }
