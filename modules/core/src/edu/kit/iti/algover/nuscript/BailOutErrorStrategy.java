@@ -3,7 +3,7 @@
  *
  * Copyright (C) 2015-2019 Karlsruhe Institute of Technology
  */
-package edu.kit.iti.algover.script.parser;
+package edu.kit.iti.algover.nuscript;
 
 import org.antlr.v4.runtime.ANTLRErrorListener;
 import org.antlr.v4.runtime.BailErrorStrategy;

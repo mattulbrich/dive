@@ -1,1 +1,0 @@
-substitute type="exhaustive" on='(let i := i_1 :: (let i := $plus(i, 1) :: $and($le(0, i), $le(i, $len<int>(a)))))';

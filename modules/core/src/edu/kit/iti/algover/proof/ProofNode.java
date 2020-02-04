@@ -10,11 +10,6 @@ import edu.kit.iti.algover.data.SymbolTable;
 import edu.kit.iti.algover.nuscript.ast.ScriptAST.Command;
 import edu.kit.iti.algover.rules.BranchInfo;
 import edu.kit.iti.algover.rules.ProofRuleApplication;
-import edu.kit.iti.algover.script.ast.ASTNode;
-import edu.kit.iti.algover.script.ast.Type;
-import edu.kit.iti.algover.script.ast.Variable;
-import edu.kit.iti.algover.script.data.Value;
-import edu.kit.iti.algover.script.data.VariableAssignment;
 import edu.kit.iti.algover.term.Sequent;
 import nonnull.NonNull;
 import nonnull.Nullable;
@@ -25,12 +20,10 @@ import java.util.*;
  * Class represents one proof node. It has a pointer to its parent node and to the children nodes.
  * If no child node exists, the node is either a leaf in the proof tree or a closed branch
  * (is that a good idea, or should we incorporate a field that is true when node is a closed proof node?)
- * *
+ *
+ * @author Sarah Grebing, Mattias Ulbrich
  */
 
-// REVIEW: Add the missing generic parameters! Please!
-
-@SuppressWarnings({"unchecked", "rawtypes"})
 public class ProofNode {
 
     /**

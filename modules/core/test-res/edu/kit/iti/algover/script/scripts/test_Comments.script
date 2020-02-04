@@ -1,0 +1,9 @@
+command /*XXX*/ ; /*XXX*/
+skip
+"string"
+// One line comment
+"other"
+/* multi line
+comment
+*/
+;

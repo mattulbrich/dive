@@ -7,7 +7,6 @@ package edu.kit.iti.algover.rules.impl;
 
 import de.uka.ilkd.pp.NoExceptions;
 import edu.kit.iti.algover.rules.RuleException;
-import edu.kit.iti.algover.script.ast.Variable;
 import edu.kit.iti.algover.term.*;
 import edu.kit.iti.algover.term.builder.TermBuildException;
 import edu.kit.iti.algover.util.ImmutableList;

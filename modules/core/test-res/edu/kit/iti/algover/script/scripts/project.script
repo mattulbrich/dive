@@ -1,8 +1,0 @@
-//fake fake=true;
-andRight on='b1 && b2';
-cases{
-    case "case 1":
-        z3;
-    case "case 2":
-        z3;
-}

@@ -110,7 +110,7 @@ buildVisitor.shouldRunAfter runAntlr3
 
 compileJava.dependsOn runAntlr3
 compileJava.dependsOn buildVisitor
-compileJava.dependsOn runAntlr4
+// compileJava.dependsOn runAntlr4
 compileJava.dependsOn runAntlr4Nu
 
 

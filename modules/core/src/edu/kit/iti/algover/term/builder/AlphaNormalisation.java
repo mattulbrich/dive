@@ -6,7 +6,6 @@
 package edu.kit.iti.algover.term.builder;
 
 import de.uka.ilkd.pp.NoExceptions;
-import edu.kit.iti.algover.script.ast.Variable;
 import edu.kit.iti.algover.term.ApplTerm;
 import edu.kit.iti.algover.term.DefaultTermVisitor;
 import edu.kit.iti.algover.term.LetTerm;

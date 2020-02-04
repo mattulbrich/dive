@@ -40,8 +40,6 @@ import javafx.application.Platform;
 import javafx.beans.value.ObservableValue;
 import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
-import javafx.scene.Parent;
-import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.*;
@@ -271,7 +269,7 @@ public class MainController implements SequentActionListener, RuleApplicationLis
                     Proof p = manager.getProofForPVC(pvcName);
                     p.interpretScript();
                     if (p.getProofStatus() != ProofStatus.CLOSED) {
-                        String oldScript = p.getScript();
+                        String oldScript = p.getScriptText();
                         String script = "boogie;\n";
                         p.setScriptTextAndInterpret(script);
                         if (p.getFailException() != null) {

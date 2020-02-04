@@ -101,7 +101,7 @@ public class TestRuleApplicator {
         System.out.println(testSequent);
 
         ProofRule pr = new AndRightRule();
-        ProofNode pn = new ProofNode(null, null, testSequent, null);
+        ProofNode pn = new ProofNode(null, null, null, null, testSequent, null);
 
         TermSelector ts = new TermSelector(TermSelector.SequentPolarity.SUCCEDENT, 1);
         Parameters params = new Parameters();

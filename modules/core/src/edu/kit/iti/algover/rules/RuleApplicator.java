@@ -52,7 +52,8 @@ public class RuleApplicator {
         ImmutableList<BranchInfo> applicationInfos = proofRuleApplication.getBranchInfo();
         if (applicationInfos.equals(BranchInfo.UNCHANGED)) {
             //SaG -> MU: why create a new object?
-            ProofNode unchanged = new ProofNode(pn, proofRuleApplication, pn.getSequent(), pn.getPVC());
+            ProofNode unchanged = new ProofNode(pn, proofRuleApplication,
+                    "TODO", null, pn.getSequent(), pn.getPVC());
             //pn.getChildren().add(unchanged);
             List<ProofNode> retList = new ArrayList<>();
             retList.add(unchanged);
@@ -71,10 +72,10 @@ public class RuleApplicator {
             Sequent newSequent = null;
             try {
                 newSequent = createNewSequent(branchInfo, sequent);
-                ProofNode pnNew = new ProofNode(pn, proofRuleApplication, newSequent, pn.getPVC());
+                ProofNode pnNew = new ProofNode(pn, proofRuleApplication,
+                        branchInfo.getLabel(), null, newSequent, pn.getPVC());
                 proofRuleApplication.getNewFunctionSymbols().forEach(
                         functionSymbol -> pnNew.getAddedSymbols().addFunctionSymbol(functionSymbol));
-                pnNew.setLabel(branchInfo.getLabel());
                 children.add(pnNew);
 
             } catch (TermBuildException e) {

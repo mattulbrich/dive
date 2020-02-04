@@ -8,15 +8,39 @@
 package edu.kit.iti.algover.nuscript.ast;
 
 import edu.kit.iti.algover.nuscript.ScriptException;
+import edu.kit.iti.algover.nuscript.parser.ScriptParser.SingleCaseContext;
 import edu.kit.iti.algover.util.FunctionWithException;
+import edu.kit.iti.algover.util.Util;
+import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.Token;
 
+import java.io.IOException;
+import java.io.Writer;
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 
 public abstract class ScriptAST {
+
+    private Token end;
+    private Token begin;
+
+    public void setRangeFrom(ParserRuleContext ctx) {
+        this.begin = ctx.start;
+        this.end = ctx.stop;
+    }
+
+    public Token getBeginToken() {
+        return begin;
+    }
+
+    public Token getEndToken() {
+        return end;
+    }
+
+    public abstract void print(Appendable writer, int indentation) throws IOException;
 
     public static class Script extends ScriptAST {
         private List<Statement> statements = new LinkedList<>();
@@ -26,12 +50,25 @@ public abstract class ScriptAST {
         public void addStatement(Statement stmt) {
             statements.add(stmt);
         }
+
+        public <R> void visit(FunctionWithException<Command, R, ScriptException> commandFct,
+                FunctionWithException<Cases, R, ScriptException> casesFct) throws ScriptException {
+            for (Statement statement : statements) {
+                statement.visit(commandFct, casesFct);
+            }
+        }
+
+        public void print(Appendable writer, int indentation) throws IOException {
+            for (Statement statement : statements) {
+                statement.print(writer, indentation);
+            }
+        }
     }
 
-    public static class Statement extends ScriptAST {
+    public abstract static class Statement extends ScriptAST {
         // poor man's version of a visitor....
         // should there be more cases in the future consider using a proper visitor.
-        public <R> R doCommandOrCases(
+        public <R> R visit(
                 FunctionWithException<Command, R, ScriptException> commandFct,
                 FunctionWithException<Cases, R, ScriptException> casesFct) throws ScriptException {
             if (this instanceof Command) {
@@ -47,7 +84,7 @@ public abstract class ScriptAST {
 
     public static class Command extends Statement {
         private Token command;
-        private List<Parameter> parameters;
+        private List<Parameter> parameters = new ArrayList<>();
 
         public void setCommand(Token command) {
             this.command = command;
@@ -59,6 +96,21 @@ public abstract class ScriptAST {
 
         public void addParameter(Parameter p) {
             parameters.add(p);
+        }
+
+        public List<Parameter> getParameters() {
+            return parameters;
+        }
+
+        @Override
+        public void print(Appendable writer, int indentation) throws IOException {
+            writer.append(Util.duplicate("  ", indentation) +
+                command.getText());
+            for (Parameter p : parameters) {
+                writer.append(" ");
+                p.print(writer, indentation);
+            }
+            writer.append(";\n");
         }
     }
 
@@ -81,6 +133,11 @@ public abstract class ScriptAST {
         public Token getValue() {
             return value;
         }
+
+        @Override
+        public void print(Appendable writer, int indentation) throws IOException {
+            writer.append(name.getText() + "=" + value.getText());
+        }
     }
 
     public static class Cases extends Statement {
@@ -88,6 +145,19 @@ public abstract class ScriptAST {
 
         public void addCase(Case cas) {
             cases.add(cas);
+        }
+
+        public List<Case> getCases() {
+            return cases;
+        }
+
+        @Override
+        public void print(Appendable writer, int indentation) throws IOException {
+            writer.append(Util.duplicate("  ", indentation) + "cases {\n");
+            for (Case cas : cases) {
+                cas.print(writer, indentation);
+            }
+            writer.append(Util.duplicate("  ", indentation) + "}\n");
         }
     }
 
@@ -105,6 +175,22 @@ public abstract class ScriptAST {
 
         public void addStatement(Statement stmt) {
             statements.add(stmt);
+        }
+
+        public <R> void visit(FunctionWithException<Command, R, ScriptException> commandFct,
+                              FunctionWithException<Cases, R, ScriptException> casesFct) throws ScriptException {
+            for (Statement statement : statements) {
+                statement.visit(commandFct, casesFct);
+            }
+        }
+
+        @Override
+        public void print(Appendable writer, int indentation) throws IOException {
+            writer.append(Util.duplicate("  ", indentation) + label.getText() + ":\n");
+            indentation ++;
+            for (Statement statement : statements) {
+                statement.print(writer, indentation);
+            }
         }
     }
 

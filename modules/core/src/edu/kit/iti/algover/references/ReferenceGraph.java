@@ -10,6 +10,7 @@ import com.google.common.graph.Graph;
 import com.google.common.graph.GraphBuilder;
 import com.google.common.graph.MutableGraph;
 import edu.kit.iti.algover.dafnystructures.DafnyFile;
+import edu.kit.iti.algover.nuscript.ast.ScriptAST;
 import edu.kit.iti.algover.parser.DafnyTree;
 import edu.kit.iti.algover.proof.Proof;
 import edu.kit.iti.algover.proof.ProofFormula;
@@ -19,7 +20,6 @@ import edu.kit.iti.algover.rules.BranchInfo;
 import edu.kit.iti.algover.rules.ProofRuleApplication;
 import edu.kit.iti.algover.rules.RuleException;
 import edu.kit.iti.algover.rules.TermSelector;
-import edu.kit.iti.algover.script.ast.ASTNode;
 import edu.kit.iti.algover.term.LetTerm;
 import edu.kit.iti.algover.term.Sequent;
 import edu.kit.iti.algover.term.Term;
@@ -187,8 +187,8 @@ public class ReferenceGraph {
      * @param node Script ASTNode which transcribes a rule application
      * @param pNode The proof node to which the proof rule was applied
      */
-    public void addFromScriptNode(ASTNode node, ProofNode pNode, Proof proof) throws RuleException {
-        ScriptReferenceTarget sct = new ScriptReferenceTarget(pNode.getPVC(), node.getStartPosition().getLineNumber(), node);
+    public void addFromScriptNode(ScriptAST node, ProofNode pNode, Proof proof) throws RuleException {
+        ScriptReferenceTarget sct = new ScriptReferenceTarget(pNode.getPVC(), node);
         ScriptReferenceBuilder srb = new ScriptReferenceBuilder(this, sct, pNode, proof);
         srb.buildReferences(pNode.getChildren());
         this.getGraph();

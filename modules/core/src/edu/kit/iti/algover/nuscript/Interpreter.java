@@ -7,19 +7,33 @@
 
 package edu.kit.iti.algover.nuscript;
 
+import edu.kit.iti.algover.nuscript.ast.ScriptAST.Case;
 import edu.kit.iti.algover.nuscript.ast.ScriptAST.Cases;
 import edu.kit.iti.algover.nuscript.ast.ScriptAST.Command;
 import edu.kit.iti.algover.nuscript.ast.ScriptAST.Parameter;
 import edu.kit.iti.algover.nuscript.ast.ScriptAST.Script;
 import edu.kit.iti.algover.nuscript.ast.ScriptAST.Statement;
+import edu.kit.iti.algover.nuscript.parser.ASTVisitor;
+import edu.kit.iti.algover.nuscript.parser.ScriptLexer;
+import edu.kit.iti.algover.nuscript.parser.ScriptParser;
+import edu.kit.iti.algover.parser.DafnyException;
+import edu.kit.iti.algover.parser.DafnyParserException;
 import edu.kit.iti.algover.proof.PVC;
-import edu.kit.iti.algover.proof.Proof;
 import edu.kit.iti.algover.proof.ProofNode;
+import edu.kit.iti.algover.rules.ParameterDescription;
+import edu.kit.iti.algover.rules.Parameters;
 import edu.kit.iti.algover.rules.ProofRule;
 import edu.kit.iti.algover.rules.ProofRuleApplication;
 import edu.kit.iti.algover.rules.RuleApplicator;
 import edu.kit.iti.algover.rules.RuleException;
+import edu.kit.iti.algover.term.parser.TermParser;
+import edu.kit.iti.algover.util.Util;
+import org.antlr.v4.runtime.CharStream;
+import org.antlr.v4.runtime.CharStreams;
+import org.antlr.v4.runtime.CommonTokenStream;
+import org.antlr.v4.runtime.Token;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
@@ -49,43 +63,143 @@ public class Interpreter {
     }
 
     public void interpret(Script script) throws ScriptException {
-        currentNodes = List.of(rootNode);
-
-        for (Statement statement : script.getStatements()) {
-            statement.<Void>doCommandOrCases(this::interpretCommand, this::interpretCases);
-        }
+        currentNodes = singleList(rootNode);
+        script.visit(this::interpretCommand, this::interpretCases);
     }
 
-    private Void interpretCases(Cases cases) {
+    /**
+     * Returns a modifyable singleton list.
+     *
+     * @param e a single value that will be in the list
+     * @return a freshly created list that only contains e
+     */
+    private static <E> List<E> singleList(E e) {
+        List<E> result = new ArrayList<>();
+        result.add(e);
+        return result;
+    }
+
+    private Void interpretCases(Cases cases) throws ScriptException {
+        for (Case cas : cases.getCases()) {
+            ProofNode node = findCase(cas);
+            if (node == null) {
+                throw new ScriptException("Unknown label \"" + cas.getLabel().getText() + "\"", cas);
+            }
+            List<ProofNode> oldCurrent = currentNodes;
+            currentNodes = singleList(node);
+            cas.visit(this::interpretCommand, this::interpretCases);
+            currentNodes = oldCurrent;
+            currentNodes.remove(node);
+        }
+        return null;
+    }
+
+    private ProofNode findCase(Case cas) {
+        String label = Util.stripQuotes(cas.getLabel().getText());
+        for (ProofNode node : currentNodes) {
+            if (node.getLabel().equals(label)) {
+                return node;
+            }
+        }
         return null;
     }
 
     private Void interpretCommand(Command command) throws ScriptException {
 
         if(currentNodes.size() != 1) {
-            throw new ScriptException("Command cannot be applied, there is more than one open goal");
+            throw new ScriptException("Command cannot be applied, there is more than one open goal", command);
         }
 
         ProofNode node = currentNodes.get(0);
 
-        ProofRule rule = knownRules.get(command.getCommand().getText());
+        String commandName = command.getCommand().getText();
+        ProofRule rule = knownRules.get(commandName);
         if (rule == null) {
-            throw new ScriptException();
+            throw new ScriptException("Unknown script command " + commandName, command);
         }
 
         try {
-            ProofRuleApplication proofRuleApplication = rule.makeApplication(node, null);
+            Parameters params = interpretParameters(node, rule, command.getParameters());
+            ProofRuleApplication proofRuleApplication = rule.makeApplication(node, params);
             List<ProofNode> newNodes = RuleApplicator.applyRule(proofRuleApplication, node);
             currentNodes = newNodes;
         } catch (RuleException e) {
-            throw new ScriptException(e);
+            throw new ScriptException(e, command);
         }
 
         return null;
     }
 
-    private void interpretParameters(List<Parameter>) {
-        
+    private Parameters interpretParameters(ProofNode node, ProofRule rule, List<Parameter> params) throws ScriptException {
+        Parameters result = new Parameters();
+        Map<String, ParameterDescription<?>> knownParams = rule.getAllParameters();
+        for (Parameter param : params) {
+
+            String paramName = param.getName().getText();
+            ParameterDescription<?> knownParam = knownParams.get(paramName);
+
+            if (knownParam == null) {
+                throw new ScriptException("Unknown parameter " + paramName, param);
+            }
+
+            Token value = param.getValue();
+            Object obj;
+            switch (value.getType()) {
+            case ScriptParser.STRING_LITERAL:
+                obj = Util.stripQuotes(value.getText());
+                break;
+
+            case ScriptParser.FALSE:
+            case ScriptParser.TRUE:
+                obj = Boolean.valueOf(value.getText());
+                break;
+
+            case ScriptParser.TERM_LITERAL:
+                String string = Util.stripQuotes(value.getText());
+
+                try {
+                    // TODO this may actually be rather naive ...
+                    if (string.contains("|-")) {
+                        obj = TermParser.parseSequent(node.getAllSymbols(), string);
+                    } else {
+                        obj = TermParser.parse(node.getAllSymbols(), string);
+                    }
+                } catch (DafnyException | DafnyParserException e) {
+                    throw new ScriptException("Cannot parse term/sequent " + string, e, param);
+                }
+                break;
+
+            case ScriptParser.DIGITS:
+                obj = Integer.valueOf(value.getText());
+                break;
+
+            default:
+                throw new Error("Should not be reached: " + value);
+            }
+
+            if(!knownParam.acceptsValue(obj)) {
+                throw new ScriptException("Parameter " + paramName +
+                        " expects an argument of type " + knownParam.getType() +
+                        ", not " + obj, param);
+            }
+            result.checkAndPutValue(knownParam, obj);
+
+        }
+        return result;
     }
 
+    public void interpret(String scriptText) throws ScriptException {
+
+        CharStream stream = CharStreams.fromString(scriptText);
+        ScriptParser slp = new ScriptParser(
+                new CommonTokenStream(
+                        new ScriptLexer(stream)));
+
+        BailOutErrorStrategy errorHandler = new BailOutErrorStrategy();
+        slp.setErrorHandler(errorHandler);
+        slp.addErrorListener(errorHandler.ERROR_LISTENER);
+
+        Script script = (Script) slp.script().accept(new ASTVisitor());
+        interpret(script);
+    }
 }

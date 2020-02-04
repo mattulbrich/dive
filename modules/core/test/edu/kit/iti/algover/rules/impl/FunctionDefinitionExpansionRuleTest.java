@@ -43,7 +43,7 @@ public class FunctionDefinitionExpansionRuleTest {
         Project p = TestUtil.mockProject(code);
         PVC pvc = p.getPVCByName("m/Assert");
         Sequent seq = pvc.getSequent();
-        ProofNode target = new ProofNode(null, null, seq, pvc);
+        ProofNode target = new ProofNode(null, null, null, null, seq, pvc);
         FunctionDefinitionExpansionRule fder = new FunctionDefinitionExpansionRule();
 
         ProofRuleApplication application = fder.considerApplication(
@@ -78,7 +78,7 @@ public class FunctionDefinitionExpansionRuleTest {
         Project p = TestUtil.mockProject(code);
         PVC pvc = p.getPVCByName("m/Assert");
         Sequent seq = pvc.getSequent();
-        ProofNode target = new ProofNode(null, null, seq, pvc);
+        ProofNode target = ProofMockUtil.mockProofNode(seq, pvc);
         FunctionDefinitionExpansionRule fder = new FunctionDefinitionExpansionRule();
 
         Parameters params = new Parameters();
@@ -117,7 +117,7 @@ public class FunctionDefinitionExpansionRuleTest {
         Project p = TestUtil.mockProject(code);
         PVC pvc = p.getPVCByName("m/Assert");
         Sequent seq = pvc.getSequent();
-        ProofNode target = new ProofNode(null, null, seq, pvc);
+        ProofNode target = ProofMockUtil.mockProofNode(seq, pvc);
         FunctionDefinitionExpansionRule fder = new FunctionDefinitionExpansionRule();
 
         ProofRuleApplication application = fder.considerApplication(
@@ -143,7 +143,7 @@ public class FunctionDefinitionExpansionRuleTest {
         Project p = TestUtil.mockProject(code);
         PVC pvc = p.getPVCByName("m/Assert");
         Sequent seq = pvc.getSequent();
-        ProofNode target = new ProofNode(null, null, seq, pvc);
+        ProofNode target = ProofMockUtil.mockProofNode(seq, pvc);
         FunctionDefinitionExpansionRule fder = new FunctionDefinitionExpansionRule();
 
         Parameters params = new Parameters();
@@ -174,7 +174,7 @@ public class FunctionDefinitionExpansionRuleTest {
         Project p = TestUtil.mockProject(code);
         PVC pvc = p.getPVCByName("m/Assert");
         Sequent seq = pvc.getSequent();
-        ProofNode target = new ProofNode(null, null, seq, pvc);
+        ProofNode target = ProofMockUtil.mockProofNode(seq, pvc);
         FunctionDefinitionExpansionRule fder = new FunctionDefinitionExpansionRule();
 
         // selecting the universal quanifier
@@ -191,7 +191,7 @@ public class FunctionDefinitionExpansionRuleTest {
         Project p = TestUtil.mockProject(code);
         PVC pvc = p.getPVCByName("m/Assert");
         Sequent seq = pvc.getSequent();
-        ProofNode target = new ProofNode(null, null, seq, pvc);
+        ProofNode target = ProofMockUtil.mockProofNode(seq, pvc);
         FunctionDefinitionExpansionRule fder = new FunctionDefinitionExpansionRule();
 
         // selecting the equality

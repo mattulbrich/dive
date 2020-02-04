@@ -166,7 +166,7 @@ public class ReferenceGraphDirectParentsSingleTests {
         Assert.assertFalse(scriptReferenceTargetSet.isEmpty());
         Assert.assertTrue(scriptReferenceTargetSet.size() == 1);
         ScriptReferenceTarget next = scriptReferenceTargetSet.iterator().next();
-        Assert.assertEquals(next.getLinenumber(), 1);
+        Assert.assertEquals(next.getNode().getBeginToken().getLine(), 1);
     }
 
     @Test

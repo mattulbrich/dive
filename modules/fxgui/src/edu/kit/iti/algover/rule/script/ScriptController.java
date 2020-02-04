@@ -7,44 +7,30 @@ package edu.kit.iti.algover.rule.script;
 
 import edu.kit.iti.algover.Lookup;
 import edu.kit.iti.algover.MainController;
-import edu.kit.iti.algover.editor.HighlightingRule;
-import edu.kit.iti.algover.editor.LayeredHighlightingRule;
 import edu.kit.iti.algover.proof.Proof;
 import edu.kit.iti.algover.proof.ProofNodeSelector;
 import edu.kit.iti.algover.referenceHighlighting.ReferenceHighlightingHandler;
 import edu.kit.iti.algover.referenceHighlighting.ReferenceHighlightingObject;
-import edu.kit.iti.algover.references.ProofTermReferenceTarget;
 import edu.kit.iti.algover.references.ScriptReferenceTarget;
 import edu.kit.iti.algover.rule.RuleApplicationListener;
-import edu.kit.iti.algover.rules.RuleException;
 import edu.kit.iti.algover.script.ast.Position;
 import edu.kit.iti.algover.script.ast.ProofScript;
-import edu.kit.iti.algover.script.exceptions.ScriptCommandNotApplicableException;
 import edu.kit.iti.algover.script.parser.Facade;
 import edu.kit.iti.algover.script.parser.PrettyPrinter;
 import edu.kit.iti.algover.util.ExceptionDetails;
-import edu.kit.iti.algover.util.ExceptionDialog;
-import edu.kit.iti.algover.util.RuleApp;
 import javafx.beans.Observable;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleObjectProperty;
-import javafx.collections.ObservableList;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyCodeCombination;
 import javafx.scene.input.KeyCombination;
 import javafx.scene.input.KeyEvent;
 import org.antlr.v4.runtime.RecognitionException;
 import org.antlr.v4.runtime.misc.ParseCancellationException;
-import org.antlr.runtime.Token;
-import org.fxmisc.richtext.model.StyleSpans;
 
-import java.awt.*;
-import java.io.StringWriter;
-import java.time.Duration;
 import java.util.*;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
-import java.util.function.Consumer;
 import java.util.logging.Logger;
 import java.util.prefs.PreferenceChangeEvent;
 import java.util.prefs.PreferenceChangeListener;
@@ -155,7 +141,7 @@ public class ScriptController implements ScriptViewListener, ReferenceHighlighti
 
         this.checkpoints = ProofNodeCheckpointsBuilder.build(proof);
 
-        view.replaceText(proof.getScript());
+        view.replaceText(proof.getScriptText());
         view.getUndoManager().forgetHistory();
         runScript();
     }

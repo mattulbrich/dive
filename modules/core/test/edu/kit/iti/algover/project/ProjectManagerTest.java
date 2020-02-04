@@ -8,11 +8,11 @@ package edu.kit.iti.algover.project;
 import edu.kit.iti.algover.data.BuiltinSymbols;
 import edu.kit.iti.algover.data.MapSymbolTable;
 import edu.kit.iti.algover.data.SymbolTable;
+import edu.kit.iti.algover.nuscript.ScriptException;
 import edu.kit.iti.algover.proof.PVC;
 import edu.kit.iti.algover.proof.PVCCollection;
 import edu.kit.iti.algover.proof.Proof;
 import edu.kit.iti.algover.proof.ProofStatus;
-import edu.kit.iti.algover.script.exceptions.ScriptCommandNotApplicableException;
 import edu.kit.iti.algover.term.FunctionSymbol;
 import edu.kit.iti.algover.term.Sequent;
 import edu.kit.iti.algover.term.Term;
@@ -87,7 +87,7 @@ public class ProjectManagerTest {
 
         Proof proof = pm.getProofForPVC(testPVCxPost);
 
-        Assert.assertNotNull(proof.getScript());
+        Assert.assertNotNull(proof.getScriptText());
 //        pm.initializeProofDataStructures(testPVCm1Post);
         // pm.findAndParseScriptFileForPVC(testPVCm1Post);
        // Assert.assertTrue();
@@ -128,7 +128,7 @@ public class ProjectManagerTest {
                 "andRight on='1== 2 && 2 == 3 && 4==5';\n";
         //set a new script text and parse it
         proof2.setScriptText(newScript);
-        System.out.println(proof2.getScript());
+        System.out.println(proof2.getScriptText());
         //interpret new Script
         proof2.interpretScript();
         Assert.assertNull(proof.getFailException());
@@ -139,8 +139,8 @@ public class ProjectManagerTest {
         Proof proofAfter = pm.getProofForPVC(testPVCm1Post);
 
 
-        System.out.println(proofAfter.getScript().toString());
-        Assert.assertNotNull(proofAfter.getScript());
+        System.out.println(proofAfter.getScriptText().toString());
+        Assert.assertNotNull(proofAfter.getScriptText());
         Assert.assertEquals("Proof is not loaded yet", ProofStatus.DIRTY, proof.getProofStatus());
 
         pm.saveProject();
@@ -155,8 +155,8 @@ public class ProjectManagerTest {
     // This test currently throws a NullPointerException, instead of the ScriptCommandNotApplicable exception.
     // That exception is caught during execution at some point and during catching, a NullPointerException is
     // generated. The point that happens is marked via "TODO handling of error state for each visit".
-    @Test(expected = ScriptCommandNotApplicableException.class)
-    public void testInapplicableScriptCommand() throws ScriptCommandNotApplicableException, Exception {
+    @Test(expected = ScriptException.class)
+    public void testInapplicableScriptCommand() throws Exception {
         ProjectManager pm = new XMLProjectManager (new File(testDir), config);
         pm.reload();
 

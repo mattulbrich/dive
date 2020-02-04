@@ -2,7 +2,7 @@ grammar Script;
 
 
 script
-    :   statement*
+    :   statement* EOF
     ;
 
 statement
@@ -51,3 +51,10 @@ ID : [a-zA-Z] ( [_a-zA-Z0-9] )*;
 STRING_LITERAL : '"' ~('"')* '"';
 TERM_LITERAL: '\'' ~('\'')* '\'';
 POSITION_LITERAL: [SA] ( '.' [0-9]+ )+;
+
+// LEXER Rules
+WS : [ \t\n\r]+ -> channel(HIDDEN) ;
+
+SINGLE_LINE_COMMENT : '//' ~[\r\n]* -> channel(HIDDEN);
+MULTI_LINE_COMMENT  : '/*' (MULTI_LINE_COMMENT|.)*? '*/' -> channel(HIDDEN);
+MULTI_LINE_COMMENT_BEGIN: '/*' ~('\n')* EOF -> channel(HIDDEN);

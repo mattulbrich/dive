@@ -1,0 +1,11 @@
+command p1="string parameter" p2=42 p3=true;
+other_command_without_parameters;
+cases {
+"case 1":
+  do_something p2='|- true';
+  do_more x='true';
+"case 2":
+  skip;
+"case 3":
+"case 4":
+}

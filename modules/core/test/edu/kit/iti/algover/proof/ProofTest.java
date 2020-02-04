@@ -6,19 +6,17 @@
 package edu.kit.iti.algover.proof;
 
 import edu.kit.iti.algover.data.BuiltinSymbols;
+import edu.kit.iti.algover.nuscript.ScriptException;
 import edu.kit.iti.algover.project.Project;
-import edu.kit.iti.algover.script.exceptions.ScriptCommandNotApplicableException;
 import edu.kit.iti.algover.term.Sequent;
 import edu.kit.iti.algover.term.Term;
 import edu.kit.iti.algover.term.builder.TermBuilder;
 import edu.kit.iti.algover.term.parser.TermParser;
 import edu.kit.iti.algover.util.TestUtil;
-import static edu.kit.iti.algover.util.ProofMockUtil.*;
 import org.antlr.v4.runtime.misc.ParseCancellationException;
 import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.BeforeClass;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import java.util.Collections;
@@ -55,7 +53,7 @@ public class ProofTest {
     public void getScript() throws Exception {
         Proof p = makeProof("true");
         p.setScriptText("someText");
-        Assert.assertEquals("someText", p.getScript());
+        Assert.assertEquals("someText", p.getScriptText());
         Assert.assertEquals(ProofStatus.CHANGED_SCRIPT, p.getProofStatus());
     }
 
@@ -67,7 +65,7 @@ public class ProofTest {
         Assert.assertNotNull(p.getProofRoot());
     }
 
-    @Test(expected = ScriptCommandNotApplicableException.class)
+    @Test(expected = ScriptException.class)
     public void negativeFake() throws Exception {
         Proof p = makeProof("true");
         p.setScriptTextAndInterpret("fake close=false;");
@@ -109,7 +107,7 @@ public class ProofTest {
         throw p.getFailException();
     }
 
-    @Test(expected = ScriptCommandNotApplicableException.class)
+    @Test(expected = ScriptException.class)
     public void illegalParameter() throws Exception {
         Proof p = makeProof("true");
         p.setScriptTextAndInterpret("fake unknownParameter=true;");

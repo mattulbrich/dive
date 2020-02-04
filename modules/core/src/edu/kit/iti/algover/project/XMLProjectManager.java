@@ -197,7 +197,7 @@ public final class XMLProjectManager extends AbstractProjectManager {
     @Override
     public void saveProofScriptForPVC(String pvcIdentifier, Proof proof) throws IOException {
         File scriptFile = getScriptFileForPVC(pvcIdentifier);
-        saverHelper(scriptFile.getPath(), proof.getScript());
+        saverHelper(scriptFile.getPath(), proof.getScriptText());
     }
 
     private void saverHelper(String pathToFile, String content) throws IOException {
