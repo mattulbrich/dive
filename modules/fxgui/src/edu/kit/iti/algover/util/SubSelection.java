@@ -5,6 +5,7 @@
  */
 package edu.kit.iti.algover.util;
 
+import edu.kit.iti.algover.references.ProofTermReferenceTarget;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
 
@@ -37,7 +38,7 @@ import java.util.function.Function;
  *            items of a list. Other usecases in this codebases have been
  *            {@link edu.kit.iti.algover.rules.SubtermSelector},
  *            {@link edu.kit.iti.algover.rules.TermSelector} and
- *            {@link edu.kit.iti.algover.references.ProofTermReference}.
+ *            {@link ProofTermReferenceTarget}.
  */
 public class SubSelection<S> {
 

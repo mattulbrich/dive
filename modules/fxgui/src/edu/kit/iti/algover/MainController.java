@@ -9,22 +9,21 @@ import com.jfoenix.controls.JFXButton;
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon;
 import de.jensd.fx.glyphs.fontawesome.utils.FontAwesomeIconFactory;
 import edu.kit.iti.algover.browser.BrowserController;
+import edu.kit.iti.algover.browser.callvisualization.CallVisualizationDialog;
 import edu.kit.iti.algover.browser.FlatBrowserController;
 import edu.kit.iti.algover.browser.TreeTableEntityContextMenuStrategyHelper;
+import edu.kit.iti.algover.browser.callvisualization.CallVisualizationModel;
+import edu.kit.iti.algover.browser.entities.DafnyEntityGetterVisitor;
 import edu.kit.iti.algover.browser.entities.PVCEntity;
 import edu.kit.iti.algover.browser.entities.PVCGetterVisitor;
 import edu.kit.iti.algover.browser.entities.TreeTableEntity;
-import edu.kit.iti.algover.dafnystructures.DafnyClass;
-import edu.kit.iti.algover.dafnystructures.DafnyFile;
-import edu.kit.iti.algover.dafnystructures.DafnyFunction;
-import edu.kit.iti.algover.dafnystructures.DafnyMethod;
+import edu.kit.iti.algover.dafnystructures.*;
 import edu.kit.iti.algover.editor.EditorController;
+import edu.kit.iti.algover.parser.DafnyTree;
 import edu.kit.iti.algover.project.ProjectManager;
+import edu.kit.iti.algover.referenceHighlighting.ReferenceGraphController;
 import edu.kit.iti.algover.proof.*;
-import edu.kit.iti.algover.references.CodeReference;
-import edu.kit.iti.algover.references.GetReferenceTypeVisitor;
-import edu.kit.iti.algover.references.ProofTermReference;
-import edu.kit.iti.algover.references.Reference;
+import edu.kit.iti.algover.references.ProofTermReferenceTarget;
 import edu.kit.iti.algover.rule.RuleApplicationController;
 import edu.kit.iti.algover.rule.RuleApplicationListener;
 import edu.kit.iti.algover.rules.*;
@@ -68,6 +67,8 @@ public class MainController implements SequentActionListener, RuleApplicationLis
     //system preferences
     public static final Preferences systemprefs = Preferences.userNodeForPackage(MainController.class);
 
+    private Lookup lookup = new Lookup();
+
     private final ProjectManager manager;
     private final ExecutorService executor;
     private final TimelineLayout timelineView;
@@ -78,6 +79,7 @@ public class MainController implements SequentActionListener, RuleApplicationLis
     private final EditorController editorController;
     private final SequentTabViewController sequentController;
     private final RuleApplicationController ruleApplicationController;
+    private final ReferenceGraphController referenceGraphController;
     private final ToolBar toolbar;
     private final StatusBar statusBar;
     private final StatusBarLoggingHandler statusBarLoggingHandler;
@@ -94,10 +96,12 @@ public class MainController implements SequentActionListener, RuleApplicationLis
         this.executor = executor;
         this.browserController = new FlatBrowserController(manager.getProject(), manager.getAllProofs(), this::onClickPVCEdit);
         //this.browserController = new FileBasedBrowserController(manager.getProject(), manager.getAllProofs(), this::onClickPVCEdit);
-        this.editorController = new EditorController(executor, manager.getProject().getBaseDir().getAbsolutePath());
+        this.editorController = new EditorController(executor, manager.getProject().getBaseDir().getAbsolutePath(), this.lookup);
         this.editorController.anyFileChangedProperty().addListener(this::onDafnyFileChangedInEditor);
-        this.sequentController = new SequentTabViewController(this);
-        this.ruleApplicationController = new RuleApplicationController(executor, this, manager);
+        this.sequentController = new SequentTabViewController(this, this.lookup);
+        this.ruleApplicationController = new RuleApplicationController(executor, this, manager, this.lookup);
+
+        this.referenceGraphController = new ReferenceGraphController(this.lookup);
 
         JFXButton saveButton = new JFXButton("Save", FontAwesomeIconFactory.get().createIcon(FontAwesomeIcon.SAVE));
         JFXButton refreshButton = new JFXButton("Refresh", FontAwesomeIconFactory.get().createIcon(FontAwesomeIcon.REFRESH));
@@ -187,6 +191,7 @@ public class MainController implements SequentActionListener, RuleApplicationLis
         settings.setConfig(manager.getConfiguration());
         settings.setCurrentManager(manager);
         settings.setSystemPrefs(systemprefs);
+        settings.setLookup(this.lookup);
         double height = this.getView().getScene().getWindow().getHeight();
         double width = this.getView().getScene().getWindow().getWidth();
         //later lookup
@@ -200,6 +205,43 @@ public class MainController implements SequentActionListener, RuleApplicationLis
         MenuItem tryCloseAll = new MenuItem("Try to close selected PVC(s)");
         tryCloseAll.setOnAction(this::trivialStratContextMenuAction);
         browserContextMenu.getItems().addAll(tryCloseAll);
+        MenuItem showCalled = new MenuItem("Show called and calling entities");
+        showCalled.setOnAction(this::showCalledEntities);
+        browserContextMenu.getItems().addAll(showCalled);
+
+    }
+
+
+    private void showCalledEntities(ActionEvent actionEvent) {
+        try {
+            TreeItem<TreeTableEntity> selectedItem = browserController.getView().getSelectionModel().getSelectedItem();
+            TreeTableEntity value = selectedItem.getValue();
+            DafnyDecl accept = value.accept(new DafnyEntityGetterVisitor());
+            if(accept != null){
+
+                Collection<DafnyTree> calls = manager.getProject().getCallgraph().getCalls(accept);
+                Collection<DafnyTree> callsites = manager.getProject().getCallgraph().getCallsites(accept);
+
+                if(!calls.isEmpty() || !callsites.isEmpty()){
+                    CallVisualizationModel model = new CallVisualizationModel(manager.getProject().getCallgraph(), accept, calls, callsites);
+                    CallVisualizationDialog d = new CallVisualizationDialog(model, lookup);
+                    d.setResizable(true);
+                    d.onShownProperty().addListener(e -> {
+                        Platform.runLater(() -> d.setResizable(false));
+                    });
+                    Optional<ButtonType> buttonType = d.showAndWait();
+                    if(buttonType.get() == ButtonType.CLOSE){
+                        editorController.removeReferenceHighlighting();
+                    }
+                }
+
+            } else {
+                 Logger.getGlobal().info("Please select a method or function in the browser tree.");
+            }
+        } catch (NullPointerException npe){
+            Logger.getGlobal().info("Please select an item in the browser tree.");
+
+        }
     }
 
     private void trivialStratContextMenuAction(ActionEvent event){
@@ -229,6 +271,7 @@ public class MainController implements SequentActionListener, RuleApplicationLis
                 int failed = 0;
                 for(String pvcName : pvcNames) {
                     Proof p = manager.getProofForPVC(pvcName);
+                    p.interpretScript();
                     if (p.getProofStatus() != ProofStatus.CLOSED) {
                         String oldScript = p.getScript();
                         String script = "boogie;\n";
@@ -467,6 +510,7 @@ public class MainController implements SequentActionListener, RuleApplicationLis
             breadCrumbBar.setSelectedCrumb(ti);
             editorController.resetPVCSelection();
             sequentController.getActiveSequentController().clear();
+            showStartTimeLineConfiguration();
             Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).info("Successfully reloaded project.");
         });
 
@@ -492,6 +536,14 @@ public class MainController implements SequentActionListener, RuleApplicationLis
 
         executor.execute(t);
     }
+
+    private void showStartTimeLineConfiguration() {
+        boolean moveLeftPosible = true;
+        while(moveLeftPosible){
+            moveLeftPosible = timelineView.moveFrameLeft();
+        }
+    }
+
     public void onClickPVCEdit(PVCEntity entity) {
         PVC pvc = entity.getPVC();
         breadCrumbBar.setSelectedCrumb(getTreeItemForPVC(pvc));
@@ -592,25 +644,14 @@ public class MainController implements SequentActionListener, RuleApplicationLis
     }
 
     @Override
-    public void onRequestReferenceHighlighting(ProofTermReference termRef) {
-        if (termRef != null) {
-            Set<Reference> predecessors = sequentController.getActiveSequentController().getReferenceGraph().allPredecessors(termRef);
-            Set<CodeReference> codeReferences = filterCodeReferences(predecessors);
-            editorController.viewReferences(codeReferences);
-        } else {
-            editorController.viewReferences(new HashSet<>());
-        }
+    public void onRequestReferenceHighlighting(ProofTermReferenceTarget termRef) {
+        this.referenceGraphController.highlightAllReferenceTargets(termRef);
+
     }
 
-    private static Set<CodeReference> filterCodeReferences(Set<Reference> predecessors) {
-        Set<CodeReference> codeReferences = new HashSet<>();
-        predecessors.forEach(reference -> {
-            CodeReference codeReference = reference.accept(new GetReferenceTypeVisitor<>(CodeReference.class));
-            if (codeReference != null) {
-                codeReferences.add(codeReference);
-            }
-        });
-        return codeReferences;
+    @Override
+    public void onRemoveReferenceHighlighting() {
+        this.referenceGraphController.removeReferenceHighlighting();
     }
 
     @Override
@@ -686,7 +727,7 @@ public class MainController implements SequentActionListener, RuleApplicationLis
         ruleApplicationController.getScriptController().setSelectedNode(proofNodeSelector);
     }
 
-    public Parent getView() {
+    public VBox getView() {
         return view;
     }
 }

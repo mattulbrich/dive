@@ -18,13 +18,19 @@ import java.util.List;
 public class TextUtil {
 
     public static Bounds computeTextBounds(String text, List<String> styleClasses, List<String> stylesheets) {
+        return computeTextBounds(text, styleClasses, stylesheets, 0);
+    }
+
+    public static Bounds computeTextBounds(String text, List<String> styleClasses, List<String> stylesheets, int fontsize) {
+
+
         final Text textNode = new Text(text);
         textNode.getStyleClass().setAll(styleClasses);
         new Scene(new Group(textNode)).getStylesheets().setAll(stylesheets);
-
+        if (fontsize > 0) {
+            textNode.setStyle("-fx-font-size:"+fontsize+"pt;");
+        }
         textNode.applyCss();
-
         return textNode.getLayoutBounds();
     }
-
 }

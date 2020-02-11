@@ -101,6 +101,7 @@ OBJECT : 'object';
 OLD : 'old';
 // PREDICATE : 'predicate';
 PRINT : 'print';
+READS : 'reads';
 REQUIRES: 'requires';
 RETURN : 'return';
 RETURNS : 'returns';
@@ -238,10 +239,10 @@ method:
 function:
   'function' 'method'?
   ID '(' vars? ')' ':' type
-    ( requires | ensures | decreases )*
+    ( requires | ensures | decreases | reads )*
   '{' expression '}'
   ->
-    ^(FUNCTION ID ^(ARGS vars?) ^(RETURNS type) requires* ensures* decreases*
+    ^(FUNCTION ID ^(ARGS vars?) ^(RETURNS type) requires* ensures* decreases* reads*
         expression)
   ;
 
@@ -294,6 +295,10 @@ invariant:
 
 modifies:
   MODIFIES^ expressions
+  ;
+
+reads:
+  READS^ expressions
   ;
 
 block:

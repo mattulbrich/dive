@@ -72,20 +72,18 @@ public class RuleParameterDialog extends Dialog<Void> {
         int row = 0;
         gridPane.setVgap(10);
         for (Map.Entry<String, ParameterDescription<?>> e : rule.getAllParameters().entrySet()) {
-            if(e.getValue().isRequired()) {
-                gridPane.add(new Label(e.getKey()), 0, row);
-                TextField tf = new TextField();
-                tf.setUserData(e.getValue().getType());
-                if(e.getKey() == "on" && defaultOn != null) {
-                    tf.setText(defaultOn);
-                }
-                tf.setMinWidth(200.0);
-                gridPane.add(tf, 1, row);
-                Platform.runLater(() -> {
-                    validationSupport.registerValidator(tf, e.getValue().isRequired(), getValidatorForType(e.getValue().getType()));
-                });
-                row++;
+            gridPane.add(new Label(e.getKey()), 0, row);
+            TextField tf = new TextField();
+            tf.setUserData(e.getValue().getType());
+            if(e.getKey() == "on" && defaultOn != null) {
+                tf.setText(defaultOn);
             }
+            tf.setMinWidth(200.0);
+            gridPane.add(tf, 1, row);
+            Platform.runLater(() -> {
+                validationSupport.registerValidator(tf, e.getValue().isRequired(), getValidatorForType(e.getValue().getType()));
+            });
+            row++;
         }
         Button okButton = new Button("Apply");
         okButton.setMinWidth(70.0);

@@ -51,6 +51,7 @@ public class RuleApplicator {
 
         ImmutableList<BranchInfo> applicationInfos = proofRuleApplication.getBranchInfo();
         if (applicationInfos.equals(BranchInfo.UNCHANGED)) {
+            //SaG -> MU: why create a new object?
             ProofNode unchanged = new ProofNode(pn, proofRuleApplication, pn.getSequent(), pn.getPVC());
             //pn.getChildren().add(unchanged);
             List<ProofNode> retList = new ArrayList<>();
@@ -150,7 +151,7 @@ public class RuleApplicator {
                 try {
                     ProofFormula nthForm = oldSemiSeq.get(ts.getTermNo());
                     Term replace = ReplaceVisitor.replace(nthForm.getTerm(), ts.getSubtermSelector(), newTerm);
-                    newSemiSeq.set(ts.getTermNo(), new ProofFormula(replace));
+                    newSemiSeq.set(ts.getTermNo(), new ProofFormula(replace, nthForm.getLabels()));
                 } catch (TermBuildException e) {
                     e.printStackTrace();
                 }

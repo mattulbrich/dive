@@ -41,6 +41,7 @@ import javafx.stage.DirectoryChooser;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 
+import javax.swing.text.html.ImageView;
 import java.awt.*;
 import java.io.File;
 import java.io.IOException;
@@ -78,6 +79,7 @@ public class WelcomePane {
 
     @FXML
     private BorderPane rootPane;
+
 
     private Stage primaryStage;
 
@@ -136,6 +138,8 @@ public class WelcomePane {
         loadExample.setStyle("-fx-font-size: 20");
         loadExample.setGraphic(FontAwesomeIconFactory.get().createIcon(FontAwesomeIcon.BULLSEYE));
         loadExample.setOnAction(this::loadExample);
+
+
 
     }
 
@@ -285,7 +289,7 @@ public class WelcomePane {
 
 
             } else {
-                System.out.println("file was null");
+                System.out.println("The was no file created");
             }
 
         };
@@ -429,6 +433,8 @@ public class WelcomePane {
 
         double width = screenSize.getWidth();
         double height = screenSize.getHeight();
+        width=1000;
+        height = 1000;
         substage.setWidth(width);
         substage.setHeight(height);
         substage.setTitle("DIVE - " + projectFile);

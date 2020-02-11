@@ -5,10 +5,14 @@
  */
 package edu.kit.iti.algover.editor;
 
+import edu.kit.iti.algover.Lookup;
+import edu.kit.iti.algover.MainController;
 import edu.kit.iti.algover.dafnystructures.DafnyFile;
 import edu.kit.iti.algover.project.ProjectBuilder;
 import edu.kit.iti.algover.proof.PVC;
-import edu.kit.iti.algover.references.CodeReference;
+import edu.kit.iti.algover.referenceHighlighting.ReferenceHighlightingHandler;
+import edu.kit.iti.algover.referenceHighlighting.ReferenceHighlightingObject;
+import edu.kit.iti.algover.references.CodeReferenceTarget;
 import edu.kit.iti.algover.util.ExceptionDetails;
 import edu.kit.iti.algover.util.Util;
 import javafx.application.Platform;
@@ -48,8 +52,9 @@ import java.util.logging.Logger;
  * <p>
  * Created by philipp on 26.06.17.
  */
-public class EditorController implements DafnyCodeAreaListener {
+public class EditorController implements DafnyCodeAreaListener, ReferenceHighlightingHandler {
     KeyCombination saveShortcut = new KeyCodeCombination(KeyCode.S, KeyCombination.CONTROL_DOWN);
+    KeyCombination formatShortcut = new KeyCodeCombination(KeyCode.F, KeyCombination.SHIFT_DOWN, KeyCombination.CONTROL_DOWN);
     KeyCombination saveAllShortcut = new KeyCodeCombination(KeyCode.S, KeyCombination.CONTROL_DOWN, KeyCombination.SHIFT_DOWN);
 
     private static final int PVC_LAYER = 0;
@@ -69,6 +74,7 @@ public class EditorController implements DafnyCodeAreaListener {
     private BooleanProperty anyFileChangedProperty;
     private List<String> changedFiles;
     private String baseDir;
+    private Set<CodeReferenceTarget> codeReferenceTargets = new HashSet<>();
 
     private String recentSelectedTab;
 
@@ -77,7 +83,7 @@ public class EditorController implements DafnyCodeAreaListener {
      *
      * @param executor used by the code area components to asynchronously execute syntax highlighting calculations
      */
-    public EditorController(ExecutorService executor, String baseDir) {
+    public EditorController(ExecutorService executor, String baseDir, Lookup lookup) {
         this.executor = executor;
         this.baseDir = baseDir;
         this.view = new TabPane();
@@ -87,6 +93,8 @@ public class EditorController implements DafnyCodeAreaListener {
         this.anyFileChangedProperty = new SimpleBooleanProperty(false);
         view.getTabs().addListener(this::onTabListChanges);
         view.setOnKeyReleased(this::handleShortcuts);
+        lookup.register(this, ReferenceHighlightingHandler.class);
+        lookup.register(this, EditorController.class);
 
     }
 
@@ -95,6 +103,8 @@ public class EditorController implements DafnyCodeAreaListener {
             saveAllFiles();
         } else if (saveShortcut.match(keyEvent)) {
             saveSelectedFile();
+        } else if (formatShortcut.match(keyEvent)) {
+            getFocusedCodeArea().autoformat(null);
         }
     }
 
@@ -134,7 +144,7 @@ public class EditorController implements DafnyCodeAreaListener {
                 tab.setText(file.getName());
                 tab.setTooltip(new Tooltip(file.getAbsolutePath()));
                 tab.setUserData(fileName);
-                if(!file.isAbsolute()) {
+                if(!file.isAbsolute() && !file.toString().startsWith("$dive/")) {
                     file = new File(baseDir, fileName);
                 }
                 String contentAsText = fileToString(file.getPath());
@@ -266,14 +276,13 @@ public class EditorController implements DafnyCodeAreaListener {
     }
 
     /**
-     * Highlights all given {@link CodeReference}s using the {@link ReferenceHighlightingRule}.
+     * Highlights all given {@link CodeReferenceTarget}s using the {@link ReferenceHighlightingRule}.
      *
-     * @param codeReferences code references to highlight
+     * @param codeReferenceTargets code references to highlight
      */
-    public void viewReferences(Set<CodeReference> codeReferences) {
-        highlightingLayers.setLayer(REFERENCE_LAYER, new ReferenceHighlightingRule(codeReferences));
-
-
+    public void viewReferences(Set<CodeReferenceTarget> codeReferenceTargets) {
+        this.codeReferenceTargets = codeReferenceTargets;
+        highlightingLayers.setLayer(REFERENCE_LAYER, new ReferenceHighlightingRule(codeReferenceTargets));
         view.getTabs().stream()
                 .map(tab -> codeAreaFromContent(tab.getContent()))
                 .forEach(DafnyCodeArea::rerenderHighlighting);
@@ -327,6 +336,19 @@ public class EditorController implements DafnyCodeAreaListener {
         }
     }
 
+    @Override
+    public void handleReferenceHighlighting(ReferenceHighlightingObject references) {
+        viewReferences(references.getCodeReferenceTargetSet());
+    }
+
+    @Override
+    public void removeReferenceHighlighting() {
+
+        highlightingLayers.setLayer(REFERENCE_LAYER, new ReferenceHighlightingRule(new HashSet<>()));
+        view.getTabs().stream()
+                .map(tab -> codeAreaFromContent(tab.getContent()))
+                .forEach(DafnyCodeArea::rerenderHighlighting);
+    }
     private List<String> saveOrderOfOpenTabsByFilename(ObservableList<Tab> tabsInView){
 
         Set<String> filenamesSet = new HashSet<>(tabsByFile.keySet());

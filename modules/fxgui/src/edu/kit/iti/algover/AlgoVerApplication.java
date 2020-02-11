@@ -49,11 +49,15 @@ public class AlgoVerApplication extends Application {
      * @param opendirectly
      */
     public static void startApplication(Stage primaryStage, List<String> opendirectly) {
+        // nicer font anti aliasing on Linux
+        System.setProperty("prism.lcdtext", "false");
+        System.setProperty("prism.text", "t2k");
+
         primaryStage.setTitle("DIVE");
         WelcomePane p = new WelcomePane(primaryStage, opendirectly);
         primaryStage.setScene(new Scene(p.getRootPane()));
-        primaryStage.setWidth(900);
-        primaryStage.setHeight(700);
+        primaryStage.setWidth(1000);
+        primaryStage.setHeight(900);
         primaryStage.show();
 
     }

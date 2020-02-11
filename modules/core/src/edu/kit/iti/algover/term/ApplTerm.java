@@ -16,7 +16,7 @@ public class ApplTerm extends Term {
 
     private final FunctionSymbol function;
 
-    public ApplTerm(FunctionSymbol function, List<Term> arguments) throws TermBuildException {
+    public ApplTerm(FunctionSymbol function, List<? extends Term> arguments) throws TermBuildException {
         super(function.getResultSort(),
                 Util.toArray(arguments, Term.class));
         this.function = function;

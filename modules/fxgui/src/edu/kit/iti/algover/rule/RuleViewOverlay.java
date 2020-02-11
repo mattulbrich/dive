@@ -14,9 +14,11 @@ import edu.kit.iti.algover.rules.ProofRuleApplication.Applicability;
 import edu.kit.iti.algover.rules.impl.ExhaustiveRule;
 import edu.kit.iti.algover.term.prettyprint.PrettyPrint;
 import edu.kit.iti.algover.util.RuleParameterDialog;
+import javafx.application.Platform;
 import javafx.css.PseudoClass;
 import javafx.event.ActionEvent;
 import javafx.scene.control.Label;
+import javafx.scene.control.Tooltip;
 import javafx.scene.layout.AnchorPane;
 
 import java.util.Map;
@@ -46,11 +48,22 @@ public class RuleViewOverlay extends AnchorPane {
         this.selector = selector;
         this.listener = listener;
 
-        int count = application.getBranchCount();
 
-        branchCount = new Label(count + "", FontAwesomeIconFactory.get().createIcon(MaterialDesignIcon.CALL_SPLIT, "20px"));
-        branchCount.getStyleClass().add("branch-count");
-        setPseudoClassStateFromBranches(count);
+        if(application.getApplicability()==Applicability.INSTANTIATION_REQUIRED) {
+            branchCount = new Label("?", FontAwesomeIconFactory.get().createIcon(MaterialDesignIcon.CALL_SPLIT, "20px"));
+            branchCount.getStyleClass().add("branch-count");
+            setPseudoClassStateFromBranches(1);
+            branchCount.setTooltip(new Tooltip("Instantiation required to compute number of branches"));
+
+        } else {
+            int count = application.getBranchCount();
+            branchCount = new Label(count + "", FontAwesomeIconFactory.get().createIcon(MaterialDesignIcon.CALL_SPLIT, "20px"));
+            branchCount.getStyleClass().add("branch-count");
+            setPseudoClassStateFromBranches(count);
+            branchCount.setTooltip(new Tooltip("This rule will create "+count+ " branches  when applied to selected formula"));
+
+
+        }
 
         applyButton = new JFXButton("Apply");
         applyButton.getStyleClass().add("apply");
@@ -114,8 +127,14 @@ public class RuleViewOverlay extends AnchorPane {
             } catch (RuleException e) {
                 on = null;
             }
+
             RuleParameterDialog d = new RuleParameterDialog(this.application.getRule(), listener.getCurrentPVC().getSymbolTable(),
                     listener.getCurrentProofNode().getSequent(), on);
+            d.setResizable(true);
+            d.onShownProperty().addListener(e -> {
+                Platform.runLater(() -> d.setResizable(false));
+            });
+
             d.showAndWait();
             if (d.getParameters() != null) {
                 try {

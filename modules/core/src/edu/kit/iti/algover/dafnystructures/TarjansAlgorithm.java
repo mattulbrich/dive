@@ -41,7 +41,12 @@ import java.util.Stack;
  */
 public class TarjansAlgorithm {
 
+    /**
+     * A constant identifier to be used as (artificial) type in
+     * {@link DafnyTree}s.
+     */
     public static final int CALLGRAPH_SCC = -2;
+
     /**
      * The project for which the computation takes place.
      */

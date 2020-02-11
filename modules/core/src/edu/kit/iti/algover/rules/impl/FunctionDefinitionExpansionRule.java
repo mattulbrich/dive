@@ -1,7 +1,7 @@
-/**
- * This file is part of DIVE.
- *
- * Copyright (C) 2015-2019 Karlsruhe Institute of Technology
+/*
+  This file is part of DIVE.
+
+  Copyright (C) 2015-2019 Karlsruhe Institute of Technology
  */
 package edu.kit.iti.algover.rules.impl;
 
@@ -29,12 +29,10 @@ import edu.kit.iti.algover.term.builder.TermBuildException;
 import edu.kit.iti.algover.term.builder.TreeTermTranslator;
 import edu.kit.iti.algover.util.ASTUtil;
 import edu.kit.iti.algover.util.Pair;
+import edu.kit.iti.algover.util.RuleUtil;
 import edu.kit.iti.algover.util.Util;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
 
 /**
  * This proof rule allows one to expand an application of a function symbol to
@@ -63,10 +61,20 @@ public class FunctionDefinitionExpansionRule extends FocusProofRule {
 
     @Override
     protected ProofRuleApplication makeApplicationImpl(ProofNode target, Parameters parameters) throws RuleException {
-        TermSelector selector = parameters.getValue(ON_PARAM_REQ).getTermSelector();
+        TermParameter onParam = parameters.getValue(ON_PARAM_REQ);
+        TermSelector selector;
+        if(onParam == null) {
+            selector = inferOnParam(target.getSequent());
+            if(selector == null) {
+                throw NotApplicableException.requiresParameter(this, ON_PARAM_REQ);
+            }
+        } else {
+            selector = parameters.getValue(ON_PARAM_REQ).getTermSelector();
+        }
         Boolean inline = parameters.getValue(INLINE_PARAM);
 
         Term term = selector.selectSubterm(target.getSequent());
+
         if (!(term instanceof ApplTerm)) {
             throw NotApplicableException.onlyOperator(this, "Dafny function");
         }
@@ -106,6 +114,59 @@ public class FunctionDefinitionExpansionRule extends FocusProofRule {
         } catch(TermBuildException ex) {
             throw new RuleException(ex);
         }
+    }
+
+    private Term inferOnParam(Term term) {
+        for(Term t : term.getSubterms()) {
+
+            if (!(t instanceof ApplTerm) || !(((ApplTerm) t).getFunctionSymbol() instanceof DafnyFunctionSymbol)) {
+                Term ts = inferOnParam(t);
+                if(ts != null) return ts;
+                continue;
+            }
+            return t;
+        }
+        return null;
+    }
+
+    private TermSelector inferOnParam(Sequent s) {
+        for(ProofFormula pf : s.getAntecedent()) {
+            Term term = pf.getTerm();
+
+            if (!(term instanceof ApplTerm) || !(((ApplTerm) term).getFunctionSymbol() instanceof DafnyFunctionSymbol)) {
+                Term ts = inferOnParam(term);
+                if(ts != null) {
+                    Optional<TermSelector> ots = RuleUtil.matchSubtermInSequent(ts::equals, s);
+                    if(ots.isPresent()) {
+                        return ots.get();
+                    } else {
+                        //This should never happen
+                        continue;
+                    }
+                }
+                continue;
+            }
+            return new TermSelector(TermSelector.SequentPolarity.ANTECEDENT, s.getAntecedent().indexOf(pf));
+        }
+        for(ProofFormula pf : s.getSuccedent()) {
+            Term term = pf.getTerm();
+
+            if (!(term instanceof ApplTerm) || !(((ApplTerm) term).getFunctionSymbol() instanceof DafnyFunctionSymbol)) {
+                Term ts = inferOnParam(term);
+                if(ts != null) {
+                    Optional<TermSelector> ots = RuleUtil.matchSubtermInSequent(ts::equals, s);
+                    if(ots.isPresent()) {
+                        return ots.get();
+                    } else {
+                        //This should never happen
+                        continue;
+                    }
+                }
+                continue;
+            }
+            return new TermSelector(TermSelector.SequentPolarity.SUCCEDENT, s.getAntecedent().indexOf(pf));
+        }
+        return null;
     }
 
     /*
