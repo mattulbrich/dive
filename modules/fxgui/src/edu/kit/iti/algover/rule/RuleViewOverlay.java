@@ -76,9 +76,7 @@ public class RuleViewOverlay extends AnchorPane {
         applyExButton.setDisable(exApplication.getApplicability() != Applicability.APPLICABLE
                 && application.getApplicability() != Applicability.INSTANTIATION_REQUIRED);
         //TODO use the created exhaustive application instead of creating it again
-        applyExButton.setOnAction(actionEvent -> {
-            listener.onRuleExApplication(this.application.getRule(), selector);
-        });
+        applyExButton.setOnAction(actionEvent -> listener.onRuleExApplication(this.application.getRule(), selector));
 
         refineButton = new JFXButton("Refine");
         refineButton.getStyleClass().add("refine");
@@ -113,13 +111,14 @@ public class RuleViewOverlay extends AnchorPane {
     private void onRuleApplication(ActionEvent ae) {
         int requiredParams = 0;
         for(ParameterDescription<?> p : application.getRule().getAllParameters().values()) {
-            if(p.isRequired() && !p.getDefaultValue().isPresent()) {
+            if(p.isRequired() && p.getDefaultValue().isEmpty()) {
                 requiredParams++;
             }
         }
         if (requiredParams > 0 ||
                 (application.getRule().getAllParameters().size() == 1 &&
-                !application.getRule().getAllParameters().values().contains(FocusProofRule.ON_PARAM_REQ))) {
+                        (!application.getRule().getAllParameters().containsValue(FocusProofRule.ON_PARAM_REQ)) &&
+                        !application.getRule().getAllParameters().containsValue(DefaultFocusProofRule.ON_PARAM_OPT))) {
             String on;
             try {
                 PrettyPrint pp = new PrettyPrint();
@@ -131,9 +130,7 @@ public class RuleViewOverlay extends AnchorPane {
             RuleParameterDialog d = new RuleParameterDialog(this.application.getRule(), listener.getCurrentPVC().getSymbolTable(),
                     listener.getCurrentProofNode().getSequent(), on);
             d.setResizable(true);
-            d.onShownProperty().addListener(e -> {
-                Platform.runLater(() -> d.setResizable(false));
-            });
+            d.onShownProperty().addListener(e -> Platform.runLater(() -> d.setResizable(false)));
 
             d.showAndWait();
             if (d.getParameters() != null) {
@@ -168,7 +165,6 @@ public class RuleViewOverlay extends AnchorPane {
                 branchCount.pseudoClassStateChanged(PC_CLOSES, false);
                 branchCount.pseudoClassStateChanged(PC_SPLITTING, true);
                 branchCount.pseudoClassStateChanged(PC_NON_SPLITTING, false);
-                return;
         }
     }
 
