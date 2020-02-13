@@ -27,11 +27,6 @@ public class AndRightRule extends DefaultFocusProofRule {
     public static final String RULE_NAME = "andRight";
 
     @Override
-    public boolean mayBeExhaustive() {
-        return true;
-    }
-
-    @Override
     public String getName() {
         return RULE_NAME;
     }
@@ -50,7 +45,6 @@ public class AndRightRule extends DefaultFocusProofRule {
     public ProofRuleApplication makeApplicationImpl(ProofNode target, Parameters parameters) throws RuleException {
         Term on = parameters.getValue(ON_PARAM).getTerm();
         TermSelector selector = parameters.getValue(ON_PARAM).getTermSelector();
-        ImmutableList<String> labels = selector.selectTopterm(target.getSequent()).getLabels();
 
         ProofRuleApplicationBuilder builder = new ProofRuleApplicationBuilder(this);
 
@@ -69,8 +63,6 @@ public class AndRightRule extends DefaultFocusProofRule {
         if(((ApplTerm)on).getFunctionSymbol() != BuiltinSymbols.AND) {
             throw NotApplicableException.onlyOperator(this, "&&");
         }
-
-        int no = selector.getTermNo();
 
         builder.newBranch()
                 .addReplacement(selector, on.getTerm(0))

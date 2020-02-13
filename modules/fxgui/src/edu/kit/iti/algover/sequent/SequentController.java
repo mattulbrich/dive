@@ -107,7 +107,7 @@ public class SequentController extends FxmlController {
 
     /**
      * Builds the controller and GUI for the sequent view, that is the two ListViews of
-     * {@Link TopLevelFormula}s.
+     * {@link ProofFormula}s.
      * <p>
      * This loads the GUI from the .fxml resource file
      * <tt>res/edu/kit/iti/algover/sequent/SequentView.fxml</tt>.
@@ -135,12 +135,9 @@ public class SequentController extends FxmlController {
         int font_size_seq_view = MainController.systemprefs.getInt("FONT_SIZE_SEQ_VIEW", 12);
         this.fontsizeProperty.setValue(font_size_seq_view);
 
-        MainController.systemprefs.addPreferenceChangeListener(new PreferenceChangeListener() {
-            @Override
-            public void preferenceChange(PreferenceChangeEvent preferenceChangeEvent) {
-                int font_size_seq_view1 = preferenceChangeEvent.getNode().getInt("FONT_SIZE_SEQ_VIEW", 12);
-                fontsizeProperty.set(font_size_seq_view1);
-            }
+        MainController.systemprefs.addPreferenceChangeListener(preferenceChangeEvent -> {
+            int font_size_seq_view1 = preferenceChangeEvent.getNode().getInt("FONT_SIZE_SEQ_VIEW", 12);
+            fontsizeProperty.set(font_size_seq_view1);
         });
 
 /*        antecedentBox.getChildren().forEach(node -> {
@@ -204,7 +201,7 @@ public class SequentController extends FxmlController {
      * @param id The id associated with the style to be removed (see {@link #addStyleForTerm(TermSelector, String, int, String)})
      */
     public void removeStyle(String id) {
-        styles.removeIf(x -> x.fth == id);
+        styles.removeIf(x -> x.fth.equals(id));
     }
 
     /**
@@ -232,27 +229,6 @@ public class SequentController extends FxmlController {
     public void forceViewSequentForPVC(PVCEntity entity, Proof proof) {
         activeProof = null;
         viewSequentForPVC(entity, proof);
-    }
-
-    //SaG: was used before having exhaustive RuleApp; Remove later if no Bug is found!
-    @Deprecated
-    public void tryMovingOn() {
-        if (activeNode != null) {
-            try {
-                ProofNode nodeBefore = activeNode.get(activeProof);
-
-                if (nodeBefore.getChildren().size() == 1) {
-                    ProofNodeSelector newActiveNode = new ProofNodeSelector(activeNode, 0);
-                    ProofNode node = newActiveNode.get(activeProof);
-                    updateSequent(node.getSequent(), null);
-                    activeNode = newActiveNode;
-                }
-            } catch (RuleException e) {
-                e.printStackTrace(); // should not happen, as long as the activeNode selector is correct
-                return;
-            }
-            updateGoalTypeLabel();
-        }
     }
 
     /**
@@ -323,23 +299,21 @@ public class SequentController extends FxmlController {
         if(selector == null) {
             selector = proofNodeSelector;
         }
-        selector.optionalGet(activeProof).ifPresent(parentNode -> {
-            proofNodeSelector.optionalGet(activeProof).ifPresent(proofNode -> {
-                activeNode = proofNodeSelector;
-                BranchInfo branchInfo = null;
-                ProofRuleApplication application = proofNode.getProofRuleApplication();
-                if (application != null) {
-                    branchInfo = application.getBranchInfo().get(
-                            proofNodeSelector.getPath()[proofNodeSelector.getPath().length - 1]
-                    );
-                }
-                updateSequent(parentNode.getSequent(), branchInfo);
-                updateGoalTypeLabel();
-                if(this.selectedTerm.get() == null || !this.selectedTerm.get().isValidForSequent(parentNode.getSequent())) {
-                    this.selectedTerm.set(null);
-                }
-            });
-        });
+        selector.optionalGet(activeProof).ifPresent(parentNode -> proofNodeSelector.optionalGet(activeProof).ifPresent(proofNode -> {
+            activeNode = proofNodeSelector;
+            BranchInfo branchInfo = null;
+            ProofRuleApplication application = proofNode.getProofRuleApplication();
+            if (application != null) {
+                branchInfo = application.getBranchInfo().get(
+                        proofNodeSelector.getPath()[proofNodeSelector.getPath().length - 1]
+                );
+            }
+            updateSequent(parentNode.getSequent(), branchInfo);
+            updateGoalTypeLabel();
+            if(this.selectedTerm.get() == null || !this.selectedTerm.get().isValidForSequent(parentNode.getSequent())) {
+                this.selectedTerm.set(null);
+            }
+        }));
     }
 
     private void updateSequent(Sequent sequent, BranchInfo branchInfo) {
@@ -381,7 +355,7 @@ public class SequentController extends FxmlController {
 
                 if (!modifiedParts.isEmpty()) {
                     formulas.add(new ViewFormula(i, term, ViewFormula.Type.CHANGED, polarity, modifiedParts, proofFormulas.get(i).getLabels()));
-                    continue formulaLoop;
+                    continue;
                 }
 
                 List<ProofFormula> deletions = polarity == TermSelector.SequentPolarity.ANTECEDENT
@@ -439,7 +413,6 @@ public class SequentController extends FxmlController {
         } catch (RuleException e) {
             System.err.println("Invalid ProofNodeSelector generated");
             e.printStackTrace();
-            return;
         }
     }
 

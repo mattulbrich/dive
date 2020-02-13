@@ -33,11 +33,6 @@ import java.util.Optional;
 public class OrLeftRule extends DefaultFocusProofRule {
 
     @Override
-    public boolean mayBeExhaustive() {
-        return true;
-    }
-
-    @Override
     public String getName() {
         return "orLeft";
     }
