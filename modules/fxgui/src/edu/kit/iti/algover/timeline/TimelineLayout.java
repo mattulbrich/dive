@@ -74,12 +74,6 @@ public class TimelineLayout extends HiddenSidesPane {
         updateFrame();
     }
 
-    private void setUpTimeline() {
-        splitPane.getItems().setAll(nodes);
-        updateFrame();
-
-    }
-
     public void setDividerPosition(double position) {
         splitPane.setDividerPositions(position);
     }
@@ -123,8 +117,8 @@ public class TimelineLayout extends HiddenSidesPane {
 
         setDividerPosition(1 - divider);
 
-        //splitPane.setTranslateX(leftNodeWidth);
-        animate(leftNode.translateXProperty(), 0);
+        splitPane.setTranslateX(leftNodeWidth);
+        animate(splitPane.translateXProperty(), 0);
 
         return true;
     }
@@ -178,9 +172,11 @@ public class TimelineLayout extends HiddenSidesPane {
     }
 
     private <T> void animate(WritableValue<T> value, T target) {
-        KeyValue xkeyvalue = new KeyValue(value, target, Interpolator.EASE_IN);
+        KeyValue xkeyvalue = new KeyValue(value, target);
         KeyFrame keyframe = new KeyFrame(Duration.millis(600), xkeyvalue);
         Timeline tl = new Timeline(keyframe);
         tl.play();
+        tl = null;
+        System.gc();
     }
 }
