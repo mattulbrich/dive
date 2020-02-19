@@ -128,6 +128,15 @@ public class DafnyCodeArea extends AsyncHighlightingCodeArea {
         textChangedProperty.setValue(false);
     }
 
+    /**
+     * Please review this.
+     * I think this method checks if s1 and s2 only differ in the amount of space characters
+     * at positions where there are space characters in the first place.
+     * @param s1 Text 1
+     * @param s2 Text 2
+     * @return true if s1 is semantically the same text, i.e. uses the same characters and if
+     * there is a space character in one string, there need to be one ore more in the other at that position.
+     */
     private boolean textIsSimilar(String s1, String s2) {
         s1 = s1.replaceAll("\\s*", " ");
         s2 = s2.replaceAll("\\s*", " ");

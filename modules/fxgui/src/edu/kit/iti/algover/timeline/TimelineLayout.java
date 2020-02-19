@@ -51,8 +51,9 @@ public class TimelineLayout extends HiddenSidesPane {
         setAnimationDuration(Duration.millis(100));
         setTriggerDistance(HOVER_AREA);
 
-        setOnKeyReleased(event -> {
-            if (event.isAltDown()) {
+
+        setOnKeyPressed(event -> {
+            if (event.isAltDown() && event.isControlDown()) {
                 if (event.getCode() == KeyCode.RIGHT) {
                     moveFrameRight();
                     event.consume();
@@ -112,8 +113,6 @@ public class TimelineLayout extends HiddenSidesPane {
         framePosition++;
         updateFrame();
 
-        System.out.println("new Frame pos " + framePosition);
-
         setDividerPosition(1 - divider);
 
         splitPane.setTranslateX(leftNodeWidth);
@@ -134,9 +133,6 @@ public class TimelineLayout extends HiddenSidesPane {
 
         framePosition--;
         updateFrame();
-
-
-        System.out.println("new Frame pos " + framePosition);
 
         setDividerPosition(1 - divider);
 
