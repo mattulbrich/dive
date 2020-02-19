@@ -139,7 +139,7 @@ public class MainController implements SequentActionListener, RuleApplicationLis
                 editorController.getView(),
                 sequentController.getView(),
                 ruleApplicationController.getRuleApplicationView());
-        timelineView.setDividerPosition(0.2);
+        //timelineView.setDividerPosition(0.2);
 
         this.view = new VBox(toolbar, breadCrumbBar, timelineView, statusBar);
         VBox.setVgrow(timelineView, Priority.ALWAYS);

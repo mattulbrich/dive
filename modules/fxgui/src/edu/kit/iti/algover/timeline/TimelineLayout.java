@@ -5,6 +5,7 @@
  */
 package edu.kit.iti.algover.timeline;
 
+import javafx.animation.Interpolator;
 import javafx.animation.KeyFrame;
 import javafx.animation.KeyValue;
 import javafx.animation.Timeline;
@@ -73,6 +74,12 @@ public class TimelineLayout extends HiddenSidesPane {
         updateFrame();
     }
 
+    private void setUpTimeline() {
+        splitPane.getItems().setAll(nodes);
+        updateFrame();
+
+    }
+
     public void setDividerPosition(double position) {
         splitPane.setDividerPositions(position);
     }
@@ -81,6 +88,7 @@ public class TimelineLayout extends HiddenSidesPane {
         assert framePosition < nodes.size() - 1;
 
         splitPane.getItems().setAll(nodes.get(framePosition), nodes.get(framePosition + 1));
+
         if (framePosition == 0) {
             setLeft(null);
         } else {
@@ -115,8 +123,8 @@ public class TimelineLayout extends HiddenSidesPane {
 
         setDividerPosition(1 - divider);
 
-        splitPane.setTranslateX(leftNodeWidth);
-        animate(splitPane.translateXProperty(), 0);
+        //splitPane.setTranslateX(leftNodeWidth);
+        animate(leftNode.translateXProperty(), 0);
 
         return true;
     }
@@ -170,8 +178,8 @@ public class TimelineLayout extends HiddenSidesPane {
     }
 
     private <T> void animate(WritableValue<T> value, T target) {
-        KeyValue xkeyvalue = new KeyValue(value, target);
-        KeyFrame keyframe = new KeyFrame(Duration.millis(200), xkeyvalue);
+        KeyValue xkeyvalue = new KeyValue(value, target, Interpolator.EASE_IN);
+        KeyFrame keyframe = new KeyFrame(Duration.millis(600), xkeyvalue);
         Timeline tl = new Timeline(keyframe);
         tl.play();
     }
