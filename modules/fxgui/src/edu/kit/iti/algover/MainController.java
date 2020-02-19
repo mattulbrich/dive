@@ -91,10 +91,7 @@ public class MainController implements SequentActionListener, RuleApplicationLis
     // REVIEW: Would <String> not be more appropriate?
     private final CostumBreadCrumbBar<Object> breadCrumbBar;
 
-    /**
-        Flag whether The displayed terms are just a prevew to avoid rule application consideration
-        on terms not represented in backend.
-     */
+    
     public MainController(ProjectManager manager, ExecutorService executor) {
         this.manager = manager;
         this.executor = executor;
