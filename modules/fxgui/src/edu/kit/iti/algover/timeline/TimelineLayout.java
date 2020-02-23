@@ -14,11 +14,14 @@ import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.beans.value.WritableValue;
+import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
+import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.scene.Node;
 import javafx.scene.control.SplitPane;
 import javafx.scene.input.KeyCode;
+import javafx.scene.input.SwipeEvent;
 import javafx.scene.layout.Pane;
 import javafx.util.Duration;
 import org.controlsfx.control.HiddenSidesPane;
@@ -54,6 +57,7 @@ public class TimelineLayout extends HiddenSidesPane {
         this.goRight = new GoRightArrow(this);
         this.splitPane = new SplitPane();
         this.splitPane.setPadding(new Insets(0, 0, 0, 0));
+
 
         contentPane = new Pane();
         contentPane.getChildren().add(splitPane);
@@ -116,7 +120,6 @@ public class TimelineLayout extends HiddenSidesPane {
     }
 
     public void setDividerPosition(double position) {
-        ObservableList<SplitPane.Divider> dividers = splitPane.getDividers();
 
     }
 
@@ -136,6 +139,27 @@ public class TimelineLayout extends HiddenSidesPane {
         for (int i = 0; i < dividers.size(); i += 2) {
             dividers.get(i).setPosition(0.1 + ((1.0 * (i / 2)) / (nodes.size() - 2)));
         }
+
+        dividers.get(0).positionProperty().addListener(new ChangeListener<Number>() {
+            @Override
+            public void changed(ObservableValue<? extends Number> observableValue, Number oldValue, Number newValue) {
+                dividers.get(2).setPosition(0.5 + newValue.doubleValue());
+            }
+        });
+
+        dividers.get(2).positionProperty().addListener(new ChangeListener<Number>() {
+            @Override
+            public void changed(ObservableValue<? extends Number> observableValue, Number oldValue, Number newValue) {
+                dividers.get(0).setPosition(newValue.doubleValue() - 0.5);
+            }
+        });
+
+        dividers.get(1).positionProperty().addListener(new ChangeListener<Number>() {
+            @Override
+            public void changed(ObservableValue<? extends Number> observableValue, Number oldValue, Number newValue) {
+
+            }
+        });
 
     }
 
