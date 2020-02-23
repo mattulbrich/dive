@@ -62,10 +62,13 @@ public class TimelineLayout extends HiddenSidesPane {
                     event.consume();
                 } else if (event.getCode() == KeyCode.DIGIT1) {
                     goToView(0);
+                    event.consume();
                 } else if (event.getCode() == KeyCode.DIGIT2) {
                     goToView(1);
+                    event.consume();
                 } else if (event.getCode() == KeyCode.DIGIT3) {
                     goToView(2);
+                    event.consume();
                 }
             }
 
