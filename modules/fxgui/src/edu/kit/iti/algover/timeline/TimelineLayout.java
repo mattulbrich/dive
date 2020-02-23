@@ -53,7 +53,7 @@ public class TimelineLayout extends HiddenSidesPane {
         this.goLeft = new GoLeftArrow(this);
         this.goRight = new GoRightArrow(this);
         this.splitPane = new SplitPane();
-        this.splitPane.setPadding(new Insets(0, HOVER_AREA, 0, HOVER_AREA));
+        this.splitPane.setPadding(new Insets(0, 0, 0, 0));
 
         contentPane = new Pane();
         contentPane.getChildren().add(splitPane);
@@ -68,13 +68,26 @@ public class TimelineLayout extends HiddenSidesPane {
         framePosition.addListener(new ChangeListener<Number>() {
             @Override
             public void changed(ObservableValue<? extends Number> observableValue, Number oldValue, Number newValue) {
+                if (newValue.intValue() < 0 || newValue.intValue() >= nodes.length - 1) {
+                    return;
+                }
+                double width = 0;
 
+                for (int i = 0; i < newValue.intValue(); i++) {
+                    width += nodes[i].getBoundsInParent().getWidth();
+                }
+
+                animate(splitPane.translateXProperty(), -width);
+
+                System.out.println(splitPane.getWidth());
+
+                updateFrame(newValue.intValue());
+                requestFocus();
             }
         });
 
-
         setOnKeyPressed(event -> {
-            if (event.isAltDown() && event.isControlDown()) {
+            if (event.isAltDown()) {
                 if (event.getCode() == KeyCode.RIGHT) {
                     moveFrameRight();
                     event.consume();
@@ -83,50 +96,63 @@ public class TimelineLayout extends HiddenSidesPane {
                     event.consume();
                 } else if (event.getCode() == KeyCode.DIGIT1) {
                     framePosition.set(0);
+                    event.consume();
                 } else if (event.getCode() == KeyCode.DIGIT2) {
                     framePosition.set(1);
+                    event.consume();
                 } else if (event.getCode() == KeyCode.DIGIT3) {
                     framePosition.set(2);
+                    event.consume();
                 }
             }
 
         });
         setUpFrame();
-        updateFrame();
+
+        framePosition.set(0);
+        updateFrame(0);
+
 
     }
 
     public void setDividerPosition(double position) {
         ObservableList<SplitPane.Divider> dividers = splitPane.getDividers();
 
-        for (int i = 0; i < dividers.size(); i++) {
-            dividers.get(i).setPosition((i % 2 == 0) ? position : (1 - position));
-        }
     }
 
     private void setUpFrame() {
         splitPane.getItems().setAll(nodes);
         splitPane.prefWidthProperty().bind(contentPane.widthProperty().multiply(2));
         splitPane.prefHeightProperty().bind(contentPane.heightProperty());
+
+        ObservableList<SplitPane.Divider> dividers = splitPane.getDividers();
+
+        dividers.get(0).setPosition(0.1);
+
+        for (int i = 1; i < dividers.size(); i += 2) {
+            dividers.get(i).setPosition(1.0 / (nodes.size() - 2));
+        }
+
+        for (int i = 0; i < dividers.size(); i += 2) {
+            dividers.get(i).setPosition(0.1 + ((1.0 * (i / 2)) / (nodes.size() - 2)));
+        }
+
     }
 
 
-    private void updateFrame() {
-        assert framePosition.get() < nodes.size() - 1;
+    private void updateFrame(int position) {
+        assert position < nodes.size() - 1;
 
-        //splitPane.getItems().setAll(nodes.get(framePosition), nodes.get(framePosition + 1));
-
-        if (framePosition.isEqualTo(0).get()) {
+        if (position == 0) {
             setLeft(null);
         } else {
             setLeft(goLeft);
         }
-        if (framePosition.isEqualTo(nodes.size() - 2).get()) {
+        if (position == nodes.size() - 2) {
             setRight(null);
         } else {
             setRight(goRight);
         }
-        requestFocus();
     }
 
     public void addAndMoveRight(Node view) {
@@ -138,20 +164,10 @@ public class TimelineLayout extends HiddenSidesPane {
 
         if (framePosition.greaterThan(nodes.size() - 2).get()) {
             return false;
-        }
-
-        Node leftNode = nodes.get(framePosition.get());
-
-        double divider = splitPane.getDividerPositions()[0];
-        double leftNodeWidth = leftNode.getBoundsInParent().getWidth();
+        };
 
         framePosition.set(framePosition.get() + 1);
-        updateFrame();
 
-        //setDividerPosition(1 - divider);
-
-        splitPane.setTranslateX(0);
-        animate(splitPane.translateXProperty(), -2000);
 
         return true;
     }
@@ -161,26 +177,15 @@ public class TimelineLayout extends HiddenSidesPane {
             return false;
         }
 
-        Node rightNode = nodes.get(framePosition.get() + 1);
-
-        double divider = splitPane.getDividerPositions()[0];
-        double rightNodeWidth = rightNode.getBoundsInParent().getWidth();
-
         framePosition.set(framePosition.get() - 1);
-        updateFrame();
-
-        //setDividerPosition(1 - divider);
-
-        splitPane.setTranslateX(-rightNodeWidth);
-        animate(splitPane.translateXProperty(), 0);
 
         return true;
     }
 
 
     private <T> void animate(WritableValue<T> value, T target) {
-        KeyValue xkeyvalue = new KeyValue(value, target);
-        KeyFrame keyframe = new KeyFrame(Duration.millis(600), xkeyvalue);
+        KeyValue xkeyvalue = new KeyValue(value, target, Interpolator.EASE_BOTH);
+        KeyFrame keyframe = new KeyFrame(Duration.millis(300), xkeyvalue);
         Timeline tl = new Timeline(keyframe);
         tl.play();
         tl = null;
