@@ -14,9 +14,7 @@ import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.beans.value.WritableValue;
-import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
-import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.scene.Node;
 import javafx.scene.control.SplitPane;
@@ -75,17 +73,19 @@ public class TimelineLayout extends HiddenSidesPane {
                 if (newValue.intValue() < 0 || newValue.intValue() >= nodes.length - 1) {
                     return;
                 }
-                double width = 0;
-
-                for (int i = 0; i < newValue.intValue(); i++) {
-                    width += nodes[i].getBoundsInParent().getWidth();
-                }
-
-                animate(splitPane.translateXProperty(), -width);
-
-                System.out.println(splitPane.getWidth());
 
                 updateFrame(newValue.intValue());
+
+
+                double target = 0;
+
+                if (newValue.intValue() > 0) {
+                    target = -splitPane.getDividerPositions()[newValue.intValue() - 1] * splitPane.getWidth();
+                }
+
+                animate(splitPane.translateXProperty(),
+                        target);
+
                 requestFocus();
             }
         });
@@ -115,8 +115,6 @@ public class TimelineLayout extends HiddenSidesPane {
 
         framePosition.set(0);
         updateFrame(0);
-
-
     }
 
     public void setDividerPosition(double position) {
@@ -124,16 +122,24 @@ public class TimelineLayout extends HiddenSidesPane {
     }
 
     private void setUpFrame() {
+
+        setLeft(goLeft);
+        setRight(goRight);
+
         splitPane.getItems().setAll(nodes);
         splitPane.prefWidthProperty().bind(contentPane.widthProperty().multiply(2));
+        contentPane.widthProperty().addListener(new ChangeListener<Number>() {
+            @Override
+            public void changed(ObservableValue<? extends Number> observableValue, Number oldValue, Number newValue) {
+                splitPane.setTranslateX(splitPane.getTranslateX() - (framePosition.get() / 2.0) * (newValue.doubleValue() - oldValue.doubleValue()));
+            }
+        });
         splitPane.prefHeightProperty().bind(contentPane.heightProperty());
 
         ObservableList<SplitPane.Divider> dividers = splitPane.getDividers();
 
-        dividers.get(0).setPosition(0.1);
-
         for (int i = 1; i < dividers.size(); i += 2) {
-            dividers.get(i).setPosition(1.0 / (nodes.size() - 2));
+            dividers.get(i).setPosition((i * 1.0) / (nodes.size() - 2));
         }
 
         for (int i = 0; i < dividers.size(); i += 2) {
@@ -153,29 +159,29 @@ public class TimelineLayout extends HiddenSidesPane {
                 dividers.get(0).setPosition(newValue.doubleValue() - 0.5);
             }
         });
-
-        dividers.get(1).positionProperty().addListener(new ChangeListener<Number>() {
-            @Override
-            public void changed(ObservableValue<? extends Number> observableValue, Number oldValue, Number newValue) {
-
-            }
-        });
-
     }
 
-
     private void updateFrame(int position) {
-        assert position < nodes.size() - 1;
+        assert 0 <= position && position < nodes.size() - 1;
+
+        // move second divider to mid
+        ObservableList<SplitPane.Divider> dividers = splitPane.getDividers();
+        double delta = (dividers.get(1).getPosition() - 0.5);
+        dividers.get(0).setPosition(dividers.get(0).getPosition() - delta);
+        dividers.get(1).setPosition(0.5);
+        splitPane.setTranslateX(splitPane.getTranslateX() + delta * splitPane.getWidth());
 
         if (position == 0) {
-            setLeft(null);
+            goLeft.setDisable(true);
         } else {
-            setLeft(goLeft);
+            goLeft.setDisable(false);
+
         }
         if (position == nodes.size() - 2) {
-            setRight(null);
+            goRight.setDisable(true);
+
         } else {
-            setRight(goRight);
+            goRight.setDisable(false);
         }
     }
 
@@ -185,14 +191,10 @@ public class TimelineLayout extends HiddenSidesPane {
     }
 
     public boolean moveFrameRight() {
-
-        if (framePosition.greaterThan(nodes.size() - 2).get()) {
+        if (framePosition.greaterThanOrEqualTo(nodes.size() - 2).get()) {
             return false;
-        };
-
+        }
         framePosition.set(framePosition.get() + 1);
-
-
         return true;
     }
 
@@ -202,7 +204,6 @@ public class TimelineLayout extends HiddenSidesPane {
         }
 
         framePosition.set(framePosition.get() - 1);
-
         return true;
     }
 
@@ -212,7 +213,5 @@ public class TimelineLayout extends HiddenSidesPane {
         KeyFrame keyframe = new KeyFrame(Duration.millis(300), xkeyvalue);
         Timeline tl = new Timeline(keyframe);
         tl.play();
-        tl = null;
-        System.gc();
     }
 }
