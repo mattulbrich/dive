@@ -9,17 +9,16 @@ import javafx.animation.Interpolator;
 import javafx.animation.KeyFrame;
 import javafx.animation.KeyValue;
 import javafx.animation.Timeline;
-import javafx.beans.Observable;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.beans.value.WritableValue;
 import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
+import javafx.geometry.Side;
 import javafx.scene.Node;
 import javafx.scene.control.SplitPane;
 import javafx.scene.input.KeyCode;
-import javafx.scene.input.SwipeEvent;
 import javafx.scene.layout.Pane;
 import javafx.util.Duration;
 import org.controlsfx.control.HiddenSidesPane;
@@ -38,9 +37,8 @@ public class TimelineLayout extends HiddenSidesPane {
     private final List<Node> nodes;
     private final Pane contentPane;
     private final SplitPane splitPane;
-    private final GoLeftArrow goLeft;
-    private final GoRightArrow goRight;
-
+    private final SideArrowButton goLeft;
+    private final SideArrowButton goRight;
 
     private SimpleIntegerProperty framePosition;
 
@@ -51,11 +49,14 @@ public class TimelineLayout extends HiddenSidesPane {
 
         this.nodes = new ArrayList<>();
         this.nodes.addAll(Arrays.asList(nodes));
-        this.goLeft = new GoLeftArrow(this);
-        this.goRight = new GoRightArrow(this);
+        this.goLeft = new SideArrowButton(Side.LEFT);
+        this.goRight = new SideArrowButton(Side.RIGHT);
+
+        this.goLeft.setOnAction(actionEvent -> framePosition.set(framePosition.get() - 1));
+        this.goRight.setOnAction(actionEvent -> framePosition.set(framePosition.get() + 1));
+
         this.splitPane = new SplitPane();
         this.splitPane.setPadding(new Insets(0, 0, 0, 0));
-
 
         contentPane = new Pane();
         contentPane.getChildren().add(splitPane);
@@ -73,12 +74,9 @@ public class TimelineLayout extends HiddenSidesPane {
                 if (newValue.intValue() < 0 || newValue.intValue() >= nodes.length - 1) {
                     return;
                 }
-
                 updateFrame(newValue.intValue());
 
-
                 double target = 0;
-
                 if (newValue.intValue() > 0) {
                     target = -splitPane.getDividerPositions()[newValue.intValue() - 1] * splitPane.getWidth();
                 }
@@ -87,6 +85,13 @@ public class TimelineLayout extends HiddenSidesPane {
                         target);
 
                 requestFocus();
+            }
+        });
+
+        framePosition.addListener(new ChangeListener<Number>() {
+            @Override
+            public void changed(ObservableValue<? extends Number> observableValue, Number number, Number t1) {
+                System.out.println("How many listeners can one add to one property?");
             }
         });
 
@@ -117,6 +122,7 @@ public class TimelineLayout extends HiddenSidesPane {
         updateFrame(0);
     }
 
+    @Deprecated
     public void setDividerPosition(double position) {
 
     }
@@ -190,6 +196,7 @@ public class TimelineLayout extends HiddenSidesPane {
         moveFrameRight();
     }
 
+    @Deprecated
     public boolean moveFrameRight() {
         if (framePosition.greaterThanOrEqualTo(nodes.size() - 2).get()) {
             return false;
@@ -198,6 +205,7 @@ public class TimelineLayout extends HiddenSidesPane {
         return true;
     }
 
+    @Deprecated
     public boolean moveFrameLeft() {
         if (framePosition.get() < 1) {
             return false;
