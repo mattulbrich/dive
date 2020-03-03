@@ -9,10 +9,13 @@ import javafx.animation.Interpolator;
 import javafx.animation.KeyFrame;
 import javafx.animation.KeyValue;
 import javafx.animation.Timeline;
+import javafx.beans.property.ListProperty;
 import javafx.beans.property.SimpleIntegerProperty;
+import javafx.beans.property.SimpleListProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.beans.value.WritableValue;
+import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
 import javafx.geometry.Side;
@@ -23,55 +26,116 @@ import javafx.scene.layout.Pane;
 import javafx.util.Duration;
 import org.controlsfx.control.HiddenSidesPane;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-
 /**
  * Created by philipp on 10.07.17.
+ * updated by Valentin on 03.03.20
  */
 public class TimelineLayout extends HiddenSidesPane {
 
     private static final double HOVER_AREA = 20;
 
-    private final List<Node> nodes;
+    private final ListProperty<Node> nodes;
+    private final SimpleIntegerProperty framePosition;
+    private final SimpleIntegerProperty numViews;
+
     private final Pane contentPane;
     private final SplitPane splitPane;
     private final SideArrowButton goLeft;
     private final SideArrowButton goRight;
-
-    private SimpleIntegerProperty framePosition;
 
     public TimelineLayout(Node... nodes) {
         if (nodes.length < 2) {
             throw new IllegalArgumentException("Need at least to nodes for a timeline layout");
         }
 
-        this.nodes = new ArrayList<>();
-        this.nodes.addAll(Arrays.asList(nodes));
+        this.numViews = new SimpleIntegerProperty(1);
+        this.framePosition = new SimpleIntegerProperty(0);
+
+        // List property of all nodes in TimelineView
+        ObservableList<Node> nodeList = FXCollections.observableArrayList(nodes);
+        this.nodes = new SimpleListProperty<>(nodeList);
+
+        // The content of this HiddenSidesPane is regular Pane which has a splitPane as child
+        this.contentPane = new Pane();
+        this.splitPane = new SplitPane();
+
         this.goLeft = new SideArrowButton(Side.LEFT);
         this.goRight = new SideArrowButton(Side.RIGHT);
 
-        this.goLeft.setOnAction(actionEvent -> framePosition.set(framePosition.get() - 1));
-        this.goRight.setOnAction(actionEvent -> framePosition.set(framePosition.get() + 1));
+        configureGUI();
+        configureActionHandling();
 
-        this.splitPane = new SplitPane();
-        this.splitPane.setPadding(new Insets(0, 0, 0, 0));
+        updateFrame(0);
+    }
 
-        contentPane = new Pane();
-        contentPane.getChildren().add(splitPane);
-
-        setContent(contentPane);
-        setAnimationDelay(Duration.ZERO);
-        setAnimationDuration(Duration.millis(100));
-        setTriggerDistance(HOVER_AREA);
-
-        framePosition = new SimpleIntegerProperty(0);
-
-        framePosition.addListener(new ChangeListener<Number>() {
+    /**
+     * Configure gui. (Possibly divide into several methods)
+     *  Hierarchy: Set content and sides (left and right) of hidden sides pane.
+     *  this (HiddenSidesPane)
+     *      -> contentPane (Pane)
+     *          -> splitPane (SplitPane)
+     *              -> nodes (SimpleListProperty of Nodes)
+     *  Set default
+     *  Bind dependencys on resize and divider movement.
+     */
+    private void configureGUI() {
+        this.numViews.bind(nodes.sizeProperty().subtract(1));
+        this.splitPane.getItems().setAll(this.nodes);
+        this.contentPane.getChildren().setAll(this.splitPane);
+        this.splitPane.prefWidthProperty().bind(
+                this.contentPane.widthProperty().multiply(2));
+        this.contentPane.widthProperty().addListener(new ChangeListener<>() {
             @Override
             public void changed(ObservableValue<? extends Number> observableValue, Number oldValue, Number newValue) {
-                if (newValue.intValue() < 0 || newValue.intValue() >= nodes.length - 1) {
+                double resizeDelta = newValue.doubleValue() - oldValue.doubleValue();
+                double viewFactor = (framePosition.get() * 1.0) / numViews.subtract(1).get();
+                splitPane.setTranslateX(splitPane.getTranslateX() - viewFactor * resizeDelta);
+            }
+        });
+        this.splitPane.prefHeightProperty().bind(this.contentPane.heightProperty());
+
+        // Set default positions for dividers
+        ObservableList<SplitPane.Divider> dividers = this.splitPane.getDividers();
+        for (int i = 1; i < dividers.size(); i += 2) {
+            dividers.get(i).setPosition((i * 1.0) / (numViews.get() - 1));
+        }
+
+        for (int i = 0; i < dividers.size(); i += 2) {
+            dividers.get(i).setPosition(0.1 + ((1.0 * (i / 2)) / (numViews.get() - 1)));
+        }
+
+        // the odd numbered (even indexed) dividers depend on oneanother
+        dividers.get(0).positionProperty().addListener(new ChangeListener<>() {
+            @Override
+            public void changed(ObservableValue<? extends Number> observableValue, Number oldValue, Number newValue) {
+                dividers.get(2).setPosition(dividers.get(1).getPosition() + newValue.doubleValue());
+            }
+        });
+
+        dividers.get(2).positionProperty().addListener(new ChangeListener<>() {
+            @Override
+            public void changed(ObservableValue<? extends Number> observableValue, Number oldValue, Number newValue) {
+                dividers.get(0).setPosition(newValue.doubleValue() - dividers.get(1).getPosition());
+            }
+        });
+
+        this.splitPane.setPadding(new Insets(0, 0, 0, 0));
+        this.setContent(contentPane);
+        this.setLeft(goLeft);
+        this.setRight(goRight);
+        this.setAnimationDelay(Duration.ZERO);
+        this.setAnimationDuration(Duration.millis(100));
+        this.setTriggerDistance(HOVER_AREA);
+    }
+
+    /**
+     * Add listeners for reacting to state properties. Set Listeners for user interaction.
+     */
+    private void configureActionHandling() {
+        framePosition.addListener(new ChangeListener<>() {
+            @Override
+            public void changed(ObservableValue<? extends Number> observableValue, Number oldValue, Number newValue) {
+                if (newValue.intValue() < 0 || newValue.intValue() >= numViews.get()) {
                     return;
                 }
                 updateFrame(newValue.intValue());
@@ -87,13 +151,8 @@ public class TimelineLayout extends HiddenSidesPane {
                 requestFocus();
             }
         });
-
-        framePosition.addListener(new ChangeListener<Number>() {
-            @Override
-            public void changed(ObservableValue<? extends Number> observableValue, Number number, Number t1) {
-                System.out.println("How many listeners can one add to one property?");
-            }
-        });
+        this.goLeft.setOnAction(actionEvent -> framePosition.set(framePosition.get() - 1));
+        this.goRight.setOnAction(actionEvent -> framePosition.set(framePosition.get() + 1));
 
         setOnKeyPressed(event -> {
             if (event.isAltDown()) {
@@ -116,61 +175,12 @@ public class TimelineLayout extends HiddenSidesPane {
             }
 
         });
-        setUpFrame();
-
-        framePosition.set(0);
-        updateFrame(0);
-    }
-
-    @Deprecated
-    public void setDividerPosition(double position) {
-
-    }
-
-    private void setUpFrame() {
-
-        setLeft(goLeft);
-        setRight(goRight);
-
-        splitPane.getItems().setAll(nodes);
-        splitPane.prefWidthProperty().bind(contentPane.widthProperty().multiply(2));
-        contentPane.widthProperty().addListener(new ChangeListener<Number>() {
-            @Override
-            public void changed(ObservableValue<? extends Number> observableValue, Number oldValue, Number newValue) {
-                splitPane.setTranslateX(splitPane.getTranslateX() - (framePosition.get() / 2.0) * (newValue.doubleValue() - oldValue.doubleValue()));
-            }
-        });
-        splitPane.prefHeightProperty().bind(contentPane.heightProperty());
-
-        ObservableList<SplitPane.Divider> dividers = splitPane.getDividers();
-
-        for (int i = 1; i < dividers.size(); i += 2) {
-            dividers.get(i).setPosition((i * 1.0) / (nodes.size() - 2));
-        }
-
-        for (int i = 0; i < dividers.size(); i += 2) {
-            dividers.get(i).setPosition(0.1 + ((1.0 * (i / 2)) / (nodes.size() - 2)));
-        }
-
-        dividers.get(0).positionProperty().addListener(new ChangeListener<Number>() {
-            @Override
-            public void changed(ObservableValue<? extends Number> observableValue, Number oldValue, Number newValue) {
-                dividers.get(2).setPosition(0.5 + newValue.doubleValue());
-            }
-        });
-
-        dividers.get(2).positionProperty().addListener(new ChangeListener<Number>() {
-            @Override
-            public void changed(ObservableValue<? extends Number> observableValue, Number oldValue, Number newValue) {
-                dividers.get(0).setPosition(newValue.doubleValue() - 0.5);
-            }
-        });
     }
 
     private void updateFrame(int position) {
-        assert 0 <= position && position < nodes.size() - 1;
+        assert 0 <= position && position < numViews.get();
 
-        // move second divider to mid
+        // move second divider to the middle
         ObservableList<SplitPane.Divider> dividers = splitPane.getDividers();
         double delta = (dividers.get(1).getPosition() - 0.5);
         dividers.get(0).setPosition(dividers.get(0).getPosition() - delta);
@@ -178,17 +188,21 @@ public class TimelineLayout extends HiddenSidesPane {
         splitPane.setTranslateX(splitPane.getTranslateX() + delta * splitPane.getWidth());
 
         if (position == 0) {
-            goLeft.setDisable(true);
+            goLeft.hide();
         } else {
-            goLeft.setDisable(false);
-
+            goLeft.show();
         }
-        if (position == nodes.size() - 2) {
-            goRight.setDisable(true);
+        if (position == numViews.subtract(1).get()) {
+            goRight.hide();
 
         } else {
-            goRight.setDisable(false);
+            goRight.show();
         }
+    }
+
+    @Deprecated
+    public void setDividerPosition(double position) {
+
     }
 
     public void addAndMoveRight(Node view) {
@@ -198,7 +212,7 @@ public class TimelineLayout extends HiddenSidesPane {
 
     @Deprecated
     public boolean moveFrameRight() {
-        if (framePosition.greaterThanOrEqualTo(nodes.size() - 2).get()) {
+        if (framePosition.greaterThanOrEqualTo(numViews.subtract(1)).get()) {
             return false;
         }
         framePosition.set(framePosition.get() + 1);
