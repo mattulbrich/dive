@@ -17,12 +17,9 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.geometry.Side;
 import javafx.scene.Node;
-import javafx.scene.control.SplitPane;
 import javafx.scene.input.KeyCode;
 import javafx.util.Duration;
 import org.controlsfx.control.HiddenSidesPane;
-
-import java.util.Arrays;
 
 /**
  * Created by philipp on 10.07.17.

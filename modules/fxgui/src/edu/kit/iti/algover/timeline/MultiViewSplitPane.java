@@ -37,9 +37,9 @@ class MultiViewSplitPane extends Pane {
         this.splitPane.prefHeightProperty().bind(this.heightProperty());
         List<Node> pnodes = new ArrayList<Node>();
         pnodes.addAll(Arrays.asList(nodes));
+        // pad to even number
         if (pnodes.size() % 2 != 0) {
             pnodes.add(new Pane());
-            System.out.println("Pane added");
         }
         this.splitPane.getItems().setAll(pnodes);
         this.windowSizeMultiple = (pnodes.size() / 2);
@@ -90,8 +90,7 @@ class MultiViewSplitPane extends Pane {
         this.widthProperty().addListener(
                 (ObservableValue<? extends Number> observableValue, Number oldValue, Number newValue) -> {
                     double resizeDelta = newValue.doubleValue() - oldValue.doubleValue();
-                    double viewFactor = (timelineLayout.framePositionProperty().get() * 1.0) /
-                            (splitPane.getItems().size() - 2);
+                    double viewFactor = timelineLayout.framePositionProperty().get() * 0.5;
                     splitPane.setTranslateX(splitPane.getTranslateX() - viewFactor * resizeDelta);
                 });
     }
