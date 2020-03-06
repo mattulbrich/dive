@@ -9,10 +9,7 @@ import javafx.animation.Interpolator;
 import javafx.animation.KeyFrame;
 import javafx.animation.KeyValue;
 import javafx.animation.Timeline;
-import javafx.beans.property.IntegerProperty;
-import javafx.beans.property.ListProperty;
-import javafx.beans.property.SimpleIntegerProperty;
-import javafx.beans.property.SimpleListProperty;
+import javafx.beans.property.*;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.beans.value.WritableValue;
@@ -33,13 +30,28 @@ import java.util.Arrays;
  */
 public class TimelineLayout extends HiddenSidesPane {
 
+    /**
+     * Design parameter form HiddenSidesPane. Same for all TimelineViews
+     */
     private static final double HOVER_AREA = 20;
 
+    /*  List of properties. Some, if not all, of them might be moved to a
+        dedicated class. */
+    /**
+     * Holds the items of a TimelineView
+     */
     private final ListProperty<Node> nodes;
-    private final IntegerProperty framePosition;
+    /**
+     * Representing the current position of the timeline.
+     * Currently only set in this class.
+     */
+    private final ReadOnlyIntegerWrapper framePosition;
     private final SimpleIntegerProperty numViews;
 
-    private final SplitPane splitPane;
+    /**
+     * The Pane that holds a SplitPane with displayed nodes. An displays
+     * only two at a time.
+     */
     private MultiViewSplitPane viewPane;
     private final SideArrowButton goLeft;
     private final SideArrowButton goRight;
@@ -50,14 +62,10 @@ public class TimelineLayout extends HiddenSidesPane {
         }
 
         this.numViews = new SimpleIntegerProperty(1);
-        this.framePosition = new SimpleIntegerProperty(0);
+        this.framePosition = new ReadOnlyIntegerWrapper(0);
 
-        // List property of all nodes in TimelineView
         ObservableList<Node> nodeList = FXCollections.observableArrayList(nodes);
         this.nodes = new SimpleListProperty<>(nodeList);
-
-        // The content of this HiddenSidesPane is regular Pane which has a splitPane as child
-        this.splitPane = new SplitPane();
 
         this.viewPane = new MultiViewSplitPane(this, nodes);
 
@@ -68,7 +76,7 @@ public class TimelineLayout extends HiddenSidesPane {
         configureGUI();
         configureActionHandling();
 
-        updateFrame(0);
+        this.updateFrame(0);
     }
 
     /**
@@ -93,6 +101,8 @@ public class TimelineLayout extends HiddenSidesPane {
                 if (newValue.intValue() < 0 || newValue.intValue() >= numViews.get()) {
                     return;
                 }
+
+                viewPane.resetDividerPositions(oldValue.intValue(), newValue.intValue());
                 updateFrame(newValue.intValue());
 
                 double target = viewPane.getPositionOfNode(newValue.intValue());
@@ -104,6 +114,7 @@ public class TimelineLayout extends HiddenSidesPane {
         this.goLeft.setOnAction(actionEvent -> framePosition.set(framePosition.get() - 1));
         this.goRight.setOnAction(actionEvent -> framePosition.set(framePosition.get() + 1));
 
+        // Key listening. May be moved to global Controls class
         setOnKeyPressed(event -> {
             if (event.isAltDown()) {
                 if (event.getCode() == KeyCode.RIGHT) {
@@ -127,6 +138,10 @@ public class TimelineLayout extends HiddenSidesPane {
         });
     }
 
+    /**
+     * Update left and right buttons
+     * @param position new position of the timeline view
+     */
     private void updateFrame(int position) {
         assert 0 <= position && position < numViews.get();
         if (position == 0) {
@@ -142,8 +157,8 @@ public class TimelineLayout extends HiddenSidesPane {
         }
     }
 
-    public IntegerProperty framePositionProperty() {
-        return framePosition;
+    public ReadOnlyIntegerProperty framePositionProperty() {
+        return framePosition.getReadOnlyProperty();
     }
 
     public void setDividerPosition(double position) {
@@ -155,6 +170,11 @@ public class TimelineLayout extends HiddenSidesPane {
         moveFrameRight();
     }
 
+    /**
+     * Tell the TimelineView to move the frame to the right.
+     * @return true iff move was possible.
+     * @Deprecated Increment framePositionProperty.
+     */
     @Deprecated
     public boolean moveFrameRight() {
         if (framePosition.greaterThanOrEqualTo(numViews.subtract(1)).get()) {
@@ -164,6 +184,11 @@ public class TimelineLayout extends HiddenSidesPane {
         return true;
     }
 
+    /**
+     * Tell the TimelineView to move the frame to the left.
+     * @return true iff move was possible.
+     * @Deprecated Decrement framePositionProperty.
+     */
     @Deprecated
     public boolean moveFrameLeft() {
         if (framePosition.get() < 1) {
@@ -175,8 +200,14 @@ public class TimelineLayout extends HiddenSidesPane {
     }
 
 
-    private <T> void animate(WritableValue<T> value, T target) {
-        KeyValue xkeyvalue = new KeyValue(value, target, Interpolator.EASE_BOTH);
+    /**
+     * Start JavaFX Timeline animation
+     * @param parameter parameter that should be altered and interpolated for animation.
+     * @param target target value for parameter.
+     * @param <T> Type
+     */
+    private <T> void animate(WritableValue<T> parameter, T target) {
+        KeyValue xkeyvalue = new KeyValue(parameter, target, Interpolator.EASE_BOTH);
         KeyFrame keyframe = new KeyFrame(Duration.millis(300), xkeyvalue);
         Timeline tl = new Timeline(keyframe);
         tl.play();

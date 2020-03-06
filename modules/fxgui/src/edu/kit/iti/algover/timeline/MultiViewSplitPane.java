@@ -22,6 +22,9 @@ class MultiViewSplitPane extends Pane {
 
     private final SplitPane splitPane;
     private final int windowSizeMultiple;
+    /**
+     * every other divider has to remain in a certain global position.
+     */
     private final double[] screenDividers;
     // this is dropped, once framePosition property is subscribable
     private final TimelineLayout timelineLayout;
@@ -29,19 +32,19 @@ class MultiViewSplitPane extends Pane {
 
     public MultiViewSplitPane(TimelineLayout timelineLayout, Node... nodes) {
         this.timelineLayout = timelineLayout;
-        splitPane = new SplitPane();
+        this.splitPane = new SplitPane();
         this.getChildren().setAll(splitPane);
-        splitPane.prefHeightProperty().bind(this.heightProperty());
+        this.splitPane.prefHeightProperty().bind(this.heightProperty());
         List<Node> pnodes = new ArrayList<Node>();
         pnodes.addAll(Arrays.asList(nodes));
         if (pnodes.size() % 2 != 0) {
             pnodes.add(new Pane());
             System.out.println("Pane added");
         }
-        splitPane.getItems().setAll(pnodes);
-        windowSizeMultiple = (pnodes.size() / 2);
-        screenDividers = new double[windowSizeMultiple];
-        splitPane.prefWidthProperty().bind(this.widthProperty().multiply(windowSizeMultiple));
+        this.splitPane.getItems().setAll(pnodes);
+        this.windowSizeMultiple = (pnodes.size() / 2);
+        this.screenDividers = new double[windowSizeMultiple];
+        this.splitPane.prefWidthProperty().bind(this.widthProperty().multiply(windowSizeMultiple));
         dividerScreenMultiple();
         dividerAdaptionListeners();
     }
@@ -52,11 +55,10 @@ class MultiViewSplitPane extends Pane {
             screenDividers[numdisp] = (numdisp + 1) * (1.0 / windowSizeMultiple);
         }
 
-        int numdisp = 0;
-
         dividers.get(0).setPosition(0.2 / windowSizeMultiple);
         dividers.get(dividers.size() - 1).setPosition(screenDividers[screenDividers.length - 1] + (0.2 / windowSizeMultiple));
 
+        int numdisp = 0;
         for (int i = 1; i < dividers.size(); i+=2) {
             dividers.get(i).setPosition(screenDividers[numdisp++]);
         }
@@ -92,15 +94,9 @@ class MultiViewSplitPane extends Pane {
                             (splitPane.getItems().size() - 2);
                     splitPane.setTranslateX(splitPane.getTranslateX() - viewFactor * resizeDelta);
                 });
-
-        timelineLayout.framePositionProperty().addListener(
-                (ObservableValue<? extends Number> observableValue, Number oldValue, Number newValue) -> {
-                    resetDividerPositions(oldValue.intValue(), newValue.intValue());
-                });
-
     }
 
-    private void resetDividerPositions(int oldPos, int newPos) {
+    public void resetDividerPositions(int oldPos, int newPos) {
         if (oldPos % 2 != 1) {
             return;
         }
