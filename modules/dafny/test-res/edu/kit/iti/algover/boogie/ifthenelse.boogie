@@ -1,0 +1,20 @@
+### decls:
+a : bool
+b : bool
+
+### sequent:
+|- (if a then 5 else 0) == (if a then [5] else [0])[0]
+
+### result:
+prove
+
+### translation:
+const _a : bool;
+
+axiom $Is(_a, TBool);
+
+procedure Sequent()
+  ensures false;
+{
+  assume !(((if _a then 5 else 0) == Seq#Index((if _a then Seq#Build(Seq#Empty(), 5) else Seq#Build(Seq#Empty(), 0)), 0)));
+}

@@ -113,12 +113,5 @@ public interface ProofRule {
      * @throws RuleException
      */
     public String getTranscript(ProofRuleApplication pra) throws RuleException;
-
-    /**
-     *
-     * Describes whether this rule may be applied exhaustively or not
-     *
-     * @return is this rule exhaustively applicable
-     */
-    public boolean mayBeExhaustive();
 }
+

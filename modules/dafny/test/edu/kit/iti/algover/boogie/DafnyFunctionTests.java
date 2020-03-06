@@ -13,11 +13,12 @@ import java.net.MalformedURLException;
 import java.util.List;
 
 @RunWith(ParallelParameterized.class)
-public class SeqSoundnessTest extends BoogieProcessTest {
+public class DafnyFunctionTests extends BoogieProcessTest {
 
     @Parameters(name = "{1}")
     public static List<Object[]> parameters() throws Exception {
-        return parametersFor("schwarz/seq/soundness/");
+        return parametersFor("dafnyFunctions/");
     }
+
 
 }

@@ -1,0 +1,50 @@
+### project:
+
+function f(x: int) : int
+  decreases x, 0
+{
+  if x > 0 then g(x-1) * x else 1
+}
+
+function g(x: int) : int
+  decreases x, 1
+{
+  f(x) + h(x)
+}
+
+function h(x : int) : int
+{
+  0
+}
+
+### sequent:
+
+|- $$g($heap, 1) == 1
+
+### result:
+irrelevant
+
+### comment: prove
+
+### translation:
+const _$heap : Heap;
+function f_$$f(Heap, int) : int;
+function f_$$g$limited(Heap, int) : int;
+function f_$$g(Heap, int) : int;
+function f_$$h(Heap, int) : int;
+
+axiom (forall v0: Heap :: (forall v1: int ::  $Is(f_$$g(v0, v1), TInt) ));
+axiom $Is(_$heap, THeap);
+axiom (forall v0: Heap :: (forall v1: int ::  $Is(f_$$f(v0, v1), TInt) ));
+axiom (forall v0: Heap :: (forall v1: int ::  $Is(f_$$h(v0, v1), TInt) ));
+axiom (forall var_x:int, var_heap:Heap :: {f_$$g(var_heap, var_x)} (f_$$g(var_heap, var_x) == (f_$$f(_$heap, var_x) + f_$$h(_$heap, var_x))));
+axiom (forall v0: Heap :: (forall v1: int ::  $Is(f_$$g$limited(v0, v1), TInt) ));
+axiom (forall var_x:int, var_heap:Heap :: {f_$$f(var_heap, var_x)} (f_$$f(var_heap, var_x) == (if (var_x > 0) then (f_$$g$limited(_$heap, (var_x - 1)) * var_x) else 1)));
+axiom (forall var_x:int, var_heap:Heap :: {f_$$h(var_heap, var_x)} (f_$$h(var_heap, var_x) == 0));
+axiom (forall var_v1:int, var_v0:Heap :: {f_$$g(var_v0, var_v1)} (f_$$g(var_v0, var_v1) == f_$$g$limited(var_v0, var_v1)));
+
+procedure Sequent()
+  ensures false;
+{
+  assume !((f_$$g(_$heap, 1) == 1));
+}

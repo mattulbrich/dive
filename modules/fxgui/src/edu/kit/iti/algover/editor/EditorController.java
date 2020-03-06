@@ -54,6 +54,7 @@ import java.util.logging.Logger;
  */
 public class EditorController implements DafnyCodeAreaListener, ReferenceHighlightingHandler {
     KeyCombination saveShortcut = new KeyCodeCombination(KeyCode.S, KeyCombination.CONTROL_DOWN);
+    KeyCombination formatShortcut = new KeyCodeCombination(KeyCode.F, KeyCombination.SHIFT_DOWN, KeyCombination.CONTROL_DOWN);
     KeyCombination saveAllShortcut = new KeyCodeCombination(KeyCode.S, KeyCombination.CONTROL_DOWN, KeyCombination.SHIFT_DOWN);
 
     private static final int PVC_LAYER = 0;
@@ -102,6 +103,8 @@ public class EditorController implements DafnyCodeAreaListener, ReferenceHighlig
             saveAllFiles();
         } else if (saveShortcut.match(keyEvent)) {
             saveSelectedFile();
+        } else if (formatShortcut.match(keyEvent)) {
+            getFocusedCodeArea().autoformat(null);
         }
     }
 

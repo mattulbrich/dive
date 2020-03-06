@@ -3,7 +3,6 @@ class C { var f : int; }
 
 ### decls:
 o : C
-C$$f : field<C, int>
 
 ### sequent:
 |- o.f == 0
