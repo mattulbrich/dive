@@ -10,17 +10,33 @@ import javafx.beans.property.DoubleProperty;
 
 import javafx.beans.value.ObservableValue;
 import javafx.collections.ObservableList;
+import javafx.geometry.Insets;
 import javafx.scene.Node;
 import javafx.scene.control.SplitPane;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
+import javafx.scene.layout.VBox;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+/**
+ * Created by Valentin on 03.03.2020
+ * This is an encapsulation for a SplitPane. The main goal is to implement a SplitPane
+ * that spans over a multiple of the application window width. It holds a certain number
+ * of Nodes. Only two are visible at a time. The MultiViewSplitPane (MVSP) can be shifted to the
+ * left and to the right to show any two nodes. When moving a Divider, all others are
+ * moved automatically to preserve the condition, that exactly two nodes ared displayed
+ * in the window.
+ * One design decision is to make the MVSP not extendable. If the number of nodes in the
+ * parent view changes a new MVSP must be instantiated.
+ */
 class MultiViewSplitPane extends Pane {
 
+    // SplitPane that holds the displayed items
     private final SplitPane splitPane;
+    // Size of MVSP relative to parent.
     private final int windowSizeMultiple;
     /**
      * every other divider has to remain in a certain global position.
@@ -29,25 +45,32 @@ class MultiViewSplitPane extends Pane {
     // this is dropped, once framePosition property is subscribable
     private final TimelineLayout timelineLayout;
 
-
-    public MultiViewSplitPane(TimelineLayout timelineLayout, Node... nodes) {
+    /**
+     * Create a MVSP with given nodes.
+     * @param timelineLayout ony to obtain current frame position. May be omitted in the future.
+     * @param nodes Nodes to be displayed on a MVSP
+     */
+    public MultiViewSplitPane(TimelineLayout timelineLayout, List<Node> nodes) {
         this.timelineLayout = timelineLayout;
         this.splitPane = new SplitPane();
-        this.getChildren().setAll(splitPane);
+        this.splitPane.getItems().setAll(nodes);
         this.splitPane.prefHeightProperty().bind(this.heightProperty());
-        List<Node> pnodes = new ArrayList<Node>();
-        pnodes.addAll(Arrays.asList(nodes));
         // pad to even number
-        if (pnodes.size() % 2 != 0) {
-            pnodes.add(new Pane());
+        if (nodes.size() % 2 != 0) {
+            nodes.add(new Pane());
         }
-        this.splitPane.getItems().setAll(pnodes);
-        this.windowSizeMultiple = (pnodes.size() / 2);
+        this.windowSizeMultiple = (nodes.size() / 2);
         this.screenDividers = new double[windowSizeMultiple];
         this.splitPane.prefWidthProperty().bind(this.widthProperty().multiply(windowSizeMultiple));
         dividerScreenMultiple();
         dividerAdaptionListeners();
+        configureGUI();
     }
+
+    private void configureGUI() {
+        this.getChildren().add(splitPane);
+    }
+
 
     private void dividerScreenMultiple() {
         ObservableList<SplitPane.Divider> dividers = this.splitPane.getDividers();
@@ -55,15 +78,14 @@ class MultiViewSplitPane extends Pane {
             screenDividers[numdisp] = (numdisp + 1) * (1.0 / windowSizeMultiple);
         }
 
-        dividers.get(0).setPosition(0.2 / windowSizeMultiple);
-        dividers.get(dividers.size() - 1).setPosition(screenDividers[screenDividers.length - 1] + (0.2 / windowSizeMultiple));
-
-        int numdisp = 0;
         for (int i = 1; i < dividers.size(); i+=2) {
-            dividers.get(i).setPosition(screenDividers[numdisp++]);
+            resetDividerPositions(i, i);
         }
     }
 
+    /**
+     * Link divider movement
+     */
     private void dividerAdaptionListeners() {
         ObservableList<SplitPane.Divider> dividers = this.splitPane.getDividers();
         int last = 0;
@@ -86,15 +108,13 @@ class MultiViewSplitPane extends Pane {
                     });
 
         }
-
-        this.widthProperty().addListener(
-                (ObservableValue<? extends Number> observableValue, Number oldValue, Number newValue) -> {
-                    double resizeDelta = newValue.doubleValue() - oldValue.doubleValue();
-                    double viewFactor = timelineLayout.framePositionProperty().get() * 0.5;
-                    splitPane.setTranslateX(splitPane.getTranslateX() - viewFactor * resizeDelta);
-                });
     }
 
+    /**
+     * Move every odd indexed divider to its fixed position.
+     * @param oldPos shift from frame position
+     * @param newPos shift to frame position
+     */
     public void resetDividerPositions(int oldPos, int newPos) {
         if (oldPos % 2 != 1) {
             return;
@@ -109,11 +129,20 @@ class MultiViewSplitPane extends Pane {
         splitPane.setTranslateX(splitPane.getTranslateX() + delta * splitPane.getWidth());
     }
 
+    /**
+     * Set size ratio between two displayed nodes.
+     * @param pos between 0.0 and 1.0. Ration left node to window size
+     */
     public void setDividerPositions(double pos) {
         ObservableList<SplitPane.Divider> dividers = splitPane.getDividers();
         dividers.get(0).setPosition(pos / windowSizeMultiple);
     }
 
+    /**
+     * Get the absolute position of node withe specified index
+     * @param idx Index of Node in MVSP
+     * @return position of Node with index idx. -1 If index out of bounds.
+     */
     public double getPositionOfNode(int idx) {
         if (idx == 0) {
             return 0;
@@ -124,6 +153,10 @@ class MultiViewSplitPane extends Pane {
         return splitPane.getDividerPositions()[idx - 1] * splitPane.getWidth();
     }
 
+    /**
+     * Get property to be altered on shift.
+     * @return translateXProperty of this.splitPane.
+     */
     public final DoubleProperty shiftProperty() {
         return splitPane.translateXProperty();
     }

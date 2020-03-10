@@ -15,9 +15,12 @@ import javafx.beans.value.ObservableValue;
 import javafx.beans.value.WritableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.geometry.Insets;
 import javafx.geometry.Side;
 import javafx.scene.Node;
 import javafx.scene.input.KeyCode;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.Pane;
 import javafx.util.Duration;
 import org.controlsfx.control.HiddenSidesPane;
 
@@ -63,8 +66,7 @@ public class TimelineLayout extends HiddenSidesPane {
 
         ObservableList<Node> nodeList = FXCollections.observableArrayList(nodes);
         this.nodes = new SimpleListProperty<>(nodeList);
-
-        this.viewPane = new MultiViewSplitPane(this, nodes);
+        this.viewPane = new MultiViewSplitPane(this, this.nodes);
 
         this.goLeft = new SideArrowButton(Side.LEFT);
         this.goRight = new SideArrowButton(Side.RIGHT);
@@ -72,6 +74,7 @@ public class TimelineLayout extends HiddenSidesPane {
 
         configureGUI();
         configureActionHandling();
+        resizeBehaviour();
 
         this.updateFrame(0);
     }
@@ -83,6 +86,7 @@ public class TimelineLayout extends HiddenSidesPane {
         this.setContent(viewPane);
         this.setLeft(goLeft);
         this.setRight(goRight);
+        // Animation parameters for HiddenSidesPane.
         this.setAnimationDelay(Duration.ZERO);
         this.setAnimationDuration(Duration.millis(100));
         this.setTriggerDistance(HOVER_AREA);
@@ -102,7 +106,7 @@ public class TimelineLayout extends HiddenSidesPane {
                 viewPane.resetDividerPositions(oldValue.intValue(), newValue.intValue());
                 updateFrame(newValue.intValue());
 
-                double target = viewPane.getPositionOfNode(newValue.intValue());
+                double target = Math.round(viewPane.getPositionOfNode(newValue.intValue()));
                 animate(viewPane.shiftProperty(), -target);
 
                 requestFocus();
@@ -133,6 +137,19 @@ public class TimelineLayout extends HiddenSidesPane {
             }
 
         });
+    }
+
+
+    private void resizeBehaviour() {
+        this.widthProperty().addListener(
+                (ObservableValue<? extends Number> observableValue, Number oldValue, Number newValue) -> {
+                    double resizeDelta = newValue.doubleValue() - oldValue.doubleValue();
+                    double viewFactor = framePosition.get() * 0.5;
+                    double targetX = viewPane.shiftProperty().get() - viewFactor * resizeDelta;
+                    viewPane.shiftProperty().set(targetX);
+                    /*double targetX = getPositionOfNode(timelineLayout.framePositionProperty().get());
+                    splitPane.setTranslateX(-targetX);*/
+                });
     }
 
     /**
@@ -201,7 +218,7 @@ public class TimelineLayout extends HiddenSidesPane {
      * Start JavaFX Timeline animation
      * @param parameter parameter that should be altered and interpolated for animation.
      * @param target target value for parameter.
-     * @param <T> Type
+     * @param <T> Parameter musst be a WritableValue
      */
     private <T> void animate(WritableValue<T> parameter, T target) {
         KeyValue xkeyvalue = new KeyValue(parameter, target, Interpolator.EASE_BOTH);
