@@ -31,6 +31,11 @@ import java.util.stream.Collectors;
 public class LetSubstitutionRule extends FocusProofRule {
 
     @Override
+    public boolean mayBeExhaustive() {
+        return true;
+    }
+
+    @Override
     public String getName() {
         return "substitute";
     }

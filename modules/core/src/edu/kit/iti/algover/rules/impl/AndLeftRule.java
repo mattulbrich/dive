@@ -23,6 +23,11 @@ import edu.kit.iti.algover.util.RuleUtil;
 public class AndLeftRule extends DefaultFocusProofRule {
 
     @Override
+    public boolean mayBeExhaustive() {
+        return true;
+    }
+
+    @Override
     public String getName() {
         return "andLeft";
     }

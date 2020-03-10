@@ -19,6 +19,8 @@ public interface RuleApplicationListener {
 
     void onRuleApplication(ProofRuleApplication application);
 
+    void onRuleExApplication(ProofRule rule, TermSelector ts);
+
     void onResetRuleApplicationPreview();
 
     void onSwitchViewedNode(ProofNodeSelector selector);

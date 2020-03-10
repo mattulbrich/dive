@@ -102,6 +102,26 @@ public interface ProofRule {
      * @return a valid transcript for the given proofRuleApplication
      * @throws RuleException
      */
-    public String getTranscript(ProofRuleApplication pra) throws RuleException;
-}
+    public String getTranscript(@NonNull ProofRuleApplication pra) throws RuleException;
 
+    /**
+     *
+     * Describes whether this rule may be applied exhaustively or not
+     *
+     * @return is this rule exhaustively applicable
+     */
+    public boolean mayBeExhaustive();
+
+    /**
+     * Get the parameter named "on" registered for this proof rule. null if no
+     * such parameter is registered.
+     *
+     * @return the parameter called on, or null if none registered
+     */
+    @SuppressWarnings( "unchecked" )
+    public default @Nullable ParameterDescription<TermParameter> getOnParameter() {
+        ParameterDescription<?> onParam = getAllParameters().get("on");
+        assert onParam == null || onParam.getType() == ParameterType.MATCH_TERM;
+        return (ParameterDescription<TermParameter>) onParam;
+    }
+}

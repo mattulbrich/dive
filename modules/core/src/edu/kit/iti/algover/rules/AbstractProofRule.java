@@ -88,7 +88,7 @@ abstract class AbstractProofRule implements ProofRule {
             ParameterDescription<?> t = en.getKey();
 
             if (t == null) {
-                throw new RuleException("Unknown parameter '" + en + "'");
+                throw new RuleException("Unknown parameter '" + en.getKey() + "'");
             }
 
             Object value = en.getValue();
@@ -103,7 +103,7 @@ abstract class AbstractProofRule implements ProofRule {
     }
 
     /**
-     * Same as {@link #makeApplication(ProofNode, Parameters)}
+     * Same as {@link #considerApplication(ProofNode, Sequent, TermSelector)}
      * but for GUI convenience with different parameters.
      *
      * @param target    the proof node onto whose sequent the rule is to be
@@ -112,7 +112,7 @@ abstract class AbstractProofRule implements ProofRule {
      *                  UI-selected top formulas.
      * @param selector  if a subformula has been selected, it is this selector
      *                  that represents it.
-     * @return a rule Application resulting from the given target given the selector as on parameter
+     * @return
      * @throws RuleException
      */
     public abstract ProofRuleApplication considerApplication(ProofNode target, Sequent selection, TermSelector selector) throws RuleException;
@@ -157,8 +157,9 @@ abstract class AbstractProofRule implements ProofRule {
      *
      * @param pra the proofRuleApplication
      * @return a valid transcript for the given proofRuleApplication
+     * @throws RuleException
      */
-    public String getTranscript(ProofRuleApplication pra) {
+    public String getTranscript(ProofRuleApplication pra) throws RuleException {
         PrettyPrint prettyPrint = new PrettyPrint();
         Parameters params = pra.getParameters();
 
@@ -180,7 +181,7 @@ abstract class AbstractProofRule implements ProofRule {
         if(pra.getBranchCount() > 1) {
             sb.append("\ncases {\n");
             for(BranchInfo bi : pra.getBranchInfo()) {
-                sb.append("\tcase match \"").append(bi.getLabel()).append("\": \n\n");
+                sb.append("\tcase match \"" + bi.getLabel() + "\": \n\n");
             }
             sb.append("}\n");
         }
@@ -201,5 +202,9 @@ abstract class AbstractProofRule implements ProofRule {
     @Override
     public Map<String, ParameterDescription<?>> getAllParameters() {
         return allParameters;
+    }
+
+    public boolean mayBeExhaustive() {
+        return false;
     }
 }

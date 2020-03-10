@@ -27,6 +27,11 @@ public class AndRightRule extends DefaultFocusProofRule {
     public static final String RULE_NAME = "andRight";
 
     @Override
+    public boolean mayBeExhaustive() {
+        return true;
+    }
+
+    @Override
     public String getName() {
         return RULE_NAME;
     }
@@ -64,6 +69,8 @@ public class AndRightRule extends DefaultFocusProofRule {
         if(((ApplTerm)on).getFunctionSymbol() != BuiltinSymbols.AND) {
             throw NotApplicableException.onlyOperator(this, "&&");
         }
+
+        int no = selector.getTermNo();
 
         builder.newBranch()
                 .addReplacement(selector, on.getTerm(0))
