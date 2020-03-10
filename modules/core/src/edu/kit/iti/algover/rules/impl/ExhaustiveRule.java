@@ -53,7 +53,7 @@ public class ExhaustiveRule extends FocusProofRule {
             throw new NotApplicableException("Only rules with 1 Parameter are exhaustively applicable.");
         }
 
-        TermSelector onSelector = parameters.getValue(ON_PARAM).getTermSelector();
+        TermSelector onSelector = parameters.getValue(ON_PARAM_REQ).getTermSelector();
 
         ProofRuleApplication res = applyRuleExhaustive(rule, target, onSelector);
 

@@ -60,7 +60,7 @@ public class QuantifierInstatiationTest {
         ProofNode pn = ProofMockUtil.mockProofNode(null, s);
         QuantifierInstantiation rule = new QuantifierInstantiation();
         Parameters params = new Parameters();
-        params.putValue(ProofRule.ON_PARAM, new TermParameter(new TermSelector("A.0"), s));
+        params.putValue(rule.getOnParameter(), new TermParameter(new TermSelector("A.0"), s));
         params.putValue(QuantifierInstantiation.WITH_PARAM, new TermParameter(new ApplTerm(new FunctionSymbol("0", Sort.INT)), null));
         ProofRuleApplication pra = rule.makeApplication(pn, params);
         List<ProofNode> newNodes = RuleApplicator.applyRule(pra, pn);
@@ -76,7 +76,7 @@ public class QuantifierInstatiationTest {
         ProofNode pn = ProofMockUtil.mockProofNode(null, s);
         QuantifierInstantiation rule = new QuantifierInstantiation();
         Parameters params = new Parameters();
-        params.putValue(ProofRule.ON_PARAM, new TermParameter(new TermSelector("A.0"), s));
+        params.putValue(rule.getOnParameter(), new TermParameter(new TermSelector("A.0"), s));
         params.putValue(QuantifierInstantiation.WITH_PARAM, new TermParameter(new ApplTerm(new FunctionSymbol("0", Sort.INT)), null));
         ProofRuleApplication pra = rule.makeApplication(pn, params);
         List<ProofNode> newNodes = RuleApplicator.applyRule(pra, pn);
@@ -92,7 +92,7 @@ public class QuantifierInstatiationTest {
         ProofNode pn = ProofMockUtil.mockProofNode(null, s);
         QuantifierInstantiation rule = new QuantifierInstantiation();
         Parameters params = new Parameters();
-        params.putValue(ProofRule.ON_PARAM, new TermParameter(new TermSelector("A.0"), s));
+        params.putValue(rule.getOnParameter(), new TermParameter(new TermSelector("A.0"), s));
         params.putValue(QuantifierInstantiation.WITH_PARAM, new TermParameter(new ApplTerm(new FunctionSymbol("0", Sort.INT)), null));
         ProofRuleApplication pra = rule.makeApplication(pn, params);
         List<ProofNode> newNodes = RuleApplicator.applyRule(pra, pn);
@@ -108,7 +108,7 @@ public class QuantifierInstatiationTest {
         ProofNode pn = ProofMockUtil.mockProofNode(null, s);
         QuantifierInstantiation rule = new QuantifierInstantiation();
         Parameters params = new Parameters();
-        params.putValue(ProofRule.ON_PARAM, new TermParameter(new TermSelector("A.0"), s));
+        params.putValue(rule.getOnParameter(), new TermParameter(new TermSelector("A.0"), s));
         Term rt = tp.parse("i1 + i1 % i3 - i4");
         params.putValue(QuantifierInstantiation.WITH_PARAM, new TermParameter(rt, null));
         ProofRuleApplication pra = rule.makeApplication(pn, params);
@@ -125,7 +125,7 @@ public class QuantifierInstatiationTest {
         ProofNode pn = ProofMockUtil.mockProofNode(null, s);
         QuantifierInstantiation rule = new QuantifierInstantiation();
         Parameters params = new Parameters();
-        params.putValue(ProofRule.ON_PARAM, new TermParameter(new TermSelector("A.0"), s));
+        params.putValue(rule.getOnParameter(), new TermParameter(new TermSelector("A.0"), s));
         tp.setSchemaMode(true);
         Term rt = tp.parse("... (?match:_) == 42 ...");
         params.putValue(QuantifierInstantiation.WITH_PARAM, new TermParameter(rt, s));

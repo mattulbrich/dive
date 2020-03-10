@@ -42,7 +42,7 @@ public class LetSubstitutionRule extends FocusProofRule {
 
     @Override
     public ProofRuleApplication makeApplicationImpl(ProofNode target, Parameters parameters) throws RuleException {
-        TermParameter onParam = parameters.getValue(ON_PARAM);
+        TermParameter onParam = parameters.getValue(ON_PARAM_REQ);
         Term on = onParam.getTerm();
 
         if (!(on instanceof LetTerm)) {

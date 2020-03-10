@@ -43,8 +43,9 @@ public class AndRightRule extends DefaultFocusProofRule {
 
     @Override
     public ProofRuleApplication makeApplicationImpl(ProofNode target, Parameters parameters) throws RuleException {
-        Term on = parameters.getValue(ON_PARAM).getTerm();
-        TermSelector selector = parameters.getValue(ON_PARAM).getTermSelector();
+        Term on = parameters.getValue(ON_PARAM_OPT).getTerm();
+        TermSelector selector = parameters.getValue(ON_PARAM_OPT).getTermSelector();
+        ImmutableList<String> labels = selector.selectTopterm(target.getSequent()).getLabels();
 
         ProofRuleApplicationBuilder builder = new ProofRuleApplicationBuilder(this);
 
@@ -75,10 +76,10 @@ public class AndRightRule extends DefaultFocusProofRule {
 
       /*  builder.newBranch()
                 .addDeletionsSuccedent(target.getSequent().getSuccedent().get(no))
-                .addAdditionsSuccedent(new ProofFormula(on.getTerm(0), labels))
+                .addAdditionsSuccedent(new ProofFormula(on.getTerm(0)))
                 .setLabel("case 1");
 
-             builder.newBranch()
+        builder.newBranch()
                 .addDeletionsSuccedent(target.getSequent().getSuccedent().get(no))
                 .addAdditionsSuccedent(new ProofFormula(on.getTerm(1), labels))
                 .setLabel("case 2");*/

@@ -43,7 +43,7 @@ public class CloseRule extends DefaultFocusProofRule {
     @Override
     public ProofRuleApplication makeApplicationImpl(ProofNode target, Parameters parameters) throws RuleException {
 
-        TermParameter onParam = parameters.getValue(ON_PARAM);
+        TermParameter onParam = parameters.getValue(ON_PARAM_OPT);
         Term on = onParam.getTerm();
         boolean presentInAntecedent = RuleUtil.matchTopLevelInAntedecent(on::equals, target.getSequent()).isPresent();
         boolean presentInSuccedent = RuleUtil.matchTopLevelInSuccedent(on::equals, target.getSequent()).isPresent();

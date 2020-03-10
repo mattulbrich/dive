@@ -82,8 +82,8 @@ public class FunctionDefinitionExpansionRuleTest {
         FunctionDefinitionExpansionRule fder = new FunctionDefinitionExpansionRule();
 
         Parameters params = new Parameters();
-        params.putValue(fder.ON_PARAM, new TermParameter(new TermSelector(SequentPolarity.SUCCEDENT, 0, 0, 0), seq));
-        params.putValue(fder.INLINE_PARAM, false);
+        params.putValue(FocusProofRule.ON_PARAM_REQ, new TermParameter(new TermSelector(SequentPolarity.SUCCEDENT, 0, 0, 0), seq));
+        params.putValue(FunctionDefinitionExpansionRule.INLINE_PARAM, false);
         ProofRuleApplication application = fder.makeApplication(target, params);
 
         assertEquals(Applicability.APPLICABLE, application.getApplicability());
@@ -147,8 +147,8 @@ public class FunctionDefinitionExpansionRuleTest {
         FunctionDefinitionExpansionRule fder = new FunctionDefinitionExpansionRule();
 
         Parameters params = new Parameters();
-        params.putValue(fder.ON_PARAM, new TermParameter(new TermSelector(SequentPolarity.SUCCEDENT, 0, 0, 0), seq));
-        params.putValue(fder.INLINE_PARAM, false);
+        params.putValue(FocusProofRule.ON_PARAM_REQ, new TermParameter(new TermSelector(SequentPolarity.SUCCEDENT, 0, 0, 0), seq));
+        params.putValue(FunctionDefinitionExpansionRule.INLINE_PARAM, false);
         ProofRuleApplication application = fder.makeApplication(target, params);
 
         assertEquals(Applicability.APPLICABLE, application.getApplicability());

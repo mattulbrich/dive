@@ -80,8 +80,8 @@ public class DafnyRule extends FocusProofRule {
     public ProofRuleApplication makeApplicationImpl(ProofNode target, Parameters parameters) throws RuleException {
         ProofRuleApplicationBuilder proofRuleApplicationBuilder = new ProofRuleApplicationBuilder(this);
         try {
-            Term on = parameters.getValue(ON_PARAM).getTerm();
-            TermSelector selector = parameters.getValue(ON_PARAM).getTermSelector();
+            Term on = parameters.getValue(ON_PARAM_REQ).getTerm();
+            TermSelector selector = parameters.getValue(ON_PARAM_REQ).getTermSelector();
 
             ImmutableList<Matching> matchings;
             Term rt;

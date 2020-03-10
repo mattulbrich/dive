@@ -79,10 +79,6 @@ public class RuleViewOverlay extends AnchorPane {
             applyButton.setDisable(this.application.getApplicability() != ProofRuleApplication.Applicability.APPLICABLE);
         });
 
-        for (ParameterDescription<?> pd : application.getOpenParameters()) {
-            System.out.println(pd.getName());
-        }
-
         getChildren().addAll(branchCount, applyButton, refineButton);
         setTopAnchor(branchCount, 0.0);
         setRightAnchor(branchCount, 0.0);
@@ -103,7 +99,8 @@ public class RuleViewOverlay extends AnchorPane {
         }
         if (requiredParams > 0 ||
                 (application.getRule().getAllParameters().size() == 1 &&
-                !application.getRule().getAllParameters().containsValue(FocusProofRule.ON_PARAM))) {
+                        (!application.getRule().getAllParameters().containsValue(FocusProofRule.ON_PARAM_REQ)) &&
+                        !application.getRule().getAllParameters().containsValue(DefaultFocusProofRule.ON_PARAM_OPT))) {
             String on;
             try {
                 PrettyPrint pp = new PrettyPrint();
