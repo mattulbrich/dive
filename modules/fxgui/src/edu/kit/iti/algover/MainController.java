@@ -59,6 +59,8 @@ import java.util.logging.Logger;
 import java.util.prefs.Preferences;
 import java.util.stream.Collectors;
 
+import static javafx.application.Platform.*;
+
 /**
  * Created by philipp on 27.06.17.
  */
@@ -162,9 +164,7 @@ public class MainController implements SequentActionListener, RuleApplicationLis
         closing.getDialogPane().setContent(vBox);
         closing.getDialogPane().setHeaderText("Switching back to Project Chooser");
         closing.setResizable(true);
-        closing.onShownProperty().addListener(e -> {
-            Platform.runLater(() -> closing.setResizable(false));
-        });
+        closing.onShownProperty().addListener(e -> runLater(() -> closing.setResizable(false)));
         Optional<ButtonType> buttonType = closing.showAndWait();
         if(buttonType.get().getButtonData().equals(ButtonBar.ButtonData.OK_DONE)) {
             ((Stage) getView().getScene().getWindow()).close();
@@ -226,9 +226,7 @@ public class MainController implements SequentActionListener, RuleApplicationLis
                     CallVisualizationModel model = new CallVisualizationModel(manager.getProject().getCallgraph(), accept, calls, callsites);
                     CallVisualizationDialog d = new CallVisualizationDialog(model, lookup);
                     d.setResizable(true);
-                    d.onShownProperty().addListener(e -> {
-                        Platform.runLater(() -> d.setResizable(false));
-                    });
+                    d.onShownProperty().addListener(e -> runLater(() -> d.setResizable(false)));
                     Optional<ButtonType> buttonType = d.showAndWait();
                     if(buttonType.get() == ButtonType.CLOSE){
                         editorController.removeReferenceHighlighting();
@@ -266,7 +264,7 @@ public class MainController implements SequentActionListener, RuleApplicationLis
     private void applyTrivialStrategy(Collection<String> pvcNames) {
         Task<Integer> t1 = new Task<Integer>() {
             @Override
-            protected Integer call() throws Exception {
+            protected Integer call() {
                 int prog = 0;
                 int failed = 0;
                 for(String pvcName : pvcNames) {
@@ -288,7 +286,7 @@ public class MainController implements SequentActionListener, RuleApplicationLis
                     updateProgress(prog, pvcNames.size());
                 }
 
-                Platform.runLater(() -> {
+                runLater(() -> {
                     sequentController.getActiveSequentController().tryMovingOnEx(); //SaG: was tryMovingOn()
                     ruleApplicationController.resetConsideration();
                 });
@@ -298,46 +296,38 @@ public class MainController implements SequentActionListener, RuleApplicationLis
         ProgressDialog progressDialog = new ProgressDialog(t1);
         //workaround for KDE systems and GTK based Desktops
         progressDialog.setResizable(true);
-        progressDialog.onShownProperty().addListener(e -> {
-            Platform.runLater(() -> progressDialog.setResizable(false));
-        });
+        progressDialog.onShownProperty().addListener(e -> runLater(() -> progressDialog.setResizable(false)));
 
 
-        t1.setOnSucceeded($ -> {
-            Platform.runLater(() -> {
+        t1.setOnSucceeded($ -> runLater(() -> {
 
-                Alert a = new Alert(Alert.AlertType.INFORMATION);
-                a.setTitle("Applied strategy");
-                a.setHeaderText("Successfully applied strategy and closed "
-                                        + t1.valueProperty().get() + " of " + pvcNames.size() + " PVCs.");
-                //workaround for KDE systems and GTK based Desktops
-                a.setResizable(true);
-                a.onShownProperty().addListener(e -> {
-                    Platform.runLater(() -> a.setResizable(false));
-                });
-                a.showAndWait();
-                Logger.getGlobal().info("Successfully applied strategy and closed "
-                        + t1.valueProperty().get() + " of " + pvcNames.size() + " PVCs.");
+            Alert a = new Alert(Alert.AlertType.INFORMATION);
+            a.setTitle("Applied strategy");
+            a.setHeaderText("Successfully applied strategy and closed "
+                                    + t1.valueProperty().get() + " of " + pvcNames.size() + " PVCs.");
+            //workaround for KDE systems and GTK based Desktops
+            a.setResizable(true);
+            a.onShownProperty().addListener(e -> {
+                runLater(() -> a.setResizable(false));
             });
-        });
-        t1.setOnCancelled($ -> {
-            Platform.runLater(() -> {
-                Logger.getGlobal().severe("Strategy was cancelled.");
-            });
-        });
+            a.showAndWait();
+            Logger.getGlobal().info("Successfully applied strategy and closed "
+                    + t1.valueProperty().get() + " of " + pvcNames.size() + " PVCs.");
+        }));
+        t1.setOnCancelled($ -> runLater(() -> {
+            Logger.getGlobal().severe("Strategy was cancelled.");
+        }));
         progressDialog.setHeaderText("Applying strategy to " + pvcNames.size() + " PVCs. Please wait.");
         progressDialog.setTitle("Applying strategy");
         progressDialog.getDialogPane().getButtonTypes().add(ButtonType.CANCEL);
-        progressDialog.setOnCloseRequest(event -> {
-            t1.cancel();
-        });
+        progressDialog.setOnCloseRequest(event -> t1.cancel());
         new Thread(t1).start();
     }
 
     @SuppressWarnings("unchecked")
     private void onCrumbSelected(ObservableValue<?> observableValue, Object oldValue, Object newValue) {
         TreeItem<Object> item = (TreeItem<Object>) newValue;
-        Platform.runLater(() -> {
+        runLater(() -> {
             if (item.getValue() instanceof PVC) {
                 PVC pvc = (PVC) item.getValue();
                 try {
@@ -530,9 +520,7 @@ public class MainController implements SequentActionListener, RuleApplicationLis
             ed.showAndWait();
         });
 
-        t.setOnCancelled(event -> {
-            Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).severe("Reloading the project cancelled.");
-        });
+        t.setOnCancelled(event -> Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).severe("Reloading the project cancelled."));
 
         executor.execute(t);
     }
@@ -623,7 +611,7 @@ public class MainController implements SequentActionListener, RuleApplicationLis
         List<TreeItem<Object>> methods = files.stream().flatMap(m -> m.getChildren().stream()).
                 collect(Collectors.toList());
         List<TreeItem<Object>> pvcs = methods.stream().flatMap(m -> m.getChildren().stream()).
-                filter(p -> ((PVC) (p.getValue())).equals(pvc)).collect(Collectors.toList());
+                filter(p -> (p.getValue()).equals(pvc)).collect(Collectors.toList());
         if (pvcs.size() == 1) {
             return pvcs.get(0);
         } else {
@@ -677,22 +665,6 @@ public class MainController implements SequentActionListener, RuleApplicationLis
         sequentController.getActiveSequentController().tryMovingOnEx(); //SaG: was tryMovingOn()
         if(sequentController.getActiveSequentController().getActiveProof().getFailException() == null) {
             Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).info("Successfully applied rule " + application.getRule().getName() + ".");
-        }
-    }
-
-    @Override
-    public void onRuleExApplication(ProofRule rule, TermSelector ts) {
-        // This can be implemented as an incremental algorithm in the future here!
-        // Currently, this will reset the script text completely. That means the
-        // script has to be parsed and rebuilt completely.
-        ruleApplicationController.applyExRule(rule, sequentController.getActiveSequentController().getActiveNode(), ts);
-        ruleApplicationController.getRuleGrid().getSelectionModel().clearSelection();
-        String newScript = ruleApplicationController.getScriptView().getText();
-        sequentController.getActiveSequentController().getActiveProof().setScriptTextAndInterpret(newScript);
-        ruleApplicationController.resetConsideration();
-        sequentController.getActiveSequentController().tryMovingOnEx();
-        if(sequentController.getActiveSequentController().getActiveProof().getFailException() == null) {
-            Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).info("Successfully applied rule " + rule.getName() + ".");
         }
     }
 

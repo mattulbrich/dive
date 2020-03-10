@@ -16,7 +16,6 @@ import edu.kit.iti.algover.referenceHighlighting.ReferenceHighlightingObject;
 import edu.kit.iti.algover.rule.script.ScriptController;
 import edu.kit.iti.algover.rule.script.ScriptView;
 import edu.kit.iti.algover.rules.*;
-import edu.kit.iti.algover.rules.impl.ExhaustiveRule;
 import edu.kit.iti.algover.term.Sequent;
 import edu.kit.iti.algover.term.Term;
 import edu.kit.iti.algover.term.prettyprint.PrettyPrint;
@@ -79,21 +78,18 @@ public class RuleApplicationController extends FxmlController implements Referen
 
         this.sortAlpha.setToggleGroup(group);
         this.sortBranching.setToggleGroup(group);
-        this.group.selectedToggleProperty().addListener(new ChangeListener<Toggle>() {
-            @Override
-            public void changed(ObservableValue<? extends Toggle> observable, Toggle oldValue, Toggle newValue) {
-               String selectedButton = ((JFXRadioButton) newValue).getId();
+        this.group.selectedToggleProperty().addListener((ObservableValue<? extends Toggle> observable, Toggle oldValue, Toggle newValue) -> {
+           String selectedButton = ((JFXRadioButton) newValue).getId();
 
-               if(selectedButton.equals("sortAlpha")){
-                   ruleGrid.removeAllComparators();
-                   ruleGrid.addComparator(RuleGridComparator.compareAlphaOrder);
-               }
-               if(selectedButton.equals("sortBranching")){
-                   ruleGrid.removeAllComparators();
-                   ruleGrid.addComparator(RuleGridComparator.compareBranching);
-               }
-            }
-        });       
+           if(selectedButton.equals("sortAlpha")){
+               ruleGrid.removeAllComparators();
+               ruleGrid.addComparator(RuleGridComparator.compareAlphaOrder);
+           }
+           if(selectedButton.equals("sortBranching")){
+               ruleGrid.removeAllComparators();
+               ruleGrid.addComparator(RuleGridComparator.compareBranching);
+           }
+        });
        
 /*        this.sortAlpha.selectedProperty().addListener((observable, oldValue, newValue) -> {
             if(newValue){
@@ -136,9 +132,7 @@ public class RuleApplicationController extends FxmlController implements Referen
         } catch (RuleException e) {
             e.printStackTrace();
         }
-        ruleGrid.getAllRules().forEach(ruleView -> {
-            ruleView.considerApplication(target, selection, selector);
-        });
+        ruleGrid.getAllRules().forEach(ruleView -> ruleView.considerApplication(target, selection, selector));
 
         ruleGrid.filterRules();
 
@@ -172,32 +166,6 @@ public class RuleApplicationController extends FxmlController implements Referen
 
     public ScriptController getScriptController() {
         return scriptController;
-    }
-
-    public void applyExRule(ProofRule rule, ProofNode pn, TermSelector ts) {
-        try {
-            ExhaustiveRule exRule = new ExhaustiveRule();
-            Parameters parameters = new Parameters();
-            parameters.putValue(ExhaustiveRule.RULE_NAME_PARAM, rule.getName());
-            parameters.putValue(ExhaustiveRule.ON_PARAM_REQ, new TermParameter(ts, pn.getSequent()));
-            // MU: I have changed this from considerapplication to makeApplication
-            // This piece of code looks like suboptimal special casing. (see RuleView)
-            ProofRuleApplication pra = exRule.makeApplication(pn, parameters);
-            resetConsideration();
-            scriptController.insertTextForSelectedNode(pra.getScriptTranscript()+"\n");
-            logger.info("Applied rule " + rule.getName() + " exhaustively.");
-        } catch (RuleException e) {
-            e.getMessage().concat("Error while trying to apply rule " + rule.getName() + " exhaustive.");
-
-            ExceptionDialog ed = new ExceptionDialog(e);
-            ed.setResizable(true);
-            ed.onShownProperty().addListener(ev -> {
-                Platform.runLater(() -> ed.setResizable(false));
-            });
-
-            logger.severe("Error while trying to apply rule " + rule.getName() + " exhaustive.");
-            ed.showAndWait();
-        }
     }
 
     public void applyRule(ProofRuleApplication application) {

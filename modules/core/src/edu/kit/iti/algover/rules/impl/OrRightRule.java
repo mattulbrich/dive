@@ -26,11 +26,6 @@ public class OrRightRule extends DefaultFocusProofRule {
     }
 
     @Override
-    public boolean mayBeExhaustive() {
-        return true;
-    }
-
-    @Override
     public String getName() {
         return "orRight";
     }
