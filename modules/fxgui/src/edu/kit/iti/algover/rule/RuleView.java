@@ -16,7 +16,6 @@ import edu.kit.iti.algover.rules.ProofRuleApplicationBuilder;
 import edu.kit.iti.algover.rules.RuleException;
 import edu.kit.iti.algover.rules.TermParameter;
 import edu.kit.iti.algover.rules.TermSelector;
-import edu.kit.iti.algover.rules.impl.ExhaustiveRule;
 import edu.kit.iti.algover.term.Sequent;
 import edu.kit.iti.algover.util.ExceptionDialog;
 import javafx.beans.value.ObservableValue;
@@ -89,17 +88,6 @@ public class RuleView extends StackPane {
     public void considerApplication(ProofNode target, Sequent selection, TermSelector selector) {
         try {
             application = rule.considerApplication(target, selection, selector);
-            if(rule.mayBeExhaustive()) {
-                ExhaustiveRule exhaustiveRule = new ExhaustiveRule();
-                Parameters params = new Parameters();
-                params.putValue(ExhaustiveRule.ON_PARAM_REQ, new TermParameter(selector, selection));
-                params.putValue(ExhaustiveRule.RULE_NAME_PARAM, rule.getName());
-                // MU: I have changed this from considerapplication to makeApplication
-                // This piece of code looks like suboptimal special casing. (see RuleApplicationController)
-                exApplication = exhaustiveRule.makeApplication(target, params);
-            } else {
-                exApplication = ProofRuleApplicationBuilder.notApplicable(rule);
-            }
             this.selection = selector;
             setSelectable(application != null &&
                     (application.getApplicability() == Applicability.APPLICABLE
@@ -122,7 +110,7 @@ public class RuleView extends StackPane {
 
     private void renderApplication() {
         if (application != null) {
-            applicationOverlay = new RuleViewOverlay(application, exApplication, listener, selection);
+            applicationOverlay = new RuleViewOverlay(application, listener, selection);
             getChildren().setAll(applicationOverlay, ruleNameLabel);
         } else {
             resetConsideration();

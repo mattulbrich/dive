@@ -11,7 +11,6 @@ import de.jensd.fx.glyphs.materialdesignicons.MaterialDesignIcon;
 import de.jensd.fx.glyphs.materialicons.MaterialIcon;
 import edu.kit.iti.algover.rules.*;
 import edu.kit.iti.algover.rules.ProofRuleApplication.Applicability;
-import edu.kit.iti.algover.rules.impl.ExhaustiveRule;
 import edu.kit.iti.algover.term.prettyprint.PrettyPrint;
 import edu.kit.iti.algover.util.RuleParameterDialog;
 import javafx.application.Platform;
@@ -33,18 +32,15 @@ public class RuleViewOverlay extends AnchorPane {
     private static final PseudoClass PC_NON_SPLITTING = PseudoClass.getPseudoClass("non-splitting");
 
     private ProofRuleApplication application;
-    private ProofRuleApplication exApplication;
     private TermSelector selector;
 
     private final Label branchCount;
     private final JFXButton applyButton;
     private final JFXButton refineButton;
-    private final JFXButton applyExButton;
     private final RuleApplicationListener listener;
 
-    public RuleViewOverlay(ProofRuleApplication application, ProofRuleApplication exApplication, RuleApplicationListener listener, TermSelector selector) {
+    public RuleViewOverlay(ProofRuleApplication application, RuleApplicationListener listener, TermSelector selector) {
         this.application = application;
-        this.exApplication = exApplication;
         this.selector = selector;
         this.listener = listener;
 
@@ -71,13 +67,6 @@ public class RuleViewOverlay extends AnchorPane {
                 && application.getApplicability() != Applicability.INSTANTIATION_REQUIRED);
         applyButton.setOnAction(this::onRuleApplication);
 
-        applyExButton = new JFXButton("Apply Exh.");
-        applyExButton.getStyleClass().add("applyEx");
-        applyExButton.setDisable(exApplication.getApplicability() != Applicability.APPLICABLE
-                && application.getApplicability() != Applicability.INSTANTIATION_REQUIRED);
-        //TODO use the created exhaustive application instead of creating it again
-        applyExButton.setOnAction(actionEvent -> listener.onRuleExApplication(this.application.getRule(), selector));
-
         refineButton = new JFXButton("Refine");
         refineButton.getStyleClass().add("refine");
         refineButton.setDisable(!application.isRefinable());
@@ -90,19 +79,12 @@ public class RuleViewOverlay extends AnchorPane {
             applyButton.setDisable(this.application.getApplicability() != ProofRuleApplication.Applicability.APPLICABLE);
         });
 
-        for (ParameterDescription<?> pd : application.getOpenParameters()) {
-            System.out.println(pd.getName());
-        }
-
-        getChildren().addAll(branchCount, applyButton, refineButton, applyExButton);
+        getChildren().addAll(branchCount, applyButton, refineButton);
         setTopAnchor(branchCount, 0.0);
         setRightAnchor(branchCount, 0.0);
 
         setBottomAnchor(applyButton, 0.0);
         setLeftAnchor(applyButton, 0.0);
-
-        setTopAnchor(applyExButton, 0.0);
-        setLeftAnchor(applyExButton, 0.0);
 
         setBottomAnchor(refineButton, 0.0);
         setRightAnchor(refineButton, 0.0);
