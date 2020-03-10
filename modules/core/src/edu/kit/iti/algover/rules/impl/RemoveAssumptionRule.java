@@ -16,7 +16,7 @@ public class RemoveAssumptionRule extends FocusProofRule {
 
 
     public RemoveAssumptionRule() {
-        super(ON_PARAM);
+        super(ON_PARAM_REQ);
     }
 
     @Override
@@ -25,7 +25,7 @@ public class RemoveAssumptionRule extends FocusProofRule {
     }
 
     public ProofRuleApplication considerApplicationImpl(ProofNode target, Parameters parameters) throws RuleException {
-        TermSelector selector = parameters.getValue(ON_PARAM).getTermSelector();
+        TermSelector selector = parameters.getValue(ON_PARAM_REQ).getTermSelector();
         ProofRuleApplicationBuilder builder = new ProofRuleApplicationBuilder(this);
 
         if (!selector.isToplevel() || !selector.isAntecedent()) {
@@ -42,9 +42,9 @@ public class RemoveAssumptionRule extends FocusProofRule {
     @Override
     public ProofRuleApplication makeApplicationImpl(ProofNode target, Parameters parameters) throws RuleException {
 
-        TermParameter onParam = parameters.getValue(ON_PARAM);
+        TermParameter onParam = parameters.getValue(ON_PARAM_REQ);
         Term on = onParam.getTerm();
-        TermSelector selector = parameters.getValue(ON_PARAM).getTermSelector();
+        TermSelector selector = parameters.getValue(ON_PARAM_REQ).getTermSelector();
 
         if(!selector.isToplevel()){
             throw NotApplicableException.onlyToplevel(this);

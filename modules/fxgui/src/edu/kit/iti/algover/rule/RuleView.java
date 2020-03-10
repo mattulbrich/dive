@@ -7,6 +7,7 @@ package edu.kit.iti.algover.rule;
 
 import edu.kit.iti.algover.proof.ProofNode;
 import edu.kit.iti.algover.rules.FocusProofRule;
+import edu.kit.iti.algover.rules.ParameterDescription;
 import edu.kit.iti.algover.rules.Parameters;
 import edu.kit.iti.algover.rules.ProofRule;
 import edu.kit.iti.algover.rules.ProofRuleApplication;

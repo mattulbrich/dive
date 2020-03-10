@@ -12,8 +12,14 @@ import edu.kit.iti.algover.term.Sequent;
 
 public abstract class DefaultFocusProofRule extends AbstractProofRule {
 
+    /**
+     * The on-parameter is an optionl parameter in default-focus rules
+     */
+    public static ParameterDescription<TermParameter> ON_PARAM_OPT =
+            new ParameterDescription<>("on", ParameterType.MATCH_TERM, false);
+
     public DefaultFocusProofRule(ParameterDescription<?>... parameters) {
-        super(ON_PARAM, parameters);
+        super(ON_PARAM_OPT, parameters);
     }
 
     public final ProofRuleApplication considerApplication(ProofNode target, Sequent selection, TermSelector selector) throws RuleException {
@@ -21,7 +27,7 @@ public abstract class DefaultFocusProofRule extends AbstractProofRule {
         try {
             Parameters params = new Parameters();
             if (selection != null) {
-                params.putValue(ON_PARAM, new TermParameter(selector, target.getSequent()));
+                params.putValue(ON_PARAM_OPT, new TermParameter(selector, target.getSequent()));
             }
             ProofRuleApplication result = makeApplication(target, params);
             return result;
@@ -32,9 +38,9 @@ public abstract class DefaultFocusProofRule extends AbstractProofRule {
 
     @Override
     public ProofRuleApplication makeApplication(ProofNode target, Parameters parameters) throws RuleException {
-        if (!parameters.hasValue(ON_PARAM)) {
+        if (!parameters.hasValue(ON_PARAM_OPT)) {
             TermParameter defaultOnParameter = getDefaultOnParameter(target);
-            parameters.putValue(ON_PARAM, defaultOnParameter);
+            parameters.putValue(ON_PARAM_OPT, defaultOnParameter);
         }
 
         return super.makeApplication(target, parameters);
