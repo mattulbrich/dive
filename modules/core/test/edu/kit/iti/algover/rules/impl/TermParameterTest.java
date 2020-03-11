@@ -137,7 +137,7 @@ public class TermParameterTest {
     public void termMatchAsSchemaVar() throws Exception {
         TermParser tp = new TermParser(symbolTable);
         tp.setSchemaMode(true);
-        Sequent schematic = tp.parseSequent("|- ?match < _)");
+        Sequent schematic = tp.parseSequent("|- ?match < _");
         Sequent sequent = tp.parseSequent("i1 < i2 |- i3 < i4");
         TermParameter parameter = new TermParameter(schematic, sequent);
         assertEquals(tp.parse("i3"), parameter.getTerm());

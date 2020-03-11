@@ -5,5 +5,7 @@ a2: array<int>
 ### sequent:
 
 |-
-$ge($plus($len<int>(a1),$len<int>(a2)),3)### result:
+$ge($plus($len<int>(a1),$len<int>(a2)),3)
+
+### result:
 fail

@@ -5,6 +5,6 @@ a: array<int>
 |-
 let $heap := $array_store<int>($heap, a, 0, 0) :: 
 let $heap := $array_store<int>($heap, a, 0, 1) :: 
-$array_select<int>($heap, a, 0) == 1) 
+$array_select<int>($heap, a, 0) == 1
 ### result:
 prove
