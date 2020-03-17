@@ -133,7 +133,9 @@ public class TimelineLayout extends HiddenSidesPane {
         });
     }
 
-
+    /**
+     * Shift the viewPane on resize.
+     */
     private void resizeBehaviour() {
         this.widthProperty().addListener(
                 (ObservableValue<? extends Number> observableValue, Number oldValue, Number newValue) -> {
@@ -141,8 +143,6 @@ public class TimelineLayout extends HiddenSidesPane {
                     double viewFactor = framePosition.get() * 0.5;
                     double targetX = viewPane.shiftProperty().get() - viewFactor * resizeDelta;
                     viewPane.shiftProperty().set(targetX);
-                    /*double targetX = getPositionOfNode(timelineLayout.framePositionProperty().get());
-                    splitPane.setTranslateX(-targetX);*/
                 });
     }
 
