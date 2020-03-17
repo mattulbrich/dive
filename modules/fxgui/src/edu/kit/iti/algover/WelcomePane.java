@@ -440,8 +440,8 @@ public class WelcomePane {
         substage.setWidth(width);
         substage.setHeight(height);
         substage.setTitle("DIVE - " + projectFile);
-        substage.setMinWidth(800);
-        substage.setMinHeight(600);
+        substage.setMinWidth(350);
+        substage.setMinHeight(350);
         substage.show();
     }
 

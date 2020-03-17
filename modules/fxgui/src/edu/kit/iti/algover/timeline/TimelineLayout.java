@@ -15,12 +15,9 @@ import javafx.beans.value.ObservableValue;
 import javafx.beans.value.WritableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import javafx.geometry.Insets;
 import javafx.geometry.Side;
 import javafx.scene.Node;
 import javafx.scene.input.KeyCode;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.Pane;
 import javafx.util.Duration;
 import org.controlsfx.control.HiddenSidesPane;
 
@@ -79,9 +76,6 @@ public class TimelineLayout extends HiddenSidesPane {
         this.updateFrame(0);
     }
 
-    /**
-     * Configure gui.
-     */
     private void configureGUI() {
         this.setContent(viewPane);
         this.setLeft(goLeft);
@@ -216,9 +210,12 @@ public class TimelineLayout extends HiddenSidesPane {
 
     /**
      * Start JavaFX Timeline animation
-     * @param parameter parameter that should be altered and interpolated for animation.
-     * @param target target value for parameter.
-     * @param <T> Parameter musst be a WritableValue
+     * @param parameter
+     *          parameter that should be altered and interpolated for animation.
+     * @param target
+     *          target value for parameter.
+     * @param <T>
+     *          Parameter musst be a WritableValue
      */
     private <T> void animate(WritableValue<T> parameter, T target) {
         KeyValue xkeyvalue = new KeyValue(parameter, target, Interpolator.EASE_BOTH);

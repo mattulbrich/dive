@@ -10,15 +10,10 @@ import javafx.beans.property.DoubleProperty;
 
 import javafx.beans.value.ObservableValue;
 import javafx.collections.ObservableList;
-import javafx.geometry.Insets;
 import javafx.scene.Node;
 import javafx.scene.control.SplitPane;
-import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
-import javafx.scene.layout.VBox;
 
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -47,8 +42,10 @@ class MultiViewSplitPane extends Pane {
 
     /**
      * Create a MVSP with given nodes.
-     * @param timelineLayout ony to obtain current frame position. May be omitted in the future.
-     * @param nodes Nodes to be displayed on a MVSP
+     * @param timelineLayout
+     *          Only to obtain current frame position. May be omitted in the future.
+     * @param nodes
+     *          Nodes to be displayed on a MVSP
      */
     public MultiViewSplitPane(TimelineLayout timelineLayout, List<Node> nodes) {
         this.timelineLayout = timelineLayout;
@@ -71,7 +68,6 @@ class MultiViewSplitPane extends Pane {
         this.getChildren().add(splitPane);
     }
 
-
     private void dividerScreenMultiple() {
         ObservableList<SplitPane.Divider> dividers = this.splitPane.getDividers();
         for (int numdisp = 0; numdisp < windowSizeMultiple - 1; numdisp++) {
@@ -84,7 +80,7 @@ class MultiViewSplitPane extends Pane {
     }
 
     /**
-     * Link divider movement
+     * Link divider movement.
      */
     private void dividerAdaptionListeners() {
         ObservableList<SplitPane.Divider> dividers = this.splitPane.getDividers();
@@ -112,8 +108,10 @@ class MultiViewSplitPane extends Pane {
 
     /**
      * Move every odd indexed divider to its fixed position.
-     * @param oldPos shift from frame position
-     * @param newPos shift to frame position
+     * @param oldPos
+     *          Shift from frame position
+     * @param newPos
+     *          Shift to frame position
      */
     public void resetDividerPositions(int oldPos, int newPos) {
         if (oldPos % 2 != 1) {
@@ -131,7 +129,8 @@ class MultiViewSplitPane extends Pane {
 
     /**
      * Set size ratio between two displayed nodes.
-     * @param pos between 0.0 and 1.0. Ration left node to window size
+     * @param pos
+     *          Position between 0.0 and 1.0. Ration left node to window size
      */
     public void setDividerPositions(double pos) {
         ObservableList<SplitPane.Divider> dividers = splitPane.getDividers();
@@ -140,7 +139,8 @@ class MultiViewSplitPane extends Pane {
 
     /**
      * Get the absolute position of node withe specified index
-     * @param idx Index of Node in MVSP
+     * @param idx
+     *          Index of Node in MVSP.
      * @return position of Node with index idx. -1 If index out of bounds.
      */
     public double getPositionOfNode(int idx) {
