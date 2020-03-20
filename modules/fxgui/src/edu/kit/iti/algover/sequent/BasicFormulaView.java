@@ -295,6 +295,8 @@ public class BasicFormulaView extends CodeArea {
         // This is a hack, but it seems to be impossible without it...
         Bounds bounds = TextUtil.computeTextBounds(text, getStyleClass(), getStylesheets(), fontsizeProperty.get());
 
+        this.setPrefWidth(bounds.getWidth());
+
         final double safetyPadding = 1.1; // 10%, this is such a hack ... :(
 
         return safetyPadding * (bounds.getHeight()
