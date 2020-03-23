@@ -11,7 +11,7 @@
       onKeyPressed="#handleOnKeyPressed"
             fitToWidth="true"
             fitToHeight="true"
-            fx:id="pane"
+            fx:id="scrollPane"
 >
     <padding><Insets  right="10"></Insets></padding>
     <VBox>
