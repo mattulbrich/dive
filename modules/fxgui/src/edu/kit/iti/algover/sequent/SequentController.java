@@ -68,7 +68,7 @@ public class SequentController extends FxmlController {
     private final SequentActionListener listener;
 
     @FXML
-    private ScrollPane pane;
+    private ScrollPane scrollPane;
 
     @FXML
     private ToggleSwitch formulaLabels;

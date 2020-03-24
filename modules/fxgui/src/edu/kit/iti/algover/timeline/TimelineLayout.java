@@ -14,6 +14,7 @@ import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.beans.value.WritableValue;
 import javafx.collections.FXCollections;
+import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import javafx.geometry.Side;
 import javafx.scene.Node;
@@ -32,8 +33,7 @@ public class TimelineLayout extends HiddenSidesPane {
      */
     private static final double HOVER_AREA = 20;
 
-    /*  List of properties. Some, if not all, of them might be moved to a
-        dedicated class. */
+    // Properties. Some, if not all, of them might be moved to dedicated class.
     /**
      * Holds the items of a TimelineView
      */
@@ -53,6 +53,11 @@ public class TimelineLayout extends HiddenSidesPane {
     private final SideArrowButton goLeft;
     private final SideArrowButton goRight;
 
+    /**
+     * Create TimelineLayout for given nodes.
+     * @param nodes
+     *          JavaFX Nodes. Elements of the TimelineLayout.
+     */
     public TimelineLayout(Node... nodes) {
         if (nodes.length < 2) {
             throw new IllegalArgumentException("Need at least to nodes for a timeline layout");
@@ -62,16 +67,16 @@ public class TimelineLayout extends HiddenSidesPane {
         this.framePosition = new ReadOnlyIntegerWrapper(0);
 
         ObservableList<Node> nodeList = FXCollections.observableArrayList(nodes);
-        this.nodes = new SimpleListProperty<>(nodeList);
-        this.viewPane = new MultiViewSplitPane(this, this.nodes);
+        this.nodes = new SimpleListProperty<Node>(nodeList);
+        this.viewPane = new MultiViewSplitPane(nodes);
 
         this.goLeft = new SideArrowButton(Side.LEFT);
         this.goRight = new SideArrowButton(Side.RIGHT);
         this.numViews.bind(this.nodes.sizeProperty().subtract(1));
 
-        configureGUI();
-        configureActionHandling();
-        resizeBehaviour();
+        this.configureGUI();
+        this.configureActionHandling();
+        this.configureResizeBehaviour();
 
         this.updateFrame(0);
     }
@@ -136,7 +141,7 @@ public class TimelineLayout extends HiddenSidesPane {
     /**
      * Shift the viewPane on resize.
      */
-    private void resizeBehaviour() {
+    private void configureResizeBehaviour() {
         this.widthProperty().addListener(
                 (ObservableValue<? extends Number> observableValue, Number oldValue, Number newValue) -> {
                     double resizeDelta = newValue.doubleValue() - oldValue.doubleValue();
@@ -147,8 +152,9 @@ public class TimelineLayout extends HiddenSidesPane {
     }
 
     /**
-     * Update left and right buttons
-     * @param position new position of the timeline view
+     * Update left and right buttons.
+     * @param position
+     *          New view index
      */
     private void updateFrame(int position) {
         assert 0 <= position && position < numViews.get();
@@ -215,7 +221,7 @@ public class TimelineLayout extends HiddenSidesPane {
      * @param target
      *          target value for parameter.
      * @param <T>
-     *          Parameter musst be a WritableValue
+     *          Parameter must be a WritableValue.
      */
     private <T> void animate(WritableValue<T> parameter, T target) {
         KeyValue xkeyvalue = new KeyValue(parameter, target, Interpolator.EASE_BOTH);
