@@ -5,13 +5,17 @@
  */
 package edu.kit.iti.algover.timeline;
 
+import javafx.beans.binding.DoubleBinding;
 import javafx.beans.property.DoubleProperty;
 
+import javafx.beans.property.SimpleDoubleProperty;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.ObservableList;
 import javafx.scene.Node;
 import javafx.scene.control.SplitPane;
 import javafx.scene.layout.Pane;
+
+import java.util.function.DoubleUnaryOperator;
 
 /**
  * Created by Valentin on 03.03.2020
@@ -36,6 +40,9 @@ public class MultiViewSplitPane extends Pane {
      * @param nodes
      *          Nodes to be displayed on a MVSP
      */
+
+    public DoubleProperty[] positionOfNode;
+
     public MultiViewSplitPane(Node... nodes) {
         this.splitPane = new SplitPane();
         this.splitPane.prefHeightProperty().bind(this.heightProperty());
@@ -47,9 +54,13 @@ public class MultiViewSplitPane extends Pane {
         }
         this.getChildren().setAll(this.splitPane);
 
+        this.positionOfNode = new DoubleProperty[this.splitPane.getItems().size()];
+
         this.windowSizeMultiple = (this.splitPane.getItems().size() / 2);
         this.screenDividers = new double[this.windowSizeMultiple];
         this.splitPane.prefWidthProperty().bind(this.widthProperty().multiply(this.windowSizeMultiple));
+
+        this.bindNodePositions();
 
         // define divider behaviour
         this.dividerScreenMultiple();
@@ -90,6 +101,15 @@ public class MultiViewSplitPane extends Pane {
                     (ObservableValue<? extends Number> observableValue, Number oldValue, Number newValue) -> {
                         dividers.get(boundI - 2).setPosition(newValue.doubleValue() - (1.0 / windowSizeMultiple));
                     });
+        }
+    }
+
+    private void bindNodePositions() {
+        this.positionOfNode[0] = new SimpleDoubleProperty(0);
+
+        for (int i = 1; i < this.positionOfNode.length; i++) {
+            this.positionOfNode[i] = new SimpleDoubleProperty(0);
+            this.positionOfNode[i].bind(splitPane.widthProperty().multiply(splitPane.getDividerPositions()[i - 1]));
         }
     }
 

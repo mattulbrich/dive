@@ -75,7 +75,7 @@ public class TimelineLayout extends HiddenSidesPane {
 
         this.configureGUI();
         this.configureActionHandling();
-        this.configureResizeBehaviour();
+        //this.configureResizeBehaviour();
 
         this.updateFrame(0);
     }
@@ -105,6 +105,7 @@ public class TimelineLayout extends HiddenSidesPane {
                 updateFrame(newValue.intValue());
 
                 double target = Math.round(viewPane.getPositionOfNode(newValue.intValue()));
+                viewPane.shiftProperty().unbind();
                 animate(viewPane.shiftProperty(), -target);
 
                 requestFocus();
@@ -226,6 +227,10 @@ public class TimelineLayout extends HiddenSidesPane {
         KeyValue xkeyvalue = new KeyValue(parameter, target, Interpolator.EASE_BOTH);
         KeyFrame keyframe = new KeyFrame(Duration.millis(300), xkeyvalue);
         Timeline tl = new Timeline(keyframe);
+        tl.setOnFinished(event -> {
+            System.out.println("animation finished");
+            this.viewPane.shiftProperty().bind(this.viewPane.positionOfNode[framePosition.get()].negate());
+        });
         tl.play();
     }
 }
