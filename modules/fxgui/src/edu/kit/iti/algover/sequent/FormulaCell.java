@@ -92,8 +92,6 @@ public class FormulaCell extends BorderPane {
            //VirtualizedScrollPane<BasicFormulaView> sp = new VirtualizedScrollPane<>(formulaView);
            //setCenter(sp);
 
-           this.minWidthProperty().bind(formulaView.prefWidthProperty());
-
            setCenter(formulaView);
            createTooltip();
 
