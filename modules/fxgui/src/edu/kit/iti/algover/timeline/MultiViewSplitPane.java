@@ -5,8 +5,12 @@
  */
 package edu.kit.iti.algover.timeline;
 
-import javafx.beans.property.DoubleProperty;
+import java.util.Map;
+import java.util.HashMap;
+import java.util.List;
+import java.util.LinkedList;
 
+import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.ReadOnlyDoubleProperty;
 import javafx.beans.property.ReadOnlyDoubleWrapper;
 import javafx.beans.value.ChangeListener;
@@ -15,11 +19,6 @@ import javafx.collections.ObservableList;
 import javafx.scene.Node;
 import javafx.scene.control.SplitPane;
 import javafx.scene.layout.Pane;
-
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
 
 /**
  * Created by Valentin on 03.03.2020
@@ -213,8 +212,8 @@ public class MultiViewSplitPane extends Pane {
         linkDividerPositions();
         // if the even indexed dividers are reset
         if (oldPos % 2 == 0) {
-            // A bit hacky. The value is required to change, for listener to be triggered
-            dividers.get(oldPos).setPosition(dividers.get(oldPos).getPosition() + 0.001);
+            // A bit hacky: the value is required to change, for listener to be triggered
+            // Very hacky: not resetting it seems to prevent a repaint bug in FormulaCell.
             dividers.get(oldPos).setPosition(dividers.get(oldPos).getPosition() - 0.001);
         } else { // if the odd indexed, fixed dividers are reset
             double desired = this.screenDividers[oldPos / 2];

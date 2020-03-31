@@ -76,6 +76,9 @@ public class TimelineLayout extends HiddenSidesPane {
 
         this.configureGUI();
         this.configureActionHandling();
+        // Auxiliary method to set up listener on framePosition property.
+        // passed as parameter. May be retrieved from state holding class in the future.
+        this.configureFramePositionChangeListener(this.framePosition);
 
         this.updateFrame(0);
     }
@@ -91,19 +94,28 @@ public class TimelineLayout extends HiddenSidesPane {
     }
 
     /**
-     * Add listeners for reacting to state properties. Set Listeners for user interaction.
+     * Add listener to framePosition property.
+     * If the value of the specified property is changed an animation to the new
+     * frame position must be triggered. The listener has to carefully handle this.
+     * The {@link MultiViewSplitPane#shiftProperty()} is bound to correspont to the
+     * poition of the left node in the new frame position.
+     * @param framePosition
+     *          IntegerProperty holding the frame position.
      */
-    private void configureActionHandling() {
+    private void configureFramePositionChangeListener(IntegerProperty framePosition) {
         framePosition.addListener((observableValue, oldValue, newValue) -> {
+            // frame position set to an invalid value for display
             if (newValue.intValue() < 0 || newValue.intValue() >= numViews.get()) {
                 return;
             }
 
+            // if there is an animation, stop it.
             if (currentAnimation != null) {
                 currentAnimation.stop();
                 currentAnimation = null;
             }
-            viewPane.resetDividerPositions(oldValue.intValue(), oldValue.intValue() - 1);
+
+            viewPane.resetDividerPositions(oldValue.intValue(), newValue.intValue());
 
             currentAnimation = createAnimation(viewPane.shiftProperty(),
                     -viewPane.nodePositionProperty(newValue.intValue()).get());
@@ -117,10 +129,14 @@ public class TimelineLayout extends HiddenSidesPane {
 
             updateFrame(newValue.intValue());
 
-            System.out.println("Dividers linked: " + viewPane.isDividersLinked());
-
             requestFocus();
         });
+    }
+
+    /**
+     * Add listeners for reacting to state properties. Set Listeners for user interaction.
+     */
+    private void configureActionHandling() {
         this.goLeft.setOnAction(actionEvent -> framePosition.set(framePosition.get() - 1));
         this.goRight.setOnAction(actionEvent -> framePosition.set(framePosition.get() + 1));
 
