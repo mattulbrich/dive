@@ -35,13 +35,20 @@ public class MultiViewSplitPane extends Pane {
     // Size of MVSP relative to parent.
     private final int windowSizeMultiple;
     /**
-     * every other divider has to remain in a certain global position.
+     * Every odd indexed divider has to remain in a certain global position.
      */
     private final double[] screenDividers;
 
     private boolean dividersLinked = false;
+
+    /**
+     * mapping for divider position and ChangeListeners.
+     */
     private final Map<SplitPane.Divider, List<ChangeListener<? super Number>>> dividerLinking;
 
+    /**
+     * Array of properties for position of each node.
+     */
     private ReadOnlyDoubleWrapper[] positionOfNode;
 
     /**extends

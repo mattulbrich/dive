@@ -21,7 +21,7 @@ import org.controlsfx.control.HiddenSidesPane;
 
 /**
  * Created by philipp on 10.07.17.
- * updated by Valentin on 03.03.20
+ * updated by Valentin on 03.03.20.
  */
 public class TimelineLayout extends HiddenSidesPane {
 
@@ -97,8 +97,8 @@ public class TimelineLayout extends HiddenSidesPane {
      * Add listener to framePosition property.
      * If the value of the specified property is changed an animation to the new
      * frame position must be triggered. The listener has to carefully handle this.
-     * The {@link MultiViewSplitPane#shiftProperty()} is bound to correspont to the
-     * poition of the left node in the new frame position.
+     * The {@link MultiViewSplitPane#shiftProperty()} is bound to correspond to the
+     * position of the left node in the new frame position.
      * @param framePosition
      *          IntegerProperty holding the frame position.
      */
