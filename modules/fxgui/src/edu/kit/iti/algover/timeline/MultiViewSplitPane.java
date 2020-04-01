@@ -51,6 +51,12 @@ public class MultiViewSplitPane extends Pane {
      */
     private ReadOnlyDoubleWrapper[] positionOfNode;
 
+    /**
+     * Dirty Fix: In {@link MultiViewSplitPane#resetDividerPositions(int, int)} alternate
+     * divider shift direction to avoid repaint Bug in {@link edu.kit.iti.algover.sequent.FormulaCell}.
+     */
+    private int alternateDividerShiftFactor = 1;
+
     /**extends
      * Create a MVSP with given nodes.
      * @param nodes
@@ -68,7 +74,6 @@ public class MultiViewSplitPane extends Pane {
         this.getChildren().setAll(this.splitPane);
 
         this.positionOfNode = new ReadOnlyDoubleWrapper[this.splitPane.getItems().size()];
-
 
         this.windowSizeMultiple = (this.splitPane.getItems().size() / 2);
         this.screenDividers = new double[this.windowSizeMultiple];
@@ -221,7 +226,10 @@ public class MultiViewSplitPane extends Pane {
         if (oldPos % 2 == 0) {
             // A bit hacky: the value is required to change, for listener to be triggered
             // Very hacky: not resetting it seems to prevent a repaint bug in FormulaCell.
-            dividers.get(oldPos).setPosition(dividers.get(oldPos).getPosition() - 0.001);
+            // That is why it is shifted in different directions in each call.
+            dividers.get(oldPos).setPosition(dividers.get(oldPos).getPosition()
+                    +0.0005 * alternateDividerShiftFactor);
+            alternateDividerShiftFactor *= (-1);
         } else { // if the odd indexed, fixed dividers are reset
             double desired = this.screenDividers[oldPos / 2];
             double delta = (dividers.get(oldPos).getPosition() - desired);

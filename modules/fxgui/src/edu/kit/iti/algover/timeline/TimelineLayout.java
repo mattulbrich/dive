@@ -232,5 +232,4 @@ public class TimelineLayout extends HiddenSidesPane {
         framePosition.set(framePosition.get() - 1);
         return true;
     }
-
 }
