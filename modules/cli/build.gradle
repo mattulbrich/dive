@@ -1,20 +1,26 @@
 
 plugins{
  id 'application'
+ id 'com.github.johnrengelman.shadow' version '5.0.0'
 }
+
 dependencies {
  compile project(":core")
+ compile project(":dafny")
  testCompile project(':core').sourceSets.test.output
 }
 
-
 compileTestJava.dependsOn tasks.getByPath(':core:testClasses')
 
+mainClassName = 'edu.kit.iti.algover.cli.Main'
+
 run {
- dependsOn tasks.getByPath(':core:classes')
- mainClassName = 'edu.kit.iti.algover.cli.Main'
- classpath = sourceSets.main.runtimeClasspath
  doFirst {
    println "Running Command line interface with arguments "+ args
  }
+}
+
+// Merging Service Files
+shadowJar {
+ mergeServiceFiles()
 }

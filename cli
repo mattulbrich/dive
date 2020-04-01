@@ -2,8 +2,18 @@
 
 dir=`dirname $0`
 
-# No spaces in file names!
-#cp=`echo "$dir/lib/* $dir/modules/core/bin $dir/modules/cli/bin" | tr ' ' ':'`
-cp="$dir/lib/*:$dir/modules/core/bin:$dir/modules/cli/bin:$dir/modules/dafny/bin"
+if [ "$1" = "-g" ]
+then
+    $dir/gradlew :cli:shadowJar
+fi
 
-java -ea -classpath $cp edu.kit.iti.algover.cli.Main "$@"
+if [ -z "$JAVA" ]
+then
+    JAVA=java
+    if [ -n "$JAVA_HOME" ]
+    then
+        JAVA="$JAVA_HOME/bin/java"
+    fi
+fi
+
+$JAVA -ea -jar "modules/cli/build/libs/DIVE-Application-0.1-SNAPSHOT-all.jar" "$@"
